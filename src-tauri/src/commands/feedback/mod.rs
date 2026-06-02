@@ -120,7 +120,7 @@ fn feedback_page_open_error() -> String {
 }
 
 fn feedback_reveal_error() -> String {
-    "Could not show the saved debug report automatically. Open it from the folder where you saved it."
+    "Could not show the saved support report automatically. Open it from the folder where you saved it."
         .to_string()
 }
 
@@ -394,6 +394,13 @@ mod tests {
         let filename = feedback_suggested_filename(Some("   ".to_string()));
         assert!(filename.starts_with("jobsentinel-feedback-"));
         assert!(filename.ends_with(".txt"));
+    }
+
+    #[test]
+    fn test_feedback_reveal_error_uses_support_report_wording() {
+        let message = feedback_reveal_error();
+        assert!(message.contains("saved support report"));
+        assert!(!message.contains("debug report"));
     }
 
     #[test]

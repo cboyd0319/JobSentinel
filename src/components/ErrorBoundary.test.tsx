@@ -144,7 +144,7 @@ describe("ErrorBoundary", () => {
       expect(screen.getAllByText(/app data stays on this device/i).length).toBeGreaterThan(0);
     });
 
-    it("copies a sanitized debug report from the crash screen", async () => {
+    it("copies a sanitized support report from the crash screen", async () => {
       const user = userEvent.setup();
       mockCopySanitizedDebugReport.mockResolvedValueOnce({
         content: "safe support report",
@@ -166,10 +166,10 @@ describe("ErrorBoundary", () => {
       expect(screen.getByText("Safe support report copied")).toBeInTheDocument();
     });
 
-    it("saves a sanitized debug report from the crash screen", async () => {
+    it("saves a sanitized support report from the crash screen", async () => {
       const user = userEvent.setup();
       mockSaveSanitizedDebugReport.mockResolvedValueOnce({
-        fileName: "jobsentinel-debug-report.txt",
+        fileName: "jobsentinel-support-report.txt",
         revealToken: "feedback-token",
       });
 
@@ -185,7 +185,7 @@ describe("ErrorBoundary", () => {
 
       expect(mockSaveSanitizedDebugReport).toHaveBeenCalledTimes(1);
       expect(
-        screen.getByText("Safe support report saved: jobsentinel-debug-report.txt")
+        screen.getByText("Safe support report saved: jobsentinel-support-report.txt")
       ).toBeInTheDocument();
     });
 

@@ -182,7 +182,7 @@ describe("Settings — loadConfig flow", () => {
     ).toBe(false);
   });
 
-  it("copies a sanitized debug report from settings with one click", async () => {
+  it("copies a sanitized support report from settings with one click", async () => {
     const user = userEvent.setup();
     const copySpy = vi
       .spyOn(feedbackService, "copySanitizedDebugReport")
@@ -207,12 +207,12 @@ describe("Settings — loadConfig flow", () => {
     );
   });
 
-  it("saves a sanitized debug report from settings with one click", async () => {
+  it("saves a sanitized support report from settings with one click", async () => {
     const user = userEvent.setup();
     const saveSpy = vi
       .spyOn(feedbackService, "saveSanitizedDebugReport")
       .mockResolvedValueOnce({
-        fileName: "jobsentinel-debug-report.txt",
+        fileName: "jobsentinel-support-report.txt",
         revealToken: "feedback-token",
       });
     setupHappyPath();
@@ -227,7 +227,7 @@ describe("Settings — loadConfig flow", () => {
     expect(saveSpy).toHaveBeenCalledTimes(1);
     expect(mockToast.success).toHaveBeenCalledWith(
       "Safe support report saved",
-      "Share jobsentinel-debug-report.txt only if you want help."
+      "Share jobsentinel-support-report.txt only if you want help."
     );
   });
 

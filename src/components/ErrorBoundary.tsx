@@ -113,7 +113,7 @@ class ErrorBoundary extends Component<Props, State> {
         debugReportFileName: savedFile?.fileName ?? null,
       });
     } catch (error) {
-      logError('Failed to save debug report from error boundary:', error);
+      logError('Failed to save support report from error boundary:', error);
       this.setState({ debugReportStatus: 'failed' });
     }
   };

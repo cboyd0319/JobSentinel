@@ -238,6 +238,11 @@ test("product copy rejects debug-report roadmap wording", () => {
       "src-tauri/src/core/health/smoke_tests.rs",
       "This source check could not finish. Try again later or attach a safe debug report.\n",
     );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/feedback/mod.rs",
+      "Could not show the saved debug report automatically.\n",
+    );
 
     assert.equal(hasFeedbackLocalReportDrift(root, "README.md"), true);
     assert.equal(hasFeedbackLocalReportDrift(root, "ROADMAP.md"), true);
@@ -274,6 +279,10 @@ test("product copy rejects debug-report roadmap wording", () => {
     );
     assert.equal(
       hasFeedbackLocalReportDrift(root, "src-tauri/src/core/health/smoke_tests.rs"),
+      true,
+    );
+    assert.equal(
+      hasFeedbackLocalReportDrift(root, "src-tauri/src/commands/feedback/mod.rs"),
       true,
     );
   });

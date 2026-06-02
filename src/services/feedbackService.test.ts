@@ -141,7 +141,7 @@ describe("feedbackService", () => {
     });
   });
 
-  it("copies a backend-sanitized debug report for GitHub issues", async () => {
+  it("copies a backend-sanitized support report for GitHub issues", async () => {
     mockInvoke
       .mockResolvedValueOnce("base report from backend")
       .mockResolvedValueOnce("final sanitized report");
@@ -188,13 +188,13 @@ describe("feedbackService", () => {
     });
   });
 
-  it("saves a backend-sanitized debug report for GitHub issue attachments", async () => {
+  it("saves a backend-sanitized support report for GitHub issue attachments", async () => {
     mockInvoke
       .mockResolvedValueOnce("base report from backend")
       .mockResolvedValueOnce("final sanitized report")
-      .mockResolvedValueOnce("jobsentinel-debug-report.txt")
+      .mockResolvedValueOnce("jobsentinel-support-report.txt")
       .mockResolvedValueOnce({
-        fileName: "jobsentinel-debug-report.txt",
+        fileName: "jobsentinel-support-report.txt",
         revealToken: "feedback-token",
       });
 
@@ -221,10 +221,10 @@ describe("feedbackService", () => {
     expect(mockInvoke).toHaveBeenNthCalledWith(3, "get_feedback_filename");
     expect(mockInvoke).toHaveBeenNthCalledWith(4, "save_feedback_file", {
       content: "final sanitized report",
-      suggestedFilename: "jobsentinel-debug-report.txt",
+      suggestedFilename: "jobsentinel-support-report.txt",
     });
     expect(result).toEqual({
-      fileName: "jobsentinel-debug-report.txt",
+      fileName: "jobsentinel-support-report.txt",
       revealToken: "feedback-token",
     });
   });

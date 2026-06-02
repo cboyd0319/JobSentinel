@@ -31,6 +31,10 @@ and record actionable findings in this active-plan surface.
 
 ## Current Posture
 
+- Latest local safe-support-report wording follow-up changes saved-report test
+  fixtures, frontend failure log labels, and backend reveal recovery from
+  debug-report wording to support-report wording, and expands product-copy
+  harness coverage so stale saved debug-report strings fail locally.
 - Latest local zero-technical job-import follow-up changes missing-preview
   warnings from raw missing-field lists to readable details-to-check labels, so
   backend keys such as salary or job-link fields do not leak into the import

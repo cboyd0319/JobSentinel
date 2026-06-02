@@ -14,7 +14,7 @@ vi.mock("../services/feedbackService", () => ({
     errorCount: 1,
   }),
   saveSanitizedDebugReport: vi.fn().mockResolvedValue({
-    fileName: "jobsentinel-debug-report.txt",
+    fileName: "jobsentinel-support-report.txt",
     revealToken: "feedback-token",
   }),
 }));
@@ -192,7 +192,7 @@ describe("ModalErrorBoundary", () => {
 
       expect(saveSanitizedDebugReport).toHaveBeenCalledTimes(1);
       expect(
-        await screen.findByText(/safe support report saved: jobsentinel-debug-report.txt/i)
+        await screen.findByText(/safe support report saved: jobsentinel-support-report.txt/i)
       ).toBeInTheDocument();
     });
 

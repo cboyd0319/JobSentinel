@@ -105,7 +105,7 @@ class PageErrorBoundary extends Component<Props, State> {
         reportFileName: savedFile?.fileName ?? null,
       });
     } catch (error) {
-      logError("Failed to save debug report from page error boundary:", error);
+      logError("Failed to save support report from page error boundary:", error);
       this.setState({ reportStatus: "failed" });
     }
   };

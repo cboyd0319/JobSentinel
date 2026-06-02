@@ -212,7 +212,7 @@ export const ErrorLogPanel = memo(function ErrorLogPanel() {
       await copySanitizedDebugReport(errors);
       setCopyMessage("Safe support report copied");
     } catch (error) {
-      logError("Failed to copy debug report:", error);
+      logError("Failed to copy support report:", error);
       setCopyMessage("Could not copy safe support report");
     } finally {
       setCopyingReport(false);
@@ -231,7 +231,7 @@ export const ErrorLogPanel = memo(function ErrorLogPanel() {
           : "Safe support report save canceled"
       );
     } catch (error) {
-      logError("Failed to save debug report:", error);
+      logError("Failed to save support report:", error);
       setCopyMessage("Could not save safe support report");
     } finally {
       setSavingReport(false);

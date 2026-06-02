@@ -671,7 +671,7 @@ export default function Settings({ onClose }: SettingsProps) {
         toast.info("Safe support report not saved", "No file was created.");
       }
     } catch (error) {
-      logError("Failed to save debug report:", error);
+      logError("Failed to save support report:", error);
       toast.error(
         "Could not save safe support report",
         "Try Copy Safe Support Report instead."

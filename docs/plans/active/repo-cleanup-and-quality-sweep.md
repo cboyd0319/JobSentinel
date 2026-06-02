@@ -171,6 +171,9 @@ boundaries, and harness modularity:
 - Tightened Job Import preview copy so missing details are shown as readable
   details-to-check labels instead of raw backend field names, with focused
   component and product-copy harness coverage against drift.
+- Replaced stale saved debug-report file, reveal, and failure-log wording in
+  support-report paths with support-report wording and added product-copy
+  harness coverage for the backend recovery string.
 - Tightened another zero-technical support and protective-copy slice: public
   issue templates now avoid bug/feature/scraper-first wording, safe support
   report docs require review before sharing, source status avoids
@@ -625,6 +628,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-06-02 | In progress | Replaced stale saved debug-report filename, reveal, and failure-log wording in support-report paths with support-report wording and added product-copy plus Rust coverage against backend reveal recovery drift. |
 | 2026-06-02 | In progress | Reworded Job Import missing-preview warnings from raw missing-field lists to readable details-to-check labels and added focused component plus product-copy coverage against raw `missing_fields.join` display. |
 | 2026-06-02 | In progress | Added docs-drift checks for active-status last-updated lag and stale measured harness-count prose, then rewrote compact status count notes to point at `npm run harness:session -- --json`. |
 | 2026-06-02 | In progress | Reworded Resume Optimizer missing-job-post and empty-bullet validation to action-first copy, enabled empty Draft to show guidance instead of doing nothing, and added focused tests plus product-copy stale phrase checks. |

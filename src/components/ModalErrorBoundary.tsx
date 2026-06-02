@@ -104,7 +104,7 @@ class ModalErrorBoundary extends Component<Props, State> {
       await copySanitizedDebugReport(errorReporter.getErrors());
       this.setState({ debugReportStatus: 'copied' });
     } catch (error) {
-      logError('Failed to copy debug report from modal boundary:', error);
+      logError('Failed to copy support report from modal boundary:', error);
       this.setState({ debugReportStatus: 'failed' });
     }
   };
@@ -119,7 +119,7 @@ class ModalErrorBoundary extends Component<Props, State> {
         debugReportFileName: savedFile?.fileName ?? null,
       });
     } catch (error) {
-      logError('Failed to save debug report from modal boundary:', error);
+      logError('Failed to save support report from modal boundary:', error);
       this.setState({ debugReportStatus: 'failed' });
     }
   };

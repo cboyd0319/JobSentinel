@@ -177,10 +177,10 @@ describe("PageErrorBoundary", () => {
       expect(screen.getByRole("button", { name: /try again/i })).toBeInTheDocument();
     });
 
-    it("saves a sanitized debug report from the page error screen", async () => {
+    it("saves a sanitized support report from the page error screen", async () => {
       const user = userEvent.setup();
       mockSaveSanitizedDebugReport.mockResolvedValueOnce({
-        fileName: "jobsentinel-debug-report.txt",
+        fileName: "jobsentinel-support-report.txt",
         revealToken: "feedback-token",
       });
 
@@ -196,7 +196,7 @@ describe("PageErrorBoundary", () => {
 
       expect(mockSaveSanitizedDebugReport).toHaveBeenCalledTimes(1);
       expect(
-        screen.getByText("Safe support report saved: jobsentinel-debug-report.txt")
+        screen.getByText("Safe support report saved: jobsentinel-support-report.txt")
       ).toBeInTheDocument();
     });
 

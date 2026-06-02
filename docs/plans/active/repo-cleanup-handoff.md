@@ -1004,6 +1004,16 @@ Latest zero-technical Job Import slice checks on 2026-06-02:
 - `npm run lint:docs`
 - `git diff --check`
 
+Latest safe-support-report wording slice checks on 2026-06-02:
+
+- `node --test scripts/check-product-copy.test.mjs`
+- focused support-report frontend tests
+- `cargo test --manifest-path src-tauri/Cargo.toml commands::feedback::tests::test_feedback_reveal_error_uses_support_report_wording`
+- `npm run lint:bloat`
+- `npm run lint:docs`
+- `cargo fmt --manifest-path src-tauri/Cargo.toml --all -- --check`
+- `git diff --check`
+
 Latest harness benchmark slice checks on 2026-06-01:
 
 - `node --check scripts/harness-benchmark.mjs`

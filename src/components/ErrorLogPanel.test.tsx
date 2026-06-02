@@ -386,7 +386,7 @@ describe("ErrorLogPanel", () => {
       const user = userEvent.setup();
       const errors = [createMockError({ id: "error-123" })];
       mockSaveSanitizedDebugReport.mockResolvedValueOnce({
-        fileName: "jobsentinel-debug-report.txt",
+        fileName: "jobsentinel-support-report.txt",
         revealToken: "feedback-token",
       });
       mockUseErrorReporting.mockReturnValue({
@@ -400,7 +400,7 @@ describe("ErrorLogPanel", () => {
 
       expect(mockSaveSanitizedDebugReport).toHaveBeenCalledWith(errors);
       expect(
-        await screen.findByText("Safe support report saved: jobsentinel-debug-report.txt")
+        await screen.findByText("Safe support report saved: jobsentinel-support-report.txt")
       ).toBeInTheDocument();
     });
 
