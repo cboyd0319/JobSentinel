@@ -49,7 +49,7 @@ export const SuccessScreen = memo(function SuccessScreen({
             </div>
 
             <p className="text-xs">
-              The issue page keeps replies and updates in one place.
+              The GitHub page keeps replies and updates in one place.
             </p>
           </div>
 
@@ -68,7 +68,7 @@ export const SuccessScreen = memo(function SuccessScreen({
 
           <div className="space-y-3 text-sm text-surface-600 dark:text-surface-400">
             <p>
-              Your feedback report has been saved:
+              Your safe support report was saved:
             </p>
 
             <div className="bg-surface-50 dark:bg-surface-900 rounded-lg p-3 border border-surface-200 dark:border-surface-700">

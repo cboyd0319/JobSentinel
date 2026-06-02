@@ -177,6 +177,10 @@ boundaries, and harness modularity:
   are re-sanitized at export time. Added Vitest coverage for private job-search
   details in detailed local report output and a privacy sensor against raw
   `errors: this.errors` export drift.
+- Changed feedback submit and success screens so optional GitHub sharing uses
+  online-help wording instead of maintainer/issue-page wording, while the local
+  safe support report path stays primary. Added product-copy guards against the
+  old phrases.
 - Changed the optional connected-source contact history label from
   `Source host` to `Website contacted`, updated Settings coverage, and added a
   product-copy guard against raw source metadata labels returning.

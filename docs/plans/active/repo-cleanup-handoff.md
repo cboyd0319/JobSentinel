@@ -159,6 +159,10 @@ Current cleanup posture:
   JSON export re-sanitize stored records, adds regression coverage for private
   job-search details in detailed local report output, and adds a privacy sensor
   against raw `errors: this.errors` export drift.
+- Current local feedback-flow copy follow-up changes optional GitHub sharing
+  from maintainer/issue wording to online-help wording, keeps the no-account
+  safe support report path primary, and adds product-copy coverage against the
+  old support-option phrases.
 - Current local connected-source wording follow-up changes the Settings contact
   history label from `Source host` to `Website contacted`, with focused
   Settings and product-copy coverage against raw source metadata labels

@@ -920,7 +920,12 @@ test("product copy rejects technical-first settings copy", () => {
     writeFixtureFile(
       root,
       "src/components/feedback/SubmitOptions.tsx",
-      "Optional maintainer issue\n",
+      "Optional maintainer issue\nSend to maintainers (optional)\nOpen GitHub (Optional)\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/components/feedback/SuccessScreen.tsx",
+      "Your feedback report has been saved:\nThe issue page keeps replies and updates in one place.\n",
     );
     writeFixtureFile(
       root,

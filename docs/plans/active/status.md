@@ -68,7 +68,7 @@ actionable findings in this active-plan surface or the relevant plan.
   and adds product-copy coverage. Verification passed: focused ErrorLogPanel
   Vitest passed 34 tests, `node --test scripts/check-product-copy.test.mjs`
   passed 32 tests, and `npm run lint:bloat` passed.
-- Current local detailed-report privacy slice makes frontend error-report JSON
+- Committed detailed-report privacy slice makes frontend error-report JSON
   export re-sanitize stored records before writing, adds a regression test for
   private job-search details in detailed local report output, and adds a privacy
   sensor against raw `errors: this.errors` export drift. Focused verification
@@ -77,6 +77,13 @@ actionable findings in this active-plan surface or the relevant plan.
   run lint:bloat`, `npm run harness:check`, `npm run lint:docs`, `npm run
   test:scripts` passed 455 script tests, `npm run lint`, and `git diff --check`
   passed.
+- Current local feedback-flow copy slice changes optional GitHub sharing from
+  maintainer/issue wording to online-help wording, keeps the local safe support
+  report path primary, and adds product-copy guards against the old phrases.
+  Focused verification passed: feedback SubmitOptions and SuccessScreen Vitest
+  passed 5 tests, `node --test scripts/check-product-copy.test.mjs` passed 32
+  tests, `npm run lint:bloat`, `npm run test:scripts` passed 455 script tests,
+  `npm run lint:docs`, `npm run lint`, and `git diff --check` passed.
 - No remote CI or push should run unless the user explicitly asks in the current
   turn.
 
@@ -96,6 +103,8 @@ Scope:
   support-request gating in instructions, not labels.
 - Detailed local report JSON export must re-sanitize records at export time, not
   rely only on earlier capture/storage sanitization.
+- Feedback submit and success screens must keep the no-account safe support
+  report path primary and avoid maintainer/issue-page jargon in visible copy.
 - Product-copy sensors must reject recurring old phrases.
 
 Verification completed for this slice:
@@ -110,6 +119,7 @@ node --test scripts/check-product-copy.test.mjs
 npx vitest run src/pages/Settings.test.tsx src/components/ErrorLogPanel.test.tsx
 npx vitest run src/components/ErrorLogPanel.test.tsx
 npx vitest run src/utils/errorReporting.test.ts
+npx vitest run src/components/feedback/SubmitOptions.test.tsx src/components/feedback/SuccessScreen.test.tsx
 node --test scripts/check-privacy-logging.test.mjs
 git diff --check
 ```

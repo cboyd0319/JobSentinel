@@ -68,11 +68,11 @@ export const SubmitOptions = memo(function SubmitOptions({
       {/* Optional maintainer feedback path */}
       <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-4 space-y-3">
         <h3 className="font-semibold text-surface-800 dark:text-surface-200">
-          Send to maintainers (optional)
+          Ask for help online (optional)
         </h3>
 
         <p className="text-sm text-surface-600 dark:text-surface-400">
-          Use this only if you want to send the report to the maintainers.
+          Use this only if you want to send the report to the JobSentinel project.
           JobSentinel copies the safe support report so you can paste it before
           submitting.
         </p>
@@ -85,7 +85,7 @@ export const SubmitOptions = memo(function SubmitOptions({
           className="w-full"
           icon={<GitHubIcon />}
         >
-          Open GitHub (Optional)
+          Open GitHub Help Page
         </Button>
 
         <p className="text-xs text-surface-500 dark:text-surface-400 text-center">

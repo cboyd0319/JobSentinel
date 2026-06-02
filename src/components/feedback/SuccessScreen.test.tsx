@@ -42,8 +42,9 @@ describe("SuccessScreen", () => {
       screen.getByText(/paste the safe support report if it is not already included/i)
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/keeps replies and updates in one place/i)
+      screen.getByText(/github page keeps replies and updates in one place/i)
     ).toBeInTheDocument();
+    expect(screen.queryByText(/issue page/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/ready to submit/i)).not.toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: /done/i }));
@@ -56,6 +57,7 @@ describe("SuccessScreen", () => {
       renderSuccessScreen("local");
 
     expect(screen.getByRole("heading", { name: /safe support report saved/i })).toBeInTheDocument();
+    expect(screen.getByText(/your safe support report was saved/i)).toBeInTheDocument();
     expect(screen.getByText(savedFeedbackFile.fileName)).toBeInTheDocument();
     expect(screen.getByText(/show the saved file/i)).toBeInTheDocument();
     expect(screen.getByText(/share it only if you want help/i)).toBeInTheDocument();
