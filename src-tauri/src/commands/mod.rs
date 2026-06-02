@@ -104,6 +104,7 @@ pub use resume::{
     get_match_result,
     get_recent_matches,
     get_resume_draft,
+    get_resume_text_preview,
     get_user_skills,
     // Import commands
     import_json_resume,

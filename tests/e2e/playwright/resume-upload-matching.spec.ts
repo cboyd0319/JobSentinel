@@ -7,6 +7,7 @@ interface SeedResume {
   id: number;
   name: string;
   file_path: string;
+  parsed_text: string | null;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -49,6 +50,12 @@ const activeResume: SeedResume = {
   id: 101,
   name: "community-program-resume.pdf",
   file_path: "/tmp/community-program-resume.pdf",
+  parsed_text: [
+    "Community program coordinator",
+    "Community outreach",
+    "Client intake",
+    "Spreadsheet reporting",
+  ].join("\n"),
   is_active: true,
   created_at: "2026-05-18T16:00:00.000Z",
   updated_at: "2026-05-18T16:00:00.000Z",
@@ -58,6 +65,7 @@ const archivedResume: SeedResume = {
   id: 202,
   name: "marketing-resume.pdf",
   file_path: "/tmp/marketing-resume.pdf",
+  parsed_text: "Lifecycle marketing\nCampaign reporting",
   is_active: false,
   created_at: "2026-05-17T16:00:00.000Z",
   updated_at: "2026-05-17T16:00:00.000Z",
@@ -159,7 +167,7 @@ test.describe("Resume Upload and Matching", () => {
     await expect(resumePage.emptyState).toBeVisible();
     await expect(resumePage.uploadResumeButton).toBeVisible();
     await expect(resumePage.importJsonButton).toBeVisible();
-    await expect(page.getByText("Upload your resume to review skills")).toBeVisible();
+    await expect(page.getByText("Add your resume to review skills")).toBeVisible();
   });
 
   test("renders active resume, extracted skills, and recent matches @smoke", async ({ page }) => {
@@ -169,6 +177,11 @@ test.describe("Resume Upload and Matching", () => {
 
     await expect(resumePage.activeResumeHeading).toBeVisible();
     await expect(page.getByText(activeResume.name)).toBeVisible();
+    const readableTextDialog = await resumePage.openReadableTextPreview();
+    await expect(readableTextDialog).toContainText("Community program coordinator");
+    await expect(readableTextDialog).not.toContainText("/tmp/community-program-resume.pdf");
+    await readableTextDialog.getByRole("button", { name: "Close", exact: true }).click();
+    await expect(readableTextDialog).toBeHidden();
     await expect(page.getByText("Saved Skills (3)")).toBeVisible();
     await expect(page.getByText("Community Outreach", { exact: true }).first()).toBeVisible();
     await expect(page.getByText("Client Intake", { exact: true }).first()).toBeVisible();

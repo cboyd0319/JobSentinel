@@ -21,11 +21,11 @@ export class ResumePage extends BasePage {
   }
 
   get emptyState(): Locator {
-    return this.page.getByRole("heading", { name: "No Resume Uploaded" });
+    return this.page.getByRole("heading", { name: "No Resume Added" });
   }
 
   get uploadResumeButton(): Locator {
-    return this.page.getByRole("button", { name: /Upload Resume/i }).first();
+    return this.page.getByRole("button", { name: /Add Resume/i }).first();
   }
 
   get importJsonButton(): Locator {
@@ -46,6 +46,10 @@ export class ResumePage extends BasePage {
 
   get libraryButton(): Locator {
     return this.page.getByRole("button", { name: /Library \(/ });
+  }
+
+  get readableTextPreviewButton(): Locator {
+    return this.page.getByRole("button", { name: "See what JobSentinel read" });
   }
 
   get categoryFilter(): Locator {
@@ -140,5 +144,12 @@ export class ResumePage extends BasePage {
     await dialog.getByRole("button", { name: "Delete" }).click();
     await expect(dialog).toBeHidden();
     await this.waitForReady();
+  }
+
+  async openReadableTextPreview() {
+    await this.readableTextPreviewButton.click();
+    const dialog = this.page.getByRole("dialog", { name: "Readable Resume Text" });
+    await expect(dialog).toBeVisible();
+    return dialog;
   }
 }

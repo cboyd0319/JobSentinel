@@ -15,6 +15,7 @@ It is a local, advisory signal for readability, fit, and preparation.
 | Workflow | Label | Default behavior |
 | --- | --- | --- |
 | Resume add and parsing | Local only, Sensitive | Resume text and file details stay local. |
+| Readable text preview | Local only, Sensitive | The user can explicitly open and copy a bounded preview of text JobSentinel read from the selected resume. |
 | Resume library | Local only, Sensitive | Resume versions stay on this device. |
 | Skill review and edits | Local only, Sensitive | User edits stay local. |
 | Resume/job fit review | Local only, Sensitive | Resume data is compared with saved job data locally. |
@@ -25,7 +26,8 @@ External AI is not required for resume matching.
 
 ## What It Helps With
 
-- **Resume readability**: Confirm the app can read the resume text.
+- **Resume readability**: Confirm and copy the text JobSentinel can read from
+  the selected resume.
 - **Fit review**: Compare resume skills, experience, and education with a job
   posting.
 - **Truthful tailoring**: See which real experience might be worth making more
@@ -45,11 +47,13 @@ External AI is not required for resume matching.
 
 1. Open **Resumes**.
 2. Choose a saved resume or add a PDF resume.
-3. Use **Import from resume app** only if another resume app gave you export
+3. Choose **See what JobSentinel read** if you want to inspect the readable
+   resume text before using match results.
+4. Use **Import from resume app** only if another resume app gave you export
    text.
-4. Review suggested skills and add anything important that was missed.
-5. Open job details from the dashboard to see recent resume fit reviews.
-6. Use skills found in both places and skills to review as evidence for a
+5. Review suggested skills and add anything important that was missed.
+6. Open job details from the dashboard to see recent resume fit reviews.
+7. Use skills found in both places and skills to review as evidence for a
    decision:
    tailor carefully, save for later, ask a question, or skip.
 
@@ -91,6 +95,8 @@ employer screening systems.
 The current local matcher:
 
 - extracts readable text from PDF resumes;
+- provides an explicit local preview of readable resume text without returning
+  the saved file path;
 - identifies skills across broad career categories;
 - compares resume evidence with saved job-posting text;
 - returns fit, experience, education, matched-skill, and missing-skill

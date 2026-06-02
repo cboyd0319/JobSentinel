@@ -47,6 +47,28 @@ Recent local verification evidence:
   contract and bloat fixture tests passed 230 repo-bloat tests plus the
   frontend-contract fixture tests, `npm run lint:bloat`, and `npm run
   test:scripts` passed 505 tests.
+- Current local resume preview follow-up adds explicit local readable-text
+  preview and copy support on the Resume Match page. The backend returns a
+  bounded `get_resume_text_preview` payload only after the user asks for it,
+  normal resume summaries still omit saved file paths and parsed text, dev
+  mocks implement the same minimized preview shape, and docs plus privacy-label
+  manifest now describe the local-only behavior. Red tests first failed for
+  missing backend DTO, missing UI action, missing mock command, and missing copy
+  button. Verification then passed: `cargo test --lib resume_text_preview
+  --manifest-path src-tauri/Cargo.toml` passed 2 focused tests, `cargo test
+  --lib resume --manifest-path src-tauri/Cargo.toml` passed 182 resume tests,
+  `npx vitest run src/pages/Resume.test.tsx src/mocks/handlers.test.ts`
+  passed 25 tests, `npm run test:run` passed 2637 tests, `npm run
+  test:scripts` passed 507 tests, targeted Playwright resume smoke
+  `node scripts/run-playwright.mjs test
+  tests/e2e/playwright/resume-upload-matching.spec.ts --project=chromium
+  --grep @smoke` passed 1 test after updating stale Resume page-object labels
+  and adding preview-modal coverage, `npm run test:e2e:smoke:budget` passed
+  10 tests in 7.96 seconds, `npm run lint -- --quiet`, `npm run build`,
+  `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, `npm
+  run lint:tauri-invokes`, `npm run lint:docs`, `npm run lint:bloat`, `npm
+  run lint:security`, `cargo fmt --all --manifest-path
+  src-tauri/Cargo.toml -- --check`, and `git diff --check` passed.
 - Current local no-Apple-account macOS proof passed on current `main`:
   `npm run doctor` reported the environment ready with one known Node 26 local
   warning, `cargo test --lib platforms::macos` passed 22 tests with 1 ignored,

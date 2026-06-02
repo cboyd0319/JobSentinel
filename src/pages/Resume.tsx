@@ -76,6 +76,15 @@ interface ResumeData {
   updated_at: string;
 }
 
+interface ResumeTextPreview {
+  resume_id: number;
+  name: string;
+  has_text: boolean;
+  text_preview: string;
+  text_chars: number;
+  is_truncated: boolean;
+}
+
 interface UserSkill {
   id: number;
   resume_id: number;
@@ -213,6 +222,9 @@ export default function Resume({ onBack }: ResumeProps) {
   const [editingSkillId, setEditingSkillId] = useState<number | null>(null);
   const [showAddSkill, setShowAddSkill] = useState(false);
   const [showResumeLibrary, setShowResumeLibrary] = useState(false);
+  const [showTextPreview, setShowTextPreview] = useState(false);
+  const [textPreview, setTextPreview] = useState<ResumeTextPreview | null>(null);
+  const [textPreviewLoading, setTextPreviewLoading] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<{
     type: 'resume' | 'skill';
@@ -365,6 +377,48 @@ export default function Resume({ onBack }: ResumeProps) {
 
   const confirmDeleteResume = (r: ResumeData) => {
     setDeleteConfirm({ type: 'resume', id: r.id, name: r.name });
+  };
+
+  const handlePreviewResumeText = async () => {
+    if (!resume) {
+      return;
+    }
+
+    try {
+      setTextPreviewLoading(true);
+      const preview = await safeInvoke<ResumeTextPreview>(
+        "get_resume_text_preview",
+        { resumeId: resume.id },
+        { logContext: "Preview resume text" },
+      );
+      setTextPreview(preview);
+      setShowTextPreview(true);
+    } catch (error: unknown) {
+      const safeError = getSafeErrorToastCopy(error, {
+        fallbackTitle: "Could not show resume text",
+      });
+      toast.error(safeError.title, safeError.message);
+    } finally {
+      setTextPreviewLoading(false);
+    }
+  };
+
+  const handleCopyResumeText = async () => {
+    if (!textPreview?.text_preview) {
+      return;
+    }
+
+    if (!navigator.clipboard?.writeText) {
+      toast.error("Could not copy text", "Select the text and copy it manually.");
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(textPreview.text_preview);
+      toast.success("Text copied", "Readable resume text copied to your clipboard.");
+    } catch {
+      toast.error("Could not copy text", "Select the text and copy it manually.");
+    }
   };
 
   const handleUpdateSkill = async (skillId: number) => {
@@ -612,6 +666,16 @@ export default function Resume({ onBack }: ResumeProps) {
                   </p>
                 </div>
               </div>
+              <Button
+                variant="secondary"
+                size="sm"
+                className="w-full mb-4"
+                onClick={handlePreviewResumeText}
+                loading={textPreviewLoading}
+                loadingText="Reading..."
+              >
+                See what JobSentinel read
+              </Button>
 
               <div className="mb-4">
                 <div className="flex items-center justify-between mb-2">
@@ -1152,6 +1216,43 @@ export default function Resume({ onBack }: ResumeProps) {
           </div>
         )}
       </main>
+
+      <Modal
+        isOpen={showTextPreview}
+        onClose={() => setShowTextPreview(false)}
+        title="Readable Resume Text"
+        description="This preview stays local and shows the text JobSentinel can use for resume review."
+        size="xl"
+      >
+        {textPreview?.has_text ? (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-sm text-surface-600 dark:text-surface-400">
+                {textPreview.is_truncated
+                  ? `Showing the first ${textPreview.text_preview.length.toLocaleString()} of ${textPreview.text_chars.toLocaleString()} characters.`
+                  : `${textPreview.text_chars.toLocaleString()} characters found.`}
+              </p>
+            </div>
+            <pre className="max-h-[60vh] overflow-auto whitespace-pre-wrap rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-900 p-4 text-sm leading-6 text-surface-800 dark:text-surface-100">
+              {textPreview.text_preview}
+            </pre>
+          </div>
+        ) : (
+          <p className="text-surface-600 dark:text-surface-400">
+            No readable text found. Try adding a different PDF or use a resume app export.
+          </p>
+        )}
+        <ModalFooter>
+          {textPreview?.has_text && (
+            <Button onClick={handleCopyResumeText}>
+              Copy text
+            </Button>
+          )}
+          <Button variant="secondary" onClick={() => setShowTextPreview(false)}>
+            Close
+          </Button>
+        </ModalFooter>
+      </Modal>
 
       {/* Delete Confirmation Modal */}
       <Modal

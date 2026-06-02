@@ -29,6 +29,11 @@ narrow implementation slices chosen from that backlog.
   backlog. Treat this as screening-system transparency and application
   readability: local parse preview, readable exports, required/preferred
   qualification review, truthful fit evidence, and user-confirmed edits.
+- Latest local resume preview slice adds an explicit **See what JobSentinel
+  read** action on the Resume Match page. It fetches a bounded local-only
+  readable-text preview, omits saved file paths from the preview and normal
+  resume summaries, and lets users copy the readable text after opening the
+  preview.
 - Latest local resume-assistance slice preserves job-post importance for
   missing resume words and groups the Resume Match review by required,
   preferred, and other role language. Users now see which missing words deserve

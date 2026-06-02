@@ -116,12 +116,22 @@ interface MockResumeData {
   id: number;
   name: string;
   file_path: string;
+  parsed_text: string | null;
   is_active: boolean;
   created_at: string;
   updated_at: string;
 }
 
-type MockResumeSummary = Omit<MockResumeData, "file_path">;
+type MockResumeSummary = Omit<MockResumeData, "file_path" | "parsed_text">;
+
+interface MockResumeTextPreview {
+  resume_id: number;
+  name: string;
+  has_text: boolean;
+  text_preview: string;
+  text_chars: number;
+  is_truncated: boolean;
+}
 
 interface MockUserSkill {
   id: number;
@@ -2876,6 +2886,24 @@ function toMockResumeSummary(resume: MockResumeData): MockResumeSummary {
   };
 }
 
+const MAX_MOCK_RESUME_TEXT_PREVIEW_CHARS = 6000;
+
+function toMockResumeTextPreview(resume: MockResumeData): MockResumeTextPreview {
+  const readableText = (resume.parsed_text ?? "").trim();
+  const textPreview = Array.from(readableText)
+    .slice(0, MAX_MOCK_RESUME_TEXT_PREVIEW_CHARS)
+    .join("");
+
+  return {
+    resume_id: resume.id,
+    name: resume.name,
+    has_text: readableText.length > 0,
+    text_preview: textPreview,
+    text_chars: Array.from(readableText).length,
+    is_truncated: Array.from(readableText).length > Array.from(textPreview).length,
+  };
+}
+
 function getNextId(items: Array<{ id: number }>): number {
   return items.reduce((max, item) => Math.max(max, item.id), 0) + 1;
 }
@@ -3005,10 +3033,17 @@ function createMockResume(name: string, filePath: string): number {
   const now = new Date().toISOString();
   const id = getNextId(resumes);
   resumes = resumes.map((resume) => ({ ...resume, is_active: false }));
+  const parsedText = [
+    name,
+    "Care coordinator supporting intake, scheduling, and case management.",
+    "Skills: patient scheduling, community outreach, documentation.",
+  ].join("\n");
+
   resumes.push({
     id,
     name,
     file_path: filePath,
+    parsed_text: parsedText,
     is_active: true,
     created_at: now,
     updated_at: now,
@@ -3514,6 +3549,15 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
 
     case "list_all_resumes":
       return resumes.map(toMockResumeSummary) as T;
+
+    case "get_resume_text_preview": {
+      const resumeId = getResumeIdArg(args);
+      const selectedResume = resumes.find((resume) => resume.id === resumeId);
+      if (!selectedResume) {
+        throw new Error("Resume not found");
+      }
+      return toMockResumeTextPreview(selectedResume) as T;
+    }
 
     case "set_active_resume": {
       const resumeId = getResumeIdArg(args);

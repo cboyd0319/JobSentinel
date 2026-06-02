@@ -115,6 +115,9 @@ specific job post.
 **Job-Post Language** - Which important role terms and evidence are clear in
 your resume, and which ones need truthful support.
 
+**Readable resume text** - Resume Match can show and copy what JobSentinel read
+from a selected resume before you rely on match results.
+
 **Words to review** - Missing job-post language is grouped by required,
 preferred, and other role language so users can review must-have evidence
 before nice-to-have wording.

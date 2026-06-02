@@ -44,6 +44,15 @@ type MockMatchResult = {
   education_match_score: number | null;
 };
 
+type ResumeTextPreview = {
+  resume_id: number;
+  name: string;
+  has_text: boolean;
+  text_preview: string;
+  text_chars: number;
+  is_truncated: boolean;
+};
+
 type JobImportPreview = {
   title: string;
   company: string;
@@ -768,6 +777,24 @@ describe("mock Tauri handlers", () => {
     expect(match.skills_match_score).toBeLessThanOrEqual(1);
     expect(match.experience_match_score).toBeGreaterThanOrEqual(0);
     expect(match.experience_match_score).toBeLessThanOrEqual(1);
+  });
+
+  it("returns a mock readable resume preview without path details", async () => {
+    const resumeId = await mockInvoke<number>("select_and_upload_resume");
+    const summary = await mockInvoke<Record<string, unknown>>("get_active_resume");
+    const preview = await mockInvoke<ResumeTextPreview>("get_resume_text_preview", { resumeId });
+
+    expect(preview).toMatchObject({
+      resume_id: resumeId,
+      name: "Mock Resume",
+      has_text: true,
+      is_truncated: false,
+    });
+    expect(preview.text_preview).toContain("Mock Resume");
+    expect(preview.text_chars).toBe(preview.text_preview.length);
+    expect(JSON.stringify(summary)).not.toContain("app-owned://");
+    expect(JSON.stringify(preview)).not.toContain("app-owned://");
+    expect(JSON.stringify(preview)).not.toContain("file_path");
   });
 
   it("handles runtime frontend command names in dev mocks", async () => {

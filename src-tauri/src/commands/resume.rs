@@ -23,6 +23,7 @@ use uuid::Uuid;
 
 const MAX_JSON_RESUME_IMPORT_BYTES: u64 = 5 * 1024 * 1024;
 const MANAGED_RESUME_UPLOAD_DIR: &str = "resume-uploads";
+const MAX_RESUME_TEXT_PREVIEW_CHARS: usize = 6_000;
 
 #[derive(Debug, Clone, Serialize)]
 pub struct ResumeSummary {
@@ -41,6 +42,37 @@ impl From<Resume> for ResumeSummary {
             is_active: resume.is_active,
             created_at: resume.created_at,
             updated_at: resume.updated_at,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct ResumeTextPreview {
+    pub resume_id: i64,
+    pub name: String,
+    pub has_text: bool,
+    pub text_preview: String,
+    pub text_chars: usize,
+    pub is_truncated: bool,
+}
+
+impl From<Resume> for ResumeTextPreview {
+    fn from(resume: Resume) -> Self {
+        let text = resume.parsed_text.unwrap_or_default();
+        let readable_text = text.trim();
+        let text_chars = readable_text.chars().count();
+        let text_preview = readable_text
+            .chars()
+            .take(MAX_RESUME_TEXT_PREVIEW_CHARS)
+            .collect::<String>();
+
+        Self {
+            resume_id: resume.id,
+            name: resume.name,
+            has_text: !readable_text.is_empty(),
+            is_truncated: text_chars > text_preview.chars().count(),
+            text_preview,
+            text_chars,
         }
     }
 }
@@ -221,6 +253,22 @@ pub async fn get_active_resume(
         .await
         .map(|resume| resume.map(ResumeSummary::from))
         .map_err(|e| user_friendly_error("Failed to get resume", e))
+}
+
+/// Get an explicit local preview of readable resume text without file paths.
+#[tauri::command]
+pub async fn get_resume_text_preview(
+    resume_id: i64,
+    state: State<'_, AppState>,
+) -> Result<ResumeTextPreview, String> {
+    tracing::info!(resume_id, "Command: get_resume_text_preview");
+
+    let matcher = ResumeMatcher::new(state.database.pool().clone());
+    matcher
+        .get_resume(resume_id)
+        .await
+        .map(ResumeTextPreview::from)
+        .map_err(|e| user_friendly_error("Failed to get resume text preview", e))
 }
 
 /// Set active resume
@@ -769,6 +817,54 @@ mod tests {
         assert!(!serialized.contains("/Users/alice"));
         assert!(!serialized.contains("parsed_text"));
         assert!(!serialized.contains("secret resume body"));
+    }
+
+    #[test]
+    fn resume_text_preview_serialization_omits_file_path() {
+        let now = Utc::now();
+        let resume = Resume {
+            id: 42,
+            name: "Private Resume.pdf".to_string(),
+            file_path: "/Users/alice/Documents/private-company-resume.pdf".to_string(),
+            parsed_text: Some("Care coordinator\nScheduling\nCase management".to_string()),
+            is_active: true,
+            created_at: now,
+            updated_at: now,
+        };
+
+        let preview = ResumeTextPreview::from(resume);
+        let serialized = serde_json::to_string(&preview).unwrap();
+
+        assert!(serialized.contains("\"resume_id\":42"));
+        assert!(serialized.contains("Care coordinator"));
+        assert!(!serialized.contains("file_path"));
+        assert!(!serialized.contains("/Users/alice"));
+        assert!(!serialized.contains("parsed_text"));
+    }
+
+    #[test]
+    fn resume_text_preview_is_bounded_and_reports_truncation() {
+        let now = Utc::now();
+        let long_text = "Care ".repeat(MAX_RESUME_TEXT_PREVIEW_CHARS);
+        let resume = Resume {
+            id: 42,
+            name: "Long Resume.pdf".to_string(),
+            file_path: "/Users/alice/Documents/long-resume.pdf".to_string(),
+            parsed_text: Some(long_text),
+            is_active: true,
+            created_at: now,
+            updated_at: now,
+        };
+
+        let preview = ResumeTextPreview::from(resume);
+
+        assert_eq!(
+            preview.text_preview.chars().count(),
+            MAX_RESUME_TEXT_PREVIEW_CHARS
+        );
+        assert!(preview.text_chars > preview.text_preview.chars().count());
+        assert!(preview.is_truncated);
+        assert!(preview.has_text);
     }
 
     #[test]

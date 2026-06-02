@@ -168,6 +168,109 @@ describe("Resume page", () => {
     expect(screen.queryByText("NaN%")).not.toBeInTheDocument();
   });
 
+  it("shows a local readable-text preview without exposing a resume path", async () => {
+    const user = userEvent.setup();
+
+    mockSafeInvoke.mockImplementation((command: string) => {
+      switch (command) {
+        case "get_active_resume":
+          return Promise.resolve({
+            id: 1,
+            name: "Care Coordinator Resume",
+            is_active: true,
+            created_at: "2026-05-21T12:00:00Z",
+            updated_at: "2026-05-21T12:00:00Z",
+          });
+        case "list_all_resumes":
+        case "get_user_skills":
+        case "get_recent_matches":
+          return Promise.resolve([]);
+        case "get_resume_text_preview":
+          return Promise.resolve({
+            resume_id: 1,
+            name: "Care Coordinator Resume",
+            has_text: true,
+            text_preview: "Care coordinator\nPatient scheduling\nCase management",
+            text_chars: 52,
+            is_truncated: false,
+          });
+        default:
+          return Promise.resolve(null);
+      }
+    });
+
+    render(<Resume onBack={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Care Coordinator Resume")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole("button", { name: "See what JobSentinel read" }));
+
+    expect(mockSafeInvoke).toHaveBeenCalledWith(
+      "get_resume_text_preview",
+      { resumeId: 1 },
+      { logContext: "Preview resume text" },
+    );
+    expect(await screen.findByText("Readable Resume Text")).toBeInTheDocument();
+    expect(screen.getByText(/Patient scheduling/)).toBeInTheDocument();
+    expect(screen.queryByText(/\/Users\/alice/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/file_path/)).not.toBeInTheDocument();
+  });
+
+  it("copies the readable resume text after the user opens the preview", async () => {
+    const user = userEvent.setup();
+    const writeText = vi.fn().mockResolvedValue(undefined);
+
+    Object.defineProperty(navigator, "clipboard", {
+      value: { writeText },
+      configurable: true,
+    });
+
+    mockSafeInvoke.mockImplementation((command: string) => {
+      switch (command) {
+        case "get_active_resume":
+          return Promise.resolve({
+            id: 1,
+            name: "Care Coordinator Resume",
+            is_active: true,
+            created_at: "2026-05-21T12:00:00Z",
+            updated_at: "2026-05-21T12:00:00Z",
+          });
+        case "list_all_resumes":
+        case "get_user_skills":
+        case "get_recent_matches":
+          return Promise.resolve([]);
+        case "get_resume_text_preview":
+          return Promise.resolve({
+            resume_id: 1,
+            name: "Care Coordinator Resume",
+            has_text: true,
+            text_preview: "Care coordinator\nPatient scheduling",
+            text_chars: 35,
+            is_truncated: false,
+          });
+        default:
+          return Promise.resolve(null);
+      }
+    });
+
+    render(<Resume onBack={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Care Coordinator Resume")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole("button", { name: "See what JobSentinel read" }));
+    await user.click(await screen.findByRole("button", { name: "Copy text" }));
+
+    expect(writeText).toHaveBeenCalledWith("Care coordinator\nPatient scheduling");
+    expect(mockToast.success).toHaveBeenCalledWith(
+      "Text copied",
+      "Readable resume text copied to your clipboard.",
+    );
+  });
+
   it("labels saved skill source instead of showing raw confidence percentages", async () => {
     mockSafeInvoke.mockImplementation((command: string) => {
       switch (command) {
