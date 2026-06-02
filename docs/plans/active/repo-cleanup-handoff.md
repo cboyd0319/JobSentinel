@@ -195,6 +195,15 @@ Recent remote integration evidence:
   feature doc, and `git diff --check`. Broader verification passed:
   `npm run lint:bloat`, `npm run lint:docs`, `npm run test:scripts`,
   `npm run lint`, and `git diff --check`.
+- Current local Resume Builder doc attachment-wording cleanup changes upload
+  preview and ready-to-upload phrasing to application-preview and attach
+  wording. Product-copy sensors now reject the old Resume Builder doc phrases.
+  Focused verification passed: `node --test
+  scripts/check-product-copy.test.mjs`, `npm run lint:docs`, targeted
+  stale-phrase search found no old wording in the feature doc, and
+  `git diff --check`. Broader verification passed: `npm run lint:bloat`,
+  `npm run lint:docs`, `npm run test:scripts`, `npm run lint`, and
+  `git diff --check`.
 - Current local Application Profile resume-file help cleanup changes the tooltip
   from generic application-review wording to local, user-controlled attachment
   wording. Product-copy sensors now reject the old ProfileForm tooltip. Focused

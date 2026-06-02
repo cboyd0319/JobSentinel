@@ -78,14 +78,14 @@ Choose from 5 readable templates:
 
 All templates are designed for application readability:
 
-- Single column for consistent upload previews
+- Single column for consistent application previews
 - Standard fonts
 - Clear section headers
 - No graphics or icons that distract from the content
 
 ### Step 7: Export
 
-Download your resume as a Word document (.docx), ready to upload to any job application.
+Download your resume as a Word document (.docx), ready to attach to any job application.
 
 ---
 
@@ -170,7 +170,7 @@ JobSentinel suggests 45+ action verbs that can make resume bullets clearer:
 
 3. **Use standard section headers** - "Experience" not "Professional Journey."
 
-4. **Skip the graphics** - Some upload previews and review tools cannot read
+4. **Skip the graphics** - Some application previews and review tools cannot read
    images, logos, or fancy formatting.
 
 5. **Keep it simple** - One column, standard fonts, clear hierarchy.

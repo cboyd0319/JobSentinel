@@ -164,6 +164,11 @@ As of 2026-06-02, the active plan remains open. Latest local work improved
 visible zero-technical UX, broad-audience defaults, privacy/security
 boundaries, and harness modularity:
 
+- Current local Resume Builder doc attachment-wording follow-up changes upload
+  preview and ready-to-upload phrasing to application-preview and attach
+  wording. Product-copy sensors now reject the old Resume Builder doc phrases.
+  Focused product-copy, docs, targeted stale-phrase, and diff-check verification
+  passed. Broader bloat, docs, script, lint, and diff-check verification passed.
 - Current local Smart Scoring doc resume-wording follow-up changes the remaining
   uploaded-resume phrasing to added-resume phrasing in the feature guide.
   Product-copy sensors now reject the old Smart Scoring doc wording. Focused
@@ -935,6 +940,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-06-02 | In progress | Changed Resume Builder feature-doc upload preview and ready-to-upload phrasing to application-preview and attach wording. Product-copy sensors now reject the old Resume Builder doc phrases; focused product-copy, docs, targeted stale-phrase, bloat, docs, script, lint, and diff-check verification passed. |
 | 2026-06-02 | In progress | Changed remaining Smart Scoring feature-doc uploaded-resume phrasing to added-resume phrasing. Product-copy sensors now reject the old Smart Scoring doc wording; focused product-copy, docs, targeted stale-phrase, bloat, docs, script, lint, and diff-check verification passed. |
 | 2026-06-02 | In progress | Changed Application Profile resume-file tooltip from generic application-review wording to local, user-controlled attachment wording. Product-copy sensors now reject the old ProfileForm tooltip; focused ProfileForm, product-copy, targeted stale-phrase, bloat, docs, script, lint, and diff-check verification passed. |
 | 2026-06-02 | In progress | Changed Application Assist manual task copy from resume-upload wording to user-controlled resume-file wording. Product-copy sensors now reject the old Application Preview label; focused ApplicationPreview, product-copy, targeted stale-phrase, bloat, docs, script, lint, and diff-check verification passed. |
