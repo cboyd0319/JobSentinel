@@ -127,7 +127,7 @@ npm run test:e2e:all:budget
 Runs Chromium and WebKit functional E2E tests. `npm run test:e2e:ci` is the
 same full-suite command for CI-oriented runs. Use the budget command when
 checking that the full suite has not drifted back into slow local feedback
-loops.
+loops. The maintained full-suite budget is four minutes.
 
 ### Last Failed Tests
 

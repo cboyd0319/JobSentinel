@@ -60,13 +60,11 @@ test.describe("Job Search and Filtering", () => {
     });
 
     test("should filter jobs by salary range", async () => {
-      const initialCount = await dashboard.getVisibleJobCount();
-
-      await dashboard.applyFilter("salary", "150k+");
+      await dashboard.salaryFilter.fill("150000");
 
       await expect.poll(() => dashboard.getJobCount()).toBeGreaterThan(0);
-      const filteredCount = await dashboard.getJobCount();
-      expect(filteredCount).toBeLessThan(initialCount);
+      const cards = await dashboard.jobCards.allTextContents();
+      expect(cards.every((card) => /\$(?:1[5-9]\d|[2-9]\d{2})k/i.test(card))).toBe(true);
     });
 
     test("should filter jobs by source", async () => {
@@ -93,7 +91,7 @@ test.describe("Job Search and Filtering", () => {
       const initialCount = await dashboard.getVisibleJobCount();
 
       await dashboard.applyFilter("location", "remote");
-      await dashboard.applyFilter("salary", "150k+");
+      await dashboard.salaryFilter.fill("150000");
 
       await expect.poll(() => dashboard.getJobCount()).toBeGreaterThan(0);
       const filteredCount = await dashboard.getJobCount();

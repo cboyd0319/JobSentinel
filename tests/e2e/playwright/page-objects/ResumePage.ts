@@ -87,11 +87,11 @@ export class ResumePage extends BasePage {
     await this.page.getByLabel("Skill name").fill(options.name);
 
     if (options.proficiency) {
-      await this.page.getByLabel("Proficiency level").selectOption(options.proficiency);
+      await this.page.locator("select").nth(1).selectOption(options.proficiency);
     }
 
     if (options.category) {
-      await this.page.getByLabel("Skill category").selectOption(options.category);
+      await this.page.locator("select").nth(2).selectOption(options.category);
     }
 
     if (options.years) {

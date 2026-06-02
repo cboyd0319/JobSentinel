@@ -186,7 +186,7 @@ test.describe("Resume Upload and Matching", () => {
     await resumePage.openAddSkillForm();
     await resumePage.fillSkillForm({
       name: "Grant Reporting",
-      proficiency: "Advanced",
+      proficiency: "Regular use",
       category: "Tools and Systems",
       years: "2",
     });
@@ -210,7 +210,7 @@ test.describe("Resume Upload and Matching", () => {
     await resumePage.openEmptyStateAddSkillForm();
     await resumePage.fillSkillForm({
       name: "Appointment Scheduling",
-      proficiency: "Intermediate",
+      proficiency: "Some practice",
       category: "Operations and Administration",
     });
     await resumePage.saveNewSkill();
@@ -222,7 +222,7 @@ test.describe("Resume Upload and Matching", () => {
     await seedResumeState(page);
 
     await resumePage.navigateTo();
-    await resumePage.editSkill("Spreadsheet Reporting", "Budget Tracking", "Advanced");
+    await resumePage.editSkill("Spreadsheet Reporting", "Budget Tracking", "Regular use");
 
     await expect(page.getByText("Budget Tracking", { exact: true }).first()).toBeVisible();
     await expect(page.getByText("Spreadsheet Reporting", { exact: true })).not.toBeVisible();

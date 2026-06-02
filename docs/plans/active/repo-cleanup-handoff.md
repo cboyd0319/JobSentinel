@@ -72,6 +72,8 @@ Recent remote integration evidence:
   smoke tests in 6.22 seconds against a 30-second budget. The latest local
   follow-up also syncs Settings, Hiring Trends, and Application Assist
   Playwright selectors and report names with current plain-language UI labels.
+  Latest local full-suite budget evidence: 252 Chromium and WebKit tests in
+  123.15 seconds against a tightened 240-second budget.
 - The latest pushed Rule 0 review slice updates `.github/PULL_REQUEST_TEMPLATE.md`
   with privacy/security, local-first, external AI gateway, payload preview,
   responsible-use, safe support report, broad-audience, and

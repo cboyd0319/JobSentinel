@@ -110,11 +110,11 @@ test.describe("Settings Save and Load", () => {
     test("toggles email alerts and validates email fields", async () => {
       await settingsPage.toggleEmailAlerts();
 
-      await expect(settingsPage.dialog.getByText("Email provider details")).toBeVisible();
+      await expect(settingsPage.dialog.getByText("Email sending details")).toBeVisible();
 
       await settingsPage.fromEmailInput.fill("invalid-email");
 
-      await expect(settingsPage.dialog).toContainText("Please enter a valid email address");
+      await expect(settingsPage.dialog).toContainText("Use an email address like user@example.com.");
 
       await settingsPage.fromEmailInput.fill("sender@example.com");
       await settingsPage.toEmailInput.fill("alerts@example.com");

@@ -36,6 +36,11 @@ and record actionable findings in this active-plan surface.
   plain-language UI labels. `npm run doctor:e2e` passes with the known local
   Node 26 versus CI Node 20 warning, and `npm run test:e2e:smoke:budget`
   passes in 6.22 seconds against the 30-second budget.
+- Latest local full-E2E follow-up syncs non-smoke Playwright expectations with
+  current plain-language labels, validation messages, skill-strength options,
+  and keyboard-help behavior. `npm run test:e2e:all:budget` now passes 252
+  Chromium and WebKit tests in 123.15 seconds with a tightened 240-second
+  budget.
 - Latest local settings-tab follow-up changes the Settings tabs from `Basic
   Settings` and `More Settings` to `Search Preferences` and `Sources & Alerts`.
   Dashboard no-source guidance, Quick Start notification setup, notification

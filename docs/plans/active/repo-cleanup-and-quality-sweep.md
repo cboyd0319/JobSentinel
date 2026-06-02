@@ -1501,3 +1501,8 @@ Current progress rows stay here. Older rows are preserved in [progress history](
   Application Assist Playwright selectors and report names with current
   plain-language UI labels. `npm run test:e2e:smoke:budget` now passes locally
   in 6.22 seconds against the 30-second budget.
+- Current local full-E2E follow-up syncs non-smoke Playwright expectations with
+  current plain-language labels, validation messages, skill-strength options,
+  and keyboard-help behavior. `npm run test:e2e:all:budget` now passes 252
+  Chromium and WebKit tests in 123.15 seconds with a tightened 240-second
+  budget.

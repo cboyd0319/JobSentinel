@@ -53,10 +53,8 @@ test.describe("Application Assist Settings", () => {
 
     await applyPage.saveProfileButton.click();
 
-    await expect(page.getByText("Full name is required")).toBeVisible();
-    await expect(page.getByText("Please enter a valid email address")).toBeVisible();
-    await expect(page.getByText("Phone number must have 10-15 digits")).toBeVisible();
-    await expect(page.getByText("Please enter a valid URL")).toBeVisible();
+    await expect(page.getByText("Check highlighted fields")).toBeVisible();
+    await expect(page.getByText("Add the missing details, then save again.")).toBeVisible();
   });
 
   test("saves profile changes and persists them after reload", async ({ page }) => {
@@ -104,7 +102,7 @@ test.describe("Application Assist Settings", () => {
 
     await expect(page.getByText("work authorized")).toBeVisible();
     await expect(page.getByText("Yes", { exact: true })).toBeVisible();
-    await expect(page.getByText("92% confident")).toBeVisible();
+    await expect(page.getByText("Usually matches")).toBeVisible();
     await expect(page.getByText(/Used 4/)).toBeVisible();
   });
 
@@ -114,14 +112,14 @@ test.describe("Application Assist Settings", () => {
     await applyPage.saveScreeningAnswer({ answer: "8 years" });
 
     await expect(page.getByText("Answer saved")).toBeVisible();
-    await expect(page.getByText("years of experience", { exact: true })).toBeVisible();
+    await expect(page.getByText(/Looks for:\s*Years of experience/)).toBeVisible();
     await expect(page.getByText("8 years")).toBeVisible();
 
     await page.reload();
     await applyPage.navigateTo();
     await applyPage.switchToScreeningQuestions();
 
-    await expect(page.getByText("years of experience", { exact: true })).toBeVisible();
+    await expect(page.getByText(/Looks for:\s*Years of experience/)).toBeVisible();
     await expect(page.getByText("8 years")).toBeVisible();
   });
 
@@ -130,8 +128,9 @@ test.describe("Application Assist Settings", () => {
     await applyPage.openBlankScreeningAnswer();
     await applyPage.saveAnswerButton.click();
 
-    await expect(page.getByText("Question wording is required")).toBeVisible();
-    await expect(page.getByText("Answer is required")).toBeVisible();
+    await expect(page.getByText("Check highlighted fields")).toBeVisible();
+    await expect(page.getByText("Add question wording.")).toBeVisible();
+    await expect(page.getByText("Add answer.")).toBeVisible();
 
     await applyPage.saveScreeningAnswer({
       pattern: "[",

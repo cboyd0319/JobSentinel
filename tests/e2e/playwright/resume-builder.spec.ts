@@ -66,8 +66,8 @@ test.describe("Resume Builder Wizard", () => {
 
     await resumeBuilder.goNext();
 
-    await expect(page.getByRole("alert").filter({ hasText: "Missing information" })).toBeVisible();
-    await expect(page.getByText("Please enter your name")).toBeVisible();
+    await expect(page.getByRole("alert").filter({ hasText: "Add missing resume details" })).toBeVisible();
+    await expect(page.getByText("Add your name.")).toBeVisible();
     await resumeBuilder.expectStep(1, "Contact");
   });
 
@@ -94,8 +94,8 @@ test.describe("Resume Builder Wizard", () => {
     await resumeBuilder.completeContact();
 
     await resumeBuilder.goNext();
-    await expect(page.getByRole("alert").filter({ hasText: "Missing information" })).toBeVisible();
-    await expect(page.getByText("Please write a summary")).toBeVisible();
+    await expect(page.getByRole("alert").filter({ hasText: "Add missing resume details" })).toBeVisible();
+    await expect(page.getByText("Write a summary of at least 10 characters.")).toBeVisible();
     await resumeBuilder.expectStep(2, "Summary");
 
     await resumeBuilder.completeSummary("Operations manager focused on clear process, customer handoffs, and team coordination.");
@@ -148,7 +148,7 @@ test.describe("Resume Builder Wizard", () => {
     });
     await expect(page.getByText("Project Management")).toBeVisible();
     await expect(page.getByText("Operations")).toBeVisible();
-    await expect(page.getByText("expert", { exact: true }).last()).toBeVisible();
+    await expect(page.getByText("Can train others", { exact: true }).last()).toBeVisible();
   });
 
   test("imports skills from active resume", async ({ page }) => {

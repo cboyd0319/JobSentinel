@@ -10,8 +10,8 @@ const STATUS_COLUMNS = [
   ["onsite_interview", "Onsite Interview"],
   ["offer_received", "Offer Received"],
   ["offer_accepted", "Offer Accepted"],
-  ["offer_rejected", "Offer Rejected"],
-  ["rejected", "Rejected"],
+  ["offer_rejected", "Offer Declined"],
+  ["rejected", "Not Selected"],
   ["withdrawn", "Withdrawn"],
   ["ghosted", "No Response"],
 ] as const;

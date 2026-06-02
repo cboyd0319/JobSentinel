@@ -28,7 +28,7 @@ test.describe("Hiring Trends", () => {
 
     await expect(page.getByRole("region", { name: /Remote/ })).toContainText("Total Jobs");
     await expect(page.getByRole("region", { name: /Remote/ })).toContainText("312");
-    await expect(page.getByRole("region", { name: /Remote/ })).toContainText("Remote %");
+    await expect(page.getByRole("region", { name: /Remote/ })).toContainText("Remote jobs");
   });
 
   test("shows skill trends on the skills tab", async ({ page }) => {
@@ -59,7 +59,7 @@ test.describe("Hiring Trends", () => {
     await expect(marketPage.locationRegion).toBeVisible();
     await expect(page.getByRole("listitem", { name: /Chicago, IL: 245 jobs/ })).toBeVisible();
     await expect(page.getByRole("listitem", { name: /Phoenix, AZ: 198 jobs/ })).toBeVisible();
-    await expect(page.getByRole("img", { name: "Job density legend" })).toBeVisible();
+    await expect(page.getByRole("img", { name: "Saved location comparison legend" })).toBeVisible();
   });
 
   test("marks market alerts as read", async ({ page }) => {

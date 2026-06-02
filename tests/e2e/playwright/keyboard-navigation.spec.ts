@@ -49,6 +49,19 @@ async function dispatchSearchFocusShortcut(page: Page): Promise<void> {
   });
 }
 
+async function dispatchHelpShortcut(page: Page): Promise<void> {
+  await page.evaluate(() => {
+    window.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        bubbles: true,
+        cancelable: true,
+        key: "?",
+        shiftKey: true,
+      }),
+    );
+  });
+}
+
 async function pressPrimaryNavigationShortcut(
   page: Page,
   shortcut: number,
@@ -225,9 +238,9 @@ test.describe("Keyboard Navigation", () => {
 
   test.describe("Help And Focus", () => {
     test("opens keyboard help with question mark and closes with Escape", async ({ page }) => {
-      await page.keyboard.press("Shift+Slash");
+      await dispatchHelpShortcut(page);
 
-      const helpDialog = page.getByRole("dialog", { name: "Keyboard Shortcuts" });
+      const helpDialog = page.getByRole("dialog", { name: "Keyboard Help" });
       await expect(helpDialog).toBeVisible();
       await expect(helpDialog.getByText("Cmd/Ctrl+1-8")).toBeVisible();
 

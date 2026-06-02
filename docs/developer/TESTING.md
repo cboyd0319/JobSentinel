@@ -489,6 +489,9 @@ npm run test:e2e
 # Run full cross-browser E2E tests
 npm run test:e2e:all
 
+# Run full cross-browser E2E tests with the maintained four-minute budget
+npm run test:e2e:all:budget
+
 # Run in interactive UI mode
 npm run test:e2e:ui
 ```
