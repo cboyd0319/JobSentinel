@@ -1014,6 +1014,15 @@ Latest safe-support-report wording slice checks on 2026-06-02:
 - `cargo fmt --manifest-path src-tauri/Cargo.toml --all -- --check`
 - `git diff --check`
 
+Latest resume-readability add-word wording slice checks on 2026-06-02:
+
+- `node --test scripts/check-product-copy.test.mjs`
+- `npm run test:run -- src/pages/ResumeOptimizer.test.tsx src/components/AtsLiveScorePanel.test.tsx`
+- `npm run lint:bloat`
+- `npm run lint`
+- `npm run lint:docs`
+- `git diff --check`
+
 Latest harness benchmark slice checks on 2026-06-01:
 
 - `node --check scripts/harness-benchmark.mjs`

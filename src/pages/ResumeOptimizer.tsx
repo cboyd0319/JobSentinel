@@ -679,7 +679,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                           <span className="bg-green-200 dark:bg-green-900/50 text-green-900 dark:text-green-100 px-1 rounded mr-1">Green</span>
                           = Words found in both
                           <span className="ml-4 bg-red-200 dark:bg-red-900/50 text-red-900 dark:text-red-100 px-1 rounded mr-1">Red</span>
-                          = Words to add
+                          = Words to review
                         </p>
                       </div>
                     </div>
@@ -831,10 +831,10 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                   </Card>
                 )}
 
-                {/* Words to add */}
+                {/* Words to review */}
                 {analysisResult.missing_keywords.length > 0 && (
                   <Card>
-                    <CardHeader title={`Words To Add (${analysisResult.missing_keywords.length})`} />
+                    <CardHeader title={`Words To Review (${analysisResult.missing_keywords.length})`} />
                     <div className="flex flex-wrap gap-2">
                       {analysisResult.missing_keywords.map((keyword, idx) => (
                         <Badge key={idx} variant="danger">
@@ -843,7 +843,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                       ))}
                     </div>
                     <p className="text-xs text-surface-500 dark:text-surface-400 mt-3">
-                      Only add these words when they honestly fit your experience.
+                      Only use these words when they honestly fit your experience and improve clarity.
                     </p>
                   </Card>
                 )}

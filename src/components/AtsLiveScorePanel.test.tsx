@@ -605,7 +605,7 @@ describe("AtsLiveScorePanel", () => {
       expect(screen.getByText("Words Found (2)")).toBeInTheDocument();
     });
 
-    it("displays words to add in modal", async () => {
+    it("displays words to review in modal", async () => {
       render(
         <AtsLiveScorePanel
           resumeData={mockResumeData}
@@ -622,7 +622,8 @@ describe("AtsLiveScorePanel", () => {
 
       fireEvent.click(screen.getByRole("button", { name: /view details/i }));
 
-      expect(screen.getByText("Words To Add (2)")).toBeInTheDocument();
+      expect(screen.getByText("Words To Review (2)")).toBeInTheDocument();
+      expect(screen.queryByText(/Words To Add/i)).not.toBeInTheDocument();
       expect(screen.getByText("Spanish")).toBeInTheDocument();
       expect(screen.getByText("Zendesk")).toBeInTheDocument();
     });

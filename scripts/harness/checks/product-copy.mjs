@@ -344,6 +344,9 @@ export function hasStaleResumeOptimizerFraming(root, path) {
     /ATS systems look for/i,
     /commonly recognized by ATS systems/i,
     /optimization recommendations/i,
+    /Words To Add/i,
+    /= Words to add/i,
+    /Only add these words/i,
   ];
 
   return stalePatterns.some((pattern) => pattern.test(text));

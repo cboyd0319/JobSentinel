@@ -521,11 +521,11 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
               </div>
             )}
 
-            {/* Words to add */}
+            {/* Words to review */}
             {analysis.missing_keywords.length > 0 && (
               <div>
                 <h4 className="text-sm font-semibold text-surface-800 dark:text-surface-200 mb-3">
-                  Words To Add ({analysis.missing_keywords.length})
+                  Words To Review ({analysis.missing_keywords.length})
                 </h4>
                 <div className="flex flex-wrap gap-2">
                   {analysis.missing_keywords.map((keyword, idx) => (
@@ -535,7 +535,7 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
                   ))}
                 </div>
                 <p className="text-xs text-surface-500 dark:text-surface-400 mt-2">
-                  Only add these words when they honestly fit your experience.
+                  Only use these words when they honestly fit your experience and improve clarity.
                 </p>
               </div>
             )}

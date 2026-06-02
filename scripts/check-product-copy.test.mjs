@@ -41,9 +41,23 @@ function withFixture(callback) {
 test("product copy rejects stale Resume Optimizer framing", () => {
   withFixture((root) => {
     writeFixtureFile(root, "docs/features/resume-matcher.md", "ATS Resume Optimizer\n");
+    writeFixtureFile(root, "src/pages/ResumeOptimizer.tsx", "Words To Add\n= Words to add\n");
+    writeFixtureFile(
+      root,
+      "src/components/AtsLiveScorePanel.tsx",
+      "Only add these words when they honestly fit your experience.\n",
+    );
 
     assert.equal(
       hasStaleResumeOptimizerFraming(root, "docs/features/resume-matcher.md"),
+      true,
+    );
+    assert.equal(
+      hasStaleResumeOptimizerFraming(root, "src/pages/ResumeOptimizer.tsx"),
+      true,
+    );
+    assert.equal(
+      hasStaleResumeOptimizerFraming(root, "src/components/AtsLiveScorePanel.tsx"),
       true,
     );
     assert.equal(
