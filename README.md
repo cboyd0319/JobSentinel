@@ -326,9 +326,8 @@ scheduled checks, but users can open USAJobs through job-site search links
 without setup. JobSentinel reports source health so you can see when a source is
 healthy, degraded, or blocked. Source collection is scoped to a single user's
 local search, follows each source's allowed use, and favors public
-hiring-platform feeds or official company sources when available. Large
-platforms with restricted
-automation policies should be opened by the user through search links.
+hiring-platform feeds or official company sources when available. Some sites
+only allow user-opened searches. Use search links for those sites.
 
 Read the full [job source guide](docs/features/scrapers.md) and
 [job source health docs](docs/features/scraper-health.md).

@@ -270,8 +270,8 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
     const resume = parseAtsResumeInput(resumeJson);
     if (!resume) {
       toast.error(
-        "Resume app export not recognized",
-        "Choose or add a resume instead, or paste a resume app export from JobSentinel or another resume app.",
+        "Could not read copied resume details",
+        "Choose or add a resume instead, or paste copied resume details from JobSentinel or another resume app.",
       );
       return;
     }
@@ -306,8 +306,8 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
     const resume = parseAtsResumeInput(resumeJson);
     if (!resume) {
       toast.error(
-        "Resume app export not recognized",
-        "Choose or add a resume instead, or paste a resume app export from JobSentinel or another resume app.",
+        "Could not read copied resume details",
+        "Choose or add a resume instead, or paste copied resume details from JobSentinel or another resume app.",
       );
       return;
     }
@@ -546,17 +546,17 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                     <h2 className="text-sm font-semibold text-surface-900 dark:text-surface-100 mb-3">
                       Import from Resume App
                     </h2>
-                    <label htmlFor="resume-json-input" className="sr-only">Resume app export</label>
+                    <label htmlFor="resume-json-input" className="sr-only">Copied resume details</label>
                     <textarea
                       id="resume-json-input"
                       value={resumeJson}
                       onChange={(e) => setResumeJson(e.target.value)}
-                      placeholder="Paste resume app export here"
+                      placeholder="Paste copied resume details here"
                       aria-describedby="resume-json-hint"
                       className="w-full h-96 px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 placeholder-surface-400 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500 dark:focus:border-sentinel-400 dark:focus-visible:ring-sentinel-400 resize-none font-mono"
                     />
                     <p id="resume-json-hint" className="text-xs text-surface-500 dark:text-surface-400 mt-2">
-                      Use this only if a resume app gave you export text. Most
+                      Use this only if a resume app gave you details to copy. Most
                       users should choose or add a resume.
                     </p>
                   </div>

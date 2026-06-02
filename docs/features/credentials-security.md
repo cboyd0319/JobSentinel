@@ -69,7 +69,7 @@ link, app password, access code, cookies, private URL parts, or local file paths
 
 Review every support report before sharing it.
 
-## Guarantees
+## Required Guardrails
 
 - Saved secret values stay local unless you turn on an outside alert or
   job-source connection that needs them.

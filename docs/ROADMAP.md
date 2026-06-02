@@ -58,14 +58,13 @@ current maintained surface at the time of the latest docs sweep.
 
 ## Source policy
 
-JobSentinel favors official sources, public ATS postings, public feeds, and
+JobSentinel favors official sources, public application-platform postings, public feeds, and
 user-opened browser links.
 
-- Source adapters must respect rate limits, source-specific boundaries, and
-  source health checks.
-- Large platforms with restricted automation policies should be opened by the
-  user through generated search links.
-- No source adapter may get around access controls, solve CAPTCHAs, reuse session
+- Source checks must wait within each source's limits and show plain source
+  status.
+- Some sites only allow user-opened searches. Use search links for those sites.
+- No source check may get around access controls, solve CAPTCHAs, reuse session
   cookies, rotate proxies to evade controls, or ignore explicit source blocks.
 - New source work needs a feature doc update, fixture or parser coverage, and
   source-boundary review.

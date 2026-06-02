@@ -36,22 +36,24 @@ aligned with your real search constraints.
 
 ### Option 3: Create a Custom Profile
 
-Start with `config/config.example.json` and fill in your own:
+For custom profiles, start in JobSentinel setup or Settings and change job
+titles, skills, pay, location, and sources there.
 
-- `title_allowlist`: Job titles you're targeting
-- `keywords_boost`: Your skills and tools
-- `salary_floor_usd`: Your minimum salary
-- `greenhouse_urls` / `lever_urls`: Official company pages you choose to monitor
+- Job titles you are targeting
+- Skills and tools that fit your search
+- The lowest pay you would consider
+- Locations and work styles that fit your life
+- Official company pages you choose to check
 
 Broad starter profiles leave company source lists empty by default. JobSentinel
 should not choose a narrow tech or SaaS employer list for someone looking for
 product, design, marketing, writing, operations, finance, HR, sales, education,
 healthcare, legal, creative, or customer support work.
 
-### Advanced Manual File Use
+### Source-Code Contributor File Use
 
-Only use manual file copying if you are comfortable editing local app settings
-files.
+This section is only for source-code contributors testing local profile files.
+Normal users should use setup or Settings inside JobSentinel.
 
 ```bash
 # macOS/Linux
@@ -61,60 +63,34 @@ cp profiles/seo-digital-marketing.json ~/.config/jobsentinel/config.json
 copy profiles\seo-digital-marketing.json %LOCALAPPDATA%\JobSentinel\config.json
 ```
 
-## Profile Fields Explained
+## How Profiles Shape Results
 
-| Field | Purpose |
-|-------|---------|
-| `title_allowlist` | Jobs MUST contain one of these titles to appear |
-| `title_blocklist` | Jobs containing these titles are auto-rejected |
-| `keywords_boost` | Jobs with these terms score higher (40% of score) |
-| `keywords_exclude` | Jobs with these terms are auto-rejected |
-| `salary_floor_usd` | Minimum salary (jobs below this score 0 on salary) |
-| `location_preferences` | Remote/hybrid/onsite + specific cities |
-| `greenhouse_urls` | Official Greenhouse company pages to monitor |
-| `lever_urls` | Official Lever company pages to monitor |
+Profiles help JobSentinel start with reasonable defaults. Review and edit them
+inside setup or Settings before saving.
 
-## Scoring Algorithm
+| Setting | Why it matters |
+| ------- | -------------- |
+| Target job titles | Keeps the search close to roles you want |
+| Avoided job titles | Hides roles that are not worth your time |
+| Helpful skills and tools | Gives a stronger fit signal when job posts match your real background |
+| Lowest pay you would consider | Flags jobs below your floor instead of hiding pay concerns |
+| Location and work style | Matches remote, hybrid, onsite, and city preferences |
+| Favorite and avoided companies | Helps you focus on employers that fit your search |
 
-Jobs are scored 0-100% based on:
+## Common Settings Changes
 
-- **Skills Match (40%)**: Title + keyword matches
-- **Salary (25%)**: Meets or exceeds your floor
-- **Location (20%)**: Matches remote/hybrid/onsite preference
-- **Company (10%)**: Favorite companies and companies you want to avoid
-- **Recency (5%)**: Fresh jobs score higher
+### Senior Roles
 
-## Customization Tips
+Add junior, entry-level, associate, and similar titles to avoided job titles.
 
-### For Senior Roles
+### Remote-Only Searches
 
-Add to `title_blocklist`:
+Choose remote-only in setup or Settings.
 
-```json
-"Junior", "Entry Level", "Associate", "I", "II"
-```
+### Specific Cities
 
-### For Remote-Only
-
-```json
-"location_preferences": {
-  "allow_remote": true,
-  "allow_hybrid": false,
-  "allow_onsite": false
-}
-```
-
-### For Specific Cities
-
-```json
-"location_preferences": {
-  "allow_remote": true,
-  "allow_hybrid": true,
-  "allow_onsite": true,
-  "cities": ["Denver", "Boulder", "Colorado Springs"],
-  "states": ["CO"]
-}
-```
+Add the cities and states you would actually consider. Keep remote and hybrid
+on only if they fit your life.
 
 ## Contributing
 

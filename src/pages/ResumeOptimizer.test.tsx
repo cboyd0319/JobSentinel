@@ -156,13 +156,13 @@ describe("ResumeOptimizer", () => {
     mockInvoke.mockResolvedValue(mockAnalysis);
   });
 
-  it("starts with choose or add before resume app export import", async () => {
+  it("starts with choose or add before copied resume details import", async () => {
     const user = userEvent.setup();
     const onNavigate = vi.fn();
     render(<ResumeOptimizer onBack={vi.fn()} onNavigate={onNavigate} />);
 
     expect(screen.getByText(/choose a saved resume or add one/i)).toBeInTheDocument();
-    expect(screen.queryByLabelText(/resume app export/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/copied resume details/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/for a PDF resume/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/choose a saved resume or upload one/i)).not.toBeInTheDocument();
 
@@ -172,29 +172,29 @@ describe("ResumeOptimizer", () => {
 
     await openResumeAppImport(user);
 
-    expect(screen.getByLabelText(/resume app export/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/copied resume details/i)).toBeInTheDocument();
   });
 
-  it("validates resume app export before format review", async () => {
+  it("validates copied resume details before format review", async () => {
     const user = userEvent.setup();
     render(<ResumeOptimizer onBack={vi.fn()} />);
 
     await openResumeAppImport(user);
 
-    fireEvent.change(screen.getByLabelText(/resume app export/i), {
+    fireEvent.change(screen.getByLabelText(/copied resume details/i), {
       target: { value: JSON.stringify({ contact_info: { name: "Jane" } }) },
     });
 
     await user.click(screen.getByRole("button", { name: /review format only/i }));
 
     expect(mockToast.error).toHaveBeenCalledWith(
-      "Resume app export not recognized",
-      "Choose or add a resume instead, or paste a resume app export from JobSentinel or another resume app.",
+      "Could not read copied resume details",
+      "Choose or add a resume instead, or paste copied resume details from JobSentinel or another resume app.",
     );
     expect(mockInvoke).not.toHaveBeenCalledWith("analyze_resume_format", expect.anything());
   });
 
-  it("validates resume app export before match review", async () => {
+  it("validates copied resume details before match review", async () => {
     const user = userEvent.setup();
     render(<ResumeOptimizer onBack={vi.fn()} />);
 
@@ -203,15 +203,15 @@ describe("ResumeOptimizer", () => {
     fireEvent.change(screen.getByLabelText(/^job post$/i), {
       target: { value: "Need onboarding and retention experience" },
     });
-    fireEvent.change(screen.getByLabelText(/resume app export/i), {
+    fireEvent.change(screen.getByLabelText(/copied resume details/i), {
       target: { value: JSON.stringify("not a resume") },
     });
 
     await user.click(screen.getByRole("button", { name: /review match/i }));
 
     expect(mockToast.error).toHaveBeenCalledWith(
-      "Resume app export not recognized",
-      "Choose or add a resume instead, or paste a resume app export from JobSentinel or another resume app.",
+      "Could not read copied resume details",
+      "Choose or add a resume instead, or paste copied resume details from JobSentinel or another resume app.",
     );
     expect(mockInvoke).not.toHaveBeenCalledWith("analyze_resume_for_job", expect.anything());
   });
@@ -221,7 +221,7 @@ describe("ResumeOptimizer", () => {
     render(<ResumeOptimizer onBack={vi.fn()} />);
 
     await openResumeAppImport(user);
-    fireEvent.change(screen.getByLabelText(/resume app export/i), {
+    fireEvent.change(screen.getByLabelText(/copied resume details/i), {
       target: { value: JSON.stringify(validResume) },
     });
 
@@ -234,13 +234,13 @@ describe("ResumeOptimizer", () => {
     expect(mockInvoke).not.toHaveBeenCalledWith("analyze_resume_for_job", expect.anything());
   });
 
-  it("submits valid resume app export for format review", async () => {
+  it("submits valid copied resume details for format review", async () => {
     const user = userEvent.setup();
     render(<ResumeOptimizer onBack={vi.fn()} />);
 
     await openResumeAppImport(user);
 
-    fireEvent.change(screen.getByLabelText(/resume app export/i), {
+    fireEvent.change(screen.getByLabelText(/copied resume details/i), {
       target: { value: JSON.stringify(validResume) },
     });
 
@@ -263,7 +263,7 @@ describe("ResumeOptimizer", () => {
       target: { value: "Need onboarding, retention, and account management experience" },
     });
     await openResumeAppImport(user);
-    fireEvent.change(screen.getByLabelText(/resume app export/i), {
+    fireEvent.change(screen.getByLabelText(/copied resume details/i), {
       target: { value: JSON.stringify(validResume) },
     });
 
@@ -305,7 +305,7 @@ describe("ResumeOptimizer", () => {
     render(<ResumeOptimizer onBack={vi.fn()} />);
 
     await openResumeAppImport(user);
-    fireEvent.change(screen.getByLabelText(/resume app export/i), {
+    fireEvent.change(screen.getByLabelText(/copied resume details/i), {
       target: { value: JSON.stringify(validResume) },
     });
 
@@ -324,7 +324,7 @@ describe("ResumeOptimizer", () => {
     render(<ResumeOptimizer onBack={vi.fn()} />);
 
     await openResumeAppImport(user);
-    fireEvent.change(screen.getByLabelText(/resume app export/i), {
+    fireEvent.change(screen.getByLabelText(/copied resume details/i), {
       target: { value: JSON.stringify(validResume) },
     });
 
@@ -350,7 +350,7 @@ describe("ResumeOptimizer", () => {
       target: { value: "Need onboarding and retention experience" },
     });
     await openResumeAppImport(user);
-    fireEvent.change(screen.getByLabelText(/resume app export/i), {
+    fireEvent.change(screen.getByLabelText(/copied resume details/i), {
       target: { value: JSON.stringify(validResume) },
     });
 
@@ -375,7 +375,7 @@ describe("ResumeOptimizer", () => {
       target: { value: "Need onboarding and retention experience" },
     });
     await openResumeAppImport(user);
-    fireEvent.change(screen.getByLabelText(/resume app export/i), {
+    fireEvent.change(screen.getByLabelText(/copied resume details/i), {
       target: { value: JSON.stringify(validResume) },
     });
 
@@ -397,7 +397,7 @@ describe("ResumeOptimizer", () => {
     render(<ResumeOptimizer onBack={vi.fn()} />);
 
     await openResumeAppImport(user);
-    fireEvent.change(screen.getByLabelText(/resume app export/i), {
+    fireEvent.change(screen.getByLabelText(/copied resume details/i), {
       target: { value: JSON.stringify(validResume) },
     });
 

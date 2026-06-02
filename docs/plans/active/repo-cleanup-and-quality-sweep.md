@@ -164,6 +164,11 @@ As of 2026-06-02, the active plan remains open. Latest local work improved
 visible zero-technical UX, broad-audience defaults, privacy/security
 boundaries, and harness modularity:
 
+- Current local sidecar-finding cleanup replaces restricted-automation source
+  policy wording, command-first profile customization guidance, resume-app
+  export placeholder/error copy, and guarantee framing in saved-secret docs.
+  Product-copy sensors now reject those exact drifts. Focused Resume Match,
+  product-copy, stale-phrase, bloat, and docs verification passed.
 - Current local README and source-guide wording cleanup replaces internal
   bounded-request, source-specific-boundary, retry-helper, and source-boundary
   flow wording with plain source-check, allowed-use, wait-between-checks, and

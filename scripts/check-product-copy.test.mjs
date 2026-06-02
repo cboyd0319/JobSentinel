@@ -1797,6 +1797,8 @@ test("product copy rejects stale zero-technical resume and shortcut copy", () =>
         "Could not improve bullet",
         'ScoreItem label="Completeness"',
         "Paste resume details exported from JobSentinel or another supported tool.",
+        "Paste resume app export here",
+        "Resume app export not recognized",
         "Browser session storage is unavailable. Resume Builder cannot tailor against this job.",
         "",
       ].join("\n"),
@@ -1952,6 +1954,8 @@ test("product copy rejects command-first profile docs", () => {
       "profiles/README.md",
       [
         "Pre-configured job search profiles for different career paths. Copy one to use as your starting point.",
+        "Start with `config/config.example.json` and fill in your own:",
+        "`title_allowlist`: Job titles you're targeting",
         "",
         "### Option 1: Use a Profile Directly",
         "Direct scraping from Greenhouse company pages",
@@ -2176,6 +2180,16 @@ test("product copy rejects technical-first resume copy", () => {
       "docs/features/notifications.md",
       "chat number is correct (negative number for groups)\n",
     );
+    writeFixtureFile(root, "docs/features/credentials-security.md", "## Guarantees\n");
+    writeFixtureFile(
+      root,
+      "docs/ROADMAP.md",
+      [
+        "Large platforms with restricted automation policies should be opened by the user through generated search links.",
+        "Source adapters must respect rate limits, source-specific boundaries, and source health checks.",
+        "",
+      ].join("\n"),
+    );
     writeFixtureFile(
       root,
       "src/pages/ResumeOptimizer.tsx",
@@ -2218,6 +2232,8 @@ test("product copy rejects technical-first resume copy", () => {
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/synonym-matching.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/one-click-apply.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/notifications.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/credentials-security.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/ROADMAP.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/ResumeOptimizer.tsx"), true);
   });
 });

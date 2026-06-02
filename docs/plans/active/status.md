@@ -34,6 +34,15 @@ actionable findings in this active-plan surface or the relevant plan.
 - Branch has multiple local commits ahead of `origin/main`. Use
   `git status --short --branch` for live evidence before committing, pushing,
   or reporting remote state.
+- Current local sidecar-finding cleanup replaces restricted-automation source
+  policy wording, command-first profile customization guidance, resume-app
+  export placeholder/error copy, and guarantee framing in saved-secret docs.
+  Product-copy sensors now reject those exact drifts across README, roadmap,
+  profile docs, Resume Match, and saved-secret docs. Focused verification
+  passed: `npx vitest run src/pages/ResumeOptimizer.test.tsx` passed 14 tests,
+  `node --test scripts/check-product-copy.test.mjs` passed 35 tests, targeted
+  stale-phrase search found no old live wording in touched files, `npm run
+  lint:bloat` passed, and `npm run lint:docs` passed.
 - Current local README and source-guide wording cleanup replaces internal
   bounded-request, source-specific-boundary, retry-helper, and source-boundary
   flow wording with plain source-check, allowed-use, wait-between-checks, and
