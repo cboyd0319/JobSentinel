@@ -134,6 +134,34 @@ describe("errorMessages", () => {
       }
     });
 
+    it("keeps resume review errors local-first and non-service-framed", () => {
+      const missingResume = getUserFriendlyError(new Error("resume not found"));
+      const parsingProblem = getUserFriendlyError(new Error("resume parsing failed"));
+      const reviewProblem = getUserFriendlyError(new Error("openai model error"));
+
+      expect(missingResume.title).toBe("Resume Not Found");
+      expect(missingResume.message).toContain("added");
+      expect(missingResume.action).toContain("Add your resume");
+      expect(parsingProblem.title).toBe("Resume Could Not Be Read");
+      expect(parsingProblem.message).toContain("resume");
+      expect(reviewProblem.title).toBe("Resume Review Problem");
+      expect(reviewProblem.message).toContain("resume review");
+      expect(reviewProblem.action).toContain("review tool you connected");
+      expect(
+        [
+          missingResume.title,
+          missingResume.message,
+          missingResume.action,
+          parsingProblem.title,
+          parsingProblem.message,
+          parsingProblem.action,
+          reviewProblem.title,
+          reviewProblem.message,
+          reviewProblem.action,
+        ].join("\n"),
+      ).not.toMatch(/upload|analysis service|service had a problem|Job Website Changed/i);
+    });
+
     it("handles missing required field errors", () => {
       const result = getUserFriendlyError(new Error("required field missing"));
       expect(result.title).toBe("Add missing details");

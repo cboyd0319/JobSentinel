@@ -34,6 +34,16 @@ actionable findings in this active-plan surface or the relevant plan.
 - Branch has multiple local commits ahead of `origin/main`. Use
   `git status --short --branch` for live evidence before committing, pushing,
   or reporting remote state.
+- Current local resume-error copy follow-up fixes shared error precedence so
+  resume-not-found and resume-parsing failures are treated as resume-review
+  problems instead of missing job pages or changed job websites. It also
+  replaces upload/service wording with local-first resume-review copy. Focused
+  verification passed: `npx vitest run src/utils/errorMessages.test.ts`,
+  `node --test scripts/check-product-copy.test.mjs`, and targeted stale-phrase
+  search found old wording only in sensor fixtures or negative assertions.
+  Broader local checks also passed: `npm run lint:bloat`,
+  `npm run lint:docs`, `npm run test:scripts`, `npm run lint`, and
+  `git diff --check`.
 - Current local Browser Import doc/code follow-up removes remaining
   user-visible `import helper` wording from `docs/BOOKMARKLET.md` and the
   generated browser-button failure alert, then adds Rust and product-copy

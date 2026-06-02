@@ -178,6 +178,15 @@ Recent remote integration evidence:
   bookmarklet`, `cargo fmt --all -- --check`, and targeted stale-phrase search.
   Broader verification passed: `npm run lint:bloat`, `npm run lint:docs`,
   `npm run test:scripts`, `npm run lint`, and `git diff --check`.
+- Current local resume-error copy cleanup fixes shared error precedence so
+  resume-not-found and resume-parsing failures use resume-review recovery
+  instead of page/source recovery. It also replaces upload/service wording with
+  local-first resume-review copy. Focused verification passed:
+  `npx vitest run src/utils/errorMessages.test.ts`, `node --test
+  scripts/check-product-copy.test.mjs`, and targeted stale-phrase search found
+  old wording only in sensor fixtures or negative assertions. Broader
+  verification passed: `npm run lint:bloat`, `npm run lint:docs`,
+  `npm run test:scripts`, `npm run lint`, and `git diff --check`.
 - Current local source-name copy follow-up changes README source coverage,
   source feature docs, public job-source issue template, shared source labels,
   and frontend mocks from `HN Who's Hiring` wording to `Startup and tech job

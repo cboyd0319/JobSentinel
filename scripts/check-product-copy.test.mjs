@@ -777,6 +777,10 @@ test("product copy rejects technical-first settings copy", () => {
         "Teams Notification Failed",
         "Email Notification Failed",
         "Reminder Setup Failed",
+        "Resume Analysis Problem",
+        "The resume analysis service had a problem.",
+        "No resume has been uploaded yet.",
+        "Upload your resume in the Resume section.",
         "",
       ].join("\n"),
     );

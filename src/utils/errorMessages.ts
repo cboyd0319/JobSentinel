@@ -93,12 +93,12 @@ const ATS_ERRORS = [
 ];
 
 /**
- * Resume and AI error patterns
+ * Resume review and optional outside-tool error patterns
  */
-const AI_ERRORS = [
-  { pattern: /resume.*not.*found|resume.*missing/i, title: 'Resume Not Found', message: 'No resume has been uploaded yet.', action: 'Upload your resume in the Resume section before using this feature.' },
+const RESUME_REVIEW_ERRORS = [
+  { pattern: /resume.*not.*found|resume.*missing/i, title: 'Resume Not Found', message: 'No resume has been added yet.', action: 'Add your resume in the Resume section before using this feature.' },
   { pattern: /parsing.*failed|extract.*failed/i, title: 'Resume Could Not Be Read', message: 'JobSentinel could not read the information from your resume.', action: 'Use a PDF, DOCX, or TXT resume, or choose a different file.' },
-  { pattern: /ai.*error|model.*error|openai/i, title: 'Resume Analysis Problem', message: 'The resume analysis service had a problem.', action: 'Try again in a moment. If this keeps happening, check any analysis service you connected in Settings or copy a safe support report.' },
+  { pattern: /ai.*error|model.*error|openai/i, title: 'Resume Review Problem', message: 'The resume review had a problem.', action: 'Try again in a moment. If this keeps happening, check any review tool you connected in Settings or copy a safe support report.' },
   { pattern: /token.*limit|context.*length/i, title: 'Resume or Job Post Too Long', message: 'The resume or job post is too long for this review.', action: 'Try a shorter resume or job post. Remove repeated sections first.' },
 ];
 
@@ -106,6 +106,7 @@ const AI_ERRORS = [
  * All error pattern groups combined
  */
 const ALL_ERROR_PATTERNS = [
+  ...RESUME_REVIEW_ERRORS,
   ...NETWORK_ERRORS,
   ...DATABASE_ERRORS,
   ...VALIDATION_ERRORS,
@@ -113,7 +114,6 @@ const ALL_ERROR_PATTERNS = [
   ...CONFIG_ERRORS,
   ...NOTIFICATION_ERRORS,
   ...ATS_ERRORS,
-  ...AI_ERRORS,
 ];
 
 /**
