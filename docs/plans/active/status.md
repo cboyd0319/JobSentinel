@@ -34,6 +34,18 @@ actionable findings in this active-plan surface or the relevant plan.
 - Branch has multiple local commits ahead of `origin/main`. Use
   `git status --short --branch` for live evidence before committing, pushing,
   or reporting remote state.
+- Current local Resume review evidence-label cleanup changes ResumeOptimizer
+  and AtsLiveScorePanel away from format-result percentages, `Overall Match`
+  wording, and row-level score percentages. The visible UI now uses
+  `Resume Fit`, `Overall fit`, and evidence labels such as `Clear evidence`,
+  `Some evidence`, `Mixed evidence`, and `Low evidence`; internal progress-bar
+  math remains unchanged. Product-copy sensors now cover the Resume review
+  surfaces and reject the old visible result/scorecard copy. Verification
+  passed: `npx vitest run src/components/AtsLiveScorePanel.test.tsx
+  src/pages/ResumeOptimizer.test.tsx` passed 56 tests, `node --test
+  scripts/check-product-copy.test.mjs` passed 43 tests, `npm run lint` passed,
+  `npm run test:scripts` passed 468 tests, `npm run lint:bloat` passed, and
+  `git diff --check` passed.
 - Current local fit-factor display cleanup removes user-visible factor
   percentages from ScoreDisplay tooltips and the Fit Details modal. Tooltip
   factors now show plain priorities (`Primary`, `Important`, `Supporting`) and

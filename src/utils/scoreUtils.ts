@@ -1,6 +1,6 @@
 /**
- * Score utilities for ATS scoring and resume analysis.
- * Provides consistent color coding and labels for score displays.
+ * Score utilities for resume readability analysis.
+ * Provides consistent color coding and plain evidence labels.
  */
 
 /**
@@ -31,13 +31,13 @@ export function getScoreBg(score: number): string {
 }
 
 /**
- * Get human-readable label for a score value
+ * Get plain evidence label for a score value.
  */
 export function getScoreLabel(score: number): string {
-  if (score >= 90) return "Strong";
-  if (score >= 80) return "Useful";
-  if (score >= 70) return "Some";
-  if (score >= 60) return "Review";
+  if (score >= 90) return "Strong evidence";
+  if (score >= 80) return "Clear evidence";
+  if (score >= 70) return "Some evidence";
+  if (score >= 60) return "Mixed evidence";
   if (score >= 40) return "Needs review";
   return "Low evidence";
 }

@@ -8,7 +8,7 @@ import { Modal, ModalFooter } from "../components/Modal";
 import { useToast } from "../contexts";
 import { logError } from "../utils/errorUtils";
 import { getUserFriendlyError } from "../utils/errorMessages";
-import { getScoreColor, getScoreBg } from "../utils/scoreUtils";
+import { getScoreColor, getScoreBg, getScoreLabel } from "../utils/scoreUtils";
 import { writeStorageValue } from "../utils/browserStorage";
 
 // TypeScript Types
@@ -322,7 +322,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
       });
 
       setAnalysisResult(result);
-      toast.success("Format review complete", `Format result: ${Math.round(result.format_score)}%`);
+      toast.success("Format review complete", "Review the format details below.");
     } catch (err: unknown) {
       toast.error("Review could not run", getResumeAnalysisErrorAction(err));
       logError("Format analysis error:", err);
@@ -790,15 +790,15 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                   })()}
                 </Card>
 
-                {/* Match overview */}
+                {/* Fit overview */}
                 <Card>
-                  <CardHeader title="Resume Match" />
+                  <CardHeader title="Resume Fit" />
                   <div className="grid grid-cols-2 gap-4">
                     <div className="text-center">
-                      <div className={`text-5xl font-bold ${getScoreColor(analysisResult.overall_score)}`}>
-                        {Math.round(analysisResult.overall_score)}
+                      <div className={`text-2xl font-bold ${getScoreColor(analysisResult.overall_score)}`}>
+                        {getScoreLabel(analysisResult.overall_score)}
                       </div>
-                      <p className="text-sm text-surface-500 dark:text-surface-400 mt-1">Overall Match</p>
+                      <p className="text-sm text-surface-500 dark:text-surface-400 mt-1">Overall fit</p>
                     </div>
                     <div className="space-y-3">
                       <ScoreItem label="Job words" score={analysisResult.keyword_score} />
@@ -1023,7 +1023,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
   );
 }
 
-// Helper component for match items
+// Helper component for fit evidence items.
 function ScoreItem({ label, score }: { label: string; score: number }) {
   return (
     <div className="flex items-center justify-between">
@@ -1035,8 +1035,8 @@ function ScoreItem({ label, score }: { label: string; score: number }) {
             style={{ width: `${score}%` }}
           />
         </div>
-        <span className="text-sm font-semibold text-surface-700 dark:text-surface-300 w-10 text-right">
-          {Math.round(score)}%
+        <span className="text-sm font-semibold text-surface-700 dark:text-surface-300 w-28 text-right">
+          {getScoreLabel(score)}
         </span>
       </div>
     </div>

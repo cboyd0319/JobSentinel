@@ -251,7 +251,10 @@ describe("ResumeOptimizer", () => {
         resume: validResume,
       });
     });
-    expect(mockToast.success).toHaveBeenCalledWith("Format review complete", "Format result: 84%");
+    expect(mockToast.success).toHaveBeenCalledWith(
+      "Format review complete",
+      "Review the format details below.",
+    );
   });
 
   it("uses plain job-word copy for job match results", async () => {
@@ -270,12 +273,15 @@ describe("ResumeOptimizer", () => {
     await user.click(screen.getByRole("button", { name: /review match/i }));
 
     await waitFor(() => {
-      expect(screen.getByText("Resume Match")).toBeInTheDocument();
+      expect(screen.getByText("Resume Fit")).toBeInTheDocument();
     });
 
     expect(screen.getByText("Job Words Overview")).toBeInTheDocument();
     expect(screen.getByText("Job words")).toBeInTheDocument();
     expect(screen.getByText("Details included")).toBeInTheDocument();
+    expect(screen.getByText("Overall fit")).toBeInTheDocument();
+    expect(screen.getAllByText("Clear evidence").length).toBeGreaterThan(0);
+    expect(screen.queryByText("Overall Match")).not.toBeInTheDocument();
     expect(screen.getByText("Words Found (2)")).toBeInTheDocument();
     expect(screen.getByText("Words To Review (1)")).toBeInTheDocument();
     expect(screen.getByText("Only use these words when they honestly fit your experience and improve clarity.")).toBeInTheDocument();

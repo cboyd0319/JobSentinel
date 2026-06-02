@@ -164,6 +164,14 @@ As of 2026-06-02, the active plan remains open. Latest local work improved
 visible zero-technical UX, broad-audience defaults, privacy/security
 boundaries, and harness modularity:
 
+- Current local Resume review evidence-label cleanup changes ResumeOptimizer
+  and AtsLiveScorePanel away from format-result percentages, `Overall Match`
+  wording, and row-level score percentages. The visible UI now uses Resume Fit,
+  Overall fit, and evidence labels while keeping internal progress-bar math.
+  Product-copy sensors now cover the Resume review surfaces and reject the old
+  visible result/scorecard copy. Focused ResumeOptimizer, AtsLiveScorePanel,
+  and product-copy verification passed. Broader lint, script, bloat, and
+  diff-check verification passed.
 - Current local fit-factor display cleanup removes user-visible factor
   percentages from ScoreDisplay tooltips and the Fit Details modal. Tooltip
   factors now show plain priorities and statuses; modal factor badges now show

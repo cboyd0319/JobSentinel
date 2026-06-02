@@ -2,7 +2,7 @@
  * AtsLiveScorePanel - real-time resume readability feedback for Resume Builder
  *
  * Shows live readability feedback as users build their resume, with detailed
- * breakdowns for job-word matching, format, and completeness.
+ * breakdowns for job-word fit, format, and details included.
  *
  * @version 2.5.5
  */
@@ -348,7 +348,7 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
         </div>
       </div>
 
-      {/* Match display */}
+      {/* Readability display */}
       <div className="p-4">
         {error ? (
           <div className="text-center py-4">
@@ -369,7 +369,7 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
           </div>
         ) : analysis ? (
           <div className="space-y-4">
-            {/* Circular match */}
+            {/* Circular readability summary */}
             <div className="flex items-center gap-4">
               <div className="relative w-20 h-20 flex-shrink-0">
                 <svg className="w-20 h-20 transform -rotate-90">
@@ -399,13 +399,13 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
                   <span className={`text-xl font-bold ${getScoreColor(analysis.overall_score)}`}>
                     {Math.round(analysis.overall_score)}
                   </span>
-                  <span className="text-[10px] text-surface-500 dark:text-surface-400">
+                  <span className={`text-[10px] font-medium ${getScoreColor(analysis.overall_score)}`}>
                     {getScoreLabel(analysis.overall_score)}
                   </span>
                 </div>
               </div>
 
-              {/* Match breakdown */}
+              {/* Readability breakdown */}
               <div className="flex-1 space-y-2">
                 <ScoreBar label="Job words" score={analysis.keyword_score} />
                 <ScoreBar label="Format" score={analysis.format_score} />
@@ -614,7 +614,7 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
   );
 });
 
-// Helper component for score bars
+// Helper component for readability evidence bars.
 const ScoreBar = memo(function ScoreBar({ label, score }: { label: string; score: number }) {
   return (
     <div className="flex items-center gap-2">
@@ -625,19 +625,19 @@ const ScoreBar = memo(function ScoreBar({ label, score }: { label: string; score
           style={{ width: `${score}%` }}
         />
       </div>
-      <span className="text-xs font-semibold text-surface-700 dark:text-surface-300 w-8 text-right">
-        {Math.round(score)}
+      <span className="text-xs font-semibold text-surface-700 dark:text-surface-300 w-24 text-right">
+        {getScoreLabel(score)}
       </span>
     </div>
   );
 });
 
-// Helper component for match cards in modal
+// Helper component for readability cards in modal.
 const ScoreCard = memo(function ScoreCard({ label, score }: { label: string; score: number }) {
   return (
     <div className="text-center p-3 bg-surface-50 dark:bg-surface-700 rounded-lg">
-      <div className={`text-2xl font-bold ${getScoreColor(score)}`}>
-        {Math.round(score)}
+      <div className={`text-sm font-semibold ${getScoreColor(score)}`}>
+        {getScoreLabel(score)}
       </div>
       <p className="text-xs text-surface-500 dark:text-surface-400 mt-1">{label}</p>
     </div>

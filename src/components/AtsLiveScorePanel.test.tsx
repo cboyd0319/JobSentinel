@@ -167,7 +167,7 @@ describe("AtsLiveScorePanel", () => {
       await waitForAnalysis();
 
       await waitFor(() => {
-        expect(screen.getByText("Some")).toBeInTheDocument();
+        expect(screen.getAllByText("Some evidence").length).toBeGreaterThan(0);
       });
     });
 
@@ -183,7 +183,7 @@ describe("AtsLiveScorePanel", () => {
       await waitForAnalysis();
 
       await waitFor(() => {
-        expect(screen.getByText("Some")).toBeInTheDocument(); // 70-79 = Some
+        expect(screen.getAllByText("Some evidence").length).toBeGreaterThan(0);
       });
     });
 
@@ -202,6 +202,8 @@ describe("AtsLiveScorePanel", () => {
         expect(screen.getByText("Job words")).toBeInTheDocument();
         expect(screen.getByText("Format")).toBeInTheDocument();
         expect(screen.getByText("Details")).toBeInTheDocument();
+        expect(screen.getByText("Clear evidence")).toBeInTheDocument();
+        expect(screen.getAllByText("Some evidence").length).toBeGreaterThan(0);
         expect(screen.queryByText("Complete")).not.toBeInTheDocument();
       });
     });
@@ -272,7 +274,7 @@ describe("AtsLiveScorePanel", () => {
       await waitForAnalysis();
 
       await waitFor(() => {
-        const scoreElement = screen.getByText("85");
+        const scoreElement = screen.getAllByText("Clear evidence")[0];
         expect(scoreElement.className).toContain("text-green");
       });
     });
@@ -291,7 +293,7 @@ describe("AtsLiveScorePanel", () => {
       await waitForAnalysis();
 
       await waitFor(() => {
-        const scoreElement = screen.getByText("65");
+        const scoreElement = screen.getByText("Mixed evidence");
         expect(scoreElement.className).toContain("text-yellow");
       });
     });
@@ -310,14 +312,14 @@ describe("AtsLiveScorePanel", () => {
       await waitForAnalysis();
 
       await waitFor(() => {
-        const scoreElement = screen.getByText("30");
+        const scoreElement = screen.getByText("Low evidence");
         expect(scoreElement.className).toContain("text-red");
       });
     });
   });
 
   describe("score labels", () => {
-    it("shows 'Strong' for scores >=90", async () => {
+    it("shows strong evidence for scores >=90", async () => {
       mockInvoke.mockResolvedValue({ ...mockAnalysis, overall_score: 95 });
 
       render(
@@ -331,7 +333,7 @@ describe("AtsLiveScorePanel", () => {
       await waitForAnalysis();
 
       await waitFor(() => {
-        expect(screen.getByText("Strong")).toBeInTheDocument();
+        expect(screen.getByText("Strong evidence")).toBeInTheDocument();
       });
     });
 
@@ -587,7 +589,7 @@ describe("AtsLiveScorePanel", () => {
       await waitForAnalysis();
 
       await waitFor(() => {
-        expect(screen.getByText("Some")).toBeInTheDocument();
+        expect(screen.getAllByText("Some evidence").length).toBeGreaterThan(0);
       });
 
       expect(screen.queryByRole("button", { name: /review details/i })).not.toBeInTheDocument();
@@ -857,7 +859,7 @@ describe("AtsLiveScorePanel", () => {
       await waitForAnalysis();
 
       await waitFor(() => {
-        expect(screen.getByText("Some")).toBeInTheDocument();
+        expect(screen.getAllByText("Some evidence").length).toBeGreaterThan(0);
       });
 
       expect(screen.queryByText(/job words found/)).not.toBeInTheDocument();
