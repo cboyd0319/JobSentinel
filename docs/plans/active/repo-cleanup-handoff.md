@@ -201,6 +201,9 @@ Current cleanup posture:
 - Current local email-alert setup follow-up replaces provider-address/provider-number
   wording with email-sending-details, sending-address, and sending-number labels.
   Settings and product-copy coverage guard the old labels.
+- Current local USAJobs setup follow-up replaces old shortcut phrasing with
+  scheduled-check and on-your-schedule wording. Settings and product-copy coverage
+  guard the old phrases.
 - Current local saved-answer recovery follow-up changes Application Assist
   suggested-answer failures from a bare saved-answers message to support-report
   recovery wording, with focused component and product-copy coverage.
@@ -273,7 +276,7 @@ Current cleanup posture:
   stack or tool keywords such as SQL, Python, and AWS from enabling tech-heavy
   source defaults for broad accounting, operations, or sales searches.
 - Current local zero-technical provider setup follow-up makes USAJobs lead with
-  a no-setup browser-search path before optional automatic checks, keeps
+  a no-setup browser-search path before optional scheduled checks, keeps
   Telegram bot details behind an optional chat-alert path, and adds
   product-copy coverage against old provider setup shortcuts.
 - Current local cover-letter follow-up changes template auto-fill buttons from

@@ -242,6 +242,9 @@ boundaries, and harness modularity:
 - Changed email-alert setup labels from provider-address/provider-number wording
   to email-sending-details, sending-address, and sending-number labels. Settings
   and product-copy tests guard the old labels.
+- Changed USAJobs setup from old shortcut phrasing to scheduled-check and
+  on-your-schedule wording. Settings and product-copy tests guard the old
+  phrases.
 - Changed Application Assist suggested-answer failure copy from a bare saved
   answers message to support-report recovery wording, with focused component and
   product-copy coverage.
@@ -350,7 +353,7 @@ boundaries, and harness modularity:
   keywords such as SQL, Python, and AWS from enabling tech-heavy sources for
   broad accounting, operations, or sales searches.
 - Reworked optional provider setup in Settings so USAJobs starts with a
-  no-setup browser-search path before optional automatic checks, and
+  no-setup browser-search path before optional scheduled checks, and
   Telegram bot details stay behind an optional chat-alert path for users who
   already use Telegram bots.
 - Reworked cover-letter template auto-fill buttons so non-technical users see
@@ -427,8 +430,8 @@ boundaries, and harness modularity:
 - Reworked remaining old More Settings copy from the sidecar audit. Desktop alert
   help no longer says native OS notifications, focused-window wording now says
   JobSentinel is open on screen, email details use email sending
-  address/number, LinkedIn and USAJobs setup says automatic checks and Optional
-  USAJobs auto-check, optional tech-source labels are expanded, site warnings
+  address/number, LinkedIn and USAJobs setup says scheduled checks and optional
+  USAJobs scheduled checks, optional tech-source labels are expanded, site warnings
   avoid blocks-automatic-checks phrasing, Browser Integration became Browser
   Button, posting-risk custom labels use user-facing warnings, and
   Resume-Based Scoring became Use Resume to Sort Jobs. The latest local

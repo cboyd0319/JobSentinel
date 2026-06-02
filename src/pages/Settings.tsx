@@ -3246,17 +3246,18 @@ export default function Settings({ onClose }: SettingsProps) {
                   {config.usajobs?.enabled && (
                     <div className="space-y-3">
                       <p className="rounded-lg border border-surface-200 bg-surface-50 p-3 text-xs text-surface-600 dark:border-surface-700 dark:bg-surface-800 dark:text-surface-300">
-                        Automatic USAJobs checks contact USAJobs. They use your
-                        access code, USAJobs email, search words, location,
-                        remote choice, how recent jobs should be, and how many
-                        jobs to ask for. Leave this off for browser-only search.
+                        When this is on, JobSentinel contacts USAJobs on your
+                        schedule. It uses your access code, USAJobs email,
+                        search words, location, remote choice, how recent jobs
+                        should be, and how many jobs to ask for. Leave this off
+                        for browser-only search.
                       </p>
                       {/* Advanced USAJobs setup */}
                       {!credentialStatus.usajobs_api_key && (
                         <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
                           <p className="flex items-center gap-1.5 text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">
                             <SettingsSymbol icon="bolt" className="h-4 w-4" />
-                            <span>Optional USAJobs auto-check</span>
+                            <span>Optional USAJobs scheduled checks</span>
                           </p>
                           <p className="text-xs text-blue-700 dark:text-blue-300 mb-3">
                             Skip this if you only want to open USAJobs in your
@@ -3264,7 +3265,7 @@ export default function Settings({ onClose }: SettingsProps) {
                           </p>
                           <ol className="text-xs text-blue-700 dark:text-blue-300 space-y-1 ml-4 list-decimal">
                             <li>Use the browser search link for no setup</li>
-                            <li>Use optional monitoring only if you want JobSentinel to check USAJobs for you</li>
+                            <li>Use optional scheduled checks only if you want JobSentinel to check USAJobs for you</li>
                             <li>Ask USAJobs for an access code with your email</li>
                             <li>Copy the access code from your email</li>
                             <li>Paste it here</li>

@@ -74,6 +74,9 @@ and record actionable findings in this active-plan surface.
 - Latest local email-alert setup follow-up replaces provider-address/provider-number
   wording with email-sending-details, sending-address, and sending-number labels.
   Settings and product-copy tests guard the old labels.
+- Latest local USAJobs setup follow-up replaces old shortcut phrasing with
+  scheduled-check and on-your-schedule wording. Settings and product-copy tests
+  guard the old phrases.
 - Latest local resume-readability follow-up changes score-adjacent labels from
   `Complete`, `Completeness`, `missing`, `issues`, `View Details`, and `Full
   Resume Readability Review` to details, details-included, to-review,
@@ -523,7 +526,7 @@ and record actionable findings in this active-plan surface.
   USAJobs setup, optional job sources, posting-risk controls, and resume-based
   sorting now use plainer labels such as desktop alerts from your computer,
   JobSentinel is open on screen, email sending address/number, automatic
-  checks, Optional USAJobs auto-check, Browser Button, postings that need
+  checks, optional USAJobs scheduled checks, Browser Button, postings that need
   review, and Use Resume to Sort Jobs. Settings tests and product-copy sensors
   cover the old phrases.
 - Latest local privacy follow-up removes raw screening-question text and saved
@@ -550,7 +553,7 @@ and record actionable findings in this active-plan surface.
   60000, the labels no longer say "in thousands," current-filter summaries use
   salary formatting, and product-copy coverage rejects the old `$K` drift.
 - Latest local zero-technical provider setup work labels USAJobs as optional
-  automatic checks with a no-setup browser-search path first, keeps Telegram
+  scheduled checks with a no-setup browser-search path first, keeps Telegram
   bot details behind an optional chat-alert path, and adds
   product-copy coverage against old provider setup shortcuts.
 - Latest local broad-profile source work removes preloaded company-source URLs

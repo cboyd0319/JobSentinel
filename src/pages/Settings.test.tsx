@@ -1277,7 +1277,7 @@ describe("Settings — handleSave flow", () => {
     ).toBeInTheDocument();
   });
 
-  it("labels USAJobs source setup as optional automatic checks", async () => {
+  it("labels USAJobs source setup as optional scheduled checks", async () => {
     const user = userEvent.setup();
     const config = makeConfig();
     config.usajobs.enabled = true;
@@ -1298,13 +1298,13 @@ describe("Settings — handleSave flow", () => {
 
     await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
 
-    expect(screen.getByText(/Optional USAJobs auto-check/i)).toBeInTheDocument();
+    expect(screen.getByText(/Optional USAJobs scheduled checks/i)).toBeInTheDocument();
     expect(screen.getByText(/Skip this if you only want to open USAJobs/i)).toBeInTheDocument();
     expect(
       screen.getByRole("checkbox", { name: /Turn USAJobs automatic checks on or off/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/Automatic USAJobs checks contact USAJobs/i),
+      screen.getByText(/JobSentinel contacts USAJobs on your schedule/i),
     ).toBeInTheDocument();
     expect(
       screen.getByText(/access code, USAJobs email, search words, location,\s*remote choice, how recent jobs should be/i),
@@ -1315,6 +1315,7 @@ describe("Settings — handleSave flow", () => {
     expect(screen.queryByLabelText("Keywords")).not.toBeInTheDocument();
     expect(screen.queryByText("Posted within:")).not.toBeInTheDocument();
     expect(screen.queryByText("Max results:")).not.toBeInTheDocument();
+    expect(screen.queryByText(/Optional USAJobs auto-check/i)).not.toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: /Open USAJobs search in your browser/i }),
     ).toHaveAttribute("href", "https://www.usajobs.gov/Search/Results");
