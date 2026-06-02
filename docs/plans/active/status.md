@@ -136,6 +136,22 @@ unreviewed form sending.
   report"` passed 1 test, `npm run test:e2e:smoke:budget` passed 10 expected
   tests in about 8.6 seconds, `npm run lint`, `npm run lint:docs`, and `git
   diff --check` passed.
+- Current local macOS package rebuild evidence: `npm run tauri:build:macos --
+  --target universal-apple-darwin` produced a fresh
+  `src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_2.6.4_universal.dmg`.
+  `npm run tauri:verify:macos -- --dmg
+  src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_2.6.4_universal.dmg
+  --expected-architectures x86_64,arm64 --launch-smoke` passed: DMG checksum
+  valid, mounted app has `x86_64 arm64`, app signature verifies, and launch
+  smoke stayed running for 12 seconds with empty stderr. Gatekeeper still
+  rejects the local ad-hoc package, as expected until Developer ID signing and
+  notarization are configured.
+- Current published macOS release gap: the public GitHub `v2.6.4` release is
+  live and includes `JobSentinel_2.6.4_universal.dmg`, but verification of the
+  downloaded public DMG failed because the mounted `JobSentinel.app` is not
+  signed at all. The public macOS artifact therefore still needs replacement
+  through the new release gate after Developer ID signing and notarization
+  secrets are configured.
 - Current local platform-doc drift fix syncs the getting-started database paths
   with live platform code: macOS data lives under `~/Library/Application
   Support/JobSentinel`, Linux data under `~/.local/share/jobsentinel`, and the
