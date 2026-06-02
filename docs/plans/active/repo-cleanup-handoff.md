@@ -31,6 +31,16 @@ Latest pushed checkpoints include:
 
 Recent local verification evidence:
 
+- Current local alert-pickiness UI cleanup changes Notification Preferences
+  alert-filter badges from raw threshold percentages to plain labels (`Very
+  picky`, `Picky`, `Balanced`, `More alerts`) and gives each slider a
+  source-specific accessible name. Product-copy sensors now reject raw
+  `{config.minScoreThreshold}%` display. Verification passed: `npx vitest run
+  src/components/NotificationPreferences.test.tsx` passed 46 tests,
+  `node --test scripts/check-product-copy.test.mjs` passed 43 tests,
+  `npm run lint` passed, `npm run test:scripts` passed 468 tests,
+  `npm run lint:bloat` passed, `npm run lint:docs` passed, and
+  `git diff --check` passed.
 - Current local user-doc sidecar cleanup applies read-only agent findings
   across the docs hub, Job Sources guide, Resume Data Import, Fit Review,
   Resume Builder, Notifications, Quick Start, and Privacy. It removes

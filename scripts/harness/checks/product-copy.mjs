@@ -1932,6 +1932,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /Detailed rules currently apply to Indeed, Greenhouse, Lever, and JobsWithGPT/i,
       /Match strength/i,
       /Alert selectivity/i,
+      /\{config\.minScoreThreshold\}%/i,
       /Extra Filters/,
       /Only notify if title contains/,
       /Never notify if title contains/,

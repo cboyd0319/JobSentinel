@@ -441,6 +441,22 @@ describe("NotificationPreferences Component", () => {
       expect(screen.queryByText(/above this match score/i)).not.toBeInTheDocument();
     });
 
+    it("uses plain alert-pickiness labels instead of raw percentages", async () => {
+      render(<NotificationPreferencesComponent />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByRole("slider", { name: "How picky Indeed alerts are" }),
+        ).toBeInTheDocument();
+      });
+
+      expect(screen.getAllByText("Picky").length).toBeGreaterThan(0);
+      expect(screen.getAllByText("Very picky").length).toBeGreaterThan(0);
+      expect(screen.queryByText("70%")).not.toBeInTheDocument();
+      expect(screen.queryByText("75%")).not.toBeInTheDocument();
+      expect(screen.queryByText("80%")).not.toBeInTheDocument();
+    });
+
     it("renders all job alerts toggle", async () => {
       render(<NotificationPreferencesComponent />);
 

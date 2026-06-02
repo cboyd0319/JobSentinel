@@ -630,6 +630,7 @@ test("product copy rejects technical-first settings copy", () => {
         "Detailed rules currently apply to Indeed, Greenhouse, Lever, and JobsWithGPT",
         "Match strength",
         "Alert selectivity",
+        "{config.minScoreThreshold}%",
         "Extra Filters",
         "Only notify if title contains",
         "Never notify if title contains",
@@ -1396,6 +1397,17 @@ test("product copy rejects stale settings alert and source setup copy", () => {
       writeFixtureFile(root, "src/pages/Settings.tsx", `${staleCopy}\n`);
       assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
     }
+  });
+});
+
+test("product copy rejects raw alert threshold percentages", () => {
+  withFixture((root) => {
+    writeFixtureFile(root, "src/components/NotificationPreferences.tsx", "{config.minScoreThreshold}%\n");
+
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "src/components/NotificationPreferences.tsx"),
+      true,
+    );
   });
 });
 

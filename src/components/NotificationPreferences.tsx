@@ -23,6 +23,18 @@ const SOURCE_INFO: Record<AlertSourceKey, { name: string; color: string; icon: s
   jobswithgpt: { name: 'Connected job source', color: '#10A37F', icon: 'J' },
 };
 
+type AlertPickyLabel = {
+  label: string;
+  variant: "success" | "alert" | "surface";
+};
+
+function getAlertPickyLabel(value: number): AlertPickyLabel {
+  if (value >= 80) return { label: "Very picky", variant: "success" };
+  if (value >= 65) return { label: "Picky", variant: "success" };
+  if (value >= 45) return { label: "Balanced", variant: "alert" };
+  return { label: "More alerts", variant: "surface" };
+}
+
 interface SourceConfigRowProps {
   sourceKey: AlertSourceKey;
   config: SourceNotificationConfig;
@@ -31,6 +43,7 @@ interface SourceConfigRowProps {
 
 const SourceConfigRow = memo(function SourceConfigRow({ sourceKey, config, onChange }: SourceConfigRowProps) {
   const info = SOURCE_INFO[sourceKey] || { name: sourceKey, color: '#666', icon: '?' };
+  const alertPickyLabel = getAlertPickyLabel(config.minScoreThreshold);
 
   return (
     <div className="flex items-center gap-4 py-3 border-b border-surface-200 dark:border-surface-700 last:border-b-0">
@@ -73,10 +86,11 @@ const SourceConfigRow = memo(function SourceConfigRow({ sourceKey, config, onCha
           value={config.minScoreThreshold}
           onChange={(e) => onChange({ ...config, minScoreThreshold: parseInt(e.target.value) })}
           disabled={!config.enabled}
+          aria-label={`How picky ${info.name} alerts are`}
           className="flex-1 h-2 bg-surface-200 dark:bg-surface-600 rounded-lg appearance-none cursor-pointer disabled:opacity-50"
         />
-        <Badge variant={config.minScoreThreshold >= 80 ? 'success' : config.minScoreThreshold >= 60 ? 'alert' : 'surface'}>
-          {config.minScoreThreshold}%
+        <Badge variant={alertPickyLabel.variant}>
+          {alertPickyLabel.label}
         </Badge>
       </div>
 
