@@ -204,6 +204,10 @@ boundaries, and harness modularity:
   view-details, and full-review wording to details, details included, to-review,
   details-to-check, review-details, and readable review wording. Focused
   AtsLiveScorePanel and product-copy tests reject the old labels.
+- Changed Settings tabs from Basic Settings and More Settings to Search
+  Preferences and Sources & Alerts. Dashboard no-source copy, Quick Start,
+  notifications docs, smart-scoring docs, Settings tests, Dashboard tests, and
+  product-copy sensors guard the old labels and old setup path.
 - Changed Application Assist suggested-answer failure copy from a bare saved
   answers message to support-report recovery wording, with focused component and
   product-copy coverage.
@@ -386,7 +390,7 @@ boundaries, and harness modularity:
   uses Official source, after another try, plain table/action labels, and
   focused check results wording. Focused component tests and product-copy
   sensors cover the changes.
-- Reworked remaining More Settings copy from the sidecar audit. Desktop alert
+- Reworked remaining old More Settings copy from the sidecar audit. Desktop alert
   help no longer says native OS notifications, focused-window wording now says
   JobSentinel is open on screen, email details use email sending
   address/number, LinkedIn and USAJobs setup says automatic checks and Optional
@@ -770,7 +774,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 | 2026-06-01 | In progress | Reworked profile README usage from command-line file copying to app setup first, moved manual local-file copying into advanced context, and added product-copy coverage against command-first profile docs. |
 | 2026-06-01 | In progress | Standardized visible crash, settings, and feedback flow copy on safe support report wording, and extended product-copy coverage so shorter safe report labels fail locally. |
 | 2026-06-01 | In progress | Ran read-only broad-audience and zero-technical UX audits. Broad-audience audit found no high-confidence maintained-surface violations; zero-technical audit found open Settings, source-health, Resume readability, structured resume import, session-storage recovery, and dashboard-shortcut debt. Removed remaining browser-import `ATS` jargon from user-facing browser button and LinkedIn monitoring guidance with product-copy coverage. |
-| 2026-06-01 | In progress | Closed the Settings tab label finding from the zero-technical audit by renaming the old advanced tab to "More Settings" and updating the smart-scoring doc plus product-copy coverage against the old label. |
+| 2026-06-01 | In progress | Closed the first Settings tab label finding from the zero-technical audit by renaming the old advanced tab, then superseded that label with "Sources & Alerts" and updated smart-scoring, notification, Quick Start, Dashboard, and product-copy coverage. |
 | 2026-06-01 | In progress | Closed the source-health zero-technical finding by replacing "Page Check", unclear page-read labels, and icon-only actions with plain "Can Read Jobs", "Source Controls", "Turn On/Off", and "Check Now" copy plus focused component and product-copy coverage. |
 | 2026-06-01 | In progress | Closed the raw Resume readability suggestion-category finding by mapping internal labels like `AddKeyword` and `RewordBullet` to plain copy such as "Add job words" and "Rewrite bullet", with focused ResumeOptimizer and product-copy coverage. |
 | 2026-06-01 | In progress | Closed the remaining concrete zero-technical audit findings by clarifying Resume Match Helper export/PDF recovery copy, renaming structured resume imports to "Import from resume app", replacing browser-session storage wording with a copy/paste recovery path, and moving visible dashboard shortcut syntax behind the existing Shortcuts control. |

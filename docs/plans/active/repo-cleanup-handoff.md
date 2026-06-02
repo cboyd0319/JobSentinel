@@ -158,6 +158,11 @@ Current cleanup posture:
   details, details included, to-review, details-to-check, review-details, and
   readable review wording. AtsLiveScorePanel and product-copy coverage guard the
   old labels.
+- Current local settings-tab follow-up changes the Settings tabs from Basic
+  Settings and More Settings to Search Preferences and Sources & Alerts.
+  Dashboard no-source guidance, Quick Start notification setup, notification
+  docs, smart-scoring docs, Settings tests, Dashboard tests, and product-copy
+  coverage guard the old labels and old setup path.
 - Current local saved-answer recovery follow-up changes Application Assist
   suggested-answer failures from a bare saved-answers message to support-report
   recovery wording, with focused component and product-copy coverage.
@@ -503,7 +508,7 @@ Current cleanup posture:
   readability import/copy, structured resume import, browser-session storage
   recovery, and visible dashboard shortcut copy. Local follow-ups removed
   remaining `ATS` jargon from browser button and LinkedIn monitoring guidance,
-  renamed the old advanced tab to "More Settings", changed source-health
+  replaced the old advanced tab with clearer settings-task labels, changed source-health
   page-check and icon-only actions to plain labels, mapped raw Resume
   suggestion category keys to plain labels, clarified resume-app export and
   PDF upload recovery paths, labeled structured imports as "Import from resume

@@ -31,14 +31,20 @@ and record actionable findings in this active-plan surface.
 
 ## Current Posture
 
+- Latest local settings-tab follow-up changes the Settings tabs from `Basic
+  Settings` and `More Settings` to `Search Preferences` and `Sources & Alerts`.
+  Dashboard no-source guidance, Quick Start notification setup, notification
+  docs, smart-scoring docs, Settings tests, Dashboard tests, and product-copy
+  sensors now guard the old labels and old user-doc path.
 - Latest local resume-readability follow-up changes score-adjacent labels from
   `Complete`, `Completeness`, `missing`, `issues`, `View Details`, and `Full
   Resume Readability Review` to details, details-included, to-review,
   details-to-check, review-details, and resume-readability-review wording.
   AtsLiveScorePanel and product-copy tests guard the old labels.
 - Latest local recovery-copy follow-up changes shared error messages from
-  source-disabled, request-limit, website-format, More Settings, notification
-  settings, and system-date wording to plain source-turned-off, check-limit,
+  source-disabled, request-limit, website-format, old More Settings guidance,
+  notification settings, and system-date wording to plain source-turned-off,
+  check-limit,
   job-website-changed, alert-channel, alert-settings, and computer-date wording.
   Error-message tests and product-copy sensors guard the old recovery phrases.
 - Latest local keyboard-help follow-up changes shortcut and quick-action labels
@@ -474,8 +480,8 @@ and record actionable findings in this active-plan surface.
   block page import, monitor directly, official feed, retry counts, Access,
   Source Controls, and Source Check Results. Focused component tests and
   product-copy coverage guard the old wording.
-- Latest local Settings copy follow-up applies the sidecar audit to remaining
-  More Settings surfaces. Notifications, email provider details, LinkedIn and
+- Earlier local Settings copy follow-up applied the sidecar audit to remaining
+  old More Settings surfaces. Notifications, email provider details, LinkedIn and
   USAJobs setup, optional job sources, posting-risk controls, and resume-based
   sorting now use plainer labels such as desktop alerts from your computer,
   JobSentinel is open on screen, email sending address/number, automatic
@@ -799,9 +805,9 @@ and record actionable findings in this active-plan surface.
 - Latest local browser-import wording work removes `ATS` jargon from browser
   button setup and LinkedIn monitoring guidance, replacing it with company
   application page language and product-copy coverage.
-- Latest local Settings wording work renames the old advanced tab to "More
-  Settings" and updates the smart-scoring doc plus product-copy coverage so the
-  old tab label does not return.
+- Latest local Settings wording work replaces the old advanced tab with clearer
+  settings-task labels and updates smart-scoring, notification, Quick Start,
+  Dashboard, and product-copy coverage so old tab labels do not return.
 - Latest local source-health UX work changes page-check and icon-only action
   columns to plain "Can Read Jobs" and visible "Turn On/Off" plus "Check Now"
   controls, with focused component and product-copy coverage.

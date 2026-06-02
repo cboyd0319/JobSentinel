@@ -61,12 +61,12 @@ already part of your routine.
 
 ### Desktop Notifications
 
-1. In JobSentinel, open Settings, choose More Settings, then turn on Desktop
+1. In JobSentinel, open Settings, choose Sources & Alerts, then turn on Desktop
    Notifications
 
 That's it. No connection link needed.
 
-**What you'll get:** Native OS notifications:
+**What you'll get:** Desktop alerts:
 
 - **Windows:** Toast notifications in Action Center
 - **macOS:** Notification Center alerts
@@ -81,7 +81,7 @@ surface.
 
 ### Email
 
-1. In JobSentinel, open Settings, choose More Settings, then turn on Email
+1. In JobSentinel, open Settings, choose Sources & Alerts, then turn on Email
    Alerts
 2. Choose Gmail, Outlook, Yahoo, or Other
 3. Enter the email address that should send alerts
@@ -111,7 +111,7 @@ email alerts are easier to set up.
 5. Click "Add New Webhook to Workspace"
 6. Pick a channel (like #job-alerts)
 7. Copy the connection link
-8. In JobSentinel, open Settings, choose More Settings, then paste the link in
+8. In JobSentinel, open Settings, choose Sources & Alerts, then paste the link in
    Slack Notifications
 
 **What you'll get:** Formatted messages with job details and a "View Job" button.
@@ -126,7 +126,7 @@ email alerts are easier to set up.
 4. Name it "JobSentinel"
 5. Pick a channel
 6. Copy the connection link
-7. In JobSentinel, open Settings, choose More Settings, then paste the link in
+7. In JobSentinel, open Settings, choose Sources & Alerts, then paste the link in
    Discord Notifications
 
 **What you'll get:** Alert cards that make stronger matches easy to spot.
@@ -142,7 +142,7 @@ email alerts are easier to set up.
 3. Find the connector that creates a channel connection link
 4. Name it "JobSentinel"
 5. Copy the connection link
-6. In JobSentinel, open Settings, choose More Settings, then paste the link in
+6. In JobSentinel, open Settings, choose Sources & Alerts, then paste the link in
    Microsoft Teams Notifications
 
 **What you'll get:** Cards with job details and action buttons.
@@ -166,7 +166,7 @@ requires an alert code and destination number.
 5. Find the Telegram destination number for that group or channel:
    - For groups: Use [@userinfobot](https://t.me/userinfobot)
    - For channels: Forward a message to [@getmyid_bot](https://t.me/getmyid_bot)
-6. In JobSentinel, open Settings, choose More Settings, then paste the alert
+6. In JobSentinel, open Settings, choose Sources & Alerts, then paste the alert
    code and destination number in Telegram Notifications
 
 **Note:** Group destination numbers usually start with `-`.
@@ -183,7 +183,7 @@ By default, alert match strength is source-specific: large job boards start
 around 70%, Greenhouse and Lever around 80%, and connected job sources around
 75%.
 
-You can adjust this in Settings, under More Settings, with Match strength.
+You can adjust this in Settings, under Sources & Alerts, with Match strength.
 
 **Tip:** Raise match strength when alerts feel noisy. Lower it when alerts feel
 too quiet.

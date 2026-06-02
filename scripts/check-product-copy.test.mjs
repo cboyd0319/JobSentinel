@@ -730,7 +730,7 @@ test("product copy rejects technical-first settings copy", () => {
     writeFixtureFile(
       root,
       "src/pages/Settings.tsx",
-      "Turn this on to never miss a new posting.\nAuto-scan job boards\nCompany preference (if configured)\nSave failed\nTest failed\nsaved connection detail(s) failed to save\nRestart JobSentinel\n",
+      "Basic Settings\nMore Settings\nTurn this on to never miss a new posting.\nAuto-scan job boards\nCompany preference (if configured)\nSave failed\nTest failed\nsaved connection detail(s) failed to save\nRestart JobSentinel\n",
     );
     writeFixtureFile(
       root,
@@ -995,6 +995,7 @@ test("product copy rejects technical-first settings copy", () => {
         "",
       ].join("\n"),
     );
+    writeFixtureFile(root, "docs/user/QUICK_START.md", "Open Settings, choose **More Settings**.\n");
     writeFixtureFile(
       root,
       "src/components/AtsLiveScorePanel.tsx",

@@ -30,7 +30,7 @@ most prominent without asking users to reason about model weights.
 | **Company** | Supporting | Favorite companies and hidden companies |
 | **Freshness** | Supporting | How recently the posting appeared |
 
-The review guide is visible in **Settings > More Settings**. Most users
+The review guide is visible in **Settings > Sources & Alerts**. Most users
 should change job titles, work words, salary floor, location, and company
 preferences before touching advanced scoring configuration.
 

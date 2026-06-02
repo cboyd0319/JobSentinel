@@ -19,7 +19,7 @@ export function getNoJobsEmptyStateCopy(
       primaryLabel: "Turn On Job Sources",
       secondaryLabel: "Import a Job Posting",
       helperText:
-        "In Settings, open More Settings and turn on Additional Job Boards. You can also paste a job posting now.",
+        "In Settings, choose Sources & Alerts and turn on Additional Job Boards. You can also paste a job posting now.",
       firstStepTitle: "Choose sources",
       firstStepDescription: "Turn on sources that fit your search",
     };

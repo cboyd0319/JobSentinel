@@ -220,7 +220,8 @@ describe("Dashboard no-jobs empty state copy", () => {
     expect(copy.title).toBe("Turn on job sources");
     expect(copy.primaryLabel).toBe("Turn On Job Sources");
     expect(copy.secondaryLabel).toBe("Import a Job Posting");
-    expect(copy.helperText).toContain("More Settings");
+    expect(copy.helperText).toContain("Sources & Alerts");
+    expect(copy.helperText).not.toContain("More Settings");
     expect(copy.firstStepTitle).toBe("Choose sources");
   });
 

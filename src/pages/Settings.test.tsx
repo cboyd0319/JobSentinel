@@ -388,7 +388,7 @@ describe("Settings — loadConfig flow", () => {
       expect(screen.getByText("Settings")).toBeInTheDocument();
     });
 
-    await userEvent.click(screen.getByRole("tab", { name: "More Settings" }));
+    await userEvent.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
 
     expect(screen.getByText("Search links only")).toBeInTheDocument();
     expect(
@@ -413,7 +413,7 @@ describe("Settings — loadConfig flow", () => {
       expect(screen.getByText("Settings")).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole("tab", { name: "More Settings" }));
+    await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
 
     expect(screen.getByText("Posting Risk and Freshness")).toBeInTheDocument();
     expect(screen.getByText("Freshness behavior:")).toBeInTheDocument();
@@ -457,7 +457,7 @@ describe("Settings — loadConfig flow", () => {
       expect(screen.getByText("Settings")).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole("tab", { name: "More Settings" }));
+    await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
 
     const emailToggle = screen.getByRole("checkbox", {
       name: "Enable email alerts",
@@ -501,7 +501,7 @@ describe("Settings — loadConfig flow", () => {
     expect(screen.getByText("No search words to avoid")).toBeInTheDocument();
     expect(screen.queryByText("Keywords to Avoid")).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole("tab", { name: "More Settings" }));
+    await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
 
     expect(screen.getByText(/resume skills first, then your search words/i)).toBeInTheDocument();
     expect(screen.getByText("Job title and search-word matches")).toBeInTheDocument();
@@ -612,7 +612,7 @@ describe("Settings — handleSave flow", () => {
       expect(screen.getByText("Settings")).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole("tab", { name: "More Settings" }));
+    await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
     await user.click(screen.getByText("More Job Boards"));
     await user.type(
       screen.getByLabelText("Optional job-source link"),
@@ -703,7 +703,7 @@ describe("Settings — handleSave flow", () => {
       expect(screen.getByText("Settings")).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole("tab", { name: "More Settings" }));
+    await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
     await user.click(screen.getByText("More Job Boards"));
 
     const contactSummary = screen.getByText(/Last contacted:/i).closest("div");
@@ -769,7 +769,7 @@ describe("Settings — handleSave flow", () => {
       expect(screen.getByText("Settings")).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole("tab", { name: "More Settings" }));
+    await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
     await user.type(
       screen.getByPlaceholderText("Paste Slack connection link"),
       "https://hooks.slack.com/services/T00/B00/secret-token",
@@ -893,7 +893,7 @@ describe("Settings — handleSave flow", () => {
       expect(screen.getByText("Settings")).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole("tab", { name: "More Settings" }));
+    await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
     const discordToggle = screen.getByRole("checkbox", {
       name: "Enable Discord alerts",
     });
@@ -926,7 +926,7 @@ describe("Settings — handleSave flow", () => {
       expect(screen.getByText("Settings")).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole("tab", { name: "More Settings" }));
+    await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
     await user.click(screen.getByRole("button", { name: "Test" }));
 
     await waitFor(() => {
@@ -975,7 +975,7 @@ describe("Settings — handleSave flow", () => {
       expect(screen.getByText("Settings")).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole("tab", { name: "More Settings" }));
+    await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
     await user.click(screen.getByRole("button", { name: "Test" }));
 
     await waitFor(() => {
@@ -1017,7 +1017,7 @@ describe("Settings — handleSave flow", () => {
       expect(screen.getByText("Settings")).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole("tab", { name: "More Settings" }));
+    await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
 
     expect(screen.getByPlaceholderText("Paste Slack connection link")).toBeInTheDocument();
     expect(screen.getByPlaceholderText("Paste Discord connection link")).toBeInTheDocument();
@@ -1048,7 +1048,7 @@ describe("Settings — handleSave flow", () => {
       expect(screen.getByText("Settings")).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole("tab", { name: "More Settings" }));
+    await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
 
     expect(screen.getAllByText(/Optional chat alert/i).length).toBeGreaterThan(0);
     expect(
@@ -1091,7 +1091,7 @@ describe("Settings — handleSave flow", () => {
       expect(screen.getByText("Settings")).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole("tab", { name: "More Settings" }));
+    await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
 
     expect(
       screen.getByText(/Start with desktop alerts/i),
@@ -1143,7 +1143,7 @@ describe("Settings — handleSave flow", () => {
       expect(screen.getByText("Settings")).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole("tab", { name: "More Settings" }));
+    await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
 
     expect(screen.queryByText("Recommended for you")).not.toBeInTheDocument();
   });
@@ -1170,7 +1170,7 @@ describe("Settings — handleSave flow", () => {
       expect(screen.getByText("Settings")).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole("tab", { name: "More Settings" }));
+    await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
 
     expect(screen.queryByText("Recommended for you")).not.toBeInTheDocument();
   });
@@ -1197,7 +1197,7 @@ describe("Settings — handleSave flow", () => {
       expect(screen.getByText("Settings")).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole("tab", { name: "More Settings" }));
+    await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
 
     const recommended = screen.getByText("Recommended for you");
     const panel = recommended.parentElement?.parentElement;
@@ -1230,7 +1230,7 @@ describe("Settings — handleSave flow", () => {
       expect(screen.getByText("Settings")).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole("tab", { name: "More Settings" }));
+    await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
 
     expect(
       screen.getAllByText(/This site does not always let JobSentinel check listings/i),
@@ -1260,7 +1260,7 @@ describe("Settings — handleSave flow", () => {
       expect(screen.getByText("Settings")).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole("tab", { name: "More Settings" }));
+    await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
 
     expect(
       screen.getByText(/public company career pages and selected job sites/i),
@@ -1295,7 +1295,7 @@ describe("Settings — handleSave flow", () => {
       expect(screen.getByText("Settings")).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole("tab", { name: "More Settings" }));
+    await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
 
     expect(screen.getByText(/Optional USAJobs auto-check/i)).toBeInTheDocument();
     expect(screen.getByText(/Skip this if you only want to open USAJobs/i)).toBeInTheDocument();
@@ -1346,7 +1346,7 @@ describe("Settings — handleSave flow", () => {
       expect(screen.getByText("Settings")).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole("tab", { name: "More Settings" }));
+    await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
     await user.type(
       screen.getByPlaceholderText("Paste Discord connection link"),
       "https://evil.com/api/webhooks/123/abc",
@@ -1387,7 +1387,7 @@ describe("Settings — handleSave flow", () => {
       expect(screen.getByText("Settings")).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole("tab", { name: "More Settings" }));
+    await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
     await user.type(
       screen.getByPlaceholderText("Paste Teams connection link"),
       "https://evil.com/webhook/abc",

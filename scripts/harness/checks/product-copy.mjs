@@ -890,6 +890,8 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /(?:>\s*|["'`])Settings backup saved(?:\s*<|["'`])/,
       /Saved passwords and connection codes are left out for safety/i,
       /Config imported/i,
+      /(?:>\s*|["'`])Basic Settings(?:\s*<|["'`])/,
+      /(?:>\s*|["'`])More Settings(?:\s*<|["'`])/,
       /(?:>\s*|["'`])Advanced Settings(?:\s*<|["'`])/,
       /Greenhouse, Lever, and other popular job boards/i,
       /native OS notifications/i,
@@ -1102,6 +1104,8 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /scan allowed sources immediately/i,
       /Ghost Job Detection/i,
       /force a refresh/i,
+      /choose \*\*More Settings\*\*/i,
+      /choose More Settings/i,
     ];
 
     if (quickStartPatterns.some((pattern) => pattern.test(text))) {
