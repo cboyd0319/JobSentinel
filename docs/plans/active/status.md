@@ -31,6 +31,12 @@ and record actionable findings in this active-plan surface.
 
 ## Current Posture
 
+- Latest local notification-rules follow-up changes alert-preference copy from
+  settings jargon to plain job-alert language: the global switch is `All job
+  alerts`, source copy says job boards are `turned on`, extra filters are
+  `Extra alert rules`, title-word rules use job-title language, and remote plus
+  company labels are phrased as user choices. NotificationPreferences tests and
+  product-copy sensors guard the old phrases.
 - Latest local application-profile loading follow-up replaces vague
   `Taking longer than expected...` copy with `Still opening your application
   profile...`, adds a ProfileForm slow-load test, and extends product-copy

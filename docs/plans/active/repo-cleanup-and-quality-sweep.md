@@ -187,6 +187,10 @@ boundaries, and harness modularity:
 - Changed USAJobs automatic-check settings from `keywords`, posted-within, and
   max-results wording to search words, recent jobs, and jobs-to-ask-for copy.
   Product-copy coverage now rejects the old phrasing.
+- Changed notification preferences from settings/control jargon to plain
+  job-alert rules: the global switch, source state copy, title-word rules,
+  remote-only label, and company-alert labels now read as user choices.
+  NotificationPreferences and product-copy tests reject the old phrases.
 - Changed Application Assist suggested-answer failure copy from a bare saved
   answers message to support-report recovery wording, with focused component and
   product-copy coverage.

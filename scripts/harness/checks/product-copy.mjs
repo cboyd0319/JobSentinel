@@ -1347,6 +1347,37 @@ export function hasTechnicalFirstUserCopy(root, path) {
     }
   }
 
+  if (path === "src/components/NotificationPreferences.tsx") {
+    const notificationPreferencePatterns = [
+      /Failed to load notification preferences/i,
+      /Loading notification settings/i,
+      /Failed to save["'`],\s*["'`]Your changes have been reverted/i,
+      /Your last change was undone\.\s*Try again\./i,
+      /All Notifications/,
+      /Master switch/i,
+      /enabled job boards/i,
+      /Source Alert Rules/,
+      /Which Jobs Alert You/,
+      /sources and filters can interrupt you/i,
+      /Detailed rules currently apply to Indeed, Greenhouse, Lever, and JobsWithGPT/i,
+      /Extra Filters/,
+      /Only notify if title contains/,
+      /Never notify if title contains/,
+      /Minimum Salary/,
+      /K\/year/i,
+      /Remote Only/,
+      /Favorite Companies/,
+      /Companies to Skip/,
+      /e\.g\., Senior, Lead, Staff/i,
+      /placeholder=["'`]e\.g\., 90["'`]/i,
+      /thousand per year/i,
+    ];
+
+    if (notificationPreferencePatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
+  }
+
   const stalePatterns = [
     /Import JSON Resume/i,
     /Import Resume Data/i,
@@ -1472,16 +1503,6 @@ export function hasTechnicalFirstUserCopy(root, path) {
     /configured\s+channel\b/i,
     /\bAdvanced Settings\b/,
     /Failed to import config/i,
-    /Failed to load notification preferences/i,
-    /Failed to save["'`],\s*["'`]Your changes have been reverted/i,
-    /Your last change was undone\.\s*Try again\./i,
-    /Source Alert Rules/i,
-    /Which Jobs Alert You/i,
-    /sources and filters can interrupt you/i,
-    /Detailed rules currently apply to Indeed, Greenhouse, Lever, and JobsWithGPT/i,
-    /Minimum Salary/,
-    /K\/year/i,
-    /e\.g\., Senior, Lead, Staff/i,
     /app configuration file/i,
     /configuration file (?:is missing|is damaged)/i,
     /webhook URL/i,
@@ -1616,8 +1637,6 @@ export function hasTechnicalFirstUserCopy(root, path) {
     /Too Many Requests/i,
     /too many requests to this job board/i,
     /increasing the delay between searches/i,
-    /placeholder=["'`]e\.g\., 90["'`]/i,
-    /thousand per year/i,
     /No profile configured/i,
     /set up your application profile first/i,
     /Require manual approval/i,

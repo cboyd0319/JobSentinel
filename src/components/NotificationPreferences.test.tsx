@@ -400,7 +400,7 @@ describe("NotificationPreferences Component", () => {
 
       render(<NotificationPreferencesComponent />);
 
-      expect(screen.getByText("Loading notification settings...")).toBeInTheDocument();
+      expect(screen.getByText("Loading alert rules...")).toBeInTheDocument();
     });
   });
 
@@ -439,11 +439,13 @@ describe("NotificationPreferences Component", () => {
       expect(screen.queryByText(/above this match score/i)).not.toBeInTheDocument();
     });
 
-    it("renders All Notifications toggle", async () => {
+    it("renders all job alerts toggle", async () => {
       render(<NotificationPreferencesComponent />);
 
       await waitFor(() => {
-        expect(screen.getByText("All Notifications")).toBeInTheDocument();
+        expect(screen.getByText("All job alerts")).toBeInTheDocument();
+        expect(screen.getByText("Turn every job alert on or off")).toBeInTheDocument();
+        expect(screen.queryByText(/Master switch/i)).not.toBeInTheDocument();
       });
     });
 
@@ -463,6 +465,8 @@ describe("NotificationPreferences Component", () => {
         expect(
           screen.getByText(/Choose which job sources can send alerts/),
         ).toBeInTheDocument();
+        expect(screen.getByText(/Other job boards that are turned on/)).toBeInTheDocument();
+        expect(screen.queryByText(/enabled job boards/i)).not.toBeInTheDocument();
         expect(screen.queryByText("Source Alert Rules")).not.toBeInTheDocument();
         expect(screen.queryByText("Which Jobs Alert You")).not.toBeInTheDocument();
         expect(screen.queryByText(/interrupt you/i)).not.toBeInTheDocument();
@@ -482,11 +486,11 @@ describe("NotificationPreferences Component", () => {
       });
     });
 
-    it("renders Extra Filters section", async () => {
+    it("renders Extra alert rules section", async () => {
       render(<NotificationPreferencesComponent />);
 
       await waitFor(() => {
-        expect(screen.getByText("Extra Filters")).toBeInTheDocument();
+        expect(screen.getByText("Extra alert rules")).toBeInTheDocument();
       });
     });
   });
@@ -551,7 +555,8 @@ describe("NotificationPreferences Component", () => {
       render(<NotificationPreferencesComponent />);
 
       await waitFor(() => {
-        expect(screen.getByText("Only notify if title contains")).toBeInTheDocument();
+        expect(screen.getByText("Alert only when the job title has")).toBeInTheDocument();
+        expect(screen.queryByText("Only notify if title contains")).not.toBeInTheDocument();
       });
     });
 
@@ -559,7 +564,8 @@ describe("NotificationPreferences Component", () => {
       render(<NotificationPreferencesComponent />);
 
       await waitFor(() => {
-        expect(screen.getByText("Never notify if title contains")).toBeInTheDocument();
+        expect(screen.getByText("Do not alert when the job title has")).toBeInTheDocument();
+        expect(screen.queryByText("Never notify if title contains")).not.toBeInTheDocument();
       });
     });
 
@@ -604,7 +610,8 @@ describe("NotificationPreferences Component", () => {
       render(<NotificationPreferencesComponent />);
 
       await waitFor(() => {
-        expect(screen.getByText("Remote Only")).toBeInTheDocument();
+        expect(screen.getByText("Remote jobs only")).toBeInTheDocument();
+        expect(screen.queryByText("Remote Only")).not.toBeInTheDocument();
       });
     });
   });
@@ -618,7 +625,8 @@ describe("NotificationPreferences Component", () => {
       render(<NotificationPreferencesComponent />);
 
       await waitFor(() => {
-        expect(screen.getByText("Favorite Companies")).toBeInTheDocument();
+        expect(screen.getByText("Companies you want alerts from")).toBeInTheDocument();
+        expect(screen.queryByText("Favorite Companies")).not.toBeInTheDocument();
       });
     });
 
@@ -626,7 +634,8 @@ describe("NotificationPreferences Component", () => {
       render(<NotificationPreferencesComponent />);
 
       await waitFor(() => {
-        expect(screen.getByText("Companies to Skip")).toBeInTheDocument();
+        expect(screen.getByText("Companies to skip")).toBeInTheDocument();
+        expect(screen.queryByText("Companies to Skip")).not.toBeInTheDocument();
       });
     });
   });
@@ -642,7 +651,7 @@ describe("NotificationPreferences Component", () => {
       render(<NotificationPreferencesComponent />);
 
       await waitFor(() => {
-        expect(screen.getByText("All Notifications")).toBeInTheDocument();
+        expect(screen.getByText("All job alerts")).toBeInTheDocument();
       });
 
       // Toggle the global switch
@@ -669,7 +678,7 @@ describe("NotificationPreferences Component", () => {
       });
 
       expect(screen.getByText("Try again before changing alert rules.")).toBeInTheDocument();
-      expect(screen.queryByText("All Notifications")).not.toBeInTheDocument();
+      expect(screen.queryByText("All job alerts")).not.toBeInTheDocument();
       expect(screen.getByRole("button", { name: /try again/i })).toBeInTheDocument();
     });
 
@@ -681,7 +690,7 @@ describe("NotificationPreferences Component", () => {
       render(<NotificationPreferencesComponent />);
 
       await waitFor(() => {
-        expect(screen.getByText("All Notifications")).toBeInTheDocument();
+        expect(screen.getByText("All job alerts")).toBeInTheDocument();
       });
 
       // Toggle to trigger save

@@ -163,7 +163,7 @@ export const NotificationPreferences = memo(function NotificationPreferences() {
     return (
       <Card>
         <div className="p-8 text-center text-surface-500">
-          Loading notification settings...
+          Loading alert rules...
         </div>
       </Card>
     );
@@ -216,10 +216,10 @@ export const NotificationPreferences = memo(function NotificationPreferences() {
             </div>
             <div>
               <p className="font-medium text-surface-800 dark:text-surface-200">
-                All Notifications
+                All job alerts
               </p>
               <p className="text-xs text-surface-500">
-                Master switch for all job alerts
+                Turn every job alert on or off
               </p>
             </div>
           </div>
@@ -281,7 +281,7 @@ export const NotificationPreferences = memo(function NotificationPreferences() {
           </p>
           <p className="text-xs text-surface-500 dark:text-surface-400 mb-3">
             Choose which job sources can send alerts. Only sources shown here
-            have separate alert rules. Other enabled job boards use the main
+            have separate alert rules. Other job boards that are turned on use the main
             alert switch; turn a board off in Additional Job Boards to stop
             those alerts.
           </p>
@@ -372,7 +372,7 @@ function AdvancedFiltersSection({ filters, onChange, disabled }: AdvancedFilters
       <div className="flex items-center gap-2 mb-4">
         <FilterIcon className="w-4 h-4 text-surface-500" />
         <div className="text-xs font-medium text-surface-500 dark:text-surface-400 uppercase tracking-wide flex items-center gap-1">
-          Extra Filters
+          Extra alert rules
           <HelpIcon text="Additional rules to customize which jobs you get notified about. All of these are optional." size="sm" />
         </div>
       </div>
@@ -382,7 +382,7 @@ function AdvancedFiltersSection({ filters, onChange, disabled }: AdvancedFilters
         {/* Include Keywords */}
         <div>
           <label className="text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5 block">
-            Only notify if title contains
+            Alert only when the job title has
           </label>
           <div className="flex gap-2 mb-2">
             <input
@@ -423,7 +423,7 @@ function AdvancedFiltersSection({ filters, onChange, disabled }: AdvancedFilters
         {/* Exclude Keywords */}
         <div>
           <label className="text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5 block">
-            Never notify if title contains
+            Do not alert when the job title has
           </label>
           <div className="flex gap-2 mb-2">
             <input
@@ -485,10 +485,10 @@ function AdvancedFiltersSection({ filters, onChange, disabled }: AdvancedFilters
           </div>
         </div>
 
-        {/* Remote Only */}
+        {/* Remote jobs only */}
         <div>
           <label className="text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5 block">
-            Remote Only
+            Remote jobs only
           </label>
           <label className="relative inline-flex items-center cursor-pointer">
             <input
@@ -507,10 +507,10 @@ function AdvancedFiltersSection({ filters, onChange, disabled }: AdvancedFilters
 
       {/* Company Filters */}
       <div className="space-y-3">
-        {/* Favorite Companies */}
+        {/* Companies users want alerts from */}
         <div>
           <label className="text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5 block">
-            Favorite Companies
+            Companies you want alerts from
             <span className="font-normal text-surface-500 ml-1">(get alerts only from these, or leave empty for all)</span>
           </label>
           <div className="mb-2">
@@ -543,10 +543,10 @@ function AdvancedFiltersSection({ filters, onChange, disabled }: AdvancedFilters
           )}
         </div>
 
-        {/* Companies to Skip */}
+        {/* Companies to skip */}
         <div>
           <label className="text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5 block">
-            Companies to Skip
+            Companies to skip
             <span className="font-normal text-surface-500 ml-1">(never get alerts from these)</span>
           </label>
           <div className="mb-2">
