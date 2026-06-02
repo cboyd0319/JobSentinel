@@ -157,13 +157,9 @@ function formatFrontendErrorLog(errors: ErrorReport[]): string {
       `  Message: ${sanitizeTextForStorage(error.message)}`,
     );
 
-    if (error.stack) {
-      lines.push(`  Extra app details: ${sanitizeTextForStorage(error.stack)}`);
-    }
-
-    if (error.componentStack) {
+    if (error.stack || error.componentStack) {
       lines.push(
-        `  Screen details: ${sanitizeTextForStorage(error.componentStack)}`
+        "  Technical details: kept in local problem history, not included in this safe support report."
       );
     }
 

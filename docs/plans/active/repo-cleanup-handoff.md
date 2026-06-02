@@ -216,13 +216,17 @@ Recent local verification evidence:
   `Tailor Resume for This Job` label. Focused verification passed: `npx vitest
   run src/pages/ResumeOptimizer.test.tsx` passed 14 tests and `node --test
   scripts/check-product-copy.test.mjs` passed 36 tests.
-- Current local App Problem History support-copy cleanup renames the full
-  local problem details button to `Save Full Local Problem Details` and
-  clarifies that extra local details stay on the user's computer until the user
-  chooses to share them. Product-copy sensors now reject older detailed-report
-  labels. Focused verification passed: `npx vitest run
-  src/components/ErrorLogPanel.test.tsx` passed 34 tests and `node --test
-  scripts/check-product-copy.test.mjs` passed 36 tests.
+- Current local App Problem History support-copy cleanup renames the advanced
+  local log action to `Advanced: Save Private App Log`, keeps stack and screen
+  traces out of safe support report text, and changes GitHub-open failures to
+  online-help wording. Product-copy sensors now reject older detailed-report
+  labels, raw stack/report labels, and GitHub-specific failure copy. Focused
+  verification passed: `npx vitest run src/components/ErrorLogPanel.test.tsx
+  src/services/feedbackService.test.ts` passed 46 tests, `node --test
+  scripts/check-product-copy.test.mjs` passed 43 tests, targeted stale-copy
+  search found no production matches, `npm run lint` passed, `npm run
+  lint:bloat` passed, `npm run lint:docs` passed, and `git diff --check`
+  passed.
 - Current local source-status wording cleanup replaces remaining user-facing
   `source health` wording with `source status` in README, roadmap, source
   guides, and ScraperHealthDashboard log context. Product-copy sensors now

@@ -221,11 +221,13 @@ boundaries, and harness modularity:
   button to `Review in Resume Builder`, matching the actual action and avoiding
   optimization-style resume wording. Product-copy sensors now reject the old
   label. Focused ResumeOptimizer and product-copy verification passed.
-- Current local App Problem History support-copy cleanup renames the full
-  local problem details button to `Save Full Local Problem Details`, clarifies
-  that extra local details stay on the user's computer until the user chooses
-  to share them, and adds product-copy sensors against older detailed-report
-  labels. Focused ErrorLogPanel and product-copy verification passed.
+- Current local App Problem History support-copy cleanup renames the advanced
+  local log action to `Advanced: Save Private App Log`, keeps stack and screen
+  traces out of safe support report text, changes GitHub-open failures to
+  online-help wording, and adds product-copy sensors against older
+  detailed-report labels, raw stack/report labels, and GitHub-specific failure
+  copy. Focused ErrorLogPanel, feedbackService, product-copy, stale-copy
+  search, lint, bloat, docs, and diff-check verification passed.
 - Current local source-status wording cleanup replaces remaining user-facing
   `source health` wording with `source status` in README, roadmap, source
   guides, and ScraperHealthDashboard log context. Product-copy sensors now

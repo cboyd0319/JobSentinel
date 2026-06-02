@@ -229,7 +229,14 @@ test("product copy rejects raw feedback report presentation", () => {
     writeFixtureFile(
       root,
       "src/services/feedbackService.ts",
-      'Company blocklist\n`Notifications: ${configSummary.notifications_configured} configured`\nhas_resume ? "configured" : "not configured"\n',
+      [
+        "Company blocklist",
+        "`Notifications: ${configSummary.notifications_configured} configured`",
+        'has_resume ? "configured" : "not configured"',
+        "`  Extra app details: ${sanitizeTextForStorage(error.stack)}`",
+        "`  Screen details: ${sanitizeTextForStorage(error.componentStack)}`",
+        "",
+      ].join("\n"),
     );
     writeFixtureFile(root, "src/components/ErrorLogPanel.tsx", "JSON.stringify(error.context)");
 
@@ -1173,7 +1180,7 @@ test("product copy rejects technical-first settings copy", () => {
     writeFixtureFile(
       root,
       "src/hooks/useFeedback.ts",
-      "Failed to load system information\nPlease try again or copy the report instead\n",
+      "Failed to load system information\nPlease try again or copy the report instead\nCould not open GitHub. Please save a safe support report instead.\n",
     );
     writeFixtureFile(
       root,
@@ -1448,6 +1455,7 @@ test("product copy rejects stale recovery and login privacy copy", () => {
     for (const [path, copy] of [
       ["src/components/ErrorLogPanel.tsx", "{displayMessage}"],
       ["src/components/ErrorLogPanel.tsx", "Save Extra Local Details"],
+      ["src/components/ErrorLogPanel.tsx", "Save Full Local Problem Details"],
       ["docs/user/QUICK_START.md", "app password or sending details"],
       ["docs/user/DEEP_LINKS.md", "This is expected - log in to view results."],
       ["docs/user/DEEP_LINKS.md", "Bulk open (open multiple sites at once)"],

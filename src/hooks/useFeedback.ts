@@ -197,7 +197,7 @@ export function useFeedback(): UseFeedbackResult {
       setState(prev => ({
         ...prev,
         submitting: false,
-        error: "Could not open GitHub. Please save a safe support report instead.",
+        error: "Could not open the online help page. Save a safe support report instead.",
       }));
     }
   }, [state.category, state.description, getFormattedDebugInfo]);

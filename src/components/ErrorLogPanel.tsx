@@ -285,9 +285,9 @@ export const ErrorLogPanel = memo(function ErrorLogPanel() {
                   size="sm"
                   variant="secondary"
                   onClick={exportErrors}
-                  title="Use this only when someone helping with JobSentinel asks. It stays on your computer until you choose to share it."
+                  title="Advanced local app log. It may include extra private details. Keep it private unless someone helping with JobSentinel asks for it."
                 >
-                  Save Full Local Problem Details
+                  Advanced: Save Private App Log
                 </Button>
                 <Button size="sm" variant="danger" onClick={clearErrors}>
                   Clear Problem List

@@ -173,7 +173,15 @@ describe("feedbackService", () => {
       ),
     });
     expect(mockInvoke).toHaveBeenNthCalledWith(2, "sanitize_feedback_text", {
-      content: expect.stringContaining("Extra app details:"),
+      content: expect.stringContaining(
+        "Technical details: kept in local problem history, not included in this safe support report.",
+      ),
+    });
+    expect(mockInvoke).toHaveBeenNthCalledWith(2, "sanitize_feedback_text", {
+      content: expect.not.stringContaining("Extra app details:"),
+    });
+    expect(mockInvoke).toHaveBeenNthCalledWith(2, "sanitize_feedback_text", {
+      content: expect.not.stringContaining("Screen details:"),
     });
     expect(mockInvoke).toHaveBeenNthCalledWith(2, "sanitize_feedback_text", {
       content: expect.not.stringContaining("Support-only details:"),

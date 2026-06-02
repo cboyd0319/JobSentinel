@@ -644,7 +644,9 @@ export function hasFeedbackSetupJargon(root, path) {
     /private details removed/i.test(text) ||
     /Removed before sharing/i.test(text) ||
     /Saves a sanitized report/i.test(text) ||
-    /Job titles, company names, search words, and personal details are not included/i.test(text)
+    /Job titles, company names, search words, and personal details are not included/i.test(text) ||
+    /Extra app details:\s*\$\{sanitizeTextForStorage\(error\.stack\)\}/.test(text) ||
+    /Screen details:\s*\$\{sanitizeTextForStorage\(error\.componentStack\)\}/.test(text)
   );
 }
 
@@ -1749,7 +1751,9 @@ export function hasTechnicalFirstUserCopy(root, path) {
   }
 
   if (path === "src/hooks/useFeedback.ts") {
-    return /Failed to load system information|Please try again or copy the report instead/i.test(text);
+    return /Failed to load system information|Please try again or copy the report instead|Could not open GitHub/i.test(
+      text,
+    );
   }
 
   if (path === "src/utils/api.ts") {
@@ -1819,7 +1823,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
   }
 
   if (path === "src/components/ErrorLogPanel.tsx") {
-    return /Advanced: Save Support Details|Save extra app details \(support only\)|Save Extra Local Details|Use this only if a maintainer asks|\{displayMessage\}/i.test(
+    return /Advanced: Save Support Details|Save extra app details \(support only\)|Save Extra Local Details|Save Full Local Problem Details|Use this only if a maintainer asks|\{displayMessage\}/i.test(
       text,
     );
   }
