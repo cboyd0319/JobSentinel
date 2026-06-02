@@ -1264,3 +1264,6 @@ Current progress rows stay here. Older rows are preserved in [progress history](
   component coverage.
 - Current local AnalyticsPanel recovery slice replaces retry-only summary load
   guidance with safe-support-report guidance and focused component coverage.
+- Current local dashboard bookmark recovery slice replaces retry-only
+  bookmark-failure guidance with safe-support-report guidance and focused hook
+  coverage.

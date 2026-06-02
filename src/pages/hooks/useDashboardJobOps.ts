@@ -166,7 +166,7 @@ export function useDashboardJobOps(
         );
         toast.error(
           "Could not update bookmark",
-          "Couldn't update bookmark. Try again.",
+          "Bookmark was not changed. Try again, or copy a safe support report if this keeps happening.",
         );
       }
     },

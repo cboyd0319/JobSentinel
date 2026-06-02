@@ -1141,7 +1141,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
   }
 
   if (path === "src/pages/hooks/useDashboardJobOps.ts") {
-    return /Undo failed|Redo failed|Bookmark Failed|Bulk Hide Failed|Bulk Bookmark Failed|Bulk Merge Failed|\d+\s+failed/i.test(
+    return /Undo failed|Redo failed|Bookmark Failed|Bulk Hide Failed|Bulk Bookmark Failed|Bulk Merge Failed|\d+\s+failed|Couldn't update bookmark\.\s*Try again/i.test(
       text,
     );
   }

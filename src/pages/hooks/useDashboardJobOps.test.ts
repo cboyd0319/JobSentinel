@@ -129,7 +129,7 @@ describe("handleToggleBookmark", () => {
 
     expect(mockToast.error).toHaveBeenCalledWith(
       "Could not update bookmark",
-      expect.stringContaining("update bookmark"),
+      "Bookmark was not changed. Try again, or copy a safe support report if this keeps happening.",
     );
     expect(mockPushAction).not.toHaveBeenCalled();
   });
