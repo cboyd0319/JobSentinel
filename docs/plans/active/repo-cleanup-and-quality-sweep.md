@@ -185,6 +185,10 @@ boundaries, and harness modularity:
   details and added product-copy coverage against those labels returning.
 - Changed the detailed local report tooltip from maintainer wording to plain
   help wording and added product-copy coverage against the old tooltip.
+- Changed broken-link and invalid saved-detail recovery docs away from
+  maintainer/GitHub assumptions. The safe support report path stays primary,
+  GitHub is framed only as optional for users who already use it, and
+  product-copy tests reject the old phrases.
 - Changed the optional connected-source contact history label from
   `Source host` to `Website contacted`, updated Settings coverage, and added a
   product-copy guard against raw source metadata labels returning.

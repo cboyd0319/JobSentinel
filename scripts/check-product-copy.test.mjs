@@ -919,6 +919,16 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
+      "docs/features/credentials-security.md",
+      "save a safe support report so maintainers can fix it\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/user/DEEP_LINKS.md",
+      "GitHub is optional for maintainers and contributors:\n",
+    );
+    writeFixtureFile(
+      root,
       "src/components/feedback/SubmitOptions.tsx",
       "Optional maintainer issue\nSend to maintainers (optional)\nOpen GitHub (Optional)\n",
     );
@@ -1221,6 +1231,11 @@ test("product copy rejects technical-first settings copy", () => {
       hasTechnicalFirstUserCopy(root, "src/components/ErrorLogPanel.tsx"),
       true,
     );
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "docs/features/credentials-security.md"),
+      true,
+    );
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/user/DEEP_LINKS.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/BOOKMARKLET.md"), true);
     assert.equal(
       hasTechnicalFirstUserCopy(root, "src/components/NotificationPreferences.tsx"),

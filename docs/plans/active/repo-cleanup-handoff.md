@@ -169,6 +169,10 @@ Current cleanup posture:
 - Current local detailed-report tooltip follow-up changes the detailed local
   report tooltip from maintainer wording to plain help wording and adds
   product-copy coverage against the old tooltip.
+- Current local user-help docs follow-up changes broken-link and invalid
+  saved-detail recovery docs away from maintainer/GitHub assumptions, keeps
+  the in-app safe support report path primary, and adds product-copy coverage
+  against the old phrases.
 - Current local connected-source wording follow-up changes the Settings contact
   history label from `Source host` to `Website contacted`, with focused
   Settings and product-copy coverage against raw source metadata labels

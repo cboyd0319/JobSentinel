@@ -1792,6 +1792,8 @@ export function hasTechnicalFirstUserCopy(root, path) {
     /Connection Number/i,
     /Advanced: build from source/i,
     /Save Extra Support Details/i,
+    /GitHub is optional for maintainers and contributors/i,
+    /so maintainers can fix it/i,
     /Optional maintainer issue/i,
     /Send to maintainers \(optional\)/i,
     /Open GitHub \(Optional\)/i,

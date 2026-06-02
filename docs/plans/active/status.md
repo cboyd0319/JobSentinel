@@ -31,8 +31,8 @@ actionable findings in this active-plan surface or the relevant plan.
 
 ## Current Posture
 
-- Branch was clean and ahead of `origin/main` by 20 commits before the current
-  settings/support copy slice began. Use `git status --short --branch` for live
+- Branch was clean and ahead of `origin/main` by 26 commits before the current
+  user-help docs slice began. Use `git status --short --branch` for live
   evidence before committing, pushing, or reporting remote state.
 - Latest committed frontend verification evidence: `npm run test:run` passed
   110 Vitest files and 2637 tests, `npm run build` passed in 4.13 seconds, and
@@ -91,13 +91,20 @@ actionable findings in this active-plan surface or the relevant plan.
   tests, `node --test scripts/check-product-copy.test.mjs` passed 32 tests,
   `npm run lint:bloat`, `npm run test:scripts` passed 455 script tests, `npm
   run lint:docs`, `npm run lint`, and `git diff --check` passed.
-- Current local detailed-report tooltip slice changes the detailed local report
+- Committed detailed-report tooltip slice changes the detailed local report
   tooltip from maintainer wording to plain help wording and adds product-copy
   coverage against the old tooltip. Focused verification passed: `npx vitest run
   src/components/ErrorLogPanel.test.tsx` passed 34 tests, `node --test
   scripts/check-product-copy.test.mjs` passed 32 tests, `npm run lint:bloat`,
   `npm run test:scripts` passed 455 script tests, `npm run lint:docs`, `npm run
   lint`, and `git diff --check` passed.
+- Current local user-help docs slice changes broken-link and invalid saved-detail
+  recovery docs away from maintainer/GitHub assumptions, keeps the safe support
+  report path primary, and adds product-copy coverage against the old phrases.
+  Focused verification passed: `node --test
+  scripts/check-product-copy.test.mjs` passed 32 tests, `npm run lint:bloat`,
+  `npm run test:scripts` passed 455 script tests, `npm run lint:docs`,
+  `npm run harness:check`, and `git diff --check` passed.
 - No remote CI or push should run unless the user explicitly asks in the current
   turn.
 
@@ -123,6 +130,8 @@ Scope:
   support-only labels or uppercase support blocks.
 - Detailed local report tooltip copy must avoid maintainer jargon in user-facing
   surfaces.
+- Broken-link and invalid saved-detail recovery docs must keep the in-app safe
+  support report path primary and avoid maintainer/GitHub assumptions.
 - Product-copy sensors must reject recurring old phrases.
 
 Verification completed for this slice:

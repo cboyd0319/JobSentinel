@@ -182,7 +182,8 @@ We'll update the search-link rules in new releases. If you notice a broken
 link, open **Settings**, choose **Send Feedback**, and save a safe support
 report. Share the report only if you want help.
 
-GitHub is optional for maintainers and contributors:
+You do not need GitHub to save the safe support report. If you already use
+GitHub, you can also open the project help page:
 <https://github.com/cboyd0319/JobSentinel/issues>
 
 ### Can I add more sites?

@@ -152,7 +152,7 @@ the provider used by the desktop environment.
 | Access not allowed | Password-store prompt was declined | Allow JobSentinel in OS password-store settings |
 | Not found | Saved detail is missing | Re-enter and save the detail in Settings |
 | Service unavailable | Linux password store is stopped | Start or restart the password store |
-| Invalid key | App sent an unsupported saved-detail name | Try again; if it repeats, save a safe support report so maintainers can fix it |
+| Invalid key | App sent an unsupported saved-detail name | Try again; if it repeats, save a safe support report so the problem can be fixed |
 
 ## User Guarantees
 
