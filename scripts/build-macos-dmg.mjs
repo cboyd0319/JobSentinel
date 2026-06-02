@@ -122,6 +122,28 @@ export function getSigningIdentity(env = process.env) {
   );
 }
 
+export function buildAppCodesignArgs(identity, appPath) {
+  const args = ["--force", "--deep", "--sign", identity];
+
+  if (identity !== "-") {
+    args.push("--options", "runtime", "--timestamp");
+  }
+
+  args.push(appPath);
+  return args;
+}
+
+export function buildDmgCodesignArgs(identity, dmgPath) {
+  const args = ["--force", "--sign", identity];
+
+  if (identity !== "-") {
+    args.push("--timestamp");
+  }
+
+  args.push(dmgPath);
+  return args;
+}
+
 function ensureSignedApp(appPath) {
   if (verifyCodesign(appPath)) {
     console.log(`App bundle signature valid: ${appPath}`);
@@ -130,7 +152,7 @@ function ensureSignedApp(appPath) {
 
   const identity = getSigningIdentity();
 
-  run("codesign", ["--force", "--deep", "--sign", identity, appPath]);
+  run("codesign", buildAppCodesignArgs(identity, appPath));
 
   if (!verifyCodesign(appPath, { stdio: "inherit" })) {
     throw new Error(`codesign verification failed for ${appPath}`);
@@ -231,7 +253,7 @@ function signDmgForDistribution(dmgPath, identity) {
     return false;
   }
 
-  run("codesign", ["--force", "--sign", identity, dmgPath]);
+  run("codesign", buildDmgCodesignArgs(identity, dmgPath));
   run("codesign", ["--verify", "--verbose=2", dmgPath]);
   return true;
 }

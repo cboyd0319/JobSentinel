@@ -38,6 +38,7 @@ npm run tauri:verify:macos -- \
 npm run tauri:verify:macos -- \
   --dmg src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_*_universal.dmg \
   --expected-architectures x86_64,arm64 \
+  --launch-smoke \
   --require-gatekeeper
 
 # Windows (from Windows machine or VM)
@@ -67,7 +68,7 @@ Review the draft release on GitHub and click "Publish release".
 
 | Platform | Architecture          | Format      | Status   |
 | -------- | --------------------- | ----------- | -------- |
-| macOS    | universal             | `.dmg`      | Local smoke ready; public release requires Gatekeeper pass |
+| macOS    | universal             | `.dmg`      | Local smoke ready; public release requires Gatekeeper and launch-smoke pass |
 | Windows  | x86_64                | `.msi`      | Ready |
 | Linux    | x86_64                | `.AppImage` / `.deb` | Workflow ready |
 

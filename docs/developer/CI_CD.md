@@ -227,9 +227,10 @@ The macOS release job fails before building if any of these secrets are missing.
 When they are present, the workflow imports the Developer ID certificate into a
 temporary keychain, `npm run tauri:build:macos` signs, notarizes, staples, and
 validates the custom DMG. The release workflow then verifies the package with
-`npm run tauri:verify:macos -- --require-gatekeeper` before upload. Without
-Developer ID signing and notarization, the macOS release job should fail instead
-of publishing a package that nontechnical users cannot open cleanly.
+`npm run tauri:verify:macos -- --launch-smoke --require-gatekeeper` before
+upload. Without Developer ID signing, notarization, Gatekeeper acceptance, and
+mounted-app launch smoke, the macOS release job should fail instead of
+publishing a package that nontechnical users cannot open cleanly.
 
 ---
 

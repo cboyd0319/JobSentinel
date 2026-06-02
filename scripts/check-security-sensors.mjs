@@ -65,6 +65,17 @@ const ciWorkflowChecks = [
   },
 ];
 
+const releaseWorkflowChecks = [
+  {
+    label: "macOS Gatekeeper gate",
+    phrases: ["npm run tauri:verify:macos", "--require-gatekeeper"],
+  },
+  {
+    label: "macOS launch smoke gate",
+    phrases: ["npm run tauri:verify:macos", "--launch-smoke"],
+  },
+];
+
 const ciDocsChecks = [
   {
     label: "npm audit",
@@ -101,6 +112,7 @@ export function formatSecuritySensorSummary() {
     `docs=${requiredSecurityDocs.length}`,
     `matrix=${requiredMatrixEntries.length}`,
     "workflow=1",
+    `release-workflow=${releaseWorkflowChecks.length}`,
     "ci=2",
     `ci-docs=${ciDocsChecks.length}`,
     "renderer-csp=1",
@@ -133,6 +145,14 @@ export function checkSecuritySensors(root = defaultRoot) {
   for (const check of ciWorkflowChecks) {
     if (!includesAll(ciWorkflow, check.phrases)) {
       violations.push(`CI workflow is missing security gate: ${check.label}`);
+    }
+  }
+
+  const releaseWorkflow = readIfExists(root, ".github/workflows/release.yml", violations);
+
+  for (const check of releaseWorkflowChecks) {
+    if (!includesAll(releaseWorkflow, check.phrases)) {
+      violations.push(`release workflow is missing macOS package gate: ${check.label}`);
     }
   }
 

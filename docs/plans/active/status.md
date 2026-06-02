@@ -83,8 +83,9 @@ unreviewed form sending.
   drag-to-Applications layout, verifies expected binary architectures, verifies
   the app signature, optionally runs a launch smoke, and can fail release builds
   with `--require-gatekeeper`. The release workflow now runs the verifier with
-  `--require-gatekeeper` before macOS upload so an ad-hoc package cannot be
-  uploaded as a public macOS release. Verification passed: `npm run
+  `--launch-smoke --require-gatekeeper` before macOS upload so an ad-hoc or
+  non-starting package cannot be uploaded as a public macOS release.
+  Verification passed: `npm run
   tauri:verify:macos -- --dmg
   src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_2.6.4_universal.dmg
   --expected-architectures x86_64,arm64 --launch-smoke` passed, strict
@@ -100,8 +101,8 @@ unreviewed form sending.
   release workflow now fails early if macOS signing/notarization secrets are
   missing, imports the Developer ID certificate into a temporary keychain,
   exports the required Tauri and JobSentinel signing env vars, notarizes the
-  custom DMG, and still requires Gatekeeper pass before upload. Verification
-  passed: `node --test scripts/build-macos-dmg.test.mjs
+  custom DMG, and still requires launch-smoke and Gatekeeper pass before
+  upload. Verification passed: `node --test scripts/build-macos-dmg.test.mjs
   scripts/verify-macos-package.test.mjs` passed 16 tests, `actionlint
   .github/workflows/release.yml` passed, `git diff --check` passed, the
   universal `tauri:build:macos` command produced the universal DMG, and `npm run
@@ -114,6 +115,20 @@ unreviewed form sending.
   results; `cargo test --lib platforms::macos` passed 22 tests with 1 ignored;
   and `npm run doctor` reported the environment ready with only the expected
   Node 26 local-runtime warning against the Node 20 CI baseline.
+- Current local macOS release-gate hardening makes the custom DMG builder use
+  hardened runtime and timestamp flags for Developer ID fallback app signing,
+  timestamps Developer ID disk image signatures, requires `--launch-smoke`
+  before release upload, and adds security sensor coverage so the macOS release
+  workflow cannot silently drop Gatekeeper or launch-smoke gates. Verification
+  passed: `node --test scripts/build-macos-dmg.test.mjs
+  scripts/verify-macos-package.test.mjs scripts/check-security-sensors.test.mjs`
+  passed 21 tests, `npm run tauri:verify:macos -- --dmg
+  src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_2.6.4_universal.dmg
+  --expected-architectures x86_64,arm64 --launch-smoke` passed with expected
+  optional Gatekeeper rejection for the local ad-hoc build, `npm run
+  test:scripts` passed 491 tests, `npm run lint:security`, `actionlint
+  .github/workflows/release.yml`, `npm run lint:docs`, `npm run lint:bloat`,
+  and `git diff --check` passed.
 - Current local platform-doc drift fix syncs the getting-started database paths
   with live platform code: macOS data lives under `~/Library/Application
   Support/JobSentinel`, Linux data under `~/.local/share/jobsentinel`, and the

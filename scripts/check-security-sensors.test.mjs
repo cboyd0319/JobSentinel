@@ -44,6 +44,10 @@ function writeBaseRepo(root, csp) {
     "jobs:\n  security:\n    steps:\n      - run: npm audit --audit-level=moderate\n      - run: cargo deny check advisories\n",
   );
   writeFileSync(
+    join(root, ".github/workflows/release.yml"),
+    "jobs:\n  release:\n    steps:\n      - run: npm run tauri:verify:macos -- --launch-smoke --require-gatekeeper\n",
+  );
+  writeFileSync(
     join(root, "docs/developer/CI_CD.md"),
     "npm audit --audit-level=moderate\ncargo deny check advisories\n",
   );
@@ -73,6 +77,24 @@ test("checkSecuritySensors rejects renderer external connect hosts", () => {
   assert(
     checkSecuritySensors(root).includes(
       "Tauri renderer CSP must not allow external connect host: https://hooks.slack.com",
+    ),
+  );
+});
+
+test("checkSecuritySensors rejects macOS release gates without launch smoke", () => {
+  const root = mkdtempRoot("jobsentinel-security-sensors-release-");
+  writeBaseRepo(
+    root,
+    "default-src 'self'; connect-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'",
+  );
+  writeFileSync(
+    join(root, ".github/workflows/release.yml"),
+    "jobs:\n  release:\n    steps:\n      - run: npm run tauri:verify:macos -- --require-gatekeeper\n",
+  );
+
+  assert(
+    checkSecuritySensors(root).includes(
+      "release workflow is missing macOS package gate: macOS launch smoke gate",
     ),
   );
 });

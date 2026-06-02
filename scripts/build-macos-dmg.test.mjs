@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import { join } from "node:path";
 import test from "node:test";
 import {
+  buildAppCodesignArgs,
+  buildDmgCodesignArgs,
   buildNotarytoolSubmitArgs,
   buildTauriArgs,
   getArchSuffix,
@@ -186,4 +188,46 @@ test("macOS DMG builder redacts notarytool auth values in logs", () => {
       "--wait",
     ],
   );
+});
+
+test("macOS DMG builder uses hardened runtime and timestamp for Developer ID app signing", () => {
+  assert.deepEqual(
+    buildAppCodesignArgs("Developer ID Application: Chad (ABCDE12345)", "/tmp/JobSentinel.app"),
+    [
+      "--force",
+      "--deep",
+      "--sign",
+      "Developer ID Application: Chad (ABCDE12345)",
+      "--options",
+      "runtime",
+      "--timestamp",
+      "/tmp/JobSentinel.app",
+    ],
+  );
+  assert.deepEqual(buildAppCodesignArgs("-", "/tmp/JobSentinel.app"), [
+    "--force",
+    "--deep",
+    "--sign",
+    "-",
+    "/tmp/JobSentinel.app",
+  ]);
+});
+
+test("macOS DMG builder timestamps Developer ID disk image signatures", () => {
+  assert.deepEqual(
+    buildDmgCodesignArgs("Developer ID Application: Chad (ABCDE12345)", "/tmp/JobSentinel.dmg"),
+    [
+      "--force",
+      "--sign",
+      "Developer ID Application: Chad (ABCDE12345)",
+      "--timestamp",
+      "/tmp/JobSentinel.dmg",
+    ],
+  );
+  assert.deepEqual(buildDmgCodesignArgs("-", "/tmp/JobSentinel.dmg"), [
+    "--force",
+    "--sign",
+    "-",
+    "/tmp/JobSentinel.dmg",
+  ]);
 });
