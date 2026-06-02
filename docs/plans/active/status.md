@@ -860,6 +860,9 @@ and record actionable findings in this active-plan surface.
 - Current local CI follow-up fixes the stale Application Preview test
   expectation found by remote frontend CI and extends product-copy coverage
   against the old `click the submit button yourself` phrase.
+- Current local resume-choice copy slice replaces the Application Profile
+  generic resume-file picker label with `Choose Resume` and adds product-copy
+  coverage against the stale file-manager label.
 - The previous local slice closed the hardcoded harness-policy debt by moving
   required harness files, policy snippets, and README reference-source coverage
   into `docs/harness/manifest.json`.

@@ -106,7 +106,7 @@ describe("ProfileForm resume privacy", () => {
     renderProfileForm();
 
     await screen.findByLabelText("Selected resume");
-    await user.click(screen.getByRole("button", { name: "Browse..." }));
+    await user.click(screen.getByRole("button", { name: "Choose Resume" }));
 
     await waitFor(() => {
       expect(screen.getByLabelText("Selected resume")).toHaveValue("new-resume.docx");
@@ -123,7 +123,7 @@ describe("ProfileForm resume privacy", () => {
     renderProfileForm();
 
     await screen.findByLabelText("Selected resume");
-    await user.click(screen.getByRole("button", { name: "Browse..." }));
+    await user.click(screen.getByRole("button", { name: "Choose Resume" }));
 
     expect(await screen.findByText("Could not select resume")).toBeInTheDocument();
     expect(screen.queryByText("Failed to select file")).not.toBeInTheDocument();
@@ -140,7 +140,7 @@ describe("ProfileForm resume privacy", () => {
     renderProfileForm();
 
     await screen.findByLabelText("Selected resume");
-    await user.click(screen.getByRole("button", { name: "Browse..." }));
+    await user.click(screen.getByRole("button", { name: "Choose Resume" }));
     await screen.findByDisplayValue("new-resume.docx");
     await user.click(screen.getByRole("button", { name: "Save Profile" }));
 

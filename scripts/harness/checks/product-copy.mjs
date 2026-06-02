@@ -1262,6 +1262,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
     /Date & Time\s+\*/i,
     /Location \/ Meeting Link/i,
     /Select application\.\.\./i,
+    /Browse\.\.\./i,
     /shortcut:\s*["'`]⌘[1-8]["'`]/i,
     /keys:\s*\[\s*["'`]⌘/i,
     />\s*⌘K\s*</i,

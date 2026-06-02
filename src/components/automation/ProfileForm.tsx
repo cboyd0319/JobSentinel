@@ -537,7 +537,7 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
               onClick={handleSelectResume}
               className="shrink-0"
             >
-              Browse...
+              Choose Resume
             </Button>
             {resumeFileLabel && (
               <button
