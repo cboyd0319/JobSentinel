@@ -59,7 +59,7 @@ understand parsing, scoring, or ATS internals to use the result.
 | --- | --- | --- |
 | Overall match | Combined fit signal from skills, experience, and education. | Decide whether the role deserves more attention. |
 | Skills fit | Resume skills that appear relevant to the posting. | Find real strengths to make clearer. |
-| Experience match | Years or level signals found in the posting and resume. | Notice under-leveling or stretch-role risk. |
+| Experience match | Years or level signals found in the posting and resume. | Notice lower-title, lower-pay, or stretch-role risk. |
 | Education match | Degree or credential signals found in the posting and resume. | Spot requirements that may need explanation. |
 | Skills to review | Posting requirements not clearly represented in the resume. | Decide whether to revise, ask, learn, or skip. |
 

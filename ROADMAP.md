@@ -35,15 +35,15 @@ Planned:
 - Salary-floor filters with below-floor warnings.
 - Pay transparency scoring for listed ranges, range width, missing criteria, and
   salary-history questions.
-- Under-leveling checks based on scope, decision rights, team size, budget, and
-  promotion path.
+- Lower-title or lower-pay checks based on scope, decision rights, team size,
+  budget, and promotion path.
 - Negotiation notes grounded in role scope, written ranges, market evidence, and
   user-confirmed facts.
 
 In progress:
 
 - Salary and pay-equity requirements in active plans.
-- Salary benchmark UI work toward pay-floor and under-anchoring guidance.
+- Salary benchmark UI work toward pay-floor and below-floor guidance.
 - Documentation language moving away from "ask harder" advice.
 
 Evaluation ideas:

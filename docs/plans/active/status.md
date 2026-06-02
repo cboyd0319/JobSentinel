@@ -48,6 +48,10 @@ and record actionable findings in this active-plan surface.
   from raw percent display to plain labels such as "Mostly working," "Some
   trouble," and "Needs attention"; feature docs and product-copy harness coverage
   now reject stale metric-first wording.
+- Current local pay-language follow-up changes README, roadmap, research, and
+  feature docs from optimization and under-leveling jargon to plain lower-title,
+  lower-pay, and below-floor risk language; product-copy coverage now rejects the
+  stale front-door phrases.
 - Latest local zero-technical job-import follow-up changes missing-preview
   warnings from raw missing-field lists to readable details-to-check labels, so
   backend keys such as salary or job-link fields do not leak into the import

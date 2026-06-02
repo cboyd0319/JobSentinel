@@ -74,7 +74,8 @@ effort:
 
 - Prioritize fresh, official-source postings when possible.
 - Avoid treating repost volume as proof of real hiring.
-- Use salary trends to protect salary floors and spot under-leveling.
+- Use salary trends to protect salary floors and spot lower-title or lower-pay
+  risk.
 - Use location and work-mode trends to protect commute, caregiving, disability,
   licensing, and schedule constraints.
 - Keep alerts calm and actionable.

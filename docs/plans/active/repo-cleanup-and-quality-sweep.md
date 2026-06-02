@@ -186,6 +186,11 @@ boundaries, and harness modularity:
   plain labels instead of raw success percentages. Feature docs now describe the
   same user-facing surface, and product-copy coverage rejects stale metric-first
   display code.
+- Reworked pay-protection wording in the README, roadmap, pay-equity research
+  brief, Hiring Trends docs, Resume Match docs, and README information-design
+  harness notes so front-door copy talks about lower-title, lower-pay, and
+  below-floor risk instead of optimization or under-leveling jargon. Product-copy
+  coverage rejects the stale phrases.
 - Tightened another zero-technical support and protective-copy slice: public
   issue templates now avoid bug/feature/scraper-first wording, safe support
   report docs require review before sharing, source status avoids

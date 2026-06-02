@@ -1555,3 +1555,29 @@ test("product copy rejects first-run scanning copy in README", () => {
     assert.equal(hasTechnicalFirstUserCopy(root, "README.md"), true);
   });
 });
+
+test("product copy rejects front-door pay jargon", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "README.md",
+      "What does it optimize for?\nunder-leveling cues\ndoes not optimize for application volume\n",
+    );
+    writeFixtureFile(root, "ROADMAP.md", "under-anchoring guidance\n");
+    writeFixtureFile(root, "docs/research/pay-equity.md", "under-leveling\n");
+    writeFixtureFile(root, "docs/features/market-intelligence.md", "spot under-leveling\n");
+    writeFixtureFile(root, "docs/features/resume-matcher.md", "Notice under-leveled roles\n");
+    writeFixtureFile(
+      root,
+      "docs/harness/readme-information-design.md",
+      "optimization target\n",
+    );
+
+    assert.equal(hasTechnicalFirstUserCopy(root, "README.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "ROADMAP.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/research/pay-equity.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/market-intelligence.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/resume-matcher.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/harness/readme-information-design.md"), true);
+  });
+});

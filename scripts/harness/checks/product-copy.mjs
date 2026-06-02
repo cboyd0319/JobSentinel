@@ -83,6 +83,15 @@ const payProtectionGuidancePaths = new Set([
   "src/pages/Salary.tsx",
 ]);
 
+const payPlainLanguagePaths = new Set([
+  "README.md",
+  "ROADMAP.md",
+  "docs/features/market-intelligence.md",
+  "docs/features/resume-matcher.md",
+  "docs/harness/readme-information-design.md",
+  "docs/research/pay-equity.md",
+]);
+
 const payFloorRecoveryCopyPaths = new Set([
   "docs/user/QUICK_START.md",
 ]);
@@ -779,6 +788,22 @@ export function hasTechnicalFirstUserCopy(root, path) {
     }
 
     if (!/redacts known\s+sensitive details before you review and share it/i.test(text)) {
+      return true;
+    }
+  }
+
+  if (payPlainLanguagePaths.has(path)) {
+    const text = readFileSync(join(root, path), "utf8");
+    const payJargonPatterns = [
+      /under-anchoring/i,
+      /under-leveling/i,
+      /under-leveled/i,
+      /What does it optimize for/i,
+      /does not optimize for/i,
+      /optimization target/i,
+    ];
+
+    if (payJargonPatterns.some((pattern) => pattern.test(text))) {
       return true;
     }
   }

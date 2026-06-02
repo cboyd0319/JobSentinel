@@ -116,8 +116,8 @@ the product:
 3. Dashboard screenshot before dense research tables.
 4. Abstract with audience, research thesis, local-first posture, Rule 0,
    optional external-AI boundary, and free-forever MIT commitment.
-5. At-a-glance table for audience, optimization target, local data, external
-   paths, AI requirement, license, and release.
+5. At-a-glance table for audience, project goal, local data, external paths, AI
+   requirement, license, and release.
 6. Reader map for job seekers, grant or research reviewers, privacy or security
    reviewers, contributors, and people reporting problems.
 7. Product response table mapping job-seeker problems to inspectable evidence

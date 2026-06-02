@@ -61,7 +61,7 @@ or build something better with it if that helps more people.
 | Question | Answer |
 | -------- | ------ |
 | Who is it for? | Anyone trying to find a new job, including technical and non-technical roles. |
-| What does it optimize for? | Real, relevant, fairly compensated work, not application volume. |
+| What is it built to help with? | Real, relevant, fairly compensated work, not application volume. |
 | What stays local? | Searches, saved jobs, notes, resumes, salary floors, application history, and safe support reports by default. |
 | What can leave the device? | Only user-configured alerts, optional location detection after a click, or explicitly approved external AI payloads. |
 | Is external AI required? | No. External AI is optional, disabled by default, preview-gated, and gateway-bound. |
@@ -83,13 +83,13 @@ or build something better with it if that helps more people.
 | Job-seeker problem | Product response | Evidence or boundary |
 | ------------------ | ---------------- | -------------------- |
 | Stale, reposted, or unverifiable roles waste tailoring time | Ghost-job detection, first-seen and last-seen tracking, repost context, source health, and official-source job monitoring | [Ghost-job research](docs/research/ghost-jobs.md), [ghost detection](docs/features/ghost-detection.md) |
-| Pay opacity can lead to underpaid work | Salary floors, salary transparency checks, compensation range review, under-leveling cues, and negotiation prep | [Pay-equity research](docs/research/pay-equity.md), [salary negotiation](docs/research/salary-negotiation.md) |
+| Pay opacity can lead to underpaid work | Salary floors, salary transparency checks, compensation range review, lower-title or lower-pay cues, and negotiation prep | [Pay-equity research](docs/research/pay-equity.md), [salary negotiation](docs/research/salary-negotiation.md) |
 | Screening systems are opaque | ATS transparency, candidate-side explainability, and application readability review | [ATS transparency research](docs/research/ats-transparency.md), [Responsible AI](RESPONSIBLE_AI.md) |
 | Long searches erode confidence and time | Fresh-role focus, pacing, weekly summaries, and gap-framing work are tracked as product requirements | [Roadmap](ROADMAP.md), [research-backed plan](docs/plans/active/research-backed-product-improvements.md) |
 | Opaque channels can trap effort | Bias-aware strategy favors direct sources, official postings, recruiter context, referral routes, and verifiable signals | [Research model](#research-model), [job-source docs](docs/research/job-site-data-sources.md) |
 | Support can expose private data | Safe support reports can be saved locally and shared only when the user chooses | [Privacy](PRIVACY.md), [docs index](docs/README.md) |
 
-JobSentinel keeps applications under user review. It does not optimize for
+JobSentinel keeps applications under user review. It does not prioritize
 application volume, deceptive resume changes, source-boundary evasion, or hidden
 data sharing.
 
@@ -190,7 +190,7 @@ data without informed consent.
 | Research pillar | Product commitment | Evaluation question |
 | --------------- | ------------------ | ------------------- |
 | Ghost-job and stale-posting detection | Prioritize fresh, verifiable roles and warn before a user spends time tailoring weak postings. | Does JobSentinel reduce time spent on stale or low-trust roles without hiding useful options? |
-| Pay equity and salary-floor protection | Treat salary floors, pay transparency, under-leveling risk, and compensation prep as core search features. | Does JobSentinel help users avoid underpaid opportunities and preserve compensation goals? |
+| Pay equity and salary-floor protection | Treat salary floors, pay transparency, lower-title or lower-pay risk, and compensation prep as core search features. | Does JobSentinel help users avoid underpaid opportunities and preserve compensation goals? |
 | Long-term unemployment support | Support pacing, fresh-role focus, weekly summaries, and gap framing without shame or pressure. | Does JobSentinel reduce fatigue and improve search control for people in long searches? |
 | Bias-aware application strategy | Favor direct sources, official ATS postings, recruiter context, referral routes, and verifiable signals over opaque channels. | Does JobSentinel shift effort toward channels with better evidence and clearer next steps? |
 | Protective UX | Use practical warnings and next actions instead of hollow motivation. | Does JobSentinel protect time, confidence, and dignity under rejection-heavy conditions? |

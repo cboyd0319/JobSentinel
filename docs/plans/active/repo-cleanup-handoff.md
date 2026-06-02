@@ -207,6 +207,11 @@ Current cleanup posture:
   recent success percentages into plain labels such as `Mostly working`,
   `Some trouble`, and `Needs attention`, with matching feature docs and
   product-copy coverage against stale metric-first display code.
+- Current local pay-language follow-up changes README, roadmap, pay-equity
+  research, Hiring Trends, Resume Match, and README information-design docs away
+  from optimization and under-leveling jargon toward lower-title, lower-pay, and
+  below-floor risk language. Product-copy coverage now rejects those stale
+  front-door phrases.
 - Current local Settings copy follow-up changes the posting-risk save toast
   from scan wording to job-check wording and renames the Telegram badge from
   advanced chat alert to optional chat alert. Settings tests and product-copy

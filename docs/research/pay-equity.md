@@ -1,7 +1,7 @@
 # Pay-Equity Research
 
 This brief condenses research about pay transparency, salary-history anchoring,
-under-leveling, and compensation inequity.
+lower-title or lower-pay risk, and compensation inequity.
 
 ## Key signals
 
@@ -17,8 +17,7 @@ under-leveling, and compensation inequity.
 ## Product implications
 
 - Treat pay equity as core product behavior, not an appendix.
-- Add salary-floor filters, below-floor warnings, under-anchoring warnings, and
-  pay-range quality scoring.
+- Add salary-floor filters, below-floor warnings, and pay-range quality scoring.
 - Help users compare role scope, level, decision rights, team size, budget,
   promotion path, schedule, benefits, and written range evidence.
 - Add guardrails for salary-history questions without giving unsourced legal
@@ -30,6 +29,7 @@ under-leveling, and compensation inequity.
 - Test salary guidance across hourly, salaried, union, commission, contract,
   nonprofit, public-sector, and executive roles.
 - Audit guidance for blame, false certainty, and unsupported legal claims.
-- Measure whether users can identify below-floor and under-leveled roles faster.
+- Measure whether users can identify below-floor or lower-title/lower-pay roles
+  faster.
 - Revalidate pay-transparency and salary-history-law references before shipping
   jurisdiction-specific copy.
