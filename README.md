@@ -66,7 +66,7 @@ or build something better with it if that helps more people.
 | What can leave the device? | Enabled job-source checks, job sources or career pages the user approves for checking, alerts the user turns on, optional location detection after a click, support links opened by the user, or explicitly approved external AI requests. |
 | Is external AI required? | No. External AI is optional, disabled by default, preview-gated, and gateway-bound. |
 | Is it free? | Yes. JobSentinel is MIT licensed and free forever. |
-| Current release | `v2.6.4` with Windows and Linux installers plus a universal macOS package. The project does not currently have an Apple Developer Account, so macOS packages cannot be Developer ID signed, notarized, or Gatekeeper-ready yet. |
+| Current release | `v2.6.4` with Windows and Linux installers plus a verified no-account universal macOS package. A public Mac package is recommended only when the release includes a matching `.sha256` checksum and the public macOS verifier passes. |
 
 ## Reader Map
 
@@ -101,18 +101,23 @@ Download the latest package or installer from the
 | Platform | Download |
 | -------- | --------- |
 | Windows | Windows installer |
-| macOS | Universal Mac package for Apple silicon and Intel Macs. The project does not currently have an Apple Developer Account, so macOS may require a Privacy & Security approval on first open until Developer ID signing and notarization are available. |
+| macOS | Universal Mac package for Apple silicon and Intel Macs. Use only a Mac package that has a matching `.sha256` checksum asset on the release. The project does not currently have an Apple Developer Account, so macOS requires a first-open Privacy & Security approval until Developer ID signing and notarization are available. |
 | Linux | Linux installer |
 
-The current `v2.6.4` release includes Windows and Linux installers plus a
-universal macOS package. Most Windows and Linux users should use the installer.
-Mac users can use the package, but first open is not zero-friction because
-JobSentinel does not currently have an Apple Developer Account for Developer ID
-signing and notarization. This is a release-distribution constraint, not a core
-runtime feature gap: the macOS app can still be built, packaged, verified, and
-tested locally. The no-account macOS release path verifies ad-hoc packages for
-metadata, signatures, universal architecture, launch smoke, installed-app smoke,
-and local data creation, but it does not claim Gatekeeper readiness.
+The current `v2.6.4` release includes Windows and Linux installers plus
+`JobSentinel_2.6.4_no-account_universal.dmg` for macOS. Most Windows and Linux
+users should use the installer. Mac users should use only a release package
+with a matching `JobSentinel_*_universal.dmg.sha256` checksum and passing public
+macOS verification. If a release is missing the checksum, treat the Mac package
+as pending replacement and use a fresh local build instead.
+
+Mac first open is not zero-friction because JobSentinel does not currently have
+an Apple Developer Account for Developer ID signing and notarization. This is a
+release-distribution constraint, not a core runtime feature gap: the macOS app
+can still be built, packaged, verified, and tested locally. The no-account
+macOS release path verifies ad-hoc packages for metadata, signatures,
+universal architecture, launch smoke, installed-app smoke, checksum, and local
+data creation, but it does not claim Gatekeeper readiness.
 Contributors can use the
 [development setup guide](docs/developer/GETTING_STARTED.md).
 
@@ -133,7 +138,14 @@ setting later.
 <summary><strong>Installer security prompts</strong></summary>
 <br>
 
-macOS may show this message because the current public macOS package is not
+Install on Mac:
+
+1. Open the downloaded `.dmg`.
+2. Drag **JobSentinel** to **Applications**.
+3. Eject the disk image.
+4. Open **JobSentinel** from **Applications**.
+
+macOS may show this message because the no-account macOS package is not
 Developer ID signed and notarized:
 
 ```text
@@ -144,7 +156,8 @@ Continue only if you downloaded JobSentinel from the latest download page linked
 above and expected this file. If you are not sure, stop, delete the download,
 and download it again from that page.
 
-After checking the download, open **System Settings**, go to **Privacy &
+After checking the download, try opening **JobSentinel** from **Applications**
+once and dismiss the warning. Then open **System Settings**, go to **Privacy &
 Security**, click **Open Anyway** next to the JobSentinel message, then click
 **Open**.
 
@@ -398,6 +411,10 @@ npm run tauri:verify:macos -- \
   --install-smoke
 ```
 
+The macOS package script also writes
+`JobSentinel_<version>_universal.dmg.sha256` next to the DMG. Upload or share
+both files together.
+
 Installer output:
 
 | Platform | Output path |
@@ -486,8 +503,9 @@ Developer docs:
 
 ### Current Release: v2.6.4
 
-- Windows `.msi`, universal macOS `.dmg`, Linux `.AppImage`, and Linux `.deb`
-  release assets are available.
+- Windows `.msi`, verified no-account macOS `.dmg`, Linux `.AppImage`, and
+  Linux `.deb` release assets are available. The macOS package is not Developer
+  ID signed or notarized, so it requires first-open Privacy & Security approval.
 - Settings no longer spins forever on first load.
 - Jobs with missing salary or scoring data no longer show `NaN`.
 - Bulk bookmark and hide actions keep working when one job has an error.

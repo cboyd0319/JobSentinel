@@ -1,6 +1,9 @@
 # Releases
 
-Production builds are created locally and published to [GitHub Releases](https://github.com/cboyd0319/JobSentinel/releases).
+Production builds are created by the tag-triggered
+[`release.yml`](../../.github/workflows/release.yml) workflow and published to
+[GitHub Releases](https://github.com/cboyd0319/JobSentinel/releases). Local
+builds are for development, verification, and emergency replacement packages.
 
 ## macOS public release status
 
@@ -8,18 +11,40 @@ JobSentinel does not currently have an Apple Developer Account. That means a
 zero-friction public macOS DMG cannot be Developer ID signed, notarized,
 stapled, or accepted by Gatekeeper yet.
 
-The local macOS build path is still useful and verified. Use it for development,
-testing, internal checks, and clearly labeled no-account public packages. Do not
-publish a macOS package as zero-friction or Gatekeeper-ready until the project
-has an Apple Developer Account, the release secrets below are configured, and
-the public artifact passes `npm run tauri:verify:macos:latest -- --require-gatekeeper`.
+The no-account macOS path is still useful and verified. Use it for development,
+testing, internal checks, and clearly labeled no-account public packages. A
+public no-account Mac package must include the `.dmg` and matching
+`.dmg.sha256` checksum, and `npm run tauri:verify:macos:latest` must pass after
+publication. Do not publish a macOS package as zero-friction or Gatekeeper-ready
+until the project has an Apple Developer Account, the release secrets below are
+configured, and the public artifact passes
+`npm run tauri:verify:macos:latest -- --require-gatekeeper`.
 
 ## Creating a Release
 
-### 1. Build locally
+### 1. Prepare and tag
 
-For a zero-friction public macOS release, set the Developer ID signing and
-notarization environment before building:
+Update the package version, changelog, and release notes as needed, then commit
+and push `main`. Create a version tag:
+
+```bash
+git tag vX.Y.Z
+git push origin vX.Y.Z
+```
+
+Pushing the tag triggers `release.yml`. The workflow creates a draft release,
+runs preflight checks, builds Windows, macOS, and Linux packages, verifies the
+macOS package before upload, and attaches release assets.
+
+### 2. macOS signing mode
+
+If no Apple Developer Account secrets are configured, the release workflow
+builds a no-account macOS DMG, ad-hoc signs the app bundle if needed, runs the
+local no-account verifier, creates a matching `.dmg.sha256`, and uploads both
+files without claiming Gatekeeper readiness.
+
+For a zero-friction public macOS release, configure the Developer ID signing and
+notarization secrets before tagging:
 
 ```bash
 export APPLE_CERTIFICATE="base64-encoded-p12"
@@ -30,15 +55,26 @@ export APPLE_PASSWORD="app-specific-password"
 export APPLE_TEAM_ID="TEAMID"
 ```
 
+If only some Apple secrets are configured, the macOS job fails before building.
+If all required Apple secrets are configured, the workflow signs, notarizes,
+staples, validates, and requires `--require-gatekeeper` before upload.
+
+### 3. Local macOS verification or emergency replacement
+
+Use local builds when testing the macOS package path or replacing a broken
+public Mac asset outside normal tag CI:
+
 ```bash
 # macOS (from Mac)
 npm run tauri:build:macos
 # Output: src-tauri/target/release/bundle/dmg/JobSentinel_*.dmg
+# Checksum: src-tauri/target/release/bundle/dmg/JobSentinel_*.dmg.sha256
 
 # macOS universal binary (Intel + Apple Silicon)
 rustup target add aarch64-apple-darwin x86_64-apple-darwin
 npm run tauri:build:macos -- --target universal-apple-darwin
 # Output: src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_*_universal.dmg
+# Checksum: src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_*_universal.dmg.sha256
 
 # Verify macOS package integrity locally
 npm run tauri:verify:macos -- \
@@ -71,7 +107,29 @@ npm run tauri:verify:macos:latest
 
 # Developer ID signed and notarized release path:
 npm run tauri:verify:macos:latest -- --require-gatekeeper
+```
 
+If replacing an already-public no-account Mac asset manually, use a unique
+filename such as `JobSentinel_X.Y.Z_no-account_universal.dmg`. Reusing a
+previous browser-download filename can leave stale CDN content behind. Upload
+both files and then run the public verifier:
+
+```bash
+gh release upload vX.Y.Z \
+  src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_X.Y.Z_no-account_universal.dmg \
+  src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_X.Y.Z_no-account_universal.dmg.sha256
+
+# Then verify the downloaded public asset.
+npm run tauri:verify:macos:latest -- --tag vX.Y.Z
+```
+
+Do not upload a Mac package without its checksum.
+
+### 4. Local Windows and Linux checks
+
+These are fallback commands. Normal production builds come from `release.yml`.
+
+```bash
 # Windows (from Windows machine or VM)
 npm run tauri build
 # Output: src-tauri/target/release/bundle/msi/JobSentinel_*.msi
@@ -84,25 +142,15 @@ npx tauri build --target x86_64-unknown-linux-gnu
 The `Verify Release Artifacts` GitHub Actions workflow also runs after a
 release is published. It verifies the public macOS DMG from GitHub Releases
 with no-account defaults: universal `x86_64,arm64` architecture checks,
-signature verification, bundle identity, release-tag version, icon metadata and
-resource file, macOS 13.0 minimum-system metadata, mounted-app launch smoke,
-installed-app launch smoke, and isolated local database creation. Gatekeeper
-acceptance is opt-in with the `require_gatekeeper` workflow input or
-`JOBSENTINEL_MACOS_REQUIRE_GATEKEEPER` repository variable, and should be used
-for Developer ID signed and notarized releases. If this workflow fails, the
-public DMG should be replaced before sharing the release.
+checksum verification, signature verification, bundle identity, release-tag
+version, icon metadata and resource file, macOS 13.0 minimum-system metadata,
+mounted-app launch smoke, installed-app launch smoke, and isolated local
+database creation. Gatekeeper acceptance is opt-in with the `require_gatekeeper`
+workflow input or `JOBSENTINEL_MACOS_REQUIRE_GATEKEEPER` repository variable,
+and should be used for Developer ID signed and notarized releases. If this
+workflow fails, the public DMG should be replaced before sharing the release.
 
-### 2. Create GitHub Release
-
-```bash
-gh release create vX.Y.Z \
-  --title "JobSentinel vX.Y.Z" \
-  --notes "Release notes here..." \
-  --draft \
-  src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg
-```
-
-### 3. Publish
+### 5. Publish
 
 Review the draft release on GitHub and click "Publish release".
 Then confirm the `Verify Release Artifacts` workflow passes for the published

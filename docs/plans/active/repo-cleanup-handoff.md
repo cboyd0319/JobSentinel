@@ -31,6 +31,16 @@ Latest pushed checkpoints include:
 
 Recent local verification evidence:
 
+- Current local no-account macOS readiness follow-up is running on macOS 26.5
+  (Darwin 25.5.0, build 25F71) on Apple Silicon `arm64`, with SIP enabled.
+  The package script now prefers the rustup-managed toolchain for universal
+  builds, writes a `.dmg.sha256` checksum next to the generated DMG, and the
+  public macOS verifier requires the matching checksum by default. The public
+  `v2.6.4` Mac asset was replaced with
+  `JobSentinel_2.6.4_no-account_universal.dmg` plus matching checksum, and
+  `npm run tauri:verify:macos:latest -- --tag v2.6.4` passed on the downloaded
+  GitHub asset. Gatekeeper rejection remains expected for the no-account
+  package.
 - Current local no-Apple-account release follow-up makes macOS tag releases
   possible without an Apple Developer Account while keeping the limitation
   explicit. If all Apple release secrets are missing, release CI builds an

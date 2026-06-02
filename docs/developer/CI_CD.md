@@ -88,7 +88,7 @@ This workflow creates a draft GitHub Release, then builds installers in parallel
 | Platform         | Target                     | Artifacts uploaded                                |
 | ---------------- | -------------------------- | ------------------------------------------------- |
 | `windows-latest` | `x86_64-pc-windows-msvc`   | `.msi`                                            |
-| `macos-latest`   | `universal-apple-darwin`   | `.dmg` (universal binary — Intel + Apple Silicon) |
+| `macos-latest`   | `universal-apple-darwin`   | `.dmg` plus `.dmg.sha256` (universal binary - Intel + Apple Silicon) |
 | `ubuntu-latest`  | `x86_64-unknown-linux-gnu` | `.AppImage`, `.deb`                               |
 
 The release starts as a draft. After reviewing the generated release notes, publish it manually
@@ -105,10 +105,10 @@ The release workflow verifies the macOS DMG before upload with
 checks the DMG layout, bundle id, product name, version, icon metadata and
 resource file, macOS 13.0 minimum-system metadata, mounted app signature,
 universal architectures, mounted-app launch smoke, copied installed-app launch
-smoke, and isolated macOS data directory and database creation before the
-artifact can be attached to the draft release. When Developer ID signing and
-notarization secrets are configured, the workflow also adds
-`--require-gatekeeper`.
+smoke, isolated macOS data directory and database creation, and matching
+checksum artifact before the package can be attached to the draft release. When
+Developer ID signing and notarization secrets are configured, the workflow also
+adds `--require-gatekeeper`.
 
 ## Published release verification (verify-release-artifacts.yml)
 
@@ -124,17 +124,18 @@ The public macOS verifier defaults to the current no-Apple-account release
 path: expected JobSentinel bundle id, product name, icon metadata and resource
 file, release-tag version, macOS 13.0 minimum-system metadata, universal
 `x86_64,arm64` architecture checks, mounted app signature verification,
-installed-app smoke, launch smoke, and local data initialization. Gatekeeper
-acceptance is required only when the manual `require_gatekeeper` input or
+matching `.dmg.sha256` checksum verification, installed-app smoke, launch
+smoke, and local data initialization. Gatekeeper acceptance is required only
+when the manual `require_gatekeeper` input or
 `JOBSENTINEL_MACOS_REQUIRE_GATEKEEPER` repository variable is set to `true`.
 
-Current repository status: JobSentinel does not have an Apple Developer Account.
-The macOS package can be built and verified locally, but a public macOS package
-cannot be zero-friction for nontechnical users until Developer ID signing and
-notarization are available. The release workflow builds a locally verified
-ad-hoc macOS DMG when all Apple release secrets are missing, fails if only some
-Apple secrets are configured, and uses the strict Gatekeeper gate when all
-required Apple secrets are present.
+Current repository status: JobSentinel does not have an Apple Developer
+Account. The macOS package can be built, checksummed, published, and verified
+through the no-account path, but it cannot be zero-friction for nontechnical
+users until Developer ID signing and notarization are available. The release
+workflow builds a locally verified ad-hoc macOS DMG when all Apple release
+secrets are missing, fails if only some Apple secrets are configured, and uses
+the strict Gatekeeper gate when all required Apple secrets are present.
 
 ---
 
@@ -250,10 +251,10 @@ workflows to create releases and upload assets.
 
 ### macOS signing and notarization
 
-Public macOS release builds require an Apple Developer Account, Developer ID
-signing, and notarization. The project does not currently have that account, so
-the local macOS build is the supported macOS path for now. When an account
-exists, add these secrets to the repository:
+Zero-friction public macOS release builds require an Apple Developer Account,
+Developer ID signing, and notarization. The project does not currently have that
+account, so the no-account macOS path is supported with clear first-open
+friction. When an account exists, add these secrets to the repository:
 
 ```text
 APPLE_CERTIFICATE           # Base64-encoded Developer ID Application .p12 certificate
@@ -265,22 +266,24 @@ APPLE_TEAM_ID               # 10-character Apple Team ID
 ```
 
 If all of these secrets are missing, the macOS release job builds an ad-hoc
-signed DMG and verifies it without a Gatekeeper claim. If only some secrets are
-configured, the job fails before building. When all secrets are present, the
-workflow imports the Developer ID certificate into a temporary keychain,
-`npm run tauri:build:macos` signs, notarizes, staples, and validates the custom
-DMG. The release workflow then verifies the package with
+signed DMG, writes a matching `.dmg.sha256`, and verifies it without a
+Gatekeeper claim. If only some secrets are configured, the job fails before
+building. When all secrets are present, the workflow imports the Developer ID
+certificate into a temporary keychain, `npm run tauri:build:macos` signs,
+notarizes, staples, and validates the custom DMG. The release workflow then
+verifies the package with
 `npm run tauri:verify:macos -- --launch-smoke --install-smoke --require-gatekeeper`
 before upload. Without the expected bundle id, product name, release version,
-icon resource file, macOS 13.0 minimum-system metadata, Developer ID signing,
-notarization, Gatekeeper acceptance, mounted-app plus installed-app launch
-smoke, and local data initialization, the signed macOS release job should fail
-instead of publishing a package that nontechnical users cannot open cleanly.
+icon resource file, macOS 13.0 minimum-system metadata, checksum, Developer ID
+signing, notarization, Gatekeeper acceptance, mounted-app plus installed-app
+launch smoke, and local data initialization, the signed macOS release job should
+fail instead of publishing a package that nontechnical users cannot open
+cleanly.
 
 After the GitHub release is published, the `Verify Release Artifacts` workflow
 runs automatically. It downloads the public release DMG and applies the same
-signature, architecture, launch-smoke, installed-app smoke, local data
-initialization, and optional Gatekeeper checks to the artifact users can
+checksum, signature, architecture, launch-smoke, installed-app smoke, local
+data initialization, and optional Gatekeeper checks to the artifact users can
 actually download. The same no-account check can be run locally on a Mac with
 `npm run tauri:verify:macos:latest`; add `--require-gatekeeper` only for a
 Developer ID signed and notarized release.
@@ -323,7 +326,9 @@ npm update       # Try updating first
 `release.yml` uses `fail-fast: false`, so a failure on one platform does not cancel the others.
 Check the failed job's logs directly. Common causes:
 
-- macOS: missing signing certificate secrets
+- macOS: partial Apple signing secrets, invalid Developer ID identity, stale
+  bundle metadata, missing `.dmg.sha256`, or a no-account package that fails
+  mounted or installed launch smoke
 - Linux: system library version mismatch (the workflow installs `libwebkit2gtk-4.1-dev` specifically)
 - Windows: MSI bundler configuration error in `tauri.conf.json`
 

@@ -89,6 +89,12 @@ jobs:
           name: JobSentinel ${{ steps.get_version.outputs.version }}
           draft: true
           prerelease: false
+          body: |
+            macOS package status is enforced by the release workflow.
+
+            In no-Apple-Developer-account mode, the macOS DMG is ad-hoc signed, not Developer ID signed, not notarized, and not Gatekeeper-ready. It requires a first-open Privacy & Security approval on macOS. Verify the matching `.sha256` checksum before opening.
+
+            When Developer ID signing and notarization are configured, the macOS workflow requires Gatekeeper acceptance before upload.
 
   build-release:
     needs: create-release
@@ -256,6 +262,22 @@ jobs:
 
           npm run tauri:verify:macos -- "${args[@]}"
 
+      - name: Create macOS checksum
+        if: matrix.platform == 'macos-latest'
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+
+          dmg_paths=(src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg)
+          if [ "${#dmg_paths[@]}" -ne 1 ]; then
+            printf 'Expected exactly one macOS DMG, found %s\n' "${#dmg_paths[@]}"
+            exit 1
+          fi
+
+          shasum -a 256 "${dmg_paths[0]}" > "${dmg_paths[0]}.sha256"
+          cat "${dmg_paths[0]}.sha256"
+
       # Windows MSI upload
       - name: Upload Windows MSI
         if: matrix.platform == 'windows-latest'
@@ -268,7 +290,9 @@ jobs:
         if: startsWith(matrix.platform, 'macos')
         uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
         with:
-          files: src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg
+          files: |
+            src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg
+            src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg.sha256
 
       # Linux uploads
       - name: Upload Linux AppImage

@@ -4,14 +4,18 @@ import test from "node:test";
 import {
   buildAppCodesignArgs,
   buildDmgCodesignArgs,
+  buildMacosTauriEnv,
   buildNotarytoolSubmitArgs,
   buildTauriArgs,
+  formatDmgChecksum,
+  shouldNotarizeDmg,
   getArchSuffix,
   getMacBuildPaths,
   getReleaseDir,
   getSigningIdentity,
   hasPartialNotarizationCredentials,
   hasArg,
+  prependPathDir,
   redactNotarytoolArgs,
 } from "./build-macos-dmg.mjs";
 
@@ -29,6 +33,17 @@ test("macOS DMG builder defaults to app bundle builds", () => {
 test("macOS DMG builder preserves explicit bundle args", () => {
   assert.equal(hasArg(["build", "--bundles", "app"], "--bundles"), true);
   assert.deepEqual(buildTauriArgs(["--bundles", "app"]), ["build", "--bundles", "app"]);
+});
+
+test("macOS DMG builder prefers rustup toolchain PATH when available", () => {
+  assert.equal(prependPathDir("/usr/bin:/bin", "/rustup/toolchain/bin"), "/rustup/toolchain/bin:/usr/bin:/bin");
+  assert.equal(prependPathDir("/rustup/toolchain/bin:/usr/bin", "/rustup/toolchain/bin"), "/rustup/toolchain/bin:/usr/bin");
+
+  assert.deepEqual(buildMacosTauriEnv({ PATH: "/usr/bin" }, null), { PATH: "/usr/bin" });
+  assert.deepEqual(buildMacosTauriEnv({ PATH: "/usr/bin", RUST_LOG: "debug" }, "/rustup/toolchain/bin"), {
+    PATH: "/rustup/toolchain/bin:/usr/bin",
+    RUST_LOG: "debug",
+  });
 });
 
 test("macOS DMG builder resolves release directories", () => {
@@ -78,6 +93,13 @@ test("macOS DMG builder names app and DMG outputs from metadata", () => {
       "dmg",
       "JobSentinel_2.6.4_universal.dmg",
     ),
+  );
+});
+
+test("macOS DMG builder formats public checksum artifact content", () => {
+  assert.equal(
+    formatDmgChecksum("/tmp/JobSentinel_2.6.4_universal.dmg", "0123456789abcdef"),
+    "0123456789abcdef  JobSentinel_2.6.4_universal.dmg\n",
   );
 });
 
@@ -159,6 +181,28 @@ test("macOS DMG builder detects partial notarization credentials", () => {
     false,
   );
   assert.equal(hasPartialNotarizationCredentials({}), false);
+});
+
+test("macOS DMG builder treats false notarization mode as authoritative", () => {
+  assert.equal(
+    shouldNotarizeDmg({
+      JOBSENTINEL_MACOS_NOTARIZE_DMG: "false",
+      APPLE_ID: "developer@example.com",
+      APPLE_PASSWORD: "@env:APPLE_APP_PASSWORD",
+      APPLE_TEAM_ID: "ABCDE12345",
+    }),
+    false,
+  );
+  assert.equal(shouldNotarizeDmg({ JOBSENTINEL_MACOS_NOTARIZE_DMG: "true" }), true);
+  assert.equal(
+    shouldNotarizeDmg({
+      APPLE_ID: "developer@example.com",
+      APPLE_PASSWORD: "@env:APPLE_APP_PASSWORD",
+      APPLE_TEAM_ID: "ABCDE12345",
+    }),
+    true,
+  );
+  assert.equal(shouldNotarizeDmg({}), false);
 });
 
 test("macOS DMG builder redacts notarytool auth values in logs", () => {

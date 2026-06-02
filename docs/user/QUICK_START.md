@@ -23,18 +23,23 @@ help more job seekers, including by building something better.
 2. Look for the installer list on the latest download page.
 3. Download the package or installer for your computer:
    - **Windows installer**
-   - **Mac package** for Apple silicon and Intel Macs
+   - **Mac package** for Apple silicon and Intel Macs, only when the release
+     also includes a matching `.dmg.sha256` checksum. For `v2.6.4`, use
+     `JobSentinel_2.6.4_no-account_universal.dmg`.
    - **Linux installer** when present on the release
-4. Double-click and follow the prompts.
-5. Open JobSentinel.
+4. Install it:
+   - Windows or Linux: double-click and follow the prompts.
+   - Mac: open the `.dmg`, drag **JobSentinel** to **Applications**, then eject
+     the disk image.
+5. Open JobSentinel from your apps list or **Applications** folder.
 
 <details>
 <summary><strong>First time on Mac? (Gatekeeper warning)</strong></summary>
 <br>
 
 macOS may show "JobSentinel can't be opened because Apple cannot check it for
-malicious software." This is expected for the current public Mac package because
-it is not Developer ID signed and notarized yet.
+malicious software." This is expected for no-account Mac packages because they
+are not Developer ID signed and notarized yet.
 
 Continue only if you downloaded JobSentinel from the latest download page
 linked above and expected this file. If you are not sure, stop, delete the
@@ -42,9 +47,11 @@ download, and download it again from that page.
 
 **To continue after checking the download:**
 
-1. Go to **System Settings > Privacy & Security**
-2. Scroll down and click **"Open Anyway"** next to the JobSentinel message
-3. Click **Open** in the confirmation dialog
+1. Open **JobSentinel** from **Applications** once.
+2. Dismiss the warning.
+3. Go to **System Settings > Privacy & Security**.
+4. Scroll down and click **"Open Anyway"** next to the JobSentinel message.
+5. Click **Open** in the confirmation dialog.
 
 This can happen because JobSentinel is a new open-source app. You only need to
 approve it once.

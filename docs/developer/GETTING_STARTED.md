@@ -80,6 +80,7 @@ npm run tauri:build:macos -- --target universal-apple-darwin
 
 # macOS Universal DMG output
 # src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_<version>_universal.dmg
+# src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_<version>_universal.dmg.sha256
 
 # Linux packages output
 # src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/deb/JobSentinel_<version>_amd64.deb

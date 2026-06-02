@@ -20,11 +20,13 @@ implementation slices that can run without shared-state conflicts. Keep scopes
 bounded, preserve user changes, close completed agents promptly, and record
 actionable findings in this active-plan surface or the relevant plan.
 
-Top functional priority as of 2026-06-02: fully functional macOS build and
-package flow. Resume assistance with screening-system transparency and
-application readability remains the next functional priority after the macOS
-build path is verified and committed. Resume work means resume parsing,
-readable exports, resume/job fit review, required-versus-preferred
+Top functional priority as of 2026-06-02: macOS no-account readiness for users
+who do not have an Apple Developer Account path available. The local system
+checked on 2026-06-02 is macOS 26.5 (Darwin 25.5.0, build 25F71) on Apple
+Silicon `arm64`, with SIP enabled. Resume assistance with screening-system
+transparency and application readability remains the next functional priority
+after the macOS build path is verified and committed. Resume work means resume
+parsing, readable exports, resume/job fit review, required-versus-preferred
 qualification review, and truthful edit support. It does not mean hidden
 keyword edits, deceptive resume changes, screening-system manipulation, or
 unreviewed form sending.
@@ -43,6 +45,15 @@ unreviewed form sending.
 - Branch has multiple local commits ahead of `origin/main`. Use
   `git status --short --branch` for live evidence before committing, pushing,
   or reporting remote state.
+- Current local no-account macOS readiness follow-up hardens the package script
+  so universal builds prefer the rustup-managed toolchain even when Homebrew
+  Rust is first in `PATH`, writes a local `.dmg.sha256` checksum next to the
+  generated DMG, and makes the public Mac verifier require the matching
+  checksum by default. The public `v2.6.4` Mac asset was replaced with
+  `JobSentinel_2.6.4_no-account_universal.dmg` plus matching checksum, and
+  `npm run tauri:verify:macos:latest -- --tag v2.6.4` passed on the downloaded
+  GitHub asset. Gatekeeper rejection remains expected for the no-account
+  package.
 - Current local no-Apple-account release follow-up makes macOS tag releases
   possible without an Apple Developer Account while keeping the limitation
   explicit. If all Apple release secrets are missing, release CI builds an

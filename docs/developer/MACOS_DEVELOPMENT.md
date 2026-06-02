@@ -17,8 +17,9 @@
    ```
 
    Universal macOS builds require the rustup-managed
-   `aarch64-apple-darwin` and `x86_64-apple-darwin` targets. Homebrew Rust may
-   only include the current machine target.
+   `aarch64-apple-darwin` and `x86_64-apple-darwin` targets. The maintained
+   macOS package script prefers the rustup toolchain when it is available, so
+   Homebrew Rust being earlier in `PATH` should not break universal builds.
 
 2. **Install Node.js:**
 
@@ -78,9 +79,11 @@ JobSentinel creates the following directories on macOS:
 | **Cache** | `~/Library/Caches/JobSentinel` | Cache files |
 | **Logs** | `~/Library/Logs/JobSentinel` | Application logs |
 
-**Tested on:** macOS 26.5 on Apple Silicon for current-architecture and
-universal local package smoke. Historical development coverage also includes
-macOS 15, macOS 14, and macOS 13.
+**Tested on:** macOS 26.5 (Darwin 25.5.0, build 25F71) on Apple Silicon
+`arm64` for current-architecture and universal local package smoke. The local
+host checked on 2026-06-02 was a MacBook Pro Mac16,5 with Apple M4 Max and SIP
+enabled. Historical development coverage also includes macOS 15, macOS 14, and
+macOS 13.
 
 ### View Your Data
 
@@ -132,18 +135,17 @@ rustup target add aarch64-apple-darwin x86_64-apple-darwin
 npm run tauri:build:macos -- --target universal-apple-darwin
 ```
 
-If Homebrew Rust is first in `PATH`, put rustup first for this command:
-
-```bash
-PATH="$HOME/.cargo/bin:$PATH" npm run tauri:build:macos -- --target universal-apple-darwin
-```
+If Homebrew Rust is first in `PATH`, keep using the same command. The package
+script asks rustup for the active toolchain path and prepends it while running
+Tauri.
 
 The packaging script builds the Tauri `.app`, verifies or ad-hoc signs the app
 bundle when no signing identity is configured, creates a drag-to-Applications
-DMG with `hdiutil`, and verifies the disk image. It avoids Finder AppleScript so
-the package path works in local shells and CI runners with Command Line Tools.
-When notarization credentials are available, it also signs, notarizes, staples,
-and validates the custom DMG before returning.
+DMG with `hdiutil`, verifies the disk image, and writes a matching
+`.dmg.sha256` checksum file. It avoids Finder AppleScript so the package path
+works in local shells and CI runners with Command Line Tools. When notarization
+credentials are available, it also signs, notarizes, staples, and validates the
+custom DMG before returning.
 
 JobSentinel does not currently have an Apple Developer Account. Without that
 account, the app cannot be Developer ID signed, notarized, stapled, or accepted
@@ -192,10 +194,10 @@ npm run tauri:verify:macos:latest
 ```
 
 That command downloads the latest public GitHub release DMG and applies the
-same universal-architecture, launch-smoke, installed-app smoke, and signature
-checks, including bundle identity, release-tag version, icon
-metadata and resource file, macOS 13.0 minimum-system metadata, and isolated
-macOS data directory and database creation during launch smoke.
+same checksum, universal-architecture, launch-smoke, installed-app smoke, and
+signature checks, including bundle identity, release-tag version, icon metadata
+and resource file, macOS 13.0 minimum-system metadata, and isolated macOS data
+directory and database creation during launch smoke.
 
 The latest local universal smoke built
 `src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_2.6.4_universal.dmg`,
@@ -209,6 +211,15 @@ and `jobs.db`.
 Because this local package uses an ad-hoc signature, Gatekeeper assessment
 rejects the `.app` and `.dmg`. A zero-friction public macOS release still needs
 an Apple Developer Account, Developer ID signing, notarization, and stapling.
+
+The public `v2.6.4` no-account asset
+`JobSentinel_2.6.4_no-account_universal.dmg` and its matching `.sha256`
+checksum passed `npm run tauri:verify:macos:latest -- --tag v2.6.4` on
+2026-06-02. That verification downloaded the GitHub release asset, verified the
+checksum, confirmed bundle metadata, confirmed `x86_64 arm64`, verified the app
+signature, ran mounted and installed launch smoke, and confirmed isolated local
+`jobs.db` creation. Gatekeeper rejection remains expected for the no-account
+package.
 
 **Note:** The `.dmg` installer is for distribution. You can also run the binary directly:
 
@@ -421,16 +432,20 @@ rustflags = ["-C", "link-arg=-fuse-ld=/opt/homebrew/bin/mold"]
    verification, app signature verification, architecture check, and packaged
    plus installed launch smoke pass locally, including local database creation
    under isolated macOS homes.
-2. **Public release blocked on Apple account** - Public macOS releases require
-   an Apple Developer Account, Developer ID signing, notarization, then
-   `--launch-smoke --install-smoke --require-gatekeeper` verification before
-   upload.
-3. **Published artifact gate active** - After publishing, run
+2. **No-account public package path available** - Public macOS releases can use
+   a clearly labeled ad-hoc signed package with a matching `.dmg.sha256` and
+   passing public verifier. The `v2.6.4` no-account public asset currently
+   passes. It still requires first-open Privacy & Security approval.
+3. **Zero-friction public release blocked on Apple account** - Gatekeeper-ready
+   public macOS releases require an Apple Developer Account, Developer ID
+   signing, notarization, then `--launch-smoke --install-smoke
+   --require-gatekeeper` verification before upload.
+4. **Published artifact gate active** - After publishing, run
    `npm run tauri:verify:macos:latest` to verify the downloaded public DMG.
-4. **Runtime workflow checks before release** - Run the app, complete setup,
+5. **Runtime workflow checks before release** - Run the app, complete setup,
    create a first search, save an application, and generate a safe support
    report before publishing a release.
-5. **Report issues with safe support reports** - Save a local support report
+6. **Report issues with safe support reports** - Save a local support report
    from the app and share it only after review.
 
 ---

@@ -1,8 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  findChecksumAsset,
   findMacosDmgAsset,
   parseArgs,
+  parseSha256Checksum,
 } from "./verify-latest-macos-release.mjs";
 
 test("latest macOS release verifier defaults to no-account public checks", () => {
@@ -20,6 +22,7 @@ test("latest macOS release verifier defaults to no-account public checks", () =>
     installSmoke: true,
     launchSmoke: true,
     releaseTag: undefined,
+    requireChecksum: true,
     repo: "cboyd0319/JobSentinel",
     requireGatekeeper: false,
     smokeSeconds: 12,
@@ -48,6 +51,7 @@ test("latest macOS release verifier supports scoped overrides", () => {
       "arm64",
       "--no-install-smoke",
       "--no-launch-smoke",
+      "--no-require-checksum",
       "--require-gatekeeper",
       "--smoke-seconds",
       "3",
@@ -68,11 +72,40 @@ test("latest macOS release verifier supports scoped overrides", () => {
       installSmoke: false,
       launchSmoke: false,
       releaseTag: "v2.6.4",
+      requireChecksum: false,
       repo: "example/project",
       requireGatekeeper: true,
       smokeSeconds: 3,
     },
   );
+});
+
+test("latest macOS release verifier selects matching checksum asset", () => {
+  const dmgAsset = {
+    name: "JobSentinel_2.6.4_universal.dmg",
+    browser_download_url: "https://example.invalid/macos.dmg",
+  };
+  const checksumAsset = findChecksumAsset(
+    {
+      assets: [
+        {
+          name: "JobSentinel_2.6.4_universal.dmg.sha256",
+          browser_download_url: "https://example.invalid/macos.dmg.sha256",
+        },
+      ],
+    },
+    dmgAsset,
+  );
+
+  assert.equal(checksumAsset?.name, "JobSentinel_2.6.4_universal.dmg.sha256");
+});
+
+test("latest macOS release verifier parses SHA-256 checksum files", () => {
+  assert.equal(
+    parseSha256Checksum("abc123\n0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef  JobSentinel.dmg\n"),
+    "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+  );
+  assert.throws(() => parseSha256Checksum("not a checksum"), /64-character hex digest/);
 });
 
 test("latest macOS release verifier selects universal HTTPS DMG asset", () => {

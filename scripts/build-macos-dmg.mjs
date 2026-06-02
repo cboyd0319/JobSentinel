@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import {
   cpSync,
   existsSync,
@@ -10,9 +11,10 @@ import {
   readdirSync,
   rmSync,
   symlinkSync,
+  writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { basename, dirname, join, resolve } from "node:path";
+import { basename, delimiter, dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const scriptPath = fileURLToPath(import.meta.url);
@@ -91,10 +93,47 @@ function run(command, args, options = {}) {
   console.log(`$ ${[command, ...logArgs].join(" ")}`);
   execFileSync(command, args, {
     cwd: options.cwd ?? defaultRoot,
+    env: options.env ?? process.env,
     stdio: options.stdio ?? "inherit",
     encoding: "utf8",
     timeout: options.timeout,
   });
+}
+
+export function prependPathDir(pathValue, dir) {
+  const paths = String(pathValue ?? "")
+    .split(delimiter)
+    .filter(Boolean);
+
+  if (paths.includes(dir)) {
+    return paths.join(delimiter);
+  }
+
+  return [dir, ...paths].join(delimiter);
+}
+
+export function getRustupToolchainBinDir(env = process.env) {
+  try {
+    const cargoPath = execFileSync("rustup", ["which", "cargo"], {
+      env,
+      stdio: ["ignore", "pipe", "ignore"],
+      encoding: "utf8",
+    }).trim();
+    return cargoPath ? dirname(cargoPath) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function buildMacosTauriEnv(env = process.env, rustupToolchainBinDir = getRustupToolchainBinDir(env)) {
+  if (!rustupToolchainBinDir) {
+    return env;
+  }
+
+  return {
+    ...env,
+    PATH: prependPathDir(env.PATH, rustupToolchainBinDir),
+  };
 }
 
 function hasValue(value) {
@@ -214,6 +253,11 @@ export function hasPartialNotarizationCredentials(env = process.env) {
   return fields.some(hasValue) && !buildNotarytoolSubmitArgs("artifact.dmg", env);
 }
 
+export function shouldNotarizeDmg(env = process.env, dmgPath = "artifact.dmg") {
+  const notarizeMode = env.JOBSENTINEL_MACOS_NOTARIZE_DMG;
+  return notarizeMode === "true" || (notarizeMode !== "false" && Boolean(buildNotarytoolSubmitArgs(dmgPath, env)));
+}
+
 export function redactNotarytoolArgs(args) {
   const sensitiveOptionNames = new Set([
     "--apple-id",
@@ -241,7 +285,7 @@ function removeStaleDmgArtifacts(paths, dmgName) {
     }
 
     for (const entry of readdirSync(path)) {
-      if (entry === dmgName || (entry.startsWith("rw.") && entry.endsWith(".dmg"))) {
+      if (entry === dmgName || entry === `${dmgName}.sha256` || (entry.startsWith("rw.") && entry.endsWith(".dmg"))) {
         rmSync(join(path, entry), { force: true });
       }
     }
@@ -260,16 +304,16 @@ function signDmgForDistribution(dmgPath, identity) {
 
 function notarizeAndStapleDmg(dmgPath) {
   const submitArgs = buildNotarytoolSubmitArgs(dmgPath);
-  const shouldNotarize = process.env.JOBSENTINEL_MACOS_NOTARIZE_DMG === "true" || submitArgs;
+  const shouldNotarize = shouldNotarizeDmg(process.env, dmgPath);
+
+  if (!shouldNotarize) {
+    return;
+  }
 
   if (hasPartialNotarizationCredentials()) {
     throw new Error(
       "Incomplete macOS notarization credentials. Use APPLE_ID, APPLE_PASSWORD, and APPLE_TEAM_ID; APPLE_API_KEY and APPLE_API_KEY_PATH; or JOBSENTINEL_MACOS_NOTARY_PROFILE.",
     );
-  }
-
-  if (!shouldNotarize) {
-    return;
   }
 
   if (!submitArgs) {
@@ -310,9 +354,21 @@ function createDmg({ appPath, dmgPath, productName }) {
     ]);
     run("hdiutil", ["verify", dmgPath]);
     notarizeAndStapleDmg(dmgPath);
+    writeDmgChecksum(dmgPath);
   } finally {
     rmSync(staging, { recursive: true, force: true });
   }
+}
+
+export function formatDmgChecksum(dmgPath, digest) {
+  return `${digest}  ${basename(dmgPath)}\n`;
+}
+
+function writeDmgChecksum(dmgPath) {
+  const digest = createHash("sha256").update(readFileSync(dmgPath)).digest("hex");
+  const checksumPath = `${dmgPath}.sha256`;
+  writeFileSync(checksumPath, formatDmgChecksum(dmgPath, digest));
+  console.log(`macOS DMG SHA-256: ${checksumPath}`);
 }
 
 export function getMacBuildPaths(root, args, metadata = readBuildMetadata(root)) {
@@ -344,7 +400,7 @@ export function main({ root = defaultRoot, args = process.argv.slice(2) } = {}) 
   const tauriBin = join(root, "node_modules", ".bin", "tauri");
 
   removeStaleDmgArtifacts([paths.dmgDir, paths.macosDir], paths.dmgName);
-  run(tauriBin, buildTauriArgs(args), { cwd: root });
+  run(tauriBin, buildTauriArgs(args), { cwd: root, env: buildMacosTauriEnv() });
 
   if (!existsSync(paths.appPath)) {
     throw new Error(`Tauri app bundle missing: ${paths.appPath}`);

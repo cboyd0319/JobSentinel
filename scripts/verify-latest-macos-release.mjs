@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
 import { createWriteStream, mkdtempSync, rmSync } from "node:fs";
+import { readFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
 import { basename, join, resolve } from "node:path";
 import { pipeline } from "node:stream/promises";
@@ -50,6 +52,7 @@ export function parseArgs(args) {
     installSmoke: !hasArg(args, "--no-install-smoke"),
     launchSmoke: !hasArg(args, "--no-launch-smoke"),
     releaseTag: getArgValue(args, "--tag"),
+    requireChecksum: !hasArg(args, "--no-require-checksum"),
     repo: getArgValue(args, "--repo") ?? defaultRepo,
     requireGatekeeper: hasArg(args, "--require-gatekeeper") && !hasArg(args, "--no-require-gatekeeper"),
     smokeSeconds: Number(getArgValue(args, "--smoke-seconds") ?? "12"),
@@ -79,6 +82,57 @@ export function findMacosDmgAsset(release, assetPattern = "universal.dmg") {
       url.startsWith("https://")
     );
   });
+}
+
+export function findChecksumAsset(release, dmgAsset) {
+  const assets = Array.isArray(release?.assets) ? release.assets : [];
+  const checksumName = `${dmgAsset?.name ?? ""}.sha256`;
+
+  return assets.find((asset) => {
+    const name = typeof asset?.name === "string" ? asset.name : "";
+    const url =
+      typeof asset?.browser_download_url === "string"
+        ? asset.browser_download_url
+        : "";
+
+    return name === checksumName && url.startsWith("https://");
+  });
+}
+
+export function parseSha256Checksum(content) {
+  const match = content.match(/\b([a-fA-F0-9]{64})\b/);
+  if (!match) {
+    throw new Error("SHA-256 checksum file did not contain a 64-character hex digest.");
+  }
+
+  return match[1].toLowerCase();
+}
+
+async function sha256File(path) {
+  const data = await readFile(path);
+  return createHash("sha256").update(data).digest("hex");
+}
+
+async function verifyChecksum({ release, dmgAsset, dmgPath, requireChecksum }) {
+  const checksumAsset = findChecksumAsset(release, dmgAsset);
+  if (!checksumAsset) {
+    if (requireChecksum) {
+      throw new Error(`No SHA-256 checksum asset found for ${dmgAsset.name}. Expected ${dmgAsset.name}.sha256.`);
+    }
+    console.warn(`No SHA-256 checksum asset found for ${dmgAsset.name}; skipping checksum check.`);
+    return;
+  }
+
+  const checksumPath = `${dmgPath}.sha256`;
+  console.log(`Downloading public macOS checksum asset: ${checksumAsset.browser_download_url}`);
+  await downloadFile(checksumAsset.browser_download_url, checksumPath);
+
+  const expected = parseSha256Checksum(await readFile(checksumPath, "utf8"));
+  const actual = await sha256File(dmgPath);
+  if (actual !== expected) {
+    throw new Error(`SHA-256 checksum mismatch for ${dmgAsset.name}. Expected ${expected}, found ${actual}.`);
+  }
+  console.log(`SHA-256 checksum verified: ${actual}`);
 }
 
 async function fetchJson(url) {
@@ -133,6 +187,12 @@ export async function verifyLatestMacosRelease(options) {
   try {
     console.log(`Downloading public macOS release asset: ${asset.browser_download_url}`);
     await downloadFile(asset.browser_download_url, dmgPath);
+    await verifyChecksum({
+      release,
+      dmgAsset: asset,
+      dmgPath,
+      requireChecksum: options.requireChecksum,
+    });
     await verifyMacosPackage({
       appName: options.appName,
       dmgPath,
