@@ -34,6 +34,16 @@ actionable findings in this active-plan surface or the relevant plan.
 - Branch has multiple local commits ahead of `origin/main`. Use
   `git status --short --branch` for live evidence before committing, pushing,
   or reporting remote state.
+- Current local Telegram alert setup copy cleanup removes visible automatic-alert,
+  bot-command, and chat-number wording from Settings and the Notifications
+  guide. Telegram stays an optional chat-alert path, but the primary UI no
+  longer teaches `@BotFather`, `/newbot`, or `@userinfobot` setup steps.
+  Product-copy sensors now reject those drift phrases. Focused verification
+  passed: `npx vitest run src/pages/Settings.test.tsx`, `node --test
+  scripts/check-product-copy.test.mjs`, targeted stale-phrase search found no
+  old live wording in Settings or the Notifications guide, `npm run lint:docs`,
+  and `npm run test:scripts`. Broader verification passed: `npm run
+  lint:bloat`, `npm run lint:docs`, `npm run lint`, and `git diff --check`.
 - Current local telemetry-comment cleanup removes analytics-service and
   automatic-error-reporting language from web-vitals and error-boundary comments
   so comments match Rule 0 local-first behavior. Product-copy sensors now reject

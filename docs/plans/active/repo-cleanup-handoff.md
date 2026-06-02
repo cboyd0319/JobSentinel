@@ -31,6 +31,17 @@ Latest pushed checkpoints include:
 
 Recent remote integration evidence:
 
+- Current local Telegram alert setup copy cleanup removes visible automatic-alert,
+  bot-command, and chat-number wording from Settings and the Notifications
+  guide. Telegram stays optional, but the primary UI no longer teaches
+  `@BotFather`, `/newbot`, or `@userinfobot` setup steps. Product-copy sensors
+  now reject those drift phrases. Focused verification passed: `npx vitest run
+  src/pages/Settings.test.tsx` passed 38 tests, `node --test
+  scripts/check-product-copy.test.mjs` passed 34 tests, targeted stale-phrase
+  search found no old live wording in Settings or the Notifications guide,
+  `npm run lint:docs` passed, and `npm run test:scripts` passed 459 script
+  tests. Broader verification passed: `npm run lint:bloat`,
+  `npm run lint:docs`, `npm run lint`, and `git diff --check`.
 - Pushed email-service wording follow-up changes Settings, Quick Start, and
   notification docs away from technical-first email setup wording toward
   email-service and encrypted sending language. Focused verification passed:

@@ -148,22 +148,21 @@ email alerts are easier to set up.
 
 ### Telegram
 
-Use desktop or email alerts unless you already know how to create a Telegram
-bot. Telegram alerts are an optional chat-alert path because Telegram requires
-setup details shown in the app.
+Use desktop or email alerts unless Telegram is already part of your alert
+routine. Telegram alerts are an optional chat-alert path because they require
+two details from Telegram before JobSentinel can send alerts there.
 
 <details>
 <summary><strong>Optional Telegram alert setup</strong></summary>
 <br>
 
-1. Create a Telegram bot
+1. Complete Telegram's own alert setup first
 2. Copy the setup code Telegram gives you
-3. Add your Telegram alert bot to a group or channel
-4. Add the Telegram chat details shown by your Telegram setup
-5. In JobSentinel, open Settings, choose Sources & Alerts, then paste the setup
-   code and chat details in Telegram Notifications
+3. Copy the destination shown by Telegram for where alerts should go
+4. In JobSentinel, open Settings, choose Sources & Alerts, then paste the setup
+   code and destination in Telegram Notifications
 
-**Note:** Use the exact chat details shown by Telegram.
+**Note:** Use the exact details shown by Telegram.
 
 **What you'll get:** Formatted messages right on your phone.
 
@@ -236,8 +235,8 @@ into JobSentinel.
 Copy a fresh Discord channel connection link, paste it into JobSentinel, then
 click Test.
 
-### Telegram says "chat not found"?
+### Telegram says the alert destination cannot be found?
 
-1. Make sure the bot is added to your group/channel
-2. Check that the Telegram setup details match what Telegram showed you
-3. If it is a channel, give the bot permission to post there
+1. Make sure Telegram's alert setup is connected to your group or channel
+2. Check that the Telegram details match what Telegram showed you
+3. If it is a channel, allow the Telegram alert setup to post there

@@ -1074,6 +1074,14 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /Manual Email Server Reference/i,
       /Server Settings\s*>\s*Integrations/i,
       /Advanced Sending Server Reference/i,
+      /already know how to create a Telegram bot/i,
+      /Create a Telegram bot/i,
+      /Telegram alert bot/i,
+      /Telegram chat details/i,
+      /Telegram setup details/i,
+      /Telegram says "chat not found"/i,
+      /bot is added/i,
+      /give the bot permission/i,
     ];
 
     if (notificationDocPatterns.some((pattern) => pattern.test(text))) {
@@ -1178,6 +1186,13 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /["'`]Test failed["'`]/,
       /saved connection detail\(s\) failed to save/i,
       /Message @BotFather to create a private alert bot/i,
+      /already use Telegram for automatic alerts/i,
+      /Telegram chat number/i,
+      /Telegram destination number/i,
+      /destination number Telegram shows/i,
+      /@BotFather/i,
+      /@userinfobot/i,
+      /\/newbot/i,
       /Quick Setup \(2 minutes\)/i,
       />\s*Get USAJobs Access Code\s*</i,
       /USAJobs uses a free access code/i,

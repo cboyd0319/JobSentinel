@@ -164,6 +164,13 @@ As of 2026-06-02, the active plan remains open. Latest local work improved
 visible zero-technical UX, broad-audience defaults, privacy/security
 boundaries, and harness modularity:
 
+- Current local Telegram alert setup copy cleanup removes visible automatic-alert,
+  bot-command, and chat-number wording from Settings and the Notifications
+  guide. Telegram stays optional, but the primary UI no longer teaches
+  `@BotFather`, `/newbot`, or `@userinfobot` setup steps. Product-copy sensors
+  now reject those drift phrases. Focused Settings, product-copy,
+  stale-phrase, docs, and script verification passed. Broader bloat, docs,
+  lint, and diff-check verification passed.
 - Current local telemetry-comment cleanup removes analytics-service and
   automatic-error-reporting language from web-vitals and error-boundary comments
   so comments match Rule 0 local-first behavior. Product-copy sensors now reject

@@ -567,9 +567,9 @@ function getCredentialValidationError(
 
     if (!hasAlertCode || !hasDestination) {
       return {
-        title: "Finish Telegram setup",
+        title: "Finish Telegram alerts",
         message:
-          "Add the Telegram setup details shown below, or turn Telegram alerts off.",
+          "Add the Telegram details shown below, or turn Telegram alerts off.",
       };
     }
   }
@@ -1364,7 +1364,7 @@ export default function Settings({ onClose }: SettingsProps) {
     ) {
       toast.info(
         "Telegram setup opened",
-        "Add the Telegram setup details before saving alerts.",
+        "Add the Telegram details before saving alerts.",
       );
     }
 
@@ -3065,14 +3065,15 @@ export default function Settings({ onClose }: SettingsProps) {
                     Telegram Notifications
                     <Badge variant="surface" size="sm">Optional chat alert</Badge>
                     <HelpIcon
-                      text="Use desktop or email alerts unless you already use Telegram for automatic alerts."
+                      text="Use desktop or email alerts unless Telegram is already part of your alert routine."
                       position="right"
                     />
                   </label>
                   <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
                     <p className="text-xs text-surface-500 dark:text-surface-400 mb-3">
-                      Use desktop or email alerts unless you already use Telegram for automatic alerts.
-                      Telegram needs setup details from Telegram.
+                      Use desktop or email alerts unless Telegram is already
+                      part of your alert routine. Telegram needs two details
+                      from Telegram before it can receive JobSentinel alerts.
                     </p>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
@@ -3104,8 +3105,8 @@ export default function Settings({ onClose }: SettingsProps) {
                             Optional Telegram alert setup
                           </p>
                           <p className="text-xs text-surface-500 dark:text-surface-400 mt-1">
-                            Continue only if you already use Telegram for automatic
-                            alerts or want to create a private job-alert path.
+                            Continue only if you already use Telegram for phone
+                            alerts or want a private job-alert chat.
                           </p>
                         </div>
                         <div>
@@ -3131,15 +3132,15 @@ export default function Settings({ onClose }: SettingsProps) {
                                 ? "Enter new Telegram setup code"
                                 : "Paste Telegram setup code"
                             }
-                            hint="In Telegram, message @BotFather, send /newbot, then copy the code it gives you"
+                            hint="Use Telegram's own setup flow first, then paste the code it shows."
                           />
                         </div>
                         <div>
                           <span className="text-sm text-surface-600 dark:text-surface-400 mb-1 block">
-                            Telegram chat number
+                            Telegram destination
                           </span>
                           <Input
-                            placeholder="Numbers from @userinfobot"
+                            placeholder="Detail shown by Telegram"
                             value={config.alerts.telegram?.chat_id ?? ""}
                             onChange={(e) =>
                               setConfig({
@@ -3154,7 +3155,7 @@ export default function Settings({ onClose }: SettingsProps) {
                                 },
                               })
                             }
-                            hint="In Telegram, message @userinfobot and copy the ID it shows"
+                            hint="Paste the destination Telegram shows for where alerts should go."
                           />
                         </div>
                       </div>
