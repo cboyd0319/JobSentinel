@@ -221,7 +221,7 @@ actionable findings in this active-plan surface or the relevant plan.
   scripts/check-product-copy.test.mjs` passed 32 tests, targeted search found no
   old Quick Start phrases, `npm run lint:bloat`, `npm run harness:check`, `npm
   run lint:docs`, `npm run test:scripts`, and `git diff --check`.
-- Current local resume-import feature-doc cleanup replaces raw JSON field mapping
+- Committed local resume-import feature-doc cleanup replaces raw JSON field mapping
   and developer command-contract details with plain imported-section, privacy,
   and validation guidance. Product-copy sensors now reject those implementation
   details if they drift back into `docs/features/json-resume-import.md`.
@@ -229,6 +229,14 @@ actionable findings in this active-plan surface or the relevant plan.
   passed 32 tests, targeted search found no removed resume-import contract
   markers, `npm run lint:bloat`, `npm run harness:check`, `npm run lint:docs`,
   `npm run test:scripts`, and `git diff --check`.
+- Current local Resume Builder feature-doc cleanup removes developer-only local
+  storage, command, export, and backend-file details from the job-seeker guide.
+  Product-copy sensors now reject those implementation details if they drift
+  back into `docs/features/resume-builder.md`. Focused verification passed:
+  `node --test scripts/check-product-copy.test.mjs` passed 32 tests, targeted
+  search found no removed Resume Builder developer markers, `npm run
+  lint:bloat`, `npm run harness:check`, `npm run lint:docs`, `npm run
+  test:scripts`, and `git diff --check`.
 - No remote CI or push should run unless the user explicitly asks in the current
   turn.
 
@@ -286,6 +294,8 @@ Scope:
   advanced local-file wording.
 - Resume import feature docs must keep sensitive import behavior, privacy, and
   validation guidance readable without raw schema, command, or renderer terms.
+- Resume Builder feature docs must teach resume building and matching without
+  local-storage, command, export, or backend-file implementation details.
 - Product-copy sensors must reject recurring old phrases.
 
 Verification completed for this slice:
@@ -300,6 +310,7 @@ node --test scripts/check-product-copy.test.mjs
 ! rg -n "Technical Details|Signal Weights|Database Schema|API Commands|invoke\\(|ghost_reasons TEXT|ghost_score|repost_count|Ghost configuration commands|get_ghost_config|set_ghost_config|reset_ghost_config" docs/features/ghost-detection.md
 ! rg -n "For contributors|Developer Setup|Advanced: where JobSentinel saves local files" docs/user/QUICK_START.md
 ! rg -n "JSON Resume content|basics\\.|work\\[\\]|Developer contract|Implementation paths|select_and_import_json_resume|import_json_resume|Returned renderer DTOs|Run the focused Rust tests|cargo test core::resume::json_resume" docs/features/json-resume-import.md
+! rg -n "Developer Details|For developers and the curious|Local Storage Model|Tauri Commands|resume_drafts|create_resume_draft|export_resume_docx|analyze_resume_for_job|Backend Files|DOCX generation" docs/features/resume-builder.md
 npx vitest run src/pages/Settings.test.tsx src/components/ErrorLogPanel.test.tsx
 npx vitest run src/components/ErrorLogPanel.test.tsx
 npx vitest run src/utils/errorReporting.test.ts

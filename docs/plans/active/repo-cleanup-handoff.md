@@ -79,7 +79,7 @@ Recent remote integration evidence:
   scripts/check-product-copy.test.mjs` passed 32 tests, targeted search found no
   old Quick Start phrases, `npm run lint:bloat`, `npm run harness:check`, `npm
   run lint:docs`, `npm run test:scripts`, and `git diff --check`.
-- Current local resume-import feature-doc cleanup replaces raw JSON field mapping
+- Committed local resume-import feature-doc cleanup replaces raw JSON field mapping
   and developer command-contract details with plain imported-section, privacy, and
   validation guidance. Product-copy sensors now reject those implementation
   details if they drift back into `docs/features/json-resume-import.md`.
@@ -87,6 +87,14 @@ Recent remote integration evidence:
   passed 32 tests, targeted search found no removed resume-import contract
   markers, `npm run lint:bloat`, `npm run harness:check`, `npm run lint:docs`,
   `npm run test:scripts`, and `git diff --check`.
+- Current local Resume Builder feature-doc cleanup removes developer-only local
+  storage, command, export, and backend-file details from the job-seeker guide.
+  Product-copy sensors now reject those implementation details if they drift
+  back into `docs/features/resume-builder.md`. Focused verification passed:
+  `node --test scripts/check-product-copy.test.mjs` passed 32 tests, targeted
+  search found no removed Resume Builder developer markers, `npm run
+  lint:bloat`, `npm run harness:check`, `npm run lint:docs`, `npm run
+  test:scripts`, and `git diff --check`.
 - Current local source-name copy follow-up changes README source coverage,
   source feature docs, public job-source issue template, shared source labels,
   and frontend mocks from `HN Who's Hiring` wording to `Startup and tech job

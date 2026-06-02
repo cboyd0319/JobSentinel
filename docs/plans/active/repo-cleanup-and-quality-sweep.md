@@ -858,6 +858,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-06-02 | In progress | Removed developer-only local-storage, command, export, and backend-file details from the user-facing Resume Builder guide. Product-copy sensors now reject those implementation details in `docs/features/resume-builder.md`. |
 | 2026-06-02 | In progress | Reworked the Resume Data Import feature guide from raw JSON field mapping and developer command-contract details to plain imported-section, privacy, and validation guidance. Product-copy sensors now reject those implementation details in `docs/features/json-resume-import.md`. |
 | 2026-06-02 | In progress | Replaced Quick Start contributor/developer setup labels and advanced local-file wording with plain optional source-code and file-location copy. Product-copy sensors now reject those exact current phrases in `docs/user/QUICK_START.md`. |
 | 2026-06-02 | In progress | Removed developer-only schema, signal-weight, and API-command details from the user-facing Ghost Detection guide. Product-copy sensors now reject those details if they drift back into `docs/features/ghost-detection.md`, preserving the protective, zero-technical job-seeker framing. |

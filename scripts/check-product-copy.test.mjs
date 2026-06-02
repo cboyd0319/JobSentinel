@@ -1877,7 +1877,22 @@ test("product copy rejects technical-first resume copy", () => {
     writeFixtureFile(
       root,
       "docs/features/resume-builder.md",
-      "Include proficiency levels if you want (expert, intermediate, etc.)\n**Readability Score**\n**Completeness**\n",
+      [
+        "Include proficiency levels if you want (expert, intermediate, etc.)",
+        "**Readability Score**",
+        "**Completeness**",
+        "## Developer Details",
+        "For developers and the curious",
+        "Local Storage Model",
+        "Tauri Commands",
+        "resume_drafts",
+        "create_resume_draft",
+        "export_resume_docx",
+        "analyze_resume_for_job",
+        "Backend Files",
+        "DOCX generation",
+        "",
+      ].join("\n"),
     );
     writeFixtureFile(
       root,

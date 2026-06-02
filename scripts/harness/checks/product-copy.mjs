@@ -1279,7 +1279,24 @@ export function hasTechnicalFirstUserCopy(root, path) {
   }
 
   if (path === "docs/features/resume-builder.md") {
-    return /proficiency levels|expert, intermediate|Readability Score|\*\*Completeness\*\*/i.test(text);
+    const resumeBuilderDocPatterns = [
+      /proficiency levels/i,
+      /expert, intermediate/i,
+      /Readability Score/i,
+      /\*\*Completeness\*\*/i,
+      /Developer Details/i,
+      /For developers and the curious/i,
+      /Local Storage Model/i,
+      /Tauri Commands/i,
+      /resume_drafts/i,
+      /create_resume_draft/i,
+      /export_resume_docx/i,
+      /analyze_resume_for_job/i,
+      /Backend Files/i,
+      /DOCX generation/i,
+    ];
+
+    return resumeBuilderDocPatterns.some((pattern) => pattern.test(text));
   }
 
   if (path === "docs/features/smart-scoring.md" && /advanced scoring configuration/i.test(text)) {
