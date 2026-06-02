@@ -88,6 +88,12 @@ export class SettingsPage extends BasePage {
     return this.dialog.getByRole("button", { name: "Send Feedback" });
   }
 
+  get saveSafeSupportReportButton(): Locator {
+    return this.dialog.locator(
+      'button[title="Save a safe support report you can share only if you want help"]',
+    );
+  }
+
   async switchTab(tab: "basic" | "advanced") {
     await (tab === "basic" ? this.basicTab : this.advancedTab).click();
     await this.dialog

@@ -107,6 +107,17 @@ test.describe("Settings Save and Load", () => {
       await expect(settingsPage.feedbackButton).toBeVisible();
     });
 
+    test("saves a safe support report from settings @smoke", async ({ page }) => {
+      await settingsPage.saveSafeSupportReportButton.click();
+
+      await expect(page.getByText("Support report saved for review")).toBeVisible();
+      await expect(
+        page.getByText(
+          /Review jobsentinel-feedback-\d{4}-\d{2}-\d{2}-\d{4}\.txt before sharing it/,
+        ),
+      ).toBeVisible();
+    });
+
     test("toggles email alerts and validates email fields", async () => {
       await settingsPage.toggleEmailAlerts();
 

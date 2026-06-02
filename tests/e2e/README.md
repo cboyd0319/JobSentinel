@@ -113,7 +113,8 @@ npm run test:e2e:smoke:all
 
 Use smoke tests during routine frontend work. They cover app load, search,
 keyboard focus, applications, settings, resume, Application Assist, resume
-builder, and market intelligence without running every browser-flow assertion.
+builder, market intelligence, and safe support report generation without
+running every browser-flow assertion.
 The budget command runs the Chromium smoke suite with Playwright JSON output
 and fails when duration or test count exceeds the maintained budget.
 

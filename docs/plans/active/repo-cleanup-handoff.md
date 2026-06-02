@@ -117,6 +117,13 @@ Recent local verification evidence:
   test:scripts` passed 491 tests, `npm run lint:security`, `actionlint
   .github/workflows/release.yml`, `npm run lint:docs`, `npm run lint:bloat`,
   and `git diff --check` passed.
+- Current local macOS readiness follow-up adds safe support report generation
+  to the fast Playwright smoke surface so the easiest nontechnical debugging
+  path stays covered before release checks. Verification passed: focused
+  Chromium Playwright `settings-save-load.spec.ts --grep "saves a safe support
+  report"` passed 1 test, `npm run test:e2e:smoke:budget` passed 10 expected
+  tests in about 8.6 seconds, `npm run lint`, `npm run lint:docs`, and `git
+  diff --check` passed.
 - Current local platform-doc drift fix syncs the getting-started database paths
   with live platform code: macOS data lives under `~/Library/Application
   Support/JobSentinel`, Linux data under `~/.local/share/jobsentinel`, and the
