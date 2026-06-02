@@ -191,6 +191,10 @@ boundaries, and harness modularity:
   harness notes so front-door copy talks about lower-title, lower-pay, and
   below-floor risk instead of optimization or under-leveling jargon. Product-copy
   coverage rejects the stale phrases.
+- Corrected README and PRIVACY.md external-channel wording so configured alert
+  channels are separate from user-opened GitHub/Google Drive support links.
+  Product-copy coverage now rejects conflating GitHub or Google Drive with
+  external alerts.
 - Tightened another zero-technical support and protective-copy slice: public
   issue templates now avoid bug/feature/scraper-first wording, safe support
   report docs require review before sharing, source status avoids

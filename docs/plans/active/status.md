@@ -52,6 +52,10 @@ and record actionable findings in this active-plan surface.
   feature docs from optimization and under-leveling jargon to plain lower-title,
   lower-pay, and below-floor risk language; product-copy coverage now rejects the
   stale front-door phrases.
+- Current local external-channel accuracy follow-up separates configured alert
+  channels from user-opened GitHub/Google Drive support links in README and
+  PRIVACY.md, with product-copy coverage against conflating support links with
+  external alerts.
 - Latest local zero-technical job-import follow-up changes missing-preview
   warnings from raw missing-field lists to readable details-to-check labels, so
   backend keys such as salary or job-link fields do not leak into the import

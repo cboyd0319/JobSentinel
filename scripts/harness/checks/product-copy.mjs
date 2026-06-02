@@ -765,6 +765,9 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /Rule 0 privacy and security guarantee/i,
       /It does not share your profile details/i,
       /No tracking or analytics/i,
+      /GitHub feedback, and Google Drive are user-configured/i,
+      /External alerts\s*\|[^\n]*(?:GitHub|Google Drive)/i,
+      /Feedback or issue-report sharing through configured GitHub or Google Drive/i,
     ];
 
     if (ruleZeroPatterns.some((pattern) => pattern.test(text))) {

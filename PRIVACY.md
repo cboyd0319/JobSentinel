@@ -56,8 +56,8 @@ Possible network activity:
   channels. Alert payloads may include public job details and match score, but
   raw local match reasons, salary-floor details, private notes, and application
   history stay in JobSentinel.
-- Feedback or issue-report sharing through configured GitHub or Google Drive
-  paths.
+- Feedback or issue-report sharing through GitHub or Google Drive only when the
+  user chooses to open those support links.
 - Source-specific sign-in or session validation when the user enables a source
   that requires their own session.
 - Optional external AI requests only after the user enables a provider, reviews

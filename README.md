@@ -165,7 +165,7 @@ request.
 | Rule 0 | Privacy and security cannot be set aside for convenience, automation, support, research, or speed. |
 | Local-first | Jobs, searches, resumes, notes, salary floors, applications, and reports stay on the user's device by default. |
 | No telemetry | JobSentinel does not collect analytics or behavioral telemetry. |
-| Optional external channels | Slack, Discord, Teams, Telegram, email, GitHub feedback, and Google Drive are user-configured only. |
+| Optional external channels | Alert channels are user-configured; GitHub and Google Drive support links open only when the user chooses them. |
 | Optional external AI | Provider calls need opt-in, minimization, preview, approval, redaction or cancellation, and local metadata logging. |
 | Candidate-side framing | Explanations help the job seeker understand fit, source risk, pay transparency, and readability. |
 | Protective tone | The app surfaces warnings, tradeoffs, and next safe actions instead of hollow motivation. |
@@ -227,7 +227,8 @@ React 19 + TypeScript UI
 | Storage | SQLite stores search state, saved jobs, notes, applications, and local reports. |
 | Secrets | Alert connection details, email credentials, and USAJobs access codes use the OS credential store. |
 | Source adapters | Adapters use bounded requests, source-specific rate limits, and shared retry helpers. |
-| External alerts | Slack, Discord, Teams, Telegram, email, GitHub, and Google Drive are user-configured. |
+| External alerts | Slack, Discord, Teams, Telegram, and email are user-configured. |
+| Support sharing | GitHub issue pages and Google Drive support links open only when the user chooses them. |
 | External AI | All provider calls must go through the AI gateway. Scattered provider calls are not allowed. |
 | Research mode | Public postings and synthetic candidate profiles are the default evaluation data. |
 
@@ -282,6 +283,7 @@ a hosted JobSentinel service.
 | Slack, Discord, Teams, email, Telegram, and USAJobs secrets | Your OS credential store |
 | Desktop notifications | Your computer |
 | External alerts | Only the channels you configure |
+| Support sharing links | GitHub issue pages and Google Drive folders open only when you choose them |
 | Optional location detection | FreeIPAPI HTTPS lookup only after you click **Detect location**; cached for the session |
 | Optional external AI | Disabled by default; every request needs opt-in, preview, approval, minimization, and local metadata logging |
 | Telemetry and analytics | Not collected |

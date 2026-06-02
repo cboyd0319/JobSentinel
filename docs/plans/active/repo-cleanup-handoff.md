@@ -212,6 +212,10 @@ Current cleanup posture:
   from optimization and under-leveling jargon toward lower-title, lower-pay, and
   below-floor risk language. Product-copy coverage now rejects those stale
   front-door phrases.
+- Current local external-channel accuracy follow-up separates configured alert
+  channels from user-opened GitHub/Google Drive support links in README and
+  PRIVACY.md, with product-copy coverage against treating those support links as
+  external alerts.
 - Current local Settings copy follow-up changes the posting-risk save toast
   from scan wording to job-check wording and renames the Telegram badge from
   advanced chat alert to optional chat alert. Settings tests and product-copy

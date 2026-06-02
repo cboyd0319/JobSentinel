@@ -1196,6 +1196,28 @@ test("product copy rejects first-run and Rule 0 privacy drift", () => {
   });
 });
 
+test("product copy rejects conflated alert and support channels", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "README.md",
+      [
+        "| Optional external channels | Slack, Discord, email, GitHub feedback, and Google Drive are user-configured only. |",
+        "| External alerts | Slack, Discord, email, GitHub, and Google Drive are user-configured. |",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "PRIVACY.md",
+      "Feedback or issue-report sharing through configured GitHub or Google Drive paths.\n",
+    );
+
+    assert.equal(hasTechnicalFirstUserCopy(root, "README.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "PRIVACY.md"), true);
+  });
+});
+
 test("product copy rejects technical source labels and unsafe public issue templates", () => {
   withFixture((root) => {
     writeFixtureFile(
