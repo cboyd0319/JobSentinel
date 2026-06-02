@@ -151,6 +151,10 @@ Current cleanup posture:
   labels, jobs-to-check wording, connected-source review labels, and detailed
   local support-report action copy, with focused Settings, ErrorLogPanel, and
   product-copy coverage.
+- Current local feedback/recovery tooltip follow-up changes the detailed local
+  report tooltip and Browser Button docs from support-only wording to
+  maintainer-requested-use wording, with focused ErrorLogPanel, product-copy,
+  and bloat coverage.
 - Current local connected-source wording follow-up changes the Settings contact
   history label from `Source host` to `Website contacted`, with focused
   Settings and product-copy coverage against raw source metadata labels

@@ -63,6 +63,11 @@ actionable findings in this active-plan surface or the relevant plan.
   scripts/check-product-copy.test.mjs` passed 32 tests, `npm run lint:bloat`,
   `npm run harness:check`, `npm run lint:docs`, `npm run test:scripts` passed
   454 script tests, `npm run lint`, and `git diff --check` passed.
+- Current local feedback/recovery tooltip slice changes the detailed local
+  support report tooltip and Browser Button docs away from support-only wording
+  and adds product-copy coverage. Verification passed: focused ErrorLogPanel
+  Vitest passed 34 tests, `node --test scripts/check-product-copy.test.mjs`
+  passed 32 tests, and `npm run lint:bloat` passed.
 - No remote CI or push should run unless the user explicitly asks in the current
   turn.
 
@@ -76,6 +81,10 @@ Scope:
   job-source links, not source addresses or requested jobs.
 - Error-log support actions must keep the easy safe support report path primary
   while avoiding troubleshooting jargon in visible labels.
+- Detailed local support-report tooltips should explain maintainer-requested use
+  without support-only jargon.
+- Browser Button help docs should keep connection settings plain and place
+  support-request gating in instructions, not labels.
 - Product-copy sensors must reject recurring old phrases.
 
 Verification completed for this slice:
@@ -88,6 +97,7 @@ npm run test:scripts
 npm run lint
 node --test scripts/check-product-copy.test.mjs
 npx vitest run src/pages/Settings.test.tsx src/components/ErrorLogPanel.test.tsx
+npx vitest run src/components/ErrorLogPanel.test.tsx
 git diff --check
 ```
 

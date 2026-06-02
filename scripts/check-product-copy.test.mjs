@@ -480,6 +480,8 @@ test("product copy rejects technical-first settings copy", () => {
         "Jobs requested",
         "https://example.com/jobswithgpt",
         "Save local troubleshooting report",
+        "For support only",
+        "connection settings (support only)",
         "",
       ].join("\n"),
     );

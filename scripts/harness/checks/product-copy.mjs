@@ -1880,6 +1880,8 @@ export function hasTechnicalFirstUserCopy(root, path) {
     /\*\*Database:\*\*/i,
     /\*\*Credentials:\*\*/i,
     /Save local troubleshooting report/i,
+    /For support only/i,
+    /support only/i,
     /Some credentials unavailable/i,
     /Credentials (?:must be re-entered|stored securely)/i,
     /credential\(s\) failed to save/i,

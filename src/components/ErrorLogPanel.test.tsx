@@ -128,7 +128,7 @@ describe("ErrorLogPanel", () => {
       expect(container.textContent).not.toContain("/Users/chad");
     });
 
-    it("shows local troubleshooting report button when errors exist", () => {
+    it("shows detailed local report button when errors exist", () => {
       mockUseErrorReporting.mockReturnValue({
         ...defaultMockReturn,
         errors: [createMockError()],
@@ -346,7 +346,7 @@ describe("ErrorLogPanel", () => {
   });
 
   describe("actions", () => {
-    it("calls exportErrors when local troubleshooting report clicked", () => {
+    it("calls exportErrors when detailed local report is clicked", () => {
       const exportErrors = vi.fn();
       mockUseErrorReporting.mockReturnValue({
         ...defaultMockReturn,

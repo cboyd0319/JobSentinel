@@ -64,7 +64,7 @@ JobSentinel's search link or add the job manually when import does not work.
 
 - Make sure JobSentinel is open.
 - Turn on the import helper in Settings.
-- If support asks, open **Connection settings (support only)**, follow their
+- If support asks, open **Connection settings**, follow their
   instructions, and try again.
 - Copy the browser button again if you already saved a job, restarted
   JobSentinel, or waited about one hour.
@@ -106,7 +106,7 @@ interface should keep technical details hidden:
 - Do not expose the local safety code.
 - Keep copied browser-button codes one-use, short-lived, and session-scoped.
 - Activate a refreshed safety code only after the browser button is copied.
-- Prefer "browser import button", "import helper", and
-  "connection settings (support only)" in user-facing copy.
+- Prefer "browser import button", "import helper", and "connection settings"
+  in user-facing copy.
 - Keep lower-level implementation details in developer docs or code comments,
   not in the user setup path.

@@ -170,6 +170,9 @@ boundaries, and harness modularity:
   detailed local report without troubleshooting wording. Focused Settings,
   ErrorLogPanel, bloat, product-copy, harness, docs, script, lint, and
   diff-check verification passed.
+- Changed the detailed local report tooltip and Browser Button docs from
+  support-only wording to maintainer-requested-use wording. Focused
+  ErrorLogPanel, product-copy, and bloat checks passed.
 - Changed the optional connected-source contact history label from
   `Source host` to `Website contacted`, updated Settings coverage, and added a
   product-copy guard against raw source metadata labels returning.
