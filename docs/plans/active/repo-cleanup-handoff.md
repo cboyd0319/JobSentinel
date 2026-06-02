@@ -174,7 +174,11 @@ Recent local verification evidence:
   downloaded public DMG failed because the mounted `JobSentinel.app` is not
   signed at all. The public macOS artifact therefore still needs replacement
   through the new release gate after Developer ID signing and notarization
-  secrets are configured.
+  secrets are configured. `gh secret list --repo cboyd0319/JobSentinel`
+  currently shows no `APPLE_CERTIFICATE`, `APPLE_CERTIFICATE_PASSWORD`,
+  `APPLE_SIGNING_IDENTITY`, `APPLE_ID`, `APPLE_PASSWORD`, or `APPLE_TEAM_ID`
+  secrets, so public Gatekeeper readiness is blocked on adding those repository
+  secrets.
 - Current local public macOS release harness follow-up adds
   `npm run tauri:verify:macos:latest`, which downloads the latest public
   GitHub release DMG and applies the strict universal-architecture,
