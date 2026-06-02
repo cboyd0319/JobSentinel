@@ -369,7 +369,7 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
 
   const handleScheduleInterview = async () => {
     if (!formData.application_id || !formData.scheduled_at) {
-      toast.error("Missing required fields", "Please select an application and date/time");
+      toast.error("Choose interview details", "Choose an application and time before scheduling.");
       return;
     }
 
@@ -377,13 +377,13 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
     const scheduledDate = new Date(formData.scheduled_at);
     const now = new Date();
     if (scheduledDate < now) {
-      toast.error("Invalid date", "Interview cannot be scheduled in the past");
+      toast.error("Choose a future time", "Pick a time that has not passed.");
       return;
     }
 
     // Validate duration is reasonable
     if (formData.duration_minutes < MIN_INTERVIEW_DURATION || formData.duration_minutes > MAX_INTERVIEW_DURATION) {
-      toast.error("Invalid duration", `Duration must be between ${MIN_INTERVIEW_DURATION} minutes and ${MAX_INTERVIEW_DURATION / 60} hours`);
+      toast.error("Choose a valid length", `Pick between ${MIN_INTERVIEW_DURATION} minutes and ${MAX_INTERVIEW_DURATION / 60} hours.`);
       return;
     }
 
@@ -796,7 +796,7 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
                     if (e.target.value) {
                       const scheduledDate = new Date(e.target.value);
                       if (scheduledDate < new Date()) {
-                        setDateError("Interview cannot be scheduled in the past");
+                        setDateError("Pick a time that has not passed.");
                       }
                     }
                   }}

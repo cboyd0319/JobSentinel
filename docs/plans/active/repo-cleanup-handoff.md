@@ -1161,7 +1161,9 @@ Next high-value passes:
      backend-copy slice changes database-domain user messages toward
      local-job-data wording. The latest support-panel slice keeps Error Log
      actions in safe support report language and makes per-problem removal
-     clearer. Continue looking for new issues as new surfaces change.
+     clearer. The latest interview-scheduling slice changes missing-field,
+     past-date, and invalid-duration validation to action-first guidance.
+     Continue looking for new issues as new surfaces change.
    - Latest pushed checkpoint: `2e28a55f` on `origin/main`; remote CI and Docs
      Harness both passed after the broad-audience privacy and hiring-trend
      label slices.

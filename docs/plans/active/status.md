@@ -844,6 +844,9 @@ and record actionable findings in this active-plan surface.
 - Current local support-panel slice keeps Error Log actions in safe support
   report language, changes the per-problem clear action to `Remove from List`,
   and replaces advanced-support wording in Quick Start.
+- Current local interview-scheduling slice changes required-field, date, and
+  duration validation to action-first guidance, and extends product-copy
+  coverage against the old invalid/missing-field labels.
 - The previous local slice closed the hardcoded harness-policy debt by moving
   required harness files, policy snippets, and README reference-source coverage
   into `docs/harness/manifest.json`.

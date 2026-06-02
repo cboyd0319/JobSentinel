@@ -462,8 +462,8 @@ describe("InterviewScheduler", () => {
 
       await waitFor(() => {
         expect(mockToast.error).toHaveBeenCalledWith(
-          "Missing required fields",
-          "Please select an application and date/time"
+          "Choose interview details",
+          "Choose an application and time before scheduling.",
         );
       });
     });
