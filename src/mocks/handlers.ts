@@ -471,6 +471,13 @@ interface MockAnswerSuggestion {
 
 type MockKeywordImportance = "Required" | "Preferred" | "Industry";
 type MockIssueSeverity = "Critical" | "Warning" | "Info";
+type MockRequirementMatchState = "Direct" | "Strong" | "Partial" | "Implied" | "Missing";
+type MockHardConstraintCategory =
+  | "WorkAuthorization"
+  | "SecurityClearance"
+  | "LicenseOrCertification"
+  | "Education"
+  | "Location";
 type MockSuggestionCategory =
   | "AddKeyword"
   | "RewordBullet"
@@ -491,6 +498,23 @@ interface MockFormatIssue {
   fix: string;
 }
 
+interface MockRequirementReview {
+  keyword: string;
+  importance: MockKeywordImportance;
+  match_state: MockRequirementMatchState;
+  evidence_sections: string[];
+  hard_constraint: boolean;
+  recommendation: string;
+}
+
+interface MockHardConstraintRisk {
+  requirement: string;
+  category: MockHardConstraintCategory;
+  score_cap: number;
+  reason: string;
+  action: string;
+}
+
 interface MockAtsSuggestion {
   category: MockSuggestionCategory;
   suggestion: string;
@@ -505,6 +529,8 @@ interface MockAtsAnalysisResult {
   keyword_matches: MockKeywordMatch[];
   missing_keywords: string[];
   missing_keyword_details: MockAtsKeyword[];
+  requirement_reviews: MockRequirementReview[];
+  hard_constraint_risks: MockHardConstraintRisk[];
   format_issues: MockFormatIssue[];
   suggestions: MockAtsSuggestion[];
 }
@@ -553,6 +579,9 @@ const ATS_KNOWN_KEYWORDS = [
   "forecasting",
   "workflow improvement",
   "quality assurance",
+  "customer service",
+  "crm",
+  "salesforce",
   "leadership",
   "scheduling",
   "case management",
@@ -564,6 +593,12 @@ const ATS_KNOWN_KEYWORDS = [
   "bilingual",
   "data analysis",
   "training",
+  "security clearance",
+  "work authorization",
+  "driver's license",
+  "bachelor's degree",
+  "degree",
+  "onsite",
 ] as const;
 
 const MOCK_SCRAPERS: readonly MockScraperDefinition[] = [
@@ -2054,6 +2089,8 @@ function analyzeMockResumeFormat(args?: Record<string, unknown>): MockAtsAnalysi
     keyword_matches: [],
     missing_keywords: [],
     missing_keyword_details: [],
+    requirement_reviews: [],
+    hard_constraint_risks: [],
     format_issues: formatIssues,
     suggestions,
   };
@@ -2086,6 +2123,17 @@ function analyzeMockResumeForJob(args?: Record<string, unknown>): MockAtsAnalysi
   const keywordScore = keywords.length > 0
     ? Math.round((keywordMatches.length / keywords.length) * 1000) / 10
     : 0;
+  const requirementReviews = buildMockRequirementReviews(
+    keywords,
+    keywordMatches,
+    missingKeywordDetails,
+  );
+  const hardConstraintRisks = buildMockHardConstraintRisks(requirementReviews);
+  const scoreCap = hardConstraintRisks.reduce<number | undefined>(
+    (current, risk) =>
+      current === undefined ? risk.score_cap : Math.min(current, risk.score_cap),
+    undefined,
+  );
   const suggestions: MockAtsSuggestion[] = [
     ...formatResult.suggestions,
     ...missingKeywordDetails.map(({ keyword, importance }) => {
@@ -2102,18 +2150,198 @@ function analyzeMockResumeForJob(args?: Record<string, unknown>): MockAtsAnalysi
       };
     }),
   ];
+  const uncappedOverallScore = Math.round(
+    (keywordScore * 0.4 + formatResult.format_score * 0.3 + formatResult.completeness_score * 0.3) * 10,
+  ) / 10;
 
   return {
     ...formatResult,
-    overall_score: Math.round(
-      (keywordScore * 0.4 + formatResult.format_score * 0.3 + formatResult.completeness_score * 0.3) * 10,
-    ) / 10,
+    overall_score: scoreCap === undefined
+      ? uncappedOverallScore
+      : Math.min(uncappedOverallScore, scoreCap),
     keyword_score: keywordScore,
     keyword_matches: keywordMatches,
     missing_keywords: missingKeywords,
     missing_keyword_details: missingKeywordDetails,
+    requirement_reviews: requirementReviews,
+    hard_constraint_risks: hardConstraintRisks,
     suggestions,
   };
+}
+
+function buildMockRequirementReviews(
+  keywords: MockAtsKeyword[],
+  keywordMatches: MockKeywordMatch[],
+  missingKeywordDetails: MockAtsKeyword[],
+): MockRequirementReview[] {
+  const reviews: MockRequirementReview[] = [];
+
+  for (const { keyword, importance } of keywords) {
+    const matched = keywordMatches.find((candidate) =>
+      candidate.keyword.toLowerCase() === keyword.toLowerCase()
+    );
+
+    if (matched) {
+      const matchState = classifyMockRequirementState(matched);
+      reviews.push({
+        keyword,
+        importance,
+        match_state: matchState,
+        evidence_sections: matched.found_in,
+        hard_constraint: Boolean(getMockHardConstraintCategory(keyword)),
+        recommendation: getMockRequirementRecommendation(matchState),
+      });
+      continue;
+    }
+
+    if (
+      missingKeywordDetails.some((candidate) =>
+        candidate.keyword.toLowerCase() === keyword.toLowerCase()
+      )
+    ) {
+      reviews.push({
+        keyword,
+        importance,
+        match_state: "Missing",
+        evidence_sections: [],
+        hard_constraint: Boolean(getMockHardConstraintCategory(keyword)),
+        recommendation: getMockRequirementRecommendation("Missing"),
+      });
+    }
+  }
+
+  return reviews.sort((a, b) => {
+    const importanceOrder: Record<MockKeywordImportance, number> = {
+      Required: 0,
+      Preferred: 1,
+      Industry: 2,
+    };
+    const stateOrder: Record<MockRequirementMatchState, number> = {
+      Missing: 0,
+      Partial: 1,
+      Implied: 2,
+      Direct: 3,
+      Strong: 4,
+    };
+
+    return (
+      importanceOrder[a.importance] - importanceOrder[b.importance] ||
+      stateOrder[a.match_state] - stateOrder[b.match_state] ||
+      a.keyword.localeCompare(b.keyword)
+    );
+  });
+}
+
+function classifyMockRequirementState(match: MockKeywordMatch): MockRequirementMatchState {
+  const hasDirectEvidence = match.found_in.some((section) =>
+    ["resume text", "experience", "summary", "projects", "certifications"].includes(section)
+  );
+
+  if (hasDirectEvidence && (match.frequency > 1 || match.found_in.length > 1)) {
+    return "Strong";
+  }
+  if (hasDirectEvidence) {
+    return "Direct";
+  }
+  if (match.found_in.includes("skills")) {
+    return "Partial";
+  }
+  return "Implied";
+}
+
+function getMockRequirementRecommendation(state: MockRequirementMatchState): string {
+  switch (state) {
+    case "Strong":
+      return "Strong visible evidence found. Keep it easy to see near the relevant role.";
+    case "Direct":
+      return "Found visible evidence. Keep it clear and tied to real work or credentials.";
+    case "Partial":
+      return "Found in a lighter evidence area. Add supporting evidence only if true.";
+    case "Implied":
+      return "Related evidence may exist, but the wording is not clear. Review before relying on it.";
+    case "Missing":
+      return "Only add it if true. If this is required and not true, treat the role as higher risk.";
+  }
+}
+
+function buildMockHardConstraintRisks(
+  requirementReviews: MockRequirementReview[],
+): MockHardConstraintRisk[] {
+  return requirementReviews
+    .filter(
+      (review) =>
+        review.importance === "Required" && review.match_state === "Missing",
+    )
+    .flatMap((review) => {
+      const category = getMockHardConstraintCategory(review.keyword);
+      if (!category) return [];
+      return [
+        {
+          requirement: review.keyword,
+          category,
+          score_cap: getMockHardConstraintScoreCap(category),
+          reason: "A required hard constraint was not clearly found in the resume.",
+          action:
+            "Verify this before tailoring. If it is not true for you, do not claim it.",
+        },
+      ];
+    })
+    .sort(
+      (a, b) =>
+        a.score_cap - b.score_cap || a.requirement.localeCompare(b.requirement),
+    );
+}
+
+function getMockHardConstraintScoreCap(category: MockHardConstraintCategory): number {
+  switch (category) {
+    case "WorkAuthorization":
+      return 50;
+    case "SecurityClearance":
+    case "LicenseOrCertification":
+      return 60;
+    case "Education":
+      return 65;
+    case "Location":
+      return 70;
+  }
+}
+
+function getMockHardConstraintCategory(keyword: string): MockHardConstraintCategory | null {
+  const lower = keyword.toLowerCase();
+  if (
+    lower.includes("work authorization") ||
+    lower.includes("authorized to work") ||
+    lower.includes("visa sponsorship")
+  ) {
+    return "WorkAuthorization";
+  }
+  if (lower.includes("security clearance") || lower === "clearance") {
+    return "SecurityClearance";
+  }
+  if (
+    lower.includes("license") ||
+    lower.includes("certification") ||
+    ["cdl", "cissp", "security+", "rn", "bls", "acls"].includes(lower)
+  ) {
+    return "LicenseOrCertification";
+  }
+  if (
+    lower.includes("degree") ||
+    lower.includes("bachelor") ||
+    lower.includes("master") ||
+    lower.includes("phd")
+  ) {
+    return "Education";
+  }
+  if (
+    lower.includes("onsite") ||
+    lower.includes("on-site") ||
+    lower.includes("relocation") ||
+    lower.includes("travel")
+  ) {
+    return "Location";
+  }
+  return null;
 }
 
 function improveMockBulletPoint(args?: Record<string, unknown>): string {

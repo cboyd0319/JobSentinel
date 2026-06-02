@@ -136,6 +136,11 @@ The current local matcher:
   signals;
 - preserves whether missing job-post language came from required, preferred,
   or other role-language context;
+- adds requirement-review rows for recognized local job-post keywords with
+  visible evidence, needs-support, check-wording, and not-found states;
+- flags recognized missing hard requirements such as authorization, location,
+  license, certification, degree, or clearance and limits the fit label until
+  the user verifies the requirement;
 - passes that context to the live Resume Builder review panel when available;
 - keeps required and preferred job-post headings separate even when the posting
   uses ordinary single-line section breaks;
@@ -161,7 +166,9 @@ The companion
 [Resume Alignment Scoring](../research/resume-alignment-scoring.md) note locks
 in transparent component rubrics, match states, evidence strength, hard
 constraint caps, conservative synonym handling, recency and section placement,
-and profession-specific weighting as future work.
+and profession-specific weighting. Local requirement-state rows and recognized
+hard-constraint caps have started; broader evidence strength, synonym, recency,
+seniority, and profession-specific weighting remain future work.
 
 ## Boundaries
 

@@ -182,6 +182,9 @@ resume help should adjust examples and evidence prompts for:
 - Active saved resume can be used for local fit review without copying
   structured details into the page.
 - Required, preferred, and other job-post language stay grouped in fit notes.
+- Recognized local job-post requirements now show match states and evidence
+  sections, and recognized missing hard requirements cap the fit label until
+  the user verifies the requirement.
 - Local readability checks now warn about missing top contact details, missing
   standard headings, table-like extracted text, hidden instructions, and
   prompt-injection-like content.

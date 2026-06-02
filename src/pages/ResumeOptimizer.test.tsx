@@ -128,6 +128,71 @@ const mockGroupedGapAnalysis = {
   ],
 };
 
+const mockRequirementReviewAnalysis = {
+  ...mockAnalysis,
+  overall_score: 60,
+  keyword_matches: [
+    {
+      keyword: "scheduling",
+      importance: "Required" as const,
+      found_in: ["experience"],
+      frequency: 1,
+    },
+    {
+      keyword: "crm",
+      importance: "Required" as const,
+      found_in: ["skills"],
+      frequency: 1,
+    },
+  ],
+  missing_keywords: ["security clearance"],
+  missing_keyword_details: [
+    {
+      keyword: "security clearance",
+      importance: "Required" as const,
+    },
+  ],
+  requirement_reviews: [
+    {
+      keyword: "security clearance",
+      importance: "Required" as const,
+      match_state: "Missing" as const,
+      evidence_sections: [],
+      hard_constraint: true,
+      recommendation:
+        "Only add it if true. If this is required and not true, treat the role as higher risk.",
+    },
+    {
+      keyword: "crm",
+      importance: "Required" as const,
+      match_state: "Partial" as const,
+      evidence_sections: ["skills"],
+      hard_constraint: false,
+      recommendation:
+        "Found in a lighter evidence area. Add supporting evidence only if true.",
+    },
+    {
+      keyword: "scheduling",
+      importance: "Required" as const,
+      match_state: "Direct" as const,
+      evidence_sections: ["experience"],
+      hard_constraint: false,
+      recommendation:
+        "Found visible evidence. Keep it clear and tied to real work or credentials.",
+    },
+  ],
+  hard_constraint_risks: [
+    {
+      requirement: "security clearance",
+      category: "SecurityClearance" as const,
+      score_cap: 60,
+      reason: "A required hard constraint was not clearly found in the resume.",
+      action:
+        "Verify this before tailoring. If it is not true for you, do not claim it.",
+    },
+  ],
+};
+
 const mockSuggestionAnalysis = {
   ...mockAnalysis,
   suggestions: [
@@ -429,6 +494,36 @@ describe("ResumeOptimizer", () => {
     expect(screen.getByText("case management")).toBeInTheDocument();
     expect(screen.getByText("salesforce")).toBeInTheDocument();
     expect(screen.getByText(/Start with required job-post language/i)).toBeInTheDocument();
+  });
+
+  it("shows requirement states and hard requirements before tailoring", async () => {
+    const user = userEvent.setup();
+    mockInvokeResponses({ analyze_resume_for_job: mockRequirementReviewAnalysis });
+    render(<ResumeOptimizer onBack={vi.fn()} />);
+
+    fireEvent.change(screen.getByLabelText(/^job post$/i), {
+      target: {
+        value: "Required: scheduling, CRM, security clearance",
+      },
+    });
+    await openResumeAppImport(user);
+    fireEvent.change(screen.getByLabelText(/copied resume details/i), {
+      target: { value: JSON.stringify(validResume) },
+    });
+
+    await user.click(screen.getByRole("button", { name: /review match/i }));
+
+    expect(await screen.findByText("Hard Requirements To Check (1)")).toBeInTheDocument();
+    expect(screen.getByText("Security clearance")).toBeInTheDocument();
+    expect(screen.getByText("Check first")).toBeInTheDocument();
+    expect(screen.getByText(/Verify this before tailoring/i)).toBeInTheDocument();
+    expect(screen.getByText("Requirement Review (3)")).toBeInTheDocument();
+    expect(screen.getByText("Visible evidence")).toBeInTheDocument();
+    expect(screen.getByText("Needs support")).toBeInTheDocument();
+    expect(screen.getByText("Not found")).toBeInTheDocument();
+    expect(screen.getByText("Hard requirement")).toBeInTheDocument();
+    expect(screen.getAllByText("Found in: skills").length).toBeGreaterThan(0);
+    expect(screen.getByText("No clear resume evidence found")).toBeInTheDocument();
   });
 
   it("explains strong resume words without screening-tool framing", async () => {

@@ -161,6 +161,26 @@ type AtsAnalysisResult = {
     keyword: string;
     importance: "Required" | "Preferred" | "Industry";
   }>;
+  requirement_reviews: Array<{
+    keyword: string;
+    importance: "Required" | "Preferred" | "Industry";
+    match_state: "Direct" | "Strong" | "Partial" | "Implied" | "Missing";
+    evidence_sections: string[];
+    hard_constraint: boolean;
+    recommendation: string;
+  }>;
+  hard_constraint_risks: Array<{
+    requirement: string;
+    category:
+      | "WorkAuthorization"
+      | "SecurityClearance"
+      | "LicenseOrCertification"
+      | "Education"
+      | "Location";
+    score_cap: number;
+    reason: string;
+    action: string;
+  }>;
   format_issues: Array<{
     severity: "Critical" | "Warning" | "Info";
     issue: string;
@@ -679,6 +699,8 @@ describe("mock Tauri handlers", () => {
       completeness_score: expect.any(Number),
       keyword_matches: [],
       missing_keywords: [],
+      requirement_reviews: [],
+      hard_constraint_risks: [],
       format_issues: expect.any(Array),
       suggestions: expect.any(Array),
     });
@@ -704,6 +726,23 @@ describe("mock Tauri handlers", () => {
       ]),
     );
     expect(jobResult.missing_keywords).toContain("bilingual");
+    expect(jobResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "scheduling",
+          match_state: "Strong",
+          evidence_sections: expect.arrayContaining(["summary", "experience", "skills"]),
+          hard_constraint: false,
+        }),
+        expect.objectContaining({
+          keyword: "bilingual",
+          match_state: "Missing",
+          evidence_sections: [],
+          recommendation: expect.stringContaining("Only add it if true"),
+        }),
+      ]),
+    );
+    expect(jobResult.hard_constraint_risks).toEqual([]);
     expect(jobResult.missing_keyword_details).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -724,7 +763,7 @@ describe("mock Tauri handlers", () => {
 
     await mockInvoke<number>("select_and_upload_resume");
     const activeJobResult = await mockInvoke<AtsAnalysisResult>("analyze_active_resume_for_job", {
-      jobDescription: "Required: scheduling, case management.",
+      jobDescription: "Required: scheduling, case management, security clearance.",
     });
     expect(activeJobResult.keyword_matches).toEqual(
       expect.arrayContaining([
@@ -733,6 +772,16 @@ describe("mock Tauri handlers", () => {
           found_in: expect.arrayContaining(["summary"]),
           frequency: expect.any(Number),
           importance: "Required",
+        }),
+      ]),
+    );
+    expect(activeJobResult.hard_constraint_risks).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          requirement: "security clearance",
+          category: "SecurityClearance",
+          score_cap: 60,
+          action: expect.stringContaining("Verify this before tailoring"),
         }),
       ]),
     );

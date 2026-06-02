@@ -34,10 +34,10 @@ In scope:
   crash/error recovery surfaces.
 - Keep the macOS build and DMG package path functional, locally verifiable, and
   documented.
-- Use multiple sub-agents when isolated audits, research, or implementation
-  slices can move faster without shared-state conflicts. Keep sub-agent scopes
-  bounded, close completed agents promptly, and record durable findings in
-  active plans or the debt tracker.
+- Use multiple sub-agents when they help get the work done faster. This applies
+  to isolated audits, research, and implementation slices that can move without
+  shared-state conflicts. Keep sub-agent scopes bounded, close completed agents
+  promptly, and record durable findings in active plans or the debt tracker.
 - Improve the repo harness so future work captures scope, audience, ease,
   evidence, rollback, and exact verification before implementation drifts.
 - Update docs when repo structure, behavior, commands, or security posture

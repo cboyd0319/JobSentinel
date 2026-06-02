@@ -136,7 +136,7 @@ This is a readability aid, not a judgment of the user's worth.
 
 ## Hard Penalties And Caps
 
-Future rubric logic should reduce confidence or cap the final signal for:
+Rubric logic should reduce confidence or cap the final signal for:
 
 - unmet work authorization or location constraints;
 - mandatory license, certification, degree, or clearance missing;
@@ -201,13 +201,20 @@ Future implementation should improve:
   standard headings, table-like extracted text, hidden instructions,
   prompt-injection-like content, and obvious keyword stuffing.
 - Resume/job fit keeps required and preferred job-post language separate.
+- Resume/job fit now returns requirement-review rows for recognized local
+  job-post keywords with direct, strong, partial, implied, or missing states,
+  evidence sections, hard-requirement markers, and plain next steps.
+- Resume/job fit now caps the local fit label when recognized required hard
+  constraints such as authorization, location, license, certification, degree,
+  or clearance are missing.
 - Resume analysis does not promise employer decisions or response outcomes.
 
 ## Backlog
 
-- Add user-facing requirement matrix rows with match state and evidence.
-- Add hard-constraint caps for required licenses, authorization, location,
-  degree, clearance, and safety-critical requirements.
+- Expand requirement matrix coverage beyond recognized local keywords into
+  richer requirement families and structured job-post parsing.
+- Expand hard-constraint caps to safety-critical requirements, severe parsing
+  failure, unreadable-history risk, false-claim risk, and generic-resume risk.
 - Add evidence-strength classification for missing, bare keyword, duty,
   responsibility, scope-backed, and metric-backed evidence.
 - Add conservative synonym and acronym matching.

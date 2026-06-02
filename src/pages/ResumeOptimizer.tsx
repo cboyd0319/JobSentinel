@@ -60,6 +60,13 @@ interface AtsResumeData {
 
 type KeywordImportance = "Required" | "Preferred" | "Industry";
 type IssueSeverity = "Critical" | "Warning" | "Info";
+type RequirementMatchState = "Direct" | "Strong" | "Partial" | "Implied" | "Missing";
+type HardConstraintCategory =
+  | "WorkAuthorization"
+  | "SecurityClearance"
+  | "LicenseOrCertification"
+  | "Education"
+  | "Location";
 type SuggestionCategory =
   | "AddKeyword"
   | "RewordBullet"
@@ -77,6 +84,23 @@ interface KeywordMatch {
 interface MissingKeyword {
   keyword: string;
   importance: KeywordImportance;
+}
+
+interface RequirementReview {
+  keyword: string;
+  importance: KeywordImportance;
+  match_state: RequirementMatchState;
+  evidence_sections: string[];
+  hard_constraint: boolean;
+  recommendation: string;
+}
+
+interface HardConstraintRisk {
+  requirement: string;
+  category: HardConstraintCategory;
+  score_cap: number;
+  reason: string;
+  action: string;
 }
 
 interface FormatIssue {
@@ -117,6 +141,36 @@ function formatIssueSeverity(severity: IssueSeverity): string {
   }
 }
 
+function formatRequirementState(state: RequirementMatchState): string {
+  switch (state) {
+    case "Strong":
+      return "Strong evidence";
+    case "Direct":
+      return "Visible evidence";
+    case "Partial":
+      return "Needs support";
+    case "Implied":
+      return "Check wording";
+    case "Missing":
+      return "Not found";
+  }
+}
+
+function formatHardConstraintCategory(category: HardConstraintCategory): string {
+  switch (category) {
+    case "WorkAuthorization":
+      return "Work authorization";
+    case "SecurityClearance":
+      return "Security clearance";
+    case "LicenseOrCertification":
+      return "License or certification";
+    case "Education":
+      return "Education";
+    case "Location":
+      return "Location";
+  }
+}
+
 interface AtsAnalysisResult {
   overall_score: number;
   keyword_score: number;
@@ -125,6 +179,8 @@ interface AtsAnalysisResult {
   keyword_matches: KeywordMatch[];
   missing_keywords: string[];
   missing_keyword_details?: MissingKeyword[];
+  requirement_reviews?: RequirementReview[];
+  hard_constraint_risks?: HardConstraintRisk[];
   format_issues: FormatIssue[];
   suggestions: AtsSuggestion[];
 }
@@ -607,6 +663,22 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
     };
   };
 
+  const getRequirementReviews = (): RequirementReview[] =>
+    analysisResult?.requirement_reviews ?? [];
+
+  const getHardConstraintRisks = (): HardConstraintRisk[] =>
+    analysisResult?.hard_constraint_risks ?? [];
+
+  const getRequirementStateVariant = (
+    state: RequirementMatchState,
+  ): "success" | "sentinel" | "alert" | "danger" | "surface" => {
+    if (state === "Strong") return "success";
+    if (state === "Direct") return "sentinel";
+    if (state === "Partial" || state === "Implied") return "alert";
+    if (state === "Missing") return "danger";
+    return "surface";
+  };
+
   // Show stronger badges for words that appear more often.
   const getKeywordOpacity = (keyword: string): string => {
     if (!analysisResult) return "opacity-100";
@@ -992,6 +1064,73 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                     </div>
                   </div>
                 </Card>
+
+                {getHardConstraintRisks().length > 0 && (
+                  <Card>
+                    <CardHeader title={`Hard Requirements To Check (${getHardConstraintRisks().length})`} />
+                    <div className="space-y-3">
+                      {getHardConstraintRisks().map((risk, idx) => (
+                        <div
+                          key={`${risk.requirement}-${idx}`}
+                          className="p-3 bg-danger/5 dark:bg-danger/10 rounded-lg border border-danger/20"
+                        >
+                          <div className="flex flex-wrap items-start gap-2 mb-2">
+                            <Badge variant="danger" size="sm">Check first</Badge>
+                            <Badge variant="surface" size="sm">
+                              {formatHardConstraintCategory(risk.category)}
+                            </Badge>
+                            <p className="font-medium text-surface-900 dark:text-surface-100 flex-1 min-w-48">
+                              {risk.requirement}
+                            </p>
+                          </div>
+                          <p className="text-sm text-surface-700 dark:text-surface-300">
+                            {risk.action}
+                          </p>
+                          <p className="text-xs text-surface-500 dark:text-surface-400 mt-1">
+                            Fit label is limited until this is confirmed.
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </Card>
+                )}
+
+                {getRequirementReviews().length > 0 && (
+                  <Card>
+                    <CardHeader title={`Requirement Review (${getRequirementReviews().length})`} />
+                    <div className="space-y-3 max-h-96 overflow-y-auto">
+                      {getRequirementReviews().map((review, idx) => (
+                        <div
+                          key={`${review.keyword}-${idx}`}
+                          className="p-3 bg-surface-50 dark:bg-surface-700 rounded-lg border border-surface-200 dark:border-surface-600"
+                        >
+                          <div className="flex flex-wrap items-start gap-2">
+                            <Badge variant={getRequirementStateVariant(review.match_state)} size="sm">
+                              {formatRequirementState(review.match_state)}
+                            </Badge>
+                            <Badge variant={getImportanceVariant(review.importance)} size="sm">
+                              {review.importance}
+                            </Badge>
+                            {review.hard_constraint && (
+                              <Badge variant="danger" size="sm">Hard requirement</Badge>
+                            )}
+                            <p className="font-medium text-surface-900 dark:text-surface-100 flex-1 min-w-48">
+                              {review.keyword}
+                            </p>
+                          </div>
+                          <p className="text-xs text-surface-500 dark:text-surface-400 mt-2">
+                            {review.evidence_sections.length > 0
+                              ? `Found in: ${review.evidence_sections.join(", ")}`
+                              : "No clear resume evidence found"}
+                          </p>
+                          <p className="text-sm text-surface-700 dark:text-surface-300 mt-2">
+                            {review.recommendation}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </Card>
+                )}
 
                 {/* Words found */}
                 {analysisResult.keyword_matches.length > 0 && (

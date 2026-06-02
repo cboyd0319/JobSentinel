@@ -15,10 +15,11 @@ assumptions, engineer-only defaults, and unverified claims.
 All tracked files under `docs/plans/active/` are part of the active goal until
 the work is completed, superseded, or moved out of active plans.
 
-The user has authorized multiple sub-agents for isolated audits, research, and
-implementation slices that can run without shared-state conflicts. Keep scopes
-bounded, preserve user changes, close completed agents promptly, and record
-actionable findings in this active-plan surface or the relevant plan.
+If sub-agents help get the work done faster, use them. The user has authorized
+multiple sub-agents for isolated audits, research, and implementation slices
+that can run without shared-state conflicts. Keep scopes bounded, preserve user
+changes, close completed agents promptly, and record actionable findings in
+this active-plan surface or the relevant plan.
 
 Immediate primary goal as of 2026-06-02: make no-Apple-account macOS
 deployment as strong as possible. That means a verified universal DMG, clear
@@ -96,10 +97,12 @@ manipulation, or unreviewed form sending.
   `/Users/c/Downloads/ats_scoring_algorithm.md` into
   `docs/research/resume-alignment-scoring.md`, the ATS transparency note, the
   Resume Match feature guide, and the active research-backed plan. It adds
-  local keyword-stuffing detection and records future work for transparent
-  component rubrics, resume-quality versus role-fit separation, hard-constraint
-  caps, match states, evidence strength, seniority alignment, conservative
-  synonyms, recency, section placement, and profession-specific weighting.
+  local keyword-stuffing detection, requirement-review rows with
+  direct/strong/partial/implied/missing states, evidence sections, and
+  recognized hard-constraint caps for missing required authorization, location,
+  license, certification, degree, or clearance terms. Future resume work still
+  needs deeper evidence strength, seniority alignment, conservative synonyms,
+  recency, section placement, and profession-specific weighting.
 - Current local macOS no-account post-commit verification rebuilt the universal
   DMG from committed resume-guidance head `12c184db` on macOS 26.5
   (build 25F71), Apple Silicon `arm64`, with SIP enabled. The build produced

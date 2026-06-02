@@ -11,6 +11,14 @@ useful, more honest, safer, and easier for job seekers from many backgrounds.
 This plan turns the research into a product improvement backlog and tracks
 narrow implementation slices chosen from that backlog.
 
+## Sub-agent Rule
+
+If sub-agents help get the work done faster, use them. Delegate isolated
+research audits, source checks, UI/copy audits, security/privacy reviews, and
+implementation slices when they can move without shared-state conflicts. Keep
+scopes bounded, preserve user changes, close completed agents promptly, and
+copy durable findings back into this plan or the active status surface.
+
 ## Current implementation notes
 
 - Latest local ghost-detection docs slice removed developer-only schema,
@@ -86,8 +94,11 @@ narrow implementation slices chosen from that backlog.
   backlog. It locks in transparent component rubrics, role-match versus resume
   quality separation, hard-constraint caps, direct/strong/partial/implied/missing
   match states, anti-stuffing, evidence strength, seniority alignment, recency,
-  section placement, and profession-specific weighting as future work. The
-  dedicated repo note now lives at `docs/research/resume-alignment-scoring.md`.
+  section placement, and profession-specific weighting. Local requirement-state
+  rows and recognized hard-constraint caps have started; deeper evidence
+  strength, synonym, recency, seniority, and profession-specific weighting
+  remain future work. The dedicated repo note now lives at
+  `docs/research/resume-alignment-scoring.md`.
 - Latest local resume parser follow-up keeps required and preferred job-post
   sections separate when postings use single-line headings instead of blank
   lines, preventing preferred nice-to-have language from being shown as a
@@ -560,11 +571,13 @@ Likely files later:
 - Add knockout-question consistency review for authorization, location,
   license, certification, clearance, degree, years, salary, availability, and
   travel answers.
-- Add direct, strong, partial, implied, and missing match states for each major
-  requirement so users see why a term did or did not count.
-- Add hard-constraint confidence caps for unmet legal, authorization,
-  location, license, credential, degree, clearance, safety-critical, parsing,
-  unreadable-history, false-claim, and generic-resume risks.
+- Continue expanding direct, strong, partial, implied, and missing match states
+  from recognized local job-post keywords into richer requirement families so
+  users see why a term did or did not count.
+- Continue expanding hard-constraint confidence caps from recognized missing
+  authorization, location, license, certification, degree, and clearance terms
+  into safety-critical, parsing, unreadable-history, false-claim, and
+  generic-resume risks.
 - Add semantic-fit checks for synonyms and transferable skills, not only exact
   keyword matches.
 - Add conservative synonym handling so adjacent terms are useful but not

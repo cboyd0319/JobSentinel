@@ -8,6 +8,15 @@ tech knowledge, or a perfect resume.
 The flow should feel like a kind helper asking one useful question at a time,
 then turning the answers into JobSentinel search settings.
 
+## Sub-agent Rule
+
+If sub-agents help get the work done faster, use them. Delegate isolated
+question-flow audits, accessibility checks, broad-audience copy reviews,
+privacy reviews, and implementation slices when they can move without
+shared-state conflicts. Keep scopes bounded, preserve user changes, close
+completed agents promptly, and copy durable findings back into this plan or the
+active status surface.
+
 ## Product shape
 
 - Ask one short question per screen.

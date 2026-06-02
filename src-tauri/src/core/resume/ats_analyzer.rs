@@ -32,6 +32,10 @@ pub struct AtsAnalysisResult {
     pub missing_keyword_details: Vec<MissingKeyword>,
     /// Format issues that may make a resume hard to parse
     pub format_issues: Vec<FormatIssue>,
+    /// Requirement-by-requirement local review with evidence state
+    pub requirement_reviews: Vec<RequirementReview>,
+    /// Missing required hard constraints that cap confidence
+    pub hard_constraint_risks: Vec<HardConstraintRisk>,
     /// Improvement suggestions
     pub suggestions: Vec<AtsSuggestion>,
 }
@@ -56,6 +60,68 @@ pub struct MissingKeyword {
     pub keyword: String,
     /// How important this keyword is in the job post
     pub importance: KeywordImportance,
+}
+
+/// How clearly a job-post requirement appears in the resume
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+pub enum RequirementMatchState {
+    /// Visible in resume text or structured experience
+    Direct,
+    /// Visible in more than one evidence area or repeated naturally
+    Strong,
+    /// Visible only in a lighter evidence area such as a skills list
+    Partial,
+    /// Related evidence may exist, but the requirement is not clearly named
+    Implied,
+    /// Not clearly found
+    Missing,
+}
+
+/// A single job-post requirement reviewed against resume evidence
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RequirementReview {
+    /// The requirement or role-language phrase
+    pub keyword: String,
+    /// How important this requirement is in the job post
+    pub importance: KeywordImportance,
+    /// How clearly the resume shows this requirement
+    pub match_state: RequirementMatchState,
+    /// Resume areas where evidence was found
+    pub evidence_sections: Vec<String>,
+    /// Whether this looks like a hard requirement to verify before tailoring
+    pub hard_constraint: bool,
+    /// Plain next step for the job seeker
+    pub recommendation: String,
+}
+
+/// Hard requirement category for cautious score caps
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+pub enum HardConstraintCategory {
+    /// Work authorization, visa sponsorship, or legal work eligibility
+    WorkAuthorization,
+    /// Security clearance requirement
+    SecurityClearance,
+    /// Required license or certification
+    LicenseOrCertification,
+    /// Required degree or education credential
+    Education,
+    /// Required location, onsite, relocation, or travel constraint
+    Location,
+}
+
+/// Missing hard requirement that should cap local fit confidence
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct HardConstraintRisk {
+    /// Requirement phrase from the job post
+    pub requirement: String,
+    /// Hard requirement category
+    pub category: HardConstraintCategory,
+    /// Maximum score allowed while this requirement is missing
+    pub score_cap: f64,
+    /// Why the cap exists
+    pub reason: String,
+    /// User-facing next step
+    pub action: String,
 }
 
 /// Importance level of a keyword
@@ -225,6 +291,8 @@ impl AtsAnalyzer {
             missing_keywords: Vec::new(),
             missing_keyword_details: Vec::new(),
             format_issues,
+            requirement_reviews: Vec::new(),
+            hard_constraint_risks: Vec::new(),
             suggestions,
         }
     }
@@ -246,9 +314,19 @@ impl AtsAnalyzer {
         for keyword in Self::extract_keywords_from_text(&required_section) {
             keywords.push((keyword, KeywordImportance::Required));
         }
+        for keyword in Self::extract_hard_constraint_keywords(&required_section) {
+            if !keywords.iter().any(|(k, _)| k == &keyword) {
+                keywords.push((keyword, KeywordImportance::Required));
+            }
+        }
 
         // Extract from preferred section
         for keyword in Self::extract_keywords_from_text(&preferred_section) {
+            if !keywords.iter().any(|(k, _)| k == &keyword) {
+                keywords.push((keyword, KeywordImportance::Preferred));
+            }
+        }
+        for keyword in Self::extract_hard_constraint_keywords(&preferred_section) {
             if !keywords.iter().any(|(k, _)| k == &keyword) {
                 keywords.push((keyword, KeywordImportance::Preferred));
             }
@@ -817,6 +895,8 @@ impl AtsAnalyzer {
             missing_keywords: Vec::new(),
             missing_keyword_details: Vec::new(),
             format_issues,
+            requirement_reviews: Vec::new(),
+            hard_constraint_risks: Vec::new(),
             suggestions,
         }
     }
@@ -999,9 +1079,22 @@ impl AtsAnalyzer {
             });
         }
 
-        let overall_score = (keyword_score * 0.4)
+        let requirement_reviews = Self::build_requirement_reviews(
+            job_keywords,
+            &keyword_matches,
+            &missing_keyword_details,
+        );
+        let hard_constraint_risks = Self::build_hard_constraint_risks(&requirement_reviews);
+        let score_cap = hard_constraint_risks
+            .iter()
+            .map(|risk| risk.score_cap)
+            .min_by(f64::total_cmp);
+        let mut overall_score = (keyword_score * 0.4)
             + (format_result.format_score * 0.3)
             + (format_result.completeness_score * 0.3);
+        if let Some(cap) = score_cap {
+            overall_score = overall_score.min(cap);
+        }
 
         AtsAnalysisResult {
             overall_score,
@@ -1012,8 +1105,194 @@ impl AtsAnalyzer {
             missing_keywords,
             missing_keyword_details,
             format_issues: format_result.format_issues,
+            requirement_reviews,
+            hard_constraint_risks,
             suggestions,
         }
+    }
+
+    fn build_requirement_reviews(
+        job_keywords: &[(String, KeywordImportance)],
+        keyword_matches: &[KeywordMatch],
+        missing_keyword_details: &[MissingKeyword],
+    ) -> Vec<RequirementReview> {
+        let mut reviews = Vec::new();
+
+        for (keyword, importance) in job_keywords {
+            if let Some(matched) = keyword_matches
+                .iter()
+                .find(|item| item.keyword.eq_ignore_ascii_case(keyword))
+            {
+                let match_state = Self::classify_requirement_match_state(matched);
+                reviews.push(RequirementReview {
+                    keyword: keyword.clone(),
+                    importance: *importance,
+                    match_state,
+                    evidence_sections: matched.found_in.clone(),
+                    hard_constraint: Self::hard_constraint_category(keyword).is_some(),
+                    recommendation: Self::requirement_recommendation(match_state),
+                });
+            } else if missing_keyword_details
+                .iter()
+                .any(|item| item.keyword.eq_ignore_ascii_case(keyword))
+            {
+                reviews.push(RequirementReview {
+                    keyword: keyword.clone(),
+                    importance: *importance,
+                    match_state: RequirementMatchState::Missing,
+                    evidence_sections: Vec::new(),
+                    hard_constraint: Self::hard_constraint_category(keyword).is_some(),
+                    recommendation: Self::requirement_recommendation(
+                        RequirementMatchState::Missing,
+                    ),
+                });
+            }
+        }
+
+        reviews.sort_by(|a, b| {
+            let imp_order = |imp: KeywordImportance| match imp {
+                KeywordImportance::Required => 0,
+                KeywordImportance::Preferred => 1,
+                KeywordImportance::Industry => 2,
+            };
+            let state_order = |state: RequirementMatchState| match state {
+                RequirementMatchState::Missing => 0,
+                RequirementMatchState::Partial => 1,
+                RequirementMatchState::Implied => 2,
+                RequirementMatchState::Direct => 3,
+                RequirementMatchState::Strong => 4,
+            };
+            imp_order(a.importance)
+                .cmp(&imp_order(b.importance))
+                .then(state_order(a.match_state).cmp(&state_order(b.match_state)))
+                .then(a.keyword.cmp(&b.keyword))
+        });
+
+        reviews
+    }
+
+    fn classify_requirement_match_state(matched: &KeywordMatch) -> RequirementMatchState {
+        let has_direct_evidence = matched.found_in.iter().any(|section| {
+            matches!(
+                section.as_str(),
+                "resume text" | "experience" | "summary" | "projects" | "certifications"
+            )
+        });
+
+        if has_direct_evidence && (matched.frequency > 1 || matched.found_in.len() > 1) {
+            RequirementMatchState::Strong
+        } else if has_direct_evidence {
+            RequirementMatchState::Direct
+        } else if matched.found_in.iter().any(|section| section == "skills") {
+            RequirementMatchState::Partial
+        } else {
+            RequirementMatchState::Implied
+        }
+    }
+
+    fn requirement_recommendation(match_state: RequirementMatchState) -> String {
+        match match_state {
+            RequirementMatchState::Strong => {
+                "Strong visible evidence found. Keep it easy to see near the relevant role."
+                    .to_string()
+            }
+            RequirementMatchState::Direct => {
+                "Found visible evidence. Keep it clear and tied to real work or credentials."
+                    .to_string()
+            }
+            RequirementMatchState::Partial => {
+                "Found in a lighter evidence area. Add supporting evidence only if true."
+                    .to_string()
+            }
+            RequirementMatchState::Implied => {
+                "Related evidence may exist, but the wording is not clear. Review before relying on it."
+                    .to_string()
+            }
+            RequirementMatchState::Missing => {
+                "Only add it if true. If this is required and not true, treat the role as higher risk."
+                    .to_string()
+            }
+        }
+    }
+
+    fn build_hard_constraint_risks(reviews: &[RequirementReview]) -> Vec<HardConstraintRisk> {
+        let mut risks = reviews
+            .iter()
+            .filter(|review| {
+                review.importance == KeywordImportance::Required
+                    && review.match_state == RequirementMatchState::Missing
+            })
+            .filter_map(|review| {
+                let category = Self::hard_constraint_category(&review.keyword)?;
+                let score_cap = Self::hard_constraint_score_cap(category);
+                Some(HardConstraintRisk {
+                    requirement: review.keyword.clone(),
+                    category,
+                    score_cap,
+                    reason: "A required hard constraint was not clearly found in the resume."
+                        .to_string(),
+                    action:
+                        "Verify this before tailoring. If it is not true for you, do not claim it."
+                            .to_string(),
+                })
+            })
+            .collect::<Vec<_>>();
+
+        risks.sort_by(|a, b| {
+            a.score_cap
+                .total_cmp(&b.score_cap)
+                .then(a.requirement.cmp(&b.requirement))
+        });
+        risks
+    }
+
+    fn hard_constraint_score_cap(category: HardConstraintCategory) -> f64 {
+        match category {
+            HardConstraintCategory::WorkAuthorization => 50.0,
+            HardConstraintCategory::SecurityClearance => 60.0,
+            HardConstraintCategory::LicenseOrCertification => 60.0,
+            HardConstraintCategory::Education => 65.0,
+            HardConstraintCategory::Location => 70.0,
+        }
+    }
+
+    fn hard_constraint_category(keyword: &str) -> Option<HardConstraintCategory> {
+        let lower = keyword.to_lowercase();
+        if lower.contains("work authorization")
+            || lower.contains("authorized to work")
+            || lower.contains("visa sponsorship")
+        {
+            return Some(HardConstraintCategory::WorkAuthorization);
+        }
+        if lower.contains("security clearance") || lower == "clearance" {
+            return Some(HardConstraintCategory::SecurityClearance);
+        }
+        if lower.contains("license")
+            || lower.contains("certification")
+            || lower == "cdl"
+            || lower == "cissp"
+            || lower == "security+"
+            || lower == "rn"
+            || lower == "bls"
+            || lower == "acls"
+        {
+            return Some(HardConstraintCategory::LicenseOrCertification);
+        }
+        if lower.contains("degree")
+            || lower.contains("bachelor")
+            || lower.contains("master")
+            || lower.contains("phd")
+        {
+            return Some(HardConstraintCategory::Education);
+        }
+        if lower.contains("onsite")
+            || lower.contains("on-site")
+            || lower.contains("relocation")
+            || lower.contains("travel")
+        {
+            return Some(HardConstraintCategory::Location);
+        }
+        None
     }
 
     fn find_keyword_matches(
@@ -1276,6 +1555,32 @@ impl AtsAnalyzer {
         ];
 
         for pattern in &keyword_patterns {
+            if let Ok(re) = regex::Regex::new(pattern) {
+                for cap in re.captures_iter(text) {
+                    if let Some(m) = cap.get(0) {
+                        keywords.insert(m.as_str().to_lowercase());
+                    }
+                }
+            }
+        }
+
+        let mut sorted_keywords = keywords.into_iter().collect::<Vec<_>>();
+        sorted_keywords.sort();
+        sorted_keywords
+    }
+
+    fn extract_hard_constraint_keywords(text: &str) -> Vec<String> {
+        let mut keywords = HashSet::new();
+        let hard_constraint_patterns = [
+            r"(?i)\b(work authorization|authorized to work|visa sponsorship)\b",
+            r"(?i)\b(security clearance|clearance)\b",
+            r"(?i)\b(driver'?s license|driver license|cdl|rn license|nursing license)\b",
+            r"(?i)\b(certification|cissp|security\+|bls|acls)\b",
+            r"(?i)\b(bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree)\b",
+            r"(?i)\b(onsite|on-site|relocation|travel)\b",
+        ];
+
+        for pattern in &hard_constraint_patterns {
             if let Ok(re) = regex::Regex::new(pattern) {
                 for cap in re.captures_iter(text) {
                     if let Some(m) = cap.get(0) {
@@ -1993,6 +2298,85 @@ Preferred: Salesforce
         assert!(suggestion.suggestion.contains("clear action"));
         assert!(suggestion.impact.contains("easier to scan"));
         assert_ne!(suggestion.impact, "Medium");
+    }
+
+    #[test]
+    fn test_requirement_reviews_explain_direct_partial_and_missing_evidence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nSkills\nLed client intake scheduling projects.",
+            &["CRM".to_string()],
+            "Required: scheduling, CRM\n\nPreferred: Salesforce",
+        );
+
+        let scheduling = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "scheduling")
+            .expect("scheduling review");
+        assert_eq!(scheduling.match_state, RequirementMatchState::Direct);
+        assert!(scheduling
+            .evidence_sections
+            .contains(&"resume text".to_string()));
+        assert!(scheduling.recommendation.contains("visible evidence"));
+
+        let crm = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "crm")
+            .expect("crm review");
+        assert_eq!(crm.match_state, RequirementMatchState::Partial);
+        assert!(crm.evidence_sections.contains(&"skills".to_string()));
+        assert!(crm.recommendation.contains("supporting evidence"));
+
+        let salesforce = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "salesforce")
+            .expect("salesforce review");
+        assert_eq!(salesforce.match_state, RequirementMatchState::Missing);
+        assert!(salesforce.recommendation.contains("Only add it if true"));
+    }
+
+    #[test]
+    fn test_missing_required_hard_constraint_caps_overall_score() {
+        let mut resume = sample_resume();
+        resume.summary =
+            "Customer success manager with onboarding, retention, and CRM experience".to_string();
+        resume.skills = vec![
+            Skill {
+                name: "Customer service".to_string(),
+                category: "Client Services".to_string(),
+                proficiency: None,
+            },
+            Skill {
+                name: "CRM".to_string(),
+                category: "Tools".to_string(),
+                proficiency: None,
+            },
+            Skill {
+                name: "Salesforce".to_string(),
+                category: "Tools".to_string(),
+                proficiency: None,
+            },
+        ];
+
+        let result = AtsAnalyzer::analyze_for_job(
+            &resume,
+            "Required: customer service, CRM, Salesforce, security clearance",
+        );
+
+        assert!(result.overall_score <= 60.0);
+        assert!(result.hard_constraint_risks.iter().any(|risk| {
+            risk.requirement == "security clearance"
+                && risk.category == HardConstraintCategory::SecurityClearance
+                && risk.score_cap == 60.0
+                && risk.action.contains("Verify this before tailoring")
+        }));
+        assert!(result.requirement_reviews.iter().any(|review| {
+            review.keyword == "security clearance"
+                && review.hard_constraint
+                && review.match_state == RequirementMatchState::Missing
+        }));
     }
 
     #[test]

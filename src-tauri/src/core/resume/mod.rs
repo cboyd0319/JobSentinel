@@ -54,8 +54,9 @@ use types::NullableFieldUpdate;
 
 // Re-export ATS analyzer types
 pub use ats_analyzer::{
-    AtsAnalysisResult, AtsAnalyzer, AtsSuggestion, FormatIssue, IssueSeverity, KeywordImportance,
-    KeywordMatch, MissingKeyword, SuggestionCategory,
+    AtsAnalysisResult, AtsAnalyzer, AtsSuggestion, FormatIssue, HardConstraintCategory,
+    HardConstraintRisk, IssueSeverity, KeywordImportance, KeywordMatch, MissingKeyword,
+    RequirementMatchState, RequirementReview, SuggestionCategory,
 };
 
 // Re-export builder types

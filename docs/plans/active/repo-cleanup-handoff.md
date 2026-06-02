@@ -9,6 +9,12 @@ The cleanup goal remains open. Do not mark it complete until current evidence
 proves the repo-wide objective: identify and fix all known issues across the
 JobSentinel repo, then verify docs and code against that full scope.
 
+If sub-agents help get the work done faster, use them. Delegate isolated
+audits, research checks, implementation slices, and verification support when
+they can move without shared-state conflicts. Keep scopes bounded, preserve user
+changes, close completed agents promptly, and copy durable findings into active
+plans, this handoff, or the debt tracker.
+
 Immediate primary goal as of 2026-06-02 is no-Apple-account macOS deployment:
 get the public universal DMG path as close to complete as possible without an
 Apple Developer Account. Resume assistance remains the next product-function

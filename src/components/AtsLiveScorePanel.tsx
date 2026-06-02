@@ -27,6 +27,8 @@ export interface AtsAnalysisResult {
   keyword_matches: KeywordMatch[];
   missing_keywords: string[];
   missing_keyword_details?: MissingKeyword[];
+  requirement_reviews?: RequirementReview[];
+  hard_constraint_risks?: HardConstraintRisk[];
   format_issues: FormatIssue[];
   suggestions: AtsSuggestion[];
 }
@@ -41,6 +43,28 @@ interface KeywordMatch {
 interface MissingKeyword {
   keyword: string;
   importance: "Required" | "Preferred" | "Industry";
+}
+
+interface RequirementReview {
+  keyword: string;
+  importance: "Required" | "Preferred" | "Industry";
+  match_state: "Direct" | "Strong" | "Partial" | "Implied" | "Missing";
+  evidence_sections: string[];
+  hard_constraint: boolean;
+  recommendation: string;
+}
+
+interface HardConstraintRisk {
+  requirement: string;
+  category:
+    | "WorkAuthorization"
+    | "SecurityClearance"
+    | "LicenseOrCertification"
+    | "Education"
+    | "Location";
+  score_cap: number;
+  reason: string;
+  action: string;
 }
 
 interface FormatIssue {
