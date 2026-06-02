@@ -1568,7 +1568,7 @@ test("product copy rejects support troubleshooting jargon", () => {
     writeFixtureFile(
       root,
       "src/components/BookmarkletGenerator.tsx",
-      "Advanced connection settings\nlocal safety code\nIf this feels hard\nblock page import\nAllow clipboard access and try again.\nwhen JobSentinel restarts\nSupport settings\nSupport number\nHelp-only settings\nunless a support reply asks\nImport Helper\nAdvanced browser button setting\nBrowser helper number\nTurn on the import helper above\n",
+      "Advanced connection settings\nlocal safety code\nIf this feels hard\nblock page import\nAllow clipboard access and try again.\nwhen JobSentinel restarts\nSupport settings\nSupport number\nHelp-only settings\nunless a support reply asks\nImport Helper\nAdvanced browser button setting\nBrowser helper number\nTurn on the import helper above\nbrowser import settings\nbrowser import connection\nCould not update browser import\n",
     );
     writeFixtureFile(
       root,
@@ -1578,7 +1578,7 @@ test("product copy rejects support troubleshooting jargon", () => {
     writeFixtureFile(
       root,
       "docs/BOOKMARKLET.md",
-      "Turn on the import helper.\nPrefer import helper in user-facing copy.\n",
+      "Turn on the import helper.\nPrefer import helper in user-facing copy.\nOpen Connection settings.\n",
     );
     writeFixtureFile(
       root,

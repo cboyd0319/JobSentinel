@@ -40,7 +40,7 @@ export function BookmarkletGenerator() {
       setError(null);
     } catch (err) {
       logError("Failed to load bookmarklet config:", err);
-      setError("Could not load browser import settings");
+      setError("Browser Import could not load. Close and reopen Settings. If this keeps happening, save a safe support report from Help.");
     } finally {
       setLoading(false);
     }
@@ -63,7 +63,7 @@ export function BookmarkletGenerator() {
       setError(null);
     } catch (err) {
       logError("Failed to toggle bookmarklet server:", err);
-      setError("Could not update browser import");
+      setError("Browser Import could not be changed. Try again. If this keeps happening, save a safe support report from Help.");
     } finally {
       setLoading(false);
     }
@@ -77,7 +77,7 @@ export function BookmarkletGenerator() {
       setError(null);
     } catch (err) {
       logError("Failed to update bookmarklet port:", err);
-      setError("Could not update the browser import connection");
+      setError("That browser button number could not be saved. Leave it unchanged unless JobSentinel help instructions give you a different number.");
     } finally {
       setLoading(false);
     }
@@ -92,14 +92,14 @@ export function BookmarkletGenerator() {
     } catch (err) {
       logError("Could not copy browser import button:", err);
       setCopied(false);
-      setError("Could not copy browser button. Allow clipboard access and try again, or copy a safe support report if this keeps happening.");
+      setError("Could not copy Browser Button. Allow clipboard access, then click Copy Browser Button again. If this keeps happening, save a safe support report from Help.");
     }
   };
 
   if (loading && !config) {
     return (
       <Card className="p-6">
-        <div className="text-center text-gray-400">Loading browser import settings...</div>
+        <div className="text-center text-gray-400">Loading Browser Import...</div>
       </Card>
     );
   }

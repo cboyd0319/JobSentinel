@@ -1796,6 +1796,9 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /Advanced browser button setting/i,
       /Browser helper number/i,
       /import helper/i,
+      /browser import settings/i,
+      /browser import connection/i,
+      /Could not update browser import/i,
     ];
 
     if (browserButtonPatterns.some((pattern) => pattern.test(text))) {
@@ -1808,7 +1811,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
   }
 
   if (path === "docs/BOOKMARKLET.md") {
-    return /advanced settings|another port|advanced connection settings|Works best on individual job pages from:[\s\S]{0,260}(?:LinkedIn|Indeed|Glassdoor)|Official ATS job pages|public ATS sources|after restarting JobSentinel|If support asks, open \*\*Connection settings\*\*|local safety code|Debug reports must redact|import helper/i.test(
+    return /advanced settings|another port|advanced connection settings|connection settings|Works best on individual job pages from:[\s\S]{0,260}(?:LinkedIn|Indeed|Glassdoor)|Official ATS job pages|public ATS sources|after restarting JobSentinel|If support asks, open \*\*Connection settings\*\*|local safety code|Debug reports must redact|import helper/i.test(
       text,
     );
   }

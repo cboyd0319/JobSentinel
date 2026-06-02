@@ -31,6 +31,17 @@ Latest pushed checkpoints include:
 
 Recent local verification evidence:
 
+- Current local Browser Button recovery cleanup replaces remaining
+  settings/connection-style error copy with action-first Browser Import
+  recovery, adds sanitized load/toggle/number-save/copy tests, and updates the
+  Browser Import Button guide from `connection settings` to `button setup
+  number`. Product-copy sensors now reject old browser-import settings and
+  connection wording. Verification passed: `npx vitest run
+  src/components/BookmarkletGenerator.test.tsx` passed 6 tests,
+  `node --test scripts/check-product-copy.test.mjs` passed 43 tests, and
+  `npm run lint:docs` passed. Broader checks also passed: `npm run lint`,
+  `npm run test:scripts` passed 468 tests, `npm run lint:bloat`, and
+  `git diff --check`.
 - Current local interview outcome cleanup changes the negative outcome button
   and chip from `Did not go well` to `Not a fit`, keeps the persisted
   `failed` value for data compatibility, and uses neutral chip colors instead
