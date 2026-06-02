@@ -349,9 +349,10 @@ Current cleanup posture:
   source-blocking, Browser Integration, low-trust, risk-threshold, and
   resume-score-formula wording.
 - Current local privacy follow-up removes raw screening-question text and saved
-  answer patterns from Application Assist debug logs. The trace now records
-  only question/pattern character counts when a saved answer matches, and
-  privacy-logging coverage rejects the old raw trace shape.
+  answer patterns from Application Assist debug logs. Form-fill traces and
+  screening-answer command logs now record only counts, IDs, and booleans when a
+  saved answer matches or answer history changes, and privacy-logging coverage
+  rejects the old raw trace shape.
 - Current local broad-audience copy follow-up removes technical or anxious
   user-facing copy from Dashboard search help, saved screening answers, site
   challenge errors, Auto-Search help, and Slack notification docs. Users now

@@ -246,6 +246,7 @@ const automationBrowserErrorPrivacyPaths = new Set([
   "src-tauri/src/core/automation/browser/page.rs",
 ]);
 
+const screeningAnswerCommandLoggingPaths = new Set(["src-tauri/src/commands/automation.rs"]);
 const rawNotificationJobTitleLoggingPaths = new Set(["src-tauri/src/core/notify/mod.rs"]);
 
 function stripRustTestModules(text) {
@@ -1415,6 +1416,37 @@ export function hasRawAutomationBrowserErrors(root, path) {
   );
 }
 
+export function hasRawScreeningAnswerCommandLogging(root, path) {
+  if (!screeningAnswerCommandLoggingPaths.has(path)) {
+    return false;
+  }
+
+  const text = stripRustTestModules(readFileSync(join(root, path), "utf8"));
+  const traceCalls = text.match(/tracing::(?:debug|info|warn|error)!\([\s\S]*?\);/g) ?? [];
+
+  return traceCalls.some((call) => {
+    if (/\b(?:question_text|answer_filled|modified_to)\b/.test(call)) {
+      return true;
+    }
+
+    if (/\bquestion_pattern\b/.test(call) && !/\bquestion_pattern_chars\b/.test(call)) {
+      return true;
+    }
+
+    if (
+      /(?:\bquestion\s*=\s*[%?]?|\bquestion\s*,|\?question\b)/.test(call) &&
+      !/\bquestion_chars\b/.test(call)
+    ) {
+      return true;
+    }
+
+    return (
+      /(?:\bpattern\s*=\s*[%?]?|\bpattern\s*,|\?pattern\b)/.test(call) &&
+      !/\b(?:pattern_chars|has_pattern)\b/.test(call)
+    );
+  });
+}
+
 export function hasRawNotificationJobTitleLogging(root, path) {
   if (!rawNotificationJobTitleLoggingPaths.has(path)) {
     return false;
@@ -1502,6 +1534,7 @@ const privacyLoggingViolationChecks = [
   [hasRawImportBookmarkletCommandErrorDetails, "sanitize import and bookmarklet command error details"],
   [hasNonPublicIpErrorEcho, "sanitize non-public IP validation errors"],
   [hasRawAutomationQuestionLogging, "replace raw automation screening question logging"],
+  [hasRawScreeningAnswerCommandLogging, "replace raw screening-answer command logging"],
   [hasRawAutomationFormResultData, "sanitize automation form result data"],
   [hasRawAutomationBrowserErrors, "sanitize automation browser errors"],
   [hasRawAutomationDropdownValueLogging, "remove raw automation dropdown value logging"],

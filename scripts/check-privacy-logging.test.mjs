@@ -24,6 +24,7 @@ import {
   hasRawAutomationCommandErrorDetails,
   hasRawAutomationFormResultData,
   hasRawAutomationQuestionLogging,
+  hasRawScreeningAnswerCommandLogging,
   hasRawAtsCommandErrorDetails,
   hasRawAtsTimelinePrivateEventData,
   hasRawBackupPathError,
@@ -167,6 +168,43 @@ test("privacy logging rejects raw automation question and form data", () => {
     assert.equal(hasRawAutomationFormResultData(root, "src/mocks/handlers.ts"), true);
     assert.equal(
       hasRawAutomationQuestionLogging(root, "src-tauri/src/core/automation/browser/page.rs"),
+      false,
+    );
+  });
+});
+
+test("privacy logging rejects raw screening-answer command logs", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/automation.rs",
+      [
+        'tracing::info!("Command: find {}", question_text);',
+        'tracing::info!(answer_filled, "Command: record_answer_usage");',
+        'tracing::info!(modified_to = ?modified_to, "Command: record_answer_usage");',
+        'tracing::info!(pattern = %pattern, "Command: get_answer_statistics");',
+        "",
+      ].join("\n"),
+    );
+
+    assert.equal(
+      hasRawScreeningAnswerCommandLogging(root, "src-tauri/src/commands/automation.rs"),
+      true,
+    );
+
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/automation.rs",
+      [
+        'tracing::info!(question_chars = question.chars().count(), "Command: get_suggested_answers");',
+        'tracing::info!(question_pattern_chars = question_pattern.chars().count(), "Command: upsert_screening_answer");',
+        'tracing::info!(has_pattern = pattern.is_some(), pattern_chars = pattern.as_ref().map_or(0, |pattern| pattern.chars().count()), "Command: clear_answer_history");',
+        "",
+      ].join("\n"),
+    );
+
+    assert.equal(
+      hasRawScreeningAnswerCommandLogging(root, "src-tauri/src/commands/automation.rs"),
       false,
     );
   });

@@ -31,6 +31,11 @@ and record actionable findings in this active-plan surface.
 
 ## Current Posture
 
+- Latest local privacy harness follow-up closes the screening-question debug-log
+  debt: Application Assist traces and screening-answer command logs now stay
+  count-only or ID-only for question text, saved answer patterns, original
+  answers, and edited answers. Privacy-logging, IPC-minimization, and Rust
+  response tests cover the boundary.
 - Latest local safe-support-report wording follow-up changes saved-report test
   fixtures, frontend failure log labels, and backend reveal recovery from
   debug-report wording to support-report wording, and expands product-copy
