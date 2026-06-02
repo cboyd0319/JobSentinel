@@ -99,6 +99,8 @@ describe("errorMessages", () => {
       const alertChannel = getUserFriendlyError(new Error("slack webhook failed"));
       const reminder = getUserFriendlyError(new Error("reminder failed"));
 
+      expect(certificate.title).toBe("Security Certificate Problem");
+      expect(certificate.title).not.toContain("Issue");
       expect(certificate.action).toContain("computer date and time");
       expect(certificate.action).not.toContain("system date and time");
       expect(date.action).toContain("computer date and time");

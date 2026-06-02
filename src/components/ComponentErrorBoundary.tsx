@@ -21,7 +21,7 @@ function safeComponentErrorMessage(): string {
 
 function safeComponentErrorDetails(error: Error | null): string {
   if (!error?.stack) {
-    return 'No support details available.';
+    return 'No app problem details available.';
   }
 
   return sanitizeTextForStorage(error.stack);

@@ -289,9 +289,9 @@ export async function safeInvokeWithToast<T>(
       enhancedError.userFriendly?.technical ||
       (enhancedError.message ? sanitizeTextForStorage(enhancedError.message) : "");
 
-    // Show sanitized support details in dev mode if requested.
+    // Show sanitized app problem details in dev mode if requested.
     const fullMessage = options?.showTechnical && import.meta.env.DEV && supportDetails
-      ? `${message || "An error occurred"}\n\nSupport details: ${supportDetails}`
+      ? `${message || "JobSentinel ran into a problem"}\n\nApp problem details: ${supportDetails}`
       : action
         ? `${message}\n\n${action}`
         : message;

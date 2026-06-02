@@ -666,6 +666,7 @@ export function hasTechnicalRecoveryCopy(root, path) {
     /If reload does not work/i,
     /Support details \(development only\)/i,
     /Show support details/i,
+    /No support details available/i,
   ];
 
   return stalePatterns.some((pattern) => pattern.test(text));
@@ -1487,11 +1488,11 @@ export function hasTechnicalFirstUserCopy(root, path) {
   }
 
   if (path === "src/utils/api.ts") {
-    return /Operation Failed/i.test(text);
+    return /Operation Failed|Support details:|An error occurred/i.test(text);
   }
 
   if (path === "src/utils/errorMessages.ts") {
-    return /Notification Setup Failed|Slack Notification Failed|Discord Notification Failed|Teams Notification Failed|Email Notification Failed|Reminder Setup Failed|API key|API Limit|The database is currently in use|Configuration Missing|configuration file|webhook URL|SMTP credentials|contact support|technical:\s*technicalMessage|JSON\.stringify\(error\)|Try refreshing|restart the app|Check your internet connection and try again\.'|system date\/?time|system date and time|Try again in 10-15 minutes|Check your notification settings and try again\.'|Website Format Changed|Job Source Disabled|currently disabled|More Settings|View Job Sources|stopped accepting more requests/i.test(
+    return /Notification Setup Failed|Slack Notification Failed|Discord Notification Failed|Teams Notification Failed|Email Notification Failed|Reminder Setup Failed|API key|API Limit|The database is currently in use|Configuration Missing|configuration file|webhook URL|SMTP credentials|contact support|technical:\s*technicalMessage|JSON\.stringify\(error\)|Try refreshing|restart the app|Check your internet connection and try again\.'|system date\/?time|system date and time|Try again in 10-15 minutes|Check your notification settings and try again\.'|Website Format Changed|Job Source Disabled|currently disabled|More Settings|View Job Sources|stopped accepting more requests|Security Certificate Issue/i.test(
       text,
     );
   }

@@ -438,7 +438,7 @@ describe("api utilities", () => {
       }
     });
 
-    it("sanitizes optional support details before showing them in dev toast", async () => {
+    it("sanitizes optional app problem details before showing them in dev toast", async () => {
       const error = new Error(
         [
           "Upload failed",
@@ -459,7 +459,8 @@ describe("api utilities", () => {
         expect.fail("Should have thrown");
       } catch {
         const [[, message]] = mockToast.error.mock.calls;
-        expect(message).toContain("Support details:");
+        expect(message).toContain("App problem details:");
+        expect(message).not.toContain("Support details:");
         expect(message).not.toContain("Technical:");
         expect(message).not.toContain("/Users/chad");
         expect(message).not.toContain("raw-secret");

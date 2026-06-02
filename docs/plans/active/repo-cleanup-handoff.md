@@ -30,6 +30,16 @@ Latest pushed checkpoints include:
 
 Recent remote integration evidence:
 
+- Current local shared recovery details follow-up changes optional dev toast,
+  component boundary, modal boundary, and certificate-error wording away from
+  support-detail, generic-error, and issue labels toward app-problem and problem
+  wording. Focused verification passed: `npx vitest run src/utils/api.test.ts
+  src/utils/errorMessages.test.ts src/components/ComponentErrorBoundary.test.tsx
+  src/components/ModalErrorBoundary.test.tsx` passed 94 tests, `node --test
+  scripts/check-product-copy.test.mjs` passed 32 tests, `node --test
+  scripts/check-privacy-logging.test.mjs` passed 42 tests, `npm run
+  lint:bloat`, `npm run test:scripts` passed 455 script tests, `npm run lint`,
+  and `git diff --check`.
 - Current local frontend sidecar copy follow-up changes optional feedback
   sharing from GitHub-help and issue-step wording to online-help and help-form
   wording, expands HN source labels to startup and tech job posts, changes
@@ -166,6 +176,11 @@ Recent remote integration evidence:
 
 Current cleanup posture:
 
+- Current local shared recovery details follow-up changes optional dev toast,
+  component boundary, modal boundary, and certificate-error wording away from
+  support-detail, generic-error, and issue labels. Focused utility/component,
+  product-copy, privacy-logging, script, bloat, lint, and diff-check
+  verification cover the changed surfaces.
 - Current local frontend sidecar copy follow-up changes feedback sharing,
   success-step, Settings source, setup source, source-status table,
   Resume Builder/Optimizer recovery, Browser Button, and error-boundary detail

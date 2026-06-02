@@ -164,6 +164,11 @@ As of 2026-06-02, the active plan remains open. Latest local work improved
 visible zero-technical UX, broad-audience defaults, privacy/security
 boundaries, and harness modularity:
 
+- Changed optional dev toast, component boundary, modal boundary, and
+  certificate-error wording away from support-detail, generic-error, and issue
+  labels toward app-problem and problem wording. Focused utility/component,
+  product-copy, privacy-logging, script, bloat, lint, and diff-check
+  verification passed.
 - Changed feedback sharing, success-step, Settings source, setup source,
   source-status table, Resume Builder/Optimizer recovery, Browser Button, and
   error-boundary detail labels away from GitHub-first, issue-first,

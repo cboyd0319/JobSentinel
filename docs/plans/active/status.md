@@ -122,7 +122,7 @@ actionable findings in this active-plan surface or the relevant plan.
   verification passed: `node --test scripts/check-product-copy.test.mjs`
   passed 32 tests, `npm run lint:bloat`, `npm run test:scripts` passed 455
   script tests, `npm run lint:docs`, and `git diff --check`.
-- Current local frontend sidecar copy slice applies read-only agent findings
+- Committed frontend sidecar copy slice applies read-only agent findings
   across feedback sharing, success-step, Settings source, setup source,
   source-status table, Resume Builder/Optimizer recovery, Browser Button, and
   error-boundary detail labels. Product-copy sensors now reject the old phrases.
@@ -140,6 +140,17 @@ actionable findings in this active-plan surface or the relevant plan.
   `node --test scripts/check-product-copy.test.mjs` passed 32 tests,
   `npm run test:scripts` passed 455 script tests, `npm run lint:bloat`,
   `npm run lint`, and `git diff --check`.
+- Current local shared recovery details slice changes optional dev toast,
+  component boundary, modal boundary, and certificate-error wording away from
+  support-detail, generic-error, and issue labels toward app-problem and problem
+  wording. Product-copy sensors now reject the old phrases. Focused
+  verification passed: `npx vitest run src/utils/api.test.ts
+  src/utils/errorMessages.test.ts src/components/ComponentErrorBoundary.test.tsx
+  src/components/ModalErrorBoundary.test.tsx` passed 94 tests, `node --test
+  scripts/check-product-copy.test.mjs` passed 32 tests, `node --test
+  scripts/check-privacy-logging.test.mjs` passed 42 tests, `npm run
+  lint:bloat`, `npm run test:scripts` passed 455 script tests, `npm run lint`,
+  and `git diff --check`.
 - No remote CI or push should run unless the user explicitly asks in the current
   turn.
 
@@ -176,6 +187,8 @@ Scope:
   recovery, browser-button settings, and error-boundary detail labels must avoid
   GitHub-first, issue-first, HN-abbreviation, support-only, and technical
   recovery wording.
+- Optional dev toasts and app/window recovery details must use app-problem
+  labels, not support-detail labels or generic error fallbacks.
 - Product-copy sensors must reject recurring old phrases.
 
 Verification completed for this slice:
@@ -193,6 +206,7 @@ npx vitest run src/utils/errorReporting.test.ts
 npx vitest run src/components/feedback/SubmitOptions.test.tsx src/components/feedback/SuccessScreen.test.tsx
 npx vitest run src/services/feedbackService.test.ts
 npx vitest run src/components/feedback/SubmitOptions.test.tsx src/components/feedback/SuccessScreen.test.tsx src/pages/Settings.test.tsx src/pages/SetupWizard.test.tsx src/components/ScraperHealthDashboard.test.tsx src/pages/ResumeOptimizer.test.tsx src/components/BookmarkletGenerator.test.tsx src/components/ErrorBoundary.test.tsx src/components/PageErrorBoundary.test.tsx src/components/ModalErrorBoundary.test.tsx src/components/ComponentErrorBoundary.test.tsx
+npx vitest run src/utils/api.test.ts src/utils/errorMessages.test.ts src/components/ComponentErrorBoundary.test.tsx src/components/ModalErrorBoundary.test.tsx
 node --test scripts/check-privacy-logging.test.mjs
 git diff --check
 ```

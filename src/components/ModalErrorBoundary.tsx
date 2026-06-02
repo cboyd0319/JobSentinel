@@ -29,7 +29,7 @@ function safeModalErrorMessage(error: Error | null): string {
 
 function safeModalErrorDetails(error: Error | null): string {
   if (!error?.stack) {
-    return 'No support details available.';
+    return 'No app problem details available.';
   }
 
   return sanitizeTextForStorage(error.stack);

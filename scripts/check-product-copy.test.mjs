@@ -331,12 +331,12 @@ test("product copy rejects technical recovery and raw error details", () => {
     writeFixtureFile(
       root,
       "src/components/ComponentErrorBoundary.tsx",
-      "This section failed to load\nShow support details",
+      "This section failed to load\nShow support details\nNo support details available",
     );
     writeFixtureFile(
       root,
       "src/components/ModalErrorBoundary.tsx",
-      "This window failed to load\nPlease close and try again later\nTry closing and checking back later\nSupport details (development only)\n",
+      "This window failed to load\nPlease close and try again later\nTry closing and checking back later\nSupport details (development only)\nNo support details available\n",
     );
     writeFixtureFile(root, "src/components/ScraperHealthDashboard.tsx", "window state");
 
@@ -1023,7 +1023,7 @@ test("product copy rejects technical-first settings copy", () => {
     writeFixtureFile(
       root,
       "src/utils/api.ts",
-      "Operation Failed\n",
+      "Operation Failed\nAn error occurred\nSupport details:\n",
     );
     writeFixtureFile(
       root,
@@ -1075,6 +1075,7 @@ test("product copy rejects technical-first settings copy", () => {
         "This job board is currently disabled in your settings.",
         "Open Settings, choose More Settings, then View Job Sources.",
         "This job board has stopped accepting more requests today.",
+        "Security Certificate Issue",
         "",
       ].join("\n"),
     );
