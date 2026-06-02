@@ -1216,3 +1216,6 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 - Current local recovery-copy slice changes Settings and Resume Readability
   recovery buttons from retry/dismiss wording to `Try Again` and
   `Close Message`; focused Settings and Resume Readability tests passed locally.
+- Current local backend-copy slice changes database-domain user messages to
+  local-job-data wording and adds a Rust regression test for database, query,
+  schema, I/O, raw SQL, and private-path wording.

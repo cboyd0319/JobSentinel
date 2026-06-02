@@ -838,6 +838,9 @@ and record actionable findings in this active-plan surface.
 - Current local recovery-copy slice changes visible retry/dismiss buttons in
   Settings and Resume Readability to `Try Again` and `Close Message`, keeping
   recovery actions plain.
+- Current local backend-copy slice changes database-domain user messages toward
+  local-job-data wording so renderer fallbacks avoid database, query, schema,
+  and disk I/O jargon.
 - The previous local slice closed the hardcoded harness-policy debt by moving
   required harness files, policy snippets, and README reference-source coverage
   into `docs/harness/manifest.json`.
@@ -862,8 +865,8 @@ and record actionable findings in this active-plan surface.
    recovery, feedback, empty states, and error screens.
   The latest support-path, privacy-copy, USAJobs setup, Telegram setup,
   dashboard match-label, Application Assist stat-label, resume overall-match,
-  and recovery action-label findings are closed locally; continue looking for
-  new issues as later slices touch copy.
+  recovery action-label, and database user-message findings are closed locally;
+  continue looking for new issues as later slices touch copy.
 4. Continue broad-audience review so non-technical and technical job searches
    both feel first-class.
    The latest tech-source heuristic finding is closed locally; keep auditing

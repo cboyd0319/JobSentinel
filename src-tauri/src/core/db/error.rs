@@ -294,17 +294,17 @@ impl DatabaseError {
         match self {
             Self::Query { context, .. } => {
                 let _ = context;
-                "Database operation failed. Please try again.".to_string()
+                "Could not update local job data. Try again.".to_string()
             }
             Self::Connection { .. } => {
-                "Failed to connect to database. Please check if the database file exists and is accessible.".to_string()
+                "Could not open local job data. Restart JobSentinel and try again.".to_string()
             }
             Self::Migration { .. } => {
-                "Database schema migration failed. Please check for updates or restore from backup.".to_string()
+                "JobSentinel could not finish updating local job data. Check for updates, or restore a backup if you have one.".to_string()
             }
             Self::Timeout { query, .. } => {
                 let _ = query;
-                "Database query timed out. The database may be under heavy load.".to_string()
+                "Local job data is taking too long to respond. Wait a moment and try again.".to_string()
             }
             Self::NotFound { entity, .. } => {
                 format!("{} not found.", Self::capitalize(entity))
@@ -314,25 +314,25 @@ impl DatabaseError {
             }
             Self::Validation { field, reason } => {
                 let _ = reason;
-                format!("Invalid {}.", field)
+                format!("Check {} and try again.", field)
             }
             Self::FieldTooLong { field, max_length, actual_length } => {
                 format!("{} is too long ({} characters, maximum {})", Self::capitalize(field), actual_length, max_length)
             }
             Self::InvalidField { field, reason } => {
                 let _ = reason;
-                format!("Invalid {}.", field)
+                format!("Check {} and try again.", field)
             }
             Self::Corruption { .. } => {
-                "Database corruption detected. Please restore from a backup.".to_string()
+                "JobSentinel could not read local job data. Restore a backup if you have one.".to_string()
             }
             Self::Locked { retry_after_ms } => {
-                format!("Database is busy. Please try again in {}ms.", retry_after_ms)
+                format!("JobSentinel is still writing local data. Try again in {}ms.", retry_after_ms)
             }
             Self::Io { .. } => {
-                "Disk I/O error. Please check disk space and permissions.".to_string()
+                "JobSentinel could not read or save local files. Check disk space and file access.".to_string()
             }
-            _ => "A database error occurred.".to_string(),
+            _ => "Could not update local job data. Try again.".to_string(),
         }
     }
 
@@ -459,6 +459,48 @@ mod tests {
         assert!(msg.contains("too long"));
         assert!(msg.contains("1500"));
         assert!(msg.contains("1000"));
+    }
+
+    #[test]
+    fn test_user_message_uses_plain_local_data_copy() {
+        let messages = [
+            DatabaseError::Query {
+                context: "private search".to_string(),
+                source: sqlx::Error::Protocol(
+                    "SELECT * FROM jobs WHERE token = 'secret'".to_string(),
+                ),
+            }
+            .user_message(),
+            DatabaseError::Connection {
+                path: "/Users/alice/jobs.db".to_string(),
+                source: sqlx::Error::PoolTimedOut,
+            }
+            .user_message(),
+            DatabaseError::Migration {
+                source: sqlx::migrate::MigrateError::VersionMissing(42),
+            }
+            .user_message(),
+            DatabaseError::Timeout {
+                timeout_secs: 30,
+                query: "SELECT * FROM jobs WHERE title='secret role'".to_string(),
+            }
+            .user_message(),
+            DatabaseError::Io {
+                source: std::io::Error::new(std::io::ErrorKind::PermissionDenied, "denied"),
+            }
+            .user_message(),
+        ];
+
+        for message in messages {
+            assert!(!message.contains("Database"));
+            assert!(!message.contains("database"));
+            assert!(!message.contains("query"));
+            assert!(!message.contains("schema"));
+            assert!(!message.contains("I/O"));
+            assert!(!message.contains("SELECT"));
+            assert!(!message.contains("secret"));
+            assert!(!message.contains("alice"));
+        }
     }
 
     #[test]
