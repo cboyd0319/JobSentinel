@@ -82,6 +82,8 @@ All templates are designed for application readability:
 - Standard fonts
 - Clear section headers
 - No graphics or icons that distract from the content
+- Warnings for instruction-like text, invisible characters, or prompt-injection
+  style content that should be removed before using the resume
 
 ### Step 7: Export
 
@@ -118,6 +120,9 @@ preferred, and other role language so users can review must-have evidence
 before nice-to-have wording.
 
 **Readable format** - Single column, standard fonts, and clear sections.
+
+**Resume safety review** - Prompt-injection-like instructions, hidden text, and
+invisible characters are flagged so the user can remove them.
 
 **Details included** - Are all important sections filled in?
 

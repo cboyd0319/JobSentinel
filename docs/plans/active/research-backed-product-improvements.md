@@ -57,6 +57,10 @@ narrow implementation slices chosen from that backlog.
 - Latest local Resume Builder stale-draft contract follow-up rejects missing
   experience deletes, missing education deletes, missing draft deletes, and
   missing draft saves instead of reporting success.
+- Latest local resume anti-gaming guardrail flags prompt-injection-like
+  instructions and invisible Unicode in local resume readability analysis, with
+  browser/dev mock parity and user docs that frame the warning as honest
+  application-readability support.
 
 ## Source files
 

@@ -31,6 +31,16 @@ Latest pushed checkpoints include:
 
 Recent local verification evidence:
 
+- Current local resume anti-gaming guardrail adds a local readability warning
+  for prompt-injection-like instructions and invisible Unicode in resume
+  content. Browser/dev mocks now return the same warning and docs note this as
+  resume safety review, not a user-blocking decision. Verification passed:
+  `cargo test --lib ats_analyzer` passed 27 tests, `cargo test --lib resume`
+  passed 180 tests, `cargo clippy -- -D warnings` passed, focused frontend
+  resume/mock tests passed 73 tests, `npm run test:run` passed 2631 tests,
+  `npm run lint -- --quiet`, `npm run build`, `npm run test:scripts` passed
+  503 tests, `npm run lint:docs`, `npm run lint:security`, `npm run
+  lint:bloat`, and `git diff --check` passed.
 - Current local safe-support-report mock parity fix makes browser/dev
   `generate_feedback_report` and `sanitize_feedback_text` redact sensitive
   job-search details like salary floors, resume excerpts, private notes,

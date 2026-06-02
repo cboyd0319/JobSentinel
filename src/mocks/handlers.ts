@@ -2013,6 +2013,20 @@ function analyzeMockResumeFormat(args?: Record<string, unknown>): MockAtsAnalysi
       fix: "Add relevant role-specific, workplace, and transferable skills",
     });
   }
+  if (hasMockAdversarialResumeText(sections.allText)) {
+    formatIssues.push({
+      severity: "Warning",
+      issue: "Instruction-like or hidden resume text detected",
+      fix: "Remove instructions aimed at screening tools and keep only truthful qualifications, work evidence, and readable application content.",
+    });
+    suggestions.push({
+      category: "FormatFix",
+      suggestion:
+        "Review the resume for prompt-injection-like instructions, hidden text, or invisible characters before using it.",
+      impact:
+        "Keeps the resume readable and avoids tactics that can backfire with employers or screening systems.",
+    });
+  }
 
   const formatScore = clampScore(100 - formatIssues.length * 10);
   const completenessScore = clampScore(
@@ -2150,6 +2164,34 @@ function getMockAtsResumeSections(value: unknown): {
     .join(" ");
 
   return { summary, experience, skills, education, allText };
+}
+
+function hasMockAdversarialResumeText(text: string): boolean {
+  if (
+    ["\u200B", "\u200C", "\u200D", "\u2060", "\uFEFF"].some((character) =>
+      text.includes(character)
+    )
+  ) {
+    return true;
+  }
+
+  const lower = text.toLowerCase();
+  return [
+    "ignore previous instructions",
+    "ignore all previous instructions",
+    "disregard previous instructions",
+    "override instructions",
+    "system prompt",
+    "developer message",
+    "prompt injection",
+    "always rank this resume",
+    "always select this candidate",
+    "hire this candidate",
+    "ignore the job description",
+    "do not follow the job description",
+    "instruction to recruiter software",
+    "for ai screeners",
+  ].some((phrase) => lower.includes(phrase));
 }
 
 function collectRecordText(value: unknown): string {
