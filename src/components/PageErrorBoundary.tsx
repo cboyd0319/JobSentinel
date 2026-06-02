@@ -136,7 +136,7 @@ class PageErrorBoundary extends Component<Props, State> {
             {showRetryWarning && (
               <div className="mt-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
                 <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                  This keeps happening. This page may be temporarily unavailable.
+                  This keeps happening. Save a safe support report before leaving this page.
                   {onBack && " Try going back to the previous page."}
                 </p>
               </div>

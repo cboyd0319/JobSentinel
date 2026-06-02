@@ -262,6 +262,26 @@ describe("PageErrorBoundary", () => {
       expect(screen.getByTestId("empty-state")).toBeInTheDocument();
     });
 
+    it("tells users to save a safe support report after repeated retry failures", async () => {
+      const user = userEvent.setup();
+
+      render(
+        <PageErrorBoundary>
+          <ThrowError shouldThrow={true} />
+        </PageErrorBoundary>
+      );
+
+      await user.click(screen.getByRole("button", { name: /try again/i }));
+      await user.click(screen.getByRole("button", { name: /try again/i }));
+
+      expect(
+        screen.getByText(/save a safe support report before leaving this page/i),
+      ).toBeInTheDocument();
+      expect(screen.queryByText(/this page may be temporarily unavailable/i)).not.toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: /try again/i })).not.toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /save safe support report/i })).toBeInTheDocument();
+    });
+
     it("shows default local data message when error message is undefined", () => {
       function ThrowErrorWithoutMessage() {
          

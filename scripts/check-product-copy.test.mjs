@@ -292,6 +292,11 @@ test("product copy rejects technical recovery and raw error details", () => {
     );
     writeFixtureFile(
       root,
+      "src/components/PageErrorBoundary.tsx",
+      "This keeps happening. This page may be temporarily unavailable.",
+    );
+    writeFixtureFile(
+      root,
       "src/components/ComponentErrorBoundary.tsx",
       "This section failed to load",
     );
@@ -306,6 +311,10 @@ test("product copy rejects technical recovery and raw error details", () => {
     assert.equal(hasTechnicalRecoveryCopy(root, "src/components/ErrorBoundary.tsx"), true);
     assert.equal(
       hasTechnicalRecoveryCopy(root, "src/components/ComponentErrorBoundary.tsx"),
+      true,
+    );
+    assert.equal(
+      hasTechnicalRecoveryCopy(root, "src/components/PageErrorBoundary.tsx"),
       true,
     );
     assert.equal(

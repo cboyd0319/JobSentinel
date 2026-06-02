@@ -962,6 +962,9 @@ and record actionable findings in this active-plan surface.
 - Current local modal repeated-failure recovery follow-up replaces close-and
   try-later guidance with copy/save safe support report first, with focused
   modal-boundary and product-copy coverage.
+- Current local page repeated-failure recovery follow-up replaces temporary
+  unavailable warning copy with save-safe-support-report-first guidance, with
+  focused page-boundary and product-copy coverage.
 - The previous local slice closed the hardcoded harness-policy debt by moving
   required harness files, policy snippets, and README reference-source coverage
   into `docs/harness/manifest.json`.
