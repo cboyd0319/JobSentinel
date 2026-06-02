@@ -229,7 +229,7 @@ actionable findings in this active-plan surface or the relevant plan.
   passed 32 tests, targeted search found no removed resume-import contract
   markers, `npm run lint:bloat`, `npm run harness:check`, `npm run lint:docs`,
   `npm run test:scripts`, and `git diff --check`.
-- Current local Resume Builder feature-doc cleanup removes developer-only local
+- Committed local Resume Builder feature-doc cleanup removes developer-only local
   storage, command, export, and backend-file details from the job-seeker guide.
   Product-copy sensors now reject those implementation details if they drift
   back into `docs/features/resume-builder.md`. Focused verification passed:
@@ -237,6 +237,14 @@ actionable findings in this active-plan surface or the relevant plan.
   search found no removed Resume Builder developer markers, `npm run
   lint:bloat`, `npm run harness:check`, `npm run lint:docs`, `npm run
   test:scripts`, and `git diff --check`.
+- Current local Smart Scoring feature-doc cleanup removes developer-only command,
+  config, and backend scoring-model details from the match-explanation guide.
+  Product-copy sensors now reject those implementation details if they drift
+  back into `docs/features/smart-scoring.md`. Focused verification passed:
+  `node --test scripts/check-product-copy.test.mjs` passed 32 tests, targeted
+  search found no removed Smart Scoring developer markers, `npm run lint:bloat`,
+  `npm run harness:check`, `npm run lint:docs`, `npm run test:scripts`, and
+  `git diff --check`.
 - No remote CI or push should run unless the user explicitly asks in the current
   turn.
 
@@ -296,6 +304,8 @@ Scope:
   validation guidance readable without raw schema, command, or renderer terms.
 - Resume Builder feature docs must teach resume building and matching without
   local-storage, command, export, or backend-file implementation details.
+- Smart Scoring feature docs must teach match explanations without command,
+  config, or backend scoring-model internals.
 - Product-copy sensors must reject recurring old phrases.
 
 Verification completed for this slice:
@@ -311,6 +321,7 @@ node --test scripts/check-product-copy.test.mjs
 ! rg -n "For contributors|Developer Setup|Advanced: where JobSentinel saves local files" docs/user/QUICK_START.md
 ! rg -n "JSON Resume content|basics\\.|work\\[\\]|Developer contract|Implementation paths|select_and_import_json_resume|import_json_resume|Returned renderer DTOs|Run the focused Rust tests|cargo test core::resume::json_resume" docs/features/json-resume-import.md
 ! rg -n "Developer Details|For developers and the curious|Local Storage Model|Tauri Commands|resume_drafts|create_resume_draft|export_resume_docx|analyze_resume_for_job|Backend Files|DOCX generation" docs/features/resume-builder.md
+! rg -n "Developer Notes|Current Tauri commands|get_scoring_config|update_scoring_config|reset_scoring_config_cmd|validate_scoring_config|ScoringConfig|recency proportions|complete scoring model|Internal field names" docs/features/smart-scoring.md
 npx vitest run src/pages/Settings.test.tsx src/components/ErrorLogPanel.test.tsx
 npx vitest run src/components/ErrorLogPanel.test.tsx
 npx vitest run src/utils/errorReporting.test.ts

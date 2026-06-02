@@ -163,20 +163,6 @@ Smart scoring should:
   signals.
 - Stay useful for technical and non-technical roles.
 
-## Developer Notes
-
-Current Tauri commands:
-
-- `get_scoring_config`
-- `update_scoring_config`
-- `reset_scoring_config_cmd`
-- `validate_scoring_config`
-
-The backend `ScoringConfig` stores skills, salary, location, company, and
-recency proportions and validates that they form one complete scoring model.
-Internal field names may still use scoring terminology for compatibility, but
-user-facing copy should explain these as match review areas and preferences.
-
 ## Related Documentation
 
 - [Synonym Matching Guide](synonym-matching.md) - Equivalent work and skill words.

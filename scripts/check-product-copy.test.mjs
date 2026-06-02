@@ -1925,7 +1925,24 @@ test("product copy rejects technical-first resume copy", () => {
         "credentials, private paths, cookies, webhook",
       ].join("\n"),
     );
-    writeFixtureFile(root, "docs/features/smart-scoring.md", "advanced scoring configuration\n");
+    writeFixtureFile(
+      root,
+      "docs/features/smart-scoring.md",
+      [
+        "advanced scoring configuration",
+        "## Developer Notes",
+        "Current Tauri commands:",
+        "get_scoring_config",
+        "update_scoring_config",
+        "reset_scoring_config_cmd",
+        "validate_scoring_config",
+        "ScoringConfig",
+        "recency proportions",
+        "complete scoring model",
+        "Internal field names",
+        "",
+      ].join("\n"),
+    );
     writeFixtureFile(
       root,
       "docs/features/ghost-detection.md",

@@ -1299,8 +1299,24 @@ export function hasTechnicalFirstUserCopy(root, path) {
     return resumeBuilderDocPatterns.some((pattern) => pattern.test(text));
   }
 
-  if (path === "docs/features/smart-scoring.md" && /advanced scoring configuration/i.test(text)) {
-    return true;
+  if (path === "docs/features/smart-scoring.md") {
+    const smartScoringDocPatterns = [
+      /advanced scoring configuration/i,
+      /Developer Notes/i,
+      /Current Tauri commands/i,
+      /get_scoring_config/i,
+      /update_scoring_config/i,
+      /reset_scoring_config_cmd/i,
+      /validate_scoring_config/i,
+      /ScoringConfig/i,
+      /recency proportions/i,
+      /complete scoring model/i,
+      /Internal field names/i,
+    ];
+
+    if (smartScoringDocPatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
   }
 
   if (path === "docs/features/json-resume-import.md") {
