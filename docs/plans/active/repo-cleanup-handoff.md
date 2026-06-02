@@ -1155,8 +1155,10 @@ Next high-value passes:
      Logs, and crash/error recovery surfaces.
    - The latest support-path, privacy-copy, USAJobs setup, Telegram setup,
      dashboard average-match label, Application Assist stat-label, and resume
-     overall-match findings are closed locally. Continue looking for new issues
-     as new surfaces change.
+     overall-match findings are closed locally. The latest recovery-label slice
+     also replaces visible retry/dismiss buttons in Settings and Resume
+     Readability with plain `Try Again` and `Close Message` actions. Continue
+     looking for new issues as new surfaces change.
    - Latest pushed checkpoint: `2e28a55f` on `origin/main`; remote CI and Docs
      Harness both passed after the broad-audience privacy and hiring-trend
      label slices.

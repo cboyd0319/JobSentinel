@@ -231,7 +231,7 @@ describe("Settings — loadConfig flow", () => {
     );
   });
 
-  it("shows error state with Retry button when get_config throws", async () => {
+  it("shows error state with Try Again button when get_config throws", async () => {
     mockInvoke.mockImplementation(async (cmd: string) => {
       if (cmd === "get_config") throw new Error("DB locked");
       if (cmd === "get_ghost_config") return makeGhostConfig();
@@ -246,14 +246,14 @@ describe("Settings — loadConfig flow", () => {
       expect(screen.getByText(/settings could not load/i)).toBeInTheDocument();
     });
 
-    expect(screen.getByText("Retry")).toBeInTheDocument();
+    expect(screen.getByText("Try Again")).toBeInTheDocument();
     expect(screen.getByText("Close")).toBeInTheDocument();
     await userEvent.click(screen.getByText("Close"));
     expect(onClose).toHaveBeenCalledOnce();
     expect(mockToast.error).toHaveBeenCalled();
   });
 
-  it("Retry button re-attempts loadConfig successfully", async () => {
+  it("Try Again button re-attempts loadConfig successfully", async () => {
     const user = userEvent.setup();
     let callCount = 0;
 
@@ -273,11 +273,11 @@ describe("Settings — loadConfig flow", () => {
 
     // Wait for error state
     await waitFor(() => {
-      expect(screen.getByText("Retry")).toBeInTheDocument();
+      expect(screen.getByText("Try Again")).toBeInTheDocument();
     });
 
     // Click retry — should succeed this time
-    await user.click(screen.getByText("Retry"));
+    await user.click(screen.getByText("Try Again"));
 
     await waitFor(() => {
       expect(screen.getByText("Settings")).toBeInTheDocument();

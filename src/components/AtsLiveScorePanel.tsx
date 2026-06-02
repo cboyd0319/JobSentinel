@@ -360,10 +360,10 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
             <p className="text-sm text-red-600 dark:text-red-400 mb-3">{error}</p>
             <div className="flex gap-2 justify-center">
               <Button size="sm" variant="ghost" onClick={() => setError(null)}>
-                Dismiss
+                Close Message
               </Button>
               <Button size="sm" onClick={() => { setError(null); setRetryTrigger((n) => n + 1); }}>
-                Retry
+                Try Again
               </Button>
             </div>
           </div>

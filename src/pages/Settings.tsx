@@ -1545,7 +1545,7 @@ export default function Settings({ onClose }: SettingsProps) {
                 onClick={() => void loadConfig()}
                 className="px-4 py-2 text-sm rounded bg-sentinel-500 text-white hover:bg-sentinel-600"
               >
-                Retry
+                Try Again
               </button>
               <button
                 onClick={onClose}

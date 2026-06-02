@@ -1213,3 +1213,6 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 - Current local resume-copy slice changes visible resume review copy from
   overall score to overall match; focused resume panel tests, source lint,
   build, and whitespace checks passed locally.
+- Current local recovery-copy slice changes Settings and Resume Readability
+  recovery buttons from retry/dismiss wording to `Try Again` and
+  `Close Message`; focused Settings and Resume Readability tests passed locally.

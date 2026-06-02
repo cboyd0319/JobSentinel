@@ -391,7 +391,7 @@ describe("AtsLiveScorePanel", () => {
       expect(screen.queryByText(/raw-secret|chad@example\.com|\/Users\/chad/)).not.toBeInTheDocument();
     });
 
-    it("shows dismiss button on error", async () => {
+    it("shows close-message button on error", async () => {
       mockInvoke.mockRejectedValue(new Error("Network error"));
 
       render(
@@ -405,11 +405,11 @@ describe("AtsLiveScorePanel", () => {
       await waitForAnalysis();
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /dismiss/i })).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: /close message/i })).toBeInTheDocument();
       });
     });
 
-    it("shows retry button on error", async () => {
+    it("shows try-again button on error", async () => {
       mockInvoke.mockRejectedValue(new Error("Network error"));
 
       render(
@@ -423,11 +423,11 @@ describe("AtsLiveScorePanel", () => {
       await waitForAnalysis();
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /retry/i })).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: /try again/i })).toBeInTheDocument();
       });
     });
 
-    it("retries analysis when retry button is clicked", async () => {
+    it("retries analysis when try-again button is clicked", async () => {
       mockInvoke.mockRejectedValueOnce(new Error("Network error"));
       mockInvoke.mockResolvedValueOnce(mockAnalysis);
 
@@ -442,10 +442,10 @@ describe("AtsLiveScorePanel", () => {
       await waitForAnalysis();
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /retry/i })).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: /try again/i })).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByRole("button", { name: /retry/i }));
+      fireEvent.click(screen.getByRole("button", { name: /try again/i }));
 
       await waitForAnalysis();
 
@@ -454,7 +454,7 @@ describe("AtsLiveScorePanel", () => {
       });
     });
 
-    it("clears error when dismiss is clicked", async () => {
+    it("clears error when close-message is clicked", async () => {
       mockInvoke.mockRejectedValue(new Error("Network error"));
 
       render(
@@ -471,7 +471,7 @@ describe("AtsLiveScorePanel", () => {
         expect(screen.getByText(/check your internet connection/i)).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByRole("button", { name: /dismiss/i }));
+      fireEvent.click(screen.getByRole("button", { name: /close message/i }));
 
       expect(screen.queryByText(/check your internet connection/i)).not.toBeInTheDocument();
     });

@@ -835,6 +835,9 @@ and record actionable findings in this active-plan surface.
 - Current local resume-copy slice removes standalone overall-score wording
   from visible resume review UI and keeps match/readability language centered
   for users who do not know scoring internals.
+- Current local recovery-copy slice changes visible retry/dismiss buttons in
+  Settings and Resume Readability to `Try Again` and `Close Message`, keeping
+  recovery actions plain.
 - The previous local slice closed the hardcoded harness-policy debt by moving
   required harness files, policy snippets, and README reference-source coverage
   into `docs/harness/manifest.json`.
@@ -858,9 +861,9 @@ and record actionable findings in this active-plan surface.
 3. Continue zero-technical-knowledge UX review across setup, settings,
    recovery, feedback, empty states, and error screens.
   The latest support-path, privacy-copy, USAJobs setup, Telegram setup,
-  dashboard match-label, Application Assist stat-label, and resume overall-match
-  findings are closed locally; continue looking for new issues as later slices
-  touch copy.
+  dashboard match-label, Application Assist stat-label, resume overall-match,
+  and recovery action-label findings are closed locally; continue looking for
+  new issues as later slices touch copy.
 4. Continue broad-audience review so non-technical and technical job searches
    both feel first-class.
    The latest tech-source heuristic finding is closed locally; keep auditing
