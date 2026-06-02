@@ -45,7 +45,7 @@ function writeBaseRepo(root, csp) {
   );
   writeFileSync(
     join(root, ".github/workflows/release.yml"),
-    "jobs:\n  release:\n    steps:\n      - run: |\n          JOBSENTINEL_MACOS_NO_ACCOUNT=true\n          labeled_name=JobSentinel_1.2.3_no-account_universal.dmg\n          npm run tauri:verify:macos -- --launch-smoke --install-smoke --require-gatekeeper --expected-bundle-id com.jobsentinel.main --expected-product-name JobSentinel --expected-version 1.2.3 --expected-icon-file icon.icns --expected-minimum-system-version 13.0\n",
+    "jobs:\n  release:\n    steps:\n      - run: |\n          JOBSENTINEL_MACOS_NO_ACCOUNT=true\n          labeled_name=JobSentinel_1.2.3_no-account_universal.dmg\n          npm run tauri:verify:macos -- --launch-smoke --install-smoke --require-checksum --require-gatekeeper --expected-bundle-id com.jobsentinel.main --expected-product-name JobSentinel --expected-version 1.2.3 --expected-icon-file icon.icns --expected-minimum-system-version 13.0\n",
   );
   writeFileSync(
     join(root, ".github/workflows/verify-release-artifacts.yml"),
@@ -151,6 +151,24 @@ test("checkSecuritySensors rejects macOS release gates without bundle metadata c
   assert(
     checkSecuritySensors(root).includes(
       "release workflow is missing macOS package gate: macOS bundle metadata gate",
+    ),
+  );
+});
+
+test("checkSecuritySensors rejects macOS release gates without checksum sidecar checks", () => {
+  const root = mkdtempRoot("jobsentinel-security-sensors-checksum-");
+  writeBaseRepo(
+    root,
+    "default-src 'self'; connect-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'",
+  );
+  writeFileSync(
+    join(root, ".github/workflows/release.yml"),
+    "jobs:\n  release:\n    steps:\n      - run: |\n          JOBSENTINEL_MACOS_NO_ACCOUNT=true\n          labeled_name=JobSentinel_1.2.3_no-account_universal.dmg\n          npm run tauri:verify:macos -- --launch-smoke --install-smoke --require-gatekeeper --expected-bundle-id com.jobsentinel.main --expected-product-name JobSentinel --expected-version 1.2.3 --expected-icon-file icon.icns --expected-minimum-system-version 13.0\n",
+  );
+
+  assert(
+    checkSecuritySensors(root).includes(
+      "release workflow is missing macOS package gate: macOS checksum sidecar gate",
     ),
   );
 });

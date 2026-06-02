@@ -79,6 +79,10 @@ const releaseWorkflowChecks = [
     phrases: ["npm run tauri:verify:macos", "--install-smoke"],
   },
   {
+    label: "macOS checksum sidecar gate",
+    phrases: ["npm run tauri:verify:macos", "--require-checksum"],
+  },
+  {
     label: "macOS bundle metadata gate",
     phrases: [
       "--expected-bundle-id",

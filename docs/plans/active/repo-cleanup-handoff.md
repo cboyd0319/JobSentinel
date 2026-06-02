@@ -65,9 +65,11 @@ Recent local verification evidence:
   `npm run tauri:verify:macos` validate a local `.dmg.sha256` sidecar when it
   exists and fail with `--require-checksum` when it is missing or mismatched.
   The release workflow now requires that builder-created checksum before the
-  macOS upload path proceeds, while the post-publish verifier still checks the
-  downloaded public checksum asset. Gatekeeper rejection remains expected
-  without an Apple Developer Account. Verification passed on macOS 26.5:
+  macOS upload path proceeds, and the security sensor rejects release workflow
+  drift that drops `--require-checksum`, while the post-publish verifier still
+  checks the downloaded public checksum asset. Gatekeeper rejection remains
+  expected without an Apple Developer Account. Verification passed on macOS
+  26.5:
   focused macOS script tests, full `npm run test:scripts`, `npm run lint:docs`,
   `npm run lint:security`, `npx actionlint .github/workflows/release.yml
   .github/workflows/verify-release-artifacts.yml`, `git diff --check`, `npm
