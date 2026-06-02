@@ -164,6 +164,11 @@ As of 2026-06-02, the active plan remains open. Latest local work improved
 visible zero-technical UX, broad-audience defaults, privacy/security
 boundaries, and harness modularity:
 
+- Current local App Problem History support-copy cleanup renames the old
+  detailed-report button to `Save Extra Local Details`, clarifies that extra
+  local details stay on the user's computer until the user chooses to share
+  them, and adds a product-copy sensor against the old label. Focused
+  ErrorLogPanel and product-copy verification passed.
 - Current local source-status wording cleanup replaces remaining user-facing
   `source health` wording with `source status` in README, roadmap, source
   guides, and ScraperHealthDashboard log context. Product-copy sensors now
@@ -1732,7 +1737,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
   Chromium and WebKit tests in 123.15 seconds with a tightened 240-second
   budget.
 - Current local frontend verification follow-up syncs `ErrorLogPanel` unit
-  tests with the current `Save Detailed Local Report` action label.
+  tests with the then-current detailed-report action label.
   `npm run test:run` passes 110 Vitest files and 2637 tests, `npm run build`
   passes in 4.13 seconds, and `npm run test:scripts` passes 454 script tests.
 - Current local backend verification evidence: `cargo fmt --all -- --check`

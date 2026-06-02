@@ -31,6 +31,13 @@ Latest pushed checkpoints include:
 
 Recent local verification evidence:
 
+- Current local App Problem History support-copy cleanup renames the old
+  detailed-report button to `Save Extra Local Details` and clarifies that extra
+  local details stay on the user's computer until the user chooses to share
+  them. Product-copy sensors now reject the old `Save Detailed Local Report`
+  label. Focused verification passed: `npx vitest run
+  src/components/ErrorLogPanel.test.tsx` passed 34 tests and `node --test
+  scripts/check-product-copy.test.mjs` passed 36 tests.
 - Current local source-status wording cleanup replaces remaining user-facing
   `source health` wording with `source status` in README, roadmap, source
   guides, and ScraperHealthDashboard log context. Product-copy sensors now

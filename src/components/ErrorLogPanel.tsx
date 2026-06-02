@@ -285,9 +285,9 @@ export const ErrorLogPanel = memo(function ErrorLogPanel() {
                   size="sm"
                   variant="secondary"
                   onClick={exportErrors}
-                  title="Use this only if someone helping with JobSentinel asks. Copy or save a safe support report first."
+                  title="Use this only when someone helping with JobSentinel asks. It stays on your computer until you choose to share it."
                 >
-                  Save Detailed Local Report
+                  Save Extra Local Details
                 </Button>
                 <Button size="sm" variant="danger" onClick={clearErrors}>
                   Clear Problem List
