@@ -1154,9 +1154,9 @@ Next high-value passes:
    - Keep safe support report generation one click from Settings, Error
      Logs, and crash/error recovery surfaces.
    - The latest support-path, privacy-copy, USAJobs setup, Telegram setup,
-     dashboard average-match label, and Application Assist stat-label findings
-     are closed locally. Continue looking for new issues as new surfaces
-     change.
+     dashboard average-match label, Application Assist stat-label, and resume
+     overall-match findings are closed locally. Continue looking for new issues
+     as new surfaces change.
    - Latest pushed checkpoint: `2e28a55f` on `origin/main`; remote CI and Docs
      Harness both passed after the broad-audience privacy and hiring-trend
      label slices.

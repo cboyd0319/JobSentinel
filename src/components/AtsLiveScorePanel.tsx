@@ -348,7 +348,7 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
         </div>
       </div>
 
-      {/* Score Display */}
+      {/* Match display */}
       <div className="p-4">
         {error ? (
           <div className="text-center py-4">
@@ -369,7 +369,7 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
           </div>
         ) : analysis ? (
           <div className="space-y-4">
-            {/* Circular Score */}
+            {/* Circular match */}
             <div className="flex items-center gap-4">
               <div className="relative w-20 h-20 flex-shrink-0">
                 <svg className="w-20 h-20 transform -rotate-90">
@@ -405,7 +405,7 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
                 </div>
               </div>
 
-              {/* Score Breakdown */}
+              {/* Match breakdown */}
               <div className="flex-1 space-y-2">
                 <ScoreBar label="Job words" score={analysis.keyword_score} />
                 <ScoreBar label="Format" score={analysis.format_score} />
@@ -486,7 +486,7 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
       >
         {analysis && (
           <div className="space-y-6 max-h-[70vh] overflow-y-auto">
-            {/* Score Overview */}
+            {/* Match overview */}
             <div className="grid grid-cols-4 gap-4">
               <ScoreCard label="Overall" score={analysis.overall_score} />
               <ScoreCard label="Job words" score={analysis.keyword_score} />
@@ -632,7 +632,7 @@ const ScoreBar = memo(function ScoreBar({ label, score }: { label: string; score
   );
 });
 
-// Helper component for score cards in modal
+// Helper component for match cards in modal
 const ScoreCard = memo(function ScoreCard({ label, score }: { label: string; score: number }) {
   return (
     <div className="text-center p-3 bg-surface-50 dark:bg-surface-700 rounded-lg">

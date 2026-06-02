@@ -784,7 +784,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                   })()}
                 </Card>
 
-                {/* Score Overview */}
+                {/* Match overview */}
                 <Card>
                   <CardHeader title="Resume Match" />
                   <div className="grid grid-cols-2 gap-4">
@@ -792,7 +792,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                       <div className={`text-5xl font-bold ${getScoreColor(analysisResult.overall_score)}`}>
                         {Math.round(analysisResult.overall_score)}
                       </div>
-                      <p className="text-sm text-surface-500 dark:text-surface-400 mt-1">Overall Score</p>
+                      <p className="text-sm text-surface-500 dark:text-surface-400 mt-1">Overall Match</p>
                     </div>
                     <div className="space-y-3">
                       <ScoreItem label="Job words" score={analysisResult.keyword_score} />
@@ -1017,7 +1017,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
   );
 }
 
-// Helper component for score items
+// Helper component for match items
 function ScoreItem({ label, score }: { label: string; score: number }) {
   return (
     <div className="flex items-center justify-between">

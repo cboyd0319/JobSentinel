@@ -267,7 +267,7 @@ export const ScoreBreakdownModal = memo(function ScoreBreakdownModal({
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Match Details">
       <div className="space-y-6">
-        {/* Overall Score */}
+        {/* Overall match */}
         <div className="text-center pb-4 border-b border-surface-200 dark:border-surface-700">
           <div className={`text-5xl font-bold font-mono mb-2 ${scoreLabel.color}`}>
             {percentage}%

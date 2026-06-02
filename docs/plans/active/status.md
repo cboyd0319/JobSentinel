@@ -828,10 +828,13 @@ and record actionable findings in this active-plan surface.
 - Latest pushed checkpoint is `2e28a55f` on `origin/main`. Remote CI and Docs
   Harness both passed for that commit after the broad-audience privacy and
   hiring-trend label slices were pushed.
-- Current local broad-audience copy slice removes remaining technical-first
+- Latest local broad-audience copy slice removes remaining technical-first
   setup labels from Telegram and USAJobs settings, changes dashboard average
   score wording to average match, and makes Application Assist stats use plain
   forms-opened, marked-sent, and ready-to-send wording.
+- Current local resume-copy slice removes standalone overall-score wording
+  from visible resume review UI and keeps match/readability language centered
+  for users who do not know scoring internals.
 - The previous local slice closed the hardcoded harness-policy debt by moving
   required harness files, policy snippets, and README reference-source coverage
   into `docs/harness/manifest.json`.
@@ -855,8 +858,9 @@ and record actionable findings in this active-plan surface.
 3. Continue zero-technical-knowledge UX review across setup, settings,
    recovery, feedback, empty states, and error screens.
   The latest support-path, privacy-copy, USAJobs setup, Telegram setup,
-  dashboard match-label, and Application Assist stat-label findings are closed
-  locally; continue looking for new issues as later slices touch copy.
+  dashboard match-label, Application Assist stat-label, and resume overall-match
+  findings are closed locally; continue looking for new issues as later slices
+  touch copy.
 4. Continue broad-audience review so non-technical and technical job searches
    both feel first-class.
    The latest tech-source heuristic finding is closed locally; keep auditing

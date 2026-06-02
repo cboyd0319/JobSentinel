@@ -1210,3 +1210,6 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 - Current local copy slice tightens Telegram setup, USAJobs access-code,
   dashboard average-match, and Application Assist stat labels; focused Settings
   tests, docs lint, source lint, build, and whitespace checks passed locally.
+- Current local resume-copy slice changes visible resume review copy from
+  overall score to overall match; focused resume panel tests, source lint,
+  build, and whitespace checks passed locally.
