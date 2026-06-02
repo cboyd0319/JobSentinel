@@ -4,6 +4,14 @@
 relevant, fairly compensated work while keeping sensitive job-search data under user
 control.**
 
+**Current project status: about 78% complete against the active readiness
+goal.** JobSentinel has working local-first core workflows, safe support
+reports, resume parsing, job tracking, privacy-first docs, and a verified
+no-account macOS package. Active work remains on deeper resume requirement
+review, ghost-job and stale-posting protection, pay-equity guardrails, guided
+intake, and final broad verification. See
+[active plan status](docs/plans/active/status.md) for current evidence.
+
 [![CI](https://github.com/cboyd0319/JobSentinel/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/cboyd0319/JobSentinel/actions/workflows/ci.yml)
 [![Docs Harness](https://github.com/cboyd0319/JobSentinel/actions/workflows/docs-harness.yml/badge.svg?branch=main)](https://github.com/cboyd0319/JobSentinel/actions/workflows/docs-harness.yml)
 [![Release](https://img.shields.io/github/v/release/cboyd0319/JobSentinel?label=release&color=2563eb)](https://github.com/cboyd0319/JobSentinel/releases/latest)
