@@ -221,7 +221,7 @@ export const AnalyticsPanel = memo(function AnalyticsPanel({ onClose }: Analytic
       setStats(data);
     } catch (err: unknown) {
       logError("Failed to fetch analytics:", err);
-      setError("Could not load application summary. Please try again.");
+      setError("Could not load application summary. Try again, or copy a safe support report if this keeps happening.");
     } finally {
       setLoading(false);
     }

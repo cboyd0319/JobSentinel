@@ -145,7 +145,9 @@ describe("AnalyticsPanel", () => {
 
       await waitFor(() => {
         expect(
-          screen.getByText("Could not load application summary. Please try again.")
+          screen.getByText(
+            "Could not load application summary. Try again, or copy a safe support report if this keeps happening.",
+          )
         ).toBeInTheDocument();
       });
     });

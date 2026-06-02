@@ -1262,3 +1262,5 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 - Current local cover-letter clipboard recovery slice replaces retry-only
   copy-failure guidance with clipboard-permission guidance and focused
   component coverage.
+- Current local AnalyticsPanel recovery slice replaces retry-only summary load
+  guidance with safe-support-report guidance and focused component coverage.

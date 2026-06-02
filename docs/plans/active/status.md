@@ -224,6 +224,9 @@ and record actionable findings in this active-plan surface.
 - Latest local cover-letter clipboard recovery follow-up replaces retry-only
   copy-failure guidance with clipboard-permission guidance and expands
   product-copy coverage for the old fallback.
+- Latest local AnalyticsPanel recovery follow-up replaces retry-only summary
+  load guidance with safe-support-report guidance and adds product-copy
+  coverage against the old sentence.
 - Latest local recovery-title follow-up replaces remaining visible
   `Failed to...` fallback titles in Resume, Resume Builder, Screening Answers,
   Interview Scheduler, and company-research fallback UI with `Could not...`
@@ -906,6 +909,8 @@ and record actionable findings in this active-plan surface.
 - Current local cover-letter clipboard recovery slice replaces retry-only
   copy-failure guidance with clipboard-permission guidance and focused
   component coverage.
+- Current local AnalyticsPanel recovery slice replaces retry-only summary load
+  guidance with safe-support-report guidance and focused component coverage.
 - The previous local slice closed the hardcoded harness-policy debt by moving
   required harness files, policy snippets, and README reference-source coverage
   into `docs/harness/manifest.json`.

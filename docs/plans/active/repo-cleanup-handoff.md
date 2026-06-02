@@ -1198,6 +1198,8 @@ Next high-value passes:
      retry-only saved-answer load fallback with safe-support-report guidance.
      The latest cover-letter clipboard recovery slice replaces retry-only
      copy-failure guidance with clipboard-permission guidance.
+     The latest AnalyticsPanel recovery slice replaces retry-only summary load
+     guidance with safe-support-report guidance.
    - Do not trust hardcoded checkpoint notes for remote status. Use
      `git status --short --branch`, `git log --oneline -3`, and `gh run list
      --branch main --limit 5` as live evidence before reporting CI state.

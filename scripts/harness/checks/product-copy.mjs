@@ -788,6 +788,13 @@ export function hasTechnicalFirstUserCopy(root, path) {
     }
   }
 
+  if (
+    path === "src/components/AnalyticsPanel.tsx" &&
+    /Could not load application summary\.\s*Please try again/i.test(text)
+  ) {
+    return true;
+  }
+
   if (path === "src/pages/Settings.tsx") {
     const settingsPatterns = [
       /Review before anything is sent/i,

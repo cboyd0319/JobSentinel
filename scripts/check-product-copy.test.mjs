@@ -439,6 +439,7 @@ test("product copy rejects technical-first settings copy", () => {
         "Weekly Application Goal",
         "Goal achieved this week!",
         "Failed to load analytics data. Please try again.",
+        "Could not load application summary. Please try again.",
         "",
       ].join("\n"),
     );
