@@ -140,8 +140,17 @@ describe("ErrorLogPanel", () => {
         screen.getByRole("button", { name: "Save Detailed Local Report" })
       ).toBeInTheDocument();
       expect(
+        screen.getByRole("button", {
+          name: "Save Detailed Local Report",
+        })
+      ).toHaveAttribute(
+        "title",
+        "Use this only if someone helping with JobSentinel asks. Copy or save a safe support report first.",
+      );
+      expect(
         screen.queryByRole("button", { name: /advanced/i })
       ).not.toBeInTheDocument();
+      expect(screen.queryByTitle(/maintainer/i)).not.toBeInTheDocument();
     });
 
     it("shows Clear Problem List button when errors exist", () => {

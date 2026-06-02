@@ -84,13 +84,20 @@ actionable findings in this active-plan surface or the relevant plan.
   passed 5 tests, `node --test scripts/check-product-copy.test.mjs` passed 32
   tests, `npm run lint:bloat`, `npm run test:scripts` passed 455 script tests,
   `npm run lint:docs`, `npm run lint`, and `git diff --check` passed.
-- Current local support-report label slice changes generated support-report
+- Committed support-report label slice changes generated support-report
   section labels from support-only wording to safe app details, and adds a
   product-copy guard against those labels returning. Focused verification
   passed: `npx vitest run src/services/feedbackService.test.ts` passed 12
   tests, `node --test scripts/check-product-copy.test.mjs` passed 32 tests,
   `npm run lint:bloat`, `npm run test:scripts` passed 455 script tests, `npm
   run lint:docs`, `npm run lint`, and `git diff --check` passed.
+- Current local detailed-report tooltip slice changes the detailed local report
+  tooltip from maintainer wording to plain help wording and adds product-copy
+  coverage against the old tooltip. Focused verification passed: `npx vitest run
+  src/components/ErrorLogPanel.test.tsx` passed 34 tests, `node --test
+  scripts/check-product-copy.test.mjs` passed 32 tests, `npm run lint:bloat`,
+  `npm run test:scripts` passed 455 script tests, `npm run lint:docs`, `npm run
+  lint`, and `git diff --check` passed.
 - No remote CI or push should run unless the user explicitly asks in the current
   turn.
 
@@ -104,8 +111,8 @@ Scope:
   job-source links, not source addresses or requested jobs.
 - Error-log support actions must keep the easy safe support report path primary
   while avoiding troubleshooting jargon in visible labels.
-- Detailed local support-report tooltips should explain maintainer-requested use
-  without support-only jargon.
+- Detailed local support-report tooltips should explain help-requested use
+  without support-only or maintainer jargon.
 - Browser Button help docs should keep connection settings plain and place
   support-request gating in instructions, not labels.
 - Detailed local report JSON export must re-sanitize records at export time, not
@@ -114,6 +121,8 @@ Scope:
   report path primary and avoid maintainer/issue-page jargon in visible copy.
 - Generated support-report text must use plain safe-app-detail labels, not
   support-only labels or uppercase support blocks.
+- Detailed local report tooltip copy must avoid maintainer jargon in user-facing
+  surfaces.
 - Product-copy sensors must reject recurring old phrases.
 
 Verification completed for this slice:

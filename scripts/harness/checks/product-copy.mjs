@@ -1508,7 +1508,9 @@ export function hasTechnicalFirstUserCopy(root, path) {
   }
 
   if (path === "src/components/ErrorLogPanel.tsx") {
-    return /Advanced: Save Support Details|Save extra app details \(support only\)/i.test(text);
+    return /Advanced: Save Support Details|Save extra app details \(support only\)|Use this only if a maintainer asks/i.test(
+      text,
+    );
   }
 
   if (path === "src/components/DeepLinkGenerator.tsx") {

@@ -171,8 +171,8 @@ boundaries, and harness modularity:
   ErrorLogPanel, bloat, product-copy, harness, docs, script, lint, and
   diff-check verification passed.
 - Changed the detailed local report tooltip and Browser Button docs from
-  support-only wording to maintainer-requested-use wording. Focused
-  ErrorLogPanel, product-copy, and bloat checks passed.
+  support-only wording to help-requested-use wording. Focused ErrorLogPanel,
+  product-copy, and bloat checks passed.
 - Hardened detailed local report JSON export so frontend error-report records
   are re-sanitized at export time. Added Vitest coverage for private job-search
   details in detailed local report output and a privacy sensor against raw
@@ -183,6 +183,8 @@ boundaries, and harness modularity:
   old phrases.
 - Changed generated support-report labels from support-only wording to safe app
   details and added product-copy coverage against those labels returning.
+- Changed the detailed local report tooltip from maintainer wording to plain
+  help wording and added product-copy coverage against the old tooltip.
 - Changed the optional connected-source contact history label from
   `Source host` to `Website contacted`, updated Settings coverage, and added a
   product-copy guard against raw source metadata labels returning.

@@ -153,8 +153,8 @@ Current cleanup posture:
   product-copy coverage.
 - Current local feedback/recovery tooltip follow-up changes the detailed local
   report tooltip and Browser Button docs from support-only wording to
-  maintainer-requested-use wording, with focused ErrorLogPanel, product-copy,
-  and bloat coverage.
+  help-requested-use wording, with focused ErrorLogPanel, product-copy, and
+  bloat coverage.
 - Current local detailed-report privacy follow-up makes frontend error-report
   JSON export re-sanitize stored records, adds regression coverage for private
   job-search details in detailed local report output, and adds a privacy sensor
@@ -166,6 +166,9 @@ Current cleanup posture:
 - Current local support-report label follow-up changes generated support-report
   section labels from support-only wording to safe app details and adds a
   product-copy guard against those labels returning.
+- Current local detailed-report tooltip follow-up changes the detailed local
+  report tooltip from maintainer wording to plain help wording and adds
+  product-copy coverage against the old tooltip.
 - Current local connected-source wording follow-up changes the Settings contact
   history label from `Source host` to `Website contacted`, with focused
   Settings and product-copy coverage against raw source metadata labels

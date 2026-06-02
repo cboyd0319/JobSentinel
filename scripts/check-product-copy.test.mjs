@@ -915,7 +915,7 @@ test("product copy rejects technical-first settings copy", () => {
     writeFixtureFile(
       root,
       "src/components/ErrorLogPanel.tsx",
-      "Save Extra Support Details\nSave extra app details (support only)\n",
+      "Save Extra Support Details\nSave extra app details (support only)\nUse this only if a maintainer asks.\n",
     );
     writeFixtureFile(
       root,
