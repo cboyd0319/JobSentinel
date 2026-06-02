@@ -47,6 +47,9 @@ and record actionable findings in this active-plan surface.
   `Completeness`, and advanced scoring configuration wording to readable-format,
   details-included, and extra-match-settings language. Product-copy tests guard
   the old phrases.
+- Latest local ghost-detection docs follow-up replaces low-trust-listing and
+  stale Ghost Detection Settings path wording with listing-needs-review and
+  `Settings > Sources & Alerts > Posting Risk and Freshness` language.
 - Latest local resume-readability follow-up changes score-adjacent labels from
   `Complete`, `Completeness`, `missing`, `issues`, `View Details`, and `Full
   Resume Readability Review` to details, details-included, to-review,

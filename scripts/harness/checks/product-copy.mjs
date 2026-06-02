@@ -302,6 +302,7 @@ const technicalFirstUserCopyPaths = new Set([
   "tests/e2e/playwright/application-tracking.spec.ts",
   "tests/e2e/playwright/page-objects/ApplicationsPage.ts",
   "docs/features/application-tracking.md",
+  "docs/features/ghost-detection.md",
   "docs/features/smart-scoring.md",
   "docs/features/notifications.md",
   "docs/features/one-click-apply.md",
@@ -1091,6 +1092,18 @@ export function hasTechnicalFirstUserCopy(root, path) {
 
   if (path === "docs/features/smart-scoring.md" && /advanced scoring configuration/i.test(text)) {
     return true;
+  }
+
+  if (path === "docs/features/ghost-detection.md") {
+    const ghostDetectionDocPatterns = [
+      /low-trust listing/i,
+      /Settings\s*>\s*Detection\s*>\s*Ghost Detection Settings/i,
+      /Ghost Detection Settings/i,
+    ];
+
+    if (ghostDetectionDocPatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
   }
 
   if (path === "docs/features/salary-ai.md") {

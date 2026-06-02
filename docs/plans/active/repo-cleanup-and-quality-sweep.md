@@ -217,6 +217,10 @@ boundaries, and harness modularity:
   Completeness, and advanced scoring configuration wording to readable-format,
   details-included, and extra-match-settings language. Product-copy tests guard
   the old phrases.
+- Changed ghost-detection docs from low-trust-listing and stale Ghost Detection
+  Settings path wording to listing-needs-review and `Settings > Sources & Alerts
+  > Posting Risk and Freshness` language. Product-copy tests guard the old
+  phrases.
 - Changed Application Assist suggested-answer failure copy from a bare saved
   answers message to support-report recovery wording, with focused component and
   product-copy coverage.

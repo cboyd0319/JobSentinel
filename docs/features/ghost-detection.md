@@ -50,7 +50,7 @@ or save your tailoring energy.
 ### Frequent Reposts
 
 Repeated reposting can mean normal hiring demand, a hard-to-fill role, a
-staffing pipeline, or a low-trust listing. JobSentinel treats repeated reposts
+staffing pipeline, or a listing that needs review. JobSentinel treats repeated reposts
 as a reason to verify, not as proof the employer is acting badly.
 
 ### Vague Descriptions
@@ -113,8 +113,8 @@ you want to check old or suspicious listings before deciding what to do.
 
 ### Settings
 
-Choose how cautious JobSentinel should be in **Settings > Detection > Ghost
-Detection Settings**:
+Choose how cautious JobSentinel should be in **Settings > Sources & Alerts >
+Posting Risk and Freshness**:
 
 - **Widest search** - Warns less often so more roles stay in normal review.
 - **Balanced** - Keeps most roles visible and warns on older, reposted, vague,
