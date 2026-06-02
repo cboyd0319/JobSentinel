@@ -285,9 +285,11 @@ After the GitHub release is published, the `Verify Release Artifacts` workflow
 runs automatically. It downloads the public release DMG and applies the same
 checksum, signature, architecture, launch-smoke, installed-app smoke, local
 data initialization, and optional Gatekeeper checks to the artifact users can
-actually download. The same no-account check can be run locally on a Mac with
-`npm run tauri:verify:macos:latest`; add `--require-gatekeeper` only for a
-Developer ID signed and notarized release.
+actually download. The no-account public verifier also requires `_no-account_`
+in the DMG filename, while the Gatekeeper-required verifier rejects that label
+for Developer ID signed and notarized releases. The same no-account check can
+be run locally on a Mac with `npm run tauri:verify:macos:latest`; add
+`--require-gatekeeper` only for a Developer ID signed and notarized release.
 
 ---
 

@@ -94,9 +94,11 @@ manipulation, or unreviewed form sending.
   releases.
 - Current local no-account asset-label follow-up makes release CI rename
   ad-hoc public macOS DMGs to include `_no-account_` before checksum creation
-  and upload, and adds security sensor coverage so that label gate cannot be
-  silently dropped. Verification passed on macOS 26.5 (Darwin 25.5.0, build
-  25F71), Apple Silicon `arm64`, with SIP enabled: `npx actionlint
+  and upload, makes the public release verifier reject unlabeled no-account
+  DMGs or `_no-account_` labels on Gatekeeper-required releases, and adds
+  security sensor coverage so that label gate cannot be silently dropped.
+  Verification passed on macOS 26.5 (Darwin 25.5.0, build 25F71), Apple
+  Silicon `arm64`, with SIP enabled: `npx actionlint
   .github/workflows/release.yml`, `npm run lint:security`, `node --test
   scripts/check-security-sensors.test.mjs`, `npm run lint:docs`, `npm run
   test:scripts`, `npm run lint:bloat`, `git diff --check`, and `npm run

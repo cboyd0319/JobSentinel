@@ -175,13 +175,14 @@ product-function priority after the no-account macOS path is locked down:
   notarization, stapling, validation, and Gatekeeper acceptance only when all
   required Apple secrets exist. The latest local asset-label slice now renames
   ad-hoc public macOS DMGs to include `_no-account_` before checksum
-  creation/upload and adds security sensor coverage for that release gate.
-  Verification passed: `npx actionlint .github/workflows/release.yml`, `npm
-  run lint:security`, `node --test scripts/check-security-sensors.test.mjs`,
-  `npm run lint:docs`, `npm run test:scripts`, `npm run lint:bloat`, `git
-  diff --check`, and `npm run tauri:verify:macos:latest -- --tag v2.6.4` on
-  macOS 26.5 with SIP enabled. Gatekeeper rejection remains expected for the
-  no-account package.
+  creation/upload, makes the public release verifier reject unlabeled
+  no-account DMGs or `_no-account_` labels on Gatekeeper-required releases, and
+  adds security sensor coverage for that release gate. Verification passed:
+  `npx actionlint .github/workflows/release.yml`, `npm run lint:security`,
+  `node --test scripts/check-security-sensors.test.mjs`, `npm run lint:docs`,
+  `npm run test:scripts`, `npm run lint:bloat`, `git diff --check`, and `npm
+  run tauri:verify:macos:latest -- --tag v2.6.4` on macOS 26.5 with SIP
+  enabled. Gatekeeper rejection remains expected for the no-account package.
 - Current local reviewed-resume-skill sorting follow-up adds an explicit Resume
   page control to use or stop using reviewed local skills for job sorting.
   Backend config commands, browser/dev mocks, feature docs, and privacy labels

@@ -5,6 +5,7 @@ import {
   findMacosDmgAsset,
   parseArgs,
   parseSha256Checksum,
+  validateMacosAssetLabel,
 } from "./verify-latest-macos-release.mjs";
 
 test("latest macOS release verifier defaults to no-account public checks", () => {
@@ -23,6 +24,7 @@ test("latest macOS release verifier defaults to no-account public checks", () =>
     launchSmoke: true,
     releaseTag: undefined,
     requireChecksum: true,
+    requireNoAccountLabel: true,
     repo: "cboyd0319/JobSentinel",
     requireGatekeeper: false,
     smokeSeconds: 12,
@@ -73,10 +75,36 @@ test("latest macOS release verifier supports scoped overrides", () => {
       launchSmoke: false,
       releaseTag: "v2.6.4",
       requireChecksum: false,
+      requireNoAccountLabel: false,
       repo: "example/project",
       requireGatekeeper: true,
       smokeSeconds: 3,
     },
+  );
+});
+
+test("latest macOS release verifier checks no-account asset labels", () => {
+  assert.doesNotThrow(() =>
+    validateMacosAssetLabel(
+      { name: "JobSentinel_2.6.4_no-account_universal.dmg" },
+      { requireNoAccountLabel: true },
+    ),
+  );
+  assert.throws(
+    () =>
+      validateMacosAssetLabel(
+        { name: "JobSentinel_2.6.4_universal.dmg" },
+        { requireNoAccountLabel: true },
+      ),
+    /must include "_no-account_"/,
+  );
+  assert.throws(
+    () =>
+      validateMacosAssetLabel(
+        { name: "JobSentinel_2.6.4_no-account_universal.dmg" },
+        { requireGatekeeper: true },
+      ),
+    /must not use a no-account label/,
   );
 });
 

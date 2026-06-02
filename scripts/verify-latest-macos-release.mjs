@@ -37,6 +37,8 @@ export function parseArgs(args) {
     getArgValue(args, "--expected-architectures") ??
     getArgValue(args, "--expected-archs") ??
     "x86_64,arm64";
+  const requireGatekeeper =
+    hasArg(args, "--require-gatekeeper") && !hasArg(args, "--no-require-gatekeeper");
 
   return {
     appName: getArgValue(args, "--app-name") ?? "JobSentinel.app",
@@ -53,8 +55,11 @@ export function parseArgs(args) {
     launchSmoke: !hasArg(args, "--no-launch-smoke"),
     releaseTag: getArgValue(args, "--tag"),
     requireChecksum: !hasArg(args, "--no-require-checksum"),
+    requireNoAccountLabel:
+      hasArg(args, "--require-no-account-label") ||
+      (!requireGatekeeper && !hasArg(args, "--no-require-no-account-label")),
     repo: getArgValue(args, "--repo") ?? defaultRepo,
-    requireGatekeeper: hasArg(args, "--require-gatekeeper") && !hasArg(args, "--no-require-gatekeeper"),
+    requireGatekeeper,
     smokeSeconds: Number(getArgValue(args, "--smoke-seconds") ?? "12"),
   };
 }
@@ -97,6 +102,24 @@ export function findChecksumAsset(release, dmgAsset) {
 
     return name === checksumName && url.startsWith("https://");
   });
+}
+
+export function validateMacosAssetLabel(asset, { requireGatekeeper = false, requireNoAccountLabel = false } = {}) {
+  const name = typeof asset?.name === "string" ? asset.name : "";
+  const lowerName = name.toLowerCase();
+  const hasNoAccountLabel = lowerName.includes("_no-account_");
+
+  if (requireGatekeeper && hasNoAccountLabel) {
+    throw new Error(
+      `Gatekeeper-required macOS release asset must not use a no-account label: ${name}`,
+    );
+  }
+
+  if (requireNoAccountLabel && !hasNoAccountLabel) {
+    throw new Error(
+      `No-account macOS release asset must include "_no-account_" in the file name: ${name}`,
+    );
+  }
 }
 
 export function parseSha256Checksum(content) {
@@ -180,6 +203,10 @@ export async function verifyLatestMacosRelease(options) {
       `No macOS DMG asset matched "${options.assetPattern}" on ${release.tag_name ?? "latest release"}. Assets: ${names || "(none)"}`,
     );
   }
+  validateMacosAssetLabel(asset, {
+    requireGatekeeper: options.requireGatekeeper,
+    requireNoAccountLabel: options.requireNoAccountLabel,
+  });
 
   const tempRoot = mkdtempSync(join(tmpdir(), "jobsentinel-public-macos-"));
   const dmgPath = join(tempRoot, basename(asset.name));
