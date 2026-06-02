@@ -70,14 +70,14 @@ This can happen because JobSentinel is a new open-source app.
 </details>
 
 <details>
-<summary><strong>For contributors</strong></summary>
+<summary><strong>For people changing JobSentinel</strong></summary>
 <br>
 
 Most people should download the installer and skip this section.
 
 If you prefer to build JobSentinel from the source code, use
-[Developer Setup](../developer/GETTING_STARTED.md). That guide has the setup
-steps for people changing the app.
+[the source-code setup guide](../developer/GETTING_STARTED.md). That guide has
+the steps for people changing the app.
 
 </details>
 
@@ -387,7 +387,7 @@ not need a cloud account or a JobSentinel account. When you turn on job sources
 or alerts, JobSentinel contacts only the sources or alert services you choose.
 
 <details>
-<summary><strong>Advanced: where JobSentinel saves local files</strong></summary>
+<summary><strong>Optional: where JobSentinel saves files</strong></summary>
 <br>
 
 You do not need to find app files for normal help. Use **Save Safe Support

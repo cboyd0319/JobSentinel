@@ -858,6 +858,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-06-02 | In progress | Replaced Quick Start contributor/developer setup labels and advanced local-file wording with plain optional source-code and file-location copy. Product-copy sensors now reject those exact current phrases in `docs/user/QUICK_START.md`. |
 | 2026-06-02 | In progress | Removed developer-only schema, signal-weight, and API-command details from the user-facing Ghost Detection guide. Product-copy sensors now reject those details if they drift back into `docs/features/ghost-detection.md`, preserving the protective, zero-technical job-seeker framing. |
 | 2026-06-02 | In progress | Applied the latest read-only sub-agent findings: support-report copy now avoids absolute privacy-removal claims, visible resume/settings/export/outside-AI wording avoids scoring/request jargon, README and source docs use approved job-source feed/link wording, agent wrappers carry Rule 0 plus broad-audience requirements, and active status is compact again. Verified with harness, script, docs, bloat, lint, focused Vitest, and diff-check gates. |
 | 2026-06-02 | In progress | Replaced stale saved debug-report filename, reveal, and failure-log wording in support-report paths with support-report wording and added product-copy plus Rust coverage against backend reveal recovery drift. |

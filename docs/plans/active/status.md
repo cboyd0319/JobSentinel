@@ -206,7 +206,7 @@ actionable findings in this active-plan surface or the relevant plan.
   verification passed: `node --test scripts/check-docs-drift.test.mjs` passed
   15 tests, targeted architecture search found no stale credential markers,
   `npm run lint:bloat`, and `npm run harness:check`.
-- Current local ghost-detection feature-doc cleanup removes developer-only
+- Committed local ghost-detection feature-doc cleanup removes developer-only
   schema and API command details from the job-seeker guide. Product-copy sensors
   now reject those implementation details if they drift back into
   `docs/features/ghost-detection.md`. Focused verification passed: `node --test
@@ -214,6 +214,13 @@ actionable findings in this active-plan surface or the relevant plan.
   ghost schema/API terms in that feature doc, `npm run lint:bloat`, `npm run
   harness:check`, `npm run lint:docs`, `npm run test:scripts`, and
   `git diff --check`.
+- Current local Quick Start cleanup replaces contributor/developer setup labels
+  and advanced local-file wording with plain optional source-code and file
+  location copy. Product-copy sensors now reject the old current phrases in
+  `docs/user/QUICK_START.md`. Focused verification passed: `node --test
+  scripts/check-product-copy.test.mjs` passed 32 tests, targeted search found no
+  old Quick Start phrases, `npm run lint:bloat`, `npm run harness:check`, `npm
+  run lint:docs`, `npm run test:scripts`, and `git diff --check`.
 - No remote CI or push should run unless the user explicitly asks in the current
   turn.
 
@@ -267,6 +274,8 @@ Scope:
 - Ghost-detection feature docs must explain posting-risk guidance in
   job-seeker language and keep developer schema/API details out of the
   user-facing guide.
+- Quick Start must not make normal users parse developer setup labels or
+  advanced local-file wording.
 - Product-copy sensors must reject recurring old phrases.
 
 Verification completed for this slice:
@@ -279,6 +288,7 @@ npm run test:scripts
 npm run lint
 node --test scripts/check-product-copy.test.mjs
 ! rg -n "Technical Details|Signal Weights|Database Schema|API Commands|invoke\\(|ghost_reasons TEXT|ghost_score|repost_count|Ghost configuration commands|get_ghost_config|set_ghost_config|reset_ghost_config" docs/features/ghost-detection.md
+! rg -n "For contributors|Developer Setup|Advanced: where JobSentinel saves local files" docs/user/QUICK_START.md
 npx vitest run src/pages/Settings.test.tsx src/components/ErrorLogPanel.test.tsx
 npx vitest run src/components/ErrorLogPanel.test.tsx
 npx vitest run src/utils/errorReporting.test.ts

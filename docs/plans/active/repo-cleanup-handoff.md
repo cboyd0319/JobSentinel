@@ -64,7 +64,7 @@ Recent remote integration evidence:
   verification passed: `node --test scripts/check-docs-drift.test.mjs` passed
   15 tests, targeted architecture search found no stale credential markers,
   `npm run lint:bloat`, and `npm run harness:check`.
-- Current local ghost-detection feature-doc cleanup removes developer-only schema,
+- Committed local ghost-detection feature-doc cleanup removes developer-only schema,
   signal-weight, and API-command details from the user-facing guide. Product-copy
   sensors now reject those implementation details if they drift back into
   `docs/features/ghost-detection.md`. Focused verification passed: `node --test
@@ -72,6 +72,13 @@ Recent remote integration evidence:
   ghost schema/API terms in that feature doc, `npm run lint:bloat`, `npm run
   harness:check`, `npm run lint:docs`, `npm run test:scripts`, and
   `git diff --check`.
+- Current local Quick Start cleanup replaces contributor/developer setup labels
+  and advanced local-file wording with plain optional source-code and file
+  location copy. Product-copy sensors now reject the old current phrases in
+  `docs/user/QUICK_START.md`. Focused verification passed: `node --test
+  scripts/check-product-copy.test.mjs` passed 32 tests, targeted search found no
+  old Quick Start phrases, `npm run lint:bloat`, `npm run harness:check`, `npm
+  run lint:docs`, `npm run test:scripts`, and `git diff --check`.
 - Current local source-name copy follow-up changes README source coverage,
   source feature docs, public job-source issue template, shared source labels,
   and frontend mocks from `HN Who's Hiring` wording to `Startup and tech job

@@ -1348,7 +1348,9 @@ export function hasTechnicalFirstUserCopy(root, path) {
     const quickStartPatterns = [
       /Assets section/i,
       /For developers:\s*build from source/i,
+      /For contributors/i,
       /Need developer setup/i,
+      /Developer Setup/i,
       /Developers can build locally/i,
       /Node, Rust, and the Tauri/i,
       /npm run tauri:build/i,
@@ -1362,6 +1364,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /Optional:\s*build it yourself/i,
       /developer tools and commands/i,
       /https:\/\/api\.slack\.com\/messaging\/webhooks/i,
+      /Advanced:\s*where JobSentinel saves local files/i,
       /Support file locations/i,
       /%LOCALAPPDATA%\\JobSentinel\\jobs\.db/i,
     ];
