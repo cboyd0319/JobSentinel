@@ -32,7 +32,7 @@ most prominent without asking users to reason about model weights.
 
 The review guide is visible in **Settings > Sources & Alerts**. Most users
 should change job titles, work words, salary floor, location, and company
-preferences before touching advanced scoring configuration.
+preferences before touching extra match settings.
 
 ## Reading a Match
 

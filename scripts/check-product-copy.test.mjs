@@ -1636,8 +1636,9 @@ test("product copy rejects technical-first resume copy", () => {
     writeFixtureFile(
       root,
       "docs/features/resume-builder.md",
-      "Include proficiency levels if you want (expert, intermediate, etc.)\n",
+      "Include proficiency levels if you want (expert, intermediate, etc.)\n**Readability Score**\n**Completeness**\n",
     );
+    writeFixtureFile(root, "docs/features/smart-scoring.md", "advanced scoring configuration\n");
     writeFixtureFile(root, "docs/features/salary-ai.md", "Enter seniority level.\n");
     writeFixtureFile(
       root,
@@ -1662,6 +1663,7 @@ test("product copy rejects technical-first resume copy", () => {
     );
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Salary.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/resume-builder.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/smart-scoring.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/salary-ai.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/ResumeOptimizer.tsx"), true);
   });

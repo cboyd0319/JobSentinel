@@ -108,9 +108,9 @@ specific job post.
 **Job-Post Language** - Which important role terms and evidence are clear in
 your resume, and which ones need truthful support.
 
-**Readability Score** - Single column, standard fonts, and clear sections.
+**Readable format** - Single column, standard fonts, and clear sections.
 
-**Completeness** - Are all important sections filled in?
+**Details included** - Are all important sections filled in?
 
 ### Review Labels
 

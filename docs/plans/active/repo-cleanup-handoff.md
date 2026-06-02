@@ -170,6 +170,10 @@ Current cleanup posture:
   advanced/webhook/native-OS phrasing to connection-link, optional phone-chat,
   desktop-alert, and manual email reference language. Product-copy coverage
   guards the old phrases.
+- Current local resume/scoring docs follow-up changes Readability Score,
+  Completeness, and advanced scoring configuration wording to readable-format,
+  details-included, and extra-match-settings language. Product-copy coverage
+  guards the old phrases.
 - Current local saved-answer recovery follow-up changes Application Assist
   suggested-answer failures from a bare saved-answers message to support-report
   recovery wording, with focused component and product-copy coverage.

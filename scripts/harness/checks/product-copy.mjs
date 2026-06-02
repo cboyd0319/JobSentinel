@@ -1086,7 +1086,11 @@ export function hasTechnicalFirstUserCopy(root, path) {
   }
 
   if (path === "docs/features/resume-builder.md") {
-    return /proficiency levels|expert, intermediate/i.test(text);
+    return /proficiency levels|expert, intermediate|Readability Score|\*\*Completeness\*\*/i.test(text);
+  }
+
+  if (path === "docs/features/smart-scoring.md" && /advanced scoring configuration/i.test(text)) {
+    return true;
   }
 
   if (path === "docs/features/salary-ai.md") {

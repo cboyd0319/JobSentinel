@@ -213,6 +213,10 @@ boundaries, and harness modularity:
 - Changed notification docs from advanced/webhook/native-OS setup wording to
   connection-link, optional phone-chat, desktop-alert, and manual email
   reference language. Product-copy tests guard the old phrases.
+- Changed resume-builder and smart-scoring docs from Readability Score,
+  Completeness, and advanced scoring configuration wording to readable-format,
+  details-included, and extra-match-settings language. Product-copy tests guard
+  the old phrases.
 - Changed Application Assist suggested-answer failure copy from a bare saved
   answers message to support-report recovery wording, with focused component and
   product-copy coverage.

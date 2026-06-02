@@ -43,6 +43,10 @@ and record actionable findings in this active-plan surface.
   advanced/webhook/native-OS phrasing to connection-link, optional phone-chat,
   desktop-alert, and manual email reference language. Product-copy tests guard
   the old phrases.
+- Latest local resume/scoring docs follow-up changes `Readability Score`,
+  `Completeness`, and advanced scoring configuration wording to readable-format,
+  details-included, and extra-match-settings language. Product-copy tests guard
+  the old phrases.
 - Latest local resume-readability follow-up changes score-adjacent labels from
   `Complete`, `Completeness`, `missing`, `issues`, `View Details`, and `Full
   Resume Readability Review` to details, details-included, to-review,
