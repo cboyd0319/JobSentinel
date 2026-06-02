@@ -38,6 +38,11 @@ and record actionable findings in this active-plan surface.
 - Latest local backend verification evidence: `cargo fmt --all -- --check`
   passes, `cargo test --lib` passes 2489 tests with 21 ignored, and
   `cargo clippy -- -D warnings` reports no issues from `src-tauri`.
+- Latest local security/dependency verification evidence: `npm run
+  lint:security`, `npm run lint:architecture`, `npm run lint:external-ai`,
+  `npm run lint:tauri-invokes`, `npm audit --audit-level=moderate`, and
+  `cargo deny check advisories` pass. `cargo audit` exits 0 with the known 19
+  allowed upstream/transitive Rust advisory warnings tracked in `SEC-002`.
 - Latest local E2E smoke follow-up syncs Settings, Hiring Trends, and
   Application Assist Playwright selectors and report names with current
   plain-language UI labels. `npm run doctor:e2e` passes with the known local

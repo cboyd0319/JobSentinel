@@ -1513,3 +1513,8 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 - Current local backend verification evidence: `cargo fmt --all -- --check`
   passes, `cargo test --lib` passes 2489 tests with 21 ignored, and
   `cargo clippy -- -D warnings` reports no issues from `src-tauri`.
+- Current local security/dependency verification evidence: `npm run
+  lint:security`, `npm run lint:architecture`, `npm run lint:external-ai`,
+  `npm run lint:tauri-invokes`, `npm audit --audit-level=moderate`, and
+  `cargo deny check advisories` pass. `cargo audit` exits 0 with the known 19
+  allowed upstream/transitive Rust advisory warnings tracked in `SEC-002`.
