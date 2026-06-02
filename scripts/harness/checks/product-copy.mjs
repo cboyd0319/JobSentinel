@@ -1685,11 +1685,11 @@ export function hasTechnicalFirstUserCopy(root, path) {
   }
 
   if (path === "src-tauri/src/commands/bookmarklet.rs") {
-    return /Allow clipboard access and try again\./i.test(text);
+    return /Allow clipboard access and try again\.|import helper/i.test(text);
   }
 
   if (path === "docs/BOOKMARKLET.md") {
-    return /advanced settings|another port|advanced connection settings|Works best on individual job pages from:[\s\S]{0,260}(?:LinkedIn|Indeed|Glassdoor)|Official ATS job pages|public ATS sources|after restarting JobSentinel|If support asks, open \*\*Connection settings\*\*|local safety code|Debug reports must redact/i.test(
+    return /advanced settings|another port|advanced connection settings|Works best on individual job pages from:[\s\S]{0,260}(?:LinkedIn|Indeed|Glassdoor)|Official ATS job pages|public ATS sources|after restarting JobSentinel|If support asks, open \*\*Connection settings\*\*|local safety code|Debug reports must redact|import helper/i.test(
       text,
     );
   }

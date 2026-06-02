@@ -164,6 +164,12 @@ As of 2026-06-02, the active plan remains open. Latest local work improved
 visible zero-technical UX, broad-audience defaults, privacy/security
 boundaries, and harness modularity:
 
+- Current local Browser Import doc/code follow-up removes remaining
+  user-visible `import helper` wording from the Browser Import guide and the
+  generated browser-button failure alert, and adds Rust plus product-copy
+  coverage. Focused product-copy, Rust bookmarklet, Rust fmt, and targeted
+  stale-phrase verification passed. Broader bloat, docs, script, lint, and
+  diff-check verification passed.
 - Changed Settings, Quick Start, and notification docs away from technical-first
   email setup wording toward email-service and encrypted sending language.
   Focused Settings, product-copy, search, script, bloat, harness, docs, lint, and
@@ -889,6 +895,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-06-02 | In progress | Removed remaining user-visible `import helper` wording from the Browser Import guide and generated browser-button alert. Product-copy sensors now reject the stale phrase in docs, UI, and generated Rust code; focused Rust bookmarklet, formatter, bloat, docs, script, lint, and diff-check verification passed. |
 | 2026-06-02 | In progress | Replaced Job Source Status feed, page-read, and not-needed labels with public-job-list, reads-job-details, and official-source wording. Focused source-status, product-copy, search, script, docs, bloat, and lint verification passed. |
 | 2026-06-02 | In progress | Replaced Browser Button helper and advanced-setting wording with browser-import and optional setup copy. Focused Browser Button, product-copy, search, script, docs, bloat, and lint verification passed. |
 | 2026-06-02 | In progress | Replaced Settings source-toggle `automatic checks` wording with scheduled-job-check copy in source guidance and checkbox accessible names. Focused Settings, product-copy, search, script, docs, bloat, and lint verification passed. |

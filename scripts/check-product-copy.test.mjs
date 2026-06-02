@@ -1336,7 +1336,12 @@ test("product copy rejects support troubleshooting jargon", () => {
     writeFixtureFile(
       root,
       "src-tauri/src/commands/bookmarklet.rs",
-      '"Could not copy browser button. Allow clipboard access and try again.".to_string()',
+      '"Could not copy browser button. Allow clipboard access and try again.".to_string()\nalert("Turn on the import helper in Settings.")',
+    );
+    writeFixtureFile(
+      root,
+      "docs/BOOKMARKLET.md",
+      "Turn on the import helper.\nPrefer import helper in user-facing copy.\n",
     );
     writeFixtureFile(
       root,

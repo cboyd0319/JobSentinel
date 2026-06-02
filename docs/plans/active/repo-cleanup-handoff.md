@@ -170,6 +170,14 @@ Recent remote integration evidence:
   scripts/check-product-copy.test.mjs` passed 33 tests, targeted component
   search found no stale labels, `npm run lint:bloat`, `npm run lint:docs`,
   `npm run test:scripts` passed 458 script tests, and `npm run lint` passed.
+- Current local Browser Import doc/code cleanup removes remaining user-visible
+  `import helper` wording from `docs/BOOKMARKLET.md` and the generated
+  browser-button failure alert. Product-copy sensors now reject the stale phrase
+  in docs, UI, and generated Rust code. Focused verification passed:
+  `node --test scripts/check-product-copy.test.mjs`, `cargo test --lib
+  bookmarklet`, `cargo fmt --all -- --check`, and targeted stale-phrase search.
+  Broader verification passed: `npm run lint:bloat`, `npm run lint:docs`,
+  `npm run test:scripts`, `npm run lint`, and `git diff --check`.
 - Current local source-name copy follow-up changes README source coverage,
   source feature docs, public job-source issue template, shared source labels,
   and frontend mocks from `HN Who's Hiring` wording to `Startup and tech job

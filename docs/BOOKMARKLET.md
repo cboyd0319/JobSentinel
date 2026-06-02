@@ -24,7 +24,7 @@ Use the browser import button when:
 
 1. Open JobSentinel Settings.
 2. Find **Install Browser Button**.
-3. Turn on the import helper.
+3. Turn on **Browser Import**.
 4. Click **Copy Browser Button**.
 5. Create a new browser bookmark.
 6. Name it **Import to JobSentinel**.
@@ -63,7 +63,7 @@ JobSentinel's search link or add the job manually when import does not work.
 ### Cannot Connect To JobSentinel
 
 - Make sure JobSentinel is open.
-- Turn on the import helper in Settings.
+- Turn on **Browser Import** in Settings.
 - Open **Connection settings** only when JobSentinel shows that step.
 - Copy the browser button again if you already saved a job, restarted
   JobSentinel, or waited about one hour.
@@ -107,7 +107,7 @@ interface should keep technical details hidden:
 - Do not expose the private one-use browser button detail.
 - Keep copied browser-button codes one-use, short-lived, and session-scoped.
 - Activate a refreshed safety code only after the browser button is copied.
-- Prefer "browser import button", "import helper", and "connection settings"
+- Prefer "browser import button", "Browser Import", and "connection settings"
   in user-facing copy.
 - Keep lower-level implementation details in developer docs or code comments,
   not in the user setup path.

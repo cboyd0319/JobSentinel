@@ -34,6 +34,16 @@ actionable findings in this active-plan surface or the relevant plan.
 - Branch has multiple local commits ahead of `origin/main`. Use
   `git status --short --branch` for live evidence before committing, pushing,
   or reporting remote state.
+- Current local Browser Import doc/code follow-up removes remaining
+  user-visible `import helper` wording from `docs/BOOKMARKLET.md` and the
+  generated browser-button failure alert, then adds Rust and product-copy
+  coverage against drift. Focused verification passed: `node --test
+  scripts/check-product-copy.test.mjs`, `cargo test --lib bookmarklet`,
+  `cargo fmt --all -- --check`, and targeted search found no user-visible
+  stale helper phrases in the Browser Import doc, UI, or generated alert.
+  Broader local checks also passed: `npm run lint:bloat`,
+  `npm run lint:docs`, `npm run test:scripts`, `npm run lint`, and
+  `git diff --check`.
 - Latest committed frontend verification evidence: `npm run test:run` passed
   110 Vitest files and 2637 tests, `npm run build` passed in 4.13 seconds, and
   `npm run test:scripts` passed 454 script tests.

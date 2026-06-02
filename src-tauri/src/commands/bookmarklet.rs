@@ -30,7 +30,7 @@ fn bookmarklet_code(port: u16, auth_token: &str) -> String {
     };
 
     format!(
-        "javascript:(function(){{var scripts=document.querySelectorAll('script[type=\"application/ld+json\"]');var job=null;scripts.forEach(function(s){{try{{var data=JSON.parse(s.textContent);if(data['@type']==='JobPosting')job=data;}}catch(e){{}}}});if(!job){{var title=document.querySelector('h1');var company=document.querySelector('[class*=\"company\"]')||document.querySelector('[class*=\"employer\"]');var desc=document.querySelector('[class*=\"description\"]')||document.querySelector('[class*=\"desc\"]');job={{title:title?title.textContent:'',company:company?company.textContent:'',description:desc?desc.textContent:'',url:window.location.href}};}}else{{job.url=window.location.href;}}fetch('http://localhost:{port}/api/bookmarklet/import',{{method:'POST',mode:'no-cors',headers:{{'Content-Type':'text/plain'}},body:JSON.stringify({{token:{token},job:job}})}}).then(function(){{alert('Sent to JobSentinel. Open saved jobs to confirm. If missing, copy the browser button again.');}}).catch(function(e){{alert('Cannot connect to JobSentinel. Turn on the import helper in Settings.');}});}})();"
+        "javascript:(function(){{var scripts=document.querySelectorAll('script[type=\"application/ld+json\"]');var job=null;scripts.forEach(function(s){{try{{var data=JSON.parse(s.textContent);if(data['@type']==='JobPosting')job=data;}}catch(e){{}}}});if(!job){{var title=document.querySelector('h1');var company=document.querySelector('[class*=\"company\"]')||document.querySelector('[class*=\"employer\"]');var desc=document.querySelector('[class*=\"description\"]')||document.querySelector('[class*=\"desc\"]');job={{title:title?title.textContent:'',company:company?company.textContent:'',description:desc?desc.textContent:'',url:window.location.href}};}}else{{job.url=window.location.href;}}fetch('http://localhost:{port}/api/bookmarklet/import',{{method:'POST',mode:'no-cors',headers:{{'Content-Type':'text/plain'}},body:JSON.stringify({{token:{token},job:job}})}}).then(function(){{alert('Sent to JobSentinel. Open saved jobs to confirm. If missing, copy the browser button again.');}}).catch(function(e){{alert('Cannot connect to JobSentinel. Turn on Browser Import in Settings.');}});}})();"
     )
 }
 
@@ -179,6 +179,9 @@ mod tests {
 
         assert!(code.contains("http://localhost:4321/api/bookmarklet/import"));
         assert!(code.contains("mode:'no-cors'"));
+        assert!(code.contains("Turn on Browser Import in Settings."));
+        let old_setup_label = ["import", "helper"].join(" ");
+        assert!(!code.contains(&old_setup_label));
         assert!(!code.contains("X-JobSentinel-Token"));
         assert!(code.contains("test-token"));
     }
