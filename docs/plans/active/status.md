@@ -289,6 +289,14 @@ actionable findings in this active-plan surface or the relevant plan.
   search found no stale labels, `npm run lint:bloat`, `npm run lint:docs`,
   `npm run test:scripts` passed 458 script tests, `npm run lint`,
   `npm run harness:check`, and `git diff --check` passed.
+- Committed local Settings source-toggle copy cleanup replaces remaining
+  `automatic checks` wording with scheduled-job-check wording so accessible
+  source controls stay clear and non-automation-framed. Focused verification
+  passed: `npx vitest run src/pages/Settings.test.tsx` passed 38 tests,
+  `node --test scripts/check-product-copy.test.mjs` passed 33 tests,
+  targeted Settings search found no stale phrase, `npm run lint:bloat`,
+  `npm run lint:docs`, `npm run test:scripts` passed 458 script tests, and
+  `npm run lint` passed.
 - No remote CI or push should run unless the user explicitly asks in the current
   turn.
 

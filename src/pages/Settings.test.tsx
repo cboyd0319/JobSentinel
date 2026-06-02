@@ -1296,7 +1296,7 @@ describe("Settings — handleSave flow", () => {
       screen.queryByText(/Greenhouse, Lever, and other popular job boards/i),
     ).not.toBeInTheDocument();
     expect(
-      screen.getByRole("checkbox", { name: /Turn Remote OK automatic checks on or off/i }),
+      screen.getByRole("checkbox", { name: /Turn Remote OK scheduled job checks on or off/i }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("checkbox", { name: /Turn startup and tech hiring post checks on or off/i }),
@@ -1327,7 +1327,7 @@ describe("Settings — handleSave flow", () => {
     expect(screen.getByText(/Optional USAJobs scheduled checks/i)).toBeInTheDocument();
     expect(screen.getByText(/Skip this if you only want to open USAJobs/i)).toBeInTheDocument();
     expect(
-      screen.getByRole("checkbox", { name: /Turn USAJobs automatic checks on or off/i }),
+      screen.getByRole("checkbox", { name: /Turn USAJobs scheduled job checks on or off/i }),
     ).toBeInTheDocument();
     expect(
       screen.getByText(/JobSentinel contacts USAJobs on your schedule/i),
@@ -1342,6 +1342,10 @@ describe("Settings — handleSave flow", () => {
     expect(screen.queryByText("Posted within:")).not.toBeInTheDocument();
     expect(screen.queryByText("Max results:")).not.toBeInTheDocument();
     expect(screen.queryByText(/Optional USAJobs auto-check/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/automatic checks/i)).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("checkbox", { name: /automatic checks/i }),
+    ).not.toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: /Open USAJobs search in your browser/i }),
     ).toHaveAttribute("href", "https://www.usajobs.gov/Search/Results");

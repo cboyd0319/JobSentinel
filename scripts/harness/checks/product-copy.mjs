@@ -1129,6 +1129,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /Use this only if your provider gives you manual email details/i,
       /automatic monitoring/i,
       /Advanced federal monitoring/i,
+      /\bautomatic checks\b/i,
       /Advanced chat alert/i,
       /\(Tech hubs\)/i,
       /HN Who's Hiring/i,

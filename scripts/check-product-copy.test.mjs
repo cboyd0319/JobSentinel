@@ -783,7 +783,7 @@ test("product copy rejects technical-first settings copy", () => {
     writeFixtureFile(
       root,
       "src/pages/Settings.tsx",
-      'Basic Settings\nMore Settings\nTurn this on to never miss a new posting.\nAuto-scan job boards\nCompany preference (if configured)\nEmail provider details\nProvider address\nProvider number\nUse this only if your provider gives you manual email details\nOptional USAJobs auto-check\nAutomatic USAJobs checks contact USAJobs\nSave failed\nTest failed\nsaved connection detail(s) failed to save\nRestart JobSentinel\nTroubleshooting\n<HelpIcon text="If something is not working, these details can help explain what happened." />\nHacker News Who\'s Hiring\nTurn Hacker News hiring post checks on or off\n',
+      'Basic Settings\nMore Settings\nTurn this on to never miss a new posting.\nAuto-scan job boards\nCompany preference (if configured)\nEmail provider details\nProvider address\nProvider number\nUse this only if your provider gives you manual email details\nOptional USAJobs auto-check\nAutomatic USAJobs checks contact USAJobs\nTurn Remote OK automatic checks on or off\nSave failed\nTest failed\nsaved connection detail(s) failed to save\nRestart JobSentinel\nTroubleshooting\n<HelpIcon text="If something is not working, these details can help explain what happened." />\nHacker News Who\'s Hiring\nTurn Hacker News hiring post checks on or off\n',
     );
     writeFixtureFile(
       root,

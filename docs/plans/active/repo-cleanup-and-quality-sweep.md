@@ -228,6 +228,13 @@ boundaries, and harness modularity:
   search found no stale labels, `npm run lint:bloat`, `npm run lint:docs`,
   `npm run test:scripts` passed 458 script tests, `npm run lint`,
   `npm run harness:check`, and `git diff --check` passed.
+- Committed local Settings source-toggle copy follow-up replaces remaining
+  `automatic checks` wording with scheduled-job-check wording in source
+  guidance and checkbox accessible names. Focused verification passed:
+  `npx vitest run src/pages/Settings.test.tsx` passed 38 tests, `node --test
+  scripts/check-product-copy.test.mjs` passed 33 tests, targeted Settings
+  search found no stale phrase, `npm run lint:bloat`, `npm run lint:docs`,
+  `npm run test:scripts` passed 458 script tests, and `npm run lint` passed.
 - Changed generated support-report labels from support-only wording to safe app
   details and added product-copy coverage against those labels returning.
 - Changed the detailed local report tooltip from maintainer wording to plain
@@ -866,6 +873,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-06-02 | In progress | Replaced Settings source-toggle `automatic checks` wording with scheduled-job-check copy in source guidance and checkbox accessible names. Focused Settings, product-copy, search, script, docs, bloat, and lint verification passed. |
 | 2026-06-02 | In progress | Replaced Application Profile `Marked Sent` and `Ready to Send` stats with user-action wording so Application Assist does not imply JobSentinel sends applications. Focused page, product-copy, search, script, docs, lint, harness, and diff-check verification passed. |
 | 2026-06-02 | In progress | Replaced technical question-match validation copy with plain question-word guidance. Product-copy sensors now reject the old unsupported-pattern-symbol wording if it drifts back. |
 | 2026-06-02 | In progress | Replaced remaining GitHub-first online help copy in the safe support report submit and success screens with optional online-help wording. Product-copy sensors now reject those feedback phrases if they drift back. |

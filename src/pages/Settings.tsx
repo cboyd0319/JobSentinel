@@ -3199,9 +3199,9 @@ export default function Settings({ onClose }: SettingsProps) {
                       open LinkedIn yourself.
                     </p>
                     <p className="text-xs text-surface-500 dark:text-surface-400">
-                      For automatic checks, prefer official company pages and
-                      public company application pages such as Greenhouse, Lever,
-                      Ashby, SmartRecruiters, and USAJobs.
+                      For scheduled job checks, prefer official company pages
+                      and public company application pages such as Greenhouse,
+                      Lever, Ashby, SmartRecruiters, and USAJobs.
                     </p>
                   </div>
                 </div>
@@ -3221,7 +3221,7 @@ export default function Settings({ onClose }: SettingsProps) {
                     <label className="relative inline-flex items-center cursor-pointer">
                       <input
                         type="checkbox"
-                        aria-label="Turn USAJobs automatic checks on or off"
+                        aria-label="Turn USAJobs scheduled job checks on or off"
                         checked={config.usajobs?.enabled ?? false}
                         onChange={(e) =>
                           setConfig({
@@ -3659,7 +3659,7 @@ export default function Settings({ onClose }: SettingsProps) {
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input
                             type="checkbox"
-                            aria-label="Turn Remote OK automatic checks on or off"
+                            aria-label="Turn Remote OK scheduled job checks on or off"
                             checked={config.remoteok?.enabled ?? false}
                             onChange={(e) =>
                               setConfig({
@@ -3694,7 +3694,7 @@ export default function Settings({ onClose }: SettingsProps) {
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input
                             type="checkbox"
-                            aria-label="Turn We Work Remotely automatic checks on or off"
+                            aria-label="Turn We Work Remotely scheduled job checks on or off"
                             checked={config.weworkremotely?.enabled ?? false}
                             onChange={(e) =>
                               setConfig({
@@ -3728,7 +3728,7 @@ export default function Settings({ onClose }: SettingsProps) {
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input
                             type="checkbox"
-                            aria-label="Turn BuiltIn automatic checks on or off"
+                            aria-label="Turn BuiltIn scheduled job checks on or off"
                             checked={config.builtin?.enabled ?? false}
                             onChange={(e) =>
                               setConfig({
@@ -3799,7 +3799,7 @@ export default function Settings({ onClose }: SettingsProps) {
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input
                             type="checkbox"
-                            aria-label="Turn Dice automatic checks on or off"
+                            aria-label="Turn Dice scheduled job checks on or off"
                             checked={config.dice?.enabled ?? false}
                             onChange={(e) =>
                               setConfig({
@@ -3834,7 +3834,7 @@ export default function Settings({ onClose }: SettingsProps) {
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input
                             type="checkbox"
-                            aria-label="Turn YC Startup automatic checks on or off"
+                            aria-label="Turn YC Startup scheduled job checks on or off"
                             checked={config.yc_startup?.enabled ?? false}
                             onChange={(e) =>
                               setConfig({
@@ -3870,7 +3870,7 @@ export default function Settings({ onClose }: SettingsProps) {
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input
                             type="checkbox"
-                            aria-label="Turn SimplyHired automatic checks on or off"
+                            aria-label="Turn SimplyHired scheduled job checks on or off"
                             checked={config.simplyhired?.enabled ?? false}
                             onChange={(e) =>
                               setConfig({
@@ -3915,7 +3915,7 @@ export default function Settings({ onClose }: SettingsProps) {
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input
                             type="checkbox"
-                            aria-label="Turn Glassdoor automatic checks on or off"
+                            aria-label="Turn Glassdoor scheduled job checks on or off"
                             checked={config.glassdoor?.enabled ?? false}
                             onChange={(e) =>
                               setConfig({

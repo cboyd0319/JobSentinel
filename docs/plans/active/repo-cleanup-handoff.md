@@ -147,6 +147,13 @@ Recent remote integration evidence:
   search found no stale labels, `npm run lint:bloat`, `npm run lint:docs`,
   `npm run test:scripts` passed 458 script tests, `npm run lint`,
   `npm run harness:check`, and `git diff --check` passed.
+- Committed local Settings source-toggle copy cleanup replaces remaining
+  `automatic checks` wording with scheduled-job-check wording in source
+  guidance and checkbox accessible names. Focused verification passed:
+  `npx vitest run src/pages/Settings.test.tsx` passed 38 tests, `node --test
+  scripts/check-product-copy.test.mjs` passed 33 tests, targeted Settings
+  search found no stale phrase, `npm run lint:bloat`, `npm run lint:docs`,
+  `npm run test:scripts` passed 458 script tests, and `npm run lint` passed.
 - Current local source-name copy follow-up changes README source coverage,
   source feature docs, public job-source issue template, shared source labels,
   and frontend mocks from `HN Who's Hiring` wording to `Startup and tech job
