@@ -1211,6 +1211,41 @@ async fn test_get_match_result_with_all_scores() {
 }
 
 #[tokio::test]
+async fn test_recent_matches_include_all_sub_scores() {
+    let pool = setup_test_db().await;
+    let matcher = ResumeMatcher::new(pool.clone());
+
+    let resume_id = create_test_resume(&pool, "Resume", "Python").await;
+    let job_hash = "job_recent_scores";
+    create_test_job(&pool, job_hash, "Care Coordinator", "Python").await;
+
+    matcher
+        .match_resume_to_job(resume_id, job_hash)
+        .await
+        .unwrap();
+
+    sqlx::query(
+        r#"
+        UPDATE resume_job_matches
+        SET experience_match_score = ?, education_match_score = ?
+        WHERE resume_id = ? AND job_hash = ?
+        "#,
+    )
+    .bind(0.8)
+    .bind(0.75)
+    .bind(resume_id)
+    .bind(job_hash)
+    .execute(&pool)
+    .await
+    .unwrap();
+
+    let matches = matcher.get_recent_matches(resume_id, 10).await.unwrap();
+    assert_eq!(matches.len(), 1);
+    assert_eq!(matches[0].experience_match_score, Some(0.8));
+    assert_eq!(matches[0].education_match_score, Some(0.75));
+}
+
+#[tokio::test]
 async fn test_boundary_values_for_scores() {
     let pool = setup_test_db().await;
     let matcher = ResumeMatcher::new(pool.clone());

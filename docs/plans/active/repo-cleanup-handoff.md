@@ -280,6 +280,19 @@ Recent local verification evidence:
   scripts/check-repo-bloat.test.mjs` passed 265 tests, `npm run lint:docs`,
   `npm run lint:bloat`, `npm run lint:architecture`, `npm run test:scripts`
   passed 503 tests, and `git diff --check`.
+- Current local resume recent-match contract fix returns skills, experience,
+  and education sub-scores from the backend `get_recent_matches` path and makes
+  the Resume page treat recent-match sub-scores as optional, so older or partial
+  payloads do not render invalid `NaN%` fit details. Verification passed:
+  `npx vitest run src/pages/Resume.test.tsx` passed 6 tests, `npm run lint`,
+  `cargo fmt --all -- --check`,
+  `cargo test --lib recent_matches_include_all_sub_scores`,
+  `cargo test --lib get_match_result_with_all_scores`,
+  `cargo test --lib resume` passed 171 tests, `cargo clippy -- -D warnings`,
+  `npm run test:run` passed 2627 tests, `npm run build`, and `npm run
+  test:scripts` passed 503 tests. Follow-up repo checks passed: `npm run
+  lint:docs`, `npm run lint:bloat`, `npm run harness:check`, and
+  `git diff --check`.
 - Current local resume suggestion follow-up replaces backend and mock
   suggestion impact values like `High` and `Medium` with concrete, review-first
   user guidance, changes bullet suggestions from command-style action-verb copy

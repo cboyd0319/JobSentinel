@@ -406,6 +406,7 @@ impl ResumeMatcher {
         let rows = sqlx::query(
             r#"
             SELECT m.id, m.resume_id, m.job_hash, m.overall_match_score, m.skills_match_score,
+                   m.experience_match_score, m.education_match_score,
                    m.missing_skills, m.matching_skills, m.gap_analysis, m.created_at,
                    j.title as job_title, j.company
             FROM resume_job_matches m
@@ -452,6 +453,8 @@ impl ResumeMatcher {
                     .unwrap_or_else(|| "Unknown Company".to_string()),
                 overall_match_score: r.try_get::<f64, _>("overall_match_score")?,
                 skills_match_score: r.try_get::<Option<f64>, _>("skills_match_score")?,
+                experience_match_score: r.try_get::<Option<f64>, _>("experience_match_score")?,
+                education_match_score: r.try_get::<Option<f64>, _>("education_match_score")?,
                 missing_skills: serde_json::from_str(&missing_skills_str)?,
                 matching_skills: serde_json::from_str(&matching_skills_str)?,
                 gap_analysis: r.try_get::<Option<String>, _>("gap_analysis")?,

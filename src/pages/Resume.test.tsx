@@ -118,6 +118,56 @@ describe("Resume page", () => {
     expect(screen.queryByText(/skills extracted|extract skills automatically/i)).not.toBeInTheDocument();
   });
 
+  it("does not show invalid percentages when recent matches omit optional sub-scores", async () => {
+    mockSafeInvoke.mockImplementation((command: string) => {
+      switch (command) {
+        case "get_active_resume":
+          return Promise.resolve({
+            id: 1,
+            name: "Care Coordinator Resume",
+            is_active: true,
+            created_at: "2026-05-21T12:00:00Z",
+            updated_at: "2026-05-21T12:00:00Z",
+          });
+        case "list_all_resumes":
+          return Promise.resolve([]);
+        case "get_user_skills":
+          return Promise.resolve([]);
+        case "get_recent_matches":
+          return Promise.resolve([
+            {
+              id: 10,
+              resume_id: 1,
+              job_hash: "job-hash",
+              job_title: "Care Coordinator",
+              company: "Community Health Partners",
+              overall_match_score: 0.82,
+              skills_match_score: 0.75,
+              matching_skills: ["Scheduling"],
+              missing_skills: ["Case Management"],
+              gap_analysis: null,
+              created_at: "2026-05-21T12:00:00Z",
+            },
+          ]);
+        default:
+          return Promise.resolve(null);
+      }
+    });
+
+    render(<Resume onBack={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Care Coordinator")).toBeInTheDocument();
+    });
+
+    expect(screen.getByText("Fit Details")).toBeInTheDocument();
+    expect(screen.getByText("Skills fit")).toBeInTheDocument();
+    expect(screen.getByText("75%")).toBeInTheDocument();
+    expect(screen.queryByText("Experience fit")).not.toBeInTheDocument();
+    expect(screen.queryByText("Education fit")).not.toBeInTheDocument();
+    expect(screen.queryByText("NaN%")).not.toBeInTheDocument();
+  });
+
   it("labels saved skill source instead of showing raw confidence percentages", async () => {
     mockSafeInvoke.mockImplementation((command: string) => {
       switch (command) {

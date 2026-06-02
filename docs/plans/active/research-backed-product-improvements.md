@@ -44,6 +44,10 @@ narrow implementation slices chosen from that backlog.
   `ResumeMatchScoreBreakdown` component and test. Current Resume Match detail
   rendering lives in `src/pages/Resume.tsx`, `src/pages/ResumeOptimizer.tsx`,
   and the Resume Builder live review panel.
+- Latest local resume recent-match contract follow-up returns all backend
+  sub-scores for recent Resume Match results and makes the Resume page guard
+  optional sub-scores before display, preventing partial payloads from showing
+  invalid percentages.
 
 ## Source files
 

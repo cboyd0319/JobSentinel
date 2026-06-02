@@ -125,6 +125,8 @@ pub struct MatchResultWithJob {
     pub company: String,
     pub overall_match_score: f64,
     pub skills_match_score: Option<f64>,
+    pub experience_match_score: Option<f64>,
+    pub education_match_score: Option<f64>,
     pub missing_skills: Vec<String>,
     pub matching_skills: Vec<String>,
     pub gap_analysis: Option<String>,

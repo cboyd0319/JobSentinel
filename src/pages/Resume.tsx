@@ -108,13 +108,17 @@ interface MatchResult {
   job_title: string;
   company: string;
   overall_match_score: number;
-  skills_match_score: number | null;
-  experience_match_score: number | null;
-  education_match_score: number | null;
+  skills_match_score?: number | null;
+  experience_match_score?: number | null;
+  education_match_score?: number | null;
   matching_skills: string[];
   missing_skills: string[];
   gap_analysis: string | null;
   created_at: string;
+}
+
+function isScoreFraction(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value);
 }
 
 function ScoreBreakdownRow({
@@ -969,58 +973,67 @@ export default function Resume({ onBack }: ResumeProps) {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {recentMatches.map((match) => (
-                    <div
-                      key={match.job_hash}
-                      className="p-4 border border-surface-200 dark:border-surface-700 rounded-lg hover:border-surface-300 dark:hover:border-surface-600 transition-colors"
-                    >
-                      <div className="flex items-start justify-between mb-3">
-                        <div>
-                          <h3 className="font-medium text-surface-800 dark:text-surface-200">
-                            {match.job_title}
-                          </h3>
-                          <p className="text-sm text-surface-500 dark:text-surface-400">
-                            {match.company}
-                          </p>
-                        </div>
-                        <ScoreDisplay score={match.overall_match_score} size="sm" />
-                      </div>
+                  {recentMatches.map((match) => {
+                    const skillsScore = isScoreFraction(match.skills_match_score)
+                      ? match.skills_match_score
+                      : null;
+                    const experienceScore = isScoreFraction(match.experience_match_score)
+                      ? match.experience_match_score
+                      : null;
+                    const educationScore = isScoreFraction(match.education_match_score)
+                      ? match.education_match_score
+                      : null;
 
-                      {/* Fit details */}
-                      {(match.skills_match_score !== null ||
-                        match.experience_match_score !== null ||
-                        match.education_match_score !== null) && (
-                        <div className="mb-4 p-3 bg-surface-50 dark:bg-surface-700 rounded-lg">
-                          <p className="text-xs font-medium text-surface-600 dark:text-surface-400 mb-2">
-                            Fit Details
-                          </p>
-                          <div className="space-y-2">
-                            {match.skills_match_score !== null && (
-                              <ScoreBreakdownRow
-                                label="Skills fit"
-                                score={match.skills_match_score}
-                                barClassName="bg-sentinel-500"
-                              />
-                            )}
-                            {match.experience_match_score !== null && (
-                              <ScoreBreakdownRow
-                                label="Experience fit"
-                                score={match.experience_match_score}
-                                barClassName="bg-alert-500"
-                              />
-                            )}
-                            {match.education_match_score !== null && (
-                              <ScoreBreakdownRow
-                                label="Education fit"
-                                score={match.education_match_score}
-                                barClassName="bg-blue-500"
-                              />
-                            )}
+                    return (
+                      <div
+                        key={match.job_hash}
+                        className="p-4 border border-surface-200 dark:border-surface-700 rounded-lg hover:border-surface-300 dark:hover:border-surface-600 transition-colors"
+                      >
+                        <div className="flex items-start justify-between mb-3">
+                          <div>
+                            <h3 className="font-medium text-surface-800 dark:text-surface-200">
+                              {match.job_title}
+                            </h3>
+                            <p className="text-sm text-surface-500 dark:text-surface-400">
+                              {match.company}
+                            </p>
                           </div>
+                          <ScoreDisplay score={match.overall_match_score} size="sm" />
                         </div>
-                      )}
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Fit details */}
+                        {(skillsScore !== null || experienceScore !== null || educationScore !== null) && (
+                          <div className="mb-4 p-3 bg-surface-50 dark:bg-surface-700 rounded-lg">
+                            <p className="text-xs font-medium text-surface-600 dark:text-surface-400 mb-2">
+                              Fit Details
+                            </p>
+                            <div className="space-y-2">
+                              {skillsScore !== null && (
+                                <ScoreBreakdownRow
+                                  label="Skills fit"
+                                  score={skillsScore}
+                                  barClassName="bg-sentinel-500"
+                                />
+                              )}
+                              {experienceScore !== null && (
+                                <ScoreBreakdownRow
+                                  label="Experience fit"
+                                  score={experienceScore}
+                                  barClassName="bg-alert-500"
+                                />
+                              )}
+                              {educationScore !== null && (
+                                <ScoreBreakdownRow
+                                  label="Education fit"
+                                  score={educationScore}
+                                  barClassName="bg-blue-500"
+                                />
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <p className="text-xs font-medium text-green-600 dark:text-green-400 mb-2 flex items-center gap-1">
                             <CheckIcon className="w-3.5 h-3.5" />
@@ -1102,7 +1115,8 @@ export default function Resume({ onBack }: ResumeProps) {
                         </div>
                       )}
                     </div>
-                  ))}
+                  );
+                })}
                 </div>
               )}
             </Card>
