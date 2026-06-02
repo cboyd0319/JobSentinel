@@ -165,7 +165,18 @@ describe("LocationHeatmap", () => {
 
       expect(screen.getByText("Total Jobs")).toBeInTheDocument();
       expect(screen.getByText("Median Salary")).toBeInTheDocument();
-      expect(screen.getByText("Remote %")).toBeInTheDocument();
+      expect(screen.getByText("Remote jobs")).toBeInTheDocument();
+      expect(screen.queryByText("Remote %")).not.toBeInTheDocument();
+    });
+
+    it("uses cautious location comparison legend copy", () => {
+      render(<LocationHeatmap locations={defaultLocations} />);
+
+      expect(screen.getByText("Compared with other saved locations:")).toBeInTheDocument();
+      expect(screen.queryByText("Job Density:")).not.toBeInTheDocument();
+      expect(
+        screen.getByRole("img", { name: "Saved location comparison legend" }),
+      ).toBeInTheDocument();
     });
 
     it("displays selected location job count in details", () => {
@@ -269,7 +280,9 @@ describe("LocationHeatmap", () => {
     it("renders legend", () => {
       render(<LocationHeatmap locations={defaultLocations} />);
 
-      expect(screen.getByRole("img", { name: /Job density legend/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole("img", { name: /Saved location comparison legend/i }),
+      ).toBeInTheDocument();
     });
 
     it("shows all density levels", () => {

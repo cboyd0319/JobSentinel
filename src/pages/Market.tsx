@@ -499,13 +499,13 @@ export default function Market({ onBack }: MarketProps) {
                           Jobs Posted
                         </th>
                         <th className="text-right py-3 px-4 font-medium text-surface-500 dark:text-surface-400">
-                          Avg Active
+                          Average Open Roles
                         </th>
                         <th className="text-right py-3 px-4 font-medium text-surface-500 dark:text-surface-400">
                           Avg Salary
                         </th>
                         <th className="text-right py-3 px-4 font-medium text-surface-500 dark:text-surface-400">
-                          Growth
+                          Change in Local Sample
                         </th>
                       </tr>
                     </thead>

@@ -143,7 +143,7 @@ export const LocationHeatmap = memo(function LocationHeatmap({ locations, loadin
               </p>
             </div>
             <div>
-              <p className="text-surface-500 dark:text-surface-400">Remote %</p>
+              <p className="text-surface-500 dark:text-surface-400">Remote jobs</p>
               <p className="font-medium text-surface-900 dark:text-white">
                 {selectedLocation.remote_percent.toFixed(1)}%
               </p>
@@ -153,8 +153,8 @@ export const LocationHeatmap = memo(function LocationHeatmap({ locations, loadin
       )}
 
       {/* Legend */}
-      <div className="flex items-center gap-4 mt-4 pt-4 border-t border-surface-200 dark:border-surface-700 text-xs text-surface-500 dark:text-surface-400" role="img" aria-label="Job density legend">
-        <span>Job Density:</span>
+      <div className="flex items-center gap-4 mt-4 pt-4 border-t border-surface-200 dark:border-surface-700 text-xs text-surface-500 dark:text-surface-400" role="img" aria-label="Saved location comparison legend">
+        <span>Compared with other saved locations:</span>
         <div className="flex items-center gap-1">
           <div className="w-4 h-4 rounded bg-surface-100 dark:bg-surface-800 border border-surface-300" />
           <span>Low</span>
