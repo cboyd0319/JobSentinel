@@ -40,6 +40,10 @@ narrow implementation slices chosen from that backlog.
 - Latest local Resume Match mock-contract follow-up keeps dev/browser mock
   match results on the same `0.0` to `1.0` fraction scale as the real backend,
   preventing mock-only inflated percentages in resume assistance views.
+- Latest local resume surface cleanup removes the unused
+  `ResumeMatchScoreBreakdown` component and test. Current Resume Match detail
+  rendering lives in `src/pages/Resume.tsx`, `src/pages/ResumeOptimizer.tsx`,
+  and the Resume Builder live review panel.
 
 ## Source files
 
@@ -491,7 +495,7 @@ Likely files later:
 - `src/pages/ResumeBuilder.tsx`
 - `src/pages/ResumeOptimizer.tsx`
 - `src/components/resume-builder/steps/*`
-- `src/components/ResumeMatchScoreBreakdown.tsx`
+- `src/components/AtsLiveScorePanel.tsx`
 - `src-tauri/src/core/resume/parser.rs`
 - `src-tauri/src/core/resume/ats_analyzer.rs`
 - `src-tauri/src/core/resume/export.rs`

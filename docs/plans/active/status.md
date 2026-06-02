@@ -282,6 +282,16 @@ unreviewed form sending.
   `npm run lint`, `npm run lint:bloat`, `npm run test:run` passed 2658
   tests, `npm run build`, `npm run lint:docs`, `npm run test:scripts` passed
   503 tests, and `git diff --check`.
+- Current local resume surface cleanup removes the obsolete
+  `ResumeMatchScoreBreakdown` component and its standalone test because no
+  runtime source imported it and it still carried stale result-percentage copy.
+  Live Resume Match detail rendering now stays in `src/pages/Resume.tsx`,
+  `src/pages/ResumeOptimizer.tsx`, and `src/components/AtsLiveScorePanel.tsx`.
+  Verification passed: `npm run lint`, `npm run test:run` passed 2626 tests,
+  `npm run build`, `node --test scripts/check-product-copy.test.mjs
+  scripts/check-repo-bloat.test.mjs` passed 265 tests, `npm run lint:docs`,
+  `npm run lint:bloat`, `npm run lint:architecture`, `npm run test:scripts`
+  passed 503 tests, and `git diff --check`.
 - Current local resume suggestion follow-up replaces backend and mock
   suggestion impact values like `High` and `Medium` with concrete, review-first
   user guidance, changes bullet suggestions from command-style action-verb copy
