@@ -54,7 +54,9 @@ describe("ProfileForm resume privacy", () => {
     renderProfileForm();
 
     expect(await screen.findByText("Could not load profile")).toBeInTheDocument();
-    expect(screen.getByText("Please try again")).toBeInTheDocument();
+    expect(
+      screen.getByText("Try again. If it keeps happening, copy a safe support report."),
+    ).toBeInTheDocument();
     expect(screen.queryByText("Failed to load profile")).not.toBeInTheDocument();
   });
 
@@ -126,6 +128,11 @@ describe("ProfileForm resume privacy", () => {
     await user.click(screen.getByRole("button", { name: "Choose Resume" }));
 
     expect(await screen.findByText("Could not select resume")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Choose the resume again. If it keeps happening, copy a safe support report.",
+      ),
+    ).toBeInTheDocument();
     expect(screen.queryByText("Failed to select file")).not.toBeInTheDocument();
   });
 
@@ -208,6 +215,11 @@ describe("ProfileForm resume privacy", () => {
     await user.click(screen.getByRole("button", { name: "Save Profile" }));
 
     expect(await screen.findByText("Could not save profile")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Check the highlighted fields, then save again. If it keeps happening, copy a safe support report.",
+      ),
+    ).toBeInTheDocument();
     expect(screen.queryByText("Failed to save")).not.toBeInTheDocument();
   });
 });

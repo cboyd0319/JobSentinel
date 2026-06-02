@@ -229,7 +229,10 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
       }
     } catch (error: unknown) {
       logError("Could not load application profile:", error);
-      showError("Could not load profile", "Please try again");
+      showError(
+        "Could not load profile",
+        "Try again. If it keeps happening, copy a safe support report."
+      );
     } finally {
       setLoading(false);
     }
@@ -271,7 +274,10 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
       }
     } catch (error: unknown) {
       logError("Could not select resume file:", error);
-      showError("Could not select resume", "Please try again");
+      showError(
+        "Could not select resume",
+        "Choose the resume again. If it keeps happening, copy a safe support report."
+      );
     }
   };
 
@@ -343,7 +349,10 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
       onSaved?.();
     } catch (error: unknown) {
       logError("Could not save profile:", error);
-      showError("Could not save profile", "Please try again");
+      showError(
+        "Could not save profile",
+        "Check the highlighted fields, then save again. If it keeps happening, copy a safe support report."
+      );
     } finally {
       setSaving(false);
     }

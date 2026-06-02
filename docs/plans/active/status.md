@@ -890,6 +890,9 @@ and record actionable findings in this active-plan surface.
 - Current local shared error-fallback slice changes missing-detail, date/time,
   and file-not-found fallback copy to action-first guidance, with focused
   error-message coverage.
+- Current local Application Assist profile recovery slice replaces vague
+  retry-only copy with safe-support-report next steps and extends product-copy
+  coverage.
 - The previous local slice closed the hardcoded harness-policy debt by moving
   required harness files, policy snippets, and README reference-source coverage
   into `docs/harness/manifest.json`.

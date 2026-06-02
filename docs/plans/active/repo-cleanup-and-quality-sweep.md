@@ -1253,3 +1253,6 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 - Current local shared error-fallback slice changes missing-detail, date/time,
   and file-not-found fallback copy to action-first guidance, with focused
   error-message coverage.
+- Current local Application Assist profile recovery slice replaces vague
+  retry-only copy with safe-support-report next steps and extends product-copy
+  coverage.
