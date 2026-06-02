@@ -627,7 +627,7 @@ export default function Applications({ onBack, onImportJob }: ApplicationsProps)
                   Application Tracker
                 </h1>
                 <p className="text-sm text-surface-500 dark:text-surface-400">
-                  Move cards between columns, or use Space and arrow keys to update status
+                  Track each application from saved job to final decision.
                 </p>
               </div>
             </div>

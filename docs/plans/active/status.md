@@ -34,6 +34,12 @@ actionable findings in this active-plan surface or the relevant plan.
 - Branch has multiple local commits ahead of `origin/main`. Use
   `git status --short --branch` for live evidence before committing, pushing,
   or reporting remote state.
+- Current local Application Tracker subtitle cleanup replaces visible
+  keyboard-instruction text with plain purpose copy and adds product-copy
+  coverage so the old technical subtitle cannot return. Verification passed:
+  `node --test scripts/check-product-copy.test.mjs` passed 43 tests,
+  `npm run lint:bloat`, `npm run lint`, and targeted stale-subtitle search
+  found no production `src` matches.
 - Current local Application Assist review-pace cleanup changes stats away from
   volume/rate wording (`Forms Opened`, `Submission Rate`) toward review-first
   labels, changes profile review settings to `Review Pace`, removes the normal

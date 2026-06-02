@@ -1163,7 +1163,7 @@ test("product copy rejects technical-first settings copy", () => {
     writeFixtureFile(
       root,
       "src/pages/Applications.tsx",
-      "{reminder.reminder_type} - Due: {formatEventDate(reminder.reminder_time)}\nYour applications list failed to load\nStatus update failed\nRestart JobSentinel\n>Analytics<\n",
+      "{reminder.reminder_type} - Due: {formatEventDate(reminder.reminder_time)}\nYour applications list failed to load\nStatus update failed\nRestart JobSentinel\nMove cards between columns, or use Space and arrow keys to update status\n>Analytics<\n",
     );
     writeFixtureFile(
       root,

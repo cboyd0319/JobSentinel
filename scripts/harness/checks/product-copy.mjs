@@ -1733,6 +1733,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /applications list failed to load/i.test(text) ||
       /Status update failed/i.test(text) ||
       /Restart JobSentinel/i.test(text) ||
+      /Move cards between columns, or use Space and arrow keys/i.test(text) ||
       />\s*Analytics\s*</i.test(text)
     ) {
       return true;
