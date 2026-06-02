@@ -124,6 +124,23 @@ pub enum SuggestionCategory {
 pub struct AtsAnalyzer;
 
 impl AtsAnalyzer {
+    const SECTION_BOUNDARY_HEADERS: &'static [&'static str] = &[
+        "required",
+        "must have",
+        "requirements",
+        "qualifications",
+        "preferred",
+        "nice to have",
+        "bonus",
+        "plus",
+        "responsibilities",
+        "about the role",
+        "what you will do",
+        "benefits",
+        "education",
+        "experience",
+    ];
+
     /// Analyze resume against a specific job description
     pub fn analyze_for_job(resume: &ResumeData, job_description: &str) -> AtsAnalysisResult {
         let job_keywords = Self::extract_job_keywords(job_description);
@@ -631,12 +648,46 @@ impl AtsAnalyzer {
         for header in headers {
             if let Some(start) = text.find(header) {
                 let after = &text[start..];
-                // Find next section header or end
-                let end = after.find("\n\n").map(|i| i + start).unwrap_or(text.len());
+                let blank_line_end = after.find("\n\n").map(|i| i + start).unwrap_or(text.len());
+                let heading_end = Self::find_next_section_heading(after, headers)
+                    .map(|i| i + start)
+                    .unwrap_or(text.len());
+                let end = blank_line_end.min(heading_end);
                 return text[start..end].to_string();
             }
         }
         String::new()
+    }
+
+    fn find_next_section_heading(section_text: &str, current_headers: &[&str]) -> Option<usize> {
+        for (offset, _) in section_text.match_indices('\n').skip(1) {
+            let line = &section_text[offset + 1..];
+            let trimmed = line.trim_start_matches(|c: char| {
+                c.is_whitespace() || c == '-' || c == '*' || c == '•'
+            });
+
+            if Self::SECTION_BOUNDARY_HEADERS
+                .iter()
+                .filter(|boundary| !current_headers.contains(boundary))
+                .any(|boundary| Self::line_starts_with_heading(trimmed, boundary))
+            {
+                return Some(offset);
+            }
+        }
+
+        None
+    }
+
+    fn line_starts_with_heading(line: &str, heading: &str) -> bool {
+        let Some(rest) = line.strip_prefix(heading) else {
+            return false;
+        };
+
+        rest.is_empty()
+            || rest.starts_with(':')
+            || rest.starts_with('-')
+            || rest.starts_with(' ')
+            || rest.starts_with('\t')
     }
 
     fn extract_keywords_from_text(text: &str) -> Vec<String> {
@@ -864,6 +915,30 @@ Nice to have: compliance, Excel
         assert!(keywords
             .iter()
             .any(|(k, i)| k == "compliance" && *i == KeywordImportance::Preferred));
+    }
+
+    #[test]
+    fn test_extract_job_keywords_stops_required_at_preferred_heading() {
+        let job_desc = r#"
+Required:
+- case management
+- scheduling
+Preferred:
+- salesforce
+- compliance
+        "#;
+
+        let keywords = AtsAnalyzer::extract_job_keywords(job_desc);
+
+        assert!(keywords
+            .iter()
+            .any(|(k, i)| k == "case management" && *i == KeywordImportance::Required));
+        assert!(keywords
+            .iter()
+            .any(|(k, i)| k == "salesforce" && *i == KeywordImportance::Preferred));
+        assert!(!keywords
+            .iter()
+            .any(|(k, i)| k == "salesforce" && *i == KeywordImportance::Required));
     }
 
     #[test]

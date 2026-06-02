@@ -33,6 +33,10 @@ narrow implementation slices chosen from that backlog.
   missing resume words and groups the Resume Match review by required,
   preferred, and other role language. Users now see which missing words deserve
   review first without losing the truthful-edit warning.
+- Latest local resume parser follow-up keeps required and preferred job-post
+  sections separate when postings use single-line headings instead of blank
+  lines, preventing preferred nice-to-have language from being shown as a
+  required gap.
 
 ## Source files
 

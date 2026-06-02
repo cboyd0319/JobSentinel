@@ -41,6 +41,18 @@ screening-system manipulation, or unreviewed form sending.
 - Branch has multiple local commits ahead of `origin/main`. Use
   `git status --short --branch` for live evidence before committing, pushing,
   or reporting remote state.
+- Current local Resume Match parser fix keeps required and preferred job-post
+  sections separate when a posting uses ordinary single-line headings, so
+  preferred words are not promoted into required review buckets. Verification
+  passed: red test failed before the fix, then `cargo test --lib
+  test_extract_job_keywords_stops_required_at_preferred_heading` passed,
+  `cargo test --lib ats_analyzer` passed 22 tests, `cargo fmt --all --
+  --check` passed, `npm run lint:docs` passed, `npm run harness:check`
+  passed, `cargo clippy -- -D warnings` passed, `cargo test --lib` passed
+  2492 tests with 21 ignored, `npm run test:run` passed 2655 tests, `npm run
+  lint` passed, `npm run build` passed, `node --test
+  scripts/check-product-copy.test.mjs` passed 43 tests, `npm run lint:bloat`
+  passed, and `git diff --check` passed.
 - Current local resume missing-word grouping preserves job-post importance for
   missing Resume Match words and displays required, preferred, and other review
   buckets. This improves resume assistance without adding network calls or

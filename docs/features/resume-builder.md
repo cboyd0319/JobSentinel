@@ -142,7 +142,8 @@ Use familiar wording when it accurately describes your experience.
 When a job-post word is missing from the resume, JobSentinel keeps that
 required, preferred, or role-language context visible. The goal is to help users
 start with the most important truthful evidence, not to turn every phrase into
-a resume edit.
+a resume edit. JobSentinel also treats common required and preferred headings as
+separate sections even when the job post uses normal single-line breaks.
 
 ---
 
