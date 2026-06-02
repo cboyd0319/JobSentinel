@@ -1357,6 +1357,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
     /Failed to import config/i,
     /Failed to load notification preferences/i,
     /Failed to save["'`],\s*["'`]Your changes have been reverted/i,
+    /Your last change was undone\.\s*Try again\./i,
     /Source Alert Rules/i,
     /Which Jobs Alert You/i,
     /sources and filters can interrupt you/i,

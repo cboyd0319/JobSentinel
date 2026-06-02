@@ -1267,3 +1267,6 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 - Current local dashboard bookmark recovery slice replaces retry-only
   bookmark-failure guidance with safe-support-report guidance and focused hook
   coverage.
+- Current local notification preference recovery slice replaces retry-only
+  alert-settings save guidance with safe-support-report guidance and focused
+  component coverage.

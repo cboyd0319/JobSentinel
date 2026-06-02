@@ -1202,6 +1202,8 @@ Next high-value passes:
      guidance with safe-support-report guidance.
      The latest dashboard bookmark recovery slice replaces retry-only
      bookmark-failure guidance with safe-support-report guidance.
+     The latest notification preference recovery slice replaces retry-only
+     alert-settings save guidance with safe-support-report guidance.
    - Do not trust hardcoded checkpoint notes for remote status. Use
      `git status --short --branch`, `git log --oneline -3`, and `gh run list
      --branch main --limit 5` as live evidence before reporting CI state.

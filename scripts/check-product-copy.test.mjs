@@ -419,6 +419,7 @@ test("product copy rejects technical-first settings copy", () => {
       [
         "setLoadError('Failed to load notification preferences')",
         "toast.error('Failed to save', 'Your changes have been reverted')",
+        "Your last change was undone. Try again.",
         "Source Alert Rules",
         "Which Jobs Alert You",
         "Choose which sources and filters can interrupt you",

@@ -230,6 +230,9 @@ and record actionable findings in this active-plan surface.
 - Latest local dashboard bookmark recovery follow-up replaces retry-only
   bookmark-failure guidance with safe-support-report guidance and adds
   product-copy coverage against the old sentence.
+- Latest local notification preference recovery follow-up replaces retry-only
+  alert-settings save guidance with safe-support-report guidance and expands
+  product-copy coverage against the old sentence.
 - Latest local recovery-title follow-up replaces remaining visible
   `Failed to...` fallback titles in Resume, Resume Builder, Screening Answers,
   Interview Scheduler, and company-research fallback UI with `Could not...`
@@ -917,6 +920,9 @@ and record actionable findings in this active-plan surface.
 - Current local dashboard bookmark recovery slice replaces retry-only
   bookmark-failure guidance with safe-support-report guidance and focused hook
   coverage.
+- Current local notification preference recovery slice replaces retry-only
+  alert-settings save guidance with safe-support-report guidance and focused
+  component coverage.
 - The previous local slice closed the hardcoded harness-policy debt by moving
   required harness files, policy snippets, and README reference-source coverage
   into `docs/harness/manifest.json`.

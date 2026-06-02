@@ -136,7 +136,7 @@ export const NotificationPreferences = memo(function NotificationPreferences() {
       setPrefs(previousPrefs);
       toast.error(
         'Could not save alert settings',
-        'Your last change was undone. Try again.'
+        'Your last change was undone. Try again, or copy a safe support report if this keeps happening.'
       );
     }
   }, [prefs, toast]);
