@@ -161,8 +161,10 @@ describe("CommandPalette", () => {
     it("displays category labels", () => {
       render(<CommandPalette />);
 
-      expect(screen.getByText("Navigation")).toBeInTheDocument();
-      expect(screen.getByText("Interface")).toBeInTheDocument();
+      expect(screen.getByText("Pages")).toBeInTheDocument();
+      expect(screen.getByText("App tools")).toBeInTheDocument();
+      expect(screen.queryByText("Navigation")).not.toBeInTheDocument();
+      expect(screen.queryByText("Interface")).not.toBeInTheDocument();
     });
 
     it("displays shortcuts for commands", () => {
@@ -364,13 +366,15 @@ describe("CommandPalette", () => {
     it("shows navigation hint", () => {
       render(<CommandPalette />);
 
-      expect(screen.getByText("to navigate")).toBeInTheDocument();
+      expect(screen.getByText("move")).toBeInTheDocument();
+      expect(screen.queryByText("to navigate")).not.toBeInTheDocument();
     });
 
     it("shows selection hint", () => {
       render(<CommandPalette />);
 
-      expect(screen.getByText("to select")).toBeInTheDocument();
+      expect(screen.getByText("choose")).toBeInTheDocument();
+      expect(screen.queryByText("to select")).not.toBeInTheDocument();
     });
 
     it("shows esc hint", () => {

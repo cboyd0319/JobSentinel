@@ -135,7 +135,7 @@ export function KeyboardShortcutsProvider({
       {
         key: "5",
         modifiers: ["meta"],
-        description: "Go to Market",
+        description: "Open Hiring Trends",
         action: () => onNavigate?.("market"),
         category: "navigation",
       },
@@ -163,7 +163,7 @@ export function KeyboardShortcutsProvider({
       {
         key: "Escape",
         modifiers: [],
-        description: "Close dialog / quick actions",
+        description: "Close pop-up or quick actions",
         action: () => {
           closeCommandPalette();
           closeHelp();
@@ -173,7 +173,7 @@ export function KeyboardShortcutsProvider({
       {
         key: "?",
         modifiers: ["shift"],
-        description: "Show keyboard shortcuts help",
+        description: "Show keyboard help",
         action: toggleHelp,
         category: "ui",
       },
@@ -187,14 +187,14 @@ export function KeyboardShortcutsProvider({
       {
         key: "f",
         modifiers: ["meta"],
-        description: "Focus search / filter",
+        description: "Focus job search",
         action: () => window.dispatchEvent(new CustomEvent('keyboard-focus-search')),
         category: "ui",
       },
       {
         key: "Enter",
         modifiers: ["meta"],
-        description: "Submit current form",
+        description: "Save current form changes",
         action: () => window.dispatchEvent(new CustomEvent('keyboard-submit-form')),
         category: "actions",
       },
@@ -215,7 +215,7 @@ export function KeyboardShortcutsProvider({
       {
         key: "n",
         modifiers: ["meta"],
-        description: "Create new item",
+        description: "Add new item",
         action: () => window.dispatchEvent(new CustomEvent('keyboard-new-item')),
         category: "actions",
       },

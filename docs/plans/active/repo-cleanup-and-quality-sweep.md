@@ -191,6 +191,10 @@ boundaries, and harness modularity:
   job-alert rules: the global switch, source state copy, title-word rules,
   remote-only label, and company-alert labels now read as user choices.
   NotificationPreferences and product-copy tests reject the old phrases.
+- Changed keyboard-help and quick-action labels from power-user terms to plain
+  app actions: keyboard help, moving around, app-wide, search and refresh,
+  save/unsave job, select/unselect job, Hiring Trends, and saving current form
+  changes. Component/context tests and product-copy sensors reject the old terms.
 - Changed Application Assist suggested-answer failure copy from a bare saved
   answers message to support-report recovery wording, with focused component and
   product-copy coverage.

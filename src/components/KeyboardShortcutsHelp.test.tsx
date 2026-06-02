@@ -70,33 +70,37 @@ describe("KeyboardShortcutsHelp", () => {
     it("renders title", () => {
       render(<KeyboardShortcutsHelp isOpen={true} onClose={vi.fn()} />);
 
-      expect(screen.getByText("Keyboard Shortcuts")).toBeInTheDocument();
+      expect(screen.getByText("Keyboard Help")).toBeInTheDocument();
+      expect(screen.queryByText("Keyboard Shortcuts")).not.toBeInTheDocument();
     });
   });
 
   describe("shortcut sections", () => {
-    it("renders Navigation section", () => {
+    it("renders Moving around section", () => {
       render(<KeyboardShortcutsHelp isOpen={true} onClose={vi.fn()} />);
 
-      expect(screen.getByText("Navigation")).toBeInTheDocument();
+      expect(screen.getByText("Moving around")).toBeInTheDocument();
+      expect(screen.queryByText("Navigation")).not.toBeInTheDocument();
     });
 
-    it("renders Job Actions section", () => {
+    it("renders Job actions section", () => {
       render(<KeyboardShortcutsHelp isOpen={true} onClose={vi.fn()} />);
 
-      expect(screen.getByText("Job Actions")).toBeInTheDocument();
+      expect(screen.getByText("Job actions")).toBeInTheDocument();
     });
 
-    it("renders Global section", () => {
+    it("renders App-wide section", () => {
       render(<KeyboardShortcutsHelp isOpen={true} onClose={vi.fn()} />);
 
-      expect(screen.getByText("Global")).toBeInTheDocument();
+      expect(screen.getByText("App-wide")).toBeInTheDocument();
+      expect(screen.queryByText("Global")).not.toBeInTheDocument();
     });
 
-    it("renders Filters & Search section", () => {
+    it("renders Search and refresh section", () => {
       render(<KeyboardShortcutsHelp isOpen={true} onClose={vi.fn()} />);
 
-      expect(screen.getByText("Filters & Search")).toBeInTheDocument();
+      expect(screen.getByText("Search and refresh")).toBeInTheDocument();
+      expect(screen.queryByText("Filters & Search")).not.toBeInTheDocument();
     });
   });
 
@@ -132,7 +136,9 @@ describe("KeyboardShortcutsHelp", () => {
     it("shows toggle bookmark shortcut", () => {
       render(<KeyboardShortcutsHelp isOpen={true} onClose={vi.fn()} />);
 
-      expect(screen.getByText("Toggle bookmark")).toBeInTheDocument();
+      expect(screen.getByText("Save or unsave job")).toBeInTheDocument();
+      expect(screen.queryByText("Toggle bookmark")).not.toBeInTheDocument();
+      expect(screen.queryByText("Toggle selection")).not.toBeInTheDocument();
     });
   });
 
@@ -222,7 +228,7 @@ describe("KeyboardShortcutsHelp", () => {
     it("has region with aria-label", () => {
       render(<KeyboardShortcutsHelp isOpen={true} onClose={vi.fn()} />);
 
-      expect(screen.getByRole("region", { name: "Keyboard shortcuts reference" })).toBeInTheDocument();
+      expect(screen.getByRole("region", { name: "Keyboard help reference" })).toBeInTheDocument();
     });
 
     it("has list roles for shortcut sections", () => {

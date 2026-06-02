@@ -31,6 +31,11 @@ and record actionable findings in this active-plan surface.
 
 ## Current Posture
 
+- Latest local keyboard-help follow-up changes shortcut and quick-action labels
+  from power-user wording to plain app action language: `Keyboard Help`, `Moving
+  around`, `App-wide`, `Search and refresh`, `Save or unsave job`, `Select or
+  unselect job`, `Open Hiring Trends`, and `Save current form changes`.
+  Component/context tests and product-copy sensors guard old shortcut jargon.
 - Latest local notification-rules follow-up changes alert-preference copy from
   settings jargon to plain job-alert language: the global switch is `All job
   alerts`, source copy says job boards are `turned on`, extra filters are

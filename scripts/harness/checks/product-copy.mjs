@@ -1378,6 +1378,51 @@ export function hasTechnicalFirstUserCopy(root, path) {
     }
   }
 
+  if (path === "src/components/CommandPalette.tsx") {
+    const commandPalettePatterns = [
+      /navigation:\s*["'`]Navigation["'`]/,
+      /ui:\s*["'`]Interface["'`]/,
+      />\s*to navigate\s*</,
+      />\s*to select\s*</,
+    ];
+
+    if (commandPalettePatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
+  }
+
+  if (path === "src/components/KeyboardShortcutsHelp.tsx") {
+    const keyboardHelpPatterns = [
+      /title:\s*["'`]Navigation["'`]/,
+      /title:\s*["'`]Job Actions["'`]/,
+      /title:\s*["'`]Global["'`]/,
+      /title:\s*["'`]Filters & Search["'`]/,
+      /description:\s*["'`]Toggle bookmark["'`]/,
+      /description:\s*["'`]Toggle selection["'`]/,
+      /title=["'`]Keyboard Shortcuts["'`]/,
+      /Keyboard shortcuts reference/,
+      /Use\s*<ShortcutKey>\?<\/ShortcutKey>\s*anytime/,
+    ];
+
+    if (keyboardHelpPatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
+  }
+
+  if (path === "src/contexts/KeyboardShortcutsContext.tsx") {
+    const keyboardShortcutContextPatterns = [
+      /description:\s*["'`]Go to Market["'`]/,
+      /description:\s*["'`]Show keyboard shortcuts help["'`]/,
+      /description:\s*["'`]Focus search \/ filter["'`]/,
+      /description:\s*["'`]Submit current form["'`]/,
+      /description:\s*["'`]Create new item["'`]/,
+    ];
+
+    if (keyboardShortcutContextPatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
+  }
+
   const stalePatterns = [
     /Import JSON Resume/i,
     /Import Resume Data/i,

@@ -9,7 +9,7 @@ interface KeyboardShortcutsHelpProps {
 
 const SHORTCUTS = {
   navigation: {
-    title: 'Navigation',
+    title: 'Moving around',
     shortcuts: [
       { keys: ['j', '↓'], description: 'Move down' },
       { keys: ['k', '↑'], description: 'Move up' },
@@ -19,18 +19,18 @@ const SHORTCUTS = {
     ],
   },
   actions: {
-    title: 'Job Actions',
+    title: 'Job actions',
     shortcuts: [
       { keys: ['o', 'Enter'], description: 'Open job' },
       { keys: ['h', 'Del'], description: 'Hide job' },
-      { keys: ['b'], description: 'Toggle bookmark' },
+      { keys: ['b'], description: 'Save or unsave job' },
       { keys: ['n'], description: 'Add/edit notes' },
       { keys: ['c'], description: 'Research company' },
-      { keys: ['x'], description: 'Toggle selection' },
+      { keys: ['x'], description: 'Select or unselect job' },
     ],
   },
   global: {
-    title: 'Global',
+    title: 'App-wide',
     shortcuts: [
       { keys: ['Cmd/Ctrl+K'], description: 'Open quick actions' },
       { keys: ['Cmd/Ctrl+,'], description: 'Open settings' },
@@ -41,7 +41,7 @@ const SHORTCUTS = {
     ],
   },
   filters: {
-    title: 'Filters & Search',
+    title: 'Search and refresh',
     shortcuts: [
       { keys: ['/'], description: 'Focus search' },
       { keys: ['r'], description: 'Refresh jobs' },
@@ -103,10 +103,10 @@ export const KeyboardShortcutsHelp = memo(function KeyboardShortcutsHelp({ isOpe
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Keyboard Shortcuts"
+      title="Keyboard Help"
       size="md"
     >
-      <div className="grid grid-cols-2 gap-6 p-4" role="region" aria-label="Keyboard shortcuts reference">
+      <div className="grid grid-cols-2 gap-6 p-4" role="region" aria-label="Keyboard help reference">
         <div className="space-y-6">
           <ShortcutSection {...SHORTCUTS.navigation} />
           <ShortcutSection {...SHORTCUTS.actions} />
@@ -119,7 +119,7 @@ export const KeyboardShortcutsHelp = memo(function KeyboardShortcutsHelp({ isOpe
 
       <div className="border-t border-surface-200 dark:border-surface-700 px-4 py-3 bg-surface-50 dark:bg-surface-800/50 rounded-b-lg space-y-2" role="contentinfo">
         <p className="text-xs text-surface-500 dark:text-surface-400 text-center">
-          Use <ShortcutKey>?</ShortcutKey> anytime to show this help
+          Press <ShortcutKey>?</ShortcutKey> anytime to show this help
         </p>
         <div className="text-center pt-2 border-t border-surface-200 dark:border-surface-700">
           <button

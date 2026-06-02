@@ -142,6 +142,11 @@ Current cleanup posture:
   job boards that are `turned on`, `Extra alert rules`, job-title word rules,
   remote-job choice, and company-alert labels. NotificationPreferences and
   product-copy coverage guard the stale copy.
+- Current local keyboard-help follow-up changes shortcut and quick-action labels
+  from power-user wording to plain app action language: `Keyboard Help`,
+  `Moving around`, `App-wide`, `Search and refresh`, save/unsave job,
+  select/unselect job, `Open Hiring Trends`, and save-form-change wording.
+  Component/context and product-copy coverage guard the old terms.
 - Current local saved-answer recovery follow-up changes Application Assist
   suggested-answer failures from a bare saved-answers message to support-report
   recovery wording, with focused component and product-copy coverage.

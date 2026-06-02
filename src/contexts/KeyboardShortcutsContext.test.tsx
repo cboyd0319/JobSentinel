@@ -400,7 +400,17 @@ describe("KeyboardShortcutsContext", () => {
         expect(screen.getByText("Undo last action")).toBeInTheDocument();
         expect(screen.getByText("Redo last action")).toBeInTheDocument();
         expect(screen.getByText("Go to Resume Match")).toBeInTheDocument();
+        expect(screen.getByText("Open Hiring Trends")).toBeInTheDocument();
+        expect(screen.getByText("Show keyboard help")).toBeInTheDocument();
+        expect(screen.getByText("Focus job search")).toBeInTheDocument();
+        expect(screen.getByText("Save current form changes")).toBeInTheDocument();
+        expect(screen.getByText("Add new item")).toBeInTheDocument();
         expect(screen.queryByText("Go to ATS Optimizer")).not.toBeInTheDocument();
+        expect(screen.queryByText("Go to Market")).not.toBeInTheDocument();
+        expect(screen.queryByText("Show keyboard shortcuts help")).not.toBeInTheDocument();
+        expect(screen.queryByText("Focus search / filter")).not.toBeInTheDocument();
+        expect(screen.queryByText("Submit current form")).not.toBeInTheDocument();
+        expect(screen.queryByText("Create new item")).not.toBeInTheDocument();
       });
     });
 

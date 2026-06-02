@@ -521,6 +521,45 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
+      "src/components/CommandPalette.tsx",
+      [
+        'navigation: "Navigation"',
+        'ui: "Interface"',
+        ">to navigate<",
+        ">to select<",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/components/KeyboardShortcutsHelp.tsx",
+      [
+        "title: 'Navigation'",
+        "title: 'Job Actions'",
+        "title: 'Global'",
+        "title: 'Filters & Search'",
+        "description: 'Toggle bookmark'",
+        "description: 'Toggle selection'",
+        'title="Keyboard Shortcuts"',
+        "Keyboard shortcuts reference",
+        "Use <ShortcutKey>?</ShortcutKey> anytime",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/contexts/KeyboardShortcutsContext.tsx",
+      [
+        'description: "Go to Market"',
+        'description: "Show keyboard shortcuts help"',
+        'description: "Focus search / filter"',
+        'description: "Submit current form"',
+        'description: "Create new item"',
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
       "src/components/AnalyticsPanel.tsx",
       [
         "Application Funnel",
@@ -1090,6 +1129,15 @@ test("product copy rejects technical-first settings copy", () => {
     assert.equal(hasTechnicalFirstUserCopy(root, "src/components/AtsLiveScorePanel.tsx"), true);
     assert.equal(
       hasTechnicalFirstUserCopy(root, "src/components/NotificationPreferences.tsx"),
+      true,
+    );
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/components/CommandPalette.tsx"), true);
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "src/components/KeyboardShortcutsHelp.tsx"),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "src/contexts/KeyboardShortcutsContext.tsx"),
       true,
     );
     assert.equal(

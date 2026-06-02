@@ -227,9 +227,9 @@ export const CommandPalette = memo(function CommandPalette({ commands = [] }: Co
   if (!isCommandPaletteOpen) return null;
 
   const categoryLabels: Record<string, string> = {
-    navigation: "Navigation",
+    navigation: "Pages",
     actions: "Actions",
-    ui: "Interface",
+    ui: "App tools",
   };
 
   let flatIndex = 0;
@@ -370,13 +370,13 @@ export const CommandPalette = memo(function CommandPalette({ commands = [] }: Co
             <kbd className="px-1.5 py-0.5 bg-surface-100 dark:bg-surface-700 rounded mr-1">
               ↑↓
             </kbd>
-            to navigate
+            move
           </span>
           <span>
             <kbd className="px-1.5 py-0.5 bg-surface-100 dark:bg-surface-700 rounded mr-1">
               ↵
             </kbd>
-            to select
+            choose
           </span>
         </div>
       </div>
