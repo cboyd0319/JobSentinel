@@ -1510,3 +1510,6 @@ Current progress rows stay here. Older rows are preserved in [progress history](
   tests with the current `Save local troubleshooting report` action label.
   `npm run test:run` passes 110 Vitest files and 2637 tests, `npm run build`
   passes in 4.13 seconds, and `npm run test:scripts` passes 454 script tests.
+- Current local backend verification evidence: `cargo fmt --all -- --check`
+  passes, `cargo test --lib` passes 2489 tests with 21 ignored, and
+  `cargo clippy -- -D warnings` reports no issues from `src-tauri`.

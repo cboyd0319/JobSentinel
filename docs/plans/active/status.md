@@ -35,6 +35,9 @@ and record actionable findings in this active-plan surface.
   with the current `Save local troubleshooting report` action label.
   `npm run test:run` passes 110 Vitest files and 2637 tests, `npm run build`
   passes in 4.13 seconds, and `npm run test:scripts` passes 454 script tests.
+- Latest local backend verification evidence: `cargo fmt --all -- --check`
+  passes, `cargo test --lib` passes 2489 tests with 21 ignored, and
+  `cargo clippy -- -D warnings` reports no issues from `src-tauri`.
 - Latest local E2E smoke follow-up syncs Settings, Hiring Trends, and
   Application Assist Playwright selectors and report names with current
   plain-language UI labels. `npm run doctor:e2e` passes with the known local

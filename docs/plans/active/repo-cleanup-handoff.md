@@ -35,6 +35,9 @@ Recent remote integration evidence:
   `npm run test:scripts` passes 454 script tests. The latest local follow-up
   syncs `ErrorLogPanel` unit tests with the current `Save local troubleshooting
   report` action label.
+- Latest local backend verification evidence: `cargo fmt --all -- --check`
+  passes, `cargo test --lib` passes 2489 tests with 21 ignored, and
+  `cargo clippy -- -D warnings` reports no issues from `src-tauri`.
 - `f3ed5fb9` passed Docs Harness run `26790585973` and CI run
   `26790585989` on `main`. CI covered frontend tests, Rust tests, security
   checks, docs harness checks, TypeScript, ESLint, frontend build, Rust fmt,
