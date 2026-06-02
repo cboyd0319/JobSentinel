@@ -119,7 +119,8 @@ Out of scope:
 - The plan names concrete JobSentinel improvement paths across search,
   scoring, resume, ATS, ghost detection, applications, market intelligence,
   accessibility, privacy, and security.
-- The plan flags unsafe or unethical ATS manipulation paths as non-goals.
+- The plan flags unsafe or unethical screening-system manipulation paths as
+  non-goals.
 - The plan includes file areas, verification commands, and change-contract
   requirements for implementation slices.
 - Active implementation slices update user-facing docs and tests before they
@@ -724,8 +725,9 @@ Likely files later:
 - Add acceptance criteria for recommendation changes: explanation quality,
   user actionability, false-confidence avoidance, privacy, and accessibility.
 - Add test fixtures for broad job families, not only software engineering.
-- Add bloat sensors for unsafe ATS manipulation language such as hidden keywords,
-  white text, fake credentials, prompt injection, and CAPTCHA-solving/control-evasion.
+- Add bloat sensors for unsafe screening-system manipulation language such as
+  hidden keywords, white text, fake credentials, prompt injection, and
+  CAPTCHA-solving/control-evasion.
 - Add bloat sensors for overconfident ghost-job copy such as "fake", "certain",
   or "scam" when the evidence only supports stale or unverified.
 - Add docs checks that prevent score language from claiming hiring guarantees.
@@ -936,9 +938,9 @@ Current progress rows stay here. Older rows are preserved in [progress history](
   supports a 1% increase in short-term job finding and 2.7x higher application
   efficiency for recommended firms. Re-verify the 18% figure before repeating
   it in user-facing or decision docs.
-- Deceptive ATS manipulation should be reframed as accurate machine readability and truthful
-  application alignment. Trick-based tactics create ethics, security, and user
-  trust risk.
+- Deceptive screening-system manipulation should be reframed as accurate machine
+  readability and truthful application alignment. Trick-based tactics create
+  ethics, security, and user trust risk.
 - Several ATS/LLM screening sources are preprints or system papers. Treat them
   as useful signals, not settled evidence.
 - Second-pass source extraction found 52 unique URLs across the three research

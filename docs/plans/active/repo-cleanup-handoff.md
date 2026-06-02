@@ -213,6 +213,9 @@ Current cleanup posture:
   RESPONSIBLE_AI, and the README information-design harness from ATS-first
   labels to hiring-system and hiring-platform language while preserving research
   links.
+- Current local Resume Matcher docs follow-up replaces ATS-internals,
+  ATS-manipulation, and active research no-goal wording with
+  employer-screening-system language and product-copy coverage.
 - Current local saved-answer recovery follow-up changes Application Assist
   suggested-answer failures from a bare saved-answers message to support-report
   recovery wording, with focused component and product-copy coverage.

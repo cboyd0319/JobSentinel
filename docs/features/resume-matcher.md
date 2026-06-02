@@ -51,7 +51,7 @@ External AI is not required for resume matching.
    tailor carefully, save for later, ask a question, or skip.
 
 JobSentinel should explain fit in plain language. A person should not need to
-understand parsing, scoring, or ATS internals to use the result.
+understand parsing, scoring, or employer screening systems to use the result.
 
 ## How To Read Match Results
 
@@ -79,8 +79,8 @@ Resume matching must stay candidate-side and honest:
 - Do not encourage users to apply to roles that violate their salary floor,
   location constraints, schedule needs, or other must-haves.
 
-The right goal is application readability and truthful fit, not ATS
-manipulation.
+The right goal is application readability and truthful fit, not manipulating
+employer screening systems.
 
 ## Local Matching Model
 

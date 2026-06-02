@@ -254,6 +254,9 @@ boundaries, and harness modularity:
   harness from ATS-first front-door labels to hiring-system and hiring-platform
   language while keeping research links intact. Product-copy tests guard the old
   labels.
+- Changed Resume Matcher docs and active research no-goal language from
+  ATS-internals and ATS-manipulation wording to employer-screening-system
+  language. Product-copy tests guard the old phrases.
 - Changed Application Assist suggested-answer failure copy from a bare saved
   answers message to support-report recovery wording, with focused component and
   product-copy coverage.

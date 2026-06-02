@@ -87,6 +87,9 @@ and record actionable findings in this active-plan surface.
   RESPONSIBLE_AI, and the README information-design harness from ATS-first
   front-door labels to hiring-system and hiring-platform language while keeping
   research links intact. Product-copy tests guard the old labels.
+- Latest local Resume Matcher docs follow-up replaces remaining ATS-internals,
+  ATS-manipulation, and active research no-goal wording with
+  employer-screening-system language. Product-copy tests guard the old phrases.
 - Latest local resume-readability follow-up changes score-adjacent labels from
   `Complete`, `Completeness`, `missing`, `issues`, `View Details`, and `Full
   Resume Readability Review` to details, details-included, to-review,

@@ -309,6 +309,7 @@ const technicalFirstUserCopyPaths = new Set([
   "docs/features/notifications.md",
   "docs/features/one-click-apply.md",
   "docs/features/resume-builder.md",
+  "docs/features/resume-matcher.md",
   "docs/features/salary-ai.md",
   "docs/features/scraper-health.md",
   "docs/features/scrapers.md",
@@ -882,6 +883,18 @@ export function hasTechnicalFirstUserCopy(root, path) {
     ];
 
     if (readmePatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
+  }
+
+  if (path === "docs/features/resume-matcher.md") {
+    const resumeMatcherPatterns = [
+      /ATS internals/i,
+      /ATS manipulation/i,
+      /not ATS\s+manipulation/i,
+    ];
+
+    if (resumeMatcherPatterns.some((pattern) => pattern.test(text))) {
       return true;
     }
   }
