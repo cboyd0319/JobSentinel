@@ -452,7 +452,7 @@ export function useDashboardJobOps(
         const safeError = getSafeErrorToastCopy(err, {
           fallbackTitle: "Could not update bookmarks",
           fallbackMessage:
-            "Your bookmarks weren't changed. Try bookmarking jobs individually, or restart the app if this continues.",
+            "Your bookmarks weren't changed. Try bookmarking jobs individually. If this continues, copy a safe support report before closing and reopening JobSentinel.",
         });
         toast.error(
           safeError.title,

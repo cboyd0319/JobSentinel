@@ -246,6 +246,10 @@ describe("Settings — loadConfig flow", () => {
       expect(screen.getByText(/settings could not load/i)).toBeInTheDocument();
     });
 
+    expect(
+      screen.getByText(/safe support report from Help before closing/i),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/Restart JobSentinel/i)).not.toBeInTheDocument();
     expect(screen.getByText("Try Again")).toBeInTheDocument();
     expect(screen.getByText("Close")).toBeInTheDocument();
     await userEvent.click(screen.getByText("Close"));

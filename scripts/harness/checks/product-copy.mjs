@@ -256,6 +256,7 @@ const technicalFirstUserCopyPaths = new Set([
   "src/contexts/UndoContext.tsx",
   "src/contexts/KeyboardShortcutsContext.tsx",
   "src-tauri/src/commands/errors.rs",
+  "src-tauri/src/core/db/error.rs",
   "src-tauri/src/core/automation/error.rs",
   "src-tauri/src/core/resume/ats_analyzer.rs",
   "src-tauri/src/core/resume/matcher.rs",
@@ -841,6 +842,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
       />\s*Get USAJobs Access Code\s*</i,
       /USAJobs uses a free access code/i,
       /Looks up your approximate city from your internet\s+address\. Not saved unless added\./i,
+      /Restart JobSentinel/i,
     ];
 
     if (settingsPatterns.some((pattern) => pattern.test(text))) {
@@ -1116,7 +1118,8 @@ export function hasTechnicalFirstUserCopy(root, path) {
     if (
       /\{reminder\.reminder_type\}\s*-\s*Due:/i.test(text) ||
       /applications list failed to load/i.test(text) ||
-      /Status update failed/i.test(text)
+      /Status update failed/i.test(text) ||
+      /Restart JobSentinel/i.test(text)
     ) {
       return true;
     }
@@ -1124,6 +1127,10 @@ export function hasTechnicalFirstUserCopy(root, path) {
 
   if (path === "src/pages/dashboardErrorCopy.ts") {
     return /Job Search Failed/i.test(text);
+  }
+
+  if (path === "src/pages/ApplicationProfile.tsx") {
+    return /Failed to load application history|Restart JobSentinel/i.test(text);
   }
 
   if (path === "src/hooks/useFeedback.ts") {
@@ -1135,13 +1142,13 @@ export function hasTechnicalFirstUserCopy(root, path) {
   }
 
   if (path === "src/utils/errorMessages.ts") {
-    return /Notification Setup Failed|Slack Notification Failed|Discord Notification Failed|Teams Notification Failed|Email Notification Failed|Reminder Setup Failed|API key|API Limit|The database is currently in use|Configuration Missing|configuration file|webhook URL|SMTP credentials|contact support with the error details below|technical:\s*technicalMessage|JSON\.stringify\(error\)|Try refreshing/i.test(
+    return /Notification Setup Failed|Slack Notification Failed|Discord Notification Failed|Teams Notification Failed|Email Notification Failed|Reminder Setup Failed|API key|API Limit|The database is currently in use|Configuration Missing|configuration file|webhook URL|SMTP credentials|contact support|technical:\s*technicalMessage|JSON\.stringify\(error\)|Try refreshing|restart the app/i.test(
       text,
     );
   }
 
   if (path === "src/pages/hooks/useDashboardJobOps.ts") {
-    return /Undo failed|Redo failed|Bookmark Failed|Bulk Hide Failed|Bulk Bookmark Failed|Bulk Merge Failed|\d+\s+failed|Couldn't update bookmark\.\s*Try again|Try refreshing/i.test(
+    return /Undo failed|Redo failed|Bookmark Failed|Bulk Hide Failed|Bulk Bookmark Failed|Bulk Merge Failed|\d+\s+failed|Couldn't update bookmark\.\s*Try again|Try refreshing|restart the app/i.test(
       text,
     );
   }
@@ -1381,6 +1388,9 @@ export function hasTechnicalFirstUserCopy(root, path) {
     /Optional maintainer issue/i,
     /\bpay floor\b/i,
     /contact support with the error details below/i,
+    /contact support/i,
+    /Restart JobSentinel/i,
+    /restart the app/i,
     /technical:\s*technicalMessage/i,
     /JSON\.stringify\(error\)/i,
     /command palette/i,

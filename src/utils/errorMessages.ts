@@ -32,7 +32,7 @@ const NETWORK_ERRORS = [
  * Database error patterns
  */
 const DATABASE_ERRORS = [
-  { pattern: /database.*locked|SQLITE_BUSY/i, title: 'Local Data Busy', message: 'JobSentinel is already saving or reading your local data.', action: 'Wait a moment and try again. If this keeps happening, restart the app.' },
+  { pattern: /database.*locked|SQLITE_BUSY/i, title: 'Local Data Busy', message: 'JobSentinel is already saving or reading your local data.', action: 'Wait a moment and try again. If this keeps happening, copy a safe support report before closing and reopening JobSentinel.' },
   { pattern: /constraint|unique|duplicate/i, title: 'Duplicate Entry', message: 'This item is already saved.', action: 'Check your existing entries before adding it again.' },
   { pattern: /foreign.?key|reference/i, title: 'Related Information Missing', message: 'This action needs another saved item before it can continue.', action: 'Check that the related job, application, or setting still exists, then try again.' },
   { pattern: /corrupt|malformed|integrity/i, title: 'Local Data Problem', message: 'JobSentinel\'s local data file may be damaged.', action: 'Copy a safe support report and restore from a backup if you have one. Don\'t delete app data yet.' },
@@ -55,7 +55,7 @@ const VALIDATION_ERRORS = [
  * Scraper and job source error patterns
  */
 const SCRAPER_ERRORS = [
-  { pattern: /parse|selector|element.*not.*found/i, title: 'Website Format Changed', message: 'The job board\'s website layout has changed and we can\'t read it properly.', action: 'This usually means we need to update our software. Check for app updates or contact support.' },
+  { pattern: /parse|selector|element.*not.*found/i, title: 'Website Format Changed', message: 'The job board\'s website layout has changed and we can\'t read it properly.', action: 'This usually means JobSentinel needs an update. Check for app updates, or copy a safe support report if you want help.' },
   { pattern: /no.*jobs.*found|empty.*results/i, title: 'No Jobs Found', message: 'No job listings matched your search criteria.', action: 'Try broadening your search filters or check different job boards.' },
   { pattern: /scraper.*disabled|source.*unavailable/i, title: 'Job Source Disabled', message: 'This job board is currently disabled in your settings.', action: 'Open Settings, choose More Settings, then View Job Sources.' },
   { pattern: /api.*key|api.*quota|api.*limit/i, title: 'Daily Job Board Limit Reached', message: 'This job board has stopped accepting more requests today.', action: 'Wait until tomorrow, or reduce how often JobSentinel checks this source.' },

@@ -1212,6 +1212,10 @@ Next high-value passes:
      The latest undo/redo recovery slice replaces browser-refresh-style
      guidance in dashboard undo, global undo, and missing-page recovery flows
      with local check plus safe-support-report next steps.
+     The latest restart-recovery slice makes app-reopen guidance
+     support-report-first across saved applications, settings load, review
+     history, bulk bookmark, user-data docs, and frontend/Rust local-data plus
+     website-format errors.
    - Do not trust hardcoded checkpoint notes for remote status. Use
      `git status --short --branch`, `git log --oneline -3`, and `gh run list
      --branch main --limit 5` as live evidence before reporting CI state.

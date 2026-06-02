@@ -39,7 +39,8 @@ describe("getSafeErrorToastCopy", () => {
 
     expect(copy.title).toBe("Local Data Busy");
     expect(copy.message).toContain("JobSentinel is already saving or reading");
-    expect(copy.message).toContain("restart the app");
+    expect(copy.message).toContain("safe support report");
+    expect(copy.message).toContain("closing and reopening JobSentinel");
   });
 
   it("can omit action guidance for compact surfaces", () => {

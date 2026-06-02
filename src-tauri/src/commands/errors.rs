@@ -44,7 +44,7 @@ impl ErrorCategory {
     pub fn recovery_hint(&self) -> &'static str {
         match self {
             Self::Database => {
-                "Restart JobSentinel. If this keeps happening, save a safe support report before changing local data."
+                "If this keeps happening, save a safe support report before closing and reopening JobSentinel or changing local data."
             }
             Self::Network => "Check your internet connection and try again.",
             Self::FileSystem => "Choose a file you can open, or check available disk space.",
@@ -178,7 +178,7 @@ fn get_specific_hint(error: &str) -> Option<&'static str> {
         return Some("Your disk may be full. Free up some space and try again.");
     }
     if lower.contains("corrupt") || lower.contains("malformed") {
-        return Some("JobSentinel could not read local data. Restart JobSentinel. If this keeps happening, save a safe support report and restore from a backup if you have one.");
+        return Some("JobSentinel could not read local data. Save a safe support report before closing and reopening JobSentinel or restoring from a backup.");
     }
 
     // Network specific
@@ -246,6 +246,18 @@ mod tests {
         assert!(!message.contains("database is locked"));
         assert!(!message.contains("SELECT"));
         assert!(!message.contains("secret"));
+    }
+
+    #[test]
+    fn database_recovery_copy_is_support_report_first() {
+        let category_message = user_friendly_error("Database operation failed", "sqlx pool error");
+        let corrupt_message = user_friendly_error("Database operation failed", "database corrupt");
+
+        for message in [category_message, corrupt_message] {
+            assert!(message.contains("safe support report"));
+            assert!(message.contains("closing and reopening JobSentinel"));
+            assert!(!message.contains(&["Restart", "JobSentinel"].join(" ")));
+        }
     }
 
     #[test]

@@ -587,12 +587,12 @@ test("product copy rejects technical-first settings copy", () => {
     writeFixtureFile(
       root,
       "src/pages/Settings.tsx",
-      "Turn this on to never miss a new posting.\nAuto-scan job boards\nCompany preference (if configured)\nSave failed\nTest failed\nsaved connection detail(s) failed to save\n",
+      "Turn this on to never miss a new posting.\nAuto-scan job boards\nCompany preference (if configured)\nSave failed\nTest failed\nsaved connection detail(s) failed to save\nRestart JobSentinel\n",
     );
     writeFixtureFile(
       root,
       "src/pages/ApplicationProfile.tsx",
-      "Failed to load application history\n",
+      "Failed to load application history\nRestart JobSentinel\n",
     );
     writeFixtureFile(
       root,
@@ -781,7 +781,7 @@ test("product copy rejects technical-first settings copy", () => {
     writeFixtureFile(
       root,
       "src/pages/Applications.tsx",
-      "{reminder.reminder_type} - Due: {formatEventDate(reminder.reminder_time)}\nYour applications list failed to load\nStatus update failed\n",
+      "{reminder.reminder_type} - Due: {formatEventDate(reminder.reminder_time)}\nYour applications list failed to load\nStatus update failed\nRestart JobSentinel\n",
     );
     writeFixtureFile(
       root,
@@ -801,7 +801,7 @@ test("product copy rejects technical-first settings copy", () => {
     writeFixtureFile(
       root,
       "src/pages/hooks/useDashboardJobOps.ts",
-      "Undo failed\nRedo failed\nBookmark Failed\nBulk Hide Failed\nBulk Bookmark Failed\nBulk Merge Failed\n3 failed\nCouldn't update bookmark. Try again.\nTry refreshing.\n",
+      "Undo failed\nRedo failed\nBookmark Failed\nBulk Hide Failed\nBulk Bookmark Failed\nBulk Merge Failed\n3 failed\nCouldn't update bookmark. Try again.\nTry refreshing.\nrestart the app\n",
     );
     writeFixtureFile(
       root,
@@ -836,6 +836,8 @@ test("product copy rejects technical-first settings copy", () => {
         "Document Too Large",
         "too long for processing",
         "Try refreshing your job list.",
+        "restart the app",
+        "contact support",
         "",
       ].join("\n"),
     );
@@ -1209,11 +1211,22 @@ test("product copy rejects technical backend error labels", () => {
         'Self::Validation => "Invalid Input",',
         'return Some("Database is busy. Close other apps using JobSentinel and try again.");',
         'return Some("SSL certificate error. Check your system clock and network settings.");',
+        'return Some("Restart JobSentinel and contact support.");',
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/db/error.rs",
+      [
+        '"Could not open local job data. Restart JobSentinel and try again."',
+        '"contact support"',
         "",
       ].join("\n"),
     );
 
     assert.equal(hasTechnicalFirstUserCopy(root, "src-tauri/src/commands/errors.rs"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src-tauri/src/core/db/error.rs"), true);
   });
 });
 

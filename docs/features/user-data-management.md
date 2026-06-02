@@ -83,7 +83,8 @@ private paths, cookies, webhook links, tokens, or full application history.
 
 Users who had older browser-saved templates or searches may see a migration
 prompt. The migration moves supported local data into the current local store.
-If no prompt appears, restart the app and check Settings.
+If no prompt appears, make a safe support report first, then close and reopen
+JobSentinel and check Settings.
 
 ## Backups And Deletion
 
@@ -96,7 +97,7 @@ If no prompt appears, restart the app and check Settings.
 
 | Problem | Plain next step |
 | --- | --- |
-| Older templates did not appear | Restart JobSentinel and check Settings for a migration prompt. |
+| Older templates did not appear | Make a safe support report first, then close and reopen JobSentinel and check Settings for a migration prompt. |
 | A saved search is missing | Open Saved Searches, then check recent search history. |
 | Alerts feel too noisy | Raise match strength or narrow the saved search. |
 | Alerts miss expected jobs | Lower match strength or check whether the source is enabled. |

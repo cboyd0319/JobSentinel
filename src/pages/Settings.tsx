@@ -1537,8 +1537,9 @@ export default function Settings({ onClose }: SettingsProps) {
         <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto m-4">
           <div className="flex flex-col items-center justify-center py-12 gap-4">
             <p className="text-sm text-red-500 dark:text-red-400 text-center max-w-md">
-              Settings could not load. Restart JobSentinel. If this keeps
-              happening, save a safe support report from Help.
+              Settings could not load. Try again. If this keeps happening,
+              save a safe support report from Help before closing and reopening
+              JobSentinel.
             </p>
             <div className="flex gap-3">
               <button

@@ -37,6 +37,9 @@ describe("errorMessages", () => {
     it("handles database locked errors", () => {
       const result = getUserFriendlyError(new Error("database is locked"));
       expect(result.title).toBe("Local Data Busy");
+      expect(result.action).toContain("safe support report");
+      expect(result.action).toContain("closing and reopening JobSentinel");
+      expect(result.action).not.toMatch(/restart the app/i);
     });
 
     it("uses plain human-check copy for site challenges", () => {

@@ -939,6 +939,11 @@ and record actionable findings in this active-plan surface.
   guidance in dashboard undo, global undo, and missing-page recovery flows with
   local check plus safe-support-report next steps, with focused hook/context
   helper tests and product-copy coverage.
+- Current local restart-recovery slice makes app-reopen guidance
+  support-report-first across saved applications, settings load, review
+  history, bulk bookmark, user-data docs, and frontend/Rust local-data plus
+  website-format errors, with product-copy coverage against restart/contact
+  support drift.
 - The previous local slice closed the hardcoded harness-policy debt by moving
   required harness files, policy snippets, and README reference-source coverage
   into `docs/harness/manifest.json`.

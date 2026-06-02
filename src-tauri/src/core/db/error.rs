@@ -60,7 +60,7 @@ pub enum DatabaseError {
     /// Database integrity error
     Integrity { message: String },
 
-    /// Database corruption detected
+    /// Local data integrity problem detected
     Corruption { details: String },
 
     /// Backup operation failed
@@ -91,18 +91,18 @@ pub enum DatabaseError {
 impl fmt::Display for DatabaseError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::Query { context, .. } => write!(f, "Database query error: {context}"),
+            Self::Query { context, .. } => write!(f, "Could not update local job data: {context}"),
             Self::Connection { path, source } => {
                 let _ = source;
                 write!(
                     f,
-                    "Failed to connect to database at {}",
+                    "Could not open local job data at {}",
                     Self::sanitize_path(path)
                 )
             }
             Self::Migration { source } => {
                 let _ = source;
-                write!(f, "Database migration failed")
+                write!(f, "Could not update local job data format")
             }
             Self::Timeout {
                 timeout_secs,
@@ -110,7 +110,7 @@ impl fmt::Display for DatabaseError {
             } => {
                 write!(
                     f,
-                    "Database query timed out after {}s: {}",
+                    "Local job data took longer than {}s to respond: {}",
                     timeout_secs,
                     Self::sanitize_query(query)
                 )
@@ -127,12 +127,12 @@ impl fmt::Display for DatabaseError {
             } => {
                 write!(
                     f,
-                    "Foreign key violation: {parent_entity} not found for {child_entity}"
+                    "Related local job data missing: {parent_entity} not found for {child_entity}"
                 )
             }
             Self::Validation { field, reason } => {
                 let _ = reason;
-                write!(f, "Validation error for {field}")
+                write!(f, "Check {field}")
             }
             Self::FieldTooLong {
                 field,
@@ -150,11 +150,11 @@ impl fmt::Display for DatabaseError {
             }
             Self::Integrity { message } => {
                 let _ = message;
-                write!(f, "Database integrity check failed")
+                write!(f, "Local job data check could not finish")
             }
             Self::Corruption { details } => {
                 let _ = details;
-                write!(f, "Database corruption detected")
+                write!(f, "Local job data could not be read")
             }
             Self::Backup { path, source } => {
                 let _ = source;
@@ -164,17 +164,19 @@ impl fmt::Display for DatabaseError {
                 let _ = reason;
                 write!(f, "Restore failed from {}", Self::sanitize_path(path))
             }
-            Self::Transaction { operation, .. } => write!(f, "Transaction failed: {operation}"),
+            Self::Transaction { operation, .. } => {
+                write!(f, "Local job data update failed: {operation}")
+            }
             Self::Locked { retry_after_ms } => {
-                write!(f, "Database is locked - retry in {retry_after_ms}ms")
+                write!(f, "Local job data is busy. Try again in {retry_after_ms}ms")
             }
             Self::Io { source } => {
                 let _ = source;
-                write!(f, "Disk I/O error")
+                write!(f, "Could not read or write local job data")
             }
             Self::Generic { message } => {
                 let _ = message;
-                write!(f, "Database error")
+                write!(f, "Local job data problem")
             }
         }
     }
@@ -297,7 +299,7 @@ impl DatabaseError {
                 "Could not update local job data. Try again.".to_string()
             }
             Self::Connection { .. } => {
-                "Could not open local job data. Restart JobSentinel and try again.".to_string()
+                "Could not open local job data. Copy a safe support report before closing and reopening JobSentinel.".to_string()
             }
             Self::Migration { .. } => {
                 "JobSentinel could not finish updating local job data. Check for updates, or restore a backup if you have one.".to_string()
@@ -463,6 +465,16 @@ mod tests {
 
     #[test]
     fn test_user_message_uses_plain_local_data_copy() {
+        let connection_message = DatabaseError::Connection {
+            path: "/Users/alice/jobs.db".to_string(),
+            source: sqlx::Error::PoolTimedOut,
+        }
+        .user_message();
+
+        assert!(connection_message.contains("safe support report"));
+        assert!(connection_message.contains("closing and reopening JobSentinel"));
+        assert!(!connection_message.contains(&["Restart", "JobSentinel"].join(" ")));
+
         let messages = [
             DatabaseError::Query {
                 context: "private search".to_string(),

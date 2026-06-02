@@ -342,7 +342,7 @@ export default function Applications({ onBack, onImportJob }: ApplicationsProps)
       logError("Failed to fetch applications:", err);
       toast.error(
         "Could not load saved applications",
-        "Restart JobSentinel. If this keeps happening, save a safe support report."
+        "Save a safe support report if this keeps happening, then close and reopen JobSentinel."
       );
     } finally {
       setLoading(false);
@@ -834,7 +834,7 @@ export default function Applications({ onBack, onImportJob }: ApplicationsProps)
                       logError("Failed to update status:", err);
                       toast.error(
                         "Could not update status",
-                        "The application status wasn't changed. Try again or restart JobSentinel."
+                        "The application status wasn't changed. Try again, or copy a safe support report before closing and reopening JobSentinel."
                       );
                     }
                   }}

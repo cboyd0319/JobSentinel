@@ -1280,3 +1280,8 @@ Current progress rows stay here. Older rows are preserved in [progress history](
   guidance in dashboard undo, global undo, and missing-page recovery flows with
   local check plus safe-support-report next steps, with focused hook/context
   helper tests and product-copy coverage.
+- Current local restart-recovery slice makes app-reopen guidance
+  support-report-first across saved applications, settings load, review
+  history, bulk bookmark, user-data docs, and frontend/Rust local-data plus
+  website-format errors, with product-copy coverage against restart/contact
+  support drift.

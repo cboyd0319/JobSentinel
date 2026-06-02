@@ -38,7 +38,10 @@ export default function ApplicationProfile({ onBack }: ApplicationProfileProps) 
     } catch (error: unknown) {
       if (signal?.aborted) return;
       logError("Failed to load automation stats:", error);
-      toast.error("Could not load review history", "Your saved review history may not be visible right now. Restart JobSentinel if this keeps happening.");
+      toast.error(
+        "Could not load review history",
+        "Your saved review history may not be visible right now. Copy a safe support report if this keeps happening, then close and reopen JobSentinel.",
+      );
     } finally {
       if (!signal?.aborted) {
         setLoadingStats(false);
