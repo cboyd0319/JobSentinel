@@ -96,7 +96,12 @@ Recent local verification evidence:
   tauri:verify:macos -- --dmg
   src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_2.6.4_universal.dmg
   --expected-architectures x86_64,arm64 --launch-smoke` passed with expected
-  optional Gatekeeper rejection for the local ad-hoc build.
+  optional Gatekeeper rejection for the local ad-hoc build. Post-commit runtime
+  readiness checks also passed: `npm run test:e2e:smoke:budget` finished in
+  about 6.7 seconds with 9 expected tests and no unexpected, flaky, or skipped
+  results; `cargo test --lib platforms::macos` passed 22 tests with 1 ignored;
+  and `npm run doctor` reported the environment ready with only the expected
+  Node 26 local-runtime warning against the Node 20 CI baseline.
 - Current local Resume Match parser fix keeps required and preferred job-post
   sections separate when a posting uses ordinary single-line headings, so
   preferred words are not promoted into required review buckets. Verification
