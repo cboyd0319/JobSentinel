@@ -74,7 +74,10 @@ unreviewed form sending.
   --strict --verbose=2` passed for the mounted app, mounted-DMG inspection found
   `JobSentinel.app` and the `Applications` symlink, and the mounted universal
   app stayed running for 12 seconds under an isolated temporary `HOME` with
-  stderr empty before clean termination.
+  stderr empty before clean termination. Remaining distribution blocker:
+  `spctl --assess` rejected the local ad-hoc signed `.app` and `.dmg`, so a
+  zero-friction public macOS release still needs Developer ID signing and
+  notarization credentials.
 - Current local Resume Match parser fix keeps required and preferred job-post
   sections separate when a posting uses ordinary single-line headings, so
   preferred words are not promoted into required review buckets. Verification

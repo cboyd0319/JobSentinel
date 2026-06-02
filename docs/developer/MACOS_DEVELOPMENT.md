@@ -149,6 +149,10 @@ verified the DMG checksum, confirmed the app binary contains both `x86_64` and
 `arm64`, verified the mounted app signature, and kept the mounted app running
 for 12 seconds under an isolated temporary home with empty stderr.
 
+Because this local package uses an ad-hoc signature, Gatekeeper assessment
+rejects the `.app` and `.dmg`. A zero-friction public macOS release still needs
+Developer ID signing and notarization credentials.
+
 **Note:** The `.dmg` installer is for distribution. You can also run the binary directly:
 
 ```bash
@@ -221,7 +225,7 @@ npm install
 
 - Launch Agent support for start-on-login
 - App Sandbox support
-- Code signing and notarization for distribution
+- Developer ID code signing and notarization for public distribution
 
 ---
 
