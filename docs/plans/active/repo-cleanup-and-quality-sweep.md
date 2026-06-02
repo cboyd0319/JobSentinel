@@ -239,6 +239,11 @@ boundaries, and harness modularity:
   backend metadata such as ids, default template fields, and timestamps.
   Focused mock/ProfileForm, Rust response, Tauri invoke, Rust formatting, lint,
   build, docs, bloat, and diff-check verification passed.
+- Current local Settings safety-copy follow-up makes saved support reports
+  review-first before sharing, changes source suggestions from recommendations
+  to optional review, and clarifies chat connection links should be treated like
+  passwords. Focused Settings, product-copy, lint, docs, bloat, and diff-check
+  verification passed.
 - Current local source-status wording cleanup replaces remaining user-facing
   `source health` wording with `source status` in README, roadmap, source
   guides, and ScraperHealthDashboard log context. Product-copy sensors now

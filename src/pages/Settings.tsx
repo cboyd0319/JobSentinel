@@ -716,8 +716,8 @@ export default function Settings({ onClose }: SettingsProps) {
       const savedFile = await saveSanitizedDebugReport();
       if (savedFile) {
         toast.success(
-          "Safe support report saved",
-          `Share ${savedFile.fileName} only if you want help.`
+          "Support report saved for review",
+          `Review ${savedFile.fileName} before sharing it. Share it only if you want help.`
         );
       } else {
         toast.info("Safe support report not saved", "No file was created.");
@@ -3508,7 +3508,7 @@ export default function Settings({ onClose }: SettingsProps) {
                     <div className="flex items-center gap-2 mb-2">
                       <SettingsSymbol icon="lightbulb" className="h-4 w-4 text-sentinel-700 dark:text-sentinel-300" />
                       <span className="text-sm font-medium text-sentinel-700 dark:text-sentinel-300">
-                        Recommended for you
+                        Optional sources to review
                       </span>
                     </div>
                     <div className="space-y-2">
@@ -3530,7 +3530,7 @@ export default function Settings({ onClose }: SettingsProps) {
                             onClick={rec.enable}
                             className="text-xs px-2 py-1 bg-sentinel-500 hover:bg-sentinel-600 text-white rounded transition-colors"
                           >
-                            Enable
+                            Review source
                           </button>
                         </div>
                       ))}

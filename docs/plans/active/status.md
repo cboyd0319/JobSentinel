@@ -249,6 +249,11 @@ actionable findings in this active-plan surface or the relevant plan.
   lint:tauri-invokes` passed, `cargo fmt --all -- --check` passed, `npm run
   lint` passed, `npm run build` passed, `npm run lint:docs` passed, `npm run
   lint:bloat` passed, and `git diff --check` passed.
+- Current local Settings safety-copy follow-up makes saved support reports
+  review-first before sharing, changes source suggestions from recommendations
+  to optional review, and clarifies chat connection links should be treated like
+  passwords. Focused Settings and product-copy tests passed; lint, docs, bloat,
+  and diff-check verification passed.
 - Current local source-status wording cleanup replaces remaining user-facing
   `source health` wording with `source status` in README, roadmap, source
   guides, and ScraperHealthDashboard log context. Product-copy sensors now

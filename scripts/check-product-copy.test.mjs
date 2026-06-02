@@ -920,7 +920,7 @@ test("product copy rejects technical-first settings copy", () => {
     writeFixtureFile(
       root,
       "src/pages/Settings.tsx",
-      'Basic Settings\nMore Settings\nTurn this on to never miss a new posting.\nAuto-scan job boards\nCompany preference (if configured)\nEmail provider details\nProvider address\nProvider number\nUse this only if your provider gives you manual email details\nOptional USAJobs auto-check\nAutomatic USAJobs checks contact USAJobs\nautomatic\nUSAJobs checks\nTurn Remote OK automatic checks on or off\nSave failed\nTest failed\nsaved connection detail(s) failed to save\nRestart JobSentinel\nTroubleshooting\n<HelpIcon text="If something is not working, these details can help explain what happened." />\nHacker News Who\'s Hiring\nTurn Hacker News hiring post checks on or off\n',
+      'Basic Settings\nMore Settings\nTurn this on to never miss a new posting.\nAuto-scan job boards\nCompany preference (if configured)\nEmail provider details\nProvider address\nProvider number\nUse this only if your provider gives you manual email details\nOptional USAJobs auto-check\nAutomatic USAJobs checks contact USAJobs\nautomatic\nUSAJobs checks\nTurn Remote OK automatic checks on or off\nSave failed\nTest failed\nsaved connection detail(s) failed to save\nShare ${savedFile.fileName} only if you want help\nRecommended for you\nonClick={rec.enable}>Enable</button>\nRestart JobSentinel\nTroubleshooting\n<HelpIcon text="If something is not working, these details can help explain what happened." />\nHacker News Who\'s Hiring\nTurn Hacker News hiring post checks on or off\n',
     );
     writeFixtureFile(
       root,
@@ -935,6 +935,7 @@ test("product copy rejects technical-first settings copy", () => {
         "verify the connection",
         "bot an admin",
         "manual provider setup",
+        "private connection link",
         "",
       ].join("\n"),
     );
@@ -1432,10 +1433,22 @@ test("product copy rejects stale settings alert and source setup copy", () => {
       "Request USAJobs access code",
       '<dt className="font-medium">Job-source link</dt>',
       "Paste a job-source link from a service you trust",
+      "Recommended for you",
+      "Share ${savedFile.fileName} only if you want help.",
     ]) {
       writeFixtureFile(root, "src/pages/Settings.tsx", `${staleCopy}\n`);
       assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
     }
+
+    writeFixtureFile(
+      root,
+      "docs/features/notifications.md",
+      "Slack, Discord, and Teams give you a private connection link for chat alerts.\n",
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "docs/features/notifications.md"),
+      true,
+    );
   });
 });
 

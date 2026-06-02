@@ -1221,6 +1221,9 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /["'`]Save failed["'`]/,
       /["'`]Test failed["'`]/,
       /saved connection detail\(s\) failed to save/i,
+      /Share\s*\$\{savedFile\.fileName\}\s*only if you want help/i,
+      /Recommended for you/i,
+      /onClick=\{rec\.enable\}[\s\S]{0,220}>\s*Enable\s*<\/button>/i,
       /Message @BotFather to create a private alert bot/i,
       /already use Telegram for automatic alerts/i,
       /Telegram chat number/i,
@@ -1671,6 +1674,12 @@ export function hasTechnicalFirstUserCopy(root, path) {
     ];
 
     if (setupWizardPatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
+  }
+
+  if (path === "docs/features/notifications.md") {
+    if (/private connection link/i.test(text)) {
       return true;
     }
   }

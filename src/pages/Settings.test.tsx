@@ -226,8 +226,8 @@ describe("Settings — loadConfig flow", () => {
 
     expect(saveSpy).toHaveBeenCalledTimes(1);
     expect(mockToast.success).toHaveBeenCalledWith(
-      "Safe support report saved",
-      "Share jobsentinel-support-report.txt only if you want help."
+      "Support report saved for review",
+      "Review jobsentinel-support-report.txt before sharing it. Share it only if you want help."
     );
   });
 
@@ -1253,7 +1253,7 @@ describe("Settings — handleSave flow", () => {
 
     await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
 
-    expect(screen.queryByText("Recommended for you")).not.toBeInTheDocument();
+    expect(screen.queryByText("Optional sources to review")).not.toBeInTheDocument();
   });
 
   it("does not recommend tech-heavy sources for broad searches with common tool keywords", async () => {
@@ -1280,7 +1280,7 @@ describe("Settings — handleSave flow", () => {
 
     await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
 
-    expect(screen.queryByText("Recommended for you")).not.toBeInTheDocument();
+    expect(screen.queryByText("Optional sources to review")).not.toBeInTheDocument();
   });
 
   it("recommends tech-heavy sources for technical searches", async () => {
@@ -1307,8 +1307,8 @@ describe("Settings — handleSave flow", () => {
 
     await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
 
-    const recommended = screen.getByText("Recommended for you");
-    const panel = recommended.parentElement?.parentElement;
+    const sourceReview = screen.getByText("Optional sources to review");
+    const panel = sourceReview.parentElement?.parentElement;
     expect(panel).toBeInstanceOf(HTMLElement);
     const panelQueries = within(panel as HTMLElement);
 
@@ -1317,6 +1317,7 @@ describe("Settings — handleSave flow", () => {
     expect(panelQueries.getByText("Startup and tech job posts")).toBeInTheDocument();
     expect(panelQueries.queryByText("Hacker News Who's Hiring")).not.toBeInTheDocument();
     expect(panelQueries.getByText(/remote tech roles/i)).toBeInTheDocument();
+    expect(panelQueries.getAllByRole("button", { name: "Review source" }).length).toBeGreaterThan(0);
   });
 
   it("uses plain source-check guidance without site-protection jargon", async () => {

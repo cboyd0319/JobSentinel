@@ -15,8 +15,8 @@ schedule.
 Desktop alerts do not need a connection link. Email alerts use your email
 service's app password or sending settings.
 
-Slack, Discord, and Teams give you a private connection link for chat alerts.
-Copy that link, then paste it into JobSentinel.
+Slack, Discord, and Teams give you a connection link for chat alerts. Treat it
+like a password; paste it only into JobSentinel.
 
 ---
 
