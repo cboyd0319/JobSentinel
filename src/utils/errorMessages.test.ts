@@ -62,7 +62,8 @@ describe("errorMessages", () => {
 
     it("handles missing required field errors", () => {
       const result = getUserFriendlyError(new Error("required field missing"));
-      expect(result.title).toBe("Missing Information");
+      expect(result.title).toBe("Add missing details");
+      expect(result.action).toContain("highlighted details");
     });
 
     it("handles unknown errors with generic message", () => {

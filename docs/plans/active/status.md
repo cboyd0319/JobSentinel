@@ -887,6 +887,9 @@ and record actionable findings in this active-plan surface.
   pass instead of treating them as bad addresses.
 - Current local unsafe-job-link copy slice changes invalid saved-link warnings
   to plain protective guidance and adds JobCard coverage.
+- Current local shared error-fallback slice changes missing-detail, date/time,
+  and file-not-found fallback copy to action-first guidance, with focused
+  error-message coverage.
 - The previous local slice closed the hardcoded harness-policy debt by moving
   required harness files, policy snippets, and README reference-source coverage
   into `docs/harness/manifest.json`.

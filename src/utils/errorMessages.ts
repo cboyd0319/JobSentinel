@@ -43,12 +43,12 @@ const DATABASE_ERRORS = [
  * Validation error patterns
  */
 const VALIDATION_ERRORS = [
-  { pattern: /required|missing|empty/i, title: 'Missing Information', message: 'Some required information is missing.', action: 'Fill in all required fields and try again.' },
+  { pattern: /required|missing|empty/i, title: 'Add missing details', message: 'Some details need to be added before this can continue.', action: 'Add the highlighted details, then try again.' },
   { pattern: /invalid.*email/i, title: 'Email Not Recognized', message: 'The email address does not look complete.', action: 'Check the email address and make sure it looks like: name@example.com' },
   { pattern: /invalid.*url|invalid.*webhook/i, title: 'Web Address Not Recognized', message: 'The web address is not in a format JobSentinel can use.', action: 'Copy the full address again. It should usually start with https://.' },
   { pattern: /invalid.*json/i, title: 'Data Not Recognized', message: 'The selected data is not in a format JobSentinel can use.', action: 'Try exporting it again from the original app, or copy a safe support report if you need help.' },
   { pattern: /password.*weak|password.*short/i, title: 'Weak Password', message: 'The password doesn\'t meet security requirements.', action: 'Use a longer password with a mix of letters, numbers, and special characters.' },
-  { pattern: /date|time.*invalid/i, title: 'Invalid Date or Time', message: 'The date or time format isn\'t recognized.', action: 'Use a standard date format like MM/DD/YYYY or check your system date/time settings.' },
+  { pattern: /date|time.*invalid/i, title: 'Check date or time', message: 'The date or time format is not recognized.', action: 'Use a date like MM/DD/YYYY, or check your system date and time settings.' },
 ];
 
 /**
@@ -69,7 +69,7 @@ const CONFIG_ERRORS = [
   { pattern: /config.*not.*found|config.*missing/i, title: 'Saved Settings Need Attention', message: 'JobSentinel could not find your saved settings.', action: 'Open Settings and save them again. If this keeps happening, copy a safe support report before resetting anything.' },
   { pattern: /config.*invalid|config.*corrupt/i, title: 'Saved Settings Need Attention', message: 'JobSentinel could not read your saved settings.', action: 'Open Settings and save them again. If this keeps happening, copy a safe support report before resetting anything.' },
   { pattern: /permission|access.*denied|EACCES/i, title: 'Permission Needed', message: 'JobSentinel needs permission to open that file or folder.', action: 'Check your system privacy settings, then try again.' },
-  { pattern: /file.*not.*found|ENOENT/i, title: 'File Not Found', message: 'A required file is missing.', action: 'The file may have been moved or deleted. Try reinstalling the app.' },
+  { pattern: /file.*not.*found|ENOENT/i, title: 'File unavailable', message: 'JobSentinel could not find the file it needs.', action: 'Choose the file again, restore it from backup, or reinstall JobSentinel if this keeps happening.' },
 ];
 
 /**

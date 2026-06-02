@@ -1250,3 +1250,6 @@ Current progress rows stay here. Older rows are preserved in [progress history](
   pass instead of treating them as bad addresses.
 - Current local unsafe-job-link copy slice changes invalid saved-link warnings
   to plain protective guidance and adds JobCard coverage.
+- Current local shared error-fallback slice changes missing-detail, date/time,
+  and file-not-found fallback copy to action-first guidance, with focused
+  error-message coverage.
