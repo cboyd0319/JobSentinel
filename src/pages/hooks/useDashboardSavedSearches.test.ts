@@ -137,4 +137,24 @@ describe("useDashboardSavedSearches", () => {
       },
     );
   });
+
+  it("uses plain validation copy when saving without a name", async () => {
+    mockSafeInvoke.mockResolvedValueOnce([]);
+
+    const { result } = renderHook(() => useDashboardSavedSearches());
+
+    await act(async () => {
+      await result.current.handleSaveSearch(() => currentFilters);
+    });
+
+    expect(mockToast.error).toHaveBeenCalledWith(
+      "Name this search",
+      "Add a name, then save again.",
+    );
+    expect(mockSafeInvoke).not.toHaveBeenCalledWith(
+      "create_saved_search",
+      expect.anything(),
+      expect.anything(),
+    );
+  });
 });

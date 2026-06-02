@@ -1255,6 +1255,8 @@ export function hasTechnicalFirstUserCopy(root, path) {
     /["'`]Browser Error["'`]/i,
     /["'`]Invalid Input["'`]/i,
     /Missing required fields/i,
+    /Name required/i,
+    /Please enter a name for this search/i,
     /Invalid date/i,
     /Invalid duration/i,
     /Interview cannot be scheduled in the past/i,

@@ -618,6 +618,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-06-02 | In progress | Reworded saved-search empty-name validation from form-rule wording to `Name this search` with action guidance, added focused hook coverage, and added product-copy stale phrase checks. |
 | 2026-06-02 | In progress | Replaced the Application Profile generic resume-file picker button with `Choose Resume` and added product-copy coverage against the stale file-manager label. |
 | 2026-06-02 | In progress | Followed up the input-neutral copy push after remote CI caught a stale Application Preview test expectation. Updated the test and product-copy sensor so `click the submit button yourself` cannot drift back. |
 | 2026-06-01 | In progress | Replaced mouse-only click/drag-first wording in onboarding, location detection, auto-refresh recovery, Application Assist, application tracking, cover-letter blanks, browser import, and user docs with input-neutral guidance while preserving the final-application-submit boundary. Product-copy coverage now rejects the recurring phrases. |

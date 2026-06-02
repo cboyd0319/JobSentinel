@@ -101,7 +101,7 @@ export function useDashboardSavedSearches() {
     }
   ) => {
     if (!newSearchName.trim()) {
-      toast.error("Name required", "Please enter a name for this search");
+      toast.error("Name this search", "Add a name, then save again.");
       return;
     }
 

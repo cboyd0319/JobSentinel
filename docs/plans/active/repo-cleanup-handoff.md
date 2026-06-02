@@ -1172,7 +1172,9 @@ Next high-value passes:
      import docs, with a follow-up stale-test fix for the Application Preview
      submit-yourself guidance. The latest resume-choice copy slice replaces the
      Application Profile generic resume-file picker label with `Choose Resume`.
-     Continue looking for new issues as new surfaces change.
+     The latest saved-search validation slice changes empty-name copy to
+     `Name this search` with action guidance. Continue looking for new issues
+     as new surfaces change.
    - Do not trust hardcoded checkpoint notes for remote status. Use
      `git status --short --branch`, `git log --oneline -3`, and `gh run list
      --branch main --limit 5` as live evidence before reporting CI state.
