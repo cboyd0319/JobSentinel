@@ -217,6 +217,7 @@ jobs:
           --expected-product-name JobSentinel
           --expected-version ${{ needs.create-release.outputs.version }}
           --expected-icon-file icon.icns
+          --expected-minimum-system-version 13.0
           --launch-smoke
           --install-smoke
           --require-gatekeeper

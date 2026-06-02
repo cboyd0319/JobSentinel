@@ -17,6 +17,7 @@ test("macOS verifier parses positional and flagged DMG arguments", () => {
     expectedBundleMetadata: {
       bundleIdentifier: undefined,
       iconFile: undefined,
+      minimumSystemVersion: undefined,
       productName: undefined,
       version: undefined,
     },
@@ -41,6 +42,8 @@ test("macOS verifier parses positional and flagged DMG arguments", () => {
       "2.6.4",
       "--expected-icon-file",
       "icon.icns",
+      "--expected-minimum-system-version",
+      "13.0",
       "--launch-smoke",
       "--smoke-seconds",
       "3",
@@ -53,6 +56,7 @@ test("macOS verifier parses positional and flagged DMG arguments", () => {
       expectedBundleMetadata: {
         bundleIdentifier: "com.jobsentinel.main",
         iconFile: "icon.icns",
+        minimumSystemVersion: "13.0",
         productName: "JobSentinel",
         version: "2.6.4",
       },
@@ -129,6 +133,7 @@ test("macOS verifier validates required bundle metadata and expected identity", 
     executable: "jobsentinel",
     iconFile: "icon.icns",
     iconResourceExists: true,
+    minimumSystemVersion: "13.0",
     shortVersion: "2.6.4",
   };
 
@@ -136,6 +141,7 @@ test("macOS verifier validates required bundle metadata and expected identity", 
     bundleMetadataViolations(metadata, {
       bundleIdentifier: "com.jobsentinel.main",
       iconFile: "icon.icns",
+      minimumSystemVersion: "13.0",
       productName: "JobSentinel",
       version: "2.6.4",
     }),
@@ -148,6 +154,7 @@ test("macOS verifier validates required bundle metadata and expected identity", 
       {
         bundleIdentifier: "com.jobsentinel.main",
         iconFile: "icon.icns",
+        minimumSystemVersion: "13.0",
         productName: "JobSentinel",
         version: "2.6.4",
       },
@@ -158,6 +165,14 @@ test("macOS verifier validates required bundle metadata and expected identity", 
       "CFBundleDisplayName expected JobSentinel, found Other",
       "CFBundleShortVersionString expected 2.6.4, found 2.6.3",
     ],
+  );
+
+  assert.deepEqual(
+    bundleMetadataViolations(
+      { ...metadata, minimumSystemVersion: "10.13" },
+      { minimumSystemVersion: "13.0" },
+    ),
+    ["LSMinimumSystemVersion expected 13.0, found 10.13"],
   );
 
   assert.deepEqual(bundleMetadataViolations({ ...metadata, iconResourceExists: false }), [

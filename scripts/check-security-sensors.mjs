@@ -85,6 +85,7 @@ const releaseWorkflowChecks = [
       "--expected-product-name JobSentinel",
       "--expected-version",
       "--expected-icon-file icon.icns",
+      "--expected-minimum-system-version 13.0",
     ],
   },
 ];

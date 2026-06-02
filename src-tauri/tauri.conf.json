@@ -20,6 +20,10 @@
       "icons/icon.ico",
       "icons/icon.png"
     ],
+    "macOS": {
+      "hardenedRuntime": true,
+      "minimumSystemVersion": "13.0"
+    },
     "windows": {
       "certificateThumbprint": null,
       "digestAlgorithm": "sha256",

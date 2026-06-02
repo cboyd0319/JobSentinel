@@ -61,6 +61,7 @@ export function parseArgs(args, arch = process.arch) {
     expectedBundleMetadata: {
       bundleIdentifier: getArgValue(args, "--expected-bundle-id"),
       iconFile: getArgValue(args, "--expected-icon-file"),
+      minimumSystemVersion: getArgValue(args, "--expected-minimum-system-version"),
       productName: getArgValue(args, "--expected-product-name"),
       version: getArgValue(args, "--expected-version"),
     },
@@ -119,6 +120,7 @@ const requiredBundleMetadata = [
   ["displayName", "CFBundleDisplayName"],
   ["executable", "CFBundleExecutable"],
   ["iconFile", "CFBundleIconFile"],
+  ["minimumSystemVersion", "LSMinimumSystemVersion"],
   ["shortVersion", "CFBundleShortVersionString"],
   ["bundleVersion", "CFBundleVersion"],
 ];
@@ -174,6 +176,12 @@ export function bundleMetadataViolations(metadata, expected = {}) {
 
   if (expected.iconFile && metadata.iconFile !== expected.iconFile) {
     violations.push(`CFBundleIconFile expected ${expected.iconFile}, found ${metadata.iconFile || "(empty)"}`);
+  }
+
+  if (expected.minimumSystemVersion && metadata.minimumSystemVersion !== expected.minimumSystemVersion) {
+    violations.push(
+      `LSMinimumSystemVersion expected ${expected.minimumSystemVersion}, found ${metadata.minimumSystemVersion || "(empty)"}`,
+    );
   }
 
   if (metadata.iconFile && metadata.iconResourceExists === false) {
@@ -261,7 +269,7 @@ function verifyBundleMetadata(appPath, expectedBundleMetadata) {
   }
 
   console.log(
-    `App bundle metadata verified: ${metadata.bundleName} ${metadata.shortVersion} (${metadata.bundleIdentifier}), icon ${metadata.iconFile}`,
+    `App bundle metadata verified: ${metadata.bundleName} ${metadata.shortVersion} (${metadata.bundleIdentifier}), icon ${metadata.iconFile}, macOS ${metadata.minimumSystemVersion}+`,
   );
   return metadata;
 }
@@ -484,7 +492,7 @@ export async function verifyMacosPackage(options) {
 export async function main({ args = process.argv.slice(2) } = {}) {
   const options = parseArgs(args);
   if (!options.dmgPath) {
-    throw new Error("Usage: verify-macos-package.mjs --dmg <path-to-dmg> [--expected-architectures x86_64,arm64] [--expected-bundle-id com.example.app] [--expected-product-name AppName] [--expected-version X.Y.Z] [--expected-icon-file icon.icns] [--launch-smoke] [--install-smoke] [--require-gatekeeper]");
+    throw new Error("Usage: verify-macos-package.mjs --dmg <path-to-dmg> [--expected-architectures x86_64,arm64] [--expected-bundle-id com.example.app] [--expected-product-name AppName] [--expected-version X.Y.Z] [--expected-icon-file icon.icns] [--expected-minimum-system-version 13.0] [--launch-smoke] [--install-smoke] [--require-gatekeeper]");
   }
   if (!Number.isFinite(options.smokeSeconds) || options.smokeSeconds < 1) {
     throw new Error(`Invalid --smoke-seconds value: ${options.smokeSeconds}`);

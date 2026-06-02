@@ -156,18 +156,18 @@ Recent local verification evidence:
 - Current local macOS bundle-metadata follow-up adds verifier checks for
   expected bundle id `com.jobsentinel.main`, product name `JobSentinel`,
   release version, `icon.icns` metadata, and the actual icon resource in
-  `Contents/Resources`; wires those checks into the release workflow and public
-  release verifier; and regenerates `src-tauri/icons/icon.icns` from the
-  approved `public/logo.png` source. A fresh
+  `Contents/Resources`, plus `LSMinimumSystemVersion` 13.0; wires those checks
+  into the release workflow and public release verifier; and regenerates
+  `src-tauri/icons/icon.icns` from the approved `public/logo.png` source. A fresh
   `npm run tauri:build:macos -- --target universal-apple-darwin` rebuilt the
   universal app and DMG, and the rebuilt DMG passed
-  `npm run tauri:verify:macos` with expected metadata, `x86_64,arm64`
-  architectures, mounted and installed launch smoke, isolated `jobs.db`
-  creation, signature verification, and expected optional Gatekeeper rejection
-  for the ad-hoc local package. Verification passed: focused Node tests passed
-  17 tests, `actionlint .github/workflows/release.yml
+  `npm run tauri:verify:macos` with expected metadata, macOS 13.0 minimum
+  metadata, `x86_64,arm64` architectures, mounted and installed launch smoke,
+  isolated `jobs.db` creation, signature verification, and expected optional
+  Gatekeeper rejection for the ad-hoc local package. Verification passed:
+  focused Node tests passed 17 tests, `actionlint .github/workflows/release.yml
   .github/workflows/verify-release-artifacts.yml` passed, `npm run
-  test:scripts` passed 500 tests, `npm run lint:security`, `npm run
+  test:scripts` passed 501 tests, `npm run lint:security`, `npm run
   lint:bloat`, `npm run lint:docs`, and `git diff --check` passed.
 - Current published macOS release gap: the public GitHub `v2.6.4` release is
   live and includes `JobSentinel_2.6.4_universal.dmg`, but verification of the

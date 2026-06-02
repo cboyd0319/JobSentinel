@@ -42,6 +42,7 @@ export function parseArgs(args) {
     expectedBundleMetadata: {
       bundleIdentifier: getArgValue(args, "--expected-bundle-id") ?? "com.jobsentinel.main",
       iconFile: getArgValue(args, "--expected-icon-file") ?? "icon.icns",
+      minimumSystemVersion: getArgValue(args, "--expected-minimum-system-version") ?? "13.0",
       productName: getArgValue(args, "--expected-product-name") ?? "JobSentinel",
       version: getArgValue(args, "--expected-version"),
     },

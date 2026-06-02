@@ -12,6 +12,7 @@ test("latest macOS release verifier defaults to strict public release checks", (
     expectedBundleMetadata: {
       bundleIdentifier: "com.jobsentinel.main",
       iconFile: "icon.icns",
+      minimumSystemVersion: "13.0",
       productName: "JobSentinel",
       version: undefined,
     },
@@ -41,6 +42,8 @@ test("latest macOS release verifier supports scoped overrides", () => {
       "2.6.4",
       "--expected-icon-file",
       "example.icns",
+      "--expected-minimum-system-version",
+      "14.0",
       "--expected-architectures",
       "arm64",
       "--no-install-smoke",
@@ -57,6 +60,7 @@ test("latest macOS release verifier supports scoped overrides", () => {
       expectedBundleMetadata: {
         bundleIdentifier: "com.example.project",
         iconFile: "example.icns",
+        minimumSystemVersion: "14.0",
         productName: "Example",
         version: "2.6.4",
       },
