@@ -34,6 +34,14 @@ actionable findings in this active-plan surface or the relevant plan.
 - Branch has multiple local commits ahead of `origin/main`. Use
   `git status --short --branch` for live evidence before committing, pushing,
   or reporting remote state.
+- Current local scheduled-check wording cleanup changes remaining USAJobs and
+  Quick Start automatic-check copy to scheduled/next-step wording. Product-copy
+  sensors now reject newline-hidden `automatic USAJobs checks`, Quick Start
+  `watching the allowed sources`, and `Here's what happens automatically`
+  drift. Focused verification passed: `npx vitest run
+  src/pages/Settings.test.tsx`, `node --test
+  scripts/check-product-copy.test.mjs`, targeted stale-phrase search found no
+  old live wording in Settings or Quick Start, and `npm run lint:bloat`.
 - Current local Telegram alert setup copy cleanup removes visible automatic-alert,
   bot-command, and chat-number wording from Settings and the Notifications
   guide. Telegram stays an optional chat-alert path, but the primary UI no

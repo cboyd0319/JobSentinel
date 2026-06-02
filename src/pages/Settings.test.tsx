@@ -1323,7 +1323,7 @@ describe("Settings — handleSave flow", () => {
       return null;
     });
 
-    render(<Settings onClose={vi.fn()} />);
+    const { container } = render(<Settings onClose={vi.fn()} />);
 
     await waitFor(() => {
       expect(screen.getByText("Settings")).toBeInTheDocument();
@@ -1353,6 +1353,8 @@ describe("Settings — handleSave flow", () => {
     expect(
       screen.queryByRole("checkbox", { name: /automatic checks/i }),
     ).not.toBeInTheDocument();
+    expect(screen.getByText(/scheduled USAJobs checks/i)).toBeInTheDocument();
+    expect(container.textContent ?? "").not.toMatch(/automatic\s+USAJobs\s+checks/i);
     expect(
       screen.getByRole("link", { name: /Open USAJobs search in your browser/i }),
     ).toHaveAttribute("href", "https://www.usajobs.gov/Search/Results");

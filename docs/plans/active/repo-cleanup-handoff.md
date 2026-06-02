@@ -31,6 +31,15 @@ Latest pushed checkpoints include:
 
 Recent remote integration evidence:
 
+- Current local scheduled-check wording cleanup changes remaining USAJobs and
+  Quick Start automatic-check copy to scheduled/next-step wording. Product-copy
+  sensors now reject newline-hidden `automatic USAJobs checks`, Quick Start
+  `watching the allowed sources`, and `Here's what happens automatically`
+  drift. Focused verification passed: `npx vitest run
+  src/pages/Settings.test.tsx` passed 38 tests, `node --test
+  scripts/check-product-copy.test.mjs` passed 34 tests, targeted stale-phrase
+  search found no old live wording in Settings or Quick Start, and `npm run
+  lint:bloat` passed.
 - Current local Telegram alert setup copy cleanup removes visible automatic-alert,
   bot-command, and chat-number wording from Settings and the Notifications
   guide. Telegram stays optional, but the primary UI no longer teaches

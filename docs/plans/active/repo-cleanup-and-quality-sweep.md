@@ -164,6 +164,12 @@ As of 2026-06-02, the active plan remains open. Latest local work improved
 visible zero-technical UX, broad-audience defaults, privacy/security
 boundaries, and harness modularity:
 
+- Current local scheduled-check wording cleanup changes remaining USAJobs and
+  Quick Start automatic-check copy to scheduled/next-step wording. Product-copy
+  sensors now reject newline-hidden `automatic USAJobs checks`, Quick Start
+  `watching the allowed sources`, and `Here's what happens automatically`
+  drift. Focused Settings, product-copy, stale-phrase, and bloat verification
+  passed.
 - Current local Telegram alert setup copy cleanup removes visible automatic-alert,
   bot-command, and chat-number wording from Settings and the Notifications
   guide. Telegram stays optional, but the primary UI no longer teaches

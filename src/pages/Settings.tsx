@@ -3291,8 +3291,9 @@ export default function Settings({ onClose }: SettingsProps) {
                           </div>
                           <p className="text-xs text-blue-700 dark:text-blue-300 mt-2">
                             This opens a USAJobs access-code page that may use
-                            official setup wording. Skip it unless you want automatic
-                            USAJobs checks; browser search still works.
+                            official setup wording. Skip it unless you want
+                            scheduled USAJobs checks; browser search still
+                            works.
                           </p>
                         </div>
                       )}

@@ -1153,6 +1153,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /automatic monitoring/i,
       /Advanced federal monitoring/i,
       /\bautomatic checks\b/i,
+      /automatic\s+USAJobs\s+checks/i,
       /Advanced chat alert/i,
       /\(Tech hubs\)/i,
       /HN Who's Hiring/i,
@@ -1513,6 +1514,8 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /Advanced:\s*where JobSentinel saves local files/i,
       /Support file locations/i,
       /%LOCALAPPDATA%\\JobSentinel\\jobs\.db/i,
+      /watching the allowed sources/i,
+      /Here's what happens automatically/i,
     ];
 
     if (quickStartPatterns.some((pattern) => pattern.test(text))) {

@@ -200,9 +200,9 @@ Change anything that looks wrong, then start finding jobs.
 
 ## Step 3: Review matches
 
-JobSentinel is now watching the allowed sources you enabled.
+JobSentinel is now checking the sources you allowed.
 
-Here's what happens automatically:
+What JobSentinel does next:
 
 - Every 2 hours, JobSentinel checks for new jobs.
 - Each job is compared with your saved search.
