@@ -15,13 +15,13 @@ call private LinkedIn systems, or read LinkedIn pages in the background.
 | Scheduled job checks | Greenhouse, Lever, RemoteOK, WeWorkRemotely, BuiltIn, startup and tech job posts, JobsWithGPT, Dice, YC Startup Jobs, USAJobs, SimplyHired, Glassdoor |
 | Source-check helpers | Scheduled job checks plus Indeed, Wellfound, and ZipRecruiter availability checks |
 | User-opened search links | LinkedIn and other destination links opened by the user |
-| Preferred expansion path | Official company career pages and public hiring-platform feeds or APIs such as Greenhouse, Lever, Ashby, Workable, SmartRecruiters, and USAJobs |
+| Preferred expansion path | Official company career pages and public hiring-platform sources such as Greenhouse, Lever, Ashby, Workable, SmartRecruiters, and USAJobs |
 
 ## Boundaries
 
 | Rule | Requirement |
 | ---- | ----------- |
-| Official source first | Prefer documented feeds or APIs, public feeds, and official company or application-platform postings |
+| Official source first | Prefer official posting sources, public feeds, and company or application-platform postings |
 | No restricted-site automation | Do not add hidden data paths, session-cookie collection, human-check workarounds, or platform-control evasion |
 | Local-first storage | Source results, run history, and notes stay local |
 | Rate limits | Every source check must wait within that source's limits |
@@ -57,24 +57,24 @@ Source status must never leak credentials, raw cookies, full URLs containing
 sensitive parameters, private notes, salary floors, resumes, or application
 history.
 
-## Rate Limits
+## Source Check Pace
 
-Representative source limits:
+Representative source pacing:
 
-| Source | Requests/hour | Access pattern |
+| Source | Check pace | Access pattern |
 | ------ | ------------- | -------------- |
-| Greenhouse | 1000 | Official/public board API |
-| Lever | 1000 | Official/public postings API |
-| USAJobs | 1000 | Official API with user-provided access code |
-| RemoteOK | 500 | Public job feed |
-| Startup and tech job posts | 500 | Public/community source |
-| Dice | 500 | Public job feed |
-| WeWorkRemotely | 300 | Public feed/page |
-| BuiltIn | 300 | Public page |
-| YC Startup Jobs | 300 | Public page |
-| SimplyHired | 200 | Best-effort public source; may be blocked |
-| Glassdoor | 200 | Best-effort public source; may ask for human checks |
-| JobsWithGPT | 10000 | User-approved job-source feed |
+| Greenhouse | High | Official public postings |
+| Lever | High | Official public postings |
+| USAJobs | High | Official source with user-provided access code |
+| RemoteOK | Medium | Public job feed |
+| Startup and tech job posts | Medium | Public/community source |
+| Dice | Medium | Public job feed |
+| WeWorkRemotely | Moderate | Public feed/page |
+| BuiltIn | Moderate | Public page |
+| YC Startup Jobs | Moderate | Public page |
+| SimplyHired | Conservative | Best-effort public source; may be blocked |
+| Glassdoor | Conservative | Best-effort public source; may ask for human checks |
+| JobsWithGPT | Feed-controlled | User-approved job-source feed |
 
 Checks that cannot operate within source boundaries should fail closed and
 show a clear user-facing explanation.
@@ -128,7 +128,7 @@ abbreviations, and maps location aliases such as `SF`, `Remote US`, and
 
 ## Expansion Checklist
 
-- Use official feeds or APIs where available.
+- Use official posting sources where available.
 - Confirm source terms, robots policy, and practical access boundaries.
 - Check sources politely and avoid reading more page data than needed.
 - Add health metadata and user-safe errors.

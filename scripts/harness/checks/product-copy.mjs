@@ -705,7 +705,7 @@ export function hasNonProtectiveScoreCopy(root, path) {
   }
 
   const text = readFileSync(join(root, path), "utf8");
-  return /Great Match!|Highly recommended!|You might want to skip it|if you're desperate|if you are desperate|\{reason\}\s*<\/div>|Job Scoring Weights|These weights determine|scoring weights|Configurable weights|Customize Weights|Weight Presets|Weight in overall score|\bdefault priorities\b|\bdefault priority\b|Match Priority Guide|Match Factors|These percentages|priority order|\b\d+%\s+weight\b|\b\d+%\s+priority\b|\(\d+%\s+priority\)|\b\d+%\s+influence\b|\(\d+%\s+influence\)|Strong \(70%\+\)|Some \(40-69%\)|Low \(<40%\)|Strong Match|Good Match|Some Match|Low Match|Best Match First|Lowest Match First|Match Details|Part of overall score|strongest matches|strong matches for your saved search|weaker or adjacent matches|Low match|Strong match|How To Read Match Results|Overall match|Experience match|Education match|Posting Risk Warning|weighted averages based on component importance|Score \(High|Score \(Low|All Scores|label="Score"|Jobs are scored based|top scores|Each job is scored|sorted by match score|jobs scoring|Alert Threshold|scoring above your threshold|match percentage|match scores?|match score, source|Match Score|Match score:|Score:\s*\{filters\.scoreFilter\}|Sort:\s*\{filters\.sortBy\}|return\s+["'`](?:Excellent|Great|Poor)["'`]/i.test(text);
+  return /Great Match!|Highly recommended!|You might want to skip it|if you're desperate|if you are desperate|\{reason\}\s*<\/div>|Job Scoring Weights|These weights determine|scoring weights|Configurable weights|Customize Weights|Weight Presets|Weight in overall score|Smart Scoring System|Smart scoring|\bdefault priorities\b|\bdefault priority\b|Match Priority Guide|Match Factors|These percentages|priority order|\b\d+%\s+weight\b|\b\d+%\s+priority\b|\(\d+%\s+priority\)|\b\d+%\s+influence\b|\(\d+%\s+influence\)|Strong \(70%\+\)|Some \(40-69%\)|Low \(<40%\)|Strong Match|Good Match|Some Match|Low Match|Best Match First|Lowest Match First|Match Details|Part of overall score|strongest matches|strong matches for your saved search|weaker or adjacent matches|Low match|Strong match|How To Read Match Results|Overall match|Experience match|Education match|Posting Risk Warning|weighted averages based on component importance|Score \(High|Score \(Low|All Scores|label="Score"|Jobs are scored based|top scores|Each job is scored|sorted by match score|jobs scoring|Alert Threshold|scoring above your threshold|match percentage|match scores?|match score, source|Match Score|Match score:|Score:\s*\{filters\.scoreFilter\}|Sort:\s*\{filters\.sortBy\}|return\s+["'`](?:Excellent|Great|Poor)["'`]/i.test(text);
 }
 
 export function hasLegacyPreferenceListCopy(root, path) {
@@ -739,6 +739,11 @@ export function hasTechnicalFirstUserCopy(root, path) {
   if (path === "src/utils/export.ts" || path === "src/utils/export.test.ts") {
     const text = readFileSync(join(root, path), "utf8");
     return /jobsentinel-config-\$\{date\}\.json|jobsentinel-config-\\d/.test(text);
+  }
+
+  if (path === "docs/README.md") {
+    const text = readFileSync(join(root, path), "utf8");
+    return /Job Source Adapters/i.test(text);
   }
 
   if (
@@ -1403,6 +1408,11 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /consistent upload previews/i,
       /ready to upload to any job application/i,
       /Some upload previews and review tools/i,
+      /ats-optimizer\.png/i,
+      /\*\*80-100\*\*/i,
+      /\*\*60-79\*\*/i,
+      /\*\*40-59\*\*/i,
+      /\*\*0-39\*\*/i,
       /create_resume_draft/i,
       /export_resume_docx/i,
       /analyze_resume_for_job/i,
@@ -1447,6 +1457,13 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /Run the focused Rust tests/i,
       /cd src-tauri/i,
       /cargo test core::resume::json_resume/i,
+      /\bJSON Resume\b/i,
+      /raw JSON strings/i,
+      /JSON character length/i,
+      /partial JSON Resume files/i,
+      /malformed JSON errors/i,
+      /JSON Resume schema/i,
+      /JSON Resume registry/i,
     ];
 
     if (resumeImportDocPatterns.some((pattern) => pattern.test(text))) {
@@ -1487,6 +1504,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /Advanced setup for Telegram bot users/i,
       /match strength/i,
       /match score/i,
+      /fit label or percentage/i,
       /alert selectivity/i,
       /Slack Advanced Chat Setup/i,
       /Add New Webhook to Workspace/i,
@@ -1540,6 +1558,8 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /choose More Settings/i,
       /download list on the newest release/i,
       /Optional:\s*build it yourself/i,
+      /build JobSentinel from the source code/i,
+      /source-code setup guide/i,
       /developer tools and commands/i,
       /https:\/\/api\.slack\.com\/messaging\/webhooks/i,
       /Advanced:\s*where JobSentinel saves local files/i,
@@ -1582,6 +1602,11 @@ export function hasTechnicalFirstUserCopy(root, path) {
     const sourceDocPatterns = [
       /Job Source Adapters/i,
       /public, bounded source adapters/i,
+      /feeds or APIs/i,
+      /Requests\/hour/i,
+      /Official\/public board API/i,
+      /Official\/public postings API/i,
+      /Official API with user-provided access code/i,
       /hidden LinkedIn endpoints/i,
       /HTML, RSS, JSON/i,
       /Adapter Flow/i,

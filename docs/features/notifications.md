@@ -45,7 +45,7 @@ user-opened search-link destination, not a background notification source.
 
 Desktop alerts keep job details inside JobSentinel. Optional email and chat
 alerts may include job title, company, location, salary, remote status, fit
-label or percentage, source, and job link because those services deliver the
+label, source, and job link because those services deliver the
 alert outside the app. Local fit reasons, saved search strategy, salary-floor details,
 private notes, and application history stay inside JobSentinel; open the app to
 review those details.

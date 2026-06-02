@@ -8,7 +8,7 @@ unclear, and where truthful edits could improve readability.
 
 | Resume Builder                                  | Resume Match                                  |
 | ----------------------------------------------- | --------------------------------------------- |
-| ![Resume Builder](../images/resume-builder.png) | ![Resume Match](../images/ats-optimizer.png) |
+| ![Resume Builder](../images/resume-builder.png) | ![Resume Match](../images/resume-matcher.png) |
 
 ---
 
@@ -114,10 +114,11 @@ your resume, and which ones need truthful support.
 
 ### Review Labels
 
-- **80-100** - Strong visible evidence
-- **60-79** - Useful match with places to improve
-- **40-59** - Several gaps worth reviewing
-- **0-39** - Not enough evidence for careful tailoring yet
+- **Strong visible evidence** - The resume already shows relevant proof.
+- **Useful fit with places to improve** - The resume has useful evidence and a few unclear areas.
+- **Several gaps worth reviewing** - The resume needs careful review before tailoring.
+- **Not enough evidence for careful tailoring yet** - The resume needs more
+  relevant proof before this role is worth detailed tailoring.
 
 ---
 

@@ -31,6 +31,17 @@ Latest pushed checkpoints include:
 
 Recent local verification evidence:
 
+- Current local user-doc sidecar cleanup applies read-only agent findings
+  across the docs hub, Job Sources guide, Resume Data Import, Fit Review,
+  Resume Builder, Notifications, Quick Start, and Privacy. It removes
+  API/rate/schema/score-range phrasing from user-facing docs, switches source
+  docs to pace labels, points Resume Builder at the current Resume Match image,
+  and extends product-copy sensors for those drift classes. Verification
+  passed: `node --test scripts/check-product-copy.test.mjs` passed 42 tests,
+  targeted stale-phrase search found no old live wording in touched docs,
+  `npm run lint:bloat` passed, `npm run harness:check` passed,
+  `npm run lint:docs` passed, `npm run test:scripts` passed 467 tests, and
+  `git diff --check` passed.
 - Current local privacy/responsible/resume fit-language cleanup changes
   `PRIVACY.md`, `RESPONSIBLE_AI.md`, and the Resume Match feature guide away
   from match-score and match-result wording toward fit-level and fit-estimate

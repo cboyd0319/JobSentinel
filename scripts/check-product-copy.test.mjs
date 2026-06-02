@@ -466,6 +466,8 @@ test("product copy rejects stale match-ranking labels", () => {
       ["docs/user/QUICK_START.md", "weaker or adjacent matches"],
       ["docs/features/smart-scoring.md", "Low Match"],
       ["docs/features/smart-scoring.md", "Match Factors"],
+      ["docs/features/smart-scoring.md", "Smart Scoring System"],
+      ["docs/features/smart-scoring.md", "Smart scoring should:"],
       ["docs/features/smart-scoring.md", "match percentage"],
       ["docs/style-guide/GLOSSARY.md", "match score"],
       ["docs/style-guide/WRITING-FOR-JOB-SEEKERS.md", "match scores"],
@@ -478,6 +480,28 @@ test("product copy rejects stale match-ranking labels", () => {
     ]) {
       writeFixtureFile(root, path, `${copy}\n`);
       assert.equal(hasNonProtectiveScoreCopy(root, path), true);
+    }
+  });
+});
+
+test("product copy rejects user-doc sidecar drift", () => {
+  withFixture((root) => {
+    for (const [path, copy] of [
+      ["docs/README.md", "Job Source Adapters"],
+      ["docs/features/resume-builder.md", "../images/ats-optimizer.png"],
+      ["docs/features/resume-builder.md", "**80-100** - Strong visible evidence"],
+      ["docs/features/json-resume-import.md", "JSON Resume"],
+      ["docs/features/json-resume-import.md", "raw JSON strings"],
+      ["docs/features/json-resume-import.md", "malformed JSON errors"],
+      ["docs/features/scrapers.md", "feeds or APIs"],
+      ["docs/features/scrapers.md", "Requests/hour"],
+      ["docs/features/scrapers.md", "Official/public board API"],
+      ["docs/user/QUICK_START.md", "build JobSentinel from the source code"],
+      ["docs/user/QUICK_START.md", "source-code setup guide"],
+      ["docs/features/notifications.md", "fit label or percentage"],
+    ]) {
+      writeFixtureFile(root, path, `${copy}\n`);
+      assert.equal(hasTechnicalFirstUserCopy(root, path), true);
     }
   });
 });

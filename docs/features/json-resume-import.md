@@ -1,8 +1,7 @@
 # Import from Resume App
 
-JobSentinel can import a resume app export saved in a supported resume-app
-format, including [JSON Resume](https://jsonresume.org/), and turn it into an
-editable local resume draft.
+JobSentinel can import a resume app export saved in a supported format and turn
+it into an editable local resume draft.
 
 Privacy label: **Local only** and **Sensitive**. Resume content stays on the
 user's device. Importing a resume must not send the file, parsed text, contact
@@ -58,23 +57,17 @@ resume text in user-facing error copy.
 
 ## Privacy Requirements
 
-- Do not log resume names, raw JSON strings, parsed resume text, raw local
+- Do not log resume names, raw export strings, parsed resume text, raw local
   paths, or imported contact details.
 - Command logs may record non-identifying counts such as resume-name length,
-  JSON character length, and sanitized path labels.
+  export character length, and sanitized path labels.
 - App screens must not expose local file paths or full parsed resume text.
 - Safe support reports must redact resume content unless the user explicitly
   includes it.
 
 ## Validation Requirements
 
-- Keep import tolerant of partial JSON Resume files.
+- Keep import tolerant of partial resume app export files.
 - Keep unsupported fields non-fatal.
-- Keep malformed JSON errors clear and non-technical.
+- Keep unreadable export errors clear and non-technical.
 - Keep tests broad enough to cover non-software resumes.
-
-## References
-
-- [JSON Resume schema](https://jsonresume.org/schema/)
-- [JSON Resume getting started](https://jsonresume.org/getting-started/)
-- [JSON Resume registry](https://registry.jsonresume.org/)

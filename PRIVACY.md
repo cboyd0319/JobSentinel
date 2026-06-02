@@ -32,8 +32,8 @@ By default, these stay on the user's computer:
 - Local problem history and safe support reports before the user chooses to
   share them.
 
-JobSentinel stores app data in local SQLite storage. Secrets are stored in the
-operating system credential store where supported:
+JobSentinel stores app data on the user's computer. Saved secrets are stored in
+the operating system credential store where supported:
 
 - Windows Credential Manager.
 - macOS Keychain.
@@ -107,8 +107,9 @@ import removes embedded credentials, fragments, tracking parameters, and
 sensitive query parameters before preview, hashing, storage, or returning a
 result; the import command returns only the saved job id.
 
-API keys and provider secrets must not be hardcoded. If a user adds a provider
-key, it should live in the operating system credential store where supported.
+Provider access details and saved secrets must not be hardcoded. If a user adds
+a provider access key, it should live in the operating system credential store
+where supported.
 Logs must record only safe request details, never full prompts, resumes, notes,
 salary floors, secrets, or full responses.
 

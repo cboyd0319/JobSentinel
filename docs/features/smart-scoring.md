@@ -1,4 +1,4 @@
-# Smart Scoring System
+# Fit Review
 
 **Understand why a job appears high or low without turning the search into a
 black box.**
@@ -145,7 +145,7 @@ Useful settings live in normal language:
 
 ## Boundaries
 
-Smart scoring must not:
+Fit review must not:
 
 - Claim a job is guaranteed to be good.
 - Hide salary-floor conflicts.
@@ -155,7 +155,7 @@ Smart scoring must not:
 - Submit applications for the user.
 - Send private job-search data to an external provider.
 
-Smart scoring should:
+Fit review should:
 
 - Explain visible factors.
 - Help users recover from bad matches by changing settings.

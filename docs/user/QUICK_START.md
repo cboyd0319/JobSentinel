@@ -75,9 +75,8 @@ This can happen because JobSentinel is a new open-source app.
 
 Most people should download the installer and skip this section.
 
-If you prefer to build JobSentinel from the source code, use
-[the source-code setup guide](../developer/GETTING_STARTED.md). That guide has
-the steps for people changing the app.
+People changing the app can use the
+[contributor setup guide](../developer/GETTING_STARTED.md).
 
 </details>
 

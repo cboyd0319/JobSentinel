@@ -65,10 +65,10 @@ skill to get value.
 | Resume writing | [Resume Builder](features/resume-builder.md) |
 | Application board | [Application Tracking](features/application-tracking.md) |
 | Review-first application form help | [Application Assist](features/one-click-apply.md) |
-| Official-source job monitoring | [Job Source Adapters](features/scrapers.md) |
+| Official-source job monitoring | [Job Sources](features/scrapers.md) |
 | Browser import button | [Browser Import Button](BOOKMARKLET.md) |
 | Hiring trends | [Hiring Trends](features/market-intelligence.md) |
-| Match priorities | [Smart Scoring](features/smart-scoring.md) |
+| Fit priorities | [Fit Review](features/smart-scoring.md) |
 | Work-mode matching | [Remote Preference Matching](features/remote-preference-scoring.md) |
 | Broad skill matching | [Synonym Matching](features/synonym-matching.md) |
 | Structured resume import | [Resume Data Import](features/json-resume-import.md) |
