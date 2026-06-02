@@ -164,6 +164,9 @@ As of 2026-06-02, the active plan remains open. Latest local work improved
 visible zero-technical UX, broad-audience defaults, privacy/security
 boundaries, and harness modularity:
 
+- Replaced vague application-profile slow-load copy with
+  `Still opening your application profile...`, added a focused ProfileForm
+  test, and extended product-copy coverage against the old phrase.
 - Changed app and page error recovery copy from browser-style reload wording to
   `Reset App Window` and `Clear Temporary App Data` language, updated
   ErrorBoundary expectations, and added product-copy coverage against reload

@@ -114,6 +114,9 @@ Recent remote integration evidence:
 
 Current cleanup posture:
 
+- Current local application-profile loading follow-up replaces vague slow-load
+  copy with `Still opening your application profile...`, with ProfileForm and
+  product-copy coverage against the old phrase.
 - Current local general recovery wording follow-up changes app and page
   error-boundary copy and buttons from reload wording to `Reset App Window` and
   `Clear Temporary App Data` language, with ErrorBoundary tests and product-copy

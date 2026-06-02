@@ -31,6 +31,10 @@ and record actionable findings in this active-plan surface.
 
 ## Current Posture
 
+- Latest local application-profile loading follow-up replaces vague
+  `Taking longer than expected...` copy with `Still opening your application
+  profile...`, adds a ProfileForm slow-load test, and extends product-copy
+  coverage against the vague phrase returning.
 - Latest local general recovery wording follow-up changes app and page error
   buttons and guidance from browser-style reload wording to `Reset App Window`
   and `Clear Temporary App Data` language while preserving existing recovery

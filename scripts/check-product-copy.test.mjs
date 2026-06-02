@@ -829,6 +829,7 @@ test("product copy rejects technical-first settings copy", () => {
         "Failed to select file",
         "Please fix the errors",
         "Failed to save",
+        "Taking longer than expected...",
         "",
       ].join("\n"),
     );

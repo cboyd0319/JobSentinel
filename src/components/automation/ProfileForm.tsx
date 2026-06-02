@@ -242,7 +242,7 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
     loadProfile();
   }, [loadProfile]);
 
-  // Show "taking longer" message if loading exceeds 5 seconds
+  // Show a plain slow-load message if opening the profile takes a while.
   useEffect(() => {
     if (!loading) {
       setTakingLong(false);
@@ -401,7 +401,7 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
           <div className="animate-spin w-6 h-6 border-2 border-sentinel-500 border-t-transparent rounded-full" aria-hidden="true" />
           {takingLong && (
             <p className="mt-3 text-sm text-surface-500 dark:text-surface-400">
-              Taking longer than expected...
+              Still opening your application profile...
             </p>
           )}
         </div>

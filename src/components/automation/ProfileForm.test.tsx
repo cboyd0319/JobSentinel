@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ToastProvider } from "../../contexts";
 import { ProfileForm } from "./ProfileForm";
@@ -46,6 +46,23 @@ function mockProfile(overrides: Record<string, unknown> = {}) {
 describe("ProfileForm resume privacy", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.useRealTimers();
+  });
+
+  it("shows plain slow-loading copy while opening the profile", async () => {
+    vi.useFakeTimers();
+    mockInvoke.mockImplementationOnce(() => new Promise(() => undefined));
+
+    renderProfileForm();
+
+    expect(screen.queryByText("Still opening your application profile...")).not.toBeInTheDocument();
+
+    await act(async () => {
+      vi.advanceTimersByTime(5000);
+    });
+
+    expect(screen.getByText("Still opening your application profile...")).toBeInTheDocument();
+    expect(screen.queryByText("Taking longer than expected...")).not.toBeInTheDocument();
   });
 
   it("uses plain recovery copy when profile loading fails", async () => {
