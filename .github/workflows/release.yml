@@ -185,6 +185,7 @@ jobs:
                 printf 'JOBSENTINEL_MACOS_SIGNING_IDENTITY=-\n'
                 printf 'JOBSENTINEL_MACOS_NOTARIZE_DMG=false\n'
                 printf 'JOBSENTINEL_MACOS_REQUIRE_GATEKEEPER=false\n'
+                printf 'JOBSENTINEL_MACOS_NO_ACCOUNT=true\n'
               } >> "$GITHUB_ENV"
               exit 0
             fi
@@ -222,6 +223,7 @@ jobs:
             printf 'APPLE_TEAM_ID=%s\n' "$APPLE_TEAM_ID"
             printf 'JOBSENTINEL_MACOS_NOTARIZE_DMG=true\n'
             printf 'JOBSENTINEL_MACOS_REQUIRE_GATEKEEPER=true\n'
+            printf 'JOBSENTINEL_MACOS_NO_ACCOUNT=false\n'
           } >> "$GITHUB_ENV"
 
       - name: Build Tauri app
@@ -261,6 +263,38 @@ jobs:
           fi
 
           npm run tauri:verify:macos -- "${args[@]}"
+
+      - name: Label no-account macOS DMG
+        if: matrix.platform == 'macos-latest' && env.JOBSENTINEL_MACOS_NO_ACCOUNT == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+
+          dmg_paths=(src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg)
+          if [ "${#dmg_paths[@]}" -ne 1 ]; then
+            printf 'Expected exactly one macOS DMG, found %s\n' "${#dmg_paths[@]}"
+            exit 1
+          fi
+
+          current_path="${dmg_paths[0]}"
+          current_name="$(basename "$current_path")"
+          current_dir="$(dirname "$current_path")"
+
+          if [[ "$current_name" == *"_no-account_"* ]]; then
+            printf 'No-account macOS DMG already labeled: %s\n' "$current_path"
+            exit 0
+          fi
+
+          labeled_name="${current_name/_universal.dmg/_no-account_universal.dmg}"
+          if [ "$labeled_name" = "$current_name" ]; then
+            labeled_name="${current_name%.dmg}_no-account_macos.dmg"
+          fi
+
+          labeled_path="$current_dir/$labeled_name"
+          mv "$current_path" "$labeled_path"
+          rm -f "$current_path.sha256" "$labeled_path.sha256"
+          printf 'Labeled no-account macOS DMG: %s\n' "$labeled_path"
 
       - name: Create macOS checksum
         if: matrix.platform == 'macos-latest'

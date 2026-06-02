@@ -29,6 +29,9 @@ narrow implementation slices chosen from that backlog.
   backlog. Treat this as screening-system transparency and application
   readability: local parse preview, readable exports, required/preferred
   qualification review, truthful fit evidence, and user-confirmed edits.
+- Current execution note on 2026-06-02: no-Apple-account macOS deployment is
+  the immediate primary goal. Resume assistance remains the next
+  product-function priority after the no-account macOS path is locked down.
 - Latest local resume preview slice adds an explicit **See what JobSentinel
   read** action on the Resume Match page. It fetches a bounded local-only
   readable-text preview, omits saved file paths from the preview and normal

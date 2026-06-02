@@ -40,8 +40,9 @@ macOS package before upload, and attaches release assets.
 
 If no Apple Developer Account secrets are configured, the release workflow
 builds a no-account macOS DMG, ad-hoc signs the app bundle if needed, runs the
-local no-account verifier, creates a matching `.dmg.sha256`, and uploads both
-files without claiming Gatekeeper readiness.
+local no-account verifier, labels the public asset filename with
+`_no-account_`, creates a matching `.dmg.sha256` after the rename, and uploads
+both files without claiming Gatekeeper readiness.
 
 For a zero-friction public macOS release, configure the Developer ID signing and
 notarization secrets before tagging:

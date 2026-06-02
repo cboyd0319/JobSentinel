@@ -92,6 +92,10 @@ const releaseWorkflowChecks = [
       "13.0",
     ],
   },
+  {
+    label: "macOS no-account asset label",
+    phrases: ["JOBSENTINEL_MACOS_NO_ACCOUNT", "_no-account_"],
+  },
 ];
 
 const publishedReleaseWorkflowChecks = [

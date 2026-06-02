@@ -9,6 +9,11 @@ The cleanup goal remains open. Do not mark it complete until current evidence
 proves the repo-wide objective: identify and fix all known issues across the
 JobSentinel repo, then verify docs and code against that full scope.
 
+Immediate primary goal as of 2026-06-02 is no-Apple-account macOS deployment:
+get the public universal DMG path as close to complete as possible without an
+Apple Developer Account. Resume assistance remains the next product-function
+priority after the no-account macOS path is locked down.
+
 All tracked files under `docs/plans/active/` are now part of the current goal
 scope:
 
@@ -71,12 +76,28 @@ Recent local verification evidence:
   explicit. If all Apple release secrets are missing, release CI builds an
   ad-hoc macOS DMG, verifies metadata, signatures, mounted launch smoke,
   installed-app launch smoke, universal architectures, and local data creation,
-  then uploads it without claiming Gatekeeper readiness. If only some Apple
-  secrets are configured, CI fails before building. If all required Apple
+  labels the public asset filename with `_no-account_`, creates a matching
+  checksum after the rename, then uploads it without claiming Gatekeeper
+  readiness. If only some Apple secrets are configured, CI fails before
+  building. If all required Apple
   secrets are present, CI signs, notarizes, staples, validates, and requires
   Gatekeeper acceptance. The public macOS artifact verifier now defaults to the
   no-account checks and supports `--require-gatekeeper` for signed/notarized
   releases.
+- Current local no-account asset-label follow-up makes release CI rename
+  ad-hoc public macOS DMGs to include `_no-account_` before checksum creation
+  and upload, and adds security sensor coverage so that label gate cannot be
+  silently dropped. Verification passed on macOS 26.5 (Darwin 25.5.0, build
+  25F71), Apple Silicon `arm64`, with SIP enabled: `npx actionlint
+  .github/workflows/release.yml`, `npm run lint:security`, `node --test
+  scripts/check-security-sensors.test.mjs`, `npm run lint:docs`, `npm run
+  test:scripts`, `npm run lint:bloat`, `git diff --check`, and `npm run
+  tauri:verify:macos:latest -- --tag v2.6.4`. The public verifier downloaded
+  `JobSentinel_2.6.4_no-account_universal.dmg`, checked its matching checksum,
+  verified app metadata, `x86_64` plus `arm64` architectures, code signature,
+  mounted launch smoke, installed-app launch smoke, and isolated `jobs.db`
+  creation. Optional Gatekeeper rejection remains expected for no-account
+  packages.
 - Current local reviewed-resume-skill sorting follow-up adds explicit Resume
   page controls to use or stop using reviewed local skills as one job-sorting
   signal. The new config commands update disk and runtime config together,
@@ -262,8 +283,10 @@ Recent local verification evidence:
 - Current local macOS release-gate hardening makes the custom DMG builder use
   hardened runtime and timestamp flags for Developer ID fallback app signing,
   timestamps Developer ID disk image signatures, requires `--launch-smoke`
-  before release upload, and adds security sensor coverage so the macOS release
-  workflow cannot silently drop Gatekeeper or launch-smoke gates. Verification
+  before release upload, labels ad-hoc no-account public DMG assets before
+  checksum/upload, and adds security sensor coverage so the macOS release
+  workflow cannot silently drop Gatekeeper, launch-smoke, or no-account asset
+  label gates. Verification
   passed: `node --test scripts/build-macos-dmg.test.mjs
   scripts/verify-macos-package.test.mjs scripts/check-security-sensors.test.mjs`
   passed 21 tests, `npm run tauri:verify:macos -- --dmg

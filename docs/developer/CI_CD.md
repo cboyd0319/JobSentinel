@@ -266,9 +266,10 @@ APPLE_TEAM_ID               # 10-character Apple Team ID
 ```
 
 If all of these secrets are missing, the macOS release job builds an ad-hoc
-signed DMG, writes a matching `.dmg.sha256`, and verifies it without a
-Gatekeeper claim. If only some secrets are configured, the job fails before
-building. When all secrets are present, the workflow imports the Developer ID
+signed DMG, verifies it without a Gatekeeper claim, labels the asset filename
+with `_no-account_`, and writes a matching `.dmg.sha256` after the rename. If
+only some secrets are configured, the job fails before building. When all
+secrets are present, the workflow imports the Developer ID
 certificate into a temporary keychain, `npm run tauri:build:macos` signs,
 notarizes, staples, and validates the custom DMG. The release workflow then
 verifies the package with
@@ -327,8 +328,9 @@ npm update       # Try updating first
 Check the failed job's logs directly. Common causes:
 
 - macOS: partial Apple signing secrets, invalid Developer ID identity, stale
-  bundle metadata, missing `.dmg.sha256`, or a no-account package that fails
-  mounted or installed launch smoke
+  bundle metadata, missing `.dmg.sha256`, missing `_no-account_` asset label
+  for ad-hoc public packages, or a no-account package that fails mounted or
+  installed launch smoke
 - Linux: system library version mismatch (the workflow installs `libwebkit2gtk-4.1-dev` specifically)
 - Windows: MSI bundler configuration error in `tauri.conf.json`
 

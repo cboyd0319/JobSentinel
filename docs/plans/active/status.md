@@ -20,14 +20,18 @@ implementation slices that can run without shared-state conflicts. Keep scopes
 bounded, preserve user changes, close completed agents promptly, and record
 actionable findings in this active-plan surface or the relevant plan.
 
-Top functional priority as of 2026-06-02: resume assistance with
-screening-system transparency and application readability. The no-account
-macOS readiness path was verified, committed, pushed, and left with green CI
-and docs harness runs for commit `232920d5`. Resume work means resume parsing,
-readable exports, resume/job fit review, required-versus-preferred
-qualification review, and truthful edit support. It does not mean hidden
-keyword edits, deceptive resume changes, screening-system manipulation, or
-unreviewed form sending.
+Immediate primary goal as of 2026-06-02: make no-Apple-account macOS
+deployment as strong as possible. That means a verified universal DMG, clear
+no-account labeling, matching checksum, metadata/signature checks, mounted and
+installed launch smoke, isolated local-data smoke, plain first-open guidance,
+and explicit acknowledgement that zero-friction Gatekeeper acceptance still
+requires Developer ID signing and notarization. Resume assistance with
+screening-system transparency and application readability remains the next
+functional priority after the no-account macOS path is locked down. Resume work
+means resume parsing, readable exports, resume/job fit review,
+required-versus-preferred qualification review, and truthful edit support. It
+does not mean hidden keyword edits, deceptive resume changes, screening-system
+manipulation, or unreviewed form sending.
 
 ## Workstreams
 
@@ -80,12 +84,28 @@ unreviewed form sending.
   explicit. If all Apple release secrets are missing, release CI builds an
   ad-hoc macOS DMG, verifies metadata, signatures, mounted launch smoke,
   installed-app launch smoke, universal architectures, and local data creation,
-  then uploads it without claiming Gatekeeper readiness. If only some Apple
-  secrets are configured, CI fails before building. If all required Apple
+  labels the public asset filename with `_no-account_`, creates a matching
+  checksum after the rename, then uploads it without claiming Gatekeeper
+  readiness. If only some Apple secrets are configured, CI fails before
+  building. If all required Apple
   secrets are present, CI signs, notarizes, staples, validates, and requires
   Gatekeeper acceptance. The public macOS artifact verifier now defaults to the
   no-account checks and supports `--require-gatekeeper` for signed/notarized
   releases.
+- Current local no-account asset-label follow-up makes release CI rename
+  ad-hoc public macOS DMGs to include `_no-account_` before checksum creation
+  and upload, and adds security sensor coverage so that label gate cannot be
+  silently dropped. Verification passed on macOS 26.5 (Darwin 25.5.0, build
+  25F71), Apple Silicon `arm64`, with SIP enabled: `npx actionlint
+  .github/workflows/release.yml`, `npm run lint:security`, `node --test
+  scripts/check-security-sensors.test.mjs`, `npm run lint:docs`, `npm run
+  test:scripts`, `npm run lint:bloat`, `git diff --check`, and `npm run
+  tauri:verify:macos:latest -- --tag v2.6.4`. The public verifier downloaded
+  `JobSentinel_2.6.4_no-account_universal.dmg`, checked its matching checksum,
+  verified app metadata, `x86_64` plus `arm64` architectures, code signature,
+  mounted launch smoke, installed-app launch smoke, and isolated `jobs.db`
+  creation. Optional Gatekeeper rejection remains expected for no-account
+  packages.
 - Current local reviewed-resume-skill sorting follow-up adds explicit Resume
   page controls to use or stop using reviewed local skills as one job-sorting
   signal. The new config commands update disk and runtime config together,
@@ -271,8 +291,10 @@ unreviewed form sending.
 - Current local macOS release-gate hardening makes the custom DMG builder use
   hardened runtime and timestamp flags for Developer ID fallback app signing,
   timestamps Developer ID disk image signatures, requires `--launch-smoke`
-  before release upload, and adds security sensor coverage so the macOS release
-  workflow cannot silently drop Gatekeeper or launch-smoke gates. Verification
+  before release upload, labels ad-hoc no-account public DMG assets before
+  checksum/upload, and adds security sensor coverage so the macOS release
+  workflow cannot silently drop Gatekeeper, launch-smoke, or no-account asset
+  label gates. Verification
   passed: `node --test scripts/build-macos-dmg.test.mjs
   scripts/verify-macos-package.test.mjs scripts/check-security-sensors.test.mjs`
   passed 21 tests, `npm run tauri:verify:macos -- --dmg
