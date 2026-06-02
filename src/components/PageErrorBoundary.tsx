@@ -161,7 +161,7 @@ class PageErrorBoundary extends Component<Props, State> {
               )}
               {showRetryWarning && (
                 <Button onClick={() => window.location.reload()}>
-                  Reload App
+                  Reset App Window
                 </Button>
               )}
               <Button

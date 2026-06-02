@@ -114,6 +114,10 @@ Recent remote integration evidence:
 
 Current cleanup posture:
 
+- Current local general recovery wording follow-up changes app and page
+  error-boundary copy and buttons from reload wording to `Reset App Window` and
+  `Clear Temporary App Data` language, with ErrorBoundary tests and product-copy
+  coverage against the old wording.
 - Current local safe-support-report wording follow-up changes support-preview
   overflow text from `more events` to `more app actions`, maps event detail
   labels to `App action`, and changes generated report overflow wording from

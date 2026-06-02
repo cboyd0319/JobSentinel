@@ -642,6 +642,10 @@ export function hasTechnicalRecoveryCopy(root, path) {
     /Please close and try again later/i,
     /Try closing and checking back later/i,
     /This page may be temporarily unavailable/i,
+    /Try reloading the app/i,
+    /Reload App/i,
+    /Reset App Window & Reload/i,
+    /If reload does not work/i,
   ];
 
   return stalePatterns.some((pattern) => pattern.test(text));

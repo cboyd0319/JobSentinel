@@ -121,16 +121,19 @@ describe("ErrorBoundary", () => {
       vi.unstubAllEnvs();
     });
 
-    it("shows reload button", () => {
+    it("shows reset app window button", () => {
       render(
         <ErrorBoundary>
           <ThrowError shouldThrow={true} />
         </ErrorBoundary>
       );
 
-      // Component shows "Try Again" and "Reload App" buttons
+      // Component shows "Try Again" and "Reset App Window" buttons
       expect(
         screen.getByRole("button", { name: /try again/i })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /reset app window/i })
       ).toBeInTheDocument();
     });
 
@@ -189,7 +192,7 @@ describe("ErrorBoundary", () => {
       ).toBeInTheDocument();
     });
 
-    it("reloads window when reload button is clicked", async () => {
+    it("resets app window when reset button is clicked", async () => {
       const user = userEvent.setup();
       const reloadMock = vi.fn();
       Object.defineProperty(window, "location", {
@@ -203,9 +206,8 @@ describe("ErrorBoundary", () => {
         </ErrorBoundary>
       );
 
-      // Click "Reload App" button
       const reloadButton = screen.getByRole("button", {
-        name: /reload app/i,
+        name: /reset app window/i,
       });
       await user.click(reloadButton);
 
@@ -230,7 +232,10 @@ describe("ErrorBoundary", () => {
         screen.getByText(/saved jobs and applications stay on this device/i),
       ).toBeInTheDocument();
       expect(
-        screen.getByRole("button", { name: /reset app window.*reload/i }),
+        screen.getByRole("button", { name: /^reset app window$/i }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /clear temporary app data/i }),
       ).toBeInTheDocument();
       expect(screen.queryByText(/clear app data/i)).not.toBeInTheDocument();
     });
@@ -268,7 +273,7 @@ describe("ErrorBoundary", () => {
 
       await user.click(screen.getByRole("button", { name: /try again/i }));
       await user.click(
-        await screen.findByRole("button", { name: /reset app window/i })
+        await screen.findByRole("button", { name: /clear temporary app data/i })
       );
 
       expect(localStorage.getItem("jobsentinel-theme")).toBe("dark");
@@ -322,7 +327,7 @@ describe("ErrorBoundary", () => {
         </ErrorBoundary>
       );
 
-      const button = screen.getByRole("button", { name: /reload app/i });
+      const button = screen.getByRole("button", { name: /reset app window/i });
       expect(button).toHaveClass("focus-visible:ring-2");
     });
 
@@ -351,14 +356,14 @@ describe("ErrorBoundary", () => {
       expect(heading).toBeInTheDocument();
     });
 
-    it("renders reload button", () => {
+    it("renders reset app window button", () => {
       render(
         <ErrorBoundary>
           <ThrowError shouldThrow={true} />
         </ErrorBoundary>
       );
 
-      const button = screen.getByRole("button", { name: /reload app/i });
+      const button = screen.getByRole("button", { name: /reset app window/i });
       expect(button).toBeInTheDocument();
     });
   });

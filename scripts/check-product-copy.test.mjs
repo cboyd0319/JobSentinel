@@ -311,6 +311,10 @@ test("product copy rejects technical recovery and raw error details", () => {
       [
         "const title = `${pageName || 'Page'} Error`;",
         "return this.state.error.message;",
+        "Try reloading the app to continue.",
+        "Reload App",
+        "Reset App Window & Reload",
+        "If reload does not work",
         "",
       ].join("\n"),
     );

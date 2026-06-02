@@ -31,6 +31,11 @@ and record actionable findings in this active-plan surface.
 
 ## Current Posture
 
+- Latest local general recovery wording follow-up changes app and page error
+  buttons and guidance from browser-style reload wording to `Reset App Window`
+  and `Clear Temporary App Data` language while preserving existing recovery
+  behavior. ErrorBoundary tests and product-copy sensors guard against old
+  reload labels returning.
 - Latest local safe-support-report wording follow-up replaces remaining visible
   support-preview `more events` copy with `more app actions`, maps event detail
   labels to `App action`, and changes generated report overflow copy from

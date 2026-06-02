@@ -164,6 +164,10 @@ As of 2026-06-02, the active plan remains open. Latest local work improved
 visible zero-technical UX, broad-audience defaults, privacy/security
 boundaries, and harness modularity:
 
+- Changed app and page error recovery copy from browser-style reload wording to
+  `Reset App Window` and `Clear Temporary App Data` language, updated
+  ErrorBoundary expectations, and added product-copy coverage against reload
+  labels returning.
 - Replaced remaining support-report preview `more events` copy, raw event-detail
   labels, and generated `frontend errors omitted` wording with app-action and
   app-problem language, then added product-copy and feedback service coverage.
