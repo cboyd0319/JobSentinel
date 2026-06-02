@@ -31,6 +31,11 @@ and record actionable findings in this active-plan surface.
 
 ## Current Posture
 
+- Latest local safe-support-report wording follow-up replaces remaining visible
+  support-preview `more events` copy with `more app actions`, maps event detail
+  labels to `App action`, and changes generated report overflow copy from
+  frontend-error wording to plain app-problem wording. Product-copy and feedback
+  service tests cover the drift.
 - Latest local zero-technical settings-backup follow-up changes downloaded
   backup filenames from `jobsentinel-config-*` to
   `jobsentinel-settings-backup-*`, updates export tests, and adds product-copy

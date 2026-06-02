@@ -114,6 +114,10 @@ Recent remote integration evidence:
 
 Current cleanup posture:
 
+- Current local safe-support-report wording follow-up changes support-preview
+  overflow text from `more events` to `more app actions`, maps event detail
+  labels to `App action`, and changes generated report overflow wording from
+  frontend-error language to plain app-problem language.
 - Current local settings-backup filename follow-up changes downloaded backup
   names from `jobsentinel-config-*` to `jobsentinel-settings-backup-*`,
   updates export utility tests, and adds product-copy coverage against config

@@ -107,7 +107,7 @@ export const DebugInfoPreview = memo(function DebugInfoPreview({
                       ))}
                       {debugEvents.length > 10 && (
                         <div className="text-surface-500 dark:text-surface-500 italic">
-                          ... and {debugEvents.length - 10} more events
+                          ... and {debugEvents.length - 10} more app actions
                         </div>
                       )}
                     </div>

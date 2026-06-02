@@ -164,6 +164,9 @@ As of 2026-06-02, the active plan remains open. Latest local work improved
 visible zero-technical UX, broad-audience defaults, privacy/security
 boundaries, and harness modularity:
 
+- Replaced remaining support-report preview `more events` copy, raw event-detail
+  labels, and generated `frontend errors omitted` wording with app-action and
+  app-problem language, then added product-copy and feedback service coverage.
 - Changed default settings-backup download filenames from
   `jobsentinel-config-*` to `jobsentinel-settings-backup-*`, updated export
   utility tests, and added product-copy coverage so user-visible backup

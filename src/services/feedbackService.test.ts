@@ -286,6 +286,7 @@ describe("feedbackService", () => {
   it("formats debug event details without JSON or private values", () => {
     const details = formatDebugEventDetails({
       command: "search_jobs",
+      event: "user_action",
       success: true,
       url: "https://example.com/jobs?token=abc123",
       owner_email: "candidate@example.com",
@@ -293,6 +294,7 @@ describe("feedbackService", () => {
     });
 
     expect(details).toContain("Action: search jobs");
+    expect(details).toContain("App action: user action");
     expect(details).toContain("Result: succeeded");
     expect(details).toContain("url: https://example.com/jobs");
     expect(details).toContain("owner email: [EMAIL]");

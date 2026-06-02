@@ -1085,7 +1085,16 @@ test("product copy rejects support troubleshooting jargon", () => {
     writeFixtureFile(
       root,
       "src/components/feedback/DebugInfoPreview.tsx",
-      "Helps troubleshoot faster.",
+      "Helps troubleshoot faster.\n... and {debugEvents.length - 10} more events",
+    );
+    writeFixtureFile(
+      root,
+      "src/services/feedbackService.ts",
+      [
+        'const DEBUG_DETAIL_LABELS = { event: "Event" };',
+        '${errors.length - MAX_FRONTEND_ERRORS_IN_REPORT} older frontend errors omitted.',
+        "",
+      ].join("\n"),
     );
     writeFixtureFile(
       root,
@@ -1110,6 +1119,7 @@ test("product copy rejects support troubleshooting jargon", () => {
       hasTechnicalFirstUserCopy(root, "src/components/feedback/DebugInfoPreview.tsx"),
       true,
     );
+    assert.equal(hasFeedbackSetupJargon(root, "src/services/feedbackService.ts"), true);
     assert.equal(
       hasTechnicalFirstUserCopy(root, "src/components/ScraperHealthDashboard.tsx"),
       true,

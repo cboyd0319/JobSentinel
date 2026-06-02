@@ -592,7 +592,10 @@ export function hasFeedbackSetupJargon(root, path) {
     /\$\{configSummary\.(?:keywords_count|notifications_configured)\}\s+configured/.test(
       text,
     ) ||
-    /\?\s*["']configured["']\s*:\s*["']not configured["']/.test(text)
+    /\?\s*["']configured["']\s*:\s*["']not configured["']/.test(text) ||
+    /\bmore events\b/i.test(text) ||
+    /\bevent:\s*["']Event["']/.test(text) ||
+    /frontend errors omitted/i.test(text)
   );
 }
 

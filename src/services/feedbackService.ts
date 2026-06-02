@@ -65,7 +65,7 @@ const MAX_DEBUG_DETAIL_LENGTH = 120;
 
 const DEBUG_DETAIL_LABELS: Record<string, string> = {
   command: "Action",
-  event: "Event",
+  event: "App action",
   reason: "Reason",
   source: "Source",
   status: "Status",
@@ -179,7 +179,7 @@ function formatFrontendErrorLog(errors: ErrorReport[]): string {
 
   if (errors.length > MAX_FRONTEND_ERRORS_IN_REPORT) {
     lines.push(
-      `${errors.length - MAX_FRONTEND_ERRORS_IN_REPORT} older frontend errors omitted.`,
+      `${errors.length - MAX_FRONTEND_ERRORS_IN_REPORT} older app problems left out.`,
       ""
     );
   }
@@ -201,7 +201,11 @@ function formatDebugDetailValue(key: string, value: unknown): string | null {
 
   if (typeof value === "string") {
     const sanitized =
-      key === "command" || key === "feature" || key === "source" || key === "type"
+      key === "command" ||
+      key === "event" ||
+      key === "feature" ||
+      key === "source" ||
+      key === "type"
         ? formatDebugLabel(value)
         : sanitizeTextForStorage(value);
     return sanitized.length > MAX_DEBUG_DETAIL_LENGTH
