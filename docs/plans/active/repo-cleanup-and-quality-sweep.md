@@ -1242,3 +1242,6 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 - Current local missing-input copy slice changes pay-check, job-import, and
   search-link empty-input messages to action-first guidance, with focused
   component/page coverage.
+- Current local Resume Builder validation slice changes missing-step and skill
+  detail messages to action-first copy and adds focused helper coverage for
+  step validation.

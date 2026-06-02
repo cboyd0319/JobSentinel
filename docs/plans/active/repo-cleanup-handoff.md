@@ -1183,8 +1183,9 @@ Next high-value passes:
      slice changes email, required-field, resume contact, and screening-answer
      messages to action-first guidance. The latest missing-input copy slice
      changes pay-check, job-import, and search-link empty-input messages to
-     action-first guidance. Continue looking for new issues as new surfaces
-     change.
+     action-first guidance. The latest Resume Builder validation slice changes
+     missing-step and skill-detail messages to action-first copy with focused
+     helper coverage. Continue looking for new issues as new surfaces change.
    - Do not trust hardcoded checkpoint notes for remote status. Use
      `git status --short --branch`, `git log --oneline -3`, and `gh run list
      --branch main --limit 5` as live evidence before reporting CI state.

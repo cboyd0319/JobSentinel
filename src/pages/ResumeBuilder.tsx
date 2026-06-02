@@ -9,8 +9,11 @@ import { AtsLiveScorePanel } from "../components/AtsLiveScorePanel";
 import { useToast } from "../hooks/useToast";
 import { safeInvoke, safeInvokeWithToast } from "../utils/api";
 import { readStorageValue, removeStorageValue } from "../utils/browserStorage";
-import { getResumeContactValidationMessage } from "../utils/resumeContactValidation";
 import { getSafeErrorToastCopy } from "../utils/safeErrorCopy";
+import {
+  canProceedResumeBuilderStep,
+  getResumeBuilderStepValidationMessage,
+} from "./resumeBuilderValidation";
 
 // TypeScript Types
 interface Resume {
@@ -541,7 +544,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
   // Navigation handlers
   const handleNext = async () => {
     if (!canProceed()) {
-      toast.warning("Missing information", getValidationMessage());
+      toast.warning("Add missing resume details", getValidationMessage());
       return;
     }
 
@@ -559,27 +562,25 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
 
   // Validation using lookup pattern (better performance than switch)
   const canProceed = useCallback((): boolean => {
-    const validators: Record<number, () => boolean> = {
-      1: () => !getResumeContactValidationMessage(contact),
-      2: () => summary.length >= 10,
-      3: () => experiences.length > 0,
-      4: () => educations.length > 0,
-      5: () => skills.length > 0,
-    };
-    return validators[currentStep]?.() ?? true;
+    return canProceedResumeBuilderStep(currentStep, {
+      contact,
+      summary,
+      experiences,
+      educations,
+      skills,
+    });
   }, [currentStep, contact, summary, experiences, educations, skills]);
 
   // Validation messages using lookup pattern
   const getValidationMessage = useCallback((): string => {
-    const messages: Record<number, () => string> = {
-      1: () => getResumeContactValidationMessage(contact) ?? "",
-      2: () => "Please write a summary (at least 10 characters)",
-      3: () => "Please add at least one work experience",
-      4: () => "Please add at least one education entry",
-      5: () => "Please add at least one skill",
-    };
-    return messages[currentStep]?.() ?? "";
-  }, [currentStep, contact]);
+    return getResumeBuilderStepValidationMessage(currentStep, {
+      contact,
+      summary,
+      experiences,
+      educations,
+      skills,
+    });
+  }, [currentStep, contact, summary, experiences, educations, skills]);
 
   // Experience handlers
   const handleAddExperience = async () => {
@@ -666,7 +667,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
   // Skills handlers
   const handleAddSkill = () => {
     if (!newSkill.name || !newSkill.category) {
-      toast.warning("Please fill skill details", "");
+      toast.warning("Add skill details", "Add a skill name and category, then add the skill.");
       return;
     }
 
