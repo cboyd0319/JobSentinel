@@ -45,11 +45,13 @@ describe("Resume page", () => {
     render(<Resume onBack={vi.fn()} />);
 
     await waitFor(() => {
-      expect(screen.getByText("No Resume Uploaded")).toBeInTheDocument();
+      expect(screen.getByText("No Resume Added")).toBeInTheDocument();
     });
 
     expect(screen.getAllByRole("button", { name: "Import from resume app" })).toHaveLength(2);
     expect(screen.queryByRole("button", { name: "Import Resume Data" })).not.toBeInTheDocument();
+    expect(screen.queryByText("No Resume Uploaded")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /upload resume/i })).not.toBeInTheDocument();
   });
 
   it("renders resume match sub-scores as percentages from backend fractions", async () => {
@@ -239,7 +241,7 @@ describe("Resume page", () => {
     render(<Resume onBack={vi.fn()} />);
 
     await waitFor(() => {
-      expect(screen.getByText("No Resume Uploaded")).toBeInTheDocument();
+      expect(screen.getByText("No Resume Added")).toBeInTheDocument();
     });
 
     await user.click(screen.getAllByRole("button", { name: "Import from resume app" })[0]);

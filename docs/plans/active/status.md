@@ -34,6 +34,16 @@ actionable findings in this active-plan surface or the relevant plan.
 - Branch has multiple local commits ahead of `origin/main`. Use
   `git status --short --branch` for live evidence before committing, pushing,
   or reporting remote state.
+- Current local resume-add copy follow-up changes local Resume page and Settings
+  resume-match copy from upload/uploaded wording to add/added wording so users
+  do not infer a cloud transfer for local resume review. Product-copy sensors
+  now reject the old local-resume upload labels. Focused verification passed:
+  `npx vitest run src/pages/Resume.test.tsx src/pages/Settings.test.tsx`,
+  `node --test scripts/check-product-copy.test.mjs`, and targeted search found
+  old wording only in sensors, fixtures, or negative assertions for the touched
+  paths. Broader local checks also passed: `npm run lint:bloat`,
+  `npm run lint:docs`, `npm run test:scripts`, `npm run lint`, and
+  `git diff --check`.
 - Current local resume-error copy follow-up fixes shared error precedence so
   resume-not-found and resume-parsing failures are treated as resume-review
   problems instead of missing job pages or changed job websites. It also

@@ -1693,7 +1693,16 @@ test("product copy rejects technical source labels and unsafe public issue templ
 
 test("product copy rejects stale zero-technical resume and shortcut copy", () => {
   withFixture((root) => {
-    writeFixtureFile(root, "src/pages/Resume.tsx", "Import Resume Data\n");
+    writeFixtureFile(
+      root,
+      "src/pages/Resume.tsx",
+      "Import Resume Data\nNo Resume Uploaded\nResume uploaded\nUpload Resume\nUpload New\nUploading...\nUploaded:\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/Settings.tsx",
+      "When enabled, job scores use skills from your uploaded resume.\nUpload your resume in the Resume tab first. If no resume is uploaded, scoring uses your job titles.\n",
+    );
     writeFixtureFile(
       root,
       "src/pages/ResumeOptimizer.tsx",
@@ -1714,6 +1723,7 @@ test("product copy rejects stale zero-technical resume and shortcut copy", () =>
     );
 
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Resume.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/ResumeOptimizer.tsx"), true);
     assert.equal(
       hasTechnicalFirstUserCopy(root, "src/pages/DashboardUI/DashboardFiltersBar.tsx"),

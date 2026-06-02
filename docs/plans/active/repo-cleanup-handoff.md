@@ -187,6 +187,16 @@ Recent remote integration evidence:
   old wording only in sensor fixtures or negative assertions. Broader
   verification passed: `npm run lint:bloat`, `npm run lint:docs`,
   `npm run test:scripts`, `npm run lint`, and `git diff --check`.
+- Current local resume-add copy cleanup changes local Resume page and Settings
+  resume-match copy from upload/uploaded wording to add/added wording so users
+  do not infer cloud transfer for local resume review. Product-copy sensors now
+  reject the old local-resume upload labels in those paths. Focused verification
+  passed: `npx vitest run src/pages/Resume.test.tsx src/pages/Settings.test.tsx`,
+  `node --test scripts/check-product-copy.test.mjs`, and targeted stale-phrase
+  search found old wording only in sensors, fixtures, or negative assertions for
+  the touched paths. Broader verification passed: `npm run lint:bloat`,
+  `npm run lint:docs`, `npm run test:scripts`, `npm run lint`, and
+  `git diff --check`.
 - Current local source-name copy follow-up changes README source coverage,
   source feature docs, public job-source issue template, shared source labels,
   and frontend mocks from `HN Who's Hiring` wording to `Startup and tech job

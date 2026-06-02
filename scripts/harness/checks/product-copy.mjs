@@ -1152,6 +1152,9 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /Hide risky postings/i,
       /Resume-Based Scoring/i,
       /70%\s*resume match\s*\+\s*30%\s*search words/i,
+      /uploaded resume/i,
+      /Upload your resume/i,
+      /uploaded,\s*scoring uses/i,
       /These logs can help diagnose it/i,
       /Turn this on to never miss a new posting/i,
       /Auto-scan job boards/i,
@@ -1205,6 +1208,12 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /Proficiency level/i,
       /PROFICIENCY_LEVELS\s*=\s*\[[^\]]*Beginner[^\]]*Expert/i,
       /Failed to load resume/i,
+      /No Resume Uploaded/i,
+      /Resume uploaded/i,
+      /Upload Resume/i,
+      /Upload New/i,
+      /Uploading\.\.\./i,
+      /Uploaded:/i,
     ];
 
     if (resumePagePatterns.some((pattern) => pattern.test(text))) {

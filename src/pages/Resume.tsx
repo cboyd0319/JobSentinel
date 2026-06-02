@@ -295,10 +295,10 @@ export default function Resume({ onBack }: ResumeProps) {
     try {
       setUploading(true);
       const resumeId = await safeInvokeWithToast<number | null>("select_and_upload_resume", undefined, toast, {
-        logContext: "Upload resume"
+        logContext: "Add resume"
       });
       if (!resumeId) return;
-      toast.success("Resume uploaded", "Your resume is ready for local review.");
+      toast.success("Resume added", "Your resume is ready for local review.");
       refetchData();
     } catch {
       // Error already logged and shown to user
@@ -467,8 +467,8 @@ export default function Resume({ onBack }: ResumeProps) {
               >
                 Import from resume app
               </Button>
-              <Button onClick={handleUploadResume} loading={uploading} loadingText="Uploading...">
-                {resume ? "Upload New" : "Upload Resume"}
+              <Button onClick={handleUploadResume} loading={uploading} loadingText="Adding...">
+                {resume ? "Add New" : "Add Resume"}
               </Button>
             </div>
           </div>
@@ -540,15 +540,15 @@ export default function Resume({ onBack }: ResumeProps) {
               <DocumentIcon className="w-8 h-8 text-surface-400" />
             </div>
             <h3 className="font-display text-display-md text-surface-700 dark:text-surface-300 mb-2">
-              No Resume Uploaded
+              No Resume Added
             </h3>
             <p className="text-surface-500 dark:text-surface-400 mb-6 max-w-md mx-auto">
-              Upload your resume to review skills, compare fit evidence, and keep match
+              Add your resume to review skills, compare fit evidence, and keep match
               history local.
             </p>
             <div className="flex gap-3 justify-center">
-              <Button onClick={handleUploadResume} loading={uploading} loadingText="Uploading...">
-                Upload Resume (PDF)
+              <Button onClick={handleUploadResume} loading={uploading} loadingText="Adding...">
+                Add Resume (PDF)
               </Button>
               <Button
                 variant="secondary"
@@ -575,7 +575,7 @@ export default function Resume({ onBack }: ResumeProps) {
                 <div>
                   <p className="font-medium text-surface-800 dark:text-surface-200">{resume.name}</p>
                   <p className="text-sm text-surface-500 dark:text-surface-400">
-                    Uploaded: {new Date(resume.created_at).toLocaleDateString("en-US")}
+                    Added: {new Date(resume.created_at).toLocaleDateString("en-US")}
                   </p>
                 </div>
               </div>
@@ -786,12 +786,11 @@ export default function Resume({ onBack }: ResumeProps) {
                       size="sm"
                       variant="secondary"
                       onClick={() => {
-                        // Scroll to upload section
                         const uploadSection = document.querySelector('[data-section="upload"]');
                         uploadSection?.scrollIntoView({ behavior: 'smooth' });
                       }}
                     >
-                      Upload Resume
+                      Add Resume
                     </Button>
                     <Button
                       size="sm"

@@ -4196,7 +4196,7 @@ export default function Settings({ onClose }: SettingsProps) {
               <section className="mb-6">
                 <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
                   Use Resume to Sort Jobs
-                  <HelpIcon text="When enabled, job scores use skills from your uploaded resume plus the search words you chose." />
+                  <HelpIcon text="When enabled, job scores use skills from your added resume plus the search words you chose." />
                 </h3>
                 <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-4">
                   <div className="flex items-center justify-between">
@@ -4231,9 +4231,9 @@ export default function Settings({ onClose }: SettingsProps) {
                     <p className="flex items-start gap-1.5 text-xs text-surface-500 dark:text-surface-400">
                       <SettingsSymbol icon="lightbulb" className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
                       <span>
-                        <strong>Tip:</strong> Upload your resume in the{" "}
+                        <strong>Tip:</strong> Add your resume in the{" "}
                         <strong>Resume</strong> tab first. If no resume is
-                        uploaded, scoring uses your job titles and search words.
+                        added, scoring uses your job titles and search words.
                       </span>
                     </p>
                   </div>
