@@ -33,7 +33,8 @@ External AI is not required for resume matching.
 - **Gap awareness**: Notice missing or weakly represented requirements before
   spending time on a role.
 - **Resume safety review**: Flag prompt-injection-like instructions, hidden
-  text, and invisible characters before the resume is used.
+  text, and invisible characters with a plain **Safety check** label before
+  the resume is used.
 - **Multiple resumes**: Keep different resume versions for different kinds of
   work.
 - **Broad career coverage**: Recognize skills from technical and non-technical

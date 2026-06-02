@@ -60,7 +60,12 @@ interface AtsResumeData {
 
 type KeywordImportance = "Required" | "Preferred" | "Industry";
 type IssueSeverity = "Critical" | "Warning" | "Info";
-type SuggestionCategory = "AddKeyword" | "RewordBullet" | "AddSection" | "RemoveItem";
+type SuggestionCategory =
+  | "AddKeyword"
+  | "RewordBullet"
+  | "AddSection"
+  | "ReorderContent"
+  | "FormatFix";
 
 interface KeywordMatch {
   keyword: string;
@@ -94,8 +99,10 @@ function formatSuggestionCategory(category: SuggestionCategory): string {
       return "Rewrite bullet";
     case "AddSection":
       return "Add section";
-    case "RemoveItem":
-      return "Remove item";
+    case "ReorderContent":
+      return "Reorder content";
+    case "FormatFix":
+      return "Safety check";
   }
 }
 

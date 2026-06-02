@@ -31,6 +31,13 @@ Latest pushed checkpoints include:
 
 Recent local verification evidence:
 
+- Current local resume safety-label follow-up aligns the Resume Match Helper
+  and Resume Builder live review with backend suggestion categories so
+  prompt-injection-like or hidden-text guidance displays as **Safety check**
+  instead of a blank or internal `FormatFix` label. Verification passed:
+  focused `AtsLiveScorePanel` and `ResumeOptimizer` tests passed 62 tests,
+  `npm run lint -- --quiet`, `npm run test:run` passed 2634 tests,
+  `npm run build`, and `npm run lint:docs` passed.
 - Current local no-Apple-account macOS proof passed on current `main`:
   `npm run doctor` reported the environment ready with one known Node 26 local
   warning, `cargo test --lib platforms::macos` passed 22 tests with 1 ignored,

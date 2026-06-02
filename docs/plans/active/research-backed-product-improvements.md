@@ -61,6 +61,10 @@ narrow implementation slices chosen from that backlog.
   instructions and invisible Unicode in local resume readability analysis, with
   browser/dev mock parity and user docs that frame the warning as honest
   application-readability support.
+- Latest local resume safety-label follow-up aligns the Resume Match Helper
+  and Resume Builder live review with backend suggestion categories so
+  `FormatFix` safety guidance displays as **Safety check** instead of a blank
+  or internal category label.
 
 ## Source files
 

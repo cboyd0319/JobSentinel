@@ -122,7 +122,8 @@ before nice-to-have wording.
 **Readable format** - Single column, standard fonts, and clear sections.
 
 **Resume safety review** - Prompt-injection-like instructions, hidden text, and
-invisible characters are flagged so the user can remove them.
+invisible characters are flagged with a plain **Safety check** label so the
+user can remove them.
 
 **Details included** - Are all important sections filled in?
 

@@ -740,6 +740,48 @@ describe("AtsLiveScorePanel", () => {
       expect(screen.queryByText("AddKeyword")).not.toBeInTheDocument();
       expect(screen.getByText(/Why it helps: Required job-post language/i)).toBeInTheDocument();
     });
+
+    it("displays safety suggestion category from backend format fixes", async () => {
+      mockInvoke.mockResolvedValue({
+        ...mockAnalysis,
+        format_issues: [
+          {
+            severity: "Warning",
+            issue: "Instruction-like or hidden resume text detected",
+            fix: "Remove instructions aimed at screening tools and keep only truthful qualifications.",
+          },
+        ],
+        suggestions: [
+          {
+            category: "FormatFix",
+            suggestion:
+              "Review the resume for prompt-injection-like instructions, hidden text, or invisible characters before using it.",
+            impact:
+              "Keeps the resume readable and avoids tactics that can backfire with employers or screening systems.",
+          },
+        ],
+      } satisfies AtsAnalysisResult);
+
+      render(
+        <AtsLiveScorePanel
+          resumeData={mockResumeData}
+          currentStep={1}
+          debounceMs={10}
+        />
+      );
+
+      await waitForAnalysis();
+
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: /review details/i })).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByRole("button", { name: /review details/i }));
+
+      expect(screen.getByText("Safety check")).toBeInTheDocument();
+      expect(screen.getByText(/prompt-injection-like instructions/i)).toBeInTheDocument();
+      expect(screen.queryByText("FormatFix")).not.toBeInTheDocument();
+    });
   });
 
   describe("debouncing", () => {

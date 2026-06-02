@@ -54,6 +54,13 @@ unreviewed form sending.
   seconds with empty stderr and created isolated local `jobs.db` files.
   Gatekeeper rejected the ad-hoc package as expected because the project does
   not have an Apple Developer Account, Developer ID signing, or notarization.
+- Current local resume safety-label follow-up aligns the Resume Match Helper
+  and Resume Builder live review with backend suggestion categories so
+  prompt-injection-like or hidden-text guidance displays as **Safety check**
+  instead of a blank or internal `FormatFix` label. Verification passed:
+  focused `AtsLiveScorePanel` and `ResumeOptimizer` tests passed 62 tests,
+  `npm run lint -- --quiet`, `npm run test:run` passed 2634 tests,
+  `npm run build`, and `npm run lint:docs` passed.
 - Current local resume anti-gaming guardrail adds a local readability warning
   for prompt-injection-like instructions and invisible Unicode in resume
   content. Browser/dev mocks now return the same warning and docs note this as

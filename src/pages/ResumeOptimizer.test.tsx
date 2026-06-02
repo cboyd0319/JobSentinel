@@ -378,6 +378,68 @@ describe("ResumeOptimizer", () => {
     expect(screen.queryByText("RewordBullet")).not.toBeInTheDocument();
   });
 
+  it("shows safety suggestion labels for format-fix guidance", async () => {
+    const user = userEvent.setup();
+    mockInvoke.mockResolvedValueOnce({
+      ...mockAnalysis,
+      format_issues: [
+        {
+          severity: "Warning" as const,
+          issue: "Instruction-like or hidden resume text detected",
+          fix: "Remove instructions aimed at screening tools and keep only truthful qualifications.",
+        },
+      ],
+      suggestions: [
+        {
+          category: "FormatFix" as const,
+          suggestion:
+            "Review the resume for prompt-injection-like instructions, hidden text, or invisible characters before using it.",
+          impact:
+            "Keeps the resume readable and avoids tactics that can backfire with employers or screening systems.",
+        },
+      ],
+    });
+    render(<ResumeOptimizer onBack={vi.fn()} />);
+
+    await openResumeAppImport(user);
+    fireEvent.change(screen.getByLabelText(/copied resume details/i), {
+      target: { value: JSON.stringify(validResume) },
+    });
+
+    await user.click(screen.getByRole("button", { name: /review format only/i }));
+
+    expect(await screen.findByText("Suggestions (1)")).toBeInTheDocument();
+    expect(screen.getByText("Safety check")).toBeInTheDocument();
+    expect(screen.getByText(/prompt-injection-like instructions/i)).toBeInTheDocument();
+    expect(screen.queryByText("FormatFix")).not.toBeInTheDocument();
+  });
+
+  it("shows plain labels for reorder-content suggestions", async () => {
+    const user = userEvent.setup();
+    mockInvoke.mockResolvedValueOnce({
+      ...mockAnalysis,
+      suggestions: [
+        {
+          category: "ReorderContent" as const,
+          suggestion: "Move recent patient coordination work above older roles.",
+          impact: "Makes the most relevant evidence easier to find first.",
+        },
+      ],
+    });
+    render(<ResumeOptimizer onBack={vi.fn()} />);
+
+    await openResumeAppImport(user);
+    fireEvent.change(screen.getByLabelText(/copied resume details/i), {
+      target: { value: JSON.stringify(validResume) },
+    });
+
+    await user.click(screen.getByRole("button", { name: /review format only/i }));
+
+    expect(await screen.findByText("Suggestions (1)")).toBeInTheDocument();
+    expect(screen.getByText("Reorder content")).toBeInTheDocument();
+    expect(screen.queryByText("ReorderContent")).not.toBeInTheDocument();
+  });
+
   it("uses plain labels for readability details", async () => {
     const user = userEvent.setup();
     mockInvoke.mockResolvedValueOnce(mockIssueAnalysis);

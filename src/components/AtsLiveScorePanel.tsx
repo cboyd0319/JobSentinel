@@ -50,7 +50,7 @@ interface FormatIssue {
 }
 
 interface AtsSuggestion {
-  category: "AddKeyword" | "RewordBullet" | "AddSection" | "RemoveItem";
+  category: "AddKeyword" | "RewordBullet" | "AddSection" | "ReorderContent" | "FormatFix";
   suggestion: string;
   impact: string;
 }
@@ -63,8 +63,10 @@ function formatSuggestionCategory(category: AtsSuggestion["category"]): string {
       return "Rewrite bullet";
     case "AddSection":
       return "Add section";
-    case "RemoveItem":
-      return "Remove item";
+    case "ReorderContent":
+      return "Reorder content";
+    case "FormatFix":
+      return "Safety check";
   }
 }
 
