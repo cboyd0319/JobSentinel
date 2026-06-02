@@ -24,7 +24,7 @@ const ghostReasonSeverities = new Set<string>(["low", "medium", "high"]);
 const categoryLabels: Record<GhostReason["category"], string> = {
   stale: "Stale Listing",
   repost: "Reposted",
-  generic: "Generic Content",
+  generic: "Low-detail posting",
   missing_details: "Missing Details",
   unrealistic: "Unrealistic",
   company_behavior: "Company Pattern",

@@ -537,7 +537,8 @@ describe("ScraperHealthDashboard", () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Checks Worked")).toBeInTheDocument();
+        expect(screen.getByText("Recent Status")).toBeInTheDocument();
+        expect(screen.queryByText("Checks Worked")).not.toBeInTheDocument();
         expect(screen.getByText("95%")).toBeInTheDocument();
       });
       expect(screen.getByText("72%")).toBeInTheDocument();

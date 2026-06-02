@@ -165,6 +165,7 @@ describe("GhostIndicator", () => {
         await user.hover(indicator);
         await waitFor(() => {
           expect(screen.getByText(/posted over 90 days ago/i)).toBeInTheDocument();
+          expect(screen.getByText(/low-detail posting:/i)).toBeInTheDocument();
           expect(screen.getByText(/generic job title/i)).toBeInTheDocument();
         });
       }

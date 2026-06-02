@@ -12,7 +12,6 @@ interface ResumeMatchScoreBreakdownProps {
 interface ScoreCategory {
   label: string;
   score: number | null;
-  weight: number;
   color: {
     bg: string;
     fill: string;
@@ -27,13 +26,11 @@ function formatPercentage(value: number | null): string {
 function ScoreBar({
   label,
   score,
-  weight,
   color,
   showWeight,
 }: {
   label: string;
   score: number | null;
-  weight: number;
   color: { bg: string; fill: string };
   showWeight: boolean;
 }) {
@@ -47,7 +44,7 @@ function ScoreBar({
           {label}
           {showWeight && (
             <span className="ml-1.5 text-xs text-surface-500 dark:text-surface-400">
-              ({weight}% influence)
+              Part of overall match
             </span>
           )}
         </span>
@@ -89,7 +86,6 @@ export const ResumeMatchScoreBreakdown = memo(function ResumeMatchScoreBreakdown
     {
       label: "Skills Match",
       score: skillsScore,
-      weight: 50,
       color: {
         bg: "bg-sentinel-100 dark:bg-sentinel-900/30",
         fill: "bg-sentinel-500 dark:bg-sentinel-400",
@@ -98,7 +94,6 @@ export const ResumeMatchScoreBreakdown = memo(function ResumeMatchScoreBreakdown
     {
       label: "Experience Match",
       score: experienceScore,
-      weight: 30,
       color: {
         bg: "bg-orange-100 dark:bg-orange-900/30",
         fill: "bg-orange-500 dark:bg-orange-400",
@@ -107,7 +102,6 @@ export const ResumeMatchScoreBreakdown = memo(function ResumeMatchScoreBreakdown
     {
       label: "Education Match",
       score: educationScore,
-      weight: 20,
       color: {
         bg: "bg-blue-100 dark:bg-blue-900/30",
         fill: "bg-blue-500 dark:bg-blue-400",
@@ -121,13 +115,13 @@ export const ResumeMatchScoreBreakdown = memo(function ResumeMatchScoreBreakdown
     <div className="max-w-xs space-y-1 text-xs">
       <p className="font-semibold mb-2">How this match is reviewed:</p>
       <p>
-        <strong>Skills (50%):</strong> Matches required and preferred skills from the job description
+        <strong>Skills:</strong> Compares required and preferred skills from the job description
       </p>
       <p>
-        <strong>Experience (30%):</strong> Aligns your work history with job requirements
+        <strong>Experience:</strong> Checks how your work history aligns with job requirements
       </p>
       <p>
-        <strong>Education (20%):</strong> Matches degree and field of study requirements
+        <strong>Education:</strong> Checks degree and field of study requirements when the posting includes them
       </p>
       {!hasAnyScore && (
         <p className="mt-2 text-surface-400">
@@ -184,7 +178,6 @@ export const ResumeMatchScoreBreakdown = memo(function ResumeMatchScoreBreakdown
             key={category.label}
             label={category.label}
             score={category.score}
-            weight={category.weight}
             color={category.color}
             showWeight={showWeights}
           />
@@ -194,7 +187,7 @@ export const ResumeMatchScoreBreakdown = memo(function ResumeMatchScoreBreakdown
       {hasAnyScore && showWeights && (
         <div className="pt-3 border-t border-surface-200 dark:border-surface-700">
           <p className="text-xs text-surface-500 dark:text-surface-400">
-            Overall match uses these default priorities.
+            Overall match reviews these areas together.
           </p>
         </div>
       )}

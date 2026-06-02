@@ -117,14 +117,11 @@ describe("ScoreBreakdownModal", () => {
       expect(screen.getByText("How fresh the posting is")).toBeInTheDocument();
     });
 
-    it("displays factor influence labels", () => {
+    it("displays plain score contribution labels", () => {
       render(<ScoreBreakdownModal {...defaultProps} />);
 
-      expect(screen.getByText("40% influence")).toBeInTheDocument();
-      expect(screen.getByText("25% influence")).toBeInTheDocument();
-      expect(screen.getByText("20% influence")).toBeInTheDocument();
-      expect(screen.getByText("10% influence")).toBeInTheDocument();
-      expect(screen.getByText("5% influence")).toBeInTheDocument();
+      expect(screen.getAllByText("Part of overall score")).toHaveLength(5);
+      expect(screen.queryByText(/\d+% influence/)).not.toBeInTheDocument();
     });
   });
 

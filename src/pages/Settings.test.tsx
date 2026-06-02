@@ -615,10 +615,12 @@ describe("Settings — handleSave flow", () => {
     await user.click(screen.getByRole("tab", { name: "More Settings" }));
     await user.click(screen.getByText("More Job Boards"));
     await user.type(
-      screen.getByLabelText("Optional source address"),
+      screen.getByLabelText("Optional job-source link"),
       "https://api.jobswithgpt.example/mcp",
     );
 
+    expect(screen.getByPlaceholderText("Paste a job-source link from a service you trust")).toBeInTheDocument();
+    expect(screen.queryByText("Optional source address")).not.toBeInTheDocument();
     expect(
       screen.getByText("Review before JobSentinel contacts this source"),
     ).toBeInTheDocument();

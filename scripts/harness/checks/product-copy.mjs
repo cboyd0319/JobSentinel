@@ -457,6 +457,7 @@ export function hasOverconfidentGhostCopy(root, path) {
     /company or ATS source/i,
     /company or ATS page/i,
     /Company-site or ATS presence/i,
+    /Generic Content/i,
   ];
 
   return stalePatterns.some((pattern) => pattern.test(text));
@@ -639,7 +640,7 @@ export function hasNonProtectiveScoreCopy(root, path) {
   }
 
   const text = readFileSync(join(root, path), "utf8");
-  return /Great Match!|Highly recommended!|You might want to skip it|if you're desperate|if you are desperate|\{reason\}\s*<\/div>|Job Scoring Weights|These weights determine|scoring weights|Configurable weights|Customize Weights|Weight Presets|Weight in overall score|\b\d+%\s+weight\b|\b\d+%\s+priority\b|\(\d+%\s+priority\)|Strong \(70%\+\)|Some \(40-69%\)|Low \(<40%\)|Posting Risk Warning|weighted averages based on component importance|Score \(High|Score \(Low|All Scores|label="Score"|Jobs are scored based|top scores|Each job is scored|sorted by match score|jobs scoring|Alert Threshold|scoring above your threshold|match score, source|Match Score|Match score:|Score:\s*\{filters\.scoreFilter\}|Sort:\s*\{filters\.sortBy\}|return\s+["'`](?:Excellent|Great|Poor)["'`]/i.test(text);
+  return /Great Match!|Highly recommended!|You might want to skip it|if you're desperate|if you are desperate|\{reason\}\s*<\/div>|Job Scoring Weights|These weights determine|scoring weights|Configurable weights|Customize Weights|Weight Presets|Weight in overall score|\bdefault priorities\b|\bdefault priority\b|Match Priority Guide|These percentages|priority order|\b\d+%\s+weight\b|\b\d+%\s+priority\b|\(\d+%\s+priority\)|\b\d+%\s+influence\b|\(\d+%\s+influence\)|Strong \(70%\+\)|Some \(40-69%\)|Low \(<40%\)|Posting Risk Warning|weighted averages based on component importance|Score \(High|Score \(Low|All Scores|label="Score"|Jobs are scored based|top scores|Each job is scored|sorted by match score|jobs scoring|Alert Threshold|scoring above your threshold|match score, source|Match Score|Match score:|Score:\s*\{filters\.scoreFilter\}|Sort:\s*\{filters\.sortBy\}|return\s+["'`](?:Excellent|Great|Poor)["'`]/i.test(text);
 }
 
 export function hasLegacyPreferenceListCopy(root, path) {
@@ -945,6 +946,8 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /75th\s*%/i,
       /75th percentile/i,
       /25th percentile/i,
+      /Strong target from higher range/i,
+      /under-anchoring/i,
     ];
 
     if (salaryPagePatterns.some((pattern) => pattern.test(text))) {
@@ -986,6 +989,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
       />\s*\{issue\.severity\}\s*</i,
       /(^|[>\n])\s*Fix:\s*\{issue\.fix\}/i,
       /Impact:\s*\{suggestion\.impact\}/i,
+      /Your resume data has been imported and analyzed/i,
     ];
 
     if (resumeMatchDetailPatterns.some((pattern) => pattern.test(text))) {
@@ -1002,6 +1006,8 @@ export function hasTechnicalFirstUserCopy(root, path) {
       />\s*\{issue\.severity\}\s*</i,
       /(^|[>\n])\s*Fix:\s*\{issue\.fix\}/i,
       /Impact:\s*\{suggestion\.impact\}/i,
+      /Include technical, workplace, and role-specific skills/i,
+      /Add words from the job post/i,
     ];
 
     if (resumeReadabilityPatterns.some((pattern) => pattern.test(text))) {
@@ -1229,6 +1235,9 @@ export function hasTechnicalFirstUserCopy(root, path) {
       />\s*Access\s*</i,
       />\s*Source Type\s*</i,
       />\s*Recent Success\s*</i,
+      /Checks Worked/i,
+      /Check Time/i,
+      /Last Worked/i,
       /Job Source Check Results/i,
       /Source Controls/i,
       /title=["']Source Check Results["']|\/\*\s*Source Check Results Modal\s*\*\//i,
@@ -1463,6 +1472,11 @@ export function hasTechnicalFirstUserCopy(root, path) {
     /Telegram Connection Token/i,
     /Telegram Chat ID/i,
     /connection token/i,
+    /It only contacts job sources or alert services\s+needed for features you turn on/i,
+    /monitor more official job sources/i,
+    /Optional source address/i,
+    /https:\/\/example\.com\/jobswithgpt/i,
+    />\s*Secure\s*</i,
     /Paste your bot token from @BotFather/i,
     /Chat ID \(e\.g\., \d+\)/i,
     /Incoming Webhooks/i,

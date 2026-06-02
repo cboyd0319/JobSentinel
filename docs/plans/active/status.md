@@ -39,6 +39,11 @@ and record actionable findings in this active-plan surface.
   prompts from "Words To Add" to "Words To Review" across resume review
   surfaces, keeps truthful-use guidance, and adds product-copy harness coverage
   so old add-word framing fails locally.
+- Latest local sub-agent-audited copy follow-up tightens first-run privacy
+  boundaries, optional source setup wording, email security wording, salary
+  guidance, resume import success copy, ghost reason labels, live resume tips,
+  score contribution labels, and source-health table headings so user-facing
+  surfaces stay plain-language, evidence-bounded, and broad-audience.
 - Latest local zero-technical job-import follow-up changes missing-preview
   warnings from raw missing-field lists to readable details-to-check labels, so
   backend keys such as salary or job-link fields do not leak into the import
@@ -206,9 +211,9 @@ and record actionable findings in this active-plan surface.
   failures with plain recovery wording, and expands product-copy coverage so
   those old labels do not return.
 - Latest local Job Source Status follow-up replaces remaining source-panel
-  table and dialog jargon with `Kind`, `Checks Worked`, `Check Time`, and
-  `Check Results`, and expands product-copy coverage so `Source Type`,
-  `Recent Success`, and `Job Source Check Results` do not return.
+  table and dialog jargon with `Kind`, `Recent Status`, `Time Needed`,
+  `Last Checked`, and `Check Results`, and expands product-copy coverage so
+  `Source Type`, `Recent Success`, and `Job Source Check Results` do not return.
 - Latest local Settings copy follow-up replaces the remaining `New scans`
   posting-risk toast and `Advanced chat alert` badge with plain job-check and
   optional-chat-alert wording, with Settings and product-copy coverage.

@@ -158,7 +158,7 @@ const STEP_TIPS: Record<number, string[]> = {
   5: [ // Skills
     "Match skills to job requirements",
     "Group skills by category",
-    "Include technical, workplace, and role-specific skills",
+    "Include tools, workplace, and role-specific skills",
   ],
 };
 
@@ -178,7 +178,7 @@ const getStepTips = (step: number, analysis: AtsAnalysisResult | null): string[]
     tips.push("Add more details to improve completeness");
   }
   if (analysis.missing_keywords.length > 3) {
-    tips.push(`Add words from the job post: ${analysis.missing_keywords.slice(0, 3).join(", ")}`);
+    tips.push(`Review job-post words for truthful fit: ${analysis.missing_keywords.slice(0, 3).join(", ")}`);
   }
   if (analysis.format_issues.some(i => i.severity === "Critical")) {
     tips.push("Fix the most important readability details first");

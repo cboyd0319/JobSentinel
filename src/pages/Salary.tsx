@@ -308,7 +308,7 @@ export default function Salary({ onBack }: SalaryProps) {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="p-3 bg-sentinel-50 dark:bg-sentinel-900/20 rounded-lg">
                     <p className="text-xs text-sentinel-600 dark:text-sentinel-400 mb-1">
-                      Strong target from higher range
+                      Higher-range reference point
                     </p>
                     <p className="font-display text-display-md text-sentinel-700 dark:text-sentinel-300">
                       {formatCurrency(benchmark.p75_salary)}
@@ -388,7 +388,7 @@ function getSalaryFloorGuidance(
 ): { message: string; tone: "neutral" | "caution" } {
   if (salaryFloorAmount === null) {
     return {
-      message: "Add a salary floor to see below-floor and under-anchoring warnings.",
+      message: "Add a salary floor to see when pay may be below what you need.",
       tone: "neutral",
     };
   }

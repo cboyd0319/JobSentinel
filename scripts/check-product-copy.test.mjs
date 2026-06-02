@@ -362,12 +362,22 @@ test("product copy rejects non-protective scoring and legacy preference copy", (
       'if (score >= 90) return "Excellent";\nif (score >= 80) return "Great";\nreturn "Poor";\n',
     );
     writeFixtureFile(root, "src/pages/DashboardUI/filterLabels.ts", "Strong (70%+)\n");
-    writeFixtureFile(root, "src/components/ScoreBreakdownModal.tsx", "40% priority\n");
-    writeFixtureFile(root, "src/components/ResumeMatchScoreBreakdown.tsx", "(50% priority)\n");
-    writeFixtureFile(root, "src/components/GhostIndicator.tsx", "Posting Risk Warning\n");
+    writeFixtureFile(
+      root,
+      "docs/features/smart-scoring.md",
+      "Match Priority Guide\nThese percentages explain the default priority order.\n",
+    );
+    writeFixtureFile(root, "src/components/ScoreBreakdownModal.tsx", "40% influence\n");
+    writeFixtureFile(
+      root,
+      "src/components/ResumeMatchScoreBreakdown.tsx",
+      "(50% influence)\nOverall match uses these default priorities.\n",
+    );
+    writeFixtureFile(root, "src/components/GhostIndicator.tsx", "Posting Risk Warning\nGeneric Content\n");
 
     assert.equal(hasNonProtectiveScoreCopy(root, "src/components/ScoreDisplay.tsx"), true);
     assert.equal(hasNonProtectiveScoreCopy(root, "src/pages/DashboardUI/filterLabels.ts"), true);
+    assert.equal(hasNonProtectiveScoreCopy(root, "docs/features/smart-scoring.md"), true);
     assert.equal(hasNonProtectiveScoreCopy(root, "src/components/ScoreBreakdownModal.tsx"), true);
     assert.equal(
       hasNonProtectiveScoreCopy(root, "src/components/ResumeMatchScoreBreakdown.tsx"),
@@ -404,6 +414,7 @@ test("product copy rejects technical-first settings copy", () => {
       [
         'placeholder="https://hooks.slack.com/services/..." label="Slack connection link"',
         "Start with in-app alerts now",
+        "It only contacts job sources or alert services needed for features you turn on.",
         "",
       ].join("\n"),
     );
@@ -418,6 +429,7 @@ test("product copy rejects technical-first settings copy", () => {
         "Show even when app is focused",
         "SMTP server",
         "SMTP port",
+        ">Secure<",
         "Connection Number",
         "For automatic monitoring",
         "Advanced federal monitoring",
@@ -435,6 +447,11 @@ test("product copy rejects technical-first settings copy", () => {
         "Hide risky postings",
         "Resume-Based Scoring",
         "70% resume match + 30% search words",
+        "Match Priority Guide",
+        "These percentages explain the default priority order.",
+        "JobSentinel can monitor more official job sources.",
+        "Optional source address",
+        "https://example.com/jobswithgpt",
         "",
       ].join("\n"),
     );
@@ -893,6 +910,11 @@ test("product copy rejects technical-first settings copy", () => {
         "<Badge>{issue.severity}</Badge>",
         "Fix: {issue.fix}",
         "Impact: {suggestion.impact}",
+        "Include technical, workplace, and role-specific skills",
+        "Add words from the job post",
+        "Checks Worked",
+        "Check Time",
+        "Last Worked",
         "",
       ].join("\n"),
     );
@@ -1055,7 +1077,7 @@ test("product copy rejects support troubleshooting jargon", () => {
     writeFixtureFile(
       root,
       "src/components/ScraperHealthDashboard.tsx",
-      ">Page Check<\n>Access<\n>Source Type<\n>Recent Success<\nCheck All Sources\nOfficial feed\n(retry ${retryAttempt})\nSource Controls\nJob Source Check Results\nSource Check Results\nNeeds update\n'Turn this source off'\n'Check this source now'\n",
+      ">Page Check<\n>Access<\n>Source Type<\n>Recent Success\nChecks Worked\nCheck Time\nLast Worked\nCheck All Sources\nOfficial feed\n(retry ${retryAttempt})\nSource Controls\nJob Source Check Results\nSource Check Results\nNeeds update\n'Turn this source off'\n'Check this source now'\n",
     );
 
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
@@ -1399,6 +1421,7 @@ test("product copy rejects technical-first resume copy", () => {
         "Programming Languages",
         "Gap Analysis",
         "Math.round(skill.confidence_score * 100)",
+        "Your resume data has been imported and analyzed",
         'const PROFICIENCY_LEVELS = ["Beginner", "Intermediate", "Advanced", "Expert"];',
         "Proficiency Distribution",
         "Proficiency level",
@@ -1419,7 +1442,7 @@ test("product copy rejects technical-first resume copy", () => {
     writeFixtureFile(
       root,
       "src/pages/Salary.tsx",
-      "Seniority Level\nEntry Level (0-2 years)\nPrincipal/Executive\n25th %\nStrong target (75th percentile)\n",
+      "Seniority Level\nEntry Level (0-2 years)\nPrincipal/Executive\n25th %\nStrong target from higher range\nunder-anchoring\n",
     );
     writeFixtureFile(
       root,

@@ -103,32 +103,32 @@ describe("ResumeMatchScoreBreakdown", () => {
     });
   });
 
-  describe("influence display", () => {
-    it("shows influence labels by default", () => {
+  describe("match contribution display", () => {
+    it("shows plain contribution labels by default", () => {
       render(<ResumeMatchScoreBreakdown {...defaultProps} />);
 
-      expect(screen.getByText("(50% influence)")).toBeInTheDocument(); // skills
-      expect(screen.getByText("(30% influence)")).toBeInTheDocument(); // experience
-      expect(screen.getByText("(20% influence)")).toBeInTheDocument(); // education
+      expect(screen.getAllByText("Part of overall match")).toHaveLength(3);
+      expect(screen.queryByText(/\d+% influence/)).not.toBeInTheDocument();
     });
 
-    it("hides influence labels when showWeights is false", () => {
+    it("hides contribution labels when showWeights is false", () => {
       render(<ResumeMatchScoreBreakdown {...defaultProps} showWeights={false} />);
 
-      expect(screen.queryByText("(50% influence)")).not.toBeInTheDocument();
-      expect(screen.queryByText("(30% influence)")).not.toBeInTheDocument();
-      expect(screen.queryByText("(20% influence)")).not.toBeInTheDocument();
+      expect(screen.queryByText("Part of overall match")).not.toBeInTheDocument();
+      expect(screen.queryByText(/\d+% influence/)).not.toBeInTheDocument();
     });
 
-    it("shows priority explanation when showWeights is true", () => {
+    it("shows plain match explanation when showWeights is true", () => {
       render(<ResumeMatchScoreBreakdown {...defaultProps} />);
 
-      expect(screen.getByText(/default priorities/i)).toBeInTheDocument();
+      expect(screen.getByText(/Overall match reviews these areas together/i)).toBeInTheDocument();
+      expect(screen.queryByText(/default priorities/i)).not.toBeInTheDocument();
     });
 
-    it("hides priority explanation when showWeights is false", () => {
+    it("hides match explanation when showWeights is false", () => {
       render(<ResumeMatchScoreBreakdown {...defaultProps} showWeights={false} />);
 
+      expect(screen.queryByText(/Overall match reviews these areas together/i)).not.toBeInTheDocument();
       expect(screen.queryByText(/default priorities/i)).not.toBeInTheDocument();
     });
   });

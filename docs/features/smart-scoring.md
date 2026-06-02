@@ -19,18 +19,18 @@ The match explanation must stay plain-language:
 
 ## Match Factors
 
-JobSentinel uses five visible factors. The default priorities explain how much
-each factor contributes to the match percentage.
+JobSentinel uses five visible factors. The review roles explain which areas are
+most prominent without asking users to reason about model weights.
 
-| Factor | Default priority | What it checks |
-| ------ | ---------------- | -------------- |
-| **Skills and search words** | 40% | Job title, selected work words, resume skills if enabled |
-| **Salary** | 25% | Listed pay, salary floor, target pay, and missing-pay handling |
-| **Location** | 20% | Remote, hybrid, onsite, commute, and selected locations |
-| **Company** | 10% | Favorite companies and hidden companies |
-| **Freshness** | 5% | How recently the posting appeared |
+| Factor | Review role | What it checks |
+| ------ | ----------- | -------------- |
+| **Skills and search words** | Primary | Job title, selected work words, resume skills if enabled |
+| **Salary** | Important | Listed pay, salary floor, target pay, and missing-pay handling |
+| **Location** | Important | Remote, hybrid, onsite, commute, and selected locations |
+| **Company** | Supporting | Favorite companies and hidden companies |
+| **Freshness** | Supporting | How recently the posting appeared |
 
-The priority guide is visible in **Settings > More Settings**. Most users
+The review guide is visible in **Settings > More Settings**. Most users
 should change job titles, work words, salary floor, location, and company
 preferences before touching advanced scoring configuration.
 
@@ -141,7 +141,7 @@ Useful settings live in normal language:
 | Location | Reflect remote, hybrid, onsite, commute, city, and state needs |
 | Company preferences | Raise favorite companies and lower hidden companies |
 | Resume matching | Include resume skills in match explanations when enabled |
-| Match Priority Guide | Explain default factor priorities |
+| Match Review Guide | Explain default review areas |
 
 ## Boundaries
 
@@ -175,7 +175,7 @@ Current Tauri commands:
 The backend `ScoringConfig` stores skills, salary, location, company, and
 recency proportions and validates that they form one complete scoring model.
 Internal field names may still use scoring terminology for compatibility, but
-user-facing copy should explain these as match priorities and preferences.
+user-facing copy should explain these as match review areas and preferences.
 
 ## Related Documentation
 

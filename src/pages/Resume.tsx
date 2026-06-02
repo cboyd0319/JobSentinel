@@ -314,7 +314,7 @@ export default function Resume({ onBack }: ResumeProps) {
         logContext: "Import structured resume data"
       });
       if (!resumeId) return;
-      toast.success("Resume imported", "Your resume data has been imported and analyzed");
+      toast.success("Resume imported", "Your resume is ready for local review.");
       refetchData();
     } catch {
       // Error already logged and shown to user

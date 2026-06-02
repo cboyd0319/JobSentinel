@@ -201,9 +201,10 @@ Current cleanup posture:
   for related-data, email, permission, resume-read, and long-document failures
   with plain recovery copy. Unit and product-copy tests reject the old wording.
 - Current local Job Source Status follow-up makes the remaining source-panel
-  table and dialog labels plainer: `Kind`, `Checks Worked`, `Check Time`, and
-  `Check Results` replace the older source-type and recent-success wording.
-  Component tests and product-copy sensors cover the old labels.
+  table and dialog labels plainer: `Kind`, `Recent Status`, `Time Needed`,
+  `Last Checked`, and `Check Results` replace the older source-type,
+  recent-success, and check-metric wording. Component tests and product-copy
+  sensors cover the old labels.
 - Current local Settings copy follow-up changes the posting-risk save toast
   from scan wording to job-check wording and renames the Telegram badge from
   advanced chat alert to optional chat alert. Settings tests and product-copy
@@ -1018,6 +1019,15 @@ Latest resume-readability add-word wording slice checks on 2026-06-02:
 
 - `node --test scripts/check-product-copy.test.mjs`
 - `npm run test:run -- src/pages/ResumeOptimizer.test.tsx src/components/AtsLiveScorePanel.test.tsx`
+- `npm run lint:bloat`
+- `npm run lint`
+- `npm run lint:docs`
+- `git diff --check`
+
+Latest sub-agent UX/copy audit slice checks on 2026-06-02:
+
+- `node --test scripts/check-product-copy.test.mjs`
+- focused setup/settings/salary/resume/ghost/score frontend tests
 - `npm run lint:bloat`
 - `npm run lint`
 - `npm run lint:docs`

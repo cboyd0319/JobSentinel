@@ -104,7 +104,8 @@ describe("Salary", () => {
     expect(screen.getByText("Middle")).toBeInTheDocument();
     expect(screen.getByText("Higher range")).toBeInTheDocument();
     expect(screen.getByText("Highest seen")).toBeInTheDocument();
-    expect(screen.getByText("Strong target from higher range")).toBeInTheDocument();
+    expect(screen.getByText("Higher-range reference point")).toBeInTheDocument();
+    expect(screen.queryByText("Strong target from higher range")).not.toBeInTheDocument();
     expect(screen.queryByText(/25th %|75th %|75th percentile/i)).not.toBeInTheDocument();
   });
 

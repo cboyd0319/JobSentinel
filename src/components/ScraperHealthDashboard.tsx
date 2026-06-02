@@ -620,16 +620,16 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
                       Kind
                     </th>
                     <th className="text-right py-3 px-4 font-medium text-surface-600 dark:text-surface-400">
-                      Checks Worked
+                      Recent Status
                     </th>
                     <th className="text-right py-3 px-4 font-medium text-surface-600 dark:text-surface-400">
-                      Check Time
+                      Time Needed
                     </th>
                     <th className="text-right py-3 px-4 font-medium text-surface-600 dark:text-surface-400">
                       Jobs Found
                     </th>
                     <th className="text-left py-3 px-4 font-medium text-surface-600 dark:text-surface-400">
-                      Last Worked
+                      Last Checked
                     </th>
                     <th className="text-left py-3 px-4 font-medium text-surface-600 dark:text-surface-400">
                       Can Read Jobs

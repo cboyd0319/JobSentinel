@@ -507,6 +507,8 @@ describe("AtsLiveScorePanel", () => {
       render(<AtsLiveScorePanel resumeData={null} currentStep={5} />);
 
       expect(screen.getByText("Match skills to job requirements")).toBeInTheDocument();
+      expect(screen.getByText("Include tools, workplace, and role-specific skills")).toBeInTheDocument();
+      expect(screen.queryByText("Include technical, workplace, and role-specific skills")).not.toBeInTheDocument();
     });
 
     it("shows analysis-based tips when format score is low", async () => {
@@ -525,6 +527,28 @@ describe("AtsLiveScorePanel", () => {
       await waitFor(() => {
         expect(screen.getByText("Use a simpler format so hiring systems can read it")).toBeInTheDocument();
       });
+    });
+
+    it("frames missing job words as truthful review", async () => {
+      mockInvoke.mockResolvedValue({
+        ...mockAnalysis,
+        missing_keywords: ["Spanish", "Zendesk", "Scheduling", "Inventory"],
+      });
+
+      render(
+        <AtsLiveScorePanel
+          resumeData={mockResumeData}
+          currentStep={1}
+          debounceMs={10}
+        />
+      );
+
+      await waitForAnalysis();
+
+      await waitFor(() => {
+        expect(screen.getByText(/Review job-post words for truthful fit:/)).toBeInTheDocument();
+      });
+      expect(screen.queryByText(/Add words from the job post/)).not.toBeInTheDocument();
     });
   });
 

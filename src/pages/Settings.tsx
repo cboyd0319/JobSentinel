@@ -2608,33 +2608,38 @@ export default function Settings({ onClose }: SettingsProps) {
                               />
                             </div>
                             <div className="flex items-end pb-2">
-                              <label
-                                className="flex items-center gap-2 cursor-pointer"
-                                title="Enable secure connection (recommended)"
-                              >
-                                <input
-                                  type="checkbox"
-                                  checked={
-                                    config.alerts.email?.use_starttls ?? true
-                                  }
-                                  onChange={(e) =>
-                                    setConfig({
-                                      ...config,
-                                      alerts: {
-                                        ...config.alerts,
-                                        email: {
-                                          ...config.alerts.email,
-                                          use_starttls: e.target.checked,
+                              <div className="space-y-1">
+                                <label
+                                  className="flex items-center gap-2 cursor-pointer"
+                                  title="Enable secure connection (recommended)"
+                                >
+                                  <input
+                                    type="checkbox"
+                                    checked={
+                                      config.alerts.email?.use_starttls ?? true
+                                    }
+                                    onChange={(e) =>
+                                      setConfig({
+                                        ...config,
+                                        alerts: {
+                                          ...config.alerts,
+                                          email: {
+                                            ...config.alerts.email,
+                                            use_starttls: e.target.checked,
+                                          },
                                         },
-                                      },
-                                    })
-                                  }
-                                  className="w-4 h-4 rounded border-surface-300 text-sentinel-500 focus-visible:ring-sentinel-500"
-                                />
-                                <span className="text-sm text-surface-700 dark:text-surface-300">
-                                  Secure
-                                </span>
-                              </label>
+                                      })
+                                    }
+                                    className="w-4 h-4 rounded border-surface-300 text-sentinel-500 focus-visible:ring-sentinel-500"
+                                  />
+                                  <span className="text-sm text-surface-700 dark:text-surface-300">
+                                    Use secure email connection (recommended)
+                                  </span>
+                                </label>
+                                <p className="text-xs text-surface-500 dark:text-surface-400">
+                                  Leave this on unless your email provider says to turn it off.
+                                </p>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -3114,7 +3119,7 @@ export default function Settings({ onClose }: SettingsProps) {
               <section className="mb-6">
                 <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
                   Additional Job Boards
-                  <HelpIcon text="JobSentinel can monitor more official job sources. Enable only the sources you want." />
+                  <HelpIcon text="JobSentinel can check selected public job sites and company application pages. Turn on only sources you want JobSentinel to contact." />
                 </h3>
                 <p className="text-sm text-surface-500 dark:text-surface-400 mb-4">
                   JobSentinel can check public company career pages and selected job sites.
@@ -3475,7 +3480,7 @@ export default function Settings({ onClose }: SettingsProps) {
                       </div>
 
                       <Input
-                        label="Optional source address"
+                        label="Optional job-source link"
                         value={config.jobswithgpt_endpoint ?? ""}
                         onChange={(e) =>
                           setConfig({
@@ -3483,8 +3488,8 @@ export default function Settings({ onClose }: SettingsProps) {
                             jobswithgpt_endpoint: e.target.value,
                           })
                         }
-                        placeholder="https://example.com/jobswithgpt"
-                        hint="Off until you approve the details below"
+                        placeholder="Paste a job-source link from a service you trust"
+                        hint="Off until you review and approve the details below"
                       />
 
                       {hasJobsWithGptEndpoint && !hasJobsWithGptTitles && (
@@ -4134,17 +4139,17 @@ export default function Settings({ onClose }: SettingsProps) {
                 </div>
               </section>
 
-              {/* Match Priority Guide */}
+              {/* Match Review Guide */}
               <section className="mb-6">
                 <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
-                  Match Priority Guide
-                  <HelpIcon text="These percentages show which signals matter most when JobSentinel sorts jobs. Use any match label to see the details." />
+                  Match Review Guide
+                  <HelpIcon text="These areas show what JobSentinel reviews when it sorts jobs. Use any match label to see the details." />
                 </h3>
                 <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-4 bg-surface-50 dark:bg-surface-900/20">
                   <p className="text-sm text-surface-600 dark:text-surface-400 mb-4">
                     JobSentinel reviews each job against your preferences and
-                    shows a match label. These percentages explain the default
-                    priority order.
+                    shows a match label. These areas explain what shapes the
+                    review by default.
                   </p>
                   <div className="space-y-3">
                     {/* Skills */}
@@ -4162,10 +4167,10 @@ export default function Settings({ onClose }: SettingsProps) {
                       </div>
                       <div className="text-right">
                         <div className="text-sm font-semibold text-surface-900 dark:text-white">
-                          40%
+                          Primary
                         </div>
                         <div className="text-xs text-surface-500 dark:text-surface-400">
-                          priority
+                          review area
                         </div>
                       </div>
                     </div>
@@ -4185,10 +4190,10 @@ export default function Settings({ onClose }: SettingsProps) {
                       </div>
                       <div className="text-right">
                         <div className="text-sm font-semibold text-surface-900 dark:text-white">
-                          25%
+                          Important
                         </div>
                         <div className="text-xs text-surface-500 dark:text-surface-400">
-                          priority
+                          review area
                         </div>
                       </div>
                     </div>
@@ -4208,10 +4213,10 @@ export default function Settings({ onClose }: SettingsProps) {
                       </div>
                       <div className="text-right">
                         <div className="text-sm font-semibold text-surface-900 dark:text-white">
-                          20%
+                          Important
                         </div>
                         <div className="text-xs text-surface-500 dark:text-surface-400">
-                          priority
+                          review area
                         </div>
                       </div>
                     </div>
@@ -4231,10 +4236,10 @@ export default function Settings({ onClose }: SettingsProps) {
                       </div>
                       <div className="text-right">
                         <div className="text-sm font-semibold text-surface-900 dark:text-white">
-                          10%
+                          Supporting
                         </div>
                         <div className="text-xs text-surface-500 dark:text-surface-400">
-                          priority
+                          review area
                         </div>
                       </div>
                     </div>
@@ -4254,10 +4259,10 @@ export default function Settings({ onClose }: SettingsProps) {
                       </div>
                       <div className="text-right">
                         <div className="text-sm font-semibold text-surface-900 dark:text-white">
-                          5%
+                          Supporting
                         </div>
                         <div className="text-xs text-surface-500 dark:text-surface-400">
-                          priority
+                          review area
                         </div>
                       </div>
                     </div>
@@ -4266,8 +4271,8 @@ export default function Settings({ onClose }: SettingsProps) {
                     <p className="flex items-start gap-1.5 text-xs text-surface-500 dark:text-surface-400">
                       <SettingsSymbol icon="lightbulb" className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
                       <span>
-                        <strong>Tip:</strong> The default priorities keep search
-                        words, pay, and location easy to review. Change your
+                        <strong>Tip:</strong> Search words, pay, and location stay
+                        easiest to review by default. Change your
                         preferences above to improve your job matches.
                       </span>
                     </p>
