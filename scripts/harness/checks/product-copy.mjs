@@ -1155,6 +1155,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /\[developer guide\]/i,
       /^## Supported Sites/im,
       /Monitored sources?/i,
+      /does not monitor directly/i,
       /local monitoring/i,
       /Advanced filters/i,
     ];

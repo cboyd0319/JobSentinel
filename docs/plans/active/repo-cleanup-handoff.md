@@ -177,6 +177,9 @@ Current cleanup posture:
 - Current local ghost-detection docs follow-up replaces low-trust-listing and
   stale Ghost Detection Settings path wording with listing-needs-review and
   `Settings > Sources & Alerts > Posting Risk and Freshness` language.
+- Current local Deep Links docs follow-up replaces "does not monitor directly"
+  opening wording with browser-opened search-link language. Product-copy coverage
+  guards the old phrase.
 - Current local saved-answer recovery follow-up changes Application Assist
   suggested-answer failures from a bare saved-answers message to support-report
   recovery wording, with focused component and product-copy coverage.

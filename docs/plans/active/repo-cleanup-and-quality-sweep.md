@@ -221,6 +221,8 @@ boundaries, and harness modularity:
   Settings path wording to listing-needs-review and `Settings > Sources & Alerts
   > Posting Risk and Freshness` language. Product-copy tests guard the old
   phrases.
+- Changed Deep Links docs from "does not monitor directly" opening wording to
+  browser-opened search-link language. Product-copy tests guard the old phrase.
 - Changed Application Assist suggested-answer failure copy from a bare saved
   answers message to support-report recovery wording, with focused component and
   product-copy coverage.

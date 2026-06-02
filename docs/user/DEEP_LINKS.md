@@ -1,6 +1,6 @@
 # Job Site Search Links
 
-Create ready-to-use searches for sites JobSentinel does not monitor directly.
+Create ready-to-use searches for sites you open in your browser.
 
 ## Overview
 

@@ -649,6 +649,7 @@ test("product copy rejects technical-first settings copy", () => {
       [
         "## Privacy And Source Boundaries",
         "JobSentinel does not collect session cookies.",
+        "JobSentinel does not monitor directly.",
         "Some sites limit background collection.",
         "- Rate limiting",
         "JobSentinel does not bypass CAPTCHA, login, or anti-bot controls",

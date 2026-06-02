@@ -50,6 +50,9 @@ and record actionable findings in this active-plan surface.
 - Latest local ghost-detection docs follow-up replaces low-trust-listing and
   stale Ghost Detection Settings path wording with listing-needs-review and
   `Settings > Sources & Alerts > Posting Risk and Freshness` language.
+- Latest local Deep Links docs follow-up replaces the stale "does not monitor
+  directly" opening with browser-opened search-link wording. Product-copy tests
+  guard the old phrase.
 - Latest local resume-readability follow-up changes score-adjacent labels from
   `Complete`, `Completeness`, `missing`, `issues`, `View Details`, and `Full
   Resume Readability Review` to details, details-included, to-review,
