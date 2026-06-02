@@ -1216,6 +1216,9 @@ Next high-value passes:
      support-report-first across saved applications, settings load, review
      history, bulk bookmark, user-data docs, and frontend/Rust local-data plus
      website-format errors.
+     The latest Resume Builder restart-copy follow-up replaces the remaining
+     restart-style builder startup/load fallbacks and browser-button setup note
+     with safe-support-report-first or close/reopen guidance.
    - Do not trust hardcoded checkpoint notes for remote status. Use
      `git status --short --branch`, `git log --oneline -3`, and `gh run list
      --branch main --limit 5` as live evidence before reporting CI state.

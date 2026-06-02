@@ -31,8 +31,9 @@ Use the browser import button when:
 7. Paste the copied text where the bookmark stores the page address.
 8. Save it to your bookmarks bar.
 
-Copy the browser button again after each saved job, after changing connection
-settings, or after restarting JobSentinel.
+Copy the browser button again after each saved job or after changing connection
+settings. If JobSentinel was closed and reopened, copy it again before
+importing another job.
 
 ## Save A Job
 

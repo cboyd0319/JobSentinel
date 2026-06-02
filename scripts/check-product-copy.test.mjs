@@ -868,7 +868,7 @@ test("product copy rejects technical-first settings copy", () => {
     writeFixtureFile(
       root,
       "docs/BOOKMARKLET.md",
-      "choose another port in advanced settings\nadvanced connection settings\n",
+      "choose another port in advanced settings\nadvanced connection settings\nafter restarting JobSentinel\n",
     );
 
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
@@ -1358,7 +1358,7 @@ test("product copy rejects technical-first resume copy", () => {
     writeFixtureFile(
       root,
       "src/pages/ResumeBuilder.tsx",
-      'const PROFICIENCY_LEVELS = ["beginner", "intermediate", "advanced", "expert"]; Proficiency Select level Failed to import skills Failed to generate preview Export failed',
+      'const PROFICIENCY_LEVELS = ["beginner", "intermediate", "advanced", "expert"]; Proficiency Select level Failed to import skills Failed to generate preview Export failed Try restarting JobSentinel Try restarting the app',
     );
     writeFixtureFile(
       root,

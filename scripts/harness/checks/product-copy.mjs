@@ -903,6 +903,10 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /Failed to import skills/i,
       /Failed to generate preview/i,
       /Export failed/i,
+      /Try restarting JobSentinel/i,
+      /restarting JobSentinel/i,
+      /Try restarting the app/i,
+      /restarting the app/i,
     ];
 
     if (resumeBuilderPatterns.some((pattern) => pattern.test(text))) {
@@ -1175,7 +1179,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
   }
 
   if (path === "docs/BOOKMARKLET.md") {
-    return /advanced settings|another port|advanced connection settings|Works best on individual job pages from:[\s\S]{0,260}(?:LinkedIn|Indeed|Glassdoor)|Official ATS job pages|public ATS sources/i.test(
+    return /advanced settings|another port|advanced connection settings|Works best on individual job pages from:[\s\S]{0,260}(?:LinkedIn|Indeed|Glassdoor)|Official ATS job pages|public ATS sources|after restarting JobSentinel/i.test(
       text,
     );
   }

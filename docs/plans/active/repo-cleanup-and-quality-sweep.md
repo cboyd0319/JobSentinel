@@ -1285,3 +1285,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
   history, bulk bookmark, user-data docs, and frontend/Rust local-data plus
   website-format errors, with product-copy coverage against restart/contact
   support drift.
+- Current local Resume Builder restart-copy follow-up replaces the remaining
+  restart-style builder startup/load fallbacks and browser-button setup note
+  with safe-support-report-first or close/reopen guidance plus product-copy
+  coverage.

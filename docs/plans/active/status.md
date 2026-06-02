@@ -944,6 +944,10 @@ and record actionable findings in this active-plan surface.
   history, bulk bookmark, user-data docs, and frontend/Rust local-data plus
   website-format errors, with product-copy coverage against restart/contact
   support drift.
+- Current local Resume Builder restart-copy follow-up replaces the remaining
+  restart-style builder startup/load fallbacks and browser-button setup note
+  with safe-support-report-first or close/reopen guidance plus product-copy
+  coverage.
 - The previous local slice closed the hardcoded harness-policy debt by moving
   required harness files, policy snippets, and README reference-source coverage
   into `docs/harness/manifest.json`.

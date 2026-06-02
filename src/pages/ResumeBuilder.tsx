@@ -461,7 +461,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
       const safeError = getSafeErrorToastCopy(error, {
         fallbackTitle: "Resume builder unavailable",
         fallbackMessage:
-          "Couldn't start the resume builder. Try restarting JobSentinel.",
+          "Resume builder did not start. Copy a safe support report if this keeps happening, then close and reopen JobSentinel.",
       });
       toast.error(safeError.title, safeError.message);
     } finally {
@@ -496,7 +496,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
       const safeError = getSafeErrorToastCopy(error, {
         fallbackTitle: "Couldn't load your resume",
         fallbackMessage:
-          "Your resume data couldn't be retrieved. Try restarting the app or creating a new resume.",
+          "Resume details did not load. Copy a safe support report if this keeps happening, then create a new resume only if you need to keep working.",
       });
       toast.error(safeError.title, safeError.message);
     }
