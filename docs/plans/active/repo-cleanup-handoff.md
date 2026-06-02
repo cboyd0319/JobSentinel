@@ -1164,8 +1164,10 @@ Next high-value passes:
      clearer. The latest interview-scheduling slice changes missing-field,
      past-date, and invalid-duration validation to action-first guidance, and
      the follow-up interview-form slice replaces asterisk/slash labels with
-     plain required-field and meeting-location wording. Continue looking for
-     new issues as new surfaces change.
+     plain required-field and meeting-location wording. The latest shortcut
+     label slice changes static navigation/help shortcut copy from mac-only
+     symbols to `Cmd/Ctrl` labels. Continue looking for new issues as new
+     surfaces change.
    - Latest pushed checkpoint: `2e28a55f` on `origin/main`; remote CI and Docs
      Harness both passed after the broad-audience privacy and hiring-trend
      label slices.

@@ -850,6 +850,9 @@ and record actionable findings in this active-plan surface.
 - Current local interview-form slice replaces asterisk required labels,
   slash-separated meeting-link wording, and select-placeholder copy with plain
   required-field and location guidance.
+- Current local shortcut-label slice changes static navigation/help shortcut
+  copy from mac-only command symbols to `Cmd/Ctrl` labels so Windows and macOS
+  users get usable directions.
 - The previous local slice closed the hardcoded harness-policy debt by moving
   required harness files, policy snippets, and README reference-source coverage
   into `docs/harness/manifest.json`.

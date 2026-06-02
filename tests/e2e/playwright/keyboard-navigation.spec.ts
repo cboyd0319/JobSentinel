@@ -229,7 +229,7 @@ test.describe("Keyboard Navigation", () => {
 
       const helpDialog = page.getByRole("dialog", { name: "Keyboard Shortcuts" });
       await expect(helpDialog).toBeVisible();
-      await expect(helpDialog.getByText("⌘1-8")).toBeVisible();
+      await expect(helpDialog.getByText("Cmd/Ctrl+1-8")).toBeVisible();
 
       await page.keyboard.press("Escape");
 

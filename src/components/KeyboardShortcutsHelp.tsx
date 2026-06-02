@@ -32,11 +32,11 @@ const SHORTCUTS = {
   global: {
     title: 'Global',
     shortcuts: [
-      { keys: ['⌘K'], description: 'Open quick actions' },
-      { keys: ['⌘,'], description: 'Open settings' },
-      { keys: ['⌘1-8'], description: 'Switch pages' },
-      { keys: ['⌘Z'], description: 'Undo last action' },
-      { keys: ['⌘⇧Z'], description: 'Redo' },
+      { keys: ['Cmd/Ctrl+K'], description: 'Open quick actions' },
+      { keys: ['Cmd/Ctrl+,'], description: 'Open settings' },
+      { keys: ['Cmd/Ctrl+1-8'], description: 'Switch pages' },
+      { keys: ['Cmd/Ctrl+Z'], description: 'Undo last action' },
+      { keys: ['Cmd/Ctrl+Shift+Z'], description: 'Redo' },
       { keys: ['?'], description: 'Show this help' },
     ],
   },

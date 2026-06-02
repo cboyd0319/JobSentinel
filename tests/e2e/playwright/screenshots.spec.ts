@@ -82,7 +82,7 @@ test.describe("Documentation Screenshots", () => {
       await page.waitForLoadState("networkidle");
     }
 
-    // Use keyboard shortcut to navigate to Application Assist (⌘6)
+    // Use keyboard shortcut to navigate to Application Assist (Cmd/Ctrl+6)
     await page.keyboard.press("Meta+6");
     await page.waitForTimeout(500);
 

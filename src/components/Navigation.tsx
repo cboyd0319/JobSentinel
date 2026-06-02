@@ -88,14 +88,14 @@ const NAV_WIDTHS = {
 } as const;
 
 const navItems: NavItem[] = [
-  { id: "dashboard", label: "Dashboard", shortcut: "⌘1", icon: <DashboardIcon /> },
-  { id: "applications", label: "Applications", shortcut: "⌘2", icon: <ApplicationsIcon /> },
-  { id: "resume", label: "Resumes", shortcut: "⌘3", icon: <ResumeIcon /> },
-  { id: "salary", label: "Salary", shortcut: "⌘4", icon: <SalaryIcon /> },
-  { id: "market", label: "Hiring Trends", shortcut: "⌘5", icon: <MarketIcon /> },
-  { id: "automation", label: "Application Assist", shortcut: "⌘6", icon: <AutomationIcon /> },
-  { id: "resume-builder", label: "Resume Builder", shortcut: "⌘7", icon: <BuilderIcon /> },
-  { id: "ats-optimizer", label: "Resume Match", shortcut: "⌘8", icon: <OptimizerIcon /> },
+  { id: "dashboard", label: "Dashboard", shortcut: "Cmd/Ctrl+1", icon: <DashboardIcon /> },
+  { id: "applications", label: "Applications", shortcut: "Cmd/Ctrl+2", icon: <ApplicationsIcon /> },
+  { id: "resume", label: "Resumes", shortcut: "Cmd/Ctrl+3", icon: <ResumeIcon /> },
+  { id: "salary", label: "Salary", shortcut: "Cmd/Ctrl+4", icon: <SalaryIcon /> },
+  { id: "market", label: "Hiring Trends", shortcut: "Cmd/Ctrl+5", icon: <MarketIcon /> },
+  { id: "automation", label: "Application Assist", shortcut: "Cmd/Ctrl+6", icon: <AutomationIcon /> },
+  { id: "resume-builder", label: "Resume Builder", shortcut: "Cmd/Ctrl+7", icon: <BuilderIcon /> },
+  { id: "ats-optimizer", label: "Resume Match", shortcut: "Cmd/Ctrl+8", icon: <OptimizerIcon /> },
 ];
 
 export const Navigation = memo(function Navigation({ currentPage, onNavigate }: NavigationProps) {
@@ -158,7 +158,7 @@ export const Navigation = memo(function Navigation({ currentPage, onNavigate }: 
         {isExpanded && (
           <div className="px-4 py-3 border-t border-surface-200 dark:border-surface-700">
             <p className="text-xs text-surface-500 dark:text-surface-400">
-              Press <kbd className="px-1 py-0.5 bg-surface-200 dark:bg-surface-700 rounded text-xs">⌘K</kbd> for quick actions
+              Use <kbd className="px-1 py-0.5 bg-surface-200 dark:bg-surface-700 rounded text-xs">Cmd/Ctrl+K</kbd> for quick actions
             </p>
           </div>
         )}

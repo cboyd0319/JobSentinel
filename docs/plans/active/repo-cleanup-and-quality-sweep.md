@@ -618,6 +618,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-06-01 | In progress | Replaced static mac-only shortcut labels in navigation and keyboard help with `Cmd/Ctrl` labels, updated E2E expectations, and added product-copy coverage against mac-only static shortcut drift. |
 | 2026-06-01 | In progress | Reworded Interview Schedule form labels so required fields are named directly, meeting details avoid slash notation, and application selection starts with plain "choose" wording. Product-copy coverage now rejects the old asterisk and slash label drift. |
 | 2026-06-01 | In progress | Reworded Interview Schedule validation to action-first guidance for missing application/time, past dates, and invalid duration, and added product-copy coverage so those validation titles do not drift back to invalid/missing-field wording. |
 | 2026-06-01 | In progress | Closed the latest broad-audience privacy/control audit slice: analytics and dashboard stats now use employer-reply/offers-received wording, job-source displays reuse plain shared source labels, interview outcomes and market alert severity no longer show raw enums, application status/load copy is more protective and local-first, notification preference load failures no longer fall back to enabled defaults, first-run setup previews inferred job sources before saving, and Settings discloses email/chat plus USAJobs data sharing with accessible source toggles. |

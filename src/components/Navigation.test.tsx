@@ -37,7 +37,7 @@ describe("Navigation", () => {
       render(<Navigation currentPage="applications" onNavigate={onNavigate} />);
 
       // Find the dashboard button by its title (shown when collapsed)
-      const dashboardBtn = screen.getByTitle("Dashboard (⌘1)");
+      const dashboardBtn = screen.getByTitle("Dashboard (Cmd/Ctrl+1)");
       fireEvent.click(dashboardBtn);
 
       expect(onNavigate).toHaveBeenCalledWith("dashboard");
@@ -47,7 +47,7 @@ describe("Navigation", () => {
       const onNavigate = vi.fn();
       render(<Navigation currentPage="dashboard" onNavigate={onNavigate} />);
 
-      const btn = screen.getByTitle("Applications (⌘2)");
+      const btn = screen.getByTitle("Applications (Cmd/Ctrl+2)");
       fireEvent.click(btn);
 
       expect(onNavigate).toHaveBeenCalledWith("applications");
@@ -57,7 +57,7 @@ describe("Navigation", () => {
       const onNavigate = vi.fn();
       render(<Navigation currentPage="dashboard" onNavigate={onNavigate} />);
 
-      const btn = screen.getByTitle("Resumes (⌘3)");
+      const btn = screen.getByTitle("Resumes (Cmd/Ctrl+3)");
       fireEvent.click(btn);
 
       expect(onNavigate).toHaveBeenCalledWith("resume");
@@ -67,7 +67,7 @@ describe("Navigation", () => {
       const onNavigate = vi.fn();
       render(<Navigation currentPage="dashboard" onNavigate={onNavigate} />);
 
-      const btn = screen.getByTitle("Salary (⌘4)");
+      const btn = screen.getByTitle("Salary (Cmd/Ctrl+4)");
       fireEvent.click(btn);
 
       expect(onNavigate).toHaveBeenCalledWith("salary");
@@ -77,7 +77,7 @@ describe("Navigation", () => {
       const onNavigate = vi.fn();
       render(<Navigation currentPage="dashboard" onNavigate={onNavigate} />);
 
-      const btn = screen.getByTitle("Hiring Trends (⌘5)");
+      const btn = screen.getByTitle("Hiring Trends (Cmd/Ctrl+5)");
       fireEvent.click(btn);
 
       expect(onNavigate).toHaveBeenCalledWith("market");
@@ -87,7 +87,7 @@ describe("Navigation", () => {
       const onNavigate = vi.fn();
       render(<Navigation currentPage="dashboard" onNavigate={onNavigate} />);
 
-      const btn = screen.getByTitle("Application Assist (⌘6)");
+      const btn = screen.getByTitle("Application Assist (Cmd/Ctrl+6)");
       fireEvent.click(btn);
 
       expect(onNavigate).toHaveBeenCalledWith("automation");
@@ -97,7 +97,7 @@ describe("Navigation", () => {
       const onNavigate = vi.fn();
       render(<Navigation currentPage="dashboard" onNavigate={onNavigate} />);
 
-      const btn = screen.getByTitle("Resume Builder (⌘7)");
+      const btn = screen.getByTitle("Resume Builder (Cmd/Ctrl+7)");
       fireEvent.click(btn);
 
       expect(onNavigate).toHaveBeenCalledWith("resume-builder");
@@ -107,7 +107,7 @@ describe("Navigation", () => {
       const onNavigate = vi.fn();
       render(<Navigation currentPage="dashboard" onNavigate={onNavigate} />);
 
-      const btn = screen.getByTitle("Resume Match (⌘8)");
+      const btn = screen.getByTitle("Resume Match (Cmd/Ctrl+8)");
       fireEvent.click(btn);
 
       expect(onNavigate).toHaveBeenCalledWith("ats-optimizer");
@@ -118,21 +118,21 @@ describe("Navigation", () => {
     it("highlights Dashboard when it is the current page", () => {
       render(<Navigation currentPage="dashboard" onNavigate={vi.fn()} />);
 
-      const btn = screen.getByTitle("Dashboard (⌘1)");
+      const btn = screen.getByTitle("Dashboard (Cmd/Ctrl+1)");
       expect(btn.className).toContain("bg-sentinel-100");
     });
 
     it("highlights Applications when it is the current page", () => {
       render(<Navigation currentPage="applications" onNavigate={vi.fn()} />);
 
-      const btn = screen.getByTitle("Applications (⌘2)");
+      const btn = screen.getByTitle("Applications (Cmd/Ctrl+2)");
       expect(btn.className).toContain("bg-sentinel-100");
     });
 
     it("does not highlight other pages when Dashboard is active", () => {
       render(<Navigation currentPage="dashboard" onNavigate={vi.fn()} />);
 
-      const applicationsBtn = screen.getByTitle("Applications (⌘2)");
+      const applicationsBtn = screen.getByTitle("Applications (Cmd/Ctrl+2)");
       expect(applicationsBtn.className).not.toContain("bg-sentinel-100");
     });
   });
@@ -182,8 +182,8 @@ describe("Navigation", () => {
       const nav = screen.getByRole("navigation");
       fireEvent.mouseEnter(nav);
 
-      expect(screen.getByText("⌘1")).toBeInTheDocument();
-      expect(screen.getByText("⌘2")).toBeInTheDocument();
+      expect(screen.getByText("Cmd/Ctrl+1")).toBeInTheDocument();
+      expect(screen.getByText("Cmd/Ctrl+2")).toBeInTheDocument();
     });
 
     it("shows app name when expanded", () => {
@@ -201,8 +201,8 @@ describe("Navigation", () => {
       const nav = screen.getByRole("navigation");
       fireEvent.mouseEnter(nav);
 
-      expect(screen.getByText(/Press/)).toBeInTheDocument();
-      expect(screen.getByText("⌘K")).toBeInTheDocument();
+      expect(screen.getByText(/Use/)).toBeInTheDocument();
+      expect(screen.getByText("Cmd/Ctrl+K")).toBeInTheDocument();
     });
 
     it("hides labels when collapsed", () => {
@@ -218,8 +218,8 @@ describe("Navigation", () => {
       render(<Navigation {...defaultProps} />);
 
       // In collapsed state, buttons have title attributes
-      expect(screen.getByTitle("Dashboard (⌘1)")).toBeInTheDocument();
-      expect(screen.getByTitle("Applications (⌘2)")).toBeInTheDocument();
+      expect(screen.getByTitle("Dashboard (Cmd/Ctrl+1)")).toBeInTheDocument();
+      expect(screen.getByTitle("Applications (Cmd/Ctrl+2)")).toBeInTheDocument();
     });
 
     it("removes title when expanded", () => {
