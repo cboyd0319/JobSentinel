@@ -83,6 +83,9 @@ const PLACEHOLDER_HINTS = [
   },
 ];
 
+const CLIPBOARD_RECOVERY_MESSAGE =
+  'Give JobSentinel clipboard permission, then copy again. The template text is still saved.';
+
 function getTemplateErrorAction(error: unknown): string {
   const friendly = getUserFriendlyError(error);
   return friendly.action ?? friendly.message;
@@ -503,7 +506,7 @@ export const CoverLetterTemplates = memo(function CoverLetterTemplates({ selecte
       await navigator.clipboard.writeText(template.content);
       toast.success('Template copied', 'Review any blanks before sending');
     } catch {
-      toast.error('Could not copy template', 'Please try again');
+      toast.error('Could not copy template', CLIPBOARD_RECOVERY_MESSAGE);
     }
   };
 
@@ -515,7 +518,7 @@ export const CoverLetterTemplates = memo(function CoverLetterTemplates({ selecte
         'Review any blanks before sending'
       );
     } catch {
-      toast.error('Could not copy template', 'Please try again');
+      toast.error('Could not copy template', CLIPBOARD_RECOVERY_MESSAGE);
     }
   };
 

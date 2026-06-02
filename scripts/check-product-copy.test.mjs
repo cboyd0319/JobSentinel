@@ -613,6 +613,7 @@ test("product copy rejects technical-first settings copy", () => {
         "Check for [bracketed] placeholders that need manual editing",
         "Failed to Load Templates",
         "Failed to copy",
+        "Please try again",
         "Copied to clipboard",
         "Template filled and copied!",
         "Check any bracketed blanks before sending",

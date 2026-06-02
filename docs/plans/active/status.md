@@ -221,6 +221,9 @@ and record actionable findings in this active-plan surface.
   Cover Letter Templates, Analytics, and Dashboard Widgets with `Could not
   load...` wording, and changes cover-letter copy failures to `Could not copy
   template`, with focused component tests and product-copy coverage.
+- Latest local cover-letter clipboard recovery follow-up replaces retry-only
+  copy-failure guidance with clipboard-permission guidance and expands
+  product-copy coverage for the old fallback.
 - Latest local recovery-title follow-up replaces remaining visible
   `Failed to...` fallback titles in Resume, Resume Builder, Screening Answers,
   Interview Scheduler, and company-research fallback UI with `Could not...`
@@ -900,6 +903,9 @@ and record actionable findings in this active-plan surface.
 - Current local saved-answer recovery slice replaces the remaining
   retry-only saved-answer load fallback with safe-support-report guidance and
   focused component coverage.
+- Current local cover-letter clipboard recovery slice replaces retry-only
+  copy-failure guidance with clipboard-permission guidance and focused
+  component coverage.
 - The previous local slice closed the hardcoded harness-policy debt by moving
   required harness files, policy snippets, and README reference-source coverage
   into `docs/harness/manifest.json`.

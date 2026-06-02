@@ -1196,6 +1196,8 @@ Next high-value passes:
      new issues as new surfaces change.
      The latest saved-answer recovery slice also replaces the remaining
      retry-only saved-answer load fallback with safe-support-report guidance.
+     The latest cover-letter clipboard recovery slice replaces retry-only
+     copy-failure guidance with clipboard-permission guidance.
    - Do not trust hardcoded checkpoint notes for remote status. Use
      `git status --short --branch`, `git log --oneline -3`, and `gh run list
      --branch main --limit 5` as live evidence before reporting CI state.

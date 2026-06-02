@@ -1259,3 +1259,6 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 - Current local saved-answer recovery slice replaces the remaining
   retry-only saved-answer load fallback with safe-support-report guidance and
   focused component coverage.
+- Current local cover-letter clipboard recovery slice replaces retry-only
+  copy-failure guidance with clipboard-permission guidance and focused
+  component coverage.

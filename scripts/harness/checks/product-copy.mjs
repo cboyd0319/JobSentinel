@@ -1064,6 +1064,19 @@ export function hasTechnicalFirstUserCopy(root, path) {
     ].some((pattern) => pattern.test(text));
   }
 
+  if (path === "src/components/CoverLetterTemplates.tsx") {
+    return [
+      /\bsetError\(errorMsg\)/,
+      /toast\.error\(\s*["'`]Failed to save template/i,
+      /Failed to Load Templates/i,
+      /Failed to copy/i,
+      /Copied to clipboard/i,
+      /Template filled and copied/i,
+      /Check any bracketed blanks/i,
+      /Please try again/i,
+    ].some((pattern) => pattern.test(text));
+  }
+
   if (path === "src/components/automation/ProfileForm.tsx") {
     return /Require manual approval|Failed to load profile|Failed to select file|Please fix the errors|Failed to save|Please try again/i.test(text);
   }

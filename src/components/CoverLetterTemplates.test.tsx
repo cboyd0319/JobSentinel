@@ -354,7 +354,10 @@ describe("CoverLetterTemplates", () => {
       fireEvent.click(screen.getByRole("button", { name: "Copy" }));
 
       await waitFor(() => {
-        expect(mockToast.error).toHaveBeenCalledWith("Could not copy template", "Please try again");
+        expect(mockToast.error).toHaveBeenCalledWith(
+          "Could not copy template",
+          "Give JobSentinel clipboard permission, then copy again. The template text is still saved.",
+        );
       });
       expect(toastErrorText()).not.toContain("Failed to copy");
     });
@@ -743,7 +746,10 @@ describe("CoverLetterTemplates", () => {
       fireEvent.click(screen.getByRole("button", { name: "Use for Job" }));
 
       await waitFor(() => {
-        expect(mockToast.error).toHaveBeenCalledWith("Could not copy template", "Please try again");
+        expect(mockToast.error).toHaveBeenCalledWith(
+          "Could not copy template",
+          "Give JobSentinel clipboard permission, then copy again. The template text is still saved.",
+        );
       });
       expect(toastErrorText()).not.toContain("Failed to copy");
     });
