@@ -1480,6 +1480,32 @@ test("product copy rejects support troubleshooting jargon", () => {
   });
 });
 
+test("product copy rejects troubleshooting headings in user docs", () => {
+  withFixture((root) => {
+    const docs = [
+      "docs/user/QUICK_START.md",
+      "docs/user/DEEP_LINKS.md",
+      "docs/features/user-data-management.md",
+      "docs/features/one-click-apply.md",
+      "docs/features/notifications.md",
+      "docs/features/scrapers.md",
+    ];
+
+    for (const docPath of docs) {
+      writeFixtureFile(
+        root,
+        docPath,
+        [
+          "## Troubleshooting",
+          "| Troubleshooting | Plain-language next steps |",
+          "",
+        ].join("\n"),
+      );
+      assert.equal(hasTechnicalFirstUserCopy(root, docPath), true);
+    }
+  });
+});
+
 test("product copy rejects GitHub-first support and overbroad privacy copy", () => {
   withFixture((root) => {
     writeFixtureFile(

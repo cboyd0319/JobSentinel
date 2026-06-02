@@ -40,7 +40,7 @@ Source the user turned on
   -> record safe status details
 ```
 
-## Health And Troubleshooting
+## Source Status And Help
 
 The job source health dashboard tracks source status without requiring users to
 understand website internals, saved connection details, or logs.
@@ -51,7 +51,7 @@ understand website internals, saved connection details, or logs.
 | Source table | Current status, plain recent-result label, jobs found, last checked, and next step |
 | Check history | Recent source attempts with timing and sanitized issues |
 | Source checks | Availability checks for known supported sources |
-| Troubleshooting | Plain-language next steps and sanitized support report help |
+| Help steps | Plain-language next steps and sanitized support report help |
 
 Source health must never leak credentials, raw cookies, full URLs containing
 sensitive parameters, private notes, salary floors, resumes, or application

@@ -410,9 +410,9 @@ secure vault.
 
 ---
 
-## Troubleshooting
+## When Something Does Not Work
 
-### No jobs showing up?
+### No Jobs Showing
 
 1. Make sure your job titles aren't too specific
 2. Try enabling more location options (Remote + Hybrid + Onsite)
@@ -420,13 +420,13 @@ secure vault.
    consider. Jobs without listed pay still stay visible and marked for review.
 4. Right-click the tray icon > "Search Now" to check again now
 
-### Notifications not working?
+### Alerts Do Not Arrive
 
 1. Double-check your notification connection link in Settings
 2. Make sure the notification channel is enabled
 3. Test it by clicking **Test** in Settings
 
-### Something else wrong?
+### Something Else Looks Wrong
 
 1. Open Settings in JobSentinel.
 2. Click **Save Safe Support Report** to create a local file, or click

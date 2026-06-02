@@ -2433,6 +2433,8 @@ export function hasTechnicalFirstUserCopy(root, path) {
     /Scraper returns/i,
     /Jobs are being incorrectly parsed/i,
     /Rate limiting or blocking issues/i,
+    /^##\s*(?:Health And )?Troubleshooting/im,
+    /\|\s*Troubleshooting\s*\|/i,
     /restricted automation policies/i,
     /source-specific boundaries/i,
     /source health checks/i,

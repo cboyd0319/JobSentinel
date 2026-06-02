@@ -212,25 +212,25 @@ If it doesn't work:
 
 ---
 
-## Troubleshooting
+## When Something Does Not Work
 
-### No notifications received?
+### Alerts Do Not Arrive
 
 1. Make sure that alert channel is turned on in Settings
 2. Check that your connection link is correct
 3. Make sure jobs meet your match-strength setting
 4. Click "Test" to check it
 
-### Slack says the link is invalid?
+### Slack Says The Link Is Invalid
 
 Your connection link was deleted or expired. Create a new one in Slack.
 
-### Gmail email not working?
+### Gmail Email Does Not Send
 
 Use an app password from Google Account Security, then paste that app password
 into JobSentinel.
 
-### Discord alert looks broken?
+### Discord Alert Looks Wrong
 
 Copy a fresh Discord channel connection link, paste it into JobSentinel, then
 click Test.

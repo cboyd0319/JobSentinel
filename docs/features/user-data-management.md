@@ -93,7 +93,7 @@ JobSentinel and check Settings.
 - Use safe support reports before changing more data if something looks wrong.
 - A fuller backup and restore workflow remains a planned product need.
 
-## Troubleshooting
+## When Something Does Not Work
 
 | Problem | Plain next step |
 | --- | --- |

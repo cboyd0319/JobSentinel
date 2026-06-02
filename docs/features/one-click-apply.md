@@ -188,9 +188,9 @@ site's own file picker when you decide to attach a resume.
 
 ---
 
-## Troubleshooting
+## When Something Does Not Work
 
-### Browser Doesn't Open
+### Browser Does Not Open
 
 1. Make sure Chrome is installed.
 2. Close any existing Chrome browser instances opened for Application Assist.
@@ -203,7 +203,7 @@ site's own file picker when you decide to attach a resume.
 3. Select the field in the form and review it.
 4. Complete unusual fields yourself.
 
-### Wrong Data Appears
+### Wrong Details Appear
 
 1. Check your profile for typos.
 2. Some forms expect different formats, such as phone numbers without dashes.

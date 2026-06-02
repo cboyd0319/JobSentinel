@@ -164,6 +164,12 @@ As of 2026-06-02, the active plan remains open. Latest local work improved
 visible zero-technical UX, broad-audience defaults, privacy/security
 boundaries, and harness modularity:
 
+- Current local user-doc help-heading cleanup replaces remaining user-facing
+  `Troubleshooting` headings with plain "When Something Does Not Work" or
+  source-status help language across Quick Start, Deep Links, feature guides,
+  and source docs. Product-copy sensors now reject those headings and table
+  labels. Focused product-copy, stale-heading, bloat, and docs verification
+  passed.
 - Current local sidecar-finding cleanup replaces restricted-automation source
   policy wording, command-first profile customization guidance, resume-app
   export placeholder/error copy, and guarantee framing in saved-secret docs.

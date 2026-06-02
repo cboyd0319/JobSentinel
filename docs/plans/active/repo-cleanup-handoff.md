@@ -31,6 +31,14 @@ Latest pushed checkpoints include:
 
 Recent remote integration evidence:
 
+- Current local user-doc help-heading cleanup replaces remaining user-facing
+  `Troubleshooting` headings with plain "When Something Does Not Work" or
+  source-status help language across Quick Start, Deep Links, feature guides,
+  and source docs. Product-copy sensors now reject those headings and table
+  labels in user-facing docs. Focused verification passed: `node --test
+  scripts/check-product-copy.test.mjs` passed 36 tests, targeted stale-heading
+  search found no old live headings in user-facing docs, `npm run lint:bloat`
+  passed, and `npm run lint:docs` passed.
 - Current local sidecar-finding cleanup replaces restricted-automation source
   policy wording, command-first profile customization guidance, resume-app
   export placeholder/error copy, and guarantee framing in saved-secret docs.

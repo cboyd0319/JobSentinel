@@ -209,22 +209,22 @@ People changing JobSentinel itself can also add sites. See the
 checks.
 **Use search links for:** Sites that are best opened by you in your browser.
 
-## Troubleshooting
+## When Something Does Not Work
 
-### Link doesn't work
+### Search Link Does Not Open
 
 1. Check whether the site changed its search page
 2. Try opening the site manually and searching there
 3. Save a safe support report and include the site name if you want help
 
-### Search results are wrong
+### Search Results Look Wrong
 
 Some sites support fewer filters than others. Try:
 
 1. Opening the link and refining the search on the site
 2. Using a different site with better filter support
 
-### Link opens but requires login
+### Site Asks You To Log In
 
 Sites marked with the login-required badge always require login:
 
