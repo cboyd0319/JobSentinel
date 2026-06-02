@@ -599,7 +599,9 @@ export function hasFeedbackSetupJargon(root, path) {
     /\?\s*["']configured["']\s*:\s*["']not configured["']/.test(text) ||
     /\bmore events\b/i.test(text) ||
     /\bevent:\s*["']Event["']/.test(text) ||
-    /frontend errors omitted/i.test(text)
+    /frontend errors omitted/i.test(text) ||
+    /removes private details before sharing/i.test(text) ||
+    /Job titles, company names, search words, and personal details are not included/i.test(text)
   );
 }
 
@@ -1724,6 +1726,8 @@ export function hasTechnicalFirstUserCopy(root, path) {
     /Anonymized Debug Information/i,
     /logs can help diagnose/i,
     /Helps troubleshoot faster/i,
+    /removes private details before sharing/i,
+    /Job titles, company names, search words, and personal details are not included/i,
     />\s*Page Check\s*</i,
     /Needs update/i,
     /["'`]Turn this source (?:on|off)["'`]/i,

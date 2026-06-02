@@ -52,7 +52,8 @@ export const DebugInfoPreview = memo(function DebugInfoPreview({
             Include safe app details
           </label>
           <p className="text-xs text-surface-500 dark:text-surface-400 mt-1">
-            Helps support understand the problem faster. JobSentinel removes private details before sharing.
+            Helps support understand the problem faster. JobSentinel hides common private details.
+            Review the report before sharing.
           </p>
         </div>
       </div>
@@ -119,8 +120,9 @@ export const DebugInfoPreview = memo(function DebugInfoPreview({
                 <div className="flex items-start gap-2">
                   <ShieldIcon className="w-4 h-4 text-success mt-0.5 flex-shrink-0" />
                   <p className="text-xs text-success dark:text-success">
-                    <strong>Privacy check:</strong> JobSentinel removes private details before sharing.
-                    Job titles, company names, search words, and personal details are not included.
+                    <strong>Privacy check:</strong> JobSentinel hides common private details.
+                    Review the report before sharing. Look for job titles, company names,
+                    search words, or personal details before you send it.
                   </p>
                 </div>
               </div>

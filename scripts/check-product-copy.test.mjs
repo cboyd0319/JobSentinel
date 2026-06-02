@@ -1222,7 +1222,13 @@ test("product copy rejects support troubleshooting jargon", () => {
     writeFixtureFile(
       root,
       "src/components/feedback/DebugInfoPreview.tsx",
-      "Helps troubleshoot faster.\n... and {debugEvents.length - 10} more events",
+      [
+        "Helps troubleshoot faster.",
+        "JobSentinel removes private details before sharing.",
+        "Job titles, company names, search words, and personal details are not included.",
+        "... and {debugEvents.length - 10} more events",
+        "",
+      ].join("\n"),
     );
     writeFixtureFile(
       root,

@@ -187,6 +187,10 @@ Current cleanup posture:
 - Current local source-contact docs follow-up replaces lowercase source-host
   metadata wording with website-contacted, count-only request-category, and
   outcome language. Product-copy coverage guards the old labels.
+- Current local support-preview privacy follow-up replaces absolute
+  removes-private-details wording with common-private-details and
+  review-before-sharing language. DebugInfoPreview and product-copy coverage
+  guard the old claim.
 - Current local saved-answer recovery follow-up changes Application Assist
   suggested-answer failures from a bare saved-answers message to support-report
   recovery wording, with focused component and product-copy coverage.

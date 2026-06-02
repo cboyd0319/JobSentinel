@@ -61,6 +61,10 @@ and record actionable findings in this active-plan surface.
   `source host` metadata wording in privacy and source-health docs with
   `website contacted`, count-only categories, and outcome language. Product-copy
   tests guard the old labels.
+- Latest local support-preview privacy follow-up replaces absolute
+  removes-private-details wording with common-private-details plus
+  review-before-sharing language. DebugInfoPreview and product-copy tests guard
+  the old claim.
 - Latest local resume-readability follow-up changes score-adjacent labels from
   `Complete`, `Completeness`, `missing`, `issues`, `View Details`, and `Full
   Resume Readability Review` to details, details-included, to-review,

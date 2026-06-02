@@ -230,6 +230,9 @@ boundaries, and harness modularity:
 - Changed privacy and source-health docs from lowercase source-host metadata
   wording to website-contacted, count-only request-category, and outcome
   language. Product-copy tests guard the old labels.
+- Changed support-preview privacy copy from absolute removes-private-details
+  wording to common-private-details and review-before-sharing language.
+  DebugInfoPreview and product-copy tests guard the old claim.
 - Changed Application Assist suggested-answer failure copy from a bare saved
   answers message to support-report recovery wording, with focused component and
   product-copy coverage.
