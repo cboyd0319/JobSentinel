@@ -43,6 +43,17 @@ unreviewed form sending.
 - Branch has multiple local commits ahead of `origin/main`. Use
   `git status --short --branch` for live evidence before committing, pushing,
   or reporting remote state.
+- Current local no-Apple-account macOS proof passed on current `main`:
+  `npm run doctor` reported the environment ready with one known Node 26 local
+  warning, `cargo test --lib platforms::macos` passed 22 tests with 1 ignored,
+  `npm run tauri:build:macos -- --target universal-apple-darwin` produced a
+  fresh `JobSentinel_2.6.4_universal.dmg`, and `npm run
+  tauri:verify:macos` with expected bundle id, product name, version, icon,
+  macOS 13.0 minimum metadata, `x86_64,arm64`, `--launch-smoke`, and
+  `--install-smoke` passed. The mounted and copied apps stayed running for 12
+  seconds with empty stderr and created isolated local `jobs.db` files.
+  Gatekeeper rejected the ad-hoc package as expected because the project does
+  not have an Apple Developer Account, Developer ID signing, or notarization.
 - Current local resume anti-gaming guardrail adds a local readability warning
   for prompt-injection-like instructions and invisible Unicode in resume
   content. Browser/dev mocks now return the same warning and docs note this as
