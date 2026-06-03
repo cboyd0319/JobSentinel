@@ -271,6 +271,9 @@ impl AtsAnalyzer {
         // Check for repeated keyword piles that hurt readability and trust.
         Self::check_keyword_stuffing(resume, &mut format_issues, &mut suggestions);
 
+        // Check for experience bullets that read like machine-targeted keyword lists.
+        Self::check_keyword_list_bullets(resume, &mut format_issues, &mut suggestions);
+
         // Calculate format score
         let critical_count = format_issues
             .iter()
@@ -643,6 +646,45 @@ impl AtsAnalyzer {
         });
     }
 
+    fn check_keyword_list_bullets(
+        resume: &ResumeData,
+        issues: &mut Vec<FormatIssue>,
+        suggestions: &mut Vec<AtsSuggestion>,
+    ) {
+        let has_keyword_list = resume.experience.iter().any(|experience| {
+            experience
+                .achievements
+                .iter()
+                .any(|item| Self::line_looks_like_keyword_list(item))
+        }) || resume
+            .projects
+            .iter()
+            .any(|project| Self::line_looks_like_keyword_list(project));
+
+        if has_keyword_list {
+            Self::push_keyword_list_issue(issues, suggestions);
+        }
+    }
+
+    fn push_keyword_list_issue(
+        issues: &mut Vec<FormatIssue>,
+        suggestions: &mut Vec<AtsSuggestion>,
+    ) {
+        issues.push(FormatIssue {
+            severity: IssueSeverity::Warning,
+            issue: "Experience bullet reads like a keyword list".to_string(),
+            fix: "Rewrite it as a plain work example with your role, action, tools, and result."
+                .to_string(),
+        });
+        suggestions.push(AtsSuggestion {
+            category: SuggestionCategory::FormatFix,
+            suggestion: "Turn keyword-list bullets into readable work evidence you can explain."
+                .to_string(),
+            impact: "Keeps strong terms useful without making the resume look machine-written."
+                .to_string(),
+        });
+    }
+
     fn has_adversarial_content(resume: &ResumeData) -> bool {
         Self::text_has_adversarial_content(&resume.summary)
             || Self::text_has_adversarial_content(&resume.contact_info.name)
@@ -868,6 +910,10 @@ impl AtsAnalyzer {
             });
         }
 
+        if Self::text_has_keyword_list_bullet(readable_text) {
+            Self::push_keyword_list_issue(&mut format_issues, &mut suggestions);
+        }
+
         if !readable_text.is_empty() {
             Self::check_plain_text_contact(readable_text, &mut format_issues, &mut suggestions);
             Self::check_plain_text_headings(readable_text, &mut format_issues, &mut suggestions);
@@ -1000,6 +1046,68 @@ impl AtsAnalyzer {
         regex::Regex::new(r"(?i)\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b")
             .unwrap()
             .is_match(text)
+    }
+
+    fn text_has_keyword_list_bullet(text: &str) -> bool {
+        let mut current_section = "resume text";
+
+        for line in text.lines() {
+            if let Some(section) = Self::plain_text_section_label(line) {
+                current_section = section;
+                continue;
+            }
+
+            if matches!(
+                current_section,
+                "skills" | "education" | "certifications" | "licenses" | "publications"
+            ) {
+                continue;
+            }
+
+            if Self::line_looks_like_keyword_list(line) {
+                return true;
+            }
+        }
+
+        false
+    }
+
+    fn line_looks_like_keyword_list(line: &str) -> bool {
+        let trimmed = line
+            .trim()
+            .trim_start_matches(|c: char| c == '-' || c == '*' || c == '•')
+            .trim();
+        if trimmed.is_empty() {
+            return false;
+        }
+
+        let separator_count = trimmed.matches(',').count() + trimmed.matches(';').count();
+        if separator_count < 4 {
+            return false;
+        }
+
+        let word_count = trimmed.split_whitespace().count();
+        if !(5..=24).contains(&word_count) {
+            return false;
+        }
+
+        let lower = trimmed.to_lowercase();
+        let action_words = [
+            " led ",
+            " managed ",
+            " built ",
+            " improved ",
+            " coordinated ",
+            " trained ",
+            " supported ",
+            " delivered ",
+            " reduced ",
+            " increased ",
+            " created ",
+            " maintained ",
+        ];
+        let padded = format!(" {lower} ");
+        !action_words.iter().any(|word| padded.contains(word))
     }
 
     fn is_standard_resume_heading(line: &str) -> bool {
@@ -2205,6 +2313,38 @@ mod tests {
             .format_issues
             .iter()
             .any(|issue| issue.issue.contains("Possible keyword stuffing")));
+    }
+
+    #[test]
+    fn test_analyze_format_flags_keyword_list_experience_bullet() {
+        let mut resume = sample_resume();
+        resume.experience[0].achievements =
+            vec!["AWS, Docker, Kubernetes, Terraform, SQL, Python".to_string()];
+
+        let result = AtsAnalyzer::analyze_format(&resume);
+
+        assert!(result
+            .format_issues
+            .iter()
+            .any(|issue| issue.issue.contains("keyword list")));
+        assert!(result
+            .suggestions
+            .iter()
+            .any(|suggestion| suggestion.suggestion.contains("work evidence")));
+    }
+
+    #[test]
+    fn test_analyze_text_for_job_flags_keyword_list_experience_line() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nAWS, Docker, Kubernetes, Terraform, SQL, Python",
+            &["AWS".to_string()],
+            "Required: AWS",
+        );
+
+        assert!(result
+            .format_issues
+            .iter()
+            .any(|issue| issue.issue.contains("keyword list")));
     }
 
     #[test]

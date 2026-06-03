@@ -2078,6 +2078,18 @@ function analyzeMockResumeFormat(args?: Record<string, unknown>): MockAtsAnalysi
         "Keeps the resume readable and avoids tactics that can backfire with employers or screening systems.",
     });
   }
+  if (hasMockKeywordListBullet(sections)) {
+    formatIssues.push({
+      severity: "Warning",
+      issue: "Experience bullet reads like a keyword list",
+      fix: "Rewrite it as a plain work example with your role, action, tools, and result.",
+    });
+    suggestions.push({
+      category: "FormatFix",
+      suggestion: "Turn keyword-list bullets into readable work evidence you can explain.",
+      impact: "Keeps strong terms useful without making the resume look machine-written.",
+    });
+  }
 
   const formatScore = clampScore(100 - formatIssues.length * 10);
   const completenessScore = clampScore(
@@ -2550,6 +2562,41 @@ function hasMockAdversarialResumeText(text: string): boolean {
     "instruction to recruiter software",
     "for ai screeners",
   ].some((phrase) => lower.includes(phrase));
+}
+
+function hasMockKeywordListBullet(
+  sections: ReturnType<typeof getMockAtsResumeSections>,
+): boolean {
+  return [...sections.experience, ...sections.projects].some((line) =>
+    mockLineLooksLikeKeywordList(line)
+  );
+}
+
+function mockLineLooksLikeKeywordList(line: string): boolean {
+  const trimmed = line.trim().replace(/^[-*•]\s*/, "");
+  if (!trimmed) return false;
+
+  const separatorCount = (trimmed.match(/[,;]/g) ?? []).length;
+  if (separatorCount < 4) return false;
+
+  const wordCount = trimmed.split(/\s+/).filter(Boolean).length;
+  if (wordCount < 5 || wordCount > 24) return false;
+
+  const padded = ` ${trimmed.toLowerCase()} `;
+  return ![
+    " led ",
+    " managed ",
+    " built ",
+    " improved ",
+    " coordinated ",
+    " trained ",
+    " supported ",
+    " delivered ",
+    " reduced ",
+    " increased ",
+    " created ",
+    " maintained ",
+  ].some((word) => padded.includes(word));
 }
 
 function collectRecordText(value: unknown): string {

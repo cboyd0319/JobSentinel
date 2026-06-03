@@ -707,6 +707,25 @@ describe("mock Tauri handlers", () => {
       suggestions: expect.any(Array),
     });
 
+    const keywordListFormatResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_format", {
+      resume: {
+        ...atsResume,
+        experience: [
+          {
+            ...atsResume.experience[0],
+            achievements: ["AWS, Docker, Kubernetes, Terraform, SQL, Python"],
+          },
+        ],
+      },
+    });
+    expect(keywordListFormatResult.format_issues).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          issue: expect.stringContaining("keyword list"),
+        }),
+      ]),
+    );
+
     const jobResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: atsResume,
       jobDescription: "Required: scheduling, case management, bilingual. Preferred: client intake.",
