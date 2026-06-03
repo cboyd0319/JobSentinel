@@ -3276,6 +3276,7 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
       "bachelor of engineering",
       "bachelor of fine arts",
       "bachelor of science",
+      "bachelor of social work",
     ],
     [
       "master's degree",
@@ -3440,6 +3441,7 @@ function getConservativeMockJobSearchTerms(keyword: string): string[] {
     "bachelor of engineering",
     "bachelor of fine arts",
     "bachelor of science",
+    "bachelor of social work",
     "master of arts",
     "master of business administration",
     "master of education",
