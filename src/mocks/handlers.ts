@@ -662,6 +662,7 @@ const ATS_KNOWN_KEYWORDS = [
   "case files",
   "legal research",
   "records management",
+  "records-management",
   "policy analysis",
   "grant administration",
   "public benefits",
@@ -2879,6 +2880,8 @@ function extractMockAtsKeywords(jobDescription: string): MockAtsKeyword[] {
   const hasHyphenMedicationAdministration = /\bmedication-administration\b/.test(lower);
   const hasDocumentReview = /\bdocument review\b/.test(lower);
   const hasHyphenDocumentReview = /\bdocument-review\b/.test(lower);
+  const hasRecordsManagement = /\brecords management\b/.test(lower);
+  const hasHyphenRecordsManagement = /\brecords-management\b/.test(lower);
   const hasSpecificDegree = hardKeywords.some((keyword) =>
     isMockExactDegreeKeyword(keyword) && keyword !== "degree"
   );
@@ -2893,6 +2896,12 @@ function extractMockAtsKeywords(jobDescription: string): MockAtsKeyword[] {
     documentReviewKeywordsToSkip.add("document-review");
   } else if (hasHyphenDocumentReview) {
     documentReviewKeywordsToSkip.add("document review");
+  }
+  const recordsManagementKeywordsToSkip = new Set<string>();
+  if (hasRecordsManagement) {
+    recordsManagementKeywordsToSkip.add("records-management");
+  } else if (hasHyphenRecordsManagement) {
+    recordsManagementKeywordsToSkip.add("records management");
   }
   const knownKeywords = ATS_KNOWN_KEYWORDS.filter((keyword) =>
     !(hasDegreeEquivalent && isMockExactDegreeKeyword(keyword)) &&
@@ -2911,6 +2920,7 @@ function extractMockAtsKeywords(jobDescription: string): MockAtsKeyword[] {
     !(hasHyphenSingularVitalSign && ["vital sign", "vital signs", "vital-signs"].includes(keyword)) &&
     !medicationAdministrationKeywordsToSkip.has(keyword) &&
     !documentReviewKeywordsToSkip.has(keyword) &&
+    !recordsManagementKeywordsToSkip.has(keyword) &&
     !(
       hasCommercialDriverLicense &&
       ["driver's license", "drivers license", "driver license"].includes(keyword)
@@ -3217,6 +3227,7 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
     ["medication administration", "medication-administration"],
     ["data entry", "data-entry"],
     ["document review", "document-review"],
+    ["records management", "records-management"],
     ["onsite", "on-site", "on site"],
     ["relocation", "relocate", "willing to relocate"],
     ["reliable transportation", "own transportation"],

@@ -4112,6 +4112,74 @@ describe("mock Tauri handlers", () => {
     );
   });
 
+  it("treats hyphenated records-management terms as equivalent mock evidence", async () => {
+    const normalResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        skills: [],
+        experience: [
+          {
+            ...atsResume.experience[0],
+            current: false,
+            end_date: "2022",
+            achievements: ["Supported records-management checks for client files."],
+          },
+        ],
+      },
+      jobDescription: "Required: records management",
+    });
+    expect(normalResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "records management",
+          match_state: "Direct",
+          evidence_sections: ["experience"],
+        }),
+      ]),
+    );
+    expect(normalResult.requirement_reviews).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "records-management",
+        }),
+      ]),
+    );
+
+    const hyphenResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        skills: [],
+        experience: [
+          {
+            ...atsResume.experience[0],
+            current: false,
+            end_date: "2022",
+            achievements: ["Supported records management checks for client files."],
+          },
+        ],
+      },
+      jobDescription: "Required: records-management",
+    });
+    expect(hyphenResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "records-management",
+          match_state: "Direct",
+          evidence_sections: ["experience"],
+        }),
+      ]),
+    );
+    expect(hyphenResult.requirement_reviews).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "records management",
+        }),
+      ]),
+    );
+  });
+
   it("does not cap degree-or-equivalent experience requirements in mock resume review", async () => {
     const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
