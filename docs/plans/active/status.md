@@ -482,6 +482,16 @@ acceptance still requires Developer ID signing and notarization.
   local evidence. The follow-up
   `23418843 Match patient care hyphen terms` treats patient care and
   patient-care as the same local evidence. The follow-up
+  `11dfa321 Match student support services wording` treats student support and
+  student services as equivalent local education evidence in backend and
+  dev/browser mocks without broad fuzzy matching. Verification passed: `cargo
+  test --lib student_support_services --manifest-path src-tauri/Cargo.toml`,
+  `npx vitest run src/mocks/handlers.test.ts -t "student support and student
+  services"`, `cargo test --lib ats_analyzer --manifest-path
+  src-tauri/Cargo.toml`, `npx vitest run src/mocks/handlers.test.ts`, `npx tsc
+  --noEmit`, `npm run lint -- --quiet`, `cargo fmt --all --manifest-path
+  src-tauri/Cargo.toml -- --check`, `cargo clippy --manifest-path
+  src-tauri/Cargo.toml -- -D warnings`, and `git diff --check`. The follow-up
   `ad391cda Match medical record plural terms` treats medical record and
   medical records as the same local evidence without duplicate singular/plural
   requirement rows. The follow-up

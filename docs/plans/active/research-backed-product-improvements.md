@@ -182,6 +182,16 @@ copy durable findings back into this plan or the active status surface.
   QA as equivalent local evidence without broad fuzzy matching.
 - Current local patient-care hyphen follow-up in `23418843` treats patient care
   and patient-care as equivalent local evidence without broad fuzzy matching.
+- Current local student-support follow-up in `11dfa321` treats student support
+  and student services as equivalent local education evidence in backend and
+  dev/browser mocks without broad fuzzy matching. Verification passed: `cargo
+  test --lib student_support_services --manifest-path src-tauri/Cargo.toml`,
+  `npx vitest run src/mocks/handlers.test.ts -t "student support and student
+  services"`, `cargo test --lib ats_analyzer --manifest-path
+  src-tauri/Cargo.toml`, `npx vitest run src/mocks/handlers.test.ts`, `npx tsc
+  --noEmit`, `npm run lint -- --quiet`, `cargo fmt --all --manifest-path
+  src-tauri/Cargo.toml -- --check`, `cargo clippy --manifest-path
+  src-tauri/Cargo.toml -- -D warnings`, and `git diff --check`.
 - Current local medical-record plural follow-up in `ad391cda` treats medical
   record and medical records as equivalent local evidence without duplicate
   singular/plural requirement rows.

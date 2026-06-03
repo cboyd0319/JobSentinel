@@ -257,6 +257,8 @@ The current local matcher:
   still avoiding broad fuzzy matching;
 - treats **patient care** and **patient-care** as the same local evidence while
   still avoiding broad fuzzy matching;
+- treats **student support** and **student services** as the same local education
+  evidence while still avoiding broad fuzzy matching;
 - treats **medical record**, **medical records**, **medical-record**, and
   **medical-records** as the same local evidence while avoiding duplicate
   requirement rows for singular, plural, or hyphenated job wording;
