@@ -360,6 +360,10 @@ copy durable findings back into this plan or the active status surface.
 - Current local master-degree follow-up in `0e2a0fae` treats master's degree,
   master degree, and masters degree as equivalent local education
   hard-constraint evidence.
+- Current local master-degree title follow-up in `f032ae03` treats Master of
+  Arts and Master of Science as local evidence for generic master's degree
+  requirements without using those phrases to create generic job-post
+  requirements in browser/dev mocks.
 - Current local doctorate-degree follow-up in `60dc3981` treats PhD,
   doctorate, doctorate degree, and doctoral degree as equivalent local
   education hard-constraint evidence and keeps doctorate degree or equivalent
@@ -1838,6 +1842,7 @@ source-filter compatibility issue appears.
   Bachelor-degree work is committed in `adda2593`.
   Bachelor-degree title work is committed in `52e7c80b`.
   Master-degree work is committed in `0e2a0fae`.
+  Master-degree title work is committed in `f032ae03`.
   Doctorate-degree work is committed in `60dc3981`.
   Degree-equivalent-experience work is committed in `9fc9777d`.
   Training-heading credential work is committed in `df0bdf9a`.

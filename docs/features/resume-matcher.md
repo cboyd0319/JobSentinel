@@ -257,8 +257,9 @@ The current local matcher:
 - treats **bachelor's degree**, **bachelor degree**, **bachelors degree**,
   **Bachelor of Arts**, and **Bachelor of Science** as the same local
   education evidence for generic bachelor's requirements;
-- treats **master's degree**, **master degree**, and **masters degree** as the
-  same local education evidence;
+- treats **master's degree**, **master degree**, **masters degree**,
+  **Master of Arts**, and **Master of Science** as the same local education
+  evidence for generic master's requirements;
 - treats **PhD**, **doctorate**, **doctorate degree**, and **doctoral degree**
   as the same local education evidence;
 - treats headings such as **Training**, **Credentials**, and **Certificates**

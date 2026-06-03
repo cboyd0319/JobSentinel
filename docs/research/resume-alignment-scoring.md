@@ -305,8 +305,9 @@ Future implementation should improve:
 - Resume/job fit now treats `bachelor's degree`, `bachelor degree`,
   `bachelors degree`, `Bachelor of Arts`, and `Bachelor of Science` as
   equivalent local education evidence for generic bachelor's requirements.
-- Resume/job fit now treats `master's degree`, `master degree`, and
-  `masters degree` as equivalent local education evidence.
+- Resume/job fit now treats `master's degree`, `master degree`,
+  `masters degree`, `Master of Arts`, and `Master of Science` as equivalent
+  local education evidence for generic master's requirements.
 - Resume/job fit now treats `PhD`, `doctorate`, `doctorate degree`, and
   `doctoral degree` as equivalent local education evidence.
 - Readable-text review now treats training, credentials, certificate, and
