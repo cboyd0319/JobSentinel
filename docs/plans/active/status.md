@@ -1483,6 +1483,17 @@ Scope:
   fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo clippy
   --manifest-path src-tauri/Cargo.toml -- -D warnings`, `npm run
   lint:external-ai`, and `git diff --check`.
+- Latest local degree-equivalent-experience slice in `9fc9777d` treats
+  explicit degree or equivalent experience wording as experience-compatible
+  evidence instead of an exact-degree hard cap. Browser/dev mocks stay aligned.
+  Verification passed: `cargo test --lib degree_or_equivalent --manifest-path
+  src-tauri/Cargo.toml`, `npx vitest run src/mocks/handlers.test.ts -t
+  "degree-or-equivalent"`, `cargo test --lib ats_analyzer --manifest-path
+  src-tauri/Cargo.toml`, `npx vitest run src/mocks/handlers.test.ts`, `npx tsc
+  --noEmit`, `npm run lint -- --quiet`, `cargo test --lib --manifest-path
+  src-tauri/Cargo.toml`, `cargo fmt --all --manifest-path src-tauri/Cargo.toml
+  -- --check`, `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D
+  warnings`, `npm run lint:external-ai`, and `git diff --check`.
 - Latest local training-heading credential slice in `df0bdf9a` treats
   readable-text headings such as Training, Credentials, Certificates, and
   Licenses as credential evidence instead of generic resume text. Verification

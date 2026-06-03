@@ -212,6 +212,9 @@ copy durable findings back into this plan or the active status surface.
 - Current local credential-equivalence follow-up treats clear credential
   acronym or full-name pairs such as `BLS` and `Basic Life Support` as the same
   evidence without broad fuzzy matching, and keeps dev/browser mocks aligned.
+- Current local degree-equivalent-experience follow-up treats explicit degree
+  or equivalent experience wording as experience-compatible evidence instead
+  of an exact-degree hard cap.
 - Current local training-heading credential follow-up treats readable-text
   headings such as Training, Credentials, Certificates, and Licenses as
   credential evidence instead of generic resume text.
@@ -741,9 +744,9 @@ Likely files later:
   instead of forcing possibly false parser guesses into scoring.
 - Continue employment-gap and career-break support that helps users present
   true context without treating gaps as defects.
-- Add exact-credential versus transferable-evidence review so users can decide
-  whether to apply when they lack a listed degree, certification, or exact
-  title but have relevant proof.
+- Continue exact-credential versus transferable-evidence review so users can
+  decide whether to apply when they lack a listed degree, certification, or
+  exact title but have relevant proof.
 - Add model-agnostic resume writing guidance: clear structure, truthful
   evidence, and human readability rather than optimization for a guessed
   screening model.
@@ -1633,6 +1636,7 @@ source-filter compatibility issue appears.
   Resume seniority-constraint work is committed in `1f8d7581`.
   Hard-requirement action work is committed in `6e43a675`.
   Credential-equivalence work is committed in `c4fd8c7a`.
+  Degree-equivalent-experience work is committed in `9fc9777d`.
   Training-heading credential work is committed in `df0bdf9a`.
   Keyword-list bullet work is committed in `0447094b`.
   Generic-filler bullet work is committed in `c72a574d`.

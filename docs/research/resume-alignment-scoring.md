@@ -209,6 +209,8 @@ Future implementation should improve:
 - Resume/job fit now caps the local fit label when recognized required hard
   constraints such as authorization, location, license, certification, degree,
   or clearance are missing.
+- Resume/job fit now treats explicit degree-or-equivalent-experience wording
+  as an experience-compatible requirement instead of an exact-degree hard cap.
 - Resume/job fit now treats the conservative `CRM` and `customer relationship
   management` pair as equivalent local evidence without broad fuzzy matching.
   The acronym and expansion do not count as separate evidence when they appear

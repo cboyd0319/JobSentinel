@@ -159,6 +159,8 @@ The current local matcher:
   citizenship, schedule, availability, commute or transportation, travel, years
   of experience, physical demands, license, certification, degree, or clearance
   and limits the fit label until the user verifies the requirement;
+- treats explicit **degree or equivalent experience** wording as
+  experience-compatible evidence instead of a missing exact-degree hard cap;
 - treats recognized required seniority language, such as senior-level
   experience, as a local experience constraint and checks for visible role,
   leadership, or enough-years evidence before raising the fit label;
