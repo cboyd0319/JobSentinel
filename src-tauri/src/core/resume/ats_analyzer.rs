@@ -2365,6 +2365,9 @@ impl AtsAnalyzer {
         if count == 0 {
             return 0;
         }
+        if evidence_section == "current experience" {
+            return count + 1;
+        }
         let can_show_work_evidence = matches!(
             evidence_section,
             "experience" | "current experience" | "projects"
@@ -3906,6 +3909,37 @@ Preferred: Salesforce
         assert!(scheduling
             .evidence_sections
             .contains(&"experience".to_string()));
+    }
+
+    #[test]
+    fn test_plain_text_current_experience_recency_counts_as_strong_evidence() {
+        let current_result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nSupport Coordinator | Present\nHandled scheduling.",
+            &[],
+            "Required: scheduling",
+        );
+
+        let current = current_result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "scheduling")
+            .expect("current scheduling review");
+        assert_eq!(current.match_state, RequirementMatchState::Strong);
+        assert_eq!(current.evidence_sections, vec!["current experience"]);
+
+        let past_result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nSupport Coordinator | 2020 - 2022\nHandled scheduling.",
+            &[],
+            "Required: scheduling",
+        );
+
+        let past = past_result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "scheduling")
+            .expect("past scheduling review");
+        assert_eq!(past.match_state, RequirementMatchState::Direct);
+        assert_eq!(past.evidence_sections, vec!["experience"]);
     }
 
     #[test]

@@ -802,7 +802,7 @@ describe("mock Tauri handlers", () => {
       expect.arrayContaining([
         expect.objectContaining({
           keyword: "crm",
-          match_state: "Direct",
+          match_state: "Strong",
           evidence_sections: expect.arrayContaining(["current experience"]),
         }),
       ]),
@@ -826,7 +826,7 @@ describe("mock Tauri handlers", () => {
       expect.arrayContaining([
         expect.objectContaining({
           keyword: "customer service",
-          match_state: "Direct",
+          match_state: "Strong",
           evidence_sections: expect.arrayContaining(["current experience"]),
         }),
       ]),
@@ -850,7 +850,7 @@ describe("mock Tauri handlers", () => {
       expect.arrayContaining([
         expect.objectContaining({
           keyword: "data entry",
-          match_state: "Direct",
+          match_state: "Strong",
           evidence_sections: expect.arrayContaining(["current experience"]),
         }),
       ]),
@@ -956,7 +956,7 @@ describe("mock Tauri handlers", () => {
       expect.arrayContaining([
         expect.objectContaining({
           keyword: "night shift",
-          match_state: "Direct",
+          match_state: "Strong",
           hard_constraint: true,
           evidence_sections: expect.arrayContaining(["current experience"]),
         }),
@@ -988,7 +988,7 @@ describe("mock Tauri handlers", () => {
       expect.arrayContaining([
         expect.objectContaining({
           keyword: "night shift",
-          match_state: "Direct",
+          match_state: "Strong",
           hard_constraint: true,
           evidence_sections: expect.arrayContaining(["current experience"]),
         }),
@@ -1020,7 +1020,7 @@ describe("mock Tauri handlers", () => {
       expect.arrayContaining([
         expect.objectContaining({
           keyword: "weekend availability",
-          match_state: "Direct",
+          match_state: "Strong",
           hard_constraint: true,
           evidence_sections: expect.arrayContaining(["current experience"]),
         }),
@@ -1052,7 +1052,7 @@ describe("mock Tauri handlers", () => {
       expect.arrayContaining([
         expect.objectContaining({
           keyword: "evening shift",
-          match_state: "Direct",
+          match_state: "Strong",
           hard_constraint: true,
           evidence_sections: expect.arrayContaining(["current experience"]),
         }),
@@ -1084,7 +1084,7 @@ describe("mock Tauri handlers", () => {
       expect.arrayContaining([
         expect.objectContaining({
           keyword: "day shift",
-          match_state: "Direct",
+          match_state: "Strong",
           hard_constraint: true,
           evidence_sections: expect.arrayContaining(["current experience"]),
         }),
@@ -1116,7 +1116,7 @@ describe("mock Tauri handlers", () => {
       expect.arrayContaining([
         expect.objectContaining({
           keyword: "availability",
-          match_state: "Direct",
+          match_state: "Strong",
           hard_constraint: true,
           evidence_sections: expect.arrayContaining(["current experience"]),
         }),
@@ -1148,7 +1148,7 @@ describe("mock Tauri handlers", () => {
       expect.arrayContaining([
         expect.objectContaining({
           keyword: "on-site",
-          match_state: "Direct",
+          match_state: "Strong",
           hard_constraint: true,
           evidence_sections: expect.arrayContaining(["current experience"]),
         }),
@@ -1180,7 +1180,7 @@ describe("mock Tauri handlers", () => {
       expect.arrayContaining([
         expect.objectContaining({
           keyword: "on site",
-          match_state: "Direct",
+          match_state: "Strong",
           hard_constraint: true,
           evidence_sections: expect.arrayContaining(["current experience"]),
         }),
@@ -1212,7 +1212,7 @@ describe("mock Tauri handlers", () => {
       expect.arrayContaining([
         expect.objectContaining({
           keyword: "relocation",
-          match_state: "Direct",
+          match_state: "Strong",
           hard_constraint: true,
           evidence_sections: expect.arrayContaining(["current experience"]),
         }),
@@ -1244,7 +1244,7 @@ describe("mock Tauri handlers", () => {
       expect.arrayContaining([
         expect.objectContaining({
           keyword: "reliable transportation",
-          match_state: "Direct",
+          match_state: "Strong",
           hard_constraint: true,
           evidence_sections: expect.arrayContaining(["current experience"]),
         }),
@@ -1349,7 +1349,7 @@ describe("mock Tauri handlers", () => {
       expect.arrayContaining([
         expect.objectContaining({
           keyword: "lift 50 lbs",
-          match_state: "Direct",
+          match_state: "Strong",
           hard_constraint: true,
           evidence_sections: expect.arrayContaining(["current experience"]),
         }),
@@ -1384,7 +1384,7 @@ describe("mock Tauri handlers", () => {
       expect.arrayContaining([
         expect.objectContaining({
           keyword: "stand for long periods",
-          match_state: "Direct",
+          match_state: "Strong",
           hard_constraint: true,
           evidence_sections: expect.arrayContaining(["current experience"]),
         }),
@@ -1419,7 +1419,7 @@ describe("mock Tauri handlers", () => {
       expect.arrayContaining([
         expect.objectContaining({
           keyword: "driver's license",
-          match_state: "Direct",
+          match_state: "Strong",
           hard_constraint: true,
           evidence_sections: expect.arrayContaining(["current experience"]),
         }),
@@ -1551,7 +1551,7 @@ describe("mock Tauri handlers", () => {
       expect.arrayContaining([
         expect.objectContaining({
           keyword: "commute",
-          match_state: "Direct",
+          match_state: "Strong",
           hard_constraint: true,
           evidence_sections: expect.arrayContaining(["current experience"]),
         }),
@@ -3122,6 +3122,62 @@ describe("mock Tauri handlers", () => {
     );
   });
 
+  it("treats single current-role evidence as stronger than the same past-role mock evidence", async () => {
+    const currentResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        skills: [],
+        experience: [
+          {
+            ...atsResume.experience[0],
+            current: true,
+            end_date: "Present",
+            achievements: ["Handled scheduling."],
+          },
+        ],
+      },
+      jobDescription: "Required: scheduling",
+    });
+
+    expect(currentResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "scheduling",
+          match_state: "Strong",
+          evidence_sections: ["current experience"],
+        }),
+      ]),
+    );
+
+    const pastResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        skills: [],
+        experience: [
+          {
+            ...atsResume.experience[0],
+            current: false,
+            end_date: "2022",
+            achievements: ["Handled scheduling."],
+          },
+        ],
+      },
+      jobDescription: "Required: scheduling",
+    });
+
+    expect(pastResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "scheduling",
+          match_state: "Direct",
+          evidence_sections: ["experience"],
+        }),
+      ]),
+    );
+  });
+
   it("flags prompt-injection-like and hidden resume text in mock resume review", async () => {
     const promptInjectionResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_format", {
       resume: {
@@ -3257,15 +3313,15 @@ describe("mock Tauri handlers", () => {
       expect.arrayContaining([
         expect.objectContaining({
           keyword: "patient care",
-          match_state: "Direct",
+          match_state: "Strong",
         }),
         expect.objectContaining({
           keyword: "medication administration",
-          match_state: "Direct",
+          match_state: "Strong",
         }),
         expect.objectContaining({
           keyword: "lesson planning",
-          match_state: "Direct",
+          match_state: "Strong",
         }),
       ]),
     );
@@ -3291,15 +3347,15 @@ describe("mock Tauri handlers", () => {
       expect.arrayContaining([
         expect.objectContaining({
           keyword: "document review",
-          match_state: "Direct",
+          match_state: "Strong",
         }),
         expect.objectContaining({
           keyword: "records management",
-          match_state: "Direct",
+          match_state: "Strong",
         }),
         expect.objectContaining({
           keyword: "financial reconciliation",
-          match_state: "Direct",
+          match_state: "Strong",
         }),
       ]),
     );

@@ -3475,6 +3475,9 @@ function countMockEvidenceFrequency(
   const base = countMockSearchTermFrequency(sections.allText, keyword);
   if (base === 0) return 0;
   const searchTerms = getConservativeMockSearchTerms(keyword);
+  if (sections.currentExperience.some((text) => containsAnyMockKeyword(text, searchTerms))) {
+    return base + 1;
+  }
   const workEvidence = [
     ...sections.currentExperience,
     ...sections.pastExperience,
