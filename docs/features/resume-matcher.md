@@ -215,9 +215,10 @@ The current local matcher:
   work-eligibility evidence;
 - treats **security clearance** and **clearance** as the same local clearance
   evidence;
-- treats **bilingual Spanish**, **Spanish fluency**, **fluent in Spanish**,
-  **Spanish language**, **English/Spanish**, and **English and Spanish** as the
-  same local language evidence for required language constraints;
+- treats bilingual and fluency wording for known human languages, including
+  Spanish, French, Mandarin, Cantonese, Arabic, Portuguese, German, Japanese,
+  and Korean, as the same local language evidence for required language
+  constraints;
 - treats conservative local term equivalents, such as **CRM** and **customer
   relationship management**, and **customer service**, **customer support**,
   **client service**, **client services**, and **client support**, as the same

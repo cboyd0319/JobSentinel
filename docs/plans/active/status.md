@@ -365,6 +365,12 @@ acceptance still requires Developer ID signing and notarization.
   --manifest-path src-tauri/Cargo.toml`, `npx vitest run
   src/pages/ResumeOptimizer.test.tsx`, `npx tsc --noEmit`, frontend lint,
   Rust formatter check, and `git diff --check`. The follow-up
+  `90a88df6 Match broader bilingual resume evidence` extends language fluency
+  matching beyond Spanish to known human languages such as Mandarin, while
+  keeping the matching list explicit instead of broad fuzzy matching.
+  Verification passed: focused Spanish and Mandarin language Rust tests,
+  `cargo test --lib ats_analyzer --manifest-path src-tauri/Cargo.toml`, Rust
+  formatter check, and `git diff --check`. The follow-up
   `39ee583a Review supervisor resume constraints` recognizes required
   supervisor experience, supervision, and supervised-staff language as
   canonical management-experience constraints, caps missing supervisor

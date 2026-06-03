@@ -303,10 +303,10 @@ Future implementation should improve:
   equivalent local work-eligibility evidence.
 - Resume/job fit now treats `security clearance` and `clearance` as equivalent
   local clearance evidence.
-- Resume/job fit now treats `bilingual Spanish`, `Spanish fluency`,
-  `fluent in Spanish`, `Spanish language`, `English/Spanish`, and
-  `English and Spanish` as equivalent local language evidence for required
-  language constraints.
+- Resume/job fit now treats bilingual and fluency wording for known human
+  languages, including Spanish, French, Mandarin, Cantonese, Arabic,
+  Portuguese, German, Japanese, and Korean, as equivalent local language
+  evidence for required language constraints.
 - Resume/job fit now treats lift-weight wording with the same number, such as
   `lift 50 lbs` and `lift 50 pounds`, as equivalent local physical-demand
   evidence.

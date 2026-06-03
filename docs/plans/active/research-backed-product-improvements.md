@@ -295,6 +295,12 @@ copy durable findings back into this plan or the active status surface.
   ats_analyzer --manifest-path src-tauri/Cargo.toml`, `npx vitest run
   src/pages/ResumeOptimizer.test.tsx`, `npx tsc --noEmit`, frontend lint,
   Rust formatter check, and `git diff --check`.
+- Current local Resume Match broader-language evidence follow-up in `90a88df6`
+  extends language fluency matching beyond Spanish to known human languages
+  such as Mandarin, while keeping the matching list explicit instead of broad
+  fuzzy matching. Verification passed: focused Spanish and Mandarin language
+  Rust tests, `cargo test --lib ats_analyzer --manifest-path
+  src-tauri/Cargo.toml`, Rust formatter check, and `git diff --check`.
 - Current local Resume Match supervisor constraint follow-up in `39ee583a`
   recognizes required supervisor experience, supervision, and supervised-staff
   language as canonical management-experience constraints, caps missing
