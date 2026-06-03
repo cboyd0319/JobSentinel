@@ -353,6 +353,10 @@ copy durable findings back into this plan or the active status surface.
 - Current local associate-arts follow-up in `6b834c3c` treats Associate of Arts
   as local evidence for generic associate degree requirements without treating
   arts-specific job wording as a generic associate degree requirement.
+- Current local associate-science follow-up in `92406e68` treats Associate of
+  Science as local evidence for generic associate degree requirements without
+  treating science-specific job wording as a generic associate degree
+  requirement.
 - Current local bachelor-degree follow-up in `adda2593` treats bachelor's
   degree, bachelor degree, and bachelors degree as equivalent local education
   hard-constraint evidence.
@@ -1873,6 +1877,7 @@ source-filter compatibility issue appears.
   High-school hyphen work is committed in `a546653d`.
   Associate-degree work is committed in `7554988c`.
   Associate-arts work is committed in `6b834c3c`.
+  Associate-science work is committed in `92406e68`.
   Bachelor-degree work is committed in `adda2593`.
   Bachelor-degree title work is committed in `52e7c80b`.
   Business-administration bachelor work is committed in `2a3fd362`.
