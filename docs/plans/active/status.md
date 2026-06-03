@@ -257,6 +257,10 @@ acceptance still requires Developer ID signing and notarization.
   follow-up `90272a64 Match fine arts master term` treats Master of Fine Arts
   as local evidence for generic master's degree requirements without treating
   fine-arts-specific job wording as a generic master's requirement. The
+  follow-up `2fb12f5e Match social work master term` treats Master of Social
+  Work as local evidence for generic master's degree requirements without
+  treating social-work-specific job wording as a generic master's requirement.
+  The
   follow-up `60dc3981 Match doctorate degree terms` treats PhD, doctorate,
   doctorate degree, and doctoral degree as the same local education
   hard-constraint evidence and keeps doctorate degree or equivalent experience
