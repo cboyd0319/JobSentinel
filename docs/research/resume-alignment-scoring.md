@@ -273,6 +273,9 @@ Future implementation should improve:
 - Structured resume review now marks matched requirements from a current role
   as current-experience evidence instead of hiding recency in a generic
   experience label.
+- Readable-text resume review now marks matched Experience bullets after a
+  present-date role marker as current-experience evidence and resets the label
+  when a later past-role date range appears.
 - Resume/job fit now treats recognized required seniority language such as
   senior-level experience as a local experience constraint, using visible role,
   leadership, or enough-years evidence before avoiding a hard-requirement cap.
@@ -287,7 +290,7 @@ Future implementation should improve:
 - Add evidence-strength classification for missing, bare keyword, duty,
   responsibility, scope-backed, and metric-backed evidence.
 - Expand conservative synonym and acronym matching where equivalence is clear.
-- Expand recency and section placement signals.
+- Expand broader recency weighting and section placement signals.
 - Expand seniority alignment and add under-leveling warnings.
 - Add profession-specific weighting for non-technical and technical roles.
 - Keep score labels humble: "fit estimate", "readability check", "review

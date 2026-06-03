@@ -105,10 +105,10 @@ copy durable findings back into this plan or the active status surface.
   `3aa39952 Add resume next-action guidance` adds plain guidance such as
   checking a hard requirement before tailoring, adding supporting evidence only
   if true, or keeping useful evidence visible. Deeper evidence strength,
-  synonym, recency, seniority, and profession-specific weighting remain future
-  work. The follow-up `171bbe91 Improve resume evidence section review` starts
-  section-placement review for saved-resume plain text. The dedicated repo note now lives at
-  `docs/research/resume-alignment-scoring.md`.
+  synonym, broader recency weighting, seniority, and profession-specific
+  weighting remain future work. The follow-up `171bbe91 Improve resume evidence
+  section review` starts section-placement review for saved-resume plain text.
+  The dedicated repo note now lives at `docs/research/resume-alignment-scoring.md`.
 - Latest pushed ghost/stale job-card action slice is committed in
   `6adcff7c Add posting verification support`. It adds high-risk
   **Open Original Posting** guidance, safe-link regression tests,
@@ -127,6 +127,9 @@ copy durable findings back into this plan or the active status surface.
 - Current local structured evidence recency follow-up marks structured resume
   matches from a current role as `current experience`, without changing older
   role evidence labels.
+- Current local plain-text evidence recency follow-up marks readable Experience
+  bullets after a present-date role marker as `current experience`, then resets
+  that label when a later past-role date range appears.
 - Current local Resume Match evidence-label follow-up translates backend
   requirement evidence sections into plain labels such as current role
   experience, work experience, and skills list.
@@ -1645,6 +1648,7 @@ source-filter compatibility issue appears.
   pushed in `6adcff7c`. Resume evidence-strength work is committed in
   `171bbe91`. Conservative synonym/acronym work is committed in `d2d1944f`.
   Structured evidence recency work is committed in `56d9a5ab`.
+  Plain-text evidence recency work is committed in `66c587a8`.
   Resume Match evidence-label work is committed in `26d306f6`.
   Reviewer-fix work is committed in `efea47a5`.
   Resume Import Status work is committed in `b3c07068`.

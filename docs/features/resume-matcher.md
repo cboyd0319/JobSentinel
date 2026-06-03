@@ -158,6 +158,9 @@ The current local matcher:
   or other role-language context;
 - adds requirement-review rows for recognized local job-post keywords with
   visible evidence, needs-support, check-wording, and not-found states;
+- labels readable resume evidence under an Experience role with a present-date
+  marker as current role evidence, and resets that label when a later past-role
+  date range appears;
 - flags recognized missing hard requirements such as authorization, location,
   citizenship, schedule, availability, commute or transportation, travel, years
   of experience, physical demands, license, certification, degree, or clearance
@@ -233,9 +236,9 @@ and profession-specific weighting. Local requirement-state rows and recognized
 hard-constraint caps have started. Section-placement review, seniority-level
 constraint review, conservative `CRM` / `customer relationship management`, and
 common credential equivalence have started. Copied structured resume details
-can show current-role evidence labels; active saved-resume text still uses
-broader work-experience labels until deeper date parsing is available. Broader
-evidence strength, synonym, recency, too-low-role warnings, and
+can show current-role evidence labels, and readable saved-resume text can mark
+bullets after a present-date role marker as current role evidence. Broader
+evidence strength, synonym, broader recency weighting, too-low-role warnings, and
 profession-specific weighting remain future work.
 The visible requirement review uses plain evidence labels such as current role
 experience, work experience, and skills list instead of backend section names.

@@ -122,6 +122,9 @@ acceptance still requires Developer ID signing and notarization.
   section-placement review for saved-resume plain text, and `d2d1944f Add
   conservative resume synonym evidence` starts conservative acronym/equivalence
   matching for `CRM` and `customer relationship management`. The follow-up
+  `66c587a8 Mark current plain text resume evidence` marks readable Experience
+  bullets after a present-date role marker as current-experience evidence, then
+  resets that label when a later past-role date range appears. The follow-up
   `a09f6c43 Recognize GED credential equivalence` treats high school diploma,
   high school degree, GED, high school equivalency, and General Education
   Development as the same local education evidence. The follow-up `5883db13`
@@ -151,7 +154,8 @@ acceptance still requires Developer ID signing and notarization.
   OSHA 30, OSHA30, OSHA 30 certification, and OSHA 30-hour wording as the same
   local credential evidence without treating OSHA 10 as equivalent.
   Future resume work still needs deeper evidence strength, seniority alignment,
-  broader conservative synonyms, recency, and profession-specific weighting.
+  broader conservative synonyms, broader recency weighting, and
+  profession-specific weighting.
 - Current local macOS no-account post-commit verification rebuilt the universal
   DMG from committed resume-guidance head `12c184db` on macOS 26.5
   (build 25F71), Apple Silicon `arm64`, with SIP enabled. The build produced
