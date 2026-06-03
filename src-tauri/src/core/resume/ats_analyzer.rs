@@ -2332,6 +2332,7 @@ impl AtsAnalyzer {
             &["vital sign", "vital signs", "vital-sign", "vital-signs"],
             &["medication administration", "medication-administration"],
             &["data entry", "data-entry"],
+            &["budgeting", "budget tracking"],
             &["procurement", "purchasing"],
             &["vendor management", "supplier management"],
             &["document review", "document-review"],
@@ -3100,7 +3101,7 @@ impl AtsAnalyzer {
             r"(?i)\b(sales|account management|crm|salesforce|hubspot|pipeline|prospecting)\b",
             r"(?i)\b(payroll|bookkeeping|quickbooks|accounts payable|accounts receivable|billing)\b",
             r"(?i)\b(inventory|logistics|shipping|receiving|procurement|purchasing|vendor management|supplier management)\b",
-            r"(?i)\b(reporting|budget tracking|grant reporting|grant writing|program evaluation)\b",
+            r"(?i)\b(reporting|budgeting|budget tracking|grant reporting|grant writing|program evaluation)\b",
             r"(?i)\b(compliance|hipaa|osha|quality assurance|qa|data[- ]entry|excel)\b",
             r"(?i)\b(patient[- ]care|medication[- ]administration|vital[- ]signs?|care[- ]plans?|medical[- ]records?|charting)\b",
             r"(?i)\b(lesson planning|classroom management|curriculum|iep|student support|parent communication)\b",
@@ -3373,6 +3374,7 @@ impl AtsAnalyzer {
             "vendor management",
             "supplier management",
             "reporting",
+            "budgeting",
             "budget tracking",
             "compliance",
             "quality assurance",
@@ -4907,6 +4909,41 @@ Preferred: Salesforce
             RequirementMatchState::Direct
         );
         assert!(supplier_management
+            .evidence_sections
+            .contains(&"experience".to_string()));
+    }
+
+    #[test]
+    fn test_requirement_review_uses_budgeting_budget_tracking_equivalence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nSupported budget tracking for clinic supplies.",
+            &[],
+            "Required: budgeting",
+        );
+
+        let budgeting = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "budgeting")
+            .expect("budgeting");
+        assert_eq!(budgeting.match_state, RequirementMatchState::Direct);
+        assert!(budgeting
+            .evidence_sections
+            .contains(&"experience".to_string()));
+
+        let inverse = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nSupported budgeting for clinic supplies.",
+            &[],
+            "Required: budget tracking",
+        );
+
+        let budget_tracking = inverse
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "budget tracking")
+            .expect("budget tracking");
+        assert_eq!(budget_tracking.match_state, RequirementMatchState::Direct);
+        assert!(budget_tracking
             .evidence_sections
             .contains(&"experience".to_string()));
     }
