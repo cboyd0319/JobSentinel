@@ -1252,6 +1252,41 @@ describe("mock Tauri handlers", () => {
     );
   });
 
+  it("recognizes ServSafe as food-safety certification evidence in mock resume review", async () => {
+    const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        certifications: ["ServSafe Food Handler"],
+      },
+      jobDescription: "Required: food safety certification",
+    });
+
+    expect(result.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "food safety certification",
+          match_state: "Direct",
+          hard_constraint: true,
+          evidence_sections: expect.arrayContaining(["certifications"]),
+        }),
+      ]),
+    );
+    expect(result.hard_constraint_risks).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          requirement: "food safety certification",
+        }),
+      ]),
+    );
+    expect(result.hard_constraint_risks).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          requirement: "certification",
+        }),
+      ]),
+    );
+  });
+
   it("returns mock resume match scores as backend-compatible fractions", async () => {
     const [job] = await mockInvoke<MockJobSummary[]>("get_jobs", {});
     const resumeId = await mockInvoke<number>("select_and_upload_resume");

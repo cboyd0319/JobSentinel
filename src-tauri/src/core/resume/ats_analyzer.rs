@@ -1660,6 +1660,9 @@ impl AtsAnalyzer {
             || lower.contains("certified nursing assistant")
             || lower.contains("certified nurse assistant")
             || lower.contains("certified nurse aide")
+            || lower == "servsafe"
+            || lower.contains("food safety certification")
+            || lower.contains("food handler")
             || lower.contains("basic life support")
             || lower.contains("advanced cardiovascular life support")
             || lower.contains("cardiopulmonary resuscitation")
@@ -1929,6 +1932,16 @@ impl AtsAnalyzer {
                 "certified nursing assistant",
                 "certified nurse assistant",
                 "certified nurse aide",
+            ],
+            &[
+                "food safety",
+                "food safety certification",
+                "servsafe",
+                "food handler certification",
+                "food handler certificate",
+                "food handler permit",
+                "food handlers permit",
+                "food handler card",
             ],
             &[
                 "cissp",
@@ -2298,7 +2311,7 @@ impl AtsAnalyzer {
             r"(?i)\b(work authorization|authorized to work|visa sponsorship|u\.?s\.?\s+citizenship|u\.?s\.?\s+citizen|citizenship required)\b",
             r"(?i)\b(security clearance|clearance)\b",
             r"(?i)\b(driver'?s license|driver license|cdl|rn license|nursing license)\b",
-            r"(?i)\b(certification|cissp|security\+|bls|basic life support|acls|advanced cardiovascular life support|cpr|cardiopulmonary resuscitation|cna|certified nursing assistant|certified nurse assistant|certified nurse aide)\b",
+            r"(?i)\b(certification|cissp|security\+|bls|basic life support|acls|advanced cardiovascular life support|cpr|cardiopulmonary resuscitation|cna|certified nursing assistant|certified nurse assistant|certified nurse aide|servsafe|food safety certification|food handler certification|food handler certificate|food handler permit|food handlers permit|food handler card)\b",
             r"(?i)\b(bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree|high school diploma|high school degree|ged|high school equivalency|general education development)\b",
             r"(?i)\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b",
             r"(?i)\b(lift(?:\s+up\s+to)?\s+\d+\s*(?:pounds?|lbs?)|stand for long periods?|physical requirements?|physical demands?)\b",
@@ -2338,6 +2351,13 @@ impl AtsAnalyzer {
             "certified nursing assistant",
             "certified nurse assistant",
             "certified nurse aide",
+            "servsafe",
+            "food safety certification",
+            "food handler certification",
+            "food handler certificate",
+            "food handler permit",
+            "food handlers permit",
+            "food handler card",
         ];
         if keywords
             .iter()
@@ -2463,6 +2483,9 @@ impl AtsAnalyzer {
             "equipment maintenance",
             "safety inspections",
             "food safety",
+            "food safety certification",
+            "servsafe",
+            "food handler certification",
             "cash handling",
             "document review",
             "case files",
@@ -3530,6 +3553,34 @@ Preferred: Salesforce
             .hard_constraint_risks
             .iter()
             .any(|risk| risk.requirement == "cna"));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "certification"));
+    }
+
+    #[test]
+    fn test_requirement_review_uses_food_safety_credential_equivalence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nCertifications\nServSafe Food Handler",
+            &[],
+            "Required: food safety certification",
+        );
+
+        let food_safety = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "food safety certification")
+            .expect("food safety certification review");
+        assert_eq!(food_safety.match_state, RequirementMatchState::Direct);
+        assert!(food_safety.hard_constraint);
+        assert!(food_safety
+            .evidence_sections
+            .contains(&"certifications".to_string()));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "food safety certification"));
         assert!(!result
             .hard_constraint_risks
             .iter()
