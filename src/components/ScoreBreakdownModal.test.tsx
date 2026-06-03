@@ -149,6 +149,16 @@ describe("ScoreBreakdownModal", () => {
       expect(screen.getByText("How fresh the posting is")).toBeInTheDocument();
     });
 
+    it("shows which saved inputs each factor uses", () => {
+      render(<ScoreBreakdownModal {...defaultProps} />);
+
+      expect(screen.getByText("Uses saved job titles and work words")).toBeInTheDocument();
+      expect(screen.getByText("Uses listed pay and your salary floor")).toBeInTheDocument();
+      expect(screen.getByText("Uses saved work-location choices")).toBeInTheDocument();
+      expect(screen.getByText("Uses company preferences")).toBeInTheDocument();
+      expect(screen.getByText("Uses posting date and freshness settings")).toBeInTheDocument();
+    });
+
     it("displays plain score contribution labels", () => {
       render(<ScoreBreakdownModal {...defaultProps} />);
 

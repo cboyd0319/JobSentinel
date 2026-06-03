@@ -29,11 +29,46 @@ interface ScoreEvidenceStatus {
  * Fit priorities (must match backend scoring defaults).
  */
 const FACTOR_WEIGHTS = {
-  skills: { weight: 0.40, priorityLabel: "Primary", label: "Skills Fit", icon: "target", description: "Job title and search-word fit" },
-  salary: { weight: 0.25, priorityLabel: "Important", label: "Salary", icon: "currency", description: "Salary meets your requirements" },
-  location: { weight: 0.20, priorityLabel: "Important", label: "Location", icon: "location", description: "Remote/hybrid/onsite preference" },
-  company: { weight: 0.10, priorityLabel: "Supporting", label: "Company", icon: "company", description: "Companies you prefer or hide" },
-  recency: { weight: 0.05, priorityLabel: "Supporting", label: "Recency", icon: "clock", description: "How fresh the posting is" },
+  skills: {
+    weight: 0.40,
+    priorityLabel: "Primary",
+    label: "Skills Fit",
+    icon: "target",
+    description: "Job title and search-word fit",
+    sourceLabel: "Uses saved job titles and work words",
+  },
+  salary: {
+    weight: 0.25,
+    priorityLabel: "Important",
+    label: "Salary",
+    icon: "currency",
+    description: "Salary meets your requirements",
+    sourceLabel: "Uses listed pay and your salary floor",
+  },
+  location: {
+    weight: 0.20,
+    priorityLabel: "Important",
+    label: "Location",
+    icon: "location",
+    description: "Remote/hybrid/onsite preference",
+    sourceLabel: "Uses saved work-location choices",
+  },
+  company: {
+    weight: 0.10,
+    priorityLabel: "Supporting",
+    label: "Company",
+    icon: "company",
+    description: "Companies you prefer or hide",
+    sourceLabel: "Uses company preferences",
+  },
+  recency: {
+    weight: 0.05,
+    priorityLabel: "Supporting",
+    label: "Recency",
+    icon: "clock",
+    description: "How fresh the posting is",
+    sourceLabel: "Uses posting date and freshness settings",
+  },
 } as const;
 
 const LEGACY_PASS_PREFIX = "\u2713";
@@ -385,6 +420,9 @@ export const ScoreBreakdownModal = memo(function ScoreBreakdownModal({
                       </div>
                       <div className="text-xs text-surface-500 dark:text-surface-400">
                         {factor.description}
+                      </div>
+                      <div className="text-xs text-surface-500 dark:text-surface-400">
+                        {factor.sourceLabel}
                       </div>
                     </div>
                   </div>
