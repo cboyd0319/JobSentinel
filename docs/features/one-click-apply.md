@@ -109,6 +109,7 @@ You can save reusable answers for common questions:
 | `relocate`            | "Are you willing to relocate..."   |
 | `travel`              | "Are you able to travel..."        |
 | `work authorization`  | "Are you authorized to work..."    |
+| `US citizen`          | "Are you a U.S. citizen?"         |
 | `availability`        | "What is your availability..."     |
 | `sponsorship`         | "Do you need visa sponsorship..."  |
 | `certification`       | "Do you have this certification?"  |
@@ -127,11 +128,15 @@ prepare those answers before the form asks.
 
 When the saved job details mention hard screening topics, the Application Assist
 preview flags them before opening the form. Review saved answers and resume
-evidence for work authorization, location, relocation, travel, licenses,
-certifications, clearances, education, years of experience, salary, schedule,
-availability, background checks, drug screens, pre-employment screening,
-language fluency, physical requirements, and minimum-age requirements before
-submitting.
+evidence for citizenship, work authorization, location, relocation, travel,
+licenses, certifications, clearances, education, years of experience, salary,
+schedule, availability, background checks, drug screens, pre-employment
+screening, language fluency, physical requirements, and minimum-age
+requirements before submitting.
+
+For citizenship topics, the preview can show a matching saved answer so you can
+confirm it matches the employer's wording. JobSentinel does not treat work
+authorization as citizenship.
 
 For work authorization or sponsorship topics, the preview also shows the saved
 profile answer so you can compare it with the employer's wording and your
