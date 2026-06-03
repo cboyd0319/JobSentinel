@@ -48,6 +48,15 @@ Job cards and fit details should help users make a decision without guessing.
 High fit does not mean the job is real, fair, or worth applying to. Always
 review posting risk, salary, source, and application route.
 
+Fit details also show an evidence-status label:
+
+| Evidence status | Meaning |
+| --------------- | ------- |
+| **Clear fit evidence** | Saved reasons support the local fit estimate |
+| **Mixed evidence** | Some factors fit and some need review |
+| **Not enough information** | Saved reason details are missing or unclear |
+| **Check preferences first** | Saved reasons conflict with user preferences |
+
 ## Factor Details
 
 ### Skills And Search Words

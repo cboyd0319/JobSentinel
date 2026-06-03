@@ -1519,6 +1519,12 @@ Scope:
   `npx vitest run src/pages/ResumeOptimizer.test.tsx`, `npx tsc --noEmit`,
   `npm run lint -- --quiet`, `npm run lint:external-ai`, and `git diff
   --check`.
+- Latest local job fit detail evidence-status slice in `b6b19caf` adds clear,
+  mixed, not-enough-information, and preference-conflict labels to the Fit
+  Details modal so job-card scores are not numeric-only. Verification passed:
+  `npx vitest run src/components/ScoreBreakdownModal.test.tsx`, `npx tsc
+  --noEmit`, `npm run lint -- --quiet`, `npm run lint:external-ai`, and `git
+  diff --check`.
 - No-Apple-account macOS readiness is already best-possible without an Apple
   Developer Account. Keep the limitation explicit: Gatekeeper-ready public
   distribution still needs Developer ID signing and notarization.
