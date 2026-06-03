@@ -1318,6 +1318,10 @@ impl AtsAnalyzer {
             || lower == "rn"
             || lower == "bls"
             || lower == "acls"
+            || lower == "cpr"
+            || lower.contains("basic life support")
+            || lower.contains("advanced cardiovascular life support")
+            || lower.contains("cardiopulmonary resuscitation")
         {
             return Some(HardConstraintCategory::LicenseOrCertification);
         }
@@ -1414,6 +1418,42 @@ impl AtsAnalyzer {
                 }) {
                     Self::add_evidence_section(&mut found_in, "skills");
                     frequency += 1;
+                }
+            }
+
+            for education in &resume.education {
+                let education_text = format!(
+                    "{} {} {} {}",
+                    education.degree,
+                    education.institution,
+                    education.location,
+                    education.honors.join(" ")
+                )
+                .to_lowercase();
+                let count =
+                    Self::keyword_frequency_for_search_terms(&education_text, &search_terms);
+                if count > 0 {
+                    Self::add_evidence_section(&mut found_in, "education");
+                    frequency += count;
+                }
+            }
+
+            for certification in &resume.certifications {
+                let certification_lower = certification.to_lowercase();
+                let count =
+                    Self::keyword_frequency_for_search_terms(&certification_lower, &search_terms);
+                if count > 0 {
+                    Self::add_evidence_section(&mut found_in, "certifications");
+                    frequency += count;
+                }
+            }
+
+            for project in &resume.projects {
+                let project_lower = project.to_lowercase();
+                let count = Self::keyword_frequency_for_search_terms(&project_lower, &search_terms);
+                if count > 0 {
+                    Self::add_evidence_section(&mut found_in, "projects");
+                    frequency += count;
                 }
             }
 
@@ -1529,11 +1569,26 @@ impl AtsAnalyzer {
 
     fn conservative_keyword_search_terms(keyword_lower: &str) -> Vec<String> {
         let mut terms = vec![keyword_lower.to_string()];
-        let equivalence_groups = [["crm", "customer relationship management"]];
+        let equivalence_groups: &[&[&str]] = &[
+            &["crm", "customer relationship management"],
+            &["bls", "basic life support"],
+            &["acls", "advanced cardiovascular life support"],
+            &["cpr", "cardiopulmonary resuscitation"],
+            &[
+                "cdl",
+                "commercial driver's license",
+                "commercial driver license",
+            ],
+            &["rn", "registered nurse"],
+            &[
+                "cissp",
+                "certified information systems security professional",
+            ],
+        ];
 
         for group in equivalence_groups {
             if group.contains(&keyword_lower) {
-                for term in group {
+                for term in *group {
                     if !terms.iter().any(|existing| existing == term) {
                         terms.push(term.to_string());
                     }
@@ -1840,7 +1895,7 @@ impl AtsAnalyzer {
             r"(?i)\b(work authorization|authorized to work|visa sponsorship|u\.?s\.?\s+citizenship|u\.?s\.?\s+citizen|citizenship required)\b",
             r"(?i)\b(security clearance|clearance)\b",
             r"(?i)\b(driver'?s license|driver license|cdl|rn license|nursing license)\b",
-            r"(?i)\b(certification|cissp|security\+|bls|acls)\b",
+            r"(?i)\b(certification|cissp|security\+|bls|basic life support|acls|advanced cardiovascular life support|cpr|cardiopulmonary resuscitation)\b",
             r"(?i)\b(bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree)\b",
             r"(?i)\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b",
             r"(?i)\b(lift(?:\s+up\s+to)?\s+\d+\s*(?:pounds?|lbs?)|stand for long periods?|physical requirements?|physical demands?)\b",
@@ -2693,6 +2748,46 @@ Preferred: Salesforce
             .expect("crm review");
         assert_eq!(crm.match_state, RequirementMatchState::Direct);
         assert!(crm.evidence_sections.contains(&"experience".to_string()));
+    }
+
+    #[test]
+    fn test_requirement_review_uses_conservative_credential_equivalence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nCertifications\nBasic Life Support",
+            &[],
+            "Required: BLS",
+        );
+
+        let bls = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "bls")
+            .expect("bls review");
+        assert_eq!(bls.match_state, RequirementMatchState::Direct);
+        assert!(bls
+            .evidence_sections
+            .contains(&"certifications".to_string()));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "bls"));
+    }
+
+    #[test]
+    fn test_missing_required_credential_equivalence_caps_overall_score() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nLed intake scheduling.",
+            &[],
+            "Required: BLS",
+        );
+
+        assert!(result.overall_score <= 60.0);
+        assert!(result.hard_constraint_risks.iter().any(|risk| {
+            risk.requirement == "bls"
+                && risk.category == HardConstraintCategory::LicenseOrCertification
+                && risk.score_cap == 60.0
+                && risk.action.contains("license or certification")
+        }));
     }
 
     #[test]

@@ -789,6 +789,31 @@ describe("mock Tauri handlers", () => {
       ]),
     );
 
+    const blsResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        certifications: ["Basic Life Support"],
+      },
+      jobDescription: "Required: BLS",
+    });
+    expect(blsResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "bls",
+          match_state: "Direct",
+          evidence_sections: expect.arrayContaining(["certifications"]),
+          hard_constraint: true,
+        }),
+      ]),
+    );
+    expect(blsResult.hard_constraint_risks).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          requirement: "bls",
+        }),
+      ]),
+    );
+
     const seniorResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
         ...atsResume,

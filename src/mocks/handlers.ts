@@ -2361,7 +2361,10 @@ function getMockHardConstraintCategory(keyword: string): MockHardConstraintCateg
   if (
     lower.includes("license") ||
     lower.includes("certification") ||
-    ["cdl", "cissp", "security+", "rn", "bls", "acls"].includes(lower)
+    ["cdl", "cissp", "security+", "rn", "bls", "acls", "cpr"].includes(lower) ||
+    lower.includes("basic life support") ||
+    lower.includes("advanced cardiovascular life support") ||
+    lower.includes("cardiopulmonary resuscitation")
   ) {
     return "LicenseOrCertification";
   }
@@ -2451,6 +2454,8 @@ function getMockAtsResumeSections(value: unknown): {
   pastExperience: string[];
   skills: string[];
   education: string[];
+  certifications: string[];
+  projects: string[];
   allText: string;
 } {
   const source = isRecord(value) ? value : {};
@@ -2473,13 +2478,37 @@ function getMockAtsResumeSections(value: unknown): {
   const education = Array.isArray(source.education)
     ? source.education.map((item) => collectRecordText(item))
     : [];
+  const certifications = Array.isArray(source.certifications)
+    ? source.certifications.map((item) => collectRecordText(item))
+    : [];
+  const projects = Array.isArray(source.projects)
+    ? source.projects.map((item) => collectRecordText(item))
+    : [];
   const summary = typeof source.summary === "string" ? source.summary : "";
   const contactInfo = collectRecordText(source.contact_info);
-  const allText = [contactInfo, summary, ...experience, ...skills, ...education]
+  const allText = [
+    contactInfo,
+    summary,
+    ...experience,
+    ...skills,
+    ...education,
+    ...certifications,
+    ...projects,
+  ]
     .filter((text) => text.length > 0)
     .join(" ");
 
-  return { summary, experience, currentExperience, pastExperience, skills, education, allText };
+  return {
+    summary,
+    experience,
+    currentExperience,
+    pastExperience,
+    skills,
+    education,
+    certifications,
+    projects,
+    allText,
+  };
 }
 
 function isMockCurrentExperience(value: unknown): boolean {
@@ -2567,7 +2596,7 @@ function extractMockHardConstraintKeywords(jobDescription: string): string[] {
     /\b(work authorization|authorized to work|visa sponsorship|u\.?s\.?\s+citizenship|u\.?s\.?\s+citizen|citizenship required)\b/gi,
     /\b(security clearance|clearance)\b/gi,
     /\b(driver'?s license|driver license|cdl|rn license|nursing license)\b/gi,
-    /\b(certification|cissp|security\+|bls|acls)\b/gi,
+    /\b(certification|cissp|security\+|bls|basic life support|acls|advanced cardiovascular life support|cpr|cardiopulmonary resuscitation)\b/gi,
     /\b(bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree)\b/gi,
     /\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b/gi,
     /\b(lift(?:\s+up\s+to)?\s+\d+\s*(?:pounds?|lbs?)|stand for long periods?|physical requirements?|physical demands?)\b/gi,
@@ -2655,13 +2684,27 @@ function findMockKeywordLocations(
   if (sections.education.some((text) => containsAnyMockKeyword(text, searchTerms))) {
     locations.push("education");
   }
+  if (sections.certifications.some((text) => containsAnyMockKeyword(text, searchTerms))) {
+    locations.push("certifications");
+  }
+  if (sections.projects.some((text) => containsAnyMockKeyword(text, searchTerms))) {
+    locations.push("projects");
+  }
   return locations;
 }
 
 function getConservativeMockSearchTerms(keyword: string): string[] {
   const lower = keyword.toLowerCase();
   const terms = [lower];
-  const equivalenceGroups = [["crm", "customer relationship management"]];
+  const equivalenceGroups = [
+    ["crm", "customer relationship management"],
+    ["bls", "basic life support"],
+    ["acls", "advanced cardiovascular life support"],
+    ["cpr", "cardiopulmonary resuscitation"],
+    ["cdl", "commercial driver's license", "commercial driver license"],
+    ["rn", "registered nurse"],
+    ["cissp", "certified information systems security professional"],
+  ];
 
   for (const group of equivalenceGroups) {
     if (group.includes(lower)) {
