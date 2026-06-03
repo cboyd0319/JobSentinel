@@ -140,6 +140,16 @@ copy durable findings back into this plan or the active status surface.
   --noEmit`, `npm run lint -- --quiet`, `cargo fmt --all --manifest-path
   src-tauri/Cargo.toml -- --check`, `cargo clippy --manifest-path
   src-tauri/Cargo.toml -- -D warnings`, and `git diff --check`.
+- Current local front-desk synonym follow-up in `a1c1ae0f` treats front desk,
+  front-desk, reception, and receptionist wording as equivalent local evidence
+  for service, hospitality, clinic, school, and office support roles.
+  Verification passed: `cargo test --lib front_desk_reception --manifest-path
+  src-tauri/Cargo.toml`, `npx vitest run src/mocks/handlers.test.ts -t
+  "analyzes resumes"`, `cargo test --lib ats_analyzer --manifest-path
+  src-tauri/Cargo.toml`, `npx vitest run src/mocks/handlers.test.ts`, `npx tsc
+  --noEmit`, `npm run lint -- --quiet`, `cargo fmt --all --manifest-path
+  src-tauri/Cargo.toml -- --check`, `cargo clippy --manifest-path
+  src-tauri/Cargo.toml -- -D warnings`, and `git diff --check`.
 - Current local case-coordination synonym follow-up in `e854b515` treats case
   management and case coordination as equivalent local evidence without
   treating broader case-documentation wording as enough by itself.
