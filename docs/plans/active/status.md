@@ -1463,6 +1463,12 @@ Scope:
   no-floor choice in the review summary before scanning starts. Verification
   passed: `npx vitest run src/pages/SetupWizard.test.tsx`, `npx tsc --noEmit`,
   `npm run lint -- --quiet`, `npm run lint:external-ai`, and `git diff --check`.
+- Latest local open-ended-pay slice in `5981e92c` keeps min-only listed pay such
+  as `$45k+` visible without showing a below-floor warning, because the listed
+  minimum does not prove the role tops out below the user's floor. Verification
+  passed: `npx vitest run src/components/JobCard.test.tsx`, `npx tsc
+  --noEmit`, `npm run lint -- --quiet`, `npm run lint:external-ai`, and `git
+  diff --check`.
 - No-Apple-account macOS readiness is already best-possible without an Apple
   Developer Account. Keep the limitation explicit: Gatekeeper-ready public
   distribution still needs Developer ID signing and notarization.

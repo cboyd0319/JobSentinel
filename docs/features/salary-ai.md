@@ -13,6 +13,9 @@ fixed by asking harder.
 - Show "Pay not listed" on job cards when structured salary fields are empty.
 - Show a below-floor warning on job cards when listed pay tops out below the
   user's saved floor.
+- Keep open-ended minimum-only pay ranges visible without a below-floor warning,
+  because a listed minimum alone does not prove the role tops out below the
+  user's floor.
 - Flag when a floor is below credible range evidence or when a role may be
   listed at too low a title or pay level.
 - Draft editable negotiation notes grounded in role scope, written ranges, and
@@ -32,7 +35,8 @@ inputs, not as self-worth scores.
 
 ## Pay Protection Rules
 
-- Warn when listed or estimated pay is below the user's floor.
+- Warn when listed or estimated pay is below the user's floor. For job cards,
+  use the warning only when the known top listed pay is below the floor.
 - Warn when the user's target is below the lower-pay part of a credible sample
   or below a credible posted midpoint.
 - Treat missing pay as useful evidence about transparency, not as neutral or as

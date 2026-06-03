@@ -80,6 +80,8 @@ scoring.
 Salary review compares listed pay to the user's salary floor and target pay.
 Missing pay should not hide every job automatically, but it should remain visible
 as a warning because missing pay can waste time and increase underpayment risk.
+Open-ended minimum-only pay should remain visible without a below-floor warning
+unless a known maximum or top listed pay is below the user's floor.
 
 Salary support is evidence-bounded. JobSentinel should help users protect their
 floor and ask better questions; it is not a compensation authority or legal
@@ -143,7 +145,7 @@ Useful settings live in normal language:
 | ------- | ------------------- |
 | Job titles | Show more of the roles the user wants |
 | Work words | Raise work the user wants and lower work they want to avoid |
-| Salary floor | Warn when listed pay is below the user's minimum |
+| Salary floor | Warn when known top listed pay is below the user's minimum |
 | Location | Reflect remote, hybrid, onsite, commute, city, and state needs |
 | Company preferences | Raise favorite companies and lower hidden companies |
 | Resume matching | Include resume skills in match explanations when enabled |
