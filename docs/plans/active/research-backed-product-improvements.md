@@ -104,8 +104,8 @@ copy durable findings back into this plan or the active status surface.
   rows, recognized hard-constraint caps, and plain next actions have started;
   `3aa39952 Add resume next-action guidance` adds plain guidance such as
   checking a hard requirement before tailoring, adding supporting evidence only
-  if true, or keeping useful evidence visible. Deeper duty/responsibility
-  evidence strength, synonym, broader recency weighting, seniority, and
+  if true, or keeping useful evidence visible. Deeper duty-only evidence
+  strength, synonym, broader recency weighting, seniority, and
   profession-specific weighting remain future work. The follow-up `171bbe91
   Improve resume evidence section review` starts section-placement review for
   saved-resume plain text.
@@ -138,6 +138,10 @@ copy durable findings back into this plan or the active status surface.
   evidence with scope such as work across teams, departments, locations, sites,
   regions, markets, or service lines as stronger local evidence than a bare
   keyword.
+- Current local responsibility-backed evidence-strength follow-up treats work
+  or project evidence with ownership or management verbs tied to workflows,
+  processes, programs, operations, intake, cases, systems, or tools as stronger
+  local evidence than a bare keyword.
 - Current local Resume Match evidence-label follow-up translates backend
   requirement evidence sections into plain labels such as current role
   experience, work experience, and skills list.
@@ -1659,6 +1663,7 @@ source-filter compatibility issue appears.
   Plain-text evidence recency work is committed in `66c587a8`.
   Metric-backed evidence-strength work is committed in `4607b67f`.
   Scope-backed evidence-strength work is committed in `c109b9d3`.
+  Responsibility-backed evidence-strength work is committed in `f1310ad0`.
   Resume Match evidence-label work is committed in `26d306f6`.
   Reviewer-fix work is committed in `efea47a5`.
   Resume Import Status work is committed in `b3c07068`.

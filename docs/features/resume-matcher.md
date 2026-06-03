@@ -166,6 +166,9 @@ The current local matcher:
 - treats work or project evidence with scope such as work across teams,
   departments, locations, sites, regions, markets, or service lines as stronger
   local evidence than a bare keyword;
+- treats work or project evidence with ownership or management verbs tied to
+  workflows, processes, programs, operations, intake, cases, systems, or tools
+  as stronger local evidence than a bare keyword;
 - flags recognized missing hard requirements such as authorization, location,
   citizenship, schedule, availability, commute or transportation, travel, years
   of experience, physical demands, license, certification, degree, or clearance
@@ -243,9 +246,9 @@ constraint review, conservative `CRM` / `customer relationship management`, and
 common credential equivalence have started. Copied structured resume details
 can show current-role evidence labels, and readable saved-resume text can mark
 bullets after a present-date role marker as current role evidence. Broader
-non-metric evidence strength beyond scope signals, synonym, broader recency
-weighting, too-low-role warnings, and profession-specific weighting remain
-future work.
+non-metric evidence strength beyond scope and responsibility signals, synonym,
+broader recency weighting, too-low-role warnings, and profession-specific
+weighting remain future work.
 The visible requirement review uses plain evidence labels such as current role
 experience, work experience, and skills list instead of backend section names.
 
