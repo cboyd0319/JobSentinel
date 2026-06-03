@@ -3262,7 +3262,13 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
       "bachelor of arts",
       "bachelor of science",
     ],
-    ["master's degree", "master degree", "masters degree"],
+    [
+      "master's degree",
+      "master degree",
+      "masters degree",
+      "master of arts",
+      "master of science",
+    ],
     [
       "phd",
       "ph.d",
@@ -3407,6 +3413,8 @@ function getConservativeMockJobSearchTerms(keyword: string): string[] {
   const evidenceOnlyDegreeTerms = new Set([
     "bachelor of arts",
     "bachelor of science",
+    "master of arts",
+    "master of science",
   ]);
   return getConservativeMockSearchTerms(keyword)
     .filter((term) => !evidenceOnlyDegreeTerms.has(term));
