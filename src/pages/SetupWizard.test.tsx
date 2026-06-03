@@ -427,6 +427,46 @@ describe("SetupWizard Accessibility", () => {
       });
     });
 
+    it("saves quiet job-search alerts without extra channels", async () => {
+      const user = userEvent.setup();
+      mockInvoke.mockResolvedValue(undefined);
+      renderWithProviders(<SetupWizard onComplete={mockOnComplete} />);
+
+      await user.click(screen.getByRole("button", { name: /build my search/i }));
+      await user.type(screen.getByPlaceholderText("Add a job title..."), "Office Manager{enter}");
+      await user.click(screen.getByRole("button", { name: /^continue$/i }));
+      await user.click(screen.getByRole("button", { name: /^continue$/i }));
+
+      await user.click(screen.getByRole("checkbox", { name: /quiet job-search mode/i }));
+
+      expect(screen.getAllByText("Alerts").length).toBeGreaterThan(0);
+      expect(screen.getByText("Quiet desktop alerts; no sound")).toBeInTheDocument();
+      expect(screen.queryByLabelText(/slack connection link/i)).not.toBeInTheDocument();
+
+      await user.click(screen.getByRole("button", { name: /start finding jobs/i }));
+
+      await waitFor(() => {
+        expect(mockInvoke).toHaveBeenCalledWith(
+          "complete_setup",
+          expect.objectContaining({
+            config: expect.objectContaining({
+              title_allowlist: ["Office Manager"],
+              alerts: expect.objectContaining({
+                desktop: expect.objectContaining({
+                  enabled: true,
+                  play_sound: false,
+                  show_when_focused: false,
+                }),
+                slack: expect.objectContaining({
+                  enabled: false,
+                }),
+              }),
+            }),
+          }),
+        );
+      });
+    });
+
     it("turns on tech-heavy sources for technical searches only", async () => {
       const user = userEvent.setup();
       mockInvoke.mockResolvedValue(undefined);

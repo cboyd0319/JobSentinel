@@ -600,6 +600,20 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
     setConfig((prev) => applyReviewVolumePreference(prev, preference));
   };
 
+  const handleQuietAlertModeChange = (enabled: boolean) => {
+    setConfig((prev) => ({
+      ...prev,
+      alerts: {
+        ...prev.alerts,
+        desktop: {
+          ...prev.alerts.desktop,
+          play_sound: !enabled,
+          show_when_focused: false,
+        },
+      },
+    }));
+  };
+
   const handleAddCity = () => {
     const trimmed = cityInput.trim();
     if (trimmed && !config.location_preferences.cities.includes(trimmed)) {
@@ -703,6 +717,9 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
     freshness: freshnessSummary(freshnessPreference),
     reviewVolume: reviewVolumeSummary(reviewVolumePreference),
     jobSources: formatJobSourceSummary(config),
+    alerts: config.alerts.desktop.play_sound
+      ? "Desktop alerts with sound"
+      : "Quiet desktop alerts; no sound",
     pay:
       config.salary_floor_usd > 0
         ? `At least $${config.salary_floor_usd.toLocaleString()}/year`
@@ -1376,6 +1393,26 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                   <p className="mt-1 text-sm text-surface-500">
                     Start with desktop alerts now. Email or chat alerts can be added later in Settings.
                   </p>
+                  <label
+                    className="mt-4 flex cursor-pointer items-start gap-3 rounded-lg border border-surface-200 bg-surface-50 p-3"
+                    htmlFor="quiet-alert-mode"
+                  >
+                    <input
+                      id="quiet-alert-mode"
+                      type="checkbox"
+                      checked={!config.alerts.desktop.play_sound}
+                      onChange={(e) => handleQuietAlertModeChange(e.target.checked)}
+                      className="mt-1 h-4 w-4 rounded border-surface-300 text-sentinel-500 focus-visible:ring-sentinel-500"
+                    />
+                    <span>
+                      <span className="block font-medium text-surface-800">
+                        Quiet job-search mode
+                      </span>
+                      <span className="block text-sm text-surface-500">
+                        Use desktop alerts without sound. Good for a private or quieter search.
+                      </span>
+                    </span>
+                  </label>
                 </div>
               </div>
 
@@ -1418,6 +1455,10 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                   <div className="grid gap-1 sm:grid-cols-[7rem_1fr]">
                     <dt className="font-medium text-surface-600">Job sources</dt>
                     <dd className="text-surface-800">{searchSummary.jobSources}</dd>
+                  </div>
+                  <div className="grid gap-1 sm:grid-cols-[7rem_1fr]">
+                    <dt className="font-medium text-surface-600">Alerts</dt>
+                    <dd className="text-surface-800">{searchSummary.alerts}</dd>
                   </div>
                   <div className="grid gap-1 sm:grid-cols-[7rem_1fr]">
                     <dt className="font-medium text-surface-600">Pay</dt>
