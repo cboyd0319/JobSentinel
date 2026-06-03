@@ -1504,7 +1504,7 @@ source-filter compatibility issue appears.
   `171bbe91`. Conservative synonym/acronym work is committed in `d2d1944f`.
   Structured evidence recency work is committed in `56d9a5ab`.
   Resume Match evidence-label work is committed in `26d306f6`.
-  Current local reviewer-fix follow-up is verified locally and ready to commit.
+  Reviewer-fix work is committed in `efea47a5`.
 - Evidence: source documents, selected primary sources, and local PDF text
   extraction reviewed on
   2026-05-28.

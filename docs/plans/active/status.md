@@ -1382,7 +1382,7 @@ Scope:
   experience, work experience, and skills list. Focused frontend verification
   passed: `npx vitest run src/pages/ResumeOptimizer.test.tsx`, `npm run lint
   -- --quiet`, and `npx tsc --noEmit`.
-- Current local reviewer-fix slice also ports conservative `CRM` equivalence
+- Latest local reviewer-fix slice in `efea47a5` also ports conservative `CRM` equivalence
   and current structured-experience labels into browser/dev mocks, and scopes
   docs so active saved-resume text is not described as current-role aware.
   Verification passed: analyzer tests, Rust clippy and formatter check,
