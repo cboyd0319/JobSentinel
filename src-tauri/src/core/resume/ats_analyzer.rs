@@ -1762,6 +1762,11 @@ impl AtsAnalyzer {
             ("skills technical skills", "skills"),
             ("technical skills", "skills"),
             ("core skills", "skills"),
+            ("professional credentials", "certifications"),
+            ("credentials", "certifications"),
+            ("professional training", "certifications"),
+            ("training", "certifications"),
+            ("certificates", "certifications"),
             ("certifications", "certifications"),
             ("licenses", "licenses"),
             ("publications", "publications"),
@@ -2771,6 +2776,26 @@ Preferred: Salesforce
             .hard_constraint_risks
             .iter()
             .any(|risk| risk.requirement == "bls"));
+    }
+
+    #[test]
+    fn test_plain_text_training_heading_counts_as_credential_evidence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nTraining\nBasic Life Support",
+            &[],
+            "Required: BLS",
+        );
+
+        let bls = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "bls")
+            .expect("bls review");
+        assert_eq!(bls.match_state, RequirementMatchState::Direct);
+        assert!(bls
+            .evidence_sections
+            .contains(&"certifications".to_string()));
+        assert!(!bls.evidence_sections.contains(&"resume text".to_string()));
     }
 
     #[test]
