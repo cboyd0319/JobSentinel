@@ -324,6 +324,9 @@ copy durable findings back into this plan or the active status surface.
 - Current local food-handler hyphen follow-up in `7b50460b` treats food-handler
   certification, certificate, permit, and card wording as equivalent local
   credential hard-constraint evidence.
+- Current local food-handler possessive follow-up in `07ec097e` treats food
+  handler's and food handlers certification, certificate, permit, and card
+  wording as equivalent local credential hard-constraint evidence.
 - Current local first-aid credential-equivalence follow-up treats first-aid
   certificate, certification, and certified wording as the same local
   credential evidence.
@@ -1812,6 +1815,7 @@ source-filter compatibility issue appears.
   PMP credential-equivalence work is committed in `c69a2bea`.
   Food-safety credential-equivalence work is committed in `9f47bee9`.
   Food-handler hyphen work is committed in `7b50460b`.
+  Food-handler possessive work is committed in `07ec097e`.
   First-aid credential-equivalence work is committed in `c47dec16`.
   Forklift credential-equivalence work is committed in `a57f5d47`.
   OSHA 10 credential-equivalence work is committed in `e8534882`.

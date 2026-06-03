@@ -236,9 +236,9 @@ The current local matcher:
   license before applying;
 - treats PMP, Project Management Professional, PMP certification, and Project
   Management Professional certification as the same local credential evidence;
-- treats food safety, food safety certification, ServSafe, and food handler or
-  food-handler certification, certificate, permit, or card wording as the same
-  local credential evidence;
+- treats food safety, food safety certification, ServSafe, and food handler,
+  food-handler, food handler's, or food handlers certification, certificate,
+  permit, or card wording as the same local credential evidence;
 - treats first aid, first-aid, first aid certification, First Aid Certified,
   and first aid certificate wording as the same local credential evidence;
 - treats forklift, forklift certification, forklift certified, forklift

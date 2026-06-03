@@ -226,6 +226,9 @@ acceptance still requires Developer ID signing and notarization.
   The follow-up `7b50460b Match food-handler credential terms` treats
   food-handler certification, certificate, permit, and card wording as the same
   local credential hard-constraint evidence.
+  The follow-up `07ec097e Match food handler possessive terms` treats food
+  handler's and food handlers certification, certificate, permit, and card
+  wording as equivalent local credential hard-constraint evidence.
   The follow-up `c47dec16` recognizes first-aid credential equivalence,
   treating first-aid certificate, certification, and certified wording as the
   same local credential evidence.
