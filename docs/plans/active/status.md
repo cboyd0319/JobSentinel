@@ -46,17 +46,15 @@ acceptance still requires Developer ID signing and notarization.
 ## Current Posture
 
 - `main` was pushed through
-  `d797c2d8 Record point of sale equivalence`.
+  `1077e994 Record parent family communication wording`.
   Use `git status --short --branch` for live evidence before committing,
   pushing, or reporting remote state.
 - Latest pushed critical-functionality batch expands Resume Match local
-  evidence review with mock recency parity, seniority under-level warnings,
-  trades and career evidence prompts, and conservative finance, retail/service,
-  and operations equivalences for billing/invoicing, cashier/cash handling,
-  procurement/purchasing, vendor/supplier management, budgeting/budget
-  tracking, `A/P` and `A/R`, bookkeeping/bookkeeper, QuickBooks/`QBO`, and
-  point of sale/POS system wording. Keep the no-push batch rule: push only
-  after 30 more local commits unless the user changes cadence.
+  evidence review with hidden-text safety markers, readable resume heading
+  variants, and conservative local synonym groups across finance,
+  retail/service, operations, data, training, hospitality, office support,
+  logistics, inventory, and education wording. Keep the no-push batch rule:
+  push only after 30 more local commits unless the user changes cadence.
 - Current local restart-doc checkpoint records that pushed batch; it is the
   first local commit in the next 30-commit window.
 - Pushed resume evidence-strength follow-up separates plain-text
