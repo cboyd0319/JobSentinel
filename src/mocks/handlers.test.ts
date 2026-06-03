@@ -1418,6 +1418,16 @@ describe("mock Tauri handlers", () => {
     expect(technicalImproved).toContain("users or decisions supported");
     expect(technicalImproved).toContain("data sources");
     expect(technicalImproved).toContain("measurable outcomes");
+
+    const salesMarketingImproved = await mockInvoke<string>("improve_bullet_point", {
+      bullet: "supported campaign and account follow-up",
+      jobContext: "Required: sales pipeline, account retention, marketing campaign",
+    });
+    expect(salesMarketingImproved).toContain("sales-marketing evidence to check");
+    expect(salesMarketingImproved).toContain("quota or pipeline");
+    expect(salesMarketingImproved).toContain("audience or account scope");
+    expect(salesMarketingImproved).toContain("conversion or revenue impact");
+    expect(salesMarketingImproved).toContain("retention");
   }, 10_000);
 
   it("matches lift-weight pounds and lbs in mock hard constraints", async () => {

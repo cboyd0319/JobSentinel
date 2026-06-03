@@ -593,6 +593,31 @@ impl AtsAnalyzer {
             );
         }
 
+        let sales_marketing_terms = [
+            "sales",
+            "pipeline",
+            "account",
+            "quota",
+            "renewal",
+            "retention",
+            "marketing",
+            "campaign",
+            "audience",
+            "conversion",
+            "revenue",
+            "lead generation",
+            "channel",
+        ];
+
+        if sales_marketing_terms
+            .iter()
+            .any(|term| lower.contains(term))
+        {
+            return Some(
+                "sales-marketing evidence to check: quota or pipeline, audience or account scope, conversion or revenue impact, retention, and budget",
+            );
+        }
+
         None
     }
 
@@ -3669,6 +3694,20 @@ Preferred: Salesforce
         assert!(improved.contains("users or decisions supported"));
         assert!(improved.contains("data sources"));
         assert!(improved.contains("measurable outcomes"));
+        assert!(improved.contains("problem, your role, action, result, and evidence"));
+    }
+
+    #[test]
+    fn test_improve_bullet_adds_sales_marketing_evidence_prompt() {
+        let bullet = "Supported campaign and account follow-up";
+        let job_desc = "Required: sales pipeline, account retention, marketing campaign";
+        let improved = AtsAnalyzer::improve_bullet(bullet, Some(job_desc));
+
+        assert!(improved.contains("sales-marketing evidence to check"));
+        assert!(improved.contains("quota or pipeline"));
+        assert!(improved.contains("audience or account scope"));
+        assert!(improved.contains("conversion or revenue impact"));
+        assert!(improved.contains("retention"));
         assert!(improved.contains("problem, your role, action, result, and evidence"));
     }
 

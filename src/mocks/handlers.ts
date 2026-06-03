@@ -2697,6 +2697,26 @@ function getMockRoleSpecificEvidencePrompt(jobContext: string): string | null {
     return "technical-data evidence to check: shipped work, users or decisions supported, reliability, data sources, and measurable outcomes";
   }
 
+  const salesMarketingTerms = [
+    "sales",
+    "pipeline",
+    "account",
+    "quota",
+    "renewal",
+    "retention",
+    "marketing",
+    "campaign",
+    "audience",
+    "conversion",
+    "revenue",
+    "lead generation",
+    "channel",
+  ];
+
+  if (salesMarketingTerms.some((term) => lower.includes(term))) {
+    return "sales-marketing evidence to check: quota or pipeline, audience or account scope, conversion or revenue impact, retention, and budget";
+  }
+
   return null;
 }
 
