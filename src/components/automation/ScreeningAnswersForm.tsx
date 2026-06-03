@@ -51,6 +51,7 @@ const COMMON_PATTERNS = [
   { pattern: "relocate", label: "Willingness to relocate", type: "yes_no" },
   { pattern: "travel", label: "Travel availability", type: "text" },
   { pattern: "work authorization", label: "Work authorization", type: "yes_no" },
+  { pattern: "US citizen", label: "Citizenship", type: "yes_no" },
   { pattern: "availability", label: "Schedule availability", type: "text" },
   { pattern: "sponsorship", label: "Visa sponsorship", type: "yes_no" },
   { pattern: "remote", label: "Remote work preference", type: "text" },
