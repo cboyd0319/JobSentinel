@@ -621,6 +621,7 @@ const ATS_KNOWN_KEYWORDS = [
   "lpn",
   "licensed practical nurse",
   "medication administration",
+  "vital sign",
   "vital signs",
   "care plan",
   "care plans",
@@ -2852,6 +2853,8 @@ function extractMockAtsKeywords(jobDescription: string): MockAtsKeyword[] {
   const hasSingularMedicalRecord = /\bmedical record\b/.test(lower) && !hasPluralMedicalRecords;
   const hasPluralCarePlans = /\bcare plans\b/.test(lower);
   const hasSingularCarePlan = /\bcare plan\b/.test(lower) && !hasPluralCarePlans;
+  const hasPluralVitalSigns = /\bvital signs\b/.test(lower);
+  const hasSingularVitalSign = /\bvital sign\b/.test(lower) && !hasPluralVitalSigns;
   const hasSpecificDegree = hardKeywords.some((keyword) =>
     isMockExactDegreeKeyword(keyword) && keyword !== "degree"
   );
@@ -2862,6 +2865,8 @@ function extractMockAtsKeywords(jobDescription: string): MockAtsKeyword[] {
     !(hasSingularMedicalRecord && keyword === "medical records") &&
     !(hasPluralCarePlans && keyword === "care plan") &&
     !(hasSingularCarePlan && keyword === "care plans") &&
+    !(hasPluralVitalSigns && keyword === "vital sign") &&
+    !(hasSingularVitalSign && keyword === "vital signs") &&
     !(
       hasCommercialDriverLicense &&
       ["driver's license", "drivers license", "driver license"].includes(keyword)
@@ -3159,6 +3164,7 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
     ["patient care", "patient-care"],
     ["medical record", "medical records"],
     ["care plan", "care plans"],
+    ["vital sign", "vital signs"],
     ["data entry", "data-entry"],
     ["onsite", "on-site", "on site"],
     ["relocation", "relocate", "willing to relocate"],

@@ -1976,6 +1976,7 @@ impl AtsAnalyzer {
             &["patient care", "patient-care"],
             &["medical record", "medical records"],
             &["care plan", "care plans"],
+            &["vital sign", "vital signs"],
             &["data entry", "data-entry"],
             &["onsite", "on-site", "on site"],
             &["relocation", "relocate", "willing to relocate"],
@@ -2581,7 +2582,7 @@ impl AtsAnalyzer {
             r"(?i)\b(inventory|logistics|shipping|receiving|procurement|vendor management)\b",
             r"(?i)\b(reporting|budget tracking|grant reporting|grant writing|program evaluation)\b",
             r"(?i)\b(compliance|hipaa|osha|quality assurance|qa|data[- ]entry|excel)\b",
-            r"(?i)\b(patient[- ]care|medication administration|vital signs|care plans?|medical records?|charting)\b",
+            r"(?i)\b(patient[- ]care|medication administration|vital signs?|care plans?|medical records?|charting)\b",
             r"(?i)\b(lesson planning|classroom management|curriculum|iep|student support|parent communication)\b",
             r"(?i)\b(forklift|welding|equipment maintenance|safety inspections|food safety|cash handling)\b",
             r"(?i)\b(document review|case files|legal research|records management|policy analysis|grant administration|public benefits)\b",
@@ -4259,6 +4260,41 @@ Preferred: Salesforce
             .expect("care plan review");
         assert_eq!(care_plan.match_state, RequirementMatchState::Direct);
         assert!(care_plan
+            .evidence_sections
+            .contains(&"experience".to_string()));
+    }
+
+    #[test]
+    fn test_requirement_review_uses_vital_sign_plural_equivalence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nRecorded vital sign readings for patient visits.",
+            &[],
+            "Required: vital signs",
+        );
+
+        let vital_signs = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "vital signs")
+            .expect("vital signs review");
+        assert_eq!(vital_signs.match_state, RequirementMatchState::Direct);
+        assert!(vital_signs
+            .evidence_sections
+            .contains(&"experience".to_string()));
+
+        let inverse = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nRecorded vital signs for patient visits.",
+            &[],
+            "Required: vital sign",
+        );
+
+        let vital_sign = inverse
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "vital sign")
+            .expect("vital sign review");
+        assert_eq!(vital_sign.match_state, RequirementMatchState::Direct);
+        assert!(vital_sign
             .evidence_sections
             .contains(&"experience".to_string()));
     }

@@ -3503,6 +3503,74 @@ describe("mock Tauri handlers", () => {
     );
   });
 
+  it("treats singular and plural vital-sign terms as equivalent mock evidence", async () => {
+    const pluralResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        skills: [],
+        experience: [
+          {
+            ...atsResume.experience[0],
+            current: false,
+            end_date: "2022",
+            achievements: ["Recorded vital sign readings for patient visits."],
+          },
+        ],
+      },
+      jobDescription: "Required: vital signs",
+    });
+    expect(pluralResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "vital signs",
+          match_state: "Direct",
+          evidence_sections: ["experience"],
+        }),
+      ]),
+    );
+    expect(pluralResult.requirement_reviews).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "vital sign",
+        }),
+      ]),
+    );
+
+    const singularResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        skills: [],
+        experience: [
+          {
+            ...atsResume.experience[0],
+            current: false,
+            end_date: "2022",
+            achievements: ["Recorded vital signs for patient visits."],
+          },
+        ],
+      },
+      jobDescription: "Required: vital sign",
+    });
+    expect(singularResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "vital sign",
+          match_state: "Direct",
+          evidence_sections: ["experience"],
+        }),
+      ]),
+    );
+    expect(singularResult.requirement_reviews).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "vital signs",
+        }),
+      ]),
+    );
+  });
+
   it("treats single current-role evidence as stronger than the same past-role mock evidence", async () => {
     const currentResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
