@@ -1347,6 +1347,13 @@ impl AtsAnalyzer {
                 | "career pause"
                 | "family caregiving"
                 | "caregiving"
+                | "volunteer experience"
+                | "volunteering"
+                | "community involvement"
+                | "community service"
+                | "military service"
+                | "military experience"
+                | "service"
                 | "publications"
         )
     }
@@ -2739,6 +2746,32 @@ mod tests {
             .format_issues
             .iter()
             .any(|issue| issue.issue.contains("standard resume section headings")));
+    }
+
+    #[test]
+    fn test_analyze_text_for_job_accepts_volunteer_and_military_headings() {
+        for heading in [
+            "Volunteer Experience",
+            "Community Involvement",
+            "Military Service",
+        ] {
+            let resume_text = format!(
+                "Jordan Lee\njordan@example.com\n\n{heading}\nCoordinated records and scheduling for community services."
+            );
+            let result = AtsAnalyzer::analyze_text_for_job(
+                &resume_text,
+                &[],
+                "Required: records management",
+            );
+
+            assert!(
+                !result
+                    .format_issues
+                    .iter()
+                    .any(|issue| issue.issue.contains("standard resume section headings")),
+                "{heading} should count as a standard heading"
+            );
+        }
     }
 
     #[test]
