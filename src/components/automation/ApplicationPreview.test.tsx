@@ -766,6 +766,36 @@ describe("ApplicationPreview", () => {
       ).toBeInTheDocument();
       expect(mockInvoke).toHaveBeenCalledWith("get_screening_answers");
     });
+
+    it("keeps hard question review when saved screening answers cannot load", async () => {
+      mockInvoke.mockImplementation((command: string) => {
+        if (command === "get_application_profile_preview") {
+          return Promise.resolve(mockProfile);
+        }
+
+        if (command === "get_screening_answers") {
+          return Promise.reject(new Error("saved answers unavailable"));
+        }
+
+        return Promise.reject(new Error(`Unexpected command: ${command}`));
+      });
+
+      render(
+        <ApplicationPreview
+          job={{
+            ...mockJob,
+            description: "This role requires travel to client sites.",
+          }}
+          atsPlatform="greenhouse"
+        />,
+      );
+
+      expect(await screen.findByText("Hard Question Review")).toBeInTheDocument();
+      expect(
+        screen.getByText("Confirm location, commute, relocation, remote, hybrid, travel, and shift constraints."),
+      ).toBeInTheDocument();
+      expect(screen.queryByText(/saved answers unavailable/i)).not.toBeInTheDocument();
+    });
   });
 
   describe("info banner", () => {
