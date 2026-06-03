@@ -115,7 +115,6 @@ function formatPayFloor(salaryFloorUsd: number) {
 }
 
 function getPayFloorGuidance(
-  salaryMin: number | null | undefined,
   salaryMax: number | null | undefined,
   salaryFloorUsd: number | null | undefined,
 ): PayFloorGuidance | null {
@@ -127,11 +126,10 @@ function getPayFloorGuidance(
     return null;
   }
 
-  const highestListedPay = salaryMax ?? salaryMin;
   if (
-    highestListedPay == null ||
-    !Number.isFinite(highestListedPay) ||
-    highestListedPay >= salaryFloorUsd
+    salaryMax == null ||
+    !Number.isFinite(salaryMax) ||
+    salaryMax >= salaryFloorUsd
   ) {
     return null;
   }
@@ -205,7 +203,6 @@ export const JobCard = memo(function JobCard({
   const descSnippet = truncateText(job.description);
   const postingRiskGuidance = getPostingRiskGuidance(job.ghost_score);
   const payFloorGuidance = getPayFloorGuidance(
-    job.salary_min,
     job.salary_max,
     salaryFloorUsd,
   );

@@ -379,6 +379,24 @@ describe("JobCard", () => {
 
       expect(screen.queryByTestId("pay-floor-guidance")).not.toBeInTheDocument();
     });
+
+    it("does not warn when only minimum pay is listed below the user's floor", () => {
+      const minOnlyJob = {
+        ...mockJob,
+        salary_min: 45000,
+        salary_max: null,
+      };
+
+      renderWithToast(<JobCard job={minOnlyJob} salaryFloorUsd={65000} />);
+
+      expect(screen.getByText("$45k+")).toBeInTheDocument();
+      expect(screen.queryByTestId("pay-floor-guidance")).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("article", {
+          name: /below the lowest pay you want/i,
+        }),
+      ).not.toBeInTheDocument();
+    });
   });
 
   describe("date formatting", () => {
