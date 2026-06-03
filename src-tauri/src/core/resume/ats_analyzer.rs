@@ -546,6 +546,31 @@ impl AtsAnalyzer {
             );
         }
 
+        let service_operations_terms = [
+            "customer service",
+            "customer support",
+            "client service",
+            "client support",
+            "case management",
+            "case coordination",
+            "scheduling",
+            "appointment setting",
+            "calendar management",
+            "client intake",
+            "operations",
+            "escalation",
+            "service quality",
+        ];
+
+        if service_operations_terms
+            .iter()
+            .any(|term| lower.contains(term))
+        {
+            return Some(
+                "service-operations evidence to check: customer impact, volume, escalation path, documentation, and response quality",
+            );
+        }
+
         None
     }
 
@@ -3594,6 +3619,20 @@ Preferred: Salesforce
         assert!(improved.contains("deadlines"));
         assert!(improved.contains("confidentiality"));
         assert!(improved.contains("audit trail"));
+        assert!(improved.contains("problem, your role, action, result, and evidence"));
+    }
+
+    #[test]
+    fn test_improve_bullet_adds_service_operations_evidence_prompt() {
+        let bullet = "Handled client intake scheduling";
+        let job_desc = "Required: customer service, case management, appointment setting";
+        let improved = AtsAnalyzer::improve_bullet(bullet, Some(job_desc));
+
+        assert!(improved.contains("service-operations evidence to check"));
+        assert!(improved.contains("customer impact"));
+        assert!(improved.contains("volume"));
+        assert!(improved.contains("escalation path"));
+        assert!(improved.contains("response quality"));
         assert!(improved.contains("problem, your role, action, result, and evidence"));
     }
 

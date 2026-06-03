@@ -2657,6 +2657,26 @@ function getMockRoleSpecificEvidencePrompt(jobContext: string): string | null {
     return "regulated-work evidence to check: records accuracy, deadlines, confidentiality, compliance, and audit trail";
   }
 
+  const serviceOperationsTerms = [
+    "customer service",
+    "customer support",
+    "client service",
+    "client support",
+    "case management",
+    "case coordination",
+    "scheduling",
+    "appointment setting",
+    "calendar management",
+    "client intake",
+    "operations",
+    "escalation",
+    "service quality",
+  ];
+
+  if (serviceOperationsTerms.some((term) => lower.includes(term))) {
+    return "service-operations evidence to check: customer impact, volume, escalation path, documentation, and response quality";
+  }
+
   return null;
 }
 
