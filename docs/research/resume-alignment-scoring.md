@@ -204,6 +204,8 @@ Future implementation should improve:
 - Resume/job fit now returns requirement-review rows for recognized local
   job-post keywords with direct, strong, partial, implied, or missing states,
   evidence sections, hard-requirement markers, and plain next steps.
+- Hard-requirement risk actions now use category-specific honesty guidance
+  instead of generic verify-first copy.
 - Resume/job fit now caps the local fit label when recognized required hard
   constraints such as authorization, location, license, certification, degree,
   or clearance are missing.
