@@ -2350,7 +2350,13 @@ function getMockHardConstraintCategory(keyword: string): MockHardConstraintCateg
     lower.includes("onsite") ||
     lower.includes("on-site") ||
     lower.includes("relocation") ||
-    lower.includes("travel")
+    lower.includes("travel") ||
+    lower.includes("availability") ||
+    lower.includes("available") ||
+    lower.includes("schedule") ||
+    lower.includes("weekend") ||
+    lower.includes("night shift") ||
+    lower.includes("evening")
   ) {
     return "Location";
   }

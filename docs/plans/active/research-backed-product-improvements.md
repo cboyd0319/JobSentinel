@@ -146,6 +146,9 @@ copy durable findings back into this plan or the active status surface.
 - Current local Source Governance Metadata follow-up labels sensitive data not
   sent in optional connected-source contact history, including resume text,
   salary floors, private notes, application history, and full source links.
+- Current local resume hard-constraint follow-up recognizes required schedule
+  and availability constraints so missing weekend or shift availability caps
+  local fit confidence before tailoring.
 - Latest local Resume Match mock-contract follow-up keeps dev/browser mock
   match results on the same `0.0` to `1.0` fraction scale as the real backend,
   preventing mock-only inflated percentages in resume assistance views.
@@ -1517,6 +1520,8 @@ source-filter compatibility issue appears.
   Resume Import Status work is committed in `b3c07068`.
   Resume-Assisted Guided Intake work is committed in `da84110a`.
   Source Governance Metadata work is committed in `66924003`.
+  Current local resume availability-constraint follow-up is verified locally
+  and ready to commit.
 - Multi-agent orchestration: a read-only reviewer covered recent resume
   analyzer commits and a read-only explorer recommended Resume Import Status,
   Resume-Assisted Guided Intake, and Source Governance Metadata as next

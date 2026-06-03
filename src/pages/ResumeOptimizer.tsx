@@ -196,7 +196,7 @@ function formatHardConstraintCategory(category: HardConstraintCategory): string 
     case "Education":
       return "Education";
     case "Location":
-      return "Location";
+      return "Location, schedule, availability, or travel";
   }
 }
 

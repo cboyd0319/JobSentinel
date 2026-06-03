@@ -105,7 +105,7 @@ pub enum HardConstraintCategory {
     LicenseOrCertification,
     /// Required degree or education credential
     Education,
-    /// Required location, onsite, relocation, or travel constraint
+    /// Required location, onsite, relocation, travel, schedule, or availability constraint
     Location,
 }
 
@@ -1296,6 +1296,12 @@ impl AtsAnalyzer {
             || lower.contains("on-site")
             || lower.contains("relocation")
             || lower.contains("travel")
+            || lower.contains("availability")
+            || lower.contains("available")
+            || lower.contains("schedule")
+            || lower.contains("weekend")
+            || lower.contains("night shift")
+            || lower.contains("evening")
         {
             return Some(HardConstraintCategory::Location);
         }
@@ -1676,7 +1682,7 @@ impl AtsAnalyzer {
             r"(?i)\b(driver'?s license|driver license|cdl|rn license|nursing license)\b",
             r"(?i)\b(certification|cissp|security\+|bls|acls)\b",
             r"(?i)\b(bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree)\b",
-            r"(?i)\b(onsite|on-site|relocation|travel)\b",
+            r"(?i)\b(onsite|on-site|relocation|travel|availability|available|schedule|weekend availability|night shift|evening shift)\b",
         ];
 
         for pattern in &hard_constraint_patterns {
@@ -2549,6 +2555,27 @@ Preferred: Salesforce
         }));
         assert!(result.requirement_reviews.iter().any(|review| {
             review.keyword == "security clearance"
+                && review.hard_constraint
+                && review.match_state == RequirementMatchState::Missing
+        }));
+    }
+
+    #[test]
+    fn test_missing_required_availability_constraint_caps_overall_score() {
+        let resume = sample_resume();
+
+        let result =
+            AtsAnalyzer::analyze_for_job(&resume, "Required: client intake, weekend availability");
+
+        assert!(result.overall_score <= 70.0);
+        assert!(result.hard_constraint_risks.iter().any(|risk| {
+            risk.requirement == "weekend availability"
+                && risk.category == HardConstraintCategory::Location
+                && risk.score_cap == 70.0
+                && risk.action.contains("Verify this before tailoring")
+        }));
+        assert!(result.requirement_reviews.iter().any(|review| {
+            review.keyword == "weekend availability"
                 && review.hard_constraint
                 && review.match_state == RequirementMatchState::Missing
         }));

@@ -1419,6 +1419,18 @@ Scope:
   --noEmit`, `npm run lint -- --quiet`, `npm run lint:external-ai`, `npm run
   lint:docs`, `npm run harness:check`, `npm run lint:bloat`, `npm run
   lint:tauri-invokes`, `npm run lint:architecture`, and `git diff --check`.
+- Current local resume availability-constraint slice expands local hard-constraint
+  caps to required schedule and availability language, including weekend or
+  shift availability, and keeps the mock analyzer and Resume Match helper label
+  aligned. Verification passed: `cargo test --lib resume --manifest-path
+  src-tauri/Cargo.toml`, `cargo test --lib ats_analyzer --manifest-path
+  src-tauri/Cargo.toml`, `cargo clippy --manifest-path src-tauri/Cargo.toml --
+  -D warnings`, `cargo fmt --all --manifest-path src-tauri/Cargo.toml --
+  --check`, `npx vitest run src/pages/ResumeOptimizer.test.tsx
+  src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
+  `npm run lint:external-ai`, `npm run lint:tauri-invokes`, `npm run
+  lint:docs`, `npm run harness:check`, `npm run lint:bloat`, `npm run
+  lint:architecture`, and `git diff --check`.
 - No-Apple-account macOS readiness is already best-possible without an Apple
   Developer Account. Keep the limitation explicit: Gatekeeper-ready public
   distribution still needs Developer ID signing and notarization.
