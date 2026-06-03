@@ -214,6 +214,9 @@ The current local matcher:
 - treats **vital sign**, **vital signs**, **vital-sign**, and **vital-signs**
   as the same local evidence while avoiding duplicate requirement rows for
   singular, plural, or hyphenated job wording;
+- treats **medication administration** and **medication-administration** as the
+  same local evidence while avoiding duplicate requirement rows for hyphenated
+  job wording;
 - treats **data entry** and **data-entry** as the same local evidence while
   still avoiding broad fuzzy matching;
 - treats **onsite**, **on-site**, and **on site** as the same local location

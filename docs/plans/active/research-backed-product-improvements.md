@@ -157,6 +157,9 @@ copy durable findings back into this plan or the active status surface.
 - Current local vital-sign hyphen follow-up in `c3a2375c` adds vital-sign and
   vital-signs to that same local evidence group without duplicate requirement
   rows.
+- Current local medication-administration hyphen follow-up in `748a120e` treats
+  medication administration and medication-administration as equivalent local
+  evidence without duplicate requirement rows.
 - Current local data-entry hyphen follow-up in `1f82ecf4` treats data entry and
   data-entry as equivalent local evidence, recognizes the hyphenated job-post
   form in the backend, and keeps browser/dev mocks aligned.

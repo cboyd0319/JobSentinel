@@ -238,6 +238,9 @@ Future implementation should improve:
 - Resume/job fit now treats `vital sign`, `vital signs`, `vital-sign`, and
   `vital-signs` as equivalent local evidence without duplicate requirement
   rows for singular, plural, or hyphenated wording.
+- Resume/job fit now treats `medication administration` and
+  `medication-administration` as equivalent local evidence without duplicate
+  requirement rows for hyphenated wording.
 - Resume/job fit now treats `data entry` and `data-entry` as equivalent local
   evidence without broad fuzzy matching.
 - Resume/job fit now treats `onsite`, `on-site`, and `on site` as equivalent
