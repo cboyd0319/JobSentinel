@@ -203,6 +203,23 @@ function formatHardConstraintCategory(category: HardConstraintCategory): string 
   }
 }
 
+function formatHardConstraintNextActionDetail(category: HardConstraintCategory): string {
+  switch (category) {
+    case "WorkAuthorization":
+      return "If the authorization is not true for you, do not claim it. Check the posting before tailoring.";
+    case "SecurityClearance":
+      return "If the clearance is not current or true for you, do not claim it. Check this before tailoring.";
+    case "LicenseOrCertification":
+      return "If the license or certification is not current or true for you, do not claim it. Check this before tailoring.";
+    case "Education":
+      return "If the degree or education requirement is not true for you, do not claim it. Check this before tailoring.";
+    case "Experience":
+      return "If the years are not true for you, do not round up or imply more experience. Use only real dates, roles, or projects.";
+    case "Location":
+      return "If the location, schedule, availability, or travel requirement is not workable, check it before spending tailoring time.";
+  }
+}
+
 interface AtsAnalysisResult {
   overall_score: number;
   keyword_score: number;
@@ -728,7 +745,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
     for (const risk of hardRisks.slice(0, 2)) {
       actions.push({
         title: `Check ${risk.requirement} before tailoring`,
-        detail: "If it is not true for you, do not claim it or spend heavy tailoring time on this role.",
+        detail: formatHardConstraintNextActionDetail(risk.category),
         variant: "danger",
         label: "Check first",
       });

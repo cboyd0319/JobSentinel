@@ -588,6 +588,48 @@ describe("ResumeOptimizer", () => {
     expect(screen.queryByText(/guarantee/i)).not.toBeInTheDocument();
   });
 
+  it("shows experience-specific next action guidance for hard requirements", async () => {
+    const user = userEvent.setup();
+    mockInvokeResponses({
+      analyze_resume_for_job: {
+        ...mockAnalysis,
+        overall_score: 58,
+        hard_constraint_risks: [
+          {
+            requirement: "8+ years of payroll management",
+            category: "Experience" as const,
+            score_cap: 65,
+            reason: "A required experience constraint was not clearly found.",
+            action:
+              "Verify this before tailoring. If it is not true for you, do not claim it.",
+          },
+        ],
+      },
+    });
+    render(<ResumeOptimizer onBack={vi.fn()} />);
+
+    fireEvent.change(screen.getByLabelText(/^job post$/i), {
+      target: {
+        value: "Required: 8+ years of payroll management",
+      },
+    });
+    await openResumeAppImport(user);
+    fireEvent.change(screen.getByLabelText(/copied resume details/i), {
+      target: { value: JSON.stringify(validResume) },
+    });
+
+    await user.click(screen.getByRole("button", { name: /review match/i }));
+
+    expect(await screen.findByText("What To Do Next")).toBeInTheDocument();
+    expect(
+      screen.getByText(/check 8\+ years of payroll management before tailoring/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/do not round up or imply more experience/i),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Years of experience")).toBeInTheDocument();
+  });
+
   it("explains strong resume words without screening-tool framing", async () => {
     const user = userEvent.setup();
     mockInvokeResponses({ get_ats_power_words: ["Led", "Improved"] });
