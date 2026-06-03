@@ -2551,8 +2551,12 @@ impl AtsAnalyzer {
                         "manager",
                         "managed",
                         "people management",
+                        "supervisor experience",
                         "supervised",
+                        "supervised staff",
+                        "supervising staff",
                         "supervisor",
+                        "team supervision",
                     ]
                     .into_iter()
                     .map(str::to_string),
@@ -3107,7 +3111,7 @@ impl AtsAnalyzer {
                 "staff/principal-level experience",
             ),
             (
-                r"(?i)\b(people management|management experience|manager[- ]level|supervisory experience|team management)\b",
+                r"(?i)\b(people management|management experience|manager[- ]level|supervisor[- ]level|supervisor experience|supervisory experience|supervision experience|team management|team supervision|supervising staff|supervised staff)\b",
                 "management experience",
             ),
             (
@@ -6955,6 +6959,52 @@ Preferred: Salesforce
             .hard_constraint_risks
             .iter()
             .any(|risk| risk.requirement == "senior-level experience"));
+    }
+
+    #[test]
+    fn test_missing_required_supervisor_experience_caps_overall_score() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nHandled intake scheduling and case documentation.",
+            &[],
+            "Required: supervisor experience, CRM",
+        );
+
+        assert!(result.overall_score <= 65.0);
+        assert!(result.hard_constraint_risks.iter().any(|risk| {
+            risk.requirement == "management experience"
+                && risk.category == HardConstraintCategory::Experience
+                && risk.score_cap == 65.0
+                && risk.action.contains("Do not round up")
+        }));
+        assert!(result.requirement_reviews.iter().any(|review| {
+            review.keyword == "management experience"
+                && review.hard_constraint
+                && review.match_state == RequirementMatchState::Missing
+        }));
+    }
+
+    #[test]
+    fn test_supervisor_experience_accepts_supervised_staff_evidence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nSupervised staff coverage for client intake schedules.",
+            &[],
+            "Required: supervisor experience",
+        );
+
+        let management = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "management experience")
+            .expect("management experience review");
+        assert_eq!(management.match_state, RequirementMatchState::Direct);
+        assert!(management.hard_constraint);
+        assert!(management
+            .evidence_sections
+            .contains(&"experience".to_string()));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "management experience"));
     }
 
     #[test]
