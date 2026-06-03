@@ -1520,8 +1520,7 @@ source-filter compatibility issue appears.
   Resume Import Status work is committed in `b3c07068`.
   Resume-Assisted Guided Intake work is committed in `da84110a`.
   Source Governance Metadata work is committed in `66924003`.
-  Current local resume availability-constraint follow-up is verified locally
-  and ready to commit.
+  Resume availability-constraint work is committed in `0d8bf479`.
 - Multi-agent orchestration: a read-only reviewer covered recent resume
   analyzer commits and a read-only explorer recommended Resume Import Status,
   Resume-Assisted Guided Intake, and Source Governance Metadata as next

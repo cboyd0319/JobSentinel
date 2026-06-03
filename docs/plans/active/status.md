@@ -1419,7 +1419,7 @@ Scope:
   --noEmit`, `npm run lint -- --quiet`, `npm run lint:external-ai`, `npm run
   lint:docs`, `npm run harness:check`, `npm run lint:bloat`, `npm run
   lint:tauri-invokes`, `npm run lint:architecture`, and `git diff --check`.
-- Current local resume availability-constraint slice expands local hard-constraint
+- Latest local resume availability-constraint slice in `0d8bf479` expands local hard-constraint
   caps to required schedule and availability language, including weekend or
   shift availability, and keeps the mock analyzer and Resume Match helper label
   aligned. Verification passed: `cargo test --lib resume --manifest-path
