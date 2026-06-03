@@ -1668,7 +1668,8 @@ impl AtsAnalyzer {
             .trim()
             .trim_end_matches(':')
             .to_lowercase()
-            .replace('/', " ");
+            .replace('/', " ")
+            .replace('&', " and ");
         let normalized = normalized.split_whitespace().collect::<Vec<_>>().join(" ");
         matches!(
             normalized.as_str(),
@@ -1695,6 +1696,8 @@ impl AtsAnalyzer {
                 | "education background"
                 | "certifications"
                 | "licenses"
+                | "licenses and certifications"
+                | "certifications and licenses"
                 | "professional credentials"
                 | "credentials"
                 | "professional training"
@@ -3019,7 +3022,8 @@ impl AtsAnalyzer {
             .trim_start()
             .trim_end_matches(':')
             .to_lowercase()
-            .replace('/', " ");
+            .replace('/', " ")
+            .replace('&', " and ");
         let normalized = normalized.split_whitespace().collect::<Vec<_>>().join(" ");
 
         let labels = [
@@ -3041,6 +3045,8 @@ impl AtsAnalyzer {
             ("technical skills", "skills"),
             ("core skills", "skills"),
             ("professional credentials", "certifications"),
+            ("licenses and certifications", "certifications"),
+            ("certifications and licenses", "certifications"),
             ("credentials", "certifications"),
             ("professional training", "certifications"),
             ("training", "certifications"),
@@ -7090,6 +7096,37 @@ Preferred: Salesforce
             .format_issues
             .iter()
             .any(|issue| issue.issue.contains("standard resume section headings")));
+    }
+
+    #[test]
+    fn test_plain_text_combined_license_certification_headings_count_as_credential_evidence() {
+        for heading in [
+            "Licenses & Certifications",
+            "Licenses and Certifications",
+            "Certifications and Licenses",
+        ] {
+            let resume_text =
+                format!("Jordan Lee\njordan@example.com\n\n{heading}\nPMP certification");
+            let result = AtsAnalyzer::analyze_text_for_job(&resume_text, &[], "Required: PMP");
+            let pmp = result
+                .requirement_reviews
+                .iter()
+                .find(|review| review.keyword == "pmp")
+                .expect("pmp review");
+
+            assert!(
+                pmp.evidence_sections
+                    .contains(&"certifications".to_string()),
+                "{heading} should count as certification evidence"
+            );
+            assert!(
+                !result
+                    .format_issues
+                    .iter()
+                    .any(|issue| issue.issue.contains("standard resume section headings")),
+                "{heading} should count as a standard heading"
+            );
+        }
     }
 
     #[test]
