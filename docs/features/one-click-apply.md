@@ -136,6 +136,9 @@ For license, certification, or clearance topics, the preview can show a
 matching saved credential answer so you can confirm it is documented before
 continuing.
 
+For education or degree topics, the preview can show a matching saved education
+answer so you can compare it with visible resume evidence before continuing.
+
 ---
 
 ## Using Application Assist

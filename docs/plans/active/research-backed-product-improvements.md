@@ -235,6 +235,10 @@ copy durable findings back into this plan or the active status surface.
   `b2d9b8e5` shows matching saved license, certification, or clearance
   screening answers in the hard question review when saved job details mention
   credential requirements.
+- Current local Application Assist saved-education review follow-up in
+  `38871425` shows matching saved education, degree, diploma, bachelor's,
+  master's, or high-school screening answers in the hard question review when
+  saved job details mention education requirements.
 - Current local healthcare bullet-prompt follow-up in `e7a61306` adds a
   role-specific evidence reminder for healthcare and licensed-work job details,
   asking users to check scope of practice, patient safety, documentation, and
