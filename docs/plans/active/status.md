@@ -502,6 +502,16 @@ acceptance still requires Developer ID signing and notarization.
   --quiet`, `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`,
   `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git
   diff --check`. The follow-up
+  `1dbee2aa Match budgeting and budget tracking` treats budgeting and budget
+  tracking as equivalent local finance and operations evidence in backend and
+  dev/browser mocks without broad fuzzy matching. Verification passed: `cargo
+  test --lib budgeting_budget --manifest-path src-tauri/Cargo.toml`, `npx
+  vitest run src/mocks/handlers.test.ts -t "budgeting and budget tracking"`,
+  `cargo test --lib ats_analyzer --manifest-path src-tauri/Cargo.toml`, `npx
+  vitest run src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint --
+  --quiet`, `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`,
+  `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git
+  diff --check`. The follow-up
   `179a61c3 Match procurement and purchasing evidence` treats procurement and
   purchasing as equivalent local operations evidence in backend and dev/browser
   mocks without broad fuzzy matching. Verification passed: `cargo test --lib
