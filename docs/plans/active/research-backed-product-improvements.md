@@ -148,6 +148,9 @@ copy durable findings back into this plan or the active status surface.
 - Current local vital-sign plural follow-up in `0bd255d3` treats vital sign
   and vital signs as equivalent local evidence without duplicate
   singular/plural requirement rows.
+- Current local vital-sign hyphen follow-up in `c3a2375c` adds vital-sign and
+  vital-signs to that same local evidence group without duplicate requirement
+  rows.
 - Current local data-entry hyphen follow-up in `1f82ecf4` treats data entry and
   data-entry as equivalent local evidence, recognizes the hyphenated job-post
   form in the backend, and keeps browser/dev mocks aligned.
@@ -1864,6 +1867,7 @@ source-filter compatibility issue appears.
   Medical-record plural work is committed in `ad391cda`.
   Care-plan plural work is committed in `bb11073e`.
   Vital-sign plural work is committed in `0bd255d3`.
+  Vital-sign hyphen work is committed in `c3a2375c`.
   Data-entry hyphen work is committed in `1f82ecf4`.
   Onsite location-term work is committed in `bffa0a1f`.
   Spaced on-site work is committed in `c8dffb14`.

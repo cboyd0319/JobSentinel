@@ -233,8 +233,9 @@ Future implementation should improve:
   equivalent local evidence without duplicate singular/plural requirement rows.
 - Resume/job fit now treats `care plan` and `care plans` as equivalent local
   evidence without duplicate singular/plural requirement rows.
-- Resume/job fit now treats `vital sign` and `vital signs` as equivalent local
-  evidence without duplicate singular/plural requirement rows.
+- Resume/job fit now treats `vital sign`, `vital signs`, `vital-sign`, and
+  `vital-signs` as equivalent local evidence without duplicate requirement
+  rows for singular, plural, or hyphenated wording.
 - Resume/job fit now treats `data entry` and `data-entry` as equivalent local
   evidence without broad fuzzy matching.
 - Resume/job fit now treats `onsite`, `on-site`, and `on site` as equivalent

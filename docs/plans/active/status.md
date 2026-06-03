@@ -143,6 +143,8 @@ acceptance still requires Developer ID signing and notarization.
   `0bd255d3 Match vital sign plural terms` treats vital sign and vital signs as
   the same local evidence without duplicate singular/plural requirement rows.
   The follow-up
+  `c3a2375c Match vital sign hyphen terms` adds vital-sign and vital-signs to
+  that same local evidence group without duplicate requirement rows. The follow-up
   `1f82ecf4 Match data entry hyphen terms` treats data entry and data-entry as
   the same local evidence. The follow-up
   `bffa0a1f Match onsite location terms` treats onsite and on-site as the same
