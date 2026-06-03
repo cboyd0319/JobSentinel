@@ -2353,6 +2353,7 @@ function classifyMockRequirementState(match: MockKeywordMatch): MockRequirementM
       "resume text",
       "experience",
       "current experience",
+      "recent experience",
       "summary",
       "projects",
       "education",
@@ -2830,6 +2831,7 @@ function getMockAtsResumeSections(value: unknown): {
   summary: string;
   experience: string[];
   currentExperience: string[];
+  recentExperience: string[];
   pastExperience: string[];
   skills: string[];
   education: string[];
@@ -2842,14 +2844,18 @@ function getMockAtsResumeSections(value: unknown): {
     ? source.experience.map((item) => ({
         text: collectRecordText(item),
         current: isMockCurrentExperience(item),
+        recent: isMockRecentlyEndedExperience(item),
       }))
     : [];
   const experience = experienceEntries.map((item) => item.text);
   const currentExperience = experienceEntries
     .filter((item) => item.current)
     .map((item) => item.text);
+  const recentExperience = experienceEntries
+    .filter((item) => !item.current && item.recent)
+    .map((item) => item.text);
   const pastExperience = experienceEntries
-    .filter((item) => !item.current)
+    .filter((item) => !item.current && !item.recent)
     .map((item) => item.text);
   const skills = Array.isArray(source.skills)
     ? source.skills.map((item) => collectRecordText(item))
@@ -2881,6 +2887,7 @@ function getMockAtsResumeSections(value: unknown): {
     summary,
     experience,
     currentExperience,
+    recentExperience,
     pastExperience,
     skills,
     education,
@@ -2901,6 +2908,22 @@ function isMockCurrentExperience(value: unknown): boolean {
       : "";
 
   return endDate.trim().toLowerCase() === "present";
+}
+
+function isMockRecentlyEndedExperience(value: unknown): boolean {
+  if (!isRecord(value) || isMockCurrentExperience(value)) return false;
+
+  const endDate = typeof value.end_date === "string"
+    ? value.end_date
+    : typeof value.endDate === "string"
+      ? value.endDate
+      : "";
+  const years = endDate.match(/\b(?:19|20)\d{2}\b/g) ?? [];
+  const endYear = years.length > 0 ? Number(years[years.length - 1]) : NaN;
+  if (!Number.isFinite(endYear)) return false;
+
+  const currentYear = new Date().getFullYear();
+  return endYear >= currentYear - 1 && endYear <= currentYear;
 }
 
 function hasMockAdversarialResumeText(text: string): boolean {
@@ -3430,6 +3453,9 @@ function findMockKeywordLocations(
   if (sections.currentExperience.some((text) => containsAnyMockKeyword(text, searchTerms))) {
     locations.push("current experience");
   }
+  if (sections.recentExperience.some((text) => containsAnyMockKeyword(text, searchTerms))) {
+    locations.push("recent experience");
+  }
   if (sections.pastExperience.some((text) => containsAnyMockKeyword(text, searchTerms))) {
     locations.push("experience");
   }
@@ -3827,11 +3853,16 @@ function countMockEvidenceFrequency(
   const base = countMockSearchTermFrequency(sections.allText, keyword);
   if (base === 0) return 0;
   const searchTerms = getConservativeMockSearchTerms(keyword);
-  if (sections.currentExperience.some((text) => containsAnyMockKeyword(text, searchTerms))) {
+  if (
+    [...sections.currentExperience, ...sections.recentExperience].some((text) =>
+      containsAnyMockKeyword(text, searchTerms)
+    )
+  ) {
     return base + 1;
   }
   const workEvidence = [
     ...sections.currentExperience,
+    ...sections.recentExperience,
     ...sections.pastExperience,
     ...sections.projects,
   ];
