@@ -235,6 +235,8 @@ Future implementation should improve:
   as equivalent local schedule evidence for required evening-shift constraints.
 - Resume/job fit now treats `day shift`, `first shift`, and `1st shift` as
   equivalent local schedule evidence for required day-shift constraints.
+- Resume/job fit now treats `availability` and `available` as equivalent local
+  schedule evidence for required availability constraints.
 - Resume/job fit now treats clear credential equivalents such as `BLS` and
   `Basic Life Support` as the same evidence, while keeping unrelated
   credentials separate.
