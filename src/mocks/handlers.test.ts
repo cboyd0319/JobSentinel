@@ -4256,6 +4256,60 @@ describe("mock Tauri handlers", () => {
     );
   });
 
+  it("treats billing and invoicing as equivalent mock evidence", async () => {
+    const billingResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        skills: [],
+        experience: [
+          {
+            ...atsResume.experience[0],
+            current: false,
+            end_date: "2022",
+            achievements: ["Supported invoicing for client accounts."],
+          },
+        ],
+      },
+      jobDescription: "Required: billing",
+    });
+    expect(billingResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "billing",
+          match_state: "Direct",
+          evidence_sections: ["experience"],
+        }),
+      ]),
+    );
+
+    const invoicingResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        skills: [],
+        experience: [
+          {
+            ...atsResume.experience[0],
+            current: false,
+            end_date: "2022",
+            achievements: ["Supported billing for client accounts."],
+          },
+        ],
+      },
+      jobDescription: "Required: invoicing",
+    });
+    expect(invoicingResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "invoicing",
+          match_state: "Direct",
+          evidence_sections: ["experience"],
+        }),
+      ]),
+    );
+  });
+
   it("treats hyphenated document-review terms as equivalent mock evidence", async () => {
     const normalResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {

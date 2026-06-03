@@ -2338,6 +2338,7 @@ impl AtsAnalyzer {
             &["policy analysis", "policy-analysis"],
             &["grant administration", "grant-administration"],
             &["financial reconciliation", "financial-reconciliation"],
+            &["billing", "invoicing"],
             &["loan processing", "loan-processing"],
             &["onsite", "on-site", "on site"],
             &[
@@ -3411,6 +3412,7 @@ impl AtsAnalyzer {
             "public benefits",
             "financial reconciliation",
             "reconciliation",
+            "billing",
             "invoicing",
             "loan processing",
             "financial reporting",
@@ -4754,6 +4756,41 @@ Preferred: Salesforce
             RequirementMatchState::Direct
         );
         assert!(financial_reconciliation_hyphen
+            .evidence_sections
+            .contains(&"experience".to_string()));
+    }
+
+    #[test]
+    fn test_requirement_review_uses_billing_invoicing_equivalence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nSupported invoicing for client accounts.",
+            &[],
+            "Required: billing",
+        );
+
+        let billing = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "billing")
+            .expect("billing");
+        assert_eq!(billing.match_state, RequirementMatchState::Direct);
+        assert!(billing
+            .evidence_sections
+            .contains(&"experience".to_string()));
+
+        let inverse = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nSupported billing for client accounts.",
+            &[],
+            "Required: invoicing",
+        );
+
+        let invoicing = inverse
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "invoicing")
+            .expect("invoicing");
+        assert_eq!(invoicing.match_state, RequirementMatchState::Direct);
+        assert!(invoicing
             .evidence_sections
             .contains(&"experience".to_string()));
     }
