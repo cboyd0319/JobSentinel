@@ -503,6 +503,16 @@ acceptance still requires Developer ID signing and notarization.
   `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
   clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
   --check`. The follow-up
+  `09db47fd Match QuickBooks and QBO evidence` treats QuickBooks and `QBO` as
+  equivalent local finance evidence in backend and dev/browser mocks without
+  broad acronym matching. Verification passed: `cargo test --lib
+  quickbooks_qbo --manifest-path src-tauri/Cargo.toml`, `npx vitest run
+  src/mocks/handlers.test.ts -t "QuickBooks and QBO"`, `cargo test --lib
+  ats_analyzer --manifest-path src-tauri/Cargo.toml`, `npx vitest run
+  src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
+  `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
+  clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
+  --check`. The follow-up
   `aa412a5a Match accounts payable receivable shorthand` treats `A/P` and
   `A/R` as local shorthand for accounts payable and accounts receivable in
   backend and dev/browser mocks without broad acronym matching. Verification

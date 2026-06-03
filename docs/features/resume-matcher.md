@@ -253,6 +253,8 @@ The current local matcher:
   still avoiding broad fuzzy matching;
 - treats **bookkeeping** and **bookkeeper** as the same local finance evidence
   without broad fuzzy matching;
+- treats **QuickBooks** and **QBO** as the same local finance evidence without
+  broad acronym matching;
 - treats **A/P** and **A/R** as shorthand for **accounts payable** and
   **accounts receivable** without broad acronym matching;
 - treats **budgeting** and **budget tracking** as the same local finance and

@@ -205,6 +205,16 @@ copy durable findings back into this plan or the active status surface.
   `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
   clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
   --check`.
+- Current local QuickBooks/QBO follow-up in `09db47fd` treats QuickBooks and
+  `QBO` as equivalent local finance evidence in backend and dev/browser mocks
+  without broad acronym matching. Verification passed: `cargo test --lib
+  quickbooks_qbo --manifest-path src-tauri/Cargo.toml`, `npx vitest run
+  src/mocks/handlers.test.ts -t "QuickBooks and QBO"`, `cargo test --lib
+  ats_analyzer --manifest-path src-tauri/Cargo.toml`, `npx vitest run
+  src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
+  `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
+  clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
+  --check`.
 - Current local accounts-payable/receivable shorthand follow-up in `aa412a5a`
   treats `A/P` and `A/R` as local shorthand for accounts payable and accounts
   receivable in backend and dev/browser mocks without broad acronym matching.
