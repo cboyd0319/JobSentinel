@@ -3043,6 +3043,12 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
   const equivalenceGroups = [
     ["crm", "customer relationship management"],
     [
+      "us citizenship",
+      "u.s. citizenship",
+      "us citizen",
+      "u.s. citizen",
+    ],
+    [
       "customer service",
       "customer support",
       "client service",

@@ -1947,6 +1947,12 @@ impl AtsAnalyzer {
         let equivalence_groups: &[&[&str]] = &[
             &["crm", "customer relationship management"],
             &[
+                "us citizenship",
+                "u.s. citizenship",
+                "us citizen",
+                "u.s. citizen",
+            ],
+            &[
                 "customer service",
                 "customer support",
                 "client service",
@@ -4596,6 +4602,30 @@ Preferred: Salesforce
                 && review.hard_constraint
                 && review.match_state == RequirementMatchState::Missing
         }));
+    }
+
+    #[test]
+    fn test_us_citizenship_requirement_accepts_us_citizen_evidence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nSummary\nU.S. citizen.",
+            &[],
+            "Required: US citizenship",
+        );
+
+        let citizenship = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "us citizenship")
+            .expect("citizenship review");
+        assert_eq!(citizenship.match_state, RequirementMatchState::Direct);
+        assert!(citizenship.hard_constraint);
+        assert!(citizenship
+            .evidence_sections
+            .contains(&"summary".to_string()));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "us citizenship"));
     }
 
     #[test]
