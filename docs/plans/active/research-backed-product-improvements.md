@@ -194,6 +194,16 @@ copy durable findings back into this plan or the active status surface.
   `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
   clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
   --check`.
+- Current local cashier/cash-handling follow-up in `432b49f7` treats cashier
+  and cash handling as equivalent local retail/service evidence in backend and
+  dev/browser mocks without broad fuzzy matching. Verification passed: `cargo
+  test --lib cashier_cash --manifest-path src-tauri/Cargo.toml`, `npx vitest
+  run src/mocks/handlers.test.ts -t "cashier and cash handling"`, `cargo test
+  --lib ats_analyzer --manifest-path src-tauri/Cargo.toml`, `npx vitest run
+  src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
+  `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
+  clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
+  --check`.
 - Current local loan-processing hyphen follow-up in `84c08274` treats loan
   processing and loan-processing as equivalent local evidence without duplicate
   requirement rows.
