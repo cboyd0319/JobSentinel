@@ -1457,6 +1457,12 @@ Scope:
   run lint -- --quiet`, `npm run lint:external-ai`, `npm run lint:docs`, `npm
   run harness:check`, `npm run lint:bloat`, `npm run lint:architecture`, and
   `git diff --check`.
+- Latest local setup pay-not-sure slice in `b3475fdc` adds an explicit "Not
+  sure yet" action beside first-run minimum yearly pay, clears the local salary
+  floor to `0`, keeps missing-pay jobs visible and marked, and records the
+  no-floor choice in the review summary before scanning starts. Verification
+  passed: `npx vitest run src/pages/SetupWizard.test.tsx`, `npx tsc --noEmit`,
+  `npm run lint -- --quiet`, `npm run lint:external-ai`, and `git diff --check`.
 - No-Apple-account macOS readiness is already best-possible without an Apple
   Developer Account. Keep the limitation explicit: Gatekeeper-ready public
   distribution still needs Developer ID signing and notarization.

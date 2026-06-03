@@ -399,8 +399,8 @@ The UI maps one of three setup choices to the existing serialized
   scanning starts.
 - Work to avoid maps to `keywords_exclude`, so matching jobs can rank lower
   without adding new backend fields.
-- Setup asks for pay floor before scanning starts and keeps missing-pay jobs
-  visible with review guidance.
+- Setup asks for pay floor before scanning starts, offers "Not sure yet", and
+  keeps missing-pay jobs visible with review guidance.
 - Setup asks how many jobs the user wants to review at once and maps that
   answer to existing local source limits and alert strength.
 - Setup asks how strongly JobSentinel should prioritize fresh and verified
