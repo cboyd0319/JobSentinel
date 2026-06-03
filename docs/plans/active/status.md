@@ -200,7 +200,11 @@ acceptance still requires Developer ID signing and notarization.
   associate degree requirement. The follow-up `92406e68 Match associate
   science term` treats Associate of Science as local evidence for generic
   associate degree requirements without treating science-specific job wording
-  as a generic associate degree requirement. The follow-up
+  as a generic associate degree requirement. The follow-up `d33a39eb Match
+  associate applied science term` treats Associate of Applied Science as local
+  evidence for generic associate degree requirements without treating
+  applied-science-specific job wording as a generic associate degree
+  requirement. The follow-up
   `adda2593 Match bachelor degree terms` treats bachelor's degree, bachelor
   degree, and bachelors degree as the same local education hard-constraint
   evidence. The follow-up `52e7c80b Match bachelor degree title terms` treats

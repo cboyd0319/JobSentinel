@@ -357,6 +357,10 @@ copy durable findings back into this plan or the active status surface.
   Science as local evidence for generic associate degree requirements without
   treating science-specific job wording as a generic associate degree
   requirement.
+- Current local associate-applied-science follow-up in `d33a39eb` treats
+  Associate of Applied Science as local evidence for generic associate degree
+  requirements without treating applied-science-specific job wording as a
+  generic associate degree requirement.
 - Current local bachelor-degree follow-up in `adda2593` treats bachelor's
   degree, bachelor degree, and bachelors degree as equivalent local education
   hard-constraint evidence.
@@ -1878,6 +1882,7 @@ source-filter compatibility issue appears.
   Associate-degree work is committed in `7554988c`.
   Associate-arts work is committed in `6b834c3c`.
   Associate-science work is committed in `92406e68`.
+  Associate-applied-science work is committed in `d33a39eb`.
   Bachelor-degree work is committed in `adda2593`.
   Bachelor-degree title work is committed in `52e7c80b`.
   Business-administration bachelor work is committed in `2a3fd362`.

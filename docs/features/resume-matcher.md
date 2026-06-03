@@ -253,8 +253,8 @@ The current local matcher:
   and General Education Development as the same local education evidence
   without guessing unrelated credentials;
 - treats **associate's degree**, **associate degree**, **associates degree**,
-  **Associate of Arts**, and **Associate of Science** as the same local
-  education evidence;
+  **Associate of Applied Science**, **Associate of Arts**, and **Associate of
+  Science** as the same local education evidence;
 - treats **bachelor's degree**, **bachelor degree**, **bachelors degree**,
   **Bachelor of Arts**, **Bachelor of Business Administration**,
   **Bachelor of Education**, **Bachelor of Engineering**, **Bachelor of Fine
