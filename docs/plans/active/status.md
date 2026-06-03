@@ -159,7 +159,13 @@ acceptance still requires Developer ID signing and notarization.
   management, budget ownership, organizational strategy, and change-management
   job details, asking users to check scope of ownership, team or budget size,
   decision authority, measurable business impact, and change risk before using
-  drafted alternative bullets. Real resume/profile
+  drafted alternative bullets. The follow-up
+  `2a367d85 Add security bullet prompt` adds a security evidence reminder for
+  cybersecurity, information security, security operations, incident response,
+  vulnerability management, NIST, FedRAMP, SIEM, and threat-detection job
+  details, asking users to check authorized scope, risk reduced, controls or
+  incidents handled, compliance context, and sensitive-data handling before
+  using drafted alternative bullets. Real resume/profile
   reference material remains private and must not be committed.
 - Current local resume-alignment scoring follow-up is committed in
   `3d720693 Add resume requirement review caps`. It locks

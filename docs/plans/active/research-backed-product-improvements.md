@@ -244,6 +244,13 @@ copy durable findings back into this plan or the active status surface.
   job details, asking users to check scope of ownership, team or budget size,
   decision authority, measurable business impact, and change risk before using
   drafted alternative bullets.
+- Current local security bullet-prompt follow-up in `2a367d85` adds a
+  role-specific evidence reminder for cybersecurity, information security,
+  security operations, incident response, vulnerability management, NIST,
+  FedRAMP, SIEM, and threat-detection job details, asking users to check
+  authorized scope, risk reduced, controls or incidents handled, compliance
+  context, and sensitive-data handling before using drafted alternative
+  bullets.
 - Current local onsite location-term follow-up in `bffa0a1f` treats onsite and
   on-site as equivalent local hard-constraint evidence, so exact punctuation
   differences do not create a false missing-location risk.

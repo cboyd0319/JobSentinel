@@ -224,6 +224,9 @@ resume help should adjust examples and evidence prompts for:
 - Drafted bullet improvements add an executive and leadership evidence prompt
   for director-level, executive, people-management, budget, strategy, and
   change-management work.
+- Drafted bullet improvements add a security evidence prompt for cybersecurity,
+  security operations, incident response, vulnerability management, NIST,
+  FedRAMP, SIEM, and threat-detection work.
 
 ## Backlog To Lock Next
 

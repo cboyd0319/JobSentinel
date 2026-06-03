@@ -372,7 +372,7 @@ truthful keyword evidence, application-form consistency, ethical confidence,
 profession-specific prompts, and score humility. Drafted bullet reminders now
 include healthcare, regulated work, service and operations, technical and data,
 sales and marketing, design and creative, education and academic, and
-executive and leadership evidence prompts.
+executive and leadership, and security evidence prompts.
 The companion
 [Resume Alignment Scoring](../research/resume-alignment-scoring.md) note locks
 in transparent component rubrics, match states, evidence strength, hard
