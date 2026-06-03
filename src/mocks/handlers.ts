@@ -630,7 +630,9 @@ const ATS_KNOWN_KEYWORDS = [
   "care plans",
   "care-plans",
   "medical record",
+  "medical-record",
   "medical records",
+  "medical-records",
   "charting",
   "lesson planning",
   "classroom management",
@@ -2854,7 +2856,11 @@ function extractMockAtsKeywords(jobDescription: string): MockAtsKeyword[] {
     ].includes(keyword)
   );
   const hasPluralMedicalRecords = /\bmedical records\b/.test(lower);
-  const hasSingularMedicalRecord = /\bmedical record\b/.test(lower) && !hasPluralMedicalRecords;
+  const hasHyphenPluralMedicalRecords = /\bmedical-records\b/.test(lower);
+  const hasSingularMedicalRecord =
+    /\bmedical record\b/.test(lower) && !hasPluralMedicalRecords;
+  const hasHyphenSingularMedicalRecord =
+    /\bmedical-record\b/.test(lower) && !hasHyphenPluralMedicalRecords;
   const hasPluralCarePlans = /\bcare plans\b/.test(lower);
   const hasHyphenPluralCarePlans = /\bcare-plans\b/.test(lower);
   const hasSingularCarePlan =
@@ -2873,8 +2879,10 @@ function extractMockAtsKeywords(jobDescription: string): MockAtsKeyword[] {
   const knownKeywords = ATS_KNOWN_KEYWORDS.filter((keyword) =>
     !(hasDegreeEquivalent && isMockExactDegreeKeyword(keyword)) &&
     !(hasSpecificDegree && keyword === "degree") &&
-    !(hasPluralMedicalRecords && keyword === "medical record") &&
-    !(hasSingularMedicalRecord && keyword === "medical records") &&
+    !(hasPluralMedicalRecords && ["medical record", "medical-record", "medical-records"].includes(keyword)) &&
+    !(hasHyphenPluralMedicalRecords && ["medical record", "medical-record", "medical records"].includes(keyword)) &&
+    !(hasSingularMedicalRecord && ["medical records", "medical-record", "medical-records"].includes(keyword)) &&
+    !(hasHyphenSingularMedicalRecord && ["medical record", "medical records", "medical-records"].includes(keyword)) &&
     !(hasPluralCarePlans && ["care plan", "care-plan", "care-plans"].includes(keyword)) &&
     !(hasHyphenPluralCarePlans && ["care plan", "care-plan", "care plans"].includes(keyword)) &&
     !(hasSingularCarePlan && ["care plans", "care-plan", "care-plans"].includes(keyword)) &&
@@ -3178,7 +3186,12 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
     ["scheduling", "calendar management", "appointment setting"],
     ["quality assurance", "qa"],
     ["patient care", "patient-care"],
-    ["medical record", "medical records"],
+    [
+      "medical record",
+      "medical records",
+      "medical-record",
+      "medical-records",
+    ],
     ["care plan", "care plans", "care-plan", "care-plans"],
     ["vital sign", "vital signs", "vital-sign", "vital-signs"],
     ["data entry", "data-entry"],

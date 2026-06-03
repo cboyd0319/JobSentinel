@@ -1974,7 +1974,12 @@ impl AtsAnalyzer {
             &["scheduling", "calendar management", "appointment setting"],
             &["quality assurance", "qa"],
             &["patient care", "patient-care"],
-            &["medical record", "medical records"],
+            &[
+                "medical record",
+                "medical records",
+                "medical-record",
+                "medical-records",
+            ],
             &["care plan", "care plans", "care-plan", "care-plans"],
             &["vital sign", "vital signs", "vital-sign", "vital-signs"],
             &["data entry", "data-entry"],
@@ -2582,7 +2587,7 @@ impl AtsAnalyzer {
             r"(?i)\b(inventory|logistics|shipping|receiving|procurement|vendor management)\b",
             r"(?i)\b(reporting|budget tracking|grant reporting|grant writing|program evaluation)\b",
             r"(?i)\b(compliance|hipaa|osha|quality assurance|qa|data[- ]entry|excel)\b",
-            r"(?i)\b(patient[- ]care|medication administration|vital[- ]signs?|care[- ]plans?|medical records?|charting)\b",
+            r"(?i)\b(patient[- ]care|medication administration|vital[- ]signs?|care[- ]plans?|medical[- ]records?|charting)\b",
             r"(?i)\b(lesson planning|classroom management|curriculum|iep|student support|parent communication)\b",
             r"(?i)\b(forklift|welding|equipment maintenance|safety inspections|food safety|cash handling)\b",
             r"(?i)\b(document review|case files|legal research|records management|policy analysis|grant administration|public benefits)\b",
@@ -4225,6 +4230,44 @@ Preferred: Salesforce
             .expect("medical record review");
         assert_eq!(medical_record.match_state, RequirementMatchState::Strong);
         assert!(medical_record
+            .evidence_sections
+            .contains(&"experience".to_string()));
+    }
+
+    #[test]
+    fn test_requirement_review_uses_medical_record_hyphen_equivalence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nUpdated medical-record notes for patient visits.",
+            &[],
+            "Required: medical records",
+        );
+
+        let medical_records = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "medical records")
+            .expect("medical records review");
+        assert_eq!(medical_records.match_state, RequirementMatchState::Strong);
+        assert!(medical_records
+            .evidence_sections
+            .contains(&"experience".to_string()));
+
+        let inverse = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nUpdated medical records for patient visits.",
+            &[],
+            "Required: medical-record",
+        );
+
+        let medical_record_hyphen = inverse
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "medical-record")
+            .expect("medical-record review");
+        assert_eq!(
+            medical_record_hyphen.match_state,
+            RequirementMatchState::Strong
+        );
+        assert!(medical_record_hyphen
             .evidence_sections
             .contains(&"experience".to_string()));
     }
