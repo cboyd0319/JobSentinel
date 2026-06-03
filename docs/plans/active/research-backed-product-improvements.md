@@ -307,6 +307,14 @@ copy durable findings back into this plan or the active status surface.
   src/components/automation/ApplicationPreview.test.tsx -t "age"`, `npx
   vitest run src/components/automation/ApplicationPreview.test.tsx`, `npx tsc
   --noEmit`, `npm run lint -- --quiet`, and `git diff --check`.
+- Current local Application Assist minimum-age quick-add follow-up in
+  `94a26259` adds 18-years-of-age setup to common saved-answer patterns, so
+  users can prepare a reusable age answer before a hard legal work-age question
+  appears. Verification passed: `npx vitest run
+  src/components/automation/ScreeningAnswersForm.test.tsx -t "shows all common
+  pattern buttons"`, `npx vitest run
+  src/components/automation/ScreeningAnswersForm.test.tsx`, `npx tsc
+  --noEmit`, `npm run lint -- --quiet`, and `git diff --check`.
 - Current local Resume Match do-not-force guidance follow-up in `ebb83cef`
   reminds users in the job words overview not to force words they cannot
   support with real work, training, or credentials.

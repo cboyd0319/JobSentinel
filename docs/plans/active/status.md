@@ -225,6 +225,14 @@ acceptance still requires Developer ID signing and notarization.
   src/components/automation/ApplicationPreview.test.tsx -t "age"`, `npx vitest
   run src/components/automation/ApplicationPreview.test.tsx`, `npx tsc
   --noEmit`, `npm run lint -- --quiet`, and `git diff --check`. The follow-up
+  `94a26259 Add minimum age screening quick add` adds 18-years-of-age setup to
+  Application Assist's common saved-answer patterns, so users can prepare a
+  reusable age answer before a hard legal work-age question appears.
+  Verification passed: `npx vitest run
+  src/components/automation/ScreeningAnswersForm.test.tsx -t "shows all common
+  pattern buttons"`, `npx vitest run
+  src/components/automation/ScreeningAnswersForm.test.tsx`, `npx tsc
+  --noEmit`, `npm run lint -- --quiet`, and `git diff --check`. The follow-up
   `ebb83cef Add do not force job words guidance` reminds users in the Resume
   Match job words overview not to force words they cannot support with real
   work, training, or credentials. The follow-up
