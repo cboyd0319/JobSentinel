@@ -675,6 +675,7 @@ const ATS_KNOWN_KEYWORDS = [
   "reconciliation",
   "invoicing",
   "loan processing",
+  "loan-processing",
   "financial reporting",
 ] as const;
 
@@ -2934,6 +2935,12 @@ function extractMockAtsKeywords(jobDescription: string): MockAtsKeyword[] {
       "financial reconciliation",
       "financial-reconciliation",
     ],
+    [
+      /\bloan processing\b/,
+      /\bloan-processing\b/,
+      "loan processing",
+      "loan-processing",
+    ],
   ] as const) {
     if (normalPattern.test(lower)) {
       exactHyphenVariantKeywordsToSkip.add(hyphenKeyword);
@@ -3269,6 +3276,7 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
     ["policy analysis", "policy-analysis"],
     ["grant administration", "grant-administration"],
     ["financial reconciliation", "financial-reconciliation"],
+    ["loan processing", "loan-processing"],
     ["onsite", "on-site", "on site"],
     ["relocation", "relocate", "willing to relocate"],
     ["reliable transportation", "own transportation"],
