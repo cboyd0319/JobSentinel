@@ -166,6 +166,9 @@ copy durable findings back into this plan or the active status surface.
 - Current local document-review hyphen follow-up in `43e8e88e` treats document
   review and document-review as equivalent local evidence without duplicate
   requirement rows.
+- Current local records-management hyphen follow-up in `f4ee6ef5` treats records
+  management and records-management as equivalent local evidence without
+  duplicate requirement rows.
 - Current local onsite location-term follow-up in `bffa0a1f` treats onsite and
   on-site as equivalent local hard-constraint evidence, so exact punctuation
   differences do not create a false missing-location risk.
