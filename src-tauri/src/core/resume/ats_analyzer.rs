@@ -1724,6 +1724,8 @@ impl AtsAnalyzer {
             || lower.contains("weekend")
             || lower.contains("night shift")
             || lower.contains("overnight shift")
+            || lower.contains("second shift")
+            || lower.contains("2nd shift")
             || lower.contains("evening")
         {
             return Some(HardConstraintCategory::Location);
@@ -1949,6 +1951,7 @@ impl AtsAnalyzer {
             &["reliable transportation", "own transportation"],
             &["night shift", "overnight shift"],
             &["weekend availability", "weekend shift", "weekend shifts"],
+            &["evening shift", "second shift", "2nd shift"],
             &["bls", "basic life support"],
             &["acls", "advanced cardiovascular life support"],
             &["cpr", "cardiopulmonary resuscitation"],
@@ -2474,7 +2477,7 @@ impl AtsAnalyzer {
             r"(?i)\b(bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree|high school diploma|high school degree|ged|high school equivalency|general education development)\b",
             r"(?i)\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b",
             r"(?i)\b(lift(?:\s+up\s+to)?\s+\d+\s*(?:pounds?|lbs?)|stand for long periods?|physical requirements?|physical demands?)\b",
-            r"(?i)\b(onsite|on-site|on site|relocation|travel|reliable transportation|own transportation|commute|availability|available|schedule|weekend availability|weekend shifts?|night shift|overnight shift|evening shift)\b",
+            r"(?i)\b(onsite|on-site|on site|relocation|travel|reliable transportation|own transportation|commute|availability|available|schedule|weekend availability|weekend shifts?|night shift|overnight shift|evening shift|second shift|2nd shift)\b",
         ];
 
         for pattern in &hard_constraint_patterns {
@@ -4274,6 +4277,30 @@ Preferred: Salesforce
             .hard_constraint_risks
             .iter()
             .any(|risk| risk.requirement == "weekend availability"));
+    }
+
+    #[test]
+    fn test_evening_shift_accepts_second_shift_evidence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nAvailable for second shift coverage.",
+            &[],
+            "Required: evening shift",
+        );
+
+        let evening_shift = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "evening shift")
+            .expect("evening shift review");
+        assert_eq!(evening_shift.match_state, RequirementMatchState::Direct);
+        assert!(evening_shift.hard_constraint);
+        assert!(evening_shift
+            .evidence_sections
+            .contains(&"experience".to_string()));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "evening shift"));
     }
 
     #[test]

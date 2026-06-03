@@ -2523,6 +2523,8 @@ function getMockHardConstraintCategory(keyword: string): MockHardConstraintCateg
     lower.includes("weekend") ||
     lower.includes("night shift") ||
     lower.includes("overnight shift") ||
+    lower.includes("second shift") ||
+    lower.includes("2nd shift") ||
     lower.includes("evening")
   ) {
     return "Location";
@@ -2845,7 +2847,7 @@ function extractMockHardConstraintKeywords(jobDescription: string): string[] {
     /\b(bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree|high school diploma|high school degree|ged|high school equivalency|general education development)\b/gi,
     /\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b/gi,
     /\b(lift(?:\s+up\s+to)?\s+\d+\s*(?:pounds?|lbs?)|stand for long periods?|physical requirements?|physical demands?)\b/gi,
-    /\b(onsite|on-site|on site|relocation|travel|reliable transportation|own transportation|commute|availability|available|schedule|weekend availability|weekend shifts?|night shift|overnight shift|evening shift)\b/gi,
+    /\b(onsite|on-site|on site|relocation|travel|reliable transportation|own transportation|commute|availability|available|schedule|weekend availability|weekend shifts?|night shift|overnight shift|evening shift|second shift|2nd shift)\b/gi,
   ];
   const keywords = new Set<string>();
   const hasDegreeEquivalent = hasMockDegreeEquivalentRequirement(jobDescription);
@@ -3045,6 +3047,7 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
     ["reliable transportation", "own transportation"],
     ["night shift", "overnight shift"],
     ["weekend availability", "weekend shift", "weekend shifts"],
+    ["evening shift", "second shift", "2nd shift"],
     ["bls", "basic life support"],
     ["acls", "advanced cardiovascular life support"],
     ["cpr", "cardiopulmonary resuscitation"],
