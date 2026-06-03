@@ -1497,6 +1497,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                           <div className="space-y-1 text-xs text-surface-500 dark:text-surface-400">
                             <p>Start with required job-post language. Preferred words can help later.</p>
                             <p>Only use these words when they honestly fit your experience and improve clarity.</p>
+                            <p>Do not force words you cannot support with real work, training, or credentials.</p>
                           </div>
                         </div>
                       );

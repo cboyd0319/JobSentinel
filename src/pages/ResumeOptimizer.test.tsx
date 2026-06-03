@@ -500,6 +500,9 @@ describe("ResumeOptimizer", () => {
     expect(screen.getByText("Words Found (2)")).toBeInTheDocument();
     expect(screen.getByText("Words To Review (1)")).toBeInTheDocument();
     expect(screen.getByText("Only use these words when they honestly fit your experience and improve clarity.")).toBeInTheDocument();
+    expect(
+      screen.getByText("Do not force words you cannot support with real work, training, or credentials."),
+    ).toBeInTheDocument();
     expect(mockToast.success).toHaveBeenCalledWith(
       "Review ready",
       "Use the details below as a guide before you apply.",
