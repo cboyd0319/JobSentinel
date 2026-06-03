@@ -3205,6 +3205,60 @@ describe("mock Tauri handlers", () => {
     );
   });
 
+  it("treats calendar-management scheduling terms as equivalent mock evidence", async () => {
+    const schedulingResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        skills: [],
+        experience: [
+          {
+            ...atsResume.experience[0],
+            current: false,
+            end_date: "2022",
+            achievements: ["Used calendar management for client appointments."],
+          },
+        ],
+      },
+      jobDescription: "Required: scheduling",
+    });
+    expect(schedulingResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "scheduling",
+          match_state: "Direct",
+          evidence_sections: ["experience"],
+        }),
+      ]),
+    );
+
+    const calendarResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        skills: [],
+        experience: [
+          {
+            ...atsResume.experience[0],
+            current: false,
+            end_date: "2022",
+            achievements: ["Handled scheduling."],
+          },
+        ],
+      },
+      jobDescription: "Required: calendar management",
+    });
+    expect(calendarResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "calendar management",
+          match_state: "Direct",
+          evidence_sections: ["experience"],
+        }),
+      ]),
+    );
+  });
+
   it("treats single current-role evidence as stronger than the same past-role mock evidence", async () => {
     const currentResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {

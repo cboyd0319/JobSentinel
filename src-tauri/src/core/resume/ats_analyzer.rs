@@ -1971,6 +1971,7 @@ impl AtsAnalyzer {
                 "client support",
             ],
             &["case management", "case coordination"],
+            &["scheduling", "calendar management", "appointment setting"],
             &["data entry", "data-entry"],
             &["onsite", "on-site", "on site"],
             &["relocation", "relocate", "willing to relocate"],
@@ -4075,6 +4076,44 @@ Preferred: Salesforce
             .expect("case coordination review");
         assert_eq!(case_coordination.match_state, RequirementMatchState::Direct);
         assert!(case_coordination
+            .evidence_sections
+            .contains(&"experience".to_string()));
+    }
+
+    #[test]
+    fn test_requirement_review_uses_calendar_management_scheduling_equivalence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nUsed calendar management for client appointments.",
+            &[],
+            "Required: scheduling",
+        );
+
+        let scheduling = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "scheduling")
+            .expect("scheduling review");
+        assert_eq!(scheduling.match_state, RequirementMatchState::Direct);
+        assert!(scheduling
+            .evidence_sections
+            .contains(&"experience".to_string()));
+
+        let inverse = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nHandled scheduling.",
+            &[],
+            "Required: calendar management",
+        );
+
+        let calendar_management = inverse
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "calendar management")
+            .expect("calendar management review");
+        assert_eq!(
+            calendar_management.match_state,
+            RequirementMatchState::Direct
+        );
+        assert!(calendar_management
             .evidence_sections
             .contains(&"experience".to_string()));
     }
