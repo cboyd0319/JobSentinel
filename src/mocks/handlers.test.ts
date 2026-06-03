@@ -1529,6 +1529,36 @@ describe("mock Tauri handlers", () => {
     );
   });
 
+  it("matches security clearance wording variants in mock hard constraints", async () => {
+    const clearanceResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "Active clearance.",
+        experience: [],
+        skills: [],
+      },
+      jobDescription: "Required: security clearance",
+    });
+
+    expect(clearanceResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "security clearance",
+          match_state: "Direct",
+          hard_constraint: true,
+          evidence_sections: expect.arrayContaining(["summary"]),
+        }),
+      ]),
+    );
+    expect(clearanceResult.hard_constraint_risks).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          requirement: "security clearance",
+        }),
+      ]),
+    );
+  });
+
   it("treats metric-backed current experience as strong mock evidence", async () => {
     const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {

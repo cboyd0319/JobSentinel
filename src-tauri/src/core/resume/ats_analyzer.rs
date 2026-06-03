@@ -1947,6 +1947,7 @@ impl AtsAnalyzer {
         let mut terms = vec![keyword_lower.to_string()];
         let equivalence_groups: &[&[&str]] = &[
             &["crm", "customer relationship management"],
+            &["security clearance", "clearance"],
             &[
                 "us citizenship",
                 "u.s. citizenship",
@@ -4278,6 +4279,28 @@ Preferred: Salesforce
                 && review.hard_constraint
                 && review.match_state == RequirementMatchState::Missing
         }));
+    }
+
+    #[test]
+    fn test_security_clearance_requirement_accepts_clearance_evidence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nSummary\nActive clearance.",
+            &[],
+            "Required: security clearance",
+        );
+
+        let clearance = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "security clearance")
+            .expect("clearance review");
+        assert_eq!(clearance.match_state, RequirementMatchState::Direct);
+        assert!(clearance.hard_constraint);
+        assert!(clearance.evidence_sections.contains(&"summary".to_string()));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "security clearance"));
     }
 
     #[test]
