@@ -1503,6 +1503,19 @@ Scope:
   src-tauri/Cargo.toml`, `cargo fmt --all --manifest-path src-tauri/Cargo.toml
   -- --check`, `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D
   warnings`, `npm run lint:external-ai`, and `git diff --check`.
+- Latest local broad requirement-term slice in `4dea83be` adds healthcare,
+  education, service, operations, and trades terms to local resume requirement
+  review so examples such as patient care, medication administration, and
+  lesson planning are not ignored as software-only matching gaps. Browser/dev
+  mocks stay aligned. Verification passed: `cargo test --lib
+  healthcare_and_education --manifest-path src-tauri/Cargo.toml`, `npx vitest
+  run src/mocks/handlers.test.ts -t "healthcare and education"`, `cargo test
+  --lib ats_analyzer --manifest-path src-tauri/Cargo.toml`, `npx vitest run
+  src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
+  `cargo test --lib --manifest-path src-tauri/Cargo.toml`, `cargo fmt --all
+  --manifest-path src-tauri/Cargo.toml -- --check`, `cargo clippy
+  --manifest-path src-tauri/Cargo.toml -- -D warnings`, `npm run
+  lint:external-ai`, and `git diff --check`.
 - Latest local resume file-guidance slice in `808aea8e` updates the no-readable-text status
   to tell users to follow employer file instructions first, then use readable
   PDF, DOCX, TXT, or Markdown when no format is named. Verification passed:

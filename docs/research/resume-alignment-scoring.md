@@ -220,6 +220,8 @@ Future implementation should improve:
   license headings as credential evidence instead of generic resume text.
 - Resume readability review now warns when experience or project bullets read
   like keyword lists instead of plain work evidence.
+- Requirement review now recognizes a wider set of healthcare, education,
+  service, operations, and trades terms, reducing software-only matching bias.
 - Structured resume review now marks matched requirements from a current role
   as current-experience evidence instead of hiding recency in a generic
   experience label.
