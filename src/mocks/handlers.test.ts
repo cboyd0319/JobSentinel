@@ -1019,6 +1019,35 @@ describe("mock Tauri handlers", () => {
     );
   });
 
+  it("treats responsibility-backed current experience as strong mock evidence", async () => {
+    const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        skills: [],
+        experience: [
+          {
+            ...atsResume.experience[0],
+            current: true,
+            end_date: "Present",
+            achievements: ["Owned scheduling workflows for client intake"],
+          },
+        ],
+      },
+      jobDescription: "Required: scheduling",
+    });
+
+    expect(result.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "scheduling",
+          match_state: "Strong",
+          evidence_sections: ["current experience"],
+        }),
+      ]),
+    );
+  });
+
   it("flags prompt-injection-like and hidden resume text in mock resume review", async () => {
     const promptInjectionResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_format", {
       resume: {

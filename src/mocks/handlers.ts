@@ -3249,7 +3249,11 @@ function countMockEvidenceFrequency(
   ];
   const hasMetricBackedEvidence = workEvidence.some((text) =>
     containsAnyMockKeyword(text, searchTerms) &&
-      (hasMockMetricBackedEvidence(text) || hasMockScopeBackedEvidence(text))
+      (
+        hasMockMetricBackedEvidence(text) ||
+        hasMockScopeBackedEvidence(text) ||
+        hasMockResponsibilityBackedEvidence(text)
+      )
   );
   return hasMetricBackedEvidence ? base + 1 : base;
 }
@@ -3261,6 +3265,11 @@ function hasMockMetricBackedEvidence(text: string): boolean {
 
 function hasMockScopeBackedEvidence(text: string): boolean {
   return /\bacross\s+(?:[a-z]+\s+){0,5}(?:teams?|departments?|locations?|sites?|regions?|markets?|service\s+lines?)\b/i
+    .test(text);
+}
+
+function hasMockResponsibilityBackedEvidence(text: string): boolean {
+  return /\b(?:owned|managed|administered|developed|implemented|improved|operated)\b.+\b(?:workflows?|process(?:es)?|programs?|operations?|intake|cases?|systems?|tools?)\b/i
     .test(text);
 }
 
