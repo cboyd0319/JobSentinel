@@ -1381,7 +1381,7 @@ Scope:
   src-tauri/Cargo.toml -- -D warnings`, `cargo fmt --all --manifest-path
   src-tauri/Cargo.toml -- --check`, `npm run lint:docs`, `npm run lint:bloat`,
   and `git diff --check`.
-- Current local Resume Match evidence-label slice translates backend
+- Latest local Resume Match evidence-label slice in `26d306f6` translates backend
   requirement evidence sections into plain labels such as current role
   experience, work experience, and skills list. Focused frontend verification
   passed: `npx vitest run src/pages/ResumeOptimizer.test.tsx`, `npm run lint

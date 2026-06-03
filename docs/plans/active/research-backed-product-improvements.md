@@ -1498,8 +1498,7 @@ source-filter compatibility issue appears.
   pushed in `6adcff7c`. Resume evidence-strength work is committed in
   `171bbe91`. Conservative synonym/acronym work is committed in `d2d1944f`.
   Structured evidence recency work is committed in `56d9a5ab`.
-  Current local Resume Match evidence-label follow-up is verified locally and
-  ready to commit.
+  Resume Match evidence-label work is committed in `26d306f6`.
 - Evidence: source documents, selected primary sources, and local PDF text
   extraction reviewed on
   2026-05-28.
