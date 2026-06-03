@@ -138,8 +138,13 @@ acceptance still requires Developer ID signing and notarization.
   evidence reminder for software, data analysis, machine learning, dashboard,
   API, and product job details, asking users to check shipped work, users or
   decisions supported, reliability, data sources, and measurable outcomes before
-  using drafted alternative bullets. Real resume/profile reference material
-  remains private and must not be committed.
+  using drafted alternative bullets. The follow-up
+  `58fc2fd0 Add sales marketing bullet prompt` adds a sales and marketing
+  evidence reminder for sales, pipeline, account, retention, marketing,
+  campaign, conversion, and revenue job details, asking users to check quota or
+  pipeline, audience or account scope, conversion or revenue impact, retention,
+  and budget before using drafted alternative bullets. Real resume/profile
+  reference material remains private and must not be committed.
 - Current local resume-alignment scoring follow-up is committed in
   `3d720693 Add resume requirement review caps`. It locks
   `/Users/c/Downloads/ats_scoring_algorithm.md` into

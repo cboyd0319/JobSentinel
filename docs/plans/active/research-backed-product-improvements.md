@@ -223,6 +223,11 @@ copy durable findings back into this plan or the active status surface.
   learning, dashboard, API, and product job details, asking users to check
   shipped work, users or decisions supported, reliability, data sources, and
   measurable outcomes before using drafted alternative bullets.
+- Current local sales/marketing bullet-prompt follow-up in `58fc2fd0` adds a
+  role-specific evidence reminder for sales, pipeline, account, retention,
+  marketing, campaign, conversion, and revenue job details, asking users to
+  check quota or pipeline, audience or account scope, conversion or revenue
+  impact, retention, and budget before using drafted alternative bullets.
 - Current local onsite location-term follow-up in `bffa0a1f` treats onsite and
   on-site as equivalent local hard-constraint evidence, so exact punctuation
   differences do not create a false missing-location risk.

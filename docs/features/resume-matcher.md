@@ -342,6 +342,9 @@ The current local matcher:
 - adds a technical and data evidence prompt to drafted alternative bullets when
   job details mention software, data analysis, machine learning, dashboards,
   APIs, or product work;
+- adds a sales and marketing evidence prompt to drafted alternative bullets
+  when job details mention sales, pipeline, account, retention, marketing,
+  campaign, conversion, or revenue work;
 - gives hard-requirement next actions category-specific honesty guidance,
   such as checking work authorization, clearance, licenses, education, years
   or level, physical demands, location, schedule, availability, and travel

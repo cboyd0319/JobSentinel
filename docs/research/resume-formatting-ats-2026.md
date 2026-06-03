@@ -212,6 +212,9 @@ resume help should adjust examples and evidence prompts for:
   work.
 - Drafted bullet improvements add a technical and data evidence prompt for
   software, data analysis, machine learning, dashboard, API, and product work.
+- Drafted bullet improvements add a sales and marketing evidence prompt for
+  sales, pipeline, account, retention, marketing, campaign, conversion, and
+  revenue work.
 
 ## Backlog To Lock Next
 
