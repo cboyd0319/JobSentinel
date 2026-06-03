@@ -2562,6 +2562,11 @@ impl AtsAnalyzer {
                         "management",
                         "manager",
                         "managed",
+                        "managed a team",
+                        "managed team",
+                        "managed staff",
+                        "managed people",
+                        "managed employees",
                         "people management",
                         "supervisor experience",
                         "supervised",
@@ -3175,7 +3180,7 @@ impl AtsAnalyzer {
                 "staff/principal-level experience",
             ),
             (
-                r"(?i)\b(people management|management experience|manager[- ]level|supervisor[- ]level|supervisor experience|supervisory experience|supervision experience|team management|team supervision|supervising staff|supervised staff)\b",
+                r"(?i)\b(people management|management experience|manager[- ]level|supervisor[- ]level|supervisor experience|supervisory experience|supervision experience|team management|team supervision|supervising staff|supervised staff|managed\s+(?:a\s+)?team|managed staff|managed people|managed employees)\b",
                 "management experience",
             ),
             (
@@ -7223,6 +7228,55 @@ Preferred: Salesforce
             .find(|review| review.keyword == "management experience")
             .expect("management experience review");
         assert_eq!(management.match_state, RequirementMatchState::Direct);
+        assert!(management.hard_constraint);
+        assert!(management
+            .evidence_sections
+            .contains(&"experience".to_string()));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "management experience"));
+    }
+
+    #[test]
+    fn test_missing_required_managed_team_constraint_caps_overall_score() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nHandled intake scheduling and case documentation.",
+            &[],
+            "Required: managed a team, CRM",
+        );
+
+        assert!(result.overall_score <= 65.0);
+        assert!(result.hard_constraint_risks.iter().any(|risk| {
+            risk.requirement == "management experience"
+                && risk.category == HardConstraintCategory::Experience
+                && risk.score_cap == 65.0
+                && risk.action.contains("Do not round up")
+        }));
+        assert!(result.requirement_reviews.iter().any(|review| {
+            review.keyword == "management experience"
+                && review.hard_constraint
+                && review.match_state == RequirementMatchState::Missing
+        }));
+    }
+
+    #[test]
+    fn test_managed_team_requirement_accepts_managed_staff_evidence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nManaged staff schedules for client intake coverage.",
+            &[],
+            "Required: managed a team",
+        );
+
+        let management = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "management experience")
+            .expect("management experience review");
+        assert!(matches!(
+            management.match_state,
+            RequirementMatchState::Direct | RequirementMatchState::Strong
+        ));
         assert!(management.hard_constraint);
         assert!(management
             .evidence_sections
