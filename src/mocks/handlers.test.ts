@@ -2012,6 +2012,43 @@ describe("mock Tauri handlers", () => {
     );
   });
 
+  it("matches high-school hyphen variants in mock hard constraints", async () => {
+    const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        education: [
+          {
+            degree: "High school diploma",
+            institution: "Adult Learning Center",
+            location: "Denver, CO",
+            graduation_date: "2018",
+            gpa: null,
+            honors: [],
+          },
+        ],
+      },
+      jobDescription: "Required: high-school diploma",
+    });
+
+    expect(result.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "high-school diploma",
+          match_state: "Direct",
+          hard_constraint: true,
+          evidence_sections: expect.arrayContaining(["education"]),
+        }),
+      ]),
+    );
+    expect(result.hard_constraint_risks).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          requirement: "high-school diploma",
+        }),
+      ]),
+    );
+  });
+
   it("recognizes Certified Nursing Assistant as CNA evidence in mock resume review", async () => {
     const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
