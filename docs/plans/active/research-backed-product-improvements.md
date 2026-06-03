@@ -1505,6 +1505,11 @@ source-filter compatibility issue appears.
   Structured evidence recency work is committed in `56d9a5ab`.
   Resume Match evidence-label work is committed in `26d306f6`.
   Reviewer-fix work is committed in `efea47a5`.
+- Multi-agent orchestration: a read-only reviewer covered recent resume
+  analyzer commits and a read-only explorer recommended Resume Import Status,
+  Resume-Assisted Guided Intake, and Source Governance Metadata as next
+  disjoint slices. Both agents were closed after findings were integrated or
+  recorded.
 - Evidence: source documents, selected primary sources, and local PDF text
   extraction reviewed on
   2026-05-28.
