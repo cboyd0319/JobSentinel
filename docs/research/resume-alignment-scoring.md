@@ -303,9 +303,9 @@ Future implementation should improve:
 - Resume/job fit now treats `associate's degree`, `associate degree`, and
   `associates degree` as equivalent local education evidence.
 - Resume/job fit now treats `bachelor's degree`, `bachelor degree`,
-  `bachelors degree`, `Bachelor of Arts`, `Bachelor of Science`, and
-  `Bachelor of Business Administration` as equivalent local education evidence
-  for generic bachelor's requirements.
+  `bachelors degree`, `Bachelor of Arts`, `Bachelor of Business
+  Administration`, `Bachelor of Engineering`, and `Bachelor of Science` as
+  equivalent local education evidence for generic bachelor's requirements.
 - Resume/job fit now treats `master's degree`, `master degree`,
   `masters degree`, `Master of Arts`, `Master of Science`, and
   `Master of Business Administration` as equivalent local education evidence

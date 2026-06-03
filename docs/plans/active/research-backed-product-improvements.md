@@ -361,6 +361,10 @@ copy durable findings back into this plan or the active status surface.
   treats Bachelor of Business Administration as local evidence for generic
   bachelor's degree requirements without treating BBA-specific job wording as a
   generic bachelor's requirement.
+- Current local engineering bachelor follow-up in `d355fd26` treats Bachelor
+  of Engineering as local evidence for generic bachelor's degree requirements
+  without treating engineering-specific job wording as a generic bachelor's
+  requirement.
 - Current local master-degree follow-up in `0e2a0fae` treats master's degree,
   master degree, and masters degree as equivalent local education
   hard-constraint evidence.
@@ -1850,6 +1854,7 @@ source-filter compatibility issue appears.
   Bachelor-degree work is committed in `adda2593`.
   Bachelor-degree title work is committed in `52e7c80b`.
   Business-administration bachelor work is committed in `2a3fd362`.
+  Engineering bachelor work is committed in `d355fd26`.
   Master-degree work is committed in `0e2a0fae`.
   Master-degree title work is committed in `f032ae03`.
   Business-administration master work is committed in `ff1c617e`.

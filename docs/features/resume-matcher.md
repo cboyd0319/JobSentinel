@@ -255,9 +255,9 @@ The current local matcher:
 - treats **associate's degree**, **associate degree**, and
   **associates degree** as the same local education evidence;
 - treats **bachelor's degree**, **bachelor degree**, **bachelors degree**,
-  **Bachelor of Arts**, **Bachelor of Science**, and **Bachelor of Business
-  Administration** as the same local education evidence for generic bachelor's
-  requirements;
+  **Bachelor of Arts**, **Bachelor of Business Administration**,
+  **Bachelor of Engineering**, and **Bachelor of Science** as the same local
+  education evidence for generic bachelor's requirements;
 - treats **master's degree**, **master degree**, **masters degree**,
   **Master of Arts**, **Master of Science**, and **Master of Business
   Administration** as the same local education evidence for generic master's
