@@ -229,6 +229,9 @@ copy durable findings back into this plan or the active status surface.
 - Current local career-break heading follow-up treats Career Break, Career
   Pause, and caregiving headings as standard readable-resume structure instead
   of a formatting defect.
+- Current local volunteer-service heading follow-up treats Volunteer
+  Experience, Community Involvement, and Military Service as standard
+  readable-resume structure instead of a formatting defect.
 - Current local interview-defense bullet follow-up adds a reminder to drafted
   alternative bullets to check the problem, role, action, result, and evidence
   before using stronger wording.
@@ -1642,6 +1645,7 @@ source-filter compatibility issue appears.
   Generic-filler bullet work is committed in `c72a574d`.
   Capability-level warning work is committed in `7b546c78`.
   Career-break heading work is committed in `b149e0d1`.
+  Volunteer-service heading work is committed in `cd7d5599`.
   Interview-defense bullet work is committed in `fda14375`.
   Broad requirement-term work is committed in `4dea83be`.
   Legal, finance, and government requirement-term work is committed in

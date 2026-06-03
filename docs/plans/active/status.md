@@ -1546,6 +1546,15 @@ Scope:
   src-tauri/Cargo.toml`, `cargo fmt --all --manifest-path src-tauri/Cargo.toml
   -- --check`, `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D
   warnings`, and `git diff --check`.
+- Latest local volunteer-service heading slice in `cd7d5599` treats Volunteer
+  Experience, Community Involvement, and Military Service as standard
+  readable-resume structure, so nontraditional experience sections are not
+  flagged as missing standard headings. Verification passed: `cargo test --lib
+  volunteer_and_military --manifest-path src-tauri/Cargo.toml`, `cargo test
+  --lib ats_analyzer --manifest-path src-tauri/Cargo.toml`, `cargo test --lib
+  --manifest-path src-tauri/Cargo.toml`, `cargo fmt --all --manifest-path
+  src-tauri/Cargo.toml -- --check`, `cargo clippy --manifest-path
+  src-tauri/Cargo.toml -- -D warnings`, and `git diff --check`.
 - Latest local interview-defense bullet slice in `fda14375` adds a reminder to
   drafted alternative bullets to check the problem, user role, action, result,
   and evidence before using stronger wording. Browser/dev mocks stay aligned.

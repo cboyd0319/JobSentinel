@@ -230,6 +230,9 @@ Future implementation should improve:
 - Resume readability review now accepts career-break and caregiving headings
   as standard structure so truthful gap context is not treated as a formatting
   defect.
+- Resume readability review now accepts volunteer, community, and military
+  service headings as standard structure so nontraditional experience sections
+  are not treated as formatting defects.
 - Drafted alternative bullets now include an interview-defense reminder for
   the problem, user role, action, result, and evidence before using stronger
   wording.
