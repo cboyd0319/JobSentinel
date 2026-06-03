@@ -115,6 +115,28 @@ const HARD_QUESTION_REVIEWS: HardQuestionReview[] = [
     ],
   },
   {
+    label: "Background check or drug screen",
+    detail: "Confirm background-check, drug-screen, or pre-employment screening requirements before continuing.",
+    getDetail: ({ screeningAnswers }) => getSavedScreeningAnswerReviewDetail(
+      screeningAnswers,
+      [
+        /\bbackground check\b/i,
+        /\bbackground screening\b/i,
+        /\bdrug screen\b/i,
+        /\bdrug test\b/i,
+        /\bpre[-\s]?employment screening\b/i,
+      ],
+      "Confirm background-check, drug-screen, or pre-employment screening requirements before continuing.",
+    ),
+    patterns: [
+      /\bbackground check\b/i,
+      /\bbackground screening\b/i,
+      /\bdrug screen\b/i,
+      /\bdrug test\b/i,
+      /\bpre[-\s]?employment screening\b/i,
+    ],
+  },
+  {
     label: "Education or degree",
     detail: "Check degree, diploma, or education-equivalent answers against visible evidence.",
     getDetail: ({ screeningAnswers }) => getSavedScreeningAnswerReviewDetail(
@@ -206,6 +228,9 @@ function getSavedScreeningAnswerLabel(questionPattern: string) {
   if (/\bremote\b|\bhybrid\b|\bon[-\s]?site\b/.test(normalizedPattern)) return "location";
   if (/\blicen[cs]e\b|\bcertif|\bclearance\b|\bRN\b|\bCNA\b|\bCDL\b|\bPMP\b|\bSecurity\+\b/i.test(questionPattern)) {
     return "credential";
+  }
+  if (/\bbackground check\b|\bbackground screening\b|\bdrug screen\b|\bdrug test\b|\bpre[-\s]?employment screening\b/i.test(questionPattern)) {
+    return "screening";
   }
   if (/\beducation\b|\bdegree\b|\bbachelor'?s?\b|\bmaster'?s?\b|\bhigh school\b|\bdiploma\b/i.test(questionPattern)) {
     return "education";

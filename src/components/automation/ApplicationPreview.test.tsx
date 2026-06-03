@@ -467,6 +467,28 @@ describe("ApplicationPreview", () => {
       expect(screen.getByText("Location, relocation, or travel")).toBeInTheDocument();
     });
 
+    it("flags background check and drug screen requirements from job details", async () => {
+      mockInvoke.mockResolvedValue(mockProfile);
+
+      render(
+        <ApplicationPreview
+          job={{
+            ...mockJob,
+            description: "Offer requires a background check and drug screen before start.",
+          }}
+          atsPlatform="greenhouse"
+        />,
+      );
+
+      expect(await screen.findByText("Hard Question Review")).toBeInTheDocument();
+      expect(screen.getByText("Background check or drug screen")).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          "Confirm background-check, drug-screen, or pre-employment screening requirements before continuing.",
+        ),
+      ).toBeInTheDocument();
+    });
+
     it("shows saved work-authorization answers when the job asks about sponsorship", async () => {
       mockInvoke.mockResolvedValue({
         ...mockProfile,
@@ -762,6 +784,52 @@ describe("ApplicationPreview", () => {
       expect(
         screen.getByText(
           "Saved availability answer says: I am available for weekend shifts with two weeks of notice. Confirm it matches the employer's wording and resume evidence before continuing.",
+        ),
+      ).toBeInTheDocument();
+      expect(mockInvoke).toHaveBeenCalledWith("get_screening_answers");
+    });
+
+    it("shows saved screening answers when the job asks about a background check", async () => {
+      mockInvoke.mockImplementation((command: string) => {
+        if (command === "get_application_profile_preview") {
+          return Promise.resolve(mockProfile);
+        }
+
+        if (command === "get_screening_answers") {
+          return Promise.resolve([
+            {
+              id: 1,
+              questionPattern: "background check",
+              answer: "I can complete the required background check.",
+              answerType: "text",
+              notes: null,
+              timesUsed: 0,
+              timesModified: 0,
+              confidenceScore: 0,
+              lastUsedAt: null,
+              createdAt: "2026-01-01T00:00:00Z",
+              updatedAt: "2026-01-01T00:00:00Z",
+            },
+          ]);
+        }
+
+        return Promise.reject(new Error(`Unexpected command: ${command}`));
+      });
+
+      render(
+        <ApplicationPreview
+          job={{
+            ...mockJob,
+            description: "Background check is required after offer.",
+          }}
+          atsPlatform="greenhouse"
+        />,
+      );
+
+      expect(await screen.findByText("Hard Question Review")).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          "Saved screening answer says: I can complete the required background check. Confirm it matches the employer's wording and resume evidence before continuing.",
         ),
       ).toBeInTheDocument();
       expect(mockInvoke).toHaveBeenCalledWith("get_screening_answers");
