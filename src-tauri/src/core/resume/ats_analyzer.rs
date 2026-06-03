@@ -4,6 +4,7 @@
 //! and suggestions that improve truthful application clarity.
 #![allow(clippy::unwrap_used, clippy::expect_used)] // Regex patterns are compile-time constants
 
+use chrono::{Datelike, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 
@@ -1772,6 +1773,7 @@ impl AtsAnalyzer {
                 "resume text"
                     | "experience"
                     | "current experience"
+                    | "recent experience"
                     | "summary"
                     | "projects"
                     | "education"
@@ -2051,12 +2053,7 @@ impl AtsAnalyzer {
                 .to_lowercase();
                 let count = Self::keyword_frequency_for_search_terms(&exp_text, &search_terms);
                 if count > 0 {
-                    let section =
-                        if exp.current || exp.end_date.trim().eq_ignore_ascii_case("present") {
-                            "current experience"
-                        } else {
-                            "experience"
-                        };
+                    let section = Self::structured_experience_evidence_section(exp);
                     Self::add_evidence_section(&mut found_in, section);
                     frequency += Self::evidence_strength_adjusted_count(count, &exp_text, section);
                 }
@@ -2731,19 +2728,26 @@ impl AtsAnalyzer {
         let mut frequency = 0;
         let mut current_section = "resume text";
         let mut current_experience_is_current = false;
+        let mut current_experience_is_recent = false;
 
         for line in resume_text.lines() {
             if let Some(section) = Self::plain_text_section_label(line) {
                 current_section = section;
                 current_experience_is_current = false;
+                current_experience_is_recent = false;
             }
 
             let line_lower = line.to_lowercase();
             if current_section == "experience" {
                 if Self::plain_text_current_experience_marker(&line_lower) {
                     current_experience_is_current = true;
+                    current_experience_is_recent = false;
+                } else if Self::plain_text_recent_experience_marker(&line_lower) {
+                    current_experience_is_current = false;
+                    current_experience_is_recent = true;
                 } else if Self::plain_text_past_experience_marker(&line_lower) {
                     current_experience_is_current = false;
+                    current_experience_is_recent = false;
                 }
             }
 
@@ -2755,6 +2759,8 @@ impl AtsAnalyzer {
             let evidence_section =
                 if current_section == "experience" && current_experience_is_current {
                     "current experience"
+                } else if current_section == "experience" && current_experience_is_recent {
+                    "recent experience"
                 } else {
                     current_section
                 };
@@ -2774,12 +2780,12 @@ impl AtsAnalyzer {
         if count == 0 {
             return 0;
         }
-        if evidence_section == "current experience" {
+        if evidence_section == "current experience" || evidence_section == "recent experience" {
             return count + 1;
         }
         let can_show_work_evidence = matches!(
             evidence_section,
-            "experience" | "current experience" | "projects"
+            "experience" | "current experience" | "recent experience" | "projects"
         );
         if can_show_work_evidence
             && (Self::metric_backed_evidence_marker(text_lower)
@@ -2831,11 +2837,40 @@ impl AtsAnalyzer {
             .any(|word| word == "present")
     }
 
+    fn structured_experience_evidence_section(exp: &Experience) -> &'static str {
+        if exp.current || exp.end_date.trim().eq_ignore_ascii_case("present") {
+            return "current experience";
+        }
+        if Self::recent_end_year_marker(&exp.end_date) {
+            return "recent experience";
+        }
+        "experience"
+    }
+
+    fn plain_text_recent_experience_marker(line_lower: &str) -> bool {
+        !Self::plain_text_current_experience_marker(line_lower)
+            && Self::recent_end_year_marker(line_lower)
+    }
+
     fn plain_text_past_experience_marker(line_lower: &str) -> bool {
         !Self::plain_text_current_experience_marker(line_lower)
             && regex::Regex::new(r"\b(?:19|20)\d{2}\s*(?:-|to)\s*(?:19|20)\d{2}\b")
                 .unwrap()
                 .is_match(line_lower)
+    }
+
+    fn recent_end_year_marker(text: &str) -> bool {
+        let Some(end_year) = regex::Regex::new(r"\b(?:19|20)\d{2}\b")
+            .unwrap()
+            .find_iter(text)
+            .last()
+            .and_then(|year| year.as_str().parse::<i32>().ok())
+        else {
+            return false;
+        };
+
+        let current_year = Utc::now().year();
+        end_year >= current_year - 1 && end_year <= current_year
     }
 
     fn keyword_frequency_for_search_terms(text: &str, search_terms: &[String]) -> usize {
@@ -3317,6 +3352,7 @@ impl AtsAnalyzer {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chrono::Datelike;
     use std::collections::HashMap;
 
     fn sample_resume() -> ResumeData {
@@ -4833,6 +4869,44 @@ Preferred: Salesforce
             .expect("past scheduling review");
         assert_eq!(past.match_state, RequirementMatchState::Direct);
         assert_eq!(past.evidence_sections, vec!["experience"]);
+    }
+
+    #[test]
+    fn test_plain_text_recent_ended_role_counts_as_recent_evidence() {
+        let recent_year = chrono::Utc::now().year() - 1;
+        let older_year = chrono::Utc::now().year() - 4;
+        let recent_result = AtsAnalyzer::analyze_text_for_job(
+            &format!(
+                "Jordan Lee\njordan@example.com\n\nExperience\nSupport Coordinator | {older_year} - {recent_year}\nHandled scheduling."
+            ),
+            &[],
+            "Required: scheduling",
+        );
+
+        let recent = recent_result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "scheduling")
+            .expect("recent scheduling review");
+        assert_eq!(recent.match_state, RequirementMatchState::Strong);
+        assert_eq!(recent.evidence_sections, vec!["recent experience"]);
+
+        let old_result = AtsAnalyzer::analyze_text_for_job(
+            &format!(
+                "Jordan Lee\njordan@example.com\n\nExperience\nSupport Coordinator | {} - {older_year}\nHandled scheduling.",
+                older_year - 4
+            ),
+            &[],
+            "Required: scheduling",
+        );
+
+        let old = old_result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "scheduling")
+            .expect("old scheduling review");
+        assert_eq!(old.match_state, RequirementMatchState::Direct);
+        assert_eq!(old.evidence_sections, vec!["experience"]);
     }
 
     #[test]
@@ -6498,6 +6572,30 @@ Preferred: Salesforce
         assert_eq!(
             scheduling.evidence_sections,
             vec!["current experience".to_string()]
+        );
+    }
+
+    #[test]
+    fn test_recent_ended_experience_counts_as_recent_evidence() {
+        let recent_year = chrono::Utc::now().year() - 1;
+        let mut resume = sample_resume();
+        resume.summary.clear();
+        resume.skills.clear();
+        resume.experience[0].current = false;
+        resume.experience[0].end_date = format!("Dec {recent_year}");
+        resume.experience[0].achievements = vec!["Handled scheduling.".to_string()];
+
+        let result = AtsAnalyzer::analyze_for_job(&resume, "Required: scheduling");
+
+        let scheduling = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "scheduling")
+            .expect("scheduling review");
+        assert_eq!(scheduling.match_state, RequirementMatchState::Strong);
+        assert_eq!(
+            scheduling.evidence_sections,
+            vec!["recent experience".to_string()]
         );
     }
 
