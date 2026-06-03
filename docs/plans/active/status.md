@@ -123,6 +123,10 @@ acceptance still requires Developer ID signing and notarization.
   license, certification, clearance, education, years, salary, schedule, and
   availability topics from saved job details so users can check saved answers
   against resume evidence before submitting. The follow-up
+  `bbb6c56f Show saved work authorization review` shows the saved sponsorship
+  or work-authorization profile answer in that review when saved job details
+  ask about authorization or sponsorship, so users can compare the saved answer
+  with employer wording and resume evidence before continuing. The follow-up
   `e7a61306 Add healthcare bullet evidence prompt` adds a role-specific
   evidence reminder for healthcare and licensed-work job details, asking users
   to check scope of practice, patient safety, documentation, and required

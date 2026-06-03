@@ -193,6 +193,10 @@ resume help should adjust examples and evidence prompts for:
   instructions first.
 - Application Assist flags hard screening topics from the saved job details so
   users can check saved answers and resume evidence before submitting.
+- Application Assist shows the saved sponsorship or work-authorization profile
+  answer when saved job details ask about authorization or sponsorship, so
+  users can compare it with employer wording and resume evidence before
+  continuing.
 - Required, preferred, and other job-post language stay grouped in fit notes.
 - Recognized local job-post requirements now show match states and evidence
   sections, and recognized missing hard requirements cap the fit label until

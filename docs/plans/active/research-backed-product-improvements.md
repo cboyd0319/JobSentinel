@@ -204,6 +204,10 @@ copy durable findings back into this plan or the active status surface.
   certification, clearance, education, years, salary, schedule, and availability
   topics from saved job details so users can check saved answers against resume
   evidence before submitting.
+- Current local Application Assist saved-answer review follow-up in `bbb6c56f`
+  shows the saved sponsorship or work-authorization profile answer when saved
+  job details ask about authorization or sponsorship, so users can compare the
+  saved answer with employer wording and resume evidence before continuing.
 - Current local healthcare bullet-prompt follow-up in `e7a61306` adds a
   role-specific evidence reminder for healthcare and licensed-work job details,
   asking users to check scope of practice, patient safety, documentation, and

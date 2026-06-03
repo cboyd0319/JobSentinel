@@ -119,6 +119,10 @@ evidence for work authorization, location, relocation, travel, licenses,
 certifications, clearances, education, years of experience, salary, schedule,
 and availability before submitting.
 
+For work authorization or sponsorship topics, the preview also shows the saved
+profile answer so you can compare it with the employer's wording and your
+resume evidence before continuing.
+
 ---
 
 ## Using Application Assist
