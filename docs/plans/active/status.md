@@ -1515,6 +1515,15 @@ Scope:
   src-tauri/Cargo.toml`, `cargo fmt --all --manifest-path src-tauri/Cargo.toml
   -- --check`, `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D
   warnings`, `npm run lint:external-ai`, and `git diff --check`.
+- Latest local career-break heading slice in `b149e0d1` treats Career Break,
+  Career Pause, and caregiving headings as standard readable-resume structure,
+  so truthful gap context is not flagged as missing standard headings.
+  Verification passed: `cargo test --lib career_break --manifest-path
+  src-tauri/Cargo.toml`, `cargo test --lib ats_analyzer --manifest-path
+  src-tauri/Cargo.toml`, `cargo test --lib --manifest-path
+  src-tauri/Cargo.toml`, `cargo fmt --all --manifest-path src-tauri/Cargo.toml
+  -- --check`, `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D
+  warnings`, and `git diff --check`.
 - Latest local broad requirement-term slice in `4dea83be` adds healthcare,
   education, service, operations, and trades terms to local resume requirement
   review so examples such as patient care, medication administration, and

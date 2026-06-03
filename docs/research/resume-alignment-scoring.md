@@ -223,6 +223,9 @@ Future implementation should improve:
 - Resume readability review now warns when a bullet mixes ownership or expert
   wording with exposure-only or assisted-work signals so the user can choose
   the true capability level.
+- Resume readability review now accepts career-break and caregiving headings
+  as standard structure so truthful gap context is not treated as a formatting
+  defect.
 - Requirement review now recognizes a wider set of healthcare, education,
   service, operations, and trades terms, reducing software-only matching bias.
 - Requirement review now also recognizes legal, finance, and government or

@@ -220,6 +220,9 @@ copy durable findings back into this plan or the active status surface.
 - Current local capability-level warning follow-up warns when experience or
   project bullets mix ownership or expert wording with exposure-only or
   assisted-work signals.
+- Current local career-break heading follow-up treats Career Break, Career
+  Pause, and caregiving headings as standard readable-resume structure instead
+  of a formatting defect.
 - Current local broad requirement-term follow-up adds healthcare, education,
   service, operations, and trades terms to local resume requirement review and
   dev/browser mocks.
@@ -729,8 +732,8 @@ Likely files later:
   staff/principal, manager, director, and executive expectations.
 - Add "unknown" states for dates, titles, education, certifications, and gaps
   instead of forcing possibly false parser guesses into scoring.
-- Add employment-gap and career-break support that helps users present true
-  context without treating gaps as defects.
+- Continue employment-gap and career-break support that helps users present
+  true context without treating gaps as defects.
 - Add exact-credential versus transferable-evidence review so users can decide
   whether to apply when they lack a listed degree, certification, or exact
   title but have relevant proof.
@@ -1626,6 +1629,7 @@ source-filter compatibility issue appears.
   Training-heading credential work is committed in `df0bdf9a`.
   Keyword-list bullet work is committed in `0447094b`.
   Capability-level warning work is committed in `7b546c78`.
+  Career-break heading work is committed in `b149e0d1`.
   Broad requirement-term work is committed in `4dea83be`.
   Legal, finance, and government requirement-term work is committed in
   `a8169b09`.

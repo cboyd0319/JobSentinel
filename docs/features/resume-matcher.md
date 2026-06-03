@@ -132,6 +132,8 @@ The current local matcher:
   text, hidden instruction-like content, and work bullets that read like
   keyword lists or mix ownership with exposure-only wording instead of plain
   work evidence;
+- treats **Career Break**, **Career Pause**, and caregiving labels as readable
+  resume headings instead of structural mistakes;
 - can review the active saved resume against a pasted job post without copying
   structured resume details into the page;
 - loads the active saved resume on page open so the user can paste a job post
