@@ -229,8 +229,9 @@ Future implementation should improve:
   evidence without broad fuzzy matching.
 - Resume/job fit now treats `patient care` and `patient-care` as equivalent
   local evidence without broad fuzzy matching.
-- Resume/job fit now treats `medical record` and `medical records` as
-  equivalent local evidence without duplicate singular/plural requirement rows.
+- Resume/job fit now treats `medical record`, `medical records`,
+  `medical-record`, and `medical-records` as equivalent local evidence without
+  duplicate requirement rows for singular, plural, or hyphenated wording.
 - Resume/job fit now treats `care plan`, `care plans`, `care-plan`, and
   `care-plans` as equivalent local evidence without duplicate requirement rows
   for singular, plural, or hyphenated wording.

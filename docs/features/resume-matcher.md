@@ -205,8 +205,9 @@ The current local matcher:
   still avoiding broad fuzzy matching;
 - treats **patient care** and **patient-care** as the same local evidence while
   still avoiding broad fuzzy matching;
-- treats **medical record** and **medical records** as the same local evidence
-  while avoiding duplicate requirement rows for singular or plural job wording;
+- treats **medical record**, **medical records**, **medical-record**, and
+  **medical-records** as the same local evidence while avoiding duplicate
+  requirement rows for singular, plural, or hyphenated job wording;
 - treats **care plan**, **care plans**, **care-plan**, and **care-plans** as
   the same local evidence while avoiding duplicate requirement rows for
   singular, plural, or hyphenated job wording;

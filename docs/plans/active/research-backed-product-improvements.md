@@ -142,6 +142,9 @@ copy durable findings back into this plan or the active status surface.
 - Current local medical-record plural follow-up in `ad391cda` treats medical
   record and medical records as equivalent local evidence without duplicate
   singular/plural requirement rows.
+- Current local medical-record hyphen follow-up in `ccfa88e9` adds
+  medical-record and medical-records to that same local evidence group without
+  duplicate requirement rows.
 - Current local care-plan plural follow-up in `bb11073e` treats care plan and
   care plans as equivalent local evidence without duplicate singular/plural
   requirement rows.
@@ -1868,6 +1871,7 @@ source-filter compatibility issue appears.
   QA synonym work is committed in `a349e5e7`.
   Patient-care hyphen work is committed in `23418843`.
   Medical-record plural work is committed in `ad391cda`.
+  Medical-record hyphen work is committed in `ccfa88e9`.
   Care-plan plural work is committed in `bb11073e`.
   Care-plan hyphen work is committed in `eef99504`.
   Vital-sign plural work is committed in `0bd255d3`.

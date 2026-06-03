@@ -137,6 +137,9 @@ acceptance still requires Developer ID signing and notarization.
   `ad391cda Match medical record plural terms` treats medical record and
   medical records as the same local evidence without duplicate singular/plural
   requirement rows. The follow-up
+  `ccfa88e9 Match medical record hyphen terms` adds medical-record and
+  medical-records to that same local evidence group without duplicate
+  requirement rows. The follow-up
   `bb11073e Match care plan plural terms` treats care plan and care plans as
   the same local evidence without duplicate singular/plural requirement rows.
   The follow-up
