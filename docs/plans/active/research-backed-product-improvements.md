@@ -227,6 +227,10 @@ copy durable findings back into this plan or the active status surface.
   adds travel availability to common saved-answer patterns, so users can
   prepare travel-load or site-visit answers before a hard travel question
   appears.
+- Current local Application Assist saved-travel review follow-up in `d69bb2ab`
+  shows matching saved travel, relocation, commute, remote, hybrid, or on-site
+  screening answers in the hard question review when saved job details mention
+  location or travel constraints.
 - Current local healthcare bullet-prompt follow-up in `e7a61306` adds a
   role-specific evidence reminder for healthcare and licensed-work job details,
   asking users to check scope of practice, patient safety, documentation, and

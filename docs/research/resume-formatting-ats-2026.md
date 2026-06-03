@@ -212,6 +212,9 @@ resume help should adjust examples and evidence prompts for:
 - Application Assist includes travel availability in common saved-answer
   patterns, so users can prepare travel-load or site-visit answers before hard
   travel questions appear.
+- Application Assist shows matching saved travel, relocation, commute, remote,
+  hybrid, or on-site screening answers in the hard question review when saved
+  job details mention location or travel constraints.
 - Required, preferred, and other job-post language stay grouped in fit notes.
 - Recognized local job-post requirements now show match states and evidence
   sections, and recognized missing hard requirements cap the fit label until

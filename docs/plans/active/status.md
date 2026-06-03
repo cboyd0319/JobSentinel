@@ -144,6 +144,11 @@ acceptance still requires Developer ID signing and notarization.
   `cb2886df Add travel screening quick add` adds travel availability to common
   saved-answer patterns, so users can prepare travel answers before travel-load
   or site-visit questions appear. The follow-up
+  `d69bb2ab Show saved travel screening review` shows matching saved travel,
+  relocation, commute, remote, hybrid, or on-site screening answers in the hard
+  question review when saved job details mention location or travel constraints,
+  so users can compare the saved answer with employer wording and resume
+  evidence before continuing. The follow-up
   `e7a61306 Add healthcare bullet evidence prompt` adds a role-specific
   evidence reminder for healthcare and licensed-work job details, asking users
   to check scope of practice, patient safety, documentation, and required
