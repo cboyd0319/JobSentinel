@@ -1037,6 +1037,14 @@ copy durable findings back into this plan or the active status surface.
   test --lib ats_analyzer --manifest-path src-tauri/Cargo.toml`, `cargo fmt
   --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo clippy
   --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff --check`.
+- Current local academic-heading follow-up in `efdfe888` treats Academic
+  Background, Academic History, and Education Background as standard
+  readable-resume structure and education evidence instead of a formatting
+  defect. Verification passed: `cargo test --lib academic_headings
+  --manifest-path src-tauri/Cargo.toml`, `cargo test --lib ats_analyzer
+  --manifest-path src-tauri/Cargo.toml`, `cargo fmt --all --manifest-path
+  src-tauri/Cargo.toml -- --check`, `cargo clippy --manifest-path
+  src-tauri/Cargo.toml -- -D warnings`, and `git diff --check`.
 - Current local interview-defense bullet follow-up adds a reminder to drafted
   alternative bullets to check the problem, role, action, result, and evidence
   before using stronger wording.
