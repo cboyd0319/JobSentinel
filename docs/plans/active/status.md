@@ -45,16 +45,16 @@ acceptance still requires Developer ID signing and notarization.
 
 ## Current Posture
 
-- `main` was pushed through `f3f52b2b Cover hard review answer load fallback`.
+- `main` was pushed through `ed6ecb7e Record minimum age screening quick add`.
   Use `git status --short --branch` for live evidence before committing,
   pushing, or reporting remote state.
-- Latest pushed critical-functionality batch expands Application Assist saved
-  screening-answer setup and hard-question review for sponsorship, work
-  authorization, travel, credentials, education, experience, salary, and
-  availability; adds safer fallback coverage when saved answers cannot load;
-  and improves Resume Match readable-preview guidance, job-word honesty copy,
-  and score-humility copy. Keep the no-push batch rule: push only after 30 more
-  local commits unless the user changes cadence.
+- Latest pushed critical-functionality batch expands Resume Match required,
+  preferred, language, supervisor, shift-lead, remote, hybrid, and schedule
+  constraint review; broadens bilingual evidence matching; and adds
+  Application Assist hard-question review plus saved-answer quick-add setup for
+  background checks, drug screens, language fluency, physical requirements, and
+  minimum-age requirements. Keep the no-push batch rule: push only after 30
+  more local commits unless the user changes cadence.
 - Current local resume evidence-strength follow-up separates plain-text
   saved-resume requirement evidence by section, so skills-list-only terms stay
   lighter evidence while experience, summary, project, education,
