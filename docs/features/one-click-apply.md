@@ -107,6 +107,7 @@ You can save reusable answers for common questions:
 | `salary`              | "What is your expected salary..."  |
 | `notice period`       | "What is your notice period..."    |
 | `relocate`            | "Are you willing to relocate..."   |
+| `sponsorship`         | "Do you need visa sponsorship..."  |
 
 Use plain words that appear in the screening question. Matching ignores
 capitalization.

@@ -197,6 +197,9 @@ resume help should adjust examples and evidence prompts for:
   answer when saved job details ask about authorization or sponsorship, so
   users can compare it with employer wording and resume evidence before
   continuing.
+- Application Assist includes visa sponsorship in common saved-answer patterns,
+  so users can set up that reusable answer without typing the matching phrase
+  first.
 - Required, preferred, and other job-post language stay grouped in fit notes.
 - Recognized local job-post requirements now show match states and evidence
   sections, and recognized missing hard requirements cap the fit label until

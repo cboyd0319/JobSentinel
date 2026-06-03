@@ -127,6 +127,10 @@ acceptance still requires Developer ID signing and notarization.
   or work-authorization profile answer in that review when saved job details
   ask about authorization or sponsorship, so users can compare the saved answer
   with employer wording and resume evidence before continuing. The follow-up
+  `ec64ec1b Add sponsorship screening quick add` adds visa sponsorship to
+  Application Assist's common saved-answer patterns, so users can set up a
+  reusable sponsorship answer without typing the matching phrase first. The
+  follow-up
   `e7a61306 Add healthcare bullet evidence prompt` adds a role-specific
   evidence reminder for healthcare and licensed-work job details, asking users
   to check scope of practice, patient safety, documentation, and required

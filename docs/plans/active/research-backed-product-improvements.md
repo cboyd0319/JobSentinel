@@ -208,6 +208,9 @@ copy durable findings back into this plan or the active status surface.
   shows the saved sponsorship or work-authorization profile answer when saved
   job details ask about authorization or sponsorship, so users can compare the
   saved answer with employer wording and resume evidence before continuing.
+- Current local Application Assist sponsorship quick-add follow-up in
+  `ec64ec1b` adds visa sponsorship to common saved-answer patterns, so users can
+  set up a reusable sponsorship answer without typing the matching phrase first.
 - Current local healthcare bullet-prompt follow-up in `e7a61306` adds a
   role-specific evidence reminder for healthcare and licensed-work job details,
   asking users to check scope of practice, patient safety, documentation, and
