@@ -100,10 +100,13 @@ acceptance still requires Developer ID signing and notarization.
   the Resume Match feature guide, and the active research-backed plan. It adds
   local readable-text checks for top contact details, standard headings, and
   table-like extracted text. It also records future work for requirement
-  inventory, knockout-question consistency, file-type/file-size checks,
-  selectable-text review, ethical confidence prompts, score humility, and
-  profession-specific evidence prompts. Real resume/profile reference material
-  remains private and must not be committed.
+  inventory, knockout-question consistency, selectable-text review, ethical
+  confidence prompts, score humility, and profession-specific evidence prompts.
+  The follow-up `19efc7ba Limit selected resume upload size` rejects selected
+  PDF, DOCX, TXT, and Markdown resume uploads over 10 MB before copying them
+  into managed local storage, without echoing the source path or file name in
+  the user-facing error. Real resume/profile reference material remains private
+  and must not be committed.
 - Current local resume-alignment scoring follow-up is committed in
   `3d720693 Add resume requirement review caps`. It locks
   `/Users/c/Downloads/ats_scoring_algorithm.md` into

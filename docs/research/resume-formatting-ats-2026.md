@@ -179,6 +179,8 @@ resume help should adjust examples and evidence prompts for:
 - Resume matching stays local by default.
 - Users can open a bounded readable-text preview.
 - PDF, DOCX, TXT, and Markdown resume import are supported locally.
+- Selected resume uploads are checked locally and files over 10 MB are rejected
+  before being copied into managed local storage.
 - Active saved resume can be used for local fit review without copying
   structured details into the page.
 - Required, preferred, and other job-post language stay grouped in fit notes.
@@ -193,8 +195,8 @@ resume help should adjust examples and evidence prompts for:
 
 - Add a guided requirement-inventory workflow for serious applications.
 - Add a plain-text preview checklist with pass, review, and unknown states.
-- Add file-size and selectable-text checks where local file metadata and PDF
-  parsing support them.
+- Add selectable-text checks where local PDF parsing supports them, and extend
+  file-size metadata guidance if employer-specific limits are available.
 - Add a knockout-question consistency review in Application Assist.
 - Add role-specific evidence prompts and examples across non-technical,
   technical, licensed, government, academic, early-career, and career-change
