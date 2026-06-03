@@ -238,6 +238,12 @@ copy durable findings back into this plan or the active status surface.
   research, publication, and university job details, asking users to check the
   learner or research audience, standards or methods, outcomes, collaboration,
   and ethics before using drafted alternative bullets.
+- Current local executive/leadership bullet-prompt follow-up in `1b566010` adds
+  a role-specific evidence reminder for director-level, executive, people
+  management, budget ownership, organizational strategy, and change-management
+  job details, asking users to check scope of ownership, team or budget size,
+  decision authority, measurable business impact, and change risk before using
+  drafted alternative bullets.
 - Current local onsite location-term follow-up in `bffa0a1f` treats onsite and
   on-site as equivalent local hard-constraint evidence, so exact punctuation
   differences do not create a false missing-location risk.

@@ -221,6 +221,9 @@ resume help should adjust examples and evidence prompts for:
 - Drafted bullet improvements add an education and academic evidence prompt for
   teaching, curriculum, student support, faculty, research, publication, and
   university work.
+- Drafted bullet improvements add an executive and leadership evidence prompt
+  for director-level, executive, people-management, budget, strategy, and
+  change-management work.
 
 ## Backlog To Lock Next
 

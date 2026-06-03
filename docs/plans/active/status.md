@@ -153,7 +153,13 @@ acceptance still requires Developer ID signing and notarization.
   academic evidence reminder for teaching, curriculum, student, faculty,
   research, publication, and university job details, asking users to check the
   learner or research audience, standards or methods, outcomes, collaboration,
-  and ethics before using drafted alternative bullets. Real resume/profile
+  and ethics before using drafted alternative bullets. The follow-up
+  `1b566010 Add executive leadership bullet prompt` adds an executive and
+  leadership evidence reminder for director-level, executive, people
+  management, budget ownership, organizational strategy, and change-management
+  job details, asking users to check scope of ownership, team or budget size,
+  decision authority, measurable business impact, and change risk before using
+  drafted alternative bullets. Real resume/profile
   reference material remains private and must not be committed.
 - Current local resume-alignment scoring follow-up is committed in
   `3d720693 Add resume requirement review caps`. It locks
