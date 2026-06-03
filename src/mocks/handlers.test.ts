@@ -990,6 +990,31 @@ describe("mock Tauri handlers", () => {
       ]),
     );
 
+    const underLevelResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "Senior service coordinator with 7 years of intake scheduling.",
+        experience: [
+          {
+            ...atsResume.experience[0],
+            title: "Senior Service Coordinator",
+            achievements: ["Handled intake scheduling and case documentation."],
+          },
+        ],
+      },
+      jobDescription: "Required: staff-level experience, CRM",
+    });
+    expect(underLevelResult.hard_constraint_risks).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          requirement: "staff/principal-level experience",
+          category: "Experience",
+          score_cap: 65,
+          action: expect.stringContaining("lower-title or fewer-years"),
+        }),
+      ]),
+    );
+
     const nightShiftResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
         ...atsResume,

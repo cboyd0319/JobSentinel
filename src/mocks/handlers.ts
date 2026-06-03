@@ -2406,7 +2406,7 @@ function buildMockHardConstraintRisks(
           category,
           score_cap: getMockHardConstraintScoreCap(category),
           reason: "A required hard constraint was not clearly found in the resume.",
-          action: getMockHardConstraintAction(category),
+          action: getMockHardConstraintAction(review.keyword, category),
         },
       ];
     })
@@ -2416,7 +2416,14 @@ function buildMockHardConstraintRisks(
     );
 }
 
-function getMockHardConstraintAction(category: MockHardConstraintCategory): string {
+function getMockHardConstraintAction(
+  keyword: string,
+  category: MockHardConstraintCategory,
+): string {
+  if (category === "Experience" && isMockSeniorityLevelConstraint(keyword)) {
+    return "Check whether your visible level matches this role; lower-title or fewer-years evidence may not satisfy it. Do not round up, stretch titles, or imply more experience than you have.";
+  }
+
   switch (category) {
     case "WorkAuthorization":
       return "Check work authorization before tailoring. If it is not true for you, do not claim it.";
@@ -2433,6 +2440,17 @@ function getMockHardConstraintAction(category: MockHardConstraintCategory): stri
     case "Location":
       return "Check location, schedule, availability, or travel before tailoring. If it is not workable for you, do not claim it.";
   }
+}
+
+function isMockSeniorityLevelConstraint(keyword: string): boolean {
+  return [
+    "senior-level experience",
+    "mid-level experience",
+    "lead-level experience",
+    "staff/principal-level experience",
+    "director-level experience",
+    "executive-level experience",
+  ].includes(keyword.toLowerCase());
 }
 
 function getMockHardConstraintScoreCap(category: MockHardConstraintCategory): number {

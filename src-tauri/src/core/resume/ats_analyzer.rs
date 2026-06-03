@@ -1834,7 +1834,7 @@ impl AtsAnalyzer {
                     score_cap,
                     reason: "A required hard constraint was not clearly found in the resume."
                         .to_string(),
-                    action: Self::hard_constraint_action(category),
+                    action: Self::hard_constraint_action(&review.keyword, category),
                 })
             })
             .collect::<Vec<_>>();
@@ -1860,7 +1860,14 @@ impl AtsAnalyzer {
         }
     }
 
-    fn hard_constraint_action(category: HardConstraintCategory) -> String {
+    fn hard_constraint_action(keyword: &str, category: HardConstraintCategory) -> String {
+        if category == HardConstraintCategory::Experience
+            && Self::seniority_level_constraint_keyword(keyword)
+        {
+            return "Check whether your visible level matches this role; lower-title or fewer-years evidence may not satisfy it. Do not round up, stretch titles, or imply more experience than you have."
+                .to_string();
+        }
+
         match category {
             HardConstraintCategory::WorkAuthorization => {
                 "Check work authorization before tailoring. If it is not true for you, do not claim it."
@@ -1888,6 +1895,18 @@ impl AtsAnalyzer {
             }
         }
         .to_string()
+    }
+
+    fn seniority_level_constraint_keyword(keyword: &str) -> bool {
+        matches!(
+            keyword.to_lowercase().as_str(),
+            "senior-level experience"
+                | "mid-level experience"
+                | "lead-level experience"
+                | "staff/principal-level experience"
+                | "director-level experience"
+                | "executive-level experience"
+        )
     }
 
     fn hard_constraint_category(keyword: &str) -> Option<HardConstraintCategory> {
@@ -7218,6 +7237,30 @@ Preferred: Salesforce
         }));
         assert!(result.requirement_reviews.iter().any(|review| {
             review.keyword == "senior-level experience"
+                && review.hard_constraint
+                && review.match_state == RequirementMatchState::Missing
+        }));
+    }
+
+    #[test]
+    fn test_higher_seniority_requirement_warns_about_lower_level_evidence() {
+        let mut resume = sample_resume();
+        resume.summary = "Senior service coordinator with 7 years of intake scheduling".to_string();
+        resume.experience[0].title = "Senior Service Coordinator".to_string();
+        resume.experience[0].achievements =
+            vec!["Handled intake scheduling and case documentation".to_string()];
+
+        let result = AtsAnalyzer::analyze_for_job(&resume, "Required: staff-level experience, CRM");
+
+        assert!(result.overall_score <= 65.0);
+        assert!(result.hard_constraint_risks.iter().any(|risk| {
+            risk.requirement == "staff/principal-level experience"
+                && risk.category == HardConstraintCategory::Experience
+                && risk.score_cap == 65.0
+                && risk.action.contains("lower-title or fewer-years")
+        }));
+        assert!(result.requirement_reviews.iter().any(|review| {
+            review.keyword == "staff/principal-level experience"
                 && review.hard_constraint
                 && review.match_state == RequirementMatchState::Missing
         }));
