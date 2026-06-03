@@ -2375,7 +2375,8 @@ impl AtsAnalyzer {
         if can_show_work_evidence
             && (Self::metric_backed_evidence_marker(text_lower)
                 || Self::scope_backed_evidence_marker(text_lower)
-                || Self::responsibility_backed_evidence_marker(text_lower))
+                || Self::responsibility_backed_evidence_marker(text_lower)
+                || Self::duty_backed_evidence_marker(text_lower))
         {
             count + 1
         } else {
@@ -2402,6 +2403,14 @@ impl AtsAnalyzer {
     fn responsibility_backed_evidence_marker(text_lower: &str) -> bool {
         regex::Regex::new(
             r"\b(?:owned|managed|administered|developed|implemented|improved|operated)\b.+\b(?:workflows?|process(?:es)?|programs?|operations?|intake|cases?|systems?|tools?)\b",
+        )
+        .unwrap()
+        .is_match(text_lower)
+    }
+
+    fn duty_backed_evidence_marker(text_lower: &str) -> bool {
+        regex::Regex::new(
+            r"\b(?:coordinated|processed|maintained|tracked|reviewed|prepared|scheduled|organized|documented|responded|resolved|updated|served|followed\s+up|followed-up)\b.+\b(?:requests?|appointments?|records?|orders?|cases?|tickets?|reports?|files?|forms?|calls?|emails?|inquiries|intake|follow[-\s]?ups?|tasks?|schedules?)\b",
         )
         .unwrap()
         .is_match(text_lower)
@@ -3987,7 +3996,7 @@ Preferred: Salesforce
                 .find(|review| review.keyword == "records management")
                 .expect("records management review");
 
-            assert_eq!(review.match_state, RequirementMatchState::Direct);
+            assert_eq!(review.match_state, RequirementMatchState::Strong);
             assert!(
                 review.evidence_sections.contains(&"experience".to_string()),
                 "{heading} should count as experience evidence"
@@ -4011,7 +4020,7 @@ Preferred: Salesforce
             .iter()
             .find(|review| review.keyword == "crm")
             .expect("crm review");
-        assert_eq!(crm.match_state, RequirementMatchState::Direct);
+        assert_eq!(crm.match_state, RequirementMatchState::Strong);
         assert!(crm.evidence_sections.contains(&"experience".to_string()));
     }
 
@@ -5110,7 +5119,7 @@ Preferred: Salesforce
     #[test]
     fn test_conservative_acronym_equivalence_does_not_double_count_same_line() {
         let result = AtsAnalyzer::analyze_text_for_job(
-            "Jordan Lee\njordan@example.com\n\nExperience\nMaintained CRM (customer relationship management) records.",
+            "Jordan Lee\njordan@example.com\n\nExperience\nUsed CRM (customer relationship management).",
             &[],
             "Required: CRM",
         );
@@ -5162,7 +5171,7 @@ Preferred: Salesforce
             .iter()
             .find(|review| review.keyword == "crm")
             .expect("crm review");
-        assert_eq!(crm.match_state, RequirementMatchState::Direct);
+        assert_eq!(crm.match_state, RequirementMatchState::Strong);
         assert!(crm.evidence_sections.contains(&"experience".to_string()));
         assert!(!crm
             .evidence_sections
@@ -5232,6 +5241,27 @@ Preferred: Salesforce
             scheduling.evidence_sections,
             vec!["current experience".to_string()]
         );
+    }
+
+    #[test]
+    fn test_duty_backed_past_experience_counts_as_strong_evidence() {
+        let mut resume = sample_resume();
+        resume.summary.clear();
+        resume.skills.clear();
+        resume.experience[0].current = false;
+        resume.experience[0].end_date = "Dec 2022".to_string();
+        resume.experience[0].achievements =
+            vec!["Coordinated scheduling requests for client appointments".to_string()];
+
+        let result = AtsAnalyzer::analyze_for_job(&resume, "Required: scheduling");
+
+        let scheduling = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "scheduling")
+            .expect("scheduling review");
+        assert_eq!(scheduling.match_state, RequirementMatchState::Strong);
+        assert_eq!(scheduling.evidence_sections, vec!["experience".to_string()]);
     }
 
     #[test]

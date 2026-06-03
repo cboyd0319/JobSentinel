@@ -3122,6 +3122,37 @@ describe("mock Tauri handlers", () => {
     );
   });
 
+  it("treats duty-backed past experience as strong mock evidence", async () => {
+    const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        skills: [],
+        experience: [
+          {
+            ...atsResume.experience[0],
+            current: false,
+            end_date: "2022",
+            achievements: [
+              "Coordinated scheduling requests for client appointments",
+            ],
+          },
+        ],
+      },
+      jobDescription: "Required: scheduling",
+    });
+
+    expect(result.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "scheduling",
+          match_state: "Strong",
+          evidence_sections: ["experience"],
+        }),
+      ]),
+    );
+  });
+
   it("treats single current-role evidence as stronger than the same past-role mock evidence", async () => {
     const currentResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {

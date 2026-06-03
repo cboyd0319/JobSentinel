@@ -3488,7 +3488,8 @@ function countMockEvidenceFrequency(
       (
         hasMockMetricBackedEvidence(text) ||
         hasMockScopeBackedEvidence(text) ||
-        hasMockResponsibilityBackedEvidence(text)
+        hasMockResponsibilityBackedEvidence(text) ||
+        hasMockDutyBackedEvidence(text)
       )
   );
   return hasMetricBackedEvidence ? base + 1 : base;
@@ -3506,6 +3507,11 @@ function hasMockScopeBackedEvidence(text: string): boolean {
 
 function hasMockResponsibilityBackedEvidence(text: string): boolean {
   return /\b(?:owned|managed|administered|developed|implemented|improved|operated)\b.+\b(?:workflows?|process(?:es)?|programs?|operations?|intake|cases?|systems?|tools?)\b/i
+    .test(text);
+}
+
+function hasMockDutyBackedEvidence(text: string): boolean {
+  return /\b(?:coordinated|processed|maintained|tracked|reviewed|prepared|scheduled|organized|documented|responded|resolved|updated|served|followed\s+up|followed-up)\b.+\b(?:requests?|appointments?|records?|orders?|cases?|tickets?|reports?|files?|forms?|calls?|emails?|inquiries|intake|follow[-\s]?ups?|tasks?|schedules?)\b/i
     .test(text);
 }
 
