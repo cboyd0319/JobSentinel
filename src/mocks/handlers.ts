@@ -2656,6 +2656,28 @@ function getMockRoleSpecificEvidencePrompt(jobContext: string): string | null {
     return "healthcare evidence to check: scope of practice, patient safety, documentation, and required credentials";
   }
 
+  const tradesFieldTerms = [
+    "maintenance technician",
+    "equipment repair",
+    "field service",
+    "forklift",
+    "osha",
+    "work order",
+    "work orders",
+    "installation",
+    "installer",
+    "hvac",
+    "plumbing",
+    "electrical",
+    "welding",
+    "machine operator",
+    "warehouse safety",
+  ];
+
+  if (tradesFieldTerms.some((term) => lower.includes(term))) {
+    return "trades-field evidence to check: equipment or tools used, safety rules, work orders, downtime or quality impact, and required licenses";
+  }
+
   const educationAcademicTerms = [
     "teaching",
     "teacher",

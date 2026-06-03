@@ -1414,6 +1414,16 @@ describe("mock Tauri handlers", () => {
     expect(healthcareImproved).toContain("patient safety");
     expect(healthcareImproved).toContain("required credentials");
 
+    const tradesImproved = await mockInvoke<string>("improve_bullet_point", {
+      bullet: "completed maintenance work orders",
+      jobContext: "Required: maintenance technician, equipment repair, OSHA 10, forklift operation",
+    });
+    expect(tradesImproved).toContain("trades-field evidence to check");
+    expect(tradesImproved).toContain("equipment or tools used");
+    expect(tradesImproved).toContain("safety rules");
+    expect(tradesImproved).toContain("work orders");
+    expect(tradesImproved).toContain("required licenses");
+
     const regulatedImproved = await mockInvoke<string>("improve_bullet_point", {
       bullet: "supported case files and reconciliation",
       jobContext: "Required: legal research, case files, financial reconciliation",

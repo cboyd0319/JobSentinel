@@ -527,6 +527,30 @@ impl AtsAnalyzer {
             );
         }
 
+        let trades_field_terms = [
+            "maintenance technician",
+            "equipment repair",
+            "field service",
+            "forklift",
+            "osha",
+            "work order",
+            "work orders",
+            "installation",
+            "installer",
+            "hvac",
+            "plumbing",
+            "electrical",
+            "welding",
+            "machine operator",
+            "warehouse safety",
+        ];
+
+        if trades_field_terms.iter().any(|term| lower.contains(term)) {
+            return Some(
+                "trades-field evidence to check: equipment or tools used, safety rules, work orders, downtime or quality impact, and required licenses",
+            );
+        }
+
         let education_academic_terms = [
             "teaching",
             "teacher",
@@ -3961,6 +3985,21 @@ Preferred: Salesforce
         assert!(improved.contains("scope of practice"));
         assert!(improved.contains("patient safety"));
         assert!(improved.contains("required credentials"));
+        assert!(improved.contains("problem, your role, action, result, and evidence"));
+    }
+
+    #[test]
+    fn test_improve_bullet_adds_trades_field_evidence_prompt() {
+        let bullet = "Completed maintenance work orders";
+        let job_desc =
+            "Required: maintenance technician, equipment repair, OSHA 10, forklift operation";
+        let improved = AtsAnalyzer::improve_bullet(bullet, Some(job_desc));
+
+        assert!(improved.contains("trades-field evidence to check"));
+        assert!(improved.contains("equipment or tools used"));
+        assert!(improved.contains("safety rules"));
+        assert!(improved.contains("work orders"));
+        assert!(improved.contains("required licenses"));
         assert!(improved.contains("problem, your role, action, result, and evidence"));
     }
 
