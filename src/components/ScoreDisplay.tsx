@@ -115,6 +115,11 @@ function getScoreInfo(score: number) {
   };
 }
 
+const UNSCORED_SCORE_INFO = {
+  label: "No fit yet",
+  explanation: "No local fit estimate has been saved yet.",
+} as const;
+
 /**
  * Fit factor priorities for display.
  */
@@ -252,11 +257,13 @@ const SIZE_CONFIG = {
 function ScoreBreakdownTooltip({
   score,
   scoreReasons,
+  isUnscored = false,
 }: {
   score: number;
   scoreReasons?: string | null;
+  isUnscored?: boolean;
 }) {
-  const scoreInfo = getScoreInfo(score);
+  const scoreInfo = isUnscored ? UNSCORED_SCORE_INFO : getScoreInfo(score);
   const parsed = parseScoreReasons(scoreReasons);
   const hasReasons = Object.values(parsed).some((arr) => arr.length > 0);
 
@@ -340,9 +347,10 @@ export const ScoreDisplay = memo(function ScoreDisplay({
   onClick,
 }: ScoreDisplayProps) {
   // Guard against null/NaN/undefined scores
+  const isUnscored = score === null;
   const safeScore: number = score != null && Number.isFinite(score) ? score : 0;
   const percentage = Math.round(safeScore * 100);
-  const scoreInfo = getScoreInfo(safeScore);
+  const scoreInfo = isUnscored ? UNSCORED_SCORE_INFO : getScoreInfo(safeScore);
 
   // Color based on score
   const getScoreColor = () => {
@@ -380,7 +388,11 @@ export const ScoreDisplay = memo(function ScoreDisplay({
   return (
     <Tooltip
       content={
-        <ScoreBreakdownTooltip score={safeScore} scoreReasons={scoreReasons} />
+        <ScoreBreakdownTooltip
+          score={safeScore}
+          scoreReasons={scoreReasons}
+          isUnscored={isUnscored}
+        />
       }
       position="top"
     >
@@ -389,7 +401,9 @@ export const ScoreDisplay = memo(function ScoreDisplay({
         tabIndex={onClick ? 0 : undefined}
         aria-label={
           onClick
-            ? `Fit estimate: ${percentage}%. ${scoreInfo.label}`
+            ? isUnscored
+              ? `Fit estimate: not enough information. ${scoreInfo.label}`
+              : `Fit estimate: ${percentage}%. ${scoreInfo.label}`
             : undefined
         }
         className={`inline-flex flex-col items-center gap-1 ${onClick ? "cursor-pointer" : "cursor-help"}`}
@@ -446,7 +460,7 @@ export const ScoreDisplay = memo(function ScoreDisplay({
             <span
               className={`font-mono font-semibold ${config.fontSize} ${colors.text}`}
             >
-              {percentage}%
+              {isUnscored ? "--" : `${percentage}%`}
             </span>
           </div>
         </div>

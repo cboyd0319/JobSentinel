@@ -198,9 +198,9 @@ describe("JobCard", () => {
     it("handles null score without crashing", () => {
       const nullScoreJob = { ...mockJob, score: null };
       renderWithToast(<JobCard job={nullScoreJob} />);
-      // Should render 0% for null score
-      const scoreDisplay = screen.getByText("0%");
+      const scoreDisplay = screen.getByText("--");
       expect(scoreDisplay).toBeInTheDocument();
+      expect(screen.queryByText("0%")).not.toBeInTheDocument();
     });
 
     it("handles NaN score without crashing", () => {

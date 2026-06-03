@@ -19,6 +19,22 @@ describe("ScoreDisplay", () => {
       expect(screen.getByText("0%")).toBeInTheDocument();
     });
 
+    it("shows not-enough-information copy for null scores", async () => {
+      const { container } = render(<ScoreDisplay score={null} />);
+
+      expect(screen.getByText("--")).toBeInTheDocument();
+      expect(screen.getByText("No fit yet")).toBeInTheDocument();
+      expect(screen.queryByText("0%")).not.toBeInTheDocument();
+
+      const trigger = container.querySelector(".cursor-help");
+      expect(trigger).not.toBeNull();
+      fireEvent.mouseEnter(trigger as Element);
+
+      await waitFor(() => {
+        expect(screen.getByText(/no local fit estimate has been saved yet/i)).toBeInTheDocument();
+      });
+    });
+
     it("shows 100% for perfect score", () => {
       render(<ScoreDisplay score={1} />);
       expect(screen.getByText("100%")).toBeInTheDocument();
@@ -134,6 +150,16 @@ describe("ScoreDisplay", () => {
         screen.getByRole("button", { name: /fit estimate: 80%\. good fit/i }),
       ).toBeInTheDocument();
       expect(screen.queryByLabelText(/match score/i)).not.toBeInTheDocument();
+    });
+
+    it("uses not-enough-information aria copy when clickable and unscored", () => {
+      render(<ScoreDisplay score={null} onClick={() => {}} />);
+
+      expect(
+        screen.getByRole("button", {
+          name: /fit estimate: not enough information\. no fit yet/i,
+        }),
+      ).toBeInTheDocument();
     });
 
     it("applies cursor-help when no onClick", () => {
