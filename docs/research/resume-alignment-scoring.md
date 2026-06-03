@@ -240,6 +240,9 @@ Future implementation should improve:
   equivalent local schedule evidence for required day-shift constraints.
 - Resume/job fit now treats `availability` and `available` as equivalent local
   schedule evidence for required availability constraints.
+- Resume/job fit now treats `US citizenship`, `U.S. citizenship`, `US citizen`,
+  and `U.S. citizen` as equivalent local citizenship evidence, without treating
+  generic work authorization as citizenship.
 - Resume/job fit now treats lift-weight wording with the same number, such as
   `lift 50 lbs` and `lift 50 pounds`, as equivalent local physical-demand
   evidence.

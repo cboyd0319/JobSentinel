@@ -176,6 +176,10 @@ copy durable findings back into this plan or the active status surface.
   drivers license, and driver license as equivalent local hard-constraint
   evidence, so exact license wording differences do not create a false missing
   risk.
+- Current local US-citizenship follow-up in `9ebc7be9` treats US citizenship,
+  U.S. citizenship, US citizen, and U.S. citizen as equivalent local
+  hard-constraint evidence without treating generic work authorization as
+  citizenship.
 - Current local structured evidence recency follow-up marks structured resume
   matches from a current role as `current experience`, without changing older
   role evidence labels.
@@ -1725,6 +1729,7 @@ source-filter compatibility issue appears.
   Lift-weight unit work is committed in `5be01ab3`.
   Standing-period work is committed in `ce37de4c`.
   Driver-license work is committed in `06ae464c`.
+  US-citizenship work is committed in `9ebc7be9`.
   Structured evidence recency work is committed in `56d9a5ab`.
   Plain-text evidence recency work is committed in `66c587a8`.
   Metric-backed evidence-strength work is committed in `4607b67f`.

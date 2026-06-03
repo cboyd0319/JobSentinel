@@ -158,6 +158,10 @@ acceptance still requires Developer ID signing and notarization.
   `06ae464c Match driver license terms` treats driver's license, drivers
   license, and driver license as the same local hard-constraint evidence. The
   follow-up
+  `9ebc7be9 Match US citizenship terms` treats US citizenship, U.S.
+  citizenship, US citizen, and U.S. citizen as the same local hard-constraint
+  evidence without treating generic work authorization as citizenship. The
+  follow-up
   `66c587a8 Mark current plain text resume evidence` marks readable Experience
   bullets after a present-date role marker as current-experience evidence, then
   resets that label when a later past-role date range appears. The follow-up

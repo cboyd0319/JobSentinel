@@ -178,6 +178,9 @@ The current local matcher:
 - treats recognized required seniority language, such as senior-level
   experience, as a local experience constraint and checks for visible role,
   leadership, or enough-years evidence before raising the fit label;
+- treats **US citizenship**, **U.S. citizenship**, **US citizen**, and
+  **U.S. citizen** as the same local citizenship evidence without treating
+  generic work authorization as citizenship;
 - treats conservative local term equivalents, such as **CRM** and **customer
   relationship management**, and **customer service**, **customer support**,
   **client service**, **client services**, and **client support**, as the same
