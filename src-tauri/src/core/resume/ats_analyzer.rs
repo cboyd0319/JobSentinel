@@ -1665,6 +1665,10 @@ impl AtsAnalyzer {
             || lower.contains("food handler")
             || lower.contains("first aid")
             || lower.contains("first-aid")
+            || lower.contains("forklift certification")
+            || lower.contains("forklift certified")
+            || lower.contains("forklift license")
+            || lower.contains("forklift operator")
             || lower.contains("basic life support")
             || lower.contains("advanced cardiovascular life support")
             || lower.contains("cardiopulmonary resuscitation")
@@ -1954,6 +1958,15 @@ impl AtsAnalyzer {
                 "first-aid certified",
                 "first aid certificate",
                 "first-aid certificate",
+            ],
+            &[
+                "forklift",
+                "forklift certification",
+                "forklift certified",
+                "forklift operator certification",
+                "forklift operator certified",
+                "forklift license",
+                "forklift operator license",
             ],
             &[
                 "cissp",
@@ -2323,7 +2336,7 @@ impl AtsAnalyzer {
             r"(?i)\b(work authorization|authorized to work|visa sponsorship|u\.?s\.?\s+citizenship|u\.?s\.?\s+citizen|citizenship required)\b",
             r"(?i)\b(security clearance|clearance)\b",
             r"(?i)\b(driver'?s license|driver license|cdl|rn license|nursing license)\b",
-            r"(?i)\b(certification|cissp|security\+|bls|basic life support|acls|advanced cardiovascular life support|cpr|cardiopulmonary resuscitation|cna|certified nursing assistant|certified nurse assistant|certified nurse aide|servsafe|food safety certification|food handler certification|food handler certificate|food handler permit|food handlers permit|food handler card|first[- ]aid certification|first[- ]aid certified|first[- ]aid certificate|first[- ]aid)\b",
+            r"(?i)\b(certification|cissp|security\+|bls|basic life support|acls|advanced cardiovascular life support|cpr|cardiopulmonary resuscitation|cna|certified nursing assistant|certified nurse assistant|certified nurse aide|servsafe|food safety certification|food handler certification|food handler certificate|food handler permit|food handlers permit|food handler card|first[- ]aid certification|first[- ]aid certified|first[- ]aid certificate|first[- ]aid|forklift certification|forklift certified|forklift operator certification|forklift operator certified|forklift license|forklift operator license)\b",
             r"(?i)\b(bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree|high school diploma|high school degree|ged|high school equivalency|general education development)\b",
             r"(?i)\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b",
             r"(?i)\b(lift(?:\s+up\s+to)?\s+\d+\s*(?:pounds?|lbs?)|stand for long periods?|physical requirements?|physical demands?)\b",
@@ -2378,6 +2391,12 @@ impl AtsAnalyzer {
             "first-aid certified",
             "first aid certificate",
             "first-aid certificate",
+            "forklift certification",
+            "forklift certified",
+            "forklift operator certification",
+            "forklift operator certified",
+            "forklift license",
+            "forklift operator license",
         ];
         if keywords
             .iter()
@@ -2509,6 +2528,7 @@ impl AtsAnalyzer {
             "first aid",
             "first aid certification",
             "cash handling",
+            "forklift certification",
             "document review",
             "case files",
             "legal research",
@@ -3631,6 +3651,34 @@ Preferred: Salesforce
             .hard_constraint_risks
             .iter()
             .any(|risk| risk.requirement == "first aid certification"));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "certification"));
+    }
+
+    #[test]
+    fn test_requirement_review_uses_forklift_credential_equivalence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nCertifications\nForklift Operator Certification",
+            &[],
+            "Required: forklift certification",
+        );
+
+        let forklift = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "forklift certification")
+            .expect("forklift certification review");
+        assert_eq!(forklift.match_state, RequirementMatchState::Direct);
+        assert!(forklift.hard_constraint);
+        assert!(forklift
+            .evidence_sections
+            .contains(&"certifications".to_string()));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "forklift certification"));
         assert!(!result
             .hard_constraint_risks
             .iter()
