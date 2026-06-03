@@ -186,6 +186,8 @@ The current local matcher:
   still avoiding broad fuzzy matching;
 - treats **onsite**, **on-site**, and **on site** as the same local location
   evidence for required location constraints;
+- treats **reliable transportation** and **own transportation** as the same
+  local location evidence for required commute or transportation constraints;
 - treats clear credential equivalents, such as **BLS** and **Basic Life
   Support**, as the same evidence without guessing unrelated credentials;
 - treats CNA, Certified Nursing Assistant, Certified Nurse Assistant, and
