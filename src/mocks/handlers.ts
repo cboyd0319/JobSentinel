@@ -2203,7 +2203,7 @@ function analyzeMockResumeForJob(args?: Record<string, unknown>): MockAtsAnalysi
       keywordMatches.push({
         keyword,
         found_in: foundIn,
-        frequency: countMockSearchTermFrequency(sections.allText, keyword),
+        frequency: countMockEvidenceFrequency(sections, keyword),
         importance,
       });
     } else {
@@ -3233,6 +3233,29 @@ function countMockSearchTermFrequency(text: string, keyword: string): number {
     0,
     ...searchTerms.map((term) => countKeywordFrequency(text, term)),
   );
+}
+
+function countMockEvidenceFrequency(
+  sections: ReturnType<typeof getMockAtsResumeSections>,
+  keyword: string,
+): number {
+  const base = countMockSearchTermFrequency(sections.allText, keyword);
+  if (base === 0) return 0;
+  const searchTerms = getConservativeMockSearchTerms(keyword);
+  const workEvidence = [
+    ...sections.currentExperience,
+    ...sections.pastExperience,
+    ...sections.projects,
+  ];
+  const hasMetricBackedEvidence = workEvidence.some((text) =>
+    containsAnyMockKeyword(text, searchTerms) && hasMockMetricBackedEvidence(text)
+  );
+  return hasMetricBackedEvidence ? base + 1 : base;
+}
+
+function hasMockMetricBackedEvidence(text: string): boolean {
+  return /\b\d+(?:\.\d+)?\s*(?:%|(?:percent|clients?|customers?|cases?|tickets?|orders?|projects?|reports?|days?|weeks?|months?)\b)|\$\s*\d/i
+    .test(text);
 }
 
 function countKeywordFrequency(text: string, keyword: string): number {

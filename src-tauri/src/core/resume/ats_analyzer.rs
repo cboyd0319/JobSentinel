@@ -1768,7 +1768,7 @@ impl AtsAnalyzer {
                             "experience"
                         };
                     Self::add_evidence_section(&mut found_in, section);
-                    frequency += count;
+                    frequency += Self::evidence_strength_adjusted_count(count, &exp_text, section);
                 }
             }
 
@@ -1816,7 +1816,8 @@ impl AtsAnalyzer {
                 let count = Self::keyword_frequency_for_search_terms(&project_lower, &search_terms);
                 if count > 0 {
                     Self::add_evidence_section(&mut found_in, "projects");
-                    frequency += count;
+                    frequency +=
+                        Self::evidence_strength_adjusted_count(count, &project_lower, "projects");
                 }
             }
 
@@ -2200,10 +2201,38 @@ impl AtsAnalyzer {
                     current_section
                 };
             Self::add_evidence_section(&mut found_in, evidence_section);
-            frequency += count;
+            frequency +=
+                Self::evidence_strength_adjusted_count(count, &line_lower, evidence_section);
         }
 
         (found_in, frequency)
+    }
+
+    fn evidence_strength_adjusted_count(
+        count: usize,
+        text_lower: &str,
+        evidence_section: &str,
+    ) -> usize {
+        if count == 0 {
+            return 0;
+        }
+        let can_show_work_evidence = matches!(
+            evidence_section,
+            "experience" | "current experience" | "projects"
+        );
+        if can_show_work_evidence && Self::metric_backed_evidence_marker(text_lower) {
+            count + 1
+        } else {
+            count
+        }
+    }
+
+    fn metric_backed_evidence_marker(text_lower: &str) -> bool {
+        regex::Regex::new(
+            r"(?:\b\d+(?:\.\d+)?\s*(?:%|(?:percent|clients?|customers?|cases?|tickets?|orders?|projects?|reports?|days?|weeks?|months?)\b)|\$\s*\d)",
+        )
+        .unwrap()
+        .is_match(text_lower)
     }
 
     fn plain_text_current_experience_marker(line_lower: &str) -> bool {
@@ -3995,6 +4024,27 @@ Preferred: Salesforce
         assert!(!crm
             .evidence_sections
             .contains(&"current experience".to_string()));
+    }
+
+    #[test]
+    fn test_metric_backed_current_experience_counts_as_strong_evidence() {
+        let mut resume = sample_resume();
+        resume.summary.clear();
+        resume.skills.clear();
+        resume.experience[0].achievements = vec!["Reduced scheduling delays by 30%".to_string()];
+
+        let result = AtsAnalyzer::analyze_for_job(&resume, "Required: scheduling");
+
+        let scheduling = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "scheduling")
+            .expect("scheduling review");
+        assert_eq!(scheduling.match_state, RequirementMatchState::Strong);
+        assert_eq!(
+            scheduling.evidence_sections,
+            vec!["current experience".to_string()]
+        );
     }
 
     #[test]
