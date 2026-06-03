@@ -127,8 +127,8 @@ When the saved job details mention hard screening topics, the Application Assist
 preview flags them before opening the form. Review saved answers and resume
 evidence for work authorization, location, relocation, travel, licenses,
 certifications, clearances, education, years of experience, salary, schedule,
-availability, background checks, drug screens, pre-employment screening, and
-language fluency before submitting.
+availability, background checks, drug screens, pre-employment screening,
+language fluency, and physical requirements before submitting.
 
 For work authorization or sponsorship topics, the preview also shows the saved
 profile answer so you can compare it with the employer's wording and your
@@ -155,6 +155,10 @@ continue.
 For language-fluency topics such as bilingual or multilingual requirements,
 the preview can show a matching saved language answer so you can confirm it is
 true for the work before continuing.
+
+For physical requirements such as lifting or standing for long periods, the
+preview can show a matching saved answer so you can confirm it is workable and
+safe for you before continuing.
 
 For background-check, drug-screen, or pre-employment screening topics, the
 preview can show a matching saved answer so you can confirm the answer matches

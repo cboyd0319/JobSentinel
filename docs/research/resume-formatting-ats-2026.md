@@ -243,6 +243,9 @@ resume help should adjust examples and evidence prompts for:
 - Application Assist flags bilingual, multilingual, and language-fluency
   requirements from saved job details and shows matching saved language answers
   in the hard question review when users have saved one.
+- Application Assist flags physical requirements such as lifting or standing
+  from saved job details and shows matching saved screening answers in the hard
+  question review when users have saved one.
 - Resume Match reminds users in the job words overview not to force words they
   cannot support with real work, training, or credentials.
 - Resume Match tells users in the Resume Fit card that the result is local
