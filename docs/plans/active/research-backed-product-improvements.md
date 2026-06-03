@@ -1537,6 +1537,7 @@ source-filter compatibility issue appears.
   Hard-requirement next-action work is committed in `eee933b3`.
   Selected-resume readable-status work is committed in `13432f8a`.
   Citizenship hard-constraint work is committed in `994411ce`.
+  Transportation hard-constraint work is committed in `52639972`.
 - Multi-agent orchestration: a read-only reviewer covered recent resume
   analyzer commits and a read-only explorer recommended Resume Import Status,
   Resume-Assisted Guided Intake, and Source Governance Metadata as next

@@ -147,9 +147,9 @@ The current local matcher:
 - adds requirement-review rows for recognized local job-post keywords with
   visible evidence, needs-support, check-wording, and not-found states;
 - flags recognized missing hard requirements such as authorization, location,
-  citizenship, location, schedule, availability, travel, years of experience,
-  license, certification, degree, or clearance and limits the fit label until
-  the user verifies the requirement;
+  citizenship, schedule, availability, commute or transportation, travel, years
+  of experience, license, certification, degree, or clearance and limits the
+  fit label until the user verifies the requirement;
 - turns the local review into plain next actions such as checking a hard
   requirement before tailoring, adding supporting evidence only if true, or
   keeping useful evidence visible;
