@@ -165,7 +165,13 @@ acceptance still requires Developer ID signing and notarization.
   vulnerability management, NIST, FedRAMP, SIEM, and threat-detection job
   details, asking users to check authorized scope, risk reduced, controls or
   incidents handled, compliance context, and sensitive-data handling before
-  using drafted alternative bullets. Real resume/profile
+  using drafted alternative bullets. The follow-up
+  `b5682e20 Add federal bullet prompt` adds a federal evidence reminder for
+  federal, USAJOBS, specialized-experience, grade-level, public-trust,
+  occupational-series, job-announcement, and required-document job details,
+  asking users to check specialized experience, grade level, announcement
+  duties, dates and hours, citizenship or clearance, and required documents
+  before using drafted alternative bullets. Real resume/profile
   reference material remains private and must not be committed.
 - Current local resume-alignment scoring follow-up is committed in
   `3d720693 Add resume requirement review caps`. It locks

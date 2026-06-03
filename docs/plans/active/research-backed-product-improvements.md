@@ -251,6 +251,12 @@ copy durable findings back into this plan or the active status surface.
   authorized scope, risk reduced, controls or incidents handled, compliance
   context, and sensitive-data handling before using drafted alternative
   bullets.
+- Current local federal bullet-prompt follow-up in `b5682e20` adds a
+  role-specific evidence reminder for federal, USAJOBS, specialized-experience,
+  grade-level, public-trust, occupational-series, job-announcement, and
+  required-document job details, asking users to check specialized experience,
+  grade level, announcement duties, dates and hours, citizenship or clearance,
+  and required documents before using drafted alternative bullets.
 - Current local onsite location-term follow-up in `bffa0a1f` treats onsite and
   on-site as equivalent local hard-constraint evidence, so exact punctuation
   differences do not create a false missing-location risk.

@@ -227,6 +227,9 @@ resume help should adjust examples and evidence prompts for:
 - Drafted bullet improvements add a security evidence prompt for cybersecurity,
   security operations, incident response, vulnerability management, NIST,
   FedRAMP, SIEM, and threat-detection work.
+- Drafted bullet improvements add a federal evidence prompt for USAJOBS,
+  specialized-experience, grade-level, public-trust, occupational-series,
+  job-announcement, and required-document work.
 
 ## Backlog To Lock Next
 
