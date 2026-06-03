@@ -1720,6 +1720,7 @@ impl AtsAnalyzer {
             || lower.contains("travel")
             || lower.contains("transportation")
             || lower.contains("commute")
+            || lower.contains("commuting")
             || lower.contains("availability")
             || lower.contains("available")
             || lower.contains("schedule")
@@ -1963,6 +1964,7 @@ impl AtsAnalyzer {
             &["onsite", "on-site", "on site"],
             &["relocation", "relocate", "willing to relocate"],
             &["reliable transportation", "own transportation"],
+            &["commute", "commuting"],
             &["night shift", "overnight shift", "third shift", "3rd shift"],
             &["weekend availability", "weekend shift", "weekend shifts"],
             &["evening shift", "second shift", "2nd shift"],
@@ -2524,7 +2526,7 @@ impl AtsAnalyzer {
             r"(?i)\b(bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree|high school diploma|high school degree|ged|high school equivalency|general education development)\b",
             r"(?i)\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b",
             r"(?i)\b(lift(?:\s+up\s+to)?\s+\d+\s*(?:pounds?|lbs?)|(?:stand|standing) for long periods?|physical requirements?|physical demands?)\b",
-            r"(?i)\b(onsite|on-site|on site|relocation|relocate|willing to relocate|travel|reliable transportation|own transportation|commute|availability|available|schedule|weekend availability|weekend shifts?|night shift|overnight shift|third shift|3rd shift|evening shift|second shift|2nd shift|day shift|first shift|1st shift)\b",
+            r"(?i)\b(onsite|on-site|on site|relocation|relocate|willing to relocate|travel|reliable transportation|own transportation|commute|commuting|availability|available|schedule|weekend availability|weekend shifts?|night shift|overnight shift|third shift|3rd shift|evening shift|second shift|2nd shift|day shift|first shift|1st shift)\b",
         ];
 
         for pattern in &hard_constraint_patterns {
@@ -4675,6 +4677,30 @@ Preferred: Salesforce
             .hard_constraint_risks
             .iter()
             .any(|risk| risk.requirement == "reliable transportation"));
+    }
+
+    #[test]
+    fn test_commute_requirement_accepts_commuting_evidence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nCommuting to client appointments weekly.",
+            &[],
+            "Required: commute",
+        );
+
+        let commute = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "commute")
+            .expect("commute review");
+        assert_eq!(commute.match_state, RequirementMatchState::Direct);
+        assert!(commute.hard_constraint);
+        assert!(commute
+            .evidence_sections
+            .contains(&"experience".to_string()));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "commute"));
     }
 
     #[test]

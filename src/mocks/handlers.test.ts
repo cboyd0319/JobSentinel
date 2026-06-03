@@ -1464,6 +1464,41 @@ describe("mock Tauri handlers", () => {
     );
   });
 
+  it("matches commute and commuting wording in mock hard constraints", async () => {
+    const commuteResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        experience: [
+          {
+            ...atsResume.experience[0],
+            achievements: ["Commuting to client appointments weekly."],
+          },
+        ],
+        skills: [],
+      },
+      jobDescription: "Required: commute",
+    });
+
+    expect(commuteResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "commute",
+          match_state: "Direct",
+          hard_constraint: true,
+          evidence_sections: expect.arrayContaining(["current experience"]),
+        }),
+      ]),
+    );
+    expect(commuteResult.hard_constraint_risks).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          requirement: "commute",
+        }),
+      ]),
+    );
+  });
+
   it("treats metric-backed current experience as strong mock evidence", async () => {
     const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
