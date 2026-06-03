@@ -363,6 +363,7 @@ describe("ScreeningAnswersForm", () => {
         expect(
           screen.getByText(/\+ Willingness to relocate/i),
         ).toBeInTheDocument();
+        expect(screen.getByText(/\+ Visa sponsorship/i)).toBeInTheDocument();
       });
     });
 
