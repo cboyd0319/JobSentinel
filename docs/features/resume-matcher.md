@@ -199,6 +199,8 @@ The current local matcher:
 - treats **case management** and **case coordination** as the same local
   evidence without treating broader case-documentation wording as enough by
   itself;
+- treats **scheduling**, **calendar management**, and **appointment setting**
+  as the same local evidence while still avoiding broad fuzzy matching;
 - treats **data entry** and **data-entry** as the same local evidence while
   still avoiding broad fuzzy matching;
 - treats **onsite**, **on-site**, and **on site** as the same local location

@@ -132,6 +132,9 @@ copy durable findings back into this plan or the active status surface.
 - Current local case-coordination synonym follow-up in `e854b515` treats case
   management and case coordination as equivalent local evidence without
   treating broader case-documentation wording as enough by itself.
+- Current local calendar-scheduling synonym follow-up in `2cdf11f8` treats
+  scheduling, calendar management, and appointment setting as equivalent local
+  evidence without broad fuzzy matching.
 - Current local data-entry hyphen follow-up in `1f82ecf4` treats data entry and
   data-entry as equivalent local evidence, recognizes the hyphenated job-post
   form in the backend, and keeps browser/dev mocks aligned.
@@ -1842,6 +1845,7 @@ source-filter compatibility issue appears.
   `171bbe91`. Conservative synonym/acronym work is committed in `d2d1944f`.
   Customer-service synonym work is committed in `a96abd63`.
   Case-coordination synonym work is committed in `e854b515`.
+  Calendar-scheduling synonym work is committed in `2cdf11f8`.
   Data-entry hyphen work is committed in `1f82ecf4`.
   Onsite location-term work is committed in `bffa0a1f`.
   Spaced on-site work is committed in `c8dffb14`.
