@@ -203,6 +203,8 @@ The current local matcher:
   for required availability constraints;
 - treats lift-weight wording with the same number, such as **lift 50 lbs** and
   **lift 50 pounds**, as the same local physical-demand evidence;
+- treats **stand for long periods** and **standing for long periods** as the
+  same local physical-demand evidence;
 - treats clear credential equivalents, such as **BLS** and **Basic Life
   Support**, as the same evidence without guessing unrelated credentials;
 - treats CNA, Certified Nursing Assistant, Certified Nurse Assistant, and

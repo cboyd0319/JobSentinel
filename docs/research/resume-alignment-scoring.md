@@ -243,6 +243,8 @@ Future implementation should improve:
 - Resume/job fit now treats lift-weight wording with the same number, such as
   `lift 50 lbs` and `lift 50 pounds`, as equivalent local physical-demand
   evidence.
+- Resume/job fit now treats `stand for long periods` and
+  `standing for long periods` as equivalent local physical-demand evidence.
 - Resume/job fit now treats clear credential equivalents such as `BLS` and
   `Basic Life Support` as the same evidence, while keeping unrelated
   credentials separate.
