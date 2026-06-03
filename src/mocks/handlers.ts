@@ -621,6 +621,7 @@ const ATS_KNOWN_KEYWORDS = [
   "lpn",
   "licensed practical nurse",
   "medication administration",
+  "medication-administration",
   "vital sign",
   "vital-sign",
   "vital signs",
@@ -2873,9 +2874,17 @@ function extractMockAtsKeywords(jobDescription: string): MockAtsKeyword[] {
     /\bvital sign\b/.test(lower) && !hasPluralVitalSigns;
   const hasHyphenSingularVitalSign =
     /\bvital-sign\b/.test(lower) && !hasHyphenPluralVitalSigns;
+  const hasMedicationAdministration = /\bmedication administration\b/.test(lower);
+  const hasHyphenMedicationAdministration = /\bmedication-administration\b/.test(lower);
   const hasSpecificDegree = hardKeywords.some((keyword) =>
     isMockExactDegreeKeyword(keyword) && keyword !== "degree"
   );
+  const medicationAdministrationKeywordsToSkip = new Set<string>();
+  if (hasMedicationAdministration) {
+    medicationAdministrationKeywordsToSkip.add("medication-administration");
+  } else if (hasHyphenMedicationAdministration) {
+    medicationAdministrationKeywordsToSkip.add("medication administration");
+  }
   const knownKeywords = ATS_KNOWN_KEYWORDS.filter((keyword) =>
     !(hasDegreeEquivalent && isMockExactDegreeKeyword(keyword)) &&
     !(hasSpecificDegree && keyword === "degree") &&
@@ -2891,6 +2900,7 @@ function extractMockAtsKeywords(jobDescription: string): MockAtsKeyword[] {
     !(hasHyphenPluralVitalSigns && ["vital sign", "vital-sign", "vital signs"].includes(keyword)) &&
     !(hasSingularVitalSign && ["vital signs", "vital-sign", "vital-signs"].includes(keyword)) &&
     !(hasHyphenSingularVitalSign && ["vital sign", "vital signs", "vital-signs"].includes(keyword)) &&
+    !medicationAdministrationKeywordsToSkip.has(keyword) &&
     !(
       hasCommercialDriverLicense &&
       ["driver's license", "drivers license", "driver license"].includes(keyword)
@@ -3194,6 +3204,7 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
     ],
     ["care plan", "care plans", "care-plan", "care-plans"],
     ["vital sign", "vital signs", "vital-sign", "vital-signs"],
+    ["medication administration", "medication-administration"],
     ["data entry", "data-entry"],
     ["onsite", "on-site", "on site"],
     ["relocation", "relocate", "willing to relocate"],

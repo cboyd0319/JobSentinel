@@ -3489,6 +3489,78 @@ describe("mock Tauri handlers", () => {
     );
   });
 
+  it("treats hyphenated medication-administration terms as equivalent mock evidence", async () => {
+    const normalResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        skills: [],
+        experience: [
+          {
+            ...atsResume.experience[0],
+            current: false,
+            end_date: "2022",
+            achievements: [
+              "Supported medication-administration checks for patient visits.",
+            ],
+          },
+        ],
+      },
+      jobDescription: "Required: medication administration",
+    });
+    expect(normalResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "medication administration",
+          match_state: "Direct",
+          evidence_sections: ["experience"],
+        }),
+      ]),
+    );
+    expect(normalResult.requirement_reviews).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "medication-administration",
+        }),
+      ]),
+    );
+
+    const hyphenResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        skills: [],
+        experience: [
+          {
+            ...atsResume.experience[0],
+            current: false,
+            end_date: "2022",
+            achievements: [
+              "Supported medication administration checks for patient visits.",
+            ],
+          },
+        ],
+      },
+      jobDescription: "Required: medication-administration",
+    });
+    expect(hyphenResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "medication-administration",
+          match_state: "Direct",
+          evidence_sections: ["experience"],
+        }),
+      ]),
+    );
+    expect(hyphenResult.requirement_reviews).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "medication administration",
+        }),
+      ]),
+    );
+  });
+
   it("treats singular and plural care-plan terms as equivalent mock evidence", async () => {
     const pluralResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {

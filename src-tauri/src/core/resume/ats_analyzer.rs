@@ -1982,6 +1982,7 @@ impl AtsAnalyzer {
             ],
             &["care plan", "care plans", "care-plan", "care-plans"],
             &["vital sign", "vital signs", "vital-sign", "vital-signs"],
+            &["medication administration", "medication-administration"],
             &["data entry", "data-entry"],
             &["onsite", "on-site", "on site"],
             &["relocation", "relocate", "willing to relocate"],
@@ -2587,7 +2588,7 @@ impl AtsAnalyzer {
             r"(?i)\b(inventory|logistics|shipping|receiving|procurement|vendor management)\b",
             r"(?i)\b(reporting|budget tracking|grant reporting|grant writing|program evaluation)\b",
             r"(?i)\b(compliance|hipaa|osha|quality assurance|qa|data[- ]entry|excel)\b",
-            r"(?i)\b(patient[- ]care|medication administration|vital[- ]signs?|care[- ]plans?|medical[- ]records?|charting)\b",
+            r"(?i)\b(patient[- ]care|medication[- ]administration|vital[- ]signs?|care[- ]plans?|medical[- ]records?|charting)\b",
             r"(?i)\b(lesson planning|classroom management|curriculum|iep|student support|parent communication)\b",
             r"(?i)\b(forklift|welding|equipment maintenance|safety inspections|food safety|cash handling)\b",
             r"(?i)\b(document review|case files|legal research|records management|policy analysis|grant administration|public benefits)\b",
@@ -4195,6 +4196,47 @@ Preferred: Salesforce
             RequirementMatchState::Direct
         );
         assert!(patient_care_hyphen
+            .evidence_sections
+            .contains(&"experience".to_string()));
+    }
+
+    #[test]
+    fn test_requirement_review_uses_medication_administration_hyphen_equivalence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nSupported medication-administration checks for patient visits.",
+            &[],
+            "Required: medication administration",
+        );
+
+        let medication_administration = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "medication administration")
+            .expect("medication administration review");
+        assert_eq!(
+            medication_administration.match_state,
+            RequirementMatchState::Direct
+        );
+        assert!(medication_administration
+            .evidence_sections
+            .contains(&"experience".to_string()));
+
+        let inverse = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nSupported medication administration checks for patient visits.",
+            &[],
+            "Required: medication-administration",
+        );
+
+        let medication_administration_hyphen = inverse
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "medication-administration")
+            .expect("medication-administration review");
+        assert_eq!(
+            medication_administration_hyphen.match_state,
+            RequirementMatchState::Direct
+        );
+        assert!(medication_administration_hyphen
             .evidence_sections
             .contains(&"experience".to_string()));
     }
