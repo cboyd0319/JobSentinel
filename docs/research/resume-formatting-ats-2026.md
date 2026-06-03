@@ -209,6 +209,9 @@ resume help should adjust examples and evidence prompts for:
 - Application Assist includes overtime availability in common saved-answer
   patterns, so users can prepare a reusable overtime answer before a hard
   overtime question appears.
+- Application Assist includes holiday availability in common saved-answer
+  patterns, so users can prepare a reusable holiday answer before a hard
+  holiday question appears.
 - Application Assist includes work authorization in common saved-answer
   patterns, so users can prepare reusable answers for forms that ask
   authorization questions outside standard profile fields.
