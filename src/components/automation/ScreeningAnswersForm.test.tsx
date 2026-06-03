@@ -368,6 +368,8 @@ describe("ScreeningAnswersForm", () => {
         expect(screen.getByText(/\+ Schedule availability/i)).toBeInTheDocument();
         expect(screen.getByText(/\+ Visa sponsorship/i)).toBeInTheDocument();
         expect(screen.getByText(/\+ Certification or license/i)).toBeInTheDocument();
+        expect(screen.getByText(/\+ Background check/i)).toBeInTheDocument();
+        expect(screen.getByText(/\+ Drug screen/i)).toBeInTheDocument();
       });
     });
 
