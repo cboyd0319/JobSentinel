@@ -920,6 +920,18 @@ copy durable findings back into this plan or the active status surface.
   --quiet`, `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`,
   `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git
   diff --check`.
+- Current local career evidence-prompt follow-up in `187229e8` adds backend
+  and dev/mock reminders for career-change and early-career job details,
+  asking users to check transferable work, training, adjacent experience,
+  projects or volunteer work, supervised responsibilities, and truthful
+  transitions before using drafted alternative bullets. Verification passed:
+  `cargo test --lib "career_" --manifest-path src-tauri/Cargo.toml`, `npx
+  vitest run src/mocks/handlers.test.ts -t "analyzes resumes"`, `cargo test
+  --lib ats_analyzer --manifest-path src-tauri/Cargo.toml`, `npx vitest run
+  src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
+  `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
+  clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
+  --check`.
 - Current local broad requirement-term follow-up adds healthcare, education,
   service, operations, and trades terms to local resume requirement review and
   dev/browser mocks.

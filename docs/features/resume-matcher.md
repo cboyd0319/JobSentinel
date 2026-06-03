@@ -373,6 +373,12 @@ The current local matcher:
 - adds a trades and field-service evidence prompt to drafted alternative
   bullets when job details mention maintenance, equipment repair, field
   service, forklifts, OSHA, work orders, installation, or trade work;
+- adds a career-change evidence prompt to drafted alternative bullets when job
+  details mention career transitions, returnships, return-to-work paths, or
+  transferable experience;
+- adds an early-career evidence prompt to drafted alternative bullets when job
+  details mention entry-level, trainee, apprenticeship, internship, or new
+  graduate paths;
 - adds a regulated-work evidence prompt to drafted alternative bullets when job
   details mention legal, finance, government, records, policy, grants, or audit
   work;
@@ -412,7 +418,8 @@ truthful keyword evidence, application-form consistency, ethical confidence,
 profession-specific prompts, and score humility. Drafted bullet reminders now
 include healthcare, regulated work, service and operations, technical and data,
 sales and marketing, design and creative, education and academic, executive and
-leadership, security, federal, and trades and field-service evidence prompts.
+leadership, security, federal, trades and field-service, career-change, and
+early-career evidence prompts.
 The companion
 [Resume Alignment Scoring](../research/resume-alignment-scoring.md) note locks
 in transparent component rubrics, match states, evidence strength, hard
