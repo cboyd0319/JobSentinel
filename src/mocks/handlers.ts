@@ -3146,6 +3146,18 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
       }
     }
   }
+  const liftWeightMatch = lower.match(
+    /\blift(?:\s+up\s+to)?\s+(\d+)\s*(?:lbs?|pounds?)\b/i,
+  );
+  if (liftWeightMatch) {
+    const amount = liftWeightMatch[1];
+    for (const prefix of [`lift ${amount}`, `lift up to ${amount}`]) {
+      for (const unit of ["lb", "lbs", "pound", "pounds"]) {
+        const term = `${prefix} ${unit}`;
+        if (!terms.includes(term)) terms.push(term);
+      }
+    }
+  }
 
   const seniorityTerms: Record<string, string[]> = {
     "senior-level experience": [

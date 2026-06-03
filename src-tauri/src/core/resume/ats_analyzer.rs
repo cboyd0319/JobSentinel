@@ -2059,6 +2059,7 @@ impl AtsAnalyzer {
                 }
             }
         }
+        Self::extend_lift_weight_unit_terms(keyword_lower, &mut terms);
 
         match keyword_lower {
             "senior-level experience" => {
@@ -2178,6 +2179,29 @@ impl AtsAnalyzer {
         }
 
         terms
+    }
+
+    fn extend_lift_weight_unit_terms(keyword_lower: &str, terms: &mut Vec<String>) {
+        let Ok(lift_re) =
+            regex::Regex::new(r"(?i)\blift(?:\s+up\s+to)?\s+(\d+)\s*(?:lbs?|pounds?)\b")
+        else {
+            return;
+        };
+        let Some(captures) = lift_re.captures(keyword_lower) else {
+            return;
+        };
+        let Some(amount) = captures.get(1).map(|capture| capture.as_str()) else {
+            return;
+        };
+
+        for prefix in [format!("lift {amount}"), format!("lift up to {amount}")] {
+            for unit in ["lb", "lbs", "pound", "pounds"] {
+                let term = format!("{prefix} {unit}");
+                if !terms.iter().any(|existing| existing == &term) {
+                    terms.push(term);
+                }
+            }
+        }
     }
 
     fn experience_year_search_terms(min_years: usize) -> Vec<String> {
@@ -4612,6 +4636,28 @@ Preferred: Salesforce
                 && review.hard_constraint
                 && review.match_state == RequirementMatchState::Missing
         }));
+    }
+
+    #[test]
+    fn test_lift_lbs_requirement_accepts_pounds_evidence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nAble to lift 50 pounds safely.",
+            &[],
+            "Required: lift 50 lbs",
+        );
+
+        let lift = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "lift 50 lbs")
+            .expect("lift review");
+        assert_eq!(lift.match_state, RequirementMatchState::Direct);
+        assert!(lift.hard_constraint);
+        assert!(lift.evidence_sections.contains(&"experience".to_string()));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "lift 50 lbs"));
     }
 
     #[test]
