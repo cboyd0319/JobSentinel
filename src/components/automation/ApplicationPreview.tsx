@@ -57,6 +57,13 @@ const LANGUAGE_SCREENING_PATTERNS = [
   /\b(?:spanish|french|mandarin|cantonese|arabic|portuguese|german|japanese|korean)[-\s]?(?:speaking|language|fluency|proficiency)\b/i,
 ];
 
+const PHYSICAL_REQUIREMENT_PATTERNS = [
+  /\blift(?:\s+up\s+to)?\s+\d+\s*(?:pounds?|lbs?)\b/i,
+  /\b(?:stand|standing) for long periods?\b/i,
+  /\bphysical (?:requirements?|demands?)\b/i,
+  /\bable to (?:lift|stand)\b/i,
+];
+
 const HARD_QUESTION_REVIEWS: HardQuestionReview[] = [
   {
     label: "Work authorization",
@@ -152,6 +159,16 @@ const HARD_QUESTION_REVIEWS: HardQuestionReview[] = [
       "Check language fluency before answering. Use only languages you can truthfully use for the work.",
     ),
     patterns: LANGUAGE_SCREENING_PATTERNS,
+  },
+  {
+    label: "Physical requirement",
+    detail: "Check physical requirements before answering. If it is not workable or safe for you, do not claim it.",
+    getDetail: ({ screeningAnswers }) => getSavedScreeningAnswerReviewDetail(
+      screeningAnswers,
+      PHYSICAL_REQUIREMENT_PATTERNS,
+      "Check physical requirements before answering. If it is not workable or safe for you, do not claim it.",
+    ),
+    patterns: PHYSICAL_REQUIREMENT_PATTERNS,
   },
   {
     label: "Education or degree",
@@ -251,6 +268,9 @@ function getSavedScreeningAnswerLabel(questionPattern: string) {
   }
   if (LANGUAGE_SCREENING_PATTERNS.some((pattern) => pattern.test(questionPattern))) {
     return "language";
+  }
+  if (PHYSICAL_REQUIREMENT_PATTERNS.some((pattern) => pattern.test(questionPattern))) {
+    return "physical requirement";
   }
   if (/\beducation\b|\bdegree\b|\bbachelor'?s?\b|\bmaster'?s?\b|\bhigh school\b|\bdiploma\b/i.test(questionPattern)) {
     return "education";
