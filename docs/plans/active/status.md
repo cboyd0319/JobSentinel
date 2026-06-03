@@ -265,6 +265,14 @@ acceptance still requires Developer ID signing and notarization.
   common pattern buttons"`, `npx vitest run
   src/components/automation/ScreeningAnswersForm.test.tsx`, `npx tsc
   --noEmit`, `npm run lint -- --quiet`, and `git diff --check`. The follow-up
+  `1b8b92dc Add driver license screening quick add` adds driver's-license
+  setup to Application Assist's common saved-answer patterns, so users can
+  prepare a reusable license answer before a hard driver's-license question
+  appears. Verification passed: `npx vitest run
+  src/components/automation/ScreeningAnswersForm.test.tsx -t "shows all common
+  pattern buttons"`, `npx vitest run
+  src/components/automation/ScreeningAnswersForm.test.tsx`, `npx tsc
+  --noEmit`, `npm run lint -- --quiet`, and `git diff --check`. The follow-up
   `ebb83cef Add do not force job words guidance` reminds users in the Resume
   Match job words overview not to force words they cannot support with real
   work, training, or credentials. The follow-up

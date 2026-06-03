@@ -109,6 +109,7 @@ You can save reusable answers for common questions:
 | `relocate`            | "Are you willing to relocate..."   |
 | `travel`              | "Are you able to travel..."        |
 | `reliable transportation` | "Do you have reliable transportation?" |
+| `driver's license`    | "Do you have a driver's license?" |
 | `work authorization`  | "Are you authorized to work..."    |
 | `US citizen`          | "Are you a U.S. citizen?"         |
 | `availability`        | "What is your availability..."     |
@@ -122,9 +123,9 @@ You can save reusable answers for common questions:
 
 Use plain words that appear in the screening question. Matching ignores
 capitalization. Common quick-add buttons include background check and drug
-screen, citizenship, reliable transportation, language fluency, physical
-requirements, and age requirement so you can prepare those answers before the
-form asks.
+screen, citizenship, reliable transportation, driver's license, language
+fluency, physical requirements, and age requirement so you can prepare those
+answers before the form asks.
 
 ### Hard Question Review
 
