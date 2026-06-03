@@ -552,6 +552,9 @@ describe("ResumeOptimizer", () => {
 
     await user.click(screen.getByRole("button", { name: /review match/i }));
 
+    expect(await screen.findByText("Evidence status")).toBeInTheDocument();
+    expect(screen.getByText("Check must-haves first")).toBeInTheDocument();
+    expect(screen.getByText(/required item needs verification before tailoring/i)).toBeInTheDocument();
     expect(await screen.findByText("Hard Requirements To Check (1)")).toBeInTheDocument();
     expect(screen.getByText("Security clearance")).toBeInTheDocument();
     expect(screen.getAllByText("Check first").length).toBeGreaterThan(0);

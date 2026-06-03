@@ -246,6 +246,12 @@ interface ResumeNextAction {
   label: string;
 }
 
+interface ResumeFitEvidenceStatus {
+  label: string;
+  detail: string;
+  variant: "danger" | "alert" | "success" | "sentinel" | "surface";
+}
+
 interface ResumeSummary {
   id: number;
   name: string;
@@ -380,6 +386,52 @@ function getSelectedResumeReadableStatus(resume: ResumeSummary): string {
   return "Open Resumes to preview what JobSentinel can read.";
 }
 
+function getResumeFitEvidenceStatus(analysis: AtsAnalysisResult): ResumeFitEvidenceStatus {
+  const hardConstraintRisks = analysis.hard_constraint_risks ?? [];
+  const requirementReviews = analysis.requirement_reviews ?? [];
+  const keywordMatches = analysis.keyword_matches ?? [];
+  const missingKeywordDetails = analysis.missing_keyword_details ?? [];
+
+  if (hardConstraintRisks.length > 0) {
+    return {
+      label: "Check must-haves first",
+      detail: "A required item needs verification before tailoring.",
+      variant: "danger",
+    };
+  }
+
+  const missingRequired = requirementReviews.some(
+    (review) =>
+      review.importance === "Required" &&
+      review.match_state === "Missing",
+  );
+  if (missingRequired) {
+    return {
+      label: "Mixed evidence",
+      detail: "Some required job-post language is not clearly found in this resume.",
+      variant: "alert",
+    };
+  }
+
+  if (
+    requirementReviews.length === 0 &&
+    keywordMatches.length === 0 &&
+    missingKeywordDetails.length === 0
+  ) {
+    return {
+      label: "Not enough job detail",
+      detail: "The job post did not include enough recognized requirements for a confident fit review.",
+      variant: "alert",
+    };
+  }
+
+  return {
+    label: "Clearer evidence",
+    detail: "Visible resume evidence lines up with the recognized job-post details.",
+    variant: "success",
+  };
+}
+
 function parseAtsResumeInput(value: string): AtsResumeData | null {
   try {
     const parsed: unknown = JSON.parse(value);
@@ -416,6 +468,9 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
   const [analysisInputSource, setAnalysisInputSource] = useState<"active" | "copied" | null>(null);
 
   const toast = useToast();
+  const fitEvidenceStatus = analysisResult
+    ? getResumeFitEvidenceStatus(analysisResult)
+    : null;
 
   useEffect(() => {
     let cancelled = false;
@@ -1244,6 +1299,21 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                       <ScoreItem label="Details included" score={analysisResult.completeness_score} />
                     </div>
                   </div>
+                  {fitEvidenceStatus && (
+                    <div className="mt-4 rounded-lg border border-surface-200 bg-surface-50 p-3 text-sm dark:border-surface-700 dark:bg-surface-800/70">
+                      <div className="mb-1 flex flex-wrap items-center gap-2">
+                        <span className="font-medium text-surface-800 dark:text-surface-100">
+                          Evidence status
+                        </span>
+                        <Badge variant={fitEvidenceStatus.variant} size="sm">
+                          {fitEvidenceStatus.label}
+                        </Badge>
+                      </div>
+                      <p className="text-surface-600 dark:text-surface-300">
+                        {fitEvidenceStatus.detail}
+                      </p>
+                    </div>
+                  )}
                 </Card>
 
                 {getResumeNextActions().length > 0 && (
