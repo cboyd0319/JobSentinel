@@ -1972,6 +1972,7 @@ impl AtsAnalyzer {
             ],
             &["case management", "case coordination"],
             &["scheduling", "calendar management", "appointment setting"],
+            &["quality assurance", "qa"],
             &["data entry", "data-entry"],
             &["onsite", "on-site", "on site"],
             &["relocation", "relocate", "willing to relocate"],
@@ -2576,7 +2577,7 @@ impl AtsAnalyzer {
             r"(?i)\b(payroll|bookkeeping|quickbooks|accounts payable|accounts receivable|billing)\b",
             r"(?i)\b(inventory|logistics|shipping|receiving|procurement|vendor management)\b",
             r"(?i)\b(reporting|budget tracking|grant reporting|grant writing|program evaluation)\b",
-            r"(?i)\b(compliance|hipaa|osha|quality assurance|data[- ]entry|excel)\b",
+            r"(?i)\b(compliance|hipaa|osha|quality assurance|qa|data[- ]entry|excel)\b",
             r"(?i)\b(patient care|medication administration|vital signs|care plans|medical records|charting)\b",
             r"(?i)\b(lesson planning|classroom management|curriculum|iep|student support|parent communication)\b",
             r"(?i)\b(forklift|welding|equipment maintenance|safety inspections|food safety|cash handling)\b",
@@ -4116,6 +4117,39 @@ Preferred: Salesforce
         assert!(calendar_management
             .evidence_sections
             .contains(&"experience".to_string()));
+    }
+
+    #[test]
+    fn test_requirement_review_uses_qa_quality_assurance_equivalence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nPerformed QA checks for intake records.",
+            &[],
+            "Required: quality assurance",
+        );
+
+        let quality_assurance = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "quality assurance")
+            .expect("quality assurance review");
+        assert_eq!(quality_assurance.match_state, RequirementMatchState::Direct);
+        assert!(quality_assurance
+            .evidence_sections
+            .contains(&"experience".to_string()));
+
+        let inverse = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nPerformed quality assurance checks for intake records.",
+            &[],
+            "Required: QA",
+        );
+
+        let qa = inverse
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "qa")
+            .expect("qa review");
+        assert_eq!(qa.match_state, RequirementMatchState::Direct);
+        assert!(qa.evidence_sections.contains(&"experience".to_string()));
     }
 
     #[test]
