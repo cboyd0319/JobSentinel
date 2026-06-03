@@ -4390,6 +4390,34 @@ describe("mock Tauri handlers", () => {
     );
   });
 
+  it("treats student support and student services as equivalent mock evidence", async () => {
+    const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        skills: [],
+        experience: [
+          {
+            ...atsResume.experience[0],
+            current: false,
+            end_date: "2022",
+            achievements: ["Coordinated student services for workshop attendance."],
+          },
+        ],
+      },
+      jobDescription: "Required: student support",
+    });
+    expect(result.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "student support",
+          match_state: "Direct",
+          evidence_sections: ["experience"],
+        }),
+      ]),
+    );
+  });
+
   it("recognizes legal finance and government requirement terms in mock resume review", async () => {
     const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
