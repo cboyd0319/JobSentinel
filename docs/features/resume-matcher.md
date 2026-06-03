@@ -161,6 +161,8 @@ The current local matcher:
 - labels readable resume evidence under an Experience role with a present-date
   marker as current role evidence, and resets that label when a later past-role
   date range appears;
+- treats a visible current-role evidence hit as stronger than the same single
+  hit in an older role, without discarding older role evidence;
 - treats work or project evidence with visible metrics such as percentages,
   counts, or dollar amounts as stronger local evidence than a bare keyword;
 - treats work or project evidence with scope such as work across teams,
@@ -311,10 +313,11 @@ hard-constraint caps have started. Section-placement review, seniority-level
 constraint review, conservative `CRM` / `customer relationship management`, and
 common credential equivalence have started. Copied structured resume details
 can show current-role evidence labels, and readable saved-resume text can mark
-bullets after a present-date role marker as current role evidence. Broader
-non-metric evidence strength beyond scope and responsibility signals, synonym,
-broader recency weighting, too-low-role warnings, and profession-specific
-weighting remain future work.
+bullets after a present-date role marker as current role evidence. Current-role
+evidence now carries a small strength boost over the same single older-role
+hit. Broader non-metric evidence strength beyond scope and responsibility
+signals, synonym, broader recency weighting, too-low-role warnings, and
+profession-specific weighting remain future work.
 The visible requirement review uses plain evidence labels such as current role
 experience, work experience, and skills list instead of backend section names.
 

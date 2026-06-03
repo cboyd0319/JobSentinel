@@ -1567,6 +1567,10 @@ Scope:
   src-tauri/Cargo.toml -- -D warnings`, `cargo fmt --all --manifest-path
   src-tauri/Cargo.toml -- --check`, `npm run lint:docs`, `npm run lint:bloat`,
   and `git diff --check`.
+- Latest local current-role evidence weight slice in `feac9ee4` gives visible
+  current-role requirement evidence a small strength boost over the same
+  single older-role hit while keeping older evidence usable. Browser/dev mocks
+  stay aligned.
 - Latest local Resume Match evidence-label slice in `26d306f6` translates backend
   requirement evidence sections into plain labels such as current role
   experience, work experience, and skills list. Focused frontend verification

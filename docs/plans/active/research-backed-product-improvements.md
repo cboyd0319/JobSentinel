@@ -199,6 +199,9 @@ copy durable findings back into this plan or the active status surface.
 - Current local plain-text evidence recency follow-up marks readable Experience
   bullets after a present-date role marker as `current experience`, then resets
   that label when a later past-role date range appears.
+- Current local current-role evidence weight follow-up in `feac9ee4` gives a
+  visible current-role requirement hit a small strength boost over the same
+  single older-role hit, while older role evidence still counts.
 - Current local metric-backed evidence-strength follow-up treats work or
   project evidence with visible metrics such as percentages, counts, or dollar
   amounts as stronger local evidence than a bare keyword.
@@ -1848,6 +1851,7 @@ source-filter compatibility issue appears.
   RN-license work is committed in `4f0cad81`.
   Structured evidence recency work is committed in `56d9a5ab`.
   Plain-text evidence recency work is committed in `66c587a8`.
+  Current-role evidence weight work is committed in `feac9ee4`.
   Metric-backed evidence-strength work is committed in `4607b67f`.
   Scope-backed evidence-strength work is committed in `c109b9d3`.
   Responsibility-backed evidence-strength work is committed in `f1310ad0`.
