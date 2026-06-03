@@ -430,6 +430,9 @@ copy durable findings back into this plan or the active status surface.
 - Current local degree-equivalent-experience follow-up treats explicit degree
   or equivalent experience wording as experience-compatible evidence instead
   of an exact-degree hard cap.
+- Current local degree-equivalent combination follow-up in `b40c6400` treats
+  equivalent combinations of education and experience as degree-equivalent
+  evidence instead of exact-degree hard caps.
 - Current local training-heading credential follow-up treats readable-text
   headings such as Training, Credentials, Certificates, and Licenses as
   credential evidence and standard readable-resume structure instead of
@@ -1920,6 +1923,7 @@ source-filter compatibility issue appears.
   Social-work master work is committed in `2fb12f5e`.
   Doctorate-degree work is committed in `60dc3981`.
   Degree-equivalent-experience work is committed in `9fc9777d`.
+  Degree-equivalent combination work is committed in `b40c6400`.
   Training-heading credential work is committed in `df0bdf9a`.
   Training-heading structure work is committed in `1a9c6b52`.
   Keyword-list bullet work is committed in `0447094b`.

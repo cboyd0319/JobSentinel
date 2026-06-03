@@ -1679,6 +1679,9 @@ Scope:
 - Latest local degree-equivalent-experience slice in `9fc9777d` treats
   explicit degree or equivalent experience wording as experience-compatible
   evidence instead of an exact-degree hard cap. Browser/dev mocks stay aligned.
+  The follow-up `b40c6400 Match equivalent education combination` treats
+  equivalent combinations of education and experience as degree-equivalent
+  evidence instead of exact-degree hard caps.
   Verification passed: `cargo test --lib degree_or_equivalent --manifest-path
   src-tauri/Cargo.toml`, `npx vitest run src/mocks/handlers.test.ts -t
   "degree-or-equivalent"`, `cargo test --lib ats_analyzer --manifest-path
