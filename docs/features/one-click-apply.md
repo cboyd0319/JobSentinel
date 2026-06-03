@@ -107,6 +107,7 @@ You can save reusable answers for common questions:
 | `salary`              | "What is your expected salary..."  |
 | `notice period`       | "What is your notice period..."    |
 | `relocate`            | "Are you willing to relocate..."   |
+| `travel`              | "Are you able to travel..."        |
 | `work authorization`  | "Are you authorized to work..."    |
 | `availability`        | "What is your availability..."     |
 | `sponsorship`         | "Do you need visa sponsorship..."  |

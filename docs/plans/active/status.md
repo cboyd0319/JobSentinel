@@ -141,6 +141,9 @@ acceptance still requires Developer ID signing and notarization.
   `cde8e273 Add certification screening quick add` adds certification or
   license to common saved-answer patterns, so users can prepare credential
   answers before hard licensing or certification questions appear. The follow-up
+  `cb2886df Add travel screening quick add` adds travel availability to common
+  saved-answer patterns, so users can prepare travel answers before travel-load
+  or site-visit questions appear. The follow-up
   `e7a61306 Add healthcare bullet evidence prompt` adds a role-specific
   evidence reminder for healthcare and licensed-work job details, asking users
   to check scope of practice, patient safety, documentation, and required

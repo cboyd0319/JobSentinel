@@ -209,6 +209,9 @@ resume help should adjust examples and evidence prompts for:
 - Application Assist includes certification or license in common saved-answer
   patterns, so users can prepare credential answers before hard licensing or
   certification questions appear.
+- Application Assist includes travel availability in common saved-answer
+  patterns, so users can prepare travel-load or site-visit answers before hard
+  travel questions appear.
 - Required, preferred, and other job-post language stay grouped in fit notes.
 - Recognized local job-post requirements now show match states and evidence
   sections, and recognized missing hard requirements cap the fit label until
