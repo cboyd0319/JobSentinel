@@ -50,6 +50,13 @@ interface HardQuestionReview {
   getDetail?: (context: HardQuestionDetailContext) => string;
 }
 
+const LANGUAGE_SCREENING_PATTERNS = [
+  /\b(?:bilingual|multilingual)\b/i,
+  /\blanguage (?:fluency|proficiency)\b/i,
+  /\b(?:fluent|fluency|proficient)\s+(?:in\s+)?(?:spanish|french|mandarin|cantonese|arabic|portuguese|german|japanese|korean)\b/i,
+  /\b(?:spanish|french|mandarin|cantonese|arabic|portuguese|german|japanese|korean)[-\s]?(?:speaking|language|fluency|proficiency)\b/i,
+];
+
 const HARD_QUESTION_REVIEWS: HardQuestionReview[] = [
   {
     label: "Work authorization",
@@ -135,6 +142,16 @@ const HARD_QUESTION_REVIEWS: HardQuestionReview[] = [
       /\bdrug test\b/i,
       /\bpre[-\s]?employment screening\b/i,
     ],
+  },
+  {
+    label: "Language fluency",
+    detail: "Check language fluency before answering. Use only languages you can truthfully use for the work.",
+    getDetail: ({ screeningAnswers }) => getSavedScreeningAnswerReviewDetail(
+      screeningAnswers,
+      LANGUAGE_SCREENING_PATTERNS,
+      "Check language fluency before answering. Use only languages you can truthfully use for the work.",
+    ),
+    patterns: LANGUAGE_SCREENING_PATTERNS,
   },
   {
     label: "Education or degree",
@@ -231,6 +248,9 @@ function getSavedScreeningAnswerLabel(questionPattern: string) {
   }
   if (/\bbackground check\b|\bbackground screening\b|\bdrug screen\b|\bdrug test\b|\bpre[-\s]?employment screening\b/i.test(questionPattern)) {
     return "screening";
+  }
+  if (LANGUAGE_SCREENING_PATTERNS.some((pattern) => pattern.test(questionPattern))) {
+    return "language";
   }
   if (/\beducation\b|\bdegree\b|\bbachelor'?s?\b|\bmaster'?s?\b|\bhigh school\b|\bdiploma\b/i.test(questionPattern)) {
     return "education";

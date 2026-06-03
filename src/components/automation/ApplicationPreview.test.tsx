@@ -489,6 +489,28 @@ describe("ApplicationPreview", () => {
       ).toBeInTheDocument();
     });
 
+    it("flags language fluency requirements from job details", async () => {
+      mockInvoke.mockResolvedValue(mockProfile);
+
+      render(
+        <ApplicationPreview
+          job={{
+            ...mockJob,
+            description: "Required: bilingual Spanish for client intake calls.",
+          }}
+          atsPlatform="greenhouse"
+        />,
+      );
+
+      expect(await screen.findByText("Hard Question Review")).toBeInTheDocument();
+      expect(screen.getByText("Language fluency")).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          "Check language fluency before answering. Use only languages you can truthfully use for the work.",
+        ),
+      ).toBeInTheDocument();
+    });
+
     it("shows saved work-authorization answers when the job asks about sponsorship", async () => {
       mockInvoke.mockResolvedValue({
         ...mockProfile,
@@ -830,6 +852,52 @@ describe("ApplicationPreview", () => {
       expect(
         screen.getByText(
           "Saved screening answer says: I can complete the required background check. Confirm it matches the employer's wording and resume evidence before continuing.",
+        ),
+      ).toBeInTheDocument();
+      expect(mockInvoke).toHaveBeenCalledWith("get_screening_answers");
+    });
+
+    it("shows saved language answers when the job asks about bilingual fluency", async () => {
+      mockInvoke.mockImplementation((command: string) => {
+        if (command === "get_application_profile_preview") {
+          return Promise.resolve(mockProfile);
+        }
+
+        if (command === "get_screening_answers") {
+          return Promise.resolve([
+            {
+              id: 1,
+              questionPattern: "bilingual Spanish",
+              answer: "I am fluent in Spanish for customer calls.",
+              answerType: "text",
+              notes: null,
+              timesUsed: 0,
+              timesModified: 0,
+              confidenceScore: 0,
+              lastUsedAt: null,
+              createdAt: "2026-01-01T00:00:00Z",
+              updatedAt: "2026-01-01T00:00:00Z",
+            },
+          ]);
+        }
+
+        return Promise.reject(new Error(`Unexpected command: ${command}`));
+      });
+
+      render(
+        <ApplicationPreview
+          job={{
+            ...mockJob,
+            description: "This role requires bilingual Spanish fluency.",
+          }}
+          atsPlatform="greenhouse"
+        />,
+      );
+
+      expect(await screen.findByText("Hard Question Review")).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          "Saved language answer says: I am fluent in Spanish for customer calls. Confirm it matches the employer's wording and resume evidence before continuing.",
         ),
       ).toBeInTheDocument();
       expect(mockInvoke).toHaveBeenCalledWith("get_screening_answers");
