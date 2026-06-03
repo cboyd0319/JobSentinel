@@ -184,6 +184,8 @@ copy durable findings back into this plan or the active status surface.
 - Current local fit-detail source-input follow-up adds plain "Uses..." labels
   to Fit Details so users can see which saved inputs or posting fields affect
   each factor.
+- Current local score-tooltip source-input follow-up adds the same saved-input
+  summary to the compact score tooltip.
 - Current local Resume-Assisted Guided Intake follow-up shows active
   saved-resume skill names in setup as optional local suggestions and only adds
   user-picked names to the saved search.
@@ -1585,6 +1587,7 @@ source-filter compatibility issue appears.
   Job-card scam-warning work is committed in `ed5d837b`.
   Duplicate-source label work is committed in `2a2bc83c`.
   Fit-detail source-input work is committed in `9fa735c4`.
+  Score-tooltip source-input work is committed in `2994c69c`.
   Resume-Assisted Guided Intake work is committed in `da84110a`.
   Source Governance Metadata work is committed in `66924003`.
   Resume availability-constraint work is committed in `0d8bf479`.

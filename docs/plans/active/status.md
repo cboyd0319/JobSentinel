@@ -1606,6 +1606,12 @@ Scope:
   src/components/ScoreBreakdownModal.test.tsx -t "saved inputs"`, `npx vitest
   run src/components/ScoreBreakdownModal.test.tsx`, `npx tsc --noEmit`, `npm
   run lint -- --quiet`, `npm run lint:external-ai`, and `git diff --check`.
+- Latest local score-tooltip source-input slice in `2994c69c` adds the same
+  saved-input summary to the compact score tooltip. Verification passed: `npx
+  vitest run src/components/ScoreDisplay.test.tsx -t "plain priority wording"`,
+  `npx vitest run src/components/ScoreDisplay.test.tsx`, `npx tsc --noEmit`,
+  `npm run lint -- --quiet`, `npm run lint:external-ai`, and `git diff
+  --check`.
 - No-Apple-account macOS readiness is already best-possible without an Apple
   Developer Account. Keep the limitation explicit: Gatekeeper-ready public
   distribution still needs Developer ID signing and notarization.

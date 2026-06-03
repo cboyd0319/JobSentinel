@@ -34,9 +34,10 @@ The review guide is visible in **Settings > Sources & Alerts**. Most users
 should change job titles, work words, salary floor, location, and company
 preferences before touching extra fit settings.
 
-Fit details name the saved input or posting field each factor uses, such as
-saved job titles, work words, listed pay, salary floor, location choices,
-company preferences, posting date, and freshness settings.
+The compact score tooltip and Fit Details name the saved input or posting field
+each factor uses, such as saved job titles, work words, listed pay, salary
+floor, location choices, company preferences, posting date, and freshness
+settings.
 
 ## Reading a Fit Estimate
 
