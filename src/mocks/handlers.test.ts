@@ -3397,6 +3397,43 @@ describe("mock Tauri handlers", () => {
     );
   });
 
+  it("does not cap degree-or-equivalent combination requirements in mock resume review", async () => {
+    const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        education: [],
+        experience: [
+          {
+            ...atsResume.experience[0],
+            achievements: [
+              "6 years of client operations experience and records management.",
+            ],
+          },
+        ],
+      },
+      jobDescription:
+        "Required: bachelor's degree or equivalent combination of education and experience",
+    });
+
+    expect(result.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "degree or equivalent experience",
+          match_state: "Strong",
+          hard_constraint: false,
+          evidence_sections: expect.arrayContaining(["current experience"]),
+        }),
+      ]),
+    );
+    expect(result.hard_constraint_risks).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          requirement: expect.stringContaining("degree"),
+        }),
+      ]),
+    );
+  });
+
   it("does not cap associate-degree-or-equivalent experience requirements in mock resume review", async () => {
     const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {

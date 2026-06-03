@@ -3013,7 +3013,7 @@ function extractMockHardConstraintKeywords(jobDescription: string): string[] {
 }
 
 function hasMockDegreeEquivalentRequirement(text: string): boolean {
-  return /\b(?:ph\.?d\.?(?:\s+degree)?|doctorate(?:\s+degree)?|doctoral degree|associate'?s degree|associate degree|baccalaureate degree|bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree)\s+(?:or|\/)\s+(?:equivalent|commensurate)\s+(?:work\s+)?experience\b/i
+  return /\b(?:ph\.?d\.?(?:\s+degree)?|doctorate(?:\s+degree)?|doctoral degree|associate'?s degree|associate degree|baccalaureate degree|bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree)\s+(?:or|\/)\s+(?:(?:equivalent|commensurate)\s+(?:work\s+)?experience|equivalent\s+combination\s+of\s+education\s+and\s+experience)\b/i
     .test(text);
 }
 

@@ -2596,7 +2596,7 @@ impl AtsAnalyzer {
     fn extract_hard_constraint_keywords(text: &str) -> Vec<String> {
         let mut keywords = HashSet::new();
         let degree_equivalent_re = regex::Regex::new(
-            r"(?i)\b(?:ph\.?d\.?(?:\s+degree)?|doctorate(?:\s+degree)?|doctoral degree|associate'?s degree|associate degree|baccalaureate degree|bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree)\s+(?:or|/)\s+(?:equivalent|commensurate)\s+(?:work\s+)?experience\b",
+            r"(?i)\b(?:ph\.?d\.?(?:\s+degree)?|doctorate(?:\s+degree)?|doctoral degree|associate'?s degree|associate degree|baccalaureate degree|bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree)\s+(?:or|/)\s+(?:(?:equivalent|commensurate)\s+(?:work\s+)?experience|equivalent\s+combination\s+of\s+education\s+and\s+experience)\b",
         )
         .unwrap();
         let has_degree_equivalent = degree_equivalent_re.is_match(text);
@@ -3781,6 +3781,30 @@ Preferred: Salesforce
             .iter()
             .find(|review| review.keyword == "degree or equivalent experience")
             .expect("degree-equivalent review");
+        assert!(matches!(
+            review.match_state,
+            RequirementMatchState::Direct | RequirementMatchState::Strong
+        ));
+        assert!(!review.hard_constraint);
+        assert!(review.evidence_sections.contains(&"experience".to_string()));
+        assert!(result.hard_constraint_risks.iter().all(|risk| {
+            risk.requirement != "degree" && risk.requirement != "bachelor's degree"
+        }));
+    }
+
+    #[test]
+    fn test_degree_or_equivalent_combination_avoids_exact_degree_cap() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\n6 years of client operations experience and records management.",
+            &[],
+            "Required: bachelor's degree or equivalent combination of education and experience",
+        );
+
+        let review = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "degree or equivalent experience")
+            .expect("degree-equivalent combination review");
         assert!(matches!(
             review.match_state,
             RequirementMatchState::Direct | RequirementMatchState::Strong
