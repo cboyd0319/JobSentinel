@@ -1970,6 +1970,7 @@ impl AtsAnalyzer {
                 "client services",
                 "client support",
             ],
+            &["case management", "case coordination"],
             &["data entry", "data-entry"],
             &["onsite", "on-site", "on site"],
             &["relocation", "relocate", "willing to relocate"],
@@ -2568,7 +2569,7 @@ impl AtsAnalyzer {
         let mut keywords = HashSet::new();
 
         let keyword_patterns = [
-            r"(?i)\b(customer service|client service|client services|case management|case notes|case documentation)\b",
+            r"(?i)\b(customer service|client service|client services|case management|case coordination|case notes|case documentation)\b",
             r"(?i)\b(scheduling|calendar management|appointment setting|intake|onboarding|training)\b",
             r"(?i)\b(sales|account management|crm|salesforce|hubspot|pipeline|prospecting)\b",
             r"(?i)\b(payroll|bookkeeping|quickbooks|accounts payable|accounts receivable|billing)\b",
@@ -4039,6 +4040,41 @@ Preferred: Salesforce
             .expect("customer service review");
         assert_eq!(customer_service.match_state, RequirementMatchState::Direct);
         assert!(customer_service
+            .evidence_sections
+            .contains(&"experience".to_string()));
+    }
+
+    #[test]
+    fn test_requirement_review_uses_case_coordination_management_equivalence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nProvided case coordination for client services.",
+            &[],
+            "Required: case management",
+        );
+
+        let case_management = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "case management")
+            .expect("case management review");
+        assert_eq!(case_management.match_state, RequirementMatchState::Direct);
+        assert!(case_management
+            .evidence_sections
+            .contains(&"experience".to_string()));
+
+        let inverse = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nProvided case management for client services.",
+            &[],
+            "Required: case coordination",
+        );
+
+        let case_coordination = inverse
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "case coordination")
+            .expect("case coordination review");
+        assert_eq!(case_coordination.match_state, RequirementMatchState::Direct);
+        assert!(case_coordination
             .evidence_sections
             .contains(&"experience".to_string()));
     }
