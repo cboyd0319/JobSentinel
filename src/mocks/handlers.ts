@@ -3254,7 +3254,12 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
       "high-school equivalency",
       "general education development",
     ],
-    ["associate's degree", "associate degree", "associates degree"],
+    [
+      "associate's degree",
+      "associate degree",
+      "associate of arts",
+      "associates degree",
+    ],
     [
       "bachelor's degree",
       "bachelor degree",
@@ -3419,6 +3424,7 @@ function getMockExperienceYearSearchTerms(minYears: number): string[] {
 
 function getConservativeMockJobSearchTerms(keyword: string): string[] {
   const evidenceOnlyDegreeTerms = new Set([
+    "associate of arts",
     "bachelor of arts",
     "bachelor of business administration",
     "bachelor of education",
