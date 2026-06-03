@@ -242,6 +242,11 @@ copy durable findings back into this plan or the active status surface.
 - Current local Application Assist saved-experience review follow-up in
   `30f9d649` shows matching saved years-of-experience screening answers in the
   hard question review when saved job details mention experience requirements.
+- Current local Application Assist saved-salary-availability review follow-up
+  in `8a177b43` shows matching saved salary, compensation, start-date,
+  notice-period, schedule, shift, weekend, overnight, or availability screening
+  answers in the hard question review when saved job details mention pay or
+  availability requirements.
 - Current local healthcare bullet-prompt follow-up in `e7a61306` adds a
   role-specific evidence reminder for healthcare and licensed-work job details,
   asking users to check scope of practice, patient safety, documentation, and

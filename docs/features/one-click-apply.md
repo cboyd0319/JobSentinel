@@ -142,6 +142,10 @@ answer so you can compare it with visible resume evidence before continuing.
 For years-of-experience topics, the preview can show a matching saved
 experience answer so you can compare it with the experience you can explain.
 
+For salary, compensation, start-date, schedule, shift, weekend, overnight, or
+availability topics, the preview can show a matching saved answer before you
+continue.
+
 ---
 
 ## Using Application Assist

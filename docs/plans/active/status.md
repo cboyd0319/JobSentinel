@@ -164,6 +164,10 @@ acceptance still requires Developer ID signing and notarization.
   details mention experience requirements, so users can compare the saved
   answer with employer wording and explainable experience before continuing.
   The follow-up
+  `8a177b43 Show saved salary availability review` shows matching saved salary,
+  compensation, start-date, notice-period, schedule, shift, weekend, overnight,
+  or availability screening answers in the hard question review when saved job
+  details mention pay or availability requirements. The follow-up
   `e7a61306 Add healthcare bullet evidence prompt` adds a role-specific
   evidence reminder for healthcare and licensed-work job details, asking users
   to check scope of practice, patient safety, documentation, and required
