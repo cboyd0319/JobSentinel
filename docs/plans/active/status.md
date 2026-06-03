@@ -128,8 +128,13 @@ acceptance still requires Developer ID signing and notarization.
   reminder for legal, finance, government, records, policy, grant, compliance,
   and audit job details, asking users to check records accuracy, deadlines,
   confidentiality, compliance, and audit trail evidence before using drafted
-  alternative bullets. Real resume/profile reference material remains private
-  and must not be committed.
+  alternative bullets. The follow-up
+  `54a90a22 Add service operations bullet prompt` adds a service and operations
+  evidence reminder for customer service, support, case management, scheduling,
+  intake, and operations job details, asking users to check customer impact,
+  volume, escalation path, documentation, and response quality before using
+  drafted alternative bullets. Real resume/profile reference material remains
+  private and must not be committed.
 - Current local resume-alignment scoring follow-up is committed in
   `3d720693 Add resume requirement review caps`. It locks
   `/Users/c/Downloads/ats_scoring_algorithm.md` into

@@ -207,6 +207,9 @@ resume help should adjust examples and evidence prompts for:
   or nursing credentials.
 - Drafted bullet improvements add a regulated-work evidence prompt for legal,
   finance, government, records, policy, grant, compliance, and audit work.
+- Drafted bullet improvements add a service and operations evidence prompt for
+  customer service, support, case management, scheduling, intake, and operations
+  work.
 
 ## Backlog To Lock Next
 

@@ -213,6 +213,11 @@ copy durable findings back into this plan or the active status surface.
   policy, grant, compliance, and audit job details, asking users to check
   records accuracy, deadlines, confidentiality, compliance, and audit trail
   evidence before using drafted alternative bullets.
+- Current local service/operations bullet-prompt follow-up in `54a90a22` adds a
+  role-specific evidence reminder for customer service, support, case
+  management, scheduling, intake, and operations job details, asking users to
+  check customer impact, volume, escalation path, documentation, and response
+  quality before using drafted alternative bullets.
 - Current local onsite location-term follow-up in `bffa0a1f` treats onsite and
   on-site as equivalent local hard-constraint evidence, so exact punctuation
   differences do not create a false missing-location risk.
