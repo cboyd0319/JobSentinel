@@ -600,6 +600,10 @@ const ATS_KNOWN_KEYWORDS = [
   "project coordination",
   "pmp",
   "project management professional",
+  "accounts payable",
+  "accounts receivable",
+  "a/p",
+  "a/r",
   "inventory",
   "procurement",
   "purchasing",
@@ -3289,7 +3293,7 @@ function extractMockAtsKeywords(jobDescription: string): MockAtsKeyword[] {
   const keywords = [
     ...knownKeywords,
     ...hardKeywords,
-  ].filter((keyword) => {
+  ].map(canonicalMockRequirementKeyword).filter((keyword) => {
     const key = keyword.toLowerCase();
     if (seen.has(key)) return false;
     seen.add(key);
@@ -3301,6 +3305,17 @@ function extractMockAtsKeywords(jobDescription: string): MockAtsKeyword[] {
       keyword,
       importance: getMockKeywordImportance(jobDescription, keyword),
     }));
+}
+
+function canonicalMockRequirementKeyword(keyword: string): string {
+  switch (keyword.toLowerCase()) {
+    case "a/p":
+      return "accounts payable";
+    case "a/r":
+      return "accounts receivable";
+    default:
+      return keyword;
+  }
 }
 
 function extractMockHardConstraintKeywords(jobDescription: string): string[] {
@@ -3589,6 +3604,8 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
     ["vital sign", "vital signs", "vital-sign", "vital-signs"],
     ["medication administration", "medication-administration"],
     ["data entry", "data-entry"],
+    ["accounts payable", "a/p"],
+    ["accounts receivable", "a/r"],
     ["budgeting", "budget tracking"],
     ["procurement", "purchasing"],
     ["vendor management", "supplier management"],

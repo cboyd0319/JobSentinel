@@ -4310,6 +4310,60 @@ describe("mock Tauri handlers", () => {
     );
   });
 
+  it("treats A/P and A/R as accounts payable and receivable mock evidence", async () => {
+    const payableResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        skills: [],
+        experience: [
+          {
+            ...atsResume.experience[0],
+            current: false,
+            end_date: "2022",
+            achievements: ["Processed A/P batches and reconciled vendor statements."],
+          },
+        ],
+      },
+      jobDescription: "Required: accounts payable",
+    });
+    expect(payableResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "accounts payable",
+          match_state: "Direct",
+          evidence_sections: ["experience"],
+        }),
+      ]),
+    );
+
+    const receivableResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        skills: [],
+        experience: [
+          {
+            ...atsResume.experience[0],
+            current: false,
+            end_date: "2022",
+            achievements: ["Handled accounts receivable aging for client payments."],
+          },
+        ],
+      },
+      jobDescription: "Required: A/R",
+    });
+    expect(receivableResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "accounts receivable",
+          match_state: "Direct",
+          evidence_sections: ["experience"],
+        }),
+      ]),
+    );
+  });
+
   it("treats cashier and cash handling as equivalent mock evidence", async () => {
     const cashierResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {

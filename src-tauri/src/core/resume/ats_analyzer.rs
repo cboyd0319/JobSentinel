@@ -350,10 +350,11 @@ impl AtsAnalyzer {
 
         // Add industry keywords if found
         for keyword in Self::get_industry_keywords() {
+            let canonical_keyword = Self::canonical_requirement_keyword(keyword);
             if Self::keyword_appears_in_text(&lower, keyword)
-                && !keywords.iter().any(|(k, _)| k == keyword)
+                && !keywords.iter().any(|(k, _)| k == &canonical_keyword)
             {
-                keywords.push((keyword.to_string(), KeywordImportance::Industry));
+                keywords.push((canonical_keyword, KeywordImportance::Industry));
             }
         }
 
@@ -2332,6 +2333,8 @@ impl AtsAnalyzer {
             &["vital sign", "vital signs", "vital-sign", "vital-signs"],
             &["medication administration", "medication-administration"],
             &["data entry", "data-entry"],
+            &["accounts payable", "a/p"],
+            &["accounts receivable", "a/r"],
             &["budgeting", "budget tracking"],
             &["procurement", "purchasing"],
             &["vendor management", "supplier management"],
@@ -3099,7 +3102,7 @@ impl AtsAnalyzer {
             r"(?i)\b(customer service|client service|client services|case management|case coordination|case notes|case documentation)\b",
             r"(?i)\b(scheduling|calendar management|appointment setting|intake|onboarding|training)\b",
             r"(?i)\b(sales|account management|crm|salesforce|hubspot|pipeline|prospecting)\b",
-            r"(?i)\b(payroll|bookkeeping|quickbooks|accounts payable|accounts receivable|billing)\b",
+            r"(?i)\b(payroll|bookkeeping|quickbooks|accounts payable|accounts receivable|a/p|a/r|billing)\b",
             r"(?i)\b(inventory|logistics|shipping|receiving|procurement|purchasing|vendor management|supplier management)\b",
             r"(?i)\b(reporting|budgeting|budget tracking|grant reporting|grant writing|program evaluation)\b",
             r"(?i)\b(compliance|hipaa|osha|quality assurance|qa|data[- ]entry|excel)\b",
@@ -3119,7 +3122,9 @@ impl AtsAnalyzer {
             if let Ok(re) = regex::Regex::new(pattern) {
                 for cap in re.captures_iter(text) {
                     if let Some(m) = cap.get(0) {
-                        keywords.insert(m.as_str().to_lowercase());
+                        keywords.insert(Self::canonical_requirement_keyword(
+                            &m.as_str().to_lowercase(),
+                        ));
                     }
                 }
             }
@@ -3128,6 +3133,14 @@ impl AtsAnalyzer {
         let mut sorted_keywords = keywords.into_iter().collect::<Vec<_>>();
         sorted_keywords.sort();
         sorted_keywords
+    }
+
+    fn canonical_requirement_keyword(keyword: &str) -> String {
+        match keyword {
+            "a/p" => "accounts payable".to_string(),
+            "a/r" => "accounts receivable".to_string(),
+            _ => keyword.to_string(),
+        }
     }
 
     fn extract_hard_constraint_keywords(text: &str) -> Vec<String> {
@@ -3367,6 +3380,10 @@ impl AtsAnalyzer {
             "project management professional",
             "payroll",
             "bookkeeping",
+            "accounts payable",
+            "accounts receivable",
+            "a/p",
+            "a/r",
             "inventory",
             "logistics",
             "procurement",
@@ -4801,6 +4818,44 @@ Preferred: Salesforce
             .expect("invoicing");
         assert_eq!(invoicing.match_state, RequirementMatchState::Direct);
         assert!(invoicing
+            .evidence_sections
+            .contains(&"experience".to_string()));
+    }
+
+    #[test]
+    fn test_requirement_review_uses_accounts_payable_receivable_shorthand_equivalence() {
+        let payable = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nProcessed A/P batches and reconciled vendor statements.",
+            &[],
+            "Required: accounts payable",
+        );
+
+        let accounts_payable = payable
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "accounts payable")
+            .expect("accounts payable");
+        assert_eq!(accounts_payable.match_state, RequirementMatchState::Direct);
+        assert!(accounts_payable
+            .evidence_sections
+            .contains(&"experience".to_string()));
+
+        let receivable = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nHandled accounts receivable aging for client payments.",
+            &[],
+            "Required: A/R",
+        );
+
+        let accounts_receivable = receivable
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "accounts receivable")
+            .expect("accounts receivable");
+        assert_eq!(
+            accounts_receivable.match_state,
+            RequirementMatchState::Direct
+        );
+        assert!(accounts_receivable
             .evidence_sections
             .contains(&"experience".to_string()));
     }
