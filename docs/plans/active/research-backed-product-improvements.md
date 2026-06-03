@@ -254,6 +254,9 @@ copy durable findings back into this plan or the active status surface.
 - Current local Resume Match do-not-force guidance follow-up in `ebb83cef`
   reminds users in the job words overview not to force words they cannot
   support with real work, training, or credentials.
+- Current local Resume Fit score-humility follow-up in `c01e8dbe` tells users
+  in the Resume Fit card that the result is local evidence review, not a hiring
+  prediction or a promise about employer systems.
 - Current local healthcare bullet-prompt follow-up in `e7a61306` adds a
   role-specific evidence reminder for healthcare and licensed-work job details,
   asking users to check scope of practice, patient safety, documentation, and

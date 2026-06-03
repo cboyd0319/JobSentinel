@@ -175,6 +175,9 @@ acceptance still requires Developer ID signing and notarization.
   `ebb83cef Add do not force job words guidance` reminds users in the Resume
   Match job words overview not to force words they cannot support with real
   work, training, or credentials. The follow-up
+  `c01e8dbe Show resume fit score humility` tells users in the Resume Fit card
+  that the result is local evidence review, not a hiring prediction or a
+  promise about employer systems. The follow-up
   `e7a61306 Add healthcare bullet evidence prompt` adds a role-specific
   evidence reminder for healthcare and licensed-work job details, asking users
   to check scope of practice, patient safety, documentation, and required
