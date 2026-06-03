@@ -1525,6 +1525,11 @@ Scope:
   `npx vitest run src/components/ScoreBreakdownModal.test.tsx`, `npx tsc
   --noEmit`, `npm run lint -- --quiet`, `npm run lint:external-ai`, and `git
   diff --check`.
+- Latest local setup location-not-sure slice in `90f68ff6` lets first-run
+  setup keep remote, hybrid, and on-site roles visible when the user is not
+  ready to choose a location constraint. Verification passed: `npx vitest run
+  src/pages/SetupWizard.test.tsx`, `npx tsc --noEmit`, `npm run lint --
+  --quiet`, `npm run lint:external-ai`, and `git diff --check`.
 - No-Apple-account macOS readiness is already best-possible without an Apple
   Developer Account. Keep the limitation explicit: Gatekeeper-ready public
   distribution still needs Developer ID signing and notarization.

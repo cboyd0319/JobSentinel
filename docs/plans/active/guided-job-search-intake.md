@@ -392,7 +392,7 @@ The UI maps one of three setup choices to the existing serialized
 
 ## Current implementation
 
-- Status as of 2026-06-02: the implemented setup slices remain active and
+- Status as of 2026-06-03: the implemented setup slices remain active and
   accurate. The latest harness and broad-audience copy slices did not change
   guided-intake behavior.
 - Setup asks for job titles, work the user wants, and work to avoid before
@@ -401,6 +401,8 @@ The UI maps one of three setup choices to the existing serialized
   without adding new backend fields.
 - Setup asks for pay floor before scanning starts, offers "Not sure yet", and
   keeps missing-pay jobs visible with review guidance.
+- Setup offers a location "Not sure yet" path that keeps remote, hybrid, and
+  on-site roles visible and clears city requirements before scanning starts.
 - Setup asks how many jobs the user wants to review at once and maps that
   answer to existing local source limits and alert strength.
 - Setup asks how strongly JobSentinel should prioritize fresh and verified

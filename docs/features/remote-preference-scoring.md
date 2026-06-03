@@ -14,6 +14,8 @@ Users choose which work modes are acceptable:
 - Remote.
 - Hybrid.
 - On-site.
+- Not sure yet, which keeps remote, hybrid, and on-site roles visible until
+  the user knows a commute or office-days constraint.
 
 Choosing more than one mode keeps more jobs visible. Choosing only one mode
 makes JobSentinel treat that mode as a stronger preference.
