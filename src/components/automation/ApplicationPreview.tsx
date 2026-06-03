@@ -84,6 +84,19 @@ const TRANSPORTATION_SCREENING_PATTERNS = [
   /\breliable vehicle\b/i,
 ];
 
+const MANAGEMENT_EXPERIENCE_PATTERNS = [
+  /\bmanagement experience\b/i,
+  /\bpeople management\b/i,
+  /\bteam management\b/i,
+  /\bteam supervision\b/i,
+  /\bsupervis(?:or|ory|ion|ing|ed)\b/i,
+  /\bmanaged\s+(?:a\s+)?team\b/i,
+  /\bmanaged (?:staff|people|employees)\b/i,
+  /\b(?:shift|crew) lead\b/i,
+  /\blead worker\b/i,
+  /\blead experience\b/i,
+];
+
 const HARD_QUESTION_REVIEWS: HardQuestionReview[] = [
   {
     label: "Citizenship requirement",
@@ -263,6 +276,16 @@ const HARD_QUESTION_REVIEWS: HardQuestionReview[] = [
     ],
   },
   {
+    label: "Management experience",
+    detail: "Check management, supervision, or lead-experience answers before submission.",
+    getDetail: ({ screeningAnswers }) => getSavedScreeningAnswerReviewDetail(
+      screeningAnswers,
+      MANAGEMENT_EXPERIENCE_PATTERNS,
+      "Check management, supervision, or lead-experience answers before submission.",
+    ),
+    patterns: MANAGEMENT_EXPERIENCE_PATTERNS,
+  },
+  {
     label: "Salary or availability",
     detail: "Review salary, start-date, schedule, and availability answers before submission.",
     getDetail: ({ screeningAnswers }) => getSavedScreeningAnswerReviewDetail(
@@ -339,6 +362,9 @@ function getSavedScreeningAnswerLabel(questionPattern: string) {
   }
   if (/\beducation\b|\bdegree\b|\bbachelor'?s?\b|\bmaster'?s?\b|\bhigh school\b|\bdiploma\b/i.test(questionPattern)) {
     return "education";
+  }
+  if (MANAGEMENT_EXPERIENCE_PATTERNS.some((pattern) => pattern.test(questionPattern))) {
+    return "management experience";
   }
   if (/\byears? of experience\b|\bexperience\b/i.test(questionPattern)) {
     return "experience";

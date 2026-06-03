@@ -555,6 +555,28 @@ describe("ApplicationPreview", () => {
       ).toBeInTheDocument();
     });
 
+    it("flags management-experience requirements from job details", async () => {
+      mockInvoke.mockResolvedValue(mockProfile);
+
+      render(
+        <ApplicationPreview
+          job={{
+            ...mockJob,
+            description: "Required: managed a team for client intake coverage.",
+          }}
+          atsPlatform="greenhouse"
+        />,
+      );
+
+      expect(await screen.findByText("Hard Question Review")).toBeInTheDocument();
+      expect(screen.getByText("Management experience")).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          "Check management, supervision, or lead-experience answers before submission.",
+        ),
+      ).toBeInTheDocument();
+    });
+
     it("flags physical-demand requirements from job details", async () => {
       mockInvoke.mockResolvedValue(mockProfile);
 
@@ -1169,6 +1191,52 @@ describe("ApplicationPreview", () => {
       expect(
         screen.getByText(
           "Saved availability answer says: I am available for holiday shifts during peak weeks. Confirm it matches the employer's wording and resume evidence before continuing.",
+        ),
+      ).toBeInTheDocument();
+      expect(mockInvoke).toHaveBeenCalledWith("get_screening_answers");
+    });
+
+    it("shows saved management answers when the job asks about managed-team experience", async () => {
+      mockInvoke.mockImplementation((command: string) => {
+        if (command === "get_application_profile_preview") {
+          return Promise.resolve(mockProfile);
+        }
+
+        if (command === "get_screening_answers") {
+          return Promise.resolve([
+            {
+              id: 1,
+              questionPattern: "managed a team",
+              answer: "I managed staff schedules for client intake coverage.",
+              answerType: "text",
+              notes: null,
+              timesUsed: 0,
+              timesModified: 0,
+              confidenceScore: 0,
+              lastUsedAt: null,
+              createdAt: "2026-01-01T00:00:00Z",
+              updatedAt: "2026-01-01T00:00:00Z",
+            },
+          ]);
+        }
+
+        return Promise.reject(new Error(`Unexpected command: ${command}`));
+      });
+
+      render(
+        <ApplicationPreview
+          job={{
+            ...mockJob,
+            description: "Required: managed a team for client intake coverage.",
+          }}
+          atsPlatform="greenhouse"
+        />,
+      );
+
+      expect(await screen.findByText("Hard Question Review")).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          "Saved management experience answer says: I managed staff schedules for client intake coverage. Confirm it matches the employer's wording and resume evidence before continuing.",
         ),
       ).toBeInTheDocument();
       expect(mockInvoke).toHaveBeenCalledWith("get_screening_answers");
