@@ -265,6 +265,9 @@ The current local matcher:
   job wording;
 - treats **data entry** and **data-entry** as the same local evidence while
   still avoiding broad fuzzy matching;
+- treats **data analysis**, **data analytics**, **data-analysis**,
+  **data-analytics**, and **analytics** as the same local data evidence while
+  still avoiding broad fuzzy matching;
 - treats **bookkeeping** and **bookkeeper** as the same local finance evidence
   without broad fuzzy matching;
 - treats **QuickBooks** and **QBO** as the same local finance evidence without

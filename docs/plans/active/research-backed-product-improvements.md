@@ -184,6 +184,17 @@ copy durable findings back into this plan or the active status surface.
 - Current local data-entry hyphen follow-up in `1f82ecf4` treats data entry and
   data-entry as equivalent local evidence, recognizes the hyphenated job-post
   form in the backend, and keeps browser/dev mocks aligned.
+- Current local data-analysis follow-up in `4e487c2c` treats data analysis, data
+  analytics, data-analysis, data-analytics, and analytics as equivalent local
+  data evidence in backend and dev/browser mocks without broad fuzzy matching.
+  Verification passed: `cargo test --lib data_analysis_analytics
+  --manifest-path src-tauri/Cargo.toml`, `npx vitest run
+  src/mocks/handlers.test.ts -t "analyzes resumes"`, `cargo test --lib
+  ats_analyzer --manifest-path src-tauri/Cargo.toml`, `npx vitest run
+  src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
+  `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
+  clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
+  --check`.
 - Current local document-review hyphen follow-up in `43e8e88e` treats document
   review and document-review as equivalent local evidence without duplicate
   requirement rows.

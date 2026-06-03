@@ -482,6 +482,17 @@ acceptance still requires Developer ID signing and notarization.
   duplicate requirement rows. The follow-up
   `1f82ecf4 Match data entry hyphen terms` treats data entry and data-entry as
   the same local evidence. The follow-up
+  `4e487c2c Match data analysis analytics wording` treats data analysis, data
+  analytics, data-analysis, data-analytics, and analytics as the same local data
+  evidence in backend and dev/browser mocks without broad fuzzy matching.
+  Verification passed: `cargo test --lib data_analysis_analytics
+  --manifest-path src-tauri/Cargo.toml`, `npx vitest run
+  src/mocks/handlers.test.ts -t "analyzes resumes"`, `cargo test --lib
+  ats_analyzer --manifest-path src-tauri/Cargo.toml`, `npx vitest run
+  src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
+  `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
+  clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
+  --check`. The follow-up
   `43e8e88e Match document review hyphen terms` treats document review and
   document-review as the same local evidence without duplicate requirement
   rows. The follow-up
