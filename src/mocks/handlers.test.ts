@@ -4418,6 +4418,60 @@ describe("mock Tauri handlers", () => {
     );
   });
 
+  it("treats vendor and supplier management as equivalent mock evidence", async () => {
+    const vendorResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        skills: [],
+        experience: [
+          {
+            ...atsResume.experience[0],
+            current: false,
+            end_date: "2022",
+            achievements: ["Supported supplier management for clinic supplies."],
+          },
+        ],
+      },
+      jobDescription: "Required: vendor management",
+    });
+    expect(vendorResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "vendor management",
+          match_state: "Direct",
+          evidence_sections: ["experience"],
+        }),
+      ]),
+    );
+
+    const supplierResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        skills: [],
+        experience: [
+          {
+            ...atsResume.experience[0],
+            current: false,
+            end_date: "2022",
+            achievements: ["Supported vendor management for clinic supplies."],
+          },
+        ],
+      },
+      jobDescription: "Required: supplier management",
+    });
+    expect(supplierResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "supplier management",
+          match_state: "Direct",
+          evidence_sections: ["experience"],
+        }),
+      ]),
+    );
+  });
+
   it("treats hyphenated document-review terms as equivalent mock evidence", async () => {
     const normalResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
