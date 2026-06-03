@@ -171,6 +171,9 @@ copy durable findings back into this plan or the active status surface.
   duplicate requirement rows.
 - Current local case-files hyphen follow-up in `b219e11d` treats case files and
   case-files as equivalent local evidence without duplicate requirement rows.
+- Current local legal-research hyphen follow-up in `899c729c` treats legal
+  research and legal-research as equivalent local evidence without duplicate
+  requirement rows.
 - Current local onsite location-term follow-up in `bffa0a1f` treats onsite and
   on-site as equivalent local hard-constraint evidence, so exact punctuation
   differences do not create a false missing-location risk.
