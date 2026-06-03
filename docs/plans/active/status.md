@@ -194,7 +194,10 @@ acceptance still requires Developer ID signing and notarization.
   `7554988c Match associate degree terms` treats associate's degree, associate
   degree, and associates degree as the same local education hard-constraint
   evidence and keeps associate degree or equivalent experience wording from
-  creating an exact-degree hard cap. The follow-up
+  creating an exact-degree hard cap. The follow-up `6b834c3c Match associate
+  arts term` treats Associate of Arts as local evidence for generic associate
+  degree requirements without treating arts-specific job wording as a generic
+  associate degree requirement. The follow-up
   `adda2593 Match bachelor degree terms` treats bachelor's degree, bachelor
   degree, and bachelors degree as the same local education hard-constraint
   evidence. The follow-up `52e7c80b Match bachelor degree title terms` treats

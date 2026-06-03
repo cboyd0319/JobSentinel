@@ -350,6 +350,9 @@ copy durable findings back into this plan or the active status surface.
   degree, associate degree, and associates degree as equivalent local education
   hard-constraint evidence and keeps associate degree or equivalent experience
   wording from creating an exact-degree hard cap.
+- Current local associate-arts follow-up in `6b834c3c` treats Associate of Arts
+  as local evidence for generic associate degree requirements without treating
+  arts-specific job wording as a generic associate degree requirement.
 - Current local bachelor-degree follow-up in `adda2593` treats bachelor's
   degree, bachelor degree, and bachelors degree as equivalent local education
   hard-constraint evidence.
@@ -1869,6 +1872,7 @@ source-filter compatibility issue appears.
   High-school credential-equivalence work is committed in `a09f6c43`.
   High-school hyphen work is committed in `a546653d`.
   Associate-degree work is committed in `7554988c`.
+  Associate-arts work is committed in `6b834c3c`.
   Bachelor-degree work is committed in `adda2593`.
   Bachelor-degree title work is committed in `52e7c80b`.
   Business-administration bachelor work is committed in `2a3fd362`.
