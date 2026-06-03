@@ -750,8 +750,19 @@ acceptance still requires Developer ID signing and notarization.
   The follow-up `972700a9` recognizes OSHA 30 credential equivalence, treating
   OSHA 30, OSHA30, OSHA 30 certification, and OSHA 30-hour wording as the same
   local credential evidence without treating OSHA 10 as equivalent.
+  The follow-up `5784ac92 Warn on under-level seniority evidence` gives
+  backend and dev/mock missing-level hard-requirement guidance a plain warning
+  that lower-title or fewer-years evidence may not satisfy a higher seniority
+  requirement. Verification passed: `cargo test --lib higher_seniority
+  --manifest-path src-tauri/Cargo.toml`, `npx vitest run
+  src/mocks/handlers.test.ts -t "analyzes resumes"`, `cargo test --lib
+  ats_analyzer --manifest-path src-tauri/Cargo.toml`, `npx vitest run
+  src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
+  `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
+  clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
+  --check`.
   Future resume work still needs broader conservative synonyms, broader recency
-  weighting, deeper seniority and under-leveling warnings, and
+  weighting, deeper seniority alignment beyond this first warning, and
   profession-specific weighting.
 - Current local macOS no-account post-commit verification rebuilt the universal
   DMG from committed resume-guidance head `12c184db` on macOS 26.5

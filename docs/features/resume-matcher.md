@@ -205,6 +205,8 @@ The current local matcher:
 - treats recognized required seniority language, such as senior-level
   experience, as a local experience constraint and checks for visible role,
   leadership, or enough-years evidence before raising the fit label;
+- warns that lower-title or fewer-years evidence may not satisfy a higher
+  seniority requirement, without telling users to round up titles or years;
 - treats **shift lead**, **crew lead**, **lead worker**, and **lead
   experience** as lead-level evidence for required lead constraints;
 - treats **supervisor experience**, **supervisory experience**,
@@ -420,7 +422,7 @@ can show current-role evidence labels, and readable saved-resume text can mark
 bullets after a present-date role marker as current role evidence. Current-role
 evidence now carries a small strength boost over the same single older-role
 hit. Broader non-metric evidence strength beyond scope and responsibility
-signals, synonym, broader recency weighting, too-low-role warnings, and
+signals, synonym, broader recency weighting, deeper seniority alignment, and
 profession-specific weighting remain future work.
 The visible requirement review uses plain evidence labels such as current role
 experience, recent role experience, work experience, and skills list instead

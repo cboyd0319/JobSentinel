@@ -105,8 +105,8 @@ copy durable findings back into this plan or the active status surface.
   `3aa39952 Add resume next-action guidance` adds plain guidance such as
   checking a hard requirement before tailoring, adding supporting evidence only
   if true, or keeping useful evidence visible. Further synonym expansion,
-  broader recency weighting, under-leveling warnings, and profession-specific
-  weighting remain future work.
+  broader recency weighting, deeper seniority alignment, and
+  profession-specific weighting remain future work.
   The follow-up `171bbe91
   Improve resume evidence section review` starts section-placement review for
   saved-resume plain text.
@@ -734,6 +734,17 @@ copy durable findings back into this plan or the active status surface.
   seniority language such as senior-level experience, checks visible role,
   leadership, or enough-years evidence, and caps local fit confidence when the
   required level is missing.
+- Current local seniority under-level warning follow-up in `5784ac92` gives
+  backend and dev/mock missing-level hard-requirement guidance a plain warning
+  that lower-title or fewer-years evidence may not satisfy a higher seniority
+  requirement. Verification passed: `cargo test --lib higher_seniority
+  --manifest-path src-tauri/Cargo.toml`, `npx vitest run
+  src/mocks/handlers.test.ts -t "analyzes resumes"`, `cargo test --lib
+  ats_analyzer --manifest-path src-tauri/Cargo.toml`, `npx vitest run
+  src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
+  `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
+  clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
+  --check`.
 - Current local hard-requirement action follow-up gives backend and dev/mock
   risk actions category-specific guidance for authorization, clearance,
   licenses, education, years or level, physical demands, and location,
