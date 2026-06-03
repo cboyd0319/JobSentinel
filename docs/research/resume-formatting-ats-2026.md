@@ -218,6 +218,9 @@ resume help should adjust examples and evidence prompts for:
 - Application Assist includes background check and drug screen in common
   saved-answer patterns, so users can prepare those answers before a hard
   screening question appears.
+- Application Assist includes bilingual language-fluency setup in common
+  saved-answer patterns, so users can prepare a reusable language answer before
+  a hard language question appears.
 - Application Assist shows matching saved travel, relocation, commute, remote,
   hybrid, or on-site screening answers in the hard question review when saved
   job details mention location or travel constraints.

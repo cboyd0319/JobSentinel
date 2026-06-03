@@ -114,10 +114,12 @@ You can save reusable answers for common questions:
 | `certification`       | "Do you have this certification?"  |
 | `background check`    | "Can you complete a background check?" |
 | `drug screen`         | "Can you complete a drug screen?"  |
+| `bilingual`           | "Are you bilingual?"              |
 
 Use plain words that appear in the screening question. Matching ignores
 capitalization. Common quick-add buttons include background check and drug
-screen so you can prepare those answers before the form asks.
+screen, and language fluency so you can prepare those answers before the form
+asks.
 
 ### Hard Question Review
 
