@@ -2106,6 +2106,7 @@ impl AtsAnalyzer {
             ],
             &[
                 "bachelor's degree",
+                "baccalaureate degree",
                 "bachelor degree",
                 "bachelors degree",
                 "bachelor of arts",
@@ -2589,7 +2590,7 @@ impl AtsAnalyzer {
     fn extract_hard_constraint_keywords(text: &str) -> Vec<String> {
         let mut keywords = HashSet::new();
         let degree_equivalent_re = regex::Regex::new(
-            r"(?i)\b(?:ph\.?d\.?(?:\s+degree)?|doctorate(?:\s+degree)?|doctoral degree|associate'?s degree|associate degree|bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree)\s+(?:or|/)\s+(?:equivalent|commensurate)\s+(?:work\s+)?experience\b",
+            r"(?i)\b(?:ph\.?d\.?(?:\s+degree)?|doctorate(?:\s+degree)?|doctoral degree|associate'?s degree|associate degree|baccalaureate degree|bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree)\s+(?:or|/)\s+(?:equivalent|commensurate)\s+(?:work\s+)?experience\b",
         )
         .unwrap();
         let has_degree_equivalent = degree_equivalent_re.is_match(text);
@@ -2603,7 +2604,7 @@ impl AtsAnalyzer {
             r"(?i)\bsecurity\+",
             r"(?i)\b(commercial driver'?s license|commercial driver license|driver'?s license|driver license|cdl|rn license|registered nurse license|nursing license|lpn|lvn|licensed practical nurse|licensed vocational nurse)\b",
             r"(?i)\b(certification|cissp|certified information systems security professional|security plus|bls|basic life support|acls|advanced cardiovascular life support|cpr|cardiopulmonary resuscitation|cna|certified nursing assistant|certified nurse assistant|certified nurse aide|pmp|project management professional|servsafe|food safety certification|food[- ]handler'?s?\s+(?:certification|certificate|permit|card)|first[- ]aid certification|first[- ]aid certified|first[- ]aid certificate|first[- ]aid|forklift certification|forklift certified|forklift operator certification|forklift operator certified|forklift license|forklift operator license|osha\s*10(?:[- ]hour)?(?:\s+certification)?|osha\s*30(?:[- ]hour)?(?:\s+certification)?)\b",
-            r"(?i)\b(ph\.?d\.?(?:\s+degree)?|doctorate(?:\s+degree)?|doctoral degree|associate'?s degree|associate degree|bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree|high[- ]school diploma|high[- ]school degree|ged|high[- ]school equivalency|general education development)\b",
+            r"(?i)\b(ph\.?d\.?(?:\s+degree)?|doctorate(?:\s+degree)?|doctoral degree|associate'?s degree|associate degree|baccalaureate degree|bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree|high[- ]school diploma|high[- ]school degree|ged|high[- ]school equivalency|general education development)\b",
             r"(?i)\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b",
             r"(?i)\b(lift(?:\s+up\s+to)?\s+\d+\s*(?:pounds?|lbs?)|(?:stand|standing) for long periods?|physical requirements?|physical demands?)\b",
             r"(?i)\b(onsite|on-site|on site|relocation|relocate|willing to relocate|travel|reliable transportation|own transportation|commute|commuting|availability|available|schedule|weekend availability|weekend shifts?|night shift|overnight shift|third shift|3rd shift|evening shift|second shift|2nd shift|day shift|first shift|1st shift)\b",
@@ -2624,6 +2625,7 @@ impl AtsAnalyzer {
                 "associate's degree",
                 "associate degree",
                 "associates degree",
+                "baccalaureate degree",
                 "bachelor's degree",
                 "bachelor degree",
                 "bachelors degree",
@@ -4463,6 +4465,58 @@ Preferred: Salesforce
             .hard_constraint_risks
             .iter()
             .any(|risk| risk.requirement == "bachelor's degree"));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "degree"));
+    }
+
+    #[test]
+    fn test_bachelors_degree_requirement_accepts_baccalaureate_degree_evidence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nEducation\nBaccalaureate degree",
+            &[],
+            "Required: bachelor's degree",
+        );
+
+        let degree = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "bachelor's degree")
+            .expect("baccalaureate degree review");
+        assert_eq!(degree.match_state, RequirementMatchState::Direct);
+        assert!(degree.hard_constraint);
+        assert!(degree.evidence_sections.contains(&"education".to_string()));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "bachelor's degree"));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "degree"));
+    }
+
+    #[test]
+    fn test_baccalaureate_degree_requirement_accepts_bachelor_degree_evidence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nEducation\nBachelor degree",
+            &[],
+            "Required: baccalaureate degree",
+        );
+
+        let degree = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "baccalaureate degree")
+            .expect("baccalaureate degree review");
+        assert_eq!(degree.match_state, RequirementMatchState::Direct);
+        assert!(degree.hard_constraint);
+        assert!(degree.evidence_sections.contains(&"education".to_string()));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "baccalaureate degree"));
         assert!(!result
             .hard_constraint_risks
             .iter()
