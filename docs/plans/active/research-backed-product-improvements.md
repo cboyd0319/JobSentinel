@@ -174,6 +174,9 @@ copy durable findings back into this plan or the active status surface.
 - Current local legal-research hyphen follow-up in `899c729c` treats legal
   research and legal-research as equivalent local evidence without duplicate
   requirement rows.
+- Current local policy-analysis hyphen follow-up in `e49c2059` treats policy
+  analysis and policy-analysis as equivalent local evidence without duplicate
+  requirement rows.
 - Current local onsite location-term follow-up in `bffa0a1f` treats onsite and
   on-site as equivalent local hard-constraint evidence, so exact punctuation
   differences do not create a false missing-location risk.

@@ -253,6 +253,9 @@ Future implementation should improve:
   evidence without duplicate requirement rows for hyphenated wording.
 - Resume/job fit now treats `legal research` and `legal-research` as equivalent
   local evidence without duplicate requirement rows for hyphenated wording.
+- Resume/job fit now treats `policy analysis` and `policy-analysis` as
+  equivalent local evidence without duplicate requirement rows for hyphenated
+  wording.
 - Resume/job fit now treats `onsite`, `on-site`, and `on site` as equivalent
   local location evidence for required location constraints.
 - Resume/job fit now treats `relocation`, `relocate`, and

@@ -227,6 +227,8 @@ The current local matcher:
   avoiding duplicate requirement rows for hyphenated job wording;
 - treats **legal research** and **legal-research** as the same local evidence
   while avoiding duplicate requirement rows for hyphenated job wording;
+- treats **policy analysis** and **policy-analysis** as the same local evidence
+  while avoiding duplicate requirement rows for hyphenated job wording;
 - treats **onsite**, **on-site**, and **on site** as the same local location
   evidence for required location constraints;
 - treats **relocation**, **relocate**, and **willing to relocate** as the same
