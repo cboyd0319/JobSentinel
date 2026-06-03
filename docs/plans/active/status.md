@@ -136,6 +136,8 @@ acceptance still requires Developer ID signing and notarization.
   `d454fd30 Match transportation requirement terms` treats reliable
   transportation and own transportation as the same local hard-constraint
   evidence. The follow-up
+  `57c8f01b Match commuting terms` treats commute and commuting as the same
+  local hard-constraint evidence. The follow-up
   `4b2009d6 Match overnight shift terms` treats night shift and overnight shift
   as the same local hard-constraint evidence. The follow-up
   `131fd9b9 Match third shift terms` adds third shift and 3rd shift to that

@@ -146,6 +146,9 @@ copy durable findings back into this plan or the active status surface.
   transportation and own transportation as equivalent local hard-constraint
   evidence, so exact commute wording differences do not create a false missing
   risk.
+- Current local commuting follow-up in `57c8f01b` treats commute and commuting
+  as equivalent local hard-constraint evidence, so exact commute wording
+  differences do not create a false missing risk.
 - Current local overnight-shift follow-up in `4b2009d6` treats night shift and
   overnight shift as equivalent local hard-constraint evidence, so exact
   schedule wording differences do not create a false missing risk.
@@ -1720,6 +1723,7 @@ source-filter compatibility issue appears.
   Spaced on-site work is committed in `c8dffb14`.
   Relocation-term work is committed in `d4945db5`.
   Transportation-term work is committed in `d454fd30`.
+  Commuting-term work is committed in `57c8f01b`.
   Overnight-shift work is committed in `4b2009d6`.
   Third-shift work is committed in `131fd9b9`.
   Weekend-shift work is committed in `fec9fa3d`.

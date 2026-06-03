@@ -193,6 +193,7 @@ The current local matcher:
   local location evidence for required relocation constraints;
 - treats **reliable transportation** and **own transportation** as the same
   local location evidence for required commute or transportation constraints;
+- treats **commute** and **commuting** as the same local commute evidence;
 - treats **night shift**, **overnight shift**, **third shift**, and **3rd
   shift** as the same local schedule evidence for required night-shift
   constraints;
