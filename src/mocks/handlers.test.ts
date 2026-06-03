@@ -984,6 +984,32 @@ describe("mock Tauri handlers", () => {
       ]),
     );
 
+    const onboardingResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        experience: [
+          {
+            ...atsResume.experience[0],
+            current: false,
+            end_date: "2022",
+            achievements: ["Led new hire orientation for front desk staff."],
+          },
+        ],
+        skills: [],
+      },
+      jobDescription: "Required: onboarding",
+    });
+    expect(onboardingResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "onboarding",
+          match_state: "Direct",
+          evidence_sections: ["experience"],
+        }),
+      ]),
+    );
+
     const blsResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
         ...atsResume,

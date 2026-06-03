@@ -2366,6 +2366,7 @@ impl AtsAnalyzer {
             ],
             &["case management", "case coordination"],
             &["scheduling", "calendar management", "appointment setting"],
+            &["onboarding", "new hire orientation", "employee orientation"],
             &["quality assurance", "qa"],
             &["front desk", "front-desk", "reception", "receptionist"],
             &["cash handling", "cashier"],
@@ -3467,6 +3468,9 @@ impl AtsAnalyzer {
             "scheduling",
             "intake",
             "training",
+            "onboarding",
+            "new hire orientation",
+            "employee orientation",
             "sales",
             "account management",
             "crm",
@@ -5848,6 +5852,25 @@ Preferred: Salesforce
             RequirementMatchState::Direct
         );
         assert!(calendar_management
+            .evidence_sections
+            .contains(&"experience".to_string()));
+    }
+
+    #[test]
+    fn test_requirement_review_uses_onboarding_orientation_equivalence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nLed new hire orientation for front desk staff.",
+            &[],
+            "Required: onboarding",
+        );
+
+        let onboarding = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "onboarding")
+            .expect("onboarding review");
+        assert_eq!(onboarding.match_state, RequirementMatchState::Direct);
+        assert!(onboarding
             .evidence_sections
             .contains(&"experience".to_string()));
     }
