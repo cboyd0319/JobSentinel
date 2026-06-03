@@ -508,7 +508,7 @@ export const JobCard = memo(function JobCard({
                     title={`This job has been seen ${job.times_seen} times across different sources`}
                   >
                     <DuplicateIcon />
-                    {job.times_seen}x
+                    Seen on {job.times_seen} sources
                   </span>
                 )}
 

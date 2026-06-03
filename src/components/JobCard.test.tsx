@@ -121,6 +121,13 @@ describe("JobCard", () => {
       expect(screen.getByText("$55k - $72k")).toBeInTheDocument();
     });
 
+    it("explains duplicate source counts without shorthand", () => {
+      renderWithToast(<JobCard job={{ ...mockJob, times_seen: 3 }} />);
+
+      expect(screen.getByText("Seen on 3 sources")).toBeInTheDocument();
+      expect(screen.queryByText("3x")).not.toBeInTheDocument();
+    });
+
     it("renders description snippet when available", () => {
       renderWithToast(<JobCard job={mockJob} />);
       expect(
