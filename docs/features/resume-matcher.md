@@ -253,6 +253,8 @@ The current local matcher:
   still avoiding broad fuzzy matching;
 - treats **cashier** and **cash handling** as the same local retail/service
   evidence without broad fuzzy matching;
+- treats **procurement** and **purchasing** as the same local operations
+  evidence without broad fuzzy matching;
 - treats **document review** and **document-review** as the same local evidence
   while avoiding duplicate requirement rows for hyphenated job wording;
 - treats **records management** and **records-management** as the same local

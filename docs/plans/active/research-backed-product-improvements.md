@@ -204,6 +204,16 @@ copy durable findings back into this plan or the active status surface.
   `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
   clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
   --check`.
+- Current local procurement/purchasing follow-up in `179a61c3` treats
+  procurement and purchasing as equivalent local operations evidence in backend
+  and dev/browser mocks without broad fuzzy matching. Verification passed:
+  `cargo test --lib procurement_purchasing --manifest-path
+  src-tauri/Cargo.toml`, `npx vitest run src/mocks/handlers.test.ts -t
+  "procurement and purchasing"`, `cargo test --lib ats_analyzer --manifest-path
+  src-tauri/Cargo.toml`, `npx vitest run src/mocks/handlers.test.ts`, `npx tsc
+  --noEmit`, `npm run lint -- --quiet`, `cargo fmt --all --manifest-path
+  src-tauri/Cargo.toml -- --check`, `cargo clippy --manifest-path
+  src-tauri/Cargo.toml -- -D warnings`, and `git diff --check`.
 - Current local loan-processing hyphen follow-up in `84c08274` treats loan
   processing and loan-processing as equivalent local evidence without duplicate
   requirement rows.
