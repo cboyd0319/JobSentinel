@@ -220,6 +220,9 @@ describe("ScoreDisplay", () => {
         expect(screen.getAllByText("Important")).toHaveLength(2);
         expect(screen.getAllByText("Supporting")).toHaveLength(2);
         expect(screen.getByText("Fits")).toBeInTheDocument();
+        expect(
+          screen.getByText(/uses saved titles, work words, pay, location/i),
+        ).toBeInTheDocument();
       });
       expect(screen.queryByText("Weight")).not.toBeInTheDocument();
       for (const hiddenWeight of ["40%", "25%", "20%", "10%", "5%"]) {

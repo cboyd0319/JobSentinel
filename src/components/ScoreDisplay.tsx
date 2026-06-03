@@ -315,6 +315,9 @@ function ScoreBreakdownTooltip({
           })}
         </tbody>
       </table>
+      <div className="mt-2 text-xs text-surface-300">
+        Uses saved titles, work words, pay, location, company, and freshness settings.
+      </div>
       {/* Show first specific reason */}
       {Object.values(parsed)
         .flat()
