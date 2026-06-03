@@ -186,6 +186,9 @@ copy durable findings back into this plan or the active status surface.
   each factor.
 - Current local score-tooltip source-input follow-up adds the same saved-input
   summary to the compact score tooltip.
+- Current local unscored fit-estimate follow-up shows missing saved local fit
+  estimates as **No fit yet** with `--`, so users do not mistake an unreviewed
+  job for an actual `0%` fit.
 - Current local Resume-Assisted Guided Intake follow-up shows active
   saved-resume skill names in setup as optional local suggestions and only adds
   user-picked names to the saved search.

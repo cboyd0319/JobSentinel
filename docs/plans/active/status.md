@@ -1612,6 +1612,14 @@ Scope:
   `npx vitest run src/components/ScoreDisplay.test.tsx`, `npx tsc --noEmit`,
   `npm run lint -- --quiet`, `npm run lint:external-ai`, and `git diff
   --check`.
+- Latest local unscored fit-estimate slice in `6007d909` shows jobs without a
+  saved local fit estimate as **No fit yet** with `--`, while numeric zero
+  still renders as `0%`. Verification passed: `npx vitest run
+  src/components/ScoreDisplay.test.tsx -t "null scores|not-enough-information"`,
+  `npx vitest run src/components/JobCard.test.tsx -t "null score|NaN score"`,
+  `npx vitest run src/components/ScoreDisplay.test.tsx
+  src/components/JobCard.test.tsx`, `npx tsc --noEmit`, `npm run lint --
+  --quiet`, `npm run lint:external-ai`, and `git diff --check`.
 - No-Apple-account macOS readiness is already best-possible without an Apple
   Developer Account. Keep the limitation explicit: Gatekeeper-ready public
   distribution still needs Developer ID signing and notarization.
