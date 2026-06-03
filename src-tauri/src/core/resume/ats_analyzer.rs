@@ -2527,6 +2527,10 @@ impl AtsAnalyzer {
                     [
                         "lead",
                         "team lead",
+                        "shift lead",
+                        "crew lead",
+                        "lead worker",
+                        "lead experience",
                         "leadership experience",
                         "supervised",
                         "supervisor",
@@ -3103,7 +3107,7 @@ impl AtsAnalyzer {
                 "senior-level experience",
             ),
             (
-                r"(?i)\b(lead[- ]level|team lead|leadership experience)\b",
+                r"(?i)\b(lead[- ]level|team lead|shift lead|crew lead|lead worker|lead experience|leadership experience)\b",
                 "lead-level experience",
             ),
             (
@@ -6959,6 +6963,50 @@ Preferred: Salesforce
             .hard_constraint_risks
             .iter()
             .any(|risk| risk.requirement == "senior-level experience"));
+    }
+
+    #[test]
+    fn test_missing_required_shift_lead_constraint_caps_overall_score() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nHandled intake scheduling and case documentation.",
+            &[],
+            "Required: shift lead experience, CRM",
+        );
+
+        assert!(result.overall_score <= 65.0);
+        assert!(result.hard_constraint_risks.iter().any(|risk| {
+            risk.requirement == "lead-level experience"
+                && risk.category == HardConstraintCategory::Experience
+                && risk.score_cap == 65.0
+                && risk.action.contains("Do not round up")
+        }));
+        assert!(result.requirement_reviews.iter().any(|review| {
+            review.keyword == "lead-level experience"
+                && review.hard_constraint
+                && review.match_state == RequirementMatchState::Missing
+        }));
+    }
+
+    #[test]
+    fn test_shift_lead_requirement_accepts_shift_lead_evidence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nShift lead for front desk intake coverage.",
+            &[],
+            "Required: shift lead experience",
+        );
+
+        let lead = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "lead-level experience")
+            .expect("lead-level review");
+        assert_eq!(lead.match_state, RequirementMatchState::Direct);
+        assert!(lead.hard_constraint);
+        assert!(lead.evidence_sections.contains(&"experience".to_string()));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "lead-level experience"));
     }
 
     #[test]
