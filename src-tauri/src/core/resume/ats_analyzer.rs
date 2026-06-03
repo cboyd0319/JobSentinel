@@ -1713,6 +1713,7 @@ impl AtsAnalyzer {
         }
         if lower.contains("onsite")
             || lower.contains("on-site")
+            || lower.contains("on site")
             || lower.contains("relocation")
             || lower.contains("travel")
             || lower.contains("transportation")
@@ -1943,7 +1944,7 @@ impl AtsAnalyzer {
                 "client support",
             ],
             &["data entry", "data-entry"],
-            &["onsite", "on-site"],
+            &["onsite", "on-site", "on site"],
             &["bls", "basic life support"],
             &["acls", "advanced cardiovascular life support"],
             &["cpr", "cardiopulmonary resuscitation"],
@@ -2469,7 +2470,7 @@ impl AtsAnalyzer {
             r"(?i)\b(bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree|high school diploma|high school degree|ged|high school equivalency|general education development)\b",
             r"(?i)\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b",
             r"(?i)\b(lift(?:\s+up\s+to)?\s+\d+\s*(?:pounds?|lbs?)|stand for long periods?|physical requirements?|physical demands?)\b",
-            r"(?i)\b(onsite|on-site|relocation|travel|reliable transportation|own transportation|commute|availability|available|schedule|weekend availability|night shift|evening shift)\b",
+            r"(?i)\b(onsite|on-site|on site|relocation|travel|reliable transportation|own transportation|commute|availability|available|schedule|weekend availability|night shift|evening shift)\b",
         ];
 
         for pattern in &hard_constraint_patterns {
@@ -4243,6 +4244,28 @@ Preferred: Salesforce
             .hard_constraint_risks
             .iter()
             .any(|risk| risk.requirement == "on-site"));
+    }
+
+    #[test]
+    fn test_spaced_on_site_requirement_accepts_hyphen_resume_evidence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nAvailable for on-site client-facing shifts.",
+            &[],
+            "Required: on site role",
+        );
+
+        let onsite = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "on site")
+            .expect("on site review");
+        assert_eq!(onsite.match_state, RequirementMatchState::Direct);
+        assert!(onsite.hard_constraint);
+        assert!(onsite.evidence_sections.contains(&"experience".to_string()));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "on site"));
     }
 
     #[test]

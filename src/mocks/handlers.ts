@@ -610,7 +610,6 @@ const ATS_KNOWN_KEYWORDS = [
   "ged",
   "high school equivalency",
   "degree",
-  "onsite",
   "patient care",
   "cna",
   "certified nursing assistant",
@@ -2513,6 +2512,7 @@ function getMockHardConstraintCategory(keyword: string): MockHardConstraintCateg
   if (
     lower.includes("onsite") ||
     lower.includes("on-site") ||
+    lower.includes("on site") ||
     lower.includes("relocation") ||
     lower.includes("travel") ||
     lower.includes("transportation") ||
@@ -2844,7 +2844,7 @@ function extractMockHardConstraintKeywords(jobDescription: string): string[] {
     /\b(bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree|high school diploma|high school degree|ged|high school equivalency|general education development)\b/gi,
     /\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b/gi,
     /\b(lift(?:\s+up\s+to)?\s+\d+\s*(?:pounds?|lbs?)|stand for long periods?|physical requirements?|physical demands?)\b/gi,
-    /\b(onsite|on-site|relocation|travel|reliable transportation|own transportation|commute|availability|available|schedule|weekend availability|night shift|evening shift)\b/gi,
+    /\b(onsite|on-site|on site|relocation|travel|reliable transportation|own transportation|commute|availability|available|schedule|weekend availability|night shift|evening shift)\b/gi,
   ];
   const keywords = new Set<string>();
   const hasDegreeEquivalent = hasMockDegreeEquivalentRequirement(jobDescription);
@@ -3040,7 +3040,7 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
       "client support",
     ],
     ["data entry", "data-entry"],
-    ["onsite", "on-site"],
+    ["onsite", "on-site", "on site"],
     ["bls", "basic life support"],
     ["acls", "advanced cardiovascular life support"],
     ["cpr", "cardiopulmonary resuscitation"],
