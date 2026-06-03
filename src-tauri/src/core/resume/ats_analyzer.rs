@@ -1935,6 +1935,13 @@ impl AtsAnalyzer {
         let mut terms = vec![keyword_lower.to_string()];
         let equivalence_groups: &[&[&str]] = &[
             &["crm", "customer relationship management"],
+            &[
+                "customer service",
+                "customer support",
+                "client service",
+                "client services",
+                "client support",
+            ],
             &["bls", "basic life support"],
             &["acls", "advanced cardiovascular life support"],
             &["cpr", "cardiopulmonary resuscitation"],
@@ -3698,6 +3705,25 @@ Preferred: Salesforce
             .expect("crm review");
         assert_eq!(crm.match_state, RequirementMatchState::Direct);
         assert!(crm.evidence_sections.contains(&"experience".to_string()));
+    }
+
+    #[test]
+    fn test_requirement_review_uses_customer_support_service_equivalence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nDelivered customer support for billing questions.",
+            &[],
+            "Required: customer service",
+        );
+
+        let customer_service = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "customer service")
+            .expect("customer service review");
+        assert_eq!(customer_service.match_state, RequirementMatchState::Direct);
+        assert!(customer_service
+            .evidence_sections
+            .contains(&"experience".to_string()));
     }
 
     #[test]

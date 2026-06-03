@@ -3031,6 +3031,13 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
   const terms = [lower];
   const equivalenceGroups = [
     ["crm", "customer relationship management"],
+    [
+      "customer service",
+      "customer support",
+      "client service",
+      "client services",
+      "client support",
+    ],
     ["bls", "basic life support"],
     ["acls", "advanced cardiovascular life support"],
     ["cpr", "cardiopulmonary resuscitation"],
