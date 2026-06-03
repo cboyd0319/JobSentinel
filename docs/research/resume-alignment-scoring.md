@@ -249,6 +249,8 @@ Future implementation should improve:
 - Resume/job fit now treats `records management` and `records-management` as
   equivalent local evidence without duplicate requirement rows for hyphenated
   wording.
+- Resume/job fit now treats `case files` and `case-files` as equivalent local
+  evidence without duplicate requirement rows for hyphenated wording.
 - Resume/job fit now treats `onsite`, `on-site`, and `on site` as equivalent
   local location evidence for required location constraints.
 - Resume/job fit now treats `relocation`, `relocate`, and

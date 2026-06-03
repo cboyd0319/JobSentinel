@@ -161,6 +161,8 @@ acceptance still requires Developer ID signing and notarization.
   `f4ee6ef5 Match records management hyphen terms` treats records management and
   records-management as the same local evidence without duplicate requirement
   rows. The follow-up
+  `b219e11d Match case files hyphen terms` treats case files and case-files as
+  the same local evidence without duplicate requirement rows. The follow-up
   `bffa0a1f Match onsite location terms` treats onsite and on-site as the same
   local hard-constraint evidence. The follow-up
   `c8dffb14 Match spaced on site terms` adds the spaced `on site` form to that
