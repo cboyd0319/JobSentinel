@@ -1448,6 +1448,16 @@ describe("mock Tauri handlers", () => {
     expect(educationAcademicImproved).toContain("standards or methods");
     expect(educationAcademicImproved).toContain("outcomes");
     expect(educationAcademicImproved).toContain("ethics");
+
+    const executiveLeadershipImproved = await mockInvoke<string>("improve_bullet_point", {
+      bullet: "led department change program",
+      jobContext: "Required: director-level people management, budget ownership, change management",
+    });
+    expect(executiveLeadershipImproved).toContain("executive-leadership evidence to check");
+    expect(executiveLeadershipImproved).toContain("scope of ownership");
+    expect(executiveLeadershipImproved).toContain("team or budget size");
+    expect(executiveLeadershipImproved).toContain("decision authority");
+    expect(executiveLeadershipImproved).toContain("business impact");
   }, 10_000);
 
   it("matches lift-weight pounds and lbs in mock hard constraints", async () => {

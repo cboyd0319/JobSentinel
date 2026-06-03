@@ -2679,6 +2679,27 @@ function getMockRoleSpecificEvidencePrompt(jobContext: string): string | null {
     return "regulated-work evidence to check: records accuracy, deadlines, confidentiality, compliance, and audit trail";
   }
 
+  const executiveLeadershipTerms = [
+    "executive",
+    "director-level",
+    "director level",
+    "vice president",
+    "senior leadership",
+    "executive leadership",
+    "people management",
+    "budget ownership",
+    "p&l",
+    "organizational strategy",
+    "change management",
+    "board",
+    "chief",
+    "c-suite",
+  ];
+
+  if (executiveLeadershipTerms.some((term) => lower.includes(term))) {
+    return "executive-leadership evidence to check: scope of ownership, team or budget size, decision authority, measurable business impact, and change risk";
+  }
+
   const serviceOperationsTerms = [
     "customer service",
     "customer support",

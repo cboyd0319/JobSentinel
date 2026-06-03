@@ -573,6 +573,32 @@ impl AtsAnalyzer {
             );
         }
 
+        let executive_leadership_terms = [
+            "executive",
+            "director-level",
+            "director level",
+            "vice president",
+            "senior leadership",
+            "executive leadership",
+            "people management",
+            "budget ownership",
+            "p&l",
+            "organizational strategy",
+            "change management",
+            "board",
+            "chief",
+            "c-suite",
+        ];
+
+        if executive_leadership_terms
+            .iter()
+            .any(|term| lower.contains(term))
+        {
+            return Some(
+                "executive-leadership evidence to check: scope of ownership, team or budget size, decision authority, measurable business impact, and change risk",
+            );
+        }
+
         let service_operations_terms = [
             "customer service",
             "customer support",
@@ -3790,6 +3816,21 @@ Preferred: Salesforce
         assert!(improved.contains("standards or methods"));
         assert!(improved.contains("outcomes"));
         assert!(improved.contains("ethics"));
+        assert!(improved.contains("problem, your role, action, result, and evidence"));
+    }
+
+    #[test]
+    fn test_improve_bullet_adds_executive_leadership_evidence_prompt() {
+        let bullet = "Led department change program";
+        let job_desc =
+            "Required: director-level people management, budget ownership, change management";
+        let improved = AtsAnalyzer::improve_bullet(bullet, Some(job_desc));
+
+        assert!(improved.contains("executive-leadership evidence to check"));
+        assert!(improved.contains("scope of ownership"));
+        assert!(improved.contains("team or budget size"));
+        assert!(improved.contains("decision authority"));
+        assert!(improved.contains("business impact"));
         assert!(improved.contains("problem, your role, action, result, and evidence"));
     }
 
