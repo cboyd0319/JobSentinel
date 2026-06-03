@@ -2381,6 +2381,13 @@ impl AtsAnalyzer {
             &["vital sign", "vital signs", "vital-sign", "vital-signs"],
             &["medication administration", "medication-administration"],
             &["data entry", "data-entry"],
+            &[
+                "data analysis",
+                "data analytics",
+                "data-analysis",
+                "data-analytics",
+                "analytics",
+            ],
             &["bookkeeping", "bookkeeper"],
             &["quickbooks", "qbo"],
             &["accounts payable", "a/p"],
@@ -3181,7 +3188,7 @@ impl AtsAnalyzer {
             r"(?i)\b(payroll|bookkeeping|bookkeeper|quickbooks|qbo|accounts payable|accounts receivable|a/p|a/r|billing)\b",
             r"(?i)\b(inventory|inventory[- ]control|inventory[- ]management|stock control|stock management|stockroom|logistics|shipping|receiving|procurement|purchasing|vendor management|supplier management)\b",
             r"(?i)\b(reporting|budgeting|budget tracking|grant reporting|grant writing|program evaluation)\b",
-            r"(?i)\b(compliance|hipaa|osha|quality assurance|qa|data[- ]entry|excel)\b",
+            r"(?i)\b(compliance|hipaa|osha|quality assurance|qa|data[- ]entry|data[- ]analysis|data[- ]analytics|analytics|excel)\b",
             r"(?i)\b(patient[- ]care|medication[- ]administration|vital[- ]signs?|care[- ]plans?|medical[- ]records?|charting)\b",
             r"(?i)\b(lesson planning|classroom management|curriculum|iep|student support|parent communication)\b",
             r"(?i)\b(forklift|welding|equipment maintenance|safety inspections|food safety|cash handling|cashier|point of sale|pos systems?)\b",
@@ -3444,6 +3451,8 @@ impl AtsAnalyzer {
             "database",
             "data pipeline",
             "etl",
+            "data analysis",
+            "data analytics",
             "analytics",
             // General
             "customer service",
@@ -6183,6 +6192,25 @@ Preferred: Salesforce
             .expect("data entry review");
         assert_eq!(data_entry.match_state, RequirementMatchState::Direct);
         assert!(data_entry
+            .evidence_sections
+            .contains(&"experience".to_string()));
+    }
+
+    #[test]
+    fn test_requirement_review_uses_data_analysis_analytics_equivalence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nBuilt analytics dashboards for service trends.",
+            &[],
+            "Required: data analysis",
+        );
+
+        let data_analysis = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "data analysis")
+            .expect("data analysis review");
+        assert_eq!(data_analysis.match_state, RequirementMatchState::Direct);
+        assert!(data_analysis
             .evidence_sections
             .contains(&"experience".to_string()));
     }

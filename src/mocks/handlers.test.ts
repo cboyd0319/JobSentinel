@@ -958,6 +958,32 @@ describe("mock Tauri handlers", () => {
       ]),
     );
 
+    const dataAnalysisResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        experience: [
+          {
+            ...atsResume.experience[0],
+            current: false,
+            end_date: "2022",
+            achievements: ["Built analytics dashboards for service trends."],
+          },
+        ],
+        skills: [],
+      },
+      jobDescription: "Required: data analysis",
+    });
+    expect(dataAnalysisResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "data analysis",
+          match_state: "Direct",
+          evidence_sections: ["experience"],
+        }),
+      ]),
+    );
+
     const blsResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
         ...atsResume,
