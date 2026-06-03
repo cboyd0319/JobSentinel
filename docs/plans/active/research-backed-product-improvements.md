@@ -211,6 +211,10 @@ copy durable findings back into this plan or the active status surface.
 - Current local Application Assist sponsorship quick-add follow-up in
   `ec64ec1b` adds visa sponsorship to common saved-answer patterns, so users can
   set up a reusable sponsorship answer without typing the matching phrase first.
+- Current local Application Assist availability quick-add follow-up in
+  `e87526ea` adds schedule availability to common saved-answer patterns, so
+  users can set up shift, weekend, start-time, or availability answers before a
+  hard question appears.
 - Current local healthcare bullet-prompt follow-up in `e7a61306` adds a
   role-specific evidence reminder for healthcare and licensed-work job details,
   asking users to check scope of practice, patient safety, documentation, and

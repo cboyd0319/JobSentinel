@@ -200,6 +200,9 @@ resume help should adjust examples and evidence prompts for:
 - Application Assist includes visa sponsorship in common saved-answer patterns,
   so users can set up that reusable answer without typing the matching phrase
   first.
+- Application Assist includes schedule availability in common saved-answer
+  patterns, so users can prepare shift, weekend, start-time, or availability
+  answers before a hard question appears.
 - Required, preferred, and other job-post language stay grouped in fit notes.
 - Recognized local job-post requirements now show match states and evidence
   sections, and recognized missing hard requirements cap the fit label until

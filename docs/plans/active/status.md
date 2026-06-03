@@ -130,7 +130,10 @@ acceptance still requires Developer ID signing and notarization.
   `ec64ec1b Add sponsorship screening quick add` adds visa sponsorship to
   Application Assist's common saved-answer patterns, so users can set up a
   reusable sponsorship answer without typing the matching phrase first. The
-  follow-up
+  follow-up `e87526ea Add availability screening quick add` adds schedule
+  availability to the same common saved-answer patterns, so users can set up
+  shift, weekend, start-time, or availability answers before a hard question
+  appears. The follow-up
   `e7a61306 Add healthcare bullet evidence prompt` adds a role-specific
   evidence reminder for healthcare and licensed-work job details, asking users
   to check scope of practice, patient safety, documentation, and required
