@@ -104,8 +104,9 @@ copy durable findings back into this plan or the active status surface.
   rows, recognized hard-constraint caps, and plain next actions have started;
   `3aa39952 Add resume next-action guidance` adds plain guidance such as
   checking a hard requirement before tailoring, adding supporting evidence only
-  if true, or keeping useful evidence visible. Further synonym, broader recency
-  weighting, seniority, and profession-specific weighting remain future work.
+  if true, or keeping useful evidence visible. Further synonym expansion,
+  broader recency weighting, under-leveling warnings, and profession-specific
+  weighting remain future work.
   The follow-up `171bbe91
   Improve resume evidence section review` starts section-placement review for
   saved-resume plain text.

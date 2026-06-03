@@ -723,8 +723,9 @@ acceptance still requires Developer ID signing and notarization.
   The follow-up `972700a9` recognizes OSHA 30 credential equivalence, treating
   OSHA 30, OSHA30, OSHA 30 certification, and OSHA 30-hour wording as the same
   local credential evidence without treating OSHA 10 as equivalent.
-  Future resume work still needs seniority alignment, broader conservative
-  synonyms, broader recency weighting, and profession-specific weighting.
+  Future resume work still needs broader conservative synonyms, broader recency
+  weighting, deeper seniority and under-leveling warnings, and
+  profession-specific weighting.
 - Current local macOS no-account post-commit verification rebuilt the universal
   DMG from committed resume-guidance head `12c184db` on macOS 26.5
   (build 25F71), Apple Silicon `arm64`, with SIP enabled. The build produced

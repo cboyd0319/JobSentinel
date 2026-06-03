@@ -438,7 +438,8 @@ Future implementation should improve:
   profession-specific evidence levels.
 - Expand conservative synonym and acronym matching where equivalence is clear.
 - Expand broader recency weighting and section placement signals.
-- Expand seniority alignment and add under-leveling warnings.
+- Expand seniority alignment beyond current hard-constraint checks and add
+  under-leveling warnings.
 - Add profession-specific weighting for non-technical and technical roles.
 - Keep score labels humble: "fit estimate", "readability check", "review
   priority", or equivalent user-control framing.
