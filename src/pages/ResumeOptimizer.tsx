@@ -1297,6 +1297,9 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                       <ScoreItem label="Job words" score={analysisResult.keyword_score} />
                     </div>
                   </div>
+                  <p className="mt-3 text-xs text-surface-500 dark:text-surface-400">
+                    Local evidence review, not a hiring prediction or a promise about employer systems.
+                  </p>
                   {fitEvidenceStatus && (
                     <div className="mt-4 rounded-lg border border-surface-200 bg-surface-50 p-3 text-sm dark:border-surface-700 dark:bg-surface-800/70">
                       <div className="mb-1 flex flex-wrap items-center gap-2">
