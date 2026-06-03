@@ -2435,6 +2435,9 @@ function getMockHardConstraintCategory(keyword: string): MockHardConstraintCateg
   ) {
     return "LicenseOrCertification";
   }
+  if (lower.includes("equivalent experience")) {
+    return null;
+  }
   if (
     lower.includes("degree") ||
     lower.includes("bachelor") ||
@@ -2764,7 +2767,9 @@ function getNestedString(value: unknown, path: string[]): string | undefined {
 function extractMockAtsKeywords(jobDescription: string): MockAtsKeyword[] {
   const lower = jobDescription.toLowerCase();
   const seen = new Set<string>();
+  const hasDegreeEquivalent = hasMockDegreeEquivalentRequirement(jobDescription);
   const knownKeywords = ATS_KNOWN_KEYWORDS.filter((keyword) =>
+    !(hasDegreeEquivalent && isMockExactDegreeKeyword(keyword)) &&
     getConservativeMockSearchTerms(keyword).some((term) => lower.includes(term))
   );
   const keywords = [
@@ -2796,6 +2801,10 @@ function extractMockHardConstraintKeywords(jobDescription: string): string[] {
     /\b(onsite|on-site|relocation|travel|reliable transportation|own transportation|commute|availability|available|schedule|weekend availability|night shift|evening shift)\b/gi,
   ];
   const keywords = new Set<string>();
+  const hasDegreeEquivalent = hasMockDegreeEquivalentRequirement(jobDescription);
+  if (hasDegreeEquivalent) {
+    keywords.add("degree or equivalent experience");
+  }
 
   for (const pattern of patterns) {
     let match = pattern.exec(jobDescription);
@@ -2804,11 +2813,37 @@ function extractMockHardConstraintKeywords(jobDescription: string): string[] {
       match = pattern.exec(jobDescription);
     }
   }
+  if (hasDegreeEquivalent) {
+    for (const exactDegree of [
+      "degree",
+      "bachelor's degree",
+      "bachelor degree",
+      "master's degree",
+      "master degree",
+    ]) {
+      keywords.delete(exactDegree);
+    }
+  }
   for (const keyword of extractMockSeniorityConstraintKeywords(jobDescription)) {
     keywords.add(keyword);
   }
 
   return [...keywords].sort();
+}
+
+function hasMockDegreeEquivalentRequirement(text: string): boolean {
+  return /\b(?:bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree)\s+(?:or|\/)\s+(?:equivalent|commensurate)\s+(?:work\s+)?experience\b/i
+    .test(text);
+}
+
+function isMockExactDegreeKeyword(keyword: string): boolean {
+  return [
+    "degree",
+    "bachelor's degree",
+    "bachelor degree",
+    "master's degree",
+    "master degree",
+  ].includes(keyword.toLowerCase());
 }
 
 function extractMockSeniorityConstraintKeywords(text: string): string[] {
@@ -2972,6 +3007,26 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
   };
   for (const term of seniorityTerms[lower] ?? []) {
     if (!terms.includes(term)) terms.push(term);
+  }
+  if (lower === "degree or equivalent experience") {
+    for (const term of [
+      "degree",
+      "bachelor's degree",
+      "bachelor degree",
+      "bachelor",
+      "ba",
+      "bs",
+      "master's degree",
+      "master degree",
+      "master",
+      "ma",
+      "ms",
+      "equivalent experience",
+      "work experience",
+      "experience",
+    ]) {
+      if (!terms.includes(term)) terms.push(term);
+    }
   }
 
   return terms;
