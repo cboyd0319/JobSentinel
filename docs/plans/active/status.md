@@ -159,6 +159,11 @@ acceptance still requires Developer ID signing and notarization.
   answers in the hard question review when saved job details mention education
   requirements, so users can compare the saved answer with visible resume
   evidence before continuing. The follow-up
+  `30f9d649 Show saved experience screening review` shows matching saved years
+  of experience screening answers in the hard question review when saved job
+  details mention experience requirements, so users can compare the saved
+  answer with employer wording and explainable experience before continuing.
+  The follow-up
   `e7a61306 Add healthcare bullet evidence prompt` adds a role-specific
   evidence reminder for healthcare and licensed-work job details, asking users
   to check scope of practice, patient safety, documentation, and required

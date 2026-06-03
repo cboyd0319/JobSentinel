@@ -139,6 +139,9 @@ continuing.
 For education or degree topics, the preview can show a matching saved education
 answer so you can compare it with visible resume evidence before continuing.
 
+For years-of-experience topics, the preview can show a matching saved
+experience answer so you can compare it with the experience you can explain.
+
 ---
 
 ## Using Application Assist

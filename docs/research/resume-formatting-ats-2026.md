@@ -221,6 +221,9 @@ resume help should adjust examples and evidence prompts for:
 - Application Assist shows matching saved education, degree, diploma,
   bachelor's, master's, or high-school screening answers in the hard question
   review when saved job details mention education requirements.
+- Application Assist shows matching saved years-of-experience screening
+  answers in the hard question review when saved job details mention experience
+  requirements.
 - Required, preferred, and other job-post language stay grouped in fit notes.
 - Recognized local job-post requirements now show match states and evidence
   sections, and recognized missing hard requirements cap the fit label until
