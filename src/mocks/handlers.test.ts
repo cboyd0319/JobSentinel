@@ -4418,6 +4418,34 @@ describe("mock Tauri handlers", () => {
     );
   });
 
+  it("treats parent and family communication as equivalent mock evidence", async () => {
+    const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        skills: [],
+        experience: [
+          {
+            ...atsResume.experience[0],
+            current: false,
+            end_date: "2022",
+            achievements: ["Prepared family communication notes for classroom updates."],
+          },
+        ],
+      },
+      jobDescription: "Required: parent communication",
+    });
+    expect(result.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "parent communication",
+          match_state: "Direct",
+          evidence_sections: ["experience"],
+        }),
+      ]),
+    );
+  });
+
   it("recognizes legal finance and government requirement terms in mock resume review", async () => {
     const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {

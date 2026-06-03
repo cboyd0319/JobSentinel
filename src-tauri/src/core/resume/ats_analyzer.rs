@@ -2397,6 +2397,11 @@ impl AtsAnalyzer {
                 "analytics",
             ],
             &["student support", "student services"],
+            &[
+                "parent communication",
+                "family communication",
+                "guardian communication",
+            ],
             &["bookkeeping", "bookkeeper"],
             &["quickbooks", "qbo"],
             &["accounts payable", "a/p"],
@@ -3199,7 +3204,7 @@ impl AtsAnalyzer {
             r"(?i)\b(reporting|budgeting|budget tracking|grant reporting|grant writing|program evaluation)\b",
             r"(?i)\b(compliance|hipaa|osha|quality assurance|qa|data[- ]entry|data[- ]analysis|data[- ]analytics|analytics|excel)\b",
             r"(?i)\b(patient[- ]care|medication[- ]administration|vital[- ]signs?|care[- ]plans?|medical[- ]records?|charting)\b",
-            r"(?i)\b(lesson planning|classroom management|curriculum|iep|student support|student services|parent communication)\b",
+            r"(?i)\b(lesson planning|classroom management|curriculum|iep|student support|student services|parent communication|family communication|guardian communication)\b",
             r"(?i)\b(forklift|welding|equipment maintenance|safety inspections|food safety|cash handling|cashier|point of sale|pos systems?)\b",
             r"(?i)\b(document[- ]review|case[- ]files|legal[- ]research|records[- ]management|policy[- ]analysis|grant[- ]administration|public benefits)\b",
             r"(?i)\b(financial[- ]reconciliation|reconciliation|invoicing|loan[- ]processing|financial reporting)\b",
@@ -3528,6 +3533,8 @@ impl AtsAnalyzer {
             "student support",
             "student services",
             "parent communication",
+            "family communication",
+            "guardian communication",
             "forklift",
             "welding",
             "equipment maintenance",
@@ -4653,6 +4660,28 @@ Preferred: Salesforce
             .expect("student support review");
         assert_eq!(student_support.match_state, RequirementMatchState::Direct);
         assert!(student_support
+            .evidence_sections
+            .contains(&"experience".to_string()));
+    }
+
+    #[test]
+    fn test_requirement_review_uses_parent_family_communication_equivalence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nPrepared family communication notes for classroom updates.",
+            &[],
+            "Required: parent communication",
+        );
+
+        let parent_communication = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "parent communication")
+            .expect("parent communication review");
+        assert_eq!(
+            parent_communication.match_state,
+            RequirementMatchState::Direct
+        );
+        assert!(parent_communication
             .evidence_sections
             .contains(&"experience".to_string()));
     }
