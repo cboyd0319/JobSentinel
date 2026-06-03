@@ -1594,6 +1594,12 @@ Scope:
   "scam"`, `npx vitest run src/components/JobCard.test.tsx`, `npx tsc
   --noEmit`, `npm run lint -- --quiet`, `npm run lint:external-ai`, `npm run
   lint:bloat`, and `git diff --check`.
+- Latest local duplicate-source label slice in `2a2bc83c` changes job cards
+  from shorthand such as `3x` to plain "Seen on 3 sources" copy and keeps a
+  regression test for the label. Verification passed: `npx vitest run
+  src/components/JobCard.test.tsx -t "duplicate source"`, `npx vitest run
+  src/components/JobCard.test.tsx`, `npx tsc --noEmit`, `npm run lint --
+  --quiet`, `npm run lint:external-ai`, and `git diff --check`.
 - No-Apple-account macOS readiness is already best-possible without an Apple
   Developer Account. Keep the limitation explicit: Gatekeeper-ready public
   distribution still needs Developer ID signing and notarization.
