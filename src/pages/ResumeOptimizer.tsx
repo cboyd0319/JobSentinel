@@ -247,6 +247,9 @@ interface ResumeSummary {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  format_label?: string;
+  has_readable_text?: boolean;
+  readable_text_chars?: number;
 }
 
 type Page = "dashboard" | "applications" | "resume" | "resume-builder" | "ats-optimizer" | "salary" | "market" | "automation";
@@ -337,14 +340,39 @@ function isAtsResumeData(value: unknown): value is AtsResumeData {
 }
 
 function isResumeSummary(value: unknown): value is ResumeSummary {
+  if (!isRecord(value)) return false;
+
   return (
-    isRecord(value) &&
     typeof value.id === "number" &&
     typeof value.name === "string" &&
     typeof value.is_active === "boolean" &&
     typeof value.created_at === "string" &&
-    typeof value.updated_at === "string"
+    typeof value.updated_at === "string" &&
+    (value.format_label === undefined || typeof value.format_label === "string") &&
+    (value.has_readable_text === undefined || typeof value.has_readable_text === "boolean") &&
+    (
+      value.readable_text_chars === undefined ||
+      (typeof value.readable_text_chars === "number" && Number.isFinite(value.readable_text_chars))
+    )
   );
+}
+
+function getSelectedResumeReadableStatus(resume: ResumeSummary): string {
+  if (resume.has_readable_text === true) {
+    const chars = typeof resume.readable_text_chars === "number"
+      ? resume.readable_text_chars
+      : 0;
+    if (chars > 0) {
+      return `${chars.toLocaleString()} readable characters for local review.`;
+    }
+    return "Readable text available for local review.";
+  }
+
+  if (resume.has_readable_text === false) {
+    return "No readable text found. Follow employer file instructions first, then choose a readable PDF, DOCX, TXT, or Markdown resume.";
+  }
+
+  return "Open Resumes to preview what JobSentinel can read.";
 }
 
 function parseAtsResumeInput(value: string): AtsResumeData | null {
@@ -910,7 +938,19 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                 </p>
                 {activeResume && (
                   <div className="rounded-lg border border-success/30 bg-success/10 px-3 py-2 text-sm text-surface-700 dark:text-surface-200">
-                    <span className="font-medium">Selected resume:</span> {activeResume.name}
+                    <p>
+                      <span className="font-medium">Selected resume:</span> {activeResume.name}
+                    </p>
+                    <div className="mt-2 flex flex-wrap items-center gap-2">
+                      {activeResume.format_label && (
+                        <Badge variant="surface" size="sm">
+                          {activeResume.format_label}
+                        </Badge>
+                      )}
+                      <span className="text-xs text-surface-600 dark:text-surface-300">
+                        {getSelectedResumeReadableStatus(activeResume)}
+                      </span>
+                    </div>
                   </div>
                 )}
                 <div className="flex flex-col sm:flex-row gap-3">

@@ -233,6 +233,9 @@ const mockActiveResume = {
   is_active: true,
   created_at: "2026-01-01T00:00:00Z",
   updated_at: "2026-01-02T00:00:00Z",
+  format_label: "PDF",
+  has_readable_text: true,
+  readable_text_chars: 1520,
 };
 
 function mockInvokeResponses(responses: Record<string, unknown | Error>) {
@@ -312,6 +315,42 @@ describe("ResumeOptimizer", () => {
     expect(mockInvoke).not.toHaveBeenCalledWith("analyze_resume_for_job", expect.anything());
     expect(await screen.findByText("Resume Fit")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /show comparison/i })).not.toBeInTheDocument();
+  });
+
+  it("shows selected resume readable-text status before match review", async () => {
+    mockInvoke.mockImplementation((command) => {
+      if (command === "get_active_resume") return Promise.resolve(mockActiveResume);
+      return Promise.resolve(mockAnalysis);
+    });
+    render(<ResumeOptimizer onBack={vi.fn()} />);
+
+    expect(await screen.findByText(/selected resume:/i)).toBeInTheDocument();
+    expect(screen.getByText("PDF")).toBeInTheDocument();
+    expect(screen.getByText("1,520 readable characters for local review.")).toBeInTheDocument();
+    expect(screen.queryByText(/file_path|parsed_text|\/Users\//i)).not.toBeInTheDocument();
+  });
+
+  it("shows unreadable selected resume status before match review", async () => {
+    mockInvoke.mockImplementation((command) => {
+      if (command === "get_active_resume") {
+        return Promise.resolve({
+          ...mockActiveResume,
+          format_label: "DOCX",
+          has_readable_text: false,
+          readable_text_chars: 0,
+        });
+      }
+      return Promise.resolve(mockAnalysis);
+    });
+    render(<ResumeOptimizer onBack={vi.fn()} />);
+
+    expect(await screen.findByText(/selected resume:/i)).toBeInTheDocument();
+    expect(screen.getByText("DOCX")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "No readable text found. Follow employer file instructions first, then choose a readable PDF, DOCX, TXT, or Markdown resume.",
+      ),
+    ).toBeInTheDocument();
   });
 
   it("loads the active saved resume on page open and reviews without an extra resume click", async () => {
