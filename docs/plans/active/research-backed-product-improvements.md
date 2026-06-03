@@ -1494,8 +1494,7 @@ source-filter compatibility issue appears.
   are committed. Ghost/stale job-card action and feedback-accessibility work is
   pushed in `6adcff7c`. Resume evidence-strength work is committed in
   `171bbe91`. Conservative synonym/acronym work is committed in `d2d1944f`.
-  Current local structured evidence recency follow-up is verified locally and
-  ready to commit.
+  Structured evidence recency work is committed in `56d9a5ab`.
 - Evidence: source documents, selected primary sources, and local PDF text
   extraction reviewed on
   2026-05-28.

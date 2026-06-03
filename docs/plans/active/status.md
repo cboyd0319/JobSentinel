@@ -1372,7 +1372,7 @@ Scope:
   src-tauri/Cargo.toml -- -D warnings`, `cargo fmt --all --manifest-path
   src-tauri/Cargo.toml -- --check`, `npm run lint:docs`, `npm run
   lint:bloat`, and `git diff --check`.
-- Current local structured evidence recency slice marks matched structured
+- Latest local structured evidence recency slice in `56d9a5ab` marks matched structured
   resume requirements from a current role as `current experience`, while older
   role matches keep the existing `experience` label. Focused analyzer tests
   passed for current-experience labeling and existing plain-text section
