@@ -178,6 +178,10 @@ The current local matcher:
 - treats recognized required seniority language, such as senior-level
   experience, as a local experience constraint and checks for visible role,
   leadership, or enough-years evidence before raising the fit label;
+- treats conservative local term equivalents, such as **CRM** and **customer
+  relationship management**, and **customer service**, **customer support**,
+  **client service**, **client services**, and **client support**, as the same
+  evidence without broad fuzzy matching;
 - treats clear credential equivalents, such as **BLS** and **Basic Life
   Support**, as the same evidence without guessing unrelated credentials;
 - treats CNA, Certified Nursing Assistant, Certified Nurse Assistant, and

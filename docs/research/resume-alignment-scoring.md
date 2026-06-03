@@ -215,6 +215,9 @@ Future implementation should improve:
   management` pair as equivalent local evidence without broad fuzzy matching.
   The acronym and expansion do not count as separate evidence when they appear
   on the same line.
+- Resume/job fit now treats `customer service`, `customer support`,
+  `client service`, `client services`, and `client support` as equivalent
+  local evidence without broad fuzzy matching.
 - Resume/job fit now treats clear credential equivalents such as `BLS` and
   `Basic Life Support` as the same evidence, while keeping unrelated
   credentials separate.

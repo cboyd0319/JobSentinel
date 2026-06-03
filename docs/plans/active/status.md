@@ -122,6 +122,9 @@ acceptance still requires Developer ID signing and notarization.
   section-placement review for saved-resume plain text, and `d2d1944f Add
   conservative resume synonym evidence` starts conservative acronym/equivalence
   matching for `CRM` and `customer relationship management`. The follow-up
+  `a96abd63 Match customer support service terms` treats customer service,
+  customer support, client service, client services, and client support as the
+  same local evidence. The follow-up
   `66c587a8 Mark current plain text resume evidence` marks readable Experience
   bullets after a present-date role marker as current-experience evidence, then
   resets that label when a later past-role date range appears. The follow-up
@@ -135,9 +138,9 @@ acceptance still requires Developer ID signing and notarization.
   tied to workflows, processes, programs, operations, intake, cases, systems, or
   tools as stronger local evidence than a bare keyword.
   The follow-up `a09f6c43 Recognize GED credential equivalence` treats high
-  school diploma,
-  high school degree, GED, high school equivalency, and General Education
-  Development as the same local education evidence. The follow-up `5883db13`
+  school diploma, high school degree, GED, high school equivalency, and General
+  Education Development as the same local education evidence. The follow-up
+  `5883db13`
   recognizes CNA credential equivalence, treating CNA and Certified Nursing
   Assistant variants as the same local credential evidence while removing the
   duplicate generic `certification` risk when the specific credential matched.
