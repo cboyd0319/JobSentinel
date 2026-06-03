@@ -1006,6 +1006,41 @@ describe("mock Tauri handlers", () => {
     }
   });
 
+  it("flags unclear capability level claims in mock resume review", async () => {
+    const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_format", {
+      resume: {
+        ...atsResume,
+        experience: [
+          {
+            ...atsResume.experience[0],
+            achievements: [
+              "Owned payroll reconciliation after shadowing the process for two weeks.",
+            ],
+          },
+        ],
+      },
+    });
+
+    expect(result.format_issues).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          severity: "Warning",
+          issue: expect.stringContaining("Capability level needs review"),
+          fix: expect.stringContaining("exposure, assisted work"),
+        }),
+      ]),
+    );
+    expect(result.suggestions).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          category: "FormatFix",
+          suggestion: expect.stringContaining("true level of responsibility"),
+          impact: expect.stringContaining("overstating"),
+        }),
+      ]),
+    );
+  });
+
   it("recognizes healthcare and education requirement terms in mock resume review", async () => {
     const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {

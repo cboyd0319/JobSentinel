@@ -274,6 +274,9 @@ impl AtsAnalyzer {
         // Check for experience bullets that read like machine-targeted keyword lists.
         Self::check_keyword_list_bullets(resume, &mut format_issues, &mut suggestions);
 
+        // Check for bullets that mix ownership claims with exposure-only signals.
+        Self::check_capability_level_claims(resume, &mut format_issues, &mut suggestions);
+
         // Calculate format score
         let critical_count = format_issues
             .iter()
@@ -685,6 +688,46 @@ impl AtsAnalyzer {
         });
     }
 
+    fn check_capability_level_claims(
+        resume: &ResumeData,
+        issues: &mut Vec<FormatIssue>,
+        suggestions: &mut Vec<AtsSuggestion>,
+    ) {
+        let has_unclear_claim = resume.experience.iter().any(|experience| {
+            experience
+                .achievements
+                .iter()
+                .any(|item| Self::line_has_unclear_capability_level(item))
+        }) || resume
+            .projects
+            .iter()
+            .any(|project| Self::line_has_unclear_capability_level(project));
+
+        if has_unclear_claim {
+            Self::push_capability_level_issue(issues, suggestions);
+        }
+    }
+
+    fn push_capability_level_issue(
+        issues: &mut Vec<FormatIssue>,
+        suggestions: &mut Vec<AtsSuggestion>,
+    ) {
+        issues.push(FormatIssue {
+            severity: IssueSeverity::Warning,
+            issue: "Capability level needs review".to_string(),
+            fix: "Confirm whether this was exposure, assisted work, independent delivery, ownership, or expert work, then keep the wording at that true level.".to_string(),
+        });
+        suggestions.push(AtsSuggestion {
+            category: SuggestionCategory::FormatFix,
+            suggestion:
+                "Match the bullet to the true level of responsibility before strengthening it."
+                    .to_string(),
+            impact:
+                "Prevents overstating experience while still making real hands-on work visible."
+                    .to_string(),
+        });
+    }
+
     fn has_adversarial_content(resume: &ResumeData) -> bool {
         Self::text_has_adversarial_content(&resume.summary)
             || Self::text_has_adversarial_content(&resume.contact_info.name)
@@ -817,6 +860,42 @@ impl AtsAnalyzer {
         false
     }
 
+    fn text_has_unclear_capability_level(text: &str) -> bool {
+        text.lines().any(Self::line_has_unclear_capability_level)
+    }
+
+    fn line_has_unclear_capability_level(line: &str) -> bool {
+        let lower = line.to_lowercase();
+        let padded = format!(" {lower} ");
+        let ownership_terms = [
+            " owned ",
+            " owner ",
+            " led ",
+            " managed ",
+            " directed ",
+            " architected ",
+            " independently delivered ",
+            " expert ",
+            " strategic ",
+        ];
+        let exposure_terms = [
+            " shadowed ",
+            " shadowing ",
+            " observed ",
+            " observing ",
+            " assisted ",
+            " helped ",
+            " exposure to ",
+            " exposed to ",
+            " trained on ",
+            " familiar with ",
+            " under supervision ",
+        ];
+
+        ownership_terms.iter().any(|term| padded.contains(term))
+            && exposure_terms.iter().any(|term| padded.contains(term))
+    }
+
     fn is_keyword_stuffing_stopword(token: &str) -> bool {
         matches!(
             token,
@@ -912,6 +991,10 @@ impl AtsAnalyzer {
 
         if Self::text_has_keyword_list_bullet(readable_text) {
             Self::push_keyword_list_issue(&mut format_issues, &mut suggestions);
+        }
+
+        if Self::text_has_unclear_capability_level(readable_text) {
+            Self::push_capability_level_issue(&mut format_issues, &mut suggestions);
         }
 
         if !readable_text.is_empty() {
@@ -2316,6 +2399,43 @@ mod tests {
             suggestion.category == SuggestionCategory::FormatFix
                 && suggestion.suggestion.contains("readable evidence")
         }));
+    }
+
+    #[test]
+    fn test_analyze_format_flags_unclear_capability_level_claim() {
+        let mut resume = sample_resume();
+        resume.experience[0].achievements.push(
+            "Owned payroll reconciliation after shadowing the process for two weeks.".to_string(),
+        );
+
+        let result = AtsAnalyzer::analyze_format(&resume);
+
+        assert!(result.format_issues.iter().any(|issue| {
+            issue.severity == IssueSeverity::Warning
+                && issue.issue.contains("Capability level needs review")
+                && issue.fix.contains("exposure, assisted work")
+        }));
+        assert!(result.suggestions.iter().any(|suggestion| {
+            suggestion.category == SuggestionCategory::FormatFix
+                && suggestion
+                    .suggestion
+                    .contains("true level of responsibility")
+                && suggestion.impact.contains("overstating")
+        }));
+    }
+
+    #[test]
+    fn test_analyze_text_for_job_flags_unclear_capability_level_line() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nOwned records management after observing the workflow.",
+            &[],
+            "Required: records management",
+        );
+
+        assert!(result
+            .format_issues
+            .iter()
+            .any(|issue| issue.issue.contains("Capability level needs review")));
     }
 
     #[test]

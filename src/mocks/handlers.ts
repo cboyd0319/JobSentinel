@@ -2120,6 +2120,19 @@ function analyzeMockResumeFormat(args?: Record<string, unknown>): MockAtsAnalysi
       impact: "Keeps strong terms useful without making the resume look machine-written.",
     });
   }
+  if (hasMockUnclearCapabilityLevel(sections)) {
+    formatIssues.push({
+      severity: "Warning",
+      issue: "Capability level needs review",
+      fix: "Confirm whether this was exposure, assisted work, independent delivery, ownership, or expert work, then keep the wording at that true level.",
+    });
+    suggestions.push({
+      category: "FormatFix",
+      suggestion: "Match the bullet to the true level of responsibility before strengthening it.",
+      impact:
+        "Prevents overstating experience while still making real hands-on work visible.",
+    });
+  }
 
   const formatScore = clampScore(100 - formatIssues.length * 10);
   const completenessScore = clampScore(
@@ -2600,6 +2613,45 @@ function hasMockKeywordListBullet(
   return [...sections.experience, ...sections.projects].some((line) =>
     mockLineLooksLikeKeywordList(line)
   );
+}
+
+function hasMockUnclearCapabilityLevel(
+  sections: ReturnType<typeof getMockAtsResumeSections>,
+): boolean {
+  return [...sections.experience, ...sections.projects].some((line) =>
+    mockLineHasUnclearCapabilityLevel(line)
+  );
+}
+
+function mockLineHasUnclearCapabilityLevel(line: string): boolean {
+  const padded = ` ${line.toLowerCase()} `;
+  const ownershipTerms = [
+    " owned ",
+    " owner ",
+    " led ",
+    " managed ",
+    " directed ",
+    " architected ",
+    " independently delivered ",
+    " expert ",
+    " strategic ",
+  ];
+  const exposureTerms = [
+    " shadowed ",
+    " shadowing ",
+    " observed ",
+    " observing ",
+    " assisted ",
+    " helped ",
+    " exposure to ",
+    " exposed to ",
+    " trained on ",
+    " familiar with ",
+    " under supervision ",
+  ];
+
+  return ownershipTerms.some((term) => padded.includes(term)) &&
+    exposureTerms.some((term) => padded.includes(term));
 }
 
 function mockLineLooksLikeKeywordList(line: string): boolean {
