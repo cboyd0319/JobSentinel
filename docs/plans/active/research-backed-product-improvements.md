@@ -129,6 +129,9 @@ copy durable findings back into this plan or the active status surface.
   customer service, customer support, client service, client services, and
   client support as equivalent local evidence, and keeps backend and
   browser/dev mocks aligned.
+- Current local data-entry hyphen follow-up in `1f82ecf4` treats data entry and
+  data-entry as equivalent local evidence, recognizes the hyphenated job-post
+  form in the backend, and keeps browser/dev mocks aligned.
 - Current local structured evidence recency follow-up marks structured resume
   matches from a current role as `current experience`, without changing older
   role evidence labels.
@@ -1664,6 +1667,7 @@ source-filter compatibility issue appears.
   pushed in `6adcff7c`. Resume evidence-strength work is committed in
   `171bbe91`. Conservative synonym/acronym work is committed in `d2d1944f`.
   Customer-service synonym work is committed in `a96abd63`.
+  Data-entry hyphen work is committed in `1f82ecf4`.
   Structured evidence recency work is committed in `56d9a5ab`.
   Plain-text evidence recency work is committed in `66c587a8`.
   Metric-backed evidence-strength work is committed in `4607b67f`.

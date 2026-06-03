@@ -125,6 +125,8 @@ acceptance still requires Developer ID signing and notarization.
   `a96abd63 Match customer support service terms` treats customer service,
   customer support, client service, client services, and client support as the
   same local evidence. The follow-up
+  `1f82ecf4 Match data entry hyphen terms` treats data entry and data-entry as
+  the same local evidence. The follow-up
   `66c587a8 Mark current plain text resume evidence` marks readable Experience
   bullets after a present-date role marker as current-experience evidence, then
   resets that label when a later past-role date range appears. The follow-up

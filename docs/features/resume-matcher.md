@@ -182,6 +182,8 @@ The current local matcher:
   relationship management**, and **customer service**, **customer support**,
   **client service**, **client services**, and **client support**, as the same
   evidence without broad fuzzy matching;
+- treats **data entry** and **data-entry** as the same local evidence while
+  still avoiding broad fuzzy matching;
 - treats clear credential equivalents, such as **BLS** and **Basic Life
   Support**, as the same evidence without guessing unrelated credentials;
 - treats CNA, Certified Nursing Assistant, Certified Nurse Assistant, and
