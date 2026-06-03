@@ -187,6 +187,48 @@ describe("SetupWizard Accessibility", () => {
       expect(screen.queryByText(/great matches|great jobs/i)).not.toBeInTheDocument();
     });
 
+    it("lets users mark pay as not sure before scanning starts", async () => {
+      const user = userEvent.setup();
+      mockInvoke.mockResolvedValue(undefined);
+      renderWithProviders(<SetupWizard onComplete={mockOnComplete} />);
+
+      await user.click(screen.getByRole("button", { name: /build my search/i }));
+      await user.type(screen.getByPlaceholderText("Add a job title..."), "Office Manager{enter}");
+
+      const payInput = screen.getByLabelText("Minimum yearly pay");
+      await user.type(payInput, "65000");
+      expect(payInput).toHaveValue(65000);
+      expect(screen.getByText("$65,000/year")).toBeInTheDocument();
+
+      await user.click(screen.getByRole("button", { name: /not sure about pay yet/i }));
+
+      expect(payInput).toHaveValue(null);
+      expect(
+        screen.getByText("Jobs without pay stay visible and marked."),
+      ).toBeInTheDocument();
+      expect(screen.queryByText(/warn when listed pay is below/i)).not.toBeInTheDocument();
+
+      await user.click(screen.getByRole("button", { name: /^continue$/i }));
+      await user.click(screen.getByRole("button", { name: /^continue$/i }));
+      expect(
+        screen.getByText("Show jobs even when pay is missing or not listed"),
+      ).toBeInTheDocument();
+
+      await user.click(screen.getByRole("button", { name: /start finding jobs/i }));
+
+      await waitFor(() => {
+        expect(mockInvoke).toHaveBeenCalledWith(
+          "complete_setup",
+          expect.objectContaining({
+            config: expect.objectContaining({
+              title_allowlist: ["Office Manager"],
+              salary_floor_usd: 0,
+            }),
+          }),
+        );
+      });
+    });
+
     it("lets users review resume skill suggestions before they shape search setup", async () => {
       const user = userEvent.setup();
       mockInvoke.mockImplementation((command: string) => {

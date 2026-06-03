@@ -563,6 +563,13 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
     }));
   };
 
+  const handlePayNotSure = () => {
+    setConfig((prev) => ({
+      ...prev,
+      salary_floor_usd: 0,
+    }));
+  };
+
   const handleFreshnessPreferenceChange = (preference: FreshnessPreference) => {
     setFreshnessPreference(preference);
     setConfig((prev) => ({
@@ -955,17 +962,29 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                 <p className="mb-3 text-sm text-surface-500">
                   Optional. Add the minimum yearly pay that would make a job worth considering.
                 </p>
-                <Input
-                  label="Minimum yearly pay"
-                  type="number"
-                  inputMode="numeric"
-                  min={0}
-                  step={1000}
-                  placeholder="e.g., 60000"
-                  value={config.salary_floor_usd || ""}
-                  onChange={(e) => handleSalaryFloorChange(e.target.value)}
-                  hint="Leave blank if unsure. Jobs without pay stay visible and marked."
-                />
+                <div className="space-y-2">
+                  <Input
+                    label="Minimum yearly pay"
+                    type="number"
+                    inputMode="numeric"
+                    min={0}
+                    step={1000}
+                    placeholder="e.g., 60000"
+                    value={config.salary_floor_usd || ""}
+                    onChange={(e) => handleSalaryFloorChange(e.target.value)}
+                    hint="Leave blank if unsure. Jobs without pay stay visible and marked."
+                  />
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={handlePayNotSure}
+                    disabled={config.salary_floor_usd === 0}
+                    aria-label="Not sure about pay yet"
+                  >
+                    Not sure yet
+                  </Button>
+                </div>
                 {config.salary_floor_usd > 0 && (
                   <p className="mt-2 text-sm text-surface-600">
                     JobSentinel will warn when listed pay is below{" "}
@@ -973,6 +992,11 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                       ${config.salary_floor_usd.toLocaleString()}/year
                     </span>
                     .
+                  </p>
+                )}
+                {config.salary_floor_usd === 0 && (
+                  <p className="mt-2 text-sm text-surface-600">
+                    Jobs without pay stay visible and marked.
                   </p>
                 )}
               </div>
