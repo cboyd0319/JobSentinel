@@ -2099,6 +2099,7 @@ impl AtsAnalyzer {
             &[
                 "associate's degree",
                 "associate degree",
+                "associate of applied science",
                 "associate of arts",
                 "associate of science",
                 "associates degree",
@@ -4811,6 +4812,32 @@ Preferred: Salesforce
             .iter()
             .find(|review| review.keyword == "associate's degree")
             .expect("associate of science review");
+        assert_eq!(degree.match_state, RequirementMatchState::Direct);
+        assert!(degree.hard_constraint);
+        assert!(degree.evidence_sections.contains(&"education".to_string()));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "associate's degree"));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "degree"));
+    }
+
+    #[test]
+    fn test_associates_degree_requirement_accepts_associate_of_applied_science_evidence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nEducation\nAssociate of Applied Science",
+            &[],
+            "Required: associate's degree",
+        );
+
+        let degree = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "associate's degree")
+            .expect("associate of applied science review");
         assert_eq!(degree.match_state, RequirementMatchState::Direct);
         assert!(degree.hard_constraint);
         assert!(degree.evidence_sections.contains(&"education".to_string()));

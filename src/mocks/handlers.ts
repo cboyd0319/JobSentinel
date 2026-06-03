@@ -3257,6 +3257,7 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
     [
       "associate's degree",
       "associate degree",
+      "associate of applied science",
       "associate of arts",
       "associate of science",
       "associates degree",
@@ -3425,6 +3426,7 @@ function getMockExperienceYearSearchTerms(minYears: number): string[] {
 
 function getConservativeMockJobSearchTerms(keyword: string): string[] {
   const evidenceOnlyDegreeTerms = new Set([
+    "associate of applied science",
     "associate of arts",
     "associate of science",
     "bachelor of arts",
