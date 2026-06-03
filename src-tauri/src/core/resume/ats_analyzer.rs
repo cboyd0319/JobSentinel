@@ -2385,6 +2385,14 @@ impl AtsAnalyzer {
             &["quickbooks", "qbo"],
             &["accounts payable", "a/p"],
             &["accounts receivable", "a/r"],
+            &[
+                "inventory",
+                "inventory control",
+                "inventory management",
+                "stock control",
+                "stock management",
+                "stockroom",
+            ],
             &["budgeting", "budget tracking"],
             &[
                 "logistics",
@@ -3171,7 +3179,7 @@ impl AtsAnalyzer {
             r"(?i)\b(scheduling|calendar management|appointment setting|intake|onboarding|training)\b",
             r"(?i)\b(sales|account management|crm|salesforce|hubspot|pipeline|prospecting)\b",
             r"(?i)\b(payroll|bookkeeping|bookkeeper|quickbooks|qbo|accounts payable|accounts receivable|a/p|a/r|billing)\b",
-            r"(?i)\b(inventory|logistics|shipping|receiving|procurement|purchasing|vendor management|supplier management)\b",
+            r"(?i)\b(inventory|inventory[- ]control|inventory[- ]management|stock control|stock management|stockroom|logistics|shipping|receiving|procurement|purchasing|vendor management|supplier management)\b",
             r"(?i)\b(reporting|budgeting|budget tracking|grant reporting|grant writing|program evaluation)\b",
             r"(?i)\b(compliance|hipaa|osha|quality assurance|qa|data[- ]entry|excel)\b",
             r"(?i)\b(patient[- ]care|medication[- ]administration|vital[- ]signs?|care[- ]plans?|medical[- ]records?|charting)\b",
@@ -3465,6 +3473,11 @@ impl AtsAnalyzer {
             "a/p",
             "a/r",
             "inventory",
+            "inventory control",
+            "inventory management",
+            "stock control",
+            "stock management",
+            "stockroom",
             "logistics",
             "procurement",
             "purchasing",
@@ -5167,6 +5180,25 @@ Preferred: Salesforce
             .expect("logistics review");
         assert_eq!(logistics.match_state, RequirementMatchState::Direct);
         assert!(logistics
+            .evidence_sections
+            .contains(&"experience".to_string()));
+    }
+
+    #[test]
+    fn test_requirement_review_uses_inventory_stockroom_equivalence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nTracked stockroom counts and stock management for supply orders.",
+            &[],
+            "Required: inventory",
+        );
+
+        let inventory = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "inventory")
+            .expect("inventory review");
+        assert_eq!(inventory.match_state, RequirementMatchState::Strong);
+        assert!(inventory
             .evidence_sections
             .contains(&"experience".to_string()));
     }
