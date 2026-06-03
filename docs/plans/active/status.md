@@ -45,14 +45,14 @@ acceptance still requires Developer ID signing and notarization.
 
 ## Current Posture
 
-- `main` was pushed through `effb2aa3 Record hard requirement guidance commit`
+- `main` was pushed through `f9447e87 Record CDL license synonym commit`
   and now has local commits after that push.
   Use `git status --short --branch` for live evidence before committing,
   pushing, or reporting remote state.
-- Latest pushed critical-functionality slice adds a high-risk posting action on
-  job cards, keyboard-focusable ghost-risk indicators with real feedback tests,
-  a visible Settings help/support section for safe support reports, and a
-  harness-level multi-agent orchestration contract.
+- Latest pushed critical-functionality batch extends local Resume Match
+  hard-constraint and synonym handling for schedule, location, physical-demand,
+  work-eligibility, education, and credential terms. Keep the no-push batch
+  rule: push only after 30 more local commits unless the user changes cadence.
 - Current local resume evidence-strength follow-up separates plain-text
   saved-resume requirement evidence by section, so skills-list-only terms stay
   lighter evidence while experience, summary, project, education,
@@ -202,6 +202,9 @@ acceptance still requires Developer ID signing and notarization.
   The follow-up `95488cf4 Match Security Plus terms` treats Security+ and
   Security Plus as the same local credential hard-constraint evidence and gives
   the long mock ATS command-name test a per-test timeout.
+  The follow-up `cb7e461d Match CISSP full-name terms` treats CISSP and
+  Certified Information Systems Security Professional as the same local
+  credential hard-constraint evidence.
   The follow-up `d9d55406 Match CDL license terms` treats CDL, commercial
   driver's license, commercial drivers license, and commercial driver license
   as the same local credential hard-constraint evidence.

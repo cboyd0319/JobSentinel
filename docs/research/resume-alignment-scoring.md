@@ -259,6 +259,9 @@ Future implementation should improve:
   credentials separate.
 - Resume/job fit now treats `Security+` and `Security Plus` as equivalent
   local credential evidence.
+- Resume/job fit now treats `CISSP` and
+  `Certified Information Systems Security Professional` as equivalent local
+  credential evidence.
 - Resume/job fit now treats `driver's license`, `drivers license`, and
   `driver license` as equivalent local license evidence.
 - Resume/job fit now treats `CDL`, `commercial driver's license`, `commercial

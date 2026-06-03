@@ -217,6 +217,8 @@ The current local matcher:
   Support**, as the same evidence without guessing unrelated credentials;
 - treats **Security+** and **Security Plus** as the same local credential
   evidence;
+- treats **CISSP** and **Certified Information Systems Security Professional**
+  as the same local credential evidence;
 - treats **driver's license**, **drivers license**, and **driver license** as
   the same local license evidence;
 - treats **CDL**, **commercial driver's license**, **commercial drivers
