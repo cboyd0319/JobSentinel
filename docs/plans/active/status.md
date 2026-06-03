@@ -1,6 +1,6 @@
 # Active Plan Status
 
-Last updated: 2026-06-02.
+Last updated: 2026-06-03.
 
 Read this file before opening long active plans. It is the current restart
 surface for the active goal; detailed history remains in the active plans,
@@ -45,7 +45,8 @@ acceptance still requires Developer ID signing and notarization.
 
 ## Current Posture
 
-- `main` matches `origin/main` at `6adcff7c Add posting verification support`.
+- `main` was pushed through `effb2aa3 Record hard requirement guidance commit`
+  and now has local commits after that push.
   Use `git status --short --branch` for live evidence before committing,
   pushing, or reporting remote state.
 - Latest pushed critical-functionality slice adds a high-risk posting action on
@@ -1473,6 +1474,13 @@ Scope:
   category-specific next-action guidance for hard resume requirements,
   including warning users not to round up or imply extra years of experience.
   Verification passed: `npx vitest run src/pages/ResumeOptimizer.test.tsx`,
+  `npx tsc --noEmit`, `npm run lint -- --quiet`, `npm run lint:external-ai`,
+  and `git diff --check`.
+- Latest local selected-resume readable-status slice in `13432f8a` shows the
+  active saved resume format and readable-text status inside Resume Match before
+  job-fit review, including unreadable-resume guidance that follows employer
+  file instructions first. It does not expose saved file paths or raw resume
+  text. Verification passed: `npx vitest run src/pages/ResumeOptimizer.test.tsx`,
   `npx tsc --noEmit`, `npm run lint -- --quiet`, `npm run lint:external-ai`,
   and `git diff --check`.
 - No-Apple-account macOS readiness is already best-possible without an Apple

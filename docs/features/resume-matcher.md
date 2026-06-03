@@ -134,6 +134,8 @@ The current local matcher:
   structured resume details into the page;
 - loads the active saved resume on page open so the user can paste a job post
   and review fit without knowing any technical setup steps;
+- shows the selected resume format and readable-text status before match review
+  without exposing saved file paths or raw resume text;
 - identifies skills across broad career categories;
 - lets reviewed local skills influence job sorting only after the user turns
   that preference on;
