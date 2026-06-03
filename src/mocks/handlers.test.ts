@@ -1656,6 +1656,36 @@ describe("mock Tauri handlers", () => {
     );
   });
 
+  it("matches Registered Nurse license and RN wording in mock hard constraints", async () => {
+    const rnResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "RN.",
+        experience: [],
+        skills: [],
+      },
+      jobDescription: "Required: Registered Nurse license",
+    });
+
+    expect(rnResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "registered nurse license",
+          match_state: "Direct",
+          hard_constraint: true,
+          evidence_sections: expect.arrayContaining(["summary"]),
+        }),
+      ]),
+    );
+    expect(rnResult.hard_constraint_risks).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          requirement: "registered nurse license",
+        }),
+      ]),
+    );
+  });
+
   it("matches bachelor's degree punctuation variants in mock hard constraints", async () => {
     const degreeResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
