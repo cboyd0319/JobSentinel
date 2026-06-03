@@ -115,6 +115,7 @@ You can save reusable answers for common questions:
 | `availability`        | "What is your availability..."     |
 | `overtime`            | "Can you work overtime?"          |
 | `holiday`             | "Can you work holidays?"          |
+| `managed a team`      | "Have you managed a team?"        |
 | `sponsorship`         | "Do you need visa sponsorship..."  |
 | `certification`       | "Do you have this certification?"  |
 | `background check`    | "Can you complete a background check?" |
@@ -126,8 +127,9 @@ You can save reusable answers for common questions:
 Use plain words that appear in the screening question. Matching ignores
 capitalization. Common quick-add buttons include background check and drug
 screen, citizenship, reliable transportation, driver's license, overtime
-availability, holiday availability, language fluency, physical requirements,
-and age requirement so you can prepare those answers before the form asks.
+availability, holiday availability, management experience, language fluency,
+physical requirements, and age requirement so you can prepare those answers
+before the form asks.
 
 ### Hard Question Review
 
