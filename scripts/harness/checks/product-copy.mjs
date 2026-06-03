@@ -1214,6 +1214,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /uploaded resume/i,
       /Upload your resume/i,
       /uploaded,\s*scoring uses/i,
+      /added,\s*scoring uses/i,
       /These logs can help diagnose it/i,
       /Turn this on to never miss a new posting/i,
       /Auto-scan job boards/i,

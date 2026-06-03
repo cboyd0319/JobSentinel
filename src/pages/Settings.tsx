@@ -4250,7 +4250,7 @@ export default function Settings({ onClose }: SettingsProps) {
               <section className="mb-6">
                 <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
                   Use Resume to Sort Jobs
-                  <HelpIcon text="When enabled, job scores use skills from your added resume plus the search words you chose." />
+                  <HelpIcon text="When enabled, fit estimates use skills from your added resume plus the search words you chose." />
                 </h3>
                 <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-4">
                   <div className="flex items-center justify-between">
@@ -4287,7 +4287,7 @@ export default function Settings({ onClose }: SettingsProps) {
                       <span>
                         <strong>Tip:</strong> Add your resume in the{" "}
                         <strong>Resume</strong> tab first. If no resume is
-                        added, scoring uses your job titles and search words.
+                        added, fit estimates use your job titles and search words.
                       </span>
                     </p>
                   </div>

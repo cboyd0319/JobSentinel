@@ -2022,7 +2022,7 @@ test("product copy rejects stale zero-technical resume and shortcut copy", () =>
     writeFixtureFile(
       root,
       "src/pages/Settings.tsx",
-      "When enabled, job scores use skills from your uploaded resume.\nUpload your resume in the Resume tab first. If no resume is uploaded, scoring uses your job titles.\n",
+      "When enabled, job scores use skills from your uploaded resume.\nUpload your resume in the Resume tab first. If no resume is added, scoring uses your job titles.\n",
     );
     writeFixtureFile(root, "docs/features/smart-scoring.md", "Uploaded resume skills\n");
     writeFixtureFile(
