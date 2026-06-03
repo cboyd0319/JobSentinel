@@ -938,6 +938,38 @@ describe("mock Tauri handlers", () => {
       ]),
     );
 
+    const onsiteResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        experience: [
+          {
+            ...atsResume.experience[0],
+            achievements: ["Available for onsite client-facing shifts."],
+          },
+        ],
+        skills: [],
+      },
+      jobDescription: "Required: on-site role",
+    });
+    expect(onsiteResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "on-site",
+          match_state: "Direct",
+          hard_constraint: true,
+          evidence_sections: expect.arrayContaining(["current experience"]),
+        }),
+      ]),
+    );
+    expect(onsiteResult.hard_constraint_risks).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          requirement: "on-site",
+        }),
+      ]),
+    );
+
     await mockInvoke<number>("select_and_upload_resume");
     const activeJobResult = await mockInvoke<AtsAnalysisResult>("analyze_active_resume_for_job", {
       jobDescription:

@@ -3040,6 +3040,7 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
       "client support",
     ],
     ["data entry", "data-entry"],
+    ["onsite", "on-site"],
     ["bls", "basic life support"],
     ["acls", "advanced cardiovascular life support"],
     ["cpr", "cardiopulmonary resuscitation"],

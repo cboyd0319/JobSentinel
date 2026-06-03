@@ -1943,6 +1943,7 @@ impl AtsAnalyzer {
                 "client support",
             ],
             &["data entry", "data-entry"],
+            &["onsite", "on-site"],
             &["bls", "basic life support"],
             &["acls", "advanced cardiovascular life support"],
             &["cpr", "cardiopulmonary resuscitation"],
@@ -4220,6 +4221,28 @@ Preferred: Salesforce
                 && review.hard_constraint
                 && review.match_state == RequirementMatchState::Missing
         }));
+    }
+
+    #[test]
+    fn test_on_site_requirement_accepts_onsite_resume_evidence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nAvailable for onsite client-facing shifts.",
+            &[],
+            "Required: on-site role",
+        );
+
+        let onsite = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "on-site")
+            .expect("on-site review");
+        assert_eq!(onsite.match_state, RequirementMatchState::Direct);
+        assert!(onsite.hard_constraint);
+        assert!(onsite.evidence_sections.contains(&"experience".to_string()));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "on-site"));
     }
 
     #[test]
