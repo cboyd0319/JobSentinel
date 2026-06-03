@@ -215,6 +215,7 @@ describe("Resume page", () => {
     expect(await screen.findByText("Readable Resume Text")).toBeInTheDocument();
     expect(screen.getByText("Text found")).toBeInTheDocument();
     expect(screen.getByText("Employer format first")).toBeInTheDocument();
+    expect(screen.getByText("Important details need text")).toBeInTheDocument();
     expect(screen.getByText("Preview complete")).toBeInTheDocument();
     expect(screen.getByText(/Patient scheduling/)).toBeInTheDocument();
     expect(screen.queryByText(/\/Users\/alice/)).not.toBeInTheDocument();

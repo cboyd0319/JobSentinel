@@ -238,6 +238,12 @@ function getReadablePreviewChecklist(preview: ResumeTextPreview | null): Readabl
       variant: "surface",
     },
     {
+      label: "Important details need text",
+      detail:
+        "Keep contact details, roles, skills, and credentials as selectable text. Photos, logos, or image-only sections may not be read consistently.",
+      variant: "surface",
+    },
+    {
       label: hasText
         ? preview.is_truncated
           ? "Preview clipped"
