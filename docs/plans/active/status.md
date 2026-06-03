@@ -1512,6 +1512,13 @@ Scope:
   src-tauri/Cargo.toml -- --check`, `cargo clippy --manifest-path
   src-tauri/Cargo.toml -- -D warnings`, `npm run lint:external-ai`, and `git
   diff --check`.
+- Latest local Resume Fit evidence-status slice in `815a62b7` adds a visible
+  status label beside the score, including check-must-haves, mixed-evidence,
+  not-enough-detail, and clearer-evidence states, so users see the score as
+  local evidence review instead of an employer prediction. Verification passed:
+  `npx vitest run src/pages/ResumeOptimizer.test.tsx`, `npx tsc --noEmit`,
+  `npm run lint -- --quiet`, `npm run lint:external-ai`, and `git diff
+  --check`.
 - No-Apple-account macOS readiness is already best-possible without an Apple
   Developer Account. Keep the limitation explicit: Gatekeeper-ready public
   distribution still needs Developer ID signing and notarization.

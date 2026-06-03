@@ -140,6 +140,10 @@ copy durable findings back into this plan or the active status surface.
 - Current local Resume Import Status follow-up adds sanitized format and
   readable-text metadata to resume summaries and shows it before fit review
   without exposing saved paths or raw resume text.
+- Current local Resume Fit evidence-status follow-up adds check-must-haves,
+  mixed-evidence, not-enough-detail, and clearer-evidence labels beside the
+  score so users treat it as local evidence review instead of an employer
+  prediction.
 - Current local Resume-Assisted Guided Intake follow-up shows active
   saved-resume skill names in setup as optional local suggestions and only adds
   user-picked names to the saved search.
@@ -1526,6 +1530,7 @@ source-filter compatibility issue appears.
   Resume Match evidence-label work is committed in `26d306f6`.
   Reviewer-fix work is committed in `efea47a5`.
   Resume Import Status work is committed in `b3c07068`.
+  Resume Fit evidence-status work is committed in `815a62b7`.
   Resume-Assisted Guided Intake work is committed in `da84110a`.
   Source Governance Metadata work is committed in `66924003`.
   Resume availability-constraint work is committed in `0d8bf479`.

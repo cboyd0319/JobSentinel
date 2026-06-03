@@ -136,6 +136,9 @@ The current local matcher:
   and review fit without knowing any technical setup steps;
 - shows the selected resume format and readable-text status before match review
   without exposing saved file paths or raw resume text;
+- shows a Resume Fit evidence-status label, such as checking must-haves first,
+  mixed evidence, not enough job detail, or clearer evidence, so the score is
+  treated as local evidence review instead of an employer prediction;
 - identifies skills across broad career categories;
 - lets reviewed local skills influence job sorting only after the user turns
   that preference on;
