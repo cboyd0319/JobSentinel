@@ -1942,6 +1942,7 @@ impl AtsAnalyzer {
                 "client services",
                 "client support",
             ],
+            &["data entry", "data-entry"],
             &["bls", "basic life support"],
             &["acls", "advanced cardiovascular life support"],
             &["cpr", "cardiopulmonary resuscitation"],
@@ -2420,7 +2421,7 @@ impl AtsAnalyzer {
             r"(?i)\b(payroll|bookkeeping|quickbooks|accounts payable|accounts receivable|billing)\b",
             r"(?i)\b(inventory|logistics|shipping|receiving|procurement|vendor management)\b",
             r"(?i)\b(reporting|budget tracking|grant reporting|grant writing|program evaluation)\b",
-            r"(?i)\b(compliance|hipaa|osha|quality assurance|data entry|excel)\b",
+            r"(?i)\b(compliance|hipaa|osha|quality assurance|data[- ]entry|excel)\b",
             r"(?i)\b(patient care|medication administration|vital signs|care plans|medical records|charting)\b",
             r"(?i)\b(lesson planning|classroom management|curriculum|iep|student support|parent communication)\b",
             r"(?i)\b(forklift|welding|equipment maintenance|safety inspections|food safety|cash handling)\b",
@@ -3722,6 +3723,25 @@ Preferred: Salesforce
             .expect("customer service review");
         assert_eq!(customer_service.match_state, RequirementMatchState::Direct);
         assert!(customer_service
+            .evidence_sections
+            .contains(&"experience".to_string()));
+    }
+
+    #[test]
+    fn test_requirement_review_uses_data_entry_hyphen_equivalence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nCompleted data-entry updates for intake records.",
+            &[],
+            "Required: data entry",
+        );
+
+        let data_entry = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "data entry")
+            .expect("data entry review");
+        assert_eq!(data_entry.match_state, RequirementMatchState::Direct);
+        assert!(data_entry
             .evidence_sections
             .contains(&"experience".to_string()));
     }
