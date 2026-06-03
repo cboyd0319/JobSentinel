@@ -174,6 +174,8 @@ The current local matcher:
   duplicate generic certification risk when the specific credential matches;
 - treats food safety, food safety certification, ServSafe, and food-handler
   certificate, permit, or card wording as the same local credential evidence;
+- treats first aid, first-aid, first aid certification, First Aid Certified,
+  and first aid certificate wording as the same local credential evidence;
 - treats high school diploma, high school degree, GED, high school
   equivalency, and General Education Development as the same local education
   evidence without guessing unrelated credentials;

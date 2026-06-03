@@ -225,6 +225,8 @@ Future implementation should improve:
 - Resume/job fit now treats `food safety`, `food safety certification`,
   `ServSafe`, and food-handler certificate, permit, or card wording as the same
   local credential evidence.
+- Resume/job fit now treats first-aid certificate, certification, and certified
+  wording as the same local credential evidence.
 - Resume/job fit now treats `high school diploma`, `high school degree`,
   `GED`, `high school equivalency`, and `General Education Development` as the
   same local education evidence.

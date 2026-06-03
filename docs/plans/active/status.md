@@ -131,6 +131,9 @@ acceptance still requires Developer ID signing and notarization.
   The follow-up `9f47bee9` recognizes food-safety credential equivalence,
   treating food safety, food safety certification, ServSafe, and food-handler
   certificate, permit, or card wording as the same local credential evidence.
+  The follow-up `c47dec16` recognizes first-aid credential equivalence,
+  treating first-aid certificate, certification, and certified wording as the
+  same local credential evidence.
   Future resume work still needs deeper evidence strength, seniority alignment,
   broader conservative synonyms, recency, and profession-specific weighting.
 - Current local macOS no-account post-commit verification rebuilt the universal
