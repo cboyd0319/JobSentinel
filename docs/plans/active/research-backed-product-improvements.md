@@ -139,6 +139,9 @@ copy durable findings back into this plan or the active status surface.
   QA as equivalent local evidence without broad fuzzy matching.
 - Current local patient-care hyphen follow-up in `23418843` treats patient care
   and patient-care as equivalent local evidence without broad fuzzy matching.
+- Current local medical-record plural follow-up in `ad391cda` treats medical
+  record and medical records as equivalent local evidence without duplicate
+  singular/plural requirement rows.
 - Current local data-entry hyphen follow-up in `1f82ecf4` treats data entry and
   data-entry as equivalent local evidence, recognizes the hyphenated job-post
   form in the backend, and keeps browser/dev mocks aligned.
@@ -1852,6 +1855,7 @@ source-filter compatibility issue appears.
   Calendar-scheduling synonym work is committed in `2cdf11f8`.
   QA synonym work is committed in `a349e5e7`.
   Patient-care hyphen work is committed in `23418843`.
+  Medical-record plural work is committed in `ad391cda`.
   Data-entry hyphen work is committed in `1f82ecf4`.
   Onsite location-term work is committed in `bffa0a1f`.
   Spaced on-site work is committed in `c8dffb14`.
