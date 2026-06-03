@@ -279,6 +279,7 @@ const HARD_QUESTION_REVIEWS: HardQuestionReview[] = [
         /\bweekend\b/i,
         /\bovernight\b/i,
         /\bovertime\b/i,
+        /\bholiday\b/i,
       ],
       "Review salary, start-date, schedule, and availability answers before submission.",
     ),
@@ -291,6 +292,7 @@ const HARD_QUESTION_REVIEWS: HardQuestionReview[] = [
       /\bweekend\b/i,
       /\bovernight\b/i,
       /\bovertime\b/i,
+      /\bholiday\b/i,
     ],
   },
 ];
@@ -344,7 +346,7 @@ function getSavedScreeningAnswerLabel(questionPattern: string) {
   if (/\bsalary\b|\bcompensation\b/i.test(questionPattern)) {
     return "salary";
   }
-  if (/\bavailability\b|\bavailable\b|\bstart date\b|\bnotice period\b|\bschedule\b|\bshift\b|\bweekend\b|\bovernight\b|\bovertime\b/i.test(questionPattern)) {
+  if (/\bavailability\b|\bavailable\b|\bstart date\b|\bnotice period\b|\bschedule\b|\bshift\b|\bweekend\b|\bovernight\b|\bovertime\b|\bholiday\b/i.test(questionPattern)) {
     return "availability";
   }
 

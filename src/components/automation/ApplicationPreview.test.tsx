@@ -622,6 +622,28 @@ describe("ApplicationPreview", () => {
       ).toBeInTheDocument();
     });
 
+    it("flags holiday availability requirements from job details", async () => {
+      mockInvoke.mockResolvedValue(mockProfile);
+
+      render(
+        <ApplicationPreview
+          job={{
+            ...mockJob,
+            description: "Holiday work is required during peak weeks.",
+          }}
+          atsPlatform="greenhouse"
+        />,
+      );
+
+      expect(await screen.findByText("Hard Question Review")).toBeInTheDocument();
+      expect(screen.getByText("Salary or availability")).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          "Review salary, start-date, schedule, and availability answers before submission.",
+        ),
+      ).toBeInTheDocument();
+    });
+
     it("shows saved work-authorization answers when the job asks about sponsorship", async () => {
       mockInvoke.mockResolvedValue({
         ...mockProfile,
@@ -1101,6 +1123,52 @@ describe("ApplicationPreview", () => {
       expect(
         screen.getByText(
           "Saved availability answer says: I am available for overtime during peak weeks. Confirm it matches the employer's wording and resume evidence before continuing.",
+        ),
+      ).toBeInTheDocument();
+      expect(mockInvoke).toHaveBeenCalledWith("get_screening_answers");
+    });
+
+    it("shows saved availability answers when the job asks about holiday availability", async () => {
+      mockInvoke.mockImplementation((command: string) => {
+        if (command === "get_application_profile_preview") {
+          return Promise.resolve(mockProfile);
+        }
+
+        if (command === "get_screening_answers") {
+          return Promise.resolve([
+            {
+              id: 1,
+              questionPattern: "holiday",
+              answer: "I am available for holiday shifts during peak weeks.",
+              answerType: "text",
+              notes: null,
+              timesUsed: 0,
+              timesModified: 0,
+              confidenceScore: 0,
+              lastUsedAt: null,
+              createdAt: "2026-01-01T00:00:00Z",
+              updatedAt: "2026-01-01T00:00:00Z",
+            },
+          ]);
+        }
+
+        return Promise.reject(new Error(`Unexpected command: ${command}`));
+      });
+
+      render(
+        <ApplicationPreview
+          job={{
+            ...mockJob,
+            description: "Holiday work is required during peak weeks.",
+          }}
+          atsPlatform="greenhouse"
+        />,
+      );
+
+      expect(await screen.findByText("Hard Question Review")).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          "Saved availability answer says: I am available for holiday shifts during peak weeks. Confirm it matches the employer's wording and resume evidence before continuing.",
         ),
       ).toBeInTheDocument();
       expect(mockInvoke).toHaveBeenCalledWith("get_screening_answers");
