@@ -1715,6 +1715,7 @@ impl AtsAnalyzer {
             || lower.contains("on-site")
             || lower.contains("on site")
             || lower.contains("relocation")
+            || lower.contains("relocate")
             || lower.contains("travel")
             || lower.contains("transportation")
             || lower.contains("commute")
@@ -1953,6 +1954,7 @@ impl AtsAnalyzer {
             ],
             &["data entry", "data-entry"],
             &["onsite", "on-site", "on site"],
+            &["relocation", "relocate", "willing to relocate"],
             &["reliable transportation", "own transportation"],
             &["night shift", "overnight shift", "third shift", "3rd shift"],
             &["weekend availability", "weekend shift", "weekend shifts"],
@@ -2484,7 +2486,7 @@ impl AtsAnalyzer {
             r"(?i)\b(bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree|high school diploma|high school degree|ged|high school equivalency|general education development)\b",
             r"(?i)\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b",
             r"(?i)\b(lift(?:\s+up\s+to)?\s+\d+\s*(?:pounds?|lbs?)|stand for long periods?|physical requirements?|physical demands?)\b",
-            r"(?i)\b(onsite|on-site|on site|relocation|travel|reliable transportation|own transportation|commute|availability|available|schedule|weekend availability|weekend shifts?|night shift|overnight shift|third shift|3rd shift|evening shift|second shift|2nd shift|day shift|first shift|1st shift)\b",
+            r"(?i)\b(onsite|on-site|on site|relocation|relocate|willing to relocate|travel|reliable transportation|own transportation|commute|availability|available|schedule|weekend availability|weekend shifts?|night shift|overnight shift|third shift|3rd shift|evening shift|second shift|2nd shift|day shift|first shift|1st shift)\b",
         ];
 
         for pattern in &hard_constraint_patterns {
@@ -4424,6 +4426,30 @@ Preferred: Salesforce
             .hard_constraint_risks
             .iter()
             .any(|risk| risk.requirement == "on site"));
+    }
+
+    #[test]
+    fn test_relocation_accepts_willing_to_relocate_evidence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nWilling to relocate for client site coverage.",
+            &[],
+            "Required: relocation",
+        );
+
+        let relocation = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "relocation")
+            .expect("relocation review");
+        assert_eq!(relocation.match_state, RequirementMatchState::Direct);
+        assert!(relocation.hard_constraint);
+        assert!(relocation
+            .evidence_sections
+            .contains(&"experience".to_string()));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "relocation"));
     }
 
     #[test]
