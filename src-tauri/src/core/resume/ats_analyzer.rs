@@ -2171,23 +2171,52 @@ impl AtsAnalyzer {
         let mut found_in = Vec::new();
         let mut frequency = 0;
         let mut current_section = "resume text";
+        let mut current_experience_is_current = false;
 
         for line in resume_text.lines() {
             if let Some(section) = Self::plain_text_section_label(line) {
                 current_section = section;
+                current_experience_is_current = false;
             }
 
             let line_lower = line.to_lowercase();
+            if current_section == "experience" {
+                if Self::plain_text_current_experience_marker(&line_lower) {
+                    current_experience_is_current = true;
+                } else if Self::plain_text_past_experience_marker(&line_lower) {
+                    current_experience_is_current = false;
+                }
+            }
+
             let count = Self::keyword_frequency_for_search_terms(&line_lower, search_terms);
             if count == 0 {
                 continue;
             }
 
-            Self::add_evidence_section(&mut found_in, current_section);
+            let evidence_section =
+                if current_section == "experience" && current_experience_is_current {
+                    "current experience"
+                } else {
+                    current_section
+                };
+            Self::add_evidence_section(&mut found_in, evidence_section);
             frequency += count;
         }
 
         (found_in, frequency)
+    }
+
+    fn plain_text_current_experience_marker(line_lower: &str) -> bool {
+        line_lower
+            .split(|c: char| !c.is_ascii_alphanumeric())
+            .any(|word| word == "present")
+    }
+
+    fn plain_text_past_experience_marker(line_lower: &str) -> bool {
+        !Self::plain_text_current_experience_marker(line_lower)
+            && regex::Regex::new(r"\b(?:19|20)\d{2}\s*(?:-|to)\s*(?:19|20)\d{2}\b")
+                .unwrap()
+                .is_match(line_lower)
     }
 
     fn keyword_frequency_for_search_terms(text: &str, search_terms: &[String]) -> usize {
@@ -3934,6 +3963,36 @@ Preferred: Salesforce
             .expect("scheduling review");
         assert_eq!(scheduling.match_state, RequirementMatchState::Strong);
         assert!(scheduling
+            .evidence_sections
+            .contains(&"current experience".to_string()));
+    }
+
+    #[test]
+    fn test_plain_text_requirement_review_marks_current_experience_evidence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nSummary\nCare coordinator with scheduling experience.\n\nExperience\nCare Coordinator | 2021 - Present\n- Coordinated client intake scheduling.\n\nSupport Associate | 2018 - 2020\n- Maintained CRM records.",
+            &[],
+            "Required: scheduling, CRM",
+        );
+
+        let scheduling = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "scheduling")
+            .expect("scheduling review");
+        assert_eq!(scheduling.match_state, RequirementMatchState::Strong);
+        assert!(scheduling
+            .evidence_sections
+            .contains(&"current experience".to_string()));
+
+        let crm = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "crm")
+            .expect("crm review");
+        assert_eq!(crm.match_state, RequirementMatchState::Direct);
+        assert!(crm.evidence_sections.contains(&"experience".to_string()));
+        assert!(!crm
             .evidence_sections
             .contains(&"current experience".to_string()));
     }
