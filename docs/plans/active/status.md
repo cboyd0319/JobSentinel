@@ -1470,6 +1470,19 @@ Scope:
   --manifest-path src-tauri/Cargo.toml -- --check`, `cargo clippy
   --manifest-path src-tauri/Cargo.toml -- -D warnings`, `npm run
   lint:external-ai`, and `git diff --check`.
+- Latest local credential-equivalence slice in `c4fd8c7a` lets resume
+  requirement review treat clear credential acronym or full-name pairs such as
+  `BLS` and `Basic Life Support` as the same evidence without broad fuzzy
+  matching. Structured resume certifications and projects now count as visible
+  evidence sections, and browser/dev mocks stay aligned. Verification passed:
+  `cargo test --lib credential_equivalence --manifest-path src-tauri/Cargo.toml`,
+  `npx vitest run src/mocks/handlers.test.ts -t "analyzes resumes"`, `cargo
+  test --lib ats_analyzer --manifest-path src-tauri/Cargo.toml`, `npx vitest
+  run src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint --
+  --quiet`, `cargo test --lib --manifest-path src-tauri/Cargo.toml`, `cargo
+  fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo clippy
+  --manifest-path src-tauri/Cargo.toml -- -D warnings`, `npm run
+  lint:external-ai`, and `git diff --check`.
 - Latest local resume file-guidance slice in `808aea8e` updates the no-readable-text status
   to tell users to follow employer file instructions first, then use readable
   PDF, DOCX, TXT, or Markdown when no format is named. Verification passed:

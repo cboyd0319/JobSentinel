@@ -156,6 +156,8 @@ The current local matcher:
 - treats recognized required seniority language, such as senior-level
   experience, as a local experience constraint and checks for visible role,
   leadership, or enough-years evidence before raising the fit label;
+- treats clear credential equivalents, such as **BLS** and **Basic Life
+  Support**, as the same evidence without guessing unrelated credentials;
 - turns the local review into plain next actions such as checking a hard
   requirement before tailoring, adding supporting evidence only if true, or
   keeping useful evidence visible;
@@ -190,12 +192,12 @@ in transparent component rubrics, match states, evidence strength, hard
 constraint caps, conservative synonym handling, recency and section placement,
 and profession-specific weighting. Local requirement-state rows and recognized
 hard-constraint caps have started. Section-placement review, seniority-level
-constraint review, and the conservative `CRM` / `customer relationship
-management` equivalence have started. Copied structured resume details can show
-current-role evidence labels; active saved-resume text still uses broader
-work-experience labels until deeper date parsing is available. Broader evidence
-strength, synonym, recency, too-low-role warnings, and profession-specific
-weighting remain future work.
+constraint review, conservative `CRM` / `customer relationship management`, and
+common credential equivalence have started. Copied structured resume details
+can show current-role evidence labels; active saved-resume text still uses
+broader work-experience labels until deeper date parsing is available. Broader
+evidence strength, synonym, recency, too-low-role warnings, and
+profession-specific weighting remain future work.
 The visible requirement review uses plain evidence labels such as current role
 experience, work experience, and skills list instead of backend section names.
 
