@@ -60,6 +60,7 @@ const COMMON_PATTERNS = [
   { pattern: "drug screen", label: "Drug screen", type: "text" },
   { pattern: "bilingual", label: "Language fluency", type: "text" },
   { pattern: "physical requirements", label: "Physical requirements", type: "text" },
+  { pattern: "18 years of age", label: "Age requirement", type: "yes_no" },
   { pattern: "education", label: "Education level", type: "text" },
   { pattern: "cover letter", label: "Cover letter / Why this role", type: "textarea" },
 ];
