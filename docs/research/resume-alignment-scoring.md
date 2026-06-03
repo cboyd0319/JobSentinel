@@ -225,6 +225,8 @@ Future implementation should improve:
 - Resume/job fit now treats `scheduling`, `calendar management`, and
   `appointment setting` as equivalent local evidence without broad fuzzy
   matching.
+- Resume/job fit now treats `quality assurance` and `QA` as equivalent local
+  evidence without broad fuzzy matching.
 - Resume/job fit now treats `data entry` and `data-entry` as equivalent local
   evidence without broad fuzzy matching.
 - Resume/job fit now treats `onsite`, `on-site`, and `on site` as equivalent

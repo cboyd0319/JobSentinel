@@ -201,6 +201,8 @@ The current local matcher:
   itself;
 - treats **scheduling**, **calendar management**, and **appointment setting**
   as the same local evidence while still avoiding broad fuzzy matching;
+- treats **quality assurance** and **QA** as the same local evidence while
+  still avoiding broad fuzzy matching;
 - treats **data entry** and **data-entry** as the same local evidence while
   still avoiding broad fuzzy matching;
 - treats **onsite**, **on-site**, and **on site** as the same local location

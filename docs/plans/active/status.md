@@ -130,6 +130,8 @@ acceptance still requires Developer ID signing and notarization.
   case-documentation wording as enough by itself. The follow-up
   `2cdf11f8 Match calendar scheduling terms` treats scheduling, calendar
   management, and appointment setting as the same local evidence. The follow-up
+  `a349e5e7 Match QA quality terms` treats quality assurance and QA as the same
+  local evidence. The follow-up
   `1f82ecf4 Match data entry hyphen terms` treats data entry and data-entry as
   the same local evidence. The follow-up
   `bffa0a1f Match onsite location terms` treats onsite and on-site as the same
