@@ -2333,6 +2333,7 @@ impl AtsAnalyzer {
             &["vital sign", "vital signs", "vital-sign", "vital-signs"],
             &["medication administration", "medication-administration"],
             &["data entry", "data-entry"],
+            &["bookkeeping", "bookkeeper"],
             &["accounts payable", "a/p"],
             &["accounts receivable", "a/r"],
             &["budgeting", "budget tracking"],
@@ -3102,7 +3103,7 @@ impl AtsAnalyzer {
             r"(?i)\b(customer service|client service|client services|case management|case coordination|case notes|case documentation)\b",
             r"(?i)\b(scheduling|calendar management|appointment setting|intake|onboarding|training)\b",
             r"(?i)\b(sales|account management|crm|salesforce|hubspot|pipeline|prospecting)\b",
-            r"(?i)\b(payroll|bookkeeping|quickbooks|accounts payable|accounts receivable|a/p|a/r|billing)\b",
+            r"(?i)\b(payroll|bookkeeping|bookkeeper|quickbooks|accounts payable|accounts receivable|a/p|a/r|billing)\b",
             r"(?i)\b(inventory|logistics|shipping|receiving|procurement|purchasing|vendor management|supplier management)\b",
             r"(?i)\b(reporting|budgeting|budget tracking|grant reporting|grant writing|program evaluation)\b",
             r"(?i)\b(compliance|hipaa|osha|quality assurance|qa|data[- ]entry|excel)\b",
@@ -3137,6 +3138,7 @@ impl AtsAnalyzer {
 
     fn canonical_requirement_keyword(keyword: &str) -> String {
         match keyword {
+            "bookkeeper" => "bookkeeping".to_string(),
             "a/p" => "accounts payable".to_string(),
             "a/r" => "accounts receivable".to_string(),
             _ => keyword.to_string(),
@@ -3380,6 +3382,7 @@ impl AtsAnalyzer {
             "project management professional",
             "payroll",
             "bookkeeping",
+            "bookkeeper",
             "accounts payable",
             "accounts receivable",
             "a/p",
@@ -4856,6 +4859,44 @@ Preferred: Salesforce
             RequirementMatchState::Direct
         );
         assert!(accounts_receivable
+            .evidence_sections
+            .contains(&"experience".to_string()));
+    }
+
+    #[test]
+    fn test_requirement_review_uses_bookkeeping_bookkeeper_equivalence() {
+        let bookkeeping = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nWorked as bookkeeper for monthly close and vendor files.",
+            &[],
+            "Required: bookkeeping",
+        );
+
+        let bookkeeping_review = bookkeeping
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "bookkeeping")
+            .expect("bookkeeping");
+        assert_eq!(
+            bookkeeping_review.match_state,
+            RequirementMatchState::Direct
+        );
+        assert!(bookkeeping_review
+            .evidence_sections
+            .contains(&"experience".to_string()));
+
+        let bookkeeper = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nHandled bookkeeping for monthly close and vendor files.",
+            &[],
+            "Required: bookkeeper",
+        );
+
+        let bookkeeper_review = bookkeeper
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "bookkeeping")
+            .expect("bookkeeping");
+        assert_eq!(bookkeeper_review.match_state, RequirementMatchState::Direct);
+        assert!(bookkeeper_review
             .evidence_sections
             .contains(&"experience".to_string()));
     }

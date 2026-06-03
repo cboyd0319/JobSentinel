@@ -600,6 +600,8 @@ const ATS_KNOWN_KEYWORDS = [
   "project coordination",
   "pmp",
   "project management professional",
+  "bookkeeping",
+  "bookkeeper",
   "accounts payable",
   "accounts receivable",
   "a/p",
@@ -3309,6 +3311,8 @@ function extractMockAtsKeywords(jobDescription: string): MockAtsKeyword[] {
 
 function canonicalMockRequirementKeyword(keyword: string): string {
   switch (keyword.toLowerCase()) {
+    case "bookkeeper":
+      return "bookkeeping";
     case "a/p":
       return "accounts payable";
     case "a/r":
@@ -3604,6 +3608,7 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
     ["vital sign", "vital signs", "vital-sign", "vital-signs"],
     ["medication administration", "medication-administration"],
     ["data entry", "data-entry"],
+    ["bookkeeping", "bookkeeper"],
     ["accounts payable", "a/p"],
     ["accounts receivable", "a/r"],
     ["budgeting", "budget tracking"],

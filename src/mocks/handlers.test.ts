@@ -4364,6 +4364,60 @@ describe("mock Tauri handlers", () => {
     );
   });
 
+  it("treats bookkeeping and bookkeeper as equivalent mock evidence", async () => {
+    const bookkeepingResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        skills: [],
+        experience: [
+          {
+            ...atsResume.experience[0],
+            current: false,
+            end_date: "2022",
+            achievements: ["Worked as bookkeeper for monthly close and vendor files."],
+          },
+        ],
+      },
+      jobDescription: "Required: bookkeeping",
+    });
+    expect(bookkeepingResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "bookkeeping",
+          match_state: "Direct",
+          evidence_sections: ["experience"],
+        }),
+      ]),
+    );
+
+    const bookkeeperResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        skills: [],
+        experience: [
+          {
+            ...atsResume.experience[0],
+            current: false,
+            end_date: "2022",
+            achievements: ["Handled bookkeeping for monthly close and vendor files."],
+          },
+        ],
+      },
+      jobDescription: "Required: bookkeeper",
+    });
+    expect(bookkeeperResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "bookkeeping",
+          match_state: "Direct",
+          evidence_sections: ["experience"],
+        }),
+      ]),
+    );
+  });
+
   it("treats cashier and cash handling as equivalent mock evidence", async () => {
     const cashierResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
