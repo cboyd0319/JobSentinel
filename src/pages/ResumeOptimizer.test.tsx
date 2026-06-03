@@ -724,6 +724,43 @@ describe("ResumeOptimizer", () => {
     ).toBeInTheDocument();
   });
 
+  it("shows language-specific next action guidance for hard requirements", async () => {
+    const user = userEvent.setup();
+    mockInvokeResponses({
+      analyze_resume_for_job: {
+        ...mockAnalysis,
+        overall_score: 58,
+        hard_constraint_risks: [
+          {
+            requirement: "bilingual Spanish",
+            category: "Language" as const,
+            score_cap: 65,
+            reason: "A required language requirement was not clearly found.",
+            action:
+              "Check language fluency before tailoring. If it is not true for you, do not claim it.",
+          },
+        ],
+      },
+    });
+    render(<ResumeOptimizer onBack={vi.fn()} />);
+
+    fireEvent.change(screen.getByLabelText(/^job post$/i), {
+      target: {
+        value: "Required: bilingual Spanish",
+      },
+    });
+    await openResumeAppImport(user);
+    fireEvent.change(screen.getByLabelText(/copied resume details/i), {
+      target: { value: JSON.stringify(validResume) },
+    });
+
+    await user.click(screen.getByRole("button", { name: /review match/i }));
+
+    expect(await screen.findByText("Language requirement")).toBeInTheDocument();
+    expect(screen.getByText(/check bilingual spanish before tailoring/i)).toBeInTheDocument();
+    expect(screen.getByText(/language fluency is not true for you/i)).toBeInTheDocument();
+  });
+
   it("explains strong resume words without screening-tool framing", async () => {
     const user = userEvent.setup();
     mockInvokeResponses({ get_ats_power_words: ["Led", "Improved"] });

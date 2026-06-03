@@ -107,6 +107,8 @@ pub enum HardConstraintCategory {
     Education,
     /// Required years or level of experience
     Experience,
+    /// Required language fluency
+    Language,
     /// Required physical demand such as lifting or prolonged standing
     PhysicalRequirement,
     /// Required location, onsite, relocation, travel, schedule, or availability constraint
@@ -1850,6 +1852,7 @@ impl AtsAnalyzer {
             HardConstraintCategory::LicenseOrCertification => 60.0,
             HardConstraintCategory::Education => 65.0,
             HardConstraintCategory::Experience => 65.0,
+            HardConstraintCategory::Language => 65.0,
             HardConstraintCategory::PhysicalRequirement => 70.0,
             HardConstraintCategory::Location => 70.0,
         }
@@ -1871,6 +1874,9 @@ impl AtsAnalyzer {
             }
             HardConstraintCategory::Experience => {
                 "Check years or level before tailoring. Do not round up, stretch titles, or imply more experience than you have."
+            }
+            HardConstraintCategory::Language => {
+                "Check language fluency before tailoring. If it is not true for you, do not claim it."
             }
             HardConstraintCategory::PhysicalRequirement => {
                 "Check this physical demand before tailoring. If it is not workable or safe for you, do not claim it."
@@ -1962,6 +1968,16 @@ impl AtsAnalyzer {
             || lower == "management experience"
         {
             return Some(HardConstraintCategory::Experience);
+        }
+        if lower.contains("bilingual")
+            || lower.contains("spanish fluency")
+            || lower.contains("fluent spanish")
+            || lower.contains("fluent in spanish")
+            || lower.contains("spanish language")
+            || lower.contains("english/spanish")
+            || lower.contains("english and spanish")
+        {
+            return Some(HardConstraintCategory::Language);
         }
         if lower.contains("lift ")
             || lower.contains("pound")
@@ -2289,6 +2305,16 @@ impl AtsAnalyzer {
                 "part time availability",
                 "part-time",
                 "part time",
+            ],
+            &[
+                "bilingual spanish",
+                "bilingual",
+                "spanish fluency",
+                "fluent spanish",
+                "fluent in spanish",
+                "spanish language",
+                "english/spanish",
+                "english and spanish",
             ],
             &["bls", "basic life support"],
             &["acls", "advanced cardiovascular life support"],
@@ -2931,6 +2957,7 @@ impl AtsAnalyzer {
             r"(?i)\b(certification|cissp|certified information systems security professional|security plus|bls|basic life support|acls|advanced cardiovascular life support|cpr|cardiopulmonary resuscitation|cna|certified nursing assistant|certified nurse assistant|certified nurse aide|pmp|project management professional|servsafe|food safety certification|food[- ]handler'?s?\s+(?:certification|certificate|permit|card)|first[- ]aid certification|first[- ]aid certified|first[- ]aid certificate|first[- ]aid|forklift certification|forklift certified|forklift operator certification|forklift operator certified|forklift license|forklift operator license|osha\s*10(?:[- ]hour)?(?:\s+certification)?|osha\s*30(?:[- ]hour)?(?:\s+certification)?)\b",
             r"(?i)\b(ph\.?d\.?(?:\s+degree)?|doctorate(?:\s+degree)?|doctoral degree|associate'?s degree|associate degree|baccalaureate degree|bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree|high[- ]school diploma|high[- ]school degree|ged|high[- ]school equivalency|general education development)\b",
             r"(?i)\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b",
+            r"(?i)\b(bilingual(?:\s+(?:english|spanish|french|mandarin|cantonese|arabic|portuguese|german|japanese|korean))?|spanish fluency|fluent(?:\s+in)?\s+spanish|spanish language|english/spanish|english and spanish)\b",
             r"(?i)\b(lift(?:\s+up\s+to)?\s+\d+\s*(?:pounds?|lbs?)|(?:stand|standing) for long periods?|physical requirements?|physical demands?)\b",
             r"(?i)\b(onsite|on-site|on site|remote(?:[- ](?:work|role|position|job))?|hybrid(?:[- ](?:work|role|schedule|position|job))?|relocation|relocate|willing to relocate|travel|reliable transportation|own transportation|commute|commuting|full[- ]time(?:\s+availability)?|part[- ]time(?:\s+availability)?|availability|available|schedule|weekend availability|weekend shifts?|night shift|overnight shift|third shift|3rd shift|evening shift|second shift|2nd shift|day shift|first shift|1st shift)\b",
         ];
@@ -6788,6 +6815,53 @@ Preferred: Salesforce
             .hard_constraint_risks
             .iter()
             .any(|risk| risk.requirement == "remote work"));
+    }
+
+    #[test]
+    fn test_missing_required_bilingual_spanish_constraint_caps_overall_score() {
+        let resume = sample_resume();
+
+        let result =
+            AtsAnalyzer::analyze_for_job(&resume, "Required: client intake, bilingual Spanish");
+
+        assert!(result.overall_score <= 65.0);
+        assert!(result.hard_constraint_risks.iter().any(|risk| {
+            risk.requirement == "bilingual spanish"
+                && risk.category == HardConstraintCategory::Language
+                && risk.score_cap == 65.0
+                && risk
+                    .action
+                    .contains("Check language fluency before tailoring")
+        }));
+        assert!(result.requirement_reviews.iter().any(|review| {
+            review.keyword == "bilingual spanish"
+                && review.hard_constraint
+                && review.match_state == RequirementMatchState::Missing
+        }));
+    }
+
+    #[test]
+    fn test_bilingual_spanish_requirement_accepts_spanish_fluency_evidence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nFluent in Spanish for client intake calls.",
+            &[],
+            "Required: bilingual Spanish",
+        );
+
+        let bilingual = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "bilingual spanish")
+            .expect("bilingual Spanish review");
+        assert_eq!(bilingual.match_state, RequirementMatchState::Direct);
+        assert!(bilingual.hard_constraint);
+        assert!(bilingual
+            .evidence_sections
+            .contains(&"experience".to_string()));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "bilingual spanish"));
     }
 
     #[test]
