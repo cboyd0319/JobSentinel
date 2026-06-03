@@ -228,6 +228,9 @@ copy durable findings back into this plan or the active status surface.
 - Current local OSHA 10 credential-equivalence follow-up treats OSHA 10, OSHA10,
   OSHA 10 certification, and OSHA 10-hour wording as the same local credential
   evidence without treating OSHA 30 as equivalent.
+- Current local OSHA 30 credential-equivalence follow-up treats OSHA 30, OSHA30,
+  OSHA 30 certification, and OSHA 30-hour wording as the same local credential
+  evidence without treating OSHA 10 as equivalent.
 - Current local high-school credential-equivalence follow-up treats high school
   diploma, high school degree, GED, high school equivalency, and General
   Education Development as the same local education evidence, and keeps
@@ -1666,6 +1669,7 @@ source-filter compatibility issue appears.
   First-aid credential-equivalence work is committed in `c47dec16`.
   Forklift credential-equivalence work is committed in `a57f5d47`.
   OSHA 10 credential-equivalence work is committed in `e8534882`.
+  OSHA 30 credential-equivalence work is committed in `972700a9`.
   High-school credential-equivalence work is committed in `a09f6c43`.
   Degree-equivalent-experience work is committed in `9fc9777d`.
   Training-heading credential work is committed in `df0bdf9a`.

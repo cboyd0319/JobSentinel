@@ -141,6 +141,9 @@ acceptance still requires Developer ID signing and notarization.
   The follow-up `e8534882` recognizes OSHA 10 credential equivalence, treating
   OSHA 10, OSHA10, OSHA 10 certification, and OSHA 10-hour wording as the same
   local credential evidence without treating OSHA 30 as equivalent.
+  The follow-up `972700a9` recognizes OSHA 30 credential equivalence, treating
+  OSHA 30, OSHA30, OSHA 30 certification, and OSHA 30-hour wording as the same
+  local credential evidence without treating OSHA 10 as equivalent.
   Future resume work still needs deeper evidence strength, seniority alignment,
   broader conservative synonyms, recency, and profession-specific weighting.
 - Current local macOS no-account post-commit verification rebuilt the universal
