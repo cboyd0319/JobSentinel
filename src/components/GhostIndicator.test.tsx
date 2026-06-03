@@ -271,16 +271,17 @@ describe("GhostIndicator", () => {
   });
 
   describe("accessibility", () => {
-    it("has aria-label with confidence percentage", () => {
+    it("has aria-label with a warning level instead of confidence percentage", () => {
       render(<GhostIndicator ghostScore={0.75} ghostReasons={null} />);
-      expect(screen.getByLabelText(/75% confidence/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/posting may need review, high warning/i)).toBeInTheDocument();
+      expect(screen.queryByLabelText(/75% confidence/i)).not.toBeInTheDocument();
     });
 
     it("is keyboard focusable so the tooltip can open without a mouse", async () => {
       const user = userEvent.setup();
       render(<GhostIndicator ghostScore={0.75} ghostReasons={null} />);
 
-      const indicator = screen.getByLabelText(/75% confidence/i);
+      const indicator = screen.getByLabelText(/posting may need review, high warning/i);
       await user.tab();
 
       expect(indicator).toHaveFocus();
@@ -483,11 +484,11 @@ describe("GhostIndicatorCompact", () => {
   });
 
   describe("accessibility", () => {
-    it("is keyboard focusable with an accessible confidence label", async () => {
+    it("is keyboard focusable with an accessible warning-level label", async () => {
       const user = userEvent.setup();
       render(<GhostIndicatorCompact ghostScore={0.8} ghostReasons={null} />);
 
-      const indicator = screen.getByLabelText(/80% confidence/i);
+      const indicator = screen.getByLabelText(/posting may need review, high warning/i);
       await user.tab();
 
       expect(indicator).toHaveFocus();

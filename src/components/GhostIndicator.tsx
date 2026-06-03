@@ -55,7 +55,7 @@ function feedbackLabel(feedbackState: "real" | "ghost"): string {
 }
 
 function indicatorAriaLabel(ghostScore: number): string {
-  return `Posting may need review, ${Math.round(ghostScore * 100)}% confidence`;
+  return `Posting may need review, ${getSeverity(ghostScore)} warning`;
 }
 
 function getSeverity(score: number): "low" | "medium" | "high" {
