@@ -524,6 +524,28 @@ impl AtsAnalyzer {
             );
         }
 
+        let regulated_work_terms = [
+            "legal research",
+            "case files",
+            "case file",
+            "document review",
+            "records management",
+            "policy analysis",
+            "grant administration",
+            "financial reconciliation",
+            "loan processing",
+            "compliance",
+            "audit",
+            "government",
+            "public sector",
+        ];
+
+        if regulated_work_terms.iter().any(|term| lower.contains(term)) {
+            return Some(
+                "regulated-work evidence to check: records accuracy, deadlines, confidentiality, compliance, and audit trail",
+            );
+        }
+
         None
     }
 
@@ -3558,6 +3580,20 @@ Preferred: Salesforce
         assert!(improved.contains("scope of practice"));
         assert!(improved.contains("patient safety"));
         assert!(improved.contains("required credentials"));
+        assert!(improved.contains("problem, your role, action, result, and evidence"));
+    }
+
+    #[test]
+    fn test_improve_bullet_adds_regulated_work_evidence_prompt() {
+        let bullet = "Supported case files and reconciliation";
+        let job_desc = "Required: legal research, case files, financial reconciliation";
+        let improved = AtsAnalyzer::improve_bullet(bullet, Some(job_desc));
+
+        assert!(improved.contains("regulated-work evidence to check"));
+        assert!(improved.contains("records accuracy"));
+        assert!(improved.contains("deadlines"));
+        assert!(improved.contains("confidentiality"));
+        assert!(improved.contains("audit trail"));
         assert!(improved.contains("problem, your role, action, result, and evidence"));
     }
 

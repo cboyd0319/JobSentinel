@@ -2637,6 +2637,26 @@ function getMockRoleSpecificEvidencePrompt(jobContext: string): string | null {
     return "healthcare evidence to check: scope of practice, patient safety, documentation, and required credentials";
   }
 
+  const regulatedWorkTerms = [
+    "legal research",
+    "case files",
+    "case file",
+    "document review",
+    "records management",
+    "policy analysis",
+    "grant administration",
+    "financial reconciliation",
+    "loan processing",
+    "compliance",
+    "audit",
+    "government",
+    "public sector",
+  ];
+
+  if (regulatedWorkTerms.some((term) => lower.includes(term))) {
+    return "regulated-work evidence to check: records accuracy, deadlines, confidentiality, compliance, and audit trail";
+  }
+
   return null;
 }
 

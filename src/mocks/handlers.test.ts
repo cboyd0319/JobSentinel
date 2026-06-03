@@ -1388,6 +1388,16 @@ describe("mock Tauri handlers", () => {
     expect(healthcareImproved).toContain("scope of practice");
     expect(healthcareImproved).toContain("patient safety");
     expect(healthcareImproved).toContain("required credentials");
+
+    const regulatedImproved = await mockInvoke<string>("improve_bullet_point", {
+      bullet: "supported case files and reconciliation",
+      jobContext: "Required: legal research, case files, financial reconciliation",
+    });
+    expect(regulatedImproved).toContain("regulated-work evidence to check");
+    expect(regulatedImproved).toContain("records accuracy");
+    expect(regulatedImproved).toContain("deadlines");
+    expect(regulatedImproved).toContain("confidentiality");
+    expect(regulatedImproved).toContain("audit trail");
   }, 10_000);
 
   it("matches lift-weight pounds and lbs in mock hard constraints", async () => {
