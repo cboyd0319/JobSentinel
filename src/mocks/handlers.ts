@@ -482,6 +482,7 @@ type MockHardConstraintCategory =
   | "LicenseOrCertification"
   | "Education"
   | "Experience"
+  | "PhysicalRequirement"
   | "Location";
 type MockSuggestionCategory =
   | "AddKeyword"
@@ -2316,6 +2317,7 @@ function getMockHardConstraintScoreCap(category: MockHardConstraintCategory): nu
     case "Education":
     case "Experience":
       return 65;
+    case "PhysicalRequirement":
     case "Location":
       return 70;
   }
@@ -2355,6 +2357,16 @@ function getMockHardConstraintCategory(keyword: string): MockHardConstraintCateg
   }
   if (lower.includes("year") || lower.includes("yrs")) {
     return "Experience";
+  }
+  if (
+    lower.includes("lift ") ||
+    lower.includes("pound") ||
+    lower.includes("lbs") ||
+    lower.includes("physical requirement") ||
+    lower.includes("physical demand") ||
+    lower.includes("stand for long")
+  ) {
+    return "PhysicalRequirement";
   }
   if (
     lower.includes("onsite") ||
@@ -2535,6 +2547,7 @@ function extractMockHardConstraintKeywords(jobDescription: string): string[] {
     /\b(certification|cissp|security\+|bls|acls)\b/gi,
     /\b(bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree)\b/gi,
     /\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b/gi,
+    /\b(lift(?:\s+up\s+to)?\s+\d+\s*(?:pounds?|lbs?)|stand for long periods?|physical requirements?|physical demands?)\b/gi,
     /\b(onsite|on-site|relocation|travel|reliable transportation|own transportation|commute|availability|available|schedule|weekend availability|night shift|evening shift)\b/gi,
   ];
   const keywords = new Set<string>();

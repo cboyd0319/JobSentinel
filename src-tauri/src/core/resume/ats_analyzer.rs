@@ -107,6 +107,8 @@ pub enum HardConstraintCategory {
     Education,
     /// Required years or level of experience
     Experience,
+    /// Required physical demand such as lifting or prolonged standing
+    PhysicalRequirement,
     /// Required location, onsite, relocation, travel, schedule, or availability constraint
     Location,
 }
@@ -1262,6 +1264,7 @@ impl AtsAnalyzer {
             HardConstraintCategory::LicenseOrCertification => 60.0,
             HardConstraintCategory::Education => 65.0,
             HardConstraintCategory::Experience => 65.0,
+            HardConstraintCategory::PhysicalRequirement => 70.0,
             HardConstraintCategory::Location => 70.0,
         }
     }
@@ -1302,6 +1305,15 @@ impl AtsAnalyzer {
         }
         if lower.contains("year") || lower.contains("yrs") {
             return Some(HardConstraintCategory::Experience);
+        }
+        if lower.contains("lift ")
+            || lower.contains("pound")
+            || lower.contains("lbs")
+            || lower.contains("physical requirement")
+            || lower.contains("physical demand")
+            || lower.contains("stand for long")
+        {
+            return Some(HardConstraintCategory::PhysicalRequirement);
         }
         if lower.contains("onsite")
             || lower.contains("on-site")
@@ -1696,6 +1708,7 @@ impl AtsAnalyzer {
             r"(?i)\b(certification|cissp|security\+|bls|acls)\b",
             r"(?i)\b(bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree)\b",
             r"(?i)\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b",
+            r"(?i)\b(lift(?:\s+up\s+to)?\s+\d+\s*(?:pounds?|lbs?)|stand for long periods?|physical requirements?|physical demands?)\b",
             r"(?i)\b(onsite|on-site|relocation|travel|reliable transportation|own transportation|commute|availability|available|schedule|weekend availability|night shift|evening shift)\b",
         ];
 
@@ -2655,6 +2668,27 @@ Preferred: Salesforce
         }));
         assert!(result.requirement_reviews.iter().any(|review| {
             review.keyword == "reliable transportation"
+                && review.hard_constraint
+                && review.match_state == RequirementMatchState::Missing
+        }));
+    }
+
+    #[test]
+    fn test_missing_required_physical_constraint_caps_overall_score() {
+        let resume = sample_resume();
+
+        let result =
+            AtsAnalyzer::analyze_for_job(&resume, "Required: client intake, lift 50 pounds");
+
+        assert!(result.overall_score <= 70.0);
+        assert!(result.hard_constraint_risks.iter().any(|risk| {
+            risk.requirement == "lift 50 pounds"
+                && risk.category == HardConstraintCategory::PhysicalRequirement
+                && risk.score_cap == 70.0
+                && risk.action.contains("Verify this before tailoring")
+        }));
+        assert!(result.requirement_reviews.iter().any(|review| {
+            review.keyword == "lift 50 pounds"
                 && review.hard_constraint
                 && review.match_state == RequirementMatchState::Missing
         }));

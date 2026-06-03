@@ -176,6 +176,8 @@ type AtsAnalysisResult = {
       | "SecurityClearance"
       | "LicenseOrCertification"
       | "Education"
+      | "Experience"
+      | "PhysicalRequirement"
       | "Location";
     score_cap: number;
     reason: string;
@@ -790,7 +792,7 @@ describe("mock Tauri handlers", () => {
     await mockInvoke<number>("select_and_upload_resume");
     const activeJobResult = await mockInvoke<AtsAnalysisResult>("analyze_active_resume_for_job", {
       jobDescription:
-        "Required: scheduling, case management, security clearance, weekend availability, reliable transportation, 8+ years of payroll management, US citizenship.",
+        "Required: scheduling, case management, security clearance, weekend availability, reliable transportation, lift 50 pounds, 8+ years of payroll management, US citizenship.",
     });
     expect(activeJobResult.keyword_matches).toEqual(
       expect.arrayContaining([
@@ -832,6 +834,11 @@ describe("mock Tauri handlers", () => {
         expect.objectContaining({
           requirement: "reliable transportation",
           category: "Location",
+          score_cap: 70,
+        }),
+        expect.objectContaining({
+          requirement: "lift 50 pounds",
+          category: "PhysicalRequirement",
           score_cap: 70,
         }),
       ]),
