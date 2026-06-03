@@ -790,7 +790,7 @@ describe("mock Tauri handlers", () => {
     await mockInvoke<number>("select_and_upload_resume");
     const activeJobResult = await mockInvoke<AtsAnalysisResult>("analyze_active_resume_for_job", {
       jobDescription:
-        "Required: scheduling, case management, security clearance, weekend availability, 8+ years of payroll management.",
+        "Required: scheduling, case management, security clearance, weekend availability, 8+ years of payroll management, US citizenship.",
     });
     expect(activeJobResult.keyword_matches).toEqual(
       expect.arrayContaining([
@@ -823,6 +823,11 @@ describe("mock Tauri handlers", () => {
           requirement: "8+ years of payroll management",
           category: "Experience",
           score_cap: 65,
+        }),
+        expect.objectContaining({
+          requirement: "us citizenship",
+          category: "WorkAuthorization",
+          score_cap: 50,
         }),
       ]),
     );

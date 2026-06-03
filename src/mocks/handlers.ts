@@ -2326,7 +2326,12 @@ function getMockHardConstraintCategory(keyword: string): MockHardConstraintCateg
   if (
     lower.includes("work authorization") ||
     lower.includes("authorized to work") ||
-    lower.includes("visa sponsorship")
+    lower.includes("visa sponsorship") ||
+    lower.includes("us citizenship") ||
+    lower.includes("u.s. citizenship") ||
+    lower.includes("us citizen") ||
+    lower.includes("u.s. citizen") ||
+    lower.includes("citizenship required")
   ) {
     return "WorkAuthorization";
   }
@@ -2522,7 +2527,7 @@ function extractMockAtsKeywords(jobDescription: string): MockAtsKeyword[] {
 
 function extractMockHardConstraintKeywords(jobDescription: string): string[] {
   const patterns = [
-    /\b(work authorization|authorized to work|visa sponsorship)\b/gi,
+    /\b(work authorization|authorized to work|visa sponsorship|u\.?s\.?\s+citizenship|u\.?s\.?\s+citizen|citizenship required)\b/gi,
     /\b(security clearance|clearance)\b/gi,
     /\b(driver'?s license|driver license|cdl|rn license|nursing license)\b/gi,
     /\b(certification|cissp|security\+|bls|acls)\b/gi,

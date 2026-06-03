@@ -1271,6 +1271,11 @@ impl AtsAnalyzer {
         if lower.contains("work authorization")
             || lower.contains("authorized to work")
             || lower.contains("visa sponsorship")
+            || lower.contains("us citizenship")
+            || lower.contains("u.s. citizenship")
+            || lower.contains("us citizen")
+            || lower.contains("u.s. citizen")
+            || lower.contains("citizenship required")
         {
             return Some(HardConstraintCategory::WorkAuthorization);
         }
@@ -1683,7 +1688,7 @@ impl AtsAnalyzer {
     fn extract_hard_constraint_keywords(text: &str) -> Vec<String> {
         let mut keywords = HashSet::new();
         let hard_constraint_patterns = [
-            r"(?i)\b(work authorization|authorized to work|visa sponsorship)\b",
+            r"(?i)\b(work authorization|authorized to work|visa sponsorship|u\.?s\.?\s+citizenship|u\.?s\.?\s+citizen|citizenship required)\b",
             r"(?i)\b(security clearance|clearance)\b",
             r"(?i)\b(driver'?s license|driver license|cdl|rn license|nursing license)\b",
             r"(?i)\b(certification|cissp|security\+|bls|acls)\b",
@@ -2604,6 +2609,27 @@ Preferred: Salesforce
         }));
         assert!(result.requirement_reviews.iter().any(|review| {
             review.keyword == "8+ years of payroll management"
+                && review.hard_constraint
+                && review.match_state == RequirementMatchState::Missing
+        }));
+    }
+
+    #[test]
+    fn test_missing_required_citizenship_constraint_caps_overall_score() {
+        let resume = sample_resume();
+
+        let result =
+            AtsAnalyzer::analyze_for_job(&resume, "Required: client intake, US citizenship");
+
+        assert!(result.overall_score <= 50.0);
+        assert!(result.hard_constraint_risks.iter().any(|risk| {
+            risk.requirement == "us citizenship"
+                && risk.category == HardConstraintCategory::WorkAuthorization
+                && risk.score_cap == 50.0
+                && risk.action.contains("Verify this before tailoring")
+        }));
+        assert!(result.requirement_reviews.iter().any(|review| {
+            review.keyword == "us citizenship"
                 && review.hard_constraint
                 && review.match_state == RequirementMatchState::Missing
         }));
