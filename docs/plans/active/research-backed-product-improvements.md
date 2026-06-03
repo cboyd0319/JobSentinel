@@ -183,6 +183,9 @@ copy durable findings back into this plan or the active status surface.
 - Current local financial-reconciliation hyphen follow-up in `bbe2c428` treats
   financial reconciliation and financial-reconciliation as equivalent local
   evidence without duplicate requirement rows.
+- Current local loan-processing hyphen follow-up in `84c08274` treats loan
+  processing and loan-processing as equivalent local evidence without duplicate
+  requirement rows.
 - Current local onsite location-term follow-up in `bffa0a1f` treats onsite and
   on-site as equivalent local hard-constraint evidence, so exact punctuation
   differences do not create a false missing-location risk.
