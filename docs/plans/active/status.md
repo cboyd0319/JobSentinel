@@ -124,9 +124,12 @@ acceptance still requires Developer ID signing and notarization.
   matching for `CRM` and `customer relationship management`. The follow-up
   `a09f6c43 Recognize GED credential equivalence` treats high school diploma,
   high school degree, GED, high school equivalency, and General Education
-  Development as the same local education evidence. Future resume work still
-  needs deeper evidence strength, seniority alignment, broader conservative
-  synonyms, recency, and profession-specific weighting.
+  Development as the same local education evidence. The follow-up `5883db13`
+  recognizes CNA credential equivalence, treating CNA and Certified Nursing
+  Assistant variants as the same local credential evidence while removing the
+  duplicate generic `certification` risk when the specific credential matched.
+  Future resume work still needs deeper evidence strength, seniority alignment,
+  broader conservative synonyms, recency, and profession-specific weighting.
 - Current local macOS no-account post-commit verification rebuilt the universal
   DMG from committed resume-guidance head `12c184db` on macOS 26.5
   (build 25F71), Apple Silicon `arm64`, with SIP enabled. The build produced

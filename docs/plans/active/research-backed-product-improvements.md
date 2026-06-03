@@ -212,6 +212,10 @@ copy durable findings back into this plan or the active status surface.
 - Current local credential-equivalence follow-up treats clear credential
   acronym or full-name pairs such as `BLS` and `Basic Life Support` as the same
   evidence without broad fuzzy matching, and keeps dev/browser mocks aligned.
+- Current local CNA credential-equivalence follow-up treats `CNA`, `Certified
+  Nursing Assistant`, `Certified Nurse Assistant`, and `Certified Nurse Aide`
+  as the same evidence, and drops the duplicate generic `certification` risk
+  when the specific credential matched.
 - Current local high-school credential-equivalence follow-up treats high school
   diploma, high school degree, GED, high school equivalency, and General
   Education Development as the same local education evidence, and keeps
@@ -1645,6 +1649,7 @@ source-filter compatibility issue appears.
   Resume seniority-constraint work is committed in `1f8d7581`.
   Hard-requirement action work is committed in `6e43a675`.
   Credential-equivalence work is committed in `c4fd8c7a`.
+  CNA credential-equivalence work is committed in `5883db13`.
   High-school credential-equivalence work is committed in `a09f6c43`.
   Degree-equivalent-experience work is committed in `9fc9777d`.
   Training-heading credential work is committed in `df0bdf9a`.
