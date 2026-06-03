@@ -1342,6 +1342,11 @@ impl AtsAnalyzer {
                 | "education"
                 | "certifications"
                 | "licenses"
+                | "professional credentials"
+                | "credentials"
+                | "professional training"
+                | "training"
+                | "certificates"
                 | "career break"
                 | "career breaks"
                 | "career pause"
@@ -3420,6 +3425,10 @@ Preferred: Salesforce
             .evidence_sections
             .contains(&"certifications".to_string()));
         assert!(!bls.evidence_sections.contains(&"resume text".to_string()));
+        assert!(!result
+            .format_issues
+            .iter()
+            .any(|issue| issue.issue.contains("standard resume section headings")));
     }
 
     #[test]
