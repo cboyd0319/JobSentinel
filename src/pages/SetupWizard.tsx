@@ -162,6 +162,13 @@ const REVIEW_VOLUME_OPTIONS: ReviewVolumeOption[] = [
   },
 ];
 
+const COMMON_WORK_TO_AVOID = [
+  "night shift",
+  "weekend work",
+  "heavy travel",
+  "mandatory overtime",
+] as const;
+
 function ghostConfigForFreshnessPreference(
   preference: FreshnessPreference
 ): GhostConfig {
@@ -545,6 +552,16 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
         keywords_exclude: [...prev.keywords_exclude, trimmed],
       }));
       setAvoidInput("");
+    }
+  };
+
+  const handleAddAvoidSuggestion = (item: string) => {
+    const trimmed = item.trim();
+    if (trimmed && !config.keywords_exclude.includes(trimmed)) {
+      setConfig((prev) => ({
+        ...prev,
+        keywords_exclude: [...prev.keywords_exclude, trimmed],
+      }));
     }
   };
 
@@ -946,6 +963,34 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                   <Button onClick={handleAddAvoid} disabled={!avoidInput.trim()}>
                     Add
                   </Button>
+                </div>
+
+                <div className="mb-3">
+                  <p className="mb-2 text-xs font-medium uppercase tracking-wide text-surface-500">
+                    Common to rank lower
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {COMMON_WORK_TO_AVOID.map((item) => {
+                      const alreadyAdded = config.keywords_exclude.includes(item);
+                      return (
+                        <Button
+                          key={item}
+                          type="button"
+                          variant={alreadyAdded ? "ghost" : "secondary"}
+                          size="sm"
+                          onClick={() => handleAddAvoidSuggestion(item)}
+                          disabled={alreadyAdded}
+                          aria-label={
+                            alreadyAdded
+                              ? `${item} already ranked lower`
+                              : `Add ${item} to rank lower`
+                          }
+                        >
+                          {alreadyAdded ? `Added ${item}` : item}
+                        </Button>
+                      );
+                    })}
+                  </div>
                 </div>
 
                 {config.keywords_exclude.length > 0 ? (
