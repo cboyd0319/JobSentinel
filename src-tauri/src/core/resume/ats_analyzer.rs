@@ -465,12 +465,23 @@ impl AtsAnalyzer {
             }
         }
 
+        Self::append_interview_defense_prompt(&mut improved);
+
         improved
     }
 
     // ========================================================================
     // Private helpers
     // ========================================================================
+
+    fn append_interview_defense_prompt(text: &mut String) {
+        let prompt = "problem, your role, action, result, and evidence";
+        if !text.contains(prompt) {
+            text.push_str(&format!(
+                " (before using, make sure you can explain the {prompt})"
+            ));
+        }
+    }
 
     fn check_contact_info(
         contact: &ContactInfo,
@@ -2777,6 +2788,7 @@ Preferred: Salesforce
         // Should suggest reviewing truthful required language, not stuffing words.
         assert!(improved.contains("case management"));
         assert!(improved.contains("worth making visible"));
+        assert!(improved.contains("problem, your role, action, result, and evidence"));
         assert!(!improved.contains("consider adding"));
     }
 

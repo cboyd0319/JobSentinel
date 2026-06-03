@@ -957,6 +957,7 @@ describe("mock Tauri handlers", () => {
     expect(improved).toContain("Contributed to client scheduling");
     expect(improved).toContain("add a true number, outcome, or concrete detail if you have one");
     expect(improved).toContain("review if these are true and worth making visible");
+    expect(improved).toContain("problem, your role, action, result, and evidence");
     expect(improved).not.toContain("consider adding");
   });
 

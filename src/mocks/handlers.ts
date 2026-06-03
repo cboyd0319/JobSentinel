@@ -2499,7 +2499,15 @@ function improveMockBulletPoint(args?: Record<string, unknown>): string {
     }
   }
 
+  improved = appendMockInterviewDefensePrompt(improved);
+
   return improved;
+}
+
+function appendMockInterviewDefensePrompt(text: string): string {
+  const prompt = "problem, your role, action, result, and evidence";
+  if (text.includes(prompt)) return text;
+  return `${text} (before using, make sure you can explain the ${prompt})`;
 }
 
 function getMockAtsResumeSections(value: unknown): {
