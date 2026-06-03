@@ -201,6 +201,10 @@ acceptance still requires Developer ID signing and notarization.
   Bachelor of Arts and Bachelor of Science as local evidence for generic
   bachelor's degree requirements without using those phrases to create generic
   job-post requirements in browser/dev mocks. The follow-up
+  `2a3fd362 Match business administration bachelor term` treats Bachelor of
+  Business Administration as local evidence for generic bachelor's degree
+  requirements without treating BBA-specific job wording as a generic
+  bachelor's requirement. The follow-up
   `0e2a0fae Match master degree terms` treats master's degree, master degree,
   and masters degree as the same local education hard-constraint evidence. The
   follow-up `f032ae03 Match master degree title terms` treats Master of Arts
