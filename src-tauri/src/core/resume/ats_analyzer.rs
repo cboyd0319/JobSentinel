@@ -2101,7 +2101,13 @@ impl AtsAnalyzer {
                 "associate degree",
                 "associates degree",
             ],
-            &["bachelor's degree", "bachelor degree", "bachelors degree"],
+            &[
+                "bachelor's degree",
+                "bachelor degree",
+                "bachelors degree",
+                "bachelor of arts",
+                "bachelor of science",
+            ],
             &["master's degree", "master degree", "masters degree"],
             &[
                 "phd",
@@ -4440,6 +4446,36 @@ Preferred: Salesforce
             .hard_constraint_risks
             .iter()
             .any(|risk| risk.requirement == "bachelor's degree"));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "degree"));
+    }
+
+    #[test]
+    fn test_bachelors_degree_requirement_accepts_bachelor_of_science_evidence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nEducation\nBachelor of Science",
+            &[],
+            "Required: bachelor's degree",
+        );
+
+        let degree = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "bachelor's degree")
+            .expect("bachelor of science review");
+        assert_eq!(degree.match_state, RequirementMatchState::Direct);
+        assert!(degree.hard_constraint);
+        assert!(degree.evidence_sections.contains(&"education".to_string()));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "bachelor's degree"));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "degree"));
     }
 
     #[test]

@@ -2841,13 +2841,17 @@ function extractMockAtsKeywords(jobDescription: string): MockAtsKeyword[] {
       "cdl",
     ].includes(keyword)
   );
+  const hasSpecificDegree = hardKeywords.some((keyword) =>
+    isMockExactDegreeKeyword(keyword) && keyword !== "degree"
+  );
   const knownKeywords = ATS_KNOWN_KEYWORDS.filter((keyword) =>
     !(hasDegreeEquivalent && isMockExactDegreeKeyword(keyword)) &&
+    !(hasSpecificDegree && keyword === "degree") &&
     !(
       hasCommercialDriverLicense &&
       ["driver's license", "drivers license", "driver license"].includes(keyword)
     ) &&
-    getConservativeMockSearchTerms(keyword).some((term) => lower.includes(term))
+    getConservativeMockJobSearchTerms(keyword).some((term) => lower.includes(term))
   );
   const keywords = [
     ...knownKeywords,
@@ -3251,7 +3255,13 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
       "general education development",
     ],
     ["associate's degree", "associate degree", "associates degree"],
-    ["bachelor's degree", "bachelor degree", "bachelors degree"],
+    [
+      "bachelor's degree",
+      "bachelor degree",
+      "bachelors degree",
+      "bachelor of arts",
+      "bachelor of science",
+    ],
     ["master's degree", "master degree", "masters degree"],
     [
       "phd",
@@ -3391,6 +3401,15 @@ function getMockExperienceYearSearchTerms(minYears: number): string[] {
     terms.push(`${years}+ yrs`);
   }
   return terms;
+}
+
+function getConservativeMockJobSearchTerms(keyword: string): string[] {
+  const evidenceOnlyDegreeTerms = new Set([
+    "bachelor of arts",
+    "bachelor of science",
+  ]);
+  return getConservativeMockSearchTerms(keyword)
+    .filter((term) => !evidenceOnlyDegreeTerms.has(term));
 }
 
 function containsAnyMockKeyword(text: string, searchTerms: string[]): boolean {
