@@ -193,6 +193,8 @@ resume help should adjust examples and evidence prompts for:
 - Local readability checks now warn about missing top contact details, missing
   standard headings, table-like extracted text, hidden instructions, and
   prompt-injection-like content.
+- Drafted bullet improvements include a reminder to explain the problem, role,
+  action, result, and evidence before using strengthened wording.
 
 ## Backlog To Lock Next
 
@@ -204,7 +206,6 @@ resume help should adjust examples and evidence prompts for:
   technical, licensed, government, academic, early-career, and career-change
   paths.
 - Add a resume-quality rubric that is clearly separate from role-fit review.
-- Add an interview-defense prompt for any strengthened bullet.
 - Add synthetic fixtures for tricky layouts, tables, columns, image-only PDFs,
   federal resumes, career-change resumes, and licensed-role resumes.
 
