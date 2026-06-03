@@ -987,6 +987,17 @@ copy durable findings back into this plan or the active status surface.
   generic resume text.
 - Current local keyword-list bullet follow-up warns when experience or project
   bullets read like keyword lists instead of plain work evidence.
+- Current local hidden-style marker follow-up in `9fd4e9ec` flags CSS-like
+  white text, tiny text, hidden visibility, display-none, opacity-zero, and
+  `mso-hide` markers in backend and dev/browser mock resume safety review.
+  Verification passed: `cargo test --lib css_like_hidden_resume_text
+  --manifest-path src-tauri/Cargo.toml`, `npx vitest run
+  src/mocks/handlers.test.ts -t "CSS-like hidden"`, `cargo test --lib
+  ats_analyzer --manifest-path src-tauri/Cargo.toml`, `npx vitest run
+  src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
+  `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
+  clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
+  --check`.
 - Current local generic-filler bullet follow-up warns when experience or
   project bullets are packed with generic filler phrases instead of specific
   work evidence.

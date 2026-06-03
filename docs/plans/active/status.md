@@ -1068,6 +1068,17 @@ acceptance still requires Developer ID signing and notarization.
   `npm run lint -- --quiet`, `npm run build`, `npm run test:scripts` passed
   503 tests, `npm run lint:docs`, `npm run lint:security`, `npm run
   lint:bloat`, and `git diff --check` passed.
+- Current local hidden-style marker follow-up in
+  `9fd4e9ec Detect hidden resume style markers` flags CSS-like white text,
+  tiny text, hidden visibility, display-none, opacity-zero, and `mso-hide`
+  markers in backend and dev/browser mock resume safety review. Verification
+  passed: `cargo test --lib css_like_hidden_resume_text --manifest-path
+  src-tauri/Cargo.toml`, `npx vitest run src/mocks/handlers.test.ts -t
+  "CSS-like hidden"`, `cargo test --lib ats_analyzer --manifest-path
+  src-tauri/Cargo.toml`, `npx vitest run src/mocks/handlers.test.ts`, `npx tsc
+  --noEmit`, `npm run lint -- --quiet`, `cargo fmt --all --manifest-path
+  src-tauri/Cargo.toml -- --check`, `cargo clippy --manifest-path
+  src-tauri/Cargo.toml -- -D warnings`, and `git diff --check`.
 - Current local safe-support-report mock parity fix makes browser/dev
   `generate_feedback_report` and `sanitize_feedback_text` redact sensitive
   job-search details like salary floors, resume excerpts, private notes,
