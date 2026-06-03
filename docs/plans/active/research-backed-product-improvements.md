@@ -164,6 +164,10 @@ copy durable findings back into this plan or the active status surface.
 - Current local availability follow-up in `82321e8c` treats availability and
   available as equivalent local hard-constraint evidence, so exact availability
   wording differences do not create a false missing risk.
+- Current local lift-weight follow-up in `5be01ab3` treats lift requirements
+  with the same number and `lb`, `lbs`, `pound`, or `pounds` wording as
+  equivalent local hard-constraint evidence, so exact unit wording differences
+  do not create a false missing risk.
 - Current local structured evidence recency follow-up marks structured resume
   matches from a current role as `current experience`, without changing older
   role evidence labels.
@@ -1710,6 +1714,7 @@ source-filter compatibility issue appears.
   Second-shift work is committed in `05b82897`.
   First-shift work is committed in `55f987a1`.
   Availability-term work is committed in `82321e8c`.
+  Lift-weight unit work is committed in `5be01ab3`.
   Structured evidence recency work is committed in `56d9a5ab`.
   Plain-text evidence recency work is committed in `66c587a8`.
   Metric-backed evidence-strength work is committed in `4607b67f`.

@@ -240,6 +240,9 @@ Future implementation should improve:
   equivalent local schedule evidence for required day-shift constraints.
 - Resume/job fit now treats `availability` and `available` as equivalent local
   schedule evidence for required availability constraints.
+- Resume/job fit now treats lift-weight wording with the same number, such as
+  `lift 50 lbs` and `lift 50 pounds`, as equivalent local physical-demand
+  evidence.
 - Resume/job fit now treats clear credential equivalents such as `BLS` and
   `Basic Life Support` as the same evidence, while keeping unrelated
   credentials separate.
