@@ -225,6 +225,9 @@ Future implementation should improve:
 - Resume/job fit now treats `LPN`, `Licensed Practical Nurse`, `LVN`, and
   `Licensed Vocational Nurse` as the same local credential evidence, while the
   hard-requirement guidance still tells users to verify the license.
+- Resume/job fit now treats `PMP`, `Project Management Professional`, PMP
+  certification, and Project Management Professional certification as the same
+  local credential evidence.
 - Resume/job fit now treats `food safety`, `food safety certification`,
   `ServSafe`, and food-handler certificate, permit, or card wording as the same
   local credential evidence.

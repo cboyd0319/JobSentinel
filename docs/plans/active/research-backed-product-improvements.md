@@ -220,6 +220,9 @@ copy durable findings back into this plan or the active status surface.
   Practical Nurse`, `LVN`, and `Licensed Vocational Nurse` as the same local
   credential evidence, while hard-requirement guidance still tells users to
   verify the license.
+- Current local PMP credential-equivalence follow-up treats `PMP`, `Project
+  Management Professional`, PMP certification, and Project Management
+  Professional certification as the same local credential evidence.
 - Current local food-safety credential-equivalence follow-up treats food
   safety, food safety certification, ServSafe, and food-handler certificate,
   permit, or card wording as the same local credential evidence.
@@ -1670,6 +1673,7 @@ source-filter compatibility issue appears.
   Credential-equivalence work is committed in `c4fd8c7a`.
   CNA credential-equivalence work is committed in `5883db13`.
   LPN credential-equivalence work is committed in `b437ffa5`.
+  PMP credential-equivalence work is committed in `c69a2bea`.
   Food-safety credential-equivalence work is committed in `9f47bee9`.
   First-aid credential-equivalence work is committed in `c47dec16`.
   Forklift credential-equivalence work is committed in `a57f5d47`.

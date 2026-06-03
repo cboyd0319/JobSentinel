@@ -131,6 +131,9 @@ acceptance still requires Developer ID signing and notarization.
   The follow-up `b437ffa5` recognizes LPN credential equivalence, treating LPN,
   Licensed Practical Nurse, LVN, and Licensed Vocational Nurse as the same
   local credential evidence while preserving verify-license guidance.
+  The follow-up `c69a2bea` recognizes PMP credential equivalence, treating PMP,
+  Project Management Professional, PMP certification, and Project Management
+  Professional certification as the same local credential evidence.
   The follow-up `9f47bee9` recognizes food-safety credential equivalence,
   treating food safety, food safety certification, ServSafe, and food-handler
   certificate, permit, or card wording as the same local credential evidence.

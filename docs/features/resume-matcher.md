@@ -175,6 +175,8 @@ The current local matcher:
 - treats LPN, Licensed Practical Nurse, LVN, and Licensed Vocational Nurse as
   the same local credential evidence while still telling users to verify the
   license before applying;
+- treats PMP, Project Management Professional, PMP certification, and Project
+  Management Professional certification as the same local credential evidence;
 - treats food safety, food safety certification, ServSafe, and food-handler
   certificate, permit, or card wording as the same local credential evidence;
 - treats first aid, first-aid, first aid certification, First Aid Certified,
