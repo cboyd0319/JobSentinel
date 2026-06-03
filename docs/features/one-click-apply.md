@@ -116,7 +116,8 @@ You can save reusable answers for common questions:
 | `drug screen`         | "Can you complete a drug screen?"  |
 
 Use plain words that appear in the screening question. Matching ignores
-capitalization.
+capitalization. Common quick-add buttons include background check and drug
+screen so you can prepare those answers before the form asks.
 
 ### Hard Question Review
 
