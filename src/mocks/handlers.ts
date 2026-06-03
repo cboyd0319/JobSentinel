@@ -623,6 +623,18 @@ const ATS_KNOWN_KEYWORDS = [
   "safety inspections",
   "food safety",
   "cash handling",
+  "document review",
+  "case files",
+  "legal research",
+  "records management",
+  "policy analysis",
+  "grant administration",
+  "public benefits",
+  "financial reconciliation",
+  "reconciliation",
+  "invoicing",
+  "loan processing",
+  "financial reporting",
 ] as const;
 
 const MOCK_SCRAPERS: readonly MockScraperDefinition[] = [

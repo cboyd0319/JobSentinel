@@ -1920,7 +1920,7 @@ impl AtsAnalyzer {
     }
 
     fn is_keyword_term_char(ch: char) -> bool {
-        ch.is_alphanumeric() || matches!(ch, '#' | '+' | '.')
+        ch.is_alphanumeric() || matches!(ch, '#' | '+')
     }
 
     fn extract_section(text: &str, headers: &[&str]) -> String {
@@ -1983,6 +1983,8 @@ impl AtsAnalyzer {
             r"(?i)\b(patient care|medication administration|vital signs|care plans|medical records|charting)\b",
             r"(?i)\b(lesson planning|classroom management|curriculum|iep|student support|parent communication)\b",
             r"(?i)\b(forklift|welding|equipment maintenance|safety inspections|food safety|cash handling)\b",
+            r"(?i)\b(document review|case files|legal research|records management|policy analysis|grant administration|public benefits)\b",
+            r"(?i)\b(financial reconciliation|reconciliation|invoicing|loan processing|financial reporting)\b",
             r"(?i)\b(rust|python|javascript|typescript|java|c\+\+|go|kotlin|swift)\b",
             r"(?i)\b(react|vue|angular|node\.?js|django|flask|spring|express)\b",
             r"(?i)\b(aws|azure|gcp|docker|kubernetes|terraform|ansible)\b",
@@ -2144,6 +2146,18 @@ impl AtsAnalyzer {
             "safety inspections",
             "food safety",
             "cash handling",
+            "document review",
+            "case files",
+            "legal research",
+            "records management",
+            "policy analysis",
+            "grant administration",
+            "public benefits",
+            "financial reconciliation",
+            "reconciliation",
+            "invoicing",
+            "loan processing",
+            "financial reporting",
             "tdd",
             "testing",
             "automation",
@@ -2890,6 +2904,29 @@ Preferred: Salesforce
                 .iter()
                 .find(|review| review.keyword == keyword)
                 .expect("recognized broad-audience review");
+            assert_eq!(review.match_state, RequirementMatchState::Direct);
+            assert!(review.evidence_sections.contains(&"experience".to_string()));
+        }
+    }
+
+    #[test]
+    fn test_requirement_review_recognizes_legal_finance_and_government_terms() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nCompleted document review.\nHandled records management.\nManaged financial reconciliation.",
+            &[],
+            "Required: document review, records management, financial reconciliation",
+        );
+
+        for keyword in [
+            "document review",
+            "records management",
+            "financial reconciliation",
+        ] {
+            let review = result
+                .requirement_reviews
+                .iter()
+                .find(|review| review.keyword == keyword)
+                .expect("recognized legal finance government review");
             assert_eq!(review.match_state, RequirementMatchState::Direct);
             assert!(review.evidence_sections.contains(&"experience".to_string()));
         }

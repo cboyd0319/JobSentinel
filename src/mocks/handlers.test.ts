@@ -1040,6 +1040,40 @@ describe("mock Tauri handlers", () => {
     );
   });
 
+  it("recognizes legal finance and government requirement terms in mock resume review", async () => {
+    const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        experience: [
+          {
+            ...atsResume.experience[0],
+            achievements: [
+              "Completed document review, records management, and financial reconciliation.",
+            ],
+          },
+        ],
+      },
+      jobDescription: "Required: document review, records management, financial reconciliation",
+    });
+
+    expect(result.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "document review",
+          match_state: "Direct",
+        }),
+        expect.objectContaining({
+          keyword: "records management",
+          match_state: "Direct",
+        }),
+        expect.objectContaining({
+          keyword: "financial reconciliation",
+          match_state: "Direct",
+        }),
+      ]),
+    );
+  });
+
   it("returns mock resume match scores as backend-compatible fractions", async () => {
     const [job] = await mockInvoke<MockJobSummary[]>("get_jobs", {});
     const resumeId = await mockInvoke<number>("select_and_upload_resume");
