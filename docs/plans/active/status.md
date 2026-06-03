@@ -118,9 +118,11 @@ acceptance still requires Developer ID signing and notarization.
   into plain next actions such as checking a hard requirement before tailoring,
   adding supporting evidence only if true, or keeping useful evidence visible.
   The follow-up `171bbe91 Improve resume evidence section review` starts
-  section-placement review for saved-resume plain text. Future resume work
-  still needs deeper evidence strength, seniority alignment, conservative
-  synonyms, recency, and profession-specific weighting.
+  section-placement review for saved-resume plain text, and `d2d1944f Add
+  conservative resume synonym evidence` starts conservative acronym/equivalence
+  matching for `CRM` and `customer relationship management`. Future resume work
+  still needs deeper evidence strength, seniority alignment, broader
+  conservative synonyms, recency, and profession-specific weighting.
 - Current local macOS no-account post-commit verification rebuilt the universal
   DMG from committed resume-guidance head `12c184db` on macOS 26.5
   (build 25F71), Apple Silicon `arm64`, with SIP enabled. The build produced
@@ -1361,7 +1363,7 @@ Scope:
   ghost-indicator feedback accessibility and tests, makes Settings support
   reports easier to find, and locks the architect/orchestrator plus sub-agent
   contract into the harness.
-- Current local conservative synonym/acronym slice teaches local requirement
+- Latest local conservative synonym/acronym slice in `d2d1944f` teaches local requirement
   review that `CRM` and `customer relationship management` are equivalent
   evidence without broad fuzzy matching. Verification passed: `cargo test
   --lib test_requirement_review_uses_conservative_acronym_equivalence
@@ -1379,15 +1381,14 @@ Scope:
 
 ## Next Best Work
 
-1. Commit the verified conservative synonym/acronym slice.
-2. Continue resume assistance only where it improves truthful local requirement
+1. Continue resume assistance only where it improves truthful local requirement
    review, hard-constraint handling, readable evidence, or next-action
    guidance.
-3. Keep no-account macOS readiness accurate, but do not treat Gatekeeper pass
+2. Keep no-account macOS readiness accurate, but do not treat Gatekeeper pass
    as achievable without Developer ID signing and notarization.
-4. Continue cleanup only when it blocks critical functionality,
+3. Continue cleanup only when it blocks critical functionality,
    privacy/security, or verification.
-5. Run final broad verification only when remaining known work has current
+4. Run final broad verification only when remaining known work has current
    evidence.
 
 ## Completion Bar
