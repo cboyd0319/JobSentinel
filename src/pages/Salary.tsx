@@ -30,6 +30,12 @@ interface SalaryProps {
 
 type SalarySeniority = "entry" | "mid" | "senior" | "staff" | "principal";
 
+type SalarySampleQuality = {
+  label: string;
+  detail: string;
+  variant: "sentinel" | "alert" | "success";
+};
+
 const SENIORITY_LEVELS: readonly { value: SalarySeniority; label: string }[] = [
   { value: "entry", label: "Starting out (0-2 years)" },
   { value: "mid", label: "Growing experience (3-5 years)" },
@@ -55,6 +61,32 @@ function getSalaryErrorAction(error: unknown): string {
   return friendly.action ?? friendly.message;
 }
 
+function getSalarySampleQuality(sampleSize: number): SalarySampleQuality {
+  if (sampleSize >= 100) {
+    return {
+      label: "Stronger sample",
+      detail:
+        "Enough records for a more useful range, but still compare written ranges and role scope.",
+      variant: "success",
+    };
+  }
+
+  if (sampleSize >= 30) {
+    return {
+      label: "Useful sample",
+      detail: "Use this with written ranges, role scope, and current postings.",
+      variant: "sentinel",
+    };
+  }
+
+  return {
+    label: "Thin sample",
+    detail:
+      "Use this as a weak signal. Confirm with the written range, role scope, and current postings.",
+    variant: "alert",
+  };
+}
+
 export default function Salary({ onBack }: SalaryProps) {
   const [jobTitle, setJobTitle] = useState("");
   const [location, setLocation] = useState("");
@@ -74,6 +106,7 @@ export default function Salary({ onBack }: SalaryProps) {
   const floorGuidance = benchmark
     ? getSalaryFloorGuidance(benchmark, activeSalaryFloor)
     : null;
+  const sampleQuality = benchmark ? getSalarySampleQuality(benchmark.sample_size) : null;
 
   const handleGetBenchmark = useCallback(async () => {
     if (!jobTitle.trim() || !location.trim()) {
@@ -257,7 +290,7 @@ export default function Salary({ onBack }: SalaryProps) {
             ) : (
               <div className="space-y-6">
                 {/* Header */}
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div>
                     <p className="font-medium text-surface-800 dark:text-surface-200">
                       {benchmark.job_title}
@@ -266,7 +299,17 @@ export default function Salary({ onBack }: SalaryProps) {
                       {benchmark.location} • {getSalaryStageLabel(benchmark.seniority_level)}
                     </p>
                   </div>
-                  <Badge variant="sentinel">{benchmark.sample_size} salary records</Badge>
+                  {sampleQuality && (
+                    <div className="flex flex-col items-start gap-2 sm:items-end">
+                      <div className="flex flex-wrap gap-2 sm:justify-end">
+                        <Badge variant="sentinel">{benchmark.sample_size} salary records</Badge>
+                        <Badge variant={sampleQuality.variant}>{sampleQuality.label}</Badge>
+                      </div>
+                      <p className="max-w-sm text-sm text-surface-600 dark:text-surface-400 sm:text-right">
+                        {sampleQuality.detail}
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 {/* Salary Range Visualization */}

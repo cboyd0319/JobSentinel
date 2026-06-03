@@ -109,6 +109,32 @@ describe("Salary", () => {
     expect(screen.queryByText(/25th %|75th %|75th percentile/i)).not.toBeInTheDocument();
   });
 
+  it("labels thin salary samples as weaker evidence", async () => {
+    const user = userEvent.setup();
+    mockInvoke.mockResolvedValueOnce({
+      job_title: "Registered Nurse",
+      location: "Denver, CO",
+      seniority_level: "Principal",
+      min_salary: 150000,
+      p25_salary: 175000,
+      median_salary: 200000,
+      p75_salary: 230000,
+      max_salary: 260000,
+      average_salary: 205000,
+      sample_size: 12,
+      last_updated: "2026-05-20T00:00:00Z",
+    });
+    renderSalary();
+
+    await user.type(screen.getByLabelText("Job Title"), "Registered Nurse");
+    await user.type(screen.getByLabelText("Location"), "Denver, CO");
+    await user.click(screen.getByRole("button", { name: "Check Pay Range" }));
+
+    expect(await screen.findByText("12 salary records")).toBeInTheDocument();
+    expect(screen.getByText("Thin sample")).toBeInTheDocument();
+    expect(screen.getByText(/use this as a weak signal/i)).toBeInTheDocument();
+  });
+
   it("does not show raw private details when pay range lookup fails", async () => {
     const user = userEvent.setup();
     mockInvoke.mockRejectedValueOnce(privateFailure);
