@@ -280,6 +280,14 @@ acceptance still requires Developer ID signing and notarization.
   "overtime"`, `npx vitest run
   src/components/automation/ApplicationPreview.test.tsx`, `npx tsc
   --noEmit`, `npm run lint -- --quiet`, and `git diff --check`. The follow-up
+  `bae91674 Add overtime screening quick add` adds overtime availability to
+  Application Assist's common saved-answer patterns, so users can prepare a
+  reusable overtime answer before a hard overtime question appears.
+  Verification passed: `npx vitest run
+  src/components/automation/ScreeningAnswersForm.test.tsx -t "shows all common
+  pattern buttons"`, `npx vitest run
+  src/components/automation/ScreeningAnswersForm.test.tsx`, `npx tsc
+  --noEmit`, `npm run lint -- --quiet`, and `git diff --check`. The follow-up
   `ebb83cef Add do not force job words guidance` reminds users in the Resume
   Match job words overview not to force words they cannot support with real
   work, training, or credentials. The follow-up

@@ -124,9 +124,9 @@ You can save reusable answers for common questions:
 
 Use plain words that appear in the screening question. Matching ignores
 capitalization. Common quick-add buttons include background check and drug
-screen, citizenship, reliable transportation, driver's license, language
-fluency, physical requirements, and age requirement so you can prepare those
-answers before the form asks.
+screen, citizenship, reliable transportation, driver's license, overtime
+availability, language fluency, physical requirements, and age requirement so
+you can prepare those answers before the form asks.
 
 ### Hard Question Review
 
