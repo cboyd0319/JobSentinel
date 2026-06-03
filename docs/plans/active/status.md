@@ -125,7 +125,10 @@ acceptance still requires Developer ID signing and notarization.
   `66c587a8 Mark current plain text resume evidence` marks readable Experience
   bullets after a present-date role marker as current-experience evidence, then
   resets that label when a later past-role date range appears. The follow-up
-  `a09f6c43 Recognize GED credential equivalence` treats high school diploma,
+  `4607b67f Strengthen metric-backed resume evidence` treats work or project
+  evidence with visible metrics as stronger local evidence than a bare keyword.
+  The follow-up `a09f6c43 Recognize GED credential equivalence` treats high
+  school diploma,
   high school degree, GED, high school equivalency, and General Education
   Development as the same local education evidence. The follow-up `5883db13`
   recognizes CNA credential equivalence, treating CNA and Certified Nursing
@@ -153,8 +156,8 @@ acceptance still requires Developer ID signing and notarization.
   The follow-up `972700a9` recognizes OSHA 30 credential equivalence, treating
   OSHA 30, OSHA30, OSHA 30 certification, and OSHA 30-hour wording as the same
   local credential evidence without treating OSHA 10 as equivalent.
-  Future resume work still needs deeper evidence strength, seniority alignment,
-  broader conservative synonyms, broader recency weighting, and
+  Future resume work still needs deeper non-metric evidence strength, seniority
+  alignment, broader conservative synonyms, broader recency weighting, and
   profession-specific weighting.
 - Current local macOS no-account post-commit verification rebuilt the universal
   DMG from committed resume-guidance head `12c184db` on macOS 26.5

@@ -276,6 +276,9 @@ Future implementation should improve:
 - Readable-text resume review now marks matched Experience bullets after a
   present-date role marker as current-experience evidence and resets the label
   when a later past-role date range appears.
+- Resume/job fit now treats work or project evidence with visible metrics such
+  as percentages, counts, or dollar amounts as stronger local evidence than a
+  bare keyword.
 - Resume/job fit now treats recognized required seniority language such as
   senior-level experience as a local experience constraint, using visible role,
   leadership, or enough-years evidence before avoiding a hard-requirement cap.
@@ -287,8 +290,8 @@ Future implementation should improve:
   richer requirement families and structured job-post parsing.
 - Expand hard-constraint caps to safety-critical requirements, severe parsing
   failure, unreadable-history risk, false-claim risk, and generic-resume risk.
-- Add evidence-strength classification for missing, bare keyword, duty,
-  responsibility, scope-backed, and metric-backed evidence.
+- Expand evidence-strength classification beyond current metric-backed boosts
+  into missing, bare keyword, duty, responsibility, and scope-backed evidence.
 - Expand conservative synonym and acronym matching where equivalence is clear.
 - Expand broader recency weighting and section placement signals.
 - Expand seniority alignment and add under-leveling warnings.

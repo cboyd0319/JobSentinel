@@ -161,6 +161,8 @@ The current local matcher:
 - labels readable resume evidence under an Experience role with a present-date
   marker as current role evidence, and resets that label when a later past-role
   date range appears;
+- treats work or project evidence with visible metrics such as percentages,
+  counts, or dollar amounts as stronger local evidence than a bare keyword;
 - flags recognized missing hard requirements such as authorization, location,
   citizenship, schedule, availability, commute or transportation, travel, years
   of experience, physical demands, license, certification, degree, or clearance
@@ -238,8 +240,8 @@ constraint review, conservative `CRM` / `customer relationship management`, and
 common credential equivalence have started. Copied structured resume details
 can show current-role evidence labels, and readable saved-resume text can mark
 bullets after a present-date role marker as current role evidence. Broader
-evidence strength, synonym, broader recency weighting, too-low-role warnings, and
-profession-specific weighting remain future work.
+non-metric evidence strength, synonym, broader recency weighting, too-low-role
+warnings, and profession-specific weighting remain future work.
 The visible requirement review uses plain evidence labels such as current role
 experience, work experience, and skills list instead of backend section names.
 
