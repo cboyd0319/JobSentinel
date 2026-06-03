@@ -4364,6 +4364,60 @@ describe("mock Tauri handlers", () => {
     );
   });
 
+  it("treats procurement and purchasing as equivalent mock evidence", async () => {
+    const procurementResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        skills: [],
+        experience: [
+          {
+            ...atsResume.experience[0],
+            current: false,
+            end_date: "2022",
+            achievements: ["Supported purchasing for clinic supplies."],
+          },
+        ],
+      },
+      jobDescription: "Required: procurement",
+    });
+    expect(procurementResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "procurement",
+          match_state: "Direct",
+          evidence_sections: ["experience"],
+        }),
+      ]),
+    );
+
+    const purchasingResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        skills: [],
+        experience: [
+          {
+            ...atsResume.experience[0],
+            current: false,
+            end_date: "2022",
+            achievements: ["Supported procurement for clinic supplies."],
+          },
+        ],
+      },
+      jobDescription: "Required: purchasing",
+    });
+    expect(purchasingResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "purchasing",
+          match_state: "Direct",
+          evidence_sections: ["experience"],
+        }),
+      ]),
+    );
+  });
+
   it("treats hyphenated document-review terms as equivalent mock evidence", async () => {
     const normalResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {

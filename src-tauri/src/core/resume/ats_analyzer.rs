@@ -2332,6 +2332,7 @@ impl AtsAnalyzer {
             &["vital sign", "vital signs", "vital-sign", "vital-signs"],
             &["medication administration", "medication-administration"],
             &["data entry", "data-entry"],
+            &["procurement", "purchasing"],
             &["document review", "document-review"],
             &["records management", "records-management"],
             &["case files", "case-files"],
@@ -3097,7 +3098,7 @@ impl AtsAnalyzer {
             r"(?i)\b(scheduling|calendar management|appointment setting|intake|onboarding|training)\b",
             r"(?i)\b(sales|account management|crm|salesforce|hubspot|pipeline|prospecting)\b",
             r"(?i)\b(payroll|bookkeeping|quickbooks|accounts payable|accounts receivable|billing)\b",
-            r"(?i)\b(inventory|logistics|shipping|receiving|procurement|vendor management)\b",
+            r"(?i)\b(inventory|logistics|shipping|receiving|procurement|purchasing|vendor management)\b",
             r"(?i)\b(reporting|budget tracking|grant reporting|grant writing|program evaluation)\b",
             r"(?i)\b(compliance|hipaa|osha|quality assurance|qa|data[- ]entry|excel)\b",
             r"(?i)\b(patient[- ]care|medication[- ]administration|vital[- ]signs?|care[- ]plans?|medical[- ]records?|charting)\b",
@@ -3366,6 +3367,8 @@ impl AtsAnalyzer {
             "bookkeeping",
             "inventory",
             "logistics",
+            "procurement",
+            "purchasing",
             "reporting",
             "budget tracking",
             "compliance",
@@ -4828,6 +4831,41 @@ Preferred: Salesforce
             .expect("cash handling");
         assert_eq!(cash_handling.match_state, RequirementMatchState::Direct);
         assert!(cash_handling
+            .evidence_sections
+            .contains(&"experience".to_string()));
+    }
+
+    #[test]
+    fn test_requirement_review_uses_procurement_purchasing_equivalence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nSupported purchasing for clinic supplies.",
+            &[],
+            "Required: procurement",
+        );
+
+        let procurement = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "procurement")
+            .expect("procurement");
+        assert_eq!(procurement.match_state, RequirementMatchState::Direct);
+        assert!(procurement
+            .evidence_sections
+            .contains(&"experience".to_string()));
+
+        let inverse = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nSupported procurement for clinic supplies.",
+            &[],
+            "Required: purchasing",
+        );
+
+        let purchasing = inverse
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "purchasing")
+            .expect("purchasing");
+        assert_eq!(purchasing.match_state, RequirementMatchState::Direct);
+        assert!(purchasing
             .evidence_sections
             .contains(&"experience".to_string()));
     }
