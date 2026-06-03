@@ -233,7 +233,8 @@ Future implementation should improve:
   defect.
 - Resume readability review now accepts volunteer, community, and military
   service headings as standard structure so nontraditional experience sections
-  are not treated as formatting defects.
+  are not treated as formatting defects, and requirement evidence under those
+  headings counts as experience evidence.
 - Drafted alternative bullets now include an interview-defense reminder for
   the problem, user role, action, result, and evidence before using stronger
   wording.

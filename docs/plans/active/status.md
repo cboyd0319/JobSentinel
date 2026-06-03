@@ -1564,6 +1564,15 @@ Scope:
   --manifest-path src-tauri/Cargo.toml`, `cargo fmt --all --manifest-path
   src-tauri/Cargo.toml -- --check`, `cargo clippy --manifest-path
   src-tauri/Cargo.toml -- -D warnings`, and `git diff --check`.
+- Latest local volunteer-service evidence slice in `c434afb8` also treats
+  requirement matches under Volunteer Experience, Community Involvement, and
+  Military Service headings as experience evidence instead of generic resume
+  text. Verification passed: `cargo test --lib service_headings
+  --manifest-path src-tauri/Cargo.toml`, `cargo test --lib ats_analyzer
+  --manifest-path src-tauri/Cargo.toml`, `cargo test --lib --manifest-path
+  src-tauri/Cargo.toml`, `cargo fmt --all --manifest-path src-tauri/Cargo.toml
+  -- --check`, `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D
+  warnings`, and `git diff --check`.
 - Latest local interview-defense bullet slice in `fda14375` adds a reminder to
   drafted alternative bullets to check the problem, user role, action, result,
   and evidence before using stronger wording. Browser/dev mocks stay aligned.

@@ -232,7 +232,8 @@ copy durable findings back into this plan or the active status surface.
   of a formatting defect.
 - Current local volunteer-service heading follow-up treats Volunteer
   Experience, Community Involvement, and Military Service as standard
-  readable-resume structure instead of a formatting defect.
+  readable-resume structure and experience evidence instead of a formatting
+  defect.
 - Current local interview-defense bullet follow-up adds a reminder to drafted
   alternative bullets to check the problem, role, action, result, and evidence
   before using stronger wording.
@@ -1648,6 +1649,7 @@ source-filter compatibility issue appears.
   Capability-level warning work is committed in `7b546c78`.
   Career-break heading work is committed in `b149e0d1`.
   Volunteer-service heading work is committed in `cd7d5599`.
+  Volunteer-service evidence work is committed in `c434afb8`.
   Interview-defense bullet work is committed in `fda14375`.
   Broad requirement-term work is committed in `4dea83be`.
   Legal, finance, and government requirement-term work is committed in
