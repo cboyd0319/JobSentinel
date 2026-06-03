@@ -1503,6 +1503,18 @@ Scope:
   src-tauri/Cargo.toml`, `cargo fmt --all --manifest-path src-tauri/Cargo.toml
   -- --check`, `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D
   warnings`, `npm run lint:external-ai`, and `git diff --check`.
+- Latest local capability-level warning slice in `7b546c78` warns when
+  experience or project bullets mix ownership or expert wording with
+  exposure-only or assisted-work signals, so users can keep resume wording at
+  the true capability level. Browser/dev mocks stay aligned. Verification
+  passed: `cargo test --lib capability_level --manifest-path
+  src-tauri/Cargo.toml`, `npx vitest run src/mocks/handlers.test.ts -t
+  "capability level"`, `cargo test --lib ats_analyzer --manifest-path
+  src-tauri/Cargo.toml`, `npx vitest run src/mocks/handlers.test.ts`, `npx tsc
+  --noEmit`, `npm run lint -- --quiet`, `cargo test --lib --manifest-path
+  src-tauri/Cargo.toml`, `cargo fmt --all --manifest-path src-tauri/Cargo.toml
+  -- --check`, `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D
+  warnings`, `npm run lint:external-ai`, and `git diff --check`.
 - Latest local broad requirement-term slice in `4dea83be` adds healthcare,
   education, service, operations, and trades terms to local resume requirement
   review so examples such as patient care, medication administration, and

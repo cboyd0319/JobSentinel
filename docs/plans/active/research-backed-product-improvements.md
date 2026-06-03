@@ -217,6 +217,9 @@ copy durable findings back into this plan or the active status surface.
   credential evidence instead of generic resume text.
 - Current local keyword-list bullet follow-up warns when experience or project
   bullets read like keyword lists instead of plain work evidence.
+- Current local capability-level warning follow-up warns when experience or
+  project bullets mix ownership or expert wording with exposure-only or
+  assisted-work signals.
 - Current local broad requirement-term follow-up adds healthcare, education,
   service, operations, and trades terms to local resume requirement review and
   dev/browser mocks.
@@ -714,9 +717,9 @@ Likely files later:
 - Add "human read" review that catches machine-optimized but awkward bullets.
 - Add bullet suggestions that preserve user facts and ask for confirmation
   before changing claims.
-- Add capability-ladder prompts so users can distinguish exposure, assisted
-  work, hands-on use, independent delivery, ownership, and expert or strategic
-  work before accepting stronger wording.
+- Continue capability-ladder prompts so users can distinguish exposure,
+  assisted work, hands-on use, independent delivery, ownership, and expert or
+  strategic work before accepting stronger wording.
 - Add interview-defense prompts for strengthened bullets: problem, role,
   action, tools, collaborators, result, evidence, and lesson learned.
 - Add "confidence in extraction" for skills and dates.
@@ -1622,6 +1625,7 @@ source-filter compatibility issue appears.
   Credential-equivalence work is committed in `c4fd8c7a`.
   Training-heading credential work is committed in `df0bdf9a`.
   Keyword-list bullet work is committed in `0447094b`.
+  Capability-level warning work is committed in `7b546c78`.
   Broad requirement-term work is committed in `4dea83be`.
   Legal, finance, and government requirement-term work is committed in
   `a8169b09`.

@@ -220,6 +220,9 @@ Future implementation should improve:
   license headings as credential evidence instead of generic resume text.
 - Resume readability review now warns when experience or project bullets read
   like keyword lists instead of plain work evidence.
+- Resume readability review now warns when a bullet mixes ownership or expert
+  wording with exposure-only or assisted-work signals so the user can choose
+  the true capability level.
 - Requirement review now recognizes a wider set of healthcare, education,
   service, operations, and trades terms, reducing software-only matching bias.
 - Requirement review now also recognizes legal, finance, and government or
