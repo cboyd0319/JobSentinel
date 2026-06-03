@@ -1535,6 +1535,11 @@ Scope:
   search terms. Verification passed: `npx vitest run src/pages/SetupWizard.test.tsx`,
   `npx tsc --noEmit`, `npm run lint -- --quiet`, `npm run lint:external-ai`,
   and `git diff --check`.
+- Latest local ghost warning-label slice in `b8dae4ed` changes GhostIndicator
+  and compact GhostIndicator accessible labels from raw confidence percentages
+  to low, medium, or high warning levels. Verification passed: `npx vitest run
+  src/components/GhostIndicator.test.tsx`, `npx tsc --noEmit`, `npm run lint
+  -- --quiet`, `npm run lint:external-ai`, and `git diff --check`.
 - No-Apple-account macOS readiness is already best-possible without an Apple
   Developer Account. Keep the limitation explicit: Gatekeeper-ready public
   distribution still needs Developer ID signing and notarization.

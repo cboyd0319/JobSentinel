@@ -152,6 +152,8 @@ copy durable findings back into this plan or the active status surface.
   constraint.
 - Current local setup work-to-avoid quick-picks follow-up lets users add common
   schedule or travel deal breakers to rank lower without typing search terms.
+- Current local ghost warning-label follow-up changes posting-risk accessible
+  labels from raw confidence percentages to warning levels.
 - Current local Resume-Assisted Guided Intake follow-up shows active
   saved-resume skill names in setup as optional local suggestions and only adds
   user-picked names to the saved search.
@@ -1542,6 +1544,7 @@ source-filter compatibility issue appears.
   Job fit detail evidence-status work is committed in `b6b19caf`.
   Setup location-not-sure work is committed in `90f68ff6`.
   Setup work-to-avoid quick-picks work is committed in `438fbb61`.
+  Ghost warning-label work is committed in `b8dae4ed`.
   Resume-Assisted Guided Intake work is committed in `da84110a`.
   Source Governance Metadata work is committed in `66924003`.
   Resume availability-constraint work is committed in `0d8bf479`.

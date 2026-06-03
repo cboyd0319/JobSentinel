@@ -86,6 +86,9 @@ Jobs with posting-risk signals show a badge:
 - **Orange** - Multiple warning signs.
 - **Red** - Verify before tailoring.
 
+Screen-reader labels use low, medium, or high warning levels instead of raw
+confidence percentages.
+
 Hover over the badge to see why it was flagged. Job cards can also show "Seen
 on X sources" when the same role appears in more than one place.
 
