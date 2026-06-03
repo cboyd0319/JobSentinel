@@ -3025,6 +3025,18 @@ function hasMockAdversarialResumeText(text: string): boolean {
     return true;
   }
 
+  const hiddenStylePatterns = [
+    /\bcolor\s*:\s*(?:white|#fff(?:fff)?|transparent)\b/i,
+    /\bfont-size\s*:\s*[0-3](?:px|pt)?\b/i,
+    /\bdisplay\s*:\s*none\b/i,
+    /\bvisibility\s*:\s*hidden\b/i,
+    /\bopacity\s*:\s*0(?:\.0+)?\b/i,
+    /\bmso-hide\s*:\s*all\b/i,
+  ];
+  if (hiddenStylePatterns.some((pattern) => pattern.test(text))) {
+    return true;
+  }
+
   const lower = text.toLowerCase();
   return [
     "ignore previous instructions",

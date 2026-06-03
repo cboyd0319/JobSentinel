@@ -1182,6 +1182,21 @@ impl AtsAnalyzer {
         }
 
         let lower = text.to_lowercase();
+        let hidden_style_patterns = [
+            r"(?i)\bcolor\s*:\s*(?:white|#fff(?:fff)?|transparent)\b",
+            r"(?i)\bfont-size\s*:\s*[0-3](?:px|pt)?\b",
+            r"(?i)\bdisplay\s*:\s*none\b",
+            r"(?i)\bvisibility\s*:\s*hidden\b",
+            r"(?i)\bopacity\s*:\s*0(?:\.0+)?\b",
+            r"(?i)\bmso-hide\s*:\s*all\b",
+        ];
+        if hidden_style_patterns
+            .iter()
+            .any(|pattern| regex::Regex::new(pattern).unwrap().is_match(text))
+        {
+            return true;
+        }
+
         [
             "ignore previous instructions",
             "ignore all previous instructions",
@@ -3588,6 +3603,20 @@ mod tests {
             category: "Hidden".to_string(),
             proficiency: None,
         });
+
+        let result = AtsAnalyzer::analyze_format(&resume);
+
+        assert!(result.format_issues.iter().any(|issue| issue
+            .issue
+            .contains("Instruction-like or hidden resume text")));
+    }
+
+    #[test]
+    fn test_analyze_format_flags_css_like_hidden_resume_text() {
+        let mut resume = sample_resume();
+        resume.projects.push(
+            "<span style=\"color:white;font-size:1px\">extra screening keywords</span>".to_string(),
+        );
 
         let result = AtsAnalyzer::analyze_format(&resume);
 
