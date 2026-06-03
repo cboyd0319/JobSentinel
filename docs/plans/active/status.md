@@ -2362,6 +2362,15 @@ Scope:
   `cargo test --lib ats_analyzer --manifest-path src-tauri/Cargo.toml`, `cargo
   fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo clippy
   --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff --check`.
+- Current local qualified-experience heading follow-up in
+  `75315ba3 Recognize qualified experience headings` treats Relevant
+  Experience, Selected Experience, and Additional Experience as standard
+  readable-resume structure and experience evidence instead of generic resume
+  text. Verification passed: `cargo test --lib qualified_experience_headings
+  --manifest-path src-tauri/Cargo.toml`, `cargo test --lib ats_analyzer
+  --manifest-path src-tauri/Cargo.toml`, `cargo fmt --all --manifest-path
+  src-tauri/Cargo.toml -- --check`, `cargo clippy --manifest-path
+  src-tauri/Cargo.toml -- -D warnings`, and `git diff --check`.
 - Latest local interview-defense bullet slice in `fda14375` adds a reminder to
   drafted alternative bullets to check the problem, user role, action, result,
   and evidence before using stronger wording. Browser/dev mocks stay aligned.

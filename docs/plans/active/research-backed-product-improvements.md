@@ -1029,6 +1029,14 @@ copy durable findings back into this plan or the active status surface.
   src-tauri/Cargo.toml`, `cargo fmt --all --manifest-path src-tauri/Cargo.toml
   -- --check`, `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D
   warnings`, and `git diff --check`.
+- Current local qualified-experience heading follow-up in `75315ba3` treats
+  Relevant Experience, Selected Experience, and Additional Experience as
+  standard readable-resume structure and experience evidence instead of a
+  formatting defect. Verification passed: `cargo test --lib
+  qualified_experience_headings --manifest-path src-tauri/Cargo.toml`, `cargo
+  test --lib ats_analyzer --manifest-path src-tauri/Cargo.toml`, `cargo fmt
+  --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo clippy
+  --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff --check`.
 - Current local interview-defense bullet follow-up adds a reminder to drafted
   alternative bullets to check the problem, role, action, result, and evidence
   before using stronger wording.

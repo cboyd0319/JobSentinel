@@ -150,6 +150,9 @@ The current local matcher:
 - treats **Employment History**, **Work History**, and **Professional History**
   as readable resume headings and experience evidence instead of structural
   mistakes;
+- treats **Relevant Experience**, **Selected Experience**, and
+  **Additional Experience** as readable resume headings and experience evidence
+  instead of structural mistakes;
 - can review the active saved resume against a pasted job post without copying
   structured resume details into the page;
 - loads the active saved resume on page open so the user can paste a job post
