@@ -150,6 +150,8 @@ The current local matcher:
 - shows a Resume Fit evidence-status label, such as checking must-haves first,
   mixed evidence, not enough job detail, or clearer evidence, so the score is
   treated as local evidence review instead of an employer prediction;
+- shows readable format and details-included signals in a separate
+  **Resume Quality** section instead of mixing them into role-fit review;
 - identifies skills and job-post terms across broad career categories,
   including healthcare, education, service, operations, trades, legal, finance,
   and government or administrative work;

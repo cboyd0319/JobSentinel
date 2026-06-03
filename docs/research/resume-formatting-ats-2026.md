@@ -186,6 +186,8 @@ resume help should adjust examples and evidence prompts for:
   before being copied into managed local storage.
 - Active saved resume can be used for local fit review without copying
   structured details into the page.
+- Resume Match shows readable format and details-included signals in a
+  separate Resume Quality section instead of mixing them into role-fit review.
 - Required, preferred, and other job-post language stay grouped in fit notes.
 - Recognized local job-post requirements now show match states and evidence
   sections, and recognized missing hard requirements cap the fit label until
@@ -205,7 +207,6 @@ resume help should adjust examples and evidence prompts for:
 - Add role-specific evidence prompts and examples across non-technical,
   technical, licensed, government, academic, early-career, and career-change
   paths.
-- Add a resume-quality rubric that is clearly separate from role-fit review.
 - Add synthetic fixtures for tricky layouts, tables, columns, image-only PDFs,
   federal resumes, career-change resumes, and licensed-role resumes.
 

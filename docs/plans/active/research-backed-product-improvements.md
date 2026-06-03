@@ -193,6 +193,9 @@ copy durable findings back into this plan or the active status surface.
 - Current local readable-preview checklist follow-up in `b783d285` shows plain
   text-availability, employer-format, and preview-completeness states inside the
   local readable resume preview.
+- Current local resume-quality separation follow-up in `33c7d5c6` shows
+  readable format and details-included signals in a separate Resume Quality
+  section instead of mixing them into role-fit review.
 - Current local onsite location-term follow-up in `bffa0a1f` treats onsite and
   on-site as equivalent local hard-constraint evidence, so exact punctuation
   differences do not create a false missing-location risk.

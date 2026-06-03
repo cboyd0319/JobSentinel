@@ -108,8 +108,11 @@ acceptance still requires Developer ID signing and notarization.
   the user-facing error. The follow-up
   `b783d285 Add readable preview checklist` adds plain text-availability,
   employer-format, and preview-completeness states inside the local readable
-  resume preview. Real resume/profile reference material remains private and
-  must not be committed.
+  resume preview. The follow-up
+  `33c7d5c6 Separate resume quality from fit` shows readable format and
+  details-included signals in a separate Resume Quality section instead of
+  mixing them into role-fit review. Real resume/profile reference material
+  remains private and must not be committed.
 - Current local resume-alignment scoring follow-up is committed in
   `3d720693 Add resume requirement review caps`. It locks
   `/Users/c/Downloads/ats_scoring_algorithm.md` into
