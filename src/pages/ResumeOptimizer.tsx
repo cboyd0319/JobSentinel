@@ -1295,8 +1295,6 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                     </div>
                     <div className="space-y-3">
                       <ScoreItem label="Job words" score={analysisResult.keyword_score} />
-                      <ScoreItem label="Format" score={analysisResult.format_score} />
-                      <ScoreItem label="Details included" score={analysisResult.completeness_score} />
                     </div>
                   </div>
                   {fitEvidenceStatus && (
@@ -1314,6 +1312,14 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                       </p>
                     </div>
                   )}
+                </Card>
+
+                <Card>
+                  <CardHeader title="Resume Quality" />
+                  <div className="space-y-3">
+                    <ScoreItem label="Readable format" score={analysisResult.format_score} />
+                    <ScoreItem label="Details included" score={analysisResult.completeness_score} />
+                  </div>
                 </Card>
 
                 {getResumeNextActions().length > 0 && (

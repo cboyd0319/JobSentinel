@@ -491,6 +491,8 @@ describe("ResumeOptimizer", () => {
 
     expect(screen.getByText("Job Words Overview")).toBeInTheDocument();
     expect(screen.getByText("Job words")).toBeInTheDocument();
+    expect(screen.getByText("Resume Quality")).toBeInTheDocument();
+    expect(screen.getByText("Readable format")).toBeInTheDocument();
     expect(screen.getByText("Details included")).toBeInTheDocument();
     expect(screen.getByText("Overall fit")).toBeInTheDocument();
     expect(screen.getAllByText("Clear evidence").length).toBeGreaterThan(0);
