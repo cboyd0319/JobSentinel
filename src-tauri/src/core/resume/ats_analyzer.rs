@@ -571,6 +571,33 @@ impl AtsAnalyzer {
             );
         }
 
+        let design_creative_terms = [
+            "product design",
+            "user experience",
+            "ux",
+            "ui design",
+            "interaction design",
+            "visual design",
+            "graphic design",
+            "content design",
+            "brand design",
+            "creative direction",
+            "design portfolio",
+            "designer",
+            "figma",
+            "prototype",
+            "accessibility",
+        ];
+
+        if design_creative_terms
+            .iter()
+            .any(|term| lower.contains(term))
+        {
+            return Some(
+                "design-creative evidence to check: user problem, audience, constraints, decisions, accessibility, and shipped outcome",
+            );
+        }
+
         let technical_data_terms = [
             "software",
             "developer",
@@ -3708,6 +3735,20 @@ Preferred: Salesforce
         assert!(improved.contains("audience or account scope"));
         assert!(improved.contains("conversion or revenue impact"));
         assert!(improved.contains("retention"));
+        assert!(improved.contains("problem, your role, action, result, and evidence"));
+    }
+
+    #[test]
+    fn test_improve_bullet_adds_design_creative_evidence_prompt() {
+        let bullet = "Created prototypes for onboarding flow";
+        let job_desc = "Required: product design, Figma, accessibility, design portfolio";
+        let improved = AtsAnalyzer::improve_bullet(bullet, Some(job_desc));
+
+        assert!(improved.contains("design-creative evidence to check"));
+        assert!(improved.contains("user problem"));
+        assert!(improved.contains("audience"));
+        assert!(improved.contains("accessibility"));
+        assert!(improved.contains("shipped outcome"));
         assert!(improved.contains("problem, your role, action, result, and evidence"));
     }
 

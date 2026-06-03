@@ -2677,6 +2677,28 @@ function getMockRoleSpecificEvidencePrompt(jobContext: string): string | null {
     return "service-operations evidence to check: customer impact, volume, escalation path, documentation, and response quality";
   }
 
+  const designCreativeTerms = [
+    "product design",
+    "user experience",
+    "ux",
+    "ui design",
+    "interaction design",
+    "visual design",
+    "graphic design",
+    "content design",
+    "brand design",
+    "creative direction",
+    "design portfolio",
+    "designer",
+    "figma",
+    "prototype",
+    "accessibility",
+  ];
+
+  if (designCreativeTerms.some((term) => lower.includes(term))) {
+    return "design-creative evidence to check: user problem, audience, constraints, decisions, accessibility, and shipped outcome";
+  }
+
   const technicalDataTerms = [
     "software",
     "developer",

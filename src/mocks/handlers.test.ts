@@ -1428,6 +1428,16 @@ describe("mock Tauri handlers", () => {
     expect(salesMarketingImproved).toContain("audience or account scope");
     expect(salesMarketingImproved).toContain("conversion or revenue impact");
     expect(salesMarketingImproved).toContain("retention");
+
+    const designCreativeImproved = await mockInvoke<string>("improve_bullet_point", {
+      bullet: "created prototypes for onboarding flow",
+      jobContext: "Required: product design, Figma, accessibility, design portfolio",
+    });
+    expect(designCreativeImproved).toContain("design-creative evidence to check");
+    expect(designCreativeImproved).toContain("user problem");
+    expect(designCreativeImproved).toContain("audience");
+    expect(designCreativeImproved).toContain("accessibility");
+    expect(designCreativeImproved).toContain("shipped outcome");
   }, 10_000);
 
   it("matches lift-weight pounds and lbs in mock hard constraints", async () => {
