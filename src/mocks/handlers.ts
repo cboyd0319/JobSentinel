@@ -3248,13 +3248,19 @@ function countMockEvidenceFrequency(
     ...sections.projects,
   ];
   const hasMetricBackedEvidence = workEvidence.some((text) =>
-    containsAnyMockKeyword(text, searchTerms) && hasMockMetricBackedEvidence(text)
+    containsAnyMockKeyword(text, searchTerms) &&
+      (hasMockMetricBackedEvidence(text) || hasMockScopeBackedEvidence(text))
   );
   return hasMetricBackedEvidence ? base + 1 : base;
 }
 
 function hasMockMetricBackedEvidence(text: string): boolean {
   return /\b\d+(?:\.\d+)?\s*(?:%|(?:percent|clients?|customers?|cases?|tickets?|orders?|projects?|reports?|days?|weeks?|months?)\b)|\$\s*\d/i
+    .test(text);
+}
+
+function hasMockScopeBackedEvidence(text: string): boolean {
+  return /\bacross\s+(?:[a-z]+\s+){0,5}(?:teams?|departments?|locations?|sites?|regions?|markets?|service\s+lines?)\b/i
     .test(text);
 }
 

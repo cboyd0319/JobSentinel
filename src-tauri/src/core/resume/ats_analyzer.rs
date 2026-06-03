@@ -2220,7 +2220,10 @@ impl AtsAnalyzer {
             evidence_section,
             "experience" | "current experience" | "projects"
         );
-        if can_show_work_evidence && Self::metric_backed_evidence_marker(text_lower) {
+        if can_show_work_evidence
+            && (Self::metric_backed_evidence_marker(text_lower)
+                || Self::scope_backed_evidence_marker(text_lower))
+        {
             count + 1
         } else {
             count
@@ -2230,6 +2233,14 @@ impl AtsAnalyzer {
     fn metric_backed_evidence_marker(text_lower: &str) -> bool {
         regex::Regex::new(
             r"(?:\b\d+(?:\.\d+)?\s*(?:%|(?:percent|clients?|customers?|cases?|tickets?|orders?|projects?|reports?|days?|weeks?|months?)\b)|\$\s*\d)",
+        )
+        .unwrap()
+        .is_match(text_lower)
+    }
+
+    fn scope_backed_evidence_marker(text_lower: &str) -> bool {
+        regex::Regex::new(
+            r"\bacross\s+(?:[a-z]+\s+){0,5}(?:teams?|departments?|locations?|sites?|regions?|markets?|service\s+lines?)\b",
         )
         .unwrap()
         .is_match(text_lower)
@@ -4032,6 +4043,28 @@ Preferred: Salesforce
         resume.summary.clear();
         resume.skills.clear();
         resume.experience[0].achievements = vec!["Reduced scheduling delays by 30%".to_string()];
+
+        let result = AtsAnalyzer::analyze_for_job(&resume, "Required: scheduling");
+
+        let scheduling = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "scheduling")
+            .expect("scheduling review");
+        assert_eq!(scheduling.match_state, RequirementMatchState::Strong);
+        assert_eq!(
+            scheduling.evidence_sections,
+            vec!["current experience".to_string()]
+        );
+    }
+
+    #[test]
+    fn test_scope_backed_current_experience_counts_as_strong_evidence() {
+        let mut resume = sample_resume();
+        resume.summary.clear();
+        resume.skills.clear();
+        resume.experience[0].achievements =
+            vec!["Coordinated scheduling across three service teams".to_string()];
 
         let result = AtsAnalyzer::analyze_for_job(&resume, "Required: scheduling");
 
