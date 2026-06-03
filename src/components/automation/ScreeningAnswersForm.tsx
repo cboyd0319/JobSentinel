@@ -50,6 +50,7 @@ const COMMON_PATTERNS = [
   { pattern: "start date", label: "Start date / Notice period", type: "text" },
   { pattern: "relocate", label: "Willingness to relocate", type: "yes_no" },
   { pattern: "travel", label: "Travel availability", type: "text" },
+  { pattern: "reliable transportation", label: "Reliable transportation", type: "yes_no" },
   { pattern: "work authorization", label: "Work authorization", type: "yes_no" },
   { pattern: "US citizen", label: "Citizenship", type: "yes_no" },
   { pattern: "availability", label: "Schedule availability", type: "text" },
