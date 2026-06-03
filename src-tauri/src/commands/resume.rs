@@ -22,6 +22,7 @@ use tauri_plugin_dialog::DialogExt;
 use uuid::Uuid;
 
 const MAX_JSON_RESUME_IMPORT_BYTES: u64 = 5 * 1024 * 1024;
+const MAX_SELECTED_RESUME_UPLOAD_BYTES: u64 = 10 * 1024 * 1024;
 const MANAGED_RESUME_UPLOAD_DIR: &str = "resume-uploads";
 const MAX_RESUME_TEXT_PREVIEW_CHARS: usize = 6_000;
 const SUPPORTED_RESUME_UPLOAD_EXTENSIONS: &[&str] = &["pdf", "docx", "txt", "md"];
@@ -540,6 +541,13 @@ fn validate_selected_resume(path: &Path) -> Result<(), String> {
         return Err("Choose a resume file, not a folder.".to_string());
     }
 
+    if metadata.len() > MAX_SELECTED_RESUME_UPLOAD_BYTES {
+        return Err(
+            "That resume file is too large for local review. Choose a file under 10 MB or export a smaller readable PDF, DOCX, TXT, or Markdown resume."
+                .to_string(),
+        );
+    }
+
     Ok(())
 }
 
@@ -1009,6 +1017,20 @@ mod tests {
         assert!(text_name.ends_with("--Jordan-Resume.txt"));
         assert!(!docx_name.contains(' '));
         assert!(!text_name.contains(' '));
+    }
+
+    #[test]
+    fn selected_resume_validation_rejects_oversized_file_without_path_leak() {
+        let temp_dir = tempfile::tempdir().unwrap();
+        let resume_path = temp_dir.path().join("Private Large Resume.pdf");
+        let file = std::fs::File::create(&resume_path).unwrap();
+        file.set_len(MAX_SELECTED_RESUME_UPLOAD_BYTES + 1).unwrap();
+
+        let err = validate_selected_resume(&resume_path).unwrap_err();
+
+        assert!(err.contains("too large"));
+        assert!(!err.contains(temp_dir.path().to_string_lossy().as_ref()));
+        assert!(!err.contains("Private Large Resume"));
     }
 
     #[test]
