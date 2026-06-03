@@ -1252,6 +1252,34 @@ describe("mock Tauri handlers", () => {
     );
   });
 
+  it("recognizes Licensed Practical Nurse as LPN evidence in mock resume review", async () => {
+    const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        certifications: ["Licensed Practical Nurse"],
+      },
+      jobDescription: "Required: LPN license",
+    });
+
+    expect(result.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "lpn",
+          match_state: "Direct",
+          hard_constraint: true,
+          evidence_sections: expect.arrayContaining(["certifications"]),
+        }),
+      ]),
+    );
+    expect(result.hard_constraint_risks).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          requirement: "lpn",
+        }),
+      ]),
+    );
+  });
+
   it("recognizes ServSafe as food-safety certification evidence in mock resume review", async () => {
     const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {

@@ -611,6 +611,8 @@ const ATS_KNOWN_KEYWORDS = [
   "patient care",
   "cna",
   "certified nursing assistant",
+  "lpn",
+  "licensed practical nurse",
   "medication administration",
   "vital signs",
   "care plans",
@@ -2445,9 +2447,13 @@ function getMockHardConstraintCategory(keyword: string): MockHardConstraintCateg
     lower.includes("certification") ||
     ["cdl", "cissp", "security+", "rn", "bls", "acls", "cpr"].includes(lower) ||
     lower === "cna" ||
+    lower === "lpn" ||
+    lower === "lvn" ||
     lower.includes("certified nursing assistant") ||
     lower.includes("certified nurse assistant") ||
     lower.includes("certified nurse aide") ||
+    lower.includes("licensed practical nurse") ||
+    lower.includes("licensed vocational nurse") ||
     lower === "servsafe" ||
     lower.includes("food safety certification") ||
     lower.includes("food handler") ||
@@ -2828,7 +2834,7 @@ function extractMockHardConstraintKeywords(jobDescription: string): string[] {
   const patterns = [
     /\b(work authorization|authorized to work|visa sponsorship|u\.?s\.?\s+citizenship|u\.?s\.?\s+citizen|citizenship required)\b/gi,
     /\b(security clearance|clearance)\b/gi,
-    /\b(driver'?s license|driver license|cdl|rn license|nursing license)\b/gi,
+    /\b(driver'?s license|driver license|cdl|rn license|nursing license|lpn|lvn|licensed practical nurse|licensed vocational nurse)\b/gi,
     /\b(certification|cissp|security\+|bls|basic life support|acls|advanced cardiovascular life support|cpr|cardiopulmonary resuscitation|cna|certified nursing assistant|certified nurse assistant|certified nurse aide|servsafe|food safety certification|food handler certification|food handler certificate|food handler permit|food handlers permit|food handler card|first[- ]aid certification|first[- ]aid certified|first[- ]aid certificate|first[- ]aid|forklift certification|forklift certified|forklift operator certification|forklift operator certified|forklift license|forklift operator license|osha\s*10(?:[- ]hour)?(?:\s+certification)?|osha\s*30(?:[- ]hour)?(?:\s+certification)?)\b/gi,
     /\b(bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree|high school diploma|high school degree|ged|high school equivalency|general education development)\b/gi,
     /\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b/gi,
@@ -2872,6 +2878,10 @@ function extractMockHardConstraintKeywords(jobDescription: string): string[] {
     "certified nursing assistant",
     "certified nurse assistant",
     "certified nurse aide",
+    "lpn",
+    "lvn",
+    "licensed practical nurse",
+    "licensed vocational nurse",
     "servsafe",
     "food safety certification",
     "food handler certification",
@@ -3020,6 +3030,12 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
     ["cpr", "cardiopulmonary resuscitation"],
     ["cdl", "commercial driver's license", "commercial driver license"],
     ["rn", "registered nurse"],
+    [
+      "lpn",
+      "licensed practical nurse",
+      "lvn",
+      "licensed vocational nurse",
+    ],
     [
       "cna",
       "certified nursing assistant",

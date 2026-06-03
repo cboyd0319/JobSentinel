@@ -1654,12 +1654,16 @@ impl AtsAnalyzer {
             || lower == "security+"
             || lower == "rn"
             || lower == "cna"
+            || lower == "lpn"
+            || lower == "lvn"
             || lower == "bls"
             || lower == "acls"
             || lower == "cpr"
             || lower.contains("certified nursing assistant")
             || lower.contains("certified nurse assistant")
             || lower.contains("certified nurse aide")
+            || lower.contains("licensed practical nurse")
+            || lower.contains("licensed vocational nurse")
             || lower == "servsafe"
             || lower.contains("food safety certification")
             || lower.contains("food handler")
@@ -1937,6 +1941,12 @@ impl AtsAnalyzer {
                 "commercial driver license",
             ],
             &["rn", "registered nurse"],
+            &[
+                "lpn",
+                "licensed practical nurse",
+                "lvn",
+                "licensed vocational nurse",
+            ],
             &[
                 "cna",
                 "certified nursing assistant",
@@ -2359,7 +2369,7 @@ impl AtsAnalyzer {
         let hard_constraint_patterns = [
             r"(?i)\b(work authorization|authorized to work|visa sponsorship|u\.?s\.?\s+citizenship|u\.?s\.?\s+citizen|citizenship required)\b",
             r"(?i)\b(security clearance|clearance)\b",
-            r"(?i)\b(driver'?s license|driver license|cdl|rn license|nursing license)\b",
+            r"(?i)\b(driver'?s license|driver license|cdl|rn license|nursing license|lpn|lvn|licensed practical nurse|licensed vocational nurse)\b",
             r"(?i)\b(certification|cissp|security\+|bls|basic life support|acls|advanced cardiovascular life support|cpr|cardiopulmonary resuscitation|cna|certified nursing assistant|certified nurse assistant|certified nurse aide|servsafe|food safety certification|food handler certification|food handler certificate|food handler permit|food handlers permit|food handler card|first[- ]aid certification|first[- ]aid certified|first[- ]aid certificate|first[- ]aid|forklift certification|forklift certified|forklift operator certification|forklift operator certified|forklift license|forklift operator license|osha\s*10(?:[- ]hour)?(?:\s+certification)?|osha\s*30(?:[- ]hour)?(?:\s+certification)?)\b",
             r"(?i)\b(bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree|high school diploma|high school degree|ged|high school equivalency|general education development)\b",
             r"(?i)\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b",
@@ -2400,6 +2410,10 @@ impl AtsAnalyzer {
             "certified nursing assistant",
             "certified nurse assistant",
             "certified nurse aide",
+            "lpn",
+            "lvn",
+            "licensed practical nurse",
+            "licensed vocational nurse",
             "servsafe",
             "food safety certification",
             "food handler certification",
@@ -2546,6 +2560,8 @@ impl AtsAnalyzer {
             "patient care",
             "cna",
             "certified nursing assistant",
+            "lpn",
+            "licensed practical nurse",
             "medication administration",
             "vital signs",
             "care plans",
@@ -3643,6 +3659,30 @@ Preferred: Salesforce
             .hard_constraint_risks
             .iter()
             .any(|risk| risk.requirement == "certification"));
+    }
+
+    #[test]
+    fn test_requirement_review_uses_lpn_credential_equivalence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nCertifications\nLicensed Practical Nurse",
+            &[],
+            "Required: LPN license",
+        );
+
+        let lpn = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "lpn")
+            .expect("lpn review");
+        assert_eq!(lpn.match_state, RequirementMatchState::Direct);
+        assert!(lpn.hard_constraint);
+        assert!(lpn
+            .evidence_sections
+            .contains(&"certifications".to_string()));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "lpn"));
     }
 
     #[test]
