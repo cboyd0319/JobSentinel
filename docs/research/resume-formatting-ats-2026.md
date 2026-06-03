@@ -261,6 +261,9 @@ resume help should adjust examples and evidence prompts for:
 - Application Assist flags citizenship requirements from saved job details,
   shows matching saved screening answers when users have saved one, and does
   not treat work authorization as citizenship.
+- Application Assist flags reliable-transportation and vehicle requirements
+  from saved job details and shows matching saved screening answers in the hard
+  question review when users have saved one.
 - Resume Match reminds users in the job words overview not to force words they
   cannot support with real work, training, or credentials.
 - Resume Match tells users in the Resume Fit card that the result is local

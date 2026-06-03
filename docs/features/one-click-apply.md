@@ -108,6 +108,7 @@ You can save reusable answers for common questions:
 | `notice period`       | "What is your notice period..."    |
 | `relocate`            | "Are you willing to relocate..."   |
 | `travel`              | "Are you able to travel..."        |
+| `reliable transportation` | "Do you have reliable transportation?" |
 | `work authorization`  | "Are you authorized to work..."    |
 | `US citizen`          | "Are you a U.S. citizen?"         |
 | `availability`        | "What is your availability..."     |
@@ -129,10 +130,10 @@ requirement so you can prepare those answers before the form asks.
 When the saved job details mention hard screening topics, the Application Assist
 preview flags them before opening the form. Review saved answers and resume
 evidence for citizenship, work authorization, location, relocation, travel,
-licenses, certifications, clearances, education, years of experience, salary,
-schedule, availability, background checks, drug screens, pre-employment
-screening, language fluency, physical requirements, and minimum-age
-requirements before submitting.
+transportation, vehicle requirements, licenses, certifications, clearances,
+education, years of experience, salary, schedule, availability, background
+checks, drug screens, pre-employment screening, language fluency, physical
+requirements, and minimum-age requirements before submitting.
 
 For citizenship topics, the preview can show a matching saved answer so you can
 confirm it matches the employer's wording. JobSentinel does not treat work
@@ -145,6 +146,10 @@ resume evidence before continuing.
 For location, relocation, commute, remote, hybrid, on-site, or travel topics,
 the preview can also show a matching saved screening answer, such as travel
 availability, so you can compare it before continuing.
+
+For transportation or vehicle topics, the preview can show a matching saved
+answer so you can confirm commute, license, and vehicle details are true before
+continuing.
 
 For license, certification, or clearance topics, the preview can show a
 matching saved credential answer so you can confirm it is documented before
