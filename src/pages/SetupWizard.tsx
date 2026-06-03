@@ -607,6 +607,20 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
     }));
   };
 
+  const handleLocationNotSure = () => {
+    setConfig((prev) => ({
+      ...prev,
+      location_preferences: {
+        ...prev.location_preferences,
+        allow_remote: true,
+        allow_hybrid: true,
+        allow_onsite: true,
+        cities: [],
+      },
+    }));
+    setCityInput("");
+  };
+
   const handleComplete = async () => {
     if (!hasSelectedWorkType) {
       setStep(2);
@@ -1072,6 +1086,26 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                   }
                   icon={<OfficeIcon />}
                 />
+              </div>
+
+              <div className="mb-6 rounded-lg border border-surface-200 bg-surface-50 p-3">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <p className="text-sm text-surface-600">
+                    Not sure yet? Keep remote, hybrid, and on-site jobs visible.
+                  </p>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={handleLocationNotSure}
+                    aria-label="Not sure about location yet"
+                  >
+                    Not sure yet
+                  </Button>
+                </div>
+                <p className="mt-2 text-xs text-surface-500">
+                  Add cities later if commute or office days start to matter.
+                </p>
               </div>
 
               {/* City input for hybrid/onsite */}

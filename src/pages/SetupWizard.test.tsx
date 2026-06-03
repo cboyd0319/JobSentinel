@@ -593,6 +593,50 @@ describe("SetupWizard Accessibility", () => {
       expect(continueButton).toBeEnabled();
       expect(validationRegion?.textContent).toBe("");
     });
+
+    it("lets users mark location as not sure before scanning starts", async () => {
+      const user = userEvent.setup();
+      mockInvoke.mockResolvedValue(undefined);
+      renderWithProviders(<SetupWizard onComplete={mockOnComplete} />);
+
+      await user.click(screen.getByRole("button", { name: /build my search/i }));
+      await user.type(screen.getByPlaceholderText("Add a job title..."), "Office Manager{enter}");
+      await user.click(screen.getByRole("button", { name: /^continue$/i }));
+
+      await user.click(screen.getByRole("button", { name: /not sure about location yet/i }));
+
+      expect(screen.getByRole("checkbox", {
+        name: /remote: work from anywhere/i,
+      })).toHaveAttribute("aria-checked", "true");
+      expect(screen.getByRole("checkbox", {
+        name: /hybrid: mix of remote and office/i,
+      })).toHaveAttribute("aria-checked", "true");
+      expect(screen.getByRole("checkbox", {
+        name: /on-site: work from the office/i,
+      })).toHaveAttribute("aria-checked", "true");
+
+      await user.click(screen.getByRole("button", { name: /^continue$/i }));
+      expect(screen.getByText("remote, hybrid, on-site")).toBeInTheDocument();
+
+      await user.click(screen.getByRole("button", { name: /start finding jobs/i }));
+
+      await waitFor(() => {
+        expect(mockInvoke).toHaveBeenCalledWith(
+          "complete_setup",
+          expect.objectContaining({
+            config: expect.objectContaining({
+              title_allowlist: ["Office Manager"],
+              location_preferences: expect.objectContaining({
+                allow_remote: true,
+                allow_hybrid: true,
+                allow_onsite: true,
+                cities: [],
+              }),
+            }),
+          }),
+        );
+      });
+    });
   });
 
   describe("Screen Reader Support", () => {
