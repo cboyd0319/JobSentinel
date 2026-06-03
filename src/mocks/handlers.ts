@@ -658,6 +658,7 @@ const ATS_KNOWN_KEYWORDS = [
   "osha 30",
   "osha 30 certification",
   "document review",
+  "document-review",
   "case files",
   "legal research",
   "records management",
@@ -2876,6 +2877,8 @@ function extractMockAtsKeywords(jobDescription: string): MockAtsKeyword[] {
     /\bvital-sign\b/.test(lower) && !hasHyphenPluralVitalSigns;
   const hasMedicationAdministration = /\bmedication administration\b/.test(lower);
   const hasHyphenMedicationAdministration = /\bmedication-administration\b/.test(lower);
+  const hasDocumentReview = /\bdocument review\b/.test(lower);
+  const hasHyphenDocumentReview = /\bdocument-review\b/.test(lower);
   const hasSpecificDegree = hardKeywords.some((keyword) =>
     isMockExactDegreeKeyword(keyword) && keyword !== "degree"
   );
@@ -2884,6 +2887,12 @@ function extractMockAtsKeywords(jobDescription: string): MockAtsKeyword[] {
     medicationAdministrationKeywordsToSkip.add("medication-administration");
   } else if (hasHyphenMedicationAdministration) {
     medicationAdministrationKeywordsToSkip.add("medication administration");
+  }
+  const documentReviewKeywordsToSkip = new Set<string>();
+  if (hasDocumentReview) {
+    documentReviewKeywordsToSkip.add("document-review");
+  } else if (hasHyphenDocumentReview) {
+    documentReviewKeywordsToSkip.add("document review");
   }
   const knownKeywords = ATS_KNOWN_KEYWORDS.filter((keyword) =>
     !(hasDegreeEquivalent && isMockExactDegreeKeyword(keyword)) &&
@@ -2901,6 +2910,7 @@ function extractMockAtsKeywords(jobDescription: string): MockAtsKeyword[] {
     !(hasSingularVitalSign && ["vital signs", "vital-sign", "vital-signs"].includes(keyword)) &&
     !(hasHyphenSingularVitalSign && ["vital sign", "vital signs", "vital-signs"].includes(keyword)) &&
     !medicationAdministrationKeywordsToSkip.has(keyword) &&
+    !documentReviewKeywordsToSkip.has(keyword) &&
     !(
       hasCommercialDriverLicense &&
       ["driver's license", "drivers license", "driver license"].includes(keyword)
@@ -3206,6 +3216,7 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
     ["vital sign", "vital signs", "vital-sign", "vital-signs"],
     ["medication administration", "medication-administration"],
     ["data entry", "data-entry"],
+    ["document review", "document-review"],
     ["onsite", "on-site", "on site"],
     ["relocation", "relocate", "willing to relocate"],
     ["reliable transportation", "own transportation"],

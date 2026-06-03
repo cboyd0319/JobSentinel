@@ -1984,6 +1984,7 @@ impl AtsAnalyzer {
             &["vital sign", "vital signs", "vital-sign", "vital-signs"],
             &["medication administration", "medication-administration"],
             &["data entry", "data-entry"],
+            &["document review", "document-review"],
             &["onsite", "on-site", "on site"],
             &["relocation", "relocate", "willing to relocate"],
             &["reliable transportation", "own transportation"],
@@ -2591,7 +2592,7 @@ impl AtsAnalyzer {
             r"(?i)\b(patient[- ]care|medication[- ]administration|vital[- ]signs?|care[- ]plans?|medical[- ]records?|charting)\b",
             r"(?i)\b(lesson planning|classroom management|curriculum|iep|student support|parent communication)\b",
             r"(?i)\b(forklift|welding|equipment maintenance|safety inspections|food safety|cash handling)\b",
-            r"(?i)\b(document review|case files|legal research|records management|policy analysis|grant administration|public benefits)\b",
+            r"(?i)\b(document[- ]review|case files|legal research|records management|policy analysis|grant administration|public benefits)\b",
             r"(?i)\b(financial reconciliation|reconciliation|invoicing|loan processing|financial reporting)\b",
             r"(?i)\b(rust|python|javascript|typescript|java|c\+\+|go|kotlin|swift)\b",
             r"(?i)\b(react|vue|angular|node\.?js|django|flask|spring|express)\b",
@@ -3788,6 +3789,44 @@ Preferred: Salesforce
             assert_eq!(review.match_state, RequirementMatchState::Direct);
             assert!(review.evidence_sections.contains(&"experience".to_string()));
         }
+    }
+
+    #[test]
+    fn test_requirement_review_uses_document_review_hyphen_equivalence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nSupported document-review checks for client files.",
+            &[],
+            "Required: document review",
+        );
+
+        let document_review = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "document review")
+            .expect("document review");
+        assert_eq!(document_review.match_state, RequirementMatchState::Direct);
+        assert!(document_review
+            .evidence_sections
+            .contains(&"experience".to_string()));
+
+        let inverse = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nSupported document review checks for client files.",
+            &[],
+            "Required: document-review",
+        );
+
+        let document_review_hyphen = inverse
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "document-review")
+            .expect("document-review");
+        assert_eq!(
+            document_review_hyphen.match_state,
+            RequirementMatchState::Direct
+        );
+        assert!(document_review_hyphen
+            .evidence_sections
+            .contains(&"experience".to_string()));
     }
 
     #[test]
