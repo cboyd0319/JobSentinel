@@ -222,6 +222,9 @@ Future implementation should improve:
   Nurse Assistant`, and `Certified Nurse Aide` as the same evidence, and drops
   the duplicate generic `certification` risk when the specific credential
   matched.
+- Resume/job fit now treats `food safety`, `food safety certification`,
+  `ServSafe`, and food-handler certificate, permit, or card wording as the same
+  local credential evidence.
 - Resume/job fit now treats `high school diploma`, `high school degree`,
   `GED`, `high school equivalency`, and `General Education Development` as the
   same local education evidence.

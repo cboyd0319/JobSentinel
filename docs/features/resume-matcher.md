@@ -172,6 +172,8 @@ The current local matcher:
 - treats CNA, Certified Nursing Assistant, Certified Nurse Assistant, and
   Certified Nurse Aide as the same local credential evidence, and avoids a
   duplicate generic certification risk when the specific credential matches;
+- treats food safety, food safety certification, ServSafe, and food-handler
+  certificate, permit, or card wording as the same local credential evidence;
 - treats high school diploma, high school degree, GED, high school
   equivalency, and General Education Development as the same local education
   evidence without guessing unrelated credentials;

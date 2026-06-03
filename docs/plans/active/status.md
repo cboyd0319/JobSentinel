@@ -128,6 +128,9 @@ acceptance still requires Developer ID signing and notarization.
   recognizes CNA credential equivalence, treating CNA and Certified Nursing
   Assistant variants as the same local credential evidence while removing the
   duplicate generic `certification` risk when the specific credential matched.
+  The follow-up `9f47bee9` recognizes food-safety credential equivalence,
+  treating food safety, food safety certification, ServSafe, and food-handler
+  certificate, permit, or card wording as the same local credential evidence.
   Future resume work still needs deeper evidence strength, seniority alignment,
   broader conservative synonyms, recency, and profession-specific weighting.
 - Current local macOS no-account post-commit verification rebuilt the universal
