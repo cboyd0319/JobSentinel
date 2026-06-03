@@ -45,17 +45,21 @@ acceptance still requires Developer ID signing and notarization.
 
 ## Current Posture
 
-- `main` was pushed through `ed6ecb7e Record minimum age screening quick add`.
+- `main` was pushed through `3165a83c Clarify remaining seniority work`.
   Use `git status --short --branch` for live evidence before committing,
   pushing, or reporting remote state.
 - Latest pushed critical-functionality batch expands Resume Match required,
-  preferred, language, supervisor, shift-lead, remote, hybrid, and schedule
+  preferred, language, supervisor, shift-lead, managed-team, remote, hybrid,
+  schedule, overtime, holiday, transportation, citizenship, and credential
   constraint review; broadens bilingual evidence matching; and adds
   Application Assist hard-question review plus saved-answer quick-add setup for
-  background checks, drug screens, language fluency, physical requirements, and
-  minimum-age requirements. Keep the no-push batch rule: push only after 30
-  more local commits unless the user changes cadence.
-- Current local resume evidence-strength follow-up separates plain-text
+  background checks, drug screens, language fluency, physical requirements,
+  minimum-age, citizenship, transportation, driver's license, overtime,
+  holiday, and management requirements. Keep the no-push batch rule: push only
+  after 30 more local commits unless the user changes cadence.
+- Current local restart-doc checkpoint records that pushed batch; it is the
+  first local commit in the next 30-commit window.
+- Pushed resume evidence-strength follow-up separates plain-text
   saved-resume requirement evidence by section, so skills-list-only terms stay
   lighter evidence while experience, summary, project, education,
   certification, or license evidence can count as direct. Focused analyzer

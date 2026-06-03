@@ -36,6 +36,11 @@ scope:
 
 Latest pushed checkpoints include:
 
+- `3165a83c Clarify remaining seniority work`
+- `87156e57 Record management screening quick add`
+- `6d4fd5f4 Record managed team resume constraints`
+- `0de6f9d9 Record holiday screening quick add`
+- `5a204e46 Record holiday resume constraints`
 - `f3ed5fb9 Tighten protective user copy`
 - `22b96bf5 Tighten Rule 0 support copy`
 - `c08a56d9 Rename market view to Hiring Trends`
@@ -47,11 +52,12 @@ Latest pushed checkpoints include:
 
 Recent local verification evidence:
 
-- Latest live repo check: `main` is ahead of `origin/main`; use
-  `git status --short --branch` before reporting remote state. Current local
-  critical-functionality slice adds ghost/stale job-card actions, ghost-risk
-  feedback accessibility, obvious Settings support-report access, and the
-  multi-agent orchestration harness contract.
+- Latest live repo check: `main` is ahead of `origin/main` by the local
+  restart-doc checkpoint after the critical-functionality batch through
+  `3165a83c`. Use `git status --short --branch` before reporting remote state.
+  The pushed batch adds truthful Resume Match and Application Assist review for
+  citizenship, transportation, driver's license, overtime, holiday, and
+  management requirements.
 - Current local macOS no-account post-commit verification rebuilt the universal
   DMG from committed resume-guidance head `12c184db` on macOS 26.5
   (build 25F71), Apple Silicon `arm64`, with SIP enabled. The build produced
