@@ -225,6 +225,8 @@ Future implementation should improve:
 - Resume/job fit now treats `reliable transportation` and `own transportation`
   as equivalent local location evidence for required commute or transportation
   constraints.
+- Resume/job fit now treats `night shift` and `overnight shift` as equivalent
+  local schedule evidence for required shift constraints.
 - Resume/job fit now treats clear credential equivalents such as `BLS` and
   `Basic Life Support` as the same evidence, while keeping unrelated
   credentials separate.

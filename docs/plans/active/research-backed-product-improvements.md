@@ -142,6 +142,9 @@ copy durable findings back into this plan or the active status surface.
   transportation and own transportation as equivalent local hard-constraint
   evidence, so exact commute wording differences do not create a false missing
   risk.
+- Current local overnight-shift follow-up in `4b2009d6` treats night shift and
+  overnight shift as equivalent local hard-constraint evidence, so exact
+  schedule wording differences do not create a false missing risk.
 - Current local structured evidence recency follow-up marks structured resume
   matches from a current role as `current experience`, without changing older
   role evidence labels.
@@ -1681,6 +1684,7 @@ source-filter compatibility issue appears.
   Onsite location-term work is committed in `bffa0a1f`.
   Spaced on-site work is committed in `c8dffb14`.
   Transportation-term work is committed in `d454fd30`.
+  Overnight-shift work is committed in `4b2009d6`.
   Structured evidence recency work is committed in `56d9a5ab`.
   Plain-text evidence recency work is committed in `66c587a8`.
   Metric-backed evidence-strength work is committed in `4607b67f`.

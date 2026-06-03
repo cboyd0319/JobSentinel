@@ -134,6 +134,8 @@ acceptance still requires Developer ID signing and notarization.
   `d454fd30 Match transportation requirement terms` treats reliable
   transportation and own transportation as the same local hard-constraint
   evidence. The follow-up
+  `4b2009d6 Match overnight shift terms` treats night shift and overnight shift
+  as the same local hard-constraint evidence. The follow-up
   `66c587a8 Mark current plain text resume evidence` marks readable Experience
   bullets after a present-date role marker as current-experience evidence, then
   resets that label when a later past-role date range appears. The follow-up
