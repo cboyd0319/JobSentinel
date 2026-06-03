@@ -239,8 +239,9 @@ The current local matcher:
   constraints;
 - treats conservative local term equivalents, such as **CRM** and **customer
   relationship management**, and **customer service**, **customer support**,
-  **client service**, **client services**, and **client support**, as the same
-  evidence without broad fuzzy matching;
+  **client service**, **client services**, **client support**, **guest
+  service**, and **guest services**, as the same evidence without broad fuzzy
+  matching;
 - treats **case management** and **case coordination** as the same local
   evidence without treating broader case-documentation wording as enough by
   itself;
