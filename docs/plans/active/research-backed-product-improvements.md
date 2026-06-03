@@ -356,6 +356,10 @@ copy durable findings back into this plan or the active status surface.
 - Current local master-degree follow-up in `0e2a0fae` treats master's degree,
   master degree, and masters degree as equivalent local education
   hard-constraint evidence.
+- Current local doctorate-degree follow-up in `60dc3981` treats PhD,
+  doctorate, doctorate degree, and doctoral degree as equivalent local
+  education hard-constraint evidence and keeps doctorate degree or equivalent
+  experience wording from creating an exact-degree hard cap.
 - Current local degree-equivalent-experience follow-up treats explicit degree
   or equivalent experience wording as experience-compatible evidence instead
   of an exact-degree hard cap.
@@ -1829,6 +1833,7 @@ source-filter compatibility issue appears.
   Associate-degree work is committed in `7554988c`.
   Bachelor-degree work is committed in `adda2593`.
   Master-degree work is committed in `0e2a0fae`.
+  Doctorate-degree work is committed in `60dc3981`.
   Degree-equivalent-experience work is committed in `9fc9777d`.
   Training-heading credential work is committed in `df0bdf9a`.
   Training-heading structure work is committed in `1a9c6b52`.

@@ -306,6 +306,8 @@ Future implementation should improve:
   `bachelors degree` as equivalent local education evidence.
 - Resume/job fit now treats `master's degree`, `master degree`, and
   `masters degree` as equivalent local education evidence.
+- Resume/job fit now treats `PhD`, `doctorate`, `doctorate degree`, and
+  `doctoral degree` as equivalent local education evidence.
 - Readable-text review now treats training, credentials, certificate, and
   license headings as credential evidence and standard readable structure
   instead of generic resume text.

@@ -200,7 +200,10 @@ acceptance still requires Developer ID signing and notarization.
   evidence. The follow-up
   `0e2a0fae Match master degree terms` treats master's degree, master degree,
   and masters degree as the same local education hard-constraint evidence. The
-  follow-up
+  follow-up `60dc3981 Match doctorate degree terms` treats PhD, doctorate,
+  doctorate degree, and doctoral degree as the same local education
+  hard-constraint evidence and keeps doctorate degree or equivalent experience
+  wording from creating an exact-degree hard cap. The follow-up
   `5883db13`
   recognizes CNA credential equivalence, treating CNA and Certified Nursing
   Assistant variants as the same local credential evidence while removing the
