@@ -215,6 +215,9 @@ resume help should adjust examples and evidence prompts for:
 - Application Assist shows matching saved travel, relocation, commute, remote,
   hybrid, or on-site screening answers in the hard question review when saved
   job details mention location or travel constraints.
+- Application Assist shows matching saved license, certification, or clearance
+  screening answers in the hard question review when saved job details mention
+  credential requirements.
 - Required, preferred, and other job-post language stay grouped in fit notes.
 - Recognized local job-post requirements now show match states and evidence
   sections, and recognized missing hard requirements cap the fit label until

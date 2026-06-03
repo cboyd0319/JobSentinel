@@ -149,6 +149,11 @@ acceptance still requires Developer ID signing and notarization.
   question review when saved job details mention location or travel constraints,
   so users can compare the saved answer with employer wording and resume
   evidence before continuing. The follow-up
+  `b2d9b8e5 Show saved credential screening review` shows matching saved
+  license, certification, or clearance screening answers in the hard question
+  review when saved job details mention credential requirements, so users can
+  compare the saved answer with employer wording and documentation before
+  continuing. The follow-up
   `e7a61306 Add healthcare bullet evidence prompt` adds a role-specific
   evidence reminder for healthcare and licensed-work job details, asking users
   to check scope of practice, patient safety, documentation, and required

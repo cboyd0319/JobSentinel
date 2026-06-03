@@ -132,6 +132,10 @@ For location, relocation, commute, remote, hybrid, on-site, or travel topics,
 the preview can also show a matching saved screening answer, such as travel
 availability, so you can compare it before continuing.
 
+For license, certification, or clearance topics, the preview can show a
+matching saved credential answer so you can confirm it is documented before
+continuing.
+
 ---
 
 ## Using Application Assist
