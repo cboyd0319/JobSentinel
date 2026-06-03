@@ -257,6 +257,8 @@ The current local matcher:
   broad acronym matching;
 - treats **A/P** and **A/R** as shorthand for **accounts payable** and
   **accounts receivable** without broad acronym matching;
+- treats **point of sale**, **POS system**, and **POS systems** as the same
+  local retail/service evidence without matching bare POS initials;
 - treats **budgeting** and **budget tracking** as the same local finance and
   operations evidence without broad fuzzy matching;
 - treats **cashier** and **cash handling** as the same local retail/service

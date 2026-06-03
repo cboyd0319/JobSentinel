@@ -215,6 +215,17 @@ copy durable findings back into this plan or the active status surface.
   `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
   clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
   --check`.
+- Current local point-of-sale/POS-system follow-up in `8a1d4a28` treats point
+  of sale and POS system wording as equivalent local retail/service evidence in
+  backend and dev/browser mocks without matching bare POS initials.
+  Verification passed: `cargo test --lib point_of_sale_pos_system
+  --manifest-path src-tauri/Cargo.toml`, `npx vitest run
+  src/mocks/handlers.test.ts -t "point of sale and POS system"`, `cargo test
+  --lib ats_analyzer --manifest-path src-tauri/Cargo.toml`, `npx vitest run
+  src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
+  `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
+  clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
+  --check`.
 - Current local accounts-payable/receivable shorthand follow-up in `aa412a5a`
   treats `A/P` and `A/R` as local shorthand for accounts payable and accounts
   receivable in backend and dev/browser mocks without broad acronym matching.
