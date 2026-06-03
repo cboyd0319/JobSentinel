@@ -3149,6 +3149,7 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
       "high school equivalency",
       "general education development",
     ],
+    ["bachelor's degree", "bachelor degree", "bachelors degree"],
     [
       "stand for long period",
       "stand for long periods",

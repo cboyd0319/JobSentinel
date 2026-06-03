@@ -2065,6 +2065,7 @@ impl AtsAnalyzer {
                 "high school equivalency",
                 "general education development",
             ],
+            &["bachelor's degree", "bachelor degree", "bachelors degree"],
             &[
                 "stand for long period",
                 "stand for long periods",
@@ -4096,6 +4097,28 @@ Preferred: Salesforce
             .hard_constraint_risks
             .iter()
             .any(|risk| risk.requirement == "certification"));
+    }
+
+    #[test]
+    fn test_bachelors_degree_requirement_accepts_bachelor_degree_evidence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nEducation\nBachelor degree",
+            &[],
+            "Required: bachelor's degree",
+        );
+
+        let degree = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "bachelor's degree")
+            .expect("bachelor degree review");
+        assert_eq!(degree.match_state, RequirementMatchState::Direct);
+        assert!(degree.hard_constraint);
+        assert!(degree.evidence_sections.contains(&"education".to_string()));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "bachelor's degree"));
     }
 
     #[test]
