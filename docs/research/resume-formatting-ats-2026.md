@@ -282,6 +282,9 @@ resume help should adjust examples and evidence prompts for:
 - Recognized local job-post requirements now show match states and evidence
   sections, and recognized missing hard requirements cap the fit label until
   the user verifies the requirement.
+- Resume Match treats overtime availability and overtime shift wording as local
+  schedule hard-constraint evidence, so exact overtime wording differences do
+  not create a false missing risk.
 - Local readability checks now warn about missing top contact details, missing
   standard headings, table-like extracted text, hidden instructions, and
   prompt-injection-like content.
