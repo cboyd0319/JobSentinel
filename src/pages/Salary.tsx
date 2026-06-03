@@ -381,10 +381,16 @@ export default function Salary({ onBack }: SalaryProps) {
                     <p className="mt-1 text-sm text-surface-700 dark:text-surface-300">
                       {floorGuidance.message}
                     </p>
-                    <p className="mt-2 text-sm text-surface-600 dark:text-surface-400">
-                      If a recruiter asks for salary history, you can redirect to the role range
-                      and your target.
-                    </p>
+                    <div className="mt-3 rounded-md bg-white/70 p-3 dark:bg-surface-900/30">
+                      <p className="text-sm font-medium text-surface-900 dark:text-surface-100">
+                        Past-pay question
+                      </p>
+                      <p className="mt-1 text-sm text-surface-600 dark:text-surface-400">
+                        If asked about current or past pay, redirect to the role range and
+                        target pay you would accept. Avoid anchoring yourself to old
+                        compensation.
+                      </p>
+                    </div>
                   </div>
                 )}
 

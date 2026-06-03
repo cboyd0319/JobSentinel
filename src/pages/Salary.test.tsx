@@ -89,7 +89,8 @@ describe("Salary", () => {
 
     expect(await screen.findByText(/below the lower-pay part of this sample/i)).toBeInTheDocument();
     expect(screen.getByText(/too low a title or pay level/i)).toBeInTheDocument();
-    expect(screen.getByText(/salary history/i)).toBeInTheDocument();
+    expect(screen.getByText("Past-pay question")).toBeInTheDocument();
+    expect(screen.getByText(/current or past pay/i)).toBeInTheDocument();
   });
 
   it("explains pay ranges without percentile shorthand", async () => {
@@ -133,6 +134,20 @@ describe("Salary", () => {
     expect(await screen.findByText("12 salary records")).toBeInTheDocument();
     expect(screen.getByText("Thin sample")).toBeInTheDocument();
     expect(screen.getByText(/use this as a weak signal/i)).toBeInTheDocument();
+  });
+
+  it("shows a past-pay guardrail without making legal claims", async () => {
+    const user = userEvent.setup();
+    renderSalary();
+
+    await user.type(screen.getByLabelText("Job Title"), "Registered Nurse");
+    await user.type(screen.getByLabelText("Location"), "Denver, CO");
+    await user.click(screen.getByRole("button", { name: "Check Pay Range" }));
+
+    expect(await screen.findByText("Past-pay question")).toBeInTheDocument();
+    expect(screen.getByText(/current or past pay/i)).toBeInTheDocument();
+    expect(screen.getByText(/role range and target pay/i)).toBeInTheDocument();
+    expect(screen.queryByText(/illegal|law|ban/i)).not.toBeInTheDocument();
   });
 
   it("does not show raw private details when pay range lookup fails", async () => {
