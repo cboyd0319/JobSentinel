@@ -1486,7 +1486,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                           {other.length > 0 && (
                             <div>
                               <h4 className="text-sm font-semibold text-surface-700 dark:text-surface-300 mb-2">
-                                Other Words to Review
+                                Nice-to-Have or Other to Review
                               </h4>
                               <div className="flex flex-wrap gap-2">
                                 {other.map((gap, idx) => (

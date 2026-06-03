@@ -115,7 +115,7 @@ const mockJobAnalysis = {
 const mockGroupedGapAnalysis = {
   ...mockAnalysis,
   keyword_matches: [],
-  missing_keywords: ["case management", "salesforce"],
+  missing_keywords: ["case management", "salesforce", "CRM"],
   missing_keyword_details: [
     {
       keyword: "case management",
@@ -124,6 +124,10 @@ const mockGroupedGapAnalysis = {
     {
       keyword: "salesforce",
       importance: "Preferred" as const,
+    },
+    {
+      keyword: "CRM",
+      importance: "Industry" as const,
     },
   ],
 };
@@ -520,13 +524,13 @@ describe("ResumeOptimizer", () => {
     expect(screen.queryByText(/Missing Keywords/i)).not.toBeInTheDocument();
   });
 
-  it("groups words to review by required and preferred job-post language", async () => {
+  it("groups words to review by required, preferred, and nice-to-have job-post language", async () => {
     const user = userEvent.setup();
     mockInvokeResponses({ analyze_resume_for_job: mockGroupedGapAnalysis });
     render(<ResumeOptimizer onBack={vi.fn()} />);
 
     fireEvent.change(screen.getByLabelText(/^job post$/i), {
-      target: { value: "Required: case management\n\nPreferred: salesforce" },
+      target: { value: "Required: case management\n\nPreferred: salesforce\n\nCRM" },
     });
     await openResumeAppImport(user);
     fireEvent.change(screen.getByLabelText(/copied resume details/i), {
@@ -535,11 +539,13 @@ describe("ResumeOptimizer", () => {
 
     await user.click(screen.getByRole("button", { name: /review match/i }));
 
-    expect(await screen.findByText("Words To Review (2)")).toBeInTheDocument();
+    expect(await screen.findByText("Words To Review (3)")).toBeInTheDocument();
     expect(screen.getByText("Required to Review")).toBeInTheDocument();
     expect(screen.getByText("Preferred to Review")).toBeInTheDocument();
+    expect(screen.getByText("Nice-to-Have or Other to Review")).toBeInTheDocument();
     expect(screen.getByText("case management")).toBeInTheDocument();
     expect(screen.getByText("salesforce")).toBeInTheDocument();
+    expect(screen.getByText("CRM")).toBeInTheDocument();
     expect(screen.getByText(/Start with required job-post language/i)).toBeInTheDocument();
   });
 
