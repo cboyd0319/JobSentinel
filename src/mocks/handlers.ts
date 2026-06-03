@@ -481,6 +481,7 @@ type MockHardConstraintCategory =
   | "SecurityClearance"
   | "LicenseOrCertification"
   | "Education"
+  | "Experience"
   | "Location";
 type MockSuggestionCategory =
   | "AddKeyword"
@@ -2313,6 +2314,7 @@ function getMockHardConstraintScoreCap(category: MockHardConstraintCategory): nu
     case "LicenseOrCertification":
       return 60;
     case "Education":
+    case "Experience":
       return 65;
     case "Location":
       return 70;
@@ -2345,6 +2347,9 @@ function getMockHardConstraintCategory(keyword: string): MockHardConstraintCateg
     lower.includes("phd")
   ) {
     return "Education";
+  }
+  if (lower.includes("year") || lower.includes("yrs")) {
+    return "Experience";
   }
   if (
     lower.includes("onsite") ||
@@ -2494,14 +2499,48 @@ function getNestedString(value: unknown, path: string[]): string | undefined {
 
 function extractMockAtsKeywords(jobDescription: string): MockAtsKeyword[] {
   const lower = jobDescription.toLowerCase();
-  return ATS_KNOWN_KEYWORDS
-    .filter((keyword) =>
-      getConservativeMockSearchTerms(keyword).some((term) => lower.includes(term))
-    )
+  const seen = new Set<string>();
+  const knownKeywords = ATS_KNOWN_KEYWORDS.filter((keyword) =>
+    getConservativeMockSearchTerms(keyword).some((term) => lower.includes(term))
+  );
+  const keywords = [
+    ...knownKeywords,
+    ...extractMockHardConstraintKeywords(jobDescription),
+  ].filter((keyword) => {
+    const key = keyword.toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+
+  return keywords
     .map((keyword) => ({
       keyword,
       importance: getMockKeywordImportance(jobDescription, keyword),
     }));
+}
+
+function extractMockHardConstraintKeywords(jobDescription: string): string[] {
+  const patterns = [
+    /\b(work authorization|authorized to work|visa sponsorship)\b/gi,
+    /\b(security clearance|clearance)\b/gi,
+    /\b(driver'?s license|driver license|cdl|rn license|nursing license)\b/gi,
+    /\b(certification|cissp|security\+|bls|acls)\b/gi,
+    /\b(bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree)\b/gi,
+    /\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b/gi,
+    /\b(onsite|on-site|relocation|travel|availability|available|schedule|weekend availability|night shift|evening shift)\b/gi,
+  ];
+  const keywords = new Set<string>();
+
+  for (const pattern of patterns) {
+    let match = pattern.exec(jobDescription);
+    while (match) {
+      keywords.add(match[0].toLowerCase());
+      match = pattern.exec(jobDescription);
+    }
+  }
+
+  return [...keywords].sort();
 }
 
 function getMockKeywordImportance(

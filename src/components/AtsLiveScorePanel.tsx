@@ -61,6 +61,7 @@ interface HardConstraintRisk {
     | "SecurityClearance"
     | "LicenseOrCertification"
     | "Education"
+    | "Experience"
     | "Location";
   score_cap: number;
   reason: string;

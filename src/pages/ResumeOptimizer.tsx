@@ -66,6 +66,7 @@ type HardConstraintCategory =
   | "SecurityClearance"
   | "LicenseOrCertification"
   | "Education"
+  | "Experience"
   | "Location";
 type SuggestionCategory =
   | "AddKeyword"
@@ -195,6 +196,8 @@ function formatHardConstraintCategory(category: HardConstraintCategory): string 
       return "License or certification";
     case "Education":
       return "Education";
+    case "Experience":
+      return "Years of experience";
     case "Location":
       return "Location, schedule, availability, or travel";
   }

@@ -105,6 +105,8 @@ pub enum HardConstraintCategory {
     LicenseOrCertification,
     /// Required degree or education credential
     Education,
+    /// Required years or level of experience
+    Experience,
     /// Required location, onsite, relocation, travel, schedule, or availability constraint
     Location,
 }
@@ -1259,6 +1261,7 @@ impl AtsAnalyzer {
             HardConstraintCategory::SecurityClearance => 60.0,
             HardConstraintCategory::LicenseOrCertification => 60.0,
             HardConstraintCategory::Education => 65.0,
+            HardConstraintCategory::Experience => 65.0,
             HardConstraintCategory::Location => 70.0,
         }
     }
@@ -1291,6 +1294,9 @@ impl AtsAnalyzer {
             || lower.contains("phd")
         {
             return Some(HardConstraintCategory::Education);
+        }
+        if lower.contains("year") || lower.contains("yrs") {
+            return Some(HardConstraintCategory::Experience);
         }
         if lower.contains("onsite")
             || lower.contains("on-site")
@@ -1682,6 +1688,7 @@ impl AtsAnalyzer {
             r"(?i)\b(driver'?s license|driver license|cdl|rn license|nursing license)\b",
             r"(?i)\b(certification|cissp|security\+|bls|acls)\b",
             r"(?i)\b(bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree)\b",
+            r"(?i)\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b",
             r"(?i)\b(onsite|on-site|relocation|travel|availability|available|schedule|weekend availability|night shift|evening shift)\b",
         ];
 
@@ -2576,6 +2583,27 @@ Preferred: Salesforce
         }));
         assert!(result.requirement_reviews.iter().any(|review| {
             review.keyword == "weekend availability"
+                && review.hard_constraint
+                && review.match_state == RequirementMatchState::Missing
+        }));
+    }
+
+    #[test]
+    fn test_missing_required_years_constraint_caps_overall_score() {
+        let resume = sample_resume();
+
+        let result =
+            AtsAnalyzer::analyze_for_job(&resume, "Required: CRM, 8+ years of payroll management");
+
+        assert!(result.overall_score <= 65.0);
+        assert!(result.hard_constraint_risks.iter().any(|risk| {
+            risk.requirement == "8+ years of payroll management"
+                && risk.category == HardConstraintCategory::Experience
+                && risk.score_cap == 65.0
+                && risk.action.contains("Verify this before tailoring")
+        }));
+        assert!(result.requirement_reviews.iter().any(|review| {
+            review.keyword == "8+ years of payroll management"
                 && review.hard_constraint
                 && review.match_state == RequirementMatchState::Missing
         }));
