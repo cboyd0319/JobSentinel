@@ -74,6 +74,38 @@ describe("ScoreBreakdownModal", () => {
       expect(screen.getByText("Needs Review")).toBeInTheDocument();
       expect(screen.queryByText("NaN%")).not.toBeInTheDocument();
     });
+
+    it("shows not-enough-information status when saved score reasons are missing", () => {
+      render(<ScoreBreakdownModal {...defaultProps} scoreReasons={null} />);
+
+      expect(screen.getByText("Evidence status")).toBeInTheDocument();
+      expect(screen.getByText("Not enough information")).toBeInTheDocument();
+      expect(screen.getByText(/no saved reason details/i)).toBeInTheDocument();
+    });
+
+    it("shows mixed-evidence status when fit reasons conflict", () => {
+      const reasons = JSON.stringify([
+        "Title matches: Customer Support Lead",
+        "Salary doesn't match your minimum",
+      ]);
+      render(<ScoreBreakdownModal {...defaultProps} scoreReasons={reasons} />);
+
+      expect(screen.getByText("Evidence status")).toBeInTheDocument();
+      expect(screen.getByText("Mixed evidence")).toBeInTheDocument();
+      expect(screen.getByText(/some factors fit and some need review/i)).toBeInTheDocument();
+    });
+
+    it("shows clear-fit-evidence status when saved reasons support the score", () => {
+      const reasons = JSON.stringify([
+        "Title matches: Customer Support Lead",
+        "Salary meets minimum",
+      ]);
+      render(<ScoreBreakdownModal {...defaultProps} scoreReasons={reasons} />);
+
+      expect(screen.getByText("Evidence status")).toBeInTheDocument();
+      expect(screen.getByText("Clear fit evidence")).toBeInTheDocument();
+      expect(screen.getByText(/saved reasons support this local fit estimate/i)).toBeInTheDocument();
+    });
   });
 
   describe("job title", () => {

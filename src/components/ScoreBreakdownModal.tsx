@@ -19,6 +19,12 @@ interface ScoreBreakdownModalProps {
   jobTitle?: string;
 }
 
+interface ScoreEvidenceStatus {
+  label: string;
+  detail: string;
+  color: string;
+}
+
 /**
  * Fit priorities (must match backend scoring defaults).
  */
@@ -181,6 +187,53 @@ function parseScoreReasons(reasonsJson?: string | null): {
   return result;
 }
 
+function getScoreEvidenceStatus(
+  reasons: ReturnType<typeof parseScoreReasons>,
+): ScoreEvidenceStatus {
+  const reasonStatuses = Object.values(reasons).flat().map(getReasonStatus);
+  const hasReasons = reasonStatuses.length > 0;
+  const hasPass = reasonStatuses.includes("pass");
+  const hasFail = reasonStatuses.includes("fail");
+
+  if (!hasReasons) {
+    return {
+      label: "Not enough information",
+      detail: "No saved reason details. Treat this score as a rough local estimate.",
+      color: "text-surface-700 dark:text-surface-200 bg-surface-100 dark:bg-surface-700",
+    };
+  }
+
+  if (hasPass && hasFail) {
+    return {
+      label: "Mixed evidence",
+      detail: "Some factors fit and some need review. Check must-haves before tailoring.",
+      color: "text-yellow-700 dark:text-yellow-300 bg-yellow-50 dark:bg-yellow-900/20",
+    };
+  }
+
+  if (hasFail) {
+    return {
+      label: "Check preferences first",
+      detail: "Saved reasons show one or more conflicts with your preferences.",
+      color: "text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/20",
+    };
+  }
+
+  if (hasPass) {
+    return {
+      label: "Clear fit evidence",
+      detail: "Saved reasons support this local fit estimate. Check the original posting before tailoring.",
+      color: "text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-900/20",
+    };
+  }
+
+  return {
+    label: "Not enough information",
+    detail: "Saved reasons do not clearly show what fits or needs review.",
+    color: "text-surface-700 dark:text-surface-200 bg-surface-100 dark:bg-surface-700",
+  };
+}
+
 /**
  * Calculate breakdown from total score and reasons
  * Note: This is approximate since we only have the total and reasons, not the actual breakdown
@@ -264,6 +317,7 @@ export const ScoreBreakdownModal = memo(function ScoreBreakdownModal({
   const reasons = parseScoreReasons(scoreReasons);
   const breakdown = estimateBreakdown(safeScore, reasons);
   const percentage = Math.round(safeScore * 100);
+  const evidenceStatus = getScoreEvidenceStatus(reasons);
 
   const getScoreLabel = () => {
     if (safeScore >= SCORE_THRESHOLD_HIGH) return { label: "Strong Fit", color: "text-green-600 dark:text-green-400" };
@@ -290,6 +344,20 @@ export const ScoreBreakdownModal = memo(function ScoreBreakdownModal({
               {jobTitle}
             </div>
           )}
+        </div>
+
+        <div className="rounded-lg border border-surface-200 bg-surface-50 p-3 text-sm dark:border-surface-700 dark:bg-surface-800/70">
+          <div className="mb-1 flex flex-wrap items-center gap-2">
+            <span className="font-medium text-surface-800 dark:text-surface-100">
+              Evidence status
+            </span>
+            <span className={`rounded px-2 py-0.5 text-xs font-medium ${evidenceStatus.color}`}>
+              {evidenceStatus.label}
+            </span>
+          </div>
+          <p className="text-surface-600 dark:text-surface-300">
+            {evidenceStatus.detail}
+          </p>
         </div>
 
         {/* Factor Breakdown */}
