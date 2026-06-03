@@ -1965,6 +1965,7 @@ impl AtsAnalyzer {
             &["bls", "basic life support"],
             &["acls", "advanced cardiovascular life support"],
             &["cpr", "cardiopulmonary resuscitation"],
+            &["driver's license", "drivers license", "driver license"],
             &[
                 "cdl",
                 "commercial driver's license",
@@ -3868,6 +3869,28 @@ Preferred: Salesforce
             .hard_constraint_risks
             .iter()
             .any(|risk| risk.requirement == "lpn"));
+    }
+
+    #[test]
+    fn test_drivers_license_requirement_accepts_driver_license_evidence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nLicenses\nValid driver license",
+            &[],
+            "Required: driver's license",
+        );
+
+        let license = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "driver's license")
+            .expect("driver license review");
+        assert_eq!(license.match_state, RequirementMatchState::Direct);
+        assert!(license.hard_constraint);
+        assert!(license.evidence_sections.contains(&"licenses".to_string()));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "driver's license"));
     }
 
     #[test]

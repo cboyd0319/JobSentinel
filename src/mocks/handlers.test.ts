@@ -1399,6 +1399,41 @@ describe("mock Tauri handlers", () => {
     );
   });
 
+  it("matches driver's license wording variants in mock hard constraints", async () => {
+    const licenseResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        experience: [
+          {
+            ...atsResume.experience[0],
+            achievements: ["Valid driver license for client visits."],
+          },
+        ],
+        skills: [],
+      },
+      jobDescription: "Required: driver's license",
+    });
+
+    expect(licenseResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "driver's license",
+          match_state: "Direct",
+          hard_constraint: true,
+          evidence_sections: expect.arrayContaining(["current experience"]),
+        }),
+      ]),
+    );
+    expect(licenseResult.hard_constraint_risks).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          requirement: "driver's license",
+        }),
+      ]),
+    );
+  });
+
   it("treats metric-backed current experience as strong mock evidence", async () => {
     const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
