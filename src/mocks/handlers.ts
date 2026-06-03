@@ -2678,6 +2678,38 @@ function getMockRoleSpecificEvidencePrompt(jobContext: string): string | null {
     return "trades-field evidence to check: equipment or tools used, safety rules, work orders, downtime or quality impact, and required licenses";
   }
 
+  const careerChangeTerms = [
+    "career change",
+    "career-change",
+    "career transition",
+    "career-transition",
+    "transitioning careers",
+    "returnship",
+    "return to work",
+    "transferable skills",
+    "transferable experience",
+  ];
+
+  if (careerChangeTerms.some((term) => lower.includes(term))) {
+    return "career-change evidence to check: transferable work, training, adjacent experience, scope, and truthful gaps or transitions";
+  }
+
+  const earlyCareerTerms = [
+    "entry-level",
+    "entry level",
+    "new graduate",
+    "new grad",
+    "recent graduate",
+    "trainee",
+    "apprentice",
+    "apprenticeship",
+    "internship",
+  ];
+
+  if (earlyCareerTerms.some((term) => lower.includes(term))) {
+    return "early-career evidence to check: training or coursework, projects or volunteer work, supervised responsibilities, transferable skills, and readiness to learn";
+  }
+
   const educationAcademicTerms = [
     "teaching",
     "teacher",

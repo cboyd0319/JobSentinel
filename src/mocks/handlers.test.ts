@@ -1424,6 +1424,26 @@ describe("mock Tauri handlers", () => {
     expect(tradesImproved).toContain("work orders");
     expect(tradesImproved).toContain("required licenses");
 
+    const careerChangeImproved = await mockInvoke<string>("improve_bullet_point", {
+      bullet: "supported customer onboarding during a career change",
+      jobContext: "Career change welcome. Required: transferable customer support skills and training program",
+    });
+    expect(careerChangeImproved).toContain("career-change evidence to check");
+    expect(careerChangeImproved).toContain("transferable work");
+    expect(careerChangeImproved).toContain("training");
+    expect(careerChangeImproved).toContain("adjacent experience");
+    expect(careerChangeImproved).toContain("truthful gaps or transitions");
+
+    const earlyCareerImproved = await mockInvoke<string>("improve_bullet_point", {
+      bullet: "completed capstone project and trainee rotations",
+      jobContext: "Entry-level trainee role for new graduate applicants",
+    });
+    expect(earlyCareerImproved).toContain("early-career evidence to check");
+    expect(earlyCareerImproved).toContain("training or coursework");
+    expect(earlyCareerImproved).toContain("projects or volunteer work");
+    expect(earlyCareerImproved).toContain("supervised responsibilities");
+    expect(earlyCareerImproved).toContain("readiness to learn");
+
     const regulatedImproved = await mockInvoke<string>("improve_bullet_point", {
       bullet: "supported case files and reconciliation",
       jobContext: "Required: legal research, case files, financial reconciliation",

@@ -551,6 +551,42 @@ impl AtsAnalyzer {
             );
         }
 
+        let career_change_terms = [
+            "career change",
+            "career-change",
+            "career transition",
+            "career-transition",
+            "transitioning careers",
+            "returnship",
+            "return to work",
+            "transferable skills",
+            "transferable experience",
+        ];
+
+        if career_change_terms.iter().any(|term| lower.contains(term)) {
+            return Some(
+                "career-change evidence to check: transferable work, training, adjacent experience, scope, and truthful gaps or transitions",
+            );
+        }
+
+        let early_career_terms = [
+            "entry-level",
+            "entry level",
+            "new graduate",
+            "new grad",
+            "recent graduate",
+            "trainee",
+            "apprentice",
+            "apprenticeship",
+            "internship",
+        ];
+
+        if early_career_terms.iter().any(|term| lower.contains(term)) {
+            return Some(
+                "early-career evidence to check: training or coursework, projects or volunteer work, supervised responsibilities, transferable skills, and readiness to learn",
+            );
+        }
+
         let education_academic_terms = [
             "teaching",
             "teacher",
@@ -4000,6 +4036,35 @@ Preferred: Salesforce
         assert!(improved.contains("safety rules"));
         assert!(improved.contains("work orders"));
         assert!(improved.contains("required licenses"));
+        assert!(improved.contains("problem, your role, action, result, and evidence"));
+    }
+
+    #[test]
+    fn test_improve_bullet_adds_career_change_evidence_prompt() {
+        let bullet = "Supported customer onboarding during a career change";
+        let job_desc =
+            "Career change welcome. Required: transferable customer support skills and training program";
+        let improved = AtsAnalyzer::improve_bullet(bullet, Some(job_desc));
+
+        assert!(improved.contains("career-change evidence to check"));
+        assert!(improved.contains("transferable work"));
+        assert!(improved.contains("training"));
+        assert!(improved.contains("adjacent experience"));
+        assert!(improved.contains("truthful gaps or transitions"));
+        assert!(improved.contains("problem, your role, action, result, and evidence"));
+    }
+
+    #[test]
+    fn test_improve_bullet_adds_early_career_evidence_prompt() {
+        let bullet = "Completed capstone project and trainee rotations";
+        let job_desc = "Entry-level trainee role for new graduate applicants";
+        let improved = AtsAnalyzer::improve_bullet(bullet, Some(job_desc));
+
+        assert!(improved.contains("early-career evidence to check"));
+        assert!(improved.contains("training or coursework"));
+        assert!(improved.contains("projects or volunteer work"));
+        assert!(improved.contains("supervised responsibilities"));
+        assert!(improved.contains("readiness to learn"));
         assert!(improved.contains("problem, your role, action, result, and evidence"));
     }
 
