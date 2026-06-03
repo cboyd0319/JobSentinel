@@ -288,6 +288,9 @@ resume help should adjust examples and evidence prompts for:
 - Resume Match treats overtime availability and overtime shift wording as local
   schedule hard-constraint evidence, so exact overtime wording differences do
   not create a false missing risk.
+- Resume Match treats holiday availability and holiday shift wording as local
+  schedule hard-constraint evidence, so exact holiday wording differences do
+  not create a false missing risk.
 - Local readability checks now warn about missing top contact details, missing
   standard headings, table-like extracted text, hidden instructions, and
   prompt-injection-like content.

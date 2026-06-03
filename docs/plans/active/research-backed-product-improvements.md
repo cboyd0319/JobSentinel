@@ -416,6 +416,15 @@ copy durable findings back into this plan or the active status surface.
   --manifest-path src-tauri/Cargo.toml -- --check`, `cargo clippy
   --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
   --check`.
+- Current local Resume Match holiday schedule constraint follow-up in
+  `d814a00a` recognizes required holiday availability as a local schedule hard
+  constraint, caps missing required holiday evidence, and accepts holiday shift
+  evidence without broad fuzzy matching. Verification passed: `cargo test --lib
+  holiday --manifest-path src-tauri/Cargo.toml`, `cargo test --lib
+  ats_analyzer --manifest-path src-tauri/Cargo.toml`, `cargo fmt --all
+  --manifest-path src-tauri/Cargo.toml -- --check`, `cargo clippy
+  --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
+  --check`.
 - Current local Resume Match language constraint follow-up in `9114b9f5`
   recognizes required bilingual Spanish and related Spanish fluency language as
   local language hard constraints, caps missing required language evidence, and

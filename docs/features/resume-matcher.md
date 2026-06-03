@@ -286,6 +286,9 @@ The current local matcher:
 - treats **overtime availability**, **overtime**, **overtime shift**, and
   **overtime shifts** as the same local schedule evidence for required
   overtime constraints;
+- treats **holiday availability**, **holiday**, **holiday shift**, and
+  **holiday shifts** as the same local schedule evidence for required holiday
+  constraints;
 - treats **availability** and **available** as the same local schedule evidence
   for required availability constraints;
 - treats **full-time availability**, **full time**, **part-time availability**,
