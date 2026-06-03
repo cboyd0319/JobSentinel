@@ -49,6 +49,7 @@ const COMMON_PATTERNS = [
   { pattern: "salary", label: "Salary expectation", type: "text" },
   { pattern: "start date", label: "Start date / Notice period", type: "text" },
   { pattern: "relocate", label: "Willingness to relocate", type: "yes_no" },
+  { pattern: "availability", label: "Schedule availability", type: "text" },
   { pattern: "sponsorship", label: "Visa sponsorship", type: "yes_no" },
   { pattern: "remote", label: "Remote work preference", type: "text" },
   { pattern: "security clearance", label: "Security clearance", type: "yes_no" },
