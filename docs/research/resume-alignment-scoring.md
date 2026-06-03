@@ -303,10 +303,10 @@ Future implementation should improve:
 - Resume/job fit now treats `associate's degree`, `associate degree`,
   `associates degree`, `Associate of Applied Science`, `Associate of Arts`,
   and `Associate of Science` as equivalent local education evidence.
-- Resume/job fit now treats `bachelor's degree`, `bachelor degree`,
-  `bachelors degree`, `Bachelor of Arts`, `Bachelor of Business
-  Administration`, `Bachelor of Education`, `Bachelor of Engineering`, and
-  `Bachelor of Fine Arts` and `Bachelor of Science` as equivalent local
+- Resume/job fit now treats `bachelor's degree`, `baccalaureate degree`,
+  `bachelor degree`, `bachelors degree`, `Bachelor of Arts`, `Bachelor of
+  Business Administration`, `Bachelor of Education`, `Bachelor of Engineering`,
+  `Bachelor of Fine Arts`, and `Bachelor of Science` as equivalent local
   education evidence for generic bachelor's requirements.
 - Resume/job fit now treats `master's degree`, `master degree`,
   `masters degree`, `Master of Arts`, `Master of Business Administration`,

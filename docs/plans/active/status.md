@@ -207,7 +207,10 @@ acceptance still requires Developer ID signing and notarization.
   requirement. The follow-up
   `adda2593 Match bachelor degree terms` treats bachelor's degree, bachelor
   degree, and bachelors degree as the same local education hard-constraint
-  evidence. The follow-up `52e7c80b Match bachelor degree title terms` treats
+  evidence. The follow-up `faa8d5d4 Match baccalaureate degree term` treats
+  baccalaureate degree as equivalent local bachelor's degree evidence and as
+  its own education hard-constraint wording. The follow-up
+  `52e7c80b Match bachelor degree title terms` treats
   Bachelor of Arts and Bachelor of Science as local evidence for generic
   bachelor's degree requirements without using those phrases to create generic
   job-post requirements in browser/dev mocks. The follow-up
