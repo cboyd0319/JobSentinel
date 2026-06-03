@@ -139,8 +139,9 @@ The current local matcher:
 - checks the extracted text for common application-readability risks such as
   missing top contact details, missing standard section headings, table-like
   text, hidden instruction-like content, CSS-like white or tiny text markers,
-  and work bullets that read like keyword lists, generic filler, or mix
-  ownership with exposure-only wording instead of plain work evidence;
+  HTML comments, metadata tags, and work bullets that read like keyword lists,
+  generic filler, or mix ownership with exposure-only wording instead of plain
+  work evidence;
 - treats **Career Break**, **Career Pause**, and caregiving labels as readable
   resume headings instead of structural mistakes;
 - treats **Volunteer Experience**, **Community Involvement**, and **Military

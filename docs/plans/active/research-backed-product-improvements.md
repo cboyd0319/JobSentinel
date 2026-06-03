@@ -998,6 +998,16 @@ copy durable findings back into this plan or the active status surface.
   `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
   clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
   --check`.
+- Current local hidden-markup marker follow-up in `bab8b690` flags HTML
+  comments and metadata tags in backend and dev/browser mock resume safety
+  review. Verification passed: `cargo test --lib
+  html_comment_hidden_resume_text --manifest-path src-tauri/Cargo.toml`, `npx
+  vitest run src/mocks/handlers.test.ts -t "HTML comment hidden"`, `cargo test
+  --lib ats_analyzer --manifest-path src-tauri/Cargo.toml`, `npx vitest run
+  src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
+  `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
+  clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
+  --check`.
 - Current local generic-filler bullet follow-up warns when experience or
   project bullets are packed with generic filler phrases instead of specific
   work evidence.

@@ -1079,6 +1079,17 @@ acceptance still requires Developer ID signing and notarization.
   --noEmit`, `npm run lint -- --quiet`, `cargo fmt --all --manifest-path
   src-tauri/Cargo.toml -- --check`, `cargo clippy --manifest-path
   src-tauri/Cargo.toml -- -D warnings`, and `git diff --check`.
+- Current local hidden-markup marker follow-up in
+  `bab8b690 Detect hidden resume markup markers` flags HTML comments and
+  metadata tags in backend and dev/browser mock resume safety review.
+  Verification passed: `cargo test --lib html_comment_hidden_resume_text
+  --manifest-path src-tauri/Cargo.toml`, `npx vitest run
+  src/mocks/handlers.test.ts -t "HTML comment hidden"`, `cargo test --lib
+  ats_analyzer --manifest-path src-tauri/Cargo.toml`, `npx vitest run
+  src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
+  `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
+  clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
+  --check`.
 - Current local safe-support-report mock parity fix makes browser/dev
   `generate_feedback_report` and `sanitize_feedback_text` redact sensitive
   job-search details like salary floors, resume excerpts, private notes,
