@@ -158,6 +158,8 @@ The current local matcher:
   leadership, or enough-years evidence before raising the fit label;
 - treats clear credential equivalents, such as **BLS** and **Basic Life
   Support**, as the same evidence without guessing unrelated credentials;
+- treats headings such as **Training**, **Credentials**, and **Certificates**
+  as credential evidence when reviewing readable resume text;
 - turns the local review into plain next actions such as checking a hard
   requirement before tailoring, adding supporting evidence only if true, or
   keeping useful evidence visible;

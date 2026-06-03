@@ -216,6 +216,8 @@ Future implementation should improve:
 - Resume/job fit now treats clear credential equivalents such as `BLS` and
   `Basic Life Support` as the same evidence, while keeping unrelated
   credentials separate.
+- Readable-text review now treats training, credentials, certificate, and
+  license headings as credential evidence instead of generic resume text.
 - Structured resume review now marks matched requirements from a current role
   as current-experience evidence instead of hiding recency in a generic
   experience label.

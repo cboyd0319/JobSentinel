@@ -212,6 +212,9 @@ copy durable findings back into this plan or the active status surface.
 - Current local credential-equivalence follow-up treats clear credential
   acronym or full-name pairs such as `BLS` and `Basic Life Support` as the same
   evidence without broad fuzzy matching, and keeps dev/browser mocks aligned.
+- Current local training-heading credential follow-up treats readable-text
+  headings such as Training, Credentials, Certificates, and Licenses as
+  credential evidence instead of generic resume text.
 - Current local resume file-guidance follow-up tells users to follow employer
   file instructions first when readable text is missing, then suggests readable
   local formats if no employer format is named.
@@ -1609,6 +1612,7 @@ source-filter compatibility issue appears.
   Resume seniority-constraint work is committed in `1f8d7581`.
   Hard-requirement action work is committed in `6e43a675`.
   Credential-equivalence work is committed in `c4fd8c7a`.
+  Training-heading credential work is committed in `df0bdf9a`.
   Resume file-guidance work is committed in `808aea8e`.
   Resume preview-guidance work is committed in `4a1cf389`.
   Setup pay-not-sure work is committed in `b3475fdc`.

@@ -1483,6 +1483,15 @@ Scope:
   fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo clippy
   --manifest-path src-tauri/Cargo.toml -- -D warnings`, `npm run
   lint:external-ai`, and `git diff --check`.
+- Latest local training-heading credential slice in `df0bdf9a` treats
+  readable-text headings such as Training, Credentials, Certificates, and
+  Licenses as credential evidence instead of generic resume text. Verification
+  passed: `cargo test --lib training_heading --manifest-path
+  src-tauri/Cargo.toml`, `cargo test --lib ats_analyzer --manifest-path
+  src-tauri/Cargo.toml`, `cargo fmt --all --manifest-path src-tauri/Cargo.toml
+  -- --check`, `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D
+  warnings`, `cargo test --lib --manifest-path src-tauri/Cargo.toml`, and `git
+  diff --check`.
 - Latest local resume file-guidance slice in `808aea8e` updates the no-readable-text status
   to tell users to follow employer file instructions first, then use readable
   PDF, DOCX, TXT, or Markdown when no format is named. Verification passed:
