@@ -219,6 +219,10 @@ acceptance still requires Developer ID signing and notarization.
   Business Administration as local evidence for generic master's degree
   requirements without treating MBA-specific job wording as a generic master's
   requirement. The
+  follow-up `786a5974 Match engineering master term` treats Master of
+  Engineering as local evidence for generic master's degree requirements
+  without treating engineering-specific job wording as a generic master's
+  requirement. The
   follow-up `60dc3981 Match doctorate degree terms` treats PhD, doctorate,
   doctorate degree, and doctoral degree as the same local education
   hard-constraint evidence and keeps doctorate degree or equivalent experience

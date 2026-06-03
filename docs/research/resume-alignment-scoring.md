@@ -307,9 +307,9 @@ Future implementation should improve:
   Administration`, `Bachelor of Engineering`, and `Bachelor of Science` as
   equivalent local education evidence for generic bachelor's requirements.
 - Resume/job fit now treats `master's degree`, `master degree`,
-  `masters degree`, `Master of Arts`, `Master of Science`, and
-  `Master of Business Administration` as equivalent local education evidence
-  for generic master's requirements.
+  `masters degree`, `Master of Arts`, `Master of Business Administration`,
+  `Master of Engineering`, and `Master of Science` as equivalent local
+  education evidence for generic master's requirements.
 - Resume/job fit now treats `PhD`, `doctorate`, `doctorate degree`, and
   `doctoral degree` as equivalent local education evidence.
 - Readable-text review now treats training, credentials, certificate, and
