@@ -156,6 +156,17 @@ copy durable findings back into this plan or the active status surface.
 - Current local calendar-scheduling synonym follow-up in `2cdf11f8` treats
   scheduling, calendar management, and appointment setting as equivalent local
   evidence without broad fuzzy matching.
+- Current local onboarding/orientation follow-up in `c813eb12` treats
+  onboarding, new hire orientation, and employee orientation as equivalent local
+  service, HR, or training evidence in backend and dev/browser mocks without
+  broad fuzzy matching. Verification passed: `cargo test --lib
+  onboarding_orientation --manifest-path src-tauri/Cargo.toml`, `npx vitest run
+  src/mocks/handlers.test.ts -t "analyzes resumes"`, `cargo test --lib
+  ats_analyzer --manifest-path src-tauri/Cargo.toml`, `npx vitest run
+  src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
+  `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
+  clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
+  --check`.
 - Current local QA synonym follow-up in `a349e5e7` treats quality assurance and
   QA as equivalent local evidence without broad fuzzy matching.
 - Current local patient-care hyphen follow-up in `23418843` treats patient care

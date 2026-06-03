@@ -247,6 +247,9 @@ The current local matcher:
   itself;
 - treats **scheduling**, **calendar management**, and **appointment setting**
   as the same local evidence while still avoiding broad fuzzy matching;
+- treats **onboarding**, **new hire orientation**, and **employee orientation**
+  as the same local service, HR, or training evidence while still avoiding broad
+  fuzzy matching;
 - treats **quality assurance** and **QA** as the same local evidence while
   still avoiding broad fuzzy matching;
 - treats **patient care** and **patient-care** as the same local evidence while
