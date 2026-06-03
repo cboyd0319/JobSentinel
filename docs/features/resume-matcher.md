@@ -217,6 +217,8 @@ The current local matcher:
   Support**, as the same evidence without guessing unrelated credentials;
 - treats **driver's license**, **drivers license**, and **driver license** as
   the same local license evidence;
+- treats **RN**, **RN license**, **Registered Nurse**, and **Registered Nurse
+  license** as the same local nursing-license evidence;
 - treats CNA, Certified Nursing Assistant, Certified Nurse Assistant, and
   Certified Nurse Aide as the same local credential evidence, and avoids a
   duplicate generic certification risk when the specific credential matches;

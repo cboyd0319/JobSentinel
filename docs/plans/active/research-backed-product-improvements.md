@@ -188,6 +188,9 @@ copy durable findings back into this plan or the active status surface.
   evidence.
 - Current local clearance follow-up in `e94f21ac` treats security clearance and
   clearance as equivalent local hard-constraint evidence.
+- Current local RN-license follow-up in `4f0cad81` treats RN, RN license,
+  Registered Nurse, and Registered Nurse license as equivalent local
+  hard-constraint evidence.
 - Current local structured evidence recency follow-up marks structured resume
   matches from a current role as `current experience`, without changing older
   role evidence labels.
@@ -1741,6 +1744,7 @@ source-filter compatibility issue appears.
   US-citizenship work is committed in `9ebc7be9`.
   Work-authorization work is committed in `b005cdec`.
   Clearance work is committed in `e94f21ac`.
+  RN-license work is committed in `4f0cad81`.
   Structured evidence recency work is committed in `56d9a5ab`.
   Plain-text evidence recency work is committed in `66c587a8`.
   Metric-backed evidence-strength work is committed in `4607b67f`.

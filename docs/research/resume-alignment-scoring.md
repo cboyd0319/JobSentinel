@@ -259,6 +259,8 @@ Future implementation should improve:
   credentials separate.
 - Resume/job fit now treats `driver's license`, `drivers license`, and
   `driver license` as equivalent local license evidence.
+- Resume/job fit now treats `RN`, `RN license`, `Registered Nurse`, and
+  `Registered Nurse license` as equivalent local nursing-license evidence.
 - Resume/job fit now treats `CNA`, `Certified Nursing Assistant`, `Certified
   Nurse Assistant`, and `Certified Nurse Aide` as the same evidence, and drops
   the duplicate generic `certification` risk when the specific credential
