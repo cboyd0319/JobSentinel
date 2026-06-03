@@ -602,6 +602,8 @@ const ATS_KNOWN_KEYWORDS = [
   "project management professional",
   "bookkeeping",
   "bookkeeper",
+  "quickbooks",
+  "qbo",
   "accounts payable",
   "accounts receivable",
   "a/p",
@@ -3313,6 +3315,8 @@ function canonicalMockRequirementKeyword(keyword: string): string {
   switch (keyword.toLowerCase()) {
     case "bookkeeper":
       return "bookkeeping";
+    case "qbo":
+      return "quickbooks";
     case "a/p":
       return "accounts payable";
     case "a/r":
@@ -3609,6 +3613,7 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
     ["medication administration", "medication-administration"],
     ["data entry", "data-entry"],
     ["bookkeeping", "bookkeeper"],
+    ["quickbooks", "qbo"],
     ["accounts payable", "a/p"],
     ["accounts receivable", "a/r"],
     ["budgeting", "budget tracking"],

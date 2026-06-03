@@ -2334,6 +2334,7 @@ impl AtsAnalyzer {
             &["medication administration", "medication-administration"],
             &["data entry", "data-entry"],
             &["bookkeeping", "bookkeeper"],
+            &["quickbooks", "qbo"],
             &["accounts payable", "a/p"],
             &["accounts receivable", "a/r"],
             &["budgeting", "budget tracking"],
@@ -3103,7 +3104,7 @@ impl AtsAnalyzer {
             r"(?i)\b(customer service|client service|client services|case management|case coordination|case notes|case documentation)\b",
             r"(?i)\b(scheduling|calendar management|appointment setting|intake|onboarding|training)\b",
             r"(?i)\b(sales|account management|crm|salesforce|hubspot|pipeline|prospecting)\b",
-            r"(?i)\b(payroll|bookkeeping|bookkeeper|quickbooks|accounts payable|accounts receivable|a/p|a/r|billing)\b",
+            r"(?i)\b(payroll|bookkeeping|bookkeeper|quickbooks|qbo|accounts payable|accounts receivable|a/p|a/r|billing)\b",
             r"(?i)\b(inventory|logistics|shipping|receiving|procurement|purchasing|vendor management|supplier management)\b",
             r"(?i)\b(reporting|budgeting|budget tracking|grant reporting|grant writing|program evaluation)\b",
             r"(?i)\b(compliance|hipaa|osha|quality assurance|qa|data[- ]entry|excel)\b",
@@ -3139,6 +3140,7 @@ impl AtsAnalyzer {
     fn canonical_requirement_keyword(keyword: &str) -> String {
         match keyword {
             "bookkeeper" => "bookkeeping".to_string(),
+            "qbo" => "quickbooks".to_string(),
             "a/p" => "accounts payable".to_string(),
             "a/r" => "accounts receivable".to_string(),
             _ => keyword.to_string(),
@@ -3383,6 +3385,8 @@ impl AtsAnalyzer {
             "payroll",
             "bookkeeping",
             "bookkeeper",
+            "quickbooks",
+            "qbo",
             "accounts payable",
             "accounts receivable",
             "a/p",
@@ -4897,6 +4901,41 @@ Preferred: Salesforce
             .expect("bookkeeping");
         assert_eq!(bookkeeper_review.match_state, RequirementMatchState::Direct);
         assert!(bookkeeper_review
+            .evidence_sections
+            .contains(&"experience".to_string()));
+    }
+
+    #[test]
+    fn test_requirement_review_uses_quickbooks_qbo_equivalence() {
+        let quickbooks = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nUsed QBO for invoice entry and vendor files.",
+            &[],
+            "Required: QuickBooks",
+        );
+
+        let quickbooks_review = quickbooks
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "quickbooks")
+            .expect("quickbooks");
+        assert_eq!(quickbooks_review.match_state, RequirementMatchState::Direct);
+        assert!(quickbooks_review
+            .evidence_sections
+            .contains(&"experience".to_string()));
+
+        let qbo = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nUsed QuickBooks for invoice entry and vendor files.",
+            &[],
+            "Required: QBO",
+        );
+
+        let qbo_review = qbo
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "quickbooks")
+            .expect("quickbooks");
+        assert_eq!(qbo_review.match_state, RequirementMatchState::Direct);
+        assert!(qbo_review
             .evidence_sections
             .contains(&"experience".to_string()));
     }

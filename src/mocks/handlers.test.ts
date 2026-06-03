@@ -4418,6 +4418,60 @@ describe("mock Tauri handlers", () => {
     );
   });
 
+  it("treats QuickBooks and QBO as equivalent mock evidence", async () => {
+    const quickbooksResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        skills: [],
+        experience: [
+          {
+            ...atsResume.experience[0],
+            current: false,
+            end_date: "2022",
+            achievements: ["Used QBO for invoice entry and vendor files."],
+          },
+        ],
+      },
+      jobDescription: "Required: QuickBooks",
+    });
+    expect(quickbooksResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "quickbooks",
+          match_state: "Direct",
+          evidence_sections: ["experience"],
+        }),
+      ]),
+    );
+
+    const qboResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        skills: [],
+        experience: [
+          {
+            ...atsResume.experience[0],
+            current: false,
+            end_date: "2022",
+            achievements: ["Used QuickBooks for invoice entry and vendor files."],
+          },
+        ],
+      },
+      jobDescription: "Required: QBO",
+    });
+    expect(qboResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "quickbooks",
+          match_state: "Direct",
+          evidence_sections: ["experience"],
+        }),
+      ]),
+    );
+  });
+
   it("treats cashier and cash handling as equivalent mock evidence", async () => {
     const cashierResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
