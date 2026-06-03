@@ -2133,6 +2133,18 @@ function analyzeMockResumeFormat(args?: Record<string, unknown>): MockAtsAnalysi
         "Prevents overstating experience while still making real hands-on work visible.",
     });
   }
+  if (hasMockGenericFillerBullet(sections)) {
+    formatIssues.push({
+      severity: "Warning",
+      issue: "Experience bullet reads like generic resume filler",
+      fix: "Replace generic buzzwords with specific work evidence: what you did, who it helped, and what changed.",
+    });
+    suggestions.push({
+      category: "FormatFix",
+      suggestion: "Replace generic filler with specific work evidence you can explain.",
+      impact: "Makes the bullet easier for people to evaluate without overstating the claim.",
+    });
+  }
 
   const formatScore = clampScore(100 - formatIssues.length * 10);
   const completenessScore = clampScore(
@@ -2660,6 +2672,50 @@ function mockLineHasUnclearCapabilityLevel(line: string): boolean {
 
   return ownershipTerms.some((term) => padded.includes(term)) &&
     exposureTerms.some((term) => padded.includes(term));
+}
+
+function hasMockGenericFillerBullet(
+  sections: ReturnType<typeof getMockAtsResumeSections>,
+): boolean {
+  return [...sections.experience, ...sections.projects].some((line) =>
+    mockLineLooksLikeGenericFiller(line)
+  );
+}
+
+function mockLineLooksLikeGenericFiller(line: string): boolean {
+  const trimmed = line.trim().replace(/^[-*•]\s*/, "");
+  if (!trimmed) return false;
+
+  const wordCount = trimmed.split(/\s+/).filter(Boolean).length;
+  if (wordCount < 7 || wordCount > 32) return false;
+
+  const lower = trimmed.toLowerCase();
+  const fillerPhrases = [
+    "results-oriented",
+    "results oriented",
+    "dynamic",
+    "team player",
+    "proven track record",
+    "strategic",
+    "excellence",
+    "self-motivated",
+    "self motivated",
+    "detail-oriented",
+    "detail oriented",
+    "fast-paced",
+    "fast paced",
+    "go-getter",
+    "go getter",
+    "synergy",
+    "best-in-class",
+    "best in class",
+    "world-class",
+    "world class",
+    "passionate",
+  ];
+  const phraseCount = fillerPhrases.filter((phrase) => lower.includes(phrase)).length;
+
+  return phraseCount >= 4;
 }
 
 function mockLineLooksLikeKeywordList(line: string): boolean {

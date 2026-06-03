@@ -1042,6 +1042,40 @@ describe("mock Tauri handlers", () => {
     );
   });
 
+  it("flags generic filler bullets in mock resume review", async () => {
+    const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_format", {
+      resume: {
+        ...atsResume,
+        experience: [
+          {
+            ...atsResume.experience[0],
+            achievements: [
+              "Results-oriented dynamic team player with proven track record of strategic excellence.",
+            ],
+          },
+        ],
+      },
+    });
+
+    expect(result.format_issues).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          severity: "Warning",
+          issue: expect.stringContaining("generic resume filler"),
+          fix: expect.stringContaining("specific work evidence"),
+        }),
+      ]),
+    );
+    expect(result.suggestions).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          category: "FormatFix",
+          suggestion: expect.stringContaining("specific work evidence"),
+        }),
+      ]),
+    );
+  });
+
   it("recognizes healthcare and education requirement terms in mock resume review", async () => {
     const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {

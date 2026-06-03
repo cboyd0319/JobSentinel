@@ -277,6 +277,9 @@ impl AtsAnalyzer {
         // Check for bullets that mix ownership claims with exposure-only signals.
         Self::check_capability_level_claims(resume, &mut format_issues, &mut suggestions);
 
+        // Check for generic filler-heavy bullets that lack plain work evidence.
+        Self::check_generic_filler_bullets(resume, &mut format_issues, &mut suggestions);
+
         // Calculate format score
         let critical_count = format_issues
             .iter()
@@ -739,6 +742,44 @@ impl AtsAnalyzer {
         });
     }
 
+    fn check_generic_filler_bullets(
+        resume: &ResumeData,
+        issues: &mut Vec<FormatIssue>,
+        suggestions: &mut Vec<AtsSuggestion>,
+    ) {
+        let has_filler = resume.experience.iter().any(|experience| {
+            experience
+                .achievements
+                .iter()
+                .any(|item| Self::line_looks_like_generic_resume_filler(item))
+        }) || resume
+            .projects
+            .iter()
+            .any(|project| Self::line_looks_like_generic_resume_filler(project));
+
+        if has_filler {
+            Self::push_generic_filler_issue(issues, suggestions);
+        }
+    }
+
+    fn push_generic_filler_issue(
+        issues: &mut Vec<FormatIssue>,
+        suggestions: &mut Vec<AtsSuggestion>,
+    ) {
+        issues.push(FormatIssue {
+            severity: IssueSeverity::Warning,
+            issue: "Experience bullet reads like generic resume filler".to_string(),
+            fix: "Replace generic buzzwords with specific work evidence: what you did, who it helped, and what changed.".to_string(),
+        });
+        suggestions.push(AtsSuggestion {
+            category: SuggestionCategory::FormatFix,
+            suggestion: "Replace generic filler with specific work evidence you can explain."
+                .to_string(),
+            impact: "Makes the bullet easier for people to evaluate without overstating the claim."
+                .to_string(),
+        });
+    }
+
     fn has_adversarial_content(resume: &ResumeData) -> bool {
         Self::text_has_adversarial_content(&resume.summary)
             || Self::text_has_adversarial_content(&resume.contact_info.name)
@@ -1008,6 +1049,10 @@ impl AtsAnalyzer {
             Self::push_capability_level_issue(&mut format_issues, &mut suggestions);
         }
 
+        if Self::text_has_generic_filler_bullet(readable_text) {
+            Self::push_generic_filler_issue(&mut format_issues, &mut suggestions);
+        }
+
         if !readable_text.is_empty() {
             Self::check_plain_text_contact(readable_text, &mut format_issues, &mut suggestions);
             Self::check_plain_text_headings(readable_text, &mut format_issues, &mut suggestions);
@@ -1202,6 +1247,76 @@ impl AtsAnalyzer {
         ];
         let padded = format!(" {lower} ");
         !action_words.iter().any(|word| padded.contains(word))
+    }
+
+    fn text_has_generic_filler_bullet(text: &str) -> bool {
+        let mut current_section = "resume text";
+
+        for line in text.lines() {
+            if let Some(section) = Self::plain_text_section_label(line) {
+                current_section = section;
+                continue;
+            }
+
+            if matches!(
+                current_section,
+                "skills" | "education" | "certifications" | "licenses" | "publications"
+            ) {
+                continue;
+            }
+
+            if Self::line_looks_like_generic_resume_filler(line) {
+                return true;
+            }
+        }
+
+        false
+    }
+
+    fn line_looks_like_generic_resume_filler(line: &str) -> bool {
+        let trimmed = line
+            .trim()
+            .trim_start_matches(|c: char| c == '-' || c == '*' || c == '•')
+            .trim();
+        if trimmed.is_empty() {
+            return false;
+        }
+
+        let word_count = trimmed.split_whitespace().count();
+        if !(7..=32).contains(&word_count) {
+            return false;
+        }
+
+        let lower = trimmed.to_lowercase();
+        let filler_phrases = [
+            "results-oriented",
+            "results oriented",
+            "dynamic",
+            "team player",
+            "proven track record",
+            "strategic",
+            "excellence",
+            "self-motivated",
+            "self motivated",
+            "detail-oriented",
+            "detail oriented",
+            "fast-paced",
+            "fast paced",
+            "go-getter",
+            "go getter",
+            "synergy",
+            "best-in-class",
+            "best in class",
+            "world-class",
+            "world class",
+            "passionate",
+        ];
+        let phrase_count = filler_phrases
+            .iter()
+            .filter(|phrase| lower.contains(*phrase))
+            .count();
+
+        phrase_count >= 4
     }
 
     fn is_standard_resume_heading(line: &str) -> bool {
@@ -2452,6 +2567,41 @@ mod tests {
             .format_issues
             .iter()
             .any(|issue| issue.issue.contains("Capability level needs review")));
+    }
+
+    #[test]
+    fn test_analyze_format_flags_generic_filler_bullet() {
+        let mut resume = sample_resume();
+        resume.experience[0].achievements.push(
+            "Results-oriented dynamic team player with proven track record of strategic excellence."
+                .to_string(),
+        );
+
+        let result = AtsAnalyzer::analyze_format(&resume);
+
+        assert!(result.format_issues.iter().any(|issue| {
+            issue.severity == IssueSeverity::Warning
+                && issue.issue.contains("generic resume filler")
+                && issue.fix.contains("specific work evidence")
+        }));
+        assert!(result.suggestions.iter().any(|suggestion| {
+            suggestion.category == SuggestionCategory::FormatFix
+                && suggestion.suggestion.contains("specific work evidence")
+        }));
+    }
+
+    #[test]
+    fn test_analyze_text_for_job_flags_generic_filler_line() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nResults-oriented dynamic team player with proven track record of strategic excellence.",
+            &[],
+            "Required: client service",
+        );
+
+        assert!(result
+            .format_issues
+            .iter()
+            .any(|issue| issue.issue.contains("generic resume filler")));
     }
 
     #[test]
