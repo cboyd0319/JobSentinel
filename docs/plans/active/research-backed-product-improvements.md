@@ -163,6 +163,9 @@ copy durable findings back into this plan or the active status surface.
 - Current local data-entry hyphen follow-up in `1f82ecf4` treats data entry and
   data-entry as equivalent local evidence, recognizes the hyphenated job-post
   form in the backend, and keeps browser/dev mocks aligned.
+- Current local document-review hyphen follow-up in `43e8e88e` treats document
+  review and document-review as equivalent local evidence without duplicate
+  requirement rows.
 - Current local onsite location-term follow-up in `bffa0a1f` treats onsite and
   on-site as equivalent local hard-constraint evidence, so exact punctuation
   differences do not create a false missing-location risk.
