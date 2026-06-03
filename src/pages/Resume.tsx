@@ -160,6 +160,10 @@ function getResumeFormatLabel(resume: ResumeData) {
   return resume.format_label?.trim() || "Resume file";
 }
 
+function isPdfFormatLabel(formatLabel: string | null | undefined) {
+  return formatLabel?.trim().toLowerCase() === "pdf";
+}
+
 function getReadableTextLabel(resume: ResumeData) {
   if (resume.has_readable_text === true) {
     return "Readable text ready";
@@ -178,12 +182,36 @@ function getReadableTextDescription(resume: ResumeData) {
     return `${count.toLocaleString()} characters available for local review.`;
   }
   if (resume.has_readable_text === false) {
+    if (isPdfFormatLabel(resume.format_label)) {
+      return [
+        "Follow employer file instructions first.",
+        "This PDF may be scanned or image-only, so JobSentinel could not find selectable text.",
+        "If no format is named, export a readable PDF, DOCX, TXT, or Markdown resume.",
+      ].join(" ");
+    }
+
     return [
       "Follow employer file instructions first.",
       "If no format is named, add a PDF, DOCX, TXT, or Markdown resume with readable text.",
     ].join(" ");
   }
   return "Open the readable-text preview to check what JobSentinel can read.";
+}
+
+function getEmptyReadablePreviewMessage(resume: ResumeData | null) {
+  if (isPdfFormatLabel(resume?.format_label)) {
+    return [
+      "No selectable text found in this PDF.",
+      "Follow employer file instructions first.",
+      "If no format is named, try exporting a readable PDF, DOCX, TXT, Markdown resume, or resume app export.",
+    ].join(" ");
+  }
+
+  return [
+    "No readable text found.",
+    "Follow employer file instructions first.",
+    "If no format is named, try a readable PDF, DOCX, TXT, Markdown resume, or resume app export.",
+  ].join(" ");
 }
 
 function getReadableTextBadgeVariant(resume: ResumeData): BadgeVariant {
@@ -1463,8 +1491,7 @@ export default function Resume({ onBack }: ResumeProps) {
           </div>
         ) : (
           <p className="text-surface-600 dark:text-surface-400">
-            No readable text found. Follow employer file instructions first. If no format is
-            named, try a readable PDF, DOCX, TXT, Markdown resume, or resume app export.
+            {getEmptyReadablePreviewMessage(resume)}
           </p>
         )}
         <ModalFooter>
