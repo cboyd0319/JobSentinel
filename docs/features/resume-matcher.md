@@ -196,6 +196,9 @@ The current local matcher:
   relationship management**, and **customer service**, **customer support**,
   **client service**, **client services**, and **client support**, as the same
   evidence without broad fuzzy matching;
+- treats **case management** and **case coordination** as the same local
+  evidence without treating broader case-documentation wording as enough by
+  itself;
 - treats **data entry** and **data-entry** as the same local evidence while
   still avoiding broad fuzzy matching;
 - treats **onsite**, **on-site**, and **on site** as the same local location

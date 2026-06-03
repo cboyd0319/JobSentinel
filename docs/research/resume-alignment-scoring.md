@@ -219,6 +219,9 @@ Future implementation should improve:
 - Resume/job fit now treats `customer service`, `customer support`,
   `client service`, `client services`, and `client support` as equivalent
   local evidence without broad fuzzy matching.
+- Resume/job fit now treats `case management` and `case coordination` as
+  equivalent local evidence without treating broader case-documentation wording
+  as enough by itself.
 - Resume/job fit now treats `data entry` and `data-entry` as equivalent local
   evidence without broad fuzzy matching.
 - Resume/job fit now treats `onsite`, `on-site`, and `on site` as equivalent

@@ -125,6 +125,9 @@ acceptance still requires Developer ID signing and notarization.
   `a96abd63 Match customer support service terms` treats customer service,
   customer support, client service, client services, and client support as the
   same local evidence. The follow-up
+  `e854b515 Match case coordination terms` treats case management and case
+  coordination as the same local evidence without treating broader
+  case-documentation wording as enough by itself. The follow-up
   `1f82ecf4 Match data entry hyphen terms` treats data entry and data-entry as
   the same local evidence. The follow-up
   `bffa0a1f Match onsite location terms` treats onsite and on-site as the same
