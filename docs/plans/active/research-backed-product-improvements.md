@@ -212,6 +212,10 @@ copy durable findings back into this plan or the active status surface.
 - Current local credential-equivalence follow-up treats clear credential
   acronym or full-name pairs such as `BLS` and `Basic Life Support` as the same
   evidence without broad fuzzy matching, and keeps dev/browser mocks aligned.
+- Current local high-school credential-equivalence follow-up treats high school
+  diploma, high school degree, GED, high school equivalency, and General
+  Education Development as the same local education evidence, and keeps
+  dev/browser mocks aligned.
 - Current local degree-equivalent-experience follow-up treats explicit degree
   or equivalent experience wording as experience-compatible evidence instead
   of an exact-degree hard cap.
@@ -1641,6 +1645,7 @@ source-filter compatibility issue appears.
   Resume seniority-constraint work is committed in `1f8d7581`.
   Hard-requirement action work is committed in `6e43a675`.
   Credential-equivalence work is committed in `c4fd8c7a`.
+  High-school credential-equivalence work is committed in `a09f6c43`.
   Degree-equivalent-experience work is committed in `9fc9777d`.
   Training-heading credential work is committed in `df0bdf9a`.
   Training-heading structure work is committed in `1a9c6b52`.
