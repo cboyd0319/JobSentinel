@@ -1431,7 +1431,7 @@ Scope:
   `npm run lint:external-ai`, `npm run lint:tauri-invokes`, `npm run
   lint:docs`, `npm run harness:check`, `npm run lint:bloat`, `npm run
   lint:architecture`, and `git diff --check`.
-- Current local resume experience-constraint slice adds a local `Experience`
+- Latest local resume experience-constraint slice in `191962e5` adds a local `Experience`
   hard-constraint category for required years-of-experience language, caps
   missing required experience at `65`, and makes the browser/dev mock extract
   those hard-constraint phrases dynamically. Verification passed: `cargo test
