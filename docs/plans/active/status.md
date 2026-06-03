@@ -127,6 +127,10 @@ acceptance still requires Developer ID signing and notarization.
   resets that label when a later past-role date range appears. The follow-up
   `4607b67f Strengthen metric-backed resume evidence` treats work or project
   evidence with visible metrics as stronger local evidence than a bare keyword.
+  The follow-up `c109b9d3 Strengthen scope-backed resume evidence` treats work
+  or project evidence with scope across teams, departments, locations, sites,
+  regions, markets, or service lines as stronger local evidence than a bare
+  keyword.
   The follow-up `a09f6c43 Recognize GED credential equivalence` treats high
   school diploma,
   high school degree, GED, high school equivalency, and General Education
@@ -156,9 +160,9 @@ acceptance still requires Developer ID signing and notarization.
   The follow-up `972700a9` recognizes OSHA 30 credential equivalence, treating
   OSHA 30, OSHA30, OSHA 30 certification, and OSHA 30-hour wording as the same
   local credential evidence without treating OSHA 10 as equivalent.
-  Future resume work still needs deeper non-metric evidence strength, seniority
-  alignment, broader conservative synonyms, broader recency weighting, and
-  profession-specific weighting.
+  Future resume work still needs deeper duty/responsibility evidence strength,
+  seniority alignment, broader conservative synonyms, broader recency weighting,
+  and profession-specific weighting.
 - Current local macOS no-account post-commit verification rebuilt the universal
   DMG from committed resume-guidance head `12c184db` on macOS 26.5
   (build 25F71), Apple Silicon `arm64`, with SIP enabled. The build produced
