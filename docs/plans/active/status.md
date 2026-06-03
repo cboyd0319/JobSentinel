@@ -143,6 +143,8 @@ acceptance still requires Developer ID signing and notarization.
   follow-up
   `05b82897 Match second shift terms` treats evening shift, second shift, and
   2nd shift as the same local hard-constraint evidence. The follow-up
+  `55f987a1 Match first shift terms` treats day shift, first shift, and
+  1st shift as the same local hard-constraint evidence. The follow-up
   `66c587a8 Mark current plain text resume evidence` marks readable Experience
   bullets after a present-date role marker as current-experience evidence, then
   resets that label when a later past-role date range appears. The follow-up

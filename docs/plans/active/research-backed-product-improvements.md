@@ -154,6 +154,9 @@ copy durable findings back into this plan or the active status surface.
 - Current local second-shift follow-up in `05b82897` treats evening shift,
   second shift, and 2nd shift as equivalent local hard-constraint evidence, so
   exact evening-shift wording differences do not create a false missing risk.
+- Current local first-shift follow-up in `55f987a1` treats day shift, first
+  shift, and 1st shift as equivalent local hard-constraint evidence, so exact
+  day-shift wording differences do not create a false missing risk.
 - Current local structured evidence recency follow-up marks structured resume
   matches from a current role as `current experience`, without changing older
   role evidence labels.
@@ -1697,6 +1700,7 @@ source-filter compatibility issue appears.
   Third-shift work is committed in `131fd9b9`.
   Weekend-shift work is committed in `fec9fa3d`.
   Second-shift work is committed in `05b82897`.
+  First-shift work is committed in `55f987a1`.
   Structured evidence recency work is committed in `56d9a5ab`.
   Plain-text evidence recency work is committed in `66c587a8`.
   Metric-backed evidence-strength work is committed in `4607b67f`.

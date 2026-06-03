@@ -195,6 +195,8 @@ The current local matcher:
   the same local schedule evidence for required weekend constraints;
 - treats **evening shift**, **second shift**, and **2nd shift** as the same
   local schedule evidence for required evening-shift constraints;
+- treats **day shift**, **first shift**, and **1st shift** as the same local
+  schedule evidence for required day-shift constraints;
 - treats clear credential equivalents, such as **BLS** and **Basic Life
   Support**, as the same evidence without guessing unrelated credentials;
 - treats CNA, Certified Nursing Assistant, Certified Nurse Assistant, and
