@@ -363,6 +363,13 @@ copy durable findings back into this plan or the active status surface.
   src/components/automation/ApplicationPreview.test.tsx -t "overtime"`, `npx
   vitest run src/components/automation/ApplicationPreview.test.tsx`, `npx tsc
   --noEmit`, `npm run lint -- --quiet`, and `git diff --check`.
+- Current local Application Assist holiday-screening review follow-up in
+  `b4b15a2e` flags holiday requirements from saved job details and shows
+  matching saved availability answers in the hard question review when users
+  have saved one. Verification passed: `npx vitest run
+  src/components/automation/ApplicationPreview.test.tsx -t "holiday"`, `npx
+  vitest run src/components/automation/ApplicationPreview.test.tsx`, `npx tsc
+  --noEmit`, `npm run lint -- --quiet`, and `git diff --check`.
 - Current local Application Assist overtime-screening quick-add follow-up in
   `bae91674` adds overtime availability to common saved-answer patterns, so
   users can prepare a reusable overtime answer before a hard overtime question

@@ -280,6 +280,13 @@ acceptance still requires Developer ID signing and notarization.
   "overtime"`, `npx vitest run
   src/components/automation/ApplicationPreview.test.tsx`, `npx tsc
   --noEmit`, `npm run lint -- --quiet`, and `git diff --check`. The follow-up
+  `b4b15a2e Review holiday screening answers` flags holiday requirements from
+  saved job details and shows matching saved availability answers in the hard
+  question review when users have saved one. Verification passed: `npx vitest
+  run src/components/automation/ApplicationPreview.test.tsx -t "holiday"`,
+  `npx vitest run src/components/automation/ApplicationPreview.test.tsx`, `npx
+  tsc --noEmit`, `npm run lint -- --quiet`, and `git diff --check`. The
+  follow-up
   `bae91674 Add overtime screening quick add` adds overtime availability to
   Application Assist's common saved-answer patterns, so users can prepare a
   reusable overtime answer before a hard overtime question appears.

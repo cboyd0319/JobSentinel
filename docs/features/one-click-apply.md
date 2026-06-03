@@ -135,8 +135,9 @@ preview flags them before opening the form. Review saved answers and resume
 evidence for citizenship, work authorization, location, relocation, travel,
 transportation, vehicle requirements, licenses, certifications, clearances,
 education, years of experience, salary, schedule, overtime, availability,
-background checks, drug screens, pre-employment screening, language fluency,
-physical requirements, and minimum-age requirements before submitting.
+holiday availability, background checks, drug screens, pre-employment
+screening, language fluency, physical requirements, and minimum-age
+requirements before submitting.
 
 For citizenship topics, the preview can show a matching saved answer so you can
 confirm it matches the employer's wording. JobSentinel does not treat work
@@ -165,8 +166,8 @@ For years-of-experience topics, the preview can show a matching saved
 experience answer so you can compare it with the experience you can explain.
 
 For salary, compensation, start-date, schedule, shift, weekend, overnight,
-overtime, or availability topics, the preview can show a matching saved answer
-before you continue.
+overtime, holiday availability, or availability topics, the preview can show a
+matching saved answer before you continue.
 
 For language-fluency topics such as bilingual or multilingual requirements,
 the preview can show a matching saved language answer so you can confirm it is
