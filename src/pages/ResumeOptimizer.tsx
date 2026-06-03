@@ -163,6 +163,8 @@ function formatRequirementEvidenceSection(section: string): string {
   switch (section) {
     case "current experience":
       return "current role experience";
+    case "recent experience":
+      return "recent role experience";
     case "experience":
       return "work experience";
     case "skills":

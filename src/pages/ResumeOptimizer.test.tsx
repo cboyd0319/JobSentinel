@@ -592,7 +592,7 @@ describe("ResumeOptimizer", () => {
             keyword: "scheduling",
             importance: "Required" as const,
             match_state: "Strong" as const,
-            evidence_sections: ["current experience", "skills"],
+            evidence_sections: ["current experience", "recent experience", "skills"],
             hard_constraint: false,
             recommendation:
               "Strong visible evidence found. Keep it easy to see near the relevant role.",
@@ -615,8 +615,12 @@ describe("ResumeOptimizer", () => {
     await user.click(screen.getByRole("button", { name: /review match/i }));
 
     expect(await screen.findByText("Requirement Review (1)")).toBeInTheDocument();
-    expect(screen.getByText("Found in: current role experience, skills list")).toBeInTheDocument();
-    expect(screen.queryByText("Found in: current experience, skills")).not.toBeInTheDocument();
+    expect(
+      screen.getByText("Found in: current role experience, recent role experience, skills list"),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText("Found in: current experience, recent experience, skills"),
+    ).not.toBeInTheDocument();
   });
 
   it("shows plain next actions from requirement review results", async () => {
