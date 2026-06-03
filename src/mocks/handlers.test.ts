@@ -3503,6 +3503,60 @@ describe("mock Tauri handlers", () => {
     );
   });
 
+  it("treats hyphenated care-plan terms as equivalent mock evidence", async () => {
+    const normalResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        skills: [],
+        experience: [
+          {
+            ...atsResume.experience[0],
+            current: false,
+            end_date: "2022",
+            achievements: ["Used care-plan notes for patient visits."],
+          },
+        ],
+      },
+      jobDescription: "Required: care plans",
+    });
+    expect(normalResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "care plans",
+          match_state: "Direct",
+          evidence_sections: ["experience"],
+        }),
+      ]),
+    );
+
+    const hyphenResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        skills: [],
+        experience: [
+          {
+            ...atsResume.experience[0],
+            current: false,
+            end_date: "2022",
+            achievements: ["Used care plans for patient visits."],
+          },
+        ],
+      },
+      jobDescription: "Required: care-plan",
+    });
+    expect(hyphenResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "care-plan",
+          match_state: "Direct",
+          evidence_sections: ["experience"],
+        }),
+      ]),
+    );
+  });
+
   it("treats singular and plural vital-sign terms as equivalent mock evidence", async () => {
     const pluralResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {

@@ -626,7 +626,9 @@ const ATS_KNOWN_KEYWORDS = [
   "vital signs",
   "vital-signs",
   "care plan",
+  "care-plan",
   "care plans",
+  "care-plans",
   "medical record",
   "medical records",
   "charting",
@@ -2854,7 +2856,11 @@ function extractMockAtsKeywords(jobDescription: string): MockAtsKeyword[] {
   const hasPluralMedicalRecords = /\bmedical records\b/.test(lower);
   const hasSingularMedicalRecord = /\bmedical record\b/.test(lower) && !hasPluralMedicalRecords;
   const hasPluralCarePlans = /\bcare plans\b/.test(lower);
-  const hasSingularCarePlan = /\bcare plan\b/.test(lower) && !hasPluralCarePlans;
+  const hasHyphenPluralCarePlans = /\bcare-plans\b/.test(lower);
+  const hasSingularCarePlan =
+    /\bcare plan\b/.test(lower) && !hasPluralCarePlans;
+  const hasHyphenSingularCarePlan =
+    /\bcare-plan\b/.test(lower) && !hasHyphenPluralCarePlans;
   const hasPluralVitalSigns = /\bvital signs\b/.test(lower);
   const hasHyphenPluralVitalSigns = /\bvital-signs\b/.test(lower);
   const hasSingularVitalSign =
@@ -2869,8 +2875,10 @@ function extractMockAtsKeywords(jobDescription: string): MockAtsKeyword[] {
     !(hasSpecificDegree && keyword === "degree") &&
     !(hasPluralMedicalRecords && keyword === "medical record") &&
     !(hasSingularMedicalRecord && keyword === "medical records") &&
-    !(hasPluralCarePlans && keyword === "care plan") &&
-    !(hasSingularCarePlan && keyword === "care plans") &&
+    !(hasPluralCarePlans && ["care plan", "care-plan", "care-plans"].includes(keyword)) &&
+    !(hasHyphenPluralCarePlans && ["care plan", "care-plan", "care plans"].includes(keyword)) &&
+    !(hasSingularCarePlan && ["care plans", "care-plan", "care-plans"].includes(keyword)) &&
+    !(hasHyphenSingularCarePlan && ["care plan", "care plans", "care-plans"].includes(keyword)) &&
     !(hasPluralVitalSigns && ["vital sign", "vital-sign", "vital-signs"].includes(keyword)) &&
     !(hasHyphenPluralVitalSigns && ["vital sign", "vital-sign", "vital signs"].includes(keyword)) &&
     !(hasSingularVitalSign && ["vital signs", "vital-sign", "vital-signs"].includes(keyword)) &&
@@ -3171,7 +3179,7 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
     ["quality assurance", "qa"],
     ["patient care", "patient-care"],
     ["medical record", "medical records"],
-    ["care plan", "care plans"],
+    ["care plan", "care plans", "care-plan", "care-plans"],
     ["vital sign", "vital signs", "vital-sign", "vital-signs"],
     ["data entry", "data-entry"],
     ["onsite", "on-site", "on site"],
