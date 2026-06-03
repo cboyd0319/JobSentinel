@@ -2186,6 +2186,81 @@ describe("mock Tauri handlers", () => {
     );
   });
 
+  it("matches Master of Education as master's degree evidence in mock hard constraints", async () => {
+    const degreeResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        experience: [],
+        skills: [],
+        education: [
+          {
+            degree: "Master of Education",
+            institution: "State College",
+            location: "Denver, CO",
+            graduation_date: "2020",
+            gpa: null,
+            honors: [],
+          },
+        ],
+      },
+      jobDescription: "Required: master's degree",
+    });
+
+    expect(degreeResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "master's degree",
+          match_state: "Direct",
+          hard_constraint: true,
+          evidence_sections: expect.arrayContaining(["education"]),
+        }),
+      ]),
+    );
+    expect(degreeResult.hard_constraint_risks).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          requirement: "master's degree",
+        }),
+      ]),
+    );
+    expect(degreeResult.hard_constraint_risks).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          requirement: "degree",
+        }),
+      ]),
+    );
+  });
+
+  it("does not turn Master of Education job wording into a generic master's degree mock hard constraint", async () => {
+    const degreeResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        experience: [],
+        skills: [],
+        education: [],
+      },
+      jobDescription: "Required: Master of Education",
+    });
+
+    expect(degreeResult.requirement_reviews).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "master's degree",
+        }),
+      ]),
+    );
+    expect(degreeResult.hard_constraint_risks).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          requirement: "master's degree",
+        }),
+      ]),
+    );
+  });
+
   it("matches associate's degree punctuation variants in mock hard constraints", async () => {
     const degreeResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
