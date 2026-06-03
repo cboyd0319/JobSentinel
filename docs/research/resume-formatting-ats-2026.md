@@ -249,9 +249,9 @@ resume help should adjust examples and evidence prompts for:
   answers in the hard question review when saved job details mention experience
   requirements.
 - Application Assist shows matching saved salary, compensation, start-date,
-  notice-period, schedule, shift, weekend, overnight, or availability screening
-  answers in the hard question review when saved job details mention pay or
-  availability requirements.
+  notice-period, schedule, shift, weekend, overnight, overtime, or availability
+  screening answers in the hard question review when saved job details mention
+  pay or availability requirements.
 - Application Assist flags background-check, drug-screen, and pre-employment
   screening topics from saved job details and shows matching saved screening
   answers in the hard question review when users have saved one.
