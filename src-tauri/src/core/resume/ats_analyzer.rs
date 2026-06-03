@@ -1671,6 +1671,8 @@ impl AtsAnalyzer {
             || lower.contains("forklift operator")
             || lower.contains("osha 10")
             || lower.contains("osha10")
+            || lower.contains("osha 30")
+            || lower.contains("osha30")
             || lower.contains("basic life support")
             || lower.contains("advanced cardiovascular life support")
             || lower.contains("cardiopulmonary resuscitation")
@@ -1979,6 +1981,16 @@ impl AtsAnalyzer {
                 "osha 10-hour certification",
                 "osha 10 hour",
                 "osha 10 hour certification",
+            ],
+            &[
+                "osha 30",
+                "osha30",
+                "osha 30 certification",
+                "osha30 certification",
+                "osha 30-hour",
+                "osha 30-hour certification",
+                "osha 30 hour",
+                "osha 30 hour certification",
             ],
             &[
                 "cissp",
@@ -2348,7 +2360,7 @@ impl AtsAnalyzer {
             r"(?i)\b(work authorization|authorized to work|visa sponsorship|u\.?s\.?\s+citizenship|u\.?s\.?\s+citizen|citizenship required)\b",
             r"(?i)\b(security clearance|clearance)\b",
             r"(?i)\b(driver'?s license|driver license|cdl|rn license|nursing license)\b",
-            r"(?i)\b(certification|cissp|security\+|bls|basic life support|acls|advanced cardiovascular life support|cpr|cardiopulmonary resuscitation|cna|certified nursing assistant|certified nurse assistant|certified nurse aide|servsafe|food safety certification|food handler certification|food handler certificate|food handler permit|food handlers permit|food handler card|first[- ]aid certification|first[- ]aid certified|first[- ]aid certificate|first[- ]aid|forklift certification|forklift certified|forklift operator certification|forklift operator certified|forklift license|forklift operator license|osha\s*10(?:[- ]hour)?(?:\s+certification)?)\b",
+            r"(?i)\b(certification|cissp|security\+|bls|basic life support|acls|advanced cardiovascular life support|cpr|cardiopulmonary resuscitation|cna|certified nursing assistant|certified nurse assistant|certified nurse aide|servsafe|food safety certification|food handler certification|food handler certificate|food handler permit|food handlers permit|food handler card|first[- ]aid certification|first[- ]aid certified|first[- ]aid certificate|first[- ]aid|forklift certification|forklift certified|forklift operator certification|forklift operator certified|forklift license|forklift operator license|osha\s*10(?:[- ]hour)?(?:\s+certification)?|osha\s*30(?:[- ]hour)?(?:\s+certification)?)\b",
             r"(?i)\b(bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree|high school diploma|high school degree|ged|high school equivalency|general education development)\b",
             r"(?i)\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b",
             r"(?i)\b(lift(?:\s+up\s+to)?\s+\d+\s*(?:pounds?|lbs?)|stand for long periods?|physical requirements?|physical demands?)\b",
@@ -2417,6 +2429,14 @@ impl AtsAnalyzer {
             "osha 10-hour certification",
             "osha 10 hour",
             "osha 10 hour certification",
+            "osha 30",
+            "osha30",
+            "osha 30 certification",
+            "osha30 certification",
+            "osha 30-hour",
+            "osha 30-hour certification",
+            "osha 30 hour",
+            "osha 30 hour certification",
         ];
         if keywords
             .iter()
@@ -2551,6 +2571,8 @@ impl AtsAnalyzer {
             "forklift certification",
             "osha 10",
             "osha 10 certification",
+            "osha 30",
+            "osha 30 certification",
             "document review",
             "case files",
             "legal research",
@@ -3729,6 +3751,34 @@ Preferred: Salesforce
             .hard_constraint_risks
             .iter()
             .any(|risk| risk.requirement == "osha 10 certification"));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "certification"));
+    }
+
+    #[test]
+    fn test_requirement_review_uses_osha_30_credential_equivalence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nCertifications\nOSHA 30-Hour Construction Safety",
+            &[],
+            "Required: OSHA 30 certification",
+        );
+
+        let osha = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "osha 30 certification")
+            .expect("osha 30 certification review");
+        assert_eq!(osha.match_state, RequirementMatchState::Direct);
+        assert!(osha.hard_constraint);
+        assert!(osha
+            .evidence_sections
+            .contains(&"certifications".to_string()));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "osha 30 certification"));
         assert!(!result
             .hard_constraint_risks
             .iter()

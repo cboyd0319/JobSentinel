@@ -636,6 +636,8 @@ const ATS_KNOWN_KEYWORDS = [
   "forklift certification",
   "osha 10",
   "osha 10 certification",
+  "osha 30",
+  "osha 30 certification",
   "document review",
   "case files",
   "legal research",
@@ -2457,6 +2459,8 @@ function getMockHardConstraintCategory(keyword: string): MockHardConstraintCateg
     lower.includes("forklift operator") ||
     lower.includes("osha 10") ||
     lower.includes("osha10") ||
+    lower.includes("osha 30") ||
+    lower.includes("osha30") ||
     lower.includes("basic life support") ||
     lower.includes("advanced cardiovascular life support") ||
     lower.includes("cardiopulmonary resuscitation")
@@ -2825,7 +2829,7 @@ function extractMockHardConstraintKeywords(jobDescription: string): string[] {
     /\b(work authorization|authorized to work|visa sponsorship|u\.?s\.?\s+citizenship|u\.?s\.?\s+citizen|citizenship required)\b/gi,
     /\b(security clearance|clearance)\b/gi,
     /\b(driver'?s license|driver license|cdl|rn license|nursing license)\b/gi,
-    /\b(certification|cissp|security\+|bls|basic life support|acls|advanced cardiovascular life support|cpr|cardiopulmonary resuscitation|cna|certified nursing assistant|certified nurse assistant|certified nurse aide|servsafe|food safety certification|food handler certification|food handler certificate|food handler permit|food handlers permit|food handler card|first[- ]aid certification|first[- ]aid certified|first[- ]aid certificate|first[- ]aid|forklift certification|forklift certified|forklift operator certification|forklift operator certified|forklift license|forklift operator license|osha\s*10(?:[- ]hour)?(?:\s+certification)?)\b/gi,
+    /\b(certification|cissp|security\+|bls|basic life support|acls|advanced cardiovascular life support|cpr|cardiopulmonary resuscitation|cna|certified nursing assistant|certified nurse assistant|certified nurse aide|servsafe|food safety certification|food handler certification|food handler certificate|food handler permit|food handlers permit|food handler card|first[- ]aid certification|first[- ]aid certified|first[- ]aid certificate|first[- ]aid|forklift certification|forklift certified|forklift operator certification|forklift operator certified|forklift license|forklift operator license|osha\s*10(?:[- ]hour)?(?:\s+certification)?|osha\s*30(?:[- ]hour)?(?:\s+certification)?)\b/gi,
     /\b(bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree|high school diploma|high school degree|ged|high school equivalency|general education development)\b/gi,
     /\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b/gi,
     /\b(lift(?:\s+up\s+to)?\s+\d+\s*(?:pounds?|lbs?)|stand for long periods?|physical requirements?|physical demands?)\b/gi,
@@ -2897,6 +2901,14 @@ function extractMockHardConstraintKeywords(jobDescription: string): string[] {
     "osha 10-hour certification",
     "osha 10 hour",
     "osha 10 hour certification",
+    "osha 30",
+    "osha30",
+    "osha 30 certification",
+    "osha30 certification",
+    "osha 30-hour",
+    "osha 30-hour certification",
+    "osha 30 hour",
+    "osha 30 hour certification",
   ];
   if ([...keywords].some((keyword) => specificCertificationKeywords.includes(keyword))) {
     keywords.delete("certification");
@@ -3052,6 +3064,16 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
       "osha 10-hour certification",
       "osha 10 hour",
       "osha 10 hour certification",
+    ],
+    [
+      "osha 30",
+      "osha30",
+      "osha 30 certification",
+      "osha30 certification",
+      "osha 30-hour",
+      "osha 30-hour certification",
+      "osha 30 hour",
+      "osha 30 hour certification",
     ],
     ["cissp", "certified information systems security professional"],
     [
