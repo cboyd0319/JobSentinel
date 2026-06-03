@@ -88,6 +88,12 @@ interface ResumeTextPreview {
   is_truncated: boolean;
 }
 
+interface ReadablePreviewCheck {
+  label: string;
+  detail: string;
+  variant: BadgeVariant;
+}
+
 interface ResumeMatchingPreference {
   enabled: boolean;
 }
@@ -184,6 +190,39 @@ function getReadableTextBadgeVariant(resume: ResumeData): BadgeVariant {
   if (resume.has_readable_text === true) return "success";
   if (resume.has_readable_text === false) return "danger";
   return "surface";
+}
+
+function getReadablePreviewChecklist(preview: ResumeTextPreview | null): ReadablePreviewCheck[] {
+  if (!preview) return [];
+
+  const hasText = preview.has_text && preview.text_chars > 0;
+  return [
+    {
+      label: hasText ? "Text found" : "Needs readable text",
+      detail: hasText
+        ? `${preview.text_chars.toLocaleString()} readable characters available.`
+        : "Try a readable PDF, DOCX, TXT, Markdown resume, or resume app export.",
+      variant: hasText ? "success" : "danger",
+    },
+    {
+      label: "Employer format first",
+      detail: "Follow the employer's requested file type before choosing another readable format.",
+      variant: "surface",
+    },
+    {
+      label: hasText
+        ? preview.is_truncated
+          ? "Preview clipped"
+          : "Preview complete"
+        : "Preview not available",
+      detail: hasText
+        ? preview.is_truncated
+          ? "Only the first part is shown here; local review still uses saved readable text."
+          : "The visible preview includes all readable text JobSentinel received."
+        : "No readable text is available for preview.",
+      variant: hasText ? (preview.is_truncated ? "alert" : "success") : "danger",
+    },
+  ];
 }
 
 function ScoreBreakdownRow({
@@ -1394,6 +1433,21 @@ export default function Resume({ onBack }: ResumeProps) {
         description="This preview stays local and shows the text JobSentinel can use for resume review."
         size="xl"
       >
+        {textPreview && (
+          <div className="mb-4 grid gap-2 sm:grid-cols-3">
+            {getReadablePreviewChecklist(textPreview).map((check) => (
+              <div
+                key={check.label}
+                className="rounded-lg border border-surface-200 dark:border-surface-700 p-3"
+              >
+                <Badge variant={check.variant} size="sm">{check.label}</Badge>
+                <p className="mt-2 text-xs leading-5 text-surface-600 dark:text-surface-400">
+                  {check.detail}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
         {textPreview?.has_text ? (
           <div className="space-y-3">
             <div className="flex items-center justify-between gap-3">

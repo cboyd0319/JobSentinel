@@ -213,6 +213,9 @@ describe("Resume page", () => {
       { logContext: "Preview resume text" },
     );
     expect(await screen.findByText("Readable Resume Text")).toBeInTheDocument();
+    expect(screen.getByText("Text found")).toBeInTheDocument();
+    expect(screen.getByText("Employer format first")).toBeInTheDocument();
+    expect(screen.getByText("Preview complete")).toBeInTheDocument();
     expect(screen.getByText(/Patient scheduling/)).toBeInTheDocument();
     expect(screen.queryByText(/\/Users\/alice/)).not.toBeInTheDocument();
     expect(screen.queryByText(/file_path/)).not.toBeInTheDocument();
@@ -369,6 +372,9 @@ describe("Resume page", () => {
     await user.click(screen.getByRole("button", { name: "See what JobSentinel read" }));
 
     expect(await screen.findByText("Readable Resume Text")).toBeInTheDocument();
+    expect(screen.getByText("Needs readable text")).toBeInTheDocument();
+    expect(screen.getByText("Employer format first")).toBeInTheDocument();
+    expect(screen.getByText("Preview not available")).toBeInTheDocument();
     expect(
       screen.getByText(
         "No readable text found. Follow employer file instructions first. If no format is named, try a readable PDF, DOCX, TXT, Markdown resume, or resume app export.",
