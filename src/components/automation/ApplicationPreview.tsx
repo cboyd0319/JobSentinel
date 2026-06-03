@@ -28,16 +28,26 @@ interface ApplicationProfilePreview {
   requiresSponsorship: boolean;
 }
 
+interface ScreeningAnswerPreview {
+  questionPattern: string;
+  answer: string;
+}
+
 interface ApplicationPreviewProps {
   job: Job;
   atsPlatform: string | null;
+}
+
+interface HardQuestionDetailContext {
+  profile: ApplicationProfilePreview;
+  screeningAnswers: ScreeningAnswerPreview[];
 }
 
 interface HardQuestionReview {
   label: string;
   detail: string;
   patterns: RegExp[];
-  getDetail?: (profile: ApplicationProfilePreview) => string;
+  getDetail?: (context: HardQuestionDetailContext) => string;
 }
 
 const HARD_QUESTION_REVIEWS: HardQuestionReview[] = [
@@ -55,6 +65,18 @@ const HARD_QUESTION_REVIEWS: HardQuestionReview[] = [
   {
     label: "Location, relocation, or travel",
     detail: "Confirm location, commute, relocation, remote, hybrid, travel, and shift constraints.",
+    getDetail: ({ screeningAnswers }) => getSavedScreeningAnswerReviewDetail(
+      screeningAnswers,
+      [
+        /\brelocat(?:e|ion)\b/i,
+        /\bremote\b/i,
+        /\bhybrid\b/i,
+        /\bon[-\s]?site\b/i,
+        /\bcommut(?:e|ing)\b/i,
+        /\btravel\b/i,
+      ],
+      "Confirm location, commute, relocation, remote, hybrid, travel, and shift constraints.",
+    ),
     patterns: [
       /\brelocat(?:e|ion)\b/i,
       /\bremote\b/i,
@@ -113,7 +135,7 @@ const HARD_QUESTION_REVIEWS: HardQuestionReview[] = [
   },
 ];
 
-function getWorkAuthorizationReviewDetail(profile: ApplicationProfilePreview) {
+function getWorkAuthorizationReviewDetail({ profile }: HardQuestionDetailContext) {
   if (profile.requiresSponsorship) {
     return "Saved profile says sponsorship is needed. Check the employer's sponsorship question and resume evidence before continuing.";
   }
@@ -125,7 +147,58 @@ function getWorkAuthorizationReviewDetail(profile: ApplicationProfilePreview) {
   return "Saved profile says US work authorization is available and sponsorship is not needed. Confirm the application asks the same thing before submitting.";
 }
 
-function getHardQuestionReviews(job: Job, profile: ApplicationProfilePreview) {
+function getSavedScreeningAnswerLabel(questionPattern: string) {
+  const normalizedPattern = questionPattern.toLowerCase();
+
+  if (/\btravel\b/.test(normalizedPattern)) return "travel";
+  if (/\brelocat/.test(normalizedPattern)) return "relocation";
+  if (/\bcommut/.test(normalizedPattern)) return "commute";
+  if (/\bremote\b|\bhybrid\b|\bon[-\s]?site\b/.test(normalizedPattern)) return "location";
+
+  return "screening";
+}
+
+function getSavedAnswerSnippet(answer: string) {
+  const compactAnswer = answer.trim().replace(/\s+/g, " ");
+  const maxLength = 140;
+
+  if (compactAnswer.length <= maxLength) return compactAnswer;
+
+  return `${compactAnswer.slice(0, maxLength - 3).trimEnd()}...`;
+}
+
+function getSavedScreeningAnswerReviewDetail(
+  screeningAnswers: ScreeningAnswerPreview[],
+  answerPatterns: RegExp[],
+  fallbackDetail: string,
+) {
+  const savedAnswer = screeningAnswers.find((answer) => (
+    answer.answer.trim().length > 0 &&
+    answerPatterns.some((pattern) => pattern.test(answer.questionPattern))
+  ));
+
+  if (!savedAnswer) return fallbackDetail;
+
+  const answerLabel = getSavedScreeningAnswerLabel(savedAnswer.questionPattern);
+  const answerSnippet = getSavedAnswerSnippet(savedAnswer.answer);
+
+  return `Saved ${answerLabel} answer says: ${answerSnippet} Confirm it matches the employer's wording and resume evidence before continuing.`;
+}
+
+function hasHardQuestionReviewText(job: Job) {
+  const text = job.description?.trim() ?? "";
+  if (!text) return false;
+
+  return HARD_QUESTION_REVIEWS.some((review) =>
+    review.patterns.some((pattern) => pattern.test(text)),
+  );
+}
+
+function getHardQuestionReviews(
+  job: Job,
+  profile: ApplicationProfilePreview,
+  screeningAnswers: ScreeningAnswerPreview[],
+) {
   const text = job.description?.trim() ?? "";
   if (!text) return [];
 
@@ -133,20 +206,37 @@ function getHardQuestionReviews(job: Job, profile: ApplicationProfilePreview) {
     review.patterns.some((pattern) => pattern.test(text)),
   ).map((review) => ({
     ...review,
-    detail: review.getDetail?.(profile) ?? review.detail,
+    detail: review.getDetail?.({ profile, screeningAnswers }) ?? review.detail,
   }));
 }
 
 export const ApplicationPreview = memo(function ApplicationPreview({ job, atsPlatform }: ApplicationPreviewProps) {
   const [profile, setProfile] = useState<ApplicationProfilePreview | null>(null);
+  const [screeningAnswers, setScreeningAnswers] = useState<ScreeningAnswerPreview[]>([]);
   const [loading, setLoading] = useState(true);
 
   const loadProfile = useCallback(async (signal?: AbortSignal) => {
     try {
+      setLoading(true);
       const data = await invoke<ApplicationProfilePreview | null>("get_application_profile_preview");
       
       if (signal?.aborted) return;
       setProfile(data);
+
+      if (!data || !hasHardQuestionReviewText(job)) {
+        setScreeningAnswers([]);
+        return;
+      }
+
+      try {
+        const answers = await invoke<ScreeningAnswerPreview[]>("get_screening_answers");
+        if (signal?.aborted) return;
+        setScreeningAnswers(Array.isArray(answers) ? answers : []);
+      } catch (error: unknown) {
+        if (signal?.aborted) return;
+        setScreeningAnswers([]);
+        logError("Failed to load screening answers for preview:", error);
+      }
     } catch (error: unknown) {
       if (signal?.aborted) return;
       logError("Failed to load profile for preview:", error);
@@ -155,7 +245,7 @@ export const ApplicationPreview = memo(function ApplicationPreview({ job, atsPla
         setLoading(false);
       }
     }
-  }, []);
+  }, [job.description]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -201,7 +291,7 @@ export const ApplicationPreview = memo(function ApplicationPreview({ job, atsPla
     },
   ];
   const applicationFormName = getApplicationFormDisplayName(atsPlatform);
-  const hardQuestionReviews = getHardQuestionReviews(job, profile);
+  const hardQuestionReviews = getHardQuestionReviews(job, profile, screeningAnswers);
 
   return (
     <div className="space-y-6" role="region" aria-label="Application preview">

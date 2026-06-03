@@ -490,6 +490,52 @@ describe("ApplicationPreview", () => {
         ),
       ).toBeInTheDocument();
     });
+
+    it("shows saved travel answers when the job asks about travel", async () => {
+      mockInvoke.mockImplementation((command: string) => {
+        if (command === "get_application_profile_preview") {
+          return Promise.resolve(mockProfile);
+        }
+
+        if (command === "get_screening_answers") {
+          return Promise.resolve([
+            {
+              id: 1,
+              questionPattern: "travel",
+              answer: "I can travel up to 25% for client visits.",
+              answerType: "text",
+              notes: null,
+              timesUsed: 0,
+              timesModified: 0,
+              confidenceScore: 0,
+              lastUsedAt: null,
+              createdAt: "2026-01-01T00:00:00Z",
+              updatedAt: "2026-01-01T00:00:00Z",
+            },
+          ]);
+        }
+
+        return Promise.reject(new Error(`Unexpected command: ${command}`));
+      });
+
+      render(
+        <ApplicationPreview
+          job={{
+            ...mockJob,
+            description: "This role requires travel to client sites up to 25%.",
+          }}
+          atsPlatform="greenhouse"
+        />,
+      );
+
+      expect(await screen.findByText("Hard Question Review")).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          "Saved travel answer says: I can travel up to 25% for client visits. Confirm it matches the employer's wording and resume evidence before continuing.",
+        ),
+      ).toBeInTheDocument();
+      expect(mockInvoke).toHaveBeenCalledWith("get_screening_answers");
+    });
   });
 
   describe("info banner", () => {
