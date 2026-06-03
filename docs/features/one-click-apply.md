@@ -129,7 +129,8 @@ preview flags them before opening the form. Review saved answers and resume
 evidence for work authorization, location, relocation, travel, licenses,
 certifications, clearances, education, years of experience, salary, schedule,
 availability, background checks, drug screens, pre-employment screening,
-language fluency, and physical requirements before submitting.
+language fluency, physical requirements, and minimum-age requirements before
+submitting.
 
 For work authorization or sponsorship topics, the preview also shows the saved
 profile answer so you can compare it with the employer's wording and your
@@ -160,6 +161,10 @@ true for the work before continuing.
 For physical requirements such as lifting or standing for long periods, the
 preview can show a matching saved answer so you can confirm it is workable and
 safe for you before continuing.
+
+For minimum-age or legal work-age requirements, the preview can show a matching
+saved answer so you can confirm it matches the employer's wording before
+continuing.
 
 For background-check, drug-screen, or pre-employment screening topics, the
 preview can show a matching saved answer so you can confirm the answer matches

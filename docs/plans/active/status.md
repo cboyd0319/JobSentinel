@@ -217,6 +217,14 @@ acceptance still requires Developer ID signing and notarization.
   pattern buttons"`, `npx vitest run
   src/components/automation/ScreeningAnswersForm.test.tsx`, `npx tsc
   --noEmit`, `npm run lint -- --quiet`, and `git diff --check`. The follow-up
+  `624f1c64 Review minimum age screening answers` flags minimum-age or legal
+  work-age requirements from saved job details, shows matching saved age
+  answers in the hard question review when users have saved one, and prevents
+  age wording from being treated as years-of-experience wording. Verification
+  passed: `npx vitest run
+  src/components/automation/ApplicationPreview.test.tsx -t "age"`, `npx vitest
+  run src/components/automation/ApplicationPreview.test.tsx`, `npx tsc
+  --noEmit`, `npm run lint -- --quiet`, and `git diff --check`. The follow-up
   `ebb83cef Add do not force job words guidance` reminds users in the Resume
   Match job words overview not to force words they cannot support with real
   work, training, or credentials. The follow-up
