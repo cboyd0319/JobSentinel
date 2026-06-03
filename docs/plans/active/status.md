@@ -208,6 +208,9 @@ acceptance still requires Developer ID signing and notarization.
   The follow-up `9f47bee9` recognizes food-safety credential equivalence,
   treating food safety, food safety certification, ServSafe, and food-handler
   certificate, permit, or card wording as the same local credential evidence.
+  The follow-up `7b50460b Match food-handler credential terms` treats
+  food-handler certification, certificate, permit, and card wording as the same
+  local credential hard-constraint evidence.
   The follow-up `c47dec16` recognizes first-aid credential equivalence,
   treating first-aid certificate, certification, and certified wording as the
   same local credential evidence.

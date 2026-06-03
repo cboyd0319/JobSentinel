@@ -272,8 +272,8 @@ Future implementation should improve:
   certification, and Project Management Professional certification as the same
   local credential evidence.
 - Resume/job fit now treats `food safety`, `food safety certification`,
-  `ServSafe`, and food-handler certificate, permit, or card wording as the same
-  local credential evidence.
+  `ServSafe`, and food handler or food-handler certification, certificate,
+  permit, or card wording as the same local credential evidence.
 - Resume/job fit now treats first-aid certificate, certification, and certified
   wording as the same local credential evidence.
 - Resume/job fit now treats forklift certificate, certification, certified,
