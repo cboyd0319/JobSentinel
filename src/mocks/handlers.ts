@@ -3263,6 +3263,7 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
       "bachelor of business administration",
       "bachelor of education",
       "bachelor of engineering",
+      "bachelor of fine arts",
       "bachelor of science",
     ],
     [
@@ -3421,6 +3422,7 @@ function getConservativeMockJobSearchTerms(keyword: string): string[] {
     "bachelor of business administration",
     "bachelor of education",
     "bachelor of engineering",
+    "bachelor of fine arts",
     "bachelor of science",
     "master of arts",
     "master of business administration",
