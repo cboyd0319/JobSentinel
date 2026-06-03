@@ -209,7 +209,11 @@ acceptance still requires Developer ID signing and notarization.
   degree, and bachelors degree as the same local education hard-constraint
   evidence. The follow-up `faa8d5d4 Match baccalaureate degree term` treats
   baccalaureate degree as equivalent local bachelor's degree evidence and as
-  its own education hard-constraint wording. The follow-up
+  its own education hard-constraint wording. The follow-up `d055b936 Match
+  applied science bachelor term` treats Bachelor of Applied Science as local
+  evidence for generic bachelor's degree requirements without treating
+  applied-science-specific job wording as a generic bachelor's requirement.
+  The follow-up
   `52e7c80b Match bachelor degree title terms` treats
   Bachelor of Arts and Bachelor of Science as local evidence for generic
   bachelor's degree requirements without using those phrases to create generic

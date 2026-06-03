@@ -367,6 +367,10 @@ copy durable findings back into this plan or the active status surface.
 - Current local baccalaureate-degree follow-up in `faa8d5d4` treats
   baccalaureate degree as equivalent local bachelor's degree evidence and as
   its own education hard-constraint wording.
+- Current local applied-science bachelor follow-up in `d055b936` treats
+  Bachelor of Applied Science as local evidence for generic bachelor's degree
+  requirements without treating applied-science-specific job wording as a
+  generic bachelor's requirement.
 - Current local bachelor-degree title follow-up in `52e7c80b` treats Bachelor
   of Arts and Bachelor of Science as local evidence for generic bachelor's
   degree requirements without using those phrases to create generic job-post
@@ -1888,6 +1892,7 @@ source-filter compatibility issue appears.
   Associate-applied-science work is committed in `d33a39eb`.
   Bachelor-degree work is committed in `adda2593`.
   Baccalaureate-degree work is committed in `faa8d5d4`.
+  Applied-science bachelor work is committed in `d055b936`.
   Bachelor-degree title work is committed in `52e7c80b`.
   Business-administration bachelor work is committed in `2a3fd362`.
   Engineering bachelor work is committed in `d355fd26`.

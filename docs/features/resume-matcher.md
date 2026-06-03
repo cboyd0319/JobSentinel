@@ -256,10 +256,11 @@ The current local matcher:
   **Associate of Applied Science**, **Associate of Arts**, and **Associate of
   Science** as the same local education evidence;
 - treats **bachelor's degree**, **baccalaureate degree**, **bachelor degree**,
-  **bachelors degree**, **Bachelor of Arts**, **Bachelor of Business
-  Administration**, **Bachelor of Education**, **Bachelor of Engineering**,
-  **Bachelor of Fine Arts**, and **Bachelor of Science** as the same local
-  education evidence for generic bachelor's requirements;
+  **bachelors degree**, **Bachelor of Applied Science**, **Bachelor of Arts**,
+  **Bachelor of Business Administration**, **Bachelor of Education**,
+  **Bachelor of Engineering**, **Bachelor of Fine Arts**, and **Bachelor of
+  Science** as the same local education evidence for generic bachelor's
+  requirements;
 - treats **master's degree**, **master degree**, **masters degree**,
   **Master of Arts**, **Master of Business Administration**,
   **Master of Education**, **Master of Engineering**, **Master of Fine Arts**,
