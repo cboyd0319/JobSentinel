@@ -1983,6 +1983,7 @@ impl AtsAnalyzer {
             &[
                 "cdl",
                 "commercial driver's license",
+                "commercial drivers license",
                 "commercial driver license",
             ],
             &[
@@ -3944,6 +3945,28 @@ Preferred: Salesforce
             .hard_constraint_risks
             .iter()
             .any(|risk| risk.requirement == "driver's license"));
+    }
+
+    #[test]
+    fn test_cdl_requirement_accepts_commercial_drivers_license_evidence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nLicenses\nCommercial drivers license",
+            &[],
+            "Required: CDL",
+        );
+
+        let cdl = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "cdl")
+            .expect("cdl review");
+        assert_eq!(cdl.match_state, RequirementMatchState::Direct);
+        assert!(cdl.hard_constraint);
+        assert!(cdl.evidence_sections.contains(&"licenses".to_string()));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "cdl"));
     }
 
     #[test]

@@ -3078,7 +3078,12 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
     ["acls", "advanced cardiovascular life support"],
     ["cpr", "cardiopulmonary resuscitation"],
     ["driver's license", "drivers license", "driver license"],
-    ["cdl", "commercial driver's license", "commercial driver license"],
+    [
+      "cdl",
+      "commercial driver's license",
+      "commercial drivers license",
+      "commercial driver license",
+    ],
     ["rn", "rn license", "registered nurse", "registered nurse license"],
     [
       "lpn",
