@@ -171,6 +171,10 @@ The current local matcher:
 - treats work or project evidence with ownership or management verbs tied to
   workflows, processes, programs, operations, intake, cases, systems, or tools
   as stronger local evidence than a bare keyword;
+- treats work or project evidence with clear task verbs tied to concrete
+  requests, appointments, records, orders, cases, tickets, reports, files,
+  forms, calls, emails, inquiries, intake, follow-ups, tasks, or schedules as
+  stronger local evidence than a bare keyword;
 - flags recognized missing hard requirements such as authorization, location,
   citizenship, schedule, availability, commute or transportation, travel, years
   of experience, physical demands, license, certification, degree, or clearance

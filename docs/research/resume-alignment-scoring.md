@@ -371,8 +371,8 @@ Future implementation should improve:
 - Expand hard-constraint caps to safety-critical requirements, severe parsing
   failure, unreadable-history risk, false-claim risk, and generic-resume risk.
 - Expand evidence-strength classification beyond current metric-backed,
-  scope-backed, and responsibility-backed boosts into missing, bare keyword,
-  and duty evidence.
+  scope-backed, responsibility-backed, and duty-backed boosts into finer
+  profession-specific evidence levels.
 - Expand conservative synonym and acronym matching where equivalence is clear.
 - Expand broader recency weighting and section placement signals.
 - Expand seniority alignment and add under-leveling warnings.
