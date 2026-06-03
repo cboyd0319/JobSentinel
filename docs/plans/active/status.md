@@ -1501,6 +1501,17 @@ Scope:
   `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
   clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, `npm run
   lint:external-ai`, and `git diff --check`.
+- Latest local physical-requirement hard-constraint slice in `56339a87`
+  recognizes required lifting, prolonged standing, and physical-demand language
+  as hard requirements in local Resume Match review, adds the matching
+  frontend category label and next-action guidance, and keeps the browser/dev
+  mock contract aligned. Verification passed: `cargo test --lib ats_analyzer
+  --manifest-path src-tauri/Cargo.toml`, `npx vitest run
+  src/pages/ResumeOptimizer.test.tsx src/mocks/handlers.test.ts`, `npx tsc
+  --noEmit`, `npm run lint -- --quiet`, `cargo fmt --all --manifest-path
+  src-tauri/Cargo.toml -- --check`, `cargo clippy --manifest-path
+  src-tauri/Cargo.toml -- -D warnings`, `npm run lint:external-ai`, and `git
+  diff --check`.
 - No-Apple-account macOS readiness is already best-possible without an Apple
   Developer Account. Keep the limitation explicit: Gatekeeper-ready public
   distribution still needs Developer ID signing and notarization.
