@@ -1987,6 +1987,10 @@ impl AtsAnalyzer {
             || lower.contains("availability")
             || lower.contains("available")
             || lower.contains("schedule")
+            || lower.contains("full-time")
+            || lower.contains("full time")
+            || lower.contains("part-time")
+            || lower.contains("part time")
             || lower.contains("weekend")
             || lower.contains("night shift")
             || lower.contains("overnight shift")
@@ -2274,6 +2278,18 @@ impl AtsAnalyzer {
             &["evening shift", "second shift", "2nd shift"],
             &["day shift", "first shift", "1st shift"],
             &["availability", "available"],
+            &[
+                "full-time availability",
+                "full time availability",
+                "full-time",
+                "full time",
+            ],
+            &[
+                "part-time availability",
+                "part time availability",
+                "part-time",
+                "part time",
+            ],
             &["bls", "basic life support"],
             &["acls", "advanced cardiovascular life support"],
             &["cpr", "cardiopulmonary resuscitation"],
@@ -2916,7 +2932,7 @@ impl AtsAnalyzer {
             r"(?i)\b(ph\.?d\.?(?:\s+degree)?|doctorate(?:\s+degree)?|doctoral degree|associate'?s degree|associate degree|baccalaureate degree|bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree|high[- ]school diploma|high[- ]school degree|ged|high[- ]school equivalency|general education development)\b",
             r"(?i)\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b",
             r"(?i)\b(lift(?:\s+up\s+to)?\s+\d+\s*(?:pounds?|lbs?)|(?:stand|standing) for long periods?|physical requirements?|physical demands?)\b",
-            r"(?i)\b(onsite|on-site|on site|remote(?:[- ](?:work|role|position|job))?|hybrid(?:[- ](?:work|role|schedule|position|job))?|relocation|relocate|willing to relocate|travel|reliable transportation|own transportation|commute|commuting|availability|available|schedule|weekend availability|weekend shifts?|night shift|overnight shift|third shift|3rd shift|evening shift|second shift|2nd shift|day shift|first shift|1st shift)\b",
+            r"(?i)\b(onsite|on-site|on site|remote(?:[- ](?:work|role|position|job))?|hybrid(?:[- ](?:work|role|schedule|position|job))?|relocation|relocate|willing to relocate|travel|reliable transportation|own transportation|commute|commuting|full[- ]time(?:\s+availability)?|part[- ]time(?:\s+availability)?|availability|available|schedule|weekend availability|weekend shifts?|night shift|overnight shift|third shift|3rd shift|evening shift|second shift|2nd shift|day shift|first shift|1st shift)\b",
         ];
 
         for pattern in &hard_constraint_patterns {
@@ -6635,6 +6651,55 @@ Preferred: Salesforce
             .hard_constraint_risks
             .iter()
             .any(|risk| risk.requirement == "availability"));
+    }
+
+    #[test]
+    fn test_missing_required_full_time_constraint_caps_overall_score() {
+        let resume = sample_resume();
+
+        let result = AtsAnalyzer::analyze_for_job(
+            &resume,
+            "Required: client intake, full-time availability",
+        );
+
+        assert!(result.overall_score <= 70.0);
+        assert!(result.hard_constraint_risks.iter().any(|risk| {
+            risk.requirement == "full-time availability"
+                && risk.category == HardConstraintCategory::Location
+                && risk.score_cap == 70.0
+                && risk
+                    .action
+                    .contains("Check location, schedule, availability, or travel")
+        }));
+        assert!(result.requirement_reviews.iter().any(|review| {
+            review.keyword == "full-time availability"
+                && review.hard_constraint
+                && review.match_state == RequirementMatchState::Missing
+        }));
+    }
+
+    #[test]
+    fn test_full_time_requirement_accepts_full_time_evidence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nAvailable for full time schedule coverage.",
+            &[],
+            "Required: full-time availability",
+        );
+
+        let full_time = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "full-time availability")
+            .expect("full-time availability review");
+        assert_eq!(full_time.match_state, RequirementMatchState::Direct);
+        assert!(full_time.hard_constraint);
+        assert!(full_time
+            .evidence_sections
+            .contains(&"experience".to_string()));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "full-time availability"));
     }
 
     #[test]
