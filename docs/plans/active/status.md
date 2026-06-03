@@ -1546,6 +1546,13 @@ Scope:
   --test scripts/check-product-copy.test.mjs`, `npm run lint:bloat`, `npx tsc
   --noEmit`, `npm run lint -- --quiet`, `npm run lint:external-ai`, and `git
   diff --check`.
+- Latest local Dashboard comparison fit-label slice in `af644659` changes
+  comparison rows and duplicate-source groups from numeric-only fit percentages
+  to fit labels with percentages, and removes highest-scoring duplicate-copy
+  wording. Verification passed: `npx vitest run src/pages/Dashboard.test.tsx`,
+  `npx tsc --noEmit`, `npm run lint -- --quiet`, `node --test
+  scripts/check-product-copy.test.mjs`, `npm run lint:external-ai`, and `git
+  diff --check`.
 - No-Apple-account macOS readiness is already best-possible without an Apple
   Developer Account. Keep the limitation explicit: Gatekeeper-ready public
   distribution still needs Developer ID signing and notarization.

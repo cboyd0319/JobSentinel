@@ -157,6 +157,9 @@ copy durable findings back into this plan or the active status surface.
 - Current local resume-sort fit-estimate wording follow-up changes Settings
   resume-sort copy from score/scoring wording to fit-estimate wording and adds
   product-copy guard coverage.
+- Current local Dashboard comparison fit-label follow-up changes comparison
+  rows and duplicate-source groups from numeric-only fit percentages to fit
+  labels with percentages.
 - Current local Resume-Assisted Guided Intake follow-up shows active
   saved-resume skill names in setup as optional local suggestions and only adds
   user-picked names to the saved search.
@@ -1549,6 +1552,7 @@ source-filter compatibility issue appears.
   Setup work-to-avoid quick-picks work is committed in `438fbb61`.
   Ghost warning-label work is committed in `b8dae4ed`.
   Resume-sort fit-estimate wording work is committed in `26af1926`.
+  Dashboard comparison fit-label work is committed in `af644659`.
   Resume-Assisted Guided Intake work is committed in `da84110a`.
   Source Governance Metadata work is committed in `66924003`.
   Resume availability-constraint work is committed in `0d8bf479`.

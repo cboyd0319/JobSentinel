@@ -48,6 +48,9 @@ Job cards and fit details should help users make a decision without guessing.
 High fit does not mean the job is real, fair, or worth applying to. Always
 review posting risk, salary, source, and application route.
 
+Dashboard comparison rows and duplicate-source groups pair the percentage with
+the fit label instead of showing a number alone.
+
 Fit details also show an evidence-status label:
 
 | Evidence status | Meaning |
