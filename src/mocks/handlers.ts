@@ -2599,11 +2599,45 @@ function improveMockBulletPoint(args?: Record<string, unknown>): string {
     if (requiredKeywords.length > 0) {
       improved += ` (review if these are true and worth making visible: ${requiredKeywords.join(", ")})`;
     }
+    improved = appendMockRoleSpecificEvidencePrompt(improved, jobContext);
   }
 
   improved = appendMockInterviewDefensePrompt(improved);
 
   return improved;
+}
+
+function appendMockRoleSpecificEvidencePrompt(text: string, jobContext: string): string {
+  const prompt = getMockRoleSpecificEvidencePrompt(jobContext);
+  if (!prompt || text.includes(prompt)) return text;
+  return `${text} (${prompt})`;
+}
+
+function getMockRoleSpecificEvidencePrompt(jobContext: string): string | null {
+  const lower = jobContext.toLowerCase();
+  const healthcareTerms = [
+    "patient care",
+    "healthcare",
+    "nursing",
+    "rn license",
+    "registered nurse",
+    "lpn",
+    "cna",
+    "medication administration",
+    "clinical",
+    "medical record",
+    "vital sign",
+    "care plan",
+    "home health",
+    "hospital",
+    "clinic",
+  ];
+
+  if (healthcareTerms.some((term) => lower.includes(term))) {
+    return "healthcare evidence to check: scope of practice, patient safety, documentation, and required credentials";
+  }
+
+  return null;
 }
 
 function appendMockInterviewDefensePrompt(text: string): string {

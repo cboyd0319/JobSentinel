@@ -466,6 +466,8 @@ impl AtsAnalyzer {
                     important_keywords.join(", ")
                 ));
             }
+
+            Self::append_role_specific_evidence_prompt(&mut improved, job_desc);
         }
 
         Self::append_interview_defense_prompt(&mut improved);
@@ -484,6 +486,45 @@ impl AtsAnalyzer {
                 " (before using, make sure you can explain the {prompt})"
             ));
         }
+    }
+
+    fn append_role_specific_evidence_prompt(text: &mut String, job_desc: &str) {
+        let Some(prompt) = Self::role_specific_evidence_prompt(job_desc) else {
+            return;
+        };
+
+        if !text.contains(prompt) {
+            text.push_str(&format!(" ({prompt})"));
+        }
+    }
+
+    fn role_specific_evidence_prompt(job_desc: &str) -> Option<&'static str> {
+        let lower = job_desc.to_lowercase();
+        let healthcare_terms = [
+            "patient care",
+            "healthcare",
+            "nursing",
+            "rn license",
+            "registered nurse",
+            "lpn",
+            "cna",
+            "medication administration",
+            "clinical",
+            "medical record",
+            "vital sign",
+            "care plan",
+            "home health",
+            "hospital",
+            "clinic",
+        ];
+
+        if healthcare_terms.iter().any(|term| lower.contains(term)) {
+            return Some(
+                "healthcare evidence to check: scope of practice, patient safety, documentation, and required credentials",
+            );
+        }
+
+        None
     }
 
     fn check_contact_info(
@@ -3505,6 +3546,19 @@ Preferred: Salesforce
         assert!(improved.contains("worth making visible"));
         assert!(improved.contains("problem, your role, action, result, and evidence"));
         assert!(!improved.contains("consider adding"));
+    }
+
+    #[test]
+    fn test_improve_bullet_adds_healthcare_evidence_prompt() {
+        let bullet = "Supported patient care documentation";
+        let job_desc = "Required: patient care, medication administration, RN license";
+        let improved = AtsAnalyzer::improve_bullet(bullet, Some(job_desc));
+
+        assert!(improved.contains("healthcare evidence to check"));
+        assert!(improved.contains("scope of practice"));
+        assert!(improved.contains("patient safety"));
+        assert!(improved.contains("required credentials"));
+        assert!(improved.contains("problem, your role, action, result, and evidence"));
     }
 
     #[test]
