@@ -206,8 +206,9 @@ The current local matcher:
 - treats **shift lead**, **crew lead**, **lead worker**, and **lead
   experience** as lead-level evidence for required lead constraints;
 - treats **supervisor experience**, **supervisory experience**,
-  **team supervision**, **supervising staff**, and **supervised staff** as
-  management-experience evidence for required supervisor constraints;
+  **team supervision**, **supervising staff**, **supervised staff**,
+  **managed a team**, and **managed staff** as management-experience evidence
+  for required supervisor or management constraints;
 - treats **US citizenship**, **U.S. citizenship**, **US citizen**, and
   **U.S. citizen** as the same local citizenship evidence without treating
   generic work authorization as citizenship;

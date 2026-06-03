@@ -422,8 +422,9 @@ Future implementation should improve:
 - Resume/job fit now treats shift lead, crew lead, lead worker, and lead
   experience as lead-level evidence for required lead constraints.
 - Resume/job fit now treats supervisor experience, supervisory experience, team
-  supervision, supervising staff, and supervised staff as management-experience
-  evidence for required supervisor constraints.
+  supervision, supervising staff, supervised staff, managed a team, and
+  managed staff as management-experience evidence for required supervisor or
+  management constraints.
 - Resume analysis does not promise employer decisions or response outcomes.
 
 ## Backlog

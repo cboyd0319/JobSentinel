@@ -461,6 +461,15 @@ copy durable findings back into this plan or the active status surface.
   fuzzy matching. Verification passed: focused supervisor Rust tests,
   `cargo test --lib ats_analyzer --manifest-path src-tauri/Cargo.toml`, Rust
   formatter check, and `git diff --check`.
+- Current local Resume Match managed-team constraint follow-up in `5fd6993a`
+  recognizes managed a team, managed team, managed staff, managed people, and
+  managed employees as canonical management-experience constraints, caps
+  missing management evidence, and accepts managed-staff evidence without broad
+  fuzzy matching. Verification passed: `cargo test --lib managed_team
+  --manifest-path src-tauri/Cargo.toml`, `cargo test --lib ats_analyzer
+  --manifest-path src-tauri/Cargo.toml`, `cargo fmt --all --manifest-path
+  src-tauri/Cargo.toml -- --check`, `cargo clippy --manifest-path
+  src-tauri/Cargo.toml -- -D warnings`, and `git diff --check`.
 - Current local Resume Match shift-lead constraint follow-up in `b6606df8`
   recognizes required shift lead, crew lead, lead worker, and lead experience
   language as canonical lead-level constraints, caps missing lead evidence, and

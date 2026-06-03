@@ -526,6 +526,15 @@ acceptance still requires Developer ID signing and notarization.
   Verification passed: focused supervisor Rust tests, `cargo test --lib
   ats_analyzer --manifest-path src-tauri/Cargo.toml`, Rust formatter check, and
   `git diff --check`. The follow-up
+  `5fd6993a Review managed team resume constraints` recognizes managed a team,
+  managed team, managed staff, managed people, and managed employees as
+  canonical management-experience constraints, caps missing management
+  evidence, and accepts managed-staff evidence without broad fuzzy matching.
+  Verification passed: `cargo test --lib managed_team --manifest-path
+  src-tauri/Cargo.toml`, `cargo test --lib ats_analyzer --manifest-path
+  src-tauri/Cargo.toml`, `cargo fmt --all --manifest-path src-tauri/Cargo.toml
+  -- --check`, `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D
+  warnings`, and `git diff --check`. The follow-up
   `b6606df8 Review shift lead resume constraints` recognizes required shift
   lead, crew lead, lead worker, and lead experience language as canonical
   lead-level constraints, caps missing lead evidence, and accepts shift-lead
