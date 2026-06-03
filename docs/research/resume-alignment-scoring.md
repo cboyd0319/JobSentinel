@@ -209,6 +209,9 @@ Future implementation should improve:
   or clearance are missing.
 - Resume/job fit now treats the conservative `CRM` and `customer relationship
   management` pair as equivalent local evidence without broad fuzzy matching.
+- Structured resume review now marks matched requirements from a current role
+  as current-experience evidence instead of hiding recency in a generic
+  experience label.
 - Resume analysis does not promise employer decisions or response outcomes.
 
 ## Backlog
@@ -220,7 +223,7 @@ Future implementation should improve:
 - Add evidence-strength classification for missing, bare keyword, duty,
   responsibility, scope-backed, and metric-backed evidence.
 - Expand conservative synonym and acronym matching where equivalence is clear.
-- Add recency and section placement signals.
+- Expand recency and section placement signals.
 - Add seniority alignment and under-leveling warnings.
 - Add profession-specific weighting for non-technical and technical roles.
 - Keep score labels humble: "fit estimate", "readability check", "review

@@ -1177,6 +1177,7 @@ impl AtsAnalyzer {
                 section.as_str(),
                 "resume text"
                     | "experience"
+                    | "current experience"
                     | "summary"
                     | "projects"
                     | "education"
@@ -1311,14 +1312,17 @@ impl AtsAnalyzer {
         for (keyword, importance) in job_keywords {
             let mut found_in = Vec::new();
             let mut frequency = 0;
+            let keyword_lower = keyword.to_lowercase();
+            let search_terms = Self::conservative_keyword_search_terms(&keyword_lower);
 
             // Search in summary
             let summary_lower = resume.summary.to_lowercase();
-            let keyword_lower = keyword.to_lowercase();
-            let count = Self::keyword_frequency(&summary_lower, &keyword_lower);
-            if count > 0 {
-                found_in.push("summary".to_string());
-                frequency += count;
+            for term in &search_terms {
+                let count = Self::keyword_frequency(&summary_lower, term);
+                if count > 0 {
+                    Self::add_evidence_section(&mut found_in, "summary");
+                    frequency += count;
+                }
             }
 
             // Search in experience
@@ -1330,11 +1334,18 @@ impl AtsAnalyzer {
                     exp.achievements.join(" ")
                 )
                 .to_lowercase();
-                let count = Self::keyword_frequency(&exp_text, &keyword_lower);
+                let count = search_terms
+                    .iter()
+                    .map(|term| Self::keyword_frequency(&exp_text, term))
+                    .sum::<usize>();
                 if count > 0 {
-                    if !found_in.contains(&"experience".to_string()) {
-                        found_in.push("experience".to_string());
-                    }
+                    let section =
+                        if exp.current || exp.end_date.trim().eq_ignore_ascii_case("present") {
+                            "current experience"
+                        } else {
+                            "experience"
+                        };
+                    Self::add_evidence_section(&mut found_in, section);
                     frequency += count;
                 }
             }
@@ -1342,12 +1353,11 @@ impl AtsAnalyzer {
             // Search in skills
             for skill in &resume.skills {
                 let skill_lower = skill.name.to_lowercase();
-                if Self::keyword_appears_in_text(&skill_lower, &keyword_lower)
-                    || Self::keyword_appears_in_text(&keyword_lower, &skill_lower)
-                {
-                    if !found_in.contains(&"skills".to_string()) {
-                        found_in.push("skills".to_string());
-                    }
+                if search_terms.iter().any(|term| {
+                    Self::keyword_appears_in_text(&skill_lower, term)
+                        || Self::keyword_appears_in_text(term, &skill_lower)
+                }) {
+                    Self::add_evidence_section(&mut found_in, "skills");
                     frequency += 1;
                 }
             }
@@ -2471,6 +2481,21 @@ Preferred: Salesforce
             .expect("crm review");
         assert_eq!(crm.match_state, RequirementMatchState::Direct);
         assert!(crm.evidence_sections.contains(&"experience".to_string()));
+    }
+
+    #[test]
+    fn test_structured_requirement_review_marks_current_experience_evidence() {
+        let result = AtsAnalyzer::analyze_for_job(&sample_resume(), "Required: scheduling");
+
+        let scheduling = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "scheduling")
+            .expect("scheduling review");
+        assert_eq!(scheduling.match_state, RequirementMatchState::Strong);
+        assert!(scheduling
+            .evidence_sections
+            .contains(&"current experience".to_string()));
     }
 
     #[test]
