@@ -2386,6 +2386,12 @@ impl AtsAnalyzer {
             &["accounts payable", "a/p"],
             &["accounts receivable", "a/r"],
             &["budgeting", "budget tracking"],
+            &[
+                "logistics",
+                "shipping",
+                "receiving",
+                "shipping and receiving",
+            ],
             &["procurement", "purchasing"],
             &["vendor management", "supplier management"],
             &["document review", "document-review"],
@@ -5142,6 +5148,25 @@ Preferred: Salesforce
             .expect("purchasing");
         assert_eq!(purchasing.match_state, RequirementMatchState::Direct);
         assert!(purchasing
+            .evidence_sections
+            .contains(&"experience".to_string()));
+    }
+
+    #[test]
+    fn test_requirement_review_uses_logistics_shipping_receiving_equivalence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nHandled shipping and receiving for clinic supply orders.",
+            &[],
+            "Required: logistics",
+        );
+
+        let logistics = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "logistics")
+            .expect("logistics review");
+        assert_eq!(logistics.match_state, RequirementMatchState::Direct);
+        assert!(logistics
             .evidence_sections
             .contains(&"experience".to_string()));
     }

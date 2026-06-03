@@ -4670,6 +4670,34 @@ describe("mock Tauri handlers", () => {
     );
   });
 
+  it("treats logistics and shipping or receiving as equivalent mock evidence", async () => {
+    const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        skills: [],
+        experience: [
+          {
+            ...atsResume.experience[0],
+            current: false,
+            end_date: "2022",
+            achievements: ["Handled shipping and receiving for clinic supply orders."],
+          },
+        ],
+      },
+      jobDescription: "Required: logistics",
+    });
+    expect(result.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "logistics",
+          match_state: "Direct",
+          evidence_sections: ["experience"],
+        }),
+      ]),
+    );
+  });
+
   it("treats procurement and purchasing as equivalent mock evidence", async () => {
     const procurementResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
