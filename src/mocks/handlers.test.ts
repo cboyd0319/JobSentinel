@@ -2268,6 +2268,34 @@ describe("mock Tauri handlers", () => {
     );
   });
 
+  it("matches CISSP full-name wording in mock resume review", async () => {
+    const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        certifications: ["CISSP"],
+      },
+      jobDescription: "Required: Certified Information Systems Security Professional",
+    });
+
+    expect(result.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "certified information systems security professional",
+          match_state: "Direct",
+          hard_constraint: true,
+          evidence_sections: expect.arrayContaining(["certifications"]),
+        }),
+      ]),
+    );
+    expect(result.hard_constraint_risks).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          requirement: "certified information systems security professional",
+        }),
+      ]),
+    );
+  });
+
   it("recognizes First Aid Certified as first-aid certification evidence in mock resume review", async () => {
     const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {

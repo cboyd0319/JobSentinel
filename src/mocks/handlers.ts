@@ -2448,6 +2448,7 @@ function getMockHardConstraintCategory(keyword: string): MockHardConstraintCateg
     lower.includes("license") ||
     lower.includes("certification") ||
     ["cdl", "cissp", "security+", "rn", "bls", "acls", "cpr"].includes(lower) ||
+    lower.includes("certified information systems security professional") ||
     lower === "security plus" ||
     lower === "cna" ||
     lower === "lpn" ||
@@ -2855,7 +2856,7 @@ function extractMockHardConstraintKeywords(jobDescription: string): string[] {
     /\b(security clearance|clearance)\b/gi,
     /\bsecurity\+/gi,
     /\b(driver'?s license|driver license|cdl|rn license|nursing license|lpn|lvn|licensed practical nurse|licensed vocational nurse)\b/gi,
-    /\b(certification|cissp|security plus|bls|basic life support|acls|advanced cardiovascular life support|cpr|cardiopulmonary resuscitation|cna|certified nursing assistant|certified nurse assistant|certified nurse aide|pmp|project management professional|servsafe|food safety certification|food[- ]handler certification|food[- ]handler certificate|food[- ]handler permit|food[- ]handlers permit|food[- ]handler card|first[- ]aid certification|first[- ]aid certified|first[- ]aid certificate|first[- ]aid|forklift certification|forklift certified|forklift operator certification|forklift operator certified|forklift license|forklift operator license|osha\s*10(?:[- ]hour)?(?:\s+certification)?|osha\s*30(?:[- ]hour)?(?:\s+certification)?)\b/gi,
+    /\b(certification|cissp|certified information systems security professional|security plus|bls|basic life support|acls|advanced cardiovascular life support|cpr|cardiopulmonary resuscitation|cna|certified nursing assistant|certified nurse assistant|certified nurse aide|pmp|project management professional|servsafe|food safety certification|food[- ]handler certification|food[- ]handler certificate|food[- ]handler permit|food[- ]handlers permit|food[- ]handler card|first[- ]aid certification|first[- ]aid certified|first[- ]aid certificate|first[- ]aid|forklift certification|forklift operator certification|forklift certified|forklift license|forklift operator license|osha\s*10(?:[- ]hour)?(?:\s+certification)?|osha\s*30(?:[- ]hour)?(?:\s+certification)?)\b/gi,
     /\b(bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree|high[- ]school diploma|high[- ]school degree|ged|high[- ]school equivalency|general education development)\b/gi,
     /\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b/gi,
     /\b(lift(?:\s+up\s+to)?\s+\d+\s*(?:pounds?|lbs?)|(?:stand|standing) for long periods?|physical requirements?|physical demands?)\b/gi,
@@ -2887,6 +2888,7 @@ function extractMockHardConstraintKeywords(jobDescription: string): string[] {
   }
   const specificCertificationKeywords = [
     "cissp",
+    "certified information systems security professional",
     "security+",
     "security plus",
     "bls",

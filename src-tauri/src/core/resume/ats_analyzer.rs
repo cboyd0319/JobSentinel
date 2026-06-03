@@ -1651,6 +1651,7 @@ impl AtsAnalyzer {
             || lower.contains("certification")
             || lower == "cdl"
             || lower == "cissp"
+            || lower.contains("certified information systems security professional")
             || lower == "security+"
             || lower == "security plus"
             || lower == "rn"
@@ -2545,7 +2546,7 @@ impl AtsAnalyzer {
             r"(?i)\b(security clearance|clearance)\b",
             r"(?i)\bsecurity\+",
             r"(?i)\b(driver'?s license|driver license|cdl|rn license|nursing license|lpn|lvn|licensed practical nurse|licensed vocational nurse)\b",
-            r"(?i)\b(certification|cissp|security plus|bls|basic life support|acls|advanced cardiovascular life support|cpr|cardiopulmonary resuscitation|cna|certified nursing assistant|certified nurse assistant|certified nurse aide|pmp|project management professional|servsafe|food safety certification|food[- ]handler certification|food[- ]handler certificate|food[- ]handler permit|food[- ]handlers permit|food[- ]handler card|first[- ]aid certification|first[- ]aid certified|first[- ]aid certificate|first[- ]aid|forklift certification|forklift certified|forklift operator certification|forklift operator certified|forklift license|forklift operator license|osha\s*10(?:[- ]hour)?(?:\s+certification)?|osha\s*30(?:[- ]hour)?(?:\s+certification)?)\b",
+            r"(?i)\b(certification|cissp|certified information systems security professional|security plus|bls|basic life support|acls|advanced cardiovascular life support|cpr|cardiopulmonary resuscitation|cna|certified nursing assistant|certified nurse assistant|certified nurse aide|pmp|project management professional|servsafe|food safety certification|food[- ]handler certification|food[- ]handler certificate|food[- ]handler permit|food[- ]handlers permit|food[- ]handler card|first[- ]aid certification|first[- ]aid certified|first[- ]aid certificate|first[- ]aid|forklift certification|forklift certified|forklift operator certification|forklift operator certified|forklift license|forklift operator license|osha\s*10(?:[- ]hour)?(?:\s+certification)?|osha\s*30(?:[- ]hour)?(?:\s+certification)?)\b",
             r"(?i)\b(bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree|high[- ]school diploma|high[- ]school degree|ged|high[- ]school equivalency|general education development)\b",
             r"(?i)\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b",
             r"(?i)\b(lift(?:\s+up\s+to)?\s+\d+\s*(?:pounds?|lbs?)|(?:stand|standing) for long periods?|physical requirements?|physical demands?)\b",
@@ -2574,6 +2575,7 @@ impl AtsAnalyzer {
         }
         let specific_certification_keywords = [
             "cissp",
+            "certified information systems security professional",
             "security+",
             "security plus",
             "bls",
@@ -4069,6 +4071,30 @@ Preferred: Salesforce
             .hard_constraint_risks
             .iter()
             .any(|risk| risk.requirement == "security+"));
+    }
+
+    #[test]
+    fn test_cissp_full_name_requirement_accepts_cissp_evidence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nCertifications\nCISSP",
+            &[],
+            "Required: Certified Information Systems Security Professional",
+        );
+
+        let cissp = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "certified information systems security professional")
+            .expect("cissp full-name review");
+        assert_eq!(cissp.match_state, RequirementMatchState::Direct);
+        assert!(cissp.hard_constraint);
+        assert!(cissp
+            .evidence_sections
+            .contains(&"certifications".to_string()));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "certified information systems security professional"));
     }
 
     #[test]
