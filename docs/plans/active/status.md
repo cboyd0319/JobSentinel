@@ -139,6 +139,8 @@ acceptance still requires Developer ID signing and notarization.
   `fec9fa3d Match weekend shift terms` treats weekend availability, weekend
   shift, and weekend shifts as the same local hard-constraint evidence. The
   follow-up
+  `05b82897 Match second shift terms` treats evening shift, second shift, and
+  2nd shift as the same local hard-constraint evidence. The follow-up
   `66c587a8 Mark current plain text resume evidence` marks readable Experience
   bullets after a present-date role marker as current-experience evidence, then
   resets that label when a later past-role date range appears. The follow-up
