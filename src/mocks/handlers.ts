@@ -2361,6 +2361,8 @@ function getMockHardConstraintCategory(keyword: string): MockHardConstraintCateg
     lower.includes("on-site") ||
     lower.includes("relocation") ||
     lower.includes("travel") ||
+    lower.includes("transportation") ||
+    lower.includes("commute") ||
     lower.includes("availability") ||
     lower.includes("available") ||
     lower.includes("schedule") ||
@@ -2533,7 +2535,7 @@ function extractMockHardConstraintKeywords(jobDescription: string): string[] {
     /\b(certification|cissp|security\+|bls|acls)\b/gi,
     /\b(bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree)\b/gi,
     /\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b/gi,
-    /\b(onsite|on-site|relocation|travel|availability|available|schedule|weekend availability|night shift|evening shift)\b/gi,
+    /\b(onsite|on-site|relocation|travel|reliable transportation|own transportation|commute|availability|available|schedule|weekend availability|night shift|evening shift)\b/gi,
   ];
   const keywords = new Set<string>();
 
