@@ -16,6 +16,8 @@ fixed by asking harder.
 - Keep open-ended minimum-only pay ranges visible without a below-floor warning,
   because a listed minimum alone does not prove the role tops out below the
   user's floor.
+- Flag very wide listed pay ranges as weaker range evidence to check before
+  tailoring.
 - Flag when a floor is below credible range evidence or when a role may be
   listed at too low a title or pay level.
 - Draft editable negotiation notes grounded in role scope, written ranges, and
@@ -41,6 +43,8 @@ inputs, not as self-worth scores.
   or below a credible posted midpoint.
 - Treat missing pay as useful evidence about transparency, not as neutral or as
   proof of bad intent.
+- Treat very wide listed pay ranges as weaker evidence about the real role
+  level, schedule, and realistic pay.
 - Check whether title, scope, decision rights, team size, budget, and promotion
   path match the offered level.
 - Help users redirect salary-history questions toward the role range and target

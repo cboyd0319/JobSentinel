@@ -1560,6 +1560,13 @@ Scope:
   -t "thin salary samples"`, `npx vitest run src/pages/Salary.test.tsx`, `npx
   tsc --noEmit`, `npm run lint -- --quiet`, `npm run lint:external-ai`, and
   `git diff --check`.
+- Latest local broad listed-pay range slice in `48314f44` adds a cautious
+  job-card cue when a posted salary range is very wide, so users know the
+  range may cover different levels or schedules before tailoring. Verification
+  passed: `npx vitest run src/components/JobCard.test.tsx -t "salary
+  formatting"`, `npx vitest run src/components/JobCard.test.tsx`, `npx tsc
+  --noEmit`, `npm run lint -- --quiet`, `npm run lint:external-ai`, `npm run
+  lint:bloat`, and `git diff --check`.
 - No-Apple-account macOS readiness is already best-possible without an Apple
   Developer Account. Keep the limitation explicit: Gatekeeper-ready public
   distribution still needs Developer ID signing and notarization.

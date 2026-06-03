@@ -163,6 +163,9 @@ copy durable findings back into this plan or the active status surface.
 - Current local salary sample-quality follow-up labels Pay Protection benchmark
   samples as thin, useful, or stronger and frames thin samples as weak evidence
   to confirm against written ranges, role scope, and current postings.
+- Current local broad listed-pay range follow-up flags very wide posted salary
+  ranges on job cards as weaker evidence that may cover different levels or
+  schedules.
 - Current local Resume-Assisted Guided Intake follow-up shows active
   saved-resume skill names in setup as optional local suggestions and only adds
   user-picked names to the saved search.
@@ -1557,6 +1560,7 @@ source-filter compatibility issue appears.
   Resume-sort fit-estimate wording work is committed in `26af1926`.
   Dashboard comparison fit-label work is committed in `af644659`.
   Salary sample-quality work is committed in `3a6731e1`.
+  Broad listed-pay range work is committed in `48314f44`.
   Resume-Assisted Guided Intake work is committed in `da84110a`.
   Source Governance Metadata work is committed in `66924003`.
   Resume availability-constraint work is committed in `0d8bf479`.
