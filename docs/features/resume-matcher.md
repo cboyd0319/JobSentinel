@@ -223,7 +223,8 @@ The current local matcher:
   the same local license evidence;
 - treats **CDL**, **commercial driver's license**, **commercial drivers
   license**, and **commercial driver license** as the same local commercial
-  driving-license evidence;
+  driving-license evidence without adding a duplicate generic driver-license
+  gap when the commercial requirement is matched;
 - treats **RN**, **RN license**, **Registered Nurse**, and **Registered Nurse
   license** as the same local nursing-license evidence;
 - treats CNA, Certified Nursing Assistant, Certified Nurse Assistant, and

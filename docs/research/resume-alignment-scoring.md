@@ -266,7 +266,8 @@ Future implementation should improve:
   `driver license` as equivalent local license evidence.
 - Resume/job fit now treats `CDL`, `commercial driver's license`, `commercial
   drivers license`, and `commercial driver license` as equivalent local
-  commercial driving-license evidence.
+  commercial driving-license evidence without adding a duplicate generic
+  driver-license gap when the commercial requirement is matched.
 - Resume/job fit now treats `RN`, `RN license`, `Registered Nurse`, and
   `Registered Nurse license` as equivalent local nursing-license evidence.
 - Resume/job fit now treats `CNA`, `Certified Nursing Assistant`, `Certified

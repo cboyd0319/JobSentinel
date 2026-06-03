@@ -306,6 +306,9 @@ copy durable findings back into this plan or the active status surface.
 - Current local CDL follow-up in `d9d55406` treats CDL, commercial driver's
   license, commercial drivers license, and commercial driver license as
   equivalent local credential hard-constraint evidence.
+- Current local inverse CDL follow-up in `692162dd` preserves commercial
+  driver-license job-post wording as the specific CDL requirement and avoids a
+  duplicate generic driver-license gap when CDL evidence satisfies it.
 - Current local LPN credential-equivalence follow-up treats `LPN`, `Licensed
   Practical Nurse`, `LVN`, and `Licensed Vocational Nurse` as the same local
   credential evidence, while hard-requirement guidance still tells users to
@@ -1801,6 +1804,7 @@ source-filter compatibility issue appears.
   Security Plus work is committed in `95488cf4`.
   CISSP work is committed in `cb7e461d`.
   CDL work is committed in `d9d55406`.
+  Inverse CDL work is committed in `692162dd`.
   LPN credential-equivalence work is committed in `b437ffa5`.
   PMP credential-equivalence work is committed in `c69a2bea`.
   Food-safety credential-equivalence work is committed in `9f47bee9`.
