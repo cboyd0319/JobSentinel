@@ -841,6 +841,7 @@ describe("mock Tauri handlers", () => {
           requirement: "senior-level experience",
           category: "Experience",
           score_cap: 65,
+          action: expect.stringContaining("Do not round up"),
         }),
       ]),
     );
@@ -866,7 +867,7 @@ describe("mock Tauri handlers", () => {
           requirement: "security clearance",
           category: "SecurityClearance",
           score_cap: 60,
-          action: expect.stringContaining("Verify this before tailoring"),
+          action: expect.stringContaining("Check clearance before tailoring"),
         }),
       ]),
     );
@@ -876,26 +877,31 @@ describe("mock Tauri handlers", () => {
           requirement: "weekend availability",
           category: "Location",
           score_cap: 70,
+          action: expect.stringContaining("Check location, schedule, availability, or travel"),
         }),
         expect.objectContaining({
           requirement: "8+ years of payroll management",
           category: "Experience",
           score_cap: 65,
+          action: expect.stringContaining("Do not round up"),
         }),
         expect.objectContaining({
           requirement: "us citizenship",
           category: "WorkAuthorization",
           score_cap: 50,
+          action: expect.stringContaining("Check work authorization before tailoring"),
         }),
         expect.objectContaining({
           requirement: "reliable transportation",
           category: "Location",
           score_cap: 70,
+          action: expect.stringContaining("Check location, schedule, availability, or travel"),
         }),
         expect.objectContaining({
           requirement: "lift 50 pounds",
           category: "PhysicalRequirement",
           score_cap: 70,
+          action: expect.stringContaining("not workable or safe"),
         }),
       ]),
     );

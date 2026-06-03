@@ -1242,9 +1242,7 @@ impl AtsAnalyzer {
                     score_cap,
                     reason: "A required hard constraint was not clearly found in the resume."
                         .to_string(),
-                    action:
-                        "Verify this before tailoring. If it is not true for you, do not claim it."
-                            .to_string(),
+                    action: Self::hard_constraint_action(category),
                 })
             })
             .collect::<Vec<_>>();
@@ -1267,6 +1265,33 @@ impl AtsAnalyzer {
             HardConstraintCategory::PhysicalRequirement => 70.0,
             HardConstraintCategory::Location => 70.0,
         }
+    }
+
+    fn hard_constraint_action(category: HardConstraintCategory) -> String {
+        match category {
+            HardConstraintCategory::WorkAuthorization => {
+                "Check work authorization before tailoring. If it is not true for you, do not claim it."
+            }
+            HardConstraintCategory::SecurityClearance => {
+                "Check clearance before tailoring. If it is not current or true for you, do not claim it."
+            }
+            HardConstraintCategory::LicenseOrCertification => {
+                "Check license or certification before tailoring. If it is not current or true for you, do not claim it."
+            }
+            HardConstraintCategory::Education => {
+                "Check the degree or education requirement before tailoring. If it is not true for you, do not claim it."
+            }
+            HardConstraintCategory::Experience => {
+                "Check years or level before tailoring. Do not round up, stretch titles, or imply more experience than you have."
+            }
+            HardConstraintCategory::PhysicalRequirement => {
+                "Check this physical demand before tailoring. If it is not workable or safe for you, do not claim it."
+            }
+            HardConstraintCategory::Location => {
+                "Check location, schedule, availability, or travel before tailoring. If it is not workable for you, do not claim it."
+            }
+        }
+        .to_string()
     }
 
     fn hard_constraint_category(keyword: &str) -> Option<HardConstraintCategory> {
@@ -2735,7 +2760,7 @@ Preferred: Salesforce
             risk.requirement == "security clearance"
                 && risk.category == HardConstraintCategory::SecurityClearance
                 && risk.score_cap == 60.0
-                && risk.action.contains("Verify this before tailoring")
+                && risk.action.contains("Check clearance before tailoring")
         }));
         assert!(result.requirement_reviews.iter().any(|review| {
             review.keyword == "security clearance"
@@ -2756,7 +2781,9 @@ Preferred: Salesforce
             risk.requirement == "weekend availability"
                 && risk.category == HardConstraintCategory::Location
                 && risk.score_cap == 70.0
-                && risk.action.contains("Verify this before tailoring")
+                && risk
+                    .action
+                    .contains("Check location, schedule, availability, or travel")
         }));
         assert!(result.requirement_reviews.iter().any(|review| {
             review.keyword == "weekend availability"
@@ -2777,7 +2804,7 @@ Preferred: Salesforce
             risk.requirement == "8+ years of payroll management"
                 && risk.category == HardConstraintCategory::Experience
                 && risk.score_cap == 65.0
-                && risk.action.contains("Verify this before tailoring")
+                && risk.action.contains("Do not round up")
         }));
         assert!(result.requirement_reviews.iter().any(|review| {
             review.keyword == "8+ years of payroll management"
@@ -2802,7 +2829,7 @@ Preferred: Salesforce
             risk.requirement == "senior-level experience"
                 && risk.category == HardConstraintCategory::Experience
                 && risk.score_cap == 65.0
-                && risk.action.contains("Verify this before tailoring")
+                && risk.action.contains("Do not round up")
         }));
         assert!(result.requirement_reviews.iter().any(|review| {
             review.keyword == "senior-level experience"
@@ -2846,7 +2873,9 @@ Preferred: Salesforce
             risk.requirement == "us citizenship"
                 && risk.category == HardConstraintCategory::WorkAuthorization
                 && risk.score_cap == 50.0
-                && risk.action.contains("Verify this before tailoring")
+                && risk
+                    .action
+                    .contains("Check work authorization before tailoring")
         }));
         assert!(result.requirement_reviews.iter().any(|review| {
             review.keyword == "us citizenship"
@@ -2869,7 +2898,9 @@ Preferred: Salesforce
             risk.requirement == "reliable transportation"
                 && risk.category == HardConstraintCategory::Location
                 && risk.score_cap == 70.0
-                && risk.action.contains("Verify this before tailoring")
+                && risk
+                    .action
+                    .contains("Check location, schedule, availability, or travel")
         }));
         assert!(result.requirement_reviews.iter().any(|review| {
             review.keyword == "reliable transportation"
@@ -2890,7 +2921,7 @@ Preferred: Salesforce
             risk.requirement == "lift 50 pounds"
                 && risk.category == HardConstraintCategory::PhysicalRequirement
                 && risk.score_cap == 70.0
-                && risk.action.contains("Verify this before tailoring")
+                && risk.action.contains("not workable or safe")
         }));
         assert!(result.requirement_reviews.iter().any(|review| {
             review.keyword == "lift 50 pounds"

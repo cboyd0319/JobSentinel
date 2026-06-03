@@ -2296,8 +2296,7 @@ function buildMockHardConstraintRisks(
           category,
           score_cap: getMockHardConstraintScoreCap(category),
           reason: "A required hard constraint was not clearly found in the resume.",
-          action:
-            "Verify this before tailoring. If it is not true for you, do not claim it.",
+          action: getMockHardConstraintAction(category),
         },
       ];
     })
@@ -2305,6 +2304,25 @@ function buildMockHardConstraintRisks(
       (a, b) =>
         a.score_cap - b.score_cap || a.requirement.localeCompare(b.requirement),
     );
+}
+
+function getMockHardConstraintAction(category: MockHardConstraintCategory): string {
+  switch (category) {
+    case "WorkAuthorization":
+      return "Check work authorization before tailoring. If it is not true for you, do not claim it.";
+    case "SecurityClearance":
+      return "Check clearance before tailoring. If it is not current or true for you, do not claim it.";
+    case "LicenseOrCertification":
+      return "Check license or certification before tailoring. If it is not current or true for you, do not claim it.";
+    case "Education":
+      return "Check the degree or education requirement before tailoring. If it is not true for you, do not claim it.";
+    case "Experience":
+      return "Check years or level before tailoring. Do not round up, stretch titles, or imply more experience than you have.";
+    case "PhysicalRequirement":
+      return "Check this physical demand before tailoring. If it is not workable or safe for you, do not claim it.";
+    case "Location":
+      return "Check location, schedule, availability, or travel before tailoring. If it is not workable for you, do not claim it.";
+  }
 }
 
 function getMockHardConstraintScoreCap(category: MockHardConstraintCategory): number {
