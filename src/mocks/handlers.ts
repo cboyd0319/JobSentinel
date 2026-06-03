@@ -622,7 +622,9 @@ const ATS_KNOWN_KEYWORDS = [
   "licensed practical nurse",
   "medication administration",
   "vital sign",
+  "vital-sign",
   "vital signs",
+  "vital-signs",
   "care plan",
   "care plans",
   "medical record",
@@ -2854,7 +2856,11 @@ function extractMockAtsKeywords(jobDescription: string): MockAtsKeyword[] {
   const hasPluralCarePlans = /\bcare plans\b/.test(lower);
   const hasSingularCarePlan = /\bcare plan\b/.test(lower) && !hasPluralCarePlans;
   const hasPluralVitalSigns = /\bvital signs\b/.test(lower);
-  const hasSingularVitalSign = /\bvital sign\b/.test(lower) && !hasPluralVitalSigns;
+  const hasHyphenPluralVitalSigns = /\bvital-signs\b/.test(lower);
+  const hasSingularVitalSign =
+    /\bvital sign\b/.test(lower) && !hasPluralVitalSigns;
+  const hasHyphenSingularVitalSign =
+    /\bvital-sign\b/.test(lower) && !hasHyphenPluralVitalSigns;
   const hasSpecificDegree = hardKeywords.some((keyword) =>
     isMockExactDegreeKeyword(keyword) && keyword !== "degree"
   );
@@ -2865,8 +2871,10 @@ function extractMockAtsKeywords(jobDescription: string): MockAtsKeyword[] {
     !(hasSingularMedicalRecord && keyword === "medical records") &&
     !(hasPluralCarePlans && keyword === "care plan") &&
     !(hasSingularCarePlan && keyword === "care plans") &&
-    !(hasPluralVitalSigns && keyword === "vital sign") &&
-    !(hasSingularVitalSign && keyword === "vital signs") &&
+    !(hasPluralVitalSigns && ["vital sign", "vital-sign", "vital-signs"].includes(keyword)) &&
+    !(hasHyphenPluralVitalSigns && ["vital sign", "vital-sign", "vital signs"].includes(keyword)) &&
+    !(hasSingularVitalSign && ["vital signs", "vital-sign", "vital-signs"].includes(keyword)) &&
+    !(hasHyphenSingularVitalSign && ["vital sign", "vital signs", "vital-signs"].includes(keyword)) &&
     !(
       hasCommercialDriverLicense &&
       ["driver's license", "drivers license", "driver license"].includes(keyword)
@@ -3164,7 +3172,7 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
     ["patient care", "patient-care"],
     ["medical record", "medical records"],
     ["care plan", "care plans"],
-    ["vital sign", "vital signs"],
+    ["vital sign", "vital signs", "vital-sign", "vital-signs"],
     ["data entry", "data-entry"],
     ["onsite", "on-site", "on site"],
     ["relocation", "relocate", "willing to relocate"],
