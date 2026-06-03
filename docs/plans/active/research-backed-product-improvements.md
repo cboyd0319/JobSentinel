@@ -1045,6 +1045,14 @@ copy durable findings back into this plan or the active status surface.
   --manifest-path src-tauri/Cargo.toml`, `cargo fmt --all --manifest-path
   src-tauri/Cargo.toml -- --check`, `cargo clippy --manifest-path
   src-tauri/Cargo.toml -- -D warnings`, and `git diff --check`.
+- Current local combined credential-heading follow-up in `38ff79ec` treats
+  Licenses & Certifications, Licenses and Certifications, and Certifications
+  and Licenses as standard readable-resume structure and credential evidence
+  instead of a formatting defect. Verification passed: `cargo test --lib
+  combined_license_certification_headings --manifest-path src-tauri/Cargo.toml`,
+  `cargo test --lib ats_analyzer --manifest-path src-tauri/Cargo.toml`, `cargo
+  fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo clippy
+  --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff --check`.
 - Current local interview-defense bullet follow-up adds a reminder to drafted
   alternative bullets to check the problem, role, action, result, and evidence
   before using stronger wording.
