@@ -150,6 +150,20 @@ describe("Salary", () => {
     expect(screen.queryByText(/illegal|law|ban/i)).not.toBeInTheDocument();
   });
 
+  it("shows level and scope checks before accepting a pay range", async () => {
+    const user = userEvent.setup();
+    renderSalary();
+
+    await user.type(screen.getByLabelText("Job Title"), "Registered Nurse");
+    await user.type(screen.getByLabelText("Location"), "Denver, CO");
+    await user.click(screen.getByRole("button", { name: "Check Pay Range" }));
+
+    expect(await screen.findByText("Level and scope check")).toBeInTheDocument();
+    expect(screen.getByText(/title, seniority, and responsibilities/i)).toBeInTheDocument();
+    expect(screen.getByText(/schedule, travel, expected hours, and location/i)).toBeInTheDocument();
+    expect(screen.getByText(/promotion path, review timing, benefits/i)).toBeInTheDocument();
+  });
+
   it("does not show raw private details when pay range lookup fails", async () => {
     const user = userEvent.setup();
     mockInvoke.mockRejectedValueOnce(privateFailure);

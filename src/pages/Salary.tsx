@@ -394,6 +394,17 @@ export default function Salary({ onBack }: SalaryProps) {
                   </div>
                 )}
 
+                <div className="rounded-lg border border-surface-200 bg-white p-4 dark:border-surface-700 dark:bg-surface-800">
+                  <p className="text-sm font-medium text-surface-900 dark:text-surface-100">
+                    Level and scope check
+                  </p>
+                  <ul className="mt-2 space-y-1 text-sm text-surface-600 dark:text-surface-400">
+                    <li>Title, seniority, and responsibilities match the pay range.</li>
+                    <li>Schedule, travel, expected hours, and location fit your life.</li>
+                    <li>Promotion path, review timing, benefits, and support are clear.</li>
+                  </ul>
+                </div>
+
                 <Button
                   onClick={handleGenerateScript}
                   loading={scriptLoading}
