@@ -129,7 +129,8 @@ The current local matcher:
   readable-text preview;
 - checks the extracted text for common application-readability risks such as
   missing top contact details, missing standard section headings, table-like
-  text, and hidden instruction-like content;
+  text, hidden instruction-like content, and work bullets that read like
+  keyword lists instead of plain work evidence;
 - can review the active saved resume against a pasted job post without copying
   structured resume details into the page;
 - loads the active saved resume on page open so the user can paste a job post

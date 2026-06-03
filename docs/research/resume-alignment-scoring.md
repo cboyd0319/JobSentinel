@@ -218,6 +218,8 @@ Future implementation should improve:
   credentials separate.
 - Readable-text review now treats training, credentials, certificate, and
   license headings as credential evidence instead of generic resume text.
+- Resume readability review now warns when experience or project bullets read
+  like keyword lists instead of plain work evidence.
 - Structured resume review now marks matched requirements from a current role
   as current-experience evidence instead of hiding recency in a generic
   experience label.
