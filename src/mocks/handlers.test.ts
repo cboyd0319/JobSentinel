@@ -3313,6 +3313,60 @@ describe("mock Tauri handlers", () => {
     );
   });
 
+  it("treats patient-care hyphen terms as equivalent mock evidence", async () => {
+    const patientCareResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        skills: [],
+        experience: [
+          {
+            ...atsResume.experience[0],
+            current: false,
+            end_date: "2022",
+            achievements: ["Provided patient-care support."],
+          },
+        ],
+      },
+      jobDescription: "Required: patient care",
+    });
+    expect(patientCareResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "patient care",
+          match_state: "Direct",
+          evidence_sections: ["experience"],
+        }),
+      ]),
+    );
+
+    const hyphenResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        skills: [],
+        experience: [
+          {
+            ...atsResume.experience[0],
+            current: false,
+            end_date: "2022",
+            achievements: ["Provided patient care support."],
+          },
+        ],
+      },
+      jobDescription: "Required: patient-care",
+    });
+    expect(hyphenResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "patient-care",
+          match_state: "Direct",
+          evidence_sections: ["experience"],
+        }),
+      ]),
+    );
+  });
+
   it("treats single current-role evidence as stronger than the same past-role mock evidence", async () => {
     const currentResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
