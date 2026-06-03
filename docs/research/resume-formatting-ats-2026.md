@@ -227,6 +227,9 @@ resume help should adjust examples and evidence prompts for:
 - Application Assist includes minimum-age setup in common saved-answer
   patterns, so users can prepare a reusable legal work-age answer before a hard
   age question appears.
+- Application Assist includes citizenship setup in common saved-answer
+  patterns, so users can prepare a reusable citizenship answer before a hard
+  citizenship question appears.
 - Application Assist shows matching saved travel, relocation, commute, remote,
   hybrid, or on-site screening answers in the hard question review when saved
   job details mention location or travel constraints.

@@ -241,6 +241,14 @@ acceptance still requires Developer ID signing and notarization.
   `npx vitest run src/components/automation/ApplicationPreview.test.tsx`, `npx
   tsc --noEmit`, `npm run lint -- --quiet`, and `git diff --check`. The
   follow-up
+  `e8487232 Add citizenship screening quick add` adds US-citizen setup to
+  Application Assist's common saved-answer patterns, so users can prepare a
+  reusable citizenship answer before a hard citizenship question appears.
+  Verification passed: `npx vitest run
+  src/components/automation/ScreeningAnswersForm.test.tsx -t "shows all common
+  pattern buttons"`, `npx vitest run
+  src/components/automation/ScreeningAnswersForm.test.tsx`, `npx tsc
+  --noEmit`, `npm run lint -- --quiet`, and `git diff --check`. The follow-up
   `ebb83cef Add do not force job words guidance` reminds users in the Resume
   Match job words overview not to force words they cannot support with real
   work, training, or credentials. The follow-up
