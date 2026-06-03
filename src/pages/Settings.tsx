@@ -3668,6 +3668,11 @@ export default function Settings({ onClose }: SettingsProps) {
                                       jobsWithGptLastRequest.outcome,
                                     )}
                                   </dd>
+                                  <dt className="font-medium">Data not sent</dt>
+                                  <dd>
+                                    Resume text, salary floor, private notes,
+                                    application history, full source link
+                                  </dd>
                                 </dl>
                               )}
                             </div>

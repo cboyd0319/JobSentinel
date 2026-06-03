@@ -802,6 +802,12 @@ describe("Settings — handleSave flow", () => {
     expect(within(contactSummary!).queryByText("Failed")).not.toBeInTheDocument();
     expect(within(contactSummary!).getByText("Remote only")).toBeInTheDocument();
     expect(within(contactSummary!).getByText("No")).toBeInTheDocument();
+    expect(within(contactSummary!).getByText("Data not sent")).toBeInTheDocument();
+    expect(
+      within(contactSummary!).getByText(
+        "Resume text, salary floor, private notes, application history, full source link",
+      ),
+    ).toBeInTheDocument();
   });
 
   it("shows error toast when save_config fails completely", async () => {

@@ -143,6 +143,9 @@ copy durable findings back into this plan or the active status surface.
 - Current local Resume-Assisted Guided Intake follow-up shows active
   saved-resume skill names in setup as optional local suggestions and only adds
   user-picked names to the saved search.
+- Current local Source Governance Metadata follow-up labels sensitive data not
+  sent in optional connected-source contact history, including resume text,
+  salary floors, private notes, application history, and full source links.
 - Latest local Resume Match mock-contract follow-up keeps dev/browser mock
   match results on the same `0.0` to `1.0` fraction scale as the real backend,
   preventing mock-only inflated percentages in resume assistance views.
@@ -1513,6 +1516,8 @@ source-filter compatibility issue appears.
   Reviewer-fix work is committed in `efea47a5`.
   Resume Import Status work is committed in `b3c07068`.
   Resume-Assisted Guided Intake work is committed in `da84110a`.
+  Current local Source Governance Metadata follow-up is verified locally and
+  ready to commit.
 - Multi-agent orchestration: a read-only reviewer covered recent resume
   analyzer commits and a read-only explorer recommended Resume Import Status,
   Resume-Assisted Guided Intake, and Source Governance Metadata as next

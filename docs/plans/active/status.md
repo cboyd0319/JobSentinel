@@ -1412,6 +1412,13 @@ Scope:
   `npm run lint:architecture`, `npm run lint:external-ai`, `npm run
   lint:tauri-invokes`, `npm run lint:docs`, `npm run harness:check`, `npm run
   lint:bloat`, and `git diff --check`.
+- Current local Source Governance Metadata slice adds a Settings contact-history
+  row naming sensitive data not sent to optional connected job sources: resume
+  text, salary floor, private notes, application history, and full source link.
+  Verification passed: `npx vitest run src/pages/Settings.test.tsx`, `npx tsc
+  --noEmit`, `npm run lint -- --quiet`, `npm run lint:external-ai`, `npm run
+  lint:docs`, `npm run harness:check`, `npm run lint:bloat`, `npm run
+  lint:tauri-invokes`, `npm run lint:architecture`, and `git diff --check`.
 - No-Apple-account macOS readiness is already best-possible without an Apple
   Developer Account. Keep the limitation explicit: Gatekeeper-ready public
   distribution still needs Developer ID signing and notarization.

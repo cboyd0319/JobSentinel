@@ -95,6 +95,9 @@ Settings also shows the latest approved contact as local status details only:
 contact time, website contacted, count-only request categories, and outcome. The
 contact history must not store raw titles, raw location, resumes, salary floors,
 private notes, application history, or full source links.
+The contact summary also names sensitive data that was not sent so users can
+verify that resumes, salary floors, private notes, application history, and full
+source links stayed out of the source request.
 
 ## Duplicate Handling
 

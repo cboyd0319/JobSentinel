@@ -58,6 +58,8 @@ Source status must follow the same rules for job sources:
   contacted, count-only request categories, and outcome. Do not store raw
   titles, raw location, private notes, resumes, salary floors, application
   history, or full source links in that contact history.
+  Settings also labels sensitive data that was not sent, including resume text,
+  salary floors, private notes, application history, and full source links.
 
 LinkedIn is intentionally handled as a user-opened search-link destination. It
 should not appear as a background source, credential-renewal prompt, or job-site
