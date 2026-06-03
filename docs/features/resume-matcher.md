@@ -124,6 +124,8 @@ The current local matcher:
 - shows the resume format and whether readable text is available before review;
 - provides an explicit local preview of readable resume text without returning
   the saved file path;
+- shows a plain preview checklist for found text, employer-format priority, and
+  whether the visible preview is complete, clipped, or unavailable;
 - tells users to follow employer file instructions first when readable text is
   missing, then suggests readable PDF, DOCX, TXT, or Markdown when no format is
   named;

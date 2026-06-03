@@ -178,6 +178,9 @@ resume help should adjust examples and evidence prompts for:
 
 - Resume matching stays local by default.
 - Users can open a bounded readable-text preview.
+- The readable-text preview shows a plain checklist for text availability,
+  employer-format priority, and whether the visible preview is complete,
+  clipped, or unavailable.
 - PDF, DOCX, TXT, and Markdown resume import are supported locally.
 - Selected resume uploads are checked locally and files over 10 MB are rejected
   before being copied into managed local storage.
@@ -194,7 +197,6 @@ resume help should adjust examples and evidence prompts for:
 ## Backlog To Lock Next
 
 - Add a guided requirement-inventory workflow for serious applications.
-- Add a plain-text preview checklist with pass, review, and unknown states.
 - Add selectable-text checks where local PDF parsing supports them, and extend
   file-size metadata guidance if employer-specific limits are available.
 - Add a knockout-question consistency review in Application Assist.

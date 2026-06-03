@@ -105,8 +105,11 @@ acceptance still requires Developer ID signing and notarization.
   The follow-up `19efc7ba Limit selected resume upload size` rejects selected
   PDF, DOCX, TXT, and Markdown resume uploads over 10 MB before copying them
   into managed local storage, without echoing the source path or file name in
-  the user-facing error. Real resume/profile reference material remains private
-  and must not be committed.
+  the user-facing error. The follow-up
+  `b783d285 Add readable preview checklist` adds plain text-availability,
+  employer-format, and preview-completeness states inside the local readable
+  resume preview. Real resume/profile reference material remains private and
+  must not be committed.
 - Current local resume-alignment scoring follow-up is committed in
   `3d720693 Add resume requirement review caps`. It locks
   `/Users/c/Downloads/ats_scoring_algorithm.md` into

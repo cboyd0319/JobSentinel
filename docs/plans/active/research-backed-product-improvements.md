@@ -190,6 +190,9 @@ copy durable findings back into this plan or the active status surface.
   selected PDF, DOCX, TXT, and Markdown resume uploads over 10 MB before copying
   them into managed local storage, without echoing the source path or file name
   in the user-facing error.
+- Current local readable-preview checklist follow-up in `b783d285` shows plain
+  text-availability, employer-format, and preview-completeness states inside the
+  local readable resume preview.
 - Current local onsite location-term follow-up in `bffa0a1f` treats onsite and
   on-site as equivalent local hard-constraint evidence, so exact punctuation
   differences do not create a false missing-location risk.
