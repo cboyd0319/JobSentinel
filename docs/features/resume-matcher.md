@@ -203,6 +203,8 @@ The current local matcher:
 - treats recognized required seniority language, such as senior-level
   experience, as a local experience constraint and checks for visible role,
   leadership, or enough-years evidence before raising the fit label;
+- treats **shift lead**, **crew lead**, **lead worker**, and **lead
+  experience** as lead-level evidence for required lead constraints;
 - treats **supervisor experience**, **supervisory experience**,
   **team supervision**, **supervising staff**, and **supervised staff** as
   management-experience evidence for required supervisor constraints;

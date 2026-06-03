@@ -302,6 +302,12 @@ copy durable findings back into this plan or the active status surface.
   fuzzy matching. Verification passed: focused supervisor Rust tests,
   `cargo test --lib ats_analyzer --manifest-path src-tauri/Cargo.toml`, Rust
   formatter check, and `git diff --check`.
+- Current local Resume Match shift-lead constraint follow-up in `b6606df8`
+  recognizes required shift lead, crew lead, lead worker, and lead experience
+  language as canonical lead-level constraints, caps missing lead evidence, and
+  accepts shift-lead evidence without broad fuzzy matching. Verification passed:
+  focused shift-lead Rust tests, `cargo test --lib ats_analyzer --manifest-path
+  src-tauri/Cargo.toml`, Rust formatter check, and `git diff --check`.
 - Current local healthcare bullet-prompt follow-up in `e7a61306` adds a
   role-specific evidence reminder for healthcare and licensed-work job details,
   asking users to check scope of practice, patient safety, documentation, and

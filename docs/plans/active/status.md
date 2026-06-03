@@ -372,6 +372,13 @@ acceptance still requires Developer ID signing and notarization.
   Verification passed: focused supervisor Rust tests, `cargo test --lib
   ats_analyzer --manifest-path src-tauri/Cargo.toml`, Rust formatter check, and
   `git diff --check`. The follow-up
+  `b6606df8 Review shift lead resume constraints` recognizes required shift
+  lead, crew lead, lead worker, and lead experience language as canonical
+  lead-level constraints, caps missing lead evidence, and accepts shift-lead
+  evidence without broad fuzzy matching. Verification passed: focused
+  shift-lead Rust tests, `cargo test --lib ats_analyzer --manifest-path
+  src-tauri/Cargo.toml`, Rust formatter check, and `git diff --check`. The
+  follow-up
   `5be01ab3 Match lift weight unit terms` treats lift requirements with the
   same number and `lb`, `lbs`, `pound`, or `pounds` wording as the same local
   hard-constraint evidence. The follow-up
