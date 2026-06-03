@@ -3270,6 +3270,7 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
       "masters degree",
       "master of arts",
       "master of business administration",
+      "master of engineering",
       "master of science",
     ],
     [
@@ -3420,6 +3421,7 @@ function getConservativeMockJobSearchTerms(keyword: string): string[] {
     "bachelor of science",
     "master of arts",
     "master of business administration",
+    "master of engineering",
     "master of science",
   ]);
   return getConservativeMockSearchTerms(keyword)
