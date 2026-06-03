@@ -1958,6 +1958,7 @@ impl AtsAnalyzer {
             &["weekend availability", "weekend shift", "weekend shifts"],
             &["evening shift", "second shift", "2nd shift"],
             &["day shift", "first shift", "1st shift"],
+            &["availability", "available"],
             &["bls", "basic life support"],
             &["acls", "advanced cardiovascular life support"],
             &["cpr", "cardiopulmonary resuscitation"],
@@ -4355,6 +4356,30 @@ Preferred: Salesforce
             .hard_constraint_risks
             .iter()
             .any(|risk| risk.requirement == "day shift"));
+    }
+
+    #[test]
+    fn test_availability_accepts_available_evidence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nAvailable for full-time coverage.",
+            &[],
+            "Required: availability",
+        );
+
+        let availability = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "availability")
+            .expect("availability review");
+        assert_eq!(availability.match_state, RequirementMatchState::Direct);
+        assert!(availability.hard_constraint);
+        assert!(availability
+            .evidence_sections
+            .contains(&"experience".to_string()));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "availability"));
     }
 
     #[test]

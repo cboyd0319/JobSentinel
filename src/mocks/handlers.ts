@@ -3054,6 +3054,7 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
     ["weekend availability", "weekend shift", "weekend shifts"],
     ["evening shift", "second shift", "2nd shift"],
     ["day shift", "first shift", "1st shift"],
+    ["availability", "available"],
     ["bls", "basic life support"],
     ["acls", "advanced cardiovascular life support"],
     ["cpr", "cardiopulmonary resuscitation"],
