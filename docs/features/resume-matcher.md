@@ -194,8 +194,9 @@ The current local matcher:
   stronger local evidence than a bare keyword;
 - flags recognized missing hard requirements such as authorization, location,
   citizenship, schedule, availability, commute or transportation, travel, years
-  of experience, physical demands, license, certification, degree, or clearance
-  and limits the fit label until the user verifies the requirement;
+  of experience, language fluency, physical demands, license, certification,
+  degree, or clearance and limits the fit label until the user verifies the
+  requirement;
 - treats explicit **degree or equivalent experience** wording, including
   equivalent combinations of education and experience, as
   experience-compatible evidence instead of a missing exact-degree hard cap;
@@ -209,6 +210,9 @@ The current local matcher:
   work-eligibility evidence;
 - treats **security clearance** and **clearance** as the same local clearance
   evidence;
+- treats **bilingual Spanish**, **Spanish fluency**, **fluent in Spanish**,
+  **Spanish language**, **English/Spanish**, and **English and Spanish** as the
+  same local language evidence for required language constraints;
 - treats conservative local term equivalents, such as **CRM** and **customer
   relationship management**, and **customer service**, **customer support**,
   **client service**, **client services**, and **client support**, as the same

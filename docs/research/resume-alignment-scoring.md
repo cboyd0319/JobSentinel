@@ -207,8 +207,8 @@ Future implementation should improve:
 - Hard-requirement risk actions now use category-specific honesty guidance
   instead of generic verify-first copy.
 - Resume/job fit now caps the local fit label when recognized required hard
-  constraints such as authorization, location, license, certification, degree,
-  or clearance are missing.
+  constraints such as authorization, location, language fluency, license,
+  certification, degree, or clearance are missing.
 - Resume/job fit now treats explicit degree-or-equivalent-experience wording,
   including equivalent combinations of education and experience, as an
   experience-compatible requirement instead of an exact-degree hard cap.
@@ -303,6 +303,10 @@ Future implementation should improve:
   equivalent local work-eligibility evidence.
 - Resume/job fit now treats `security clearance` and `clearance` as equivalent
   local clearance evidence.
+- Resume/job fit now treats `bilingual Spanish`, `Spanish fluency`,
+  `fluent in Spanish`, `Spanish language`, `English/Spanish`, and
+  `English and Spanish` as equivalent local language evidence for required
+  language constraints.
 - Resume/job fit now treats lift-weight wording with the same number, such as
   `lift 50 lbs` and `lift 50 pounds`, as equivalent local physical-demand
   evidence.

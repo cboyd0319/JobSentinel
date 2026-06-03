@@ -287,6 +287,14 @@ copy durable findings back into this plan or the active status surface.
   src-tauri/Cargo.toml`, `cargo test --lib hard_constraint --manifest-path
   src-tauri/Cargo.toml`, `cargo fmt --all --manifest-path
   src-tauri/Cargo.toml -- --check`, and `git diff --check`.
+- Current local Resume Match language constraint follow-up in `9114b9f5`
+  recognizes required bilingual Spanish and related Spanish fluency language as
+  local language hard constraints, caps missing required language evidence, and
+  shows language-specific next-action copy in Resume Match.
+  Verification passed: focused bilingual Spanish Rust tests, `cargo test --lib
+  ats_analyzer --manifest-path src-tauri/Cargo.toml`, `npx vitest run
+  src/pages/ResumeOptimizer.test.tsx`, `npx tsc --noEmit`, frontend lint,
+  Rust formatter check, and `git diff --check`.
 - Current local healthcare bullet-prompt follow-up in `e7a61306` adds a
   role-specific evidence reminder for healthcare and licensed-work job details,
   asking users to check scope of practice, patient safety, documentation, and
