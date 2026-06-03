@@ -228,6 +228,11 @@ copy durable findings back into this plan or the active status surface.
   marketing, campaign, conversion, and revenue job details, asking users to
   check quota or pipeline, audience or account scope, conversion or revenue
   impact, retention, and budget before using drafted alternative bullets.
+- Current local design/creative bullet-prompt follow-up in `095f3efd` adds a
+  role-specific evidence reminder for product design, user experience,
+  portfolio, Figma, prototype, and accessibility job details, asking users to
+  check the user problem, audience, constraints, decisions, accessibility, and
+  shipped outcome before using drafted alternative bullets.
 - Current local onsite location-term follow-up in `bffa0a1f` treats onsite and
   on-site as equivalent local hard-constraint evidence, so exact punctuation
   differences do not create a false missing-location risk.

@@ -143,7 +143,12 @@ acceptance still requires Developer ID signing and notarization.
   evidence reminder for sales, pipeline, account, retention, marketing,
   campaign, conversion, and revenue job details, asking users to check quota or
   pipeline, audience or account scope, conversion or revenue impact, retention,
-  and budget before using drafted alternative bullets. Real resume/profile
+  and budget before using drafted alternative bullets. The follow-up
+  `095f3efd Add design creative bullet prompt` adds a design and creative
+  evidence reminder for product design, user experience, portfolio, Figma,
+  prototype, and accessibility job details, asking users to check the user
+  problem, audience, constraints, decisions, accessibility, and shipped outcome
+  before using drafted alternative bullets. Real resume/profile
   reference material remains private and must not be committed.
 - Current local resume-alignment scoring follow-up is committed in
   `3d720693 Add resume requirement review caps`. It locks

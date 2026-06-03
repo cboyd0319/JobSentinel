@@ -215,6 +215,9 @@ resume help should adjust examples and evidence prompts for:
 - Drafted bullet improvements add a sales and marketing evidence prompt for
   sales, pipeline, account, retention, marketing, campaign, conversion, and
   revenue work.
+- Drafted bullet improvements add a design and creative evidence prompt for
+  product design, user experience, portfolios, prototypes, Figma, and
+  accessibility work.
 
 ## Backlog To Lock Next
 

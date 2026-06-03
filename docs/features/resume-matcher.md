@@ -369,7 +369,9 @@ The detailed research note for future resume assistance work is
 [Resume Formatting And Application Readability, 2026](../research/resume-formatting-ats-2026.md).
 That guidance locks in single-column readable structure, plain-text preview,
 truthful keyword evidence, application-form consistency, ethical confidence,
-profession-specific prompts, and score humility.
+profession-specific prompts, and score humility. Drafted bullet reminders now
+include healthcare, regulated work, service and operations, technical and data,
+sales and marketing, and design and creative evidence prompts.
 The companion
 [Resume Alignment Scoring](../research/resume-alignment-scoring.md) note locks
 in transparent component rubrics, match states, evidence strength, hard
