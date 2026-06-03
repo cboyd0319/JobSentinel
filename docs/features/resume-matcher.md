@@ -179,6 +179,8 @@ The current local matcher:
 - treats forklift, forklift certification, forklift certified, forklift
   operator certification, and forklift license wording as the same local
   credential evidence;
+- treats OSHA 10, OSHA10, OSHA 10 certification, and OSHA 10-hour wording as
+  the same local credential evidence without treating OSHA 30 as equivalent;
 - treats high school diploma, high school degree, GED, high school
   equivalency, and General Education Development as the same local education
   evidence without guessing unrelated credentials;
