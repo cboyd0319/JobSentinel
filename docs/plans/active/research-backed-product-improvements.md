@@ -167,6 +167,17 @@ copy durable findings back into this plan or the active status surface.
   `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
   clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
   --check`.
+- Current local training/trained follow-up in `e59f7e82` treats training,
+  trained, staff training, employee training, and team training as equivalent
+  local training evidence in backend and dev/browser mocks without broad fuzzy
+  matching. Verification passed: `cargo test --lib training_trained
+  --manifest-path src-tauri/Cargo.toml`, `npx vitest run
+  src/mocks/handlers.test.ts -t "analyzes resumes"`, `cargo test --lib
+  ats_analyzer --manifest-path src-tauri/Cargo.toml`, `npx vitest run
+  src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
+  `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
+  clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
+  --check`.
 - Current local QA synonym follow-up in `a349e5e7` treats quality assurance and
   QA as equivalent local evidence without broad fuzzy matching.
 - Current local patient-care hyphen follow-up in `23418843` treats patient care

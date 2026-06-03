@@ -463,6 +463,16 @@ acceptance still requires Developer ID signing and notarization.
   `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
   clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
   --check`. The follow-up
+  `e59f7e82 Match training trained wording` treats training, trained, staff
+  training, employee training, and team training as equivalent local training
+  evidence in backend and dev/browser mocks without broad fuzzy matching.
+  Verification passed: `cargo test --lib training_trained --manifest-path
+  src-tauri/Cargo.toml`, `npx vitest run src/mocks/handlers.test.ts -t
+  "analyzes resumes"`, `cargo test --lib ats_analyzer --manifest-path
+  src-tauri/Cargo.toml`, `npx vitest run src/mocks/handlers.test.ts`, `npx tsc
+  --noEmit`, `npm run lint -- --quiet`, `cargo fmt --all --manifest-path
+  src-tauri/Cargo.toml -- --check`, `cargo clippy --manifest-path
+  src-tauri/Cargo.toml -- -D warnings`, and `git diff --check`. The follow-up
   `e854b515 Match case coordination terms` treats case management and case
   coordination as the same local evidence without treating broader
   case-documentation wording as enough by itself. The follow-up
