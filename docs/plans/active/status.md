@@ -1530,6 +1530,11 @@ Scope:
   ready to choose a location constraint. Verification passed: `npx vitest run
   src/pages/SetupWizard.test.tsx`, `npx tsc --noEmit`, `npm run lint --
   --quiet`, `npm run lint:external-ai`, and `git diff --check`.
+- Latest local setup work-to-avoid quick-picks slice in `438fbb61` lets users
+  add common schedule or travel deal breakers to rank lower without typing
+  search terms. Verification passed: `npx vitest run src/pages/SetupWizard.test.tsx`,
+  `npx tsc --noEmit`, `npm run lint -- --quiet`, `npm run lint:external-ai`,
+  and `git diff --check`.
 - No-Apple-account macOS readiness is already best-possible without an Apple
   Developer Account. Keep the limitation explicit: Gatekeeper-ready public
   distribution still needs Developer ID signing and notarization.

@@ -150,6 +150,8 @@ copy durable findings back into this plan or the active status surface.
 - Current local setup location-not-sure follow-up keeps remote, hybrid, and
   on-site roles visible when the user is not ready to choose a location
   constraint.
+- Current local setup work-to-avoid quick-picks follow-up lets users add common
+  schedule or travel deal breakers to rank lower without typing search terms.
 - Current local Resume-Assisted Guided Intake follow-up shows active
   saved-resume skill names in setup as optional local suggestions and only adds
   user-picked names to the saved search.
@@ -1539,6 +1541,7 @@ source-filter compatibility issue appears.
   Resume Fit evidence-status work is committed in `815a62b7`.
   Job fit detail evidence-status work is committed in `b6b19caf`.
   Setup location-not-sure work is committed in `90f68ff6`.
+  Setup work-to-avoid quick-picks work is committed in `438fbb61`.
   Resume-Assisted Guided Intake work is committed in `da84110a`.
   Source Governance Metadata work is committed in `66924003`.
   Resume availability-constraint work is committed in `0d8bf479`.

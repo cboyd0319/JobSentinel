@@ -399,6 +399,9 @@ The UI maps one of three setup choices to the existing serialized
   scanning starts.
 - Work to avoid maps to `keywords_exclude`, so matching jobs can rank lower
   without adding new backend fields.
+- Setup offers quick work-to-avoid picks for common schedule and travel
+  constraints, such as night shift, weekend work, heavy travel, and mandatory
+  overtime.
 - Setup asks for pay floor before scanning starts, offers "Not sure yet", and
   keeps missing-pay jobs visible with review guidance.
 - Setup offers a location "Not sure yet" path that keeps remote, hybrid, and
