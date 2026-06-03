@@ -1363,15 +1363,11 @@ Scope:
   ghost-indicator feedback accessibility and tests, makes Settings support
   reports easier to find, and locks the architect/orchestrator plus sub-agent
   contract into the harness.
-- Latest local conservative synonym/acronym slice in `d2d1944f` teaches local requirement
-  review that `CRM` and `customer relationship management` are equivalent
-  evidence without broad fuzzy matching. Verification passed: `cargo test
-  --lib test_requirement_review_uses_conservative_acronym_equivalence
-  --manifest-path src-tauri/Cargo.toml`, `cargo test --lib ats_analyzer
-  --manifest-path src-tauri/Cargo.toml`, `cargo clippy --manifest-path
-  src-tauri/Cargo.toml -- -D warnings`, `cargo fmt --all --manifest-path
-  src-tauri/Cargo.toml -- --check`, `npm run lint:docs`, `npm run
-  lint:bloat`, and `git diff --check`.
+- Latest local conservative synonym/acronym slice in `d2d1944f` teaches local
+  requirement review that `CRM` and `customer relationship management` are
+  equivalent evidence without broad fuzzy matching. Current reviewer-fix work
+  prevents the acronym and expansion from double-counting on the same evidence
+  line.
 - Latest local structured evidence recency slice in `56d9a5ab` marks matched structured
   resume requirements from a current role as `current experience`, while older
   role matches keep the existing `experience` label. Focused analyzer tests
@@ -1386,6 +1382,12 @@ Scope:
   experience, work experience, and skills list. Focused frontend verification
   passed: `npx vitest run src/pages/ResumeOptimizer.test.tsx`, `npm run lint
   -- --quiet`, and `npx tsc --noEmit`.
+- Current local reviewer-fix slice also ports conservative `CRM` equivalence
+  and current structured-experience labels into browser/dev mocks, and scopes
+  docs so active saved-resume text is not described as current-role aware.
+  Verification passed: analyzer tests, Rust clippy and formatter check,
+  mock/frontend Vitest, full frontend test suite, ESLint, TypeScript, docs
+  lint, bloat lint, and diff check.
 - No-Apple-account macOS readiness is already best-possible without an Apple
   Developer Account. Keep the limitation explicit: Gatekeeper-ready public
   distribution still needs Developer ID signing and notarization.

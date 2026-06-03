@@ -1317,12 +1317,10 @@ impl AtsAnalyzer {
 
             // Search in summary
             let summary_lower = resume.summary.to_lowercase();
-            for term in &search_terms {
-                let count = Self::keyword_frequency(&summary_lower, term);
-                if count > 0 {
-                    Self::add_evidence_section(&mut found_in, "summary");
-                    frequency += count;
-                }
+            let count = Self::keyword_frequency_for_search_terms(&summary_lower, &search_terms);
+            if count > 0 {
+                Self::add_evidence_section(&mut found_in, "summary");
+                frequency += count;
             }
 
             // Search in experience
@@ -1334,10 +1332,7 @@ impl AtsAnalyzer {
                     exp.achievements.join(" ")
                 )
                 .to_lowercase();
-                let count = search_terms
-                    .iter()
-                    .map(|term| Self::keyword_frequency(&exp_text, term))
-                    .sum::<usize>();
+                let count = Self::keyword_frequency_for_search_terms(&exp_text, &search_terms);
                 if count > 0 {
                     let section =
                         if exp.current || exp.end_date.trim().eq_ignore_ascii_case("present") {
@@ -1414,17 +1409,8 @@ impl AtsAnalyzer {
         for (keyword, importance) in job_keywords {
             let keyword_lower = keyword.to_lowercase();
             let search_terms = Self::conservative_keyword_search_terms(&keyword_lower);
-            let mut found_in = Vec::new();
-            let mut frequency = 0;
-
-            for term in &search_terms {
-                let (term_sections, term_frequency) =
-                    Self::plain_text_keyword_hits(resume_text, term);
-                for section in term_sections {
-                    Self::add_evidence_section(&mut found_in, &section);
-                }
-                frequency += term_frequency;
-            }
+            let (mut found_in, mut frequency) =
+                Self::plain_text_search_term_hits(resume_text, &search_terms);
 
             let skill_hits = skills
                 .iter()
@@ -1498,7 +1484,10 @@ impl AtsAnalyzer {
         terms
     }
 
-    fn plain_text_keyword_hits(resume_text: &str, keyword_lower: &str) -> (Vec<String>, usize) {
+    fn plain_text_search_term_hits(
+        resume_text: &str,
+        search_terms: &[String],
+    ) -> (Vec<String>, usize) {
         let mut found_in = Vec::new();
         let mut frequency = 0;
         let mut current_section = "resume text";
@@ -1509,7 +1498,7 @@ impl AtsAnalyzer {
             }
 
             let line_lower = line.to_lowercase();
-            let count = Self::keyword_frequency(&line_lower, keyword_lower);
+            let count = Self::keyword_frequency_for_search_terms(&line_lower, search_terms);
             if count == 0 {
                 continue;
             }
@@ -1519,6 +1508,14 @@ impl AtsAnalyzer {
         }
 
         (found_in, frequency)
+    }
+
+    fn keyword_frequency_for_search_terms(text: &str, search_terms: &[String]) -> usize {
+        search_terms
+            .iter()
+            .map(|term| Self::keyword_frequency(text, term))
+            .max()
+            .unwrap_or(0)
     }
 
     fn add_evidence_section(found_in: &mut Vec<String>, section: &str) {
@@ -2481,6 +2478,23 @@ Preferred: Salesforce
             .expect("crm review");
         assert_eq!(crm.match_state, RequirementMatchState::Direct);
         assert!(crm.evidence_sections.contains(&"experience".to_string()));
+    }
+
+    #[test]
+    fn test_conservative_acronym_equivalence_does_not_double_count_same_line() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nMaintained CRM (customer relationship management) records.",
+            &[],
+            "Required: CRM",
+        );
+
+        let crm = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "crm")
+            .expect("crm review");
+        assert_eq!(crm.match_state, RequirementMatchState::Direct);
+        assert_eq!(crm.evidence_sections, vec!["experience".to_string()]);
     }
 
     #[test]

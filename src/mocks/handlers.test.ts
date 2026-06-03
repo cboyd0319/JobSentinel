@@ -713,7 +713,7 @@ describe("mock Tauri handlers", () => {
       expect.arrayContaining([
         expect.objectContaining({
           keyword: "scheduling",
-          found_in: expect.arrayContaining(["summary", "experience", "skills"]),
+          found_in: expect.arrayContaining(["summary", "current experience", "skills"]),
           frequency: expect.any(Number),
           importance: "Required",
         }),
@@ -731,7 +731,7 @@ describe("mock Tauri handlers", () => {
         expect.objectContaining({
           keyword: "scheduling",
           match_state: "Strong",
-          evidence_sections: expect.arrayContaining(["summary", "experience", "skills"]),
+          evidence_sections: expect.arrayContaining(["summary", "current experience", "skills"]),
           hard_constraint: false,
         }),
         expect.objectContaining({
@@ -757,6 +757,32 @@ describe("mock Tauri handlers", () => {
           category: "AddKeyword",
           suggestion: expect.stringContaining("Review whether 'bilingual'"),
           impact: expect.stringContaining("real evidence is visible"),
+        }),
+      ]),
+    );
+
+    const crmResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "Client services lead.",
+        experience: [
+          {
+            ...atsResume.experience[0],
+            current: true,
+            end_date: "Present",
+            achievements: ["Maintained customer relationship management records."],
+          },
+        ],
+        skills: [],
+      },
+      jobDescription: "Required: CRM",
+    });
+    expect(crmResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "crm",
+          match_state: "Direct",
+          evidence_sections: expect.arrayContaining(["current experience"]),
         }),
       ]),
     );

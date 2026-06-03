@@ -2111,7 +2111,7 @@ function analyzeMockResumeForJob(args?: Record<string, unknown>): MockAtsAnalysi
       keywordMatches.push({
         keyword,
         found_in: foundIn,
-        frequency: countKeywordFrequency(sections.allText, keyword),
+        frequency: countMockSearchTermFrequency(sections.allText, keyword),
         importance,
       });
     } else {
@@ -2234,7 +2234,16 @@ function buildMockRequirementReviews(
 
 function classifyMockRequirementState(match: MockKeywordMatch): MockRequirementMatchState {
   const hasDirectEvidence = match.found_in.some((section) =>
-    ["resume text", "experience", "summary", "projects", "certifications"].includes(section)
+    [
+      "resume text",
+      "experience",
+      "current experience",
+      "summary",
+      "projects",
+      "education",
+      "certifications",
+      "licenses",
+    ].includes(section)
   );
 
   if (hasDirectEvidence && (match.frequency > 1 || match.found_in.length > 1)) {
@@ -2381,14 +2390,26 @@ function improveMockBulletPoint(args?: Record<string, unknown>): string {
 function getMockAtsResumeSections(value: unknown): {
   summary: string;
   experience: string[];
+  currentExperience: string[];
+  pastExperience: string[];
   skills: string[];
   education: string[];
   allText: string;
 } {
   const source = isRecord(value) ? value : {};
-  const experience = Array.isArray(source.experience)
-    ? source.experience.map((item) => collectRecordText(item))
+  const experienceEntries = Array.isArray(source.experience)
+    ? source.experience.map((item) => ({
+        text: collectRecordText(item),
+        current: isMockCurrentExperience(item),
+      }))
     : [];
+  const experience = experienceEntries.map((item) => item.text);
+  const currentExperience = experienceEntries
+    .filter((item) => item.current)
+    .map((item) => item.text);
+  const pastExperience = experienceEntries
+    .filter((item) => !item.current)
+    .map((item) => item.text);
   const skills = Array.isArray(source.skills)
     ? source.skills.map((item) => collectRecordText(item))
     : [];
@@ -2401,7 +2422,20 @@ function getMockAtsResumeSections(value: unknown): {
     .filter((text) => text.length > 0)
     .join(" ");
 
-  return { summary, experience, skills, education, allText };
+  return { summary, experience, currentExperience, pastExperience, skills, education, allText };
+}
+
+function isMockCurrentExperience(value: unknown): boolean {
+  if (!isRecord(value)) return false;
+  if (value.current === true || value.is_current === true) return true;
+
+  const endDate = typeof value.end_date === "string"
+    ? value.end_date
+    : typeof value.endDate === "string"
+      ? value.endDate
+      : "";
+
+  return endDate.trim().toLowerCase() === "present";
 }
 
 function hasMockAdversarialResumeText(text: string): boolean {
@@ -2451,7 +2485,9 @@ function getNestedString(value: unknown, path: string[]): string | undefined {
 function extractMockAtsKeywords(jobDescription: string): MockAtsKeyword[] {
   const lower = jobDescription.toLowerCase();
   return ATS_KNOWN_KEYWORDS
-    .filter((keyword) => lower.includes(keyword.toLowerCase()))
+    .filter((keyword) =>
+      getConservativeMockSearchTerms(keyword).some((term) => lower.includes(term))
+    )
     .map((keyword) => ({
       keyword,
       importance: getMockKeywordImportance(jobDescription, keyword),
@@ -2463,7 +2499,10 @@ function getMockKeywordImportance(
   keyword: string,
 ): MockKeywordImportance {
   const lower = jobDescription.toLowerCase();
-  const keywordIndex = lower.indexOf(keyword.toLowerCase());
+  const termIndexes = getConservativeMockSearchTerms(keyword)
+    .map((term) => lower.indexOf(term))
+    .filter((index) => index >= 0);
+  const keywordIndex = termIndexes.length > 0 ? Math.min(...termIndexes) : -1;
   const preferredIndex = lower.indexOf("preferred");
   const requiredIndex = lower.indexOf("required");
 
@@ -2480,22 +2519,51 @@ function findMockKeywordLocations(
   sections: ReturnType<typeof getMockAtsResumeSections>,
   keyword: string,
 ): string[] {
+  const searchTerms = getConservativeMockSearchTerms(keyword);
   const locations: string[] = [];
-  if (containsKeyword(sections.summary, keyword)) locations.push("summary");
-  if (sections.experience.some((text) => containsKeyword(text, keyword))) {
+  if (containsAnyMockKeyword(sections.summary, searchTerms)) locations.push("summary");
+  if (sections.currentExperience.some((text) => containsAnyMockKeyword(text, searchTerms))) {
+    locations.push("current experience");
+  }
+  if (sections.pastExperience.some((text) => containsAnyMockKeyword(text, searchTerms))) {
     locations.push("experience");
   }
-  if (sections.skills.some((text) => containsKeyword(text, keyword))) {
+  if (sections.skills.some((text) => containsAnyMockKeyword(text, searchTerms))) {
     locations.push("skills");
   }
-  if (sections.education.some((text) => containsKeyword(text, keyword))) {
+  if (sections.education.some((text) => containsAnyMockKeyword(text, searchTerms))) {
     locations.push("education");
   }
   return locations;
 }
 
-function containsKeyword(text: string, keyword: string): boolean {
-  return text.toLowerCase().includes(keyword.toLowerCase());
+function getConservativeMockSearchTerms(keyword: string): string[] {
+  const lower = keyword.toLowerCase();
+  const terms = [lower];
+  const equivalenceGroups = [["crm", "customer relationship management"]];
+
+  for (const group of equivalenceGroups) {
+    if (group.includes(lower)) {
+      for (const term of group) {
+        if (!terms.includes(term)) terms.push(term);
+      }
+    }
+  }
+
+  return terms;
+}
+
+function containsAnyMockKeyword(text: string, searchTerms: string[]): boolean {
+  const lower = text.toLowerCase();
+  return searchTerms.some((term) => lower.includes(term));
+}
+
+function countMockSearchTermFrequency(text: string, keyword: string): number {
+  const searchTerms = getConservativeMockSearchTerms(keyword);
+  return Math.max(
+    0,
+    ...searchTerms.map((term) => countKeywordFrequency(text, term)),
+  );
 }
 
 function countKeywordFrequency(text: string, keyword: string): number {

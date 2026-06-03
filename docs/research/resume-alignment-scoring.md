@@ -209,6 +209,8 @@ Future implementation should improve:
   or clearance are missing.
 - Resume/job fit now treats the conservative `CRM` and `customer relationship
   management` pair as equivalent local evidence without broad fuzzy matching.
+  The acronym and expansion do not count as separate evidence when they appear
+  on the same line.
 - Structured resume review now marks matched requirements from a current role
   as current-experience evidence instead of hiding recency in a generic
   experience label.

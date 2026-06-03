@@ -121,7 +121,9 @@ copy durable findings back into this plan or the active status surface.
   license evidence can count as direct.
 - Latest local conservative synonym/acronym follow-up in `d2d1944f` teaches
   local requirement review that `CRM` and `customer relationship management`
-  are equivalent evidence without broad fuzzy matching.
+  are equivalent evidence without broad fuzzy matching. Current reviewer-fix
+  work prevents the acronym and expansion from double-counting on the same
+  evidence line.
 - Current local structured evidence recency follow-up marks structured resume
   matches from a current role as `current experience`, without changing older
   role evidence labels.
@@ -132,6 +134,9 @@ copy durable findings back into this plan or the active status surface.
   sections separate when postings use single-line headings instead of blank
   lines, preventing preferred nice-to-have language from being shown as a
   required gap.
+- Current local reviewer-fix follow-up ports conservative `CRM` equivalence and
+  current structured-experience labels into browser/dev mocks, and scopes docs
+  so active saved-resume text is not described as current-role aware.
 - Latest local Resume Match mock-contract follow-up keeps dev/browser mock
   match results on the same `0.0` to `1.0` fraction scale as the real backend,
   preventing mock-only inflated percentages in resume assistance views.
@@ -1499,6 +1504,7 @@ source-filter compatibility issue appears.
   `171bbe91`. Conservative synonym/acronym work is committed in `d2d1944f`.
   Structured evidence recency work is committed in `56d9a5ab`.
   Resume Match evidence-label work is committed in `26d306f6`.
+  Current local reviewer-fix follow-up is verified locally and ready to commit.
 - Evidence: source documents, selected primary sources, and local PDF text
   extraction reviewed on
   2026-05-28.

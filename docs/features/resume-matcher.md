@@ -171,10 +171,11 @@ in transparent component rubrics, match states, evidence strength, hard
 constraint caps, conservative synonym handling, recency and section placement,
 and profession-specific weighting. Local requirement-state rows and recognized
 hard-constraint caps have started. Section-placement review and the conservative
-`CRM` / `customer relationship management` equivalence have started; broader
-current-role evidence labeling has also started. Broader evidence strength,
-synonym, recency, seniority, and profession-specific weighting remain future
-work.
+`CRM` / `customer relationship management` equivalence have started. Copied
+structured resume details can show current-role evidence labels; active
+saved-resume text still uses broader work-experience labels until deeper date
+parsing is available. Broader evidence strength, synonym, recency, seniority,
+and profession-specific weighting remain future work.
 The visible requirement review uses plain evidence labels such as current role
 experience, work experience, and skills list instead of backend section names.
 
