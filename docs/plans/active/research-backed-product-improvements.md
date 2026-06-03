@@ -617,6 +617,15 @@ copy durable findings back into this plan or the active status surface.
 - Current local current-role evidence weight follow-up in `feac9ee4` gives a
   visible current-role requirement hit a small strength boost over the same
   single older-role hit, while older role evidence still counts.
+- Current local recent-ended-role evidence follow-up in `a4519710` marks
+  structured and readable Experience evidence from roles ending in the current
+  or previous calendar year as `recent experience` and gives it a small
+  strength boost over the same single older-role hit. Verification passed:
+  `cargo test --lib recent_ended --manifest-path src-tauri/Cargo.toml`, `cargo
+  test --lib ats_analyzer --manifest-path src-tauri/Cargo.toml`, `cargo fmt
+  --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo clippy
+  --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
+  --check`.
 - Current local metric-backed evidence-strength follow-up treats work or
   project evidence with visible metrics such as percentages, counts, or dollar
   amounts as stronger local evidence than a bare keyword.

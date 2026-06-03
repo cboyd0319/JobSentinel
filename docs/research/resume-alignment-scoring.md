@@ -405,8 +405,12 @@ Future implementation should improve:
 - Readable-text resume review now marks matched Experience bullets after a
   present-date role marker as current-experience evidence and resets the label
   when a later past-role date range appears.
-- Current-role evidence now gets a small local strength boost over the same
-  single hit in older experience, while older role evidence still counts.
+- Structured and readable-text resume review now marks matched Experience
+  evidence from roles ending in the current or previous calendar year as
+  recent-experience evidence.
+- Current-role and recent-role evidence now get a small local strength boost
+  over the same single hit in older experience, while older role evidence still
+  counts.
 - Resume/job fit now treats work or project evidence with visible metrics such
   as percentages, counts, or dollar amounts as stronger local evidence than a
   bare keyword.

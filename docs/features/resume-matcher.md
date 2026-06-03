@@ -178,8 +178,10 @@ The current local matcher:
 - labels readable resume evidence under an Experience role with a present-date
   marker as current role evidence, and resets that label when a later past-role
   date range appears;
-- treats a visible current-role evidence hit as stronger than the same single
-  hit in an older role, without discarding older role evidence;
+- labels structured or readable Experience evidence from roles ending in the
+  current or previous calendar year as recent role evidence;
+- treats visible current-role or recent-role evidence hits as stronger than the
+  same single hit in an older role, without discarding older role evidence;
 - treats work or project evidence with visible metrics such as percentages,
   counts, or dollar amounts as stronger local evidence than a bare keyword;
 - treats work or project evidence with scope such as work across teams,

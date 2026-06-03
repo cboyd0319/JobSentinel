@@ -588,6 +588,15 @@ acceptance still requires Developer ID signing and notarization.
   `66c587a8 Mark current plain text resume evidence` marks readable Experience
   bullets after a present-date role marker as current-experience evidence, then
   resets that label when a later past-role date range appears. The follow-up
+  `a4519710 Mark recent resume experience evidence` marks structured and
+  readable Experience evidence from roles ending in the current or previous
+  calendar year as recent-experience evidence and gives it a small strength
+  boost over the same single older-role hit. Verification passed: `cargo test
+  --lib recent_ended --manifest-path src-tauri/Cargo.toml`, `cargo test --lib
+  ats_analyzer --manifest-path src-tauri/Cargo.toml`, `cargo fmt --all
+  --manifest-path src-tauri/Cargo.toml -- --check`, `cargo clippy
+  --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
+  --check`. The follow-up
   `4607b67f Strengthen metric-backed resume evidence` treats work or project
   evidence with visible metrics as stronger local evidence than a bare keyword.
   The follow-up `c109b9d3 Strengthen scope-backed resume evidence` treats work
