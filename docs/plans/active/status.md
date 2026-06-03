@@ -1600,6 +1600,12 @@ Scope:
   src/components/JobCard.test.tsx -t "duplicate source"`, `npx vitest run
   src/components/JobCard.test.tsx`, `npx tsc --noEmit`, `npm run lint --
   --quiet`, `npm run lint:external-ai`, and `git diff --check`.
+- Latest local fit-detail source-input slice in `9fa735c4` adds plain "Uses..."
+  labels to Fit Details factors so users can see which saved inputs or posting
+  fields affect each local fit estimate. Verification passed: `npx vitest run
+  src/components/ScoreBreakdownModal.test.tsx -t "saved inputs"`, `npx vitest
+  run src/components/ScoreBreakdownModal.test.tsx`, `npx tsc --noEmit`, `npm
+  run lint -- --quiet`, `npm run lint:external-ai`, and `git diff --check`.
 - No-Apple-account macOS readiness is already best-possible without an Apple
   Developer Account. Keep the limitation explicit: Gatekeeper-ready public
   distribution still needs Developer ID signing and notarization.

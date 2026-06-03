@@ -181,6 +181,9 @@ copy durable findings back into this plan or the active status surface.
   keeping stale-posting risk separate.
 - Current local duplicate-source label follow-up changes job-card source-count
   shorthand to plain "Seen on 3 sources" copy.
+- Current local fit-detail source-input follow-up adds plain "Uses..." labels
+  to Fit Details so users can see which saved inputs or posting fields affect
+  each factor.
 - Current local Resume-Assisted Guided Intake follow-up shows active
   saved-resume skill names in setup as optional local suggestions and only adds
   user-picked names to the saved search.
@@ -1581,6 +1584,7 @@ source-filter compatibility issue appears.
   Quiet setup alert work is committed in `d96e3934`.
   Job-card scam-warning work is committed in `ed5d837b`.
   Duplicate-source label work is committed in `2a2bc83c`.
+  Fit-detail source-input work is committed in `9fa735c4`.
   Resume-Assisted Guided Intake work is committed in `da84110a`.
   Source Governance Metadata work is committed in `66924003`.
   Resume availability-constraint work is committed in `0d8bf479`.
