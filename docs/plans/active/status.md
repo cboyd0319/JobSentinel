@@ -172,6 +172,9 @@ acceptance still requires Developer ID signing and notarization.
   compensation, start-date, notice-period, schedule, shift, weekend, overnight,
   or availability screening answers in the hard question review when saved job
   details mention pay or availability requirements. The follow-up
+  `ebb83cef Add do not force job words guidance` reminds users in the Resume
+  Match job words overview not to force words they cannot support with real
+  work, training, or credentials. The follow-up
   `e7a61306 Add healthcare bullet evidence prompt` adds a role-specific
   evidence reminder for healthcare and licensed-work job details, asking users
   to check scope of practice, patient safety, documentation, and required

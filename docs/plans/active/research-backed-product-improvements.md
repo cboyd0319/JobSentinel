@@ -251,6 +251,9 @@ copy durable findings back into this plan or the active status surface.
   notice-period, schedule, shift, weekend, overnight, or availability screening
   answers in the hard question review when saved job details mention pay or
   availability requirements.
+- Current local Resume Match do-not-force guidance follow-up in `ebb83cef`
+  reminds users in the job words overview not to force words they cannot
+  support with real work, training, or credentials.
 - Current local healthcare bullet-prompt follow-up in `e7a61306` adds a
   role-specific evidence reminder for healthcare and licensed-work job details,
   asking users to check scope of practice, patient safety, documentation, and

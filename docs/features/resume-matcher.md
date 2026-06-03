@@ -167,6 +167,8 @@ The current local matcher:
   signals;
 - preserves whether missing job-post language came from required, preferred,
   or other role-language context;
+- reminds users in the job words overview not to force words they cannot
+  support with real work, training, or credentials;
 - adds requirement-review rows for recognized local job-post keywords with
   visible evidence, needs-support, check-wording, and not-found states;
 - labels readable resume evidence under an Experience role with a present-date

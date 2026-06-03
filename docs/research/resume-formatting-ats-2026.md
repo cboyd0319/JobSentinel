@@ -231,6 +231,8 @@ resume help should adjust examples and evidence prompts for:
   notice-period, schedule, shift, weekend, overnight, or availability screening
   answers in the hard question review when saved job details mention pay or
   availability requirements.
+- Resume Match reminds users in the job words overview not to force words they
+  cannot support with real work, training, or credentials.
 - Required, preferred, and other job-post language stay grouped in fit notes.
 - Recognized local job-post requirements now show match states and evidence
   sections, and recognized missing hard requirements cap the fit label until
