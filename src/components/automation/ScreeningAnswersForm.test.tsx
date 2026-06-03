@@ -363,6 +363,7 @@ describe("ScreeningAnswersForm", () => {
         expect(
           screen.getByText(/\+ Willingness to relocate/i),
         ).toBeInTheDocument();
+        expect(screen.getByText(/\+ Travel availability/i)).toBeInTheDocument();
         expect(screen.getByText(/\+ Work authorization/i)).toBeInTheDocument();
         expect(screen.getByText(/\+ Schedule availability/i)).toBeInTheDocument();
         expect(screen.getByText(/\+ Visa sponsorship/i)).toBeInTheDocument();
