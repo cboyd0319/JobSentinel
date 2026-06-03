@@ -184,6 +184,16 @@ copy durable findings back into this plan or the active status surface.
 - Current local financial-reconciliation hyphen follow-up in `bbe2c428` treats
   financial reconciliation and financial-reconciliation as equivalent local
   evidence without duplicate requirement rows.
+- Current local billing/invoicing follow-up in `a1103deb` treats billing and
+  invoicing as equivalent local finance evidence in backend and dev/browser
+  mocks without broad fuzzy matching. Verification passed: `cargo test --lib
+  billing_invoicing --manifest-path src-tauri/Cargo.toml`, `npx vitest run
+  src/mocks/handlers.test.ts -t "billing and invoicing"`, `cargo test --lib
+  ats_analyzer --manifest-path src-tauri/Cargo.toml`, `npx vitest run
+  src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
+  `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
+  clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
+  --check`.
 - Current local loan-processing hyphen follow-up in `84c08274` treats loan
   processing and loan-processing as equivalent local evidence without duplicate
   requirement rows.

@@ -483,6 +483,16 @@ acceptance still requires Developer ID signing and notarization.
   `bbe2c428 Match financial reconciliation hyphen terms` treats financial
   reconciliation and financial-reconciliation as the same local evidence without
   duplicate requirement rows. The follow-up
+  `a1103deb Match billing and invoicing evidence` treats billing and invoicing
+  as equivalent local finance evidence in backend and dev/browser mocks without
+  broad fuzzy matching. Verification passed: `cargo test --lib
+  billing_invoicing --manifest-path src-tauri/Cargo.toml`, `npx vitest run
+  src/mocks/handlers.test.ts -t "billing and invoicing"`, `cargo test --lib
+  ats_analyzer --manifest-path src-tauri/Cargo.toml`, `npx vitest run
+  src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
+  `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
+  clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
+  --check`. The follow-up
   `84c08274 Match loan processing hyphen terms` treats loan processing and
   loan-processing as the same local evidence without duplicate requirement rows.
   The follow-up

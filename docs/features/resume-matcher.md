@@ -266,6 +266,8 @@ The current local matcher:
 - treats **financial reconciliation** and **financial-reconciliation** as the
   same local evidence while avoiding duplicate requirement rows for hyphenated
   job wording;
+- treats **billing** and **invoicing** as the same local finance evidence
+  without broad fuzzy matching;
 - treats **loan processing** and **loan-processing** as the same local evidence
   while avoiding duplicate requirement rows for hyphenated job wording;
 - treats **onsite**, **on-site**, and **on site** as the same local location
