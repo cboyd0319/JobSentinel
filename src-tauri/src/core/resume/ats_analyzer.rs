@@ -2120,6 +2120,7 @@ impl AtsAnalyzer {
                 "master of business administration",
                 "master of education",
                 "master of engineering",
+                "master of fine arts",
                 "master of science",
             ],
             &[
@@ -4708,6 +4709,32 @@ Preferred: Salesforce
             .iter()
             .find(|review| review.keyword == "master's degree")
             .expect("master of education review");
+        assert_eq!(degree.match_state, RequirementMatchState::Direct);
+        assert!(degree.hard_constraint);
+        assert!(degree.evidence_sections.contains(&"education".to_string()));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "master's degree"));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "degree"));
+    }
+
+    #[test]
+    fn test_masters_degree_requirement_accepts_master_of_fine_arts_evidence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nEducation\nMaster of Fine Arts",
+            &[],
+            "Required: master's degree",
+        );
+
+        let degree = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "master's degree")
+            .expect("master of fine arts review");
         assert_eq!(degree.match_state, RequirementMatchState::Direct);
         assert!(degree.hard_constraint);
         assert!(degree.evidence_sections.contains(&"education".to_string()));
