@@ -89,6 +89,20 @@ const HARD_QUESTION_REVIEWS: HardQuestionReview[] = [
   {
     label: "License, certification, or clearance",
     detail: "Use only credentials, licenses, certifications, or clearances you can document.",
+    getDetail: ({ screeningAnswers }) => getSavedScreeningAnswerReviewDetail(
+      screeningAnswers,
+      [
+        /\blicen[cs]e\b/i,
+        /\bcertif(?:ication|ied)\b/i,
+        /\bclearance\b/i,
+        /\bRN\b/,
+        /\bCNA\b/,
+        /\bCDL\b/,
+        /\bPMP\b/,
+        /\bSecurity\+\b/i,
+      ],
+      "Use only credentials, licenses, certifications, or clearances you can document.",
+    ),
     patterns: [
       /\blicen[cs]e\b/i,
       /\bcertif(?:ication|ied)\b/i,
@@ -154,6 +168,9 @@ function getSavedScreeningAnswerLabel(questionPattern: string) {
   if (/\brelocat/.test(normalizedPattern)) return "relocation";
   if (/\bcommut/.test(normalizedPattern)) return "commute";
   if (/\bremote\b|\bhybrid\b|\bon[-\s]?site\b/.test(normalizedPattern)) return "location";
+  if (/\blicen[cs]e\b|\bcertif|\bclearance\b|\bRN\b|\bCNA\b|\bCDL\b|\bPMP\b|\bSecurity\+\b/i.test(questionPattern)) {
+    return "credential";
+  }
 
   return "screening";
 }
