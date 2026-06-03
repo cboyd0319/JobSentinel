@@ -54,6 +54,7 @@ const COMMON_PATTERNS = [
   { pattern: "sponsorship", label: "Visa sponsorship", type: "yes_no" },
   { pattern: "remote", label: "Remote work preference", type: "text" },
   { pattern: "security clearance", label: "Security clearance", type: "yes_no" },
+  { pattern: "certification", label: "Certification or license", type: "text" },
   { pattern: "education", label: "Education level", type: "text" },
   { pattern: "cover letter", label: "Cover letter / Why this role", type: "textarea" },
 ];
