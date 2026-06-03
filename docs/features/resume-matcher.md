@@ -252,6 +252,8 @@ The current local matcher:
   high-school degree, GED, high school equivalency, high-school equivalency,
   and General Education Development as the same local education evidence
   without guessing unrelated credentials;
+- treats **associate's degree**, **associate degree**, and
+  **associates degree** as the same local education evidence;
 - treats **bachelor's degree**, **bachelor degree**, and **bachelors degree**
   as the same local education evidence;
 - treats **master's degree**, **master degree**, and **masters degree** as the

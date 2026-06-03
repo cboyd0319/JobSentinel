@@ -300,6 +300,8 @@ Future implementation should improve:
   `high school degree`, `high-school degree`, `GED`, `high school
   equivalency`, `high-school equivalency`, and `General Education Development`
   as the same local education evidence.
+- Resume/job fit now treats `associate's degree`, `associate degree`, and
+  `associates degree` as equivalent local education evidence.
 - Resume/job fit now treats `bachelor's degree`, `bachelor degree`, and
   `bachelors degree` as equivalent local education evidence.
 - Resume/job fit now treats `master's degree`, `master degree`, and

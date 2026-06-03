@@ -191,6 +191,10 @@ acceptance still requires Developer ID signing and notarization.
   `a546653d Match high-school education terms` treats high-school diploma,
   high-school degree, and high-school equivalency as the same local education
   hard-constraint evidence. The follow-up
+  `7554988c Match associate degree terms` treats associate's degree, associate
+  degree, and associates degree as the same local education hard-constraint
+  evidence and keeps associate degree or equivalent experience wording from
+  creating an exact-degree hard cap. The follow-up
   `adda2593 Match bachelor degree terms` treats bachelor's degree, bachelor
   degree, and bachelors degree as the same local education hard-constraint
   evidence. The follow-up
