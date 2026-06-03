@@ -371,6 +371,7 @@ describe("ScreeningAnswersForm", () => {
         expect(screen.getByText(/\+ Background check/i)).toBeInTheDocument();
         expect(screen.getByText(/\+ Drug screen/i)).toBeInTheDocument();
         expect(screen.getByText(/\+ Language fluency/i)).toBeInTheDocument();
+        expect(screen.getByText(/\+ Physical requirements/i)).toBeInTheDocument();
       });
     });
 
