@@ -46,6 +46,9 @@ inputs, not as self-worth scores.
 - Help users redirect salary-history questions toward the role range and target
   pay.
 - Label source, date, sample size, and coverage limits.
+- Label benchmark sample quality as thin, useful, or stronger. Thin samples are
+  weak signals and should be checked against written ranges, role scope, and
+  current postings.
 - Avoid protected-class inference for salary guidance.
 - Avoid copy that implies marginalized workers caused pay gaps by negotiating
   poorly.

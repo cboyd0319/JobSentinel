@@ -1553,6 +1553,13 @@ Scope:
   `npx tsc --noEmit`, `npm run lint -- --quiet`, `node --test
   scripts/check-product-copy.test.mjs`, `npm run lint:external-ai`, and `git
   diff --check`.
+- Latest local salary sample-quality slice in `3a6731e1` labels Pay Protection
+  benchmark samples as thin, useful, or stronger, and tells users to treat thin
+  samples as weak signals checked against written ranges, role scope, and
+  current postings. Verification passed: `npx vitest run src/pages/Salary.test.tsx
+  -t "thin salary samples"`, `npx vitest run src/pages/Salary.test.tsx`, `npx
+  tsc --noEmit`, `npm run lint -- --quiet`, `npm run lint:external-ai`, and
+  `git diff --check`.
 - No-Apple-account macOS readiness is already best-possible without an Apple
   Developer Account. Keep the limitation explicit: Gatekeeper-ready public
   distribution still needs Developer ID signing and notarization.
