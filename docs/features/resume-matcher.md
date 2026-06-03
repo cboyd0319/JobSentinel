@@ -251,6 +251,8 @@ The current local matcher:
   job wording;
 - treats **data entry** and **data-entry** as the same local evidence while
   still avoiding broad fuzzy matching;
+- treats **bookkeeping** and **bookkeeper** as the same local finance evidence
+  without broad fuzzy matching;
 - treats **A/P** and **A/R** as shorthand for **accounts payable** and
   **accounts receivable** without broad acronym matching;
 - treats **budgeting** and **budget tracking** as the same local finance and

@@ -194,6 +194,17 @@ copy durable findings back into this plan or the active status surface.
   `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
   clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
   --check`.
+- Current local bookkeeping/bookkeeper follow-up in `88b2e9b4` treats
+  bookkeeping and bookkeeper as equivalent local finance evidence in backend
+  and dev/browser mocks without broad fuzzy matching. Verification passed:
+  `cargo test --lib bookkeeping_bookkeeper --manifest-path
+  src-tauri/Cargo.toml`, `npx vitest run src/mocks/handlers.test.ts -t
+  "bookkeeping and bookkeeper"`, `cargo test --lib ats_analyzer
+  --manifest-path src-tauri/Cargo.toml`, `npx vitest run
+  src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
+  `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
+  clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
+  --check`.
 - Current local accounts-payable/receivable shorthand follow-up in `aa412a5a`
   treats `A/P` and `A/R` as local shorthand for accounts payable and accounts
   receivable in backend and dev/browser mocks without broad acronym matching.
