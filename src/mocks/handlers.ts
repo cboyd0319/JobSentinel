@@ -623,6 +623,7 @@ const ATS_KNOWN_KEYWORDS = [
   "medication administration",
   "vital signs",
   "care plans",
+  "medical record",
   "medical records",
   "charting",
   "lesson planning",
@@ -2846,12 +2847,16 @@ function extractMockAtsKeywords(jobDescription: string): MockAtsKeyword[] {
       "cdl",
     ].includes(keyword)
   );
+  const hasPluralMedicalRecords = /\bmedical records\b/.test(lower);
+  const hasSingularMedicalRecord = /\bmedical record\b/.test(lower) && !hasPluralMedicalRecords;
   const hasSpecificDegree = hardKeywords.some((keyword) =>
     isMockExactDegreeKeyword(keyword) && keyword !== "degree"
   );
   const knownKeywords = ATS_KNOWN_KEYWORDS.filter((keyword) =>
     !(hasDegreeEquivalent && isMockExactDegreeKeyword(keyword)) &&
     !(hasSpecificDegree && keyword === "degree") &&
+    !(hasPluralMedicalRecords && keyword === "medical record") &&
+    !(hasSingularMedicalRecord && keyword === "medical records") &&
     !(
       hasCommercialDriverLicense &&
       ["driver's license", "drivers license", "driver license"].includes(keyword)
@@ -3147,6 +3152,7 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
     ["scheduling", "calendar management", "appointment setting"],
     ["quality assurance", "qa"],
     ["patient care", "patient-care"],
+    ["medical record", "medical records"],
     ["data entry", "data-entry"],
     ["onsite", "on-site", "on site"],
     ["relocation", "relocate", "willing to relocate"],

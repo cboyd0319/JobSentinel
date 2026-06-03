@@ -3367,6 +3367,74 @@ describe("mock Tauri handlers", () => {
     );
   });
 
+  it("treats singular and plural medical-record terms as equivalent mock evidence", async () => {
+    const pluralResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        skills: [],
+        experience: [
+          {
+            ...atsResume.experience[0],
+            current: false,
+            end_date: "2022",
+            achievements: ["Updated medical record notes for patient visits."],
+          },
+        ],
+      },
+      jobDescription: "Required: medical records",
+    });
+    expect(pluralResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "medical records",
+          match_state: "Strong",
+          evidence_sections: ["experience"],
+        }),
+      ]),
+    );
+    expect(pluralResult.requirement_reviews).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "medical record",
+        }),
+      ]),
+    );
+
+    const singularResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        skills: [],
+        experience: [
+          {
+            ...atsResume.experience[0],
+            current: false,
+            end_date: "2022",
+            achievements: ["Updated medical records for patient visits."],
+          },
+        ],
+      },
+      jobDescription: "Required: medical record",
+    });
+    expect(singularResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "medical record",
+          match_state: "Strong",
+          evidence_sections: ["experience"],
+        }),
+      ]),
+    );
+    expect(singularResult.requirement_reviews).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "medical records",
+        }),
+      ]),
+    );
+  });
+
   it("treats single current-role evidence as stronger than the same past-role mock evidence", async () => {
     const currentResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
