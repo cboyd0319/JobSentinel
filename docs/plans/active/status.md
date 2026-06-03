@@ -206,7 +206,11 @@ acceptance still requires Developer ID signing and notarization.
   follow-up `f032ae03 Match master degree title terms` treats Master of Arts
   and Master of Science as local evidence for generic master's degree
   requirements without using those phrases to create generic job-post
-  requirements in browser/dev mocks. The
+  requirements in browser/dev mocks. The follow-up
+  `ff1c617e Match business administration master term` treats Master of
+  Business Administration as local evidence for generic master's degree
+  requirements without treating MBA-specific job wording as a generic master's
+  requirement. The
   follow-up `60dc3981 Match doctorate degree terms` treats PhD, doctorate,
   doctorate degree, and doctoral degree as the same local education
   hard-constraint evidence and keeps doctorate degree or equivalent experience
