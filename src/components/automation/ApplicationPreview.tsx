@@ -69,7 +69,24 @@ const MINIMUM_AGE_PATTERNS = [
   /\b\d{2}\s*\+?\s*(?:years? old|years? of age)\b/i,
 ];
 
+const CITIZENSHIP_SCREENING_PATTERNS = [
+  /\b(?:u\.?s\.?|united states)\s+citizens?\b/i,
+  /\bcitizenship (?:required|requirement)\b/i,
+  /\bmust be (?:a\s+)?(?:u\.?s\.?|united states)\s+citizens?\b/i,
+];
+
 const HARD_QUESTION_REVIEWS: HardQuestionReview[] = [
+  {
+    label: "Citizenship requirement",
+    detail: "Check citizenship requirements before answering. Do not treat work authorization as citizenship.",
+    getDetail: ({ screeningAnswers }) => getSavedScreeningAnswerReviewDetail(
+      screeningAnswers,
+      CITIZENSHIP_SCREENING_PATTERNS,
+      "Check citizenship requirements before answering. Do not treat work authorization as citizenship.",
+      "Confirm it matches the employer's wording before continuing.",
+    ),
+    patterns: CITIZENSHIP_SCREENING_PATTERNS,
+  },
   {
     label: "Work authorization",
     detail: "Check work authorization or sponsorship answers against your profile and resume.",
@@ -276,6 +293,9 @@ function getSavedScreeningAnswerLabel(questionPattern: string) {
   if (/\brelocat/.test(normalizedPattern)) return "relocation";
   if (/\bcommut/.test(normalizedPattern)) return "commute";
   if (/\bremote\b|\bhybrid\b|\bon[-\s]?site\b/.test(normalizedPattern)) return "location";
+  if (CITIZENSHIP_SCREENING_PATTERNS.some((pattern) => pattern.test(questionPattern))) {
+    return "citizenship";
+  }
   if (/\blicen[cs]e\b|\bcertif|\bclearance\b|\bRN\b|\bCNA\b|\bCDL\b|\bPMP\b|\bSecurity\+\b/i.test(questionPattern)) {
     return "credential";
   }

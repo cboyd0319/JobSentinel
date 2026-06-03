@@ -489,6 +489,28 @@ describe("ApplicationPreview", () => {
       ).toBeInTheDocument();
     });
 
+    it("flags citizenship requirements from job details", async () => {
+      mockInvoke.mockResolvedValue(mockProfile);
+
+      render(
+        <ApplicationPreview
+          job={{
+            ...mockJob,
+            description: "Applicants must be U.S. citizens for this contract.",
+          }}
+          atsPlatform="greenhouse"
+        />,
+      );
+
+      expect(await screen.findByText("Hard Question Review")).toBeInTheDocument();
+      expect(screen.getByText("Citizenship requirement")).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          "Check citizenship requirements before answering. Do not treat work authorization as citizenship.",
+        ),
+      ).toBeInTheDocument();
+    });
+
     it("flags language fluency requirements from job details", async () => {
       mockInvoke.mockResolvedValue(mockProfile);
 
@@ -989,6 +1011,52 @@ describe("ApplicationPreview", () => {
       expect(
         screen.getByText(
           "Saved physical requirement answer says: I can lift 50 pounds safely. Confirm it matches the employer's wording and resume evidence before continuing.",
+        ),
+      ).toBeInTheDocument();
+      expect(mockInvoke).toHaveBeenCalledWith("get_screening_answers");
+    });
+
+    it("shows saved citizenship answers when the job asks about citizenship", async () => {
+      mockInvoke.mockImplementation((command: string) => {
+        if (command === "get_application_profile_preview") {
+          return Promise.resolve(mockProfile);
+        }
+
+        if (command === "get_screening_answers") {
+          return Promise.resolve([
+            {
+              id: 1,
+              questionPattern: "US citizen",
+              answer: "Yes, I am a U.S. citizen.",
+              answerType: "yes_no",
+              notes: null,
+              timesUsed: 0,
+              timesModified: 0,
+              confidenceScore: 0,
+              lastUsedAt: null,
+              createdAt: "2026-01-01T00:00:00Z",
+              updatedAt: "2026-01-01T00:00:00Z",
+            },
+          ]);
+        }
+
+        return Promise.reject(new Error(`Unexpected command: ${command}`));
+      });
+
+      render(
+        <ApplicationPreview
+          job={{
+            ...mockJob,
+            description: "Applicants must be U.S. citizens for this contract.",
+          }}
+          atsPlatform="greenhouse"
+        />,
+      );
+
+      expect(await screen.findByText("Hard Question Review")).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          "Saved citizenship answer says: Yes, I am a U.S. citizen. Confirm it matches the employer's wording before continuing.",
         ),
       ).toBeInTheDocument();
       expect(mockInvoke).toHaveBeenCalledWith("get_screening_answers");
