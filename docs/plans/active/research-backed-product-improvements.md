@@ -268,6 +268,13 @@ copy durable findings back into this plan or the active status surface.
   pattern buttons"`, `npx vitest run
   src/components/automation/ScreeningAnswersForm.test.tsx`, `npx tsc
   --noEmit`, `npm run lint -- --quiet`, and `git diff --check`.
+- Current local Application Assist language-screening review follow-up in
+  `8657e403` flags bilingual, multilingual, and language-fluency requirements
+  from saved job details and shows matching saved language answers in the hard
+  question review when users have saved one. Verification passed: `npx vitest
+  run src/components/automation/ApplicationPreview.test.tsx -t "language"`,
+  `npx vitest run src/components/automation/ApplicationPreview.test.tsx`, `npx
+  tsc --noEmit`, `npm run lint -- --quiet`, and `git diff --check`.
 - Current local Resume Match do-not-force guidance follow-up in `ebb83cef`
   reminds users in the job words overview not to force words they cannot
   support with real work, training, or credentials.

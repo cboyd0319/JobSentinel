@@ -187,6 +187,13 @@ acceptance still requires Developer ID signing and notarization.
   pattern buttons"`, `npx vitest run
   src/components/automation/ScreeningAnswersForm.test.tsx`, `npx tsc
   --noEmit`, `npm run lint -- --quiet`, and `git diff --check`. The follow-up
+  `8657e403 Review language screening answers` flags bilingual, multilingual,
+  and language-fluency requirements from saved job details and shows matching
+  saved language answers in the hard question review when users have saved one.
+  Verification passed: `npx vitest run
+  src/components/automation/ApplicationPreview.test.tsx -t "language"`, `npx
+  vitest run src/components/automation/ApplicationPreview.test.tsx`, `npx tsc
+  --noEmit`, `npm run lint -- --quiet`, and `git diff --check`. The follow-up
   `ebb83cef Add do not force job words guidance` reminds users in the Resume
   Match job words overview not to force words they cannot support with real
   work, training, or credentials. The follow-up
