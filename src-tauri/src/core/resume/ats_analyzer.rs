@@ -2320,6 +2320,7 @@ impl AtsAnalyzer {
             &["case management", "case coordination"],
             &["scheduling", "calendar management", "appointment setting"],
             &["quality assurance", "qa"],
+            &["cash handling", "cashier"],
             &["patient care", "patient-care"],
             &[
                 "medical record",
@@ -3101,7 +3102,7 @@ impl AtsAnalyzer {
             r"(?i)\b(compliance|hipaa|osha|quality assurance|qa|data[- ]entry|excel)\b",
             r"(?i)\b(patient[- ]care|medication[- ]administration|vital[- ]signs?|care[- ]plans?|medical[- ]records?|charting)\b",
             r"(?i)\b(lesson planning|classroom management|curriculum|iep|student support|parent communication)\b",
-            r"(?i)\b(forklift|welding|equipment maintenance|safety inspections|food safety|cash handling)\b",
+            r"(?i)\b(forklift|welding|equipment maintenance|safety inspections|food safety|cash handling|cashier)\b",
             r"(?i)\b(document[- ]review|case[- ]files|legal[- ]research|records[- ]management|policy[- ]analysis|grant[- ]administration|public benefits)\b",
             r"(?i)\b(financial[- ]reconciliation|reconciliation|invoicing|loan[- ]processing|financial reporting)\b",
             r"(?i)\b(rust|python|javascript|typescript|java|c\+\+|go|kotlin|swift)\b",
@@ -3398,6 +3399,7 @@ impl AtsAnalyzer {
             "first aid",
             "first aid certification",
             "cash handling",
+            "cashier",
             "forklift certification",
             "osha 10",
             "osha 10 certification",
@@ -4791,6 +4793,41 @@ Preferred: Salesforce
             .expect("invoicing");
         assert_eq!(invoicing.match_state, RequirementMatchState::Direct);
         assert!(invoicing
+            .evidence_sections
+            .contains(&"experience".to_string()));
+    }
+
+    #[test]
+    fn test_requirement_review_uses_cashier_cash_handling_equivalence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nHandled cash handling for front counter orders.",
+            &[],
+            "Required: cashier",
+        );
+
+        let cashier = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "cashier")
+            .expect("cashier");
+        assert_eq!(cashier.match_state, RequirementMatchState::Direct);
+        assert!(cashier
+            .evidence_sections
+            .contains(&"experience".to_string()));
+
+        let inverse = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nWorked as cashier for front counter orders.",
+            &[],
+            "Required: cash handling",
+        );
+
+        let cash_handling = inverse
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "cash handling")
+            .expect("cash handling");
+        assert_eq!(cash_handling.match_state, RequirementMatchState::Direct);
+        assert!(cash_handling
             .evidence_sections
             .contains(&"experience".to_string()));
     }

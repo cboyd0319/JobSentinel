@@ -652,6 +652,7 @@ const ATS_KNOWN_KEYWORDS = [
   "first aid",
   "first aid certification",
   "cash handling",
+  "cashier",
   "forklift certification",
   "osha 10",
   "osha 10 certification",
@@ -3571,6 +3572,7 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
     ["case management", "case coordination"],
     ["scheduling", "calendar management", "appointment setting"],
     ["quality assurance", "qa"],
+    ["cash handling", "cashier"],
     ["patient care", "patient-care"],
     [
       "medical record",
