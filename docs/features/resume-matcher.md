@@ -126,6 +126,9 @@ The current local matcher:
   the saved file path;
 - shows a plain preview checklist for found text, employer-format priority, and
   whether the visible preview is complete, clipped, or unavailable;
+- reminds users that important details such as contact details, roles, skills,
+  and credentials should be selectable text instead of photos, logos, or
+  image-only sections;
 - tells users to follow employer file instructions first when readable text is
   missing, then suggests readable PDF, DOCX, TXT, or Markdown when no format is
   named;

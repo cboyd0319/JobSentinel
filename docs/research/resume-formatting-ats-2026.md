@@ -181,6 +181,9 @@ resume help should adjust examples and evidence prompts for:
 - The readable-text preview shows a plain checklist for text availability,
   employer-format priority, and whether the visible preview is complete,
   clipped, or unavailable.
+- The readable-text preview reminds users that important details such as contact
+  details, roles, skills, and credentials should be selectable text instead of
+  photos, logos, or image-only sections.
 - PDF, DOCX, TXT, and Markdown resume import are supported locally.
 - Selected resume uploads are checked locally and files over 10 MB are rejected
   before being copied into managed local storage.

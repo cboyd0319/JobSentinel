@@ -118,6 +118,10 @@ acceptance still requires Developer ID signing and notarization.
   `6ede725c Add selectable text resume guidance` tells users when a PDF may be
   scanned or image-only because local parsing could not find selectable text,
   while keeping employer file instructions first. The follow-up
+  `5dac06f8 Add readable preview text guidance` reminds users inside the
+  readable-text preview that contact details, roles, skills, and credentials
+  should be selectable text rather than photos, logos, or image-only sections.
+  The follow-up
   `0bac8a7b Add hard question application review` adds an Application Assist
   preview section that flags authorization, location, relocation, travel,
   license, certification, clearance, education, years, salary, schedule, and

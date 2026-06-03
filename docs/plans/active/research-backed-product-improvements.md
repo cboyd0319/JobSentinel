@@ -199,6 +199,10 @@ copy durable findings back into this plan or the active status surface.
 - Current local selectable-text guidance follow-up in `6ede725c` tells users
   when a PDF may be scanned or image-only because local parsing could not find
   selectable text, while keeping employer file instructions first.
+- Current local readable-preview text guidance follow-up in `5dac06f8` reminds
+  users inside the readable-text preview that contact details, roles, skills,
+  and credentials should be selectable text rather than photos, logos, or
+  image-only sections.
 - Current local Application Assist hard-question review follow-up in
   `0bac8a7b` flags authorization, location, relocation, travel, license,
   certification, clearance, education, years, salary, schedule, and availability
