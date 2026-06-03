@@ -2505,7 +2505,8 @@ function getMockHardConstraintCategory(keyword: string): MockHardConstraintCateg
     lower.includes("lbs") ||
     lower.includes("physical requirement") ||
     lower.includes("physical demand") ||
-    lower.includes("stand for long")
+    lower.includes("stand for long") ||
+    lower.includes("standing for long")
   ) {
     return "PhysicalRequirement";
   }
@@ -2852,7 +2853,7 @@ function extractMockHardConstraintKeywords(jobDescription: string): string[] {
     /\b(certification|cissp|security\+|bls|basic life support|acls|advanced cardiovascular life support|cpr|cardiopulmonary resuscitation|cna|certified nursing assistant|certified nurse assistant|certified nurse aide|pmp|project management professional|servsafe|food safety certification|food handler certification|food handler certificate|food handler permit|food handlers permit|food handler card|first[- ]aid certification|first[- ]aid certified|first[- ]aid certificate|first[- ]aid|forklift certification|forklift certified|forklift operator certification|forklift operator certified|forklift license|forklift operator license|osha\s*10(?:[- ]hour)?(?:\s+certification)?|osha\s*30(?:[- ]hour)?(?:\s+certification)?)\b/gi,
     /\b(bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree|high school diploma|high school degree|ged|high school equivalency|general education development)\b/gi,
     /\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b/gi,
-    /\b(lift(?:\s+up\s+to)?\s+\d+\s*(?:pounds?|lbs?)|stand for long periods?|physical requirements?|physical demands?)\b/gi,
+    /\b(lift(?:\s+up\s+to)?\s+\d+\s*(?:pounds?|lbs?)|(?:stand|standing) for long periods?|physical requirements?|physical demands?)\b/gi,
     /\b(onsite|on-site|on site|relocation|relocate|willing to relocate|travel|reliable transportation|own transportation|commute|availability|available|schedule|weekend availability|weekend shifts?|night shift|overnight shift|third shift|3rd shift|evening shift|second shift|2nd shift|day shift|first shift|1st shift)\b/gi,
   ];
   const keywords = new Set<string>();
@@ -3136,6 +3137,12 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
       "ged",
       "high school equivalency",
       "general education development",
+    ],
+    [
+      "stand for long period",
+      "stand for long periods",
+      "standing for long period",
+      "standing for long periods",
     ],
   ];
 

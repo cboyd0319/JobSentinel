@@ -1708,6 +1708,7 @@ impl AtsAnalyzer {
             || lower.contains("physical requirement")
             || lower.contains("physical demand")
             || lower.contains("stand for long")
+            || lower.contains("standing for long")
         {
             return Some(HardConstraintCategory::PhysicalRequirement);
         }
@@ -2047,6 +2048,12 @@ impl AtsAnalyzer {
                 "ged",
                 "high school equivalency",
                 "general education development",
+            ],
+            &[
+                "stand for long period",
+                "stand for long periods",
+                "standing for long period",
+                "standing for long periods",
             ],
         ];
 
@@ -2509,7 +2516,7 @@ impl AtsAnalyzer {
             r"(?i)\b(certification|cissp|security\+|bls|basic life support|acls|advanced cardiovascular life support|cpr|cardiopulmonary resuscitation|cna|certified nursing assistant|certified nurse assistant|certified nurse aide|pmp|project management professional|servsafe|food safety certification|food handler certification|food handler certificate|food handler permit|food handlers permit|food handler card|first[- ]aid certification|first[- ]aid certified|first[- ]aid certificate|first[- ]aid|forklift certification|forklift certified|forklift operator certification|forklift operator certified|forklift license|forklift operator license|osha\s*10(?:[- ]hour)?(?:\s+certification)?|osha\s*30(?:[- ]hour)?(?:\s+certification)?)\b",
             r"(?i)\b(bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree|high school diploma|high school degree|ged|high school equivalency|general education development)\b",
             r"(?i)\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b",
-            r"(?i)\b(lift(?:\s+up\s+to)?\s+\d+\s*(?:pounds?|lbs?)|stand for long periods?|physical requirements?|physical demands?)\b",
+            r"(?i)\b(lift(?:\s+up\s+to)?\s+\d+\s*(?:pounds?|lbs?)|(?:stand|standing) for long periods?|physical requirements?|physical demands?)\b",
             r"(?i)\b(onsite|on-site|on site|relocation|relocate|willing to relocate|travel|reliable transportation|own transportation|commute|availability|available|schedule|weekend availability|weekend shifts?|night shift|overnight shift|third shift|3rd shift|evening shift|second shift|2nd shift|day shift|first shift|1st shift)\b",
         ];
 
@@ -4658,6 +4665,30 @@ Preferred: Salesforce
             .hard_constraint_risks
             .iter()
             .any(|risk| risk.requirement == "lift 50 lbs"));
+    }
+
+    #[test]
+    fn test_stand_requirement_accepts_standing_evidence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nStanding for long periods during service shifts.",
+            &[],
+            "Required: stand for long periods",
+        );
+
+        let standing = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "stand for long periods")
+            .expect("standing review");
+        assert_eq!(standing.match_state, RequirementMatchState::Direct);
+        assert!(standing.hard_constraint);
+        assert!(standing
+            .evidence_sections
+            .contains(&"experience".to_string()));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "stand for long periods"));
     }
 
     #[test]

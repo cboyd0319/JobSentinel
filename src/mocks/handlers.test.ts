@@ -1364,6 +1364,41 @@ describe("mock Tauri handlers", () => {
     );
   });
 
+  it("matches stand and standing long-period mock hard constraints", async () => {
+    const standingResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        experience: [
+          {
+            ...atsResume.experience[0],
+            achievements: ["Standing for long periods during service shifts."],
+          },
+        ],
+        skills: [],
+      },
+      jobDescription: "Required: stand for long periods",
+    });
+
+    expect(standingResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "stand for long periods",
+          match_state: "Direct",
+          hard_constraint: true,
+          evidence_sections: expect.arrayContaining(["current experience"]),
+        }),
+      ]),
+    );
+    expect(standingResult.hard_constraint_risks).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          requirement: "stand for long periods",
+        }),
+      ]),
+    );
+  });
+
   it("treats metric-backed current experience as strong mock evidence", async () => {
     const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
