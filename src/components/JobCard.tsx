@@ -74,6 +74,12 @@ interface PayFloorGuidance {
   ariaLabel: string;
 }
 
+interface SalaryRangeQualityGuidance {
+  title: string;
+  description: string;
+  ariaLabel: string;
+}
+
 function getPostingRiskGuidance(
   ghostScore: number | null | undefined,
 ): PostingRiskGuidance | null {
@@ -142,6 +148,36 @@ function getPayFloorGuidance(
   };
 }
 
+function getSalaryRangeQualityGuidance(
+  salaryMin: number | null | undefined,
+  salaryMax: number | null | undefined,
+): SalaryRangeQualityGuidance | null {
+  if (
+    salaryMin == null ||
+    salaryMax == null ||
+    !Number.isFinite(salaryMin) ||
+    !Number.isFinite(salaryMax) ||
+    salaryMin <= 0 ||
+    salaryMax <= salaryMin
+  ) {
+    return null;
+  }
+
+  const rangeWidth = salaryMax - salaryMin;
+  const rangeRatio = salaryMax / salaryMin;
+
+  if (rangeWidth < 50000 || rangeRatio < 1.75) {
+    return null;
+  }
+
+  return {
+    title: "Very wide pay range",
+    description:
+      "This range may cover different levels or schedules. Check the written level, schedule, and realistic pay before tailoring.",
+    ariaLabel: "very wide pay range",
+  };
+}
+
 export const JobCard = memo(function JobCard({
   job,
   onViewJob,
@@ -206,6 +242,10 @@ export const JobCard = memo(function JobCard({
     job.salary_max,
     salaryFloorUsd,
   );
+  const salaryRangeQualityGuidance = getSalaryRangeQualityGuidance(
+    job.salary_min,
+    job.salary_max,
+  );
   const sourceGuidance = getJobSourceGuidance(job.source);
   const cardAriaLabel = `${job.title} at ${job.company}${
     safeScore >= SCORE_THRESHOLD_HIGH
@@ -215,7 +255,9 @@ export const JobCard = memo(function JobCard({
         : ""
   }${salaryText ? "" : ", pay not listed"}${
     postingRiskGuidance ? `, ${postingRiskGuidance.ariaLabel}` : ""
-  }${payFloorGuidance ? `, ${payFloorGuidance.ariaLabel}` : ""}`;
+  }${payFloorGuidance ? `, ${payFloorGuidance.ariaLabel}` : ""}${
+    salaryRangeQualityGuidance ? `, ${salaryRangeQualityGuidance.ariaLabel}` : ""
+  }`;
 
   return (
     <>
@@ -349,6 +391,21 @@ export const JobCard = memo(function JobCard({
                     <p className="font-semibold">{payFloorGuidance.title}</p>
                     <p className="text-xs leading-5 opacity-90">
                       {payFloorGuidance.description}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {salaryRangeQualityGuidance && (
+                <div
+                  data-testid="salary-range-quality-guidance"
+                  className="mb-2 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200"
+                >
+                  <SalaryIcon />
+                  <div>
+                    <p className="font-semibold">{salaryRangeQualityGuidance.title}</p>
+                    <p className="text-xs leading-5 opacity-90">
+                      {salaryRangeQualityGuidance.description}
                     </p>
                   </div>
                 </div>

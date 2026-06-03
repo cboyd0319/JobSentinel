@@ -350,6 +350,36 @@ describe("JobCard", () => {
       ).toBeInTheDocument();
     });
 
+    it("flags very wide listed pay ranges as weaker range evidence", () => {
+      const wideRangeJob = {
+        ...mockJob,
+        salary_min: 45000,
+        salary_max: 140000,
+      };
+
+      renderWithToast(<JobCard job={wideRangeJob} />);
+
+      expect(screen.getByText("$45k - $140k")).toBeInTheDocument();
+      expect(screen.getByTestId("salary-range-quality-guidance")).toHaveTextContent(
+        "Very wide pay range",
+      );
+      expect(
+        screen.getByText(/check the written level, schedule, and realistic pay/i),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("article", {
+          name: /very wide pay range/i,
+        }),
+      ).toBeInTheDocument();
+    });
+
+    it("keeps normal listed pay ranges visually quiet", () => {
+      renderWithToast(<JobCard job={mockJob} />);
+
+      expect(screen.getByText("$55k - $72k")).toBeInTheDocument();
+      expect(screen.queryByTestId("salary-range-quality-guidance")).not.toBeInTheDocument();
+    });
+
     it("warns when listed pay is below the user's floor", () => {
       const belowFloorJob = {
         ...mockJob,
