@@ -259,6 +259,9 @@ Future implementation should improve:
 - Resume/job fit now treats `grant administration` and `grant-administration`
   as equivalent local evidence without duplicate requirement rows for hyphenated
   wording.
+- Resume/job fit now treats `financial reconciliation` and
+  `financial-reconciliation` as equivalent local evidence without duplicate
+  requirement rows for hyphenated wording.
 - Resume/job fit now treats `onsite`, `on-site`, and `on site` as equivalent
   local location evidence for required location constraints.
 - Resume/job fit now treats `relocation`, `relocate`, and
