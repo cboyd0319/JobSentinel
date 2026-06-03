@@ -248,6 +248,8 @@ Future implementation should improve:
 - Resume/job fit now treats clear credential equivalents such as `BLS` and
   `Basic Life Support` as the same evidence, while keeping unrelated
   credentials separate.
+- Resume/job fit now treats `driver's license`, `drivers license`, and
+  `driver license` as equivalent local license evidence.
 - Resume/job fit now treats `CNA`, `Certified Nursing Assistant`, `Certified
   Nurse Assistant`, and `Certified Nurse Aide` as the same evidence, and drops
   the duplicate generic `certification` risk when the specific credential

@@ -172,6 +172,10 @@ copy durable findings back into this plan or the active status surface.
   periods and standing for long periods as equivalent local hard-constraint
   evidence, so exact physical-demand wording differences do not create a false
   missing risk.
+- Current local driver-license follow-up in `06ae464c` treats driver's license,
+  drivers license, and driver license as equivalent local hard-constraint
+  evidence, so exact license wording differences do not create a false missing
+  risk.
 - Current local structured evidence recency follow-up marks structured resume
   matches from a current role as `current experience`, without changing older
   role evidence labels.
@@ -1720,6 +1724,7 @@ source-filter compatibility issue appears.
   Availability-term work is committed in `82321e8c`.
   Lift-weight unit work is committed in `5be01ab3`.
   Standing-period work is committed in `ce37de4c`.
+  Driver-license work is committed in `06ae464c`.
   Structured evidence recency work is committed in `56d9a5ab`.
   Plain-text evidence recency work is committed in `66c587a8`.
   Metric-backed evidence-strength work is committed in `4607b67f`.
