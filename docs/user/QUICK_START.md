@@ -188,6 +188,9 @@ Pick how broad the first results and alerts should feel:
 Turn on desktop alerts if you want the easiest notification path. They do not
 need another account.
 
+Turn on **Quiet job-search mode** if you want desktop alerts without sound for
+a more private or quieter search.
+
 Email and chat alerts can be added later in Settings. Some apps ask you to
 create a connection link so JobSentinel can send messages there. Skip this for
 now and add it later if you want.
@@ -202,6 +205,7 @@ Before job checks start, JobSentinel shows the answers it will use to rank jobs:
 - Location
 - Freshness
 - Review list
+- Alerts
 - Pay
 
 Change anything that looks wrong, then start finding jobs.

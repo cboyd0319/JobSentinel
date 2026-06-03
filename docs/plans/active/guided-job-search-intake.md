@@ -411,10 +411,13 @@ The UI maps one of three setup choices to the existing serialized
 - Setup asks how strongly JobSentinel should prioritize fresh and verified
   postings, then maps that plain choice to existing `ghost_config` warning
   sensitivity.
+- Setup offers quiet job-search mode for desktop alerts, mapping to existing
+  local alert settings by turning sound off without adding email, chat, or a
+  new external channel.
 - The field is optional and can be skipped.
 - The final setup screen summarizes look-for titles, work to show more often,
-  work to rank lower, location, review volume, freshness, and pay before
-  scanning starts.
+  work to rank lower, location, review volume, freshness, alerts, and pay
+  before scanning starts.
 - Settings uses the same plain freshness choices so users can change warning
   behavior later without understanding scoring thresholds. Custom controls stay
   available under warning-focused labels.

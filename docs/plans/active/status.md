@@ -1580,6 +1580,13 @@ Scope:
   vitest run src/pages/Salary.test.tsx -t "level and scope"`, `npx vitest run
   src/pages/Salary.test.tsx`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
   `npm run lint:external-ai`, and `git diff --check`.
+- Latest local quiet setup alert slice in `d96e3934` adds a first-run quiet
+  job-search mode for desktop alerts, turning sound off through existing local
+  alert settings without adding email, chat, or other external channels.
+  Verification passed: `npx vitest run src/pages/SetupWizard.test.tsx -t
+  "quiet job-search alerts"`, `npx vitest run src/pages/SetupWizard.test.tsx`,
+  `npx tsc --noEmit`, `npm run lint -- --quiet`, `npm run lint:external-ai`,
+  and `git diff --check`.
 - No-Apple-account macOS readiness is already best-possible without an Apple
   Developer Account. Keep the limitation explicit: Gatekeeper-ready public
   distribution still needs Developer ID signing and notarization.
