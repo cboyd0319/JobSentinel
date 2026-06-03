@@ -217,6 +217,9 @@ copy durable findings back into this plan or the active status surface.
   credential evidence instead of generic resume text.
 - Current local keyword-list bullet follow-up warns when experience or project
   bullets read like keyword lists instead of plain work evidence.
+- Current local generic-filler bullet follow-up warns when experience or
+  project bullets are packed with generic filler phrases instead of specific
+  work evidence.
 - Current local capability-level warning follow-up warns when experience or
   project bullets mix ownership or expert wording with exposure-only or
   assisted-work signals.
@@ -720,7 +723,8 @@ Likely files later:
 - Add evidence-strength levels for missing, bare keyword, duty-only,
   responsibility with tools, scope-backed accomplishment, and metric-backed
   accomplishment.
-- Add "human read" review that catches machine-optimized but awkward bullets.
+- Continue "human read" review that catches machine-optimized but awkward
+  bullets.
 - Add bullet suggestions that preserve user facts and ask for confirmation
   before changing claims.
 - Continue capability-ladder prompts so users can distinguish exposure,
@@ -1631,6 +1635,7 @@ source-filter compatibility issue appears.
   Credential-equivalence work is committed in `c4fd8c7a`.
   Training-heading credential work is committed in `df0bdf9a`.
   Keyword-list bullet work is committed in `0447094b`.
+  Generic-filler bullet work is committed in `c72a574d`.
   Capability-level warning work is committed in `7b546c78`.
   Career-break heading work is committed in `b149e0d1`.
   Interview-defense bullet work is committed in `fda14375`.
