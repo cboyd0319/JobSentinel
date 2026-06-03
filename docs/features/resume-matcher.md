@@ -188,8 +188,9 @@ The current local matcher:
   evidence for required location constraints;
 - treats **reliable transportation** and **own transportation** as the same
   local location evidence for required commute or transportation constraints;
-- treats **night shift** and **overnight shift** as the same local schedule
-  evidence for required shift constraints;
+- treats **night shift**, **overnight shift**, **third shift**, and **3rd
+  shift** as the same local schedule evidence for required night-shift
+  constraints;
 - treats **weekend availability**, **weekend shift**, and **weekend shifts** as
   the same local schedule evidence for required weekend constraints;
 - treats **evening shift**, **second shift**, and **2nd shift** as the same

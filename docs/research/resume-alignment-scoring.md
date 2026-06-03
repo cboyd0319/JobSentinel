@@ -225,8 +225,9 @@ Future implementation should improve:
 - Resume/job fit now treats `reliable transportation` and `own transportation`
   as equivalent local location evidence for required commute or transportation
   constraints.
-- Resume/job fit now treats `night shift` and `overnight shift` as equivalent
-  local schedule evidence for required shift constraints.
+- Resume/job fit now treats `night shift`, `overnight shift`, `third shift`,
+  and `3rd shift` as equivalent local schedule evidence for required
+  night-shift constraints.
 - Resume/job fit now treats `weekend availability`, `weekend shift`, and
   `weekend shifts` as equivalent local schedule evidence for required weekend
   constraints.

@@ -145,6 +145,8 @@ copy durable findings back into this plan or the active status surface.
 - Current local overnight-shift follow-up in `4b2009d6` treats night shift and
   overnight shift as equivalent local hard-constraint evidence, so exact
   schedule wording differences do not create a false missing risk.
+- Current local third-shift follow-up in `131fd9b9` adds third shift and
+  3rd shift to the same night-shift hard-constraint evidence group.
 - Current local weekend-shift follow-up in `fec9fa3d` treats weekend
   availability, weekend shift, and weekend shifts as equivalent local
   hard-constraint evidence, so exact weekend wording differences do not create
@@ -1692,6 +1694,7 @@ source-filter compatibility issue appears.
   Spaced on-site work is committed in `c8dffb14`.
   Transportation-term work is committed in `d454fd30`.
   Overnight-shift work is committed in `4b2009d6`.
+  Third-shift work is committed in `131fd9b9`.
   Weekend-shift work is committed in `fec9fa3d`.
   Second-shift work is committed in `05b82897`.
   Structured evidence recency work is committed in `56d9a5ab`.

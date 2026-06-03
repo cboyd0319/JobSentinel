@@ -136,6 +136,8 @@ acceptance still requires Developer ID signing and notarization.
   evidence. The follow-up
   `4b2009d6 Match overnight shift terms` treats night shift and overnight shift
   as the same local hard-constraint evidence. The follow-up
+  `131fd9b9 Match third shift terms` adds third shift and 3rd shift to that
+  local hard-constraint evidence group. The follow-up
   `fec9fa3d Match weekend shift terms` treats weekend availability, weekend
   shift, and weekend shifts as the same local hard-constraint evidence. The
   follow-up
