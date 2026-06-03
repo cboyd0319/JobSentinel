@@ -660,6 +660,7 @@ const ATS_KNOWN_KEYWORDS = [
   "document review",
   "document-review",
   "case files",
+  "case-files",
   "legal research",
   "records management",
   "records-management",
@@ -2876,32 +2877,41 @@ function extractMockAtsKeywords(jobDescription: string): MockAtsKeyword[] {
     /\bvital sign\b/.test(lower) && !hasPluralVitalSigns;
   const hasHyphenSingularVitalSign =
     /\bvital-sign\b/.test(lower) && !hasHyphenPluralVitalSigns;
-  const hasMedicationAdministration = /\bmedication administration\b/.test(lower);
-  const hasHyphenMedicationAdministration = /\bmedication-administration\b/.test(lower);
-  const hasDocumentReview = /\bdocument review\b/.test(lower);
-  const hasHyphenDocumentReview = /\bdocument-review\b/.test(lower);
-  const hasRecordsManagement = /\brecords management\b/.test(lower);
-  const hasHyphenRecordsManagement = /\brecords-management\b/.test(lower);
   const hasSpecificDegree = hardKeywords.some((keyword) =>
     isMockExactDegreeKeyword(keyword) && keyword !== "degree"
   );
-  const medicationAdministrationKeywordsToSkip = new Set<string>();
-  if (hasMedicationAdministration) {
-    medicationAdministrationKeywordsToSkip.add("medication-administration");
-  } else if (hasHyphenMedicationAdministration) {
-    medicationAdministrationKeywordsToSkip.add("medication administration");
-  }
-  const documentReviewKeywordsToSkip = new Set<string>();
-  if (hasDocumentReview) {
-    documentReviewKeywordsToSkip.add("document-review");
-  } else if (hasHyphenDocumentReview) {
-    documentReviewKeywordsToSkip.add("document review");
-  }
-  const recordsManagementKeywordsToSkip = new Set<string>();
-  if (hasRecordsManagement) {
-    recordsManagementKeywordsToSkip.add("records-management");
-  } else if (hasHyphenRecordsManagement) {
-    recordsManagementKeywordsToSkip.add("records management");
+  const exactHyphenVariantKeywordsToSkip = new Set<string>();
+  for (const [
+    normalPattern,
+    hyphenPattern,
+    normalKeyword,
+    hyphenKeyword,
+  ] of [
+    [
+      /\bmedication administration\b/,
+      /\bmedication-administration\b/,
+      "medication administration",
+      "medication-administration",
+    ],
+    [
+      /\bdocument review\b/,
+      /\bdocument-review\b/,
+      "document review",
+      "document-review",
+    ],
+    [
+      /\brecords management\b/,
+      /\brecords-management\b/,
+      "records management",
+      "records-management",
+    ],
+    [/\bcase files\b/, /\bcase-files\b/, "case files", "case-files"],
+  ] as const) {
+    if (normalPattern.test(lower)) {
+      exactHyphenVariantKeywordsToSkip.add(hyphenKeyword);
+    } else if (hyphenPattern.test(lower)) {
+      exactHyphenVariantKeywordsToSkip.add(normalKeyword);
+    }
   }
   const knownKeywords = ATS_KNOWN_KEYWORDS.filter((keyword) =>
     !(hasDegreeEquivalent && isMockExactDegreeKeyword(keyword)) &&
@@ -2918,9 +2928,7 @@ function extractMockAtsKeywords(jobDescription: string): MockAtsKeyword[] {
     !(hasHyphenPluralVitalSigns && ["vital sign", "vital-sign", "vital signs"].includes(keyword)) &&
     !(hasSingularVitalSign && ["vital signs", "vital-sign", "vital-signs"].includes(keyword)) &&
     !(hasHyphenSingularVitalSign && ["vital sign", "vital signs", "vital-signs"].includes(keyword)) &&
-    !medicationAdministrationKeywordsToSkip.has(keyword) &&
-    !documentReviewKeywordsToSkip.has(keyword) &&
-    !recordsManagementKeywordsToSkip.has(keyword) &&
+    !exactHyphenVariantKeywordsToSkip.has(keyword) &&
     !(
       hasCommercialDriverLicense &&
       ["driver's license", "drivers license", "driver license"].includes(keyword)
@@ -3228,6 +3236,7 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
     ["data entry", "data-entry"],
     ["document review", "document-review"],
     ["records management", "records-management"],
+    ["case files", "case-files"],
     ["onsite", "on-site", "on site"],
     ["relocation", "relocate", "willing to relocate"],
     ["reliable transportation", "own transportation"],
