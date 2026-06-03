@@ -140,6 +140,14 @@ const HARD_QUESTION_REVIEWS: HardQuestionReview[] = [
   {
     label: "Years of experience",
     detail: "Make years, level, and seniority answers match the experience you can explain.",
+    getDetail: ({ screeningAnswers }) => getSavedScreeningAnswerReviewDetail(
+      screeningAnswers,
+      [
+        /\byears? of experience\b/i,
+        /\bexperience\b/i,
+      ],
+      "Make years, level, and seniority answers match the experience you can explain.",
+    ),
     patterns: [
       /\b\d+\+?\s*(?:years|yrs)\b/i,
       /\byears? of experience\b/i,
@@ -185,6 +193,9 @@ function getSavedScreeningAnswerLabel(questionPattern: string) {
   }
   if (/\beducation\b|\bdegree\b|\bbachelor'?s?\b|\bmaster'?s?\b|\bhigh school\b|\bdiploma\b/i.test(questionPattern)) {
     return "education";
+  }
+  if (/\byears? of experience\b|\bexperience\b/i.test(questionPattern)) {
+    return "experience";
   }
 
   return "screening";
