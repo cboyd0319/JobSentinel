@@ -169,6 +169,9 @@ acceptance still requires Developer ID signing and notarization.
   `e49c2059 Match policy analysis hyphen terms` treats policy analysis and
   policy-analysis as the same local evidence without duplicate requirement rows.
   The follow-up
+  `20129f39 Match grant administration hyphen terms` treats grant administration
+  and grant-administration as the same local evidence without duplicate
+  requirement rows. The follow-up
   `bffa0a1f Match onsite location terms` treats onsite and on-site as the same
   local hard-constraint evidence. The follow-up
   `c8dffb14 Match spaced on site terms` adds the spaced `on site` form to that
