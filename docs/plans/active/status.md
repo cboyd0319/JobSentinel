@@ -492,7 +492,18 @@ acceptance still requires Developer ID signing and notarization.
   src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
   `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
   clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
-  --check`. The follow-up `432b49f7 Match cashier and cash handling evidence`
+  --check`. The follow-up
+  `aa412a5a Match accounts payable receivable shorthand` treats `A/P` and
+  `A/R` as local shorthand for accounts payable and accounts receivable in
+  backend and dev/browser mocks without broad acronym matching. Verification
+  passed: `cargo test --lib accounts_payable_receivable --manifest-path
+  src-tauri/Cargo.toml`, `npx vitest run src/mocks/handlers.test.ts -t "A/P
+  and A/R"`, `cargo test --lib ats_analyzer --manifest-path
+  src-tauri/Cargo.toml`, `npx vitest run src/mocks/handlers.test.ts`, `npx tsc
+  --noEmit`, `npm run lint -- --quiet`, `cargo fmt --all --manifest-path
+  src-tauri/Cargo.toml -- --check`, `cargo clippy --manifest-path
+  src-tauri/Cargo.toml -- -D warnings`, and `git diff --check`. The follow-up
+  `432b49f7 Match cashier and cash handling evidence`
   treats cashier and cash handling as equivalent local retail/service evidence
   in backend and dev/browser mocks without broad fuzzy matching. Verification
   passed: `cargo test --lib cashier_cash --manifest-path src-tauri/Cargo.toml`,

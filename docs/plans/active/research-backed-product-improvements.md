@@ -194,6 +194,17 @@ copy durable findings back into this plan or the active status surface.
   `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
   clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
   --check`.
+- Current local accounts-payable/receivable shorthand follow-up in `aa412a5a`
+  treats `A/P` and `A/R` as local shorthand for accounts payable and accounts
+  receivable in backend and dev/browser mocks without broad acronym matching.
+  Verification passed: `cargo test --lib accounts_payable_receivable
+  --manifest-path src-tauri/Cargo.toml`, `npx vitest run
+  src/mocks/handlers.test.ts -t "A/P and A/R"`, `cargo test --lib
+  ats_analyzer --manifest-path src-tauri/Cargo.toml`, `npx vitest run
+  src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
+  `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
+  clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
+  --check`.
 - Current local cashier/cash-handling follow-up in `432b49f7` treats cashier
   and cash handling as equivalent local retail/service evidence in backend and
   dev/browser mocks without broad fuzzy matching. Verification passed: `cargo
