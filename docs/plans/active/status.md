@@ -1403,6 +1403,15 @@ Scope:
   --manifest-path src-tauri/Cargo.toml -- -D warnings`, `npx tsc --noEmit`,
   `npm run lint -- --quiet`, `npm run lint:docs`, `npm run lint:bloat`, and
   `git diff --check`.
+- Current local Resume-Assisted Guided Intake slice loads active saved-resume
+  skill names for setup, shows them as optional reviewed suggestions, and only
+  adds a name to "work you want" after the user picks it. It does not expose
+  `resume_id`, `confidence_score`, `file_path`, `parsed_text`, raw resume text,
+  or any external AI path in the setup UI. Verification passed: `npx vitest run
+  src/pages/SetupWizard.test.tsx`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
+  `npm run lint:architecture`, `npm run lint:external-ai`, `npm run
+  lint:tauri-invokes`, `npm run lint:docs`, `npm run harness:check`, `npm run
+  lint:bloat`, and `git diff --check`.
 - No-Apple-account macOS readiness is already best-possible without an Apple
   Developer Account. Keep the limitation explicit: Gatekeeper-ready public
   distribution still needs Developer ID signing and notarization.

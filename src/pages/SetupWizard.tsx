@@ -60,6 +60,16 @@ interface ReviewVolumeOption {
   description: string;
 }
 
+interface SetupResumeSummary {
+  id: number;
+  name: string;
+}
+
+interface SetupResumeSkill {
+  skill_name: string;
+  source?: string | null;
+}
+
 const DEFAULT_FRESHNESS_PREFERENCE: FreshnessPreference = "fresh_verified_first";
 const DEFAULT_REVIEW_VOLUME_PREFERENCE: ReviewVolumePreference = "balanced";
 
@@ -212,6 +222,27 @@ function formatJobSourceSummary(
   return `${sources.join(", ")}. You can turn these off in Settings.`;
 }
 
+function toResumeSkillSuggestions(skills: SetupResumeSkill[]): string[] {
+  const seen = new Set<string>();
+  const suggestions: string[] = [];
+
+  for (const skill of skills) {
+    if (skill.source !== "resume") continue;
+
+    const name = skill.skill_name.trim();
+    const key = name.toLocaleLowerCase();
+
+    if (!name || seen.has(key)) continue;
+
+    seen.add(key);
+    suggestions.push(name);
+
+    if (suggestions.length >= 6) break;
+  }
+
+  return suggestions;
+}
+
 function applyReviewVolumePreference<T extends {
   immediate_alert_threshold?: number;
   remoteok: { limit: number };
@@ -263,6 +294,8 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
   const [skillInput, setSkillInput] = useState("");
   const [avoidInput, setAvoidInput] = useState("");
   const [cityInput, setCityInput] = useState("");
+  const [resumeSuggestionName, setResumeSuggestionName] = useState<string | null>(null);
+  const [resumeSkillSuggestions, setResumeSkillSuggestions] = useState<string[]>([]);
   const toast = useToast();
   const [stepAnnouncement, setStepAnnouncement] = useState("");
   const [validationAnnouncement, setValidationAnnouncement] = useState("");
@@ -380,6 +413,44 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
     config.location_preferences.allow_hybrid ||
     config.location_preferences.allow_onsite;
 
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadResumeSuggestions = async () => {
+      try {
+        const activeResume = await safeInvoke<SetupResumeSummary | null>(
+          "get_active_resume",
+          {},
+          { logContext: "Load setup resume suggestions", silent: true },
+        );
+
+        if (cancelled || !activeResume) return;
+
+        const skills = await safeInvoke<SetupResumeSkill[]>(
+          "get_user_skills",
+          { resumeId: activeResume.id },
+          { logContext: "Load setup resume skills", silent: true },
+        );
+
+        if (cancelled) return;
+
+        const suggestions = toResumeSkillSuggestions(skills);
+        setResumeSuggestionName(suggestions.length > 0 ? activeResume.name : null);
+        setResumeSkillSuggestions(suggestions);
+      } catch {
+        if (cancelled) return;
+        setResumeSuggestionName(null);
+        setResumeSkillSuggestions([]);
+      }
+    };
+
+    void loadResumeSuggestions();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const handleDetectLocation = useCallback(async () => {
     setIsDetectingLocation(true);
     try {
@@ -446,6 +517,16 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
         keywords_boost: [...prev.keywords_boost, trimmed],
       }));
       setSkillInput("");
+    }
+  };
+
+  const handleAddSkillSuggestion = (skillName: string) => {
+    const trimmed = skillName.trim();
+    if (trimmed && !config.keywords_boost.includes(trimmed)) {
+      setConfig((prev) => ({
+        ...prev,
+        keywords_boost: [...prev.keywords_boost, trimmed],
+      }));
     }
   };
 
@@ -773,6 +854,51 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                   </div>
                 )}
               </div>
+
+              {resumeSkillSuggestions.length > 0 && (
+                <section
+                  className="border-l-2 border-surface-200 pl-3"
+                  aria-labelledby="setup-resume-skills-title"
+                >
+                  <h3
+                    id="setup-resume-skills-title"
+                    className="font-semibold text-surface-800 mb-2"
+                  >
+                    Use reviewed resume skills
+                  </h3>
+                  <p className="mb-3 text-sm text-surface-500">
+                    From{" "}
+                    <span className="font-medium text-surface-700">
+                      {resumeSuggestionName}
+                    </span>
+                    . Pick only skills you want in this search.
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {resumeSkillSuggestions.map((skill) => {
+                      const alreadyAdded = config.keywords_boost.includes(skill);
+                      return (
+                        <Button
+                          key={skill}
+                          variant={alreadyAdded ? "ghost" : "secondary"}
+                          size="sm"
+                          onClick={() => handleAddSkillSuggestion(skill)}
+                          disabled={alreadyAdded}
+                          aria-label={
+                            alreadyAdded
+                              ? `${skill} already in search`
+                              : `Add ${skill} to search`
+                          }
+                        >
+                          {alreadyAdded ? `Added ${skill}` : skill}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                  <p className="mt-2 text-xs text-surface-500">
+                    Suggestions stay local and do not change your search until you pick them.
+                  </p>
+                </section>
+              )}
 
               {/* Work to Avoid Section */}
               <div>
