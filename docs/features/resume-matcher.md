@@ -181,6 +181,8 @@ The current local matcher:
 - treats **US citizenship**, **U.S. citizenship**, **US citizen**, and
   **U.S. citizen** as the same local citizenship evidence without treating
   generic work authorization as citizenship;
+- treats **work authorization** and **authorized to work** as the same local
+  work-eligibility evidence;
 - treats conservative local term equivalents, such as **CRM** and **customer
   relationship management**, and **customer service**, **customer support**,
   **client service**, **client services**, and **client support**, as the same
