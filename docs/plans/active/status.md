@@ -209,6 +209,14 @@ acceptance still requires Developer ID signing and notarization.
   src/components/automation/ApplicationPreview.test.tsx -t "physical"`, `npx
   vitest run src/components/automation/ApplicationPreview.test.tsx`, `npx tsc
   --noEmit`, `npm run lint -- --quiet`, and `git diff --check`. The follow-up
+  `40435528 Add physical screening quick add` adds physical requirements to
+  Application Assist's common saved-answer patterns, so users can prepare a
+  reusable physical-demand answer before a hard physical question appears.
+  Verification passed: `npx vitest run
+  src/components/automation/ScreeningAnswersForm.test.tsx -t "shows all common
+  pattern buttons"`, `npx vitest run
+  src/components/automation/ScreeningAnswersForm.test.tsx`, `npx tsc
+  --noEmit`, `npm run lint -- --quiet`, and `git diff --check`. The follow-up
   `ebb83cef Add do not force job words guidance` reminds users in the Resume
   Match job words overview not to force words they cannot support with real
   work, training, or credentials. The follow-up
