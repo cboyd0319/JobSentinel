@@ -1002,6 +1002,38 @@ describe("mock Tauri handlers", () => {
       ]),
     );
 
+    const transportationResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        experience: [
+          {
+            ...atsResume.experience[0],
+            achievements: ["Own transportation for client site visits."],
+          },
+        ],
+        skills: [],
+      },
+      jobDescription: "Required: reliable transportation",
+    });
+    expect(transportationResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "reliable transportation",
+          match_state: "Direct",
+          hard_constraint: true,
+          evidence_sections: expect.arrayContaining(["current experience"]),
+        }),
+      ]),
+    );
+    expect(transportationResult.hard_constraint_risks).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          requirement: "reliable transportation",
+        }),
+      ]),
+    );
+
     await mockInvoke<number>("select_and_upload_resume");
     const activeJobResult = await mockInvoke<AtsAnalysisResult>("analyze_active_resume_for_job", {
       jobDescription:

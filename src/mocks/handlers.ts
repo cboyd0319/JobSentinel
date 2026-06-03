@@ -3041,6 +3041,7 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
     ],
     ["data entry", "data-entry"],
     ["onsite", "on-site", "on site"],
+    ["reliable transportation", "own transportation"],
     ["bls", "basic life support"],
     ["acls", "advanced cardiovascular life support"],
     ["cpr", "cardiopulmonary resuscitation"],

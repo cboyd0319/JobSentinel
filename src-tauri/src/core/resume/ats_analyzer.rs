@@ -1945,6 +1945,7 @@ impl AtsAnalyzer {
             ],
             &["data entry", "data-entry"],
             &["onsite", "on-site", "on site"],
+            &["reliable transportation", "own transportation"],
             &["bls", "basic life support"],
             &["acls", "advanced cardiovascular life support"],
             &["cpr", "cardiopulmonary resuscitation"],
@@ -4383,6 +4384,30 @@ Preferred: Salesforce
                 && review.hard_constraint
                 && review.match_state == RequirementMatchState::Missing
         }));
+    }
+
+    #[test]
+    fn test_reliable_transportation_accepts_own_transportation_evidence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nOwn transportation for client site visits.",
+            &[],
+            "Required: reliable transportation",
+        );
+
+        let transportation = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "reliable transportation")
+            .expect("reliable transportation review");
+        assert_eq!(transportation.match_state, RequirementMatchState::Direct);
+        assert!(transportation.hard_constraint);
+        assert!(transportation
+            .evidence_sections
+            .contains(&"experience".to_string()));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "reliable transportation"));
     }
 
     #[test]
