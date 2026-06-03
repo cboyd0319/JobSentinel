@@ -2010,6 +2010,7 @@ impl AtsAnalyzer {
             || lower.contains("day shift")
             || lower.contains("first shift")
             || lower.contains("1st shift")
+            || lower.contains("overtime")
             || lower.contains("evening")
         {
             return Some(HardConstraintCategory::Location);
@@ -2286,6 +2287,12 @@ impl AtsAnalyzer {
             &["weekend availability", "weekend shift", "weekend shifts"],
             &["evening shift", "second shift", "2nd shift"],
             &["day shift", "first shift", "1st shift"],
+            &[
+                "overtime availability",
+                "overtime",
+                "overtime shift",
+                "overtime shifts",
+            ],
             &["availability", "available"],
             &[
                 "full-time availability",
@@ -3013,7 +3020,7 @@ impl AtsAnalyzer {
             r"(?i)\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b",
             r"(?i)\b(bilingual(?:\s+(?:english|spanish|french|mandarin|cantonese|arabic|portuguese|german|japanese|korean))?|(?:spanish|french|mandarin|cantonese|arabic|portuguese|german|japanese|korean)\s+fluency|fluent(?:\s+in)?\s+(?:spanish|french|mandarin|cantonese|arabic|portuguese|german|japanese|korean)|(?:spanish|french|mandarin|cantonese|arabic|portuguese|german|japanese|korean)\s+language|english/(?:spanish|french|mandarin|cantonese|arabic|portuguese|german|japanese|korean)|english and (?:spanish|french|mandarin|cantonese|arabic|portuguese|german|japanese|korean))\b",
             r"(?i)\b(lift(?:\s+up\s+to)?\s+\d+\s*(?:pounds?|lbs?)|(?:stand|standing) for long periods?|physical requirements?|physical demands?)\b",
-            r"(?i)\b(onsite|on-site|on site|remote(?:[- ](?:work|role|position|job))?|hybrid(?:[- ](?:work|role|schedule|position|job))?|relocation|relocate|willing to relocate|travel|reliable transportation|own transportation|commute|commuting|full[- ]time(?:\s+availability)?|part[- ]time(?:\s+availability)?|availability|available|schedule|weekend availability|weekend shifts?|night shift|overnight shift|third shift|3rd shift|evening shift|second shift|2nd shift|day shift|first shift|1st shift)\b",
+            r"(?i)\b(onsite|on-site|on site|remote(?:[- ](?:work|role|position|job))?|hybrid(?:[- ](?:work|role|schedule|position|job))?|relocation|relocate|willing to relocate|travel|reliable transportation|own transportation|commute|commuting|full[- ]time(?:\s+availability)?|part[- ]time(?:\s+availability)?|availability|available|schedule|weekend availability|weekend shifts?|night shift|overnight shift|third shift|3rd shift|evening shift|second shift|2nd shift|day shift|first shift|1st shift|overtime(?:\s+(?:availability|shifts?|hours?))?)\b",
         ];
 
         for pattern in &hard_constraint_patterns {
@@ -6732,6 +6739,53 @@ Preferred: Salesforce
             .hard_constraint_risks
             .iter()
             .any(|risk| risk.requirement == "availability"));
+    }
+
+    #[test]
+    fn test_missing_required_overtime_constraint_caps_overall_score() {
+        let resume = sample_resume();
+
+        let result =
+            AtsAnalyzer::analyze_for_job(&resume, "Required: client intake, overtime availability");
+
+        assert!(result.overall_score <= 70.0);
+        assert!(result.hard_constraint_risks.iter().any(|risk| {
+            risk.requirement == "overtime availability"
+                && risk.category == HardConstraintCategory::Location
+                && risk.score_cap == 70.0
+                && risk
+                    .action
+                    .contains("Check location, schedule, availability, or travel")
+        }));
+        assert!(result.requirement_reviews.iter().any(|review| {
+            review.keyword == "overtime availability"
+                && review.hard_constraint
+                && review.match_state == RequirementMatchState::Missing
+        }));
+    }
+
+    #[test]
+    fn test_overtime_availability_accepts_overtime_evidence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nAvailable for overtime coverage.",
+            &[],
+            "Required: overtime availability",
+        );
+
+        let overtime = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "overtime availability")
+            .expect("overtime availability review");
+        assert_eq!(overtime.match_state, RequirementMatchState::Direct);
+        assert!(overtime.hard_constraint);
+        assert!(overtime
+            .evidence_sections
+            .contains(&"experience".to_string()));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "overtime availability"));
     }
 
     #[test]
