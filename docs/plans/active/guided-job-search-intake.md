@@ -45,7 +45,7 @@ active status surface.
 - Latest local reviewed-resume-skill sorting slice adds the same review-first
   shape on the Resume page: users can turn reviewed local skills on or off as a
   job-sorting signal after checking the skill list.
-- Current local resume-assisted setup slice shows active saved-resume skill
+- Latest local resume-assisted setup slice in `da84110a` shows active saved-resume skill
   names as optional suggestions in setup, stores only the resume display name
   and skill names in the renderer, and adds them to "work you want" only after
   the user picks them.

@@ -1403,7 +1403,7 @@ Scope:
   --manifest-path src-tauri/Cargo.toml -- -D warnings`, `npx tsc --noEmit`,
   `npm run lint -- --quiet`, `npm run lint:docs`, `npm run lint:bloat`, and
   `git diff --check`.
-- Current local Resume-Assisted Guided Intake slice loads active saved-resume
+- Latest local Resume-Assisted Guided Intake slice in `da84110a` loads active saved-resume
   skill names for setup, shows them as optional reviewed suggestions, and only
   adds a name to "work you want" after the user picks it. It does not expose
   `resume_id`, `confidence_score`, `file_path`, `parsed_text`, raw resume text,
