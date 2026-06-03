@@ -1409,8 +1409,8 @@ export default function Resume({ onBack }: ResumeProps) {
           </div>
         ) : (
           <p className="text-surface-600 dark:text-surface-400">
-            No readable text found. Try adding a different PDF, DOCX, TXT, or Markdown resume,
-            or use a resume app export.
+            No readable text found. Follow employer file instructions first. If no format is
+            named, try a readable PDF, DOCX, TXT, Markdown resume, or resume app export.
           </p>
         )}
         <ModalFooter>

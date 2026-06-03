@@ -125,6 +125,8 @@ The current local matcher:
 - tells users to follow employer file instructions first when readable text is
   missing, then suggests readable PDF, DOCX, TXT, or Markdown when no format is
   named;
+- uses the same employer-instructions-first guidance inside the empty
+  readable-text preview;
 - checks the extracted text for common application-readability risks such as
   missing top contact details, missing standard section headings, table-like
   text, and hidden instruction-like content;

@@ -314,6 +314,68 @@ describe("Resume page", () => {
     ).toBeInTheDocument();
   });
 
+  it("shows employer-format-first guidance in the empty readable-text preview", async () => {
+    const user = userEvent.setup();
+
+    mockSafeInvoke.mockImplementation((command: string) => {
+      switch (command) {
+        case "get_active_resume":
+          return Promise.resolve({
+            id: 1,
+            name: "Scanned Resume",
+            is_active: true,
+            created_at: "2026-05-21T12:00:00Z",
+            updated_at: "2026-05-21T12:00:00Z",
+            format_label: "PDF",
+            has_readable_text: false,
+            readable_text_chars: 0,
+          });
+        case "list_all_resumes":
+          return Promise.resolve([
+            {
+              id: 1,
+              name: "Scanned Resume",
+              is_active: true,
+              created_at: "2026-05-21T12:00:00Z",
+              updated_at: "2026-05-21T12:00:00Z",
+              format_label: "PDF",
+              has_readable_text: false,
+              readable_text_chars: 0,
+            },
+          ]);
+        case "get_user_skills":
+        case "get_recent_matches":
+          return Promise.resolve([]);
+        case "get_resume_text_preview":
+          return Promise.resolve({
+            resume_id: 1,
+            name: "Scanned Resume",
+            has_text: false,
+            text_preview: "",
+            text_chars: 0,
+            is_truncated: false,
+          });
+        default:
+          return Promise.resolve(null);
+      }
+    });
+
+    render(<Resume onBack={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Scanned Resume")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole("button", { name: "See what JobSentinel read" }));
+
+    expect(await screen.findByText("Readable Resume Text")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "No readable text found. Follow employer file instructions first. If no format is named, try a readable PDF, DOCX, TXT, Markdown resume, or resume app export.",
+      ),
+    ).toBeInTheDocument();
+  });
+
   it("copies the readable resume text after the user opens the preview", async () => {
     const user = userEvent.setup();
     const writeText = vi.fn().mockResolvedValue(undefined);
