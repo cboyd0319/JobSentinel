@@ -326,6 +326,9 @@ copy durable findings back into this plan or the active status surface.
 - Current local bachelor-degree follow-up in `adda2593` treats bachelor's
   degree, bachelor degree, and bachelors degree as equivalent local education
   hard-constraint evidence.
+- Current local master-degree follow-up in `0e2a0fae` treats master's degree,
+  master degree, and masters degree as equivalent local education
+  hard-constraint evidence.
 - Current local degree-equivalent-experience follow-up treats explicit degree
   or equivalent experience wording as experience-compatible evidence instead
   of an exact-degree hard cap.
@@ -1789,6 +1792,7 @@ source-filter compatibility issue appears.
   OSHA 30 credential-equivalence work is committed in `972700a9`.
   High-school credential-equivalence work is committed in `a09f6c43`.
   Bachelor-degree work is committed in `adda2593`.
+  Master-degree work is committed in `0e2a0fae`.
   Degree-equivalent-experience work is committed in `9fc9777d`.
   Training-heading credential work is committed in `df0bdf9a`.
   Training-heading structure work is committed in `1a9c6b52`.

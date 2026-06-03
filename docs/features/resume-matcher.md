@@ -243,6 +243,8 @@ The current local matcher:
   evidence without guessing unrelated credentials;
 - treats **bachelor's degree**, **bachelor degree**, and **bachelors degree**
   as the same local education evidence;
+- treats **master's degree**, **master degree**, and **masters degree** as the
+  same local education evidence;
 - treats headings such as **Training**, **Credentials**, and **Certificates**
   as credential evidence and readable resume headings when reviewing readable
   resume text;
