@@ -207,8 +207,9 @@ The current local matcher:
   still avoiding broad fuzzy matching;
 - treats **medical record** and **medical records** as the same local evidence
   while avoiding duplicate requirement rows for singular or plural job wording;
-- treats **care plan** and **care plans** as the same local evidence while
-  avoiding duplicate requirement rows for singular or plural job wording;
+- treats **care plan**, **care plans**, **care-plan**, and **care-plans** as
+  the same local evidence while avoiding duplicate requirement rows for
+  singular, plural, or hyphenated job wording;
 - treats **vital sign**, **vital signs**, **vital-sign**, and **vital-signs**
   as the same local evidence while avoiding duplicate requirement rows for
   singular, plural, or hyphenated job wording;

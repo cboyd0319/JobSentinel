@@ -140,6 +140,8 @@ acceptance still requires Developer ID signing and notarization.
   `bb11073e Match care plan plural terms` treats care plan and care plans as
   the same local evidence without duplicate singular/plural requirement rows.
   The follow-up
+  `eef99504 Match care plan hyphen terms` adds care-plan and care-plans to
+  that same local evidence group without duplicate requirement rows. The follow-up
   `0bd255d3 Match vital sign plural terms` treats vital sign and vital signs as
   the same local evidence without duplicate singular/plural requirement rows.
   The follow-up

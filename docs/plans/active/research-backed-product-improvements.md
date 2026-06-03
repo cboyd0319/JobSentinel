@@ -145,6 +145,9 @@ copy durable findings back into this plan or the active status surface.
 - Current local care-plan plural follow-up in `bb11073e` treats care plan and
   care plans as equivalent local evidence without duplicate singular/plural
   requirement rows.
+- Current local care-plan hyphen follow-up in `eef99504` adds care-plan and
+  care-plans to that same local evidence group without duplicate requirement
+  rows.
 - Current local vital-sign plural follow-up in `0bd255d3` treats vital sign
   and vital signs as equivalent local evidence without duplicate
   singular/plural requirement rows.
@@ -1866,6 +1869,7 @@ source-filter compatibility issue appears.
   Patient-care hyphen work is committed in `23418843`.
   Medical-record plural work is committed in `ad391cda`.
   Care-plan plural work is committed in `bb11073e`.
+  Care-plan hyphen work is committed in `eef99504`.
   Vital-sign plural work is committed in `0bd255d3`.
   Vital-sign hyphen work is committed in `c3a2375c`.
   Data-entry hyphen work is committed in `1f82ecf4`.
