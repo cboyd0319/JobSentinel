@@ -370,6 +370,7 @@ describe("ScreeningAnswersForm", () => {
         expect(screen.getByText(/\+ Schedule availability/i)).toBeInTheDocument();
         expect(screen.getByText(/\+ Overtime availability/i)).toBeInTheDocument();
         expect(screen.getByText(/\+ Holiday availability/i)).toBeInTheDocument();
+        expect(screen.getByText(/\+ Management experience/i)).toBeInTheDocument();
         expect(screen.getByText(/\+ Visa sponsorship/i)).toBeInTheDocument();
         expect(screen.getByText(/\+ Driver's license/i)).toBeInTheDocument();
         expect(screen.getByText(/\+ Certification or license/i)).toBeInTheDocument();

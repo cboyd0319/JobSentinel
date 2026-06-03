@@ -56,6 +56,7 @@ const COMMON_PATTERNS = [
   { pattern: "availability", label: "Schedule availability", type: "text" },
   { pattern: "overtime", label: "Overtime availability", type: "yes_no" },
   { pattern: "holiday", label: "Holiday availability", type: "yes_no" },
+  { pattern: "managed a team", label: "Management experience", type: "text" },
   { pattern: "sponsorship", label: "Visa sponsorship", type: "yes_no" },
   { pattern: "remote", label: "Remote work preference", type: "text" },
   { pattern: "driver's license", label: "Driver's license", type: "yes_no" },
