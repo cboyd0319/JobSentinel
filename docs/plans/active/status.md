@@ -111,8 +111,11 @@ acceptance still requires Developer ID signing and notarization.
   resume preview. The follow-up
   `33c7d5c6 Separate resume quality from fit` shows readable format and
   details-included signals in a separate Resume Quality section instead of
-  mixing them into role-fit review. Real resume/profile reference material
-  remains private and must not be committed.
+  mixing them into role-fit review. The follow-up
+  `6ede725c Add selectable text resume guidance` tells users when a PDF may be
+  scanned or image-only because local parsing could not find selectable text,
+  while keeping employer file instructions first. Real resume/profile reference
+  material remains private and must not be committed.
 - Current local resume-alignment scoring follow-up is committed in
   `3d720693 Add resume requirement review caps`. It locks
   `/Users/c/Downloads/ats_scoring_algorithm.md` into

@@ -188,6 +188,9 @@ resume help should adjust examples and evidence prompts for:
   structured details into the page.
 - Resume Match shows readable format and details-included signals in a
   separate Resume Quality section instead of mixing them into role-fit review.
+- PDF resumes with no local readable text show selectable-text guidance for
+  scanned or image-only files while still telling users to follow employer file
+  instructions first.
 - Required, preferred, and other job-post language stay grouped in fit notes.
 - Recognized local job-post requirements now show match states and evidence
   sections, and recognized missing hard requirements cap the fit label until
@@ -201,8 +204,7 @@ resume help should adjust examples and evidence prompts for:
 ## Backlog To Lock Next
 
 - Add a guided requirement-inventory workflow for serious applications.
-- Add selectable-text checks where local PDF parsing supports them, and extend
-  file-size metadata guidance if employer-specific limits are available.
+- Extend file-size metadata guidance if employer-specific limits are available.
 - Add a knockout-question consistency review in Application Assist.
 - Add role-specific evidence prompts and examples across non-technical,
   technical, licensed, government, academic, early-career, and career-change
