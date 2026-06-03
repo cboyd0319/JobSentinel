@@ -148,7 +148,12 @@ acceptance still requires Developer ID signing and notarization.
   evidence reminder for product design, user experience, portfolio, Figma,
   prototype, and accessibility job details, asking users to check the user
   problem, audience, constraints, decisions, accessibility, and shipped outcome
-  before using drafted alternative bullets. Real resume/profile
+  before using drafted alternative bullets. The follow-up
+  `54b47bc1 Add education academic bullet prompt` adds an education and
+  academic evidence reminder for teaching, curriculum, student, faculty,
+  research, publication, and university job details, asking users to check the
+  learner or research audience, standards or methods, outcomes, collaboration,
+  and ethics before using drafted alternative bullets. Real resume/profile
   reference material remains private and must not be committed.
 - Current local resume-alignment scoring follow-up is committed in
   `3d720693 Add resume requirement review caps`. It locks

@@ -218,6 +218,9 @@ resume help should adjust examples and evidence prompts for:
 - Drafted bullet improvements add a design and creative evidence prompt for
   product design, user experience, portfolios, prototypes, Figma, and
   accessibility work.
+- Drafted bullet improvements add an education and academic evidence prompt for
+  teaching, curriculum, student support, faculty, research, publication, and
+  university work.
 
 ## Backlog To Lock Next
 

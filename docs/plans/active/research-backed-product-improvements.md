@@ -233,6 +233,11 @@ copy durable findings back into this plan or the active status surface.
   portfolio, Figma, prototype, and accessibility job details, asking users to
   check the user problem, audience, constraints, decisions, accessibility, and
   shipped outcome before using drafted alternative bullets.
+- Current local education/academic bullet-prompt follow-up in `54b47bc1` adds a
+  role-specific evidence reminder for teaching, curriculum, student, faculty,
+  research, publication, and university job details, asking users to check the
+  learner or research audience, standards or methods, outcomes, collaboration,
+  and ethics before using drafted alternative bullets.
 - Current local onsite location-term follow-up in `bffa0a1f` treats onsite and
   on-site as equivalent local hard-constraint evidence, so exact punctuation
   differences do not create a false missing-location risk.
