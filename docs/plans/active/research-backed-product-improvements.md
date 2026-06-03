@@ -125,6 +125,9 @@ copy durable findings back into this plan or the active status surface.
 - Current local structured evidence recency follow-up marks structured resume
   matches from a current role as `current experience`, without changing older
   role evidence labels.
+- Current local Resume Match evidence-label follow-up translates backend
+  requirement evidence sections into plain labels such as current role
+  experience, work experience, and skills list.
 - Latest local resume parser follow-up keeps required and preferred job-post
   sections separate when postings use single-line headings instead of blank
   lines, preventing preferred nice-to-have language from being shown as a
@@ -1495,6 +1498,8 @@ source-filter compatibility issue appears.
   pushed in `6adcff7c`. Resume evidence-strength work is committed in
   `171bbe91`. Conservative synonym/acronym work is committed in `d2d1944f`.
   Structured evidence recency work is committed in `56d9a5ab`.
+  Current local Resume Match evidence-label follow-up is verified locally and
+  ready to commit.
 - Evidence: source documents, selected primary sources, and local PDF text
   extraction reviewed on
   2026-05-28.

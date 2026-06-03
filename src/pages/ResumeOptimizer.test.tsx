@@ -522,8 +522,45 @@ describe("ResumeOptimizer", () => {
     expect(screen.getAllByText("Needs support").length).toBeGreaterThan(0);
     expect(screen.getByText("Not found")).toBeInTheDocument();
     expect(screen.getByText("Hard requirement")).toBeInTheDocument();
-    expect(screen.getAllByText("Found in: skills").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Found in: skills list").length).toBeGreaterThan(0);
     expect(screen.getByText("No clear resume evidence found")).toBeInTheDocument();
+  });
+
+  it("shows plain labels for requirement evidence sections", async () => {
+    const user = userEvent.setup();
+    mockInvokeResponses({
+      analyze_resume_for_job: {
+        ...mockRequirementReviewAnalysis,
+        requirement_reviews: [
+          {
+            keyword: "scheduling",
+            importance: "Required" as const,
+            match_state: "Strong" as const,
+            evidence_sections: ["current experience", "skills"],
+            hard_constraint: false,
+            recommendation:
+              "Strong visible evidence found. Keep it easy to see near the relevant role.",
+          },
+        ],
+      },
+    });
+    render(<ResumeOptimizer onBack={vi.fn()} />);
+
+    fireEvent.change(screen.getByLabelText(/^job post$/i), {
+      target: {
+        value: "Required: scheduling",
+      },
+    });
+    await openResumeAppImport(user);
+    fireEvent.change(screen.getByLabelText(/copied resume details/i), {
+      target: { value: JSON.stringify(validResume) },
+    });
+
+    await user.click(screen.getByRole("button", { name: /review match/i }));
+
+    expect(await screen.findByText("Requirement Review (1)")).toBeInTheDocument();
+    expect(screen.getByText("Found in: current role experience, skills list")).toBeInTheDocument();
+    expect(screen.queryByText("Found in: current experience, skills")).not.toBeInTheDocument();
   });
 
   it("shows plain next actions from requirement review results", async () => {

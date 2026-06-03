@@ -175,6 +175,8 @@ hard-constraint caps have started. Section-placement review and the conservative
 current-role evidence labeling has also started. Broader evidence strength,
 synonym, recency, seniority, and profession-specific weighting remain future
 work.
+The visible requirement review uses plain evidence labels such as current role
+experience, work experience, and skills list instead of backend section names.
 
 ## Boundaries
 

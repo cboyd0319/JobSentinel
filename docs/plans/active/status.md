@@ -1381,6 +1381,11 @@ Scope:
   src-tauri/Cargo.toml -- -D warnings`, `cargo fmt --all --manifest-path
   src-tauri/Cargo.toml -- --check`, `npm run lint:docs`, `npm run lint:bloat`,
   and `git diff --check`.
+- Current local Resume Match evidence-label slice translates backend
+  requirement evidence sections into plain labels such as current role
+  experience, work experience, and skills list. Focused frontend verification
+  passed: `npx vitest run src/pages/ResumeOptimizer.test.tsx`, `npm run lint
+  -- --quiet`, and `npx tsc --noEmit`.
 - No-Apple-account macOS readiness is already best-possible without an Apple
   Developer Account. Keep the limitation explicit: Gatekeeper-ready public
   distribution still needs Developer ID signing and notarization.

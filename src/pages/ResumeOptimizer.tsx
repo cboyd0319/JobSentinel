@@ -156,6 +156,35 @@ function formatRequirementState(state: RequirementMatchState): string {
   }
 }
 
+function formatRequirementEvidenceSection(section: string): string {
+  switch (section) {
+    case "current experience":
+      return "current role experience";
+    case "experience":
+      return "work experience";
+    case "skills":
+      return "skills list";
+    case "summary":
+      return "resume summary";
+    case "resume text":
+      return "resume text";
+    case "projects":
+      return "projects";
+    case "education":
+      return "education";
+    case "certifications":
+      return "certifications";
+    case "licenses":
+      return "licenses";
+    default:
+      return section.replace(/[_-]/g, " ");
+  }
+}
+
+function formatRequirementEvidenceSections(sections: string[]): string {
+  return sections.map(formatRequirementEvidenceSection).join(", ");
+}
+
 function formatHardConstraintCategory(category: HardConstraintCategory): string {
   switch (category) {
     case "WorkAuthorization":
@@ -1233,7 +1262,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                           </div>
                           <p className="text-xs text-surface-500 dark:text-surface-400 mt-2">
                             {review.evidence_sections.length > 0
-                              ? `Found in: ${review.evidence_sections.join(", ")}`
+                              ? `Found in: ${formatRequirementEvidenceSections(review.evidence_sections)}`
                               : "No clear resume evidence found"}
                           </p>
                           <p className="text-sm text-surface-700 dark:text-surface-300 mt-2">
