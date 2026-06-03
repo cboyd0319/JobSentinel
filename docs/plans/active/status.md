@@ -572,6 +572,17 @@ acceptance still requires Developer ID signing and notarization.
   --quiet`, `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`,
   `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git
   diff --check`. The follow-up
+  `eaff0b32 Match inventory stockroom wording` treats inventory, inventory
+  control, inventory management, stock control, stock management, and stockroom
+  as equivalent local operations evidence in backend and dev/browser mocks
+  without broad fuzzy matching. Verification passed: `cargo test --lib
+  inventory_stockroom --manifest-path src-tauri/Cargo.toml`, `npx vitest run
+  src/mocks/handlers.test.ts -t "inventory and stockroom"`, `cargo test --lib
+  ats_analyzer --manifest-path src-tauri/Cargo.toml`, `npx vitest run
+  src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
+  `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
+  clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
+  --check`. The follow-up
   `e1b9a798 Match logistics shipping wording` treats logistics, shipping,
   receiving, and shipping and receiving as equivalent local operations evidence
   in backend and dev/browser mocks without broad fuzzy matching. Verification
