@@ -1690,6 +1690,9 @@ impl AtsAnalyzer {
                 | "projects"
                 | "selected projects"
                 | "education"
+                | "academic background"
+                | "academic history"
+                | "education background"
                 | "certifications"
                 | "licenses"
                 | "professional credentials"
@@ -3045,6 +3048,9 @@ impl AtsAnalyzer {
             ("certifications", "certifications"),
             ("licenses", "licenses"),
             ("publications", "publications"),
+            ("academic background", "education"),
+            ("academic history", "education"),
+            ("education background", "education"),
             ("education", "education"),
             ("experience", "experience"),
             ("projects", "projects"),
@@ -5553,6 +5559,38 @@ Preferred: Salesforce
             assert!(
                 review.evidence_sections.contains(&"experience".to_string()),
                 "{heading} should count as experience evidence"
+            );
+            assert!(
+                !result
+                    .format_issues
+                    .iter()
+                    .any(|issue| issue.issue.contains("standard resume section headings")),
+                "{heading} should count as a standard heading"
+            );
+        }
+    }
+
+    #[test]
+    fn test_plain_text_academic_headings_count_as_education_evidence() {
+        for heading in [
+            "Academic Background",
+            "Academic History",
+            "Education Background",
+        ] {
+            let resume_text = format!(
+                "Jordan Lee\njordan@example.com\n\n{heading}\nBachelor of Science, State University"
+            );
+            let result =
+                AtsAnalyzer::analyze_text_for_job(&resume_text, &[], "Required: bachelor's degree");
+            let review = result
+                .requirement_reviews
+                .iter()
+                .find(|review| review.keyword == "bachelor's degree")
+                .expect("bachelor's degree review");
+
+            assert!(
+                review.evidence_sections.contains(&"education".to_string()),
+                "{heading} should count as education evidence"
             );
             assert!(
                 !result
