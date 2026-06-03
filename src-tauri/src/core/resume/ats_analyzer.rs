@@ -599,6 +599,26 @@ impl AtsAnalyzer {
             );
         }
 
+        let security_terms = [
+            "cybersecurity",
+            "information security",
+            "security operations",
+            "soc analyst",
+            "incident response",
+            "vulnerability management",
+            "risk management framework",
+            "nist",
+            "fedramp",
+            "siem",
+            "threat detection",
+        ];
+
+        if security_terms.iter().any(|term| lower.contains(term)) {
+            return Some(
+                "security evidence to check: authorized scope, risk reduced, controls or incidents handled, compliance context, and sensitive-data handling",
+            );
+        }
+
         let service_operations_terms = [
             "customer service",
             "customer support",
@@ -3831,6 +3851,20 @@ Preferred: Salesforce
         assert!(improved.contains("team or budget size"));
         assert!(improved.contains("decision authority"));
         assert!(improved.contains("business impact"));
+        assert!(improved.contains("problem, your role, action, result, and evidence"));
+    }
+
+    #[test]
+    fn test_improve_bullet_adds_security_evidence_prompt() {
+        let bullet = "Supported incident response reviews";
+        let job_desc = "Required: cybersecurity, incident response, vulnerability management";
+        let improved = AtsAnalyzer::improve_bullet(bullet, Some(job_desc));
+
+        assert!(improved.contains("security evidence to check"));
+        assert!(improved.contains("authorized scope"));
+        assert!(improved.contains("risk reduced"));
+        assert!(improved.contains("controls or incidents handled"));
+        assert!(improved.contains("sensitive-data handling"));
         assert!(improved.contains("problem, your role, action, result, and evidence"));
     }
 

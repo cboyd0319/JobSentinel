@@ -1458,6 +1458,16 @@ describe("mock Tauri handlers", () => {
     expect(executiveLeadershipImproved).toContain("team or budget size");
     expect(executiveLeadershipImproved).toContain("decision authority");
     expect(executiveLeadershipImproved).toContain("business impact");
+
+    const securityImproved = await mockInvoke<string>("improve_bullet_point", {
+      bullet: "supported incident response reviews",
+      jobContext: "Required: cybersecurity, incident response, vulnerability management",
+    });
+    expect(securityImproved).toContain("security evidence to check");
+    expect(securityImproved).toContain("authorized scope");
+    expect(securityImproved).toContain("risk reduced");
+    expect(securityImproved).toContain("controls or incidents handled");
+    expect(securityImproved).toContain("sensitive-data handling");
   }, 10_000);
 
   it("matches lift-weight pounds and lbs in mock hard constraints", async () => {

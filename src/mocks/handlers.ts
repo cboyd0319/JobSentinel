@@ -2700,6 +2700,24 @@ function getMockRoleSpecificEvidencePrompt(jobContext: string): string | null {
     return "executive-leadership evidence to check: scope of ownership, team or budget size, decision authority, measurable business impact, and change risk";
   }
 
+  const securityTerms = [
+    "cybersecurity",
+    "information security",
+    "security operations",
+    "soc analyst",
+    "incident response",
+    "vulnerability management",
+    "risk management framework",
+    "nist",
+    "fedramp",
+    "siem",
+    "threat detection",
+  ];
+
+  if (securityTerms.some((term) => lower.includes(term))) {
+    return "security evidence to check: authorized scope, risk reduced, controls or incidents handled, compliance context, and sensitive-data handling";
+  }
+
   const serviceOperationsTerms = [
     "customer service",
     "customer support",
