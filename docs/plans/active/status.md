@@ -45,17 +45,17 @@ acceptance still requires Developer ID signing and notarization.
 
 ## Current Posture
 
-- `main` was pushed through `3165a83c Clarify remaining seniority work`.
+- `main` was pushed through
+  `d797c2d8 Record point of sale equivalence`.
   Use `git status --short --branch` for live evidence before committing,
   pushing, or reporting remote state.
-- Latest pushed critical-functionality batch expands Resume Match required,
-  preferred, language, supervisor, shift-lead, managed-team, remote, hybrid,
-  schedule, overtime, holiday, transportation, citizenship, and credential
-  constraint review; broadens bilingual evidence matching; and adds
-  Application Assist hard-question review plus saved-answer quick-add setup for
-  background checks, drug screens, language fluency, physical requirements,
-  minimum-age, citizenship, transportation, driver's license, overtime,
-  holiday, and management requirements. Keep the no-push batch rule: push only
+- Latest pushed critical-functionality batch expands Resume Match local
+  evidence review with mock recency parity, seniority under-level warnings,
+  trades and career evidence prompts, and conservative finance, retail/service,
+  and operations equivalences for billing/invoicing, cashier/cash handling,
+  procurement/purchasing, vendor/supplier management, budgeting/budget
+  tracking, `A/P` and `A/R`, bookkeeping/bookkeeper, QuickBooks/`QBO`, and
+  point of sale/POS system wording. Keep the no-push batch rule: push only
   after 30 more local commits unless the user changes cadence.
 - Current local restart-doc checkpoint records that pushed batch; it is the
   first local commit in the next 30-commit window.
