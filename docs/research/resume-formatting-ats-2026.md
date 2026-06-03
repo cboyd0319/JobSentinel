@@ -203,6 +203,9 @@ resume help should adjust examples and evidence prompts for:
 - Application Assist includes schedule availability in common saved-answer
   patterns, so users can prepare shift, weekend, start-time, or availability
   answers before a hard question appears.
+- Application Assist includes work authorization in common saved-answer
+  patterns, so users can prepare reusable answers for forms that ask
+  authorization questions outside standard profile fields.
 - Required, preferred, and other job-post language stay grouped in fit notes.
 - Recognized local job-post requirements now show match states and evidence
   sections, and recognized missing hard requirements cap the fit label until

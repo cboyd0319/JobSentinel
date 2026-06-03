@@ -215,6 +215,10 @@ copy durable findings back into this plan or the active status surface.
   `e87526ea` adds schedule availability to common saved-answer patterns, so
   users can set up shift, weekend, start-time, or availability answers before a
   hard question appears.
+- Current local Application Assist work-authorization quick-add follow-up in
+  `0a5cb489` adds work authorization to common saved-answer patterns, so users
+  can set up a reusable answer when application forms ask an authorization
+  question outside the standard profile fields.
 - Current local healthcare bullet-prompt follow-up in `e7a61306` adds a
   role-specific evidence reminder for healthcare and licensed-work job details,
   asking users to check scope of practice, patient safety, documentation, and
