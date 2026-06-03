@@ -278,6 +278,17 @@ copy durable findings back into this plan or the active status surface.
   `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
   clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
   --check`.
+- Current local logistics/shipping follow-up in `e1b9a798` treats logistics,
+  shipping, receiving, and shipping and receiving as equivalent local operations
+  evidence in backend and dev/browser mocks without broad fuzzy matching.
+  Verification passed: `cargo test --lib logistics_shipping_receiving
+  --manifest-path src-tauri/Cargo.toml`, `npx vitest run
+  src/mocks/handlers.test.ts -t "logistics and shipping"`, `cargo test --lib
+  ats_analyzer --manifest-path src-tauri/Cargo.toml`, `npx vitest run
+  src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
+  `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
+  clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
+  --check`.
 - Current local procurement/purchasing follow-up in `179a61c3` treats
   procurement and purchasing as equivalent local operations evidence in backend
   and dev/browser mocks without broad fuzzy matching. Verification passed:

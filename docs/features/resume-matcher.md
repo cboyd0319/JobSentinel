@@ -277,6 +277,9 @@ The current local matcher:
   operations evidence without broad fuzzy matching;
 - treats **cashier** and **cash handling** as the same local retail/service
   evidence without broad fuzzy matching;
+- treats **logistics**, **shipping**, **receiving**, and **shipping and
+  receiving** as the same local operations evidence without broad fuzzy
+  matching;
 - treats **procurement** and **purchasing** as the same local operations
   evidence without broad fuzzy matching;
 - treats **vendor management** and **supplier management** as the same local
