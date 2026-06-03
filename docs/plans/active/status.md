@@ -1412,7 +1412,7 @@ Scope:
   `npm run lint:architecture`, `npm run lint:external-ai`, `npm run
   lint:tauri-invokes`, `npm run lint:docs`, `npm run harness:check`, `npm run
   lint:bloat`, and `git diff --check`.
-- Current local Source Governance Metadata slice adds a Settings contact-history
+- Latest local Source Governance Metadata slice in `66924003` adds a Settings contact-history
   row naming sensitive data not sent to optional connected job sources: resume
   text, salary floor, private notes, application history, and full source link.
   Verification passed: `npx vitest run src/pages/Settings.test.tsx`, `npx tsc
