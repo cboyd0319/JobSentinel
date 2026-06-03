@@ -169,6 +169,10 @@ copy durable findings back into this plan or the active status surface.
 - Current local past-pay guardrail follow-up makes Pay Protection show a
   current-pay or past-pay redirect toward role range and target pay without
   making jurisdiction-specific legal claims.
+- Current local pay level/scope checklist follow-up makes Pay Protection ask
+  users to check title, seniority, responsibilities, schedule, travel, expected
+  hours, location, promotion path, review timing, benefits, and support before
+  treating a pay range as enough evidence.
 - Current local Resume-Assisted Guided Intake follow-up shows active
   saved-resume skill names in setup as optional local suggestions and only adds
   user-picked names to the saved search.
@@ -1565,6 +1569,7 @@ source-filter compatibility issue appears.
   Salary sample-quality work is committed in `3a6731e1`.
   Broad listed-pay range work is committed in `48314f44`.
   Past-pay guardrail work is committed in `4abd1cd8`.
+  Pay level/scope checklist work is committed in `1e28c6b0`.
   Resume-Assisted Guided Intake work is committed in `da84110a`.
   Source Governance Metadata work is committed in `66924003`.
   Resume availability-constraint work is committed in `0d8bf479`.

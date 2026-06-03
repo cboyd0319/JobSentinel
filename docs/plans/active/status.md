@@ -1573,6 +1573,13 @@ Scope:
   vitest run src/pages/Salary.test.tsx -t "past-pay guardrail"`, `npx vitest
   run src/pages/Salary.test.tsx`, `npx tsc --noEmit`, `npm run lint --
   --quiet`, `npm run lint:external-ai`, and `git diff --check`.
+- Latest local pay level/scope checklist slice in `1e28c6b0` adds Pay
+  Protection prompts for title, seniority, responsibilities, schedule, travel,
+  expected hours, location, promotion path, review timing, benefits, and
+  support before accepting a pay range at face value. Verification passed: `npx
+  vitest run src/pages/Salary.test.tsx -t "level and scope"`, `npx vitest run
+  src/pages/Salary.test.tsx`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
+  `npm run lint:external-ai`, and `git diff --check`.
 - No-Apple-account macOS readiness is already best-possible without an Apple
   Developer Account. Keep the limitation explicit: Gatekeeper-ready public
   distribution still needs Developer ID signing and notarization.

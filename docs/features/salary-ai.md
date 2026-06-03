@@ -22,6 +22,8 @@ fixed by asking harder.
   listed at too low a title or pay level.
 - Show a past-pay question guardrail that redirects toward role range and
   target pay instead of old compensation.
+- Show a level and scope checklist before users accept a pay range at face
+  value.
 - Draft editable negotiation notes grounded in role scope, written ranges, and
   user-confirmed facts.
 - Compare offers across pay, benefits, schedule, level, promotion path, and
@@ -49,6 +51,8 @@ inputs, not as self-worth scores.
   level, schedule, and realistic pay.
 - Check whether title, scope, decision rights, team size, budget, and promotion
   path match the offered level.
+- Check schedule, travel, expected hours, location, benefits, review timing,
+  and support before treating a range as enough evidence.
 - Help users redirect current-pay or past-pay questions toward the role range
   and target pay without making jurisdiction-specific legal claims.
 - Label source, date, sample size, and coverage limits.
