@@ -1287,6 +1287,41 @@ describe("mock Tauri handlers", () => {
     );
   });
 
+  it("recognizes First Aid Certified as first-aid certification evidence in mock resume review", async () => {
+    const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        certifications: ["First Aid Certified"],
+      },
+      jobDescription: "Required: first aid certification",
+    });
+
+    expect(result.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "first aid certification",
+          match_state: "Direct",
+          hard_constraint: true,
+          evidence_sections: expect.arrayContaining(["certifications"]),
+        }),
+      ]),
+    );
+    expect(result.hard_constraint_risks).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          requirement: "first aid certification",
+        }),
+      ]),
+    );
+    expect(result.hard_constraint_risks).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          requirement: "certification",
+        }),
+      ]),
+    );
+  });
+
   it("returns mock resume match scores as backend-compatible fractions", async () => {
     const [job] = await mockInvoke<MockJobSummary[]>("get_jobs", {});
     const resumeId = await mockInvoke<number>("select_and_upload_resume");
