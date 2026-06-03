@@ -603,6 +603,9 @@ const ATS_KNOWN_KEYWORDS = [
   "work authorization",
   "driver's license",
   "bachelor's degree",
+  "high school diploma",
+  "ged",
+  "high school equivalency",
   "degree",
   "onsite",
   "patient care",
@@ -2442,7 +2445,10 @@ function getMockHardConstraintCategory(keyword: string): MockHardConstraintCateg
     lower.includes("degree") ||
     lower.includes("bachelor") ||
     lower.includes("master") ||
-    lower.includes("phd")
+    lower.includes("phd") ||
+    lower.includes("high school") ||
+    lower.includes("general education development") ||
+    lower === "ged"
   ) {
     return "Education";
   }
@@ -2795,7 +2801,7 @@ function extractMockHardConstraintKeywords(jobDescription: string): string[] {
     /\b(security clearance|clearance)\b/gi,
     /\b(driver'?s license|driver license|cdl|rn license|nursing license)\b/gi,
     /\b(certification|cissp|security\+|bls|basic life support|acls|advanced cardiovascular life support|cpr|cardiopulmonary resuscitation)\b/gi,
-    /\b(bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree)\b/gi,
+    /\b(bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree|high school diploma|high school degree|ged|high school equivalency|general education development)\b/gi,
     /\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b/gi,
     /\b(lift(?:\s+up\s+to)?\s+\d+\s*(?:pounds?|lbs?)|stand for long periods?|physical requirements?|physical demands?)\b/gi,
     /\b(onsite|on-site|relocation|travel|reliable transportation|own transportation|commute|availability|available|schedule|weekend availability|night shift|evening shift)\b/gi,
@@ -2932,6 +2938,13 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
     ["cdl", "commercial driver's license", "commercial driver license"],
     ["rn", "registered nurse"],
     ["cissp", "certified information systems security professional"],
+    [
+      "high school diploma",
+      "high school degree",
+      "ged",
+      "high school equivalency",
+      "general education development",
+    ],
   ];
 
   for (const group of equivalenceGroups) {

@@ -1180,6 +1180,43 @@ describe("mock Tauri handlers", () => {
     );
   });
 
+  it("recognizes GED as high-school diploma evidence in mock resume review", async () => {
+    const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        education: [
+          {
+            degree: "GED",
+            institution: "Adult Learning Center",
+            location: "Denver, CO",
+            graduation_date: "2018",
+            gpa: null,
+            honors: [],
+          },
+        ],
+      },
+      jobDescription: "Required: high school diploma",
+    });
+
+    expect(result.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "high school diploma",
+          match_state: "Direct",
+          hard_constraint: true,
+          evidence_sections: expect.arrayContaining(["education"]),
+        }),
+      ]),
+    );
+    expect(result.hard_constraint_risks).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          requirement: "high school diploma",
+        }),
+      ]),
+    );
+  });
+
   it("returns mock resume match scores as backend-compatible fractions", async () => {
     const [job] = await mockInvoke<MockJobSummary[]>("get_jobs", {});
     const resumeId = await mockInvoke<number>("select_and_upload_resume");

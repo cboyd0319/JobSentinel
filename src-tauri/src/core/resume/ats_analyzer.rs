@@ -1666,6 +1666,9 @@ impl AtsAnalyzer {
             || lower.contains("bachelor")
             || lower.contains("master")
             || lower.contains("phd")
+            || lower.contains("high school")
+            || lower.contains("general education development")
+            || lower == "ged"
         {
             return Some(HardConstraintCategory::Education);
         }
@@ -1920,6 +1923,13 @@ impl AtsAnalyzer {
             &[
                 "cissp",
                 "certified information systems security professional",
+            ],
+            &[
+                "high school diploma",
+                "high school degree",
+                "ged",
+                "high school equivalency",
+                "general education development",
             ],
         ];
 
@@ -2279,7 +2289,7 @@ impl AtsAnalyzer {
             r"(?i)\b(security clearance|clearance)\b",
             r"(?i)\b(driver'?s license|driver license|cdl|rn license|nursing license)\b",
             r"(?i)\b(certification|cissp|security\+|bls|basic life support|acls|advanced cardiovascular life support|cpr|cardiopulmonary resuscitation)\b",
-            r"(?i)\b(bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree)\b",
+            r"(?i)\b(bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree|high school diploma|high school degree|ged|high school equivalency|general education development)\b",
             r"(?i)\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b",
             r"(?i)\b(lift(?:\s+up\s+to)?\s+\d+\s*(?:pounds?|lbs?)|stand for long periods?|physical requirements?|physical demands?)\b",
             r"(?i)\b(onsite|on-site|relocation|travel|reliable transportation|own transportation|commute|availability|available|schedule|weekend availability|night shift|evening shift)\b",
@@ -3343,6 +3353,28 @@ Preferred: Salesforce
         assert!(result.hard_constraint_risks.iter().all(|risk| {
             risk.requirement != "degree" && risk.requirement != "bachelor's degree"
         }));
+    }
+
+    #[test]
+    fn test_high_school_diploma_recognizes_ged_equivalence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nEducation\nGED",
+            &[],
+            "Required: high school diploma",
+        );
+
+        let review = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "high school diploma")
+            .expect("high school diploma review");
+        assert_eq!(review.match_state, RequirementMatchState::Direct);
+        assert!(review.hard_constraint);
+        assert!(review.evidence_sections.contains(&"education".to_string()));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "high school diploma"));
     }
 
     #[test]
