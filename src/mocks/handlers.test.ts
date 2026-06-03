@@ -1766,6 +1766,46 @@ describe("mock Tauri handlers", () => {
     );
   });
 
+  it("matches associate's degree punctuation variants in mock hard constraints", async () => {
+    const degreeResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        experience: [],
+        skills: [],
+        education: [
+          {
+            degree: "Associate degree",
+            institution: "Community College",
+            location: "Denver, CO",
+            graduation_date: "2020",
+            gpa: null,
+            honors: [],
+          },
+        ],
+      },
+      jobDescription: "Required: associate's degree",
+    });
+
+    expect(degreeResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "associate's degree",
+          match_state: "Direct",
+          hard_constraint: true,
+          evidence_sections: expect.arrayContaining(["education"]),
+        }),
+      ]),
+    );
+    expect(degreeResult.hard_constraint_risks).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          requirement: "associate's degree",
+        }),
+      ]),
+    );
+  });
+
   it("treats metric-backed current experience as strong mock evidence", async () => {
     const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
@@ -2051,6 +2091,42 @@ describe("mock Tauri handlers", () => {
         ],
       },
       jobDescription: "Required: bachelor's degree or equivalent experience",
+    });
+
+    expect(result.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "degree or equivalent experience",
+          match_state: "Strong",
+          hard_constraint: false,
+          evidence_sections: expect.arrayContaining(["current experience"]),
+        }),
+      ]),
+    );
+    expect(result.hard_constraint_risks).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          requirement: expect.stringContaining("degree"),
+        }),
+      ]),
+    );
+  });
+
+  it("does not cap associate-degree-or-equivalent experience requirements in mock resume review", async () => {
+    const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        education: [],
+        experience: [
+          {
+            ...atsResume.experience[0],
+            achievements: [
+              "6 years of client operations experience and records management.",
+            ],
+          },
+        ],
+      },
+      jobDescription: "Required: associate degree or equivalent experience",
     });
 
     expect(result.requirement_reviews).toEqual(

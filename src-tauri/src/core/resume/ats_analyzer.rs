@@ -2093,6 +2093,11 @@ impl AtsAnalyzer {
                 "high-school equivalency",
                 "general education development",
             ],
+            &[
+                "associate's degree",
+                "associate degree",
+                "associates degree",
+            ],
             &["bachelor's degree", "bachelor degree", "bachelors degree"],
             &["master's degree", "master degree", "masters degree"],
             &[
@@ -2547,7 +2552,7 @@ impl AtsAnalyzer {
     fn extract_hard_constraint_keywords(text: &str) -> Vec<String> {
         let mut keywords = HashSet::new();
         let degree_equivalent_re = regex::Regex::new(
-            r"(?i)\b(?:bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree)\s+(?:or|/)\s+(?:equivalent|commensurate)\s+(?:work\s+)?experience\b",
+            r"(?i)\b(?:associate'?s degree|associate degree|bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree)\s+(?:or|/)\s+(?:equivalent|commensurate)\s+(?:work\s+)?experience\b",
         )
         .unwrap();
         let has_degree_equivalent = degree_equivalent_re.is_match(text);
@@ -2561,7 +2566,7 @@ impl AtsAnalyzer {
             r"(?i)\bsecurity\+",
             r"(?i)\b(commercial driver'?s license|commercial driver license|driver'?s license|driver license|cdl|rn license|registered nurse license|nursing license|lpn|lvn|licensed practical nurse|licensed vocational nurse)\b",
             r"(?i)\b(certification|cissp|certified information systems security professional|security plus|bls|basic life support|acls|advanced cardiovascular life support|cpr|cardiopulmonary resuscitation|cna|certified nursing assistant|certified nurse assistant|certified nurse aide|pmp|project management professional|servsafe|food safety certification|food[- ]handler'?s?\s+(?:certification|certificate|permit|card)|first[- ]aid certification|first[- ]aid certified|first[- ]aid certificate|first[- ]aid|forklift certification|forklift certified|forklift operator certification|forklift operator certified|forklift license|forklift operator license|osha\s*10(?:[- ]hour)?(?:\s+certification)?|osha\s*30(?:[- ]hour)?(?:\s+certification)?)\b",
-            r"(?i)\b(bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree|high[- ]school diploma|high[- ]school degree|ged|high[- ]school equivalency|general education development)\b",
+            r"(?i)\b(associate'?s degree|associate degree|bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree|high[- ]school diploma|high[- ]school degree|ged|high[- ]school equivalency|general education development)\b",
             r"(?i)\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b",
             r"(?i)\b(lift(?:\s+up\s+to)?\s+\d+\s*(?:pounds?|lbs?)|(?:stand|standing) for long periods?|physical requirements?|physical demands?)\b",
             r"(?i)\b(onsite|on-site|on site|relocation|relocate|willing to relocate|travel|reliable transportation|own transportation|commute|commuting|availability|available|schedule|weekend availability|weekend shifts?|night shift|overnight shift|third shift|3rd shift|evening shift|second shift|2nd shift|day shift|first shift|1st shift)\b",
@@ -2579,10 +2584,15 @@ impl AtsAnalyzer {
         if has_degree_equivalent {
             for exact_degree in [
                 "degree",
+                "associate's degree",
+                "associate degree",
+                "associates degree",
                 "bachelor's degree",
                 "bachelor degree",
+                "bachelors degree",
                 "master's degree",
                 "master degree",
+                "masters degree",
             ] {
                 keywords.remove(exact_degree);
             }
@@ -3729,6 +3739,30 @@ Preferred: Salesforce
     }
 
     #[test]
+    fn test_associate_degree_or_equivalent_experience_avoids_exact_degree_cap() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\n6 years of client operations experience and records management.",
+            &[],
+            "Required: associate degree or equivalent experience",
+        );
+
+        let review = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "degree or equivalent experience")
+            .expect("associate degree-equivalent review");
+        assert!(matches!(
+            review.match_state,
+            RequirementMatchState::Direct | RequirementMatchState::Strong
+        ));
+        assert!(!review.hard_constraint);
+        assert!(review.evidence_sections.contains(&"experience".to_string()));
+        assert!(result.hard_constraint_risks.iter().all(|risk| {
+            risk.requirement != "degree" && risk.requirement != "associate degree"
+        }));
+    }
+
+    #[test]
     fn test_high_school_diploma_recognizes_ged_equivalence() {
         let result = AtsAnalyzer::analyze_text_for_job(
             "Jordan Lee\njordan@example.com\n\nEducation\nGED",
@@ -4381,6 +4415,28 @@ Preferred: Salesforce
             .hard_constraint_risks
             .iter()
             .any(|risk| risk.requirement == "master's degree"));
+    }
+
+    #[test]
+    fn test_associates_degree_requirement_accepts_associate_degree_evidence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nEducation\nAssociate degree",
+            &[],
+            "Required: associate's degree",
+        );
+
+        let degree = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "associate's degree")
+            .expect("associate degree review");
+        assert_eq!(degree.match_state, RequirementMatchState::Direct);
+        assert!(degree.hard_constraint);
+        assert!(degree.evidence_sections.contains(&"education".to_string()));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "associate's degree"));
     }
 
     #[test]
