@@ -183,6 +183,8 @@ The current local matcher:
   generic work authorization as citizenship;
 - treats **work authorization** and **authorized to work** as the same local
   work-eligibility evidence;
+- treats **security clearance** and **clearance** as the same local clearance
+  evidence;
 - treats conservative local term equivalents, such as **CRM** and **customer
   relationship management**, and **customer service**, **customer support**,
   **client service**, **client services**, and **client support**, as the same

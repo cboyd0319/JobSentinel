@@ -186,6 +186,8 @@ copy durable findings back into this plan or the active status surface.
 - Current local work-authorization follow-up in `b005cdec` treats work
   authorization and authorized to work as equivalent local hard-constraint
   evidence.
+- Current local clearance follow-up in `e94f21ac` treats security clearance and
+  clearance as equivalent local hard-constraint evidence.
 - Current local structured evidence recency follow-up marks structured resume
   matches from a current role as `current experience`, without changing older
   role evidence labels.
@@ -1738,6 +1740,7 @@ source-filter compatibility issue appears.
   Driver-license work is committed in `06ae464c`.
   US-citizenship work is committed in `9ebc7be9`.
   Work-authorization work is committed in `b005cdec`.
+  Clearance work is committed in `e94f21ac`.
   Structured evidence recency work is committed in `56d9a5ab`.
   Plain-text evidence recency work is committed in `66c587a8`.
   Metric-backed evidence-strength work is committed in `4607b67f`.

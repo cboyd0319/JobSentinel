@@ -247,6 +247,8 @@ Future implementation should improve:
   generic work authorization as citizenship.
 - Resume/job fit now treats `work authorization` and `authorized to work` as
   equivalent local work-eligibility evidence.
+- Resume/job fit now treats `security clearance` and `clearance` as equivalent
+  local clearance evidence.
 - Resume/job fit now treats lift-weight wording with the same number, such as
   `lift 50 lbs` and `lift 50 pounds`, as equivalent local physical-demand
   evidence.
