@@ -157,6 +157,22 @@ const HARD_QUESTION_REVIEWS: HardQuestionReview[] = [
   {
     label: "Salary or availability",
     detail: "Review salary, start-date, schedule, and availability answers before submission.",
+    getDetail: ({ screeningAnswers }) => getSavedScreeningAnswerReviewDetail(
+      screeningAnswers,
+      [
+        /\bsalary\b/i,
+        /\bcompensation\b/i,
+        /\bavailability\b/i,
+        /\bavailable\b/i,
+        /\bstart date\b/i,
+        /\bnotice period\b/i,
+        /\bschedule\b/i,
+        /\bshift\b/i,
+        /\bweekend\b/i,
+        /\bovernight\b/i,
+      ],
+      "Review salary, start-date, schedule, and availability answers before submission.",
+    ),
     patterns: [
       /\bsalary\b/i,
       /\bcompensation\b/i,
@@ -196,6 +212,12 @@ function getSavedScreeningAnswerLabel(questionPattern: string) {
   }
   if (/\byears? of experience\b|\bexperience\b/i.test(questionPattern)) {
     return "experience";
+  }
+  if (/\bsalary\b|\bcompensation\b/i.test(questionPattern)) {
+    return "salary";
+  }
+  if (/\bavailability\b|\bavailable\b|\bstart date\b|\bnotice period\b|\bschedule\b|\bshift\b|\bweekend\b|\bovernight\b/i.test(questionPattern)) {
+    return "availability";
   }
 
   return "screening";
