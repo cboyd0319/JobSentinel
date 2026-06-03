@@ -1975,6 +1975,7 @@ impl AtsAnalyzer {
             &["quality assurance", "qa"],
             &["patient care", "patient-care"],
             &["medical record", "medical records"],
+            &["care plan", "care plans"],
             &["data entry", "data-entry"],
             &["onsite", "on-site", "on site"],
             &["relocation", "relocate", "willing to relocate"],
@@ -2580,7 +2581,7 @@ impl AtsAnalyzer {
             r"(?i)\b(inventory|logistics|shipping|receiving|procurement|vendor management)\b",
             r"(?i)\b(reporting|budget tracking|grant reporting|grant writing|program evaluation)\b",
             r"(?i)\b(compliance|hipaa|osha|quality assurance|qa|data[- ]entry|excel)\b",
-            r"(?i)\b(patient[- ]care|medication administration|vital signs|care plans|medical records?|charting)\b",
+            r"(?i)\b(patient[- ]care|medication administration|vital signs|care plans?|medical records?|charting)\b",
             r"(?i)\b(lesson planning|classroom management|curriculum|iep|student support|parent communication)\b",
             r"(?i)\b(forklift|welding|equipment maintenance|safety inspections|food safety|cash handling)\b",
             r"(?i)\b(document review|case files|legal research|records management|policy analysis|grant administration|public benefits)\b",
@@ -4223,6 +4224,41 @@ Preferred: Salesforce
             .expect("medical record review");
         assert_eq!(medical_record.match_state, RequirementMatchState::Strong);
         assert!(medical_record
+            .evidence_sections
+            .contains(&"experience".to_string()));
+    }
+
+    #[test]
+    fn test_requirement_review_uses_care_plan_plural_equivalence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nUsed care plan notes for patient visits.",
+            &[],
+            "Required: care plans",
+        );
+
+        let care_plans = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "care plans")
+            .expect("care plans review");
+        assert_eq!(care_plans.match_state, RequirementMatchState::Direct);
+        assert!(care_plans
+            .evidence_sections
+            .contains(&"experience".to_string()));
+
+        let inverse = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nUsed care plans for patient visits.",
+            &[],
+            "Required: care plan",
+        );
+
+        let care_plan = inverse
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "care plan")
+            .expect("care plan review");
+        assert_eq!(care_plan.match_state, RequirementMatchState::Direct);
+        assert!(care_plan
             .evidence_sections
             .contains(&"experience".to_string()));
     }
