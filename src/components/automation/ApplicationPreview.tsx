@@ -33,6 +33,93 @@ interface ApplicationPreviewProps {
   atsPlatform: string | null;
 }
 
+interface HardQuestionReview {
+  label: string;
+  detail: string;
+  patterns: RegExp[];
+}
+
+const HARD_QUESTION_REVIEWS: HardQuestionReview[] = [
+  {
+    label: "Work authorization",
+    detail: "Check work authorization or sponsorship answers against your profile and resume.",
+    patterns: [
+      /\bwork authorization\b/i,
+      /\bauthorized to work\b/i,
+      /\bsponsorship\b/i,
+      /\bvisa\b/i,
+    ],
+  },
+  {
+    label: "Location, relocation, or travel",
+    detail: "Confirm location, commute, relocation, remote, hybrid, travel, and shift constraints.",
+    patterns: [
+      /\brelocat(?:e|ion)\b/i,
+      /\bremote\b/i,
+      /\bhybrid\b/i,
+      /\bon[-\s]?site\b/i,
+      /\bcommut(?:e|ing)\b/i,
+      /\btravel\b/i,
+    ],
+  },
+  {
+    label: "License, certification, or clearance",
+    detail: "Use only credentials, licenses, certifications, or clearances you can document.",
+    patterns: [
+      /\blicen[cs]e\b/i,
+      /\bcertif(?:ication|ied)\b/i,
+      /\bclearance\b/i,
+      /\bRN\b/,
+      /\bCNA\b/,
+      /\bCDL\b/,
+      /\bPMP\b/,
+      /\bSecurity\+\b/i,
+    ],
+  },
+  {
+    label: "Education or degree",
+    detail: "Check degree, diploma, or education-equivalent answers against visible evidence.",
+    patterns: [
+      /\bdegree\b/i,
+      /\bbachelor'?s?\b/i,
+      /\bmaster'?s?\b/i,
+      /\bhigh school\b/i,
+      /\bdiploma\b/i,
+    ],
+  },
+  {
+    label: "Years of experience",
+    detail: "Make years, level, and seniority answers match the experience you can explain.",
+    patterns: [
+      /\b\d+\+?\s*(?:years|yrs)\b/i,
+      /\byears? of experience\b/i,
+      /\bexperience required\b/i,
+    ],
+  },
+  {
+    label: "Salary or availability",
+    detail: "Review salary, start-date, schedule, and availability answers before submission.",
+    patterns: [
+      /\bsalary\b/i,
+      /\bcompensation\b/i,
+      /\bavailability\b/i,
+      /\bstart date\b/i,
+      /\bshift\b/i,
+      /\bweekend\b/i,
+      /\bovernight\b/i,
+    ],
+  },
+];
+
+function getHardQuestionReviews(job: Job) {
+  const text = job.description?.trim() ?? "";
+  if (!text) return [];
+
+  return HARD_QUESTION_REVIEWS.filter((review) =>
+    review.patterns.some((pattern) => pattern.test(text)),
+  );
+}
+
 export const ApplicationPreview = memo(function ApplicationPreview({ job, atsPlatform }: ApplicationPreviewProps) {
   const [profile, setProfile] = useState<ApplicationProfilePreview | null>(null);
   const [loading, setLoading] = useState(true);
@@ -97,6 +184,7 @@ export const ApplicationPreview = memo(function ApplicationPreview({ job, atsPla
     },
   ];
   const applicationFormName = getApplicationFormDisplayName(atsPlatform);
+  const hardQuestionReviews = getHardQuestionReviews(job);
 
   return (
     <div className="space-y-6" role="region" aria-label="Application preview">
@@ -174,6 +262,33 @@ export const ApplicationPreview = memo(function ApplicationPreview({ job, atsPla
           </li>
         </ul>
       </section>
+
+      {hardQuestionReviews.length > 0 && (
+        <section role="group" aria-labelledby="hard-question-review-heading">
+          <h4 id="hard-question-review-heading" className="font-medium text-surface-800 dark:text-surface-200 mb-2 flex items-center gap-2">
+            <ExclamationIcon className="w-5 h-5 text-amber-500" aria-hidden="true" />
+            Hard Question Review
+          </h4>
+          <p className="text-sm text-surface-600 dark:text-surface-400 mb-3">
+            Make saved answers and resume evidence agree before submitting.
+          </p>
+          <ul className="grid gap-2 sm:grid-cols-2" role="list" aria-label="Hard screening topics">
+            {hardQuestionReviews.map((review) => (
+              <li
+                key={review.label}
+                className="rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50/70 dark:bg-amber-900/10 px-3 py-2"
+              >
+                <p className="text-sm font-medium text-surface-800 dark:text-surface-100">
+                  {review.label}
+                </p>
+                <p className="mt-1 text-xs leading-5 text-surface-600 dark:text-surface-400">
+                  {review.detail}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {/* Info Banner */}
       <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4" role="complementary" aria-labelledby="info-banner-title">

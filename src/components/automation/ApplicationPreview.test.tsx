@@ -442,6 +442,32 @@ describe("ApplicationPreview", () => {
     });
   });
 
+  describe("hard screening question review", () => {
+    it("flags hard screening topics from job details for resume-answer consistency", async () => {
+      mockInvoke.mockResolvedValue(mockProfile);
+
+      render(
+        <ApplicationPreview
+          job={{
+            ...mockJob,
+            description:
+              "Required: work authorization, RN license, 3+ years of experience, and willingness to relocate.",
+          }}
+          atsPlatform="greenhouse"
+        />,
+      );
+
+      expect(await screen.findByText("Hard Question Review")).toBeInTheDocument();
+      expect(
+        screen.getByText("Make saved answers and resume evidence agree before submitting."),
+      ).toBeInTheDocument();
+      expect(screen.getByText("Work authorization")).toBeInTheDocument();
+      expect(screen.getByText("License, certification, or clearance")).toBeInTheDocument();
+      expect(screen.getByText("Years of experience")).toBeInTheDocument();
+      expect(screen.getByText("Location, relocation, or travel")).toBeInTheDocument();
+    });
+  });
+
   describe("info banner", () => {
     it("displays 'How it works' heading", async () => {
       mockInvoke.mockResolvedValue(mockProfile);
