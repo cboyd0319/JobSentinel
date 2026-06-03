@@ -2367,6 +2367,13 @@ impl AtsAnalyzer {
             &["case management", "case coordination"],
             &["scheduling", "calendar management", "appointment setting"],
             &["onboarding", "new hire orientation", "employee orientation"],
+            &[
+                "training",
+                "trained",
+                "staff training",
+                "employee training",
+                "team training",
+            ],
             &["quality assurance", "qa"],
             &["front desk", "front-desk", "reception", "receptionist"],
             &["cash handling", "cashier"],
@@ -5871,6 +5878,25 @@ Preferred: Salesforce
             .expect("onboarding review");
         assert_eq!(onboarding.match_state, RequirementMatchState::Direct);
         assert!(onboarding
+            .evidence_sections
+            .contains(&"experience".to_string()));
+    }
+
+    #[test]
+    fn test_requirement_review_uses_training_trained_equivalence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nTrained new employees on intake steps.",
+            &[],
+            "Required: training",
+        );
+
+        let training = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "training")
+            .expect("training review");
+        assert_eq!(training.match_state, RequirementMatchState::Direct);
+        assert!(training
             .evidence_sections
             .contains(&"experience".to_string()));
     }

@@ -3657,6 +3657,13 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
       "new hire orientation",
       "employee orientation",
     ],
+    [
+      "training",
+      "trained",
+      "staff training",
+      "employee training",
+      "team training",
+    ],
     ["quality assurance", "qa"],
     ["front desk", "front-desk", "reception", "receptionist"],
     ["cash handling", "cashier"],
