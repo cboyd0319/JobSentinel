@@ -1393,7 +1393,7 @@ Scope:
   explorer scanned active plans and recommended next disjoint slices: Resume
   Import Status, Resume-Assisted Guided Intake, and Source Governance Metadata.
   Both agents were closed after their findings were integrated or recorded.
-- Current local Resume Import Status slice adds sanitized format and
+- Latest local Resume Import Status slice in `b3c07068` adds sanitized format and
   readable-text metadata to resume summaries and shows it on the active resume
   card before fit review, without exposing `file_path`, `parsed_text`, or raw
   resume content. Verification passed: `cargo test --lib resume

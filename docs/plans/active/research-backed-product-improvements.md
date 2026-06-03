@@ -1508,8 +1508,7 @@ source-filter compatibility issue appears.
   Structured evidence recency work is committed in `56d9a5ab`.
   Resume Match evidence-label work is committed in `26d306f6`.
   Reviewer-fix work is committed in `efea47a5`.
-  Current local Resume Import Status follow-up is verified locally and ready to
-  commit.
+  Resume Import Status work is committed in `b3c07068`.
 - Multi-agent orchestration: a read-only reviewer covered recent resume
   analyzer commits and a read-only explorer recommended Resume Import Status,
   Resume-Assisted Guided Intake, and Source Governance Metadata as next
