@@ -207,6 +207,8 @@ The current local matcher:
   still avoiding broad fuzzy matching;
 - treats **medical record** and **medical records** as the same local evidence
   while avoiding duplicate requirement rows for singular or plural job wording;
+- treats **care plan** and **care plans** as the same local evidence while
+  avoiding duplicate requirement rows for singular or plural job wording;
 - treats **data entry** and **data-entry** as the same local evidence while
   still avoiding broad fuzzy matching;
 - treats **onsite**, **on-site**, and **on site** as the same local location
