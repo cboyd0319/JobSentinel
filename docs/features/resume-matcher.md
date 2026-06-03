@@ -254,8 +254,9 @@ The current local matcher:
   without guessing unrelated credentials;
 - treats **associate's degree**, **associate degree**, and
   **associates degree** as the same local education evidence;
-- treats **bachelor's degree**, **bachelor degree**, and **bachelors degree**
-  as the same local education evidence;
+- treats **bachelor's degree**, **bachelor degree**, **bachelors degree**,
+  **Bachelor of Arts**, and **Bachelor of Science** as the same local
+  education evidence for generic bachelor's requirements;
 - treats **master's degree**, **master degree**, and **masters degree** as the
   same local education evidence;
 - treats **PhD**, **doctorate**, **doctorate degree**, and **doctoral degree**

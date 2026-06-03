@@ -353,6 +353,10 @@ copy durable findings back into this plan or the active status surface.
 - Current local bachelor-degree follow-up in `adda2593` treats bachelor's
   degree, bachelor degree, and bachelors degree as equivalent local education
   hard-constraint evidence.
+- Current local bachelor-degree title follow-up in `52e7c80b` treats Bachelor
+  of Arts and Bachelor of Science as local evidence for generic bachelor's
+  degree requirements without using those phrases to create generic job-post
+  requirements in browser/dev mocks.
 - Current local master-degree follow-up in `0e2a0fae` treats master's degree,
   master degree, and masters degree as equivalent local education
   hard-constraint evidence.
@@ -1832,6 +1836,7 @@ source-filter compatibility issue appears.
   High-school hyphen work is committed in `a546653d`.
   Associate-degree work is committed in `7554988c`.
   Bachelor-degree work is committed in `adda2593`.
+  Bachelor-degree title work is committed in `52e7c80b`.
   Master-degree work is committed in `0e2a0fae`.
   Doctorate-degree work is committed in `60dc3981`.
   Degree-equivalent-experience work is committed in `9fc9777d`.

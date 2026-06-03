@@ -302,8 +302,9 @@ Future implementation should improve:
   as the same local education evidence.
 - Resume/job fit now treats `associate's degree`, `associate degree`, and
   `associates degree` as equivalent local education evidence.
-- Resume/job fit now treats `bachelor's degree`, `bachelor degree`, and
-  `bachelors degree` as equivalent local education evidence.
+- Resume/job fit now treats `bachelor's degree`, `bachelor degree`,
+  `bachelors degree`, `Bachelor of Arts`, and `Bachelor of Science` as
+  equivalent local education evidence for generic bachelor's requirements.
 - Resume/job fit now treats `master's degree`, `master degree`, and
   `masters degree` as equivalent local education evidence.
 - Resume/job fit now treats `PhD`, `doctorate`, `doctorate degree`, and

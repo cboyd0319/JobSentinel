@@ -197,7 +197,10 @@ acceptance still requires Developer ID signing and notarization.
   creating an exact-degree hard cap. The follow-up
   `adda2593 Match bachelor degree terms` treats bachelor's degree, bachelor
   degree, and bachelors degree as the same local education hard-constraint
-  evidence. The follow-up
+  evidence. The follow-up `52e7c80b Match bachelor degree title terms` treats
+  Bachelor of Arts and Bachelor of Science as local evidence for generic
+  bachelor's degree requirements without using those phrases to create generic
+  job-post requirements in browser/dev mocks. The follow-up
   `0e2a0fae Match master degree terms` treats master's degree, master degree,
   and masters degree as the same local education hard-constraint evidence. The
   follow-up `60dc3981 Match doctorate degree terms` treats PhD, doctorate,
