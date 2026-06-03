@@ -141,7 +141,8 @@ The current local matcher:
   mixed evidence, not enough job detail, or clearer evidence, so the score is
   treated as local evidence review instead of an employer prediction;
 - identifies skills and job-post terms across broad career categories,
-  including healthcare, education, service, operations, and trades;
+  including healthcare, education, service, operations, trades, legal, finance,
+  and government or administrative work;
 - lets reviewed local skills influence job sorting only after the user turns
   that preference on;
 - compares resume evidence with saved job-posting text;

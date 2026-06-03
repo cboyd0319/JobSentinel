@@ -220,6 +220,9 @@ copy durable findings back into this plan or the active status surface.
 - Current local broad requirement-term follow-up adds healthcare, education,
   service, operations, and trades terms to local resume requirement review and
   dev/browser mocks.
+- Current local legal, finance, and government requirement-term follow-up adds
+  terms such as document review, records management, and financial
+  reconciliation to local resume requirement review and dev/browser mocks.
 - Current local resume file-guidance follow-up tells users to follow employer
   file instructions first when readable text is missing, then suggests readable
   local formats if no employer format is named.
@@ -1620,6 +1623,8 @@ source-filter compatibility issue appears.
   Training-heading credential work is committed in `df0bdf9a`.
   Keyword-list bullet work is committed in `0447094b`.
   Broad requirement-term work is committed in `4dea83be`.
+  Legal, finance, and government requirement-term work is committed in
+  `a8169b09`.
   Resume file-guidance work is committed in `808aea8e`.
   Resume preview-guidance work is committed in `4a1cf389`.
   Setup pay-not-sure work is committed in `b3475fdc`.

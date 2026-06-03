@@ -1516,6 +1516,19 @@ Scope:
   --manifest-path src-tauri/Cargo.toml -- --check`, `cargo clippy
   --manifest-path src-tauri/Cargo.toml -- -D warnings`, `npm run
   lint:external-ai`, and `git diff --check`.
+- Latest local legal, finance, and government requirement-term slice in
+  `a8169b09` adds terms such as document review, records management, and
+  financial reconciliation to local resume requirement review. It also treats
+  trailing sentence punctuation as a requirement boundary so plainly written
+  experience bullets still match. Browser/dev mocks stay aligned.
+  Verification passed: `cargo test --lib legal_finance --manifest-path
+  src-tauri/Cargo.toml`, `npx vitest run src/mocks/handlers.test.ts -t "legal
+  finance"`, `cargo test --lib ats_analyzer --manifest-path
+  src-tauri/Cargo.toml`, `npx vitest run src/mocks/handlers.test.ts`, `npx tsc
+  --noEmit`, `npm run lint -- --quiet`, `cargo test --lib --manifest-path
+  src-tauri/Cargo.toml`, `cargo fmt --all --manifest-path src-tauri/Cargo.toml
+  -- --check`, `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D
+  warnings`, `npm run lint:external-ai`, and `git diff --check`.
 - Latest local resume file-guidance slice in `808aea8e` updates the no-readable-text status
   to tell users to follow employer file instructions first, then use readable
   PDF, DOCX, TXT, or Markdown when no format is named. Verification passed:

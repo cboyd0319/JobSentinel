@@ -222,6 +222,9 @@ Future implementation should improve:
   like keyword lists instead of plain work evidence.
 - Requirement review now recognizes a wider set of healthcare, education,
   service, operations, and trades terms, reducing software-only matching bias.
+- Requirement review now also recognizes legal, finance, and government or
+  administrative terms such as document review, records management, and
+  financial reconciliation.
 - Structured resume review now marks matched requirements from a current role
   as current-experience evidence instead of hiding recency in a generic
   experience label.
