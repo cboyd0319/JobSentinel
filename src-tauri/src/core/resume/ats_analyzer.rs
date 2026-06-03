@@ -1948,6 +1948,7 @@ impl AtsAnalyzer {
             &["onsite", "on-site", "on site"],
             &["reliable transportation", "own transportation"],
             &["night shift", "overnight shift"],
+            &["weekend availability", "weekend shift", "weekend shifts"],
             &["bls", "basic life support"],
             &["acls", "advanced cardiovascular life support"],
             &["cpr", "cardiopulmonary resuscitation"],
@@ -2473,7 +2474,7 @@ impl AtsAnalyzer {
             r"(?i)\b(bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree|high school diploma|high school degree|ged|high school equivalency|general education development)\b",
             r"(?i)\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b",
             r"(?i)\b(lift(?:\s+up\s+to)?\s+\d+\s*(?:pounds?|lbs?)|stand for long periods?|physical requirements?|physical demands?)\b",
-            r"(?i)\b(onsite|on-site|on site|relocation|travel|reliable transportation|own transportation|commute|availability|available|schedule|weekend availability|night shift|overnight shift|evening shift)\b",
+            r"(?i)\b(onsite|on-site|on site|relocation|travel|reliable transportation|own transportation|commute|availability|available|schedule|weekend availability|weekend shifts?|night shift|overnight shift|evening shift)\b",
         ];
 
         for pattern in &hard_constraint_patterns {
@@ -4249,6 +4250,30 @@ Preferred: Salesforce
             .hard_constraint_risks
             .iter()
             .any(|risk| risk.requirement == "night shift"));
+    }
+
+    #[test]
+    fn test_weekend_availability_accepts_weekend_shift_evidence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nAvailable for weekend shifts.",
+            &[],
+            "Required: weekend availability",
+        );
+
+        let weekend = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "weekend availability")
+            .expect("weekend availability review");
+        assert_eq!(weekend.match_state, RequirementMatchState::Direct);
+        assert!(weekend.hard_constraint);
+        assert!(weekend
+            .evidence_sections
+            .contains(&"experience".to_string()));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "weekend availability"));
     }
 
     #[test]
