@@ -1969,14 +1969,7 @@ impl AtsAnalyzer {
         {
             return Some(HardConstraintCategory::Experience);
         }
-        if lower.contains("bilingual")
-            || lower.contains("spanish fluency")
-            || lower.contains("fluent spanish")
-            || lower.contains("fluent in spanish")
-            || lower.contains("spanish language")
-            || lower.contains("english/spanish")
-            || lower.contains("english and spanish")
-        {
+        if Self::known_human_language_requirement(&lower) {
             return Some(HardConstraintCategory::Language);
         }
         if lower.contains("lift ")
@@ -2495,6 +2488,7 @@ impl AtsAnalyzer {
             }
         }
         Self::extend_lift_weight_unit_terms(keyword_lower, &mut terms);
+        Self::extend_language_fluency_terms(keyword_lower, &mut terms);
 
         match keyword_lower {
             "senior-level experience" => {
@@ -2656,6 +2650,58 @@ impl AtsAnalyzer {
             terms.push(format!("{years}+ yrs"));
         }
         terms
+    }
+
+    fn known_language_names() -> &'static [&'static str] {
+        &[
+            "spanish",
+            "french",
+            "mandarin",
+            "cantonese",
+            "arabic",
+            "portuguese",
+            "german",
+            "japanese",
+            "korean",
+        ]
+    }
+
+    fn known_human_language_requirement(lower: &str) -> bool {
+        if lower.contains("bilingual") {
+            return true;
+        }
+
+        Self::known_language_names().iter().any(|language| {
+            lower.contains(&format!("{language} fluency"))
+                || lower.contains(&format!("fluent {language}"))
+                || lower.contains(&format!("fluent in {language}"))
+                || lower.contains(&format!("{language} language"))
+                || lower.contains(&format!("english/{language}"))
+                || lower.contains(&format!("english and {language}"))
+        })
+    }
+
+    fn extend_language_fluency_terms(keyword_lower: &str, terms: &mut Vec<String>) {
+        for language in Self::known_language_names() {
+            if !keyword_lower.contains(language) {
+                continue;
+            }
+
+            for term in [
+                format!("bilingual {language}"),
+                format!("{language} fluency"),
+                format!("fluent {language}"),
+                format!("fluent in {language}"),
+                format!("{language} language"),
+                format!("english/{language}"),
+                format!("english and {language}"),
+                language.to_string(),
+            ] {
+                if !terms.iter().any(|existing| existing == &term) {
+                    terms.push(term);
+                }
+            }
+        }
     }
 
     fn plain_text_search_term_hits(
@@ -2965,7 +3011,7 @@ impl AtsAnalyzer {
             r"(?i)\b(certification|cissp|certified information systems security professional|security plus|bls|basic life support|acls|advanced cardiovascular life support|cpr|cardiopulmonary resuscitation|cna|certified nursing assistant|certified nurse assistant|certified nurse aide|pmp|project management professional|servsafe|food safety certification|food[- ]handler'?s?\s+(?:certification|certificate|permit|card)|first[- ]aid certification|first[- ]aid certified|first[- ]aid certificate|first[- ]aid|forklift certification|forklift certified|forklift operator certification|forklift operator certified|forklift license|forklift operator license|osha\s*10(?:[- ]hour)?(?:\s+certification)?|osha\s*30(?:[- ]hour)?(?:\s+certification)?)\b",
             r"(?i)\b(ph\.?d\.?(?:\s+degree)?|doctorate(?:\s+degree)?|doctoral degree|associate'?s degree|associate degree|baccalaureate degree|bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree|high[- ]school diploma|high[- ]school degree|ged|high[- ]school equivalency|general education development)\b",
             r"(?i)\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b",
-            r"(?i)\b(bilingual(?:\s+(?:english|spanish|french|mandarin|cantonese|arabic|portuguese|german|japanese|korean))?|spanish fluency|fluent(?:\s+in)?\s+spanish|spanish language|english/spanish|english and spanish)\b",
+            r"(?i)\b(bilingual(?:\s+(?:english|spanish|french|mandarin|cantonese|arabic|portuguese|german|japanese|korean))?|(?:spanish|french|mandarin|cantonese|arabic|portuguese|german|japanese|korean)\s+fluency|fluent(?:\s+in)?\s+(?:spanish|french|mandarin|cantonese|arabic|portuguese|german|japanese|korean)|(?:spanish|french|mandarin|cantonese|arabic|portuguese|german|japanese|korean)\s+language|english/(?:spanish|french|mandarin|cantonese|arabic|portuguese|german|japanese|korean)|english and (?:spanish|french|mandarin|cantonese|arabic|portuguese|german|japanese|korean))\b",
             r"(?i)\b(lift(?:\s+up\s+to)?\s+\d+\s*(?:pounds?|lbs?)|(?:stand|standing) for long periods?|physical requirements?|physical demands?)\b",
             r"(?i)\b(onsite|on-site|on site|remote(?:[- ](?:work|role|position|job))?|hybrid(?:[- ](?:work|role|schedule|position|job))?|relocation|relocate|willing to relocate|travel|reliable transportation|own transportation|commute|commuting|full[- ]time(?:\s+availability)?|part[- ]time(?:\s+availability)?|availability|available|schedule|weekend availability|weekend shifts?|night shift|overnight shift|third shift|3rd shift|evening shift|second shift|2nd shift|day shift|first shift|1st shift)\b",
         ];
@@ -6870,6 +6916,30 @@ Preferred: Salesforce
             .hard_constraint_risks
             .iter()
             .any(|risk| risk.requirement == "bilingual spanish"));
+    }
+
+    #[test]
+    fn test_bilingual_mandarin_requirement_accepts_mandarin_fluency_evidence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nFluent in Mandarin for client intake calls.",
+            &[],
+            "Required: bilingual Mandarin",
+        );
+
+        let bilingual = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "bilingual mandarin")
+            .expect("bilingual Mandarin review");
+        assert_eq!(bilingual.match_state, RequirementMatchState::Direct);
+        assert!(bilingual.hard_constraint);
+        assert!(bilingual
+            .evidence_sections
+            .contains(&"experience".to_string()));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "bilingual mandarin"));
     }
 
     #[test]
