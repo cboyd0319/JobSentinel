@@ -222,6 +222,9 @@ copy durable findings back into this plan or the active status surface.
 - Current local first-aid credential-equivalence follow-up treats first-aid
   certificate, certification, and certified wording as the same local
   credential evidence.
+- Current local forklift credential-equivalence follow-up treats forklift,
+  forklift certification, forklift certified, forklift operator certification,
+  and forklift license wording as the same local credential evidence.
 - Current local high-school credential-equivalence follow-up treats high school
   diploma, high school degree, GED, high school equivalency, and General
   Education Development as the same local education evidence, and keeps
@@ -1658,6 +1661,7 @@ source-filter compatibility issue appears.
   CNA credential-equivalence work is committed in `5883db13`.
   Food-safety credential-equivalence work is committed in `9f47bee9`.
   First-aid credential-equivalence work is committed in `c47dec16`.
+  Forklift credential-equivalence work is committed in `a57f5d47`.
   High-school credential-equivalence work is committed in `a09f6c43`.
   Degree-equivalent-experience work is committed in `9fc9777d`.
   Training-heading credential work is committed in `df0bdf9a`.

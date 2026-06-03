@@ -134,6 +134,10 @@ acceptance still requires Developer ID signing and notarization.
   The follow-up `c47dec16` recognizes first-aid credential equivalence,
   treating first-aid certificate, certification, and certified wording as the
   same local credential evidence.
+  The follow-up `a57f5d47` recognizes forklift credential equivalence, treating
+  forklift, forklift certification, forklift certified, forklift operator
+  certification, and forklift license wording as the same local credential
+  evidence.
   Future resume work still needs deeper evidence strength, seniority alignment,
   broader conservative synonyms, recency, and profession-specific weighting.
 - Current local macOS no-account post-commit verification rebuilt the universal

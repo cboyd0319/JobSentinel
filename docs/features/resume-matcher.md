@@ -176,6 +176,9 @@ The current local matcher:
   certificate, permit, or card wording as the same local credential evidence;
 - treats first aid, first-aid, first aid certification, First Aid Certified,
   and first aid certificate wording as the same local credential evidence;
+- treats forklift, forklift certification, forklift certified, forklift
+  operator certification, and forklift license wording as the same local
+  credential evidence;
 - treats high school diploma, high school degree, GED, high school
   equivalency, and General Education Development as the same local education
   evidence without guessing unrelated credentials;

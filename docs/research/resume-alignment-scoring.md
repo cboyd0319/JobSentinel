@@ -227,6 +227,9 @@ Future implementation should improve:
   local credential evidence.
 - Resume/job fit now treats first-aid certificate, certification, and certified
   wording as the same local credential evidence.
+- Resume/job fit now treats forklift certificate, certification, certified,
+  operator certification, and license wording as the same local credential
+  evidence.
 - Resume/job fit now treats `high school diploma`, `high school degree`,
   `GED`, `high school equivalency`, and `General Education Development` as the
   same local education evidence.
