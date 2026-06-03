@@ -261,8 +261,8 @@ The current local matcher:
   requirements;
 - treats **master's degree**, **master degree**, **masters degree**,
   **Master of Arts**, **Master of Business Administration**,
-  **Master of Engineering**, and **Master of Science** as the same local
-  education evidence for generic master's requirements;
+  **Master of Education**, **Master of Engineering**, and **Master of Science**
+  as the same local education evidence for generic master's requirements;
 - treats **PhD**, **doctorate**, **doctorate degree**, and **doctoral degree**
   as the same local education evidence;
 - treats headings such as **Training**, **Credentials**, and **Certificates**

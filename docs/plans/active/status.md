@@ -227,6 +227,9 @@ acceptance still requires Developer ID signing and notarization.
   Engineering as local evidence for generic master's degree requirements
   without treating engineering-specific job wording as a generic master's
   requirement. The
+  follow-up `22f1cd76 Match education master term` treats Master of Education
+  as local evidence for generic master's degree requirements without treating
+  education-specific job wording as a generic master's requirement. The
   follow-up `60dc3981 Match doctorate degree terms` treats PhD, doctorate,
   doctorate degree, and doctoral degree as the same local education
   hard-constraint evidence and keeps doctorate degree or equivalent experience

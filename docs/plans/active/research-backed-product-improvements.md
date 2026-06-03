@@ -384,6 +384,9 @@ copy durable findings back into this plan or the active status surface.
   Engineering as local evidence for generic master's degree requirements
   without treating engineering-specific job wording as a generic master's
   requirement.
+- Current local education master follow-up in `22f1cd76` treats Master of
+  Education as local evidence for generic master's degree requirements without
+  treating education-specific job wording as a generic master's requirement.
 - Current local doctorate-degree follow-up in `60dc3981` treats PhD,
   doctorate, doctorate degree, and doctoral degree as equivalent local
   education hard-constraint evidence and keeps doctorate degree or equivalent
@@ -1868,6 +1871,7 @@ source-filter compatibility issue appears.
   Master-degree title work is committed in `f032ae03`.
   Business-administration master work is committed in `ff1c617e`.
   Engineering master work is committed in `786a5974`.
+  Education master work is committed in `22f1cd76`.
   Doctorate-degree work is committed in `60dc3981`.
   Degree-equivalent-experience work is committed in `9fc9777d`.
   Training-heading credential work is committed in `df0bdf9a`.
