@@ -511,6 +511,28 @@ describe("ApplicationPreview", () => {
       ).toBeInTheDocument();
     });
 
+    it("flags transportation requirements from job details", async () => {
+      mockInvoke.mockResolvedValue(mockProfile);
+
+      render(
+        <ApplicationPreview
+          job={{
+            ...mockJob,
+            description: "Required: reliable transportation for visits to client sites.",
+          }}
+          atsPlatform="greenhouse"
+        />,
+      );
+
+      expect(await screen.findByText("Hard Question Review")).toBeInTheDocument();
+      expect(screen.getByText("Transportation requirement")).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          "Confirm transportation or vehicle requirements before answering. Use only commute, license, or vehicle details that are true.",
+        ),
+      ).toBeInTheDocument();
+    });
+
     it("flags language fluency requirements from job details", async () => {
       mockInvoke.mockResolvedValue(mockProfile);
 
@@ -1011,6 +1033,52 @@ describe("ApplicationPreview", () => {
       expect(
         screen.getByText(
           "Saved physical requirement answer says: I can lift 50 pounds safely. Confirm it matches the employer's wording and resume evidence before continuing.",
+        ),
+      ).toBeInTheDocument();
+      expect(mockInvoke).toHaveBeenCalledWith("get_screening_answers");
+    });
+
+    it("shows saved transportation answers when the job asks about reliable transportation", async () => {
+      mockInvoke.mockImplementation((command: string) => {
+        if (command === "get_application_profile_preview") {
+          return Promise.resolve(mockProfile);
+        }
+
+        if (command === "get_screening_answers") {
+          return Promise.resolve([
+            {
+              id: 1,
+              questionPattern: "reliable transportation",
+              answer: "Yes, I have reliable transportation for client-site visits.",
+              answerType: "yes_no",
+              notes: null,
+              timesUsed: 0,
+              timesModified: 0,
+              confidenceScore: 0,
+              lastUsedAt: null,
+              createdAt: "2026-01-01T00:00:00Z",
+              updatedAt: "2026-01-01T00:00:00Z",
+            },
+          ]);
+        }
+
+        return Promise.reject(new Error(`Unexpected command: ${command}`));
+      });
+
+      render(
+        <ApplicationPreview
+          job={{
+            ...mockJob,
+            description: "Required: reliable transportation for visits to client sites.",
+          }}
+          atsPlatform="greenhouse"
+        />,
+      );
+
+      expect(await screen.findByText("Hard Question Review")).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          "Saved transportation answer says: Yes, I have reliable transportation for client-site visits. Confirm it matches the employer's wording and resume evidence before continuing.",
         ),
       ).toBeInTheDocument();
       expect(mockInvoke).toHaveBeenCalledWith("get_screening_answers");

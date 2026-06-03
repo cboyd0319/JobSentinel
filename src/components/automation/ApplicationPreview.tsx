@@ -75,6 +75,15 @@ const CITIZENSHIP_SCREENING_PATTERNS = [
   /\bmust be (?:a\s+)?(?:u\.?s\.?|united states)\s+citizens?\b/i,
 ];
 
+const TRANSPORTATION_SCREENING_PATTERNS = [
+  /\breliable transportation\b/i,
+  /\bown transportation\b/i,
+  /\bown vehicle\b/i,
+  /\bpersonal vehicle\b/i,
+  /\baccess to (?:a|your own) vehicle\b/i,
+  /\breliable vehicle\b/i,
+];
+
 const HARD_QUESTION_REVIEWS: HardQuestionReview[] = [
   {
     label: "Citizenship requirement",
@@ -121,6 +130,16 @@ const HARD_QUESTION_REVIEWS: HardQuestionReview[] = [
       /\bcommut(?:e|ing)\b/i,
       /\btravel\b/i,
     ],
+  },
+  {
+    label: "Transportation requirement",
+    detail: "Confirm transportation or vehicle requirements before answering. Use only commute, license, or vehicle details that are true.",
+    getDetail: ({ screeningAnswers }) => getSavedScreeningAnswerReviewDetail(
+      screeningAnswers,
+      TRANSPORTATION_SCREENING_PATTERNS,
+      "Confirm transportation or vehicle requirements before answering. Use only commute, license, or vehicle details that are true.",
+    ),
+    patterns: TRANSPORTATION_SCREENING_PATTERNS,
   },
   {
     label: "License, certification, or clearance",
@@ -295,6 +314,9 @@ function getSavedScreeningAnswerLabel(questionPattern: string) {
   if (/\bremote\b|\bhybrid\b|\bon[-\s]?site\b/.test(normalizedPattern)) return "location";
   if (CITIZENSHIP_SCREENING_PATTERNS.some((pattern) => pattern.test(questionPattern))) {
     return "citizenship";
+  }
+  if (TRANSPORTATION_SCREENING_PATTERNS.some((pattern) => pattern.test(questionPattern))) {
+    return "transportation";
   }
   if (/\blicen[cs]e\b|\bcertif|\bclearance\b|\bRN\b|\bCNA\b|\bCDL\b|\bPMP\b|\bSecurity\+\b/i.test(questionPattern)) {
     return "credential";
