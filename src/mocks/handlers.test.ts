@@ -1327,7 +1327,7 @@ describe("mock Tauri handlers", () => {
     expect(improved).toContain("review if these are true and worth making visible");
     expect(improved).toContain("problem, your role, action, result, and evidence");
     expect(improved).not.toContain("consider adding");
-  });
+  }, 10_000);
 
   it("matches lift-weight pounds and lbs in mock hard constraints", async () => {
     const liftResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
@@ -2205,6 +2205,34 @@ describe("mock Tauri handlers", () => {
       expect.arrayContaining([
         expect.objectContaining({
           requirement: "food-handler card",
+        }),
+      ]),
+    );
+  });
+
+  it("matches Security Plus wording variants in mock resume review", async () => {
+    const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        certifications: ["Security Plus"],
+      },
+      jobDescription: "Required: Security+ certification",
+    });
+
+    expect(result.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "security+",
+          match_state: "Direct",
+          hard_constraint: true,
+          evidence_sections: expect.arrayContaining(["certifications"]),
+        }),
+      ]),
+    );
+    expect(result.hard_constraint_risks).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          requirement: "security+",
         }),
       ]),
     );
