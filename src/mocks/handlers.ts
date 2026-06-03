@@ -2829,13 +2829,26 @@ function extractMockAtsKeywords(jobDescription: string): MockAtsKeyword[] {
   const lower = jobDescription.toLowerCase();
   const seen = new Set<string>();
   const hasDegreeEquivalent = hasMockDegreeEquivalentRequirement(jobDescription);
+  const hardKeywords = extractMockHardConstraintKeywords(jobDescription);
+  const hasCommercialDriverLicense = hardKeywords.some((keyword) =>
+    [
+      "commercial driver's license",
+      "commercial drivers license",
+      "commercial driver license",
+      "cdl",
+    ].includes(keyword)
+  );
   const knownKeywords = ATS_KNOWN_KEYWORDS.filter((keyword) =>
     !(hasDegreeEquivalent && isMockExactDegreeKeyword(keyword)) &&
+    !(
+      hasCommercialDriverLicense &&
+      ["driver's license", "drivers license", "driver license"].includes(keyword)
+    ) &&
     getConservativeMockSearchTerms(keyword).some((term) => lower.includes(term))
   );
   const keywords = [
     ...knownKeywords,
-    ...extractMockHardConstraintKeywords(jobDescription),
+    ...hardKeywords,
   ].filter((keyword) => {
     const key = keyword.toLowerCase();
     if (seen.has(key)) return false;
@@ -2855,7 +2868,7 @@ function extractMockHardConstraintKeywords(jobDescription: string): string[] {
     /\b(work authorization|authorized to work|visa sponsorship|u\.?s\.?\s+citizenship|u\.?s\.?\s+citizen|citizenship required)\b/gi,
     /\b(security clearance|clearance)\b/gi,
     /\bsecurity\+/gi,
-    /\b(driver'?s license|driver license|cdl|rn license|nursing license|lpn|lvn|licensed practical nurse|licensed vocational nurse)\b/gi,
+    /\b(commercial driver'?s license|commercial driver license|driver'?s license|driver license|cdl|rn license|nursing license|lpn|lvn|licensed practical nurse|licensed vocational nurse)\b/gi,
     /\b(certification|cissp|certified information systems security professional|security plus|bls|basic life support|acls|advanced cardiovascular life support|cpr|cardiopulmonary resuscitation|cna|certified nursing assistant|certified nurse assistant|certified nurse aide|pmp|project management professional|servsafe|food safety certification|food[- ]handler certification|food[- ]handler certificate|food[- ]handler permit|food[- ]handlers permit|food[- ]handler card|first[- ]aid certification|first[- ]aid certified|first[- ]aid certificate|first[- ]aid|forklift certification|forklift operator certification|forklift certified|forklift license|forklift operator license|osha\s*10(?:[- ]hour)?(?:\s+certification)?|osha\s*30(?:[- ]hour)?(?:\s+certification)?)\b/gi,
     /\b(bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree|high[- ]school diploma|high[- ]school degree|ged|high[- ]school equivalency|general education development)\b/gi,
     /\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b/gi,
@@ -2884,6 +2897,20 @@ function extractMockHardConstraintKeywords(jobDescription: string): string[] {
       "master degree",
     ]) {
       keywords.delete(exactDegree);
+    }
+  }
+  if (
+    [...keywords].some((keyword) =>
+      [
+        "commercial driver's license",
+        "commercial drivers license",
+        "commercial driver license",
+        "cdl",
+      ].includes(keyword)
+    )
+  ) {
+    for (const genericLicense of ["driver's license", "drivers license", "driver license"]) {
+      keywords.delete(genericLicense);
     }
   }
   const specificCertificationKeywords = [

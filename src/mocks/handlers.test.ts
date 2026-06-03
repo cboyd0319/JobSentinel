@@ -1464,6 +1464,43 @@ describe("mock Tauri handlers", () => {
     );
   });
 
+  it("matches commercial driver license and CDL wording in mock hard constraints", async () => {
+    const cdlResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "CDL.",
+        experience: [],
+        skills: [],
+      },
+      jobDescription: "Required: commercial driver license",
+    });
+
+    expect(cdlResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "commercial driver license",
+          match_state: "Direct",
+          hard_constraint: true,
+          evidence_sections: expect.arrayContaining(["summary"]),
+        }),
+      ]),
+    );
+    expect(cdlResult.hard_constraint_risks).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          requirement: "commercial driver license",
+        }),
+      ]),
+    );
+    expect(cdlResult.hard_constraint_risks).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          requirement: expect.stringMatching(/^driver'?s? license$/),
+        }),
+      ]),
+    );
+  });
+
   it("matches US citizen and citizenship wording in mock hard constraints", async () => {
     const citizenshipResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {

@@ -2545,7 +2545,7 @@ impl AtsAnalyzer {
             r"(?i)\b(work authorization|authorized to work|visa sponsorship|u\.?s\.?\s+citizenship|u\.?s\.?\s+citizen|citizenship required)\b",
             r"(?i)\b(security clearance|clearance)\b",
             r"(?i)\bsecurity\+",
-            r"(?i)\b(driver'?s license|driver license|cdl|rn license|nursing license|lpn|lvn|licensed practical nurse|licensed vocational nurse)\b",
+            r"(?i)\b(commercial driver'?s license|commercial driver license|driver'?s license|driver license|cdl|rn license|nursing license|lpn|lvn|licensed practical nurse|licensed vocational nurse)\b",
             r"(?i)\b(certification|cissp|certified information systems security professional|security plus|bls|basic life support|acls|advanced cardiovascular life support|cpr|cardiopulmonary resuscitation|cna|certified nursing assistant|certified nurse assistant|certified nurse aide|pmp|project management professional|servsafe|food safety certification|food[- ]handler certification|food[- ]handler certificate|food[- ]handler permit|food[- ]handlers permit|food[- ]handler card|first[- ]aid certification|first[- ]aid certified|first[- ]aid certificate|first[- ]aid|forklift certification|forklift certified|forklift operator certification|forklift operator certified|forklift license|forklift operator license|osha\s*10(?:[- ]hour)?(?:\s+certification)?|osha\s*30(?:[- ]hour)?(?:\s+certification)?)\b",
             r"(?i)\b(bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree|high[- ]school diploma|high[- ]school degree|ged|high[- ]school equivalency|general education development)\b",
             r"(?i)\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b",
@@ -2571,6 +2571,19 @@ impl AtsAnalyzer {
                 "master degree",
             ] {
                 keywords.remove(exact_degree);
+            }
+        }
+        if keywords.iter().any(|keyword| {
+            matches!(
+                keyword.as_str(),
+                "commercial driver's license"
+                    | "commercial drivers license"
+                    | "commercial driver license"
+                    | "cdl"
+            )
+        }) {
+            for generic_license in ["driver's license", "drivers license", "driver license"] {
+                keywords.remove(generic_license);
             }
         }
         let specific_certification_keywords = [
@@ -3969,6 +3982,32 @@ Preferred: Salesforce
             .hard_constraint_risks
             .iter()
             .any(|risk| risk.requirement == "cdl"));
+    }
+
+    #[test]
+    fn test_commercial_driver_license_requirement_accepts_cdl_evidence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nLicenses\nCDL",
+            &[],
+            "Required: commercial driver license",
+        );
+
+        let cdl = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "commercial driver license")
+            .expect("commercial driver license review");
+        assert_eq!(cdl.match_state, RequirementMatchState::Direct);
+        assert!(cdl.hard_constraint);
+        assert!(cdl.evidence_sections.contains(&"licenses".to_string()));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "commercial driver license"));
+        assert!(!result.hard_constraint_risks.iter().any(|risk| {
+            ["driver's license", "drivers license", "driver license"]
+                .contains(&risk.requirement.as_str())
+        }));
     }
 
     #[test]
