@@ -551,6 +551,25 @@ impl AtsAnalyzer {
             );
         }
 
+        let federal_terms = [
+            "federal",
+            "usajobs",
+            "specialized experience",
+            "grade level",
+            "gs-",
+            "public trust",
+            "occupational series",
+            "job announcement",
+            "announcement number",
+            "required documents",
+        ];
+
+        if federal_terms.iter().any(|term| lower.contains(term)) {
+            return Some(
+                "federal evidence to check: specialized experience, grade level, announcement duties, dates and hours, citizenship or clearance, and required documents",
+            );
+        }
+
         let regulated_work_terms = [
             "legal research",
             "case files",
@@ -3865,6 +3884,20 @@ Preferred: Salesforce
         assert!(improved.contains("risk reduced"));
         assert!(improved.contains("controls or incidents handled"));
         assert!(improved.contains("sensitive-data handling"));
+        assert!(improved.contains("problem, your role, action, result, and evidence"));
+    }
+
+    #[test]
+    fn test_improve_bullet_adds_federal_evidence_prompt() {
+        let bullet = "Reviewed program case files";
+        let job_desc = "Required: federal specialized experience, GS-09 grade level, public trust";
+        let improved = AtsAnalyzer::improve_bullet(bullet, Some(job_desc));
+
+        assert!(improved.contains("federal evidence to check"));
+        assert!(improved.contains("specialized experience"));
+        assert!(improved.contains("grade level"));
+        assert!(improved.contains("announcement duties"));
+        assert!(improved.contains("required documents"));
         assert!(improved.contains("problem, your role, action, result, and evidence"));
     }
 

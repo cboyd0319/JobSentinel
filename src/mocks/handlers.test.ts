@@ -1468,6 +1468,16 @@ describe("mock Tauri handlers", () => {
     expect(securityImproved).toContain("risk reduced");
     expect(securityImproved).toContain("controls or incidents handled");
     expect(securityImproved).toContain("sensitive-data handling");
+
+    const federalImproved = await mockInvoke<string>("improve_bullet_point", {
+      bullet: "reviewed program case files",
+      jobContext: "Required: federal specialized experience, GS-09 grade level, public trust",
+    });
+    expect(federalImproved).toContain("federal evidence to check");
+    expect(federalImproved).toContain("specialized experience");
+    expect(federalImproved).toContain("grade level");
+    expect(federalImproved).toContain("announcement duties");
+    expect(federalImproved).toContain("required documents");
   }, 10_000);
 
   it("matches lift-weight pounds and lbs in mock hard constraints", async () => {

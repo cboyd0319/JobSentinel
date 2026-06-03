@@ -2659,6 +2659,23 @@ function getMockRoleSpecificEvidencePrompt(jobContext: string): string | null {
     return "education-academic evidence to check: learner or research audience, standards or methods, outcomes, collaboration, and ethics";
   }
 
+  const federalTerms = [
+    "federal",
+    "usajobs",
+    "specialized experience",
+    "grade level",
+    "gs-",
+    "public trust",
+    "occupational series",
+    "job announcement",
+    "announcement number",
+    "required documents",
+  ];
+
+  if (federalTerms.some((term) => lower.includes(term))) {
+    return "federal evidence to check: specialized experience, grade level, announcement duties, dates and hours, citizenship or clearance, and required documents";
+  }
+
   const regulatedWorkTerms = [
     "legal research",
     "case files",
