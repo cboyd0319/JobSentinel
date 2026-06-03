@@ -666,6 +666,9 @@ const ATS_KNOWN_KEYWORDS = [
   "first aid certification",
   "cash handling",
   "cashier",
+  "point of sale",
+  "pos system",
+  "pos systems",
   "forklift certification",
   "osha 10",
   "osha 10 certification",
@@ -3321,6 +3324,9 @@ function canonicalMockRequirementKeyword(keyword: string): string {
       return "accounts payable";
     case "a/r":
       return "accounts receivable";
+    case "pos system":
+    case "pos systems":
+      return "point of sale";
     default:
       return keyword;
   }
@@ -3601,6 +3607,7 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
     ["scheduling", "calendar management", "appointment setting"],
     ["quality assurance", "qa"],
     ["cash handling", "cashier"],
+    ["point of sale", "pos system", "pos systems"],
     ["patient care", "patient-care"],
     [
       "medical record",

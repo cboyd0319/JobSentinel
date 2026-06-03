@@ -4472,6 +4472,60 @@ describe("mock Tauri handlers", () => {
     );
   });
 
+  it("treats point of sale and POS system as equivalent mock evidence", async () => {
+    const pointOfSaleResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        skills: [],
+        experience: [
+          {
+            ...atsResume.experience[0],
+            current: false,
+            end_date: "2022",
+            achievements: ["Used POS systems for returns and daily drawer close."],
+          },
+        ],
+      },
+      jobDescription: "Required: point of sale",
+    });
+    expect(pointOfSaleResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "point of sale",
+          match_state: "Direct",
+          evidence_sections: ["experience"],
+        }),
+      ]),
+    );
+
+    const posSystemResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        skills: [],
+        experience: [
+          {
+            ...atsResume.experience[0],
+            current: false,
+            end_date: "2022",
+            achievements: ["Used point of sale tools for returns and daily drawer close."],
+          },
+        ],
+      },
+      jobDescription: "Required: POS system",
+    });
+    expect(posSystemResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "point of sale",
+          match_state: "Direct",
+          evidence_sections: ["experience"],
+        }),
+      ]),
+    );
+  });
+
   it("treats cashier and cash handling as equivalent mock evidence", async () => {
     const cashierResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {

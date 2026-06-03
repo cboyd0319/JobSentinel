@@ -2322,6 +2322,7 @@ impl AtsAnalyzer {
             &["scheduling", "calendar management", "appointment setting"],
             &["quality assurance", "qa"],
             &["cash handling", "cashier"],
+            &["point of sale", "pos system", "pos systems"],
             &["patient care", "patient-care"],
             &[
                 "medical record",
@@ -3110,7 +3111,7 @@ impl AtsAnalyzer {
             r"(?i)\b(compliance|hipaa|osha|quality assurance|qa|data[- ]entry|excel)\b",
             r"(?i)\b(patient[- ]care|medication[- ]administration|vital[- ]signs?|care[- ]plans?|medical[- ]records?|charting)\b",
             r"(?i)\b(lesson planning|classroom management|curriculum|iep|student support|parent communication)\b",
-            r"(?i)\b(forklift|welding|equipment maintenance|safety inspections|food safety|cash handling|cashier)\b",
+            r"(?i)\b(forklift|welding|equipment maintenance|safety inspections|food safety|cash handling|cashier|point of sale|pos systems?)\b",
             r"(?i)\b(document[- ]review|case[- ]files|legal[- ]research|records[- ]management|policy[- ]analysis|grant[- ]administration|public benefits)\b",
             r"(?i)\b(financial[- ]reconciliation|reconciliation|invoicing|loan[- ]processing|financial reporting)\b",
             r"(?i)\b(rust|python|javascript|typescript|java|c\+\+|go|kotlin|swift)\b",
@@ -3143,6 +3144,7 @@ impl AtsAnalyzer {
             "qbo" => "quickbooks".to_string(),
             "a/p" => "accounts payable".to_string(),
             "a/r" => "accounts receivable".to_string(),
+            "pos system" | "pos systems" => "point of sale".to_string(),
             _ => keyword.to_string(),
         }
     }
@@ -3426,6 +3428,9 @@ impl AtsAnalyzer {
             "safety inspections",
             "food safety",
             "food safety certification",
+            "point of sale",
+            "pos system",
+            "pos systems",
             "servsafe",
             "food handler certification",
             "first aid",
@@ -4936,6 +4941,44 @@ Preferred: Salesforce
             .expect("quickbooks");
         assert_eq!(qbo_review.match_state, RequirementMatchState::Direct);
         assert!(qbo_review
+            .evidence_sections
+            .contains(&"experience".to_string()));
+    }
+
+    #[test]
+    fn test_requirement_review_uses_point_of_sale_pos_system_equivalence() {
+        let point_of_sale = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nUsed POS systems for returns and daily drawer close.",
+            &[],
+            "Required: point of sale",
+        );
+
+        let point_of_sale_review = point_of_sale
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "point of sale")
+            .expect("point of sale");
+        assert_eq!(
+            point_of_sale_review.match_state,
+            RequirementMatchState::Direct
+        );
+        assert!(point_of_sale_review
+            .evidence_sections
+            .contains(&"experience".to_string()));
+
+        let pos_system = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nUsed point of sale tools for returns and daily drawer close.",
+            &[],
+            "Required: POS system",
+        );
+
+        let pos_system_review = pos_system
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "point of sale")
+            .expect("point of sale");
+        assert_eq!(pos_system_review.match_state, RequirementMatchState::Direct);
+        assert!(pos_system_review
             .evidence_sections
             .contains(&"experience".to_string()));
     }
