@@ -1531,8 +1531,7 @@ source-filter compatibility issue appears.
   Resume availability-constraint work is committed in `0d8bf479`.
   Resume experience-constraint work is committed in `191962e5`.
   Resume file-guidance work is committed in `808aea8e`.
-  Current local resume preview-guidance follow-up is verified locally and ready
-  to commit.
+  Resume preview-guidance work is committed in `4a1cf389`.
 - Multi-agent orchestration: a read-only reviewer covered recent resume
   analyzer commits and a read-only explorer recommended Resume Import Status,
   Resume-Assisted Guided Intake, and Source Governance Metadata as next

@@ -1450,7 +1450,7 @@ Scope:
   lint -- --quiet`, `npm run lint:external-ai`, `npm run lint:docs`, `npm run
   harness:check`, `npm run lint:bloat`, `npm run lint:architecture`, and `git
   diff --check`.
-- Current local resume preview-guidance slice updates the empty readable-text
+- Latest local resume preview-guidance slice in `4a1cf389` updates the empty readable-text
   preview modal to use employer-instructions-first guidance before suggesting a
   readable PDF, DOCX, TXT, Markdown resume, or resume app export. Verification
   passed: `npx vitest run src/pages/Resume.test.tsx`, `npx tsc --noEmit`, `npm
