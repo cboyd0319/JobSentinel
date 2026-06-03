@@ -492,6 +492,17 @@ acceptance still requires Developer ID signing and notarization.
   --noEmit`, `npm run lint -- --quiet`, `cargo fmt --all --manifest-path
   src-tauri/Cargo.toml -- --check`, `cargo clippy --manifest-path
   src-tauri/Cargo.toml -- -D warnings`, and `git diff --check`. The follow-up
+  `1079d372 Match parent family communication wording` treats parent
+  communication, family communication, and guardian communication as equivalent
+  local education evidence in backend and dev/browser mocks without broad fuzzy
+  matching. Verification passed: `cargo test --lib parent_family_communication
+  --manifest-path src-tauri/Cargo.toml`, `npx vitest run
+  src/mocks/handlers.test.ts -t "parent and family communication"`, `cargo test
+  --lib ats_analyzer --manifest-path src-tauri/Cargo.toml`, `npx vitest run
+  src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
+  `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
+  clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
+  --check`. The follow-up
   `ad391cda Match medical record plural terms` treats medical record and
   medical records as the same local evidence without duplicate singular/plural
   requirement rows. The follow-up

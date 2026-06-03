@@ -192,6 +192,17 @@ copy durable findings back into this plan or the active status surface.
   --noEmit`, `npm run lint -- --quiet`, `cargo fmt --all --manifest-path
   src-tauri/Cargo.toml -- --check`, `cargo clippy --manifest-path
   src-tauri/Cargo.toml -- -D warnings`, and `git diff --check`.
+- Current local parent/family communication follow-up in `1079d372` treats
+  parent communication, family communication, and guardian communication as
+  equivalent local education evidence in backend and dev/browser mocks without
+  broad fuzzy matching. Verification passed: `cargo test --lib
+  parent_family_communication --manifest-path src-tauri/Cargo.toml`, `npx
+  vitest run src/mocks/handlers.test.ts -t "parent and family communication"`,
+  `cargo test --lib ats_analyzer --manifest-path src-tauri/Cargo.toml`, `npx
+  vitest run src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint --
+  --quiet`, `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`,
+  `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git
+  diff --check`.
 - Current local medical-record plural follow-up in `ad391cda` treats medical
   record and medical records as equivalent local evidence without duplicate
   singular/plural requirement rows.
