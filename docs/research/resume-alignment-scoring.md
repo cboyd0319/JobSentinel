@@ -261,6 +261,9 @@ Future implementation should improve:
   local credential evidence.
 - Resume/job fit now treats `driver's license`, `drivers license`, and
   `driver license` as equivalent local license evidence.
+- Resume/job fit now treats `CDL`, `commercial driver's license`, `commercial
+  drivers license`, and `commercial driver license` as equivalent local
+  commercial driving-license evidence.
 - Resume/job fit now treats `RN`, `RN license`, `Registered Nurse`, and
   `Registered Nurse license` as equivalent local nursing-license evidence.
 - Resume/job fit now treats `CNA`, `Certified Nursing Assistant`, `Certified

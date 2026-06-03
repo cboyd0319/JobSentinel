@@ -300,6 +300,9 @@ copy durable findings back into this plan or the active status surface.
 - Current local Security Plus follow-up in `95488cf4` treats Security+ and
   Security Plus as equivalent local credential hard-constraint evidence and
   keeps the long mock ATS command-name test on a per-test timeout.
+- Current local CDL follow-up in `d9d55406` treats CDL, commercial driver's
+  license, commercial drivers license, and commercial driver license as
+  equivalent local credential hard-constraint evidence.
 - Current local LPN credential-equivalence follow-up treats `LPN`, `Licensed
   Practical Nurse`, `LVN`, and `Licensed Vocational Nurse` as the same local
   credential evidence, while hard-requirement guidance still tells users to
@@ -1793,6 +1796,7 @@ source-filter compatibility issue appears.
   Credential-equivalence work is committed in `c4fd8c7a`.
   CNA credential-equivalence work is committed in `5883db13`.
   Security Plus work is committed in `95488cf4`.
+  CDL work is committed in `d9d55406`.
   LPN credential-equivalence work is committed in `b437ffa5`.
   PMP credential-equivalence work is committed in `c69a2bea`.
   Food-safety credential-equivalence work is committed in `9f47bee9`.

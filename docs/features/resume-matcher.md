@@ -219,6 +219,9 @@ The current local matcher:
   evidence;
 - treats **driver's license**, **drivers license**, and **driver license** as
   the same local license evidence;
+- treats **CDL**, **commercial driver's license**, **commercial drivers
+  license**, and **commercial driver license** as the same local commercial
+  driving-license evidence;
 - treats **RN**, **RN license**, **Registered Nurse**, and **Registered Nurse
   license** as the same local nursing-license evidence;
 - treats CNA, Certified Nursing Assistant, Certified Nurse Assistant, and
