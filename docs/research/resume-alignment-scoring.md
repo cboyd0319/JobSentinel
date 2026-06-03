@@ -220,8 +220,8 @@ Future implementation should improve:
   local evidence without broad fuzzy matching.
 - Resume/job fit now treats `data entry` and `data-entry` as equivalent local
   evidence without broad fuzzy matching.
-- Resume/job fit now treats `onsite` and `on-site` as equivalent local location
-  evidence for required location constraints.
+- Resume/job fit now treats `onsite`, `on-site`, and `on site` as equivalent
+  local location evidence for required location constraints.
 - Resume/job fit now treats clear credential equivalents such as `BLS` and
   `Basic Life Support` as the same evidence, while keeping unrelated
   credentials separate.

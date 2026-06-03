@@ -184,8 +184,8 @@ The current local matcher:
   evidence without broad fuzzy matching;
 - treats **data entry** and **data-entry** as the same local evidence while
   still avoiding broad fuzzy matching;
-- treats **onsite** and **on-site** as the same local location evidence for
-  required location constraints;
+- treats **onsite**, **on-site**, and **on site** as the same local location
+  evidence for required location constraints;
 - treats clear credential equivalents, such as **BLS** and **Basic Life
   Support**, as the same evidence without guessing unrelated credentials;
 - treats CNA, Certified Nursing Assistant, Certified Nurse Assistant, and

@@ -129,6 +129,8 @@ acceptance still requires Developer ID signing and notarization.
   the same local evidence. The follow-up
   `bffa0a1f Match onsite location terms` treats onsite and on-site as the same
   local hard-constraint evidence. The follow-up
+  `c8dffb14 Match spaced on site terms` adds the spaced `on site` form to that
+  local hard-constraint evidence group. The follow-up
   `66c587a8 Mark current plain text resume evidence` marks readable Experience
   bullets after a present-date role marker as current-experience evidence, then
   resets that label when a later past-role date range appears. The follow-up

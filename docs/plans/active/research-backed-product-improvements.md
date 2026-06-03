@@ -135,6 +135,9 @@ copy durable findings back into this plan or the active status surface.
 - Current local onsite location-term follow-up in `bffa0a1f` treats onsite and
   on-site as equivalent local hard-constraint evidence, so exact punctuation
   differences do not create a false missing-location risk.
+- Current local spaced on-site follow-up in `c8dffb14` adds the spaced
+  `on site` form to the same local hard-constraint evidence group and prevents
+  duplicate mock review rows for the same location constraint.
 - Current local structured evidence recency follow-up marks structured resume
   matches from a current role as `current experience`, without changing older
   role evidence labels.
@@ -1672,6 +1675,7 @@ source-filter compatibility issue appears.
   Customer-service synonym work is committed in `a96abd63`.
   Data-entry hyphen work is committed in `1f82ecf4`.
   Onsite location-term work is committed in `bffa0a1f`.
+  Spaced on-site work is committed in `c8dffb14`.
   Structured evidence recency work is committed in `56d9a5ab`.
   Plain-text evidence recency work is committed in `66c587a8`.
   Metric-backed evidence-strength work is committed in `4607b67f`.
