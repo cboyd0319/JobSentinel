@@ -1499,6 +1499,36 @@ describe("mock Tauri handlers", () => {
     );
   });
 
+  it("matches work authorization wording in mock hard constraints", async () => {
+    const authorizationResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "Authorized to work in the United States.",
+        experience: [],
+        skills: [],
+      },
+      jobDescription: "Required: work authorization",
+    });
+
+    expect(authorizationResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "work authorization",
+          match_state: "Direct",
+          hard_constraint: true,
+          evidence_sections: expect.arrayContaining(["summary"]),
+        }),
+      ]),
+    );
+    expect(authorizationResult.hard_constraint_risks).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          requirement: "work authorization",
+        }),
+      ]),
+    );
+  });
+
   it("treats metric-backed current experience as strong mock evidence", async () => {
     const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {

@@ -1953,6 +1953,7 @@ impl AtsAnalyzer {
                 "us citizen",
                 "u.s. citizen",
             ],
+            &["work authorization", "authorized to work"],
             &[
                 "customer service",
                 "customer support",
@@ -4628,6 +4629,30 @@ Preferred: Salesforce
             .hard_constraint_risks
             .iter()
             .any(|risk| risk.requirement == "us citizenship"));
+    }
+
+    #[test]
+    fn test_work_authorization_requirement_accepts_authorized_to_work_evidence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nSummary\nAuthorized to work in the United States.",
+            &[],
+            "Required: work authorization",
+        );
+
+        let authorization = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "work authorization")
+            .expect("work authorization review");
+        assert_eq!(authorization.match_state, RequirementMatchState::Direct);
+        assert!(authorization.hard_constraint);
+        assert!(authorization
+            .evidence_sections
+            .contains(&"summary".to_string()));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "work authorization"));
     }
 
     #[test]

@@ -3049,6 +3049,7 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
       "us citizen",
       "u.s. citizen",
     ],
+    ["work authorization", "authorized to work"],
     [
       "customer service",
       "customer support",
