@@ -110,6 +110,7 @@ You can save reusable answers for common questions:
 | `work authorization`  | "Are you authorized to work..."    |
 | `availability`        | "What is your availability..."     |
 | `sponsorship`         | "Do you need visa sponsorship..."  |
+| `certification`       | "Do you have this certification?"  |
 
 Use plain words that appear in the screening question. Matching ignores
 capitalization.

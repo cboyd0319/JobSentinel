@@ -219,6 +219,10 @@ copy durable findings back into this plan or the active status surface.
   `0a5cb489` adds work authorization to common saved-answer patterns, so users
   can set up a reusable answer when application forms ask an authorization
   question outside the standard profile fields.
+- Current local Application Assist certification quick-add follow-up in
+  `cde8e273` adds certification or license to common saved-answer patterns, so
+  users can prepare credential answers before hard licensing or certification
+  questions appear.
 - Current local healthcare bullet-prompt follow-up in `e7a61306` adds a
   role-specific evidence reminder for healthcare and licensed-work job details,
   asking users to check scope of practice, patient safety, documentation, and

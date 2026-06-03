@@ -138,6 +138,9 @@ acceptance still requires Developer ID signing and notarization.
   authorization to common saved-answer patterns, so users can set up a reusable
   answer when application forms ask an authorization question outside the
   standard profile fields. The follow-up
+  `cde8e273 Add certification screening quick add` adds certification or
+  license to common saved-answer patterns, so users can prepare credential
+  answers before hard licensing or certification questions appear. The follow-up
   `e7a61306 Add healthcare bullet evidence prompt` adds a role-specific
   evidence reminder for healthcare and licensed-work job details, asking users
   to check scope of practice, patient safety, documentation, and required
