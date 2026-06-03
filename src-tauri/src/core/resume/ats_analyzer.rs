@@ -1976,6 +1976,8 @@ impl AtsAnalyzer {
         if lower.contains("onsite")
             || lower.contains("on-site")
             || lower.contains("on site")
+            || lower.contains("remote")
+            || lower.contains("hybrid")
             || lower.contains("relocation")
             || lower.contains("relocate")
             || lower.contains("travel")
@@ -2247,6 +2249,23 @@ impl AtsAnalyzer {
             &["financial reconciliation", "financial-reconciliation"],
             &["loan processing", "loan-processing"],
             &["onsite", "on-site", "on site"],
+            &[
+                "remote",
+                "remote work",
+                "remote-work",
+                "remote role",
+                "remote position",
+                "remote job",
+            ],
+            &[
+                "hybrid",
+                "hybrid work",
+                "hybrid-work",
+                "hybrid role",
+                "hybrid schedule",
+                "hybrid position",
+                "hybrid job",
+            ],
             &["relocation", "relocate", "willing to relocate"],
             &["reliable transportation", "own transportation"],
             &["commute", "commuting"],
@@ -2897,7 +2916,7 @@ impl AtsAnalyzer {
             r"(?i)\b(ph\.?d\.?(?:\s+degree)?|doctorate(?:\s+degree)?|doctoral degree|associate'?s degree|associate degree|baccalaureate degree|bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree|high[- ]school diploma|high[- ]school degree|ged|high[- ]school equivalency|general education development)\b",
             r"(?i)\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b",
             r"(?i)\b(lift(?:\s+up\s+to)?\s+\d+\s*(?:pounds?|lbs?)|(?:stand|standing) for long periods?|physical requirements?|physical demands?)\b",
-            r"(?i)\b(onsite|on-site|on site|relocation|relocate|willing to relocate|travel|reliable transportation|own transportation|commute|commuting|availability|available|schedule|weekend availability|weekend shifts?|night shift|overnight shift|third shift|3rd shift|evening shift|second shift|2nd shift|day shift|first shift|1st shift)\b",
+            r"(?i)\b(onsite|on-site|on site|remote(?:[- ](?:work|role|position|job))?|hybrid(?:[- ](?:work|role|schedule|position|job))?|relocation|relocate|willing to relocate|travel|reliable transportation|own transportation|commute|commuting|availability|available|schedule|weekend availability|weekend shifts?|night shift|overnight shift|third shift|3rd shift|evening shift|second shift|2nd shift|day shift|first shift|1st shift)\b",
         ];
 
         for pattern in &hard_constraint_patterns {
@@ -6660,6 +6679,50 @@ Preferred: Salesforce
             .hard_constraint_risks
             .iter()
             .any(|risk| risk.requirement == "on site"));
+    }
+
+    #[test]
+    fn test_missing_required_hybrid_work_constraint_caps_overall_score() {
+        let resume = sample_resume();
+
+        let result = AtsAnalyzer::analyze_for_job(&resume, "Required: client intake, hybrid work");
+
+        assert!(result.overall_score <= 70.0);
+        assert!(result.hard_constraint_risks.iter().any(|risk| {
+            risk.requirement == "hybrid work"
+                && risk.category == HardConstraintCategory::Location
+                && risk.score_cap == 70.0
+                && risk
+                    .action
+                    .contains("Check location, schedule, availability, or travel")
+        }));
+        assert!(result.requirement_reviews.iter().any(|review| {
+            review.keyword == "hybrid work"
+                && review.hard_constraint
+                && review.match_state == RequirementMatchState::Missing
+        }));
+    }
+
+    #[test]
+    fn test_remote_work_requirement_accepts_remote_role_evidence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nAvailable for remote role coverage.",
+            &[],
+            "Required: remote work",
+        );
+
+        let remote = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "remote work")
+            .expect("remote work review");
+        assert_eq!(remote.match_state, RequirementMatchState::Direct);
+        assert!(remote.hard_constraint);
+        assert!(remote.evidence_sections.contains(&"experience".to_string()));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "remote work"));
     }
 
     #[test]
