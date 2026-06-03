@@ -238,9 +238,10 @@ The current local matcher:
   the same local credential evidence without treating OSHA 30 as equivalent;
 - treats OSHA 30, OSHA30, OSHA 30 certification, and OSHA 30-hour wording as
   the same local credential evidence without treating OSHA 10 as equivalent;
-- treats high school diploma, high school degree, GED, high school
-  equivalency, and General Education Development as the same local education
-  evidence without guessing unrelated credentials;
+- treats high school diploma, high-school diploma, high school degree,
+  high-school degree, GED, high school equivalency, high-school equivalency,
+  and General Education Development as the same local education evidence
+  without guessing unrelated credentials;
 - treats **bachelor's degree**, **bachelor degree**, and **bachelors degree**
   as the same local education evidence;
 - treats **master's degree**, **master degree**, and **masters degree** as the

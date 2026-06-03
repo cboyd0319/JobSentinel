@@ -285,9 +285,10 @@ Future implementation should improve:
 - Resume/job fit now treats OSHA 30, OSHA30, OSHA 30 certification, and OSHA
   30-hour wording as the same local credential evidence without treating OSHA
   10 as equivalent.
-- Resume/job fit now treats `high school diploma`, `high school degree`,
-  `GED`, `high school equivalency`, and `General Education Development` as the
-  same local education evidence.
+- Resume/job fit now treats `high school diploma`, `high-school diploma`,
+  `high school degree`, `high-school degree`, `GED`, `high school
+  equivalency`, `high-school equivalency`, and `General Education Development`
+  as the same local education evidence.
 - Resume/job fit now treats `bachelor's degree`, `bachelor degree`, and
   `bachelors degree` as equivalent local education evidence.
 - Resume/job fit now treats `master's degree`, `master degree`, and

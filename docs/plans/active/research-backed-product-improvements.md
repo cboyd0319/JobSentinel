@@ -323,6 +323,9 @@ copy durable findings back into this plan or the active status surface.
   diploma, high school degree, GED, high school equivalency, and General
   Education Development as the same local education evidence, and keeps
   dev/browser mocks aligned.
+- Current local high-school hyphen follow-up in `a546653d` treats high-school
+  diploma, high-school degree, and high-school equivalency as equivalent local
+  education hard-constraint evidence.
 - Current local bachelor-degree follow-up in `adda2593` treats bachelor's
   degree, bachelor degree, and bachelors degree as equivalent local education
   hard-constraint evidence.
@@ -1791,6 +1794,7 @@ source-filter compatibility issue appears.
   OSHA 10 credential-equivalence work is committed in `e8534882`.
   OSHA 30 credential-equivalence work is committed in `972700a9`.
   High-school credential-equivalence work is committed in `a09f6c43`.
+  High-school hyphen work is committed in `a546653d`.
   Bachelor-degree work is committed in `adda2593`.
   Master-degree work is committed in `0e2a0fae`.
   Degree-equivalent-experience work is committed in `9fc9777d`.

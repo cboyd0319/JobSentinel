@@ -186,6 +186,9 @@ acceptance still requires Developer ID signing and notarization.
   The follow-up `a09f6c43 Recognize GED credential equivalence` treats high
   school diploma, high school degree, GED, high school equivalency, and General
   Education Development as the same local education evidence. The follow-up
+  `a546653d Match high-school education terms` treats high-school diploma,
+  high-school degree, and high-school equivalency as the same local education
+  hard-constraint evidence. The follow-up
   `adda2593 Match bachelor degree terms` treats bachelor's degree, bachelor
   degree, and bachelors degree as the same local education hard-constraint
   evidence. The follow-up
