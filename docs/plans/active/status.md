@@ -512,6 +512,16 @@ acceptance still requires Developer ID signing and notarization.
   `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
   clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
   --check`. The follow-up
+  `8a8cc895 Match vendor and supplier management` treats vendor management and
+  supplier management as equivalent local operations evidence in backend and
+  dev/browser mocks without broad fuzzy matching. Verification passed: `cargo
+  test --lib vendor_supplier --manifest-path src-tauri/Cargo.toml`, `npx vitest
+  run src/mocks/handlers.test.ts -t "vendor and supplier"`, `cargo test --lib
+  ats_analyzer --manifest-path src-tauri/Cargo.toml`, `npx vitest run
+  src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
+  `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
+  clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
+  --check`. The follow-up
   `84c08274 Match loan processing hyphen terms` treats loan processing and
   loan-processing as the same local evidence without duplicate requirement rows.
   The follow-up

@@ -255,6 +255,8 @@ The current local matcher:
   evidence without broad fuzzy matching;
 - treats **procurement** and **purchasing** as the same local operations
   evidence without broad fuzzy matching;
+- treats **vendor management** and **supplier management** as the same local
+  operations evidence without broad fuzzy matching;
 - treats **document review** and **document-review** as the same local evidence
   while avoiding duplicate requirement rows for hyphenated job wording;
 - treats **records management** and **records-management** as the same local
