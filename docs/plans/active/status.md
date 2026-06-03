@@ -1540,6 +1540,12 @@ Scope:
   to low, medium, or high warning levels. Verification passed: `npx vitest run
   src/components/GhostIndicator.test.tsx`, `npx tsc --noEmit`, `npm run lint
   -- --quiet`, `npm run lint:external-ai`, and `git diff --check`.
+- Latest local resume-sort fit-estimate wording slice in `26af1926` changes
+  Settings resume-sort help from score/scoring wording to fit-estimate wording
+  and extends product-copy guards against drift. Verification passed: `node
+  --test scripts/check-product-copy.test.mjs`, `npm run lint:bloat`, `npx tsc
+  --noEmit`, `npm run lint -- --quiet`, `npm run lint:external-ai`, and `git
+  diff --check`.
 - No-Apple-account macOS readiness is already best-possible without an Apple
   Developer Account. Keep the limitation explicit: Gatekeeper-ready public
   distribution still needs Developer ID signing and notarization.

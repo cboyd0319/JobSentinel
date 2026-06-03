@@ -154,6 +154,9 @@ copy durable findings back into this plan or the active status surface.
   schedule or travel deal breakers to rank lower without typing search terms.
 - Current local ghost warning-label follow-up changes posting-risk accessible
   labels from raw confidence percentages to warning levels.
+- Current local resume-sort fit-estimate wording follow-up changes Settings
+  resume-sort copy from score/scoring wording to fit-estimate wording and adds
+  product-copy guard coverage.
 - Current local Resume-Assisted Guided Intake follow-up shows active
   saved-resume skill names in setup as optional local suggestions and only adds
   user-picked names to the saved search.
@@ -1545,6 +1548,7 @@ source-filter compatibility issue appears.
   Setup location-not-sure work is committed in `90f68ff6`.
   Setup work-to-avoid quick-picks work is committed in `438fbb61`.
   Ghost warning-label work is committed in `b8dae4ed`.
+  Resume-sort fit-estimate wording work is committed in `26af1926`.
   Resume-Assisted Guided Intake work is committed in `da84110a`.
   Source Governance Metadata work is committed in `66924003`.
   Resume availability-constraint work is committed in `0d8bf479`.
