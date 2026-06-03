@@ -132,6 +132,8 @@ acceptance still requires Developer ID signing and notarization.
   management, and appointment setting as the same local evidence. The follow-up
   `a349e5e7 Match QA quality terms` treats quality assurance and QA as the same
   local evidence. The follow-up
+  `23418843 Match patient care hyphen terms` treats patient care and
+  patient-care as the same local evidence. The follow-up
   `1f82ecf4 Match data entry hyphen terms` treats data entry and data-entry as
   the same local evidence. The follow-up
   `bffa0a1f Match onsite location terms` treats onsite and on-site as the same

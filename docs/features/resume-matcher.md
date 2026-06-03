@@ -203,6 +203,8 @@ The current local matcher:
   as the same local evidence while still avoiding broad fuzzy matching;
 - treats **quality assurance** and **QA** as the same local evidence while
   still avoiding broad fuzzy matching;
+- treats **patient care** and **patient-care** as the same local evidence while
+  still avoiding broad fuzzy matching;
 - treats **data entry** and **data-entry** as the same local evidence while
   still avoiding broad fuzzy matching;
 - treats **onsite**, **on-site**, and **on site** as the same local location

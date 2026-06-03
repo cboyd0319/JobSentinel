@@ -227,6 +227,8 @@ Future implementation should improve:
   matching.
 - Resume/job fit now treats `quality assurance` and `QA` as equivalent local
   evidence without broad fuzzy matching.
+- Resume/job fit now treats `patient care` and `patient-care` as equivalent
+  local evidence without broad fuzzy matching.
 - Resume/job fit now treats `data entry` and `data-entry` as equivalent local
   evidence without broad fuzzy matching.
 - Resume/job fit now treats `onsite`, `on-site`, and `on site` as equivalent
