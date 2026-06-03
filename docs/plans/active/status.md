@@ -1524,6 +1524,18 @@ Scope:
   src-tauri/Cargo.toml`, `cargo fmt --all --manifest-path src-tauri/Cargo.toml
   -- --check`, `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D
   warnings`, and `git diff --check`.
+- Latest local interview-defense bullet slice in `fda14375` adds a reminder to
+  drafted alternative bullets to check the problem, user role, action, result,
+  and evidence before using stronger wording. Browser/dev mocks stay aligned.
+  Verification passed: `cargo test --lib improve_bullet_with_job_context
+  --manifest-path src-tauri/Cargo.toml`, `npx vitest run
+  src/mocks/handlers.test.ts -t "analyzes resumes"`, `cargo test --lib
+  ats_analyzer --manifest-path src-tauri/Cargo.toml`, `npx vitest run
+  src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
+  `cargo test --lib --manifest-path src-tauri/Cargo.toml`, `cargo fmt --all
+  --manifest-path src-tauri/Cargo.toml -- --check`, `cargo clippy
+  --manifest-path src-tauri/Cargo.toml -- -D warnings`, `npm run
+  lint:external-ai`, and `git diff --check`.
 - Latest local broad requirement-term slice in `4dea83be` adds healthcare,
   education, service, operations, and trades terms to local resume requirement
   review so examples such as patient care, medication administration, and

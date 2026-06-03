@@ -169,6 +169,9 @@ The current local matcher:
 - turns the local review into plain next actions such as checking a hard
   requirement before tailoring, adding supporting evidence only if true, or
   keeping useful evidence visible;
+- adds an interview-defense reminder to drafted alternative bullets so users
+  check the problem, role, action, result, and evidence before using stronger
+  wording;
 - gives hard-requirement next actions category-specific honesty guidance,
   such as checking work authorization, clearance, licenses, education, years
   or level, physical demands, location, schedule, availability, and travel

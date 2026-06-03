@@ -223,6 +223,9 @@ copy durable findings back into this plan or the active status surface.
 - Current local career-break heading follow-up treats Career Break, Career
   Pause, and caregiving headings as standard readable-resume structure instead
   of a formatting defect.
+- Current local interview-defense bullet follow-up adds a reminder to drafted
+  alternative bullets to check the problem, role, action, result, and evidence
+  before using stronger wording.
 - Current local broad requirement-term follow-up adds healthcare, education,
   service, operations, and trades terms to local resume requirement review and
   dev/browser mocks.
@@ -723,7 +726,7 @@ Likely files later:
 - Continue capability-ladder prompts so users can distinguish exposure,
   assisted work, hands-on use, independent delivery, ownership, and expert or
   strategic work before accepting stronger wording.
-- Add interview-defense prompts for strengthened bullets: problem, role,
+- Continue interview-defense prompts for strengthened bullets: problem, role,
   action, tools, collaborators, result, evidence, and lesson learned.
 - Add "confidence in extraction" for skills and dates.
 - Add recency weighting and section-placement signals so recent experience
@@ -1630,6 +1633,7 @@ source-filter compatibility issue appears.
   Keyword-list bullet work is committed in `0447094b`.
   Capability-level warning work is committed in `7b546c78`.
   Career-break heading work is committed in `b149e0d1`.
+  Interview-defense bullet work is committed in `fda14375`.
   Broad requirement-term work is committed in `4dea83be`.
   Legal, finance, and government requirement-term work is committed in
   `a8169b09`.

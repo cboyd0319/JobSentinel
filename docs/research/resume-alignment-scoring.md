@@ -226,6 +226,9 @@ Future implementation should improve:
 - Resume readability review now accepts career-break and caregiving headings
   as standard structure so truthful gap context is not treated as a formatting
   defect.
+- Drafted alternative bullets now include an interview-defense reminder for
+  the problem, user role, action, result, and evidence before using stronger
+  wording.
 - Requirement review now recognizes a wider set of healthcare, education,
   service, operations, and trades terms, reducing software-only matching bias.
 - Requirement review now also recognizes legal, finance, and government or
