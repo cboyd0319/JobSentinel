@@ -970,6 +970,38 @@ describe("mock Tauri handlers", () => {
       ]),
     );
 
+    const thirdShiftResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        experience: [
+          {
+            ...atsResume.experience[0],
+            achievements: ["Available for third shift coverage."],
+          },
+        ],
+        skills: [],
+      },
+      jobDescription: "Required: night shift",
+    });
+    expect(thirdShiftResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "night shift",
+          match_state: "Direct",
+          hard_constraint: true,
+          evidence_sections: expect.arrayContaining(["current experience"]),
+        }),
+      ]),
+    );
+    expect(thirdShiftResult.hard_constraint_risks).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          requirement: "night shift",
+        }),
+      ]),
+    );
+
     const weekendResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
         ...atsResume,

@@ -1724,6 +1724,8 @@ impl AtsAnalyzer {
             || lower.contains("weekend")
             || lower.contains("night shift")
             || lower.contains("overnight shift")
+            || lower.contains("third shift")
+            || lower.contains("3rd shift")
             || lower.contains("second shift")
             || lower.contains("2nd shift")
             || lower.contains("evening")
@@ -1949,7 +1951,7 @@ impl AtsAnalyzer {
             &["data entry", "data-entry"],
             &["onsite", "on-site", "on site"],
             &["reliable transportation", "own transportation"],
-            &["night shift", "overnight shift"],
+            &["night shift", "overnight shift", "third shift", "3rd shift"],
             &["weekend availability", "weekend shift", "weekend shifts"],
             &["evening shift", "second shift", "2nd shift"],
             &["bls", "basic life support"],
@@ -2477,7 +2479,7 @@ impl AtsAnalyzer {
             r"(?i)\b(bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree|high school diploma|high school degree|ged|high school equivalency|general education development)\b",
             r"(?i)\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b",
             r"(?i)\b(lift(?:\s+up\s+to)?\s+\d+\s*(?:pounds?|lbs?)|stand for long periods?|physical requirements?|physical demands?)\b",
-            r"(?i)\b(onsite|on-site|on site|relocation|travel|reliable transportation|own transportation|commute|availability|available|schedule|weekend availability|weekend shifts?|night shift|overnight shift|evening shift|second shift|2nd shift)\b",
+            r"(?i)\b(onsite|on-site|on site|relocation|travel|reliable transportation|own transportation|commute|availability|available|schedule|weekend availability|weekend shifts?|night shift|overnight shift|third shift|3rd shift|evening shift|second shift|2nd shift)\b",
         ];
 
         for pattern in &hard_constraint_patterns {
@@ -4235,6 +4237,30 @@ Preferred: Salesforce
     fn test_night_shift_accepts_overnight_shift_evidence() {
         let result = AtsAnalyzer::analyze_text_for_job(
             "Jordan Lee\njordan@example.com\n\nExperience\nAvailable for overnight shift coverage.",
+            &[],
+            "Required: night shift",
+        );
+
+        let night_shift = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "night shift")
+            .expect("night shift review");
+        assert_eq!(night_shift.match_state, RequirementMatchState::Direct);
+        assert!(night_shift.hard_constraint);
+        assert!(night_shift
+            .evidence_sections
+            .contains(&"experience".to_string()));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "night shift"));
+    }
+
+    #[test]
+    fn test_night_shift_accepts_third_shift_evidence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nAvailable for third shift coverage.",
             &[],
             "Required: night shift",
         );
