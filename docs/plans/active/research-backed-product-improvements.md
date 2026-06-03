@@ -216,6 +216,10 @@ copy durable findings back into this plan or the active status surface.
   Nursing Assistant`, `Certified Nurse Assistant`, and `Certified Nurse Aide`
   as the same evidence, and drops the duplicate generic `certification` risk
   when the specific credential matched.
+- Current local LPN credential-equivalence follow-up treats `LPN`, `Licensed
+  Practical Nurse`, `LVN`, and `Licensed Vocational Nurse` as the same local
+  credential evidence, while hard-requirement guidance still tells users to
+  verify the license.
 - Current local food-safety credential-equivalence follow-up treats food
   safety, food safety certification, ServSafe, and food-handler certificate,
   permit, or card wording as the same local credential evidence.
@@ -1665,6 +1669,7 @@ source-filter compatibility issue appears.
   Hard-requirement action work is committed in `6e43a675`.
   Credential-equivalence work is committed in `c4fd8c7a`.
   CNA credential-equivalence work is committed in `5883db13`.
+  LPN credential-equivalence work is committed in `b437ffa5`.
   Food-safety credential-equivalence work is committed in `9f47bee9`.
   First-aid credential-equivalence work is committed in `c47dec16`.
   Forklift credential-equivalence work is committed in `a57f5d47`.
