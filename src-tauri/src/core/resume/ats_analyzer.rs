@@ -1216,6 +1216,11 @@ impl AtsAnalyzer {
                 | "education"
                 | "certifications"
                 | "licenses"
+                | "career break"
+                | "career breaks"
+                | "career pause"
+                | "family caregiving"
+                | "caregiving"
                 | "publications"
         )
     }
@@ -2508,6 +2513,20 @@ mod tests {
             "Jordan Lee\njordan@example.com\n\nSkills / Technical Skills\nLeadership",
             &["Leadership".to_string()],
             "Required: leadership",
+        );
+
+        assert!(!result
+            .format_issues
+            .iter()
+            .any(|issue| issue.issue.contains("standard resume section headings")));
+    }
+
+    #[test]
+    fn test_analyze_text_for_job_accepts_career_break_heading() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nCareer Break\nCared for family and completed community training.",
+            &[],
+            "Required: records management",
         );
 
         assert!(!result
