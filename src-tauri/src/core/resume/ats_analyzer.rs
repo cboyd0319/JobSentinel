@@ -1669,6 +1669,7 @@ impl AtsAnalyzer {
             || lower == "servsafe"
             || lower.contains("food safety certification")
             || lower.contains("food handler")
+            || lower.contains("food-handler")
             || lower.contains("first aid")
             || lower.contains("first-aid")
             || lower.contains("forklift certification")
@@ -2011,10 +2012,15 @@ impl AtsAnalyzer {
                 "food safety certification",
                 "servsafe",
                 "food handler certification",
+                "food-handler certification",
                 "food handler certificate",
+                "food-handler certificate",
                 "food handler permit",
+                "food-handler permit",
                 "food handlers permit",
+                "food-handlers permit",
                 "food handler card",
+                "food-handler card",
             ],
             &[
                 "first aid",
@@ -2535,7 +2541,7 @@ impl AtsAnalyzer {
             r"(?i)\b(work authorization|authorized to work|visa sponsorship|u\.?s\.?\s+citizenship|u\.?s\.?\s+citizen|citizenship required)\b",
             r"(?i)\b(security clearance|clearance)\b",
             r"(?i)\b(driver'?s license|driver license|cdl|rn license|nursing license|lpn|lvn|licensed practical nurse|licensed vocational nurse)\b",
-            r"(?i)\b(certification|cissp|security\+|bls|basic life support|acls|advanced cardiovascular life support|cpr|cardiopulmonary resuscitation|cna|certified nursing assistant|certified nurse assistant|certified nurse aide|pmp|project management professional|servsafe|food safety certification|food handler certification|food handler certificate|food handler permit|food handlers permit|food handler card|first[- ]aid certification|first[- ]aid certified|first[- ]aid certificate|first[- ]aid|forklift certification|forklift certified|forklift operator certification|forklift operator certified|forklift license|forklift operator license|osha\s*10(?:[- ]hour)?(?:\s+certification)?|osha\s*30(?:[- ]hour)?(?:\s+certification)?)\b",
+            r"(?i)\b(certification|cissp|security\+|bls|basic life support|acls|advanced cardiovascular life support|cpr|cardiopulmonary resuscitation|cna|certified nursing assistant|certified nurse assistant|certified nurse aide|pmp|project management professional|servsafe|food safety certification|food[- ]handler certification|food[- ]handler certificate|food[- ]handler permit|food[- ]handlers permit|food[- ]handler card|first[- ]aid certification|first[- ]aid certified|first[- ]aid certificate|first[- ]aid|forklift certification|forklift certified|forklift operator certification|forklift operator certified|forklift license|forklift operator license|osha\s*10(?:[- ]hour)?(?:\s+certification)?|osha\s*30(?:[- ]hour)?(?:\s+certification)?)\b",
             r"(?i)\b(bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree|high[- ]school diploma|high[- ]school degree|ged|high[- ]school equivalency|general education development)\b",
             r"(?i)\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b",
             r"(?i)\b(lift(?:\s+up\s+to)?\s+\d+\s*(?:pounds?|lbs?)|(?:stand|standing) for long periods?|physical requirements?|physical demands?)\b",
@@ -4012,6 +4018,30 @@ Preferred: Salesforce
             .hard_constraint_risks
             .iter()
             .any(|risk| risk.requirement == "certification"));
+    }
+
+    #[test]
+    fn test_food_handler_requirement_accepts_hyphenated_requirement() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nCertifications\nFood handler card",
+            &[],
+            "Required: food-handler card",
+        );
+
+        let food_handler = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "food-handler card")
+            .expect("food-handler card review");
+        assert_eq!(food_handler.match_state, RequirementMatchState::Direct);
+        assert!(food_handler.hard_constraint);
+        assert!(food_handler
+            .evidence_sections
+            .contains(&"certifications".to_string()));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "food-handler card"));
     }
 
     #[test]
