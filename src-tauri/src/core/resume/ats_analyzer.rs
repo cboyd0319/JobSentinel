@@ -707,6 +707,8 @@ impl AtsAnalyzer {
             "customer support",
             "client service",
             "client support",
+            "guest service",
+            "guest services",
             "case management",
             "case coordination",
             "scheduling",
@@ -2355,6 +2357,8 @@ impl AtsAnalyzer {
                 "client service",
                 "client services",
                 "client support",
+                "guest service",
+                "guest services",
             ],
             &["case management", "case coordination"],
             &["scheduling", "calendar management", "appointment setting"],
@@ -3152,7 +3156,7 @@ impl AtsAnalyzer {
         let mut keywords = HashSet::new();
 
         let keyword_patterns = [
-            r"(?i)\b(customer service|client service|client services|case management|case coordination|case notes|case documentation)\b",
+            r"(?i)\b(customer service|client service|client services|guest services?|case management|case coordination|case notes|case documentation)\b",
             r"(?i)\b(scheduling|calendar management|appointment setting|intake|onboarding|training)\b",
             r"(?i)\b(sales|account management|crm|salesforce|hubspot|pipeline|prospecting)\b",
             r"(?i)\b(payroll|bookkeeping|bookkeeper|quickbooks|qbo|accounts payable|accounts receivable|a/p|a/r|billing)\b",
@@ -3425,6 +3429,8 @@ impl AtsAnalyzer {
             // General
             "customer service",
             "client services",
+            "guest service",
+            "guest services",
             "case management",
             "scheduling",
             "intake",
@@ -5634,6 +5640,22 @@ Preferred: Salesforce
         );
 
         let customer_service = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "customer service")
+            .expect("customer service review");
+        assert_eq!(customer_service.match_state, RequirementMatchState::Direct);
+        assert!(customer_service
+            .evidence_sections
+            .contains(&"experience".to_string()));
+
+        let guest_service = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nHandled guest service issues at the front desk.",
+            &[],
+            "Required: customer service",
+        );
+
+        let customer_service = guest_service
             .requirement_reviews
             .iter()
             .find(|review| review.keyword == "customer service")
