@@ -2637,6 +2637,28 @@ function getMockRoleSpecificEvidencePrompt(jobContext: string): string | null {
     return "healthcare evidence to check: scope of practice, patient safety, documentation, and required credentials";
   }
 
+  const educationAcademicTerms = [
+    "teaching",
+    "teacher",
+    "classroom",
+    "student",
+    "curriculum",
+    "lesson plan",
+    "instructional design",
+    "academic",
+    "faculty",
+    "university",
+    "school counselor",
+    "research methods",
+    "publication",
+    "thesis",
+    "dissertation",
+  ];
+
+  if (educationAcademicTerms.some((term) => lower.includes(term))) {
+    return "education-academic evidence to check: learner or research audience, standards or methods, outcomes, collaboration, and ethics";
+  }
+
   const regulatedWorkTerms = [
     "legal research",
     "case files",

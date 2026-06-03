@@ -1438,6 +1438,16 @@ describe("mock Tauri handlers", () => {
     expect(designCreativeImproved).toContain("audience");
     expect(designCreativeImproved).toContain("accessibility");
     expect(designCreativeImproved).toContain("shipped outcome");
+
+    const educationAcademicImproved = await mockInvoke<string>("improve_bullet_point", {
+      bullet: "developed curriculum for student workshops",
+      jobContext: "Required: teaching, curriculum design, student assessment",
+    });
+    expect(educationAcademicImproved).toContain("education-academic evidence to check");
+    expect(educationAcademicImproved).toContain("learner or research audience");
+    expect(educationAcademicImproved).toContain("standards or methods");
+    expect(educationAcademicImproved).toContain("outcomes");
+    expect(educationAcademicImproved).toContain("ethics");
   }, 10_000);
 
   it("matches lift-weight pounds and lbs in mock hard constraints", async () => {

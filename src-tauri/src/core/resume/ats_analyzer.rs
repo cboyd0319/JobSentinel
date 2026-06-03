@@ -524,6 +524,33 @@ impl AtsAnalyzer {
             );
         }
 
+        let education_academic_terms = [
+            "teaching",
+            "teacher",
+            "classroom",
+            "student",
+            "curriculum",
+            "lesson plan",
+            "instructional design",
+            "academic",
+            "faculty",
+            "university",
+            "school counselor",
+            "research methods",
+            "publication",
+            "thesis",
+            "dissertation",
+        ];
+
+        if education_academic_terms
+            .iter()
+            .any(|term| lower.contains(term))
+        {
+            return Some(
+                "education-academic evidence to check: learner or research audience, standards or methods, outcomes, collaboration, and ethics",
+            );
+        }
+
         let regulated_work_terms = [
             "legal research",
             "case files",
@@ -3749,6 +3776,20 @@ Preferred: Salesforce
         assert!(improved.contains("audience"));
         assert!(improved.contains("accessibility"));
         assert!(improved.contains("shipped outcome"));
+        assert!(improved.contains("problem, your role, action, result, and evidence"));
+    }
+
+    #[test]
+    fn test_improve_bullet_adds_education_academic_evidence_prompt() {
+        let bullet = "Developed curriculum for student workshops";
+        let job_desc = "Required: teaching, curriculum design, student assessment";
+        let improved = AtsAnalyzer::improve_bullet(bullet, Some(job_desc));
+
+        assert!(improved.contains("education-academic evidence to check"));
+        assert!(improved.contains("learner or research audience"));
+        assert!(improved.contains("standards or methods"));
+        assert!(improved.contains("outcomes"));
+        assert!(improved.contains("ethics"));
         assert!(improved.contains("problem, your role, action, result, and evidence"));
     }
 
