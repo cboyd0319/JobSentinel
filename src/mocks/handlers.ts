@@ -2677,6 +2677,26 @@ function getMockRoleSpecificEvidencePrompt(jobContext: string): string | null {
     return "service-operations evidence to check: customer impact, volume, escalation path, documentation, and response quality";
   }
 
+  const technicalDataTerms = [
+    "software",
+    "developer",
+    "engineering",
+    "data analysis",
+    "data analyst",
+    "machine learning",
+    "model monitoring",
+    "analytics",
+    "sql",
+    "python",
+    "dashboard",
+    "api",
+    "product",
+  ];
+
+  if (technicalDataTerms.some((term) => lower.includes(term))) {
+    return "technical-data evidence to check: shipped work, users or decisions supported, reliability, data sources, and measurable outcomes";
+  }
+
   return null;
 }
 

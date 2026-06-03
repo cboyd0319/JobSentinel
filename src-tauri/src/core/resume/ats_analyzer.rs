@@ -571,6 +571,28 @@ impl AtsAnalyzer {
             );
         }
 
+        let technical_data_terms = [
+            "software",
+            "developer",
+            "engineering",
+            "data analysis",
+            "data analyst",
+            "machine learning",
+            "model monitoring",
+            "analytics",
+            "sql",
+            "python",
+            "dashboard",
+            "api",
+            "product",
+        ];
+
+        if technical_data_terms.iter().any(|term| lower.contains(term)) {
+            return Some(
+                "technical-data evidence to check: shipped work, users or decisions supported, reliability, data sources, and measurable outcomes",
+            );
+        }
+
         None
     }
 
@@ -3633,6 +3655,20 @@ Preferred: Salesforce
         assert!(improved.contains("volume"));
         assert!(improved.contains("escalation path"));
         assert!(improved.contains("response quality"));
+        assert!(improved.contains("problem, your role, action, result, and evidence"));
+    }
+
+    #[test]
+    fn test_improve_bullet_adds_technical_data_evidence_prompt() {
+        let bullet = "Built reporting dashboard";
+        let job_desc = "Required: data analysis, SQL, machine learning model monitoring";
+        let improved = AtsAnalyzer::improve_bullet(bullet, Some(job_desc));
+
+        assert!(improved.contains("technical-data evidence to check"));
+        assert!(improved.contains("shipped work"));
+        assert!(improved.contains("users or decisions supported"));
+        assert!(improved.contains("data sources"));
+        assert!(improved.contains("measurable outcomes"));
         assert!(improved.contains("problem, your role, action, result, and evidence"));
     }
 

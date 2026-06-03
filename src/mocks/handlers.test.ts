@@ -1408,6 +1408,16 @@ describe("mock Tauri handlers", () => {
     expect(serviceImproved).toContain("volume");
     expect(serviceImproved).toContain("escalation path");
     expect(serviceImproved).toContain("response quality");
+
+    const technicalImproved = await mockInvoke<string>("improve_bullet_point", {
+      bullet: "built reporting dashboard",
+      jobContext: "Required: data analysis, SQL, machine learning model monitoring",
+    });
+    expect(technicalImproved).toContain("technical-data evidence to check");
+    expect(technicalImproved).toContain("shipped work");
+    expect(technicalImproved).toContain("users or decisions supported");
+    expect(technicalImproved).toContain("data sources");
+    expect(technicalImproved).toContain("measurable outcomes");
   }, 10_000);
 
   it("matches lift-weight pounds and lbs in mock hard constraints", async () => {
