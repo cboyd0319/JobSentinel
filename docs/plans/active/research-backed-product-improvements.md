@@ -152,6 +152,9 @@ copy durable findings back into this plan or the active status surface.
 - Current local resume experience-constraint follow-up recognizes required
   years-of-experience language, caps local fit confidence when missing, and
   keeps dev/browser mock extraction aligned with the backend analyzer.
+- Current local resume file-guidance follow-up tells users to follow employer
+  file instructions first when readable text is missing, then suggests readable
+  local formats if no employer format is named.
 - Latest local Resume Match mock-contract follow-up keeps dev/browser mock
   match results on the same `0.0` to `1.0` fraction scale as the real backend,
   preventing mock-only inflated percentages in resume assistance views.
@@ -1525,6 +1528,8 @@ source-filter compatibility issue appears.
   Source Governance Metadata work is committed in `66924003`.
   Resume availability-constraint work is committed in `0d8bf479`.
   Resume experience-constraint work is committed in `191962e5`.
+  Current local resume file-guidance follow-up is verified locally and ready to
+  commit.
 - Multi-agent orchestration: a read-only reviewer covered recent resume
   analyzer commits and a read-only explorer recommended Resume Import Status,
   Resume-Assisted Guided Intake, and Source Governance Metadata as next

@@ -1443,6 +1443,13 @@ Scope:
   --noEmit`, `npm run lint -- --quiet`, `npm run lint:external-ai`, `npm run
   lint:tauri-invokes`, `npm run lint:docs`, `npm run harness:check`, `npm run
   lint:bloat`, `npm run lint:architecture`, and `git diff --check`.
+- Current local resume file-guidance slice updates the no-readable-text status
+  to tell users to follow employer file instructions first, then use readable
+  PDF, DOCX, TXT, or Markdown when no format is named. Verification passed:
+  `npx vitest run src/pages/Resume.test.tsx`, `npx tsc --noEmit`, `npm run
+  lint -- --quiet`, `npm run lint:external-ai`, `npm run lint:docs`, `npm run
+  harness:check`, `npm run lint:bloat`, `npm run lint:architecture`, and `git
+  diff --check`.
 - No-Apple-account macOS readiness is already best-possible without an Apple
   Developer Account. Keep the limitation explicit: Gatekeeper-ready public
   distribution still needs Developer ID signing and notarization.

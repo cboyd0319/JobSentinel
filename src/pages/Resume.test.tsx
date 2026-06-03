@@ -265,6 +265,55 @@ describe("Resume page", () => {
     expect(screen.queryByText(/file_path|parsed_text|\/Users\/alice/)).not.toBeInTheDocument();
   });
 
+  it("shows employer-format-first guidance when readable text is missing", async () => {
+    mockSafeInvoke.mockImplementation((command: string) => {
+      switch (command) {
+        case "get_active_resume":
+          return Promise.resolve({
+            id: 1,
+            name: "Scanned Resume",
+            is_active: true,
+            created_at: "2026-05-21T12:00:00Z",
+            updated_at: "2026-05-21T12:00:00Z",
+            format_label: "PDF",
+            has_readable_text: false,
+            readable_text_chars: 0,
+          });
+        case "list_all_resumes":
+          return Promise.resolve([
+            {
+              id: 1,
+              name: "Scanned Resume",
+              is_active: true,
+              created_at: "2026-05-21T12:00:00Z",
+              updated_at: "2026-05-21T12:00:00Z",
+              format_label: "PDF",
+              has_readable_text: false,
+              readable_text_chars: 0,
+            },
+          ]);
+        case "get_user_skills":
+        case "get_recent_matches":
+          return Promise.resolve([]);
+        default:
+          return Promise.resolve(null);
+      }
+    });
+
+    render(<Resume onBack={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Scanned Resume")).toBeInTheDocument();
+    });
+
+    expect(screen.getByText("No readable text found")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Follow employer file instructions first. If no format is named, add a PDF, DOCX, TXT, or Markdown resume with readable text.",
+      ),
+    ).toBeInTheDocument();
+  });
+
   it("copies the readable resume text after the user opens the preview", async () => {
     const user = userEvent.setup();
     const writeText = vi.fn().mockResolvedValue(undefined);

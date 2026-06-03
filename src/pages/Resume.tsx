@@ -172,7 +172,10 @@ function getReadableTextDescription(resume: ResumeData) {
     return `${count.toLocaleString()} characters available for local review.`;
   }
   if (resume.has_readable_text === false) {
-    return "Add a PDF, DOCX, TXT, or Markdown resume with readable text.";
+    return [
+      "Follow employer file instructions first.",
+      "If no format is named, add a PDF, DOCX, TXT, or Markdown resume with readable text.",
+    ].join(" ");
   }
   return "Open the readable-text preview to check what JobSentinel can read.";
 }
