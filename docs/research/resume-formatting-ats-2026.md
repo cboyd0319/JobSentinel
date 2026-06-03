@@ -202,6 +202,9 @@ resume help should adjust examples and evidence prompts for:
   prompt-injection-like content.
 - Drafted bullet improvements include a reminder to explain the problem, role,
   action, result, and evidence before using strengthened wording.
+- Drafted bullet improvements add a healthcare and licensed-work evidence
+  prompt for job details that mention patient care, medication administration,
+  or nursing credentials.
 
 ## Backlog To Lock Next
 
@@ -209,7 +212,7 @@ resume help should adjust examples and evidence prompts for:
 - Extend file-size metadata guidance if employer-specific limits are available.
 - Expand Application Assist hard-question review with direct saved-answer and
   resume-evidence comparisons.
-- Add role-specific evidence prompts and examples across non-technical,
+- Expand role-specific evidence prompts and examples across non-technical,
   technical, licensed, government, academic, early-career, and career-change
   paths.
 - Add synthetic fixtures for tricky layouts, tables, columns, image-only PDFs,

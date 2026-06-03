@@ -204,6 +204,10 @@ copy durable findings back into this plan or the active status surface.
   certification, clearance, education, years, salary, schedule, and availability
   topics from saved job details so users can check saved answers against resume
   evidence before submitting.
+- Current local healthcare bullet-prompt follow-up in `e7a61306` adds a
+  role-specific evidence reminder for healthcare and licensed-work job details,
+  asking users to check scope of practice, patient safety, documentation, and
+  required credentials before using drafted alternative bullets.
 - Current local onsite location-term follow-up in `bffa0a1f` treats onsite and
   on-site as equivalent local hard-constraint evidence, so exact punctuation
   differences do not create a false missing-location risk.
@@ -1054,7 +1058,7 @@ Likely files later:
   score-like signals as local diagnostics rather than employer predictions.
 - Add support for non-technical skill taxonomies across healthcare, education,
   operations, sales, finance, legal, service, trades, creative, and government.
-- Add profession-specific evidence prompts for security, software, data,
+- Expand profession-specific evidence prompts for security, software, data,
   product, marketing, sales, operations, support, design, executive, federal,
   academic, career-change, early-career, healthcare, legal, and compliance
   paths.

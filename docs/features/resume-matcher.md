@@ -330,6 +330,9 @@ The current local matcher:
 - adds an interview-defense reminder to drafted alternative bullets so users
   check the problem, role, action, result, and evidence before using stronger
   wording;
+- adds a healthcare and licensed-work evidence prompt to drafted alternative
+  bullets when job details mention patient care, medication administration, or
+  nursing credentials;
 - gives hard-requirement next actions category-specific honesty guidance,
   such as checking work authorization, clearance, licenses, education, years
   or level, physical demands, location, schedule, availability, and travel

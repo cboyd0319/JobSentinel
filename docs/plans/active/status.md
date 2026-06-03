@@ -119,8 +119,12 @@ acceptance still requires Developer ID signing and notarization.
   preview section that flags authorization, location, relocation, travel,
   license, certification, clearance, education, years, salary, schedule, and
   availability topics from saved job details so users can check saved answers
-  against resume evidence before submitting. Real resume/profile reference
-  material remains private and must not be committed.
+  against resume evidence before submitting. The follow-up
+  `e7a61306 Add healthcare bullet evidence prompt` adds a role-specific
+  evidence reminder for healthcare and licensed-work job details, asking users
+  to check scope of practice, patient safety, documentation, and required
+  credentials before using drafted alternative bullets. Real resume/profile
+  reference material remains private and must not be committed.
 - Current local resume-alignment scoring follow-up is committed in
   `3d720693 Add resume requirement review caps`. It locks
   `/Users/c/Downloads/ats_scoring_algorithm.md` into
