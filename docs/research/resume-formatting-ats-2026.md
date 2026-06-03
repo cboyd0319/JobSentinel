@@ -254,6 +254,9 @@ resume help should adjust examples and evidence prompts for:
 - Application Assist shows matching saved years-of-experience screening
   answers in the hard question review when saved job details mention experience
   requirements.
+- Application Assist shows matching saved management, supervision, or
+  lead-experience screening answers in the hard question review when saved job
+  details mention management requirements.
 - Application Assist shows matching saved salary, compensation, start-date,
   notice-period, schedule, shift, weekend, overnight, overtime, holiday, or
   availability screening answers in the hard question review when saved job
