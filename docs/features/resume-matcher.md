@@ -151,6 +151,8 @@ The current local matcher:
 - turns the local review into plain next actions such as checking a hard
   requirement before tailoring, adding supporting evidence only if true, or
   keeping useful evidence visible;
+- gives hard-requirement next actions category-specific honesty guidance,
+  including not rounding up or implying extra years of experience;
 - passes that context to the live Resume Builder review panel when available;
 - keeps required and preferred job-post headings separate even when the posting
   uses ordinary single-line section breaks;

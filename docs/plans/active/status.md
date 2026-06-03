@@ -1469,6 +1469,12 @@ Scope:
   passed: `npx vitest run src/components/JobCard.test.tsx`, `npx tsc
   --noEmit`, `npm run lint -- --quiet`, `npm run lint:external-ai`, and `git
   diff --check`.
+- Latest local hard-requirement next-action slice in `eee933b3` adds
+  category-specific next-action guidance for hard resume requirements,
+  including warning users not to round up or imply extra years of experience.
+  Verification passed: `npx vitest run src/pages/ResumeOptimizer.test.tsx`,
+  `npx tsc --noEmit`, `npm run lint -- --quiet`, `npm run lint:external-ai`,
+  and `git diff --check`.
 - No-Apple-account macOS readiness is already best-possible without an Apple
   Developer Account. Keep the limitation explicit: Gatekeeper-ready public
   distribution still needs Developer ID signing and notarization.
