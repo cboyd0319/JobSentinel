@@ -230,6 +230,9 @@ resume help should adjust examples and evidence prompts for:
 - Application Assist includes citizenship setup in common saved-answer
   patterns, so users can prepare a reusable citizenship answer before a hard
   citizenship question appears.
+- Application Assist includes reliable-transportation setup in common
+  saved-answer patterns, so users can prepare a reusable transportation answer
+  before a hard transportation or vehicle question appears.
 - Application Assist shows matching saved travel, relocation, commute, remote,
   hybrid, or on-site screening answers in the hard question review when saved
   job details mention location or travel constraints.
