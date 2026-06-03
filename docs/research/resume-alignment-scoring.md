@@ -307,8 +307,8 @@ Future implementation should improve:
   `bachelor degree`, `bachelors degree`, `Bachelor of Applied Science`,
   `Bachelor of Arts`, `Bachelor of Business Administration`, `Bachelor of
   Education`, `Bachelor of Engineering`, `Bachelor of Fine Arts`, and
-  `Bachelor of Science` as equivalent local education evidence for generic
-  bachelor's requirements.
+  `Bachelor of Science`, and `Bachelor of Social Work` as equivalent local
+  education evidence for generic bachelor's requirements.
 - Resume/job fit now treats `master's degree`, `master degree`,
   `masters degree`, `Master of Arts`, `Master of Business Administration`,
   `Master of Education`, `Master of Engineering`, `Master of Fine Arts`, and

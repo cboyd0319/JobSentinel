@@ -232,7 +232,10 @@ acceptance still requires Developer ID signing and notarization.
   follow-up `e019570c Match fine arts bachelor term` treats Bachelor of Fine
   Arts as local evidence for generic bachelor's degree requirements without
   treating fine-arts-specific job wording as a generic bachelor's requirement.
-  The
+  The follow-up `293827cb Match social work bachelor term` treats Bachelor of
+  Social Work as local evidence for generic bachelor's degree requirements
+  without treating social-work-specific job wording as a generic bachelor's
+  requirement. The
   follow-up
   `0e2a0fae Match master degree terms` treats master's degree, master degree,
   and masters degree as the same local education hard-constraint evidence. The
