@@ -666,6 +666,7 @@ const ATS_KNOWN_KEYWORDS = [
   "records management",
   "records-management",
   "policy analysis",
+  "policy-analysis",
   "grant administration",
   "public benefits",
   "financial reconciliation",
@@ -2913,6 +2914,12 @@ function extractMockAtsKeywords(jobDescription: string): MockAtsKeyword[] {
       "legal research",
       "legal-research",
     ],
+    [
+      /\bpolicy analysis\b/,
+      /\bpolicy-analysis\b/,
+      "policy analysis",
+      "policy-analysis",
+    ],
   ] as const) {
     if (normalPattern.test(lower)) {
       exactHyphenVariantKeywordsToSkip.add(hyphenKeyword);
@@ -3245,6 +3252,7 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
     ["records management", "records-management"],
     ["case files", "case-files"],
     ["legal research", "legal-research"],
+    ["policy analysis", "policy-analysis"],
     ["onsite", "on-site", "on site"],
     ["relocation", "relocate", "willing to relocate"],
     ["reliable transportation", "own transportation"],

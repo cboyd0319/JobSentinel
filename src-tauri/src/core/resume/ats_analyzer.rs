@@ -1988,6 +1988,7 @@ impl AtsAnalyzer {
             &["records management", "records-management"],
             &["case files", "case-files"],
             &["legal research", "legal-research"],
+            &["policy analysis", "policy-analysis"],
             &["onsite", "on-site", "on site"],
             &["relocation", "relocate", "willing to relocate"],
             &["reliable transportation", "own transportation"],
@@ -2595,7 +2596,7 @@ impl AtsAnalyzer {
             r"(?i)\b(patient[- ]care|medication[- ]administration|vital[- ]signs?|care[- ]plans?|medical[- ]records?|charting)\b",
             r"(?i)\b(lesson planning|classroom management|curriculum|iep|student support|parent communication)\b",
             r"(?i)\b(forklift|welding|equipment maintenance|safety inspections|food safety|cash handling)\b",
-            r"(?i)\b(document[- ]review|case[- ]files|legal[- ]research|records[- ]management|policy analysis|grant administration|public benefits)\b",
+            r"(?i)\b(document[- ]review|case[- ]files|legal[- ]research|records[- ]management|policy[- ]analysis|grant administration|public benefits)\b",
             r"(?i)\b(financial reconciliation|reconciliation|invoicing|loan processing|financial reporting)\b",
             r"(?i)\b(rust|python|javascript|typescript|java|c\+\+|go|kotlin|swift)\b",
             r"(?i)\b(react|vue|angular|node\.?js|django|flask|spring|express)\b",
@@ -3942,6 +3943,44 @@ Preferred: Salesforce
             RequirementMatchState::Direct
         );
         assert!(legal_research_hyphen
+            .evidence_sections
+            .contains(&"experience".to_string()));
+    }
+
+    #[test]
+    fn test_requirement_review_uses_policy_analysis_hyphen_equivalence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nSupported policy-analysis checks for client programs.",
+            &[],
+            "Required: policy analysis",
+        );
+
+        let policy_analysis = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "policy analysis")
+            .expect("policy analysis");
+        assert_eq!(policy_analysis.match_state, RequirementMatchState::Direct);
+        assert!(policy_analysis
+            .evidence_sections
+            .contains(&"experience".to_string()));
+
+        let inverse = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nSupported policy analysis checks for client programs.",
+            &[],
+            "Required: policy-analysis",
+        );
+
+        let policy_analysis_hyphen = inverse
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "policy-analysis")
+            .expect("policy-analysis");
+        assert_eq!(
+            policy_analysis_hyphen.match_state,
+            RequirementMatchState::Direct
+        );
+        assert!(policy_analysis_hyphen
             .evidence_sections
             .contains(&"experience".to_string()));
     }
