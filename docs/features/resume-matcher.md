@@ -333,6 +333,9 @@ The current local matcher:
 - adds a healthcare and licensed-work evidence prompt to drafted alternative
   bullets when job details mention patient care, medication administration, or
   nursing credentials;
+- adds a regulated-work evidence prompt to drafted alternative bullets when job
+  details mention legal, finance, government, records, policy, grants, or audit
+  work;
 - gives hard-requirement next actions category-specific honesty guidance,
   such as checking work authorization, clearance, licenses, education, years
   or level, physical demands, location, schedule, availability, and travel

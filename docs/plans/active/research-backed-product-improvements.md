@@ -208,6 +208,11 @@ copy durable findings back into this plan or the active status surface.
   role-specific evidence reminder for healthcare and licensed-work job details,
   asking users to check scope of practice, patient safety, documentation, and
   required credentials before using drafted alternative bullets.
+- Current local regulated-work bullet-prompt follow-up in `e3fdf767` adds a
+  role-specific evidence reminder for legal, finance, government, records,
+  policy, grant, compliance, and audit job details, asking users to check
+  records accuracy, deadlines, confidentiality, compliance, and audit trail
+  evidence before using drafted alternative bullets.
 - Current local onsite location-term follow-up in `bffa0a1f` treats onsite and
   on-site as equivalent local hard-constraint evidence, so exact punctuation
   differences do not create a false missing-location risk.

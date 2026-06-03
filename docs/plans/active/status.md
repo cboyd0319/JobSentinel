@@ -123,8 +123,13 @@ acceptance still requires Developer ID signing and notarization.
   `e7a61306 Add healthcare bullet evidence prompt` adds a role-specific
   evidence reminder for healthcare and licensed-work job details, asking users
   to check scope of practice, patient safety, documentation, and required
-  credentials before using drafted alternative bullets. Real resume/profile
-  reference material remains private and must not be committed.
+  credentials before using drafted alternative bullets. The follow-up
+  `e3fdf767 Add regulated work bullet prompt` adds a regulated-work evidence
+  reminder for legal, finance, government, records, policy, grant, compliance,
+  and audit job details, asking users to check records accuracy, deadlines,
+  confidentiality, compliance, and audit trail evidence before using drafted
+  alternative bullets. Real resume/profile reference material remains private
+  and must not be committed.
 - Current local resume-alignment scoring follow-up is committed in
   `3d720693 Add resume requirement review caps`. It locks
   `/Users/c/Downloads/ats_scoring_algorithm.md` into
