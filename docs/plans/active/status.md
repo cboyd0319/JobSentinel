@@ -131,6 +131,8 @@ acceptance still requires Developer ID signing and notarization.
   local hard-constraint evidence. The follow-up
   `c8dffb14 Match spaced on site terms` adds the spaced `on site` form to that
   local hard-constraint evidence group. The follow-up
+  `d4945db5 Match relocation terms` treats relocation, relocate, and willing to
+  relocate as the same local hard-constraint evidence. The follow-up
   `d454fd30 Match transportation requirement terms` treats reliable
   transportation and own transportation as the same local hard-constraint
   evidence. The follow-up

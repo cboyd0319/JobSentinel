@@ -186,6 +186,8 @@ The current local matcher:
   still avoiding broad fuzzy matching;
 - treats **onsite**, **on-site**, and **on site** as the same local location
   evidence for required location constraints;
+- treats **relocation**, **relocate**, and **willing to relocate** as the same
+  local location evidence for required relocation constraints;
 - treats **reliable transportation** and **own transportation** as the same
   local location evidence for required commute or transportation constraints;
 - treats **night shift**, **overnight shift**, **third shift**, and **3rd

@@ -222,6 +222,9 @@ Future implementation should improve:
   evidence without broad fuzzy matching.
 - Resume/job fit now treats `onsite`, `on-site`, and `on site` as equivalent
   local location evidence for required location constraints.
+- Resume/job fit now treats `relocation`, `relocate`, and
+  `willing to relocate` as equivalent local location evidence for required
+  relocation constraints.
 - Resume/job fit now treats `reliable transportation` and `own transportation`
   as equivalent local location evidence for required commute or transportation
   constraints.
