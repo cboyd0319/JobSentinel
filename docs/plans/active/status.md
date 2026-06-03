@@ -177,6 +177,13 @@ acceptance still requires Developer ID signing and notarization.
   `c01e8dbe Show resume fit score humility` tells users in the Resume Fit card
   that the result is local evidence review, not a hiring prediction or a
   promise about employer systems. The follow-up
+  `c39304fb Label nice to have job words` labels the third Resume Match
+  missing-word bucket as **Nice-to-Have or Other to Review** so optional
+  job-post language is not mistaken for a hard requirement. Verification
+  passed: `npx vitest run src/pages/ResumeOptimizer.test.tsx -t
+  "nice-to-have"`, `npx vitest run src/pages/ResumeOptimizer.test.tsx`, `npx
+  tsc --noEmit`, `npm run lint -- --quiet`, and `git diff --check`. The
+  follow-up
   `e7a61306 Add healthcare bullet evidence prompt` adds a role-specific
   evidence reminder for healthcare and licensed-work job details, asking users
   to check scope of practice, patient safety, documentation, and required

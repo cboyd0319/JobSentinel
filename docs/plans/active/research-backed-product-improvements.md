@@ -257,6 +257,12 @@ copy durable findings back into this plan or the active status surface.
 - Current local Resume Fit score-humility follow-up in `c01e8dbe` tells users
   in the Resume Fit card that the result is local evidence review, not a hiring
   prediction or a promise about employer systems.
+- Current local Resume Match optional-word label follow-up in `c39304fb`
+  labels the third missing-word bucket as **Nice-to-Have or Other to Review**,
+  so users do not mistake optional job-post language for required evidence.
+  Verification passed: `npx vitest run src/pages/ResumeOptimizer.test.tsx -t
+  "nice-to-have"`, `npx vitest run src/pages/ResumeOptimizer.test.tsx`, `npx
+  tsc --noEmit`, `npm run lint -- --quiet`, and `git diff --check`.
 - Current local healthcare bullet-prompt follow-up in `e7a61306` adds a
   role-specific evidence reminder for healthcare and licensed-work job details,
   asking users to check scope of practice, patient safety, documentation, and

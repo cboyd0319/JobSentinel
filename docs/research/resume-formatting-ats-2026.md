@@ -235,7 +235,11 @@ resume help should adjust examples and evidence prompts for:
   cannot support with real work, training, or credentials.
 - Resume Match tells users in the Resume Fit card that the result is local
   evidence review, not a hiring prediction or a promise about employer systems.
-- Required, preferred, and other job-post language stay grouped in fit notes.
+- Required, preferred, and nice-to-have or other job-post language stay grouped
+  in fit notes.
+- Resume Match labels optional missing job-post language as
+  **Nice-to-Have or Other to Review** so users review it after must-have
+  evidence.
 - Recognized local job-post requirements now show match states and evidence
   sections, and recognized missing hard requirements cap the fit label until
   the user verifies the requirement.

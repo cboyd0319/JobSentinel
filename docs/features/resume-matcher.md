@@ -89,7 +89,7 @@ diagnostics, not predictions of how a specific employer will screen or respond.
 | Experience fit | Years or level signals found in the posting and resume. | Notice lower-title, lower-pay, or stretch-role risk. |
 | Education fit | Degree or credential signals found in the posting and resume. | Spot requirements that may need explanation. |
 | Skills to review | Posting requirements not clearly represented in the resume. | Decide whether to revise, ask, learn, or skip. |
-| Required or preferred wording to review | Missing job-post language grouped by importance. | Start with required evidence before reviewing nice-to-have wording. |
+| Required, preferred, or nice-to-have wording to review | Missing job-post language grouped by importance. | Start with required evidence before reviewing nice-to-have or other wording. |
 
 Low fit does not mean "do not apply." It means "review fit before spending
 extra time." Strong fit does not guarantee a response. It means the resume and
@@ -168,7 +168,9 @@ The current local matcher:
 - returns fit, experience, education, matched-skill, and missing-skill
   signals;
 - preserves whether missing job-post language came from required, preferred,
-  or other role-language context;
+  or nice-to-have or other role-language context;
+- labels the third missing-word bucket as **Nice-to-Have or Other to Review**
+  so optional job-post language is not mistaken for a hard requirement;
 - reminds users in the job words overview not to force words they cannot
   support with real work, training, or credentials;
 - adds requirement-review rows for recognized local job-post keywords with
