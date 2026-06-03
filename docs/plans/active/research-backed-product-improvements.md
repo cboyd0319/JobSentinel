@@ -251,6 +251,15 @@ copy durable findings back into this plan or the active status surface.
   notice-period, schedule, shift, weekend, overnight, or availability screening
   answers in the hard question review when saved job details mention pay or
   availability requirements.
+- Current local Application Assist background-screening review follow-up in
+  `ae322bac` flags background-check, background-screening, drug-screen,
+  drug-test, and pre-employment screening topics from saved job details and
+  shows matching saved screening answers in the hard question review when users
+  have saved one. Verification passed: `npx vitest run
+  src/components/automation/ApplicationPreview.test.tsx -t "background
+  check"`, `npx vitest run
+  src/components/automation/ApplicationPreview.test.tsx`, `npx tsc --noEmit`,
+  `npm run lint -- --quiet`, and `git diff --check`.
 - Current local Resume Match do-not-force guidance follow-up in `ebb83cef`
   reminds users in the job words overview not to force words they cannot
   support with real work, training, or credentials.

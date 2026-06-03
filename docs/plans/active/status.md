@@ -171,6 +171,14 @@ acceptance still requires Developer ID signing and notarization.
   compensation, start-date, notice-period, schedule, shift, weekend, overnight,
   or availability screening answers in the hard question review when saved job
   details mention pay or availability requirements. The follow-up
+  `ae322bac Review background screening answers` flags background-check,
+  background-screening, drug-screen, drug-test, and pre-employment screening
+  topics from saved job details and shows matching saved screening answers in
+  the hard question review when users have saved one. Verification passed:
+  `npx vitest run src/components/automation/ApplicationPreview.test.tsx -t
+  "background check"`, `npx vitest run
+  src/components/automation/ApplicationPreview.test.tsx`, `npx tsc --noEmit`,
+  `npm run lint -- --quiet`, and `git diff --check`. The follow-up
   `ebb83cef Add do not force job words guidance` reminds users in the Resume
   Match job words overview not to force words they cannot support with real
   work, training, or credentials. The follow-up

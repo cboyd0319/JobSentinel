@@ -231,6 +231,9 @@ resume help should adjust examples and evidence prompts for:
   notice-period, schedule, shift, weekend, overnight, or availability screening
   answers in the hard question review when saved job details mention pay or
   availability requirements.
+- Application Assist flags background-check, drug-screen, and pre-employment
+  screening topics from saved job details and shows matching saved screening
+  answers in the hard question review when users have saved one.
 - Resume Match reminds users in the job words overview not to force words they
   cannot support with real work, training, or credentials.
 - Resume Match tells users in the Resume Fit card that the result is local

@@ -112,6 +112,8 @@ You can save reusable answers for common questions:
 | `availability`        | "What is your availability..."     |
 | `sponsorship`         | "Do you need visa sponsorship..."  |
 | `certification`       | "Do you have this certification?"  |
+| `background check`    | "Can you complete a background check?" |
+| `drug screen`         | "Can you complete a drug screen?"  |
 
 Use plain words that appear in the screening question. Matching ignores
 capitalization.
@@ -122,7 +124,8 @@ When the saved job details mention hard screening topics, the Application Assist
 preview flags them before opening the form. Review saved answers and resume
 evidence for work authorization, location, relocation, travel, licenses,
 certifications, clearances, education, years of experience, salary, schedule,
-and availability before submitting.
+availability, background checks, drug screens, and pre-employment screening
+before submitting.
 
 For work authorization or sponsorship topics, the preview also shows the saved
 profile answer so you can compare it with the employer's wording and your
@@ -145,6 +148,10 @@ experience answer so you can compare it with the experience you can explain.
 For salary, compensation, start-date, schedule, shift, weekend, overnight, or
 availability topics, the preview can show a matching saved answer before you
 continue.
+
+For background-check, drug-screen, or pre-employment screening topics, the
+preview can show a matching saved answer so you can confirm the answer matches
+the employer's wording before continuing.
 
 ---
 
