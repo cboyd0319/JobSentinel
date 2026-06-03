@@ -214,6 +214,9 @@ Future implementation should improve:
 - Structured resume review now marks matched requirements from a current role
   as current-experience evidence instead of hiding recency in a generic
   experience label.
+- Resume/job fit now treats recognized required seniority language such as
+  senior-level experience as a local experience constraint, using visible role,
+  leadership, or enough-years evidence before avoiding a hard-requirement cap.
 - Resume analysis does not promise employer decisions or response outcomes.
 
 ## Backlog
@@ -226,7 +229,7 @@ Future implementation should improve:
   responsibility, scope-backed, and metric-backed evidence.
 - Expand conservative synonym and acronym matching where equivalence is clear.
 - Expand recency and section placement signals.
-- Add seniority alignment and under-leveling warnings.
+- Expand seniority alignment and add under-leveling warnings.
 - Add profession-specific weighting for non-technical and technical roles.
 - Keep score labels humble: "fit estimate", "readability check", "review
   priority", or equivalent user-control framing.

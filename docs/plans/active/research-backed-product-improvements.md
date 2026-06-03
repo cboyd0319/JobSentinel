@@ -201,6 +201,10 @@ copy durable findings back into this plan or the active status surface.
 - Current local resume experience-constraint follow-up recognizes required
   years-of-experience language, caps local fit confidence when missing, and
   keeps dev/browser mock extraction aligned with the backend analyzer.
+- Current local resume seniority-constraint follow-up recognizes required
+  seniority language such as senior-level experience, checks visible role,
+  leadership, or enough-years evidence, and caps local fit confidence when the
+  required level is missing.
 - Current local resume file-guidance follow-up tells users to follow employer
   file instructions first when readable text is missing, then suggests readable
   local formats if no employer format is named.
@@ -1595,6 +1599,7 @@ source-filter compatibility issue appears.
   Source Governance Metadata work is committed in `66924003`.
   Resume availability-constraint work is committed in `0d8bf479`.
   Resume experience-constraint work is committed in `191962e5`.
+  Resume seniority-constraint work is committed in `1f8d7581`.
   Resume file-guidance work is committed in `808aea8e`.
   Resume preview-guidance work is committed in `4a1cf389`.
   Setup pay-not-sure work is committed in `b3475fdc`.

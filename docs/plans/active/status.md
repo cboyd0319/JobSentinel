@@ -1444,6 +1444,19 @@ Scope:
   --noEmit`, `npm run lint -- --quiet`, `npm run lint:external-ai`, `npm run
   lint:tauri-invokes`, `npm run lint:docs`, `npm run harness:check`, `npm run
   lint:bloat`, `npm run lint:architecture`, and `git diff --check`.
+- Latest local resume seniority-constraint slice in `1f8d7581` recognizes
+  required seniority language such as senior-level experience as a local
+  experience constraint, checks visible role, leadership, or enough-years
+  evidence, and caps local fit confidence at `65` when the required level is
+  missing. Browser/dev mocks stay aligned with backend review. Verification
+  passed: `cargo test --lib senior_level --manifest-path src-tauri/Cargo.toml`,
+  `npx vitest run src/mocks/handlers.test.ts -t "analyzes resumes"`, `cargo
+  test --lib ats_analyzer --manifest-path src-tauri/Cargo.toml`, `npx vitest
+  run src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint --
+  --quiet`, `cargo test --lib --manifest-path src-tauri/Cargo.toml`, `cargo
+  fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo clippy
+  --manifest-path src-tauri/Cargo.toml -- -D warnings`, `npm run
+  lint:external-ai`, and `git diff --check`.
 - Latest local resume file-guidance slice in `808aea8e` updates the no-readable-text status
   to tell users to follow employer file instructions first, then use readable
   PDF, DOCX, TXT, or Markdown when no format is named. Verification passed:
