@@ -609,6 +609,8 @@ const ATS_KNOWN_KEYWORDS = [
   "degree",
   "onsite",
   "patient care",
+  "cna",
+  "certified nursing assistant",
   "medication administration",
   "vital signs",
   "care plans",
@@ -2432,6 +2434,10 @@ function getMockHardConstraintCategory(keyword: string): MockHardConstraintCateg
     lower.includes("license") ||
     lower.includes("certification") ||
     ["cdl", "cissp", "security+", "rn", "bls", "acls", "cpr"].includes(lower) ||
+    lower === "cna" ||
+    lower.includes("certified nursing assistant") ||
+    lower.includes("certified nurse assistant") ||
+    lower.includes("certified nurse aide") ||
     lower.includes("basic life support") ||
     lower.includes("advanced cardiovascular life support") ||
     lower.includes("cardiopulmonary resuscitation")
@@ -2800,7 +2806,7 @@ function extractMockHardConstraintKeywords(jobDescription: string): string[] {
     /\b(work authorization|authorized to work|visa sponsorship|u\.?s\.?\s+citizenship|u\.?s\.?\s+citizen|citizenship required)\b/gi,
     /\b(security clearance|clearance)\b/gi,
     /\b(driver'?s license|driver license|cdl|rn license|nursing license)\b/gi,
-    /\b(certification|cissp|security\+|bls|basic life support|acls|advanced cardiovascular life support|cpr|cardiopulmonary resuscitation)\b/gi,
+    /\b(certification|cissp|security\+|bls|basic life support|acls|advanced cardiovascular life support|cpr|cardiopulmonary resuscitation|cna|certified nursing assistant|certified nurse assistant|certified nurse aide)\b/gi,
     /\b(bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree|high school diploma|high school degree|ged|high school equivalency|general education development)\b/gi,
     /\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b/gi,
     /\b(lift(?:\s+up\s+to)?\s+\d+\s*(?:pounds?|lbs?)|stand for long periods?|physical requirements?|physical demands?)\b/gi,
@@ -2829,6 +2835,23 @@ function extractMockHardConstraintKeywords(jobDescription: string): string[] {
     ]) {
       keywords.delete(exactDegree);
     }
+  }
+  const specificCertificationKeywords = [
+    "cissp",
+    "security+",
+    "bls",
+    "basic life support",
+    "acls",
+    "advanced cardiovascular life support",
+    "cpr",
+    "cardiopulmonary resuscitation",
+    "cna",
+    "certified nursing assistant",
+    "certified nurse assistant",
+    "certified nurse aide",
+  ];
+  if ([...keywords].some((keyword) => specificCertificationKeywords.includes(keyword))) {
+    keywords.delete("certification");
   }
   for (const keyword of extractMockSeniorityConstraintKeywords(jobDescription)) {
     keywords.add(keyword);
@@ -2937,6 +2960,12 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
     ["cpr", "cardiopulmonary resuscitation"],
     ["cdl", "commercial driver's license", "commercial driver license"],
     ["rn", "registered nurse"],
+    [
+      "cna",
+      "certified nursing assistant",
+      "certified nurse assistant",
+      "certified nurse aide",
+    ],
     ["cissp", "certified information systems security professional"],
     [
       "high school diploma",

@@ -1217,6 +1217,41 @@ describe("mock Tauri handlers", () => {
     );
   });
 
+  it("recognizes Certified Nursing Assistant as CNA evidence in mock resume review", async () => {
+    const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        certifications: ["Certified Nursing Assistant"],
+      },
+      jobDescription: "Required: CNA certification",
+    });
+
+    expect(result.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "cna",
+          match_state: "Direct",
+          hard_constraint: true,
+          evidence_sections: expect.arrayContaining(["certifications"]),
+        }),
+      ]),
+    );
+    expect(result.hard_constraint_risks).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          requirement: "cna",
+        }),
+      ]),
+    );
+    expect(result.hard_constraint_risks).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          requirement: "certification",
+        }),
+      ]),
+    );
+  });
+
   it("returns mock resume match scores as backend-compatible fractions", async () => {
     const [job] = await mockInvoke<MockJobSummary[]>("get_jobs", {});
     const resumeId = await mockInvoke<number>("select_and_upload_resume");

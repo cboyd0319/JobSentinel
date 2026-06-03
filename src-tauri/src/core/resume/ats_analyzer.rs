@@ -1653,9 +1653,13 @@ impl AtsAnalyzer {
             || lower == "cissp"
             || lower == "security+"
             || lower == "rn"
+            || lower == "cna"
             || lower == "bls"
             || lower == "acls"
             || lower == "cpr"
+            || lower.contains("certified nursing assistant")
+            || lower.contains("certified nurse assistant")
+            || lower.contains("certified nurse aide")
             || lower.contains("basic life support")
             || lower.contains("advanced cardiovascular life support")
             || lower.contains("cardiopulmonary resuscitation")
@@ -1920,6 +1924,12 @@ impl AtsAnalyzer {
                 "commercial driver license",
             ],
             &["rn", "registered nurse"],
+            &[
+                "cna",
+                "certified nursing assistant",
+                "certified nurse assistant",
+                "certified nurse aide",
+            ],
             &[
                 "cissp",
                 "certified information systems security professional",
@@ -2288,7 +2298,7 @@ impl AtsAnalyzer {
             r"(?i)\b(work authorization|authorized to work|visa sponsorship|u\.?s\.?\s+citizenship|u\.?s\.?\s+citizen|citizenship required)\b",
             r"(?i)\b(security clearance|clearance)\b",
             r"(?i)\b(driver'?s license|driver license|cdl|rn license|nursing license)\b",
-            r"(?i)\b(certification|cissp|security\+|bls|basic life support|acls|advanced cardiovascular life support|cpr|cardiopulmonary resuscitation)\b",
+            r"(?i)\b(certification|cissp|security\+|bls|basic life support|acls|advanced cardiovascular life support|cpr|cardiopulmonary resuscitation|cna|certified nursing assistant|certified nurse assistant|certified nurse aide)\b",
             r"(?i)\b(bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree|high school diploma|high school degree|ged|high school equivalency|general education development)\b",
             r"(?i)\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b",
             r"(?i)\b(lift(?:\s+up\s+to)?\s+\d+\s*(?:pounds?|lbs?)|stand for long periods?|physical requirements?|physical demands?)\b",
@@ -2314,6 +2324,26 @@ impl AtsAnalyzer {
             ] {
                 keywords.remove(exact_degree);
             }
+        }
+        let specific_certification_keywords = [
+            "cissp",
+            "security+",
+            "bls",
+            "basic life support",
+            "acls",
+            "advanced cardiovascular life support",
+            "cpr",
+            "cardiopulmonary resuscitation",
+            "cna",
+            "certified nursing assistant",
+            "certified nurse assistant",
+            "certified nurse aide",
+        ];
+        if keywords
+            .iter()
+            .any(|keyword| specific_certification_keywords.contains(&keyword.as_str()))
+        {
+            keywords.remove("certification");
         }
         for keyword in Self::extract_seniority_constraint_keywords(text) {
             keywords.insert(keyword);
@@ -2415,6 +2445,8 @@ impl AtsAnalyzer {
             "data entry",
             "excel",
             "patient care",
+            "cna",
+            "certified nursing assistant",
             "medication administration",
             "vital signs",
             "care plans",
@@ -3474,6 +3506,34 @@ Preferred: Salesforce
             .hard_constraint_risks
             .iter()
             .any(|risk| risk.requirement == "bls"));
+    }
+
+    #[test]
+    fn test_requirement_review_uses_cna_credential_equivalence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nCertifications\nCertified Nursing Assistant",
+            &[],
+            "Required: CNA certification",
+        );
+
+        let cna = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "cna")
+            .expect("cna review");
+        assert_eq!(cna.match_state, RequirementMatchState::Direct);
+        assert!(cna.hard_constraint);
+        assert!(cna
+            .evidence_sections
+            .contains(&"certifications".to_string()));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "cna"));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "certification"));
     }
 
     #[test]
