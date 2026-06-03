@@ -1980,6 +1980,9 @@ impl AtsAnalyzer {
             r"(?i)\b(inventory|logistics|shipping|receiving|procurement|vendor management)\b",
             r"(?i)\b(reporting|budget tracking|grant reporting|grant writing|program evaluation)\b",
             r"(?i)\b(compliance|hipaa|osha|quality assurance|data entry|excel)\b",
+            r"(?i)\b(patient care|medication administration|vital signs|care plans|medical records|charting)\b",
+            r"(?i)\b(lesson planning|classroom management|curriculum|iep|student support|parent communication)\b",
+            r"(?i)\b(forklift|welding|equipment maintenance|safety inspections|food safety|cash handling)\b",
             r"(?i)\b(rust|python|javascript|typescript|java|c\+\+|go|kotlin|swift)\b",
             r"(?i)\b(react|vue|angular|node\.?js|django|flask|spring|express)\b",
             r"(?i)\b(aws|azure|gcp|docker|kubernetes|terraform|ansible)\b",
@@ -2123,6 +2126,24 @@ impl AtsAnalyzer {
             "quality assurance",
             "data entry",
             "excel",
+            "patient care",
+            "medication administration",
+            "vital signs",
+            "care plans",
+            "medical records",
+            "charting",
+            "lesson planning",
+            "classroom management",
+            "curriculum",
+            "iep",
+            "student support",
+            "parent communication",
+            "forklift",
+            "welding",
+            "equipment maintenance",
+            "safety inspections",
+            "food safety",
+            "cash handling",
             "tdd",
             "testing",
             "automation",
@@ -2849,6 +2870,29 @@ Preferred: Salesforce
             .expect("salesforce review");
         assert_eq!(salesforce.match_state, RequirementMatchState::Missing);
         assert!(salesforce.recommendation.contains("Only add it if true"));
+    }
+
+    #[test]
+    fn test_requirement_review_recognizes_healthcare_and_education_terms() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nDelivered patient care, medication administration, and lesson planning support.",
+            &[],
+            "Required: patient care, medication administration, lesson planning",
+        );
+
+        for keyword in [
+            "patient care",
+            "medication administration",
+            "lesson planning",
+        ] {
+            let review = result
+                .requirement_reviews
+                .iter()
+                .find(|review| review.keyword == keyword)
+                .expect("recognized broad-audience review");
+            assert_eq!(review.match_state, RequirementMatchState::Direct);
+            assert!(review.evidence_sections.contains(&"experience".to_string()));
+        }
     }
 
     #[test]

@@ -1006,6 +1006,40 @@ describe("mock Tauri handlers", () => {
     }
   });
 
+  it("recognizes healthcare and education requirement terms in mock resume review", async () => {
+    const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        experience: [
+          {
+            ...atsResume.experience[0],
+            achievements: [
+              "Delivered patient care, medication administration, and lesson planning support.",
+            ],
+          },
+        ],
+      },
+      jobDescription: "Required: patient care, medication administration, lesson planning",
+    });
+
+    expect(result.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "patient care",
+          match_state: "Direct",
+        }),
+        expect.objectContaining({
+          keyword: "medication administration",
+          match_state: "Direct",
+        }),
+        expect.objectContaining({
+          keyword: "lesson planning",
+          match_state: "Direct",
+        }),
+      ]),
+    );
+  });
+
   it("returns mock resume match scores as backend-compatible fractions", async () => {
     const [job] = await mockInvoke<MockJobSummary[]>("get_jobs", {});
     const resumeId = await mockInvoke<number>("select_and_upload_resume");
