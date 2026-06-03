@@ -297,6 +297,9 @@ copy durable findings back into this plan or the active status surface.
   Nursing Assistant`, `Certified Nurse Assistant`, and `Certified Nurse Aide`
   as the same evidence, and drops the duplicate generic `certification` risk
   when the specific credential matched.
+- Current local Security Plus follow-up in `95488cf4` treats Security+ and
+  Security Plus as equivalent local credential hard-constraint evidence and
+  keeps the long mock ATS command-name test on a per-test timeout.
 - Current local LPN credential-equivalence follow-up treats `LPN`, `Licensed
   Practical Nurse`, `LVN`, and `Licensed Vocational Nurse` as the same local
   credential evidence, while hard-requirement guidance still tells users to
@@ -1789,6 +1792,7 @@ source-filter compatibility issue appears.
   Hard-requirement action work is committed in `6e43a675`.
   Credential-equivalence work is committed in `c4fd8c7a`.
   CNA credential-equivalence work is committed in `5883db13`.
+  Security Plus work is committed in `95488cf4`.
   LPN credential-equivalence work is committed in `b437ffa5`.
   PMP credential-equivalence work is committed in `c69a2bea`.
   Food-safety credential-equivalence work is committed in `9f47bee9`.

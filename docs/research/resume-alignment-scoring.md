@@ -257,6 +257,8 @@ Future implementation should improve:
 - Resume/job fit now treats clear credential equivalents such as `BLS` and
   `Basic Life Support` as the same evidence, while keeping unrelated
   credentials separate.
+- Resume/job fit now treats `Security+` and `Security Plus` as equivalent
+  local credential evidence.
 - Resume/job fit now treats `driver's license`, `drivers license`, and
   `driver license` as equivalent local license evidence.
 - Resume/job fit now treats `RN`, `RN license`, `Registered Nurse`, and

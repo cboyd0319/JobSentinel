@@ -199,6 +199,9 @@ acceptance still requires Developer ID signing and notarization.
   recognizes CNA credential equivalence, treating CNA and Certified Nursing
   Assistant variants as the same local credential evidence while removing the
   duplicate generic `certification` risk when the specific credential matched.
+  The follow-up `95488cf4 Match Security Plus terms` treats Security+ and
+  Security Plus as the same local credential hard-constraint evidence and gives
+  the long mock ATS command-name test a per-test timeout.
   The follow-up `b437ffa5` recognizes LPN credential equivalence, treating LPN,
   Licensed Practical Nurse, LVN, and Licensed Vocational Nurse as the same
   local credential evidence while preserving verify-license guidance.

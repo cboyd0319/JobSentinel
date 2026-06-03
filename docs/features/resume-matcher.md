@@ -215,6 +215,8 @@ The current local matcher:
   same local physical-demand evidence;
 - treats clear credential equivalents, such as **BLS** and **Basic Life
   Support**, as the same evidence without guessing unrelated credentials;
+- treats **Security+** and **Security Plus** as the same local credential
+  evidence;
 - treats **driver's license**, **drivers license**, and **driver license** as
   the same local license evidence;
 - treats **RN**, **RN license**, **Registered Nurse**, and **Registered Nurse
