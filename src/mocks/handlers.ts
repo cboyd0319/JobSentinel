@@ -3037,6 +3037,14 @@ function hasMockAdversarialResumeText(text: string): boolean {
     return true;
   }
 
+  const hiddenMarkupPatterns = [
+    /<!--[\s\S]*?-->/i,
+    /<meta\b[^>]*(?:keywords|description|content)\b/i,
+  ];
+  if (hiddenMarkupPatterns.some((pattern) => pattern.test(text))) {
+    return true;
+  }
+
   const lower = text.toLowerCase();
   return [
     "ignore previous instructions",

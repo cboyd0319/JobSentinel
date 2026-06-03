@@ -4140,6 +4140,25 @@ describe("mock Tauri handlers", () => {
     );
   });
 
+  it("flags HTML comment hidden resume text in mock resume review", async () => {
+    const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_format", {
+      resume: {
+        ...atsResume,
+        projects: ["<!-- extra screening keywords hidden from readers -->"],
+      },
+    });
+
+    expect(result.format_issues).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          severity: "Warning",
+          issue: "Instruction-like or hidden resume text detected",
+          fix: expect.stringContaining("truthful qualifications"),
+        }),
+      ]),
+    );
+  });
+
   it("flags unclear capability level claims in mock resume review", async () => {
     const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_format", {
       resume: {

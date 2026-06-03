@@ -1197,6 +1197,17 @@ impl AtsAnalyzer {
             return true;
         }
 
+        let hidden_markup_patterns = [
+            r"(?is)<!--.*?-->",
+            r"(?i)<meta\b[^>]*(?:keywords|description|content)\b",
+        ];
+        if hidden_markup_patterns
+            .iter()
+            .any(|pattern| regex::Regex::new(pattern).unwrap().is_match(text))
+        {
+            return true;
+        }
+
         [
             "ignore previous instructions",
             "ignore all previous instructions",
@@ -3617,6 +3628,20 @@ mod tests {
         resume.projects.push(
             "<span style=\"color:white;font-size:1px\">extra screening keywords</span>".to_string(),
         );
+
+        let result = AtsAnalyzer::analyze_format(&resume);
+
+        assert!(result.format_issues.iter().any(|issue| issue
+            .issue
+            .contains("Instruction-like or hidden resume text")));
+    }
+
+    #[test]
+    fn test_analyze_format_flags_html_comment_hidden_resume_text() {
+        let mut resume = sample_resume();
+        resume
+            .projects
+            .push("<!-- extra screening keywords hidden from readers -->".to_string());
 
         let result = AtsAnalyzer::analyze_format(&resume);
 
