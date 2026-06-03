@@ -226,7 +226,8 @@ The current local matcher:
   driving-license evidence without adding a duplicate generic driver-license
   gap when the commercial requirement is matched;
 - treats **RN**, **RN license**, **Registered Nurse**, and **Registered Nurse
-  license** as the same local nursing-license evidence;
+  license** as the same local nursing-license evidence, including full
+  Registered Nurse license wording in job posts;
 - treats CNA, Certified Nursing Assistant, Certified Nurse Assistant, and
   Certified Nurse Aide as the same local credential evidence, and avoids a
   duplicate generic certification risk when the specific credential matches;

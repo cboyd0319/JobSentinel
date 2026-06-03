@@ -191,6 +191,8 @@ copy durable findings back into this plan or the active status surface.
 - Current local RN-license follow-up in `4f0cad81` treats RN, RN license,
   Registered Nurse, and Registered Nurse license as equivalent local
   hard-constraint evidence.
+- Current local Registered Nurse license follow-up in `683144c0` preserves full
+  Registered Nurse license job-post wording as specific RN-license evidence.
 - Current local structured evidence recency follow-up marks structured resume
   matches from a current role as `current experience`, without changing older
   role evidence labels.
@@ -1798,6 +1800,7 @@ source-filter compatibility issue appears.
   Resume availability-constraint work is committed in `0d8bf479`.
   Resume experience-constraint work is committed in `191962e5`.
   Resume seniority-constraint work is committed in `1f8d7581`.
+  Registered Nurse license work is committed in `683144c0`.
   Hard-requirement action work is committed in `6e43a675`.
   Credential-equivalence work is committed in `c4fd8c7a`.
   CNA credential-equivalence work is committed in `5883db13`.

@@ -170,7 +170,9 @@ acceptance still requires Developer ID signing and notarization.
   the same local hard-constraint evidence. The follow-up
   `4f0cad81 Match RN license terms` treats RN, RN license, Registered Nurse,
   and Registered Nurse license as the same local hard-constraint evidence. The
-  follow-up
+  follow-up `683144c0 Match registered nurse license terms` preserves full
+  Registered Nurse license job-post wording as specific RN-license evidence.
+  The follow-up
   `66c587a8 Mark current plain text resume evidence` marks readable Experience
   bullets after a present-date role marker as current-experience evidence, then
   resets that label when a later past-role date range appears. The follow-up

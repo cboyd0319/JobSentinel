@@ -269,7 +269,8 @@ Future implementation should improve:
   commercial driving-license evidence without adding a duplicate generic
   driver-license gap when the commercial requirement is matched.
 - Resume/job fit now treats `RN`, `RN license`, `Registered Nurse`, and
-  `Registered Nurse license` as equivalent local nursing-license evidence.
+  `Registered Nurse license` as equivalent local nursing-license evidence,
+  including full Registered Nurse license wording in job posts.
 - Resume/job fit now treats `CNA`, `Certified Nursing Assistant`, `Certified
   Nurse Assistant`, and `Certified Nurse Aide` as the same evidence, and drops
   the duplicate generic `certification` risk when the specific credential
