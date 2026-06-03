@@ -275,6 +275,18 @@ copy durable findings back into this plan or the active status surface.
   src-tauri/Cargo.toml`, `cargo test --lib hard_constraint --manifest-path
   src-tauri/Cargo.toml`, `cargo fmt --all --manifest-path
   src-tauri/Cargo.toml -- --check`, and `git diff --check`.
+- Current local Resume Match full-time schedule constraint follow-up in
+  `a2025e94` recognizes required full-time or part-time availability language
+  as local schedule hard constraints, caps missing required full-time evidence,
+  and accepts full time evidence without broad fuzzy matching.
+  Verification passed: `cargo test
+  test_missing_required_full_time_constraint_caps_overall_score
+  --manifest-path src-tauri/Cargo.toml`, `cargo test
+  test_full_time_requirement_accepts_full_time_evidence --manifest-path
+  src-tauri/Cargo.toml`, `cargo test --lib requirement_review --manifest-path
+  src-tauri/Cargo.toml`, `cargo test --lib hard_constraint --manifest-path
+  src-tauri/Cargo.toml`, `cargo fmt --all --manifest-path
+  src-tauri/Cargo.toml -- --check`, and `git diff --check`.
 - Current local healthcare bullet-prompt follow-up in `e7a61306` adds a
   role-specific evidence reminder for healthcare and licensed-work job details,
   asking users to check scope of practice, patient safety, documentation, and

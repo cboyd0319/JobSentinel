@@ -346,6 +346,17 @@ acceptance still requires Developer ID signing and notarization.
   1st shift as the same local hard-constraint evidence. The follow-up
   `82321e8c Match availability terms` treats availability and available as the
   same local hard-constraint evidence. The follow-up
+  `a2025e94 Review full time resume constraints` recognizes required full-time
+  or part-time availability language as local schedule hard constraints, caps
+  missing required full-time evidence, and accepts full time evidence without
+  broad fuzzy matching. Verification passed: `cargo test
+  test_missing_required_full_time_constraint_caps_overall_score
+  --manifest-path src-tauri/Cargo.toml`, `cargo test
+  test_full_time_requirement_accepts_full_time_evidence --manifest-path
+  src-tauri/Cargo.toml`, `cargo test --lib requirement_review --manifest-path
+  src-tauri/Cargo.toml`, `cargo test --lib hard_constraint --manifest-path
+  src-tauri/Cargo.toml`, `cargo fmt --all --manifest-path
+  src-tauri/Cargo.toml -- --check`, and `git diff --check`. The follow-up
   `5be01ab3 Match lift weight unit terms` treats lift requirements with the
   same number and `lb`, `lbs`, `pound`, or `pounds` wording as the same local
   hard-constraint evidence. The follow-up

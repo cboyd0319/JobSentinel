@@ -275,6 +275,9 @@ The current local matcher:
   schedule evidence for required day-shift constraints;
 - treats **availability** and **available** as the same local schedule evidence
   for required availability constraints;
+- treats **full-time availability**, **full time**, **part-time availability**,
+  and **part time** as local schedule evidence for required schedule
+  constraints;
 - treats lift-weight wording with the same number, such as **lift 50 lbs** and
   **lift 50 pounds**, as the same local physical-demand evidence;
 - treats **stand for long periods** and **standing for long periods** as the
