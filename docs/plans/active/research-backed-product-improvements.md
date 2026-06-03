@@ -137,6 +137,9 @@ copy durable findings back into this plan or the active status surface.
 - Current local reviewer-fix follow-up ports conservative `CRM` equivalence and
   current structured-experience labels into browser/dev mocks, and scopes docs
   so active saved-resume text is not described as current-role aware.
+- Current local Resume Import Status follow-up adds sanitized format and
+  readable-text metadata to resume summaries and shows it before fit review
+  without exposing saved paths or raw resume text.
 - Latest local Resume Match mock-contract follow-up keeps dev/browser mock
   match results on the same `0.0` to `1.0` fraction scale as the real backend,
   preventing mock-only inflated percentages in resume assistance views.
@@ -1505,6 +1508,8 @@ source-filter compatibility issue appears.
   Structured evidence recency work is committed in `56d9a5ab`.
   Resume Match evidence-label work is committed in `26d306f6`.
   Reviewer-fix work is committed in `efea47a5`.
+  Current local Resume Import Status follow-up is verified locally and ready to
+  commit.
 - Multi-agent orchestration: a read-only reviewer covered recent resume
   analyzer commits and a read-only explorer recommended Resume Import Status,
   Resume-Assisted Guided Intake, and Source Governance Metadata as next

@@ -119,6 +119,7 @@ employer screening systems.
 The current local matcher:
 
 - extracts readable text from PDF, DOCX, TXT, and Markdown resumes;
+- shows the resume format and whether readable text is available before review;
 - provides an explicit local preview of readable resume text without returning
   the saved file path;
 - checks the extracted text for common application-readability risks such as

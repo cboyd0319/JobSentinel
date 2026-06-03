@@ -33,18 +33,54 @@ pub struct ResumeSummary {
     pub is_active: bool,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
+    pub format_label: String,
+    pub has_readable_text: bool,
+    pub readable_text_chars: usize,
 }
 
 impl From<Resume> for ResumeSummary {
     fn from(resume: Resume) -> Self {
+        let readable_text_chars = resume
+            .parsed_text
+            .as_deref()
+            .map(str::trim)
+            .map(|text| text.chars().count())
+            .unwrap_or(0);
+        let format_label = resume_format_label(&resume);
+
         Self {
             id: resume.id,
             name: resume.name,
             is_active: resume.is_active,
             created_at: resume.created_at,
             updated_at: resume.updated_at,
+            format_label,
+            has_readable_text: readable_text_chars > 0,
+            readable_text_chars,
         }
     }
+}
+
+fn resume_format_label(resume: &Resume) -> String {
+    let extension = Path::new(&resume.file_path)
+        .extension()
+        .and_then(|extension| extension.to_str())
+        .or_else(|| {
+            Path::new(&resume.name)
+                .extension()
+                .and_then(|extension| extension.to_str())
+        })
+        .unwrap_or("")
+        .to_ascii_lowercase();
+
+    match extension.as_str() {
+        "pdf" => "PDF",
+        "docx" => "DOCX",
+        "txt" => "Plain text",
+        "md" | "markdown" => "Markdown",
+        _ => "Resume file",
+    }
+    .to_string()
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -862,6 +898,29 @@ mod tests {
         assert!(!serialized.contains("/Users/alice"));
         assert!(!serialized.contains("parsed_text"));
         assert!(!serialized.contains("secret resume body"));
+    }
+
+    #[test]
+    fn resume_summary_includes_sanitized_import_status() {
+        let now = Utc::now();
+        let resume = Resume {
+            id: 42,
+            name: "Private Resume.pdf".to_string(),
+            file_path: "/Users/alice/Documents/private-company-resume.pdf".to_string(),
+            parsed_text: Some("Care coordinator\nScheduling".to_string()),
+            is_active: true,
+            created_at: now,
+            updated_at: now,
+        };
+
+        let summary = ResumeSummary::from(resume);
+        let serialized = serde_json::to_string(&summary).unwrap();
+
+        assert!(serialized.contains("\"format_label\":\"PDF\""));
+        assert!(serialized.contains("\"has_readable_text\":true"));
+        assert!(serialized.contains("\"readable_text_chars\":27"));
+        assert!(!serialized.contains("/Users/alice"));
+        assert!(!serialized.contains("Care coordinator"));
     }
 
     #[test]

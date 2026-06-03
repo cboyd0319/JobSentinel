@@ -218,6 +218,53 @@ describe("Resume page", () => {
     expect(screen.queryByText(/file_path/)).not.toBeInTheDocument();
   });
 
+  it("shows sanitized resume format and readable-text status before review", async () => {
+    mockSafeInvoke.mockImplementation((command: string) => {
+      switch (command) {
+        case "get_active_resume":
+          return Promise.resolve({
+            id: 1,
+            name: "Care Coordinator Resume",
+            is_active: true,
+            created_at: "2026-05-21T12:00:00Z",
+            updated_at: "2026-05-21T12:00:00Z",
+            format_label: "PDF",
+            has_readable_text: true,
+            readable_text_chars: 1234,
+          });
+        case "list_all_resumes":
+          return Promise.resolve([
+            {
+              id: 1,
+              name: "Care Coordinator Resume",
+              is_active: true,
+              created_at: "2026-05-21T12:00:00Z",
+              updated_at: "2026-05-21T12:00:00Z",
+              format_label: "PDF",
+              has_readable_text: true,
+              readable_text_chars: 1234,
+            },
+          ]);
+        case "get_user_skills":
+        case "get_recent_matches":
+          return Promise.resolve([]);
+        default:
+          return Promise.resolve(null);
+      }
+    });
+
+    render(<Resume onBack={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Care Coordinator Resume")).toBeInTheDocument();
+    });
+
+    expect(screen.getByText("PDF")).toBeInTheDocument();
+    expect(screen.getByText("Readable text ready")).toBeInTheDocument();
+    expect(screen.getByText("1,234 characters available for local review.")).toBeInTheDocument();
+    expect(screen.queryByText(/file_path|parsed_text|\/Users\/alice/)).not.toBeInTheDocument();
+  });
+
   it("copies the readable resume text after the user opens the preview", async () => {
     const user = userEvent.setup();
     const writeText = vi.fn().mockResolvedValue(undefined);

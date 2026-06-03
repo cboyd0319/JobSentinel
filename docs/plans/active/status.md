@@ -1393,6 +1393,16 @@ Scope:
   explorer scanned active plans and recommended next disjoint slices: Resume
   Import Status, Resume-Assisted Guided Intake, and Source Governance Metadata.
   Both agents were closed after their findings were integrated or recorded.
+- Current local Resume Import Status slice adds sanitized format and
+  readable-text metadata to resume summaries and shows it on the active resume
+  card before fit review, without exposing `file_path`, `parsed_text`, or raw
+  resume content. Verification passed: `cargo test --lib resume
+  --manifest-path src-tauri/Cargo.toml`, `npx vitest run src/pages/Resume.test.tsx
+  src/mocks/handlers.test.ts`, `npm run lint:architecture`, `npm run
+  lint:external-ai`, `npm run lint:tauri-invokes`, `cargo clippy
+  --manifest-path src-tauri/Cargo.toml -- -D warnings`, `npx tsc --noEmit`,
+  `npm run lint -- --quiet`, `npm run lint:docs`, `npm run lint:bloat`, and
+  `git diff --check`.
 - No-Apple-account macOS readiness is already best-possible without an Apple
   Developer Account. Keep the limitation explicit: Gatekeeper-ready public
   distribution still needs Developer ID signing and notarization.

@@ -122,7 +122,11 @@ interface MockResumeData {
   updated_at: string;
 }
 
-type MockResumeSummary = Omit<MockResumeData, "file_path" | "parsed_text">;
+type MockResumeSummary = Omit<MockResumeData, "file_path" | "parsed_text"> & {
+  format_label: string;
+  has_readable_text: boolean;
+  readable_text_chars: number;
+};
 
 interface MockResumeTextPreview {
   resume_id: number;
@@ -3173,13 +3177,36 @@ function getActiveResume(): MockResumeData | null {
 }
 
 function toMockResumeSummary(resume: MockResumeData): MockResumeSummary {
+  const readableText = (resume.parsed_text ?? "").trim();
   return {
     id: resume.id,
     name: resume.name,
     is_active: resume.is_active,
     created_at: resume.created_at,
     updated_at: resume.updated_at,
+    format_label: getMockResumeFormatLabel(resume),
+    has_readable_text: readableText.length > 0,
+    readable_text_chars: Array.from(readableText).length,
   };
+}
+
+function getMockResumeFormatLabel(resume: MockResumeData): string {
+  const source = resume.file_path || resume.name;
+  const extension = source.split(".").pop()?.toLowerCase() ?? "";
+
+  switch (extension) {
+    case "pdf":
+      return "PDF";
+    case "docx":
+      return "DOCX";
+    case "txt":
+      return "Plain text";
+    case "md":
+    case "markdown":
+      return "Markdown";
+    default:
+      return "Resume file";
+  }
 }
 
 const MAX_MOCK_RESUME_TEXT_PREVIEW_CHARS = 6000;

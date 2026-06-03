@@ -74,6 +74,9 @@ interface ResumeData {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  format_label?: string;
+  has_readable_text?: boolean;
+  readable_text_chars?: number;
 }
 
 interface ResumeTextPreview {
@@ -145,6 +148,39 @@ function optionalYearsValue(value: number | null | undefined): number | null {
 
 function isResumeMatchingEnabled(preference: ResumeMatchingPreference | null | undefined) {
   return preference?.enabled === true;
+}
+
+function getResumeFormatLabel(resume: ResumeData) {
+  return resume.format_label?.trim() || "Resume file";
+}
+
+function getReadableTextLabel(resume: ResumeData) {
+  if (resume.has_readable_text === true) {
+    return "Readable text ready";
+  }
+  if (resume.has_readable_text === false) {
+    return "No readable text found";
+  }
+  return "Readable text not checked";
+}
+
+function getReadableTextDescription(resume: ResumeData) {
+  if (resume.has_readable_text === true) {
+    const count = typeof resume.readable_text_chars === "number"
+      ? resume.readable_text_chars
+      : 0;
+    return `${count.toLocaleString()} characters available for local review.`;
+  }
+  if (resume.has_readable_text === false) {
+    return "Add a PDF, DOCX, TXT, or Markdown resume with readable text.";
+  }
+  return "Open the readable-text preview to check what JobSentinel can read.";
+}
+
+function getReadableTextBadgeVariant(resume: ResumeData): BadgeVariant {
+  if (resume.has_readable_text === true) return "success";
+  if (resume.has_readable_text === false) return "danger";
+  return "surface";
 }
 
 function ScoreBreakdownRow({
@@ -653,6 +689,9 @@ export default function Resume({ onBack }: ResumeProps) {
                         <p className="text-xs text-surface-500">
                           {new Date(r.created_at).toLocaleDateString()}
                         </p>
+                        <p className="text-xs text-surface-500">
+                          {getResumeFormatLabel(r)} - {getReadableTextLabel(r)}
+                        </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -728,6 +767,22 @@ export default function Resume({ onBack }: ResumeProps) {
                     Added: {new Date(resume.created_at).toLocaleDateString("en-US")}
                   </p>
                 </div>
+              </div>
+              <div
+                data-testid="resume-import-status"
+                className="mb-4 border-l-2 border-surface-200 dark:border-surface-700 pl-3 py-1"
+              >
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge variant="surface" size="sm">
+                    {getResumeFormatLabel(resume)}
+                  </Badge>
+                  <Badge variant={getReadableTextBadgeVariant(resume)} size="sm">
+                    {getReadableTextLabel(resume)}
+                  </Badge>
+                </div>
+                <p className="mt-2 text-xs text-surface-500 dark:text-surface-400">
+                  {getReadableTextDescription(resume)}
+                </p>
               </div>
               <Button
                 variant="secondary"
