@@ -37,12 +37,14 @@ interface HardQuestionReview {
   label: string;
   detail: string;
   patterns: RegExp[];
+  getDetail?: (profile: ApplicationProfilePreview) => string;
 }
 
 const HARD_QUESTION_REVIEWS: HardQuestionReview[] = [
   {
     label: "Work authorization",
     detail: "Check work authorization or sponsorship answers against your profile and resume.",
+    getDetail: getWorkAuthorizationReviewDetail,
     patterns: [
       /\bwork authorization\b/i,
       /\bauthorized to work\b/i,
@@ -111,13 +113,28 @@ const HARD_QUESTION_REVIEWS: HardQuestionReview[] = [
   },
 ];
 
-function getHardQuestionReviews(job: Job) {
+function getWorkAuthorizationReviewDetail(profile: ApplicationProfilePreview) {
+  if (profile.requiresSponsorship) {
+    return "Saved profile says sponsorship is needed. Check the employer's sponsorship question and resume evidence before continuing.";
+  }
+
+  if (!profile.usWorkAuthorized) {
+    return "Saved profile says US work authorization is not confirmed. Check the employer's authorization question and resume evidence before continuing.";
+  }
+
+  return "Saved profile says US work authorization is available and sponsorship is not needed. Confirm the application asks the same thing before submitting.";
+}
+
+function getHardQuestionReviews(job: Job, profile: ApplicationProfilePreview) {
   const text = job.description?.trim() ?? "";
   if (!text) return [];
 
   return HARD_QUESTION_REVIEWS.filter((review) =>
     review.patterns.some((pattern) => pattern.test(text)),
-  );
+  ).map((review) => ({
+    ...review,
+    detail: review.getDetail?.(profile) ?? review.detail,
+  }));
 }
 
 export const ApplicationPreview = memo(function ApplicationPreview({ job, atsPlatform }: ApplicationPreviewProps) {
@@ -184,7 +201,7 @@ export const ApplicationPreview = memo(function ApplicationPreview({ job, atsPla
     },
   ];
   const applicationFormName = getApplicationFormDisplayName(atsPlatform);
-  const hardQuestionReviews = getHardQuestionReviews(job);
+  const hardQuestionReviews = getHardQuestionReviews(job, profile);
 
   return (
     <div className="space-y-6" role="region" aria-label="Application preview">

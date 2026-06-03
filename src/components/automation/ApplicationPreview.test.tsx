@@ -466,6 +466,30 @@ describe("ApplicationPreview", () => {
       expect(screen.getByText("Years of experience")).toBeInTheDocument();
       expect(screen.getByText("Location, relocation, or travel")).toBeInTheDocument();
     });
+
+    it("shows saved work-authorization answers when the job asks about sponsorship", async () => {
+      mockInvoke.mockResolvedValue({
+        ...mockProfile,
+        requiresSponsorship: true,
+      });
+
+      render(
+        <ApplicationPreview
+          job={{
+            ...mockJob,
+            description: "Applicants must be authorized to work without visa sponsorship.",
+          }}
+          atsPlatform="greenhouse"
+        />,
+      );
+
+      expect(await screen.findByText("Hard Question Review")).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          "Saved profile says sponsorship is needed. Check the employer's sponsorship question and resume evidence before continuing.",
+        ),
+      ).toBeInTheDocument();
+    });
   });
 
   describe("info banner", () => {
