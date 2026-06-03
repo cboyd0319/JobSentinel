@@ -114,7 +114,12 @@ acceptance still requires Developer ID signing and notarization.
   mixing them into role-fit review. The follow-up
   `6ede725c Add selectable text resume guidance` tells users when a PDF may be
   scanned or image-only because local parsing could not find selectable text,
-  while keeping employer file instructions first. Real resume/profile reference
+  while keeping employer file instructions first. The follow-up
+  `0bac8a7b Add hard question application review` adds an Application Assist
+  preview section that flags authorization, location, relocation, travel,
+  license, certification, clearance, education, years, salary, schedule, and
+  availability topics from saved job details so users can check saved answers
+  against resume evidence before submitting. Real resume/profile reference
   material remains private and must not be committed.
 - Current local resume-alignment scoring follow-up is committed in
   `3d720693 Add resume requirement review caps`. It locks

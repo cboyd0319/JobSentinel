@@ -191,6 +191,8 @@ resume help should adjust examples and evidence prompts for:
 - PDF resumes with no local readable text show selectable-text guidance for
   scanned or image-only files while still telling users to follow employer file
   instructions first.
+- Application Assist flags hard screening topics from the saved job details so
+  users can check saved answers and resume evidence before submitting.
 - Required, preferred, and other job-post language stay grouped in fit notes.
 - Recognized local job-post requirements now show match states and evidence
   sections, and recognized missing hard requirements cap the fit label until
@@ -205,7 +207,8 @@ resume help should adjust examples and evidence prompts for:
 
 - Add a guided requirement-inventory workflow for serious applications.
 - Extend file-size metadata guidance if employer-specific limits are available.
-- Add a knockout-question consistency review in Application Assist.
+- Expand Application Assist hard-question review with direct saved-answer and
+  resume-evidence comparisons.
 - Add role-specific evidence prompts and examples across non-technical,
   technical, licensed, government, academic, early-career, and career-change
   paths.

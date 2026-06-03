@@ -111,6 +111,14 @@ You can save reusable answers for common questions:
 Use plain words that appear in the screening question. Matching ignores
 capitalization.
 
+### Hard Question Review
+
+When the saved job details mention hard screening topics, the Application Assist
+preview flags them before opening the form. Review saved answers and resume
+evidence for work authorization, location, relocation, travel, licenses,
+certifications, clearances, education, years of experience, salary, schedule,
+and availability before submitting.
+
 ---
 
 ## Using Application Assist
@@ -119,6 +127,7 @@ capitalization.
 2. Check the application-form label if one appears.
 3. Choose **Prepare Form**.
 4. Review the preview showing details JobSentinel can prepare.
+   Check **Hard Question Review** if it appears.
 5. Choose **Prepare Details** in the review dialog.
 6. Complete any manual steps:
    - Attach your resume yourself if required.

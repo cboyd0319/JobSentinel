@@ -199,6 +199,11 @@ copy durable findings back into this plan or the active status surface.
 - Current local selectable-text guidance follow-up in `6ede725c` tells users
   when a PDF may be scanned or image-only because local parsing could not find
   selectable text, while keeping employer file instructions first.
+- Current local Application Assist hard-question review follow-up in
+  `0bac8a7b` flags authorization, location, relocation, travel, license,
+  certification, clearance, education, years, salary, schedule, and availability
+  topics from saved job details so users can check saved answers against resume
+  evidence before submitting.
 - Current local onsite location-term follow-up in `bffa0a1f` treats onsite and
   on-site as equivalent local hard-constraint evidence, so exact punctuation
   differences do not create a false missing-location risk.
@@ -1003,9 +1008,9 @@ Likely files later:
 - Add guided requirement inventory: must-have, high-value, supporting, and
   do-not-force terms.
 - Add required/preferred/nice-to-have grouping for job keywords.
-- Add knockout-question consistency review for authorization, location,
+- Expand knockout-question consistency review for authorization, location,
   license, certification, clearance, degree, years, salary, availability, and
-  travel answers.
+  travel answers with direct saved-answer and resume-evidence comparisons.
 - Continue expanding direct, strong, partial, implied, and missing match states
   from recognized local job-post keywords into richer requirement families so
   users see why a term did or did not count.
