@@ -186,6 +186,9 @@ acceptance still requires Developer ID signing and notarization.
   The follow-up `a09f6c43 Recognize GED credential equivalence` treats high
   school diploma, high school degree, GED, high school equivalency, and General
   Education Development as the same local education evidence. The follow-up
+  `adda2593 Match bachelor degree terms` treats bachelor's degree, bachelor
+  degree, and bachelors degree as the same local education hard-constraint
+  evidence. The follow-up
   `5883db13`
   recognizes CNA credential equivalence, treating CNA and Certified Nursing
   Assistant variants as the same local credential evidence while removing the

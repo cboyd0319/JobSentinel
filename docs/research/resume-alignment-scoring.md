@@ -288,6 +288,8 @@ Future implementation should improve:
 - Resume/job fit now treats `high school diploma`, `high school degree`,
   `GED`, `high school equivalency`, and `General Education Development` as the
   same local education evidence.
+- Resume/job fit now treats `bachelor's degree`, `bachelor degree`, and
+  `bachelors degree` as equivalent local education evidence.
 - Readable-text review now treats training, credentials, certificate, and
   license headings as credential evidence and standard readable structure
   instead of generic resume text.
