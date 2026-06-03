@@ -3288,6 +3288,7 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
       "master of engineering",
       "master of fine arts",
       "master of science",
+      "master of social work",
     ],
     [
       "phd",
@@ -3448,6 +3449,7 @@ function getConservativeMockJobSearchTerms(keyword: string): string[] {
     "master of engineering",
     "master of fine arts",
     "master of science",
+    "master of social work",
   ]);
   return getConservativeMockSearchTerms(keyword)
     .filter((term) => !evidenceOnlyDegreeTerms.has(term));
