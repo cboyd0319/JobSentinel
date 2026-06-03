@@ -3261,6 +3261,7 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
       "bachelors degree",
       "bachelor of arts",
       "bachelor of business administration",
+      "bachelor of engineering",
       "bachelor of science",
     ],
     [
@@ -3415,6 +3416,7 @@ function getConservativeMockJobSearchTerms(keyword: string): string[] {
   const evidenceOnlyDegreeTerms = new Set([
     "bachelor of arts",
     "bachelor of business administration",
+    "bachelor of engineering",
     "bachelor of science",
     "master of arts",
     "master of business administration",
