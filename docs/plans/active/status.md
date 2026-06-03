@@ -117,9 +117,10 @@ acceptance still requires Developer ID signing and notarization.
   The follow-up `3aa39952 Add resume next-action guidance` turns those results
   into plain next actions such as checking a hard requirement before tailoring,
   adding supporting evidence only if true, or keeping useful evidence visible.
-  Future resume work still needs deeper
-  evidence strength, seniority alignment, conservative synonyms, recency,
-  section placement, and profession-specific weighting.
+  The follow-up `171bbe91 Improve resume evidence section review` starts
+  section-placement review for saved-resume plain text. Future resume work
+  still needs deeper evidence strength, seniority alignment, conservative
+  synonyms, recency, and profession-specific weighting.
 - Current local macOS no-account post-commit verification rebuilt the universal
   DMG from committed resume-guidance head `12c184db` on macOS 26.5
   (build 25F71), Apple Silicon `arm64`, with SIP enabled. The build produced
@@ -1360,9 +1361,15 @@ Scope:
   ghost-indicator feedback accessibility and tests, makes Settings support
   reports easier to find, and locks the architect/orchestrator plus sub-agent
   contract into the harness.
-- Current local resume evidence-strength slice starts section-placement review
-  for saved-resume plain text by distinguishing skills-list hits from
-  experience, summary, project, education, certification, and license hits.
+- Current local conservative synonym/acronym slice teaches local requirement
+  review that `CRM` and `customer relationship management` are equivalent
+  evidence without broad fuzzy matching. Verification passed: `cargo test
+  --lib test_requirement_review_uses_conservative_acronym_equivalence
+  --manifest-path src-tauri/Cargo.toml`, `cargo test --lib ats_analyzer
+  --manifest-path src-tauri/Cargo.toml`, `cargo clippy --manifest-path
+  src-tauri/Cargo.toml -- -D warnings`, `cargo fmt --all --manifest-path
+  src-tauri/Cargo.toml -- --check`, `npm run lint:docs`, `npm run
+  lint:bloat`, and `git diff --check`.
 - No-Apple-account macOS readiness is already best-possible without an Apple
   Developer Account. Keep the limitation explicit: Gatekeeper-ready public
   distribution still needs Developer ID signing and notarization.
@@ -1372,7 +1379,7 @@ Scope:
 
 ## Next Best Work
 
-1. Finish verification and commit the current resume evidence-strength slice.
+1. Commit the verified conservative synonym/acronym slice.
 2. Continue resume assistance only where it improves truthful local requirement
    review, hard-constraint handling, readable evidence, or next-action
    guidance.

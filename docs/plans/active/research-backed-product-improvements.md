@@ -106,7 +106,8 @@ copy durable findings back into this plan or the active status surface.
   checking a hard requirement before tailoring, adding supporting evidence only
   if true, or keeping useful evidence visible. Deeper evidence strength,
   synonym, recency, seniority, and profession-specific weighting remain future
-  work. The dedicated repo note now lives at
+  work. The follow-up `171bbe91 Improve resume evidence section review` starts
+  section-placement review for saved-resume plain text. The dedicated repo note now lives at
   `docs/research/resume-alignment-scoring.md`.
 - Latest pushed ghost/stale job-card action slice is committed in
   `6adcff7c Add posting verification support`. It adds high-risk
@@ -118,6 +119,9 @@ copy durable findings back into this plan or the active status surface.
   review for saved-resume plain text, keeping skills-list-only terms as lighter
   evidence while experience, summary, project, education, certification, and
   license evidence can count as direct.
+- Current local conservative synonym/acronym follow-up teaches local
+  requirement review that `CRM` and `customer relationship management` are
+  equivalent evidence without broad fuzzy matching.
 - Latest local resume parser follow-up keeps required and preferred job-post
   sections separate when postings use single-line headings instead of blank
   lines, preventing preferred nice-to-have language from being shown as a
@@ -1485,14 +1489,14 @@ source-filter compatibility issue appears.
   preference for fresh and verified postings is implemented and covered by
   focused tests. Local resume requirement-review caps and next-action guidance
   are committed. Ghost/stale job-card action and feedback-accessibility work is
-  pushed in `6adcff7c`. Current local resume evidence-strength follow-up is
-  under verification.
+  pushed in `6adcff7c`. Resume evidence-strength work is committed in
+  `171bbe91`. Current local conservative synonym/acronym follow-up is verified
+  locally and ready to commit.
 - Evidence: source documents, selected primary sources, and local PDF text
   extraction reviewed on
   2026-05-28.
-- Next step: finish verification and commit the current resume
-  evidence-strength slice, then continue the next critical functional slice
-  before broad cleanup.
+- Next step: commit the current conservative synonym/acronym slice, then
+  continue the next critical functional slice before broad cleanup.
 - Open risks: exact source statistics need re-check before product copy or
   implementation claims; this plan does not prove feasibility of every listed
   feature.

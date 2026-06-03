@@ -1403,15 +1403,27 @@ impl AtsAnalyzer {
 
         for (keyword, importance) in job_keywords {
             let keyword_lower = keyword.to_lowercase();
-            let (mut found_in, mut frequency) =
-                Self::plain_text_keyword_hits(resume_text, &keyword_lower);
+            let search_terms = Self::conservative_keyword_search_terms(&keyword_lower);
+            let mut found_in = Vec::new();
+            let mut frequency = 0;
+
+            for term in &search_terms {
+                let (term_sections, term_frequency) =
+                    Self::plain_text_keyword_hits(resume_text, term);
+                for section in term_sections {
+                    Self::add_evidence_section(&mut found_in, &section);
+                }
+                frequency += term_frequency;
+            }
 
             let skill_hits = skills
                 .iter()
                 .filter(|skill| {
                     let skill_lower = skill.to_lowercase();
-                    Self::keyword_appears_in_text(&skill_lower, &keyword_lower)
-                        || Self::keyword_appears_in_text(&keyword_lower, &skill_lower)
+                    search_terms.iter().any(|term| {
+                        Self::keyword_appears_in_text(&skill_lower, term)
+                            || Self::keyword_appears_in_text(term, &skill_lower)
+                    })
                 })
                 .count();
 
@@ -1457,6 +1469,23 @@ impl AtsAnalyzer {
         });
 
         (matches, missing)
+    }
+
+    fn conservative_keyword_search_terms(keyword_lower: &str) -> Vec<String> {
+        let mut terms = vec![keyword_lower.to_string()];
+        let equivalence_groups = [["crm", "customer relationship management"]];
+
+        for group in equivalence_groups {
+            if group.contains(&keyword_lower) {
+                for term in group {
+                    if !terms.iter().any(|existing| existing == term) {
+                        terms.push(term.to_string());
+                    }
+                }
+            }
+        }
+
+        terms
     }
 
     fn plain_text_keyword_hits(resume_text: &str, keyword_lower: &str) -> (Vec<String>, usize) {
@@ -2425,6 +2454,23 @@ Preferred: Salesforce
         assert!(scheduling
             .evidence_sections
             .contains(&"experience".to_string()));
+    }
+
+    #[test]
+    fn test_requirement_review_uses_conservative_acronym_equivalence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nMaintained customer relationship management records for client follow-up.",
+            &[],
+            "Required: CRM",
+        );
+
+        let crm = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "crm")
+            .expect("crm review");
+        assert_eq!(crm.match_state, RequirementMatchState::Direct);
+        assert!(crm.evidence_sections.contains(&"experience".to_string()));
     }
 
     #[test]

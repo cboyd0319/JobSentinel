@@ -207,6 +207,8 @@ Future implementation should improve:
 - Resume/job fit now caps the local fit label when recognized required hard
   constraints such as authorization, location, license, certification, degree,
   or clearance are missing.
+- Resume/job fit now treats the conservative `CRM` and `customer relationship
+  management` pair as equivalent local evidence without broad fuzzy matching.
 - Resume analysis does not promise employer decisions or response outcomes.
 
 ## Backlog
@@ -217,7 +219,7 @@ Future implementation should improve:
   failure, unreadable-history risk, false-claim risk, and generic-resume risk.
 - Add evidence-strength classification for missing, bare keyword, duty,
   responsibility, scope-backed, and metric-backed evidence.
-- Add conservative synonym and acronym matching.
+- Expand conservative synonym and acronym matching where equivalence is clear.
 - Add recency and section placement signals.
 - Add seniority alignment and under-leveling warnings.
 - Add profession-specific weighting for non-technical and technical roles.

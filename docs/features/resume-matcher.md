@@ -170,8 +170,10 @@ The companion
 in transparent component rubrics, match states, evidence strength, hard
 constraint caps, conservative synonym handling, recency and section placement,
 and profession-specific weighting. Local requirement-state rows and recognized
-hard-constraint caps have started; broader evidence strength, synonym, recency,
-seniority, and profession-specific weighting remain future work.
+hard-constraint caps have started. Section-placement review and the conservative
+`CRM` / `customer relationship management` equivalence have started; broader
+evidence strength, synonym, recency, seniority, and profession-specific
+weighting remain future work.
 
 ## Boundaries
 
