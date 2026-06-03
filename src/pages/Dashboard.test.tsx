@@ -4,6 +4,7 @@ import {
   getDashboardLoadErrorMessage,
   getDashboardSearchErrorCopy,
 } from "./dashboardErrorCopy";
+import { formatDashboardFitEstimate } from "./Dashboard";
 import { getNoJobsEmptyStateCopy } from "./DashboardUI/noJobsEmptyStateCopy";
 
 vi.mock("@tauri-apps/api/core", () => ({
@@ -53,6 +54,20 @@ async function runPreflight(
 }
 
 // ---------------------------------------------------------------------------
+
+describe("formatDashboardFitEstimate", () => {
+  it("pairs fit labels with percentages for comparison rows", () => {
+    expect(formatDashboardFitEstimate(0.92)).toBe("Strong fit (92%)");
+    expect(formatDashboardFitEstimate(0.82)).toBe("Good fit (82%)");
+    expect(formatDashboardFitEstimate(0.55)).toBe("Possible fit (55%)");
+    expect(formatDashboardFitEstimate(0.3)).toBe("Needs review (30%)");
+  });
+
+  it("uses a plain unavailable label when a fit estimate is missing", () => {
+    expect(formatDashboardFitEstimate(null)).toBe("Not available");
+    expect(formatDashboardFitEstimate(Number.NaN)).toBe("Not available");
+  });
+});
 
 describe("Dashboard handleSearchNow pre-flight check", () => {
   beforeEach(() => {

@@ -55,6 +55,18 @@ const CompanyResearchPanel = lazy(() =>
 );
 const Settings = lazy(() => import("./Settings"));
 
+export function formatDashboardFitEstimate(score: number | null | undefined): string {
+  if (score == null || !Number.isFinite(score)) {
+    return "Not available";
+  }
+
+  const percentage = Math.round(score * 100);
+  if (score >= 0.9) return `Strong fit (${percentage}%)`;
+  if (score >= 0.7) return `Good fit (${percentage}%)`;
+  if (score >= 0.5) return `Possible fit (${percentage}%)`;
+  return `Needs review (${percentage}%)`;
+}
+
 // Extracted modules
 import type {
   Job,
@@ -997,8 +1009,8 @@ export default function Dashboard({
             <>
               <p className="text-sm text-surface-600 dark:text-surface-400">
                 Found {jobOps.duplicateGroups.length} duplicate groups. Same job
-                from multiple sources. Merging will keep the highest-scoring
-                version and hide duplicates.
+                from multiple sources. Merging will keep the strongest fit
+                estimate version and hide duplicates.
               </p>
               <div className="space-y-4 max-h-96 overflow-y-auto">
                 {jobOps.duplicateGroups.map((group) => (
@@ -1078,11 +1090,7 @@ export default function Dashboard({
                   <tbody className="divide-y divide-surface-200 dark:divide-surface-700">
                     <CompareRow
                       label="Match Strength"
-                      values={jobOps.comparedJobs.map((j) =>
-                        j.score != null
-                          ? `${Math.round(j.score * 100)}%`
-                          : "N/A",
-                      )}
+                      values={jobOps.comparedJobs.map((j) => formatDashboardFitEstimate(j.score))}
                     />
                     <CompareRow
                       label="Location"
@@ -1271,7 +1279,7 @@ const DuplicateGroupCard = memo(function DuplicateGroupCard({
               )}
             </div>
             <span className="text-sm text-surface-600 dark:text-surface-300">
-              {job.score ? `${Math.round(job.score * 100)}%` : "N/A"}
+              {formatDashboardFitEstimate(job.score)}
             </span>
           </div>
         ))}
