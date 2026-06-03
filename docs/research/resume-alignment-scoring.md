@@ -219,7 +219,8 @@ Future implementation should improve:
   `Basic Life Support` as the same evidence, while keeping unrelated
   credentials separate.
 - Readable-text review now treats training, credentials, certificate, and
-  license headings as credential evidence instead of generic resume text.
+  license headings as credential evidence and standard readable structure
+  instead of generic resume text.
 - Resume readability review now warns when experience or project bullets read
   like keyword lists instead of plain work evidence.
 - Resume readability review now warns when experience or project bullets are

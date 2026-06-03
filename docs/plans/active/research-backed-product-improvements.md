@@ -217,7 +217,8 @@ copy durable findings back into this plan or the active status surface.
   of an exact-degree hard cap.
 - Current local training-heading credential follow-up treats readable-text
   headings such as Training, Credentials, Certificates, and Licenses as
-  credential evidence instead of generic resume text.
+  credential evidence and standard readable-resume structure instead of
+  generic resume text.
 - Current local keyword-list bullet follow-up warns when experience or project
   bullets read like keyword lists instead of plain work evidence.
 - Current local generic-filler bullet follow-up warns when experience or
@@ -1641,6 +1642,7 @@ source-filter compatibility issue appears.
   Credential-equivalence work is committed in `c4fd8c7a`.
   Degree-equivalent-experience work is committed in `9fc9777d`.
   Training-heading credential work is committed in `df0bdf9a`.
+  Training-heading structure work is committed in `1a9c6b52`.
   Keyword-list bullet work is committed in `0447094b`.
   Generic-filler bullet work is committed in `c72a574d`.
   Capability-level warning work is committed in `7b546c78`.

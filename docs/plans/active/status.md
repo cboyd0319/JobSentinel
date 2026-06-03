@@ -1503,6 +1503,15 @@ Scope:
   -- --check`, `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D
   warnings`, `cargo test --lib --manifest-path src-tauri/Cargo.toml`, and `git
   diff --check`.
+- Latest local training-heading structure slice in `1a9c6b52` also treats
+  Training, Credentials, Certificates, and Professional Training headings as
+  standard readable-resume structure, so credential evidence headings are not
+  flagged as missing standard headings. Verification passed: `cargo test --lib
+  training_heading --manifest-path src-tauri/Cargo.toml`, `cargo test --lib
+  ats_analyzer --manifest-path src-tauri/Cargo.toml`, `cargo test --lib
+  --manifest-path src-tauri/Cargo.toml`, `cargo fmt --all --manifest-path
+  src-tauri/Cargo.toml -- --check`, `cargo clippy --manifest-path
+  src-tauri/Cargo.toml -- -D warnings`, and `git diff --check`.
 - Latest local keyword-list bullet slice in `0447094b` warns when experience or
   project bullets read like keyword lists instead of plain work evidence, while
   leaving normal skill-list sections alone. Browser/dev mocks stay aligned.
