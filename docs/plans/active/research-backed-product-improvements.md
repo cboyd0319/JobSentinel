@@ -218,6 +218,11 @@ copy durable findings back into this plan or the active status surface.
   management, scheduling, intake, and operations job details, asking users to
   check customer impact, volume, escalation path, documentation, and response
   quality before using drafted alternative bullets.
+- Current local technical/data bullet-prompt follow-up in `eaca7544` adds a
+  role-specific evidence reminder for software, data analysis, machine
+  learning, dashboard, API, and product job details, asking users to check
+  shipped work, users or decisions supported, reliability, data sources, and
+  measurable outcomes before using drafted alternative bullets.
 - Current local onsite location-term follow-up in `bffa0a1f` treats onsite and
   on-site as equivalent local hard-constraint evidence, so exact punctuation
   differences do not create a false missing-location risk.

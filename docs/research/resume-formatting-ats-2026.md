@@ -210,6 +210,8 @@ resume help should adjust examples and evidence prompts for:
 - Drafted bullet improvements add a service and operations evidence prompt for
   customer service, support, case management, scheduling, intake, and operations
   work.
+- Drafted bullet improvements add a technical and data evidence prompt for
+  software, data analysis, machine learning, dashboard, API, and product work.
 
 ## Backlog To Lock Next
 

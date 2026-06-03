@@ -133,8 +133,13 @@ acceptance still requires Developer ID signing and notarization.
   evidence reminder for customer service, support, case management, scheduling,
   intake, and operations job details, asking users to check customer impact,
   volume, escalation path, documentation, and response quality before using
-  drafted alternative bullets. Real resume/profile reference material remains
-  private and must not be committed.
+  drafted alternative bullets. The follow-up
+  `eaca7544 Add technical data bullet prompt` adds a technical and data
+  evidence reminder for software, data analysis, machine learning, dashboard,
+  API, and product job details, asking users to check shipped work, users or
+  decisions supported, reliability, data sources, and measurable outcomes before
+  using drafted alternative bullets. Real resume/profile reference material
+  remains private and must not be committed.
 - Current local resume-alignment scoring follow-up is committed in
   `3d720693 Add resume requirement review caps`. It locks
   `/Users/c/Downloads/ats_scoring_algorithm.md` into

@@ -339,6 +339,9 @@ The current local matcher:
 - adds a service and operations evidence prompt to drafted alternative bullets
   when job details mention customer service, support, case management,
   scheduling, intake, or operations work;
+- adds a technical and data evidence prompt to drafted alternative bullets when
+  job details mention software, data analysis, machine learning, dashboards,
+  APIs, or product work;
 - gives hard-requirement next actions category-specific honesty guidance,
   such as checking work authorization, clearance, licenses, education, years
   or level, physical demands, location, schedule, availability, and travel
