@@ -305,8 +305,8 @@ Future implementation should improve:
 - Resume/job fit now treats `bachelor's degree`, `bachelor degree`,
   `bachelors degree`, `Bachelor of Arts`, `Bachelor of Business
   Administration`, `Bachelor of Education`, `Bachelor of Engineering`, and
-  `Bachelor of Science` as equivalent local education evidence for generic
-  bachelor's requirements.
+  `Bachelor of Fine Arts` and `Bachelor of Science` as equivalent local
+  education evidence for generic bachelor's requirements.
 - Resume/job fit now treats `master's degree`, `master degree`,
   `masters degree`, `Master of Arts`, `Master of Business Administration`,
   `Master of Education`, `Master of Engineering`, and `Master of Science` as

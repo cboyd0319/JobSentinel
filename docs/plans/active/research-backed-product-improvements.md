@@ -369,6 +369,10 @@ copy durable findings back into this plan or the active status surface.
   Education as local evidence for generic bachelor's degree requirements
   without treating education-specific job wording as a generic bachelor's
   requirement.
+- Current local fine-arts bachelor follow-up in `e019570c` treats Bachelor of
+  Fine Arts as local evidence for generic bachelor's degree requirements
+  without treating fine-arts-specific job wording as a generic bachelor's
+  requirement.
 - Current local master-degree follow-up in `0e2a0fae` treats master's degree,
   master degree, and masters degree as equivalent local education
   hard-constraint evidence.
@@ -1867,6 +1871,7 @@ source-filter compatibility issue appears.
   Business-administration bachelor work is committed in `2a3fd362`.
   Engineering bachelor work is committed in `d355fd26`.
   Education bachelor work is committed in `fe6242f9`.
+  Fine-arts bachelor work is committed in `e019570c`.
   Master-degree work is committed in `0e2a0fae`.
   Master-degree title work is committed in `f032ae03`.
   Business-administration master work is committed in `ff1c617e`.
