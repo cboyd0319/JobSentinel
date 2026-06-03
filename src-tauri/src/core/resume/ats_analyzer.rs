@@ -2117,6 +2117,11 @@ impl AtsAnalyzer {
         let labels = [
             ("professional experience", "experience"),
             ("work experience", "experience"),
+            ("volunteer experience", "experience"),
+            ("community involvement", "experience"),
+            ("community service", "experience"),
+            ("military service", "experience"),
+            ("military experience", "experience"),
             ("selected projects", "projects"),
             ("skills technical skills", "skills"),
             ("technical skills", "skills"),
@@ -3365,6 +3370,38 @@ Preferred: Salesforce
         assert!(scheduling
             .evidence_sections
             .contains(&"experience".to_string()));
+    }
+
+    #[test]
+    fn test_plain_text_service_headings_count_as_experience_evidence() {
+        for heading in [
+            "Volunteer Experience",
+            "Community Involvement",
+            "Military Service",
+        ] {
+            let resume_text = format!(
+                "Jordan Lee\njordan@example.com\n\n{heading}\nCoordinated records management for client services."
+            );
+            let result = AtsAnalyzer::analyze_text_for_job(
+                &resume_text,
+                &[],
+                "Required: records management",
+            );
+            let review = result
+                .requirement_reviews
+                .iter()
+                .find(|review| review.keyword == "records management")
+                .expect("records management review");
+
+            assert_eq!(review.match_state, RequirementMatchState::Direct);
+            assert!(
+                review.evidence_sections.contains(&"experience".to_string()),
+                "{heading} should count as experience evidence"
+            );
+            assert!(!review
+                .evidence_sections
+                .contains(&"resume text".to_string()));
+        }
     }
 
     #[test]
