@@ -45,14 +45,17 @@ acceptance still requires Developer ID signing and notarization.
 
 ## Current Posture
 
-- `main` was pushed through `f9447e87 Record CDL license synonym commit`
-  and now has local commits after that push.
+- `main` was pushed through `e1022238 Record federal bullet prompt`.
   Use `git status --short --branch` for live evidence before committing,
   pushing, or reporting remote state.
 - Latest pushed critical-functionality batch extends local Resume Match
   hard-constraint and synonym handling for schedule, location, physical-demand,
-  work-eligibility, education, and credential terms. Keep the no-push batch
-  rule: push only after 30 more local commits unless the user changes cadence.
+  work-eligibility, education, and credential terms, then expands drafted
+  bullet evidence prompts across healthcare, regulated work, service and
+  operations, technical and data, sales and marketing, design and creative,
+  education and academic, executive and leadership, security, and federal job
+  details. Keep the no-push batch rule: push only after 30 more local commits
+  unless the user changes cadence.
 - Current local resume evidence-strength follow-up separates plain-text
   saved-resume requirement evidence by section, so skills-list-only terms stay
   lighter evidence while experience, summary, project, education,
