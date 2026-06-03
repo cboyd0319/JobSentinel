@@ -255,6 +255,10 @@ The current local matcher:
   while avoiding duplicate requirement rows for hyphenated job wording;
 - treats **onsite**, **on-site**, and **on site** as the same local location
   evidence for required location constraints;
+- treats **remote work**, **remote role**, and related remote wording as the
+  same local location evidence for required remote-work constraints;
+- treats **hybrid work**, **hybrid role**, and **hybrid schedule** as the same
+  local location evidence for required hybrid-work constraints;
 - treats **relocation**, **relocate**, and **willing to relocate** as the same
   local location evidence for required relocation constraints;
 - treats **reliable transportation** and **own transportation** as the same

@@ -263,6 +263,18 @@ copy durable findings back into this plan or the active status surface.
   Verification passed: `npx vitest run src/pages/ResumeOptimizer.test.tsx -t
   "nice-to-have"`, `npx vitest run src/pages/ResumeOptimizer.test.tsx`, `npx
   tsc --noEmit`, `npm run lint -- --quiet`, and `git diff --check`.
+- Current local Resume Match remote/hybrid constraint follow-up in `3ba9f95c`
+  recognizes required remote-work and hybrid-work language as local
+  location-style hard constraints, caps missing required hybrid evidence, and
+  accepts related remote role evidence without broad fuzzy matching.
+  Verification passed: `cargo test
+  test_missing_required_hybrid_work_constraint_caps_overall_score
+  --manifest-path src-tauri/Cargo.toml`, `cargo test
+  test_remote_work_requirement_accepts_remote_role_evidence --manifest-path
+  src-tauri/Cargo.toml`, `cargo test --lib requirement_review --manifest-path
+  src-tauri/Cargo.toml`, `cargo test --lib hard_constraint --manifest-path
+  src-tauri/Cargo.toml`, `cargo fmt --all --manifest-path
+  src-tauri/Cargo.toml -- --check`, and `git diff --check`.
 - Current local healthcare bullet-prompt follow-up in `e7a61306` adds a
   role-specific evidence reminder for healthcare and licensed-work job details,
   asking users to check scope of practice, patient safety, documentation, and

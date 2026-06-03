@@ -267,6 +267,12 @@ Future implementation should improve:
   wording.
 - Resume/job fit now treats `onsite`, `on-site`, and `on site` as equivalent
   local location evidence for required location constraints.
+- Resume/job fit now treats `remote work`, `remote role`, `remote position`,
+  and related remote wording as equivalent local location evidence for required
+  remote-work constraints.
+- Resume/job fit now treats `hybrid work`, `hybrid role`, `hybrid schedule`,
+  and related hybrid wording as equivalent local location evidence for required
+  hybrid-work constraints.
 - Resume/job fit now treats `relocation`, `relocate`, and
   `willing to relocate` as equivalent local location evidence for required
   relocation constraints.
