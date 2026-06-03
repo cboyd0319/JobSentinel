@@ -597,6 +597,12 @@ acceptance still requires Developer ID signing and notarization.
   --manifest-path src-tauri/Cargo.toml -- --check`, `cargo clippy
   --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
   --check`. The follow-up
+  `9fea911f Label recent resume evidence plainly` shows recent-ended-role
+  evidence as "recent role experience" instead of the backend `recent
+  experience` section name. Verification passed: `npx vitest run
+  src/pages/ResumeOptimizer.test.tsx -t "plain labels"`, `npx vitest run
+  src/pages/ResumeOptimizer.test.tsx`, `npx tsc --noEmit`, `npm run lint --
+  --quiet`, and `git diff --check`. The follow-up
   `4607b67f Strengthen metric-backed resume evidence` treats work or project
   evidence with visible metrics as stronger local evidence than a bare keyword.
   The follow-up `c109b9d3 Strengthen scope-backed resume evidence` treats work

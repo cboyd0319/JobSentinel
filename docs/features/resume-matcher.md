@@ -423,7 +423,8 @@ hit. Broader non-metric evidence strength beyond scope and responsibility
 signals, synonym, broader recency weighting, too-low-role warnings, and
 profession-specific weighting remain future work.
 The visible requirement review uses plain evidence labels such as current role
-experience, work experience, and skills list instead of backend section names.
+experience, recent role experience, work experience, and skills list instead
+of backend section names.
 
 ## Boundaries
 

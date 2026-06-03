@@ -626,6 +626,12 @@ copy durable findings back into this plan or the active status surface.
   --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo clippy
   --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
   --check`.
+- Current local Resume Match recent-evidence label follow-up in `9fea911f`
+  shows recent-ended-role evidence as "recent role experience" instead of the
+  backend `recent experience` section name. Verification passed: `npx vitest
+  run src/pages/ResumeOptimizer.test.tsx -t "plain labels"`, `npx vitest run
+  src/pages/ResumeOptimizer.test.tsx`, `npx tsc --noEmit`, `npm run lint --
+  --quiet`, and `git diff --check`.
 - Current local metric-backed evidence-strength follow-up treats work or
   project evidence with visible metrics such as percentages, counts, or dollar
   amounts as stronger local evidence than a bare keyword.
