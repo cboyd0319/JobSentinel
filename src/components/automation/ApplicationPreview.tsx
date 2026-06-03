@@ -117,6 +117,18 @@ const HARD_QUESTION_REVIEWS: HardQuestionReview[] = [
   {
     label: "Education or degree",
     detail: "Check degree, diploma, or education-equivalent answers against visible evidence.",
+    getDetail: ({ screeningAnswers }) => getSavedScreeningAnswerReviewDetail(
+      screeningAnswers,
+      [
+        /\beducation\b/i,
+        /\bdegree\b/i,
+        /\bbachelor'?s?\b/i,
+        /\bmaster'?s?\b/i,
+        /\bhigh school\b/i,
+        /\bdiploma\b/i,
+      ],
+      "Check degree, diploma, or education-equivalent answers against visible evidence.",
+    ),
     patterns: [
       /\bdegree\b/i,
       /\bbachelor'?s?\b/i,
@@ -170,6 +182,9 @@ function getSavedScreeningAnswerLabel(questionPattern: string) {
   if (/\bremote\b|\bhybrid\b|\bon[-\s]?site\b/.test(normalizedPattern)) return "location";
   if (/\blicen[cs]e\b|\bcertif|\bclearance\b|\bRN\b|\bCNA\b|\bCDL\b|\bPMP\b|\bSecurity\+\b/i.test(questionPattern)) {
     return "credential";
+  }
+  if (/\beducation\b|\bdegree\b|\bbachelor'?s?\b|\bmaster'?s?\b|\bhigh school\b|\bdiploma\b/i.test(questionPattern)) {
+    return "education";
   }
 
   return "screening";
