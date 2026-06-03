@@ -3150,6 +3150,7 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
       "general education development",
     ],
     ["bachelor's degree", "bachelor degree", "bachelors degree"],
+    ["master's degree", "master degree", "masters degree"],
     [
       "stand for long period",
       "stand for long periods",

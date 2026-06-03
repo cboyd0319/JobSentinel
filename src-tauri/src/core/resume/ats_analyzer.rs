@@ -2066,6 +2066,7 @@ impl AtsAnalyzer {
                 "general education development",
             ],
             &["bachelor's degree", "bachelor degree", "bachelors degree"],
+            &["master's degree", "master degree", "masters degree"],
             &[
                 "stand for long period",
                 "stand for long periods",
@@ -4119,6 +4120,28 @@ Preferred: Salesforce
             .hard_constraint_risks
             .iter()
             .any(|risk| risk.requirement == "bachelor's degree"));
+    }
+
+    #[test]
+    fn test_masters_degree_requirement_accepts_master_degree_evidence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nEducation\nMaster degree",
+            &[],
+            "Required: master's degree",
+        );
+
+        let degree = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "master's degree")
+            .expect("master degree review");
+        assert_eq!(degree.match_state, RequirementMatchState::Direct);
+        assert!(degree.hard_constraint);
+        assert!(degree.evidence_sections.contains(&"education".to_string()));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "master's degree"));
     }
 
     #[test]

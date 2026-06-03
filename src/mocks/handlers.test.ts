@@ -1629,6 +1629,46 @@ describe("mock Tauri handlers", () => {
     );
   });
 
+  it("matches master's degree punctuation variants in mock hard constraints", async () => {
+    const degreeResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        experience: [],
+        skills: [],
+        education: [
+          {
+            degree: "Master degree",
+            institution: "State College",
+            location: "Denver, CO",
+            graduation_date: "2020",
+            gpa: null,
+            honors: [],
+          },
+        ],
+      },
+      jobDescription: "Required: master's degree",
+    });
+
+    expect(degreeResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "master's degree",
+          match_state: "Direct",
+          hard_constraint: true,
+          evidence_sections: expect.arrayContaining(["education"]),
+        }),
+      ]),
+    );
+    expect(degreeResult.hard_constraint_risks).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          requirement: "master's degree",
+        }),
+      ]),
+    );
+  });
+
   it("treats metric-backed current experience as strong mock evidence", async () => {
     const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
