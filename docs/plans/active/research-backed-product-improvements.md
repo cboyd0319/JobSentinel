@@ -295,6 +295,13 @@ copy durable findings back into this plan or the active status surface.
   ats_analyzer --manifest-path src-tauri/Cargo.toml`, `npx vitest run
   src/pages/ResumeOptimizer.test.tsx`, `npx tsc --noEmit`, frontend lint,
   Rust formatter check, and `git diff --check`.
+- Current local Resume Match supervisor constraint follow-up in `39ee583a`
+  recognizes required supervisor experience, supervision, and supervised-staff
+  language as canonical management-experience constraints, caps missing
+  supervisor evidence, and accepts supervised-staff evidence without broad
+  fuzzy matching. Verification passed: focused supervisor Rust tests,
+  `cargo test --lib ats_analyzer --manifest-path src-tauri/Cargo.toml`, Rust
+  formatter check, and `git diff --check`.
 - Current local healthcare bullet-prompt follow-up in `e7a61306` adds a
   role-specific evidence reminder for healthcare and licensed-work job details,
   asking users to check scope of practice, patient safety, documentation, and

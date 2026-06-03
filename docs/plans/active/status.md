@@ -365,6 +365,13 @@ acceptance still requires Developer ID signing and notarization.
   --manifest-path src-tauri/Cargo.toml`, `npx vitest run
   src/pages/ResumeOptimizer.test.tsx`, `npx tsc --noEmit`, frontend lint,
   Rust formatter check, and `git diff --check`. The follow-up
+  `39ee583a Review supervisor resume constraints` recognizes required
+  supervisor experience, supervision, and supervised-staff language as
+  canonical management-experience constraints, caps missing supervisor
+  evidence, and accepts supervised-staff evidence without broad fuzzy matching.
+  Verification passed: focused supervisor Rust tests, `cargo test --lib
+  ats_analyzer --manifest-path src-tauri/Cargo.toml`, Rust formatter check, and
+  `git diff --check`. The follow-up
   `5be01ab3 Match lift weight unit terms` treats lift requirements with the
   same number and `lb`, `lbs`, `pound`, or `pounds` wording as the same local
   hard-constraint evidence. The follow-up

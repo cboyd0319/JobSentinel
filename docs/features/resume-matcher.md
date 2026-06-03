@@ -203,6 +203,9 @@ The current local matcher:
 - treats recognized required seniority language, such as senior-level
   experience, as a local experience constraint and checks for visible role,
   leadership, or enough-years evidence before raising the fit label;
+- treats **supervisor experience**, **supervisory experience**,
+  **team supervision**, **supervising staff**, and **supervised staff** as
+  management-experience evidence for required supervisor constraints;
 - treats **US citizenship**, **U.S. citizenship**, **US citizen**, and
   **U.S. citizen** as the same local citizenship evidence without treating
   generic work authorization as citizenship;
