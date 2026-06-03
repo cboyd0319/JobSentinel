@@ -20,6 +20,8 @@ fixed by asking harder.
   tailoring.
 - Flag when a floor is below credible range evidence or when a role may be
   listed at too low a title or pay level.
+- Show a past-pay question guardrail that redirects toward role range and
+  target pay instead of old compensation.
 - Draft editable negotiation notes grounded in role scope, written ranges, and
   user-confirmed facts.
 - Compare offers across pay, benefits, schedule, level, promotion path, and
@@ -47,8 +49,8 @@ inputs, not as self-worth scores.
   level, schedule, and realistic pay.
 - Check whether title, scope, decision rights, team size, budget, and promotion
   path match the offered level.
-- Help users redirect salary-history questions toward the role range and target
-  pay.
+- Help users redirect current-pay or past-pay questions toward the role range
+  and target pay without making jurisdiction-specific legal claims.
 - Label source, date, sample size, and coverage limits.
 - Label benchmark sample quality as thin, useful, or stronger. Thin samples are
   weak signals and should be checked against written ranges, role scope, and

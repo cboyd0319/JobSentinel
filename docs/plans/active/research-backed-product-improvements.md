@@ -166,6 +166,9 @@ copy durable findings back into this plan or the active status surface.
 - Current local broad listed-pay range follow-up flags very wide posted salary
   ranges on job cards as weaker evidence that may cover different levels or
   schedules.
+- Current local past-pay guardrail follow-up makes Pay Protection show a
+  current-pay or past-pay redirect toward role range and target pay without
+  making jurisdiction-specific legal claims.
 - Current local Resume-Assisted Guided Intake follow-up shows active
   saved-resume skill names in setup as optional local suggestions and only adds
   user-picked names to the saved search.
@@ -1561,6 +1564,7 @@ source-filter compatibility issue appears.
   Dashboard comparison fit-label work is committed in `af644659`.
   Salary sample-quality work is committed in `3a6731e1`.
   Broad listed-pay range work is committed in `48314f44`.
+  Past-pay guardrail work is committed in `4abd1cd8`.
   Resume-Assisted Guided Intake work is committed in `da84110a`.
   Source Governance Metadata work is committed in `66924003`.
   Resume availability-constraint work is committed in `0d8bf479`.

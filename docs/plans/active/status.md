@@ -1567,6 +1567,12 @@ Scope:
   formatting"`, `npx vitest run src/components/JobCard.test.tsx`, `npx tsc
   --noEmit`, `npm run lint -- --quiet`, `npm run lint:external-ai`, `npm run
   lint:bloat`, and `git diff --check`.
+- Latest local past-pay guardrail slice in `4abd1cd8` makes Pay Protection show
+  a distinct current-pay or past-pay redirect without making legal claims,
+  helping users avoid anchoring to old compensation. Verification passed: `npx
+  vitest run src/pages/Salary.test.tsx -t "past-pay guardrail"`, `npx vitest
+  run src/pages/Salary.test.tsx`, `npx tsc --noEmit`, `npm run lint --
+  --quiet`, `npm run lint:external-ai`, and `git diff --check`.
 - No-Apple-account macOS readiness is already best-possible without an Apple
   Developer Account. Keep the limitation explicit: Gatekeeper-ready public
   distribution still needs Developer ID signing and notarization.
