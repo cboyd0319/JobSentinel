@@ -1587,6 +1587,13 @@ Scope:
   "quiet job-search alerts"`, `npx vitest run src/pages/SetupWizard.test.tsx`,
   `npx tsc --noEmit`, `npm run lint -- --quiet`, `npm run lint:external-ai`,
   and `git diff --check`.
+- Latest local job-card scam-warning slice in `ed5d837b` adds separate
+  possible-scam guidance for postings that mention money, checks, fees, or
+  sensitive details early, without treating stale-posting risk as scam proof.
+  Verification passed: `npx vitest run src/components/JobCard.test.tsx -t
+  "scam"`, `npx vitest run src/components/JobCard.test.tsx`, `npx tsc
+  --noEmit`, `npm run lint -- --quiet`, `npm run lint:external-ai`, `npm run
+  lint:bloat`, and `git diff --check`.
 - No-Apple-account macOS readiness is already best-possible without an Apple
   Developer Account. Keep the limitation explicit: Gatekeeper-ready public
   distribution still needs Developer ID signing and notarization.

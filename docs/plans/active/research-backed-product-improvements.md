@@ -176,6 +176,9 @@ copy durable findings back into this plan or the active status surface.
 - Current local quiet setup alert follow-up adds first-run quiet job-search mode
   for desktop alerts, mapping to existing local alert sound settings without
   adding email, chat, or another external channel.
+- Current local job-card scam-warning follow-up adds separate possible-scam
+  guidance for money, check, fee, or early sensitive-detail signals while
+  keeping stale-posting risk separate.
 - Current local Resume-Assisted Guided Intake follow-up shows active
   saved-resume skill names in setup as optional local suggestions and only adds
   user-picked names to the saved search.
@@ -1574,6 +1577,7 @@ source-filter compatibility issue appears.
   Past-pay guardrail work is committed in `4abd1cd8`.
   Pay level/scope checklist work is committed in `1e28c6b0`.
   Quiet setup alert work is committed in `d96e3934`.
+  Job-card scam-warning work is committed in `ed5d837b`.
   Resume-Assisted Guided Intake work is committed in `da84110a`.
   Source Governance Metadata work is committed in `66924003`.
   Resume availability-constraint work is committed in `0d8bf479`.
