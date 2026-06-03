@@ -64,6 +64,11 @@ const PHYSICAL_REQUIREMENT_PATTERNS = [
   /\bable to (?:lift|stand)\b/i,
 ];
 
+const MINIMUM_AGE_PATTERNS = [
+  /\b(?:must be|at least|minimum age(?: is)?|age requirement(?: is)?)\s*\d{2}\s*(?:\+|years? (?:old|of age))\b/i,
+  /\b\d{2}\s*\+?\s*(?:years? old|years? of age)\b/i,
+];
+
 const HARD_QUESTION_REVIEWS: HardQuestionReview[] = [
   {
     label: "Work authorization",
@@ -171,6 +176,17 @@ const HARD_QUESTION_REVIEWS: HardQuestionReview[] = [
     patterns: PHYSICAL_REQUIREMENT_PATTERNS,
   },
   {
+    label: "Age requirement",
+    detail: "Check minimum-age or legal work-age requirements before answering. Use only truthful answers.",
+    getDetail: ({ screeningAnswers }) => getSavedScreeningAnswerReviewDetail(
+      screeningAnswers,
+      MINIMUM_AGE_PATTERNS,
+      "Check minimum-age or legal work-age requirements before answering. Use only truthful answers.",
+      "Confirm it matches the employer's wording before continuing.",
+    ),
+    patterns: MINIMUM_AGE_PATTERNS,
+  },
+  {
     label: "Education or degree",
     detail: "Check degree, diploma, or education-equivalent answers against visible evidence.",
     getDetail: ({ screeningAnswers }) => getSavedScreeningAnswerReviewDetail(
@@ -205,7 +221,7 @@ const HARD_QUESTION_REVIEWS: HardQuestionReview[] = [
       "Make years, level, and seniority answers match the experience you can explain.",
     ),
     patterns: [
-      /\b\d+\+?\s*(?:years|yrs)\b/i,
+      /\b\d+\+?\s*(?:years|yrs)\b(?!\s*(?:of age|old))/i,
       /\byears? of experience\b/i,
       /\bexperience required\b/i,
     ],
@@ -272,6 +288,9 @@ function getSavedScreeningAnswerLabel(questionPattern: string) {
   if (PHYSICAL_REQUIREMENT_PATTERNS.some((pattern) => pattern.test(questionPattern))) {
     return "physical requirement";
   }
+  if (MINIMUM_AGE_PATTERNS.some((pattern) => pattern.test(questionPattern))) {
+    return "age requirement";
+  }
   if (/\beducation\b|\bdegree\b|\bbachelor'?s?\b|\bmaster'?s?\b|\bhigh school\b|\bdiploma\b/i.test(questionPattern)) {
     return "education";
   }
@@ -301,6 +320,7 @@ function getSavedScreeningAnswerReviewDetail(
   screeningAnswers: ScreeningAnswerPreview[],
   answerPatterns: RegExp[],
   fallbackDetail: string,
+  confirmationDetail = "Confirm it matches the employer's wording and resume evidence before continuing.",
 ) {
   const savedAnswer = screeningAnswers.find((answer) => (
     answer.answer.trim().length > 0 &&
@@ -312,7 +332,7 @@ function getSavedScreeningAnswerReviewDetail(
   const answerLabel = getSavedScreeningAnswerLabel(savedAnswer.questionPattern);
   const answerSnippet = getSavedAnswerSnippet(savedAnswer.answer);
 
-  return `Saved ${answerLabel} answer says: ${answerSnippet} Confirm it matches the employer's wording and resume evidence before continuing.`;
+  return `Saved ${answerLabel} answer says: ${answerSnippet} ${confirmationDetail}`;
 }
 
 function hasHardQuestionReviewText(job: Job) {

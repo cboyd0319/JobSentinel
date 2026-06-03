@@ -533,6 +533,29 @@ describe("ApplicationPreview", () => {
       ).toBeInTheDocument();
     });
 
+    it("flags minimum-age requirements from job details", async () => {
+      mockInvoke.mockResolvedValue(mockProfile);
+
+      render(
+        <ApplicationPreview
+          job={{
+            ...mockJob,
+            description: "Applicants must be 18 years of age before start.",
+          }}
+          atsPlatform="greenhouse"
+        />,
+      );
+
+      expect(await screen.findByText("Hard Question Review")).toBeInTheDocument();
+      expect(screen.getByText("Age requirement")).toBeInTheDocument();
+      expect(screen.queryByText("Years of experience")).not.toBeInTheDocument();
+      expect(
+        screen.getByText(
+          "Check minimum-age or legal work-age requirements before answering. Use only truthful answers.",
+        ),
+      ).toBeInTheDocument();
+    });
+
     it("shows saved work-authorization answers when the job asks about sponsorship", async () => {
       mockInvoke.mockResolvedValue({
         ...mockProfile,
@@ -966,6 +989,52 @@ describe("ApplicationPreview", () => {
       expect(
         screen.getByText(
           "Saved physical requirement answer says: I can lift 50 pounds safely. Confirm it matches the employer's wording and resume evidence before continuing.",
+        ),
+      ).toBeInTheDocument();
+      expect(mockInvoke).toHaveBeenCalledWith("get_screening_answers");
+    });
+
+    it("shows saved age answers when the job asks about minimum age", async () => {
+      mockInvoke.mockImplementation((command: string) => {
+        if (command === "get_application_profile_preview") {
+          return Promise.resolve(mockProfile);
+        }
+
+        if (command === "get_screening_answers") {
+          return Promise.resolve([
+            {
+              id: 1,
+              questionPattern: "18 years of age",
+              answer: "Yes, I meet the 18 years of age requirement.",
+              answerType: "text",
+              notes: null,
+              timesUsed: 0,
+              timesModified: 0,
+              confidenceScore: 0,
+              lastUsedAt: null,
+              createdAt: "2026-01-01T00:00:00Z",
+              updatedAt: "2026-01-01T00:00:00Z",
+            },
+          ]);
+        }
+
+        return Promise.reject(new Error(`Unexpected command: ${command}`));
+      });
+
+      render(
+        <ApplicationPreview
+          job={{
+            ...mockJob,
+            description: "Applicants must be 18 years of age before start.",
+          }}
+          atsPlatform="greenhouse"
+        />,
+      );
+
+      expect(await screen.findByText("Hard Question Review")).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          "Saved age requirement answer says: Yes, I meet the 18 years of age requirement. Confirm it matches the employer's wording before continuing.",
         ),
       ).toBeInTheDocument();
       expect(mockInvoke).toHaveBeenCalledWith("get_screening_answers");
