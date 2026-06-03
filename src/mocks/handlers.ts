@@ -2355,7 +2355,12 @@ function getMockHardConstraintCategory(keyword: string): MockHardConstraintCateg
   ) {
     return "Education";
   }
-  if (lower.includes("year") || lower.includes("yrs")) {
+  if (
+    lower.includes("year") ||
+    lower.includes("yrs") ||
+    lower.includes("level experience") ||
+    lower === "management experience"
+  ) {
     return "Experience";
   }
   if (
@@ -2559,8 +2564,37 @@ function extractMockHardConstraintKeywords(jobDescription: string): string[] {
       match = pattern.exec(jobDescription);
     }
   }
+  for (const keyword of extractMockSeniorityConstraintKeywords(jobDescription)) {
+    keywords.add(keyword);
+  }
 
   return [...keywords].sort();
+}
+
+function extractMockSeniorityConstraintKeywords(text: string): string[] {
+  const patterns: Array<[RegExp, string]> = [
+    [/\b(senior[- ]level|senior|sr\.)\b/i, "senior-level experience"],
+    [/\b(lead[- ]level|team lead|leadership experience)\b/i, "lead-level experience"],
+    [
+      /\b(staff[- ]level|principal[- ]level|staff engineer|principal engineer|principal consultant)\b/i,
+      "staff/principal-level experience",
+    ],
+    [
+      /\b(people management|management experience|manager[- ]level|supervisory experience|team management)\b/i,
+      "management experience",
+    ],
+    [/\b(director[- ]level|director experience|department director)\b/i, "director-level experience"],
+    [
+      /\b(executive[- ]level|executive leadership|c-suite|vice president|vp)\b/i,
+      "executive-level experience",
+    ],
+    [/\b(mid[- ]level|intermediate)\b/i, "mid-level experience"],
+  ];
+
+  return patterns
+    .filter(([pattern]) => pattern.test(text))
+    .map(([, keyword]) => keyword)
+    .sort();
 }
 
 function getMockKeywordImportance(
@@ -2619,6 +2653,84 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
     }
   }
 
+  const seniorityTerms: Record<string, string[]> = {
+    "senior-level experience": [
+      "senior",
+      "sr.",
+      "lead",
+      "5 years",
+      "5+ years",
+      "5 yrs",
+      "5+ yrs",
+      ...getMockExperienceYearSearchTerms(6),
+    ],
+    "mid-level experience": [
+      "mid-level",
+      "intermediate",
+      "3 years",
+      "3+ years",
+      "3 yrs",
+      "3+ yrs",
+      ...getMockExperienceYearSearchTerms(4),
+    ],
+    "lead-level experience": [
+      "lead",
+      "team lead",
+      "leadership experience",
+      "supervised",
+      "supervisor",
+      ...getMockExperienceYearSearchTerms(5),
+    ],
+    "staff/principal-level experience": [
+      "staff",
+      "principal",
+      "architect",
+      "10 years",
+      "10+ years",
+      ...getMockExperienceYearSearchTerms(11),
+    ],
+    "management experience": [
+      "management",
+      "manager",
+      "managed",
+      "people management",
+      "supervised",
+      "supervisor",
+    ],
+    "director-level experience": [
+      "director",
+      "head of",
+      "department lead",
+      "10 years",
+      "10+ years",
+      ...getMockExperienceYearSearchTerms(11),
+    ],
+    "executive-level experience": [
+      "executive",
+      "vp",
+      "vice president",
+      "chief",
+      "c-level",
+      "10 years",
+      "10+ years",
+      ...getMockExperienceYearSearchTerms(11),
+    ],
+  };
+  for (const term of seniorityTerms[lower] ?? []) {
+    if (!terms.includes(term)) terms.push(term);
+  }
+
+  return terms;
+}
+
+function getMockExperienceYearSearchTerms(minYears: number): string[] {
+  const terms: string[] = [];
+  for (let years = minYears; years <= 50; years += 1) {
+    terms.push(`${years} years`);
+    terms.push(`${years}+ years`);
+    terms.push(`${years} yrs`);
+    terms.push(`${years}+ yrs`);
+  }
   return terms;
 }
 

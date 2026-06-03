@@ -789,6 +789,62 @@ describe("mock Tauri handlers", () => {
       ]),
     );
 
+    const seniorResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "Program operations lead with 5 years of intake scheduling.",
+        experience: [
+          {
+            ...atsResume.experience[0],
+            title: "Program Operations Lead",
+            achievements: ["Led intake scheduling across three service teams."],
+          },
+        ],
+      },
+      jobDescription: "Required: senior-level experience, CRM",
+    });
+    expect(seniorResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "senior-level experience",
+          match_state: "Strong",
+          evidence_sections: expect.arrayContaining(["summary", "current experience"]),
+          hard_constraint: true,
+        }),
+      ]),
+    );
+    expect(seniorResult.hard_constraint_risks).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          requirement: "senior-level experience",
+        }),
+      ]),
+    );
+
+    const missingSeniorResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "Client service coordinator with intake scheduling.",
+        experience: [
+          {
+            ...atsResume.experience[0],
+            title: "Client Service Coordinator",
+            achievements: ["Handled intake scheduling and case documentation."],
+          },
+        ],
+      },
+      jobDescription: "Required: senior-level experience, CRM",
+    });
+    expect(missingSeniorResult.hard_constraint_risks).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          requirement: "senior-level experience",
+          category: "Experience",
+          score_cap: 65,
+        }),
+      ]),
+    );
+
     await mockInvoke<number>("select_and_upload_resume");
     const activeJobResult = await mockInvoke<AtsAnalysisResult>("analyze_active_resume_for_job", {
       jobDescription:

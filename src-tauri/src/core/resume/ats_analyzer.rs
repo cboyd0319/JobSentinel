@@ -1303,7 +1303,11 @@ impl AtsAnalyzer {
         {
             return Some(HardConstraintCategory::Education);
         }
-        if lower.contains("year") || lower.contains("yrs") {
+        if lower.contains("year")
+            || lower.contains("yrs")
+            || lower.contains("level experience")
+            || lower == "management experience"
+        {
             return Some(HardConstraintCategory::Experience);
         }
         if lower.contains("lift ")
@@ -1512,6 +1516,112 @@ impl AtsAnalyzer {
             }
         }
 
+        match keyword_lower {
+            "senior-level experience" => {
+                terms.extend(
+                    [
+                        "senior", "sr.", "lead", "5 years", "5+ years", "5 yrs", "5+ yrs",
+                    ]
+                    .into_iter()
+                    .map(str::to_string),
+                );
+                terms.extend(Self::experience_year_search_terms(6));
+            }
+            "mid-level experience" => {
+                terms.extend(
+                    [
+                        "mid-level",
+                        "intermediate",
+                        "3 years",
+                        "3+ years",
+                        "3 yrs",
+                        "3+ yrs",
+                    ]
+                    .into_iter()
+                    .map(str::to_string),
+                );
+                terms.extend(Self::experience_year_search_terms(4));
+            }
+            "lead-level experience" => {
+                terms.extend(
+                    [
+                        "lead",
+                        "team lead",
+                        "leadership experience",
+                        "supervised",
+                        "supervisor",
+                    ]
+                    .into_iter()
+                    .map(str::to_string),
+                );
+                terms.extend(Self::experience_year_search_terms(5));
+            }
+            "staff/principal-level experience" => {
+                terms.extend(
+                    ["staff", "principal", "architect", "10 years", "10+ years"]
+                        .into_iter()
+                        .map(str::to_string),
+                );
+                terms.extend(Self::experience_year_search_terms(11));
+            }
+            "management experience" => {
+                terms.extend(
+                    [
+                        "management",
+                        "manager",
+                        "managed",
+                        "people management",
+                        "supervised",
+                        "supervisor",
+                    ]
+                    .into_iter()
+                    .map(str::to_string),
+                );
+            }
+            "director-level experience" => {
+                terms.extend(
+                    [
+                        "director",
+                        "head of",
+                        "department lead",
+                        "10 years",
+                        "10+ years",
+                    ]
+                    .into_iter()
+                    .map(str::to_string),
+                );
+                terms.extend(Self::experience_year_search_terms(11));
+            }
+            "executive-level experience" => {
+                terms.extend(
+                    [
+                        "executive",
+                        "vp",
+                        "vice president",
+                        "chief",
+                        "c-level",
+                        "10 years",
+                        "10+ years",
+                    ]
+                    .into_iter()
+                    .map(str::to_string),
+                );
+                terms.extend(Self::experience_year_search_terms(11));
+            }
+            _ => {}
+        }
+
+        terms
+    }
+
+    fn experience_year_search_terms(min_years: usize) -> Vec<String> {
+        let mut terms = Vec::new();
+        for years in min_years..=50 {
+            terms.push(format!("{years} years"));
+            terms.push(format!("{years}+ years"));
+            terms.push(format!("{years} yrs"));
+            terms.push(format!("{years}+ yrs"));
+        }
         terms
     }
 
@@ -1719,6 +1829,53 @@ impl AtsAnalyzer {
                         keywords.insert(m.as_str().to_lowercase());
                     }
                 }
+            }
+        }
+        for keyword in Self::extract_seniority_constraint_keywords(text) {
+            keywords.insert(keyword);
+        }
+
+        let mut sorted_keywords = keywords.into_iter().collect::<Vec<_>>();
+        sorted_keywords.sort();
+        sorted_keywords
+    }
+
+    fn extract_seniority_constraint_keywords(text: &str) -> Vec<String> {
+        let mut keywords = HashSet::new();
+        let seniority_patterns = [
+            (
+                r"(?i)\b(senior[- ]level|senior|sr\.)\b",
+                "senior-level experience",
+            ),
+            (
+                r"(?i)\b(lead[- ]level|team lead|leadership experience)\b",
+                "lead-level experience",
+            ),
+            (
+                r"(?i)\b(staff[- ]level|principal[- ]level|staff engineer|principal engineer|principal consultant)\b",
+                "staff/principal-level experience",
+            ),
+            (
+                r"(?i)\b(people management|management experience|manager[- ]level|supervisory experience|team management)\b",
+                "management experience",
+            ),
+            (
+                r"(?i)\b(director[- ]level|director experience|department director)\b",
+                "director-level experience",
+            ),
+            (
+                r"(?i)\b(executive[- ]level|executive leadership|c-suite|vice president|vp)\b",
+                "executive-level experience",
+            ),
+            (
+                r"(?i)\b(mid[- ]level|intermediate)\b",
+                "mid-level experience",
+            ),
+        ];
+
+        for (pattern, keyword) in seniority_patterns {
+            if regex::Regex::new(pattern).unwrap().is_match(text) {
+                keywords.insert(keyword.to_string());
             }
         }
 
@@ -2627,6 +2784,54 @@ Preferred: Salesforce
                 && review.hard_constraint
                 && review.match_state == RequirementMatchState::Missing
         }));
+    }
+
+    #[test]
+    fn test_missing_required_senior_level_constraint_caps_overall_score() {
+        let mut resume = sample_resume();
+        resume.summary = "Client service coordinator with intake scheduling".to_string();
+        resume.experience[0].title = "Client Service Coordinator".to_string();
+        resume.experience[0].achievements =
+            vec!["Handled intake scheduling and case documentation".to_string()];
+
+        let result =
+            AtsAnalyzer::analyze_for_job(&resume, "Required: senior-level experience, CRM");
+
+        assert!(result.overall_score <= 65.0);
+        assert!(result.hard_constraint_risks.iter().any(|risk| {
+            risk.requirement == "senior-level experience"
+                && risk.category == HardConstraintCategory::Experience
+                && risk.score_cap == 65.0
+                && risk.action.contains("Verify this before tailoring")
+        }));
+        assert!(result.requirement_reviews.iter().any(|review| {
+            review.keyword == "senior-level experience"
+                && review.hard_constraint
+                && review.match_state == RequirementMatchState::Missing
+        }));
+    }
+
+    #[test]
+    fn test_required_senior_level_uses_current_lead_and_year_evidence() {
+        let resume = sample_resume();
+
+        let result =
+            AtsAnalyzer::analyze_for_job(&resume, "Required: senior-level experience, CRM");
+
+        let seniority = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "senior-level experience")
+            .expect("senior-level review");
+        assert_eq!(seniority.match_state, RequirementMatchState::Strong);
+        assert!(seniority.evidence_sections.contains(&"summary".to_string()));
+        assert!(seniority
+            .evidence_sections
+            .contains(&"current experience".to_string()));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "senior-level experience"));
     }
 
     #[test]
