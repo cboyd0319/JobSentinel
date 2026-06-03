@@ -856,6 +856,32 @@ describe("mock Tauri handlers", () => {
       ]),
     );
 
+    const frontDeskResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        experience: [
+          {
+            ...atsResume.experience[0],
+            current: false,
+            end_date: "2022",
+            achievements: ["Managed reception check-in and appointment calls."],
+          },
+        ],
+        skills: [],
+      },
+      jobDescription: "Required: front desk",
+    });
+    expect(frontDeskResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "front desk",
+          match_state: "Direct",
+          evidence_sections: ["experience"],
+        }),
+      ]),
+    );
+
     const caseManagementResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
         ...atsResume,

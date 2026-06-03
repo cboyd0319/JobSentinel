@@ -709,6 +709,10 @@ impl AtsAnalyzer {
             "client support",
             "guest service",
             "guest services",
+            "front desk",
+            "front-desk",
+            "reception",
+            "receptionist",
             "case management",
             "case coordination",
             "scheduling",
@@ -2363,6 +2367,7 @@ impl AtsAnalyzer {
             &["case management", "case coordination"],
             &["scheduling", "calendar management", "appointment setting"],
             &["quality assurance", "qa"],
+            &["front desk", "front-desk", "reception", "receptionist"],
             &["cash handling", "cashier"],
             &["point of sale", "pos system", "pos systems"],
             &["patient care", "patient-care"],
@@ -3156,7 +3161,7 @@ impl AtsAnalyzer {
         let mut keywords = HashSet::new();
 
         let keyword_patterns = [
-            r"(?i)\b(customer service|client service|client services|guest services?|case management|case coordination|case notes|case documentation)\b",
+            r"(?i)\b(customer service|client service|client services|guest services?|front[- ]desk|reception|receptionist|case management|case coordination|case notes|case documentation)\b",
             r"(?i)\b(scheduling|calendar management|appointment setting|intake|onboarding|training)\b",
             r"(?i)\b(sales|account management|crm|salesforce|hubspot|pipeline|prospecting)\b",
             r"(?i)\b(payroll|bookkeeping|bookkeeper|quickbooks|qbo|accounts payable|accounts receivable|a/p|a/r|billing)\b",
@@ -3431,6 +3436,10 @@ impl AtsAnalyzer {
             "client services",
             "guest service",
             "guest services",
+            "front desk",
+            "front-desk",
+            "reception",
+            "receptionist",
             "case management",
             "scheduling",
             "intake",
@@ -5662,6 +5671,44 @@ Preferred: Salesforce
             .expect("customer service review");
         assert_eq!(customer_service.match_state, RequirementMatchState::Direct);
         assert!(customer_service
+            .evidence_sections
+            .contains(&"experience".to_string()));
+    }
+
+    #[test]
+    fn test_requirement_review_uses_front_desk_reception_equivalence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nManaged reception check-in and appointment calls.",
+            &[],
+            "Required: front desk",
+        );
+
+        let front_desk = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "front desk")
+            .expect("front desk review");
+        assert_eq!(front_desk.match_state, RequirementMatchState::Direct);
+        assert!(front_desk
+            .evidence_sections
+            .contains(&"experience".to_string()));
+
+        let receptionist = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nExperience\nHandled front desk visitor check-in.",
+            &[],
+            "Required: receptionist",
+        );
+
+        let receptionist_review = receptionist
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "receptionist")
+            .expect("receptionist review");
+        assert_eq!(
+            receptionist_review.match_state,
+            RequirementMatchState::Direct
+        );
+        assert!(receptionist_review
             .evidence_sections
             .contains(&"experience".to_string()));
     }
