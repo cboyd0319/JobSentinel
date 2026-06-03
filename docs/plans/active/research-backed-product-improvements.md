@@ -632,6 +632,14 @@ copy durable findings back into this plan or the active status surface.
   run src/pages/ResumeOptimizer.test.tsx -t "plain labels"`, `npx vitest run
   src/pages/ResumeOptimizer.test.tsx`, `npx tsc --noEmit`, `npm run lint --
   --quiet`, and `git diff --check`.
+- Current local Resume Match mock recency follow-up in `f378c7c0` keeps the
+  browser/dev mock analyzer aligned with backend recent-ended-role evidence by
+  labeling structured roles ending in the current or previous calendar year as
+  `recent experience`, boosting the same single hit over older role evidence,
+  and keeping older role evidence as `experience`. Verification passed: `npx
+  vitest run src/mocks/handlers.test.ts -t "recently ended"`, `npx vitest run
+  src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
+  and `git diff --check`.
 - Current local metric-backed evidence-strength follow-up treats work or
   project evidence with visible metrics such as percentages, counts, or dollar
   amounts as stronger local evidence than a bare keyword.

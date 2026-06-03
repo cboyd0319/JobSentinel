@@ -603,6 +603,14 @@ acceptance still requires Developer ID signing and notarization.
   src/pages/ResumeOptimizer.test.tsx -t "plain labels"`, `npx vitest run
   src/pages/ResumeOptimizer.test.tsx`, `npx tsc --noEmit`, `npm run lint --
   --quiet`, and `git diff --check`. The follow-up
+  `f378c7c0 Mirror recent resume evidence in mocks` keeps the browser/dev mock
+  analyzer aligned with backend recent-ended-role evidence by labeling
+  structured roles ending in the current or previous calendar year as
+  `recent experience`, boosting the same single hit over older role evidence,
+  and keeping older role evidence as `experience`. Verification passed: `npx
+  vitest run src/mocks/handlers.test.ts -t "recently ended"`, `npx vitest run
+  src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
+  and `git diff --check`. The follow-up
   `4607b67f Strengthen metric-backed resume evidence` treats work or project
   evidence with visible metrics as stronger local evidence than a bare keyword.
   The follow-up `c109b9d3 Strengthen scope-backed resume evidence` treats work
