@@ -221,6 +221,34 @@ describe("JobCard", () => {
   });
 
   describe("posting risk guidance", () => {
+    it("shows separate possible scam guidance for money or check requests", () => {
+      const scamRiskJob = {
+        ...mockJob,
+        description:
+          "We will send you a cashier's check for equipment. Deposit the check and send the remaining funds to our vendor.",
+        ghost_score: 0.2,
+      };
+
+      renderWithToast(<JobCard job={scamRiskJob} />);
+
+      expect(screen.getByTestId("scam-risk-guidance")).toHaveTextContent(
+        "Possible scam sign",
+      );
+      expect(screen.getByText(/do not pay fees/i)).toBeInTheDocument();
+      expect(screen.queryByTestId("posting-risk-guidance")).not.toBeInTheDocument();
+      expect(
+        screen.getByRole("article", {
+          name: /possible scam sign/i,
+        }),
+      ).toBeInTheDocument();
+    });
+
+    it("keeps ordinary job descriptions quiet for scam guidance", () => {
+      renderWithToast(<JobCard job={mockJob} />);
+
+      expect(screen.queryByTestId("scam-risk-guidance")).not.toBeInTheDocument();
+    });
+
     it("shows verify-before-tailoring guidance for high posting risk", () => {
       const highRiskJob = { ...mockJob, ghost_score: 0.82 };
 

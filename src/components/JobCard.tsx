@@ -80,6 +80,19 @@ interface SalaryRangeQualityGuidance {
   ariaLabel: string;
 }
 
+interface ScamRiskGuidance {
+  title: string;
+  description: string;
+  ariaLabel: string;
+}
+
+const SCAM_SIGNAL_PATTERNS = [
+  /\b(?:cashier'?s\s+check|fake\s+check|deposit\s+(?:the\s+)?check|mobile\s+deposit)\b/i,
+  /\b(?:pay|send|wire|transfer)\b.{0,50}\b(?:money|fee|deposit|gift\s+cards?|funds)\b/i,
+  /\b(?:upfront|application|training|equipment)\b.{0,30}\b(?:fee|payment)\b/i,
+  /\b(?:social\s+security\s+number|ssn|bank\s+account|driver'?s\s+license)\b.{0,80}\b(?:before|interview|start|offer)\b/i,
+] as const;
+
 function getPostingRiskGuidance(
   ghostScore: number | null | undefined,
 ): PostingRiskGuidance | null {
@@ -114,6 +127,22 @@ function getPostingRiskGuidance(
   }
 
   return null;
+}
+
+function getScamRiskGuidance(description: string | null | undefined): ScamRiskGuidance | null {
+  const text = description?.trim();
+  if (!text) return null;
+
+  if (!SCAM_SIGNAL_PATTERNS.some((pattern) => pattern.test(text))) {
+    return null;
+  }
+
+  return {
+    title: "Possible scam sign",
+    description:
+      "This posting mentions money, checks, or sensitive details early. Verify the employer, do not pay fees, and do not share sensitive information before confirming the job.",
+    ariaLabel: "possible scam sign",
+  };
 }
 
 function formatPayFloor(salaryFloorUsd: number) {
@@ -238,6 +267,7 @@ export const JobCard = memo(function JobCard({
   const salaryText = formatSalaryRange(job.salary_min, job.salary_max);
   const descSnippet = truncateText(job.description);
   const postingRiskGuidance = getPostingRiskGuidance(job.ghost_score);
+  const scamRiskGuidance = getScamRiskGuidance(job.description);
   const payFloorGuidance = getPayFloorGuidance(
     job.salary_max,
     salaryFloorUsd,
@@ -254,6 +284,8 @@ export const JobCard = memo(function JobCard({
         ? ", good match"
         : ""
   }${salaryText ? "" : ", pay not listed"}${
+    scamRiskGuidance ? `, ${scamRiskGuidance.ariaLabel}` : ""
+  }${
     postingRiskGuidance ? `, ${postingRiskGuidance.ariaLabel}` : ""
   }${payFloorGuidance ? `, ${payFloorGuidance.ariaLabel}` : ""}${
     salaryRangeQualityGuidance ? `, ${salaryRangeQualityGuidance.ariaLabel}` : ""
@@ -332,6 +364,21 @@ export const JobCard = memo(function JobCard({
                 <p className="text-sm text-surface-500 dark:text-surface-400 mb-2 line-clamp-2">
                   {descSnippet}
                 </p>
+              )}
+
+              {scamRiskGuidance && (
+                <div
+                  data-testid="scam-risk-guidance"
+                  className="mb-2 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-200"
+                >
+                  <RiskIcon className="mt-0.5 h-4 w-4 flex-shrink-0 text-red-600 dark:text-red-300" />
+                  <div>
+                    <p className="font-semibold">{scamRiskGuidance.title}</p>
+                    <p className="text-xs leading-5 opacity-90">
+                      {scamRiskGuidance.description}
+                    </p>
+                  </div>
+                </div>
               )}
 
               {postingRiskGuidance && (
