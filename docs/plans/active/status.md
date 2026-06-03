@@ -388,8 +388,19 @@ acceptance still requires Developer ID signing and notarization.
   occupational-series, job-announcement, and required-document job details,
   asking users to check specialized experience, grade level, announcement
   duties, dates and hours, citizenship or clearance, and required documents
-  before using drafted alternative bullets. Real resume/profile
-  reference material remains private and must not be committed.
+  before using drafted alternative bullets. The follow-up
+  `9f2809ce Add trades resume evidence prompt` adds a backend and dev/mock
+  reminder for trades and field-service job details, asking users to check
+  equipment or tools used, safety rules, work orders, impact, and required
+  licenses before using drafted alternative bullets. Verification passed:
+  `cargo test --lib trades_field --manifest-path src-tauri/Cargo.toml`, `npx
+  vitest run src/mocks/handlers.test.ts -t "analyzes resumes"`, `cargo test
+  --lib ats_analyzer --manifest-path src-tauri/Cargo.toml`, `npx vitest run
+  src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
+  `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
+  clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
+  --check`. Real resume/profile reference material remains private and must not
+  be committed.
 - Current local resume-alignment scoring follow-up is committed in
   `3d720693 Add resume requirement review caps`. It locks
   `/Users/c/Downloads/ats_scoring_algorithm.md` into

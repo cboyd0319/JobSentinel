@@ -909,6 +909,17 @@ copy durable findings back into this plan or the active status surface.
 - Current local interview-defense bullet follow-up adds a reminder to drafted
   alternative bullets to check the problem, role, action, result, and evidence
   before using stronger wording.
+- Current local trades evidence-prompt follow-up in `9f2809ce` adds a backend
+  and dev/mock reminder for trades and field-service job details, asking users
+  to check equipment or tools used, safety rules, work orders, impact, and
+  required licenses before using drafted alternative bullets. Verification
+  passed: `cargo test --lib trades_field --manifest-path src-tauri/Cargo.toml`,
+  `npx vitest run src/mocks/handlers.test.ts -t "analyzes resumes"`, `cargo
+  test --lib ats_analyzer --manifest-path src-tauri/Cargo.toml`, `npx vitest
+  run src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint --
+  --quiet`, `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`,
+  `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git
+  diff --check`.
 - Current local broad requirement-term follow-up adds healthcare, education,
   service, operations, and trades terms to local resume requirement review and
   dev/browser mocks.
@@ -1433,8 +1444,8 @@ Likely files later:
   operations, sales, finance, legal, service, trades, creative, and government.
 - Expand profession-specific evidence prompts for security, software, data,
   product, marketing, sales, operations, support, design, executive, federal,
-  academic, career-change, early-career, healthcare, legal, and compliance
-  paths.
+  academic, trades, field service, career-change, early-career, healthcare,
+  legal, and compliance paths.
 
 Likely files later:
 

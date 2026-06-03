@@ -370,6 +370,9 @@ The current local matcher:
 - adds a healthcare and licensed-work evidence prompt to drafted alternative
   bullets when job details mention patient care, medication administration, or
   nursing credentials;
+- adds a trades and field-service evidence prompt to drafted alternative
+  bullets when job details mention maintenance, equipment repair, field
+  service, forklifts, OSHA, work orders, installation, or trade work;
 - adds a regulated-work evidence prompt to drafted alternative bullets when job
   details mention legal, finance, government, records, policy, grants, or audit
   work;
@@ -408,8 +411,8 @@ That guidance locks in single-column readable structure, plain-text preview,
 truthful keyword evidence, application-form consistency, ethical confidence,
 profession-specific prompts, and score humility. Drafted bullet reminders now
 include healthcare, regulated work, service and operations, technical and data,
-sales and marketing, design and creative, education and academic, and
-executive and leadership, security, and federal evidence prompts.
+sales and marketing, design and creative, education and academic, executive and
+leadership, security, federal, and trades and field-service evidence prompts.
 The companion
 [Resume Alignment Scoring](../research/resume-alignment-scoring.md) note locks
 in transparent component rubrics, match states, evidence strength, hard
