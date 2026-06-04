@@ -50,6 +50,19 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- ATS analyzer current-experience evidence tests moved out of
+  `src-tauri/src/core/resume/ats_analyzer_tests.rs`.
+- `src-tauri/src/core/resume/ats_analyzer_tests/current_experience_evidence.rs`
+  now owns plain-text section evidence, current/recent role weighting,
+  structured current-role evidence, and metric/scope/responsibility-backed
+  evidence coverage.
+- This is a Rust test-only oversized-file cleanup slice; analyzer APIs,
+  scoring, evidence matching, and resume-review behavior stay unchanged.
+- Best next oversized-file slice is moving resume-analysis helper logic out of
+  `src/mocks/handlers.ts` or splitting another large Rust test module.
+
+Previous implementation slice:
+
 - ATS analyzer experience, authorization, transportation, and physical
   hard-constraint tests moved out of
   `src-tauri/src/core/resume/ats_analyzer_tests.rs`.
