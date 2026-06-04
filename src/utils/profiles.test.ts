@@ -32,6 +32,12 @@ describe("profiles", () => {
       expect(swProfile).toBeDefined();
       expect(swProfile?.name).toBe("Software & Tech");
     });
+
+    it("includes common non-technical paths", () => {
+      expect(getProfileById("office-administration")?.name).toBe("Office & Admin");
+      expect(getProfileById("retail-hospitality")?.name).toBe("Retail & Hospitality");
+      expect(getProfileById("trades-field-service")?.name).toBe("Trades & Field");
+    });
   });
 
   describe("getProfileById", () => {
@@ -74,15 +80,22 @@ describe("profiles", () => {
     });
 
     it("keeps broad profiles off tech-heavy sources by default", () => {
-      const profile = getProfileById("healthcare");
-      expect(profile).toBeDefined();
-      if (!profile) return;
+      for (const id of [
+        "healthcare",
+        "office-administration",
+        "retail-hospitality",
+        "trades-field-service",
+      ]) {
+        const profile = getProfileById(id);
+        expect(profile).toBeDefined();
+        if (!profile) continue;
 
-      const config = profileToConfig(profile);
+        const config = profileToConfig(profile);
 
-      expect(config.remoteok.enabled).toBe(false);
-      expect(config.hn_hiring.enabled).toBe(false);
-      expect(config.weworkremotely.enabled).toBe(false);
+        expect(config.remoteok.enabled).toBe(false);
+        expect(config.hn_hiring.enabled).toBe(false);
+        expect(config.weworkremotely.enabled).toBe(false);
+      }
     });
 
     it("keeps product and design profiles off tech-heavy sources by default", () => {
@@ -129,6 +142,8 @@ describe("profiles", () => {
       expect(searchLooksTechFocused(["Product Designer"])).toBe(false);
       expect(searchLooksTechFocused(["Office Manager", "Scheduling"])).toBe(false);
       expect(searchLooksTechFocused(["Medical Assistant", "EMR"])).toBe(false);
+      expect(searchLooksTechFocused(["Store Manager", "Point of Sale"])).toBe(false);
+      expect(searchLooksTechFocused(["Maintenance Technician", "Work Orders"])).toBe(false);
       expect(searchLooksTechFocused(["React Developer"])).toBe(true);
     });
 

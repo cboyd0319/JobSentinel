@@ -60,6 +60,11 @@ Saved searches store repeatable searches such as:
 
 Saved searches should make return visits easier for non-technical users. The UI
 should not require users to understand query syntax, filters, or scoring math.
+First-run starting paths include office and administration, retail and
+hospitality, trades and field service, healthcare, education, customer support,
+sales, finance, operations, creative, legal, data, security, and software work.
+Only software, security, and data paths turn on tech-heavy job sources by
+default.
 
 ### Notification Preferences
 

@@ -85,6 +85,8 @@ Out of scope:
   so benchmark evidence cannot become an invented current offer.
 - [x] Preserve vague user wording in drafted resume bullets instead of turning
   it into unverified ownership or development claims.
+- [x] Add office/admin, retail/hospitality, and trades/field first-run presets
+  that stay off tech-heavy job sources by default.
 
 ## Orchestration Log
 
@@ -130,6 +132,10 @@ Out of scope:
   accepted its finding that drafted alternative bullets could upgrade vague
   user wording into stronger ownership or development claims, then fixed the
   Rust analyzer, focused tests, feature docs, and active plan state locally.
+- Coordinator added non-technical first-run presets locally because it extends
+  the existing guided-intake profile data, selector order, focused tests,
+  feature docs, and active plan state without changing storage or source
+  contact behavior.
 
 ## Risks
 

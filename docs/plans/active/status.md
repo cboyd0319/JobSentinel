@@ -52,6 +52,20 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Added first-run preset paths for office and administration, retail and
+  hospitality, and trades and field service so non-technical job seekers are
+  not forced through custom setup to avoid tech-oriented presets.
+- The new presets seed plain job titles, work words, salary floors, and
+  location defaults only. They keep Remote OK, We Work Remotely, and startup
+  tech hiring posts off by default.
+- The slice adds no storage fields, network calls, external AI, telemetry, or
+  hidden application behavior.
+- Verification passed for focused profile utility, career-profile selector,
+  and setup wizard tests, full frontend ESLint, TypeScript, docs lint, harness
+  check, harness session, and diff whitespace.
+
+Previous implementation slice:
+
 - Accepted a read-only truthful-resume sidecar finding and fixed drafted
   alternative bullets that could upgrade vague user wording into stronger
   ownership or development claims.

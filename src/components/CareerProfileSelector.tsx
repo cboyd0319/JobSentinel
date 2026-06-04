@@ -12,6 +12,9 @@ interface CareerProfileSelectorProps {
 }
 
 const PROFILE_DISPLAY_ORDER = [
+  "office-administration",
+  "retail-hospitality",
+  "trades-field-service",
   "seo-digital-marketing",
   "sales-business-dev",
   "project-operations",

@@ -39,10 +39,13 @@ describe("CareerProfileSelector", () => {
       const radios = screen.getAllByRole("radio");
 
       expect(radios[0]).toHaveAccessibleName(
-        "Marketing & SEO: SEO managers, growth marketers, and e-commerce",
+        "Office & Admin: Administrative assistants, office managers, and coordinators",
       );
       expect(radios[1]).toHaveAccessibleName(
-        "Sales & Business: Account executives, BDRs, and sales managers",
+        "Retail & Hospitality: Store, food service, guest service, and shift leads",
+      );
+      expect(radios[2]).toHaveAccessibleName(
+        "Trades & Field: Technicians, drivers, installers, and field service roles",
       );
     });
 
@@ -370,6 +373,33 @@ describe("CareerProfileSelector", () => {
   });
 
   describe("all profiles", () => {
+    it("renders Office & Admin profile", () => {
+      render(<CareerProfileSelector {...defaultProps} />);
+
+      expect(screen.getByText("Office & Admin")).toBeInTheDocument();
+      expect(
+        screen.getByText("Administrative assistants, office managers, and coordinators")
+      ).toBeInTheDocument();
+    });
+
+    it("renders Retail & Hospitality profile", () => {
+      render(<CareerProfileSelector {...defaultProps} />);
+
+      expect(screen.getByText("Retail & Hospitality")).toBeInTheDocument();
+      expect(
+        screen.getByText("Store, food service, guest service, and shift leads")
+      ).toBeInTheDocument();
+    });
+
+    it("renders Trades & Field profile", () => {
+      render(<CareerProfileSelector {...defaultProps} />);
+
+      expect(screen.getByText("Trades & Field")).toBeInTheDocument();
+      expect(
+        screen.getByText("Technicians, drivers, installers, and field service roles")
+      ).toBeInTheDocument();
+    });
+
     it("renders Product & Design profile", () => {
       render(<CareerProfileSelector {...defaultProps} />);
 

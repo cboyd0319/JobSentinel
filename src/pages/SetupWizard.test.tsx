@@ -128,6 +128,52 @@ describe("SetupWizard Accessibility", () => {
       expect(screen.getByText("Add at least one job title")).toBeInTheDocument();
     });
 
+    it("starts office and admin users with non-technical local defaults", async () => {
+      const user = userEvent.setup();
+      mockInvoke.mockResolvedValue(undefined);
+      renderWithProviders(<SetupWizard onComplete={mockOnComplete} />);
+
+      await user.click(
+        screen.getByRole("radio", {
+          name: /Office & Admin: Administrative assistants, office managers, and coordinators/i,
+        }),
+      );
+      await user.click(screen.getByRole("button", { name: /use these starting ideas/i }));
+
+      expect(screen.getByText(/Started with/i)).toBeInTheDocument();
+      expect(screen.getByText("Office & Admin")).toBeInTheDocument();
+      expect(screen.getByText("Office Manager")).toBeInTheDocument();
+      expect(screen.getByText("Administrative Assistant")).toBeInTheDocument();
+      expect(screen.getByText("Scheduling")).toBeInTheDocument();
+
+      await user.click(screen.getByRole("button", { name: /^continue$/i }));
+      await user.click(screen.getByRole("button", { name: /^continue$/i }));
+
+      expect(
+        screen.getByText("Local saved search only; add sources in Settings."),
+      ).toBeInTheDocument();
+
+      await user.click(screen.getByRole("button", { name: /start finding jobs/i }));
+
+      await waitFor(() => {
+        expect(mockInvoke).toHaveBeenCalledWith(
+          "complete_setup",
+          expect.objectContaining({
+            config: expect.objectContaining({
+              title_allowlist: expect.arrayContaining([
+                "Office Manager",
+                "Administrative Assistant",
+              ]),
+              keywords_boost: expect.arrayContaining(["Scheduling"]),
+              remoteok: expect.objectContaining({ enabled: false }),
+              hn_hiring: expect.objectContaining({ enabled: false }),
+              weworkremotely: expect.objectContaining({ enabled: false }),
+            }),
+          }),
+        );
+      });
+    });
+
     it("saves work to avoid as search words to rank lower", async () => {
       const user = userEvent.setup();
       mockInvoke.mockResolvedValue(undefined);
@@ -665,8 +711,11 @@ describe("SetupWizard Accessibility", () => {
     it("should render checkboxes with proper ARIA attributes", async () => {
       renderWithProviders(<SetupWizard onComplete={mockOnComplete} />);
 
-      const [firstProfile] = screen.getAllByRole("radio");
-      fireEvent.click(firstProfile);
+      fireEvent.click(
+        screen.getByRole("radio", {
+          name: /Software & Tech: Engineers, developers, DevOps, and SRE roles/i,
+        }),
+      );
       fireEvent.click(screen.getByRole("button", { name: /use these starting ideas/i }));
       fireEvent.click(screen.getByRole("button", { name: /^continue$/i }));
 
