@@ -159,6 +159,7 @@ Out of scope:
 - [x] Split DB visibility and bookmark tests out of the main DB test file.
 - [x] Split broad-audience bloat integration tests out of the main bloat test
   file.
+- [x] Split docs-drift bloat integration tests out of the main bloat test file.
 
 ## Orchestration Log
 
@@ -367,6 +368,9 @@ Out of scope:
   test file keeps shared fixtures and remaining database operation tests.
 - Coordinator moved broad-audience `checkRepoBloat` integration tests into
   `scripts/check-repo-bloat-broad-audience.test.mjs`. The root bloat integration
+  test keeps aggregate sensor smoke coverage.
+- Coordinator moved docs-drift `checkRepoBloat` integration tests into
+  `scripts/check-repo-bloat-docs-drift.test.mjs`. The root bloat integration
   test keeps aggregate sensor smoke coverage.
 
 ## Risks
