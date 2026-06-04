@@ -1064,6 +1064,52 @@ describe("ApplicationPreview", () => {
       expect(mockInvoke).toHaveBeenCalledWith("get_screening_answers");
     });
 
+    it("shows saved schedule answers when the job asks about schedule", async () => {
+      mockInvoke.mockImplementation((command: string) => {
+        if (command === "get_application_profile_preview") {
+          return Promise.resolve(mockProfile);
+        }
+
+        if (command === "get_screening_answers") {
+          return Promise.resolve([
+            {
+              id: 1,
+              questionPattern: "schedule",
+              answer: "I can work a rotating schedule with advance notice.",
+              answerType: "text",
+              notes: null,
+              timesUsed: 0,
+              timesModified: 0,
+              confidenceScore: 0,
+              lastUsedAt: null,
+              createdAt: "2026-01-01T00:00:00Z",
+              updatedAt: "2026-01-01T00:00:00Z",
+            },
+          ]);
+        }
+
+        return Promise.reject(new Error(`Unexpected command: ${command}`));
+      });
+
+      render(
+        <ApplicationPreview
+          job={{
+            ...mockJob,
+            description: "Schedule requirement: rotating weekends with notice.",
+          }}
+          atsPlatform="greenhouse"
+        />,
+      );
+
+      expect(await screen.findByText("Hard Question Review")).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          "Saved availability answer says: I can work a rotating schedule with advance notice. Confirm it matches the employer's wording and resume evidence before continuing.",
+        ),
+      ).toBeInTheDocument();
+      expect(mockInvoke).toHaveBeenCalledWith("get_screening_answers");
+    });
+
     it("shows saved screening answers when the job asks about a background check", async () => {
       mockInvoke.mockImplementation((command: string) => {
         if (command === "get_application_profile_preview") {

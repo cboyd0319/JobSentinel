@@ -103,6 +103,8 @@ Out of scope:
   or diploma wording, when saved education answers can help user review.
 - [x] Make App Problem History explain that crash details stay hidden on screen
   and safe support reports should be reviewed before sharing.
+- [x] Show hard-question review for visible schedule, available, and notice
+  period wording when saved availability answers can help user review.
 
 ## Orchestration Log
 
@@ -182,6 +184,9 @@ Out of scope:
 - Coordinator clarified App Problem History safe-report copy locally because
   expanded problem rows did not explain why crash details stayed off screen or
   that users should review reports before sharing.
+- Coordinator aligned Application Preview salary-or-availability triggers with
+  saved-answer matching and feature docs by adding visible `schedule`,
+  `available`, and `notice period` triggers plus a focused schedule test.
 
 ## Risks
 

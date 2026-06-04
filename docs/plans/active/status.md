@@ -52,6 +52,16 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Application preview hard-question review now treats visible `schedule`,
+  `available`, and `notice period` wording as salary-or-availability triggers.
+- Matching saved schedule or availability answers can appear when postings ask
+  about work timing, so users can compare them with the employer wording before
+  continuing.
+- The slice adds no storage fields, network calls, external AI, telemetry, form
+  filling, or hidden submission behavior.
+
+Previous implementation slice:
+
 - App Problem History now says crash details are hidden on screen and that safe
   support reports should be copied or saved only if JobSentinel help asks.
 - The copy tells users to review the report before sharing, reinforcing local
