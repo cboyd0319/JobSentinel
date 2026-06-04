@@ -119,6 +119,8 @@ Out of scope:
   source evidence to review.
 - [x] Show live Resume Builder must-have checks when local hard constraints
   need review before tailoring.
+- [x] Use plain evidence labels for matched job words, not raw backend section
+  names.
 
 ## Orchestration Log
 
@@ -224,6 +226,9 @@ Out of scope:
 - Coordinator added a **Must-Haves To Check** section to the live Resume
   Builder detail modal so hard-constraint risks received from local analysis no
   longer stay hidden behind the score.
+- Coordinator reused the existing plain evidence-label formatter for matched
+  job-word rows so **Found in** text says current role experience and skills
+  list instead of raw backend section names.
 
 ## Risks
 

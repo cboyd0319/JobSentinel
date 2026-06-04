@@ -1222,7 +1222,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                                     {match.keyword}
                                   </Badge>
                                   <div className="absolute hidden group-hover:block bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-surface-900 dark:bg-surface-700 text-white text-xs rounded whitespace-nowrap z-10">
-                                    Found in: {match.found_in.join(", ")}
+                                    Found in: {formatRequirementEvidenceSections(match.found_in)}
                                   </div>
                                 </div>
                               ))}
@@ -1248,7 +1248,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                                     {match.keyword}
                                   </Badge>
                                   <div className="absolute hidden group-hover:block bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-surface-900 dark:bg-surface-700 text-white text-xs rounded whitespace-nowrap z-10">
-                                    Found in: {match.found_in.join(", ")}
+                                    Found in: {formatRequirementEvidenceSections(match.found_in)}
                                   </div>
                                 </div>
                               ))}
@@ -1274,7 +1274,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                                     {match.keyword}
                                   </Badge>
                                   <div className="absolute hidden group-hover:block bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-surface-900 dark:bg-surface-700 text-white text-xs rounded whitespace-nowrap z-10">
-                                    Found in: {match.found_in.join(", ")}
+                                    Found in: {formatRequirementEvidenceSections(match.found_in)}
                                   </div>
                                 </div>
                               ))}
@@ -1446,7 +1446,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                                 {match.keyword}
                               </p>
                               <p className="text-xs text-surface-500 dark:text-surface-400 mt-0.5">
-                                Found in: {match.found_in.join(", ")}
+                                Found in: {formatRequirementEvidenceSections(match.found_in)}
                               </p>
                             </div>
                             <Badge variant={getImportanceVariant(match.importance)} size="sm">

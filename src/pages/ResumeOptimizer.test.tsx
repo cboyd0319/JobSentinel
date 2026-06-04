@@ -623,6 +623,44 @@ describe("ResumeOptimizer", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("shows plain labels for matched job-word evidence sections", async () => {
+    const user = userEvent.setup();
+    mockInvokeResponses({
+      analyze_resume_for_job: {
+        ...mockAnalysis,
+        keyword_matches: [
+          {
+            keyword: "scheduling",
+            importance: "Required" as const,
+            found_in: ["current experience", "skills"],
+            frequency: 1,
+          },
+        ],
+        missing_keywords: [],
+        missing_keyword_details: [],
+        requirement_reviews: [],
+        hard_constraint_risks: [],
+      },
+    });
+    render(<ResumeOptimizer onBack={vi.fn()} />);
+
+    fireEvent.change(screen.getByLabelText(/^job post$/i), {
+      target: {
+        value: "Required: scheduling",
+      },
+    });
+    await openResumeAppImport(user);
+    fireEvent.change(screen.getByLabelText(/copied resume details/i), {
+      target: { value: JSON.stringify(validResume) },
+    });
+
+    await user.click(screen.getByRole("button", { name: /review match/i }));
+
+    expect(await screen.findByText("Words Found (1)")).toBeInTheDocument();
+    expect(screen.getAllByText("Found in: current role experience, skills list").length).toBeGreaterThan(0);
+    expect(screen.queryByText("Found in: current experience, skills")).not.toBeInTheDocument();
+  });
+
   it("shows plain next actions from requirement review results", async () => {
     const user = userEvent.setup();
     mockInvokeResponses({ analyze_resume_for_job: mockRequirementReviewAnalysis });

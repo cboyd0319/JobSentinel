@@ -52,6 +52,16 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Resume Match matched-word evidence now uses the same plain **Found in**
+  labels as requirement review.
+- Visible rows no longer show backend section names such as `current
+  experience` or `skills`; they show current role experience and skills list.
+- The slice changes visible local review labels only; it adds no storage
+  fields, network calls, external AI, telemetry, or resume-analysis behavior
+  changes.
+
+Previous implementation slice:
+
 - Live Resume Builder detail review now shows **Must-Haves To Check** when
   local resume analysis returns hard-constraint risks.
 - The section uses plain category labels and truth-first actions instead of
