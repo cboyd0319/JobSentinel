@@ -277,7 +277,7 @@ const technicalFirstUserCopyPaths = new Set([
   "src/components/feedback/SuccessScreen.tsx",
   "src/hooks/useFeedback.ts",
   "src/mocks/handlers/atsPlatform.ts", "src/mocks/handlers/marketIntelligence.ts",
-  "src/mocks/handlers/resumeBulletPrompts.ts", "src/mocks/handlers/resumeBuilder.ts", "src/mocks/handlers/resumeRequirementReview.ts",
+  "src/mocks/handlers/resumeBulletPrompts.ts", "src/mocks/handlers/resumeBuilder.ts", "src/mocks/handlers/resumeKeywordMatching.ts", "src/mocks/handlers/resumeRequirementReview.ts",
   "src/mocks/handlers.ts",
   "src/contexts/UndoContext.tsx",
   "src/contexts/KeyboardShortcutsContext.tsx",

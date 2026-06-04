@@ -338,6 +338,10 @@ Out of scope:
 - Coordinator moved resume requirement review and hard-constraint helper logic
   into `src/mocks/handlers/resumeRequirementReview.ts`. The root mock handler
   keeps keyword extraction, evidence matching, scoring, and command dispatch.
+- Coordinator moved resume keyword extraction, conservative term expansion,
+  evidence-location matching, and evidence frequency helpers into
+  `src/mocks/handlers/resumeKeywordMatching.ts`. The root mock handler keeps
+  analysis score assembly and command dispatch.
 
 ## Risks
 
