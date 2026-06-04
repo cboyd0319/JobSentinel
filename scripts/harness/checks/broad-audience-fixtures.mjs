@@ -78,6 +78,7 @@ const broadAudienceExamplePaths = new Set([
   "src-tauri/src/core/import/README.md",
   "src-tauri/src/core/import/schema_org.rs",
   "src-tauri/src/core/import/tests.rs",
+  "src-tauri/src/core/resume/ats_analyzer/bullet_prompts.rs",
   "src-tauri/src/core/resume/ats_analyzer.rs",
   "src-tauri/src/core/resume/builder.rs",
   "src-tauri/src/core/resume/export.rs",

@@ -154,6 +154,7 @@ Out of scope:
 - [x] Split mock support-report helpers out of the main mock handler.
 - [x] Split mock resume analysis score assembly out of the main mock handler.
 - [x] Split Settings additional job board UI out of the main Settings page.
+- [x] Split resume analyzer bullet prompt helpers out of the runtime analyzer.
 
 ## Orchestration Log
 
@@ -351,6 +352,9 @@ Out of scope:
   `src/pages/SettingsJobSourcesSection.tsx` and shared secure-credential badge
   copy into `src/pages/SettingsSecurityBadge.tsx`. The root Settings page keeps
   config, source-approval, and credential state ownership.
+- Coordinator moved resume bullet action-word list and role-specific evidence prompts
+  into `src-tauri/src/core/resume/ats_analyzer/bullet_prompts.rs`.
+  `AtsAnalyzer` keeps the public API and analysis orchestration.
 
 ## Risks
 

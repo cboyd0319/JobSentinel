@@ -284,7 +284,7 @@ const technicalFirstUserCopyPaths = new Set([
   "src-tauri/src/commands/bookmarklet.rs",
   "src-tauri/src/core/db/error.rs",
   "src-tauri/src/core/automation/error.rs",
-  "src-tauri/src/core/resume/ats_analyzer.rs",
+  "src-tauri/src/core/resume/ats_analyzer.rs", "src-tauri/src/core/resume/ats_analyzer/bullet_prompts.rs",
   "src-tauri/src/core/resume/matcher.rs",
   "src-tauri/src/core/salary/analyzer.rs",
   "src-tauri/src/core/scrapers/error.rs",

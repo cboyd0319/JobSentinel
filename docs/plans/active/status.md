@@ -50,6 +50,16 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Resume bullet action-word list and role-specific evidence prompts moved out of
+  `src-tauri/src/core/resume/ats_analyzer.rs` into
+  `src-tauri/src/core/resume/ats_analyzer/bullet_prompts.rs`.
+- `AtsAnalyzer` still owns the public API and analysis orchestration; the
+  extracted helper owns only prompt wording and action-word lists.
+- `src-tauri/src/core/resume/ats_analyzer.rs` legacy no-growth budget
+  tightened from 3,439 lines to 3,060 lines.
+
+Recent cleanup summary:
+
 - Settings additional job board UI moved out of `src/pages/Settings.tsx` into
   `src/pages/SettingsJobSourcesSection.tsx`, and secure credential badge copy
   moved to `src/pages/SettingsSecurityBadge.tsx`.
@@ -58,9 +68,6 @@ Latest implementation slice:
   board presentation and child wiring.
 - `src/pages/Settings.tsx` legacy no-growth budget tightened from 3,351 lines
   to 2,663 lines.
-
-Recent cleanup summary:
-
 - Resume analysis score assembly and format-review helper logic moved out of
   `src/mocks/handlers.ts` into
   `src/mocks/handlers/resumeAnalysisRunner.ts`.
