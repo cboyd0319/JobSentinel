@@ -50,6 +50,19 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- First resume hard-constraint test cluster moved out of
+  `src/mocks/handlers.test.ts`.
+- `src/mocks/handlers/resumeHardConstraints.test.ts` now owns focused coverage
+  for physical requirements, screening, work authorization, credentials, and
+  degree evidence through the first graduate-degree cases.
+- This is a test-only oversized-file cleanup slice; resume evidence behavior
+  and reset behavior stay unchanged.
+- Best next oversized-file slice is splitting remaining resume evidence
+  equivalence tests out of `src/mocks/handlers.test.ts` or moving
+  resume-analysis helper logic out of `src/mocks/handlers.ts`.
+
+Previous implementation slice:
+
 - Core mock command normalization helpers moved out of
   `src/mocks/handlers.ts`.
 - `src/mocks/handlers/coreCommands.ts` now owns cover-letter template,
