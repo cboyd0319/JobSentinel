@@ -177,15 +177,14 @@ const protectiveScoreCopyPaths = new Set([
   "src/pages/DashboardUI/filterLabels.ts",
   "src/pages/DashboardUI/DashboardFiltersBar.tsx",
   "src/pages/SetupWizard.tsx",
+  "src/pages/SettingsResumeMatchingSection.tsx",
   "src/pages/SettingsPostingRiskSection.tsx",
   "src/pages/Settings.tsx",
 ]);
-
 const plainJobSearchDocPaths = new Set([
   "docs/features/application-tracking.md",
   "docs/features/smart-scoring.md",
 ]);
-
 const hiringTrendsCopyPaths = new Set([
   "docs/README.md",
   "docs/features/market-intelligence.md",
@@ -310,6 +309,7 @@ const technicalFirstUserCopyPaths = new Set([
   "src/pages/ResumeBuilder.tsx",
   "src/pages/Salary.tsx",
   "src/pages/SettingsConnectedJobSource.tsx",
+  "src/pages/SettingsResumeMatchingSection.tsx",
   "src/pages/SettingsPostingRiskSection.tsx",
   "src/pages/Settings.tsx",
   "src/pages/SetupWizard.tsx",
