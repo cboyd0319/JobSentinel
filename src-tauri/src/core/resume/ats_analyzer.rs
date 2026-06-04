@@ -432,18 +432,14 @@ impl AtsAnalyzer {
             .any(|&word| improved.to_lowercase().starts_with(word));
 
         if !starts_with_power_word {
-            // Try to detect action and suggest power word (case-insensitive)
+            // Prompt for a clearer verb without upgrading the user's claim.
             let lower = improved.to_lowercase();
-            if lower.contains("was responsible for") {
-                // Find and replace case-insensitively
-                let pattern = regex::Regex::new(r"(?i)was responsible for").unwrap();
-                improved = pattern.replace(&improved, "Managed").to_string();
-            } else if lower.contains("worked on") {
-                let pattern = regex::Regex::new(r"(?i)worked on").unwrap();
-                improved = pattern.replace(&improved, "Developed").to_string();
-            } else if lower.contains("helped with") {
-                let pattern = regex::Regex::new(r"(?i)helped with").unwrap();
-                improved = pattern.replace(&improved, "Contributed to").to_string();
+            let vague_action = ["was responsible for", "worked on", "helped with"]
+                .iter()
+                .any(|phrase| lower.contains(phrase));
+
+            if vague_action {
+                improved.push_str(" (choose a clearer action verb only if it is true)");
             }
         }
 
@@ -4204,8 +4200,20 @@ Preferred: Salesforce
         let bullet = "Was responsible for updating intake schedules";
         let improved = AtsAnalyzer::improve_bullet(bullet, None);
 
-        // Should replace with power word
-        assert!(improved.contains("Managed") || improved.contains("Developed"));
+        assert!(improved.starts_with(bullet));
+        assert!(improved.contains("choose a clearer action verb only if it is true"));
+        assert!(!improved.contains("Managed"));
+        assert!(!improved.contains("Developed"));
+    }
+
+    #[test]
+    fn test_improve_bullet_does_not_invent_development_claim() {
+        let bullet = "Worked on customer returns";
+        let improved = AtsAnalyzer::improve_bullet(bullet, None);
+
+        assert!(improved.starts_with(bullet));
+        assert!(improved.contains("choose a clearer action verb only if it is true"));
+        assert!(!improved.contains("Developed customer returns"));
     }
 
     #[test]

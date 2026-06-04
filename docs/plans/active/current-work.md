@@ -83,6 +83,8 @@ Out of scope:
   credential, physical, and age-related application questions.
 - [x] Gate negotiation-note drafts on user-entered offer and target range facts,
   so benchmark evidence cannot become an invented current offer.
+- [x] Preserve vague user wording in drafted resume bullets instead of turning
+  it into unverified ownership or development claims.
 
 ## Orchestration Log
 
@@ -124,6 +126,10 @@ Out of scope:
   accepted its finding that negotiation-note drafts could treat benchmark
   values as offer facts, then fixed the Salary page, dev mock, tests, feature
   docs, and active plan state locally.
+- Truthful-resume sidecar was read-only and changed no files. Coordinator
+  accepted its finding that drafted alternative bullets could upgrade vague
+  user wording into stronger ownership or development claims, then fixed the
+  Rust analyzer, focused tests, feature docs, and active plan state locally.
 
 ## Risks
 

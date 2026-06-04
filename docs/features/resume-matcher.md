@@ -420,8 +420,11 @@ The current local matcher:
   requirement before tailoring, adding supporting evidence only if true, or
   keeping useful evidence visible;
 - adds an interview-defense reminder to drafted alternative bullets so users
-  check the problem, role, action, result, and evidence before using stronger
-  wording;
+  check the problem, role, action, result, and evidence before using a clearer
+  action verb;
+- preserves vague user wording such as **was responsible for**, **worked on**,
+  and **helped with** instead of turning it into unverified ownership or
+  development claims;
 - adds a healthcare and licensed-work evidence prompt to drafted alternative
   bullets when job details mention patient care, medication administration, or
   nursing credentials;

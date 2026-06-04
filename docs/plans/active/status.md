@@ -52,6 +52,21 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Accepted a read-only truthful-resume sidecar finding and fixed drafted
+  alternative bullets that could upgrade vague user wording into stronger
+  ownership or development claims.
+- Resume bullet drafting now preserves phrases such as `was responsible for`,
+  `worked on`, and `helped with`, and only asks users to choose a clearer
+  action verb if it is true.
+- Existing metric, keyword, role-specific evidence, and interview-defense
+  prompts still apply after the preserved user claim.
+- The slice adds no storage fields, network calls, external AI, telemetry, or
+  hidden application behavior.
+- Verification passed for focused Rust `improve_bullet` tests, Rust formatting,
+  docs lint, harness check, harness session, and diff whitespace.
+
+Previous implementation slice:
+
 - Accepted a read-only pay-protection sidecar finding and fixed negotiation-note
   draft inputs.
 - Salary negotiation notes now require a user-entered written offer and
