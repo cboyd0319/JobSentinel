@@ -155,6 +155,7 @@ Out of scope:
 - [x] Split mock resume analysis score assembly out of the main mock handler.
 - [x] Split Settings additional job board UI out of the main Settings page.
 - [x] Split resume analyzer bullet prompt helpers out of the runtime analyzer.
+- [x] Split DB no-database model tests out of the main DB test file.
 
 ## Orchestration Log
 
@@ -355,6 +356,9 @@ Out of scope:
 - Coordinator moved resume bullet action-word list and role-specific evidence prompts
   into `src-tauri/src/core/resume/ats_analyzer/bullet_prompts.rs`.
   `AtsAnalyzer` keeps the public API and analysis orchestration.
+- Coordinator moved DB model, serialization, timeout, and path tests into
+  `src-tauri/src/core/db/tests/tests/model_tests.rs`. The root DB test file keeps
+  integration-style database operation tests and shared fixtures.
 
 ## Risks
 

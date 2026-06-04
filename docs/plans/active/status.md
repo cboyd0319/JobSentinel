@@ -50,6 +50,16 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- DB model, serialization, timeout, and path tests moved out of
+  `src-tauri/src/core/db/tests.rs` into
+  `src-tauri/src/core/db/tests/tests/model_tests.rs`.
+- The main DB test file still owns integration-style database operation tests
+  and shared fixtures; the extracted module owns no-database model tests.
+- `src-tauri/src/core/db/tests.rs` legacy no-growth budget tightened from 3,420
+  lines to 2,879 lines.
+
+Recent cleanup summary:
+
 - Resume bullet action-word list and role-specific evidence prompts moved out of
   `src-tauri/src/core/resume/ats_analyzer.rs` into
   `src-tauri/src/core/resume/ats_analyzer/bullet_prompts.rs`.
@@ -57,9 +67,6 @@ Latest implementation slice:
   extracted helper owns only prompt wording and action-word lists.
 - `src-tauri/src/core/resume/ats_analyzer.rs` legacy no-growth budget
   tightened from 3,439 lines to 3,060 lines.
-
-Recent cleanup summary:
-
 - Settings additional job board UI moved out of `src/pages/Settings.tsx` into
   `src/pages/SettingsJobSourcesSection.tsx`, and secure credential badge copy
   moved to `src/pages/SettingsSecurityBadge.tsx`.
