@@ -76,14 +76,13 @@ const overconfidentGhostCopyPaths = new Set([
   "docs/user/QUICK_START.md",
   "src/components/GhostIndicator.tsx",
   "src/pages/DashboardUI/DashboardFiltersBar.tsx",
+  "src/pages/SettingsPostingRiskSection.tsx",
   "src/pages/Settings.tsx",
 ]);
-
 const payProtectionGuidancePaths = new Set([
   "docs/features/salary-ai.md",
   "src/pages/Salary.tsx",
 ]);
-
 const payPlainLanguagePaths = new Set([
   "README.md",
   "ROADMAP.md",
@@ -178,6 +177,7 @@ const protectiveScoreCopyPaths = new Set([
   "src/pages/DashboardUI/filterLabels.ts",
   "src/pages/DashboardUI/DashboardFiltersBar.tsx",
   "src/pages/SetupWizard.tsx",
+  "src/pages/SettingsPostingRiskSection.tsx",
   "src/pages/Settings.tsx",
 ]);
 
@@ -309,6 +309,7 @@ const technicalFirstUserCopyPaths = new Set([
   "src/pages/Market.tsx",
   "src/pages/ResumeBuilder.tsx",
   "src/pages/Salary.tsx",
+  "src/pages/SettingsPostingRiskSection.tsx",
   "src/pages/Settings.tsx",
   "src/pages/SetupWizard.tsx",
   "src/utils/errorHelpers.ts",

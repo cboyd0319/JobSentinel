@@ -39,7 +39,7 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 ## Current Posture
 
 - Last pushed baseline before local commits resumed:
-  `75d6a0e8 Use plain date fallback`.
+  `4cdcc3e3 Split ATS screening constraint tests`.
 - Fresh harness evidence reports 2 active docs and 2 indexed workstreams: this
   status file and `current-work.md`.
 - Local commits should continue in small verified slices; push only when the
@@ -50,18 +50,22 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
-- Mock salary benchmark and negotiation-note helpers moved out of
-  `src/mocks/handlers.ts`.
-- `src/mocks/handlers/salary.ts` now owns salary benchmark generation,
-  seniority labels, negotiation note drafting, currency formatting, and local
-  argument reading for those commands.
-- This is a TypeScript helper extraction only; salary command payload shapes,
-  user-entered offer safeguards, mock state, and reset behavior stay unchanged.
+- Settings posting-risk and freshness UI moved out of `src/pages/Settings.tsx`
+  into `src/pages/SettingsPostingRiskSection.tsx`.
+- The parent Settings page still owns saved state, save/reset handlers, and
+  command calls; the extracted child owns only the posting-risk controls and
+  preset application.
+- Product-copy and broad-audience harness path sets now include the extracted
+  section so user-facing copy drift remains covered after the split.
+- `src/pages/Settings.tsx` legacy no-growth budget tightened from 4,047 lines
+  to 3,791 lines.
 
 Recent cleanup summary:
 
 - The whole public GitHub wiki is now treated as external product docs in the
   harness and change contract.
+- Mock salary benchmark and negotiation-note helpers moved to
+  `src/mocks/handlers/salary.ts`.
 - Mock ATS analysis DTOs/constants moved to `src/mocks/handlers/resumeAnalysis.ts`
   with sensor coverage for split suggestion category labels.
 - ATS analyzer tests were split into focused modules for bullets, credentials,
