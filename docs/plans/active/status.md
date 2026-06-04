@@ -50,6 +50,16 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Technical-first fallback product-copy pattern table moved out of
+  `scripts/harness/checks/product-copy.mjs` into
+  `scripts/harness/checks/product-copy/technical-first-fallback.mjs`.
+- `hasTechnicalFirstUserCopy` still owns path-specific routing; the extracted
+  helper owns only the generic fallback pattern table.
+- `scripts/harness/checks/product-copy.mjs` legacy no-growth budget tightened
+  from 2,563 lines to 2,029 lines.
+
+Recent cleanup summary:
+
 - Support, external-provider, source-label, issue-template, resume/pay, and
   profile-doc product-copy fixture coverage moved out of
   `scripts/check-product-copy.test.mjs` into
@@ -57,9 +67,6 @@ Latest implementation slice:
 - The main product-copy test still owns shared product-copy fixture coverage
   and is now below the 1,200-line test target, so its legacy no-growth budget
   was removed.
-
-Recent cleanup summary:
-
 - Settings-focused product-copy fixture coverage moved out of
   `scripts/check-product-copy.test.mjs` into
   `scripts/check-product-copy-settings.test.mjs`.

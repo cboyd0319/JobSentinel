@@ -183,6 +183,8 @@ Out of scope:
   product-copy test file.
 - [x] Retire the main product-copy test file's legacy oversized-file exception
   after bringing it below the 1,200-line test target.
+- [x] Split technical-first fallback product-copy pattern coverage out of the
+  main product-copy checker module.
 
 ## Orchestration Log
 
@@ -429,6 +431,9 @@ Out of scope:
   `scripts/check-product-copy-support-docs.test.mjs`. The main product-copy
   test file is now below the 1,200-line test target and no longer has a legacy
   oversized-file exception.
+- Coordinator moved the technical-first fallback product-copy pattern table into
+  `scripts/harness/checks/product-copy/technical-first-fallback.mjs`. The main
+  product-copy checker still owns path-specific routing.
 
 ## Risks
 
