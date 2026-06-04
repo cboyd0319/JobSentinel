@@ -141,7 +141,6 @@ const maintainableTextLineLimits = {
 const legacyOversizedLineBudgets = new Map([
   ["scripts/check-repo-bloat.test.mjs", 10557],
   ["src/mocks/handlers.ts", 5302],
-  ["src-tauri/src/core/resume/ats_analyzer_tests.rs", 5066],
   ["src/pages/Settings.tsx", 4047],
   ["src-tauri/src/core/resume/ats_analyzer.rs", 3439],
   ["src-tauri/src/core/db/tests.rs", 3420],
