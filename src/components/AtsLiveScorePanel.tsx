@@ -132,6 +132,37 @@ function formatHardConstraintCategory(category: HardConstraintRisk["category"]):
   }
 }
 
+function formatResumeEvidenceSection(section: string): string {
+  switch (section) {
+    case "current experience":
+      return "current role experience";
+    case "recent experience":
+      return "recent role experience";
+    case "experience":
+      return "work experience";
+    case "skills":
+      return "skills list";
+    case "summary":
+      return "resume summary";
+    case "resume text":
+      return "resume text";
+    case "projects":
+      return "projects";
+    case "education":
+      return "education";
+    case "certifications":
+      return "certifications";
+    case "licenses":
+      return "licenses";
+    default:
+      return section.replace(/[_-]/g, " ");
+  }
+}
+
+function formatResumeEvidenceSections(sections: string[]): string {
+  return sections.map(formatResumeEvidenceSection).join(", ");
+}
+
 // Resume data structure for analysis
 interface ContactInfo {
   name: string;
@@ -582,7 +613,11 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
                 </h4>
                 <div className="flex flex-wrap gap-2">
                   {analysis.keyword_matches.map((match, idx) => (
-                    <Tooltip key={idx} content={`Found in: ${match.found_in.join(", ")}`} position="top">
+                    <Tooltip
+                      key={idx}
+                      content={`Found in: ${formatResumeEvidenceSections(match.found_in)}`}
+                      position="top"
+                    >
                       <Badge
                         variant={
                           match.importance === "Required"

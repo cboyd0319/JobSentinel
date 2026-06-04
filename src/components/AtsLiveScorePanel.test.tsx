@@ -646,6 +646,44 @@ describe("AtsLiveScorePanel", () => {
       expect(screen.getByText("Words Found (2)")).toBeInTheDocument();
     });
 
+    it("shows plain labels for live word evidence tooltips", async () => {
+      mockInvoke.mockResolvedValue({
+        ...mockAnalysis,
+        keyword_matches: [
+          {
+            keyword: "Scheduling",
+            importance: "Required",
+            found_in: ["current experience", "skills"],
+            frequency: 1,
+          },
+        ],
+      } satisfies AtsAnalysisResult);
+
+      render(
+        <AtsLiveScorePanel
+          resumeData={mockResumeData}
+          currentStep={1}
+          debounceMs={10}
+        />
+      );
+
+      await waitForAnalysis();
+
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: /review details/i })).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByRole("button", { name: /review details/i }));
+      fireEvent.mouseEnter(screen.getByText("Scheduling"));
+
+      await waitFor(() => {
+        expect(screen.getByRole("tooltip")).toHaveTextContent(
+          "Found in: current role experience, skills list",
+        );
+      });
+      expect(screen.queryByText("Found in: current experience, skills")).not.toBeInTheDocument();
+    });
+
     it("displays words to review in modal", async () => {
       render(
         <AtsLiveScorePanel

@@ -52,6 +52,16 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Live Resume Builder matched-word tooltips now use plain **Found in** labels
+  instead of raw backend section names.
+- The same current role experience and skills list wording appears in the live
+  detail modal that users can open while editing a resume.
+- The slice changes visible local review labels only; it adds no storage
+  fields, network calls, external AI, telemetry, or resume-analysis behavior
+  changes.
+
+Previous implementation slice:
+
 - Resume Match matched-word evidence now uses the same plain **Found in**
   labels as requirement review.
 - Visible rows no longer show backend section names such as `current

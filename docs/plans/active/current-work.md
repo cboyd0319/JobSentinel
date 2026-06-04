@@ -121,6 +121,7 @@ Out of scope:
   need review before tailoring.
 - [x] Use plain evidence labels for matched job words, not raw backend section
   names.
+- [x] Use plain evidence labels in live Resume Builder matched-word tooltips.
 
 ## Orchestration Log
 
@@ -229,6 +230,8 @@ Out of scope:
 - Coordinator reused the existing plain evidence-label formatter for matched
   job-word rows so **Found in** text says current role experience and skills
   list instead of raw backend section names.
+- Coordinator added the same plain evidence-label treatment to live Resume
+  Builder word-match tooltips.
 
 ## Risks
 
