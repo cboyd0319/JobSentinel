@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { existsSync, readdirSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { extname, join, relative } from "node:path";
 
 const ignoredTraversalPaths = new Set([
@@ -129,6 +129,60 @@ const forbiddenTrackedPlaceholderFiles = new Set([
 ]);
 
 const forbiddenTrackedOneOffDocs = new Set(["docs/intel-mac-support.md"]);
+
+const maintainableTextLineLimits = {
+  doc: 900,
+  frontend: 1200,
+  rust: 1200,
+  script: 900,
+  test: 1200,
+};
+
+const legacyOversizedLineBudgets = new Map([
+  ["scripts/check-repo-bloat.test.mjs", 10557],
+  ["src/mocks/handlers.test.ts", 6708],
+  ["src/mocks/handlers.ts", 5302],
+  ["src-tauri/src/core/resume/ats_analyzer_tests.rs", 5066],
+  ["src/pages/Settings.tsx", 4047],
+  ["src-tauri/src/core/resume/ats_analyzer.rs", 3439],
+  ["src-tauri/src/core/db/tests.rs", 3420],
+  ["scripts/check-product-copy.test.mjs", 2630],
+  ["scripts/harness/checks/product-copy.mjs", 2563],
+  ["src-tauri/src/core/scheduler/tests.rs", 2371],
+  ["src-tauri/src/core/scrapers/lever/tests.rs", 2257],
+  ["src/pages/ResumeBuilder.tsx", 2118],
+  ["src-tauri/src/core/scoring/mod.rs", 2109],
+  ["src-tauri/src/core/db/integrity/tests.rs", 1868],
+  ["src-tauri/src/core/config/tests.rs", 1865],
+  ["src/components/automation/ApplicationPreview.test.tsx", 1799],
+  ["src-tauri/src/core/notify/slack.rs", 1759],
+  ["src-tauri/src/core/market_intelligence/tests.rs", 1755],
+  ["src-tauri/src/core/notify/teams.rs", 1750],
+  ["src/pages/ResumeOptimizer.tsx", 1716],
+  ["src/pages/SetupWizard.tsx", 1710],
+  ["src/components/automation/ScreeningAnswersForm.test.tsx", 1695],
+  ["src-tauri/src/core/market_intelligence/analytics.rs", 1657],
+  ["src/pages/Resume.tsx", 1636],
+  ["src-tauri/src/core/ats/tests.rs", 1629],
+  ["src-tauri/src/core/resume/tests.rs", 1619],
+  ["src-tauri/src/commands/automation.rs", 1617],
+  ["scripts/harness/checks/privacy-logging.mjs", 1580],
+  ["src/pages/Settings.test.tsx", 1570],
+  ["src-tauri/src/core/ghost/mod.rs", 1493],
+  ["src-tauri/src/core/salary/predictor.rs", 1489],
+  ["src-tauri/src/core/notify/discord.rs", 1476],
+  ["src-tauri/src/core/scrapers/greenhouse.rs", 1403],
+  ["src-tauri/src/core/resume/matcher.rs", 1302],
+  ["src/pages/Dashboard.tsx", 1298],
+  ["src-tauri/src/core/resume/skills.rs", 1297],
+  ["src-tauri/src/core/salary/benchmarks.rs", 1284],
+  ["src/components/automation/ApplyButton.test.tsx", 1268],
+  ["src-tauri/src/core/user_data/mod.rs", 1226],
+  ["src-tauri/src/core/resume/templates.rs", 1222],
+  ["src/components/InterviewScheduler.tsx", 1222],
+  ["README.md", 975],
+  ["scripts/harness/checks/docs-drift.mjs", 950],
+]);
 
 export function normalizeRepoPath(path) {
   return path.split(/[\\/]/).join("/");
@@ -288,4 +342,89 @@ export function isTrackedBloat(path) {
   }
 
   return isForbiddenFileName(fileName);
+}
+
+function getMaintainableTextLineLimit(path) {
+  if (
+    path === "package-lock.json" ||
+    path === "src-tauri/Cargo.lock" ||
+    path === "CHANGELOG.md" ||
+    path.startsWith("docs/plans/archive/") ||
+    path.startsWith("src-tauri/gen/")
+  ) {
+    return null;
+  }
+
+  const parts = path.split("/");
+  const fileName = parts.at(-1) ?? path;
+
+  if (
+    /\.(?:png|jpe?g|icns|ico|webp|gif)$/i.test(fileName) ||
+    (fileName.endsWith(".json") && fileName !== "package.json")
+  ) {
+    return null;
+  }
+
+  if (
+    /\.(?:test|spec)\.(?:ts|tsx|js|jsx|mjs|rs)$/.test(path) ||
+    path.includes("/tests.") ||
+    path.endsWith("/tests.rs") ||
+    /(^|\/)tests?\//.test(path)
+  ) {
+    return maintainableTextLineLimits.test;
+  }
+
+  if (path.startsWith("src/") && /\.(?:ts|tsx)$/.test(fileName)) {
+    return maintainableTextLineLimits.frontend;
+  }
+
+  if (path.startsWith("src-tauri/src/") && fileName.endsWith(".rs")) {
+    return maintainableTextLineLimits.rust;
+  }
+
+  if (path.startsWith("scripts/") && fileName.endsWith(".mjs")) {
+    return maintainableTextLineLimits.script;
+  }
+
+  if (fileName.endsWith(".md")) {
+    return maintainableTextLineLimits.doc;
+  }
+
+  return null;
+}
+
+export function collectTrackedFileSizeViolations(root, path) {
+  const limit = getMaintainableTextLineLimit(path);
+  if (limit === null) {
+    return [];
+  }
+
+  const lineCount = countTextLines(readFileSync(join(root, path), "utf8"));
+  if (lineCount <= limit) {
+    return [];
+  }
+
+  const legacyBudget = legacyOversizedLineBudgets.get(path);
+  if (legacyBudget !== undefined) {
+    if (lineCount <= legacyBudget) {
+      return [];
+    }
+
+    return [
+      `split legacy oversized tracked file before growing it: ${path} has ${lineCount} lines (budget ${legacyBudget}, target ${limit})`,
+    ];
+  }
+
+  return [
+    `split oversized tracked file: ${path} has ${lineCount} lines (limit ${limit})`,
+  ];
+}
+
+function countTextLines(text) {
+  if (text.length === 0) {
+    return 0;
+  }
+
+  const trailingNewlineAdjustment = /\r?\n$/.test(text) ? 1 : 0;
+  return text.split(/\r?\n/).length - trailingNewlineAdjustment;
 }

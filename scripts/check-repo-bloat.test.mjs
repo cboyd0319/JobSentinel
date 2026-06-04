@@ -23,6 +23,70 @@ function withGitFixture(callback) {
   }
 }
 
+function lineFixture(count) {
+  return Array.from({ length: count }, (_, index) => `const fixtureLine${index} = ${index};`)
+    .join("\n");
+}
+
+test("checkRepoBloat rejects new oversized maintainable source files", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(root, "src/pages/Oversized.tsx", lineFixture(1201));
+
+    execFileSync("git", ["add", "package.json", "src/pages/Oversized.tsx"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "split oversized tracked file: src/pages/Oversized.tsx has 1201 lines (limit 1200)",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat grandfathers known oversized files without allowing growth", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(root, "src/mocks/handlers.ts", lineFixture(5302));
+
+    execFileSync("git", ["add", "package.json", "src/mocks/handlers.ts"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.equal(
+      violations.some((violation) => violation.includes("src/mocks/handlers.ts has")),
+      false,
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects growth in grandfathered oversized files", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(root, "src/mocks/handlers.ts", lineFixture(5303));
+
+    execFileSync("git", ["add", "package.json", "src/mocks/handlers.ts"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "split legacy oversized tracked file before growing it: src/mocks/handlers.ts has 5303 lines (budget 5302, target 1200)",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects reserved E2E fixture placeholders", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

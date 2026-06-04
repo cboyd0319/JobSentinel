@@ -117,6 +117,10 @@ Sensors:
 - Security sensor coverage checks.
 - Test quality checks for no-op, focused, and skipped unit tests.
 - Repo bloat checks for disposable artifacts and tracked generated output.
+- Tracked maintainable file-size checks: frontend/Rust source files and tests
+  should stay at or below 1,200 lines, harness scripts at or below 900 lines,
+  and non-archive docs at or below 900 lines. Current oversized files are
+  explicit legacy debt and may shrink, but may not grow.
 - User experience checks against zero-technical-skill and broad-audience rules.
 - Vitest unit and integration tests.
 - Playwright E2E tests.

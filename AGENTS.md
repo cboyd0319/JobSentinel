@@ -53,6 +53,8 @@ wrappers. If they conflict with this file or `docs/harness/`, this file and
   validation.
 - Do not commit machine-specific absolute local paths. Use repo-relative paths,
   file names, or `<repo-root>` and `<home>` placeholders.
+- Keep maintainable source, test, script, and non-archive docs under harness
+  file-size budgets; shrink legacy oversized files, do not grow them.
 - Keep comments useful and sparse.
 - Keep generated summaries and one-off reports out of the repo unless requested.
 

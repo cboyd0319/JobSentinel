@@ -13,6 +13,7 @@ import {
 import { hasUnreferencedE2eTestHelper } from "./harness/checks/e2e-helpers.mjs";
 import {
   collectFilesystemBloat,
+  collectTrackedFileSizeViolations,
   collectUnexpectedRootEntries,
   isTrackedBloat,
   listTrackedFiles,
@@ -174,6 +175,10 @@ export function checkRepoBloat(root = defaultRoot) {
   for (const path of listTrackedFiles(root)) {
     if (isTrackedBloat(path)) {
       violations.push(`remove tracked generated or disposable file: ${path}`);
+    }
+
+    for (const violation of collectTrackedFileSizeViolations(root, path)) {
+      violations.push(violation);
     }
 
     for (const violation of collectDocsDriftViolations(root, path)) {

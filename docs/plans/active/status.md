@@ -50,6 +50,20 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Harness file-size limits now run through the repo bloat sensor.
+- Maintainable frontend/Rust source files and tests target 1,200 lines,
+  harness scripts target 900 lines, and non-archive docs target 900 lines.
+  Locks, assets, generated schemas, and archived plan provenance are outside
+  this maintainability budget.
+- Current oversized files are listed as explicit legacy debt with no-growth
+  budgets, so cleanup can shrink them incrementally but future changes cannot
+  make them larger without failing `npm run lint:bloat` and
+  `npm run harness:check`.
+- Best next oversized-file slice is splitting mock handler test cases by
+  command domain.
+
+Previous implementation slice:
+
 - Mock interview prep and follow-up helpers moved out of
   `src/mocks/handlers.ts`.
 - `src/mocks/handlers/interviewProgress.ts` now owns persisted prep-checklist
