@@ -50,6 +50,16 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Support, external-provider, source-label, issue-template, resume/pay, and
+  profile-doc product-copy fixture coverage moved out of
+  `scripts/check-product-copy.test.mjs` into
+  `scripts/check-product-copy-support-docs.test.mjs`.
+- The main product-copy test still owns shared product-copy fixture coverage
+  and is now below the 1,200-line test target, so its legacy no-growth budget
+  was removed.
+
+Recent cleanup summary:
+
 - Settings-focused product-copy fixture coverage moved out of
   `scripts/check-product-copy.test.mjs` into
   `scripts/check-product-copy-settings.test.mjs`.
@@ -58,9 +68,6 @@ Latest implementation slice:
   support, resume, and onboarding copy fixture.
 - `scripts/check-product-copy.test.mjs` legacy no-growth budget tightened from
   2,630 lines to 1,738 lines.
-
-Recent cleanup summary:
-
 - Source-quality, source-structure, dependency, and E2E guidance
   `checkRepoBloat` integration tests moved out of
   `scripts/check-repo-bloat.test.mjs` into

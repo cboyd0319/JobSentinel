@@ -179,6 +179,10 @@ Out of scope:
   bringing it below the 1,200-line test target.
 - [x] Split settings-focused product-copy fixture coverage out of the main
   product-copy test file.
+- [x] Split support/docs product-copy fixture coverage out of the main
+  product-copy test file.
+- [x] Retire the main product-copy test file's legacy oversized-file exception
+  after bringing it below the 1,200-line test target.
 
 ## Orchestration Log
 
@@ -421,6 +425,10 @@ Out of scope:
 - Coordinator moved settings-focused product-copy fixture coverage into
   `scripts/check-product-copy-settings.test.mjs`. The main product-copy test
   file still owns shared product-copy fixture coverage.
+- Coordinator moved support/docs product-copy fixture coverage into
+  `scripts/check-product-copy-support-docs.test.mjs`. The main product-copy
+  test file is now below the 1,200-line test target and no longer has a legacy
+  oversized-file exception.
 
 ## Risks
 
