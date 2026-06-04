@@ -50,6 +50,18 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Resume evidence-quality coverage moved out of `src/mocks/handlers.test.ts`.
+- `src/mocks/handlers/resumeEvidenceQuality.test.ts` now owns focused coverage
+  for current-role strength, equivalent wording, healthcare/service evidence,
+  recency weighting, and related resume-review guards.
+- This is a test-only oversized-file cleanup slice; resume evidence behavior
+  and reset behavior stay unchanged.
+- Best next oversized-file slice is splitting remaining resume review,
+  certification, and runtime command tests out of `src/mocks/handlers.test.ts`
+  or moving resume-analysis helper logic out of `src/mocks/handlers.ts`.
+
+Previous implementation slice:
+
 - Resume education hard-constraint coverage moved out of
   `src/mocks/handlers.test.ts`.
 - `src/mocks/handlers/resumeEducationConstraints.test.ts` now owns focused
