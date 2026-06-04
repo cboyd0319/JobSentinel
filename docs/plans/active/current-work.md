@@ -105,6 +105,8 @@ Out of scope:
   and safe support reports should be reviewed before sharing.
 - [x] Show hard-question review for visible schedule, available, and notice
   period wording when saved availability answers can help user review.
+- [x] Replace visible App Problem History `url` context labels with readable
+  link labels while keeping existing link sanitization.
 
 ## Orchestration Log
 
@@ -187,6 +189,9 @@ Out of scope:
 - Coordinator aligned Application Preview salary-or-availability triggers with
   saved-answer matching and feature docs by adding visible `schedule`,
   `available`, and `notice period` triggers plus a focused schedule test.
+- Coordinator replaced raw URL-like context labels in App Problem History with
+  **link** or **job link**, matching safe-report guidance that visible details
+  should not expose raw `url` field names.
 
 ## Risks
 

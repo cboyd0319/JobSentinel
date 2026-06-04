@@ -52,6 +52,14 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- App Problem History now labels URL-like context keys as **link** or **job
+  link** instead of showing raw `url` wording in visible problem details.
+- Existing link sanitization still removes private query details before display.
+- The slice changes visible labels only; it adds no storage fields, network
+  calls, external AI, telemetry, or support-report payload changes.
+
+Previous implementation slice:
+
 - Application preview hard-question review now treats visible `schedule`,
   `available`, and `notice period` wording as salary-or-availability triggers.
 - Matching saved schedule or availability answers can appear when postings ask

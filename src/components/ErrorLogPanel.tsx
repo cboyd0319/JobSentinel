@@ -46,12 +46,22 @@ function formatRelativeTime(timestamp: string): string {
 }
 
 function formatContextLabel(key: string): string {
-  return key
+  const normalized = key
     .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
     .replace(/[_-]+/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
     .toLowerCase();
+
+  if (normalized === 'url') {
+    return 'link';
+  }
+
+  if (normalized === 'job url') {
+    return 'job link';
+  }
+
+  return normalized;
 }
 
 function formatContextValue(value: unknown): string {

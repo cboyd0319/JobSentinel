@@ -335,7 +335,7 @@ describe("ErrorLogPanel", () => {
       expect(screen.getByText("Problem details")).toBeInTheDocument();
       expect(screen.getByText("user email")).toBeInTheDocument();
       expect(screen.getByText("email hidden")).toBeInTheDocument();
-      expect(screen.getByText("job url")).toBeInTheDocument();
+      expect(screen.getByText("job link")).toBeInTheDocument();
       expect(screen.getByText("https://example.com/jobs")).toBeInTheDocument();
       expect(screen.getByText("nested")).toBeInTheDocument();
       expect(screen.getByText("Details summarized")).toBeInTheDocument();
@@ -345,6 +345,29 @@ describe("ErrorLogPanel", () => {
       expect(container.textContent).not.toContain("token=abc");
       expect(container.textContent).not.toContain("secret");
       expect(container.textContent).not.toContain('"user_email"');
+      expect(container.textContent).not.toContain("job url");
+    });
+
+    it("uses a plain link label for raw url context keys", () => {
+      mockUseErrorReporting.mockReturnValue({
+        ...defaultMockReturn,
+        errors: [
+          createMockError({
+            context: {
+              url: "https://example.com/jobs?token=abc",
+            },
+          }),
+        ],
+      });
+
+      const { container } = render(<ErrorLogPanel />);
+
+      fireEvent.click(screen.getByRole("button", { expanded: false }));
+
+      expect(screen.getByText("link")).toBeInTheDocument();
+      expect(screen.getByText("https://example.com/jobs")).toBeInTheDocument();
+      expect(container.textContent).not.toContain("url");
+      expect(container.textContent).not.toContain("token=abc");
     });
 
     it("has aria-expanded attribute", () => {
