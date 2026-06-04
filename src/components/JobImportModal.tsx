@@ -280,7 +280,7 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
               {/* Salary */}
               {preview.salary && (
                 <div className="text-sm text-gray-700 dark:text-gray-300">
-                  <span className="font-medium">Salary:</span> {preview.salary}
+                  <span className="font-medium">Listed pay:</span> {preview.salary}
                 </div>
               )}
 

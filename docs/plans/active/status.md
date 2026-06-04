@@ -52,6 +52,15 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Job import preview now labels posting pay as **Listed pay** instead of
+  **Salary**.
+- The wording keeps imported pay framed as source evidence to review before
+  tailoring, not a guaranteed salary.
+- The slice changes visible preview copy only; it adds no storage fields,
+  network calls, external AI, telemetry, or source-contact behavior changes.
+
+Previous implementation slice:
+
 - Dev mock Resume Match now mirrors Rust/docs for remote, hybrid, overtime,
   holiday, full-time, and part-time hard schedule/location constraints.
 - Mocked review can show the same local evidence and risk cues for those

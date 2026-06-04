@@ -115,6 +115,8 @@ Out of scope:
   preserve source posting dates across local time zones.
 - [x] Align dev mock hard schedule/location constraints with Rust/docs for
   remote, hybrid, overtime, holiday, full-time, and part-time wording.
+- [x] Label job-import preview pay as listed pay so posting pay stays framed as
+  source evidence to review.
 
 ## Orchestration Log
 
@@ -214,6 +216,9 @@ Out of scope:
   accepted its finding that dev mock hard-constraint extraction missed remote,
   hybrid, overtime, holiday, full-time, and part-time groups that Rust/docs
   already cover, then patched the mock and focused tests locally.
+- Coordinator changed the job-import preview pay label from salary to listed
+  pay so imported posting pay stays review-first and does not read like a
+  guaranteed salary.
 
 ## Risks
 

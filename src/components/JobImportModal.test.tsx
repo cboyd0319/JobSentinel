@@ -163,6 +163,22 @@ describe("JobImportModal", () => {
     expect(screen.queryByText(/salary_min|salary_max|company_name|job_url/)).not.toBeInTheDocument();
   });
 
+  it("labels posting pay as listed pay in the preview", async () => {
+    const user = userEvent.setup();
+    mockInvoke.mockResolvedValueOnce(preview);
+
+    renderModal();
+
+    fireEvent.change(screen.getByLabelText("Job link"), {
+      target: { value: "https://example.com/jobs/office-manager" },
+    });
+    await user.click(screen.getByRole("button", { name: "Check Job Link" }));
+
+    expect(await screen.findByText("Listed pay:")).toBeInTheDocument();
+    expect(screen.getByText("$60,000-$70,000")).toBeInTheDocument();
+    expect(screen.queryByText("Salary:")).not.toBeInTheDocument();
+  });
+
   it("shows the closing date when the posting provides one", async () => {
     const user = userEvent.setup();
     mockInvoke.mockResolvedValueOnce({
