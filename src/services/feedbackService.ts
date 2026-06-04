@@ -71,6 +71,7 @@ const DEBUG_DETAIL_LABELS: Record<string, string> = {
   status: "Status",
   success: "Result",
   type: "Type",
+  url: "Link",
 };
 
 const DEBUG_EVENT_LABELS: Record<string, string> = {

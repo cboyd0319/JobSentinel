@@ -52,6 +52,16 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Replaced a raw `url` detail label in safe support report activity details
+  with the readable **Link** label while keeping existing sanitization for the
+  link value.
+- The slice adds no storage fields, network calls, external AI, telemetry, or
+  hidden application behavior.
+- Verification passed for focused feedback service tests, full frontend ESLint,
+  TypeScript, docs lint, harness check, harness session, and diff whitespace.
+
+Previous implementation slice:
+
 - Replaced outside-AI blocked-send copy that exposed internal payload,
   field, and classification wording.
 - The gateway still blocks unreviewed details before any outside-AI request is

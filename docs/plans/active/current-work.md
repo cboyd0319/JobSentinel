@@ -89,6 +89,8 @@ Out of scope:
   that stay off tech-heavy job sources by default.
 - [x] Replace outside-AI unreviewed-detail errors that exposed payload,
   field, and classification wording.
+- [x] Replace raw `url` labels in safe support report activity details with a
+  readable **Link** label.
 
 ## Orchestration Log
 
@@ -141,6 +143,9 @@ Out of scope:
 - Coordinator replaced outside-AI blocked-send wording locally because it
   touched one gateway service, one focused test, feature docs, and active plan
   state while preserving the existing no-send guard.
+- Coordinator replaced the safe support report `url` activity label locally
+  because it touched one feedback service, one focused test, feature docs, and
+  active plan state while preserving existing sanitization.
 
 ## Risks
 

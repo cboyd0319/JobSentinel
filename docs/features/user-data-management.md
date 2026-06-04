@@ -85,7 +85,8 @@ details.
 Safe support reports can include high-level app state, feature names, timestamps,
 sanitized error categories, and redacted settings summaries. They should not
 include full notes, resumes, full search text, salary floors, secrets, private
-paths, cookies, connection links, tokens, or full application history.
+paths, cookies, connection links, tokens, raw field names such as `url`, or
+full application history.
 
 ## Older Local Data
 

@@ -307,9 +307,10 @@ describe("feedbackService", () => {
     expect(details).toContain("Action: search jobs");
     expect(details).toContain("App action: user action");
     expect(details).toContain("Result: succeeded");
-    expect(details).toContain("url: https://example.com/jobs");
+    expect(details).toContain("Link: https://example.com/jobs");
     expect(details).toContain("owner email: [EMAIL]");
     expect(details).toContain("nested: details summarized");
+    expect(details).not.toContain("url:");
     expect(details).not.toContain("{");
     expect(details).not.toContain("candidate@example.com");
     expect(details).not.toContain("token=abc123");
