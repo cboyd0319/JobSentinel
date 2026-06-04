@@ -193,11 +193,11 @@ const hiringTrendsCopyPaths = new Set([
   "src/components/MarketAlertCard.tsx",
   "src/components/MarketSnapshotCard.tsx",
   "src/components/Navigation.tsx",
+  "src/mocks/handlers/marketIntelligence.ts",
   "src/pages/Market.tsx",
   "src/pages/marketErrorCopy.ts",
   "tests/e2e/playwright/page-objects/MarketIntelligencePage.ts",
 ]);
-
 const firstRunPlainCopyPaths = new Set([
   "src/App.tsx",
   "src/components/CareerProfileSelector.tsx",
@@ -205,7 +205,6 @@ const firstRunPlainCopyPaths = new Set([
   "src/pages/SetupWizard.tsx",
   "docs/user/QUICK_START.md",
 ]);
-
 const installSecurityCopyPaths = new Set([
   "README.md",
   "docs/style-guide/GLOSSARY.md",
@@ -277,6 +276,7 @@ const technicalFirstUserCopyPaths = new Set([
   "src/components/feedback/SubmitOptions.tsx",
   "src/components/feedback/SuccessScreen.tsx",
   "src/hooks/useFeedback.ts",
+  "src/mocks/handlers/marketIntelligence.ts",
   "src/mocks/handlers.ts",
   "src/contexts/UndoContext.tsx",
   "src/contexts/KeyboardShortcutsContext.tsx",

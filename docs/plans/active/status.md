@@ -50,20 +50,19 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
-- Market intelligence mock fixtures moved out of `src/mocks/handlers.ts` into
-  `src/mocks/handlers/marketIntelligence.ts`.
-- The main mock handler still owns mutable market-alert read state; the
-  extracted module owns default alerts, trend fixtures, active-company fixtures,
-  hot-location fixtures, and market snapshot fixtures.
-- `src/mocks/handlers/marketIntelligence.test.ts` covers command wiring and
-  alert read-state persistence through `mockInvoke`.
-- `src/mocks/handlers.ts` legacy no-growth budget tightened from 4,315 lines to
-  4,253 lines.
+- Product-copy and broad-audience harness path sets now include
+  `src/mocks/handlers/marketIntelligence.ts` so market fixture copy stays
+  scanned after extraction.
+- This is a harness-only follow-up to the market mock helper split.
 
 Recent cleanup summary:
 
 - The whole public GitHub wiki is now treated as external product docs in the
   harness and change contract.
+- Market intelligence mock fixtures moved to
+  `src/mocks/handlers/marketIntelligence.ts`; command wiring and alert
+  read-state persistence are covered by
+  `src/mocks/handlers/marketIntelligence.test.ts`.
 - Settings resume matching and match-review guide UI moved to
   `src/pages/SettingsResumeMatchingSection.tsx` with product-copy and
   broad-audience harness path coverage.
