@@ -373,6 +373,39 @@ describe("JobCard", () => {
       expect(screen.queryByTestId("posting-risk-guidance")).not.toBeInTheDocument();
     });
 
+    it("treats out-of-range posting-risk scores as unavailable", () => {
+      const invalidRiskJob = { ...mockJob, ghost_score: 1.5 };
+
+      renderWithToast(<JobCard job={invalidRiskJob} />);
+
+      expect(screen.queryByTestId("posting-risk-guidance")).not.toBeInTheDocument();
+      expect(screen.queryByText("Posting may need review")).not.toBeInTheDocument();
+      expect(screen.queryByText("Verify before tailoring")).not.toBeInTheDocument();
+    });
+
+    it("keeps parsed stale evidence when posting-risk score is invalid", () => {
+      const staleReasonJob = {
+        ...mockJob,
+        ghost_score: Infinity,
+        ghost_reasons: JSON.stringify([
+          {
+            category: "stale",
+            description: "Posted 70 days ago",
+            weight: 0.2,
+            severity: "medium",
+          },
+        ]),
+      };
+
+      renderWithToast(<JobCard job={staleReasonJob} />);
+
+      expect(screen.getByTestId("posting-risk-guidance")).toHaveTextContent(
+        "Check posting evidence",
+      );
+      expect(screen.queryByText("Posting may need review")).not.toBeInTheDocument();
+      expect(screen.queryByText("Verify before tailoring")).not.toBeInTheDocument();
+    });
+
     it("shows stale or repost evidence even below the badge threshold", () => {
       const lowScoreStaleJob = {
         ...mockJob,

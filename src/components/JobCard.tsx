@@ -153,7 +153,12 @@ function getPostingRiskGuidance(
 ): PostingRiskGuidance | null {
   const reviewReasons = parsePostingRiskReasons(ghostReasons);
 
-  if (ghostScore == null || !Number.isFinite(ghostScore)) {
+  if (
+    ghostScore == null ||
+    !Number.isFinite(ghostScore) ||
+    ghostScore < 0 ||
+    ghostScore > 1
+  ) {
     if (reviewReasons.length > 0) {
       return {
         level: "low",
@@ -388,8 +393,16 @@ export const JobCard = memo(function JobCard({
   const isGoodMatch = safeScore >= SCORE_THRESHOLD_GOOD;
   const salaryText = formatSalaryRange(job.salary_min, job.salary_max);
   const descSnippet = truncateText(job.description);
+  const rawPostingRiskScore = job.ghost_score;
+  const postingRiskScore =
+    typeof rawPostingRiskScore === "number" &&
+    Number.isFinite(rawPostingRiskScore) &&
+    rawPostingRiskScore >= 0 &&
+    rawPostingRiskScore <= 1
+      ? rawPostingRiskScore
+      : null;
   const postingRiskGuidance = getPostingRiskGuidance(
-    job.ghost_score,
+    postingRiskScore,
     job.ghost_reasons,
   ) ?? getLowDetailPostingGuidance(job.title, job.description);
   const scamRiskGuidance = getScamRiskGuidance(job.description);
@@ -591,15 +604,13 @@ export const JobCard = memo(function JobCard({
               {/* Meta info */}
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-surface-500 dark:text-surface-400">
                 {/* Ghost indicator */}
-                {job.ghost_score !== undefined &&
-                  job.ghost_score !== null &&
-                  job.ghost_score >= 0.5 && (
-                    <GhostIndicatorCompact
-                      ghostScore={job.ghost_score}
-                      ghostReasons={job.ghost_reasons ?? null}
-                      jobId={job.id}
-                    />
-                  )}
+                {postingRiskScore !== null && postingRiskScore >= 0.5 && (
+                  <GhostIndicatorCompact
+                    ghostScore={postingRiskScore}
+                    ghostReasons={job.ghost_reasons ?? null}
+                    jobId={job.id}
+                  />
+                )}
 
                 {/* Location */}
                 <span className="inline-flex items-center gap-1">

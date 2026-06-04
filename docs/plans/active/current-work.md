@@ -129,6 +129,8 @@ Out of scope:
   percentages.
 - [x] Keep invalid job fit scores from opening fit details or marking cards as
   elevated local-fit results.
+- [x] Treat invalid posting-risk scores as unavailable while preserving parsed
+  stale or repost evidence.
 
 ## Orchestration Log
 
@@ -248,6 +250,9 @@ Out of scope:
 - Coordinator updated job cards to use the same valid-score rule before adding
   elevated local-fit labels, opening Fit Details, or applying highlighted fit
   styling.
+- Coordinator applied the same `0` to `1` validation to posting-risk scores so
+  invalid values cannot create stronger warning badges, while parsed stale or
+  repost reasons still show **Check posting evidence**.
 
 ## Risks
 

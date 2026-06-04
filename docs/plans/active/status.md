@@ -52,6 +52,15 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Job cards now validate posting-risk scores before showing stronger
+  posting-risk guidance or the compact posting-risk badge.
+- Invalid posting-risk scores are treated as unavailable, while parsed stale or
+  repost reasons can still show **Check posting evidence**.
+- The slice changes visible posting-risk fallback handling only; it adds no
+  storage fields, network calls, external AI, telemetry, or scoring behavior.
+
+Previous implementation slice:
+
 - Job cards now use the same valid-score rule as `ScoreDisplay` before showing
   elevated local-fit labels, enabling Fit Details, or adding highlighted fit
   styling.

@@ -97,6 +97,10 @@ Some stale or repost evidence can show as a small **Check posting evidence**
 cue even when the overall warning score is low or not available. This means the
 posting has a specific age or repost signal worth checking before tailoring; it
 is not a claim about employer intent.
+If the local posting-risk score is not a finite number between `0` and `1`,
+JobSentinel treats the score as unavailable. It can still show parsed stale or
+repost evidence, but it should not turn an invalid score into a stronger
+posting-risk badge.
 
 Broad-title or thin-description jobs can also show **Check role details**. This
 means the posting text is light enough to review the role, team, and work
