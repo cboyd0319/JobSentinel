@@ -165,6 +165,8 @@ Out of scope:
   test file.
 - [x] Split privacy IPC and notification bloat integration tests out of the main
   bloat test file.
+- [x] Split privacy command bloat integration tests out of the main bloat test
+  file.
 
 ## Orchestration Log
 
@@ -385,6 +387,9 @@ Out of scope:
   test keeps aggregate sensor smoke coverage.
 - Coordinator moved privacy IPC and notification `checkRepoBloat` integration
   tests into `scripts/check-repo-bloat-privacy-ipc.test.mjs`. The root bloat
+  integration test keeps aggregate sensor smoke coverage.
+- Coordinator moved privacy command `checkRepoBloat` integration tests into
+  `scripts/check-repo-bloat-privacy-commands.test.mjs`. The root bloat
   integration test keeps aggregate sensor smoke coverage.
 
 ## Risks

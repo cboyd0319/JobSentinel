@@ -1,0 +1,1131 @@
+import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { dirname, join } from "node:path";
+import test from "node:test";
+import { checkRepoBloat } from "./check-repo-bloat.mjs";
+
+function writeFixtureFile(root, path, content = "") {
+  const fullPath = join(root, path);
+  mkdirSync(dirname(fullPath), { recursive: true });
+  writeFileSync(fullPath, content, "utf8");
+}
+
+function withGitFixture(callback) {
+  const root = mkdtempSync(join(tmpdir(), "jobsentinel-repo-bloat-privacy-commands-"));
+
+  try {
+    execFileSync("git", ["init", "--quiet"], { cwd: root });
+    callback(root);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+test("checkRepoBloat rejects raw automation screening question logging", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/automation/form_filler.rs",
+      [
+        'tracing::debug!("Filled screening question \'{}\' with answer", question_text);',
+        'tracing::debug!("Selected screening answer for \'{}\'", question_text);',
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      ["add", "package.json", "src-tauri/src/core/automation/form_filler.rs"],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "replace raw automation screening question logging: src-tauri/src/core/automation/form_filler.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects raw automation form result data", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/automation/form_filler.rs",
+      [
+        "let field_name = Self::truncate_question(&question_text, 30);",
+        'result.filled_fields.push(format!("screening:{}", field_name));',
+        'page.inner().evaluate(script).await.map_err(|e| anyhow::anyhow!("Failed to execute question finder script: {}", e))?;',
+        'value.into_value().map_err(|e| anyhow::anyhow!("Failed to parse question finder result: {}", e))?;',
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/mocks/handlers.ts",
+      [
+        "const screeningFields = screeningAnswers.slice(0, 2).map((answer) =>",
+        "  `screening:${answer.questionPattern}`,",
+        ");",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src-tauri/src/core/automation/form_filler.rs",
+        "src/mocks/handlers.ts",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "sanitize automation form result data: src-tauri/src/core/automation/form_filler.rs",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("sanitize automation form result data: src/mocks/handlers.ts"),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects raw automation browser errors", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/automation/browser/manager.rs",
+      [
+        'BrowserConfig::builder().build().map_err(|e| anyhow::anyhow!("Failed to build browser config: {}", e))?;',
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/automation/browser/page.rs",
+      [
+        'return Err(anyhow::anyhow!("File does not exist: {:?}", file_path));',
+        'let path_str = file_path.to_str().context("Invalid file path encoding")?;',
+        'builder.build().map_err(|e| anyhow::anyhow!("Failed to build file upload params: {}", e))?;',
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src-tauri/src/core/automation/browser/manager.rs",
+        "src-tauri/src/core/automation/browser/page.rs",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "sanitize automation browser errors: src-tauri/src/core/automation/browser/manager.rs",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "sanitize automation browser errors: src-tauri/src/core/automation/browser/page.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects raw automation dropdown value logging", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/automation/browser/page.rs",
+      [
+        'tracing::debug!("Selected option \'{}\' in dropdown \'{}\'", value, selector);',
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/core/automation/browser/page.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "remove raw automation dropdown value logging: src-tauri/src/core/automation/browser/page.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects raw notification job title logging", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/notify/mod.rs",
+      [
+        'tracing::info!("Sent Slack notification for: {}", notification.job.title);',
+        'tracing::info!("Sent Teams notification for: {}", notification.job.title);',
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/core/notify/mod.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "replace raw notification job title logging: src-tauri/src/core/notify/mod.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects raw URL error display", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/automation/error.rs",
+      [
+        "#[derive(thiserror::Error, Debug)]",
+        "pub enum AutomationError {",
+        '    #[error("Failed to navigate to {url}: {reason}")]',
+        "    Navigation { url: String, reason: String },",
+        "}",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scrapers/error.rs",
+      [
+        "impl std::fmt::Display for ScraperError {",
+        "  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {",
+        "    match self {",
+        '      Self::HttpRequest { url, source } => write!(f, "HTTP request failed for {}: {}", Self::sanitize_url(url), source),',
+        '      Self::Network { url, source } => write!(f, "Network error for {}: {}", Self::sanitize_url(url), source),',
+        '      Self::ParseError { format, url, source } => write!(f, "Failed to parse {} from {}: {}", format, Self::sanitize_url(url), source),',
+        "    }",
+        "  }",
+        "}",
+        "impl ScraperError {",
+        "  pub fn from_anyhow(scraper: impl Into<String>, error: anyhow::Error) -> Self {",
+        "    Self::Generic { scraper: scraper.into(), message: error.to_string() }",
+        "  }",
+        "}",
+        "impl From<HttpBodyReadError> for ScraperError {",
+        "  fn from(error: HttpBodyReadError) -> Self {",
+        "    match error {",
+        '      HttpBodyReadError::ResponseTooLarge { url, max_bytes } => Self::Generic { scraper: "http".to_string(), message: format!("Response body from {} exceeded {} byte limit", url, max_bytes) },',
+        "    }",
+        "  }",
+        "}",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/http_body.rs",
+      [
+        "#[derive(Debug, Error)]",
+        "pub enum HttpBodyReadError {",
+        '    #[error("HTTP response body from {url} exceeded {max_bytes} byte limit")]',
+        "    ResponseTooLarge { url: String, max_bytes: usize },",
+        '    #[error("Failed to read HTTP response body from {url}: {source}")]',
+        "    Read { url: String, source: reqwest::Error },",
+        '    #[error("Failed to parse JSON response from {url}: {source}")]',
+        "    Json { url: String, source: serde_json::Error },",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src-tauri/src/core/automation/error.rs",
+        "src-tauri/src/core/http_body.rs",
+        "src-tauri/src/core/scrapers/error.rs",
+      ],
+      {
+        cwd: root,
+      },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "replace raw URL error display: src-tauri/src/core/automation/error.rs",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("replace raw URL error display: src-tauri/src/core/scrapers/error.rs"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("replace raw URL error display: src-tauri/src/core/http_body.rs"),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects raw path or query error display", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/db/error.rs",
+      [
+        "#[derive(thiserror::Error, Debug)]",
+        "pub enum DatabaseError {",
+        '    #[error("Database query timed out after {timeout_secs}s: {query}")]',
+        "    Timeout { timeout_secs: u64, query: String },",
+        '    #[error("Backup failed at {path}: {source}")]',
+        "    Backup { path: String, source: std::io::Error },",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/core/db/error.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("replace raw path/query error display: src-tauri/src/core/db/error.rs"),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects raw resume parser path error display", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/resume/parser.rs",
+      [
+        'let canonical_path = file_path.canonicalize().context(format!("Invalid path: {}", file_path.display()))?;',
+        'return Err(anyhow::anyhow!("File must be a PDF. Got: {}", canonical_path.display()));',
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/core/resume/parser.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "sanitize resume parser path error display: src-tauri/src/core/resume/parser.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects raw resume import name logging", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/resume.rs",
+      [
+        'tracing::info!("Command: import_json_resume (name: {})", name);',
+        'tracing::info!(name = %name, "Command: import_json_resume");',
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/commands/resume.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("sanitize resume import name logging: src-tauri/src/commands/resume.rs"),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects raw resume command error details", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/resume.rs",
+      [
+        "pub async fn upload_resume() -> Result<i64, String> {",
+        "    matcher.upload_resume().await.map_err(|e| format!(\"Failed to upload resume: {}\", e))",
+        "}",
+        "",
+        "pub async fn add_user_skill(skill: NewSkill) -> Result<i64, String> {",
+        "    tracing::info!(\"Command: add_user_skill (resume: {}, skill: {})\", resume_id, skill.skill_name);",
+        "    Ok(1)",
+        "}",
+        "",
+        "pub async fn match_resume_to_job(job_hash: String) -> Result<(), String> {",
+        "    tracing::info!(\"Command: match_resume_to_job (resume: {}, job: {})\", resume_id, job_hash);",
+        "    Ok(())",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/commands/resume.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("sanitize resume command error details: src-tauri/src/commands/resume.rs"),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects raw application tracking command error details", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/ats.rs",
+      [
+        "pub async fn create_application(job_hash: String) -> Result<i64, String> {",
+        "    tracing::info!(\"Command: create_application (job_hash: {})\", job_hash);",
+        "    tracker.create_application(&job_hash).await.map_err(|e| format!(\"Failed to create application: {}\", e))",
+        "}",
+        "",
+        "pub async fn schedule_interview(interview_type: String, scheduled_at: String) -> Result<i64, String> {",
+        "    tracing::info!(\"Command: schedule_interview (app: {}, type: {}, at: {})\", application_id, interview_type, scheduled_at);",
+        "    Ok(1)",
+        "}",
+        "",
+        "pub async fn complete_interview(outcome: String) -> Result<(), String> {",
+        "    tracing::info!(\"Command: complete_interview (id: {}, outcome: {})\", interview_id, outcome);",
+        "    status.parse().map_err(|e| format!(\"Invalid status: {}\", e))?;",
+        "    Ok(())",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/commands/ats.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "sanitize application tracking command error details: src-tauri/src/commands/ats.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects raw automation command error details", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/automation.rs",
+      [
+        "pub async fn create_automation_attempt(job_hash: String) -> Result<i64, String> {",
+        "    tracing::info!(\"Command: create_automation_attempt (job: {})\", job_hash);",
+        "    manager.create_attempt(&job_hash).await.map_err(|e| format!(\"Failed to create automation attempt: {}\", e))",
+        "}",
+        "",
+        "pub async fn get_application_profile() -> Result<(), String> {",
+        "    match manager.get_profile().await {",
+        "        Ok(_) => Ok(()),",
+        "        Err(e) => Err(format!(\"Failed to get profile: {}\", e)),",
+        "    }",
+        "}",
+        "",
+        "pub async fn fill_application_form() -> Result<(), String> {",
+        "    tracing::warn!(\"Failed to create automation attempt: {}\", e);",
+        "    Ok(())",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/commands/automation.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "sanitize automation command error details: src-tauri/src/commands/automation.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects raw sensitive command error details", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/ml.rs",
+      [
+        "pub async fn match_resume_semantic(job_hash: String) -> Result<(), String> {",
+        "    tracing::info!(\"Command: match_resume_semantic (job: {})\", job_hash);",
+        "    matcher.match_skills().map_err(|e| format!(\"Failed to match skills: {}\", e))",
+        "}",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/salary.rs",
+      [
+        "pub async fn generate_negotiation_script(scenario: String) -> Result<(), String> {",
+        "    tracing::info!(\"Command: generate_negotiation_script (scenario: {})\", scenario);",
+        "    analyzer.generate().await.map_err(|e| format!(\"Failed to generate script: {}\", e))",
+        "}",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/market.rs",
+      [
+        "pub async fn run_market_analysis() -> Result<(), String> {",
+        "    Err(e) => Err(format!(\"Failed to run market analysis: {}\", e)),",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src-tauri/src/commands/ml.rs",
+        "src-tauri/src/commands/salary.rs",
+        "src-tauri/src/commands/market.rs",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    for (const path of [
+      "src-tauri/src/commands/ml.rs",
+      "src-tauri/src/commands/salary.rs",
+      "src-tauri/src/commands/market.rs",
+    ]) {
+      assert.ok(
+        violations.includes(`sanitize sensitive command error details: ${path}`),
+        violations.join("\n"),
+      );
+    }
+  });
+});
+
+test("checkRepoBloat rejects raw utility command error details", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/jobs.rs",
+      [
+        "pub async fn search_jobs() -> Result<(), String> {",
+        "    tracing::error!(error = %e, \"Manual search failed\");",
+        "    Err(format!(\"Scraping failed: {}\", e))",
+        "}",
+        "",
+        "pub async fn get_statistics() -> Result<(), String> {",
+        "    serde_json::to_value(&stats).map_err(|e| format!(\"Failed to serialize stats: {}\", e))",
+        "}",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/ghost.rs",
+      [
+        "pub async fn get_ghost_jobs() -> Result<(), String> {",
+        "    tracing::error!(\"Failed to get ghost jobs: {}\", e);",
+        "    Err(format!(\"Database error: {}\", e))",
+        "}",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/deeplinks.rs",
+      [
+        "pub async fn open_deep_link(url: String) -> Result<(), String> {",
+        "    app.emit(\"deep-link-opened\", DeepLinkOpenedEvent { url: url.clone() });",
+        "    format!(\"Failed to generate deep link for {}: {}\", site_id, e);",
+        "    Ok(())",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src-tauri/src/commands/jobs.rs",
+        "src-tauri/src/commands/ghost.rs",
+        "src-tauri/src/commands/deeplinks.rs",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    for (const path of [
+      "src-tauri/src/commands/jobs.rs",
+      "src-tauri/src/commands/ghost.rs",
+      "src-tauri/src/commands/deeplinks.rs",
+    ]) {
+      assert.ok(
+        violations.includes(`sanitize utility command error details: ${path}`),
+        violations.join("\n"),
+      );
+    }
+  });
+});
+
+test("checkRepoBloat rejects raw import and bookmarklet command error details", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/import.rs",
+      [
+        "fn format_import_error(error: ImportError) -> String {",
+        "    format!(\"Failed to read the job page response: {}\", error)",
+        "}",
+        "fn serialize(e: Error) -> String {",
+        "    format!(\"Failed to serialize job: {}\", e)",
+        "}",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/user_data.rs",
+      'category.parse().map_err(|e: String| format!("Invalid category: {}", e))?;\n',
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/scoring.rs",
+      'tracing::error!("Failed to load scoring config: {}", e);\n',
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/bookmarklet.rs",
+      'tracing::error!(error = %e, "Failed to start bookmarklet server");\n',
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/bookmarklet/server.rs",
+      [
+        'tracing::error!("Failed to parse job data: {}", e);',
+        'json_error_response(format!("Failed to import job: {e}"));',
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src-tauri/src/commands/import.rs",
+        "src-tauri/src/commands/user_data.rs",
+        "src-tauri/src/commands/scoring.rs",
+        "src-tauri/src/commands/bookmarklet.rs",
+        "src-tauri/src/core/bookmarklet/server.rs",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    for (const path of [
+      "src-tauri/src/commands/import.rs",
+      "src-tauri/src/commands/user_data.rs",
+      "src-tauri/src/commands/scoring.rs",
+      "src-tauri/src/commands/bookmarklet.rs",
+      "src-tauri/src/core/bookmarklet/server.rs",
+    ]) {
+      assert.ok(
+        violations.includes(`sanitize import and bookmarklet command error details: ${path}`),
+        violations.join("\n"),
+      );
+    }
+  });
+});
+
+test("checkRepoBloat rejects raw command setup error display", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/config.rs",
+      [
+        "pub async fn complete_setup() -> Result<(), String> {",
+        "    Database::connect(&db_path)",
+        "        .await",
+        "        .map_err(|e| format!(\"Failed to connect to database: {}\", e))?;",
+        "    Ok(())",
+        "}",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/main.rs",
+      [
+        "fn main() {",
+        "    match Config::load(&config_path) {",
+        "        Err(e) => {",
+        "            tracing::error!(\"Failed to load config: {}\", e);",
+        "            return Err(format!(\"Configuration error: {}\", e).into());",
+        "        }",
+        "        _ => {}",
+        "    }",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src-tauri/src/commands/config.rs",
+        "src-tauri/src/main.rs",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "replace raw command setup error display: src-tauri/src/commands/config.rs",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("replace raw command setup error display: src-tauri/src/main.rs"),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects raw config validation URL display", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/config/validation_error.rs",
+      [
+        "match self {",
+        "  Self::InvalidUrl { field, url, reason } => {",
+        "    if field.contains(\"greenhouse\") {",
+        "      write!(f, \"Invalid Greenhouse URL format. Got: {}\", url)",
+        "    } else {",
+        "      write!(f, \"Invalid URL in {}: {}\", field, reason)",
+        "    }",
+        "  }",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      ["add", "package.json", "src-tauri/src/core/config/validation_error.rs"],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "sanitize config validation URL display: src-tauri/src/core/config/validation_error.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects raw import redirect display", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/import/types.rs",
+      [
+        "#[derive(thiserror::Error, Debug)]",
+        "pub enum ImportError {",
+        '    #[error("Redirect blocked while fetching URL: {location}")]',
+        "    RedirectBlocked { location: String },",
+        '    #[error("URL validation failed: {0}")]',
+        "    InvalidUrl(String),",
+        '    #[error("Database error: {0}")]',
+        "    DatabaseError(String),",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/core/import/types.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("replace raw import redirect display: src-tauri/src/core/import/types.rs"),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects raw bookmarklet import metadata logging", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/bookmarklet/server.rs",
+      [
+        "tracing::info!(",
+        "    title = %title,",
+        "    company = %company,",
+        '    "Job imported from bookmarklet"',
+        ");",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/core/bookmarklet/server.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "replace raw bookmarklet import metadata logging: src-tauri/src/core/bookmarklet/server.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects raw scoring cache job hash logging", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scoring/cache.rs",
+      [
+        'tracing::debug!("Score cache HIT for job_hash={}", key.job_hash);',
+        'tracing::info!(job_hash = %job_hash, "Invalidated cached score");',
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/core/scoring/cache.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "replace raw scoring cache job hash logging: src-tauri/src/core/scoring/cache.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects raw scheduler scoring privacy leaks", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scheduler/workers/scoring.rs",
+      [
+        'tracing::warn!(error = %e, job_hash = %job.hash, "Failed to serialize score reasons");',
+        'tracing::debug!("Ghost indicator for \'{}\' at {}: score={:.2}", job.title, job.company, analysis.score);',
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scoring/db.rs",
+      'sqlx_call.map_err(|e| format!("Failed to load scoring config: {}", e));\n',
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src-tauri/src/core/scheduler/workers/scoring.rs",
+        "src-tauri/src/core/scoring/db.rs",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "replace raw scheduler scoring privacy leaks: src-tauri/src/core/scheduler/workers/scoring.rs",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("replace raw scheduler scoring privacy leaks: src-tauri/src/core/scoring/db.rs"),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects residual core privacy leaks", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    const fixtures = new Map([
+      [
+        "src-tauri/src/core/automation/browser/manager.rs",
+        'tracing::debug!(error = %e, "Browser handler event error");\n',
+      ],
+      [
+        "src-tauri/src/core/config/io.rs",
+        'std::fs::create_dir_all(parent).map_err(|e| format!("Failed to create config directory: {}", e))?;\n',
+      ],
+      [
+        "src-tauri/src/core/db/connection.rs",
+        'tracing::warn!("Failed to create database directory: {}", e);\n',
+      ],
+      [
+        "src-tauri/src/core/db/error.rs",
+        'format!("Database operation failed: {}", context)\n',
+      ],
+      [
+        "src-tauri/src/core/import/schema_org.rs",
+        'tracing::debug!(error = %e, "Skipping invalid JSON-LD script tag");\n',
+      ],
+      [
+        "src-tauri/src/core/ml/model.rs",
+        'let api = Api::new().map_err(|e| MlError::DownloadFailed(e.to_string()))?;\n',
+      ],
+      [
+        "src-tauri/src/core/resume/parser.rs",
+        'tracing::warn!("OCR extraction failed: {}", e);\n',
+      ],
+      [
+        "src-tauri/src/core/resume/templates.rs",
+        'Err(format!("Invalid template ID: {}", s))\n',
+      ],
+      [
+        "src-tauri/src/core/scheduler/mod.rs",
+        'tracing::error!("Scraping cycle failed: {}", e);\n',
+      ],
+      [
+        "src-tauri/src/core/scrapers/mod.rs",
+        'tracing::error!(error = %e, "Scraper task panicked");\n',
+      ],
+      [
+        "src-tauri/src/core/scrapers/usajobs.rs",
+        'message: format!("Invalid API key: {}", e),\n',
+      ],
+      [
+        "src-tauri/src/core/scrapers/yc_startup.rs",
+        'tracing::warn!("YC scraper: failed to parse Inertia JSON: {}", e);\n',
+      ],
+    ]);
+
+    for (const [path, content] of fixtures) {
+      writeFixtureFile(root, path, content);
+    }
+
+    execFileSync("git", ["add", "package.json", ...fixtures.keys()], { cwd: root });
+
+    const violations = checkRepoBloat(root);
+
+    for (const path of fixtures.keys()) {
+      assert.ok(
+        violations.includes(`replace residual core privacy leaks: ${path}`),
+        violations.join("\n"),
+      );
+    }
+  });
+});
+
+test("checkRepoBloat rejects manual bookmarklet JSON error responses", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/bookmarklet/server.rs",
+      [
+        'format!(r#"{{"error":"{}"}}"#, e),',
+        'format!(r#"{{"error":"Failed to import job: {}"}}"#, e),',
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/core/bookmarklet/server.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "replace manual bookmarklet JSON error responses: src-tauri/src/core/bookmarklet/server.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects opaque command unit errors", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/cache.rs",
+      [
+        "#[tauri::command]",
+        "pub async fn get_cache_health() -> Result<serde_json::Value, ()> {",
+        "    Ok(serde_json::json!({\"status\":\"healthy\"}))",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/commands/cache.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("replace opaque command unit errors: src-tauri/src/commands/cache.rs"),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects unauthenticated bookmarklet imports", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/bookmarklet/server.rs",
+      [
+        'if request.starts_with("POST /api/bookmarklet/import") {',
+        "    handle_import_request(&request, database).await",
+        "} else if request.starts_with(\"OPTIONS\") {",
+        '    ("OK".to_string(), "text/plain".to_string())',
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/core/bookmarklet/server.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "require bookmarklet import auth token: src-tauri/src/core/bookmarklet/server.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects bookmarklet code without auth header", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/components/BookmarkletGenerator.tsx",
+      [
+        "export function code() {",
+        "  return `fetch('http://localhost:4321/api/bookmarklet/import',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(job)})`;",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src/components/BookmarkletGenerator.tsx"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "include bookmarklet auth token header: src/components/BookmarkletGenerator.tsx",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
