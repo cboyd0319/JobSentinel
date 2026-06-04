@@ -150,6 +150,7 @@ Out of scope:
   types from the 8k-line analyzer module.
 - [x] Split resume analyzer tests out of the runtime analyzer file.
 - [x] Split Settings icon and config helper code out of the main Settings page.
+- [x] Split mock deep-link and job-import helpers out of the main mock handler.
 
 ## Orchestration Log
 
@@ -311,6 +312,11 @@ Out of scope:
 - Read-only subagent Helmholtz audited `src/mocks/handlers.ts` and changed no
   files. Best next low-risk mock split is deep-link and job-import helpers,
   then support-report helpers, then scraper-health and interview mock helpers.
+- Coordinator moved the deep-link, job-import preview, imported-job builder,
+  and external URL safety helpers into
+  `src/mocks/handlers/sourceLinksAndImports.ts`. The root mock handler keeps
+  mutable `jobs` state and save behavior, so reset and persistence semantics
+  stay local to the main mock state.
 
 ## Risks
 

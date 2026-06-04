@@ -50,6 +50,17 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Mock deep-link and job-import helpers moved out of `src/mocks/handlers.ts`.
+- `src/mocks/handlers/sourceLinksAndImports.ts` now owns supported source-site
+  metadata, deep-link URL generation, job-import preview canonicalization,
+  imported mock-job construction, and the external HTTP URL safety guard.
+- The root mock handler still owns mutable `jobs` state and persistence calls,
+  so `resetMockData()` and mock state saving behavior stay unchanged.
+- Best next oversized-file slices remain support-report helpers and then
+  scraper-health/interview mock helpers.
+
+Previous implementation slice:
+
 - Settings page helper code moved out of `Settings.tsx`.
 - `SettingsIcons.tsx` now owns Settings-only SVG components, and
   `SettingsConfig.ts` now owns Settings DTOs, preset labels, credential helper

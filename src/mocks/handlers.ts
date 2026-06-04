@@ -12,8 +12,18 @@ import {
   mockUpcomingInterviews,
   mockPendingReminders,
 } from "./data";
-import { ExperienceLevel, JobType, RemoteType, SiteCategory } from "../types/deeplinks";
-import type { DeepLink, SearchCriteria, SiteInfo } from "../types/deeplinks";
+import {
+  assertMockDeepLinkUrl,
+  buildMockImportedJob,
+  generateMockDeepLink,
+  generateMockDeepLinks,
+  getMockSitesByCategory,
+  getMockSupportedSites,
+  isExternalHttpUrl,
+  previewMockJobImport as buildMockJobImportPreview,
+  type MockJobImportPreview,
+  type MockJobImportResult,
+} from "./handlers/sourceLinksAndImports";
 import type { PostedDateFilter, ScoreFilter, SortOption } from "../pages/DashboardTypes";
 import type { NotificationPreferences, SourceNotificationConfig } from "../utils/notificationPreferences";
 
@@ -319,25 +329,6 @@ interface MockInterview {
   outcome: string | null;
   job_title: string;
   company: string;
-}
-
-interface MockJobImportPreview {
-  title: string;
-  company: string;
-  url: string;
-  location: string | null;
-  description_preview: string | null;
-  salary: string | null;
-  date_posted: string | null;
-  valid_through: string | null;
-  employment_types: string[];
-  remote: boolean;
-  missing_fields: string[];
-  already_exists: boolean;
-}
-
-interface MockJobImportResult {
-  jobId: number;
 }
 
 interface MockDashboardPreferences {
@@ -738,172 +729,6 @@ const MOCK_SCRAPERS: readonly MockScraperDefinition[] = [
   { scraper_name: "glassdoor", display_name: "Glassdoor", requires_auth: false, scraper_type: "html", rate_limit_per_hour: 45 },
 ] as const;
 
-const MOCK_DEEP_LINK_SITES = [
-  {
-    id: "indeed",
-    name: "Indeed",
-    category: SiteCategory.General,
-    requires_login: false,
-    logo_url: "https://www.indeed.com/apple-touch-icon.png",
-    notes: "Largest job board with millions of listings",
-  },
-  {
-    id: "monster",
-    name: "Monster",
-    category: SiteCategory.General,
-    requires_login: false,
-    logo_url: "https://www.monster.com/favicon.ico",
-    notes: "Established job board with career resources",
-  },
-  {
-    id: "careerbuilder",
-    name: "CareerBuilder",
-    category: SiteCategory.General,
-    requires_login: false,
-    logo_url: "https://www.careerbuilder.com/favicon.ico",
-  },
-  {
-    id: "simplyhired",
-    name: "SimplyHired",
-    category: SiteCategory.General,
-    requires_login: false,
-    logo_url: "https://www.simplyhired.com/favicon.ico",
-    notes: "Job aggregator with salary estimates",
-  },
-  {
-    id: "ziprecruiter",
-    name: "ZipRecruiter",
-    category: SiteCategory.General,
-    requires_login: false,
-    logo_url: "https://www.ziprecruiter.com/favicon.ico",
-    notes: "General job board with Application Assist support",
-  },
-  {
-    id: "linkedin",
-    name: "LinkedIn",
-    category: SiteCategory.Professional,
-    requires_login: true,
-    logo_url: "https://www.linkedin.com/favicon.ico",
-    notes: "Professional network with extensive job listings",
-  },
-  {
-    id: "glassdoor",
-    name: "Glassdoor",
-    category: SiteCategory.Professional,
-    requires_login: true,
-    logo_url: "https://www.glassdoor.com/favicon.ico",
-    notes: "Job board with company reviews and salaries",
-  },
-  {
-    id: "dice",
-    name: "Dice",
-    category: SiteCategory.Tech,
-    requires_login: false,
-    logo_url: "https://www.dice.com/favicon.ico",
-    notes: "Technology and IT-focused job board",
-  },
-  {
-    id: "usajobs",
-    name: "USAJobs",
-    category: SiteCategory.Government,
-    requires_login: false,
-    logo_url: "https://www.usajobs.gov/favicon.ico",
-    notes: "Official federal government job board",
-  },
-  {
-    id: "governmentjobs",
-    name: "GovernmentJobs",
-    category: SiteCategory.Government,
-    requires_login: false,
-    logo_url: "https://www.governmentjobs.com/favicon.ico",
-    notes: "State and local government positions",
-  },
-  {
-    id: "cajobs",
-    name: "CalCareers (California)",
-    category: SiteCategory.Government,
-    requires_login: false,
-    notes: "California state government jobs",
-  },
-  {
-    id: "texasjobs",
-    name: "CAPPS (Texas)",
-    category: SiteCategory.Government,
-    requires_login: false,
-    notes: "Texas state government jobs",
-  },
-  {
-    id: "clearancejobs",
-    name: "ClearanceJobs",
-    category: SiteCategory.Cleared,
-    requires_login: false,
-    logo_url: "https://www.clearancejobs.com/favicon.ico",
-    notes: "Jobs requiring security clearances",
-  },
-  {
-    id: "flexjobs",
-    name: "FlexJobs",
-    category: SiteCategory.Remote,
-    requires_login: true,
-    logo_url: "https://www.flexjobs.com/favicon.ico",
-    notes: "Curated remote and flexible jobs (subscription)",
-  },
-  {
-    id: "weworkremotely",
-    name: "We Work Remotely",
-    category: SiteCategory.Remote,
-    requires_login: false,
-    logo_url: "https://weworkremotely.com/favicon.ico",
-    notes: "Popular remote job board",
-  },
-  {
-    id: "remoteok",
-    name: "Remote OK",
-    category: SiteCategory.Remote,
-    requires_login: false,
-    logo_url: "https://remoteok.com/favicon.ico",
-    notes: "Remote jobs aggregator",
-  },
-  {
-    id: "wellfound",
-    name: "Wellfound (AngelList)",
-    category: SiteCategory.Startups,
-    requires_login: true,
-    logo_url: "https://wellfound.com/favicon.ico",
-    notes: "Startup jobs with equity information",
-  },
-  {
-    id: "ycombinator",
-    name: "Y Combinator Jobs",
-    category: SiteCategory.Startups,
-    requires_login: false,
-    logo_url: "https://www.ycombinator.com/favicon.ico",
-    notes: "Jobs at Y Combinator companies",
-  },
-] as const satisfies readonly SiteInfo[];
-
-const LINKEDIN_JOB_TYPE_PARAMS: Partial<Record<JobType, string>> = {
-  [JobType.FullTime]: "F",
-  [JobType.PartTime]: "P",
-  [JobType.Contract]: "C",
-  [JobType.Temporary]: "T",
-  [JobType.Internship]: "I",
-};
-
-const LINKEDIN_REMOTE_TYPE_PARAMS: Record<RemoteType, string> = {
-  [RemoteType.Remote]: "2",
-  [RemoteType.Hybrid]: "3",
-  [RemoteType.Onsite]: "1",
-};
-
-const INDEED_JOB_TYPE_PARAMS: Partial<Record<JobType, string>> = {
-  [JobType.FullTime]: "fulltime",
-  [JobType.PartTime]: "parttime",
-  [JobType.Contract]: "contract",
-  [JobType.Temporary]: "temporary",
-  [JobType.Internship]: "internship",
-};
-
 // Simulate network delay
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -1281,205 +1106,11 @@ function screeningPatternMatchesQuestion(savedWording: string, question: string)
   });
 }
 
-function getMockSupportedSites(): SiteInfo[] {
-  return MOCK_DEEP_LINK_SITES.map((site) => ({ ...site }));
-}
-
-function getMockSitesByCategory(args?: Record<string, unknown>): SiteInfo[] {
-  const category = getArg(args, "category");
-  if (!isSiteCategory(category)) {
-    return [];
-  }
-
-  return getMockSupportedSites().filter((site) => site.category === category);
-}
-
-function getSearchCriteriaArg(args?: Record<string, unknown>): SearchCriteria {
-  const source = getArg(args, "criteria");
-  if (!isRecord(source)) {
-    return { query: "" };
-  }
-
-  return {
-    query: typeof source.query === "string" ? source.query : "",
-    location: typeof source.location === "string" ? source.location : undefined,
-    experience_level: isExperienceLevel(source.experience_level)
-      ? source.experience_level
-      : undefined,
-    job_type: isJobType(source.job_type) ? source.job_type : undefined,
-    remote_type: isRemoteType(source.remote_type) ? source.remote_type : undefined,
-  };
-}
-
-function generateMockDeepLinks(args?: Record<string, unknown>): DeepLink[] {
-  const criteria = getSearchCriteriaArg(args);
-  return getMockSupportedSites().map((site) => ({
-    site,
-    url: generateMockDeepLinkUrl(site.id, criteria),
-  }));
-}
-
-function generateMockDeepLink(args?: Record<string, unknown>): DeepLink {
-  const siteId = getStringArg(args, "siteId") ?? getStringArg(args, "site_id");
-  const site = getMockSupportedSites().find((candidate) => candidate.id === siteId);
-  if (!site) {
-    throw new Error(`Unknown site ID: ${siteId ?? ""}`);
-  }
-
-  return {
-    site,
-    url: generateMockDeepLinkUrl(site.id, getSearchCriteriaArg(args)),
-  };
-}
-
-function generateMockDeepLinkUrl(siteId: string, criteria: SearchCriteria): string {
-  switch (siteId) {
-    case "indeed":
-      return buildIndeedUrl(criteria);
-    case "linkedin":
-      return buildLinkedinUrl(criteria);
-    case "glassdoor":
-      return `https://www.glassdoor.com/Job/jobs.htm?sc.keyword=${encodeQuery(criteria.query)}`;
-    case "monster":
-      return appendLocation(
-        `https://www.monster.com/jobs/search?q=${encodeQuery(criteria.query)}`,
-        "where",
-        criteria,
-      ) + (criteria.remote_type === RemoteType.Remote ? "&jobtype=WORK_FROM_HOME" : "");
-    case "careerbuilder":
-      return appendLocation(
-        `https://www.careerbuilder.com/jobs?keywords=${encodeQuery(criteria.query)}`,
-        "location",
-        criteria,
-      ) + (criteria.remote_type === RemoteType.Remote ? "&emp=JTFT,JTFR" : "");
-    case "simplyhired":
-      return appendLocation(
-        `https://www.simplyhired.com/search?q=${encodeQuery(criteria.query)}`,
-        "l",
-        criteria,
-      ) + (criteria.remote_type === RemoteType.Remote ? "&job=z-remote" : "");
-    case "ziprecruiter":
-      return appendLocation(
-        `https://www.ziprecruiter.com/jobs-search?search=${encodeQuery(criteria.query)}`,
-        "location",
-        criteria,
-      ) + (criteria.remote_type === RemoteType.Remote ? "&refine_by_location_type=only_remote" : "");
-    case "dice":
-      return appendLocation(
-        `https://www.dice.com/jobs?q=${encodeQuery(criteria.query)}`,
-        "location",
-        criteria,
-      ) + (criteria.remote_type === RemoteType.Remote ? "&filters.isRemote=true" : "");
-    case "usajobs":
-      return appendLocation(
-        `https://www.usajobs.gov/Search/Results?k=${encodeQuery(criteria.query)}`,
-        "l",
-        criteria,
-      ) + (criteria.remote_type === RemoteType.Remote ? "&p=1" : "");
-    case "governmentjobs":
-      return appendLocation(
-        `https://www.governmentjobs.com/jobs?keyword=${encodeQuery(criteria.query)}`,
-        "location",
-        criteria,
-      );
-    case "cajobs":
-      return `https://www.calcareers.ca.gov/CalHrPublic/Jobs/JobPosting.aspx?searchStr=${encodeQuery(criteria.query)}`;
-    case "texasjobs":
-      return `https://capps.taleo.net/careersection/ex/jobsearch.ftl?lang=en&keyword=${encodeQuery(criteria.query)}`;
-    case "clearancejobs":
-      return appendLocation(
-        `https://www.clearancejobs.com/jobs?keywords=${encodeQuery(criteria.query)}`,
-        "location",
-        criteria,
-      );
-    case "flexjobs":
-      return appendLocation(
-        `https://www.flexjobs.com/search?search=${encodeQuery(criteria.query)}`,
-        "location",
-        criteria,
-      );
-    case "weworkremotely":
-      return `https://weworkremotely.com/remote-jobs/search?term=${encodeQuery(criteria.query)}`;
-    case "remoteok":
-      return `https://remoteok.com/remote-jobs?search=${encodeQuery(criteria.query)}`;
-    case "wellfound":
-      return appendLocation(
-        `https://wellfound.com/jobs?keywords=${encodeQuery(criteria.query)}`,
-        "location",
-        criteria,
-      ) + (criteria.remote_type === RemoteType.Remote ? "&remote=true" : "");
-    case "ycombinator":
-      return `https://www.ycombinator.com/jobs?q=${encodeQuery(criteria.query)}`;
-    default:
-      throw new Error(`Unsupported site: ${siteId}`);
-  }
-}
-
-function buildIndeedUrl(criteria: SearchCriteria): string {
-  let url = appendLocation(
-    `https://www.indeed.com/jobs?q=${encodeQuery(criteria.query)}`,
-    "l",
-    criteria,
-  );
-  const jobType = criteria.job_type ? INDEED_JOB_TYPE_PARAMS[criteria.job_type] : undefined;
-  if (jobType) {
-    url += `&jt=${jobType}`;
-  }
-  if (criteria.remote_type === RemoteType.Remote) {
-    url += "&remotejob=032b3046-06a3-4876-8dfd-474eb5e7ed11";
-  }
-  return url;
-}
-
-function buildLinkedinUrl(criteria: SearchCriteria): string {
-  let url = appendLocation(
-    `https://www.linkedin.com/jobs/search/?keywords=${encodeQuery(criteria.query)}`,
-    "location",
-    criteria,
-  );
-  const jobType = criteria.job_type ? LINKEDIN_JOB_TYPE_PARAMS[criteria.job_type] : undefined;
-  if (jobType) {
-    url += `&f_JT=${jobType}`;
-  }
-  if (criteria.remote_type) {
-    url += `&f_WT=${LINKEDIN_REMOTE_TYPE_PARAMS[criteria.remote_type]}`;
-  }
-  return url;
-}
-
-function appendLocation(url: string, key: string, criteria: SearchCriteria): string {
-  return criteria.location ? `${url}&${key}=${encodeQuery(criteria.location)}` : url;
-}
-
-function encodeQuery(value: string): string {
-  return encodeURIComponent(value);
-}
-
-function assertMockDeepLinkUrl(url: string | undefined): void {
-  if (!url || !isExternalHttpUrl(url)) {
-    throw new Error("This job-site link is not safe to open");
-  }
-}
-
 function previewMockJobImport(args?: Record<string, unknown>): MockJobImportPreview {
-  const url = getJobImportUrl(args);
-  const title = getMockImportTitle(url);
-  const company = getMockImportCompany(url);
-
-  return {
-    title,
-    company,
-    url,
-    location: "Remote",
-    description_preview: `${title} role imported from ${company}. Review details before saving.`,
-    salary: "$55k-$72k",
-    date_posted: new Date().toISOString(),
-    valid_through: null,
-    employment_types: ["FULL_TIME"],
-    remote: true,
-    missing_fields: [],
-    already_exists: jobs.some((job) => job.url === url),
-  };
+  return buildMockJobImportPreview(
+    args,
+    jobs.map((job) => job.url),
+  );
 }
 
 function importMockJobFromUrl(args?: Record<string, unknown>): MockJobImportResult {
@@ -1488,107 +1119,10 @@ function importMockJobFromUrl(args?: Record<string, unknown>): MockJobImportResu
     throw new Error("This job is already in your saved jobs");
   }
 
-  const now = new Date().toISOString();
-  const job: MockJob = {
-    id: getNextId(jobs),
-    hash: `mock-import-${hashString(preview.url)}`,
-    title: preview.title,
-    company: preview.company,
-    location: preview.location ?? "Remote",
-    description: preview.description_preview ?? "",
-    url: preview.url,
-    source: "import",
-    salary_min: 55000,
-    salary_max: 72000,
-    remote: preview.remote,
-    score: 1,
-    hidden: false,
-    bookmarked: false,
-    notes: null,
-    created_at: now,
-  };
-
+  const job = buildMockImportedJob(preview, getNextId(jobs), new Date().toISOString());
   jobs = [job, ...jobs];
   saveMockState();
   return { jobId: job.id };
-}
-
-function getJobImportUrl(args?: Record<string, unknown>): string {
-  const url = getStringArg(args, "url")?.trim();
-  if (!url || !isExternalHttpUrl(url)) {
-    throw new Error("Paste the full job link from your browser address bar.");
-  }
-
-  return canonicalizeMockJobImportUrl(url);
-}
-
-const STRIPPED_JOB_IMPORT_QUERY_KEYS = new Set([
-  "fbclid",
-  "gclid",
-  "igshid",
-  "mc_cid",
-  "mc_eid",
-  "msclkid",
-  "ref",
-  "referrer",
-  "source",
-]);
-
-const STRIPPED_JOB_IMPORT_QUERY_MARKERS = [
-  "token",
-  "session",
-  "auth",
-  "credential",
-  "password",
-  "email",
-  "candidate",
-];
-
-function canonicalizeMockJobImportUrl(url: string): string {
-  const parsed = new URL(url);
-  parsed.username = "";
-  parsed.password = "";
-  parsed.hash = "";
-
-  const keptParams = new URLSearchParams();
-  parsed.searchParams.forEach((value, key) => {
-    const normalizedKey = key.toLowerCase();
-    if (
-      normalizedKey.startsWith("utm_") ||
-      STRIPPED_JOB_IMPORT_QUERY_KEYS.has(normalizedKey) ||
-      STRIPPED_JOB_IMPORT_QUERY_MARKERS.some((marker) => normalizedKey.includes(marker))
-    ) {
-      return;
-    }
-    keptParams.append(key, value);
-  });
-
-  const query = keptParams.toString();
-  parsed.search = query ? `?${query}` : "";
-  return parsed.toString();
-}
-
-function getMockImportTitle(url: string): string {
-  const parsed = new URL(url);
-  const parts = parsed.pathname.split("/").filter((part) => part.length > 0);
-  const slug = parts[parts.length - 1] ?? "imported-job";
-  return slug
-    .replace(/\.[a-z0-9]+$/i, "")
-    .replace(/[-_]+/g, " ")
-    .replace(/\b\w/g, (char) => char.toUpperCase())
-    .trim() || "Imported Job";
-}
-
-function getMockImportCompany(url: string): string {
-  return new URL(url).hostname;
-}
-
-function hashString(value: string): string {
-  let hash = 0;
-  for (let index = 0; index < value.length; index += 1) {
-    hash = (hash * 31 + value.charCodeAt(index)) >>> 0;
-  }
-  return hash.toString(16).padStart(8, "0");
 }
 
 function getMockDashboardPreferences(): MockDashboardPreferences {
@@ -1886,39 +1420,6 @@ function getMockConfigSummary() {
     notifications_configured: Number(config.alerts.email?.enabled ?? false),
     has_resume: Boolean(getActiveResume()),
   };
-}
-
-function isExternalHttpUrl(value: string): boolean {
-  try {
-    const url = new URL(value);
-    if (url.protocol !== "http:" && url.protocol !== "https:") {
-      return false;
-    }
-
-    return !isLocalOrPrivateHost(url.hostname);
-  } catch {
-    return false;
-  }
-}
-
-function isLocalOrPrivateHost(hostname: string): boolean {
-  const host = hostname.toLowerCase().replace(/^\[|\]$/g, "");
-  if (
-    host === "localhost" ||
-    host === "::1" ||
-    host === "0:0:0:0:0:0:0:1" ||
-    host === "0.0.0.0" ||
-    host.startsWith("127.")
-  ) {
-    return true;
-  }
-
-  return (
-    /^10\./.test(host) ||
-    /^192\.168\./.test(host) ||
-    /^169\.254\./.test(host) ||
-    /^172\.(1[6-9]|2\d|3[01])\./.test(host)
-  );
 }
 
 function normalizeApplicationProfile(value: Partial<MockApplicationProfile>): MockApplicationProfile {
@@ -4693,21 +4194,9 @@ function isTemplateCategory(value: unknown): value is MockTemplateCategory {
   return typeof value === "string" && TEMPLATE_CATEGORIES.includes(value as MockTemplateCategory);
 }
 
-function isExperienceLevel(value: unknown): value is ExperienceLevel {
-  return Object.values(ExperienceLevel).includes(value as ExperienceLevel);
-}
 
-function isJobType(value: unknown): value is JobType {
-  return Object.values(JobType).includes(value as JobType);
-}
 
-function isRemoteType(value: unknown): value is RemoteType {
-  return Object.values(RemoteType).includes(value as RemoteType);
-}
 
-function isSiteCategory(value: unknown): value is SiteCategory {
-  return Object.values(SiteCategory).includes(value as SiteCategory);
-}
 
 function getNullablePostedDateFilter(value: unknown): PostedDateFilter | null {
   return isPostedDateFilter(value) ? value : null;
