@@ -332,6 +332,9 @@ Out of scope:
 - Coordinator moved resume bullet-improvement prompt helpers into
   `src/mocks/handlers/resumeBulletPrompts.ts`. The root mock handler keeps
   keyword extraction and injects it into the extracted prompt helper.
+- Coordinator moved resume section parsing and review guard helpers into
+  `src/mocks/handlers/resumeAnalysisSections.ts`. The root mock handler keeps
+  analysis scoring and keyword extraction.
 
 ## Risks
 

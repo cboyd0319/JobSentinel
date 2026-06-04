@@ -50,6 +50,17 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Resume section parsing and resume-review guard helpers moved out of
+  `src/mocks/handlers.ts` into
+  `src/mocks/handlers/resumeAnalysisSections.ts`.
+- The main mock handler still owns analysis scoring, keyword extraction, and
+  command dispatch; the extracted helper owns section normalization and
+  hidden-text, keyword-list, unclear-capability, and generic-filler guards.
+- `src/mocks/handlers.ts` legacy no-growth budget tightened from 3,656 lines to
+  3,379 lines.
+
+Recent cleanup summary:
+
 - Resume bullet-improvement prompt helpers moved out of
   `src/mocks/handlers.ts` into
   `src/mocks/handlers/resumeBulletPrompts.ts`.
@@ -58,9 +69,6 @@ Latest implementation slice:
   prompt wording and bullet rewrite guidance.
 - `src/mocks/handlers.ts` legacy no-growth budget tightened from 3,971 lines to
   3,656 lines.
-
-Recent cleanup summary:
-
 - Settings help/status, backup, and support-report UI moved out of
   `src/pages/Settings.tsx` into `src/pages/SettingsSupportSections.tsx`.
 - The main Settings page still owns modal state, backup handlers, support report
