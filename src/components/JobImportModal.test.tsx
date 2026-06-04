@@ -162,4 +162,22 @@ describe("JobImportModal", () => {
     ).toBeInTheDocument();
     expect(screen.queryByText(/salary_min|salary_max|company_name|job_url/)).not.toBeInTheDocument();
   });
+
+  it("shows the closing date when the posting provides one", async () => {
+    const user = userEvent.setup();
+    mockInvoke.mockResolvedValueOnce({
+      ...preview,
+      valid_through: "2026-06-15T00:00:00Z",
+    });
+
+    renderModal();
+
+    fireEvent.change(screen.getByLabelText("Job link"), {
+      target: { value: "https://example.com/jobs/office-manager" },
+    });
+    await user.click(screen.getByRole("button", { name: "Check Job Link" }));
+
+    expect(await screen.findByText("Posted: 5/1/2026")).toBeInTheDocument();
+    expect(await screen.findByText("Closing date: 6/15/2026")).toBeInTheDocument();
+  });
 });

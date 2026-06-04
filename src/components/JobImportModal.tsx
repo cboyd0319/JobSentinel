@@ -72,6 +72,10 @@ function formatMissingDetails(fields: string[]) {
   return [...new Set(labels)].join(", ");
 }
 
+function formatImportDate(value: string) {
+  return new Date(value).toLocaleDateString("en-US", { timeZone: "UTC" });
+}
+
 function getSafeJobImportError(error: unknown) {
   const friendly = getUserFriendlyError(error);
   return {
@@ -291,7 +295,14 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
               {/* Date Posted */}
               {preview.date_posted && (
                 <div className="text-xs text-gray-500 dark:text-gray-500">
-                  Posted: {new Date(preview.date_posted).toLocaleDateString()}
+                  Posted: {formatImportDate(preview.date_posted)}
+                </div>
+              )}
+
+              {/* Closing Date */}
+              {preview.valid_through && (
+                <div className="text-xs text-gray-500 dark:text-gray-500">
+                  Closing date: {formatImportDate(preview.valid_through)}
                 </div>
               )}
 

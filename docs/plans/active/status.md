@@ -52,6 +52,16 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Job import preview now shows the posting closing date when the source
+  provides one, instead of dropping the existing `valid_through` preview field.
+- Previewed posting and closing dates preserve the source date instead of
+  shifting a day earlier in local time zones.
+- Users can check time-sensitive posting evidence before saving and tailoring.
+- The slice changes visible preview details only; it adds no storage fields,
+  network calls, external AI, telemetry, or source-contact behavior changes.
+
+Previous implementation slice:
+
 - Resume suggestion category labels now say **Review job words** instead of
   **Add job words** in both live-score review and the Resume Match page.
 - The label better matches the existing truth-first suggestion text and avoids

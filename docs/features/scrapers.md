@@ -110,6 +110,9 @@ User-imported job links are cleaned before preview, duplicate checks, and
 storage. The importer removes embedded credentials, fragments, tracking
 parameters, and sensitive query parameters while preserving public posting
 identifiers needed to recognize the posting.
+When the posting includes a closing date, the import preview shows it before
+the user saves the job. Previewed posting and closing dates preserve the source
+date instead of shifting a day earlier in local time zones.
 
 JobSentinel compares cleaned title, company, location, and link to spot
 duplicates.

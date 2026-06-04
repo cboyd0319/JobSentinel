@@ -111,6 +111,8 @@ Out of scope:
   **Nice-to-Have or Other to Review** label.
 - [x] Replace resume suggestion **Add job words** labels with
   **Review job words** so wording stays truth-first.
+- [x] Show job-import closing dates when the posting preview includes them, and
+  preserve source posting dates across local time zones.
 
 ## Orchestration Log
 
@@ -202,6 +204,10 @@ Out of scope:
 - Coordinator changed resume suggestion category labels from **Add job words**
   to **Review job words** in both live-score review and Resume Match, preserving
   the existing truth-first suggestion text.
+- Coordinator showed posting closing dates in Job Import preview when the
+  backend preview already includes `valid_through`, then fixed import preview
+  date formatting so source dates do not shift a day earlier in local time
+  zones.
 
 ## Risks
 
