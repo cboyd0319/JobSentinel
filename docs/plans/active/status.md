@@ -50,6 +50,19 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Mock scraper-health and interview persistence command coverage moved out of
+  `src/mocks/handlers.test.ts`.
+- `src/mocks/handlers/scraperInterviewCommands.test.ts` now owns focused dev
+  mock coverage for scraper health, scraper toggles, smoke tests, expiring
+  credentials, interview prep checklist saves, and interview follow-up saves.
+- This is a test-only oversized-file cleanup slice; mock command behavior and
+  reset behavior stay unchanged.
+- Best next oversized-file slice is splitting another command-domain cluster
+  out of `src/mocks/handlers.test.ts` or moving the next helper cluster out of
+  `src/mocks/handlers.ts`.
+
+Previous implementation slice:
+
 - Harness file-size limits now run through the repo bloat sensor.
 - Maintainable frontend/Rust source files and tests target 1,200 lines,
   harness scripts target 900 lines, and non-archive docs target 900 lines.
