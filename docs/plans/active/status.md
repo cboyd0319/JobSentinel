@@ -50,6 +50,17 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Feature-doc `checkRepoBloat` integration tests moved out of
+  `scripts/check-repo-bloat.test.mjs` into
+  `scripts/check-repo-bloat-feature-docs.test.mjs`.
+- The main bloat integration test still owns aggregate sensor smoke coverage;
+  the extracted file owns active user-doc, feature-doc, scraper-doc, and
+  notification-doc drift coverage.
+- `scripts/check-repo-bloat.test.mjs` legacy no-growth budget tightened from
+  8,550 lines to 7,386 lines.
+
+Recent cleanup summary:
+
 - Docs-drift `checkRepoBloat` integration tests moved out of
   `scripts/check-repo-bloat.test.mjs` into
   `scripts/check-repo-bloat-docs-drift.test.mjs`.
@@ -58,9 +69,6 @@ Latest implementation slice:
   stale-doc marker coverage.
 - `scripts/check-repo-bloat.test.mjs` legacy no-growth budget tightened from
   9,702 lines to 8,550 lines.
-
-Recent cleanup summary:
-
 - Broad-audience `checkRepoBloat` integration tests moved out of
   `scripts/check-repo-bloat.test.mjs` into
   `scripts/check-repo-bloat-broad-audience.test.mjs`.
