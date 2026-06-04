@@ -50,6 +50,17 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Resume bullet-improvement prompt helpers moved out of
+  `src/mocks/handlers.ts` into
+  `src/mocks/handlers/resumeBulletPrompts.ts`.
+- The main mock handler still owns keyword extraction and command dispatch; the
+  extracted helper receives the keyword extractor explicitly and owns only
+  prompt wording and bullet rewrite guidance.
+- `src/mocks/handlers.ts` legacy no-growth budget tightened from 3,971 lines to
+  3,656 lines.
+
+Recent cleanup summary:
+
 - Settings help/status, backup, and support-report UI moved out of
   `src/pages/Settings.tsx` into `src/pages/SettingsSupportSections.tsx`.
 - The main Settings page still owns modal state, backup handlers, support report
@@ -57,9 +68,6 @@ Latest implementation slice:
   presentation.
 - `src/pages/Settings.tsx` legacy no-growth budget tightened from 3,435 lines
   to 3,351 lines.
-
-Recent cleanup summary:
-
 - ATS platform detection helpers moved out of `src/mocks/handlers.ts` into
   `src/mocks/handlers/atsPlatform.ts`; the main mock handler still owns
   application-form fill state and attempt IDs.

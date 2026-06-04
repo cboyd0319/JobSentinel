@@ -329,6 +329,9 @@ Out of scope:
 - Coordinator moved Settings help/status, backup, and support-report UI into
   `src/pages/SettingsSupportSections.tsx`. The root Settings page keeps
   modal, backup, and support-report state ownership.
+- Coordinator moved resume bullet-improvement prompt helpers into
+  `src/mocks/handlers/resumeBulletPrompts.ts`. The root mock handler keeps
+  keyword extraction and injects it into the extracted prompt helper.
 
 ## Risks
 
