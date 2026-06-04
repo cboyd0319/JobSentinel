@@ -177,6 +177,7 @@ type AtsAnalysisResult = {
       | "LicenseOrCertification"
       | "Education"
       | "Experience"
+      | "BackgroundScreening"
       | "PhysicalRequirement"
       | "Location";
     score_cap: number;
@@ -1466,7 +1467,7 @@ describe("mock Tauri handlers", () => {
     await mockInvoke<number>("select_and_upload_resume");
     const activeJobResult = await mockInvoke<AtsAnalysisResult>("analyze_active_resume_for_job", {
       jobDescription:
-        "Required: scheduling, case management, security clearance, weekend availability, reliable transportation, lift 50 pounds, 8+ years of payroll management, US citizenship.",
+        "Required: scheduling, case management, security clearance, weekend availability, reliable transportation, lift 50 pounds, background check, 8+ years of payroll management, US citizenship.",
     });
     expect(activeJobResult.keyword_matches).toEqual(
       expect.arrayContaining([
@@ -1519,6 +1520,12 @@ describe("mock Tauri handlers", () => {
           category: "PhysicalRequirement",
           score_cap: 70,
           action: expect.stringContaining("not workable or safe"),
+        }),
+        expect.objectContaining({
+          requirement: "background check",
+          category: "BackgroundScreening",
+          score_cap: 70,
+          action: expect.stringContaining("Check background, drug"),
         }),
       ]),
     );
@@ -1728,6 +1735,64 @@ describe("mock Tauri handlers", () => {
       expect.arrayContaining([
         expect.objectContaining({
           requirement: "stand for long periods",
+        }),
+      ]),
+    );
+  });
+
+  it("matches background screening wording in mock hard constraints", async () => {
+    const backgroundResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "Completed background screening for client-site work.",
+        skills: [],
+      },
+      jobDescription: "Required: background check",
+    });
+
+    expect(backgroundResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "background check",
+          match_state: "Direct",
+          hard_constraint: true,
+          evidence_sections: expect.arrayContaining(["summary"]),
+        }),
+      ]),
+    );
+    expect(backgroundResult.hard_constraint_risks).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          requirement: "background check",
+        }),
+      ]),
+    );
+  });
+
+  it("matches drug test wording in mock hard constraints", async () => {
+    const drugScreenResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "Completed drug testing for safety-sensitive site work.",
+        skills: [],
+      },
+      jobDescription: "Required: drug screen",
+    });
+
+    expect(drugScreenResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "drug screen",
+          match_state: "Direct",
+          hard_constraint: true,
+          evidence_sections: expect.arrayContaining(["summary"]),
+        }),
+      ]),
+    );
+    expect(drugScreenResult.hard_constraint_risks).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          requirement: "drug screen",
         }),
       ]),
     );

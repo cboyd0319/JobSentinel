@@ -89,8 +89,14 @@ Jobs with posting-risk signals show a badge:
 Screen-reader labels use low, medium, or high warning levels instead of raw
 confidence percentages.
 
-Hover over the badge to see why it was flagged. Job cards can also show "Seen
-on X sources" when the same role appears in more than one place.
+Hover over the badge to see why it was flagged. Job cards can also show when
+the same role has been seen more than once. Treat repeated sightings as a
+source detail to check, not proof that separate sites confirmed the role.
+
+Some stale or repost evidence can show as a small **Check posting evidence**
+cue even when the overall warning score is low. This means the posting has a
+specific age or repost signal worth checking before tailoring; it is not a
+claim about employer intent.
 
 When posting risk is elevated, the job card also shows plain guidance before
 the user spends tailoring time:

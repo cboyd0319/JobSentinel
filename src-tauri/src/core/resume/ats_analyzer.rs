@@ -110,6 +110,8 @@ pub enum HardConstraintCategory {
     Experience,
     /// Required language fluency
     Language,
+    /// Required background, drug, or pre-employment screening
+    BackgroundScreening,
     /// Required physical demand such as lifting or prolonged standing
     PhysicalRequirement,
     /// Required location, onsite, relocation, travel, schedule, or availability constraint
@@ -1960,6 +1962,7 @@ impl AtsAnalyzer {
             HardConstraintCategory::Education => 65.0,
             HardConstraintCategory::Experience => 65.0,
             HardConstraintCategory::Language => 65.0,
+            HardConstraintCategory::BackgroundScreening => 70.0,
             HardConstraintCategory::PhysicalRequirement => 70.0,
             HardConstraintCategory::Location => 70.0,
         }
@@ -1991,6 +1994,9 @@ impl AtsAnalyzer {
             }
             HardConstraintCategory::Language => {
                 "Check language fluency before tailoring. If it is not true for you, do not claim it."
+            }
+            HardConstraintCategory::BackgroundScreening => {
+                "Check background, drug, or pre-employment screening before tailoring. If it is not workable or true for you, do not claim or imply that it is."
             }
             HardConstraintCategory::PhysicalRequirement => {
                 "Check this physical demand before tailoring. If it is not workable or safe for you, do not claim it."
@@ -2097,6 +2103,17 @@ impl AtsAnalyzer {
         }
         if Self::known_human_language_requirement(&lower) {
             return Some(HardConstraintCategory::Language);
+        }
+        if lower.contains("background check")
+            || lower.contains("background screening")
+            || lower.contains("pre-employment screening")
+            || lower.contains("pre employment screening")
+            || lower.contains("drug screen")
+            || lower.contains("drug screening")
+            || lower.contains("drug test")
+            || lower.contains("drug testing")
+        {
+            return Some(HardConstraintCategory::BackgroundScreening);
         }
         if lower.contains("lift ")
             || lower.contains("pound")
@@ -2468,6 +2485,25 @@ impl AtsAnalyzer {
                 "holiday",
                 "holiday shift",
                 "holiday shifts",
+            ],
+            &[
+                "background check",
+                "background checks",
+                "background screening",
+                "background screenings",
+            ],
+            &[
+                "pre-employment screening",
+                "pre employment screening",
+                "employment screening",
+            ],
+            &[
+                "drug screen",
+                "drug screens",
+                "drug screening",
+                "drug test",
+                "drug tests",
+                "drug testing",
             ],
             &["availability", "available"],
             &[
@@ -3263,6 +3299,7 @@ impl AtsAnalyzer {
             r"(?i)\b(ph\.?d\.?(?:\s+degree)?|doctorate(?:\s+degree)?|doctoral degree|associate'?s degree|associate degree|baccalaureate degree|bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree|high[- ]school diploma|high[- ]school degree|ged|high[- ]school equivalency|general education development)\b",
             r"(?i)\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b",
             r"(?i)\b(bilingual(?:\s+(?:english|spanish|french|mandarin|cantonese|arabic|portuguese|german|japanese|korean))?|(?:spanish|french|mandarin|cantonese|arabic|portuguese|german|japanese|korean)\s+fluency|fluent(?:\s+in)?\s+(?:spanish|french|mandarin|cantonese|arabic|portuguese|german|japanese|korean)|(?:spanish|french|mandarin|cantonese|arabic|portuguese|german|japanese|korean)\s+language|english/(?:spanish|french|mandarin|cantonese|arabic|portuguese|german|japanese|korean)|english and (?:spanish|french|mandarin|cantonese|arabic|portuguese|german|japanese|korean))\b",
+            r"(?i)\b(background checks?|background screenings?|pre[- ]employment screenings?|drug screens?|drug screenings?|drug tests?|drug testing)\b",
             r"(?i)\b(lift(?:\s+up\s+to)?\s+\d+\s*(?:pounds?|lbs?)|(?:stand|standing) for long periods?|physical requirements?|physical demands?)\b",
             r"(?i)\b(onsite|on-site|on site|remote(?:[- ](?:work|role|position|job))?|hybrid(?:[- ](?:work|role|schedule|position|job))?|relocation|relocate|willing to relocate|travel|reliable transportation|own transportation|commute|commuting|full[- ]time(?:\s+availability)?|part[- ]time(?:\s+availability)?|availability|available|schedule|weekend availability|weekend shifts?|night shift|overnight shift|third shift|3rd shift|evening shift|second shift|2nd shift|day shift|first shift|1st shift|overtime(?:\s+(?:availability|shifts?|hours?))?|holiday(?:\s+(?:availability|shifts?|hours?))?)\b",
         ];
@@ -7633,6 +7670,79 @@ Preferred: Salesforce
             .hard_constraint_risks
             .iter()
             .any(|risk| risk.requirement == "security clearance"));
+    }
+
+    #[test]
+    fn test_missing_required_background_screening_caps_overall_score() {
+        let resume = sample_resume();
+
+        let result = AtsAnalyzer::analyze_for_job(
+            &resume,
+            "Required: client intake, background check, drug screen",
+        );
+
+        assert!(result.overall_score <= 70.0);
+        assert!(result.hard_constraint_risks.iter().any(|risk| {
+            risk.requirement == "background check"
+                && risk.category == HardConstraintCategory::BackgroundScreening
+                && risk.score_cap == 70.0
+                && risk.action.contains("Check background, drug")
+        }));
+        assert!(result.hard_constraint_risks.iter().any(|risk| {
+            risk.requirement == "drug screen"
+                && risk.category == HardConstraintCategory::BackgroundScreening
+                && risk.score_cap == 70.0
+        }));
+        assert!(result.requirement_reviews.iter().any(|review| {
+            review.keyword == "background check"
+                && review.hard_constraint
+                && review.match_state == RequirementMatchState::Missing
+        }));
+    }
+
+    #[test]
+    fn test_background_check_accepts_background_screening_evidence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nSummary\nCompleted background screening for client-site work.",
+            &[],
+            "Required: background check",
+        );
+
+        let background_check = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "background check")
+            .expect("background check review");
+        assert_eq!(background_check.match_state, RequirementMatchState::Direct);
+        assert!(background_check.hard_constraint);
+        assert!(background_check
+            .evidence_sections
+            .contains(&"summary".to_string()));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "background check"));
+    }
+
+    #[test]
+    fn test_drug_screen_accepts_drug_test_evidence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nSummary\nCompleted drug testing for safety-sensitive site work.",
+            &[],
+            "Required: drug screen",
+        );
+
+        let drug_screen = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "drug screen")
+            .expect("drug screen review");
+        assert_eq!(drug_screen.match_state, RequirementMatchState::Direct);
+        assert!(drug_screen.hard_constraint);
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == "drug screen"));
     }
 
     #[test]

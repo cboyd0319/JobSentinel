@@ -728,6 +728,43 @@ describe("ResumeOptimizer", () => {
     ).toBeInTheDocument();
   });
 
+  it("shows background-screening next action guidance for hard requirements", async () => {
+    const user = userEvent.setup();
+    mockInvokeResponses({
+      analyze_resume_for_job: {
+        ...mockAnalysis,
+        overall_score: 62,
+        hard_constraint_risks: [
+          {
+            requirement: "background check",
+            category: "BackgroundScreening" as const,
+            score_cap: 70,
+            reason: "A required screening constraint was not clearly found.",
+            action:
+              "Check background, drug, or pre-employment screening before tailoring. If it is not workable or true for you, do not claim or imply that it is.",
+          },
+        ],
+      },
+    });
+    render(<ResumeOptimizer onBack={vi.fn()} />);
+
+    fireEvent.change(screen.getByLabelText(/^job post$/i), {
+      target: {
+        value: "Required: background check",
+      },
+    });
+    await openResumeAppImport(user);
+    fireEvent.change(screen.getByLabelText(/copied resume details/i), {
+      target: { value: JSON.stringify(validResume) },
+    });
+
+    await user.click(screen.getByRole("button", { name: /review match/i }));
+
+    expect(await screen.findByText("Background or drug screening")).toBeInTheDocument();
+    expect(screen.getByText(/pre-employment screening is not workable/i)).toBeInTheDocument();
+    expect(screen.queryByText(/guarantee/i)).not.toBeInTheDocument();
+  });
+
   it("shows language-specific next action guidance for hard requirements", async () => {
     const user = userEvent.setup();
     mockInvokeResponses({

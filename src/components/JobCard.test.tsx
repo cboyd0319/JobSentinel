@@ -121,10 +121,11 @@ describe("JobCard", () => {
       expect(screen.getByText("$55k - $72k")).toBeInTheDocument();
     });
 
-    it("explains duplicate source counts without shorthand", () => {
+    it("explains repeat sightings without claiming separate sources", () => {
       renderWithToast(<JobCard job={{ ...mockJob, times_seen: 3 }} />);
 
-      expect(screen.getByText("Seen on 3 sources")).toBeInTheDocument();
+      expect(screen.getByText("Seen 3 times")).toBeInTheDocument();
+      expect(screen.queryByText("Seen on 3 sources")).not.toBeInTheDocument();
       expect(screen.queryByText("3x")).not.toBeInTheDocument();
     });
 
@@ -350,6 +351,52 @@ describe("JobCard", () => {
       const lowerRiskJob = { ...mockJob, ghost_score: 0.52 };
 
       renderWithToast(<JobCard job={lowerRiskJob} />);
+
+      expect(screen.queryByTestId("posting-risk-guidance")).not.toBeInTheDocument();
+    });
+
+    it("shows stale or repost evidence even below the badge threshold", () => {
+      const lowScoreStaleJob = {
+        ...mockJob,
+        ghost_score: 0.42,
+        ghost_reasons: JSON.stringify([
+          {
+            category: "stale",
+            description: "Posted more than 90 days ago",
+            weight: 0.2,
+            severity: "low",
+          },
+        ]),
+      };
+
+      renderWithToast(<JobCard job={lowScoreStaleJob} />);
+
+      expect(screen.getByTestId("posting-risk-guidance")).toHaveTextContent(
+        "Check posting evidence",
+      );
+      expect(
+        screen.getByText(/open the original job page before spending tailoring time/i),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("article", {
+          name: /posting evidence to check/i,
+        }),
+      ).toBeInTheDocument();
+    });
+
+    it("ignores malformed low-score posting-risk reasons", () => {
+      const malformedReasonJob = {
+        ...mockJob,
+        ghost_score: 0.42,
+        ghost_reasons: JSON.stringify([
+          {
+            category: "stale",
+            description: "missing severity and weight",
+          },
+        ]),
+      };
+
+      renderWithToast(<JobCard job={malformedReasonJob} />);
 
       expect(screen.queryByTestId("posting-risk-guidance")).not.toBeInTheDocument();
     });

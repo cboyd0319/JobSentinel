@@ -482,6 +482,7 @@ type MockHardConstraintCategory =
   | "LicenseOrCertification"
   | "Education"
   | "Experience"
+  | "BackgroundScreening"
   | "PhysicalRequirement"
   | "Location";
 type MockSuggestionCategory =
@@ -2475,6 +2476,8 @@ function getMockHardConstraintAction(
       return "Check the degree or education requirement before tailoring. If it is not true for you, do not claim it.";
     case "Experience":
       return "Check years or level before tailoring. Do not round up, stretch titles, or imply more experience than you have.";
+    case "BackgroundScreening":
+      return "Check background, drug, or pre-employment screening before tailoring. If it is not workable or true for you, do not claim or imply that it is.";
     case "PhysicalRequirement":
       return "Check this physical demand before tailoring. If it is not workable or safe for you, do not claim it.";
     case "Location":
@@ -2503,6 +2506,8 @@ function getMockHardConstraintScoreCap(category: MockHardConstraintCategory): nu
     case "Education":
     case "Experience":
       return 65;
+    case "BackgroundScreening":
+      return 70;
     case "PhysicalRequirement":
     case "Location":
       return 70;
@@ -2587,6 +2592,18 @@ function getMockHardConstraintCategory(keyword: string): MockHardConstraintCateg
     lower === "management experience"
   ) {
     return "Experience";
+  }
+  if (
+    lower.includes("background check") ||
+    lower.includes("background screening") ||
+    lower.includes("pre-employment screening") ||
+    lower.includes("pre employment screening") ||
+    lower.includes("drug screen") ||
+    lower.includes("drug screening") ||
+    lower.includes("drug test") ||
+    lower.includes("drug testing")
+  ) {
+    return "BackgroundScreening";
   }
   if (
     lower.includes("lift ") ||
@@ -3390,6 +3407,7 @@ function extractMockHardConstraintKeywords(jobDescription: string): string[] {
     /\b(certification|cissp|certified information systems security professional|security plus|bls|basic life support|acls|advanced cardiovascular life support|cpr|cardiopulmonary resuscitation|cna|certified nursing assistant|certified nurse assistant|certified nurse aide|pmp|project management professional|servsafe|food safety certification|food[- ]handler certification|food[- ]handler certificate|food[- ]handler permit|food[- ]handlers permit|food[- ]handler card|first[- ]aid certification|first[- ]aid certified|first[- ]aid certificate|first[- ]aid|forklift certification|forklift operator certification|forklift certified|forklift license|forklift operator license|osha\s*10(?:[- ]hour)?(?:\s+certification)?|osha\s*30(?:[- ]hour)?(?:\s+certification)?)\b/gi,
     /\b(ph\.?d\.?(?:\s+degree)?|doctorate(?:\s+degree)?|doctoral degree|associate'?s degree|associate degree|baccalaureate degree|bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree|high[- ]school diploma|high[- ]school degree|ged|high[- ]school equivalency|general education development)\b/gi,
     /\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b/gi,
+    /\b(background checks?|background screenings?|pre[- ]employment screenings?|drug screens?|drug screenings?|drug tests?|drug testing)\b/gi,
     /\b(lift(?:\s+up\s+to)?\s+\d+\s*(?:pounds?|lbs?)|(?:stand|standing) for long periods?|physical requirements?|physical demands?)\b/gi,
     /\b(onsite|on-site|on site|relocation|relocate|willing to relocate|travel|reliable transportation|own transportation|commute|commuting|availability|available|schedule|weekend availability|weekend shifts?|night shift|overnight shift|third shift|3rd shift|evening shift|second shift|2nd shift|day shift|first shift|1st shift)\b/gi,
   ];
@@ -3728,6 +3746,25 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
     ["weekend availability", "weekend shift", "weekend shifts"],
     ["evening shift", "second shift", "2nd shift"],
     ["day shift", "first shift", "1st shift"],
+    [
+      "background check",
+      "background checks",
+      "background screening",
+      "background screenings",
+    ],
+    [
+      "pre-employment screening",
+      "pre employment screening",
+      "employment screening",
+    ],
+    [
+      "drug screen",
+      "drug screens",
+      "drug screening",
+      "drug test",
+      "drug tests",
+      "drug testing",
+    ],
     ["availability", "available"],
     ["bls", "basic life support"],
     ["acls", "advanced cardiovascular life support"],

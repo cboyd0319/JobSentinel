@@ -50,7 +50,39 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
-Current docs-maintenance slice:
+Latest implementation slice:
+
+- Changed job-card repeated-sighting copy from source-count wording to
+  factual `Seen N times` wording. Tooltips now tell users to check source
+  details before treating repeats as separate places.
+- Verification passed for focused and full `JobCard` tests, TypeScript, ESLint,
+  external-AI sensor, docs lint, harness check, and diff whitespace.
+
+Previous implementation slice:
+
+- Added job-card visibility for parsed stale or repost evidence even when the
+  aggregate posting-risk score is below the normal badge threshold.
+- The cue uses factual **Check posting evidence** copy and does not claim
+  employer intent, scam proof, or employer-side prediction.
+- Verification passed for focused and full `JobCard` tests, TypeScript, ESLint,
+  external-AI sensor, docs lint, harness check, and diff whitespace.
+
+Previous implementation slice:
+
+- Added local Resume Match hard-constraint handling for required background
+  checks, drug screens, and pre-employment screening.
+- Backend analyzer, browser/dev mock analyzer, Resume Match UI labels, and
+  feature docs now share the same cautious category:
+  **Background or drug screening**.
+- The slice does not add storage, network calls, external AI, telemetry, or
+  hidden automation. It only adds local evidence review and truthful next-action
+  guidance.
+- Verification passed for focused Rust and Vitest checks, full affected
+  frontend tests, TypeScript, ESLint, Rust formatter, Rust clippy, full Rust
+  library tests, external-AI sensor, docs lint, harness check, and diff
+  whitespace.
+
+Previous docs-maintenance slice:
 
 - Archive stale long active plans without deleting history.
 - Keep one compact active plan for current product and quality work.
@@ -63,13 +95,17 @@ Current docs-maintenance slice:
 
 1. Continue resume assistance only where it improves truthful local requirement
    review, hard-constraint handling, readable evidence, or next-action guidance.
-2. Continue job-card protection for stale, risky, duplicate, unclear, or
+2. Consider the next guided-intake slice: add reviewed `Add all visible` and
+   `Skip resume suggestions` actions around saved-resume skill suggestions,
+   using skill names only and no raw resume text.
+3. Continue job-card protection for stale, risky, duplicate, unclear, or
    pay-problem postings without treating local signals as employer predictions.
-3. Expand guided intake only where resume/profile suggestions stay optional,
-   reviewed, local, and understandable for non-technical job seekers.
-4. Continue cleanup only when it blocks critical functionality,
+4. Consider the next job-card slice: add missing-pay guidance when a salary
+   floor exists, while treating missing pay as a review cue rather than scam or
+   stale-posting proof.
+5. Continue cleanup only when it blocks critical functionality,
    privacy/security, verification, or user ease.
-5. Run final broad verification only when remaining known work has current
+6. Run final broad verification only when remaining known work has current
    evidence.
 
 ## Completion Bar

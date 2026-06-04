@@ -68,6 +68,7 @@ type HardConstraintCategory =
   | "Education"
   | "Experience"
   | "Language"
+  | "BackgroundScreening"
   | "PhysicalRequirement"
   | "Location";
 type SuggestionCategory =
@@ -204,6 +205,8 @@ function formatHardConstraintCategory(category: HardConstraintCategory): string 
       return "Years of experience";
     case "Language":
       return "Language requirement";
+    case "BackgroundScreening":
+      return "Background or drug screening";
     case "PhysicalRequirement":
       return "Physical requirement";
     case "Location":
@@ -225,6 +228,8 @@ function formatHardConstraintNextActionDetail(category: HardConstraintCategory):
       return "If the years are not true for you, do not round up or imply more experience. Use only real dates, roles, or projects.";
     case "Language":
       return "If language fluency is not true for you, do not claim it. Use only real language ability, training, or credentials.";
+    case "BackgroundScreening":
+      return "If background, drug, or pre-employment screening is not workable or true for you, check it before spending tailoring time.";
     case "PhysicalRequirement":
       return "If this physical demand is not workable or safe for you, check it before spending tailoring time.";
     case "Location":

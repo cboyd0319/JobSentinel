@@ -59,7 +59,7 @@ interface JobCardProps {
 }
 
 interface PostingRiskGuidance {
-  level: "medium" | "high";
+  level: "low" | "medium" | "high";
   title: string;
   description: string;
   ariaLabel: string;
@@ -93,8 +93,54 @@ const SCAM_SIGNAL_PATTERNS = [
   /\b(?:social\s+security\s+number|ssn|bank\s+account|driver'?s\s+license)\b.{0,80}\b(?:before|interview|start|offer)\b/i,
 ] as const;
 
+interface PostingRiskReason {
+  category: "stale" | "repost" | "generic" | "missing_details" | "unrealistic" | "company_behavior";
+  description: string;
+  weight: number;
+  severity: "low" | "medium" | "high";
+}
+
+const reviewCueReasonCategories = new Set<PostingRiskReason["category"]>([
+  "stale",
+  "repost",
+]);
+
+function parsePostingRiskReasons(reasonsJson: string | null | undefined): PostingRiskReason[] {
+  if (!reasonsJson) {
+    return [];
+  }
+
+  try {
+    const parsed: unknown = JSON.parse(reasonsJson);
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+
+    return parsed.filter((value): value is PostingRiskReason => {
+      if (!value || typeof value !== "object") {
+        return false;
+      }
+
+      const reason = value as Record<string, unknown>;
+
+      return (
+        typeof reason.category === "string" &&
+        reviewCueReasonCategories.has(reason.category as PostingRiskReason["category"]) &&
+        typeof reason.description === "string" &&
+        typeof reason.weight === "number" &&
+        Number.isFinite(reason.weight) &&
+        typeof reason.severity === "string" &&
+        ["low", "medium", "high"].includes(reason.severity)
+      );
+    });
+  } catch {
+    return [];
+  }
+}
+
 function getPostingRiskGuidance(
   ghostScore: number | null | undefined,
+  ghostReasons: string | null | undefined,
 ): PostingRiskGuidance | null {
   if (ghostScore == null || !Number.isFinite(ghostScore)) {
     return null;
@@ -123,6 +169,16 @@ function getPostingRiskGuidance(
       description:
         "This posting has multiple warning signs. A quick original-posting check can protect your time.",
       ariaLabel: "review before tailoring",
+    };
+  }
+
+  if (parsePostingRiskReasons(ghostReasons).length > 0) {
+    return {
+      level: "low",
+      title: "Check posting evidence",
+      description:
+        "This posting has stale or repost evidence. Open the original job page before spending tailoring time.",
+      ariaLabel: "posting evidence to check",
     };
   }
 
@@ -266,7 +322,10 @@ export const JobCard = memo(function JobCard({
   const isGoodMatch = safeScore >= SCORE_THRESHOLD_GOOD;
   const salaryText = formatSalaryRange(job.salary_min, job.salary_max);
   const descSnippet = truncateText(job.description);
-  const postingRiskGuidance = getPostingRiskGuidance(job.ghost_score);
+  const postingRiskGuidance = getPostingRiskGuidance(
+    job.ghost_score,
+    job.ghost_reasons,
+  );
   const scamRiskGuidance = getScamRiskGuidance(job.description);
   const payFloorGuidance = getPayFloorGuidance(
     job.salary_max,
@@ -389,7 +448,9 @@ export const JobCard = memo(function JobCard({
                     ${
                       postingRiskGuidance.level === "high"
                         ? "border-red-200 bg-red-50 text-red-800 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-200"
-                        : "border-orange-200 bg-orange-50 text-orange-800 dark:border-orange-900/60 dark:bg-orange-950/30 dark:text-orange-200"
+                        : postingRiskGuidance.level === "medium"
+                          ? "border-orange-200 bg-orange-50 text-orange-800 dark:border-orange-900/60 dark:bg-orange-950/30 dark:text-orange-200"
+                          : "border-yellow-200 bg-yellow-50 text-yellow-800 dark:border-yellow-900/60 dark:bg-yellow-950/30 dark:text-yellow-200"
                     }
                   `}
                 >
@@ -397,7 +458,9 @@ export const JobCard = memo(function JobCard({
                     className={
                       postingRiskGuidance.level === "high"
                         ? "mt-0.5 h-4 w-4 flex-shrink-0 text-red-600 dark:text-red-300"
-                        : "mt-0.5 h-4 w-4 flex-shrink-0 text-orange-600 dark:text-orange-300"
+                        : postingRiskGuidance.level === "medium"
+                          ? "mt-0.5 h-4 w-4 flex-shrink-0 text-orange-600 dark:text-orange-300"
+                          : "mt-0.5 h-4 w-4 flex-shrink-0 text-yellow-600 dark:text-yellow-300"
                     }
                   />
                   <div className="min-w-0 flex-1">
@@ -505,10 +568,10 @@ export const JobCard = memo(function JobCard({
                 {job.times_seen && job.times_seen > 1 && (
                   <span
                     className="inline-flex items-center gap-1 text-xs text-surface-400 dark:text-surface-500"
-                    title={`This job has been seen ${job.times_seen} times across different sources`}
+                    title={`This job has been seen ${job.times_seen} times. Check source details before treating repeats as separate places.`}
                   >
                     <DuplicateIcon />
-                    Seen on {job.times_seen} sources
+                    Seen {job.times_seen} times
                   </span>
                 )}
 

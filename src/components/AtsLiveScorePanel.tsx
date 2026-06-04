@@ -63,6 +63,7 @@ interface HardConstraintRisk {
     | "Education"
     | "Experience"
     | "Language"
+    | "BackgroundScreening"
     | "PhysicalRequirement"
     | "Location";
   score_cap: number;

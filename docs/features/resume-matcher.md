@@ -209,9 +209,9 @@ The current local matcher:
   stronger local evidence than a bare keyword;
 - flags recognized missing hard requirements such as authorization, location,
   citizenship, schedule, availability, commute or transportation, travel, years
-  of experience, language fluency, physical demands, license, certification,
-  degree, or clearance and limits the fit label until the user verifies the
-  requirement;
+  of experience, language fluency, background or drug screening, physical
+  demands, license, certification, degree, or clearance and limits the fit label
+  until the user verifies the requirement;
 - treats explicit **degree or equivalent experience** wording, including
   equivalent combinations of education and experience, as
   experience-compatible evidence instead of a missing exact-degree hard cap;
@@ -237,6 +237,9 @@ The current local matcher:
   Spanish, French, Mandarin, Cantonese, Arabic, Portuguese, German, Japanese,
   and Korean, as the same local language evidence for required language
   constraints;
+- treats **background check**, **background screening**, **drug screen**,
+  **drug test**, and **pre-employment screening** as local screening
+  requirements to verify before tailoring;
 - treats conservative local term equivalents, such as **CRM** and **customer
   relationship management**, and **customer service**, **customer support**,
   **client service**, **client services**, **client support**, **guest
@@ -445,8 +448,8 @@ The current local matcher:
   campaign, conversion, or revenue work;
 - gives hard-requirement next actions category-specific honesty guidance,
   such as checking work authorization, clearance, licenses, education, years
-  or level, physical demands, location, schedule, availability, and travel
-  before tailoring;
+  or level, background or drug screening, physical demands, location, schedule,
+  availability, and travel before tailoring;
 - passes that context to the live Resume Builder review panel when available;
 - keeps required and preferred job-post headings separate even when the posting
   uses ordinary single-line section breaks;

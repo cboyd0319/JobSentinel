@@ -60,6 +60,31 @@ Out of scope:
 - [x] Update repo docs, plan index, and harness score expectations.
 - [x] Run focused docs and harness verification.
 - [x] Record remaining open work in status and handoff.
+- [x] Add local Resume Match hard-constraint review for required background,
+  drug, and pre-employment screening.
+- [x] Delegate read-only scouts for guided-intake and job-card next slices.
+- [x] Show low-score stale or repost job-card evidence without implying
+  employer intent.
+- [x] Replace repeated-sighting job-card copy that implied separate sources
+  with factual `Seen N times` wording.
+
+## Orchestration Log
+
+2026-06-04:
+
+- Guided-intake scout was read-only and changed no files. Best next slice:
+  `Add all visible` and `Skip resume suggestions` around existing saved-resume
+  skill chips in setup, keeping suggestions local and reviewed.
+- Job-card scout was read-only and changed no files. Best next slice: surface
+  stale or repost reasons even when aggregate posting-risk score is below the
+  normal badge threshold, using factual "verify before tailoring" copy.
+- Coordinator implemented the low-score stale/repost job-card cue locally
+  because it touched one component, one component test, docs, and active plan
+  state.
+- Coordinator implemented the `times_seen` wording fix locally because it
+  touched one component, one component test, docs, and active plan state.
+- Coordinator implemented the resume hard-constraint slice locally because it
+  touched shared analyzer, mock, UI, docs, and tests.
 
 ## Risks
 
