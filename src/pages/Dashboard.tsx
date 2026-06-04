@@ -42,6 +42,7 @@ import {
   getDashboardSearchErrorCopy,
 } from "./dashboardErrorCopy";
 import { formatDashboardFitEstimate } from "./dashboardFitEstimate";
+import { formatDashboardListedPay } from "./dashboardSalaryDisplay";
 
 // Lazy load heavy components to reduce initial bundle size
 const DashboardWidgets = lazy(() =>
@@ -1088,18 +1089,10 @@ export default function Dashboard({
                       )}
                     />
                     <CompareRow
-                      label="Salary"
-                      values={jobOps.comparedJobs.map((j) => {
-                        if (!j.salary_min && !j.salary_max) return "Not listed";
-                        const min = j.salary_min
-                          ? `$${Math.round(j.salary_min / 1000)}k`
-                          : "";
-                        const max = j.salary_max
-                          ? `$${Math.round(j.salary_max / 1000)}k`
-                          : "";
-                        if (min && max) return `${min} - ${max}`;
-                        return min || `Up to ${max}`;
-                      })}
+                      label="Listed Pay"
+                      values={jobOps.comparedJobs.map((j) =>
+                        formatDashboardListedPay(j.salary_min, j.salary_max),
+                      )}
                     />
                     <CompareRow
                       label="Source"

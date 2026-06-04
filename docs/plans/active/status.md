@@ -50,6 +50,15 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Dashboard comparison rows now label pay as **Listed Pay** and use a shared
+  listed-pay display helper.
+- Malformed, negative, non-finite, reversed, or missing dashboard comparison
+  pay values show **Not listed** instead of appearing as real pay evidence.
+- The slice changes visible dashboard comparison fallback handling only; it adds
+  no storage fields, network calls, external AI, telemetry, or scoring behavior.
+
+Previous implementation slice:
+
 - Resume Match and live Resume Builder now treat malformed local score values
   as unavailable score display.
 - Invalid score labels show **Score not shown**, the live numeric score shows

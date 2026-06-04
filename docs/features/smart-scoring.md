@@ -108,6 +108,8 @@ When a salary floor exists, job cards ask users to compare missing-pay roles
 before tailoring without treating missing pay as proof of bad intent.
 Open-ended minimum-only pay should remain visible without a below-floor warning
 unless a known maximum or top listed pay is below the user's floor.
+Dashboard comparison rows label this evidence as listed pay and use the same
+unavailable fallback for malformed, negative, non-finite, or reversed ranges.
 
 Salary support is evidence-bounded. JobSentinel should help users protect their
 floor and ask better questions; it is not a compensation authority or legal

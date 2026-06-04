@@ -142,6 +142,8 @@ Out of scope:
 - [x] Show missing listed-pay guidance in job-import preview.
 - [x] Treat malformed resume review scores as unavailable while preserving
   local evidence details.
+- [x] Use listed-pay wording and malformed-pay fallback in dashboard
+  comparison rows.
 
 ## Orchestration Log
 
@@ -283,6 +285,10 @@ Out of scope:
   accepted its finding that malformed local score values could drive misleading
   labels or progress widths, then added score-display validation while keeping
   requirement, word, and must-have evidence visible.
+- Coordinator updated dashboard comparison pay rows locally because they still
+  hand-formatted salary fields instead of using the shared malformed-pay
+  fallback. The comparison now says **Listed Pay** and shows **Not listed** for
+  unavailable pay evidence.
 
 ## Risks
 

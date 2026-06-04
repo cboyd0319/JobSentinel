@@ -15,6 +15,8 @@ fixed by asking harder.
   tailoring.
 - Show missing listed-pay cues during job import preview so users know to
   verify pay before saving and tailoring a posting.
+- Show listed-pay comparison rows in the dashboard using the same malformed-pay
+  fallback as job cards.
 - Show a below-floor warning on job cards when listed pay tops out below the
   user's saved floor.
 - Keep open-ended minimum-only pay ranges visible without a below-floor warning,
@@ -57,7 +59,7 @@ inputs, not as self-worth scores.
   review cue, not a stale-posting or scam claim.
 - Treat malformed listed-pay values, such as non-finite, negative, or reversed
   structured ranges, as unavailable instead of showing them as real pay
-  evidence.
+  evidence in job cards or dashboard comparisons.
 - Treat very wide listed pay ranges as weaker evidence about the real role
   level, schedule, and realistic pay.
 - Check whether title, scope, decision rights, team size, budget, and promotion

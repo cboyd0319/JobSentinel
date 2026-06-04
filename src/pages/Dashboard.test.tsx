@@ -5,6 +5,7 @@ import {
   getDashboardSearchErrorCopy,
 } from "./dashboardErrorCopy";
 import { formatDashboardFitEstimate } from "./dashboardFitEstimate";
+import { formatDashboardListedPay } from "./dashboardSalaryDisplay";
 import { getNoJobsEmptyStateCopy } from "./DashboardUI/noJobsEmptyStateCopy";
 
 vi.mock("@tauri-apps/api/core", () => ({
@@ -66,6 +67,21 @@ describe("formatDashboardFitEstimate", () => {
   it("uses a plain unavailable label when a fit estimate is missing", () => {
     expect(formatDashboardFitEstimate(null)).toBe("Not available");
     expect(formatDashboardFitEstimate(Number.NaN)).toBe("Not available");
+  });
+});
+
+describe("formatDashboardListedPay", () => {
+  it("formats listed-pay ranges for comparison rows", () => {
+    expect(formatDashboardListedPay(55000, 72000)).toBe("$55k - $72k");
+    expect(formatDashboardListedPay(80000, null)).toBe("$80k+");
+    expect(formatDashboardListedPay(null, 120000)).toBe("Up to $120k");
+  });
+
+  it("shows not listed for missing or malformed pay evidence", () => {
+    expect(formatDashboardListedPay(null, null)).toBe("Not listed");
+    expect(formatDashboardListedPay(-50000, null)).toBe("Not listed");
+    expect(formatDashboardListedPay(null, Infinity)).toBe("Not listed");
+    expect(formatDashboardListedPay(150000, 80000)).toBe("Not listed");
   });
 });
 
