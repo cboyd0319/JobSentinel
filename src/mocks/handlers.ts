@@ -104,6 +104,19 @@ import {
   getMockTrendingSkills,
   type MockMarketAlert,
 } from "./handlers/marketIntelligence";
+import {
+  exportMockResumeText,
+  getEmptyBuilderContact,
+  getResumeTemplates,
+  normalizeBuilderContact,
+  normalizeBuilderEducation,
+  normalizeBuilderExperience,
+  normalizeBuilderSkill,
+  normalizeResumeDraft,
+  renderMockResumeHtml,
+  type MockBuilderSkill,
+  type MockResumeDraft,
+} from "./handlers/resumeBuilder";
 import type { NotificationPreferences } from "../utils/notificationPreferences";
 
 type MockJob = typeof mockJobs[number];
@@ -178,62 +191,6 @@ interface MockUserSkill {
   years_experience: number | null;
   proficiency_level: string | null;
   source: string;
-}
-
-interface MockBuilderContact {
-  name: string;
-  email: string;
-  phone: string | null;
-  linkedin: string | null;
-  github: string | null;
-  location: string | null;
-  website: string | null;
-}
-
-interface MockBuilderExperience {
-  id: number;
-  title: string;
-  company: string;
-  location: string | null;
-  start_date: string;
-  end_date: string | null;
-  achievements: string[];
-}
-
-interface MockBuilderEducation {
-  id: number;
-  degree: string;
-  institution: string;
-  location: string | null;
-  graduation_date: string | null;
-  gpa: string | null;
-  honors: string[];
-}
-
-interface MockBuilderSkill {
-  name: string;
-  category: string;
-  proficiency: "beginner" | "intermediate" | "advanced" | "expert" | null;
-}
-
-interface MockResumeDraft {
-  id: number;
-  contact: MockBuilderContact;
-  summary: string;
-  experience: MockBuilderExperience[];
-  education: MockBuilderEducation[];
-  skills: MockBuilderSkill[];
-  certifications: string[];
-  projects: string[];
-  created_at: string;
-  updated_at: string;
-}
-
-interface MockResumeTemplate {
-  id: "Classic" | "Modern" | "Technical" | "Executive" | "Military";
-  name: string;
-  description: string;
-  preview_image: string;
 }
 
 interface MockSkillInput {
@@ -551,123 +508,6 @@ function hasConfiguredUrlList(configRecord: Record<string, unknown>, key: string
   return Array.isArray(value) && value.some((item) => typeof item === "string" && item.trim());
 }
 
-function getEmptyBuilderContact(): MockBuilderContact {
-  return {
-    name: "",
-    email: "",
-    phone: null,
-    linkedin: null,
-    github: null,
-    location: null,
-    website: null,
-  };
-}
-
-function normalizeBuilderContact(value: unknown): MockBuilderContact {
-  const source = value && typeof value === "object"
-    ? value as Partial<MockBuilderContact>
-    : {};
-  const defaults = getEmptyBuilderContact();
-
-  return {
-    name: typeof source.name === "string" ? source.name : defaults.name,
-    email: typeof source.email === "string" ? source.email : defaults.email,
-    phone: nullableString(source.phone),
-    linkedin: nullableString(source.linkedin),
-    github: nullableString(source.github),
-    location: nullableString(source.location),
-    website: nullableString(source.website),
-  };
-}
-
-function stringArray(value: unknown): string[] {
-  return Array.isArray(value)
-    ? value.filter((item): item is string => typeof item === "string" && item.length > 0)
-    : [];
-}
-
-function normalizeBuilderExperience(value: unknown, fallbackId: number): MockBuilderExperience {
-  const source = value && typeof value === "object"
-    ? value as Partial<MockBuilderExperience> & { bullets?: unknown }
-    : {};
-  const achievements = stringArray(source.achievements);
-
-  return {
-    id: typeof source.id === "number" && source.id > 0 ? source.id : fallbackId,
-    title: typeof source.title === "string" ? source.title : "",
-    company: typeof source.company === "string" ? source.company : "",
-    location: nullableString(source.location),
-    start_date: typeof source.start_date === "string" ? source.start_date : "",
-    end_date: nullableString(source.end_date),
-    achievements: achievements.length > 0 ? achievements : stringArray(source.bullets),
-  };
-}
-
-function normalizeBuilderEducation(value: unknown, fallbackId: number): MockBuilderEducation {
-  const source = value && typeof value === "object"
-    ? value as Partial<MockBuilderEducation> & { honors?: unknown }
-    : {};
-
-  return {
-    id: typeof source.id === "number" && source.id > 0 ? source.id : fallbackId,
-    degree: typeof source.degree === "string" ? source.degree : "",
-    institution: typeof source.institution === "string" ? source.institution : "",
-    location: nullableString(source.location),
-    graduation_date: nullableString(source.graduation_date),
-    gpa: nullableString(source.gpa),
-    honors: stringArray(source.honors),
-  };
-}
-
-function normalizeBuilderSkill(value: unknown): MockBuilderSkill | null {
-  const source = value && typeof value === "object" ? value as Partial<MockBuilderSkill> : {};
-  if (typeof source.name !== "string" || typeof source.category !== "string") {
-    return null;
-  }
-
-  return {
-    name: source.name,
-    category: source.category,
-    proficiency: isBuilderProficiency(source.proficiency) ? source.proficiency : null,
-  };
-}
-
-function isBuilderProficiency(value: unknown): value is MockBuilderSkill["proficiency"] {
-  return (
-    value === null ||
-    value === "beginner" ||
-    value === "intermediate" ||
-    value === "advanced" ||
-    value === "expert"
-  );
-}
-
-function normalizeResumeDraft(value: Partial<MockResumeDraft> | undefined | null): MockResumeDraft {
-  const source = value ?? {};
-  const now = new Date().toISOString();
-
-  return {
-    id: typeof source.id === "number" ? source.id : 1,
-    contact: normalizeBuilderContact(source.contact),
-    summary: typeof source.summary === "string" ? source.summary : "",
-    experience: Array.isArray(source.experience)
-      ? source.experience.map((experience, index) =>
-        normalizeBuilderExperience(experience, index + 1)
-      )
-      : [],
-    education: Array.isArray(source.education)
-      ? source.education.map((education, index) => normalizeBuilderEducation(education, index + 1))
-      : [],
-    skills: Array.isArray(source.skills)
-      ? source.skills.map(normalizeBuilderSkill).filter((skill): skill is MockBuilderSkill => !!skill)
-      : [],
-    certifications: stringArray(source.certifications),
-    projects: stringArray(source.projects),
-    created_at: typeof source.created_at === "string" ? source.created_at : now,
-    updated_at: typeof source.updated_at === "string" ? source.updated_at : now,
-  };
-}
-
 function createMockResumeDraft(): number {
   const now = new Date().toISOString();
   const id = getNextId(resumeDrafts);
@@ -706,68 +546,6 @@ function updateResumeDraft(
       : draft,
   );
   saveMockState();
-}
-
-function getResumeTemplates(): MockResumeTemplate[] {
-  return [
-    {
-      id: "Classic",
-      name: "Classic Professional",
-      description: "Traditional chronological format with clear sections. Works with most upload forms.",
-      preview_image: "/templates/classic-preview.png",
-    },
-    {
-      id: "Modern",
-      name: "Modern Minimal",
-      description: "Clean, contemporary design with subtle styling and upload-friendly structure.",
-      preview_image: "/templates/modern-preview.png",
-    },
-    {
-      id: "Technical",
-      name: "Skills-First",
-      description: "Highlights relevant skills and projects when skills matter most.",
-      preview_image: "/templates/technical-preview.png",
-    },
-    {
-      id: "Executive",
-      name: "Executive Summary",
-      description: "Highlights leadership and impact metrics. Ideal for senior positions.",
-      preview_image: "/templates/executive-preview.png",
-    },
-    {
-      id: "Military",
-      name: "Military Transition",
-      description: "Translates military experience for civilian employers. Includes clearance.",
-      preview_image: "/templates/military-preview.png",
-    },
-  ];
-}
-
-function renderMockResumeHtml(value: unknown): string {
-  const draft = normalizeResumeDraft(value as Partial<MockResumeDraft>);
-  const skills = draft.skills.map((skill) => escapeHtml(skill.name)).join(", ");
-  const experience = draft.experience
-    .map((item) => `<li>${escapeHtml(item.title)} at ${escapeHtml(item.company)}</li>`)
-    .join("");
-
-  return `
-    <article>
-      <h1>${escapeHtml(draft.contact.name)}</h1>
-      <p>${escapeHtml(draft.contact.email)}</p>
-      <section>
-        <h2>Summary</h2>
-        <p>${escapeHtml(draft.summary)}</p>
-      </section>
-      <section>
-        <h2>Experience</h2>
-        <ul>${experience}</ul>
-      </section>
-      <section>
-        <h2>Skills</h2>
-        <p>${skills}</p>
-      </section>
-    </article>
-  `;
 }
 
 function analyzeMockResumeFormat(args?: Record<string, unknown>): MockAtsAnalysisResult {
@@ -2912,19 +2690,6 @@ function fillMockApplicationForm(args?: Record<string, unknown>): MockFillResult
   };
 }
 
-function escapeHtml(value: string): string {
-  return value.replace(/[&<>"']/g, (char) => {
-    const escapes: Record<string, string> = {
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      "\"": "&quot;",
-      "'": "&#39;",
-    };
-    return escapes[char] ?? char;
-  });
-}
-
 function isCredentialKey(value: unknown): value is MockCredentialKey {
   return (
     value === "slack_webhook" ||
@@ -2943,10 +2708,6 @@ function getStringArg(
 ): string | undefined {
   const value = getArg(args, key);
   return typeof value === "string" ? value : undefined;
-}
-
-function nullableString(value: unknown): string | null {
-  return typeof value === "string" && value.length > 0 ? value : null;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -3898,8 +3659,7 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
       return renderMockResumeHtml(getArg(args, "resume")) as T;
 
     case "export_resume_text": {
-      const draft = normalizeResumeDraft(getArg(args, "resume") as Partial<MockResumeDraft>);
-      return `${draft.contact.name}\n${draft.contact.email}\n\n${draft.summary}` as T;
+      return exportMockResumeText(getArg(args, "resume")) as T;
     }
 
     // Salary commands

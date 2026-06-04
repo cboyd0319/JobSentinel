@@ -50,15 +50,23 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
-- Product-copy and broad-audience harness path sets now include
-  `src/mocks/handlers/marketIntelligence.ts` so market fixture copy stays
-  scanned after extraction.
-- This is a harness-only follow-up to the market mock helper split.
+- Resume-builder mock normalizers, templates, HTML rendering, and text export
+  helpers moved out of `src/mocks/handlers.ts` into
+  `src/mocks/handlers/resumeBuilder.ts`.
+- The main mock handler still owns mutable draft state and persistence; the
+  extracted helper owns pure draft normalization and rendering behavior.
+- `src/mocks/handlers/resumeBuilder.test.ts` covers command wiring for draft
+  updates, HTML escaping, and text export through `mockInvoke`.
+- `src/mocks/handlers.ts` legacy no-growth budget tightened from 4,253 lines to
+  4,013 lines.
 
 Recent cleanup summary:
 
 - The whole public GitHub wiki is now treated as external product docs in the
   harness and change contract.
+- Product-copy and broad-audience harness path sets now include
+  `src/mocks/handlers/marketIntelligence.ts` so market fixture copy stays
+  scanned after extraction.
 - Market intelligence mock fixtures moved to
   `src/mocks/handlers/marketIntelligence.ts`; command wiring and alert
   read-state persistence are covered by
