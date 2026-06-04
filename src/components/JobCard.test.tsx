@@ -207,9 +207,12 @@ describe("JobCard", () => {
     it("handles NaN score without crashing", () => {
       const nanScoreJob = { ...mockJob, score: NaN };
       renderWithToast(<JobCard job={nanScoreJob} />);
-      // NaN should be treated as 0, not display "NaN%"
-      const scoreDisplay = screen.getByText("0%");
+      const scoreDisplay = screen.getByText("--");
       expect(scoreDisplay).toBeInTheDocument();
+      expect(screen.queryByText("0%")).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: /fit estimate/i }),
+      ).not.toBeInTheDocument();
     });
 
     it("does not show high match indicator for NaN score", () => {
@@ -222,9 +225,24 @@ describe("JobCard", () => {
     it("handles Infinity score without crashing", () => {
       const infScoreJob = { ...mockJob, score: Infinity };
       renderWithToast(<JobCard job={infScoreJob} />);
-      // Should treat Infinity as 0
-      const scoreDisplay = screen.getByText("0%");
+      const scoreDisplay = screen.getByText("--");
       expect(scoreDisplay).toBeInTheDocument();
+      expect(screen.queryByText("0%")).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: /fit estimate/i }),
+      ).not.toBeInTheDocument();
+    });
+
+    it("does not show high match styling for out-of-range scores", () => {
+      const outOfRangeJob = { ...mockJob, score: 1.5 };
+      const { container } = renderWithToast(<JobCard job={outOfRangeJob} />);
+
+      expect(screen.getByText("--")).toBeInTheDocument();
+      expect(screen.queryByText("150%")).not.toBeInTheDocument();
+      expect(container.querySelector(".bg-gradient-to-r")).not.toBeInTheDocument();
+      expect(
+        screen.getByRole("article", { name: /customer support lead/i }),
+      ).not.toHaveAccessibleName(/high match|good match/i);
     });
   });
 

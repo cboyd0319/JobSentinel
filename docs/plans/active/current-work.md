@@ -127,6 +127,8 @@ Out of scope:
   estimates.
 - [x] Treat out-of-range job fit scores as unavailable instead of impossible
   percentages.
+- [x] Keep invalid job fit scores from opening fit details or marking cards as
+  elevated local-fit results.
 
 ## Orchestration Log
 
@@ -243,6 +245,9 @@ Out of scope:
   with `--`, preserving `0%` for actual saved zero-fit estimates.
 - Coordinator extended the same fallback to finite scores outside the supported
   `0` to `1` range, preventing impossible negative or over-100 fit percentages.
+- Coordinator updated job cards to use the same valid-score rule before adding
+  elevated local-fit labels, opening Fit Details, or applying highlighted fit
+  styling.
 
 ## Risks
 

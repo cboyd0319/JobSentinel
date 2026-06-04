@@ -377,8 +377,13 @@ export const JobCard = memo(function JobCard({
     void handleOpenUrl(job.url);
   };
 
-  const safeScore =
-    job.score != null && Number.isFinite(job.score) ? job.score : 0;
+  const rawScore = job.score;
+  const hasValidScore =
+    typeof rawScore === "number" &&
+    Number.isFinite(rawScore) &&
+    rawScore >= 0 &&
+    rawScore <= 1;
+  const safeScore = hasValidScore ? rawScore : 0;
   const isHighMatch = safeScore >= SCORE_THRESHOLD_HIGH;
   const isGoodMatch = safeScore >= SCORE_THRESHOLD_GOOD;
   const salaryText = formatSalaryRange(job.salary_min, job.salary_max);
@@ -414,7 +419,7 @@ export const JobCard = memo(function JobCard({
 
   return (
     <>
-      {isScoreModalOpen && (
+      {isScoreModalOpen && hasValidScore && (
         <Suspense fallback={<ModalSkeleton />}>
           <ScoreBreakdownModal
             isOpen={isScoreModalOpen}
@@ -459,7 +464,7 @@ export const JobCard = memo(function JobCard({
                 size="md"
                 showLabel={false}
                 scoreReasons={job.score_reasons}
-                onClick={() => setIsScoreModalOpen(true)}
+                onClick={hasValidScore ? () => setIsScoreModalOpen(true) : undefined}
                 jobTitle={job.title}
               />
             </div>

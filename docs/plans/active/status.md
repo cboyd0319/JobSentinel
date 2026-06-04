@@ -52,6 +52,16 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Job cards now use the same valid-score rule as `ScoreDisplay` before showing
+  elevated local-fit labels, enabling Fit Details, or adding highlighted fit
+  styling.
+- Invalid fit scores show unavailable score copy and cannot open a misleading
+  `0%` Fit Details modal.
+- The slice changes visible fit-score fallback handling only; it adds no
+  storage fields, network calls, external AI, telemetry, or scoring behavior.
+
+Previous implementation slice:
+
 - Job fit display now treats finite scores outside the supported `0` to `1`
   range as unavailable local estimates.
 - Invalid negative or over-100% values show **No fit yet** with `--` instead of
