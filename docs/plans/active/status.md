@@ -52,6 +52,15 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Resume live-score detail review now labels the third missing-word bucket as
+  **Nice-to-Have or Other to Review**, matching the Resume Match page and docs.
+- Optional or broad job-post words are less likely to read like hard
+  requirements, preserving truthful review before edits.
+- The slice changes visible labels only; it adds no storage fields, network
+  calls, external AI, telemetry, or resume-analysis behavior changes.
+
+Previous implementation slice:
+
 - App Problem History now labels URL-like context keys as **link** or **job
   link** instead of showing raw `url` wording in visible problem details.
 - Existing link sanitization still removes private query details before display.

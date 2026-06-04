@@ -618,7 +618,7 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
                       {other.length > 0 && (
                         <div>
                           <p className="text-xs font-semibold text-surface-700 dark:text-surface-300 mb-2">
-                            Other Words to Review
+                            Nice-to-Have or Other to Review
                           </p>
                           <div className="flex flex-wrap gap-2">
                             {other.map((gap, idx) => (

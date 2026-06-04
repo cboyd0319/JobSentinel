@@ -107,6 +107,8 @@ Out of scope:
   period wording when saved availability answers can help user review.
 - [x] Replace visible App Problem History `url` context labels with readable
   link labels while keeping existing link sanitization.
+- [x] Align resume live-score missing-word buckets with the documented
+  **Nice-to-Have or Other to Review** label.
 
 ## Orchestration Log
 
@@ -192,6 +194,9 @@ Out of scope:
 - Coordinator replaced raw URL-like context labels in App Problem History with
   **link** or **job link**, matching safe-report guidance that visible details
   should not expose raw `url` field names.
+- Coordinator aligned the resume live-score detail modal with Resume Match docs
+  by replacing the third missing-word bucket label with **Nice-to-Have or Other
+  to Review** and adding focused group coverage.
 
 ## Risks
 

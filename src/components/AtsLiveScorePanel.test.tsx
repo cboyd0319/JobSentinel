@@ -693,6 +693,16 @@ describe("AtsLiveScorePanel", () => {
     });
 
     it("groups words to review by job-post importance", async () => {
+      mockInvoke.mockResolvedValueOnce({
+        ...mockAnalysis,
+        missing_keywords: ["Spanish", "Zendesk", "Case management"],
+        missing_keyword_details: [
+          { keyword: "Spanish", importance: "Required" },
+          { keyword: "Zendesk", importance: "Preferred" },
+          { keyword: "Case management", importance: "Industry" },
+        ],
+      });
+
       render(
         <AtsLiveScorePanel
           resumeData={mockResumeData}
@@ -709,11 +719,14 @@ describe("AtsLiveScorePanel", () => {
 
       fireEvent.click(screen.getByRole("button", { name: /review details/i }));
 
-      expect(screen.getByText("Words To Review (2)")).toBeInTheDocument();
+      expect(screen.getByText("Words To Review (3)")).toBeInTheDocument();
       expect(screen.getByText("Required to Review")).toBeInTheDocument();
       expect(screen.getByText("Preferred to Review")).toBeInTheDocument();
+      expect(screen.getByText("Nice-to-Have or Other to Review")).toBeInTheDocument();
+      expect(screen.queryByText("Other Words to Review")).not.toBeInTheDocument();
       expect(screen.getByText("Spanish")).toBeInTheDocument();
       expect(screen.getByText("Zendesk")).toBeInTheDocument();
+      expect(screen.getByText("Case management")).toBeInTheDocument();
       expect(screen.getByText(/Start with required job-post language/i)).toBeInTheDocument();
     });
 
