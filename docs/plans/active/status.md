@@ -50,6 +50,20 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Mock application-profile and screening-answer helpers moved out of
+  `src/mocks/handlers.ts`.
+- `src/mocks/handlers/applicationProfile.ts` now owns application profile
+  DTOs, defaults, normalization, resume-token display-name handling,
+  screening-answer normalization, legacy screening-pattern matching, and answer
+  suggestion mapping.
+- The root mock handler still owns mutable application-profile and
+  screening-answer state plus persistence calls, so command payloads, storage
+  behavior, and reset behavior stay unchanged.
+- Best next oversized-file slice is moving resume-analysis helper logic out of
+  `src/mocks/handlers.ts` or splitting one of the larger Rust test modules.
+
+Previous implementation slice:
+
 - Remaining resume review and business-evidence coverage moved out of
   `src/mocks/handlers.test.ts`.
 - `src/mocks/handlers/resumeReviewGuards.test.ts` now owns hidden-text,
