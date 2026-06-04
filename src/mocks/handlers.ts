@@ -93,6 +93,10 @@ import {
   type MockRequirementReview,
 } from "./handlers/resumeAnalysis";
 import {
+  getMockAtsPlatform,
+  getMockAtsPlatformDetection,
+} from "./handlers/atsPlatform";
+import {
   generateMockNegotiationScript,
   getMockSalaryBenchmark,
 } from "./handlers/salary";
@@ -236,12 +240,6 @@ interface MockDashboardPreferences {
   autoRefresh: MockConfig["auto_refresh"];
   salaryFloorUsd: number;
   anyJobSourceEnabled: boolean;
-}
-
-interface MockAtsDetectionResponse {
-  platform: string;
-  commonFields: string[];
-  automationNotes: string | null;
 }
 
 interface MockFillResultWithAttempt {
@@ -2624,46 +2622,6 @@ function clampScore(score: number): number {
   return Math.max(0, Math.min(100, Math.round(score * 10) / 10));
 }
 
-function detectMockAtsPlatform(args?: Record<string, unknown>): MockAtsDetectionResponse {
-  const url = getStringArg(args, "url") ?? "";
-  const platform = getMockAtsPlatform(url);
-  return {
-    platform,
-    commonFields: getMockAtsCommonFields(platform),
-    automationNotes: getMockAtsAutomationNotes(platform),
-  };
-}
-
-function getMockAtsPlatform(url: string): string {
-  const lower = url.toLowerCase();
-  if (lower.includes("greenhouse.io")) return "greenhouse";
-  if (lower.includes("lever.co")) return "lever";
-  if (lower.includes("myworkdayjobs.com") || lower.includes("workday")) return "workday";
-  if (lower.includes("icims.com")) return "icims";
-  if (lower.includes("bamboohr.com")) return "bamboohr";
-  if (lower.includes("ashbyhq.com")) return "ashbyhq";
-  if (lower.includes("taleo.net")) return "taleo";
-  return "unknown";
-}
-
-function getMockAtsCommonFields(platform: string): string[] {
-  const baseFields = ["firstName", "lastName", "email", "phone", "resume"];
-  if (platform === "greenhouse" || platform === "lever") {
-    return [...baseFields, "coverLetter", "linkedin"];
-  }
-  if (platform === "workday") {
-    return [...baseFields, "address", "workAuthorization"];
-  }
-  return baseFields;
-}
-
-function getMockAtsAutomationNotes(platform: string): string {
-  if (platform === "unknown") {
-    return "Unknown ATS. Review fields carefully before submitting.";
-  }
-  return `${platform} supports guided form filling. Review before submitting.`;
-}
-
 function fillMockApplicationForm(args?: Record<string, unknown>): MockFillResultWithAttempt {
   const jobUrl = getStringArg(args, "jobUrl") ?? getStringArg(args, "job_url") ?? "";
   if (!isExternalHttpUrl(jobUrl)) {
@@ -3741,7 +3699,7 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
       } as T;
 
     case "detect_ats_platform":
-      return detectMockAtsPlatform(args) as T;
+      return getMockAtsPlatformDetection(getStringArg(args, "url") ?? "") as T;
 
     case "fill_application_form":
       return fillMockApplicationForm(args) as T;

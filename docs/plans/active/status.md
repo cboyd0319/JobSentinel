@@ -50,6 +50,16 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- ATS platform detection helpers moved out of `src/mocks/handlers.ts` into
+  `src/mocks/handlers/atsPlatform.ts`; the main mock handler still owns
+  application-form fill state and attempt IDs.
+- `src/mocks/handlers/atsPlatform.test.ts` covers backend command wiring for
+  platform detection, safe form-fill attempts, and unsafe-link rejection.
+- `src/mocks/handlers.ts` legacy no-growth budget tightened from 4,013 lines to
+  3,971 lines.
+
+Recent cleanup summary:
+
 - Resume-builder mock normalizers, templates, HTML rendering, and text export
   helpers moved out of `src/mocks/handlers.ts` into
   `src/mocks/handlers/resumeBuilder.ts`.
@@ -59,9 +69,6 @@ Latest implementation slice:
   updates, HTML escaping, and text export through `mockInvoke`.
 - `src/mocks/handlers.ts` legacy no-growth budget tightened from 4,253 lines to
   4,013 lines.
-
-Recent cleanup summary:
-
 - The whole public GitHub wiki is now treated as external product docs in the
   harness and change contract.
 - Product-copy and broad-audience harness path sets now include

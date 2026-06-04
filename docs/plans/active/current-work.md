@@ -322,6 +322,10 @@ Out of scope:
   redaction, mock system info, and config-summary helpers into
   `src/mocks/handlers/supportReports.ts`. The root mock handler passes current
   config and active-resume state explicitly to avoid hidden state capture.
+- Coordinator moved ATS platform detection helpers into
+  `src/mocks/handlers/atsPlatform.ts`. The root mock handler keeps
+  application-form fill state and attempt IDs local, while the extracted helper
+  owns pure platform detection and form-field metadata.
 
 ## Risks
 
