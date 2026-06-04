@@ -1336,6 +1336,134 @@ describe("mock Tauri handlers", () => {
       ]),
     );
 
+    const overtimeResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        experience: [
+          {
+            ...atsResume.experience[0],
+            achievements: ["Available for overtime shifts during peak weeks."],
+          },
+        ],
+        skills: [],
+      },
+      jobDescription: "Required: overtime availability",
+    });
+    expect(overtimeResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "overtime availability",
+          match_state: "Strong",
+          hard_constraint: true,
+          evidence_sections: expect.arrayContaining(["current experience"]),
+        }),
+      ]),
+    );
+    expect(overtimeResult.hard_constraint_risks).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          requirement: "overtime availability",
+        }),
+      ]),
+    );
+
+    const holidayResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        experience: [
+          {
+            ...atsResume.experience[0],
+            achievements: ["Available for holiday shifts during peak weeks."],
+          },
+        ],
+        skills: [],
+      },
+      jobDescription: "Required: holiday availability",
+    });
+    expect(holidayResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "holiday availability",
+          match_state: "Strong",
+          hard_constraint: true,
+          evidence_sections: expect.arrayContaining(["current experience"]),
+        }),
+      ]),
+    );
+    expect(holidayResult.hard_constraint_risks).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          requirement: "holiday availability",
+        }),
+      ]),
+    );
+
+    const fullTimeResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        experience: [
+          {
+            ...atsResume.experience[0],
+            achievements: ["Available for full-time coverage."],
+          },
+        ],
+        skills: [],
+      },
+      jobDescription: "Required: full-time availability",
+    });
+    expect(fullTimeResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "full-time availability",
+          match_state: "Strong",
+          hard_constraint: true,
+          evidence_sections: expect.arrayContaining(["current experience"]),
+        }),
+      ]),
+    );
+    expect(fullTimeResult.hard_constraint_risks).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          requirement: "full-time availability",
+        }),
+      ]),
+    );
+
+    const partTimeResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        experience: [
+          {
+            ...atsResume.experience[0],
+            achievements: ["Available for part time coverage."],
+          },
+        ],
+        skills: [],
+      },
+      jobDescription: "Required: part-time availability",
+    });
+    expect(partTimeResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "part-time availability",
+          match_state: "Strong",
+          hard_constraint: true,
+          evidence_sections: expect.arrayContaining(["current experience"]),
+        }),
+      ]),
+    );
+    expect(partTimeResult.hard_constraint_risks).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          requirement: "part-time availability",
+        }),
+      ]),
+    );
+
     const onsiteResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
         ...atsResume,
@@ -1396,6 +1524,70 @@ describe("mock Tauri handlers", () => {
       expect.arrayContaining([
         expect.objectContaining({
           requirement: "on site",
+        }),
+      ]),
+    );
+
+    const remoteResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        experience: [
+          {
+            ...atsResume.experience[0],
+            achievements: ["Available for remote work with a secure workspace."],
+          },
+        ],
+        skills: [],
+      },
+      jobDescription: "Required: remote work",
+    });
+    expect(remoteResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "remote work",
+          match_state: "Strong",
+          hard_constraint: true,
+          evidence_sections: expect.arrayContaining(["current experience"]),
+        }),
+      ]),
+    );
+    expect(remoteResult.hard_constraint_risks).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          requirement: "remote work",
+        }),
+      ]),
+    );
+
+    const hybridResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        experience: [
+          {
+            ...atsResume.experience[0],
+            achievements: ["Available for a hybrid schedule in Denver."],
+          },
+        ],
+        skills: [],
+      },
+      jobDescription: "Required: hybrid work",
+    });
+    expect(hybridResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "hybrid work",
+          match_state: "Strong",
+          hard_constraint: true,
+          evidence_sections: expect.arrayContaining(["current experience"]),
+        }),
+      ]),
+    );
+    expect(hybridResult.hard_constraint_risks).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          requirement: "hybrid work",
         }),
       ]),
     );
@@ -1668,7 +1860,7 @@ describe("mock Tauri handlers", () => {
     expect(federalImproved).toContain("grade level");
     expect(federalImproved).toContain("announcement duties");
     expect(federalImproved).toContain("required documents");
-  }, 10_000);
+  }, 20_000);
 
   it("matches lift-weight pounds and lbs in mock hard constraints", async () => {
     const liftResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {

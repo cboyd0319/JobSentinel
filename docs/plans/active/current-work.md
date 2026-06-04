@@ -113,6 +113,8 @@ Out of scope:
   **Review job words** so wording stays truth-first.
 - [x] Show job-import closing dates when the posting preview includes them, and
   preserve source posting dates across local time zones.
+- [x] Align dev mock hard schedule/location constraints with Rust/docs for
+  remote, hybrid, overtime, holiday, full-time, and part-time wording.
 
 ## Orchestration Log
 
@@ -208,6 +210,10 @@ Out of scope:
   backend preview already includes `valid_through`, then fixed import preview
   date formatting so source dates do not shift a day earlier in local time
   zones.
+- Resume mock parity scout was read-only and changed no files. Coordinator
+  accepted its finding that dev mock hard-constraint extraction missed remote,
+  hybrid, overtime, holiday, full-time, and part-time groups that Rust/docs
+  already cover, then patched the mock and focused tests locally.
 
 ## Risks
 

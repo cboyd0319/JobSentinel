@@ -52,6 +52,15 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Dev mock Resume Match now mirrors Rust/docs for remote, hybrid, overtime,
+  holiday, full-time, and part-time hard schedule/location constraints.
+- Mocked review can show the same local evidence and risk cues for those
+  visible job-post requirements instead of skipping them.
+- The slice changes dev mock parity only; it adds no storage fields, network
+  calls, external AI, telemetry, or submission behavior.
+
+Previous implementation slice:
+
 - Job import preview now shows the posting closing date when the source
   provides one, instead of dropping the existing `valid_through` preview field.
 - Previewed posting and closing dates preserve the source date instead of

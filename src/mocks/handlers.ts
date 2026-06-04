@@ -2721,6 +2721,8 @@ function getMockHardConstraintCategory(keyword: string): MockHardConstraintCateg
     lower.includes("onsite") ||
     lower.includes("on-site") ||
     lower.includes("on site") ||
+    lower.includes("remote") ||
+    lower.includes("hybrid") ||
     lower.includes("relocation") ||
     lower.includes("relocate") ||
     lower.includes("travel") ||
@@ -2740,7 +2742,13 @@ function getMockHardConstraintCategory(keyword: string): MockHardConstraintCateg
     lower.includes("day shift") ||
     lower.includes("first shift") ||
     lower.includes("1st shift") ||
-    lower.includes("evening")
+    lower.includes("evening") ||
+    lower.includes("overtime") ||
+    lower.includes("holiday") ||
+    lower.includes("full-time") ||
+    lower.includes("full time") ||
+    lower.includes("part-time") ||
+    lower.includes("part time")
   ) {
     return "Location";
   }
@@ -3510,7 +3518,7 @@ function extractMockHardConstraintKeywords(jobDescription: string): string[] {
     /\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b/gi,
     /\b(background checks?|background screenings?|pre[- ]employment screenings?|drug screens?|drug screenings?|drug tests?|drug testing)\b/gi,
     /\b(lift(?:\s+up\s+to)?\s+\d+\s*(?:pounds?|lbs?)|(?:stand|standing) for long periods?|physical requirements?|physical demands?)\b/gi,
-    /\b(onsite|on-site|on site|relocation|relocate|willing to relocate|travel|reliable transportation|own transportation|commute|commuting|availability|available|schedule|weekend availability|weekend shifts?|night shift|overnight shift|third shift|3rd shift|evening shift|second shift|2nd shift|day shift|first shift|1st shift)\b/gi,
+    /\b(onsite|on-site|on site|remote(?:[- ](?:work|role|position|job))?|hybrid(?:[- ](?:work|role|schedule|position|job))?|relocation|relocate|willing to relocate|travel|reliable transportation|own transportation|commute|commuting|availability|available|schedule|weekend availability|weekend shifts?|night shift|overnight shift|third shift|3rd shift|evening shift|second shift|2nd shift|day shift|first shift|1st shift|overtime(?: availability| shifts?)?|holiday(?: availability| shifts?)?|full[- ]time(?: availability)?|part[- ]time(?: availability)?)\b/gi,
   ];
   const keywords = new Set<string>();
   const hasDegreeEquivalent = hasMockDegreeEquivalentRequirement(jobDescription);
@@ -3840,6 +3848,23 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
     ["billing", "invoicing"],
     ["loan processing", "loan-processing"],
     ["onsite", "on-site", "on site"],
+    [
+      "remote",
+      "remote work",
+      "remote-work",
+      "remote role",
+      "remote position",
+      "remote job",
+    ],
+    [
+      "hybrid",
+      "hybrid work",
+      "hybrid-work",
+      "hybrid role",
+      "hybrid schedule",
+      "hybrid position",
+      "hybrid job",
+    ],
     ["relocation", "relocate", "willing to relocate"],
     ["reliable transportation", "own transportation"],
     ["commute", "commuting"],
@@ -3847,6 +3872,18 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
     ["weekend availability", "weekend shift", "weekend shifts"],
     ["evening shift", "second shift", "2nd shift"],
     ["day shift", "first shift", "1st shift"],
+    [
+      "overtime availability",
+      "overtime",
+      "overtime shift",
+      "overtime shifts",
+    ],
+    [
+      "holiday availability",
+      "holiday",
+      "holiday shift",
+      "holiday shifts",
+    ],
     [
       "background check",
       "background checks",
@@ -3867,6 +3904,18 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
       "drug testing",
     ],
     ["availability", "available"],
+    [
+      "full-time availability",
+      "full time availability",
+      "full-time",
+      "full time",
+    ],
+    [
+      "part-time availability",
+      "part time availability",
+      "part-time",
+      "part time",
+    ],
     ["bls", "basic life support"],
     ["acls", "advanced cardiovascular life support"],
     ["cpr", "cardiopulmonary resuscitation"],
