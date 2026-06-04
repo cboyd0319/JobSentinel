@@ -163,6 +163,8 @@ Out of scope:
 - [x] Split feature-doc bloat integration tests out of the main bloat test file.
 - [x] Split core privacy/logging bloat integration tests out of the main bloat
   test file.
+- [x] Split privacy IPC and notification bloat integration tests out of the main
+  bloat test file.
 
 ## Orchestration Log
 
@@ -381,6 +383,9 @@ Out of scope:
 - Coordinator moved core privacy/logging `checkRepoBloat` integration tests into
   `scripts/check-repo-bloat-privacy-core.test.mjs`. The root bloat integration
   test keeps aggregate sensor smoke coverage.
+- Coordinator moved privacy IPC and notification `checkRepoBloat` integration
+  tests into `scripts/check-repo-bloat-privacy-ipc.test.mjs`. The root bloat
+  integration test keeps aggregate sensor smoke coverage.
 
 ## Risks
 

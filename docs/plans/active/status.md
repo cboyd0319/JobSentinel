@@ -50,6 +50,17 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Privacy IPC and notification `checkRepoBloat` integration tests moved out of
+  `scripts/check-repo-bloat.test.mjs` into
+  `scripts/check-repo-bloat-privacy-ipc.test.mjs`.
+- The main bloat integration test still owns aggregate sensor smoke coverage;
+  the extracted file owns renderer credential, resume DTO, config export,
+  notification, LinkedIn docs, URL logging, and job-import privacy coverage.
+- `scripts/check-repo-bloat.test.mjs` legacy no-growth budget tightened from
+  6,497 lines to 5,669 lines.
+
+Recent cleanup summary:
+
 - Core privacy/logging `checkRepoBloat` integration tests moved out of
   `scripts/check-repo-bloat.test.mjs` into
   `scripts/check-repo-bloat-privacy-core.test.mjs`.
@@ -58,9 +69,6 @@ Latest implementation slice:
   Debug, LinkedIn, webhook, and credential-storage drift coverage.
 - `scripts/check-repo-bloat.test.mjs` legacy no-growth budget tightened from
   7,386 lines to 6,497 lines.
-
-Recent cleanup summary:
-
 - Feature-doc `checkRepoBloat` integration tests moved out of
   `scripts/check-repo-bloat.test.mjs` into
   `scripts/check-repo-bloat-feature-docs.test.mjs`.

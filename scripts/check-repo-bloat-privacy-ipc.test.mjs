@@ -1,0 +1,852 @@
+import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { dirname, join } from "node:path";
+import test from "node:test";
+import { checkRepoBloat } from "./check-repo-bloat.mjs";
+
+function writeFixtureFile(root, path, content = "") {
+  const fullPath = join(root, path);
+  mkdirSync(dirname(fullPath), { recursive: true });
+  writeFileSync(fullPath, content, "utf8");
+}
+
+function withGitFixture(callback) {
+  const root = mkdtempSync(join(tmpdir(), "jobsentinel-repo-bloat-privacy-ipc-"));
+
+  try {
+    execFileSync("git", ["init", "--quiet"], { cwd: root });
+    callback(root);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+test("checkRepoBloat rejects renderer credential secret read IPC", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/credentials.rs",
+      [
+        "pub async fn retrieve_credential(key: String) -> Result<Option<String>, String> {",
+        "  CredentialStore::retrieve(parse_credential_key(&key)?)",
+        "}",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/Settings.tsx",
+      [
+        "async function retrieveCredential(key: CredentialKey): Promise<string | null> {",
+        "  return await invoke<string | null>('retrieve_credential', { key });",
+        "}",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/security/KEYRING.md",
+      ["invoke(\"retrieve_credential\", { key })", ""].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src-tauri/src/commands/credentials.rs",
+        "src/pages/Settings.tsx",
+        "docs/security/KEYRING.md",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "keep credential values out of renderer IPC: src-tauri/src/commands/credentials.rs",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("keep credential values out of renderer IPC: src/pages/Settings.tsx"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("keep credential values out of renderer IPC: docs/security/KEYRING.md"),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects resume renderer DTO path exposure", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/resume.rs",
+      [
+        "pub async fn get_active_resume() -> Result<Option<Resume>, String> { todo!() }",
+        "pub async fn list_all_resumes() -> Result<Vec<Resume>, String> { todo!() }",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/Resume.tsx",
+      ["interface ResumeData {", "  id: number;", "  file_path: string;", "}"].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/ResumeBuilder.tsx",
+      ["interface Resume {", "  id: number;", "  parsed_text: string | null;", "}"].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/mocks/handlers.ts",
+      [
+        'case "get_active_resume":',
+        "  return getActiveResume() as T;",
+        'case "list_all_resumes":',
+        "  return resumes as T;",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/developer/ARCHITECTURE.md",
+      'const activeResume = await invoke<Resume>("get_active_resume");\n',
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src-tauri/src/commands/resume.rs",
+        "src/pages/Resume.tsx",
+        "src/pages/ResumeBuilder.tsx",
+        "src/mocks/handlers.ts",
+        "docs/developer/ARCHITECTURE.md",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    for (const path of [
+      "src-tauri/src/commands/resume.rs",
+      "src/pages/Resume.tsx",
+      "src/pages/ResumeBuilder.tsx",
+      "src/mocks/handlers.ts",
+      "docs/developer/ARCHITECTURE.md",
+    ]) {
+      assert.ok(
+        violations.includes(`hide resume file paths from renderer DTOs: ${path}`),
+        violations.join("\n"),
+      );
+    }
+  });
+});
+
+test("checkRepoBloat rejects incomplete config export redaction", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/utils/export.ts",
+      [
+        "function sanitizeConfigForExport(config) {",
+        "  const sanitized = JSON.parse(JSON.stringify(config));",
+        "  sanitized.alerts.email.smtp_password = '';",
+        "  sanitized.linkedin.session_cookie = '';",
+        "  return sanitized;",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src/utils/export.ts"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("redact all credential fields from config export: src/utils/export.ts"),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects raw Telegram bot-token request errors", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/notify/telegram.rs",
+      [
+        'let api_url = format!("https://api.telegram.org/bot{}/sendMessage", config.bot_token);',
+        "let response = client.post(&api_url).json(&payload).send().await?;",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/core/notify/telegram.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "remove Telegram bot-token URLs from request errors: src-tauri/src/core/notify/telegram.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects raw webhook token request errors", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    for (const path of [
+      "src-tauri/src/core/notify/slack.rs",
+      "src-tauri/src/core/notify/discord.rs",
+      "src-tauri/src/core/notify/teams.rs",
+    ]) {
+      writeFixtureFile(
+        root,
+        path,
+        [
+          "async fn send(webhook_url: &str) -> anyhow::Result<()> {",
+          "  let response = client.post(webhook_url).json(&payload).send().await?;",
+          "  Ok(())",
+          "}",
+          "",
+        ].join("\n"),
+      );
+    }
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src-tauri/src/core/notify/slack.rs",
+        "src-tauri/src/core/notify/discord.rs",
+        "src-tauri/src/core/notify/teams.rs",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    for (const path of [
+      "src-tauri/src/core/notify/slack.rs",
+      "src-tauri/src/core/notify/discord.rs",
+      "src-tauri/src/core/notify/teams.rs",
+    ]) {
+      assert.ok(
+        violations.includes(`remove webhook token URLs from request errors: ${path}`),
+        violations.join("\n"),
+      );
+    }
+  });
+});
+
+test("checkRepoBloat rejects notification provider error body exposure", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    for (const path of [
+      "src-tauri/src/core/notify/discord.rs",
+      "src-tauri/src/core/notify/teams.rs",
+      "src-tauri/src/core/notify/telegram.rs",
+    ]) {
+      writeFixtureFile(
+        root,
+        path,
+        [
+          "async fn send() -> anyhow::Result<()> {",
+          "  let error_text = read_text_with_limit(response, \"https://example.test\").await?;",
+          "  return Err(anyhow!(\"Provider failed: {}\", error_text));",
+          "}",
+          "",
+        ].join("\n"),
+      );
+    }
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src-tauri/src/core/notify/discord.rs",
+        "src-tauri/src/core/notify/teams.rs",
+        "src-tauri/src/core/notify/telegram.rs",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    for (const path of [
+      "src-tauri/src/core/notify/discord.rs",
+      "src-tauri/src/core/notify/teams.rs",
+      "src-tauri/src/core/notify/telegram.rs",
+    ]) {
+      assert.ok(
+        violations.includes(`omit notification provider error bodies from errors: ${path}`),
+        violations.join("\n"),
+      );
+    }
+  });
+});
+
+test("checkRepoBloat rejects raw notification service error details", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/notify/mod.rs",
+      [
+        "pub async fn send_immediate_alert() -> anyhow::Result<()> {",
+        "  if let Err(e) = send_slack().await {",
+        "    tracing::error!(\"Failed to send Slack notification: {}\", e);",
+        "    errors.push(format!(\"Slack: {}\", e));",
+        "  }",
+        "  if let Err(e) = CredentialStore::retrieve(CredentialKey::TelegramBotToken) {",
+        "    tracing::error!(\"Failed to retrieve Telegram bot token from keyring: {}\", e);",
+        "    errors.push(format!(\"Telegram: {}\", e));",
+        "  }",
+        "  Ok(())",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/core/notify/mod.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "sanitize notification service error details: src-tauri/src/core/notify/mod.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects raw JobsWithGPT smoke-test endpoint errors", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/health/smoke_tests.rs",
+      [
+        "match resp {",
+        "  Err(e) if e.is_connect() => Ok(serde_json::json!({",
+        "    \"status\": \"unreachable\",",
+        "    \"error\": e.to_string()",
+        "  })),",
+        "  Err(e) => Err(e.into()),",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/core/health/smoke_tests.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "sanitize JobsWithGPT smoke-test endpoint errors: src-tauri/src/core/health/smoke_tests.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects missing JobsWithGPT request ledger", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scheduler/workers/scrapers.rs",
+      "let jobswithgpt = JobsWithGptScraper::new(endpoint, query);\n",
+    );
+
+    execFileSync(
+      "git",
+      ["add", "package.json", "src-tauri/src/core/scheduler/workers/scrapers.rs"],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "record minimized JobsWithGPT source request history: src-tauri/src/core/scheduler/workers/scrapers.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects raw source-check result errors", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/health/smoke_tests.rs",
+      [
+        "let smoke_result = match result {",
+        "  Err(e) => SmokeTestResult {",
+        "    passed: false,",
+        "    error: Some(e.to_string()),",
+        "    details: Some(serde_json::json!({",
+        "      \"error\": format!(\"connect error: {}\", e.without_url())",
+        "    })),",
+        "  },",
+        "};",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/core/health/smoke_tests.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "sanitize source-check result errors: src-tauri/src/core/health/smoke_tests.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects stale LinkedIn credential docs", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scrapers/linkedin.rs",
+      [
+        "//! The user must provide their LinkedIn session cookie",
+        "//! via the config file.",
+        "//! - Uses ONLY the user's own session cookie (no credential storage)",
+        "//! 2. Open DevTools (F12) -> Application -> Cookies",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/scraper-health.md",
+      [
+        "Refresh Instructions:",
+        "2. Open DevTools (F12)",
+        "3. Find and copy **li_at** value",
+        "4. Paste into Settings > Scrapers > LinkedIn",
+        "Click **Update LinkedIn Cookie**",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/scrapers.md",
+      [
+        "- **Your Cookie Only:** No credentials stored, uses your own session",
+        "- **Session Expiry:** Cookie expires after ~90 days, requires refresh",
+        "- [ ] **Interactive Login:** No manual cookie extraction",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src-tauri/src/core/scrapers/linkedin.rs",
+        "docs/features/scrapers.md",
+        "docs/features/scraper-health.md",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "sync LinkedIn credential docs with keyring login flow: src-tauri/src/core/scrapers/linkedin.rs",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "sync LinkedIn credential docs with keyring login flow: docs/features/scraper-health.md",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "sync LinkedIn credential docs with keyring login flow: docs/features/scrapers.md",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects automated LinkedIn collection drift", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scrapers/linkedin.rs",
+      'const URL: &str = "https://www.linkedin.com/voyager/api/example";\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/Settings.tsx",
+      'await invoke("linkedin_login");\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/utils/notificationPreferences.ts",
+      "export const DEFAULT_PREFERENCES = { linkedin: { enabled: true } };\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/components/NotificationPreferences.tsx",
+      "const SOURCE_INFO = { linkedin: { name: 'LinkedIn' } };\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/mocks/handlers.ts",
+      "function defaults() { return { linkedin: { enabled: true } }; }\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/user-data-management.md",
+      "linkedin: { enabled: true, minScoreThreshold: 70, soundEnabled: true }\n",
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/user_data/mod.rs",
+      "let linkedin = SourceNotificationConfig { enabled: true, min_score_threshold: 70, sound_enabled: true };\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/scrapers.md",
+      `Click **${["Connect", "LinkedIn"].join(" ")}** to run the ${["LinkedIn", "scraper"].join(" ")}.\n`,
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src-tauri/src/core/scrapers/linkedin.rs",
+        "src/pages/Settings.tsx",
+        "src/utils/notificationPreferences.ts",
+        "src/components/NotificationPreferences.tsx",
+        "src/mocks/handlers.ts",
+        "docs/features/user-data-management.md",
+        "src-tauri/src/core/user_data/mod.rs",
+        "docs/features/scrapers.md",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "remove automated LinkedIn collection boundary drift: src-tauri/src/core/scrapers/linkedin.rs",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "remove automated LinkedIn collection boundary drift: src/pages/Settings.tsx",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "remove LinkedIn notification source drift: src/utils/notificationPreferences.ts",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "remove LinkedIn notification source drift: src/components/NotificationPreferences.tsx",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "remove LinkedIn notification source drift: src/mocks/handlers.ts",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "remove LinkedIn notification source drift: docs/features/user-data-management.md",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "remove LinkedIn notification source drift: src-tauri/src/core/user_data/mod.rs",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "remove automated LinkedIn collection boundary drift: docs/features/scrapers.md",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects database log emoji markers", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/db/connection.rs",
+      [
+        'tracing::info!("🔧 Configuring SQLite with maximum protections and performance...");',
+        'tracing::debug!("  ✓ WAL mode verified ✅");',
+        'tracing::error!("  ❌ Foreign keys NOT enabled!");',
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/db/integrity/diagnostics.rs",
+      'tracing::warn!("⚠️ WAL checkpoint partially complete (database was busy)");\n',
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/db/integrity/mod.rs",
+      [
+        'tracing::info!("🔍 Running database integrity check...");',
+        'tracing::error!("❌ Quick check failed: {}", quick_result.message);',
+        'tracing::info!("✅ Database integrity check passed ({:?})", start_time.elapsed());',
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/db/integrity/backups.rs",
+      'tracing::info!("✅ Database restored successfully");\n',
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src-tauri/src/core/db/connection.rs",
+        "src-tauri/src/core/db/integrity/backups.rs",
+        "src-tauri/src/core/db/integrity/diagnostics.rs",
+        "src-tauri/src/core/db/integrity/mod.rs",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("replace database log emoji markers: src-tauri/src/core/db/connection.rs"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "replace database log emoji markers: src-tauri/src/core/db/integrity/diagnostics.rs",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "replace database log emoji markers: src-tauri/src/core/db/integrity/mod.rs",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "replace database log emoji markers: src-tauri/src/core/db/integrity/backups.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects raw URL logging outside approved sanitizers", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scrapers/url_utils.rs",
+      'tracing::warn!("Failed to parse URL for normalization: {}", url_str);\n',
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/automation/browser/manager.rs",
+      "#[tracing::instrument(skip(self), fields(url = %url), level = \"info\")]\n",
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/linkedin_auth.rs",
+      'tracing::debug!("LinkedIn navigation: {}", url_str);\n',
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src-tauri/src/core/scrapers/url_utils.rs",
+        "src-tauri/src/core/automation/browser/manager.rs",
+        "src-tauri/src/commands/linkedin_auth.rs",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "replace raw URL logging: src-tauri/src/core/scrapers/url_utils.rs",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "replace raw URL logging: src-tauri/src/core/automation/browser/manager.rs",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("replace raw URL logging: src-tauri/src/commands/linkedin_auth.rs"),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects raw job import logging", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/import.rs",
+      [
+        '#[tracing::instrument(skip(state), fields(url), level = "info")]',
+        "pub async fn preview_job_import(url: String) {}",
+        'tracing::info!(title = %preview.title, company = %preview.company, "Import preview created");',
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/commands/import.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("replace raw job import logging: src-tauri/src/commands/import.rs"),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects raw job import HTTP errors", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/import.rs",
+      [
+        'ImportError::HttpError(e) => format!("Failed to fetch the page: {}", e),',
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/commands/import.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("sanitize job import HTTP errors: src-tauri/src/commands/import.rs"),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects non-public IP validation error echo", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/url_security.rs",
+      [
+        "return Err(format!(\"Blocked non-public IP address '{}'\", host));",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/core/url_security.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "sanitize non-public IP validation errors: src-tauri/src/core/url_security.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects raw job import success metadata", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/import.rs",
+      'tracing::info!(job_id = job_id, title = %title, company = %company, "Job imported successfully");\n',
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/commands/import.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("replace raw job import logging: src-tauri/src/commands/import.rs"),
+      violations.join("\n"),
+    );
+  });
+});
