@@ -50,6 +50,17 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Core privacy/logging `checkRepoBloat` integration tests moved out of
+  `scripts/check-repo-bloat.test.mjs` into
+  `scripts/check-repo-bloat-privacy-core.test.mjs`.
+- The main bloat integration test still owns aggregate sensor smoke coverage;
+  the extracted file owns Rust stub, private-query, scraper, local-path, ML,
+  Debug, LinkedIn, webhook, and credential-storage drift coverage.
+- `scripts/check-repo-bloat.test.mjs` legacy no-growth budget tightened from
+  7,386 lines to 6,497 lines.
+
+Recent cleanup summary:
+
 - Feature-doc `checkRepoBloat` integration tests moved out of
   `scripts/check-repo-bloat.test.mjs` into
   `scripts/check-repo-bloat-feature-docs.test.mjs`.
@@ -58,9 +69,6 @@ Latest implementation slice:
   notification-doc drift coverage.
 - `scripts/check-repo-bloat.test.mjs` legacy no-growth budget tightened from
   8,550 lines to 7,386 lines.
-
-Recent cleanup summary:
-
 - Docs-drift `checkRepoBloat` integration tests moved out of
   `scripts/check-repo-bloat.test.mjs` into
   `scripts/check-repo-bloat-docs-drift.test.mjs`.

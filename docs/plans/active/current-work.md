@@ -161,6 +161,8 @@ Out of scope:
   file.
 - [x] Split docs-drift bloat integration tests out of the main bloat test file.
 - [x] Split feature-doc bloat integration tests out of the main bloat test file.
+- [x] Split core privacy/logging bloat integration tests out of the main bloat
+  test file.
 
 ## Orchestration Log
 
@@ -375,6 +377,9 @@ Out of scope:
   test keeps aggregate sensor smoke coverage.
 - Coordinator moved feature-doc `checkRepoBloat` integration tests into
   `scripts/check-repo-bloat-feature-docs.test.mjs`. The root bloat integration
+  test keeps aggregate sensor smoke coverage.
+- Coordinator moved core privacy/logging `checkRepoBloat` integration tests into
+  `scripts/check-repo-bloat-privacy-core.test.mjs`. The root bloat integration
   test keeps aggregate sensor smoke coverage.
 
 ## Risks
