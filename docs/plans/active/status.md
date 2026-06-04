@@ -50,6 +50,19 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Mock scraper-health helpers moved out of `src/mocks/handlers.ts`.
+- `src/mocks/handlers/scraperHealth.ts` now owns mock scraper definitions,
+  scraper-health summaries, run history, smoke-test results, expiring
+  credential stubs, JobsWithGPT source-request summaries, and source-enabled
+  checks.
+- The root mock handler still owns persisted mutable state and passes scraper
+  enabled overrides into the helper module explicitly, so dev mock storage and
+  command payloads stay unchanged.
+- Best next oversized-file slice remains interview prep and follow-up mock
+  helpers.
+
+Previous implementation slice:
+
 - Mock support-report helpers moved out of `src/mocks/handlers.ts`.
 - `src/mocks/handlers/supportReports.ts` now owns safe support-report
   generation, filename sanitizing, sensitive-text redaction, mock system info,
