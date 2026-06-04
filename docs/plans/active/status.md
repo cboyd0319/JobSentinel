@@ -50,6 +50,21 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Remaining resume review and business-evidence coverage moved out of
+  `src/mocks/handlers.test.ts`.
+- `src/mocks/handlers/resumeReviewGuards.test.ts` now owns hidden-text,
+  unclear-claim, filler, healthcare, education, service, legal, finance, and
+  government review guard coverage.
+- `src/mocks/handlers/resumeBusinessEvidence.test.ts` now owns business,
+  bookkeeping, retail, logistics, procurement, vendor, budgeting, and
+  hyphenated regulated-work equivalence coverage.
+- `src/mocks/handlers.test.ts` is now under the 1,200-line harness budget, so
+  its legacy no-growth exemption was removed.
+- Best next oversized-file slice is moving resume-analysis helper logic out of
+  `src/mocks/handlers.ts` or splitting one of the larger Rust test modules.
+
+Previous implementation slice:
+
 - Resume evidence-quality coverage moved out of `src/mocks/handlers.test.ts`.
 - `src/mocks/handlers/resumeEvidenceQuality.test.ts` now owns focused coverage
   for current-role strength, equivalent wording, healthcare/service evidence,
