@@ -9,6 +9,11 @@ const JOB_BOARD_SOURCE_DESCRIPTION =
   "Job-board source. Verify on the employer page before tailoring.";
 const COMMUNITY_SOURCE_DESCRIPTION =
   "Community job source. Verify on the employer page before tailoring.";
+const UNKNOWN_SOURCE_GUIDANCE: JobSourceGuidance = {
+  label: "Source not shown",
+  description:
+    "No source was recorded for this posting. Open the original job page before tailoring.",
+};
 
 const SOURCE_GUIDANCE_BY_KEY: Record<string, JobSourceGuidance> = {
   greenhouse: {
@@ -132,6 +137,10 @@ function titleCaseSource(source: string) {
 
 export function getJobSourceGuidance(source: string): JobSourceGuidance {
   const key = normalizeJobSourceKey(source);
+  if (!key) {
+    return UNKNOWN_SOURCE_GUIDANCE;
+  }
+
   return SOURCE_GUIDANCE_BY_KEY[key] ?? {
     label: titleCaseSource(source),
     description:

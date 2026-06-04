@@ -174,6 +174,8 @@ Ghost detection is not perfect:
   a company, title, source, or repost pattern.
 - **Source dependent** - Employer-site or application-platform presence is
   stronger evidence, but it is not absolute proof that hiring is active.
+- **Missing source** - If a source is not shown, open the original posting
+  before tailoring instead of treating the card as verified.
 
 Use posting-review alerts as one signal. If a flagged role still looks
 worthwhile, verify it and decide based on your own situation.

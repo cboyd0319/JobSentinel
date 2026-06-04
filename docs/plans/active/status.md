@@ -52,6 +52,15 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Job source labels now treat blank or missing source data as **Source not
+  shown** instead of implying the label came from the posting.
+- The guidance asks users to open the original posting before tailoring when
+  source evidence is unavailable.
+- The slice adds no storage fields, network calls, external AI, telemetry, or
+  hidden application behavior.
+
+Previous implementation slice:
+
 - Dev mock resume matching now uses bounded keyword matches for short
   credentials, matching the backend's conservative term-boundary behavior.
 - This prevents mock hard-constraint evidence from treating unrelated words

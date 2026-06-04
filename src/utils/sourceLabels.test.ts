@@ -25,4 +25,13 @@ describe("sourceLabels", () => {
   it("cleans unknown source IDs before rendering", () => {
     expect(formatJobSourceLabel("city_careers")).toBe("City Careers");
   });
+
+  it("labels missing source data without implying it came from the posting", () => {
+    const guidance = getJobSourceGuidance("   ");
+
+    expect(guidance.label).toBe("Source not shown");
+    expect(guidance.description).toBe(
+      "No source was recorded for this posting. Open the original job page before tailoring.",
+    );
+  });
 });

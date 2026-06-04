@@ -97,6 +97,8 @@ Out of scope:
   posting-risk score is unavailable.
 - [x] Keep dev mock short-credential matching bounded so terms such as `RN`
   do not match inside unrelated words.
+- [x] Label missing job-card source data as unavailable instead of implying a
+  source label came from the posting.
 
 ## Orchestration Log
 
@@ -165,6 +167,10 @@ Out of scope:
   behavior because short credentials such as `RN` could match inside unrelated
   words like `intern`. The mock now uses bounded keyword frequency for
   requirement evidence.
+- Coordinator fixed missing source-label guidance locally because blank source
+  data could read like a posting-provided source label. The card helper now
+  labels it as **Source not shown** and asks users to open the original posting
+  before tailoring.
 
 ## Risks
 
