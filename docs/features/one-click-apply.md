@@ -125,11 +125,12 @@ You can save reusable answers for common questions:
 | `18 years of age`     | "Are you 18 years of age?"        |
 
 Use plain words that appear in the screening question. Matching ignores
-capitalization. Common quick-add buttons include background check and drug
-screen, citizenship, reliable transportation, driver's license, overtime
-availability, holiday availability, management experience, language fluency,
-physical requirements, and age requirement so you can prepare those answers
-before the form asks.
+capitalization. Symbols are treated as normal text, so `Security+` matches a
+Security+ certification question but not a general security-clearance question.
+Common quick-add buttons include background check and drug screen, citizenship,
+reliable transportation, driver's license, overtime availability, holiday
+availability, management experience, language fluency, physical requirements,
+and age requirement so you can prepare those answers before the form asks.
 
 When you add a saved answer for hard screening topics such as citizenship, work
 authorization, sponsorship, background checks, drug screens, physical

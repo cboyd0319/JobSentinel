@@ -7,6 +7,7 @@ use anyhow::Result;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::SqlitePool;
+use std::collections::HashSet;
 
 /// User's application profile
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -280,14 +281,160 @@ impl ProfileManager {
             let pattern: String = row.try_get("question_pattern")?;
             let answer: String = row.try_get("answer")?;
 
-            if let Ok(regex) = regex::Regex::new(&pattern) {
-                if regex.is_match(question) {
-                    return Ok(Some(answer));
-                }
+            if screening_question_matches(&pattern, question) {
+                return Ok(Some(answer));
             }
         }
 
         Ok(None)
+    }
+}
+
+/// Match saved screening-answer wording as plain text, not executable regex.
+pub(crate) fn screening_question_matches(pattern: &str, question: &str) -> bool {
+    let normalized_question = normalize_screening_match_text(question);
+    if normalized_question.is_empty() {
+        return false;
+    }
+
+    let question_tokens: HashSet<&str> = normalized_question.split_whitespace().collect();
+
+    screening_match_candidates(pattern)
+        .into_iter()
+        .any(|candidate| {
+            let normalized_candidate = normalize_screening_match_text(&candidate);
+            if normalized_candidate.is_empty() {
+                return false;
+            }
+
+            if normalized_question.contains(&normalized_candidate) {
+                return true;
+            }
+
+            let candidate_tokens: Vec<&str> = normalized_candidate.split_whitespace().collect();
+            !candidate_tokens.is_empty()
+                && candidate_tokens
+                    .iter()
+                    .all(|token| question_tokens.contains(token))
+        })
+}
+
+fn screening_match_candidates(pattern: &str) -> Vec<String> {
+    let trimmed = pattern.trim();
+    if trimmed.is_empty() {
+        return Vec::new();
+    }
+
+    let mut candidates = vec![trimmed.to_string()];
+    candidates.extend(
+        legacy_screening_pattern_aliases(trimmed)
+            .iter()
+            .map(|candidate| (*candidate).to_string()),
+    );
+
+    if looks_like_legacy_screening_pattern(trimmed) {
+        let simplified = simplify_legacy_screening_pattern(trimmed);
+        if !simplified.is_empty() {
+            candidates.push(simplified.clone());
+            candidates.extend(
+                simplified
+                    .split('|')
+                    .map(str::trim)
+                    .filter(|candidate| !candidate.is_empty())
+                    .map(ToOwned::to_owned),
+            );
+        }
+    }
+
+    candidates.sort();
+    candidates.dedup();
+    candidates
+}
+
+fn normalize_screening_match_text(input: &str) -> String {
+    let lowered = input
+        .to_lowercase()
+        .replace("u. s.", "us")
+        .replace("u.s.", "us");
+    let mut normalized = String::with_capacity(lowered.len());
+    let mut previous_was_space = true;
+
+    for ch in lowered.chars() {
+        if ch.is_alphanumeric() || matches!(ch, '+' | '#') {
+            normalized.push(ch);
+            previous_was_space = false;
+        } else if !matches!(ch, '\'' | '’') && !previous_was_space {
+            normalized.push(' ');
+            previous_was_space = true;
+        }
+    }
+
+    normalized.trim().to_string()
+}
+
+fn looks_like_legacy_screening_pattern(pattern: &str) -> bool {
+    let lower = pattern.to_ascii_lowercase();
+    lower.starts_with("(?i)")
+        || lower.contains(".*")
+        || lower.contains(".+")
+        || lower.contains("\\s")
+        || lower.contains('|')
+        || lower.contains("\\b")
+}
+
+fn simplify_legacy_screening_pattern(pattern: &str) -> String {
+    let mut simplified = pattern.trim();
+    if simplified
+        .get(..4)
+        .is_some_and(|prefix| prefix.eq_ignore_ascii_case("(?i)"))
+    {
+        simplified = &simplified[4..];
+    }
+
+    let simplified = simplified
+        .replace("\\s+", " ")
+        .replace("\\s*", " ")
+        .replace("\\b", " ")
+        .replace(".*", " ")
+        .replace(".+", " ");
+
+    simplified
+        .chars()
+        .map(|ch| match ch {
+            '(' | ')' | '[' | ']' | '{' | '}' | '^' | '$' | '?' | '*' | '\\' => ' ',
+            _ => ch,
+        })
+        .collect::<String>()
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ")
+}
+
+fn legacy_screening_pattern_aliases(pattern: &str) -> &'static [&'static str] {
+    match pattern {
+        "(?i)authorized.*work.*(united states|us|usa)" => &[
+            "authorized to work",
+            "authorized work",
+            "work authorization",
+        ],
+        "(?i)require.*sponsor.*work" => &[
+            "require sponsorship to work",
+            "need sponsorship to work",
+            "sponsorship",
+        ],
+        "(?i)require.*sponsor.*(now|future)" => &[
+            "require sponsorship",
+            "need sponsorship",
+            "visa sponsorship",
+        ],
+        "(?i)18.*years.*age" => &["18 years of age", "18 years age"],
+        "(?i)drug.*test" => &["drug test", "drug screen"],
+        "(?i)background.*check" => &["background check"],
+        "(?i)security.*clearance" => &["security clearance"],
+        "(?i)willing.*relocate" => &["willing to relocate", "willing relocate", "relocate"],
+        "(?i)notice.*period" => &["notice period"],
+        "(?i)salary.*expectation" => &["salary expectation", "expected salary"],
+        _ => &[],
     }
 }
 
@@ -513,6 +660,34 @@ mod tests {
 
         let profile = manager.get_profile().await.unwrap().unwrap();
         assert_eq!(profile.resume_file_path, None);
+    }
+
+    #[test]
+    fn test_screening_question_matching_treats_symbols_as_literal_text() {
+        assert!(screening_question_matches(
+            "Security+",
+            "Do you have a Security+ certification?"
+        ));
+        assert!(!screening_question_matches(
+            "Security+",
+            "Do you have a security clearance?"
+        ));
+    }
+
+    #[test]
+    fn test_screening_question_matching_handles_plain_words_and_legacy_defaults() {
+        assert!(screening_question_matches(
+            "US citizen",
+            "Are you a U.S. citizen?"
+        ));
+        assert!(screening_question_matches(
+            "background check",
+            "Can you complete a background check?"
+        ));
+        assert!(screening_question_matches(
+            "(?i)authorized.*work.*(united states|us|usa)",
+            "Are you authorized to work in the US?"
+        ));
     }
 
     #[tokio::test]

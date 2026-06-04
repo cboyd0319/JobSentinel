@@ -3,10 +3,10 @@
 //! Learns from user behavior to improve screening question answers over time.
 //! Tracks usage, modifications, and suggests answers with confidence scores.
 
+use super::profile::screening_question_matches;
 use crate::core::ats::parse_sqlite_datetime;
 use anyhow::{Context, Result};
 use chrono::{DateTime, Utc};
-use regex::Regex;
 use serde::{Deserialize, Serialize};
 use sqlx::{Row, SqlitePool};
 use std::collections::HashMap;
@@ -194,37 +194,34 @@ impl AnswerLearningManager {
             let base_confidence: f64 = row.get("confidence_score");
             let last_used: Option<String> = row.get("last_used_at");
 
-            // Try to match pattern
-            if let Ok(regex) = Regex::new(&format!("(?i){}", pattern)) {
-                if regex.is_match(question) {
-                    let modification_rate = if times_used > 0 {
-                        times_modified as f64 / times_used as f64
-                    } else {
-                        0.0
-                    };
+            if screening_question_matches(&pattern, question) {
+                let modification_rate = if times_used > 0 {
+                    times_modified as f64 / times_used as f64
+                } else {
+                    0.0
+                };
 
-                    let confidence = self.calculate_confidence(
-                        base_confidence,
-                        times_used,
-                        times_modified,
-                        &last_used,
-                    );
+                let confidence = self.calculate_confidence(
+                    base_confidence,
+                    times_used,
+                    times_modified,
+                    &last_used,
+                );
 
-                    let last_used_days = days_since_answer_datetime(last_used.as_deref());
+                let last_used_days = days_since_answer_datetime(last_used.as_deref());
 
-                    suggestions.push(AnswerSuggestion {
-                        answer,
-                        confidence,
-                        source: AnswerSource::Manual {
-                            pattern,
-                            answer_id: id,
-                        },
-                        times_used,
-                        times_modified,
-                        last_used_days_ago: last_used_days,
-                        modification_rate,
-                    });
-                }
+                suggestions.push(AnswerSuggestion {
+                    answer,
+                    confidence,
+                    source: AnswerSource::Manual {
+                        pattern,
+                        answer_id: id,
+                    },
+                    times_used,
+                    times_modified,
+                    last_used_days_ago: last_used_days,
+                    modification_rate,
+                });
             }
         }
 
@@ -256,37 +253,34 @@ impl AnswerLearningManager {
             let base_confidence: f64 = row.get("confidence_score");
             let last_used: Option<String> = row.get("last_used_at");
 
-            // Try to match pattern
-            if let Ok(regex) = Regex::new(&format!("(?i){}", pattern)) {
-                if regex.is_match(question) {
-                    let modification_rate = if times_used > 0 {
-                        times_modified as f64 / times_used as f64
-                    } else {
-                        0.0
-                    };
+            if screening_question_matches(&pattern, question) {
+                let modification_rate = if times_used > 0 {
+                    times_modified as f64 / times_used as f64
+                } else {
+                    0.0
+                };
 
-                    let confidence = self.calculate_confidence(
-                        base_confidence,
-                        times_used,
-                        times_modified,
-                        &last_used,
-                    );
+                let confidence = self.calculate_confidence(
+                    base_confidence,
+                    times_used,
+                    times_modified,
+                    &last_used,
+                );
 
-                    let last_used_days = days_since_answer_datetime(last_used.as_deref());
+                let last_used_days = days_since_answer_datetime(last_used.as_deref());
 
-                    suggestions.push(AnswerSuggestion {
-                        answer,
-                        confidence,
-                        source: AnswerSource::Learned {
-                            pattern,
-                            learned_id: id,
-                        },
-                        times_used,
-                        times_modified,
-                        last_used_days_ago: last_used_days,
-                        modification_rate,
-                    });
-                }
+                suggestions.push(AnswerSuggestion {
+                    answer,
+                    confidence,
+                    source: AnswerSource::Learned {
+                        pattern,
+                        learned_id: id,
+                    },
+                    times_used,
+                    times_modified,
+                    last_used_days_ago: last_used_days,
+                    modification_rate,
+                });
             }
         }
 

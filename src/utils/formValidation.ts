@@ -252,30 +252,24 @@ export function validateRequired(value: string, fieldName: string = "This field"
 }
 
 /**
- * Validates a regex pattern
- * @param pattern - Regex pattern to validate
- * @returns Error message if invalid, undefined if valid
+ * Validates optional screening-question wording.
+ * Symbols are accepted and matched as normal text by the backend.
  */
-export function validateRegex(pattern: string): string | undefined {
+export function validateQuestionWording(pattern: string): string | undefined {
   if (!pattern.trim()) return undefined; // Empty is valid (optional field)
-
-  try {
-    new RegExp(pattern.trim(), "i");
-    return undefined;
-  } catch {
-    return "Use words from the question only. Remove brackets or symbols like * or ?.";
-  }
+  return undefined;
 }
 
 /**
- * Validates a required regex pattern
- * @param pattern - Regex pattern to validate
- * @returns Error message if invalid, undefined if valid
+ * Validates required screening-question wording.
  */
-export function validateRequiredRegex(pattern: string): string | undefined {
+export function validateRequiredQuestionWording(pattern: string): string | undefined {
   if (!pattern.trim()) return "Add question wording.";
-  return validateRegex(pattern);
+  return validateQuestionWording(pattern);
 }
+
+export const validateRegex = validateQuestionWording;
+export const validateRequiredRegex = validateRequiredQuestionWording;
 
 /**
  * Validates a port number

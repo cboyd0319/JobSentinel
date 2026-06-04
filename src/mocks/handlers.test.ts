@@ -6357,6 +6357,39 @@ describe("mock Tauri handlers", () => {
     await expect(mockInvoke<void>("mark_job_as_ghost", { jobId: 1 })).resolves.toBeUndefined();
   });
 
+  it("treats saved screening-answer symbols as literal text in dev mocks", async () => {
+    await mockInvoke<void>("upsert_screening_answer", {
+      questionPattern: "Security+",
+      answer: "Yes",
+      answerType: "yes_no",
+      notes: null,
+    });
+
+    await expect(mockInvoke<AnswerSuggestion[]>("get_suggested_answers", {
+      question: "Do you have a Security+ certification?",
+      limit: 3,
+    })).resolves.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          answer: "Yes",
+          source: expect.objectContaining({ type: "manual" }),
+        }),
+      ]),
+    );
+
+    await expect(mockInvoke<AnswerSuggestion[]>("get_suggested_answers", {
+      question: "Do you have a security clearance?",
+      limit: 3,
+    })).resolves.not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          answer: "Yes",
+          source: expect.objectContaining({ type: "manual" }),
+        }),
+      ]),
+    );
+  });
+
   it("handles scraper health and interview persistence commands in dev mocks", async () => {
     const summary = await mockInvoke<{
       total_scrapers: number;

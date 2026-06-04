@@ -52,6 +52,18 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Replaced raw regex matching for saved screening answers with local plain-text
+  matching across form fill, saved-profile lookups, answer suggestions, and
+  dev mocks.
+- Symbols now count as normal text: `Security+` matches a Security+
+  certification question but not a general security-clearance question.
+- Legacy seeded default patterns are still recognized without executing saved
+  user text as regex.
+- The slice adds no storage fields, network calls, external AI, telemetry, or
+  hidden submission behavior.
+
+Previous implementation slice:
+
 - Replaced a raw `url` detail label in safe support report activity details
   with the readable **Link** label while keeping existing sanitization for the
   link value.

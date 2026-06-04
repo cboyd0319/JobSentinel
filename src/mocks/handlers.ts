@@ -1180,6 +1180,107 @@ function getDefaultScreeningAnswers(): MockScreeningAnswer[] {
   ];
 }
 
+const LEGACY_SCREENING_PATTERN_ALIASES: Record<string, string[]> = {
+  "(?i)authorized.*work.*(united states|us|usa)": [
+    "authorized to work",
+    "authorized work",
+    "work authorization",
+  ],
+  "(?i)require.*sponsor.*work": [
+    "require sponsorship to work",
+    "need sponsorship to work",
+    "sponsorship",
+  ],
+  "(?i)require.*sponsor.*(now|future)": [
+    "require sponsorship",
+    "need sponsorship",
+    "visa sponsorship",
+  ],
+  "(?i)18.*years.*age": ["18 years of age", "18 years age"],
+  "(?i)drug.*test": ["drug test", "drug screen"],
+  "(?i)background.*check": ["background check"],
+  "(?i)security.*clearance": ["security clearance"],
+  "(?i)willing.*relocate": ["willing to relocate", "willing relocate", "relocate"],
+  "(?i)notice.*period": ["notice period"],
+  "(?i)salary.*expectation": ["salary expectation", "expected salary"],
+};
+
+function normalizeScreeningMatchText(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/\bu\s*\.\s*s\s*\.?\b/g, "us")
+    .replace(/[’']/g, "")
+    .replace(/[^a-z0-9+#]+/g, " ")
+    .trim()
+    .replace(/\s+/g, " ");
+}
+
+function looksLikeLegacyScreeningPattern(savedWording: string): boolean {
+  const lower = savedWording.toLowerCase();
+  return lower.startsWith("(?i)") ||
+    lower.includes(".*") ||
+    lower.includes(".+") ||
+    lower.includes("\\s") ||
+    lower.includes("|") ||
+    lower.includes("\\b");
+}
+
+function simplifyLegacyScreeningPattern(savedWording: string): string {
+  const withoutInlineFlag = savedWording.slice(0, 4).toLowerCase() === "(?i)"
+    ? savedWording.slice(4)
+    : savedWording;
+
+  return withoutInlineFlag
+    .replace(/\\s[+*]/g, " ")
+    .replace(/\\b/g, " ")
+    .replace(/\.\*/g, " ")
+    .replace(/\.\+/g, " ")
+    .replace(/[()[\]{}^$?*\\]/g, " ")
+    .trim()
+    .replace(/\s+/g, " ");
+}
+
+function getScreeningMatchCandidates(savedWording: string): string[] {
+  const trimmed = savedWording.trim();
+  if (!trimmed) return [];
+
+  const candidates = [
+    trimmed,
+    ...(LEGACY_SCREENING_PATTERN_ALIASES[trimmed] ?? []),
+  ];
+
+  if (looksLikeLegacyScreeningPattern(trimmed)) {
+    const simplified = simplifyLegacyScreeningPattern(trimmed);
+    if (simplified) {
+      candidates.push(simplified);
+      candidates.push(
+        ...simplified
+          .split("|")
+          .map((candidate) => candidate.trim())
+          .filter(Boolean),
+      );
+    }
+  }
+
+  return [...new Set(candidates)];
+}
+
+function screeningPatternMatchesQuestion(savedWording: string, question: string): boolean {
+  const normalizedQuestion = normalizeScreeningMatchText(question);
+  if (!normalizedQuestion) return false;
+
+  const questionTokens = new Set(normalizedQuestion.split(/\s+/));
+
+  return getScreeningMatchCandidates(savedWording).some((candidate) => {
+    const normalizedCandidate = normalizeScreeningMatchText(candidate);
+    if (!normalizedCandidate) return false;
+    if (normalizedQuestion.includes(normalizedCandidate)) return true;
+
+    const candidateTokens = normalizedCandidate.split(/\s+/);
+    return candidateTokens.every((token) => questionTokens.has(token));
+  });
+}
+
 function getMockSupportedSites(): SiteInfo[] {
   return MOCK_DEEP_LINK_SITES.map((site) => ({ ...site }));
 }
@@ -4301,25 +4402,9 @@ function fillMockApplicationForm(args?: Record<string, unknown>): MockFillResult
 function getMockSuggestedAnswers(args?: Record<string, unknown>): MockAnswerSuggestion[] {
   const question = getStringArg(args, "question") ?? "";
   const limit = getNumericArg(args, "limit") ?? 5;
-  const normalizedQuestion = question.toLowerCase();
 
   return screeningAnswers
-    .filter((answer) => {
-      try {
-        if (new RegExp(answer.questionPattern, "i").test(question)) {
-          return true;
-        }
-      } catch {
-        // Fall through to token matching.
-      }
-
-      const patternTokens = answer.questionPattern
-        .toLowerCase()
-        .split(/[^a-z0-9]+/)
-        .filter((token) => token.length > 2);
-      return patternTokens.length > 0 &&
-        patternTokens.every((token) => normalizedQuestion.includes(token));
-    })
+    .filter((answer) => screeningPatternMatchesQuestion(answer.questionPattern, question))
     .slice(0, limit)
     .map((answer) => ({
       answer: answer.answer,

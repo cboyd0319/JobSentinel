@@ -7,7 +7,7 @@ import { Input } from "../Input";
 import { Modal, ModalFooter } from "../Modal";
 import { useToast } from "../../contexts";
 import { safeInvoke, safeInvokeWithToast } from "../../utils/api";
-import { validateRequiredRegex, validateRequired } from "../../utils/formValidation";
+import { validateRequired, validateRequiredQuestionWording } from "../../utils/formValidation";
 import { getSafeErrorToastCopy } from "../../utils/safeErrorCopy";
 
 // Lookup object for answer type badges (better performance than switch)
@@ -189,7 +189,7 @@ export const ScreeningAnswersForm = memo(function ScreeningAnswersForm({ onSaved
 
   const handleSave = async () => {
     // Validate all fields
-    const patternError = validateRequiredRegex(questionPattern);
+    const patternError = validateRequiredQuestionWording(questionPattern);
     const answerError = validateRequired(answer, "Answer");
 
     setFormErrors({
@@ -383,12 +383,12 @@ export const ScreeningAnswersForm = memo(function ScreeningAnswersForm({ onSaved
             onChange={(e) => {
               setQuestionPattern(e.target.value);
               if (formErrors.pattern) {
-                setFormErrors((prev) => ({ ...prev, pattern: validateRequiredRegex(e.target.value) }));
+                setFormErrors((prev) => ({ ...prev, pattern: validateRequiredQuestionWording(e.target.value) }));
               }
             }}
-            onBlur={() => setFormErrors((prev) => ({ ...prev, pattern: validateRequiredRegex(questionPattern) }))}
+            onBlur={() => setFormErrors((prev) => ({ ...prev, pattern: validateRequiredQuestionWording(questionPattern) }))}
             placeholder="e.g., salary expectation"
-            hint="Use a few words from questions you see often. Matching ignores capitalization."
+            hint="Use a few words from questions you see often. Matching ignores capitalization, and symbols count as normal text."
             error={formErrors.pattern}
             maxLength={200}
             required

@@ -486,6 +486,23 @@ describe("ScreeningAnswersForm", () => {
       });
     });
 
+    it("explains that symbols are matched as normal text", async () => {
+      const user = userEvent.setup();
+      render(<ScreeningAnswersForm />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByRole("button", { name: /add answer/i }),
+        ).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByRole("button", { name: /add answer/i }));
+
+      expect(
+        screen.getByText(/symbols count as normal text/i),
+      ).toBeInTheDocument();
+    });
+
     it("closes modal when Cancel button is clicked", async () => {
       const user = userEvent.setup();
       render(<ScreeningAnswersForm />);
@@ -944,6 +961,42 @@ describe("ScreeningAnswersForm", () => {
           answerType: "text",
           notes: "Testnotes",
         });
+      });
+    });
+
+    it("submits question wording with symbols as literal text", { timeout: 10000 }, async () => {
+      const user = userEvent.setup();
+      mockInvoke
+        .mockResolvedValueOnce([]) // Initial load
+        .mockResolvedValueOnce(undefined) // Upsert
+        .mockResolvedValueOnce([]); // Reload
+
+      render(<ScreeningAnswersForm />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByRole("button", { name: /add answer/i }),
+        ).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByRole("button", { name: /add answer/i }));
+
+      const patternInput = screen.getByLabelText(/question wording to look for/i);
+      const answerInput = screen.getByLabelText(/your answer/i);
+
+      fireEvent.change(patternInput, { target: { value: "Security+" } });
+      fireEvent.change(answerInput, { target: { value: "Yes" } });
+
+      await user.click(screen.getByRole("button", { name: /save answer/i }));
+
+      await waitFor(() => {
+        expect(mockInvoke).toHaveBeenCalledWith(
+          "upsert_screening_answer",
+          expect.objectContaining({
+            questionPattern: "Security+",
+            answer: "Yes",
+          }),
+        );
       });
     });
 

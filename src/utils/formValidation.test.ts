@@ -10,6 +10,8 @@ import {
   validateDiscordWebhook,
   validateTeamsWebhook,
   validateRequired,
+  validateQuestionWording,
+  validateRequiredQuestionWording,
   validateRegex,
   validateRequiredRegex,
   validatePort,
@@ -509,75 +511,66 @@ describe("formValidation", () => {
     });
   });
 
-  describe("validateRegex", () => {
-    it("returns undefined for valid question match patterns", () => {
+  describe("validateQuestionWording", () => {
+    it("returns undefined for plain question wording", () => {
       // Arrange & Act & Assert
-      expect(validateRegex(".*")).toBeUndefined();
-      expect(validateRegex("^test$")).toBeUndefined();
-      expect(validateRegex("[a-z]+")).toBeUndefined();
-      expect(validateRegex("\\d{3}-\\d{4}")).toBeUndefined();
-      expect(validateRegex("(foo|bar)")).toBeUndefined();
-      expect(validateRegex("test.*123")).toBeUndefined();
+      expect(validateQuestionWording("salary expectation")).toBeUndefined();
+      expect(validateQuestionWording("Security+ certification")).toBeUndefined();
+      expect(validateQuestionWording("driver's license")).toBeUndefined();
     });
 
     it("returns undefined for empty string (optional field)", () => {
       // Arrange & Act & Assert
-      expect(validateRegex("")).toBeUndefined();
-      expect(validateRegex("   ")).toBeUndefined();
+      expect(validateQuestionWording("")).toBeUndefined();
+      expect(validateQuestionWording("   ")).toBeUndefined();
     });
 
-    it("returns error message for invalid question match patterns", () => {
+    it("accepts regex-like symbols as literal text", () => {
       // Arrange & Act & Assert
-      expect(validateRegex("[invalid")).toBe(
-        "Use words from the question only. Remove brackets or symbols like * or ?."
-      );
-      expect(validateRegex("(unclosed")).toBe(
-        "Use words from the question only. Remove brackets or symbols like * or ?."
-      );
-      expect(validateRegex("*invalid")).toBe(
-        "Use words from the question only. Remove brackets or symbols like * or ?."
-      );
-      expect(validateRegex("(?invalid)")).toBe(
-        "Use words from the question only. Remove brackets or symbols like * or ?."
-      );
+      expect(validateQuestionWording("[warehouse")).toBeUndefined();
+      expect(validateQuestionWording("(night shift")).toBeUndefined();
+      expect(validateQuestionWording("* weekend")).toBeUndefined();
+      expect(validateQuestionWording("(?invalid)")).toBeUndefined();
     });
 
     it("trims whitespace before validation", () => {
       // Arrange & Act & Assert
-      expect(validateRegex("  .*  ")).toBeUndefined();
-      expect(validateRegex("  [invalid  ")).toBe(
-        "Use words from the question only. Remove brackets or symbols like * or ?."
-      );
-    });
-
-    it("handles complex question match patterns", () => {
-      // Arrange & Act & Assert
-      expect(validateRegex("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")).toBeUndefined();
-      expect(validateRegex("(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)")).toBeUndefined();
+      expect(validateQuestionWording("  salary expectation  ")).toBeUndefined();
+      expect(validateQuestionWording("  [warehouse  ")).toBeUndefined();
     });
   });
 
-  describe("validateRequiredRegex", () => {
-    it("returns undefined for valid question match patterns", () => {
+  describe("validateRequiredQuestionWording", () => {
+    it("returns undefined for question wording", () => {
       // Arrange & Act & Assert
-      expect(validateRequiredRegex(".*")).toBeUndefined();
-      expect(validateRequiredRegex("^test$")).toBeUndefined();
+      expect(validateRequiredQuestionWording("salary expectation")).toBeUndefined();
+      expect(validateRequiredQuestionWording("Security+ certification")).toBeUndefined();
     });
 
     it("returns error message for empty string", () => {
       // Arrange & Act & Assert
-      expect(validateRequiredRegex("")).toBe("Add question wording.");
-      expect(validateRequiredRegex("   ")).toBe("Add question wording.");
+      expect(validateRequiredQuestionWording("")).toBe("Add question wording.");
+      expect(validateRequiredQuestionWording("   ")).toBe("Add question wording.");
     });
 
-    it("returns error message for invalid question match patterns", () => {
+    it("accepts unmatched brackets as literal text", () => {
       // Arrange & Act & Assert
-      expect(validateRequiredRegex("[invalid")).toBe(
-        "Use words from the question only. Remove brackets or symbols like * or ?."
-      );
-      expect(validateRequiredRegex("(unclosed")).toBe(
-        "Use words from the question only. Remove brackets or symbols like * or ?."
-      );
+      expect(validateRequiredQuestionWording("[warehouse")).toBeUndefined();
+      expect(validateRequiredQuestionWording("(unclosed")).toBeUndefined();
+    });
+  });
+
+  describe("legacy regex validation aliases", () => {
+    it("validateRegex delegates to plain question wording validation", () => {
+      // Arrange & Act & Assert
+      expect(validateRegex("[warehouse")).toBeUndefined();
+      expect(validateRegex("Security+ certification")).toBeUndefined();
+    });
+
+    it("validateRequiredRegex keeps required wording behavior", () => {
+      // Arrange & Act & Assert
+      expect(validateRequiredRegex("")).toBe("Add question wording.");
+      expect(validateRequiredRegex("Security+ certification")).toBeUndefined();
     });
   });
 

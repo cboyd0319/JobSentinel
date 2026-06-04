@@ -5,11 +5,10 @@
 //! Also handles screening questions using stored answer patterns.
 
 use super::browser::{AutomationPage, FillResult};
-use super::profile::{ApplicationProfile, ScreeningAnswer};
+use super::profile::{screening_question_matches, ApplicationProfile, ScreeningAnswer};
 use super::AtsPlatform;
 use crate::core::logging::path_label_for_logging;
 use anyhow::Result;
-use regex::Regex;
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
@@ -474,18 +473,14 @@ impl FormFiller {
 
     /// Find matching answer for a question text
     fn find_answer_for_question(&self, question: &str) -> Option<String> {
-        let question_lower = question.to_lowercase();
-
         for answer in &self.screening_answers {
-            if let Ok(regex) = Regex::new(&format!("(?i){}", answer.question_pattern)) {
-                if regex.is_match(&question_lower) {
-                    tracing::debug!(
-                        pattern_chars = answer.question_pattern.chars().count(),
-                        question_chars = question.chars().count(),
-                        "Matched saved screening answer"
-                    );
-                    return Some(answer.answer.clone());
-                }
+            if screening_question_matches(&answer.question_pattern, question) {
+                tracing::debug!(
+                    pattern_chars = answer.question_pattern.chars().count(),
+                    question_chars = question.chars().count(),
+                    "Matched saved screening answer"
+                );
+                return Some(answer.answer.clone());
             }
         }
 
@@ -765,10 +760,10 @@ mod tests {
     fn test_screening_answer_matching() {
         let profile = make_test_profile();
         let answers = vec![
-            make_screening_answer("years.*experience", "5"),
-            make_screening_answer("(?i)authorized.*work.*us", "Yes"),
-            make_screening_answer("salary|compensation", "120000"),
-            make_screening_answer("remote|work.*from.*home", "Yes, I prefer remote work"),
+            make_screening_answer("years of experience", "5"),
+            make_screening_answer("authorized work US", "Yes"),
+            make_screening_answer("salary", "120000"),
+            make_screening_answer("work from home", "Yes, I prefer remote work"),
         ];
 
         let filler = FormFiller::new(profile, None).with_screening_answers(answers);
@@ -801,7 +796,7 @@ mod tests {
     #[test]
     fn test_screening_answer_case_insensitive() {
         let profile = make_test_profile();
-        let answers = vec![make_screening_answer("(?i)security.*clearance", "No")];
+        let answers = vec![make_screening_answer("security clearance", "No")];
 
         let filler = FormFiller::new(profile, None).with_screening_answers(answers);
 
@@ -813,6 +808,23 @@ mod tests {
         assert_eq!(
             filler.find_answer_for_question("SECURITY CLEARANCE STATUS"),
             Some("No".to_string())
+        );
+    }
+
+    #[test]
+    fn test_screening_answer_symbols_are_literal() {
+        let profile = make_test_profile();
+        let answers = vec![make_screening_answer("Security+", "Yes")];
+
+        let filler = FormFiller::new(profile, None).with_screening_answers(answers);
+
+        assert_eq!(
+            filler.find_answer_for_question("Do you have a Security+ certification?"),
+            Some("Yes".to_string())
+        );
+        assert_eq!(
+            filler.find_answer_for_question("Do you have a security clearance?"),
+            None
         );
     }
 

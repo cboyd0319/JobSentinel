@@ -91,6 +91,8 @@ Out of scope:
   field, and classification wording.
 - [x] Replace raw `url` labels in safe support report activity details with a
   readable **Link** label.
+- [x] Treat saved screening-answer wording as local plain text instead of raw
+  regex, preserving literal symbols such as `Security+`.
 
 ## Orchestration Log
 
@@ -146,6 +148,11 @@ Out of scope:
 - Coordinator replaced the safe support report `url` activity label locally
   because it touched one feedback service, one focused test, feature docs, and
   active plan state while preserving existing sanitization.
+- Screening-answer matcher scout was read-only and changed no files.
+  Coordinator accepted its finding that saved wording like `Security+` could be
+  interpreted as regex and overmatch unrelated security questions, then fixed
+  Rust matchers, dev mocks, UI validation copy, focused tests, feature docs, and
+  active plan state locally.
 
 ## Risks
 
