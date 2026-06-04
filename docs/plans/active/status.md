@@ -50,6 +50,20 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- ATS analyzer experience, authorization, transportation, and physical
+  hard-constraint tests moved out of
+  `src-tauri/src/core/resume/ats_analyzer_tests.rs`.
+- `src-tauri/src/core/resume/ats_analyzer_tests/experience_requirement_constraints.rs`
+  now owns years, seniority, lead, supervisor, managed-team, citizenship, work
+  authorization, transportation, commute, lifting, and standing evidence
+  coverage.
+- This is a Rust test-only oversized-file cleanup slice; analyzer APIs,
+  scoring, evidence matching, and resume-review behavior stay unchanged.
+- Best next oversized-file slice is moving resume-analysis helper logic out of
+  `src/mocks/handlers.ts` or splitting another large Rust test module.
+
+Previous implementation slice:
+
 - ATS analyzer work-arrangement hard-constraint tests moved out of
   `src-tauri/src/core/resume/ats_analyzer_tests.rs`.
 - `src-tauri/src/core/resume/ats_analyzer_tests/work_arrangement_constraints.rs`
