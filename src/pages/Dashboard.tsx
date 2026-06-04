@@ -41,6 +41,7 @@ import {
   getDashboardLoadErrorMessage,
   getDashboardSearchErrorCopy,
 } from "./dashboardErrorCopy";
+import { formatDashboardPostedDate } from "./dashboardDateDisplay";
 import { formatDashboardFitEstimate } from "./dashboardFitEstimate";
 import { formatDashboardListedPay } from "./dashboardSalaryDisplay";
 
@@ -1111,10 +1112,7 @@ export default function Dashboard({
                     <CompareRow
                       label="Posted"
                       values={jobOps.comparedJobs.map((j) =>
-                        new Date(j.created_at).toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                        }),
+                        formatDashboardPostedDate(j.created_at),
                       )}
                     />
                     <CompareRow

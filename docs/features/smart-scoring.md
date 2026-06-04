@@ -110,6 +110,8 @@ Open-ended minimum-only pay should remain visible without a below-floor warning
 unless a known maximum or top listed pay is below the user's floor.
 Dashboard comparison rows label this evidence as listed pay and use the same
 unavailable fallback for malformed, negative, non-finite, or reversed ranges.
+Dashboard comparison rows also show **Date not shown** when posting date
+evidence cannot be parsed.
 
 Salary support is evidence-bounded. JobSentinel should help users protect their
 floor and ask better questions; it is not a compensation authority or legal

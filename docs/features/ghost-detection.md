@@ -46,6 +46,8 @@ or save your tailoring energy.
 - Posted 60-90 days ago? Review before tailoring.
 - Posted 90+ days ago? Verify the role is still open before spending serious
   time.
+- If a posting date cannot be parsed, dashboard comparisons show **Date not
+  shown** instead of treating it as freshness evidence.
 
 ### Frequent Reposts
 

@@ -50,6 +50,16 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Dashboard comparison rows now show **Date not shown** when posted-date
+  evidence is malformed.
+- This keeps JavaScript's `Invalid Date` text out of job comparison freshness
+  evidence.
+- The slice changes visible dashboard comparison fallback handling only; it adds
+  no storage fields, network calls, external AI, telemetry, or freshness
+  scoring behavior.
+
+Previous implementation slice:
+
 - Dashboard comparison rows now label pay as **Listed Pay** and use a shared
   listed-pay display helper.
 - Malformed, negative, non-finite, reversed, or missing dashboard comparison

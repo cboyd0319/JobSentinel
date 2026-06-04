@@ -144,6 +144,8 @@ Out of scope:
   local evidence details.
 - [x] Use listed-pay wording and malformed-pay fallback in dashboard
   comparison rows.
+- [x] Show plain unavailable copy for malformed dashboard comparison posted
+  dates.
 
 ## Orchestration Log
 
@@ -289,6 +291,9 @@ Out of scope:
   hand-formatted salary fields instead of using the shared malformed-pay
   fallback. The comparison now says **Listed Pay** and shows **Not listed** for
   unavailable pay evidence.
+- Coordinator updated dashboard comparison posted-date rows locally because they
+  still formatted dates directly. Malformed posted-date evidence now shows
+  **Date not shown** instead of JavaScript date-parser text.
 
 ## Risks
 

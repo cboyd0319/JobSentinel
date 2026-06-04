@@ -4,6 +4,7 @@ import {
   getDashboardLoadErrorMessage,
   getDashboardSearchErrorCopy,
 } from "./dashboardErrorCopy";
+import { formatDashboardPostedDate } from "./dashboardDateDisplay";
 import { formatDashboardFitEstimate } from "./dashboardFitEstimate";
 import { formatDashboardListedPay } from "./dashboardSalaryDisplay";
 import { getNoJobsEmptyStateCopy } from "./DashboardUI/noJobsEmptyStateCopy";
@@ -82,6 +83,16 @@ describe("formatDashboardListedPay", () => {
     expect(formatDashboardListedPay(-50000, null)).toBe("Not listed");
     expect(formatDashboardListedPay(null, Infinity)).toBe("Not listed");
     expect(formatDashboardListedPay(150000, 80000)).toBe("Not listed");
+  });
+});
+
+describe("formatDashboardPostedDate", () => {
+  it("formats posted dates for comparison rows", () => {
+    expect(formatDashboardPostedDate("2026-05-01T12:00:00Z")).toBe("May 1");
+  });
+
+  it("shows plain unavailable copy for malformed posted dates", () => {
+    expect(formatDashboardPostedDate("not a date")).toBe("Date not shown");
   });
 });
 
