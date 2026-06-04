@@ -93,6 +93,8 @@ Out of scope:
   readable **Link** label.
 - [x] Treat saved screening-answer wording as local plain text instead of raw
   regex, preserving literal symbols such as `Security+`.
+- [x] Show stale or repost job-card evidence even when the aggregate
+  posting-risk score is unavailable.
 
 ## Orchestration Log
 
@@ -153,6 +155,10 @@ Out of scope:
   interpreted as regex and overmatch unrelated security questions, then fixed
   Rust matchers, dev mocks, UI validation copy, focused tests, feature docs, and
   active plan state locally.
+- Coordinator fixed the job-card stale/repost cue locally because valid
+  posting-risk reasons could be present while the aggregate score was missing.
+  The card now keeps the factual **Check posting evidence** guidance visible in
+  that case without implying employer intent.
 
 ## Risks
 

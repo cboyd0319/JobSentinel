@@ -94,9 +94,9 @@ the same role has been seen more than once. Treat repeated sightings as a
 source detail to check, not proof that separate sites confirmed the role.
 
 Some stale or repost evidence can show as a small **Check posting evidence**
-cue even when the overall warning score is low. This means the posting has a
-specific age or repost signal worth checking before tailoring; it is not a
-claim about employer intent.
+cue even when the overall warning score is low or not available. This means the
+posting has a specific age or repost signal worth checking before tailoring; it
+is not a claim about employer intent.
 
 Broad-title or thin-description jobs can also show **Check role details**. This
 means the posting text is light enough to review the role, team, and work

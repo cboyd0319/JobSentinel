@@ -52,6 +52,16 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Job cards now show the low-key **Check posting evidence** cue when valid
+  stale or repost reasons exist even if the aggregate posting-risk score is not
+  available.
+- The cue remains factual: it asks the user to open the original posting before
+  tailoring and does not claim employer intent.
+- The slice adds no storage fields, network calls, external AI, telemetry, or
+  hidden application behavior.
+
+Previous implementation slice:
+
 - Replaced raw regex matching for saved screening answers with local plain-text
   matching across form fill, saved-profile lookups, answer suggestions, and
   dev mocks.

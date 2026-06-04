@@ -384,6 +384,30 @@ describe("JobCard", () => {
       ).toBeInTheDocument();
     });
 
+    it("shows stale or repost evidence even when score is unavailable", () => {
+      const unscoredStaleJob = {
+        ...mockJob,
+        ghost_score: null,
+        ghost_reasons: JSON.stringify([
+          {
+            category: "repost",
+            description: "Seen several times for the same role",
+            weight: 0.2,
+            severity: "low",
+          },
+        ]),
+      };
+
+      renderWithToast(<JobCard job={unscoredStaleJob} />);
+
+      expect(screen.getByTestId("posting-risk-guidance")).toHaveTextContent(
+        "Check posting evidence",
+      );
+      expect(
+        screen.getByText(/open the original job page before spending tailoring time/i),
+      ).toBeInTheDocument();
+    });
+
     it("ignores malformed low-score posting-risk reasons", () => {
       const malformedReasonJob = {
         ...mockJob,

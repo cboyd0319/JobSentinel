@@ -151,7 +151,19 @@ function getPostingRiskGuidance(
   ghostScore: number | null | undefined,
   ghostReasons: string | null | undefined,
 ): PostingRiskGuidance | null {
+  const reviewReasons = parsePostingRiskReasons(ghostReasons);
+
   if (ghostScore == null || !Number.isFinite(ghostScore)) {
+    if (reviewReasons.length > 0) {
+      return {
+        level: "low",
+        title: "Check posting evidence",
+        description:
+          "This posting has stale or repost evidence. Open the original job page before spending tailoring time.",
+        ariaLabel: "posting evidence to check",
+      };
+    }
+
     return null;
   }
 
@@ -181,7 +193,7 @@ function getPostingRiskGuidance(
     };
   }
 
-  if (parsePostingRiskReasons(ghostReasons).length > 0) {
+  if (reviewReasons.length > 0) {
     return {
       level: "low",
       title: "Check posting evidence",
