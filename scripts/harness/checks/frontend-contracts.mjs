@@ -132,6 +132,7 @@ const resumeSuggestionCategoryPaths = new Set([
   "src/pages/ResumeOptimizer.tsx",
   "src/components/AtsLiveScorePanel.tsx",
   "src/mocks/handlers.ts",
+  "src/mocks/handlers/resumeAnalysis.ts",
 ]);
 
 const fallbackResumeSuggestionCategories = [
@@ -202,7 +203,10 @@ export function hasResumeSuggestionCategoryDrift(root, path) {
     }
   }
 
-  const mockText = readOptionalFile(root, "src/mocks/handlers.ts");
+  const mockText = [
+    readOptionalFile(root, "src/mocks/handlers.ts"),
+    readOptionalFile(root, "src/mocks/handlers/resumeAnalysis.ts"),
+  ].join("\n");
   return Boolean(mockText) && hasMissingResumeSuggestionCategories(mockText, categories);
 }
 

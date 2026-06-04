@@ -50,17 +50,14 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
-- ATS analyzer service, education, healthcare, and data requirement-equivalence
-  tests moved out of `src-tauri/src/core/resume/ats_analyzer_tests.rs`.
-- `src-tauri/src/core/resume/ats_analyzer_tests/service_healthcare_requirement_equivalences.rs`
-  now owns healthcare, education, customer service, front desk, case
-  coordination, scheduling, onboarding, training, QA, patient-care, medical
-  record, care-plan, vital-sign, data-entry, and data-analysis equivalence
-  coverage.
-- `src-tauri/src/core/resume/ats_analyzer_tests.rs` is now under the
-  1,200-line harness target, so its legacy no-growth exemption was removed.
-- This is a Rust test-only oversized-file cleanup slice; analyzer APIs,
-  scoring, evidence matching, and resume-review behavior stay unchanged.
+- Mock ATS analysis DTO types, keyword constants, power words, and result
+  payload types moved out of `src/mocks/handlers.ts`.
+- `src/mocks/handlers/resumeAnalysis.ts` now owns those exported types and
+  constants. The root mock handler still owns mutable state, command dispatch,
+  and analysis helper behavior.
+- This is a TypeScript helper extraction only; mock command payload shapes,
+  resume-analysis scoring, evidence matching, and reset behavior stay
+  unchanged.
 
 Recent cleanup summary:
 
