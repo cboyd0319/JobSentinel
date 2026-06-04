@@ -2,7 +2,10 @@ import { describe, it, expect } from "vitest";
 import {
   getScoreColor,
   getScoreBg,
+  getScoreDisplayValue,
   getScoreLabel,
+  getScoreProgressPercent,
+  isValidScorePercent,
   scoreFractionToPercent,
 } from "./scoreUtils";
 
@@ -45,6 +48,13 @@ describe("scoreUtils", () => {
       expect(getScoreColor(20)).toBe("text-red-600 dark:text-red-400");
       expect(getScoreColor(39)).toBe("text-red-600 dark:text-red-400");
     });
+
+    it("returns neutral for invalid display scores", () => {
+      expect(getScoreColor(Number.NaN)).toBe("text-surface-500 dark:text-surface-400");
+      expect(getScoreColor(Infinity)).toBe("text-surface-500 dark:text-surface-400");
+      expect(getScoreColor(-1)).toBe("text-surface-500 dark:text-surface-400");
+      expect(getScoreColor(101)).toBe("text-surface-500 dark:text-surface-400");
+    });
   });
 
   describe("getScoreBg", () => {
@@ -66,6 +76,13 @@ describe("scoreUtils", () => {
     it("returns red for scores < 40", () => {
       expect(getScoreBg(0)).toBe("bg-red-500");
       expect(getScoreBg(39)).toBe("bg-red-500");
+    });
+
+    it("returns neutral for invalid display scores", () => {
+      expect(getScoreBg(Number.NaN)).toBe("bg-surface-400");
+      expect(getScoreBg(Infinity)).toBe("bg-surface-400");
+      expect(getScoreBg(-1)).toBe("bg-surface-400");
+      expect(getScoreBg(101)).toBe("bg-surface-400");
     });
   });
 
@@ -98,6 +115,45 @@ describe("scoreUtils", () => {
     it("returns 'Low evidence' for scores < 40", () => {
       expect(getScoreLabel(0)).toBe("Low evidence");
       expect(getScoreLabel(39)).toBe("Low evidence");
+    });
+
+    it("returns unavailable label for invalid display scores", () => {
+      expect(getScoreLabel(Number.NaN)).toBe("Score not shown");
+      expect(getScoreLabel(Infinity)).toBe("Score not shown");
+      expect(getScoreLabel(-1)).toBe("Score not shown");
+      expect(getScoreLabel(101)).toBe("Score not shown");
+    });
+  });
+
+  describe("score display validation", () => {
+    it("accepts finite scores from 0 to 100", () => {
+      expect(isValidScorePercent(0)).toBe(true);
+      expect(isValidScorePercent(50)).toBe(true);
+      expect(isValidScorePercent(100)).toBe(true);
+    });
+
+    it("rejects malformed display scores", () => {
+      expect(isValidScorePercent(Number.NaN)).toBe(false);
+      expect(isValidScorePercent(Infinity)).toBe(false);
+      expect(isValidScorePercent(-1)).toBe(false);
+      expect(isValidScorePercent(101)).toBe(false);
+      expect(isValidScorePercent("80")).toBe(false);
+    });
+
+    it("formats invalid numeric scores as unavailable", () => {
+      expect(getScoreDisplayValue(82.4)).toBe("82");
+      expect(getScoreDisplayValue(Number.NaN)).toBe("--");
+      expect(getScoreDisplayValue(Infinity)).toBe("--");
+      expect(getScoreDisplayValue(-1)).toBe("--");
+      expect(getScoreDisplayValue(101)).toBe("--");
+    });
+
+    it("uses zero progress for invalid display scores", () => {
+      expect(getScoreProgressPercent(82)).toBe(82);
+      expect(getScoreProgressPercent(Number.NaN)).toBe(0);
+      expect(getScoreProgressPercent(Infinity)).toBe(0);
+      expect(getScoreProgressPercent(-1)).toBe(0);
+      expect(getScoreProgressPercent(101)).toBe(0);
     });
   });
 });

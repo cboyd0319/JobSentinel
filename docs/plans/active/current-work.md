@@ -140,6 +140,8 @@ Out of scope:
   formatters.
 - [x] Show plain unavailable copy for malformed job-import preview dates.
 - [x] Show missing listed-pay guidance in job-import preview.
+- [x] Treat malformed resume review scores as unavailable while preserving
+  local evidence details.
 
 ## Orchestration Log
 
@@ -277,6 +279,10 @@ Out of scope:
 - Job-card/pay scout was read-only and changed no files. Coordinator accepted
   its finding that job-import preview hid missing listed pay, then added a
   plain **Listed pay not shown** review cue without claiming employer intent.
+- Resume assistance scout was read-only and changed no files. Coordinator
+  accepted its finding that malformed local score values could drive misleading
+  labels or progress widths, then added score-display validation while keeping
+  requirement, word, and must-have evidence visible.
 
 ## Risks
 

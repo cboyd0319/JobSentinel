@@ -524,6 +524,37 @@ describe("ResumeOptimizer", () => {
     expect(screen.queryByText(/Missing Keywords/i)).not.toBeInTheDocument();
   });
 
+  it("shows unavailable score labels while keeping resume evidence visible", async () => {
+    const user = userEvent.setup();
+    mockInvokeResponses({
+      analyze_resume_for_job: {
+        ...mockJobAnalysis,
+        overall_score: Number.NaN,
+        keyword_score: Infinity,
+        format_score: -5,
+        completeness_score: 125,
+      },
+    });
+    render(<ResumeOptimizer onBack={vi.fn()} />);
+
+    fireEvent.change(screen.getByLabelText(/^job post$/i), {
+      target: { value: "Need onboarding, retention, and account management experience" },
+    });
+    await openResumeAppImport(user);
+    fireEvent.change(screen.getByLabelText(/copied resume details/i), {
+      target: { value: JSON.stringify(validResume) },
+    });
+
+    await user.click(screen.getByRole("button", { name: /review match/i }));
+
+    expect(await screen.findByText("Resume Fit")).toBeInTheDocument();
+    expect(screen.getAllByText("Score not shown").length).toBeGreaterThanOrEqual(4);
+    expect(screen.getByText("Words Found (2)")).toBeInTheDocument();
+    expect(screen.getByText("Words To Review (1)")).toBeInTheDocument();
+    expect(screen.getByText("Resume Quality")).toBeInTheDocument();
+    expect(screen.queryByText(/NaN|Infinity|125/)).not.toBeInTheDocument();
+  });
+
   it("groups words to review by required, preferred, and nice-to-have job-post language", async () => {
     const user = userEvent.setup();
     mockInvokeResponses({ analyze_resume_for_job: mockGroupedGapAnalysis });

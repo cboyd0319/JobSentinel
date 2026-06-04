@@ -170,6 +170,8 @@ The current local matcher:
   treated as local evidence review instead of an employer prediction;
 - tells users in the Resume Fit card that the result is local evidence review,
   not a hiring prediction or a promise about employer systems;
+- treats malformed local score values as unavailable, while keeping words
+  found, words to review, hard requirements, and next actions visible;
 - shows readable format and details-included signals in a separate
   **Resume Quality** section instead of mixing them into role-fit review;
 - identifies skills and job-post terms across broad career categories,

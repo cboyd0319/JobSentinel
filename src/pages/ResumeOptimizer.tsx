@@ -8,7 +8,12 @@ import { Modal, ModalFooter } from "../components/Modal";
 import { useToast } from "../contexts";
 import { logError } from "../utils/errorUtils";
 import { getUserFriendlyError } from "../utils/errorMessages";
-import { getScoreColor, getScoreBg, getScoreLabel } from "../utils/scoreUtils";
+import {
+  getScoreBg,
+  getScoreColor,
+  getScoreLabel,
+  getScoreProgressPercent,
+} from "../utils/scoreUtils";
 import { writeStorageValue } from "../utils/browserStorage";
 
 // TypeScript Types
@@ -1698,7 +1703,7 @@ function ScoreItem({ label, score }: { label: string; score: number }) {
         <div className="w-24 h-2 bg-surface-200 dark:bg-surface-700 rounded-full overflow-hidden">
           <div
             className={`h-full ${getScoreBg(score)} transition-all duration-300`}
-            style={{ width: `${score}%` }}
+            style={{ width: `${getScoreProgressPercent(score)}%` }}
           />
         </div>
         <span className="text-sm font-semibold text-surface-700 dark:text-surface-300 w-28 text-right">

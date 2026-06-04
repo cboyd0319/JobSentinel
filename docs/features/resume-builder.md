@@ -94,7 +94,8 @@ panel keeps required, preferred, and other job-post language separate. It also
 shows must-have checks when local analysis finds a hard constraint that needs
 review before tailoring. It asks users to review whether missing words and
 must-haves are true for their background instead of treating every missing word
-as something to add.
+as something to add. If a local score value is malformed, the panel shows
+**Score not shown** and keeps the local evidence sections visible for review.
 
 ---
 

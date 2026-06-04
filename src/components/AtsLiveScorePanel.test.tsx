@@ -364,6 +364,40 @@ describe("AtsLiveScorePanel", () => {
         expect(screen.getByText("Low evidence")).toBeInTheDocument();
       });
     });
+
+    it("shows unavailable score labels while keeping local evidence visible", async () => {
+      mockInvoke.mockResolvedValue({
+        ...mockAnalysis,
+        overall_score: Number.NaN,
+        keyword_score: Infinity,
+        format_score: -5,
+        completeness_score: 125,
+      });
+
+      render(
+        <AtsLiveScorePanel
+          resumeData={mockResumeData}
+          currentStep={1}
+          debounceMs={10}
+        />
+      );
+
+      await waitForAnalysis();
+
+      await waitFor(() => {
+        expect(screen.getByText("--")).toBeInTheDocument();
+        expect(screen.getAllByText("Score not shown").length).toBeGreaterThanOrEqual(4);
+      });
+
+      expect(screen.getByText("2 job words found")).toBeInTheDocument();
+      expect(screen.getByText("2 to review")).toBeInTheDocument();
+      expect(screen.queryByText(/NaN|Infinity|125/)).not.toBeInTheDocument();
+
+      fireEvent.click(screen.getByRole("button", { name: /review details/i }));
+
+      expect(screen.getByText("Words Found (2)")).toBeInTheDocument();
+      expect(screen.getByText("Words To Review (2)")).toBeInTheDocument();
+    });
   });
 
   describe("error handling", () => {

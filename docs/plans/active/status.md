@@ -50,6 +50,18 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Resume Match and live Resume Builder now treat malformed local score values
+  as unavailable score display.
+- Invalid score labels show **Score not shown**, the live numeric score shows
+  `--`, and progress bars/rings use safe neutral progress.
+- Requirement review, words found, words to review, must-have checks, and next
+  actions stay visible so bad score data does not hide local evidence.
+- The slice changes visible resume-score fallback handling only; it adds no
+  storage fields, network calls, external AI, telemetry, or resume-analysis
+  behavior.
+
+Previous implementation slice:
+
 - Job import preview now shows **Date not shown** when posting or closing date
   evidence is malformed.
 - Job import preview now also shows **Listed pay not shown** when source pay is

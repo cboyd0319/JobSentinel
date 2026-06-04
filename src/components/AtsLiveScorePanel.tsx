@@ -15,7 +15,13 @@ import { Modal, ModalFooter } from "./Modal";
 import { Tooltip } from "./Tooltip";
 import { logError } from "../utils/errorUtils";
 import { getUserFriendlyError } from "../utils/errorMessages";
-import { getScoreColor, getScoreBg, getScoreLabel } from "../utils/scoreUtils";
+import {
+  getScoreBg,
+  getScoreColor,
+  getScoreDisplayValue,
+  getScoreLabel,
+  getScoreProgressPercent,
+} from "../utils/scoreUtils";
 import { readStorageValue, removeStorageValue } from "../utils/browserStorage";
 
 // Full resume readability analysis result from backend
@@ -435,7 +441,8 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
   const tips = useMemo(() => getStepTips(currentStep, analysis), [currentStep, analysis]);
 
   // Calculate ring progress
-  const ringProgress = analysis ? 2 * Math.PI * 32 * (1 - analysis.overall_score / 100) : 2 * Math.PI * 32;
+  const ringScore = analysis ? getScoreProgressPercent(analysis.overall_score) : 0;
+  const ringProgress = 2 * Math.PI * 32 * (1 - ringScore / 100);
 
   return (
     <div className="bg-white dark:bg-surface-800 rounded-lg border border-surface-200 dark:border-surface-700 shadow-sm">
@@ -508,7 +515,7 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
                   <span className={`text-xl font-bold ${getScoreColor(analysis.overall_score)}`}>
-                    {Math.round(analysis.overall_score)}
+                    {getScoreDisplayValue(analysis.overall_score)}
                   </span>
                   <span className={`text-[10px] font-medium ${getScoreColor(analysis.overall_score)}`}>
                     {getScoreLabel(analysis.overall_score)}
@@ -813,7 +820,7 @@ const ScoreBar = memo(function ScoreBar({ label, score }: { label: string; score
       <div className="flex-1 h-1.5 bg-surface-200 dark:bg-surface-700 rounded-full overflow-hidden">
         <div
           className={`h-full transition-all duration-300 ${getScoreBg(score)}`}
-          style={{ width: `${score}%` }}
+          style={{ width: `${getScoreProgressPercent(score)}%` }}
         />
       </div>
       <span className="text-xs font-semibold text-surface-700 dark:text-surface-300 w-24 text-right">
