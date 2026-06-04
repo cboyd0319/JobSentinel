@@ -169,9 +169,18 @@ describe("ScoreDisplay", () => {
   });
 
   describe("edge cases", () => {
-    it("handles NaN score gracefully", () => {
+    it("shows not-enough-information copy for NaN scores", () => {
       render(<ScoreDisplay score={NaN} />);
-      expect(screen.getByText("0%")).toBeInTheDocument();
+      expect(screen.getByText("--")).toBeInTheDocument();
+      expect(screen.getByText("No fit yet")).toBeInTheDocument();
+      expect(screen.queryByText("0%")).not.toBeInTheDocument();
+    });
+
+    it("shows not-enough-information copy for infinite scores", () => {
+      render(<ScoreDisplay score={Infinity} />);
+      expect(screen.getByText("--")).toBeInTheDocument();
+      expect(screen.getByText("No fit yet")).toBeInTheDocument();
+      expect(screen.queryByText("0%")).not.toBeInTheDocument();
     });
 
     it("handles negative scores", () => {

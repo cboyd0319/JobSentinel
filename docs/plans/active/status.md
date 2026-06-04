@@ -52,6 +52,15 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Job fit display now treats `NaN` and infinite score values as unavailable
+  local estimates.
+- Invalid scores show **No fit yet** with `--`, while a real saved `0%` still
+  appears as `0%`.
+- The slice changes visible fit-score fallback handling only; it adds no
+  storage fields, network calls, external AI, telemetry, or scoring behavior.
+
+Previous implementation slice:
+
 - Resume Builder docs now describe the live review panel's must-have checks,
   not only required, preferred, and other missing job-word buckets.
 - The docs now match the live panel behavior after hard-constraint risks became

@@ -347,8 +347,9 @@ export const ScoreDisplay = memo(function ScoreDisplay({
   onClick,
 }: ScoreDisplayProps) {
   // Guard against null/NaN/undefined scores
-  const isUnscored = score === null;
-  const safeScore: number = score != null && Number.isFinite(score) ? score : 0;
+  const hasFiniteScore = typeof score === "number" && Number.isFinite(score);
+  const isUnscored = !hasFiniteScore;
+  const safeScore: number = hasFiniteScore ? score : 0;
   const percentage = Math.round(safeScore * 100);
   const scoreInfo = isUnscored ? UNSCORED_SCORE_INFO : getScoreInfo(safeScore);
 

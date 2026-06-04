@@ -123,6 +123,8 @@ Out of scope:
   names.
 - [x] Use plain evidence labels in live Resume Builder matched-word tooltips.
 - [x] Sync Resume Builder docs with live must-have review behavior.
+- [x] Treat non-finite job fit scores as unavailable instead of saved zero-fit
+  estimates.
 
 ## Orchestration Log
 
@@ -235,6 +237,8 @@ Out of scope:
   Builder word-match tooltips.
 - Coordinator synced `docs/features/resume-builder.md` so the live-review
   section names must-have checks as well as missing job-word buckets.
+- Coordinator fixed `ScoreDisplay` so non-finite fit scores show **No fit yet**
+  with `--`, preserving `0%` for actual saved zero-fit estimates.
 
 ## Risks
 
