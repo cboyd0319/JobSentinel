@@ -173,6 +173,10 @@ Out of scope:
   integration tests out of the main bloat test file.
 - [x] Split product-copy and pay-framing bloat integration tests out of the main
   bloat test file.
+- [x] Split source-quality, source-structure, dependency, and E2E guidance bloat
+  integration tests out of the main bloat test file.
+- [x] Retire the main bloat test file's legacy oversized-file exception after
+  bringing it below the 1,200-line test target.
 
 ## Orchestration Log
 
@@ -407,6 +411,11 @@ Out of scope:
 - Coordinator moved product-copy and pay-framing `checkRepoBloat` integration
   tests into `scripts/check-repo-bloat-product-copy.test.mjs`. The root bloat
   integration test keeps aggregate sensor smoke coverage.
+- Coordinator moved source-quality, source-structure, dependency, and E2E
+  guidance `checkRepoBloat` integration tests into
+  `scripts/check-repo-bloat-source-quality.test.mjs`. The root bloat
+  integration test is now below the 1,200-line test target and no longer has a
+  legacy oversized-file exception.
 
 ## Risks
 

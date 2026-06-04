@@ -50,6 +50,21 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Source-quality, source-structure, dependency, and E2E guidance
+  `checkRepoBloat` integration tests moved out of
+  `scripts/check-repo-bloat.test.mjs` into
+  `scripts/check-repo-bloat-source-quality.test.mjs`.
+- The main bloat integration test still owns aggregate sensor smoke coverage;
+  the extracted file owns frontend/source glyph checks, lint-suppression
+  checks, unreferenced source helper checks, redundant dependency checks, and
+  stale E2E guidance coverage.
+- `scripts/check-repo-bloat.test.mjs` is now below the 1,200-line test target,
+  so its legacy no-growth budget was removed.
+- Legacy no-growth fixture coverage now uses `src/mocks/handlers.ts`, which is
+  still an oversized tracked file with a live budget.
+
+Recent cleanup summary:
+
 - Product-copy and pay-framing `checkRepoBloat` integration tests moved out of
   `scripts/check-repo-bloat.test.mjs` into
   `scripts/check-repo-bloat-product-copy.test.mjs`.
@@ -60,9 +75,6 @@ Latest implementation slice:
   command logging coverage.
 - `scripts/check-repo-bloat.test.mjs` legacy no-growth budget tightened from
   2,671 lines to 1,554 lines.
-
-Recent cleanup summary:
-
 - Feedback, support-report, mock-handler, recovery-copy, and score-copy
   `checkRepoBloat` integration tests moved out of
   `scripts/check-repo-bloat.test.mjs` into
