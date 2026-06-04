@@ -20,10 +20,7 @@ See [Exec Plans](../exec-plans.md) for required format.
 | Workstream | Document |
 | ---------- | -------- |
 | Current active status | [Compact status](active/status.md) |
-| Guided job-search intake | [Active plan](active/guided-job-search-intake.md) |
-| Repo cleanup and quality sweep | [Active plan](active/repo-cleanup-and-quality-sweep.md) |
-| Repo cleanup handoff | [Current handoff](active/repo-cleanup-handoff.md) |
-| Research-backed product improvements | [Active plan](active/research-backed-product-improvements.md) |
+| Current product and quality work | [Active plan](active/current-work.md) |
 
 ## Plan Requirements
 
@@ -46,6 +43,7 @@ Each release plan includes:
 | Feedback workflow | Complete on main | [Beta feedback system](completed/beta-feedback-system.md) |
 | v2.6.x | Complete on main | [Undo and redo wiring](completed/undo-redo-wiring.md) |
 | v2.6.0 | Complete | [v2.6.0 UX improvements](completed/v2.6.0-ux-improvements.md) |
+| Superseded active history | Archived | [Guided intake](archive/guided-job-search-intake-superseded-2026-06-04.md), [cleanup sweep](archive/repo-cleanup-and-quality-sweep-superseded-2026-06-04.md), [cleanup handoff](archive/repo-cleanup-handoff-superseded-2026-06-04.md), [research-backed improvements](archive/research-backed-product-improvements-superseded-2026-06-04.md) |
 | v2.5.0 | Complete | No formal plan. |
 | v2.0.0 | Complete | No formal plan. |
 | v1.0.0 | Complete | No formal plan. |

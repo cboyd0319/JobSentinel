@@ -93,7 +93,7 @@ or build something better with it if that helps more people.
 | Stale, reposted, or unverifiable roles waste tailoring time | Ghost-job detection, first-seen and last-seen tracking, repost context, source status, and official-source job monitoring | [Ghost-job research](docs/research/ghost-jobs.md), [ghost detection](docs/features/ghost-detection.md) |
 | Pay opacity can lead to underpaid work | Salary floors, salary transparency checks, compensation range review, lower-title or lower-pay cues, and negotiation prep | [Pay-equity research](docs/research/pay-equity.md), [salary negotiation](docs/research/salary-negotiation.md) |
 | Screening systems are opaque | Hiring-system transparency, candidate-side explainability, and application readability review | [screening-system research](docs/research/ats-transparency.md), [Responsible AI](RESPONSIBLE_AI.md) |
-| Long searches erode confidence and time | Fresh-role focus, pacing, weekly summaries, and gap-framing work are tracked as product requirements | [Roadmap](ROADMAP.md), [research-backed plan](docs/plans/active/research-backed-product-improvements.md) |
+| Long searches erode confidence and time | Fresh-role focus, pacing, weekly summaries, and gap-framing work are tracked as product requirements | [Roadmap](ROADMAP.md), [current plan](docs/plans/active/current-work.md) |
 | Opaque channels can trap effort | Bias-aware strategy favors direct sources, official postings, recruiter context, referral routes, and verifiable signals | [Research model](#research-model), [job-source docs](docs/research/job-site-data-sources.md) |
 | Support can expose private data | Safe support reports can be saved locally and shared only when the user chooses | [Privacy](PRIVACY.md), [docs index](docs/README.md) |
 

@@ -20,7 +20,7 @@ const staleResumeOptimizerFramingPaths = new Set([
   "docs/releases/v2.0.md",
   "docs/releases/v2.4.md",
   "docs/releases/v2.6.0.md",
-  "docs/plans/active/research-backed-product-improvements.md",
+  "docs/plans/active/current-work.md",
   "docs/user/QUICK_START.md",
 ]);
 
@@ -161,7 +161,7 @@ const protectiveScoreCopyPaths = new Set([
   "docs/features/notifications.md",
   "docs/features/resume-matcher.md",
   "docs/features/smart-scoring.md",
-  "docs/plans/active/guided-job-search-intake.md",
+  "docs/plans/active/current-work.md",
   "docs/style-guide/GLOSSARY.md",
   "docs/style-guide/WRITING-FOR-JOB-SEEKERS.md",
   "docs/user/QUICK_START.md",

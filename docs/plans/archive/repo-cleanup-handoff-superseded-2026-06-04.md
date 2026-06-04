@@ -1,9 +1,13 @@
 # Repo Cleanup Handoff
 
+Superseded on 2026-06-04 by
+[Current product and quality work](../active/current-work.md). Keep this file
+as archived decision history, not current restart state.
+
 ## Current State
 
 This handoff belongs to the active
-[repo cleanup and quality sweep](repo-cleanup-and-quality-sweep.md).
+[current product and quality work](../active/current-work.md).
 
 The cleanup goal remains open. Do not mark it complete until current evidence
 proves the repo-wide objective: identify and fix all known issues across the

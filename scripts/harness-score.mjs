@@ -236,12 +236,13 @@ function buildFrameworks(root) {
             ),
             check(
               "Active plans are machine-indexed",
-              activePlanIndexWorkstreamCount(root) >= 4,
+              activePlanIndexWorkstreamCount(root) >= 2,
               "docs/plans/index.json",
             ),
             check(
-              "Active plan directory has durable work items",
-              countMatchingFiles(root, "docs/plans/active", /\.md$/) >= 4,
+              "Active plan directory stays compact",
+              countMatchingFiles(root, "docs/plans/active", /\.md$/) >= 2 &&
+                countMatchingFiles(root, "docs/plans/active", /\.md$/) <= 3,
               "docs/plans/active",
             ),
             check(
@@ -349,13 +350,14 @@ function buildFrameworks(root) {
             ),
             check(
               "Plan index lists active workstreams",
-              activePlanIndexWorkstreamCount(root) >= 4,
+              activePlanIndexWorkstreamCount(root) >= 2,
               "docs/plans/index.json",
             ),
             check(
-              "Handoff captures restart evidence",
-              exists(root, "docs/plans/active/repo-cleanup-handoff.md"),
-              "docs/plans/active/repo-cleanup-handoff.md",
+              "Current active plan captures restart evidence",
+              exists(root, "docs/plans/active/current-work.md") &&
+                fileHasAll(root, "docs/plans/active/current-work.md", ["## Handoff", "## Sensors"]),
+              "docs/plans/active/current-work.md",
             ),
             check("Tech-debt tracker exists", exists(root, "docs/plans/tech-debt-tracker.md"), "docs/plans/tech-debt-tracker.md"),
           ],

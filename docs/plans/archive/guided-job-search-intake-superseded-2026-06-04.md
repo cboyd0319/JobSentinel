@@ -1,5 +1,9 @@
 # Guided job-search intake
 
+Superseded on 2026-06-04 by
+[Current product and quality work](../active/current-work.md). Keep this file
+as archived decision history, not current restart state.
+
 ## Goal
 
 Help any job seeker describe what they want without needing job-search jargon,

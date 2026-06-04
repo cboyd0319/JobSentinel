@@ -1,5 +1,9 @@
 # Repo Cleanup and Quality Sweep
 
+Superseded on 2026-06-04 by
+[Current product and quality work](../active/current-work.md). Keep this file
+as archived decision history, not current restart state.
+
 ## Problem
 
 JobSentinel has accumulated repo clutter, stale surfaces, and quality risks that

@@ -30,7 +30,7 @@ skill to get value.
 | Job seeker | [Quick Start](user/QUICK_START.md) | Install, set up, and get help without technical setup. |
 | Support request | [Safe support reports](features/user-data-management.md) | Save or copy a safe support report locally, review it, and share it only if you want help. |
 | Privacy reviewer | [Privacy](../PRIVACY.md), [Responsible AI](../RESPONSIBLE_AI.md), [AI gateway](architecture/privacy-first-ai-gateway.md) | Review data boundaries and external-AI gates. |
-| Research or grant reviewer | [Research notes](research/README.md), [public roadmap](../ROADMAP.md), [research-backed plan](plans/active/research-backed-product-improvements.md) | Review evidence, evaluation boundaries, and product pillars. |
+| Research or grant reviewer | [Research notes](research/README.md), [public roadmap](../ROADMAP.md), [current plan](plans/active/current-work.md) | Review evidence, evaluation boundaries, and product pillars. |
 | Contributor | [Getting Started](developer/GETTING_STARTED.md), [Architecture](developer/ARCHITECTURE.md), [Testing](developer/TESTING.md) | Build, understand, and verify the app. |
 | Coding agent | [AGENTS.md](../AGENTS.md), [Harness](harness/README.md), [Verification Matrix](harness/verification-matrix.md) | Follow repo operating rules and required checks. |
 

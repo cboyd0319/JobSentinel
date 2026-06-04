@@ -296,7 +296,7 @@ test("docs drift check rejects stale active status metrics", () => {
       true,
     );
     assert.equal(
-      hasActiveStatusStaleMeasuredCounts(root, "docs/plans/active/repo-cleanup-handoff.md"),
+      hasActiveStatusStaleMeasuredCounts(root, "docs/plans/active/current-work.md"),
       false,
     );
   });
@@ -311,7 +311,7 @@ test("docs drift check rejects stale active status last-updated date", () => {
     );
     writeFixtureFile(
       root,
-      "docs/plans/active/repo-cleanup-and-quality-sweep.md",
+      "docs/plans/active/current-work.md",
       "| 2026-06-02 | In progress | Guarded active status drift. |\n",
     );
 

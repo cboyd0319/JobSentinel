@@ -46,9 +46,9 @@ current maintained surface at the time of the latest docs sweep.
 
 | Surface | Maintained docs |
 | ------- | --------------- |
-| Setup and search intent | [Quick start](user/QUICK_START.md), [guided intake plan](plans/active/guided-job-search-intake.md) |
+| Setup and search intent | [Quick start](user/QUICK_START.md), [current plan](plans/active/current-work.md) |
 | Job monitoring and source status | [Source checks](features/scrapers.md), [source status](features/scraper-health.md) |
-| Ghost and stale-posting review | [Ghost detection](features/ghost-detection.md), [research plan](plans/active/research-backed-product-improvements.md) |
+| Ghost and stale-posting review | [Ghost detection](features/ghost-detection.md), [current plan](plans/active/current-work.md) |
 | Salary and pay protection | [Salary support](features/salary-ai.md), [pay-equity research](research/pay-equity.md) |
 | Resume builder and fit review | [Resume builder](features/resume-builder.md), [resume match](features/resume-matcher.md) |
 | Application tracking | [Application tracking](features/application-tracking.md) |
@@ -87,12 +87,13 @@ See [PRIVACY.md](../PRIVACY.md),
 
 ## Active plans
 
-Current active plans are part of the repo goal:
+Current active plan docs are part of the repo goal:
 
-- [Guided job-search intake](plans/active/guided-job-search-intake.md)
-- [Repo cleanup and quality sweep](plans/active/repo-cleanup-and-quality-sweep.md)
-- [Repo cleanup handoff](plans/active/repo-cleanup-handoff.md)
-- [Research-backed product improvements](plans/active/research-backed-product-improvements.md)
+- [Active status](plans/active/status.md)
+- [Current product and quality work](plans/active/current-work.md)
+
+Superseded long-running plan history is archived under
+[Archived Plans](plans/README.md#archived-plans).
 
 Move a plan to the completed-plan area listed in
 [docs/plans](plans/README.md) only after the plan's success criteria and

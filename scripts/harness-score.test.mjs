@@ -114,10 +114,8 @@ function writeCompleteHarnessFixture(root) {
     "docs/plans/index.json",
     JSON.stringify({
       activeWorkstreams: [
-        { id: "one", path: "a", state: "active", nextStep: "Next" },
-        { id: "two", path: "b", state: "active", nextStep: "Next" },
-        { id: "three", path: "c", state: "open", nextStep: "Next" },
-        { id: "four", path: "d", state: "open", nextStep: "Next" },
+        { id: "active-status", path: "docs/plans/active/status.md", state: "active", nextStep: "Next" },
+        { id: "current-work", path: "docs/plans/active/current-work.md", state: "active", nextStep: "Next" },
       ],
     }),
   );
@@ -126,10 +124,7 @@ function writeCompleteHarnessFixture(root) {
     "docs/plans/active/status.md",
     ["## Next Best Work", "1. Continue.", "## Completion Bar"].join("\n"),
   );
-  writeFixtureFile(root, "docs/plans/active/repo-cleanup-handoff.md", "# Handoff\n");
-  writeFixtureFile(root, "docs/plans/active/one.md", "# One\n");
-  writeFixtureFile(root, "docs/plans/active/two.md", "# Two\n");
-  writeFixtureFile(root, "docs/plans/active/three.md", "# Three\n");
+  writeFixtureFile(root, "docs/plans/active/current-work.md", "# Current Work\n\n## Sensors\n\n## Handoff\n");
   writeFixtureFile(root, "docs/plans/tech-debt-tracker.md", "# Debt\n");
   writeFixtureFile(
     root,

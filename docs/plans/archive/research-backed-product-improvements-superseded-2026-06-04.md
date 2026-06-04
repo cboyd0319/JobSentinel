@@ -1,5 +1,9 @@
 # Research-backed product improvements
 
+Superseded on 2026-06-04 by
+[Current product and quality work](../active/current-work.md). Keep this file
+as archived decision history, not current restart state.
+
 ## Problem
 
 JobSentinel already has search setup, scoring, resume matching, resume building,
