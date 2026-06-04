@@ -101,6 +101,8 @@ Out of scope:
   source label came from the posting.
 - [x] Show hard-question review for visible education wording, not only degree
   or diploma wording, when saved education answers can help user review.
+- [x] Make App Problem History explain that crash details stay hidden on screen
+  and safe support reports should be reviewed before sharing.
 
 ## Orchestration Log
 
@@ -177,6 +179,9 @@ Out of scope:
   accepted its finding that visible `education` wording did not trigger
   hard-question review, then added the education trigger and focused preview
   test locally.
+- Coordinator clarified App Problem History safe-report copy locally because
+  expanded problem rows did not explain why crash details stayed off screen or
+  that users should review reports before sharing.
 
 ## Risks
 

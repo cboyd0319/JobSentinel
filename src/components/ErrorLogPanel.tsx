@@ -149,11 +149,12 @@ const ErrorItem = memo(function ErrorItem({ error, onClear }: ErrorItemProps) {
           {hasSupportDetails && (
             <div>
               <p className="text-xs font-medium text-surface-500 dark:text-surface-400 mb-1">
-                Safe support report details
+                Extra details kept hidden
               </p>
               <p className="text-xs bg-surface-100 dark:bg-surface-800 p-2 rounded text-surface-700 dark:text-surface-300">
-                Extra problem details are included when you copy or save a safe
-                support report.
+                This screen hides crash details. Copy or save a safe support
+                report only if JobSentinel help asks, then review it before
+                sharing.
               </p>
             </div>
           )}

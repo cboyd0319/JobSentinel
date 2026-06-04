@@ -52,6 +52,15 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- App Problem History now says crash details are hidden on screen and that safe
+  support reports should be copied or saved only if JobSentinel help asks.
+- The copy tells users to review the report before sharing, reinforcing local
+  control without exposing raw stack text or private paths.
+- The slice changes visible guidance only; it adds no storage fields, network
+  calls, external AI, telemetry, or support-report payload changes.
+
+Previous implementation slice:
+
 - Application preview hard-question review now treats visible `education`
   wording as an education-topic trigger, not only degree, diploma, bachelor,
   master, or high-school wording.

@@ -283,14 +283,16 @@ describe("ErrorLogPanel", () => {
       const { container } = render(<ErrorLogPanel />);
 
       // Stack trace not visible initially
-      expect(screen.queryByText("Safe support report details")).not.toBeInTheDocument();
+      expect(screen.queryByText("Extra details kept hidden")).not.toBeInTheDocument();
 
       // Click to expand
       fireEvent.click(screen.getByRole("button", { expanded: false }));
 
-      expect(screen.getByText("Safe support report details")).toBeInTheDocument();
+      expect(screen.getByText("Extra details kept hidden")).toBeInTheDocument();
       expect(
-        screen.getByText(/Extra problem details are included/)
+        screen.getByText(
+          /This screen hides crash details\. Copy or save a safe support report/,
+        )
       ).toBeInTheDocument();
       expect(container.textContent).not.toContain("token=abc");
       expect(container.textContent).not.toContain("candidate@example.com");
@@ -307,7 +309,7 @@ describe("ErrorLogPanel", () => {
 
       fireEvent.click(screen.getByRole("button", { expanded: false }));
 
-      expect(screen.getByText("Safe support report details")).toBeInTheDocument();
+      expect(screen.getByText("Extra details kept hidden")).toBeInTheDocument();
       expect(screen.queryByText("at MyComponent")).not.toBeInTheDocument();
     });
 
@@ -552,7 +554,7 @@ describe("ErrorLogPanel", () => {
       // Expand first error
       fireEvent.click(screen.getAllByRole("button", { expanded: false })[0]);
 
-      expect(screen.getByText("Safe support report details")).toBeInTheDocument();
+      expect(screen.getByText("Extra details kept hidden")).toBeInTheDocument();
       expect(screen.queryByText("Stack 1")).not.toBeInTheDocument();
       expect(screen.queryByText("Stack 2")).not.toBeInTheDocument();
     });

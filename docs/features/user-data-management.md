@@ -88,6 +88,10 @@ include full notes, resumes, full search text, salary floors, secrets, private
 paths, cookies, connection links, tokens, raw field names such as `url`, or
 full application history.
 
+App Problem History hides crash details from the visible list. If JobSentinel
+help asks for more detail, users can copy or save a safe support report and
+review it before sharing.
+
 ## Older Local Data
 
 Users who had older browser-saved templates or searches may see a migration
