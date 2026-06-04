@@ -829,8 +829,9 @@ describe("ResumeOptimizer", () => {
     await user.click(screen.getByRole("button", { name: /review format only/i }));
 
     expect(await screen.findByText("Suggestions (2)")).toBeInTheDocument();
-    expect(screen.getByText("Add job words")).toBeInTheDocument();
+    expect(screen.getByText("Review job words")).toBeInTheDocument();
     expect(screen.getByText("Rewrite bullet")).toBeInTheDocument();
+    expect(screen.queryByText("Add job words")).not.toBeInTheDocument();
     expect(screen.queryByText("AddKeyword")).not.toBeInTheDocument();
     expect(screen.queryByText("RewordBullet")).not.toBeInTheDocument();
   });

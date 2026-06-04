@@ -86,7 +86,7 @@ interface AtsSuggestion {
 function formatSuggestionCategory(category: AtsSuggestion["category"]): string {
   switch (category) {
     case "AddKeyword":
-      return "Add job words";
+      return "Review job words";
     case "RewordBullet":
       return "Rewrite bullet";
     case "AddSection":

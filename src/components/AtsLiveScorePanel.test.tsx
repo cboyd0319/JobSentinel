@@ -748,8 +748,9 @@ describe("AtsLiveScorePanel", () => {
       fireEvent.click(screen.getByRole("button", { name: /review details/i }));
 
       expect(screen.getByText("Suggestions (1)")).toBeInTheDocument();
-      expect(screen.getByText("Add job words")).toBeInTheDocument();
+      expect(screen.getByText("Review job words")).toBeInTheDocument();
       expect(screen.getByText(/Review whether 'Spanish'/i)).toBeInTheDocument();
+      expect(screen.queryByText("Add job words")).not.toBeInTheDocument();
       expect(screen.queryByText("AddKeyword")).not.toBeInTheDocument();
       expect(screen.getByText(/Why it helps: Required job-post language/i)).toBeInTheDocument();
     });

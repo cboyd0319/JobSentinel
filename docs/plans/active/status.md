@@ -52,6 +52,15 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Resume suggestion category labels now say **Review job words** instead of
+  **Add job words** in both live-score review and the Resume Match page.
+- The label better matches the existing truth-first suggestion text and avoids
+  implying users should add unsupported words.
+- The slice changes visible labels only; it adds no storage fields, network
+  calls, external AI, telemetry, or resume-analysis behavior changes.
+
+Previous implementation slice:
+
 - Resume live-score detail review now labels the third missing-word bucket as
   **Nice-to-Have or Other to Review**, matching the Resume Match page and docs.
 - Optional or broad job-post words are less likely to read like hard

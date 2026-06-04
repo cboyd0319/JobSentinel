@@ -109,6 +109,8 @@ Out of scope:
   link labels while keeping existing link sanitization.
 - [x] Align resume live-score missing-word buckets with the documented
   **Nice-to-Have or Other to Review** label.
+- [x] Replace resume suggestion **Add job words** labels with
+  **Review job words** so wording stays truth-first.
 
 ## Orchestration Log
 
@@ -197,6 +199,9 @@ Out of scope:
 - Coordinator aligned the resume live-score detail modal with Resume Match docs
   by replacing the third missing-word bucket label with **Nice-to-Have or Other
   to Review** and adding focused group coverage.
+- Coordinator changed resume suggestion category labels from **Add job words**
+  to **Review job words** in both live-score review and Resume Match, preserving
+  the existing truth-first suggestion text.
 
 ## Risks
 
