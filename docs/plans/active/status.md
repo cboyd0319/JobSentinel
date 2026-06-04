@@ -50,6 +50,17 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Settings-focused product-copy fixture coverage moved out of
+  `scripts/check-product-copy.test.mjs` into
+  `scripts/check-product-copy-settings.test.mjs`.
+- The main product-copy test still owns shared product-copy fixture coverage;
+  the extracted file owns the long technical-first settings, notification,
+  support, resume, and onboarding copy fixture.
+- `scripts/check-product-copy.test.mjs` legacy no-growth budget tightened from
+  2,630 lines to 1,738 lines.
+
+Recent cleanup summary:
+
 - Source-quality, source-structure, dependency, and E2E guidance
   `checkRepoBloat` integration tests moved out of
   `scripts/check-repo-bloat.test.mjs` into
@@ -62,9 +73,6 @@ Latest implementation slice:
   so its legacy no-growth budget was removed.
 - Legacy no-growth fixture coverage now uses `src/mocks/handlers.ts`, which is
   still an oversized tracked file with a live budget.
-
-Recent cleanup summary:
-
 - Product-copy and pay-framing `checkRepoBloat` integration tests moved out of
   `scripts/check-repo-bloat.test.mjs` into
   `scripts/check-repo-bloat-product-copy.test.mjs`.

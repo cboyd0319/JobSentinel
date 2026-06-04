@@ -177,6 +177,8 @@ Out of scope:
   integration tests out of the main bloat test file.
 - [x] Retire the main bloat test file's legacy oversized-file exception after
   bringing it below the 1,200-line test target.
+- [x] Split settings-focused product-copy fixture coverage out of the main
+  product-copy test file.
 
 ## Orchestration Log
 
@@ -416,6 +418,9 @@ Out of scope:
   `scripts/check-repo-bloat-source-quality.test.mjs`. The root bloat
   integration test is now below the 1,200-line test target and no longer has a
   legacy oversized-file exception.
+- Coordinator moved settings-focused product-copy fixture coverage into
+  `scripts/check-product-copy-settings.test.mjs`. The main product-copy test
+  file still owns shared product-copy fixture coverage.
 
 ## Risks
 
