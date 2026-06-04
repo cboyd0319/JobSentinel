@@ -50,6 +50,19 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Resume-analysis command coverage moved out of
+  `src/mocks/handlers.test.ts`.
+- `src/mocks/handlers/resumeAnalysisCommands.test.ts` now owns the broad ATS
+  backend command smoke test, while `resumeAnalysisTestData.ts` shares the ATS
+  result type and base resume fixture with remaining resume evidence tests.
+- This is a test-only oversized-file cleanup slice; resume analysis command
+  behavior, evidence matching, and reset behavior stay unchanged.
+- Best next oversized-file slice is splitting resume evidence equivalence tests
+  out of `src/mocks/handlers.test.ts` or moving the next helper cluster out of
+  `src/mocks/handlers.ts`.
+
+Previous implementation slice:
+
 - Core mock command smoke tests moved out of `src/mocks/handlers.test.ts`.
 - `src/mocks/handlers/coreCommands.test.ts` now owns saved searches, search
   history, cover-letter templates, notification preferences, deep links,
