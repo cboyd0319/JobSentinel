@@ -69,7 +69,9 @@ mod tests {
             ),
             ImportError::InvalidJsonLd("candidate-specific JSON-LD content".to_string()),
             ImportError::HtmlParseError("private parser detail".to_string()),
-            ImportError::DatabaseError("sqlite error at /Users/c/private/jobs.db".to_string()),
+            ImportError::DatabaseError(
+                "sqlite error at /Users/example/private/jobs.db".to_string(),
+            ),
         ];
 
         for error in cases {
@@ -77,7 +79,7 @@ mod tests {
             assert!(!message.contains("secret"));
             assert!(!message.contains("candidate-specific"));
             assert!(!message.contains("private parser detail"));
-            assert!(!message.contains("/Users/c/private"));
+            assert!(!message.contains("/Users/example/private"));
         }
     }
 }

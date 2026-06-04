@@ -63,20 +63,20 @@ mod tests {
     #[test]
     fn ml_error_display_hides_raw_details() {
         let errors = [
-            MlError::ModelNotDownloaded("/Users/c/private/model.safetensors".to_string()),
+            MlError::ModelNotDownloaded("/Users/example/private/model.safetensors".to_string()),
             MlError::ModelLoadFailed("tensor shape includes /private/cache".to_string()),
             MlError::InferenceFailed("resume text token secret@example.com".to_string()),
             MlError::TokenizationFailed("tokenizer path /tmp/tokenizer.json".to_string()),
             MlError::DownloadFailed("https://huggingface.co/model?token=secret".to_string()),
             MlError::Io(std::io::Error::new(
                 std::io::ErrorKind::PermissionDenied,
-                "/Users/c/private/ml_models",
+                "/Users/example/private/ml_models",
             )),
         ];
 
         for error in errors {
             let message = error.to_string();
-            assert!(!message.contains("/Users/c"));
+            assert!(!message.contains("/Users/example"));
             assert!(!message.contains("/private"));
             assert!(!message.contains("secret@example.com"));
             assert!(!message.contains("https://"));

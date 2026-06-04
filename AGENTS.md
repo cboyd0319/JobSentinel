@@ -51,6 +51,8 @@ wrappers. If they conflict with this file or `docs/harness/`, this file and
 - Do not add telemetry or cloud dependencies without explicit product decision.
 - Do not bypass scraper rate limits, user review gates, keyring storage, or URL
   validation.
+- Do not commit machine-specific absolute local paths. Use repo-relative paths,
+  file names, or `<repo-root>` and `<home>` placeholders.
 - Keep comments useful and sparse.
 - Keep generated summaries and one-off reports out of the repo unless requested.
 

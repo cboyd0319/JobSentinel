@@ -37,7 +37,7 @@
 1. **Clone and install dependencies:**
 
    ```bash
-   cd /Users/c/Documents/GitHub/JobSentinel
+   cd <repo-root>
    npm install
    ```
 

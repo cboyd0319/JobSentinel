@@ -91,25 +91,27 @@ copy durable findings back into this plan or the active status surface.
   material was not committed. Verification is recorded in the active status
   and handoff docs for this slice.
 - Current local resume-formatting guidance follow-up incorporates
-  `/Users/c/Downloads/updated_resume_formatting_ats_guidance_2026(2).md` into
-  the resume-assistance backlog. It emphasizes simple single-column structure,
-  standard headings, top contact details in the document body, selectable text,
-  plain-text preview, truthful keyword/evidence alignment, no hidden text or
-  prompt-injection-like instructions, transparent rubrics, and field-specific
-  evidence without claiming any universal hiring algorithm. The dedicated repo
-  note now lives at `docs/research/resume-formatting-ats-2026.md`.
+  local research source `updated_resume_formatting_ats_guidance_2026(2).md`
+  into the resume-assistance backlog. It emphasizes simple single-column
+  structure, standard headings, top contact details in the document body,
+  selectable text, plain-text preview, truthful keyword/evidence alignment, no
+  hidden text or prompt-injection-like instructions, transparent rubrics, and
+  field-specific evidence without claiming any universal hiring algorithm. The
+  dedicated repo note now lives at
+  `docs/research/resume-formatting-ats-2026.md`.
 - Current local resume-alignment scoring follow-up is committed in
   `3d720693 Add resume requirement review caps`. It incorporates
-  `/Users/c/Downloads/ats_scoring_algorithm.md` into the resume-assistance
-  backlog. It locks in transparent component rubrics, role-match versus resume
-  quality separation, hard-constraint caps, direct/strong/partial/implied/missing
-  match states, anti-stuffing, evidence strength, seniority alignment, recency,
-  section placement, and profession-specific weighting. Local requirement-state
-  rows, recognized hard-constraint caps, and plain next actions have started;
-  `3aa39952 Add resume next-action guidance` adds plain guidance such as
-  checking a hard requirement before tailoring, adding supporting evidence only
-  if true, or keeping useful evidence visible. Further synonym expansion,
-  broader recency weighting, deeper seniority alignment, and
+  local research source `ats_scoring_algorithm.md` into the resume-assistance
+  backlog. It locks in transparent component rubrics, role-match versus
+  resume quality separation, hard-constraint caps,
+  direct/strong/partial/implied/missing match states, anti-stuffing, evidence
+  strength, seniority alignment, recency, section placement, and
+  profession-specific weighting. Local requirement-state rows, recognized
+  hard-constraint caps, and plain next actions have started; `3aa39952 Add
+  resume next-action guidance` adds plain guidance such as checking a hard
+  requirement before tailoring, adding supporting evidence only if true, or
+  keeping useful evidence visible. Further synonym expansion, broader recency
+  weighting, deeper seniority alignment, and
   profession-specific weighting remain future work.
   The follow-up `171bbe91
   Improve resume evidence section review` starts section-placement review for
@@ -1221,17 +1223,18 @@ copy durable findings back into this plan or the active status surface.
 
 ## Source files
 
-- `/Users/c/Downloads/job_seeker_behavior_research_papers.md`
+- Local research source `job_seeker_behavior_research_papers.md`
 - Local ATS transparency and automated-resume-screening research notes from
-  `/Users/c/Downloads/`
-- `/Users/c/Downloads/ghost_job_detection_research_and_guidance.md`
-- `/Users/c/Downloads/job_site_web_scraping_research_and_guidance.md`
-- `/Users/c/Downloads/updated_resume_formatting_ats_guidance_2026(2).md`
-- `/Users/c/Downloads/ats_scoring_algorithm.md`
+  local research files
+- Local research source `ghost_job_detection_research_and_guidance.md`
+- Local research source `job_site_web_scraping_research_and_guidance.md`
+- Local research source `updated_resume_formatting_ats_guidance_2026(2).md`
+- Local research source `ats_scoring_algorithm.md`
 - `docs/research/resume-formatting-ats-2026.md`
 - `docs/research/resume-alignment-scoring.md`
-- `/Users/c/Downloads/In Salary Negotiations, Women Do Ask - PON - Program on Negotiation at Harvard Law School.pdf`
-- `/Users/c/Downloads/pay_equity_higher_pay_women_people_of_color.md`
+- Local research source
+  `In Salary Negotiations, Women Do Ask - PON - Program on Negotiation at Harvard Law School.pdf`
+- Local research source `pay_equity_higher_pay_women_people_of_color.md`
 
 Primary-source spot checks were also done on 2026-05-28 for high-impact claims
 from arXiv, IZA, ScienceDirect, NBER, HBS, Upturn, CEUR-WS, MDPI, Springer,
@@ -2112,14 +2115,14 @@ Do not build:
 ## Milestones
 
 - [x] Review repo planning rules and docs-only verification requirements.
-- [x] Review `/Users/c/Downloads/job_seeker_behavior_research_papers.md`.
+- [x] Review local research source `job_seeker_behavior_research_papers.md`.
 - [x] Review the local ATS transparency and automated-resume-screening research notes.
-- [x] Review `/Users/c/Downloads/ghost_job_detection_research_and_guidance.md`.
-- [x] Review `/Users/c/Downloads/job_site_web_scraping_research_and_guidance.md`.
-- [x] Review `/Users/c/Downloads/In Salary Negotiations, Women Do Ask - PON - Program on Negotiation at Harvard Law School.pdf`.
-- [x] Review `/Users/c/Downloads/pay_equity_higher_pay_women_people_of_color.md`.
-- [x] Review `/Users/c/Downloads/updated_resume_formatting_ats_guidance_2026(2).md`.
-- [x] Review `/Users/c/Downloads/ats_scoring_algorithm.md`.
+- [x] Review local research source `ghost_job_detection_research_and_guidance.md`.
+- [x] Review local research source `job_site_web_scraping_research_and_guidance.md`.
+- [x] Review local research source `In Salary Negotiations, Women Do Ask - PON - Program on Negotiation at Harvard Law School.pdf`.
+- [x] Review local research source `pay_equity_higher_pay_women_people_of_color.md`.
+- [x] Review local research source `updated_resume_formatting_ats_guidance_2026(2).md`.
+- [x] Review local research source `ats_scoring_algorithm.md`.
 - [x] Spot-check primary sources for high-impact claims.
 - [x] Inventory 52 source URLs across all three research docs and extract 45
   accessible sources for a second-pass review.

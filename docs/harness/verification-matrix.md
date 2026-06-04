@@ -28,6 +28,7 @@ user-facing workflow risk requires more evidence.
 | External AI provider detection | `npm run lint:external-ai` and `npm run harness:check` |
 | Test quality policy | `npm run lint:tests` and `npm run harness:check` |
 | Repo bloat policy | `npm run lint:bloat` and `npm run harness:check` |
+| Machine-specific local path policy | `npm run harness:check` |
 | Any claim of completion | Name exact checks run |
 
 ## Frontend

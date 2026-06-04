@@ -1,7 +1,7 @@
 # Resume Alignment Scoring
 
 This note locks in product guidance from
-`/Users/c/Downloads/ats_scoring_algorithm.md`, reviewed on 2026-06-02.
+local research source `ats_scoring_algorithm.md`, reviewed on 2026-06-02.
 
 Use this as an internal, transparent candidate-side rubric for application
 readability and role fit. Do not present it as a universal employer algorithm,

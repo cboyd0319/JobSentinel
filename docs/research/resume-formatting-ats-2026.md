@@ -1,7 +1,7 @@
 # Resume Formatting And Application Readability, 2026
 
 This note locks in product guidance from
-`/Users/c/Downloads/updated_resume_formatting_ats_guidance_2026(2).md`,
+local research source `updated_resume_formatting_ats_guidance_2026(2).md`,
 reviewed on 2026-06-02.
 
 JobSentinel should use this guidance as candidate-side application readability

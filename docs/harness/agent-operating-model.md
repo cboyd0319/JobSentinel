@@ -66,6 +66,9 @@ Multi-step or broad change:
 - Keep user data local by default.
 - Preserve human-in-the-loop submission for applications.
 - Preserve scraper rate limits and platform terms awareness.
+- Do not commit machine-specific absolute local paths. Use repo-relative paths,
+  file names, or `<repo-root>` and `<home>` placeholders. Synthetic absolute
+  paths belong only in sanitizer or redaction tests.
 
 ## Verification Strategy
 

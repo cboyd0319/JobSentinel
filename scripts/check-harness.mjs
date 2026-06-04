@@ -19,10 +19,12 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const ignoredPathParts = new Set([
   ".git",
   ".vale",
+  ".venv",
   "node_modules",
   "dist",
   "target",
   ".claude",
+  "coverage",
   "browser-extension",
   "playwright-report",
   "test-results",
@@ -167,6 +169,119 @@ function collectMarkdownFiles(dir = root) {
   }
 
   return files.sort();
+}
+
+const textFilePattern =
+  /\.(?:cjs|css|env|example|html|js|json|jsx|md|mjs|rs|sh|sql|toml|ts|tsx|txt|ya?ml)$/;
+const textFileNames = new Set([
+  ".env.example",
+  ".gitignore",
+  "AGENTS.md",
+  "CLAUDE.md",
+  "LICENSE",
+]);
+
+function shouldScanTextFile(fileName) {
+  return textFileNames.has(fileName) || textFilePattern.test(fileName);
+}
+
+function collectTextFiles(dir = root) {
+  const entries = readdirSync(dir, { withFileTypes: true });
+  const files = [];
+
+  for (const entry of entries) {
+    const fullPath = join(dir, entry.name);
+    const rel = relative(root, fullPath);
+    const parts = rel.split(/[\\/]/);
+
+    if (parts.some((part) => ignoredPathParts.has(part))) {
+      continue;
+    }
+
+    if (entry.isDirectory()) {
+      files.push(...collectTextFiles(fullPath));
+    } else if (entry.isFile() && shouldScanTextFile(entry.name)) {
+      files.push(rel);
+    }
+  }
+
+  return files.sort();
+}
+
+function normalizePathForLocalPathScan(path) {
+  return normalize(path).replaceAll("\\", "/").replace(/\/+$/g, "");
+}
+
+function lineNumberAtIndex(text, index) {
+  let line = 1;
+
+  for (let position = 0; position < index; position += 1) {
+    if (text.charCodeAt(position) === 10) {
+      line += 1;
+    }
+  }
+
+  return line;
+}
+
+function localPathBoundaryAllowsLeak(text, index, needle) {
+  const next = text[index + needle.length] ?? "";
+
+  return next === "" || /[\s"'`)>\],;:\\/]/.test(next);
+}
+
+const normalizedRootForLocalPathScan = normalizePathForLocalPathScan(root);
+const normalizedHomeForLocalPathScan = process.env.HOME
+  ? normalizePathForLocalPathScan(process.env.HOME)
+  : "";
+const machineSpecificLocalPathNeedles = [
+  normalizedRootForLocalPathScan,
+  normalizedRootForLocalPathScan.replaceAll("/", "\\"),
+  normalizedHomeForLocalPathScan,
+  normalizedHomeForLocalPathScan.replaceAll("/", "\\"),
+]
+  .filter((needle) => needle.length > 4)
+  .filter((needle, index, needles) => needles.indexOf(needle) === index);
+
+const docLocalAbsolutePathPattern =
+  /(?:\/Users\/[A-Za-z0-9._-]+(?:\/[^\s)`'"<>]*)?|\/home\/[A-Za-z0-9._-]+(?:\/[^\s)`'"<>]*)?|[A-Za-z]:\\Users\\[^\\\s)`'"<>]+(?:\\[^\s)`'"<>]*)?|Documents\/GitHub\/JobSentinel)/g;
+
+function checkNoMachineSpecificLocalPaths() {
+  for (const path of collectTextFiles()) {
+    const text = read(path);
+
+    for (const needle of machineSpecificLocalPathNeedles) {
+      let index = text.indexOf(needle);
+
+      while (index !== -1) {
+        if (localPathBoundaryAllowsLeak(text, index, needle)) {
+          errors.push(
+            `${path}:${lineNumberAtIndex(
+              text,
+              index,
+            )} contains a machine-specific local path; use repo-relative paths or <repo-root>/<home> placeholders`,
+          );
+        }
+
+        index = text.indexOf(needle, index + 1);
+      }
+    }
+  }
+
+  for (const path of collectMarkdownFiles()) {
+    const text = read(path);
+    let match;
+
+    docLocalAbsolutePathPattern.lastIndex = 0;
+    while ((match = docLocalAbsolutePathPattern.exec(text)) !== null) {
+      errors.push(
+        `${path}:${lineNumberAtIndex(
+          text,
+          match.index,
+        )} contains an absolute local path; docs must use repo-relative paths or <repo-root>/<home> placeholders`,
+      );
+    }
+  }
 }
 
 for (const path of requiredFiles) {
@@ -381,6 +496,8 @@ for (const path of collectMarkdownFiles()) {
     }
   }
 }
+
+checkNoMachineSpecificLocalPaths();
 
 const packageJson = JSON.parse(read("package.json"));
 const packageLockJson = JSON.parse(read("package-lock.json"));

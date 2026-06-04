@@ -26,6 +26,11 @@ boundaries, explicit user review, or privacy-preserving defaults. If Rule 0
 conflicts with convenience, automation, speed, analytics, or research value,
 Rule 0 wins.
 
+Machine-specific absolute local paths are private data and portability breaks.
+Docs and code must use repo-relative paths, file names, or `<repo-root>` and
+`<home>` placeholders instead. Synthetic local paths are allowed only in tests
+that prove redaction or sanitizer behavior.
+
 ## Current Standard
 
 Use this structure:
@@ -133,6 +138,8 @@ Sensors:
 - Keep current behavior discoverable from repo files, not chat history.
 - Treat prompt files, plans, and scripts as maintained software.
 - Put repeated failures into a sensor when the rule is cheap to check.
+- Never commit machine-specific absolute local paths. Use repo-relative paths,
+  file names, or `<repo-root>` and `<home>` placeholders.
 - For larger multi-step work, use the architect/coordinator model and delegate
   disjoint slices when it reduces elapsed time without weakening harness
   compliance.

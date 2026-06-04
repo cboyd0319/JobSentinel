@@ -86,6 +86,9 @@ test("check-harness consumes manifest instead of hardcoding large policy tables"
 
   assert.ok(checker.includes(manifestPath));
   assert.ok(checker.includes(featurePrivacyLabelsPath));
+  assert.ok(checker.includes("machineSpecificLocalPathNeedles"));
+  assert.ok(checker.includes("docLocalAbsolutePathPattern"));
+  assert.ok(checker.includes("<repo-root>/<home> placeholders"));
   assert.equal(checker.includes("const requiredHarnessSnippets = {"), false);
   assert.equal(checker.includes("const requiredReadmeReferenceUrls = ["), false);
 });

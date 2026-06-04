@@ -50,13 +50,14 @@ resume readability, and candidate-side explainability.
 
 ## Local Source Notes
 
-- `/Users/c/Downloads/updated_resume_formatting_ats_guidance_2026(2).md`
-  was reviewed on 2026-06-02 for resume formatting, file type, plain-text
-  testing, AI-screening hygiene, transparent resume-quality rubrics, and
+- Local research source
+  `updated_resume_formatting_ats_guidance_2026(2).md` was reviewed on
+  2026-06-02 for resume formatting, file type, plain-text testing,
+  AI-screening hygiene, transparent resume-quality rubrics, and
   profession-specific resume guidance. Use synthetic fixtures when turning
   this guidance into tests.
-- `/Users/c/Downloads/ats_scoring_algorithm.md` was reviewed on 2026-06-02
-  for transparent alignment rubrics, hard-constraint caps, match-state
-  explanations, evidence strength, seniority alignment, recency, section
-  placement, and profession-specific weighting. Keep these as local diagnostic
-  aids, not employer-decision claims.
+- Local research source `ats_scoring_algorithm.md` was reviewed on
+  2026-06-02 for transparent alignment rubrics, hard-constraint caps,
+  match-state explanations, evidence strength, seniority alignment, recency,
+  section placement, and profession-specific weighting. Keep these as local
+  diagnostic aids, not employer-decision claims.
