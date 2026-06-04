@@ -171,6 +171,8 @@ Out of scope:
   of the main bloat test file.
 - [x] Split feedback/privacy, mock-handler, recovery-copy, and score-copy bloat
   integration tests out of the main bloat test file.
+- [x] Split product-copy and pay-framing bloat integration tests out of the main
+  bloat test file.
 
 ## Orchestration Log
 
@@ -401,6 +403,9 @@ Out of scope:
 - Coordinator moved feedback/privacy, mock-handler, recovery-copy, and
   score-copy `checkRepoBloat` integration tests into
   `scripts/check-repo-bloat-feedback-privacy.test.mjs`. The root bloat
+  integration test keeps aggregate sensor smoke coverage.
+- Coordinator moved product-copy and pay-framing `checkRepoBloat` integration
+  tests into `scripts/check-repo-bloat-product-copy.test.mjs`. The root bloat
   integration test keeps aggregate sensor smoke coverage.
 
 ## Risks

@@ -50,6 +50,19 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Product-copy and pay-framing `checkRepoBloat` integration tests moved out of
+  `scripts/check-repo-bloat.test.mjs` into
+  `scripts/check-repo-bloat-product-copy.test.mjs`.
+- The main bloat integration test still owns aggregate sensor smoke coverage;
+  the extracted file owns banned job-search framing, technical-first user copy,
+  stale Resume Optimizer and Application Assist framing, ghost-risk wording,
+  support-path wording, pay guidance, salary-floor troubleshooting, and salary
+  command logging coverage.
+- `scripts/check-repo-bloat.test.mjs` legacy no-growth budget tightened from
+  2,671 lines to 1,554 lines.
+
+Recent cleanup summary:
+
 - Feedback, support-report, mock-handler, recovery-copy, and score-copy
   `checkRepoBloat` integration tests moved out of
   `scripts/check-repo-bloat.test.mjs` into
@@ -60,9 +73,6 @@ Latest implementation slice:
   problem-history, recovery-copy, and score-copy coverage.
 - `scripts/check-repo-bloat.test.mjs` legacy no-growth budget tightened from
   3,660 lines to 2,671 lines.
-
-Recent cleanup summary:
-
 - Frontend error-report and security-doc `checkRepoBloat` integration tests
   moved out of `scripts/check-repo-bloat.test.mjs` into
   `scripts/check-repo-bloat-frontend-security.test.mjs`.
