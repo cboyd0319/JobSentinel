@@ -50,19 +50,20 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
-- Mock ATS analysis DTO types, keyword constants, power words, and result
-  payload types moved out of `src/mocks/handlers.ts`.
-- `src/mocks/handlers/resumeAnalysis.ts` now owns those exported types and
-  constants. The root mock handler still owns mutable state, command dispatch,
-  and analysis helper behavior.
-- This is a TypeScript helper extraction only; mock command payload shapes,
-  resume-analysis scoring, evidence matching, and reset behavior stay
-  unchanged.
+- Mock salary benchmark and negotiation-note helpers moved out of
+  `src/mocks/handlers.ts`.
+- `src/mocks/handlers/salary.ts` now owns salary benchmark generation,
+  seniority labels, negotiation note drafting, currency formatting, and local
+  argument reading for those commands.
+- This is a TypeScript helper extraction only; salary command payload shapes,
+  user-entered offer safeguards, mock state, and reset behavior stay unchanged.
 
 Recent cleanup summary:
 
 - The whole public GitHub wiki is now treated as external product docs in the
   harness and change contract.
+- Mock ATS analysis DTOs/constants moved to `src/mocks/handlers/resumeAnalysis.ts`
+  with sensor coverage for split suggestion category labels.
 - ATS analyzer tests were split into focused modules for bullets, credentials,
   degrees, work arrangements, experience constraints, current-experience
   evidence, screening constraints, business equivalences, and
