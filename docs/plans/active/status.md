@@ -50,6 +50,17 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Frontend error-report and security-doc `checkRepoBloat` integration tests
+  moved out of `scripts/check-repo-bloat.test.mjs` into
+  `scripts/check-repo-bloat-frontend-security.test.mjs`.
+- The main bloat integration test still owns aggregate sensor smoke coverage;
+  the extracted file owns frontend error, webhook redaction, unsafe parsing,
+  notification-webhook, XSS, keyring, and security-doc drift coverage.
+- `scripts/check-repo-bloat.test.mjs` legacy no-growth budget tightened from
+  4,562 lines to 3,660 lines.
+
+Recent cleanup summary:
+
 - Privacy command `checkRepoBloat` integration tests moved out of
   `scripts/check-repo-bloat.test.mjs` into
   `scripts/check-repo-bloat-privacy-commands.test.mjs`.
@@ -58,9 +69,6 @@ Latest implementation slice:
   scoring-cache, scheduler, residual-core, and bookmarklet-auth coverage.
 - `scripts/check-repo-bloat.test.mjs` legacy no-growth budget tightened from
   5,669 lines to 4,562 lines.
-
-Recent cleanup summary:
-
 - Privacy IPC and notification `checkRepoBloat` integration tests moved out of
   `scripts/check-repo-bloat.test.mjs` into
   `scripts/check-repo-bloat-privacy-ipc.test.mjs`.
