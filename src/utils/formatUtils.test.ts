@@ -52,6 +52,10 @@ describe("formatUtils", () => {
       expect(result).not.toContain("d ago");
       expect(result).toMatch(/\d/); // Contains at least one digit (date)
     });
+
+    it("shows plain unavailable copy for invalid dates", () => {
+      expect(formatRelativeDate("not a date")).toBe("Date not shown");
+    });
   });
 
   describe("formatEventDate", () => {

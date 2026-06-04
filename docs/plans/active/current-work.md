@@ -134,6 +134,8 @@ Out of scope:
 - [x] Hide malformed listed-pay values instead of showing negative, infinite,
   or reversed ranges as pay evidence.
 - [x] Treat reversed listed-pay ranges as unavailable for salary-floor guidance.
+- [x] Show plain unavailable copy for invalid relative dates instead of
+  `Invalid Date`.
 
 ## Orchestration Log
 
@@ -261,6 +263,8 @@ Out of scope:
 - Coordinator aligned job-card salary-floor guidance with that formatter so
   reversed structured ranges use missing-pay review guidance instead of a
   below-floor warning.
+- Coordinator updated `formatRelativeDate` so invalid timestamps show **Date
+  not shown** instead of leaking JavaScript's `Invalid Date` text.
 
 ## Risks
 

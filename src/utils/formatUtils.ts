@@ -9,6 +9,10 @@
  */
 export function formatRelativeDate(dateStr: string): string {
   const date = new Date(dateStr);
+  if (!Number.isFinite(date.getTime())) {
+    return "Date not shown";
+  }
+
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
   const diffMins = Math.floor(diffMs / (1000 * 60));

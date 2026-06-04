@@ -52,6 +52,15 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Relative job-date formatting now returns **Date not shown** for invalid
+  timestamps instead of JavaScript's `Invalid Date` text.
+- Job cards and other relative-date users get a plain unavailable fallback when
+  source date data cannot be parsed.
+- The slice changes visible date fallback handling only; it adds no storage
+  fields, network calls, external AI, telemetry, or date-parsing behavior.
+
+Previous implementation slice:
+
 - Job-card salary-floor guidance now treats reversed structured pay ranges as
   unavailable listed-pay evidence.
 - A reversed range can show missing-pay review guidance when a salary floor
