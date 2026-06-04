@@ -50,6 +50,15 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Resume analyzer result structs and enums moved from `ats_analyzer.rs` to
+  `ats_types.rs`.
+- Existing public re-exports remain under `crate::core::resume::*`, so Tauri
+  command contracts and frontend payload shapes do not change.
+- This starts oversized-file modularization after the file-size audit; it is a
+  mechanical Rust refactor with no resume-analysis behavior change.
+
+Previous implementation slice:
+
 - Dashboard comparison rows now show **Date not shown** when posted-date
   evidence is malformed.
 - This keeps JavaScript's `Invalid Date` text out of job comparison freshness

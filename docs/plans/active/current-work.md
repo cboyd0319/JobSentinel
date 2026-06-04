@@ -146,6 +146,8 @@ Out of scope:
   comparison rows.
 - [x] Show plain unavailable copy for malformed dashboard comparison posted
   dates.
+- [x] Start oversized-file modularization by extracting resume analyzer result
+  types from the 8k-line analyzer module.
 
 ## Orchestration Log
 
@@ -294,6 +296,9 @@ Out of scope:
 - Coordinator updated dashboard comparison posted-date rows locally because they
   still formatted dates directly. Malformed posted-date evidence now shows
   **Date not shown** instead of JavaScript date-parser text.
+- After the file-size audit, coordinator started with the largest active code
+  file. Resume analyzer DTOs and enums moved to `ats_types.rs`, preserving the
+  existing public `crate::core::resume::*` exports and analyzer behavior.
 
 ## Risks
 

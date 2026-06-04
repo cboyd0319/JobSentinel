@@ -38,6 +38,7 @@ use std::path::Path;
 
 // Module declarations
 pub mod ats_analyzer;
+pub mod ats_types;
 pub mod builder;
 pub mod export;
 pub mod json_resume;
@@ -53,10 +54,11 @@ use skills::SkillExtractor;
 use types::NullableFieldUpdate;
 
 // Re-export ATS analyzer types
-pub use ats_analyzer::{
-    AtsAnalysisResult, AtsAnalyzer, AtsSuggestion, FormatIssue, HardConstraintCategory,
-    HardConstraintRisk, IssueSeverity, KeywordImportance, KeywordMatch, MissingKeyword,
-    RequirementMatchState, RequirementReview, SuggestionCategory,
+pub use ats_analyzer::AtsAnalyzer;
+pub use ats_types::{
+    AtsAnalysisResult, AtsSuggestion, FormatIssue, HardConstraintCategory, HardConstraintRisk,
+    IssueSeverity, KeywordImportance, KeywordMatch, MissingKeyword, RequirementMatchState,
+    RequirementReview, SuggestionCategory,
 };
 
 // Re-export builder types
