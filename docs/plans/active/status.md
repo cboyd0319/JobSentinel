@@ -50,21 +50,18 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
-- Settings connected job-source UI moved out of `src/pages/Settings.tsx` into
-  `src/pages/SettingsConnectedJobSource.tsx`.
-- The parent Settings page still owns approval payload state, save/clear
-  callbacks, and config state; the extracted child owns only endpoint display,
-  review copy, request ledger display, and endpoint editing UI.
-- Source-boundary, product-copy, and broad-audience harness path sets now
-  include the extracted component so external-source approval and plain-copy
-  drift remains covered after the split.
-- `src/pages/Settings.tsx` legacy no-growth budget tightened from 3,791 lines
-  to 3,618 lines.
+- `src/mocks/handlers.ts` legacy no-growth budget tightened from 5,302 lines to
+  4,315 lines after earlier mock helper extractions.
+- This is a harness-only correction so previous `src/mocks/handlers.ts` shrink
+  cannot silently regress while the remaining mock-command split work continues.
 
 Recent cleanup summary:
 
 - The whole public GitHub wiki is now treated as external product docs in the
   harness and change contract.
+- Settings connected job-source UI moved to
+  `src/pages/SettingsConnectedJobSource.tsx` with source-boundary, product-copy,
+  and broad-audience harness path coverage.
 - Settings posting-risk and freshness UI moved to
   `src/pages/SettingsPostingRiskSection.tsx`.
 - Mock salary benchmark and negotiation-note helpers moved to
