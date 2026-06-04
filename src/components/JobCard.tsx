@@ -279,8 +279,10 @@ function getPayFloorGuidance(
   const formattedFloor = formatPayFloor(salaryFloorUsd);
   const hasSalaryMin = hasListedSalaryValue(salaryMin);
   const hasSalaryMax = hasListedSalaryValue(salaryMax);
+  const hasReversedSalaryRange =
+    hasSalaryMin && hasSalaryMax && salaryMax < salaryMin;
 
-  if (!hasSalaryMin && !hasSalaryMax) {
+  if ((!hasSalaryMin && !hasSalaryMax) || hasReversedSalaryRange) {
     return {
       title: "Pay not listed",
       description: `No pay range is listed. Compare this role with your ${formattedFloor} floor before tailoring.`,

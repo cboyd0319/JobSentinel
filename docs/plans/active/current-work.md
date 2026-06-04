@@ -133,6 +133,7 @@ Out of scope:
   stale or repost evidence.
 - [x] Hide malformed listed-pay values instead of showing negative, infinite,
   or reversed ranges as pay evidence.
+- [x] Treat reversed listed-pay ranges as unavailable for salary-floor guidance.
 
 ## Orchestration Log
 
@@ -257,6 +258,9 @@ Out of scope:
   repost reasons still show **Check posting evidence**.
 - Coordinator tightened `formatSalaryRange` so malformed listed-pay values are
   treated as unavailable instead of appearing as real pay evidence.
+- Coordinator aligned job-card salary-floor guidance with that formatter so
+  reversed structured ranges use missing-pay review guidance instead of a
+  below-floor warning.
 
 ## Risks
 

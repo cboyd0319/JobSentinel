@@ -52,6 +52,16 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Job-card salary-floor guidance now treats reversed structured pay ranges as
+  unavailable listed-pay evidence.
+- A reversed range can show missing-pay review guidance when a salary floor
+  exists, but it no longer triggers a below-floor warning from the malformed
+  maximum value.
+- The slice changes visible pay fallback handling only; it adds no storage
+  fields, network calls, external AI, telemetry, or salary-scoring behavior.
+
+Previous implementation slice:
+
 - Listed-pay formatting now ignores malformed values, including non-finite,
   negative, and reversed structured ranges.
 - Job cards and other shared formatter users no longer show those malformed

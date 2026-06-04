@@ -642,6 +642,28 @@ describe("JobCard", () => {
         }),
       ).not.toBeInTheDocument();
     });
+
+    it("treats reversed listed pay as unavailable for floor guidance", () => {
+      const reversedRangeJob = {
+        ...mockJob,
+        salary_min: 150000,
+        salary_max: 80000,
+      };
+
+      renderWithToast(
+        <JobCard job={reversedRangeJob} salaryFloorUsd={100000} />,
+      );
+
+      expect(screen.getByTestId("pay-floor-guidance")).toHaveTextContent(
+        "Pay not listed",
+      );
+      expect(screen.queryByText("$150k - $80k")).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("article", {
+          name: /below the lowest pay you want/i,
+        }),
+      ).not.toBeInTheDocument();
+    });
   });
 
   describe("date formatting", () => {
