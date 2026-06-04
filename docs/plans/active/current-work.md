@@ -157,6 +157,8 @@ Out of scope:
 - [x] Split resume analyzer bullet prompt helpers out of the runtime analyzer.
 - [x] Split DB no-database model tests out of the main DB test file.
 - [x] Split DB visibility and bookmark tests out of the main DB test file.
+- [x] Split broad-audience bloat integration tests out of the main bloat test
+  file.
 
 ## Orchestration Log
 
@@ -363,6 +365,9 @@ Out of scope:
 - Coordinator moved DB hide, unhide, hidden-query, and bookmark operation tests
   into `src-tauri/src/core/db/tests/tests/job_visibility_tests.rs`. The root DB
   test file keeps shared fixtures and remaining database operation tests.
+- Coordinator moved broad-audience `checkRepoBloat` integration tests into
+  `scripts/check-repo-bloat-broad-audience.test.mjs`. The root bloat integration
+  test keeps aggregate sensor smoke coverage.
 
 ## Risks
 

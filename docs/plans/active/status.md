@@ -50,6 +50,16 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Broad-audience `checkRepoBloat` integration tests moved out of
+  `scripts/check-repo-bloat.test.mjs` into
+  `scripts/check-repo-bloat-broad-audience.test.mjs`.
+- The main bloat integration test still owns aggregate sensor smoke coverage;
+  the extracted file owns engineer-first and salary-audience fixture coverage.
+- `scripts/check-repo-bloat.test.mjs` legacy no-growth budget tightened from
+  10,557 lines to 9,702 lines.
+
+Recent cleanup summary:
+
 - DB hide, unhide, hidden-query, and bookmark operation tests moved out of
   `src-tauri/src/core/db/tests.rs` into
   `src-tauri/src/core/db/tests/tests/job_visibility_tests.rs`.
@@ -58,9 +68,6 @@ Latest implementation slice:
   behavior tests.
 - `src-tauri/src/core/db/tests.rs` legacy no-growth budget tightened from 2,879
   lines to 2,526 lines.
-
-Recent cleanup summary:
-
 - DB model, serialization, timeout, and path tests moved out of
   `src-tauri/src/core/db/tests.rs` into
   `src-tauri/src/core/db/tests/tests/model_tests.rs`.
