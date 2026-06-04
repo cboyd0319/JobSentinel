@@ -149,6 +149,7 @@ Out of scope:
 - [x] Start oversized-file modularization by extracting resume analyzer result
   types from the 8k-line analyzer module.
 - [x] Split resume analyzer tests out of the runtime analyzer file.
+- [x] Split Settings icon and config helper code out of the main Settings page.
 
 ## Orchestration Log
 
@@ -303,6 +304,13 @@ Out of scope:
 - Coordinator then moved the embedded resume analyzer tests to
   `ats_analyzer_tests.rs`, reducing `ats_analyzer.rs` from roughly 8.5k lines to
   roughly 3.4k lines without changing analyzer APIs or behavior.
+- Coordinator split `Settings.tsx` presentation icons into `SettingsIcons.tsx`
+  and DTO, preset, credential, and import-validation helpers into
+  `SettingsConfig.ts`, reducing the main Settings page from roughly 4.9k lines
+  to roughly 4.0k lines without changing settings behavior.
+- Read-only subagent Helmholtz audited `src/mocks/handlers.ts` and changed no
+  files. Best next low-risk mock split is deep-link and job-import helpers,
+  then support-report helpers, then scraper-health and interview mock helpers.
 
 ## Risks
 

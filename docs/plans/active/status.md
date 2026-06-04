@@ -50,6 +50,19 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Settings page helper code moved out of `Settings.tsx`.
+- `SettingsIcons.tsx` now owns Settings-only SVG components, and
+  `SettingsConfig.ts` now owns Settings DTOs, preset labels, credential helper
+  wrappers, and backup/import validation guards.
+- `Settings.tsx` is now roughly 4.0k lines after the split; rendered behavior,
+  storage behavior, credential boundaries, and external-source review gates stay
+  unchanged.
+- Read-only subagent Helmholtz mapped the next safe `src/mocks/handlers.ts`
+  split: deep-link/job-import helpers first, support-report helpers second, and
+  scraper-health/interview mock helpers third.
+
+Previous implementation slice:
+
 - Embedded resume analyzer tests moved from `ats_analyzer.rs` to
   `ats_analyzer_tests.rs`.
 - `ats_analyzer.rs` is now roughly 3.4k lines after the type and test-module
