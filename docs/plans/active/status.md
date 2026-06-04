@@ -52,6 +52,14 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Shared date and time formatters now use **Date not shown** for invalid
+  inputs across event, date-time, interview, compact, and future-date displays.
+- This keeps JavaScript's `Invalid Date` text out of user-facing date surfaces.
+- The slice changes visible date fallback handling only; it adds no storage
+  fields, network calls, external AI, telemetry, or date-parsing behavior.
+
+Previous implementation slice:
+
 - Relative job-date formatting now returns **Date not shown** for invalid
   timestamps instead of JavaScript's `Invalid Date` text.
 - Job cards and other relative-date users get a plain unavailable fallback when

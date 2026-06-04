@@ -67,6 +67,10 @@ describe("formatUtils", () => {
       expect(result).toContain("25");
       expect(result).toContain("2026");
     });
+
+    it("shows plain unavailable copy for invalid dates", () => {
+      expect(formatEventDate("not a date")).toBe("Date not shown");
+    });
   });
 
   describe("formatDateTime", () => {
@@ -77,6 +81,10 @@ describe("formatUtils", () => {
       expect(result).toContain("2026");
       // Time will be localized, so just check it contains numbers
       expect(result).toMatch(/\d:\d/);
+    });
+
+    it("shows plain unavailable copy for invalid dates", () => {
+      expect(formatDateTime("not a date")).toBe("Date not shown");
     });
   });
 
@@ -89,6 +97,10 @@ describe("formatUtils", () => {
       expect(result).not.toContain("2026"); // No year
       expect(result).toMatch(/\d:\d/); // Time
     });
+
+    it("shows plain unavailable copy for invalid dates", () => {
+      expect(formatInterviewDate("not a date")).toBe("Date not shown");
+    });
   });
 
   describe("formatCompactDateTime", () => {
@@ -100,6 +112,10 @@ describe("formatUtils", () => {
       expect(result).toMatch(/\d:\d/); // Time
       // Should not contain weekday
       expect(result).not.toMatch(/Mon|Tue|Wed|Thu|Fri|Sat|Sun/);
+    });
+
+    it("shows plain unavailable copy for invalid dates", () => {
+      expect(formatCompactDateTime("not a date")).toBe("Date not shown");
     });
   });
 
@@ -131,6 +147,10 @@ describe("formatUtils", () => {
 
     it("returns days for dates more than 1 day away", () => {
       expect(getRelativeTimeUntil("2026-01-28T12:00:00Z")).toBe("3 days");
+    });
+
+    it("shows plain unavailable copy for invalid dates", () => {
+      expect(getRelativeTimeUntil("not a date")).toBe("Date not shown");
     });
   });
 

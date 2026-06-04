@@ -136,6 +136,8 @@ Out of scope:
 - [x] Treat reversed listed-pay ranges as unavailable for salary-floor guidance.
 - [x] Show plain unavailable copy for invalid relative dates instead of
   `Invalid Date`.
+- [x] Use the same invalid-date fallback across shared date and time
+  formatters.
 
 ## Orchestration Log
 
@@ -265,6 +267,8 @@ Out of scope:
   below-floor warning.
 - Coordinator updated `formatRelativeDate` so invalid timestamps show **Date
   not shown** instead of leaking JavaScript's `Invalid Date` text.
+- Coordinator reused that **Date not shown** fallback across event, date-time,
+  interview, compact, and future-date formatters.
 
 ## Risks
 

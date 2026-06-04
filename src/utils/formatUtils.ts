@@ -3,14 +3,20 @@
  * Centralizes formatting logic to ensure consistency across the app.
  */
 
+const DATE_NOT_SHOWN = "Date not shown";
+
+function isValidDate(date: Date): boolean {
+  return Number.isFinite(date.getTime());
+}
+
 /**
  * Format a date string as a relative time (e.g., "2h ago", "3d ago")
  * Falls back to localized date for older dates.
  */
 export function formatRelativeDate(dateStr: string): string {
   const date = new Date(dateStr);
-  if (!Number.isFinite(date.getTime())) {
-    return "Date not shown";
+  if (!isValidDate(date)) {
+    return DATE_NOT_SHOWN;
   }
 
   const now = new Date();
@@ -31,6 +37,10 @@ export function formatRelativeDate(dateStr: string): string {
  */
 export function formatEventDate(dateStr: string): string {
   const date = new Date(dateStr);
+  if (!isValidDate(date)) {
+    return DATE_NOT_SHOWN;
+  }
+
   return date.toLocaleDateString("en-US", {
     weekday: "short",
     month: "short",
@@ -44,6 +54,10 @@ export function formatEventDate(dateStr: string): string {
  */
 export function formatDateTime(dateStr: string): string {
   const date = new Date(dateStr);
+  if (!isValidDate(date)) {
+    return DATE_NOT_SHOWN;
+  }
+
   return date.toLocaleString("en-US", {
     month: "short",
     day: "numeric",
@@ -58,6 +72,10 @@ export function formatDateTime(dateStr: string): string {
  */
 export function formatInterviewDate(dateStr: string): string {
   const date = new Date(dateStr);
+  if (!isValidDate(date)) {
+    return DATE_NOT_SHOWN;
+  }
+
   return date.toLocaleDateString("en-US", {
     weekday: "short",
     month: "short",
@@ -73,6 +91,10 @@ export function formatInterviewDate(dateStr: string): string {
  */
 export function formatCompactDateTime(dateStr: string): string {
   const date = new Date(dateStr);
+  if (!isValidDate(date)) {
+    return DATE_NOT_SHOWN;
+  }
+
   return date.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
@@ -86,6 +108,10 @@ export function formatCompactDateTime(dateStr: string): string {
  */
 export function getRelativeTimeUntil(dateStr: string): string {
   const date = new Date(dateStr);
+  if (!isValidDate(date)) {
+    return DATE_NOT_SHOWN;
+  }
+
   const now = new Date();
   const diffMs = date.getTime() - now.getTime();
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
