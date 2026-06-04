@@ -52,6 +52,39 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Accepted a read-only pay-protection sidecar finding and fixed negotiation-note
+  draft inputs.
+- Salary negotiation notes now require a user-entered written offer and
+  user-entered target range before drafting. Benchmark medians and higher-range
+  points are not passed as the current offer or target salary.
+- The Salary page now sends the default template fields it actually needs:
+  `company`, `location`, `years_experience`, `target_min`, `target_max`, and
+  `current_offer`.
+- Unreplaced template placeholders stay hidden and show a safe recovery message
+  instead of appearing as ready-to-use notes.
+- The slice adds no storage fields, network calls, external AI, telemetry, or
+  hidden submission behavior.
+- Verification passed for focused `Salary`, `ScreeningAnswersForm`, and dev
+  mock handler tests, full frontend ESLint, TypeScript, docs lint,
+  external-AI gateway sensor, repo-bloat sensor, Tauri invoke sensor, harness
+  plan, harness session, and diff whitespace.
+
+Previous implementation slice:
+
+- Added extra saved-answer review guidance in Application Assist for hard
+  screening topics such as citizenship, work authorization, sponsorship,
+  background checks, drug screens, physical requirements, age requirements,
+  licenses, certifications, and clearances.
+- The note appears inside the local saved-answer modal when question wording
+  matches those topics. It reminds users to compare with the exact application
+  question and use only what is true and backed by their resume or records.
+- The slice adds no storage fields, network calls, external AI, telemetry, or
+  hidden submission behavior.
+- Focused verification passed for `ScreeningAnswersForm` tests and focused
+  ESLint on the touched component/test.
+
+Previous implementation slice:
+
 - Accepted a read-only zero-technical-knowledge audit sidecar and fixed three
   high-confidence findings.
 - Quick Start install copy now keeps the main path on choosing an installer,

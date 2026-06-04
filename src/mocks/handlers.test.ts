@@ -6298,13 +6298,18 @@ describe("mock Tauri handlers", () => {
     const script = await mockInvoke<string>("generate_negotiation_script", {
       scenario: "initial_offer",
       params: {
-        job_title: "Training Coordinator",
-        target_salary: "68000",
+        company: "CareBridge Health",
         current_offer: "60000",
+        job_title: "Training Coordinator",
+        location: "Chicago, IL",
+        target_min: "68000",
+        target_max: "74000",
+        years_experience: "5",
       },
     });
     expect(script).toContain("Training Coordinator");
     expect(script).toContain("$68,000");
+    expect(script).toContain("$74,000");
 
     const ats = await mockInvoke<AtsDetectionResponse>("detect_ats_platform", {
       url: "https://boards.greenhouse.io/example/jobs/123",

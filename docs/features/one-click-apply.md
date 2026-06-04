@@ -131,6 +131,13 @@ availability, holiday availability, management experience, language fluency,
 physical requirements, and age requirement so you can prepare those answers
 before the form asks.
 
+When you add a saved answer for hard screening topics such as citizenship, work
+authorization, sponsorship, background checks, drug screens, physical
+requirements, age requirements, licenses, certifications, or clearances,
+JobSentinel shows an extra review note. The note reminds you to compare the
+answer with the exact application question and use only what is true and backed
+by your resume or records.
+
 ### Hard Question Review
 
 When the saved job details mention hard screening topics, the Application Assist

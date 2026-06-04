@@ -79,6 +79,10 @@ Out of scope:
   frontend batch.
 - [x] Replace technical-first quick-start, browser-button, and support-log copy
   surfaced by read-only zero-technical-knowledge audit.
+- [x] Add hard-screening saved-answer review guidance for legal, screening,
+  credential, physical, and age-related application questions.
+- [x] Gate negotiation-note drafts on user-entered offer and target range facts,
+  so benchmark evidence cannot become an invented current offer.
 
 ## Orchestration Log
 
@@ -113,6 +117,13 @@ Out of scope:
 - Zero-technical-knowledge audit sidecar was read-only and changed no files.
   Coordinator accepted its Quick Start, Browser Button, and support-log findings
   and implemented the copy fixes locally with focused tests.
+- Coordinator added local hard-screening review guidance to saved screening
+  answers because it touched one Application Assist component, one focused test
+  file, feature docs, and active plan state.
+- Pay-protection sidecar was read-only and changed no files. Coordinator
+  accepted its finding that negotiation-note drafts could treat benchmark
+  values as offer facts, then fixed the Salary page, dev mock, tests, feature
+  docs, and active plan state locally.
 
 ## Risks
 

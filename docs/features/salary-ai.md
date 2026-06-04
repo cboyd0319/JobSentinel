@@ -28,6 +28,9 @@ fixed by asking harder.
   value.
 - Draft editable negotiation notes grounded in role scope, written ranges, and
   user-confirmed facts.
+- Draft negotiation notes only from a user-entered written offer and
+  user-entered target range. Benchmark medians or higher-range points must not
+  become the current offer.
 - Compare offers across pay, benefits, schedule, level, promotion path, and
   risk.
 
@@ -87,6 +90,11 @@ Offer guidance should be evidence-bounded:
 
 Negotiation notes should never invent competing offers, legal claims, skills,
 credentials, accomplishments, or market data.
+
+Negotiation notes should also never invent the current offer. The user must
+enter the written offer and target range before notes are drafted, and
+unreplaced template placeholders should stay hidden instead of appearing as
+ready-to-use text.
 
 Pay guidance changes should also be reviewed against:
 

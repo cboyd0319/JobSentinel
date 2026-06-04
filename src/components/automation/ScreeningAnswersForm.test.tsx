@@ -413,6 +413,34 @@ describe("ScreeningAnswersForm", () => {
         expect(input.value).toBe("years of experience");
       });
     });
+
+    it("shows extra review guidance for hard screening quick-add answers", async () => {
+      const user = userEvent.setup();
+      render(<ScreeningAnswersForm />);
+
+      await waitFor(() => {
+        expect(screen.getByText(/\+ Background check/i)).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByText(/\+ Background check/i));
+
+      expect(screen.getByTestId("hard-screening-answer-guidance")).toHaveTextContent(
+        "Review this answer against the exact question before using it. Use only what is true and backed by your resume or records.",
+      );
+    });
+
+    it("does not show hard screening guidance for ordinary quick-add answers", async () => {
+      const user = userEvent.setup();
+      render(<ScreeningAnswersForm />);
+
+      await waitFor(() => {
+        expect(screen.getByText(/\+ Years of experience/i)).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByText(/\+ Years of experience/i));
+
+      expect(screen.queryByTestId("hard-screening-answer-guidance")).not.toBeInTheDocument();
+    });
   });
 
   describe("add modal", () => {
@@ -616,6 +644,28 @@ describe("ScreeningAnswersForm", () => {
       });
 
       expect(patternInput).toHaveValue("salary");
+    });
+
+    it("shows hard screening guidance when typed question wording needs exact review", async () => {
+      const user = userEvent.setup();
+      render(<ScreeningAnswersForm />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByRole("button", { name: /add answer/i }),
+        ).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByRole("button", { name: /add answer/i }));
+
+      const patternInput = screen.getByLabelText(/question wording to look for/i);
+      fireEvent.change(patternInput, {
+        target: { value: "US citizen" },
+      });
+
+      expect(screen.getByTestId("hard-screening-answer-guidance")).toHaveTextContent(
+        "Use only what is true and backed by your resume or records.",
+      );
     });
 
     it("allows typing in answer field", async () => {

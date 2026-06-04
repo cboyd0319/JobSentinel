@@ -4199,17 +4199,22 @@ function generateMockNegotiationScript(args?: Record<string, unknown>): string {
   const params = isRecord(getArg(args, "params")) ? getArg(args, "params") as Record<string, unknown> : {};
   const scenario = getStringArg(args, "scenario") ?? "initial_offer";
   const jobTitle = typeof params.job_title === "string" ? params.job_title : "the role";
-  const targetSalary = typeof params.target_salary === "string" ? params.target_salary : "72000";
+  const company = typeof params.company === "string" ? params.company : "the employer";
+  const location = typeof params.location === "string" ? params.location : "this location";
+  const yearsExperience =
+    typeof params.years_experience === "string" ? params.years_experience : "5";
+  const targetMin = typeof params.target_min === "string" ? params.target_min : "68000";
+  const targetMax = typeof params.target_max === "string" ? params.target_max : targetMin;
   const currentOffer = typeof params.current_offer === "string" ? params.current_offer : "64000";
 
   return [
     `Scenario: ${scenario.replace(/_/g, " ")}`,
     "",
-    `Thank you for the offer for ${jobTitle}. Based on market data and the scope of this role, I was targeting ${formatMockCurrency(targetSalary)}.`,
-    `Given the current offer of ${formatMockCurrency(currentOffer)}, I would like to discuss aligning compensation closer to ${formatMockCurrency(targetSalary)}.`,
+    `Thank you for the offer for ${jobTitle} at ${company} in ${location}. Based on the role and my ${yearsExperience} years of experience, my target range is ${formatMockCurrency(targetMin)}-${formatMockCurrency(targetMax)}.`,
+    `Given the current offer of ${formatMockCurrency(currentOffer)}, I would like to discuss aligning compensation closer to that range.`,
     "",
     "Key points:",
-    "- Anchor on market benchmarks and role impact.",
+    "- Confirm every offer, target, and company detail before sending.",
     "- Keep tone collaborative and specific.",
     "- Ask whether base salary, bonus, or equity can close the gap.",
   ].join("\n");

@@ -93,6 +93,10 @@ export default function Salary({ onBack }: SalaryProps) {
   const [seniority, setSeniority] = useState<SalarySeniority>("mid");
   const [yearsExp, setYearsExp] = useState<number>(5);
   const [salaryFloor, setSalaryFloor] = useState("");
+  const [offerCompany, setOfferCompany] = useState("");
+  const [currentOffer, setCurrentOffer] = useState("");
+  const [targetMin, setTargetMin] = useState("");
+  const [targetMax, setTargetMax] = useState("");
   const [benchmark, setBenchmark] = useState<SalaryBenchmark | null>(null);
   const [negotiationScript, setNegotiationScript] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -107,6 +111,24 @@ export default function Salary({ onBack }: SalaryProps) {
     ? getSalaryFloorGuidance(benchmark, activeSalaryFloor)
     : null;
   const sampleQuality = benchmark ? getSalarySampleQuality(benchmark.sample_size) : null;
+  const currentOfferAmount = parseSalaryAmount(currentOffer);
+  const targetMinAmount = parseSalaryAmount(targetMin);
+  const targetMaxAmount = parseSalaryAmount(targetMax);
+  const negotiationInputMessage = getNegotiationInputMessage(
+    currentOfferAmount,
+    targetMinAmount,
+    targetMaxAmount,
+  );
+  const canGenerateScript =
+    benchmark !== null &&
+    currentOfferAmount !== null &&
+    targetMinAmount !== null &&
+    targetMaxAmount !== null &&
+    negotiationInputMessage === null;
+
+  const clearNegotiationScript = () => {
+    setNegotiationScript(null);
+  };
 
   const handleGetBenchmark = useCallback(async () => {
     if (!jobTitle.trim() || !location.trim()) {
@@ -124,10 +146,12 @@ export default function Salary({ onBack }: SalaryProps) {
 
       if (result) {
         setBenchmark(result);
+        setNegotiationScript(null);
         toast.success("Pay range found", "Salary evidence is ready");
       } else {
         toast.info("No data", "No salary data found for this combination");
         setBenchmark(null);
+        setNegotiationScript(null);
       }
     } catch (err: unknown) {
       logError("Failed to get benchmark:", err);
@@ -139,18 +163,42 @@ export default function Salary({ onBack }: SalaryProps) {
 
   const handleGenerateScript = useCallback(async () => {
     if (!benchmark) return;
+    if (
+      currentOfferAmount === null ||
+      targetMinAmount === null ||
+      targetMaxAmount === null ||
+      negotiationInputMessage !== null
+    ) {
+      toast.error(
+        "Add negotiation facts",
+        negotiationInputMessage ?? "Add the written offer and your target range before drafting notes.",
+      );
+      return;
+    }
 
     try {
       setScriptLoading(true);
       const script = await invoke<string>("generate_negotiation_script", {
         scenario: "initial_offer",
         params: {
-          job_title: jobTitle,
-          location: location,
-          target_salary: benchmark.p75_salary.toString(),
-          current_offer: benchmark.median_salary.toString(),
+          company: offerCompany.trim() || "the employer",
+          current_offer: formatCurrency(currentOfferAmount),
+          job_title: jobTitle.trim() || benchmark.job_title,
+          location: location.trim() || benchmark.location,
+          target_min: formatCurrency(targetMinAmount),
+          target_max: formatCurrency(targetMaxAmount),
+          years_experience: yearsExp.toString(),
         },
       });
+
+      if (hasUnresolvedTemplatePlaceholders(script)) {
+        setNegotiationScript(null);
+        toast.error(
+          "Could not draft notes",
+          "The note template needs checked facts before it can be shown.",
+        );
+        return;
+      }
 
       setNegotiationScript(script);
       toast.success("Notes drafted", "Negotiation notes are ready");
@@ -160,7 +208,18 @@ export default function Salary({ onBack }: SalaryProps) {
     } finally {
       setScriptLoading(false);
     }
-  }, [benchmark, jobTitle, location, toast]);
+  }, [
+    benchmark,
+    currentOfferAmount,
+    jobTitle,
+    location,
+    negotiationInputMessage,
+    offerCompany,
+    targetMaxAmount,
+    targetMinAmount,
+    toast,
+    yearsExp,
+  ]);
 
 
   return (
@@ -405,11 +464,77 @@ export default function Salary({ onBack }: SalaryProps) {
                   </ul>
                 </div>
 
+                <div className="rounded-lg border border-surface-200 bg-white p-4 dark:border-surface-700 dark:bg-surface-800">
+                  <p className="text-sm font-medium text-surface-900 dark:text-surface-100">
+                    Negotiation note facts
+                  </p>
+                  <p className="mt-1 text-sm text-surface-600 dark:text-surface-400">
+                    Add the written offer and target range yourself. JobSentinel will not turn
+                    benchmark points into an offer.
+                  </p>
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    <Input
+                      label="Company (optional)"
+                      value={offerCompany}
+                      onChange={(e) => {
+                        setOfferCompany(e.target.value);
+                        clearNegotiationScript();
+                      }}
+                      placeholder="e.g., CareBridge Health"
+                    />
+                    <Input
+                      label="Written offer"
+                      type="number"
+                      min="0"
+                      inputMode="numeric"
+                      value={currentOffer}
+                      onChange={(e) => {
+                        setCurrentOffer(e.target.value);
+                        clearNegotiationScript();
+                      }}
+                      placeholder="e.g., 95000"
+                      hint="Use the offer you have in writing or from the recruiter."
+                    />
+                    <Input
+                      label="Target minimum"
+                      type="number"
+                      min="0"
+                      inputMode="numeric"
+                      value={targetMin}
+                      onChange={(e) => {
+                        setTargetMin(e.target.value);
+                        clearNegotiationScript();
+                      }}
+                      placeholder="e.g., 105000"
+                    />
+                    <Input
+                      label="Target maximum"
+                      type="number"
+                      min="0"
+                      inputMode="numeric"
+                      value={targetMax}
+                      onChange={(e) => {
+                        setTargetMax(e.target.value);
+                        clearNegotiationScript();
+                      }}
+                      placeholder="e.g., 115000"
+                    />
+                  </div>
+                  <p
+                    className="mt-3 text-sm text-surface-600 dark:text-surface-400"
+                    data-testid="negotiation-fact-guidance"
+                  >
+                    {negotiationInputMessage ??
+                      "Review these facts before using drafted notes. JobSentinel never submits them for you."}
+                  </p>
+                </div>
+
                 <Button
                   onClick={handleGenerateScript}
                   loading={scriptLoading}
                   variant="secondary"
                   className="w-full"
+                  disabled={!canGenerateScript}
                 >
                   Draft Negotiation Notes
                 </Button>
@@ -482,6 +607,40 @@ function getSalaryFloorGuidance(
       "Your floor is within the middle of this sample range. Compare benefits, schedule, level, and promotion path before deciding.",
     tone: "neutral",
   };
+}
+
+function parseSalaryAmount(value: string): number | null {
+  const normalized = value.replace(/[$,\s]/g, "");
+  if (!normalized) return null;
+
+  const parsed = Number.parseInt(normalized, 10);
+  if (!Number.isFinite(parsed) || parsed <= 0) return null;
+
+  return parsed;
+}
+
+function getNegotiationInputMessage(
+  currentOfferAmount: number | null,
+  targetMinAmount: number | null,
+  targetMaxAmount: number | null,
+): string | null {
+  if (
+    currentOfferAmount === null ||
+    targetMinAmount === null ||
+    targetMaxAmount === null
+  ) {
+    return "Add the written offer and your target range before drafting notes.";
+  }
+
+  if (targetMaxAmount < targetMinAmount) {
+    return "Target maximum must be at least target minimum.";
+  }
+
+  return null;
+}
+
+function hasUnresolvedTemplatePlaceholders(script: string) {
+  return /{{[^{}]+}}/.test(script);
 }
 
 function BackIcon() {

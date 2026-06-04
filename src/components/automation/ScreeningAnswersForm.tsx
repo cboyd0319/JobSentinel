@@ -71,6 +71,18 @@ const COMMON_PATTERNS = [
   { pattern: "cover letter", label: "Cover letter / Why this role", type: "textarea" },
 ];
 
+const HARD_SCREENING_ANSWER_PATTERNS = [
+  /\bcitizenship\b|\bUS citizen\b|\bU\.S\. citizen\b/i,
+  /\bwork authorization\b|\bauthorized to work\b|\bsponsorship\b|\bvisa\b/i,
+  /\bbackground check\b|\bbackground screening\b|\bdrug screen\b|\bdrug test\b|\bpre[-\s]?employment screening\b/i,
+  /\bphysical requirements?\b|\blift\b|\bstanding\b|\bstand for\b/i,
+  /\b18 years of age\b|\bminimum age\b|\bage requirement\b/i,
+  /\bdriver'?s license\b|\blicen[cs]e\b|\bcertification\b|\bclearance\b/i,
+] as const;
+
+const HARD_SCREENING_ANSWER_GUIDANCE =
+  "Review this answer against the exact question before using it. Use only what is true and backed by your resume or records.";
+
 // Format relative time (e.g., "2 days ago", "1 week ago")
 function formatRelativeTime(isoDate: string): string {
   const date = new Date(isoDate);
@@ -105,6 +117,21 @@ function getModifiedUseLabel(timesModified?: number, timesUsed?: number) {
   const ratio = timesModified / timesUsed;
   if (ratio >= 0.5) return "Often edited";
   return "Sometimes edited";
+}
+
+function getHardScreeningAnswerGuidance(pattern: string) {
+  const trimmedPattern = pattern.trim();
+  if (!trimmedPattern) return null;
+
+  if (
+    !HARD_SCREENING_ANSWER_PATTERNS.some((candidate) =>
+      candidate.test(trimmedPattern)
+    )
+  ) {
+    return null;
+  }
+
+  return HARD_SCREENING_ANSWER_GUIDANCE;
 }
 
 export const ScreeningAnswersForm = memo(function ScreeningAnswersForm({ onSaved }: ScreeningAnswersFormProps) {
@@ -210,9 +237,11 @@ export const ScreeningAnswersForm = memo(function ScreeningAnswersForm({ onSaved
   const handleAddCommon = (pattern: { pattern: string; label: string; type: string }) => {
     setQuestionPattern(pattern.pattern);
     setAnswerType(pattern.type);
-            setNotes(`Saved answer for "${pattern.label}" questions`);
+    setNotes(`Saved answer for "${pattern.label}" questions`);
     setShowAddModal(true);
   };
+
+  const hardScreeningAnswerGuidance = getHardScreeningAnswerGuidance(questionPattern);
 
   if (loading) {
     return (
@@ -364,6 +393,15 @@ export const ScreeningAnswersForm = memo(function ScreeningAnswersForm({ onSaved
             maxLength={200}
             required
           />
+          {hardScreeningAnswerGuidance && (
+            <div
+              className="rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-sm text-surface-700 dark:text-surface-200"
+              role="note"
+              data-testid="hard-screening-answer-guidance"
+            >
+              {hardScreeningAnswerGuidance}
+            </div>
+          )}
           <div>
             <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">
               Answer Type
