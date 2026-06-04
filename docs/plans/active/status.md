@@ -50,19 +50,23 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
-- Settings resume matching and match-review guide UI moved out of
-  `src/pages/Settings.tsx` into `src/pages/SettingsResumeMatchingSection.tsx`.
-- The parent Settings page still owns config state; the extracted child owns
-  only the resume-matching toggle and local review-guide display.
-- Product-copy and broad-audience harness path sets now include the extracted
-  section so score/review copy drift remains covered after the split.
-- `src/pages/Settings.tsx` legacy no-growth budget tightened from 3,618 lines
-  to 3,435 lines.
+- Market intelligence mock fixtures moved out of `src/mocks/handlers.ts` into
+  `src/mocks/handlers/marketIntelligence.ts`.
+- The main mock handler still owns mutable market-alert read state; the
+  extracted module owns default alerts, trend fixtures, active-company fixtures,
+  hot-location fixtures, and market snapshot fixtures.
+- `src/mocks/handlers/marketIntelligence.test.ts` covers command wiring and
+  alert read-state persistence through `mockInvoke`.
+- `src/mocks/handlers.ts` legacy no-growth budget tightened from 4,315 lines to
+  4,253 lines.
 
 Recent cleanup summary:
 
 - The whole public GitHub wiki is now treated as external product docs in the
   harness and change contract.
+- Settings resume matching and match-review guide UI moved to
+  `src/pages/SettingsResumeMatchingSection.tsx` with product-copy and
+  broad-audience harness path coverage.
 - `src/mocks/handlers.ts` legacy no-growth budget tightened from 5,302 lines to
   4,315 lines after earlier mock helper extractions.
 - Settings connected job-source UI moved to
