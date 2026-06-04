@@ -185,6 +185,8 @@ Out of scope:
   after bringing it below the 1,200-line test target.
 - [x] Split technical-first fallback product-copy pattern coverage out of the
   main product-copy checker module.
+- [x] Split technical-first preflight product-copy routing out of the main
+  product-copy checker module.
 
 ## Orchestration Log
 
@@ -434,6 +436,9 @@ Out of scope:
 - Coordinator moved the technical-first fallback product-copy pattern table into
   `scripts/harness/checks/product-copy/technical-first-fallback.mjs`. The main
   product-copy checker still owns path-specific routing.
+- Coordinator moved technical-first preflight product-copy path routing into
+  `scripts/harness/checks/product-copy/technical-first-preflight.mjs`. The main
+  product-copy checker still owns the remaining scanner flow.
 
 ## Risks
 
