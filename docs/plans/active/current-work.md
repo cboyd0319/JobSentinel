@@ -122,6 +122,7 @@ Out of scope:
 - [x] Use plain evidence labels for matched job words, not raw backend section
   names.
 - [x] Use plain evidence labels in live Resume Builder matched-word tooltips.
+- [x] Sync Resume Builder docs with live must-have review behavior.
 
 ## Orchestration Log
 
@@ -232,6 +233,8 @@ Out of scope:
   list instead of raw backend section names.
 - Coordinator added the same plain evidence-label treatment to live Resume
   Builder word-match tooltips.
+- Coordinator synced `docs/features/resume-builder.md` so the live-review
+  section names must-have checks as well as missing job-word buckets.
 
 ## Risks
 

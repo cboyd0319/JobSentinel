@@ -52,6 +52,15 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Resume Builder docs now describe the live review panel's must-have checks,
+  not only required, preferred, and other missing job-word buckets.
+- The docs now match the live panel behavior after hard-constraint risks became
+  visible in the detail review.
+- The slice changes docs only; it adds no storage fields, network calls,
+  external AI, telemetry, or runtime behavior.
+
+Previous implementation slice:
+
 - Live Resume Builder matched-word tooltips now use plain **Found in** labels
   instead of raw backend section names.
 - The same current role experience and skills list wording appears in the live

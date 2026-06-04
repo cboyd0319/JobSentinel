@@ -90,9 +90,11 @@ All templates are designed for application readability:
 Download your resume as a Word document (.docx), ready to attach to any job application.
 
 When Resume Builder has job-post context from Resume Match, the live review
-panel keeps required, preferred, and other job-post language separate. It asks
-users to review whether missing words are true for their background instead of
-treating every missing word as something to add.
+panel keeps required, preferred, and other job-post language separate. It also
+shows must-have checks when local analysis finds a hard constraint that needs
+review before tailoring. It asks users to review whether missing words and
+must-haves are true for their background instead of treating every missing word
+as something to add.
 
 ---
 
