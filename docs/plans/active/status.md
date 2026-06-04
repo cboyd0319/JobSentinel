@@ -50,6 +50,16 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Settings help/status, backup, and support-report UI moved out of
+  `src/pages/Settings.tsx` into `src/pages/SettingsSupportSections.tsx`.
+- The main Settings page still owns modal state, backup handlers, support report
+  actions, and scraper-health modal state; the extracted component owns only
+  presentation.
+- `src/pages/Settings.tsx` legacy no-growth budget tightened from 3,435 lines
+  to 3,351 lines.
+
+Recent cleanup summary:
+
 - ATS platform detection helpers moved out of `src/mocks/handlers.ts` into
   `src/mocks/handlers/atsPlatform.ts`; the main mock handler still owns
   application-form fill state and attempt IDs.
@@ -57,9 +67,6 @@ Latest implementation slice:
   platform detection, safe form-fill attempts, and unsafe-link rejection.
 - `src/mocks/handlers.ts` legacy no-growth budget tightened from 4,013 lines to
   3,971 lines.
-
-Recent cleanup summary:
-
 - Resume-builder mock normalizers, templates, HTML rendering, and text export
   helpers moved out of `src/mocks/handlers.ts` into
   `src/mocks/handlers/resumeBuilder.ts`.

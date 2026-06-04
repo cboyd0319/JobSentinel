@@ -312,7 +312,7 @@ const technicalFirstUserCopyPaths = new Set([
   "src/pages/SettingsConnectedJobSource.tsx",
   "src/pages/SettingsResumeMatchingSection.tsx",
   "src/pages/SettingsPostingRiskSection.tsx",
-  "src/pages/Settings.tsx",
+  "src/pages/SettingsSupportSections.tsx", "src/pages/Settings.tsx",
   "src/pages/SetupWizard.tsx",
   "src/utils/errorHelpers.ts",
   "src/utils/errorMessages.ts",

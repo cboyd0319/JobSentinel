@@ -326,6 +326,9 @@ Out of scope:
   `src/mocks/handlers/atsPlatform.ts`. The root mock handler keeps
   application-form fill state and attempt IDs local, while the extracted helper
   owns pure platform detection and form-field metadata.
+- Coordinator moved Settings help/status, backup, and support-report UI into
+  `src/pages/SettingsSupportSections.tsx`. The root Settings page keeps
+  modal, backup, and support-report state ownership.
 
 ## Risks
 
