@@ -96,6 +96,21 @@ describe("ErrorLogPanel", () => {
       expect(screen.getByText("2 problems recorded")).toBeInTheDocument();
     });
 
+    it("uses plain copy for extra problem details", () => {
+      mockUseErrorReporting.mockReturnValue({
+        ...defaultMockReturn,
+        errors: [createMockError()],
+      });
+
+      render(<ErrorLogPanel />);
+
+      expect(screen.getByRole("button", { name: "Save Extra Problem Details" })).toHaveAttribute(
+        "title",
+        "Only use this if JobSentinel help asks. Review before sharing; it may include private app details.",
+      );
+      expect(screen.queryByText("Advanced: Save Private App Log")).not.toBeInTheDocument();
+    });
+
     it("shows a safe problem summary instead of the raw error message", () => {
       mockUseErrorReporting.mockReturnValue({
         ...defaultMockReturn,
@@ -135,7 +150,7 @@ describe("ErrorLogPanel", () => {
       expect(container.textContent).not.toContain("/Users/chad");
     });
 
-    it("shows advanced private app log button when errors exist", () => {
+    it("shows extra problem details button when errors exist", () => {
       mockUseErrorReporting.mockReturnValue({
         ...defaultMockReturn,
         errors: [createMockError()],
@@ -144,18 +159,18 @@ describe("ErrorLogPanel", () => {
       render(<ErrorLogPanel />);
 
       expect(
-        screen.getByRole("button", { name: "Advanced: Save Private App Log" })
+        screen.getByRole("button", { name: "Save Extra Problem Details" })
       ).toBeInTheDocument();
       expect(
         screen.getByRole("button", {
-          name: "Advanced: Save Private App Log",
+          name: "Save Extra Problem Details",
         })
       ).toHaveAttribute(
         "title",
-        "Advanced local app log. It may include extra private details. Keep it private unless someone helping with JobSentinel asks for it.",
+        "Only use this if JobSentinel help asks. Review before sharing; it may include private app details.",
       );
       expect(
-        screen.queryByRole("button", { name: "Save Full Local Problem Details" })
+        screen.queryByRole("button", { name: "Advanced: Save Private App Log" })
       ).not.toBeInTheDocument();
     });
 
@@ -361,7 +376,7 @@ describe("ErrorLogPanel", () => {
   });
 
   describe("actions", () => {
-    it("calls exportErrors when advanced private app log is clicked", () => {
+    it("calls exportErrors when extra problem details is clicked", () => {
       const exportErrors = vi.fn();
       mockUseErrorReporting.mockReturnValue({
         ...defaultMockReturn,
@@ -372,7 +387,7 @@ describe("ErrorLogPanel", () => {
       render(<ErrorLogPanel />);
 
       fireEvent.click(
-        screen.getByRole("button", { name: "Advanced: Save Private App Log" })
+        screen.getByRole("button", { name: "Save Extra Problem Details" })
       );
 
       expect(exportErrors).toHaveBeenCalledTimes(1);

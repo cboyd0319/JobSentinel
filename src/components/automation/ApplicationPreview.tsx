@@ -407,8 +407,8 @@ function getSavedScreeningAnswerReviewDetail(
   return `Saved ${answerLabel} answer says: ${answerSnippet} ${confirmationDetail}`;
 }
 
-function hasHardQuestionReviewText(job: Job) {
-  const text = job.description?.trim() ?? "";
+function hasHardQuestionReviewText(description: string | null | undefined) {
+  const text = description?.trim() ?? "";
   if (!text) return false;
 
   return HARD_QUESTION_REVIEWS.some((review) =>
@@ -445,7 +445,7 @@ export const ApplicationPreview = memo(function ApplicationPreview({ job, atsPla
       if (signal?.aborted) return;
       setProfile(data);
 
-      if (!data || !hasHardQuestionReviewText(job)) {
+      if (!data || !hasHardQuestionReviewText(job.description)) {
         setScreeningAnswers([]);
         return;
       }

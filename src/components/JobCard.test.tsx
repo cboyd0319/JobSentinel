@@ -400,6 +400,46 @@ describe("JobCard", () => {
 
       expect(screen.queryByTestId("posting-risk-guidance")).not.toBeInTheDocument();
     });
+
+    it("shows low-detail role guidance for broad titles and thin descriptions", () => {
+      const lowDetailJob = {
+        ...mockJob,
+        title: "Various Positions",
+        description: "Great opportunity.",
+        ghost_score: null,
+        ghost_reasons: null,
+      };
+
+      renderWithToast(<JobCard job={lowDetailJob} />);
+
+      expect(screen.getByTestId("posting-risk-guidance")).toHaveTextContent(
+        "Check role details",
+      );
+      expect(
+        screen.getByText(/confirm the role, team, and work details before tailoring/i),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("article", {
+          name: /role details to check/i,
+        }),
+      ).toBeInTheDocument();
+    });
+
+    it("keeps stronger posting-risk guidance ahead of low-detail cues", () => {
+      const highRiskLowDetailJob = {
+        ...mockJob,
+        title: "Various Positions",
+        description: "Great opportunity.",
+        ghost_score: 0.82,
+      };
+
+      renderWithToast(<JobCard job={highRiskLowDetailJob} />);
+
+      expect(screen.getByTestId("posting-risk-guidance")).toHaveTextContent(
+        "Verify before tailoring",
+      );
+      expect(screen.queryByText("Check role details")).not.toBeInTheDocument();
+    });
   });
 
   describe("salary formatting", () => {
@@ -425,9 +465,27 @@ describe("JobCard", () => {
       renderWithToast(<JobCard job={jobNoSalary} />);
       expect(screen.getByText("Pay not listed")).toBeInTheDocument();
       expect(screen.queryByText(/\$/)).not.toBeInTheDocument();
+      expect(screen.queryByTestId("pay-floor-guidance")).not.toBeInTheDocument();
       expect(
         screen.getByRole("article", {
           name: /pay not listed/i,
+        }),
+      ).toBeInTheDocument();
+    });
+
+    it("shows missing-pay floor guidance when salary floor exists", () => {
+      const jobNoSalary = { ...mockJob, salary_min: null, salary_max: null };
+
+      renderWithToast(<JobCard job={jobNoSalary} salaryFloorUsd={65000} />);
+
+      const guidance = screen.getByTestId("pay-floor-guidance");
+      expect(guidance).toHaveTextContent("Pay not listed");
+      expect(guidance).toHaveTextContent(
+        "No pay range is listed. Compare this role with your $65,000/year floor before tailoring.",
+      );
+      expect(
+        screen.getByRole("article", {
+          name: /pay not listed; compare before tailoring/i,
         }),
       ).toBeInTheDocument();
     });

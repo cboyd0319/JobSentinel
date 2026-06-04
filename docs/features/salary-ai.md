@@ -10,7 +10,9 @@ fixed by asking harder.
 
 - Compare a role against public salary records and local benchmark data.
 - Let users enter a salary floor as a walk-away number.
-- Show "Pay not listed" on job cards when structured salary fields are empty.
+- Show "Pay not listed" on job cards when structured salary fields are empty,
+  and, when a salary floor exists, ask the user to compare the role before
+  tailoring.
 - Show a below-floor warning on job cards when listed pay tops out below the
   user's saved floor.
 - Keep open-ended minimum-only pay ranges visible without a below-floor warning,
@@ -46,7 +48,8 @@ inputs, not as self-worth scores.
 - Warn when the user's target is below the lower-pay part of a credible sample
   or below a credible posted midpoint.
 - Treat missing pay as useful evidence about transparency, not as neutral or as
-  proof of bad intent.
+  proof of bad intent. Missing-pay job-card guidance is a review cue, not a
+  stale-posting or scam claim.
 - Treat very wide listed pay ranges as weaker evidence about the real role
   level, schedule, and realistic pay.
 - Check whether title, scope, decision rights, team size, budget, and promotion

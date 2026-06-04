@@ -101,6 +101,8 @@ scoring.
 Salary review compares listed pay to the user's salary floor and target pay.
 Missing pay should not hide every job automatically, but it should remain visible
 as a warning because missing pay can waste time and increase underpayment risk.
+When a salary floor exists, job cards ask users to compare missing-pay roles
+before tailoring without treating missing pay as proof of bad intent.
 Open-ended minimum-only pay should remain visible without a below-floor warning
 unless a known maximum or top listed pay is below the user's floor.
 

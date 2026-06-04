@@ -78,8 +78,11 @@ describe("BookmarkletGenerator", () => {
     expect(screen.queryByText(/^Indeed$/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Cmd\/Ctrl\+D/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/bookmark address field/i)).not.toBeInTheDocument();
-    expect(screen.getByText(/prefer a simpler import/i)).toBeInTheDocument();
+    expect(screen.getByText(/recommended: paste the job link into jobsentinel/i)).toBeInTheDocument();
+    expect(screen.getByText(/use browser button only if you already use browser bookmarks/i)).toBeInTheDocument();
     expect(screen.getByText(/Use your browser's Add Bookmark option/i)).toBeInTheDocument();
+    expect(screen.getByText(/paste the copied text into the bookmark link field/i)).toBeInTheDocument();
+    expect(screen.queryByText(/where the bookmark stores the page address/i)).not.toBeInTheDocument();
     expect(screen.getByText(/official career pages usually work best/i)).toBeInTheDocument();
     expect(screen.getByText(/company application pages/i)).toBeInTheDocument();
     expect(screen.getByText(/do not let JobSentinel read saved pages/i)).toBeInTheDocument();

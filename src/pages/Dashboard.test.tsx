@@ -4,7 +4,7 @@ import {
   getDashboardLoadErrorMessage,
   getDashboardSearchErrorCopy,
 } from "./dashboardErrorCopy";
-import { formatDashboardFitEstimate } from "./Dashboard";
+import { formatDashboardFitEstimate } from "./dashboardFitEstimate";
 import { getNoJobsEmptyStateCopy } from "./DashboardUI/noJobsEmptyStateCopy";
 
 vi.mock("@tauri-apps/api/core", () => ({

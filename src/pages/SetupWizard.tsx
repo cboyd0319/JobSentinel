@@ -537,6 +537,26 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
     }
   };
 
+  const handleAddAllVisibleSkillSuggestions = () => {
+    setConfig((prev) => {
+      const skillsToAdd = resumeSkillSuggestions.filter(
+        (skill) => !prev.keywords_boost.includes(skill)
+      );
+
+      if (skillsToAdd.length === 0) return prev;
+
+      return {
+        ...prev,
+        keywords_boost: [...prev.keywords_boost, ...skillsToAdd],
+      };
+    });
+  };
+
+  const handleSkipResumeSuggestions = () => {
+    setResumeSuggestionName(null);
+    setResumeSkillSuggestions([]);
+  };
+
   const handleRemoveSkill = (skillToRemove: string) => {
     setConfig((prev) => ({
       ...prev,
@@ -926,8 +946,27 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                     <span className="font-medium text-surface-700">
                       {resumeSuggestionName}
                     </span>
-                    . Pick only skills you want in this search.
+                    . Review these skill names before adding them.
                   </p>
+                  <div className="mb-3 flex flex-wrap gap-2">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={handleAddAllVisibleSkillSuggestions}
+                      disabled={resumeSkillSuggestions.every((skill) =>
+                        config.keywords_boost.includes(skill)
+                      )}
+                    >
+                      Add all visible
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleSkipResumeSuggestions}
+                    >
+                      Skip resume suggestions
+                    </Button>
+                  </div>
                   <div className="flex flex-wrap gap-2">
                     {resumeSkillSuggestions.map((skill) => {
                       const alreadyAdded = config.keywords_boost.includes(skill);

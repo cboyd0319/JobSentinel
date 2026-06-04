@@ -67,6 +67,18 @@ Out of scope:
   employer intent.
 - [x] Replace repeated-sighting job-card copy that implied separate sources
   with factual `Seen N times` wording.
+- [x] Add missing-pay job-card guidance when a salary floor exists, while
+  treating missing pay as a review cue rather than scam or stale-posting proof.
+- [x] Add reviewed `Add all visible` and `Skip resume suggestions` controls
+  around saved-resume skill suggestions.
+- [x] Add low-detail job-card guidance for broad titles and thin descriptions
+  without claiming employer intent.
+- [x] Clean frontend lint warnings in application preview and dashboard fit
+  labeling so verification output is easier to trust.
+- [x] Run broader frontend build and smoke E2E checks for the current active
+  frontend batch.
+- [x] Replace technical-first quick-start, browser-button, and support-log copy
+  surfaced by read-only zero-technical-knowledge audit.
 
 ## Orchestration Log
 
@@ -85,6 +97,22 @@ Out of scope:
   touched one component, one component test, docs, and active plan state.
 - Coordinator implemented the resume hard-constraint slice locally because it
   touched shared analyzer, mock, UI, docs, and tests.
+- Coordinator implemented the missing-pay salary-floor cue locally because it
+  touched one component, one component test, feature docs, and active plan
+  state.
+- Guided-intake sidecar implemented reviewed bulk controls for saved-resume
+  skill suggestions in `SetupWizard`. Coordinator reviewed the diff and reran
+  focused `SetupWizard` tests and ESLint before accepting it.
+- Coordinator implemented the low-detail job-card cue locally because it extends
+  the same posting-risk component, tests, feature docs, and active plan state.
+- Coordinator cleaned the remaining frontend lint warnings by tightening
+  Application Preview hard-question dependency tracking and moving dashboard fit
+  label formatting out of the component module.
+- Coordinator ran production frontend build and smoke E2E budget checks against
+  the current active frontend batch.
+- Zero-technical-knowledge audit sidecar was read-only and changed no files.
+  Coordinator accepted its Quick Start, Browser Button, and support-log findings
+  and implemented the copy fixes locally with focused tests.
 
 ## Risks
 

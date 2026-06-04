@@ -93,6 +93,15 @@ const SCAM_SIGNAL_PATTERNS = [
   /\b(?:social\s+security\s+number|ssn|bank\s+account|driver'?s\s+license)\b.{0,80}\b(?:before|interview|start|offer)\b/i,
 ] as const;
 
+const LOW_DETAIL_TITLE_PATTERNS = [
+  /^\s*(?:various|multiple)\s+(?:positions|roles|openings)\s*$/i,
+  /^\s*(?:general|open)\s+(?:application|position|role|opening)\s*$/i,
+  /^\s*(?:now hiring|hiring now|join our team)\s*$/i,
+] as const;
+
+const THIN_DESCRIPTION_PATTERN = /\b(?:apply|hiring|opportunity|position|role|team)\b/i;
+const MIN_THIN_DESCRIPTION_LENGTH = 45;
+
 interface PostingRiskReason {
   category: "stale" | "repost" | "generic" | "missing_details" | "unrealistic" | "company_behavior";
   description: string;
@@ -185,6 +194,34 @@ function getPostingRiskGuidance(
   return null;
 }
 
+function getLowDetailPostingGuidance(
+  title: string,
+  description: string | null | undefined,
+): PostingRiskGuidance | null {
+  const trimmedTitle = title.trim();
+  const trimmedDescription = description?.trim() ?? "";
+  const hasBroadTitle = LOW_DETAIL_TITLE_PATTERNS.some((pattern) =>
+    pattern.test(trimmedTitle)
+  );
+  const hasMissingDescription = trimmedDescription.length === 0;
+  const hasThinDescription =
+    trimmedDescription.length > 0 &&
+    trimmedDescription.length < MIN_THIN_DESCRIPTION_LENGTH &&
+    THIN_DESCRIPTION_PATTERN.test(trimmedDescription);
+
+  if (!hasBroadTitle && !hasMissingDescription && !hasThinDescription) {
+    return null;
+  }
+
+  return {
+    level: "low",
+    title: "Check role details",
+    description:
+      "This posting has a very broad title or thin description. Confirm the role, team, and work details before tailoring.",
+    ariaLabel: "role details to check",
+  };
+}
+
 function getScamRiskGuidance(description: string | null | undefined): ScamRiskGuidance | null {
   const text = description?.trim();
   if (!text) return null;
@@ -205,7 +242,12 @@ function formatPayFloor(salaryFloorUsd: number) {
   return `$${salaryFloorUsd.toLocaleString()}/year`;
 }
 
+function hasListedSalaryValue(value: number | null | undefined): value is number {
+  return value != null && Number.isFinite(value) && value > 0;
+}
+
 function getPayFloorGuidance(
+  salaryMin: number | null | undefined,
   salaryMax: number | null | undefined,
   salaryFloorUsd: number | null | undefined,
 ): PayFloorGuidance | null {
@@ -217,15 +259,22 @@ function getPayFloorGuidance(
     return null;
   }
 
-  if (
-    salaryMax == null ||
-    !Number.isFinite(salaryMax) ||
-    salaryMax >= salaryFloorUsd
-  ) {
+  const formattedFloor = formatPayFloor(salaryFloorUsd);
+  const hasSalaryMin = hasListedSalaryValue(salaryMin);
+  const hasSalaryMax = hasListedSalaryValue(salaryMax);
+
+  if (!hasSalaryMin && !hasSalaryMax) {
+    return {
+      title: "Pay not listed",
+      description: `No pay range is listed. Compare this role with your ${formattedFloor} floor before tailoring.`,
+      ariaLabel: "pay not listed; compare before tailoring",
+    };
+  }
+
+  if (!hasSalaryMax || salaryMax >= salaryFloorUsd) {
     return null;
   }
 
-  const formattedFloor = formatPayFloor(salaryFloorUsd);
   return {
     title: "Below the lowest pay you want",
     description: `Listed pay tops out below ${formattedFloor}. Verify before tailoring.`,
@@ -325,9 +374,10 @@ export const JobCard = memo(function JobCard({
   const postingRiskGuidance = getPostingRiskGuidance(
     job.ghost_score,
     job.ghost_reasons,
-  );
+  ) ?? getLowDetailPostingGuidance(job.title, job.description);
   const scamRiskGuidance = getScamRiskGuidance(job.description);
   const payFloorGuidance = getPayFloorGuidance(
+    job.salary_min,
     job.salary_max,
     salaryFloorUsd,
   );
@@ -342,7 +392,7 @@ export const JobCard = memo(function JobCard({
       : safeScore >= SCORE_THRESHOLD_GOOD
         ? ", good match"
         : ""
-  }${salaryText ? "" : ", pay not listed"}${
+  }${salaryText || payFloorGuidance ? "" : ", pay not listed"}${
     scamRiskGuidance ? `, ${scamRiskGuidance.ariaLabel}` : ""
   }${
     postingRiskGuidance ? `, ${postingRiskGuidance.ariaLabel}` : ""

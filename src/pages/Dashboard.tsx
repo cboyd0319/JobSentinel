@@ -41,6 +41,7 @@ import {
   getDashboardLoadErrorMessage,
   getDashboardSearchErrorCopy,
 } from "./dashboardErrorCopy";
+import { formatDashboardFitEstimate } from "./dashboardFitEstimate";
 
 // Lazy load heavy components to reduce initial bundle size
 const DashboardWidgets = lazy(() =>
@@ -54,18 +55,6 @@ const CompanyResearchPanel = lazy(() =>
   })),
 );
 const Settings = lazy(() => import("./Settings"));
-
-export function formatDashboardFitEstimate(score: number | null | undefined): string {
-  if (score == null || !Number.isFinite(score)) {
-    return "Not available";
-  }
-
-  const percentage = Math.round(score * 100);
-  if (score >= 0.9) return `Strong fit (${percentage}%)`;
-  if (score >= 0.7) return `Good fit (${percentage}%)`;
-  if (score >= 0.5) return `Possible fit (${percentage}%)`;
-  return `Needs review (${percentage}%)`;
-}
 
 // Extracted modules
 import type {

@@ -19,21 +19,17 @@ help more job seekers, including by building something better.
 
 **Download the package or installer** (recommended)
 
-1. Open the [latest download page](https://github.com/cboyd0319/JobSentinel/releases).
-2. Look for the installer list on the latest download page.
-3. Download the package or installer for your computer:
+1. Open the [JobSentinel downloads page](https://github.com/cboyd0319/JobSentinel/releases).
+2. Choose the package or installer for your computer:
    - **Windows installer**
-   - **Mac package** for Apple silicon and Intel Macs, only when the release
-     also includes a matching `.dmg.sha256` checksum. Until Developer ID
-     signing and notarization are available, use a Mac package with
-     `_no-account_` in the file name. For `v2.6.4`, use
+   - **Mac package** for Apple silicon and Intel Macs. For `v2.6.4`, use
      `JobSentinel_2.6.4_no-account_universal.dmg`.
    - **Linux installer** when present on the release
-4. Install it:
+3. Install it:
    - Windows or Linux: double-click and follow the prompts.
    - Mac: open the `.dmg`, drag **JobSentinel** to **Applications**, then eject
      the disk image.
-5. Open JobSentinel from your apps list or **Applications** folder.
+4. Open JobSentinel from your apps list or **Applications** folder.
 
 <details>
 <summary><strong>First time on Mac? (Gatekeeper warning)</strong></summary>

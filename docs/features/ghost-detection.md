@@ -98,6 +98,10 @@ cue even when the overall warning score is low. This means the posting has a
 specific age or repost signal worth checking before tailoring; it is not a
 claim about employer intent.
 
+Broad-title or thin-description jobs can also show **Check role details**. This
+means the posting text is light enough to review the role, team, and work
+details before tailoring; it is not a claim that the employer is fake.
+
 When posting risk is elevated, the job card also shows plain guidance before
 the user spends tailoring time:
 

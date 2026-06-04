@@ -467,6 +467,58 @@ describe("ApplicationPreview", () => {
       expect(screen.getByText("Location, relocation, or travel")).toBeInTheDocument();
     });
 
+    it("reloads hard-question review when the job description changes", async () => {
+      let profileLoadCount = 0;
+      mockInvoke.mockImplementation((command: string) => {
+        if (command === "get_application_profile_preview") {
+          profileLoadCount += 1;
+          return Promise.resolve(mockProfile);
+        }
+
+        if (command === "get_screening_answers") {
+          return Promise.resolve([
+            {
+              questionPattern: "background check",
+              answer: "Completed background screening for client-site work.",
+            },
+          ]);
+        }
+
+        return Promise.resolve(null);
+      });
+
+      const { rerender } = render(
+        <ApplicationPreview
+          job={{
+            ...mockJob,
+            description: "Great opportunity with a supportive team.",
+          }}
+          atsPlatform="greenhouse"
+        />,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText("Jordan Lee")).toBeInTheDocument();
+      });
+      expect(screen.queryByText("Hard Question Review")).not.toBeInTheDocument();
+      expect(mockInvoke).not.toHaveBeenCalledWith("get_screening_answers");
+
+      rerender(
+        <ApplicationPreview
+          job={{
+            ...mockJob,
+            description: "Offer requires a background check before start.",
+          }}
+          atsPlatform="greenhouse"
+        />,
+      );
+
+      expect(await screen.findByText("Hard Question Review")).toBeInTheDocument();
+      expect(screen.getByText("Background check or drug screen")).toBeInTheDocument();
+      expect(mockInvoke).toHaveBeenCalledWith("get_screening_answers");
+      expect(profileLoadCount).toBeGreaterThanOrEqual(2);
+    });
+
     it("flags background check and drug screen requirements from job details", async () => {
       mockInvoke.mockResolvedValue(mockProfile);
 
