@@ -131,6 +131,8 @@ Out of scope:
   elevated local-fit results.
 - [x] Treat invalid posting-risk scores as unavailable while preserving parsed
   stale or repost evidence.
+- [x] Hide malformed listed-pay values instead of showing negative, infinite,
+  or reversed ranges as pay evidence.
 
 ## Orchestration Log
 
@@ -253,6 +255,8 @@ Out of scope:
 - Coordinator applied the same `0` to `1` validation to posting-risk scores so
   invalid values cannot create stronger warning badges, while parsed stale or
   repost reasons still show **Check posting evidence**.
+- Coordinator tightened `formatSalaryRange` so malformed listed-pay values are
+  treated as unavailable instead of appearing as real pay evidence.
 
 ## Risks
 

@@ -108,15 +108,19 @@ export function formatSalaryNumber(salary: number): string {
  * Format a salary range for display
  */
 export function formatSalaryRange(min?: number | null, max?: number | null): string | null {
-  if (!min && !max) return null;
+  const hasMin = typeof min === "number" && Number.isFinite(min) && min > 0;
+  const hasMax = typeof max === "number" && Number.isFinite(max) && max > 0;
 
-  if (min && max) {
+  if (!hasMin && !hasMax) return null;
+
+  if (hasMin && hasMax) {
+    if (max < min) return null;
     return `${formatSalaryNumber(min)} - ${formatSalaryNumber(max)}`;
   }
-  if (min) {
+  if (hasMin) {
     return `${formatSalaryNumber(min)}+`;
   }
-  if (max) {
+  if (hasMax) {
     return `Up to ${formatSalaryNumber(max)}`;
   }
   return null;

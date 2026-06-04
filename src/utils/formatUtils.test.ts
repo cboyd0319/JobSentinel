@@ -161,6 +161,16 @@ describe("formatUtils", () => {
     it("formats max only with 'Up to'", () => {
       expect(formatSalaryRange(null, 150000)).toBe("Up to $150k");
     });
+
+    it("ignores invalid salary values", () => {
+      expect(formatSalaryRange(-50000, null)).toBe(null);
+      expect(formatSalaryRange(null, Infinity)).toBe(null);
+      expect(formatSalaryRange(NaN, 150000)).toBe("Up to $150k");
+    });
+
+    it("hides reversed salary ranges instead of showing malformed listed pay", () => {
+      expect(formatSalaryRange(150000, 80000)).toBe(null);
+    });
   });
 
   describe("truncateText", () => {

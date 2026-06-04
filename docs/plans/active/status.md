@@ -52,6 +52,15 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Listed-pay formatting now ignores malformed values, including non-finite,
+  negative, and reversed structured ranges.
+- Job cards and other shared formatter users no longer show those malformed
+  values as real listed-pay evidence.
+- The slice changes visible pay fallback handling only; it adds no storage
+  fields, network calls, external AI, telemetry, or salary-scoring behavior.
+
+Previous implementation slice:
+
 - Job cards now validate posting-risk scores before showing stronger
   posting-risk guidance or the compact posting-risk badge.
 - Invalid posting-risk scores are treated as unavailable, while parsed stale or

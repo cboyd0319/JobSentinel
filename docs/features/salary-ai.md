@@ -53,6 +53,9 @@ inputs, not as self-worth scores.
 - Treat missing pay as useful evidence about transparency, not as neutral or as
   proof of bad intent. Missing-pay job-card guidance is a review cue, not a
   stale-posting or scam claim.
+- Treat malformed listed-pay values, such as non-finite, negative, or reversed
+  structured ranges, as unavailable instead of showing them as real pay
+  evidence.
 - Treat very wide listed pay ranges as weaker evidence about the real role
   level, schedule, and realistic pay.
 - Check whether title, scope, decision rights, team size, budget, and promotion
