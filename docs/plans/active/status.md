@@ -50,6 +50,15 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Embedded resume analyzer tests moved from `ats_analyzer.rs` to
+  `ats_analyzer_tests.rs`.
+- `ats_analyzer.rs` is now roughly 3.4k lines after the type and test-module
+  splits; analyzer APIs and result payloads stay unchanged.
+- This is a mechanical oversized-file refactor with no resume-analysis behavior
+  change.
+
+Previous implementation slice:
+
 - Resume analyzer result structs and enums moved from `ats_analyzer.rs` to
   `ats_types.rs`.
 - Existing public re-exports remain under `crate::core::resume::*`, so Tauri

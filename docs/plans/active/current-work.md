@@ -148,6 +148,7 @@ Out of scope:
   dates.
 - [x] Start oversized-file modularization by extracting resume analyzer result
   types from the 8k-line analyzer module.
+- [x] Split resume analyzer tests out of the runtime analyzer file.
 
 ## Orchestration Log
 
@@ -299,6 +300,9 @@ Out of scope:
 - After the file-size audit, coordinator started with the largest active code
   file. Resume analyzer DTOs and enums moved to `ats_types.rs`, preserving the
   existing public `crate::core::resume::*` exports and analyzer behavior.
+- Coordinator then moved the embedded resume analyzer tests to
+  `ats_analyzer_tests.rs`, reducing `ats_analyzer.rs` from roughly 8.5k lines to
+  roughly 3.4k lines without changing analyzer APIs or behavior.
 
 ## Risks
 
