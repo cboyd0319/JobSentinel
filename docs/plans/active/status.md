@@ -50,6 +50,20 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- ATS analyzer business and operations requirement-equivalence tests moved out
+  of `src-tauri/src/core/resume/ats_analyzer_tests.rs`.
+- `src-tauri/src/core/resume/ats_analyzer_tests/business_requirement_equivalences.rs`
+  now owns legal, finance, government, retail, bookkeeping, procurement,
+  logistics, inventory, vendor, budgeting, and loan-processing equivalence
+  coverage.
+- This is a Rust test-only oversized-file cleanup slice; analyzer APIs,
+  scoring, evidence matching, and resume-review behavior stay unchanged.
+- Best next oversized-file slice is moving healthcare/service equivalence tests
+  out of `src-tauri/src/core/resume/ats_analyzer_tests.rs` or moving
+  resume-analysis helper logic out of `src/mocks/handlers.ts`.
+
+Previous implementation slice:
+
 - ATS analyzer clearance, background-check, and drug-screen hard-constraint
   tests moved out of `src-tauri/src/core/resume/ats_analyzer_tests.rs`.
 - `src-tauri/src/core/resume/ats_analyzer_tests/screening_requirement_constraints.rs`
