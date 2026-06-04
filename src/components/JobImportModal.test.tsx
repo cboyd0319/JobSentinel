@@ -179,6 +179,25 @@ describe("JobImportModal", () => {
     expect(screen.queryByText("Salary:")).not.toBeInTheDocument();
   });
 
+  it("shows a listed-pay review cue when the preview has no pay", async () => {
+    const user = userEvent.setup();
+    mockInvoke.mockResolvedValueOnce({
+      ...preview,
+      salary: null,
+    });
+
+    renderModal();
+
+    fireEvent.change(screen.getByLabelText("Job link"), {
+      target: { value: "https://example.com/jobs/office-manager" },
+    });
+    await user.click(screen.getByRole("button", { name: "Check Job Link" }));
+
+    expect(await screen.findByText("Listed pay not shown.")).toBeInTheDocument();
+    expect(screen.getByText(/Verify pay before tailoring/i)).toBeInTheDocument();
+    expect(screen.queryByText("Salary:")).not.toBeInTheDocument();
+  });
+
   it("shows the closing date when the posting provides one", async () => {
     const user = userEvent.setup();
     mockInvoke.mockResolvedValueOnce({
@@ -195,5 +214,25 @@ describe("JobImportModal", () => {
 
     expect(await screen.findByText("Posted: 5/1/2026")).toBeInTheDocument();
     expect(await screen.findByText("Closing date: 6/15/2026")).toBeInTheDocument();
+  });
+
+  it("shows plain unavailable copy for malformed preview dates", async () => {
+    const user = userEvent.setup();
+    mockInvoke.mockResolvedValueOnce({
+      ...preview,
+      date_posted: "not a date",
+      valid_through: "also not a date",
+    });
+
+    renderModal();
+
+    fireEvent.change(screen.getByLabelText("Job link"), {
+      target: { value: "https://example.com/jobs/office-manager" },
+    });
+    await user.click(screen.getByRole("button", { name: "Check Job Link" }));
+
+    expect(await screen.findByText("Posted: Date not shown")).toBeInTheDocument();
+    expect(screen.getByText("Closing date: Date not shown")).toBeInTheDocument();
+    expect(screen.queryByText(/Invalid Date/i)).not.toBeInTheDocument();
   });
 });

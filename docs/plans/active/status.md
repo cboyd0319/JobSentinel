@@ -38,19 +38,29 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Current Posture
 
-- Live repo evidence before this compaction: `git status --short --branch`
-  reported `## main...origin/main`.
-- Latest observed commit before this compaction:
-  `6a220a8c Record pushed semantic evidence batch`.
-- Previous active-plan count was 5 and indexed active workstream count was 5.
-  Fresh session evidence after this compaction reports 2 active docs and 2
-  indexed workstreams: this status file and `current-work.md`.
-- No push or remote CI action should run unless the user explicitly asks in the
-  current turn.
+- Last pushed baseline before local commits resumed:
+  `75d6a0e8 Use plain date fallback`.
+- Fresh harness evidence reports 2 active docs and 2 indexed workstreams: this
+  status file and `current-work.md`.
+- Local commits should continue in small verified slices; push only when the
+  branch reaches the user's 30-commit batch threshold or the user gives a newer
+  explicit push instruction.
 
 ## Latest Slice
 
 Latest implementation slice:
+
+- Job import preview now shows **Date not shown** when posting or closing date
+  evidence is malformed.
+- Job import preview now also shows **Listed pay not shown** when source pay is
+  missing, asking users to verify pay before tailoring.
+- This keeps JavaScript's `Invalid Date` text out of source-evidence review and
+  keeps missing listed pay visible before a user saves and tailors a job.
+- The slice changes visible import-preview fallback handling only; it adds no
+  storage fields, network calls, external AI, telemetry, or source-contact
+  behavior.
+
+Previous implementation slice:
 
 - Shared date and time formatters now use **Date not shown** for invalid
   inputs across event, date-time, interview, compact, and future-date displays.

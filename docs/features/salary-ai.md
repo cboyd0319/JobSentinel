@@ -13,6 +13,8 @@ fixed by asking harder.
 - Show "Pay not listed" on job cards when structured salary fields are empty,
   and, when a salary floor exists, ask the user to compare the role before
   tailoring.
+- Show missing listed-pay cues during job import preview so users know to
+  verify pay before saving and tailoring a posting.
 - Show a below-floor warning on job cards when listed pay tops out below the
   user's saved floor.
 - Keep open-ended minimum-only pay ranges visible without a below-floor warning,
@@ -51,8 +53,8 @@ inputs, not as self-worth scores.
 - Warn when the user's target is below the lower-pay part of a credible sample
   or below a credible posted midpoint.
 - Treat missing pay as useful evidence about transparency, not as neutral or as
-  proof of bad intent. Missing-pay job-card guidance is a review cue, not a
-  stale-posting or scam claim.
+  proof of bad intent. Missing-pay job-card and import-preview guidance is a
+  review cue, not a stale-posting or scam claim.
 - Treat malformed listed-pay values, such as non-finite, negative, or reversed
   structured ranges, as unavailable instead of showing them as real pay
   evidence.

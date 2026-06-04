@@ -73,7 +73,12 @@ function formatMissingDetails(fields: string[]) {
 }
 
 function formatImportDate(value: string) {
-  return new Date(value).toLocaleDateString("en-US", { timeZone: "UTC" });
+  const date = new Date(value);
+  if (!Number.isFinite(date.getTime())) {
+    return "Date not shown";
+  }
+
+  return date.toLocaleDateString("en-US", { timeZone: "UTC" });
 }
 
 function getSafeJobImportError(error: unknown) {
@@ -278,9 +283,13 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
               )}
 
               {/* Salary */}
-              {preview.salary && (
+              {preview.salary ? (
                 <div className="text-sm text-gray-700 dark:text-gray-300">
                   <span className="font-medium">Listed pay:</span> {preview.salary}
+                </div>
+              ) : (
+                <div className="text-sm text-gray-700 dark:text-gray-300">
+                  <span className="font-medium">Listed pay not shown.</span> Verify pay before tailoring.
                 </div>
               )}
 

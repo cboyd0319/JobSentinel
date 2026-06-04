@@ -112,9 +112,13 @@ parameters, and sensitive query parameters while preserving public posting
 identifiers needed to recognize the posting.
 When the import preview includes posting pay, it labels it as listed pay so the
 user treats it as source evidence to review rather than a guaranteed salary.
+When the import preview does not include posting pay, it says listed pay is not
+shown and asks the user to verify pay before tailoring.
 When the posting includes a closing date, the import preview shows it before
 the user saves the job. Previewed posting and closing dates preserve the source
-date instead of shifting a day earlier in local time zones.
+date instead of shifting a day earlier in local time zones. If a source returns
+a malformed posting or closing date, the preview shows **Date not shown**
+instead of displaying a raw date-parsing error.
 
 JobSentinel compares cleaned title, company, location, and link to spot
 duplicates.

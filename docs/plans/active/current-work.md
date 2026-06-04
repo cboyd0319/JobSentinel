@@ -138,6 +138,8 @@ Out of scope:
   `Invalid Date`.
 - [x] Use the same invalid-date fallback across shared date and time
   formatters.
+- [x] Show plain unavailable copy for malformed job-import preview dates.
+- [x] Show missing listed-pay guidance in job-import preview.
 
 ## Orchestration Log
 
@@ -269,6 +271,12 @@ Out of scope:
   not shown** instead of leaking JavaScript's `Invalid Date` text.
 - Coordinator reused that **Date not shown** fallback across event, date-time,
   interview, compact, and future-date formatters.
+- Coordinator applied the same plain fallback to job-import preview posting and
+  closing dates so malformed source dates remain reviewable without exposing
+  JavaScript date-parser text.
+- Job-card/pay scout was read-only and changed no files. Coordinator accepted
+  its finding that job-import preview hid missing listed pay, then added a
+  plain **Listed pay not shown** review cue without claiming employer intent.
 
 ## Risks
 
