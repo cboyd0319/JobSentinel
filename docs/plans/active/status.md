@@ -50,6 +50,17 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- DB hide, unhide, hidden-query, and bookmark operation tests moved out of
+  `src-tauri/src/core/db/tests.rs` into
+  `src-tauri/src/core/db/tests/tests/job_visibility_tests.rs`.
+- The main DB test file still owns integration-style database operation tests
+  and shared fixtures; the extracted module owns visibility and bookmark
+  behavior tests.
+- `src-tauri/src/core/db/tests.rs` legacy no-growth budget tightened from 2,879
+  lines to 2,526 lines.
+
+Recent cleanup summary:
+
 - DB model, serialization, timeout, and path tests moved out of
   `src-tauri/src/core/db/tests.rs` into
   `src-tauri/src/core/db/tests/tests/model_tests.rs`.
@@ -57,9 +68,6 @@ Latest implementation slice:
   and shared fixtures; the extracted module owns no-database model tests.
 - `src-tauri/src/core/db/tests.rs` legacy no-growth budget tightened from 3,420
   lines to 2,879 lines.
-
-Recent cleanup summary:
-
 - Resume bullet action-word list and role-specific evidence prompts moved out of
   `src-tauri/src/core/resume/ats_analyzer.rs` into
   `src-tauri/src/core/resume/ats_analyzer/bullet_prompts.rs`.

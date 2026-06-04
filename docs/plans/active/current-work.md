@@ -156,6 +156,7 @@ Out of scope:
 - [x] Split Settings additional job board UI out of the main Settings page.
 - [x] Split resume analyzer bullet prompt helpers out of the runtime analyzer.
 - [x] Split DB no-database model tests out of the main DB test file.
+- [x] Split DB visibility and bookmark tests out of the main DB test file.
 
 ## Orchestration Log
 
@@ -359,6 +360,9 @@ Out of scope:
 - Coordinator moved DB model, serialization, timeout, and path tests into
   `src-tauri/src/core/db/tests/tests/model_tests.rs`. The root DB test file keeps
   integration-style database operation tests and shared fixtures.
+- Coordinator moved DB hide, unhide, hidden-query, and bookmark operation tests
+  into `src-tauri/src/core/db/tests/tests/job_visibility_tests.rs`. The root DB
+  test file keeps shared fixtures and remaining database operation tests.
 
 ## Risks
 
