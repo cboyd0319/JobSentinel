@@ -169,6 +169,8 @@ Out of scope:
   file.
 - [x] Split frontend error-report and security-doc bloat integration tests out
   of the main bloat test file.
+- [x] Split feedback/privacy, mock-handler, recovery-copy, and score-copy bloat
+  integration tests out of the main bloat test file.
 
 ## Orchestration Log
 
@@ -396,6 +398,10 @@ Out of scope:
 - Coordinator moved frontend error-report and security-doc `checkRepoBloat`
   integration tests into `scripts/check-repo-bloat-frontend-security.test.mjs`.
   The root bloat integration test keeps aggregate sensor smoke coverage.
+- Coordinator moved feedback/privacy, mock-handler, recovery-copy, and
+  score-copy `checkRepoBloat` integration tests into
+  `scripts/check-repo-bloat-feedback-privacy.test.mjs`. The root bloat
+  integration test keeps aggregate sensor smoke coverage.
 
 ## Risks
 
