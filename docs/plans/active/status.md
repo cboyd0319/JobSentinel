@@ -50,17 +50,25 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Resume analysis score assembly and format-review helper logic moved out of
+  `src/mocks/handlers.ts` into
+  `src/mocks/handlers/resumeAnalysisRunner.ts`.
+- The main mock handler still owns command dispatch, mutable mock state, and
+  bullet prompt keyword injection; the extracted helper owns pure resume
+  format and job-fit analysis assembly.
+- `src/mocks/handlers.ts` legacy no-growth budget tightened from 2,087 lines to
+  1,887 lines.
+
+Recent cleanup summary:
+
 - Resume keyword extraction, conservative term expansion, evidence-location
   matching, and evidence frequency helpers moved out of
   `src/mocks/handlers.ts` into
   `src/mocks/handlers/resumeKeywordMatching.ts`.
-- The main mock handler still owns analysis score assembly and command
+- The main mock handler still owned analysis score assembly and command
   dispatch; the extracted helper owns pure keyword and evidence matching.
 - `src/mocks/handlers.ts` legacy no-growth budget tightened from 3,050 lines to
   2,087 lines.
-
-Recent cleanup summary:
-
 - Resume requirement review and hard-constraint helper logic moved out of
   `src/mocks/handlers.ts` into
   `src/mocks/handlers/resumeRequirementReview.ts`.

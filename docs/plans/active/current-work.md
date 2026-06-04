@@ -152,6 +152,7 @@ Out of scope:
 - [x] Split Settings icon and config helper code out of the main Settings page.
 - [x] Split mock deep-link and job-import helpers out of the main mock handler.
 - [x] Split mock support-report helpers out of the main mock handler.
+- [x] Split mock resume analysis score assembly out of the main mock handler.
 
 ## Orchestration Log
 
@@ -342,6 +343,9 @@ Out of scope:
   evidence-location matching, and evidence frequency helpers into
   `src/mocks/handlers/resumeKeywordMatching.ts`. The root mock handler keeps
   analysis score assembly and command dispatch.
+- Coordinator moved resume format review and job-fit score assembly into
+  `src/mocks/handlers/resumeAnalysisRunner.ts`. The root mock handler keeps
+  command dispatch, mutable mock state, and bullet prompt keyword injection.
 
 ## Risks
 
