@@ -45,6 +45,16 @@ import {
   updateMockScraperEnabled,
   type MockScraperEnabledOverrides,
 } from "./handlers/scraperHealth";
+import {
+  getMockInterviewFollowup,
+  getMockInterviewPrepChecklist,
+  normalizeInterviewFollowUpState,
+  normalizeInterviewPrepState,
+  saveMockInterviewFollowup,
+  saveMockInterviewPrepItem,
+  type MockInterviewFollowUpState,
+  type MockInterviewPrepState,
+} from "./handlers/interviewProgress";
 import type { PostedDateFilter, ScoreFilter, SortOption } from "../pages/DashboardTypes";
 import type { NotificationPreferences, SourceNotificationConfig } from "../utils/notificationPreferences";
 
@@ -356,18 +366,6 @@ interface MockDashboardPreferences {
   autoRefresh: MockConfig["auto_refresh"];
   salaryFloorUsd: number;
   anyJobSourceEnabled: boolean;
-}
-
-interface MockPrepChecklistItem {
-  itemId: string;
-  completed: boolean;
-  completedAt: string | null;
-}
-
-interface MockFollowUpReminder {
-  interviewId: number;
-  thankYouSent: boolean;
-  sentAt: string | null;
 }
 
 interface MockSalaryBenchmark {
@@ -688,8 +686,8 @@ let marketAlerts: MockMarketAlert[] = getDefaultMarketAlerts();
 let applicationProfile: MockApplicationProfile | null = getDefaultApplicationProfile();
 let screeningAnswers: MockScreeningAnswer[] = getDefaultScreeningAnswers();
 let scraperEnabledOverrides: MockScraperEnabledOverrides = {};
-let interviewPrepChecklists: Record<string, MockPrepChecklistItem[]> = {};
-let interviewFollowups: Record<string, MockFollowUpReminder> = {};
+let interviewPrepChecklists: MockInterviewPrepState = {};
+let interviewFollowups: MockInterviewFollowUpState = {};
 let automationBrowserRunning = false;
 let nextAutomationAttemptId = 1;
 
@@ -716,8 +714,8 @@ interface MockState {
   applicationProfile: MockApplicationProfile | null;
   screeningAnswers: MockScreeningAnswer[];
   scraperEnabledOverrides: MockScraperEnabledOverrides;
-  interviewPrepChecklists: Record<string, MockPrepChecklistItem[]>;
-  interviewFollowups: Record<string, MockFollowUpReminder>;
+  interviewPrepChecklists: MockInterviewPrepState;
+  interviewFollowups: MockInterviewFollowUpState;
 }
 
 function canUseStorage(): boolean {
@@ -826,7 +824,7 @@ function loadMockState(): void {
       interviewPrepChecklists = normalizeInterviewPrepState(state.interviewPrepChecklists);
     }
     if (state.interviewFollowups && typeof state.interviewFollowups === "object") {
-      interviewFollowups = normalizeFollowUpState(state.interviewFollowups);
+      interviewFollowups = normalizeInterviewFollowUpState(state.interviewFollowups);
     }
   } catch {
     window.localStorage.removeItem(MOCK_STATE_KEY);
@@ -1179,46 +1177,6 @@ function normalizeScreeningAnswer(value: Partial<MockScreeningAnswer>): MockScre
     lastUsedAt: nullableString(value.lastUsedAt),
     createdAt: typeof value.createdAt === "string" ? value.createdAt : now,
     updatedAt: typeof value.updatedAt === "string" ? value.updatedAt : now,
-  };
-}
-
-function normalizeInterviewPrepState(value: Record<string, unknown>): Record<string, MockPrepChecklistItem[]> {
-  return Object.fromEntries(
-    Object.entries(value)
-      .filter(([, items]) => Array.isArray(items))
-      .map(([interviewId, items]) => [
-        interviewId,
-        (items as unknown[]).map(normalizePrepChecklistItem),
-      ]),
-  );
-}
-
-function normalizePrepChecklistItem(value: unknown): MockPrepChecklistItem {
-  const source = isRecord(value) ? value : {};
-  return {
-    itemId: typeof source.itemId === "string" ? source.itemId : "",
-    completed: typeof source.completed === "boolean" ? source.completed : false,
-    completedAt: nullableString(source.completedAt),
-  };
-}
-
-function normalizeFollowUpState(value: Record<string, unknown>): Record<string, MockFollowUpReminder> {
-  return Object.fromEntries(
-    Object.entries(value)
-      .filter(([, followup]) => isRecord(followup))
-      .map(([interviewId, followup]) => [
-        interviewId,
-        normalizeFollowUpReminder(followup),
-      ]),
-  );
-}
-
-function normalizeFollowUpReminder(value: unknown): MockFollowUpReminder {
-  const source = isRecord(value) ? value : {};
-  return {
-    interviewId: numberValue(source.interviewId, 0),
-    thankYouSent: booleanValue(source.thankYouSent, false),
-    sentAt: nullableString(source.sentAt),
   };
 }
 
@@ -3690,52 +3648,6 @@ function getMockSuggestedAnswers(args?: Record<string, unknown>): MockAnswerSugg
     }));
 }
 
-function getInterviewIdArg(args?: Record<string, unknown>): number | undefined {
-  return getNumericArg(args, "interviewId") ?? getNumericArg(args, "interview_id");
-}
-
-function saveMockInterviewPrepItem(args?: Record<string, unknown>): void {
-  const interviewId = getInterviewIdArg(args);
-  const itemId = getStringArg(args, "itemId") ?? getStringArg(args, "item_id");
-  if (!interviewId || !itemId) {
-    throw new Error("interviewId and itemId are required");
-  }
-
-  const completed = booleanValue(getArg(args, "completed"), false);
-  const key = String(interviewId);
-  const existingItems = interviewPrepChecklists[key] ?? [];
-  const nextItem: MockPrepChecklistItem = {
-    itemId,
-    completed,
-    completedAt: completed ? new Date().toISOString() : null,
-  };
-  interviewPrepChecklists[key] = [
-    ...existingItems.filter((item) => item.itemId !== itemId),
-    nextItem,
-  ];
-  saveMockState();
-}
-
-function saveMockInterviewFollowup(args?: Record<string, unknown>): MockFollowUpReminder {
-  const interviewId = getInterviewIdArg(args);
-  if (!interviewId) {
-    throw new Error("interviewId is required");
-  }
-
-  const thankYouSent = booleanValue(
-    getArg(args, "thankYouSent") ?? getArg(args, "thank_you_sent"),
-    false,
-  );
-  const followup: MockFollowUpReminder = {
-    interviewId,
-    thankYouSent,
-    sentAt: thankYouSent ? new Date().toISOString() : null,
-  };
-  interviewFollowups[String(interviewId)] = followup;
-  saveMockState();
-  return followup;
-}
-
 function escapeHtml(value: string): string {
   return value.replace(/[&<>"']/g, (char) => {
     const escapes: Record<string, string> = {
@@ -5171,22 +5083,23 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
       return getAllMockSmokeTestResults(scraperEnabledOverrides) as T;
 
     // Interview prep and follow-up commands
-    case "get_interview_prep_checklist": {
-      const interviewId = getInterviewIdArg(args);
-      return (interviewId ? interviewPrepChecklists[String(interviewId)] ?? [] : []) as T;
-    }
+    case "get_interview_prep_checklist":
+      return getMockInterviewPrepChecklist(args, interviewPrepChecklists) as T;
 
     case "save_interview_prep_item":
-      saveMockInterviewPrepItem(args);
+      interviewPrepChecklists = saveMockInterviewPrepItem(args, interviewPrepChecklists);
+      saveMockState();
       return undefined as T;
 
-    case "get_interview_followup": {
-      const interviewId = getInterviewIdArg(args);
-      return (interviewId ? interviewFollowups[String(interviewId)] ?? null : null) as T;
-    }
+    case "get_interview_followup":
+      return getMockInterviewFollowup(args, interviewFollowups) as T;
 
-    case "save_interview_followup":
-      return saveMockInterviewFollowup(args) as T;
+    case "save_interview_followup": {
+      const result = saveMockInterviewFollowup(args, interviewFollowups);
+      interviewFollowups = result.state;
+      saveMockState();
+      return result.followup as T;
+    }
 
     // Cover letter templates
     case "seed_default_templates": {

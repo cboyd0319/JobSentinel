@@ -50,6 +50,19 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Mock interview prep and follow-up helpers moved out of
+  `src/mocks/handlers.ts`.
+- `src/mocks/handlers/interviewProgress.ts` now owns persisted prep-checklist
+  and thank-you follow-up state normalization plus get/save helpers for the
+  interview progress mock commands.
+- The root mock handler still owns local-storage persistence and updates that
+  state explicitly after save commands, so command payloads and reset behavior
+  stay unchanged.
+- Best next oversized-file slice is splitting mock handler test cases by
+  command domain.
+
+Previous implementation slice:
+
 - Mock scraper-health helpers moved out of `src/mocks/handlers.ts`.
 - `src/mocks/handlers/scraperHealth.ts` now owns mock scraper definitions,
   scraper-health summaries, run history, smoke-test results, expiring
