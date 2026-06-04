@@ -189,6 +189,11 @@ test("source boundaries reject unapproved JobsWithGPT endpoint flows", () => {
     );
     writeFixtureFile(
       root,
+      "src/pages/SettingsConnectedJobSource.tsx",
+      "value={config.jobswithgpt_endpoint}\n",
+    );
+    writeFixtureFile(
+      root,
       "src/pages/Settings.tsx",
       "value={config.jobswithgpt_endpoint}\n",
     );
@@ -210,6 +215,10 @@ test("source boundaries reject unapproved JobsWithGPT endpoint flows", () => {
       true,
     );
     assert.equal(hasJobsWithGptUnapprovedEndpointFlow(root, "src/pages/Settings.tsx"), true);
+    assert.equal(
+      hasJobsWithGptUnapprovedEndpointFlow(root, "src/pages/SettingsConnectedJobSource.tsx"),
+      true,
+    );
     assert.equal(hasJobsWithGptUnapprovedEndpointFlow(root, "src/mocks/handlers.ts"), true);
     assert.equal(hasJobsWithGptUnapprovedEndpointFlow(root, "docs/features/scrapers.md"), false);
   });
@@ -244,6 +253,11 @@ test("source boundaries reject missing JobsWithGPT request ledger", () => {
     );
     writeFixtureFile(
       root,
+      "src/pages/SettingsConnectedJobSource.tsx",
+      "value={config.jobswithgpt_endpoint}\n",
+    );
+    writeFixtureFile(
+      root,
       "src/pages/Settings.tsx",
       "value={config.jobswithgpt_endpoint}\n",
     );
@@ -272,6 +286,10 @@ test("source boundaries reject missing JobsWithGPT request ledger", () => {
     );
     assert.equal(hasJobsWithGptMissingRequestLedger(root, "src-tauri/src/main.rs"), true);
     assert.equal(hasJobsWithGptMissingRequestLedger(root, "src/pages/Settings.tsx"), true);
+    assert.equal(
+      hasJobsWithGptMissingRequestLedger(root, "src/pages/SettingsConnectedJobSource.tsx"),
+      true,
+    );
     assert.equal(hasJobsWithGptMissingRequestLedger(root, "docs/features/scrapers.md"), false);
   });
 });

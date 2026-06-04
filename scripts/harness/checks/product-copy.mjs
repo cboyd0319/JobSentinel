@@ -309,6 +309,7 @@ const technicalFirstUserCopyPaths = new Set([
   "src/pages/Market.tsx",
   "src/pages/ResumeBuilder.tsx",
   "src/pages/Salary.tsx",
+  "src/pages/SettingsConnectedJobSource.tsx",
   "src/pages/SettingsPostingRiskSection.tsx",
   "src/pages/Settings.tsx",
   "src/pages/SetupWizard.tsx",
@@ -1141,13 +1142,12 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /Missing details:\s*\{?preview\.missing_fields\.join/i,
       /preview\.missing_fields\.join\(\s*["'`],\s*["'`]\s*\)/i,
     ];
-
     if (importPatterns.some((pattern) => pattern.test(text))) {
       return true;
     }
   }
 
-  if (path === "src/pages/Settings.tsx") {
+  if (path === "src/pages/Settings.tsx" || path === "src/pages/SettingsConnectedJobSource.tsx") {
     const settingsPatterns = [
       /Review before anything is sent/i,
       />Endpoint</i,

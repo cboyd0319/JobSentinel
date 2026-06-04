@@ -53,6 +53,7 @@ const broadAudienceExamplePaths = new Set([
   "src/pages/ResumeOptimizer.test.tsx",
   "src/pages/Resume.tsx",
   "src/pages/Salary.tsx",
+  "src/pages/SettingsConnectedJobSource.tsx",
   "src/pages/SettingsPostingRiskSection.tsx",
   "src/pages/Settings.tsx",
   "src/pages/SetupWizard.tsx",
