@@ -52,6 +52,17 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Live Resume Builder detail review now shows **Must-Haves To Check** when
+  local resume analysis returns hard-constraint risks.
+- The section uses plain category labels and truth-first actions instead of
+  hiding the risk behind the score or showing backend category names and score
+  caps.
+- The slice changes visible local review guidance only; it adds no storage
+  fields, network calls, external AI, telemetry, or resume-analysis behavior
+  changes.
+
+Previous implementation slice:
+
 - Job import preview now labels posting pay as **Listed pay** instead of
   **Salary**.
 - The wording keeps imported pay framed as source evidence to review before

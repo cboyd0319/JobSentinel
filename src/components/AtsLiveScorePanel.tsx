@@ -109,6 +109,29 @@ function formatIssueSeverity(severity: FormatIssue["severity"]): string {
   }
 }
 
+function formatHardConstraintCategory(category: HardConstraintRisk["category"]): string {
+  switch (category) {
+    case "WorkAuthorization":
+      return "Work authorization";
+    case "SecurityClearance":
+      return "Security clearance";
+    case "LicenseOrCertification":
+      return "License or certification";
+    case "Education":
+      return "Education";
+    case "Experience":
+      return "Years of experience";
+    case "Language":
+      return "Language requirement";
+    case "BackgroundScreening":
+      return "Background or drug screening";
+    case "PhysicalRequirement":
+      return "Physical requirement";
+    case "Location":
+      return "Location, schedule, availability, or travel";
+  }
+}
+
 // Resume data structure for analysis
 interface ContactInfo {
   name: string;
@@ -573,6 +596,40 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
                         {match.keyword}
                       </Badge>
                     </Tooltip>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Must-haves to check */}
+            {analysis.hard_constraint_risks && analysis.hard_constraint_risks.length > 0 && (
+              <div>
+                <h4 className="text-sm font-semibold text-surface-800 dark:text-surface-200 mb-3">
+                  Must-Haves To Check ({analysis.hard_constraint_risks.length})
+                </h4>
+                <div className="space-y-2">
+                  {analysis.hard_constraint_risks.map((risk, idx) => (
+                    <div
+                      key={`${risk.category}-${risk.requirement}-${idx}`}
+                      className="p-3 bg-danger/5 dark:bg-danger/10 rounded-lg border border-danger/20"
+                    >
+                      <div className="flex items-start gap-2">
+                        <Badge variant="danger" size="sm">
+                          {formatHardConstraintCategory(risk.category)}
+                        </Badge>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-surface-800 dark:text-surface-200">
+                            Check {risk.requirement}
+                          </p>
+                          <p className="text-xs text-surface-600 dark:text-surface-400 mt-1">
+                            {risk.action}
+                          </p>
+                          <p className="text-xs text-surface-500 dark:text-surface-500 mt-1">
+                            {risk.reason}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>

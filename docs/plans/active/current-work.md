@@ -117,6 +117,8 @@ Out of scope:
   remote, hybrid, overtime, holiday, full-time, and part-time wording.
 - [x] Label job-import preview pay as listed pay so posting pay stays framed as
   source evidence to review.
+- [x] Show live Resume Builder must-have checks when local hard constraints
+  need review before tailoring.
 
 ## Orchestration Log
 
@@ -219,6 +221,9 @@ Out of scope:
 - Coordinator changed the job-import preview pay label from salary to listed
   pay so imported posting pay stays review-first and does not read like a
   guaranteed salary.
+- Coordinator added a **Must-Haves To Check** section to the live Resume
+  Builder detail modal so hard-constraint risks received from local analysis no
+  longer stay hidden behind the score.
 
 ## Risks
 

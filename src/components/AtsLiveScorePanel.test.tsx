@@ -730,6 +730,44 @@ describe("AtsLiveScorePanel", () => {
       expect(screen.getByText(/Start with required job-post language/i)).toBeInTheDocument();
     });
 
+    it("shows hard must-haves to check in plain language", async () => {
+      mockInvoke.mockResolvedValue({
+        ...mockAnalysis,
+        hard_constraint_risks: [
+          {
+            requirement: "work authorization",
+            category: "WorkAuthorization",
+            score_cap: 60,
+            reason: "A required hard constraint was not clearly found in the resume.",
+            action: "Check work authorization before tailoring. If it is not true for you, do not claim it.",
+          },
+        ],
+      } satisfies AtsAnalysisResult);
+
+      render(
+        <AtsLiveScorePanel
+          resumeData={mockResumeData}
+          currentStep={1}
+          debounceMs={10}
+        />
+      );
+
+      await waitForAnalysis();
+
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: /review details/i })).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByRole("button", { name: /review details/i }));
+
+      expect(screen.getByText("Must-Haves To Check (1)")).toBeInTheDocument();
+      expect(screen.getByText("Work authorization")).toBeInTheDocument();
+      expect(screen.getByText("Check work authorization")).toBeInTheDocument();
+      expect(screen.getByText(/If it is not true for you, do not claim it/i)).toBeInTheDocument();
+      expect(screen.queryByText("WorkAuthorization")).not.toBeInTheDocument();
+      expect(screen.queryByText(/score cap/i)).not.toBeInTheDocument();
+    });
+
     it("displays suggestions in modal", async () => {
       render(
         <AtsLiveScorePanel
