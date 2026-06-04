@@ -82,6 +82,7 @@ const credentialSecretReadIpcPaths = new Set([
   "src-tauri/src/commands/credentials.rs",
   "src-tauri/src/commands/mod.rs",
   "src-tauri/src/main.rs",
+  "src/pages/SettingsJobSourcesSection.tsx",
   "src/pages/Settings.tsx",
   "src/mocks/handlers.ts",
   "docs/security/KEYRING.md",

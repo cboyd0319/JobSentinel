@@ -153,6 +153,7 @@ Out of scope:
 - [x] Split mock deep-link and job-import helpers out of the main mock handler.
 - [x] Split mock support-report helpers out of the main mock handler.
 - [x] Split mock resume analysis score assembly out of the main mock handler.
+- [x] Split Settings additional job board UI out of the main Settings page.
 
 ## Orchestration Log
 
@@ -346,6 +347,10 @@ Out of scope:
 - Coordinator moved resume format review and job-fit score assembly into
   `src/mocks/handlers/resumeAnalysisRunner.ts`. The root mock handler keeps
   command dispatch, mutable mock state, and bullet prompt keyword injection.
+- Coordinator moved Settings additional job board presentation into
+  `src/pages/SettingsJobSourcesSection.tsx` and shared secure-credential badge
+  copy into `src/pages/SettingsSecurityBadge.tsx`. The root Settings page keeps
+  config, source-approval, and credential state ownership.
 
 ## Risks
 

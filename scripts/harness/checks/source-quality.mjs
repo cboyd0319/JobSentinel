@@ -22,7 +22,10 @@ const storageJsonParserPaths = new Set([
 
 const staticCompanyFallbackPaths = new Set(["src/components/CompanyResearchPanel.tsx"]);
 
-const settingsCredentialPaths = new Set(["src/pages/Settings.tsx"]);
+const settingsCredentialPaths = new Set([
+  "src/pages/SettingsJobSourcesSection.tsx",
+  "src/pages/Settings.tsx",
+]);
 
 const resumeImportPaths = new Set(["src/pages/Resume.tsx"]);
 

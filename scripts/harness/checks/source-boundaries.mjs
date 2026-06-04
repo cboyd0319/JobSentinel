@@ -11,6 +11,7 @@ const linkedInAutomationBoundaryPaths = new Set([
   "src-tauri/src/core/scrapers/linkedin.rs",
   "src-tauri/src/core/scheduler/workers/scrapers.rs",
   "src-tauri/src/core/health/smoke_tests.rs",
+  "src/pages/SettingsJobSourcesSection.tsx",
   "src/pages/Settings.tsx",
   "docs/features/scrapers.md",
   "docs/features/scraper-health.md",
@@ -54,6 +55,7 @@ const jobsWithGptApprovalPaths = new Set([
   "src-tauri/src/core/scheduler/workers/scrapers.rs",
   "src-tauri/src/core/health/smoke_tests.rs",
   "src/pages/SettingsConnectedJobSource.tsx",
+  "src/pages/SettingsJobSourcesSection.tsx",
   "src/pages/Settings.tsx",
   "src/mocks/handlers.ts",
 ]);
@@ -65,6 +67,7 @@ const jobsWithGptRequestLedgerPaths = new Set([
   "src-tauri/src/core/scheduler/workers/scrapers.rs",
   "src-tauri/src/main.rs",
   "src/pages/SettingsConnectedJobSource.tsx",
+  "src/pages/SettingsJobSourcesSection.tsx",
   "src/pages/Settings.tsx",
 ]);
 
@@ -291,10 +294,11 @@ export function hasJobsWithGptUnapprovedEndpointFlow(root, path) {
     return /validate_external_http_url_for_fetch\(&config\.jobswithgpt_endpoint\)/.test(text);
   }
 
-  if (path === "src/pages/Settings.tsx") {
+  if (path === "src/pages/Settings.tsx" || path === "src/pages/SettingsJobSourcesSection.tsx") {
     return (
       /jobswithgpt_endpoint/.test(text) &&
       !/SettingsConnectedJobSource/.test(text) &&
+      !/SettingsJobSourcesSection/.test(text) &&
       !/Approve these exact details/.test(text)
     );
   }
@@ -337,10 +341,11 @@ export function hasJobsWithGptMissingRequestLedger(root, path) {
     return !/commands::health::get_latest_source_request/.test(text);
   }
 
-  if (path === "src/pages/Settings.tsx") {
+  if (path === "src/pages/Settings.tsx" || path === "src/pages/SettingsJobSourcesSection.tsx") {
     return (
       /jobswithgpt_endpoint/.test(text) &&
       !/SettingsConnectedJobSource/.test(text) &&
+      !/SettingsJobSourcesSection/.test(text) &&
       !/Last contacted/.test(text)
     );
   }

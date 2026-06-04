@@ -50,6 +50,17 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Settings additional job board UI moved out of `src/pages/Settings.tsx` into
+  `src/pages/SettingsJobSourcesSection.tsx`, and secure credential badge copy
+  moved to `src/pages/SettingsSecurityBadge.tsx`.
+- The main Settings page still owns modal state, config loading/saving, source
+  approval state, and credential state; the extracted section owns only source
+  board presentation and child wiring.
+- `src/pages/Settings.tsx` legacy no-growth budget tightened from 3,351 lines
+  to 2,663 lines.
+
+Recent cleanup summary:
+
 - Resume analysis score assembly and format-review helper logic moved out of
   `src/mocks/handlers.ts` into
   `src/mocks/handlers/resumeAnalysisRunner.ts`.
@@ -58,9 +69,6 @@ Latest implementation slice:
   format and job-fit analysis assembly.
 - `src/mocks/handlers.ts` legacy no-growth budget tightened from 2,087 lines to
   1,887 lines.
-
-Recent cleanup summary:
-
 - Resume keyword extraction, conservative term expansion, evidence-location
   matching, and evidence frequency helpers moved out of
   `src/mocks/handlers.ts` into

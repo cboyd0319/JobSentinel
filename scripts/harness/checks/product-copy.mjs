@@ -178,8 +178,7 @@ const protectiveScoreCopyPaths = new Set([
   "src/pages/DashboardUI/DashboardFiltersBar.tsx",
   "src/pages/SetupWizard.tsx",
   "src/pages/SettingsResumeMatchingSection.tsx",
-  "src/pages/SettingsPostingRiskSection.tsx",
-  "src/pages/Settings.tsx",
+  "src/pages/SettingsPostingRiskSection.tsx", "src/pages/SettingsJobSourcesSection.tsx", "src/pages/Settings.tsx",
 ]);
 const plainJobSearchDocPaths = new Set([
   "docs/features/application-tracking.md",
@@ -309,10 +308,9 @@ const technicalFirstUserCopyPaths = new Set([
   "src/pages/Market.tsx",
   "src/pages/ResumeBuilder.tsx",
   "src/pages/Salary.tsx",
-  "src/pages/SettingsConnectedJobSource.tsx",
-  "src/pages/SettingsResumeMatchingSection.tsx",
-  "src/pages/SettingsPostingRiskSection.tsx",
-  "src/pages/SettingsSupportSections.tsx", "src/pages/Settings.tsx",
+  "src/pages/SettingsConnectedJobSource.tsx", "src/pages/SettingsJobSourcesSection.tsx",
+  "src/pages/SettingsResumeMatchingSection.tsx", "src/pages/SettingsPostingRiskSection.tsx",
+  "src/pages/SettingsSecurityBadge.tsx", "src/pages/SettingsSupportSections.tsx", "src/pages/Settings.tsx",
   "src/pages/SetupWizard.tsx",
   "src/utils/errorHelpers.ts",
   "src/utils/errorMessages.ts",
@@ -1147,7 +1145,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
     }
   }
 
-  if (path === "src/pages/Settings.tsx" || path === "src/pages/SettingsConnectedJobSource.tsx") {
+  if (path === "src/pages/Settings.tsx" || path === "src/pages/SettingsConnectedJobSource.tsx" || path === "src/pages/SettingsJobSourcesSection.tsx") {
     const settingsPatterns = [
       /Review before anything is sent/i,
       />Endpoint</i,
