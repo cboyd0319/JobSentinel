@@ -50,6 +50,18 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- ATS analyzer clearance, background-check, and drug-screen hard-constraint
+  tests moved out of `src-tauri/src/core/resume/ats_analyzer_tests.rs`.
+- `src-tauri/src/core/resume/ats_analyzer_tests/screening_requirement_constraints.rs`
+  now owns missing required hard constraint, security clearance, background
+  screening, background check, and drug screen evidence coverage.
+- This is a Rust test-only oversized-file cleanup slice; analyzer APIs,
+  scoring, evidence matching, and resume-review behavior stay unchanged.
+- Best next oversized-file slice is moving resume-analysis helper logic out of
+  `src/mocks/handlers.ts` or splitting another large Rust test module.
+
+Previous implementation slice:
+
 - ATS analyzer current-experience evidence tests moved out of
   `src-tauri/src/core/resume/ats_analyzer_tests.rs`.
 - `src-tauri/src/core/resume/ats_analyzer_tests/current_experience_evidence.rs`
