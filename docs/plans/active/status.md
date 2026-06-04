@@ -50,6 +50,18 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- ATS analyzer bullet-improvement tests moved out of
+  `src-tauri/src/core/resume/ats_analyzer_tests.rs`.
+- `src-tauri/src/core/resume/ats_analyzer_tests/bullet_improvements.rs`
+  now owns power-word and `improve_bullet` role-specific evidence prompt tests.
+- This is a Rust test-only oversized-file cleanup slice; analyzer APIs,
+  scoring, evidence matching, and resume-review behavior stay unchanged.
+- Best next oversized-file slice is splitting credential requirement
+  equivalence tests out of `ats_analyzer_tests.rs` or moving resume-analysis
+  helper logic out of `src/mocks/handlers.ts`.
+
+Previous implementation slice:
+
 - Mock application-profile and screening-answer helpers moved out of
   `src/mocks/handlers.ts`.
 - `src/mocks/handlers/applicationProfile.ts` now owns application profile
