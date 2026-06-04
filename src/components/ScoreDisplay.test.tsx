@@ -183,15 +183,18 @@ describe("ScoreDisplay", () => {
       expect(screen.queryByText("0%")).not.toBeInTheDocument();
     });
 
-    it("handles negative scores", () => {
+    it("shows not-enough-information copy for negative scores", () => {
       render(<ScoreDisplay score={-0.5} />);
-      // Should treat as low score
-      expect(screen.getByText("-50%")).toBeInTheDocument();
+      expect(screen.getByText("--")).toBeInTheDocument();
+      expect(screen.getByText("No fit yet")).toBeInTheDocument();
+      expect(screen.queryByText("-50%")).not.toBeInTheDocument();
     });
 
-    it("handles scores > 1", () => {
+    it("shows not-enough-information copy for scores above one", () => {
       render(<ScoreDisplay score={1.5} />);
-      expect(screen.getByText("150%")).toBeInTheDocument();
+      expect(screen.getByText("--")).toBeInTheDocument();
+      expect(screen.getByText("No fit yet")).toBeInTheDocument();
+      expect(screen.queryByText("150%")).not.toBeInTheDocument();
     });
 
     it("ignores non-array score reason JSON", async () => {

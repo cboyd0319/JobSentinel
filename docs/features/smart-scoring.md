@@ -51,9 +51,9 @@ Job cards and fit details should help users make a decision without guessing.
 | **Needs Review** | The posting conflicts with saved preferences | Skip or update preferences if the result is wrong |
 
 When no saved fit estimate exists yet, or a local estimate is not a finite
-number, job cards and tooltips show **No fit yet** with `--` instead of `0%`.
-A numeric `0%` remains an actual saved zero-fit estimate, not a missing-result
-placeholder.
+number between `0` and `1`, job cards and tooltips show **No fit yet** with
+`--` instead of `0%`. A numeric `0%` remains an actual saved zero-fit estimate,
+not a missing-result placeholder.
 
 High fit does not mean the job is real, fair, or worth applying to. Always
 review posting risk, salary, source, and application route.

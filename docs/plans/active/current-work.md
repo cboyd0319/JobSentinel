@@ -125,6 +125,8 @@ Out of scope:
 - [x] Sync Resume Builder docs with live must-have review behavior.
 - [x] Treat non-finite job fit scores as unavailable instead of saved zero-fit
   estimates.
+- [x] Treat out-of-range job fit scores as unavailable instead of impossible
+  percentages.
 
 ## Orchestration Log
 
@@ -239,6 +241,8 @@ Out of scope:
   section names must-have checks as well as missing job-word buckets.
 - Coordinator fixed `ScoreDisplay` so non-finite fit scores show **No fit yet**
   with `--`, preserving `0%` for actual saved zero-fit estimates.
+- Coordinator extended the same fallback to finite scores outside the supported
+  `0` to `1` range, preventing impossible negative or over-100 fit percentages.
 
 ## Risks
 

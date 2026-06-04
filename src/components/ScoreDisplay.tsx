@@ -346,10 +346,14 @@ export const ScoreDisplay = memo(function ScoreDisplay({
   scoreReasons,
   onClick,
 }: ScoreDisplayProps) {
-  // Guard against null/NaN/undefined scores
-  const hasFiniteScore = typeof score === "number" && Number.isFinite(score);
-  const isUnscored = !hasFiniteScore;
-  const safeScore: number = hasFiniteScore ? score : 0;
+  // Guard against null/NaN/undefined and impossible out-of-range scores.
+  const hasValidScore =
+    typeof score === "number" &&
+    Number.isFinite(score) &&
+    score >= 0 &&
+    score <= 1;
+  const isUnscored = !hasValidScore;
+  const safeScore: number = hasValidScore ? score : 0;
   const percentage = Math.round(safeScore * 100);
   const scoreInfo = isUnscored ? UNSCORED_SCORE_INFO : getScoreInfo(safeScore);
 
