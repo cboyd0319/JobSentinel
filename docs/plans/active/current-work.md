@@ -95,6 +95,8 @@ Out of scope:
   regex, preserving literal symbols such as `Security+`.
 - [x] Show stale or repost job-card evidence even when the aggregate
   posting-risk score is unavailable.
+- [x] Keep dev mock short-credential matching bounded so terms such as `RN`
+  do not match inside unrelated words.
 
 ## Orchestration Log
 
@@ -159,6 +161,10 @@ Out of scope:
   posting-risk reasons could be present while the aggregate score was missing.
   The card now keeps the factual **Check posting evidence** guidance visible in
   that case without implying employer intent.
+- Coordinator aligned dev mock resume matching with backend term-boundary
+  behavior because short credentials such as `RN` could match inside unrelated
+  words like `intern`. The mock now uses bounded keyword frequency for
+  requirement evidence.
 
 ## Risks
 

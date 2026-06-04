@@ -2055,6 +2055,35 @@ describe("mock Tauri handlers", () => {
     );
   });
 
+  it("does not match short credentials inside longer words in mock hard constraints", async () => {
+    const rnResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "Retail intern with customer intake experience.",
+        experience: [],
+        skills: [],
+      },
+      jobDescription: "Required: RN license",
+    });
+
+    expect(rnResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "rn license",
+          match_state: "Missing",
+          hard_constraint: true,
+        }),
+      ]),
+    );
+    expect(rnResult.hard_constraint_risks).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          requirement: "rn license",
+        }),
+      ]),
+    );
+  });
+
   it("matches Registered Nurse license and RN wording in mock hard constraints", async () => {
     const rnResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {

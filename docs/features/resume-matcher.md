@@ -373,6 +373,8 @@ The current local matcher:
 - treats **RN**, **RN license**, **Registered Nurse**, and **Registered Nurse
   license** as the same local nursing-license evidence, including full
   Registered Nurse license wording in job posts;
+- keeps short credential checks bounded to full terms, so **RN** is not found
+  inside unrelated words such as **intern**;
 - treats CNA, Certified Nursing Assistant, Certified Nurse Assistant, and
   Certified Nurse Aide as the same local credential evidence, and avoids a
   duplicate generic certification risk when the specific credential matches;

@@ -52,6 +52,15 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Dev mock resume matching now uses bounded keyword matches for short
+  credentials, matching the backend's conservative term-boundary behavior.
+- This prevents mock hard-constraint evidence from treating unrelated words
+  such as `intern` as evidence for an `RN` requirement.
+- The slice adds no storage fields, network calls, external AI, telemetry, or
+  hidden application behavior.
+
+Previous implementation slice:
+
 - Job cards now show the low-key **Check posting evidence** cue when valid
   stale or repost reasons exist even if the aggregate posting-risk score is not
   available.
