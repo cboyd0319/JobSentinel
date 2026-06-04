@@ -251,6 +251,7 @@ const HARD_QUESTION_REVIEWS: HardQuestionReview[] = [
       "Check degree, diploma, or education-equivalent answers against visible evidence.",
     ),
     patterns: [
+      /\beducation\b/i,
       /\bdegree\b/i,
       /\bbachelor'?s?\b/i,
       /\bmaster'?s?\b/i,

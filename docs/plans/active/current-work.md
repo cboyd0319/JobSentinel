@@ -99,6 +99,8 @@ Out of scope:
   do not match inside unrelated words.
 - [x] Label missing job-card source data as unavailable instead of implying a
   source label came from the posting.
+- [x] Show hard-question review for visible education wording, not only degree
+  or diploma wording, when saved education answers can help user review.
 
 ## Orchestration Log
 
@@ -171,6 +173,10 @@ Out of scope:
   data could read like a posting-provided source label. The card helper now
   labels it as **Source not shown** and asks users to open the original posting
   before tailoring.
+- Application-preview scout was read-only and changed no files. Coordinator
+  accepted its finding that visible `education` wording did not trigger
+  hard-question review, then added the education trigger and focused preview
+  test locally.
 
 ## Risks
 

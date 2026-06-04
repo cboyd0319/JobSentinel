@@ -880,6 +880,52 @@ describe("ApplicationPreview", () => {
       expect(mockInvoke).toHaveBeenCalledWith("get_screening_answers");
     });
 
+    it("shows saved education answers when the job asks about education", async () => {
+      mockInvoke.mockImplementation((command: string) => {
+        if (command === "get_application_profile_preview") {
+          return Promise.resolve(mockProfile);
+        }
+
+        if (command === "get_screening_answers") {
+          return Promise.resolve([
+            {
+              id: 1,
+              questionPattern: "education",
+              answer: "I completed an approved training program.",
+              answerType: "text",
+              notes: null,
+              timesUsed: 0,
+              timesModified: 0,
+              confidenceScore: 0,
+              lastUsedAt: null,
+              createdAt: "2026-01-01T00:00:00Z",
+              updatedAt: "2026-01-01T00:00:00Z",
+            },
+          ]);
+        }
+
+        return Promise.reject(new Error(`Unexpected command: ${command}`));
+      });
+
+      render(
+        <ApplicationPreview
+          job={{
+            ...mockJob,
+            description: "Education required: approved training program accepted.",
+          }}
+          atsPlatform="greenhouse"
+        />,
+      );
+
+      expect(await screen.findByText("Hard Question Review")).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          "Saved education answer says: I completed an approved training program. Confirm it matches the employer's wording and resume evidence before continuing.",
+        ),
+      ).toBeInTheDocument();
+      expect(mockInvoke).toHaveBeenCalledWith("get_screening_answers");
+    });
+
     it("shows saved experience answers when the job asks about years of experience", async () => {
       mockInvoke.mockImplementation((command: string) => {
         if (command === "get_application_profile_preview") {

@@ -52,6 +52,17 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Application preview hard-question review now treats visible `education`
+  wording as an education-topic trigger, not only degree, diploma, bachelor,
+  master, or high-school wording.
+- Matching saved education answers can appear for postings such as "Education
+  required: approved training program accepted," so users can compare them with
+  employer wording and resume evidence before continuing.
+- The slice adds no storage fields, network calls, external AI, telemetry, or
+  hidden submission behavior.
+
+Previous implementation slice:
+
 - Job source labels now treat blank or missing source data as **Source not
   shown** instead of implying the label came from the posting.
 - The guidance asks users to open the original posting before tailoring when
