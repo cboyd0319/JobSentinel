@@ -151,6 +151,7 @@ Out of scope:
 - [x] Split resume analyzer tests out of the runtime analyzer file.
 - [x] Split Settings icon and config helper code out of the main Settings page.
 - [x] Split mock deep-link and job-import helpers out of the main mock handler.
+- [x] Split mock support-report helpers out of the main mock handler.
 
 ## Orchestration Log
 
@@ -317,6 +318,10 @@ Out of scope:
   `src/mocks/handlers/sourceLinksAndImports.ts`. The root mock handler keeps
   mutable `jobs` state and save behavior, so reset and persistence semantics
   stay local to the main mock state.
+- Coordinator moved safe support-report generation, filename sanitizing,
+  redaction, mock system info, and config-summary helpers into
+  `src/mocks/handlers/supportReports.ts`. The root mock handler passes current
+  config and active-resume state explicitly to avoid hidden state capture.
 
 ## Risks
 

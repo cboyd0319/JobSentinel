@@ -50,6 +50,18 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Mock support-report helpers moved out of `src/mocks/handlers.ts`.
+- `src/mocks/handlers/supportReports.ts` now owns safe support-report
+  generation, filename sanitizing, sensitive-text redaction, mock system info,
+  and config-summary helpers.
+- The root mock handler passes current config and active-resume state into that
+  module explicitly, avoiding hidden state capture while keeping support
+  reports local and sanitized.
+- Best next oversized-file slice remains scraper-health and interview mock
+  helpers.
+
+Previous implementation slice:
+
 - Mock deep-link and job-import helpers moved out of `src/mocks/handlers.ts`.
 - `src/mocks/handlers/sourceLinksAndImports.ts` now owns supported source-site
   metadata, deep-link URL generation, job-import preview canonicalization,
