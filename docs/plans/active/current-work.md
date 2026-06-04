@@ -335,6 +335,9 @@ Out of scope:
 - Coordinator moved resume section parsing and review guard helpers into
   `src/mocks/handlers/resumeAnalysisSections.ts`. The root mock handler keeps
   analysis scoring and keyword extraction.
+- Coordinator moved resume requirement review and hard-constraint helper logic
+  into `src/mocks/handlers/resumeRequirementReview.ts`. The root mock handler
+  keeps keyword extraction, evidence matching, scoring, and command dispatch.
 
 ## Risks
 

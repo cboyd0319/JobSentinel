@@ -50,6 +50,17 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Resume requirement review and hard-constraint helper logic moved out of
+  `src/mocks/handlers.ts` into
+  `src/mocks/handlers/resumeRequirementReview.ts`.
+- The main mock handler still owns job-context keyword extraction, evidence
+  matching, scoring, and command dispatch; the extracted helper owns requirement
+  review sorting, recommendation copy, score caps, and hard-constraint actions.
+- `src/mocks/handlers.ts` legacy no-growth budget tightened from 3,379 lines to
+  3,050 lines.
+
+Recent cleanup summary:
+
 - Resume section parsing and resume-review guard helpers moved out of
   `src/mocks/handlers.ts` into
   `src/mocks/handlers/resumeAnalysisSections.ts`.
@@ -58,9 +69,6 @@ Latest implementation slice:
   hidden-text, keyword-list, unclear-capability, and generic-filler guards.
 - `src/mocks/handlers.ts` legacy no-growth budget tightened from 3,656 lines to
   3,379 lines.
-
-Recent cleanup summary:
-
 - Resume bullet-improvement prompt helpers moved out of
   `src/mocks/handlers.ts` into
   `src/mocks/handlers/resumeBulletPrompts.ts`.

@@ -42,6 +42,7 @@ const broadAudienceExamplePaths = new Set([
   "src/mocks/handlers/marketIntelligence.ts",
   "src/mocks/handlers/resumeBulletPrompts.ts",
   "src/mocks/handlers/resumeBuilder.ts",
+  "src/mocks/handlers/resumeRequirementReview.ts",
   "src/mocks/data.ts",
   "src/mocks/handlers.ts",
   "src/mocks/handlers.test.ts",
