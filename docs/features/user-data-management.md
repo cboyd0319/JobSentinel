@@ -19,7 +19,10 @@ private circumstances. Core data workflows stay local by default.
 | Safe support reports | Local only, Sensitive | Reports are sanitized before copy or save. |
 | Location detection | Sensitive | Public-IP lookup happens only after explicit user action. |
 
-External AI is not required for user-data management.
+External AI is not required for user-data management. If an outside-AI send is
+blocked because the details are not on JobSentinel's reviewed sharing list, the
+user-facing error should describe reviewed details, not payloads, fields, or
+classification internals.
 
 ## What Stays Local
 

@@ -87,6 +87,8 @@ Out of scope:
   it into unverified ownership or development claims.
 - [x] Add office/admin, retail/hospitality, and trades/field first-run presets
   that stay off tech-heavy job sources by default.
+- [x] Replace outside-AI unreviewed-detail errors that exposed payload,
+  field, and classification wording.
 
 ## Orchestration Log
 
@@ -136,6 +138,9 @@ Out of scope:
   the existing guided-intake profile data, selector order, focused tests,
   feature docs, and active plan state without changing storage or source
   contact behavior.
+- Coordinator replaced outside-AI blocked-send wording locally because it
+  touched one gateway service, one focused test, feature docs, and active plan
+  state while preserving the existing no-send guard.
 
 ## Risks
 

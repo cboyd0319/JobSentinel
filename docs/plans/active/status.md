@@ -52,6 +52,19 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Replaced outside-AI blocked-send copy that exposed internal payload,
+  field, and classification wording.
+- The gateway still blocks unreviewed details before any outside-AI request is
+  sent, but the user-facing error now says the details include something
+  JobSentinel has not reviewed for sharing.
+- The slice adds no storage fields, network calls, external AI, telemetry, or
+  hidden application behavior.
+- Verification passed for focused external-AI gateway tests, full frontend
+  ESLint, TypeScript, external-AI gateway sensor, docs lint, harness check,
+  harness session, and diff whitespace.
+
+Previous implementation slice:
+
 - Added first-run preset paths for office and administration, retail and
   hospitality, and trades and field service so non-technical job seekers are
   not forced through custom setup to avoid tech-oriented presets.

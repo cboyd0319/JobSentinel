@@ -318,7 +318,7 @@ function validateRequest(
   if (unclassifiedKey) {
     throw new ExternalAiGatewayError(
       "unclassified_payload_key",
-      "Outside AI payload contains a field JobSentinel has not classified.",
+      "Outside AI details include something JobSentinel has not reviewed for sharing.",
     );
   }
 

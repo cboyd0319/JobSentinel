@@ -248,28 +248,32 @@ describe("aiGateway", () => {
     );
   });
 
-  it("rejects payload keys that are not classified by the gateway", async () => {
+  it("uses plain wording when outside AI details are not reviewed by the gateway", async () => {
     const transport = {
       send: vi.fn().mockResolvedValue({ text: "summary" }),
     };
     const gateway = createExternalAiGateway(enabledSettings(), transport);
 
-    await expect(
-      gateway.send({
-        ...publicJobSummaryRequest,
-        payload: {
-          ...publicJobSummaryRequest.payload,
-          unreviewedCandidatePacket: ["private answer"],
-        },
-        redactedPayload: {
-          ...publicJobSummaryRequest.redactedPayload,
-          unreviewedCandidatePacket: ["private answer"],
-        },
-      }),
-    ).rejects.toMatchObject({
+    const requestWithUnreviewedDetails = {
+      ...publicJobSummaryRequest,
+      payload: {
+        ...publicJobSummaryRequest.payload,
+        unreviewedCandidatePacket: ["private answer"],
+      },
+      redactedPayload: {
+        ...publicJobSummaryRequest.redactedPayload,
+        unreviewedCandidatePacket: ["private answer"],
+      },
+    };
+    const error = await gateway
+      .send(requestWithUnreviewedDetails)
+      .catch((err: unknown) => err);
+
+    expect(error).toMatchObject({
       code: "unclassified_payload_key",
-      message: "Outside AI payload contains a field JobSentinel has not classified.",
+      message: "Outside AI details include something JobSentinel has not reviewed for sharing.",
     });
+    expect((error as Error).message).not.toMatch(/payload|field|classified/i);
     expect(transport.send).not.toHaveBeenCalled();
   });
 
