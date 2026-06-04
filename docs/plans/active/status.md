@@ -50,6 +50,20 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Core mock command normalization helpers moved out of
+  `src/mocks/handlers.ts`.
+- `src/mocks/handlers/coreCommands.ts` now owns cover-letter template,
+  saved-search, and notification-preference types plus normalization, default,
+  and next-ID helpers.
+- The root mock handler still owns persisted mutable state and passes current
+  state into helper calls, so command payloads, storage behavior, and reset
+  behavior stay unchanged.
+- Best next oversized-file slice is splitting resume evidence equivalence tests
+  out of `src/mocks/handlers.test.ts` or moving resume-analysis helper logic
+  out of `src/mocks/handlers.ts`.
+
+Previous implementation slice:
+
 - Resume-analysis command coverage moved out of
   `src/mocks/handlers.test.ts`.
 - `src/mocks/handlers/resumeAnalysisCommands.test.ts` now owns the broad ATS
