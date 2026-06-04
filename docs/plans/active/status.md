@@ -50,6 +50,21 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Harness docs now treat the whole public GitHub wiki as external product docs,
+  not only the Capabilities page.
+- `AGENTS.md`, `docs/harness/README.md`,
+  `docs/harness/verification-matrix.md`,
+  `docs/harness/change-contract.md`, and `docs/harness/manifest.json` now
+  require wiki-impact review for behavior, setup, commands, architecture,
+  security, release flow, capabilities, and user-facing copy changes.
+- The harness README records the remote update workflow through
+  `https://github.com/cboyd0319/JobSentinel.wiki.git`, with no
+  machine-specific local paths.
+- Best next oversized-file slice is moving resume-analysis helper logic out of
+  `src/mocks/handlers.ts` or splitting another large Rust test module.
+
+Previous implementation slice:
+
 - ATS analyzer credential requirement equivalence tests moved out of
   `src-tauri/src/core/resume/ats_analyzer_tests.rs`.
 - `src-tauri/src/core/resume/ats_analyzer_tests/credential_requirement_equivalences.rs`

@@ -29,6 +29,7 @@ Audience and ease:
 Source-of-truth docs:
 - Existing docs that must stay accurate.
 - New docs to create or update.
+- Public GitHub wiki pages to update, or reason no wiki page is affected.
 
 Orchestration:
 - Whether this is small enough for one agent or should use the

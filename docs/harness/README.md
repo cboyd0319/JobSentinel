@@ -54,6 +54,7 @@ Use this structure:
 | Environment doctor | `npm run doctor`, `npm run doctor:e2e` | Local readiness check for Node, npm, Rust, Tauri, SQLx offline setup, Linux Tauri packages, and Playwright browser launch |
 | Experience contract | `docs/style-guide/` | Plain-language, broad-audience, zero-technical-skill review |
 | Support path | `docs/user/QUICK_START.md`, issue templates | Recovery and support report flow users can operate |
+| Public wiki | `https://github.com/cboyd0319/JobSentinel/wiki` | External public docs that must stay current with behavior, setup, architecture, security, releases, capabilities, and user-facing copy |
 | Privacy/AI boundary | `PRIVACY.md`, `RESPONSIBLE_AI.md`, `docs/architecture/privacy-first-ai-gateway.md` | Local-first defaults, external AI opt-in, payload preview, and responsible-use guardrails |
 | Drift control | `docs/harness/entropy-control.md` | Cleanup cadence and debt tracking |
 | Source notes | `docs/harness/sources.md` | Research basis and adoption decisions |
@@ -125,6 +126,7 @@ Sensors:
 - Vitest unit and integration tests.
 - Playwright E2E tests.
 - Rust formatting, clippy, and tests.
+- External public docs freshness check for the GitHub wiki.
 - `npm run doctor`.
 - `npm run doctor:e2e` when Playwright or browser-flow readiness matters.
 - `npm run harness:check`.
@@ -144,6 +146,10 @@ Sensors:
 - Put repeated failures into a sensor when the rule is cheap to check.
 - Never commit machine-specific absolute local paths. Use repo-relative paths,
   file names, or `<repo-root>` and `<home>` placeholders.
+- Keep the whole public GitHub wiki current when behavior, setup, commands,
+  architecture, security, release flow, capabilities, or user-facing copy
+  changes. The wiki is external public documentation, so stale claims there
+  are product drift.
 - For larger multi-step work, use the architect/coordinator model and delegate
   disjoint slices when it reduces elapsed time without weakening harness
   compliance.
@@ -162,8 +168,38 @@ Sensors:
 - Relevant files inspected.
 - Acceptance criteria listed for non-trivial work.
 - Smallest relevant verification run.
-- Docs updated when behavior or workflow changes.
+- Repo docs and the public GitHub wiki updated when behavior or workflow
+  changes.
 - Known gaps captured instead of buried in chat.
+
+## External Public Docs
+
+The public GitHub wiki at `https://github.com/cboyd0319/JobSentinel/wiki` is
+part of the docs surface, even though it is stored in a separate Git
+repository. Treat every wiki page as public product documentation.
+
+Update the wiki when a change affects:
+
+- Current or planned capabilities.
+- Setup, install, troubleshooting, or platform support.
+- Architecture, privacy, security, external AI, or data boundaries.
+- Release status, version claims, packaging, or verification flow.
+- User-facing behavior, copy, support paths, or screenshots.
+
+To update it from Git:
+
+```bash
+git clone https://github.com/cboyd0319/JobSentinel.wiki.git <wiki-worktree>
+cd <wiki-worktree>
+git pull --ff-only
+# edit the affected *.md pages
+git add <wiki-pages>.md
+git commit -m "Update wiki docs"
+git push origin HEAD
+```
+
+The wiki remote currently exposes `master` as its default branch. Use
+`git push origin HEAD` so the checked-out branch controls the destination.
 
 ## When To Add Harness
 

@@ -36,7 +36,8 @@
       "Rule 0: user privacy and security are non-negotiable.",
       "External AI stays optional, disabled by default, and routed through the",
       "zero technical knowledge",
-      "multi-agent-orchestration.md"
+      "multi-agent-orchestration.md",
+      "Update the public GitHub wiki when behavior, setup, commands, architecture,"
     ],
     ".github/copilot-instructions.md": [
       "Rule 0: user privacy and security are non-negotiable.",
@@ -93,7 +94,9 @@
       "Multi-agent orchestration",
       "Experience contract",
       "Support path",
-      "Privacy/AI boundary"
+      "Privacy/AI boundary",
+      "https://github.com/cboyd0319/JobSentinel/wiki",
+      "External Public Docs"
     ],
     "docs/harness/multi-agent-orchestration.md": [
       "The coordinator is the architect and integrator.",
@@ -108,12 +111,14 @@
       "Audience and ease:",
       "Orchestration:",
       "Harness impact:",
-      "User-ease evidence:"
+      "User-ease evidence:",
+      "Public GitHub wiki pages to update"
     ],
     "docs/harness/verification-matrix.md": [
       "## Experience And Support",
       "Multi-agent orchestration or delegated implementation",
-      "External AI provider path"
+      "External AI provider path",
+      "Public GitHub wiki-impacting change"
     ],
     ".github/PULL_REQUEST_TEMPLATE.md": [
       "Rule 0: user privacy and security are non-negotiable.",
