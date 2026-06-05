@@ -49,6 +49,15 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Resume analyzer format-safety tests now live in
+  `ats_analyzer_tests/format_safety_tests.rs`, reducing
+  `ats_analyzer_tests.rs` from 992 to 668 lines without changing analyzer
+  behavior or production APIs.
+
+- Focused verification for the analyzer test split passed:
+  `cargo fmt --all -- --check`, `cargo test --lib ats_analyzer`, and
+  `npm run lint:bloat`.
+
 - Application Assist ATS selector tables now live in a focused
   `form_filler/selectors.rs` module, reducing `form_filler.rs` from 988 to
   813 lines while preserving the existing `FormFiller::get_field_selectors`
@@ -65,7 +74,7 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
   `src/components/AnalyticsPanel.tsx`, and
   `src/components/ScraperHealthDashboard.tsx`.
 
-- Focused verification for this slice passed:
+- Focused verification for the selector split passed:
   `cargo fmt --all -- --check`, `cargo test form_filler`,
   `cargo clippy -- -D warnings`, `npm run lint:bloat`,
   `npm run harness:session -- --json`, `npm run harness:score`,
