@@ -8,10 +8,10 @@ control.**
 100%.** The current `v2.6.4` release has a public universal DMG, matching
 `.sha256` checksum, public release verifier, universal architecture checks,
 install smoke, launch smoke, isolated local data smoke, and harness-enforced
-readiness checks. The no-account path is complete. Full public Mac readiness
-cannot honestly reach 100% without Developer ID signing, notarization,
-stapling, and Gatekeeper acceptance, all of which require Apple Developer
-Program materials.
+readiness checks. The no-account path is complete at its 94% public-readiness
+ceiling. Full public Mac readiness cannot honestly reach 100% without Developer
+ID signing, notarization, stapling, and Gatekeeper acceptance, all of which
+require Apple Developer Program materials.
 
 Active-plan implementation status is separate: 100% of the current active-plan
 checklist is complete, with 153 of 153 tracked items checked off. Current
@@ -85,7 +85,7 @@ or build something better with it if that helps more people.
 | Is external AI required? | No. External AI is optional, disabled by default, preview-gated, and gateway-bound. |
 | Is it free? | Yes. JobSentinel is MIT licensed and free forever. |
 | Current release | `v2.6.4` with Windows and Linux installers plus a verified no-account universal macOS package. A public Mac package is recommended only when the release includes a matching `.sha256` checksum and the public macOS verifier passes. |
-| macOS full-public-readiness | 94%; no-account path completion is 100%. Public universal DMG, checksum, metadata, architecture, install, launch, local-data, public-artifact, and readiness-harness checks are in place. The final 6% is externally blocked by Apple Developer Program materials for Developer ID signing, notarization, stapling, and Gatekeeper acceptance. |
+| macOS full-public-readiness | 94%; no-account path completion is 100% at a 94% public-readiness ceiling. Public universal DMG, checksum, metadata, architecture, install, launch, local-data, public-artifact, and readiness-harness checks are in place. The final 6% is externally blocked by Apple Developer Program materials for Developer ID signing, notarization, stapling, and Gatekeeper acceptance. |
 | Current active plan | 100% checklist completion for the compact current-work plan, with current broad verification evidence recorded in active status. |
 
 ## Reader Map
@@ -141,9 +141,9 @@ macOS release path verifies ad-hoc packages for metadata, signatures,
 universal architecture, launch smoke, installed-app smoke, checksum, and local
 data creation, but it does not claim Gatekeeper readiness. It is not Developer
 ID signed and not notarized. Current Mac full-public-readiness is 94%;
-no-account path completion is 100%. The remaining 6% is zero-friction public
-distribution through Developer ID signing, notarization, stapling, Gatekeeper
-acceptance, and signed-artifact verification.
+no-account path completion is 100% at the 94% public-readiness ceiling. The
+remaining 6% is zero-friction public distribution through Developer ID signing,
+notarization, stapling, Gatekeeper acceptance, and signed-artifact verification.
 Contributors can use the
 [development setup guide](docs/developer/GETTING_STARTED.md).
 

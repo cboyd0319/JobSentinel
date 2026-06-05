@@ -5,6 +5,7 @@ import { join } from "node:path";
 import test from "node:test";
 import {
   assertMacosReadinessDocsMatch,
+  evaluateMacosReadiness,
   formatMacosReadinessReport,
   hasNoAccountMacosReleaseOrder,
   noAccountCompletionPercentage,
@@ -32,6 +33,40 @@ test("macOS readiness report separates public and no-account completion", () => 
   assert.match(formatMacosReadinessReport(report), /macOS full-public readiness: 94%/);
   assert.match(formatMacosReadinessReport(report), /No-account path completion: 100%/);
   assert.match(formatMacosReadinessReport(report), /No-account score: 94\/94/);
+});
+
+test("macOS readiness keeps missing Apple credentials as external blockers", () => {
+  const report = evaluateMacosReadiness({ env: {} });
+
+  assert.equal(report.percentage, 94);
+  assert.equal(report.noAccountScore, report.noAccountCeiling);
+  assert.equal(noAccountCompletionPercentage(report), 100);
+  assert.deepEqual(
+    report.externalBlockers.map((item) => [item.id, item.ok]),
+    [
+      ["Apple Developer Program account and Developer ID certificate", false],
+      ["Apple notarization credentials", false],
+      ["Gatekeeper-required signed public artifact proof", false],
+    ],
+  );
+});
+
+test("macOS readiness reaches public 100 only with Apple release credentials", () => {
+  const report = evaluateMacosReadiness({
+    env: {
+      APPLE_CERTIFICATE: "base64-p12",
+      APPLE_CERTIFICATE_PASSWORD: "p12-password",
+      APPLE_ID: "developer@example.com",
+      APPLE_PASSWORD: "app-specific-password",
+      APPLE_SIGNING_IDENTITY: "Developer ID Application: Example LLC (ABCDE12345)",
+      APPLE_TEAM_ID: "ABCDE12345",
+    },
+  });
+
+  assert.equal(report.percentage, 100);
+  assert.equal(report.noAccountScore, report.noAccountCeiling);
+  assert.equal(noAccountCompletionPercentage(report), 100);
+  assert.equal(report.externalBlockers.every((item) => item.ok), true);
 });
 
 test("macOS readiness parser reads the README full-public percentage", () => {

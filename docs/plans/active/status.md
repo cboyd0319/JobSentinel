@@ -51,6 +51,15 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- macOS readiness tests now prove that missing Apple Developer Program
+  credentials are external blockers only: no-account completion stays 100% at
+  the 94% public-readiness ceiling, and full-public readiness reaches 100% only
+  when Developer ID and notarization inputs exist.
+
+- README macOS readiness copy now names the 94% no-account public-readiness
+  ceiling, so the top-level percentage stays honest while the known
+  no-Apple-account constraint remains explicit.
+
 - Job-card low-detail cues now flag generic remote and entry-level titles as
   role details to check before tailoring.
 
