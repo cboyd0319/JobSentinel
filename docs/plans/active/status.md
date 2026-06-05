@@ -370,6 +370,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 - Config property-based validation tests moved out of the main config test file
   into a focused Rust test module.
 
+- DB field-update, ghost, repost, and company-count tests moved out of the main
+  DB test file into a focused Rust test module.
+
 ## Recent Completed Slices
 
 Detailed implementation history before the current restart window is in the

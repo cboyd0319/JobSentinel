@@ -306,6 +306,8 @@ Out of scope:
 - [x] Split DB duplicate-merge coverage tests out of the main DB test file.
 - [x] Split DB score/source/recent job query tests out of the main DB test
   file.
+- [x] Split DB field-update, ghost, repost, and company-count tests out of the
+  main DB test file.
 - [x] Retire the main DB test file's legacy oversized-file exception after
   bringing it below the 1,200-line test target.
 - [x] Split DB integrity model tests out of the main integrity test file.
@@ -512,6 +514,9 @@ Out of scope:
 - Coordinator moved config property-based validation tests into
   `src-tauri/src/core/config/tests/property_tests.rs`, reducing the main config
   test file from 1,163 to 938 lines.
+- Coordinator moved DB field-update, ghost, repost, and company-count tests
+  into `src-tauri/src/core/db/tests/tests/job_field_update_tests.rs`, reducing
+  the main DB test file from 1,158 to 912 lines.
 - Pay-protection sidecar was read-only and changed no files. Coordinator
   accepted its finding that negotiation-note drafts could treat benchmark
   values as offer facts, then fixed the Salary page, dev mock, tests, feature
