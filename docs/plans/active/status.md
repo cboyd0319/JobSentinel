@@ -51,6 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- macOS development docs now match the README readiness split: 94%
+  full-public readiness, 100% no-account path completion, with a readiness
+  guard against stale no-account percentage wording.
+
 - Resume Fit evidence status now stays at mixed evidence when required
   job-post wording is missing, partial, or only implied.
 

@@ -277,6 +277,23 @@ export function readReadmeMacosReadinessPercent(root = defaultRoot) {
   return match ? Number(match[1]) : null;
 }
 
+export function readMacosDevelopmentReadinessClaims(root = defaultRoot) {
+  const text = read(root, "docs/developer/MACOS_DEVELOPMENT.md");
+  const fullPublicMatch = text.match(/Current macOS full-public-readiness is\s*(\d+)%/);
+  const noAccountCompletionMatch = text.match(/no-account path completion is\s*(\d+)%/);
+  const staleNoAccountMatch = text.match(/Current no-account release-readiness is\s*(\d+)%/);
+
+  return {
+    fullPublicPercent: fullPublicMatch ? Number(fullPublicMatch[1]) : null,
+    noAccountCompletionPercent: noAccountCompletionMatch
+      ? Number(noAccountCompletionMatch[1])
+      : null,
+    staleNoAccountReleaseReadinessPercent: staleNoAccountMatch
+      ? Number(staleNoAccountMatch[1])
+      : null,
+  };
+}
+
 export function noAccountCompletionPercentage(report) {
   if (!report.noAccountCeiling) {
     return 0;
@@ -312,17 +329,43 @@ export function formatMacosReadinessReport(report) {
   return `${lines.join("\n")}\n`;
 }
 
-export function main({ root = defaultRoot } = {}) {
-  const report = evaluateMacosReadiness({ root });
+export function assertMacosReadinessDocsMatch(report, root = defaultRoot) {
   const readmePercent = readReadmeMacosReadinessPercent(root);
-
-  process.stdout.write(formatMacosReadinessReport(report));
 
   if (readmePercent !== report.percentage) {
     throw new Error(
       `README macOS readiness percentage is ${readmePercent ?? "missing"}, expected ${report.percentage}.`,
     );
   }
+
+  const macDocsClaims = readMacosDevelopmentReadinessClaims(root);
+  const expectedNoAccountCompletion = noAccountCompletionPercentage(report);
+
+  if (macDocsClaims.staleNoAccountReleaseReadinessPercent !== null) {
+    throw new Error(
+      "docs/developer/MACOS_DEVELOPMENT.md still uses stale no-account release-readiness wording.",
+    );
+  }
+
+  if (macDocsClaims.fullPublicPercent !== report.percentage) {
+    throw new Error(
+      `docs/developer/MACOS_DEVELOPMENT.md full-public readiness is ${macDocsClaims.fullPublicPercent ?? "missing"}, expected ${report.percentage}.`,
+    );
+  }
+
+  if (macDocsClaims.noAccountCompletionPercent !== expectedNoAccountCompletion) {
+    throw new Error(
+      `docs/developer/MACOS_DEVELOPMENT.md no-account completion is ${macDocsClaims.noAccountCompletionPercent ?? "missing"}, expected ${expectedNoAccountCompletion}.`,
+    );
+  }
+}
+
+export function main({ root = defaultRoot } = {}) {
+  const report = evaluateMacosReadiness({ root });
+
+  process.stdout.write(formatMacosReadinessReport(report));
+
+  assertMacosReadinessDocsMatch(report, root);
 
   const failed = report.criteria.filter((item) => !item.ok);
   if (failed.length > 0) {
