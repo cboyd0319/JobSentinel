@@ -222,6 +222,8 @@ Out of scope:
   main page and page test while keeping product-copy scanners on the moved UI.
 - [x] Split mock resume bullet prompt tests out of the broad mock resume
   command test.
+- [x] Split mock resume summary and text-preview view helpers out of the main
+  mock handler.
 - [x] Split Market Intelligence async tests out of the main test file and
   retire its legacy oversized-file exception.
 - [x] Split Greenhouse scraper tests out of the runtime scraper file and retire
@@ -476,6 +478,10 @@ Out of scope:
 - Coordinator moved mock `improve_bullet_point` prompt guidance coverage into
   `src/mocks/handlers/resumeBulletPrompts.test.ts`, reducing the broad mock
   resume command test from 1,196 to 1,058 lines.
+- Coordinator moved mock resume summary and text-preview view helpers into
+  `src/mocks/handlers/resumeSummaryViews.ts`, reducing the main mock handler
+  from 1,183 to 1,134 lines without changing resume selection or preview
+  behavior.
 - Pay-protection sidecar was read-only and changed no files. Coordinator
   accepted its finding that negotiation-note drafts could treat benchmark
   values as offer facts, then fixed the Salary page, dev mock, tests, feature

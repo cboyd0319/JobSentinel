@@ -345,6 +345,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
   resume command test into a focused prompt test, keeping the command test
   farther below the size limit.
 
+- Mock resume summary and text-preview view helpers moved out of the main mock
+  handler, keeping resume selection and preview behavior covered while lowering
+  handler size.
+
 - Resume Builder template thumbnail previews and export/delete icons moved out
   of `src/pages/ResumeBuilder.tsx` into `src/pages/ResumeBuilderVisuals.tsx`.
 
