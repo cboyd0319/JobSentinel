@@ -127,7 +127,7 @@ gh release upload vX.Y.Z \
 npm run tauri:verify:macos:latest -- --tag vX.Y.Z
 ```
 
-Do not upload a Mac package without its checksum.
+Do not publish a Mac package without its checksum.
 
 ### 4. Local Windows and Linux checks
 

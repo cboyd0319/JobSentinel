@@ -130,10 +130,21 @@ test("latest macOS release verifier selects matching checksum asset", () => {
 
 test("latest macOS release verifier parses SHA-256 checksum files", () => {
   assert.equal(
-    parseSha256Checksum("abc123\n0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef  JobSentinel.dmg\n"),
+    parseSha256Checksum(
+      "abc123\n0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef  JobSentinel.dmg\n",
+      "JobSentinel.dmg",
+    ),
     "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
   );
-  assert.throws(() => parseSha256Checksum("not a checksum"), /64-character hex digest/);
+  assert.throws(() => parseSha256Checksum("not a checksum"), /exactly one digest line/);
+  assert.throws(
+    () =>
+      parseSha256Checksum(
+        "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef  Other.dmg\n",
+        "JobSentinel.dmg",
+      ),
+    /filename expected JobSentinel.dmg/,
+  );
 });
 
 test("latest macOS release verifier selects universal HTTPS DMG asset", () => {
@@ -151,6 +162,49 @@ test("latest macOS release verifier selects universal HTTPS DMG asset", () => {
       ],
     },
     "universal.dmg",
+  );
+
+  assert.equal(asset?.name, "JobSentinel_2.6.4_universal.dmg");
+});
+
+test("latest macOS release verifier rejects duplicate matching assets", () => {
+  assert.throws(
+    () =>
+      findMacosDmgAsset(
+        {
+          assets: [
+            {
+              name: "JobSentinel_2.6.4_universal.dmg",
+              browser_download_url: "https://example.invalid/macos.dmg",
+            },
+            {
+              name: "JobSentinel_2.6.4_no-account_universal.dmg",
+              browser_download_url: "https://example.invalid/macos-no-account.dmg",
+            },
+          ],
+        },
+        "universal.dmg",
+      ),
+    /Multiple macOS DMG assets matched/,
+  );
+});
+
+test("latest macOS release verifier can bind assets to release version", () => {
+  const asset = findMacosDmgAsset(
+    {
+      assets: [
+        {
+          name: "JobSentinel_2.6.3_universal.dmg",
+          browser_download_url: "https://example.invalid/old.dmg",
+        },
+        {
+          name: "JobSentinel_2.6.4_universal.dmg",
+          browser_download_url: "https://example.invalid/current.dmg",
+        },
+      ],
+    },
+    "universal.dmg",
+    "2.6.4",
   );
 
   assert.equal(asset?.name, "JobSentinel_2.6.4_universal.dmg");

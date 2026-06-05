@@ -4,16 +4,17 @@
 relevant, fairly compensated work while keeping sensitive job-search data under user
 control.**
 
-**Current macOS full-public-readiness: 78%.** This is the README completion
-percentage for a fully complete Mac version. The current `v2.6.4` release has a
-public universal DMG, matching `.sha256` checksum, public release verifier,
-universal architecture checks, install smoke, launch smoke, and isolated local
-data smoke. It is not 100% complete because the public Mac package is still
-not Developer ID signed, not notarized, not stapled, and not accepted by
-Gatekeeper without first-open Privacy & Security approval.
+**Current macOS no-account release-readiness: 94%.** This is the README
+completion percentage for the best Mac release possible without an Apple
+Developer Account. The current `v2.6.4` release has a public universal DMG,
+matching `.sha256` checksum, public release verifier, universal architecture
+checks, install smoke, launch smoke, isolated local data smoke, and
+harness-enforced readiness checks. It cannot honestly reach 100% public Mac
+readiness without Developer ID signing, notarization, stapling, and
+Gatekeeper acceptance, all of which require Apple Developer Program materials.
 
 Active-plan implementation status is separate: 100% of the current active-plan
-checklist is complete, with 145 of 145 tracked items checked off. The
+checklist is complete, with 146 of 146 tracked items checked off. The
 repo-wide readiness goal remains open until the completion bar in
 [active plan status](docs/plans/active/status.md) is proven from current
 evidence: no known bloat, privacy leak, stale docs, engineer-only user flow, or
@@ -85,7 +86,7 @@ or build something better with it if that helps more people.
 | Is external AI required? | No. External AI is optional, disabled by default, preview-gated, and gateway-bound. |
 | Is it free? | Yes. JobSentinel is MIT licensed and free forever. |
 | Current release | `v2.6.4` with Windows and Linux installers plus a verified no-account universal macOS package. A public Mac package is recommended only when the release includes a matching `.sha256` checksum and the public macOS verifier passes. |
-| macOS full-public-readiness | 78%. Public universal DMG and verification are in place; full completion waits on Developer ID signing, notarization, stapling, Gatekeeper acceptance, and signed-artifact release verification. |
+| macOS no-account release-readiness | 94%. Public universal DMG, checksum, metadata, architecture, install, launch, local-data, public-artifact, and readiness-harness checks are in place. The final 6% is externally blocked by Apple Developer Program materials for Developer ID signing, notarization, stapling, and Gatekeeper acceptance. |
 | Current active plan | 100% checklist completion for the compact current-work plan; repo-wide readiness remains open until the active status completion bar passes. |
 
 ## Reader Map
@@ -139,10 +140,11 @@ release-distribution constraint, not a core runtime feature gap: the macOS app
 can still be built, packaged, verified, and tested locally. The no-account
 macOS release path verifies ad-hoc packages for metadata, signatures,
 universal architecture, launch smoke, installed-app smoke, checksum, and local
-data creation, but it does not claim Gatekeeper readiness. Current Mac
-full-public-readiness is 78%; the remaining gap is zero-friction public
-distribution through Developer ID signing, notarization, stapling, Gatekeeper
-acceptance, and signed-artifact verification.
+data creation, but it does not claim Gatekeeper readiness. It is not Developer
+ID signed and not notarized. Current Mac no-account release-readiness is 94%;
+the remaining 6% is zero-friction public distribution through Developer ID
+signing, notarization, stapling, Gatekeeper acceptance, and signed-artifact
+verification.
 Contributors can use the
 [development setup guide](docs/developer/GETTING_STARTED.md).
 
@@ -533,10 +535,11 @@ Developer docs:
 - Windows `.msi`, verified no-account macOS `.dmg`, Linux `.AppImage`, and
   Linux `.deb` release assets are available. The macOS package is not Developer
   ID signed or notarized, so it requires first-open Privacy & Security approval.
-- Mac full-public-readiness is 78%: package, checksum, universal architecture,
-  install, launch, local-data, and public-artifact verification are covered,
-  while zero-friction public distribution still needs Developer ID signing,
-  notarization, stapling, and Gatekeeper acceptance.
+- Mac no-account release-readiness is 94%: package, checksum, universal
+  architecture, install, launch, local-data, public-artifact, and readiness
+  harness verification are covered, while zero-friction public distribution
+  still needs Developer ID signing, notarization, stapling, and Gatekeeper
+  acceptance.
 - Settings no longer spins forever on first load.
 - Jobs with missing salary or scoring data no longer show `NaN`.
 - Bulk bookmark and hide actions keep working when one job has an error.

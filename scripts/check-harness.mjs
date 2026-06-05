@@ -10,6 +10,10 @@ import {
   formatSecuritySensorSummary,
 } from "./check-security-sensors.mjs";
 import { checkRepoBloat } from "./check-repo-bloat.mjs";
+import {
+  evaluateMacosReadiness,
+  readReadmeMacosReadinessPercent,
+} from "./check-macos-readiness.mjs";
 import { checkTauriInvokes } from "./check-tauri-invokes.mjs";
 import { checkTestQuality } from "./check-test-quality.mjs";
 import { summarizeHarnessScore } from "./harness-score.mjs";
@@ -141,6 +145,24 @@ if (manifestPublicWiki.defaultBranch !== "master") {
 
 if (!Array.isArray(manifestPublicWiki.requiredPages) || requiredPublicWikiPages.length === 0) {
   errors.push(`${harnessManifestPath} publicWiki.requiredPages must list wiki pages`);
+}
+
+const macosReadiness = evaluateMacosReadiness({ root });
+const macosReadinessFailed = macosReadiness.criteria.filter((item) => !item.ok);
+const readmeMacosReadiness = readReadmeMacosReadinessPercent(root);
+
+if (macosReadinessFailed.length > 0) {
+  errors.push(
+    `macOS no-account readiness checks failed: ${macosReadinessFailed
+      .map((item) => item.id)
+      .join(", ")}`,
+  );
+}
+
+if (readmeMacosReadiness !== macosReadiness.percentage) {
+  errors.push(
+    `README.md macOS readiness percentage must be ${macosReadiness.percentage}, found ${readmeMacosReadiness ?? "missing"}`,
+  );
 }
 
 for (const requiredWikiPage of ["Home.md", "Capabilities.md"]) {

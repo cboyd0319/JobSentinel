@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import {
   cpSync,
@@ -16,6 +16,11 @@ import {
 import { tmpdir } from "node:os";
 import { basename, delimiter, dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import {
+  assertDeveloperIdSignature,
+  extractTeamIdFromSigningIdentity,
+  parseCodesignDetails,
+} from "./macos-signature.mjs";
 
 const scriptPath = fileURLToPath(import.meta.url);
 const defaultRoot = resolve(dirname(scriptPath), "..");
@@ -100,6 +105,18 @@ function run(command, args, options = {}) {
   });
 }
 
+function runCapture(command, args, options = {}) {
+  const logArgs = options.logArgs ?? args;
+  console.log(`$ ${[command, ...logArgs].join(" ")}`);
+  return execFileSync(command, args, {
+    cwd: options.cwd ?? defaultRoot,
+    env: options.env ?? process.env,
+    stdio: ["ignore", "pipe", "pipe"],
+    encoding: "utf8",
+    timeout: options.timeout,
+  });
+}
+
 export function prependPathDir(pathValue, dir) {
   const paths = String(pathValue ?? "")
     .split(delimiter)
@@ -152,6 +169,17 @@ function verifyCodesign(appPath, options = {}) {
   }
 }
 
+function readCodesignDetails(path) {
+  const result = spawnSync("codesign", ["-dv", "--verbose=4", path], {
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+  if (result.status !== 0) {
+    throw new Error(`codesign details failed for ${path}:\n${result.stderr || result.stdout}`);
+  }
+  return parseCodesignDetails(`${result.stdout ?? ""}${result.stderr ?? ""}`);
+}
+
 export function getSigningIdentity(env = process.env) {
   return (
     env.JOBSENTINEL_MACOS_SIGNING_IDENTITY ??
@@ -184,24 +212,46 @@ export function buildDmgCodesignArgs(identity, dmgPath) {
 }
 
 function ensureSignedApp(appPath) {
+  const identity = getSigningIdentity();
+
   if (verifyCodesign(appPath)) {
+    if (identity !== "-") {
+      assertDeveloperIdSignature(readCodesignDetails(appPath), {
+        expectedTeamId: extractTeamIdFromSigningIdentity(identity),
+        requireHardenedRuntime: true,
+      });
+    }
     console.log(`App bundle signature valid: ${appPath}`);
     return;
   }
-
-  const identity = getSigningIdentity();
 
   run("codesign", buildAppCodesignArgs(identity, appPath));
 
   if (!verifyCodesign(appPath, { stdio: "inherit" })) {
     throw new Error(`codesign verification failed for ${appPath}`);
   }
+
+  if (identity !== "-") {
+    assertDeveloperIdSignature(readCodesignDetails(appPath), {
+      expectedTeamId: extractTeamIdFromSigningIdentity(identity),
+      requireHardenedRuntime: true,
+    });
+  }
 }
 
 export function buildNotarytoolSubmitArgs(dmgPath, env = process.env) {
   const profile = env.JOBSENTINEL_MACOS_NOTARY_PROFILE ?? env.NOTARYTOOL_KEYCHAIN_PROFILE;
   if (hasValue(profile)) {
-    return ["notarytool", "submit", dmgPath, "--keychain-profile", profile, "--wait"];
+    return [
+      "notarytool",
+      "submit",
+      dmgPath,
+      "--keychain-profile",
+      profile,
+      "--output-format",
+      "json",
+      "--wait",
+    ];
   }
 
   if (hasValue(env.APPLE_API_KEY) && hasValue(env.APPLE_API_KEY_PATH)) {
@@ -213,6 +263,8 @@ export function buildNotarytoolSubmitArgs(dmgPath, env = process.env) {
       env.APPLE_API_KEY,
       "--key",
       env.APPLE_API_KEY_PATH,
+      "--output-format",
+      "json",
       "--wait",
     ];
     if (hasValue(env.APPLE_API_ISSUER)) {
@@ -232,6 +284,8 @@ export function buildNotarytoolSubmitArgs(dmgPath, env = process.env) {
       "@env:APPLE_PASSWORD",
       "--team-id",
       env.APPLE_TEAM_ID,
+      "--output-format",
+      "json",
       "--wait",
     ];
   }
@@ -278,6 +332,64 @@ export function redactNotarytoolArgs(args) {
   });
 }
 
+export function parseNotarytoolSubmitResult(output) {
+  let result;
+  try {
+    result = JSON.parse(output);
+  } catch {
+    throw new Error("notarytool submit did not return JSON output.");
+  }
+
+  if (result.status !== "Accepted") {
+    const id = result.id ? ` (${result.id})` : "";
+    throw new Error(`macOS notarization was not accepted${id}: ${result.status ?? "unknown"}`);
+  }
+
+  return {
+    id: result.id,
+    status: result.status,
+  };
+}
+
+export function buildNotarytoolLogArgs(submissionId, env = process.env) {
+  const profile = env.JOBSENTINEL_MACOS_NOTARY_PROFILE ?? env.NOTARYTOOL_KEYCHAIN_PROFILE;
+  if (hasValue(profile)) {
+    return ["notarytool", "log", submissionId, "--keychain-profile", profile];
+  }
+
+  if (hasValue(env.APPLE_API_KEY) && hasValue(env.APPLE_API_KEY_PATH)) {
+    const args = [
+      "notarytool",
+      "log",
+      submissionId,
+      "--key-id",
+      env.APPLE_API_KEY,
+      "--key",
+      env.APPLE_API_KEY_PATH,
+    ];
+    if (hasValue(env.APPLE_API_ISSUER)) {
+      args.push("--issuer", env.APPLE_API_ISSUER);
+    }
+    return args;
+  }
+
+  if (hasValue(env.APPLE_ID) && hasValue(env.APPLE_PASSWORD) && hasValue(env.APPLE_TEAM_ID)) {
+    return [
+      "notarytool",
+      "log",
+      submissionId,
+      "--apple-id",
+      env.APPLE_ID,
+      "--password",
+      "@env:APPLE_PASSWORD",
+      "--team-id",
+      env.APPLE_TEAM_ID,
+    ];
+  }
+
+  return null;
+}
+
 export function staleDmgArtifactNames(dmgName) {
   const names = new Set([dmgName, `${dmgName}.sha256`]);
 
@@ -315,6 +427,9 @@ function signDmgForDistribution(dmgPath, identity) {
 
   run("codesign", buildDmgCodesignArgs(identity, dmgPath));
   run("codesign", ["--verify", "--verbose=2", dmgPath]);
+  assertDeveloperIdSignature(readCodesignDetails(dmgPath), {
+    expectedTeamId: extractTeamIdFromSigningIdentity(identity),
+  });
   return true;
 }
 
@@ -342,7 +457,24 @@ function notarizeAndStapleDmg(dmgPath) {
   }
 
   signDmgForDistribution(dmgPath, identity);
-  run("xcrun", submitArgs, { logArgs: redactNotarytoolArgs(submitArgs) });
+  let submitOutput;
+  try {
+    submitOutput = runCapture("xcrun", submitArgs, {
+      logArgs: redactNotarytoolArgs(submitArgs),
+    });
+  } catch (error) {
+    const output = `${error.stdout ?? ""}${error.stderr ?? ""}`;
+    const submissionId = output.match(/"id"\s*:\s*"([^"]+)"/)?.[1];
+    const logArgs = submissionId ? buildNotarytoolLogArgs(submissionId) : null;
+    if (logArgs) {
+      run("xcrun", logArgs, { logArgs: redactNotarytoolArgs(logArgs) });
+    }
+    throw error;
+  }
+  const result = parseNotarytoolSubmitResult(submitOutput);
+  if (result.id) {
+    console.log(`macOS notarization accepted: ${result.id}`);
+  }
   run("xcrun", ["stapler", "staple", dmgPath]);
   run("xcrun", ["stapler", "validate", dmgPath]);
 }

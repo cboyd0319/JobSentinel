@@ -430,6 +430,11 @@ rustflags = ["-C", "link-arg=-fuse-ld=/opt/homebrew/bin/mold"]
 
 ## Current macOS Readiness
 
+Current no-account release-readiness is 94%. That is the maximum honest
+readiness while the project has no Apple Developer Account. The remaining 6%
+requires Developer ID signing, notarization, stapling, Gatekeeper acceptance,
+and signed public-artifact verification.
+
 1. **Local package path verified** - Universal DMG build, checksum
    verification, app signature verification, architecture check, and packaged
    plus installed launch smoke pass locally, including local database creation

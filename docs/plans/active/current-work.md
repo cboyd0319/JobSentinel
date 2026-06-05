@@ -297,6 +297,8 @@ Out of scope:
   its legacy oversized-file exception.
 - [x] Split ATS hard-constraint helpers out of the runtime analyzer.
 - [x] Split ATS requirement-review helpers out of the runtime analyzer.
+- [x] Add no-account macOS release-readiness harness gating and stricter
+  future Developer ID verification checks.
 
 ## Orchestration Log
 

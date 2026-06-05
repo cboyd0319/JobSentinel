@@ -7,6 +7,7 @@ import {
   buildAppCodesignArgs,
   buildDmgCodesignArgs,
   buildMacosTauriEnv,
+  buildNotarytoolLogArgs,
   buildNotarytoolSubmitArgs,
   buildTauriArgs,
   formatDmgChecksum,
@@ -17,6 +18,7 @@ import {
   getSigningIdentity,
   hasPartialNotarizationCredentials,
   hasArg,
+  parseNotarytoolSubmitResult,
   prependPathDir,
   redactNotarytoolArgs,
   removeStaleDmgArtifacts,
@@ -180,6 +182,8 @@ test("macOS DMG builder builds notarytool args for Apple ID credentials", () => 
       "@env:APPLE_PASSWORD",
       "--team-id",
       "ABCDE12345",
+      "--output-format",
+      "json",
       "--wait",
     ],
   );
@@ -200,6 +204,8 @@ test("macOS DMG builder builds notarytool args for API key credentials", () => {
       "KEYID12345",
       "--key",
       "/private/AuthKey_KEYID12345.p8",
+      "--output-format",
+      "json",
       "--wait",
       "--issuer",
       "00000000-0000-0000-0000-000000000000",
@@ -218,9 +224,47 @@ test("macOS DMG builder builds notarytool args for keychain profile", () => {
       "/tmp/JobSentinel.dmg",
       "--keychain-profile",
       "jobsentinel-notary",
+      "--output-format",
+      "json",
       "--wait",
     ],
   );
+});
+
+test("macOS DMG builder builds notarytool log args", () => {
+  assert.deepEqual(
+    buildNotarytoolLogArgs("submission-id", {
+      APPLE_ID: "developer@example.com",
+      APPLE_PASSWORD: "@env:APPLE_APP_PASSWORD",
+      APPLE_TEAM_ID: "ABCDE12345",
+    }),
+    [
+      "notarytool",
+      "log",
+      "submission-id",
+      "--apple-id",
+      "developer@example.com",
+      "--password",
+      "@env:APPLE_PASSWORD",
+      "--team-id",
+      "ABCDE12345",
+    ],
+  );
+});
+
+test("macOS DMG builder requires accepted notarization JSON", () => {
+  assert.deepEqual(
+    parseNotarytoolSubmitResult('{"id":"submission-id","status":"Accepted"}'),
+    {
+      id: "submission-id",
+      status: "Accepted",
+    },
+  );
+  assert.throws(
+    () => parseNotarytoolSubmitResult('{"id":"submission-id","status":"Invalid"}'),
+    /not accepted/,
+  );
+  assert.throws(() => parseNotarytoolSubmitResult("plain text"), /did not return JSON/);
 });
 
 test("macOS DMG builder detects partial notarization credentials", () => {

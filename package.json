@@ -25,6 +25,7 @@
     "harness:plan": "node scripts/harness-plan.mjs",
     "harness:session": "node scripts/harness-session.mjs",
     "harness:score": "node scripts/harness-score.mjs",
+    "macos:readiness": "node scripts/check-macos-readiness.mjs",
     "doctor": "node scripts/doctor.mjs",
     "doctor:e2e": "node scripts/doctor.mjs --e2e",
     "release:check-version": "node scripts/validate-release-version.mjs",

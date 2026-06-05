@@ -69,11 +69,11 @@ function releaseApiUrl({ repo, releaseTag }) {
   return releaseTag ? `${base}/tags/${encodeURIComponent(releaseTag)}` : `${base}/latest`;
 }
 
-export function findMacosDmgAsset(release, assetPattern = "universal.dmg") {
+export function findMacosDmgAsset(release, assetPattern = "universal.dmg", expectedVersion) {
   const assets = Array.isArray(release?.assets) ? release.assets : [];
   const lowerPattern = assetPattern.toLowerCase();
 
-  return assets.find((asset) => {
+  const matches = assets.filter((asset) => {
     const name = typeof asset?.name === "string" ? asset.name : "";
     const url =
       typeof asset?.browser_download_url === "string"
@@ -81,12 +81,23 @@ export function findMacosDmgAsset(release, assetPattern = "universal.dmg") {
         : "";
     const lowerName = name.toLowerCase();
 
+    const versionMatches = expectedVersion ? lowerName.includes(`_${expectedVersion.toLowerCase()}_`) : true;
+
     return (
       lowerName.endsWith(".dmg") &&
       lowerName.includes(lowerPattern) &&
+      versionMatches &&
       url.startsWith("https://")
     );
   });
+
+  if (matches.length > 1) {
+    throw new Error(
+      `Multiple macOS DMG assets matched "${assetPattern}": ${matches.map((asset) => asset.name).join(", ")}`,
+    );
+  }
+
+  return matches[0];
 }
 
 export function findChecksumAsset(release, dmgAsset) {
@@ -122,13 +133,30 @@ export function validateMacosAssetLabel(asset, { requireGatekeeper = false, requ
   }
 }
 
-export function parseSha256Checksum(content) {
-  const match = content.match(/\b([a-fA-F0-9]{64})\b/);
-  if (!match) {
-    throw new Error("SHA-256 checksum file did not contain a 64-character hex digest.");
+export function parseSha256Checksum(content, expectedFileName) {
+  const entries = [];
+
+  for (const line of String(content ?? "").split(/\r?\n/)) {
+    const match = line.match(/^\s*([a-fA-F0-9]{64})\s+\*?(.+?)\s*$/);
+    if (match) {
+      entries.push({
+        digest: match[1].toLowerCase(),
+        fileName: match[2],
+      });
+    }
   }
 
-  return match[1].toLowerCase();
+  if (entries.length !== 1) {
+    throw new Error("SHA-256 checksum file must contain exactly one digest line.");
+  }
+
+  if (expectedFileName && basename(entries[0].fileName) !== expectedFileName) {
+    throw new Error(
+      `SHA-256 checksum filename expected ${expectedFileName}, found ${entries[0].fileName}.`,
+    );
+  }
+
+  return entries[0].digest;
 }
 
 async function sha256File(path) {
@@ -150,7 +178,7 @@ async function verifyChecksum({ release, dmgAsset, dmgPath, requireChecksum }) {
   console.log(`Downloading public macOS checksum asset: ${checksumAsset.browser_download_url}`);
   await downloadFile(checksumAsset.browser_download_url, checksumPath);
 
-  const expected = parseSha256Checksum(await readFile(checksumPath, "utf8"));
+  const expected = parseSha256Checksum(await readFile(checksumPath, "utf8"), basename(dmgPath));
   const actual = await sha256File(dmgPath);
   if (actual !== expected) {
     throw new Error(`SHA-256 checksum mismatch for ${dmgAsset.name}. Expected ${expected}, found ${actual}.`);
@@ -189,13 +217,17 @@ async function downloadFile(url, destination) {
 
 export async function verifyLatestMacosRelease(options) {
   const release = await fetchJson(releaseApiUrl(options));
-  const asset = findMacosDmgAsset(release, options.assetPattern);
   const expectedBundleMetadata = {
     ...options.expectedBundleMetadata,
     version:
       options.expectedBundleMetadata?.version ??
       (typeof release.tag_name === "string" ? release.tag_name.replace(/^v/, "") : undefined),
   };
+  const asset = findMacosDmgAsset(
+    release,
+    options.assetPattern,
+    expectedBundleMetadata.version,
+  );
 
   if (!asset) {
     const names = (release.assets ?? []).map((item) => item.name).join(", ");

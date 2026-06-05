@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { execFileSync, spawn } from "node:child_process";
+import { execFileSync, spawn, spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import {
   closeSync,
@@ -13,8 +13,12 @@ import {
   rmSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join, resolve } from "node:path";
+import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import {
+  assertDeveloperIdSignature,
+  parseCodesignDetails,
+} from "./macos-signature.mjs";
 
 const scriptPath = fileURLToPath(import.meta.url);
 const defaultRoot = resolve(dirname(scriptPath), "..");
@@ -117,13 +121,30 @@ export function macosSmokeDataPaths(homePath) {
   };
 }
 
-export function parseSha256Checksum(content) {
-  const match = content.match(/\b([a-fA-F0-9]{64})\b/);
-  if (!match) {
-    throw new Error("SHA-256 checksum file did not contain a 64-character hex digest.");
+export function parseSha256Checksum(content, expectedFileName) {
+  const entries = [];
+
+  for (const line of String(content ?? "").split(/\r?\n/)) {
+    const match = line.match(/^\s*([a-fA-F0-9]{64})\s+\*?(.+?)\s*$/);
+    if (match) {
+      entries.push({
+        digest: match[1].toLowerCase(),
+        fileName: match[2],
+      });
+    }
   }
 
-  return match[1].toLowerCase();
+  if (entries.length !== 1) {
+    throw new Error("SHA-256 checksum file must contain exactly one digest line.");
+  }
+
+  if (expectedFileName && basename(entries[0].fileName) !== expectedFileName) {
+    throw new Error(
+      `SHA-256 checksum filename expected ${expectedFileName}, found ${entries[0].fileName}.`,
+    );
+  }
+
+  return entries[0].digest;
 }
 
 function sha256File(path) {
@@ -144,7 +165,7 @@ export function verifyLocalDmgChecksum(dmgPath, { requireChecksum = false, verif
     return false;
   }
 
-  const expected = parseSha256Checksum(readFileSync(checksumPath, "utf8"));
+  const expected = parseSha256Checksum(readFileSync(checksumPath, "utf8"), basename(dmgPath));
   const actual = sha256File(dmgPath);
   if (actual !== expected) {
     throw new Error(`SHA-256 checksum mismatch for ${dmgPath}. Expected ${expected}, found ${actual}.`);
@@ -262,6 +283,14 @@ function runResult(command, args) {
   }
 }
 
+export function buildGatekeeperAssessArgs(subject, type) {
+  return ["--assess", "--type", type, "--verbose=4", subject];
+}
+
+export function buildStaplerValidateArgs(subject) {
+  return ["stapler", "validate", "-v", subject];
+}
+
 function requireMacos() {
   if (process.platform !== "darwin") {
     throw new Error("macOS package verification must run on macOS.");
@@ -321,7 +350,7 @@ function getBundleExecutable(appPath) {
 }
 
 function gatekeeperAssess(subject, type, requireGatekeeper) {
-  const result = runResult("spctl", ["--assess", "--type", type, "--verbose=4", subject]);
+  const result = runResult("spctl", buildGatekeeperAssessArgs(subject, type));
   const status = formatGatekeeperStatus({
     accepted: result.accepted,
     requireGatekeeper,
@@ -343,6 +372,29 @@ function gatekeeperAssess(subject, type, requireGatekeeper) {
   }
 
   return result;
+}
+
+function readCodesignDetails(subject) {
+  console.log(`$ codesign -dv --verbose=4 ${subject}`);
+  const result = spawnSync("codesign", ["-dv", "--verbose=4", subject], {
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+  if (result.status !== 0) {
+    throw new Error(`codesign details failed for ${subject}:\n${result.stderr || result.stdout}`);
+  }
+  return parseCodesignDetails(`${result.stdout ?? ""}${result.stderr ?? ""}`);
+}
+
+function verifyDeveloperIdSignature(subject, { requireHardenedRuntime }) {
+  const details = readCodesignDetails(subject);
+  assertDeveloperIdSignature(details, { requireHardenedRuntime });
+  console.log(`Developer ID signature verified: ${subject}`);
+}
+
+function validateStapledTicket(subject) {
+  runChecked("xcrun", buildStaplerValidateArgs(subject));
+  console.log(`Stapled notarization ticket verified: ${subject}`);
 }
 
 async function sleep(ms) {
@@ -436,6 +488,9 @@ async function verifyAppBundle({
   console.log(`App bundle signature verified: ${appPath}`);
 
   gatekeeperAssess(appPath, "execute", requireGatekeeper);
+  if (requireGatekeeper) {
+    verifyDeveloperIdSignature(appPath, { requireHardenedRuntime: true });
+  }
 
   if (launchSmoke) {
     await smokeLaunch({ appPath, seconds: smokeSeconds });
@@ -480,6 +535,10 @@ export async function verifyMacosPackage(options) {
 
   runChecked("hdiutil", ["verify", options.dmgPath]);
   gatekeeperAssess(options.dmgPath, "open", options.requireGatekeeper);
+  if (options.requireGatekeeper) {
+    verifyDeveloperIdSignature(options.dmgPath, { requireHardenedRuntime: false });
+    validateStapledTicket(options.dmgPath);
+  }
 
   const tempRoot = mkdtempSync(join(tmpdir(), "jobsentinel-macos-verify-"));
   const mountPath = join(tempRoot, "mount");

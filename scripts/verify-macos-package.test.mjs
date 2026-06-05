@@ -4,6 +4,12 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import {
+  developerIdSignatureViolations,
+  parseCodesignDetails,
+} from "./macos-signature.mjs";
+import {
+  buildGatekeeperAssessArgs,
+  buildStaplerValidateArgs,
   bundleMetadataViolations,
   defaultArchitectures,
   formatGatekeeperStatus,
@@ -120,6 +126,19 @@ test("macOS verifier checks required architectures as a subset", () => {
 });
 
 test("macOS verifier distinguishes optional and required Gatekeeper rejection", () => {
+  assert.deepEqual(buildGatekeeperAssessArgs("JobSentinel.dmg", "open"), [
+    "--assess",
+    "--type",
+    "open",
+    "--verbose=4",
+    "JobSentinel.dmg",
+  ]);
+  assert.deepEqual(buildStaplerValidateArgs("JobSentinel.dmg"), [
+    "stapler",
+    "validate",
+    "-v",
+    "JobSentinel.dmg",
+  ]);
   assert.equal(
     formatGatekeeperStatus({
       accepted: true,
@@ -155,10 +174,28 @@ test("macOS verifier resolves launch smoke data paths under isolated home", () =
 
 test("macOS verifier parses SHA-256 checksum files", () => {
   assert.equal(
-    parseSha256Checksum("0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef  JobSentinel.dmg\n"),
+    parseSha256Checksum(
+      "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef  JobSentinel.dmg\n",
+      "JobSentinel.dmg",
+    ),
     "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
   );
-  assert.throws(() => parseSha256Checksum("not a checksum"), /64-character hex digest/);
+  assert.throws(() => parseSha256Checksum("not a checksum"), /exactly one digest line/);
+  assert.throws(
+    () =>
+      parseSha256Checksum(
+        "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef  Other.dmg\n",
+        "JobSentinel.dmg",
+      ),
+    /filename expected JobSentinel.dmg/,
+  );
+  assert.throws(
+    () =>
+      parseSha256Checksum(
+        "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef  JobSentinel.dmg\n0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef  Other.dmg\n",
+      ),
+    /exactly one digest line/,
+  );
 });
 
 test("macOS verifier validates local SHA-256 sidecar when present or required", () => {
@@ -184,6 +221,53 @@ test("macOS verifier validates local SHA-256 sidecar when present or required", 
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
+});
+
+test("macOS verifier rejects non-Developer-ID signatures in strict mode", () => {
+  const developerIdDetails = parseCodesignDetails(`
+Signature size=9062
+Authority=Developer ID Application: Example LLC (ABCDE12345)
+Authority=Developer ID Certification Authority
+Authority=Apple Root CA
+Timestamp=Jun 4, 2026 at 12:00:00 PM
+TeamIdentifier=ABCDE12345
+Runtime Version=15.0.0
+`);
+
+  assert.deepEqual(
+    developerIdSignatureViolations(developerIdDetails, {
+      expectedTeamId: "ABCDE12345",
+      requireHardenedRuntime: true,
+    }),
+    [],
+  );
+
+  assert.deepEqual(
+    developerIdSignatureViolations(parseCodesignDetails("Signature=adhoc\nTeamIdentifier=not set\n")),
+    [
+      "signature is ad-hoc or missing",
+      "Developer ID Application authority is missing",
+      "TeamIdentifier is missing",
+      "secure timestamp is missing",
+    ],
+  );
+
+  assert.deepEqual(
+    developerIdSignatureViolations(
+      parseCodesignDetails(`
+Signature size=9000
+Authority=Apple Development: Example
+Timestamp=Jun 4, 2026 at 12:00:00 PM
+TeamIdentifier=ABCDE12345
+`),
+      { expectedTeamId: "ZZZZZ99999", requireHardenedRuntime: true },
+    ),
+    [
+      "Developer ID Application authority is missing",
+      "TeamIdentifier expected ZZZZZ99999, found ABCDE12345",
+      "hardened runtime is missing",
+    ],
+  );
 });
 
 test("macOS verifier validates required bundle metadata and expected identity", () => {

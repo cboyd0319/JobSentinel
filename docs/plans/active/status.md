@@ -50,6 +50,18 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- macOS no-account release-readiness is now harness-checked at 94%, with the
+  final 6% explicitly blocked on Apple Developer Program materials for
+  Developer ID signing, notarization credentials, and Gatekeeper-accepted
+  public artifact proof.
+- Mac release builders and verifiers now keep the future Developer ID path
+  strict by rejecting non-Developer-ID signatures in Gatekeeper-required mode,
+  parsing notarization JSON for `Accepted`, validating stapled DMG tickets,
+  binding public DMG assets to the release version, and requiring checksum
+  sidecars to name the expected artifact.
+
+Earlier implementation slice:
+
 - Privacy-logging harness detectors moved out of
   `scripts/harness/checks/privacy-logging.mjs` into focused modules under
   `scripts/harness/checks/privacy-logging/`.
@@ -791,45 +803,6 @@ Recent cleanup summary:
   review sorting, recommendation copy, score caps, and hard-constraint actions.
 - `src/mocks/handlers.ts` legacy no-growth budget tightened from 3,379 lines to
   3,050 lines.
-- Resume section parsing and resume-review guard helpers moved out of
-  `src/mocks/handlers.ts` into
-  `src/mocks/handlers/resumeAnalysisSections.ts`.
-- The main mock handler still owns analysis scoring, keyword extraction, and
-  command dispatch; the extracted helper owns section normalization and
-  hidden-text, keyword-list, unclear-capability, and generic-filler guards.
-- `src/mocks/handlers.ts` legacy no-growth budget tightened from 3,656 lines to
-  3,379 lines.
-- Resume bullet-improvement prompt helpers moved out of
-  `src/mocks/handlers.ts` into
-  `src/mocks/handlers/resumeBulletPrompts.ts`.
-- The main mock handler still owns keyword extraction and command dispatch; the
-  extracted helper receives the keyword extractor explicitly and owns only
-  prompt wording and bullet rewrite guidance.
-- `src/mocks/handlers.ts` legacy no-growth budget tightened from 3,971 lines to
-  3,656 lines.
-- Settings help/status, backup, and support-report UI moved out of
-  `src/pages/Settings.tsx` into `src/pages/SettingsSupportSections.tsx`.
-- The main Settings page still owns modal state, backup handlers, support report
-  actions, and scraper-health modal state; the extracted component owns only
-  presentation.
-- `src/pages/Settings.tsx` legacy no-growth budget tightened from 3,435 lines
-  to 3,351 lines.
-- ATS platform detection helpers moved out of `src/mocks/handlers.ts` into
-  `src/mocks/handlers/atsPlatform.ts`; the main mock handler still owns
-  application-form fill state and attempt IDs.
-- `src/mocks/handlers/atsPlatform.test.ts` covers backend command wiring for
-  platform detection, safe form-fill attempts, and unsafe-link rejection.
-- `src/mocks/handlers.ts` legacy no-growth budget tightened from 4,013 lines to
-  3,971 lines.
-- Resume-builder mock normalizers, templates, HTML rendering, and text export
-  helpers moved out of `src/mocks/handlers.ts` into
-  `src/mocks/handlers/resumeBuilder.ts`.
-- The main mock handler still owns mutable draft state and persistence; the
-  extracted helper owns pure draft normalization and rendering behavior.
-- `src/mocks/handlers/resumeBuilder.test.ts` covers command wiring for draft
-  updates, HTML escaping, and text export through `mockInvoke`.
-- `src/mocks/handlers.ts` legacy no-growth budget tightened from 4,253 lines to
-  4,013 lines.
 - The whole public GitHub wiki is now treated as external product docs in the
   harness and change contract.
 - Product-copy and broad-audience harness path sets now include
