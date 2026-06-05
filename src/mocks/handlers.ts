@@ -44,6 +44,10 @@ import { handleMockJobTrackingCommand } from "./handlers/jobTrackingCommands";
 import { handleMockSettingsSupportCommand } from "./handlers/settingsSupportCommands";
 import { handleMockUserDataCommand } from "./handlers/userDataCommands";
 import {
+  getMockActiveResume,
+  handleMockResumeCommand,
+} from "./handlers/resumeCommands";
+import {
   getNextMockCoverLetterTemplateId,
   getNextMockSavedSearchId,
   normalizeMockCoverLetterTemplate,
@@ -61,21 +65,10 @@ import {
   normalizeMockScreeningAnswer,
   upsertMockScreeningAnswer as upsertMockScreeningAnswerState,
 } from "./handlers/applicationProfile";
-import { ATS_POWER_WORDS } from "./handlers/resumeAnalysis";
 import {
   getMockAtsPlatform,
   getMockAtsPlatformDetection,
 } from "./handlers/atsPlatform";
-import { improveMockBulletPoint } from "./handlers/resumeBulletPrompts";
-import {
-  analyzeMockResumeForJob,
-  analyzeMockResumeFormat,
-} from "./handlers/resumeAnalysisRunner";
-import {
-  toMockResumeSummary,
-  toMockResumeTextPreview,
-} from "./handlers/resumeSummaryViews";
-import { extractMockAtsKeywords } from "./handlers/resumeKeywordMatching";
 import {
   generateMockNegotiationScript,
   getMockSalaryBenchmark,
@@ -87,39 +80,21 @@ import {
   getMockMarketSnapshot,
   getMockTrendingSkills,
 } from "./handlers/marketIntelligence";
-import {
-  exportMockResumeText,
-  getEmptyBuilderContact,
-  getResumeTemplates,
-  normalizeBuilderContact,
-  normalizeBuilderEducation,
-  normalizeBuilderExperience,
-  normalizeBuilderSkill,
-  normalizeResumeDraft,
-  renderMockResumeHtml,
-} from "./handlers/resumeBuilder";
+import { normalizeResumeDraft } from "./handlers/resumeBuilder";
 import {
   cloneApplications,
   getArg,
   getDefaultGhostConfig,
   getNextId,
   getNumericArg,
-  getResumeIdArg,
-  getSkillIdArg,
   getStringArg,
-  hasOwnInputKey,
   normalizeApplications,
   normalizeProfileInput,
-  normalizeSkillInput,
-  skillYearsOrNull,
-  toScoreFraction,
-  trimmedStringOrNull,
 } from "./handlers/commandHelpers";
 import type {
   MockApplications,
   MockApplicationProfile,
   MockBookmarkletConfig,
-  MockBuilderSkill,
   MockCoverLetterTemplate,
   MockCredentialKey,
   MockFillResultWithAttempt,
@@ -361,7 +336,7 @@ function applyMockSettingsSupportCommand<T>(
       ghostConfig,
       bookmarkletConfig,
     },
-    Boolean(getActiveResume()),
+    Boolean(getMockActiveResume(resumes)),
   );
 
   if (!result.handled) {
@@ -372,6 +347,34 @@ function applyMockSettingsSupportCommand<T>(
   credentials = result.state.credentials;
   ghostConfig = result.state.ghostConfig;
   bookmarkletConfig = result.state.bookmarkletConfig;
+
+  if (result.shouldSave) {
+    saveMockState();
+  }
+
+  return result.value as T;
+}
+
+function applyMockResumeCommand<T>(
+  command: string,
+  args: Record<string, unknown> | undefined,
+): T {
+  const result = handleMockResumeCommand(command, args, {
+    jobs,
+    resumes,
+    userSkills,
+    resumeDrafts,
+    recentMatches,
+  });
+
+  if (!result.handled) {
+    return undefined as T;
+  }
+
+  resumes = result.state.resumes;
+  userSkills = result.state.userSkills;
+  resumeDrafts = result.state.resumeDrafts;
+  recentMatches = result.state.recentMatches;
 
   if (result.shouldSave) {
     saveMockState();
@@ -401,46 +404,6 @@ function importMockJobFromUrl(args?: Record<string, unknown>): MockJobImportResu
   return { jobId: job.id };
 }
 
-function createMockResumeDraft(): number {
-  const now = new Date().toISOString();
-  const id = getNextId(resumeDrafts);
-  resumeDrafts.push({
-    id,
-    contact: getEmptyBuilderContact(),
-    summary: "",
-    experience: [],
-    education: [],
-    skills: [],
-    certifications: [],
-    projects: [],
-    created_at: now,
-    updated_at: now,
-  });
-  saveMockState();
-  return id;
-}
-
-function getResumeDraft(args?: Record<string, unknown>): MockResumeDraft | undefined {
-  const resumeId = getResumeIdArg(args);
-  return resumeDrafts.find((draft) => draft.id === resumeId);
-}
-
-function updateResumeDraft(
-  resumeId: number | undefined,
-  updater: (draft: MockResumeDraft) => MockResumeDraft,
-): void {
-  if (typeof resumeId !== "number") throw new Error("Resume draft not found");
-
-  const found = resumeDrafts.some((draft) => draft.id === resumeId);
-  if (!found) throw new Error("Resume draft not found");
-  resumeDrafts = resumeDrafts.map((draft) =>
-    draft.id === resumeId
-      ? updater({ ...draft, updated_at: new Date().toISOString() })
-      : draft,
-  );
-  saveMockState();
-}
-
 function fillMockApplicationForm(args?: Record<string, unknown>): MockFillResultWithAttempt {
   const jobUrl = getStringArg(args, "jobUrl") ?? getStringArg(args, "job_url") ?? "";
   if (!isExternalHttpUrl(jobUrl)) {
@@ -467,10 +430,6 @@ function fillMockApplicationForm(args?: Record<string, unknown>): MockFillResult
   };
 }
 
-function getActiveResume(): MockResumeData | null {
-  return resumes.find((resume) => resume.is_active) ?? null;
-}
-
 function upsertMockApplicationProfile(args?: Record<string, unknown>): number {
   const input = normalizeProfileInput(getArg(args, "input"));
   applicationProfile = buildMockApplicationProfileFromInput(input, applicationProfile);
@@ -482,29 +441,6 @@ function upsertMockApplicationProfile(args?: Record<string, unknown>): number {
 function upsertMockScreeningAnswer(args?: Record<string, unknown>): void {
   screeningAnswers = upsertMockScreeningAnswerState(args, screeningAnswers);
   saveMockState();
-}
-
-function createMockResume(name: string, filePath: string): number {
-  const now = new Date().toISOString();
-  const id = getNextId(resumes);
-  resumes = resumes.map((resume) => ({ ...resume, is_active: false }));
-  const parsedText = [
-    name,
-    "Care coordinator supporting intake, scheduling, and case management.",
-    "Skills: patient scheduling, community outreach, documentation.",
-  ].join("\n");
-
-  resumes.push({
-    id,
-    name,
-    file_path: filePath,
-    parsed_text: parsedText,
-    is_active: true,
-    created_at: now,
-    updated_at: now,
-  });
-  saveMockState();
-  return id;
 }
 
 /**
@@ -616,323 +552,41 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
       return applyMockJobTrackingCommand<T>(cmd, args);
 
     // Resume commands
-    case "get_active_resume": {
-      const activeResume = getActiveResume();
-      return (activeResume ? toMockResumeSummary(activeResume) : null) as T;
-    }
-
+    case "get_active_resume":
     case "list_all_resumes":
-      return resumes.map(toMockResumeSummary) as T;
-
-    case "get_resume_text_preview": {
-      const resumeId = getResumeIdArg(args);
-      const selectedResume = resumes.find((resume) => resume.id === resumeId);
-      if (!selectedResume) {
-        throw new Error("Resume not found");
-      }
-      return toMockResumeTextPreview(selectedResume) as T;
-    }
-
-    case "set_active_resume": {
-      const resumeId = getResumeIdArg(args);
-      if (typeof resumeId !== "number" || !resumes.some((resume) => resume.id === resumeId)) {
-        throw new Error("Resume not found");
-      }
-      resumes = resumes.map((resume) => ({
-        ...resume,
-        is_active: resume.id === resumeId,
-      }));
-      saveMockState();
-      return undefined as T;
-    }
-
-    case "select_and_upload_resume": {
-      return createMockResume("Mock Resume", "app-owned://resume-uploads/mock-resume.pdf") as T;
-    }
-
-    case "import_json_resume": {
-      const name = getStringArg(args, "name") ?? "Imported Resume";
-      return createMockResume(`${name}.json`, `${name}.json`) as T;
-    }
-
-    case "select_and_import_json_resume": {
-      return createMockResume("Imported Resume", "app-owned://resume-imports/imported-resume.json") as T;
-    }
-
-    case "delete_resume": {
-      const resumeId = getResumeIdArg(args);
-      if (typeof resumeId === "number") {
-        const wasActive = resumes.some((resume) => resume.id === resumeId && resume.is_active);
-        resumes = resumes.filter((resume) => resume.id !== resumeId);
-        userSkills = userSkills.filter((skill) => skill.resume_id !== resumeId);
-        recentMatches = recentMatches.filter((match) => match.resume_id !== resumeId);
-        if (wasActive && resumes.length > 0) {
-          resumes = resumes.map((resume, index) => ({
-            ...resume,
-            is_active: index === 0,
-          }));
-        }
-        saveMockState();
-      }
-      return undefined as T;
-    }
-
-    case "get_user_skills": {
-      const resumeId = getResumeIdArg(args);
-      return userSkills.filter((skill) => skill.resume_id === resumeId) as T;
-    }
-
-    case "add_user_skill": {
-      const resumeId = getResumeIdArg(args);
-      const skill = normalizeSkillInput(getArg(args, "skill"));
-      const skillName = trimmedStringOrNull(skill.skill_name);
-      if (typeof resumeId !== "number" || !skillName) {
-        return undefined as T;
-      }
-
-      const newSkill: MockUserSkill = {
-        id: getNextId(userSkills),
-        resume_id: resumeId,
-        skill_name: skillName,
-        skill_category: trimmedStringOrNull(skill.skill_category),
-        confidence_score: 1,
-        years_experience: skillYearsOrNull(skill.years_experience),
-        proficiency_level: trimmedStringOrNull(skill.proficiency_level),
-        source: "manual",
-      };
-      userSkills.push(newSkill);
-      saveMockState();
-      return newSkill.id as T;
-    }
-
-    case "update_user_skill": {
-      const skillId = getSkillIdArg(args);
-      const updates = normalizeSkillInput(getArg(args, "updates"));
-      if (typeof skillId !== "number" || !userSkills.some((skill) => skill.id === skillId)) {
-        throw new Error("Skill not found");
-      }
-      userSkills = userSkills.map((skill) =>
-        skill.id === skillId
-          ? {
-              ...skill,
-              skill_name:
-                trimmedStringOrNull(updates.skill_name) ?? skill.skill_name,
-              skill_category: hasOwnInputKey(updates, "skill_category")
-                ? trimmedStringOrNull(updates.skill_category)
-                : skill.skill_category,
-              proficiency_level: hasOwnInputKey(updates, "proficiency_level")
-                ? trimmedStringOrNull(updates.proficiency_level)
-                : skill.proficiency_level,
-              years_experience: hasOwnInputKey(updates, "years_experience")
-                ? skillYearsOrNull(updates.years_experience)
-                : skill.years_experience,
-              source: "manual",
-            }
-          : skill,
-      );
-      saveMockState();
-      return undefined as T;
-    }
-
-    case "delete_user_skill": {
-      const skillId = getSkillIdArg(args);
-      userSkills = userSkills.filter((skill) => skill.id !== skillId);
-      saveMockState();
-      return undefined as T;
-    }
-
-    case "get_recent_matches": {
-      const resumeId = getResumeIdArg(args);
-      const limit = getNumericArg(args, "limit") ?? 10;
-      return recentMatches
-        .filter((match) => match.resume_id === resumeId)
-        .slice(0, limit) as T;
-    }
-
-    case "match_resume_to_job": {
-      const resumeId = getResumeIdArg(args);
-      const jobHash = getStringArg(args, "jobHash") ?? getStringArg(args, "job_hash");
-      const job = jobs.find((item) => item.hash === jobHash);
-      if (typeof resumeId !== "number" || !jobHash || !job) {
-        return undefined as T;
-      }
-
-      const skills = userSkills
-        .filter((skill) => skill.resume_id === resumeId)
-        .map((skill) => skill.skill_name);
-      const matchScore = toScoreFraction(job.score);
-      const match: MockMatchResult = {
-        id: getNextId(recentMatches),
-        resume_id: resumeId,
-        job_hash: jobHash,
-        job_title: job.title,
-        company: job.company,
-        overall_match_score: matchScore,
-        skills_match_score: matchScore,
-        experience_match_score: Math.max(0, Number((matchScore - 0.05).toFixed(2))),
-        education_match_score: null,
-        matching_skills: skills.slice(0, 3),
-        missing_skills: ["Role-specific evidence"],
-        gap_analysis: "Matching: Existing skills align\nMissing: Add one role-specific example",
-        created_at: new Date().toISOString(),
-      };
-      recentMatches = [
-        match,
-        ...recentMatches.filter((item) => item.job_hash !== jobHash),
-      ];
-      saveMockState();
-      return match as T;
-    }
-
+    case "get_resume_text_preview":
+    case "set_active_resume":
+    case "select_and_upload_resume":
+    case "import_json_resume":
+    case "select_and_import_json_resume":
+    case "delete_resume":
+    case "get_user_skills":
+    case "add_user_skill":
+    case "update_user_skill":
+    case "delete_user_skill":
+    case "get_recent_matches":
+    case "match_resume_to_job":
     case "create_resume_draft":
-      return createMockResumeDraft() as T;
-
     case "get_resume_draft":
-      return (getResumeDraft(args) ?? null) as T;
-
-    case "update_resume_contact": {
-      const resumeId = getResumeIdArg(args);
-      const contact = normalizeBuilderContact(getArg(args, "contact"));
-      updateResumeDraft(resumeId, (draft) => ({ ...draft, contact }));
-      return undefined as T;
-    }
-
-    case "update_resume_summary": {
-      const resumeId = getResumeIdArg(args);
-      const summary = getStringArg(args, "summary") ?? "";
-      updateResumeDraft(resumeId, (draft) => ({ ...draft, summary }));
-      return undefined as T;
-    }
-
-    case "add_resume_experience": {
-      const resumeId = getResumeIdArg(args);
-      const draft = getResumeDraft(args);
-      const newId = getNextId(draft?.experience ?? []);
-      const experience = normalizeBuilderExperience(getArg(args, "experience"), newId);
-      updateResumeDraft(resumeId, (current) => ({
-        ...current,
-        experience: [...current.experience, { ...experience, id: newId }],
-      }));
-      return newId as T;
-    }
-
-    case "delete_resume_experience": {
-      const resumeId = getResumeIdArg(args);
-      const experienceId =
-        getNumericArg(args, "experienceId") ?? getNumericArg(args, "experience_id");
-      const draft = getResumeDraft(args);
-      if (!draft || !draft.experience.some((experience) => experience.id === experienceId)) {
-        throw new Error("Experience entry not found");
-      }
-      updateResumeDraft(resumeId, (draft) => ({
-        ...draft,
-        experience: draft.experience.filter((experience) => experience.id !== experienceId),
-      }));
-      return undefined as T;
-    }
-
-    case "add_resume_education": {
-      const resumeId = getResumeIdArg(args);
-      const draft = getResumeDraft(args);
-      const newId = getNextId(draft?.education ?? []);
-      const education = normalizeBuilderEducation(getArg(args, "education"), newId);
-      updateResumeDraft(resumeId, (current) => ({
-        ...current,
-        education: [...current.education, { ...education, id: newId }],
-      }));
-      return newId as T;
-    }
-
-    case "delete_resume_education": {
-      const resumeId = getResumeIdArg(args);
-      const educationId =
-        getNumericArg(args, "educationId") ?? getNumericArg(args, "education_id");
-      const draft = getResumeDraft(args);
-      if (!draft || !draft.education.some((education) => education.id === educationId)) {
-        throw new Error("Education entry not found");
-      }
-      updateResumeDraft(resumeId, (draft) => ({
-        ...draft,
-        education: draft.education.filter((education) => education.id !== educationId),
-      }));
-      return undefined as T;
-    }
-
-    case "set_resume_skills": {
-      const resumeId = getResumeIdArg(args);
-      const rawSkills = getArg(args, "skills");
-      const skills = Array.isArray(rawSkills)
-        ? rawSkills.map(normalizeBuilderSkill).filter((skill): skill is MockBuilderSkill => !!skill)
-        : [];
-      updateResumeDraft(resumeId, (draft) => ({ ...draft, skills }));
-      return undefined as T;
-    }
-
-    case "delete_resume_draft": {
-      const resumeId = getResumeIdArg(args);
-      if (typeof resumeId !== "number" || !resumeDrafts.some((draft) => draft.id === resumeId)) {
-        throw new Error("Resume draft not found");
-      }
-      resumeDrafts = resumeDrafts.filter((draft) => draft.id !== resumeId);
-      saveMockState();
-      return undefined as T;
-    }
-
+    case "update_resume_contact":
+    case "update_resume_summary":
+    case "add_resume_experience":
+    case "delete_resume_experience":
+    case "add_resume_education":
+    case "delete_resume_education":
+    case "set_resume_skills":
+    case "delete_resume_draft":
     case "list_resume_templates":
-      return getResumeTemplates() as T;
-
     case "render_resume_html":
-      return renderMockResumeHtml(getArg(args, "resume")) as T;
-
     case "analyze_resume_format":
-      return analyzeMockResumeFormat(getArg(args, "resume")) as T;
-
     case "analyze_resume_for_job":
-      return analyzeMockResumeForJob(
-        getArg(args, "resume"),
-        getStringArg(args, "jobDescription") ?? "",
-      ) as T;
-
-    case "analyze_active_resume_for_job": {
-      const activeResume = getActiveResume();
-      if (!activeResume) {
-        throw new Error("Choose or add a resume before reviewing job fit.");
-      }
-
-      const readableText = (activeResume.parsed_text ?? "").trim();
-      if (!readableText) {
-        throw new Error("JobSentinel could not find readable text in the active resume.");
-      }
-
-      return analyzeMockResumeForJob(
-        {
-          summary: readableText,
-          experience: [],
-          skills: [],
-          education: [],
-          certifications: [],
-          projects: [],
-          custom_sections: {},
-        },
-        getStringArg(args, "jobDescription") ?? "",
-      ) as T;
-    }
-
+    case "analyze_active_resume_for_job":
     case "get_ats_power_words":
-      return [...ATS_POWER_WORDS] as T;
-
     case "improve_bullet_point":
-      return improveMockBulletPoint(args, extractMockAtsKeywords) as T;
-
     case "export_resume_docx":
-      return [80, 75, 3, 4, 20, 0, 0, 0] as T;
-
     case "export_resume_html":
-      return renderMockResumeHtml(getArg(args, "resume")) as T;
-
-    case "export_resume_text": {
-      return exportMockResumeText(getArg(args, "resume")) as T;
-    }
+    case "export_resume_text":
+      return applyMockResumeCommand<T>(cmd, args);
 
     // Salary commands
     case "predict_salary":

@@ -145,6 +145,7 @@ export const resumeCommandDtoPrivacyPaths = new Set([
   "src/pages/Resume.tsx",
   "src/pages/ResumeBuilder.tsx",
   "src/mocks/handlers.ts",
+  "src/mocks/handlers/resumeCommands.ts",
   "docs/developer/ARCHITECTURE.md",
 ]);
 

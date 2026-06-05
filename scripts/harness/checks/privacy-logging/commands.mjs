@@ -237,11 +237,20 @@ export function hasRawResumeCommandDtoExposure(root, path) {
 
   if (path === "src/mocks/handlers.ts") {
     return (
-      !/toMockResumeSummary/.test(text) ||
+      !/(?:toMockResumeSummary|handleMockResumeCommand)/.test(text) ||
       /case\s+["']get_active_resume["']:[\s\S]{0,180}return\s+getActiveResume\(\)\s+as\s+T/.test(
         text,
       ) ||
       /case\s+["']list_all_resumes["']:[\s\S]{0,120}return\s+resumes\s+as\s+T/.test(text)
+    );
+  }
+
+  if (path === "src/mocks/handlers/resumeCommands.ts") {
+    return (
+      !/toMockResumeSummary/.test(text) ||
+      /case\s+["']list_all_resumes["']:[\s\S]{0,160}return\s+withoutSave\(\s*state\s*,\s*state\.resumes/.test(
+        text,
+      )
     );
   }
 

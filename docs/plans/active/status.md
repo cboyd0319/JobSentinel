@@ -51,6 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Mock resume command handling now lives in a focused module, and the bloat
+  privacy guard follows the split so mock resume summaries still avoid renderer
+  file-path exposure.
+
 - First-run setup and profile presets now start with remote, hybrid, and
   on-site selected and no preset salary floor, so new users do not silently
   narrow results before choosing.
