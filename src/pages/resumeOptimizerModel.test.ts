@@ -145,6 +145,21 @@ describe("buildResumeNextActions", () => {
     });
   });
 
+  it("does not duplicate partial hard-constraint review rows as supporting-evidence actions", () => {
+    const actions = buildResumeNextActions({
+      ...baseAnalysis,
+      requirement_reviews: [
+        requiredReview("work authorization", "Partial", true),
+        requiredReview("crm", "Partial"),
+      ],
+    });
+
+    expect(actions.map((action) => action.title)).toEqual([
+      "Check work authorization before tailoring",
+      "Add supporting evidence for crm only if true",
+    ]);
+  });
+
   it("keeps required-gap actions ahead of positive visible-evidence guidance", () => {
     const actions = buildResumeNextActions({
       ...baseAnalysis,

@@ -51,6 +51,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Resume Match next actions no longer duplicate partial or implied hard
+  requirements as both **Check first** and supporting-evidence actions.
+
 - Dashboard repeat-posting controls now say possible repeats and hide extras
   instead of merge duplicates, keeping the UI from implying confirmed duplicate
   jobs or separate source confirmation.

@@ -513,7 +513,9 @@ export function buildResumeNextActions(analysis: AtsAnalysisResult): ResumeNextA
   const partialRequired = reviews.filter(
     (review) =>
       isMissingOrWeakRequiredReview(review) &&
-      (review.match_state === "Partial" || review.match_state === "Implied"),
+      (review.match_state === "Partial" || review.match_state === "Implied") &&
+      !review.hard_constraint &&
+      !hardRiskRequirements.has(normalizeRequirementText(review.keyword)),
   );
   for (const review of partialRequired.slice(0, 5 - actions.length)) {
     actions.push({
