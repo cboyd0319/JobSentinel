@@ -30,6 +30,8 @@ const firstRunPlainCopyPaths = new Set([
   "src/components/CareerProfileSelector.tsx",
   "src/config/tourSteps.ts",
   "src/pages/SetupWizard.tsx",
+  "src/pages/SetupWizardSearchSummary.tsx",
+  "src/pages/setupWizardPreferences.ts",
   "docs/user/QUICK_START.md",
 ]);
 const installSecurityCopyPaths = new Set([

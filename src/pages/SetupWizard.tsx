@@ -17,265 +17,40 @@ import {
   readCachedDetectedLocation,
   type LocationInfo,
 } from "../utils/locationDetection";
+import {
+  AvoidIcon,
+  BuildingIcon,
+  CheckIcon,
+  GlobeIcon,
+  MapPinIcon,
+  OfficeIcon,
+  PayIcon,
+  SearchIcon,
+  SentinelIcon,
+  SparkleIcon,
+} from "./SetupWizardIcons";
+import { LocationOption } from "./SetupWizardLocationOption";
+import { SetupWizardSearchSummary } from "./SetupWizardSearchSummary";
+import {
+  COMMON_WORK_TO_AVOID,
+  DEFAULT_FRESHNESS_PREFERENCE,
+  DEFAULT_REVIEW_VOLUME_PREFERENCE,
+  FRESHNESS_OPTIONS,
+  REVIEW_VOLUME_OPTIONS,
+  applyReviewVolumePreference,
+  buildSetupSearchSummary,
+  createDefaultSetupConfig,
+  ghostConfigForFreshnessPreference,
+  toResumeSkillSuggestions,
+  type FreshnessPreference,
+  type ReviewVolumePreference,
+  type SetupConfig,
+  type SetupResumeSkill,
+  type SetupResumeSummary,
+} from "./setupWizardPreferences";
 
 interface SetupWizardProps {
   onComplete: () => void;
-}
-
-interface LocationPreferences {
-  allow_remote: boolean;
-  allow_hybrid: boolean;
-  allow_onsite: boolean;
-  cities: string[];
-}
-
-interface GhostConfig {
-  stale_threshold_days: number;
-  repost_threshold: number;
-  min_description_length: number;
-  penalize_missing_salary: boolean;
-  warning_threshold: number;
-  hide_threshold: number;
-}
-
-type FreshnessPreference =
-  | "fresh_verified_first"
-  | "balanced"
-  | "wide_search";
-
-interface FreshnessOption {
-  id: FreshnessPreference;
-  label: string;
-  description: string;
-}
-
-type ReviewVolumePreference =
-  | "focused"
-  | "balanced"
-  | "broad";
-
-interface ReviewVolumeOption {
-  id: ReviewVolumePreference;
-  label: string;
-  description: string;
-}
-
-interface SetupResumeSummary {
-  id: number;
-  name: string;
-}
-
-interface SetupResumeSkill {
-  skill_name: string;
-  source?: string | null;
-}
-
-const DEFAULT_FRESHNESS_PREFERENCE: FreshnessPreference = "fresh_verified_first";
-const DEFAULT_REVIEW_VOLUME_PREFERENCE: ReviewVolumePreference = "balanced";
-
-const FRESHNESS_GHOST_CONFIGS = {
-  fresh_verified_first: {
-    stale_threshold_days: 30,
-    repost_threshold: 2,
-    min_description_length: 200,
-    penalize_missing_salary: false,
-    warning_threshold: 0.2,
-    hide_threshold: 0.75,
-  },
-  balanced: {
-    stale_threshold_days: 60,
-    repost_threshold: 3,
-    min_description_length: 200,
-    penalize_missing_salary: false,
-    warning_threshold: 0.3,
-    hide_threshold: 0.7,
-  },
-  wide_search: {
-    stale_threshold_days: 120,
-    repost_threshold: 5,
-    min_description_length: 100,
-    penalize_missing_salary: false,
-    warning_threshold: 0.5,
-    hide_threshold: 0.85,
-  },
-} satisfies Record<FreshnessPreference, GhostConfig>;
-
-const FRESHNESS_OPTIONS: FreshnessOption[] = [
-  {
-    id: "fresh_verified_first",
-    label: "Fresh and verified first",
-    description: "Warn earlier when a posting looks old, reposted, or hard to verify.",
-  },
-  {
-    id: "balanced",
-    label: "Balanced",
-    description: "Use normal posting-review alerts while keeping the list broad.",
-  },
-  {
-    id: "wide_search",
-    label: "Widest search",
-    description: "Show more older postings and warn only when risk looks clearer.",
-  },
-];
-
-const REVIEW_VOLUME_CONFIGS = {
-  focused: {
-    immediate_alert_threshold: 0.92,
-    remoteok_limit: 25,
-    hn_hiring_limit: 50,
-    weworkremotely_limit: 25,
-  },
-  balanced: {
-    immediate_alert_threshold: 0.9,
-    remoteok_limit: 50,
-    hn_hiring_limit: 100,
-    weworkremotely_limit: 50,
-  },
-  broad: {
-    immediate_alert_threshold: 0.85,
-    remoteok_limit: 75,
-    hn_hiring_limit: 150,
-    weworkremotely_limit: 75,
-  },
-} satisfies Record<ReviewVolumePreference, {
-  immediate_alert_threshold: number;
-  remoteok_limit: number;
-  hn_hiring_limit: number;
-  weworkremotely_limit: number;
-}>;
-
-const REVIEW_VOLUME_OPTIONS: ReviewVolumeOption[] = [
-  {
-    id: "focused",
-    label: "Smaller list",
-    description: "Show fewer jobs and focus alerts on roles that most clearly fit your search.",
-  },
-  {
-    id: "balanced",
-    label: "Balanced list",
-    description: "Recommended. Keep a manageable list without hiding useful roles.",
-  },
-  {
-    id: "broad",
-    label: "Broad discovery",
-    description: "Show more possible roles, including adjacent ones that may still be worth a look.",
-  },
-];
-
-const COMMON_WORK_TO_AVOID = [
-  "night shift",
-  "weekend work",
-  "heavy travel",
-  "mandatory overtime",
-] as const;
-
-function ghostConfigForFreshnessPreference(
-  preference: FreshnessPreference
-): GhostConfig {
-  return { ...FRESHNESS_GHOST_CONFIGS[preference] };
-}
-
-function freshnessSummary(preference: FreshnessPreference) {
-  switch (preference) {
-    case "fresh_verified_first":
-      return "Fresh and verified first";
-    case "balanced":
-      return "Balanced";
-    case "wide_search":
-      return "Widest search";
-  }
-}
-
-function reviewVolumeSummary(preference: ReviewVolumePreference) {
-  switch (preference) {
-    case "focused":
-      return "Smaller list";
-    case "balanced":
-      return "Balanced list";
-    case "broad":
-      return "Broad discovery";
-  }
-}
-
-function formatJobSourceSummary(
-  config: {
-    title_allowlist: string[];
-    keywords_boost: string[];
-    location_preferences: { allow_remote: boolean };
-    remoteok: { enabled: boolean };
-    hn_hiring: { enabled: boolean };
-    weworkremotely: { enabled: boolean };
-  },
-): string {
-  const sourceDefaults = getSearchSourceDefaults({
-    titles: config.title_allowlist,
-    keywords: config.keywords_boost,
-    allowRemote: config.location_preferences.allow_remote,
-  });
-  const sources = [
-    config.remoteok.enabled || sourceDefaults.remoteokEnabled ? "Remote OK" : null,
-    config.weworkremotely.enabled || sourceDefaults.weworkremotelyEnabled
-      ? "We Work Remotely"
-      : null,
-    config.hn_hiring.enabled || sourceDefaults.hnHiringEnabled
-      ? "Startup and tech hiring posts"
-      : null,
-  ].filter((source): source is string => source !== null);
-
-  if (sources.length === 0) {
-    return "Local saved search only; add sources in Settings.";
-  }
-
-  return `${sources.join(", ")}. You can turn these off in Settings.`;
-}
-
-function toResumeSkillSuggestions(skills: SetupResumeSkill[]): string[] {
-  const seen = new Set<string>();
-  const suggestions: string[] = [];
-
-  for (const skill of skills) {
-    if (skill.source !== "resume") continue;
-
-    const name = skill.skill_name.trim();
-    const key = name.toLocaleLowerCase();
-
-    if (!name || seen.has(key)) continue;
-
-    seen.add(key);
-    suggestions.push(name);
-
-    if (suggestions.length >= 6) break;
-  }
-
-  return suggestions;
-}
-
-function applyReviewVolumePreference<T extends {
-  immediate_alert_threshold?: number;
-  remoteok: { limit: number };
-  hn_hiring: { limit: number };
-  weworkremotely: { limit: number };
-}>(
-  config: T,
-  preference: ReviewVolumePreference
-): T {
-  const volume = REVIEW_VOLUME_CONFIGS[preference];
-  return {
-    ...config,
-    immediate_alert_threshold: volume.immediate_alert_threshold,
-    remoteok: {
-      ...config.remoteok,
-      limit: volume.remoteok_limit,
-    },
-    hn_hiring: {
-      ...config.hn_hiring,
-      limit: volume.hn_hiring_limit,
-    },
-    weworkremotely: {
-      ...config.weworkremotely,
-      limit: volume.weworkremotely_limit,
-    },
-  };
 }
 
 // Step 0 is profile selection, then simplified flow
@@ -310,48 +85,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
     () => readCachedDetectedLocation()
   );
   const [isDetectingLocation, setIsDetectingLocation] = useState(false);
-  const [config, setConfig] = useState({
-    title_allowlist: [] as string[],
-    title_blocklist: [] as string[],
-    keywords_boost: [] as string[],
-    keywords_exclude: [] as string[],
-    location_preferences: {
-      allow_remote: true,
-      allow_hybrid: false,
-      allow_onsite: false,
-      cities: [] as string[],
-    },
-    salary_floor_usd: 0,
-    alerts: {
-      slack: {
-        enabled: false,
-        webhook_url: "",
-      },
-      desktop: {
-        enabled: true,
-        play_sound: true,
-        show_when_focused: false,
-      },
-    },
-    immediate_alert_threshold:
-      REVIEW_VOLUME_CONFIGS[DEFAULT_REVIEW_VOLUME_PREFERENCE].immediate_alert_threshold,
-    ghost_config: ghostConfigForFreshnessPreference(DEFAULT_FRESHNESS_PREFERENCE),
-    // Keep tech-heavy sources off until the saved search calls for them.
-    remoteok: {
-      enabled: false,
-      tags: [] as string[],
-      limit: 50,
-    },
-    hn_hiring: {
-      enabled: false,
-      remote_only: false,
-      limit: 100,
-    },
-    weworkremotely: {
-      enabled: false,
-      limit: 50,
-    },
-  });
+  const [config, setConfig] = useState<SetupConfig>(() => createDefaultSetupConfig());
 
   // When a profile is selected, auto-populate the config
   const handleProfileSelect = (profileId: string | null) => {
@@ -369,48 +103,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
       // Reset to empty for the user's own search.
       setFreshnessPreference(DEFAULT_FRESHNESS_PREFERENCE);
       setReviewVolumePreference(DEFAULT_REVIEW_VOLUME_PREFERENCE);
-      setConfig({
-        title_allowlist: [],
-        title_blocklist: [],
-        keywords_boost: [],
-        keywords_exclude: [],
-        location_preferences: {
-          allow_remote: true,
-          allow_hybrid: false,
-          allow_onsite: false,
-          cities: [],
-        },
-        salary_floor_usd: 0,
-        alerts: {
-          slack: {
-            enabled: false,
-            webhook_url: "",
-          },
-          desktop: {
-            enabled: true,
-            play_sound: true,
-            show_when_focused: false,
-          },
-        },
-        immediate_alert_threshold:
-          REVIEW_VOLUME_CONFIGS[DEFAULT_REVIEW_VOLUME_PREFERENCE].immediate_alert_threshold,
-        ghost_config: ghostConfigForFreshnessPreference(DEFAULT_FRESHNESS_PREFERENCE),
-        // Keep tech-heavy sources off until the saved search calls for them.
-        remoteok: {
-          enabled: false,
-          tags: [],
-          limit: 50,
-        },
-        hn_hiring: {
-          enabled: false,
-          remote_only: false,
-          limit: 100,
-        },
-        weworkremotely: {
-          enabled: false,
-          limit: 50,
-        },
-      });
+      setConfig(createDefaultSetupConfig());
     }
   };
 
@@ -723,28 +416,11 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
     }
   };
 
-  const searchSummary = {
-    titles: config.title_allowlist.join(", "),
-    wantedWork: formatListSummary(
-      config.keywords_boost,
-      "No extra work preferences yet"
-    ),
-    avoidedWork: formatListSummary(
-      config.keywords_exclude,
-      "Nothing selected"
-    ),
-    location: formatLocationSummary(config.location_preferences),
-    freshness: freshnessSummary(freshnessPreference),
-    reviewVolume: reviewVolumeSummary(reviewVolumePreference),
-    jobSources: formatJobSourceSummary(config),
-    alerts: config.alerts.desktop.play_sound
-      ? "Desktop alerts with sound"
-      : "Quiet desktop alerts; no sound",
-    pay:
-      config.salary_floor_usd > 0
-        ? `At least $${config.salary_floor_usd.toLocaleString()}/year`
-        : "Show jobs even when pay is missing or not listed",
-  };
+  const searchSummary = buildSetupSearchSummary(
+    config,
+    freshnessPreference,
+    reviewVolumePreference
+  );
 
   return (
     <div className="min-h-screen bg-surface-900 flex items-center justify-center p-6">
@@ -1455,67 +1131,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                 </div>
               </div>
 
-              <section
-                className="mb-6 border-t border-surface-200 pt-5"
-                aria-labelledby="setup-search-summary-title"
-              >
-                <h3
-                  id="setup-search-summary-title"
-                  className="mb-4 flex items-center gap-2 font-semibold text-surface-800"
-                >
-                  <CheckIcon className="w-5 h-5 text-sentinel-600" />
-                  Review your search
-                </h3>
-                <dl className="space-y-3 text-sm">
-                  <div className="grid gap-1 sm:grid-cols-[7rem_1fr]">
-                    <dt className="font-medium text-surface-600">Look for</dt>
-                    <dd className="text-surface-800">{searchSummary.titles}</dd>
-                  </div>
-                  <div className="grid gap-1 sm:grid-cols-[7rem_1fr]">
-                    <dt className="font-medium text-surface-600">Show more</dt>
-                    <dd className="text-surface-800">{searchSummary.wantedWork}</dd>
-                  </div>
-                  <div className="grid gap-1 sm:grid-cols-[7rem_1fr]">
-                    <dt className="font-medium text-surface-600">Rank lower</dt>
-                    <dd className="text-surface-800">{searchSummary.avoidedWork}</dd>
-                  </div>
-                  <div className="grid gap-1 sm:grid-cols-[7rem_1fr]">
-                    <dt className="font-medium text-surface-600">Location</dt>
-                    <dd className="text-surface-800">{searchSummary.location}</dd>
-                  </div>
-                  <div className="grid gap-1 sm:grid-cols-[7rem_1fr]">
-                    <dt className="font-medium text-surface-600">Freshness</dt>
-                    <dd className="text-surface-800">{searchSummary.freshness}</dd>
-                  </div>
-                  <div className="grid gap-1 sm:grid-cols-[7rem_1fr]">
-                    <dt className="font-medium text-surface-600">Review list</dt>
-                    <dd className="text-surface-800">{searchSummary.reviewVolume}</dd>
-                  </div>
-                  <div className="grid gap-1 sm:grid-cols-[7rem_1fr]">
-                    <dt className="font-medium text-surface-600">Job sources</dt>
-                    <dd className="text-surface-800">{searchSummary.jobSources}</dd>
-                  </div>
-                  <div className="grid gap-1 sm:grid-cols-[7rem_1fr]">
-                    <dt className="font-medium text-surface-600">Alerts</dt>
-                    <dd className="text-surface-800">{searchSummary.alerts}</dd>
-                  </div>
-                  <div className="grid gap-1 sm:grid-cols-[7rem_1fr]">
-                    <dt className="font-medium text-surface-600">Pay</dt>
-                    <dd className="text-surface-800">{searchSummary.pay}</dd>
-                  </div>
-                </dl>
-                <p className="mt-4 text-sm text-surface-500">
-                  JobSentinel uses these answers to rank jobs. You can change them later.
-                </p>
-              </section>
-
-              <div className="p-4 bg-surface-50 rounded-lg mb-6">
-                <p className="text-sm text-surface-600">
-                  <span className="font-medium text-surface-700">Your privacy matters:</span> JobSentinel
-                  saves your search on this computer. After you start, it can contact only the job
-                  sources shown above and any alert services you later turn on.
-                </p>
-              </div>
+              <SetupWizardSearchSummary summary={searchSummary} />
 
               <div className="flex gap-3">
                 <Button variant="secondary" onClick={() => setStep(2)} className="flex-1" size="lg">
@@ -1540,170 +1156,5 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
         </p>
       </div>
     </div>
-  );
-}
-
-function formatListSummary(items: string[], emptyText: string) {
-  return items.length > 0 ? items.join(", ") : emptyText;
-}
-
-function formatLocationSummary(locationPreferences: LocationPreferences) {
-  const workTypes = [
-    locationPreferences.allow_remote ? "remote" : null,
-    locationPreferences.allow_hybrid ? "hybrid" : null,
-    locationPreferences.allow_onsite ? "on-site" : null,
-  ].filter(Boolean);
-
-  const workTypeSummary = workTypes.length > 0 ? workTypes.join(", ") : "no work type selected";
-  const citySummary =
-    locationPreferences.cities.length > 0
-      ? ` near ${locationPreferences.cities.join(", ")}`
-      : "";
-
-  return `${workTypeSummary}${citySummary}`;
-}
-
-// Location option component
-interface LocationOptionProps {
-  label: string;
-  description: string;
-  checked: boolean;
-  onChange: (checked: boolean) => void;
-  icon: React.ReactNode;
-}
-
-function LocationOption({ label, description, checked, onChange, icon }: LocationOptionProps) {
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      onChange(!checked);
-    }
-  };
-
-  return (
-    <label
-      className={`
-        flex items-center gap-4 p-4 rounded-lg border-2 cursor-pointer transition-all duration-150
-        ${checked
-          ? "border-sentinel-500 bg-sentinel-50"
-          : "border-surface-200 hover:border-surface-300"
-        }
-      `}
-      onKeyDown={handleKeyDown}
-      tabIndex={0}
-      role="checkbox"
-      aria-checked={checked}
-      aria-label={`${label}: ${description}`}
-    >
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={(e) => onChange(e.target.checked)}
-        className="sr-only"
-        tabIndex={-1}
-        aria-hidden="true"
-      />
-      <div className={`
-        w-10 h-10 rounded-lg flex items-center justify-center
-        ${checked ? "bg-sentinel-500 text-white" : "bg-surface-100 text-surface-500"}
-      `}>
-        {icon}
-      </div>
-      <div className="flex-1">
-        <p className={`font-medium ${checked ? "text-sentinel-700" : "text-surface-700"}`}>
-          {label}
-        </p>
-        <p className="text-sm text-surface-500">{description}</p>
-      </div>
-      <div className={`
-        w-6 h-6 rounded-full border-2 flex items-center justify-center
-        ${checked ? "border-sentinel-500 bg-sentinel-500" : "border-surface-300"}
-      `}>
-        {checked && <CheckIcon className="w-4 h-4 text-white" />}
-      </div>
-    </label>
-  );
-}
-
-// Icons
-function SentinelIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-    </svg>
-  );
-}
-
-function CheckIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-    </svg>
-  );
-}
-
-function SearchIcon() {
-  return (
-    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-    </svg>
-  );
-}
-
-function GlobeIcon() {
-  return (
-    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-    </svg>
-  );
-}
-
-function SparkleIcon() {
-  return (
-    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
-    </svg>
-  );
-}
-
-function AvoidIcon() {
-  return (
-    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6.72 6.72a7.5 7.5 0 1010.56 10.56M6.72 6.72l10.56 10.56M6.72 6.72a7.5 7.5 0 0110.56 10.56" />
-    </svg>
-  );
-}
-
-function PayIcon() {
-  return (
-    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6v12m3-9.5A3.5 3.5 0 0012 7a3.5 3.5 0 000 7 3.5 3.5 0 010 7 3.5 3.5 0 01-3-1.5" />
-    </svg>
-  );
-}
-
-function MapPinIcon() {
-  return (
-    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-    </svg>
-  );
-}
-
-function BuildingIcon() {
-  return (
-    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-    </svg>
-  );
-}
-
-function OfficeIcon() {
-  return (
-    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
-    </svg>
   );
 }

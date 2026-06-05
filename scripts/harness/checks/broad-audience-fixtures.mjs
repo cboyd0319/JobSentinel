@@ -68,6 +68,8 @@ const broadAudienceExamplePaths = new Set([
   "src/pages/SettingsSupportSections.tsx",
   "src/pages/Settings.tsx",
   "src/pages/SetupWizard.tsx",
+  "src/pages/SetupWizardSearchSummary.tsx",
+  "src/pages/setupWizardPreferences.ts",
   "src/contexts/UndoIntegration.test.tsx",
   "src/utils/profiles.ts",
   "src/utils/resumeContactValidation.test.ts",

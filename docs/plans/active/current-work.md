@@ -299,6 +299,8 @@ Out of scope:
 - [x] Split ATS requirement-review helpers out of the runtime analyzer.
 - [x] Add no-account macOS release-readiness harness gating and stricter
   future Developer ID verification checks.
+- [x] Split Setup Wizard preference helpers, summary UI, location option, and
+  icons out of the main page and retire its legacy oversized-file exception.
 
 ## Orchestration Log
 

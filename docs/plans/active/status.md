@@ -50,6 +50,14 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Setup Wizard pure preference helpers, first-run search summary UI, location
+  option, and icons moved out of `src/pages/SetupWizard.tsx` into focused
+  helper/component files under `src/pages/`.
+- `src/pages/SetupWizard.tsx` is now below the 1,200-line frontend target, so
+  the legacy oversized-file exception was removed.
+
+Earlier implementation slice:
+
 - macOS no-account release-readiness is now harness-checked at 94%, with the
   final 6% explicitly blocked on Apple Developer Program materials for
   Developer ID signing, notarization credentials, and Gatekeeper-accepted
@@ -834,8 +842,7 @@ Recent cleanup summary:
   `src-tauri/src/core/resume/ats_analyzer_tests.rs` are now both under the
   1,200-line harness target and no longer need legacy no-growth exemptions.
 - Remaining oversized-file exceptions are `src/pages/ResumeBuilder.tsx`,
-  `src/pages/ResumeOptimizer.tsx`,
-  `src/pages/SetupWizard.tsx`, and `src/pages/Resume.tsx`.
+  `src/pages/ResumeOptimizer.tsx`, and `src/pages/Resume.tsx`.
 
 ## Next Best Work
 

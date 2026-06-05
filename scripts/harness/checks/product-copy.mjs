@@ -170,6 +170,8 @@ const protectiveScoreCopyPaths = new Set([
   "src/pages/DashboardUI/filterLabels.ts",
   "src/pages/DashboardUI/DashboardFiltersBar.tsx",
   "src/pages/SetupWizard.tsx",
+  "src/pages/SetupWizardSearchSummary.tsx",
+  "src/pages/setupWizardPreferences.ts",
   "src/pages/SettingsResumeMatchingSection.tsx",
   "src/pages/SettingsPostingRiskSection.tsx", "src/pages/SettingsJobSourcesSection.tsx", "src/pages/Settings.tsx",
 ]);
@@ -257,6 +259,8 @@ const technicalFirstUserCopyPaths = new Set([
   "src/pages/SettingsResumeMatchingSection.tsx", "src/pages/SettingsPostingRiskSection.tsx",
   "src/pages/SettingsSecurityBadge.tsx", "src/pages/SettingsSupportSections.tsx", "src/pages/Settings.tsx",
   "src/pages/SetupWizard.tsx",
+  "src/pages/SetupWizardSearchSummary.tsx",
+  "src/pages/setupWizardPreferences.ts",
   "src/utils/errorHelpers.ts",
   "src/utils/errorMessages.ts",
   "src/utils/safeErrorCopy.ts",
