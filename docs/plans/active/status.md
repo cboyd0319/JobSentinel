@@ -42,6 +42,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
   `c1f5dd36 Update macOS readiness and split automation module`.
 - Fresh harness evidence reports 2 active docs and 2 indexed workstreams: this
   status file and `current-work.md`.
+- Final broad verification passed locally after `9c32537d`: frontend tests,
+  build, script tests, harness/bloat/docs/prose, Rust fmt, clippy, and lib
+  tests.
 - Local commits should continue in small verified slices; push only when the
   branch reaches the user's 30-commit batch threshold or the user gives a newer
   explicit push instruction.
@@ -878,8 +881,6 @@ Recent cleanup summary:
    pay-problem postings without treating local signals as employer predictions.
 4. Continue cleanup only when it blocks critical functionality,
    privacy/security, verification, or user ease.
-5. Run final broad verification only when remaining known work has current
-   evidence.
 
 ## Completion Bar
 
