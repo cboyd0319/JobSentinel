@@ -42,9 +42,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
   `c1f5dd36 Update macOS readiness and split automation module`.
 - Fresh harness evidence reports 2 active docs and 2 indexed workstreams: this
   status file and `current-work.md`.
-- Final broad verification passed locally after `9c32537d`: frontend tests,
-  build, script tests, harness/bloat/docs/prose, Rust fmt, clippy, and lib
-  tests.
+- Final broad verification passed locally after `ce0af8f3`: frontend tests/build,
+  script tests, harness/bloat/docs/prose, Rust fmt/clippy/lib, `doctor:e2e`,
+  and E2E smoke budget.
 - Local commits should continue in small verified slices; push only when the
   branch reaches the user's 30-commit batch threshold or the user gives a newer
   explicit push instruction.
