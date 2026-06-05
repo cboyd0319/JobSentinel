@@ -38,15 +38,11 @@ pub fn get_config_dir() -> PathBuf {
 pub fn initialize() -> Result<(), Box<dyn std::error::Error>> {
     // Create data directory if it doesn't exist
     let data_dir = get_data_dir();
-    if !data_dir.exists() {
-        std::fs::create_dir_all(&data_dir)?;
-    }
+    crate::platforms::ensure_private_dir_tree(&data_dir)?;
 
     // Create config directory if it doesn't exist
     let config_dir = get_config_dir();
-    if !config_dir.exists() {
-        std::fs::create_dir_all(&config_dir)?;
-    }
+    crate::platforms::ensure_private_dir_tree(&config_dir)?;
 
     tracing::info!("Linux platform initialized");
     tracing::info!(data_dir = %path_label_for_logging(&data_dir), "Data directory ready");

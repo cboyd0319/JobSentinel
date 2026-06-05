@@ -78,6 +78,17 @@ fn resolve_slack_webhook_for_test(webhook_url: String) -> Result<String, String>
     get_stored_credential_for_test(CredentialKey::SlackWebhook, "Slack webhook")
 }
 
+fn is_first_run_for_path(config_path: &Path) -> Result<bool, String> {
+    config_path.try_exists().map(|exists| !exists).map_err(|e| {
+        tracing::error!(
+            config_path = %path_label_for_logging(config_path),
+            error_kind = ?e.kind(),
+            "Failed to check configuration file"
+        );
+        "JobSentinel could not read saved setup status. Check local file permissions, then try again.".to_string()
+    })
+}
+
 fn resolve_smtp_password_for_test(smtp_password: String) -> Result<String, String> {
     if !smtp_password.is_empty() {
         return Ok(smtp_password);
@@ -286,7 +297,7 @@ pub async fn is_first_run() -> Result<bool, String> {
 
     // Check if configuration file exists
     let config_path = Config::default_path();
-    let first_run = !config_path.exists();
+    let first_run = is_first_run_for_path(&config_path)?;
 
     tracing::info!("First run: {}", first_run);
     Ok(first_run)
@@ -474,6 +485,17 @@ mod tests {
         assert_eq!(saved.title_allowlist, vec!["Program Coordinator"]);
         assert!(saved.remoteok.enabled);
         assert!(db_path.exists());
+    }
+
+    #[test]
+    fn first_run_check_is_true_only_when_config_is_missing() {
+        let temp_dir = tempfile::tempdir().unwrap();
+        let config_path = temp_dir.path().join("config.json");
+
+        assert!(is_first_run_for_path(&config_path).unwrap());
+
+        std::fs::write(&config_path, "{}").unwrap();
+        assert!(!is_first_run_for_path(&config_path).unwrap());
     }
 
     #[tokio::test]

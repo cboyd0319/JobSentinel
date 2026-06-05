@@ -9,6 +9,7 @@ import {
   mkdirSync,
   mkdtempSync,
   openSync,
+  readdirSync,
   readFileSync,
   rmSync,
 } from "node:fs";
@@ -119,6 +120,64 @@ export function macosSmokeDataPaths(homePath) {
     dataDir,
     dbPath: join(dataDir, "jobs.db"),
   };
+}
+
+function modeBits(path) {
+  return lstatSync(path).mode & 0o777;
+}
+
+function smokeDataPermissionTargets(dataDir) {
+  const targets = [];
+
+  function visit(path, label) {
+    const info = lstatSync(path);
+    if (info.isSymbolicLink()) {
+      return;
+    }
+
+    if (info.isDirectory()) {
+      targets.push([`${label} directory`, path, 0o700]);
+      for (const child of readdirSync(path).sort()) {
+        visit(join(path, child), `${label}/${child}`);
+      }
+      return;
+    }
+
+    if (info.isFile()) {
+      targets.push([`${label} file`, path, 0o600]);
+    }
+  }
+
+  visit(dataDir, "app data");
+  return targets;
+}
+
+export function smokeDataPermissionViolations(dataPaths, { platform = process.platform } = {}) {
+  if (platform !== "darwin" && platform !== "linux") {
+    return [];
+  }
+
+  const violations = [];
+
+  for (const [label, path, expectedMode] of smokeDataPermissionTargets(dataPaths.dataDir)) {
+    const actualMode = modeBits(path);
+    if (actualMode !== expectedMode) {
+      violations.push(
+        `${label} permissions expected ${expectedMode.toString(8)}, found ${actualMode.toString(8)}: ${path}`,
+      );
+    }
+  }
+
+  return violations;
+}
+
+function assertSmokeDataPermissions(dataPaths) {
+  const violations = smokeDataPermissionViolations(dataPaths);
+  if (violations.length > 0) {
+    throw new Error(`Local data smoke permissions failed:\n- ${violations.join("\n- ")}`);
+  }
+
+  console.log("Local data permissions smoke passed: app data tree is private and jobs.db is owner-only.");
 }
 
 export function parseSha256Checksum(content, expectedFileName) {
@@ -443,6 +502,7 @@ async function smokeLaunch({ appPath, seconds }) {
     const dataPaths = macosSmokeDataPaths(homePath);
     assertPathExists(dataPaths.dataDir, "Smoke data directory");
     assertPathExists(dataPaths.dbPath, "Smoke database");
+    assertSmokeDataPermissions(dataPaths);
     console.log("Local data smoke passed: app created isolated macOS data directory and jobs.db.");
     console.log(`Launch smoke passed: app stayed running for ${seconds} seconds with empty stderr.`);
   } finally {

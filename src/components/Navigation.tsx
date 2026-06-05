@@ -1,6 +1,6 @@
 // Navigation Component - Visible navigation bar for all app pages
 
-import { memo, useState } from "react";
+import { memo } from "react";
 
 type Page = "dashboard" | "applications" | "resume" | "resume-builder" | "ats-optimizer" | "salary" | "market" | "automation";
 
@@ -84,7 +84,6 @@ const OptimizerIcon = memo(function OptimizerIcon() {
 // Navigation dimensions (extracted to prevent re-creation on each render)
 const NAV_WIDTHS = {
   collapsed: "64px",
-  expanded: "200px",
 } as const;
 
 const navItems: NavItem[] = [
@@ -99,14 +98,10 @@ const navItems: NavItem[] = [
 ];
 
 export const Navigation = memo(function Navigation({ currentPage, onNavigate }: NavigationProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
-
   return (
     <nav
       className="fixed left-0 top-0 h-full bg-surface-50 dark:bg-surface-900 border-r border-surface-200 dark:border-surface-700 z-40 transition-all duration-200"
-      style={{ width: isExpanded ? NAV_WIDTHS.expanded : NAV_WIDTHS.collapsed }}
-      onMouseEnter={() => setIsExpanded(true)}
-      onMouseLeave={() => setIsExpanded(false)}
+      style={{ width: NAV_WIDTHS.collapsed }}
       aria-label="Main navigation"
     >
       <div className="flex flex-col h-full py-4">
@@ -117,11 +112,6 @@ export const Navigation = memo(function Navigation({ currentPage, onNavigate }: 
               <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
             </svg>
           </div>
-          {isExpanded && (
-            <span className="font-display text-lg text-surface-900 dark:text-white whitespace-nowrap">
-              JobSentinel
-            </span>
-          )}
         </div>
 
         {/* Nav Items */}
@@ -139,29 +129,12 @@ export const Navigation = memo(function Navigation({ currentPage, onNavigate }: 
               `}
               aria-label={`${item.label} (${item.shortcut})`}
               aria-current={currentPage === item.id ? "page" : undefined}
-              title={!isExpanded ? `${item.label} (${item.shortcut})` : undefined}
+              title={`${item.label} (${item.shortcut})`}
             >
               <span className="flex-shrink-0">{item.icon}</span>
-              {isExpanded && (
-                <div className="flex-1 flex items-center justify-between min-w-0">
-                  <span className="text-sm font-medium truncate">{item.label}</span>
-                  <span className="text-xs text-surface-400 dark:text-surface-500 flex-shrink-0">
-                    {item.shortcut}
-                  </span>
-                </div>
-              )}
             </button>
           ))}
         </div>
-
-        {/* Footer - Keyboard hint */}
-        {isExpanded && (
-          <div className="px-4 py-3 border-t border-surface-200 dark:border-surface-700">
-            <p className="text-xs text-surface-500 dark:text-surface-400">
-              Use <kbd className="px-1 py-0.5 bg-surface-200 dark:bg-surface-700 rounded text-xs">Cmd/Ctrl+K</kbd> for quick actions
-            </p>
-          </div>
-        )}
       </div>
     </nav>
   );

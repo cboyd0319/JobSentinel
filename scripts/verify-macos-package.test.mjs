@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { chmodSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
@@ -18,6 +18,7 @@ import {
   parseArgs,
   parseLipoArchitectures,
   parseSha256Checksum,
+  smokeDataPermissionViolations,
   verifyLocalDmgChecksum,
 } from "./verify-macos-package.mjs";
 
@@ -170,6 +171,51 @@ test("macOS verifier resolves launch smoke data paths under isolated home", () =
     dataDir: "/tmp/jobsentinel-smoke-home/Library/Application Support/JobSentinel",
     dbPath: "/tmp/jobsentinel-smoke-home/Library/Application Support/JobSentinel/jobs.db",
   });
+});
+
+test("macOS verifier requires private launch smoke data permissions", () => {
+  const root = mkdtempSync(join(tmpdir(), "jobsentinel-macos-permissions-"));
+  const dataPaths = macosSmokeDataPaths(root);
+  const backupDir = join(dataPaths.dataDir, "backups");
+  const backupPath = join(backupDir, "backup_pre_migration_20260605_120000.db");
+  const externalPath = join(root, "external.txt");
+  const linkPath = join(dataPaths.dataDir, "linked.txt");
+
+  try {
+    mkdirSync(dataPaths.dataDir, { recursive: true, mode: 0o700 });
+    mkdirSync(backupDir, { recursive: true, mode: 0o700 });
+    writeFileSync(dataPaths.dbPath, "");
+    writeFileSync(backupPath, "");
+    writeFileSync(externalPath, "not app data");
+    symlinkSync(externalPath, linkPath);
+    chmodSync(dataPaths.dataDir, 0o700);
+    chmodSync(backupDir, 0o700);
+    chmodSync(dataPaths.dbPath, 0o600);
+    chmodSync(backupPath, 0o600);
+    chmodSync(externalPath, 0o644);
+
+    assert.deepEqual(smokeDataPermissionViolations(dataPaths, { platform: "darwin" }), []);
+
+    chmodSync(dataPaths.dataDir, 0o755);
+    chmodSync(backupDir, 0o755);
+    chmodSync(dataPaths.dbPath, 0o644);
+    chmodSync(backupPath, 0o644);
+    assert.deepEqual(smokeDataPermissionViolations(dataPaths, { platform: "darwin" }), [
+      `app data directory permissions expected 700, found 755: ${dataPaths.dataDir}`,
+      `app data/backups directory permissions expected 700, found 755: ${backupDir}`,
+      `app data/backups/backup_pre_migration_20260605_120000.db file permissions expected 600, found 644: ${backupPath}`,
+      `app data/jobs.db file permissions expected 600, found 644: ${dataPaths.dbPath}`,
+    ]);
+    assert.deepEqual(smokeDataPermissionViolations(dataPaths, { platform: "win32" }), []);
+    assert.equal(
+      smokeDataPermissionViolations(dataPaths, { platform: "darwin" }).some((violation) =>
+        violation.includes(externalPath),
+      ),
+      false,
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 });
 
 test("macOS verifier parses SHA-256 checksum files", () => {

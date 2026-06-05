@@ -26,7 +26,7 @@ pub struct DatabaseIntegrity {
 impl DatabaseIntegrity {
     /// Create new integrity manager
     pub fn new(db: SqlitePool, backup_dir: PathBuf) -> Self {
-        std::fs::create_dir_all(&backup_dir).ok();
+        crate::platforms::ensure_private_dir(&backup_dir).ok();
         Self { db, backup_dir }
     }
 

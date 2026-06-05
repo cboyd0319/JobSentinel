@@ -129,6 +129,30 @@ export function prependPathDir(pathValue, dir) {
   return [dir, ...paths].join(delimiter);
 }
 
+const sensitiveMacosTauriEnvKeys = [
+  "APPLE_API_ISSUER",
+  "APPLE_API_KEY",
+  "APPLE_API_KEY_PATH",
+  "APPLE_CERTIFICATE",
+  "APPLE_CERTIFICATE_PASSWORD",
+  "APPLE_ID",
+  "APPLE_PASSWORD",
+  "APPLE_SIGNING_IDENTITY",
+  "APPLE_TEAM_ID",
+  "JOBSENTINEL_MACOS_NOTARY_PROFILE",
+  "JOBSENTINEL_MACOS_SIGNING_IDENTITY",
+  "MACOS_SIGNING_IDENTITY",
+  "NOTARYTOOL_KEYCHAIN_PROFILE",
+];
+
+export function stripMacosTauriBuildSecrets(env = process.env) {
+  const sanitized = { ...env };
+  for (const key of sensitiveMacosTauriEnvKeys) {
+    delete sanitized[key];
+  }
+  return sanitized;
+}
+
 export function getRustupToolchainBinDir(env = process.env) {
   try {
     const cargoPath = execFileSync("rustup", ["which", "cargo"], {
@@ -143,13 +167,14 @@ export function getRustupToolchainBinDir(env = process.env) {
 }
 
 export function buildMacosTauriEnv(env = process.env, rustupToolchainBinDir = getRustupToolchainBinDir(env)) {
+  const sanitizedEnv = stripMacosTauriBuildSecrets(env);
   if (!rustupToolchainBinDir) {
-    return env;
+    return sanitizedEnv;
   }
 
   return {
-    ...env,
-    PATH: prependPathDir(env.PATH, rustupToolchainBinDir),
+    ...sanitizedEnv,
+    PATH: prependPathDir(sanitizedEnv.PATH, rustupToolchainBinDir),
   };
 }
 

@@ -116,11 +116,16 @@ npm run tauri:verify:macos:latest -- --require-gatekeeper
 If replacing an already-public no-account Mac asset manually, use a unique
 filename such as `JobSentinel_X.Y.Z_no-account_universal.dmg`. Reusing a
 previous browser-download filename can leave stale CDN content behind. Build
-with the no-account filename label, upload both files, and then run the public
-verifier:
+with the no-account filename label, delete any old Mac `.dmg` and `.dmg.sha256`
+assets from that tag, upload exactly one replacement `.dmg` and its matching
+checksum, and then run the public verifier:
 
 ```bash
 JOBSENTINEL_MACOS_NO_ACCOUNT=true npm run tauri:build:macos -- --target universal-apple-darwin
+
+for asset in $(gh release view vX.Y.Z --json assets --jq '.assets[].name' | grep -E '\.dmg(\.sha256)?$'); do
+  gh release delete-asset vX.Y.Z "$asset" -y
+done
 
 gh release upload vX.Y.Z \
   src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_X.Y.Z_no-account_universal.dmg \
@@ -130,7 +135,8 @@ gh release upload vX.Y.Z \
 npm run tauri:verify:macos:latest -- --tag vX.Y.Z
 ```
 
-Do not publish a Mac package without its checksum.
+Do not publish a Mac package without its checksum, and do not leave multiple Mac
+DMGs attached to the same release tag.
 
 ### 4. Local Windows and Linux checks
 

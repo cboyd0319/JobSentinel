@@ -1,15 +1,15 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { Modal, ModalFooter } from "./Modal";
+import { resetBodyScrollLocksForTests } from "../utils/bodyScrollLock";
 
 describe("Modal", () => {
   beforeEach(() => {
-    // Reset body overflow style
-    document.body.style.overflow = "";
+    resetBodyScrollLocksForTests();
   });
 
   afterEach(() => {
-    document.body.style.overflow = "";
+    resetBodyScrollLocksForTests();
   });
 
   describe("rendering", () => {
@@ -273,6 +273,53 @@ describe("Modal", () => {
         <Modal isOpen={false} onClose={vi.fn()}>
           Content
         </Modal>
+      );
+
+      await waitFor(() => {
+        expect(document.body.style.overflow).toBe("");
+      });
+    });
+
+    it("keeps body scroll locked while another modal remains open", async () => {
+      const { rerender } = render(
+        <>
+          <Modal isOpen={true} onClose={vi.fn()}>
+            Outer content
+          </Modal>
+          <Modal isOpen={true} onClose={vi.fn()}>
+            Inner content
+          </Modal>
+        </>
+      );
+
+      await waitFor(() => {
+        expect(document.body.style.overflow).toBe("hidden");
+      });
+
+      rerender(
+        <>
+          <Modal isOpen={true} onClose={vi.fn()}>
+            Outer content
+          </Modal>
+          <Modal isOpen={false} onClose={vi.fn()}>
+            Inner content
+          </Modal>
+        </>
+      );
+
+      await waitFor(() => {
+        expect(document.body.style.overflow).toBe("hidden");
+      });
+
+      rerender(
+        <>
+          <Modal isOpen={false} onClose={vi.fn()}>
+            Outer content
+          </Modal>
+          <Modal isOpen={false} onClose={vi.fn()}>
+            Inner content
+          </Modal>
+        </>
       );
 
       await waitFor(() => {

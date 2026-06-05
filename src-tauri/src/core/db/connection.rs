@@ -19,8 +19,18 @@ impl Database {
     /// Connect to SQLite database with optimized settings
     pub async fn connect(path: &std::path::Path) -> Result<Self, sqlx::Error> {
         // Ensure parent directory exists
-        if let Some(parent) = path.parent() {
-            std::fs::create_dir_all(parent).map_err(|e| {
+        if let Some(parent) = path
+            .parent()
+            .filter(|parent| !parent.as_os_str().is_empty())
+        {
+            let parent_existed = parent.exists();
+            let parent_result = if parent_existed {
+                std::fs::create_dir_all(parent)
+            } else {
+                crate::platforms::ensure_private_dir(parent)
+            };
+
+            parent_result.map_err(|e| {
                 tracing::warn!(
                     error_kind = ?e.kind(),
                     "Failed to create database directory"
@@ -34,6 +44,7 @@ impl Database {
 
         // Configure SQLite for better integrity and performance
         Self::configure_pragmas(&pool).await?;
+        crate::platforms::ensure_private_sqlite_files(path).map_err(sqlx::Error::Io)?;
 
         Ok(Database {
             pool,
@@ -347,6 +358,9 @@ impl Database {
         }
 
         sqlx::migrate!("./migrations").run(&self.pool).await?;
+        if let Some(db_path) = &self.db_path {
+            crate::platforms::ensure_private_sqlite_files(db_path).map_err(sqlx::Error::Io)?;
+        }
         Ok(())
     }
 
@@ -363,13 +377,14 @@ impl Database {
         }
 
         let backup_dir = Self::default_backup_dir();
-        std::fs::create_dir_all(&backup_dir)?;
+        crate::platforms::ensure_private_dir(&backup_dir)?;
 
         let timestamp = chrono::Utc::now().format("%Y%m%d_%H%M%S");
         let backup_name = format!("backup_pre_migration_{}.db", timestamp);
         let backup_path = backup_dir.join(&backup_name);
 
         std::fs::copy(db_path, &backup_path)?;
+        crate::platforms::ensure_private_file(&backup_path)?;
         tracing::info!(
             backup_path = %path_label_for_logging(&backup_path),
             "Pre-migration backup created"
@@ -580,5 +595,55 @@ impl Database {
             .await?;
         tracing::info!("Checkpointed WAL file");
         Ok(())
+    }
+}
+
+#[cfg(all(test, unix))]
+mod permission_tests {
+    use super::*;
+    use std::fs;
+    use std::os::unix::fs::PermissionsExt;
+
+    fn mode(path: &std::path::Path) -> u32 {
+        fs::metadata(path).unwrap().permissions().mode() & 0o777
+    }
+
+    #[tokio::test]
+    async fn connect_creates_private_database_directory_and_files() {
+        let temp_dir = tempfile::tempdir().unwrap();
+        let data_dir = temp_dir.path().join("JobSentinel");
+        let db_path = data_dir.join("jobs.db");
+
+        let database = Database::connect(&db_path).await.unwrap();
+
+        assert_eq!(mode(&data_dir), 0o700);
+        assert_eq!(mode(&db_path), 0o600);
+        if data_dir.join("jobs.db-wal").exists() {
+            assert_eq!(mode(&data_dir.join("jobs.db-wal")), 0o600);
+        }
+        if data_dir.join("jobs.db-shm").exists() {
+            assert_eq!(mode(&data_dir.join("jobs.db-shm")), 0o600);
+        }
+
+        drop(database);
+    }
+
+    #[tokio::test]
+    async fn connect_does_not_chmod_existing_arbitrary_parent_directory() {
+        let temp_dir = tempfile::tempdir().unwrap();
+        let data_dir = temp_dir.path().join("external-parent");
+        fs::create_dir_all(&data_dir).unwrap();
+        fs::set_permissions(&data_dir, fs::Permissions::from_mode(0o755)).unwrap();
+
+        let db_path = data_dir.join("jobs.db");
+        fs::write(&db_path, []).unwrap();
+        fs::set_permissions(&db_path, fs::Permissions::from_mode(0o644)).unwrap();
+
+        let database = Database::connect(&db_path).await.unwrap();
+
+        assert_eq!(mode(&data_dir), 0o755);
+        assert_eq!(mode(&db_path), 0o600);
+
+        drop(database);
     }
 }

@@ -40,7 +40,7 @@ export function BookmarkletGenerator() {
       setError(null);
     } catch (err) {
       logError("Failed to load bookmarklet config:", err);
-      setError("Browser Import could not load. Close and reopen Settings. If this keeps happening, save a safe support report from Help.");
+      setError("Browser Import could not load. Close and reopen Settings. If this keeps happening, copy or save a safe support report from Settings.");
     } finally {
       setLoading(false);
     }
@@ -63,7 +63,7 @@ export function BookmarkletGenerator() {
       setError(null);
     } catch (err) {
       logError("Failed to toggle bookmarklet server:", err);
-      setError("Browser Import could not be changed. Try again. If this keeps happening, save a safe support report from Help.");
+      setError("Browser Import could not be changed. Try again. If this keeps happening, copy or save a safe support report from Settings.");
     } finally {
       setLoading(false);
     }
@@ -92,7 +92,7 @@ export function BookmarkletGenerator() {
     } catch (err) {
       logError("Could not copy browser import button:", err);
       setCopied(false);
-      setError("Could not copy Browser Button. Allow clipboard access, then click Copy Browser Button again. If this keeps happening, save a safe support report from Help.");
+      setError("Could not copy Browser Button. Allow clipboard access, then click Copy Browser Button again. If this keeps happening, copy or save a safe support report from Settings.");
     }
   };
 

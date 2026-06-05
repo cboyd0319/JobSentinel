@@ -264,6 +264,7 @@ describe("ErrorBoundary", () => {
 
       localStorage.setItem("jobsentinel-theme", "dark");
       localStorage.setItem("jobsentinel-high-contrast", "true");
+      localStorage.setItem("jobsentinel_error_logs", "safe-problem-history");
       localStorage.setItem("jobsentinel-job-cache", "stale");
 
       render(
@@ -277,8 +278,25 @@ describe("ErrorBoundary", () => {
         await screen.findByRole("button", { name: /reset local app settings/i })
       );
 
+      expect(
+        screen.getByRole("button", {
+          name: /confirm reset local app settings/i,
+        }),
+      ).toBeInTheDocument();
+      expect(localStorage.clear).not.toHaveBeenCalled();
+      expect(reloadMock).not.toHaveBeenCalled();
+
+      await user.click(
+        screen.getByRole("button", {
+          name: /confirm reset local app settings/i,
+        }),
+      );
+
       expect(localStorage.getItem("jobsentinel-theme")).toBe("dark");
       expect(localStorage.getItem("jobsentinel-high-contrast")).toBe("true");
+      expect(localStorage.getItem("jobsentinel_error_logs")).toBe(
+        "safe-problem-history"
+      );
       expect(localStorage.getItem("jobsentinel-job-cache")).toBeNull();
       expect(reloadMock).toHaveBeenCalledTimes(1);
     });

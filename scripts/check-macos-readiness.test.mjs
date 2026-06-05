@@ -69,6 +69,21 @@ test("macOS readiness reaches public 100 only with Apple release credentials", (
   assert.equal(report.externalBlockers.every((item) => item.ok), true);
 });
 
+test("macOS readiness does not count keychain profile-only notarization for CI", () => {
+  const report = evaluateMacosReadiness({
+    env: {
+      APPLE_CERTIFICATE: "base64-p12",
+      APPLE_CERTIFICATE_PASSWORD: "p12-password",
+      APPLE_SIGNING_IDENTITY: "Developer ID Application: Example LLC (ABCDE12345)",
+      JOBSENTINEL_MACOS_NOTARY_PROFILE: "local-notary-profile",
+    },
+  });
+
+  const notarization = report.externalBlockers.find((item) => item.id === "Apple notarization credentials");
+  assert.equal(notarization?.ok, false);
+  assert.equal(report.percentage, 96);
+});
+
 test("macOS readiness parser reads the README full-public percentage", () => {
   const root = mkdtempSync(join(tmpdir(), "jobsentinel-macos-readiness-"));
 
@@ -142,6 +157,8 @@ test("macOS readiness checks no-account release workflow order", () => {
     "  run: rm -f \"$current_path.sha256\" \"$labeled_path.sha256\"",
     "- name: Create macOS checksum",
     "  run: shasum -a 256 \"${dmg_paths[0]}\" > \"${dmg_paths[0]}.sha256\"",
+    "- name: Remove old macOS release assets",
+    "  run: gh release delete-asset \"$RELEASE_TAG\" \"$asset\" -y",
     "- name: Upload macOS DMG",
     "  with:",
     "    files: src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg.sha256",
@@ -154,6 +171,8 @@ test("macOS readiness checks no-account release workflow order", () => {
     "  run: shasum -a 256 \"${dmg_paths[0]}\" > \"${dmg_paths[0]}.sha256\"",
     "- name: Label no-account macOS DMG",
     "  run: rm -f \"$current_path.sha256\" \"$labeled_path.sha256\"",
+    "- name: Remove old macOS release assets",
+    "  run: gh release delete-asset \"$RELEASE_TAG\" \"$asset\" -y",
     "- name: Upload macOS DMG",
     "  with:",
     "    files: src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg.sha256",

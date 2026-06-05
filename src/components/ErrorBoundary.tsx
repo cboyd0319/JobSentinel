@@ -8,6 +8,10 @@ const VISUAL_PREFERENCE_KEYS = [
   'jobsentinel-theme',
   'jobsentinel-high-contrast',
 ] as const;
+const PRESERVED_RESET_KEYS = [
+  ...VISUAL_PREFERENCE_KEYS,
+  'jobsentinel_error_logs',
+] as const;
 
 function getSafeErrorMessage(error: Error | null): string {
   return error
@@ -31,6 +35,7 @@ interface State {
   errorCount: number;
   debugReportStatus: 'idle' | 'copying' | 'copied' | 'saving' | 'saved' | 'failed';
   debugReportFileName: string | null;
+  confirmLocalSettingsReset: boolean;
 }
 
 /**
@@ -50,10 +55,17 @@ class ErrorBoundary extends Component<Props, State> {
     errorCount: 0,
     debugReportStatus: 'idle',
     debugReportFileName: null,
+    confirmLocalSettingsReset: false,
   };
 
   public static getDerivedStateFromError(error: Error): Partial<State> {
-    return { hasError: true, error, debugReportStatus: 'idle', debugReportFileName: null };
+    return {
+      hasError: true,
+      error,
+      debugReportStatus: 'idle',
+      debugReportFileName: null,
+      confirmLocalSettingsReset: false,
+    };
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
@@ -119,16 +131,21 @@ class ErrorBoundary extends Component<Props, State> {
   };
 
   private handleClearData = () => {
-    const visualPreferences: Array<[string, string]> = [];
-    for (const key of VISUAL_PREFERENCE_KEYS) {
+    if (!this.state.confirmLocalSettingsReset) {
+      this.setState({ confirmLocalSettingsReset: true });
+      return;
+    }
+
+    const preservedValues: Array<[string, string]> = [];
+    for (const key of PRESERVED_RESET_KEYS) {
       const value = readStorageValue('local', key);
       if (value !== null) {
-        visualPreferences.push([key, value]);
+        preservedValues.push([key, value]);
       }
     }
 
     clearStorage('local');
-    for (const [key, value] of visualPreferences) {
+    for (const [key, value] of preservedValues) {
       writeStorageValue('local', key, value);
     }
     window.location.reload();
@@ -147,12 +164,7 @@ class ErrorBoundary extends Component<Props, State> {
       const safeErrorStack = getSafeErrorStack(this.state.error);
 
       return (
-        <div className="min-h-screen bg-surface-900 flex items-center justify-center px-6">
-          {/* Background effect */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute top-1/3 left-1/3 w-96 h-96 bg-danger/10 rounded-full blur-3xl" />
-          </div>
-
+          <div className="min-h-screen bg-surface-900 flex items-center justify-center px-6">
           <div className="relative max-w-md w-full bg-white dark:bg-surface-800 rounded-card shadow-card dark:shadow-none border dark:border-surface-700 p-8 animate-fade-in">
             <div className="text-center mb-6">
               <div className="w-16 h-16 bg-danger/10 dark:bg-danger/20 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -246,12 +258,22 @@ class ErrorBoundary extends Component<Props, State> {
               )}
 
               {showClearData && (
-                <button
-                  onClick={this.handleClearData}
-                  className="w-full bg-danger/10 hover:bg-danger/20 text-danger font-semibold py-3 px-4 rounded-lg transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-danger focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-800"
-                >
-                  Reset Local App Settings
-                </button>
+                <>
+                  {this.state.confirmLocalSettingsReset && (
+                    <p className="text-center text-xs text-danger" role="alert">
+                      Reset local app settings? Safe support history and visual
+                      preferences stay on this device.
+                    </p>
+                  )}
+                  <button
+                    onClick={this.handleClearData}
+                    className="w-full bg-danger/10 hover:bg-danger/20 text-danger font-semibold py-3 px-4 rounded-lg transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-danger focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-800"
+                  >
+                    {this.state.confirmLocalSettingsReset
+                      ? 'Confirm Reset Local App Settings'
+                      : 'Reset Local App Settings'}
+                  </button>
+                </>
               )}
             </div>
 

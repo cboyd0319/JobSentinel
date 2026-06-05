@@ -137,7 +137,7 @@ describe("Navigation", () => {
     });
   });
 
-  describe("expand/collapse behavior", () => {
+  describe("compact behavior", () => {
     it("starts collapsed (narrow width)", () => {
       render(<Navigation {...defaultProps} />);
 
@@ -145,64 +145,40 @@ describe("Navigation", () => {
       expect(nav.style.width).toBe("64px");
     });
 
-    it("expands on mouse enter", () => {
+    it("keeps compact width on mouse enter", () => {
       render(<Navigation {...defaultProps} />);
 
       const nav = screen.getByRole("navigation");
       fireEvent.mouseEnter(nav);
 
-      expect(nav.style.width).toBe("200px");
+      expect(nav.style.width).toBe("64px");
     });
 
-    it("collapses on mouse leave", () => {
+    it("keeps compact width on mouse leave", () => {
       render(<Navigation {...defaultProps} />);
 
       const nav = screen.getByRole("navigation");
       fireEvent.mouseEnter(nav);
-      expect(nav.style.width).toBe("200px");
+      expect(nav.style.width).toBe("64px");
 
       fireEvent.mouseLeave(nav);
       expect(nav.style.width).toBe("64px");
     });
 
-    it("shows labels when expanded", () => {
+    it("keeps labels accessible without showing them in the compact rail", () => {
       render(<Navigation {...defaultProps} />);
 
-      const nav = screen.getByRole("navigation");
-      fireEvent.mouseEnter(nav);
-
-      expect(screen.getByText("Dashboard")).toBeInTheDocument();
-      expect(screen.getByText("Applications")).toBeInTheDocument();
-      expect(screen.getByText("Resumes")).toBeInTheDocument();
+      expect(screen.queryByText("Dashboard")).not.toBeInTheDocument();
+      expect(screen.getByLabelText("Dashboard (Cmd/Ctrl+1)")).toBeInTheDocument();
+      expect(screen.getByLabelText("Applications (Cmd/Ctrl+2)")).toBeInTheDocument();
+      expect(screen.getByLabelText("Resumes (Cmd/Ctrl+3)")).toBeInTheDocument();
     });
 
-    it("shows keyboard shortcuts when expanded", () => {
+    it("keeps keyboard shortcuts in tooltips", () => {
       render(<Navigation {...defaultProps} />);
 
-      const nav = screen.getByRole("navigation");
-      fireEvent.mouseEnter(nav);
-
-      expect(screen.getByText("Cmd/Ctrl+1")).toBeInTheDocument();
-      expect(screen.getByText("Cmd/Ctrl+2")).toBeInTheDocument();
-    });
-
-    it("shows app name when expanded", () => {
-      render(<Navigation {...defaultProps} />);
-
-      const nav = screen.getByRole("navigation");
-      fireEvent.mouseEnter(nav);
-
-      expect(screen.getByText("JobSentinel")).toBeInTheDocument();
-    });
-
-    it("shows command palette hint when expanded", () => {
-      render(<Navigation {...defaultProps} />);
-
-      const nav = screen.getByRole("navigation");
-      fireEvent.mouseEnter(nav);
-
-      expect(screen.getByText(/Use/)).toBeInTheDocument();
-      expect(screen.getByText("Cmd/Ctrl+K")).toBeInTheDocument();
+      expect(screen.getByTitle("Dashboard (Cmd/Ctrl+1)")).toBeInTheDocument();
+      expect(screen.getByTitle("Applications (Cmd/Ctrl+2)")).toBeInTheDocument();
     });
 
     it("hides labels when collapsed", () => {
@@ -222,15 +198,13 @@ describe("Navigation", () => {
       expect(screen.getByTitle("Applications (Cmd/Ctrl+2)")).toBeInTheDocument();
     });
 
-    it("removes title when expanded", () => {
+    it("keeps title on hover", () => {
       render(<Navigation {...defaultProps} />);
 
       const nav = screen.getByRole("navigation");
       fireEvent.mouseEnter(nav);
 
-      // In expanded state, buttons don't have title attributes
-      const dashboardBtn = screen.getByText("Dashboard").closest("button");
-      expect(dashboardBtn).not.toHaveAttribute("title");
+      expect(screen.getByTitle("Dashboard (Cmd/Ctrl+1)")).toBeInTheDocument();
     });
   });
 });

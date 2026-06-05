@@ -74,8 +74,8 @@ JobSentinel creates the following directories on macOS:
 
 | Purpose | Path | Description |
 |---------|------|-------------|
-| **Data** | `~/Library/Application Support/JobSentinel` | SQLite database, scraped jobs |
-| **Config** | `~/.config/jobsentinel` | config.json, user preferences |
+| **Data** | `~/Library/Application Support/JobSentinel` | SQLite database, scraped jobs; app-owned directory should be private to the current macOS account, and `jobs.db` should be owner-only |
+| **Config** | `~/.config/jobsentinel` | config.json, user preferences; app-owned directory should be private to the current macOS account |
 | **Cache** | `~/Library/Caches/JobSentinel` | Cache files |
 | **Logs** | `~/Library/Logs/JobSentinel` | Application logs |
 
@@ -163,6 +163,20 @@ export APPLE_PASSWORD="app-specific-password"
 export APPLE_TEAM_ID="TEAMID"
 ```
 
+App Store Connect API key notarization is also supported:
+
+```bash
+export APPLE_API_KEY="KEYID12345"
+export APPLE_API_KEY_PATH="/private/path/AuthKey_KEYID12345.p8"
+export APPLE_API_ISSUER="issuer-uuid"
+```
+
+Local builds may use `JOBSENTINEL_MACOS_NOTARY_PROFILE` or
+`NOTARYTOOL_KEYCHAIN_PROFILE` when that profile already exists in the local
+keychain. GitHub Actions release builds do not use profile-only notarization
+because hosted runners start with no pre-created notarytool profile; use Apple
+ID credentials or raw `.p8` API key contents there.
+
 After building a `.dmg`, run the package verifier:
 
 ```bash
@@ -185,9 +199,10 @@ bundle uses the expected JobSentinel id, product name, version, icon metadata,
 and icon resource file, declares macOS 13.0 or newer as its minimum system
 version, the generated `.dmg.sha256` sidecar matches the DMG, the mounted app
 can start, the copied installed app can start, and both launches create an
-isolated local `jobs.db`. For Developer ID public release gating, add
-`--require-gatekeeper`; that mode also requires the signed and notarized public
-app plus disk image to pass Gatekeeper assessment.
+isolated local `jobs.db` with owner-only local-data permissions. For Developer
+ID public release gating, add `--require-gatekeeper`; that mode also requires
+the signed and notarized public app plus disk image to pass Gatekeeper
+assessment.
 
 For a local no-account DMG that is ready to upload or replace manually, build
 with `JOBSENTINEL_MACOS_NO_ACCOUNT=true`. The builder writes
@@ -204,29 +219,28 @@ That command downloads the latest public GitHub release DMG and applies the
 same checksum, universal-architecture, launch-smoke, installed-app smoke, and
 signature checks, including bundle identity, release-tag version, icon metadata
 and resource file, macOS 13.0 minimum-system metadata, and isolated macOS data
-directory and database creation during launch smoke.
+directory and owner-only database permissions during launch smoke.
 
 The latest local universal smoke built
-`src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_2.6.4_universal.dmg`,
+`src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_2.7.0_no-account_universal.dmg`,
 verified the DMG checksum through `npm run tauri:verify:macos`, confirmed the
 app binary contains both `x86_64` and `arm64`, verified the mounted app
 signature, copied the app into a temporary install root, and kept both mounted
 and installed app launches running for 12 seconds under isolated temporary
 homes with empty stderr. Both launches created an isolated macOS data directory
-and `jobs.db`.
+and `jobs.db` with owner-only local-data permissions.
 
 Because this local package uses an ad-hoc signature, Gatekeeper assessment
 rejects the `.app` and `.dmg`. A zero-friction public macOS release still needs
 an Apple Developer Account, Developer ID signing, notarization, and stapling.
 
-The public `v2.6.4` no-account asset
-`JobSentinel_2.6.4_no-account_universal.dmg` and its matching `.sha256`
-checksum passed `npm run tauri:verify:macos:latest -- --tag v2.6.4` on
-2026-06-02. That verification downloaded the GitHub release asset, verified the
-checksum, confirmed bundle metadata, confirmed `x86_64 arm64`, verified the app
-signature, ran mounted and installed launch smoke, and confirmed isolated local
-`jobs.db` creation. Gatekeeper rejection remains expected for the no-account
-package.
+The previous public `v2.6.4` no-account asset
+`JobSentinel_2.6.4_no-account_universal.dmg` passed the older public verifier on
+2026-06-02, but fresh package verification now also requires owner-only
+local-data permissions for the whole isolated app data tree. The `v2.7.0` Mac
+release must pass the current public verifier after upload before users treat
+the public Mac download as current. Gatekeeper rejection remains expected for
+the no-account package.
 
 **Note:** The `.dmg` installer is for distribution. You can also run the binary directly:
 
@@ -447,8 +461,9 @@ verification.
    under isolated macOS homes.
 2. **No-account public package path available** - Public macOS releases can use
    a clearly labeled ad-hoc signed package with a matching `.dmg.sha256` and
-   passing public verifier. The `v2.6.4` no-account public asset currently
-   passes. It still requires first-open Privacy & Security approval.
+   passing public verifier. The local `v2.7.0` no-account artifact must pass
+   again after public upload. It still requires first-open Privacy & Security
+   approval.
 3. **Zero-friction public release blocked on Apple account** - Gatekeeper-ready
    public macOS releases require an Apple Developer Account, Developer ID
    signing, notarization, then `--launch-smoke --install-smoke

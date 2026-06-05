@@ -49,6 +49,7 @@ impl DatabaseIntegrity {
             .execute(&self.db)
             .await
             .context("Failed to create backup via VACUUM INTO")?;
+        crate::platforms::ensure_private_file(&backup_path)?;
 
         let duration = start_time.elapsed();
         let file_size = std::fs::metadata(&backup_path)?.len();
@@ -114,6 +115,7 @@ impl DatabaseIntegrity {
 
         // Copy backup to main database location
         std::fs::copy(backup_path, current_db_path)?;
+        crate::platforms::ensure_private_file(current_db_path)?;
 
         tracing::info!("Database restored successfully");
 
@@ -231,5 +233,28 @@ mod tests {
         let sanitized = DatabaseIntegrity::sanitize_backup_reason(unicode);
         // Unicode alphanumeric chars should be preserved
         assert!(sanitized.contains("backup_"));
+    }
+
+    #[cfg(unix)]
+    #[tokio::test]
+    async fn test_create_backup_writes_private_file() {
+        use crate::core::db::Database;
+        use std::os::unix::fs::PermissionsExt;
+
+        let temp_dir = tempfile::tempdir().unwrap();
+        let db_path = temp_dir.path().join("jobs.db");
+        let database = Database::connect(&db_path).await.unwrap();
+        database.migrate().await.unwrap();
+        let integrity =
+            DatabaseIntegrity::new(database.pool().clone(), temp_dir.path().join("backups"));
+
+        let backup_path = integrity.create_backup("manual").await.unwrap();
+        let mode = std::fs::metadata(&backup_path)
+            .unwrap()
+            .permissions()
+            .mode()
+            & 0o777;
+
+        assert_eq!(mode, 0o600);
     }
 }

@@ -5,20 +5,7 @@ All notable changes to JobSentinel will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.7.1] - Unreleased
-
-### Changed
-
-- **Harness Engineering alignment** - Added root `AGENTS.md`, structured harness docs,
-  exec plan templates, tech debt tracker, and `npm run harness:check` for agent-facing
-  documentation and workflow validation
-- **macOS Universal Binary** - Single .dmg installer now works on both Intel and Apple Silicon Macs
-  - Updated GitHub Actions release workflow to build universal binary
-  - Installs both aarch64-apple-darwin and x86_64-apple-darwin Rust targets
-  - Uses `--target universal-apple-darwin` flag for Tauri builds
-  - Eliminates need for separate Intel and Apple Silicon downloads
-
-## [2.7.0] - Unreleased
+## [2.7.0] - 2026-06-05
 
 ### Added
 
@@ -33,11 +20,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     `get_debug_log_formatted`, `get_debug_log_events`, `clear_debug_log_cmd`,
     `get_feedback_filename`, `save_feedback_file`
 - **GitHub Issue Templates** - Structured forms for bug reports, feature requests, questions
+- **macOS deployment verification** - Strict package checks for whole app data tree
+  permissions, installed-app launch smoke, checksums, bundle metadata,
+  architectures, release asset labels, and public artifact verification.
+- **Startup recovery** - Settings and first-run failures now expose safe support
+  report copy/save actions instead of leaving users stuck.
+
+### Changed
+
+- **Harness Engineering alignment** - Added root `AGENTS.md`, structured harness docs,
+  exec plan templates, tech debt tracker, and `npm run harness:check` for agent-facing
+  documentation and workflow validation
+- **macOS Universal Binary** - No-account universal `.dmg` packaging now covers both Intel and Apple Silicon Macs
+  - Updated GitHub Actions release workflow to build universal binary
+  - Installs both aarch64-apple-darwin and x86_64-apple-darwin Rust targets
+  - Uses `--target universal-apple-darwin` flag for Tauri builds
+  - Eliminates need for separate Intel and Apple Silicon downloads
+- **macOS release workflow** - No-account DMGs are labeled before upload, stale
+  Mac release assets are removed, API-key notarization secrets are materialized
+  into owner-only temporary `.p8` files, and Developer ID builds require
+  Gatekeeper verification.
+- **Local data hardening** - macOS and Linux app-owned data/config directories
+  and existing local database backups are tightened to owner-only permissions.
+- **Settings modal behavior** - Settings and nested feedback dialogs share a
+  scroll lock and focus-safe modal path.
+- **Navigation** - Desktop navigation now stays as a compact icon rail so app
+  content remains visible on macOS.
 
 ### Fixed
 
 - **Feedback command wiring** - Frontend feedback actions now invoke registered Tauri commands
   for GitHub, Google Drive, file reveal, and native report saving.
+- **macOS local data permissions** - Legacy `jobs.db`, WAL/SHM, and
+  pre-migration backup files no longer remain group/world readable after app
+  startup.
+- **Settings recovery** - Startup and Settings failure states now let users copy
+  or save safe support reports.
+- **Notification tests** - Email and Slack test actions now use explicit button
+  labels.
+- **macOS release docs** - Stale public Mac assets are no longer presented as
+  passing current data-permission gates.
 
 ## [2.6.4] - 2026-03-18
 

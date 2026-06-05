@@ -1,5 +1,6 @@
 import { memo, useEffect, useRef, ReactNode, KeyboardEvent } from "react";
 import { createPortal } from "react-dom";
+import { lockBodyScroll } from "../utils/bodyScrollLock";
 
 interface ModalProps {
   isOpen: boolean;
@@ -37,7 +38,7 @@ export const Modal = memo(function Modal({
   useEffect(() => {
     if (isOpen) {
       previousActiveElement.current = document.activeElement;
-      document.body.style.overflow = "hidden";
+      const unlockBodyScroll = lockBodyScroll();
 
       // Focus the modal with proper timing and mounted check
       const rafId = requestAnimationFrame(() => {
@@ -48,20 +49,16 @@ export const Modal = memo(function Modal({
 
       return () => {
         cancelAnimationFrame(rafId);
-        document.body.style.overflow = "";
+        unlockBodyScroll();
       };
     } else {
-      document.body.style.overflow = "";
-      
       // Return focus to previous element with null check
       if (previousActiveElement.current instanceof HTMLElement && document.body.contains(previousActiveElement.current)) {
         previousActiveElement.current.focus();
       }
     }
 
-    return () => {
-      document.body.style.overflow = "";
-    };
+    return undefined;
   }, [isOpen]);
 
   useEffect(() => {

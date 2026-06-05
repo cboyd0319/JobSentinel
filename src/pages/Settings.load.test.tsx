@@ -1,9 +1,10 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { invoke } from "@tauri-apps/api/core";
 import Settings from "./Settings";
 import * as feedbackService from "../services/feedbackService";
+import { resetBodyScrollLocksForTests } from "../utils/bodyScrollLock";
 
 const mockInvoke = vi.mocked(invoke);
 
@@ -128,8 +129,13 @@ function setupHappyPath() {
 describe("Settings — loadConfig flow", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    resetBodyScrollLocksForTests();
     // sessionStorage mock for location cache
     window.sessionStorage.clear?.();
+  });
+
+  afterEach(() => {
+    resetBodyScrollLocksForTests();
   });
 
   it("shows loading spinner initially, then settings form on success", async () => {
@@ -212,6 +218,28 @@ describe("Settings — loadConfig flow", () => {
     expect(visibleText).not.toMatch(/detailed report/i);
   });
 
+  it("keeps Settings scroll locked after closing nested feedback modal", async () => {
+    const user = userEvent.setup();
+    setupHappyPath();
+    render(<Settings onClose={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Settings")).toBeInTheDocument();
+    });
+    expect(document.body.style.overflow).toBe("hidden");
+
+    await user.click(screen.getByRole("button", { name: "Send Feedback" }));
+
+    const feedbackDialog = await screen.findByRole("dialog", { name: "Send Feedback" });
+
+    await user.click(within(feedbackDialog).getByRole("button", { name: "Cancel" }));
+
+    await waitFor(() => {
+      expect(screen.queryByRole("dialog", { name: "Send Feedback" })).not.toBeInTheDocument();
+    });
+    expect(document.body.style.overflow).toBe("hidden");
+  });
+
   it("copies a sanitized support report from settings with one click", async () => {
     const user = userEvent.setup();
     const copySpy = vi
@@ -262,6 +290,13 @@ describe("Settings — loadConfig flow", () => {
   });
 
   it("shows error state with Try Again button when get_config throws", async () => {
+    const copySpy = vi
+      .spyOn(feedbackService, "copySanitizedDebugReport")
+      .mockResolvedValueOnce({
+        content: "safe support report",
+        copied: true,
+        errorCount: 0,
+      });
     mockInvoke.mockImplementation(async (cmd: string) => {
       if (cmd === "get_config") throw new Error("DB locked");
       if (cmd === "get_ghost_config") return makeGhostConfig();
@@ -277,11 +312,22 @@ describe("Settings — loadConfig flow", () => {
     });
 
     expect(
-      screen.getByText(/safe support report from Help before closing/i),
+      screen.getByText(/copy or save a safe support report before closing/i),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/from Help/i)).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Copy Safe Support Report" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Save Safe Support Report" }),
     ).toBeInTheDocument();
     expect(screen.queryByText(/Restart JobSentinel/i)).not.toBeInTheDocument();
     expect(screen.getByText("Try Again")).toBeInTheDocument();
     expect(screen.getByText("Close")).toBeInTheDocument();
+    await userEvent.click(
+      screen.getByRole("button", { name: "Copy Safe Support Report" }),
+    );
+    expect(copySpy).toHaveBeenCalledTimes(1);
     await userEvent.click(screen.getByText("Close"));
     expect(onClose).toHaveBeenCalledOnce();
     expect(mockToast.error).toHaveBeenCalled();

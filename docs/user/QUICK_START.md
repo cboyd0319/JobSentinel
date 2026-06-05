@@ -19,11 +19,11 @@ help more job seekers, including by building something better.
 
 **Download the package or installer** (recommended)
 
-1. Open the [JobSentinel downloads page](https://github.com/cboyd0319/JobSentinel/releases).
+1. Open the [JobSentinel latest download page](https://github.com/cboyd0319/JobSentinel/releases/latest).
 2. Choose the package or installer for your computer:
    - **Windows installer**
-   - **Mac package** for Apple silicon and Intel Macs. For `v2.6.4`, use
-     `JobSentinel_2.6.4_no-account_universal.dmg`. Use it only when the same
+   - **Mac package** for Apple silicon and Intel Macs. For `v2.7.0`, use
+     `JobSentinel_2.7.0_no-account_universal.dmg`. Use it only when the same
      release also shows a matching `.dmg.sha256` checksum file.
    - **Linux installer** when present on the release
 3. Install it:
@@ -41,9 +41,16 @@ malicious software." This is expected for no-account Mac packages because they
 are not Developer ID signed and notarized yet.
 
 Continue only if you downloaded JobSentinel from the latest download page
-linked above, expected this file, and saw the matching `.dmg.sha256` checksum
-file listed with it. If you are not sure, stop, delete the download, and
-download it again from that page.
+linked above, expected this file, and verified the `.dmg` against the matching
+`.dmg.sha256` checksum from the same release. If you cannot verify the checksum,
+do not bypass the warning; stop, delete the download, and use a fresh local
+build or wait for a replacement package.
+
+Advanced checksum check from the folder containing both downloads:
+
+```bash
+shasum -a 256 -c JobSentinel_*.dmg.sha256
+```
 
 **To continue after checking the download:**
 
@@ -430,7 +437,8 @@ extra support or your own inspection.
 **Saved jobs and settings:** your local JobSentinel app data.
 
 - Windows: saved in your local app data folder
-- macOS: saved in your Application Support folder
+- macOS: saved in your Application Support folder; JobSentinel keeps this
+  folder private to your Mac account
 
 **Saved passwords and notification details:** stored in your operating system's
 secure vault.

@@ -58,8 +58,9 @@ pub fn get_config_dir() -> PathBuf {
 pub fn initialize() -> Result<(), Box<dyn std::error::Error>> {
     // Create data directory if it doesn't exist
     let data_dir = get_data_dir();
-    if !data_dir.exists() {
-        std::fs::create_dir_all(&data_dir)?;
+    let data_dir_existed = data_dir.exists();
+    crate::platforms::ensure_private_dir_tree(&data_dir)?;
+    if !data_dir_existed {
         tracing::info!(
             data_dir = %path_label_for_logging(&data_dir),
             "Created data directory"
@@ -68,8 +69,9 @@ pub fn initialize() -> Result<(), Box<dyn std::error::Error>> {
 
     // Create config directory if it doesn't exist
     let config_dir = get_config_dir();
-    if !config_dir.exists() {
-        std::fs::create_dir_all(&config_dir)?;
+    let config_dir_existed = config_dir.exists();
+    crate::platforms::ensure_private_dir_tree(&config_dir)?;
+    if !config_dir_existed {
         tracing::info!(
             config_dir = %path_label_for_logging(&config_dir),
             "Created config directory"

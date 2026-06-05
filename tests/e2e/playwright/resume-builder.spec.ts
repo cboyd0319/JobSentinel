@@ -67,7 +67,7 @@ test.describe("Resume Builder Wizard", () => {
     await resumeBuilder.goNext();
 
     await expect(page.getByRole("alert").filter({ hasText: "Add missing resume details" })).toBeVisible();
-    await expect(page.getByText("Add your name.")).toBeVisible();
+    await expect(page.locator("main").getByText("Add your name.")).toBeVisible();
     await resumeBuilder.expectStep(1, "Contact");
   });
 

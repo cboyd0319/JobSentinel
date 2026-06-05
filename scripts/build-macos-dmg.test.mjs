@@ -22,6 +22,7 @@ import {
   prependPathDir,
   redactNotarytoolArgs,
   removeStaleDmgArtifacts,
+  stripMacosTauriBuildSecrets,
   staleDmgArtifactNames,
 } from "./build-macos-dmg.mjs";
 
@@ -50,6 +51,41 @@ test("macOS DMG builder prefers rustup toolchain PATH when available", () => {
     PATH: "/rustup/toolchain/bin:/usr/bin",
     RUST_LOG: "debug",
   });
+});
+
+test("macOS DMG builder strips Apple auth from Tauri build env", () => {
+  const env = stripMacosTauriBuildSecrets({
+    APPLE_ID: "developer@example.com",
+    APPLE_PASSWORD: "secret",
+    APPLE_TEAM_ID: "ABCDE12345",
+    APPLE_API_KEY: "KEYID12345",
+    APPLE_API_KEY_PATH: "/private/AuthKey_KEYID12345.p8",
+    APPLE_API_ISSUER: "00000000-0000-0000-0000-000000000000",
+    APPLE_CERTIFICATE: "base64-cert",
+    APPLE_CERTIFICATE_PASSWORD: "cert-password",
+    APPLE_SIGNING_IDENTITY: "Developer ID Application: Chad (ABCDE12345)",
+    JOBSENTINEL_MACOS_NOTARY_PROFILE: "jobsentinel-notary",
+    JOBSENTINEL_MACOS_SIGNING_IDENTITY: "Developer ID Application: Chad (ABCDE12345)",
+    NOTARYTOOL_KEYCHAIN_PROFILE: "notary-profile",
+    PATH: "/usr/bin",
+    SQLX_OFFLINE: "true",
+  });
+
+  assert.deepEqual(env, {
+    PATH: "/usr/bin",
+    SQLX_OFFLINE: "true",
+  });
+  assert.deepEqual(
+    buildMacosTauriEnv({
+      APPLE_PASSWORD: "secret",
+      PATH: "/usr/bin",
+      SQLX_OFFLINE: "true",
+    }, "/rustup/toolchain/bin"),
+    {
+      PATH: "/rustup/toolchain/bin:/usr/bin",
+      SQLX_OFFLINE: "true",
+    },
+  );
 });
 
 test("macOS DMG builder resolves release directories", () => {

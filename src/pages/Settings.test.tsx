@@ -641,7 +641,10 @@ describe("Settings — handleSave flow", () => {
     });
 
     await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
-    await user.click(screen.getByRole("button", { name: "Test" }));
+    expect(
+      screen.getByText(/sends one test message to the Slack channel/i),
+    ).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Send test Slack message" }));
 
     await waitFor(() => {
       expect(mockToast.success).toHaveBeenCalledWith(
@@ -690,7 +693,10 @@ describe("Settings — handleSave flow", () => {
     });
 
     await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
-    await user.click(screen.getByRole("button", { name: "Test" }));
+    expect(
+      screen.getByText(/sends one test email to the recipients/i),
+    ).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Send test email" }));
 
     await waitFor(() => {
       expect(mockToast.success).toHaveBeenCalledWith(

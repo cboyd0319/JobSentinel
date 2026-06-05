@@ -258,15 +258,27 @@ export function SettingsNotificationsSection({
                       }}
                       className="whitespace-nowrap"
                     >
-                      {testingEmail ? "Testing..." : "Test"}
+                      {testingEmail ? "Sending..." : "Send test email"}
                     </Button>
                   )}
               </div>
+              {config.alerts.email?.smtp_server &&
+                config.alerts.email?.smtp_username &&
+                (credentials.smtp_password ||
+                  credentialStatus.smtp_password) &&
+                config.alerts.email?.from_email &&
+                isValidFromEmail &&
+                config.alerts.email?.to_emails?.length > 0 &&
+                hasValidToEmails && (
+                  <p className="text-xs text-surface-500 dark:text-surface-400">
+                    Sends one test email to the recipients you entered.
+                  </p>
+                )}
               <details className="rounded-lg border border-surface-200 dark:border-surface-700 p-3">
                 <summary className="cursor-pointer text-sm font-medium text-surface-700 dark:text-surface-300">
                   Only if your email service gave you these details
                 </summary>
-                <div className="grid grid-cols-2 gap-3 mt-3">
+                <div className="grid grid-cols-1 gap-3 mt-3 sm:grid-cols-2">
                   <Input
                     label="Email sending service"
                     value={config.alerts.email?.smtp_server ?? ""}
@@ -344,7 +356,7 @@ export function SettingsNotificationsSection({
                   </div>
                 </div>
               </details>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <Input
                   label="Email address"
                   value={config.alerts.email?.smtp_username ?? ""}
@@ -391,7 +403,7 @@ export function SettingsNotificationsSection({
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <Input
                   label="Send From"
                   value={config.alerts.email?.from_email ?? ""}
@@ -561,10 +573,15 @@ export function SettingsNotificationsSection({
                   }}
                   className="whitespace-nowrap"
                 >
-                  {testingSlack ? "Testing..." : "Test"}
+                  {testingSlack ? "Sending..." : "Send test Slack message"}
                 </Button>
               )}
             </div>
+            {(credentials.slack_webhook || credentialStatus.slack_webhook) && (
+              <p className="mt-2 text-xs text-surface-500 dark:text-surface-400">
+                Sends one test message to the Slack channel for this connection.
+              </p>
+            )}
           </div>
         </div>
 

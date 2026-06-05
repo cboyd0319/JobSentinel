@@ -166,8 +166,8 @@ saved preferences.
 **Write this:** "Mac security warning" or just describe the fix
 
 **Example:** "If Mac shows a security warning, first make sure you downloaded
-JobSentinel from the latest download page and saw the matching checksum file
-listed with it. Then go to System Settings > Privacy & Security and click
+JobSentinel from the latest download page and verified the `.dmg` against the
+matching `.dmg.sha256` checksum. If you cannot verify the checksum, do not click
 'Open Anyway'."
 
 ### SmartScreen (Windows)

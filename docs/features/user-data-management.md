@@ -6,7 +6,9 @@ support reports under user control.**
 JobSentinel treats job-search data as sensitive. Notes, templates, searches,
 interview prep, notification choices, salary context, and problem reports can
 reveal employment status, urgency, career goals, location constraints, and
-private circumstances. Core data workflows stay local by default.
+private circumstances. Core data workflows stay local by default. On macOS and
+Linux, JobSentinel keeps its app-owned data and settings directories private to
+the current account and keeps local database files owner-only.
 
 ## Privacy Labels
 

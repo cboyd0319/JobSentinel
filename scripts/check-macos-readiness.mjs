@@ -47,12 +47,14 @@ export function hasNoAccountMacosReleaseOrder(releaseWorkflow) {
       "- name: Verify macOS app and DMG",
       "- name: Label no-account macOS DMG",
       "- name: Create macOS checksum",
+      "- name: Remove old macOS release assets",
       "- name: Upload macOS DMG",
     ]) &&
     hasOrderedSnippets(releaseWorkflow, [
       "npm run tauri:verify:macos",
       "rm -f \"$current_path.sha256\" \"$labeled_path.sha256\"",
       "shasum -a 256",
+      "gh release delete-asset",
       "src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg.sha256",
     ])
   );
@@ -84,11 +86,8 @@ export function hasNotarizationInputs(env = process.env) {
     Boolean(env.APPLE_API_KEY?.trim()) &&
     Boolean(env.APPLE_API_KEY_PATH?.trim()) &&
     Boolean(env.APPLE_API_ISSUER?.trim());
-  const hasProfileAuth =
-    Boolean(env.JOBSENTINEL_MACOS_NOTARY_PROFILE?.trim()) ||
-    Boolean(env.NOTARYTOOL_KEYCHAIN_PROFILE?.trim());
 
-  return hasAppleIdAuth || hasApiKeyAuth || hasProfileAuth;
+  return hasAppleIdAuth || hasApiKeyAuth;
 }
 
 export function evaluateMacosReadiness({ root = defaultRoot, env = process.env } = {}) {
@@ -164,6 +163,11 @@ export function evaluateMacosReadiness({ root = defaultRoot, env = process.env }
         "APPLE_ID",
         "APPLE_PASSWORD",
         "APPLE_TEAM_ID",
+        "APPLE_API_KEY",
+        "APPLE_API_KEY_PATH",
+        "APPLE_API_ISSUER",
+        "materialized_api_key_path",
+        "GitHub macOS release runners cannot use a pre-existing notarytool keychain profile",
         "JOBSENTINEL_MACOS_REQUIRE_GATEKEEPER=true",
         "--require-gatekeeper",
       ]),
@@ -187,6 +191,7 @@ export function evaluateMacosReadiness({ root = defaultRoot, env = process.env }
         "buildNotarytoolLogArgs",
         "noAccountDmgArtifactName",
         "JOBSENTINEL_MACOS_NO_ACCOUNT",
+        "stripMacosTauriBuildSecrets",
       ]),
       "Builder must support both no-account ad-hoc output and future Developer ID release output.",
     ),
@@ -204,6 +209,10 @@ export function evaluateMacosReadiness({ root = defaultRoot, env = process.env }
         "smokeLaunch",
         "verifyInstalledApp",
         "macosSmokeDataPaths",
+        "smokeDataPermissionTargets",
+        "smokeDataPermissionViolations",
+        "Local data permissions smoke passed",
+        "app data tree is private",
       ]),
       "Verifier must prove package behavior beyond file existence.",
     ),

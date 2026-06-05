@@ -32,8 +32,10 @@ By default, these stay on the user's computer:
 - Local problem history and safe support reports before the user chooses to
   share them.
 
-JobSentinel stores app data on the user's computer. Saved secrets are stored in
-the operating system credential store where supported:
+JobSentinel stores app data on the user's computer. On macOS and Linux,
+app-owned data and settings directories are kept private to the current account,
+and local database files are kept owner-only. Saved secrets are stored in the
+operating system credential store where supported:
 
 - Windows Credential Manager.
 - macOS Keychain.

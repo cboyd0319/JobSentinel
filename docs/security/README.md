@@ -236,13 +236,9 @@ Security fixes should be released as:
 
 ### 1. Keep Updated
 
-```bash
-# Check current version
-jobsentinel --version
-
-# Download latest release from GitHub
-# https://github.com/cboyd0319/JobSentinel/releases
-```
+Use the [latest release page](https://github.com/cboyd0319/JobSentinel/releases/latest)
+for updates. On macOS, use only a package with a matching `.dmg.sha256`
+checksum, and verify that checksum before using **Open Anyway**.
 
 ### 2. Protect Credentials
 

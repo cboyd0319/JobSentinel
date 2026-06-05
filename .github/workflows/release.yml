@@ -160,26 +160,61 @@ jobs:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
+          APPLE_API_KEY_PATH: ${{ secrets.APPLE_API_KEY_PATH }}
+          APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
+          JOBSENTINEL_MACOS_NOTARY_PROFILE: ${{ secrets.JOBSENTINEL_MACOS_NOTARY_PROFILE }}
+          NOTARYTOOL_KEYCHAIN_PROFILE: ${{ secrets.NOTARYTOOL_KEYCHAIN_PROFILE }}
         run: |
           set -euo pipefail
 
-          required=(
+          signing_required=(
             APPLE_CERTIFICATE
             APPLE_CERTIFICATE_PASSWORD
             APPLE_SIGNING_IDENTITY
-            APPLE_ID
-            APPLE_PASSWORD
-            APPLE_TEAM_ID
           )
-          missing=()
-          for name in "${required[@]}"; do
+          signing_missing=()
+          for name in "${signing_required[@]}"; do
             if [ -z "${!name:-}" ]; then
-              missing+=("$name")
+              signing_missing+=("$name")
             fi
           done
 
-          if [ "${#missing[@]}" -ne 0 ]; then
-            if [ "${#missing[@]}" -eq "${#required[@]}" ]; then
+          apple_id_notary=false
+          api_key_notary=false
+          profile_notary=false
+          if [ -n "${APPLE_ID:-}" ] && [ -n "${APPLE_PASSWORD:-}" ] && [ -n "${APPLE_TEAM_ID:-}" ]; then
+            apple_id_notary=true
+          fi
+          if [ -n "${APPLE_API_KEY:-}" ] && [ -n "${APPLE_API_KEY_PATH:-}" ] && [ -n "${APPLE_API_ISSUER:-}" ]; then
+            api_key_notary=true
+          fi
+          if [ -n "${JOBSENTINEL_MACOS_NOTARY_PROFILE:-}" ] || [ -n "${NOTARYTOOL_KEYCHAIN_PROFILE:-}" ]; then
+            profile_notary=true
+          fi
+
+          notary_fields=(
+            APPLE_ID
+            APPLE_PASSWORD
+            APPLE_TEAM_ID
+            APPLE_API_KEY
+            APPLE_API_KEY_PATH
+            APPLE_API_ISSUER
+          )
+          any_notary_field=false
+          for name in "${notary_fields[@]}"; do
+            if [ -n "${!name:-}" ]; then
+              any_notary_field=true
+            fi
+          done
+
+          if [ "$profile_notary" = "true" ]; then
+            printf 'GitHub macOS release runners cannot use a pre-existing notarytool keychain profile. Configure APPLE_ID/APPLE_PASSWORD/APPLE_TEAM_ID or APPLE_API_KEY/APPLE_API_KEY_PATH/APPLE_API_ISSUER instead.\n'
+            exit 1
+          fi
+
+          if [ "${#signing_missing[@]}" -ne 0 ]; then
+            if [ "${#signing_missing[@]}" -eq "${#signing_required[@]}" ] && [ "$any_notary_field" = "false" ]; then
               printf 'Apple Developer release secrets are not configured. Building locally verified ad-hoc macOS DMG without notarization.\n'
               {
                 printf 'JOBSENTINEL_MACOS_SIGNING_IDENTITY=-\n'
@@ -190,7 +225,12 @@ jobs:
               exit 0
             fi
 
-            printf 'Partial macOS release secrets are configured. Missing: %s\n' "${missing[*]}"
+            printf 'Partial macOS signing secrets are configured. Missing: %s\n' "${signing_missing[*]}"
+            exit 1
+          fi
+
+          if [ "$apple_id_notary" != "true" ] && [ "$api_key_notary" != "true" ]; then
+            printf 'macOS signing secrets are configured, but no complete notarization auth set is available. Configure APPLE_ID/APPLE_PASSWORD/APPLE_TEAM_ID or APPLE_API_KEY/APPLE_API_KEY_PATH/APPLE_API_ISSUER.\n'
             exit 1
           fi
 
@@ -215,12 +255,26 @@ jobs:
             "$keychain_path"
           security find-identity -v -p codesigning "$keychain_path"
 
+          if [ "$api_key_notary" = "true" ]; then
+            materialized_api_key_path="$APPLE_API_KEY_PATH"
+            if [ ! -f "$materialized_api_key_path" ]; then
+              materialized_api_key_path="$RUNNER_TEMP/AuthKey_${APPLE_API_KEY}.p8"
+              umask 077
+              printf '%s' "$APPLE_API_KEY_PATH" > "$materialized_api_key_path"
+              chmod 600 "$materialized_api_key_path"
+            fi
+
+            if [ ! -s "$materialized_api_key_path" ]; then
+              printf 'APPLE_API_KEY_PATH must point to a readable .p8 file or contain the private key contents.\n'
+              exit 1
+            fi
+
+            printf 'APPLE_API_KEY_PATH=%s\n' "$materialized_api_key_path" >> "$GITHUB_ENV"
+          fi
+
           {
             printf 'APPLE_SIGNING_IDENTITY=%s\n' "$APPLE_SIGNING_IDENTITY"
             printf 'JOBSENTINEL_MACOS_SIGNING_IDENTITY=%s\n' "$APPLE_SIGNING_IDENTITY"
-            printf 'APPLE_ID=%s\n' "$APPLE_ID"
-            printf 'APPLE_PASSWORD=%s\n' "$APPLE_PASSWORD"
-            printf 'APPLE_TEAM_ID=%s\n' "$APPLE_TEAM_ID"
             printf 'JOBSENTINEL_MACOS_NOTARIZE_DMG=true\n'
             printf 'JOBSENTINEL_MACOS_REQUIRE_GATEKEEPER=true\n'
             printf 'JOBSENTINEL_MACOS_NO_ACCOUNT=false\n'
@@ -232,6 +286,12 @@ jobs:
 
       - name: Build macOS app and DMG
         if: matrix.platform == 'macos-latest'
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
+          APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
         run: npm run tauri:build:macos -- --target ${{ matrix.target }}
 
       - name: Verify macOS app and DMG
@@ -312,6 +372,27 @@ jobs:
 
           shasum -a 256 "${dmg_paths[0]}" > "${dmg_paths[0]}.sha256"
           cat "${dmg_paths[0]}.sha256"
+
+      - name: Remove old macOS release assets
+        if: startsWith(matrix.platform, 'macos')
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mapfile -t macos_assets < <(
+            gh release view "$RELEASE_TAG" \
+              --json assets \
+              --jq '.assets[].name' \
+              | grep -E '\.dmg(\.sha256)?$' || true
+          )
+
+          for asset in "${macos_assets[@]}"; do
+            printf 'Deleting stale macOS release asset: %s\n' "$asset"
+            gh release delete-asset "$RELEASE_TAG" "$asset" -y
+          done
 
       # Windows MSI upload
       - name: Upload Windows MSI

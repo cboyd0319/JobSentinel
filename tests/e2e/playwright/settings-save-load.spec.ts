@@ -121,7 +121,9 @@ test.describe("Settings Save and Load", () => {
     test("toggles email alerts and validates email fields", async () => {
       await settingsPage.toggleEmailAlerts();
 
-      await expect(settingsPage.dialog.getByText("Email sending details")).toBeVisible();
+      await expect(
+        settingsPage.dialog.getByText("Only if your email service gave you these details"),
+      ).toBeVisible();
 
       await settingsPage.fromEmailInput.fill("invalid-email");
 

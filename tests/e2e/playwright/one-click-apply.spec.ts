@@ -137,7 +137,8 @@ test.describe("Application Assist Settings", () => {
       answer: "Yes",
     });
 
-    await expect(page.getByText("Question match has unsupported pattern symbols")).toBeVisible();
+    await expect(page.getByText("Answer saved")).toBeVisible();
+    await expect(page.getByText(/Looks for:\s*\[/)).toBeVisible();
   });
 
   test("edits an existing screening answer", async ({ page }) => {

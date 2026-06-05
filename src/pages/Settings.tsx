@@ -3,6 +3,7 @@ import {
   useEffect,
   useCallback,
   useMemo,
+  useRef,
 } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { Button } from "../components/Button";
@@ -17,6 +18,7 @@ import { logError } from "../utils/errorUtils";
 import { getUserFriendlyError } from "../utils/errorMessages";
 import { exportConfigToJSON, importConfigFromJSON } from "../utils/export";
 import { invalidateCacheByCommand } from "../utils/api";
+import { lockBodyScroll } from "../utils/bodyScrollLock";
 import {
   cacheDetectedLocation,
   readCachedDetectedLocation,
@@ -49,6 +51,8 @@ import { useSettingsCredentials } from "./useSettingsCredentials";
 import { useSettingsSupportReports } from "./useSettingsSupportReports";
 
 export default function Settings({ onClose }: SettingsProps) {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const previousActiveElement = useRef<Element | null>(null);
   const [config, setConfig] = useState<Config | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -92,6 +96,69 @@ export default function Settings({ onClose }: SettingsProps) {
     () => readCachedDetectedLocation(),
   );
   const [isDetectingLocation, setIsDetectingLocation] = useState(false);
+
+  useEffect(() => {
+    previousActiveElement.current = document.activeElement;
+    const unlockBodyScroll = lockBodyScroll();
+
+    return () => {
+      unlockBodyScroll();
+      if (
+        previousActiveElement.current instanceof HTMLElement &&
+        document.body.contains(previousActiveElement.current)
+      ) {
+        previousActiveElement.current.focus();
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (loading) {
+      return;
+    }
+
+    const frame = requestAnimationFrame(() => {
+      dialogRef.current?.focus();
+    });
+
+    return () => {
+      cancelAnimationFrame(frame);
+    };
+  }, [loading]);
+
+  const handleDialogKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === "Escape") {
+      onClose();
+      return;
+    }
+
+    if (e.key !== "Tab" || !dialogRef.current) {
+      return;
+    }
+
+    const focusable = Array.from(
+      dialogRef.current.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      ),
+    ).filter((element) => element.offsetParent !== null);
+    if (focusable.length === 0) {
+      return;
+    }
+
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (!first || !last) {
+      return;
+    }
+
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  }, [onClose]);
 
 
   const jobBoardRecommendations = useJobBoardRecommendations(config, setConfig);
@@ -590,30 +657,63 @@ export default function Settings({ onClose }: SettingsProps) {
 
   if (!config) {
     return (
-      <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50">
-        <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto m-4">
-          <div className="flex flex-col items-center justify-center py-12 gap-4">
-            <p className="text-sm text-red-500 dark:text-red-400 text-center max-w-md">
-              Settings could not load. Try again. If this keeps happening,
-              save a safe support report from Help before closing and reopening
-              JobSentinel.
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => void loadConfig()}
-                className="px-4 py-2 text-sm rounded bg-sentinel-500 text-white hover:bg-sentinel-600"
+      <div
+        className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50 p-4"
+        onClick={(e) => {
+          if (e.target === e.currentTarget) onClose();
+        }}
+        onKeyDown={(e) => {
+          handleDialogKeyDown(e);
+        }}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="settings-load-error-title"
+      >
+        <div
+          ref={dialogRef}
+          tabIndex={-1}
+          className="w-full max-w-2xl max-h-[90vh] overflow-y-auto focus:outline-none"
+        >
+          <Card>
+            <div className="flex flex-col items-center justify-center py-12 gap-4">
+              <p
+                id="settings-load-error-title"
+                className="text-sm text-red-500 dark:text-red-400 text-center max-w-md"
               >
-                Try Again
-              </button>
-              <button
-                onClick={onClose}
-                className="px-4 py-2 text-sm rounded bg-surface-100 dark:bg-surface-700 text-surface-700 dark:text-surface-200 hover:bg-surface-200 dark:hover:bg-surface-600"
-              >
-                Close
-              </button>
+                Settings could not load. Try again. If this keeps happening,
+                copy or save a safe support report before closing and reopening
+                JobSentinel.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => void loadConfig()}
+                  className="px-4 py-2 text-sm rounded bg-sentinel-500 text-white hover:bg-sentinel-600"
+                >
+                  Try Again
+                </button>
+                <button
+                  onClick={onClose}
+                  className="px-4 py-2 text-sm rounded bg-surface-100 dark:bg-surface-700 text-surface-700 dark:text-surface-200 hover:bg-surface-200 dark:hover:bg-surface-600"
+                >
+                  Close
+                </button>
+              </div>
+              <div className="w-full max-w-md pt-2">
+                <SettingsSupportSection
+                  copyingDebugReport={copyingDebugReport}
+                  onCopyDebugReport={handleCopyDebugReport}
+                  onOpenFeedback={openFeedbackModal}
+                  onSaveDebugReport={handleSaveDebugReport}
+                  savingDebugReport={savingDebugReport}
+                />
+              </div>
             </div>
-          </div>
-        </Card>
+          </Card>
+        </div>
+        <FeedbackModal
+          isOpen={showFeedbackModal}
+          onClose={closeFeedbackModal}
+        />
       </div>
     );
   }
@@ -625,14 +725,19 @@ export default function Settings({ onClose }: SettingsProps) {
         if (e.target === e.currentTarget) onClose();
       }}
       onKeyDown={(e) => {
-        if (e.key === "Escape") onClose();
+        handleDialogKeyDown(e);
       }}
       role="dialog"
       aria-modal="true"
       aria-labelledby="settings-title"
     >
-      <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto dark:bg-surface-800">
-        <div className="p-6">
+      <div
+        ref={dialogRef}
+        tabIndex={-1}
+        className="w-full max-w-2xl max-h-[90vh] overflow-y-auto focus:outline-none"
+      >
+        <Card className="dark:bg-surface-800">
+          <div className="p-6">
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
@@ -831,8 +936,9 @@ export default function Settings({ onClose }: SettingsProps) {
               Save Changes
             </Button>
           </div>
-        </div>
-      </Card>
+          </div>
+        </Card>
+      </div>
 
       {/* Job Sources Modal */}
       {showHealthDashboard && (
