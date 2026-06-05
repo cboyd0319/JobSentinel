@@ -803,6 +803,11 @@ Out of scope:
   `scripts/check-repo-bloat-trust-copy.test.mjs`. The product-copy bloat test
   still owns general product, resume review, and Application Assist copy
   fixture coverage.
+- Coordinator moved runtime privacy-logging fixtures for credentials,
+  notifications, feedback reports, URL errors, backend commands, and import
+  error details into `scripts/check-privacy-logging-runtime.test.mjs`. The main
+  privacy-logging test file still owns collector, automation, frontend,
+  scheduler, scraper, ML, and path/privacy fixtures.
 
 ## Risks
 

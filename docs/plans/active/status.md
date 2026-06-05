@@ -387,6 +387,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
   logging copy bloat fixtures moved out of the product-copy bloat test into a
   focused trust-copy test file.
 
+- Runtime privacy-logging fixtures for credentials, notifications, feedback
+  reports, URL errors, backend commands, and import error details moved out of
+  the main privacy-logging test into a focused runtime test file.
+
 ## Recent Completed Slices
 
 Detailed implementation history before the current restart window is in the
