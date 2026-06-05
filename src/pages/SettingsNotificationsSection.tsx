@@ -17,40 +17,13 @@ import {
   type Credentials,
 } from "./SettingsConfig";
 import { SettingsDesktopAlertsSection } from "./SettingsDesktopAlertsSection";
+import { SettingsEmailProviderSetup } from "./SettingsEmailProviderSetup";
+import {
+  EMAIL_PROVIDER_TEMPLATES,
+  type EmailProvider,
+} from "./SettingsEmailProviderTemplates";
 import { EmailIcon, SettingsSymbol } from "./SettingsIcons";
 import { SecurityBadge } from "./SettingsSecurityBadge";
-
-type EmailProvider = "custom" | "gmail" | "outlook" | "yahoo";
-
-const emailProviderTemplates: Record<
-  EmailProvider,
-  { server: string; port: number; starttls: boolean; hint: string }
-> = {
-  gmail: {
-    server: "smtp.gmail.com",
-    port: 587,
-    starttls: true,
-    hint: "Use an app password from Google Account Security",
-  },
-  outlook: {
-    server: "smtp-mail.outlook.com",
-    port: 587,
-    starttls: true,
-    hint: "Use an app password if Outlook asks for one",
-  },
-  yahoo: {
-    server: "smtp.mail.yahoo.com",
-    port: 587,
-    starttls: true,
-    hint: "Use an app password from Yahoo Account Security",
-  },
-  custom: {
-    server: "",
-    port: 587,
-    starttls: true,
-    hint: "Leave these alone unless your email service gave you these details.",
-  },
-};
 
 interface SettingsNotificationsSectionProps {
   config: Config;
@@ -82,7 +55,7 @@ export function SettingsNotificationsSection({
   const applyEmailProvider = (provider: EmailProvider) => {
     setEmailProvider(provider);
     if (provider !== "custom") {
-      const template = emailProviderTemplates[provider];
+      const template = EMAIL_PROVIDER_TEMPLATES[provider];
       setConfig({
         ...config,
         alerts: {
@@ -224,67 +197,10 @@ export function SettingsNotificationsSection({
 
           {config.alerts.email?.enabled && (
             <div className="space-y-3">
-              {/* Email service quick setup */}
-              <div className="flex items-center gap-2 -mt-1 mb-2">
-                <span className="text-sm text-surface-600 dark:text-surface-400">
-                  Optional setup:
-                </span>
-                <div className="flex gap-1">
-                  {(
-                    ["gmail", "outlook", "yahoo", "custom"] as const
-                  ).map((provider) => (
-                    <button
-                      key={provider}
-                      type="button"
-                      onClick={() => applyEmailProvider(provider)}
-                      className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
-                        emailProvider === provider
-                          ? "bg-sentinel-500 text-white"
-                          : "bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-600"
-                      }`}
-                    >
-                      {provider === "gmail"
-                        ? "Gmail"
-                        : provider === "outlook"
-                          ? "Outlook"
-                          : provider === "yahoo"
-                            ? "Yahoo"
-                            : "Other"}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <p className="text-sm text-surface-500 dark:text-surface-400 -mt-1">
-                {emailProviderTemplates[emailProvider].hint}
-                {emailProvider === "gmail" && (
-                  <>
-                    {" "}
-                    —{" "}
-                    <a
-                      href="https://myaccount.google.com/apppasswords"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sentinel-500 hover:underline"
-                    >
-                      Create App Password
-                    </a>
-                  </>
-                )}
-                {emailProvider === "yahoo" && (
-                  <>
-                    {" "}
-                    —{" "}
-                    <a
-                      href="https://login.yahoo.com/account/security"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sentinel-500 hover:underline"
-                    >
-                      Yahoo Security Settings
-                    </a>
-                  </>
-                )}
-              </p>
+              <SettingsEmailProviderSetup
+                emailProvider={emailProvider}
+                onProviderSelect={applyEmailProvider}
+              />
               <div className="flex items-center justify-between -mt-1 mb-3">
                 <span></span>
                 {config.alerts.email?.smtp_server &&

@@ -50,6 +50,19 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Settings email-provider setup labels, links, and SMTP preset templates now
+  live in `src/pages/SettingsEmailProviderSetup.tsx` and
+  `src/pages/SettingsEmailProviderTemplates.ts`, reducing
+  `src/pages/SettingsNotificationsSection.tsx` from 923 to 841 lines without
+  changing credential storage, email test behavior, chat alert toggles, or
+  keychain access patterns.
+
+- Focused verification for the Settings email-provider split passed:
+  `npm run test:run -- src/pages/Settings.test.tsx
+  src/pages/Settings.load.test.tsx src/pages/Settings.sources.test.tsx`,
+  `npm run build`, `npm run lint`, `npm run lint:bloat`,
+  `git diff --check`, and the local-path leak scan.
+
 - Dashboard notes and saved-search modal markup now lives in
   `src/pages/DashboardUI/DashboardNotesModal.tsx` and
   `src/pages/DashboardUI/DashboardSaveSearchModal.tsx`, reducing
