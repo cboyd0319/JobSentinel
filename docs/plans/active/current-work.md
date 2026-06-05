@@ -216,6 +216,7 @@ Out of scope:
 - [x] Split config source URL tests out of the main config test file.
 - [x] Retire the config test file's legacy oversized-file exception after
   bringing it below the 1,200-line test target.
+- [x] Split DB edge-case tests out of the main DB test file.
 
 ## Orchestration Log
 
