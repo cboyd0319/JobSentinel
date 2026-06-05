@@ -51,6 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Application board icon helpers now live in a focused module, keeping the main
+  Applications page under the file-size target without changing board actions,
+  quick stats, or modal controls.
+
 - Dashboard duplicate-group card rendering now lives in a focused UI component,
   keeping the main dashboard page under the file-size target while preserving
   repeated-posting review and hide-extra behavior.
