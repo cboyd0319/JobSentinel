@@ -49,6 +49,17 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Resume page Skills Management UI now lives in
+  `src/pages/ResumeSkillsManagementCard.tsx`, reducing
+  `src/pages/Resume.tsx` from 983 to 696 lines without changing resume loading,
+  uploads/imports, skill add/edit/delete handlers, skill sorting toggles, recent
+  matches, or delete confirmation behavior.
+
+- Focused verification for the Resume skills component split passed:
+  `npm run test:run -- src/pages/Resume.test.tsx`,
+  `npx tsc --noEmit --pretty false`, `npm run lint`, and
+  `npm run lint:bloat`.
+
 - Application Tracker status columns, reminder labels, application statistics,
   status lookup, active-card lookup, and interview-scheduler DTO shaping now
   live in `src/pages/applicationsModel.ts`, reducing
