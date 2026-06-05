@@ -23,7 +23,8 @@ help more job seekers, including by building something better.
 2. Choose the package or installer for your computer:
    - **Windows installer**
    - **Mac package** for Apple silicon and Intel Macs. For `v2.6.4`, use
-     `JobSentinel_2.6.4_no-account_universal.dmg`.
+     `JobSentinel_2.6.4_no-account_universal.dmg`. Use it only when the same
+     release also shows a matching `.dmg.sha256` checksum file.
    - **Linux installer** when present on the release
 3. Install it:
    - Windows or Linux: double-click and follow the prompts.
@@ -40,8 +41,9 @@ malicious software." This is expected for no-account Mac packages because they
 are not Developer ID signed and notarized yet.
 
 Continue only if you downloaded JobSentinel from the latest download page
-linked above and expected this file. If you are not sure, stop, delete the
-download, and download it again from that page.
+linked above, expected this file, and saw the matching `.dmg.sha256` checksum
+file listed with it. If you are not sure, stop, delete the download, and
+download it again from that page.
 
 **To continue after checking the download:**
 

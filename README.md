@@ -179,8 +179,9 @@ JobSentinel can't be opened because Apple cannot check it for malicious software
 ```
 
 Continue only if you downloaded JobSentinel from the latest download page linked
-above and expected this file. If you are not sure, stop, delete the download,
-and download it again from that page.
+above, expected this file, and saw the matching `.dmg.sha256` checksum file
+listed with it. If you are not sure, stop, delete the download, and download it
+again from that page.
 
 After checking the download, try opening **JobSentinel** from **Applications**
 once and dismiss the warning. Then open **System Settings**, go to **Privacy &

@@ -168,9 +168,15 @@ export function getTechnicalFirstPreflightResult(root, path) {
   if (installSecurityCopyPaths.has(path)) {
     const text = readFileSync(join(root, path), "utf8");
     const hasSecurityOverride = /Open Anyway|Run anyway/i.test(text);
-    const hasDownloadCheck = /downloaded JobSentinel from the latest download page/i.test(text);
+    const hasDownloadCheck = /downloaded\s+JobSentinel from the latest download page/i.test(text);
+    const hasMacOverride = /Open Anyway/i.test(text);
+    const hasChecksumCheck = /checksum|\.sha256/i.test(text);
 
     if (hasSecurityOverride && !hasDownloadCheck) {
+      return true;
+    }
+
+    if (hasMacOverride && !hasChecksumCheck) {
       return true;
     }
   }

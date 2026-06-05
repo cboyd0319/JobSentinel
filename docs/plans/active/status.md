@@ -51,6 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Mac first-open help now tells users to look for the matching `.dmg.sha256`
+  checksum file before using **Open Anyway**, and product-copy checks guard
+  that wording.
+
 - The macOS DMG builder now writes `_no-account_` filenames directly when
   `JOBSENTINEL_MACOS_NO_ACCOUNT=true`, and stale cleanup removes both labeled
   and unlabeled checksum variants.
