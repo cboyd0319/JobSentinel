@@ -440,6 +440,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 - ATS edge-case, duplicate job hash, empty board, and completed-reminder tests
   moved out of the main ATS test file into a focused Rust child test module.
 
+- AtsLiveScorePanel details-modal tests moved out of the main live score panel
+  test file into a focused frontend test, with shared resume-analysis fixtures.
+
 ## Recent Completed Slices
 
 Detailed implementation history before the current restart window is in the

@@ -851,6 +851,8 @@ Out of scope:
   table-driven test file; non-hyphen business synonym coverage stays in place.
 - ATS edge-case and duplicate/empty reminder tests now live in a child test
   module; main ATS tests stay focused on core status, tracker, and stats flows.
+- AtsLiveScorePanel details-modal coverage now lives in a focused frontend
+  spec with shared resume-analysis fixtures.
 
 ## Risks
 
