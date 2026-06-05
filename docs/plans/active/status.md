@@ -49,6 +49,17 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Resume analyzer keyword patterns, canonical keyword mapping, and industry
+  keyword catalog now live in
+  `src-tauri/src/core/resume/ats_analyzer/keyword_catalog.rs`, reducing
+  `src-tauri/src/core/resume/ats_analyzer.rs` from 976 to 789 lines without
+  changing keyword extraction, requirement reviews, score caps, or analyzer
+  public APIs.
+
+- Focused verification for the analyzer keyword catalog split passed:
+  `cargo fmt --all -- --check`, `cargo test --lib ats_analyzer`,
+  `cargo clippy -- -D warnings`, and `npm run lint:bloat`.
+
 - Resume page Skills Management UI now lives in
   `src/pages/ResumeSkillsManagementCard.tsx`, reducing
   `src/pages/Resume.tsx` from 983 to 696 lines without changing resume loading,
