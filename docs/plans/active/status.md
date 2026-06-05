@@ -50,6 +50,15 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Dashboard job comparison modal moved out of `src/pages/Dashboard.tsx` into
+  `src/pages/DashboardUI/DashboardCompareModal.tsx`.
+- The main Dashboard page is now below the 1,200-line frontend target, so the
+  legacy oversized-file exception was removed.
+- Dashboard comparison behavior was unchanged; only modal component ownership
+  changed.
+
+Earlier implementation slice:
+
 - Root README reference index moved into `docs/references.md`, leaving a
   compact README anchor and preserving the complete external-source inventory.
 - Harness source policy now checks required reference URLs in
