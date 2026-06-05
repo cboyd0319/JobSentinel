@@ -18,6 +18,8 @@ describe("Setup Wizard preference helpers", () => {
       cities: [],
     });
     expect(config.alerts.desktop.enabled).toBe(true);
+    expect(config.alerts.desktop.play_sound).toBe(false);
+    expect(config.alerts.desktop.show_when_focused).toBe(false);
     expect(config.alerts.slack.webhook_url).toBe("");
     expect(config.remoteok.enabled).toBe(false);
     expect(config.hn_hiring.enabled).toBe(false);

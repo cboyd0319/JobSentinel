@@ -224,7 +224,7 @@ export function createDefaultSetupConfig(
       },
       desktop: {
         enabled: true,
-        play_sound: true,
+        play_sound: false,
         show_when_focused: false,
       },
     },

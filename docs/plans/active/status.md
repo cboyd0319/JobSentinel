@@ -51,6 +51,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- First-run desktop alerts now start in quiet mode with no sound, while users
+  can still turn sound back on before saving setup.
+
 - Job cards now show visible source-review cues for job boards, connected
   feeds, saved links, sample jobs, custom labels, and missing source labels,
   while employer-side hiring pages stay quieter source evidence.

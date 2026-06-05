@@ -618,7 +618,7 @@ export function profileToConfig(profile: CareerProfile) {
       },
       desktop: {
         enabled: true,
-        play_sound: true,
+        play_sound: false,
         show_when_focused: false,
       },
     },
