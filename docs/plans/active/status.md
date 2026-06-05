@@ -127,6 +127,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
   live in focused components, putting the main builder page below the file-size
   limit.
 
+- Company Research fallback data now lives in a focused module, keeping the
+  panel small while preserving local known-company lookup behavior.
+
 - First-run hourly pay controls now live in a focused setup component, keeping
   the main setup page farther below the file-size limit.
 

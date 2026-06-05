@@ -364,6 +364,8 @@ Out of scope:
   page stays close to the file-size limit.
 - [x] Move Resume Builder progress, export, navigation, and job-context UI into
   focused components so the main page sits under the file-size limit.
+- [x] Move local company-research fallback data into a focused module so the
+  panel stays small and behavior-focused.
 
 ## Orchestration Log
 
@@ -453,6 +455,9 @@ Out of scope:
 - Coordinator moved Resume Builder progress, export, navigation, and
   job-context rendering into focused components, reducing the main builder page
   from 1,106 to 996 lines without changing builder flow.
+- Coordinator moved local company-research fallback data into
+  `src/components/companyResearchData.ts`, reducing the panel from 1,125 to 489
+  lines while preserving known, cached, and unknown company behavior.
 - Pay-protection sidecar was read-only and changed no files. Coordinator
   accepted its finding that negotiation-note drafts could treat benchmark
   values as offer facts, then fixed the Salary page, dev mock, tests, feature
