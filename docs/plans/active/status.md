@@ -51,6 +51,11 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- First-run custom searches now recognize reviewed data analyst and business
+  intelligence analyst titles as tech/data-focused for optional source
+  suggestions, without matching generic analyst roles or selecting sources
+  automatically.
+
 - Dashboard posting-risk filters now treat local repeated-sighting evidence
   (`times_seen > 1`) as a Needs Review cue while ignoring missing, single, or
   non-finite sighting counts.

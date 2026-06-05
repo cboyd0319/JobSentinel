@@ -174,6 +174,9 @@ describe("profiles", () => {
       expect(searchLooksTechFocused(["Store Manager", "Point of Sale"])).toBe(false);
       expect(searchLooksTechFocused(["Maintenance Technician", "Work Orders"])).toBe(false);
       expect(searchLooksTechFocused(["React Developer"])).toBe(true);
+      expect(searchLooksTechFocused(["Data Analyst"])).toBe(true);
+      expect(searchLooksTechFocused(["Business Intelligence Analyst"])).toBe(true);
+      expect(searchLooksTechFocused(["Policy Analyst"])).toBe(false);
     });
 
     it("enables tech-heavy source defaults only for technical searches", () => {
@@ -225,6 +228,17 @@ describe("profiles", () => {
         remoteokEnabled: false,
         hnHiringEnabled: false,
         weworkremotelyEnabled: false,
+      });
+      expect(
+        getSearchSourceDefaults({
+          titles: ["Business Intelligence Analyst"],
+          keywords: ["Tableau"],
+          allowRemote: true,
+        }),
+      ).toEqual({
+        remoteokEnabled: true,
+        hnHiringEnabled: true,
+        weworkremotelyEnabled: true,
       });
     });
   });

@@ -149,6 +149,23 @@ describe("Setup Wizard preference helpers", () => {
     });
   });
 
+  it("suggests technical sources for reviewed data analyst searches without selecting them", () => {
+    const config = {
+      ...createDefaultSetupConfig(),
+      title_allowlist: ["Data Analyst"],
+      keywords_boost: ["Tableau"],
+    };
+
+    expect(getSuggestedJobSourceOptions(config).map((source) => source.key)).toEqual([
+      "remoteok",
+      "weworkremotely",
+      "hn_hiring",
+    ]);
+    expect(buildSetupSearchSummary(config, "balanced", "balanced")).toMatchObject({
+      jobSources: "No outside job sources selected; add reviewed sources in Settings.",
+    });
+  });
+
   it("suggests a broad public source for non-technical searches without selecting it", () => {
     const config = {
       ...createDefaultSetupConfig(),
