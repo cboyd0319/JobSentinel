@@ -40,80 +40,29 @@ import {
   ProgressIcon,
   TemplateIcon,
 } from "./ApplicationsIcons";
+import {
+  findApplicationById,
+  findColumnForApplication,
+  formatReminderType,
+  getApplicationStats,
+  getInterviewSchedulerApplications,
+  hasAnyApplications,
+  STATUS_COLUMNS,
+  type Application,
+  type ApplicationsByStatus,
+  type PendingReminder,
+  type StatusKey,
+} from "./applicationsModel";
 
 // Lazy load heavy components to reduce initial bundle size
 const AnalyticsPanel = lazy(() => import("../components/AnalyticsPanel").then(m => ({ default: m.AnalyticsPanel })));
 const InterviewScheduler = lazy(() => import("../components/InterviewScheduler").then(m => ({ default: m.InterviewScheduler })));
 const CoverLetterTemplates = lazy(() => import("../components/CoverLetterTemplates").then(m => ({ default: m.CoverLetterTemplates })));
 
-interface Application {
-  id: number;
-  job_hash: string;
-  job_title: string;
-  company: string;
-  status: string;
-  applied_at: string | null;
-  notes: string | null;
-  last_contact: string | null;
-}
-
-interface ApplicationsByStatus {
-  to_apply: Application[];
-  applied: Application[];
-  screening_call: Application[];
-  phone_interview: Application[];
-  technical_interview: Application[];
-  onsite_interview: Application[];
-  offer_received: Application[];
-  offer_accepted: Application[];
-  offer_rejected: Application[];
-  rejected: Application[];
-  withdrawn: Application[];
-  ghosted: Application[];
-}
-
-interface PendingReminder {
-  id: number;
-  application_id: number;
-  job_title: string;
-  company: string;
-  reminder_type: string;
-  reminder_time: string;
-}
-
-const REMINDER_TYPE_LABELS: Record<string, string> = {
-  follow_up: "Follow up",
-  interview_prep: "Interview prep",
-  deadline: "Deadline",
-  offer_review: "Offer review",
-  custom: "Reminder",
-};
-
-function formatReminderType(type: string): string {
-  return REMINDER_TYPE_LABELS[type] ?? "Reminder";
-}
-
 interface ApplicationsProps {
   onBack: () => void;
   onImportJob?: () => void;
 }
-
-const STATUS_COLUMNS = [
-  { key: "to_apply", label: "To Apply", color: "bg-surface-500" },
-  { key: "applied", label: "Applied", color: "bg-blue-500" },
-  { key: "screening_call", label: "Screening Call", color: "bg-purple-500" },
-  { key: "phone_interview", label: "Phone Interview", color: "bg-violet-500" },
-  { key: "technical_interview", label: "Skills Interview", color: "bg-indigo-500" },
-  { key: "onsite_interview", label: "Onsite Interview", color: "bg-cyan-500" },
-  { key: "offer_received", label: "Offer Received", color: "bg-success" },
-  { key: "offer_accepted", label: "Offer Accepted", color: "bg-emerald-500" },
-  { key: "offer_rejected", label: "Offer Declined", color: "bg-orange-500" },
-  { key: "rejected", label: "Not Selected", color: "bg-danger" },
-  { key: "withdrawn", label: "Withdrawn", color: "bg-amber-500" },
-  { key: "ghosted", label: "No Response", color: "bg-surface-400" },
-] as const;
-
-type StatusKey = typeof STATUS_COLUMNS[number]["key"];
 
 // Sortable application card component - memoized to prevent re-renders
 const SortableApplicationCard = memo(function SortableApplicationCard({
@@ -365,14 +314,7 @@ export default function Applications({ onBack, onImportJob }: ApplicationsProps)
   }, [fetchData]);
 
   const findColumnForApp = (appId: number): StatusKey | null => {
-    if (!applications) return null;
-    for (const column of STATUS_COLUMNS) {
-      const apps = applications[column.key as keyof ApplicationsByStatus];
-      if (apps.some((a) => a.id === appId)) {
-        return column.key;
-      }
-    }
-    return null;
+    return findColumnForApplication(applications, appId);
   };
 
   const handleDragStart = (event: DragStartEvent) => {
@@ -527,81 +469,16 @@ export default function Applications({ onBack, onImportJob }: ApplicationsProps)
   };
 
 
-  const getActiveApp = (): Application | null => {
-    if (!activeId || !applications) return null;
-    for (const column of STATUS_COLUMNS) {
-      const app = applications[column.key as keyof ApplicationsByStatus].find(
-        (a) => a.id === activeId
-      );
-      if (app) return app;
-    }
-    return null;
-  };
+  const getActiveApp = (): Application | null =>
+    findApplicationById(applications, activeId);
 
   // Memoized application stats to avoid recalculating on every render
-  const stats = useMemo(() => {
-    if (!applications) return null;
+  const stats = useMemo(() => getApplicationStats(applications), [applications]);
 
-    const totalApplied =
-      applications.applied.length +
-      applications.screening_call.length +
-      applications.phone_interview.length +
-      applications.technical_interview.length +
-      applications.onsite_interview.length +
-      applications.offer_received.length +
-      applications.offer_accepted.length +
-      applications.offer_rejected.length +
-      applications.rejected.length +
-      applications.withdrawn.length +
-      applications.ghosted.length;
-
-    const interviews =
-      applications.screening_call.length +
-      applications.phone_interview.length +
-      applications.technical_interview.length +
-      applications.onsite_interview.length;
-
-    const interviewsPlusOffers = interviews +
-      applications.offer_received.length +
-      applications.offer_accepted.length +
-      applications.offer_rejected.length;
-
-    const offers =
-      applications.offer_received.length +
-      applications.offer_accepted.length +
-      applications.offer_rejected.length;
-
-    const rejected =
-      applications.rejected.length + applications.offer_rejected.length;
-
-    const inProgress =
-      applications.applied.length +
-      interviews +
-      applications.offer_received.length;
-
-    const interviewRate = totalApplied > 0
-      ? Math.round((interviewsPlusOffers / totalApplied) * 100)
-      : 0;
-
-    const offerRate = totalApplied > 0
-      ? Math.round((offers / totalApplied) * 100)
-      : 0;
-
-    return {
-      totalApplied,
-      interviews,
-      offers,
-      rejected,
-      inProgress,
-      interviewRate,
-      offerRate,
-    };
-  }, [applications]);
-
-  const hasAnyApplications = useMemo(() => {
-    if (!applications) return false;
-    return STATUS_COLUMNS.some((column) => applications[column.key].length > 0);
-  }, [applications]);
+  const hasTrackedApplications = useMemo(
+    () => hasAnyApplications(applications),
+    [applications],
+  );
 
   if (loading) {
     return <KanbanSkeleton />;
@@ -738,7 +615,7 @@ export default function Applications({ onBack, onImportJob }: ApplicationsProps)
           onDragEnd={handleDragEnd}
         >
           <div className="overflow-x-auto pb-4" data-testid="kanban-board">
-            {!hasAnyApplications && (
+            {!hasTrackedApplications && (
               <Card
                 className="mb-4 max-w-xl dark:bg-surface-800"
                 role="status"
@@ -762,7 +639,7 @@ export default function Applications({ onBack, onImportJob }: ApplicationsProps)
             )}
             <div className="flex gap-4 min-w-max">
               {STATUS_COLUMNS.map((column) => {
-                const apps = applications?.[column.key as keyof ApplicationsByStatus] || [];
+                const apps = applications?.[column.key] || [];
                 return (
                   <DroppableColumn
                     key={column.key}
@@ -770,7 +647,7 @@ export default function Applications({ onBack, onImportJob }: ApplicationsProps)
                     apps={apps}
                     onCardClick={setSelectedApp}
                     formatDate={formatEventDate}
-                    showDropHint={hasAnyApplications}
+                    showDropHint={hasTrackedApplications}
                   />
                 );
               })}
@@ -910,13 +787,7 @@ export default function Applications({ onBack, onImportJob }: ApplicationsProps)
         <Suspense fallback={<ModalSkeleton />}>
           <InterviewScheduler
             onClose={() => setShowInterviews(false)}
-            applications={Object.values(applications)
-              .flat()
-              .map((app) => ({
-                id: app.id,
-                job_title: app.job_title,
-                company: app.company,
-              }))}
+            applications={getInterviewSchedulerApplications(applications)}
           />
         </Suspense>
       )}

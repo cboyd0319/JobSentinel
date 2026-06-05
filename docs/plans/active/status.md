@@ -49,6 +49,17 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Application Tracker status columns, reminder labels, application statistics,
+  status lookup, active-card lookup, and interview-scheduler DTO shaping now
+  live in `src/pages/applicationsModel.ts`, reducing
+  `src/pages/Applications.tsx` from 987 to 858 lines without changing drag and
+  drop, notes, reminders, summary actions, or lazy modal behavior.
+
+- Focused verification for the Applications model split passed:
+  `npm run test:run -- src/pages/applicationsModel.test.ts`,
+  `npx tsc --noEmit --pretty false`, `npm run lint`, `npm run lint:bloat`,
+  `npm run harness:check`, and `git diff --check`.
+
 - Scraper Health Dashboard DTOs, status configs, credential/source/run
   formatting helpers, and safe issue formatting now live in
   `src/components/scraperHealthDashboardModel.ts`, reducing
