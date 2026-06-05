@@ -116,11 +116,16 @@ export function summarizeHarnessSession(root = defaultRoot, options = {}) {
   };
 }
 
-export function formatHarnessSessionSummary(summary) {
+export function formatHarnessSessionSummary(summary, options = {}) {
+  const limit = Number.isInteger(options.nextWorkLimit)
+    ? Math.max(0, options.nextWorkLimit)
+    : null;
   const nextBestWork =
     summary.nextBestWork.length === 0
       ? ["No next-best-work items found."]
-      : summary.nextBestWork;
+      : limit === null
+        ? summary.nextBestWork
+        : summary.nextBestWork.slice(0, limit);
 
   return [
     "Harness Session Snapshot",
@@ -141,21 +146,44 @@ export function formatHarnessSessionSummary(summary) {
 export function parseHarnessSessionArgs(argv, fallbackRoot = defaultRoot) {
   let root = fallbackRoot;
   let json = false;
+  let nextWorkLimit = null;
 
-  for (const arg of argv) {
+  for (let index = 0; index < argv.length; index += 1) {
+    const arg = argv[index];
     if (arg === "--json") {
       json = true;
       continue;
     }
 
+    if (arg === "--limit") {
+      const rawLimit = argv[index + 1];
+      if (!rawLimit || rawLimit.startsWith("--")) {
+        throw new Error("--limit requires a non-negative integer");
+      }
+      const parsedLimit = Number.parseInt(rawLimit, 10);
+      if (!Number.isInteger(parsedLimit) || parsedLimit < 0 || `${parsedLimit}` !== rawLimit) {
+        throw new Error("--limit requires a non-negative integer");
+      }
+      nextWorkLimit = parsedLimit;
+      index += 1;
+      continue;
+    }
+
+    if (arg.startsWith("--")) {
+      throw new Error(`Unknown option: ${arg}`);
+    }
+
     root = resolve(arg);
   }
 
-  return { root, json };
+  return { root, json, nextWorkLimit };
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
-  const { root, json } = parseHarnessSessionArgs(process.argv.slice(2));
+  const { root, json, nextWorkLimit } = parseHarnessSessionArgs(process.argv.slice(2));
   const summary = summarizeHarnessSession(root);
+  if (nextWorkLimit !== null) {
+    summary.nextBestWork = summary.nextBestWork.slice(0, nextWorkLimit);
+  }
   console.log(json ? JSON.stringify(summary, null, 2) : formatHarnessSessionSummary(summary));
 }

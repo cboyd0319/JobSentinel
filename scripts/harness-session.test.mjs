@@ -119,7 +119,7 @@ test("formatHarnessSessionSummary prints one restart surface", () => {
 test("parseHarnessSessionArgs accepts json flag without treating it as root", () => {
   const parsed = parseHarnessSessionArgs(["--json"], "/repo");
 
-  assert.deepEqual(parsed, { root: "/repo", json: true });
+  assert.deepEqual(parsed, { root: "/repo", json: true, nextWorkLimit: null });
 });
 
 test("parseHarnessSessionArgs accepts root and json flag in either order", () => {
@@ -129,8 +129,34 @@ test("parseHarnessSessionArgs accepts root and json flag in either order", () =>
 
   assert.equal(rootFirst.root, requestedRoot);
   assert.equal(rootFirst.json, true);
+  assert.equal(rootFirst.nextWorkLimit, null);
   assert.equal(flagFirst.root, requestedRoot);
   assert.equal(flagFirst.json, true);
+  assert.equal(flagFirst.nextWorkLimit, null);
+});
+
+test("parseHarnessSessionArgs accepts limit without treating it as root", () => {
+  const parsed = parseHarnessSessionArgs(["--limit", "2"], "/repo");
+
+  assert.deepEqual(parsed, { root: "/repo", json: false, nextWorkLimit: 2 });
+});
+
+test("parseHarnessSessionArgs rejects unknown flags", () => {
+  assert.throws(
+    () => parseHarnessSessionArgs(["--bad-flag"], "/repo"),
+    /Unknown option: --bad-flag/,
+  );
+});
+
+test("parseHarnessSessionArgs rejects invalid limits", () => {
+  assert.throws(
+    () => parseHarnessSessionArgs(["--limit"], "/repo"),
+    /--limit requires a non-negative integer/,
+  );
+  assert.throws(
+    () => parseHarnessSessionArgs(["--limit", "-1"], "/repo"),
+    /--limit requires a non-negative integer/,
+  );
 });
 
 test("extractNextBestWork joins wrapped numbered items", () => {

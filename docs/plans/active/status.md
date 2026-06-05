@@ -51,6 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Harness session parsing now accepts `--limit N` without treating the option
+  as a repository root, so restart snapshots keep real branch, active-plan,
+  score, and next-work evidence even when output is capped.
+
 - Resume Builder DOCX download and print-dialog DOM helpers now live in a
   focused module, keeping the main builder page farther below the file-size
   target without changing export commands or user-facing export copy.
