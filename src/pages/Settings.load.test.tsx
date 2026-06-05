@@ -560,15 +560,16 @@ describe("Settings — loadConfig flow", () => {
 
     await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
 
-    expect(screen.getByText(/resume skills first, then your search words/i)).toBeInTheDocument();
+    expect(screen.getByText(/reviewed local resume skills, then your search words/i)).toBeInTheDocument();
     expect(
       screen
         .getAllByText("Tip:")
-        .some((node) => /Add your resume in the Resume tab first/i.test(node.closest("p")?.textContent ?? "")),
+        .some((node) => /review saved skills first/i.test(node.closest("p")?.textContent ?? "")),
     ).toBe(true);
     expect(screen.getByText("Job title and search-word fit")).toBeInTheDocument();
     expect(screen.queryByText(/keyword-only scoring/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/resume match \+ 30% search words/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/resume skills first, then your search words/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Upload your resume/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/uploaded, scoring uses/i)).not.toBeInTheDocument();
   });

@@ -51,6 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Settings resume sorting copy now says it uses reviewed local resume skills,
+  falling back to job titles and search words when no reviewed resume skills are
+  saved.
+
 - First-run career-path preview now shows suggested job titles and search words
   before saving, and tells users those suggestions can be edited.
 

@@ -16,7 +16,7 @@ export function SettingsResumeMatchingSection({
       <section className="mb-6">
         <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
           Use Resume to Sort Jobs
-          <HelpIcon text="When enabled, fit estimates use skills from your added resume plus the search words you chose." />
+          <HelpIcon text="When enabled, fit estimates can use reviewed local resume skills plus the search words you chose." />
         </h3>
         <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-4">
           <div className="flex items-center justify-between">
@@ -27,8 +27,7 @@ export function SettingsResumeMatchingSection({
                   Use Resume to Sort Jobs
                 </div>
                 <div className="text-xs text-surface-500 dark:text-surface-400">
-                  Match jobs against your resume skills first, then your search
-                  words
+                  Use reviewed local resume skills, then your search words
                 </div>
               </div>
             </div>
@@ -52,8 +51,9 @@ export function SettingsResumeMatchingSection({
               <SettingsSymbol icon="lightbulb" className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
               <span>
                 <strong>Tip:</strong> Add your resume in the{" "}
-                <strong>Resume</strong> tab first. If no resume is added, fit
-                estimates use your job titles and search words.
+                <strong>Resume</strong> tab and review saved skills first. If
+                no reviewed resume skills are saved, fit estimates use your job
+                titles and search words.
               </span>
             </p>
           </div>
