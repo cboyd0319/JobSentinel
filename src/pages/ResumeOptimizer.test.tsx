@@ -260,7 +260,7 @@ async function openResumeAppImport(user: ReturnType<typeof userEvent.setup>) {
 
 describe("ResumeOptimizer", () => {
   const privateFailure = new Error(
-    "token=raw-secret chad@example.com /Users/chad/private/resume.pdf"
+    "token=raw-secret chad@example.com local-resume-file"
   );
 
   const toastErrorText = () => mockToast.error.mock.calls.flat().join(" ");
@@ -715,6 +715,45 @@ describe("ResumeOptimizer", () => {
     expect(screen.getByText(/Keep scheduling visible/i)).toBeInTheDocument();
     expect(screen.queryByText(/maximize/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/guarantee/i)).not.toBeInTheDocument();
+  });
+
+  it("points thin job posts toward fuller posting details", async () => {
+    const user = userEvent.setup();
+    mockInvokeResponses({
+      analyze_resume_for_job: {
+        ...mockAnalysis,
+        requirement_reviews: [],
+        hard_constraint_risks: [],
+        format_issues: [
+          {
+            severity: "Info" as const,
+            issue: "Not enough job-post detail recognized to score fit confidently.",
+            fix: "Paste a fuller job post with responsibilities, requirements, or preferred qualifications.",
+          },
+        ],
+      },
+    });
+    render(<ResumeOptimizer onBack={vi.fn()} />);
+
+    fireEvent.change(screen.getByLabelText(/^job post$/i), {
+      target: {
+        value: "We are hiring for a role.",
+      },
+    });
+    await openResumeAppImport(user);
+    fireEvent.change(screen.getByLabelText(/copied resume details/i), {
+      target: { value: JSON.stringify(validResume) },
+    });
+
+    await user.click(screen.getByRole("button", { name: /review match/i }));
+
+    expect(await screen.findByText("What To Do Next")).toBeInTheDocument();
+    expect(screen.getByText("Paste fuller job post")).toBeInTheDocument();
+    expect(
+      screen.getAllByText(/responsibilities, requirements, or preferred qualifications/i)
+        .length,
+    ).toBeGreaterThan(0);
+    expect(screen.queryByText("Fix readability details first")).not.toBeInTheDocument();
   });
 
   it("shows experience-specific next action guidance for hard requirements", async () => {

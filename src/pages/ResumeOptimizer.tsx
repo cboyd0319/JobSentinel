@@ -415,6 +415,14 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
     if (!analysisResult) return [];
 
     const actions: ResumeNextAction[] = [];
+    const thinJobPostIssue = analysisResult.format_issues.find((issue) => {
+      const issueText = issue.issue.toLowerCase();
+      const fixText = issue.fix.toLowerCase();
+      return (
+        issueText.includes("not enough job-post detail") ||
+        fixText.includes("paste a fuller job post")
+      );
+    });
     const hardRisks = getHardConstraintRisks();
     const reviews = getRequirementReviews();
 
@@ -476,6 +484,15 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
         detail: "Use the matching words below to decide what deserves a clearer bullet or stronger placement.",
         variant: "sentinel",
         label: "Next step",
+      });
+    }
+
+    if (actions.length === 0 && thinJobPostIssue) {
+      actions.push({
+        title: "Paste fuller job post",
+        detail: thinJobPostIssue.fix,
+        variant: "alert",
+        label: "Add detail",
       });
     }
 

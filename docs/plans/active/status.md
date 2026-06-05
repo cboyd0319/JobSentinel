@@ -51,10 +51,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
-- Dashboard posting-risk filters now use the same review-alert rule as visible
-  job-card cues, so low-score or unavailable-score stale/repost evidence appears
-  under **Needs Review** and stays out of **Lower Risk**.
-- Saved searches now preserve the posting-risk filter instead of dropping it.
+- Resume Match next actions now treat "not enough job-post detail" as a job-post
+  input problem, using the backend fix to ask for a fuller posting instead of
+  pointing users at resume readability edits.
 
 - Resume Match model types, validators, JSON parsing, fit-status copy, and
   suggestion-category labels moved from `src/pages/ResumeOptimizer.tsx` to
