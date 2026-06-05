@@ -14,10 +14,11 @@ describe("Setup Wizard preference helpers", () => {
 
     expect(config.location_preferences).toMatchObject({
       allow_remote: true,
-      allow_hybrid: false,
-      allow_onsite: false,
+      allow_hybrid: true,
+      allow_onsite: true,
       cities: [],
     });
+    expect(config.salary_floor_usd).toBe(0);
     expect(config.alerts.desktop.enabled).toBe(false);
     expect(config.alerts.desktop.play_sound).toBe(false);
     expect(config.alerts.desktop.show_when_focused).toBe(false);

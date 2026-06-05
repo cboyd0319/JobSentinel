@@ -344,6 +344,8 @@ Out of scope:
   partial, or only implied.
 - [x] Add future-opportunity, talent-pool, and we-are-hiring titles to
   low-detail posting warnings.
+- [x] Keep first-run/profile defaults broad by selecting all work-location
+  modes and leaving salary floor unset until user choice.
 
 ## Orchestration Log
 
@@ -405,6 +407,9 @@ Out of scope:
 - Coordinator aligned frontend low-detail posting guidance with backend
   vague-title evidence for future-opportunity, talent-pool, and we-are-hiring
   titles.
+- Coordinator removed silent first-run narrowing by making default/profile
+  searches include remote, hybrid, and on-site while leaving pay floor unset
+  until the user enters one.
 - Pay-protection sidecar was read-only and changed no files. Coordinator
   accepted its finding that negotiation-note drafts could treat benchmark
   values as offer facts, then fixed the Salary page, dev mock, tests, feature

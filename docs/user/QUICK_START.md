@@ -168,8 +168,10 @@ Pick any combination:
 - **Hybrid** - Mix of office and home
 - **On-site** - Full-time in the office
 
-Choose at least one option. JobSentinel will ask you to pick one before you
-continue, because a search with no work location cannot return useful jobs.
+All three options start selected so your first search is broad. Uncheck any
+work modes you do not want. JobSentinel will ask you to keep at least one
+option selected, because a search with no work location cannot return useful
+jobs.
 
 ### Question 7: Should fresh and verified jobs show first?
 

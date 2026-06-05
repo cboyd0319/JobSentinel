@@ -229,8 +229,8 @@ export function createDefaultSetupConfig(
     keywords_exclude: [],
     location_preferences: {
       allow_remote: true,
-      allow_hybrid: false,
-      allow_onsite: false,
+      allow_hybrid: true,
+      allow_onsite: true,
       cities: [],
     },
     salary_floor_usd: 0,

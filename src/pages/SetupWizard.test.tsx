@@ -265,7 +265,7 @@ describe("SetupWizard Accessibility", () => {
       expect(screen.getByText("Scheduling")).toBeInTheDocument();
       expect(screen.getByText("Rank lower")).toBeInTheDocument();
       expect(screen.getByText("night shift")).toBeInTheDocument();
-      expect(screen.getByText("remote")).toBeInTheDocument();
+      expect(screen.getByText("remote, hybrid, on-site")).toBeInTheDocument();
       expect(review.getByText("Freshness")).toBeInTheDocument();
       expect(review.getByText("Fresh and verified first")).toBeInTheDocument();
       expect(review.getByText("Review list")).toBeInTheDocument();
@@ -697,7 +697,15 @@ describe("SetupWizard Accessibility", () => {
       const remoteOption = await screen.findByRole("checkbox", {
         name: /remote: work from anywhere/i,
       });
+      const hybridOption = screen.getByRole("checkbox", {
+        name: /hybrid: mix of remote and office/i,
+      });
+      const onsiteOption = screen.getByRole("checkbox", {
+        name: /on-site: work from the office/i,
+      });
       fireEvent.keyDown(remoteOption, { key: " " });
+      fireEvent.keyDown(hybridOption, { key: " " });
+      fireEvent.keyDown(onsiteOption, { key: " " });
 
       const continueButton = screen.getByRole("button", { name: /^continue$/i });
       expect(continueButton).toBeDisabled();

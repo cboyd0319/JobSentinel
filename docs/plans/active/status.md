@@ -51,6 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- First-run setup and profile presets now start with remote, hybrid, and
+  on-site selected and no preset salary floor, so new users do not silently
+  narrow results before choosing.
+
 - Low-detail posting guidance now includes future-opportunity, talent-pool, and
   we-are-hiring titles so card warnings and filters match backend vague-title
   evidence more closely.

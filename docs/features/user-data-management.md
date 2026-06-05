@@ -78,6 +78,9 @@ alerts. Plain labels should describe alert destinations and fit level
 instead of service internals.
 First-run desktop alerts start off and are saved only after the user turns them
 on. External alert channels stay optional and are configured later in Settings.
+First-run profile suggestions do not set a salary floor or narrow work-location
+modes without user choice. Location starts broad across remote, hybrid, and
+on-site, and pay stays unset unless the user enters a floor.
 
 ### Safe Support Reports
 

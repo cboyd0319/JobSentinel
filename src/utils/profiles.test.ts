@@ -70,10 +70,11 @@ describe("profiles", () => {
       expect(config.title_blocklist).toEqual(profile.titleBlocklist);
       expect(config.keywords_boost).toEqual(profile.keywordsBoost);
       expect(config.keywords_exclude).toEqual(profile.keywordsExclude);
-      expect(config.location_preferences.allow_remote).toBe(profile.locationPreferences.allow_remote);
-      expect(config.location_preferences.allow_hybrid).toBe(profile.locationPreferences.allow_hybrid);
-      expect(config.location_preferences.allow_onsite).toBe(profile.locationPreferences.allow_onsite);
+      expect(config.location_preferences.allow_remote).toBe(true);
+      expect(config.location_preferences.allow_hybrid).toBe(true);
+      expect(config.location_preferences.allow_onsite).toBe(true);
       expect(config.location_preferences.cities).toEqual([]);
+      expect(config.salary_floor_usd).toBe(0);
       expect(config.alerts.desktop.enabled).toBe(false);
       expect(config.alerts.desktop.play_sound).toBe(false);
       expect(config.alerts.desktop.show_when_focused).toBe(false);

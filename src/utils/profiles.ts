@@ -607,10 +607,12 @@ export function profileToConfig(profile: CareerProfile) {
     keywords_boost: [...profile.keywordsBoost],
     keywords_exclude: [...profile.keywordsExclude],
     location_preferences: {
-      ...profile.locationPreferences,
+      allow_remote: true,
+      allow_hybrid: true,
+      allow_onsite: true,
       cities: [] as string[],
     },
-    salary_floor_usd: profile.salaryFloor,
+    salary_floor_usd: 0,
     alerts: {
       slack: {
         enabled: false,
