@@ -617,7 +617,7 @@ export function profileToConfig(profile: CareerProfile) {
         webhook_url: "",
       },
       desktop: {
-        enabled: true,
+        enabled: false,
         play_sound: false,
         show_when_focused: false,
       },

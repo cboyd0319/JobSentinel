@@ -334,6 +334,8 @@ Out of scope:
   category instead of generic work authorization.
 - [x] Add file-size headroom by splitting the Resume Match fit-breakdown row
   out of `src/pages/Resume.tsx`.
+- [x] Keep first-run desktop alerts off until the user explicitly turns them
+  on.
 
 ## Orchestration Log
 
@@ -380,6 +382,8 @@ Out of scope:
   while keeping older work-authorization citizenship payloads readable.
 - Coordinator moved the Resume Match fit-breakdown row into a focused
   component so the main Resume page stays farther from the harness line limit.
+- Coordinator changed first-run desktop alerts from quiet-on to explicit opt-in
+  so shared-device notifications do not start without user choice.
 - Pay-protection sidecar was read-only and changed no files. Coordinator
   accepted its finding that negotiation-note drafts could treat benchmark
   values as offer facts, then fixed the Salary page, dev mock, tests, feature

@@ -76,6 +76,8 @@ first-run setup keeps them off until the user checks those sources in review.
 Notification settings control which saved searches and job sources can create
 alerts. Plain labels should describe alert destinations and fit level
 instead of service internals.
+First-run desktop alerts start off and are saved only after the user turns them
+on. External alert channels stay optional and are configured later in Settings.
 
 ### Safe Support Reports
 

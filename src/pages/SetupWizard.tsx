@@ -285,6 +285,21 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
     }));
   };
 
+  const handleDesktopAlertsChange = (enabled: boolean) => {
+    setConfig((prev) => ({
+      ...prev,
+      alerts: {
+        ...prev.alerts,
+        desktop: {
+          ...prev.alerts.desktop,
+          enabled,
+          play_sound: enabled ? prev.alerts.desktop.play_sound : false,
+          show_when_focused: false,
+        },
+      },
+    }));
+  };
+
   const handleToggleJobSource = (
     source: SetupJobSourceKey,
     enabled: boolean,
@@ -1045,13 +1060,37 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
 
               <div className="mb-6">
                 <p className="text-surface-600 mb-4 text-center">
-                  Get notified when JobSentinel finds roles that fit your saved search
+                  Desktop alerts are optional. Turn them on only if you want this computer
+                  to show job-search notifications.
                 </p>
                 
                 <div className="mb-6 rounded-lg border-2 border-surface-200 p-4">
                   <p className="font-medium text-surface-700">Alerts</p>
                   <p className="mt-1 text-sm text-surface-500">
-                    Start with desktop alerts now. Email or chat alerts can be added later in Settings.
+                    Email or chat alerts can be added later in Settings.
+                  </p>
+                  <label
+                    className="mt-4 flex cursor-pointer items-start gap-3 rounded-lg border border-surface-200 bg-surface-50 p-3"
+                    htmlFor="desktop-alerts"
+                  >
+                    <input
+                      id="desktop-alerts"
+                      type="checkbox"
+                      checked={config.alerts.desktop.enabled}
+                      onChange={(e) => handleDesktopAlertsChange(e.target.checked)}
+                      className="mt-1 h-4 w-4 rounded border-surface-300 text-sentinel-500 focus-visible:ring-sentinel-500"
+                    />
+                    <span>
+                      <span className="block font-medium text-surface-800">
+                        Desktop alerts
+                      </span>
+                      <span className="block text-sm text-surface-500">
+                        Show job-search notifications on this computer.
+                      </span>
+                    </span>
+                  </label>
+                  <p className="mt-3 text-sm text-surface-500">
+                    {searchSummary.alerts}
                   </p>
                   <label
                     className="mt-4 flex cursor-pointer items-start gap-3 rounded-lg border border-surface-200 bg-surface-50 p-3"
@@ -1061,6 +1100,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                       id="quiet-alert-mode"
                       type="checkbox"
                       checked={!config.alerts.desktop.play_sound}
+                      disabled={!config.alerts.desktop.enabled}
                       onChange={(e) => handleQuietAlertModeChange(e.target.checked)}
                       className="mt-1 h-4 w-4 rounded border-surface-300 text-sentinel-500 focus-visible:ring-sentinel-500"
                     />
@@ -1069,7 +1109,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                         Quiet job-search mode
                       </span>
                       <span className="block text-sm text-surface-500">
-                        Use desktop alerts without sound. Good for a private or quieter search.
+                        No sound. Good for a private or quieter search.
                       </span>
                     </span>
                   </label>

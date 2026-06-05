@@ -278,7 +278,7 @@ describe("SetupWizard Accessibility", () => {
         screen.getByText("At least $65,000/year"),
       ).toBeInTheDocument();
       expect(
-        screen.getByText(/roles that fit your saved search/i),
+        screen.getByText(/desktop alerts are optional/i),
       ).toBeInTheDocument();
       expect(screen.getByText(/saves your search on this computer/i)).toBeInTheDocument();
       expect(screen.getByText(/can contact only checked job sources in this review/i)).toBeInTheDocument();
@@ -339,9 +339,7 @@ describe("SetupWizard Accessibility", () => {
       await user.click(screen.getByRole("button", { name: /^continue$/i }));
       await user.click(screen.getByRole("button", { name: /^continue$/i }));
 
-      expect(
-        screen.getByText(/desktop alerts now/i),
-      ).toBeInTheDocument();
+      expect(screen.getByText(/desktop alerts are optional/i)).toBeInTheDocument();
       expect(screen.getByText(/email or chat alerts can be added later in settings/i)).toBeInTheDocument();
       expect(screen.queryByText(/in-app alerts/i)).not.toBeInTheDocument();
       expect(screen.queryByLabelText(/slack connection link/i)).not.toBeInTheDocument();
@@ -425,7 +423,7 @@ describe("SetupWizard Accessibility", () => {
       });
     });
 
-    it("starts with quiet job-search alerts without extra channels", async () => {
+    it("keeps desktop alerts off until the user turns them on", async () => {
       const user = userEvent.setup();
       mockInvoke.mockResolvedValue(undefined);
       renderWithProviders(<SetupWizard onComplete={mockOnComplete} />);
@@ -435,10 +433,13 @@ describe("SetupWizard Accessibility", () => {
       await user.click(screen.getByRole("button", { name: /^continue$/i }));
       await user.click(screen.getByRole("button", { name: /^continue$/i }));
 
-      expect(screen.getByRole("checkbox", { name: /quiet job-search mode/i })).toBeChecked();
+      expect(screen.getByRole("checkbox", { name: /desktop alerts/i })).not.toBeChecked();
+      expect(screen.getByRole("checkbox", { name: /quiet job-search mode/i })).toBeDisabled();
 
       expect(screen.getAllByText("Alerts").length).toBeGreaterThan(0);
-      expect(screen.getByText("Quiet desktop alerts; no sound")).toBeInTheDocument();
+      expect(
+        screen.getAllByText("Desktop alerts off; add alerts later in Settings").length,
+      ).toBeGreaterThan(0);
       expect(screen.queryByLabelText(/slack connection link/i)).not.toBeInTheDocument();
 
       await user.click(screen.getByRole("button", { name: /start finding jobs/i }));
@@ -451,7 +452,7 @@ describe("SetupWizard Accessibility", () => {
               title_allowlist: ["Office Manager"],
               alerts: expect.objectContaining({
                 desktop: expect.objectContaining({
-                  enabled: true,
+                  enabled: false,
                   play_sound: false,
                   show_when_focused: false,
                 }),
@@ -475,10 +476,12 @@ describe("SetupWizard Accessibility", () => {
       await user.click(screen.getByRole("button", { name: /^continue$/i }));
       await user.click(screen.getByRole("button", { name: /^continue$/i }));
 
+      await user.click(screen.getByRole("checkbox", { name: /desktop alerts/i }));
       await user.click(screen.getByRole("checkbox", { name: /quiet job-search mode/i }));
 
+      expect(screen.getByRole("checkbox", { name: /desktop alerts/i })).toBeChecked();
       expect(screen.getByRole("checkbox", { name: /quiet job-search mode/i })).not.toBeChecked();
-      expect(screen.getByText("Desktop alerts with sound")).toBeInTheDocument();
+      expect(screen.getAllByText("Desktop alerts with sound").length).toBeGreaterThan(0);
 
       await user.click(screen.getByRole("button", { name: /start finding jobs/i }));
 

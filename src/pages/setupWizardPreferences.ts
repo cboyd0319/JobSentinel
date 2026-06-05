@@ -240,7 +240,7 @@ export function createDefaultSetupConfig(
         webhook_url: "",
       },
       desktop: {
-        enabled: true,
+        enabled: false,
         play_sound: false,
         show_when_focused: false,
       },
@@ -418,9 +418,11 @@ export function buildSetupSearchSummary(
     freshness: freshnessSummary(freshnessPreference),
     reviewVolume: reviewVolumeSummary(reviewVolumePreference),
     jobSources: formatJobSourceSummary(config),
-    alerts: config.alerts.desktop.play_sound
-      ? "Desktop alerts with sound"
-      : "Quiet desktop alerts; no sound",
+    alerts: !config.alerts.desktop.enabled
+      ? "Desktop alerts off; add alerts later in Settings"
+      : config.alerts.desktop.play_sound
+        ? "Desktop alerts with sound"
+        : "Quiet desktop alerts; no sound",
     pay:
       config.salary_floor_usd > 0
         ? `At least $${config.salary_floor_usd.toLocaleString()}/year`

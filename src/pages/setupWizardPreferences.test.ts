@@ -18,7 +18,7 @@ describe("Setup Wizard preference helpers", () => {
       allow_onsite: false,
       cities: [],
     });
-    expect(config.alerts.desktop.enabled).toBe(true);
+    expect(config.alerts.desktop.enabled).toBe(false);
     expect(config.alerts.desktop.play_sound).toBe(false);
     expect(config.alerts.desktop.show_when_focused).toBe(false);
     expect(config.alerts.slack.webhook_url).toBe("");
@@ -103,6 +103,14 @@ describe("Setup Wizard preference helpers", () => {
       jobSources: "No outside job sources selected; add reviewed sources in Settings.",
       alerts: "Quiet desktop alerts; no sound",
       pay: "At least $60,000/year",
+    });
+  });
+
+  it("summarizes desktop alerts as off until the user turns them on", () => {
+    const config = createDefaultSetupConfig();
+
+    expect(buildSetupSearchSummary(config, "balanced", "balanced")).toMatchObject({
+      alerts: "Desktop alerts off; add alerts later in Settings",
     });
   });
 

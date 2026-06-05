@@ -193,8 +193,8 @@ Pick how broad the first results and alerts should feel:
 
 ### Question 9: Want instant alerts? (Optional)
 
-Turn on desktop alerts if you want the easiest notification path. They do not
-need another account.
+Desktop alerts start off. Turn them on if you want the easiest notification
+path. They do not need another account.
 
 Turn on **Quiet job-search mode** if you want desktop alerts without sound for
 a more private or quieter search.

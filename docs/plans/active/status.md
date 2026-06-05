@@ -51,6 +51,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- First-run desktop alerts now start off and require explicit opt-in before
+  setup saves job-search notifications for this computer.
+
 - Resume Match page-size headroom improved by moving the fit-breakdown row
   into a focused component while preserving build output and UI behavior.
 
@@ -218,8 +221,8 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
   and config deserialization, so old or partial configs stay quiet unless the
   user turns sound on.
 
-- First-run desktop alerts now start in quiet mode with no sound, while users
-  can still turn sound back on before saving setup.
+- First-run desktop alerts now start off and save only after explicit opt-in,
+  while users can still turn sound back on before saving setup.
 
 - Job cards now show visible source-review cues for job boards, connected
   feeds, saved links, sample jobs, custom labels, and missing source labels,
