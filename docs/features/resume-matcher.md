@@ -215,8 +215,9 @@ The current local matcher:
 - flags recognized missing or weakly supported hard requirements such as
   authorization, location, citizenship, schedule, availability, commute or
   transportation, travel, years of experience, language fluency, background or
-  drug screening, physical demands, license, certification, degree, or
-  clearance and limits the fit label until the user verifies the requirement;
+  drug screening, driving record, auto insurance or insured vehicle, physical
+  demands, license, certification, degree, or clearance and limits the fit label
+  until the user verifies the requirement;
 - treats explicit **degree or equivalent experience** wording, including
   equivalent combinations of education and experience, as
   experience-compatible evidence instead of a missing exact-degree hard cap;
@@ -339,6 +340,10 @@ The current local matcher:
   local location evidence for required relocation constraints;
 - treats **reliable transportation** and **own transportation** as the same
   local location evidence for required commute or transportation constraints;
+- treats **reliable vehicle**, **insured vehicle**, **proof of auto
+  insurance**, **proof of insurance**, **auto insurance**, and **vehicle
+  insurance** as local vehicle or insurance evidence for required field-work
+  constraints;
 - treats **commute** and **commuting** as the same local commute evidence;
 - treats **night shift**, **overnight shift**, **third shift**, and **3rd
   shift** as the same local schedule evidence for required night-shift
@@ -372,6 +377,9 @@ The current local matcher:
   as the same local credential evidence;
 - treats **driver's license**, **drivers license**, and **driver license** as
   the same local license evidence;
+- treats **clean driving record**, **acceptable driving record**, **driving
+  record**, **MVR**, and **motor vehicle record** as the same local driving
+  screening evidence;
 - treats **CDL**, **commercial driver's license**, **commercial drivers
   license**, and **commercial driver license** as the same local commercial
   driving-license evidence without adding a duplicate generic driver-license

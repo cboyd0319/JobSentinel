@@ -114,6 +114,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 - First-run setup now accepts hourly pay floors, saves the annual equivalent
   for local pay comparisons, and keeps the hourly meaning visible in review.
 
+- Resume Match now treats clean driving record, MVR, proof of auto insurance,
+  and insured-vehicle wording as hard requirements with conservative evidence
+  equivalence.
+
 - Job cards now run unsafe saved-link checks before custom dashboard open
   handlers, so visible **Check job link** guidance cannot be bypassed by a
   callback path.

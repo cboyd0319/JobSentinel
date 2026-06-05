@@ -354,6 +354,8 @@ Out of scope:
   comparison floors without losing hourly review copy.
 - [x] Route possible scam-sign card warnings through the Posting Risk filters
   so **Lower Risk** and **Needs Review** match card guidance.
+- [x] Treat clean-driving-record, MVR, auto-insurance, and insured-vehicle
+  wording as Resume Match hard requirements.
 
 ## Orchestration Log
 
@@ -429,6 +431,9 @@ Out of scope:
   setup review.
 - Coordinator shared possible-scam posting cues with the Posting Risk filters
   so red scam-sign card warnings no longer stay in **Lower Risk** results.
+- Coordinator added Resume Match hard-constraint extraction and conservative
+  equivalence for clean driving record, MVR, proof of auto insurance, and
+  insured-vehicle wording.
 - Pay-protection sidecar was read-only and changed no files. Coordinator
   accepted its finding that negotiation-note drafts could treat benchmark
   values as offer facts, then fixed the Salary page, dev mock, tests, feature

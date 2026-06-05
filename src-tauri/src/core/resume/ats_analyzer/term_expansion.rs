@@ -108,6 +108,14 @@ pub(super) fn conservative_keyword_search_terms(keyword_lower: &str) -> Vec<Stri
         ],
         &["relocation", "relocate", "willing to relocate"],
         &["reliable transportation", "own transportation"],
+        &["reliable vehicle", "insured vehicle"],
+        &[
+            "proof of auto insurance",
+            "proof of insurance",
+            "auto insurance",
+            "vehicle insurance",
+            "insured vehicle",
+        ],
         &["commute", "commuting"],
         &["night shift", "overnight shift", "third shift", "3rd shift"],
         &["weekend availability", "weekend shift", "weekend shifts"],
@@ -171,6 +179,13 @@ pub(super) fn conservative_keyword_search_terms(keyword_lower: &str) -> Vec<Stri
         &["acls", "advanced cardiovascular life support"],
         &["cpr", "cardiopulmonary resuscitation"],
         &["driver's license", "drivers license", "driver license"],
+        &[
+            "clean driving record",
+            "acceptable driving record",
+            "driving record",
+            "mvr",
+            "motor vehicle record",
+        ],
         &[
             "cdl",
             "commercial driver's license",

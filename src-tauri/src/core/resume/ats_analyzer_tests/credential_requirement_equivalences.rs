@@ -1,4 +1,4 @@
-use crate::core::resume::{AtsAnalyzer, RequirementMatchState};
+use crate::core::resume::{AtsAnalyzer, HardConstraintCategory, RequirementMatchState};
 
 #[test]
 fn test_drivers_license_requirement_accepts_driver_license_evidence() {
@@ -68,6 +68,92 @@ fn test_commercial_driver_license_requirement_accepts_cdl_evidence() {
         ["driver's license", "drivers license", "driver license"]
             .contains(&risk.requirement.as_str())
     }));
+}
+
+#[test]
+fn test_clean_driving_record_requirement_caps_when_missing() {
+    let result = AtsAnalyzer::analyze_text_for_job(
+        "Jordan Lee\njordan@example.com\n\nLicenses\nDriver license",
+        &[],
+        "Required: clean driving record",
+    );
+
+    let driving_record = result
+        .requirement_reviews
+        .iter()
+        .find(|review| review.keyword == "clean driving record")
+        .expect("clean driving record review");
+    assert_eq!(driving_record.match_state, RequirementMatchState::Missing);
+    assert!(driving_record.hard_constraint);
+    assert!(result.hard_constraint_risks.iter().any(|risk| {
+        risk.requirement == "clean driving record"
+            && risk.category == HardConstraintCategory::BackgroundScreening
+            && risk.action.contains("driving record")
+    }));
+}
+
+#[test]
+fn test_mvr_requirement_accepts_motor_vehicle_record_evidence() {
+    let result = AtsAnalyzer::analyze_text_for_job(
+        "Jordan Lee\njordan@example.com\n\nScreening\nMotor vehicle record reviewed for field work.",
+        &[],
+        "Required: MVR",
+    );
+
+    let mvr = result
+        .requirement_reviews
+        .iter()
+        .find(|review| review.keyword == "mvr")
+        .expect("mvr review");
+    assert_eq!(mvr.match_state, RequirementMatchState::Direct);
+    assert!(mvr.hard_constraint);
+    assert!(!result
+        .hard_constraint_risks
+        .iter()
+        .any(|risk| risk.requirement == "mvr"));
+}
+
+#[test]
+fn test_auto_insurance_requirement_caps_when_missing() {
+    let result = AtsAnalyzer::analyze_text_for_job(
+        "Jordan Lee\njordan@example.com\n\nLicenses\nDriver license",
+        &[],
+        "Required: proof of auto insurance",
+    );
+
+    let insurance = result
+        .requirement_reviews
+        .iter()
+        .find(|review| review.keyword == "proof of auto insurance")
+        .expect("auto insurance review");
+    assert_eq!(insurance.match_state, RequirementMatchState::Missing);
+    assert!(insurance.hard_constraint);
+    assert!(result.hard_constraint_risks.iter().any(|risk| {
+        risk.requirement == "proof of auto insurance"
+            && risk.category == HardConstraintCategory::Location
+            && risk.action.contains("auto insurance")
+    }));
+}
+
+#[test]
+fn test_auto_insurance_requirement_accepts_insured_vehicle_evidence() {
+    let result = AtsAnalyzer::analyze_text_for_job(
+        "Jordan Lee\njordan@example.com\n\nSummary\nReliable insured vehicle for client visits.",
+        &[],
+        "Required: proof of auto insurance",
+    );
+
+    let insurance = result
+        .requirement_reviews
+        .iter()
+        .find(|review| review.keyword == "proof of auto insurance")
+        .expect("auto insurance review");
+    assert_eq!(insurance.match_state, RequirementMatchState::Direct);
+    assert!(insurance.hard_constraint);
+    assert!(!result
+        .hard_constraint_risks
+        .iter()
+        .any(|risk| risk.requirement == "proof of auto insurance"));
 }
 
 #[test]

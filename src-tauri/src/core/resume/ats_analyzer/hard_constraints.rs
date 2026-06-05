@@ -74,6 +74,10 @@ pub(super) fn hard_constraint_action(keyword: &str, category: HardConstraintCate
         return "Check citizenship before tailoring. If it is not true for you, do not claim it. Do not treat work authorization as citizenship."
             .to_string();
     }
+    if driving_record_constraint_keyword(keyword) || vehicle_insurance_constraint_keyword(keyword) {
+        return "Check driving record, vehicle, or auto insurance before tailoring. If it is not current, workable, or true for you, do not claim it."
+            .to_string();
+    }
 
     let action = match category {
         HardConstraintCategory::WorkAuthorization => {
@@ -108,6 +112,21 @@ pub(super) fn hard_constraint_action(keyword: &str, category: HardConstraintCate
         }
     };
     action.to_string()
+}
+
+fn driving_record_constraint_keyword(keyword: &str) -> bool {
+    let lower = keyword.to_lowercase();
+    lower.contains("driving record") || lower == "mvr" || lower.contains("motor vehicle record")
+}
+
+fn vehicle_insurance_constraint_keyword(keyword: &str) -> bool {
+    let lower = keyword.to_lowercase();
+    lower.contains("proof of auto insurance")
+        || lower.contains("proof of insurance")
+        || lower.contains("auto insurance")
+        || lower.contains("vehicle insurance")
+        || lower.contains("insured vehicle")
+        || lower.contains("reliable vehicle")
 }
 
 pub(super) fn citizenship_constraint_keyword(keyword: &str) -> bool {
@@ -226,6 +245,7 @@ pub(super) fn hard_constraint_category(keyword: &str) -> Option<HardConstraintCa
         || lower.contains("drug screening")
         || lower.contains("drug test")
         || lower.contains("drug testing")
+        || driving_record_constraint_keyword(&lower)
     {
         return Some(HardConstraintCategory::BackgroundScreening);
     }
@@ -248,6 +268,7 @@ pub(super) fn hard_constraint_category(keyword: &str) -> Option<HardConstraintCa
         || lower.contains("relocate")
         || lower.contains("travel")
         || lower.contains("transportation")
+        || vehicle_insurance_constraint_keyword(&lower)
         || lower.contains("commute")
         || lower.contains("commuting")
         || lower.contains("availability")
@@ -292,13 +313,14 @@ pub(super) fn extract_hard_constraint_keywords(text: &str) -> Vec<String> {
         r"(?i)\b(security clearance|clearance)\b",
         r"(?i)\bsecurity\+",
         r"(?i)\b(commercial driver'?s license|commercial driver license|driver'?s license|driver license|cdl|rn license|registered nurse license|nursing license|lpn|lvn|licensed practical nurse|licensed vocational nurse)\b",
+        r"(?i)\b(clean driving record|acceptable driving record|driving record|mvr|motor vehicle record)\b",
         r"(?i)\b(certification|cissp|certified information systems security professional|security plus|bls|basic life support|acls|advanced cardiovascular life support|cpr|cardiopulmonary resuscitation|cna|certified nursing assistant|certified nurse assistant|certified nurse aide|pmp|project management professional|servsafe|food safety certification|food[- ]handler'?s?\s+(?:certification|certificate|permit|card)|first[- ]aid certification|first[- ]aid certified|first[- ]aid certificate|first[- ]aid|forklift certification|forklift certified|forklift operator certification|forklift operator certified|forklift license|forklift operator license|osha\s*10(?:[- ]hour)?(?:\s+certification)?|osha\s*30(?:[- ]hour)?(?:\s+certification)?)\b",
         r"(?i)\b(ph\.?d\.?(?:\s+degree)?|doctorate(?:\s+degree)?|doctoral degree|associate'?s degree|associate degree|baccalaureate degree|bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree|high[- ]school diploma|high[- ]school degree|ged|high[- ]school equivalency|general education development)\b",
         r"(?i)\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b",
         r"(?i)\b(bilingual(?:\s+(?:english|spanish|french|mandarin|cantonese|arabic|portuguese|german|japanese|korean))?|(?:spanish|french|mandarin|cantonese|arabic|portuguese|german|japanese|korean)\s+fluency|fluent(?:\s+in)?\s+(?:spanish|french|mandarin|cantonese|arabic|portuguese|german|japanese|korean)|(?:spanish|french|mandarin|cantonese|arabic|portuguese|german|japanese|korean)\s+language|english/(?:spanish|french|mandarin|cantonese|arabic|portuguese|german|japanese|korean)|english and (?:spanish|french|mandarin|cantonese|arabic|portuguese|german|japanese|korean))\b",
         r"(?i)\b(background checks?|background screenings?|pre[- ]employment screenings?|drug screens?|drug screenings?|drug tests?|drug testing)\b",
         r"(?i)\b(lift(?:\s+up\s+to)?\s+\d+\s*(?:pounds?|lbs?)|(?:stand|standing) for long periods?|physical requirements?|physical demands?)\b",
-        r"(?i)\b(onsite|on-site|on site|remote(?:[- ](?:work|role|position|job))?|hybrid(?:[- ](?:work|role|schedule|position|job))?|relocation|relocate|willing to relocate|travel|reliable transportation|own transportation|commute|commuting|full[- ]time(?:\s+availability)?|part[- ]time(?:\s+availability)?|availability|available|schedule|weekend availability|weekend shifts?|night shift|overnight shift|third shift|3rd shift|evening shift|second shift|2nd shift|day shift|first shift|1st shift|overtime(?:\s+(?:availability|shifts?|hours?))?|holiday(?:\s+(?:availability|shifts?|hours?))?)\b",
+        r"(?i)\b(onsite|on-site|on site|remote(?:[- ](?:work|role|position|job))?|hybrid(?:[- ](?:work|role|schedule|position|job))?|relocation|relocate|willing to relocate|travel|reliable transportation|own transportation|reliable vehicle|insured vehicle|proof of auto insurance|proof of insurance|auto insurance|vehicle insurance|commute|commuting|full[- ]time(?:\s+availability)?|part[- ]time(?:\s+availability)?|availability|available|schedule|weekend availability|weekend shifts?|night shift|overnight shift|third shift|3rd shift|evening shift|second shift|2nd shift|day shift|first shift|1st shift|overtime(?:\s+(?:availability|shifts?|hours?))?|holiday(?:\s+(?:availability|shifts?|hours?))?)\b",
     ];
 
     for pattern in &hard_constraint_patterns {
