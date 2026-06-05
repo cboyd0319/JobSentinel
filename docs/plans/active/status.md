@@ -422,6 +422,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 - JobCard posting-risk guidance tests moved out of the main JobCard test file
   into a focused frontend test file.
 
+- Mock resume-analysis availability and location hard-constraint tests moved
+  out of the main command test file into a focused frontend mock-handler test.
+
 ## Recent Completed Slices
 
 Detailed implementation history before the current restart window is in the

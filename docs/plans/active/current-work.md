@@ -847,6 +847,11 @@ Out of scope:
   `src/components/JobCard.postingRisk.test.tsx`. The main JobCard test file
   still owns rendering, score display, salary, dates, actions, selected state,
   and accessibility coverage.
+- Coordinator moved mock resume-analysis availability and location
+  hard-constraint tests into
+  `src/mocks/handlers/resumeAnalysisAvailabilityConstraints.test.ts`. The main
+  mock resume-analysis command test still owns backend command-name coverage,
+  synonym evidence, seniority constraints, and active-resume hard-risk checks.
 
 ## Risks
 
