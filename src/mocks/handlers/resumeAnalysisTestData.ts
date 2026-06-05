@@ -30,6 +30,7 @@ export type AtsAnalysisResult = {
       | "LicenseOrCertification"
       | "Education"
       | "Experience"
+      | "Language"
       | "BackgroundScreening"
       | "PhysicalRequirement"
       | "Location";

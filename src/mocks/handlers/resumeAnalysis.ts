@@ -7,6 +7,7 @@ export type MockHardConstraintCategory =
   | "LicenseOrCertification"
   | "Education"
   | "Experience"
+  | "Language"
   | "BackgroundScreening"
   | "PhysicalRequirement"
   | "Location";
@@ -71,6 +72,18 @@ export interface MockAtsKeyword {
   keyword: string;
   importance: MockKeywordImportance;
 }
+
+export const MOCK_HUMAN_LANGUAGES = [
+  "spanish",
+  "french",
+  "mandarin",
+  "cantonese",
+  "arabic",
+  "portuguese",
+  "german",
+  "japanese",
+  "korean",
+] as const;
 
 export const ATS_POWER_WORDS = [
   "led",

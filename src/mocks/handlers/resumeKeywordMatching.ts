@@ -1,5 +1,6 @@
 import {
   ATS_KNOWN_KEYWORDS,
+  MOCK_HUMAN_LANGUAGES,
   type MockAtsKeyword,
   type MockKeywordImportance,
 } from "./resumeAnalysis";
@@ -160,6 +161,7 @@ function canonicalMockRequirementKeyword(keyword: string): string {
 }
 
 function extractMockHardConstraintKeywords(jobDescription: string): string[] {
+  const languageAlternation = MOCK_HUMAN_LANGUAGES.join("|");
   const patterns = [
     /\b(work authorization|authorized to work|visa sponsorship|u\.?s\.?\s+citizenship|u\.?s\.?\s+citizen|citizenship required)\b/gi,
     /\b(security clearance|clearance)\b/gi,
@@ -169,6 +171,10 @@ function extractMockHardConstraintKeywords(jobDescription: string): string[] {
     /\b(certification|cissp|certified information systems security professional|security plus|bls|basic life support|acls|advanced cardiovascular life support|cpr|cardiopulmonary resuscitation|cna|certified nursing assistant|certified nurse assistant|certified nurse aide|pmp|project management professional|servsafe|food safety certification|food[- ]handler certification|food[- ]handler certificate|food[- ]handler permit|food[- ]handlers permit|food[- ]handler card|first[- ]aid certification|first[- ]aid certified|first[- ]aid certificate|first[- ]aid|forklift certification|forklift operator certification|forklift certified|forklift license|forklift operator license|osha\s*10(?:[- ]hour)?(?:\s+certification)?|osha\s*30(?:[- ]hour)?(?:\s+certification)?)\b/gi,
     /\b(ph\.?d\.?(?:\s+degree)?|doctorate(?:\s+degree)?|doctoral degree|associate'?s degree|associate degree|baccalaureate degree|bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree|high[- ]school diploma|high[- ]school degree|ged|high[- ]school equivalency|general education development)\b/gi,
     /\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b/gi,
+    new RegExp(
+      String.raw`\b(bilingual(?:\s+(?:english|${languageAlternation}))?|(?:${languageAlternation})\s+fluency|fluent(?:\s+in)?\s+(?:${languageAlternation})|(?:${languageAlternation})\s+language|english/(?:${languageAlternation})|english and (?:${languageAlternation}))\b`,
+      "gi",
+    ),
     /\b(background checks?|background screenings?|pre[- ]employment screenings?|drug screens?|drug screenings?|drug tests?|drug testing)\b/gi,
     /\b(lift(?:\s+up\s+to)?\s+\d+\s*(?:pounds?|lbs?)|(?:stand|standing) for long periods?|physical requirements?|physical demands?)\b/gi,
     /\b(onsite|on-site|on site|remote(?:[- ](?:work|role|position|job))?|hybrid(?:[- ](?:work|role|schedule|position|job))?|relocation|relocate|willing to relocate|travel|reliable transportation|own transportation|commute|commuting|availability|available|schedule|weekend availability|weekend shifts?|night shift|overnight shift|third shift|3rd shift|evening shift|second shift|2nd shift|day shift|first shift|1st shift|overtime(?: availability| shifts?)?|holiday(?: availability| shifts?)?|full[- ]time(?: availability)?|part[- ]time(?: availability)?)\b/gi,
@@ -836,8 +842,30 @@ function getConservativeMockSearchTerms(keyword: string): string[] {
       if (!terms.includes(term)) terms.push(term);
     }
   }
+  extendMockLanguageFluencyTerms(lower, terms);
 
   return terms;
+}
+
+function extendMockLanguageFluencyTerms(keywordLower: string, terms: string[]): void {
+  for (const language of MOCK_HUMAN_LANGUAGES) {
+    if (!keywordLower.includes(language)) {
+      continue;
+    }
+
+    for (const term of [
+      `bilingual ${language}`,
+      `${language} fluency`,
+      `fluent ${language}`,
+      `fluent in ${language}`,
+      `${language} language`,
+      `english/${language}`,
+      `english and ${language}`,
+      language,
+    ]) {
+      if (!terms.includes(term)) terms.push(term);
+    }
+  }
 }
 
 function getMockExperienceYearSearchTerms(minYears: number): string[] {

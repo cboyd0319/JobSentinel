@@ -1,3 +1,4 @@
+import { MOCK_HUMAN_LANGUAGES } from "./resumeAnalysis";
 import type {
   MockAtsKeyword,
   MockHardConstraintCategory,
@@ -159,6 +160,8 @@ function getMockHardConstraintAction(
       return "Check the degree or education requirement before tailoring. If it is not true for you, do not claim it.";
     case "Experience":
       return "Check years or level before tailoring. Do not round up, stretch titles, or imply more experience than you have.";
+    case "Language":
+      return "Check language fluency before tailoring. If it is not true for you, do not claim it.";
     case "BackgroundScreening":
       return "Check background, drug, or pre-employment screening before tailoring. If it is not workable or true for you, do not claim or imply that it is.";
     case "PhysicalRequirement":
@@ -188,6 +191,7 @@ function getMockHardConstraintScoreCap(category: MockHardConstraintCategory): nu
       return 60;
     case "Education":
     case "Experience":
+    case "Language":
       return 65;
     case "BackgroundScreening":
       return 70;
@@ -276,6 +280,9 @@ function getMockHardConstraintCategory(keyword: string): MockHardConstraintCateg
   ) {
     return "Experience";
   }
+  if (isMockKnownHumanLanguageRequirement(lower)) {
+    return "Language";
+  }
   if (
     lower.includes("background check") ||
     lower.includes("background screening") ||
@@ -335,4 +342,19 @@ function getMockHardConstraintCategory(keyword: string): MockHardConstraintCateg
     return "Location";
   }
   return null;
+}
+
+function isMockKnownHumanLanguageRequirement(lower: string): boolean {
+  if (lower.includes("bilingual")) {
+    return true;
+  }
+
+  return MOCK_HUMAN_LANGUAGES.some((language) =>
+    lower.includes(`${language} fluency`) ||
+      lower.includes(`fluent ${language}`) ||
+      lower.includes(`fluent in ${language}`) ||
+      lower.includes(`${language} language`) ||
+      lower.includes(`english/${language}`) ||
+      lower.includes(`english and ${language}`),
+  );
 }

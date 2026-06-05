@@ -82,11 +82,21 @@ describe("mock resume analysis command handlers", () => {
           keyword: "bilingual",
           match_state: "Missing",
           evidence_sections: [],
+          hard_constraint: true,
           recommendation: expect.stringContaining("Only add it if true"),
         }),
       ]),
     );
-    expect(jobResult.hard_constraint_risks).toEqual([]);
+    expect(jobResult.hard_constraint_risks).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          requirement: "bilingual",
+          category: "Language",
+          score_cap: 65,
+          action: expect.stringContaining("Check language fluency before tailoring"),
+        }),
+      ]),
+    );
     expect(jobResult.missing_keyword_details).toEqual(
       expect.arrayContaining([
         expect.objectContaining({

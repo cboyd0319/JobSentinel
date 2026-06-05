@@ -51,6 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Dev mock Resume Match now treats bilingual and named-language fluency wording
+  as language hard constraints, matching the Rust analyzer's score cap, action
+  copy, and evidence matching for Spanish and Mandarin examples.
+
 - Active status history was compacted from the old slice log to current restart
   facts, archived-plan provenance, and the next work list so the active plan
   stays below the file-size budget.
