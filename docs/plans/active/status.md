@@ -51,6 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Public wiki `Home.md` and `Capabilities.md` were updated and pushed with
+  current macOS readiness, no-account checksum guidance, hard must-have resume
+  status, and scam-cue behavior.
+
 - Job-card scam cues now catch sensitive-detail requests that appear after
   phrases like "before the interview" as well as before the phrase.
 
