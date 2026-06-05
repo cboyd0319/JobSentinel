@@ -443,6 +443,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 - AtsLiveScorePanel details-modal tests moved out of the main live score panel
   test file into a focused frontend test, with shared resume-analysis fixtures.
 
+- Lever scraper hash and remote-inference property tests moved out of the main
+  Lever test file into a focused Rust child test module.
+
 ## Recent Completed Slices
 
 Detailed implementation history before the current restart window is in the
