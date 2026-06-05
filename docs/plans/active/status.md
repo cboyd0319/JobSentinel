@@ -50,6 +50,16 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Resume database coverage tests moved out of
+  `src-tauri/src/core/resume/tests.rs` into
+  `src-tauri/src/core/resume/tests/database_coverage_tests.rs`.
+- The main resume test file and new child module are below the 1,200-line
+  Rust/test target, so the legacy oversized-file exception was removed.
+- Touched resume test fixture paths now use repo-relative placeholders instead
+  of local absolute paths.
+
+Earlier implementation slice:
+
 - ATS comprehensive status, interview auto-reminder, and application stats edge
   tests moved out of `src-tauri/src/core/ats/tests.rs` into focused child
   modules under `src-tauri/src/core/ats/tests/`.

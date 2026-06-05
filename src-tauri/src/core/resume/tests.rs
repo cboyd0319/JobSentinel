@@ -115,7 +115,7 @@ async fn create_test_resume(pool: &SqlitePool, name: &str, text: &str) -> i64 {
         "INSERT INTO resumes (name, file_path, parsed_text, is_active) VALUES (?, ?, ?, 1)",
     )
     .bind(name)
-    .bind(format!("/tmp/{}.pdf", name))
+    .bind(format!("fixtures/resumes/{}.pdf", name))
     .bind(text)
     .execute(pool)
     .await
@@ -302,7 +302,7 @@ async fn test_set_active_resume() {
         "INSERT INTO resumes (name, file_path, parsed_text, is_active) VALUES (?, ?, ?, 1)",
     )
     .bind("Resume 1")
-    .bind("/tmp/resume1.pdf")
+    .bind("fixtures/resumes/resume1.pdf")
     .bind("Content 1")
     .execute(&pool)
     .await
@@ -313,7 +313,7 @@ async fn test_set_active_resume() {
         "INSERT INTO resumes (name, file_path, parsed_text, is_active) VALUES (?, ?, ?, 0)",
     )
     .bind("Resume 2")
-    .bind("/tmp/resume2.pdf")
+    .bind("fixtures/resumes/resume2.pdf")
     .bind("Content 2")
     .execute(&pool)
     .await
@@ -349,7 +349,7 @@ async fn test_set_active_resume_most_recent() {
         "INSERT INTO resumes (name, file_path, parsed_text, is_active, created_at) VALUES (?, ?, ?, 1, datetime('now', '-2 seconds'))",
     )
     .bind("Resume 1")
-    .bind("/tmp/r1.pdf")
+    .bind("fixtures/resumes/r1.pdf")
     .bind("Content 1")
     .execute(&pool)
     .await
@@ -360,7 +360,7 @@ async fn test_set_active_resume_most_recent() {
         "INSERT INTO resumes (name, file_path, parsed_text, is_active, created_at) VALUES (?, ?, ?, 1, datetime('now'))",
     )
     .bind("Resume 2")
-    .bind("/tmp/r2.pdf")
+    .bind("fixtures/resumes/r2.pdf")
     .bind("Content 2")
     .execute(&pool)
     .await
@@ -431,7 +431,7 @@ async fn test_get_user_skills() {
         "INSERT INTO resumes (name, file_path, parsed_text, is_active) VALUES (?, ?, ?, 1)",
     )
     .bind("Test Resume")
-    .bind("/tmp/test.pdf")
+    .bind("fixtures/resumes/test.pdf")
     .bind("")
     .execute(&pool)
     .await
@@ -687,7 +687,7 @@ async fn test_resume_with_null_parsed_text() {
         "INSERT INTO resumes (name, file_path, parsed_text, is_active) VALUES (?, ?, ?, 1)",
     )
     .bind("Null Resume")
-    .bind("/tmp/null.pdf")
+    .bind("fixtures/resumes/null.pdf")
     .bind::<Option<String>>(None)
     .execute(&pool)
     .await
@@ -708,7 +708,7 @@ async fn test_resume_with_empty_parsed_text() {
         "INSERT INTO resumes (name, file_path, parsed_text, is_active) VALUES (?, ?, ?, 1)",
     )
     .bind("Empty Resume")
-    .bind("/tmp/empty.pdf")
+    .bind("fixtures/resumes/empty.pdf")
     .bind("")
     .execute(&pool)
     .await
@@ -766,7 +766,7 @@ async fn test_multiple_active_resumes() {
         "INSERT INTO resumes (name, file_path, parsed_text, is_active, created_at) VALUES (?, ?, ?, 1, datetime('now', '-3 seconds'))",
     )
     .bind("Resume 1")
-    .bind("/tmp/r1.pdf")
+    .bind("fixtures/resumes/r1.pdf")
     .bind("Content 1")
     .execute(&pool)
     .await
@@ -777,7 +777,7 @@ async fn test_multiple_active_resumes() {
         "INSERT INTO resumes (name, file_path, parsed_text, is_active, created_at) VALUES (?, ?, ?, 1, datetime('now', '-1 second'))",
     )
     .bind("Resume 2")
-    .bind("/tmp/r2.pdf")
+    .bind("fixtures/resumes/r2.pdf")
     .bind("Content 2")
     .execute(&pool)
     .await
@@ -788,7 +788,7 @@ async fn test_multiple_active_resumes() {
         "INSERT INTO resumes (name, file_path, parsed_text, is_active, created_at) VALUES (?, ?, ?, 1, datetime('now'))",
     )
     .bind("Resume 3")
-    .bind("/tmp/r3.pdf")
+    .bind("fixtures/resumes/r3.pdf")
     .bind("Content 3")
     .execute(&pool)
     .await
@@ -845,774 +845,5 @@ async fn test_match_with_special_characters_in_skills() {
     assert!(match_result.overall_match_score <= 1.0);
 }
 
-// Additional database function tests for full coverage
-
-#[tokio::test]
-async fn test_get_resume_success() {
-    let pool = setup_test_db().await;
-    let matcher = ResumeMatcher::new(pool.clone());
-
-    // Insert a resume with all fields
-    let result = sqlx::query(
-        "INSERT INTO resumes (name, file_path, parsed_text, is_active) VALUES (?, ?, ?, 1)",
-    )
-    .bind("Complete Resume")
-    .bind("/tmp/complete.pdf")
-    .bind("Complete content with skills")
-    .execute(&pool)
-    .await
-    .unwrap();
-    let resume_id = result.last_insert_rowid();
-
-    // Test get_resume
-    let resume = matcher.get_resume(resume_id).await.unwrap();
-    assert_eq!(resume.id, resume_id);
-    assert_eq!(resume.name, "Complete Resume");
-    assert_eq!(resume.file_path, "/tmp/complete.pdf");
-    assert_eq!(
-        resume.parsed_text,
-        Some("Complete content with skills".to_string())
-    );
-    assert!(resume.is_active);
-}
-
-#[tokio::test]
-async fn test_get_resume_with_null_text() {
-    let pool = setup_test_db().await;
-    let matcher = ResumeMatcher::new(pool.clone());
-
-    let result = sqlx::query(
-        "INSERT INTO resumes (name, file_path, parsed_text, is_active) VALUES (?, ?, ?, 0)",
-    )
-    .bind("Null Text Resume")
-    .bind("/tmp/null_text.pdf")
-    .bind::<Option<String>>(None)
-    .execute(&pool)
-    .await
-    .unwrap();
-    let resume_id = result.last_insert_rowid();
-
-    let resume = matcher.get_resume(resume_id).await.unwrap();
-    assert_eq!(resume.id, resume_id);
-    assert_eq!(resume.parsed_text, None);
-    assert!(!resume.is_active);
-}
-
-#[tokio::test]
-async fn test_get_active_resume_success() {
-    let pool = setup_test_db().await;
-    let matcher = ResumeMatcher::new(pool.clone());
-
-    // Create multiple resumes with different timestamps
-    sqlx::query(
-        "INSERT INTO resumes (name, file_path, parsed_text, is_active, created_at) VALUES (?, ?, ?, 1, datetime('now', '-5 seconds'))",
-    )
-    .bind("Old Resume")
-    .bind("/tmp/old.pdf")
-    .bind("Old content")
-    .execute(&pool)
-    .await
-    .unwrap();
-
-    let result = sqlx::query(
-        "INSERT INTO resumes (name, file_path, parsed_text, is_active, created_at) VALUES (?, ?, ?, 1, datetime('now'))",
-    )
-    .bind("New Resume")
-    .bind("/tmp/new.pdf")
-    .bind("New content")
-    .execute(&pool)
-    .await
-    .unwrap();
-    let newest_id = result.last_insert_rowid();
-
-    // Test get_active_resume returns most recent
-    let active = matcher.get_active_resume().await.unwrap();
-    assert!(active.is_some());
-    let active_resume = active.unwrap();
-    assert_eq!(active_resume.id, newest_id);
-    assert_eq!(active_resume.name, "New Resume");
-}
-
-#[tokio::test]
-async fn test_get_active_resume_no_active() {
-    let pool = setup_test_db().await;
-    let matcher = ResumeMatcher::new(pool.clone());
-
-    // Create inactive resumes
-    sqlx::query(
-        "INSERT INTO resumes (name, file_path, parsed_text, is_active) VALUES (?, ?, ?, 0)",
-    )
-    .bind("Inactive Resume")
-    .bind("/tmp/inactive.pdf")
-    .bind("Content")
-    .execute(&pool)
-    .await
-    .unwrap();
-
-    let active = matcher.get_active_resume().await.unwrap();
-    assert!(active.is_none());
-}
-
-#[tokio::test]
-async fn test_get_match_result_success() {
-    let pool = setup_test_db().await;
-    let matcher = ResumeMatcher::new(pool.clone());
-
-    let resume_id = create_test_resume(&pool, "Resume", "Python JavaScript").await;
-    let job_hash = "job_get_match";
-    create_test_job(
-        &pool,
-        job_hash,
-        "Care Coordinator",
-        "Python JavaScript React",
-    )
-    .await;
-
-    // Create match
-    let created_match = matcher
-        .match_resume_to_job(resume_id, job_hash)
-        .await
-        .unwrap();
-
-    // Test get_match_result
-    let retrieved = matcher.get_match_result(resume_id, job_hash).await.unwrap();
-    assert!(retrieved.is_some());
-    let result = retrieved.unwrap();
-    assert_eq!(result.id, created_match.id);
-    assert_eq!(result.resume_id, resume_id);
-    assert_eq!(result.job_hash, job_hash);
-    assert_eq!(
-        result.overall_match_score,
-        created_match.overall_match_score
-    );
-    assert_eq!(result.skills_match_score, created_match.skills_match_score);
-    assert_eq!(result.missing_skills, created_match.missing_skills);
-    assert_eq!(result.matching_skills, created_match.matching_skills);
-}
-
-#[tokio::test]
-async fn test_get_match_result_with_empty_skills() {
-    let pool = setup_test_db().await;
-    let matcher = ResumeMatcher::new(pool.clone());
-
-    let resume_id = create_test_resume(&pool, "Resume", "").await;
-    let job_hash = "job_empty_skills";
-    create_test_job(&pool, job_hash, "Care Coordinator", "").await;
-
-    let created_match = matcher
-        .match_resume_to_job(resume_id, job_hash)
-        .await
-        .unwrap();
-
-    let result = matcher.get_match_result(resume_id, job_hash).await.unwrap();
-    assert!(result.is_some());
-    let match_data = result.unwrap();
-    assert_eq!(match_data.id, created_match.id);
-    assert!(match_data.missing_skills.is_empty() || match_data.missing_skills == vec![""]);
-    assert!(match_data.matching_skills.is_empty() || match_data.matching_skills == vec![""]);
-}
-
-#[tokio::test]
-async fn test_set_active_resume_nonexistent() {
-    let pool = setup_test_db().await;
-    let matcher = ResumeMatcher::new(pool.clone());
-    let active_id = create_test_resume(&pool, "Active Resume", "Scheduling").await;
-
-    let result = matcher.set_active_resume(999).await;
-    assert!(result.is_err());
-
-    let active = matcher.get_active_resume().await.unwrap();
-    assert!(active.is_some());
-    assert_eq!(active.unwrap().id, active_id);
-}
-
-#[tokio::test]
-async fn test_get_user_skills_ordering() {
-    let pool = setup_test_db().await;
-    let matcher = ResumeMatcher::new(pool.clone());
-
-    let result = sqlx::query(
-        "INSERT INTO resumes (name, file_path, parsed_text, is_active) VALUES (?, ?, ?, 1)",
-    )
-    .bind("Test Resume")
-    .bind("/tmp/test.pdf")
-    .bind("")
-    .execute(&pool)
-    .await
-    .unwrap();
-    let resume_id = result.last_insert_rowid();
-
-    // Insert skills with same confidence but different names
-    for (skill, score) in &[("Zebra", 0.9), ("Alpha", 0.9), ("Beta", 0.5)] {
-        sqlx::query(
-            "INSERT INTO user_skills (resume_id, skill_name, skill_category, confidence_score, source) VALUES (?, ?, ?, ?, ?)",
-        )
-        .bind(resume_id)
-        .bind(skill)
-        .bind("test")
-        .bind(score)
-        .bind("resume")
-        .execute(&pool)
-        .await
-        .unwrap();
-    }
-
-    let skills = matcher.get_user_skills(resume_id).await.unwrap();
-    assert_eq!(skills.len(), 3);
-
-    // Should be sorted by confidence DESC, then skill_name ASC
-    assert_eq!(skills[0].confidence_score, 0.9);
-    assert_eq!(skills[1].confidence_score, 0.9);
-    assert_eq!(skills[2].confidence_score, 0.5);
-
-    // Among 0.9 scores, should be alphabetical
-    assert!(skills[0].skill_name < skills[1].skill_name);
-}
-
-#[tokio::test]
-async fn test_get_user_skills_with_all_fields() {
-    let pool = setup_test_db().await;
-    let matcher = ResumeMatcher::new(pool.clone());
-
-    let result = sqlx::query(
-        "INSERT INTO resumes (name, file_path, parsed_text, is_active) VALUES (?, ?, ?, 1)",
-    )
-    .bind("Full Fields Resume")
-    .bind("/tmp/full.pdf")
-    .bind("")
-    .execute(&pool)
-    .await
-    .unwrap();
-    let resume_id = result.last_insert_rowid();
-
-    // Insert skill with all optional fields
-    sqlx::query(
-        r#"
-        INSERT INTO user_skills (
-            resume_id, skill_name, skill_category, confidence_score,
-            years_experience, proficiency_level, source
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-        "#,
-    )
-    .bind(resume_id)
-    .bind("Expert Skill")
-    .bind("technical")
-    .bind(0.95)
-    .bind(5.5)
-    .bind("Expert")
-    .bind("user_input")
-    .execute(&pool)
-    .await
-    .unwrap();
-
-    let skills = matcher.get_user_skills(resume_id).await.unwrap();
-    assert_eq!(skills.len(), 1);
-    assert_eq!(skills[0].skill_name, "Expert Skill");
-    assert_eq!(skills[0].skill_category, Some("technical".to_string()));
-    assert_eq!(skills[0].confidence_score, 0.95);
-    assert_eq!(skills[0].years_experience, Some(5.5));
-    assert_eq!(skills[0].proficiency_level, Some("Expert".to_string()));
-    assert_eq!(skills[0].source, "user_input");
-}
-
-#[tokio::test]
-async fn test_update_user_skill_clears_optional_fields_and_trims_name() {
-    let pool = setup_test_db().await;
-    let matcher = ResumeMatcher::new(pool.clone());
-    let resume_id = create_test_resume(&pool, "Resume", "Resident support").await;
-
-    let skill_id = matcher
-        .add_user_skill(
-            resume_id,
-            NewSkill {
-                skill_name: "  Case Management  ".to_string(),
-                skill_category: Some("  Community Support  ".to_string()),
-                proficiency_level: Some("  Regular use  ".to_string()),
-                years_experience: Some(4.0),
-            },
-        )
-        .await
-        .unwrap();
-
-    matcher
-        .update_user_skill(
-            skill_id,
-            SkillUpdate {
-                skill_name: Some("  Care Planning  ".to_string()),
-                skill_category: NullableFieldUpdate::Clear,
-                proficiency_level: NullableFieldUpdate::Clear,
-                years_experience: NullableFieldUpdate::Clear,
-            },
-        )
-        .await
-        .unwrap();
-
-    let skills = matcher.get_user_skills(resume_id).await.unwrap();
-    assert_eq!(skills.len(), 1);
-    assert_eq!(skills[0].skill_name, "Care Planning");
-    assert_eq!(skills[0].skill_category, None);
-    assert_eq!(skills[0].proficiency_level, None);
-    assert_eq!(skills[0].years_experience, None);
-}
-
-#[test]
-fn test_skill_update_deserializes_missing_and_null_differently() {
-    let missing: SkillUpdate = serde_json::from_value(serde_json::json!({})).unwrap();
-    assert_eq!(missing.skill_category, NullableFieldUpdate::Unset);
-    assert_eq!(missing.proficiency_level, NullableFieldUpdate::Unset);
-    assert_eq!(missing.years_experience, NullableFieldUpdate::Unset);
-
-    let explicit_clear: SkillUpdate = serde_json::from_value(serde_json::json!({
-        "skill_category": null,
-        "proficiency_level": null,
-        "years_experience": null
-    }))
-    .unwrap();
-    assert_eq!(explicit_clear.skill_category, NullableFieldUpdate::Clear);
-    assert_eq!(explicit_clear.proficiency_level, NullableFieldUpdate::Clear);
-    assert_eq!(explicit_clear.years_experience, NullableFieldUpdate::Clear);
-
-    let explicit_values: SkillUpdate = serde_json::from_value(serde_json::json!({
-        "skill_category": "Customer support",
-        "proficiency_level": "Regular use",
-        "years_experience": 3.5
-    }))
-    .unwrap();
-    assert_eq!(
-        explicit_values.skill_category,
-        NullableFieldUpdate::Set("Customer support".to_string())
-    );
-    assert_eq!(
-        explicit_values.proficiency_level,
-        NullableFieldUpdate::Set("Regular use".to_string())
-    );
-    assert_eq!(
-        explicit_values.years_experience,
-        NullableFieldUpdate::Set(3.5)
-    );
-}
-
-#[tokio::test]
-async fn test_user_skill_validation_rejects_blank_names_and_invalid_years() {
-    let pool = setup_test_db().await;
-    let matcher = ResumeMatcher::new(pool.clone());
-    let resume_id = create_test_resume(&pool, "Resume", "Scheduling").await;
-
-    let blank_add = matcher
-        .add_user_skill(
-            resume_id,
-            NewSkill {
-                skill_name: "   ".to_string(),
-                skill_category: None,
-                proficiency_level: None,
-                years_experience: None,
-            },
-        )
-        .await;
-    assert!(blank_add.is_err());
-
-    let invalid_years = matcher
-        .add_user_skill(
-            resume_id,
-            NewSkill {
-                skill_name: "Scheduling".to_string(),
-                skill_category: None,
-                proficiency_level: None,
-                years_experience: Some(51.0),
-            },
-        )
-        .await;
-    assert!(invalid_years.is_err());
-
-    let skill_id = matcher
-        .add_user_skill(
-            resume_id,
-            NewSkill {
-                skill_name: "Scheduling".to_string(),
-                skill_category: None,
-                proficiency_level: None,
-                years_experience: Some(2.0),
-            },
-        )
-        .await
-        .unwrap();
-
-    let blank_update = matcher
-        .update_user_skill(
-            skill_id,
-            SkillUpdate {
-                skill_name: Some("   ".to_string()),
-                skill_category: NullableFieldUpdate::Unset,
-                proficiency_level: NullableFieldUpdate::Unset,
-                years_experience: NullableFieldUpdate::Unset,
-            },
-        )
-        .await;
-    assert!(blank_update.is_err());
-
-    let invalid_update_years = matcher
-        .update_user_skill(
-            skill_id,
-            SkillUpdate {
-                skill_name: None,
-                skill_category: NullableFieldUpdate::Unset,
-                proficiency_level: NullableFieldUpdate::Unset,
-                years_experience: NullableFieldUpdate::Set(-1.0),
-            },
-        )
-        .await;
-    assert!(invalid_update_years.is_err());
-}
-
-#[tokio::test]
-async fn test_update_user_skill_nonexistent_returns_error() {
-    let pool = setup_test_db().await;
-    let matcher = ResumeMatcher::new(pool.clone());
-
-    let result = matcher
-        .update_user_skill(
-            999,
-            SkillUpdate {
-                skill_name: Some("Care Planning".to_string()),
-                skill_category: NullableFieldUpdate::Unset,
-                proficiency_level: NullableFieldUpdate::Unset,
-                years_experience: NullableFieldUpdate::Unset,
-            },
-        )
-        .await;
-
-    assert!(result.is_err());
-}
-
-#[tokio::test]
-async fn test_match_resume_to_job_with_null_skills_json() {
-    let pool = setup_test_db().await;
-    let matcher = ResumeMatcher::new(pool.clone());
-
-    let resume_id = create_test_resume(&pool, "Resume", "Python").await;
-    let job_hash = "job_null_json";
-    create_test_job(&pool, job_hash, "Care Coordinator", "Python").await;
-
-    // Create a match
-    matcher
-        .match_resume_to_job(resume_id, job_hash)
-        .await
-        .unwrap();
-
-    // Manually corrupt the JSON to test error handling
-    sqlx::query(
-        "UPDATE resume_job_matches SET missing_skills = NULL WHERE resume_id = ? AND job_hash = ?",
-    )
-    .bind(resume_id)
-    .bind(job_hash)
-    .execute(&pool)
-    .await
-    .unwrap();
-
-    // get_match_result should handle NULL JSON gracefully
-    let result = matcher.get_match_result(resume_id, job_hash).await.unwrap();
-    assert!(result.is_some());
-    let match_data = result.unwrap();
-    // Should default to empty array
-    assert!(match_data.missing_skills.is_empty());
-}
-
-#[tokio::test]
-async fn test_match_resume_to_job_idempotent() {
-    let pool = setup_test_db().await;
-    let matcher = ResumeMatcher::new(pool.clone());
-
-    let resume_id = create_test_resume(&pool, "Resume", "Python JavaScript").await;
-    let job_hash = "job_idempotent";
-    create_test_job(&pool, job_hash, "Care Coordinator", "Python JavaScript").await;
-
-    // Create match multiple times
-    let match1 = matcher
-        .match_resume_to_job(resume_id, job_hash)
-        .await
-        .unwrap();
-    let match2 = matcher
-        .match_resume_to_job(resume_id, job_hash)
-        .await
-        .unwrap();
-    let match3 = matcher
-        .match_resume_to_job(resume_id, job_hash)
-        .await
-        .unwrap();
-
-    // Should have same scores (deterministic matching)
-    assert_eq!(match1.overall_match_score, match2.overall_match_score);
-    assert_eq!(match2.overall_match_score, match3.overall_match_score);
-
-    // Should only have one record in DB
-    let count = sqlx::query(
-        "SELECT COUNT(*) as count FROM resume_job_matches WHERE resume_id = ? AND job_hash = ?",
-    )
-    .bind(resume_id)
-    .bind(job_hash)
-    .fetch_one(&pool)
-    .await
-    .unwrap();
-    assert_eq!(count.get::<i64, _>("count"), 1);
-}
-
-#[tokio::test]
-async fn test_extract_skills_with_empty_text() {
-    let pool = setup_test_db().await;
-    let matcher = ResumeMatcher::new(pool.clone());
-
-    let result = sqlx::query(
-        "INSERT INTO resumes (name, file_path, parsed_text, is_active) VALUES (?, ?, ?, 1)",
-    )
-    .bind("Empty Text Resume")
-    .bind("/tmp/empty.pdf")
-    .bind("")
-    .execute(&pool)
-    .await
-    .unwrap();
-    let resume_id = result.last_insert_rowid();
-
-    // extract_skills should handle empty text
-    let skills = matcher.extract_skills(resume_id).await.unwrap();
-    assert!(skills.is_empty());
-}
-
-#[tokio::test]
-async fn test_extract_skills_overwrites_existing() {
-    let pool = setup_test_db().await;
-    let matcher = ResumeMatcher::new(pool.clone());
-
-    // Create resume with initial skills
-    let resume_id = create_test_resume(&pool, "Resume", "Python JavaScript").await;
-
-    // Verify initial skills
-    let skills = matcher.get_user_skills(resume_id).await.unwrap();
-    let initial_count = skills.len();
-    assert!(initial_count > 0);
-
-    // Update resume text
-    sqlx::query("UPDATE resumes SET parsed_text = ? WHERE id = ?")
-        .bind("Rust Go")
-        .bind(resume_id)
-        .execute(&pool)
-        .await
-        .unwrap();
-
-    // Re-extract skills
-    let new_skills = matcher.extract_skills(resume_id).await.unwrap();
-
-    // Should have new skills (Rust, Go) and old skills updated via UPSERT
-    assert!(!new_skills.is_empty());
-    let skill_names: Vec<String> = new_skills.iter().map(|s| s.skill_name.clone()).collect();
-    assert!(skill_names.contains(&"Rust".to_string()));
-    assert!(skill_names.contains(&"Go".to_string()));
-}
-
-#[tokio::test]
-async fn test_get_match_result_with_all_scores() {
-    let pool = setup_test_db().await;
-    let matcher = ResumeMatcher::new(pool.clone());
-
-    let resume_id = create_test_resume(&pool, "Resume", "Python").await;
-    let job_hash = "job_all_scores";
-    create_test_job(&pool, job_hash, "Care Coordinator", "Python").await;
-
-    // Create match and manually set all score fields
-    matcher
-        .match_resume_to_job(resume_id, job_hash)
-        .await
-        .unwrap();
-
-    sqlx::query(
-        r#"
-        UPDATE resume_job_matches
-        SET experience_match_score = ?, education_match_score = ?
-        WHERE resume_id = ? AND job_hash = ?
-        "#,
-    )
-    .bind(0.8)
-    .bind(0.75)
-    .bind(resume_id)
-    .bind(job_hash)
-    .execute(&pool)
-    .await
-    .unwrap();
-
-    let result = matcher.get_match_result(resume_id, job_hash).await.unwrap();
-    assert!(result.is_some());
-    let match_data = result.unwrap();
-    assert_eq!(match_data.experience_match_score, Some(0.8));
-    assert_eq!(match_data.education_match_score, Some(0.75));
-}
-
-#[tokio::test]
-async fn test_recent_matches_include_all_sub_scores() {
-    let pool = setup_test_db().await;
-    let matcher = ResumeMatcher::new(pool.clone());
-
-    let resume_id = create_test_resume(&pool, "Resume", "Python").await;
-    let job_hash = "job_recent_scores";
-    create_test_job(&pool, job_hash, "Care Coordinator", "Python").await;
-
-    matcher
-        .match_resume_to_job(resume_id, job_hash)
-        .await
-        .unwrap();
-
-    sqlx::query(
-        r#"
-        UPDATE resume_job_matches
-        SET experience_match_score = ?, education_match_score = ?
-        WHERE resume_id = ? AND job_hash = ?
-        "#,
-    )
-    .bind(0.8)
-    .bind(0.75)
-    .bind(resume_id)
-    .bind(job_hash)
-    .execute(&pool)
-    .await
-    .unwrap();
-
-    let matches = matcher.get_recent_matches(resume_id, 10).await.unwrap();
-    assert_eq!(matches.len(), 1);
-    assert_eq!(matches[0].experience_match_score, Some(0.8));
-    assert_eq!(matches[0].education_match_score, Some(0.75));
-}
-
-#[tokio::test]
-async fn test_boundary_values_for_scores() {
-    let pool = setup_test_db().await;
-    let matcher = ResumeMatcher::new(pool.clone());
-
-    let result = sqlx::query(
-        "INSERT INTO resumes (name, file_path, parsed_text, is_active) VALUES (?, ?, ?, 1)",
-    )
-    .bind("Boundary Resume")
-    .bind("/tmp/boundary.pdf")
-    .bind("")
-    .execute(&pool)
-    .await
-    .unwrap();
-    let resume_id = result.last_insert_rowid();
-
-    // Insert skill with boundary confidence scores
-    for (skill, score) in &[("MinScore", 0.0), ("MaxScore", 1.0)] {
-        sqlx::query(
-            "INSERT INTO user_skills (resume_id, skill_name, confidence_score, source) VALUES (?, ?, ?, ?)",
-        )
-        .bind(resume_id)
-        .bind(skill)
-        .bind(score)
-        .bind("test")
-        .execute(&pool)
-        .await
-        .unwrap();
-    }
-
-    let skills = matcher.get_user_skills(resume_id).await.unwrap();
-    assert_eq!(skills.len(), 2);
-
-    // Verify boundary values are preserved
-    let max_skill = skills.iter().find(|s| s.skill_name == "MaxScore").unwrap();
-    assert_eq!(max_skill.confidence_score, 1.0);
-
-    let min_skill = skills.iter().find(|s| s.skill_name == "MinScore").unwrap();
-    assert_eq!(min_skill.confidence_score, 0.0);
-}
-
-#[tokio::test]
-async fn test_concurrent_resume_creation() {
-    let pool = setup_test_db().await;
-
-    // Create multiple resumes concurrently
-    let mut tasks = vec![];
-    for i in 0..5 {
-        let pool_clone = pool.clone();
-        let task = tokio::spawn(async move {
-            create_test_resume(&pool_clone, &format!("Concurrent Resume {}", i), "Python").await
-        });
-        tasks.push(task);
-    }
-
-    // All should succeed
-    for task in tasks {
-        let result = task.await;
-        assert!(result.is_ok());
-    }
-
-    // Verify all resumes were created
-    let count = sqlx::query("SELECT COUNT(*) as count FROM resumes")
-        .fetch_one(&pool)
-        .await
-        .unwrap();
-    assert_eq!(count.get::<i64, _>("count"), 5);
-}
-
-#[tokio::test]
-async fn test_unicode_in_skill_names() {
-    let pool = setup_test_db().await;
-    let matcher = ResumeMatcher::new(pool.clone());
-
-    let result = sqlx::query(
-        "INSERT INTO resumes (name, file_path, parsed_text, is_active) VALUES (?, ?, ?, 1)",
-    )
-    .bind("Unicode Resume")
-    .bind("/tmp/unicode.pdf")
-    .bind("")
-    .execute(&pool)
-    .await
-    .unwrap();
-    let resume_id = result.last_insert_rowid();
-
-    // Insert skills with unicode characters
-    sqlx::query(
-        "INSERT INTO user_skills (resume_id, skill_name, confidence_score, source) VALUES (?, ?, ?, ?)",
-    )
-    .bind(resume_id)
-    .bind("日本語スキル")
-    .bind(0.9)
-    .bind("test")
-    .execute(&pool)
-    .await
-    .unwrap();
-
-    let skills = matcher.get_user_skills(resume_id).await.unwrap();
-    assert_eq!(skills.len(), 1);
-    assert_eq!(skills[0].skill_name, "日本語スキル");
-}
-
-#[tokio::test]
-async fn test_very_long_skill_names() {
-    let pool = setup_test_db().await;
-    let matcher = ResumeMatcher::new(pool.clone());
-
-    let result = sqlx::query(
-        "INSERT INTO resumes (name, file_path, parsed_text, is_active) VALUES (?, ?, ?, 1)",
-    )
-    .bind("Long Skill Resume")
-    .bind("/tmp/long.pdf")
-    .bind("")
-    .execute(&pool)
-    .await
-    .unwrap();
-    let resume_id = result.last_insert_rowid();
-
-    // Insert skill with very long name
-    let long_name = "A".repeat(1000);
-    sqlx::query(
-        "INSERT INTO user_skills (resume_id, skill_name, confidence_score, source) VALUES (?, ?, ?, ?)",
-    )
-    .bind(resume_id)
-    .bind(&long_name)
-    .bind(0.8)
-    .bind("test")
-    .execute(&pool)
-    .await
-    .unwrap();
-
-    let skills = matcher.get_user_skills(resume_id).await.unwrap();
-    assert_eq!(skills.len(), 1);
-    assert_eq!(skills[0].skill_name.len(), 1000);
-}
+#[path = "tests/database_coverage_tests.rs"]
+mod database_coverage_tests;
