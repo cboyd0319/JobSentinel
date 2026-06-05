@@ -50,6 +50,14 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Feedback report readability repo-bloat fixtures now live in
+  `scripts/check-repo-bloat-feedback-readability.test.mjs`, reducing
+  `scripts/check-repo-bloat-feedback-privacy.test.mjs` from 884 to 531 lines
+  without changing feedback debug-event, problem-history, error-boundary, or
+  recovery-copy sensors. Focused verification passed: `node --test
+  scripts/check-repo-bloat-feedback-privacy.test.mjs
+  scripts/check-repo-bloat-feedback-readability.test.mjs`.
+
 - Resume Builder Tauri command handlers now live in
   `src-tauri/src/commands/resume_builder_commands.rs` and are re-exported
   through `src-tauri/src/commands/resume.rs`, reducing `resume.rs` from 886 to
@@ -151,6 +159,7 @@ Recent committed cleanup batch:
 
 | Area | Main file before -> after | Extracted surface | Focused proof |
 | ---- | ------------------------- | ----------------- | ------------- |
+| Feedback privacy bloat test | 884 -> 531 | feedback readability test file | Focused script tests |
 | Resume Builder commands | 886 -> 730 | command sidecar re-export plus nested invoke harness | Commands focused tests, script tests, docs, bloat, fmt |
 | Repo-bloat release promise tests | 895 -> 820 | release-promise test file | Focused script tests, bloat |
 | WeWorkRemotely scraper | 888 -> 244 | scraper test sidecar | Scraper focused tests |
