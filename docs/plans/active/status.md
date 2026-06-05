@@ -50,6 +50,14 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Settings loadConfig tests moved out of `src/pages/Settings.test.tsx` into
+  `src/pages/Settings.load.test.tsx`.
+- Both Settings test files are below the 1,200-line test target, so the legacy
+  oversized-file exception was removed.
+- Runtime Settings code was unchanged; only Vitest suite ownership changed.
+
+Earlier implementation slice:
+
 - ATS badge tests moved out of
   `src/components/automation/ApplyButton.test.tsx` into
   `src/components/automation/ApplyButton.badge.test.tsx`.
