@@ -50,6 +50,16 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Discord notification score-color and salary display tests now live in
+  `src-tauri/src/core/notify/discord_tests/display_tests.rs`, reducing
+  `src-tauri/src/core/notify/discord_tests.rs` from 893 to 754 lines without
+  changing notification payload logic, webhook validation, or test assertions.
+  Focused verification passed: `cargo fmt --all -- --check`, `cargo test
+  core::notify::discord::tests::display_tests --lib`, and `cargo test
+  core::notify::discord::tests --lib`, `cargo clippy -- -D warnings`, `npm
+  run lint:bloat`, docs gates, `git diff --check`, and the local-path leak
+  scan.
+
 - Settings support-report state and copy/save handlers now live in
   `src/pages/useSettingsSupportReports.ts`, reducing `src/pages/Settings.tsx`
   from 894 to 856 lines without changing settings save, keychain, source
@@ -111,6 +121,7 @@ Recent committed cleanup batch:
 
 | Area | Main file before -> after | Extracted surface | Focused proof |
 | ---- | ------------------------- | ----------------- | ------------- |
+| Discord notification tests | 893 -> 754 | display test module | Discord focused tests, fmt |
 | Settings support reports | 894 -> 856 | support-report hook | Settings load tests, build, lint, bloat |
 | DB validation tests | 912 -> 844 | validation boundary module | Rust focused tests, fmt |
 | Settings product-copy test | 922 -> 862 | assertion path helpers | Focused script test, bloat |
