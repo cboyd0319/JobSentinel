@@ -51,7 +51,7 @@ test("checkRepoBloat rejects new oversized maintainable source files", () => {
 test("checkRepoBloat grandfathers known oversized files without allowing growth", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
-    writeFixtureFile(root, "src/mocks/handlers.ts", lineFixture(1887));
+    writeFixtureFile(root, "src/mocks/handlers.ts", lineFixture(1645));
 
     execFileSync("git", ["add", "package.json", "src/mocks/handlers.ts"], {
       cwd: root,
@@ -70,7 +70,7 @@ test("checkRepoBloat grandfathers known oversized files without allowing growth"
 test("checkRepoBloat rejects growth in grandfathered oversized files", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
-    writeFixtureFile(root, "src/mocks/handlers.ts", lineFixture(1888));
+    writeFixtureFile(root, "src/mocks/handlers.ts", lineFixture(1646));
 
     execFileSync("git", ["add", "package.json", "src/mocks/handlers.ts"], {
       cwd: root,
@@ -80,7 +80,7 @@ test("checkRepoBloat rejects growth in grandfathered oversized files", () => {
 
     assert.ok(
       violations.includes(
-        "split legacy oversized tracked file before growing it: src/mocks/handlers.ts has 1888 lines (budget 1887, target 1200)",
+        "split legacy oversized tracked file before growing it: src/mocks/handlers.ts has 1646 lines (budget 1645, target 1200)",
       ),
       violations.join("\n"),
     );

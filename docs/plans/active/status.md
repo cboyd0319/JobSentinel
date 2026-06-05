@@ -50,6 +50,15 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Mock handler command helper and type definitions moved out of
+  `src/mocks/handlers.ts` into `src/mocks/handlers/commandHelpers.ts` and
+  `src/mocks/handlers/types.ts`.
+- The main mock handler still owns mock state persistence and command dispatch.
+- `src/mocks/handlers.ts` legacy no-growth budget tightened from 1,887 lines
+  to 1,645 lines.
+
+Earlier implementation slice:
+
 - Config save/load persistence tests moved out of
   `src-tauri/src/core/config/tests.rs` into
   `src-tauri/src/core/config/tests/persistence_tests.rs`.

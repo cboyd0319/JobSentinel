@@ -153,6 +153,8 @@ Out of scope:
 - [x] Split mock deep-link and job-import helpers out of the main mock handler.
 - [x] Split mock support-report helpers out of the main mock handler.
 - [x] Split mock resume analysis score assembly out of the main mock handler.
+- [x] Split mock command helper and type definitions out of the main mock
+  handler.
 - [x] Split Settings additional job board UI out of the main Settings page.
 - [x] Split resume analyzer bullet prompt helpers out of the runtime analyzer.
 - [x] Split DB no-database model tests out of the main DB test file.

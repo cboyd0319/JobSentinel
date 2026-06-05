@@ -43,7 +43,6 @@ import {
   hasConfiguredJobsWithGpt,
   hasEnabledMockScraperSource,
   updateMockScraperEnabled,
-  type MockScraperEnabledOverrides,
 } from "./handlers/scraperHealth";
 import {
   getMockInterviewFollowup,
@@ -52,8 +51,6 @@ import {
   normalizeInterviewPrepState,
   saveMockInterviewFollowup,
   saveMockInterviewPrepItem,
-  type MockInterviewFollowUpState,
-  type MockInterviewPrepState,
 } from "./handlers/interviewProgress";
 import {
   getDefaultMockCoverLetterTemplates,
@@ -62,8 +59,6 @@ import {
   normalizeMockCoverLetterTemplate,
   normalizeMockNotificationPreferences,
   normalizeMockSavedSearch,
-  type MockCoverLetterTemplate,
-  type MockSavedSearch,
 } from "./handlers/coreCommands";
 import {
   buildMockApplicationProfileFromInput,
@@ -75,8 +70,6 @@ import {
   normalizeMockApplicationProfile,
   normalizeMockScreeningAnswer,
   upsertMockScreeningAnswer as upsertMockScreeningAnswerState,
-  type MockApplicationProfile,
-  type MockScreeningAnswer,
 } from "./handlers/applicationProfile";
 import { ATS_POWER_WORDS } from "./handlers/resumeAnalysis";
 import {
@@ -99,7 +92,6 @@ import {
   getMockHottestLocations,
   getMockMarketSnapshot,
   getMockTrendingSkills,
-  type MockMarketAlert,
 } from "./handlers/marketIntelligence";
 import {
   exportMockResumeText,
@@ -111,140 +103,59 @@ import {
   normalizeBuilderSkill,
   normalizeResumeDraft,
   renderMockResumeHtml,
-  type MockBuilderSkill,
-  type MockResumeDraft,
 } from "./handlers/resumeBuilder";
-import type { NotificationPreferences } from "../utils/notificationPreferences";
-
-type MockJob = typeof mockJobs[number];
-type MockConfig = typeof mockConfig;
-type MockApplicationStatus = keyof typeof mockApplications;
-interface MockApplication {
-  id: number;
-  job_hash: string;
-  job_title: string;
-  company: string;
-  status: string;
-  applied_at: string | null;
-  notes: string | null;
-  last_contact: string | null;
-}
-type MockApplications = Record<MockApplicationStatus, MockApplication[]>;
-type MockPendingReminder = typeof mockPendingReminders[number];
-type MockCredentialKey =
-  | "slack_webhook"
-  | "smtp_password"
-  | "discord_webhook"
-  | "teams_webhook"
-  | "telegram_bot_token"
-  | "usajobs_api_key";
-const APPLICATION_STATUS_KEYS = Object.keys(mockApplications) as MockApplicationStatus[];
-
-interface MockGhostConfig {
-  stale_threshold_days: number;
-  repost_threshold: number;
-  min_description_length: number;
-  penalize_missing_salary: boolean;
-  warning_threshold: number;
-  hide_threshold: number;
-}
-
-interface MockBookmarkletConfig {
-  port: number;
-  enabled: boolean;
-}
-
-interface MockResumeData {
-  id: number;
-  name: string;
-  file_path: string;
-  parsed_text: string | null;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
-type MockResumeSummary = Omit<MockResumeData, "file_path" | "parsed_text"> & {
-  format_label: string;
-  has_readable_text: boolean;
-  readable_text_chars: number;
-};
-
-interface MockResumeTextPreview {
-  resume_id: number;
-  name: string;
-  has_text: boolean;
-  text_preview: string;
-  text_chars: number;
-  is_truncated: boolean;
-}
-
-interface MockUserSkill {
-  id: number;
-  resume_id: number;
-  skill_name: string;
-  skill_category: string | null;
-  confidence_score: number;
-  years_experience: number | null;
-  proficiency_level: string | null;
-  source: string;
-}
-
-interface MockSkillInput {
-  skill_name?: unknown;
-  skill_category?: unknown;
-  proficiency_level?: unknown;
-  years_experience?: unknown;
-}
-
-interface MockMatchResult {
-  id: number;
-  resume_id: number;
-  job_hash: string;
-  job_title: string;
-  company: string;
-  overall_match_score: number;
-  skills_match_score: number | null;
-  experience_match_score: number | null;
-  education_match_score: number | null;
-  matching_skills: string[];
-  missing_skills: string[];
-  gap_analysis: string | null;
-  created_at: string;
-}
-
-interface MockInterview {
-  id: number;
-  application_id: number;
-  interview_type: string;
-  scheduled_at: string;
-  duration_minutes: number;
-  location: string | null;
-  interviewer_name: string | null;
-  interviewer_title: string | null;
-  notes: string | null;
-  completed: boolean;
-  outcome: string | null;
-  job_title: string;
-  company: string;
-}
-
-interface MockDashboardPreferences {
-  autoRefresh: MockConfig["auto_refresh"];
-  salaryFloorUsd: number;
-  anyJobSourceEnabled: boolean;
-}
-
-interface MockFillResultWithAttempt {
-  filledFields: string[];
-  unfilledFields: string[];
-  captchaDetected: boolean;
-  readyForReview: boolean;
-  errorMessage: string | null;
-  attemptId: number | null;
-  durationMs: number;
-  atsPlatform: string;
-}
+import {
+  APPLICATION_STATUS_KEYS,
+  cloneApplications,
+  getArg,
+  getDefaultGhostConfig,
+  getJobId,
+  getNextId,
+  getNumericArg,
+  getResumeIdArg,
+  getSkillIdArg,
+  getStringArg,
+  hasConfiguredUrlList,
+  hasOwnInputKey,
+  isCredentialKey,
+  normalizeApplications,
+  normalizeProfileInput,
+  normalizeSkillInput,
+  skillYearsOrNull,
+  toScoreFraction,
+  trimmedStringOrNull,
+} from "./handlers/commandHelpers";
+import type {
+  MockApplication,
+  MockApplications,
+  MockApplicationStatus,
+  MockApplicationProfile,
+  MockBookmarkletConfig,
+  MockBuilderSkill,
+  MockConfig,
+  MockCoverLetterTemplate,
+  MockCredentialKey,
+  MockDashboardPreferences,
+  MockFillResultWithAttempt,
+  MockGhostConfig,
+  MockInterview,
+  MockInterviewFollowUpState,
+  MockInterviewPrepState,
+  MockJob,
+  MockMarketAlert,
+  MockMatchResult,
+  MockPendingReminder,
+  MockResumeData,
+  MockResumeDraft,
+  MockResumeSummary,
+  MockResumeTextPreview,
+  MockSavedSearch,
+  MockScreeningAnswer,
+  MockScraperEnabledOverrides,
+  MockState,
+  MockUserSkill,
+  NotificationPreferences,
+} from "./handlers/types";
 
 // Simulate network delay
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -279,31 +190,6 @@ let automationBrowserRunning = false;
 let nextAutomationAttemptId = 1;
 
 const MOCK_STATE_KEY = "jobsentinel.mockState.v1";
-
-interface MockState {
-  jobs: MockJob[];
-  config: MockConfig;
-  interviews: MockInterview[];
-  applications: MockApplications;
-  pendingReminders: MockPendingReminder[];
-  coverLetterTemplates: MockCoverLetterTemplate[];
-  savedSearches: MockSavedSearch[];
-  searchHistory: string[];
-  notificationPreferences: NotificationPreferences | null;
-  credentials: Partial<Record<MockCredentialKey, string>>;
-  ghostConfig: MockGhostConfig;
-  bookmarkletConfig: MockBookmarkletConfig;
-  resumes: MockResumeData[];
-  userSkills: MockUserSkill[];
-  resumeDrafts: MockResumeDraft[];
-  recentMatches: MockMatchResult[];
-  marketAlerts: MockMarketAlert[];
-  applicationProfile: MockApplicationProfile | null;
-  screeningAnswers: MockScreeningAnswer[];
-  scraperEnabledOverrides: MockScraperEnabledOverrides;
-  interviewPrepChecklists: MockInterviewPrepState;
-  interviewFollowups: MockInterviewFollowUpState;
-}
 
 function canUseStorage(): boolean {
   return (
@@ -427,36 +313,6 @@ function loadMockState(): void {
 
 loadMockState();
 
-function cloneApplications(
-  source: Partial<Record<MockApplicationStatus, MockApplication[]>>,
-): MockApplications {
-  return APPLICATION_STATUS_KEYS.reduce((acc, status) => {
-    acc[status] = (source[status] ?? []).map((application) => ({ ...application }));
-    return acc;
-  }, {} as MockApplications);
-}
-
-function normalizeApplications(
-  source: Partial<Record<MockApplicationStatus, MockApplication[]>>,
-): MockApplications {
-  return APPLICATION_STATUS_KEYS.reduce((acc, status) => {
-    const apps = Array.isArray(source[status]) ? source[status] : [];
-    acc[status] = apps.map((application) => ({ ...application }));
-    return acc;
-  }, {} as MockApplications);
-}
-
-function getDefaultGhostConfig(): MockGhostConfig {
-  return {
-    stale_threshold_days: 60,
-    repost_threshold: 3,
-    min_description_length: 200,
-    penalize_missing_salary: false,
-    warning_threshold: 0.3,
-    hide_threshold: 0.7,
-  };
-}
-
 function previewMockJobImport(args?: Record<string, unknown>): MockJobImportPreview {
   return buildMockJobImportPreview(
     args,
@@ -492,11 +348,6 @@ function anyMockJobSourceEnabled(): boolean {
     hasConfiguredUrlList(configRecord, "lever_urls") ||
     hasConfiguredJobsWithGpt(configRecord)
   );
-}
-
-function hasConfiguredUrlList(configRecord: Record<string, unknown>, key: string): boolean {
-  const value = configRecord[key];
-  return Array.isArray(value) && value.some((item) => typeof item === "string" && item.trim());
 }
 
 function createMockResumeDraft(): number {
@@ -565,26 +416,6 @@ function fillMockApplicationForm(args?: Record<string, unknown>): MockFillResult
   };
 }
 
-function isCredentialKey(value: unknown): value is MockCredentialKey {
-  return (
-    value === "slack_webhook" ||
-    value === "smtp_password" ||
-    value === "discord_webhook" ||
-    value === "teams_webhook" ||
-    value === "telegram_bot_token" ||
-    value === "usajobs_api_key"
-  );
-}
-
-
-function getStringArg(
-  args: Record<string, unknown> | undefined,
-  key: string,
-): string | undefined {
-  const value = getArg(args, key);
-  return typeof value === "string" ? value : undefined;
-}
-
 function getActiveResume(): MockResumeData | null {
   return resumes.find((resume) => resume.is_active) ?? null;
 }
@@ -640,48 +471,6 @@ function toMockResumeTextPreview(resume: MockResumeData): MockResumeTextPreview 
   };
 }
 
-function getNextId(items: Array<{ id: number }>): number {
-  return items.reduce((max, item) => Math.max(max, item.id), 0) + 1;
-}
-
-function toScoreFraction(score: number): number {
-  if (!Number.isFinite(score)) {
-    return 0;
-  }
-
-  return Math.max(0, Math.min(1, score));
-}
-
-function getResumeIdArg(args: Record<string, unknown> | undefined): number | undefined {
-  return getNumericArg(args, "resumeId") ?? getNumericArg(args, "resume_id");
-}
-
-function getSkillIdArg(args: Record<string, unknown> | undefined): number | undefined {
-  return getNumericArg(args, "skillId") ?? getNumericArg(args, "skill_id");
-}
-
-function normalizeSkillInput(value: unknown): MockSkillInput {
-  return value && typeof value === "object" ? (value as MockSkillInput) : {};
-}
-
-function hasOwnInputKey(value: MockSkillInput, key: keyof MockSkillInput): boolean {
-  return Object.prototype.hasOwnProperty.call(value, key);
-}
-
-function trimmedStringOrNull(value: unknown): string | null {
-  if (typeof value !== "string") return null;
-  const trimmed = value.trim();
-  return trimmed ? trimmed : null;
-}
-
-function skillYearsOrNull(value: unknown): number | null {
-  return typeof value === "number" && Number.isFinite(value) ? value : null;
-}
-
-function normalizeProfileInput(value: unknown): Record<string, unknown> {
-  return value && typeof value === "object" ? (value as Record<string, unknown>) : {};
-}
-
 function upsertMockApplicationProfile(args?: Record<string, unknown>): number {
   const input = normalizeProfileInput(getArg(args, "input"));
   applicationProfile = buildMockApplicationProfileFromInput(input, applicationProfile);
@@ -716,37 +505,6 @@ function createMockResume(name: string, filePath: string): number {
   });
   saveMockState();
   return id;
-}
-
-function getJobId(args?: Record<string, unknown>): number | undefined {
-  const value = getArg(args, "id") ?? getArg(args, "jobId");
-  if (typeof value === "number") return value;
-  if (typeof value === "string") {
-    const parsed = Number(value);
-    return Number.isFinite(parsed) ? parsed : undefined;
-  }
-  return undefined;
-}
-
-function getArg(
-  args: Record<string, unknown> | undefined,
-  key: string,
-): unknown {
-  const nestedArgs = args?.payload as Record<string, unknown> | undefined;
-  return args?.[key] ?? nestedArgs?.[key];
-}
-
-function getNumericArg(
-  args: Record<string, unknown> | undefined,
-  key: string,
-): number | undefined {
-  const value = getArg(args, key);
-  if (typeof value === "number") return value;
-  if (typeof value === "string") {
-    const parsed = Number(value);
-    return Number.isFinite(parsed) ? parsed : undefined;
-  }
-  return undefined;
 }
 
 function findApplication(
