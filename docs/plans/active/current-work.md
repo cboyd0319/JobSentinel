@@ -218,6 +218,7 @@ Out of scope:
   bringing it below the 1,200-line test target.
 - [x] Split DB edge-case tests out of the main DB test file.
 - [x] Split DB query-error tests out of the main DB test file.
+- [x] Split DB statistics coverage tests out of the main DB test file.
 
 ## Orchestration Log
 
