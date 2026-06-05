@@ -50,6 +50,14 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Teams notification tests moved out of `src-tauri/src/core/notify/teams.rs`
+  into `src-tauri/src/core/notify/teams_tests.rs` and
+  `src-tauri/src/core/notify/teams_tests/payload_tests.rs`.
+- The runtime Teams notification module is now below the 1,200-line Rust
+  target, so the legacy oversized-file exception was removed.
+
+Earlier implementation slice:
+
 - Slack notification tests moved out of `src-tauri/src/core/notify/slack.rs`
   into `src-tauri/src/core/notify/slack_tests.rs` and
   `src-tauri/src/core/notify/slack_tests/builder_tests.rs`.
@@ -850,7 +858,7 @@ Recent cleanup summary:
   `src-tauri/src/core/resume/ats_analyzer_tests.rs` are now both under the
   1,200-line harness target and no longer need legacy no-growth exemptions.
 - Remaining oversized-file exceptions are `src/pages/ResumeBuilder.tsx`,
-  `src-tauri/src/core/notify/teams.rs`, `src/pages/ResumeOptimizer.tsx`,
+  `src/pages/ResumeOptimizer.tsx`,
   `src/pages/SetupWizard.tsx`,
   `src-tauri/src/core/market_intelligence/analytics.rs`,
   `src/pages/Resume.tsx`, `src-tauri/src/commands/automation.rs`,
