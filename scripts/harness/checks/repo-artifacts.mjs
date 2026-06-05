@@ -144,7 +144,6 @@ const legacyOversizedLineBudgets = new Map([
   ["src-tauri/src/core/scheduler/tests.rs", 1260],
   ["src-tauri/src/core/scrapers/lever/tests.rs", 1763],
   ["src/pages/ResumeBuilder.tsx", 1770],
-  ["src-tauri/src/core/scoring/mod.rs", 1849],
   ["src/components/automation/ApplicationPreview.test.tsx", 1799],
   ["src-tauri/src/core/notify/slack.rs", 1759],
   ["src-tauri/src/core/market_intelligence/tests.rs", 1755],

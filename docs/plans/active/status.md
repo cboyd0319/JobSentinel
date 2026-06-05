@@ -50,6 +50,16 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Scoring engine inline tests moved out of `src-tauri/src/core/scoring/mod.rs`
+  into `src-tauri/src/core/scoring/tests/mod.rs`, keeping company scoring tests
+  as a sibling test module.
+- The main scoring module is now below the 1,200-line Rust target, so its
+  legacy oversized-file exception was removed.
+- Read-only scoring scout proposed this exact test-module boundary and changed
+  no files; coordinator implemented and verified it locally.
+
+Earlier implementation slice:
+
 - Scheduler interval edge-case and scraping-result model tests moved out of
   `src-tauri/src/core/scheduler/tests.rs` into
   `src-tauri/src/core/scheduler/tests/interval_tests.rs` and
