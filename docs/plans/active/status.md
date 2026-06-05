@@ -70,6 +70,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
   keeping the production alert module small while preserving alert query
   coverage.
 
+- Resume Match empty-state rendering now lives in a focused component, keeping
+  the main resume page under the file-size target without changing upload or
+  import behavior.
+
 - First-run setup and profile presets now start with remote, hybrid, and
   on-site selected and no preset salary floor, so new users do not silently
   narrow results before choosing.
