@@ -51,6 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Dev mock resume bullet suggestions now preserve vague wording such as
+  "was responsible for", "worked on", and "helped with" instead of upgrading it
+  to unverified ownership verbs, matching the Rust truth-first behavior.
+
 - Dev mock Resume Match now treats partial or implied required hard-constraint
   evidence as a risk, and matches Rust behavior for driving-record and
   auto-insurance requirement categories, actions, and term equivalents.

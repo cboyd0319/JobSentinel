@@ -13,16 +13,22 @@ describe("mock resume bullet prompt handlers", () => {
     resetMockData();
   });
 
-  it("keeps drafted bullets truthful and review-first", async () => {
+  it.each([
+    ["was responsible for updating intake schedules", "Managed"],
+    ["worked on customer returns", "Developed"],
+    ["helped with client scheduling", "Contributed to"],
+  ])("keeps vague bullet wording truthful for %s", async (bullet, inventedVerb) => {
     const improved = await improveBullet(
-      "helped with client scheduling",
+      bullet,
       "Required: scheduling, case management",
     );
 
-    expect(improved).toContain("Contributed to client scheduling");
+    expect(improved).toContain(bullet);
+    expect(improved).toContain("choose a clearer action verb only if it is true");
     expect(improved).toContain("add a true number, outcome, or concrete detail if you have one");
     expect(improved).toContain("review if these are true and worth making visible");
     expect(improved).toContain("problem, your role, action, result, and evidence");
+    expect(improved).not.toContain(inventedVerb);
     expect(improved).not.toContain("consider adding");
   });
 

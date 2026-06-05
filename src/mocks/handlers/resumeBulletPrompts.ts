@@ -14,12 +14,11 @@ export function improveMockBulletPoint(
   const lower = improved.toLowerCase();
 
   if (!ATS_POWER_WORDS.some((word) => lower.startsWith(word))) {
-    if (lower.includes("was responsible for")) {
-      improved = improved.replace(/was responsible for/i, "Managed");
-    } else if (lower.includes("worked on")) {
-      improved = improved.replace(/worked on/i, "Developed");
-    } else if (lower.includes("helped with")) {
-      improved = improved.replace(/helped with/i, "Contributed to");
+    const vagueAction = ["was responsible for", "worked on", "helped with"]
+      .some((phrase) => lower.includes(phrase));
+
+    if (vagueAction) {
+      improved += " (choose a clearer action verb only if it is true)";
     }
   }
 
