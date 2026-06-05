@@ -49,6 +49,15 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- ATS status/default unit tests now live in
+  `src-tauri/src/core/ats/tests/status_basic_tests.rs`, reducing the parent
+  `src-tauri/src/core/ats/tests.rs` file from 978 to 839 lines without changing
+  tracker behavior or database test helpers.
+
+- Focused verification for the ATS status test split passed:
+  `cargo fmt --all -- --check`, `cargo test --lib core::ats`, and
+  `npm run lint:bloat`.
+
 - Resume analyzer format-safety tests now live in
   `ats_analyzer_tests/format_safety_tests.rs`, reducing
   `ats_analyzer_tests.rs` from 992 to 668 lines without changing analyzer
