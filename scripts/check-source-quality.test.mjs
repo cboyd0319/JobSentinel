@@ -160,6 +160,53 @@ test("source quality rejects unsafe rendered JSON parsing", () => {
   });
 });
 
+test("source quality accepts analytics storage validation in model helper", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src/components/AnalyticsPanel.tsx",
+      'import { getWeeklyGoal } from "./analyticsPanelModel";\ngetWeeklyGoal();\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/components/analyticsPanelModel.ts",
+      [
+        'const WEEKLY_GOALS_KEY = "jobsentinel_weekly_goals";',
+        "export function getWeeklyGoal() {",
+        "  try {",
+        "    const parsed = JSON.parse(stored);",
+        "    if (isWeeklyGoal(parsed)) return parsed;",
+        '    removeStorageValue("local", WEEKLY_GOALS_KEY);',
+        "    return null;",
+        "  } catch {",
+        '    removeStorageValue("local", WEEKLY_GOALS_KEY);',
+        "    return null;",
+        "  }",
+        "}",
+        "function isWeeklyGoal(value) {",
+        "  return Number.isFinite(value.target);",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    assert.equal(hasUnsafeStorageJsonParsing(root, "src/components/AnalyticsPanel.tsx"), false);
+    assert.equal(hasUnsafeStorageJsonParsing(root, "src/components/analyticsPanelModel.ts"), false);
+  });
+});
+
+test("source quality rejects unsafe analytics storage model helper", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src/components/analyticsPanelModel.ts",
+      "return stored ? JSON.parse(stored) : null;\n",
+    );
+
+    assert.equal(hasUnsafeStorageJsonParsing(root, "src/components/analyticsPanelModel.ts"), true);
+  });
+});
+
 test("source quality rejects frontend file URL resume imports", () => {
   withFixture((root) => {
     writeFixtureFile(

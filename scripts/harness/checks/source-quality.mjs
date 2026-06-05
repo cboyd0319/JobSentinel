@@ -16,6 +16,7 @@ const scoreReasonJsonParserPaths = new Set([
 
 const storageJsonParserPaths = new Set([
   "src/components/AnalyticsPanel.tsx",
+  "src/components/analyticsPanelModel.ts",
   "src/components/AtsLiveScorePanel.tsx",
   "src/components/CompanyResearchPanel.tsx",
   "src/utils/resumeJobContext.ts",
@@ -202,6 +203,18 @@ export function hasUnsafeStorageJsonParsing(root, path) {
 
   const text = readFileSync(join(root, path), "utf8");
   if (path === "src/components/AnalyticsPanel.tsx") {
+    if (/from "\.\/analyticsPanelModel"/.test(text)) {
+      return false;
+    }
+
+    return (
+      /return\s+stored\s+\?\s+JSON\.parse\(stored\)\s+:\s+null/.test(text) ||
+      !/function\s+isWeeklyGoal/.test(text) ||
+      !/removeStorageValue\("local",\s*WEEKLY_GOALS_KEY\)/.test(text)
+    );
+  }
+
+  if (path === "src/components/analyticsPanelModel.ts") {
     return (
       /return\s+stored\s+\?\s+JSON\.parse\(stored\)\s+:\s+null/.test(text) ||
       !/function\s+isWeeklyGoal/.test(text) ||

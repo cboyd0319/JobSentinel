@@ -49,6 +49,20 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Analytics panel model, weekly-plan storage validation, source/status labels,
+  and color maps now live in `src/components/analyticsPanelModel.ts`, reducing
+  `src/components/AnalyticsPanel.tsx` from 963 to 822 lines without changing
+  dialog behavior, charts, CSV export, or the weekly plan key.
+
+- Bloat/source-quality storage-JSON sensors now follow the AnalyticsPanel model
+  split, so weekly-goal JSON still requires `isWeeklyGoal` validation and
+  invalid local storage cleanup before rendering.
+
+- Focused verification for the AnalyticsPanel split passed:
+  `npm run test:run -- src/components/AnalyticsPanel.test.tsx`,
+  `node --test` for the source-quality and frontend-security bloat tests,
+  `npm run lint`, and `npx tsc --noEmit --pretty false`.
+
 - Discord webhook URL validation tests now live in
   `src-tauri/src/core/notify/discord_tests/webhook_url_tests.rs`, reducing
   `discord_tests.rs` from 989 to 893 lines while keeping URL allowlist,
