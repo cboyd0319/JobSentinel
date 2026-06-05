@@ -324,6 +324,8 @@ Out of scope:
 - [x] Show hard-question review guidance for saved-answer quick-add topics such
   as schedule, education, transportation, salary, start date, language,
   management, travel, and relocation.
+- [x] Show hard-question review guidance on saved-answer suggestion cards
+  before the user chooses **Use**.
 - [x] Return bounded saved-answer review topics from live Application Assist
   fill results without exposing saved answers or exact question text.
 
@@ -363,6 +365,9 @@ Out of scope:
 - Coordinator added local hard-screening review guidance to saved screening
   answers because it touched one Application Assist component, one focused test
   file, feature docs, and active plan state.
+- Coordinator extended the same hard-screening review guidance to saved-answer
+  suggestion cards so a hard-topic suggested answer cannot sit next to **Use**
+  without exact-question review copy.
 - Pay-protection sidecar was read-only and changed no files. Coordinator
   accepted its finding that negotiation-note drafts could treat benchmark
   values as offer facts, then fixed the Salary page, dev mock, tests, feature

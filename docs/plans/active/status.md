@@ -51,6 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Saved-answer suggestion cards now show the same hard-question review guidance
+  before the **Use** action when the current screening question covers work
+  authorization or another hard review topic.
+
 - Live Application Assist fill results now return bounded saved-answer review
   topics, so success copy can name hard areas to check without exposing saved
   answers or exact form questions.

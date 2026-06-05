@@ -5,6 +5,7 @@ import { Card } from "../Card";
 import { Skeleton } from "../Skeleton";
 import { invoke } from "@tauri-apps/api/core";
 import { logError } from "../../utils/errorUtils";
+import { getHardScreeningAnswerGuidance } from "./screeningReviewGuidance";
 
 // Types matching Rust backend
 interface AnswerSuggestion {
@@ -108,6 +109,8 @@ export const ScreeningAnswerSuggestions = memo(function ScreeningAnswerSuggestio
     return null; // No suggestions, don't show anything
   }
 
+  const hardScreeningAnswerGuidance = getHardScreeningAnswerGuidance(question);
+
   return (
     <Card className="p-4 border-sentinel-200 dark:border-sentinel-800 bg-gradient-to-br from-sentinel-50/50 to-blue-50/50 dark:from-sentinel-900/10 dark:to-blue-900/10">
       <div className="flex items-center gap-2 mb-3">
@@ -124,6 +127,7 @@ export const ScreeningAnswerSuggestions = memo(function ScreeningAnswerSuggestio
             key={index}
             suggestion={suggestion}
             rank={index + 1}
+            reviewGuidance={hardScreeningAnswerGuidance}
             onSelect={onSelectAnswer}
           />
         ))}
@@ -136,10 +140,11 @@ export const ScreeningAnswerSuggestions = memo(function ScreeningAnswerSuggestio
 interface SuggestionCardProps {
   suggestion: AnswerSuggestion;
   rank: number;
+  reviewGuidance?: string | null;
   onSelect?: (answer: string) => void;
 }
 
-function SuggestionCard({ suggestion, rank, onSelect }: SuggestionCardProps) {
+function SuggestionCard({ suggestion, rank, reviewGuidance, onSelect }: SuggestionCardProps) {
   const isHighConfidence = suggestion.confidence >= 0.8;
   const isMediumConfidence = suggestion.confidence >= 0.5;
   const confidenceLabel = isHighConfidence
@@ -167,6 +172,15 @@ function SuggestionCard({ suggestion, rank, onSelect }: SuggestionCardProps) {
           <p className="text-surface-900 dark:text-white font-medium break-words">
             {suggestion.answer}
           </p>
+
+          {reviewGuidance && (
+            <p
+              className="mt-2 text-xs leading-5 text-warning dark:text-warning/90"
+              data-testid="hard-screening-suggestion-guidance"
+            >
+              {reviewGuidance}
+            </p>
+          )}
 
           {/* Metadata */}
           <div className="flex flex-wrap items-center gap-2 mt-2">

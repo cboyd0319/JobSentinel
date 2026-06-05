@@ -143,6 +143,8 @@ requirements, licenses, certifications, or clearances, JobSentinel shows an
 extra review note. The note reminds you to compare the answer with the exact
 application question and use only what is true and backed by your resume or
 records.
+Suggested saved answers show the same review note before the **Use** button
+when the current question matches one of these hard screening topics.
 
 ### Hard Question Review
 

@@ -90,6 +90,33 @@ describe("ScreeningAnswerSuggestions", () => {
     });
   });
 
+  it("shows review guidance before using hard screening suggestions", async () => {
+    mockInvoke.mockResolvedValue([
+      {
+        answer: "Yes, I am authorized to work in the United States.",
+        confidence: 0.9,
+        source: { type: "manual", answerId: 1 },
+        timesUsed: 2,
+        timesModified: 0,
+        lastUsedDaysAgo: null,
+        modificationRate: 0,
+      },
+    ]);
+
+    render(
+      <ScreeningAnswerSuggestions
+        question="Are you authorized to work in the United States?"
+        onSelectAnswer={vi.fn()}
+      />,
+    );
+
+    expect(
+      await screen.findByText(
+        "Review this answer against the exact question before using it. Use only what is true and backed by your resume or records.",
+      ),
+    ).toBeInTheDocument();
+  });
+
   it("uses plain recovery copy when saved answers cannot load", async () => {
     mockInvoke.mockRejectedValue(new Error("load failed"));
 
