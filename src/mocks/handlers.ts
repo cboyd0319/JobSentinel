@@ -6,9 +6,7 @@
 import {
   mockJobs,
   mockConfig,
-  mockStatistics,
   mockApplications,
-  mockApplicationStats,
   mockUpcomingInterviews,
   mockPendingReminders,
 } from "./data";
@@ -25,14 +23,6 @@ import {
   type MockJobImportResult,
 } from "./handlers/sourceLinksAndImports";
 import {
-  generateMockFeedbackReport,
-  getMockConfigSummary,
-  getMockFeedbackFilename,
-  getMockSystemInfo,
-  sanitizeMockFeedbackText,
-  saveMockFeedbackFile,
-} from "./handlers/supportReports";
-import {
   getAllMockSmokeTestResults,
   getMockExpiringCredentials,
   getMockHealthSummary,
@@ -40,8 +30,6 @@ import {
   getMockScraperHealth,
   getMockScraperRuns,
   getMockSmokeTestResultForArgs,
-  hasConfiguredJobsWithGpt,
-  hasEnabledMockScraperSource,
   updateMockScraperEnabled,
 } from "./handlers/scraperHealth";
 import {
@@ -52,6 +40,8 @@ import {
   saveMockInterviewFollowup,
   saveMockInterviewPrepItem,
 } from "./handlers/interviewProgress";
+import { handleMockJobTrackingCommand } from "./handlers/jobTrackingCommands";
+import { handleMockSettingsSupportCommand } from "./handlers/settingsSupportCommands";
 import { handleMockUserDataCommand } from "./handlers/userDataCommands";
 import {
   getNextMockCoverLetterTemplateId,
@@ -105,19 +95,15 @@ import {
   renderMockResumeHtml,
 } from "./handlers/resumeBuilder";
 import {
-  APPLICATION_STATUS_KEYS,
   cloneApplications,
   getArg,
   getDefaultGhostConfig,
-  getJobId,
   getNextId,
   getNumericArg,
   getResumeIdArg,
   getSkillIdArg,
   getStringArg,
-  hasConfiguredUrlList,
   hasOwnInputKey,
-  isCredentialKey,
   normalizeApplications,
   normalizeProfileInput,
   normalizeSkillInput,
@@ -126,22 +112,17 @@ import {
   trimmedStringOrNull,
 } from "./handlers/commandHelpers";
 import type {
-  MockApplication,
   MockApplications,
-  MockApplicationStatus,
   MockApplicationProfile,
   MockBookmarkletConfig,
   MockBuilderSkill,
-  MockConfig,
   MockCoverLetterTemplate,
   MockCredentialKey,
-  MockDashboardPreferences,
   MockFillResultWithAttempt,
   MockGhostConfig,
   MockInterview,
   MockInterviewFollowUpState,
   MockInterviewPrepState,
-  MockJob,
   MockMarketAlert,
   MockMatchResult,
   MockPendingReminder,
@@ -338,6 +319,65 @@ function applyMockUserDataCommand<T>(
   return result.value as T;
 }
 
+function applyMockJobTrackingCommand<T>(
+  command: string,
+  args: Record<string, unknown> | undefined,
+): T {
+  const result = handleMockJobTrackingCommand(command, args, {
+    jobs,
+    applications,
+    pendingReminders,
+    interviews,
+  });
+
+  if (!result.handled) {
+    return undefined as T;
+  }
+
+  jobs = result.state.jobs;
+  applications = result.state.applications;
+  pendingReminders = result.state.pendingReminders;
+  interviews = result.state.interviews;
+
+  if (result.shouldSave) {
+    saveMockState();
+  }
+
+  return result.value as T;
+}
+
+function applyMockSettingsSupportCommand<T>(
+  command: string,
+  args: Record<string, unknown> | undefined,
+): T {
+  const result = handleMockSettingsSupportCommand(
+    command,
+    args,
+    {
+      config,
+      credentials,
+      ghostConfig,
+      bookmarkletConfig,
+    },
+    Boolean(getActiveResume()),
+  );
+
+  if (!result.handled) {
+    return undefined as T;
+  }
+
+  config = result.state.config;
+  credentials = result.state.credentials;
+  ghostConfig = result.state.ghostConfig;
+  bookmarkletConfig = result.state.bookmarkletConfig;
+
+  if (result.shouldSave) {
+    saveMockState();
+  }
+
+  return result.value as T;
+}
+
 loadMockState();
 
 function previewMockJobImport(args?: Record<string, unknown>): MockJobImportPreview {
@@ -357,24 +397,6 @@ function importMockJobFromUrl(args?: Record<string, unknown>): MockJobImportResu
   jobs = [job, ...jobs];
   saveMockState();
   return { jobId: job.id };
-}
-
-function getMockDashboardPreferences(): MockDashboardPreferences {
-  return {
-    autoRefresh: { ...config.auto_refresh },
-    salaryFloorUsd: config.salary_floor_usd,
-    anyJobSourceEnabled: anyMockJobSourceEnabled(),
-  };
-}
-
-function anyMockJobSourceEnabled(): boolean {
-  const configRecord = config as Record<string, unknown>;
-  return (
-    hasEnabledMockScraperSource(configRecord) ||
-    hasConfiguredUrlList(configRecord, "greenhouse_urls") ||
-    hasConfiguredUrlList(configRecord, "lever_urls") ||
-    hasConfiguredJobsWithGpt(configRecord)
-  );
 }
 
 function createMockResumeDraft(): number {
@@ -534,308 +556,69 @@ function createMockResume(name: string, filePath: string): number {
   return id;
 }
 
-function findApplication(
-  applicationId: number,
-): { status: MockApplicationStatus; application: MockApplication } | null {
-  for (const status of APPLICATION_STATUS_KEYS) {
-    const application = applications[status].find((app) => app.id === applicationId);
-    if (application) return { status, application };
-  }
-  return null;
-}
-
-function updateApplication(
-  applicationId: number,
-  updater: (application: MockApplication) => MockApplication,
-): void {
-  applications = APPLICATION_STATUS_KEYS.reduce((acc, status) => {
-    acc[status] = applications[status].map((application) =>
-      application.id === applicationId ? updater(application) : application,
-    );
-    return acc;
-  }, {} as MockApplications);
-}
-
-function moveApplicationStatus(applicationId: number, status: string): void {
-  if (!APPLICATION_STATUS_KEYS.includes(status as MockApplicationStatus)) return;
-
-  const current = findApplication(applicationId);
-  if (!current) return;
-
-  const nextStatus = status as MockApplicationStatus;
-  applications = APPLICATION_STATUS_KEYS.reduce((acc, key) => {
-    acc[key] = applications[key].filter((application) => application.id !== applicationId);
-    return acc;
-  }, {} as MockApplications);
-  applications[nextStatus] = [
-    ...applications[nextStatus],
-    { ...current.application, status: nextStatus },
-  ];
-}
-
 /**
  * Mock implementation of Tauri invoke
  */
 export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>): Promise<T> {
   // Simulate network latency
   await delay(100 + Math.random() * 200);
-  const jobId = getJobId(args);
 
   switch (cmd) {
     // Job commands
     case "get_jobs":
-      return filterJobs(args) as T;
-
     case "get_job":
-      return jobs.find((j) => j.id === jobId) as T;
-
     case "hide_job":
-      jobs = jobs.map((j) => (j.id === jobId ? { ...j, hidden: true } : j));
-      saveMockState();
-      return undefined as T;
-
     case "unhide_job":
-      jobs = jobs.map((j) => (j.id === jobId ? { ...j, hidden: false } : j));
-      saveMockState();
-      return undefined as T;
-
-    case "toggle_bookmark": {
-      let nextState = false;
-      jobs = jobs.map((j) => {
-        if (j.id !== jobId) return j;
-        nextState = !j.bookmarked;
-        return { ...j, bookmarked: nextState };
-      });
-      saveMockState();
-      return nextState as T;
-    }
-
+    case "toggle_bookmark":
     case "get_bookmarked_jobs":
-      return jobs.filter((j) => j.bookmarked) as T;
-
     case "set_job_notes":
-      jobs = jobs.map((j) =>
-        j.id === jobId
-          ? { ...j, notes: getArg(args, "notes") as string | null }
-          : j,
-      );
-      saveMockState();
-      return undefined as T;
-
     case "mark_job_as_real":
-      jobs = jobs.map((j) =>
-        j.id === getJobId(args)
-          ? { ...j, ghost_score: 0, ghost_reasons: null, user_ghost_verdict: "real" }
-          : j,
-      );
-      saveMockState();
-      return undefined as T;
-
     case "mark_job_as_ghost":
-      jobs = jobs.map((j) =>
-        j.id === getJobId(args)
-          ? {
-              ...j,
-              ghost_score: 0.95,
-              ghost_reasons: JSON.stringify([
-                {
-                  category: "company_behavior",
-                  description: "User confirmed this listing is a ghost job.",
-                  weight: 1,
-                  severity: "high",
-                },
-              ]),
-              user_ghost_verdict: "ghost",
-            }
-          : j,
-      );
-      saveMockState();
-      return undefined as T;
-
     case "get_job_notes":
-      return (jobs.find((j) => j.id === jobId)?.notes || null) as T;
+      return applyMockJobTrackingCommand<T>(cmd, args);
 
     // Setup/First run
     case "is_first_run":
-      // Set to true to test first-run setup, false to show dashboard
-      return false as T;
-
-    case "complete_setup": {
-      const setupConfig = getArg(args, "config");
-      if (setupConfig && typeof setupConfig === "object") {
-        config = { ...config, ...(setupConfig as Partial<MockConfig>) };
-        saveMockState();
-      }
-      return undefined as T;
-    }
-
-    // Config commands
+    case "complete_setup":
     case "get_config":
-      return config as T;
-
     case "get_dashboard_preferences":
-      return getMockDashboardPreferences() as T;
-
     case "get_resume_matching_preference":
-      return { enabled: Boolean(config.use_resume_matching) } as T;
-
-    case "set_resume_matching_enabled": {
-      const enabled = Boolean(getArg(args, "enabled"));
-      config = { ...config, use_resume_matching: enabled };
-      saveMockState();
-      return { enabled } as T;
-    }
-
+    case "set_resume_matching_enabled":
     case "save_config":
-      config = { ...config, ...(getArg(args, "config") as object) };
-      saveMockState();
-      return undefined as T;
-
-    case "has_credential": {
-      const key = getArg(args, "key");
-      return (isCredentialKey(key) && Boolean(credentials[key])) as T;
-    }
-
-    case "store_credential": {
-      const key = getArg(args, "key");
-      const value = getArg(args, "value");
-      if (isCredentialKey(key) && typeof value === "string") {
-        credentials[key] = value;
-        saveMockState();
-      }
-      return undefined as T;
-    }
-
+    case "has_credential":
+    case "store_credential":
     case "disconnect_linkedin":
-      config = {
-        ...config,
-        linkedin: { ...config.linkedin, enabled: false },
-      };
-      saveMockState();
-      return undefined as T;
-
     case "linkedin_login":
-      throw new Error("LinkedIn automatic monitoring is disabled by JobSentinel source policy");
-
     case "get_linkedin_expiry_status":
-      return {
-        connected: false,
-        expires_at: null,
-        days_remaining: null,
-        expiry_warning: false,
-        expired: false,
-      } as T;
-
     case "detect_location":
-      return {
-        city: "Denver",
-        region: "CO",
-        country: "US",
-        timezone: "America/Denver",
-      } as T;
-
     case "get_ghost_config":
-      return ghostConfig as T;
-
     case "set_ghost_config":
-      ghostConfig = {
-        ...ghostConfig,
-        ...(getArg(args, "config") as Partial<MockGhostConfig>),
-      };
-      saveMockState();
-      return undefined as T;
-
     case "reset_ghost_config":
-      ghostConfig = getDefaultGhostConfig();
-      saveMockState();
-      return undefined as T;
-
     case "validate_slack_webhook":
     case "test_email_notification":
-      return undefined as T;
-
     case "get_bookmarklet_config":
-      return bookmarkletConfig as T;
-
     case "copy_bookmarklet_code":
-      return undefined as T;
-
-    case "start_bookmarklet_server": {
-      const port = getNumericArg(args, "port") ?? bookmarkletConfig.port;
-      bookmarkletConfig = { ...bookmarkletConfig, port, enabled: true };
-      saveMockState();
-      return undefined as T;
-    }
-
+    case "start_bookmarklet_server":
     case "stop_bookmarklet_server":
-      bookmarkletConfig = { ...bookmarkletConfig, enabled: false };
-      saveMockState();
-      return undefined as T;
-
-    case "set_bookmarklet_port": {
-      const port = getNumericArg(args, "port") ?? bookmarkletConfig.port;
-      bookmarkletConfig = { ...bookmarkletConfig, port };
-      saveMockState();
-      return undefined as T;
-    }
-
+    case "set_bookmarklet_port":
     case "get_system_info":
-      return getMockSystemInfo() as T;
-
     case "get_config_summary":
-      return getMockConfigSummary(config, Boolean(getActiveResume())) as T;
-
     case "get_debug_log_events":
-      return [] as T;
-
     case "generate_feedback_report":
-      return generateMockFeedbackReport(args, config, Boolean(getActiveResume())) as T;
-
     case "sanitize_feedback_text":
-      return sanitizeMockFeedbackText(args) as T;
-
     case "get_feedback_filename":
-      return getMockFeedbackFilename() as T;
-
     case "save_feedback_file":
-      return saveMockFeedbackFile(args) as T;
-
     case "open_github_issues":
     case "open_google_drive":
-      return undefined as T;
-
-    case "reveal_saved_feedback_file": {
-      const revealToken = getStringArg(args, "revealToken") ?? getStringArg(args, "reveal_token");
-      if (!revealToken) {
-        throw new Error("Reveal token cannot be empty");
-      }
-      return undefined as T;
-    }
+    case "reveal_saved_feedback_file":
+      return applyMockSettingsSupportCommand<T>(cmd, args);
 
     // Statistics commands
     case "get_statistics":
-      return {
-        ...mockStatistics,
-        total_jobs: jobs.length,
-        hidden_count: jobs.filter((j) => j.hidden).length,
-      } as T;
-
-    // Dashboard commands
     case "get_recent_jobs":
-      return jobs.slice(0, (args?.limit as number) || 10) as T;
-
     case "get_scraping_status":
-      return {
-        is_running: false,
-        current_source: null,
-        progress: 0,
-        last_run: new Date().toISOString(),
-        jobs_found: jobs.length,
-      } as T;
-
-    // Search commands
     case "search_jobs":
-      return { jobs_found: Math.floor(Math.random() * 20) + 5, duration_ms: 1500 } as T;
+      return applyMockJobTrackingCommand<T>(cmd, args);
 
     // Deep-link commands
     case "get_supported_sites":
@@ -863,144 +646,23 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
 
     // Application commands
     case "get_applications_kanban":
-      return applications as T;
-
-    case "create_application": {
-      const jobHash = getArg(args, "jobHash") ?? getArg(args, "job_hash");
-      const job = jobs.find((candidate) => candidate.hash === jobHash);
-      const nextId = Math.max(
-        0,
-        ...APPLICATION_STATUS_KEYS.flatMap((status) =>
-          applications[status].map((application) => application.id),
-        ),
-      ) + 1;
-      applications.to_apply = [
-        ...applications.to_apply,
-        {
-          id: nextId,
-          job_hash: typeof jobHash === "string" ? jobHash : `mock-${nextId}`,
-          job_title: job?.title ?? "Tracked Job",
-          company: job?.company ?? "Mock Company",
-          status: "to_apply",
-          applied_at: null,
-          notes: null,
-          last_contact: null,
-        },
-      ];
-      saveMockState();
-      return nextId as T;
-    }
-
-    case "update_application_status": {
-      const applicationId = getNumericArg(args, "applicationId");
-      const status = getArg(args, "status");
-      if (applicationId !== undefined && typeof status === "string") {
-        moveApplicationStatus(applicationId, status);
-        saveMockState();
-      }
-      return undefined as T;
-    }
-
-    case "add_application_notes": {
-      const applicationId = getNumericArg(args, "applicationId");
-      const notes = getArg(args, "notes");
-      if (applicationId !== undefined) {
-        updateApplication(applicationId, (application) => ({
-          ...application,
-          notes: typeof notes === "string" ? notes : null,
-        }));
-        saveMockState();
-      }
-      return undefined as T;
-    }
-
+    case "create_application":
+    case "update_application_status":
+    case "add_application_notes":
     case "get_pending_reminders":
-      return pendingReminders as T;
-
-    case "complete_reminder": {
-      const reminderId = getNumericArg(args, "reminderId");
-      pendingReminders = pendingReminders.filter((reminder) => reminder.id !== reminderId);
-      saveMockState();
-      return undefined as T;
-    }
-
+    case "complete_reminder":
     case "detect_ghosted_applications":
-      return 0 as T;
-
     case "get_application_stats":
-      return mockApplicationStats as T;
-
     case "get_jobs_by_source":
-      return Object.entries(mockStatistics.by_source).map(([source, count]) => ({
-        source,
-        count,
-      })) as T;
-
     case "get_salary_distribution":
-      return [
-        { range: "$40k-$60k", count: jobs.filter((j) => j.salary_min < 60000).length },
-        { range: "$60k-$80k", count: jobs.filter((j) => j.salary_min >= 60000 && j.salary_min < 80000).length },
-        { range: "$80k-$100k", count: jobs.filter((j) => j.salary_min >= 80000 && j.salary_min < 100000).length },
-        { range: "$100k+", count: jobs.filter((j) => j.salary_min >= 100000).length },
-      ].filter((bucket) => bucket.count > 0) as T;
-
-    // Interview commands
     case "get_upcoming_interviews":
-      return interviews as T;
-
     case "get_past_interviews":
-      return [] as T;
-
-    case "schedule_interview": {
-      const newId = Math.max(...interviews.map((i) => i.id), 0) + 1;
-      const newInterview: MockInterview = {
-        id: newId,
-        application_id: getArg(args, "applicationId") as number,
-        interview_type: getArg(args, "interviewType") as string,
-        scheduled_at: getArg(args, "scheduledAt") as string,
-        duration_minutes: getArg(args, "durationMinutes") as number,
-        location: (getArg(args, "location") as string) || null,
-        interviewer_name:
-          (getArg(args, "interviewerName") as string) || null,
-        interviewer_title:
-          (getArg(args, "interviewerTitle") as string) || null,
-        notes: (getArg(args, "notes") as string) || null,
-        completed: false,
-        outcome: null,
-        job_title: "Mock Job",
-        company: "Mock Company",
-      };
-      interviews.push(newInterview);
-      saveMockState();
-      return newId as T;
-    }
-
+    case "schedule_interview":
     case "complete_interview":
-      interviews = interviews.map((i): MockInterview =>
-        i.id === getArg(args, "interviewId")
-          ? {
-              ...i,
-              completed: true,
-              outcome: getArg(args, "outcome") as string,
-            }
-          : i,
-      );
-      saveMockState();
-      return undefined as T;
-
     case "delete_interview":
-      interviews = interviews.filter(
-        (i) => i.id !== getArg(args, "interviewId"),
-      );
-      saveMockState();
-      return undefined as T;
-
-    // Deduplication commands
     case "find_duplicates":
-      return [] as T;
-
     case "merge_duplicates":
-      return undefined as T;
+      return applyMockJobTrackingCommand<T>(cmd, args);
 
     // Resume commands
     case "get_active_resume": {
@@ -1489,34 +1151,6 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
     default:
       return undefined as T;
   }
-}
-
-function filterJobs(args?: Record<string, unknown>): MockJob[] {
-  let filtered = jobs.filter((j) => !j.hidden);
-
-  if (args?.source) {
-    filtered = filtered.filter((j) => j.source === args.source);
-  }
-
-  if (args?.minScore) {
-    filtered = filtered.filter((j) => j.score >= (args.minScore as number));
-  }
-
-  if (args?.bookmarkedOnly) {
-    filtered = filtered.filter((j) => j.bookmarked);
-  }
-
-  if (args?.search) {
-    const search = (args.search as string).toLowerCase();
-    filtered = filtered.filter(
-      (j) =>
-        j.title.toLowerCase().includes(search) ||
-        j.company.toLowerCase().includes(search) ||
-        j.description.toLowerCase().includes(search)
-    );
-  }
-
-  return filtered;
 }
 
 /**

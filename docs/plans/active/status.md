@@ -50,13 +50,13 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
-- Mock user-data command bodies moved out of `src/mocks/handlers.ts` into
-  `src/mocks/handlers/userDataCommands.ts`.
+- Mock user-data, job-tracking, settings, and support command bodies moved out
+  of `src/mocks/handlers.ts` into focused helper modules under
+  `src/mocks/handlers/`.
 - The main mock handler keeps the backend command `case` labels for harness
   contract scans and still owns persisted mock state loading and saving.
-- `src/mocks/handlers.ts` legacy no-growth budget tightened from 1,645 lines to
-  1,549 lines. The file remains a grandfathered oversized exception until
-  later helper splits bring it below the 1,200-line test/mock target.
+- The main mock handler is now below the 1,200-line test/mock target, so the
+  legacy oversized-file exception was removed.
 
 Earlier implementation slice:
 
@@ -831,7 +831,7 @@ Recent cleanup summary:
 - `src/mocks/handlers.test.ts` and
   `src-tauri/src/core/resume/ats_analyzer_tests.rs` are now both under the
   1,200-line harness target and no longer need legacy no-growth exemptions.
-- Remaining oversized-file exceptions are `src/mocks/handlers.ts`,
+- Remaining oversized-file exceptions are
   `src-tauri/src/core/resume/ats_analyzer.rs`,
   `src/pages/ResumeBuilder.tsx`, `src-tauri/src/core/notify/slack.rs`,
   `src-tauri/src/core/notify/teams.rs`, `src/pages/ResumeOptimizer.tsx`,
