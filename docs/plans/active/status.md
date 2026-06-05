@@ -419,6 +419,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 - Salary BenchmarkManager database tests moved out of the main salary benchmark
   test file into a focused manager Rust test module.
 
+- JobCard posting-risk guidance tests moved out of the main JobCard test file
+  into a focused frontend test file.
+
 ## Recent Completed Slices
 
 Detailed implementation history before the current restart window is in the

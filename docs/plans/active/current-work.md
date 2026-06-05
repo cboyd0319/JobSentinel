@@ -843,6 +843,10 @@ Out of scope:
   `src-tauri/src/core/salary/benchmarks_tests/manager_tests.rs`. The main
   salary benchmark test file still owns formatting, competitiveness,
   negotiation, percentile, seniority, and location comparison coverage.
+- Coordinator moved JobCard posting-risk guidance tests into
+  `src/components/JobCard.postingRisk.test.tsx`. The main JobCard test file
+  still owns rendering, score display, salary, dates, actions, selected state,
+  and accessibility coverage.
 
 ## Risks
 
