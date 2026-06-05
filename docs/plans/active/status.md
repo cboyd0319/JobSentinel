@@ -464,6 +464,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 - HN Who's Hiring scraper tests moved into `hn_hiring/tests.rs`; production
   scraper file now stays focused on fetch/parse behavior.
 
+- Email notification formatter tests moved into `email/tests.rs`; production
+  SMTP and formatting module now stays focused on runtime behavior.
+
 ## Recent Completed Slices
 
 Detailed implementation history before the current restart window is in the
