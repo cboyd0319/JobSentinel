@@ -492,11 +492,16 @@ export function useDashboardJobOps(
       setDuplicatesModalOpen(true);
 
       if (groups.length === 0) {
-        toast.success("No duplicates", "All jobs are unique");
+        toast.success(
+          "No repeated postings found",
+          "No likely repeats found in the current job list.",
+        );
       } else {
+        const groupCopy =
+          groups.length === 1 ? "1 group needs review" : `${groups.length} groups need review`;
         toast.info(
-          "Duplicates found",
-          `${groups.length} duplicate groups detected`,
+          "Possible repeats found",
+          groupCopy,
         );
       }
     } catch {

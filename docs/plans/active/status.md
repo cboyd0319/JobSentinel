@@ -51,9 +51,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
-- Setup resume-suggestion controls now say **Hide suggestions** and show that
-  added skills appear above, so hiding suggestions does not imply reviewed skills
-  already added to the search will disappear.
+- Dashboard duplicate-review copy now says possible repeated postings, not proof
+  that multiple sources confirmed the same job, and duplicate-check toasts use
+  cautious review-first wording.
 
 - Resume Match model types, validators, JSON parsing, fit-status copy, and
   suggestion-category labels moved from `src/pages/ResumeOptimizer.tsx` to

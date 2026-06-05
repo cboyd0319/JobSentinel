@@ -3,6 +3,7 @@ import { renderHook, act } from "@testing-library/react";
 import { invoke } from "@tauri-apps/api/core";
 import { useDashboardJobOps } from "./useDashboardJobOps";
 import type { Job, DuplicateGroup } from "../DashboardTypes";
+import { safeInvokeWithToast } from "../../utils/api";
 
 vi.mock("@tauri-apps/api/core", () => ({ invoke: vi.fn() }));
 
@@ -27,6 +28,7 @@ vi.mock("../../utils/api", () => ({
 }));
 
 const mockInvoke = vi.mocked(invoke);
+const mockSafeInvokeWithToast = vi.mocked(safeInvokeWithToast);
 
 function makeJob(overrides: Partial<Job> = {}): Job {
   return {
@@ -274,6 +276,42 @@ describe("handleBulkHide", () => {
     );
 
     expect(mockToast.warning).not.toHaveBeenCalled();
+  });
+});
+
+// ─── handleMergeAllDuplicates ─────────────────────────────────────────────────
+
+describe("handleCheckDuplicates", () => {
+  it("uses cautious copy when no repeated postings are found", async () => {
+    mockSafeInvokeWithToast.mockResolvedValueOnce([]);
+    const { result } = renderJobOps([makeJob({ id: 1 })]);
+
+    await act(async () => {
+      await result.current.handleCheckDuplicates();
+    });
+
+    expect(result.current.duplicatesModalOpen).toBe(true);
+    expect(mockToast.success).toHaveBeenCalledWith(
+      "No repeated postings found",
+      "No likely repeats found in the current job list.",
+    );
+    expect(mockToast.info).not.toHaveBeenCalled();
+  });
+
+  it("uses review-first copy when possible repeat groups are found", async () => {
+    mockSafeInvokeWithToast.mockResolvedValueOnce([makeDuplicateGroup(10, [11])]);
+    const { result } = renderJobOps([makeJob({ id: 10 }), makeJob({ id: 11 })]);
+
+    await act(async () => {
+      await result.current.handleCheckDuplicates();
+    });
+
+    expect(result.current.duplicateGroups).toHaveLength(1);
+    expect(mockToast.info).toHaveBeenCalledWith(
+      "Possible repeats found",
+      "1 group needs review",
+    );
+    expect(mockToast.success).not.toHaveBeenCalled();
   });
 });
 

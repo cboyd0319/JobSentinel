@@ -984,22 +984,22 @@ export default function Dashboard({
       <Modal
         isOpen={jobOps.duplicatesModalOpen}
         onClose={() => jobOps.setDuplicatesModalOpen(false)}
-        title="Duplicate Jobs"
+        title="Possible Repeated Jobs"
       >
         <div className="space-y-4">
           {jobOps.duplicateGroups.length === 0 ? (
             <div className="text-center py-8">
               <CheckCircleIcon className="w-12 h-12 text-green-500 mx-auto mb-3" />
               <p className="text-surface-600 dark:text-surface-400">
-                No duplicate jobs found. All jobs are unique!
+                No likely repeated postings found.
               </p>
             </div>
           ) : (
             <>
               <p className="text-sm text-surface-600 dark:text-surface-400">
-                Found {jobOps.duplicateGroups.length} duplicate groups. Same job
-                from multiple sources. Merging will keep the strongest fit
-                estimate version and hide duplicates.
+                Found {jobOps.duplicateGroups.length} possible repeat groups.
+                These are similar saved postings, not proof that multiple
+                sources confirmed the same job. Review before hiding extras.
               </p>
               <div className="space-y-4 max-h-96 overflow-y-auto">
                 {jobOps.duplicateGroups.map((group) => (
