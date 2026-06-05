@@ -211,6 +211,7 @@ Out of scope:
 - [x] Split DB duplicate tests out of the main DB test file.
 - [x] Split config email alert tests out of the main config test file.
 - [x] Split config Discord alert tests out of the main config test file.
+- [x] Split config Telegram alert tests out of the main config test file.
 
 ## Orchestration Log
 
