@@ -230,6 +230,8 @@ Out of scope:
   command test.
 - [x] Split mock resume summary and text-preview view helpers out of the main
   mock handler.
+- [x] Split mock degree-specialization hard-constraint tests out of the broad
+  hard-constraint test file.
 - [x] Split scraper and source-health fixture coverage out of the feature-doc
   bloat test file.
 - [x] Split Lever remote-inference tests out of the main Lever scraper test
@@ -522,6 +524,9 @@ Out of scope:
 - Coordinator moved scheduler error-path coverage tests into
   `src-tauri/src/core/scheduler/tests/error_path_tests.rs`, reducing the main
   scheduler test file from 1,155 to 739 lines.
+- Coordinator moved degree-specialization hard-constraint assertions into
+  `src/mocks/handlers/resumeDegreeSpecializations.test.ts`, reducing the broad
+  hard-constraint test file from 1,151 to 805 lines.
 - Pay-protection sidecar was read-only and changed no files. Coordinator
   accepted its finding that negotiation-note drafts could treat benchmark
   values as offer facts, then fixed the Salary page, dev mock, tests, feature

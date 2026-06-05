@@ -376,6 +376,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 - Scheduler error-path coverage tests moved out of the main scheduler test file
   into a focused Rust test module.
 
+- Mock resume degree-specialization hard-constraint tests moved out of the broad
+  hard-constraint test file into a focused mock test file.
+
 ## Recent Completed Slices
 
 Detailed implementation history before the current restart window is in the
