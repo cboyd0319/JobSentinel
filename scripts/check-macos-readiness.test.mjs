@@ -6,6 +6,7 @@ import test from "node:test";
 import {
   assertMacosReadinessDocsMatch,
   formatMacosReadinessReport,
+  hasNoAccountMacosReleaseOrder,
   noAccountCompletionPercentage,
   readMacosDevelopmentReadinessClaims,
   readReadmeMacosReadinessPercent,
@@ -96,4 +97,33 @@ test("macOS readiness docs guard rejects stale no-account percentage wording", (
   } finally {
     rmSync(root, { force: true, recursive: true });
   }
+});
+
+test("macOS readiness checks no-account release workflow order", () => {
+  const orderedWorkflow = [
+    "- name: Verify macOS app and DMG",
+    "  run: npm run tauri:verify:macos",
+    "- name: Label no-account macOS DMG",
+    "  run: rm -f \"$current_path.sha256\" \"$labeled_path.sha256\"",
+    "- name: Create macOS checksum",
+    "  run: shasum -a 256 \"${dmg_paths[0]}\" > \"${dmg_paths[0]}.sha256\"",
+    "- name: Upload macOS DMG",
+    "  with:",
+    "    files: src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg.sha256",
+  ].join("\n");
+
+  const staleWorkflow = [
+    "- name: Verify macOS app and DMG",
+    "  run: npm run tauri:verify:macos",
+    "- name: Create macOS checksum",
+    "  run: shasum -a 256 \"${dmg_paths[0]}\" > \"${dmg_paths[0]}.sha256\"",
+    "- name: Label no-account macOS DMG",
+    "  run: rm -f \"$current_path.sha256\" \"$labeled_path.sha256\"",
+    "- name: Upload macOS DMG",
+    "  with:",
+    "    files: src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg.sha256",
+  ].join("\n");
+
+  assert.equal(hasNoAccountMacosReleaseOrder(orderedWorkflow), true);
+  assert.equal(hasNoAccountMacosReleaseOrder(staleWorkflow), false);
 });

@@ -29,6 +29,35 @@ function hasAny(text, snippets) {
   return snippets.some((snippet) => normalizedText.includes(normalizeText(snippet)));
 }
 
+export function hasOrderedSnippets(text, snippets) {
+  let offset = 0;
+
+  for (const snippet of snippets) {
+    const index = text.indexOf(snippet, offset);
+    if (index === -1) return false;
+    offset = index + snippet.length;
+  }
+
+  return true;
+}
+
+export function hasNoAccountMacosReleaseOrder(releaseWorkflow) {
+  return (
+    hasOrderedSnippets(releaseWorkflow, [
+      "- name: Verify macOS app and DMG",
+      "- name: Label no-account macOS DMG",
+      "- name: Create macOS checksum",
+      "- name: Upload macOS DMG",
+    ]) &&
+    hasOrderedSnippets(releaseWorkflow, [
+      "npm run tauri:verify:macos",
+      "rm -f \"$current_path.sha256\" \"$labeled_path.sha256\"",
+      "shasum -a 256",
+      "src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg.sha256",
+    ])
+  );
+}
+
 function criterion(id, points, ok, detail) {
   return {
     detail,
@@ -121,8 +150,9 @@ export function evaluateMacosReadiness({ root = defaultRoot, env = process.env }
         "_no-account_",
         "Create macOS checksum",
         ".dmg.sha256",
-      ]),
-      "No-account releases must be visibly labeled and checksum-backed.",
+      ]) &&
+        hasNoAccountMacosReleaseOrder(releaseWorkflow),
+      "No-account releases must be verified, labeled, re-checksummed, and uploaded in order.",
     ),
     criterion(
       "release workflow keeps Developer ID path strict",

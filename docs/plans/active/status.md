@@ -51,6 +51,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- macOS readiness now checks that no-account release workflow order stays
+  verify, label, recreate checksum, then upload.
+
 - macOS development docs now match the README readiness split: 94%
   full-public readiness, 100% no-account path completion, with a readiness
   guard against stale no-account percentage wording.
