@@ -113,6 +113,17 @@ Earlier implementation slice:
 
 Latest implementation slice:
 
+- ATS hard-constraint risk building, hard-constraint categorization, and
+  hard-constraint keyword extraction moved out of
+  `src-tauri/src/core/resume/ats_analyzer.rs` into
+  `src-tauri/src/core/resume/ats_analyzer/hard_constraints.rs`.
+- The main ATS analyzer still owns job keyword extraction, requirement review,
+  evidence scoring, and structured resume analysis.
+- `src-tauri/src/core/resume/ats_analyzer.rs` legacy no-growth budget
+  tightened from 2,115 lines to 1,682 lines.
+
+Earlier implementation slice:
+
 - Settings notification, email, chat-alert, and per-source notification
   preference UI moved out of `src/pages/Settings.tsx` into
   `src/pages/SettingsNotificationsSection.tsx`.

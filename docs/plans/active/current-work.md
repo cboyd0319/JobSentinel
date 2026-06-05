@@ -228,6 +228,7 @@ Out of scope:
   bringing it below the 1,200-line test target.
 - [x] Split Settings notification UI out of the main Settings page and retire
   its legacy oversized-file exception.
+- [x] Split ATS hard-constraint helpers out of the runtime analyzer.
 
 ## Orchestration Log
 
