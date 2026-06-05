@@ -50,6 +50,17 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Config Greenhouse and Lever source URL validation tests moved out of
+  `src-tauri/src/core/config/tests.rs` into
+  `src-tauri/src/core/config/tests/source_url_tests.rs`.
+- The main config test file still owns general validation, persistence,
+  defaults, LinkedIn, auto-refresh, desktop, serde, boundary, and property
+  coverage plus shared fixtures.
+- `src-tauri/src/core/config/tests.rs` legacy no-growth budget tightened from
+  1,382 lines to 1,247 lines.
+
+Recent implementation slice:
+
 - Config Teams alert validation tests moved out of
   `src-tauri/src/core/config/tests.rs` into
   `src-tauri/src/core/config/tests/teams_tests.rs`.
@@ -59,7 +70,7 @@ Latest implementation slice:
 - `src-tauri/src/core/config/tests.rs` legacy no-growth budget tightened from
   1,459 lines to 1,382 lines.
 
-Recent implementation slice:
+Earlier implementation slice:
 
 - Config Telegram alert validation tests moved out of
   `src-tauri/src/core/config/tests.rs` into
