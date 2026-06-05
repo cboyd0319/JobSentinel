@@ -177,6 +177,19 @@ describe("buildResumeNextActions", () => {
 });
 
 describe("getResumeFitEvidenceStatus", () => {
+  it("shows must-have status for hard-constraint review rows", () => {
+    expect(
+      getResumeFitEvidenceStatus({
+        ...baseAnalysis,
+        requirement_reviews: [requiredReview("driver license", "Missing", true)],
+      }),
+    ).toMatchObject({
+      label: "Check must-haves first",
+      detail: "A required item needs verification before tailoring.",
+      variant: "danger",
+    });
+  });
+
   it("shows mixed evidence for weak required wording", () => {
     const weakStates: RequirementMatchState[] = ["Partial", "Implied"];
 

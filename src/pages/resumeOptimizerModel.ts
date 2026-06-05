@@ -385,7 +385,11 @@ export function getResumeFitEvidenceStatus(analysis: AtsAnalysisResult): ResumeF
   const keywordMatches = analysis.keyword_matches ?? [];
   const missingKeywordDetails = analysis.missing_keyword_details ?? [];
 
-  if (hardConstraintRisks.length > 0) {
+  const hardConstraintReviewRisk = requirementReviews.some(
+    (review) => review.hard_constraint && isMissingOrWeakRequiredReview(review),
+  );
+
+  if (hardConstraintRisks.length > 0 || hardConstraintReviewRisk) {
     return {
       label: "Check must-haves first",
       detail: "A required item needs verification before tailoring.",
@@ -393,15 +397,7 @@ export function getResumeFitEvidenceStatus(analysis: AtsAnalysisResult): ResumeF
     };
   }
 
-  const missingOrWeakRequired = requirementReviews.some(
-    (review) =>
-      review.importance === "Required" &&
-      (
-        review.match_state === "Missing" ||
-        review.match_state === "Partial" ||
-        review.match_state === "Implied"
-      ),
-  );
+  const missingOrWeakRequired = requirementReviews.some(isMissingOrWeakRequiredReview);
   if (missingOrWeakRequired) {
     return {
       label: "Mixed evidence",

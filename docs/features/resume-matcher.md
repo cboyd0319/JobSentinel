@@ -169,7 +169,8 @@ The current local matcher:
   mixed evidence, not enough job detail, or clearer evidence, so the score is
   treated as local evidence review instead of an employer prediction;
 - keeps the Resume Fit evidence-status label at mixed evidence when required
-  job-post wording is missing, partial, or only implied;
+  job-post wording is missing, partial, or only implied, unless the row is a
+  hard-requirement review that needs a **Check must-haves first** status;
 - tells users in the Resume Fit card that the result is local evidence review,
   not a hiring prediction or a promise about employer systems;
 - treats malformed local score values as unavailable, while keeping words

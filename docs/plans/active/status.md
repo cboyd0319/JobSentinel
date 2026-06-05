@@ -51,6 +51,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Resume Fit evidence status now treats hard-requirement review rows as
+  **Check must-haves first** even when no separate hard-risk item is present.
+
 - Job-card scam cues now flag messaging-app interview requests while keeping
   ordinary team-chat wording quiet.
 
