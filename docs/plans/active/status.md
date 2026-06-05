@@ -50,6 +50,15 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Salary predictor tests moved out of
+  `src-tauri/src/core/salary/predictor.rs` into
+  `src-tauri/src/core/salary/predictor_tests.rs` and
+  `src-tauri/src/core/salary/predictor_tests/pure_tests.rs`.
+- The runtime salary predictor is now below the 1,200-line Rust target, so the
+  legacy oversized-file exception was removed.
+
+Earlier implementation slice:
+
 - Ghost detection tests moved out of `src-tauri/src/core/ghost/mod.rs` into
   `src-tauri/src/core/ghost/tests.rs`.
 - The runtime ghost module is now below the 1,200-line Rust target, so the
@@ -117,15 +126,6 @@ Earlier implementation slice:
 - The runtime Greenhouse scraper is now below the 1,200-line Rust target, so
   the legacy oversized-file exception was removed.
 - Greenhouse behavior was unchanged; only test module ownership changed.
-
-Earlier implementation slice:
-
-- Dashboard job comparison modal moved out of `src/pages/Dashboard.tsx` into
-  `src/pages/DashboardUI/DashboardCompareModal.tsx`.
-- The main Dashboard page is now below the 1,200-line frontend target, so the
-  legacy oversized-file exception was removed.
-- Dashboard comparison behavior was unchanged; only modal component ownership
-  changed.
 
 Earlier implementation slice:
 
@@ -856,9 +856,8 @@ Recent cleanup summary:
 - Remaining oversized-file exceptions are `src/pages/ResumeBuilder.tsx`,
   `src/pages/ResumeOptimizer.tsx`,
   `src/pages/SetupWizard.tsx`,
-  `src/pages/Resume.tsx`, `src-tauri/src/commands/automation.rs`,
-  `scripts/harness/checks/privacy-logging.mjs`, and
-  `src-tauri/src/core/salary/predictor.rs`.
+  `src/pages/Resume.tsx`, `src-tauri/src/commands/automation.rs`, and
+  `scripts/harness/checks/privacy-logging.mjs`.
 
 ## Next Best Work
 
