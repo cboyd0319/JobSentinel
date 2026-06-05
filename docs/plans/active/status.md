@@ -349,6 +349,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
   handler, keeping resume selection and preview behavior covered while lowering
   handler size.
 
+- Scraper and source-health bloat fixture coverage moved out of the feature-doc
+  bloat test file into a focused source-doc test file.
+
 - Resume Builder template thumbnail previews and export/delete icons moved out
   of `src/pages/ResumeBuilder.tsx` into `src/pages/ResumeBuilderVisuals.tsx`.
 

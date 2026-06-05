@@ -224,6 +224,8 @@ Out of scope:
   command test.
 - [x] Split mock resume summary and text-preview view helpers out of the main
   mock handler.
+- [x] Split scraper and source-health fixture coverage out of the feature-doc
+  bloat test file.
 - [x] Split Market Intelligence async tests out of the main test file and
   retire its legacy oversized-file exception.
 - [x] Split Greenhouse scraper tests out of the runtime scraper file and retire
@@ -482,6 +484,9 @@ Out of scope:
   `src/mocks/handlers/resumeSummaryViews.ts`, reducing the main mock handler
   from 1,183 to 1,134 lines without changing resume selection or preview
   behavior.
+- Coordinator moved scraper and source-health fixture coverage into
+  `scripts/check-repo-bloat-source-docs.test.mjs`, reducing the feature-doc
+  bloat test file from 1,188 to 933 lines.
 - Pay-protection sidecar was read-only and changed no files. Coordinator
   accepted its finding that negotiation-note drafts could treat benchmark
   values as offer facts, then fixed the Salary page, dev mock, tests, feature
