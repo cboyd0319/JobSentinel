@@ -1,4 +1,7 @@
-import { hasPostingEvidenceReviewCue } from "../utils/postingRisk";
+import {
+  hasLowDetailPostingReviewCue,
+  hasPostingEvidenceReviewCue,
+} from "../utils/postingRisk";
 
 export interface PostingRiskGuidance {
   level: "low" | "medium" | "high";
@@ -39,17 +42,6 @@ const SCAM_SIGNAL_PATTERNS = [
   /\b(?:telegram|whats\s*app|whatsapp|signal)\b.{0,60}\b(?:interview|screening|chat|message)\b/i,
   /\b(?:interview|screening|chat|message)\b.{0,60}\b(?:telegram|whats\s*app|whatsapp|signal)\b/i,
 ] as const;
-
-const LOW_DETAIL_TITLE_PATTERNS = [
-  /^\s*(?:various|multiple)\s+(?:positions|roles|openings)\s*$/i,
-  /^\s*(?:general|open)\s+(?:application|position|role|opening)\s*$/i,
-  /^\s*(?:now hiring|hiring now|join our team)\s*$/i,
-  /^\s*(?:work\s+from\s+home|remote)\s+(?:job|position|role|opportunity|opening)\s*$/i,
-  /^\s*(?:entry\s+level|immediate\s+hire)\s+(?:job|position|role|opportunity|opening)\s*$/i,
-] as const;
-
-const THIN_DESCRIPTION_PATTERN = /\b(?:apply|hiring|opportunity|position|role|team)\b/i;
-const MIN_THIN_DESCRIPTION_LENGTH = 45;
 
 export function getPostingRiskGuidance(
   ghostScore: number | null | undefined,
@@ -119,18 +111,7 @@ export function getLowDetailPostingGuidance(
   title: string,
   description: string | null | undefined,
 ): PostingRiskGuidance | null {
-  const trimmedTitle = title.trim();
-  const trimmedDescription = description?.trim() ?? "";
-  const hasBroadTitle = LOW_DETAIL_TITLE_PATTERNS.some((pattern) =>
-    pattern.test(trimmedTitle)
-  );
-  const hasMissingDescription = trimmedDescription.length === 0;
-  const hasThinDescription =
-    trimmedDescription.length > 0 &&
-    trimmedDescription.length < MIN_THIN_DESCRIPTION_LENGTH &&
-    THIN_DESCRIPTION_PATTERN.test(trimmedDescription);
-
-  if (!hasBroadTitle && !hasMissingDescription && !hasThinDescription) {
+  if (!hasLowDetailPostingReviewCue(title, description)) {
     return null;
   }
 

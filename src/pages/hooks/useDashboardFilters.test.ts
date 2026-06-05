@@ -17,6 +17,8 @@ function makeJob(overrides: Partial<Job> = {}): Job {
     url: "https://example.com/job/1",
     source: "linkedin",
     score: 0.85,
+    description:
+      "Help customers, document issues, coordinate follow-up, and support a care team.",
     created_at: new Date().toISOString(),
     ...overrides,
   };
@@ -192,6 +194,35 @@ describe("useDashboardFilters — score edge cases", () => {
       act(() => result.current.setGhostFilter("real"));
 
       expect(result.current.filteredAndSortedJobs.map((j) => j.id)).toEqual([3]);
+    });
+
+    it("routes low-detail card warnings through posting-risk filters", () => {
+      const jobs: Job[] = [
+        makeJob({
+          id: 1,
+          title: "Remote Opportunity",
+          description: "Apply today.",
+          ghost_score: null,
+          ghost_reasons: null,
+        }),
+        makeJob({
+          id: 2,
+          title: "Customer Support Coordinator",
+          description: "Help customers, document issues, and support a care team.",
+          ghost_score: 0.2,
+          ghost_reasons: null,
+        }),
+      ];
+
+      const { result } = renderHook(() => useDashboardFilters(jobs));
+
+      act(() => result.current.setGhostFilter("real"));
+
+      expect(result.current.filteredAndSortedJobs.map((j) => j.id)).toEqual([2]);
+
+      act(() => result.current.setGhostFilter("ghost"));
+
+      expect(result.current.filteredAndSortedJobs.map((j) => j.id)).toEqual([1]);
     });
   });
 

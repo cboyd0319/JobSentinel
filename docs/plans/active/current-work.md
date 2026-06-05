@@ -336,6 +336,7 @@ Out of scope:
   out of `src/pages/Resume.tsx`.
 - [x] Keep first-run desktop alerts off until the user explicitly turns them
   on.
+- [x] Route low-detail card warnings through posting-risk filters.
 
 ## Orchestration Log
 
@@ -384,6 +385,8 @@ Out of scope:
   component so the main Resume page stays farther from the harness line limit.
 - Coordinator changed first-run desktop alerts from quiet-on to explicit opt-in
   so shared-device notifications do not start without user choice.
+- Coordinator aligned posting-risk filters with low-detail card warnings so
+  broad or thin postings no longer remain in **Lower Risk** results.
 - Pay-protection sidecar was read-only and changed no files. Coordinator
   accepted its finding that negotiation-note drafts could treat benchmark
   values as offer facts, then fixed the Salary page, dev mock, tests, feature

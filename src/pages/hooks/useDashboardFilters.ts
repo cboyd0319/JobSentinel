@@ -266,6 +266,8 @@ export function useDashboardFilters(jobs: Job[]): FilterState &
         const needsReview = hasPostingReviewAlert(
           job.ghost_score,
           job.ghost_reasons,
+          job.title,
+          job.description,
         );
         if (ghostFilter === "real") return !needsReview;
         if (ghostFilter === "ghost") return needsReview;

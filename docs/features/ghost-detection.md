@@ -148,6 +148,9 @@ Use the posting-risk filter above your job list:
 - **Lower Risk** - Hide postings that need a warning.
 - **Needs Review** - Show only jobs with posting-review alerts.
 
+These filters also include low-detail card warnings such as **Check role
+details**, so the list view and card guidance stay consistent.
+
 Use "Lower Risk" when you are low on time or energy. Use "Needs Review" when
 you want to check old or suspicious listings before deciding what to do.
 
