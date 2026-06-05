@@ -50,6 +50,16 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Resume template renderer tests moved out of
+  `src-tauri/src/core/resume/templates.rs` into
+  `src-tauri/src/core/resume/templates_tests.rs`.
+- The runtime resume templates module is now below the 1,200-line Rust target,
+  so the legacy oversized-file exception was removed.
+- Resume template runtime behavior was unchanged; only test module ownership
+  changed.
+
+Earlier implementation slice:
+
 - User data inline tests moved out of `src-tauri/src/core/user_data/mod.rs`
   into `src-tauri/src/core/user_data/tests.rs`.
 - The runtime user data module is now below the 1,200-line Rust target, so the
