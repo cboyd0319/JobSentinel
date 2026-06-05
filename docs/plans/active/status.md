@@ -50,6 +50,15 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Release-promise repo-bloat fixtures now live in
+  `scripts/check-repo-bloat-release-promises.test.mjs`, reducing
+  `scripts/check-repo-bloat.test.mjs` from 895 to 820 lines without changing
+  release-version, macOS installer, or macOS distribution promise sensors.
+  Focused verification passed: `node --test scripts/check-repo-bloat.test.mjs
+  scripts/check-repo-bloat-release-promises.test.mjs` and `npm run
+  lint:bloat`; full script tests, docs gates, `git diff --check`, and the
+  local-path leak scan also passed.
+
 - WeWorkRemotely scraper tests now live in
   `src-tauri/src/core/scrapers/weworkremotely_tests.rs`, reducing
   `src-tauri/src/core/scrapers/weworkremotely.rs` from 888 to 244 lines
@@ -130,6 +139,7 @@ Recent committed cleanup batch:
 
 | Area | Main file before -> after | Extracted surface | Focused proof |
 | ---- | ------------------------- | ----------------- | ------------- |
+| Repo-bloat release promise tests | 895 -> 820 | release-promise test file | Focused script tests, bloat |
 | WeWorkRemotely scraper | 888 -> 244 | scraper test sidecar | Scraper focused tests |
 | Discord notification tests | 893 -> 754 | display test module | Discord focused tests, fmt |
 | Settings support reports | 894 -> 856 | support-report hook | Settings load tests, build, lint, bloat |
