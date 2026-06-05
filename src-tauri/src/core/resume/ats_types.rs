@@ -100,6 +100,8 @@ pub enum HardConstraintCategory {
     Experience,
     /// Required language fluency
     Language,
+    /// Required minimum age or legal work-age eligibility
+    Age,
     /// Required background, drug, or pre-employment screening
     BackgroundScreening,
     /// Required physical demand such as lifting or prolonged standing

@@ -30,10 +30,25 @@ fn test_age_requirement_is_not_years_experience_constraint() {
         "Required: must be 18 years of age, CRM",
     );
 
+    assert!(result.overall_score <= 70.0);
+    assert!(result.requirement_reviews.iter().any(|review| {
+        review.keyword == "18 years of age"
+            && review.hard_constraint
+            && review.match_state == RequirementMatchState::Missing
+    }));
+    assert!(result.hard_constraint_risks.iter().any(|risk| {
+        risk.requirement == "18 years of age"
+            && risk.category == HardConstraintCategory::Age
+            && risk.score_cap == 70.0
+            && risk.action.contains("minimum-age")
+            && risk.action.contains("do not claim it")
+    }));
     assert!(!result
         .requirement_reviews
         .iter()
-        .any(|review| review.keyword == "18 years of age" && review.hard_constraint));
+        .any(|review| review.keyword == "18 years of age"
+            && review.hard_constraint
+            && review.match_state == RequirementMatchState::Direct));
     assert!(!result.hard_constraint_risks.iter().any(|risk| {
         risk.category == HardConstraintCategory::Experience && risk.requirement.contains("18 years")
     }));

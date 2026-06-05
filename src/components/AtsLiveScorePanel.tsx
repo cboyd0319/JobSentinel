@@ -70,6 +70,7 @@ interface HardConstraintRisk {
     | "Education"
     | "Experience"
     | "Language"
+    | "Age"
     | "BackgroundScreening"
     | "PhysicalRequirement"
     | "Location";
@@ -132,6 +133,8 @@ function formatHardConstraintCategory(category: HardConstraintRisk["category"]):
       return "Years of experience";
     case "Language":
       return "Language requirement";
+    case "Age":
+      return "Age requirement";
     case "BackgroundScreening":
       return "Background or drug screening";
     case "PhysicalRequirement":
@@ -398,6 +401,17 @@ function inferHardConstraintCategory(keyword: string): HardConstraintRisk["categ
   }
   if (lower.includes("language") || lower.includes("bilingual") || lower.includes("fluency")) {
     return "Language";
+  }
+  if (
+    lower.includes("years of age") ||
+    lower.includes("year of age") ||
+    lower.includes("years old") ||
+    lower.includes("year old") ||
+    lower.includes("minimum age") ||
+    lower.includes("age requirement") ||
+    lower.includes("legal work age")
+  ) {
+    return "Age";
   }
   if (lower.includes("background") || lower.includes("drug") || lower.includes("screening")) {
     return "BackgroundScreening";

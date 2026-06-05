@@ -172,6 +172,8 @@ function getMockHardConstraintAction(
       return "Check years or level before tailoring. Do not round up, stretch titles, or imply more experience than you have.";
     case "Language":
       return "Check language fluency before tailoring. If it is not true for you, do not claim it.";
+    case "Age":
+      return "Check the minimum-age or legal work-age requirement before tailoring. If it is not true for you, do not claim it.";
     case "BackgroundScreening":
       return "Check background, drug, or pre-employment screening before tailoring. If it is not workable or true for you, do not claim or imply that it is.";
     case "PhysicalRequirement":
@@ -237,6 +239,7 @@ function getMockHardConstraintScoreCap(category: MockHardConstraintCategory): nu
     case "Experience":
     case "Language":
       return 65;
+    case "Age":
     case "BackgroundScreening":
       return 70;
     case "PhysicalRequirement":
@@ -314,6 +317,9 @@ function getMockHardConstraintCategory(keyword: string): MockHardConstraintCateg
   ) {
     return "Education";
   }
+  if (isMockAgeRequirementKeyword(lower)) {
+    return "Age";
+  }
   if (
     lower.includes("year") ||
     lower.includes("yrs") ||
@@ -386,6 +392,23 @@ function getMockHardConstraintCategory(keyword: string): MockHardConstraintCateg
     return "Location";
   }
   return null;
+}
+
+function isMockAgeRequirementKeyword(keyword: string): boolean {
+  const lower = keyword.toLowerCase();
+  return [
+    "year of age",
+    "years of age",
+    "yr of age",
+    "yrs of age",
+    "year old",
+    "years old",
+    "yr old",
+    "yrs old",
+    "minimum age",
+    "age requirement",
+    "legal work age",
+  ].some((phrase) => lower.includes(phrase));
 }
 
 function isMockKnownHumanLanguageRequirement(lower: string): boolean {

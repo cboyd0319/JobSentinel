@@ -51,6 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Resume Match now treats required minimum-age or legal work-age wording as a
+  hard review item with truth-first guidance instead of dropping it or treating
+  it as years-of-experience evidence.
+
 - First-run custom searches now recognize reviewed data analyst and business
   intelligence analyst titles as tech/data-focused for optional source
   suggestions, without matching generic analyst roles or selecting sources

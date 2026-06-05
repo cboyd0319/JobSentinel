@@ -55,6 +55,7 @@ pub(super) fn hard_constraint_score_cap(category: HardConstraintCategory) -> f64
         HardConstraintCategory::Education => 65.0,
         HardConstraintCategory::Experience => 65.0,
         HardConstraintCategory::Language => 65.0,
+        HardConstraintCategory::Age => 70.0,
         HardConstraintCategory::BackgroundScreening => 70.0,
         HardConstraintCategory::PhysicalRequirement => 70.0,
         HardConstraintCategory::Location => 70.0,
@@ -100,6 +101,9 @@ pub(super) fn hard_constraint_action(keyword: &str, category: HardConstraintCate
         }
         HardConstraintCategory::Language => {
             "Check language fluency before tailoring. If it is not true for you, do not claim it."
+        }
+        HardConstraintCategory::Age => {
+            "Check the minimum-age or legal work-age requirement before tailoring. If it is not true for you, do not claim it."
         }
         HardConstraintCategory::BackgroundScreening => {
             "Check background, drug, or pre-employment screening before tailoring. If it is not workable or true for you, do not claim or imply that it is."
@@ -228,6 +232,9 @@ pub(super) fn hard_constraint_category(keyword: &str) -> Option<HardConstraintCa
     {
         return Some(HardConstraintCategory::Education);
     }
+    if age_requirement_keyword(&lower) {
+        return Some(HardConstraintCategory::Age);
+    }
     if lower.contains("year")
         || lower.contains("yrs")
         || lower.contains("level experience")
@@ -318,6 +325,8 @@ pub(super) fn extract_hard_constraint_keywords(text: &str) -> Vec<String> {
         r"(?i)\b(certification|cissp|certified information systems security professional|security plus|bls|basic life support|acls|advanced cardiovascular life support|cpr|cardiopulmonary resuscitation|cna|certified nursing assistant|certified nurse assistant|certified nurse aide|pmp|project management professional|servsafe|food safety certification|food[- ]handler'?s?\s+(?:certification|certificate|permit|card)|first[- ]aid certification|first[- ]aid certified|first[- ]aid certificate|first[- ]aid|forklift certification|forklift certified|forklift operator certification|forklift operator certified|forklift license|forklift operator license|osha\s*10(?:[- ]hour)?(?:\s+certification)?|osha\s*30(?:[- ]hour)?(?:\s+certification)?)\b",
         r"(?i)\b(ph\.?d\.?(?:\s+degree)?|doctorate(?:\s+degree)?|doctoral degree|associate'?s degree|associate degree|baccalaureate degree|bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree|high[- ]school diploma|high[- ]school degree|ged|high[- ]school equivalency|general education development)\b",
         r"(?i)\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b",
+        r"(?i)\b(?:minimum age(?:\s+is)?\s*)?\d{2}\s*(?:\+|(?:years?|yrs?)\s+(?:old|of\s+age))\b",
+        r"(?i)\b(?:minimum age|age requirement|legal work age)\b",
         r"(?i)\b(bilingual(?:\s+(?:english|spanish|french|mandarin|cantonese|arabic|portuguese|german|japanese|korean))?|(?:spanish|french|mandarin|cantonese|arabic|portuguese|german|japanese|korean)\s+fluency|fluent(?:\s+in)?\s+(?:spanish|french|mandarin|cantonese|arabic|portuguese|german|japanese|korean)|(?:spanish|french|mandarin|cantonese|arabic|portuguese|german|japanese|korean)\s+language|english/(?:spanish|french|mandarin|cantonese|arabic|portuguese|german|japanese|korean)|english and (?:spanish|french|mandarin|cantonese|arabic|portuguese|german|japanese|korean))\b",
         r"(?i)\b(background checks?|background screenings?|pre[- ]employment screenings?|drug screens?|drug screenings?|drug tests?|drug testing)\b",
         r"(?i)\b(lift(?:\s+up\s+to)?\s+\d+\s*(?:pounds?|lbs?)|(?:stand|standing) for long periods?|physical requirements?|physical demands?)\b",
@@ -444,7 +453,6 @@ pub(super) fn extract_hard_constraint_keywords(text: &str) -> Vec<String> {
     {
         keywords.remove("certification");
     }
-    keywords.retain(|keyword| !age_requirement_keyword(keyword));
     for keyword in extract_seniority_constraint_keywords(text) {
         keywords.insert(keyword);
     }
@@ -464,6 +472,9 @@ fn age_requirement_keyword(keyword: &str) -> bool {
         || lower.contains("years old")
         || lower.contains("yr old")
         || lower.contains("yrs old")
+        || lower.contains("minimum age")
+        || lower.contains("age requirement")
+        || lower.contains("legal work age")
 }
 
 pub(super) fn extract_seniority_constraint_keywords(text: &str) -> Vec<String> {

@@ -173,6 +173,8 @@ function extractMockHardConstraintKeywords(jobDescription: string): string[] {
     /\b(certification|cissp|certified information systems security professional|security plus|bls|basic life support|acls|advanced cardiovascular life support|cpr|cardiopulmonary resuscitation|cna|certified nursing assistant|certified nurse assistant|certified nurse aide|pmp|project management professional|servsafe|food safety certification|food[- ]handler certification|food[- ]handler certificate|food[- ]handler permit|food[- ]handlers permit|food[- ]handler card|first[- ]aid certification|first[- ]aid certified|first[- ]aid certificate|first[- ]aid|forklift certification|forklift operator certification|forklift certified|forklift license|forklift operator license|osha\s*10(?:[- ]hour)?(?:\s+certification)?|osha\s*30(?:[- ]hour)?(?:\s+certification)?)\b/gi,
     /\b(ph\.?d\.?(?:\s+degree)?|doctorate(?:\s+degree)?|doctoral degree|associate'?s degree|associate degree|baccalaureate degree|bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree|high[- ]school diploma|high[- ]school degree|ged|high[- ]school equivalency|general education development)\b/gi,
     /\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b/gi,
+    /\b(?:minimum age(?:\s+is)?\s*)?\d{2}\s*(?:\+|(?:years?|yrs?)\s+(?:old|of\s+age))\b/gi,
+    /\b(?:minimum age|age requirement|legal work age)\b/gi,
     new RegExp(
       String.raw`\b(bilingual(?:\s+(?:english|${languageAlternation}))?|(?:${languageAlternation})\s+fluency|fluent(?:\s+in)?\s+(?:${languageAlternation})|(?:${languageAlternation})\s+language|english/(?:${languageAlternation})|english and (?:${languageAlternation}))\b`,
       "gi",
@@ -303,30 +305,11 @@ function extractMockHardConstraintKeywords(jobDescription: string): string[] {
   if ([...keywords].some((keyword) => specificCertificationKeywords.includes(keyword))) {
     keywords.delete("certification");
   }
-  for (const keyword of [...keywords]) {
-    if (isMockAgeRequirementKeyword(keyword)) {
-      keywords.delete(keyword);
-    }
-  }
   for (const keyword of extractMockSeniorityConstraintKeywords(jobDescription)) {
     keywords.add(keyword);
   }
 
   return [...keywords].sort();
-}
-
-function isMockAgeRequirementKeyword(keyword: string): boolean {
-  const lower = keyword.toLowerCase();
-  return [
-    "year of age",
-    "years of age",
-    "yr of age",
-    "yrs of age",
-    "year old",
-    "years old",
-    "yr old",
-    "yrs old",
-  ].some((phrase) => lower.includes(phrase));
 }
 
 function hasMockDegreeEquivalentRequirement(text: string): boolean {

@@ -57,6 +57,7 @@ export type HardConstraintCategory =
   | "Education"
   | "Experience"
   | "Language"
+  | "Age"
   | "BackgroundScreening"
   | "PhysicalRequirement"
   | "Location";
@@ -234,6 +235,8 @@ export function formatHardConstraintCategory(category: HardConstraintCategory): 
       return "Years of experience";
     case "Language":
       return "Language requirement";
+    case "Age":
+      return "Age requirement";
     case "BackgroundScreening":
       return "Background or drug screening";
     case "PhysicalRequirement":
@@ -278,6 +281,8 @@ export function formatHardConstraintNextActionDetail(
       return "If the years are not true for you, do not round up or imply more experience. Use only real dates, roles, or projects.";
     case "Language":
       return "If language fluency is not true for you, do not claim it. Use only real language ability, training, or credentials.";
+    case "Age":
+      return "If the minimum-age or legal work-age requirement is not true for you, do not claim it. Check this before tailoring.";
     case "BackgroundScreening":
       return "If background, drug, or pre-employment screening is not workable or true for you, check it before spending tailoring time.";
     case "PhysicalRequirement":

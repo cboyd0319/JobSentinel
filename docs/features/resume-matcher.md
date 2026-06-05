@@ -215,9 +215,10 @@ The current local matcher:
 - flags recognized missing or weakly supported hard requirements such as
   authorization, location, citizenship, schedule, availability, commute or
   transportation, travel, years of experience, language fluency, background or
-  drug screening, driving record, auto or car insurance, insured vehicle, physical
-  demands, license, certification, degree, or clearance and limits the fit label
-  until the user verifies the requirement;
+  drug screening, minimum age or legal work age, driving record, auto or car
+  insurance, insured vehicle, physical demands, license, certification, degree,
+  or clearance and limits the fit label until the user verifies the
+  requirement;
 - treats explicit **degree or equivalent experience** wording, including
   equivalent combinations of education and experience, as
   experience-compatible evidence instead of a missing exact-degree hard cap;
@@ -244,6 +245,10 @@ The current local matcher:
   Spanish, French, Mandarin, Cantonese, Arabic, Portuguese, German, Japanese,
   and Korean, as the same local language evidence for required language
   constraints;
+- treats minimum-age wording such as **18 years of age**, **years old**,
+  **minimum age**, **age requirement**, and **legal work age** as a hard review
+  item to verify before tailoring, without treating it as years of experience
+  or telling users to add age to a resume;
 - treats **background check**, **background screening**, **drug screen**,
   **drug test**, and **pre-employment screening** as local screening
   requirements to verify before tailoring;
@@ -467,10 +472,10 @@ The current local matcher:
   campaign, conversion, or revenue work;
 - gives hard-requirement next actions category-specific honesty guidance,
   such as checking work authorization, clearance, licenses, education, years
-  or level, background or drug screening, physical demands, location, schedule,
-  availability, and travel before tailoring, and keeps hard-requirement review
-  rows first even when the backend sends the row without a separate hard-risk
-  item;
+  or level, minimum age or legal work age, background or drug screening,
+  physical demands, location, schedule, availability, and travel before
+  tailoring, and keeps hard-requirement review rows first even when the backend
+  sends the row without a separate hard-risk item;
 - shows those must-have checks in the live Resume Builder detail review when
   available, and shows a compact pre-detail warning in the live Resume Builder
   panel using plain category labels instead of backend risk names or score caps;

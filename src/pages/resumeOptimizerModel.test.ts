@@ -137,6 +137,18 @@ describe("buildResumeNextActions", () => {
     expect(actions[0].detail).not.toMatch(/If the authorization is not true/i);
   });
 
+  it("uses age fallback detail for age hard risks", () => {
+    const actions = buildResumeNextActions({
+      ...baseAnalysis,
+      hard_constraint_risks: [
+        hardRisk("18 years of age", "Age", "   "),
+      ],
+    });
+
+    expect(actions[0].detail).toMatch(/minimum-age or legal work-age/i);
+    expect(actions[0].detail).toMatch(/do not claim it/i);
+  });
+
   it("uses hard-constraint review rows when separate hard risks are absent", () => {
     const actions = buildResumeNextActions({
       ...baseAnalysis,

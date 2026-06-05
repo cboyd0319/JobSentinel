@@ -9,6 +9,7 @@ export type MockHardConstraintCategory =
   | "Education"
   | "Experience"
   | "Language"
+  | "Age"
   | "BackgroundScreening"
   | "PhysicalRequirement"
   | "Location";
