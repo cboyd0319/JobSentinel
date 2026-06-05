@@ -38,8 +38,8 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Current Posture
 
-- Last pushed baseline before post-push cleanup commits:
-  `8e6b7bc6 Update README readiness status`.
+- Last pushed baseline before the current local cleanup slice:
+  `c1f5dd36 Update macOS readiness and split automation module`.
 - Fresh harness evidence reports 2 active docs and 2 indexed workstreams: this
   status file and `current-work.md`.
 - Local commits should continue in small verified slices; push only when the
@@ -49,6 +49,14 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 ## Latest Slice
 
 Latest implementation slice:
+
+- Privacy-logging harness detectors moved out of
+  `scripts/harness/checks/privacy-logging.mjs` into focused modules under
+  `scripts/harness/checks/privacy-logging/`.
+- The root privacy-logging checker is now below the 900-line script target, so
+  the legacy oversized-file exception was removed.
+
+Earlier implementation slice:
 
 - Automation answer-learning commands and response privacy tests moved out of
   `src-tauri/src/commands/automation.rs` into focused submodules under
@@ -854,8 +862,7 @@ Recent cleanup summary:
   1,200-line harness target and no longer need legacy no-growth exemptions.
 - Remaining oversized-file exceptions are `src/pages/ResumeBuilder.tsx`,
   `src/pages/ResumeOptimizer.tsx`,
-  `src/pages/SetupWizard.tsx`,
-  `src/pages/Resume.tsx`, and `scripts/harness/checks/privacy-logging.mjs`.
+  `src/pages/SetupWizard.tsx`, and `src/pages/Resume.tsx`.
 
 ## Next Best Work
 

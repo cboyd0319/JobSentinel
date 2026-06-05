@@ -13,12 +13,12 @@ not Developer ID signed, not notarized, not stapled, and not accepted by
 Gatekeeper without first-open Privacy & Security approval.
 
 Active-plan implementation status is separate: 100% of the current active-plan
-checklist is complete, with 144 of 144 tracked items checked off. The
+checklist is complete, with 145 of 145 tracked items checked off. The
 repo-wide readiness goal remains open until the completion bar in
 [active plan status](docs/plans/active/status.md) is proven from current
 evidence: no known bloat, privacy leak, stale docs, engineer-only user flow, or
 unverified claim remains, and final broad verification passes. Current cleanup
-focus is 5 grandfathered oversized-file exceptions plus continued resume
+focus is 4 grandfathered oversized-file exceptions plus continued resume
 assistance, job-card protection, guided intake, and pay protection where they
 improve privacy, security, verification, or user ease.
 
@@ -555,7 +555,7 @@ Developer docs:
   tightened around local evidence and plain-language review.
 - Oversized-file modularization reduced legacy exceptions across mock handlers,
   settings UI, resume analysis, database tests, scheduler tests, scoring tests,
-  scraper tests, the README, and harness sensors. 5 grandfathered oversized
+  scraper tests, the README, and harness sensors. 4 grandfathered oversized
   files remain.
 - Direct npm, Cargo, and GitHub Actions dependencies were refreshed to latest
   stable versions; narrower Dependabot PRs are superseded by the mainline

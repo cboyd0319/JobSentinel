@@ -143,7 +143,6 @@ const legacyOversizedLineBudgets = new Map([
   ["src/pages/ResumeOptimizer.tsx", 1716],
   ["src/pages/SetupWizard.tsx", 1710],
   ["src/pages/Resume.tsx", 1636],
-  ["scripts/harness/checks/privacy-logging.mjs", 1580],
 ]);
 
 export function normalizeRepoPath(path) {

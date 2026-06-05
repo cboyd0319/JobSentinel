@@ -236,6 +236,8 @@ Out of scope:
   retire its legacy oversized-file exception.
 - [x] Split automation answer-learning commands and response tests out of the
   main automation command module and retire its legacy oversized-file exception.
+- [x] Split the privacy-logging harness checker into focused detector modules
+  and retire its legacy oversized-file exception.
 - [x] Split mock user-data, job-tracking, settings, and support command bodies
   out of the main mock handler and retire its legacy oversized-file exception.
 - [x] Split ATS status, reminder, and stats edge tests out of the main ATS test
