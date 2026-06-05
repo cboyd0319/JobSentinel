@@ -49,6 +49,19 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- First-run Notifications step now lives in
+  `src/pages/SetupWizardNotificationsStep.tsx`, reducing
+  `src/pages/SetupWizard.tsx` from 963 to 801 lines without changing freshness,
+  review-volume, desktop alert, quiet mode, source review, or final save
+  behavior.
+
+- Focused verification for the SetupWizard notifications split passed:
+  `npm run test:run -- src/pages/SetupWizard.test.tsx
+  src/pages/SetupWizardResumeSuggestions.test.tsx
+  src/pages/setupWizardPreferences.test.ts
+  src/pages/setupWizardSourceReviewState.test.ts`, `npx tsc --noEmit --pretty
+  false`, `npm run lint`, and `npm run lint:bloat`.
+
 - Resume analyzer keyword patterns, canonical keyword mapping, and industry
   keyword catalog now live in
   `src-tauri/src/core/resume/ats_analyzer/keyword_catalog.rs`, reducing
