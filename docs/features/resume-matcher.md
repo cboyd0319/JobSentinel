@@ -212,11 +212,11 @@ The current local matcher:
   requests, appointments, records, orders, cases, tickets, reports, files,
   forms, calls, emails, inquiries, intake, follow-ups, tasks, or schedules as
   stronger local evidence than a bare keyword;
-- flags recognized missing hard requirements such as authorization, location,
-  citizenship, schedule, availability, commute or transportation, travel, years
-  of experience, language fluency, background or drug screening, physical
-  demands, license, certification, degree, or clearance and limits the fit label
-  until the user verifies the requirement;
+- flags recognized missing or weakly supported hard requirements such as
+  authorization, location, citizenship, schedule, availability, commute or
+  transportation, travel, years of experience, language fluency, background or
+  drug screening, physical demands, license, certification, degree, or
+  clearance and limits the fit label until the user verifies the requirement;
 - treats explicit **degree or equivalent experience** wording, including
   equivalent combinations of education and experience, as
   experience-compatible evidence instead of a missing exact-degree hard cap;

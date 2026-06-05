@@ -13,7 +13,7 @@ pub(super) fn build_hard_constraint_risks(
         .iter()
         .filter(|review| {
             review.importance == KeywordImportance::Required
-                && review.match_state == RequirementMatchState::Missing
+                && hard_constraint_review_needed(review.match_state)
         })
         .filter_map(|review| {
             let category = hard_constraint_category(&review.keyword)?;
@@ -35,6 +35,15 @@ pub(super) fn build_hard_constraint_risks(
             .then(a.requirement.cmp(&b.requirement))
     });
     risks
+}
+
+fn hard_constraint_review_needed(match_state: RequirementMatchState) -> bool {
+    matches!(
+        match_state,
+        RequirementMatchState::Missing
+            | RequirementMatchState::Partial
+            | RequirementMatchState::Implied
+    )
 }
 
 pub(super) fn hard_constraint_score_cap(category: HardConstraintCategory) -> f64 {

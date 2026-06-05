@@ -92,11 +92,11 @@ Download your resume as a Word document (.docx), ready to attach to any job appl
 
 When Resume Builder has job-post context from Resume Match, the live review
 panel keeps required, preferred, and other job-post language separate. It also
-shows must-have checks when local analysis finds a hard constraint that needs
-review before tailoring, including a compact warning before the detail review
-opens. It asks users to review whether missing words and must-haves are true for
-their background instead of treating every missing word as something to add. If
-a local score value is malformed, the panel shows
+shows must-have checks when local analysis finds a missing or weakly supported
+hard constraint that needs review before tailoring, including a compact warning
+before the detail review opens. It asks users to review whether missing words
+and must-haves are true for their background instead of treating every missing
+word as something to add. If a local score value is malformed, the panel shows
 **Score not shown** and keeps the local evidence sections visible for review.
 Resume Builder only shows **Tailoring for Job** when the saved Resume Match
 context is valid and recent. Malformed or expired saved context is cleared and

@@ -66,6 +66,30 @@ fn test_security_clearance_requirement_accepts_clearance_evidence() {
 }
 
 #[test]
+fn test_skills_only_required_hard_constraint_caps_overall_score() {
+    let result = AtsAnalyzer::analyze_text_for_job(
+        "Jordan Lee\njordan@example.com\n\nSummary\nCustomer support lead.",
+        &["security clearance".to_string()],
+        "Required: customer service, security clearance",
+    );
+
+    let clearance = result
+        .requirement_reviews
+        .iter()
+        .find(|review| review.keyword == "security clearance")
+        .expect("clearance review");
+    assert_eq!(clearance.match_state, RequirementMatchState::Partial);
+    assert!(clearance.hard_constraint);
+    assert!(clearance.evidence_sections.contains(&"skills".to_string()));
+    assert!(result.overall_score <= 60.0);
+    assert!(result.hard_constraint_risks.iter().any(|risk| {
+        risk.requirement == "security clearance"
+            && risk.category == HardConstraintCategory::SecurityClearance
+            && risk.score_cap == 60.0
+    }));
+}
+
+#[test]
 fn test_missing_required_background_screening_caps_overall_score() {
     let resume = sample_resume();
 

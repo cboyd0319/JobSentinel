@@ -340,6 +340,8 @@ Out of scope:
 - [x] Let Resume Builder users continue without education entries.
 - [x] Gate Resume Builder saved-job context on the same valid/recent check as
   the live review panel.
+- [x] Cap Resume Match hard constraints when required evidence is missing,
+  partial, or only implied.
 
 ## Orchestration Log
 
@@ -395,6 +397,9 @@ Out of scope:
 - Coordinator shared the saved Resume Match context validator between Resume
   Builder, Resume Match, and the live review panel so malformed or expired
   context is cleared before **Tailoring for Job** appears.
+- Coordinator changed hard-constraint score caps to cover missing, partial, and
+  implied required evidence, so skills-only hard must-haves still require
+  user review before a high fit label.
 - Pay-protection sidecar was read-only and changed no files. Coordinator
   accepted its finding that negotiation-note drafts could treat benchmark
   values as offer facts, then fixed the Salary page, dev mock, tests, feature
