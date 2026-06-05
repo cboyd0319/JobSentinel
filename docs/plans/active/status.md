@@ -51,6 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Dev mock Resume Match now treats partial or implied required hard-constraint
+  evidence as a risk, and matches Rust behavior for driving-record and
+  auto-insurance requirement categories, actions, and term equivalents.
+
 - Harness session parsing now accepts `--limit N` without treating the option
   as a repository root, so restart snapshots keep real branch, active-plan,
   score, and next-work evidence even when output is capped.

@@ -78,7 +78,8 @@ export function buildMockHardConstraintRisks(
   return requirementReviews
     .filter(
       (review) =>
-        review.importance === "Required" && review.match_state === "Missing",
+        review.importance === "Required" &&
+        ["Missing", "Partial", "Implied"].includes(review.match_state),
     )
     .flatMap((review) => {
       const category = getMockHardConstraintCategory(review.keyword);
@@ -154,6 +155,9 @@ function getMockHardConstraintAction(
   ) {
     return "Check citizenship before tailoring. If it is not true for you, do not claim it. Do not treat work authorization as citizenship.";
   }
+  if (isMockDrivingRecordConstraint(keyword) || isMockVehicleInsuranceConstraint(keyword)) {
+    return "Check driving record, vehicle, or auto insurance before tailoring. If it is not current, workable, or true for you, do not claim it.";
+  }
 
   switch (category) {
     case "WorkAuthorization":
@@ -197,6 +201,28 @@ function isMockSeniorityLevelConstraint(keyword: string): boolean {
     "director-level experience",
     "executive-level experience",
   ].includes(keyword.toLowerCase());
+}
+
+function isMockDrivingRecordConstraint(keyword: string): boolean {
+  const lower = keyword.toLowerCase();
+  return (
+    lower.includes("driving record") ||
+    lower === "mvr" ||
+    lower.includes("motor vehicle record")
+  );
+}
+
+function isMockVehicleInsuranceConstraint(keyword: string): boolean {
+  const lower = keyword.toLowerCase();
+  return (
+    lower.includes("proof of auto insurance") ||
+    lower.includes("proof of insurance") ||
+    lower.includes("auto insurance") ||
+    lower.includes("car insurance") ||
+    lower.includes("vehicle insurance") ||
+    lower.includes("insured vehicle") ||
+    lower.includes("reliable vehicle")
+  );
 }
 
 function getMockHardConstraintScoreCap(category: MockHardConstraintCategory): number {
@@ -307,7 +333,8 @@ function getMockHardConstraintCategory(keyword: string): MockHardConstraintCateg
     lower.includes("drug screen") ||
     lower.includes("drug screening") ||
     lower.includes("drug test") ||
-    lower.includes("drug testing")
+    lower.includes("drug testing") ||
+    isMockDrivingRecordConstraint(lower)
   ) {
     return "BackgroundScreening";
   }
@@ -332,6 +359,7 @@ function getMockHardConstraintCategory(keyword: string): MockHardConstraintCateg
     lower.includes("relocate") ||
     lower.includes("travel") ||
     lower.includes("transportation") ||
+    isMockVehicleInsuranceConstraint(lower) ||
     lower.includes("commute") ||
     lower.includes("commuting") ||
     lower.includes("availability") ||
