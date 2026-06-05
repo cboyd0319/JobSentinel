@@ -50,6 +50,17 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Lever scraper hash, initialization, and JSON-shape tests now live in
+  `src-tauri/src/core/scrapers/lever/tests/basic_tests.rs`, reducing
+  `src-tauri/src/core/scrapers/lever/tests.rs` from 960 to 522 lines without
+  changing scraper behavior, parsing coverage, remote inference checks, property
+  tests, or scrape-flow coverage.
+
+- Focused verification for the Lever scraper test split passed:
+  `cargo fmt --all -- --check`,
+  `cargo test --lib core::scrapers::lever`, `cargo clippy -- -D warnings`, and
+  `npm run lint:bloat`.
+
 - Mock resume degree hard-constraint tests now live in
   `src/mocks/handlers/resumeHardConstraints.degree.test.ts`, reducing
   `src/mocks/handlers/resumeHardConstraints.test.ts` from 960 to 610 lines
