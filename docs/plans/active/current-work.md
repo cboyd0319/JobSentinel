@@ -825,6 +825,11 @@ Out of scope:
   into `src-tauri/src/core/db/integrity/tests/health_metrics_tests.rs`. The
   main integrity test file still owns quick/startup checks, PRAGMA diagnostics,
   full-check scheduling, logging, optimization, and foreign-key coverage.
+- Coordinator moved lower Teams payload display, webhook, fact, and
+  serialization edge tests into
+  `src-tauri/src/core/notify/teams_tests/payload_edge_tests.rs`. The main
+  Teams payload test file still owns base card structure, validation basics,
+  score/reason displays, optional fields, and earlier edge cases.
 
 ## Risks
 

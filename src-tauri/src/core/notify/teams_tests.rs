@@ -5,6 +5,8 @@ use crate::core::{
 };
 use chrono::Utc;
 
+#[path = "teams_tests/payload_edge_tests.rs"]
+mod payload_edge_tests;
 #[path = "teams_tests/payload_tests.rs"]
 mod payload_tests;
 

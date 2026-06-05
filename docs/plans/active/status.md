@@ -405,6 +405,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 - Database-integrity health-metric and fragmentation tests moved out of the
   main integrity test file into a focused health-metrics Rust test module.
 
+- Lower Teams payload display, webhook, fact, and serialization edge tests
+  moved out of the main Teams payload test file into a focused payload-edge
+  Rust test module.
+
 ## Recent Completed Slices
 
 Detailed implementation history before the current restart window is in the
