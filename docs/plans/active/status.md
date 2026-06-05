@@ -51,6 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Settings desktop-alert controls now live in a focused component, keeping the
+  notifications settings section under the file-size target without changing
+  opt-in, sound, or focused-window behavior.
+
 - Mock resume command handling now lives in a focused module, and the bloat
   privacy guard follows the split so mock resume summaries still avoid renderer
   file-path exposure.
