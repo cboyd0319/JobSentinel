@@ -568,6 +568,12 @@ describe("JobCard", () => {
       const jobMaxOnly = { ...mockJob, salary_min: null, salary_max: 150000 };
       renderWithToast(<JobCard job={jobMaxOnly} />);
       expect(screen.getByText("Up to $150k")).toBeInTheDocument();
+      expect(screen.getByTestId("salary-range-quality-guidance")).toHaveTextContent(
+        "Top-only listed pay",
+      );
+      expect(
+        screen.getByText(/confirm the starting pay before tailoring/i),
+      ).toBeInTheDocument();
     });
 
     it("shows a missing-pay cue when both salary fields are null", () => {

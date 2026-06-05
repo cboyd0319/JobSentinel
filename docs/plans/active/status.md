@@ -51,6 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Job cards now flag top-only listed pay as weak pay evidence, telling users to
+  confirm the starting pay before tailoring instead of treating an "up to"
+  amount as a full range.
+
 - Resume Builder live-score hard-constraint tests moved into a focused file,
   keeping the main ATS live-score test under the frontend test size target.
 

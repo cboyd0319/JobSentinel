@@ -232,6 +232,20 @@ export function getSalaryRangeQualityGuidance(
   }
 
   if (
+    (salaryMin == null || !Number.isFinite(salaryMin) || salaryMin <= 0) &&
+    salaryMax != null &&
+    Number.isFinite(salaryMax) &&
+    salaryMax > 0
+  ) {
+    return {
+      title: "Top-only listed pay",
+      description:
+        "Only top pay is listed. Confirm the starting pay before tailoring.",
+      ariaLabel: "top-only listed pay",
+    };
+  }
+
+  if (
     salaryMin == null ||
     salaryMax == null ||
     !Number.isFinite(salaryMin) ||
