@@ -50,6 +50,18 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Market Intelligence async database tests moved out of
+  `src-tauri/src/core/market_intelligence/tests.rs` into
+  `src-tauri/src/core/market_intelligence/tests/async_tests.rs` with focused
+  query, compute, and edge/integration submodules.
+- The main Market Intelligence test file and new child modules are below the
+  1,200-line Rust/test target, so the legacy oversized-file exception was
+  removed.
+- Runtime Market Intelligence code was unchanged; only test module ownership
+  changed.
+
+Earlier implementation slice:
+
 - Scheduler start-loop coverage tests moved out of
   `src-tauri/src/core/scheduler/tests.rs` into
   `src-tauri/src/core/scheduler/tests/start_loop_tests.rs`.
