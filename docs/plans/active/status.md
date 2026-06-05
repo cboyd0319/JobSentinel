@@ -50,6 +50,18 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Resume Builder work-experience and education modal markup now lives in
+  `src/pages/ResumeBuilderExperienceModal.tsx` and
+  `src/pages/ResumeBuilderEducationModal.tsx`, reducing
+  `src/pages/ResumeBuilder.tsx` from 947 to 723 lines without changing resume
+  draft creation, step validation, skill import, preview generation, export, or
+  delete behavior.
+
+- Focused verification for the Resume Builder modal split passed:
+  `npm run test:run -- src/pages/ResumeBuilder.validation.test.ts
+  src/mocks/handlers/resumeBuilder.test.ts`, `npm run build`,
+  `npm run lint`, and `npm run lint:bloat`.
+
 - Interview scheduler DTOs, tab/reminder/prep types, interview type labels,
   outcome labels, color maps, and date formatting helper now live in
   `src/components/InterviewSchedulerModel.ts`, reducing

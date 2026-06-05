@@ -23,6 +23,8 @@ import { ResumeBuilderJobContextCard } from "./ResumeBuilderJobContextCard";
 import { ResumeBuilderNavigation } from "./ResumeBuilderNavigation";
 import { ResumeBuilderPreviewStep } from "./ResumeBuilderPreviewStep";
 import { ResumeBuilderProgress } from "./ResumeBuilderProgress";
+import { ResumeBuilderEducationModal } from "./ResumeBuilderEducationModal";
+import { ResumeBuilderExperienceModal } from "./ResumeBuilderExperienceModal";
 import {
   STEPS,
   normalizeAtsAnalysis,
@@ -670,247 +672,21 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
         </div>
       </main>
 
-      {/* Experience Modal */}
-      <Modal
+      <ResumeBuilderExperienceModal
+        experience={editingExperience}
         isOpen={showExperienceModal}
+        onAdd={handleAddExperience}
+        onChange={setEditingExperience}
         onClose={() => setShowExperienceModal(false)}
-        title="Add Work Experience"
-      >
-        {editingExperience && (
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
-              <div className="col-span-2">
-                <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
-                  Job Title
-                </label>
-                <input
-                  type="text"
-                  value={editingExperience.title}
-                  onChange={(e) =>
-                    setEditingExperience({ ...editingExperience, title: e.target.value })
-                  }
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
-                  placeholder="Marketing Manager"
-                />
-              </div>
-              <div className="col-span-2">
-                <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
-                  Company
-                </label>
-                <input
-                  type="text"
-                  value={editingExperience.company}
-                  onChange={(e) =>
-                    setEditingExperience({ ...editingExperience, company: e.target.value })
-                  }
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
-                  placeholder="Acme Corp"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
-                  Start Date
-                </label>
-                <input
-                  type="text"
-                  value={editingExperience.start_date}
-                  onChange={(e) =>
-                    setEditingExperience({
-                      ...editingExperience,
-                      start_date: e.target.value,
-                    })
-                  }
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
-                  placeholder="Jan 2020"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
-                  End Date
-                </label>
-                <input
-                  type="text"
-                  value={editingExperience.end_date || ""}
-                  onChange={(e) =>
-                    setEditingExperience({
-                      ...editingExperience,
-                      end_date: e.target.value || null,
-                    })
-                  }
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
-                  placeholder="Present"
-                />
-              </div>
-              <div className="col-span-2">
-                <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
-                  Location
-                </label>
-                <input
-                  type="text"
-                  value={editingExperience.location || ""}
-                  onChange={(e) =>
-                    setEditingExperience({
-                      ...editingExperience,
-                      location: e.target.value || null,
-                    })
-                  }
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
-                  placeholder="Chicago, IL"
-                />
-              </div>
-              <div className="col-span-2">
-                <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
-                  Achievements (one per line)
-                </label>
-                <textarea
-                  value={editingExperience.achievements.join("\n")}
-                  onChange={(e) =>
-                    setEditingExperience({
-                      ...editingExperience,
-                      achievements: e.target.value.split("\n").filter((a) => a.trim()),
-                    })
-                  }
-                  rows={4}
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500 resize-none"
-                  placeholder="Improved renewal rate by 18%&#10;Built onboarding checklist for new customers&#10;Trained 12 teammates on support workflows"
-                />
-              </div>
-            </div>
-            <ModalFooter>
-              <Button variant="secondary" onClick={() => setShowExperienceModal(false)}>
-                Cancel
-              </Button>
-              <Button
-                onClick={handleAddExperience}
-                disabled={!editingExperience.title || !editingExperience.company}
-              >
-                Add Experience
-              </Button>
-            </ModalFooter>
-          </div>
-        )}
-      </Modal>
+      />
 
-      {/* Education Modal */}
-      <Modal
+      <ResumeBuilderEducationModal
+        education={editingEducation}
         isOpen={showEducationModal}
+        onAdd={handleAddEducation}
+        onChange={setEditingEducation}
         onClose={() => setShowEducationModal(false)}
-        title="Add Education"
-      >
-        {editingEducation && (
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
-              <div className="col-span-2">
-                <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
-                  Degree
-                </label>
-                <input
-                  type="text"
-                  value={editingEducation.degree}
-                  onChange={(e) =>
-                    setEditingEducation({ ...editingEducation, degree: e.target.value })
-                  }
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
-                  placeholder="B.A. Business Administration"
-                />
-              </div>
-              <div className="col-span-2">
-                <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
-                  Institution
-                </label>
-                <input
-                  type="text"
-                  value={editingEducation.institution}
-                  onChange={(e) =>
-                    setEditingEducation({ ...editingEducation, institution: e.target.value })
-                  }
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
-                  placeholder="Stanford University"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
-                  Graduation Date
-                </label>
-                <input
-                  type="text"
-                  value={editingEducation.graduation_date || ""}
-                  onChange={(e) =>
-                    setEditingEducation({
-                      ...editingEducation,
-                      graduation_date: e.target.value || null,
-                    })
-                  }
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
-                  placeholder="May 2020"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
-                  GPA
-                </label>
-                <input
-                  type="text"
-                  value={editingEducation.gpa || ""}
-                  onChange={(e) =>
-                    setEditingEducation({
-                      ...editingEducation,
-                      gpa: e.target.value || null,
-                    })
-                  }
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
-                  placeholder="3.8"
-                />
-              </div>
-              <div className="col-span-2">
-                <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
-                  Location
-                </label>
-                <input
-                  type="text"
-                  value={editingEducation.location || ""}
-                  onChange={(e) =>
-                    setEditingEducation({
-                      ...editingEducation,
-                      location: e.target.value || null,
-                    })
-                  }
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
-                  placeholder="Stanford, CA"
-                />
-              </div>
-              <div className="col-span-2">
-                <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
-                  Honors & Awards (one per line)
-                </label>
-                <textarea
-                  value={editingEducation.honors.join("\n")}
-                  onChange={(e) =>
-                    setEditingEducation({
-                      ...editingEducation,
-                      honors: e.target.value.split("\n").filter((h) => h.trim()),
-                    })
-                  }
-                  rows={3}
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500 resize-none"
-                  placeholder="Dean's List&#10;Summa Cum Laude"
-                />
-              </div>
-            </div>
-            <ModalFooter>
-              <Button variant="secondary" onClick={() => setShowEducationModal(false)}>
-                Cancel
-              </Button>
-              <Button
-                onClick={handleAddEducation}
-                disabled={!editingEducation.degree || !editingEducation.institution}
-              >
-                Add Education
-              </Button>
-            </ModalFooter>
-          </div>
-        )}
-      </Modal>
+      />
 
       {/* Delete Confirmation Modal */}
       <Modal
