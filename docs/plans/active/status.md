@@ -50,6 +50,17 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Settings job-board recommendation logic moved out of
+  `src/pages/Settings.tsx` into
+  `src/pages/SettingsJobBoardRecommendations.ts`.
+- The main Settings page still owns page state, config loading/saving, and
+  credential boundaries; the extracted helper owns only broad-audience optional
+  source suggestions and enable callbacks.
+- `src/pages/Settings.tsx` legacy no-growth budget tightened from 2,663 lines
+  to 2,493 lines.
+
+Recent cleanup summary:
+
 - Lever JSON parsing and edge-case tests moved out of
   `src-tauri/src/core/scrapers/lever/tests.rs` into
   `src-tauri/src/core/scrapers/lever/tests/json_edge_tests.rs`.
@@ -59,9 +70,6 @@ Latest implementation slice:
   remote-location edge, hash-consistency, and company-struct edge coverage.
 - `src-tauri/src/core/scrapers/lever/tests.rs` legacy no-growth budget
   tightened from 2,257 lines to 1,763 lines.
-
-Recent cleanup summary:
-
 - Scheduler scraper-cycle tests moved out of
   `src-tauri/src/core/scheduler/tests.rs` into
   `src-tauri/src/core/scheduler/tests/scraper_cycle_tests.rs`.

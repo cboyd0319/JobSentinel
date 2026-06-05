@@ -3,6 +3,7 @@ import { Badge } from "../components/Badge";
 import { HelpIcon } from "../components/HelpIcon";
 import { Input } from "../components/Input";
 import { LinkedInIcon, SettingsSymbol } from "./SettingsIcons";
+import type { JobBoardRecommendation } from "./SettingsJobBoardRecommendations";
 import { SecurityBadge } from "./SettingsSecurityBadge";
 import { SettingsConnectedJobSource } from "./SettingsConnectedJobSource";
 import type {
@@ -12,12 +13,6 @@ import type {
   JobsWithGptPayload,
   SourceRequestSummary,
 } from "./SettingsConfig";
-
-interface JobBoardRecommendation {
-  board: string;
-  reason: string;
-  enable: () => void;
-}
 
 interface SettingsJobSourcesSectionProps {
   config: Config;

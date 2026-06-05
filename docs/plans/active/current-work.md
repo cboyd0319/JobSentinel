@@ -197,6 +197,8 @@ Out of scope:
 - [x] Split scheduler scraper-cycle tests out of the main scheduler test file.
 - [x] Split Lever JSON parsing and edge-case tests out of the main Lever test
   file.
+- [x] Split Settings job-board recommendation logic out of the main Settings
+  page.
 
 ## Orchestration Log
 
@@ -474,6 +476,11 @@ Out of scope:
   `src-tauri/src/core/scrapers/lever/tests/json_edge_tests.rs`. The main Lever
   test file still owns remote inference, hashing, scraper initialization,
   scrape-company simulation, property tests, and integration coverage.
+- Coordinator moved Settings optional job-board recommendation logic into
+  `src/pages/SettingsJobBoardRecommendations.ts`. The main Settings page still
+  owns page state, config loading/saving, and credential boundaries; the
+  extracted helper only builds broad-audience source suggestions and enable
+  callbacks.
 
 ## Risks
 
