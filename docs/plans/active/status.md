@@ -455,6 +455,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 - Security-doc and keyring bloat fixtures moved out of the frontend-security
   bloat test file into a focused script test.
 
+- Secret/debug, notification-error, and credential bloat fixtures moved out of
+  the main privacy-core bloat test file into a focused script test.
+
 ## Recent Completed Slices
 
 Detailed implementation history before the current restart window is in the
