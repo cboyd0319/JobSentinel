@@ -336,6 +336,11 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
   `src/pages/ResumeOptimizer.tsx` into
   `src/pages/ResumeOptimizerJobWordsOverview.tsx`.
 
+- Resume Match result-panel rendering and display assertions moved out of
+  `src/pages/ResumeOptimizer.tsx` and `src/pages/ResumeOptimizer.test.tsx` into
+  focused result-panel files, and harness copy/audience scanners now include
+  the moved UI.
+
 - Resume Builder template thumbnail previews and export/delete icons moved out
   of `src/pages/ResumeBuilder.tsx` into `src/pages/ResumeBuilderVisuals.tsx`.
 

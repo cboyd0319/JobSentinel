@@ -263,6 +263,7 @@ export function getTechnicalFirstUiResult(path, text) {
   if (
     path === "src/pages/ResumeOptimizer.tsx" ||
     path === "src/pages/ResumeOptimizerJobWordsOverview.tsx" ||
+    path === "src/pages/ResumeOptimizerResultsPanel.tsx" ||
     path === "src/pages/resumeOptimizerModel.ts"
   ) {
     const resumeOptimizerPatterns = [

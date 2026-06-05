@@ -218,6 +218,8 @@ Out of scope:
   retire its legacy oversized-file exception.
 - [x] Split Lever scrape-company flow tests out of the main Lever test file and
   retire its legacy oversized-file exception.
+- [x] Split Resume Match result-panel rendering and display tests out of the
+  main page and page test while keeping product-copy scanners on the moved UI.
 - [x] Split Market Intelligence async tests out of the main test file and
   retire its legacy oversized-file exception.
 - [x] Split Greenhouse scraper tests out of the runtime scraper file and retire
@@ -464,6 +466,11 @@ Out of scope:
   moved the add-interview modal into `src/components/InterviewScheduleFormModal.tsx`,
   reducing the scheduler from 1,166 to 999 lines without changing form labels,
   shortcut handling, validation copy, or scheduling ownership.
+- Coordinator moved Resume Match result-panel rendering into
+  `src/pages/ResumeOptimizerResultsPanel.tsx` and direct display assertions
+  into `src/pages/ResumeOptimizerResultsPanel.test.tsx`, reducing the page from
+  1,098 to 501 lines and the page test from 1,183 to 479 lines while keeping
+  product-copy and broad-audience scanners on the moved UI.
 - Pay-protection sidecar was read-only and changed no files. Coordinator
   accepted its finding that negotiation-note drafts could treat benchmark
   values as offer facts, then fixed the Salary page, dev mock, tests, feature

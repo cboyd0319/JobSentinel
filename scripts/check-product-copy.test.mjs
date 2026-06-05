@@ -48,6 +48,11 @@ test("product copy rejects stale Resume Optimizer framing", () => {
     );
     writeFixtureFile(
       root,
+      "src/pages/ResumeOptimizerResultsPanel.tsx",
+      "Words To Add\n= Words to add\n",
+    );
+    writeFixtureFile(
+      root,
       "src/components/AtsLiveScorePanel.tsx",
       "Only add these words when they honestly fit your experience.\n",
     );
@@ -58,6 +63,10 @@ test("product copy rejects stale Resume Optimizer framing", () => {
     );
     assert.equal(
       hasStaleResumeOptimizerFraming(root, "src/pages/ResumeOptimizer.tsx"),
+      true,
+    );
+    assert.equal(
+      hasStaleResumeOptimizerFraming(root, "src/pages/ResumeOptimizerResultsPanel.tsx"),
       true,
     );
     assert.equal(
@@ -955,6 +964,17 @@ test("product copy rejects technical-first resume copy", () => {
         "",
       ].join("\n"),
     );
+    writeFixtureFile(
+      root,
+      "src/pages/ResumeOptimizerResultsPanel.tsx",
+      [
+        "Format Issues",
+        "<Badge>{issue.severity}</Badge>",
+        "Fix: {issue.fix}",
+        "Impact: {suggestion.impact}",
+        "",
+      ].join("\n"),
+    );
 
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Resume.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/ResumeBuilder.tsx"), true);
@@ -984,6 +1004,10 @@ test("product copy rejects technical-first resume copy", () => {
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/credentials-security.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/ROADMAP.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/ResumeOptimizer.tsx"), true);
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "src/pages/ResumeOptimizerResultsPanel.tsx"),
+      true,
+    );
   });
 });
 
