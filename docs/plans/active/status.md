@@ -391,6 +391,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
   reports, URL errors, backend commands, and import error details moved out of
   the main privacy-logging test into a focused runtime test file.
 
+- Import, bookmarklet, scoring, residual core privacy, setup error, and
+  auth-token bloat fixtures moved out of the privacy command bloat test into a
+  focused bookmarklet/privacy bloat test file.
+
 ## Recent Completed Slices
 
 Detailed implementation history before the current restart window is in the

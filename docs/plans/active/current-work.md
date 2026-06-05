@@ -808,6 +808,11 @@ Out of scope:
   error details into `scripts/check-privacy-logging-runtime.test.mjs`. The main
   privacy-logging test file still owns collector, automation, frontend,
   scheduler, scraper, ML, and path/privacy fixtures.
+- Coordinator moved import, bookmarklet, scoring, residual core privacy, setup
+  error, and auth-token bloat fixtures into
+  `scripts/check-repo-bloat-bookmarklet-privacy.test.mjs`. The privacy command
+  bloat test still owns automation, URL/path, resume, ATS, sensitive command,
+  and utility command fixtures.
 
 ## Risks
 
