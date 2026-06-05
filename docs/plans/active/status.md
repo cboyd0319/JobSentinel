@@ -50,6 +50,16 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Scoring company preference, company normalization, and fuzzy company matching
+  tests moved out of `src-tauri/src/core/scoring/mod.rs` into
+  `src-tauri/src/core/scoring/tests/company_tests.rs`.
+- The main scoring module still owns scoring engine behavior, salary/location
+  tests, and shared test fixtures.
+- `src-tauri/src/core/scoring/mod.rs` legacy no-growth budget tightened from
+  2,109 lines to 1,849 lines.
+
+Recent implementation slice:
+
 - Scheduler schedule-config, lifecycle, shutdown, and result model tests moved
   out of `src-tauri/src/core/scheduler/tests.rs` into
   `src-tauri/src/core/scheduler/tests/basic_tests.rs`.
@@ -58,7 +68,7 @@ Latest implementation slice:
 - `src-tauri/src/core/scheduler/tests.rs` legacy no-growth budget tightened
   from 1,929 lines to 1,609 lines.
 
-Recent implementation slice:
+Earlier implementation slice:
 
 - Resume plain-text format analysis moved out of
   `src-tauri/src/core/resume/ats_analyzer.rs` into

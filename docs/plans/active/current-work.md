@@ -205,6 +205,7 @@ Out of scope:
 - [x] Split resume plain-text format helpers out of the runtime ATS analyzer.
 - [x] Split scheduler basic lifecycle/config tests out of the main scheduler
   test file.
+- [x] Split scoring company tests out of the main scoring module.
 
 ## Orchestration Log
 
@@ -503,6 +504,11 @@ Out of scope:
   model tests into `src-tauri/src/core/scheduler/tests/basic_tests.rs`. The
   main scheduler test file still owns interval edge cases, database
   persistence, logging, notification, and remaining scraping-cycle coverage.
+- Coordinator moved scoring company preference, company normalization, and
+  fuzzy company matching tests into
+  `src-tauri/src/core/scoring/tests/company_tests.rs`. The main scoring module
+  still owns scoring engine behavior, salary/location tests, and shared test
+  fixtures.
 
 ## Risks
 
