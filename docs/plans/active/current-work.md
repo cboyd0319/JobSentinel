@@ -202,6 +202,7 @@ Out of scope:
 - [x] Lock the whole public GitHub wiki inventory into the harness manifest and
   PR/change-contract review path.
 - [x] Split DB search tests out of the main DB test file.
+- [x] Split resume plain-text format helpers out of the runtime ATS analyzer.
 
 ## Orchestration Log
 
@@ -492,6 +493,10 @@ Out of scope:
   error-path tests into `src-tauri/src/core/db/tests/tests/job_search_tests.rs`.
   The main DB test file still owns duplicate, bookmark, alert, connection, and
   broad database operation coverage plus shared fixtures.
+- Coordinator moved resume plain-text format analysis into
+  `src-tauri/src/core/resume/ats_analyzer/plain_text_format.rs`. The main ATS
+  analyzer still owns job keyword extraction, requirement review, evidence
+  scoring, and structured resume analysis.
 
 ## Risks
 

@@ -11,6 +11,7 @@ use super::ats_types::*;
 use super::types::{ContactInfo, Education, Experience, ResumeData, Skill};
 
 mod bullet_prompts;
+mod plain_text_format;
 mod term_expansion;
 
 // ============================================================================
@@ -61,7 +62,7 @@ impl AtsAnalyzer {
         job_description: &str,
     ) -> AtsAnalysisResult {
         let job_keywords = Self::extract_job_keywords(job_description);
-        let format_result = Self::analyze_plain_text_format(resume_text);
+        let format_result = plain_text_format::analyze_plain_text_format(resume_text);
         let (keyword_matches, missing_keyword_details) =
             Self::find_keyword_matches_in_text(resume_text, skills, &job_keywords);
 
@@ -435,11 +436,11 @@ impl AtsAnalyzer {
             experience
                 .achievements
                 .iter()
-                .any(|item| Self::line_looks_like_keyword_list(item))
+                .any(|item| plain_text_format::line_looks_like_keyword_list(item))
         }) || resume
             .projects
             .iter()
-            .any(|project| Self::line_looks_like_keyword_list(project));
+            .any(|project| plain_text_format::line_looks_like_keyword_list(project));
 
         if has_keyword_list {
             Self::push_keyword_list_issue(issues, suggestions);
@@ -514,11 +515,11 @@ impl AtsAnalyzer {
             experience
                 .achievements
                 .iter()
-                .any(|item| Self::line_looks_like_generic_resume_filler(item))
+                .any(|item| plain_text_format::line_looks_like_generic_resume_filler(item))
         }) || resume
             .projects
             .iter()
-            .any(|project| Self::line_looks_like_generic_resume_filler(project));
+            .any(|project| plain_text_format::line_looks_like_generic_resume_filler(project));
 
         if has_filler {
             Self::push_generic_filler_issue(issues, suggestions);
@@ -784,384 +785,6 @@ impl AtsAnalyzer {
         }
 
         (filled as f64 / total as f64) * 100.0
-    }
-
-    fn analyze_plain_text_format(resume_text: &str) -> AtsAnalysisResult {
-        let readable_text = resume_text.trim();
-        let mut format_issues = Vec::new();
-        let mut suggestions = Vec::new();
-
-        if readable_text.is_empty() {
-            format_issues.push(FormatIssue {
-                severity: IssueSeverity::Critical,
-                issue: "No readable resume text found".to_string(),
-                fix: "Add a resume with readable text before reviewing job fit.".to_string(),
-            });
-        }
-
-        if Self::text_has_adversarial_content(readable_text) {
-            format_issues.push(FormatIssue {
-                severity: IssueSeverity::Warning,
-                issue: "Instruction-like or hidden resume text detected".to_string(),
-                fix: "Remove instructions aimed at screening tools and keep only truthful qualifications, work evidence, and readable application content.".to_string(),
-            });
-            suggestions.push(AtsSuggestion {
-                category: SuggestionCategory::FormatFix,
-                suggestion:
-                    "Review the resume for prompt-injection-like instructions, hidden text, or invisible characters before using it."
-                        .to_string(),
-                impact:
-                    "Keeps the resume readable and avoids tactics that can backfire with employers or screening systems."
-                    .to_string(),
-            });
-        }
-
-        if Self::text_has_keyword_stuffing(readable_text) {
-            format_issues.push(FormatIssue {
-                severity: IssueSeverity::Warning,
-                issue: "Possible keyword stuffing detected".to_string(),
-                fix: "Remove repeated keyword piles and show each important skill through truthful experience, tools, scope, or outcomes.".to_string(),
-            });
-            suggestions.push(AtsSuggestion {
-                category: SuggestionCategory::FormatFix,
-                suggestion: "Replace repeated keywords with readable evidence a recruiter can understand and you can defend in an interview.".to_string(),
-                impact: "Keeps the resume credible while still making real qualifications visible."
-                    .to_string(),
-            });
-        }
-
-        if Self::text_has_keyword_list_bullet(readable_text) {
-            Self::push_keyword_list_issue(&mut format_issues, &mut suggestions);
-        }
-
-        if Self::text_has_unclear_capability_level(readable_text) {
-            Self::push_capability_level_issue(&mut format_issues, &mut suggestions);
-        }
-
-        if Self::text_has_generic_filler_bullet(readable_text) {
-            Self::push_generic_filler_issue(&mut format_issues, &mut suggestions);
-        }
-
-        if !readable_text.is_empty() {
-            Self::check_plain_text_contact(readable_text, &mut format_issues, &mut suggestions);
-            Self::check_plain_text_headings(readable_text, &mut format_issues, &mut suggestions);
-            Self::check_plain_text_layout_risks(
-                readable_text,
-                &mut format_issues,
-                &mut suggestions,
-            );
-        }
-
-        let critical_count = format_issues
-            .iter()
-            .filter(|i| i.severity == IssueSeverity::Critical)
-            .count();
-        let warning_count = format_issues
-            .iter()
-            .filter(|i| i.severity == IssueSeverity::Warning)
-            .count();
-        let format_score =
-            (100.0 - (critical_count as f64 * 20.0) - (warning_count as f64 * 5.0)).max(0.0);
-        let completeness_score = if readable_text.is_empty() { 0.0 } else { 100.0 };
-
-        AtsAnalysisResult {
-            overall_score: (format_score * 0.5) + (completeness_score * 0.5),
-            keyword_score: 0.0,
-            format_score,
-            completeness_score,
-            keyword_matches: Vec::new(),
-            missing_keywords: Vec::new(),
-            missing_keyword_details: Vec::new(),
-            format_issues,
-            requirement_reviews: Vec::new(),
-            hard_constraint_risks: Vec::new(),
-            suggestions,
-        }
-    }
-
-    fn check_plain_text_contact(
-        resume_text: &str,
-        issues: &mut Vec<FormatIssue>,
-        suggestions: &mut Vec<AtsSuggestion>,
-    ) {
-        let top_text = resume_text
-            .lines()
-            .filter(|line| !line.trim().is_empty())
-            .take(12)
-            .collect::<Vec<_>>()
-            .join("\n");
-
-        if Self::contains_email(&top_text) {
-            return;
-        }
-
-        issues.push(FormatIssue {
-            severity: IssueSeverity::Warning,
-            issue: "Contact information is not visible near the top".to_string(),
-            fix:
-                "Put email and basic contact details in the resume body near the top, not only in a header, footer, image, or text box."
-                    .to_string(),
-        });
-        suggestions.push(AtsSuggestion {
-            category: SuggestionCategory::FormatFix,
-            suggestion:
-                "Review the readable text preview and make sure contact details appear near the top."
-                    .to_string(),
-            impact: "Helps application systems and recruiters find the right contact information."
-                .to_string(),
-        });
-    }
-
-    fn check_plain_text_headings(
-        resume_text: &str,
-        issues: &mut Vec<FormatIssue>,
-        suggestions: &mut Vec<AtsSuggestion>,
-    ) {
-        if resume_text.lines().any(Self::is_standard_resume_heading) {
-            return;
-        }
-
-        issues.push(FormatIssue {
-            severity: IssueSeverity::Warning,
-            issue: "No standard resume section headings found".to_string(),
-            fix:
-                "Use clear headings such as Summary, Skills, Professional Experience, Education, Certifications, or Projects."
-                    .to_string(),
-        });
-        suggestions.push(AtsSuggestion {
-            category: SuggestionCategory::FormatFix,
-            suggestion: "Replace creative section names with standard resume headings.".to_string(),
-            impact: "Makes the resume easier for people and application systems to scan in order."
-                .to_string(),
-        });
-    }
-
-    fn check_plain_text_layout_risks(
-        resume_text: &str,
-        issues: &mut Vec<FormatIssue>,
-        suggestions: &mut Vec<AtsSuggestion>,
-    ) {
-        let table_like_lines = resume_text
-            .lines()
-            .filter(|line| {
-                let trimmed = line.trim();
-                trimmed.matches('|').count() >= 2 || trimmed.matches('\t').count() >= 2
-            })
-            .count();
-
-        if table_like_lines < 2 {
-            return;
-        }
-
-        issues.push(FormatIssue {
-            severity: IssueSeverity::Warning,
-            issue: "Readable resume text contains table-like formatting".to_string(),
-            fix:
-                "Use a simple single-column layout for important resume content instead of tables, columns, or skill bars."
-                    .to_string(),
-        });
-        suggestions.push(AtsSuggestion {
-            category: SuggestionCategory::FormatFix,
-            suggestion: "Check whether tables or columns scrambled the plain-text reading order."
-                .to_string(),
-            impact:
-                "Keeps qualifications readable when the resume is copied, parsed, or reviewed quickly."
-                    .to_string(),
-        });
-    }
-
-    fn contains_email(text: &str) -> bool {
-        regex::Regex::new(r"(?i)\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b")
-            .unwrap()
-            .is_match(text)
-    }
-
-    fn text_has_keyword_list_bullet(text: &str) -> bool {
-        let mut current_section = "resume text";
-
-        for line in text.lines() {
-            if let Some(section) = Self::plain_text_section_label(line) {
-                current_section = section;
-                continue;
-            }
-
-            if matches!(
-                current_section,
-                "skills" | "education" | "certifications" | "licenses" | "publications"
-            ) {
-                continue;
-            }
-
-            if Self::line_looks_like_keyword_list(line) {
-                return true;
-            }
-        }
-
-        false
-    }
-
-    fn line_looks_like_keyword_list(line: &str) -> bool {
-        let trimmed = line
-            .trim()
-            .trim_start_matches(|c: char| c == '-' || c == '*' || c == '•')
-            .trim();
-        if trimmed.is_empty() {
-            return false;
-        }
-
-        let separator_count = trimmed.matches(',').count() + trimmed.matches(';').count();
-        if separator_count < 4 {
-            return false;
-        }
-
-        let word_count = trimmed.split_whitespace().count();
-        if !(5..=24).contains(&word_count) {
-            return false;
-        }
-
-        let lower = trimmed.to_lowercase();
-        let action_words = [
-            " led ",
-            " managed ",
-            " built ",
-            " improved ",
-            " coordinated ",
-            " trained ",
-            " supported ",
-            " delivered ",
-            " reduced ",
-            " increased ",
-            " created ",
-            " maintained ",
-        ];
-        let padded = format!(" {lower} ");
-        !action_words.iter().any(|word| padded.contains(word))
-    }
-
-    fn text_has_generic_filler_bullet(text: &str) -> bool {
-        let mut current_section = "resume text";
-
-        for line in text.lines() {
-            if let Some(section) = Self::plain_text_section_label(line) {
-                current_section = section;
-                continue;
-            }
-
-            if matches!(
-                current_section,
-                "skills" | "education" | "certifications" | "licenses" | "publications"
-            ) {
-                continue;
-            }
-
-            if Self::line_looks_like_generic_resume_filler(line) {
-                return true;
-            }
-        }
-
-        false
-    }
-
-    fn line_looks_like_generic_resume_filler(line: &str) -> bool {
-        let trimmed = line
-            .trim()
-            .trim_start_matches(|c: char| c == '-' || c == '*' || c == '•')
-            .trim();
-        if trimmed.is_empty() {
-            return false;
-        }
-
-        let word_count = trimmed.split_whitespace().count();
-        if !(7..=32).contains(&word_count) {
-            return false;
-        }
-
-        let lower = trimmed.to_lowercase();
-        let filler_phrases = [
-            "results-oriented",
-            "results oriented",
-            "dynamic",
-            "team player",
-            "proven track record",
-            "strategic",
-            "excellence",
-            "self-motivated",
-            "self motivated",
-            "detail-oriented",
-            "detail oriented",
-            "fast-paced",
-            "fast paced",
-            "go-getter",
-            "go getter",
-            "synergy",
-            "best-in-class",
-            "best in class",
-            "world-class",
-            "world class",
-            "passionate",
-        ];
-        let phrase_count = filler_phrases
-            .iter()
-            .filter(|phrase| lower.contains(*phrase))
-            .count();
-
-        phrase_count >= 4
-    }
-
-    fn is_standard_resume_heading(line: &str) -> bool {
-        let normalized = line
-            .trim()
-            .trim_end_matches(':')
-            .to_lowercase()
-            .replace('/', " ")
-            .replace('&', " and ");
-        let normalized = normalized.split_whitespace().collect::<Vec<_>>().join(" ");
-        matches!(
-            normalized.as_str(),
-            "summary"
-                | "profile"
-                | "skills"
-                | "skills technical skills"
-                | "technical skills"
-                | "core skills"
-                | "professional experience"
-                | "work experience"
-                | "relevant experience"
-                | "selected experience"
-                | "additional experience"
-                | "employment history"
-                | "work history"
-                | "professional history"
-                | "experience"
-                | "projects"
-                | "selected projects"
-                | "education"
-                | "academic background"
-                | "academic history"
-                | "education background"
-                | "certifications"
-                | "licenses"
-                | "licenses and certifications"
-                | "certifications and licenses"
-                | "professional credentials"
-                | "credentials"
-                | "professional training"
-                | "training"
-                | "certificates"
-                | "career break"
-                | "career breaks"
-                | "career pause"
-                | "family caregiving"
-                | "caregiving"
-                | "volunteer experience"
-                | "volunteering"
-                | "community involvement"
-                | "community service"
-                | "military service"
-                | "military experience"
-                | "service"
-                | "publications"
-        )
     }
 
     fn build_job_analysis_result(

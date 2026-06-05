@@ -50,6 +50,18 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Resume plain-text format analysis moved out of
+  `src-tauri/src/core/resume/ats_analyzer.rs` into
+  `src-tauri/src/core/resume/ats_analyzer/plain_text_format.rs`.
+- The main ATS analyzer still owns job keyword extraction, requirement review,
+  evidence scoring, and structured resume analysis; the extracted helper owns
+  readable-text contact, heading, layout, keyword-list, and generic-filler
+  format checks.
+- `src-tauri/src/core/resume/ats_analyzer.rs` legacy no-growth budget tightened
+  from 2,492 lines to 2,115 lines.
+
+Recent implementation slice:
+
 - DB search title, description, limit, FTS edge, and search error-path tests
   moved out of `src-tauri/src/core/db/tests.rs` into
   `src-tauri/src/core/db/tests/tests/job_search_tests.rs`.
@@ -69,7 +81,7 @@ Recent harness slice:
 - Remote wiki pages `Home.md` and `Capabilities.md` were refreshed and pushed
   to the wiki `master` branch at wiki commit `5cdb20f`.
 
-Recent implementation slice:
+Earlier implementation slice:
 
 - Settings job-board recommendation logic moved out of
   `src/pages/Settings.tsx` into
