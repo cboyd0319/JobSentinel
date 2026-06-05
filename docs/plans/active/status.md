@@ -50,6 +50,14 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Repo-bloat product-copy framing fixtures now live in
+  `scripts/check-repo-bloat-product-copy-framing.test.mjs`, reducing
+  `scripts/check-repo-bloat-product-copy.test.mjs` from 862 to 647 lines
+  without changing stale Resume Optimizer or Application Assist automation
+  framing sensors. Focused verification passed: `node --test
+  scripts/check-repo-bloat-product-copy.test.mjs
+  scripts/check-repo-bloat-product-copy-framing.test.mjs`.
+
 - Product-copy user-guidance fixtures now live in
   `scripts/check-product-copy-user-guidance.test.mjs`, reducing
   `scripts/check-product-copy.test.mjs` from 879 to 530 lines without changing
@@ -167,6 +175,7 @@ Recent committed cleanup batch:
 
 | Area | Main file before -> after | Extracted surface | Focused proof |
 | ---- | ------------------------- | ----------------- | ------------- |
+| Repo-bloat product-copy test | 862 -> 647 | product-copy framing test file | Focused script tests |
 | Product-copy test | 879 -> 530 | user-guidance test file | Focused script tests |
 | Feedback privacy bloat test | 884 -> 531 | feedback readability test file | Focused script tests |
 | Resume Builder commands | 886 -> 730 | command sidecar re-export plus nested invoke harness | Commands focused tests, script tests, docs, bloat, fmt |
