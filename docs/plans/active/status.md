@@ -113,6 +113,15 @@ Earlier implementation slice:
 
 Latest implementation slice:
 
+- DB duplicate-merge coverage moved out of `src-tauri/src/core/db/tests.rs`
+  into `src-tauri/src/core/db/tests/tests/job_duplicate_merge_tests.rs`.
+- The main DB test file still owns core operation, accessor, repost, and
+  remaining broad database coverage plus shared fixtures.
+- `src-tauri/src/core/db/tests.rs` legacy no-growth budget tightened from
+  1,374 lines to 1,318 lines.
+
+Earlier implementation slice:
+
 - DB bookmark coverage moved out of `src-tauri/src/core/db/tests.rs` into
   `src-tauri/src/core/db/tests/tests/job_bookmark_tests.rs`.
 - The main DB test file still owns core operation, accessor, repost, and
