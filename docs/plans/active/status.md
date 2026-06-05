@@ -479,6 +479,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 - JobsWithGPT scraper tests moved into `jobswithgpt/tests.rs`; the scraper file
   now stays focused on MCP query and response parsing behavior.
 
+- YC startup scraper fixture helpers and tests moved into `yc_startup/tests.rs`;
+  the scraper file now stays focused on Inertia extraction and job parsing.
+
 ## Recent Completed Slices
 
 Detailed implementation history before the current restart window is in the
