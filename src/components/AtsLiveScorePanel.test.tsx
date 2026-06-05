@@ -846,6 +846,38 @@ describe("AtsLiveScorePanel", () => {
       expect(screen.queryByText(/score cap/i)).not.toBeInTheDocument();
     });
 
+    it("shows hard must-haves from required review rows when risk list is absent", async () => {
+      mockInvoke.mockResolvedValue({
+        ...mockAnalysis,
+        hard_constraint_risks: [],
+        requirement_reviews: [
+          {
+            keyword: "work authorization",
+            importance: "Required",
+            match_state: "Partial",
+            evidence_sections: ["summary"],
+            hard_constraint: true,
+            recommendation: "Only rely on it if it is true and supported by evidence.",
+          },
+        ],
+      } satisfies AtsAnalysisResult);
+
+      render(
+        <AtsLiveScorePanel
+          resumeData={mockResumeData}
+          currentStep={1}
+          debounceMs={10}
+        />
+      );
+
+      await waitForAnalysis();
+
+      expect(screen.getByText("1 must-have to check")).toBeInTheDocument();
+      expect(
+        screen.getByText(/Check work authorization before editing this resume/i),
+      ).toBeInTheDocument();
+    });
+
     it("displays suggestions in modal", async () => {
       render(
         <AtsLiveScorePanel

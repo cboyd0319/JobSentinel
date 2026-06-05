@@ -51,6 +51,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Resume Builder live score now shows must-have warnings from weak hard
+  requirement review rows even when no separate hard-risk list is present.
+
 - Resume Match next actions no longer duplicate partial or implied hard
   requirements as both **Check first** and supporting-evidence actions.
 

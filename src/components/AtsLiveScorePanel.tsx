@@ -305,7 +305,97 @@ function getMissingKeywordGroups(analysis: AtsAnalysisResult) {
 }
 
 function getHardConstraintRisks(analysis: AtsAnalysisResult | null): HardConstraintRisk[] {
-  return analysis?.hard_constraint_risks ?? [];
+  if (!analysis) {
+    return [];
+  }
+
+  const risks = analysis.hard_constraint_risks ?? [];
+  const riskRequirements = new Set(
+    risks.map((risk) => normalizeRequirementText(risk.requirement)),
+  );
+  const fallbackRisks = (analysis.requirement_reviews ?? [])
+    .filter(
+      (review) =>
+        review.hard_constraint &&
+        review.importance === "Required" &&
+        (
+          review.match_state === "Missing" ||
+          review.match_state === "Partial" ||
+          review.match_state === "Implied"
+        ) &&
+        !riskRequirements.has(normalizeRequirementText(review.keyword)),
+    )
+    .map((review) => ({
+      requirement: review.keyword,
+      category: inferHardConstraintCategory(review.keyword),
+      score_cap: 0,
+      reason: "A required hard constraint was not clearly confirmed in the resume.",
+      action:
+        review.recommendation.trim() ||
+        "Check this requirement before tailoring. If it is not true for you, do not claim it.",
+    }));
+
+  return [...risks, ...fallbackRisks];
+}
+
+function normalizeRequirementText(value: string): string {
+  return value.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+function inferHardConstraintCategory(keyword: string): HardConstraintRisk["category"] {
+  const lower = normalizeRequirementText(keyword);
+
+  if (
+    lower.includes("work authorization") ||
+    lower.includes("authorized to work") ||
+    lower.includes("citizen") ||
+    lower.includes("citizenship") ||
+    lower.includes("visa")
+  ) {
+    return "WorkAuthorization";
+  }
+  if (lower.includes("clearance")) {
+    return "SecurityClearance";
+  }
+  if (
+    lower.includes("license") ||
+    lower.includes("certification") ||
+    lower === "cdl" ||
+    lower === "cna" ||
+    lower === "rn"
+  ) {
+    return "LicenseOrCertification";
+  }
+  if (
+    lower.includes("degree") ||
+    lower.includes("bachelor") ||
+    lower.includes("master") ||
+    lower.includes("high school") ||
+    lower === "ged"
+  ) {
+    return "Education";
+  }
+  if (lower.includes("language") || lower.includes("bilingual") || lower.includes("fluency")) {
+    return "Language";
+  }
+  if (lower.includes("background") || lower.includes("drug") || lower.includes("screening")) {
+    return "BackgroundScreening";
+  }
+  if (lower.includes("lift") || lower.includes("pound") || lower.includes("physical")) {
+    return "PhysicalRequirement";
+  }
+  if (
+    lower.includes("onsite") ||
+    lower.includes("remote") ||
+    lower.includes("hybrid") ||
+    lower.includes("travel") ||
+    lower.includes("schedule") ||
+    lower.includes("availability")
+  ) {
+    return "Location";
+  }
+
+  return "Experience";
 }
 
 function isStoredJobContext(value: unknown): value is StoredJobContext {
