@@ -452,6 +452,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 - Feature status/doc glyph bloat fixtures moved out of the main feature-docs
   bloat test file into a focused script test.
 
+- Security-doc and keyring bloat fixtures moved out of the frontend-security
+  bloat test file into a focused script test.
+
 ## Recent Completed Slices
 
 Detailed implementation history before the current restart window is in the
