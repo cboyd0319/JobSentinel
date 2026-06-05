@@ -9,255 +9,42 @@ import { useToast } from "../contexts";
 import { safeInvoke, safeInvokeWithToast } from "../utils/api";
 import { getSafeErrorToastCopy } from "../utils/safeErrorCopy";
 import { scoreFractionToPercent } from "../utils/scoreUtils";
-
-// Skill strength color lookup keeps legacy stored values readable.
-type BadgeVariant = "sentinel" | "alert" | "surface" | "success" | "danger";
-
-const SKILL_STRENGTH_COLORS: Record<string, BadgeVariant> = {
-  "can train others": "sentinel",
-  "regular use": "alert",
-  "some practice": "surface",
-  learning: "surface",
-  expert: "sentinel",
-  advanced: "alert",
-  intermediate: "surface",
-  beginner: "surface",
-};
-
-const SKILL_STRENGTH_LABELS: Record<string, string> = {
-  beginner: "Learning",
-  intermediate: "Some practice",
-  proficient: "Regular use",
-  advanced: "Regular use",
-  expert: "Can train others",
-};
-
-const SKILL_STRENGTH_OPTIONS = [
-  { value: "Learning", label: "Learning" },
-  { value: "Some practice", label: "Some practice" },
-  { value: "Regular use", label: "Regular use" },
-  { value: "Can train others", label: "Can train others" },
-] as const;
-
-const DEFAULT_SKILL_STRENGTH = "Regular use";
-
-function normalizeSkillStrength(value: string | null | undefined) {
-  return value?.trim().toLowerCase() ?? "";
-}
-
-function getSkillStrengthLabel(value: string | null | undefined) {
-  const normalized = normalizeSkillStrength(value);
-  if (!normalized) {
-    return "Not set";
-  }
-  return SKILL_STRENGTH_LABELS[normalized] ?? value?.trim() ?? "Not set";
-}
-
-const getSkillStrengthColor = (strength: string | null): BadgeVariant =>
-  SKILL_STRENGTH_COLORS[normalizeSkillStrength(strength)] ?? "surface";
-
-function getSkillSourceLabel(source: string) {
-  const normalized = source.trim().toLowerCase();
-  if (normalized === "manual") {
-    return "Added by you";
-  }
-  if (normalized === "resume" || normalized === "import") {
-    return "Found in resume";
-  }
-  return "Saved skill";
-}
-
-// Backend types (matching Rust types)
-interface ResumeData {
-  id: number;
-  name: string;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
-  format_label?: string;
-  has_readable_text?: boolean;
-  readable_text_chars?: number;
-}
-
-interface ResumeTextPreview {
-  resume_id: number;
-  name: string;
-  has_text: boolean;
-  text_preview: string;
-  text_chars: number;
-  is_truncated: boolean;
-}
-
-interface ReadablePreviewCheck {
-  label: string;
-  detail: string;
-  variant: BadgeVariant;
-}
-
-interface ResumeMatchingPreference {
-  enabled: boolean;
-}
-
-interface UserSkill {
-  id: number;
-  resume_id: number;
-  skill_name: string;
-  skill_category: string | null;
-  confidence_score: number;
-  years_experience: number | null;
-  proficiency_level: string | null;
-  source: string;
-}
-
-interface SkillUpdate {
-  skill_name?: string;
-  skill_category?: string | null;
-  proficiency_level?: string | null;
-  years_experience?: number | null;
-}
-
-interface NewSkill {
-  skill_name: string;
-  skill_category?: string;
-  proficiency_level?: string;
-  years_experience?: number;
-}
-
-interface MatchResult {
-  id: number;
-  resume_id: number;
-  job_hash: string;
-  job_title: string;
-  company: string;
-  overall_match_score: number;
-  skills_match_score?: number | null;
-  experience_match_score?: number | null;
-  education_match_score?: number | null;
-  matching_skills: string[];
-  missing_skills: string[];
-  gap_analysis: string | null;
-  created_at: string;
-}
-
-function isScoreFraction(value: unknown): value is number {
-  return typeof value === "number" && Number.isFinite(value);
-}
-
-function optionalTrimmedText(value: string | null | undefined): string | null {
-  const trimmed = value?.trim() ?? "";
-  return trimmed ? trimmed : null;
-}
-
-function optionalYearsValue(value: number | null | undefined): number | null {
-  return typeof value === "number" && Number.isFinite(value) ? value : null;
-}
-
-function isResumeMatchingEnabled(preference: ResumeMatchingPreference | null | undefined) {
-  return preference?.enabled === true;
-}
-
-function getResumeFormatLabel(resume: ResumeData) {
-  return resume.format_label?.trim() || "Resume file";
-}
-
-function isPdfFormatLabel(formatLabel: string | null | undefined) {
-  return formatLabel?.trim().toLowerCase() === "pdf";
-}
-
-function getReadableTextLabel(resume: ResumeData) {
-  if (resume.has_readable_text === true) {
-    return "Readable text ready";
-  }
-  if (resume.has_readable_text === false) {
-    return "No readable text found";
-  }
-  return "Readable text not checked";
-}
-
-function getReadableTextDescription(resume: ResumeData) {
-  if (resume.has_readable_text === true) {
-    const count = typeof resume.readable_text_chars === "number"
-      ? resume.readable_text_chars
-      : 0;
-    return `${count.toLocaleString()} characters available for local review.`;
-  }
-  if (resume.has_readable_text === false) {
-    if (isPdfFormatLabel(resume.format_label)) {
-      return [
-        "Follow employer file instructions first.",
-        "This PDF may be scanned or image-only, so JobSentinel could not find selectable text.",
-        "If no format is named, export a readable PDF, DOCX, TXT, or Markdown resume.",
-      ].join(" ");
-    }
-
-    return [
-      "Follow employer file instructions first.",
-      "If no format is named, add a PDF, DOCX, TXT, or Markdown resume with readable text.",
-    ].join(" ");
-  }
-  return "Open the readable-text preview to check what JobSentinel can read.";
-}
-
-function getEmptyReadablePreviewMessage(resume: ResumeData | null) {
-  if (isPdfFormatLabel(resume?.format_label)) {
-    return [
-      "No selectable text found in this PDF.",
-      "Follow employer file instructions first.",
-      "If no format is named, try exporting a readable PDF, DOCX, TXT, Markdown resume, or resume app export.",
-    ].join(" ");
-  }
-
-  return [
-    "No readable text found.",
-    "Follow employer file instructions first.",
-    "If no format is named, try a readable PDF, DOCX, TXT, Markdown resume, or resume app export.",
-  ].join(" ");
-}
-
-function getReadableTextBadgeVariant(resume: ResumeData): BadgeVariant {
-  if (resume.has_readable_text === true) return "success";
-  if (resume.has_readable_text === false) return "danger";
-  return "surface";
-}
-
-function getReadablePreviewChecklist(preview: ResumeTextPreview | null): ReadablePreviewCheck[] {
-  if (!preview) return [];
-
-  const hasText = preview.has_text && preview.text_chars > 0;
-  return [
-    {
-      label: hasText ? "Text found" : "Needs readable text",
-      detail: hasText
-        ? `${preview.text_chars.toLocaleString()} readable characters available.`
-        : "Try a readable PDF, DOCX, TXT, Markdown resume, or resume app export.",
-      variant: hasText ? "success" : "danger",
-    },
-    {
-      label: "Employer format first",
-      detail: "Follow the employer's requested file type before choosing another readable format.",
-      variant: "surface",
-    },
-    {
-      label: "Important details need text",
-      detail:
-        "Keep contact details, roles, skills, and credentials as selectable text. Photos, logos, or image-only sections may not be read consistently.",
-      variant: "surface",
-    },
-    {
-      label: hasText
-        ? preview.is_truncated
-          ? "Preview clipped"
-          : "Preview complete"
-        : "Preview not available",
-      detail: hasText
-        ? preview.is_truncated
-          ? "Only the first part is shown here; local review still uses saved readable text."
-          : "The visible preview includes all readable text JobSentinel received."
-        : "No readable text is available for preview.",
-      variant: hasText ? (preview.is_truncated ? "alert" : "success") : "danger",
-    },
-  ];
-}
+import {
+  DEFAULT_SKILL_STRENGTH,
+  SKILL_CATEGORIES,
+  SKILL_STRENGTH_OPTIONS,
+  getReadableTextBadgeVariant,
+  getReadableTextDescription,
+  getReadableTextLabel,
+  getResumeFormatLabel,
+  getSkillSourceLabel,
+  getSkillStrengthColor,
+  getSkillStrengthLabel,
+  isResumeMatchingEnabled,
+  isScoreFraction,
+  optionalTrimmedText,
+  optionalYearsValue,
+  parseGapAnalysisLine,
+  type MatchResult,
+  type NewSkill,
+  type ResumeData,
+  type ResumeMatchingPreference,
+  type ResumeTextPreview,
+  type SkillUpdate,
+  type UserSkill,
+} from "./resumePageModel";
+import {
+  BackIcon,
+  CheckIcon,
+  DocumentIcon,
+  EditIcon,
+  FolderIcon,
+  PlusIcon,
+  TrashIcon,
+  XIcon,
+} from "./ResumeIcons";
+import { ResumeLibraryDropdown } from "./ResumeLibraryDropdown";
+import { ResumeTextPreviewModal } from "./ResumeTextPreviewModal";
 
 function ScoreBreakdownRow({
   label,
@@ -283,49 +70,6 @@ function ScoreBreakdownRow({
       </span>
     </div>
   );
-}
-
-const SKILL_CATEGORIES = [
-  "Work Skills",
-  "Tools and Systems",
-  "People and Communication",
-  "Customer or Patient Support",
-  "Operations and Administration",
-  "Leadership",
-  "Languages",
-  "Licenses and Credentials",
-  "Other",
-];
-
-const LEGACY_MATCH_PREFIX = "\u2713";
-const LEGACY_MISSING_PREFIX = "\u2717";
-
-function parseGapAnalysisLine(line: string) {
-  const trimmed = line.trim();
-  const matchPattern = /^(?:Matching:|Matching Skills\b)/i;
-  const missingPattern = /^(?:Missing:|Missing Skills\b)/i;
-
-  if (trimmed.startsWith(LEGACY_MATCH_PREFIX) || matchPattern.test(trimmed)) {
-    return {
-      text: trimmed
-        .replace(LEGACY_MATCH_PREFIX, "")
-        .replace(matchPattern, "")
-        .trim(),
-      status: "match" as const,
-    };
-  }
-
-  if (trimmed.startsWith(LEGACY_MISSING_PREFIX) || missingPattern.test(trimmed)) {
-    return {
-      text: trimmed
-        .replace(LEGACY_MISSING_PREFIX, "")
-        .replace(missingPattern, "")
-        .trim(),
-      status: "missing" as const,
-    };
-  }
-
-  return { text: trimmed, status: "neutral" as const };
 }
 
 interface ResumeProps {
@@ -737,65 +481,12 @@ export default function Resume({ onBack }: ResumeProps) {
         </div>
       </header>
 
-      {/* Resume Library Dropdown */}
-      {showResumeLibrary && allResumes.length > 0 && (
-        <div className="bg-white dark:bg-surface-800 border-b border-surface-200 dark:border-surface-700 shadow-lg">
-          <div className="max-w-7xl mx-auto px-6 py-4">
-            <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3">
-              Resume Library
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {allResumes.map((r) => (
-                <div
-                  key={r.id}
-                  className={`p-3 rounded-lg border ${
-                    r.is_active
-                      ? "border-sentinel-500 bg-sentinel-50 dark:bg-sentinel-900/20"
-                      : "border-surface-200 dark:border-surface-700 hover:border-surface-300 dark:hover:border-surface-600"
-                  } cursor-pointer transition-colors`}
-                  onClick={() => !r.is_active && handleSetActiveResume(r.id)}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <DocumentIcon className="w-5 h-5 text-surface-500" />
-                      <div>
-                        <p className="font-medium text-surface-800 dark:text-surface-200 text-sm">
-                          {r.name}
-                        </p>
-                        <p className="text-xs text-surface-500">
-                          {new Date(r.created_at).toLocaleDateString()}
-                        </p>
-                        <p className="text-xs text-surface-500">
-                          {getResumeFormatLabel(r)} - {getReadableTextLabel(r)}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {r.is_active && (
-                        <Badge variant="sentinel" size="sm">
-                          Active
-                        </Badge>
-                      )}
-                      {!r.is_active && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            confirmDeleteResume(r);
-                          }}
-                          className="p-1 text-surface-400 hover:text-red-500 transition-colors"
-                          title="Delete resume"
-                          aria-label={`Delete resume: ${r.name}`}
-                        >
-                          <TrashIcon className="w-4 h-4" />
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+      {showResumeLibrary && (
+        <ResumeLibraryDropdown
+          resumes={allResumes}
+          onActivateResume={handleSetActiveResume}
+          onDeleteResume={confirmDeleteResume}
+        />
       )}
 
       <main className="max-w-7xl mx-auto p-6">
@@ -1460,57 +1151,13 @@ export default function Resume({ onBack }: ResumeProps) {
         )}
       </main>
 
-      <Modal
+      <ResumeTextPreviewModal
         isOpen={showTextPreview}
+        resume={resume}
+        textPreview={textPreview}
         onClose={() => setShowTextPreview(false)}
-        title="Readable Resume Text"
-        description="This preview stays local and shows the text JobSentinel can use for resume review."
-        size="xl"
-      >
-        {textPreview && (
-          <div className="mb-4 grid gap-2 sm:grid-cols-3">
-            {getReadablePreviewChecklist(textPreview).map((check) => (
-              <div
-                key={check.label}
-                className="rounded-lg border border-surface-200 dark:border-surface-700 p-3"
-              >
-                <Badge variant={check.variant} size="sm">{check.label}</Badge>
-                <p className="mt-2 text-xs leading-5 text-surface-600 dark:text-surface-400">
-                  {check.detail}
-                </p>
-              </div>
-            ))}
-          </div>
-        )}
-        {textPreview?.has_text ? (
-          <div className="space-y-3">
-            <div className="flex items-center justify-between gap-3">
-              <p className="text-sm text-surface-600 dark:text-surface-400">
-                {textPreview.is_truncated
-                  ? `Showing the first ${textPreview.text_preview.length.toLocaleString()} of ${textPreview.text_chars.toLocaleString()} characters.`
-                  : `${textPreview.text_chars.toLocaleString()} characters found.`}
-              </p>
-            </div>
-            <pre className="max-h-[60vh] overflow-auto whitespace-pre-wrap rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-900 p-4 text-sm leading-6 text-surface-800 dark:text-surface-100">
-              {textPreview.text_preview}
-            </pre>
-          </div>
-        ) : (
-          <p className="text-surface-600 dark:text-surface-400">
-            {getEmptyReadablePreviewMessage(resume)}
-          </p>
-        )}
-        <ModalFooter>
-          {textPreview?.has_text && (
-            <Button onClick={handleCopyResumeText}>
-              Copy text
-            </Button>
-          )}
-          <Button variant="secondary" onClick={() => setShowTextPreview(false)}>
-            Close
-          </Button>
-        </ModalFooter>
-      </Modal>
+        onCopyText={handleCopyResumeText}
+      />
 
       {/* Delete Confirmation Modal */}
       <Modal
@@ -1546,90 +1193,5 @@ export default function Resume({ onBack }: ResumeProps) {
         </ModalFooter>
       </Modal>
     </div>
-  );
-}
-
-// Icons
-function BackIcon() {
-  return (
-    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-    </svg>
-  );
-}
-
-function DocumentIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg className={className || "w-5 h-5"} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={1.5}
-        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-      />
-    </svg>
-  );
-}
-
-function CheckIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-    </svg>
-  );
-}
-
-function XIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-    </svg>
-  );
-}
-
-function PlusIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-    </svg>
-  );
-}
-
-function EditIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-      />
-    </svg>
-  );
-}
-
-function TrashIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-      />
-    </svg>
-  );
-}
-
-function FolderIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
-      />
-    </svg>
   );
 }
