@@ -3,7 +3,13 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import type { SavedSearch, SortOption, ScoreFilter, PostedDateFilter } from "../DashboardTypes";
+import type {
+  SavedSearch,
+  SortOption,
+  ScoreFilter,
+  PostedDateFilter,
+  GhostFilter,
+} from "../DashboardTypes";
 import { useToast } from "../../contexts";
 import { useUndo } from "../../hooks/useUndo";
 import { safeInvoke, safeInvokeWithToast } from "../../utils/api";
@@ -27,6 +33,10 @@ type BackendSavedSearch = {
   lastUsedAt: string | null;
 };
 
+function isGhostFilter(value: unknown): value is GhostFilter {
+  return value === "all" || value === "real" || value === "ghost";
+}
+
 function toBackendSavedSearch(name: string, filters: SavedSearch["filters"]): BackendSavedSearch {
   return {
     id: "",
@@ -40,7 +50,7 @@ function toBackendSavedSearch(name: string, filters: SavedSearch["filters"]): Ba
     postedDateFilter: filters.postedDateFilter ?? null,
     salaryMinFilter: filters.salaryMinFilter ?? null,
     salaryMaxFilter: filters.salaryMaxFilter ?? null,
-    ghostFilter: null,
+    ghostFilter: filters.ghostFilter ?? null,
     textSearch: null,
     createdAt: "",
     lastUsedAt: null,
@@ -74,6 +84,7 @@ export function useDashboardSavedSearches() {
             bookmarkFilter: s.bookmarkFilter,
             notesFilter: s.notesFilter,
             postedDateFilter: s.postedDateFilter ?? undefined,
+            ghostFilter: isGhostFilter(s.ghostFilter) ? s.ghostFilter : undefined,
             salaryMinFilter: s.salaryMinFilter,
             salaryMaxFilter: s.salaryMaxFilter,
           },
@@ -96,6 +107,7 @@ export function useDashboardSavedSearches() {
       bookmarkFilter: string;
       notesFilter: string;
       postedDateFilter: PostedDateFilter;
+      ghostFilter: GhostFilter;
       salaryMinFilter: number | null;
       salaryMaxFilter: number | null;
     }

@@ -151,6 +151,50 @@ describe("useDashboardFilters — score edge cases", () => {
     });
   });
 
+  describe("posting-risk filtering", () => {
+    const staleReason = JSON.stringify([
+      {
+        category: "stale",
+        description: "Posted 70 days ago",
+        weight: 0.2,
+        severity: "medium",
+      },
+    ]);
+
+    it("includes stale or repost evidence in needs-review results", () => {
+      const jobs: Job[] = [
+        makeJob({ id: 1, ghost_score: 0.42, ghost_reasons: staleReason }),
+        makeJob({ id: 2, ghost_score: Infinity, ghost_reasons: staleReason }),
+        makeJob({ id: 3, ghost_score: 0.7, ghost_reasons: null }),
+        makeJob({ id: 4, ghost_score: 0.2, ghost_reasons: null }),
+      ];
+
+      const { result } = renderHook(() => useDashboardFilters(jobs));
+
+      act(() => result.current.setGhostFilter("ghost"));
+
+      expect(result.current.filteredAndSortedJobs.map((j) => j.id).sort()).toEqual([
+        1,
+        2,
+        3,
+      ]);
+    });
+
+    it("hides stale or repost evidence from lower-risk results", () => {
+      const jobs: Job[] = [
+        makeJob({ id: 1, ghost_score: 0.42, ghost_reasons: staleReason }),
+        makeJob({ id: 2, ghost_score: 0.7, ghost_reasons: null }),
+        makeJob({ id: 3, ghost_score: 0.2, ghost_reasons: null }),
+      ];
+
+      const { result } = renderHook(() => useDashboardFilters(jobs));
+
+      act(() => result.current.setGhostFilter("real"));
+
+      expect(result.current.filteredAndSortedJobs.map((j) => j.id)).toEqual([3]);
+    });
+  });
+
   describe("sorting with non-finite scores", () => {
     it("sorts null scores to the bottom in score-desc", () => {
       const jobs: Job[] = [

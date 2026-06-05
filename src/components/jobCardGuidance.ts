@@ -1,3 +1,5 @@
+import { hasPostingEvidenceReviewCue } from "../utils/postingRisk";
+
 export interface PostingRiskGuidance {
   level: "low" | "medium" | "high";
   title: string;
@@ -26,13 +28,6 @@ export interface ScamRiskGuidance {
   ariaLabel: string;
 }
 
-interface PostingRiskReason {
-  category: "stale" | "repost" | "generic" | "missing_details" | "unrealistic" | "company_behavior";
-  description: string;
-  weight: number;
-  severity: "low" | "medium" | "high";
-}
-
 const SCAM_SIGNAL_PATTERNS = [
   /\b(?:cashier'?s\s+check|fake\s+check|deposit\s+(?:the\s+)?check|mobile\s+deposit)\b/i,
   /\b(?:pay|send|wire|transfer)\b.{0,50}\b(?:money|fee|deposit|gift\s+cards?|funds)\b/i,
@@ -50,49 +45,11 @@ const LOW_DETAIL_TITLE_PATTERNS = [
 const THIN_DESCRIPTION_PATTERN = /\b(?:apply|hiring|opportunity|position|role|team)\b/i;
 const MIN_THIN_DESCRIPTION_LENGTH = 45;
 
-const reviewCueReasonCategories = new Set<PostingRiskReason["category"]>([
-  "stale",
-  "repost",
-]);
-
-function parsePostingRiskReasons(reasonsJson: string | null | undefined): PostingRiskReason[] {
-  if (!reasonsJson) {
-    return [];
-  }
-
-  try {
-    const parsed: unknown = JSON.parse(reasonsJson);
-    if (!Array.isArray(parsed)) {
-      return [];
-    }
-
-    return parsed.filter((value): value is PostingRiskReason => {
-      if (!value || typeof value !== "object") {
-        return false;
-      }
-
-      const reason = value as Record<string, unknown>;
-
-      return (
-        typeof reason.category === "string" &&
-        reviewCueReasonCategories.has(reason.category as PostingRiskReason["category"]) &&
-        typeof reason.description === "string" &&
-        typeof reason.weight === "number" &&
-        Number.isFinite(reason.weight) &&
-        typeof reason.severity === "string" &&
-        ["low", "medium", "high"].includes(reason.severity)
-      );
-    });
-  } catch {
-    return [];
-  }
-}
-
 export function getPostingRiskGuidance(
   ghostScore: number | null | undefined,
   ghostReasons: string | null | undefined,
 ): PostingRiskGuidance | null {
-  const reviewReasons = parsePostingRiskReasons(ghostReasons);
+  const hasReviewCue = hasPostingEvidenceReviewCue(ghostReasons);
 
   if (
     ghostScore == null ||
@@ -100,7 +57,7 @@ export function getPostingRiskGuidance(
     ghostScore < 0 ||
     ghostScore > 1
   ) {
-    if (reviewReasons.length > 0) {
+    if (hasReviewCue) {
       return {
         level: "low",
         title: "Check posting evidence",
@@ -139,7 +96,7 @@ export function getPostingRiskGuidance(
     };
   }
 
-  if (reviewReasons.length > 0) {
+  if (hasReviewCue) {
     return {
       level: "low",
       title: "Check posting evidence",

@@ -10,10 +10,8 @@ import type {
   GhostFilter,
   SearchQuery,
 } from "../DashboardTypes";
-import {
-  GHOST_SCORE_THRESHOLD,
-  SCORE_THRESHOLD_GOOD,
-} from "../../utils/constants";
+import { SCORE_THRESHOLD_GOOD } from "../../utils/constants";
+import { hasPostingReviewAlert } from "../../utils/postingRisk";
 
 // Coerce score to a finite number for safe comparison (null/NaN/Infinity → -1)
 const safeScore = (s: number | null | undefined): number =>
@@ -265,9 +263,12 @@ export function useDashboardFilters(jobs: Job[]): FilterState &
     // Apply ghost filter (v1.4)
     if (ghostFilter !== "all") {
       result = result.filter((job) => {
-        const isGhost = (job.ghost_score ?? 0) >= GHOST_SCORE_THRESHOLD;
-        if (ghostFilter === "real") return !isGhost;
-        if (ghostFilter === "ghost") return isGhost;
+        const needsReview = hasPostingReviewAlert(
+          job.ghost_score,
+          job.ghost_reasons,
+        );
+        if (ghostFilter === "real") return !needsReview;
+        if (ghostFilter === "ghost") return needsReview;
         return true;
       });
     }

@@ -62,6 +62,7 @@ export interface SavedSearch {
     bookmarkFilter: string;
     notesFilter: string;
     postedDateFilter?: PostedDateFilter;
+    ghostFilter?: GhostFilter;
     salaryMinFilter?: number | null;
     salaryMaxFilter?: number | null;
   };

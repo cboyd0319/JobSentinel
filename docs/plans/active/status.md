@@ -51,12 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
-- Dashboard salary filters now trust only positive finite listed-pay bounds, keep
-  open-ended one-sided ranges visible when the unknown side could still fit, and
-  treat reversed, negative, or non-finite pay as unavailable.
-- Previous slice moved job-card posting, pay-floor, wide-range, low-detail, and
-  scam-signal guidance to `src/components/jobCardGuidance.ts`, added gift-card
-  scam signals, and kept product-copy harness coverage on the extracted helper.
+- Dashboard posting-risk filters now use the same review-alert rule as visible
+  job-card cues, so low-score or unavailable-score stale/repost evidence appears
+  under **Needs Review** and stays out of **Lower Risk**.
+- Saved searches now preserve the posting-risk filter instead of dropping it.
 
 - Resume Match model types, validators, JSON parsing, fit-status copy, and
   suggestion-category labels moved from `src/pages/ResumeOptimizer.tsx` to
