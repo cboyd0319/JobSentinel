@@ -51,6 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- README and macOS readiness output now separate full-public readiness (94%)
+  from the complete no-account path (100%), matching the known no-Apple-account
+  constraint.
+
 - Rust tests and platform examples now avoid concrete developer home paths while
   still covering sanitizer and private-detail redaction behavior.
 

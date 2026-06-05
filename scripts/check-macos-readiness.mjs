@@ -271,15 +271,26 @@ export function evaluateMacosReadiness({ root = defaultRoot, env = process.env }
 
 export function readReadmeMacosReadinessPercent(root = defaultRoot) {
   const text = read(root, "README.md");
-  const match = text.match(/Current macOS no-account release-readiness:\s*(\d+)%/);
+  const match =
+    text.match(/Current macOS full-public-readiness:\s*(\d+)%/) ??
+    text.match(/Current macOS no-account release-readiness:\s*(\d+)%/);
   return match ? Number(match[1]) : null;
+}
+
+export function noAccountCompletionPercentage(report) {
+  if (!report.noAccountCeiling) {
+    return 0;
+  }
+
+  return Math.round((report.noAccountScore / report.noAccountCeiling) * 100);
 }
 
 export function formatMacosReadinessReport(report) {
   const failed = report.criteria.filter((item) => !item.ok);
   const blocked = report.externalBlockers.filter((item) => !item.ok);
   const lines = [
-    `macOS readiness: ${report.percentage}%`,
+    `macOS full-public readiness: ${report.percentage}%`,
+    `No-account path completion: ${noAccountCompletionPercentage(report)}%`,
     `No-account ceiling: ${report.noAccountCeiling}%`,
     `No-account score: ${report.noAccountScore}/${report.noAccountCeiling}`,
   ];
