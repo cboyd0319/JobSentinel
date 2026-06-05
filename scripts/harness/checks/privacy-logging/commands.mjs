@@ -248,7 +248,7 @@ export function hasRawResumeCommandDtoExposure(root, path) {
   if (path === "src/mocks/handlers/resumeCommands.ts") {
     return (
       !/toMockResumeSummary/.test(text) ||
-      /case\s+["']list_all_resumes["']:[\s\S]{0,160}return\s+withoutSave\(\s*state\s*,\s*state\.resumes/.test(
+      /case\s+["']list_all_resumes["']:[\s\S]{0,160}return\s+withoutSave\(\s*state\s*,\s*state\.resumes\s*\)/.test(
         text,
       )
     );

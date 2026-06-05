@@ -55,6 +55,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
   privacy guard follows the split so mock resume summaries still avoid renderer
   file-path exposure.
 
+- Application Assist resume-token/file-picker helpers now live in a focused
+  automation submodule, keeping the Tauri command surface smaller while
+  preserving app-owned resume storage and private path redaction.
+
 - First-run setup and profile presets now start with remote, hybrid, and
   on-site selected and no preset salary floor, so new users do not silently
   narrow results before choosing.
