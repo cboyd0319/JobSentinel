@@ -240,6 +240,11 @@ test("checkRepoBloat rejects technical source-health user copy", () => {
     );
     writeFixtureFile(
       root,
+      "src/components/scraperHealthDashboardModel.ts",
+      'const source = { label: "Healthy" };\n',
+    );
+    writeFixtureFile(
+      root,
       "docs/features/scraper-health.md",
       "# Scraper Health Monitoring\n\nRun smoke tests from the dashboard.\n",
     );
@@ -250,6 +255,7 @@ test("checkRepoBloat rejects technical source-health user copy", () => {
         "add",
         "package.json",
         "src/components/ScraperHealthDashboard.tsx",
+        "src/components/scraperHealthDashboardModel.ts",
         "src/pages/Settings.tsx",
         "docs/features/scraper-health.md",
       ],
@@ -261,6 +267,12 @@ test("checkRepoBloat rejects technical source-health user copy", () => {
     assert.ok(
       violations.includes(
         "keep source-health copy plain-language: src/components/ScraperHealthDashboard.tsx",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "keep source-health copy plain-language: src/components/scraperHealthDashboardModel.ts",
       ),
       violations.join("\n"),
     );

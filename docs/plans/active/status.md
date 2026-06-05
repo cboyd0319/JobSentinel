@@ -38,7 +38,7 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Current Posture
 
-- Last pushed main baseline: `3192b0b3 Split mock resume keyword helpers`.
+- Last pushed main baseline: `ce93c51a Split analytics panel model`.
 - Fresh harness session evidence reports 2 active docs, 2 indexed workstreams,
   and a 100/100 harness score: this status file and `current-work.md`.
 - Final broad verification for the pushed baseline passed during the completed
@@ -48,6 +48,23 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
   explicit push instruction.
 
 ## Latest Slice
+
+- Scraper Health Dashboard DTOs, status configs, credential/source/run
+  formatting helpers, and safe issue formatting now live in
+  `src/components/scraperHealthDashboardModel.ts`, reducing
+  `src/components/ScraperHealthDashboard.tsx` from 963 to 773 lines without
+  changing source status rendering, credential warnings, check commands, or safe
+  error guidance.
+
+- Source-boundary and product-copy sensors now follow the Scraper Health
+  Dashboard model split, so moved source-health copy remains covered by stale
+  source-health and technical-first copy checks.
+
+- Focused verification for the Scraper Health Dashboard split passed:
+  `npm run test:run -- src/components/ScraperHealthDashboard.test.tsx
+  src/components/ScraperHealthDashboard.sourceChecks.test.tsx`, `node --test`
+  for source-boundary/source-doc/product-copy harness tests,
+  `npx tsc --noEmit --pretty false`, and `npm run lint:bloat`.
 
 - Analytics panel model, weekly-plan storage validation, source/status labels,
   and color maps now live in `src/components/analyticsPanelModel.ts`, reducing

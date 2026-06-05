@@ -62,6 +62,11 @@ test("source boundaries reject stale scraper docs and source health copy", () =>
       "src/components/ScraperHealthDashboard.test.tsx",
       'scraper_name: "linkedin"\ndisplay_name: "LinkedIn"\n',
     );
+    writeFixtureFile(
+      root,
+      "src/components/scraperHealthDashboardModel.ts",
+      'const staleStatus = { label: "Healthy" };\n',
+    );
 
     assert.equal(hasScraperDocEmojiMarkers(root, "docs/features/scrapers.md"), false);
     assert.equal(
@@ -74,6 +79,10 @@ test("source boundaries reject stale scraper docs and source health copy", () =>
     );
     assert.equal(
       hasTechnicalSourceHealthUserCopy(root, "src/components/ScraperHealthDashboard.tsx"),
+      true,
+    );
+    assert.equal(
+      hasTechnicalSourceHealthUserCopy(root, "src/components/scraperHealthDashboardModel.ts"),
       true,
     );
     assert.equal(
@@ -122,10 +131,19 @@ test("source boundaries reject stale source health coverage claims", () => {
       "src/components/ScraperHealthDashboard.tsx",
       "interface SmokeTestResult { success: boolean }\n",
     );
+    writeFixtureFile(
+      root,
+      "src/components/scraperHealthDashboardModel.ts",
+      "interface SmokeTestResult { success: boolean }\n",
+    );
 
     assert.equal(hasStaleScraperHealthCoverage(root, "docs/ROADMAP.md"), true);
     assert.equal(
       hasStaleScraperHealthCoverage(root, "src/components/ScraperHealthDashboard.tsx"),
+      true,
+    );
+    assert.equal(
+      hasStaleScraperHealthCoverage(root, "src/components/scraperHealthDashboardModel.ts"),
       true,
     );
     assert.equal(hasStaleScraperHealthCoverage(root, "docs/features/notifications.md"), false);

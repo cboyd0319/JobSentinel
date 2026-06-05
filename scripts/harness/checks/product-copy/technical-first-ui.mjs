@@ -175,7 +175,10 @@ export function getTechnicalFirstUiResult(path, text) {
     }
   }
 
-  if (path === "src/components/ScraperHealthDashboard.tsx") {
+  if (
+    path === "src/components/ScraperHealthDashboard.tsx" ||
+    path === "src/components/scraperHealthDashboardModel.ts"
+  ) {
     const sourceStatusPatterns = [
       /Check All Sources/i,
       /Official feed/i,

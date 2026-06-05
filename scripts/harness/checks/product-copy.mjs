@@ -157,6 +157,7 @@ const errorBoundaryDisplayPaths = new Set([
 const plainRecoveryCopyPaths = new Set([
   ...errorBoundaryDisplayPaths,
   "src/components/ScraperHealthDashboard.tsx",
+  "src/components/scraperHealthDashboardModel.ts",
 ]);
 
 const protectiveScoreCopyPaths = new Set([
@@ -214,6 +215,7 @@ const technicalFirstUserCopyPaths = new Set([
   "src/components/ScoreBreakdownModal.tsx",
   "src/components/ScoreDisplay.tsx",
   "src/components/ScraperHealthDashboard.tsx",
+  "src/components/scraperHealthDashboardModel.ts",
   "src/components/CareerProfileSelector.tsx",
   "src/components/JobImportModal.tsx",
   "src/components/JobCard.tsx",
