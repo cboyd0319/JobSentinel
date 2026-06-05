@@ -12,6 +12,7 @@ import { useToast } from "../contexts";
 import { formatInterviewDate, getRelativeTimeUntil } from "../utils/formatUtils";
 import { MIN_INTERVIEW_DURATION, MAX_INTERVIEW_DURATION } from "../utils/constants";
 import { getSafeErrorToastCopy } from "../utils/safeErrorCopy";
+import { downloadInterviewICalFile } from "./InterviewCalendarExport";
 import {
   CalendarIcon,
   CloseIcon,
@@ -93,6 +94,10 @@ function formatOutcomeLabel(outcome: string): string {
   return OUTCOME_LABELS[outcome] ?? "Not sure yet";
 }
 
+function formatInterviewTypeLabel(interviewType: string): string {
+  return INTERVIEW_TYPES.find((type) => type.value === interviewType)?.label || interviewType;
+}
+
 // Interview prep checklist items
 const PREP_CHECKLIST = [
   { id: "research", label: "Research company background", icon: "search" },
@@ -117,72 +122,6 @@ interface PrepChecklistItem {
 
 interface PrepProgress {
   [itemId: string]: boolean;
-}
-
-// Generate iCal (.ics) file content for an interview
-function generateICalEvent(interview: Interview): string {
-  const start = new Date(interview.scheduled_at);
-  const end = new Date(start.getTime() + interview.duration_minutes * 60 * 1000);
-
-  const formatICalDate = (date: Date): string => {
-    return date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
-  };
-
-  const escapeICalText = (text: string): string => {
-    return text.replace(/[\\;,\n]/g, (match) => {
-      if (match === '\n') return '\\n';
-      return '\\' + match;
-    });
-  };
-
-  const uid = `interview-${interview.id}@jobsentinel`;
-  const summary = escapeICalText(`${interview.interview_type} Interview - ${interview.company}`);
-  const description = escapeICalText(
-    `Position: ${interview.job_title}\n` +
-    `Company: ${interview.company}\n` +
-    `Type: ${INTERVIEW_TYPES.find(t => t.value === interview.interview_type)?.label || interview.interview_type}\n` +
-    (interview.interviewer_name ? `Interviewer: ${interview.interviewer_name}${interview.interviewer_title ? ` (${interview.interviewer_title})` : ''}\n` : '') +
-    (interview.notes ? `\nNotes: ${interview.notes}` : '')
-  );
-  const location = interview.location ? escapeICalText(interview.location) : '';
-
-  return [
-    'BEGIN:VCALENDAR',
-    'VERSION:2.0',
-    'PRODID:-//JobSentinel//Interview Scheduler//EN',
-    'CALSCALE:GREGORIAN',
-    'METHOD:PUBLISH',
-    'BEGIN:VEVENT',
-    `UID:${uid}`,
-    `DTSTAMP:${formatICalDate(new Date())}`,
-    `DTSTART:${formatICalDate(start)}`,
-    `DTEND:${formatICalDate(end)}`,
-    `SUMMARY:${summary}`,
-    `DESCRIPTION:${description}`,
-    location ? `LOCATION:${location}` : '',
-    'STATUS:CONFIRMED',
-    'BEGIN:VALARM',
-    'TRIGGER:-PT30M',
-    'ACTION:DISPLAY',
-    'DESCRIPTION:Interview reminder',
-    'END:VALARM',
-    'END:VEVENT',
-    'END:VCALENDAR',
-  ].filter(Boolean).join('\r\n');
-}
-
-function downloadICalFile(interview: Interview): void {
-  const icsContent = generateICalEvent(interview);
-  const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = `interview-${interview.company.toLowerCase().replace(/\s+/g, '-')}-${new Date(interview.scheduled_at).toISOString().split('T')[0]}.ics`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
 }
 
 export const InterviewScheduler = memo(function InterviewScheduler({ onClose, applications = [] }: InterviewSchedulerProps) {
@@ -462,7 +401,10 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
   };
 
   const handleExportICal = (interview: Interview) => {
-    downloadICalFile(interview);
+    downloadInterviewICalFile(
+      interview,
+      formatInterviewTypeLabel(interview.interview_type),
+    );
     toast.success("Calendar downloaded", "Add to your calendar app");
   };
 

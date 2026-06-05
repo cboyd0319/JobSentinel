@@ -51,6 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Interview calendar export generation now lives in a focused helper, keeping
+  the scheduler component farther below the file-size target while preserving
+  `.ics` download behavior.
+
 - Mock resume keyword-frequency matching now lives in a focused helper, keeping
   the main mock keyword matcher under the file-size target while preserving
   boundary-aware evidence counts.
