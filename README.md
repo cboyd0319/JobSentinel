@@ -14,13 +14,12 @@ readiness without Developer ID signing, notarization, stapling, and
 Gatekeeper acceptance, all of which require Apple Developer Program materials.
 
 Active-plan implementation status is separate: 100% of the current active-plan
-checklist is complete, with 153 of 153 tracked items checked off. The
-repo-wide readiness goal remains open until the completion bar in
-[active plan status](docs/plans/active/status.md) is proven from current
-evidence: no known bloat, privacy leak, stale docs, engineer-only user flow, or
-unverified claim remains, and final broad verification passes. No
-grandfathered oversized-file exceptions remain. Current cleanup focus is
-continued resume assistance, job-card protection, guided intake, and pay
+checklist is complete, with 153 of 153 tracked items checked off. Current
+broad verification evidence is recorded in
+[active plan status](docs/plans/active/status.md): no known bloat, privacy
+leak, stale docs, engineer-only user flow, or unverified claim remains from the
+current checkout. No grandfathered oversized-file exceptions remain. Ongoing
+work focuses on resume assistance, job-card protection, guided intake, and pay
 protection where they improve privacy, security, verification, or user ease.
 
 [![CI](https://github.com/cboyd0319/JobSentinel/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/cboyd0319/JobSentinel/actions/workflows/ci.yml)
@@ -87,7 +86,7 @@ or build something better with it if that helps more people.
 | Is it free? | Yes. JobSentinel is MIT licensed and free forever. |
 | Current release | `v2.6.4` with Windows and Linux installers plus a verified no-account universal macOS package. A public Mac package is recommended only when the release includes a matching `.sha256` checksum and the public macOS verifier passes. |
 | macOS no-account release-readiness | 94%. Public universal DMG, checksum, metadata, architecture, install, launch, local-data, public-artifact, and readiness-harness checks are in place. The final 6% is externally blocked by Apple Developer Program materials for Developer ID signing, notarization, stapling, and Gatekeeper acceptance. |
-| Current active plan | 100% checklist completion for the compact current-work plan; repo-wide readiness remains open until the active status completion bar passes. |
+| Current active plan | 100% checklist completion for the compact current-work plan, with current broad verification evidence recorded in active status. |
 
 ## Reader Map
 
@@ -575,8 +574,7 @@ Developer docs:
   review, hard-constraint handling, readable evidence, or next-action guidance.
 - Continue guided intake, job-card protection, and pay protection only where
   the work stays local, reviewed, plain-language, and evidence-bounded.
-- Run final broad verification only after remaining known work has current
-  evidence.
+- Repeat broad verification after future material code or documentation changes.
 
 Read [docs/README.md](docs/README.md), [CHANGELOG.md](CHANGELOG.md),
 [ROADMAP.md](ROADMAP.md), and the [developer roadmap](docs/ROADMAP.md) for more
