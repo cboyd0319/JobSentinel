@@ -37,7 +37,6 @@ const TECH_SOURCE_PROFILE_IDS = new Set([
 // Keep this list role-specific so broad roles with common tools, such as
 // Accountant + SQL, do not inherit software-job-board defaults.
 const TECH_SOURCE_TERMS = [
-  "software",
   "software engineer",
   "software developer",
   "web developer",

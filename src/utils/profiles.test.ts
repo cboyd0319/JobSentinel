@@ -135,6 +135,9 @@ describe("profiles", () => {
       expect(searchLooksTechFocused(["Frontend Engineer", "React"])).toBe(true);
       expect(searchLooksTechFocused(["Technical Product Manager"])).toBe(false);
       expect(searchLooksTechFocused(["Sales Engineer"])).toBe(false);
+      expect(searchLooksTechFocused(["Software Sales Manager"])).toBe(false);
+      expect(searchLooksTechFocused(["Software Implementation Specialist"])).toBe(false);
+      expect(searchLooksTechFocused(["Software Support Specialist"])).toBe(false);
       expect(searchLooksTechFocused(["Curriculum Developer"])).toBe(false);
       expect(searchLooksTechFocused(["Support Engineer"])).toBe(false);
       expect(searchLooksTechFocused(["Customer Success Engineer"])).toBe(false);
@@ -174,7 +177,12 @@ describe("profiles", () => {
       });
       expect(
         getSearchSourceDefaults({
-          titles: ["Sales Engineer", "Curriculum Developer", "Support Engineer"],
+          titles: [
+            "Sales Engineer",
+            "Software Sales Manager",
+            "Curriculum Developer",
+            "Support Engineer",
+          ],
           keywords: ["customer onboarding", "training"],
           allowRemote: true,
         }),

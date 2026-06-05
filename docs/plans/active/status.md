@@ -51,6 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- First-run source defaults no longer treat generic software sales,
+  implementation, or support searches as engineering searches for tech-heavy
+  job boards.
+
 - Public wiki `Home.md` and `Capabilities.md` were updated and pushed with
   current macOS readiness, no-account checksum guidance, hard must-have resume
   status, and scam-cue behavior.
