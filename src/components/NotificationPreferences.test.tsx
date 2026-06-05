@@ -5,6 +5,7 @@ import {
 } from "./NotificationPreferences";
 import {
   DEFAULT_PREFERENCES as REAL_DEFAULT_PREFERENCES,
+  normalizeNotificationPreferences,
   shouldNotifyForJob,
   type NotificationPreferences,
   type JobForNotification,
@@ -29,10 +30,10 @@ vi.mock("../contexts", () => ({
 
 const DEFAULT_PREFS: NotificationPreferences = {
   linkedin: { enabled: false, minScoreThreshold: 70, soundEnabled: false },
-  indeed: { enabled: true, minScoreThreshold: 70, soundEnabled: true },
-  greenhouse: { enabled: true, minScoreThreshold: 80, soundEnabled: true },
-  lever: { enabled: true, minScoreThreshold: 80, soundEnabled: true },
-  jobswithgpt: { enabled: true, minScoreThreshold: 75, soundEnabled: true },
+  indeed: { enabled: true, minScoreThreshold: 70, soundEnabled: false },
+  greenhouse: { enabled: true, minScoreThreshold: 80, soundEnabled: false },
+  lever: { enabled: true, minScoreThreshold: 80, soundEnabled: false },
+  jobswithgpt: { enabled: true, minScoreThreshold: 75, soundEnabled: false },
   global: {
     enabled: true,
     quietHoursStart: "22:00",
@@ -52,6 +53,30 @@ const DEFAULT_PREFS: NotificationPreferences = {
 describe("shouldNotifyForJob", () => {
   it("keeps backend-required Indeed source in default preferences", () => {
     expect("indeed" in REAL_DEFAULT_PREFERENCES).toBe(true);
+  });
+
+  it("starts source alert sounds off by default", () => {
+    expect(REAL_DEFAULT_PREFERENCES.indeed.soundEnabled).toBe(false);
+    expect(REAL_DEFAULT_PREFERENCES.greenhouse.soundEnabled).toBe(false);
+    expect(REAL_DEFAULT_PREFERENCES.lever.soundEnabled).toBe(false);
+    expect(REAL_DEFAULT_PREFERENCES.jobswithgpt.soundEnabled).toBe(false);
+  });
+
+  it("normalizes older source alert settings without sound to quiet", () => {
+    const legacyPrefs = {
+      ...DEFAULT_PREFS,
+      indeed: { enabled: true, minScoreThreshold: 70 },
+      greenhouse: { enabled: true, minScoreThreshold: 80 },
+      lever: { enabled: true, minScoreThreshold: 80 },
+      jobswithgpt: { enabled: true, minScoreThreshold: 75 },
+    } as NotificationPreferences;
+
+    const normalized = normalizeNotificationPreferences(legacyPrefs);
+
+    expect(normalized.indeed.soundEnabled).toBe(false);
+    expect(normalized.greenhouse.soundEnabled).toBe(false);
+    expect(normalized.lever.soundEnabled).toBe(false);
+    expect(normalized.jobswithgpt.soundEnabled).toBe(false);
   });
 
   describe("global settings", () => {
@@ -500,7 +525,7 @@ describe("NotificationPreferences Component", () => {
         ).toBeInTheDocument();
         expect(
           screen.getByRole("checkbox", { name: "Turn Indeed alert sound on or off" }),
-        ).toBeInTheDocument();
+        ).not.toBeChecked();
       });
     });
 

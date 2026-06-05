@@ -51,6 +51,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Source-specific alert rules now keep sound off by default and normalize older
+  partial preferences to quiet source alerts.
+
 - Resume Match next actions now fill hard-requirement checks first and suppress
   positive keep-visible guidance until hard blockers are cleared.
 

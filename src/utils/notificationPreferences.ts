@@ -47,10 +47,10 @@ export const DEFAULT_ADVANCED_FILTERS: AdvancedFilters = {
 
 export const DEFAULT_PREFERENCES: NotificationPreferences = {
   linkedin: { enabled: false, minScoreThreshold: 70, soundEnabled: false },
-  indeed: { enabled: true, minScoreThreshold: 70, soundEnabled: true },
-  greenhouse: { enabled: true, minScoreThreshold: 80, soundEnabled: true },
-  lever: { enabled: true, minScoreThreshold: 80, soundEnabled: true },
-  jobswithgpt: { enabled: true, minScoreThreshold: 75, soundEnabled: true },
+  indeed: { enabled: true, minScoreThreshold: 70, soundEnabled: false },
+  greenhouse: { enabled: true, minScoreThreshold: 80, soundEnabled: false },
+  lever: { enabled: true, minScoreThreshold: 80, soundEnabled: false },
+  jobswithgpt: { enabled: true, minScoreThreshold: 75, soundEnabled: false },
   global: {
     enabled: true,
     quietHoursStart: '22:00',
@@ -92,9 +92,34 @@ export function normalizeNotificationPreferences(
   return {
     ...prefs,
     linkedin: {
+      ...DEFAULT_PREFERENCES.linkedin,
       ...prefs.linkedin,
       enabled: false,
       soundEnabled: false,
+    },
+    indeed: {
+      ...DEFAULT_PREFERENCES.indeed,
+      ...prefs.indeed,
+      soundEnabled: prefs.indeed?.soundEnabled ?? false,
+    },
+    greenhouse: {
+      ...DEFAULT_PREFERENCES.greenhouse,
+      ...prefs.greenhouse,
+      soundEnabled: prefs.greenhouse?.soundEnabled ?? false,
+    },
+    lever: {
+      ...DEFAULT_PREFERENCES.lever,
+      ...prefs.lever,
+      soundEnabled: prefs.lever?.soundEnabled ?? false,
+    },
+    jobswithgpt: {
+      ...DEFAULT_PREFERENCES.jobswithgpt,
+      ...prefs.jobswithgpt,
+      soundEnabled: prefs.jobswithgpt?.soundEnabled ?? false,
+    },
+    advancedFilters: {
+      ...DEFAULT_ADVANCED_FILTERS,
+      ...prefs.advancedFilters,
     },
   };
 }

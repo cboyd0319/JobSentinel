@@ -78,6 +78,9 @@ surface. First-run desktop alerts and older settings without a saved sound
 choice start without sound; turn sound on in Settings only if audible alerts
 fit your search.
 
+Source-specific alert rules also start with sound off. Turning a job source on
+does not turn alert sounds on by itself.
+
 ---
 
 ### Email
