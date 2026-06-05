@@ -847,6 +847,8 @@ Out of scope:
   resume-analysis availability/location constraints, ScraperHealthDashboard
   source-check coverage, and ScreeningAnswersForm contract coverage now live in
   separate focused test files. `status.md` keeps the full recent-slice index.
+- Mock resume business hyphen-normalization evidence now has a compact
+  table-driven test file; non-hyphen business synonym coverage stays in place.
 
 ## Risks
 
