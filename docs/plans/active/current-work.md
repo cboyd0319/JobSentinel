@@ -199,6 +199,8 @@ Out of scope:
   file.
 - [x] Split Settings job-board recommendation logic out of the main Settings
   page.
+- [x] Lock the whole public GitHub wiki inventory into the harness manifest and
+  PR/change-contract review path.
 
 ## Orchestration Log
 
@@ -481,6 +483,10 @@ Out of scope:
   owns page state, config loading/saving, and credential boundaries; the
   extracted helper only builds broad-audience source suggestions and enable
   callbacks.
+- Coordinator locked whole-wiki upkeep into the harness by adding a
+  manifest-owned `publicWiki` inventory, checker validation, policy tests, and
+  PR/change-contract review wording. The remote wiki `Home.md` and
+  `Capabilities.md` pages were refreshed and pushed to wiki commit `5cdb20f`.
 
 ## Risks
 

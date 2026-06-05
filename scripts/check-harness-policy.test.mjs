@@ -40,6 +40,12 @@ test("harness policy manifest owns required docs and source policy", () => {
   );
   assert.equal(manifest.readmeReferences.heading, "## References and external sources");
   assert.equal(manifest.readmeReferences.excludedTestUrlExplanation, "Security test payloads");
+  assert.equal(manifest.publicWiki.url, "https://github.com/cboyd0319/JobSentinel/wiki");
+  assert.equal(manifest.publicWiki.remote, "https://github.com/cboyd0319/JobSentinel.wiki.git");
+  assert.equal(manifest.publicWiki.defaultBranch, "master");
+  assert.deepEqual(manifest.publicWiki.requiredPages, ["Home.md", "Capabilities.md"]);
+  assert.ok(manifest.publicWiki.mustStayCurrentWhen.includes("capabilities"));
+  assert.ok(manifest.publicWiki.mustStayCurrentWhen.includes("user-facing copy"));
   assert.ok(
     manifest.readmeReferences.requiredUrls.length > 100,
     "README source policy should stay in the manifest, not in the checker script",
@@ -79,6 +85,7 @@ test("harness policy manifest stays portable and reviewable", () => {
   assert.ok(Array.isArray(manifest.requiredFiles));
   assert.ok(typeof manifest.requiredHarnessSnippets === "object");
   assert.ok(Array.isArray(manifest.readmeReferences.requiredUrls));
+  assert.ok(Array.isArray(manifest.publicWiki.requiredPages));
 });
 
 test("check-harness consumes manifest instead of hardcoding large policy tables", () => {
@@ -89,6 +96,8 @@ test("check-harness consumes manifest instead of hardcoding large policy tables"
   assert.ok(checker.includes("machineSpecificLocalPathNeedles"));
   assert.ok(checker.includes("docLocalAbsolutePathPattern"));
   assert.ok(checker.includes("<repo-root>/<home> placeholders"));
+  assert.ok(checker.includes("manifestPublicWiki"));
+  assert.ok(checker.includes("publicWiki.requiredPages"));
   assert.equal(checker.includes("const requiredHarnessSnippets = {"), false);
   assert.equal(checker.includes("const requiredReadmeReferenceUrls = ["), false);
 });

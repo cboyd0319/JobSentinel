@@ -177,6 +177,9 @@ Sensors:
 The public GitHub wiki at `https://github.com/cboyd0319/JobSentinel/wiki` is
 part of the docs surface, even though it is stored in a separate Git
 repository. Treat every wiki page as public product documentation.
+The current page inventory lives in `docs/harness/manifest.json` under
+`publicWiki.requiredPages`; update that inventory when wiki pages are added,
+renamed, or retired.
 
 Update the wiki when a change affects:
 

@@ -37,7 +37,7 @@
       "External AI stays optional, disabled by default, and routed through the",
       "zero technical knowledge",
       "multi-agent-orchestration.md",
-      "Update the public GitHub wiki when behavior, setup, commands, architecture,"
+      "Update the whole public GitHub wiki when behavior, setup, commands,"
     ],
     ".github/copilot-instructions.md": [
       "Rule 0: user privacy and security are non-negotiable.",
@@ -112,7 +112,7 @@
       "Orchestration:",
       "Harness impact:",
       "User-ease evidence:",
-      "Public GitHub wiki pages to update"
+      "Public GitHub wiki pages from `docs/harness/manifest.json` to update"
     ],
     "docs/harness/verification-matrix.md": [
       "## Experience And Support",
@@ -125,6 +125,7 @@
       "External AI remains optional, disabled by default, and routed through the privacy-first AI gateway.",
       "Request review, redaction, cancellation, approval, and local request logging stay intact.",
       "Safe support report path stays easy, local-first, and sanitized.",
+      "Public GitHub wiki impact was reviewed against docs/harness/manifest.json.",
       "Zero-technical-knowledge users and technical plus non-technical job searches stay supported."
     ],
     "docs/harness/sources.md": [
@@ -139,6 +140,7 @@
     ],
     "docs/plans/templates/change-contract-template.md": [
       "## Audience And Ease",
+      "Public GitHub wiki pages from `docs/harness/manifest.json` to update",
       "## Orchestration",
       "## Harness Impact",
       "User-ease evidence:"
@@ -156,6 +158,25 @@
       "payload_preview_required",
       "full_database_blocked",
       "sensitive_payload_blocked"
+    ]
+  },
+  "publicWiki": {
+    "url": "https://github.com/cboyd0319/JobSentinel/wiki",
+    "remote": "https://github.com/cboyd0319/JobSentinel.wiki.git",
+    "defaultBranch": "master",
+    "requiredPages": [
+      "Home.md",
+      "Capabilities.md"
+    ],
+    "mustStayCurrentWhen": [
+      "behavior",
+      "setup",
+      "commands",
+      "architecture",
+      "security",
+      "release flow",
+      "capabilities",
+      "user-facing copy"
     ]
   },
   "readmeReferences": {

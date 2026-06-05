@@ -43,6 +43,7 @@
 
 - [ ] Change contract or plan exists for non-trivial work
 - [ ] Required sensors from `docs/harness/verification-matrix.md` ran
+- [ ] Public GitHub wiki impact was reviewed against docs/harness/manifest.json.
 - [ ] Agent-facing docs stayed short and linked to source-of-truth docs
 - [ ] Known gaps were recorded in `docs/plans/tech-debt-tracker.md` or the PR
 

@@ -48,7 +48,18 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
-Latest implementation slice:
+Latest harness slice:
+
+- The whole public GitHub wiki inventory is now manifest-owned under
+  `docs/harness/manifest.json` `publicWiki.requiredPages`.
+- `npm run harness:check` validates the public wiki URL, Git remote, branch,
+  required pages, and update triggers.
+- The PR template and change-contract template now require wiki impact review
+  against the manifest page inventory, not only one remembered page.
+- Remote wiki pages `Home.md` and `Capabilities.md` were refreshed and pushed
+  to the wiki `master` branch at wiki commit `5cdb20f`.
+
+Recent implementation slice:
 
 - Settings job-board recommendation logic moved out of
   `src/pages/Settings.tsx` into

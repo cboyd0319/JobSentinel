@@ -98,8 +98,9 @@ cd src-tauri && DATABASE_URL="sqlite:jobs.db" cargo sqlx prepare
 
 - Update docs when behavior, setup, commands, architecture, security, release
   flow, or user-facing copy changes.
-- Update the public GitHub wiki when behavior, setup, commands, architecture,
-  security, release flow, capabilities, or user-facing copy changes.
+- Update the whole public GitHub wiki when behavior, setup, commands,
+  architecture, security, release flow, capabilities, or user-facing copy
+  changes.
 - Add or update an exec plan under `docs/plans/active/` for broad changes.
 - Move completed plans to `docs/plans/completed/`.
 - Record repeated drift or debt in `docs/plans/tech-debt-tracker.md`.

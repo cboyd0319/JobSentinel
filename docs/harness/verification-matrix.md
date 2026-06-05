@@ -92,7 +92,7 @@ with warnings-as-errors as a required local or CI gate.
 | README developer links | `npm run harness:check` |
 | PR template or CI docs | Manual link check plus `npm run harness:check` |
 | Local environment setup docs | `npm run doctor`, `npm run doctor:e2e` when Playwright setup is described, and `npm run harness:check` |
-| Public GitHub wiki-impacting change | Update affected pages in `https://github.com/cboyd0319/JobSentinel/wiki`, or record why no wiki page changed, plus `npm run harness:check` |
+| Public GitHub wiki-impacting change | Review `docs/harness/manifest.json` `publicWiki.requiredPages`, update affected pages in `https://github.com/cboyd0319/JobSentinel/wiki`, or record why no wiki page changed, plus `npm run harness:check` |
 
 ## Full Local Gates
 

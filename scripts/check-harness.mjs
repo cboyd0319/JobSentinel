@@ -35,6 +35,7 @@ const featurePrivacyLabelsPath = "docs/harness/feature-privacy-labels.json";
 const harnessManifest = JSON.parse(readFileSync(join(root, harnessManifestPath), "utf8"));
 const manifestSnippets = harnessManifest.requiredHarnessSnippets;
 const manifestReadmeReferences = harnessManifest.readmeReferences ?? {};
+const manifestPublicWiki = harnessManifest.publicWiki ?? {};
 
 const requiredFiles = Array.isArray(harnessManifest.requiredFiles)
   ? harnessManifest.requiredFiles
@@ -50,6 +51,9 @@ const readmeExcludedTestUrlExplanation =
   manifestReadmeReferences.excludedTestUrlExplanation ?? "";
 const requiredReadmeReferenceUrls = Array.isArray(manifestReadmeReferences.requiredUrls)
   ? manifestReadmeReferences.requiredUrls
+  : [];
+const requiredPublicWikiPages = Array.isArray(manifestPublicWiki.requiredPages)
+  ? manifestPublicWiki.requiredPages
   : [];
 
 const errors = [];
@@ -103,6 +107,64 @@ if (!readmeReferenceHeading) {
 
 if (!Array.isArray(manifestReadmeReferences.requiredUrls)) {
   errors.push(`${harnessManifestPath} readmeReferences.requiredUrls must be an array`);
+}
+
+if (
+  typeof manifestPublicWiki !== "object" ||
+  manifestPublicWiki === null ||
+  Array.isArray(manifestPublicWiki)
+) {
+  errors.push(`${harnessManifestPath} publicWiki must be an object`);
+}
+
+if (manifestPublicWiki.url !== "https://github.com/cboyd0319/JobSentinel/wiki") {
+  errors.push(`${harnessManifestPath} publicWiki.url must point to the public wiki`);
+}
+
+if (manifestPublicWiki.remote !== "https://github.com/cboyd0319/JobSentinel.wiki.git") {
+  errors.push(`${harnessManifestPath} publicWiki.remote must point to the wiki Git remote`);
+}
+
+if (manifestPublicWiki.defaultBranch !== "master") {
+  errors.push(`${harnessManifestPath} publicWiki.defaultBranch must match the wiki remote`);
+}
+
+if (!Array.isArray(manifestPublicWiki.requiredPages) || requiredPublicWikiPages.length === 0) {
+  errors.push(`${harnessManifestPath} publicWiki.requiredPages must list wiki pages`);
+}
+
+for (const requiredWikiPage of ["Home.md", "Capabilities.md"]) {
+  if (!requiredPublicWikiPages.includes(requiredWikiPage)) {
+    errors.push(`${harnessManifestPath} publicWiki.requiredPages missing ${requiredWikiPage}`);
+  }
+}
+
+for (const page of requiredPublicWikiPages) {
+  if (typeof page !== "string" || !/^[A-Za-z0-9._-]+\.md$/.test(page)) {
+    errors.push(`${harnessManifestPath} publicWiki.requiredPages has invalid page: ${String(page)}`);
+  }
+}
+
+if (
+  !Array.isArray(manifestPublicWiki.mustStayCurrentWhen) ||
+  manifestPublicWiki.mustStayCurrentWhen.length === 0
+) {
+  errors.push(`${harnessManifestPath} publicWiki.mustStayCurrentWhen must list update triggers`);
+}
+
+for (const trigger of [
+  "behavior",
+  "setup",
+  "commands",
+  "architecture",
+  "security",
+  "release flow",
+  "capabilities",
+  "user-facing copy",
+]) {
+  if (!manifestPublicWiki.mustStayCurrentWhen?.includes(trigger)) {
+    errors.push(`${harnessManifestPath} publicWiki.mustStayCurrentWhen missing ${trigger}`);
+  }
 }
 
 function repoPath(path) {
