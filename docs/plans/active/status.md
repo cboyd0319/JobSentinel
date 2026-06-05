@@ -482,6 +482,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 - YC startup scraper fixture helpers and tests moved into `yc_startup/tests.rs`;
   the scraper file now stays focused on Inertia extraction and job parsing.
 
+- Resume command privacy/serialization tests moved into `commands/resume/tests.rs`;
+  the command module now stays under the current size target.
+
 ## Recent Completed Slices
 
 Detailed implementation history before the current restart window is in the
