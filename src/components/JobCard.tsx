@@ -147,10 +147,13 @@ export const JobCard = memo(function JobCard({
     job.salary_max,
     salaryFloorUsd,
   );
-  const salaryRangeQualityGuidance = getSalaryRangeQualityGuidance(
-    job.salary_min,
-    job.salary_max,
-  );
+  const salaryRangeQualityGuidance =
+    payFloorGuidance?.title === "Open-ended listed pay"
+      ? null
+      : getSalaryRangeQualityGuidance(
+          job.salary_min,
+          job.salary_max,
+        );
   const sourceGuidance = getJobSourceGuidance(job.source);
   const sourceReviewGuidance = sourceGuidance.review;
   const cardAriaLabel = `${job.title} at ${job.company}${

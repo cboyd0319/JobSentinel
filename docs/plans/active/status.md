@@ -51,6 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Job cards now flag minimum-only listed pay as open-ended range evidence even
+  when no salary floor is saved, while avoiding duplicate open-ended pay cards
+  when floor guidance already covers it.
+
 - Application Assist now treats legally authorized, eligible-to-work,
   employment authorization, green card, and EAD wording as work-authorization
   screening topics.

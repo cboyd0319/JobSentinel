@@ -213,6 +213,20 @@ export function getSalaryRangeQualityGuidance(
   salaryMax: number | null | undefined,
 ): SalaryRangeQualityGuidance | null {
   if (
+    salaryMin != null &&
+    Number.isFinite(salaryMin) &&
+    salaryMin > 0 &&
+    (salaryMax == null || !Number.isFinite(salaryMax) || salaryMax <= 0)
+  ) {
+    return {
+      title: "Open-ended listed pay",
+      description:
+        "Only starting pay is listed. Confirm the realistic top range before tailoring.",
+      ariaLabel: "open-ended listed pay",
+    };
+  }
+
+  if (
     salaryMin == null ||
     salaryMax == null ||
     !Number.isFinite(salaryMin) ||

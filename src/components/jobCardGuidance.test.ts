@@ -97,4 +97,13 @@ describe("jobCardGuidance", () => {
       ariaLabel: "very wide pay range",
     });
   });
+
+  it("flags starting-only listed pay as open-ended range evidence", () => {
+    expect(getSalaryRangeQualityGuidance(45000, null)).toEqual({
+      title: "Open-ended listed pay",
+      description:
+        "Only starting pay is listed. Confirm the realistic top range before tailoring.",
+      ariaLabel: "open-ended listed pay",
+    });
+  });
 });

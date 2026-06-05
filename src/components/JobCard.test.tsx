@@ -544,6 +544,12 @@ describe("JobCard", () => {
       const jobMinOnly = { ...mockJob, salary_min: 100000, salary_max: null };
       renderWithToast(<JobCard job={jobMinOnly} />);
       expect(screen.getByText("$100k+")).toBeInTheDocument();
+      expect(screen.getByTestId("salary-range-quality-guidance")).toHaveTextContent(
+        "Open-ended listed pay",
+      );
+      expect(
+        screen.getByText(/confirm the realistic top range before tailoring/i),
+      ).toBeInTheDocument();
     });
 
     it("renders salary with only max", () => {
