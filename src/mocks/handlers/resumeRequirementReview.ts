@@ -148,7 +148,10 @@ function getMockHardConstraintAction(
   if (category === "Experience" && isMockSeniorityLevelConstraint(keyword)) {
     return "Check whether your visible level matches this role; lower-title or fewer-years evidence may not satisfy it. Do not round up, stretch titles, or imply more experience than you have.";
   }
-  if (category === "WorkAuthorization" && isMockCitizenshipConstraint(keyword)) {
+  if (
+    category === "Citizenship" ||
+    (category === "WorkAuthorization" && isMockCitizenshipConstraint(keyword))
+  ) {
     return "Check citizenship before tailoring. If it is not true for you, do not claim it. Do not treat work authorization as citizenship.";
   }
 
@@ -199,6 +202,7 @@ function isMockSeniorityLevelConstraint(keyword: string): boolean {
 function getMockHardConstraintScoreCap(category: MockHardConstraintCategory): number {
   switch (category) {
     case "WorkAuthorization":
+    case "Citizenship":
       return 50;
     case "SecurityClearance":
     case "LicenseOrCertification":
@@ -217,15 +221,13 @@ function getMockHardConstraintScoreCap(category: MockHardConstraintCategory): nu
 
 function getMockHardConstraintCategory(keyword: string): MockHardConstraintCategory | null {
   const lower = keyword.toLowerCase();
+  if (isMockCitizenshipConstraint(lower)) {
+    return "Citizenship";
+  }
   if (
     lower.includes("work authorization") ||
     lower.includes("authorized to work") ||
-    lower.includes("visa sponsorship") ||
-    lower.includes("us citizenship") ||
-    lower.includes("u.s. citizenship") ||
-    lower.includes("us citizen") ||
-    lower.includes("u.s. citizen") ||
-    lower.includes("citizenship required")
+    lower.includes("visa sponsorship")
   ) {
     return "WorkAuthorization";
   }

@@ -330,6 +330,8 @@ Out of scope:
   fill results without exposing saved answers or exact question text.
 - [x] Keep saved-resume skill source context visible in final first-run review
   after the user adds resume suggestions.
+- [x] Report Resume Match citizenship requirements as a distinct hard-review
+  category instead of generic work authorization.
 
 ## Orchestration Log
 
@@ -372,6 +374,8 @@ Out of scope:
   without exact-question review copy.
 - Coordinator kept saved-resume skill context visible in first-run final review
   so added local resume skills do not collapse into unlabeled search keywords.
+- Coordinator split citizenship into its own Resume Match hard-review category
+  while keeping older work-authorization citizenship payloads readable.
 - Pay-protection sidecar was read-only and changed no files. Coordinator
   accepted its finding that negotiation-note drafts could treat benchmark
   values as offer facts, then fixed the Salary page, dev mock, tests, feature

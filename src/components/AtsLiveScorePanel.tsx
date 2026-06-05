@@ -64,6 +64,7 @@ interface HardConstraintRisk {
   requirement: string;
   category:
     | "WorkAuthorization"
+    | "Citizenship"
     | "SecurityClearance"
     | "LicenseOrCertification"
     | "Education"
@@ -119,6 +120,8 @@ function formatHardConstraintCategory(category: HardConstraintRisk["category"]):
   switch (category) {
     case "WorkAuthorization":
       return "Work authorization";
+    case "Citizenship":
+      return "Citizenship";
     case "SecurityClearance":
       return "Security clearance";
     case "LicenseOrCertification":
@@ -150,7 +153,10 @@ function isCitizenshipRequirement(requirement: string): boolean {
 }
 
 function formatHardConstraintRiskCategory(risk: HardConstraintRisk): string {
-  if (risk.category === "WorkAuthorization" && isCitizenshipRequirement(risk.requirement)) {
+  if (
+    risk.category === "Citizenship" ||
+    (risk.category === "WorkAuthorization" && isCitizenshipRequirement(risk.requirement))
+  ) {
     return "Citizenship";
   }
 
@@ -365,10 +371,14 @@ function inferHardConstraintCategory(keyword: string): HardConstraintRisk["categ
   const lower = normalizeRequirementText(keyword);
 
   if (
+    lower.includes("citizen") ||
+    lower.includes("citizenship")
+  ) {
+    return "Citizenship";
+  }
+  if (
     lower.includes("work authorization") ||
     lower.includes("authorized to work") ||
-    lower.includes("citizen") ||
-    lower.includes("citizenship") ||
     lower.includes("visa")
   ) {
     return "WorkAuthorization";

@@ -3,6 +3,7 @@ export type MockIssueSeverity = "Critical" | "Warning" | "Info";
 export type MockRequirementMatchState = "Direct" | "Strong" | "Partial" | "Implied" | "Missing";
 export type MockHardConstraintCategory =
   | "WorkAuthorization"
+  | "Citizenship"
   | "SecurityClearance"
   | "LicenseOrCertification"
   | "Education"

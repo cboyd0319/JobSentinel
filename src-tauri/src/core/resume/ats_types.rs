@@ -88,6 +88,8 @@ pub struct RequirementReview {
 pub enum HardConstraintCategory {
     /// Work authorization, visa sponsorship, or legal work eligibility
     WorkAuthorization,
+    /// Citizenship requirement
+    Citizenship,
     /// Security clearance requirement
     SecurityClearance,
     /// Required license or certification

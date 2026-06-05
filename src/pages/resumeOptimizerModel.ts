@@ -51,6 +51,7 @@ export type IssueSeverity = "Critical" | "Warning" | "Info";
 export type RequirementMatchState = "Direct" | "Strong" | "Partial" | "Implied" | "Missing";
 export type HardConstraintCategory =
   | "WorkAuthorization"
+  | "Citizenship"
   | "SecurityClearance"
   | "LicenseOrCertification"
   | "Education"
@@ -221,6 +222,8 @@ export function formatHardConstraintCategory(category: HardConstraintCategory): 
   switch (category) {
     case "WorkAuthorization":
       return "Work authorization";
+    case "Citizenship":
+      return "Citizenship";
     case "SecurityClearance":
       return "Security clearance";
     case "LicenseOrCertification":
@@ -255,7 +258,10 @@ export function formatHardConstraintNextActionDetail(
   category: HardConstraintCategory,
   requirement = "",
 ): string {
-  if (category === "WorkAuthorization" && isCitizenshipRequirement(requirement)) {
+  if (
+    category === "Citizenship" ||
+    (category === "WorkAuthorization" && isCitizenshipRequirement(requirement))
+  ) {
     return "If the citizenship requirement is not true for you, do not claim it. Do not treat work authorization as citizenship.";
   }
 

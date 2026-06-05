@@ -51,6 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Resume Match now reports citizenship as an explicit hard-review category
+  instead of serializing it as generic work authorization and relying on
+  requirement-text inference.
+
 - First-run review now keeps saved-resume skill context visible after the user
   adds resume suggestions, so reviewed local resume skills are labeled before
   the search is saved.

@@ -129,7 +129,7 @@ describe("buildResumeNextActions", () => {
     const actions = buildResumeNextActions({
       ...baseAnalysis,
       hard_constraint_risks: [
-        hardRisk("us citizenship", "WorkAuthorization", "   "),
+        hardRisk("us citizenship", "Citizenship", "   "),
       ],
     });
 

@@ -26,6 +26,7 @@ export type AtsAnalysisResult = {
     requirement: string;
     category:
       | "WorkAuthorization"
+      | "Citizenship"
       | "SecurityClearance"
       | "LicenseOrCertification"
       | "Education"

@@ -233,7 +233,8 @@ The current local matcher:
   for required supervisor or management constraints;
 - treats **US citizenship**, **U.S. citizenship**, **US citizen**, and
   **U.S. citizen** as the same local citizenship evidence without treating
-  generic work authorization as citizenship;
+  generic work authorization as citizenship, and reports citizenship as its own
+  hard-review category;
 - treats **work authorization** and **authorized to work** as the same local
   work-eligibility evidence;
 - treats **security clearance** and **clearance** as the same local clearance

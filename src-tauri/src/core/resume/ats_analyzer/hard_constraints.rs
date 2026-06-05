@@ -40,6 +40,7 @@ pub(super) fn build_hard_constraint_risks(
 pub(super) fn hard_constraint_score_cap(category: HardConstraintCategory) -> f64 {
     match category {
         HardConstraintCategory::WorkAuthorization => 50.0,
+        HardConstraintCategory::Citizenship => 50.0,
         HardConstraintCategory::SecurityClearance => 60.0,
         HardConstraintCategory::LicenseOrCertification => 60.0,
         HardConstraintCategory::Education => 65.0,
@@ -57,8 +58,9 @@ pub(super) fn hard_constraint_action(keyword: &str, category: HardConstraintCate
         return "Check whether your visible level matches this role; lower-title or fewer-years evidence may not satisfy it. Do not round up, stretch titles, or imply more experience than you have."
             .to_string();
     }
-    if category == HardConstraintCategory::WorkAuthorization
-        && citizenship_constraint_keyword(keyword)
+    if category == HardConstraintCategory::Citizenship
+        || (category == HardConstraintCategory::WorkAuthorization
+            && citizenship_constraint_keyword(keyword))
     {
         return "Check citizenship before tailoring. If it is not true for you, do not claim it. Do not treat work authorization as citizenship."
             .to_string();
@@ -67,6 +69,9 @@ pub(super) fn hard_constraint_action(keyword: &str, category: HardConstraintCate
     let action = match category {
         HardConstraintCategory::WorkAuthorization => {
             "Check work authorization before tailoring. If it is not true for you, do not claim it."
+        }
+        HardConstraintCategory::Citizenship => {
+            "Check citizenship before tailoring. If it is not true for you, do not claim it. Do not treat work authorization as citizenship."
         }
         HardConstraintCategory::SecurityClearance => {
             "Check clearance before tailoring. If it is not current or true for you, do not claim it."
@@ -122,14 +127,17 @@ pub(super) fn hard_constraint_category(keyword: &str) -> Option<HardConstraintCa
     if lower.contains("equivalent experience") {
         return None;
     }
-    if lower.contains("work authorization")
-        || lower.contains("authorized to work")
-        || lower.contains("visa sponsorship")
-        || lower.contains("us citizenship")
+    if lower.contains("us citizenship")
         || lower.contains("u.s. citizenship")
         || lower.contains("us citizen")
         || lower.contains("u.s. citizen")
         || lower.contains("citizenship required")
+    {
+        return Some(HardConstraintCategory::Citizenship);
+    }
+    if lower.contains("work authorization")
+        || lower.contains("authorized to work")
+        || lower.contains("visa sponsorship")
     {
         return Some(HardConstraintCategory::WorkAuthorization);
     }

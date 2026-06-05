@@ -1029,7 +1029,7 @@ describe("mock resume analysis command handlers", () => {
         }),
         expect.objectContaining({
           requirement: "us citizenship",
-          category: "WorkAuthorization",
+          category: "Citizenship",
           score_cap: 50,
           action: expect.stringContaining("Check citizenship before tailoring"),
         }),
