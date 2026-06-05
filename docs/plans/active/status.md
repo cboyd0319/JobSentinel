@@ -38,8 +38,8 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Current Posture
 
-- Last pushed baseline before local commits resumed:
-  `4cdcc3e3 Split ATS screening constraint tests`.
+- Last pushed baseline before post-push cleanup commits:
+  `8e6b7bc6 Update README readiness status`.
 - Fresh harness evidence reports 2 active docs and 2 indexed workstreams: this
   status file and `current-work.md`.
 - Local commits should continue in small verified slices; push only when the
@@ -49,6 +49,16 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 ## Latest Slice
 
 Latest implementation slice:
+
+- Structured resume format checks moved out of
+  `src-tauri/src/core/resume/ats_analyzer.rs` into
+  `src-tauri/src/core/resume/ats_analyzer/structured_format.rs`.
+- The public `AtsAnalyzer::analyze_format` API is unchanged; plain-text format
+  checks now call the same shared structured-format issue helpers.
+- The runtime ATS analyzer is now below the 1,200-line Rust target, so the
+  legacy oversized-file exception was removed.
+
+Earlier implementation slice:
 
 - Mock user-data, job-tracking, settings, and support command bodies moved out
   of `src/mocks/handlers.ts` into focused helper modules under
@@ -831,9 +841,8 @@ Recent cleanup summary:
 - `src/mocks/handlers.test.ts` and
   `src-tauri/src/core/resume/ats_analyzer_tests.rs` are now both under the
   1,200-line harness target and no longer need legacy no-growth exemptions.
-- Remaining oversized-file exceptions are
-  `src-tauri/src/core/resume/ats_analyzer.rs`,
-  `src/pages/ResumeBuilder.tsx`, `src-tauri/src/core/notify/slack.rs`,
+- Remaining oversized-file exceptions are `src/pages/ResumeBuilder.tsx`,
+  `src-tauri/src/core/notify/slack.rs`,
   `src-tauri/src/core/notify/teams.rs`, `src/pages/ResumeOptimizer.tsx`,
   `src/pages/SetupWizard.tsx`,
   `src-tauri/src/core/market_intelligence/analytics.rs`,

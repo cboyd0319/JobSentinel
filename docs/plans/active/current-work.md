@@ -205,6 +205,8 @@ Out of scope:
   PR/change-contract review path.
 - [x] Split DB search tests out of the main DB test file.
 - [x] Split resume plain-text format helpers out of the runtime ATS analyzer.
+- [x] Split structured ATS resume format checks out of the runtime ATS analyzer
+  and retire its legacy oversized-file exception.
 - [x] Split scheduler basic lifecycle/config tests out of the main scheduler
   test file.
 - [x] Split scheduler interval and result model tests out of the main scheduler

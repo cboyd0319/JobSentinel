@@ -1,6 +1,7 @@
 use super::super::ats_types::{
     AtsAnalysisResult, AtsSuggestion, FormatIssue, IssueSeverity, SuggestionCategory,
 };
+use super::structured_format;
 use super::AtsAnalyzer;
 
 pub(super) fn analyze_plain_text_format(resume_text: &str) -> AtsAnalysisResult {
@@ -16,7 +17,7 @@ pub(super) fn analyze_plain_text_format(resume_text: &str) -> AtsAnalysisResult 
         });
     }
 
-    if AtsAnalyzer::text_has_adversarial_content(readable_text) {
+    if structured_format::text_has_adversarial_content(readable_text) {
         format_issues.push(FormatIssue {
             severity: IssueSeverity::Warning,
             issue: "Instruction-like or hidden resume text detected".to_string(),
@@ -33,7 +34,7 @@ pub(super) fn analyze_plain_text_format(resume_text: &str) -> AtsAnalysisResult 
         });
     }
 
-    if AtsAnalyzer::text_has_keyword_stuffing(readable_text) {
+    if structured_format::text_has_keyword_stuffing(readable_text) {
         format_issues.push(FormatIssue {
             severity: IssueSeverity::Warning,
             issue: "Possible keyword stuffing detected".to_string(),
@@ -48,15 +49,15 @@ pub(super) fn analyze_plain_text_format(resume_text: &str) -> AtsAnalysisResult 
     }
 
     if text_has_keyword_list_bullet(readable_text) {
-        AtsAnalyzer::push_keyword_list_issue(&mut format_issues, &mut suggestions);
+        structured_format::push_keyword_list_issue(&mut format_issues, &mut suggestions);
     }
 
-    if AtsAnalyzer::text_has_unclear_capability_level(readable_text) {
-        AtsAnalyzer::push_capability_level_issue(&mut format_issues, &mut suggestions);
+    if structured_format::text_has_unclear_capability_level(readable_text) {
+        structured_format::push_capability_level_issue(&mut format_issues, &mut suggestions);
     }
 
     if text_has_generic_filler_bullet(readable_text) {
-        AtsAnalyzer::push_generic_filler_issue(&mut format_issues, &mut suggestions);
+        structured_format::push_generic_filler_issue(&mut format_issues, &mut suggestions);
     }
 
     if !readable_text.is_empty() {
