@@ -222,6 +222,8 @@ Out of scope:
 - [x] Split DB upsert coverage tests out of the main DB test file.
 - [x] Split DB bookmark coverage tests out of the main DB test file.
 - [x] Split DB duplicate-merge coverage tests out of the main DB test file.
+- [x] Split DB score/source/recent job query tests out of the main DB test
+  file.
 
 ## Orchestration Log
 
