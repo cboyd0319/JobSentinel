@@ -224,6 +224,8 @@ Out of scope:
 - [x] Split DB duplicate-merge coverage tests out of the main DB test file.
 - [x] Split DB score/source/recent job query tests out of the main DB test
   file.
+- [x] Retire the main DB test file's legacy oversized-file exception after
+  bringing it below the 1,200-line test target.
 
 ## Orchestration Log
 

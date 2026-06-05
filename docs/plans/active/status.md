@@ -113,6 +113,13 @@ Earlier implementation slice:
 
 Latest implementation slice:
 
+- DB connection coverage moved out of `src-tauri/src/core/db/tests.rs` into
+  `src-tauri/src/core/db/tests/tests/job_connection_tests.rs`.
+- The main DB test file is now below the 1,200-line test target, so its legacy
+  oversized-file exception was removed.
+
+Earlier implementation slice:
+
 - DB score/source/recent job query coverage moved out of
   `src-tauri/src/core/db/tests.rs` into
   `src-tauri/src/core/db/tests/tests/job_get_jobs_by_tests.rs`.
