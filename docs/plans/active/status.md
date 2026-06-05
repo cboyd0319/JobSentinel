@@ -12,10 +12,10 @@ The repo-wide goal remains open. JobSentinel should keep moving toward zero
 known errors, privacy leaks, stale docs, brittle tests, user-facing technical
 assumptions, engineer-only defaults, and unverified claims.
 
-Current priority is critical product functionality before broad cleanup:
-truthful local resume assistance, readable application guidance, ghost and stale
-posting protection, pay-risk protection, guided intake, and cleanup only where
-it blocks privacy, security, verification, or user ease.
+Current priority is critical product functionality. Repo-bloat cleanup is
+closed as of 2026-06-05; do not continue proactive file-size split work unless
+a fresh bloat failure blocks product, privacy, security, docs accuracy, or
+verification.
 
 Rule 0 still controls the work: user data stays local unless the user explicitly
 configures an external channel, external AI stays optional and disabled by
@@ -25,7 +25,7 @@ default, and users stay in control before anything leaves the device.
 
 | Workstream | State | Current focus | Source |
 | ---------- | ----- | ------------- | ------ |
-| Current product and quality work | Active | Resume assistance, application readability, job-card protection, guided intake, and blocking cleanup only | [Plan](current-work.md) |
+| Current product and quality work | Active | Resume assistance, application readability, job-card protection, guided intake, pay protection, and macOS readiness | [Plan](current-work.md) |
 
 ## Archived Context
 
@@ -47,6 +47,14 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
   below.
 - Push cadence defaults to 30-commit batches unless the user gives a newer
   explicit push instruction.
+
+## Closed Cleanup Track
+
+Repo-bloat cleanup is closed for current planning. The latest cleanup batch
+left `npm run lint:bloat` passing and reduced the active near-limit harness
+script pressure without changing detector behavior. Future work should move to
+product and macOS readiness slices; reopen bloat cleanup only for a fresh
+failing gate or a blocker to privacy, security, docs accuracy, or verification.
 
 ## Latest Slice
 
@@ -213,8 +221,8 @@ the active-doc budget.
    reviewed, local, and understandable for non-technical job seekers.
 3. Continue job-card protection for stale, risky, duplicate, unclear, or
    pay-problem postings without treating local signals as employer predictions.
-4. Continue cleanup only when it blocks critical functionality,
-   privacy/security, verification, or user ease.
+4. Continue macOS readiness docs, release checks, and user guidance without
+   claiming Gatekeeper-ready public distribution before Apple credentials exist.
 
 ## Completion Bar
 

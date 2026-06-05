@@ -14,7 +14,7 @@
       "id": "current-product-and-quality-work",
       "path": "docs/plans/active/current-work.md",
       "state": "active",
-      "nextStep": "Continue critical product functionality and only blocking cleanup while preserving Rule 0, user ease, and verification discipline.",
+      "nextStep": "Continue critical product functionality and macOS readiness while preserving Rule 0, user ease, and verification discipline.",
       "verification": "npm run harness:check"
     }
   ],

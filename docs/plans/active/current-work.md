@@ -27,8 +27,8 @@ In scope:
   searches or selecting sources.
 - Pay protection for missing, thin, one-sided, broad, or anchoring-prone listed
   pay signals.
-- Cleanup only when it blocks Rule 0, user ease, verification, docs accuracy,
-  or file-size maintainability.
+- Cleanup only when a fresh failing gate or blocker affects Rule 0, user ease,
+  verification, or docs accuracy.
 - macOS release-readiness docs and harness checks that stay honest about the
   no-Apple-account ceiling.
 
@@ -50,7 +50,7 @@ Out of scope:
 | Job-card protection | Active | Keep posting-risk cues visible without implying employer intent or confirmed duplicate/source proof. |
 | Guided intake | Active | Add optional suggestions only after user review; keep broad defaults and non-technical paths first-class. |
 | Pay protection | Active | Keep missing, minimum-only, maximum-only, malformed, or broad listed-pay evidence plain and review-first. |
-| Cleanup and harness | Active as needed | Split near-limit files, compact active docs, and keep harness sensors current. |
+| Cleanup and harness | Closed for proactive repo-bloat work | Reopen only for a fresh failing gate or blocker to privacy, security, docs accuracy, or verification. |
 
 ## Completion Bar
 
@@ -83,6 +83,8 @@ Out of scope:
 - Large files and tests have been split across analyzer, settings, resume,
   dashboard, mock, bloat, scheduler, DB, notification, scraper, and harness
   modules.
+- Repo-bloat cleanup is closed as of 2026-06-05. Do not continue proactive
+  file-size split work unless a fresh gate failure or blocker appears.
 - Active plan sprawl has been reduced to this plan plus `status.md`.
 
 ## Next Work
@@ -92,8 +94,8 @@ Out of scope:
    Developer ID signing, notarization, stapling, and install proof exist.
 2. Continue small verified product slices in resume assistance, job-card
    protection, guided intake, and pay protection.
-3. Split or compact files before they hit harness limits, especially docs,
-   scripts, mock handlers, and large shared UI/test modules.
+3. Do not reopen repo-bloat cleanup unless a fresh bloat gate failure or
+   product/privacy/security/docs verification blocker appears.
 4. Keep README, docs hubs, release docs, wiki inventory, and active status in
    sync when behavior, readiness, or public guidance changes.
 5. Push only when the local commit batch reaches the user-approved threshold or
