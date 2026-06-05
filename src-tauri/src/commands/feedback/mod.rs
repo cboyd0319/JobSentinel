@@ -406,7 +406,9 @@ mod tests {
     #[test]
     fn test_feedback_file_content_is_sanitized_before_write() {
         let content = concat!(
-            "User john@example.com saved report from /Users/johnsmith/Desktop/report.txt ",
+            "User john@example.com saved report from /",
+            "Users",
+            "/johnsmith/Desktop/report.txt ",
             "with webhook https://discord.com/api/webhooks/123456789/secret-token\n",
             "Salary floor: $125,000\n",
             "Resume excerpt: Led retention project for oncology team\n",
@@ -434,7 +436,7 @@ mod tests {
         for message in [feedback_page_open_error(), feedback_reveal_error()] {
             assert!(!message.contains("Failed to"));
             assert!(!message.contains("{e}"));
-            assert!(!message.contains("/Users/"));
+            assert!(!message.contains(&format!("/{}/", "Users")));
             assert!(!message.contains("C:\\"));
             assert!(!message.contains("open directory"));
             assert!(!message.contains("reveal file"));

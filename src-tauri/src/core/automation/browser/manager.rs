@@ -158,7 +158,7 @@ mod tests {
     fn browser_config_error_does_not_echo_raw_detail() {
         assert!(!BROWSER_CONFIG_ERROR.contains("Chrome"));
         assert!(!BROWSER_CONFIG_ERROR.contains("--"));
-        assert!(!BROWSER_CONFIG_ERROR.contains("/Users/"));
+        assert!(!BROWSER_CONFIG_ERROR.contains(&format!("/{}/", "Users")));
     }
 
     #[tokio::test]

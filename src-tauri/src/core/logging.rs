@@ -33,19 +33,16 @@ mod tests {
 
     #[test]
     fn redacts_path_components() {
-        let label = path_label_for_logging("/Users/alice/Documents/Jane Doe Resume.pdf");
+        let label = path_label_for_logging("private/Jane Doe Resume.pdf");
 
         assert_eq!(label, "<path:.pdf>");
-        assert!(!label.contains("alice"));
+        assert!(!label.contains("private"));
         assert!(!label.contains("Jane"));
     }
 
     #[test]
     fn handles_paths_without_extensions() {
-        assert_eq!(
-            path_label_for_logging("/Users/alice/.config/jobsentinel"),
-            "<path>"
-        );
+        assert_eq!(path_label_for_logging("private/jobsentinel"), "<path>");
     }
 
     #[test]

@@ -892,7 +892,7 @@ mod tests {
         let resume = Resume {
             id: 42,
             name: "Private Resume.pdf".to_string(),
-            file_path: "/Users/alice/Documents/private-company-resume.pdf".to_string(),
+            file_path: "<local-private-resume>".to_string(),
             parsed_text: Some("secret resume body".to_string()),
             is_active: true,
             created_at: now,
@@ -903,7 +903,7 @@ mod tests {
 
         assert!(serialized.contains("Private Resume.pdf"));
         assert!(!serialized.contains("file_path"));
-        assert!(!serialized.contains("/Users/alice"));
+        assert!(!serialized.contains("<local-private-resume>"));
         assert!(!serialized.contains("parsed_text"));
         assert!(!serialized.contains("secret resume body"));
     }
@@ -914,7 +914,7 @@ mod tests {
         let resume = Resume {
             id: 42,
             name: "Private Resume.pdf".to_string(),
-            file_path: "/Users/alice/Documents/private-company-resume.pdf".to_string(),
+            file_path: "<local-private-resume>".to_string(),
             parsed_text: Some("Care coordinator\nScheduling".to_string()),
             is_active: true,
             created_at: now,
@@ -927,7 +927,7 @@ mod tests {
         assert!(serialized.contains("\"format_label\":\"PDF\""));
         assert!(serialized.contains("\"has_readable_text\":true"));
         assert!(serialized.contains("\"readable_text_chars\":27"));
-        assert!(!serialized.contains("/Users/alice"));
+        assert!(!serialized.contains("<local-private-resume>"));
         assert!(!serialized.contains("Care coordinator"));
     }
 
@@ -937,7 +937,7 @@ mod tests {
         let resume = Resume {
             id: 42,
             name: "Private Resume.pdf".to_string(),
-            file_path: "/Users/alice/Documents/private-company-resume.pdf".to_string(),
+            file_path: "<local-private-resume>".to_string(),
             parsed_text: Some("Care coordinator\nScheduling\nCase management".to_string()),
             is_active: true,
             created_at: now,
@@ -950,7 +950,7 @@ mod tests {
         assert!(serialized.contains("\"resume_id\":42"));
         assert!(serialized.contains("Care coordinator"));
         assert!(!serialized.contains("file_path"));
-        assert!(!serialized.contains("/Users/alice"));
+        assert!(!serialized.contains("<local-private-resume>"));
         assert!(!serialized.contains("parsed_text"));
     }
 
@@ -961,7 +961,7 @@ mod tests {
         let resume = Resume {
             id: 42,
             name: "Long Resume.pdf".to_string(),
-            file_path: "/Users/alice/Documents/long-resume.pdf".to_string(),
+            file_path: "<local-long-resume>".to_string(),
             parsed_text: Some(long_text),
             is_active: true,
             created_at: now,
@@ -1035,7 +1035,7 @@ mod tests {
 
     #[test]
     fn renderer_supplied_resume_file_paths_are_rejected() {
-        let err = reject_renderer_resume_file_path("/Users/jordan/private/resume.pdf").unwrap_err();
+        let err = reject_renderer_resume_file_path("<renderer-supplied-resume-path>").unwrap_err();
 
         assert!(err.contains("Choose"));
         assert!(err.contains("Resume"));

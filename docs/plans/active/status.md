@@ -51,6 +51,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Rust tests and platform examples now avoid concrete developer home paths while
+  still covering sanitizer and private-detail redaction behavior.
+
 - Frontend, mock, and script test fixtures now use neutral placeholders for
   private resume paths and emails instead of developer-specific local paths.
 

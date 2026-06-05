@@ -466,7 +466,7 @@ mod tests {
     #[test]
     fn test_user_message_uses_plain_local_data_copy() {
         let connection_message = DatabaseError::Connection {
-            path: "/Users/alice/jobs.db".to_string(),
+            path: "private/jobs.db".to_string(),
             source: sqlx::Error::PoolTimedOut,
         }
         .user_message();
@@ -484,7 +484,7 @@ mod tests {
             }
             .user_message(),
             DatabaseError::Connection {
-                path: "/Users/alice/jobs.db".to_string(),
+                path: "private/jobs.db".to_string(),
                 source: sqlx::Error::PoolTimedOut,
             }
             .user_message(),
@@ -511,7 +511,7 @@ mod tests {
             assert!(!message.contains("I/O"));
             assert!(!message.contains("SELECT"));
             assert!(!message.contains("secret"));
-            assert!(!message.contains("alice"));
+            assert!(!message.contains("private"));
         }
     }
 
@@ -545,21 +545,21 @@ mod tests {
         assert!(!timeout_text.contains("SELECT * FROM jobs"));
 
         let backup = DatabaseError::Backup {
-            path: "/Users/alice/Documents/JobSentinel/private-backup.db".to_string(),
+            path: "private/JobSentinel/private-backup.db".to_string(),
             source: std::io::Error::new(std::io::ErrorKind::PermissionDenied, "denied"),
         };
         let backup_text = backup.to_string();
         assert!(backup_text.contains("<path:.db>"));
-        assert!(!backup_text.contains("alice"));
+        assert!(!backup_text.contains("JobSentinel"));
         assert!(!backup_text.contains("private-backup"));
 
         let restore = DatabaseError::Restore {
-            path: "/Users/alice/Documents/JobSentinel/private-backup.db".to_string(),
+            path: "private/JobSentinel/private-backup.db".to_string(),
             reason: "invalid backup".to_string(),
         };
         let restore_text = restore.to_string();
         assert!(restore_text.contains("<path:.db>"));
-        assert!(!restore_text.contains("alice"));
+        assert!(!restore_text.contains("JobSentinel"));
         assert!(!restore_text.contains("private-backup"));
     }
 }

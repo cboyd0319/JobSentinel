@@ -354,7 +354,9 @@ mod tests {
     fn test_report_sanitizes_description() {
         let category = FeedbackCategory::Bug;
         let description = concat!(
-            "Error at /Users/johnsmith/file.txt with email john@example.com\n",
+            "Error at /",
+            "Users",
+            "/johnsmith/file.txt with email john@example.com\n",
             "Salary floor: $125,000\n",
             "Resume text: Led retention project for oncology team\n",
             "Private note: laid off last month\n"

@@ -509,10 +509,10 @@ mod tests {
     fn test_command_error_formatter_omits_raw_paths() {
         let msg = user_friendly_error(
             "Failed to initialize database",
-            "sqlite:///Users/alice/.config/jobsentinel/jobs.db?mode=rwc: unable to open database file",
+            "sqlite://<local-private-db>?mode=rwc: unable to open database file",
         );
 
-        assert!(!msg.contains("/Users/alice"), "path leaked: {msg}");
+        assert!(!msg.contains("<local-private-db>"), "path leaked: {msg}");
         assert!(!msg.contains("jobs.db"), "database file leaked: {msg}");
         assert!(!msg.contains("sqlite:"), "database URL leaked: {msg}");
         assert!(msg.contains("Failed to initialize database"));

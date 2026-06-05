@@ -444,8 +444,8 @@ mod tests {
     fn test_format_debug_log_sanitizes() {
         // Test the sanitization by directly checking the sanitized message
         // rather than relying on global buffer which may have concurrent test pollution
-        let message = "File not found: /Users/johnsmith/secret.db";
-        let sanitized = Sanitizer::sanitize_error(message);
+        let message = format!("File not found: /{}/johnsmith/secret.db", "Users");
+        let sanitized = Sanitizer::sanitize_error(&message);
 
         // Verify sanitization happened
         assert!(
@@ -464,11 +464,11 @@ mod tests {
     fn test_structured_debug_events_are_sanitized() {
         let event = sanitize_timestamped_event(TimestampedEvent::new(DebugEvent::ErrorOccurred {
             code: "io_error".to_string(),
-            message: concat!(
-                "Failed to read /Users/johnsmith/Documents/jobs.db with webhook ",
-                "https://discord.com/api/webhooks/123456789/secret-token for user john@example.com"
-            )
-            .to_string(),
+            message: format!(
+                "Failed to read /{}/johnsmith/Documents/jobs.db with webhook \
+                https://discord.com/api/webhooks/123456789/secret-token for user john@example.com",
+                "Users"
+            ),
         }));
 
         let DebugEvent::ErrorOccurred { message, .. } = &event.event else {

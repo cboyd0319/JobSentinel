@@ -585,7 +585,7 @@ mod tests {
             portfolio_url: None,
             website_url: None,
             default_resume_id: None,
-            resume_file_path: Some("/Users/jordan/private/resume.pdf".to_string()),
+            resume_file_path: Some("<local-private-resume>".to_string()),
             resume_file_token: None,
             clear_resume_file: None,
             default_cover_letter_template: None,
@@ -609,7 +609,7 @@ mod tests {
         let profile = manager.get_profile().await.unwrap().unwrap();
         assert_eq!(
             profile.resume_file_path,
-            Some("/Users/jordan/private/resume.pdf".to_string())
+            Some("<local-private-resume>".to_string())
         );
     }
 
@@ -627,7 +627,7 @@ mod tests {
             portfolio_url: None,
             website_url: None,
             default_resume_id: None,
-            resume_file_path: Some("/Users/jordan/private/resume.pdf".to_string()),
+            resume_file_path: Some("<local-private-resume>".to_string()),
             resume_file_token: None,
             clear_resume_file: None,
             default_cover_letter_template: None,

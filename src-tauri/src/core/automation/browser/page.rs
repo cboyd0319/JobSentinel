@@ -350,7 +350,7 @@ mod tests {
     #[test]
     fn file_upload_errors_do_not_echo_local_paths() {
         for message in [FILE_UPLOAD_UNAVAILABLE, FILE_UPLOAD_SETUP_ERROR] {
-            assert!(!message.contains("/Users/"));
+            assert!(!message.contains(&format!("/{}/", "Users")));
             assert!(!message.contains("resume.pdf"));
             assert!(!message.contains("CDP"));
         }

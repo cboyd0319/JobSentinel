@@ -14,7 +14,6 @@ use crate::core::logging::path_label_for_logging;
 /// Get Windows application data directory
 ///
 /// Returns: %LOCALAPPDATA%\JobSentinel
-/// Example: C:\Users\Username\AppData\Local\JobSentinel
 pub fn get_data_dir() -> PathBuf {
     let local_appdata = std::env::var("LOCALAPPDATA").unwrap_or_else(|_| {
         // Fallback to %USERPROFILE%\AppData\Local
@@ -28,7 +27,6 @@ pub fn get_data_dir() -> PathBuf {
 /// Get Windows configuration directory
 ///
 /// Returns: %APPDATA%\JobSentinel
-/// Example: C:\Users\Username\AppData\Roaming\JobSentinel
 pub fn get_config_dir() -> PathBuf {
     let appdata = std::env::var("APPDATA").unwrap_or_else(|_| {
         // Fallback to %USERPROFILE%\AppData\Roaming

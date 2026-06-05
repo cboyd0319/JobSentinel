@@ -466,9 +466,7 @@ mod tests {
             ImportError::InvalidJsonLd(
                 "unexpected token in candidate-specific payload".to_string(),
             ),
-            ImportError::DatabaseError(
-                "sqlite locked at /Users/example/private/jobs.db".to_string(),
-            ),
+            ImportError::DatabaseError("sqlite locked at <local-private-db>".to_string()),
         ];
 
         for error in cases {
@@ -476,7 +474,7 @@ mod tests {
             assert!(!message.contains("secret"));
             assert!(!message.contains("private-page-content"));
             assert!(!message.contains("candidate-specific"));
-            assert!(!message.contains("/Users/example/private"));
+            assert!(!message.contains("<local-private-db>"));
         }
     }
 }

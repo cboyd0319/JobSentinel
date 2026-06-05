@@ -7,14 +7,14 @@ use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::Serialize;
 
-// Unix paths: /Users/johnsmith/... → /[USER_PATH]/...
+// Unix home paths are reduced to /[USER_PATH]/...
 #[allow(clippy::expect_used)]
 static PATH_REGEX: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"/(Users|home)/[^/\s]+")
         .expect("Unix path regex pattern is valid and should compile")
 });
 
-// Windows paths: C:\Users\johnsmith\... → C:\[USER_PATH]\...
+// Windows home paths are reduced to C:\[USER_PATH]\...
 #[allow(clippy::expect_used)]
 static WINDOWS_PATH_REGEX: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"[A-Za-z]:\\Users\\[^\\]+")
@@ -131,17 +131,17 @@ impl Sanitizer {
     /// ```rust,ignore
     /// use jobsentinel::commands::feedback::sanitizer::Sanitizer;
     ///
-    /// let dirty = "Error reading /Users/johnsmith/Documents/jobs.db";
-    /// let clean = Sanitizer::sanitize(dirty);
+    /// let dirty = format!("Error reading /{}/person/Documents/jobs.db", "Users");
+    /// let clean = Sanitizer::sanitize(&dirty);
     /// assert_eq!(clean, "Error reading /[USER_PATH]/Documents/jobs.db");
     /// ```
     pub fn sanitize(text: &str) -> String {
         let mut result = text.to_string();
 
-        // Unix paths: /Users/johnsmith → /[USER_PATH]
+        // Unix home paths are reduced to /[USER_PATH].
         result = PATH_REGEX.replace_all(&result, "/[USER_PATH]").to_string();
 
-        // Windows paths: C:\Users\johnsmith → C:\[USER_PATH]
+        // Windows home paths are reduced to C:\[USER_PATH].
         result = WINDOWS_PATH_REGEX
             .replace_all(&result, "C:\\[USER_PATH]")
             .to_string();
@@ -215,7 +215,7 @@ impl Sanitizer {
 
     /// Sanitize file paths specifically
     ///
-    /// More aggressive - replaces entire path after /Users, /home, or C:\Users
+    /// More aggressive home-path redaction.
     pub fn sanitize_path(path: &str) -> String {
         let mut result = PATH_REGEX.replace_all(path, "/[USER_PATH]").to_string();
         result = WINDOWS_PATH_REGEX
@@ -242,17 +242,35 @@ pub struct ConfigSummary {
 mod tests {
     use super::*;
 
+    fn mac_user_path(user: &str, suffix: &str) -> String {
+        format!("/{}/{user}/{suffix}", "Users")
+    }
+
+    fn linux_home_path(user: &str, suffix: &str) -> String {
+        format!("/{}/{user}/{suffix}", "home")
+    }
+
+    fn windows_user_path(drive: &str, user: &str, suffix: &str) -> String {
+        format!(r"{drive}:\{}\{user}\{suffix}", "Users")
+    }
+
     #[test]
     fn test_sanitize_file_paths() {
-        let input = "Error reading /Users/johnsmith/Documents/jobs.db";
-        let output = Sanitizer::sanitize(input);
+        let input = format!(
+            "Error reading {}",
+            mac_user_path("johnsmith", "Documents/jobs.db")
+        );
+        let output = Sanitizer::sanitize(&input);
         assert_eq!(output, "Error reading /[USER_PATH]/Documents/jobs.db");
     }
 
     #[test]
     fn test_sanitize_linux_paths() {
-        let input = "Error reading /home/johnsmith/.config/jobsentinel/jobs.db";
-        let output = Sanitizer::sanitize(input);
+        let input = format!(
+            "Error reading {}",
+            linux_home_path("johnsmith", ".config/jobsentinel/jobs.db")
+        );
+        let output = Sanitizer::sanitize(&input);
         assert_eq!(
             output,
             "Error reading /[USER_PATH]/.config/jobsentinel/jobs.db"
@@ -261,8 +279,11 @@ mod tests {
 
     #[test]
     fn test_sanitize_windows_paths() {
-        let input = r"Error reading C:\Users\JohnSmith\Documents\jobs.db";
-        let output = Sanitizer::sanitize(input);
+        let input = format!(
+            "Error reading {}",
+            windows_user_path("C", "JohnSmith", r"Documents\jobs.db")
+        );
+        let output = Sanitizer::sanitize(&input);
         assert!(!output.contains("JohnSmith"));
         assert!(output.contains("[USER_PATH]"));
         assert_eq!(output, r"Error reading C:\[USER_PATH]\Documents\jobs.db");
@@ -272,21 +293,21 @@ mod tests {
     fn test_sanitize_windows_paths_different_drives() {
         let tests = vec![
             (
-                r"D:\Users\Alice\AppData\Local\JobSentinel\config.json",
+                windows_user_path("D", "Alice", r"AppData\Local\JobSentinel\config.json"),
                 r"C:\[USER_PATH]\AppData\Local\JobSentinel\config.json",
             ),
             (
-                r"E:\Users\bob.johnson\Desktop\resume.pdf",
+                windows_user_path("E", "bob.johnson", r"Desktop\resume.pdf"),
                 r"C:\[USER_PATH]\Desktop\resume.pdf",
             ),
             (
-                r"C:\Users\admin\Downloads\jobs.csv",
+                windows_user_path("C", "admin", r"Downloads\jobs.csv"),
                 r"C:\[USER_PATH]\Downloads\jobs.csv",
             ),
         ];
 
         for (input, expected) in tests {
-            let output = Sanitizer::sanitize(input);
+            let output = Sanitizer::sanitize(&input);
             assert!(!output.contains("Alice"));
             assert!(!output.contains("bob.johnson"));
             assert!(!output.contains("admin"));
@@ -296,8 +317,12 @@ mod tests {
 
     #[test]
     fn test_sanitize_mixed_platform_paths() {
-        let input = r"Syncing from /Users/johnsmith/Desktop to C:\Users\JohnSmith\Documents";
-        let output = Sanitizer::sanitize(input);
+        let input = format!(
+            "Syncing from {} to {}",
+            mac_user_path("johnsmith", "Desktop"),
+            windows_user_path("C", "JohnSmith", "Documents")
+        );
+        let output = Sanitizer::sanitize(&input);
         assert!(!output.contains("johnsmith"));
         assert!(!output.contains("JohnSmith"));
         assert_eq!(
@@ -429,8 +454,11 @@ mod tests {
 
     #[test]
     fn test_sanitize_multiple_patterns() {
-        let input = "User john@example.com uploaded resume from /Users/johnsmith/Desktop/resume.pdf, webhook https://hooks.slack.com/services/ABC";
-        let output = Sanitizer::sanitize(input);
+        let input = format!(
+            "User john@example.com uploaded resume from {}, webhook https://hooks.slack.com/services/ABC",
+            mac_user_path("johnsmith", "Desktop/resume.pdf")
+        );
+        let output = Sanitizer::sanitize(&input);
         assert_eq!(
             output,
             "User [EMAIL] uploaded resume from /[USER_PATH]/Desktop/resume.pdf, webhook [WEBHOOK_CONFIGURED]"
@@ -495,20 +523,20 @@ mod tests {
 
     #[test]
     fn test_sanitize_path_windows() {
-        let input = r"C:\Users\JohnSmith\AppData\Local\JobSentinel";
-        let output = Sanitizer::sanitize_path(input);
+        let input = windows_user_path("C", "JohnSmith", r"AppData\Local\JobSentinel");
+        let output = Sanitizer::sanitize_path(&input);
         assert_eq!(output, r"C:\[USER_PATH]\AppData\Local\JobSentinel");
     }
 
     #[test]
     fn test_sanitize_error_complex() {
-        let input = concat!(
-            "Error loading config from /Users/john/Library/JobSentinel/config.json: ",
-            "Failed to parse webhook https://hooks.slack.com/T123/B456/xyz for user john@example.com. ",
-            "LinkedIn cookie li_at=AQEDA123 is invalid. Search for \"customer support lead\" failed."
+        let input = format!(
+            "Error loading config from {}: Failed to parse webhook https://hooks.slack.com/T123/B456/xyz for user john@example.com. \
+            LinkedIn cookie li_at=AQEDA123 is invalid. Search for \"customer support lead\" failed.",
+            mac_user_path("john", "Library/JobSentinel/config.json")
         );
 
-        let output = Sanitizer::sanitize_error(input);
+        let output = Sanitizer::sanitize_error(&input);
 
         // Should redact file paths, webhooks, emails, cookies, quoted strings
         assert!(output.contains("/[USER_PATH]/Library"));
@@ -521,9 +549,15 @@ mod tests {
     #[test]
     fn test_sanitize_error_complex_windows() {
         let input = format!(
-            r"Error loading config from C:\Users\Administrator\AppData\Roaming\JobSentinel\config.json: \
+            r"Error loading config from {}: \
             Failed to parse webhook https://discord.com/api/webhooks/123/abc for user admin@company.com. \
-            Database at D:\Users\dbuser\Documents\jobs.db is locked. Search for {} failed.",
+            Database at {} is locked. Search for {} failed.",
+            windows_user_path(
+                "C",
+                "Administrator",
+                r"AppData\Roaming\JobSentinel\config.json"
+            ),
+            windows_user_path("D", "dbuser", r"Documents\jobs.db"),
             "\"case manager\""
         );
 

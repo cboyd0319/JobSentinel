@@ -10,7 +10,6 @@ use crate::core::logging::path_label_for_logging;
 /// Get macOS application support directory
 ///
 /// Returns: ~/Library/Application Support/JobSentinel
-/// Example: /Users/username/Library/Application Support/JobSentinel
 ///
 /// This follows Apple's File System Programming Guide recommendations:
 /// https://developer.apple.com/library/archive/documentation/FileManagement/Conceptual/FileSystemProgrammingGuide/
@@ -32,7 +31,6 @@ pub fn get_data_dir() -> PathBuf {
 /// Get macOS configuration directory
 ///
 /// Returns: ~/.config/jobsentinel
-/// Example: /Users/username/.config/jobsentinel
 ///
 /// Uses XDG Base Directory Specification for cross-platform consistency:
 /// https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
@@ -191,12 +189,12 @@ mod tests {
         let original_home = env::var("HOME").ok();
 
         // Set custom HOME
-        env::set_var("HOME", "/custom/home");
+        env::set_var("HOME", "fixture-home");
         let dir = get_data_dir();
 
         assert_eq!(
             dir,
-            PathBuf::from("/custom/home/Library/Application Support/JobSentinel")
+            PathBuf::from("fixture-home/Library/Application Support/JobSentinel")
         );
 
         // Restore original HOME
@@ -225,10 +223,10 @@ mod tests {
 
         // Clear XDG_CONFIG_HOME and set known HOME
         env::remove_var("XDG_CONFIG_HOME");
-        env::set_var("HOME", "/test/home");
+        env::set_var("HOME", "fixture-home");
 
         let dir = get_config_dir();
-        assert_eq!(dir, PathBuf::from("/test/home/.config/jobsentinel"));
+        assert_eq!(dir, PathBuf::from("fixture-home/.config/jobsentinel"));
 
         // Restore original env vars
         match original_home {
@@ -248,10 +246,10 @@ mod tests {
         let original_xdg = env::var("XDG_CONFIG_HOME").ok();
 
         // Set XDG_CONFIG_HOME
-        env::set_var("XDG_CONFIG_HOME", "/custom/config");
+        env::set_var("XDG_CONFIG_HOME", "fixture-config");
 
         let dir = get_config_dir();
-        assert_eq!(dir, PathBuf::from("/custom/config/jobsentinel"));
+        assert_eq!(dir, PathBuf::from("fixture-config/jobsentinel"));
 
         // Restore original env var
         match original_xdg {
@@ -285,12 +283,12 @@ mod tests {
         let original_home = env::var("HOME").ok();
 
         // Set custom HOME
-        env::set_var("HOME", "/custom/home");
+        env::set_var("HOME", "fixture-home");
         let dir = get_cache_dir();
 
         assert_eq!(
             dir,
-            PathBuf::from("/custom/home/Library/Caches/JobSentinel")
+            PathBuf::from("fixture-home/Library/Caches/JobSentinel")
         );
 
         // Restore original HOME
@@ -325,10 +323,10 @@ mod tests {
         let original_home = env::var("HOME").ok();
 
         // Set custom HOME
-        env::set_var("HOME", "/custom/home");
+        env::set_var("HOME", "fixture-home");
         let dir = get_logs_dir();
 
-        assert_eq!(dir, PathBuf::from("/custom/home/Library/Logs/JobSentinel"));
+        assert_eq!(dir, PathBuf::from("fixture-home/Library/Logs/JobSentinel"));
 
         // Restore original HOME
         match original_home {
@@ -371,13 +369,13 @@ mod tests {
         let original_home = env::var("HOME").ok();
 
         // Test non-sandboxed environment
-        env::set_var("HOME", "/Users/testuser");
+        env::set_var("HOME", "fixture-home");
         assert!(!is_sandboxed());
 
         // Test sandboxed environment
         env::set_var(
             "HOME",
-            "/Users/testuser/Library/Containers/com.example.app/Data",
+            "fixture-home/Library/Containers/com.example.app/Data",
         );
         assert!(is_sandboxed());
 

@@ -764,8 +764,8 @@ mod tests {
     fn test_full_conversion() {
         let json = r#"{
             "basics": {
-                "name": "Alice Johnson",
-                "email": "alice@example.com",
+                "name": "Applicant Example",
+                "email": "applicant@example.test",
                 "summary": "Full-stack developer"
             },
             "work": [{
@@ -791,7 +791,7 @@ mod tests {
         let json_resume = JsonResume::from_json(json).unwrap();
         let resume_data = json_resume.to_resume_data().unwrap();
 
-        assert_eq!(resume_data.contact_info.name, "Alice Johnson");
+        assert_eq!(resume_data.contact_info.name, "Applicant Example");
         assert_eq!(resume_data.summary, "Full-stack developer");
         assert_eq!(resume_data.experience.len(), 1);
         assert_eq!(resume_data.education.len(), 1);
