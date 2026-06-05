@@ -458,6 +458,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 - Secret/debug, notification-error, and credential bloat fixtures moved out of
   the main privacy-core bloat test file into a focused script test.
 
+- `user_data` public DTOs and SQLite row adapters moved into a focused models
+  module while keeping manager APIs and public re-exports stable.
+
 ## Recent Completed Slices
 
 Detailed implementation history before the current restart window is in the
