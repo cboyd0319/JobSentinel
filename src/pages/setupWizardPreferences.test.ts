@@ -99,8 +99,22 @@ describe("Setup Wizard preference helpers", () => {
       location: "remote, hybrid near Denver",
       freshness: "Balanced",
       reviewVolume: "Broad discovery",
+      jobSources: "No outside job sources selected; add reviewed sources in Settings.",
       alerts: "Quiet desktop alerts; no sound",
       pay: "At least $60,000/year",
+    });
+  });
+
+  it("shows technical source defaults as reviewed before saving", () => {
+    const config = {
+      ...createDefaultSetupConfig(),
+      title_allowlist: ["Software Engineer"],
+      keywords_boost: ["React"],
+    };
+
+    expect(buildSetupSearchSummary(config, "balanced", "balanced")).toMatchObject({
+      jobSources:
+        "Remote OK, We Work Remotely, Startup and tech hiring posts. Shown for review before saving; turn any source off in Settings.",
     });
   });
 });

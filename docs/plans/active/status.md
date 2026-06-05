@@ -51,6 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- First-run search review now makes job-source choices explicit before saving
+  and says resumes, private notes, saved answers, and application history are
+  not sent to job sources.
+
 - Job cards now flag minimum-only listed pay as open-ended range evidence even
   when no salary floor is saved, while avoiding duplicate open-ended pay cards
   when floor guidance already covers it.

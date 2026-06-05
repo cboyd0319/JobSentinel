@@ -309,10 +309,10 @@ export function formatJobSourceSummary(
   ].filter((source): source is string => source !== null);
 
   if (sources.length === 0) {
-    return "Local saved search only; add sources in Settings.";
+    return "No outside job sources selected; add reviewed sources in Settings.";
   }
 
-  return `${sources.join(", ")}. You can turn these off in Settings.`;
+  return `${sources.join(", ")}. Shown for review before saving; turn any source off in Settings.`;
 }
 
 export function toResumeSkillSuggestions(skills: SetupResumeSkill[]): string[] {

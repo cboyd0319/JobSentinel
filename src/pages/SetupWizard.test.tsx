@@ -150,7 +150,7 @@ describe("SetupWizard Accessibility", () => {
       await user.click(screen.getByRole("button", { name: /^continue$/i }));
 
       expect(
-        screen.getByText("Local saved search only; add sources in Settings."),
+        screen.getByText("No outside job sources selected; add reviewed sources in Settings."),
       ).toBeInTheDocument();
 
       await user.click(screen.getByRole("button", { name: /start finding jobs/i }));
@@ -291,7 +291,7 @@ describe("SetupWizard Accessibility", () => {
       expect(review.getByText("Balanced list")).toBeInTheDocument();
       expect(review.getByText("Job sources")).toBeInTheDocument();
       expect(
-        review.getByText("Local saved search only; add sources in Settings."),
+        review.getByText("No outside job sources selected; add reviewed sources in Settings."),
       ).toBeInTheDocument();
       expect(
         screen.getByText("At least $65,000/year"),
@@ -301,6 +301,7 @@ describe("SetupWizard Accessibility", () => {
       ).toBeInTheDocument();
       expect(screen.getByText(/saves your search on this computer/i)).toBeInTheDocument();
       expect(screen.getByText(/can contact only the job sources shown above/i)).toBeInTheDocument();
+      expect(screen.getByText(/does not send resumes, private notes, saved answers, or application history/i)).toBeInTheDocument();
       expect(screen.queryByText(/only contacts job sources or alert services/i)).not.toBeInTheDocument();
       expect(screen.queryByText(/nothing is sent anywhere/i)).not.toBeInTheDocument();
       expect(screen.queryByText(/great matches|great jobs/i)).not.toBeInTheDocument();
@@ -685,7 +686,7 @@ describe("SetupWizard Accessibility", () => {
       expect(screen.getByText("Job sources")).toBeInTheDocument();
       expect(
         screen.getByText(
-          "Remote OK, We Work Remotely, Startup and tech hiring posts. You can turn these off in Settings.",
+          "Remote OK, We Work Remotely, Startup and tech hiring posts. Shown for review before saving; turn any source off in Settings.",
         ),
       ).toBeInTheDocument();
 

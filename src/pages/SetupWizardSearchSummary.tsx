@@ -65,7 +65,8 @@ export function SetupWizardSearchSummary({ summary }: SetupWizardSearchSummaryPr
         <p className="text-sm text-surface-600">
           <span className="font-medium text-surface-700">Your privacy matters:</span> JobSentinel
           saves your search on this computer. After you start, it can contact only the job
-          sources shown above and any alert services you later turn on.
+          sources shown above and any alert services you later turn on. It does not send
+          resumes, private notes, saved answers, or application history to job sources.
         </p>
       </div>
     </>
