@@ -314,6 +314,8 @@ Out of scope:
   legacy oversized-file exception.
 - [x] Reuse focused Resume Builder step components from the main page and retire
   the final legacy oversized-file exception.
+- [x] Block unsafe saved job links before custom dashboard open callbacks can
+  receive the link.
 
 ## Orchestration Log
 

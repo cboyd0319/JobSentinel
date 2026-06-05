@@ -135,6 +135,11 @@ employer page**, **Check saved link**, or **Source not shown**. Employer-side
 hiring pages stay quieter because they are closer to the source, but they still
 remain source evidence to review.
 
+If a saved job link does not pass the local safety check, job cards show
+**Check job link** and block every job-open path, including dashboard-provided
+open handlers. Use the employer page or a fresh public job link before
+tailoring.
+
 ### Posting Risk Filter
 
 Use the posting-risk filter above your job list:

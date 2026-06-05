@@ -87,8 +87,7 @@ export const JobCard = memo(function JobCard({
     }
   };
 
-  const handleOpenUrl = async (url: string) => {
-    // Security: validate job link before opening.
+  const rejectUnsafeJobLink = (url: string) => {
     if (!isValidJobUrl(url)) {
       logError(
         "Security: Blocked unsafe saved job link:",
@@ -98,6 +97,15 @@ export const JobCard = memo(function JobCard({
         "Check job link",
         "This saved link does not look safe to open.",
       );
+      return true;
+    }
+
+    return false;
+  };
+
+  const handleOpenUrl = async (url: string) => {
+    // Security: validate job link before opening.
+    if (rejectUnsafeJobLink(url)) {
       return;
     }
 
@@ -110,6 +118,10 @@ export const JobCard = memo(function JobCard({
   };
 
   const openJobPosting = () => {
+    if (rejectUnsafeJobLink(job.url)) {
+      return;
+    }
+
     if (onViewJob) {
       onViewJob(job.url);
       return;

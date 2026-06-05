@@ -51,6 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Job cards now run unsafe saved-link checks before custom dashboard open
+  handlers, so visible **Check job link** guidance cannot be bypassed by a
+  callback path.
+
 - Job cards now flag top-only listed pay as weak pay evidence, telling users to
   confirm the starting pay before tailoring instead of treating an "up to"
   amount as a full range.

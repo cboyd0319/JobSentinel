@@ -381,6 +381,30 @@ describe("JobCard", () => {
       expect(deeplinks.openDeepLink).not.toHaveBeenCalled();
     });
 
+    it("blocks unsafe links before calling custom high-risk opener", async () => {
+      const user = userEvent.setup();
+      const onViewJob = vi.fn();
+      const highRiskJob = {
+        ...mockJob,
+        ghost_score: 0.82,
+        url: "javascript:alert(1)",
+      };
+
+      renderWithToast(<JobCard job={highRiskJob} onViewJob={onViewJob} />);
+
+      await user.click(
+        screen.getByRole("button", {
+          name: /open original posting before tailoring/i,
+        }),
+      );
+
+      expect(
+        await screen.findByText("This saved link does not look safe to open."),
+      ).toBeInTheDocument();
+      expect(onViewJob).not.toHaveBeenCalled();
+      expect(deeplinks.openDeepLink).not.toHaveBeenCalled();
+    });
+
     it("shows lighter review guidance for medium posting risk", () => {
       const mediumRiskJob = { ...mockJob, ghost_score: 0.67 };
 
@@ -934,6 +958,26 @@ describe("JobCard", () => {
       expect(
         await screen.findByText("This saved link does not look safe to open."),
       ).toBeInTheDocument();
+      expect(deeplinks.openDeepLink).not.toHaveBeenCalled();
+    });
+
+    it("blocks unsafe links before calling custom view opener", async () => {
+      const user = userEvent.setup();
+      const onViewJob = vi.fn();
+      renderWithToast(
+        <JobCard
+          job={{ ...mockJob, url: "javascript:alert(1)" }}
+          onViewJob={onViewJob}
+        />,
+      );
+
+      const viewBtn = screen.getByTestId("btn-view");
+      await user.click(viewBtn);
+
+      expect(
+        await screen.findByText("This saved link does not look safe to open."),
+      ).toBeInTheDocument();
+      expect(onViewJob).not.toHaveBeenCalled();
       expect(deeplinks.openDeepLink).not.toHaveBeenCalled();
     });
 
