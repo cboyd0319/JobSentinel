@@ -113,6 +113,15 @@ Earlier implementation slice:
 
 Latest implementation slice:
 
+- DB upsert coverage moved out of `src-tauri/src/core/db/tests.rs` into
+  `src-tauri/src/core/db/tests/tests/job_upsert_tests.rs`.
+- The main DB test file still owns core operation, accessor, bookmark, repost,
+  and remaining broad database coverage plus shared fixtures.
+- `src-tauri/src/core/db/tests.rs` legacy no-growth budget tightened from
+  1,481 lines to 1,414 lines.
+
+Earlier implementation slice:
+
 - DB statistics coverage moved out of `src-tauri/src/core/db/tests.rs` into
   `src-tauri/src/core/db/tests/tests/job_statistics_tests.rs`.
 - The main DB test file still owns core operation, accessor, upsert, bookmark,
