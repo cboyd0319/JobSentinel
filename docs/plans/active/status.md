@@ -50,6 +50,14 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Product-copy user-guidance fixtures now live in
+  `scripts/check-product-copy-user-guidance.test.mjs`, reducing
+  `scripts/check-product-copy.test.mjs` from 879 to 530 lines without changing
+  user-doc sidecar, settings alert copy, source-check copy, browser import,
+  deep-link, first-run, pay, or ATS wording sensors. Focused verification
+  passed: `node --test scripts/check-product-copy.test.mjs
+  scripts/check-product-copy-user-guidance.test.mjs`.
+
 - Feedback report readability repo-bloat fixtures now live in
   `scripts/check-repo-bloat-feedback-readability.test.mjs`, reducing
   `scripts/check-repo-bloat-feedback-privacy.test.mjs` from 884 to 531 lines
@@ -159,6 +167,7 @@ Recent committed cleanup batch:
 
 | Area | Main file before -> after | Extracted surface | Focused proof |
 | ---- | ------------------------- | ----------------- | ------------- |
+| Product-copy test | 879 -> 530 | user-guidance test file | Focused script tests |
 | Feedback privacy bloat test | 884 -> 531 | feedback readability test file | Focused script tests |
 | Resume Builder commands | 886 -> 730 | command sidecar re-export plus nested invoke harness | Commands focused tests, script tests, docs, bloat, fmt |
 | Repo-bloat release promise tests | 895 -> 820 | release-promise test file | Focused script tests, bloat |
