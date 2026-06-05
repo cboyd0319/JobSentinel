@@ -4,13 +4,15 @@
 relevant, fairly compensated work while keeping sensitive job-search data under user
 control.**
 
-**Current project status: about 78% complete against the active readiness
-goal.** JobSentinel has working local-first core workflows, safe support
-reports, resume parsing, job tracking, privacy-first docs, and a verified
-no-account macOS package. Active work remains on deeper resume requirement
-review, ghost-job and stale-posting protection, pay-equity guardrails, guided
-intake, and final broad verification. See
-[active plan status](docs/plans/active/status.md) for current evidence.
+**Current active-plan status: 100% of the current active-plan checklist is
+complete, with 134 of 134 tracked items checked off.** The repo-wide readiness
+goal remains open until the completion bar in
+[active plan status](docs/plans/active/status.md) is proven from current
+evidence: no known bloat, privacy leak, stale docs, engineer-only user flow, or
+unverified claim remains, and final broad verification passes. Current cleanup
+focus is 15 grandfathered oversized-file exceptions plus continued resume
+assistance, job-card protection, guided intake, and pay protection where they
+improve privacy, security, verification, or user ease.
 
 [![CI](https://github.com/cboyd0319/JobSentinel/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/cboyd0319/JobSentinel/actions/workflows/ci.yml)
 [![Docs Harness](https://github.com/cboyd0319/JobSentinel/actions/workflows/docs-harness.yml/badge.svg?branch=main)](https://github.com/cboyd0319/JobSentinel/actions/workflows/docs-harness.yml)
@@ -75,6 +77,7 @@ or build something better with it if that helps more people.
 | Is external AI required? | No. External AI is optional, disabled by default, preview-gated, and gateway-bound. |
 | Is it free? | Yes. JobSentinel is MIT licensed and free forever. |
 | Current release | `v2.6.4` with Windows and Linux installers plus a verified no-account universal macOS package. A public Mac package is recommended only when the release includes a matching `.sha256` checksum and the public macOS verifier passes. |
+| Current active plan | 100% checklist completion for the compact current-work plan; repo-wide readiness remains open until the active status completion bar passes. |
 
 ## Reader Map
 
@@ -528,6 +531,16 @@ Developer docs:
 
 - Safe support reports can be copied or saved from settings, error
   logs, and crash recovery surfaces.
+- Active planning has been compacted to one current-work plan and one status
+  file; the harness session reports 2 active plan docs and a 100/100
+  five-tuple harness score.
+- Resume requirement review, saved-answer review, job-card stale or repost
+  evidence, listed-pay guidance, first-run presets, and support copy were
+  tightened around local evidence and plain-language review.
+- Oversized-file modularization reduced legacy exceptions across mock handlers,
+  settings UI, resume analysis, database tests, scheduler tests, scoring tests,
+  scraper tests, the README, and harness sensors. 15 grandfathered oversized
+  files remain.
 - Direct npm, Cargo, and GitHub Actions dependencies were refreshed to latest
   stable versions; narrower Dependabot PRs are superseded by the mainline
   refresh.
@@ -538,13 +551,14 @@ Developer docs:
 
 ### Tracked Next
 
-- Resume assistance is now the top functional priority: local resume parsing,
-  readable resume exports, resume/job fit review, required-versus-preferred
-  qualification review, and hiring-system transparency through application
-  readability.
-- Continued zero-technical-knowledge UX review.
-- Continued broad-audience review for technical and non-technical roles.
-- Local matching improvements grounded in visible evidence.
+- Finish remaining oversized-file exceptions where they block maintainability,
+  verification, privacy review, or user-facing clarity.
+- Continue resume assistance only where it improves truthful local requirement
+  review, hard-constraint handling, readable evidence, or next-action guidance.
+- Continue guided intake, job-card protection, and pay protection only where
+  the work stays local, reviewed, plain-language, and evidence-bounded.
+- Run final broad verification only after remaining known work has current
+  evidence.
 
 Read [docs/README.md](docs/README.md), [CHANGELOG.md](CHANGELOG.md),
 [ROADMAP.md](ROADMAP.md), and the [developer roadmap](docs/ROADMAP.md) for more
