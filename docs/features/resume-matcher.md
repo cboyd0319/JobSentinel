@@ -458,7 +458,9 @@ The current local matcher:
 - gives hard-requirement next actions category-specific honesty guidance,
   such as checking work authorization, clearance, licenses, education, years
   or level, background or drug screening, physical demands, location, schedule,
-  availability, and travel before tailoring;
+  availability, and travel before tailoring, and keeps hard-requirement review
+  rows first even when the backend sends the row without a separate hard-risk
+  item;
 - shows those must-have checks in the live Resume Builder detail review when
   available, and shows a compact pre-detail warning in the live Resume Builder
   panel using plain category labels instead of backend risk names or score caps;

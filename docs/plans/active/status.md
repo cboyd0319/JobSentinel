@@ -51,6 +51,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Resume Match next actions now use hard-requirement review rows as check-first
+  guidance when no separate hard-risk item is present.
+
 - Mac first-open help now tells users to look for the matching `.dmg.sha256`
   checksum file before using **Open Anyway**, and product-copy checks guard
   that wording.

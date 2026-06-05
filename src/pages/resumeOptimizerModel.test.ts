@@ -125,6 +125,26 @@ describe("buildResumeNextActions", () => {
     expect(actions[1].detail).toMatch(/If the authorization is not true/i);
   });
 
+  it("uses hard-constraint review rows when separate hard risks are absent", () => {
+    const actions = buildResumeNextActions({
+      ...baseAnalysis,
+      requirement_reviews: [
+        requiredReview("driver license", "Missing", true),
+        requiredReview("crm", "Missing"),
+      ],
+    });
+
+    expect(actions.map((action) => action.title)).toEqual([
+      "Check driver license before tailoring",
+      "Review required evidence for crm",
+    ]);
+    expect(actions[0]).toMatchObject({
+      detail: "This is marked as a hard requirement. Only rely on it if it is true and supported by real evidence.",
+      label: "Check first",
+      variant: "danger",
+    });
+  });
+
   it("keeps required-gap actions ahead of positive visible-evidence guidance", () => {
     const actions = buildResumeNextActions({
       ...baseAnalysis,

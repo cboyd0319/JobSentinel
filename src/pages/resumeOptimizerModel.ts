@@ -440,10 +440,28 @@ function findThinJobPostIssue(analysis: AtsAnalysisResult): FormatIssue | undefi
   });
 }
 
+function normalizeRequirementText(value: string): string {
+  return value.trim().toLocaleLowerCase().replace(/\s+/g, " ");
+}
+
+function isMissingOrWeakRequiredReview(review: RequirementReview): boolean {
+  return (
+    review.importance === "Required" &&
+    (
+      review.match_state === "Missing" ||
+      review.match_state === "Partial" ||
+      review.match_state === "Implied"
+    )
+  );
+}
+
 export function buildResumeNextActions(analysis: AtsAnalysisResult): ResumeNextAction[] {
   const actions: ResumeNextAction[] = [];
   const hardRisks = analysis.hard_constraint_risks ?? [];
   const reviews = analysis.requirement_reviews ?? [];
+  const hardRiskRequirements = new Set(
+    hardRisks.map((risk) => normalizeRequirementText(risk.requirement)),
+  );
 
   for (const risk of hardRisks.slice(0, 5)) {
     actions.push({
@@ -458,9 +476,28 @@ export function buildResumeNextActions(analysis: AtsAnalysisResult): ResumeNextA
     return actions;
   }
 
+  const hardConstraintReviews = reviews.filter(
+    (review) =>
+      review.hard_constraint &&
+      isMissingOrWeakRequiredReview(review) &&
+      !hardRiskRequirements.has(normalizeRequirementText(review.keyword)),
+  );
+  for (const review of hardConstraintReviews.slice(0, 5 - actions.length)) {
+    actions.push({
+      title: `Check ${review.keyword} before tailoring`,
+      detail: "This is marked as a hard requirement. Only rely on it if it is true and supported by real evidence.",
+      variant: "danger",
+      label: "Check first",
+    });
+  }
+
+  if (actions.length >= 5) {
+    return actions;
+  }
+
   const missingRequired = reviews.filter(
     (review) =>
-      review.importance === "Required" &&
+      isMissingOrWeakRequiredReview(review) &&
       review.match_state === "Missing" &&
       !review.hard_constraint,
   );
@@ -479,7 +516,7 @@ export function buildResumeNextActions(analysis: AtsAnalysisResult): ResumeNextA
 
   const partialRequired = reviews.filter(
     (review) =>
-      review.importance === "Required" &&
+      isMissingOrWeakRequiredReview(review) &&
       (review.match_state === "Partial" || review.match_state === "Implied"),
   );
   for (const review of partialRequired.slice(0, 5 - actions.length)) {
