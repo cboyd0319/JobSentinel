@@ -48,7 +48,17 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
-Latest harness slice:
+Latest implementation slice:
+
+- DB search title, description, limit, FTS edge, and search error-path tests
+  moved out of `src-tauri/src/core/db/tests.rs` into
+  `src-tauri/src/core/db/tests/tests/job_search_tests.rs`.
+- The main DB test file still owns duplicate, bookmark, alert, connection, and
+  broad database operation coverage plus shared fixtures.
+- `src-tauri/src/core/db/tests.rs` legacy no-growth budget tightened from 2,267
+  lines to 2,042 lines.
+
+Recent harness slice:
 
 - The whole public GitHub wiki inventory is now manifest-owned under
   `docs/harness/manifest.json` `publicWiki.requiredPages`.

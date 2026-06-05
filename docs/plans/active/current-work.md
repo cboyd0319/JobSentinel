@@ -201,6 +201,7 @@ Out of scope:
   page.
 - [x] Lock the whole public GitHub wiki inventory into the harness manifest and
   PR/change-contract review path.
+- [x] Split DB search tests out of the main DB test file.
 
 ## Orchestration Log
 
@@ -487,6 +488,10 @@ Out of scope:
   manifest-owned `publicWiki` inventory, checker validation, policy tests, and
   PR/change-contract review wording. The remote wiki `Home.md` and
   `Capabilities.md` pages were refreshed and pushed to wiki commit `5cdb20f`.
+- Coordinator moved DB search title, description, limit, FTS edge, and search
+  error-path tests into `src-tauri/src/core/db/tests/tests/job_search_tests.rs`.
+  The main DB test file still owns duplicate, bookmark, alert, connection, and
+  broad database operation coverage plus shared fixtures.
 
 ## Risks
 
