@@ -140,7 +140,6 @@ const maintainableTextLineLimits = {
 
 const legacyOversizedLineBudgets = new Map([
   ["src/pages/ResumeBuilder.tsx", 1770],
-  ["src-tauri/src/core/notify/slack.rs", 1759],
   ["src-tauri/src/core/notify/teams.rs", 1750],
   ["src/pages/ResumeOptimizer.tsx", 1716],
   ["src/pages/SetupWizard.tsx", 1710],

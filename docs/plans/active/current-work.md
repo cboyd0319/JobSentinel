@@ -222,6 +222,8 @@ Out of scope:
   retire its legacy oversized-file exception.
 - [x] Split Greenhouse scraper tests out of the runtime scraper file and retire
   its legacy oversized-file exception.
+- [x] Split Slack notification tests out of the runtime notification file and
+  retire its legacy oversized-file exception.
 - [x] Split mock user-data, job-tracking, settings, and support command bodies
   out of the main mock handler and retire its legacy oversized-file exception.
 - [x] Split ATS status, reminder, and stats edge tests out of the main ATS test
