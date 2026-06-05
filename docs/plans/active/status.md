@@ -50,6 +50,15 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Salary benchmark tests moved out of
+  `src-tauri/src/core/salary/benchmarks.rs` into
+  `src-tauri/src/core/salary/benchmarks_tests.rs`.
+- The runtime salary benchmarks module is now below the 1,200-line Rust target,
+  so the legacy oversized-file exception was removed.
+- Salary benchmark behavior was unchanged; only test module ownership changed.
+
+Earlier implementation slice:
+
 - Resume skill extractor tests moved out of
   `src-tauri/src/core/resume/skills.rs` into
   `src-tauri/src/core/resume/skills_tests.rs`.
