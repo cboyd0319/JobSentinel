@@ -75,6 +75,19 @@ const CITIZENSHIP_SCREENING_PATTERNS = [
   /\bmust be (?:a\s+)?(?:u\.?s\.?|united states)\s+citizens?\b/i,
 ];
 
+const WORK_AUTHORIZATION_PATTERNS = [
+  /\bwork authorization\b/i,
+  /\bauthorized to work\b/i,
+  /\blegally authorized\b/i,
+  /\blegally able to work\b/i,
+  /\beligible to work\b/i,
+  /\bemployment authorization\b/i,
+  /\bEAD\b/,
+  /\bgreen card\b/i,
+  /\bsponsorship\b/i,
+  /\bvisa\b/i,
+];
+
 const TRANSPORTATION_SCREENING_PATTERNS = [
   /\breliable transportation\b/i,
   /\bown transportation\b/i,
@@ -113,12 +126,7 @@ const HARD_QUESTION_REVIEWS: HardQuestionReview[] = [
     label: "Work authorization",
     detail: "Check work authorization or sponsorship answers against your profile and resume.",
     getDetail: getWorkAuthorizationReviewDetail,
-    patterns: [
-      /\bwork authorization\b/i,
-      /\bauthorized to work\b/i,
-      /\bsponsorship\b/i,
-      /\bvisa\b/i,
-    ],
+    patterns: WORK_AUTHORIZATION_PATTERNS,
   },
   {
     label: "Location, relocation, or travel",

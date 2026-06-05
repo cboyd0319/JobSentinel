@@ -157,6 +157,8 @@ authorization as citizenship.
 For work authorization or sponsorship topics, the preview also shows the saved
 profile answer so you can compare it with the employer's wording and your
 resume evidence before continuing.
+This includes common wording such as legally authorized, eligible to work,
+employment authorization, green card, EAD, visa, and sponsorship.
 
 For location, relocation, commute, remote, hybrid, on-site, or travel topics,
 the preview can also show a matching saved screening answer, such as travel

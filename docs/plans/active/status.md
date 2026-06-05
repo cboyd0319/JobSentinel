@@ -51,6 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Application Assist now treats legally authorized, eligible-to-work,
+  employment authorization, green card, and EAD wording as work-authorization
+  screening topics.
+
 - Job-card scam cues now cover crypto or payment-app transfer requests and
   passport or direct-deposit requests before interview or offer.
 

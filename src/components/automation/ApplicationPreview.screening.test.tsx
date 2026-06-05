@@ -136,6 +136,29 @@ describe("ApplicationPreview", () => {
       ).toBeInTheDocument();
     });
 
+    it("flags legal work-eligibility wording as work authorization", async () => {
+      mockInvoke.mockResolvedValue(mockProfile);
+
+      render(
+        <ApplicationPreview
+          job={{
+            ...mockJob,
+            description:
+              "Applicants must be legally authorized and eligible to work in the United States.",
+          }}
+          atsPlatform="greenhouse"
+        />,
+      );
+
+      expect(await screen.findByText("Hard Question Review")).toBeInTheDocument();
+      expect(screen.getByText("Work authorization")).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          "Saved profile says US work authorization is available and sponsorship is not needed. Confirm the application asks the same thing before submitting.",
+        ),
+      ).toBeInTheDocument();
+    });
+
     it("flags citizenship requirements from job details", async () => {
       mockInvoke.mockResolvedValue(mockProfile);
 
