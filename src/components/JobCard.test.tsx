@@ -133,6 +133,15 @@ describe("JobCard", () => {
       ).toBeInTheDocument();
     });
 
+    it("shows visible review guidance for unsafe saved links", () => {
+      renderWithToast(<JobCard job={{ ...mockJob, url: "javascript:alert(1)" }} />);
+
+      expect(screen.getByTestId("job-link-guidance")).toHaveTextContent("Check job link");
+      expect(
+        screen.getByText(/This saved job link does not look safe to open/i),
+      ).toBeInTheDocument();
+    });
+
     it("renders salary range when available", () => {
       renderWithToast(<JobCard job={mockJob} />);
       expect(screen.getByText("$55k - $72k")).toBeInTheDocument();
@@ -365,7 +374,10 @@ describe("JobCard", () => {
         }),
       );
 
-      expect(await screen.findByText("Check job link")).toBeInTheDocument();
+      expect(screen.getByTestId("job-link-guidance")).toHaveTextContent("Check job link");
+      expect(
+        await screen.findByText("This saved link does not look safe to open."),
+      ).toBeInTheDocument();
       expect(deeplinks.openDeepLink).not.toHaveBeenCalled();
     });
 
@@ -912,9 +924,9 @@ describe("JobCard", () => {
       const viewBtn = screen.getByTestId("btn-view");
       await user.click(viewBtn);
 
-      expect(await screen.findByText("Check job link")).toBeInTheDocument();
+      expect(screen.getByTestId("job-link-guidance")).toHaveTextContent("Check job link");
       expect(
-        screen.getByText("This saved link does not look safe to open."),
+        await screen.findByText("This saved link does not look safe to open."),
       ).toBeInTheDocument();
       expect(deeplinks.openDeepLink).not.toHaveBeenCalled();
     });

@@ -51,6 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Job cards now show visible **Check job link** guidance for unsafe saved links
+  before the user clicks, so link-safety risk is not hidden behind the open
+  action.
+
 - Resume Match hard-constraint extraction no longer treats age wording such as
   "18 years of age" as a years-experience requirement, and the dev mock now
   matches the Rust analyzer behavior.

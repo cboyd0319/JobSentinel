@@ -156,6 +156,7 @@ export const JobCard = memo(function JobCard({
         );
   const sourceGuidance = getJobSourceGuidance(job.source);
   const sourceReviewGuidance = sourceGuidance.review;
+  const hasSafeJobUrl = isValidJobUrl(job.url);
   const cardAriaLabel = `${job.title} at ${job.company}${
     safeScore >= SCORE_THRESHOLD_HIGH
       ? ", high match"
@@ -167,6 +168,8 @@ export const JobCard = memo(function JobCard({
   }${
     postingRiskGuidance ? `, ${postingRiskGuidance.ariaLabel}` : ""
   }${sourceReviewGuidance ? `, ${sourceReviewGuidance.ariaLabel}` : ""}${
+    hasSafeJobUrl ? "" : ", job link to check"
+  }${
     payFloorGuidance ? `, ${payFloorGuidance.ariaLabel}` : ""
   }${
     salaryRangeQualityGuidance ? `, ${salaryRangeQualityGuidance.ariaLabel}` : ""
@@ -328,6 +331,22 @@ export const JobCard = memo(function JobCard({
                     <p className="font-semibold">{sourceReviewGuidance.title}</p>
                     <p className="text-xs leading-5 opacity-90">
                       {sourceReviewGuidance.description}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {!hasSafeJobUrl && (
+                <div
+                  data-testid="job-link-guidance"
+                  className="mb-2 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200"
+                >
+                  <SourceIcon />
+                  <div>
+                    <p className="font-semibold">Check job link</p>
+                    <p className="text-xs leading-5 opacity-90">
+                      This saved job link does not look safe to open. Use the
+                      employer page or a fresh public job link before tailoring.
                     </p>
                   </div>
                 </div>
