@@ -50,6 +50,16 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Job notes DB tests moved out of `src-tauri/src/core/db/tests.rs` into
+  `src-tauri/src/core/db/tests/tests/job_notes_tests.rs`.
+- The main DB test file still owns broad operation coverage and shared
+  fixtures; the extracted module owns note CRUD, note listing, hidden-note
+  filtering, and note text edge cases.
+- `src-tauri/src/core/db/tests.rs` legacy no-growth budget tightened from
+  2,526 lines to 2,267 lines.
+
+Recent cleanup summary:
+
 - Technical-first docs and UI product-copy path checks moved out of
   `scripts/harness/checks/product-copy.mjs` into
   `scripts/harness/checks/product-copy/technical-first-docs.mjs` and
@@ -58,9 +68,6 @@ Latest implementation slice:
   helpers.
 - `scripts/harness/checks/product-copy.mjs` is now below the 900-line script
   target, so its legacy no-growth budget was removed.
-
-Recent cleanup summary:
-
 - Technical-first preflight product-copy path routing moved out of
   `scripts/harness/checks/product-copy.mjs` into
   `scripts/harness/checks/product-copy/technical-first-preflight.mjs`.

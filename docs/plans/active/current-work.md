@@ -191,6 +191,7 @@ Out of scope:
   product-copy checker module.
 - [x] Retire the product-copy checker module's legacy oversized-file exception
   after bringing it below the 900-line script target.
+- [x] Split DB job notes tests out of the main DB test file.
 
 ## Orchestration Log
 
@@ -448,6 +449,10 @@ Out of scope:
   `scripts/harness/checks/product-copy/technical-first-ui.mjs`. The main
   product-copy checker is now below the 900-line script target and no longer
   has a legacy oversized-file exception.
+- Coordinator moved DB note CRUD, note listing, hidden-note filtering, and note
+  text edge-case tests into
+  `src-tauri/src/core/db/tests/tests/job_notes_tests.rs`. The main DB test file
+  still owns broad operation coverage and shared fixtures.
 
 ## Risks
 
