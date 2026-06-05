@@ -192,7 +192,7 @@ const mockRequirementReviewAnalysis = {
       score_cap: 60,
       reason: "A required hard constraint was not clearly found in the resume.",
       action:
-        "Verify this before tailoring. If it is not true for you, do not claim it.",
+        "If the clearance is not current or true for you, do not claim it. Check this before tailoring.",
     },
   ],
 };
@@ -603,7 +603,9 @@ describe("ResumeOptimizer", () => {
     expect(await screen.findByText("Hard Requirements To Check (1)")).toBeInTheDocument();
     expect(screen.getByText("Security clearance")).toBeInTheDocument();
     expect(screen.getAllByText("Check first").length).toBeGreaterThan(0);
-    expect(screen.getByText(/Verify this before tailoring/i)).toBeInTheDocument();
+    expect(
+      screen.getAllByText(/clearance is not current or true for you/i).length,
+    ).toBeGreaterThan(0);
     expect(screen.getByText("Requirement Review (3)")).toBeInTheDocument();
     expect(screen.getByText("Visible evidence")).toBeInTheDocument();
     expect(screen.getAllByText("Needs support").length).toBeGreaterThan(0);
@@ -769,7 +771,7 @@ describe("ResumeOptimizer", () => {
             score_cap: 65,
             reason: "A required experience constraint was not clearly found.",
             action:
-              "Verify this before tailoring. If it is not true for you, do not claim it.",
+              "Check whether your visible level matches this role; lower-title or fewer-years evidence may not satisfy it. Do not round up, stretch titles, or imply more experience than you have.",
           },
         ],
       },
@@ -793,8 +795,12 @@ describe("ResumeOptimizer", () => {
       screen.getByText(/check 8\+ years of payroll management before tailoring/i),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/do not round up or imply more experience/i),
-    ).toBeInTheDocument();
+      screen.getAllByText(/lower-title or fewer-years evidence may not satisfy it/i).length,
+    ).toBeGreaterThan(0);
+    expect(
+      screen.getAllByText(/do not round up, stretch titles, or imply more experience/i)
+        .length,
+    ).toBeGreaterThan(0);
     expect(screen.getByText("Years of experience")).toBeInTheDocument();
   });
 
@@ -811,7 +817,7 @@ describe("ResumeOptimizer", () => {
             score_cap: 70,
             reason: "A required physical demand was not clearly found.",
             action:
-              "Verify this before tailoring. If it is not true for you, do not claim it.",
+              "If this physical demand is not workable or safe for you, check it before spending tailoring time.",
           },
         ],
       },
@@ -832,8 +838,9 @@ describe("ResumeOptimizer", () => {
 
     expect(await screen.findByText("Physical requirement")).toBeInTheDocument();
     expect(
-      screen.getByText(/if this physical demand is not workable or safe for you/i),
-    ).toBeInTheDocument();
+      screen.getAllByText(/if this physical demand is not workable or safe for you/i)
+        .length,
+    ).toBeGreaterThan(0);
   });
 
   it("shows background-screening next action guidance for hard requirements", async () => {
@@ -849,7 +856,7 @@ describe("ResumeOptimizer", () => {
             score_cap: 70,
             reason: "A required screening constraint was not clearly found.",
             action:
-              "Check background, drug, or pre-employment screening before tailoring. If it is not workable or true for you, do not claim or imply that it is.",
+              "If background, drug, or pre-employment screening is not workable or true for you, check it before spending tailoring time.",
           },
         ],
       },
@@ -869,7 +876,9 @@ describe("ResumeOptimizer", () => {
     await user.click(screen.getByRole("button", { name: /review match/i }));
 
     expect(await screen.findByText("Background or drug screening")).toBeInTheDocument();
-    expect(screen.getByText(/pre-employment screening is not workable/i)).toBeInTheDocument();
+    expect(
+      screen.getAllByText(/pre-employment screening is not workable/i).length,
+    ).toBeGreaterThan(0);
     expect(screen.queryByText(/guarantee/i)).not.toBeInTheDocument();
   });
 
@@ -886,7 +895,7 @@ describe("ResumeOptimizer", () => {
             score_cap: 65,
             reason: "A required language requirement was not clearly found.",
             action:
-              "Check language fluency before tailoring. If it is not true for you, do not claim it.",
+              "If language fluency is not true for you, do not claim it. Use only real language ability, training, or credentials.",
           },
         ],
       },
@@ -907,7 +916,9 @@ describe("ResumeOptimizer", () => {
 
     expect(await screen.findByText("Language requirement")).toBeInTheDocument();
     expect(screen.getByText(/check bilingual spanish before tailoring/i)).toBeInTheDocument();
-    expect(screen.getByText(/language fluency is not true for you/i)).toBeInTheDocument();
+    expect(
+      screen.getAllByText(/language fluency is not true for you/i).length,
+    ).toBeGreaterThan(0);
   });
 
   it("explains strong resume words without screening-tool framing", async () => {

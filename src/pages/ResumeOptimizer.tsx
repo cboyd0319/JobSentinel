@@ -429,7 +429,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
     for (const risk of hardRisks.slice(0, 2)) {
       actions.push({
         title: `Check ${risk.requirement} before tailoring`,
-        detail: formatHardConstraintNextActionDetail(risk.category),
+        detail: risk.action.trim() || formatHardConstraintNextActionDetail(risk.category),
         variant: "danger",
         label: "Check first",
       });

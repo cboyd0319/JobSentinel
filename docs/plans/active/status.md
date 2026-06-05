@@ -51,6 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Resume Match next-action cards now use the backend hard-requirement action
+  text, so seniority, screening, physical, and language constraints keep their
+  precise truth-first guidance.
+
 - Job cards now flag open-ended starting pay below the user's saved floor as a
   range-review cue, without claiming the role tops out below the floor.
 
