@@ -127,6 +127,12 @@ hiring page", "LinkedIn job board", or "Saved by you." A closer employer source
 is stronger evidence, not proof the role is active, so still verify before
 spending serious tailoring time.
 
+When a source is a job board, connected feed, saved link, sample, custom label,
+or missing label, job cards show a visible source-review cue such as **Verify
+employer page**, **Check saved link**, or **Source not shown**. Employer-side
+hiring pages stay quieter because they are closer to the source, but they still
+remain source evidence to review.
+
 ### Posting Risk Filter
 
 Use the posting-risk filter above your job list:

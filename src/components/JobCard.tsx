@@ -152,6 +152,7 @@ export const JobCard = memo(function JobCard({
     job.salary_max,
   );
   const sourceGuidance = getJobSourceGuidance(job.source);
+  const sourceReviewGuidance = sourceGuidance.review;
   const cardAriaLabel = `${job.title} at ${job.company}${
     safeScore >= SCORE_THRESHOLD_HIGH
       ? ", high match"
@@ -162,9 +163,16 @@ export const JobCard = memo(function JobCard({
     scamRiskGuidance ? `, ${scamRiskGuidance.ariaLabel}` : ""
   }${
     postingRiskGuidance ? `, ${postingRiskGuidance.ariaLabel}` : ""
-  }${payFloorGuidance ? `, ${payFloorGuidance.ariaLabel}` : ""}${
+  }${sourceReviewGuidance ? `, ${sourceReviewGuidance.ariaLabel}` : ""}${
+    payFloorGuidance ? `, ${payFloorGuidance.ariaLabel}` : ""
+  }${
     salaryRangeQualityGuidance ? `, ${salaryRangeQualityGuidance.ariaLabel}` : ""
   }`;
+
+  const sourceReviewBorderClass =
+    sourceReviewGuidance?.tone === "warning"
+      ? "border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200"
+      : "border-surface-200 bg-surface-50 text-surface-800 dark:border-surface-700 dark:bg-surface-900/40 dark:text-surface-200";
 
   return (
     <>
@@ -303,6 +311,21 @@ export const JobCard = memo(function JobCard({
                         <ArrowIcon />
                       </button>
                     )}
+                  </div>
+                </div>
+              )}
+
+              {sourceReviewGuidance && (
+                <div
+                  data-testid="source-review-guidance"
+                  className={`mb-2 flex items-start gap-2 rounded-lg border px-3 py-2 text-sm ${sourceReviewBorderClass}`}
+                >
+                  <SourceIcon />
+                  <div>
+                    <p className="font-semibold">{sourceReviewGuidance.title}</p>
+                    <p className="text-xs leading-5 opacity-90">
+                      {sourceReviewGuidance.description}
+                    </p>
                   </div>
                 </div>
               )}

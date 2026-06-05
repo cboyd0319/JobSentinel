@@ -51,6 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Job cards now show visible source-review cues for job boards, connected
+  feeds, saved links, sample jobs, custom labels, and missing source labels,
+  while employer-side hiring pages stay quieter source evidence.
+
 - Resume Match next-action cards now use the backend hard-requirement action
   text, so seniority, screening, physical, and language constraints keep their
   precise truth-first guidance.

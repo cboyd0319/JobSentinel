@@ -77,6 +77,10 @@ describe("JobCard", () => {
     it("renders plain source information", () => {
       renderWithToast(<JobCard job={mockJob} />);
       expect(screen.getByText("LinkedIn job board")).toBeInTheDocument();
+      expect(screen.getByTestId("source-review-guidance")).toHaveTextContent(
+        "Verify employer page",
+      );
+      expect(screen.getByText(/Job-board listings can lag/i)).toBeInTheDocument();
     });
 
     it("labels employer-side hiring sources without raw source IDs", () => {
@@ -89,6 +93,7 @@ describe("JobCard", () => {
       expect(
         screen.getByLabelText(/source: greenhouse hiring page/i),
       ).toHaveAccessibleDescription(/closer to the employer source/i);
+      expect(screen.queryByTestId("source-review-guidance")).not.toBeInTheDocument();
     });
 
     it("labels connected and imported sources in plain language", () => {
@@ -97,6 +102,7 @@ describe("JobCard", () => {
       );
 
       expect(screen.getByText("Connected job source")).toBeInTheDocument();
+      expect(screen.getByText("Verify connected source")).toBeInTheDocument();
       expect(screen.queryByText("jobswithgpt")).not.toBeInTheDocument();
 
       rerender(
@@ -106,6 +112,7 @@ describe("JobCard", () => {
       );
 
       expect(screen.getByText("Saved by you")).toBeInTheDocument();
+      expect(screen.getByText("Check saved link")).toBeInTheDocument();
       expect(screen.queryByText("import")).not.toBeInTheDocument();
     });
 
@@ -113,7 +120,17 @@ describe("JobCard", () => {
       renderWithToast(<JobCard job={{ ...mockJob, source: "city_careers" }} />);
 
       expect(screen.getByText("City Careers")).toBeInTheDocument();
+      expect(screen.getByText("Check source before tailoring")).toBeInTheDocument();
       expect(screen.queryByText("city_careers")).not.toBeInTheDocument();
+    });
+
+    it("surfaces missing source data as a review cue", () => {
+      renderWithToast(<JobCard job={{ ...mockJob, source: "   " }} />);
+
+      expect(screen.getAllByText("Source not shown").length).toBeGreaterThan(0);
+      expect(
+        screen.getByText(/No source was recorded for this posting/i),
+      ).toBeInTheDocument();
     });
 
     it("renders salary range when available", () => {
