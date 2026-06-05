@@ -50,6 +50,16 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Lever scrape-company flow tests moved out of
+  `src-tauri/src/core/scrapers/lever/tests.rs` into
+  `src-tauri/src/core/scrapers/lever/tests/scrape_company_flow_tests.rs`.
+- The main Lever test file is now below the 1,200-line Rust/test target, so its
+  legacy oversized-file exception was removed.
+- Read-only Lever scout proposed this exact contiguous test boundary and
+  changed no files; coordinator implemented and verified it locally.
+
+Earlier implementation slice:
+
 - Scoring engine inline tests moved out of `src-tauri/src/core/scoring/mod.rs`
   into `src-tauri/src/core/scoring/tests/mod.rs`, keeping company scoring tests
   as a sibling test module.
