@@ -51,6 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Dashboard duplicate-group card rendering now lives in a focused UI component,
+  keeping the main dashboard page under the file-size target while preserving
+  repeated-posting review and hide-extra behavior.
+
 - Settings desktop-alert controls now live in a focused component, keeping the
   notifications settings section under the file-size target without changing
   opt-in, sound, or focused-window behavior.
