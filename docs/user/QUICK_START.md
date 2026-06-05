@@ -151,8 +151,9 @@ Skip this if nothing comes to mind.
 ### Question 5: What pay would make a job worth considering? (Optional)
 
 Add a minimum yearly pay amount if you know it. Leave it blank if you are not
-sure yet. Jobs without listed pay stay visible and marked, and jobs below your
-floor are warned about instead of silently hidden.
+sure yet. Jobs without listed pay, minimum-only pay, or "up to" pay stay visible
+and marked, and jobs below your floor are warned about instead of silently
+hidden.
 
 ### Question 6: Where do you want to work?
 
@@ -434,7 +435,8 @@ secure vault.
 1. Make sure your job titles aren't too specific
 2. Try enabling more location options (Remote + Hybrid + Onsite)
 3. If you set a pay amount, keep it at the lowest pay you would actually
-   consider. Jobs without listed pay still stay visible and marked for review.
+   consider. Jobs without listed pay or with one-sided listed pay still stay
+   visible and marked for review.
 4. Right-click the tray icon > "Search Now" to check again now
 
 ### Alerts Do Not Arrive

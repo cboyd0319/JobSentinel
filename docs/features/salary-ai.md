@@ -25,6 +25,8 @@ fixed by asking harder.
 - Show minimum-only listed pay as open-ended range evidence even when the user
   has not saved a salary floor, so the realistic top range is still checked
   before tailoring.
+- Show top-only listed pay as weak range evidence even when the user has not
+  saved a salary floor, so the starting pay is confirmed before tailoring.
 - When open-ended starting pay is below the user's floor, show it as a range
   review cue rather than a below-floor claim.
 - Flag very wide listed pay ranges as weaker range evidence to check before
@@ -67,6 +69,8 @@ inputs, not as self-worth scores.
   evidence in job cards or dashboard comparisons.
 - Treat very wide listed pay ranges as weaker evidence about the real role
   level, schedule, and realistic pay.
+- Treat top-only listed pay, such as "up to" amounts, as weaker evidence until
+  the starting pay is confirmed.
 - Check whether title, scope, decision rights, team size, budget, and promotion
   path match the offered level.
 - Check schedule, travel, expected hours, location, benefits, review timing,
