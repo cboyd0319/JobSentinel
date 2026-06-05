@@ -50,6 +50,15 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Discord notification tests moved out of
+  `src-tauri/src/core/notify/discord.rs` into
+  `src-tauri/src/core/notify/discord_tests.rs` and
+  `src-tauri/src/core/notify/discord_tests/payload_tests.rs`.
+- The runtime Discord notification module is now below the 1,200-line Rust
+  target, so the legacy oversized-file exception was removed.
+
+Earlier implementation slice:
+
 - Teams notification tests moved out of `src-tauri/src/core/notify/teams.rs`
   into `src-tauri/src/core/notify/teams_tests.rs` and
   `src-tauri/src/core/notify/teams_tests/payload_tests.rs`.
@@ -102,17 +111,6 @@ Earlier implementation slice:
   the legacy oversized-file exception was removed.
 - Touched matcher test fixture paths now use repo-relative placeholders instead
   of local absolute paths.
-
-Earlier implementation slice:
-
-- Salary benchmark tests moved out of
-  `src-tauri/src/core/salary/benchmarks.rs` into
-  `src-tauri/src/core/salary/benchmarks_tests.rs`.
-- The runtime salary benchmarks module is now below the 1,200-line Rust target,
-  so the legacy oversized-file exception was removed.
-- Salary benchmark behavior was unchanged; only test module ownership changed.
-
-Earlier implementation slice:
 
 - Resume skill extractor tests moved out of
   `src-tauri/src/core/resume/skills.rs` into
@@ -863,9 +861,8 @@ Recent cleanup summary:
   `src-tauri/src/core/market_intelligence/analytics.rs`,
   `src/pages/Resume.tsx`, `src-tauri/src/commands/automation.rs`,
   `scripts/harness/checks/privacy-logging.mjs`,
-  `src-tauri/src/core/ghost/mod.rs`,
-  `src-tauri/src/core/salary/predictor.rs`, and
-  `src-tauri/src/core/notify/discord.rs`.
+  `src-tauri/src/core/ghost/mod.rs`, and
+  `src-tauri/src/core/salary/predictor.rs`.
 
 ## Next Best Work
 

@@ -148,7 +148,6 @@ const legacyOversizedLineBudgets = new Map([
   ["scripts/harness/checks/privacy-logging.mjs", 1580],
   ["src-tauri/src/core/ghost/mod.rs", 1493],
   ["src-tauri/src/core/salary/predictor.rs", 1489],
-  ["src-tauri/src/core/notify/discord.rs", 1476],
 ]);
 
 export function normalizeRepoPath(path) {
