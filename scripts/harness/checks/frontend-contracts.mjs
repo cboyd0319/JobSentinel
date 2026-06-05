@@ -133,6 +133,7 @@ const resumeSuggestionCategoryPaths = new Set([
   "src/pages/ResumeOptimizer.tsx",
   "src/pages/resumeOptimizerModel.ts",
   "src/components/AtsLiveScorePanel.tsx",
+  "src/components/AtsLiveScorePanelModel.ts",
   "src/mocks/handlers.ts",
   "src/mocks/handlers/resumeAnalysis.ts",
 ]);
@@ -186,17 +187,15 @@ export function hasResumeSuggestionCategoryDrift(root, path) {
   }
 
   const categories = collectBackendResumeSuggestionCategories(root);
-  const frontendPaths = [
-    "src/pages/resumeOptimizerModel.ts",
-    "src/components/AtsLiveScorePanel.tsx",
-  ];
+  const liveScoreModelText =
+    readOptionalFile(root, "src/components/AtsLiveScorePanelModel.ts") ||
+    readOptionalFile(root, "src/components/AtsLiveScorePanel.tsx");
+  const frontendTexts = [
+    readOptionalFile(root, "src/pages/resumeOptimizerModel.ts"),
+    liveScoreModelText,
+  ].filter(Boolean);
 
-  for (const frontendPath of frontendPaths) {
-    const text = readOptionalFile(root, frontendPath);
-    if (!text) {
-      continue;
-    }
-
+  for (const text of frontendTexts) {
     if (
       hasMissingResumeSuggestionCategories(text, categories) ||
       hasStaleResumeSuggestionLabels(text, categories)

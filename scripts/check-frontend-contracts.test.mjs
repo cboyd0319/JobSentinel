@@ -142,7 +142,7 @@ function formatSuggestionCategory(category: SuggestionCategory): string {
     );
     writeFixtureFile(
       root,
-      "src/components/AtsLiveScorePanel.tsx",
+      "src/components/AtsLiveScorePanelModel.ts",
       `
 interface AtsSuggestion {
   category: "AddKeyword" | "RewordBullet" | "AddSection" | "ReorderContent" | "FormatFix";
@@ -166,6 +166,10 @@ function formatSuggestionCategory(category: AtsSuggestion["category"]): string {
 
     assert.equal(
       hasResumeSuggestionCategoryDrift(root, "src/pages/resumeOptimizerModel.ts"),
+      true,
+    );
+    assert.equal(
+      hasResumeSuggestionCategoryDrift(root, "src/components/AtsLiveScorePanelModel.ts"),
       true,
     );
     assert.equal(hasResumeSuggestionCategoryDrift(root, "src/mocks/handlers.ts"), true);

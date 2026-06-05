@@ -51,6 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Resume Builder live-score DTOs and hard-requirement helpers now live in a
+  focused model module, reducing the live panel from 982 to 638 lines without
+  changing must-have review behavior.
+
 - Resume Match now treats required minimum-age or legal work-age wording as a
   hard review item with truth-first guidance instead of dropping it or treating
   it as years-of-experience evidence.

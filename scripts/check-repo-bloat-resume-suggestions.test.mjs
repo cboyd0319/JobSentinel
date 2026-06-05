@@ -52,7 +52,7 @@ function label(category: SuggestionCategory): string {
 }
 `;
     writeFixtureFile(root, "src/pages/ResumeOptimizer.tsx", frontendText);
-    writeFixtureFile(root, "src/components/AtsLiveScorePanel.tsx", frontendText);
+    writeFixtureFile(root, "src/components/AtsLiveScorePanelModel.ts", frontendText);
     writeFixtureFile(root, "src/mocks/handlers.ts", "export {}\n");
     writeFixtureFile(
       root,
@@ -66,7 +66,7 @@ function label(category: SuggestionCategory): string {
         "add",
         "src-tauri/src/core/resume/ats_analyzer.rs",
         "src/pages/ResumeOptimizer.tsx",
-        "src/components/AtsLiveScorePanel.tsx",
+        "src/components/AtsLiveScorePanelModel.ts",
         "src/mocks/handlers.ts",
         "src/mocks/handlers/resumeAnalysis.ts",
       ],
