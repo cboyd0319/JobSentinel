@@ -6,12 +6,14 @@ import { LinkedInIcon, SettingsSymbol } from "./SettingsIcons";
 import type { JobBoardRecommendation } from "./SettingsJobBoardRecommendations";
 import { SecurityBadge } from "./SettingsSecurityBadge";
 import { SettingsConnectedJobSource } from "./SettingsConnectedJobSource";
-import type {
-  Config,
-  CredentialKey,
-  Credentials,
-  JobsWithGptPayload,
-  SourceRequestSummary,
+import {
+  buildSettingsSourceQuery,
+  getSettingsSourceLocation,
+  type Config,
+  type CredentialKey,
+  type Credentials,
+  type JobsWithGptPayload,
+  type SourceRequestSummary,
 } from "./SettingsConfig";
 
 interface SettingsJobSourcesSectionProps {
@@ -196,7 +198,7 @@ export function SettingsJobSourcesSection({
                                 ? "Enter new code to update"
                                 : "Paste your USAJobs access code"
                             }
-                            autoComplete="off"
+                            autoComplete="new-password"
                           />
                         </div>
                         <Input
@@ -572,7 +574,14 @@ export function SettingsJobSourcesSection({
                                 dice: {
                                   ...config.dice,
                                   enabled: e.target.checked,
-                                  query: config.dice?.query ?? "",
+                                  query: e.target.checked
+                                    ? config.dice?.query?.trim() ||
+                                      buildSettingsSourceQuery(config)
+                                    : config.dice?.query ?? "",
+                                  location: e.target.checked
+                                    ? config.dice?.location ??
+                                      getSettingsSourceLocation(config)
+                                    : config.dice?.location,
                                   limit: config.dice?.limit ?? 50,
                                 },
                               })
@@ -643,7 +652,14 @@ export function SettingsJobSourcesSection({
                                 simplyhired: {
                                   ...config.simplyhired,
                                   enabled: e.target.checked,
-                                  query: config.simplyhired?.query ?? "",
+                                  query: e.target.checked
+                                    ? config.simplyhired?.query?.trim() ||
+                                      buildSettingsSourceQuery(config)
+                                    : config.simplyhired?.query ?? "",
+                                  location: e.target.checked
+                                    ? config.simplyhired?.location ??
+                                      getSettingsSourceLocation(config)
+                                    : config.simplyhired?.location,
                                   limit: config.simplyhired?.limit ?? 50,
                                 },
                               })
@@ -688,7 +704,14 @@ export function SettingsJobSourcesSection({
                                 glassdoor: {
                                   ...config.glassdoor,
                                   enabled: e.target.checked,
-                                  query: config.glassdoor?.query ?? "",
+                                  query: e.target.checked
+                                    ? config.glassdoor?.query?.trim() ||
+                                      buildSettingsSourceQuery(config)
+                                    : config.glassdoor?.query ?? "",
+                                  location: e.target.checked
+                                    ? config.glassdoor?.location ??
+                                      getSettingsSourceLocation(config)
+                                    : config.glassdoor?.location,
                                   limit: config.glassdoor?.limit ?? 50,
                                 },
                               })

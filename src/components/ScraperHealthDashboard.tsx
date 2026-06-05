@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, memo } from "react";
-import { safeInvoke } from "../utils/api";
+import { invalidateCacheByCommand, safeInvoke } from "../utils/api";
 import { Button } from "./Button";
 import { Card, CardHeader } from "./Card";
 import { Badge } from "./Badge";
@@ -216,6 +216,8 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
             logContext: "Toggle source enabled",
           },
         );
+        invalidateCacheByCommand("get_config");
+        invalidateCacheByCommand("get_dashboard_preferences");
         // Reload data
         await loadHealthData();
       } catch {

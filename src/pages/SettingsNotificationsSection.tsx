@@ -387,7 +387,7 @@ export function SettingsNotificationsSection({
                         ? "Enter new app password to update"
                         : "App password from your email service"
                     }
-                    autoComplete="current-password"
+                    autoComplete="new-password"
                   />
                 </div>
               </div>
@@ -522,7 +522,7 @@ export function SettingsNotificationsSection({
                       : undefined
                   }
                   hint="Saved securely on this computer"
-                  autoComplete="off"
+                  autoComplete="new-password"
                 />
               </div>
               {(credentials.slack_webhook ||
@@ -640,7 +640,7 @@ export function SettingsNotificationsSection({
                       : undefined
                   }
                   hint="In Discord, copy a channel connection link. Skip this if you do not already use Discord alerts."
-                  autoComplete="off"
+                  autoComplete="new-password"
                 />
               </div>
             )}
@@ -716,7 +716,7 @@ export function SettingsNotificationsSection({
                       ? "This doesn't look like a Teams connection link"
                       : undefined
                   }
-                  autoComplete="off"
+                  autoComplete="new-password"
                   hint="In Teams, copy a channel connection link. Skip this if you do not already use Teams alerts."
                 />
               </div>
@@ -798,6 +798,7 @@ export function SettingsNotificationsSection({
                         : "Paste Telegram setup code"
                     }
                     hint="Use Telegram's own setup flow first, then paste the code it shows."
+                    autoComplete="new-password"
                   />
                 </div>
                 <div>

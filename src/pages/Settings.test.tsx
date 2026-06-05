@@ -357,7 +357,7 @@ describe("Settings — handleSave flow", () => {
     expect(onClose).not.toHaveBeenCalled();
   });
 
-  it("reports settings save failure separately from saved connection details", async () => {
+  it("does not write connection details when settings save fails", async () => {
     const user = userEvent.setup();
     const onClose = vi.fn();
 
@@ -395,12 +395,12 @@ describe("Settings — handleSave flow", () => {
 
     expect(mockToast.warning).not.toHaveBeenCalledWith(
       "Some connection details were not saved",
-      expect.stringContaining("Config was saved"),
+      expect.any(String),
     );
-    expect(mockInvoke).toHaveBeenCalledWith("store_credential", {
-      key: "slack_webhook",
-      value: "https://hooks.slack.com/services/T00/B00/secret-token",
-    });
+    expect(mockInvoke).not.toHaveBeenCalledWith(
+      "store_credential",
+      expect.anything(),
+    );
     expect(onClose).not.toHaveBeenCalled();
   });
 

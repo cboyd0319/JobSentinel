@@ -83,7 +83,7 @@ function makeConfig() {
     weworkremotely: { enabled: false, limit: 25 },
     builtin: { enabled: false, cities: [], limit: 25 },
     hn_hiring: { enabled: false, remote_only: false, limit: 25 },
-    dice: { enabled: false, query: "", limit: 25 },
+    dice: { enabled: false, query: "", location: undefined as string | undefined, limit: 25 },
     yc_startup: { enabled: false, remote_only: false, limit: 25 },
     usajobs: {
       enabled: false,
@@ -92,8 +92,18 @@ function makeConfig() {
       date_posted_days: 7,
       limit: 25,
     },
-    simplyhired: { enabled: false, query: "", limit: 25 },
-    glassdoor: { enabled: false, query: "", limit: 25 },
+    simplyhired: {
+      enabled: false,
+      query: "",
+      location: undefined as string | undefined,
+      limit: 25,
+    },
+    glassdoor: {
+      enabled: false,
+      query: "",
+      location: undefined as string | undefined,
+      limit: 25,
+    },
     jobswithgpt_endpoint: "",
     jobswithgpt_approval: {
       enabled: false,
@@ -338,6 +348,92 @@ describe("Settings source setup", () => {
     ).toHaveAttribute("href", "https://developer.usajobs.gov/APIRequest/Index");
     expect(screen.queryByText(/Quick Setup/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Advanced federal monitoring/i)).not.toBeInTheDocument();
+  });
+
+  it("blocks USAJobs save before keychain writes when required details are missing", async () => {
+    const user = userEvent.setup();
+    const onClose = vi.fn();
+    const config = makeConfig();
+
+    mockInvoke.mockImplementation(async (cmd: string) => {
+      if (cmd === "get_config") return config;
+      if (cmd === "has_credential") return false;
+      if (cmd === "get_ghost_config") return makeGhostConfig();
+      if (cmd === "detect_location") return null;
+      if (cmd === "save_config") return null;
+      if (cmd === "store_credential") return null;
+      return null;
+    });
+
+    render(<Settings onClose={onClose} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Settings")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
+    await user.click(
+      screen.getByRole("checkbox", {
+        name: /Turn USAJobs scheduled job checks on or off/i,
+      }),
+    );
+    await user.click(screen.getByRole("button", { name: /save changes/i }));
+
+    expect(mockToast.error).toHaveBeenCalledWith(
+      "Finish USAJobs scheduled checks",
+      "Add the USAJobs email and access code shown below, or turn USAJobs scheduled checks off.",
+    );
+    expect(mockInvoke).not.toHaveBeenCalledWith("save_config", expect.anything());
+    expect(mockInvoke).not.toHaveBeenCalledWith(
+      "store_credential",
+      expect.objectContaining({ key: "usajobs_api_key" }),
+    );
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it("fills query-backed source defaults before saving scheduled checks", async () => {
+    const user = userEvent.setup();
+    const onClose = vi.fn();
+    const config = makeConfig();
+    config.title_allowlist = ["Data Analyst"];
+    config.keywords_boost = ["SQL"];
+    config.location_preferences.cities = ["Denver"];
+    let savedConfig: ReturnType<typeof makeConfig> | null = null;
+
+    mockInvoke.mockImplementation(async (cmd: string, args?: unknown) => {
+      if (cmd === "get_config") return config;
+      if (cmd === "has_credential") return false;
+      if (cmd === "get_ghost_config") return makeGhostConfig();
+      if (cmd === "detect_location") return null;
+      if (cmd === "save_config") {
+        savedConfig = (args as { config: ReturnType<typeof makeConfig> }).config;
+        return null;
+      }
+      if (cmd === "store_credential") return null;
+      return null;
+    });
+
+    render(<Settings onClose={onClose} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Settings")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
+    await user.click(screen.getByText("More Job Boards"));
+    await user.click(
+      screen.getByRole("checkbox", {
+        name: /Turn Dice scheduled job checks on or off/i,
+      }),
+    );
+    await user.click(screen.getByRole("button", { name: /save changes/i }));
+
+    await waitFor(() => {
+      expect(savedConfig?.dice.enabled).toBe(true);
+    });
+    expect(savedConfig?.dice.query).toBe("Data Analyst SQL");
+    expect(savedConfig?.dice.location).toBe("Denver");
+    expect(onClose).toHaveBeenCalled();
   });
 
   it("blocks saving an invalid Discord connection link", async () => {

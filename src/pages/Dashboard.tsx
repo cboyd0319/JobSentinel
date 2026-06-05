@@ -504,15 +504,21 @@ export default function Dashboard({
     );
   }, [jobOps, filters.filteredAndSortedJobs]);
 
+  const handleSettingsClose = useCallback(() => {
+    invalidateCacheByCommand("get_dashboard_preferences");
+    setShowSettings(false);
+    void fetchDataRef.current?.();
+  }, [setShowSettings]);
+
   // Settings modal
   if (showSettings) {
     return (
       <ModalErrorBoundary
         modalName="settings"
-        onClose={() => setShowSettings(false)}
+        onClose={handleSettingsClose}
       >
         <Suspense fallback={<PanelSkeleton />}>
-          <Settings onClose={() => setShowSettings(false)} />
+          <Settings onClose={handleSettingsClose} />
         </Suspense>
       </ModalErrorBoundary>
     );

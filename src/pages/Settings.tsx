@@ -16,6 +16,7 @@ import { useToast } from "../contexts";
 import { logError } from "../utils/errorUtils";
 import { getUserFriendlyError } from "../utils/errorMessages";
 import { exportConfigToJSON, importConfigFromJSON } from "../utils/export";
+import { invalidateCacheByCommand } from "../utils/api";
 import {
   cacheDetectedLocation,
   readCachedDetectedLocation,
@@ -252,16 +253,21 @@ export default function Settings({ onClose }: SettingsProps) {
     try {
       setSaving(true);
 
-      // Save credentials to secure storage (only if user entered new values)
-      const credentialEntries = getCredentialSaveEntries();
-      const credentialSaves = credentialEntries.map(({ key, value }) =>
-        storeCredential(key, value),
-      );
+      await invoke("save_config", { config });
+      invalidateCacheByCommand("get_config");
+      invalidateCacheByCommand("get_dashboard_preferences");
 
-      const configSave = invoke("save_config", { config });
-      const results = await Promise.allSettled([...credentialSaves, configSave]);
-      const credentialResults = results.slice(0, credentialSaves.length);
-      const configResult = results[credentialSaves.length];
+      // Save credentials to secure storage only after normal settings persist.
+      const credentialEntries = getCredentialSaveEntries();
+      const credentialResults: PromiseSettledResult<void>[] = [];
+      for (const { key, value } of credentialEntries) {
+        try {
+          await storeCredential(key, value);
+          credentialResults.push({ status: "fulfilled", value: undefined });
+        } catch (reason) {
+          credentialResults.push({ status: "rejected", reason });
+        }
+      }
 
       const successfulCredentialKeys = credentialResults.flatMap(
         (result, index) => {
@@ -274,25 +280,6 @@ export default function Settings({ onClose }: SettingsProps) {
       const credentialFailures = credentialResults.filter(
         (r): r is PromiseRejectedResult => r.status === "rejected",
       );
-      const configFailure =
-        configResult?.status === "rejected" ? configResult : null;
-
-      if (configFailure) {
-        logError("Settings config save failed:", configFailure.reason);
-        if (credentialFailures.length > 0) {
-          logError(
-            "Credential save failures:",
-            credentialFailures.map((f) => f.reason),
-          );
-        }
-        toast.error(
-          "Could not save settings",
-          credentialFailures.length > 0
-            ? "Settings and some saved connection details could not be saved. Try saving again."
-            : "Settings could not be saved. Try saving again.",
-        );
-        return;
-      }
 
       if (credentialFailures.length > 0) {
         logError(
@@ -310,6 +297,12 @@ export default function Settings({ onClose }: SettingsProps) {
         );
         onClose();
       }
+    } catch (error) {
+      logError("Settings config save failed:", error);
+      toast.error(
+        "Could not save settings",
+        "Settings could not be saved. Try saving again.",
+      );
     } finally {
       setSaving(false);
     }

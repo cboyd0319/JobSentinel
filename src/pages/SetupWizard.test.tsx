@@ -146,6 +146,12 @@ describe("SetupWizard Accessibility", () => {
                 "Administrative Assistant",
               ]),
               keywords_boost: expect.arrayContaining(["Scheduling"]),
+              salary_floor_usd: 40000,
+              location_preferences: expect.objectContaining({
+                allow_remote: false,
+                allow_hybrid: true,
+                allow_onsite: true,
+              }),
               remoteok: expect.objectContaining({ enabled: false }),
               hn_hiring: expect.objectContaining({ enabled: false }),
               weworkremotely: expect.objectContaining({ enabled: false }),

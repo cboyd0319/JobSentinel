@@ -5,7 +5,7 @@ import { Badge } from "../components/Badge";
 import { Card } from "../components/Card";
 import { CareerProfileSelector } from "../components/CareerProfileSelector";
 import { useToast } from "../contexts";
-import { safeInvoke, safeInvokeWithToast } from "../utils/api";
+import { invalidateCacheByCommand, safeInvoke, safeInvokeWithToast } from "../utils/api";
 import {
   CAREER_PROFILES,
   getProfileById,
@@ -418,6 +418,8 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
       await safeInvokeWithToast("complete_setup", { config: configToSave }, toast, {
         logContext: "Complete first-run setup"
       });
+      invalidateCacheByCommand("get_config");
+      invalidateCacheByCommand("get_dashboard_preferences");
       toast.success("Saved search ready", "JobSentinel will use these choices.");
       onComplete();
     } catch {

@@ -306,6 +306,25 @@ export function isCurrentJobsWithGptPayloadApproved(
   );
 }
 
+export function buildSettingsSourceQuery(
+  config: Pick<Config, "title_allowlist" | "keywords_boost">,
+): string {
+  return [...config.title_allowlist, ...config.keywords_boost]
+    .map((term) => term.trim())
+    .filter((term) => term.length > 0)
+    .slice(0, 4)
+    .join(" ")
+    .slice(0, 200);
+}
+
+export function getSettingsSourceLocation(
+  config: Pick<Config, "location_preferences">,
+): string | undefined {
+  return config.location_preferences.cities
+    .map((city) => city.trim())
+    .find((city) => city.length > 0);
+}
+
 export const isValidEmail = (email: string): boolean => {
   if (!email) return true;
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -557,6 +576,45 @@ export function getCredentialValidationError(
           "Add the Telegram details shown below, or turn Telegram alerts off.",
       };
     }
+  }
+
+  if (config?.usajobs?.enabled) {
+    const hasAccessCode =
+      Boolean(credentialStatus?.usajobs_api_key) ||
+      Boolean(credentials.usajobs_api_key.trim());
+    const hasEmail = Boolean(config.usajobs.email?.trim());
+
+    if (!hasEmail || !hasAccessCode) {
+      return {
+        title: "Finish USAJobs scheduled checks",
+        message:
+          "Add the USAJobs email and access code shown below, or turn USAJobs scheduled checks off.",
+      };
+    }
+  }
+
+  if (config?.dice?.enabled && !config.dice.query.trim()) {
+    return {
+      title: "Add Dice search words",
+      message:
+        "Add at least one job title or search word before saving Dice scheduled checks.",
+    };
+  }
+
+  if (config?.simplyhired?.enabled && !config.simplyhired.query.trim()) {
+    return {
+      title: "Add SimplyHired search words",
+      message:
+        "Add at least one job title or search word before saving SimplyHired scheduled checks.",
+    };
+  }
+
+  if (config?.glassdoor?.enabled && !config.glassdoor.query.trim()) {
+    return {
+      title: "Add Glassdoor search words",
+      message:
+        "Add at least one job title or search word before saving Glassdoor scheduled checks.",
+    };
   }
 
   return null;

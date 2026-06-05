@@ -1,6 +1,9 @@
 import { useMemo, type Dispatch, type SetStateAction } from "react";
 import { searchLooksTechFocused } from "../utils/profiles";
-import type { Config } from "./SettingsConfig";
+import {
+  buildSettingsSourceQuery,
+  type Config,
+} from "./SettingsConfig";
 
 export interface JobBoardRecommendation {
   board: string;
@@ -111,7 +114,13 @@ export function useJobBoardRecommendations(
           enable: () =>
             setConfig({
               ...config,
-              dice: { ...config.dice, enabled: true, query: "", limit: 50 },
+              dice: {
+                ...config.dice,
+                enabled: true,
+                query:
+                  config.dice?.query?.trim() || buildSettingsSourceQuery(config),
+                limit: 50,
+              },
             }),
         });
       }
