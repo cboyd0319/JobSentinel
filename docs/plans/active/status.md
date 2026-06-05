@@ -361,6 +361,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 - Application Preview saved hard-screening answer assertions moved out of the
   focused screening test file into their own saved-answer test file.
 
+- Developer-doc bloat fixture coverage moved out of the docs-drift bloat test
+  file into a focused developer-doc test file.
+
 ## Recent Completed Slices
 
 Detailed implementation history before the current restart window is in the

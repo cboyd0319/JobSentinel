@@ -162,6 +162,8 @@ Out of scope:
 - [x] Split broad-audience bloat integration tests out of the main bloat test
   file.
 - [x] Split docs-drift bloat integration tests out of the main bloat test file.
+- [x] Split developer-doc bloat integration tests out of the docs-drift bloat
+  test file.
 - [x] Split feature-doc bloat integration tests out of the main bloat test file.
 - [x] Split core privacy/logging bloat integration tests out of the main bloat
   test file.
@@ -497,6 +499,9 @@ Out of scope:
 - Coordinator moved Application Preview saved hard-screening answer assertions
   into `src/components/automation/ApplicationPreview.savedScreeningAnswers.test.tsx`,
   reducing the focused screening test file from 1,176 to 340 lines.
+- Coordinator moved developer-doc bloat fixture coverage into
+  `scripts/check-repo-bloat-developer-docs.test.mjs`, reducing the docs-drift
+  bloat test file from 1,176 to 847 lines.
 - Pay-protection sidecar was read-only and changed no files. Coordinator
   accepted its finding that negotiation-note drafts could treat benchmark
   values as offer facts, then fixed the Salary page, dev mock, tests, feature
