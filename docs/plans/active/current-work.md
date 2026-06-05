@@ -226,6 +226,8 @@ Out of scope:
   mock handler.
 - [x] Split scraper and source-health fixture coverage out of the feature-doc
   bloat test file.
+- [x] Split Lever remote-inference tests out of the main Lever scraper test
+  file.
 - [x] Split Market Intelligence async tests out of the main test file and
   retire its legacy oversized-file exception.
 - [x] Split Greenhouse scraper tests out of the runtime scraper file and retire
@@ -487,6 +489,9 @@ Out of scope:
 - Coordinator moved scraper and source-health fixture coverage into
   `scripts/check-repo-bloat-source-docs.test.mjs`, reducing the feature-doc
   bloat test file from 1,188 to 933 lines.
+- Coordinator moved Lever remote-inference tests into
+  `src-tauri/src/core/scrapers/lever/tests/remote_inference_tests.rs`,
+  reducing the main Lever test file from 1,185 to 1,040 lines.
 - Pay-protection sidecar was read-only and changed no files. Coordinator
   accepted its finding that negotiation-note drafts could treat benchmark
   values as offer facts, then fixed the Salary page, dev mock, tests, feature

@@ -352,6 +352,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 - Scraper and source-health bloat fixture coverage moved out of the feature-doc
   bloat test file into a focused source-doc test file.
 
+- Lever remote-inference tests moved out of the main Lever scraper test file
+  into a focused Rust test module.
+
 - Resume Builder template thumbnail previews and export/delete icons moved out
   of `src/pages/ResumeBuilder.tsx` into `src/pages/ResumeBuilderVisuals.tsx`.
 
