@@ -38,18 +38,38 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Current Posture
 
-- Last pushed baseline before the current local cleanup slice:
-  `c68e2ed3 Update macOS deployment docs`.
-- Fresh harness evidence reports 2 active docs and 2 indexed workstreams: this
-  status file and `current-work.md`.
-- Final broad verification passed locally after `91bd9354`: frontend tests/build,
-  script tests, harness/bloat/docs/prose, Rust fmt/clippy/lib, `doctor:e2e`,
-  and E2E smoke budget.
+- Last pushed main baseline: `3192b0b3 Split mock resume keyword helpers`.
+- Fresh harness session evidence reports 2 active docs, 2 indexed workstreams,
+  and a 100/100 harness score: this status file and `current-work.md`.
+- Final broad verification for the pushed baseline passed during the completed
+  cleanup batch; current local slices record their focused evidence below.
 - Local commits should continue in small verified slices; push only when the
   branch reaches the user's 30-commit batch threshold or the user gives a newer
   explicit push instruction.
 
 ## Latest Slice
+
+- Application Assist ATS selector tables now live in a focused
+  `form_filler/selectors.rs` module, reducing `form_filler.rs` from 988 to
+  813 lines while preserving the existing `FormFiller::get_field_selectors`
+  behavior and human-in-the-loop fill boundaries.
+
+- Read-only docs audit found stale pushed-baseline and active-plan completion
+  overclaims after `3192b0b3`; README and this status file now keep active work
+  open instead of claiming repo-wide quality completion.
+
+- Read-only file-size audit ranked the next cleanup candidates after
+  `form_filler.rs`: `src-tauri/src/core/resume/ats_analyzer_tests.rs`,
+  `src-tauri/src/core/ats/tests.rs`,
+  `src-tauri/src/core/notify/discord_tests.rs`,
+  `src/components/AnalyticsPanel.tsx`, and
+  `src/components/ScraperHealthDashboard.tsx`.
+
+- Focused verification for this slice passed:
+  `cargo fmt --all -- --check`, `cargo test form_filler`,
+  `cargo clippy -- -D warnings`, `npm run lint:bloat`,
+  `npm run harness:session -- --json`, `npm run harness:score`,
+  `npm run harness:check`, `npm run lint:docs`, and `git diff --check`.
 
 - Mock resume keyword search-term and evidence-frequency helpers now live in a
   focused module, reducing `resumeKeywordMatching.ts` from 989 to 427 lines
@@ -306,9 +326,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
   implementation, or support searches as engineering searches for tech-heavy
   job boards.
 
-- Public wiki `Home.md` and `Capabilities.md` were updated and pushed with
-  current macOS readiness, no-account checksum guidance, hard must-have resume
-  status, and scam-cue behavior.
+- Public wiki `Home.md` and `Capabilities.md` were updated during the macOS
+  readiness slice with current no-account checksum guidance, hard must-have
+  resume status, and scam-cue behavior. Verify remote wiki freshness separately
+  before claiming post-baseline wiki currency.
 
 - Job-card scam cues now catch sensitive-detail requests that appear after
   phrases like "before the interview" as well as before the phrase.

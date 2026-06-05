@@ -13,14 +13,11 @@ ceiling. Full public Mac readiness cannot honestly reach 100% without Developer
 ID signing, notarization, stapling, and Gatekeeper acceptance, all of which
 require Apple Developer Program materials.
 
-Active-plan implementation status is separate: 100% of the current active-plan
-checklist is complete, with 192 of 192 tracked items checked off. Current
-broad verification evidence is recorded in
-[active plan status](docs/plans/active/status.md): no known bloat, privacy
-leak, stale docs, engineer-only user flow, or unverified claim remains from the
-current checkout. No grandfathered oversized-file exceptions remain. Ongoing
-work focuses on resume assistance, job-card protection, guided intake, and pay
-protection where they improve privacy, security, verification, or user ease.
+Active-plan implementation status is separate. Current active work remains
+open, with focus, latest evidence, known gaps, and next useful slices recorded
+in [active plan status](docs/plans/active/status.md). Ongoing work focuses on
+resume assistance, job-card protection, guided intake, pay protection, and
+cleanup where they improve privacy, security, verification, or user ease.
 
 [![CI](https://github.com/cboyd0319/JobSentinel/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/cboyd0319/JobSentinel/actions/workflows/ci.yml)
 [![Docs Harness](https://github.com/cboyd0319/JobSentinel/actions/workflows/docs-harness.yml/badge.svg?branch=main)](https://github.com/cboyd0319/JobSentinel/actions/workflows/docs-harness.yml)
@@ -86,7 +83,7 @@ or build something better with it if that helps more people.
 | Is it free? | Yes. JobSentinel is MIT licensed and free forever. |
 | Current release | `v2.6.4` with Windows and Linux installers plus a verified no-account universal macOS package. A public Mac package is recommended only when the release includes a matching `.sha256` checksum and the public macOS verifier passes. |
 | macOS full-public-readiness | 94%; no-account path completion is 100% at a 94% public-readiness ceiling. Public universal DMG, checksum, metadata, architecture, install, launch, local-data, public-artifact, and readiness-harness checks are in place. The final 6% is externally blocked by Apple Developer Program materials for Developer ID signing, notarization, stapling, and Gatekeeper acceptance. |
-| Current active plan | 100% checklist completion for the compact current-work plan: 192 of 192 tracked items checked off, with current broad verification evidence recorded in active status. |
+| Current active plan | Open repo-wide quality work with compact restart state in `docs/plans/active/status.md` and `docs/plans/active/current-work.md`. |
 
 ## Reader Map
 
@@ -553,8 +550,8 @@ Developer docs:
 - Safe support reports can be copied or saved from settings, error
   logs, and crash recovery surfaces.
 - Active planning has been compacted to one current-work plan and one status
-  file; the harness session reports 2 active plan docs and a 100/100
-  five-tuple harness score.
+  file; current active-doc and harness-score evidence is recorded in active
+  status after harness checks run.
 - Resume requirement review, saved-answer review, job-card stale or repost
   evidence, listed-pay guidance, first-run presets, optional first-run source
   suggestions, and support copy were tightened around local evidence and
