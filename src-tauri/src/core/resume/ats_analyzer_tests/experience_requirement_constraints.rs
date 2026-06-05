@@ -259,9 +259,7 @@ fn test_missing_required_citizenship_constraint_caps_overall_score() {
         risk.requirement == "us citizenship"
             && risk.category == HardConstraintCategory::WorkAuthorization
             && risk.score_cap == 50.0
-            && risk
-                .action
-                .contains("Check work authorization before tailoring")
+            && risk.action.contains("Check citizenship before tailoring")
     }));
     assert!(result.requirement_reviews.iter().any(|review| {
         review.keyword == "us citizenship"

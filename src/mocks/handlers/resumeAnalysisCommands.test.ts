@@ -1031,7 +1031,7 @@ describe("mock resume analysis command handlers", () => {
           requirement: "us citizenship",
           category: "WorkAuthorization",
           score_cap: 50,
-          action: expect.stringContaining("Check work authorization before tailoring"),
+          action: expect.stringContaining("Check citizenship before tailoring"),
         }),
         expect.objectContaining({
           requirement: "reliable transportation",

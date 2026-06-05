@@ -51,6 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Resume hard-requirement actions now tell users to check citizenship for
+  citizenship requirements instead of reusing work-authorization wording, and
+  the dev mock matches the Rust analyzer.
+
 - Build My Search now offers broad starter job-title buttons such as office,
   customer service, sales, warehouse, healthcare, and bookkeeping roles so
   non-technical first-run users do not start from a blank title field.

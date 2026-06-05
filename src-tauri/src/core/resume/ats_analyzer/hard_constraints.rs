@@ -57,6 +57,12 @@ pub(super) fn hard_constraint_action(keyword: &str, category: HardConstraintCate
         return "Check whether your visible level matches this role; lower-title or fewer-years evidence may not satisfy it. Do not round up, stretch titles, or imply more experience than you have."
             .to_string();
     }
+    if category == HardConstraintCategory::WorkAuthorization
+        && citizenship_constraint_keyword(keyword)
+    {
+        return "Check citizenship before tailoring. If it is not true for you, do not claim it. Do not treat work authorization as citizenship."
+            .to_string();
+    }
 
     let action = match category {
         HardConstraintCategory::WorkAuthorization => {
@@ -88,6 +94,15 @@ pub(super) fn hard_constraint_action(keyword: &str, category: HardConstraintCate
         }
     };
     action.to_string()
+}
+
+pub(super) fn citizenship_constraint_keyword(keyword: &str) -> bool {
+    let lower = keyword.to_lowercase();
+    lower.contains("us citizenship")
+        || lower.contains("u.s. citizenship")
+        || lower.contains("us citizen")
+        || lower.contains("u.s. citizen")
+        || lower.contains("citizenship required")
 }
 
 pub(super) fn seniority_level_constraint_keyword(keyword: &str) -> bool {

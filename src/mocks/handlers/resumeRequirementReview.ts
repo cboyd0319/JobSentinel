@@ -148,6 +148,9 @@ function getMockHardConstraintAction(
   if (category === "Experience" && isMockSeniorityLevelConstraint(keyword)) {
     return "Check whether your visible level matches this role; lower-title or fewer-years evidence may not satisfy it. Do not round up, stretch titles, or imply more experience than you have.";
   }
+  if (category === "WorkAuthorization" && isMockCitizenshipConstraint(keyword)) {
+    return "Check citizenship before tailoring. If it is not true for you, do not claim it. Do not treat work authorization as citizenship.";
+  }
 
   switch (category) {
     case "WorkAuthorization":
@@ -169,6 +172,17 @@ function getMockHardConstraintAction(
     case "Location":
       return "Check location, schedule, availability, or travel before tailoring. If it is not workable for you, do not claim it.";
   }
+}
+
+function isMockCitizenshipConstraint(keyword: string): boolean {
+  const lower = keyword.toLowerCase();
+  return (
+    lower.includes("us citizenship") ||
+    lower.includes("u.s. citizenship") ||
+    lower.includes("us citizen") ||
+    lower.includes("u.s. citizen") ||
+    lower.includes("citizenship required")
+  );
 }
 
 function isMockSeniorityLevelConstraint(keyword: string): boolean {
