@@ -144,7 +144,7 @@ const legacyOversizedLineBudgets = new Map([
   ["src-tauri/src/core/resume/ats_analyzer.rs", 2492],
   ["src-tauri/src/core/db/tests.rs", 2267],
   ["src-tauri/src/core/scheduler/tests.rs", 1929],
-  ["src-tauri/src/core/scrapers/lever/tests.rs", 2257],
+  ["src-tauri/src/core/scrapers/lever/tests.rs", 1763],
   ["src/pages/ResumeBuilder.tsx", 2118],
   ["src-tauri/src/core/scoring/mod.rs", 2109],
   ["src-tauri/src/core/db/integrity/tests.rs", 1868],

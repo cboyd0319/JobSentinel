@@ -50,6 +50,18 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Lever JSON parsing and edge-case tests moved out of
+  `src-tauri/src/core/scrapers/lever/tests.rs` into
+  `src-tauri/src/core/scrapers/lever/tests/json_edge_tests.rs`.
+- The main Lever test file still owns remote inference, hashing, scraper
+  initialization, scrape-company simulation, property tests, and integration
+  coverage; the extracted module owns JSON field-shape, fallback, empty-field,
+  remote-location edge, hash-consistency, and company-struct edge coverage.
+- `src-tauri/src/core/scrapers/lever/tests.rs` legacy no-growth budget
+  tightened from 2,257 lines to 1,763 lines.
+
+Recent cleanup summary:
+
 - Scheduler scraper-cycle tests moved out of
   `src-tauri/src/core/scheduler/tests.rs` into
   `src-tauri/src/core/scheduler/tests/scraper_cycle_tests.rs`.
@@ -59,9 +71,6 @@ Latest implementation slice:
   multi-scraper cycle coverage.
 - `src-tauri/src/core/scheduler/tests.rs` legacy no-growth budget tightened
   from 2,371 lines to 1,929 lines.
-
-Recent cleanup summary:
-
 - Resume analyzer conservative keyword term expansion moved out of
   `src-tauri/src/core/resume/ats_analyzer.rs` into
   `src-tauri/src/core/resume/ats_analyzer/term_expansion.rs`.

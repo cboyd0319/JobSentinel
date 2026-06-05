@@ -195,6 +195,8 @@ Out of scope:
 - [x] Split resume analyzer keyword term-expansion helpers out of the runtime
   analyzer.
 - [x] Split scheduler scraper-cycle tests out of the main scheduler test file.
+- [x] Split Lever JSON parsing and edge-case tests out of the main Lever test
+  file.
 
 ## Orchestration Log
 
@@ -467,6 +469,11 @@ Out of scope:
   `src-tauri/src/core/scheduler/tests/scraper_cycle_tests.rs`. The main
   scheduler test file still owns lifecycle, interval, database, shutdown, and
   broad error-path coverage.
+- Coordinator moved Lever JSON field-shape, fallback, empty-field,
+  remote-location edge, hash-consistency, and company-struct edge tests into
+  `src-tauri/src/core/scrapers/lever/tests/json_edge_tests.rs`. The main Lever
+  test file still owns remote inference, hashing, scraper initialization,
+  scrape-company simulation, property tests, and integration coverage.
 
 ## Risks
 
