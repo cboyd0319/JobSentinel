@@ -50,6 +50,18 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Settings credential state, dirty-secret tracking, lazy keychain status checks,
+  and successful credential cleanup now live in
+  `src/pages/useSettingsCredentials.ts`, reducing `src/pages/Settings.tsx`
+  from 1016 to 895 lines without changing source toggles, config save order,
+  or password-manager access patterns.
+
+- Focused verification for the Settings credential split passed:
+  `npm run test:run -- src/pages/Settings.load.test.tsx
+  src/pages/Settings.test.tsx src/pages/Settings.sources.test.tsx`,
+  `npm run build`, `npm run lint`, `npm run lint:bloat`,
+  `npm run harness:score`, `git diff --check`, and the local-path leak scan.
+
 - Market intelligence DB sentiment tests now live in
   `src-tauri/src/core/market_intelligence/analytics_tests/sentiment_tests.rs`,
   reducing `analytics_tests/db_tests.rs` from 931 to 837 lines without changing
