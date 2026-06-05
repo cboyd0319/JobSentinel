@@ -206,6 +206,7 @@ Out of scope:
 - [x] Split scheduler basic lifecycle/config tests out of the main scheduler
   test file.
 - [x] Split scoring company tests out of the main scoring module.
+- [x] Split Settings search-preference UI out of the main Settings page.
 
 ## Orchestration Log
 

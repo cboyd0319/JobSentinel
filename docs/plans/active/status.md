@@ -50,6 +50,17 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Settings search preference, location, salary, company, and auto-search UI
+  moved out of `src/pages/Settings.tsx` into
+  `src/pages/SettingsSearchPreferencesSection.tsx`.
+- The main Settings page still owns config loading/saving, credentials,
+  notifications, source setup, support flows, and tab orchestration; the
+  extracted component owns the basic search-preference form UI.
+- `src/pages/Settings.tsx` legacy no-growth budget tightened from 2,493 lines
+  to 1,931 lines.
+
+Recent implementation slice:
+
 - Scoring company preference, company normalization, and fuzzy company matching
   tests moved out of `src-tauri/src/core/scoring/mod.rs` into
   `src-tauri/src/core/scoring/tests/company_tests.rs`.
