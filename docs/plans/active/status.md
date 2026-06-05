@@ -66,6 +66,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 - Resume template CSS literals now live in a focused style module, cutting the
   renderer below the file-size target without changing template HTML output.
 
+- Market-alert unit and database tests now live in a focused sibling file,
+  keeping the production alert module small while preserving alert query
+  coverage.
+
 - First-run setup and profile presets now start with remote, hybrid, and
   on-site selected and no preset salary floor, so new users do not silently
   narrow results before choosing.
