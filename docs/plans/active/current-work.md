@@ -342,6 +342,8 @@ Out of scope:
   the live review panel.
 - [x] Cap Resume Match hard constraints when required evidence is missing,
   partial, or only implied.
+- [x] Add future-opportunity, talent-pool, and we-are-hiring titles to
+  low-detail posting warnings.
 
 ## Orchestration Log
 
@@ -400,6 +402,9 @@ Out of scope:
 - Coordinator changed hard-constraint score caps to cover missing, partial, and
   implied required evidence, so skills-only hard must-haves still require
   user review before a high fit label.
+- Coordinator aligned frontend low-detail posting guidance with backend
+  vague-title evidence for future-opportunity, talent-pool, and we-are-hiring
+  titles.
 - Pay-protection sidecar was read-only and changed no files. Coordinator
   accepted its finding that negotiation-note drafts could treat benchmark
   values as offer facts, then fixed the Salary page, dev mock, tests, feature

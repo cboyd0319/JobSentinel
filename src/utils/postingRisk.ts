@@ -15,7 +15,11 @@ const reviewCueReasonCategories = new Set<PostingRiskReason["category"]>([
 const LOW_DETAIL_TITLE_PATTERNS = [
   /^\s*(?:various|multiple)\s+(?:positions|roles|openings)\s*$/i,
   /^\s*(?:general|open)\s+(?:application|position|role|opening)\s*$/i,
+  /\btalent\s+pool\b/i,
+  /\bfuture\s+opportunities?\b/i,
+  /^\s*(?:we'?re|we are)\s+hiring\b/i,
   /^\s*(?:now hiring|hiring now|join our team)\s*$/i,
+  /\bjoin\s+(?:our|the)\s+team\b/i,
   /^\s*(?:work\s+from\s+home|remote)\s+(?:job|position|role|opportunity|opening)\s*$/i,
   /^\s*(?:entry\s+level|immediate\s+hire)\s+(?:job|position|role|opportunity|opening)\s*$/i,
 ] as const;

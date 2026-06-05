@@ -105,9 +105,10 @@ repost evidence, but it should not turn an invalid score into a stronger
 posting-risk badge.
 
 Broad-title or thin-description jobs can also show **Check role details**. This
-includes generic titles such as remote opportunity or entry-level position. It
-means the posting text is light enough to review the role, team, and work
-details before tailoring; it is not a claim that the employer is fake.
+includes generic titles such as remote opportunity, entry-level position,
+future opportunities, talent pool, or we are hiring. It means the posting text
+is light enough to review the role, team, and work details before tailoring; it
+is not a claim that the employer is fake.
 
 When posting risk is elevated, the job card also shows plain guidance before
 the user spends tailoring time:

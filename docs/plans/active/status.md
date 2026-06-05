@@ -51,6 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Low-detail posting guidance now includes future-opportunity, talent-pool, and
+  we-are-hiring titles so card warnings and filters match backend vague-title
+  evidence more closely.
+
 - Resume Match hard-constraint caps now apply to required hard requirements
   with missing, partial, or implied evidence instead of waiting for a fully
   missing row.

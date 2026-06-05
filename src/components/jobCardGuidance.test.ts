@@ -117,6 +117,24 @@ describe("jobCardGuidance", () => {
     });
   });
 
+  it("flags pipeline and evergreen titles as role details to check", () => {
+    const detailedDescription =
+      "Support customers, document follow-up, coordinate intake, and help the team resolve service issues.";
+
+    expect(getLowDetailPostingGuidance("Future Opportunities", detailedDescription)).toMatchObject({
+      title: "Check role details",
+      ariaLabel: "role details to check",
+    });
+    expect(getLowDetailPostingGuidance("Talent Pool - Customer Support", detailedDescription)).toMatchObject({
+      title: "Check role details",
+      ariaLabel: "role details to check",
+    });
+    expect(getLowDetailPostingGuidance("We're Hiring Support Staff", detailedDescription)).toMatchObject({
+      title: "Check role details",
+      ariaLabel: "role details to check",
+    });
+  });
+
   it("treats missing or reversed pay as unavailable when salary floor exists", () => {
     expect(getPayFloorGuidance(150000, 80000, 100000)).toMatchObject({
       title: "Pay not listed",
