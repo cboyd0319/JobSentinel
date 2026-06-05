@@ -9,8 +9,8 @@ import { useToast } from "../contexts";
 import { logError } from "../utils/errorUtils";
 import { JobWordsOverviewCard } from "./ResumeOptimizerJobWordsOverview";
 import {
+  buildResumeNextActions,
   formatHardConstraintCategory,
-  formatHardConstraintNextActionDetail,
   formatIssueSeverity,
   formatRequirementEvidenceSections,
   formatRequirementState,
@@ -27,7 +27,6 @@ import {
   type MissingKeyword,
   type RequirementMatchState,
   type RequirementReview,
-  type ResumeNextAction,
   type ResumeSummary,
 } from "./resumeOptimizerModel";
 import {
@@ -411,102 +410,8 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
     return "surface";
   };
 
-  const getResumeNextActions = (): ResumeNextAction[] => {
-    if (!analysisResult) return [];
-
-    const actions: ResumeNextAction[] = [];
-    const thinJobPostIssue = analysisResult.format_issues.find((issue) => {
-      const issueText = issue.issue.toLowerCase();
-      const fixText = issue.fix.toLowerCase();
-      return (
-        issueText.includes("not enough job-post detail") ||
-        fixText.includes("paste a fuller job post")
-      );
-    });
-    const hardRisks = getHardConstraintRisks();
-    const reviews = getRequirementReviews();
-
-    for (const risk of hardRisks.slice(0, 2)) {
-      actions.push({
-        title: `Check ${risk.requirement} before tailoring`,
-        detail: risk.action.trim() || formatHardConstraintNextActionDetail(risk.category),
-        variant: "danger",
-        label: "Check first",
-      });
-    }
-
-    const missingRequired = reviews.filter(
-      (review) =>
-        review.importance === "Required" &&
-        review.match_state === "Missing" &&
-        !review.hard_constraint,
-    );
-    for (const review of missingRequired.slice(0, 2)) {
-      actions.push({
-        title: `Review required evidence for ${review.keyword}`,
-        detail: "Only add it if it is true and you can explain it from real work, training, or credentials.",
-        variant: "alert",
-        label: "Review",
-      });
-    }
-
-    const partialRequired = reviews.filter(
-      (review) =>
-        review.importance === "Required" &&
-        (review.match_state === "Partial" || review.match_state === "Implied"),
-    );
-    for (const review of partialRequired.slice(0, 2)) {
-      actions.push({
-        title: `Add supporting evidence for ${review.keyword} only if true`,
-        detail: "A skills list is weaker than a role, project, credential, or outcome that shows how you used it.",
-        variant: "alert",
-        label: "Needs support",
-      });
-    }
-
-    const visibleRequired = reviews.find(
-      (review) =>
-        review.importance === "Required" &&
-        (review.match_state === "Direct" || review.match_state === "Strong"),
-    );
-    if (visibleRequired) {
-      actions.push({
-        title: `Keep ${visibleRequired.keyword} visible`,
-        detail: "This is useful evidence. Keep it easy to find near the role, project, or credential where it is true.",
-        variant: "success",
-        label: "Useful evidence",
-      });
-    }
-
-    if (actions.length === 0 && analysisResult.keyword_matches.length > 0) {
-      actions.push({
-        title: "Tailor carefully from real evidence",
-        detail: "Use the matching words below to decide what deserves a clearer bullet or stronger placement.",
-        variant: "sentinel",
-        label: "Next step",
-      });
-    }
-
-    if (actions.length === 0 && thinJobPostIssue) {
-      actions.push({
-        title: "Paste fuller job post",
-        detail: thinJobPostIssue.fix,
-        variant: "alert",
-        label: "Add detail",
-      });
-    }
-
-    if (actions.length === 0 && analysisResult.format_issues.length > 0) {
-      actions.push({
-        title: "Fix readability details first",
-        detail: "A clear resume is easier for people and application systems to read before any job-specific edits.",
-        variant: "alert",
-        label: "Fix first",
-      });
-    }
-
-    return actions.slice(0, 5);
-  };
+  const getResumeNextActions = () =>
+    analysisResult ? buildResumeNextActions(analysisResult) : [];
 
   // Send the saved job post to Resume Builder.
   const handleReviewInResumeBuilder = () => {

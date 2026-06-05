@@ -714,7 +714,7 @@ describe("ResumeOptimizer", () => {
     expect(await screen.findByText("What To Do Next")).toBeInTheDocument();
     expect(screen.getByText(/Check security clearance before tailoring/i)).toBeInTheDocument();
     expect(screen.getByText(/Add supporting evidence for crm only if true/i)).toBeInTheDocument();
-    expect(screen.getByText(/Keep scheduling visible/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Keep scheduling visible/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/maximize/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/guarantee/i)).not.toBeInTheDocument();
   });

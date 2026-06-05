@@ -425,6 +425,119 @@ export function getResumeFitEvidenceStatus(analysis: AtsAnalysisResult): ResumeF
   };
 }
 
+function findThinJobPostIssue(analysis: AtsAnalysisResult): FormatIssue | undefined {
+  return analysis.format_issues.find((issue) => {
+    const issueText = issue.issue.toLowerCase();
+    const fixText = issue.fix.toLowerCase();
+    return (
+      issueText.includes("not enough job-post detail") ||
+      fixText.includes("paste a fuller job post")
+    );
+  });
+}
+
+export function buildResumeNextActions(analysis: AtsAnalysisResult): ResumeNextAction[] {
+  const actions: ResumeNextAction[] = [];
+  const hardRisks = analysis.hard_constraint_risks ?? [];
+  const reviews = analysis.requirement_reviews ?? [];
+
+  for (const risk of hardRisks.slice(0, 5)) {
+    actions.push({
+      title: `Check ${risk.requirement} before tailoring`,
+      detail: risk.action.trim() || formatHardConstraintNextActionDetail(risk.category),
+      variant: "danger",
+      label: "Check first",
+    });
+  }
+
+  if (actions.length >= 5) {
+    return actions;
+  }
+
+  const missingRequired = reviews.filter(
+    (review) =>
+      review.importance === "Required" &&
+      review.match_state === "Missing" &&
+      !review.hard_constraint,
+  );
+  for (const review of missingRequired.slice(0, 5 - actions.length)) {
+    actions.push({
+      title: `Review required evidence for ${review.keyword}`,
+      detail: "Only add it if it is true and you can explain it from real work, training, or credentials.",
+      variant: "alert",
+      label: "Review",
+    });
+  }
+
+  if (actions.length >= 5) {
+    return actions;
+  }
+
+  const partialRequired = reviews.filter(
+    (review) =>
+      review.importance === "Required" &&
+      (review.match_state === "Partial" || review.match_state === "Implied"),
+  );
+  for (const review of partialRequired.slice(0, 5 - actions.length)) {
+    actions.push({
+      title: `Add supporting evidence for ${review.keyword} only if true`,
+      detail: "A skills list is weaker than a role, project, credential, or outcome that shows how you used it.",
+      variant: "alert",
+      label: "Needs support",
+    });
+  }
+
+  if (actions.length >= 5) {
+    return actions;
+  }
+
+  if (hardRisks.length === 0) {
+    const visibleRequired = reviews.find(
+      (review) =>
+        review.importance === "Required" &&
+        (review.match_state === "Direct" || review.match_state === "Strong"),
+    );
+    if (visibleRequired) {
+      actions.push({
+        title: `Keep ${visibleRequired.keyword} visible`,
+        detail: "This is useful evidence. Keep it easy to find near the role, project, or credential where it is true.",
+        variant: "success",
+        label: "Useful evidence",
+      });
+    }
+  }
+
+  if (actions.length === 0 && analysis.keyword_matches.length > 0) {
+    actions.push({
+      title: "Tailor carefully from real evidence",
+      detail: "Use the matching words below to decide what deserves a clearer bullet or stronger placement.",
+      variant: "sentinel",
+      label: "Next step",
+    });
+  }
+
+  const thinJobPostIssue = findThinJobPostIssue(analysis);
+  if (actions.length === 0 && thinJobPostIssue) {
+    actions.push({
+      title: "Paste fuller job post",
+      detail: thinJobPostIssue.fix,
+      variant: "alert",
+      label: "Add detail",
+    });
+  }
+
+  if (actions.length === 0 && analysis.format_issues.length > 0) {
+    actions.push({
+      title: "Fix readability details first",
+      detail: "A clear resume is easier for people and application systems to read before any job-specific edits.",
+      variant: "alert",
+      label: "Fix first",
+    });
+  }
+
+  return actions.slice(0, 5);
+}
+
 export function parseAtsResumeInput(value: string): AtsResumeData | null {
   try {
     const parsed: unknown = JSON.parse(value);
