@@ -470,6 +470,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 - Notification service orchestration tests moved into `notify/tests.rs`; the
   service module now stays focused on channel dispatch logic.
 
+- Bookmarklet server tests moved into `bookmarklet/server/tests.rs`; the server
+  module now stays focused on listener/auth/import behavior.
+
 ## Recent Completed Slices
 
 Detailed implementation history before the current restart window is in the
