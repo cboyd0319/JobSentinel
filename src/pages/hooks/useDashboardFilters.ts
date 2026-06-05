@@ -268,6 +268,7 @@ export function useDashboardFilters(jobs: Job[]): FilterState &
           job.ghost_reasons,
           job.title,
           job.description,
+          job.times_seen,
         );
         if (ghostFilter === "real") return !needsReview;
         if (ghostFilter === "ghost") return needsReview;

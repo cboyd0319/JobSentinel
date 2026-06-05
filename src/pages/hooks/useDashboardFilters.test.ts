@@ -254,6 +254,44 @@ describe("useDashboardFilters — score edge cases", () => {
 
       expect(result.current.filteredAndSortedJobs.map((j) => j.id)).toEqual([1]);
     });
+
+    it("routes repeated local sightings through posting-risk filters", () => {
+      const jobs: Job[] = [
+        makeJob({
+          id: 1,
+          ghost_score: 0.2,
+          ghost_reasons: null,
+          times_seen: 3,
+        }),
+        makeJob({
+          id: 2,
+          ghost_score: 0.2,
+          ghost_reasons: null,
+          times_seen: 1,
+        }),
+        makeJob({
+          id: 3,
+          ghost_score: 0.2,
+          ghost_reasons: null,
+          times_seen: Infinity,
+        }),
+        makeJob({
+          id: 4,
+          ghost_score: 0.2,
+          ghost_reasons: null,
+        }),
+      ];
+
+      const { result } = renderHook(() => useDashboardFilters(jobs));
+
+      act(() => result.current.setGhostFilter("ghost"));
+
+      expect(result.current.filteredAndSortedJobs.map((j) => j.id)).toEqual([1]);
+
+      act(() => result.current.setGhostFilter("real"));
+
+      expect(result.current.filteredAndSortedJobs.map((j) => j.id)).toEqual([2, 3, 4]);
+    });
   });
 
   describe("sorting with non-finite scores", () => {

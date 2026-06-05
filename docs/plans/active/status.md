@@ -51,6 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Dashboard posting-risk filters now treat local repeated-sighting evidence
+  (`times_seen > 1`) as a Needs Review cue while ignoring missing, single, or
+  non-finite sighting counts.
+
 - README, docs index, and release docs now match the current macOS deployment
   posture: 94% full-public readiness, 100% no-account path completion, verified
   `v2.6.4` no-account DMG plus checksum, and Gatekeeper-ready distribution

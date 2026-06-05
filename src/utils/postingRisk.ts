@@ -105,11 +105,22 @@ export function hasScamPostingReviewCue(
   return SCAM_SIGNAL_PATTERNS.some((pattern) => pattern.test(text));
 }
 
+export function hasRepeatedSightingReviewCue(
+  timesSeen: number | null | undefined,
+): boolean {
+  return (
+    typeof timesSeen === "number" &&
+    Number.isFinite(timesSeen) &&
+    timesSeen > 1
+  );
+}
+
 export function hasPostingReviewAlert(
   ghostScore: number | null | undefined,
   ghostReasons: string | null | undefined,
   title?: string,
   description?: string | null,
+  timesSeen?: number | null,
 ): boolean {
   const hasValidScore =
     typeof ghostScore === "number" &&
@@ -121,6 +132,7 @@ export function hasPostingReviewAlert(
     (hasValidScore && ghostScore >= GHOST_SCORE_THRESHOLD) ||
     hasPostingEvidenceReviewCue(ghostReasons) ||
     (title !== undefined && hasLowDetailPostingReviewCue(title, description)) ||
-    (description !== undefined && hasScamPostingReviewCue(description))
+    (description !== undefined && hasScamPostingReviewCue(description)) ||
+    hasRepeatedSightingReviewCue(timesSeen)
   );
 }

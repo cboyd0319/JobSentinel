@@ -37,6 +37,7 @@ export interface Job {
   // Ghost detection fields (v1.4)
   ghost_score?: number | null;
   ghost_reasons?: string | null;
+  times_seen?: number;
 }
 
 export interface Statistics {
