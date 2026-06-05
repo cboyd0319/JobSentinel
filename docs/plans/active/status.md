@@ -358,6 +358,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 - Resume Builder template thumbnail previews and export/delete icons moved out
   of `src/pages/ResumeBuilder.tsx` into `src/pages/ResumeBuilderVisuals.tsx`.
 
+- Application Preview saved hard-screening answer assertions moved out of the
+  focused screening test file into their own saved-answer test file.
+
 ## Recent Completed Slices
 
 Detailed implementation history before the current restart window is in the

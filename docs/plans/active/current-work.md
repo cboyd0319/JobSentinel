@@ -256,6 +256,8 @@ Out of scope:
   retire its legacy oversized-file exception.
 - [x] Split Application Preview hard-screening tests out of the main component
   test file and retire its legacy oversized-file exception.
+- [x] Split Application Preview saved hard-screening answer tests out of the
+  focused screening test file.
 - [x] Split Screening Answers Form interaction tests out of the main component
   test file and retire its legacy oversized-file exception.
 - [x] Split ATS badge tests out of the main Apply Button test file and retire
@@ -492,6 +494,9 @@ Out of scope:
 - Coordinator moved Lever remote-inference tests into
   `src-tauri/src/core/scrapers/lever/tests/remote_inference_tests.rs`,
   reducing the main Lever test file from 1,185 to 1,040 lines.
+- Coordinator moved Application Preview saved hard-screening answer assertions
+  into `src/components/automation/ApplicationPreview.savedScreeningAnswers.test.tsx`,
+  reducing the focused screening test file from 1,176 to 340 lines.
 - Pay-protection sidecar was read-only and changed no files. Coordinator
   accepted its finding that negotiation-note drafts could treat benchmark
   values as offer facts, then fixed the Salary page, dev mock, tests, feature
