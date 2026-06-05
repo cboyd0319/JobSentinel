@@ -1,6 +1,6 @@
 # Active Plan Status
 
-Last updated: 2026-06-04.
+Last updated: 2026-06-05.
 
 Read this file first. It is the compact restart surface for current active
 work. Detailed history from the previous open plan set moved to archive on
@@ -49,6 +49,15 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 ## Latest Slice
 
 Latest implementation slice:
+
+- Docs drift checker constants moved out of
+  `scripts/harness/checks/docs-drift.mjs` into
+  `scripts/harness/checks/docs-drift-constants.mjs`.
+- The main docs drift checker is now below the 900-line script target, so the
+  legacy oversized-file exception was removed.
+- Docs drift behavior was unchanged; only rule data ownership changed.
+
+Earlier implementation slice:
 
 - Interview Scheduler icon components moved out of
   `src/components/InterviewScheduler.tsx` into

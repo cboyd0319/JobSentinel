@@ -1,6 +1,6 @@
 # Current Product And Quality Work
 
-Last updated: 2026-06-04.
+Last updated: 2026-06-05.
 
 ## Problem
 
@@ -236,6 +236,8 @@ Out of scope:
   its legacy oversized-file exception.
 - [x] Split Interview Scheduler icon components out of the main scheduler
   component and retire its legacy oversized-file exception.
+- [x] Split docs drift checker constants out of the main checker and retire its
+  legacy oversized-file exception.
 - [x] Split Settings search-preference UI out of the main Settings page.
 - [x] Split Resume Builder data transforms out of the main Resume Builder page.
 - [x] Split DB duplicate tests out of the main DB test file.
