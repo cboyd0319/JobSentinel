@@ -50,6 +50,15 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- WeWorkRemotely scraper tests now live in
+  `src-tauri/src/core/scrapers/weworkremotely_tests.rs`, reducing
+  `src-tauri/src/core/scrapers/weworkremotely.rs` from 888 to 244 lines
+  without changing scraper parsing, URL building, hashing, or fetch behavior.
+  Focused verification passed: `cargo test
+  core::scrapers::weworkremotely::tests --lib`, `cargo fmt --all --
+  --check`, `cargo clippy -- -D warnings`, `npm run lint:bloat`, docs gates,
+  `git diff --check`, and the local-path leak scan.
+
 - Discord notification score-color and salary display tests now live in
   `src-tauri/src/core/notify/discord_tests/display_tests.rs`, reducing
   `src-tauri/src/core/notify/discord_tests.rs` from 893 to 754 lines without
@@ -121,6 +130,7 @@ Recent committed cleanup batch:
 
 | Area | Main file before -> after | Extracted surface | Focused proof |
 | ---- | ------------------------- | ----------------- | ------------- |
+| WeWorkRemotely scraper | 888 -> 244 | scraper test sidecar | Scraper focused tests |
 | Discord notification tests | 893 -> 754 | display test module | Discord focused tests, fmt |
 | Settings support reports | 894 -> 856 | support-report hook | Settings load tests, build, lint, bloat |
 | DB validation tests | 912 -> 844 | validation boundary module | Rust focused tests, fmt |
