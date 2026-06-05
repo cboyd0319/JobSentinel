@@ -341,6 +341,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
   focused result-panel files, and harness copy/audience scanners now include
   the moved UI.
 
+- Mock resume bullet-prompt guidance assertions moved out of the broad mock
+  resume command test into a focused prompt test, keeping the command test
+  farther below the size limit.
+
 - Resume Builder template thumbnail previews and export/delete icons moved out
   of `src/pages/ResumeBuilder.tsx` into `src/pages/ResumeBuilderVisuals.tsx`.
 

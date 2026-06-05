@@ -220,6 +220,8 @@ Out of scope:
   retire its legacy oversized-file exception.
 - [x] Split Resume Match result-panel rendering and display tests out of the
   main page and page test while keeping product-copy scanners on the moved UI.
+- [x] Split mock resume bullet prompt tests out of the broad mock resume
+  command test.
 - [x] Split Market Intelligence async tests out of the main test file and
   retire its legacy oversized-file exception.
 - [x] Split Greenhouse scraper tests out of the runtime scraper file and retire
@@ -471,6 +473,9 @@ Out of scope:
   into `src/pages/ResumeOptimizerResultsPanel.test.tsx`, reducing the page from
   1,098 to 501 lines and the page test from 1,183 to 479 lines while keeping
   product-copy and broad-audience scanners on the moved UI.
+- Coordinator moved mock `improve_bullet_point` prompt guidance coverage into
+  `src/mocks/handlers/resumeBulletPrompts.test.ts`, reducing the broad mock
+  resume command test from 1,196 to 1,058 lines.
 - Pay-protection sidecar was read-only and changed no files. Coordinator
   accepted its finding that negotiation-note drafts could treat benchmark
   values as offer facts, then fixed the Salary page, dev mock, tests, feature
