@@ -27,6 +27,8 @@ pub struct AutomationPage {
 pub struct FillResult {
     /// Fields that were successfully filled
     pub filled_fields: Vec<String>,
+    /// Review topics for saved screening answers that were prepared
+    pub screening_answer_topics: Vec<String>,
     /// Fields that could not be filled (not found or error)
     pub unfilled_fields: Vec<String>,
     /// Whether a CAPTCHA was detected
@@ -41,6 +43,7 @@ impl FillResult {
     pub fn new() -> Self {
         Self {
             filled_fields: Vec::new(),
+            screening_answer_topics: Vec::new(),
             unfilled_fields: Vec::new(),
             captcha_detected: false,
             ready_for_review: false,
@@ -51,6 +54,7 @@ impl FillResult {
     pub fn success(filled: Vec<String>) -> Self {
         Self {
             filled_fields: filled,
+            screening_answer_topics: Vec::new(),
             unfilled_fields: Vec::new(),
             captcha_detected: false,
             ready_for_review: true,
@@ -61,6 +65,7 @@ impl FillResult {
     pub fn partial(filled: Vec<String>, unfilled: Vec<String>) -> Self {
         Self {
             filled_fields: filled,
+            screening_answer_topics: Vec::new(),
             unfilled_fields: unfilled,
             captcha_detected: false,
             ready_for_review: true,
@@ -72,6 +77,20 @@ impl FillResult {
         self.captcha_detected = true;
         self.error_message = Some("CAPTCHA detected - please solve manually".to_string());
         self
+    }
+
+    pub fn add_screening_answer_topic(&mut self, topic: Option<&str>) {
+        let Some(topic) = topic else {
+            return;
+        };
+
+        if !self
+            .screening_answer_topics
+            .iter()
+            .any(|existing| existing == topic)
+        {
+            self.screening_answer_topics.push(topic.to_string());
+        }
     }
 }
 

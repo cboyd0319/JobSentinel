@@ -207,6 +207,11 @@ For background-check, drug-screen, or pre-employment screening topics, the
 preview can show a matching saved answer so you can confirm the answer matches
 the employer's wording before continuing.
 
+When Application Assist prepares saved screening answers in the live browser, it
+returns only bounded review topics such as work authorization, education,
+transportation, or schedule. The success message uses those topics to remind the
+user what to check without showing the saved answer or exact question text.
+
 ---
 
 ## Using Application Assist

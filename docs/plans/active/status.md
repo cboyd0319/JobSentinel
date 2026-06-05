@@ -51,6 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Live Application Assist fill results now return bounded saved-answer review
+  topics, so success copy can name hard areas to check without exposing saved
+  answers or exact form questions.
+
 - Saved screening answers now show hard-question review guidance for schedule,
   education, transportation, salary, start-date, language, management, travel,
   and relocation quick-add topics.

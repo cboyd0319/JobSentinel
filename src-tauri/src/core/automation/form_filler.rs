@@ -15,6 +15,78 @@ use std::path::{Path, PathBuf};
 const SCREENING_FIELD_LABEL: &str = "screening:saved_answer";
 const QUESTION_DISCOVERY_ERROR: &str = "Could not inspect screening questions on this page";
 
+fn screening_answer_review_topic(pattern: &str) -> Option<&'static str> {
+    let normalized = pattern.to_ascii_lowercase();
+
+    if normalized.contains("citizen") {
+        Some("citizenship")
+    } else if normalized.contains("work authorization")
+        || normalized.contains("authorized to work")
+        || normalized.contains("sponsorship")
+        || normalized.contains("visa")
+    {
+        Some("work authorization")
+    } else if normalized.contains("transportation") || normalized.contains("vehicle") {
+        Some("transportation")
+    } else if normalized.contains("relocat") || normalized.contains("travel") {
+        Some("travel or relocation")
+    } else if normalized.contains("education")
+        || normalized.contains("degree")
+        || normalized.contains("diploma")
+        || normalized.contains("bachelor")
+        || normalized.contains("ged")
+    {
+        Some("education")
+    } else if normalized.contains("salary")
+        || normalized.contains("compensation")
+        || normalized.contains("pay")
+    {
+        Some("salary")
+    } else if normalized.contains("start date") || normalized.contains("notice period") {
+        Some("start date")
+    } else if normalized.contains("availability")
+        || normalized.contains("schedule")
+        || normalized.contains("shift")
+        || normalized.contains("weekend")
+        || normalized.contains("overtime")
+        || normalized.contains("holiday")
+    {
+        Some("schedule or availability")
+    } else if normalized.contains("managed a team")
+        || normalized.contains("management")
+        || normalized.contains("supervis")
+    {
+        Some("management experience")
+    } else if normalized.contains("bilingual")
+        || normalized.contains("multilingual")
+        || normalized.contains("language")
+        || normalized.contains("fluenc")
+    {
+        Some("language fluency")
+    } else if normalized.contains("background") || normalized.contains("drug") {
+        Some("background or drug screen")
+    } else if normalized.contains("physical")
+        || normalized.contains("lift")
+        || normalized.contains("standing")
+        || normalized.contains("stand for")
+    {
+        Some("physical requirements")
+    } else if normalized.contains("18 years")
+        || normalized.contains("minimum age")
+        || normalized.contains("age requirement")
+    {
+        Some("age requirement")
+    } else if normalized.contains("driver")
+        || normalized.contains("license")
+        || normalized.contains("certification")
+        || normalized.contains("clearance")
+    {
+        Some("license, certification, or clearance")
+    } else {
+        None
+    }
+}
+
 /// Form filler - fills application forms based on ATS platform
 pub struct FormFiller {
     profile: ApplicationProfile,
@@ -355,18 +427,22 @@ impl FormFiller {
         for selector in question_selectors {
             if let Ok(questions) = self.find_questions_with_selector(page, selector).await {
                 for (question_text, input_selector) in questions {
-                    if let Some(answer) = self.find_answer_for_question(&question_text) {
+                    if let Some(answer) = self.find_screening_answer_for_question(&question_text) {
+                        let answer_value = answer.answer.clone();
+                        let review_topic = screening_answer_review_topic(&answer.question_pattern);
                         let question_chars = question_text.chars().count();
 
                         // Try to fill the associated input
-                        if let Ok(true) = page.fill(&input_selector, &answer).await {
+                        if let Ok(true) = page.fill(&input_selector, &answer_value).await {
                             result.filled_fields.push(SCREENING_FIELD_LABEL.to_string());
+                            result.add_screening_answer_topic(review_topic);
                             tracing::debug!(
                                 question_chars,
                                 "Filled screening question with answer"
                             );
-                        } else if let Ok(true) = page.select(&input_selector, &answer).await {
+                        } else if let Ok(true) = page.select(&input_selector, &answer_value).await {
                             result.filled_fields.push(SCREENING_FIELD_LABEL.to_string());
+                            result.add_screening_answer_topic(review_topic);
                             tracing::debug!(question_chars, "Selected screening answer");
                         }
                     }
@@ -473,6 +549,11 @@ impl FormFiller {
 
     /// Find matching answer for a question text
     fn find_answer_for_question(&self, question: &str) -> Option<String> {
+        self.find_screening_answer_for_question(question)
+            .map(|answer| answer.answer.clone())
+    }
+
+    fn find_screening_answer_for_question(&self, question: &str) -> Option<&ScreeningAnswer> {
         for answer in &self.screening_answers {
             if screening_question_matches(&answer.question_pattern, question) {
                 tracing::debug!(
@@ -480,7 +561,7 @@ impl FormFiller {
                     question_chars = question.chars().count(),
                     "Matched saved screening answer"
                 );
-                return Some(answer.answer.clone());
+                return Some(answer);
             }
         }
 
@@ -874,6 +955,23 @@ mod tests {
         assert_eq!(SCREENING_FIELD_LABEL, "screening:saved_answer");
         assert!(!SCREENING_FIELD_LABEL.contains("salary"));
         assert!(!SCREENING_FIELD_LABEL.contains("authorized"));
+    }
+
+    #[test]
+    fn screening_answer_review_topics_are_bounded() {
+        assert_eq!(
+            screening_answer_review_topic("work authorization"),
+            Some("work authorization")
+        );
+        assert_eq!(
+            screening_answer_review_topic("Bachelor's degree"),
+            Some("education")
+        );
+        assert_eq!(
+            screening_answer_review_topic("weekend availability"),
+            Some("schedule or availability")
+        );
+        assert_eq!(screening_answer_review_topic("favorite color"), None);
     }
 
     #[test]

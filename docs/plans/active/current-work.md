@@ -324,6 +324,8 @@ Out of scope:
 - [x] Show hard-question review guidance for saved-answer quick-add topics such
   as schedule, education, transportation, salary, start date, language,
   management, travel, and relocation.
+- [x] Return bounded saved-answer review topics from live Application Assist
+  fill results without exposing saved answers or exact question text.
 
 ## Orchestration Log
 

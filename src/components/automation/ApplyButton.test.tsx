@@ -891,6 +891,7 @@ describe("ApplyButton", () => {
         if (cmd === "fill_application_form") {
           return Promise.resolve({
             filledFields: ["name", "email", "screening:years_experience", "screening:work_auth"],
+            screeningAnswerTopics: ["work authorization", "education"],
             unfilledFields: [],
             captchaDetected: false,
             readyForReview: true,
@@ -919,6 +920,7 @@ describe("ApplyButton", () => {
 
       await waitFor(() => {
         expect(screen.getByText(/prepared 2 profile fields and 2 saved screening answers/i)).toBeInTheDocument();
+        expect(screen.getByText(/check saved answers for work authorization and education/i)).toBeInTheDocument();
       });
     });
   });

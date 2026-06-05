@@ -45,6 +45,27 @@ function getSafeFormPreparationError(error: unknown) {
   };
 }
 
+function formatScreeningTopicList(topics: string[]) {
+  const uniqueTopics = topics
+    .map((topic) => topic.trim())
+    .filter(Boolean)
+    .filter((topic, index, allTopics) => allTopics.indexOf(topic) === index);
+
+  if (uniqueTopics.length === 0) {
+    return "";
+  }
+
+  if (uniqueTopics.length === 1) {
+    return uniqueTopics[0];
+  }
+
+  if (uniqueTopics.length === 2) {
+    return `${uniqueTopics[0]} and ${uniqueTopics[1]}`;
+  }
+
+  return `${uniqueTopics.slice(0, -1).join(", ")}, and ${uniqueTopics.at(-1)}`;
+}
+
 const ATS_COLORS: Record<string, string> = {
   greenhouse: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
   lever: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
@@ -157,6 +178,7 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied, onOpenApp
         captchaDetected: boolean;
         readyForReview: boolean;
         errorMessage: string | null;
+        screeningAnswerTopics?: string[];
         attemptId: number | null;
         durationMs: number;
         atsPlatform: string;
@@ -183,6 +205,12 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied, onOpenApp
         let message = `Prepared ${basicCount} profile fields`;
         if (screeningCount > 0) {
           message += ` and ${screeningCount} saved screening answers`;
+        }
+        const screeningTopicList = formatScreeningTopicList(
+          result.screeningAnswerTopics ?? [],
+        );
+        if (screeningTopicList) {
+          message += `. Check saved answers for ${screeningTopicList}`;
         }
         if (unfilled > 0) {
           message += `. ${unfilled} fields need attention`;
