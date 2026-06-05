@@ -50,6 +50,16 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Resume skill extractor tests moved out of
+  `src-tauri/src/core/resume/skills.rs` into
+  `src-tauri/src/core/resume/skills_tests.rs`.
+- The runtime resume skills module is now below the 1,200-line Rust target, so
+  the legacy oversized-file exception was removed.
+- Resume skill extraction behavior was unchanged; only test module ownership
+  changed.
+
+Earlier implementation slice:
+
 - Dashboard job comparison modal moved out of `src/pages/Dashboard.tsx` into
   `src/pages/DashboardUI/DashboardCompareModal.tsx`.
 - The main Dashboard page is now below the 1,200-line frontend target, so the
