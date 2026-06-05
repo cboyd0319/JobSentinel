@@ -360,6 +360,8 @@ Out of scope:
   page stays below the file-size limit.
 - [x] Treat car-insurance wording as Resume Match evidence for auto-insurance
   hard requirements.
+- [x] Move Resume Match recent-match rendering into a focused component so the
+  page stays close to the file-size limit.
 
 ## Orchestration Log
 
@@ -443,6 +445,9 @@ Out of scope:
   1,166 to 1,101 lines without changing hourly or yearly pay behavior.
 - Coordinator added conservative Resume Match equivalence for car-insurance
   wording when a posting requires proof of auto insurance.
+- Coordinator moved the Resume Match recent-match card into
+  `src/pages/ResumeRecentMatches.tsx`, reducing the main resume page from 1,171
+  to 1,003 lines without changing score or gap rendering.
 - Pay-protection sidecar was read-only and changed no files. Coordinator
   accepted its finding that negotiation-note drafts could treat benchmark
   values as offer facts, then fixed the Salary page, dev mock, tests, feature
