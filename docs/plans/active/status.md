@@ -50,6 +50,18 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Scheduler scraper-cycle tests moved out of
+  `src-tauri/src/core/scheduler/tests.rs` into
+  `src-tauri/src/core/scheduler/tests/scraper_cycle_tests.rs`.
+- The main scheduler test file still owns lifecycle, interval, database,
+  shutdown, and broad error-path coverage; the extracted module owns scraper
+  URL, source configuration, scoring, alert, LinkedIn policy, JobsWithGPT, and
+  multi-scraper cycle coverage.
+- `src-tauri/src/core/scheduler/tests.rs` legacy no-growth budget tightened
+  from 2,371 lines to 1,929 lines.
+
+Recent cleanup summary:
+
 - Resume analyzer conservative keyword term expansion moved out of
   `src-tauri/src/core/resume/ats_analyzer.rs` into
   `src-tauri/src/core/resume/ats_analyzer/term_expansion.rs`.
@@ -58,9 +70,6 @@ Latest implementation slice:
   year-experience ranges, and human-language requirement detection.
 - `src-tauri/src/core/resume/ats_analyzer.rs` legacy no-growth budget
   tightened from 3,060 lines to 2,492 lines.
-
-Recent cleanup summary:
-
 - Job notes DB tests moved out of `src-tauri/src/core/db/tests.rs` into
   `src-tauri/src/core/db/tests/tests/job_notes_tests.rs`.
 - The main DB test file still owns broad operation coverage and shared

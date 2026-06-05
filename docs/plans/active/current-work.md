@@ -194,6 +194,7 @@ Out of scope:
 - [x] Split DB job notes tests out of the main DB test file.
 - [x] Split resume analyzer keyword term-expansion helpers out of the runtime
   analyzer.
+- [x] Split scheduler scraper-cycle tests out of the main scheduler test file.
 
 ## Orchestration Log
 
@@ -461,6 +462,11 @@ Out of scope:
   and moved equivalent search terms, lift-unit variants, year-experience
   ranges, and human-language requirement detection into
   `src-tauri/src/core/resume/ats_analyzer/term_expansion.rs`.
+- Coordinator moved scheduler scraper URL, source configuration, scoring,
+  alert, LinkedIn policy, JobsWithGPT, and multi-scraper cycle tests into
+  `src-tauri/src/core/scheduler/tests/scraper_cycle_tests.rs`. The main
+  scheduler test file still owns lifecycle, interval, database, shutdown, and
+  broad error-path coverage.
 
 ## Risks
 
