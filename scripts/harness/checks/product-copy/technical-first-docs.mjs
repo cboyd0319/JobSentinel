@@ -345,6 +345,7 @@ export function getTechnicalFirstDocsResult(path, text) {
 
   if (
     path === "src/pages/ResumeBuilder.tsx" ||
+    path === "src/pages/ResumeBuilderPreviewStep.tsx" ||
     path === "src/components/resume-builder/steps/SkillsStep.tsx"
   ) {
     const resumeBuilderPatterns = [

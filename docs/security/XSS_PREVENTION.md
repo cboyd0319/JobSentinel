@@ -5,7 +5,8 @@ render path must sanitize before using `dangerouslySetInnerHTML`.
 
 ## Current Implementation
 
-The active Resume Builder preview is in `src/pages/ResumeBuilder.tsx`.
+The active Resume Builder preview is in
+`src/pages/ResumeBuilderPreviewStep.tsx`.
 
 ```typescript
 import DOMPurify from "dompurify";

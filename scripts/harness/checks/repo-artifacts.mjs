@@ -139,7 +139,7 @@ const maintainableTextLineLimits = {
 };
 
 const legacyOversizedLineBudgets = new Map([
-  ["src/pages/ResumeBuilder.tsx", 1590],
+  ["src/pages/ResumeBuilder.tsx", 1468],
   ["src/pages/ResumeOptimizer.tsx", 1598],
 ]);
 

@@ -308,6 +308,8 @@ Out of scope:
 - [x] Split Resume Match model helpers, icons, resume library dropdown, and
   readable-text preview modal out of the main page and retire its legacy
   oversized-file exception.
+- [x] Split Resume Builder preview step out of the main page and tighten its
+  legacy oversized-file budget.
 
 ## Orchestration Log
 

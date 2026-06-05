@@ -56,6 +56,7 @@ const broadAudienceExamplePaths = new Set([
   "src/pages/Dashboard.tsx",
   "src/pages/DashboardUI/DashboardFiltersBar.tsx",
   "src/pages/ResumeBuilder.tsx",
+  "src/pages/ResumeBuilderPreviewStep.tsx",
   "src/pages/ResumeBuilderVisuals.tsx",
   "src/pages/ResumeOptimizer.tsx",
   "src/pages/ResumeOptimizerJobWordsOverview.tsx",

@@ -50,21 +50,21 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Resume Builder preview/template/readability UI moved from
+  `src/pages/ResumeBuilder.tsx` to `src/pages/ResumeBuilderPreviewStep.tsx`.
+  Its no-growth budget tightened from 1,590 to 1,468 lines.
+
 - Resume Match model helpers, icons, resume library dropdown, and readable-text
   preview modal moved out of `src/pages/Resume.tsx` into focused helper files
   under `src/pages/`.
 - `src/pages/Resume.tsx` is now below the 1,200-line frontend target, so the
   legacy oversized-file exception was removed.
 
-Earlier implementation slice:
-
 - Resume review job-word overview display moved out of
   `src/pages/ResumeOptimizer.tsx` into
   `src/pages/ResumeOptimizerJobWordsOverview.tsx`.
 - `src/pages/ResumeOptimizer.tsx` remains a legacy oversized-file exception,
   but its no-growth budget tightened from 1,716 lines to 1,598 lines.
-
-Earlier implementation slice:
 
 - Resume Builder template thumbnail previews and export/delete icons moved out
   of `src/pages/ResumeBuilder.tsx` into `src/pages/ResumeBuilderVisuals.tsx`.
