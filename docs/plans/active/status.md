@@ -63,6 +63,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
   keeping the main setup page under the file-size target while preserving
   manual city entry, location detection opt-in, and work-location validation.
 
+- Resume template CSS literals now live in a focused style module, cutting the
+  renderer below the file-size target without changing template HTML output.
+
 - First-run setup and profile presets now start with remote, hybrid, and
   on-site selected and no preset salary floor, so new users do not silently
   narrow results before choosing.
