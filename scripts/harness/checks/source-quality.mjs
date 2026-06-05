@@ -18,6 +18,7 @@ const storageJsonParserPaths = new Set([
   "src/components/AnalyticsPanel.tsx",
   "src/components/AtsLiveScorePanel.tsx",
   "src/components/CompanyResearchPanel.tsx",
+  "src/utils/resumeJobContext.ts",
 ]);
 
 const staticCompanyFallbackPaths = new Set(["src/components/CompanyResearchPanel.tsx"]);
@@ -211,8 +212,18 @@ export function hasUnsafeStorageJsonParsing(root, path) {
   if (path === "src/components/AtsLiveScorePanel.tsx") {
     return (
       /const\s+parsed\s*=\s*JSON\.parse\(stored\)/.test(text) ||
-      !/function\s+isStoredJobContext/.test(text) ||
-      !/removeStorageValue\("session",\s*JOB_CONTEXT_KEY\)/.test(text)
+      /readStorageValue\("session",\s*["']jobContext["']\)/.test(text) ||
+      !/readStoredResumeJobContext/.test(text)
+    );
+  }
+
+  if (path === "src/utils/resumeJobContext.ts") {
+    return (
+      !/function\s+isStoredResumeJobContext/.test(text) ||
+      !/Number\.isFinite\(candidate\.timestamp\)/.test(text) ||
+      !/typeof candidate\.description === "string"/.test(text) ||
+      !/candidate\.description\.trim\(\)\.length > 0/.test(text) ||
+      !/removeStorageValue\("session",\s*RESUME_JOB_CONTEXT_KEY\)/.test(text)
     );
   }
 

@@ -338,6 +338,8 @@ Out of scope:
   on.
 - [x] Route low-detail card warnings through posting-risk filters.
 - [x] Let Resume Builder users continue without education entries.
+- [x] Gate Resume Builder saved-job context on the same valid/recent check as
+  the live review panel.
 
 ## Orchestration Log
 
@@ -390,6 +392,9 @@ Out of scope:
   broad or thin postings no longer remain in **Lower Risk** results.
 - Coordinator made Resume Builder education optional so users without degree,
   certificate, or training entries do not need to invent data to finish.
+- Coordinator shared the saved Resume Match context validator between Resume
+  Builder, Resume Match, and the live review panel so malformed or expired
+  context is cleared before **Tailoring for Job** appears.
 - Pay-protection sidecar was read-only and changed no files. Coordinator
   accepted its finding that negotiation-note drafts could treat benchmark
   values as offer facts, then fixed the Salary page, dev mock, tests, feature

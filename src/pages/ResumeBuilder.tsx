@@ -12,8 +12,11 @@ import SkillsStep from "../components/resume-builder/steps/SkillsStep";
 import SummaryStep from "../components/resume-builder/steps/SummaryStep";
 import { useToast } from "../hooks/useToast";
 import { safeInvoke, safeInvokeWithToast } from "../utils/api";
-import { readStorageValue, removeStorageValue } from "../utils/browserStorage";
 import { getSafeErrorToastCopy } from "../utils/safeErrorCopy";
+import {
+  clearStoredResumeJobContext,
+  hasStoredResumeJobContext,
+} from "../utils/resumeJobContext";
 import {
   canProceedResumeBuilderStep,
   getResumeBuilderStepValidationMessage,
@@ -61,7 +64,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
   const [atsAnalysis, setAtsAnalysis] = useState<ATSAnalysis | null>(null);
   const [importingSkills, setImportingSkills] = useState(false);
   const initializedRef = useRef(false);
-  const hasJobContext = readStorageValue("session", "jobContext") !== null;
+  const hasJobContext = hasStoredResumeJobContext();
 
   // Contact form state
   const [contact, setContact] = useState<ContactInfo>({
@@ -813,7 +816,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                 </p>
                 <button
                   onClick={() => {
-                    removeStorageValue("session", "jobContext");
+                    clearStoredResumeJobContext();
                     window.location.reload();
                   }}
                   className="mt-2 text-xs text-red-600 dark:text-red-400 hover:underline"

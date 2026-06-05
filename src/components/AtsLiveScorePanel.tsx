@@ -22,7 +22,7 @@ import {
   getScoreLabel,
   getScoreProgressPercent,
 } from "../utils/scoreUtils";
-import { readStorageValue, removeStorageValue } from "../utils/browserStorage";
+import { readStoredResumeJobContext } from "../utils/resumeJobContext";
 
 // Full resume readability analysis result from backend
 export interface AtsAnalysisResult {
@@ -246,14 +246,6 @@ interface AtsLiveScorePanelProps {
   showFullAnalysis?: boolean;
 }
 
-interface StoredJobContext {
-  timestamp: number;
-  description: string;
-}
-
-const JOB_CONTEXT_KEY = "jobContext";
-const JOB_CONTEXT_TTL_MS = 24 * 60 * 60 * 1000;
-
 // Step tips lookup (better performance than switch)
 const STEP_TIPS: Record<number, string[]> = {
   1: [ // Contact
@@ -427,20 +419,6 @@ function inferHardConstraintCategory(keyword: string): HardConstraintRisk["categ
   return "Experience";
 }
 
-function isStoredJobContext(value: unknown): value is StoredJobContext {
-  if (!value || typeof value !== "object") {
-    return false;
-  }
-
-  const candidate = value as Record<string, unknown>;
-  return (
-    typeof candidate.timestamp === "number" &&
-    Number.isFinite(candidate.timestamp) &&
-    typeof candidate.description === "string" &&
-    candidate.description.trim().length > 0
-  );
-}
-
 export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
   resumeData,
   currentStep,
@@ -456,20 +434,9 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
 
   // Load job context from sessionStorage (set by Resume Match)
   useEffect(() => {
-    try {
-      const stored = readStorageValue("session", JOB_CONTEXT_KEY);
-      if (stored) {
-        const parsed: unknown = JSON.parse(stored);
-        // Only use if less than 24 hours old
-        if (isStoredJobContext(parsed) && Date.now() - parsed.timestamp < JOB_CONTEXT_TTL_MS) {
-          setJobDescription(parsed.description);
-        } else {
-          removeStorageValue("session", JOB_CONTEXT_KEY);
-        }
-      }
-    } catch {
-      removeStorageValue("session", JOB_CONTEXT_KEY);
-      // Ignore sessionStorage errors
+    const stored = readStoredResumeJobContext();
+    if (stored) {
+      setJobDescription(stored.description);
     }
   }, []);
 

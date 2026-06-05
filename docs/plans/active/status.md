@@ -51,6 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Resume Builder now uses the same valid/recent saved-job context gate as the
+  live review panel, clearing malformed or expired context before showing
+  **Tailoring for Job**.
+
 - Resume Builder education is now optional, so users without degrees,
   certificates, or training entries can continue without inventing data.
 

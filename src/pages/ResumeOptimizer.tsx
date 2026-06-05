@@ -35,7 +35,7 @@ import {
   getScoreLabel,
   getScoreProgressPercent,
 } from "../utils/scoreUtils";
-import { writeStorageValue } from "../utils/browserStorage";
+import { writeStoredResumeJobContext } from "../utils/resumeJobContext";
 
 type Page = "dashboard" | "applications" | "resume" | "resume-builder" | "ats-optimizer" | "salary" | "market" | "automation";
 
@@ -423,10 +423,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
       return;
     }
 
-    const saved = writeStorageValue("session", "jobContext", JSON.stringify({
-      description: jobDescription,
-      timestamp: Date.now(),
-    }));
+    const saved = writeStoredResumeJobContext(jobDescription);
     if (!saved) {
       toast.error(
         "Could not open Resume Builder with this job",

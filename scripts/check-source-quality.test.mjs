@@ -146,11 +146,17 @@ test("source quality rejects unsafe rendered JSON parsing", () => {
       "src/components/AtsLiveScorePanel.tsx",
       "const parsed = JSON.parse(stored);\n",
     );
+    writeFixtureFile(
+      root,
+      "src/utils/resumeJobContext.ts",
+      "export function readStoredResumeJobContext() { return JSON.parse(stored); }\n",
+    );
 
     assert.equal(hasUnsafeScoreReasonJsonParsing(root, "src/components/ScoreDisplay.tsx"), true);
     assert.equal(hasUnsafeScoreReasonJsonParsing(root, "src/components/GhostIndicator.tsx"), true);
     assert.equal(hasUnsafeStorageJsonParsing(root, "src/components/AnalyticsPanel.tsx"), true);
     assert.equal(hasUnsafeStorageJsonParsing(root, "src/components/AtsLiveScorePanel.tsx"), true);
+    assert.equal(hasUnsafeStorageJsonParsing(root, "src/utils/resumeJobContext.ts"), true);
   });
 });
 
