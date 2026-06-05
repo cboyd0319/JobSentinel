@@ -188,6 +188,14 @@ export function getPayFloorGuidance(
     };
   }
 
+  if (hasSalaryMin && !hasSalaryMax && salaryMin < salaryFloorUsd) {
+    return {
+      title: "Open-ended listed pay",
+      description: `Only starting pay is listed below your ${formattedFloor} floor. Confirm the realistic top range before tailoring.`,
+      ariaLabel: "open-ended listed pay; confirm range before tailoring",
+    };
+  }
+
   if (!hasSalaryMax || salaryMax >= salaryFloorUsd) {
     return null;
   }

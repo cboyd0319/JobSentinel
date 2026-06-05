@@ -51,6 +51,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Job cards now flag open-ended starting pay below the user's saved floor as a
+  range-review cue, without claiming the role tops out below the floor.
+
 - README and macOS readiness output now separate full-public readiness (94%)
   from the complete no-account path (100%), matching the known no-Apple-account
   constraint.

@@ -52,6 +52,15 @@ describe("jobCardGuidance", () => {
     });
   });
 
+  it("flags open-ended starting pay below the user's floor as a review cue", () => {
+    expect(getPayFloorGuidance(45000, null, 65000)).toEqual({
+      title: "Open-ended listed pay",
+      description:
+        "Only starting pay is listed below your $65,000/year floor. Confirm the realistic top range before tailoring.",
+      ariaLabel: "open-ended listed pay; confirm range before tailoring",
+    });
+  });
+
   it("flags very wide pay ranges as weaker evidence", () => {
     expect(getSalaryRangeQualityGuidance(45000, 140000)).toMatchObject({
       title: "Very wide pay range",

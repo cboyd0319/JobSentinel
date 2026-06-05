@@ -625,7 +625,7 @@ describe("JobCard", () => {
       expect(screen.queryByTestId("pay-floor-guidance")).not.toBeInTheDocument();
     });
 
-    it("does not warn when only minimum pay is listed below the user's floor", () => {
+    it("shows a review cue when only starting pay is below the user's floor", () => {
       const minOnlyJob = {
         ...mockJob,
         salary_min: 45000,
@@ -635,12 +635,22 @@ describe("JobCard", () => {
       renderWithToast(<JobCard job={minOnlyJob} salaryFloorUsd={65000} />);
 
       expect(screen.getByText("$45k+")).toBeInTheDocument();
-      expect(screen.queryByTestId("pay-floor-guidance")).not.toBeInTheDocument();
+      expect(screen.getByTestId("pay-floor-guidance")).toHaveTextContent(
+        "Open-ended listed pay",
+      );
+      expect(
+        screen.getByText(/confirm the realistic top range before tailoring/i),
+      ).toBeInTheDocument();
       expect(
         screen.queryByRole("article", {
           name: /below the lowest pay you want/i,
         }),
       ).not.toBeInTheDocument();
+      expect(
+        screen.getByRole("article", {
+          name: /open-ended listed pay; confirm range before tailoring/i,
+        }),
+      ).toBeInTheDocument();
     });
 
     it("treats reversed listed pay as unavailable for floor guidance", () => {

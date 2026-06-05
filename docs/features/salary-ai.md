@@ -22,6 +22,8 @@ fixed by asking harder.
 - Keep open-ended minimum-only pay ranges visible without a below-floor warning,
   because a listed minimum alone does not prove the role tops out below the
   user's floor.
+- When open-ended starting pay is below the user's floor, show it as a range
+  review cue rather than a below-floor claim.
 - Flag very wide listed pay ranges as weaker range evidence to check before
   tailoring.
 - Flag when a floor is below credible range evidence or when a role may be

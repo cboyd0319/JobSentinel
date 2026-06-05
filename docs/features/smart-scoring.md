@@ -108,6 +108,8 @@ When a salary floor exists, job cards ask users to compare missing-pay roles
 before tailoring without treating missing pay as proof of bad intent.
 Open-ended minimum-only pay should remain visible without a below-floor warning
 unless a known maximum or top listed pay is below the user's floor.
+When that starting pay is below the user's floor, job cards should ask the user
+to confirm the realistic top range before tailoring.
 Dashboard comparison rows label this evidence as listed pay and use the same
 unavailable fallback for malformed, negative, non-finite, or reversed ranges.
 Dashboard comparison rows also show **Date not shown** when posting date
