@@ -402,6 +402,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 - Lower Slack payload and webhook edge-case tests moved out of the main Slack
   test file into a focused payload-edge Rust test module.
 
+- Database-integrity health-metric and fragmentation tests moved out of the
+  main integrity test file into a focused health-metrics Rust test module.
+
 ## Recent Completed Slices
 
 Detailed implementation history before the current restart window is in the

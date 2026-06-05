@@ -821,6 +821,10 @@ Out of scope:
   `src-tauri/src/core/notify/slack_tests/payload_edge_tests.rs`. The main
   Slack test file still owns validation basics, payload basics, sanitization,
   and request-builder behavior.
+- Coordinator moved database-integrity health-metric and fragmentation tests
+  into `src-tauri/src/core/db/integrity/tests/health_metrics_tests.rs`. The
+  main integrity test file still owns quick/startup checks, PRAGMA diagnostics,
+  full-check scheduling, logging, optimization, and foreign-key coverage.
 
 ## Risks
 

@@ -5,6 +5,7 @@ use chrono::Utc;
 use sqlx::SqlitePool;
 
 mod backup_tests;
+mod health_metrics_tests;
 mod model_tests;
 
 async fn create_test_db() -> SqlitePool {
@@ -35,66 +36,6 @@ async fn test_startup_check_healthy() {
 
     let status = integrity.startup_check().await.unwrap();
     assert!(matches!(status, IntegrityStatus::Healthy));
-}
-
-#[tokio::test]
-#[ignore = "Requires file-based database (VACUUM INTO doesn't work with in-memory)"]
-async fn test_health_metrics() {
-    let db = create_test_db().await;
-    let temp_dir = tempfile::tempdir().unwrap();
-    let integrity = DatabaseIntegrity::new(db, temp_dir.path().to_path_buf());
-
-    // Get health metrics
-    let health = integrity.get_health_metrics().await.unwrap();
-
-    // Verify basic metrics are collected
-    assert!(health.database_size_bytes > 0, "Database should have size");
-    assert_eq!(health.schema_version, 2, "Schema version should be 2");
-    assert_eq!(
-        health.application_id, 0x4A534442,
-        "Application ID should be JSDB"
-    );
-    assert_eq!(health.total_jobs, 0, "New database should have 0 jobs");
-    assert!(
-        health.total_integrity_checks >= 0,
-        "Should have integrity check count"
-    );
-    assert_eq!(
-        health.failed_integrity_checks, 0,
-        "Should have no failed checks"
-    );
-}
-
-#[tokio::test]
-async fn test_health_metrics_with_data() {
-    let db = create_test_db().await;
-    let temp_dir = tempfile::tempdir().unwrap();
-    let integrity = DatabaseIntegrity::new(db.clone(), temp_dir.path().to_path_buf());
-
-    // Insert some test jobs
-    for i in 0..10 {
-        sqlx::query(
-            r#"
-    INSERT INTO jobs (hash, title, company, url, source, score)
-    VALUES (?, ?, ?, ?, ?, ?)
-    "#,
-        )
-        .bind(format!("hash_{}", i))
-        .bind(format!("Job {}", i))
-        .bind("Test Company")
-        .bind(format!("https://example.com/job/{}", i))
-        .bind("test")
-        .bind(0.9)
-        .execute(&db)
-        .await
-        .unwrap();
-    }
-
-    // Get health metrics
-    let health = integrity.get_health_metrics().await.unwrap();
-
-    assert_eq!(health.total_jobs, 10, "Should have 10 jobs");
-    assert!(health.database_size_bytes > 0);
 }
 
 #[tokio::test]
@@ -174,48 +115,6 @@ async fn test_pragma_diagnostics() {
     tracing::debug!("  Secure delete: {}", diag.secure_delete);
     tracing::debug!("  Cell size check: {}", diag.cell_size_check);
     tracing::debug!("  SQLite version: {}", diag.sqlite_version);
-}
-
-#[tokio::test]
-async fn test_fragmentation_tracking() {
-    let db = create_test_db().await;
-    let temp_dir = tempfile::tempdir().unwrap();
-    let integrity = DatabaseIntegrity::new(db.clone(), temp_dir.path().to_path_buf());
-
-    // Insert and delete jobs to create fragmentation
-    for i in 0..100 {
-        sqlx::query(
-            r#"
-    INSERT INTO jobs (hash, title, company, url, source)
-    VALUES (?, ?, ?, ?, ?)
-    "#,
-        )
-        .bind(format!("hash_{}", i))
-        .bind(format!("Job {}", i))
-        .bind("Test Company")
-        .bind(format!("https://example.com/job/{}", i))
-        .bind("test")
-        .execute(&db)
-        .await
-        .unwrap();
-    }
-
-    // Delete half of them to create freelist
-    sqlx::query("DELETE FROM jobs WHERE id % 2 = 0")
-        .execute(&db)
-        .await
-        .unwrap();
-
-    // Get health metrics
-    let health = integrity.get_health_metrics().await.unwrap();
-
-    assert!(health.database_size_bytes > 0);
-    // Fragmentation should be measurable
-    assert!(
-        health.fragmentation_percent >= 0.0,
-        "Fragmentation should be non-negative"
-    );
-    println!("Fragmentation: {:.2}%", health.fragmentation_percent);
 }
 
 #[tokio::test]
@@ -547,116 +446,6 @@ async fn test_get_pragma_diagnostics_in_memory() {
 }
 
 #[tokio::test]
-async fn test_health_metrics_overdue_checks() {
-    let db = create_test_db().await;
-    let temp_dir = tempfile::tempdir().unwrap();
-    let integrity = DatabaseIntegrity::new(db.clone(), temp_dir.path().to_path_buf());
-
-    // Set last integrity check to 10 days ago
-    let old_integrity = (Utc::now() - chrono::Duration::days(10)).to_rfc3339();
-    sqlx::query(
-"INSERT OR REPLACE INTO app_metadata (key, value, updated_at) VALUES (?, ?, datetime('now'))",
-)
-.bind("last_full_integrity_check")
-.bind(old_integrity)
-.execute(&db)
-.await
-.unwrap();
-
-    // Set last backup to 30 hours ago
-    let old_backup = (Utc::now() - chrono::Duration::hours(30)).to_rfc3339();
-    sqlx::query(
-"INSERT OR REPLACE INTO app_metadata (key, value, updated_at) VALUES (?, ?, datetime('now'))",
-)
-.bind("last_backup")
-.bind(old_backup)
-.execute(&db)
-.await
-.unwrap();
-
-    let health = integrity.get_health_metrics().await.unwrap();
-
-    assert!(
-        health.integrity_check_overdue,
-        "Integrity check should be overdue (> 7 days)"
-    );
-    assert!(
-        health.backup_overdue,
-        "Backup should be overdue (> 24 hours)"
-    );
-    assert_eq!(health.days_since_last_integrity_check, 10);
-    assert_eq!(health.hours_since_last_backup, 30);
-}
-
-#[tokio::test]
-async fn test_health_metrics_recent_maintenance() {
-    let db = create_test_db().await;
-    let temp_dir = tempfile::tempdir().unwrap();
-    let integrity = DatabaseIntegrity::new(db.clone(), temp_dir.path().to_path_buf());
-
-    // Set recent integrity check
-    integrity.update_last_full_check().await.unwrap();
-
-    // Set recent backup
-    sqlx::query(
-"INSERT OR REPLACE INTO app_metadata (key, value, updated_at) VALUES (?, ?, datetime('now'))",
-)
-.bind("last_backup")
-.bind(Utc::now().to_rfc3339())
-.execute(&db)
-.await
-.unwrap();
-
-    let health = integrity.get_health_metrics().await.unwrap();
-
-    assert!(
-        !health.integrity_check_overdue,
-        "Integrity check should not be overdue"
-    );
-    assert!(!health.backup_overdue, "Backup should not be overdue");
-    assert_eq!(health.days_since_last_integrity_check, 0);
-    assert_eq!(health.hours_since_last_backup, 0);
-}
-
-#[tokio::test]
-async fn test_health_metrics_failed_checks() {
-    let db = create_test_db().await;
-    let temp_dir = tempfile::tempdir().unwrap();
-    let integrity = DatabaseIntegrity::new(db.clone(), temp_dir.path().to_path_buf());
-
-    // Insert failed check log entries
-    for i in 0..3 {
-        sqlx::query(
-    "INSERT INTO integrity_check_log (check_type, status, details, duration_ms) VALUES (?, ?, ?, ?)",
-)
-.bind("full")
-.bind("failed")
-.bind(format!("Error {}", i))
-.bind(100)
-.execute(&db)
-.await
-.unwrap();
-    }
-
-    // Insert successful check
-    sqlx::query(
-"INSERT INTO integrity_check_log (check_type, status, details, duration_ms) VALUES (?, ?, ?, ?)",
-)
-.bind("quick")
-.bind("passed")
-.bind(None::<String>)
-.bind(50)
-.execute(&db)
-.await
-.unwrap();
-
-    let health = integrity.get_health_metrics().await.unwrap();
-
-    assert_eq!(health.total_integrity_checks, 4);
-    assert_eq!(health.failed_integrity_checks, 3);
-}
-
-#[tokio::test]
 async fn test_database_integrity_new_creates_backup_dir() {
     let temp_dir = tempfile::tempdir().unwrap();
     let backup_dir = temp_dir.path().join("backups").join("nested");
@@ -677,29 +466,6 @@ async fn test_foreign_key_check_returns_empty_vec() {
 
     let violations = integrity.foreign_key_check().await.unwrap();
     assert!(violations.is_empty(), "Clean DB should have no violations");
-}
-
-#[tokio::test]
-async fn test_health_metrics_all_fields() {
-    let db = create_test_db().await;
-    let temp_dir = tempfile::tempdir().unwrap();
-    let integrity = DatabaseIntegrity::new(db, temp_dir.path().to_path_buf());
-
-    let health = integrity.get_health_metrics().await.unwrap();
-
-    // Verify all fields are initialized with sensible values
-    assert!(health.database_size_bytes >= 0);
-    assert!(health.freelist_size_bytes >= 0);
-    // WAL size can be negative (indicates no WAL or non-WAL mode)
-    // This is expected for in-memory databases or databases not in WAL mode
-    assert!(health.fragmentation_percent >= 0.0);
-    assert!(health.schema_version >= 0);
-    assert!(health.total_jobs >= 0);
-    assert!(health.total_integrity_checks >= 0);
-    assert!(health.failed_integrity_checks >= 0);
-    assert!(health.total_backups >= 0);
-    assert!(health.days_since_last_integrity_check >= 0);
-    assert!(health.hours_since_last_backup >= 0);
 }
 
 #[tokio::test]
@@ -807,36 +573,6 @@ async fn test_startup_check_logs_passed_status() {
 }
 
 #[tokio::test]
-async fn test_health_metrics_with_invalid_metadata_timestamps() {
-    let db = create_test_db().await;
-    let temp_dir = tempfile::tempdir().unwrap();
-    let integrity = DatabaseIntegrity::new(db.clone(), temp_dir.path().to_path_buf());
-
-    // Insert invalid timestamp for integrity check
-    sqlx::query("INSERT INTO app_metadata (key, value, updated_at) VALUES (?, ?, datetime('now'))")
-        .bind("last_full_integrity_check")
-        .bind("not-a-valid-timestamp")
-        .execute(&db)
-        .await
-        .unwrap();
-
-    // Insert invalid timestamp for backup
-    sqlx::query("INSERT INTO app_metadata (key, value, updated_at) VALUES (?, ?, datetime('now'))")
-        .bind("last_backup")
-        .bind("also-invalid")
-        .execute(&db)
-        .await
-        .unwrap();
-
-    // Should still return health metrics without crashing
-    let health = integrity.get_health_metrics().await.unwrap();
-
-    // Invalid timestamps should not cause overdue flags to be set
-    assert_eq!(health.days_since_last_integrity_check, 0);
-    assert_eq!(health.hours_since_last_backup, 0);
-}
-
-#[tokio::test]
 async fn test_log_check_duration_conversion() {
     let db = create_test_db().await;
     let temp_dir = tempfile::tempdir().unwrap();
@@ -883,24 +619,6 @@ async fn test_log_check_duration_conversion() {
 }
 
 #[tokio::test]
-async fn test_health_metrics_zero_division_protection() {
-    let db = create_test_db().await;
-    let temp_dir = tempfile::tempdir().unwrap();
-    let integrity = DatabaseIntegrity::new(db, temp_dir.path().to_path_buf());
-
-    let health = integrity.get_health_metrics().await.unwrap();
-
-    // If database_size_bytes is 0, fragmentation_percent should be 0.0
-    if health.database_size_bytes == 0 {
-        assert_eq!(health.fragmentation_percent, 0.0);
-    } else {
-        // Otherwise it should be a valid percentage
-        assert!(health.fragmentation_percent >= 0.0);
-        assert!(health.fragmentation_percent <= 100.0);
-    }
-}
-
-#[tokio::test]
 async fn test_should_run_full_check_edge_case_exactly_7_days() {
     let db = create_test_db().await;
     let temp_dir = tempfile::tempdir().unwrap();
@@ -920,58 +638,6 @@ async fn test_should_run_full_check_edge_case_exactly_7_days() {
     let should_run = integrity.should_run_full_check().await.unwrap();
     // Should return true when days_since >= 7
     assert!(should_run);
-}
-
-#[tokio::test]
-async fn test_health_metrics_edge_case_no_metadata() {
-    let db = create_test_db().await;
-    let temp_dir = tempfile::tempdir().unwrap();
-    let integrity = DatabaseIntegrity::new(db.clone(), temp_dir.path().to_path_buf());
-
-    // Clear all metadata
-    sqlx::query("DELETE FROM app_metadata")
-        .execute(&db)
-        .await
-        .unwrap();
-
-    let health = integrity.get_health_metrics().await.unwrap();
-
-    // With no metadata, overdue flags should be false (default state)
-    assert!(!health.integrity_check_overdue);
-    assert!(!health.backup_overdue);
-    assert_eq!(health.days_since_last_integrity_check, 0);
-    assert_eq!(health.hours_since_last_backup, 0);
-}
-
-#[tokio::test]
-async fn test_health_metrics_wal_size_calculation() {
-    let db = create_test_db().await;
-    let temp_dir = tempfile::tempdir().unwrap();
-    let integrity = DatabaseIntegrity::new(db, temp_dir.path().to_path_buf());
-
-    let health = integrity.get_health_metrics().await.unwrap();
-
-    // WAL size calculation depends on wal_checkpoint results
-    // For in-memory DB, wal_size_bytes can be any i64 value
-    // Just verify the calculation doesn't panic
-    let _ = health.wal_size_bytes;
-}
-
-#[tokio::test]
-async fn test_health_metrics_all_pragma_success() {
-    let db = create_test_db().await;
-    let temp_dir = tempfile::tempdir().unwrap();
-    let integrity = DatabaseIntegrity::new(db, temp_dir.path().to_path_buf());
-
-    let health = integrity.get_health_metrics().await.unwrap();
-
-    // Verify all PRAGMAs executed successfully
-    assert!(health.database_size_bytes >= 0);
-    assert!(health.schema_version >= 0);
-    assert!(health.application_id != 0 || health.application_id == 0);
-    assert!(health.total_jobs >= 0);
-    assert!(health.total_integrity_checks >= 0);
-    assert!(health.total_backups >= 0);
 }
 
 #[tokio::test]
@@ -1029,60 +695,6 @@ async fn test_pragma_diagnostics_all_fields_populated() {
     assert!(diag.synchronous >= 0 && diag.synchronous <= 3);
     assert!(diag.auto_vacuum >= 0 && diag.auto_vacuum <= 2);
     assert!(diag.temp_store >= 0 && diag.temp_store <= 2);
-}
-
-#[tokio::test]
-async fn test_health_metrics_fragmentation_percentage_calculation() {
-    let db = create_test_db().await;
-    let temp_dir = tempfile::tempdir().unwrap();
-    let integrity = DatabaseIntegrity::new(db, temp_dir.path().to_path_buf());
-
-    let health = integrity.get_health_metrics().await.unwrap();
-
-    // Fragmentation should always be between 0-100%
-    assert!(health.fragmentation_percent >= 0.0);
-    assert!(health.fragmentation_percent <= 100.0);
-
-    // If database_size is 0, fragmentation should be 0
-    if health.database_size_bytes == 0 {
-        assert_eq!(health.fragmentation_percent, 0.0);
-    }
-}
-
-#[tokio::test]
-async fn test_optimize_with_fragmented_data() {
-    let db = create_test_db().await;
-    let temp_dir = tempfile::tempdir().unwrap();
-    let integrity = DatabaseIntegrity::new(db.clone(), temp_dir.path().to_path_buf());
-
-    // Create and delete data to fragment database
-    for i in 0..100 {
-        sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES (?, ?, ?, ?, ?)")
-            .bind(format!("hash_{}", i))
-            .bind("Job Title")
-            .bind("Company")
-            .bind(format!("https://example.com/{}", i))
-            .bind("test")
-            .execute(&db)
-            .await
-            .unwrap();
-    }
-
-    // Delete half to create fragmentation
-    sqlx::query("DELETE FROM jobs WHERE id % 2 = 0")
-        .execute(&db)
-        .await
-        .unwrap();
-
-    // Optimize should succeed even with fragmentation
-    integrity.optimize().await.unwrap();
-
-    // Verify database still works
-    let count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM jobs")
-        .fetch_one(&db)
-        .await
-        .unwrap();
-    assert_eq!(count, 50);
 }
 
 #[tokio::test]
