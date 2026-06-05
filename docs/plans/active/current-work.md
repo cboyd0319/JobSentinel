@@ -853,7 +853,8 @@ Out of scope:
   module; main ATS tests stay focused on core status, tracker, and stats flows.
 - AtsLiveScorePanel details-modal coverage now lives in a focused frontend
   spec with shared resume-analysis fixtures.
-- Lever scraper property tests now live in a focused child test module.
+- Lever scraper property tests and score-copy bloat fixtures now live in
+  focused test modules.
 
 ## Risks
 

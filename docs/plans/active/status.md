@@ -446,6 +446,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 - Lever scraper hash and remote-inference property tests moved out of the main
   Lever test file into a focused Rust child test module.
 
+- Score-copy bloat fixtures moved out of the feedback/privacy bloat test file
+  into a focused script test.
+
 ## Recent Completed Slices
 
 Detailed implementation history before the current restart window is in the
