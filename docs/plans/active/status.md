@@ -113,6 +113,14 @@ Earlier implementation slice:
 
 Latest implementation slice:
 
+- Settings notification, email, chat-alert, and per-source notification
+  preference UI moved out of `src/pages/Settings.tsx` into
+  `src/pages/SettingsNotificationsSection.tsx`.
+- The main Settings page is now below the 1,200-line frontend target, so its
+  legacy oversized-file exception was removed.
+
+Earlier implementation slice:
+
 - DB connection coverage moved out of `src-tauri/src/core/db/tests.rs` into
   `src-tauri/src/core/db/tests/tests/job_connection_tests.rs`.
 - The main DB test file is now below the 1,200-line test target, so its legacy

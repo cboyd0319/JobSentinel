@@ -226,6 +226,8 @@ Out of scope:
   file.
 - [x] Retire the main DB test file's legacy oversized-file exception after
   bringing it below the 1,200-line test target.
+- [x] Split Settings notification UI out of the main Settings page and retire
+  its legacy oversized-file exception.
 
 ## Orchestration Log
 
