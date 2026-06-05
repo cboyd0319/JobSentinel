@@ -230,6 +230,8 @@ Out of scope:
   retire its legacy oversized-file exception.
 - [x] Split Market Intelligence analytics tests out of the runtime analytics
   file and retire its legacy oversized-file exception.
+- [x] Split ghost detection tests out of the runtime ghost module and retire
+  its legacy oversized-file exception.
 - [x] Split mock user-data, job-tracking, settings, and support command bodies
   out of the main mock handler and retire its legacy oversized-file exception.
 - [x] Split ATS status, reminder, and stats edge tests out of the main ATS test
