@@ -66,13 +66,6 @@ describe("Resume Builder step validation copy", () => {
     ).toBe("Add one work experience before continuing.");
 
     expect(
-      getResumeBuilderStepValidationMessage(4, {
-        ...validInput,
-        educations: [],
-      })
-    ).toBe("Add one education entry before continuing.");
-
-    expect(
       getResumeBuilderStepValidationMessage(5, {
         ...validInput,
         skills: [],
@@ -85,5 +78,15 @@ describe("Resume Builder step validation copy", () => {
       expect(canProceedResumeBuilderStep(step, validInput)).toBe(true);
       expect(getResumeBuilderStepValidationMessage(step, validInput)).toBe("");
     }
+  });
+
+  it("allows users without education entries to continue", () => {
+    const inputWithoutEducation = {
+      ...validInput,
+      educations: [],
+    };
+
+    expect(canProceedResumeBuilderStep(4, inputWithoutEducation)).toBe(true);
+    expect(getResumeBuilderStepValidationMessage(4, inputWithoutEducation)).toBe("");
   });
 });

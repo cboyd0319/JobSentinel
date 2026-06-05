@@ -25,10 +25,7 @@ export function getResumeBuilderStepValidationMessage(
       input.experiences.length > 0
         ? ""
         : "Add one work experience before continuing.",
-    4: () =>
-      input.educations.length > 0
-        ? ""
-        : "Add one education entry before continuing.",
+    4: () => "",
     5: () =>
       input.skills.length > 0
         ? ""

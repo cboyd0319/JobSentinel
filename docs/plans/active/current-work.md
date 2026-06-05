@@ -337,6 +337,7 @@ Out of scope:
 - [x] Keep first-run desktop alerts off until the user explicitly turns them
   on.
 - [x] Route low-detail card warnings through posting-risk filters.
+- [x] Let Resume Builder users continue without education entries.
 
 ## Orchestration Log
 
@@ -387,6 +388,8 @@ Out of scope:
   so shared-device notifications do not start without user choice.
 - Coordinator aligned posting-risk filters with low-detail card warnings so
   broad or thin postings no longer remain in **Lower Risk** results.
+- Coordinator made Resume Builder education optional so users without degree,
+  certificate, or training entries do not need to invent data to finish.
 - Pay-protection sidecar was read-only and changed no files. Coordinator
   accepted its finding that negotiation-note drafts could treat benchmark
   values as offer facts, then fixed the Salary page, dev mock, tests, feature

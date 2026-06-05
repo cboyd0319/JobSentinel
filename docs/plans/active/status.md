@@ -51,6 +51,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Resume Builder education is now optional, so users without degrees,
+  certificates, or training entries can continue without inventing data.
+
 - Posting-risk filters now treat low-detail card warnings as review alerts, so
   **Lower Risk** hides broad/thin postings and **Needs Review** can find them.
 

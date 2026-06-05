@@ -48,7 +48,8 @@ possible.
 
 ### Step 4: Education
 
-Add your degrees:
+Add degrees, certificates, training, or leave this step empty if it does not
+apply:
 
 - Degree name and field of study
 - Institution name
