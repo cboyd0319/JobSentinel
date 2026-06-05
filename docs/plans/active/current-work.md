@@ -830,6 +830,11 @@ Out of scope:
   `src-tauri/src/core/notify/teams_tests/payload_edge_tests.rs`. The main
   Teams payload test file still owns base card structure, validation basics,
   score/reason displays, optional fields, and earlier edge cases.
+- Coordinator moved Greenhouse API JSON parsing, API URL construction, and late
+  parser/hash edge tests into
+  `src-tauri/src/core/scrapers/greenhouse_tests/api_tests.rs`. The main
+  Greenhouse test file still owns hash basics, scraper setup, HTML parsing,
+  model checks, and property-based hash coverage.
 
 ## Risks
 

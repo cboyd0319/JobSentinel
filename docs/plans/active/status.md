@@ -409,6 +409,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
   moved out of the main Teams payload test file into a focused payload-edge
   Rust test module.
 
+- Greenhouse API JSON parsing, API URL construction, and late parser/hash edge
+  tests moved out of the main Greenhouse scraper test file into a focused API
+  Rust test module.
+
 ## Recent Completed Slices
 
 Detailed implementation history before the current restart window is in the
