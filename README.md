@@ -14,14 +14,14 @@ readiness without Developer ID signing, notarization, stapling, and
 Gatekeeper acceptance, all of which require Apple Developer Program materials.
 
 Active-plan implementation status is separate: 100% of the current active-plan
-checklist is complete, with 152 of 152 tracked items checked off. The
+checklist is complete, with 153 of 153 tracked items checked off. The
 repo-wide readiness goal remains open until the completion bar in
 [active plan status](docs/plans/active/status.md) is proven from current
 evidence: no known bloat, privacy leak, stale docs, engineer-only user flow, or
-unverified claim remains, and final broad verification passes. Current cleanup
-focus is 1 grandfathered oversized-file exception plus continued resume
-assistance, job-card protection, guided intake, and pay protection where they
-improve privacy, security, verification, or user ease.
+unverified claim remains, and final broad verification passes. No
+grandfathered oversized-file exceptions remain. Current cleanup focus is
+continued resume assistance, job-card protection, guided intake, and pay
+protection where they improve privacy, security, verification, or user ease.
 
 [![CI](https://github.com/cboyd0319/JobSentinel/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/cboyd0319/JobSentinel/actions/workflows/ci.yml)
 [![Docs Harness](https://github.com/cboyd0319/JobSentinel/actions/workflows/docs-harness.yml/badge.svg?branch=main)](https://github.com/cboyd0319/JobSentinel/actions/workflows/docs-harness.yml)
@@ -558,8 +558,8 @@ Developer docs:
   tightened around local evidence and plain-language review.
 - Oversized-file modularization reduced legacy exceptions across mock handlers,
   settings UI, resume analysis, database tests, scheduler tests, scoring tests,
-  scraper tests, the README, and harness sensors. 1 grandfathered oversized
-  file remains.
+  scraper tests, the README, and harness sensors. No grandfathered oversized
+  files remain.
 - Direct npm, Cargo, and GitHub Actions dependencies were refreshed to latest
   stable versions; narrower Dependabot PRs are superseded by the mainline
   refresh.
@@ -570,8 +570,7 @@ Developer docs:
 
 ### Tracked Next
 
-- Finish remaining oversized-file exceptions where they block maintainability,
-  verification, privacy review, or user-facing clarity.
+- Keep the zero-oversized-file baseline intact during future changes.
 - Continue resume assistance only where it improves truthful local requirement
   review, hard-constraint handling, readable evidence, or next-action guidance.
 - Continue guided intake, job-card protection, and pay protection only where

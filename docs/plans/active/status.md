@@ -48,16 +48,17 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Resume Builder step bodies now use the existing contact, summary, experience,
+  education, and skills step components under `src/components/resume-builder/`.
+- `src/pages/ResumeBuilder.tsx` and `src/pages/ResumeOptimizer.tsx` are both
+  below the 1,200-line frontend target, so no legacy oversized-file exceptions
+  remain.
+- Product-copy, broad-audience, and frontend-contract harness path sets cover
+  the active Resume Builder step components and Resume Match model helper.
+
 - Resume Match model types, validators, JSON parsing, fit-status copy, and
   suggestion-category labels moved from `src/pages/ResumeOptimizer.tsx` to
   `src/pages/resumeOptimizerModel.ts`.
-- `src/pages/ResumeOptimizer.tsx` is now below the 1,200-line frontend target,
-  so the legacy oversized-file exception was removed.
-- Frontend-contract, product-copy, and broad-audience harness path sets now
-  include `src/pages/resumeOptimizerModel.ts`.
-- Resume Builder preview/template/readability UI moved from
-  `src/pages/ResumeBuilder.tsx` to `src/pages/ResumeBuilderPreviewStep.tsx`;
-  its no-growth budget tightened from 1,590 to 1,468 lines.
 
 - Resume Match model helpers, icons, resume library dropdown, and readable-text
   preview modal moved out of `src/pages/Resume.tsx` into focused helper files
@@ -71,8 +72,6 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 - Resume Builder template thumbnail previews and export/delete icons moved out
   of `src/pages/ResumeBuilder.tsx` into `src/pages/ResumeBuilderVisuals.tsx`.
-- `src/pages/ResumeBuilder.tsx` remains a legacy oversized-file exception, but
-  its no-growth budget tightened from 1,770 lines to 1,590 lines.
 
 Earlier implementation slice:
 
@@ -867,7 +866,7 @@ Recent cleanup summary:
 - `src/mocks/handlers.test.ts` and
   `src-tauri/src/core/resume/ats_analyzer_tests.rs` are now both under the
   1,200-line harness target and no longer need legacy no-growth exemptions.
-- Remaining oversized-file exception is `src/pages/ResumeBuilder.tsx`.
+- No remaining oversized-file exceptions are tracked.
 
 ## Next Best Work
 

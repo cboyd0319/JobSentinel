@@ -5,6 +5,11 @@ import { LoadingSpinner } from "../components/LoadingSpinner";
 import { Progress } from "../components/Progress";
 import { Modal, ModalFooter } from "../components/Modal";
 import { AtsLiveScorePanel } from "../components/AtsLiveScorePanel";
+import ContactStep from "../components/resume-builder/steps/ContactStep";
+import EducationStep from "../components/resume-builder/steps/EducationStep";
+import ExperienceStep from "../components/resume-builder/steps/ExperienceStep";
+import SkillsStep from "../components/resume-builder/steps/SkillsStep";
+import SummaryStep from "../components/resume-builder/steps/SummaryStep";
 import { useToast } from "../hooks/useToast";
 import { safeInvoke, safeInvokeWithToast } from "../utils/api";
 import { readStorageValue, removeStorageValue } from "../utils/browserStorage";
@@ -17,14 +22,10 @@ import {
   CheckCircleIcon,
   DocxIcon,
   PdfIcon,
-  TrashIcon,
 } from "./ResumeBuilderVisuals";
 import { ResumeBuilderPreviewStep } from "./ResumeBuilderPreviewStep";
 import {
-  SKILL_STRENGTH_LABELS,
-  SKILL_STRENGTH_VALUES,
   STEPS,
-  getSkillStrengthLabel,
   normalizeAtsAnalysis,
   toAtsResumeData,
   toExportResumeData,
@@ -242,6 +243,19 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
   }, [currentStep, contact, summary, experiences, educations, skills]);
 
   // Experience handlers
+  const openExperienceModal = () => {
+    setEditingExperience({
+      id: 0,
+      title: "",
+      company: "",
+      location: null,
+      start_date: "",
+      end_date: null,
+      achievements: [],
+    });
+    setShowExperienceModal(true);
+  };
+
   const handleAddExperience = async () => {
     if (!resumeId || !editingExperience) return;
 
@@ -283,6 +297,19 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
   };
 
   // Education handlers
+  const openEducationModal = () => {
+    setEditingEducation({
+      id: 0,
+      degree: "",
+      institution: "",
+      location: null,
+      graduation_date: null,
+      gpa: null,
+      honors: [],
+    });
+    setShowEducationModal(true);
+  };
+
   const handleAddEducation = async () => {
     if (!resumeId || !editingEducation) return;
 
@@ -649,432 +676,40 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
           {/* Main Content Area */}
           <div className="lg:col-span-3">
             <Card>
-          {/* Step 1: Contact Information */}
           {currentStep === 1 && (
-            <div className="space-y-6">
-              <CardHeader
-                title="Contact Information"
-                subtitle="How can employers reach you?"
-              />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
-                    Full Name <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={contact.name}
-                    onChange={(e) => setContact({ ...contact, name: e.target.value })}
-                    className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
-                    placeholder="Jordan Lee"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
-                    Email <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="email"
-                    value={contact.email}
-                    onChange={(e) => setContact({ ...contact, email: e.target.value })}
-                    className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
-                    placeholder="john@example.com"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
-                    Phone
-                  </label>
-                  <input
-                    type="tel"
-                    value={contact.phone || ""}
-                    onChange={(e) =>
-                      setContact({ ...contact, phone: e.target.value || null })
-                    }
-                    className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
-                    placeholder="(555) 123-4567"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
-                    Location
-                  </label>
-                  <input
-                    type="text"
-                    value={contact.location || ""}
-                    onChange={(e) =>
-                      setContact({ ...contact, location: e.target.value || null })
-                    }
-                    className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
-                    placeholder="Chicago, IL"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
-                    LinkedIn
-                  </label>
-                  <input
-                    type="url"
-                    value={contact.linkedin || ""}
-                    onChange={(e) =>
-                      setContact({ ...contact, linkedin: e.target.value || null })
-                    }
-                    className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
-                    placeholder="linkedin.com/in/your-name"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
-                    Portfolio or work samples
-                  </label>
-                  <input
-                    type="url"
-                    value={contact.github || ""}
-                    onChange={(e) =>
-                      setContact({ ...contact, github: e.target.value || null })
-                    }
-                    className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
-                    placeholder="portfolio.example.com"
-                  />
-                </div>
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
-                    Personal website or credential page
-                  </label>
-                  <input
-                    type="url"
-                    value={contact.website || ""}
-                    onChange={(e) =>
-                      setContact({ ...contact, website: e.target.value || null })
-                    }
-                    className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
-                    placeholder="https://your-name.example.com"
-                  />
-                </div>
-              </div>
-            </div>
+            <ContactStep contact={contact} setContact={setContact} />
           )}
 
-          {/* Step 2: Professional Summary */}
           {currentStep === 2 && (
-            <div className="space-y-6">
-              <CardHeader
-                title="Professional Summary"
-                subtitle="A brief overview of your professional background (2-3 sentences)"
-              />
-              <div>
-                <label htmlFor="professional-summary" className="sr-only">Professional Summary</label>
-                <textarea
-                  id="professional-summary"
-                  value={summary}
-                  onChange={(e) => setSummary(e.target.value)}
-                  rows={6}
-                  aria-describedby="summary-hint"
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500 resize-none"
-                  placeholder="Customer success manager with 5+ years improving onboarding, renewals, and customer experience. Known for clear communication, strong follow-through, and practical process improvements."
-                />
-                <p id="summary-hint" className="text-xs text-surface-500 dark:text-surface-400 mt-2">
-                  {summary.length} characters (minimum 10)
-                </p>
-              </div>
-            </div>
+            <SummaryStep summary={summary} setSummary={setSummary} />
           )}
 
-          {/* Step 3: Work Experience */}
           {currentStep === 3 && (
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <CardHeader
-                  title="Work Experience"
-                  subtitle="Your professional work history"
-                />
-                <Button
-                  size="sm"
-                  onClick={() => {
-                    setEditingExperience({
-                      id: 0,
-                      title: "",
-                      company: "",
-                      location: null,
-                      start_date: "",
-                      end_date: null,
-                      achievements: [],
-                    });
-                    setShowExperienceModal(true);
-                  }}
-                >
-                  + Add Experience
-                </Button>
-              </div>
-              {experiences.length === 0 ? (
-                <div className="text-center py-8">
-                  <div className="w-12 h-12 bg-surface-100 dark:bg-surface-700 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <svg className="w-6 h-6 text-surface-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                    </svg>
-                  </div>
-                  <p className="font-medium text-surface-700 dark:text-surface-300 mb-1">No work experience added yet</p>
-                  <p className="text-sm text-surface-500 dark:text-surface-400 mb-4">
-                    Add your relevant work history to strengthen your resume
-                  </p>
-                  <Button size="sm" onClick={() => setShowExperienceModal(true)}>
-                    Add Your First Job
-                  </Button>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {experiences.map((exp) => (
-                    <div
-                      key={exp.id}
-                      className="p-4 bg-surface-50 dark:bg-surface-700 rounded-lg border border-surface-200 dark:border-surface-600"
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-surface-800 dark:text-surface-200">
-                            {exp.title}
-                          </h4>
-                          <p className="text-sm text-surface-600 dark:text-surface-400">
-                            {exp.company}
-                            {exp.location && ` • ${exp.location}`}
-                          </p>
-                          <p className="text-xs text-surface-500 dark:text-surface-400 mt-1">
-                            {exp.start_date} - {exp.end_date || "Present"}
-                          </p>
-                          {exp.achievements.length > 0 && (
-                            <ul className="list-disc list-inside mt-2 text-sm text-surface-600 dark:text-surface-400 space-y-1">
-                              {exp.achievements.map((achievement, idx) => (
-                                <li key={idx}>{achievement}</li>
-                              ))}
-                            </ul>
-                          )}
-                        </div>
-                        <button
-                          onClick={() => confirmDeleteExperience(exp)}
-                          className="p-2 text-surface-400 hover:text-red-500 transition-colors"
-                          aria-label="Delete experience"
-                        >
-                          <TrashIcon className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            <ExperienceStep
+              experiences={experiences}
+              onAddClick={openExperienceModal}
+              onDeleteClick={confirmDeleteExperience}
+            />
           )}
 
-          {/* Step 4: Education */}
           {currentStep === 4 && (
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <CardHeader
-                  title="Education"
-                  subtitle="Your academic background"
-                />
-                <Button
-                  size="sm"
-                  onClick={() => {
-                    setEditingEducation({
-                      id: 0,
-                      degree: "",
-                      institution: "",
-                      location: null,
-                      graduation_date: null,
-                      gpa: null,
-                      honors: [],
-                    });
-                    setShowEducationModal(true);
-                  }}
-                >
-                  + Add Education
-                </Button>
-              </div>
-              {educations.length === 0 ? (
-                <div className="text-center py-8">
-                  <div className="w-12 h-12 bg-surface-100 dark:bg-surface-700 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <svg className="w-6 h-6 text-surface-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path d="M12 14l9-5-9-5-9 5 9 5z" />
-                      <path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" />
-                    </svg>
-                  </div>
-                  <p className="font-medium text-surface-700 dark:text-surface-300 mb-1">No education added yet</p>
-                  <p className="text-sm text-surface-500 dark:text-surface-400 mb-4">
-                    Add your educational background to complete your profile
-                  </p>
-                  <Button
-                    size="sm"
-                    onClick={() => {
-                      setEditingEducation({
-                        id: 0,
-                        degree: "",
-                        institution: "",
-                        location: null,
-                        graduation_date: null,
-                        gpa: null,
-                        honors: [],
-                      });
-                      setShowEducationModal(true);
-                    }}
-                  >
-                    Add Education
-                  </Button>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {educations.map((edu) => (
-                    <div
-                      key={edu.id}
-                      className="p-4 bg-surface-50 dark:bg-surface-700 rounded-lg border border-surface-200 dark:border-surface-600"
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-surface-800 dark:text-surface-200">
-                            {edu.degree}
-                          </h4>
-                          <p className="text-sm text-surface-600 dark:text-surface-400">
-                            {edu.institution}
-                            {edu.location && ` • ${edu.location}`}
-                          </p>
-                          {edu.graduation_date && (
-                            <p className="text-xs text-surface-500 dark:text-surface-400 mt-1">
-                              Graduated: {edu.graduation_date}
-                            </p>
-                          )}
-                          {edu.gpa && (
-                            <p className="text-xs text-surface-500 dark:text-surface-400">
-                              GPA: {edu.gpa}
-                            </p>
-                          )}
-                          {edu.honors.length > 0 && (
-                            <ul className="list-disc list-inside mt-2 text-sm text-surface-600 dark:text-surface-400">
-                              {edu.honors.map((honor, idx) => (
-                                <li key={idx}>{honor}</li>
-                              ))}
-                            </ul>
-                          )}
-                        </div>
-                        <button
-                          onClick={() => confirmDeleteEducation(edu)}
-                          className="p-2 text-surface-400 hover:text-red-500 transition-colors"
-                          aria-label="Delete education"
-                        >
-                          <TrashIcon className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            <EducationStep
+              educations={educations}
+              onAddClick={openEducationModal}
+              onDeleteClick={confirmDeleteEducation}
+            />
           )}
 
-          {/* Step 5: Skills */}
           {currentStep === 5 && (
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <CardHeader
-                  title="Skills"
-                  subtitle="Role and professional skills"
-                />
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  onClick={handleImportSkills}
-                  loading={importingSkills}
-                >
-                  Import from Resume
-                </Button>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <div>
-                  <label className="block text-xs font-medium text-surface-700 dark:text-surface-300 mb-1">
-                    Skill Name
-                  </label>
-                  <input
-                    type="text"
-                    value={newSkill.name}
-                    onChange={(e) => setNewSkill({ ...newSkill, name: e.target.value })}
-                    className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
-                    placeholder="Project Management"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-surface-700 dark:text-surface-300 mb-1">
-                    Category
-                  </label>
-                  <input
-                    type="text"
-                    value={newSkill.category}
-                    onChange={(e) => setNewSkill({ ...newSkill, category: e.target.value })}
-                    className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
-                    placeholder="Operations"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-surface-700 dark:text-surface-300 mb-1">
-                    Skill strength
-                  </label>
-                  <div className="flex gap-2">
-                    <select
-                      value={newSkill.proficiency || ""}
-                      onChange={(e) =>
-                        setNewSkill({
-                          ...newSkill,
-                          proficiency: (e.target.value as typeof newSkill.proficiency) || null,
-                        })
-                      }
-                      className="flex-1 px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
-                    >
-                      <option value="">Select strength</option>
-                      {SKILL_STRENGTH_VALUES.map((level) => (
-                        <option key={level} value={level}>
-                          {SKILL_STRENGTH_LABELS[level]}
-                        </option>
-                      ))}
-                    </select>
-                    <Button size="sm" onClick={handleAddSkill}>
-                      Add
-                    </Button>
-                  </div>
-                </div>
-              </div>
-              {skills.length > 0 && (
-                <div className="space-y-2">
-                  {skills.map((skill, idx) => (
-                    <div
-                      key={idx}
-                      className="flex items-center justify-between p-3 bg-surface-50 dark:bg-surface-700 rounded-lg border border-surface-200 dark:border-surface-600"
-                    >
-                      <div className="flex-1">
-                        <span className="font-medium text-surface-800 dark:text-surface-200">
-                          {skill.name}
-                        </span>
-                        <span className="mx-2 text-surface-400">•</span>
-                        <span className="text-sm text-surface-600 dark:text-surface-400">
-                          {skill.category}
-                        </span>
-                        {skill.proficiency && (
-                          <>
-                            <span className="mx-2 text-surface-400">•</span>
-                            <span className="text-xs text-surface-500 dark:text-surface-400">
-                              {getSkillStrengthLabel(skill.proficiency)}
-                            </span>
-                          </>
-                        )}
-                      </div>
-                      <button
-                        onClick={() => confirmDeleteSkill(idx, skill.name)}
-                        className="p-2 text-surface-400 hover:text-red-500 transition-colors"
-                        aria-label="Delete skill"
-                      >
-                        <TrashIcon className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            <SkillsStep
+              skills={skills}
+              newSkill={newSkill}
+              setNewSkill={setNewSkill}
+              onAddSkill={handleAddSkill}
+              onDeleteSkill={confirmDeleteSkill}
+              onImportSkills={handleImportSkills}
+              importingSkills={importingSkills}
+            />
           )}
 
           {/* Step 6: Preview & Template Selection */}

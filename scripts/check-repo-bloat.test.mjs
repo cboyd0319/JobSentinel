@@ -48,29 +48,10 @@ test("checkRepoBloat rejects new oversized maintainable source files", () => {
   });
 });
 
-test("checkRepoBloat grandfathers known oversized files without allowing growth", () => {
+test("checkRepoBloat rejects formerly grandfathered oversized files at the standard limit", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
-    writeFixtureFile(root, "src/pages/ResumeBuilder.tsx", lineFixture(1468));
-
-    execFileSync("git", ["add", "package.json", "src/pages/ResumeBuilder.tsx"], {
-      cwd: root,
-    });
-
-    const violations = checkRepoBloat(root);
-
-    assert.equal(
-      violations.some((violation) => violation.includes("src/pages/ResumeBuilder.tsx has")),
-      false,
-      violations.join("\n"),
-    );
-  });
-});
-
-test("checkRepoBloat rejects growth in grandfathered oversized files", () => {
-  withGitFixture((root) => {
-    writeFixtureFile(root, "package.json", "{}\n");
-    writeFixtureFile(root, "src/pages/ResumeBuilder.tsx", lineFixture(1469));
+    writeFixtureFile(root, "src/pages/ResumeBuilder.tsx", lineFixture(1201));
 
     execFileSync("git", ["add", "package.json", "src/pages/ResumeBuilder.tsx"], {
       cwd: root,
@@ -80,7 +61,7 @@ test("checkRepoBloat rejects growth in grandfathered oversized files", () => {
 
     assert.ok(
       violations.includes(
-        "split legacy oversized tracked file before growing it: src/pages/ResumeBuilder.tsx has 1469 lines (budget 1468, target 1200)",
+        "split oversized tracked file: src/pages/ResumeBuilder.tsx has 1201 lines (limit 1200)",
       ),
       violations.join("\n"),
     );

@@ -26,6 +26,8 @@ const broadAudienceExamplePaths = new Set([
   "src/components/StatCard.test.tsx",
   "src/components/SkillCategoryFilter.test.tsx",
   "src/components/resume-builder/steps/ContactStep.tsx",
+  "src/components/resume-builder/steps/EducationStep.tsx",
+  "src/components/resume-builder/steps/ExperienceStep.tsx",
   "src/components/resume-builder/steps/SkillsStep.tsx",
   "src/components/resume-builder/steps/SummaryStep.tsx",
   "src/components/automation/ApplicationPreview.tsx",

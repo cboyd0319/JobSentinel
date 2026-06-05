@@ -346,7 +346,11 @@ export function getTechnicalFirstDocsResult(path, text) {
   if (
     path === "src/pages/ResumeBuilder.tsx" ||
     path === "src/pages/ResumeBuilderPreviewStep.tsx" ||
-    path === "src/components/resume-builder/steps/SkillsStep.tsx"
+    path === "src/components/resume-builder/steps/ContactStep.tsx" ||
+    path === "src/components/resume-builder/steps/EducationStep.tsx" ||
+    path === "src/components/resume-builder/steps/ExperienceStep.tsx" ||
+    path === "src/components/resume-builder/steps/SkillsStep.tsx" ||
+    path === "src/components/resume-builder/steps/SummaryStep.tsx"
   ) {
     const resumeBuilderPatterns = [
       />\s*Proficiency\s*</i,

@@ -312,6 +312,8 @@ Out of scope:
   legacy oversized-file budget.
 - [x] Split Resume Match Helper model helpers out of the main page and retire its
   legacy oversized-file exception.
+- [x] Reuse focused Resume Builder step components from the main page and retire
+  the final legacy oversized-file exception.
 
 ## Orchestration Log
 
