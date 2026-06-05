@@ -393,15 +393,19 @@ export function getResumeFitEvidenceStatus(analysis: AtsAnalysisResult): ResumeF
     };
   }
 
-  const missingRequired = requirementReviews.some(
+  const missingOrWeakRequired = requirementReviews.some(
     (review) =>
       review.importance === "Required" &&
-      review.match_state === "Missing",
+      (
+        review.match_state === "Missing" ||
+        review.match_state === "Partial" ||
+        review.match_state === "Implied"
+      ),
   );
-  if (missingRequired) {
+  if (missingOrWeakRequired) {
     return {
       label: "Mixed evidence",
-      detail: "Some required job-post language is not clearly found in this resume.",
+      detail: "Some required job-post language is missing or needs clearer support.",
       variant: "alert",
     };
   }

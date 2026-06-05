@@ -51,6 +51,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Resume Fit evidence status now stays at mixed evidence when required
+  job-post wording is missing, partial, or only implied.
+
 - First-run search review now makes job-source choices explicit before saving
   and says resumes, private notes, saved answers, and application history are
   not sent to job sources.

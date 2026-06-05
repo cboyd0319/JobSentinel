@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   buildResumeNextActions,
+  getResumeFitEvidenceStatus,
   type AtsAnalysisResult,
   type HardConstraintCategory,
   type RequirementMatchState,
@@ -152,5 +153,36 @@ describe("buildResumeNextActions", () => {
     expect(actions.map((action) => action.title)).toEqual([
       "Keep scheduling visible",
     ]);
+  });
+});
+
+describe("getResumeFitEvidenceStatus", () => {
+  it("shows mixed evidence for weak required wording", () => {
+    const weakStates: RequirementMatchState[] = ["Partial", "Implied"];
+
+    for (const matchState of weakStates) {
+      expect(
+        getResumeFitEvidenceStatus({
+          ...baseAnalysis,
+          requirement_reviews: [requiredReview("case management", matchState)],
+        }),
+      ).toMatchObject({
+        label: "Mixed evidence",
+        detail: "Some required job-post language is missing or needs clearer support.",
+        variant: "alert",
+      });
+    }
+  });
+
+  it("keeps clearer evidence for strong required wording", () => {
+    expect(
+      getResumeFitEvidenceStatus({
+        ...baseAnalysis,
+        requirement_reviews: [requiredReview("scheduling", "Strong")],
+      }),
+    ).toMatchObject({
+      label: "Clearer evidence",
+      variant: "success",
+    });
   });
 });
