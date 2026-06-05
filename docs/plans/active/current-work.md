@@ -192,6 +192,8 @@ Out of scope:
 - [x] Retire the product-copy checker module's legacy oversized-file exception
   after bringing it below the 900-line script target.
 - [x] Split DB job notes tests out of the main DB test file.
+- [x] Split resume analyzer keyword term-expansion helpers out of the runtime
+  analyzer.
 
 ## Orchestration Log
 
@@ -453,6 +455,12 @@ Out of scope:
   text edge-case tests into
   `src-tauri/src/core/db/tests/tests/job_notes_tests.rs`. The main DB test file
   still owns broad operation coverage and shared fixtures.
+- Read-only sidecar Newton audited `ats_analyzer.rs` and changed no files.
+  Best next slices were term expansion, plain-text format helpers, and
+  requirement review helpers. Coordinator accepted the term-expansion boundary
+  and moved equivalent search terms, lift-unit variants, year-experience
+  ranges, and human-language requirement detection into
+  `src-tauri/src/core/resume/ats_analyzer/term_expansion.rs`.
 
 ## Risks
 
