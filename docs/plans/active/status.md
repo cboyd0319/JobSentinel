@@ -367,6 +367,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 - Resume-focused product-copy fixture coverage moved out of the main
   product-copy test file into a focused resume product-copy test file.
 
+- Config property-based validation tests moved out of the main config test file
+  into a focused Rust test module.
+
 ## Recent Completed Slices
 
 Detailed implementation history before the current restart window is in the

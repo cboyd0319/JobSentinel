@@ -294,6 +294,8 @@ Out of scope:
 - [x] Split config Telegram alert tests out of the main config test file.
 - [x] Split config Teams alert tests out of the main config test file.
 - [x] Split config source URL tests out of the main config test file.
+- [x] Split config property-based validation tests out of the main config test
+  file.
 - [x] Retire the config test file's legacy oversized-file exception after
   bringing it below the 1,200-line test target.
 - [x] Split DB edge-case tests out of the main DB test file.
@@ -507,6 +509,9 @@ Out of scope:
 - Coordinator moved resume-focused product-copy fixture coverage into
   `scripts/check-product-copy-resume.test.mjs`, reducing the main product-copy
   test file from 1,164 to 879 lines.
+- Coordinator moved config property-based validation tests into
+  `src-tauri/src/core/config/tests/property_tests.rs`, reducing the main config
+  test file from 1,163 to 938 lines.
 - Pay-protection sidecar was read-only and changed no files. Coordinator
   accepted its finding that negotiation-note drafts could treat benchmark
   values as offer facts, then fixed the Salary page, dev mock, tests, feature
