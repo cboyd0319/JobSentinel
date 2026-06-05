@@ -553,6 +553,48 @@ describe("SetupWizard Accessibility", () => {
       });
     });
 
+    it("offers a broad source for non-technical searches and saves it only after selection", async () => {
+      const user = userEvent.setup();
+      mockInvoke.mockResolvedValue(undefined);
+      renderWithProviders(<SetupWizard onComplete={mockOnComplete} />);
+
+      await user.click(screen.getByRole("button", { name: /build my search/i }));
+      await user.type(screen.getByPlaceholderText("Add a job title..."), "Office Manager{enter}");
+      await user.type(screen.getByPlaceholderText("Add a skill..."), "Scheduling{enter}");
+      await user.click(screen.getByRole("button", { name: /^continue$/i }));
+      await user.click(screen.getByRole("button", { name: /^continue$/i }));
+
+      const broadSource = screen.getByRole("checkbox", {
+        name: /SimplyHired/i,
+      });
+
+      expect(broadSource).not.toBeChecked();
+      expect(
+        screen.getByText("No outside job sources selected; add reviewed sources in Settings."),
+      ).toBeInTheDocument();
+
+      await user.click(broadSource);
+      expect(screen.getByText("SimplyHired selected.")).toBeInTheDocument();
+
+      await user.click(screen.getByRole("button", { name: /start finding jobs/i }));
+
+      await waitFor(() => {
+        expect(mockInvoke).toHaveBeenCalledWith(
+          "complete_setup",
+          expect.objectContaining({
+            config: expect.objectContaining({
+              title_allowlist: ["Office Manager"],
+              keywords_boost: ["Scheduling"],
+              simplyhired: expect.objectContaining({
+                enabled: true,
+                query: "Office Manager Scheduling",
+              }),
+            }),
+          }),
+        );
+      });
+    });
+
     it("should have aria-live region for validation errors", () => {
       renderWithProviders(<SetupWizard onComplete={mockOnComplete} />);
 

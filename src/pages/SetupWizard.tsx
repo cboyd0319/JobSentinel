@@ -41,6 +41,7 @@ import {
   REVIEW_VOLUME_OPTIONS,
   applyReviewVolumePreference,
   buildSetupSearchSummary,
+  buildSetupSourceQuery,
   createDefaultSetupConfig,
   ghostConfigForFreshnessPreference,
   getSuggestedJobSourceOptions,
@@ -330,6 +331,24 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
               enabled,
             },
           };
+        case "simplyhired": {
+          const query = enabled
+            ? prev.simplyhired.query.trim() || buildSetupSourceQuery(prev)
+            : prev.simplyhired.query;
+          const location = enabled
+            ? prev.simplyhired.location ?? prev.location_preferences.cities[0]
+            : prev.simplyhired.location;
+          const simplyhired = {
+            ...prev.simplyhired,
+            enabled,
+            query,
+          };
+
+          return {
+            ...prev,
+            simplyhired: location ? { ...simplyhired, location } : simplyhired,
+          };
+        }
       }
     });
   };
@@ -415,6 +434,8 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
         return { ...source, checked: config.hn_hiring.enabled };
       case "weworkremotely":
         return { ...source, checked: config.weworkremotely.enabled };
+      case "simplyhired":
+        return { ...source, checked: config.simplyhired.enabled };
     }
   });
 

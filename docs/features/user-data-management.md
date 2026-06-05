@@ -70,6 +70,9 @@ When a starting path is selected, setup previews sample job titles and search
 words as editable suggestions before the search is saved.
 Software, security, and data paths can suggest tech-heavy job sources, but
 first-run setup keeps them off until the user checks those sources in review.
+Non-technical searches can suggest SimplyHired as a broad public source. It
+also stays off until the user checks it, and setup fills only the reviewed
+search words into the source config after that opt-in.
 
 ### Notification Preferences
 

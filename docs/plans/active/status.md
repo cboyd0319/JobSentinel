@@ -105,6 +105,8 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 - First-run setup now keeps suggested tech-heavy job sources off until the user
   checks them in review, and saves only checked sources.
+- Non-technical first-run searches can now suggest SimplyHired as a broad
+  public source, still off by default and saved only after source review opt-in.
 
 - Job cards now run unsafe saved-link checks before custom dashboard open
   handlers, so visible **Check job link** guidance cannot be bypassed by a
@@ -132,6 +134,8 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 - Build My Search now offers broad starter job-title buttons such as office,
   customer service, sales, warehouse, healthcare, and bookkeeping roles so
   non-technical first-run users do not start from a blank title field.
+- Non-technical first-run source review now offers a broad public SimplyHired
+  option without turning it on by default.
 
 - First-run saved-resume skill suggestions now wait for an explicit
   **Check saved resume skills** action before reading local resume skills, and

@@ -26,6 +26,7 @@ describe("Setup Wizard preference helpers", () => {
     expect(config.remoteok.enabled).toBe(false);
     expect(config.hn_hiring.enabled).toBe(false);
     expect(config.weworkremotely.enabled).toBe(false);
+    expect(config.simplyhired.enabled).toBe(false);
     expect(config.ghost_config).toEqual(
       ghostConfigForFreshnessPreference("fresh_verified_first")
     );
@@ -37,6 +38,7 @@ describe("Setup Wizard preference helpers", () => {
       remoteok: { enabled: true, tags: ["healthcare"], limit: 50 },
       hn_hiring: { enabled: false, remote_only: true, limit: 100 },
       weworkremotely: { enabled: true, limit: 50 },
+      simplyhired: { enabled: true, query: "Office Manager", limit: 50 },
     };
 
     expect(applyReviewVolumePreference(config, "focused")).toMatchObject({
@@ -44,6 +46,7 @@ describe("Setup Wizard preference helpers", () => {
       remoteok: { enabled: true, tags: ["healthcare"], limit: 25 },
       hn_hiring: { enabled: false, remote_only: true, limit: 50 },
       weworkremotely: { enabled: true, limit: 25 },
+      simplyhired: { enabled: true, query: "Office Manager", limit: 25 },
     });
   });
 
@@ -132,6 +135,21 @@ describe("Setup Wizard preference helpers", () => {
     });
   });
 
+  it("suggests a broad public source for non-technical searches without selecting it", () => {
+    const config = {
+      ...createDefaultSetupConfig(),
+      title_allowlist: ["Office Manager"],
+      keywords_boost: ["Scheduling"],
+    };
+
+    expect(getSuggestedJobSourceOptions(config).map((source) => source.key)).toEqual([
+      "simplyhired",
+    ]);
+    expect(buildSetupSearchSummary(config, "balanced", "balanced")).toMatchObject({
+      jobSources: "No outside job sources selected; add reviewed sources in Settings.",
+    });
+  });
+
   it("summarizes only sources the user selected", () => {
     const config = {
       ...createDefaultSetupConfig(),
@@ -141,10 +159,14 @@ describe("Setup Wizard preference helpers", () => {
         ...createDefaultSetupConfig().remoteok,
         enabled: true,
       },
+      simplyhired: {
+        ...createDefaultSetupConfig().simplyhired,
+        enabled: true,
+      },
     };
 
     expect(buildSetupSearchSummary(config, "balanced", "balanced")).toMatchObject({
-      jobSources: "Remote OK selected.",
+      jobSources: "Remote OK, SimplyHired selected.",
     });
   });
 });

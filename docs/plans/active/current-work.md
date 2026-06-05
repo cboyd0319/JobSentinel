@@ -346,6 +346,8 @@ Out of scope:
   low-detail posting warnings.
 - [x] Keep first-run/profile defaults broad by selecting all work-location
   modes and leaving salary floor unset until user choice.
+- [x] Suggest SimplyHired as an optional broad public source for
+  non-technical first-run searches while keeping it off until user opt-in.
 
 ## Orchestration Log
 
@@ -410,6 +412,9 @@ Out of scope:
 - Coordinator removed silent first-run narrowing by making default/profile
   searches include remote, hybrid, and on-site while leaving pay floor unset
   until the user enters one.
+- Coordinator added an optional SimplyHired suggestion for non-technical
+  first-run searches, filling its query from reviewed titles and skills only
+  after the user checks the source.
 - Pay-protection sidecar was read-only and changed no files. Coordinator
   accepted its finding that negotiation-note drafts could treat benchmark
   values as offer facts, then fixed the Salary page, dev mock, tests, feature

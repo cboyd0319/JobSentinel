@@ -556,8 +556,9 @@ Developer docs:
   file; the harness session reports 2 active plan docs and a 100/100
   five-tuple harness score.
 - Resume requirement review, saved-answer review, job-card stale or repost
-  evidence, listed-pay guidance, first-run presets, and support copy were
-  tightened around local evidence and plain-language review.
+  evidence, listed-pay guidance, first-run presets, optional first-run source
+  suggestions, and support copy were tightened around local evidence and
+  plain-language review.
 - Oversized-file modularization reduced legacy exceptions across mock handlers,
   settings UI, resume analysis, database tests, scheduler tests, scoring tests,
   scraper tests, the README, and harness sensors. No grandfathered oversized

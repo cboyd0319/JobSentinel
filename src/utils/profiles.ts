@@ -640,6 +640,11 @@ export function profileToConfig(profile: CareerProfile) {
       enabled: false,
       limit: 50,
     },
+    simplyhired: {
+      enabled: false,
+      query: "",
+      limit: 50,
+    },
   };
 }
 

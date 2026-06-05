@@ -81,6 +81,7 @@ describe("profiles", () => {
       expect(config.remoteok.enabled).toBe(false);
       expect(config.hn_hiring.enabled).toBe(false);
       expect(config.weworkremotely.enabled).toBe(false);
+      expect(config.simplyhired.enabled).toBe(false);
     });
 
     it("keeps broad profiles off tech-heavy sources by default", () => {
@@ -99,6 +100,7 @@ describe("profiles", () => {
         expect(config.remoteok.enabled).toBe(false);
         expect(config.hn_hiring.enabled).toBe(false);
         expect(config.weworkremotely.enabled).toBe(false);
+        expect(config.simplyhired.enabled).toBe(false);
       }
     });
 

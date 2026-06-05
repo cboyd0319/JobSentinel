@@ -16,6 +16,13 @@ export interface GhostConfig {
   hide_threshold: number;
 }
 
+export interface SetupQuerySourceConfig {
+  enabled: boolean;
+  query: string;
+  location?: string;
+  limit: number;
+}
+
 export type FreshnessPreference =
   | "fresh_verified_first"
   | "balanced"
@@ -82,6 +89,7 @@ export interface SetupConfig {
     enabled: boolean;
     limit: number;
   };
+  simplyhired: SetupQuerySourceConfig;
 }
 
 export interface SetupSearchSummary {
@@ -96,7 +104,11 @@ export interface SetupSearchSummary {
   pay: string;
 }
 
-export type SetupJobSourceKey = "remoteok" | "weworkremotely" | "hn_hiring";
+export type SetupJobSourceKey =
+  | "remoteok"
+  | "weworkremotely"
+  | "hn_hiring"
+  | "simplyhired";
 
 export interface SuggestedJobSourceOption {
   key: SetupJobSourceKey;
@@ -158,24 +170,28 @@ export const REVIEW_VOLUME_CONFIGS = {
     remoteok_limit: 25,
     hn_hiring_limit: 50,
     weworkremotely_limit: 25,
+    simplyhired_limit: 25,
   },
   balanced: {
     immediate_alert_threshold: 0.9,
     remoteok_limit: 50,
     hn_hiring_limit: 100,
     weworkremotely_limit: 50,
+    simplyhired_limit: 50,
   },
   broad: {
     immediate_alert_threshold: 0.85,
     remoteok_limit: 75,
     hn_hiring_limit: 150,
     weworkremotely_limit: 75,
+    simplyhired_limit: 75,
   },
 } satisfies Record<ReviewVolumePreference, {
   immediate_alert_threshold: number;
   remoteok_limit: number;
   hn_hiring_limit: number;
   weworkremotely_limit: number;
+  simplyhired_limit: number;
 }>;
 
 export const REVIEW_VOLUME_OPTIONS: ReviewVolumeOption[] = [
@@ -262,6 +278,11 @@ export function createDefaultSetupConfig(
       enabled: false,
       limit: REVIEW_VOLUME_CONFIGS[reviewVolumePreference].weworkremotely_limit,
     },
+    simplyhired: {
+      enabled: false,
+      query: "",
+      limit: REVIEW_VOLUME_CONFIGS[reviewVolumePreference].simplyhired_limit,
+    },
   };
 }
 
@@ -308,12 +329,13 @@ export function formatLocationSummary(locationPreferences: LocationPreferences) 
 }
 
 export function formatJobSourceSummary(
-  config: Pick<SetupConfig, "remoteok" | "hn_hiring" | "weworkremotely">
+  config: Pick<SetupConfig, "remoteok" | "hn_hiring" | "weworkremotely" | "simplyhired">
 ): string {
   const sources = [
     config.remoteok.enabled ? "Remote OK" : null,
     config.weworkremotely.enabled ? "We Work Remotely" : null,
     config.hn_hiring.enabled ? "Startup and tech hiring posts" : null,
+    config.simplyhired.enabled ? "SimplyHired" : null,
   ].filter((source): source is string => source !== null);
 
   if (sources.length === 0) {
@@ -333,6 +355,8 @@ export function getSuggestedJobSourceOptions(
   });
 
   const sourceOptions: SuggestedJobSourceOption[] = [];
+  const hasSearchTerms = [...config.title_allowlist, ...config.keywords_boost]
+    .some((term) => term.trim().length > 0);
 
   if (sourceDefaults.remoteokEnabled) {
     sourceOptions.push({
@@ -358,7 +382,31 @@ export function getSuggestedJobSourceOptions(
     });
   }
 
+  if (
+    hasSearchTerms &&
+    !sourceDefaults.remoteokEnabled &&
+    !sourceDefaults.weworkremotelyEnabled &&
+    !sourceDefaults.hnHiringEnabled
+  ) {
+    sourceOptions.push({
+      key: "simplyhired",
+      label: "SimplyHired",
+      description: "Broad public listings across many kinds of work.",
+    });
+  }
+
   return sourceOptions;
+}
+
+export function buildSetupSourceQuery(
+  config: Pick<SetupConfig, "title_allowlist" | "keywords_boost">
+): string {
+  return [...config.title_allowlist, ...config.keywords_boost]
+    .map((term) => term.trim())
+    .filter((term) => term.length > 0)
+    .slice(0, 4)
+    .join(" ")
+    .slice(0, 200);
 }
 
 export function toResumeSkillSuggestions(skills: SetupResumeSkill[]): string[] {
@@ -401,6 +449,10 @@ export function applyReviewVolumePreference(
     weworkremotely: {
       ...config.weworkremotely,
       limit: volume.weworkremotely_limit,
+    },
+    simplyhired: {
+      ...config.simplyhired,
+      limit: volume.simplyhired_limit,
     },
   };
 }
