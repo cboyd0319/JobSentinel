@@ -51,6 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Build My Search now offers broad starter job-title buttons such as office,
+  customer service, sales, warehouse, healthcare, and bookkeeping roles so
+  non-technical first-run users do not start from a blank title field.
+
 - First-run saved-resume skill suggestions now wait for an explicit
   **Check saved resume skills** action before reading local resume skills, and
   the suggestion panel moved out of the main setup page to stay under file-size

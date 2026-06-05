@@ -37,6 +37,7 @@ import {
 import { SetupWizardSearchSummary } from "./SetupWizardSearchSummary";
 import {
   COMMON_WORK_TO_AVOID,
+  COMMON_STARTER_JOB_TITLES,
   DEFAULT_FRESHNESS_PREFERENCE,
   DEFAULT_REVIEW_VOLUME_PREFERENCE,
   FRESHNESS_OPTIONS,
@@ -213,6 +214,19 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
       ...prev,
       title_allowlist: prev.title_allowlist.filter((t) => t !== titleToRemove),
     }));
+  };
+
+  const handleAddStarterTitle = (title: string) => {
+    setConfig((prev) => {
+      if (prev.title_allowlist.includes(title)) {
+        return prev;
+      }
+
+      return {
+        ...prev,
+        title_allowlist: [...prev.title_allowlist, title],
+      };
+    });
   };
 
   const handleAddSkill = () => {
@@ -565,8 +579,24 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                     ))}
                   </div>
                 ) : (
-                  <div className="flex items-center justify-center p-6 bg-surface-50 rounded-lg">
+                  <div className="space-y-3 p-6 bg-surface-50 rounded-lg">
                     <p className="text-surface-400 text-sm">Add at least one job title</p>
+                    <div
+                      className="flex flex-wrap gap-2"
+                      aria-label="Common starter job titles"
+                    >
+                      {COMMON_STARTER_JOB_TITLES.map((title) => (
+                        <Button
+                          key={title}
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => handleAddStarterTitle(title)}
+                          aria-label={`Add ${title} job title`}
+                        >
+                          {title}
+                        </Button>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>

@@ -83,6 +83,32 @@ describe("SetupWizard Accessibility", () => {
       expect(screen.getByText("Add at least one job title")).toBeInTheDocument();
     });
 
+    it("lets users add a common starter job title without typing", async () => {
+      const user = userEvent.setup();
+      mockInvoke.mockResolvedValue(undefined);
+      renderWithProviders(<SetupWizard onComplete={mockOnComplete} />);
+
+      await user.click(screen.getByRole("button", { name: /build my search/i }));
+      await user.click(screen.getByRole("button", { name: /add office assistant job title/i }));
+
+      expect(screen.getByText("Office Assistant")).toBeInTheDocument();
+
+      await user.click(screen.getByRole("button", { name: /^continue$/i }));
+      await user.click(screen.getByRole("button", { name: /^continue$/i }));
+      await user.click(screen.getByRole("button", { name: /start finding jobs/i }));
+
+      await waitFor(() => {
+        expect(mockInvoke).toHaveBeenCalledWith(
+          "complete_setup",
+          expect.objectContaining({
+            config: expect.objectContaining({
+              title_allowlist: ["Office Assistant"],
+            }),
+          }),
+        );
+      });
+    });
+
     it("starts office and admin users with non-technical local defaults", async () => {
       const user = userEvent.setup();
       mockInvoke.mockResolvedValue(undefined);

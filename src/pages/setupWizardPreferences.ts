@@ -195,6 +195,15 @@ export const COMMON_WORK_TO_AVOID = [
   "mandatory overtime",
 ] as const;
 
+export const COMMON_STARTER_JOB_TITLES = [
+  "Office Assistant",
+  "Customer Service Representative",
+  "Sales Associate",
+  "Warehouse Associate",
+  "Medical Assistant",
+  "Bookkeeper",
+] as const;
+
 export function ghostConfigForFreshnessPreference(
   preference: FreshnessPreference
 ): GhostConfig {
