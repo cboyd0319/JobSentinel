@@ -214,6 +214,8 @@ Out of scope:
 - [x] Split config Telegram alert tests out of the main config test file.
 - [x] Split config Teams alert tests out of the main config test file.
 - [x] Split config source URL tests out of the main config test file.
+- [x] Retire the config test file's legacy oversized-file exception after
+  bringing it below the 1,200-line test target.
 
 ## Orchestration Log
 

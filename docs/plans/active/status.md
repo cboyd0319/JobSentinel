@@ -50,6 +50,14 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Config save/load persistence tests moved out of
+  `src-tauri/src/core/config/tests.rs` into
+  `src-tauri/src/core/config/tests/persistence_tests.rs`.
+- The main config test file is now below the 1,200-line test target, so its
+  legacy oversized-file exception was removed.
+
+Recent implementation slice:
+
 - Config Greenhouse and Lever source URL validation tests moved out of
   `src-tauri/src/core/config/tests.rs` into
   `src-tauri/src/core/config/tests/source_url_tests.rs`.
@@ -59,7 +67,7 @@ Latest implementation slice:
 - `src-tauri/src/core/config/tests.rs` legacy no-growth budget tightened from
   1,382 lines to 1,247 lines.
 
-Recent implementation slice:
+Earlier implementation slice:
 
 - Config Teams alert validation tests moved out of
   `src-tauri/src/core/config/tests.rs` into

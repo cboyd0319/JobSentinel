@@ -483,97 +483,12 @@ mod tests {
     #[path = "source_url_tests.rs"]
     mod source_url_tests;
 
-    #[test]
-    fn test_save_and_load_config_roundtrip() {
-        let temp_dir = TempDir::new().expect("Failed to create temp dir");
-        let config_path = temp_dir.path().join("config.json");
+    // ========================================
+    // Persistence Tests
+    // ========================================
 
-        let original_config = create_valid_config();
-
-        // Save config
-        original_config
-            .save(&config_path)
-            .expect("Failed to save config");
-
-        // Verify file exists
-        assert!(config_path.exists(), "Config file should exist after save");
-
-        // Load config back
-        let loaded_config = Config::load(&config_path).expect("Failed to load config");
-
-        // Verify key fields match
-        assert_eq!(
-            loaded_config.title_allowlist,
-            original_config.title_allowlist
-        );
-        assert_eq!(
-            loaded_config.salary_floor_usd,
-            original_config.salary_floor_usd
-        );
-        assert_eq!(
-            loaded_config.immediate_alert_threshold,
-            original_config.immediate_alert_threshold
-        );
-        assert_eq!(
-            loaded_config.greenhouse_urls,
-            original_config.greenhouse_urls
-        );
-    }
-
-    #[test]
-    fn test_save_creates_parent_directories() {
-        let temp_dir = TempDir::new().expect("Failed to create temp dir");
-        let config_path = temp_dir
-            .path()
-            .join("nested")
-            .join("dirs")
-            .join("config.json");
-
-        let config = create_valid_config();
-
-        // Save should create nested directories
-        config
-            .save(&config_path)
-            .expect("Failed to save config to nested path");
-
-        assert!(
-            config_path.exists(),
-            "Config file should exist in nested directories"
-        );
-    }
-
-    #[test]
-    fn test_load_invalid_json_fails() {
-        let temp_dir = TempDir::new().expect("Failed to create temp dir");
-        let config_path = temp_dir.path().join("invalid.json");
-
-        // Write invalid JSON
-        fs::write(&config_path, "{ this is not valid JSON }").expect("Failed to write file");
-
-        let result = Config::load(&config_path);
-        assert!(result.is_err(), "Loading invalid JSON should fail");
-    }
-
-    #[test]
-    fn test_load_nonexistent_file_fails() {
-        let temp_dir = TempDir::new().expect("Failed to create temp dir");
-        let config_path = temp_dir.path().join("nonexistent.json");
-
-        let result = Config::load(&config_path);
-        assert!(result.is_err(), "Loading nonexistent file should fail");
-    }
-
-    #[test]
-    fn test_save_invalid_config_fails() {
-        let temp_dir = TempDir::new().expect("Failed to create temp dir");
-        let config_path = temp_dir.path().join("config.json");
-
-        let mut config = create_valid_config();
-        config.salary_floor_usd = -1000; // Make it invalid
-
-        let result = config.save(&config_path);
-        assert!(result.is_err(), "Saving invalid config should fail");
-    }
+    #[path = "persistence_tests.rs"]
+    mod persistence_tests;
 
     #[test]
     fn test_default_values() {
