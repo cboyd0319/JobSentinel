@@ -50,6 +50,17 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Market intelligence DB sentiment tests now live in
+  `src-tauri/src/core/market_intelligence/analytics_tests/sentiment_tests.rs`,
+  reducing `analytics_tests/db_tests.rs` from 931 to 837 lines without changing
+  snapshot storage tests, snapshot retrieval tests, daily snapshot coverage, or
+  market model assertions.
+
+- Focused verification for the market intelligence DB sentiment test split
+  passed: `cargo fmt --all -- --check`,
+  `cargo test --lib core::market_intelligence::analytics::tests::db_tests`,
+  `cargo clippy -- -D warnings`, and `npm run lint:bloat`.
+
 - Config salary, threshold, title, keyword, location, and Slack webhook
   validation-limit tests now live in
   `src-tauri/src/core/config/tests/preference_validation_tests.rs`, reducing
