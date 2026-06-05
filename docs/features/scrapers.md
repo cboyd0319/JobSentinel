@@ -50,6 +50,10 @@ history, or unrelated profile details.
 
 The job source status view tracks source status without requiring users to
 understand website internals, saved connection details, or logs.
+For sources that can be enabled from saved search settings, status toggles must
+update the saved source config as well as health metadata. Source-check-only
+helpers that need a company URL, feed approval, access code, or other setup
+remain diagnostics until the user completes that setup in Settings.
 
 | Surface | Purpose |
 | ------- | ------- |

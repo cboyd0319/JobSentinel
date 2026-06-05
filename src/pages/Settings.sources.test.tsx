@@ -364,7 +364,7 @@ describe("Settings source setup", () => {
 
     await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
     await user.type(
-      screen.getByPlaceholderText("Paste Discord connection link"),
+      screen.getByPlaceholderText(/Discord connection link/i),
       "https://evil.com/api/webhooks/123/abc",
     );
     await user.click(screen.getByRole("button", { name: /save changes/i }));
@@ -405,7 +405,7 @@ describe("Settings source setup", () => {
 
     await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
     await user.type(
-      screen.getByPlaceholderText("Paste Teams connection link"),
+      screen.getByPlaceholderText(/Teams connection link/i),
       "https://evil.com/webhook/abc",
     );
     await user.click(screen.getByRole("button", { name: /save changes/i }));

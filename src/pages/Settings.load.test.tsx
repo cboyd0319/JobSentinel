@@ -321,16 +321,11 @@ describe("Settings — loadConfig flow", () => {
     });
   });
 
-  it("renders settings form even when some credential checks fail (allSettled)", async () => {
-    mockInvoke.mockImplementation(async (cmd: string, args?: unknown) => {
+  it("renders settings form without secure-storage status checks", async () => {
+    mockInvoke.mockImplementation(async (cmd: string) => {
       if (cmd === "get_config") return makeConfig();
       if (cmd === "has_credential") {
-        const { key } = args as { key: string };
-        // Simulate keyring failure for slack and discord
-        if (key === "slack_webhook" || key === "discord_webhook") {
-          throw new Error("Keyring locked");
-        }
-        return false;
+        throw new Error("Keyring locked");
       }
       if (cmd === "get_ghost_config") return makeGhostConfig();
       if (cmd === "detect_location") return null;
@@ -344,10 +339,12 @@ describe("Settings — loadConfig flow", () => {
       expect(screen.getByText("Settings")).toBeInTheDocument();
     });
 
-    // Should warn about credential failures
-    expect(mockToast.warning).toHaveBeenCalledWith(
+    expect(
+      mockInvoke.mock.calls.some(([cmd]) => cmd === "has_credential"),
+    ).toBe(false);
+    expect(mockToast.warning).not.toHaveBeenCalledWith(
       "Some saved connection details unavailable",
-      expect.stringContaining("2"),
+      expect.any(String),
     );
 
     // Should NOT show error state
@@ -356,7 +353,7 @@ describe("Settings — loadConfig flow", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("renders settings form when ALL credential checks fail (allSettled)", async () => {
+  it("loads settings without asking for every saved connection detail", async () => {
     mockInvoke.mockImplementation(async (cmd: string) => {
       if (cmd === "get_config") return makeConfig();
       if (cmd === "has_credential") throw new Error("Keyring unavailable");
@@ -372,10 +369,12 @@ describe("Settings — loadConfig flow", () => {
       expect(screen.getByText("Settings")).toBeInTheDocument();
     });
 
-    // Should warn about all active credential failures
-    expect(mockToast.warning).toHaveBeenCalledWith(
+    expect(
+      mockInvoke.mock.calls.some(([cmd]) => cmd === "has_credential"),
+    ).toBe(false);
+    expect(mockToast.warning).not.toHaveBeenCalledWith(
       "Some saved connection details unavailable",
-      expect.stringContaining("6"),
+      expect.any(String),
     );
   });
 
@@ -608,5 +607,31 @@ describe("Settings — loadConfig flow", () => {
     });
 
     expect(mockInvoke).not.toHaveBeenCalledWith("get_linkedin_expiry_status");
+  });
+
+  it("does not query secure storage when settings opens", async () => {
+    mockInvoke.mockImplementation(async (cmd: string) => {
+      if (cmd === "get_config") return makeConfig();
+      if (cmd === "has_credential") {
+        throw new Error("secure storage should be lazy");
+      }
+      if (cmd === "get_ghost_config") return makeGhostConfig();
+      if (cmd === "detect_location") return null;
+      return null;
+    });
+
+    render(<Settings onClose={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Settings")).toBeInTheDocument();
+    });
+
+    expect(
+      mockInvoke.mock.calls.some(([cmd]) => cmd === "has_credential"),
+    ).toBe(false);
+    expect(mockToast.warning).not.toHaveBeenCalledWith(
+      "Some saved connection details unavailable",
+      expect.any(String),
+    );
   });
 });

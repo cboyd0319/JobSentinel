@@ -56,6 +56,7 @@ interface SettingsNotificationsSectionProps {
   config: Config;
   credentialStatus: Record<CredentialKey, boolean>;
   credentials: Credentials;
+  onCheckCredential: (key: CredentialKey) => Promise<boolean>;
   setConfig: Dispatch<SetStateAction<Config | null>>;
   setCredentials: Dispatch<SetStateAction<Credentials>>;
 }
@@ -64,6 +65,7 @@ export function SettingsNotificationsSection({
   config,
   credentialStatus,
   credentials,
+  onCheckCredential,
   setConfig,
   setCredentials,
 }: SettingsNotificationsSectionProps) {
@@ -96,7 +98,7 @@ export function SettingsNotificationsSection({
     }
   };
 
-  const handleWebhookAlertToggle = (
+  const handleWebhookAlertToggle = async (
     channel: "slack" | "discord" | "teams",
     label: "Slack" | "Discord" | "Teams",
     credentialKey: "slack_webhook" | "discord_webhook" | "teams_webhook",
@@ -105,7 +107,11 @@ export function SettingsNotificationsSection({
     enabled: boolean,
   ) => {
     const trimmed = value.trim();
-    if (enabled && !credentialStatus[credentialKey] && !trimmed) {
+    let hasSavedCredential = credentialStatus[credentialKey];
+    if (enabled && !hasSavedCredential && !trimmed) {
+      hasSavedCredential = await onCheckCredential(credentialKey);
+    }
+    if (enabled && !hasSavedCredential && !trimmed) {
       toast.info(
         `Paste ${label} connection link first`,
         `Then turn ${label} alerts on.`,

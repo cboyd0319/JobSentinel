@@ -456,6 +456,56 @@ describe("Settings — handleSave flow", () => {
     });
   });
 
+  it("stores a typed credential once and clears it after save", async () => {
+    const user = userEvent.setup();
+    const slackWebhook = "https://hooks.slack.com/services/T00/B00/secret-token";
+
+    mockInvoke.mockImplementation(async (cmd: string) => {
+      if (cmd === "get_config") return makeConfig();
+      if (cmd === "has_credential") return false;
+      if (cmd === "get_ghost_config") return makeGhostConfig();
+      if (cmd === "detect_location") return null;
+      if (cmd === "store_credential") return null;
+      if (cmd === "save_config") return null;
+      return null;
+    });
+
+    render(<Settings onClose={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Settings")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
+    await user.type(
+      screen.getByPlaceholderText(
+        "Paste Slack connection link, then turn Slack alerts on",
+      ),
+      slackWebhook,
+    );
+    await user.click(screen.getByRole("button", { name: /save changes/i }));
+
+    await waitFor(() => {
+      expect(mockInvoke).toHaveBeenCalledWith("store_credential", {
+        key: "slack_webhook",
+        value: slackWebhook,
+      });
+    });
+
+    expect(screen.queryByDisplayValue(slackWebhook)).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /save changes/i }));
+
+    await waitFor(() => {
+      expect(
+        mockInvoke.mock.calls.filter(([cmd]) => cmd === "save_config"),
+      ).toHaveLength(2);
+    });
+    expect(
+      mockInvoke.mock.calls.filter(([cmd]) => cmd === "store_credential"),
+    ).toHaveLength(1);
+  });
+
   it("shows clear feedback when a settings backup cannot be read", async () => {
     const user = userEvent.setup();
 
@@ -571,9 +621,11 @@ describe("Settings — handleSave flow", () => {
 
   it("tests an existing Slack webhook without retrieving it into the renderer", async () => {
     const user = userEvent.setup();
+    const config = makeConfig();
+    config.alerts.slack.enabled = true;
 
     mockInvoke.mockImplementation(async (cmd: string, args?: unknown) => {
-      if (cmd === "get_config") return makeConfig();
+      if (cmd === "get_config") return config;
       if (cmd === "has_credential") {
         return (args as { key: string }).key === "slack_webhook";
       }
@@ -681,14 +733,10 @@ describe("Settings — handleSave flow", () => {
 
     await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
 
-    expect(
-      screen.getByPlaceholderText(
-        "Paste Slack connection link, then turn Slack alerts on",
-      ),
-    ).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("Paste Discord connection link")).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("Paste Teams connection link")).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("Paste Telegram setup code")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/Slack connection link/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/Discord connection link/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/Teams connection link/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/Telegram setup code/i)).toBeInTheDocument();
     expect(screen.getByText("Telegram destination")).toBeInTheDocument();
     expect(screen.getByText(/Optional Telegram alert setup/i)).toBeInTheDocument();
     expect(container.innerHTML).not.toMatch(

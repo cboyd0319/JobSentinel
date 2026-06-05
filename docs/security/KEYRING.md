@@ -35,8 +35,8 @@ unprefixed snake-case key, such as `slack_webhook`.
 React settings and setup UI
   invoke("store_credential", { key, value })
   invoke("delete_credential", { key })
-  invoke("has_credential", { key })
-  invoke("get_credential_status")
+  invoke("has_credential", { key }) for one user-requested lazy check
+  invoke("get_credential_status") for diagnostics
     |
     v
 src-tauri/src/commands/credentials.rs
@@ -121,12 +121,19 @@ app thinks migration is complete.
 
 ## Settings Status
 
-Settings displays credential presence without returning credential values:
+Settings avoids checking every credential when the Settings window opens. On
+macOS, existence checks can still require Keychain access, so Settings derives
+initial status from non-secret saved config and only checks one credential when
+the user asks for an action that needs it.
+
+Settings displays credential status without returning credential values:
 
 - `Saved securely on this computer`: credential exists in the OS keyring.
 - `Will be saved securely on this computer`: a newly entered credential will be
   saved there.
 - Empty credential fields mean no new credential value was entered.
+- After a successful credential save, the renderer clears that secret input and
+  does not rewrite the same credential on later Settings saves.
 
 ## Security Considerations
 

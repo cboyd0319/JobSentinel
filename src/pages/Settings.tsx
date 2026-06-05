@@ -1,4 +1,11 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  type Dispatch,
+  type SetStateAction,
+} from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { Button } from "../components/Button";
 import { Card } from "../components/Card";
@@ -44,26 +51,69 @@ import {
   SettingsSupportSection,
 } from "./SettingsSupportSections";
 
-export default function Settings({ onClose }: SettingsProps) {
-  const [config, setConfig] = useState<Config | null>(null);
-  const [credentials, setCredentials] = useState<Credentials>({
+const CREDENTIAL_KEYS: CredentialKey[] = [
+  "slack_webhook",
+  "smtp_password",
+  "discord_webhook",
+  "teams_webhook",
+  "telegram_bot_token",
+  "usajobs_api_key",
+];
+
+function createEmptyCredentials(): Credentials {
+  return {
     slack_webhook: "",
     smtp_password: "",
     discord_webhook: "",
     teams_webhook: "",
     telegram_bot_token: "",
     usajobs_api_key: "",
-  });
-  const [credentialStatus, setCredentialStatus] = useState<
-    Record<CredentialKey, boolean>
-  >({
+  };
+}
+
+function createEmptyCredentialStatus(): Record<CredentialKey, boolean> {
+  return {
     slack_webhook: false,
     smtp_password: false,
     discord_webhook: false,
     teams_webhook: false,
     telegram_bot_token: false,
     usajobs_api_key: false,
-  });
+  };
+}
+
+function createCredentialStatusFromConfig(
+  config: Config,
+): Record<CredentialKey, boolean> {
+  return {
+    slack_webhook: config.alerts.slack?.enabled ?? false,
+    smtp_password:
+      Boolean(config.alerts.email?.enabled) &&
+      Boolean(
+        config.alerts.email?.smtp_username?.trim() ||
+          config.alerts.email?.smtp_server?.trim(),
+      ),
+    discord_webhook: config.alerts.discord?.enabled ?? false,
+    teams_webhook: config.alerts.teams?.enabled ?? false,
+    telegram_bot_token:
+      Boolean(config.alerts.telegram?.enabled) &&
+      Boolean(config.alerts.telegram?.chat_id?.trim()),
+    usajobs_api_key:
+      Boolean(config.usajobs?.enabled) && Boolean(config.usajobs?.email?.trim()),
+  };
+}
+
+export default function Settings({ onClose }: SettingsProps) {
+  const [config, setConfig] = useState<Config | null>(null);
+  const [credentials, setCredentials] = useState<Credentials>(
+    createEmptyCredentials,
+  );
+  const [dirtyCredentialKeys, setDirtyCredentialKeys] = useState<
+    Set<CredentialKey>
+  >(() => new Set());
+  const [credentialStatus, setCredentialStatus] = useState<
+    Record<CredentialKey, boolean>
+  >(createEmptyCredentialStatus);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [titleInput, setTitleInput] = useState("");
@@ -182,7 +232,7 @@ export default function Settings({ onClose }: SettingsProps) {
 
       // Load config (non-sensitive settings)
       const configData = await invoke<Config>("get_config");
-      setConfig({
+      const nextConfig = {
         ...configData,
         jobswithgpt_endpoint: configData.jobswithgpt_endpoint ?? "",
         jobswithgpt_approval: configData.jobswithgpt_approval ?? {
@@ -194,7 +244,9 @@ export default function Settings({ onClose }: SettingsProps) {
           ...configData.linkedin,
           enabled: false,
         },
-      });
+      };
+      setConfig(nextConfig);
+      setCredentialStatus(createCredentialStatusFromConfig(nextConfig));
 
       try {
         const lastRequest = await invoke<SourceRequestSummary | null>(
@@ -205,40 +257,6 @@ export default function Settings({ onClose }: SettingsProps) {
       } catch (error) {
         logError("Could not load source request history:", error);
         setJobsWithGptLastRequest(null);
-      }
-
-      // Check which credentials exist in secure storage (don't load actual values)
-      // Use allSettled so a single keyring failure doesn't block the entire Settings page
-      const credentialKeys: CredentialKey[] = [
-        "slack_webhook",
-        "smtp_password",
-        "discord_webhook",
-        "teams_webhook",
-        "telegram_bot_token",
-        "usajobs_api_key",
-      ];
-      const credResults = await Promise.allSettled(
-        credentialKeys.map((key) => hasCredential(key)),
-      );
-
-      const newStatus = {} as Record<CredentialKey, boolean>;
-      let credFailures = 0;
-      credentialKeys.forEach((key, i) => {
-        const result = credResults[i];
-        if (result?.status === "fulfilled") {
-          newStatus[key] = result.value;
-        } else {
-          newStatus[key] = false;
-          credFailures++;
-        }
-      });
-      setCredentialStatus(newStatus);
-
-      if (credFailures > 0) {
-        toast.warning(
-          "Some saved connection details unavailable",
-          `Couldn't check ${credFailures} saved connection detail(s). Unlock your system password manager if needed.`,
-        );
       }
 
     } catch (error: unknown) {
@@ -309,6 +327,49 @@ export default function Settings({ onClose }: SettingsProps) {
     loadGhostConfig();
   }, [loadConfig, loadGhostConfig]);
 
+  const handleCredentialsChange = useCallback<
+    Dispatch<SetStateAction<Credentials>>
+  >((updater) => {
+    setCredentials((previousCredentials) => {
+      const nextCredentials =
+        typeof updater === "function" ? updater(previousCredentials) : updater;
+      const changedKeys = CREDENTIAL_KEYS.filter(
+        (key) => nextCredentials[key] !== previousCredentials[key],
+      );
+
+      if (changedKeys.length > 0) {
+        setDirtyCredentialKeys((previousDirtyKeys) => {
+          const nextDirtyKeys = new Set(previousDirtyKeys);
+          changedKeys.forEach((key) => nextDirtyKeys.add(key));
+          return nextDirtyKeys;
+        });
+      }
+
+      return nextCredentials;
+    });
+  }, []);
+
+  const checkCredentialStatus = useCallback(
+    async (key: CredentialKey): Promise<boolean> => {
+      try {
+        const exists = await hasCredential(key);
+        setCredentialStatus((previousStatus) => ({
+          ...previousStatus,
+          [key]: exists,
+        }));
+        return exists;
+      } catch (error) {
+        logError("Could not check saved connection detail:", error);
+        toast.warning(
+          "Saved connection detail unavailable",
+          "Unlock your system password manager if needed, then try again.",
+        );
+        return false;
+      }
+    },
+    [toast],
+  );
+
   const handleSave = useCallback(async () => {
     if (!config) return;
 
@@ -329,43 +390,47 @@ export default function Settings({ onClose }: SettingsProps) {
       setSaving(true);
 
       // Save credentials to secure storage (only if user entered new values)
-      const credentialSaves: Promise<void>[] = [];
-
-      if (credentials.slack_webhook) {
-        credentialSaves.push(
-          storeCredential("slack_webhook", credentials.slack_webhook),
-        );
-      }
-      if (credentials.smtp_password) {
-        credentialSaves.push(
-          storeCredential("smtp_password", credentials.smtp_password),
-        );
-      }
-      if (credentials.discord_webhook) {
-        credentialSaves.push(
-          storeCredential("discord_webhook", credentials.discord_webhook),
-        );
-      }
-      if (credentials.teams_webhook) {
-        credentialSaves.push(
-          storeCredential("teams_webhook", credentials.teams_webhook),
-        );
-      }
-      if (credentials.telegram_bot_token) {
-        credentialSaves.push(
-          storeCredential("telegram_bot_token", credentials.telegram_bot_token),
-        );
-      }
-      if (credentials.usajobs_api_key) {
-        credentialSaves.push(
-          storeCredential("usajobs_api_key", credentials.usajobs_api_key),
-        );
-      }
+      const credentialEntries = CREDENTIAL_KEYS
+        .filter(
+          (key) => dirtyCredentialKeys.has(key) && credentials[key].trim(),
+        )
+        .map((key) => ({ key, value: credentials[key] }));
+      const credentialSaves = credentialEntries.map(({ key, value }) =>
+        storeCredential(key, value),
+      );
 
       const configSave = invoke("save_config", { config });
       const results = await Promise.allSettled([...credentialSaves, configSave]);
       const credentialResults = results.slice(0, credentialSaves.length);
       const configResult = results[credentialSaves.length];
+
+      const successfulCredentialKeys = credentialResults.flatMap(
+        (result, index) => {
+          const entry = credentialEntries[index];
+          return result.status === "fulfilled" && entry ? [entry.key] : [];
+        },
+      );
+      if (successfulCredentialKeys.length > 0) {
+        setCredentials((previousCredentials) => {
+          const nextCredentials = { ...previousCredentials };
+          successfulCredentialKeys.forEach((key) => {
+            nextCredentials[key] = "";
+          });
+          return nextCredentials;
+        });
+        setCredentialStatus((previousStatus) => {
+          const nextStatus = { ...previousStatus };
+          successfulCredentialKeys.forEach((key) => {
+            nextStatus[key] = true;
+          });
+          return nextStatus;
+        });
+        setDirtyCredentialKeys((previousDirtyKeys) => {
+          const nextDirtyKeys = new Set(previousDirtyKeys);
+          successfulCredentialKeys.forEach((key) => nextDirtyKeys.delete(key));
+          return nextDirtyKeys;
+        });
+      }
 
       const credentialFailures = credentialResults.filter(
         (r): r is PromiseRejectedResult => r.status === "rejected",
@@ -409,7 +474,14 @@ export default function Settings({ onClose }: SettingsProps) {
     } finally {
       setSaving(false);
     }
-  }, [config, credentialStatus, credentials, toast, onClose]);
+  }, [
+    config,
+    credentialStatus,
+    credentials,
+    dirtyCredentialKeys,
+    toast,
+    onClose,
+  ]);
 
   // Keyboard shortcut: Cmd+S to save
   useEffect(() => {
@@ -848,8 +920,9 @@ export default function Settings({ onClose }: SettingsProps) {
                 config={config}
                 credentialStatus={credentialStatus}
                 credentials={credentials}
+                onCheckCredential={checkCredentialStatus}
                 setConfig={setConfig}
-                setCredentials={setCredentials}
+                setCredentials={handleCredentialsChange}
               />
 
               <SettingsJobSourcesSection
@@ -863,7 +936,7 @@ export default function Settings({ onClose }: SettingsProps) {
                 onApproveJobsWithGptPayload={approveJobsWithGptPayload}
                 onClearJobsWithGptApproval={clearJobsWithGptApproval}
                 setConfig={setConfig}
-                setCredentials={setCredentials}
+                setCredentials={handleCredentialsChange}
                 setShowJobsWithGptEndpoint={setShowJobsWithGptEndpoint}
                 showJobsWithGptEndpoint={showJobsWithGptEndpoint}
               />

@@ -112,6 +112,33 @@ async fn save_config_to_runtime_and_path(
     Ok(())
 }
 
+async fn complete_setup_to_runtime_and_paths(
+    config: Value,
+    runtime_config: &RwLock<Config>,
+    config_path: &Path,
+    db_path: &Path,
+) -> Result<(), String> {
+    save_config_to_runtime_and_path(config, runtime_config, config_path).await?;
+
+    let database = Database::connect(db_path).await.map_err(|e| {
+        let message = user_friendly_error("Failed to initialize database", &e);
+        tracing::error!(
+            db_path = %path_label_for_logging(db_path),
+            error = %message,
+            "Failed to connect to setup database"
+        );
+        message
+    })?;
+
+    database.migrate().await.map_err(|e| {
+        let message = user_friendly_error("Failed to initialize database", &e);
+        tracing::error!(error = %message, "Failed to migrate setup database");
+        message
+    })?;
+
+    Ok(())
+}
+
 /// Save user configuration
 #[tauri::command]
 pub async fn save_config(config: Value, state: State<'_, AppState>) -> Result<(), String> {
@@ -267,55 +294,13 @@ pub async fn is_first_run() -> Result<bool, String> {
 
 /// Complete first-run setup
 #[tauri::command]
-pub async fn complete_setup(config: Value) -> Result<(), String> {
+pub async fn complete_setup(config: Value, state: State<'_, AppState>) -> Result<(), String> {
     tracing::info!("Command: complete_setup");
 
-    // Parse config from JSON
-    let parsed_config: Config = serde_json::from_value(config)
-        .map_err(|e| user_friendly_error("Invalid configuration", e))?;
-
-    // Ensure config directory exists
     let config_path = Config::default_path();
-    if let Some(parent) = config_path.parent() {
-        std::fs::create_dir_all(parent).map_err(|e| {
-            let message = user_friendly_error("Failed to create configuration directory", &e);
-            tracing::error!(
-                config_dir = %path_label_for_logging(parent),
-                error = %message,
-                "Failed to create configuration directory"
-            );
-            message
-        })?;
-    }
-
-    // Save configuration
-    parsed_config.save(&config_path).map_err(|e| {
-        let message = user_friendly_error("Failed to save configuration", &e);
-        tracing::error!(
-            config_path = %path_label_for_logging(&config_path),
-            error = %message,
-            "Failed to save setup configuration"
-        );
-        message
-    })?;
-
-    // Initialize database
     let db_path = Database::default_path();
-    let database = Database::connect(&db_path).await.map_err(|e| {
-        let message = user_friendly_error("Failed to initialize database", &e);
-        tracing::error!(
-            db_path = %path_label_for_logging(&db_path),
-            error = %message,
-            "Failed to connect to setup database"
-        );
-        message
-    })?;
-
-    database.migrate().await.map_err(|e| {
-        let message = user_friendly_error("Failed to initialize database", &e);
-        tracing::error!(error = %message, "Failed to migrate setup database");
-        message
-    })?;
+    complete_setup_to_runtime_and_paths(config, state.config.as_ref(), &config_path, &db_path)
+        .await?;
 
     tracing::info!("Setup complete");
     Ok(())
@@ -457,6 +442,38 @@ mod tests {
         assert_eq!(saved.salary_floor_usd, 95_000);
         assert!(saved.use_resume_matching);
         assert_eq!(saved.keywords_boost, vec!["case management"]);
+    }
+
+    #[tokio::test]
+    async fn complete_setup_updates_runtime_config_after_disk_save() {
+        let runtime_config = RwLock::new(create_dashboard_test_config());
+        let temp_dir = tempfile::tempdir().unwrap();
+        let config_path = temp_dir.path().join("config.json");
+        let db_path = temp_dir.path().join("jobs.db");
+
+        let mut setup_config = create_dashboard_test_config();
+        setup_config.salary_floor_usd = 82_000;
+        setup_config.title_allowlist = vec!["Program Coordinator".to_string()];
+        setup_config.remoteok.enabled = true;
+        setup_config.remoteok.limit = 50;
+        let payload = serde_json::to_value(&setup_config).unwrap();
+
+        complete_setup_to_runtime_and_paths(payload, &runtime_config, &config_path, &db_path)
+            .await
+            .unwrap();
+
+        let runtime = runtime_config.read().await;
+        assert_eq!(runtime.salary_floor_usd, 82_000);
+        assert_eq!(runtime.title_allowlist, vec!["Program Coordinator"]);
+        assert!(runtime.remoteok.enabled);
+        assert!(DashboardPreferences::from_config(&runtime).any_job_source_enabled);
+        drop(runtime);
+
+        let saved = Config::load(&config_path).unwrap();
+        assert_eq!(saved.salary_floor_usd, 82_000);
+        assert_eq!(saved.title_allowlist, vec!["Program Coordinator"]);
+        assert!(saved.remoteok.enabled);
+        assert!(db_path.exists());
     }
 
     #[tokio::test]
