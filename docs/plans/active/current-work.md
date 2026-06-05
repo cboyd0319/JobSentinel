@@ -813,6 +813,10 @@ Out of scope:
   `scripts/check-repo-bloat-bookmarklet-privacy.test.mjs`. The privacy command
   bloat test still owns automation, URL/path, resume, ATS, sensitive command,
   and utility command fixtures.
+- Coordinator moved Settings source-recommendation, source wording, USAJobs
+  setup, and invalid chat connection-link tests into
+  `src/pages/Settings.sources.test.tsx`. The main Settings test still owns
+  save, backup, notification, credential, and ordering coverage.
 
 ## Risks
 

@@ -395,6 +395,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
   auth-token bloat fixtures moved out of the privacy command bloat test into a
   focused bookmarklet/privacy bloat test file.
 
+- Settings source-recommendation, source wording, USAJobs setup, and invalid
+  chat connection-link tests moved out of the main Settings test into a focused
+  source Settings test file.
+
 ## Recent Completed Slices
 
 Detailed implementation history before the current restart window is in the
