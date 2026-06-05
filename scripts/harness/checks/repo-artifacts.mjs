@@ -154,7 +154,6 @@ const legacyOversizedLineBudgets = new Map([
   ["src-tauri/src/core/salary/predictor.rs", 1489],
   ["src-tauri/src/core/notify/discord.rs", 1476],
   ["src-tauri/src/core/scrapers/greenhouse.rs", 1403],
-  ["src-tauri/src/core/resume/matcher.rs", 1302],
 ]);
 
 export function normalizeRepoPath(path) {

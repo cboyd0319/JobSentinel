@@ -50,6 +50,16 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Resume matcher tests moved out of
+  `src-tauri/src/core/resume/matcher.rs` into
+  `src-tauri/src/core/resume/matcher_tests.rs`.
+- The runtime resume matcher module is now below the 1,200-line Rust target, so
+  the legacy oversized-file exception was removed.
+- Touched matcher test fixture paths now use repo-relative placeholders instead
+  of local absolute paths.
+
+Earlier implementation slice:
+
 - Salary benchmark tests moved out of
   `src-tauri/src/core/salary/benchmarks.rs` into
   `src-tauri/src/core/salary/benchmarks_tests.rs`.
