@@ -4,8 +4,8 @@
 
 use crate::commands::{errors::user_friendly_error, AppState};
 use crate::core::import::{
-    fetch_job_page, parse_schema_org_job_posting, schema_org::create_preview, ImportError,
-    JobImportPreview,
+    fetch_job_page, parse_schema_org_job_posting, salary::parse_schema_org_salary,
+    schema_org::create_preview, ImportError, JobImportPreview,
 };
 use crate::core::url_security::{canonicalize_user_supplied_job_url, sanitize_url_for_logging};
 use chrono::Utc;
@@ -259,39 +259,9 @@ fn extract_location_string(job_location: &serde_json::Value) -> Option<String> {
 fn extract_salary_info(
     base_salary: &Option<serde_json::Value>,
 ) -> (Option<i64>, Option<i64>, Option<String>) {
-    let salary = match base_salary {
-        Some(s) => s,
-        None => return (None, None, None),
-    };
-
-    // Handle object format
-    if let Some(obj) = salary.as_object() {
-        let currency = obj
-            .get("currency")
-            .and_then(|v| v.as_str())
-            .map(|s| s.to_string());
-
-        // Try to get value object
-        if let Some(value) = obj.get("value") {
-            if let Some(val_obj) = value.as_object() {
-                let min = val_obj
-                    .get("minValue")
-                    .and_then(|v| v.as_f64())
-                    .map(|v| v as i64);
-                let max = val_obj
-                    .get("maxValue")
-                    .and_then(|v| v.as_f64())
-                    .map(|v| v as i64);
-
-                return (min, max, currency);
-            }
-
-            // Direct value field
-            if let Some(val) = value.as_f64() {
-                let amount = val as i64;
-                return (Some(amount), Some(amount), currency);
-            }
-        }
+    if let Some(salary) = parse_schema_org_salary(base_salary) {
+        let (min, max) = salary.annual_bounds();
+        return (min, max, salary.currency());
     }
 
     (None, None, None)
@@ -436,6 +406,24 @@ mod tests {
         let (min, max, currency) = extract_salary_info(&Some(salary_json));
         assert_eq!(min, Some(100000));
         assert_eq!(max, Some(150000));
+        assert_eq!(currency, Some("USD".to_string()));
+    }
+
+    #[test]
+    fn test_extract_salary_info_converts_hourly_pay_to_yearly_fields() {
+        let salary_json = serde_json::json!({
+            "currency": "USD",
+            "value": {
+                "minValue": 20,
+                "maxValue": 25,
+                "unitText": "HOUR"
+            }
+        });
+
+        let (min, max, currency) = extract_salary_info(&Some(salary_json));
+
+        assert_eq!(min, Some(41_600));
+        assert_eq!(max, Some(52_000));
         assert_eq!(currency, Some("USD".to_string()));
     }
 

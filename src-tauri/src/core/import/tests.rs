@@ -139,6 +139,45 @@ mod tests {
     }
 
     #[test]
+    fn test_create_preview_preserves_hourly_salary_unit() {
+        let posting = SchemaOrgJobPosting {
+            title: Some("Medical Assistant".to_string()),
+            description: Some("Help patients and support clinic care.".to_string()),
+            hiring_organization: Some(types::HiringOrganization {
+                name: Some("Example Clinic".to_string()),
+                logo: None,
+                same_as: None,
+            }),
+            job_location: None,
+            base_salary: Some(serde_json::json!({
+                "currency": "USD",
+                "value": {
+                    "minValue": 20,
+                    "maxValue": 25,
+                    "unitText": "HOUR"
+                }
+            })),
+            date_posted: None,
+            valid_through: None,
+            employment_type: None,
+            direct_apply: None,
+            url: None,
+            industry: None,
+            occupational_category: None,
+            qualifications: None,
+            responsibilities: None,
+            benefits: None,
+            job_location_type: None,
+        };
+
+        let preview =
+            schema_org::create_preview(&posting, "https://example.com/jobs/1".to_string(), false)
+                .expect("preview should parse hourly listed pay");
+
+        assert_eq!(preview.salary.as_deref(), Some("USD 20-25 per hour"));
+    }
+
+    #[test]
     fn test_create_preview_missing_fields() {
         let posting = SchemaOrgJobPosting {
             title: None, // Missing required field

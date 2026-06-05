@@ -4,6 +4,7 @@
 //! User-initiated, single-page fetching for legal compliance.
 
 pub mod fetcher;
+pub mod salary;
 pub mod schema_org;
 pub mod types;
 

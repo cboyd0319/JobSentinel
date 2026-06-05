@@ -2,7 +2,10 @@
 //!
 //! Extracts and parses Schema.org/JobPosting JSON-LD data from HTML.
 
-use super::types::{ImportError, ImportResult, JobImportPreview, SchemaOrgJobPosting};
+use super::{
+    salary::parse_schema_org_salary,
+    types::{ImportError, ImportResult, JobImportPreview, SchemaOrgJobPosting},
+};
 use chrono::{DateTime, Utc};
 use scraper::{Html, Selector};
 
@@ -245,40 +248,7 @@ fn extract_salary(base_salary: &Option<serde_json::Value>) -> Option<String> {
         return Some(s.to_string());
     }
 
-    // Handle object format
-    if let Some(obj) = salary.as_object() {
-        let currency = obj
-            .get("currency")
-            .and_then(|v| v.as_str())
-            .unwrap_or("USD");
-
-        // Try to get value
-        if let Some(value) = obj.get("value") {
-            if let Some(val_obj) = value.as_object() {
-                let min = val_obj
-                    .get("minValue")
-                    .and_then(|v| v.as_f64())
-                    .map(|v| v as i64);
-                let max = val_obj
-                    .get("maxValue")
-                    .and_then(|v| v.as_f64())
-                    .map(|v| v as i64);
-
-                return match (min, max) {
-                    (Some(min), Some(max)) => Some(format!("{} {}-{}", currency, min, max)),
-                    (Some(val), None) | (None, Some(val)) => Some(format!("{} {}", currency, val)),
-                    _ => None,
-                };
-            }
-
-            // Direct value field
-            if let Some(val) = value.as_f64() {
-                return Some(format!("{} {}", currency, val as i64));
-            }
-        }
-    }
-
-    None
+    parse_schema_org_salary(base_salary).and_then(|salary| salary.preview_text())
 }
 
 /// Extract employment types (can be string or array)

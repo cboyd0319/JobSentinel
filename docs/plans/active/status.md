@@ -51,6 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Schema.org job import now converts known non-yearly listed pay units such as
+  hourly pay into yearly stored pay fields for pay-floor comparisons, while the
+  import preview keeps the original listed unit visible.
+
 - Healthcare guided-intake defaults now keep common support roles such as
   medical assistant, patient care assistant, home health aide, and certified
   nursing assistant visible instead of blocking them through generic
