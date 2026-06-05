@@ -146,10 +146,13 @@ const SelectedProfilePreview = memo(function SelectedProfilePreview({ profileId 
   const profile = CAREER_PROFILES.find((p) => p.id === profileId);
   if (!profile) return null;
 
+  const previewSkills = profile.keywordsBoost.slice(0, 4);
+  const additionalSkillCount = Math.max(0, profile.keywordsBoost.length - previewSkills.length);
+
   return (
     <div className="mt-4 p-4 bg-sentinel-50 rounded-xl border border-sentinel-200" role="region" aria-labelledby="profile-preview-title" aria-live="polite">
       <p id="profile-preview-title" className="text-sm font-medium text-sentinel-800 mb-2">
-        You'll see jobs like:
+        Suggested job titles
       </p>
       <div className="flex flex-wrap gap-2" role="list" aria-label="Sample job titles">
         {profile.sampleTitles.map((title) => (
@@ -165,8 +168,27 @@ const SelectedProfilePreview = memo(function SelectedProfilePreview({ profileId 
           + {profile.titleAllowlist.length - profile.sampleTitles.length} more
         </span>
       </div>
+      <p className="text-sm font-medium text-sentinel-800 mt-4 mb-2">
+        Suggested search words
+      </p>
+      <div className="flex flex-wrap gap-2" role="list" aria-label="Suggested skill and tool words">
+        {previewSkills.map((skill) => (
+          <span
+            key={skill}
+            className="px-3 py-1 text-sm bg-white text-sentinel-700 rounded-full border border-sentinel-200"
+            role="listitem"
+          >
+            {skill}
+          </span>
+        ))}
+        {additionalSkillCount > 0 && (
+          <span className="px-3 py-1 text-sm text-sentinel-600" aria-label={`Plus ${additionalSkillCount} more search words`}>
+            + {additionalSkillCount} more
+          </span>
+        )}
+      </div>
       <p className="text-xs text-sentinel-600 mt-2">
-        Also looks for {profile.keywordsBoost.length} helpful skills
+        These are starting suggestions. You can edit job titles, search words, pay, and location before saving.
       </p>
     </div>
   );

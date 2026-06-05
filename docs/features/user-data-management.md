@@ -66,6 +66,8 @@ should not require users to understand query syntax, filters, or scoring math.
 First-run starting paths include office and administration, retail and
 hospitality, trades and field service, healthcare, education, customer support,
 sales, finance, operations, creative, legal, data, security, and software work.
+When a starting path is selected, setup previews sample job titles and search
+words as editable suggestions before the search is saved.
 Only software, security, and data paths turn on tech-heavy job sources by
 default.
 

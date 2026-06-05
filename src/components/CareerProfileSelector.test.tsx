@@ -210,7 +210,7 @@ describe("CareerProfileSelector", () => {
     it("does not show preview when no profile is selected", () => {
       render(<CareerProfileSelector {...defaultProps} />);
 
-      expect(screen.queryByText("You'll see jobs like:")).not.toBeInTheDocument();
+      expect(screen.queryByText("Suggested job titles")).not.toBeInTheDocument();
     });
 
     it("shows preview when profile is selected", () => {
@@ -221,7 +221,7 @@ describe("CareerProfileSelector", () => {
         />
       );
 
-      expect(screen.getByText("You'll see jobs like:")).toBeInTheDocument();
+      expect(screen.getByText("Suggested job titles")).toBeInTheDocument();
     });
 
     it("has aria-live polite on preview", () => {
@@ -233,7 +233,7 @@ describe("CareerProfileSelector", () => {
       );
 
       const preview = screen.getByRole("region", {
-        name: /You'll see jobs like/i,
+        name: /Suggested job titles/i,
       });
       expect(preview).toHaveAttribute("aria-live", "polite");
     });
@@ -276,10 +276,12 @@ describe("CareerProfileSelector", () => {
       const profile = CAREER_PROFILES.find(p => p.id === "software-engineering")!;
       const additionalCount = profile.titleAllowlist.length - profile.sampleTitles.length;
 
-      expect(screen.getByText(`+ ${additionalCount} more`)).toBeInTheDocument();
+      expect(
+        screen.getByLabelText(`Plus ${additionalCount} more job titles`)
+      ).toBeInTheDocument();
     });
 
-    it("shows count of helpful skills", () => {
+    it("shows suggested search words and explains they are editable", () => {
       render(
         <CareerProfileSelector
           {...defaultProps}
@@ -288,8 +290,18 @@ describe("CareerProfileSelector", () => {
       );
 
       const profile = CAREER_PROFILES.find(p => p.id === "software-engineering")!;
+      const previewSkills = profile.keywordsBoost.slice(0, 4);
+      const additionalSkillCount = profile.keywordsBoost.length - previewSkills.length;
+
+      expect(screen.getByText("Suggested search words")).toBeInTheDocument();
+      for (const skill of previewSkills) {
+        expect(screen.getByText(skill)).toBeInTheDocument();
+      }
       expect(
-        screen.getByText(`Also looks for ${profile.keywordsBoost.length} helpful skills`)
+        screen.getByLabelText(`Plus ${additionalSkillCount} more search words`)
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(/You can edit job titles, search words, pay, and location before saving/i)
       ).toBeInTheDocument();
     });
 
@@ -515,7 +527,7 @@ describe("CareerProfileSelector", () => {
         <CareerProfileSelector {...defaultProps} selectedProfile="nonexistent" />
       );
 
-      expect(screen.queryByText("You'll see jobs like:")).not.toBeInTheDocument();
+      expect(screen.queryByText("Suggested job titles")).not.toBeInTheDocument();
     });
 
     it("callback is called with correct profile ID for each profile", () => {

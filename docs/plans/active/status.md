@@ -51,6 +51,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- First-run career-path preview now shows suggested job titles and search words
+  before saving, and tells users those suggestions can be edited.
+
 - Dev mock Resume Match now treats bilingual and named-language fluency wording
   as language hard constraints, matching the Rust analyzer's score cap, action
   copy, and evidence matching for Spanish and Mandarin examples.

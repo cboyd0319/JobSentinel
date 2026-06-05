@@ -107,6 +107,10 @@ The first time you open JobSentinel, setup asks a few plain questions.
 
 Pick a starting area or choose **Build My Search**.
 
+When you pick a starting area, JobSentinel shows suggested job titles and search
+words. These are starting suggestions. You can edit job titles, search words,
+pay, and location before saving.
+
 ### Question 2: What job titles do you want?
 
 Type in job titles that match what you want. Examples:
