@@ -42,7 +42,7 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
   `c1f5dd36 Update macOS readiness and split automation module`.
 - Fresh harness evidence reports 2 active docs and 2 indexed workstreams: this
   status file and `current-work.md`.
-- Final broad verification passed locally after `ce0af8f3`: frontend tests/build,
+- Final broad verification passed locally after `91bd9354`: frontend tests/build,
   script tests, harness/bloat/docs/prose, Rust fmt/clippy/lib, `doctor:e2e`,
   and E2E smoke budget.
 - Local commits should continue in small verified slices; push only when the
@@ -51,13 +51,11 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
-- Resume Builder step bodies now use the existing contact, summary, experience,
-  education, and skills step components under `src/components/resume-builder/`.
-- `src/pages/ResumeBuilder.tsx` and `src/pages/ResumeOptimizer.tsx` are both
-  below the 1,200-line frontend target, so no legacy oversized-file exceptions
-  remain.
-- Product-copy, broad-audience, and frontend-contract harness path sets cover
-  the active Resume Builder step components and Resume Match model helper.
+- Job-card posting, pay-floor, wide-range, low-detail, and scam-signal guidance
+  moved from `src/components/JobCard.tsx` to
+  `src/components/jobCardGuidance.ts`.
+- Job-card guidance now catches gift-card scam signals, and product-copy harness
+  sensors cover the extracted helper so protective copy stays scanned.
 
 - Resume Match model types, validators, JSON parsing, fit-status copy, and
   suggestion-category labels moved from `src/pages/ResumeOptimizer.tsx` to

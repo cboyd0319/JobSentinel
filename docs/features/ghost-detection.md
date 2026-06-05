@@ -21,9 +21,9 @@ means the posting has risk signals, such as:
 - **Unclear route** - The listing appears away from the employer or application
   platform source and cannot be verified yet.
 
-Scam warnings are separate. Scam signals include requests for money, early
-sensitive information, suspicious domains, fake checks, unrealistic pay, or
-non-company communication.
+Scam warnings are separate. Scam signals include requests for money, gift cards,
+early sensitive information, suspicious domains, fake checks, unrealistic pay,
+or non-company communication.
 
 ## How JobSentinel Labels Posting Risk
 

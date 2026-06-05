@@ -84,6 +84,11 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
+      "src/components/jobCardGuidance.ts",
+      '"Below your pay floor"\n',
+    );
+    writeFixtureFile(
+      root,
       "src/components/CoverLetterTemplates.tsx",
       [
         "setError(errorMsg);",
@@ -550,6 +555,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/components/ScraperHealthDashboard.tsx",
         "src/components/JobImportModal.tsx",
         "src/components/JobCard.tsx",
+        "src/components/jobCardGuidance.ts",
         "src/components/AtsLiveScorePanel.tsx",
         "src/components/AnalyticsPanel.tsx",
         "src/components/DashboardWidgets.tsx",

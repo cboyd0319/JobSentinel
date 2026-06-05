@@ -215,6 +215,7 @@ const technicalFirstUserCopyPaths = new Set([
   "src/components/CareerProfileSelector.tsx",
   "src/components/JobImportModal.tsx",
   "src/components/JobCard.tsx",
+  "src/components/jobCardGuidance.ts",
   "src/components/AtsLiveScorePanel.tsx",
   "src/components/AnalyticsPanel.tsx",
   "src/components/DashboardWidgets.tsx",

@@ -597,6 +597,11 @@ test("product copy rejects technical-first settings copy", () => {
     writeFixtureFile(root, "src/components/JobCard.tsx", "Below your pay floor\n");
     writeFixtureFile(
       root,
+      "src/components/jobCardGuidance.ts",
+      "Below your pay floor\n",
+    );
+    writeFixtureFile(
+      root,
       "src/pages/DashboardUI/DashboardHeader.tsx",
       "Currently scanning job boards\nReady to scan\nScanning job boards\nScanning...\nAuto-refresh in 5m\n",
     );
@@ -815,6 +820,10 @@ test("product copy rejects technical-first settings copy", () => {
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Dashboard.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/components/JobCard.tsx"), true);
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "src/components/jobCardGuidance.ts"),
+      true,
+    );
     assert.equal(hasTechnicalFirstUserCopy(root, "src/components/InterviewScheduler.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/DashboardUI/DashboardHeader.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/ResumeOptimizer.tsx"), true);
