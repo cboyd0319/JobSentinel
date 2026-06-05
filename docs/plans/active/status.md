@@ -425,6 +425,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 - Mock resume-analysis availability and location hard-constraint tests moved
   out of the main command test file into a focused frontend mock-handler test.
 
+- ScraperHealthDashboard source-check, refresh, and formatting tests moved out
+  of the main dashboard test file into a focused frontend test, with shared
+  fixtures extracted for both specs.
+
 ## Recent Completed Slices
 
 Detailed implementation history before the current restart window is in the

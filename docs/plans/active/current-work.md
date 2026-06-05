@@ -852,6 +852,11 @@ Out of scope:
   `src/mocks/handlers/resumeAnalysisAvailabilityConstraints.test.ts`. The main
   mock resume-analysis command test still owns backend command-name coverage,
   synonym evidence, seniority constraints, and active-resume hard-risk checks.
+- Coordinator moved ScraperHealthDashboard source-check, refresh, and
+  formatting tests into `src/components/ScraperHealthDashboard.sourceChecks.test.tsx`
+  with shared fixtures in `src/components/ScraperHealthDashboard.testData.ts`.
+  The main dashboard test still owns loading, error, header, summary,
+  credential, table, source action, and history coverage.
 
 ## Risks
 
