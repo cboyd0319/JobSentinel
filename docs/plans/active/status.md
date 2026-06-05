@@ -50,6 +50,15 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- ATS badge tests moved out of
+  `src/components/automation/ApplyButton.test.tsx` into
+  `src/components/automation/ApplyButton.badge.test.tsx`.
+- Both Apply Button test files are below the 1,200-line test target, so the
+  legacy oversized-file exception was removed.
+- Runtime component code was unchanged; only Vitest suite ownership changed.
+
+Earlier implementation slice:
+
 - Screening Answers Form answer-input, validation, and submission tests moved
   out of `src/components/automation/ScreeningAnswersForm.test.tsx` into
   `src/components/automation/ScreeningAnswersForm.form.test.tsx`.

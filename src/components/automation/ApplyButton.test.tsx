@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { ApplyButton, AtsBadge } from "./ApplyButton";
+import { ApplyButton } from "./ApplyButton";
 import { ToastProvider } from "../../contexts";
 
 // Mock Tauri API
@@ -639,7 +639,7 @@ describe("ApplyButton", () => {
             unfilledFields: [],
             captchaDetected: false,
             readyForReview: false,
-            errorMessage: "token=raw-secret chad@example.com /Users/chad/private/resume.pdf",
+            errorMessage: "token=raw-secret chad@example.com <local-path>/resume.pdf",
             attemptId: null,
             durationMs: 1000,
             atsPlatform: "greenhouse",
@@ -664,7 +664,9 @@ describe("ApplyButton", () => {
       await waitFor(() => {
         expect(screen.getByRole("dialog")).toHaveTextContent(/safe support report/i);
       });
-      expect(screen.queryByText(/raw-secret|chad@example\.com|\/Users\/chad/)).not.toBeInTheDocument();
+      expect(
+        screen.queryByText(/raw-secret|chad@example\.com|<local-path>/),
+      ).not.toBeInTheDocument();
     });
 
     it("does not show raw private details from thrown preparation errors", async () => {
@@ -676,7 +678,7 @@ describe("ApplyButton", () => {
         if (cmd === "is_browser_running") return Promise.resolve(false);
         if (cmd === "fill_application_form") {
           return Promise.reject(
-            new Error("token=raw-secret chad@example.com /Users/chad/private/resume.pdf")
+            new Error("token=raw-secret chad@example.com <local-path>/resume.pdf"),
           );
         }
         return Promise.resolve(null);
@@ -1141,127 +1143,6 @@ describe("ApplyButton", () => {
         expect(dialog).toBeInTheDocument();
         expect(screen.getByText("Review Application")).toBeInTheDocument();
       });
-    });
-  });
-});
-
-describe("AtsBadge", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  describe("rendering", () => {
-    it("renders Greenhouse badge when detected", async () => {
-      mockInvoke.mockResolvedValue({
-        platform: "greenhouse",
-        commonFields: [],
-        automationNotes: null,
-      });
-
-      render(<AtsBadge url="https://example.greenhouse.io/jobs/123" />);
-
-      await waitFor(() => {
-        expect(screen.getByText("Greenhouse")).toBeInTheDocument();
-      });
-    });
-
-    it("renders Lever badge when detected", async () => {
-      mockInvoke.mockResolvedValue({
-        platform: "lever",
-        commonFields: [],
-        automationNotes: null,
-      });
-
-      render(<AtsBadge url="https://jobs.lever.co/company/123" />);
-
-      await waitFor(() => {
-        expect(screen.getByText("Lever")).toBeInTheDocument();
-      });
-    });
-
-    it("does not render for unknown platform", async () => {
-      mockInvoke.mockResolvedValue({
-        platform: "unknown",
-        commonFields: [],
-        automationNotes: null,
-      });
-
-      const { container } = render(<AtsBadge url="https://example.com/jobs/123" />);
-
-      await waitFor(() => {
-        expect(container.firstChild).toBeNull();
-      });
-    });
-
-    it("does not render on detection error", async () => {
-      const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
-      mockInvoke.mockRejectedValue(new Error("Failed to detect"));
-
-      const { container } = render(<AtsBadge url="https://example.com/jobs/123" />);
-
-      await waitFor(() => {
-        expect(container.firstChild).toBeNull();
-      });
-
-      consoleError.mockRestore();
-    });
-
-    it("applies correct color class for greenhouse", async () => {
-      mockInvoke.mockResolvedValue({
-        platform: "greenhouse",
-        commonFields: [],
-        automationNotes: null,
-      });
-
-      render(<AtsBadge url="https://example.greenhouse.io/jobs/123" />);
-
-      await waitFor(() => {
-        const badge = screen.getByText("Greenhouse");
-        expect(badge).toHaveClass("bg-green-100");
-      });
-    });
-
-    it("applies correct color class for lever", async () => {
-      mockInvoke.mockResolvedValue({
-        platform: "lever",
-        commonFields: [],
-        automationNotes: null,
-      });
-
-      render(<AtsBadge url="https://jobs.lever.co/company/123" />);
-
-      await waitFor(() => {
-        const badge = screen.getByText("Lever");
-        expect(badge).toHaveClass("bg-blue-100");
-      });
-    });
-
-    it("re-detects when URL changes", async () => {
-      mockInvoke.mockResolvedValue({
-        platform: "greenhouse",
-        commonFields: [],
-        automationNotes: null,
-      });
-
-      const { rerender } = render(<AtsBadge url="https://example.greenhouse.io/jobs/123" />);
-
-      await waitFor(() => {
-        expect(screen.getByText("Greenhouse")).toBeInTheDocument();
-      });
-
-      mockInvoke.mockResolvedValue({
-        platform: "lever",
-        commonFields: [],
-        automationNotes: null,
-      });
-
-      rerender(<AtsBadge url="https://jobs.lever.co/company/456" />);
-
-      await waitFor(() => {
-        expect(screen.getByText("Lever")).toBeInTheDocument();
-      });
-
-      expect(mockInvoke).toHaveBeenCalledTimes(2);
     });
   });
 });
