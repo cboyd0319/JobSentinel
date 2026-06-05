@@ -51,6 +51,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Job-card scam cues now catch sensitive-detail requests that appear after
+  phrases like "before the interview" as well as before the phrase.
+
 - Resume Fit evidence status now treats hard-requirement review rows as
   **Check must-haves first** even when no separate hard-risk item is present.
 

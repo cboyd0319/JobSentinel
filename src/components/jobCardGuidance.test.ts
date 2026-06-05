@@ -42,6 +42,17 @@ describe("jobCardGuidance", () => {
     });
   });
 
+  it("flags reversed sensitive-detail requests before an interview", () => {
+    expect(
+      getScamRiskGuidance(
+        "Before the interview, submit your SSN and bank account details to confirm eligibility.",
+      ),
+    ).toMatchObject({
+      title: "Possible scam sign",
+      ariaLabel: "possible scam sign",
+    });
+  });
+
   it("flags messaging-app-only interviews as possible scam signs", () => {
     expect(
       getScamRiskGuidance(

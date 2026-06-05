@@ -35,6 +35,7 @@ const SCAM_SIGNAL_PATTERNS = [
   /\b(?:buy|purchase|get|send)\b.{0,40}\b(?:gift\s+cards?|prepaid\s+cards?|money\s+orders?)\b/i,
   /\b(?:upfront|application|training|equipment)\b.{0,30}\b(?:fee|payment)\b/i,
   /\b(?:social\s+security\s+number|ssn|bank\s+account|direct\s+deposit|passport|date\s+of\s+birth|driver'?s\s+license)\b.{0,80}\b(?:before|interview|start|offer)\b/i,
+  /\b(?:before|prior\s+to)\b.{0,40}\b(?:interview|start|offer)\b.{0,60}\b(?:send|provide|share|submit)\b.{0,50}\b(?:social\s+security\s+number|ssn|bank\s+account|direct\s+deposit|passport|date\s+of\s+birth|driver'?s\s+license)\b/i,
   /\b(?:telegram|whats\s*app|whatsapp|signal)\b.{0,60}\b(?:interview|screening|chat|message)\b/i,
   /\b(?:interview|screening|chat|message)\b.{0,60}\b(?:telegram|whats\s*app|whatsapp|signal)\b/i,
 ] as const;

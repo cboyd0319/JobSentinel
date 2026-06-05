@@ -119,8 +119,9 @@ checks so users can confirm the source before deep tailoring.
 
 Job cards can also show **Possible scam sign** when the description mentions
 money, checks, payment apps, crypto, messaging-app interviews, fees, or
-sensitive details early. Treat this as a safety prompt: verify the employer, do
-not pay fees, and do not share sensitive information before confirming the job.
+sensitive details early, including requests before an interview or offer. Treat
+this as a safety prompt: verify the employer, do not pay fees, and do not share
+sensitive information before confirming the job.
 
 Job cards also translate source IDs into plain labels such as "Greenhouse
 hiring page", "LinkedIn job board", or "Saved by you." A closer employer source
