@@ -169,7 +169,7 @@ tag.
 
 | Platform | Architecture          | Format      | Status   |
 | -------- | --------------------- | ----------- | -------- |
-| macOS    | universal             | `.dmg`      | Local mounted, installed, and data smoke ready; public nontechnical release blocked until Apple Developer Account and notarization |
+| macOS    | universal             | `.dmg`      | Verified no-account public package available with matching checksum and first-open Privacy & Security approval; zero-friction Gatekeeper-ready release blocked until Apple Developer Account, Developer ID signing, and notarization |
 | Windows  | x86_64                | `.msi`      | Ready |
 | Linux    | x86_64                | `.AppImage` / `.deb` | Workflow ready |
 

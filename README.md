@@ -14,7 +14,7 @@ ID signing, notarization, stapling, and Gatekeeper acceptance, all of which
 require Apple Developer Program materials.
 
 Active-plan implementation status is separate: 100% of the current active-plan
-checklist is complete, with 153 of 153 tracked items checked off. Current
+checklist is complete, with 192 of 192 tracked items checked off. Current
 broad verification evidence is recorded in
 [active plan status](docs/plans/active/status.md): no known bloat, privacy
 leak, stale docs, engineer-only user flow, or unverified claim remains from the
@@ -86,7 +86,7 @@ or build something better with it if that helps more people.
 | Is it free? | Yes. JobSentinel is MIT licensed and free forever. |
 | Current release | `v2.6.4` with Windows and Linux installers plus a verified no-account universal macOS package. A public Mac package is recommended only when the release includes a matching `.sha256` checksum and the public macOS verifier passes. |
 | macOS full-public-readiness | 94%; no-account path completion is 100% at a 94% public-readiness ceiling. Public universal DMG, checksum, metadata, architecture, install, launch, local-data, public-artifact, and readiness-harness checks are in place. The final 6% is externally blocked by Apple Developer Program materials for Developer ID signing, notarization, stapling, and Gatekeeper acceptance. |
-| Current active plan | 100% checklist completion for the compact current-work plan, with current broad verification evidence recorded in active status. |
+| Current active plan | 100% checklist completion for the compact current-work plan: 192 of 192 tracked items checked off, with current broad verification evidence recorded in active status. |
 
 ## Reader Map
 

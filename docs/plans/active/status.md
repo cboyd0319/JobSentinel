@@ -51,6 +51,11 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- README, docs index, and release docs now match the current macOS deployment
+  posture: 94% full-public readiness, 100% no-account path completion, verified
+  `v2.6.4` no-account DMG plus checksum, and Gatekeeper-ready distribution
+  blocked only by Apple Developer Program materials.
+
 - Dev mock resume bullet suggestions now preserve vague wording such as
   "was responsible for", "worked on", and "helped with" instead of upgrading it
   to unverified ownership verbs, matching the Rust truth-first behavior.
