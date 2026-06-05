@@ -51,6 +51,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Job-card scam cues now flag messaging-app interview requests while keeping
+  ordinary team-chat wording quiet.
+
 - Resume Match next actions now use hard-requirement review rows as check-first
   guidance when no separate hard-risk item is present.
 

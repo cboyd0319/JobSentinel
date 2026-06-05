@@ -23,7 +23,7 @@ means the posting has risk signals, such as:
 
 Scam warnings are separate. Scam signals include requests for money, gift cards,
 early sensitive information, suspicious domains, fake checks, unrealistic pay,
-or non-company communication.
+messaging-app interview requests, or non-company communication.
 
 ## How JobSentinel Labels Posting Risk
 
@@ -118,9 +118,9 @@ High-risk cards also show an **Open Original Posting** action and next-step
 checks so users can confirm the source before deep tailoring.
 
 Job cards can also show **Possible scam sign** when the description mentions
-money, checks, payment apps, crypto, fees, or sensitive details early. Treat
-this as a safety prompt: verify the employer, do not pay fees, and do not share
-sensitive information before confirming the job.
+money, checks, payment apps, crypto, messaging-app interviews, fees, or
+sensitive details early. Treat this as a safety prompt: verify the employer, do
+not pay fees, and do not share sensitive information before confirming the job.
 
 Job cards also translate source IDs into plain labels such as "Greenhouse
 hiring page", "LinkedIn job board", or "Saved by you." A closer employer source

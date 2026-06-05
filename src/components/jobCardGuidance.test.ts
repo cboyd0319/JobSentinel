@@ -15,7 +15,7 @@ describe("jobCardGuidance", () => {
     ).toEqual({
       title: "Possible scam sign",
       description:
-        "This posting mentions money, checks, or sensitive details early. Verify the employer, do not pay fees, and do not share sensitive information before confirming the job.",
+        "This posting mentions money, checks, messaging apps, or sensitive details early. Verify the employer, do not pay fees, and do not share sensitive information before confirming the job.",
       ariaLabel: "possible scam sign",
     });
   });
@@ -42,6 +42,17 @@ describe("jobCardGuidance", () => {
     });
   });
 
+  it("flags messaging-app-only interviews as possible scam signs", () => {
+    expect(
+      getScamRiskGuidance(
+        "Our recruiter will complete your interview by Telegram message today.",
+      ),
+    ).toMatchObject({
+      title: "Possible scam sign",
+      ariaLabel: "possible scam sign",
+    });
+  });
+
   it("keeps ordinary descriptions quiet for scam guidance", () => {
     expect(
       getScamRiskGuidance("Help customers, document issues, and support a care team."),
@@ -52,6 +63,14 @@ describe("jobCardGuidance", () => {
     expect(
       getScamRiskGuidance(
         "Process payroll, reconcile invoices, and support vendor payment reporting.",
+      ),
+    ).toBeNull();
+  });
+
+  it("keeps ordinary team chat descriptions quiet for scam guidance", () => {
+    expect(
+      getScamRiskGuidance(
+        "Coordinate updates through team chat, email, and weekly staff meetings.",
       ),
     ).toBeNull();
   });

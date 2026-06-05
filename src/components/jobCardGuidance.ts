@@ -35,6 +35,8 @@ const SCAM_SIGNAL_PATTERNS = [
   /\b(?:buy|purchase|get|send)\b.{0,40}\b(?:gift\s+cards?|prepaid\s+cards?|money\s+orders?)\b/i,
   /\b(?:upfront|application|training|equipment)\b.{0,30}\b(?:fee|payment)\b/i,
   /\b(?:social\s+security\s+number|ssn|bank\s+account|direct\s+deposit|passport|date\s+of\s+birth|driver'?s\s+license)\b.{0,80}\b(?:before|interview|start|offer)\b/i,
+  /\b(?:telegram|whats\s*app|whatsapp|signal)\b.{0,60}\b(?:interview|screening|chat|message)\b/i,
+  /\b(?:interview|screening|chat|message)\b.{0,60}\b(?:telegram|whats\s*app|whatsapp|signal)\b/i,
 ] as const;
 
 const LOW_DETAIL_TITLE_PATTERNS = [
@@ -149,7 +151,7 @@ export function getScamRiskGuidance(description: string | null | undefined): Sca
   return {
     title: "Possible scam sign",
     description:
-      "This posting mentions money, checks, or sensitive details early. Verify the employer, do not pay fees, and do not share sensitive information before confirming the job.",
+      "This posting mentions money, checks, messaging apps, or sensitive details early. Verify the employer, do not pay fees, and do not share sensitive information before confirming the job.",
     ariaLabel: "possible scam sign",
   };
 }
