@@ -38,16 +38,29 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Current Posture
 
-- Last pushed main baseline: `ce93c51a Split analytics panel model`.
+- `origin/main` is the source of truth for the pushed baseline. `ce93c51a`
+  was the last broad-cleanup baseline before the current file-size split batch.
 - Fresh harness session evidence reports 2 active docs, 2 indexed workstreams,
   and a 100/100 harness score: this status file and `current-work.md`.
-- Final broad verification for the pushed baseline passed during the completed
-  cleanup batch; current local slices record their focused evidence below.
-- Local commits should continue in small verified slices; push only when the
-  branch reaches the user's 30-commit batch threshold or the user gives a newer
+- Final broad verification for the broad-cleanup baseline passed during the
+  completed cleanup batch; recent split slices record their focused evidence
+  below.
+- Push cadence defaults to 30-commit batches unless the user gives a newer
   explicit push instruction.
 
 ## Latest Slice
+
+- Mock resume degree hard-constraint tests now live in
+  `src/mocks/handlers/resumeHardConstraints.degree.test.ts`, reducing
+  `src/mocks/handlers/resumeHardConstraints.test.ts` from 960 to 610 lines
+  without changing hard-constraint evidence coverage for licenses, work
+  authorization, screening, driving, insurance, or skills-only risks.
+
+- Focused verification for the mock resume degree test split passed:
+  `npm run test:run -- src/mocks/handlers/resumeHardConstraints.test.ts
+  src/mocks/handlers/resumeHardConstraints.degree.test.ts`,
+  `npx tsc --noEmit --pretty false`, `npm run lint`, and
+  `npm run lint:bloat`.
 
 - Error helper retry and debounced-handler tests now live in
   `src/utils/errorHelpers.async.test.ts`, reducing
