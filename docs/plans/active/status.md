@@ -51,6 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Dashboard repeat-posting controls now say possible repeats and hide extras
+  instead of merge duplicates, keeping the UI from implying confirmed duplicate
+  jobs or separate source confirmation.
+
 - Job cards now show visible **Check job link** guidance for unsafe saved links
   before the user clicks, so link-safety risk is not hidden behind the open
   action.

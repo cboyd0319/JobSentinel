@@ -519,7 +519,7 @@ export function useDashboardJobOps(
           { primaryId, duplicateIds },
           toast,
           {
-            logContext: "Merge duplicate jobs",
+            logContext: "Hide possible repeated jobs",
           },
         );
 
@@ -535,7 +535,7 @@ export function useDashboardJobOps(
           prev.filter((g) => g.primary_id !== primaryId),
         );
 
-        toast.success("Duplicates merged", "Keeping highest-scoring version");
+        toast.success("Possible repeats hidden", "Keeping highest-scoring version");
 
         // Invalidate cache
         invalidateCacheByCommand("get_recent_jobs");
@@ -571,7 +571,7 @@ export function useDashboardJobOps(
         setDuplicateGroups([]);
         setDuplicatesModalOpen(false);
         toast.success(
-          "All duplicates merged",
+          "All possible repeats hidden",
           `${duplicateGroups.length} groups cleaned up`,
         );
       } else if (successCount > 0) {
@@ -581,8 +581,8 @@ export function useDashboardJobOps(
           failures.map((f) => f.reason),
         );
         toast.warning(
-          "Partially merged",
-          `${successCount} groups merged. Try merging the rest one at a time.`,
+          "Partially hidden",
+          `${successCount} groups hidden. Try hiding the rest one at a time.`,
         );
       } else {
         logError(
@@ -590,8 +590,8 @@ export function useDashboardJobOps(
           failures.map((f) => f.reason),
         );
         toast.error(
-          "Could not merge duplicates",
-          "None of the duplicate groups were merged. Try merging one group at a time, or copy a safe support report if this keeps happening.",
+          "Could not hide possible repeats",
+          "None of the possible repeat groups were hidden. Try hiding one group at a time, or copy a safe support report if this keeps happening.",
         );
       }
     },

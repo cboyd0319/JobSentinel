@@ -390,16 +390,18 @@ export const DashboardFiltersBar = memo(function DashboardFiltersBar({
           {/* Spacer */}
           <div className="flex-1" />
 
-          {/* Check duplicates button */}
-          <Tooltip content="Find and merge duplicate jobs" position="bottom">
+          {/* Check possible repeats button */}
+          <Tooltip content="Find possible repeated jobs" position="bottom">
             <button
               onClick={handleCheckDuplicates}
               disabled={checkingDuplicates}
               className="flex items-center gap-2 px-3 py-1.5 text-sm text-surface-600 dark:text-surface-300 hover:text-surface-800 dark:hover:text-surface-100 bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 rounded-lg transition-colors disabled:opacity-50"
-              aria-label="Check for duplicates"
+              aria-label="Check for possible repeated jobs"
             >
               <DuplicateIcon className="w-4 h-4" />
-              <span className="hidden sm:inline">{checkingDuplicates ? "Checking..." : "Duplicates"}</span>
+              <span className="hidden sm:inline">
+                {checkingDuplicates ? "Checking..." : "Possible repeats"}
+              </span>
             </button>
           </Tooltip>
 

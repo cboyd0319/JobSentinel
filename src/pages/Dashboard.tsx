@@ -980,7 +980,7 @@ export default function Dashboard({
         </div>
       </Modal>
 
-      {/* Duplicates Modal */}
+      {/* Possible repeats modal */}
       <Modal
         isOpen={jobOps.duplicatesModalOpen}
         onClose={() => jobOps.setDuplicatesModalOpen(false)}
@@ -1020,7 +1020,7 @@ export default function Dashboard({
                 <Button
                   onClick={() => jobOps.handleMergeAllDuplicates(fetchData)}
                 >
-                  Merge All ({jobOps.duplicateGroups.length})
+                  Hide Extras ({jobOps.duplicateGroups.length})
                 </Button>
               </ModalFooter>
             </>
@@ -1113,9 +1113,9 @@ const DuplicateGroupCard = memo(function DuplicateGroupCard({
             )
           }
           className="px-3 py-1 text-sm bg-sentinel-500 text-white rounded-lg hover:bg-sentinel-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sentinel-400 focus-visible:ring-offset-2"
-          aria-label={`Merge ${group.jobs.length} duplicate jobs for ${group.jobs[0]?.title ?? "Unknown"}`}
+          aria-label={`Hide extra possible repeated jobs for ${group.jobs[0]?.title ?? "Unknown"}`}
         >
-          Merge
+          Hide extras
         </button>
       </div>
       <div className="space-y-2">

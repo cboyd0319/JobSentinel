@@ -127,6 +127,15 @@ describe("DashboardFiltersBar plain-language actions", () => {
     expect(screen.queryByRole("button", { name: "Export 2 selected jobs to CSV" })).not.toBeInTheDocument();
   });
 
+  it("uses possible-repeat copy for repeat checks", () => {
+    renderFilters();
+
+    expect(screen.getByRole("button", { name: "Check for possible repeated jobs" })).toBeInTheDocument();
+    expect(screen.getByText("Possible repeats")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Check for duplicates" })).not.toBeInTheDocument();
+    expect(screen.queryByText("Duplicates")).not.toBeInTheDocument();
+  });
+
   it("labels source choices without raw source IDs", () => {
     renderFilters({
       availableSources: ["all", "greenhouse", "manual_import", "city_careers"],

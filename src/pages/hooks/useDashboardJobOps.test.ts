@@ -352,7 +352,7 @@ describe("handleMergeAllDuplicates", () => {
     expect(result.current.duplicatesModalOpen).toBe(false);
 
     expect(mockToast.success).toHaveBeenCalledWith(
-      "All duplicates merged",
+      "All possible repeats hidden",
       expect.stringContaining("2 groups"),
     );
     expect(mockToast.warning).not.toHaveBeenCalled();
@@ -387,10 +387,10 @@ describe("handleMergeAllDuplicates", () => {
 
     expect(mockToast.warning).toHaveBeenCalledOnce();
     expect(mockToast.warning).toHaveBeenCalledWith(
-      "Partially merged",
-      expect.stringContaining("1 groups merged"),
+      "Partially hidden",
+      expect.stringContaining("1 groups hidden"),
     );
-    expect(mockToast.warning.mock.calls[0][1]).toContain("rest one at a time");
+    expect(mockToast.warning.mock.calls[0][1]).toContain("hiding the rest one at a time");
 
     expect(mockToast.error).not.toHaveBeenCalled();
     expect(mockToast.success).not.toHaveBeenCalled();
@@ -413,8 +413,8 @@ describe("handleMergeAllDuplicates", () => {
 
     expect(mockToast.error).toHaveBeenCalledOnce();
     expect(mockToast.error).toHaveBeenCalledWith(
-      "Could not merge duplicates",
-      "None of the duplicate groups were merged. Try merging one group at a time, or copy a safe support report if this keeps happening.",
+      "Could not hide possible repeats",
+      "None of the possible repeat groups were hidden. Try hiding one group at a time, or copy a safe support report if this keeps happening.",
     );
 
     expect(mockToast.warning).not.toHaveBeenCalled();
