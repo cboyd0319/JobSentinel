@@ -47,6 +47,8 @@ const requiredHarnessSnippets =
     ? manifestSnippets
     : {};
 const readmeReferenceHeading = manifestReadmeReferences.heading ?? "";
+const readmeReferencePath = manifestReadmeReferences.path ?? "";
+const readmeReferenceIndexHeading = manifestReadmeReferences.indexHeading ?? "";
 const readmeExcludedTestUrlExplanation =
   manifestReadmeReferences.excludedTestUrlExplanation ?? "";
 const requiredReadmeReferenceUrls = Array.isArray(manifestReadmeReferences.requiredUrls)
@@ -103,6 +105,14 @@ if (
 
 if (!readmeReferenceHeading) {
   errors.push(`${harnessManifestPath} readmeReferences.heading is required`);
+}
+
+if (!readmeReferencePath) {
+  errors.push(`${harnessManifestPath} readmeReferences.path is required`);
+}
+
+if (!readmeReferenceIndexHeading) {
+  errors.push(`${harnessManifestPath} readmeReferences.indexHeading is required`);
 }
 
 if (!Array.isArray(manifestReadmeReferences.requiredUrls)) {
@@ -485,26 +495,39 @@ for (const [path, snippets] of Object.entries(requiredHarnessSnippets)) {
 
 if (existsSync(repoPath("README.md"))) {
   const readmeText = read("README.md");
-  const readmeReferenceText = readmeText.split(readmeReferenceHeading)[1] ?? "";
 
   if (!readmeText.includes(readmeReferenceHeading)) {
     errors.push(`README.md must include ${readmeReferenceHeading}`);
   }
 
-  if (
-    readmeExcludedTestUrlExplanation &&
-    !readmeReferenceText.includes(readmeExcludedTestUrlExplanation)
-  ) {
-    errors.push("README.md reference index must explain excluded test and placeholder URLs");
+  if (readmeReferencePath && !readmeText.includes(`](${readmeReferencePath})`)) {
+    errors.push(`README.md reference section must link to ${readmeReferencePath}`);
+  }
+}
+
+if (readmeReferencePath && existsSync(repoPath(readmeReferencePath))) {
+  const referenceText = read(readmeReferencePath);
+
+  if (!referenceText.includes(readmeReferenceIndexHeading)) {
+    errors.push(`${readmeReferencePath} must include ${readmeReferenceIndexHeading}`);
   }
 
-  const readmeExternalReferences = new Set(extractExternalUrls(readmeReferenceText));
+  if (
+    readmeExcludedTestUrlExplanation &&
+    !referenceText.includes(readmeExcludedTestUrlExplanation)
+  ) {
+    errors.push(`${readmeReferencePath} must explain excluded test and placeholder URLs`);
+  }
+
+  const readmeExternalReferences = new Set(extractExternalUrls(referenceText));
 
   for (const url of requiredReadmeReferenceUrls) {
     if (!readmeExternalReferences.has(normalizeExternalUrl(url))) {
-      errors.push(`README.md reference index missing required research source: ${url}`);
+      errors.push(`${readmeReferencePath} missing required research source: ${url}`);
     }
   }
+} else if (readmeReferencePath) {
+  errors.push(`${readmeReferencePath} must exist for README source references`);
 }
 
 if (existsSync(repoPath("AGENTS.md"))) {

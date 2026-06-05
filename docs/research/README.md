@@ -50,6 +50,9 @@ Research outputs should make the work inspectable:
 - Product implications for ghost-job detection, salary transparency,
   pay-equity support, ATS transparency, and long-term unemployment support.
 
+The cross-doc external source index lives in
+[References and External Sources](../references.md).
+
 ## Research Notes
 
 - [Job seeker behavior](job-seeker-behavior.md)

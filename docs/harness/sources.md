@@ -49,12 +49,13 @@ large harness redesigns.
 - Prefer one repo-native harness check over scattered manual instructions.
 - Do not store local absolute source paths as durable provenance. Use portable
   URLs, repo-relative paths, or summarized local-review patterns.
-- Keep the root README reference index complete. `docs/harness/manifest.json`
-  owns the curated research-packet URL set, and `npm run harness:check`
-  verifies it while excluding placeholders and security test payloads.
+- Keep the root README reference anchor and `docs/references.md` source index
+  complete. `docs/harness/manifest.json` owns the curated research-packet URL
+  set, and `npm run harness:check` verifies it while excluding placeholders and
+  security test payloads.
 - Keep README information-design sources in
   `docs/harness/readme-information-design.md`, and mirror those external URLs
-  in the root README reference index.
+  in `docs/references.md`.
 
 ## Refresh Checklist
 

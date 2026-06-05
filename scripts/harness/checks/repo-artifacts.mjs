@@ -158,7 +158,6 @@ const legacyOversizedLineBudgets = new Map([
   ["src/pages/Dashboard.tsx", 1298],
   ["src-tauri/src/core/resume/skills.rs", 1297],
   ["src-tauri/src/core/salary/benchmarks.rs", 1284],
-  ["README.md", 975],
 ]);
 
 export function normalizeRepoPath(path) {

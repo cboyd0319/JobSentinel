@@ -11,7 +11,7 @@ Scope:
 - `package.json` scripts
 - `scripts/check-*.mjs`, `scripts/doctor.mjs`, and Playwright wrapper
 - GitHub workflows, PR template, issue templates, and Dependabot config
-- README reference index and harness source policy
+- README reference anchor, references doc, and harness source policy
 
 ## Current Health
 

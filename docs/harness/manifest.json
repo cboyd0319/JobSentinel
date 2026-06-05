@@ -20,6 +20,7 @@
     "docs/harness/walkinglabs-harness-creator-skill-evaluation.md",
     "docs/harness/walkinglabs-lecture-02-evaluation.md",
     "docs/harness/entropy-control.md",
+    "docs/references.md",
     "docs/exec-plans.md",
     "docs/plans/README.md",
     "docs/plans/index.json",
@@ -180,7 +181,9 @@
     ]
   },
   "readmeReferences": {
+    "path": "docs/references.md",
     "heading": "## References and external sources",
+    "indexHeading": "# References and External Sources",
     "excludedTestUrlExplanation": "Security test payloads",
     "requiredUrls": [
       "http://www.pon.harvard.edu/courses-and-training/3-day/special-three-day-combined-program/",

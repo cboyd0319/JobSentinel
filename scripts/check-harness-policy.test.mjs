@@ -38,7 +38,10 @@ test("harness policy manifest owns required docs and source policy", () => {
       "Rule 0: user privacy and security are non-negotiable.",
     ),
   );
+  assert.ok(manifest.requiredFiles.includes("docs/references.md"));
+  assert.equal(manifest.readmeReferences.path, "docs/references.md");
   assert.equal(manifest.readmeReferences.heading, "## References and external sources");
+  assert.equal(manifest.readmeReferences.indexHeading, "# References and External Sources");
   assert.equal(manifest.readmeReferences.excludedTestUrlExplanation, "Security test payloads");
   assert.equal(manifest.publicWiki.url, "https://github.com/cboyd0319/JobSentinel/wiki");
   assert.equal(manifest.publicWiki.remote, "https://github.com/cboyd0319/JobSentinel.wiki.git");
@@ -79,8 +82,9 @@ test("feature privacy label manifest records core local-first boundaries", () =>
 test("harness policy manifest stays portable and reviewable", () => {
   const manifestText = readFileSync(manifestPath, "utf8");
   const manifest = JSON.parse(manifestText);
+  const localHomePathPrefix = ["", "Users", ""].join("/");
 
-  assert.equal(manifestText.includes("/Users/"), false);
+  assert.equal(manifestText.includes(localHomePathPrefix), false);
   assert.equal(manifestText.includes("jobsentinel_openai_grant_application_packet"), false);
   assert.ok(Array.isArray(manifest.requiredFiles));
   assert.ok(typeof manifest.requiredHarnessSnippets === "object");

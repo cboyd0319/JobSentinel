@@ -96,9 +96,9 @@ The root README should avoid these failure modes:
   replace readable governing text.
 - **Marketing tone.** Claims should be grounded in current product surfaces,
   evidence, boundaries, and verification, not adjectives.
-- **Reference sprawl above the footer.** The root README must keep the complete
-  source index at the bottom by project decision, but all narrative sections
-  should route to it instead of duplicating citations inline.
+- **Reference sprawl above the footer.** The root README must keep a clear
+  source-index anchor near the bottom, but the complete source index lives in
+  `docs/references.md` so the front door stays scannable.
 
 The current correction treats "what do I do next?" as a first-screen
 requirement and "why should I trust it?" as a front-door proof requirement. A
@@ -205,10 +205,10 @@ easier to read and update.
 - Headings are direct and task-oriented.
 - No section exists only because similar projects have one.
 - Details use progressive disclosure with links or `<details>` blocks.
-- Grant-facing research claims point to research docs or source index.
+- Grant-facing research claims point to research docs or the source index.
 - User-facing claims avoid hiring-system manipulation framing.
 - Free-forever MIT license commitment is visible without scrolling far.
 - Rule 0 is visible and framed as release-blocking.
 - External AI remains optional, disabled by default, and gateway-bound.
-- Reference index remains complete when new external sources enter maintained
-  docs.
+- `docs/references.md` remains complete when new external sources enter
+  maintained docs.

@@ -50,6 +50,15 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Root README reference index moved into `docs/references.md`, leaving a
+  compact README anchor and preserving the complete external-source inventory.
+- Harness source policy now checks required reference URLs in
+  `docs/references.md` instead of requiring the full index in `README.md`.
+- The root README is now below the 900-line docs target, so the legacy
+  oversized-file exception was removed.
+
+Earlier implementation slice:
+
 - Docs drift checker constants moved out of
   `scripts/harness/checks/docs-drift.mjs` into
   `scripts/harness/checks/docs-drift-constants.mjs`.

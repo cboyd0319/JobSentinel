@@ -34,6 +34,9 @@ skill to get value.
 | Contributor | [Getting Started](developer/GETTING_STARTED.md), [Architecture](developer/ARCHITECTURE.md), [Testing](developer/TESTING.md) | Build, understand, and verify the app. |
 | Coding agent | [AGENTS.md](../AGENTS.md), [Harness](harness/README.md), [Verification Matrix](harness/verification-matrix.md) | Follow repo operating rules and required checks. |
 
+The maintained external source index lives in
+[References and External Sources](references.md).
+
 ## Current State
 
 - Package metadata version: `2.6.4`.
