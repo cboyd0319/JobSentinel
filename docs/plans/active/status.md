@@ -50,6 +50,13 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Resume Builder template thumbnail previews and export/delete icons moved out
+  of `src/pages/ResumeBuilder.tsx` into `src/pages/ResumeBuilderVisuals.tsx`.
+- `src/pages/ResumeBuilder.tsx` remains a legacy oversized-file exception, but
+  its no-growth budget tightened from 1,770 lines to 1,590 lines.
+
+Earlier implementation slice:
+
 - Setup Wizard pure preference helpers, first-run search summary UI, location
   option, and icons moved out of `src/pages/SetupWizard.tsx` into focused
   helper/component files under `src/pages/`.

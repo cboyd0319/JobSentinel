@@ -301,6 +301,8 @@ Out of scope:
   future Developer ID verification checks.
 - [x] Split Setup Wizard preference helpers, summary UI, location option, and
   icons out of the main page and retire its legacy oversized-file exception.
+- [x] Split Resume Builder template thumbnail and export/delete icons out of
+  the main page and tighten its legacy oversized-file budget.
 
 ## Orchestration Log
 
