@@ -50,6 +50,14 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- DB integrity backup, restore, cleanup, and backup-history tests moved out of
+  `src-tauri/src/core/db/integrity/tests.rs` into
+  `src-tauri/src/core/db/integrity/tests/backup_tests.rs`.
+- The main integrity test file is now below the 1,200-line test target, so its
+  legacy oversized-file exception was removed.
+
+Earlier implementation slice:
+
 - DB integrity model, clone, debug-format, and default-structure tests moved
   out of `src-tauri/src/core/db/integrity/tests.rs` into
   `src-tauri/src/core/db/integrity/tests/model_tests.rs`.

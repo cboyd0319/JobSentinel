@@ -4,6 +4,7 @@ use super::*;
 use chrono::Utc;
 use sqlx::SqlitePool;
 
+mod backup_tests;
 mod model_tests;
 
 async fn create_test_db() -> SqlitePool {
@@ -34,73 +35,6 @@ async fn test_startup_check_healthy() {
 
     let status = integrity.startup_check().await.unwrap();
     assert!(matches!(status, IntegrityStatus::Healthy));
-}
-
-#[tokio::test]
-#[ignore = "Requires file-based database (VACUUM INTO doesn't work with in-memory)"]
-async fn test_backup_creation() {
-    let db = create_test_db().await;
-    let temp_dir = tempfile::tempdir().unwrap();
-    let integrity = DatabaseIntegrity::new(db, temp_dir.path().to_path_buf());
-
-    let backup_path = integrity.create_backup("test").await.unwrap();
-    assert!(backup_path.exists(), "Backup file should exist");
-    assert!(
-        backup_path.metadata().unwrap().len() > 0,
-        "Backup should not be empty"
-    );
-}
-
-#[tokio::test]
-#[ignore = "Requires file-based database (VACUUM INTO doesn't work with in-memory)"]
-async fn test_cleanup_old_backups() {
-    let db = create_test_db().await;
-    let temp_dir = tempfile::tempdir().unwrap();
-    let integrity = DatabaseIntegrity::new(db, temp_dir.path().to_path_buf());
-
-    // Create multiple backups
-    for i in 0..5 {
-        integrity
-            .create_backup(&format!("test_{}", i))
-            .await
-            .unwrap();
-        tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
-    }
-
-    // Keep only 2 backups
-    let deleted = integrity.cleanup_old_backups(2).await.unwrap();
-    assert_eq!(deleted, 3, "Should delete 3 old backups");
-
-    // Verify only 2 backups remain
-    let remaining: Vec<_> = std::fs::read_dir(temp_dir.path())
-        .unwrap()
-        .filter_map(|e| e.ok())
-        .filter(|e| {
-            e.path()
-                .extension()
-                .and_then(|s| s.to_str())
-                .map(|s| s == "db")
-                .unwrap_or(false)
-        })
-        .collect();
-
-    assert_eq!(remaining.len(), 2, "Should have 2 backups remaining");
-}
-
-#[tokio::test]
-#[ignore = "Requires file-based database (VACUUM INTO doesn't work with in-memory)"]
-async fn test_get_backup_history() {
-    let db = create_test_db().await;
-    let temp_dir = tempfile::tempdir().unwrap();
-    let integrity = DatabaseIntegrity::new(db, temp_dir.path().to_path_buf());
-
-    // Create a backup
-    integrity.create_backup("test_history").await.unwrap();
-
-    // Get backup history
-    let history = integrity.get_backup_history(10).await.unwrap();
-    assert!(!history.is_empty(), "Should have backup history");
-    assert!(history[0].reason.as_ref().unwrap().contains("test_history"));
 }
 
 #[tokio::test]
@@ -282,105 +216,6 @@ async fn test_fragmentation_tracking() {
         "Fragmentation should be non-negative"
     );
     println!("Fragmentation: {:.2}%", health.fragmentation_percent);
-}
-
-#[tokio::test]
-#[ignore = "Backup/restore requires file-based database"]
-async fn test_backup_and_restore() {
-    let db = create_test_db().await;
-    let temp_dir = tempfile::tempdir().unwrap();
-    let integrity = DatabaseIntegrity::new(db.clone(), temp_dir.path().to_path_buf());
-
-    // Insert test data
-    sqlx::query(
-        r#"
-INSERT INTO jobs (hash, title, company, url, source)
-VALUES (?, ?, ?, ?, ?)
-"#,
-    )
-    .bind("test_hash")
-    .bind("Test Job")
-    .bind("Test Company")
-    .bind("https://example.com/job")
-    .bind("test")
-    .execute(&db)
-    .await
-    .unwrap();
-
-    // Create backup
-    let backup_path = integrity.create_backup("test_restore").await.unwrap();
-    assert!(backup_path.exists(), "Backup file should exist");
-
-    // Verify backup is not empty
-    let backup_size = std::fs::metadata(&backup_path).unwrap().len();
-    assert!(backup_size > 0, "Backup should not be empty");
-    println!("Backup size: {} bytes", backup_size);
-
-    // Delete original data
-    sqlx::query("DELETE FROM jobs WHERE hash = 'test_hash'")
-        .execute(&db)
-        .await
-        .unwrap();
-
-    // Verify data is gone
-    let count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM jobs WHERE hash = 'test_hash'")
-        .fetch_one(&db)
-        .await
-        .unwrap();
-    assert_eq!(count, 0, "Data should be deleted");
-
-    // Note: Actual restore requires closing and reopening database
-    // which is complex to test in this context
-    // But we've verified backup creation works
-}
-
-#[tokio::test]
-#[ignore = "Backup cleanup requires file-based database"]
-async fn test_multiple_backups_cleanup() {
-    let db = create_test_db().await;
-    let temp_dir = tempfile::tempdir().unwrap();
-    let integrity = DatabaseIntegrity::new(db, temp_dir.path().to_path_buf());
-
-    // Create 10 backups
-    for i in 0..10 {
-        integrity
-            .create_backup(&format!("test_cleanup_{}", i))
-            .await
-            .unwrap();
-        tokio::time::sleep(tokio::time::Duration::from_millis(50)).await;
-    }
-
-    // Verify 10 backups exist
-    let backup_count: usize = std::fs::read_dir(temp_dir.path())
-        .unwrap()
-        .filter_map(|e| e.ok())
-        .filter(|e| {
-            e.path()
-                .extension()
-                .and_then(|s| s.to_str())
-                .map(|s| s == "db")
-                .unwrap_or(false)
-        })
-        .count();
-    assert_eq!(backup_count, 10, "Should have 10 backups");
-
-    // Cleanup, keeping only 3
-    let deleted = integrity.cleanup_old_backups(3).await.unwrap();
-    assert_eq!(deleted, 7, "Should delete 7 old backups");
-
-    // Verify only 3 remain
-    let remaining_count: usize = std::fs::read_dir(temp_dir.path())
-        .unwrap()
-        .filter_map(|e| e.ok())
-        .filter(|e| {
-            e.path()
-                .extension()
-                .and_then(|s| s.to_str())
-                .map(|s| s == "db")
-                .unwrap_or(false)
-        })
-        .count();
-    assert_eq!(remaining_count, 3, "Should have 3 backups remaining");
 }
 
 #[tokio::test]
@@ -589,53 +424,6 @@ async fn test_log_check_without_details() {
 }
 
 #[tokio::test]
-#[ignore = "Requires file-based database (VACUUM INTO doesn't work with in-memory)"]
-async fn test_backup_before_operation() {
-    let db = create_test_db().await;
-    let temp_dir = tempfile::tempdir().unwrap();
-    let integrity = DatabaseIntegrity::new(db, temp_dir.path().to_path_buf());
-
-    let backup_path = integrity
-        .backup_before_operation("migration")
-        .await
-        .unwrap();
-    assert!(
-        backup_path
-            .file_name()
-            .unwrap()
-            .to_str()
-            .unwrap()
-            .contains("pre_migration"),
-        "Backup filename should contain operation name"
-    );
-    assert!(backup_path.exists(), "Backup file should exist");
-}
-
-#[tokio::test]
-async fn test_restore_from_backup_file_not_found() {
-    let db = create_test_db().await;
-    let temp_dir = tempfile::tempdir().unwrap();
-    let integrity = DatabaseIntegrity::new(db, temp_dir.path().to_path_buf());
-
-    let nonexistent_backup = temp_dir.path().join("nonexistent.db");
-    let current_db = temp_dir.path().join("current.db");
-
-    let result = integrity
-        .restore_from_backup(&nonexistent_backup, &current_db)
-        .await;
-    assert!(result.is_err(), "Should fail if backup file doesn't exist");
-    let error = result.unwrap_err().to_string();
-    assert!(
-        error.contains("Backup file not found"),
-        "Error message should mention file not found"
-    );
-    assert!(
-        !error.contains("nonexistent.db"),
-        "Error message must not expose backup path: {error}"
-    );
-}
-
-#[tokio::test]
 async fn test_optimize() {
     let db = create_test_db().await;
     let temp_dir = tempfile::tempdir().unwrap();
@@ -666,56 +454,6 @@ async fn test_optimize_with_data() {
 
     // Optimize should succeed
     integrity.optimize().await.unwrap();
-}
-
-#[tokio::test]
-async fn test_cleanup_old_backups_no_backups() {
-    let db = create_test_db().await;
-    let temp_dir = tempfile::tempdir().unwrap();
-    let integrity = DatabaseIntegrity::new(db, temp_dir.path().to_path_buf());
-
-    let deleted = integrity.cleanup_old_backups(5).await.unwrap();
-    assert_eq!(deleted, 0, "Should delete 0 files when no backups exist");
-}
-
-#[tokio::test]
-async fn test_cleanup_old_backups_fewer_than_keep_count() {
-    let db = create_test_db().await;
-    let temp_dir = tempfile::tempdir().unwrap();
-    let integrity = DatabaseIntegrity::new(db, temp_dir.path().to_path_buf());
-
-    // Create 2 dummy backup files
-    for i in 0..2 {
-        let backup_file = temp_dir.path().join(format!("backup_{}.db", i));
-        std::fs::write(&backup_file, b"dummy backup").unwrap();
-    }
-
-    let deleted = integrity.cleanup_old_backups(5).await.unwrap();
-    assert_eq!(
-        deleted, 0,
-        "Should delete 0 files when backups < keep_count"
-    );
-}
-
-#[tokio::test]
-async fn test_cleanup_old_backups_ignores_non_db_files() {
-    let db = create_test_db().await;
-    let temp_dir = tempfile::tempdir().unwrap();
-    let integrity = DatabaseIntegrity::new(db, temp_dir.path().to_path_buf());
-
-    // Create various files
-    std::fs::write(temp_dir.path().join("backup1.db"), b"backup").unwrap();
-    std::fs::write(temp_dir.path().join("backup2.db"), b"backup").unwrap();
-    std::fs::write(temp_dir.path().join("readme.txt"), b"text").unwrap();
-    std::fs::write(temp_dir.path().join("data.json"), b"json").unwrap();
-
-    // Keep only 1, should delete 1 (not the txt/json files)
-    let deleted = integrity.cleanup_old_backups(1).await.unwrap();
-    assert_eq!(deleted, 1, "Should delete only .db files");
-
-    // Verify non-db files still exist
-    assert!(temp_dir.path().join("readme.txt").exists());
-    assert!(temp_dir.path().join("data.json").exists());
 }
 
 #[tokio::test]
@@ -806,48 +544,6 @@ async fn test_get_pragma_diagnostics_in_memory() {
         version_parts.len() >= 2,
         "SQLite version should have at least major.minor"
     );
-}
-
-#[tokio::test]
-async fn test_get_backup_history_empty() {
-    let db = create_test_db().await;
-    let temp_dir = tempfile::tempdir().unwrap();
-    let integrity = DatabaseIntegrity::new(db, temp_dir.path().to_path_buf());
-
-    let history = integrity.get_backup_history(10).await.unwrap();
-    assert_eq!(history.len(), 0, "Should have no backup history initially");
-}
-
-#[tokio::test]
-async fn test_get_backup_history_limit() {
-    let db = create_test_db().await;
-    let temp_dir = tempfile::tempdir().unwrap();
-    let integrity = DatabaseIntegrity::new(db.clone(), temp_dir.path().to_path_buf());
-
-    // Insert 5 backup log entries
-    for i in 0..5 {
-        sqlx::query("INSERT INTO backup_log (backup_path, reason, size_bytes) VALUES (?, ?, ?)")
-            .bind(format!("/path/to/backup_{}.db", i))
-            .bind(format!("test_{}", i))
-            .bind(1000 + i)
-            .execute(&db)
-            .await
-            .unwrap();
-    }
-
-    // Get only 3
-    let history = integrity.get_backup_history(3).await.unwrap();
-    assert_eq!(history.len(), 3, "Should respect limit parameter");
-
-    // Verify we got 3 entries (exact order may vary due to same timestamp)
-    assert_eq!(history.len(), 3);
-
-    // All entries should have valid data
-    for entry in &history {
-        assert!(entry.reason.is_some());
-        assert!(entry.size_bytes.is_some());
-        assert!(entry.size_bytes.unwrap() >= 1000 && entry.size_bytes.unwrap() <= 1004);
-    }
 }
 
 #[tokio::test]
@@ -1141,31 +837,6 @@ async fn test_health_metrics_with_invalid_metadata_timestamps() {
 }
 
 #[tokio::test]
-async fn test_cleanup_old_backups_sorting() {
-    let db = create_test_db().await;
-    let temp_dir = tempfile::tempdir().unwrap();
-    let integrity = DatabaseIntegrity::new(db, temp_dir.path().to_path_buf());
-
-    // Create backup files with different timestamps
-    let backup1 = temp_dir.path().join("backup1.db");
-    let backup2 = temp_dir.path().join("backup2.db");
-    let backup3 = temp_dir.path().join("backup3.db");
-
-    std::fs::write(&backup1, b"backup1").unwrap();
-    std::thread::sleep(std::time::Duration::from_millis(10));
-    std::fs::write(&backup2, b"backup2").unwrap();
-    std::thread::sleep(std::time::Duration::from_millis(10));
-    std::fs::write(&backup3, b"backup3").unwrap();
-
-    // Keep only 2 (should delete oldest)
-    let deleted = integrity.cleanup_old_backups(2).await.unwrap();
-    assert_eq!(deleted, 1);
-
-    // Verify newest 2 remain
-    assert!(backup2.exists() || backup3.exists());
-}
-
-#[tokio::test]
 async fn test_log_check_duration_conversion() {
     let db = create_test_db().await;
     let temp_dir = tempfile::tempdir().unwrap();
@@ -1212,42 +883,6 @@ async fn test_log_check_duration_conversion() {
 }
 
 #[tokio::test]
-async fn test_get_backup_history_ordering() {
-    let db = create_test_db().await;
-    let temp_dir = tempfile::tempdir().unwrap();
-    let integrity = DatabaseIntegrity::new(db.clone(), temp_dir.path().to_path_buf());
-
-    // Insert backups with different timestamps (manually to control order)
-    for i in 0..3 {
-        sqlx::query("INSERT INTO backup_log (backup_path, reason, size_bytes) VALUES (?, ?, ?)")
-            .bind(format!("/path/to/backup_{}.db", i))
-            .bind(format!("reason_{}", i))
-            .bind(1000 + i)
-            .execute(&db)
-            .await
-            .unwrap();
-        tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
-    }
-
-    // Get history (should be in DESC order)
-    let history = integrity.get_backup_history(10).await.unwrap();
-    assert_eq!(history.len(), 3);
-
-    // Verify all entries have reasons
-    for entry in &history {
-        assert!(entry.reason.is_some());
-    }
-
-    // Most recent should be reason_2 (DESC order)
-    let last_reason = history[0].reason.as_ref().unwrap();
-    assert!(
-        last_reason.starts_with("reason_"),
-        "Expected reason_X but got: {}",
-        last_reason
-    );
-}
-
-#[tokio::test]
 async fn test_health_metrics_zero_division_protection() {
     let db = create_test_db().await;
     let temp_dir = tempfile::tempdir().unwrap();
@@ -1285,102 +920,6 @@ async fn test_should_run_full_check_edge_case_exactly_7_days() {
     let should_run = integrity.should_run_full_check().await.unwrap();
     // Should return true when days_since >= 7
     assert!(should_run);
-}
-
-#[tokio::test]
-#[ignore = "Requires file-based database for restore"]
-async fn test_restore_from_backup_success() {
-    use tempfile::NamedTempFile;
-
-    // Create a temporary file-based database
-    let temp_db_file = NamedTempFile::new().unwrap();
-    let db_path = temp_db_file.path().to_path_buf();
-    let db_url = format!("sqlite:{}", db_path.display());
-
-    let db = SqlitePool::connect(&db_url).await.unwrap();
-    sqlx::migrate!("./migrations").run(&db).await.unwrap();
-
-    let temp_dir = tempfile::tempdir().unwrap();
-    let integrity = DatabaseIntegrity::new(db.clone(), temp_dir.path().to_path_buf());
-
-    // Insert test data
-    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES (?, ?, ?, ?, ?)")
-        .bind("restore_test")
-        .bind("Test Job")
-        .bind("Test Co")
-        .bind("https://example.com")
-        .bind("test")
-        .execute(&db)
-        .await
-        .unwrap();
-
-    // Create backup
-    let backup_path = integrity.create_backup("restore_test").await.unwrap();
-    assert!(backup_path.exists());
-
-    // Close database connection
-    db.close().await;
-
-    // Simulate corruption by deleting the database
-    std::fs::remove_file(&db_path).unwrap();
-
-    // Restore from backup
-    let new_integrity = DatabaseIntegrity::new(
-        SqlitePool::connect("sqlite::memory:").await.unwrap(),
-        temp_dir.path().to_path_buf(),
-    );
-    new_integrity
-        .restore_from_backup(&backup_path, &db_path)
-        .await
-        .unwrap();
-
-    // Verify database was restored
-    assert!(db_path.exists());
-
-    // Verify data is present
-    let restored_db = SqlitePool::connect(&db_url).await.unwrap();
-    let count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM jobs WHERE hash = 'restore_test'")
-        .fetch_one(&restored_db)
-        .await
-        .unwrap();
-    assert_eq!(count, 1);
-
-    restored_db.close().await;
-}
-
-#[tokio::test]
-#[ignore = "Requires file-based database for restore"]
-async fn test_restore_saves_corrupted_database() {
-    let temp_dir = tempfile::tempdir().unwrap();
-
-    // Create a fake corrupted database file
-    let corrupted_db = temp_dir.path().join("corrupted.db");
-    std::fs::write(&corrupted_db, b"corrupted data").unwrap();
-
-    // Create a fake backup file
-    let backup_file = temp_dir.path().join("backup.db");
-    std::fs::write(&backup_file, b"good backup data").unwrap();
-
-    let db = create_test_db().await;
-    let integrity = DatabaseIntegrity::new(db, temp_dir.path().to_path_buf());
-
-    // Restore from backup (should save corrupted file)
-    integrity
-        .restore_from_backup(&backup_file, &corrupted_db)
-        .await
-        .unwrap();
-
-    // Verify corrupted database was saved
-    let corrupted_backup = corrupted_db.with_extension("db.corrupted");
-    assert!(corrupted_backup.exists());
-
-    // Verify it contains the original corrupted data
-    let saved_data = std::fs::read_to_string(&corrupted_backup).unwrap();
-    assert_eq!(saved_data, "corrupted data");
-
-    // Verify main database now contains backup data
-    let restored_data = std::fs::read_to_string(&corrupted_db).unwrap();
-    assert_eq!(restored_data, "good backup data");
 }
 
 #[tokio::test]
@@ -1433,58 +972,6 @@ async fn test_health_metrics_all_pragma_success() {
     assert!(health.total_jobs >= 0);
     assert!(health.total_integrity_checks >= 0);
     assert!(health.total_backups >= 0);
-}
-
-#[tokio::test]
-async fn test_cleanup_old_backups_with_exact_keep_count() {
-    let db = create_test_db().await;
-    let temp_dir = tempfile::tempdir().unwrap();
-    let integrity = DatabaseIntegrity::new(db, temp_dir.path().to_path_buf());
-
-    // Create exactly keep_count backups
-    for i in 0..5 {
-        let backup = temp_dir.path().join(format!("backup_{}.db", i));
-        std::fs::write(&backup, format!("backup {}", i)).unwrap();
-    }
-
-    // Cleanup with keep_count = 5 (exact match)
-    let deleted = integrity.cleanup_old_backups(5).await.unwrap();
-    assert_eq!(deleted, 0, "Should not delete when count equals keep_count");
-
-    // Verify all 5 backups still exist
-    let count: usize = std::fs::read_dir(temp_dir.path())
-        .unwrap()
-        .filter_map(|e| e.ok())
-        .filter(|e| {
-            e.path()
-                .extension()
-                .and_then(|s| s.to_str())
-                .map(|s| s == "db")
-                .unwrap_or(false)
-        })
-        .count();
-    assert_eq!(count, 5);
-}
-
-#[tokio::test]
-async fn test_get_backup_history_with_null_fields() {
-    let db = create_test_db().await;
-    let temp_dir = tempfile::tempdir().unwrap();
-    let integrity = DatabaseIntegrity::new(db.clone(), temp_dir.path().to_path_buf());
-
-    // Insert backup log entry with NULL reason and size
-    sqlx::query("INSERT INTO backup_log (backup_path, reason, size_bytes) VALUES (?, ?, ?)")
-        .bind("/path/to/backup.db")
-        .bind(None::<String>)
-        .bind(None::<i64>)
-        .execute(&db)
-        .await
-        .unwrap();
-
-    let history = integrity.get_backup_history(10).await.unwrap();
-    assert_eq!(history.len(), 1);
-    assert!(history[0].reason.is_none());
-    assert!(history[0].size_bytes.is_none());
 }
 
 #[tokio::test]
