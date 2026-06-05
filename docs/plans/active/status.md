@@ -51,6 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Feature-doc drift predicates now live in a focused harness module, reducing
+  `docs-drift.mjs` from 866 to 628 lines while keeping the existing public
+  exports and bloat rule messages stable.
+
 - Resume Builder live-score DTOs and hard-requirement helpers now live in a
   focused model module, reducing the live panel from 982 to 638 lines without
   changing must-have review behavior.
