@@ -113,6 +113,17 @@ Earlier implementation slice:
 
 Latest implementation slice:
 
+- ATS requirement review building, match-state classification, and review
+  recommendation copy moved out of
+  `src-tauri/src/core/resume/ats_analyzer.rs` into
+  `src-tauri/src/core/resume/ats_analyzer/requirement_reviews.rs`.
+- The main ATS analyzer still owns job keyword extraction, evidence scoring,
+  and structured resume analysis.
+- `src-tauri/src/core/resume/ats_analyzer.rs` legacy no-growth budget
+  tightened from 1,682 lines to 1,571 lines.
+
+Earlier implementation slice:
+
 - ATS hard-constraint risk building, hard-constraint categorization, and
   hard-constraint keyword extraction moved out of
   `src-tauri/src/core/resume/ats_analyzer.rs` into

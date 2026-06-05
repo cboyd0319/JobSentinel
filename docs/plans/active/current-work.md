@@ -229,6 +229,7 @@ Out of scope:
 - [x] Split Settings notification UI out of the main Settings page and retire
   its legacy oversized-file exception.
 - [x] Split ATS hard-constraint helpers out of the runtime analyzer.
+- [x] Split ATS requirement-review helpers out of the runtime analyzer.
 
 ## Orchestration Log
 
