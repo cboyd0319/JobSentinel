@@ -50,6 +50,17 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Technical-first docs and UI product-copy path checks moved out of
+  `scripts/harness/checks/product-copy.mjs` into
+  `scripts/harness/checks/product-copy/technical-first-docs.mjs` and
+  `scripts/harness/checks/product-copy/technical-first-ui.mjs`.
+- `hasTechnicalFirstUserCopy` now coordinates preflight, docs, UI, and fallback
+  helpers.
+- `scripts/harness/checks/product-copy.mjs` is now below the 900-line script
+  target, so its legacy no-growth budget was removed.
+
+Recent cleanup summary:
+
 - Technical-first preflight product-copy path routing moved out of
   `scripts/harness/checks/product-copy.mjs` into
   `scripts/harness/checks/product-copy/technical-first-preflight.mjs`.
@@ -58,9 +69,6 @@ Latest implementation slice:
   pay-language checks, and front-door ATS wording checks.
 - `scripts/harness/checks/product-copy.mjs` legacy no-growth budget tightened
   from 2,029 lines to 1,763 lines.
-
-Recent cleanup summary:
-
 - Technical-first fallback product-copy pattern table moved out of
   `scripts/harness/checks/product-copy.mjs` into
   `scripts/harness/checks/product-copy/technical-first-fallback.mjs`.

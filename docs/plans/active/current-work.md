@@ -187,6 +187,10 @@ Out of scope:
   main product-copy checker module.
 - [x] Split technical-first preflight product-copy routing out of the main
   product-copy checker module.
+- [x] Split technical-first docs and UI product-copy routing out of the main
+  product-copy checker module.
+- [x] Retire the product-copy checker module's legacy oversized-file exception
+  after bringing it below the 900-line script target.
 
 ## Orchestration Log
 
@@ -439,6 +443,11 @@ Out of scope:
 - Coordinator moved technical-first preflight product-copy path routing into
   `scripts/harness/checks/product-copy/technical-first-preflight.mjs`. The main
   product-copy checker still owns the remaining scanner flow.
+- Coordinator moved technical-first docs and UI product-copy routing into
+  `scripts/harness/checks/product-copy/technical-first-docs.mjs` and
+  `scripts/harness/checks/product-copy/technical-first-ui.mjs`. The main
+  product-copy checker is now below the 900-line script target and no longer
+  has a legacy oversized-file exception.
 
 ## Risks
 
