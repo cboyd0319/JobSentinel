@@ -467,6 +467,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 - Email notification formatter tests moved into `email/tests.rs`; production
   SMTP and formatting module now stays focused on runtime behavior.
 
+- Notification service orchestration tests moved into `notify/tests.rs`; the
+  service module now stays focused on channel dispatch logic.
+
 ## Recent Completed Slices
 
 Detailed implementation history before the current restart window is in the
