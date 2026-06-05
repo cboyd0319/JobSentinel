@@ -234,6 +234,8 @@ Out of scope:
   legacy oversized-file exception.
 - [x] Split resume template renderer tests out of the runtime module and retire
   its legacy oversized-file exception.
+- [x] Split Interview Scheduler icon components out of the main scheduler
+  component and retire its legacy oversized-file exception.
 - [x] Split Settings search-preference UI out of the main Settings page.
 - [x] Split Resume Builder data transforms out of the main Resume Builder page.
 - [x] Split DB duplicate tests out of the main DB test file.

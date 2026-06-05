@@ -50,6 +50,16 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Interview Scheduler icon components moved out of
+  `src/components/InterviewScheduler.tsx` into
+  `src/components/InterviewSchedulerIcons.tsx`.
+- The main Interview Scheduler component is now below the 1,200-line frontend
+  target, so the legacy oversized-file exception was removed.
+- Interview Scheduler behavior was unchanged; only local icon component
+  ownership changed.
+
+Earlier implementation slice:
+
 - Resume template renderer tests moved out of
   `src-tauri/src/core/resume/templates.rs` into
   `src-tauri/src/core/resume/templates_tests.rs`.
