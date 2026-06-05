@@ -548,6 +548,7 @@ impl FormFiller {
     }
 
     /// Find matching answer for a question text
+    #[cfg(test)]
     fn find_answer_for_question(&self, question: &str) -> Option<String> {
         self.find_screening_answer_for_question(question)
             .map(|answer| answer.answer.clone())
