@@ -49,6 +49,17 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Error helper retry and debounced-handler tests now live in
+  `src/utils/errorHelpers.async.test.ts`, reducing
+  `src/utils/errorHelpers.test.ts` from 962 to 677 lines without changing
+  production error handling, safe message tests, reporting tests, response
+  classification tests, or edge-case coverage.
+
+- Focused verification for the error helper test split passed:
+  `npm run test:run -- src/utils/errorHelpers.test.ts
+  src/utils/errorHelpers.async.test.ts`, `npx tsc --noEmit --pretty false`,
+  `npm run lint`, and `npm run lint:bloat`.
+
 - First-run Notifications step now lives in
   `src/pages/SetupWizardNotificationsStep.tsx`, reducing
   `src/pages/SetupWizard.tsx` from 963 to 801 lines without changing freshness,
