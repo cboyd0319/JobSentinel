@@ -115,10 +115,13 @@ npm run tauri:verify:macos:latest -- --require-gatekeeper
 
 If replacing an already-public no-account Mac asset manually, use a unique
 filename such as `JobSentinel_X.Y.Z_no-account_universal.dmg`. Reusing a
-previous browser-download filename can leave stale CDN content behind. Upload
-both files and then run the public verifier:
+previous browser-download filename can leave stale CDN content behind. Build
+with the no-account filename label, upload both files, and then run the public
+verifier:
 
 ```bash
+JOBSENTINEL_MACOS_NO_ACCOUNT=true npm run tauri:build:macos -- --target universal-apple-darwin
+
 gh release upload vX.Y.Z \
   src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_X.Y.Z_no-account_universal.dmg \
   src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_X.Y.Z_no-account_universal.dmg.sha256

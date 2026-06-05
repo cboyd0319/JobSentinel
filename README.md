@@ -429,9 +429,9 @@ For a universal macOS package and local package verification:
 
 ```bash
 rustup target add aarch64-apple-darwin x86_64-apple-darwin
-npm run tauri:build:macos -- --target universal-apple-darwin
+JOBSENTINEL_MACOS_NO_ACCOUNT=true npm run tauri:build:macos -- --target universal-apple-darwin
 npm run tauri:verify:macos -- \
-  --dmg src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_*_universal.dmg \
+  --dmg src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_*_no-account_universal.dmg \
   --expected-architectures x86_64,arm64 \
   --launch-smoke \
   --install-smoke \
@@ -439,9 +439,11 @@ npm run tauri:verify:macos -- \
 ```
 
 The macOS package script also writes
-`JobSentinel_<version>_universal.dmg.sha256` next to the DMG. The verifier can
-require that checksum sidecar before upload or sharing. Upload or share both
-files together.
+`JobSentinel_<version>_no-account_universal.dmg.sha256` next to the
+no-account DMG. Without `JOBSENTINEL_MACOS_NO_ACCOUNT=true`, local-only builds
+use `JobSentinel_<version>_universal.dmg` instead. The verifier can require
+the checksum sidecar before upload or sharing. Upload or share both files
+together.
 
 Installer output:
 

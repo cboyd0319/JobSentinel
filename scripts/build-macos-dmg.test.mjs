@@ -72,7 +72,7 @@ test("macOS DMG builder names app and DMG outputs from metadata", () => {
   const paths = getMacBuildPaths("/repo", ["--target=universal-apple-darwin"], {
     productName: "JobSentinel",
     version: "2.6.4",
-  });
+  }, {});
 
   assert.equal(
     paths.appPath,
@@ -102,6 +102,30 @@ test("macOS DMG builder names app and DMG outputs from metadata", () => {
   );
 });
 
+test("macOS DMG builder can name no-account outputs directly", () => {
+  const paths = getMacBuildPaths("/repo", ["--target=universal-apple-darwin"], {
+    productName: "JobSentinel",
+    version: "2.6.4",
+  }, {
+    JOBSENTINEL_MACOS_NO_ACCOUNT: "true",
+  });
+
+  assert.equal(paths.dmgName, "JobSentinel_2.6.4_no-account_universal.dmg");
+  assert.equal(
+    paths.dmgPath,
+    join(
+      "/repo",
+      "src-tauri",
+      "target",
+      "universal-apple-darwin",
+      "release",
+      "bundle",
+      "dmg",
+      "JobSentinel_2.6.4_no-account_universal.dmg",
+    ),
+  );
+});
+
 test("macOS DMG builder formats public checksum artifact content", () => {
   assert.equal(
     formatDmgChecksum("/tmp/JobSentinel_2.6.4_universal.dmg", "0123456789abcdef"),
@@ -126,6 +150,15 @@ test("macOS DMG builder identifies stale no-account artifact variants", () => {
       "JobSentinel_2.6.4_aarch64.dmg.sha256",
       "JobSentinel_2.6.4_aarch64_no-account_macos.dmg",
       "JobSentinel_2.6.4_aarch64_no-account_macos.dmg.sha256",
+    ],
+  );
+  assert.deepEqual(
+    Array.from(staleDmgArtifactNames("JobSentinel_2.6.4_no-account_universal.dmg")).sort(),
+    [
+      "JobSentinel_2.6.4_no-account_universal.dmg",
+      "JobSentinel_2.6.4_no-account_universal.dmg.sha256",
+      "JobSentinel_2.6.4_universal.dmg",
+      "JobSentinel_2.6.4_universal.dmg.sha256",
     ],
   );
 });

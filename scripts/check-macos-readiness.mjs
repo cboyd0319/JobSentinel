@@ -185,6 +185,8 @@ export function evaluateMacosReadiness({ root = defaultRoot, env = process.env }
         "assertDeveloperIdSignature",
         "parseNotarytoolSubmitResult",
         "buildNotarytoolLogArgs",
+        "noAccountDmgArtifactName",
+        "JOBSENTINEL_MACOS_NO_ACCOUNT",
       ]),
       "Builder must support both no-account ad-hoc output and future Developer ID release output.",
     ),

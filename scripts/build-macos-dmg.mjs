@@ -393,15 +393,41 @@ export function buildNotarytoolLogArgs(submissionId, env = process.env) {
 export function staleDmgArtifactNames(dmgName) {
   const names = new Set([dmgName, `${dmgName}.sha256`]);
 
-  if (!dmgName.includes("_no-account_")) {
-    const noAccountName = dmgName.endsWith("_universal.dmg")
-      ? dmgName.replace("_universal.dmg", "_no-account_universal.dmg")
-      : `${dmgName.replace(/\.dmg$/, "")}_no-account_macos.dmg`;
+  const noAccountName = noAccountDmgArtifactName(dmgName);
+  if (noAccountName) {
     names.add(noAccountName);
     names.add(`${noAccountName}.sha256`);
   }
 
+  const unlabeledName = unlabeledDmgArtifactName(dmgName);
+  if (unlabeledName) {
+    names.add(unlabeledName);
+    names.add(`${unlabeledName}.sha256`);
+  }
+
   return names;
+}
+
+export function noAccountDmgArtifactName(dmgName) {
+  if (dmgName.includes("_no-account_")) {
+    return null;
+  }
+
+  return dmgName.endsWith("_universal.dmg")
+    ? dmgName.replace("_universal.dmg", "_no-account_universal.dmg")
+    : `${dmgName.replace(/\.dmg$/, "")}_no-account_macos.dmg`;
+}
+
+export function unlabeledDmgArtifactName(dmgName) {
+  if (dmgName.endsWith("_no-account_universal.dmg")) {
+    return dmgName.replace("_no-account_universal.dmg", "_universal.dmg");
+  }
+
+  if (dmgName.endsWith("_no-account_macos.dmg")) {
+    return dmgName.replace("_no-account_macos.dmg", ".dmg");
+  }
+
+  return null;
 }
 
 export function removeStaleDmgArtifacts(paths, dmgName) {
@@ -519,11 +545,14 @@ function writeDmgChecksum(dmgPath) {
   console.log(`macOS DMG SHA-256: ${checksumPath}`);
 }
 
-export function getMacBuildPaths(root, args, metadata = readBuildMetadata(root)) {
+export function getMacBuildPaths(root, args, metadata = readBuildMetadata(root), env = process.env) {
   const target = getArgValue(args, "--target");
   const releaseDir = getReleaseDir(root, args);
   const appPath = join(releaseDir, "bundle", "macos", `${metadata.productName}.app`);
-  const dmgName = `${metadata.productName}_${metadata.version}_${getArchSuffix(target)}.dmg`;
+  const baseDmgName = `${metadata.productName}_${metadata.version}_${getArchSuffix(target)}.dmg`;
+  const dmgName = env.JOBSENTINEL_MACOS_NO_ACCOUNT === "true"
+    ? noAccountDmgArtifactName(baseDmgName) ?? baseDmgName
+    : baseDmgName;
   const dmgDir = join(releaseDir, "bundle", "dmg");
   const dmgPath = join(dmgDir, dmgName);
 

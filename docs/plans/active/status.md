@@ -51,6 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- The macOS DMG builder now writes `_no-account_` filenames directly when
+  `JOBSENTINEL_MACOS_NO_ACCOUNT=true`, and stale cleanup removes both labeled
+  and unlabeled checksum variants.
+
 - macOS readiness now checks that no-account release workflow order stays
   verify, label, recreate checksum, then upload.
 

@@ -189,6 +189,11 @@ isolated local `jobs.db`. For Developer ID public release gating, add
 `--require-gatekeeper`; that mode also requires the signed and notarized public
 app plus disk image to pass Gatekeeper assessment.
 
+For a local no-account DMG that is ready to upload or replace manually, build
+with `JOBSENTINEL_MACOS_NO_ACCOUNT=true`. The builder writes
+`JobSentinel_<version>_no-account_universal.dmg` and a matching `.sha256`
+sidecar directly, so the checksum is created for the public filename.
+
 After a release is published, verify the downloaded public artifact too:
 
 ```bash
