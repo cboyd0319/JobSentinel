@@ -835,6 +835,10 @@ Out of scope:
   `src-tauri/src/core/scrapers/greenhouse_tests/api_tests.rs`. The main
   Greenhouse test file still owns hash basics, scraper setup, HTML parsing,
   model checks, and property-based hash coverage.
+- Coordinator moved graduated salary scoring tests into
+  `src-tauri/src/core/scoring/tests/salary_tests.rs`. The main scoring test
+  file still owns base scoring, title/keyword, location, recency, alert, and
+  consistency coverage.
 
 ## Risks
 

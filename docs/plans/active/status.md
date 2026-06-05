@@ -413,6 +413,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
   tests moved out of the main Greenhouse scraper test file into a focused API
   Rust test module.
 
+- Graduated salary scoring tests moved out of the main scoring test file into
+  a focused salary scoring Rust test module.
+
 ## Recent Completed Slices
 
 Detailed implementation history before the current restart window is in the
