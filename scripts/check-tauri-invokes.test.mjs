@@ -160,6 +160,86 @@ pub async fn take_automation_screenshot(path: String) -> Result<(), String> {
   });
 });
 
+test("checkTauriInvokes resolves nested command module paths", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/main.rs",
+      `
+fn main() {
+    tauri::Builder::default()
+        .invoke_handler(tauri::generate_handler![
+            commands::resume::resume_builder_commands::update_resume_summary,
+        ]);
+}
+`,
+    );
+    writeFixtureFile(
+      root,
+      "README.md",
+      "Current backend surface: **1 registered Tauri commands**.\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/README.md",
+      "### Backend Modules\n\n- **Resume**: builder commands\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/ROADMAP.md",
+      "- **1 registered Tauri commands** for backend modules\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/developer/ARCHITECTURE.md",
+      "Tauri command handlers.\n\n**Resume Commands:**\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/developer/GETTING_STARTED.md",
+      "- **resume**: Resume builder\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/user-data-management.md",
+      "These commands power user data features.\n\n### Saved Searches\n",
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/resume.rs",
+      `
+#[path = "resume_builder_commands.rs"]
+pub mod resume_builder_commands;
+`,
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/resume_builder_commands.rs",
+      `
+#[tauri::command]
+pub async fn update_resume_summary(resume_id: i64, summary: String) -> Result<(), String> {
+    Ok(())
+}
+`,
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/ResumeBuilder.tsx",
+      `
+import { invoke } from "@tauri-apps/api/core";
+
+export async function saveSummary() {
+  await invoke("update_resume_summary", { resumeId: 1, summary: "Focused operator." });
+}
+`,
+    );
+
+    const violations = checkTauriInvokes(root);
+
+    assert.deepEqual(violations, []);
+  });
+});
+
 test("checkTauriInvokes rejects signed-to-usize casts in command handlers", () => {
   withFixture((root) => {
     writeFixtureFile(

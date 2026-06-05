@@ -658,7 +658,11 @@ if (!generateHandlerMatch) {
   errors.push("could not find tauri::generate_handler! block in src-tauri/src/main.rs");
 }
 
-const registeredCommandCount = (generateHandlerMatch?.[1].match(/commands::/g) ?? []).length;
+const registeredCommandCount = [
+  ...(generateHandlerMatch?.[1].matchAll(
+    /commands::((?:[a-zA-Z0-9_]+::)+)([a-zA-Z0-9_]+)/g,
+  ) ?? []),
+].length;
 const measuredCommandClaim = `${registeredCommandCount} registered Tauri commands`;
 
 for (const path of ["README.md", "docs/ROADMAP.md"]) {

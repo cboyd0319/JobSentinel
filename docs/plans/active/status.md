@@ -50,6 +50,18 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Resume Builder Tauri command handlers now live in
+  `src-tauri/src/commands/resume_builder_commands.rs` and are re-exported
+  through `src-tauri/src/commands/resume.rs`, reducing `resume.rs` from 886 to
+  730 lines without changing public command names, resume upload/import privacy
+  guards, matcher commands, export commands, or ATS analysis commands. Tauri
+  registration now points at the builder-command submodule so generated command
+  helpers remain visible, and the invoke harness now resolves nested command
+  modules through Rust `#[path]` sidecars. Focused verification passed:
+  `cargo fmt --all -- --check`, `cargo test commands::resume --lib`, `cargo
+  test commands::tests --lib`, `node --test scripts/check-tauri-invokes.test.mjs`,
+  `npm run lint:docs`, and `npm run lint:bloat`.
+
 - Release-promise repo-bloat fixtures now live in
   `scripts/check-repo-bloat-release-promises.test.mjs`, reducing
   `scripts/check-repo-bloat.test.mjs` from 895 to 820 lines without changing
@@ -139,6 +151,7 @@ Recent committed cleanup batch:
 
 | Area | Main file before -> after | Extracted surface | Focused proof |
 | ---- | ------------------------- | ----------------- | ------------- |
+| Resume Builder commands | 886 -> 730 | command sidecar re-export plus nested invoke harness | Commands focused tests, script tests, docs, bloat, fmt |
 | Repo-bloat release promise tests | 895 -> 820 | release-promise test file | Focused script tests, bloat |
 | WeWorkRemotely scraper | 888 -> 244 | scraper test sidecar | Scraper focused tests |
 | Discord notification tests | 893 -> 754 | display test module | Discord focused tests, fmt |

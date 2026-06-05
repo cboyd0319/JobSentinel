@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { existsSync, readFileSync, readdirSync } from "node:fs";
-import { dirname, extname, join, relative, resolve } from "node:path";
+import { basename, dirname, extname, join, relative, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import ts from "typescript";
 
@@ -286,8 +286,9 @@ function collectFrontendRequiredArgViolations(root) {
     return violations;
   }
 
-  for (const { module, name } of entries) {
-    const commandPath = join(root, "src-tauri/src/commands", `${module}.rs`);
+  for (const entry of entries) {
+    const { name } = entry;
+    const commandPath = resolveCommandSourcePath(root, entry);
     if (!existsSync(commandPath)) {
       continue;
     }
@@ -368,11 +369,64 @@ function collectRegisteredCommandEntries(root) {
   }
 
   return [
-    ...generateHandlerMatch[1].matchAll(/commands::([a-z_]+)::([a-zA-Z0-9_]+)/g),
-  ].map((match) => ({
-    module: match[1],
-    name: match[2],
-  }));
+    ...generateHandlerMatch[1].matchAll(
+      /commands::((?:[a-zA-Z0-9_]+::)+)([a-zA-Z0-9_]+)/g,
+    ),
+  ].map((match) => {
+    const modulePath = match[1].split("::").filter(Boolean);
+
+    return {
+      module: modulePath[0],
+      modulePath,
+      name: match[2],
+    };
+  });
+}
+
+function commandDisplayName(entry) {
+  return `${entry.modulePath.join("::")}::${entry.name}`;
+}
+
+function defaultNestedModulePath(parentPath, childModule) {
+  if (basename(parentPath) === "mod.rs") {
+    return join(dirname(parentPath), `${childModule}.rs`);
+  }
+
+  return join(dirname(parentPath), basename(parentPath, ".rs"), `${childModule}.rs`);
+}
+
+function resolveChildModulePath(parentPath, childModule) {
+  if (!existsSync(parentPath)) {
+    return defaultNestedModulePath(parentPath, childModule);
+  }
+
+  const parentText = readFileSync(parentPath, "utf8");
+  const escapedChild = escapeRegExp(childModule);
+  const pathAttributeMatch = parentText.match(
+    new RegExp(
+      `#\\[path\\s*=\\s*"([^"]+)"\\]\\s*(?:pub\\s+)?mod\\s+${escapedChild}\\s*;`,
+    ),
+  );
+
+  if (pathAttributeMatch) {
+    return resolve(dirname(parentPath), pathAttributeMatch[1]);
+  }
+
+  return defaultNestedModulePath(parentPath, childModule);
+}
+
+function resolveCommandSourcePath(root, entry) {
+  const [rootModule, ...childModules] = entry.modulePath;
+  const commandRoot = join(root, "src-tauri/src/commands");
+  const flatRootPath = join(commandRoot, `${rootModule}.rs`);
+  const modRootPath = join(commandRoot, rootModule, "mod.rs");
+  let currentPath = existsSync(flatRootPath) ? flatRootPath : modRootPath;
+
+  for (const childModule of childModules) {
+    currentPath = resolveChildModulePath(currentPath, childModule);
+  }
+
+  return currentPath;
 }
 
 function escapeRegExp(text) {
@@ -403,8 +457,9 @@ function collectRegisteredStubCommandViolations(root) {
     return violations;
   }
 
-  for (const { module, name } of entries) {
-    const commandPath = join(root, "src-tauri/src/commands", `${module}.rs`);
+  for (const entry of entries) {
+    const { name } = entry;
+    const commandPath = resolveCommandSourcePath(root, entry);
 
     if (!existsSync(commandPath)) {
       continue;
@@ -425,7 +480,7 @@ function collectRegisteredStubCommandViolations(root) {
 
     if (returnsFixedError && hasStubMarker) {
       violations.push(
-        `${module}::${name} is registered but appears to be a stub; implement it or remove it from src-tauri/src/main.rs`,
+        `${commandDisplayName(entry)} is registered but appears to be a stub; implement it or remove it from src-tauri/src/main.rs`,
       );
     }
   }
@@ -441,8 +496,9 @@ function collectCommandBoundaryCastViolations(root) {
     return violations;
   }
 
-  for (const { module, name } of entries) {
-    const commandPath = join(root, "src-tauri/src/commands", `${module}.rs`);
+  for (const entry of entries) {
+    const { name } = entry;
+    const commandPath = resolveCommandSourcePath(root, entry);
 
     if (!existsSync(commandPath)) {
       continue;
@@ -457,7 +513,7 @@ function collectCommandBoundaryCastViolations(root) {
 
     if (/\b[a-zA-Z_][a-zA-Z0-9_]*\s+as\s+usize\b/.test(body)) {
       violations.push(
-        `${module}::${name} casts a command value to usize; validate range before conversion`,
+        `${commandDisplayName(entry)} casts a command value to usize; validate range before conversion`,
       );
     }
   }
@@ -473,8 +529,9 @@ function collectCommandLimitValidationViolations(root) {
     return violations;
   }
 
-  for (const { module, name } of entries) {
-    const commandPath = join(root, "src-tauri/src/commands", `${module}.rs`);
+  for (const entry of entries) {
+    const { name } = entry;
+    const commandPath = resolveCommandSourcePath(root, entry);
 
     if (!existsSync(commandPath)) {
       continue;
@@ -498,7 +555,7 @@ function collectCommandLimitValidationViolations(root) {
 
     if (hasLimitParameter && !validatesLimit) {
       violations.push(
-        `${module}::${name} accepts a command limit without validation; validate range before querying`,
+        `${commandDisplayName(entry)} accepts a command limit without validation; validate range before querying`,
       );
     }
   }
