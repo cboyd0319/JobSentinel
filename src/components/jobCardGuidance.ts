@@ -31,9 +31,10 @@ export interface ScamRiskGuidance {
 const SCAM_SIGNAL_PATTERNS = [
   /\b(?:cashier'?s\s+check|fake\s+check|deposit\s+(?:the\s+)?check|mobile\s+deposit)\b/i,
   /\b(?:pay|send|wire|transfer)\b.{0,50}\b(?:money|fee|deposit|gift\s+cards?|funds)\b/i,
+  /\b(?:pay|send|wire|transfer|receive)\b.{0,50}\b(?:bitcoin|crypto(?:currency)?|zelle|venmo|cash\s*app|paypal)\b/i,
   /\b(?:buy|purchase|get|send)\b.{0,40}\b(?:gift\s+cards?|prepaid\s+cards?|money\s+orders?)\b/i,
   /\b(?:upfront|application|training|equipment)\b.{0,30}\b(?:fee|payment)\b/i,
-  /\b(?:social\s+security\s+number|ssn|bank\s+account|driver'?s\s+license)\b.{0,80}\b(?:before|interview|start|offer)\b/i,
+  /\b(?:social\s+security\s+number|ssn|bank\s+account|direct\s+deposit|passport|date\s+of\s+birth|driver'?s\s+license)\b.{0,80}\b(?:before|interview|start|offer)\b/i,
 ] as const;
 
 const LOW_DETAIL_TITLE_PATTERNS = [

@@ -51,6 +51,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Job-card scam cues now cover crypto or payment-app transfer requests and
+  passport or direct-deposit requests before interview or offer.
+
 - Resume Match next actions now suppress positive keep-visible guidance whenever
   missing or weak required evidence already needs review.
 

@@ -20,9 +20,39 @@ describe("jobCardGuidance", () => {
     });
   });
 
+  it("flags crypto or payment-app transfer requests as possible scam signs", () => {
+    expect(
+      getScamRiskGuidance(
+        "The coordinator will send Bitcoin funds and ask you to transfer them to vendors.",
+      ),
+    ).toMatchObject({
+      title: "Possible scam sign",
+      ariaLabel: "possible scam sign",
+    });
+  });
+
+  it("flags passport or direct-deposit requests before an offer", () => {
+    expect(
+      getScamRiskGuidance(
+        "Send your passport and direct deposit details before the interview starts.",
+      ),
+    ).toMatchObject({
+      title: "Possible scam sign",
+      ariaLabel: "possible scam sign",
+    });
+  });
+
   it("keeps ordinary descriptions quiet for scam guidance", () => {
     expect(
       getScamRiskGuidance("Help customers, document issues, and support a care team."),
+    ).toBeNull();
+  });
+
+  it("keeps ordinary payroll descriptions quiet for scam guidance", () => {
+    expect(
+      getScamRiskGuidance(
+        "Process payroll, reconcile invoices, and support vendor payment reporting.",
+      ),
     ).toBeNull();
   });
 
