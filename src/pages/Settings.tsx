@@ -11,7 +11,6 @@ import { HelpIcon } from "../components/HelpIcon";
 import { ScraperHealthDashboard } from "../components/ScraperHealthDashboard";
 import { FeedbackModal } from "../components/feedback/FeedbackModal";
 import { CloseIcon, SettingsIcon } from "./SettingsIcons";
-import { copySanitizedDebugReport, saveSanitizedDebugReport } from "../services/feedbackService";
 import { BookmarkletGenerator } from "../components/BookmarkletGenerator";
 import { useToast } from "../contexts";
 import { logError } from "../utils/errorUtils";
@@ -46,6 +45,7 @@ import {
   SettingsSupportSection,
 } from "./SettingsSupportSections";
 import { useSettingsCredentials } from "./useSettingsCredentials";
+import { useSettingsSupportReports } from "./useSettingsSupportReports";
 
 export default function Settings({ onClose }: SettingsProps) {
   const [config, setConfig] = useState<Config | null>(null);
@@ -59,9 +59,6 @@ export default function Settings({ onClose }: SettingsProps) {
   const [whitelistCompanyInput, setWhitelistCompanyInput] = useState("");
   const [blacklistCompanyInput, setBlacklistCompanyInput] = useState("");
   const [showHealthDashboard, setShowHealthDashboard] = useState(false);
-  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
-  const [copyingDebugReport, setCopyingDebugReport] = useState(false);
-  const [savingDebugReport, setSavingDebugReport] = useState(false);
   const [ghostConfig, setGhostConfig] = useState<GhostConfig | null>(null);
   const [ghostConfigLoading, setGhostConfigLoading] = useState(false);
   const [jobsWithGptLastRequest, setJobsWithGptLastRequest] =
@@ -79,50 +76,15 @@ export default function Settings({ onClose }: SettingsProps) {
     markCredentialsSaved,
     setCredentials,
   } = useSettingsCredentials(toast);
-
-  const handleCopyDebugReport = useCallback(async () => {
-    setCopyingDebugReport(true);
-
-    try {
-      await copySanitizedDebugReport();
-      toast.success(
-        "Safe support report copied",
-        "Share it only if you want help. JobSentinel hides common private details; review it before sharing."
-      );
-    } catch (error) {
-      logError("Could not copy support report:", error);
-      toast.error(
-        "Could not copy safe support report",
-        "Try saving the report instead."
-      );
-    } finally {
-      setCopyingDebugReport(false);
-    }
-  }, [toast]);
-
-  const handleSaveDebugReport = useCallback(async () => {
-    setSavingDebugReport(true);
-
-    try {
-      const savedFile = await saveSanitizedDebugReport();
-      if (savedFile) {
-        toast.success(
-          "Support report saved for review",
-          `Review ${savedFile.fileName} before sharing it. Share it only if you want help.`
-        );
-      } else {
-        toast.info("Safe support report not saved", "No file was created.");
-      }
-    } catch (error) {
-      logError("Failed to save support report:", error);
-      toast.error(
-        "Could not save safe support report",
-        "Try Copy Safe Support Report instead."
-      );
-    } finally {
-      setSavingDebugReport(false);
-    }
-  }, [toast]);
+  const {
+    closeFeedbackModal,
+    copyingDebugReport,
+    handleCopyDebugReport,
+    handleSaveDebugReport,
+    openFeedbackModal,
+    savingDebugReport,
+    showFeedbackModal,
+  } = useSettingsSupportReports(toast);
 
   // Location detection state
   const [detectedLocation, setDetectedLocation] = useState<LocationInfo | null>(
@@ -857,7 +819,7 @@ export default function Settings({ onClose }: SettingsProps) {
           <SettingsSupportSection
             copyingDebugReport={copyingDebugReport}
             onCopyDebugReport={handleCopyDebugReport}
-            onOpenFeedback={() => setShowFeedbackModal(true)}
+            onOpenFeedback={openFeedbackModal}
             onSaveDebugReport={handleSaveDebugReport}
             savingDebugReport={savingDebugReport}
           />
@@ -887,7 +849,7 @@ export default function Settings({ onClose }: SettingsProps) {
       {/* Feedback Modal */}
       <FeedbackModal
         isOpen={showFeedbackModal}
-        onClose={() => setShowFeedbackModal(false)}
+        onClose={closeFeedbackModal}
       />
     </div>
   );

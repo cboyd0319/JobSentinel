@@ -50,6 +50,16 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Settings support-report state and copy/save handlers now live in
+  `src/pages/useSettingsSupportReports.ts`, reducing `src/pages/Settings.tsx`
+  from 894 to 856 lines without changing settings save, keychain, source
+  toggles, support-report copy/save behavior, or feedback modal wiring.
+  Focused verification passed: `npm run test:run --
+  src/pages/Settings.test.tsx src/pages/Settings.load.test.tsx
+  src/pages/Settings.sources.test.tsx`, `npm run lint`, `npm run build`,
+  `npm run lint:bloat`, docs gates, `git diff --check`, and the local-path
+  leak scan.
+
 - DB validation boundary tests now live in
   `src-tauri/src/core/db/tests/tests/job_validation_tests.rs`, reducing
   `src-tauri/src/core/db/tests.rs` from 912 to 844 lines without changing
@@ -101,6 +111,7 @@ Recent committed cleanup batch:
 
 | Area | Main file before -> after | Extracted surface | Focused proof |
 | ---- | ------------------------- | ----------------- | ------------- |
+| Settings support reports | 894 -> 856 | support-report hook | Settings load tests, build, lint, bloat |
 | DB validation tests | 912 -> 844 | validation boundary module | Rust focused tests, fmt |
 | Settings product-copy test | 922 -> 862 | assertion path helpers | Focused script test, bloat |
 | Settings email setup | 923 -> 841 | email provider setup/templates | Settings focused tests, build, lint, bloat |
