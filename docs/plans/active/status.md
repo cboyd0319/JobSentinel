@@ -72,6 +72,8 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 - Posting-risk filters now treat low-detail card warnings as review alerts, so
   **Lower Risk** hides broad/thin postings and **Needs Review** can find them.
+- Posting-risk filters now also treat possible scam-sign card warnings as
+  review alerts, so **Lower Risk** cannot include those red card cues.
 
 - First-run desktop alerts now start off and require explicit opt-in before
   setup saves job-search notifications for this computer.

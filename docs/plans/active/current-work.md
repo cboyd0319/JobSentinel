@@ -352,6 +352,8 @@ Out of scope:
   page stays farther below the file-size limit after source additions.
 - [x] Let first-run users enter hourly pay floors and save them as yearly
   comparison floors without losing hourly review copy.
+- [x] Route possible scam-sign card warnings through the Posting Risk filters
+  so **Lower Risk** and **Needs Review** match card guidance.
 
 ## Orchestration Log
 
@@ -425,6 +427,8 @@ Out of scope:
 - Coordinator added first-run hourly pay floor entry, converting hourly values
   to yearly saved floors for pay comparisons while showing hourly meaning in
   setup review.
+- Coordinator shared possible-scam posting cues with the Posting Risk filters
+  so red scam-sign card warnings no longer stay in **Lower Risk** results.
 - Pay-protection sidecar was read-only and changed no files. Coordinator
   accepted its finding that negotiation-note drafts could treat benchmark
   values as offer facts, then fixed the Salary page, dev mock, tests, feature

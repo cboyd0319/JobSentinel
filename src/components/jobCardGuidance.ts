@@ -1,6 +1,7 @@
 import {
   hasLowDetailPostingReviewCue,
   hasPostingEvidenceReviewCue,
+  hasScamPostingReviewCue,
 } from "../utils/postingRisk";
 
 export interface PostingRiskGuidance {
@@ -30,18 +31,6 @@ export interface ScamRiskGuidance {
   description: string;
   ariaLabel: string;
 }
-
-const SCAM_SIGNAL_PATTERNS = [
-  /\b(?:cashier'?s\s+check|fake\s+check|deposit\s+(?:the\s+)?check|mobile\s+deposit)\b/i,
-  /\b(?:pay|send|wire|transfer)\b.{0,50}\b(?:money|fee|deposit|gift\s+cards?|funds)\b/i,
-  /\b(?:pay|send|wire|transfer|receive)\b.{0,50}\b(?:bitcoin|crypto(?:currency)?|zelle|venmo|cash\s*app|paypal)\b/i,
-  /\b(?:buy|purchase|get|send)\b.{0,40}\b(?:gift\s+cards?|prepaid\s+cards?|money\s+orders?)\b/i,
-  /\b(?:upfront|application|training|equipment)\b.{0,30}\b(?:fee|payment)\b/i,
-  /\b(?:social\s+security\s+number|ssn|bank\s+account|direct\s+deposit|passport|date\s+of\s+birth|driver'?s\s+license)\b.{0,80}\b(?:before|interview|start|offer)\b/i,
-  /\b(?:before|prior\s+to)\b.{0,40}\b(?:interview|start|offer)\b.{0,60}\b(?:send|provide|share|submit)\b.{0,50}\b(?:social\s+security\s+number|ssn|bank\s+account|direct\s+deposit|passport|date\s+of\s+birth|driver'?s\s+license)\b/i,
-  /\b(?:telegram|whats\s*app|whatsapp|signal)\b.{0,60}\b(?:interview|screening|chat|message)\b/i,
-  /\b(?:interview|screening|chat|message)\b.{0,60}\b(?:telegram|whats\s*app|whatsapp|signal)\b/i,
-] as const;
 
 export function getPostingRiskGuidance(
   ghostScore: number | null | undefined,
@@ -125,10 +114,7 @@ export function getLowDetailPostingGuidance(
 }
 
 export function getScamRiskGuidance(description: string | null | undefined): ScamRiskGuidance | null {
-  const text = description?.trim();
-  if (!text) return null;
-
-  if (!SCAM_SIGNAL_PATTERNS.some((pattern) => pattern.test(text))) {
+  if (!hasScamPostingReviewCue(description)) {
     return null;
   }
 

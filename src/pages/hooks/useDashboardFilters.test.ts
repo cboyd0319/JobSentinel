@@ -224,6 +224,36 @@ describe("useDashboardFilters — score edge cases", () => {
 
       expect(result.current.filteredAndSortedJobs.map((j) => j.id)).toEqual([1]);
     });
+
+    it("routes possible scam card warnings through posting-risk filters", () => {
+      const jobs: Job[] = [
+        makeJob({
+          id: 1,
+          title: "Customer Support Assistant",
+          description:
+            "We will interview over Telegram and ask you to deposit the equipment check.",
+          ghost_score: 0.2,
+          ghost_reasons: null,
+        }),
+        makeJob({
+          id: 2,
+          title: "Customer Support Coordinator",
+          description: "Help customers, document issues, and support a care team.",
+          ghost_score: 0.2,
+          ghost_reasons: null,
+        }),
+      ];
+
+      const { result } = renderHook(() => useDashboardFilters(jobs));
+
+      act(() => result.current.setGhostFilter("real"));
+
+      expect(result.current.filteredAndSortedJobs.map((j) => j.id)).toEqual([2]);
+
+      act(() => result.current.setGhostFilter("ghost"));
+
+      expect(result.current.filteredAndSortedJobs.map((j) => j.id)).toEqual([1]);
+    });
   });
 
   describe("sorting with non-finite scores", () => {
