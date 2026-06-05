@@ -29,10 +29,7 @@ import {
   SparkleIcon,
 } from "./SetupWizardIcons";
 import { LocationOption } from "./SetupWizardLocationOption";
-import {
-  SetupWizardResumeSuggestions,
-  type ResumeSuggestionState,
-} from "./SetupWizardResumeSuggestions";
+import { SetupWizardResumeSuggestions } from "./SetupWizardResumeSuggestions";
 import { SetupWizardSearchSummary } from "./SetupWizardSearchSummary";
 import { SetupWizardSourceReview } from "./SetupWizardSourceReview";
 import {
@@ -47,14 +44,12 @@ import {
   createDefaultSetupConfig,
   ghostConfigForFreshnessPreference,
   getSuggestedJobSourceOptions,
-  toResumeSkillSuggestions,
   type FreshnessPreference,
   type ReviewVolumePreference,
   type SetupConfig,
   type SetupJobSourceKey,
-  type SetupResumeSkill,
-  type SetupResumeSummary,
 } from "./setupWizardPreferences";
+import { useSetupResumeSuggestions } from "./useSetupResumeSuggestions";
 
 interface SetupWizardProps {
   onComplete: () => void;
@@ -83,10 +78,6 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
   const [skillInput, setSkillInput] = useState("");
   const [avoidInput, setAvoidInput] = useState("");
   const [cityInput, setCityInput] = useState("");
-  const [resumeSuggestionName, setResumeSuggestionName] = useState<string | null>(null);
-  const [resumeSkillSuggestions, setResumeSkillSuggestions] = useState<string[]>([]);
-  const [resumeSuggestionState, setResumeSuggestionState] =
-    useState<ResumeSuggestionState>("idle");
   const toast = useToast();
   const [stepAnnouncement, setStepAnnouncement] = useState("");
   const [validationAnnouncement, setValidationAnnouncement] = useState("");
@@ -95,6 +86,18 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
   );
   const [isDetectingLocation, setIsDetectingLocation] = useState(false);
   const [config, setConfig] = useState<SetupConfig>(() => createDefaultSetupConfig());
+  const {
+    addedResumeSuggestionCount,
+    handleAddAllVisibleSkillSuggestions,
+    handleAddSkillSuggestion,
+    handleRequestResumeSuggestions,
+    handleSkipResumeSuggestions,
+    removeResumeSkillSource,
+    resumeSkillSuggestions,
+    resumeSkillSummary,
+    resumeSuggestionName,
+    resumeSuggestionState,
+  } = useSetupResumeSuggestions({ config, setConfig });
 
   // When a profile is selected, auto-populate the config
   const handleProfileSelect = (profileId: string | null) => {
@@ -121,44 +124,6 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
     config.location_preferences.allow_remote ||
     config.location_preferences.allow_hybrid ||
     config.location_preferences.allow_onsite;
-  const addedResumeSuggestionCount = resumeSkillSuggestions.filter((skill) =>
-    config.keywords_boost.includes(skill)
-  ).length;
-
-  const handleRequestResumeSuggestions = useCallback(async () => {
-    setResumeSuggestionState("loading");
-    setResumeSuggestionName(null);
-    setResumeSkillSuggestions([]);
-
-    try {
-      const activeResume = await safeInvoke<SetupResumeSummary | null>(
-        "get_active_resume",
-        {},
-        { logContext: "Load setup resume suggestions", silent: true },
-      );
-
-      if (!activeResume) {
-        setResumeSuggestionState("empty");
-        return;
-      }
-
-      const skills = await safeInvoke<SetupResumeSkill[]>(
-        "get_user_skills",
-        { resumeId: activeResume.id },
-        { logContext: "Load setup resume skills", silent: true },
-      );
-
-      const suggestions = toResumeSkillSuggestions(skills);
-      setResumeSuggestionName(suggestions.length > 0 ? activeResume.name : null);
-      setResumeSkillSuggestions(suggestions);
-      setResumeSuggestionState(suggestions.length > 0 ? "ready" : "empty");
-    } catch {
-      setResumeSuggestionName(null);
-      setResumeSkillSuggestions([]);
-      setResumeSuggestionState("empty");
-    }
-  }, []);
-
 
   const handleDetectLocation = useCallback(async () => {
     setIsDetectingLocation(true);
@@ -242,42 +207,12 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
     }
   };
 
-  const handleAddSkillSuggestion = (skillName: string) => {
-    const trimmed = skillName.trim();
-    if (trimmed && !config.keywords_boost.includes(trimmed)) {
-      setConfig((prev) => ({
-        ...prev,
-        keywords_boost: [...prev.keywords_boost, trimmed],
-      }));
-    }
-  };
-
-  const handleAddAllVisibleSkillSuggestions = () => {
-    setConfig((prev) => {
-      const skillsToAdd = resumeSkillSuggestions.filter(
-        (skill) => !prev.keywords_boost.includes(skill)
-      );
-
-      if (skillsToAdd.length === 0) return prev;
-
-      return {
-        ...prev,
-        keywords_boost: [...prev.keywords_boost, ...skillsToAdd],
-      };
-    });
-  };
-
-  const handleSkipResumeSuggestions = () => {
-    setResumeSuggestionName(null);
-    setResumeSkillSuggestions([]);
-    setResumeSuggestionState("hidden");
-  };
-
   const handleRemoveSkill = (skillToRemove: string) => {
     setConfig((prev) => ({
       ...prev,
       keywords_boost: prev.keywords_boost.filter((s) => s !== skillToRemove),
     }));
+    removeResumeSkillSource(skillToRemove);
   };
 
   const handleAddAvoid = () => {
@@ -1145,7 +1080,10 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                 sources={suggestedJobSources}
                 onToggleSource={handleToggleJobSource}
               />
-              <SetupWizardSearchSummary summary={searchSummary} />
+              <SetupWizardSearchSummary
+                summary={searchSummary}
+                resumeSkillSummary={resumeSkillSummary}
+              />
 
               <div className="flex gap-3">
                 <Button variant="secondary" onClick={() => setStep(2)} className="flex-1" size="lg">

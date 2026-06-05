@@ -2,9 +2,16 @@ import type { SetupSearchSummary } from "./setupWizardPreferences";
 
 interface SetupWizardSearchSummaryProps {
   summary: SetupSearchSummary;
+  resumeSkillSummary?: {
+    resumeName: string;
+    skills: string[];
+  } | null;
 }
 
-export function SetupWizardSearchSummary({ summary }: SetupWizardSearchSummaryProps) {
+export function SetupWizardSearchSummary({
+  summary,
+  resumeSkillSummary,
+}: SetupWizardSearchSummaryProps) {
   return (
     <>
       <section
@@ -27,6 +34,16 @@ export function SetupWizardSearchSummary({ summary }: SetupWizardSearchSummaryPr
             <dt className="font-medium text-surface-600">Show more</dt>
             <dd className="text-surface-800">{summary.wantedWork}</dd>
           </div>
+          {resumeSkillSummary && resumeSkillSummary.skills.length > 0 && (
+            <div className="grid gap-1 sm:grid-cols-[7rem_1fr]">
+              <dt className="font-medium text-surface-600">Saved resume skills</dt>
+              <dd className="text-surface-800">
+                From {resumeSkillSummary.resumeName}:{" "}
+                {resumeSkillSummary.skills.join(", ")}. Remove any you do not
+                want before starting.
+              </dd>
+            </div>
+          )}
           <div className="grid gap-1 sm:grid-cols-[7rem_1fr]">
             <dt className="font-medium text-surface-600">Rank lower</dt>
             <dd className="text-surface-800">{summary.avoidedWork}</dd>

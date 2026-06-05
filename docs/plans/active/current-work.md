@@ -328,6 +328,8 @@ Out of scope:
   before the user chooses **Use**.
 - [x] Return bounded saved-answer review topics from live Application Assist
   fill results without exposing saved answers or exact question text.
+- [x] Keep saved-resume skill source context visible in final first-run review
+  after the user adds resume suggestions.
 
 ## Orchestration Log
 
@@ -368,6 +370,8 @@ Out of scope:
 - Coordinator extended the same hard-screening review guidance to saved-answer
   suggestion cards so a hard-topic suggested answer cannot sit next to **Use**
   without exact-question review copy.
+- Coordinator kept saved-resume skill context visible in first-run final review
+  so added local resume skills do not collapse into unlabeled search keywords.
 - Pay-protection sidecar was read-only and changed no files. Coordinator
   accepted its finding that negotiation-note drafts could treat benchmark
   values as offer facts, then fixed the Salary page, dev mock, tests, feature

@@ -127,6 +127,14 @@ describe("SetupWizard resume suggestions", () => {
 
     await user.click(screen.getByRole("button", { name: /^continue$/i }));
     await user.click(screen.getByRole("button", { name: /^continue$/i }));
+
+    expect(screen.getByText("Saved resume skills")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "From Care Resume: Scheduling, Case management. Remove any you do not want before starting.",
+      ),
+    ).toBeInTheDocument();
+
     await user.click(screen.getByRole("button", { name: /start finding jobs/i }));
 
     await waitFor(() => {

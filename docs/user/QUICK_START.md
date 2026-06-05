@@ -137,6 +137,11 @@ Examples:
 - "Patient care"
 - "Project management"
 
+If you have a saved resume, you can choose **Check saved resume skills**. Any
+suggested skills stay local and are added only when you pick them. The final
+review names skills added from the saved resume so you can remove any you do
+not want before starting the search.
+
 ### Question 4: What work should JobSentinel avoid? (Optional)
 
 Add words or phrases that should rank jobs lower. Examples:

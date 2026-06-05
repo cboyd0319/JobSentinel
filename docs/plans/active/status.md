@@ -51,6 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- First-run review now keeps saved-resume skill context visible after the user
+  adds resume suggestions, so reviewed local resume skills are labeled before
+  the search is saved.
+
 - Saved-answer suggestion cards now show the same hard-question review guidance
   before the **Use** action when the current screening question covers work
   authorization or another hard review topic.

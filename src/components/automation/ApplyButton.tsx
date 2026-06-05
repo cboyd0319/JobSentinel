@@ -63,7 +63,9 @@ function formatScreeningTopicList(topics: string[]) {
     return `${uniqueTopics[0]} and ${uniqueTopics[1]}`;
   }
 
-  return `${uniqueTopics.slice(0, -1).join(", ")}, and ${uniqueTopics.at(-1)}`;
+  return `${uniqueTopics.slice(0, -1).join(", ")}, and ${
+    uniqueTopics[uniqueTopics.length - 1]
+  }`;
 }
 
 const ATS_COLORS: Record<string, string> = {
