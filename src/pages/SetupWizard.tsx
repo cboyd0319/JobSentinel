@@ -18,16 +18,12 @@ import {
 } from "../utils/locationDetection";
 import {
   AvoidIcon,
-  BuildingIcon,
   CheckIcon,
-  GlobeIcon,
-  MapPinIcon,
-  OfficeIcon,
   SearchIcon,
   SentinelIcon,
   SparkleIcon,
 } from "./SetupWizardIcons";
-import { LocationOption } from "./SetupWizardLocationOption";
+import { SetupWizardLocationStep } from "./SetupWizardLocationStep";
 import { SetupWizardPayFloorSection } from "./SetupWizardPayFloorSection";
 import { SetupWizardResumeSuggestions } from "./SetupWizardResumeSuggestions";
 import { SetupWizardSearchSummary } from "./SetupWizardSearchSummary";
@@ -59,6 +55,8 @@ import { useSetupResumeSuggestions } from "./useSetupResumeSuggestions";
 interface SetupWizardProps {
   onComplete: () => void;
 }
+
+type WorkLocationPreferenceKey = "allow_remote" | "allow_hybrid" | "allow_onsite";
 
 // Step 0 is profile selection, then simplified flow
 const STEPS = [
@@ -365,6 +363,39 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
       },
     }));
     setCityInput("");
+  };
+
+  const handleWorkTypeChange = (
+    key: WorkLocationPreferenceKey,
+    checked: boolean,
+  ) => {
+    setConfig((prev) => ({
+      ...prev,
+      location_preferences: {
+        ...prev.location_preferences,
+        [key]: checked,
+      },
+    }));
+  };
+
+  const handleUseDetectedLocation = () => {
+    if (!detectedLocation) {
+      return;
+    }
+
+    const locationStr = `${detectedLocation.city}, ${detectedLocation.region}`;
+    if (config.location_preferences.cities.includes(locationStr)) {
+      return;
+    }
+
+    setConfig((prev) => ({
+      ...prev,
+      location_preferences: {
+        ...prev.location_preferences,
+        cities: [...prev.location_preferences.cities, locationStr],
+      },
+    }));
+    toast.success("Location added", `Added ${locationStr}`);
   };
 
   const handleComplete = async () => {
@@ -725,191 +756,22 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
 
           {/* Step 2: Location */}
           {step === 2 && (
-            <div className="motion-safe:animate-slide-up">
-              <div className="space-y-3 mb-6">
-                <LocationOption
-                  label="Remote"
-                  description="Work from anywhere"
-                  checked={config.location_preferences.allow_remote}
-                  onChange={(checked) =>
-                    setConfig({
-                      ...config,
-                      location_preferences: {
-                        ...config.location_preferences,
-                        allow_remote: checked,
-                      },
-                    })
-                  }
-                  icon={<GlobeIcon />}
-                />
-                <LocationOption
-                  label="Hybrid"
-                  description="Mix of remote and office"
-                  checked={config.location_preferences.allow_hybrid}
-                  onChange={(checked) =>
-                    setConfig({
-                      ...config,
-                      location_preferences: {
-                        ...config.location_preferences,
-                        allow_hybrid: checked,
-                      },
-                    })
-                  }
-                  icon={<BuildingIcon />}
-                />
-                <LocationOption
-                  label="On-site"
-                  description="Work from the office"
-                  checked={config.location_preferences.allow_onsite}
-                  onChange={(checked) =>
-                    setConfig({
-                      ...config,
-                      location_preferences: {
-                        ...config.location_preferences,
-                        allow_onsite: checked,
-                      },
-                    })
-                  }
-                  icon={<OfficeIcon />}
-                />
-              </div>
-
-              <div className="mb-6 rounded-lg border border-surface-200 bg-surface-50 p-3">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <p className="text-sm text-surface-600">
-                    Not sure yet? Keep remote, hybrid, and on-site jobs visible.
-                  </p>
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    size="sm"
-                    onClick={handleLocationNotSure}
-                    aria-label="Not sure about location yet"
-                  >
-                    Not sure yet
-                  </Button>
-                </div>
-                <p className="mt-2 text-xs text-surface-500">
-                  Add cities later if commute or office days start to matter.
-                </p>
-              </div>
-
-              {/* City input for hybrid/onsite */}
-              {(config.location_preferences.allow_hybrid || config.location_preferences.allow_onsite) && (
-                <div className="mb-6">
-                  {/* Detected location indicator */}
-                  {detectedLocation && (
-                    <div className="mb-3 p-3 bg-sentinel-50 border border-sentinel-200 rounded-lg">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <MapPinIcon />
-                          <span className="text-sm text-sentinel-700">
-                            Detected: <strong>{detectedLocation.city}, {detectedLocation.region}</strong>
-                          </span>
-                        </div>
-                        <Button
-                          size="sm"
-                          variant="secondary"
-                          onClick={() => {
-                            const locationStr = `${detectedLocation.city}, ${detectedLocation.region}`;
-                            if (!config.location_preferences.cities.includes(locationStr)) {
-                              setConfig(prev => ({
-                                ...prev,
-                                location_preferences: {
-                                  ...prev.location_preferences,
-                                  cities: [...prev.location_preferences.cities, locationStr],
-                                },
-                              }));
-                              toast.success("Location added", `Added ${locationStr}`);
-                            }
-                          }}
-                          disabled={config.location_preferences.cities.includes(`${detectedLocation.city}, ${detectedLocation.region}`)}
-                        >
-                          {config.location_preferences.cities.includes(`${detectedLocation.city}, ${detectedLocation.region}`) ? "Added" : "Use This"}
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                  {!detectedLocation && (
-                    <div className="mb-3 p-3 bg-surface-50 border border-surface-200 rounded-lg">
-                      <div className="flex flex-wrap items-center justify-between gap-2">
-                        <Button
-                          size="sm"
-                          variant="secondary"
-                          onClick={handleDetectLocation}
-                          loading={isDetectingLocation}
-                          loadingText="Detecting..."
-                          aria-describedby="setup-location-detection-privacy"
-                          icon={<MapPinIcon />}
-                        >
-                          Detect location
-                        </Button>
-                      </div>
-                      <p
-                        id="setup-location-detection-privacy"
-                        className="mt-2 text-xs text-surface-500"
-                      >
-                        Only when you use this button, JobSentinel asks an outside
-                        location lookup service for your approximate city from
-                        your internet address. Nothing is saved unless you add
-                        the city.
-                      </p>
-                    </div>
-                  )}
-
-                  <div className="flex gap-2 mb-3">
-                    <Input
-                      placeholder="e.g., Chicago, Austin"
-                      value={cityInput}
-                      onChange={(e) => setCityInput(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          handleAddCity();
-                        }
-                      }}
-                      leftIcon={<MapPinIcon />}
-                    />
-                    <Button onClick={handleAddCity} disabled={!cityInput.trim()}>
-                      Add
-                    </Button>
-                  </div>
-                  {config.location_preferences.cities.length > 0 && (
-                    <div className="flex flex-wrap gap-2 p-3 bg-surface-50 rounded-lg">
-                      {config.location_preferences.cities.map((city) => (
-                        <Badge
-                          key={city}
-                          variant="surface"
-                          removable
-                          onRemove={() => handleRemoveCity(city)}
-                        >
-                          {city}
-                        </Badge>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              <div className="flex gap-3">
-                <Button variant="secondary" onClick={() => setStep(1)} className="flex-1" size="lg">
-                  Back
-                </Button>
-                <Button
-                  onClick={() => setStep(3)}
-                  disabled={!hasSelectedWorkType}
-                  className="flex-1"
-                  size="lg"
-                >
-                  Continue
-                </Button>
-              </div>
-              {!hasSelectedWorkType && (
-                <p className="mt-3 text-center text-sm text-amber-600">
-                  Choose at least one work location option to continue
-                </p>
-              )}
-            </div>
+            <SetupWizardLocationStep
+              cityInput={cityInput}
+              config={config}
+              detectedLocation={detectedLocation}
+              hasSelectedWorkType={hasSelectedWorkType}
+              isDetectingLocation={isDetectingLocation}
+              onAddCity={handleAddCity}
+              onBack={() => setStep(1)}
+              onCityInputChange={setCityInput}
+              onContinue={() => setStep(3)}
+              onDetectLocation={handleDetectLocation}
+              onLocationNotSure={handleLocationNotSure}
+              onRemoveCity={handleRemoveCity}
+              onUseDetectedLocation={handleUseDetectedLocation}
+              onWorkTypeChange={handleWorkTypeChange}
+            />
           )}
 
           {/* Step 3: Notifications */}
