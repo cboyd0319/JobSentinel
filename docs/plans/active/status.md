@@ -50,6 +50,16 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Scheduler schedule-config, lifecycle, shutdown, and result model tests moved
+  out of `src-tauri/src/core/scheduler/tests.rs` into
+  `src-tauri/src/core/scheduler/tests/basic_tests.rs`.
+- The main scheduler test file still owns interval edge cases, database
+  persistence, logging, notification, and remaining scraping-cycle coverage.
+- `src-tauri/src/core/scheduler/tests.rs` legacy no-growth budget tightened
+  from 1,929 lines to 1,609 lines.
+
+Recent implementation slice:
+
 - Resume plain-text format analysis moved out of
   `src-tauri/src/core/resume/ats_analyzer.rs` into
   `src-tauri/src/core/resume/ats_analyzer/plain_text_format.rs`.
@@ -60,7 +70,7 @@ Latest implementation slice:
 - `src-tauri/src/core/resume/ats_analyzer.rs` legacy no-growth budget tightened
   from 2,492 lines to 2,115 lines.
 
-Recent implementation slice:
+Earlier implementation slice:
 
 - DB search title, description, limit, FTS edge, and search error-path tests
   moved out of `src-tauri/src/core/db/tests.rs` into

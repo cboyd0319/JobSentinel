@@ -203,6 +203,8 @@ Out of scope:
   PR/change-contract review path.
 - [x] Split DB search tests out of the main DB test file.
 - [x] Split resume plain-text format helpers out of the runtime ATS analyzer.
+- [x] Split scheduler basic lifecycle/config tests out of the main scheduler
+  test file.
 
 ## Orchestration Log
 
@@ -497,6 +499,10 @@ Out of scope:
   `src-tauri/src/core/resume/ats_analyzer/plain_text_format.rs`. The main ATS
   analyzer still owns job keyword extraction, requirement review, evidence
   scoring, and structured resume analysis.
+- Coordinator moved scheduler schedule-config, lifecycle, shutdown, and result
+  model tests into `src-tauri/src/core/scheduler/tests/basic_tests.rs`. The
+  main scheduler test file still owns interval edge cases, database
+  persistence, logging, notification, and remaining scraping-cycle coverage.
 
 ## Risks
 
