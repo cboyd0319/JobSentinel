@@ -228,6 +228,7 @@ Out of scope:
   file.
 - [x] Retire the main DB test file's legacy oversized-file exception after
   bringing it below the 1,200-line test target.
+- [x] Split DB integrity model tests out of the main integrity test file.
 - [x] Split Settings notification UI out of the main Settings page and retire
   its legacy oversized-file exception.
 - [x] Split ATS hard-constraint helpers out of the runtime analyzer.

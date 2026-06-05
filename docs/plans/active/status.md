@@ -50,6 +50,16 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- DB integrity model, clone, debug-format, and default-structure tests moved
+  out of `src-tauri/src/core/db/integrity/tests.rs` into
+  `src-tauri/src/core/db/integrity/tests/model_tests.rs`.
+- The main integrity test file still owns database-backed health, backup,
+  WAL, pragma, and restore coverage plus shared setup.
+- `src-tauri/src/core/db/integrity/tests.rs` legacy no-growth budget tightened
+  from 1,868 lines to 1,613 lines.
+
+Earlier implementation slice:
+
 - Mock handler command helper and type definitions moved out of
   `src/mocks/handlers.ts` into `src/mocks/handlers/commandHelpers.ts` and
   `src/mocks/handlers/types.ts`.
