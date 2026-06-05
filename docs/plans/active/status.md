@@ -51,6 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Mock resume keyword search-term and evidence-frequency helpers now live in a
+  focused module, reducing `resumeKeywordMatching.ts` from 989 to 427 lines
+  without changing mock Resume Match evidence behavior.
+
 - `current-work.md` is compact again, with long completed-slice history moved
   out of the active restart path and current macOS/readiness priorities kept
   explicit.
