@@ -50,6 +50,15 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Market Intelligence analytics tests moved out of
+  `src-tauri/src/core/market_intelligence/analytics.rs` into
+  `src-tauri/src/core/market_intelligence/analytics_tests.rs` and
+  `src-tauri/src/core/market_intelligence/analytics_tests/db_tests.rs`.
+- The runtime market analytics module is now below the 1,200-line Rust target,
+  so the legacy oversized-file exception was removed.
+
+Earlier implementation slice:
+
 - Discord notification tests moved out of
   `src-tauri/src/core/notify/discord.rs` into
   `src-tauri/src/core/notify/discord_tests.rs` and
@@ -103,14 +112,6 @@ Earlier implementation slice:
 - Greenhouse behavior was unchanged; only test module ownership changed.
 
 Earlier implementation slice:
-
-- Resume matcher tests moved out of
-  `src-tauri/src/core/resume/matcher.rs` into
-  `src-tauri/src/core/resume/matcher_tests.rs`.
-- The runtime resume matcher module is now below the 1,200-line Rust target, so
-  the legacy oversized-file exception was removed.
-- Touched matcher test fixture paths now use repo-relative placeholders instead
-  of local absolute paths.
 
 - Resume skill extractor tests moved out of
   `src-tauri/src/core/resume/skills.rs` into
@@ -858,7 +859,6 @@ Recent cleanup summary:
 - Remaining oversized-file exceptions are `src/pages/ResumeBuilder.tsx`,
   `src/pages/ResumeOptimizer.tsx`,
   `src/pages/SetupWizard.tsx`,
-  `src-tauri/src/core/market_intelligence/analytics.rs`,
   `src/pages/Resume.tsx`, `src-tauri/src/commands/automation.rs`,
   `scripts/harness/checks/privacy-logging.mjs`,
   `src-tauri/src/core/ghost/mod.rs`, and
