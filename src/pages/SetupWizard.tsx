@@ -30,6 +30,10 @@ import {
   SparkleIcon,
 } from "./SetupWizardIcons";
 import { LocationOption } from "./SetupWizardLocationOption";
+import {
+  SetupWizardResumeSuggestions,
+  type ResumeSuggestionState,
+} from "./SetupWizardResumeSuggestions";
 import { SetupWizardSearchSummary } from "./SetupWizardSearchSummary";
 import {
   COMMON_WORK_TO_AVOID,
@@ -78,6 +82,8 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
   const [cityInput, setCityInput] = useState("");
   const [resumeSuggestionName, setResumeSuggestionName] = useState<string | null>(null);
   const [resumeSkillSuggestions, setResumeSkillSuggestions] = useState<string[]>([]);
+  const [resumeSuggestionState, setResumeSuggestionState] =
+    useState<ResumeSuggestionState>("idle");
   const toast = useToast();
   const [stepAnnouncement, setStepAnnouncement] = useState("");
   const [validationAnnouncement, setValidationAnnouncement] = useState("");
@@ -116,43 +122,40 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
     config.keywords_boost.includes(skill)
   ).length;
 
-  useEffect(() => {
-    let cancelled = false;
+  const handleRequestResumeSuggestions = useCallback(async () => {
+    setResumeSuggestionState("loading");
+    setResumeSuggestionName(null);
+    setResumeSkillSuggestions([]);
 
-    const loadResumeSuggestions = async () => {
-      try {
-        const activeResume = await safeInvoke<SetupResumeSummary | null>(
-          "get_active_resume",
-          {},
-          { logContext: "Load setup resume suggestions", silent: true },
-        );
+    try {
+      const activeResume = await safeInvoke<SetupResumeSummary | null>(
+        "get_active_resume",
+        {},
+        { logContext: "Load setup resume suggestions", silent: true },
+      );
 
-        if (cancelled || !activeResume) return;
-
-        const skills = await safeInvoke<SetupResumeSkill[]>(
-          "get_user_skills",
-          { resumeId: activeResume.id },
-          { logContext: "Load setup resume skills", silent: true },
-        );
-
-        if (cancelled) return;
-
-        const suggestions = toResumeSkillSuggestions(skills);
-        setResumeSuggestionName(suggestions.length > 0 ? activeResume.name : null);
-        setResumeSkillSuggestions(suggestions);
-      } catch {
-        if (cancelled) return;
-        setResumeSuggestionName(null);
-        setResumeSkillSuggestions([]);
+      if (!activeResume) {
+        setResumeSuggestionState("empty");
+        return;
       }
-    };
 
-    void loadResumeSuggestions();
+      const skills = await safeInvoke<SetupResumeSkill[]>(
+        "get_user_skills",
+        { resumeId: activeResume.id },
+        { logContext: "Load setup resume skills", silent: true },
+      );
 
-    return () => {
-      cancelled = true;
-    };
+      const suggestions = toResumeSkillSuggestions(skills);
+      setResumeSuggestionName(suggestions.length > 0 ? activeResume.name : null);
+      setResumeSkillSuggestions(suggestions);
+      setResumeSuggestionState(suggestions.length > 0 ? "ready" : "empty");
+    } catch {
+      setResumeSuggestionName(null);
+      setResumeSkillSuggestions([]);
+      setResumeSuggestionState("empty");
+    }
   }, []);
+
 
   const handleDetectLocation = useCallback(async () => {
     setIsDetectingLocation(true);
@@ -251,6 +254,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
   const handleSkipResumeSuggestions = () => {
     setResumeSuggestionName(null);
     setResumeSkillSuggestions([]);
+    setResumeSuggestionState("hidden");
   };
 
   const handleRemoveSkill = (skillToRemove: string) => {
@@ -609,74 +613,17 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                 )}
               </div>
 
-              {resumeSkillSuggestions.length > 0 && (
-                <section
-                  className="border-l-2 border-surface-200 pl-3"
-                  aria-labelledby="setup-resume-skills-title"
-                >
-                  <h3
-                    id="setup-resume-skills-title"
-                    className="font-semibold text-surface-800 mb-2"
-                  >
-                    Use reviewed resume skills
-                  </h3>
-                  <p className="mb-3 text-sm text-surface-500">
-                    From{" "}
-                    <span className="font-medium text-surface-700">
-                      {resumeSuggestionName}
-                    </span>
-                    . Review these skill names before adding them.
-                  </p>
-                  <div className="mb-3 flex flex-wrap gap-2">
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={handleAddAllVisibleSkillSuggestions}
-                      disabled={resumeSkillSuggestions.every((skill) =>
-                        config.keywords_boost.includes(skill)
-                      )}
-                    >
-                      Add all visible
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleSkipResumeSuggestions}
-                    >
-                      Hide suggestions
-                    </Button>
-                  </div>
-                  {addedResumeSuggestionCount > 0 && (
-                    <p className="mb-2 text-xs text-surface-500">
-                      Added skills appear above. Remove any you do not want.
-                    </p>
-                  )}
-                  <div className="flex flex-wrap gap-2">
-                    {resumeSkillSuggestions.map((skill) => {
-                      const alreadyAdded = config.keywords_boost.includes(skill);
-                      return (
-                        <Button
-                          key={skill}
-                          variant={alreadyAdded ? "ghost" : "secondary"}
-                          size="sm"
-                          onClick={() => handleAddSkillSuggestion(skill)}
-                          disabled={alreadyAdded}
-                          aria-label={
-                            alreadyAdded
-                              ? `${skill} already in search`
-                              : `Add ${skill} to search`
-                          }
-                        >
-                          {alreadyAdded ? `Added ${skill}` : skill}
-                        </Button>
-                      );
-                    })}
-                  </div>
-                  <p className="mt-2 text-xs text-surface-500">
-                    Suggestions stay local and do not change your search until you pick them.
-                  </p>
-                </section>
-              )}
+              <SetupWizardResumeSuggestions
+                state={resumeSuggestionState}
+                resumeName={resumeSuggestionName}
+                suggestions={resumeSkillSuggestions}
+                addedSkills={config.keywords_boost}
+                addedCount={addedResumeSuggestionCount}
+                onRequest={handleRequestResumeSuggestions}
+                onAdd={handleAddSkillSuggestion}
+                onAddAll={handleAddAllVisibleSkillSuggestions}
+                onSkip={handleSkipResumeSuggestions}
+              />
 
               {/* Work to Avoid Section */}
               <div>

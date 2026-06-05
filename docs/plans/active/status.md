@@ -51,6 +51,11 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- First-run saved-resume skill suggestions now wait for an explicit
+  **Check saved resume skills** action before reading local resume skills, and
+  the suggestion panel moved out of the main setup page to stay under file-size
+  limits.
+
 - Resume Builder live score now shows must-have warnings from weak hard
   requirement review rows even when no separate hard-risk list is present.
 
