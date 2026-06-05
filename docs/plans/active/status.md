@@ -51,6 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Application Assist saved-answer matching now handles plain quick-add aliases
+  such as authorized-to-work, able-to-lift, degree, weekend-shift, and
+  reliable-vehicle wording.
+
 - First-run setup now keeps suggested tech-heavy job sources off until the user
   checks them in review, and saves only checked sources.
 

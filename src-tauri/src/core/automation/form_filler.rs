@@ -794,6 +794,47 @@ mod tests {
     }
 
     #[test]
+    fn test_screening_answer_matching_handles_plain_quick_add_aliases() {
+        let profile = make_test_profile();
+        let answers = vec![
+            make_screening_answer("work authorization", "Yes"),
+            make_screening_answer("physical requirements", "Can lift 50 pounds safely"),
+            make_screening_answer("education", "Bachelor's degree"),
+            make_screening_answer("availability", "Available weekends"),
+            make_screening_answer("reliable transportation", "Yes"),
+        ];
+
+        let filler = FormFiller::new(profile, None).with_screening_answers(answers);
+
+        assert_eq!(
+            filler.find_answer_for_question(
+                "Are you legally authorized to work in the United States?"
+            ),
+            Some("Yes".to_string())
+        );
+        assert_eq!(
+            filler.find_answer_for_question("Are you able to lift 50 pounds safely?"),
+            Some("Can lift 50 pounds safely".to_string())
+        );
+        assert_eq!(
+            filler.find_answer_for_question(
+                "Do you have a bachelor's degree or equivalent education?"
+            ),
+            Some("Bachelor's degree".to_string())
+        );
+        assert_eq!(
+            filler.find_answer_for_question("Can you work weekends and rotating shifts?"),
+            Some("Available weekends".to_string())
+        );
+        assert_eq!(
+            filler.find_answer_for_question(
+                "Do you have access to a reliable vehicle for client visits?"
+            ),
+            Some("Yes".to_string())
+        );
+    }
+
+    #[test]
     fn test_screening_answer_case_insensitive() {
         let profile = make_test_profile();
         let answers = vec![make_screening_answer("security clearance", "No")];

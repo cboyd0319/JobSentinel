@@ -326,6 +326,12 @@ fn screening_match_candidates(pattern: &str) -> Vec<String> {
     }
 
     let mut candidates = vec![trimmed.to_string()];
+    let normalized_pattern = normalize_screening_match_text(trimmed);
+    candidates.extend(
+        plain_screening_pattern_aliases(&normalized_pattern)
+            .iter()
+            .map(|candidate| (*candidate).to_string()),
+    );
     candidates.extend(
         legacy_screening_pattern_aliases(trimmed)
             .iter()
@@ -349,6 +355,90 @@ fn screening_match_candidates(pattern: &str) -> Vec<String> {
     candidates.sort();
     candidates.dedup();
     candidates
+}
+
+fn plain_screening_pattern_aliases(pattern: &str) -> &'static [&'static str] {
+    match pattern {
+        "work authorization" => &[
+            "authorized to work",
+            "legally authorized to work",
+            "eligible to work",
+            "employment authorization",
+        ],
+        "sponsorship" => &[
+            "visa sponsorship",
+            "need sponsorship",
+            "require sponsorship",
+            "sponsorship now or in the future",
+        ],
+        "physical requirements" => &[
+            "physical requirements",
+            "able to lift",
+            "can lift",
+            "lift pounds",
+            "standing for long periods",
+            "stand for long periods",
+        ],
+        "education" => &[
+            "education",
+            "bachelor degree",
+            "bachelors degree",
+            "degree or equivalent",
+            "high school diploma",
+            "ged",
+        ],
+        "availability" => &[
+            "availability",
+            "available to work",
+            "schedule availability",
+            "shift availability",
+            "work weekends",
+            "rotating shifts",
+            "rotating schedule",
+        ],
+        "reliable transportation" => &[
+            "reliable transportation",
+            "reliable vehicle",
+            "own vehicle",
+            "access to a vehicle",
+            "transportation for",
+        ],
+        "salary" => &[
+            "salary expectation",
+            "expected salary",
+            "compensation expectation",
+            "expected compensation",
+            "pay expectation",
+        ],
+        "start date" => &[
+            "start date",
+            "when can you start",
+            "available to start",
+            "notice period",
+        ],
+        "overtime" => &["overtime", "work overtime", "overtime availability"],
+        "holiday" => &["holiday", "holidays", "holiday availability"],
+        "managed a team" => &[
+            "managed a team",
+            "management experience",
+            "supervisory experience",
+        ],
+        "bilingual" => &[
+            "bilingual",
+            "multilingual",
+            "language fluency",
+            "fluent in",
+            "speak spanish",
+        ],
+        "drivers license" => &["driver license", "drivers license", "valid driver license"],
+        "certification" => &[
+            "certification",
+            "professional certification",
+            "required certification",
+            "credential",
+        ],
+        _ => &[],
+    }
 }
 
 fn normalize_screening_match_text(input: &str) -> String {
@@ -687,6 +777,34 @@ mod tests {
         assert!(screening_question_matches(
             "(?i)authorized.*work.*(united states|us|usa)",
             "Are you authorized to work in the US?"
+        ));
+    }
+
+    #[test]
+    fn test_screening_question_matching_handles_plain_quick_add_aliases() {
+        assert!(screening_question_matches(
+            "work authorization",
+            "Are you legally authorized to work in the United States?"
+        ));
+        assert!(screening_question_matches(
+            "physical requirements",
+            "Are you able to lift 50 pounds safely?"
+        ));
+        assert!(screening_question_matches(
+            "education",
+            "Do you have a bachelor's degree or equivalent education?"
+        ));
+        assert!(screening_question_matches(
+            "availability",
+            "Can you work weekends and rotating shifts?"
+        ));
+        assert!(screening_question_matches(
+            "reliable transportation",
+            "Do you have access to a reliable vehicle for client visits?"
+        ));
+        assert!(!screening_question_matches(
+            "certification",
+            "Do you have a driver's license?"
         ));
     }
 

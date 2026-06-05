@@ -318,6 +318,9 @@ Out of scope:
   receive the link.
 - [x] Keep first-run tech-heavy source suggestions off until the user checks
   them in review.
+- [x] Add saved screening-answer aliases for plain quick-add wording such as
+  authorized-to-work, lifting, degree, weekend-shift, and reliable-vehicle
+  questions.
 
 ## Orchestration Log
 

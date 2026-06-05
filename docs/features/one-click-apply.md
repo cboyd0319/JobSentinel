@@ -131,6 +131,9 @@ Common quick-add buttons include background check and drug screen, citizenship,
 reliable transportation, driver's license, overtime availability, holiday
 availability, management experience, language fluency, physical requirements,
 and age requirement so you can prepare those answers before the form asks.
+Saved-answer matching also treats common equivalent wording as the same review
+topic, such as authorized-to-work questions, able-to-lift questions, degree
+questions, weekend or rotating-shift availability, and reliable-vehicle wording.
 
 When you add a saved answer for hard screening topics such as citizenship, work
 authorization, sponsorship, background checks, drug screens, physical
