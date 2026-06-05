@@ -50,6 +50,12 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Settings product-copy harness assertions now use shared path-list helpers,
+  reducing `scripts/check-product-copy-settings.test.mjs` from 922 to 862
+  lines without changing fixture coverage or product-copy detector behavior.
+  Focused verification passed: `node --test
+  scripts/check-product-copy-settings.test.mjs` and `npm run lint:bloat`.
+
 - Settings email-provider setup labels, links, and SMTP preset templates now
   live in `src/pages/SettingsEmailProviderSetup.tsx` and
   `src/pages/SettingsEmailProviderTemplates.ts`, reducing
@@ -86,6 +92,7 @@ Recent committed cleanup batch:
 
 | Area | Main file before -> after | Extracted surface | Focused proof |
 | ---- | ------------------------- | ----------------- | ------------- |
+| Settings product-copy test | 922 -> 862 | assertion path helpers | Focused script test, bloat |
 | Settings email setup | 923 -> 841 | email provider setup/templates | Settings focused tests, build, lint, bloat |
 | Dashboard modals | 937 -> 804 | notes and saved-search modals | Dashboard focused tests, build, lint, bloat |
 | Resume Builder | 947 -> 723 | experience and education modals | Resume Builder focused tests, build, lint, bloat |

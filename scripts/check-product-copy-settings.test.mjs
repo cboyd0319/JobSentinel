@@ -21,6 +21,18 @@ function withFixture(callback) {
   }
 }
 
+function assertTechnicalFirstCopy(root, paths) {
+  for (const path of paths) {
+    assert.equal(hasTechnicalFirstUserCopy(root, path), true, path);
+  }
+}
+
+function assertNoTechnicalFirstCopy(root, paths) {
+  for (const path of paths) {
+    assert.equal(hasTechnicalFirstUserCopy(root, path), false, path);
+  }
+}
+
 test("product copy rejects technical-first settings copy", () => {
   withFixture((root) => {
     writeFixtureFile(
@@ -781,142 +793,70 @@ test("product copy rejects technical-first settings copy", () => {
       "choose another port in advanced settings\nadvanced connection settings\nafter restarting JobSentinel\nIf support asks, open **Connection settings**\nlocal safety code\nDebug reports must redact\n",
     );
 
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/ApplicationProfile.tsx"), true);
-    assert.equal(
-      hasTechnicalFirstUserCopy(root, "src/components/BookmarkletGenerator.tsx"),
-      true,
-    );
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/components/JobImportModal.tsx"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/components/AnalyticsPanel.tsx"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/DashboardUI/filterLabels.ts"), true);
-    assert.equal(
-      hasTechnicalFirstUserCopy(root, "src/pages/DashboardUI/DashboardFiltersBar.tsx"),
-      true,
-    );
-    assert.equal(
-      hasTechnicalFirstUserCopy(root, "src/components/automation/ScreeningAnswersForm.tsx"),
-      true,
-    );
-    assert.equal(
-      hasTechnicalFirstUserCopy(root, "src/components/automation/ScreeningAnswerSuggestions.tsx"),
-      true,
-    );
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/components/automation/ApplyButton.tsx"), true);
-    assert.equal(
-      hasTechnicalFirstUserCopy(root, "src/components/automation/ApplicationPreview.tsx"),
-      true,
-    );
-    assert.equal(
-      hasTechnicalFirstUserCopy(root, "docs/features/one-click-apply.md"),
-      true,
-    );
-    assert.equal(hasTechnicalFirstUserCopy(root, "docs/user/QUICK_START.md"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "docs/user/DEEP_LINKS.md"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/scraper-health.md"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/scrapers.md"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/notifications.md"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/utils/errorMessages.ts"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Dashboard.tsx"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/components/JobCard.tsx"), true);
-    assert.equal(
-      hasTechnicalFirstUserCopy(root, "src/components/jobCardGuidance.ts"),
-      true,
-    );
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/components/InterviewScheduler.tsx"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/DashboardUI/DashboardHeader.tsx"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/ResumeOptimizer.tsx"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/SetupWizard.tsx"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Market.tsx"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/utils/export.ts"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/utils/export.test.ts"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.test.tsx"), false);
-    assert.equal(
-      hasTechnicalFirstUserCopy(root, "docs/features/smart-scoring.md"),
-      true,
-    );
-    assert.equal(
-      hasTechnicalFirstUserCopy(root, "src/components/CoverLetterTemplates.tsx"),
-      true,
-    );
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/components/AsyncButton.tsx"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/utils/sourceLabels.ts"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/components/ScoreBreakdownModal.tsx"), true);
-    assert.equal(
-      hasTechnicalFirstUserCopy(root, "src/components/CompanyResearchPanel.tsx"),
-      true,
-    );
-    assert.equal(
-      hasTechnicalFirstUserCopy(root, "src/components/MarketSnapshotCard.tsx"),
-      true,
-    );
-    assert.equal(
-      hasTechnicalFirstUserCopy(root, "src/components/MarketSnapshotCard.test.tsx"),
-      true,
-    );
-    assert.equal(
-      hasTechnicalFirstUserCopy(root, "src/components/automation/ApplicationPreview.tsx"),
-      true,
-    );
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/components/automation/ProfileForm.tsx"), true);
-    assert.equal(
-      hasTechnicalFirstUserCopy(root, "src/components/automation/ScreeningAnswersForm.tsx"),
-      true,
-    );
-    assert.equal(
-      hasTechnicalFirstUserCopy(root, "src/pages/DashboardUI/noJobsEmptyStateCopy.ts"),
-      true,
-    );
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Applications.tsx"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/dashboardErrorCopy.ts"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/hooks/useFeedback.ts"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/utils/api.ts"), true);
-    assert.equal(
-      hasTechnicalFirstUserCopy(root, "src/pages/hooks/useDashboardJobOps.ts"),
-      true,
-    );
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/contexts/UndoContext.tsx"), true);
-    assert.equal(
-      hasTechnicalFirstUserCopy(root, "src/pages/hooks/useDashboardAutoRefresh.ts"),
-      true,
-    );
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/utils/errorMessages.ts"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/utils/errorHelpers.ts"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/utils/formValidation.ts"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/utils/safeErrorCopy.ts"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/services/aiGateway.ts"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src-tauri/src/core/scrapers/error.rs"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src-tauri/src/core/automation/error.rs"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/components/feedback/SubmitOptions.tsx"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/components/AtsLiveScorePanel.tsx"), true);
-    assert.equal(
-      hasTechnicalFirstUserCopy(root, "src/components/NotificationPreferences.tsx"),
-      true,
-    );
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/components/CommandPalette.tsx"), true);
-    assert.equal(
-      hasTechnicalFirstUserCopy(root, "src/components/KeyboardShortcutsHelp.tsx"),
-      true,
-    );
-    assert.equal(
-      hasTechnicalFirstUserCopy(root, "src/contexts/KeyboardShortcutsContext.tsx"),
-      true,
-    );
-    assert.equal(
-      hasTechnicalFirstUserCopy(root, "src/components/ErrorLogPanel.tsx"),
-      true,
-    );
-    assert.equal(
-      hasTechnicalFirstUserCopy(root, "docs/features/credentials-security.md"),
-      true,
-    );
-    assert.equal(hasTechnicalFirstUserCopy(root, "docs/user/DEEP_LINKS.md"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "README.md"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "docs/BOOKMARKLET.md"), true);
-    assert.equal(
-      hasTechnicalFirstUserCopy(root, "src/components/NotificationPreferences.tsx"),
-      true,
-    );
+    assertTechnicalFirstCopy(root, [
+      "README.md",
+      "docs/BOOKMARKLET.md",
+      "docs/features/credentials-security.md",
+      "docs/features/notifications.md",
+      "docs/features/one-click-apply.md",
+      "docs/features/scraper-health.md",
+      "docs/features/scrapers.md",
+      "docs/features/smart-scoring.md",
+      "docs/user/DEEP_LINKS.md",
+      "docs/user/QUICK_START.md",
+      "src-tauri/src/core/automation/error.rs",
+      "src-tauri/src/core/resume/ats_analyzer.rs",
+      "src-tauri/src/core/scrapers/error.rs",
+      "src/components/AnalyticsPanel.tsx",
+      "src/components/AsyncButton.tsx",
+      "src/components/AtsLiveScorePanel.tsx",
+      "src/components/BookmarkletGenerator.tsx",
+      "src/components/CommandPalette.tsx",
+      "src/components/CompanyResearchPanel.tsx",
+      "src/components/CoverLetterTemplates.tsx",
+      "src/components/ErrorLogPanel.tsx",
+      "src/components/JobCard.tsx",
+      "src/components/JobImportModal.tsx",
+      "src/components/KeyboardShortcutsHelp.tsx",
+      "src/components/MarketSnapshotCard.test.tsx",
+      "src/components/MarketSnapshotCard.tsx",
+      "src/components/NotificationPreferences.tsx",
+      "src/components/ScoreBreakdownModal.tsx",
+      "src/components/automation/ApplicationPreview.tsx",
+      "src/components/automation/ApplyButton.tsx",
+      "src/components/automation/ProfileForm.tsx",
+      "src/components/automation/ScreeningAnswerSuggestions.tsx",
+      "src/components/automation/ScreeningAnswersForm.tsx",
+      "src/components/feedback/SubmitOptions.tsx",
+      "src/components/jobCardGuidance.ts",
+      "src/contexts/KeyboardShortcutsContext.tsx",
+      "src/contexts/UndoContext.tsx",
+      "src/hooks/useFeedback.ts",
+      "src/pages/ApplicationProfile.tsx",
+      "src/pages/Applications.tsx",
+      "src/pages/Dashboard.tsx",
+      "src/pages/DashboardUI/DashboardFiltersBar.tsx",
+      "src/pages/DashboardUI/DashboardHeader.tsx",
+      "src/pages/DashboardUI/filterLabels.ts",
+      "src/pages/DashboardUI/noJobsEmptyStateCopy.ts",
+      "src/components/InterviewScheduler.tsx",
+      "src/pages/Market.tsx",
+      "src/pages/ResumeOptimizer.tsx",
+      "src/pages/Settings.tsx",
+      "src/pages/SetupWizard.tsx",
+      "src/pages/dashboardErrorCopy.ts",
+      "src/pages/hooks/useDashboardAutoRefresh.ts",
+      "src/pages/hooks/useDashboardJobOps.ts",
+      "src/services/aiGateway.ts",
+      "src/utils/api.ts",
+      "src/utils/errorHelpers.ts",
+      "src/utils/errorMessages.ts",
+      "src/utils/export.test.ts",
+      "src/utils/export.ts",
+      "src/utils/formValidation.ts",
+      "src/utils/safeErrorCopy.ts",
+      "src/utils/sourceLabels.ts",
+    ]);
+    assertNoTechnicalFirstCopy(root, ["src/pages/Settings.test.tsx"]);
   });
 });
