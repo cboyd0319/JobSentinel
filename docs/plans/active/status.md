@@ -51,6 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Desktop alert sound is now opt-in across first-run setup, Settings fallback,
+  and config deserialization, so old or partial configs stay quiet unless the
+  user turns sound on.
+
 - First-run desktop alerts now start in quiet mode with no sound, while users
   can still turn sound back on before saving setup.
 

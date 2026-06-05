@@ -787,6 +787,50 @@ describe("Settings — handleSave flow", () => {
     expect(chatIndex).toBeLessThan(slackIndex);
   });
 
+  it("keeps missing desktop sound settings quiet in Settings", async () => {
+    const user = userEvent.setup();
+    const legacyConfig = makeConfig();
+    legacyConfig.alerts.desktop.enabled = true;
+    const legacyDesktop = legacyConfig.alerts.desktop as Partial<
+      typeof legacyConfig.alerts.desktop
+    >;
+    delete legacyDesktop.play_sound;
+    let savedConfig: ReturnType<typeof makeConfig> | null = null;
+
+    mockInvoke.mockImplementation(async (cmd: string, args?: unknown) => {
+      if (cmd === "get_config") return legacyConfig;
+      if (cmd === "has_credential") return false;
+      if (cmd === "get_ghost_config") return makeGhostConfig();
+      if (cmd === "detect_location") return null;
+      if (cmd === "save_config") {
+        savedConfig = (args as { config: ReturnType<typeof makeConfig> }).config;
+        return null;
+      }
+      return null;
+    });
+
+    render(<Settings onClose={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Settings")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
+
+    expect(screen.getByRole("checkbox", { name: "Play sound" })).not.toBeChecked();
+
+    await user.click(
+      screen.getByRole("checkbox", {
+        name: "Show even when JobSentinel is open on screen",
+      }),
+    );
+    await user.click(screen.getByRole("button", { name: /save changes/i }));
+
+    await waitFor(() => {
+      expect(savedConfig?.alerts.desktop.play_sound).toBe(false);
+    });
+  });
+
   it("does not recommend tech-heavy sources for broad remote searches", async () => {
     const user = userEvent.setup();
     const config = makeConfig();

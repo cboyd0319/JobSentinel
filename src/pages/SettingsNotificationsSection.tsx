@@ -215,7 +215,7 @@ export function SettingsNotificationsSection({
                             config.alerts.desktop?.show_when_focused ??
                             false,
                           play_sound:
-                            config.alerts.desktop?.play_sound ?? true,
+                            config.alerts.desktop?.play_sound ?? false,
                         },
                       },
                     })
@@ -230,7 +230,7 @@ export function SettingsNotificationsSection({
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="checkbox"
-                    checked={config.alerts.desktop?.play_sound ?? true}
+                    checked={config.alerts.desktop?.play_sound ?? false}
                     onChange={(e) =>
                       setConfig({
                         ...config,
@@ -269,7 +269,7 @@ export function SettingsNotificationsSection({
                             enabled: true,
                             show_when_focused: e.target.checked,
                             play_sound:
-                              config.alerts.desktop?.play_sound ?? true,
+                              config.alerts.desktop?.play_sound ?? false,
                           },
                         },
                       })

@@ -50,10 +50,10 @@ pub(crate) const fn default_desktop_enabled() -> bool {
     true
 }
 
-/// Default notification sound enabled (true)
+/// Default notification sound enabled (false)
 #[must_use]
 pub(crate) const fn default_play_sound() -> bool {
-    true
+    false
 }
 
 /// Default LinkedIn result limit (50)

@@ -74,8 +74,9 @@ That's it. No connection link needed.
 Desktop alerts use privacy-preserving wording by default. They tell you that a
 fit review or reminder is ready in JobSentinel without showing job titles, company
 names, salary notes, or reminder text on the operating system notification
-surface. First-run desktop alerts also start without sound; turn sound on in
-Settings only if audible alerts fit your search.
+surface. First-run desktop alerts and older settings without a saved sound
+choice start without sound; turn sound on in Settings only if audible alerts
+fit your search.
 
 ---
 

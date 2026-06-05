@@ -500,7 +500,7 @@ mod tests {
         assert_eq!(default_smtp_port(), 587);
         assert_eq!(default_use_starttls(), true);
         assert_eq!(default_desktop_enabled(), true);
-        assert_eq!(default_play_sound(), true);
+        assert_eq!(default_play_sound(), false);
         assert_eq!(default_linkedin_limit(), 50);
     }
 
@@ -617,7 +617,8 @@ mod tests {
     fn test_desktop_default_values() {
         let desktop = DesktopConfig::default();
         // Note: Default::default() uses bool::default() (false), not the custom default functions
-        // The custom defaults (enabled=true, play_sound=true) only apply during JSON deserialization
+        // The custom enabled default applies during JSON deserialization.
+        // Sound still defaults to false for quiet privacy-preserving alerts.
         assert_eq!(
             desktop.enabled, false,
             "Desktop enabled defaults to false via Default trait"
@@ -804,7 +805,7 @@ mod tests {
 
         assert_eq!(config.alerts.desktop.enabled, true); // Field-level default works!
         assert_eq!(config.alerts.desktop.show_when_focused, false);
-        assert_eq!(config.alerts.desktop.play_sound, true); // Field-level default works!
+        assert_eq!(config.alerts.desktop.play_sound, false); // Field-level default works!
     }
 
     #[test]
