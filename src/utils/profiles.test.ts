@@ -100,6 +100,26 @@ describe("profiles", () => {
       }
     });
 
+    it("keeps healthcare support roles from matching preset avoid terms", () => {
+      const profile = getProfileById("healthcare");
+      expect(profile).toBeDefined();
+      if (!profile) return;
+
+      const config = profileToConfig(profile);
+
+      expect(config.title_allowlist).toEqual(
+        expect.arrayContaining([
+          "Medical Assistant",
+          "Patient Care Assistant",
+          "Home Health Aide",
+          "Certified Nursing Assistant",
+        ]),
+      );
+      expect(config.title_blocklist).not.toContain("Assistant");
+      expect(config.title_blocklist).not.toContain("Aide");
+      expect(config.title_blocklist).toEqual(expect.arrayContaining(["Volunteer", "Student"]));
+    });
+
     it("keeps product and design profiles off tech-heavy sources by default", () => {
       const profile = getProfileById("product-management");
       expect(profile).toBeDefined();

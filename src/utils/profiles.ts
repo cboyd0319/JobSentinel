@@ -470,9 +470,12 @@ export const CAREER_PROFILES: CareerProfile[] = [
       "Healthcare Administrator", "Hospital Administrator", "Practice Manager",
       "Medical Director", "Clinical Director", "Health Services Manager",
       "Patient Care Coordinator", "Case Manager", "Clinical Research Coordinator",
-      "Healthcare Consultant", "Medical Writer", "Health Informatics Specialist"
+      "Medical Assistant", "Clinical Assistant", "Patient Care Assistant",
+      "Patient Care Technician", "Home Health Aide", "Certified Nursing Assistant",
+      "CNA", "Caregiver", "Healthcare Consultant", "Medical Writer",
+      "Health Informatics Specialist"
     ],
-    titleBlocklist: ["Aide", "Assistant", "Volunteer", "Student"],
+    titleBlocklist: ["Volunteer", "Student"],
     keywordsBoost: [
       "Healthcare", "Clinical", "Patient Care", "HIPAA", "EMR", "EHR",
       "Epic", "Cerner", "Medical Records", "Nursing", "BSN", "MSN",
@@ -481,7 +484,7 @@ export const CAREER_PROFILES: CareerProfile[] = [
     ],
     keywordsExclude: ["travel nursing agency"],
     locationPreferences: { allow_remote: false, allow_hybrid: true, allow_onsite: true },
-    sampleTitles: ["Registered Nurse", "Healthcare Admin", "Nurse Manager"]
+    sampleTitles: ["Registered Nurse", "Medical Assistant", "Healthcare Admin"]
   },
   {
     id: "legal",

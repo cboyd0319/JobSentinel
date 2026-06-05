@@ -51,6 +51,11 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Healthcare guided-intake defaults now keep common support roles such as
+  medical assistant, patient care assistant, home health aide, and certified
+  nursing assistant visible instead of blocking them through generic
+  "Assistant" or "Aide" avoid terms.
+
 - macOS readiness tests now prove that missing Apple Developer Program
   credentials are external blockers only: no-account completion stays 100% at
   the 94% public-readiness ceiling, and full-public readiness reaches 100% only
