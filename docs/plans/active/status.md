@@ -50,6 +50,15 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- DB validation boundary tests now live in
+  `src-tauri/src/core/db/tests/tests/job_validation_tests.rs`, reducing
+  `src-tauri/src/core/db/tests.rs` from 912 to 844 lines without changing
+  database APIs, migrations, or test assertions. Focused verification passed:
+  `cargo fmt --all -- --check`, `cargo test
+  core::db::tests::tests::job_validation_tests --lib`, `cargo test
+  core::db::tests --lib`, `cargo clippy -- -D warnings`, `npm run
+  lint:bloat`, docs gates, `git diff --check`, and the local-path leak scan.
+
 - Settings product-copy harness assertions now use shared path-list helpers,
   reducing `scripts/check-product-copy-settings.test.mjs` from 922 to 862
   lines without changing fixture coverage or product-copy detector behavior.
@@ -92,6 +101,7 @@ Recent committed cleanup batch:
 
 | Area | Main file before -> after | Extracted surface | Focused proof |
 | ---- | ------------------------- | ----------------- | ------------- |
+| DB validation tests | 912 -> 844 | validation boundary module | Rust focused tests, fmt |
 | Settings product-copy test | 922 -> 862 | assertion path helpers | Focused script test, bloat |
 | Settings email setup | 923 -> 841 | email provider setup/templates | Settings focused tests, build, lint, bloat |
 | Dashboard modals | 937 -> 804 | notes and saved-search modals | Dashboard focused tests, build, lint, bloat |
