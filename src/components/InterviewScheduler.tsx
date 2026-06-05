@@ -14,6 +14,21 @@ import { MIN_INTERVIEW_DURATION, MAX_INTERVIEW_DURATION } from "../utils/constan
 import { getSafeErrorToastCopy } from "../utils/safeErrorCopy";
 import { downloadInterviewICalFile } from "./InterviewCalendarExport";
 import {
+  INTERVIEW_TYPES,
+  OUTCOME_COLORS,
+  PREP_CHECKLIST,
+  TYPE_COLORS,
+  formatFollowUpSentDate,
+  formatInterviewTypeLabel,
+  formatOutcomeLabel,
+  type FollowUpReminder,
+  type Interview,
+  type InterviewSchedulerProps,
+  type InterviewTab,
+  type PrepChecklistItem,
+  type PrepProgress,
+} from "./InterviewSchedulerModel";
+import {
   CalendarIcon,
   CloseIcon,
   DownloadIcon,
@@ -23,106 +38,6 @@ import {
   SearchIcon,
   UserIcon,
 } from "./InterviewSchedulerIcons";
-
-interface Interview {
-  id: number;
-  application_id: number;
-  interview_type: string;
-  scheduled_at: string;
-  duration_minutes: number;
-  location: string | null;
-  interviewer_name: string | null;
-  interviewer_title: string | null;
-  notes: string | null;
-  completed: boolean;
-  outcome: string | null;
-  post_interview_notes: string | null;
-  job_title: string;
-  company: string;
-}
-
-type InterviewTab = 'upcoming' | 'past';
-
-interface Application {
-  id: number;
-  job_title: string;
-  company: string;
-}
-
-interface InterviewSchedulerProps {
-  onClose: () => void;
-  applications?: Application[];
-}
-
-function formatFollowUpSentDate(sentAt?: string | null): string {
-  return sentAt ? new Date(sentAt).toLocaleDateString() : "";
-}
-
-const INTERVIEW_TYPES = [
-  { value: "phone", label: "Phone Screen" },
-  { value: "screening", label: "Screening Call" },
-  { value: "technical", label: "Skills Interview" },
-  { value: "behavioral", label: "Behavioral Interview" },
-  { value: "onsite", label: "Onsite Interview" },
-  { value: "final", label: "Final Round" },
-  { value: "other", label: "Other" },
-];
-
-const TYPE_COLORS: Record<string, string> = {
-  phone: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
-  screening: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300",
-  technical: "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300",
-  behavioral: "bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300",
-  onsite: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
-  final: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300",
-  other: "bg-surface-100 text-surface-800 dark:bg-surface-700 dark:text-surface-300",
-};
-
-const OUTCOME_COLORS: Record<string, string> = {
-  passed: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
-  pending: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300",
-  failed: "bg-surface-100 text-surface-800 dark:bg-surface-700 dark:text-surface-200",
-};
-
-const OUTCOME_LABELS: Record<string, string> = {
-  passed: "Went well",
-  pending: "Not sure yet",
-  failed: "Not a fit",
-};
-
-function formatOutcomeLabel(outcome: string): string {
-  return OUTCOME_LABELS[outcome] ?? "Not sure yet";
-}
-
-function formatInterviewTypeLabel(interviewType: string): string {
-  return INTERVIEW_TYPES.find((type) => type.value === interviewType)?.label || interviewType;
-}
-
-// Interview prep checklist items
-const PREP_CHECKLIST = [
-  { id: "research", label: "Research company background", icon: "search" },
-  { id: "review_jd", label: "Review job description", icon: "doc" },
-  { id: "prepare_questions", label: "Prepare questions to ask", icon: "question" },
-  { id: "work_examples", label: "Prepare 2-3 examples from past work", icon: "star" },
-  { id: "tech_review", label: "Review role requirements", icon: "code" },
-];
-
-// Types for backend API responses
-interface FollowUpReminder {
-  interviewId: number;
-  thankYouSent: boolean;
-  sentAt: string | null;
-}
-
-interface PrepChecklistItem {
-  itemId: string;
-  completed: boolean;
-  completedAt: string | null;
-}
-
-interface PrepProgress {
-  [itemId: string]: boolean;
-}
 
 export const InterviewScheduler = memo(function InterviewScheduler({ onClose, applications = [] }: InterviewSchedulerProps) {
   const [interviews, setInterviews] = useState<Interview[]>([]);

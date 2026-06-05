@@ -50,6 +50,17 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Interview scheduler DTOs, tab/reminder/prep types, interview type labels,
+  outcome labels, color maps, and date formatting helper now live in
+  `src/components/InterviewSchedulerModel.ts`, reducing
+  `src/components/InterviewScheduler.tsx` from 941 to 856 lines without
+  changing scheduling, completion, follow-up, iCal export, or company research
+  behavior.
+
+- Focused verification for the Interview Scheduler model split passed:
+  `npm run test:run -- src/components/InterviewScheduler.test.tsx`,
+  `npm run build`, `npm run lint`, and `npm run lint:bloat`.
+
 - Settings credential state, dirty-secret tracking, lazy keychain status checks,
   and successful credential cleanup now live in
   `src/pages/useSettingsCredentials.ts`, reducing `src/pages/Settings.tsx`
