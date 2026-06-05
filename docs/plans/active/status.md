@@ -118,6 +118,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
   and insured-vehicle wording as hard requirements with conservative evidence
   equivalence.
 
+- First-run hourly pay controls now live in a focused setup component, keeping
+  the main setup page farther below the file-size limit.
+
 - Job cards now run unsafe saved-link checks before custom dashboard open
   handlers, so visible **Check job link** guidance cannot be bypassed by a
   callback path.

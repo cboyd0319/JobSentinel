@@ -356,6 +356,8 @@ Out of scope:
   so **Lower Risk** and **Needs Review** match card guidance.
 - [x] Treat clean-driving-record, MVR, auto-insurance, and insured-vehicle
   wording as Resume Match hard requirements.
+- [x] Move first-run hourly pay controls into a focused component so the setup
+  page stays below the file-size limit.
 
 ## Orchestration Log
 
@@ -434,6 +436,9 @@ Out of scope:
 - Coordinator added Resume Match hard-constraint extraction and conservative
   equivalence for clean driving record, MVR, proof of auto insurance, and
   insured-vehicle wording.
+- Coordinator moved first-run pay-floor controls into
+  `src/pages/SetupWizardPayFloorSection.tsx`, reducing the main setup page from
+  1,166 to 1,101 lines without changing hourly or yearly pay behavior.
 - Pay-protection sidecar was read-only and changed no files. Coordinator
   accepted its finding that negotiation-note drafts could treat benchmark
   values as offer facts, then fixed the Salary page, dev mock, tests, feature
