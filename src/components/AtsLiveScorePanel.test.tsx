@@ -846,6 +846,41 @@ describe("AtsLiveScorePanel", () => {
       expect(screen.queryByText(/score cap/i)).not.toBeInTheDocument();
     });
 
+    it("labels citizenship must-haves as citizenship instead of work authorization", async () => {
+      mockInvoke.mockResolvedValue({
+        ...mockAnalysis,
+        hard_constraint_risks: [
+          {
+            requirement: "us citizenship",
+            category: "WorkAuthorization",
+            score_cap: 50,
+            reason: "A required hard constraint was not clearly found in the resume.",
+            action:
+              "Check citizenship before tailoring. If it is not true for you, do not claim it.",
+          },
+        ],
+      } satisfies AtsAnalysisResult);
+
+      render(
+        <AtsLiveScorePanel
+          resumeData={mockResumeData}
+          currentStep={1}
+          debounceMs={10}
+        />
+      );
+
+      await waitForAnalysis();
+
+      expect(screen.getByText("1 must-have to check")).toBeInTheDocument();
+      expect(screen.getByText(/Citizenship:/i)).toBeInTheDocument();
+      expect(screen.queryByText(/Work authorization:/i)).not.toBeInTheDocument();
+
+      fireEvent.click(screen.getByRole("button", { name: /review details/i }));
+
+      expect(screen.getByText("Citizenship")).toBeInTheDocument();
+      expect(screen.queryByText("Work authorization")).not.toBeInTheDocument();
+    });
+
     it("shows hard must-haves from required review rows when risk list is absent", async () => {
       mockInvoke.mockResolvedValue({
         ...mockAnalysis,

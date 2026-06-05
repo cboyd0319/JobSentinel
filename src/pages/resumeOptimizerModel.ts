@@ -240,7 +240,25 @@ export function formatHardConstraintCategory(category: HardConstraintCategory): 
   }
 }
 
-export function formatHardConstraintNextActionDetail(category: HardConstraintCategory): string {
+function isCitizenshipRequirement(requirement: string): boolean {
+  const lower = requirement.toLowerCase();
+  return (
+    lower.includes("us citizenship") ||
+    lower.includes("u.s. citizenship") ||
+    lower.includes("us citizen") ||
+    lower.includes("u.s. citizen") ||
+    lower.includes("citizenship required")
+  );
+}
+
+export function formatHardConstraintNextActionDetail(
+  category: HardConstraintCategory,
+  requirement = "",
+): string {
+  if (category === "WorkAuthorization" && isCitizenshipRequirement(requirement)) {
+    return "If the citizenship requirement is not true for you, do not claim it. Do not treat work authorization as citizenship.";
+  }
+
   switch (category) {
     case "WorkAuthorization":
       return "If the authorization is not true for you, do not claim it. Check the posting before tailoring.";
@@ -462,7 +480,10 @@ export function buildResumeNextActions(analysis: AtsAnalysisResult): ResumeNextA
   for (const risk of hardRisks.slice(0, 5)) {
     actions.push({
       title: `Check ${risk.requirement} before tailoring`,
-      detail: risk.action.trim() || formatHardConstraintNextActionDetail(risk.category),
+      detail: risk.action.trim() || formatHardConstraintNextActionDetail(
+        risk.category,
+        risk.requirement,
+      ),
       variant: "danger",
       label: "Check first",
     });

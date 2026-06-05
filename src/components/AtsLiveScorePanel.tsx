@@ -138,6 +138,25 @@ function formatHardConstraintCategory(category: HardConstraintRisk["category"]):
   }
 }
 
+function isCitizenshipRequirement(requirement: string): boolean {
+  const lower = requirement.toLowerCase();
+  return (
+    lower.includes("us citizenship") ||
+    lower.includes("u.s. citizenship") ||
+    lower.includes("us citizen") ||
+    lower.includes("u.s. citizen") ||
+    lower.includes("citizenship required")
+  );
+}
+
+function formatHardConstraintRiskCategory(risk: HardConstraintRisk): string {
+  if (risk.category === "WorkAuthorization" && isCitizenshipRequirement(risk.requirement)) {
+    return "Citizenship";
+  }
+
+  return formatHardConstraintCategory(risk.category);
+}
+
 function formatResumeEvidenceSection(section: string): string {
   switch (section) {
     case "current experience":
@@ -666,7 +685,7 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
                       key={`${risk.category}-${risk.requirement}-${idx}`}
                       className="text-xs text-surface-700 dark:text-surface-300"
                     >
-                      <span className="font-medium">{formatHardConstraintCategory(risk.category)}:</span>{" "}
+                      <span className="font-medium">{formatHardConstraintRiskCategory(risk)}:</span>{" "}
                       Check {risk.requirement} before editing this resume.
                     </li>
                   ))}
@@ -784,7 +803,7 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
                     >
                       <div className="flex items-start gap-2">
                         <Badge variant="danger" size="sm">
-                          {formatHardConstraintCategory(risk.category)}
+                          {formatHardConstraintRiskCategory(risk)}
                         </Badge>
                         <div className="flex-1">
                           <p className="text-sm font-medium text-surface-800 dark:text-surface-200">

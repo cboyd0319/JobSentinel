@@ -51,6 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Resume Builder and Resume Match now label citizenship hard risks as
+  citizenship in visible category/fallback text, instead of showing the shared
+  work-authorization category when the requirement text is citizenship-specific.
+
 - Resume hard-requirement actions now tell users to check citizenship for
   citizenship requirements instead of reusing work-authorization wording, and
   the dev mock matches the Rust analyzer.

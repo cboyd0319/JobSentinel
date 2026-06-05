@@ -125,6 +125,18 @@ describe("buildResumeNextActions", () => {
     expect(actions[1].detail).toMatch(/If the authorization is not true/i);
   });
 
+  it("uses citizenship fallback detail for citizenship hard risks", () => {
+    const actions = buildResumeNextActions({
+      ...baseAnalysis,
+      hard_constraint_risks: [
+        hardRisk("us citizenship", "WorkAuthorization", "   "),
+      ],
+    });
+
+    expect(actions[0].detail).toMatch(/If the citizenship requirement is not true/i);
+    expect(actions[0].detail).not.toMatch(/If the authorization is not true/i);
+  });
+
   it("uses hard-constraint review rows when separate hard risks are absent", () => {
     const actions = buildResumeNextActions({
       ...baseAnalysis,
