@@ -383,6 +383,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
   accessibility lifecycle tests moved out of the main ApplyButton test file
   into a focused lifecycle test file.
 
+- Ghost-risk, local-first support, pay-guidance, salary-floor, and salary
+  logging copy bloat fixtures moved out of the product-copy bloat test into a
+  focused trust-copy test file.
+
 ## Recent Completed Slices
 
 Detailed implementation history before the current restart window is in the

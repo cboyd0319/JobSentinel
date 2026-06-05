@@ -798,6 +798,11 @@ Out of scope:
   `src/components/automation/ApplyButton.lifecycle.test.tsx`. The main
   ApplyButton test file still owns initial rendering, platform detection,
   profile checks, fill flow, loading, and error-state coverage.
+- Coordinator moved ghost-risk, local-first support, pay-guidance,
+  salary-floor, and salary logging copy bloat fixtures into
+  `scripts/check-repo-bloat-trust-copy.test.mjs`. The product-copy bloat test
+  still owns general product, resume review, and Application Assist copy
+  fixture coverage.
 
 ## Risks
 
