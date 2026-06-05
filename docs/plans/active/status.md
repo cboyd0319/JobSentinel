@@ -51,6 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Dashboard job-list, empty-state, and filtered-empty rendering moved into a
+  focused component, bringing the main dashboard page down near 1,000 lines
+  before more product work touches it.
+
 - Resume Builder and Resume Match now label citizenship hard risks as
   citizenship in visible category/fallback text, instead of showing the shared
   work-authorization category when the requirement text is citizenship-specific.

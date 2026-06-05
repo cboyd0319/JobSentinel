@@ -13,8 +13,7 @@ import {
 } from "react";
 import { listen } from "@tauri-apps/api/event";
 import { Button } from "../components/Button";
-import { Card, CardHeader } from "../components/Card";
-import { JobCard } from "../components/JobCard";
+import { Card } from "../components/Card";
 import { Modal, ModalFooter } from "../components/Modal";
 import { default as ModalErrorBoundary } from "../components/ModalErrorBoundary";
 import { default as ComponentErrorBoundary } from "../components/ComponentErrorBoundary";
@@ -66,10 +65,8 @@ import type {
   SavedSearch,
 } from "./DashboardTypes";
 import {
-  FilterIcon,
   TrashIcon,
   CheckCircleIcon,
-  BriefcaseIcon,
 } from "./DashboardIcons";
 import { useDashboardFilters } from "./hooks/useDashboardFilters";
 import { useDashboardSearch } from "./hooks/useDashboardSearch";
@@ -80,6 +77,7 @@ import { DashboardFiltersBar } from "./DashboardUI/DashboardFiltersBar";
 import { DashboardHeader } from "./DashboardUI/DashboardHeader";
 import { DashboardStats } from "./DashboardUI/DashboardStats";
 import { DashboardCompareModal } from "./DashboardUI/DashboardCompareModal";
+import { DashboardJobList } from "./DashboardUI/DashboardJobList";
 import { QuickActions } from "./DashboardUI/QuickActions";
 import {
   formatBookmarkFilter,
@@ -648,175 +646,29 @@ export default function Dashboard({
             handleBulkHide={jobOps.handleBulkHide}
           />
 
-          {/* Job List */}
-          {jobs.length === 0 ? (
-            <Card
-              className="text-center py-12 dark:bg-surface-800"
-              data-tour="job-list"
-              role="status"
-              aria-live="polite"
-            >
-              <div className="w-12 h-12 bg-sentinel-50 dark:bg-sentinel-900/30 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <BriefcaseIcon className="w-6 h-6 text-sentinel-400" />
-              </div>
-              <CardHeader
-                title={noJobsCopy.title}
-                subtitle={noJobsCopy.subtitle}
-              />
-              <div className="mt-4 flex flex-wrap justify-center gap-3">
-                <Button
-                  onClick={
-                    noSourcesEnabled
-                      ? () => setShowSettings(true)
-                      : handleSearchNow
-                  }
-                  loading={!noSourcesEnabled && searching}
-                >
-                  {noJobsCopy.primaryLabel}
-                </Button>
-                <Button
-                  onClick={
-                    noSourcesEnabled
-                      ? () => setShowImportModal(true)
-                      : () => setShowSettings(true)
-                  }
-                  variant="secondary"
-                >
-                  {noJobsCopy.secondaryLabel}
-                </Button>
-              </div>
-              <p className="mt-3 text-sm text-surface-500 dark:text-surface-400">
-                {noJobsCopy.helperText}
-              </p>
-              <div className="mt-8 pt-6 border-t border-surface-200 dark:border-surface-700">
-                <p className="text-sm text-surface-500 dark:text-surface-400 mb-4">
-                  How JobSentinel works:
-                </p>
-                <div className="flex flex-col gap-4 max-w-xs mx-auto text-left">
-                  <div className="flex gap-3">
-                    <div className="flex-shrink-0 w-8 h-8 bg-sentinel-100 dark:bg-sentinel-900/30 rounded-full flex items-center justify-center text-sentinel-600 dark:text-sentinel-400 font-semibold text-sm">
-                      1
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-surface-700 dark:text-surface-300">
-                        {noJobsCopy.firstStepTitle}
-                      </p>
-                      <p className="text-xs text-surface-500 dark:text-surface-400">
-                        {noJobsCopy.firstStepDescription}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex gap-3">
-                    <div className="flex-shrink-0 w-8 h-8 bg-sentinel-100 dark:bg-sentinel-900/30 rounded-full flex items-center justify-center text-sentinel-600 dark:text-sentinel-400 font-semibold text-sm">
-                      2
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-surface-700 dark:text-surface-300">
-                        Show useful evidence
-                      </p>
-                      <p className="text-xs text-surface-500 dark:text-surface-400">
-                        Match, pay, and posting risk stay visible
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex gap-3">
-                    <div className="flex-shrink-0 w-8 h-8 bg-sentinel-100 dark:bg-sentinel-900/30 rounded-full flex items-center justify-center text-sentinel-600 dark:text-sentinel-400 font-semibold text-sm">
-                      3
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-surface-700 dark:text-surface-300">
-                        You choose
-                      </p>
-                      <p className="text-xs text-surface-500 dark:text-surface-400">
-                        Open the source, save notes, or skip
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </Card>
-          ) : filters.filteredAndSortedJobs.length === 0 ? (
-            <Card
-              className="text-center py-8 dark:bg-surface-800"
-              role="status"
-              aria-live="polite"
-              aria-atomic="true"
-            >
-              <div className="w-12 h-12 bg-surface-100 dark:bg-surface-700 rounded-full flex items-center justify-center mx-auto mb-3">
-                <FilterIcon className="w-6 h-6 text-surface-400" />
-              </div>
-              <h3 className="font-medium text-surface-700 dark:text-surface-300 mb-2">
-                No jobs match your filters
-              </h3>
-              <p className="text-sm text-surface-500 dark:text-surface-400 mb-4">
-                Try changing or clearing filters to see more jobs.
-              </p>
-              <button
-                onClick={filters.clearFilters}
-                className="text-sm text-sentinel-600 dark:text-sentinel-400 hover:underline"
-                aria-label="Clear all filters to show all jobs"
-              >
-                Clear all filters
-              </button>
-            </Card>
-          ) : (
-            <>
-              <div
-                role="status"
-                aria-live="polite"
-                aria-atomic="true"
-                className="sr-only"
-              >
-                {filters.filteredAndSortedJobs.length} job
-                {filters.filteredAndSortedJobs.length === 1 ? "" : "s"} found
-              </div>
-              <div
-                ref={jobListRef}
-                className="space-y-3 stagger-children"
-                data-testid="job-list"
-              >
-                {filters.filteredAndSortedJobs.map((job, index) => (
-                  <div key={job.id} className="flex items-start gap-3">
-                    {jobOps.bulkMode && (
-                      <div className="flex-shrink-0 pt-5">
-                        <input
-                          type="checkbox"
-                          checked={jobOps.selectedJobIds.has(job.id)}
-                          onChange={() => jobOps.toggleJobSelection(job.id)}
-                          className="w-5 h-5 rounded border-surface-300 dark:border-surface-600 text-sentinel-500 focus-visible:ring-sentinel-500"
-                          aria-label={`Select ${job.title}`}
-                        />
-                      </div>
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <JobCard
-                        job={job}
-                        onHideJob={
-                          jobOps.bulkMode ? undefined : jobOps.handleHideJob
-                        }
-                        onToggleBookmark={
-                          jobOps.bulkMode
-                            ? undefined
-                            : jobOps.handleToggleBookmark
-                        }
-                        onEditNotes={
-                          jobOps.bulkMode ? undefined : jobOps.handleEditNotes
-                        }
-                        onResearchCompany={
-                          jobOps.bulkMode ? undefined : setResearchCompany
-                        }
-                        onOpenApplicationAssist={
-                          jobOps.bulkMode || !onNavigate ? undefined : () => onNavigate("automation")
-                        }
-                        isSelected={isKeyboardActive && index === selectedIndex}
-                        salaryFloorUsd={salaryFloorUsd}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
+          <DashboardJobList
+            jobs={jobs}
+            filteredJobs={filters.filteredAndSortedJobs}
+            noJobsCopy={noJobsCopy}
+            noSourcesEnabled={noSourcesEnabled}
+            searching={searching}
+            jobListRef={jobListRef}
+            bulkMode={jobOps.bulkMode}
+            selectedJobIds={jobOps.selectedJobIds}
+            isKeyboardActive={isKeyboardActive}
+            selectedIndex={selectedIndex}
+            salaryFloorUsd={salaryFloorUsd}
+            onSearchNow={handleSearchNow}
+            onOpenSettings={() => setShowSettings(true)}
+            onOpenImport={() => setShowImportModal(true)}
+            onClearFilters={filters.clearFilters}
+            onToggleJobSelection={jobOps.toggleJobSelection}
+            onHideJob={jobOps.handleHideJob}
+            onToggleBookmark={jobOps.handleToggleBookmark}
+            onEditNotes={jobOps.handleEditNotes}
+            onResearchCompany={setResearchCompany}
+            onOpenApplicationAssist={onNavigate ? () => onNavigate("automation") : undefined}
+          />
         </section>
       </main>
 
