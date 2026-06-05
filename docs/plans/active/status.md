@@ -50,6 +50,14 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Automation answer-learning commands and response privacy tests moved out of
+  `src-tauri/src/commands/automation.rs` into focused submodules under
+  `src-tauri/src/commands/automation/`.
+- The main automation command module is now below the 1,200-line Rust target,
+  so the legacy oversized-file exception was removed.
+
+Earlier implementation slice:
+
 - Salary predictor tests moved out of
   `src-tauri/src/core/salary/predictor.rs` into
   `src-tauri/src/core/salary/predictor_tests.rs` and
@@ -126,15 +134,6 @@ Earlier implementation slice:
 - The runtime Greenhouse scraper is now below the 1,200-line Rust target, so
   the legacy oversized-file exception was removed.
 - Greenhouse behavior was unchanged; only test module ownership changed.
-
-Earlier implementation slice:
-
-- Root README reference index moved into `docs/references.md`, leaving a
-  compact README anchor and preserving the complete external-source inventory.
-- Harness source policy now checks required reference URLs in
-  `docs/references.md` instead of requiring the full index in `README.md`.
-- The root README is now below the 900-line docs target, so the legacy
-  oversized-file exception was removed.
 
 Earlier implementation slice:
 
@@ -856,8 +855,7 @@ Recent cleanup summary:
 - Remaining oversized-file exceptions are `src/pages/ResumeBuilder.tsx`,
   `src/pages/ResumeOptimizer.tsx`,
   `src/pages/SetupWizard.tsx`,
-  `src/pages/Resume.tsx`, `src-tauri/src/commands/automation.rs`, and
-  `scripts/harness/checks/privacy-logging.mjs`.
+  `src/pages/Resume.tsx`, and `scripts/harness/checks/privacy-logging.mjs`.
 
 ## Next Best Work
 

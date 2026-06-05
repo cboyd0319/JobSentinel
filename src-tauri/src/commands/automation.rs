@@ -950,113 +950,7 @@ pub async fn fill_application_form(
 }
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_sanitize_automation_log_url_removes_sensitive_parts() {
-        let sanitized = sanitize_url_for_logging(
-            "https://user:pass@example.com/jobs/123?token=secret&session=abc#private",
-        );
-
-        assert_eq!(sanitized, "https://example.com/jobs/123");
-    }
-
-    #[test]
-    fn test_sanitize_automation_log_url_truncates_long_path() {
-        let sanitized =
-            sanitize_url_for_logging(&format!("https://example.com/jobs/{}", "a".repeat(120)));
-
-        assert!(sanitized.starts_with("https://example.com/jobs/"));
-        assert!(sanitized.ends_with("..."));
-        assert!(sanitized.len() <= 83);
-    }
-
-    #[test]
-    fn test_sanitize_automation_log_url_handles_invalid_url() {
-        let sanitized = sanitize_url_for_logging("not a url with token=secret");
-
-        assert_eq!(sanitized, "<invalid-url>");
-    }
-
-    #[test]
-    fn prepare_form_target_accepts_recognized_application_site() {
-        let (url, platform) =
-            prepare_form_target("https://jobs.lever.co/example/123").expect("recognized target");
-
-        assert!(url.starts_with("https://jobs.lever.co/example/123"));
-        assert_eq!(platform, AtsPlatform::Lever);
-    }
-
-    #[test]
-    fn prepare_form_target_rejects_unknown_application_site() {
-        let err = prepare_form_target("https://example.com/apply").unwrap_err();
-
-        assert!(err.contains("recognized application sites"));
-    }
-
-    #[test]
-    fn prepare_form_target_rejects_unsafe_application_site() {
-        let err = prepare_form_target("http://localhost:3000/apply").unwrap_err();
-
-        assert!(err.contains("Cannot open that job link"));
-    }
-
-    #[test]
-    fn application_page_match_accepts_same_platform_url() {
-        assert!(application_page_matches_platform(
-            "https://jobs.lever.co/example/123",
-            &AtsPlatform::Lever
-        ));
-    }
-
-    #[test]
-    fn application_page_match_rejects_cross_platform_redirect() {
-        assert!(!application_page_matches_platform(
-            "https://boards.greenhouse.io/example/jobs/123",
-            &AtsPlatform::Lever
-        ));
-    }
-
-    #[test]
-    fn application_page_match_rejects_unknown_or_lookalike_url() {
-        assert!(!application_page_matches_platform(
-            "https://example.com/apply",
-            &AtsPlatform::Lever
-        ));
-        assert!(!application_page_matches_platform(
-            "https://jobs.lever.co.evil.example/apply",
-            &AtsPlatform::Lever
-        ));
-    }
-
-    #[test]
-    fn attempt_response_exposes_screenshot_presence_not_paths() {
-        let attempt = ApplicationAttempt {
-            id: 1,
-            job_hash: "job_hash".to_string(),
-            application_id: None,
-            status: AutomationStatus::Pending,
-            ats_platform: AtsPlatform::Greenhouse,
-            error_message: None,
-            screenshot_path: Some("/Users/jordan/private/apply.png".to_string()),
-            confirmation_screenshot_path: None,
-            automation_duration_ms: Some(1200),
-            user_approved: false,
-            submitted_at: None,
-            created_at: chrono::Utc::now(),
-        };
-
-        let response = AttemptResponse::from(attempt);
-        let json = serde_json::to_string(&response).unwrap();
-
-        assert!(response.has_screenshot);
-        assert!(!response.has_confirmation_screenshot);
-        assert!(json.contains("hasScreenshot"));
-        assert!(!json.contains("/Users/jordan"));
-        assert!(!json.contains("screenshotPath"));
-    }
-}
+mod tests;
 
 /// Extended fill result with tracking info
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -1150,49 +1044,22 @@ pub async fn get_attempts_for_job(
     Ok(attempts)
 }
 
-// ============================================================================
-// Screening Answer Learning Commands
-// ============================================================================
+pub mod answer_learning;
 
-use crate::core::automation::answer_learning::{
-    AnswerLearningManager, AnswerSource, AnswerStatistics, AnswerSuggestion,
+pub use answer_learning::{
+    AnswerStatisticsResponse, AnswerSuggestionResponse, ModificationExampleResponse,
 };
 
-/// Get suggested answers for a screening question
-///
-/// Returns ranked suggestions based on:
-/// - Manual patterns (from screening_answers table)
-/// - Learned patterns (from user modifications)
-/// - Historical answers (from similar questions)
 #[tauri::command]
 pub async fn get_suggested_answers(
     question: String,
     limit: Option<usize>,
     state: State<'_, AppState>,
 ) -> Result<Vec<AnswerSuggestionResponse>, String> {
-    tracing::info!(
-        question_chars = question.chars().count(),
-        limit = ?limit,
-        "Command: get_suggested_answers"
-    );
-
     let limit = validate_optional_command_limit_usize(limit, 5)?;
-    let manager = AnswerLearningManager::new(state.database.pool().clone());
-    let suggestions = manager
-        .get_suggested_answers(&question, limit)
-        .await
-        .map_err(|e| user_friendly_error("Failed to get suggestions", e))?;
-
-    Ok(suggestions
-        .into_iter()
-        .map(AnswerSuggestionResponse::from)
-        .collect())
+    answer_learning::get_suggested_answers(question, Some(limit), state).await
 }
 
-/// Record that a screening answer was used
-///
-/// Tracks usage and user modifications for learning.
-/// If `was_modified` is true, the system learns from the correction.
 #[tauri::command]
 pub async fn record_answer_usage(
     screening_answer_id: Option<i64>,
@@ -1204,413 +1071,34 @@ pub async fn record_answer_usage(
     application_attempt_id: Option<i64>,
     state: State<'_, AppState>,
 ) -> Result<(), String> {
-    tracing::info!(
-        "Command: record_answer_usage (pattern_id: {:?}, modified: {})",
+    answer_learning::record_answer_usage(
         screening_answer_id,
-        was_modified
-    );
-
-    let manager = AnswerLearningManager::new(state.database.pool().clone());
-    manager
-        .record_answer_usage(
-            screening_answer_id,
-            &question_text,
-            &answer_filled,
-            was_modified,
-            modified_to.as_deref(),
-            job_hash.as_deref(),
-            application_attempt_id,
-        )
-        .await
-        .map_err(|e| user_friendly_error("Failed to record usage", e))
+        question_text,
+        answer_filled,
+        was_modified,
+        modified_to,
+        job_hash,
+        application_attempt_id,
+        state,
+    )
+    .await
 }
 
-/// Get statistics for a specific answer pattern
-///
-/// Shows usage metrics, modification rate, confidence score, and recent modifications.
 #[tauri::command]
 pub async fn get_answer_statistics(
     pattern: String,
     state: State<'_, AppState>,
 ) -> Result<Option<AnswerStatisticsResponse>, String> {
-    tracing::info!(
-        pattern_chars = pattern.chars().count(),
-        "Command: get_answer_statistics"
-    );
-
-    let manager = AnswerLearningManager::new(state.database.pool().clone());
-    match manager.get_answer_statistics(&pattern).await {
-        Ok(Some(stats)) => Ok(Some(AnswerStatisticsResponse::from(stats))),
-        Ok(None) => Ok(None),
-        Err(e) => Err(user_friendly_error("Failed to get statistics", e)),
-    }
+    answer_learning::get_answer_statistics(pattern, state).await
 }
 
-/// Clear answer history (optionally for a specific pattern)
-///
-/// Removes usage history and resets statistics.
-/// If `pattern` is None, clears all history.
 #[tauri::command]
 pub async fn clear_answer_history(
     pattern: Option<String>,
     state: State<'_, AppState>,
 ) -> Result<usize, String> {
-    tracing::info!(
-        has_pattern = pattern.is_some(),
-        pattern_chars = pattern
-            .as_ref()
-            .map_or(0, |pattern| pattern.chars().count()),
-        "Command: clear_answer_history"
-    );
-
-    let manager = AnswerLearningManager::new(state.database.pool().clone());
-    manager
-        .clear_answer_history(pattern.as_deref())
-        .await
-        .map_err(|e| user_friendly_error("Failed to clear history", e))
-}
-
-// Response types for learning commands
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct AnswerSuggestionResponse {
-    pub answer: String,
-    pub confidence: f64,
-    pub source: AnswerSourceResponse,
-    pub times_used: i32,
-    pub times_modified: i32,
-    pub last_used_days_ago: Option<i32>,
-    pub modification_rate: f64,
-}
-
-impl From<AnswerSuggestion> for AnswerSuggestionResponse {
-    fn from(s: AnswerSuggestion) -> Self {
-        Self {
-            answer: s.answer,
-            confidence: s.confidence,
-            source: AnswerSourceResponse::from(s.source),
-            times_used: s.times_used,
-            times_modified: s.times_modified,
-            last_used_days_ago: s.last_used_days_ago,
-            modification_rate: s.modification_rate,
-        }
-    }
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(tag = "type", rename_all = "snake_case")]
-pub enum AnswerSourceResponse {
-    Manual {
-        #[serde(rename = "answerId")]
-        answer_id: i64,
-    },
-    Learned {
-        #[serde(rename = "learnedId")]
-        learned_id: i64,
-    },
-    Historical,
-}
-
-impl From<AnswerSource> for AnswerSourceResponse {
-    fn from(source: AnswerSource) -> Self {
-        match source {
-            AnswerSource::Manual { answer_id, .. } => Self::Manual { answer_id },
-            AnswerSource::Learned { learned_id, .. } => Self::Learned { learned_id },
-            AnswerSource::Historical { .. } => Self::Historical,
-        }
-    }
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct AnswerStatisticsResponse {
-    pub times_used: i32,
-    pub times_modified: i32,
-    pub modification_rate: f64,
-    pub confidence_score: f64,
-    pub last_used_at: Option<String>,
-    pub created_at: String,
-    pub recent_modifications: Vec<ModificationExampleResponse>,
-}
-
-impl From<AnswerStatistics> for AnswerStatisticsResponse {
-    fn from(stats: AnswerStatistics) -> Self {
-        Self {
-            times_used: stats.times_used,
-            times_modified: stats.times_modified,
-            modification_rate: stats.modification_rate,
-            confidence_score: stats.confidence_score,
-            last_used_at: stats.last_used_at.map(|d| d.to_rfc3339()),
-            created_at: stats.created_at.to_rfc3339(),
-            recent_modifications: stats
-                .recent_modifications
-                .into_iter()
-                .map(ModificationExampleResponse::from)
-                .collect(),
-        }
-    }
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ModificationExampleResponse {
-    pub before_chars: usize,
-    pub after_chars: usize,
-    pub question_chars: usize,
-    pub modified_at: String,
-}
-
-impl From<crate::core::automation::answer_learning::ModificationExample>
-    for ModificationExampleResponse
-{
-    fn from(ex: crate::core::automation::answer_learning::ModificationExample) -> Self {
-        Self {
-            before_chars: ex.original_answer.chars().count(),
-            after_chars: ex.modified_to.chars().count(),
-            question_chars: ex.question_text.chars().count(),
-            modified_at: ex.modified_at.to_rfc3339(),
-        }
-    }
+    answer_learning::clear_answer_history(pattern, state).await
 }
 
 #[cfg(test)]
-mod response_tests {
-    use super::*;
-
-    fn profile_with_resume_path(path: Option<String>) -> ApplicationProfile {
-        ApplicationProfile {
-            id: 1,
-            full_name: "Jordan Lee".to_string(),
-            email: "jordan@example.com".to_string(),
-            phone: None,
-            linkedin_url: None,
-            github_url: None,
-            portfolio_url: None,
-            website_url: None,
-            default_resume_id: None,
-            resume_file_path: path,
-            default_cover_letter_template: None,
-            us_work_authorized: true,
-            requires_sponsorship: false,
-            max_applications_per_day: 10,
-            require_manual_approval: true,
-            created_at: chrono::Utc::now(),
-            updated_at: chrono::Utc::now(),
-        }
-    }
-
-    #[test]
-    fn application_profile_response_redacts_resume_file_path() {
-        let response = ApplicationProfileResponse::from(profile_with_resume_path(Some(
-            "/Users/jordan/private/client-resume.pdf".to_string(),
-        )));
-
-        let json = serde_json::to_string(&response).unwrap();
-        assert!(response.has_resume_file);
-        assert_eq!(
-            response.resume_file_name,
-            Some("client-resume.pdf".to_string())
-        );
-        assert!(json.contains("client-resume.pdf"));
-        assert!(!json.contains("/Users/jordan/private"));
-        assert!(!json.contains("resumeFilePath"));
-    }
-
-    #[test]
-    fn application_profile_response_omits_unused_backend_metadata() {
-        let response = ApplicationProfileResponse::from(profile_with_resume_path(Some(
-            "/local/app/application-resumes/7d9d16a1-2e5d-4b32-9eb2-bfbffb4ee871--jordan-resume.pdf"
-                .to_string(),
-        )));
-
-        let json = serde_json::to_value(&response).unwrap();
-        let object = json.as_object().unwrap();
-
-        assert!(!object.contains_key("id"));
-        assert!(!object.contains_key("defaultResumeId"));
-        assert!(!object.contains_key("defaultCoverLetterTemplate"));
-        assert!(!object.contains_key("createdAt"));
-        assert!(!object.contains_key("updatedAt"));
-    }
-
-    #[test]
-    fn application_profile_response_handles_windows_resume_paths() {
-        let response = ApplicationProfileResponse::from(profile_with_resume_path(Some(
-            "C:\\Users\\Jordan\\Desktop\\resume.docx".to_string(),
-        )));
-
-        let json = serde_json::to_string(&response).unwrap();
-        assert_eq!(response.resume_file_name, Some("resume.docx".to_string()));
-        assert!(!json.contains("C:\\\\Users"));
-    }
-
-    fn valid_profile_input() -> ApplicationProfileInput {
-        ApplicationProfileInput {
-            full_name: "Jordan Lee".to_string(),
-            email: "jordan@example.com".to_string(),
-            phone: None,
-            linkedin_url: None,
-            github_url: None,
-            portfolio_url: None,
-            website_url: None,
-            default_resume_id: None,
-            resume_file_path: None,
-            resume_file_token: None,
-            clear_resume_file: None,
-            default_cover_letter_template: None,
-            us_work_authorized: true,
-            requires_sponsorship: false,
-            max_applications_per_day: 10,
-            require_manual_approval: true,
-        }
-    }
-
-    #[test]
-    fn application_profile_resume_input_rejects_renderer_file_paths() {
-        let managed_dir = tempfile::tempdir().unwrap();
-        let input = ApplicationProfileInput {
-            resume_file_path: Some("/Users/jordan/private/resume.pdf".to_string()),
-            ..valid_profile_input()
-        };
-
-        let err = prepare_application_profile_resume_input(input, managed_dir.path()).unwrap_err();
-
-        assert!(err.contains("Choose"));
-        assert!(err.contains("resume"));
-    }
-
-    #[test]
-    fn application_profile_resume_input_accepts_managed_tokens() {
-        let managed_dir = tempfile::tempdir().unwrap();
-        let token = "7d9d16a1-2e5d-4b32-9eb2-bfbffb4ee871--new-resume.docx";
-        let managed_resume = managed_dir.path().join(token);
-        std::fs::write(&managed_resume, b"resume").unwrap();
-        let input = ApplicationProfileInput {
-            resume_file_token: Some(token.to_string()),
-            ..valid_profile_input()
-        };
-
-        let prepared = prepare_application_profile_resume_input(input, managed_dir.path()).unwrap();
-
-        assert_eq!(
-            prepared.resume_file_path,
-            Some(managed_resume.to_string_lossy().to_string())
-        );
-        assert_eq!(prepared.resume_file_token, None);
-    }
-
-    #[test]
-    fn application_profile_resume_path_rejects_existing_unmanaged_paths() {
-        let managed_dir = tempfile::tempdir().unwrap();
-        let outside_dir = tempfile::tempdir().unwrap();
-        let outside_resume = outside_dir.path().join("resume.pdf");
-        std::fs::write(&outside_resume, b"resume").unwrap();
-
-        let err = trusted_application_resume_path(
-            Some(outside_resume.to_string_lossy().as_ref()),
-            managed_dir.path(),
-        )
-        .unwrap_err();
-
-        let err = err.to_ascii_lowercase();
-        assert!(err.contains("choose"));
-        assert!(err.contains("resume"));
-    }
-
-    #[test]
-    fn application_profile_response_shows_resume_name_without_token_prefix() {
-        let response = ApplicationProfileResponse::from(profile_with_resume_path(Some(
-            "/local/app/application-resumes/7d9d16a1-2e5d-4b32-9eb2-bfbffb4ee871--jordan-resume.pdf"
-                .to_string(),
-        )));
-
-        let json = serde_json::to_string(&response).unwrap();
-
-        assert_eq!(
-            response.resume_file_name,
-            Some("jordan-resume.pdf".to_string())
-        );
-        assert!(!json.contains("7d9d16a1"));
-        assert!(!json.contains("/local/app"));
-    }
-
-    #[test]
-    fn answer_statistics_response_omits_raw_answer_history() {
-        let modified_at = chrono::DateTime::parse_from_rfc3339("2026-06-01T12:00:00Z")
-            .unwrap()
-            .with_timezone(&chrono::Utc);
-        let stats = AnswerStatistics {
-            pattern: "(?i)salary|compensation".to_string(),
-            answer: "My salary floor is 120000".to_string(),
-            times_used: 3,
-            times_modified: 1,
-            modification_rate: 1.0 / 3.0,
-            confidence_score: 0.75,
-            last_used_at: Some(modified_at),
-            created_at: modified_at,
-            recent_modifications: vec![
-                crate::core::automation::answer_learning::ModificationExample {
-                    original_answer: "Expected salary 110000".to_string(),
-                    modified_to: "Expected salary 120000".to_string(),
-                    question_text: "What salary range do you need?".to_string(),
-                    modified_at,
-                },
-            ],
-        };
-
-        let response = AnswerStatisticsResponse::from(stats);
-        let json = serde_json::to_string(&response).unwrap();
-
-        assert_eq!(response.times_used, 3);
-        assert_eq!(response.recent_modifications[0].before_chars, 22);
-        assert_eq!(response.recent_modifications[0].after_chars, 22);
-        assert_eq!(response.recent_modifications[0].question_chars, 30);
-        assert!(!json.contains("salary|compensation"));
-        assert!(!json.contains("salary floor"));
-        assert!(!json.contains("Expected salary"));
-        assert!(!json.contains("What salary range"));
-        assert!(!json.contains("originalAnswer"));
-        assert!(!json.contains("modifiedTo"));
-        assert!(!json.contains("questionText"));
-    }
-
-    #[test]
-    fn answer_suggestion_source_omits_raw_patterns_and_history_questions() {
-        let manual = AnswerSuggestion {
-            answer: "Yes".to_string(),
-            confidence: 0.9,
-            source: AnswerSource::Manual {
-                pattern: "(?i)authorized.*work".to_string(),
-                answer_id: 7,
-            },
-            times_used: 2,
-            times_modified: 0,
-            last_used_days_ago: Some(1),
-            modification_rate: 0.0,
-        };
-        let historical = AnswerSuggestion {
-            answer: "Expected salary 120000".to_string(),
-            confidence: 0.6,
-            source: AnswerSource::Historical {
-                original_question: "What salary range do you need?".to_string(),
-            },
-            times_used: 1,
-            times_modified: 0,
-            last_used_days_ago: None,
-            modification_rate: 0.0,
-        };
-
-        let manual_json = serde_json::to_string(&AnswerSuggestionResponse::from(manual)).unwrap();
-        let historical_json =
-            serde_json::to_string(&AnswerSuggestionResponse::from(historical)).unwrap();
-
-        assert!(manual_json.contains("\"type\":\"manual\""));
-        assert!(manual_json.contains("\"answerId\":7"));
-        assert!(!manual_json.contains("authorized"));
-        assert!(!manual_json.contains("pattern"));
-        assert!(historical_json.contains("\"type\":\"historical\""));
-        assert!(!historical_json.contains("originalQuestion"));
-        assert!(!historical_json.contains("What salary range"));
-    }
-}
+mod response_tests;
