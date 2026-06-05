@@ -39,7 +39,7 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 ## Current Posture
 
 - Last pushed baseline before the current local cleanup slice:
-  `c1f5dd36 Update macOS readiness and split automation module`.
+  `c68e2ed3 Update macOS deployment docs`.
 - Fresh harness evidence reports 2 active docs and 2 indexed workstreams: this
   status file and `current-work.md`.
 - Final broad verification passed locally after `91bd9354`: frontend tests/build,
@@ -50,6 +50,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
   explicit push instruction.
 
 ## Latest Slice
+
+- `current-work.md` is compact again, with long completed-slice history moved
+  out of the active restart path and current macOS/readiness priorities kept
+  explicit.
 
 - Feature-doc drift predicates now live in a focused harness module, reducing
   `docs-drift.mjs` from 866 to 628 lines while keeping the existing public

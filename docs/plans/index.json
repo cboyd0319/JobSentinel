@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastUpdated": "2026-06-04",
+  "lastUpdated": "2026-06-05",
   "goal": "Move JobSentinel toward zero known errors, privacy leaks, stale docs, brittle tests, user-facing technical assumptions, engineer-only defaults, and unverified claims.",
   "activeWorkstreams": [
     {
