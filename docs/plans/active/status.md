@@ -364,6 +364,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 - Developer-doc bloat fixture coverage moved out of the docs-drift bloat test
   file into a focused developer-doc test file.
 
+- Resume-focused product-copy fixture coverage moved out of the main
+  product-copy test file into a focused resume product-copy test file.
+
 ## Recent Completed Slices
 
 Detailed implementation history before the current restart window is in the

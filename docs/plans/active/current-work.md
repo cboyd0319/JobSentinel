@@ -185,6 +185,8 @@ Out of scope:
   product-copy test file.
 - [x] Split support/docs product-copy fixture coverage out of the main
   product-copy test file.
+- [x] Split resume-focused product-copy fixture coverage out of the main
+  product-copy test file.
 - [x] Retire the main product-copy test file's legacy oversized-file exception
   after bringing it below the 1,200-line test target.
 - [x] Split technical-first fallback product-copy pattern coverage out of the
@@ -502,6 +504,9 @@ Out of scope:
 - Coordinator moved developer-doc bloat fixture coverage into
   `scripts/check-repo-bloat-developer-docs.test.mjs`, reducing the docs-drift
   bloat test file from 1,176 to 847 lines.
+- Coordinator moved resume-focused product-copy fixture coverage into
+  `scripts/check-product-copy-resume.test.mjs`, reducing the main product-copy
+  test file from 1,164 to 879 lines.
 - Pay-protection sidecar was read-only and changed no files. Coordinator
   accepted its finding that negotiation-note drafts could treat benchmark
   values as offer facts, then fixed the Salary page, dev mock, tests, feature
