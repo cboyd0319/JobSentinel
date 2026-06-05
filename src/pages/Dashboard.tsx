@@ -6,7 +6,6 @@ import {
   useState,
   useCallback,
   useRef,
-  useId,
   lazy,
   Suspense,
 } from "react";
@@ -24,8 +23,6 @@ import { useKeyboardNavigation } from "../hooks/useKeyboardNavigation";
 import { logError } from "../utils/errorUtils";
 import { SCORE_THRESHOLD_GOOD } from "../utils/constants";
 import { notifyScrapingComplete } from "../utils/notifications";
-import { formatSalaryNumber } from "../utils/formatUtils";
-import { formatJobSourceLabel } from "../utils/sourceLabels";
 import {
   cachedInvoke,
   invalidateCacheByCommand,
@@ -62,7 +59,6 @@ import type {
   SavedSearch,
 } from "./DashboardTypes";
 import {
-  TrashIcon,
   CheckCircleIcon,
 } from "./DashboardIcons";
 import { useDashboardFilters } from "./hooks/useDashboardFilters";
@@ -75,15 +71,10 @@ import { DashboardHeader } from "./DashboardUI/DashboardHeader";
 import { DashboardStats } from "./DashboardUI/DashboardStats";
 import { DashboardCompareModal } from "./DashboardUI/DashboardCompareModal";
 import { DashboardJobList } from "./DashboardUI/DashboardJobList";
+import { DashboardNotesModal } from "./DashboardUI/DashboardNotesModal";
+import { DashboardSaveSearchModal } from "./DashboardUI/DashboardSaveSearchModal";
 import { DuplicateGroupCard } from "./DashboardUI/DuplicateGroupCard";
 import { QuickActions } from "./DashboardUI/QuickActions";
-import {
-  formatBookmarkFilter,
-  formatNotesFilter,
-  formatRemoteFilter,
-  formatScoreFilter,
-  formatSortOption,
-} from "./DashboardUI/filterLabels";
 import { getNoJobsEmptyStateCopy } from "./DashboardUI/noJobsEmptyStateCopy";
 
 interface DashboardPreferences {
@@ -135,8 +126,6 @@ export default function Dashboard({
   const searchInputRef = useRef<HTMLInputElement>(null!);
   const fetchDataRef = useRef<(() => Promise<void>) | null>(null);
 
-  // Accessibility IDs (SSR-safe)
-  const saveSearchNameId = useId();
   const cooldownIntervalRef = useRef<ReturnType<typeof setInterval> | null>(
     null,
   );
@@ -670,165 +659,43 @@ export default function Dashboard({
         </section>
       </main>
 
-      {/* Notes Modal */}
-      <Modal
+      <DashboardNotesModal
         isOpen={jobOps.notesModalOpen}
+        notesText={jobOps.notesText}
+        onChange={jobOps.setNotesText}
         onClose={jobOps.handleCloseNotesModal}
-        title="Edit Notes"
-      >
-        <div className="space-y-4">
-          <p className="text-sm text-surface-600 dark:text-surface-400">
-            Add personal notes about this job. Notes are only visible to you.
-          </p>
-          <textarea
-            value={jobOps.notesText}
-            onChange={(e) => jobOps.setNotesText(e.target.value)}
-            placeholder="Interview prep, company research, questions to ask..."
-            className="w-full h-32 px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 placeholder-surface-400 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500 dark:focus:border-sentinel-400 dark:focus-visible:ring-sentinel-400 resize-none"
-            aria-label="Job notes"
-            autoFocus
-          />
-          <ModalFooter>
-            <Button variant="secondary" onClick={jobOps.handleCloseNotesModal}>
-              Cancel
-            </Button>
-            <Button onClick={jobOps.handleSaveNotes}>
-              {jobOps.notesText.trim() ? "Save Notes" : "Remove Notes"}
-            </Button>
-          </ModalFooter>
-        </div>
-      </Modal>
+        onSave={jobOps.handleSaveNotes}
+      />
 
-      {/* Save Search Modal */}
-      <Modal
+      <DashboardSaveSearchModal
+        currentFilters={{
+          sortBy: filters.sortBy,
+          scoreFilter: filters.scoreFilter,
+          sourceFilter: filters.sourceFilter,
+          remoteFilter: filters.remoteFilter,
+          bookmarkFilter: filters.bookmarkFilter,
+          notesFilter: filters.notesFilter,
+          postedDateFilter: filters.postedDateFilter,
+          salaryMinFilter: filters.salaryMinFilter,
+          salaryMaxFilter: filters.salaryMaxFilter,
+        }}
         isOpen={savedSearches.saveSearchModalOpen}
         onClose={() => {
           savedSearches.setSaveSearchModalOpen(false);
           savedSearches.setNewSearchName("");
         }}
-        title="Save Current Filters"
-      >
-        <div className="space-y-4">
-          <p className="text-sm text-surface-600 dark:text-surface-400">
-            Save your current filter settings to quickly apply them later.
-          </p>
-          <div>
-            <label
-              htmlFor={saveSearchNameId}
-              className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1"
-            >
-              Name
-            </label>
-            <input
-              id={saveSearchNameId}
-              type="text"
-              value={savedSearches.newSearchName}
-              onChange={(e) => savedSearches.setNewSearchName(e.target.value)}
-              placeholder="e.g., Remote Customer Support"
-              className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 placeholder-surface-400 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500 dark:focus:border-sentinel-400 dark:focus-visible:ring-sentinel-400"
-              autoFocus
-              onKeyDown={(e) => {
-                if (e.key === "Enter")
-                  savedSearches.handleSaveSearch(filters.getCurrentFilters);
-              }}
-            />
-          </div>
-          <div className="text-xs text-surface-500 dark:text-surface-400">
-            <p className="font-medium mb-1">Current filters:</p>
-            <ul className="list-disc list-inside space-y-0.5">
-              <li>Sort: {formatSortOption(filters.sortBy)}</li>
-              {filters.scoreFilter !== "all" && (
-                <li>Fit: {formatScoreFilter(filters.scoreFilter)}</li>
-              )}
-              {filters.sourceFilter !== "all" && (
-                <li>Source: {formatJobSourceLabel(filters.sourceFilter)}</li>
-              )}
-              {filters.remoteFilter !== "all" && (
-                <li>Location: {formatRemoteFilter(filters.remoteFilter)}</li>
-              )}
-              {filters.bookmarkFilter !== "all" && (
-                <li>Saved: {formatBookmarkFilter(filters.bookmarkFilter)}</li>
-              )}
-              {filters.notesFilter !== "all" && (
-                <li>Notes: {formatNotesFilter(filters.notesFilter)}</li>
-              )}
-              {filters.postedDateFilter !== "all" && (
-                <li>
-                  Posted:{" "}
-                  {filters.postedDateFilter === "24h"
-                    ? "Last 24 hours"
-                    : filters.postedDateFilter === "7d"
-                      ? "Last 7 days"
-                      : "Last 30 days"}
-                </li>
-              )}
-              {filters.salaryMinFilter !== null && (
-                <li>Min salary: {formatSalaryNumber(filters.salaryMinFilter)}</li>
-              )}
-              {filters.salaryMaxFilter !== null && (
-                <li>Max salary: {formatSalaryNumber(filters.salaryMaxFilter)}</li>
-              )}
-            </ul>
-          </div>
-          {savedSearches.savedSearches.length > 0 && (
-            <div className="border-t border-surface-200 dark:border-surface-700 pt-4">
-              <p className="text-xs font-medium text-surface-500 dark:text-surface-400 mb-2">
-                Saved searches ({savedSearches.savedSearches.length})
-              </p>
-              <div className="space-y-1 max-h-32 overflow-y-auto">
-                {savedSearches.savedSearches.map((search) => (
-                  <div
-                    key={search.id}
-                    className="flex items-center justify-between px-2 py-1 rounded hover:bg-surface-100 dark:hover:bg-surface-700 group"
-                  >
-                    <button
-                      onClick={() => {
-                        savedSearches.handleLoadSearch(
-                          search,
-                          filters.loadFilters,
-                        );
-                        savedSearches.setSaveSearchModalOpen(false);
-                      }}
-                      className="text-sm text-surface-600 dark:text-surface-300 hover:text-sentinel-600 dark:hover:text-sentinel-400 text-left flex-1"
-                      aria-label={`Load saved search: ${search.name}`}
-                    >
-                      {search.name}
-                    </button>
-                    <button
-                      onClick={() =>
-                        savedSearches.handleDeleteSearch(search.id)
-                      }
-                      className="p-1 text-surface-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-                      aria-label={`Delete "${search.name}"`}
-                    >
-                      <TrashIcon className="w-4 h-4" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-          <ModalFooter>
-            <Button
-              variant="secondary"
-              onClick={() => {
-                savedSearches.setSaveSearchModalOpen(false);
-                savedSearches.setNewSearchName("");
-              }}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={() =>
-                savedSearches.handleSaveSearch(filters.getCurrentFilters)
-              }
-              disabled={!savedSearches.newSearchName.trim()}
-            >
-              Save
-            </Button>
-          </ModalFooter>
-        </div>
-      </Modal>
+        newSearchName={savedSearches.newSearchName}
+        savedSearches={savedSearches.savedSearches}
+        onDeleteSearch={savedSearches.handleDeleteSearch}
+        onLoadSearch={(search) => {
+          savedSearches.handleLoadSearch(search, filters.loadFilters);
+          savedSearches.setSaveSearchModalOpen(false);
+        }}
+        onNameChange={savedSearches.setNewSearchName}
+        onSave={() =>
+          savedSearches.handleSaveSearch(filters.getCurrentFilters)
+        }
+      />
 
       {/* Possible repeats modal */}
       <Modal

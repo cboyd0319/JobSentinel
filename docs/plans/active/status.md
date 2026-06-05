@@ -50,6 +50,23 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Dashboard notes and saved-search modal markup now lives in
+  `src/pages/DashboardUI/DashboardNotesModal.tsx` and
+  `src/pages/DashboardUI/DashboardSaveSearchModal.tsx`, reducing
+  `src/pages/Dashboard.tsx` from 937 to 804 lines without changing job search,
+  filters, saved-search persistence, notes save/remove behavior, duplicate
+  review, import, or company research behavior.
+
+- Focused verification for the Dashboard modal split passed:
+  `npm run test:run -- src/pages/Dashboard.test.tsx
+  src/pages/hooks/useDashboardJobOps.test.ts
+  src/pages/hooks/useDashboardSavedSearches.test.ts
+  src/pages/DashboardUI/DashboardHeader.test.tsx
+  src/pages/DashboardUI/DashboardFiltersBar.test.tsx
+  src/pages/DashboardUI/QuickActions.test.tsx
+  src/pages/DashboardUI/filterLabels.test.ts`, `npm run build`,
+  `npm run lint`, and `npm run lint:bloat`.
+
 - Resume Builder work-experience and education modal markup now lives in
   `src/pages/ResumeBuilderExperienceModal.tsx` and
   `src/pages/ResumeBuilderEducationModal.tsx`, reducing
