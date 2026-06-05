@@ -224,6 +224,8 @@ Out of scope:
   retire its legacy oversized-file exception.
 - [x] Split Application Preview hard-screening tests out of the main component
   test file and retire its legacy oversized-file exception.
+- [x] Split Screening Answers Form interaction tests out of the main component
+  test file and retire its legacy oversized-file exception.
 - [x] Split Settings search-preference UI out of the main Settings page.
 - [x] Split Resume Builder data transforms out of the main Resume Builder page.
 - [x] Split DB duplicate tests out of the main DB test file.

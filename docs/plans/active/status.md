@@ -50,6 +50,15 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Screening Answers Form answer-input, validation, and submission tests moved
+  out of `src/components/automation/ScreeningAnswersForm.test.tsx` into
+  `src/components/automation/ScreeningAnswersForm.form.test.tsx`.
+- Both Screening Answers Form test files are below the 1,200-line test target,
+  so the legacy oversized-file exception was removed.
+- Runtime component code was unchanged; only Vitest suite ownership changed.
+
+Earlier implementation slice:
+
 - Application Preview hard-screening question tests moved out of
   `src/components/automation/ApplicationPreview.test.tsx` into
   `src/components/automation/ApplicationPreview.screening.test.tsx`.
