@@ -5,7 +5,7 @@ relevant, fairly compensated work while keeping sensitive job-search data under 
 control.**
 
 **Current active-plan status: 100% of the current active-plan checklist is
-complete, with 135 of 135 tracked items checked off.** The repo-wide readiness
+complete, with 136 of 136 tracked items checked off.** The repo-wide readiness
 goal remains open until the completion bar in
 [active plan status](docs/plans/active/status.md) is proven from current
 evidence: no known bloat, privacy leak, stale docs, engineer-only user flow, or

@@ -50,6 +50,16 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Mock user-data command bodies moved out of `src/mocks/handlers.ts` into
+  `src/mocks/handlers/userDataCommands.ts`.
+- The main mock handler keeps the backend command `case` labels for harness
+  contract scans and still owns persisted mock state loading and saving.
+- `src/mocks/handlers.ts` legacy no-growth budget tightened from 1,645 lines to
+  1,549 lines. The file remains a grandfathered oversized exception until
+  later helper splits bring it below the 1,200-line test/mock target.
+
+Earlier implementation slice:
+
 - Greenhouse scraper tests moved out of
   `src-tauri/src/core/scrapers/greenhouse.rs` into
   `src-tauri/src/core/scrapers/greenhouse_tests.rs`.

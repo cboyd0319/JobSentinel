@@ -52,8 +52,8 @@ import {
   saveMockInterviewFollowup,
   saveMockInterviewPrepItem,
 } from "./handlers/interviewProgress";
+import { handleMockUserDataCommand } from "./handlers/userDataCommands";
 import {
-  getDefaultMockCoverLetterTemplates,
   getNextMockCoverLetterTemplateId,
   getNextMockSavedSearchId,
   normalizeMockCoverLetterTemplate,
@@ -309,6 +309,33 @@ function loadMockState(): void {
   } catch {
     window.localStorage.removeItem(MOCK_STATE_KEY);
   }
+}
+
+function applyMockUserDataCommand<T>(
+  command: string,
+  args: Record<string, unknown> | undefined,
+): T {
+  const result = handleMockUserDataCommand(command, args, {
+    coverLetterTemplates,
+    savedSearches,
+    searchHistory,
+    notificationPreferences,
+  });
+
+  if (!result.handled) {
+    return undefined as T;
+  }
+
+  coverLetterTemplates = result.state.coverLetterTemplates;
+  savedSearches = result.state.savedSearches;
+  searchHistory = result.state.searchHistory;
+  notificationPreferences = result.state.notificationPreferences;
+
+  if (result.shouldSave) {
+    saveMockState();
+  }
+
+  return result.value as T;
 }
 
 loadMockState();
@@ -1442,145 +1469,22 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
     }
 
     // Cover letter templates
-    case "seed_default_templates": {
-      if (coverLetterTemplates.length > 0) {
-        return 0 as T;
-      }
-      coverLetterTemplates = getDefaultMockCoverLetterTemplates();
-      saveMockState();
-      return coverLetterTemplates.length as T;
-    }
-
+    case "seed_default_templates":
     case "list_cover_letter_templates":
-      return coverLetterTemplates.map((template) => ({ ...template })) as T;
-
     case "get_cover_letter_template":
-      return (
-        coverLetterTemplates.find((template) => template.id === getStringArg(args, "id")) ?? null
-      ) as T;
-
-    case "create_cover_letter_template": {
-      const now = new Date().toISOString();
-      const template = normalizeMockCoverLetterTemplate({
-        id: getNextMockCoverLetterTemplateId(coverLetterTemplates),
-        name: getStringArg(args, "name"),
-        content: getStringArg(args, "content"),
-        category: getStringArg(args, "category"),
-        createdAt: now,
-        updatedAt: now,
-      }, getNextMockCoverLetterTemplateId(coverLetterTemplates));
-      coverLetterTemplates = [
-        template,
-        ...coverLetterTemplates.filter((existing) => existing.id !== template.id),
-      ];
-      saveMockState();
-      return { ...template } as T;
-    }
-
-    case "update_cover_letter_template": {
-      const id = getStringArg(args, "id");
-      const existingTemplate = coverLetterTemplates.find((template) => template.id === id);
-      if (!existingTemplate) {
-        return null as T;
-      }
-
-      const updatedTemplate = normalizeMockCoverLetterTemplate({
-        ...existingTemplate,
-        name: getStringArg(args, "name") ?? existingTemplate.name,
-        content: getStringArg(args, "content") ?? existingTemplate.content,
-        category: getStringArg(args, "category") ?? existingTemplate.category,
-        updatedAt: new Date().toISOString(),
-      }, getNextMockCoverLetterTemplateId(coverLetterTemplates));
-      coverLetterTemplates = coverLetterTemplates.map((template) =>
-        template.id === id ? updatedTemplate : template,
-      );
-      saveMockState();
-      return { ...updatedTemplate } as T;
-    }
-
-    case "delete_cover_letter_template": {
-      const id = getStringArg(args, "id");
-      const initialLength = coverLetterTemplates.length;
-      coverLetterTemplates = coverLetterTemplates.filter((template) => template.id !== id);
-      const deleted = coverLetterTemplates.length !== initialLength;
-      if (deleted) saveMockState();
-      return deleted as T;
-    }
-
-    // Notification preferences
-    case "get_notification_preferences": {
-      if (!notificationPreferences) {
-        notificationPreferences = normalizeMockNotificationPreferences(null);
-        saveMockState();
-      }
-      return normalizeMockNotificationPreferences(notificationPreferences) as T;
-    }
-
+    case "create_cover_letter_template":
+    case "update_cover_letter_template":
+    case "delete_cover_letter_template":
+    case "get_notification_preferences":
     case "save_notification_preferences":
-      notificationPreferences = normalizeMockNotificationPreferences(getArg(args, "prefs"));
-      saveMockState();
-      return undefined as T;
-
-    // Search history and saved searches
-    case "get_search_history": {
-      const limit = Math.max(0, Math.min(getNumericArg(args, "limit") ?? 20, 50));
-      return searchHistory.slice(0, limit) as T;
-    }
-
+    case "get_search_history":
     case "list_saved_searches":
-      return savedSearches.map((search) => ({ ...search })) as T;
-
-    case "create_saved_search": {
-      const search = {
-        ...normalizeMockSavedSearch(
-          getArg(args, "search"),
-          getNextMockSavedSearchId(savedSearches),
-        ),
-        createdAt: new Date().toISOString(),
-        lastUsedAt: null,
-      };
-      savedSearches = [search, ...savedSearches.filter((saved) => saved.id !== search.id)];
-      saveMockState();
-      return { ...search } as T;
-    }
-
-    case "use_saved_search": {
-      let found = false;
-      const lastUsedAt = new Date().toISOString();
-      savedSearches = savedSearches.map((search) => {
-        if (search.id !== getStringArg(args, "id")) return search;
-        found = true;
-        return { ...search, lastUsedAt };
-      });
-      if (found) saveMockState();
-      return found as T;
-    }
-
-    case "delete_saved_search": {
-      const id = getStringArg(args, "id");
-      const initialLength = savedSearches.length;
-      savedSearches = savedSearches.filter((search) => search.id !== id);
-      const deleted = savedSearches.length !== initialLength;
-      if (deleted) saveMockState();
-      return deleted as T;
-    }
-
-    case "add_search_history": {
-      const query = getStringArg(args, "query")?.trim();
-      if (query && query.length >= 2) {
-        searchHistory = [
-          query,
-          ...searchHistory.filter((entry) => entry !== query),
-        ].slice(0, 50);
-        saveMockState();
-      }
-      return undefined as T;
-    }
-
+    case "create_saved_search":
+    case "use_saved_search":
+    case "delete_saved_search":
+    case "add_search_history":
     case "clear_search_history":
-      searchHistory = [];
-      saveMockState();
-      return undefined as T;
+      return applyMockUserDataCommand<T>(cmd, args);
 
     default:
       return undefined as T;

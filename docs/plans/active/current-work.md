@@ -220,6 +220,8 @@ Out of scope:
   retire its legacy oversized-file exception.
 - [x] Split Greenhouse scraper tests out of the runtime scraper file and retire
   its legacy oversized-file exception.
+- [x] Split mock user-data command bodies out of the main mock handler and
+  tighten its legacy no-growth budget.
 - [x] Split ATS status, reminder, and stats edge tests out of the main ATS test
   file and retire its legacy oversized-file exception.
 - [x] Split resume database coverage tests out of the main resume test file and

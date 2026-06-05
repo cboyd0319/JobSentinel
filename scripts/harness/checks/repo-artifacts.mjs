@@ -139,7 +139,7 @@ const maintainableTextLineLimits = {
 };
 
 const legacyOversizedLineBudgets = new Map([
-  ["src/mocks/handlers.ts", 1645],
+  ["src/mocks/handlers.ts", 1549],
   ["src-tauri/src/core/resume/ats_analyzer.rs", 1571],
   ["src/pages/ResumeBuilder.tsx", 1770],
   ["src-tauri/src/core/notify/slack.rs", 1759],
