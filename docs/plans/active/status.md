@@ -51,6 +51,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Job-card low-detail cues now flag generic remote and entry-level titles as
+  role details to check before tailoring.
+
 - First-run source defaults no longer treat generic software sales,
   implementation, or support searches as engineering searches for tech-heavy
   job boards.

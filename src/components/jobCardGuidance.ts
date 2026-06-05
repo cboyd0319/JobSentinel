@@ -44,6 +44,8 @@ const LOW_DETAIL_TITLE_PATTERNS = [
   /^\s*(?:various|multiple)\s+(?:positions|roles|openings)\s*$/i,
   /^\s*(?:general|open)\s+(?:application|position|role|opening)\s*$/i,
   /^\s*(?:now hiring|hiring now|join our team)\s*$/i,
+  /^\s*(?:work\s+from\s+home|remote)\s+(?:job|position|role|opportunity|opening)\s*$/i,
+  /^\s*(?:entry\s+level|immediate\s+hire)\s+(?:job|position|role|opportunity|opening)\s*$/i,
 ] as const;
 
 const THIN_DESCRIPTION_PATTERN = /\b(?:apply|hiring|opportunity|position|role|team)\b/i;

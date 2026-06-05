@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  getLowDetailPostingGuidance,
   getPayFloorGuidance,
   getPostingRiskGuidance,
   getSalaryRangeQualityGuidance,
@@ -102,6 +103,17 @@ describe("jobCardGuidance", () => {
     ).toMatchObject({
       title: "Check posting evidence",
       ariaLabel: "posting evidence to check",
+    });
+  });
+
+  it("flags generic remote and entry-level titles as role details to check", () => {
+    expect(getLowDetailPostingGuidance("Remote Opportunity", "Apply today.")).toMatchObject({
+      title: "Check role details",
+      ariaLabel: "role details to check",
+    });
+    expect(getLowDetailPostingGuidance("Entry Level Position", "Join our team.")).toMatchObject({
+      title: "Check role details",
+      ariaLabel: "role details to check",
     });
   });
 
