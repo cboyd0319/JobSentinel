@@ -476,6 +476,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 - RemoteOK scraper tests moved into focused hash, parse, smoke, and tag modules;
   the scraper file now stays focused on API fetch/parse behavior.
 
+- JobsWithGPT scraper tests moved into `jobswithgpt/tests.rs`; the scraper file
+  now stays focused on MCP query and response parsing behavior.
+
 ## Recent Completed Slices
 
 Detailed implementation history before the current restart window is in the
