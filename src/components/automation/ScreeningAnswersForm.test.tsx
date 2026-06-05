@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ScreeningAnswersForm } from "./ScreeningAnswersForm";
+import { mockAnswers } from "./ScreeningAnswersForm.testData";
 
 // Mock Tauri invoke
 const mockInvoke = vi.fn();
@@ -19,36 +20,6 @@ const mockToast = {
 vi.mock("../../contexts", () => ({
   useToast: () => mockToast,
 }));
-
-const mockAnswers = [
-  {
-    id: 1,
-    questionPattern: "years of experience",
-    answer: "5 years",
-    answerType: "text",
-    notes: "Professional experience",
-    createdAt: "2024-01-01T00:00:00Z",
-    updatedAt: "2024-01-01T00:00:00Z",
-  },
-  {
-    id: 2,
-    questionPattern: "relocate",
-    answer: "Yes",
-    answerType: "yes_no",
-    notes: null,
-    createdAt: "2024-01-02T00:00:00Z",
-    updatedAt: "2024-01-02T00:00:00Z",
-  },
-  {
-    id: 3,
-    questionPattern: "cover letter",
-    answer: "I am passionate about software development...",
-    answerType: "textarea",
-    notes: "Cover letter template",
-    createdAt: "2024-01-03T00:00:00Z",
-    updatedAt: "2024-01-03T00:00:00Z",
-  },
-];
 
 describe("ScreeningAnswersForm", () => {
   beforeEach(() => {
@@ -882,175 +853,6 @@ describe("ScreeningAnswersForm", () => {
       await waitFor(() => {
         expect(mockToast.error).toHaveBeenCalledTimes(1);
       });
-    });
-  });
-
-  describe("accessibility", () => {
-    beforeEach(() => {
-      mockInvoke.mockResolvedValue([]);
-    });
-
-    it("modal has proper dialog role", async () => {
-      const user = userEvent.setup();
-      render(<ScreeningAnswersForm />);
-
-      await waitFor(() => {
-        expect(
-          screen.getByRole("button", { name: /add answer/i }),
-        ).toBeInTheDocument();
-      });
-
-      await user.click(screen.getByRole("button", { name: /add answer/i }));
-
-      await waitFor(() => {
-        expect(screen.getByRole("dialog")).toBeInTheDocument();
-      });
-    });
-
-    it("form fields have proper labels", async () => {
-      const user = userEvent.setup();
-      render(<ScreeningAnswersForm />);
-
-      await waitFor(() => {
-        expect(
-          screen.getByRole("button", { name: /add answer/i }),
-        ).toBeInTheDocument();
-      });
-
-      await user.click(screen.getByRole("button", { name: /add answer/i }));
-
-      await waitFor(() => {
-        expect(screen.getByLabelText(/question wording to look for/i)).toBeInTheDocument();
-        expect(screen.getByLabelText(/answer type/i)).toBeInTheDocument();
-        expect(screen.getByLabelText(/your answer/i)).toBeInTheDocument();
-        expect(screen.getByLabelText(/notes/i)).toBeInTheDocument();
-      });
-    });
-
-    it("edit buttons have descriptive aria-label", async () => {
-      mockInvoke.mockResolvedValue(mockAnswers);
-      render(<ScreeningAnswersForm />);
-
-      await waitFor(() => {
-        const editButtons = screen.getAllByLabelText("Edit answer");
-        expect(editButtons.length).toBeGreaterThan(0);
-      });
-    });
-
-    it("required fields are marked", async () => {
-      const user = userEvent.setup();
-      render(<ScreeningAnswersForm />);
-
-      await waitFor(() => {
-        expect(
-          screen.getByRole("button", { name: /add answer/i }),
-        ).toBeInTheDocument();
-      });
-
-      await user.click(screen.getByRole("button", { name: /add answer/i }));
-
-      await waitFor(() => {
-        const patternInput = screen.getByLabelText(/question wording to look for/i);
-        const answerInput = screen.getByLabelText(/your answer/i);
-        expect(patternInput).toHaveAttribute("required");
-        expect(answerInput).toHaveAttribute("required");
-      });
-    });
-
-    it("error messages have proper aria attributes", async () => {
-      const user = userEvent.setup();
-      render(<ScreeningAnswersForm />);
-
-      await waitFor(() => {
-        expect(
-          screen.getByRole("button", { name: /add answer/i }),
-        ).toBeInTheDocument();
-      });
-
-      await user.click(screen.getByRole("button", { name: /add answer/i }));
-
-      const answerInput = screen.getByLabelText(/your answer/i);
-      await user.click(answerInput);
-      fireEvent.blur(answerInput);
-
-      await waitFor(() => {
-        expect(answerInput).toHaveAttribute("aria-invalid", "true");
-      });
-    });
-  });
-
-  describe("maxLength attributes", () => {
-    beforeEach(() => {
-      mockInvoke.mockResolvedValue([]);
-    });
-
-    it("question wording to look for has maxLength of 200", async () => {
-      const user = userEvent.setup();
-      render(<ScreeningAnswersForm />);
-
-      await waitFor(() => {
-        expect(
-          screen.getByRole("button", { name: /add answer/i }),
-        ).toBeInTheDocument();
-      });
-
-      await user.click(screen.getByRole("button", { name: /add answer/i }));
-
-      const patternInput = screen.getByLabelText(/question wording to look for/i);
-      expect(patternInput).toHaveAttribute("maxLength", "200");
-    });
-
-    it("answer input has maxLength of 500 for text type", async () => {
-      const user = userEvent.setup();
-      render(<ScreeningAnswersForm />);
-
-      await waitFor(() => {
-        expect(
-          screen.getByRole("button", { name: /add answer/i }),
-        ).toBeInTheDocument();
-      });
-
-      await user.click(screen.getByRole("button", { name: /add answer/i }));
-
-      const answerInput = screen.getByLabelText(/your answer/i);
-      expect(answerInput).toHaveAttribute("maxLength", "500");
-    });
-
-    it("textarea has maxLength of 2000", async () => {
-      const user = userEvent.setup();
-      render(<ScreeningAnswersForm />);
-
-      await waitFor(() => {
-        expect(
-          screen.getByRole("button", { name: /add answer/i }),
-        ).toBeInTheDocument();
-      });
-
-      await user.click(screen.getByRole("button", { name: /add answer/i }));
-
-      const answerTypeSelect = screen.getByLabelText(/answer type/i);
-      await user.selectOptions(answerTypeSelect, "textarea");
-
-      await waitFor(() => {
-        const answerInput = screen.getByLabelText(/your answer/i);
-        expect(answerInput).toHaveAttribute("maxLength", "2000");
-      });
-    });
-
-    it("notes field has maxLength of 500", async () => {
-      const user = userEvent.setup();
-      render(<ScreeningAnswersForm />);
-
-      await waitFor(() => {
-        expect(
-          screen.getByRole("button", { name: /add answer/i }),
-        ).toBeInTheDocument();
-      });
-
-      await user.click(screen.getByRole("button", { name: /add answer/i }));
-
-      const notesInput = screen.getByLabelText(/notes/i);
-      expect(notesInput).toHaveAttribute("maxLength", "500");
     });
   });
 });

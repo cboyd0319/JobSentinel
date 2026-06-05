@@ -429,6 +429,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
   of the main dashboard test file into a focused frontend test, with shared
   fixtures extracted for both specs.
 
+- ScreeningAnswersForm accessibility and max-length contract tests moved out
+  of the main screening-answer test file into a focused frontend test, with
+  shared saved-answer fixtures extracted for both specs.
+
 ## Recent Completed Slices
 
 Detailed implementation history before the current restart window is in the

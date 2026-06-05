@@ -843,20 +843,10 @@ Out of scope:
   `src-tauri/src/core/salary/benchmarks_tests/manager_tests.rs`. The main
   salary benchmark test file still owns formatting, competitiveness,
   negotiation, percentile, seniority, and location comparison coverage.
-- Coordinator moved JobCard posting-risk guidance tests into
-  `src/components/JobCard.postingRisk.test.tsx`. The main JobCard test file
-  still owns rendering, score display, salary, dates, actions, selected state,
-  and accessibility coverage.
-- Coordinator moved mock resume-analysis availability and location
-  hard-constraint tests into
-  `src/mocks/handlers/resumeAnalysisAvailabilityConstraints.test.ts`. The main
-  mock resume-analysis command test still owns backend command-name coverage,
-  synonym evidence, seniority constraints, and active-resume hard-risk checks.
-- Coordinator moved ScraperHealthDashboard source-check, refresh, and
-  formatting tests into `src/components/ScraperHealthDashboard.sourceChecks.test.tsx`
-  with shared fixtures in `src/components/ScraperHealthDashboard.testData.ts`.
-  The main dashboard test still owns loading, error, header, summary,
-  credential, table, source action, and history coverage.
+- Latest focused frontend splits: JobCard posting-risk guidance, mock
+  resume-analysis availability/location constraints, ScraperHealthDashboard
+  source-check coverage, and ScreeningAnswersForm contract coverage now live in
+  separate focused test files. `status.md` keeps the full recent-slice index.
 
 ## Risks
 
