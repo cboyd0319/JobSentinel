@@ -301,11 +301,30 @@ function extractMockHardConstraintKeywords(jobDescription: string): string[] {
   if ([...keywords].some((keyword) => specificCertificationKeywords.includes(keyword))) {
     keywords.delete("certification");
   }
+  for (const keyword of [...keywords]) {
+    if (isMockAgeRequirementKeyword(keyword)) {
+      keywords.delete(keyword);
+    }
+  }
   for (const keyword of extractMockSeniorityConstraintKeywords(jobDescription)) {
     keywords.add(keyword);
   }
 
   return [...keywords].sort();
+}
+
+function isMockAgeRequirementKeyword(keyword: string): boolean {
+  const lower = keyword.toLowerCase();
+  return [
+    "year of age",
+    "years of age",
+    "yr of age",
+    "yrs of age",
+    "year old",
+    "years old",
+    "yr old",
+    "yrs old",
+  ].some((phrase) => lower.includes(phrase));
 }
 
 function hasMockDegreeEquivalentRequirement(text: string): boolean {

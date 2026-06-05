@@ -51,6 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Resume Match hard-constraint extraction no longer treats age wording such as
+  "18 years of age" as a years-experience requirement, and the dev mock now
+  matches the Rust analyzer behavior.
+
 - Schema.org job import now converts known non-yearly listed pay units such as
   hourly pay into yearly stored pay fields for pay-floor comparisons, while the
   import preview keeps the original listed unit visible.

@@ -389,6 +389,7 @@ pub(super) fn extract_hard_constraint_keywords(text: &str) -> Vec<String> {
     {
         keywords.remove("certification");
     }
+    keywords.retain(|keyword| !age_requirement_keyword(keyword));
     for keyword in extract_seniority_constraint_keywords(text) {
         keywords.insert(keyword);
     }
@@ -396,6 +397,18 @@ pub(super) fn extract_hard_constraint_keywords(text: &str) -> Vec<String> {
     let mut sorted_keywords = keywords.into_iter().collect::<Vec<_>>();
     sorted_keywords.sort();
     sorted_keywords
+}
+
+fn age_requirement_keyword(keyword: &str) -> bool {
+    let lower = keyword.to_lowercase();
+    lower.contains("year of age")
+        || lower.contains("years of age")
+        || lower.contains("yr of age")
+        || lower.contains("yrs of age")
+        || lower.contains("year old")
+        || lower.contains("years old")
+        || lower.contains("yr old")
+        || lower.contains("yrs old")
 }
 
 pub(super) fn extract_seniority_constraint_keywords(text: &str) -> Vec<String> {

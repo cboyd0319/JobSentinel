@@ -23,6 +23,23 @@ fn test_missing_required_years_constraint_caps_overall_score() {
 }
 
 #[test]
+fn test_age_requirement_is_not_years_experience_constraint() {
+    let result = AtsAnalyzer::analyze_text_for_job(
+        "Jordan Lee\njordan@example.com\n\nExperience\nHandled intake scheduling and case documentation.",
+        &[],
+        "Required: must be 18 years of age, CRM",
+    );
+
+    assert!(!result
+        .requirement_reviews
+        .iter()
+        .any(|review| review.keyword == "18 years of age" && review.hard_constraint));
+    assert!(!result.hard_constraint_risks.iter().any(|risk| {
+        risk.category == HardConstraintCategory::Experience && risk.requirement.contains("18 years")
+    }));
+}
+
+#[test]
 fn test_missing_required_senior_level_constraint_caps_overall_score() {
     let mut resume = sample_resume();
     resume.summary = "Client service coordinator with intake scheduling".to_string();
