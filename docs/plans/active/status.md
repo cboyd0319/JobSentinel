@@ -473,6 +473,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 - Bookmarklet server tests moved into `bookmarklet/server/tests.rs`; the server
   module now stays focused on listener/auth/import behavior.
 
+- RemoteOK scraper tests moved into focused hash, parse, smoke, and tag modules;
+  the scraper file now stays focused on API fetch/parse behavior.
+
 ## Recent Completed Slices
 
 Detailed implementation history before the current restart window is in the
