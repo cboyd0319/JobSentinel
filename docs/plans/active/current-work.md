@@ -217,6 +217,8 @@ Out of scope:
   test file.
 - [x] Split scheduler start-loop coverage tests out of the main scheduler test
   file and retire its legacy oversized-file exception.
+- [x] Split scheduler error-path coverage tests out of the main scheduler test
+  file.
 - [x] Split scoring company tests out of the main scoring module.
 - [x] Split remaining inline scoring tests out of the main scoring module and
   retire its legacy oversized-file exception.
@@ -517,6 +519,9 @@ Out of scope:
 - Coordinator moved DB field-update, ghost, repost, and company-count tests
   into `src-tauri/src/core/db/tests/tests/job_field_update_tests.rs`, reducing
   the main DB test file from 1,158 to 912 lines.
+- Coordinator moved scheduler error-path coverage tests into
+  `src-tauri/src/core/scheduler/tests/error_path_tests.rs`, reducing the main
+  scheduler test file from 1,155 to 739 lines.
 - Pay-protection sidecar was read-only and changed no files. Coordinator
   accepted its finding that negotiation-note drafts could treat benchmark
   values as offer facts, then fixed the Salary page, dev mock, tests, feature
