@@ -130,6 +130,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 - Company Research fallback data now lives in a focused module, keeping the
   panel small while preserving local known-company lookup behavior.
 
+- Interview Scheduler add-interview modal now lives in a focused component,
+  keeping the scheduler under the file-size limit.
+
 - First-run hourly pay controls now live in a focused setup component, keeping
   the main setup page farther below the file-size limit.
 

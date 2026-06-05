@@ -366,6 +366,8 @@ Out of scope:
   focused components so the main page sits under the file-size limit.
 - [x] Move local company-research fallback data into a focused module so the
   panel stays small and behavior-focused.
+- [x] Move Interview Scheduler add-interview modal into a focused component so
+  the scheduler stays under the file-size limit.
 
 ## Orchestration Log
 
@@ -458,6 +460,10 @@ Out of scope:
 - Coordinator moved local company-research fallback data into
   `src/components/companyResearchData.ts`, reducing the panel from 1,125 to 489
   lines while preserving known, cached, and unknown company behavior.
+- Coordinator accepted the Interview Scheduler sidecar's read-only audit and
+  moved the add-interview modal into `src/components/InterviewScheduleFormModal.tsx`,
+  reducing the scheduler from 1,166 to 999 lines without changing form labels,
+  shortcut handling, validation copy, or scheduling ownership.
 - Pay-protection sidecar was read-only and changed no files. Coordinator
   accepted its finding that negotiation-note drafts could treat benchmark
   values as offer facts, then fixed the Salary page, dev mock, tests, feature

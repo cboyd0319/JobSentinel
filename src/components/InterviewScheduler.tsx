@@ -4,6 +4,10 @@ import { Badge } from "./Badge";
 import { Button } from "./Button";
 import { Card } from "./Card";
 import { CompanyResearchPanel } from "./CompanyResearchPanel";
+import {
+  InterviewScheduleFormModal,
+  type InterviewScheduleFormData,
+} from "./InterviewScheduleFormModal";
 import { useToast } from "../contexts";
 import { formatInterviewDate, getRelativeTimeUntil } from "../utils/formatUtils";
 import { MIN_INTERVIEW_DURATION, MAX_INTERVIEW_DURATION } from "../utils/constants";
@@ -312,7 +316,7 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
   };
 
   // Form state
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<InterviewScheduleFormData>({
     application_id: 0,
     interview_type: "phone",
     scheduled_at: "",
@@ -730,189 +734,18 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
         </div>
       </Card>
 
-      {/* Add Interview Form Modal */}
       {showAddForm && (
-        <div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4"
-          onClick={(e) => e.target === e.currentTarget && setShowAddForm(false)}
-          onKeyDown={(e) => {
-            if (e.key === "Escape") setShowAddForm(false);
-            // Cmd+Enter to submit form
-            if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
-              e.preventDefault();
-              handleScheduleInterview();
-            }
-          }}
-          role="dialog"
-          aria-modal="true"
-        >
-          <Card className="w-full max-w-md dark:bg-surface-800">
-            <div className="p-6 space-y-4">
-              <h3 className="font-display text-display-sm text-surface-900 dark:text-white">
-                Schedule Interview
-              </h3>
-
-              <div>
-                <label htmlFor="app-select" className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
-                  Application (required)
-                </label>
-                <select
-                  id="app-select"
-                  value={formData.application_id}
-                  onChange={(e) => setFormData({ ...formData, application_id: Number(e.target.value) })}
-                  className="w-full px-3 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100"
-                >
-                  <option value={0}>Choose an application...</option>
-                  {applications.map((app) => (
-                    <option key={app.id} value={app.id}>
-                      {app.job_title} at {app.company}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label htmlFor="interview-type" className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
-                  Interview style
-                </label>
-                <select
-                  id="interview-type"
-                  value={formData.interview_type}
-                  onChange={(e) => setFormData({ ...formData, interview_type: e.target.value })}
-                  className="w-full px-3 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100"
-                >
-                  {INTERVIEW_TYPES.map((type) => (
-                    <option key={type.value} value={type.value}>
-                      {type.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label htmlFor="scheduled-at" className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
-                  Date and time (required)
-                </label>
-                <input
-                  type="datetime-local"
-                  id="scheduled-at"
-                  value={formData.scheduled_at}
-                  onChange={(e) => {
-                    setFormData({ ...formData, scheduled_at: e.target.value });
-                    // Clear error when user changes value
-                    if (dateError) setDateError(null);
-                  }}
-                  onBlur={(e) => {
-                    if (e.target.value) {
-                      const scheduledDate = new Date(e.target.value);
-                      if (scheduledDate < new Date()) {
-                        setDateError("Pick a time that has not passed.");
-                      }
-                    }
-                  }}
-                  min={new Date().toISOString().slice(0, 16)}
-                  className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 ${
-                    dateError
-                      ? 'border-red-500 dark:border-red-400 focus:ring-red-500'
-                      : 'border-surface-300 dark:border-surface-600'
-                  }`}
-                  aria-invalid={!!dateError}
-                  aria-describedby={dateError ? "scheduled-at-error" : undefined}
-                />
-                {dateError && (
-                  <p id="scheduled-at-error" className="mt-1 text-sm text-red-600 dark:text-red-400">
-                    {dateError}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label htmlFor="duration" className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
-                  Duration (minutes)
-                </label>
-                <select
-                  id="duration"
-                  value={formData.duration_minutes}
-                  onChange={(e) => setFormData({ ...formData, duration_minutes: Number(e.target.value) })}
-                  className="w-full px-3 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100"
-                >
-                  <option value={30}>30 minutes</option>
-                  <option value={45}>45 minutes</option>
-                  <option value={60}>60 minutes</option>
-                  <option value={90}>90 minutes</option>
-                  <option value={120}>2 hours</option>
-                </select>
-              </div>
-
-              <div>
-                <label htmlFor="location" className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
-                  Location or meeting link
-                </label>
-                <input
-                  type="text"
-                  id="location"
-                  value={formData.location}
-                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                  placeholder="Zoom, Google Meet, or address"
-                  autoComplete="off"
-                  className="w-full px-3 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label htmlFor="interviewer-name" className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
-                    Interviewer Name
-                  </label>
-                  <input
-                    type="text"
-                    id="interviewer-name"
-                    value={formData.interviewer_name}
-                    onChange={(e) => setFormData({ ...formData, interviewer_name: e.target.value })}
-                    autoComplete="name"
-                    className="w-full px-3 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="interviewer-title" className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
-                    Their role
-                  </label>
-                  <input
-                    type="text"
-                    id="interviewer-title"
-                    value={formData.interviewer_title}
-                    onChange={(e) => setFormData({ ...formData, interviewer_title: e.target.value })}
-                    className="w-full px-3 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label htmlFor="notes" className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
-                  Notes
-                </label>
-                <textarea
-                  id="notes"
-                  value={formData.notes}
-                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  rows={2}
-                  placeholder="Preparation notes, topics to cover..."
-                  maxLength={1000}
-                  className="w-full px-3 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 resize-none"
-                />
-              </div>
-
-              <div className="flex gap-3 pt-2">
-                <Button variant="secondary" onClick={() => setShowAddForm(false)} disabled={scheduling} className="flex-1">
-                  Cancel
-                </Button>
-                <Button variant="primary" onClick={handleScheduleInterview} loading={scheduling} loadingText="Scheduling..." className="flex-1">
-                  Schedule
-                </Button>
-              </div>
-            </div>
-          </Card>
-        </div>
+        <InterviewScheduleFormModal
+          applications={applications}
+          dateError={dateError}
+          formData={formData}
+          interviewTypes={INTERVIEW_TYPES}
+          scheduling={scheduling}
+          onClose={() => setShowAddForm(false)}
+          onDateErrorChange={setDateError}
+          onFormDataChange={setFormData}
+          onSchedule={handleScheduleInterview}
+        />
       )}
 
       {/* Interview Detail Modal */}
