@@ -209,6 +209,7 @@ Out of scope:
 - [x] Split Settings search-preference UI out of the main Settings page.
 - [x] Split Resume Builder data transforms out of the main Resume Builder page.
 - [x] Split DB duplicate tests out of the main DB test file.
+- [x] Split config email alert tests out of the main config test file.
 
 ## Orchestration Log
 
