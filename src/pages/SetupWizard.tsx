@@ -112,6 +112,9 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
     config.location_preferences.allow_remote ||
     config.location_preferences.allow_hybrid ||
     config.location_preferences.allow_onsite;
+  const addedResumeSuggestionCount = resumeSkillSuggestions.filter((skill) =>
+    config.keywords_boost.includes(skill)
+  ).length;
 
   useEffect(() => {
     let cancelled = false;
@@ -640,9 +643,14 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                       size="sm"
                       onClick={handleSkipResumeSuggestions}
                     >
-                      Skip resume suggestions
+                      Hide suggestions
                     </Button>
                   </div>
+                  {addedResumeSuggestionCount > 0 && (
+                    <p className="mb-2 text-xs text-surface-500">
+                      Added skills appear above. Remove any you do not want.
+                    </p>
+                  )}
                   <div className="flex flex-wrap gap-2">
                     {resumeSkillSuggestions.map((skill) => {
                       const alreadyAdded = config.keywords_boost.includes(skill);

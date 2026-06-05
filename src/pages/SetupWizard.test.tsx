@@ -406,6 +406,9 @@ describe("SetupWizard Accessibility", () => {
       expect(screen.queryByText(/resume_id|confidence_score|file_path|parsed_text/)).not.toBeInTheDocument();
 
       await user.click(screen.getByRole("button", { name: /add scheduling to search/i }));
+      expect(
+        screen.getByText("Added skills appear above. Remove any you do not want."),
+      ).toBeInTheDocument();
       await user.click(screen.getByRole("button", { name: /^continue$/i }));
       await user.click(screen.getByRole("button", { name: /^continue$/i }));
       await user.click(screen.getByRole("button", { name: /start finding jobs/i }));
@@ -441,6 +444,9 @@ describe("SetupWizard Accessibility", () => {
 
       expect(screen.getByText("Added Scheduling")).toBeInTheDocument();
       expect(screen.getByText("Added Case management")).toBeInTheDocument();
+      expect(
+        screen.getByText("Added skills appear above. Remove any you do not want."),
+      ).toBeInTheDocument();
       expect(screen.queryByText(/resume_id|confidence_score|file_path|parsed_text/)).not.toBeInTheDocument();
 
       await user.click(screen.getByRole("button", { name: /^continue$/i }));
@@ -470,10 +476,10 @@ describe("SetupWizard Accessibility", () => {
       await user.type(screen.getByPlaceholderText("Add a job title..."), "Care Coordinator{enter}");
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /skip resume suggestions/i })).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: /hide suggestions/i })).toBeInTheDocument();
       });
 
-      await user.click(screen.getByRole("button", { name: /skip resume suggestions/i }));
+      await user.click(screen.getByRole("button", { name: /hide suggestions/i }));
 
       expect(screen.queryByText("Use reviewed resume skills")).not.toBeInTheDocument();
       expect(screen.queryByText("Scheduling")).not.toBeInTheDocument();
