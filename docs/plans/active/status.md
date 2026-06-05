@@ -461,6 +461,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 - `user_data` public DTOs and SQLite row adapters moved into a focused models
   module while keeping manager APIs and public re-exports stable.
 
+- HN Who's Hiring scraper tests moved into `hn_hiring/tests.rs`; production
+  scraper file now stays focused on fetch/parse behavior.
+
 ## Recent Completed Slices
 
 Detailed implementation history before the current restart window is in the
