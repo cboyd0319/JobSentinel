@@ -414,7 +414,10 @@ export function getTechnicalFirstDocsResult(path, text) {
     }
   }
 
-  if (path === "src/pages/ResumeOptimizer.tsx") {
+  if (
+    path === "src/pages/ResumeOptimizer.tsx" ||
+    path === "src/pages/ResumeOptimizerJobWordsOverview.tsx"
+  ) {
     const resumeMatchDetailPatterns = [
       /Improve Bullet Point/i,
       /Improved Version/i,

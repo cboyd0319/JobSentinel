@@ -260,7 +260,10 @@ export function getTechnicalFirstUiResult(path, text) {
     }
   }
 
-  if (path === "src/pages/ResumeOptimizer.tsx") {
+  if (
+    path === "src/pages/ResumeOptimizer.tsx" ||
+    path === "src/pages/ResumeOptimizerJobWordsOverview.tsx"
+  ) {
     const resumeOptimizerPatterns = [
       /Overall match:\s*\$\{/i,
       /Overall match:\s*\d+%/i,

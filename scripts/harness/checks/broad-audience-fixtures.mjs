@@ -58,6 +58,7 @@ const broadAudienceExamplePaths = new Set([
   "src/pages/ResumeBuilder.tsx",
   "src/pages/ResumeBuilderVisuals.tsx",
   "src/pages/ResumeOptimizer.tsx",
+  "src/pages/ResumeOptimizerJobWordsOverview.tsx",
   "src/pages/ResumeOptimizer.test.tsx",
   "src/pages/Resume.tsx",
   "src/pages/Salary.tsx",
@@ -262,7 +263,10 @@ export function hasEngineerFirstAudienceExamples(root, path) {
     }
   }
 
-  if (path === "src/pages/ResumeOptimizer.tsx") {
+  if (
+    path === "src/pages/ResumeOptimizer.tsx" ||
+    path === "src/pages/ResumeOptimizerJobWordsOverview.tsx"
+  ) {
     const resumeOptimizerPatterns = [
       /ATS Resume Optimizer/i,
       /Applicant Tracking Systems/i,

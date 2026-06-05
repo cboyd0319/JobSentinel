@@ -14,7 +14,7 @@ readiness without Developer ID signing, notarization, stapling, and
 Gatekeeper acceptance, all of which require Apple Developer Program materials.
 
 Active-plan implementation status is separate: 100% of the current active-plan
-checklist is complete, with 148 of 148 tracked items checked off. The
+checklist is complete, with 149 of 149 tracked items checked off. The
 repo-wide readiness goal remains open until the completion bar in
 [active plan status](docs/plans/active/status.md) is proven from current
 evidence: no known bloat, privacy leak, stale docs, engineer-only user flow, or

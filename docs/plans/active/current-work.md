@@ -303,6 +303,8 @@ Out of scope:
   icons out of the main page and retire its legacy oversized-file exception.
 - [x] Split Resume Builder template thumbnail and export/delete icons out of
   the main page and tighten its legacy oversized-file budget.
+- [x] Split resume review job-word overview display out of the main page
+  and tighten its legacy oversized-file budget.
 
 ## Orchestration Log
 

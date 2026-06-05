@@ -50,6 +50,14 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Resume review job-word overview display moved out of
+  `src/pages/ResumeOptimizer.tsx` into
+  `src/pages/ResumeOptimizerJobWordsOverview.tsx`.
+- `src/pages/ResumeOptimizer.tsx` remains a legacy oversized-file exception,
+  but its no-growth budget tightened from 1,716 lines to 1,598 lines.
+
+Earlier implementation slice:
+
 - Resume Builder template thumbnail previews and export/delete icons moved out
   of `src/pages/ResumeBuilder.tsx` into `src/pages/ResumeBuilderVisuals.tsx`.
 - `src/pages/ResumeBuilder.tsx` remains a legacy oversized-file exception, but

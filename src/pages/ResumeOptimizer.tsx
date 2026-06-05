@@ -8,6 +8,7 @@ import { Modal, ModalFooter } from "../components/Modal";
 import { useToast } from "../contexts";
 import { logError } from "../utils/errorUtils";
 import { getUserFriendlyError } from "../utils/errorMessages";
+import { JobWordsOverviewCard } from "./ResumeOptimizerJobWordsOverview";
 import {
   getScoreBg,
   getScoreColor,
@@ -787,17 +788,6 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
     );
   };
 
-  // Group job-post words by how the analyzer classified them.
-  const getKeywordDensity = () => {
-    if (!analysisResult) return { required: [], preferred: [], industry: [] };
-
-    const required = analysisResult.keyword_matches.filter(k => k.importance === "Required");
-    const preferred = analysisResult.keyword_matches.filter(k => k.importance === "Preferred");
-    const industry = analysisResult.keyword_matches.filter(k => k.importance === "Industry");
-
-    return { required, preferred, industry };
-  };
-
   // Keep missing job-post words grouped so required items do not blur into nice-to-haves.
   const getMissingKeywordDetails = (): MissingKeyword[] => {
     if (!analysisResult) return [];
@@ -918,20 +908,6 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
     }
 
     return actions.slice(0, 5);
-  };
-
-  // Show stronger badges for words that appear more often.
-  const getKeywordOpacity = (keyword: string): string => {
-    if (!analysisResult) return "opacity-100";
-
-    const count = analysisResult.keyword_matches.filter(k =>
-      k.keyword.toLowerCase() === keyword.toLowerCase()
-    ).length;
-
-    if (count >= 5) return "opacity-100";
-    if (count >= 3) return "opacity-75";
-    if (count >= 2) return "opacity-60";
-    return "opacity-40";
   };
 
   // Send the saved job post to Resume Builder.
@@ -1202,103 +1178,10 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                   </Card>
                 )}
 
-                {/* Job Words Overview */}
-                <Card>
-                  <CardHeader title="Job Words Overview" />
-                  {(() => {
-                    const { required, preferred, industry } = getKeywordDensity();
-                    return (
-                      <div className="space-y-4">
-                        {/* Required words */}
-                        {required.length > 0 && (
-                          <div>
-                            <h4 className="text-sm font-semibold text-red-700 dark:text-red-400 mb-2 flex items-center gap-2">
-                              <Badge variant="danger" size="sm">Required</Badge>
-                              <span className="text-surface-500 dark:text-surface-400 font-normal">
-                                ({required.length} words)
-                              </span>
-                            </h4>
-                            <div className="flex flex-wrap gap-2">
-                              {required.map((match, idx) => (
-                                <div key={idx} className={`group relative ${getKeywordOpacity(match.keyword)}`}>
-                                  <Badge
-                                    variant="danger"
-                                  >
-                                    {match.keyword}
-                                  </Badge>
-                                  <div className="absolute hidden group-hover:block bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-surface-900 dark:bg-surface-700 text-white text-xs rounded whitespace-nowrap z-10">
-                                    Found in: {formatRequirementEvidenceSections(match.found_in)}
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Preferred words */}
-                        {preferred.length > 0 && (
-                          <div>
-                            <h4 className="text-sm font-semibold text-yellow-700 dark:text-yellow-400 mb-2 flex items-center gap-2">
-                              <Badge variant="alert" size="sm">Preferred</Badge>
-                              <span className="text-surface-500 dark:text-surface-400 font-normal">
-                                ({preferred.length} words)
-                              </span>
-                            </h4>
-                            <div className="flex flex-wrap gap-2">
-                              {preferred.map((match, idx) => (
-                                <div key={idx} className={`group relative ${getKeywordOpacity(match.keyword)}`}>
-                                  <Badge
-                                    variant="alert"
-                                  >
-                                    {match.keyword}
-                                  </Badge>
-                                  <div className="absolute hidden group-hover:block bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-surface-900 dark:bg-surface-700 text-white text-xs rounded whitespace-nowrap z-10">
-                                    Found in: {formatRequirementEvidenceSections(match.found_in)}
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Industry words */}
-                        {industry.length > 0 && (
-                          <div>
-                            <h4 className="text-sm font-semibold text-green-700 dark:text-green-400 mb-2 flex items-center gap-2">
-                              <Badge variant="success" size="sm">Industry</Badge>
-                              <span className="text-surface-500 dark:text-surface-400 font-normal">
-                                ({industry.length} words)
-                              </span>
-                            </h4>
-                            <div className="flex flex-wrap gap-2">
-                              {industry.map((match, idx) => (
-                                <div key={idx} className={`group relative ${getKeywordOpacity(match.keyword)}`}>
-                                  <Badge
-                                    variant="success"
-                                  >
-                                    {match.keyword}
-                                  </Badge>
-                                  <div className="absolute hidden group-hover:block bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-surface-900 dark:bg-surface-700 text-white text-xs rounded whitespace-nowrap z-10">
-                                    Found in: {formatRequirementEvidenceSections(match.found_in)}
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        <div className="flex items-start gap-2 p-3 bg-sentinel-50 dark:bg-sentinel-900/20 rounded-lg text-sm">
-                          <svg className="w-5 h-5 text-sentinel-600 dark:text-sentinel-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                          <p className="text-sentinel-800 dark:text-sentinel-300">
-                            Darker badges appear more often in your resume. Hover over a badge to see where the word was found.
-                          </p>
-                        </div>
-                      </div>
-                    );
-                  })()}
-                </Card>
+                <JobWordsOverviewCard
+                  keywordMatches={analysisResult.keyword_matches}
+                  formatEvidenceSections={formatRequirementEvidenceSections}
+                />
 
                 {/* Fit overview */}
                 <Card>
