@@ -50,6 +50,15 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Greenhouse scraper tests moved out of
+  `src-tauri/src/core/scrapers/greenhouse.rs` into
+  `src-tauri/src/core/scrapers/greenhouse_tests.rs`.
+- The runtime Greenhouse scraper is now below the 1,200-line Rust target, so
+  the legacy oversized-file exception was removed.
+- Greenhouse behavior was unchanged; only test module ownership changed.
+
+Earlier implementation slice:
+
 - Resume matcher tests moved out of
   `src-tauri/src/core/resume/matcher.rs` into
   `src-tauri/src/core/resume/matcher_tests.rs`.
@@ -812,9 +821,17 @@ Recent cleanup summary:
 - `src/mocks/handlers.test.ts` and
   `src-tauri/src/core/resume/ats_analyzer_tests.rs` are now both under the
   1,200-line harness target and no longer need legacy no-growth exemptions.
-- Remaining largest cleanup targets are `src/mocks/handlers.ts`,
-  `src/pages/Settings.tsx`, `src-tauri/src/core/resume/ats_analyzer.rs`,
-  `src-tauri/src/core/db/tests.rs`, and large harness test files.
+- Remaining oversized-file exceptions are `src/mocks/handlers.ts`,
+  `src-tauri/src/core/resume/ats_analyzer.rs`,
+  `src/pages/ResumeBuilder.tsx`, `src-tauri/src/core/notify/slack.rs`,
+  `src-tauri/src/core/notify/teams.rs`, `src/pages/ResumeOptimizer.tsx`,
+  `src/pages/SetupWizard.tsx`,
+  `src-tauri/src/core/market_intelligence/analytics.rs`,
+  `src/pages/Resume.tsx`, `src-tauri/src/commands/automation.rs`,
+  `scripts/harness/checks/privacy-logging.mjs`,
+  `src-tauri/src/core/ghost/mod.rs`,
+  `src-tauri/src/core/salary/predictor.rs`, and
+  `src-tauri/src/core/notify/discord.rs`.
 
 ## Next Best Work
 

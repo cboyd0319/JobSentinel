@@ -218,6 +218,8 @@ Out of scope:
   retire its legacy oversized-file exception.
 - [x] Split Market Intelligence async tests out of the main test file and
   retire its legacy oversized-file exception.
+- [x] Split Greenhouse scraper tests out of the runtime scraper file and retire
+  its legacy oversized-file exception.
 - [x] Split ATS status, reminder, and stats edge tests out of the main ATS test
   file and retire its legacy oversized-file exception.
 - [x] Split resume database coverage tests out of the main resume test file and
