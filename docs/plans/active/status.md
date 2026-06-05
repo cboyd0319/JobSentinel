@@ -50,6 +50,15 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Scheduler start-loop coverage tests moved out of
+  `src-tauri/src/core/scheduler/tests.rs` into
+  `src-tauri/src/core/scheduler/tests/start_loop_tests.rs`.
+- The main scheduler test file is now below the 1,200-line Rust/test target, so
+  its legacy oversized-file exception was removed.
+- Runtime scheduler code was unchanged; only test module ownership changed.
+
+Earlier implementation slice:
+
 - Lever scrape-company flow tests moved out of
   `src-tauri/src/core/scrapers/lever/tests.rs` into
   `src-tauri/src/core/scrapers/lever/tests/scrape_company_flow_tests.rs`.

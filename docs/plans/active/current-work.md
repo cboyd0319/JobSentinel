@@ -209,6 +209,8 @@ Out of scope:
   test file.
 - [x] Split scheduler interval and result model tests out of the main scheduler
   test file.
+- [x] Split scheduler start-loop coverage tests out of the main scheduler test
+  file and retire its legacy oversized-file exception.
 - [x] Split scoring company tests out of the main scoring module.
 - [x] Split remaining inline scoring tests out of the main scoring module and
   retire its legacy oversized-file exception.
