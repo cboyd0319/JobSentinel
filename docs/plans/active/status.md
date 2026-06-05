@@ -51,6 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Resume Builder DOCX download and print-dialog DOM helpers now live in a
+  focused module, keeping the main builder page farther below the file-size
+  target without changing export commands or user-facing export copy.
+
 - Interview calendar export generation now lives in a focused helper, keeping
   the scheduler component farther below the file-size target while preserving
   `.ics` download behavior.

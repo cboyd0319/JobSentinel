@@ -17,6 +17,7 @@ import {
   canProceedResumeBuilderStep,
   getResumeBuilderStepValidationMessage,
 } from "./resumeBuilderValidation";
+import { downloadResumeDocx, openResumePrintDialog } from "./resumeBuilderExportDom";
 import { ResumeBuilderExportStep } from "./ResumeBuilderExportStep";
 import { ResumeBuilderJobContextCard } from "./ResumeBuilderJobContextCard";
 import { ResumeBuilderNavigation } from "./ResumeBuilderNavigation";
@@ -488,19 +489,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
         logContext: "Export resume to DOCX"
       });
 
-      // Create Blob and download
-      const blob = new Blob([new Uint8Array(docxData)], {
-        type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${contact.name.replace(/\s+/g, "_")}_Resume.docx`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-
+      downloadResumeDocx(docxData, contact.name);
       toast.success("Resume exported", "Downloaded as DOCX");
     } catch (error: unknown) {
       const safeError = getSafeErrorToastCopy(error, {
@@ -527,45 +516,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
         logContext: "Render resume for PDF export"
       });
 
-      // Create a hidden iframe for printing
-      const iframe = document.createElement("iframe");
-      iframe.style.position = "fixed";
-      iframe.style.right = "0";
-      iframe.style.bottom = "0";
-      iframe.style.width = "0";
-      iframe.style.height = "0";
-      iframe.style.border = "0";
-      document.body.appendChild(iframe);
-
-      // Write HTML to iframe
-      const doc = iframe.contentWindow?.document;
-      if (doc) {
-        doc.open();
-        doc.write(html);
-        doc.close();
-
-        // Wait for content to load, then trigger print
-        iframe.onload = () => {
-          setTimeout(() => {
-            iframe.contentWindow?.print();
-            // Remove iframe after print dialog closes (3s to allow for print dialog)
-            setTimeout(() => {
-              if (document.body.contains(iframe)) {
-                document.body.removeChild(iframe);
-              }
-            }, 3000);
-          }, 250);
-        };
-
-        // Fallback: trigger print after a delay if onload doesn't fire
-        setTimeout(() => {
-          try {
-            iframe.contentWindow?.print();
-          } catch {
-            // Print dialog may have been triggered already
-          }
-        }, 500);
-      }
+      openResumePrintDialog(html);
 
       toast.success("Print dialog opened", "Save as PDF using your browser's print dialog");
     } catch (error: unknown) {
