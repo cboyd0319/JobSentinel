@@ -51,6 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Mock resume keyword-frequency matching now lives in a focused helper, keeping
+  the main mock keyword matcher under the file-size target while preserving
+  boundary-aware evidence counts.
+
 - Application board icon helpers now live in a focused module, keeping the main
   Applications page under the file-size target without changing board actions,
   quick stats, or modal controls.

@@ -5,6 +5,7 @@ import {
   type MockKeywordImportance,
 } from "./resumeAnalysis";
 import type { MockAtsResumeSections } from "./resumeAnalysisSections";
+import { countMockKeywordFrequency } from "./resumeKeywordFrequency";
 
 export function extractMockAtsKeywords(jobDescription: string): MockAtsKeyword[] {
   const lower = jobDescription.toLowerCase();
@@ -924,14 +925,14 @@ function getConservativeMockJobSearchTerms(keyword: string): string[] {
 }
 
 function containsAnyMockKeyword(text: string, searchTerms: string[]): boolean {
-  return searchTerms.some((term) => countKeywordFrequency(text, term) > 0);
+  return searchTerms.some((term) => countMockKeywordFrequency(text, term) > 0);
 }
 
 function countMockSearchTermFrequency(text: string, keyword: string): number {
   const searchTerms = getConservativeMockSearchTerms(keyword);
   return Math.max(
     0,
-    ...searchTerms.map((term) => countKeywordFrequency(text, term)),
+    ...searchTerms.map((term) => countMockKeywordFrequency(text, term)),
   );
 }
 
@@ -985,35 +986,4 @@ function hasMockResponsibilityBackedEvidence(text: string): boolean {
 function hasMockDutyBackedEvidence(text: string): boolean {
   return /\b(?:coordinated|processed|maintained|tracked|reviewed|prepared|scheduled|organized|documented|responded|resolved|updated|served|followed\s+up|followed-up)\b.+\b(?:requests?|appointments?|records?|orders?|cases?|tickets?|reports?|files?|forms?|calls?|emails?|inquiries|intake|follow[-\s]?ups?|tasks?|schedules?)\b/i
     .test(text);
-}
-
-function countKeywordFrequency(text: string, keyword: string): number {
-  if (!keyword) return 0;
-  const lowerText = text.toLowerCase();
-  const lowerKeyword = keyword.toLowerCase();
-  let count = 0;
-  let start = 0;
-
-  while (start < lowerText.length) {
-    const index = lowerText.indexOf(lowerKeyword, start);
-    if (index === -1) break;
-
-    if (mockKeywordMatchHasBoundaries(lowerText, lowerKeyword, index)) {
-      count += 1;
-    }
-    start = index + lowerKeyword.length;
-  }
-
-  return count;
-}
-
-function mockKeywordMatchHasBoundaries(text: string, keyword: string, start: number): boolean {
-  const end = start + keyword.length;
-  const before = start > 0 ? text[start - 1] ?? "" : "";
-  const after = end < text.length ? text[end] ?? "" : "";
-  return !isMockKeywordTermChar(before) && !isMockKeywordTermChar(after);
-}
-
-function isMockKeywordTermChar(ch: string): boolean {
-  return /^[a-z0-9+#]$/i.test(ch);
 }
