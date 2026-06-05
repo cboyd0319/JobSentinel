@@ -207,6 +207,7 @@ Out of scope:
   test file.
 - [x] Split scoring company tests out of the main scoring module.
 - [x] Split Settings search-preference UI out of the main Settings page.
+- [x] Split Resume Builder data transforms out of the main Resume Builder page.
 
 ## Orchestration Log
 

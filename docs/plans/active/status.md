@@ -50,6 +50,18 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Resume Builder data models, step metadata, skill labels, export payload
+  mapping, template payload mapping, and ATS analysis normalization moved out
+  of `src/pages/ResumeBuilder.tsx` into
+  `src/pages/resumeBuilderData.ts`.
+- The main Resume Builder page still owns UI state, save/export flows, modals,
+  and rendering; the extracted helper owns typed resume data shapes and
+  backend payload transforms.
+- `src/pages/ResumeBuilder.tsx` legacy no-growth budget tightened from 2,118
+  lines to 1,770 lines.
+
+Recent implementation slice:
+
 - Settings search preference, location, salary, company, and auto-search UI
   moved out of `src/pages/Settings.tsx` into
   `src/pages/SettingsSearchPreferencesSection.tsx`.
@@ -59,7 +71,7 @@ Latest implementation slice:
 - `src/pages/Settings.tsx` legacy no-growth budget tightened from 2,493 lines
   to 1,931 lines.
 
-Recent implementation slice:
+Earlier implementation slice:
 
 - Scoring company preference, company normalization, and fuzzy company matching
   tests moved out of `src-tauri/src/core/scoring/mod.rs` into
