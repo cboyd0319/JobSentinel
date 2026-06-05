@@ -321,6 +321,9 @@ Out of scope:
 - [x] Add saved screening-answer aliases for plain quick-add wording such as
   authorized-to-work, lifting, degree, weekend-shift, and reliable-vehicle
   questions.
+- [x] Show hard-question review guidance for saved-answer quick-add topics such
+  as schedule, education, transportation, salary, start date, language,
+  management, travel, and relocation.
 
 ## Orchestration Log
 

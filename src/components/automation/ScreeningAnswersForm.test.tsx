@@ -429,6 +429,25 @@ describe("ScreeningAnswersForm", () => {
       );
     });
 
+    it.each([
+      "Schedule availability",
+      "Education level",
+      "Reliable transportation",
+    ])("shows hard review guidance for %s quick-add answers", async (label) => {
+      const user = userEvent.setup();
+      render(<ScreeningAnswersForm />);
+
+      await waitFor(() => {
+        expect(screen.getByText(new RegExp(`\\+ ${label}`, "i"))).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByText(new RegExp(`\\+ ${label}`, "i")));
+
+      expect(screen.getByTestId("hard-screening-answer-guidance")).toHaveTextContent(
+        "Use only what is true and backed by your resume or records.",
+      );
+    });
+
     it("does not show hard screening guidance for ordinary quick-add answers", async () => {
       const user = userEvent.setup();
       render(<ScreeningAnswersForm />);

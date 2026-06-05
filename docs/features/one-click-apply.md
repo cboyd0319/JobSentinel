@@ -136,11 +136,13 @@ topic, such as authorized-to-work questions, able-to-lift questions, degree
 questions, weekend or rotating-shift availability, and reliable-vehicle wording.
 
 When you add a saved answer for hard screening topics such as citizenship, work
-authorization, sponsorship, background checks, drug screens, physical
-requirements, age requirements, licenses, certifications, or clearances,
-JobSentinel shows an extra review note. The note reminds you to compare the
-answer with the exact application question and use only what is true and backed
-by your resume or records.
+authorization, sponsorship, transportation, travel, relocation, education,
+salary, start date, schedule, availability, management experience, language
+fluency, background checks, drug screens, physical requirements, age
+requirements, licenses, certifications, or clearances, JobSentinel shows an
+extra review note. The note reminds you to compare the answer with the exact
+application question and use only what is true and backed by your resume or
+records.
 
 ### Hard Question Review
 

@@ -51,6 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Saved screening answers now show hard-question review guidance for schedule,
+  education, transportation, salary, start-date, language, management, travel,
+  and relocation quick-add topics.
+
 - Application Assist saved-answer matching now handles plain quick-add aliases
   such as authorized-to-work, able-to-lift, degree, weekend-shift, and
   reliable-vehicle wording.
