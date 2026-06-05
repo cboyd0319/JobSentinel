@@ -49,6 +49,15 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Discord webhook URL validation tests now live in
+  `src-tauri/src/core/notify/discord_tests/webhook_url_tests.rs`, reducing
+  `discord_tests.rs` from 989 to 893 lines while keeping URL allowlist,
+  bypass-attack, and error-message coverage intact.
+
+- Focused verification for the Discord webhook test split passed:
+  `cargo fmt --all -- --check`, `cargo test --lib core::notify::discord`, and
+  `npm run lint:bloat`.
+
 - ATS status/default unit tests now live in
   `src-tauri/src/core/ats/tests/status_basic_tests.rs`, reducing the parent
   `src-tauri/src/core/ats/tests.rs` file from 978 to 839 lines without changing
