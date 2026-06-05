@@ -50,6 +50,18 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Config salary, threshold, title, keyword, location, and Slack webhook
+  validation-limit tests now live in
+  `src-tauri/src/core/config/tests/preference_validation_tests.rs`, reducing
+  `src-tauri/src/core/config/tests.rs` from 938 to 564 lines without changing
+  validation behavior, config helper setup, source URL tests, persistence tests,
+  alert-channel tests, or property tests.
+
+- Focused verification for the config validation test split passed:
+  `cargo fmt --all -- --check`,
+  `cargo test --lib core::config::tests`, `cargo clippy -- -D warnings`, and
+  `npm run lint:bloat`.
+
 - Lever scraper hash, initialization, and JSON-shape tests now live in
   `src-tauri/src/core/scrapers/lever/tests/basic_tests.rs`, reducing
   `src-tauri/src/core/scrapers/lever/tests.rs` from 960 to 522 lines without
