@@ -113,6 +113,16 @@ Earlier implementation slice:
 
 Latest implementation slice:
 
+- DB query-error and no-match update coverage moved out of
+  `src-tauri/src/core/db/tests.rs` into
+  `src-tauri/src/core/db/tests/tests/job_query_error_tests.rs`.
+- The main DB test file still owns core operation, accessor, statistic, upsert,
+  bookmark, repost, and remaining broad database coverage plus shared fixtures.
+- `src-tauri/src/core/db/tests.rs` legacy no-growth budget tightened from
+  1,631 lines to 1,543 lines.
+
+Earlier implementation slice:
+
 - DB edge-case coverage moved out of `src-tauri/src/core/db/tests.rs` into
   `src-tauri/src/core/db/tests/tests/job_edge_case_tests.rs`.
 - The main DB test file still owns core operation, accessor, query-error,

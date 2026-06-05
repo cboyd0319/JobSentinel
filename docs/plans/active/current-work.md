@@ -217,6 +217,7 @@ Out of scope:
 - [x] Retire the config test file's legacy oversized-file exception after
   bringing it below the 1,200-line test target.
 - [x] Split DB edge-case tests out of the main DB test file.
+- [x] Split DB query-error tests out of the main DB test file.
 
 ## Orchestration Log
 
