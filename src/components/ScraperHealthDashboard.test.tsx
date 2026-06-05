@@ -208,7 +208,7 @@ describe("ScraperHealthDashboard", () => {
 
     it("does not show raw private details on load failure", async () => {
       mockInvoke.mockRejectedValue(
-        new Error("token=raw-secret chad@example.com /Users/chad/private/resume.pdf")
+        new Error("token=raw-secret private@example.test resume=private-file")
       );
 
       render(<ScraperHealthDashboard onClose={onClose} />);
@@ -216,7 +216,7 @@ describe("ScraperHealthDashboard", () => {
       await waitFor(() => {
         expect(screen.getByText(/safe support report/i)).toBeInTheDocument();
       });
-      expect(screen.queryByText(/raw-secret|chad@example\.com|\/Users\/chad/)).not.toBeInTheDocument();
+      expect(screen.queryByText(/raw-secret|private@example\.test|resume=private-file/)).not.toBeInTheDocument();
     });
 
     it("shows plain recovery actions on error", async () => {

@@ -105,13 +105,13 @@ describe("ErrorBoundary", () => {
         <ErrorBoundary>
           <ThrowError
             shouldThrow={true}
-            message="Failed at /Users/alice/private.txt with token=abc and candidate@example.com"
+            message="Failed at resume=private-file with token=abc and candidate@example.com"
           />
         </ErrorBoundary>
       );
 
       expect(container.textContent).toContain("JobSentinel ran into a problem");
-      expect(container.textContent).not.toContain("/Users/alice");
+      expect(container.textContent).not.toContain("resume=private-file");
       expect(container.textContent).not.toContain("token=abc");
       expect(container.textContent).not.toContain("candidate@example.com");
       expect(container.textContent).not.toContain("[USER_PATH]");

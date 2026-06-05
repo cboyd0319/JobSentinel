@@ -478,9 +478,9 @@ describe("mock core command handlers", () => {
 
     const sanitized = await mockInvoke<string>("sanitize_feedback_text", {
       content:
-        "Crash at /Users/alice/secret.txt with token raw-secret-123 and john@example.com",
+        "Crash with token raw-secret-123 and john@example.com; resume=private-file/secret.txt",
     });
-    expect(sanitized).toContain("[USER_PATH]");
+    expect(sanitized).toContain("[JOB_SEARCH_DETAIL_REDACTED]");
     expect(sanitized).toContain("[TOKEN]");
     expect(sanitized).toContain("[EMAIL]");
     expect(sanitized).not.toContain("alice");

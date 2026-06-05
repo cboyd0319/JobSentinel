@@ -51,6 +51,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Frontend, mock, and script test fixtures now use neutral placeholders for
+  private resume paths and emails instead of developer-specific local paths.
+
 - Settings resume sorting copy now says it uses reviewed local resume skills,
   falling back to job titles and search words when no reviewed resume skills are
   saved.

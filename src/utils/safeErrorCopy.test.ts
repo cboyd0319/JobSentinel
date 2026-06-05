@@ -5,13 +5,13 @@ describe("getSafeErrorToastCopy", () => {
   it("uses contextual fallback copy without exposing raw private error values", () => {
     const error = Object.assign(
       new Error(
-        "unexpected token=super-secret for chad@example.com at /Users/chad/private/resume.pdf",
+        "unexpected token=super-secret for private@example.test at resume=private-file",
       ),
       {
         userFriendly: {
           title: "Raw backend failure",
           message:
-            "token=super-secret chad@example.com /Users/chad/private/resume.pdf",
+            "token=super-secret private@example.test resume=private-file",
         },
       },
     );
@@ -26,8 +26,8 @@ describe("getSafeErrorToastCopy", () => {
     expect(copy.message).toContain("Your resume could not be loaded.");
     expect(copy.message).toContain("safe support report");
     expect(visibleCopy).not.toContain("super-secret");
-    expect(visibleCopy).not.toContain("chad@example.com");
-    expect(visibleCopy).not.toContain("/Users/chad");
+    expect(visibleCopy).not.toContain("private@example.test");
+    expect(visibleCopy).not.toContain("resume=private-file");
     expect(visibleCopy).not.toContain("Raw backend failure");
   });
 

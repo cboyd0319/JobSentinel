@@ -56,7 +56,7 @@ describe("errorReporting", () => {
     );
 
     const report = errorReporter.captureCustom(
-      "Failed https://user:pass@example.com/jobs/123?token=abc#frag for john@example.com in /Users/alice/resume.pdf",
+      "Failed https://user:pass@example.com/jobs/123?token=abc#frag for john@example.com in resume=private-file/resume.pdf",
       {
         apiToken: "secret123",
         retryUrl: "https://example.com/apply?session=abc#frag",
@@ -75,7 +75,7 @@ describe("errorReporting", () => {
     expect(stored.url).toContain("/settings");
     expect(stored.url).not.toContain("token=secret123");
     expect(serialized).not.toContain("john@example.com");
-    expect(serialized).not.toContain("/Users/alice");
+    expect(serialized).not.toContain("resume=private-file");
     expect(serialized).not.toContain("secret123");
     expect(serialized).not.toContain("SECRET");
     expect(serialized).not.toContain("li_at=AQEDA123");
@@ -161,7 +161,7 @@ describe("errorReporting", () => {
       "Failed https://user:pass@example.com/jobs/123?token=abc#frag for jane@example.com",
       {
         webhook: "https://hooks.slack.com/services/T000/B000/SECRET",
-        resumePath: "/Users/alice/resume.pdf",
+        resumePath: "resume=private-file/resume.pdf",
       }
     );
 
@@ -171,7 +171,7 @@ describe("errorReporting", () => {
     expect(serializedCalls).not.toContain("user:pass");
     expect(serializedCalls).not.toContain("token=abc");
     expect(serializedCalls).not.toContain("jane@example.com");
-    expect(serializedCalls).not.toContain("/Users/alice");
+    expect(serializedCalls).not.toContain("resume=private-file");
     expect(serializedCalls).not.toContain("SECRET");
     expect(serializedCalls).not.toContain("originalError");
 
@@ -199,30 +199,30 @@ describe("errorReporting", () => {
 
   it("sanitizes storage warning errors before console output", () => {
     const error = new Error(
-      "Failed for jane@example.com in /Users/alice/resume.pdf with token=abc at https://example.com/apply?token=secret#frag"
+      "Failed for jane@example.com with token=abc at https://example.com/apply?token=secret#frag and resume=private-file/resume.pdf"
     );
     error.stack = [
       error.message,
-      "at readStorage (/Users/alice/project/src/utils/errorReporting.ts:1:1)",
+      "at readStorage (resume=private-file/project/src/utils/errorReporting.ts:1:1)",
     ].join("\n");
 
     const serialized = JSON.stringify(sanitizeStorageWarningError(error));
 
     expect(serialized).toContain("https://example.com/apply");
-    expect(serialized).toContain("/[USER_PATH]");
+    expect(serialized).toContain("resume=[REDACTED]");
     expect(serialized).not.toContain("jane@example.com");
-    expect(serialized).not.toContain("/Users/alice");
+    expect(serialized).not.toContain("resume=private-file");
     expect(serialized).not.toContain("token=abc");
     expect(serialized).not.toContain("token=secret");
   });
 
   it("sanitizes console arguments before forwarding", () => {
     const error = new Error(
-      "Failed for jane@example.com in /Users/alice/resume.pdf with token=abc at https://example.com/apply?token=secret#frag"
+      "Failed for jane@example.com with token=abc at https://example.com/apply?token=secret#frag and resume=private-file/resume.pdf"
     );
     error.stack = [
       error.message,
-      "at readStorage (/Users/alice/project/src/utils/errorReporting.ts:1:1)",
+      "at readStorage (resume=private-file/project/src/utils/errorReporting.ts:1:1)",
     ].join("\n");
 
     const sanitized = sanitizeConsoleArgsForLogging([
@@ -236,10 +236,10 @@ describe("errorReporting", () => {
     const serialized = JSON.stringify(sanitized);
 
     expect(serialized).toContain("https://example.com/apply");
-    expect(serialized).toContain("/[USER_PATH]");
+    expect(serialized).toContain("resume=[REDACTED]");
     expect(serialized).toContain("[WEBHOOK_CONFIGURED]");
     expect(serialized).not.toContain("jane@example.com");
-    expect(serialized).not.toContain("/Users/alice");
+    expect(serialized).not.toContain("resume=private-file");
     expect(serialized).not.toContain("token=abc");
     expect(serialized).not.toContain("token=secret");
     expect(serialized).not.toContain("SECRET");
@@ -318,7 +318,7 @@ describe("errorReporting", () => {
       [
         "Failed for candidate@example.com",
         "token=abc123",
-        "/Users/chad/private/resume.pdf",
+        "resume=private-file;",
         "salary floor: $92000",
         "private notes: active search",
       ].join(" "),
@@ -334,12 +334,12 @@ describe("errorReporting", () => {
 
     expect(exported).toContain("[EMAIL]");
     expect(exported).toContain("[TOKEN]");
-    expect(exported).toContain("/[USER_PATH]");
+    expect(exported).toContain("resume=[REDACTED]");
     expect(exported).toContain("salary floor: [REDACTED]");
     expect(exported).toContain('"privateNotes": "[REDACTED]"');
     expect(exported).not.toContain("candidate@example.com");
     expect(exported).not.toContain("abc123");
-    expect(exported).not.toContain("/Users/chad");
+    expect(exported).not.toContain("resume=private-file");
     expect(exported).not.toContain("92000");
     expect(exported).not.toContain("Full resume body");
     expect(exported).not.toContain("Active search");

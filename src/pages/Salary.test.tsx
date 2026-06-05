@@ -17,7 +17,7 @@ function renderSalary() {
 
 describe("Salary", () => {
   const privateFailure = new Error(
-    "token=raw-secret chad@example.com /Users/chad/private/resume.pdf",
+    "token=raw-secret private@example.test resume=private-file",
   );
 
   beforeEach(() => {
@@ -175,7 +175,7 @@ describe("Salary", () => {
 
     expect(await screen.findByText("Could not check pay range")).toBeInTheDocument();
     expect(screen.getByText(/safe support report/i)).toBeInTheDocument();
-    expect(screen.queryByText(/raw-secret|chad@example\.com|\/Users\/chad/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/raw-secret|private@example\.test|resume=private-file/)).not.toBeInTheDocument();
   });
 
   it("does not show raw private details when negotiation notes fail", async () => {
@@ -209,7 +209,7 @@ describe("Salary", () => {
 
     expect(await screen.findByText("Could not draft notes")).toBeInTheDocument();
     expect(screen.getByText(/safe support report/i)).toBeInTheDocument();
-    expect(screen.queryByText(/raw-secret|chad@example\.com|\/Users\/chad/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/raw-secret|private@example\.test|resume=private-file/)).not.toBeInTheDocument();
   });
 
   it("requires user-entered offer and target range before drafting negotiation notes", async () => {

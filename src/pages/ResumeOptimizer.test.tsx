@@ -260,7 +260,7 @@ async function openResumeAppImport(user: ReturnType<typeof userEvent.setup>) {
 
 describe("ResumeOptimizer", () => {
   const privateFailure = new Error(
-    "token=raw-secret chad@example.com local-resume-file"
+    "token=raw-secret private@example.test local-resume-file"
   );
 
   const toastErrorText = () => mockToast.error.mock.calls.flat().join(" ");
@@ -331,7 +331,7 @@ describe("ResumeOptimizer", () => {
     expect(await screen.findByText(/selected resume:/i)).toBeInTheDocument();
     expect(screen.getByText("PDF")).toBeInTheDocument();
     expect(screen.getByText("1,520 readable characters for local review.")).toBeInTheDocument();
-    expect(screen.queryByText(/file_path|parsed_text|\/Users\//i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/file_path|parsed_text|resume=private-file/i)).not.toBeInTheDocument();
   });
 
   it("shows unreadable selected resume status before match review", async () => {
@@ -1110,7 +1110,7 @@ describe("ResumeOptimizer", () => {
       );
     });
 
-    expect(toastErrorText()).not.toMatch(/raw-secret|chad@example\.com|\/Users\/chad/);
+    expect(toastErrorText()).not.toMatch(/raw-secret|private@example\.test|resume=private-file/);
   });
 
   it("does not show raw private details when format analysis fails", async () => {
@@ -1132,7 +1132,7 @@ describe("ResumeOptimizer", () => {
       );
     });
 
-    expect(toastErrorText()).not.toMatch(/raw-secret|chad@example\.com|\/Users\/chad/);
+    expect(toastErrorText()).not.toMatch(/raw-secret|private@example\.test|resume=private-file/);
   });
 
   it("does not show raw private details when bullet improvement fails", async () => {
@@ -1153,7 +1153,7 @@ describe("ResumeOptimizer", () => {
       );
     });
 
-    expect(toastErrorText()).not.toMatch(/raw-secret|chad@example\.com|\/Users\/chad/);
+    expect(toastErrorText()).not.toMatch(/raw-secret|private@example\.test|resume=private-file/);
   });
 
   it("uses action-first validation copy before drafting an empty bullet", async () => {

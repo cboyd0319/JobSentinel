@@ -125,7 +125,7 @@ describe("fillTemplatePlaceholders", () => {
 
 describe("CoverLetterTemplates", () => {
   const privateFailure = new Error(
-    "token=raw-secret chad@example.com /Users/chad/private/resume.pdf"
+    "token=raw-secret private@example.test resume=private-file"
   );
 
   const toastErrorText = () => mockToast.error.mock.calls.flat().join(" ");
@@ -176,8 +176,8 @@ describe("CoverLetterTemplates", () => {
         expect(screen.getByText("Could not load templates")).toBeInTheDocument();
       });
 
-      expect(screen.queryByText(/raw-secret|chad@example\.com|\/Users\/chad/)).not.toBeInTheDocument();
-      expect(toastErrorText()).not.toMatch(/raw-secret|chad@example\.com|\/Users\/chad/);
+      expect(screen.queryByText(/raw-secret|private@example\.test|resume=private-file/)).not.toBeInTheDocument();
+      expect(toastErrorText()).not.toMatch(/raw-secret|private@example\.test|resume=private-file/);
       expect(mockToast.error).toHaveBeenCalledWith(
         "Could not load templates",
         expect.stringContaining("safe support report")
@@ -446,7 +446,7 @@ describe("CoverLetterTemplates", () => {
         );
       });
 
-      expect(toastErrorText()).not.toMatch(/raw-secret|chad@example\.com|\/Users\/chad/);
+      expect(toastErrorText()).not.toMatch(/raw-secret|private@example\.test|resume=private-file/);
     });
   });
 
@@ -567,7 +567,7 @@ describe("CoverLetterTemplates", () => {
         );
       });
 
-      expect(toastErrorText()).not.toMatch(/raw-secret|chad@example\.com|\/Users\/chad/);
+      expect(toastErrorText()).not.toMatch(/raw-secret|private@example\.test|resume=private-file/);
     });
   });
 

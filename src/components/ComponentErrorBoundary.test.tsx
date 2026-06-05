@@ -12,7 +12,7 @@ vi.mock('../utils/errorReporting', () => ({
     value
       .replace(/\btoken=[^\s]+/gi, '[TOKEN]')
       .replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, '[EMAIL]')
-      .replace(/\/Users\/[^/\s]+/g, '/[USER_PATH]'),
+      .replace(/\bresume=[^\s]+/gi, 'resume=[REDACTED]'),
 }));
 
 // Suppress console.error in tests
@@ -56,7 +56,7 @@ describe('ComponentErrorBoundary', () => {
 
     render(
       <ComponentErrorBoundary componentName="PrivateComponent">
-        <ThrowError error="token=raw-secret chad@example.com /Users/chad/private/resume.pdf" />
+        <ThrowError error="token=raw-secret private@example.test resume=private-file" />
       </ComponentErrorBoundary>
     );
 
@@ -65,8 +65,8 @@ describe('ComponentErrorBoundary', () => {
       return element?.tagName === 'P' && content.includes('safe support report');
     })).toBeInTheDocument();
     expect(document.body.textContent).not.toContain('raw-secret');
-    expect(document.body.textContent).not.toContain('chad@example.com');
-    expect(document.body.textContent).not.toContain('/Users/chad');
+    expect(document.body.textContent).not.toContain('private@example.test');
+    expect(document.body.textContent).not.toContain('resume=private-file');
     expect(document.body.textContent).not.toContain('[TOKEN]');
 
     vi.unstubAllEnvs();

@@ -218,7 +218,7 @@ describe("Resume page", () => {
     expect(screen.getByText("Important details need text")).toBeInTheDocument();
     expect(screen.getByText("Preview complete")).toBeInTheDocument();
     expect(screen.getByText(/Patient scheduling/)).toBeInTheDocument();
-    expect(screen.queryByText(/\/Users\/alice/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/resume=private-file/)).not.toBeInTheDocument();
     expect(screen.queryByText(/file_path/)).not.toBeInTheDocument();
   });
 
@@ -266,7 +266,7 @@ describe("Resume page", () => {
     expect(screen.getByText("PDF")).toBeInTheDocument();
     expect(screen.getByText("Readable text ready")).toBeInTheDocument();
     expect(screen.getByText("1,234 characters available for local review.")).toBeInTheDocument();
-    expect(screen.queryByText(/file_path|parsed_text|\/Users\/alice/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/file_path|parsed_text|resume=private-file/)).not.toBeInTheDocument();
   });
 
   it("shows employer-format-first guidance when readable text is missing", async () => {

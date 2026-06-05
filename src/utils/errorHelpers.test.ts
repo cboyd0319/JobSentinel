@@ -100,7 +100,7 @@ describe("errorHelpers", () => {
 
     it("never exposes raw sensitive details from standard Error messages", () => {
       const error = new Error(
-        "Failed for token=abc123 at https://hooks.slack.com/services/T000/B000/secret and /Users/alice/private.txt"
+        "Failed for token=abc123 at https://hooks.slack.com/services/T000/B000/secret and resume=private-file"
       );
 
       const message = getUserMessage(error);
@@ -108,7 +108,7 @@ describe("errorHelpers", () => {
       expect(message).toBe(ERROR_MESSAGES[ErrorType.UNKNOWN]);
       expect(message).not.toContain("abc123");
       expect(message).not.toContain("hooks.slack.com");
-      expect(message).not.toContain("/Users/alice");
+      expect(message).not.toContain("resume=private-file");
     });
 
     it("keeps useful category messages without exposing raw error text", () => {
@@ -205,7 +205,7 @@ describe("errorHelpers", () => {
 
     it("sanitizes original error context before throwing", async () => {
       const originalError = new Error(
-        "Failed for token=abc123 at https://hooks.slack.com/services/T000/B000/secret and /Users/alice/private.txt"
+        "Failed for token=abc123 at https://hooks.slack.com/services/T000/B000/secret and resume=private-file"
       );
 
       try {
@@ -215,9 +215,9 @@ describe("errorHelpers", () => {
         expect(originalErrorContext).toBeTypeOf("string");
         expect(originalErrorContext).not.toContain("abc123");
         expect(originalErrorContext).not.toContain("hooks.slack.com/services");
-        expect(originalErrorContext).not.toContain("/Users/alice");
+        expect(originalErrorContext).not.toContain("resume=private-file");
         expect(originalErrorContext).toContain("[TOKEN]");
-        expect(originalErrorContext).toContain("[USER_PATH]");
+        expect(originalErrorContext).toContain("resume=[REDACTED]");
       }
     });
 
@@ -768,10 +768,10 @@ describe("errorHelpers", () => {
       vi.stubEnv("DEV", true);
 
       const error = new Error(
-        "Failed for token=abc123 at https://hooks.slack.com/services/T000/B000/secret and /Users/alice/private.txt"
+        "Failed for token=abc123 at https://hooks.slack.com/services/T000/B000/secret and resume=private-file"
       );
       logErrorDetails(error, {
-        email: "alice@example.com",
+        email: "private@example.test",
         password: "super-secret",
         url: "https://example.com/path?access_token=secret",
       });
@@ -785,8 +785,8 @@ describe("errorHelpers", () => {
 
       expect(loggedOutput).not.toContain("abc123");
       expect(loggedOutput).not.toContain("hooks.slack.com/services");
-      expect(loggedOutput).not.toContain("/Users/alice");
-      expect(loggedOutput).not.toContain("alice@example.com");
+      expect(loggedOutput).not.toContain("resume=private-file");
+      expect(loggedOutput).not.toContain("private@example.test");
       expect(loggedOutput).not.toContain("super-secret");
       expect(loggedOutput).not.toContain("access_token=secret");
       expect(loggedOutput).toContain("[TOKEN]");

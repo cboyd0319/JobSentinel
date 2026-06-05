@@ -235,14 +235,14 @@ describe("Dashboard handleSearchNow pre-flight check", () => {
 
 describe("Dashboard safe error copy", () => {
   const privateFailure = new Error(
-    "token=raw-secret chad@example.com /Users/chad/private/resume.pdf",
+    "token=raw-secret private@example.test resume=private-file",
   );
 
   it("does not expose raw private details in load errors", () => {
     const message = getDashboardLoadErrorMessage(privateFailure);
 
     expect(message).toContain("safe support report");
-    expect(message).not.toMatch(/raw-secret|chad@example\.com|\/Users\/chad/);
+    expect(message).not.toMatch(/raw-secret|private@example\.test|resume=private-file/);
   });
 
   it("does not expose raw private details in search errors", () => {
@@ -251,7 +251,7 @@ describe("Dashboard safe error copy", () => {
 
     expect(copy.title).toBe("Could not search jobs");
     expect(visibleText).toContain("safe support report");
-    expect(visibleText).not.toMatch(/raw-secret|chad@example\.com|\/Users\/chad/);
+    expect(visibleText).not.toMatch(/raw-secret|private@example\.test|resume=private-file/);
   });
 });
 

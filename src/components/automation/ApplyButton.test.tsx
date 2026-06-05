@@ -639,7 +639,7 @@ describe("ApplyButton", () => {
             unfilledFields: [],
             captchaDetected: false,
             readyForReview: false,
-            errorMessage: "token=raw-secret chad@example.com <local-path>/resume.pdf",
+            errorMessage: "token=raw-secret private@example.test <local-path>/resume.pdf",
             attemptId: null,
             durationMs: 1000,
             atsPlatform: "greenhouse",
@@ -665,7 +665,7 @@ describe("ApplyButton", () => {
         expect(screen.getByRole("dialog")).toHaveTextContent(/safe support report/i);
       });
       expect(
-        screen.queryByText(/raw-secret|chad@example\.com|<local-path>/),
+        screen.queryByText(/raw-secret|private@example\.test|<local-path>/),
       ).not.toBeInTheDocument();
     });
 
@@ -678,7 +678,7 @@ describe("ApplyButton", () => {
         if (cmd === "is_browser_running") return Promise.resolve(false);
         if (cmd === "fill_application_form") {
           return Promise.reject(
-            new Error("token=raw-secret chad@example.com <local-path>/resume.pdf"),
+            new Error("token=raw-secret private@example.test <local-path>/resume.pdf"),
           );
         }
         return Promise.resolve(null);
@@ -700,7 +700,7 @@ describe("ApplyButton", () => {
       await waitFor(() => {
         expect(screen.getByRole("dialog")).toHaveTextContent(/safe support report/i);
       });
-      expect(screen.queryByText(/raw-secret|chad@example\.com|\/Users\/chad/)).not.toBeInTheDocument();
+      expect(screen.queryByText(/raw-secret|private@example\.test|resume=private-file/)).not.toBeInTheDocument();
     });
 
     it("clears error when closing modal", async () => {

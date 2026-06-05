@@ -246,14 +246,14 @@ describe("api utilities", () => {
     });
 
     it("includes invoke context without raw argument values", async () => {
-      const error = new Error("Test error token=raw-secret chad@example.com");
+      const error = new Error("Test error token=raw-secret private@example.test");
       mockInvoke.mockRejectedValueOnce(error);
 
       const { safeInvoke } = await import("./api");
 
       try {
         await safeInvoke("test_cmd", {
-          filePath: "/Users/chad/private/resume.pdf",
+          filePath: "resume=private-file",
           token: "raw-secret",
           salaryFloor: 90000,
         });
@@ -272,11 +272,11 @@ describe("api utilities", () => {
           valueTypes: ["string", "string", "number"],
         });
         const serialized = JSON.stringify(enhancedError);
-        expect(serialized).not.toContain("/Users/chad");
+        expect(serialized).not.toContain("resume=private-file");
         expect(serialized).not.toContain("raw-secret");
         expect(serialized).not.toContain("90000");
         expect(enhancedError.message).not.toContain("raw-secret");
-        expect(enhancedError.message).not.toContain("chad@example.com");
+        expect(enhancedError.message).not.toContain("private@example.test");
       }
     });
 
@@ -460,10 +460,10 @@ describe("api utilities", () => {
       const error = new Error(
         [
           "Upload failed",
-          "/Users/chad/private/resume.pdf",
           "token=raw-secret",
-          "chad@example.com",
+          "private@example.test",
           "https://hooks.slack.com/services/T000/B000/secret",
+          "resume=private-file",
         ].join(" ")
       );
       mockInvoke.mockRejectedValueOnce(error);
@@ -480,11 +480,11 @@ describe("api utilities", () => {
         expect(message).toContain("App problem details:");
         expect(message).not.toContain("Support details:");
         expect(message).not.toContain("Technical:");
-        expect(message).not.toContain("/Users/chad");
+        expect(message).not.toContain("resume=private-file");
         expect(message).not.toContain("raw-secret");
-        expect(message).not.toContain("chad@example.com");
+        expect(message).not.toContain("private@example.test");
         expect(message).not.toContain("hooks.slack.com/services/T000/B000/secret");
-        expect(message).toContain("[USER_PATH]");
+        expect(message).toContain("resume=[REDACTED]");
         expect(message).toContain("[TOKEN]");
         expect(message).toContain("[EMAIL]");
         expect(message).toContain("[WEBHOOK_CONFIGURED]");

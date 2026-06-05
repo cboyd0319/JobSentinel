@@ -208,7 +208,7 @@ test("ipc minimization rejects application resume path exposure across renderer 
     writeFixtureFile(
       root,
       "src/mocks/handlers.ts",
-      "const applicationProfile = { resume_file_path: '/Users/jordan/private/resume.pdf' };\n",
+      "const applicationProfile = { resume_file_path: '<local-private-resume>' };\n",
     );
 
     for (const path of [

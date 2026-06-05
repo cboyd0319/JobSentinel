@@ -86,7 +86,7 @@ describe("ProfileForm resume privacy", () => {
       expect(screen.getByLabelText("Selected resume")).toHaveValue("client-resume.pdf");
     });
 
-    expect(screen.queryByDisplayValue(/Users\/jordan/)).not.toBeInTheDocument();
+    expect(screen.queryByDisplayValue(/resume=private-file/)).not.toBeInTheDocument();
   });
 
   it("explains resume files as local and user-controlled", async () => {
@@ -146,7 +146,7 @@ describe("ProfileForm resume privacy", () => {
     await waitFor(() => {
       expect(screen.getByLabelText("Selected resume")).toHaveValue("new-resume.docx");
     });
-    expect(screen.queryByDisplayValue(/Users\/jordan/)).not.toBeInTheDocument();
+    expect(screen.queryByDisplayValue(/resume=private-file/)).not.toBeInTheDocument();
   });
 
   it("uses plain recovery copy when resume selection fails", async () => {

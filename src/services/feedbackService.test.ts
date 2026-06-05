@@ -130,7 +130,7 @@ describe("feedbackService", () => {
 
   it("continues opening GitHub issues when debug clipboard copy fails", async () => {
     vi.mocked(navigator.clipboard.writeText).mockRejectedValueOnce(
-      new Error("clipboard denied for /Users/alice/secrets.txt?token=abc"),
+      new Error("clipboard denied for resume=private-file/secrets.txt?token=abc"),
     );
     mockInvoke.mockResolvedValueOnce("safe issue report").mockResolvedValueOnce(undefined);
 
@@ -150,8 +150,8 @@ describe("feedbackService", () => {
       {
         id: "err-1",
         timestamp: "2026-05-28T10:15:00.000Z",
-        message: "Failed at /Users/alice/secret.txt with token=abc123",
-        stack: "Error: Failed\n    at run (/Users/alice/app.ts:1:1?token=abc123)",
+        message: "Failed at resume=private-file/secret.txt with token=abc123",
+        stack: "Error: Failed\n    at run (resume=private-file/app.ts:1:1?token=abc123)",
         type: "api",
         url: "http://localhost/?token=abc123",
         userAgent: "test-agent",
@@ -213,7 +213,7 @@ describe("feedbackService", () => {
       {
         id: "err-1",
         timestamp: "2026-05-28T10:15:00.000Z",
-        message: "Failed at /Users/alice/secret.txt with token=abc123",
+        message: "Failed at resume=private-file/secret.txt with token=abc123",
         type: "api",
         url: "http://localhost/?token=abc123",
         userAgent: "test-agent",

@@ -95,7 +95,7 @@ describe("BookmarkletGenerator", () => {
         port: 4321,
         enabled: true,
       })
-      .mockRejectedValueOnce(new Error("token=secret /Users/chad/private.txt"));
+      .mockRejectedValueOnce(new Error("token=secret resume=private-file"));
 
     render(<BookmarkletGenerator />);
 
@@ -107,12 +107,12 @@ describe("BookmarkletGenerator", () => {
     expect(screen.getByText(/allow clipboard access, then click copy browser button again/i)).toBeInTheDocument();
     expect(screen.getByText(/safe support report/i)).toBeInTheDocument();
     expect(screen.queryByText(/token=secret/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/\/Users\/chad/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/resume=private-file/i)).not.toBeInTheDocument();
   });
 
   it("shows plain recovery when Browser Import cannot load", async () => {
     mockInvoke.mockRejectedValueOnce(
-      new Error("token=secret /Users/chad/private-browser-import.txt"),
+      new Error("token=secret resume=private-file"),
     );
 
     render(<BookmarkletGenerator />);
@@ -122,7 +122,7 @@ describe("BookmarkletGenerator", () => {
     expect(screen.getByText(/safe support report/i)).toBeInTheDocument();
     expect(screen.queryByText(/browser import settings/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/token=secret/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/\/Users\/chad/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/resume=private-file/i)).not.toBeInTheDocument();
   });
 
   it("shows plain recovery when Browser Import cannot be changed", async () => {
@@ -131,7 +131,7 @@ describe("BookmarkletGenerator", () => {
         port: 4321,
         enabled: false,
       })
-      .mockRejectedValueOnce(new Error("token=secret /Users/chad/private-toggle.txt"));
+      .mockRejectedValueOnce(new Error("token=secret resume=private-file"));
 
     render(<BookmarkletGenerator />);
 
@@ -142,7 +142,7 @@ describe("BookmarkletGenerator", () => {
     expect(screen.getByText(/safe support report/i)).toBeInTheDocument();
     expect(screen.queryByText(/Could not update browser import/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/token=secret/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/\/Users\/chad/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/resume=private-file/i)).not.toBeInTheDocument();
   });
 
   it("shows plain recovery when the browser button number cannot be saved", async () => {
@@ -151,7 +151,7 @@ describe("BookmarkletGenerator", () => {
         port: 4321,
         enabled: false,
       })
-      .mockRejectedValueOnce(new Error("token=secret /Users/chad/private-port.txt"));
+      .mockRejectedValueOnce(new Error("token=secret resume=private-file"));
 
     render(<BookmarkletGenerator />);
 
@@ -164,6 +164,6 @@ describe("BookmarkletGenerator", () => {
     expect(screen.getByText(/help instructions give you a different number/i)).toBeInTheDocument();
     expect(screen.queryByText(/browser import connection/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/token=secret/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/\/Users\/chad/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/resume=private-file/i)).not.toBeInTheDocument();
   });
 });

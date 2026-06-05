@@ -106,7 +106,7 @@ describe("ModalErrorBoundary", () => {
         <ModalErrorBoundary>
           <ThrowError
             shouldThrow={true}
-            message="token=raw-secret chad@example.com /Users/chad/private/resume.pdf"
+            message="token=raw-secret private@example.test resume=private-file"
           />
         </ModalErrorBoundary>
       );
@@ -116,8 +116,8 @@ describe("ModalErrorBoundary", () => {
         return element?.tagName === "P" && content.includes("This window could not load");
       })).toBeInTheDocument();
       expect(document.body.textContent).not.toContain("raw-secret");
-      expect(document.body.textContent).not.toContain("chad@example.com");
-      expect(document.body.textContent).not.toContain("/Users/chad");
+      expect(document.body.textContent).not.toContain("private@example.test");
+      expect(document.body.textContent).not.toContain("resume=private-file");
       expect(document.body.textContent).not.toContain("[TOKEN]");
 
       vi.unstubAllEnvs();

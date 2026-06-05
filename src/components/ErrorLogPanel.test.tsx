@@ -131,7 +131,7 @@ describe("ErrorLogPanel", () => {
         errors: [
           createMockError({
             message:
-              "Failed for candidate@example.com with token=abc123 at /Users/chad/private/resume.pdf",
+              "Failed for candidate@example.com with token=abc123 at resume=private-file",
           }),
         ],
       });
@@ -147,7 +147,7 @@ describe("ErrorLogPanel", () => {
       expect(container.textContent).not.toContain("/[USER_PATH]");
       expect(container.textContent).not.toContain("candidate@example.com");
       expect(container.textContent).not.toContain("token=abc123");
-      expect(container.textContent).not.toContain("/Users/chad");
+      expect(container.textContent).not.toContain("resume=private-file");
     });
 
     it("shows extra problem details button when errors exist", () => {
@@ -275,7 +275,7 @@ describe("ErrorLogPanel", () => {
         errors: [
           createMockError({
             stack:
-              "Error: token=abc for candidate@example.com at /Users/chad/private/resume.pdf",
+              "Error: token=abc for candidate@example.com at resume=private-file",
           }),
         ],
       });
@@ -296,7 +296,7 @@ describe("ErrorLogPanel", () => {
       ).toBeInTheDocument();
       expect(container.textContent).not.toContain("token=abc");
       expect(container.textContent).not.toContain("candidate@example.com");
-      expect(container.textContent).not.toContain("/Users/chad");
+      expect(container.textContent).not.toContain("resume=private-file");
     });
 
     it("summarizes screen details without showing raw component stack", () => {

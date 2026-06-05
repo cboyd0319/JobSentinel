@@ -16,7 +16,7 @@ const renderModal = () =>
 
 describe("JobImportModal", () => {
   const privateFailure = new Error(
-    "token=raw-secret chad@example.com /Users/chad/private/resume.pdf",
+    "token=raw-secret private@example.test resume=private-file",
   );
 
   const preview = {
@@ -92,7 +92,7 @@ describe("JobImportModal", () => {
 
     expect(await screen.findByText("JobSentinel ran into a problem.")).toBeInTheDocument();
     expect(screen.getByText(/safe support report/i)).toBeInTheDocument();
-    expect(screen.queryByText(/raw-secret|chad@example\.com|\/Users\/chad/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/raw-secret|private@example\.test|resume=private-file/)).not.toBeInTheDocument();
   });
 
   it("does not show raw private details when saving fails", async () => {
@@ -112,7 +112,7 @@ describe("JobImportModal", () => {
 
     expect(await screen.findByText("JobSentinel ran into a problem.")).toBeInTheDocument();
     expect(screen.getByText(/safe support report/i)).toBeInTheDocument();
-    expect(screen.queryByText(/raw-secret|chad@example\.com|\/Users\/chad/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/raw-secret|private@example\.test|resume=private-file/)).not.toBeInTheDocument();
   });
 
   it("lets users save jobs even when the preview is missing details", async () => {

@@ -336,7 +336,7 @@ describe("AsyncButton", () => {
     it("does not show raw private details from thrown errors", async () => {
       const user = userEvent.setup();
       const mockOnClick = vi.fn().mockRejectedValue(
-        new Error("token=raw-secret chad@example.com /Users/chad/private/resume.pdf")
+        new Error("token=raw-secret private@example.test resume=private-file")
       );
 
       renderWithToast(<AsyncButton onClick={mockOnClick}>Private Error</AsyncButton>);
@@ -345,7 +345,7 @@ describe("AsyncButton", () => {
       await waitFor(() => {
         expect(screen.getByText(/safe support report/i)).toBeInTheDocument();
       });
-      expect(screen.queryByText(/raw-secret|chad@example\.com|\/Users\/chad/)).not.toBeInTheDocument();
+      expect(screen.queryByText(/raw-secret|private@example\.test|resume=private-file/)).not.toBeInTheDocument();
     });
 
     it("handles unknown error types", async () => {

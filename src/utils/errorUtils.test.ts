@@ -45,24 +45,24 @@ describe("errorUtils", () => {
 
     it("keeps useful known categories without exposing raw sensitive details", () => {
       const message = getErrorMessage(
-        new Error("network timeout with token=abc123 at /Users/alice/private.txt")
+        new Error("network timeout with token=abc123 at resume=private-file")
       );
 
       expect(message).toContain("connect");
       expect(message).toContain("internet connection");
       expect(message).not.toContain("abc123");
-      expect(message).not.toContain("/Users/alice");
+      expect(message).not.toContain("resume=private-file");
     });
 
     it("does not display raw paths, emails, or tokens from unknown errors", () => {
       const message = getErrorMessage({
-        message: "token=abc123 for alice@example.com at /Users/alice/private.txt",
+        message: "token=abc123 for private@example.test at resume=private-file",
       });
 
       expect(message).toContain("JobSentinel ran into a problem");
       expect(message).not.toContain("abc123");
-      expect(message).not.toContain("alice@example.com");
-      expect(message).not.toContain("/Users/alice");
+      expect(message).not.toContain("private@example.test");
+      expect(message).not.toContain("resume=private-file");
     });
   });
 
@@ -105,9 +105,9 @@ describe("errorUtils", () => {
       vi.stubEnv("DEV", true);
 
       logError(
-        "Failed for alice@example.com",
+        "Failed for private@example.test",
         new Error(
-          "token=abc123 https://hooks.slack.com/services/T000/B000/secret /Users/alice/private.txt"
+          "token=abc123 https://hooks.slack.com/services/T000/B000/secret resume=private-file"
         )
       );
 
@@ -116,10 +116,10 @@ describe("errorUtils", () => {
         .map((value) => JSON.stringify(value))
         .join("\n");
 
-      expect(loggedOutput).not.toContain("alice@example.com");
+      expect(loggedOutput).not.toContain("private@example.test");
       expect(loggedOutput).not.toContain("abc123");
       expect(loggedOutput).not.toContain("hooks.slack.com/services");
-      expect(loggedOutput).not.toContain("/Users/alice");
+      expect(loggedOutput).not.toContain("resume=private-file");
       expect(loggedOutput).toContain("[EMAIL]");
       expect(loggedOutput).toContain("[TOKEN]");
 
