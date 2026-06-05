@@ -849,6 +849,8 @@ Out of scope:
   separate focused test files. `status.md` keeps the full recent-slice index.
 - Mock resume business hyphen-normalization evidence now has a compact
   table-driven test file; non-hyphen business synonym coverage stays in place.
+- ATS edge-case and duplicate/empty reminder tests now live in a child test
+  module; main ATS tests stay focused on core status, tracker, and stats flows.
 
 ## Risks
 

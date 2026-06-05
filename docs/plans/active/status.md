@@ -437,6 +437,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
   main business evidence test file into a compact table-driven mock-handler
   test.
 
+- ATS edge-case, duplicate job hash, empty board, and completed-reminder tests
+  moved out of the main ATS test file into a focused Rust child test module.
+
 ## Recent Completed Slices
 
 Detailed implementation history before the current restart window is in the
