@@ -50,6 +50,17 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Config Teams alert validation tests moved out of
+  `src-tauri/src/core/config/tests.rs` into
+  `src-tauri/src/core/config/tests/teams_tests.rs`.
+- The main config test file still owns general validation, source URL,
+  persistence, default, LinkedIn, auto-refresh, desktop, serde, boundary, and
+  property coverage plus shared fixtures.
+- `src-tauri/src/core/config/tests.rs` legacy no-growth budget tightened from
+  1,459 lines to 1,382 lines.
+
+Recent implementation slice:
+
 - Config Telegram alert validation tests moved out of
   `src-tauri/src/core/config/tests.rs` into
   `src-tauri/src/core/config/tests/telegram_tests.rs`.
@@ -59,7 +70,7 @@ Latest implementation slice:
 - `src-tauri/src/core/config/tests.rs` legacy no-growth budget tightened from
   1,545 lines to 1,459 lines.
 
-Recent implementation slice:
+Earlier implementation slice:
 
 - Config Discord alert validation tests moved out of
   `src-tauri/src/core/config/tests.rs` into

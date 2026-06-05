@@ -212,6 +212,7 @@ Out of scope:
 - [x] Split config email alert tests out of the main config test file.
 - [x] Split config Discord alert tests out of the main config test file.
 - [x] Split config Telegram alert tests out of the main config test file.
+- [x] Split config Teams alert tests out of the main config test file.
 
 ## Orchestration Log
 
