@@ -3,8 +3,10 @@ import {
   applyReviewVolumePreference,
   buildSetupSearchSummary,
   createDefaultSetupConfig,
+  formatSetupPayFloorSummary,
   getSuggestedJobSourceOptions,
   ghostConfigForFreshnessPreference,
+  normalizeSetupPayFloorUsd,
   toResumeSkillSuggestions,
 } from "./setupWizardPreferences";
 
@@ -108,6 +110,18 @@ describe("Setup Wizard preference helpers", () => {
       alerts: "Quiet desktop alerts; no sound",
       pay: "At least $60,000/year",
     });
+  });
+
+  it("converts hourly setup pay to yearly stored pay", () => {
+    expect(normalizeSetupPayFloorUsd("20", "hourly")).toBe(41600);
+    expect(normalizeSetupPayFloorUsd("60000", "yearly")).toBe(60000);
+    expect(normalizeSetupPayFloorUsd("", "hourly")).toBe(0);
+  });
+
+  it("summarizes hourly setup pay without hiding yearly storage meaning", () => {
+    expect(formatSetupPayFloorSummary(41600, "hourly")).toBe(
+      "At least $20/hour, about $41,600/year",
+    );
   });
 
   it("summarizes desktop alerts as off until the user turns them on", () => {

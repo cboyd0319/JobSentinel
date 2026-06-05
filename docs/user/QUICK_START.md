@@ -155,10 +155,11 @@ Skip this if nothing comes to mind.
 
 ### Question 5: What pay would make a job worth considering? (Optional)
 
-Add a minimum yearly pay amount if you know it. Leave it blank if you are not
-sure yet. Jobs without listed pay, minimum-only pay, or "up to" pay stay visible
-and marked, and jobs below your floor are warned about instead of silently
-hidden.
+Choose yearly or hourly pay, then add the minimum amount if you know it. Leave
+it blank if you are not sure yet. Hourly setup pay is shown with its yearly
+equivalent so pay-floor warnings still compare jobs consistently. Jobs without
+listed pay, minimum-only pay, or "up to" pay stay visible and marked, and jobs
+below your floor are warned about instead of silently hidden.
 
 ### Question 6: Where do you want to work?
 

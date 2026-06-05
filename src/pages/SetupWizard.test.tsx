@@ -168,7 +168,7 @@ describe("SetupWizard Accessibility", () => {
         screen.getByPlaceholderText("e.g., night shift, heavy travel"),
         "night shift{enter}",
       );
-      await user.type(screen.getByLabelText("Minimum yearly pay"), "65000");
+      await user.type(screen.getByLabelText("Minimum pay"), "65000");
 
       expect(screen.getByText("night shift")).toBeInTheDocument();
 
@@ -249,7 +249,7 @@ describe("SetupWizard Accessibility", () => {
         screen.getByPlaceholderText("e.g., night shift, heavy travel"),
         "night shift{enter}",
       );
-      await user.type(screen.getByLabelText("Minimum yearly pay"), "65000");
+      await user.type(screen.getByLabelText("Minimum pay"), "65000");
 
       await user.click(screen.getByRole("button", { name: /^continue$/i }));
       await user.click(screen.getByRole("button", { name: /^continue$/i }));
@@ -296,7 +296,7 @@ describe("SetupWizard Accessibility", () => {
       await user.click(screen.getByRole("button", { name: /build my search/i }));
       await user.type(screen.getByPlaceholderText("Add a job title..."), "Office Manager{enter}");
 
-      const payInput = screen.getByLabelText("Minimum yearly pay");
+      const payInput = screen.getByLabelText("Minimum pay");
       await user.type(payInput, "65000");
       expect(payInput).toHaveValue(65000);
       expect(screen.getByText("$65,000/year")).toBeInTheDocument();
@@ -324,6 +324,42 @@ describe("SetupWizard Accessibility", () => {
             config: expect.objectContaining({
               title_allowlist: ["Office Manager"],
               salary_floor_usd: 0,
+            }),
+          }),
+        );
+      });
+    });
+
+    it("saves an hourly pay floor as yearly salary floor", async () => {
+      const user = userEvent.setup();
+      mockInvoke.mockResolvedValue(undefined);
+      renderWithProviders(<SetupWizard onComplete={mockOnComplete} />);
+
+      await user.click(screen.getByRole("button", { name: /build my search/i }));
+      await user.type(screen.getByPlaceholderText("Add a job title..."), "Warehouse Associate{enter}");
+
+      await user.click(screen.getByRole("radio", { name: /^Hourly$/i }));
+      const payInput = screen.getByLabelText("Minimum pay");
+      await user.type(payInput, "20");
+
+      expect(payInput).toHaveValue(20);
+      expect(screen.getByText("$20/hour, about $41,600/year")).toBeInTheDocument();
+
+      await user.click(screen.getByRole("button", { name: /^continue$/i }));
+      await user.click(screen.getByRole("button", { name: /^continue$/i }));
+      expect(
+        screen.getByText("At least $20/hour, about $41,600/year"),
+      ).toBeInTheDocument();
+
+      await user.click(screen.getByRole("button", { name: /start finding jobs/i }));
+
+      await waitFor(() => {
+        expect(mockInvoke).toHaveBeenCalledWith(
+          "complete_setup",
+          expect.objectContaining({
+            config: expect.objectContaining({
+              title_allowlist: ["Warehouse Associate"],
+              salary_floor_usd: 41600,
             }),
           }),
         );

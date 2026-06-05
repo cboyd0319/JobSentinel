@@ -42,11 +42,14 @@ import {
   applyReviewVolumePreference,
   buildSetupSearchSummary,
   createDefaultSetupConfig,
+  formatSetupPayFloorSummary,
   ghostConfigForFreshnessPreference,
   type FreshnessPreference,
   type ReviewVolumePreference,
   type SetupConfig,
   type SetupJobSourceKey,
+  type SetupPayUnit,
+  normalizeSetupPayFloorUsd,
 } from "./setupWizardPreferences";
 import {
   getSetupWizardSourceReviewOptions,
@@ -81,6 +84,8 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
   const [skillInput, setSkillInput] = useState("");
   const [avoidInput, setAvoidInput] = useState("");
   const [cityInput, setCityInput] = useState("");
+  const [payFloorInput, setPayFloorInput] = useState("");
+  const [payFloorUnit, setPayFloorUnit] = useState<SetupPayUnit>("yearly");
   const toast = useToast();
   const [stepAnnouncement, setStepAnnouncement] = useState("");
   const [validationAnnouncement, setValidationAnnouncement] = useState("");
@@ -109,6 +114,10 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
       const profile = getProfileById(profileId);
       if (profile) {
         const profileConfig = profileToConfig(profile);
+        setPayFloorInput(profileConfig.salary_floor_usd > 0
+          ? String(profileConfig.salary_floor_usd)
+          : "");
+        setPayFloorUnit("yearly");
         setConfig(prev => applyReviewVolumePreference({
           ...prev,
           ...profileConfig,
@@ -118,6 +127,8 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
       // Reset to empty for the user's own search.
       setFreshnessPreference(DEFAULT_FRESHNESS_PREFERENCE);
       setReviewVolumePreference(DEFAULT_REVIEW_VOLUME_PREFERENCE);
+      setPayFloorInput("");
+      setPayFloorUnit("yearly");
       setConfig(createDefaultSetupConfig());
     }
   };
@@ -247,14 +258,23 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
   };
 
   const handleSalaryFloorChange = (value: string) => {
-    const parsed = Number.parseInt(value, 10);
+    setPayFloorInput(value);
     setConfig((prev) => ({
       ...prev,
-      salary_floor_usd: Number.isFinite(parsed) && parsed > 0 ? parsed : 0,
+      salary_floor_usd: normalizeSetupPayFloorUsd(value, payFloorUnit),
+    }));
+  };
+
+  const handlePayUnitChange = (unit: SetupPayUnit) => {
+    setPayFloorUnit(unit);
+    setConfig((prev) => ({
+      ...prev,
+      salary_floor_usd: normalizeSetupPayFloorUsd(payFloorInput, unit),
     }));
   };
 
   const handlePayNotSure = () => {
+    setPayFloorInput("");
     setConfig((prev) => ({
       ...prev,
       salary_floor_usd: 0,
@@ -381,7 +401,8 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
   const searchSummary = buildSetupSearchSummary(
     config,
     freshnessPreference,
-    reviewVolumePreference
+    reviewVolumePreference,
+    payFloorUnit
   );
   const suggestedJobSources = getSetupWizardSourceReviewOptions(config);
 
@@ -678,17 +699,41 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                   <PayIcon /> Lowest Pay
                 </h3>
                 <p className="mb-3 text-sm text-surface-500">
-                  Optional. Add the minimum yearly pay that would make a job worth considering.
+                  Optional. Add the lowest pay that would make a job worth considering.
                 </p>
                 <div className="space-y-2">
+                  <fieldset className="flex gap-2" aria-label="Pay unit">
+                    {(["yearly", "hourly"] as const).map((unit) => (
+                      <label
+                        key={unit}
+                        className={`
+                          flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm
+                          ${payFloorUnit === unit
+                            ? "border-sentinel-500 bg-sentinel-50 text-surface-800"
+                            : "border-surface-200 text-surface-600"
+                          }
+                        `}
+                      >
+                        <input
+                          type="radio"
+                          name="setup-pay-unit"
+                          value={unit}
+                          checked={payFloorUnit === unit}
+                          onChange={() => handlePayUnitChange(unit)}
+                          className="h-4 w-4 border-surface-300 text-sentinel-500 focus-visible:ring-sentinel-500"
+                        />
+                        <span className="capitalize">{unit}</span>
+                      </label>
+                    ))}
+                  </fieldset>
                   <Input
-                    label="Minimum yearly pay"
+                    label="Minimum pay"
                     type="number"
                     inputMode="numeric"
                     min={0}
-                    step={1000}
-                    placeholder="e.g., 60000"
-                    value={config.salary_floor_usd || ""}
+                    step={payFloorUnit === "hourly" ? 0.5 : 1000}
+                    placeholder={payFloorUnit === "hourly" ? "e.g., 20" : "e.g., 60000"}
+                    value={payFloorInput}
                     onChange={(e) => handleSalaryFloorChange(e.target.value)}
                     hint="Leave blank if unsure. Jobs without pay stay visible and marked."
                   />
@@ -707,7 +752,8 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                   <p className="mt-2 text-sm text-surface-600">
                     JobSentinel will warn when listed pay is below{" "}
                     <span className="font-semibold text-surface-800">
-                      ${config.salary_floor_usd.toLocaleString()}/year
+                      {formatSetupPayFloorSummary(config.salary_floor_usd, payFloorUnit)
+                        .replace("At least ", "")}
                     </span>
                     .
                   </p>

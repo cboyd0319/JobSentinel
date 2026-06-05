@@ -83,7 +83,9 @@ First-run desktop alerts start off and are saved only after the user turns them
 on. External alert channels stay optional and are configured later in Settings.
 First-run profile suggestions do not set a salary floor or narrow work-location
 modes without user choice. Location starts broad across remote, hybrid, and
-on-site, and pay stays unset unless the user enters a floor.
+on-site, and pay stays unset unless the user enters a floor. First-run pay can
+be entered as yearly or hourly; hourly pay is converted to an annual floor for
+local pay comparisons while the review keeps the hourly meaning visible.
 
 ### Safe Support Reports
 

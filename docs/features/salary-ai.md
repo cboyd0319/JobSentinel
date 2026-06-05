@@ -71,6 +71,9 @@ inputs, not as self-worth scores.
   level, schedule, and realistic pay.
 - Treat top-only listed pay, such as "up to" amounts, as weaker evidence until
   the starting pay is confirmed.
+- When first-run setup accepts an hourly pay floor, convert it to the saved
+  yearly pay floor for comparisons and keep hourly copy visible in setup
+  review.
 - Check whether title, scope, decision rights, team size, budget, and promotion
   path match the offered level.
 - Check schedule, travel, expected hours, location, benefits, review timing,

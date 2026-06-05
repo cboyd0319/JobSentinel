@@ -350,6 +350,8 @@ Out of scope:
   non-technical first-run searches while keeping it off until user opt-in.
 - [x] Move first-run source-review state into a focused helper so the setup
   page stays farther below the file-size limit after source additions.
+- [x] Let first-run users enter hourly pay floors and save them as yearly
+  comparison floors without losing hourly review copy.
 
 ## Orchestration Log
 
@@ -420,6 +422,9 @@ Out of scope:
 - Coordinator moved first-run source-review checked-state and opt-in source
   toggling into `src/pages/setupWizardSourceReviewState.ts`, dropping the main
   setup page from 1,173 to 1,119 lines without changing review behavior.
+- Coordinator added first-run hourly pay floor entry, converting hourly values
+  to yearly saved floors for pay comparisons while showing hourly meaning in
+  setup review.
 - Pay-protection sidecar was read-only and changed no files. Coordinator
   accepted its finding that negotiation-note drafts could treat benchmark
   values as offer facts, then fixed the Salary page, dev mock, tests, feature

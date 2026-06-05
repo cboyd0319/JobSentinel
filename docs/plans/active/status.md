@@ -109,6 +109,8 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
   public source, still off by default and saved only after source review opt-in.
 - First-run source-review state now lives in a focused helper, keeping the main
   setup page farther below the file-size limit after source additions.
+- First-run setup now accepts hourly pay floors, saves the annual equivalent
+  for local pay comparisons, and keeps the hourly meaning visible in review.
 
 - Job cards now run unsafe saved-link checks before custom dashboard open
   handlers, so visible **Check job link** guidance cannot be bypassed by a

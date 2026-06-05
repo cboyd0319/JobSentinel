@@ -39,6 +39,8 @@ export type ReviewVolumePreference =
   | "balanced"
   | "broad";
 
+export type SetupPayUnit = "yearly" | "hourly";
+
 export interface ReviewVolumeOption {
   id: ReviewVolumePreference;
   label: string;
@@ -118,6 +120,7 @@ export interface SuggestedJobSourceOption {
 
 export const DEFAULT_FRESHNESS_PREFERENCE: FreshnessPreference = "fresh_verified_first";
 export const DEFAULT_REVIEW_VOLUME_PREFERENCE: ReviewVolumePreference = "balanced";
+export const FULL_TIME_HOURS_PER_YEAR = 2080;
 
 export const FRESHNESS_GHOST_CONFIGS = {
   fresh_verified_first: {
@@ -345,6 +348,49 @@ export function formatJobSourceSummary(
   return `${sources.join(", ")} selected.`;
 }
 
+export function normalizeSetupPayFloorUsd(
+  value: string,
+  unit: SetupPayUnit,
+): number {
+  const parsed = Number.parseFloat(value);
+
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    return 0;
+  }
+
+  return Math.round(
+    unit === "hourly" ? parsed * FULL_TIME_HOURS_PER_YEAR : parsed,
+  );
+}
+
+function formatCurrency(value: number): string {
+  return `$${value.toLocaleString(undefined, {
+    maximumFractionDigits: 0,
+  })}`;
+}
+
+function formatHourlyCurrency(value: number): string {
+  return `$${value.toLocaleString(undefined, {
+    maximumFractionDigits: 2,
+  })}`;
+}
+
+export function formatSetupPayFloorSummary(
+  annualPayFloorUsd: number,
+  unit: SetupPayUnit = "yearly",
+): string {
+  if (annualPayFloorUsd <= 0) {
+    return "Show jobs even when pay is missing or not listed";
+  }
+
+  if (unit === "hourly") {
+    const hourlyPay = annualPayFloorUsd / FULL_TIME_HOURS_PER_YEAR;
+    return `At least ${formatHourlyCurrency(hourlyPay)}/hour, about ${formatCurrency(annualPayFloorUsd)}/year`;
+  }
+
+  return `At least ${formatCurrency(annualPayFloorUsd)}/year`;
+}
+
 export function getSuggestedJobSourceOptions(
   config: Pick<SetupConfig, "title_allowlist" | "keywords_boost" | "location_preferences">
 ): SuggestedJobSourceOption[] {
@@ -460,7 +506,8 @@ export function applyReviewVolumePreference(
 export function buildSetupSearchSummary(
   config: SetupConfig,
   freshnessPreference: FreshnessPreference,
-  reviewVolumePreference: ReviewVolumePreference
+  reviewVolumePreference: ReviewVolumePreference,
+  payUnit: SetupPayUnit = "yearly"
 ): SetupSearchSummary {
   return {
     titles: config.title_allowlist.join(", "),
@@ -475,9 +522,6 @@ export function buildSetupSearchSummary(
       : config.alerts.desktop.play_sound
         ? "Desktop alerts with sound"
         : "Quiet desktop alerts; no sound",
-    pay:
-      config.salary_floor_usd > 0
-        ? `At least $${config.salary_floor_usd.toLocaleString()}/year`
-        : "Show jobs even when pay is missing or not listed",
+    pay: formatSetupPayFloorSummary(config.salary_floor_usd, payUnit),
   };
 }
