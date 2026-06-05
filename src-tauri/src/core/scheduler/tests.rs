@@ -59,72 +59,14 @@ fn approve_jobswithgpt_payload(config: &mut Config) {
 
 #[path = "tests/basic_tests.rs"]
 mod basic_tests;
+#[path = "tests/interval_tests.rs"]
+mod interval_tests;
+#[path = "tests/result_tests.rs"]
+mod result_tests;
 
 // ========================================
 // Interval Validation and Edge Cases
 // ========================================
-
-#[test]
-fn test_schedule_config_minimum_interval() {
-    let config = ScheduleConfig {
-        interval_hours: 1,
-        enabled: true,
-    };
-
-    assert_eq!(config.interval_hours, 1);
-    assert!(config.enabled);
-}
-
-#[test]
-fn test_schedule_config_maximum_interval() {
-    let config = ScheduleConfig {
-        interval_hours: 168, // 1 week
-        enabled: true,
-    };
-
-    assert_eq!(config.interval_hours, 168);
-}
-
-#[test]
-fn test_schedule_config_zero_interval() {
-    // Zero interval is technically allowed but would run continuously
-    let config = ScheduleConfig {
-        interval_hours: 0,
-        enabled: true,
-    };
-
-    assert_eq!(config.interval_hours, 0);
-}
-
-#[tokio::test]
-async fn test_scheduler_interval_calculation() {
-    let mut config = create_test_config();
-    config.scraping_interval_hours = 4;
-    let config = Arc::new(config);
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
-    let database = Arc::new(db);
-
-    let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
-
-    // The interval should be converted to seconds correctly
-    // 4 hours = 4 * 3600 = 14400 seconds
-    let scheduler_config = scheduler.config.read().await;
-    assert_eq!(scheduler_config.scraping_interval_hours, 4);
-}
-
-#[tokio::test]
-async fn test_scheduler_very_large_interval() {
-    let mut config = create_test_config();
-    config.scraping_interval_hours = u64::MAX / 3600; // Very large but valid
-    let config = Arc::new(config);
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
-    let database = Arc::new(db);
-
-    // Should not panic when creating scheduler with large interval
-    let _scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
-}
 
 // ========================================
 // Scraping Cycle Execution Tracking
@@ -181,25 +123,6 @@ async fn test_scraping_cycle_tracks_new_vs_updated_jobs() {
     assert_eq!(result.jobs_updated, 0);
 }
 
-#[tokio::test]
-async fn test_scraping_result_partial_errors() {
-    let result = ScrapingResult {
-        jobs_found: 50,
-        jobs_new: 30,
-        jobs_updated: 20,
-        high_matches: 5,
-        alerts_sent: 3,
-        errors: vec![
-            "Greenhouse scraper timeout".to_string(),
-            "Lever scraper rate limit".to_string(),
-        ],
-    };
-
-    assert_eq!(result.jobs_found, 50);
-    assert_eq!(result.errors.len(), 2);
-    assert!(!result.errors.is_empty());
-}
-
 // ========================================
 // Error Handling and Recovery
 // ========================================
@@ -221,29 +144,6 @@ async fn test_scraping_cycle_continues_on_scraper_error() {
         result.is_ok(),
         "Scraping cycle should complete even with scraper errors"
     );
-}
-
-#[test]
-fn test_scraping_result_multiple_errors() {
-    let errors = vec![
-        "Error 1".to_string(),
-        "Error 2".to_string(),
-        "Error 3".to_string(),
-        "Error 4".to_string(),
-        "Error 5".to_string(),
-    ];
-
-    let result = ScrapingResult {
-        jobs_found: 10,
-        jobs_new: 10,
-        jobs_updated: 0,
-        high_matches: 0,
-        alerts_sent: 0,
-        errors: errors.clone(),
-    };
-
-    assert_eq!(result.errors.len(), 5);
-    assert_eq!(result.errors, errors);
 }
 
 // ========================================
@@ -376,84 +276,6 @@ async fn test_scraping_cycle_job_deduplication() {
 // Configuration Validation
 // ========================================
 
-#[test]
-fn test_schedule_config_from_various_intervals() {
-    let test_cases = vec![
-        (1, 1),     // 1 hour
-        (2, 2),     // 2 hours
-        (6, 6),     // 6 hours
-        (12, 12),   // 12 hours
-        (24, 24),   // 1 day
-        (168, 168), // 1 week
-    ];
-
-    for (input_hours, expected_hours) in test_cases {
-        let mut config = create_test_config();
-        config.scraping_interval_hours = input_hours;
-        let schedule_config = ScheduleConfig::from(&config);
-
-        assert_eq!(
-            schedule_config.interval_hours, expected_hours,
-            "Failed for interval: {} hours",
-            input_hours
-        );
-    }
-}
-
-#[tokio::test]
-async fn test_scheduler_respects_config_interval() {
-    let mut config = create_test_config();
-    config.scraping_interval_hours = 8;
-    let config = Arc::new(config);
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
-    let database = Arc::new(db);
-
-    let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
-
-    // Verify scheduler uses correct interval
-    let scheduler_config = scheduler.config.read().await;
-    assert_eq!(scheduler_config.scraping_interval_hours, 8);
-}
-
-// ========================================
-// Edge Cases
-// ========================================
-
-#[test]
-fn test_scraping_result_all_zeros() {
-    let result = ScrapingResult {
-        jobs_found: 0,
-        jobs_new: 0,
-        jobs_updated: 0,
-        high_matches: 0,
-        alerts_sent: 0,
-        errors: vec![],
-    };
-
-    assert_eq!(result.jobs_found, 0);
-    assert_eq!(result.jobs_new, 0);
-    assert_eq!(result.jobs_updated, 0);
-    assert_eq!(result.high_matches, 0);
-    assert_eq!(result.alerts_sent, 0);
-    assert!(result.errors.is_empty());
-}
-
-#[test]
-fn test_scraping_result_max_values() {
-    let result = ScrapingResult {
-        jobs_found: usize::MAX,
-        jobs_new: usize::MAX,
-        jobs_updated: usize::MAX,
-        high_matches: usize::MAX,
-        alerts_sent: usize::MAX,
-        errors: vec!["error".to_string(); 100],
-    };
-
-    assert_eq!(result.jobs_found, usize::MAX);
-    assert_eq!(result.errors.len(), 100);
-}
-
 #[tokio::test]
 async fn test_scheduler_immediate_shutdown() {
     let config = Arc::new(create_test_config());
@@ -493,81 +315,6 @@ async fn test_scheduler_rapid_shutdown_subscribe_cycle() {
     }
 
     scheduler.shutdown().unwrap();
-}
-
-#[test]
-fn test_schedule_config_equality_after_clone() {
-    let original = ScheduleConfig {
-        interval_hours: 5,
-        enabled: true,
-    };
-
-    let cloned = original.clone();
-
-    assert_eq!(original.interval_hours, cloned.interval_hours);
-    assert_eq!(original.enabled, cloned.enabled);
-}
-
-#[test]
-fn test_scraping_result_equality_after_clone() {
-    let original = ScrapingResult {
-        jobs_found: 42,
-        jobs_new: 20,
-        jobs_updated: 22,
-        high_matches: 8,
-        alerts_sent: 4,
-        errors: vec!["test".to_string()],
-    };
-
-    let cloned = original.clone();
-
-    assert_eq!(original.jobs_found, cloned.jobs_found);
-    assert_eq!(original.jobs_new, cloned.jobs_new);
-    assert_eq!(original.jobs_updated, cloned.jobs_updated);
-    assert_eq!(original.high_matches, cloned.high_matches);
-    assert_eq!(original.alerts_sent, cloned.alerts_sent);
-    assert_eq!(original.errors, cloned.errors);
-}
-
-// ========================================
-// Duration Calculation Tests
-// ========================================
-
-#[tokio::test]
-async fn test_scheduler_interval_duration_conversion() {
-    let test_cases = vec![
-        (1, 3600),   // 1 hour = 3600 seconds
-        (2, 7200),   // 2 hours
-        (4, 14400),  // 4 hours
-        (8, 28800),  // 8 hours
-        (12, 43200), // 12 hours
-        (24, 86400), // 24 hours
-    ];
-
-    for (hours, expected_seconds) in test_cases {
-        let duration = Duration::from_secs(hours * 3600);
-        assert_eq!(
-            duration.as_secs(),
-            expected_seconds,
-            "Duration conversion failed for {} hours",
-            hours
-        );
-    }
-}
-
-#[test]
-fn test_scheduler_duration_overflow_protection() {
-    // Test that very large intervals don't overflow
-    let max_safe_hours = u64::MAX / 3600;
-    let duration = Duration::from_secs(max_safe_hours * 3600);
-    assert!(duration.as_secs() > 0);
-}
-
-#[tokio::test]
-async fn test_scheduler_zero_interval_duration() {
-    let duration = Duration::from_secs(0);
-    assert_eq!(duration.as_secs(), 0);
-    assert_eq!(duration.as_millis(), 0);
 }
 
 #[path = "tests/scraper_cycle_tests.rs"]
@@ -1004,56 +751,6 @@ async fn test_scraping_cycle_notification_error_handling() {
 // Interval and Timing Edge Cases
 // ========================================
 
-#[tokio::test]
-async fn test_scheduler_with_one_hour_interval() {
-    let mut config = create_test_config();
-    config.scraping_interval_hours = 1;
-    let config = Arc::new(config);
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
-    let database = Arc::new(db);
-
-    let scheduler = Arc::new(Scheduler::new(Arc::clone(&config), Arc::clone(&database)));
-    let scheduler_clone = Arc::clone(&scheduler);
-
-    // Start scheduler with 1-hour interval
-    let handle = tokio::spawn(async move { scheduler_clone.start().await });
-
-    // Let it run briefly
-    tokio::time::sleep(Duration::from_millis(100)).await;
-
-    // Shutdown
-    scheduler.shutdown().unwrap();
-
-    let result = tokio::time::timeout(Duration::from_secs(5), handle).await;
-    assert!(result.is_ok());
-}
-
-#[tokio::test]
-async fn test_scheduler_with_weekly_interval() {
-    let mut config = create_test_config();
-    config.scraping_interval_hours = 168; // 1 week
-    let config = Arc::new(config);
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
-    let database = Arc::new(db);
-
-    let scheduler = Arc::new(Scheduler::new(Arc::clone(&config), Arc::clone(&database)));
-    let scheduler_clone = Arc::clone(&scheduler);
-
-    // Start scheduler with weekly interval
-    let handle = tokio::spawn(async move { scheduler_clone.start().await });
-
-    // Let it run briefly
-    tokio::time::sleep(Duration::from_millis(100)).await;
-
-    // Shutdown
-    scheduler.shutdown().unwrap();
-
-    let result = tokio::time::timeout(Duration::from_secs(5), handle).await;
-    assert!(result.is_ok());
-}
-
 // ========================================
 // Job Scoring and Serialization
 // ========================================
@@ -1141,32 +838,6 @@ async fn test_complete_workflow_with_all_error_paths() {
 
     let result = tokio::time::timeout(Duration::from_secs(5), handle).await;
     assert!(result.is_ok());
-}
-
-#[tokio::test]
-async fn test_scheduler_with_custom_intervals_coverage() {
-    // Test various interval configurations
-    let intervals = vec![1, 2, 3, 4, 6, 8, 12, 24];
-
-    for interval in intervals {
-        let mut config = create_test_config();
-        config.scraping_interval_hours = interval;
-        let config = Arc::new(config);
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
-        let database = Arc::new(db);
-
-        let scheduler = Arc::new(Scheduler::new(Arc::clone(&config), Arc::clone(&database)));
-        let scheduler_clone = Arc::clone(&scheduler);
-
-        let handle = tokio::spawn(async move { scheduler_clone.start().await });
-
-        tokio::time::sleep(Duration::from_millis(50)).await;
-        scheduler.shutdown().unwrap();
-
-        let result = tokio::time::timeout(Duration::from_secs(5), handle).await;
-        assert!(result.is_ok(), "Failed for interval: {}", interval);
-    }
 }
 
 // ========================================
@@ -1485,26 +1156,6 @@ async fn test_scraping_cycle_job_sorting_with_equal_scores() {
 
     // Exercises sorting code path
     assert_eq!(result.jobs_found, 0);
-}
-
-#[tokio::test]
-async fn test_scheduler_interval_conversion_edge_cases() {
-    // Test interval to Duration conversion
-    let test_cases = vec![(0, 0), (1, 3600), (24, 86400), (168, 604800)];
-
-    for (hours, expected_secs) in test_cases {
-        let mut config = create_test_config();
-        config.scraping_interval_hours = hours;
-        let config = Arc::new(config);
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
-        let database = Arc::new(db);
-
-        let _scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
-
-        // Verify the calculation: hours * 3600
-        assert_eq!(hours * 3600, expected_secs);
-    }
 }
 
 #[tokio::test]

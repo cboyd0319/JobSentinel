@@ -50,6 +50,17 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 Latest implementation slice:
 
+- Scheduler interval edge-case and scraping-result model tests moved out of
+  `src-tauri/src/core/scheduler/tests.rs` into
+  `src-tauri/src/core/scheduler/tests/interval_tests.rs` and
+  `src-tauri/src/core/scheduler/tests/result_tests.rs`.
+- The main scheduler test file still owns shutdown, logging, error-path,
+  notification, and remaining scraping-cycle coverage.
+- `src-tauri/src/core/scheduler/tests.rs` legacy no-growth budget tightened
+  from 1,609 lines to 1,260 lines.
+
+Earlier implementation slice:
+
 - DB integrity backup, restore, cleanup, and backup-history tests moved out of
   `src-tauri/src/core/db/integrity/tests.rs` into
   `src-tauri/src/core/db/integrity/tests/backup_tests.rs`.
