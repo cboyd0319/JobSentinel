@@ -40,10 +40,11 @@ Source the user turned on
   -> record safe status details
 ```
 
-First-run setup shows any enabled job sources before the user saves the search.
-If no outside source is selected, the review summary says the setup is a local
-saved search only. Source checks do not receive resumes, private notes, saved
-answers, application history, or unrelated profile details.
+First-run setup can suggest job sources before the user saves the search, but it
+contacts only sources the user checks in review. If no outside source is
+selected, the review summary says the setup is a local saved search only. Source
+checks do not receive resumes, private notes, saved answers, application
+history, or unrelated profile details.
 
 ## Source Status And Help
 

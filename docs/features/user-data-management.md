@@ -68,8 +68,8 @@ hospitality, trades and field service, healthcare, education, customer support,
 sales, finance, operations, creative, legal, data, security, and software work.
 When a starting path is selected, setup previews sample job titles and search
 words as editable suggestions before the search is saved.
-Only software, security, and data paths turn on tech-heavy job sources by
-default.
+Software, security, and data paths can suggest tech-heavy job sources, but
+first-run setup keeps them off until the user checks those sources in review.
 
 ### Notification Preferences
 

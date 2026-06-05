@@ -601,8 +601,6 @@ export function getProfileById(id: string): CareerProfile | undefined {
  * Convert a career profile to config format for first-run setup
  */
 export function profileToConfig(profile: CareerProfile) {
-  const sourceDefaults = getProfileSourceDefaults(profile);
-
   return {
     title_allowlist: [...profile.titleAllowlist],
     title_blocklist: [...profile.titleBlocklist],
@@ -624,19 +622,20 @@ export function profileToConfig(profile: CareerProfile) {
         show_when_focused: false,
       },
     },
-    // Tech-heavy sources are enabled only for profiles where they fit.
+    // First-run setup shows source suggestions separately. Sources stay off
+    // until the user checks them in review or turns them on in Settings.
     remoteok: {
-      enabled: sourceDefaults.remoteokEnabled,
+      enabled: false,
       tags: [] as string[],
       limit: 50,
     },
     hn_hiring: {
-      enabled: sourceDefaults.hnHiringEnabled,
+      enabled: false,
       remote_only: false,
       limit: 100,
     },
     weworkremotely: {
-      enabled: sourceDefaults.weworkremotelyEnabled,
+      enabled: false,
       limit: 50,
     },
   };

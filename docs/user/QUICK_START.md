@@ -208,8 +208,13 @@ Before job checks start, JobSentinel shows the answers it will use to rank jobs:
 - Location
 - Freshness
 - Review list
+- Job sources
 - Alerts
 - Pay
+
+If JobSentinel suggests outside job sources for the search, check only the
+sources you want it to contact. Leave them unchecked to start with a local
+saved search and add sources later in Settings.
 
 Change anything that looks wrong, then start finding jobs.
 

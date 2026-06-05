@@ -76,9 +76,9 @@ describe("profiles", () => {
       expect(config.location_preferences.cities).toEqual([]);
       expect(config.alerts.desktop.play_sound).toBe(false);
       expect(config.alerts.desktop.show_when_focused).toBe(false);
-      expect(config.remoteok.enabled).toBe(true);
-      expect(config.hn_hiring.enabled).toBe(true);
-      expect(config.weworkremotely.enabled).toBe(true);
+      expect(config.remoteok.enabled).toBe(false);
+      expect(config.hn_hiring.enabled).toBe(false);
+      expect(config.weworkremotely.enabled).toBe(false);
     });
 
     it("keeps broad profiles off tech-heavy sources by default", () => {

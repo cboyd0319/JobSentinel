@@ -3,6 +3,7 @@ import {
   applyReviewVolumePreference,
   buildSetupSearchSummary,
   createDefaultSetupConfig,
+  getSuggestedJobSourceOptions,
   ghostConfigForFreshnessPreference,
   toResumeSkillSuggestions,
 } from "./setupWizardPreferences";
@@ -105,16 +106,36 @@ describe("Setup Wizard preference helpers", () => {
     });
   });
 
-  it("shows technical source defaults as reviewed before saving", () => {
+  it("suggests technical sources without selecting them", () => {
     const config = {
       ...createDefaultSetupConfig(),
       title_allowlist: ["Software Engineer"],
       keywords_boost: ["React"],
     };
 
+    expect(getSuggestedJobSourceOptions(config).map((source) => source.key)).toEqual([
+      "remoteok",
+      "weworkremotely",
+      "hn_hiring",
+    ]);
     expect(buildSetupSearchSummary(config, "balanced", "balanced")).toMatchObject({
-      jobSources:
-        "Remote OK, We Work Remotely, Startup and tech hiring posts. Shown for review before saving; turn any source off in Settings.",
+      jobSources: "No outside job sources selected; add reviewed sources in Settings.",
+    });
+  });
+
+  it("summarizes only sources the user selected", () => {
+    const config = {
+      ...createDefaultSetupConfig(),
+      title_allowlist: ["Software Engineer"],
+      keywords_boost: ["React"],
+      remoteok: {
+        ...createDefaultSetupConfig().remoteok,
+        enabled: true,
+      },
+    };
+
+    expect(buildSetupSearchSummary(config, "balanced", "balanced")).toMatchObject({
+      jobSources: "Remote OK selected.",
     });
   });
 });

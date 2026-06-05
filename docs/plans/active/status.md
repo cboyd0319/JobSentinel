@@ -51,6 +51,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- First-run setup now keeps suggested tech-heavy job sources off until the user
+  checks them in review, and saves only checked sources.
+
 - Job cards now run unsafe saved-link checks before custom dashboard open
   handlers, so visible **Check job link** guidance cannot be bypassed by a
   callback path.

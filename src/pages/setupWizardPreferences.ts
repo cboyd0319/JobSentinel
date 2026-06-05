@@ -96,6 +96,14 @@ export interface SetupSearchSummary {
   pay: string;
 }
 
+export type SetupJobSourceKey = "remoteok" | "weworkremotely" | "hn_hiring";
+
+export interface SuggestedJobSourceOption {
+  key: SetupJobSourceKey;
+  label: string;
+  description: string;
+}
+
 export const DEFAULT_FRESHNESS_PREFERENCE: FreshnessPreference = "fresh_verified_first";
 export const DEFAULT_REVIEW_VOLUME_PREFERENCE: ReviewVolumePreference = "balanced";
 
@@ -300,28 +308,57 @@ export function formatLocationSummary(locationPreferences: LocationPreferences) 
 }
 
 export function formatJobSourceSummary(
-  config: Pick<SetupConfig, "title_allowlist" | "keywords_boost" | "location_preferences" | "remoteok" | "hn_hiring" | "weworkremotely">
+  config: Pick<SetupConfig, "remoteok" | "hn_hiring" | "weworkremotely">
 ): string {
-  const sourceDefaults = getSearchSourceDefaults({
-    titles: config.title_allowlist,
-    keywords: config.keywords_boost,
-    allowRemote: config.location_preferences.allow_remote,
-  });
   const sources = [
-    config.remoteok.enabled || sourceDefaults.remoteokEnabled ? "Remote OK" : null,
-    config.weworkremotely.enabled || sourceDefaults.weworkremotelyEnabled
-      ? "We Work Remotely"
-      : null,
-    config.hn_hiring.enabled || sourceDefaults.hnHiringEnabled
-      ? "Startup and tech hiring posts"
-      : null,
+    config.remoteok.enabled ? "Remote OK" : null,
+    config.weworkremotely.enabled ? "We Work Remotely" : null,
+    config.hn_hiring.enabled ? "Startup and tech hiring posts" : null,
   ].filter((source): source is string => source !== null);
 
   if (sources.length === 0) {
     return "No outside job sources selected; add reviewed sources in Settings.";
   }
 
-  return `${sources.join(", ")}. Shown for review before saving; turn any source off in Settings.`;
+  return `${sources.join(", ")} selected.`;
+}
+
+export function getSuggestedJobSourceOptions(
+  config: Pick<SetupConfig, "title_allowlist" | "keywords_boost" | "location_preferences">
+): SuggestedJobSourceOption[] {
+  const sourceDefaults = getSearchSourceDefaults({
+    titles: config.title_allowlist,
+    keywords: config.keywords_boost,
+    allowRemote: config.location_preferences.allow_remote,
+  });
+
+  const sourceOptions: SuggestedJobSourceOption[] = [];
+
+  if (sourceDefaults.remoteokEnabled) {
+    sourceOptions.push({
+      key: "remoteok",
+      label: "Remote OK",
+      description: "Remote roles, mostly tech and startup work.",
+    });
+  }
+
+  if (sourceDefaults.weworkremotelyEnabled) {
+    sourceOptions.push({
+      key: "weworkremotely",
+      label: "We Work Remotely",
+      description: "Remote roles across tech, support, product, and marketing.",
+    });
+  }
+
+  if (sourceDefaults.hnHiringEnabled) {
+    sourceOptions.push({
+      key: "hn_hiring",
+      label: "Startup and tech job posts",
+      description: "Public startup and tech hiring posts.",
+    });
+  }
+
+  return sourceOptions;
 }
 
 export function toResumeSkillSuggestions(skills: SetupResumeSkill[]): string[] {

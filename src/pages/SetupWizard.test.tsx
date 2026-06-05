@@ -281,7 +281,7 @@ describe("SetupWizard Accessibility", () => {
         screen.getByText(/roles that fit your saved search/i),
       ).toBeInTheDocument();
       expect(screen.getByText(/saves your search on this computer/i)).toBeInTheDocument();
-      expect(screen.getByText(/can contact only the job sources shown above/i)).toBeInTheDocument();
+      expect(screen.getByText(/can contact only checked job sources in this review/i)).toBeInTheDocument();
       expect(screen.getByText(/does not send resumes, private notes, saved answers, or application history/i)).toBeInTheDocument();
       expect(screen.queryByText(/only contacts job sources or alert services/i)).not.toBeInTheDocument();
       expect(screen.queryByText(/nothing is sent anywhere/i)).not.toBeInTheDocument();
@@ -501,7 +501,7 @@ describe("SetupWizard Accessibility", () => {
       });
     });
 
-    it("turns on tech-heavy sources for technical searches only", async () => {
+    it("offers tech-heavy sources but saves only selected sources", async () => {
       const user = userEvent.setup();
       mockInvoke.mockResolvedValue(undefined);
       renderWithProviders(<SetupWizard onComplete={mockOnComplete} />);
@@ -513,10 +513,25 @@ describe("SetupWizard Accessibility", () => {
 
       expect(screen.getByText("Job sources")).toBeInTheDocument();
       expect(
-        screen.getByText(
-          "Remote OK, We Work Remotely, Startup and tech hiring posts. Shown for review before saving; turn any source off in Settings.",
-        ),
+        screen.getByText("No outside job sources selected; add reviewed sources in Settings."),
       ).toBeInTheDocument();
+
+      const remoteOkSource = screen.getByRole("checkbox", {
+        name: /Remote OK/i,
+      });
+      const weWorkRemotelySource = screen.getByRole("checkbox", {
+        name: /We Work Remotely/i,
+      });
+      const startupSource = screen.getByRole("checkbox", {
+        name: /Startup and tech job posts/i,
+      });
+
+      expect(remoteOkSource).not.toBeChecked();
+      expect(weWorkRemotelySource).not.toBeChecked();
+      expect(startupSource).not.toBeChecked();
+
+      await user.click(remoteOkSource);
+      expect(screen.getByText("Remote OK selected.")).toBeInTheDocument();
 
       await user.click(screen.getByRole("button", { name: /start finding jobs/i }));
 
@@ -527,8 +542,8 @@ describe("SetupWizard Accessibility", () => {
             config: expect.objectContaining({
               title_allowlist: ["Software Engineer"],
               remoteok: expect.objectContaining({ enabled: true }),
-              hn_hiring: expect.objectContaining({ enabled: true }),
-              weworkremotely: expect.objectContaining({ enabled: true }),
+              hn_hiring: expect.objectContaining({ enabled: false }),
+              weworkremotely: expect.objectContaining({ enabled: false }),
             }),
           }),
         );

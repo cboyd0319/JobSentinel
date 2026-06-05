@@ -316,6 +316,8 @@ Out of scope:
   the final legacy oversized-file exception.
 - [x] Block unsafe saved job links before custom dashboard open callbacks can
   receive the link.
+- [x] Keep first-run tech-heavy source suggestions off until the user checks
+  them in review.
 
 ## Orchestration Log
 

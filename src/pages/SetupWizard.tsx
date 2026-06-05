@@ -9,7 +9,6 @@ import { safeInvoke, safeInvokeWithToast } from "../utils/api";
 import {
   CAREER_PROFILES,
   getProfileById,
-  getSearchSourceDefaults,
   profileToConfig,
 } from "../utils/profiles";
 import {
@@ -35,6 +34,7 @@ import {
   type ResumeSuggestionState,
 } from "./SetupWizardResumeSuggestions";
 import { SetupWizardSearchSummary } from "./SetupWizardSearchSummary";
+import { SetupWizardSourceReview } from "./SetupWizardSourceReview";
 import {
   COMMON_WORK_TO_AVOID,
   COMMON_STARTER_JOB_TITLES,
@@ -46,10 +46,12 @@ import {
   buildSetupSearchSummary,
   createDefaultSetupConfig,
   ghostConfigForFreshnessPreference,
+  getSuggestedJobSourceOptions,
   toResumeSkillSuggestions,
   type FreshnessPreference,
   type ReviewVolumePreference,
   type SetupConfig,
+  type SetupJobSourceKey,
   type SetupResumeSkill,
   type SetupResumeSummary,
 } from "./setupWizardPreferences";
@@ -348,6 +350,40 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
     }));
   };
 
+  const handleToggleJobSource = (
+    source: SetupJobSourceKey,
+    enabled: boolean,
+  ) => {
+    setConfig((prev) => {
+      switch (source) {
+        case "remoteok":
+          return {
+            ...prev,
+            remoteok: {
+              ...prev.remoteok,
+              enabled,
+            },
+          };
+        case "hn_hiring":
+          return {
+            ...prev,
+            hn_hiring: {
+              ...prev.hn_hiring,
+              enabled,
+            },
+          };
+        case "weworkremotely":
+          return {
+            ...prev,
+            weworkremotely: {
+              ...prev.weworkremotely,
+              enabled,
+            },
+          };
+      }
+    });
+  };
+
   const handleAddCity = () => {
     const trimmed = cityInput.trim();
     if (trimmed && !config.location_preferences.cities.includes(trimmed)) {
@@ -394,34 +430,13 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
     }
 
     try {
-      const sourceDefaults = getSearchSourceDefaults({
-        titles: config.title_allowlist,
-        keywords: config.keywords_boost,
-        allowRemote: config.location_preferences.allow_remote,
-      });
-      const configWithSourceDefaults = {
-        ...config,
-        remoteok: {
-          ...config.remoteok,
-          enabled: config.remoteok.enabled || sourceDefaults.remoteokEnabled,
-        },
-        hn_hiring: {
-          ...config.hn_hiring,
-          enabled: config.hn_hiring.enabled || sourceDefaults.hnHiringEnabled,
-        },
-        weworkremotely: {
-          ...config.weworkremotely,
-          enabled: config.weworkremotely.enabled || sourceDefaults.weworkremotelyEnabled,
-        },
-      };
-
       // Create config object without the webhook_url (it's stored in keyring, not config file)
       const configToSave = {
-        ...configWithSourceDefaults,
+        ...config,
         alerts: {
-          ...configWithSourceDefaults.alerts,
+          ...config.alerts,
           slack: {
-            enabled: configWithSourceDefaults.alerts.slack.enabled,
+            enabled: config.alerts.slack.enabled,
             // webhook_url is intentionally omitted - stored in OS keyring
           },
         },
@@ -442,6 +457,16 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
     freshnessPreference,
     reviewVolumePreference
   );
+  const suggestedJobSources = getSuggestedJobSourceOptions(config).map((source) => {
+    switch (source.key) {
+      case "remoteok":
+        return { ...source, checked: config.remoteok.enabled };
+      case "hn_hiring":
+        return { ...source, checked: config.hn_hiring.enabled };
+      case "weworkremotely":
+        return { ...source, checked: config.weworkremotely.enabled };
+    }
+  });
 
   return (
     <div className="min-h-screen bg-surface-900 flex items-center justify-center p-6">
@@ -1116,6 +1141,10 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                 </div>
               </div>
 
+              <SetupWizardSourceReview
+                sources={suggestedJobSources}
+                onToggleSource={handleToggleJobSource}
+              />
               <SetupWizardSearchSummary summary={searchSummary} />
 
               <div className="flex gap-3">
