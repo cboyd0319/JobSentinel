@@ -1,8 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Button } from "../components/Button";
-import { Card, CardHeader } from "../components/Card";
+import { Card } from "../components/Card";
 import { LoadingSpinner } from "../components/LoadingSpinner";
-import { Progress } from "../components/Progress";
 import { Modal, ModalFooter } from "../components/Modal";
 import { AtsLiveScorePanel } from "../components/AtsLiveScorePanel";
 import ContactStep from "../components/resume-builder/steps/ContactStep";
@@ -13,20 +12,16 @@ import SummaryStep from "../components/resume-builder/steps/SummaryStep";
 import { useToast } from "../hooks/useToast";
 import { safeInvoke, safeInvokeWithToast } from "../utils/api";
 import { getSafeErrorToastCopy } from "../utils/safeErrorCopy";
-import {
-  clearStoredResumeJobContext,
-  hasStoredResumeJobContext,
-} from "../utils/resumeJobContext";
+import { hasStoredResumeJobContext } from "../utils/resumeJobContext";
 import {
   canProceedResumeBuilderStep,
   getResumeBuilderStepValidationMessage,
 } from "./resumeBuilderValidation";
-import {
-  CheckCircleIcon,
-  DocxIcon,
-  PdfIcon,
-} from "./ResumeBuilderVisuals";
+import { ResumeBuilderExportStep } from "./ResumeBuilderExportStep";
+import { ResumeBuilderJobContextCard } from "./ResumeBuilderJobContextCard";
+import { ResumeBuilderNavigation } from "./ResumeBuilderNavigation";
 import { ResumeBuilderPreviewStep } from "./ResumeBuilderPreviewStep";
+import { ResumeBuilderProgress } from "./ResumeBuilderProgress";
 import {
   STEPS,
   normalizeAtsAnalysis,
@@ -66,7 +61,6 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
   const initializedRef = useRef(false);
   const hasJobContext = hasStoredResumeJobContext();
 
-  // Contact form state
   const [contact, setContact] = useState<ContactInfo>({
     name: "",
     email: "",
@@ -77,20 +71,16 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
     website: null,
   });
 
-  // Summary state
   const [summary, setSummary] = useState("");
 
-  // Experience state
   const [experiences, setExperiences] = useState<Experience[]>([]);
   const [editingExperience, setEditingExperience] = useState<Experience | null>(null);
   const [showExperienceModal, setShowExperienceModal] = useState(false);
 
-  // Education state
   const [educations, setEducations] = useState<Education[]>([]);
   const [editingEducation, setEditingEducation] = useState<Education | null>(null);
   const [showEducationModal, setShowEducationModal] = useState(false);
 
-  // Skills state
   const [skills, setSkills] = useState<SkillEntry[]>([]);
   const [deleteConfirm, setDeleteConfirm] = useState<{
     type: 'experience' | 'education' | 'skill';
@@ -631,47 +621,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
         </div>
       </header>
 
-      {/* Progress Bar */}
-      <div className="bg-white dark:bg-surface-800 border-b border-surface-200 dark:border-surface-700">
-        <div className="max-w-5xl mx-auto px-6 py-3">
-          <Progress
-            value={((currentStep - 1) / (STEPS.length - 1)) * 100}
-            size="sm"
-            variant="sentinel"
-          />
-          <div className="flex justify-between mt-3">
-            {STEPS.map((step) => (
-              <div
-                key={step.id}
-                className={`text-xs text-center ${
-                  step.id === currentStep
-                    ? "text-sentinel-600 dark:text-sentinel-400 font-semibold"
-                    : step.id < currentStep
-                    ? "text-surface-600 dark:text-surface-400"
-                    : "text-surface-400 dark:text-surface-500"
-                }`}
-              >
-                <div
-                  className={`w-8 h-8 rounded-full mx-auto mb-1 flex items-center justify-center text-sm ${
-                    step.id === currentStep
-                      ? "bg-sentinel-500 text-white"
-                      : step.id < currentStep
-                      ? "bg-sentinel-100 dark:bg-sentinel-900/30 text-sentinel-600 dark:text-sentinel-400"
-                      : "bg-surface-100 dark:bg-surface-700 text-surface-400"
-                  }`}
-                >
-                  {step.id < currentStep ? (
-                    <CheckCircleIcon className="w-4 h-4" />
-                  ) : (
-                    step.id
-                  )}
-                </div>
-                <div className="hidden sm:block">{step.name}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+      <ResumeBuilderProgress currentStep={currentStep} />
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-6 py-8">
@@ -726,60 +676,22 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
             />
           )}
 
-          {/* Step 7: Export */}
           {currentStep === 7 && (
-            <div className="space-y-6 text-center">
-              <CardHeader
-                title="Export Resume"
-                subtitle="Download your resume in PDF or DOCX format"
-              />
-              <div className="py-8">
-                <CheckCircleIcon className="w-16 h-16 text-success mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-surface-800 dark:text-surface-200 mb-2">
-                  Your resume is ready!
-                </h3>
-                <p className="text-sm text-surface-600 dark:text-surface-400 mb-6">
-                  Export as PDF for final submission or DOCX for further editing
-                </p>
-                <div className="flex gap-3 justify-center flex-wrap">
-                  <Button onClick={handleExportPdf} loading={exporting} size="lg">
-                    <PdfIcon className="w-5 h-5 mr-2" />
-                    Download PDF
-                  </Button>
-                  <Button onClick={handleExportDocx} loading={exporting} size="lg" variant="secondary">
-                    <DocxIcon className="w-5 h-5 mr-2" />
-                    Download DOCX
-                  </Button>
-                </div>
-                <p className="text-xs text-surface-500 dark:text-surface-400 mt-4">
-                  PDF export opens your browser's print dialog - select "Save as PDF"
-                </p>
-              </div>
-            </div>
+            <ResumeBuilderExportStep
+              exporting={exporting}
+              onExportDocx={handleExportDocx}
+              onExportPdf={handleExportPdf}
+            />
           )}
 
-          {/* Navigation Buttons */}
-          <div className="flex items-center justify-between pt-6 mt-6 border-t border-surface-200 dark:border-surface-700">
-            <Button
-              variant="secondary"
-              onClick={handlePrevious}
-              disabled={currentStep === 1}
-            >
-              Previous
-            </Button>
-            <div className="text-sm text-surface-500 dark:text-surface-400">
-              {saving && "Saving..."}
-            </div>
-            {currentStep < STEPS.length ? (
-              <Button onClick={handleNext} loading={saving}>
-                Next
-              </Button>
-            ) : (
-              <Button onClick={handleExport} loading={exporting}>
-                Export Resume
-              </Button>
-            )}
-          </div>
+          <ResumeBuilderNavigation
+            currentStep={currentStep}
+            exporting={exporting}
+            saving={saving}
+            onExport={handleExport}
+            onNext={handleNext}
+            onPrevious={handlePrevious}
+          />
         </Card>
           </div>
 
@@ -802,29 +714,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
               showFullAnalysis={true}
             />
 
-            {/* Job Context Info */}
-            {hasJobContext && (
-              <div className="bg-white dark:bg-surface-800 rounded-lg border border-surface-200 dark:border-surface-700 shadow-sm p-4">
-                <h4 className="text-sm font-semibold text-surface-800 dark:text-surface-200 mb-2 flex items-center gap-2">
-                  <svg className="w-4 h-4 text-sentinel-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                  Tailoring for Job
-                </h4>
-                <p className="text-xs text-surface-500 dark:text-surface-400">
-                  Your resume is being checked against a saved job description from Resume Match.
-                </p>
-                <button
-                  onClick={() => {
-                    clearStoredResumeJobContext();
-                    window.location.reload();
-                  }}
-                  className="mt-2 text-xs text-red-600 dark:text-red-400 hover:underline"
-                >
-                  Clear job context
-                </button>
-              </div>
-            )}
+            <ResumeBuilderJobContextCard visible={hasJobContext} />
           </div>
         </div>
       </main>

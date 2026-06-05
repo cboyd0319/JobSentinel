@@ -362,6 +362,8 @@ Out of scope:
   hard requirements.
 - [x] Move Resume Match recent-match rendering into a focused component so the
   page stays close to the file-size limit.
+- [x] Move Resume Builder progress, export, navigation, and job-context UI into
+  focused components so the main page sits under the file-size limit.
 
 ## Orchestration Log
 
@@ -448,6 +450,9 @@ Out of scope:
 - Coordinator moved the Resume Match recent-match card into
   `src/pages/ResumeRecentMatches.tsx`, reducing the main resume page from 1,171
   to 1,003 lines without changing score or gap rendering.
+- Coordinator moved Resume Builder progress, export, navigation, and
+  job-context rendering into focused components, reducing the main builder page
+  from 1,106 to 996 lines without changing builder flow.
 - Pay-protection sidecar was read-only and changed no files. Coordinator
   accepted its finding that negotiation-note drafts could treat benchmark
   values as offer facts, then fixed the Salary page, dev mock, tests, feature

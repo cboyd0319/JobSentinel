@@ -123,6 +123,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 - Resume Match recent-match rendering now lives in a focused component, keeping
   the main resume page close to the file-size limit.
 
+- Resume Builder progress, export, navigation, and job-context rendering now
+  live in focused components, putting the main builder page below the file-size
+  limit.
+
 - First-run hourly pay controls now live in a focused setup component, keeping
   the main setup page farther below the file-size limit.
 
