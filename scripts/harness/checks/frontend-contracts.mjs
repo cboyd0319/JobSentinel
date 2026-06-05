@@ -118,6 +118,7 @@ export function hasStaleResumeOptimizerMockHandlers(root, path) {
 export function hasStaleAtsKeywordMatchFrontendShape(root, path) {
   if (
     path !== "src/pages/ResumeOptimizer.tsx" &&
+    path !== "src/pages/resumeOptimizerModel.ts" &&
     path !== "src/components/AtsLiveScorePanel.tsx"
   ) {
     return false;
@@ -130,6 +131,7 @@ export function hasStaleAtsKeywordMatchFrontendShape(root, path) {
 const resumeSuggestionCategoryPaths = new Set([
   "src-tauri/src/core/resume/ats_analyzer.rs",
   "src/pages/ResumeOptimizer.tsx",
+  "src/pages/resumeOptimizerModel.ts",
   "src/components/AtsLiveScorePanel.tsx",
   "src/mocks/handlers.ts",
   "src/mocks/handlers/resumeAnalysis.ts",
@@ -185,7 +187,7 @@ export function hasResumeSuggestionCategoryDrift(root, path) {
 
   const categories = collectBackendResumeSuggestionCategories(root);
   const frontendPaths = [
-    "src/pages/ResumeOptimizer.tsx",
+    "src/pages/resumeOptimizerModel.ts",
     "src/components/AtsLiveScorePanel.tsx",
   ];
 
@@ -211,15 +213,21 @@ export function hasResumeSuggestionCategoryDrift(root, path) {
 }
 
 export function hasUnsafeResumeOptimizerJsonParsing(root, path) {
-  if (path !== "src/pages/ResumeOptimizer.tsx") {
+  if (
+    path !== "src/pages/ResumeOptimizer.tsx" &&
+    path !== "src/pages/resumeOptimizerModel.ts"
+  ) {
     return false;
   }
 
-  const text = readFileSync(join(root, path), "utf8");
+  const pageText = readOptionalFile(root, "src/pages/ResumeOptimizer.tsx");
+  const modelText = readOptionalFile(root, "src/pages/resumeOptimizerModel.ts");
+  const changedText = readFileSync(join(root, path), "utf8");
   return (
-    /const\s+resume:\s*AtsResumeData\s*=\s*JSON\.parse\(resumeJson\)/.test(text) ||
-    !/function\s+isAtsResumeData/.test(text) ||
-    !/parseAtsResumeInput/.test(text)
+    /const\s+resume:\s*AtsResumeData\s*=\s*JSON\.parse\(resumeJson\)/.test(changedText) ||
+    !/parseAtsResumeInput/.test(pageText) ||
+    !/function\s+isAtsResumeData/.test(modelText) ||
+    !/export\s+function\s+parseAtsResumeInput/.test(modelText)
   );
 }
 

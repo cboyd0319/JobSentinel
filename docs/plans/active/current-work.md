@@ -310,6 +310,8 @@ Out of scope:
   oversized-file exception.
 - [x] Split Resume Builder preview step out of the main page and tighten its
   legacy oversized-file budget.
+- [x] Split Resume Match Helper model helpers out of the main page and retire its
+  legacy oversized-file exception.
 
 ## Orchestration Log
 

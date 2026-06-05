@@ -140,7 +140,6 @@ const maintainableTextLineLimits = {
 
 const legacyOversizedLineBudgets = new Map([
   ["src/pages/ResumeBuilder.tsx", 1468],
-  ["src/pages/ResumeOptimizer.tsx", 1598],
 ]);
 
 export function normalizeRepoPath(path) {

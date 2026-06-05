@@ -14,12 +14,12 @@ readiness without Developer ID signing, notarization, stapling, and
 Gatekeeper acceptance, all of which require Apple Developer Program materials.
 
 Active-plan implementation status is separate: 100% of the current active-plan
-checklist is complete, with 151 of 151 tracked items checked off. The
+checklist is complete, with 152 of 152 tracked items checked off. The
 repo-wide readiness goal remains open until the completion bar in
 [active plan status](docs/plans/active/status.md) is proven from current
 evidence: no known bloat, privacy leak, stale docs, engineer-only user flow, or
 unverified claim remains, and final broad verification passes. Current cleanup
-focus is 2 grandfathered oversized-file exceptions plus continued resume
+focus is 1 grandfathered oversized-file exception plus continued resume
 assistance, job-card protection, guided intake, and pay protection where they
 improve privacy, security, verification, or user ease.
 
@@ -558,8 +558,8 @@ Developer docs:
   tightened around local evidence and plain-language review.
 - Oversized-file modularization reduced legacy exceptions across mock handlers,
   settings UI, resume analysis, database tests, scheduler tests, scoring tests,
-  scraper tests, the README, and harness sensors. 2 grandfathered oversized
-  files remain.
+  scraper tests, the README, and harness sensors. 1 grandfathered oversized
+  file remains.
 - Direct npm, Cargo, and GitHub Actions dependencies were refreshed to latest
   stable versions; narrower Dependabot PRs are superseded by the mainline
   refresh.

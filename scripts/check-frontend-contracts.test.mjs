@@ -88,10 +88,19 @@ test("frontend contracts reject stale resume optimizer and ATS shapes", () => {
       "src/components/AtsLiveScorePanel.tsx",
       "type Keyword = { found_in: string; context: string; };\n",
     );
+    writeFixtureFile(
+      root,
+      "src/pages/resumeOptimizerModel.ts",
+      "type Keyword = { found_in: string; context: string; };\n",
+    );
 
     assert.equal(hasStaleResumeOptimizerMockHandlers(root, "src/mocks/handlers.ts"), true);
     assert.equal(
       hasUnsafeResumeOptimizerJsonParsing(root, "src/pages/ResumeOptimizer.tsx"),
+      true,
+    );
+    assert.equal(
+      hasStaleAtsKeywordMatchFrontendShape(root, "src/pages/resumeOptimizerModel.ts"),
       true,
     );
     assert.equal(
@@ -118,7 +127,7 @@ pub enum SuggestionCategory {
     );
     writeFixtureFile(
       root,
-      "src/pages/ResumeOptimizer.tsx",
+      "src/pages/resumeOptimizerModel.ts",
       `
 type SuggestionCategory = "AddKeyword" | "RewordBullet" | "AddSection" | "RemoveItem";
 function formatSuggestionCategory(category: SuggestionCategory): string {
@@ -156,7 +165,7 @@ function formatSuggestionCategory(category: AtsSuggestion["category"]): string {
     );
 
     assert.equal(
-      hasResumeSuggestionCategoryDrift(root, "src/pages/ResumeOptimizer.tsx"),
+      hasResumeSuggestionCategoryDrift(root, "src/pages/resumeOptimizerModel.ts"),
       true,
     );
     assert.equal(hasResumeSuggestionCategoryDrift(root, "src/mocks/handlers.ts"), true);

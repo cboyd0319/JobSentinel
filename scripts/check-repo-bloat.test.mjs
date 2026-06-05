@@ -597,7 +597,7 @@ pub enum SuggestionCategory {
     );
     writeFixtureFile(
       root,
-      "src/pages/ResumeOptimizer.tsx",
+      "src/pages/resumeOptimizerModel.ts",
       'type SuggestionCategory = "AddKeyword" | "RewordBullet" | "AddSection" | "RemoveItem";\n',
     );
     writeFixtureFile(
@@ -616,7 +616,7 @@ pub enum SuggestionCategory {
       [
         "add",
         "src-tauri/src/core/resume/ats_analyzer.rs",
-        "src/pages/ResumeOptimizer.tsx",
+        "src/pages/resumeOptimizerModel.ts",
         "src/components/AtsLiveScorePanel.tsx",
         "src/mocks/handlers.ts",
       ],
@@ -626,7 +626,7 @@ pub enum SuggestionCategory {
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("sync resume suggestion category labels: src/pages/ResumeOptimizer.tsx"),
+      violations.includes("sync resume suggestion category labels: src/pages/resumeOptimizerModel.ts"),
       violations.join("\n"),
     );
     assert.ok(
@@ -641,7 +641,7 @@ test("checkRepoBloat rejects stale ATS keyword match frontend shape", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/pages/ResumeOptimizer.tsx",
+      "src/pages/resumeOptimizerModel.ts",
       [
         "interface KeywordMatch {",
         "  keyword: string;",
@@ -669,7 +669,7 @@ test("checkRepoBloat rejects stale ATS keyword match frontend shape", () => {
       [
         "add",
         "package.json",
-        "src/pages/ResumeOptimizer.tsx",
+        "src/pages/resumeOptimizerModel.ts",
         "src/components/AtsLiveScorePanel.tsx",
       ],
       { cwd: root },
@@ -679,7 +679,7 @@ test("checkRepoBloat rejects stale ATS keyword match frontend shape", () => {
 
     assert.ok(
       violations.includes(
-        "sync ATS keyword match frontend shape: src/pages/ResumeOptimizer.tsx",
+        "sync ATS keyword match frontend shape: src/pages/resumeOptimizerModel.ts",
       ),
       violations.join("\n"),
     );
