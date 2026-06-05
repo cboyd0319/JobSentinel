@@ -399,6 +399,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
   chat connection-link tests moved out of the main Settings test into a focused
   source Settings test file.
 
+- Lower Slack payload and webhook edge-case tests moved out of the main Slack
+  test file into a focused payload-edge Rust test module.
+
 ## Recent Completed Slices
 
 Detailed implementation history before the current restart window is in the

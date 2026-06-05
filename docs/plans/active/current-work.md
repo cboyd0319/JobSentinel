@@ -817,6 +817,10 @@ Out of scope:
   setup, and invalid chat connection-link tests into
   `src/pages/Settings.sources.test.tsx`. The main Settings test still owns
   save, backup, notification, credential, and ordering coverage.
+- Coordinator moved lower Slack payload and webhook edge-case tests into
+  `src-tauri/src/core/notify/slack_tests/payload_edge_tests.rs`. The main
+  Slack test file still owns validation basics, payload basics, sanitization,
+  and request-builder behavior.
 
 ## Risks
 
