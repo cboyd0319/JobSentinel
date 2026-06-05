@@ -51,6 +51,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Resume Match next actions now suppress positive keep-visible guidance whenever
+  missing or weak required evidence already needs review.
+
 - Source-specific alert rules now keep sound off by default and normalize older
   partial preferences to quiet source alerts.
 

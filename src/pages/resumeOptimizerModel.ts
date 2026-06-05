@@ -491,7 +491,7 @@ export function buildResumeNextActions(analysis: AtsAnalysisResult): ResumeNextA
     return actions;
   }
 
-  if (hardRisks.length === 0) {
+  if (hardRisks.length === 0 && actions.length === 0) {
     const visibleRequired = reviews.find(
       (review) =>
         review.importance === "Required" &&

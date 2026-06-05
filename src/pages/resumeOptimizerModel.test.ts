@@ -123,4 +123,34 @@ describe("buildResumeNextActions", () => {
     );
     expect(actions[1].detail).toMatch(/If the authorization is not true/i);
   });
+
+  it("keeps required-gap actions ahead of positive visible-evidence guidance", () => {
+    const actions = buildResumeNextActions({
+      ...baseAnalysis,
+      requirement_reviews: [
+        requiredReview("case management", "Missing"),
+        requiredReview("crm", "Implied"),
+        requiredReview("scheduling", "Strong"),
+      ],
+    });
+
+    expect(actions.map((action) => action.title)).toEqual([
+      "Review required evidence for case management",
+      "Add supporting evidence for crm only if true",
+    ]);
+    expect(actions.some((action) => action.title.includes("Keep scheduling"))).toBe(
+      false,
+    );
+  });
+
+  it("shows visible-evidence guidance when no required gaps come first", () => {
+    const actions = buildResumeNextActions({
+      ...baseAnalysis,
+      requirement_reviews: [requiredReview("scheduling", "Strong")],
+    });
+
+    expect(actions.map((action) => action.title)).toEqual([
+      "Keep scheduling visible",
+    ]);
+  });
 });
