@@ -348,6 +348,8 @@ Out of scope:
   modes and leaving salary floor unset until user choice.
 - [x] Suggest SimplyHired as an optional broad public source for
   non-technical first-run searches while keeping it off until user opt-in.
+- [x] Move first-run source-review state into a focused helper so the setup
+  page stays farther below the file-size limit after source additions.
 
 ## Orchestration Log
 
@@ -415,6 +417,9 @@ Out of scope:
 - Coordinator added an optional SimplyHired suggestion for non-technical
   first-run searches, filling its query from reviewed titles and skills only
   after the user checks the source.
+- Coordinator moved first-run source-review checked-state and opt-in source
+  toggling into `src/pages/setupWizardSourceReviewState.ts`, dropping the main
+  setup page from 1,173 to 1,119 lines without changing review behavior.
 - Pay-protection sidecar was read-only and changed no files. Coordinator
   accepted its finding that negotiation-note drafts could treat benchmark
   values as offer facts, then fixed the Salary page, dev mock, tests, feature

@@ -41,15 +41,17 @@ import {
   REVIEW_VOLUME_OPTIONS,
   applyReviewVolumePreference,
   buildSetupSearchSummary,
-  buildSetupSourceQuery,
   createDefaultSetupConfig,
   ghostConfigForFreshnessPreference,
-  getSuggestedJobSourceOptions,
   type FreshnessPreference,
   type ReviewVolumePreference,
   type SetupConfig,
   type SetupJobSourceKey,
 } from "./setupWizardPreferences";
+import {
+  getSetupWizardSourceReviewOptions,
+  toggleSetupJobSource,
+} from "./setupWizardSourceReviewState";
 import { useSetupResumeSuggestions } from "./useSetupResumeSuggestions";
 
 interface SetupWizardProps {
@@ -305,52 +307,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
     source: SetupJobSourceKey,
     enabled: boolean,
   ) => {
-    setConfig((prev) => {
-      switch (source) {
-        case "remoteok":
-          return {
-            ...prev,
-            remoteok: {
-              ...prev.remoteok,
-              enabled,
-            },
-          };
-        case "hn_hiring":
-          return {
-            ...prev,
-            hn_hiring: {
-              ...prev.hn_hiring,
-              enabled,
-            },
-          };
-        case "weworkremotely":
-          return {
-            ...prev,
-            weworkremotely: {
-              ...prev.weworkremotely,
-              enabled,
-            },
-          };
-        case "simplyhired": {
-          const query = enabled
-            ? prev.simplyhired.query.trim() || buildSetupSourceQuery(prev)
-            : prev.simplyhired.query;
-          const location = enabled
-            ? prev.simplyhired.location ?? prev.location_preferences.cities[0]
-            : prev.simplyhired.location;
-          const simplyhired = {
-            ...prev.simplyhired,
-            enabled,
-            query,
-          };
-
-          return {
-            ...prev,
-            simplyhired: location ? { ...simplyhired, location } : simplyhired,
-          };
-        }
-      }
-    });
+    setConfig((prev) => toggleSetupJobSource(prev, source, enabled));
   };
 
   const handleAddCity = () => {
@@ -426,18 +383,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
     freshnessPreference,
     reviewVolumePreference
   );
-  const suggestedJobSources = getSuggestedJobSourceOptions(config).map((source) => {
-    switch (source.key) {
-      case "remoteok":
-        return { ...source, checked: config.remoteok.enabled };
-      case "hn_hiring":
-        return { ...source, checked: config.hn_hiring.enabled };
-      case "weworkremotely":
-        return { ...source, checked: config.weworkremotely.enabled };
-      case "simplyhired":
-        return { ...source, checked: config.simplyhired.enabled };
-    }
-  });
+  const suggestedJobSources = getSetupWizardSourceReviewOptions(config);
 
   return (
     <div className="min-h-screen bg-surface-900 flex items-center justify-center p-6">

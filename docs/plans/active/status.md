@@ -107,6 +107,8 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
   checks them in review, and saves only checked sources.
 - Non-technical first-run searches can now suggest SimplyHired as a broad
   public source, still off by default and saved only after source review opt-in.
+- First-run source-review state now lives in a focused helper, keeping the main
+  setup page farther below the file-size limit after source additions.
 
 - Job cards now run unsafe saved-link checks before custom dashboard open
   handlers, so visible **Check job link** guidance cannot be bypassed by a

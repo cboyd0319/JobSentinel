@@ -1,11 +1,5 @@
-import type {
-  SetupJobSourceKey,
-  SuggestedJobSourceOption,
-} from "./setupWizardPreferences";
-
-export interface SetupWizardSourceReviewOption extends SuggestedJobSourceOption {
-  checked: boolean;
-}
+import type { SetupJobSourceKey } from "./setupWizardPreferences";
+import type { SetupWizardSourceReviewOption } from "./setupWizardSourceReviewState";
 
 interface SetupWizardSourceReviewProps {
   sources: SetupWizardSourceReviewOption[];
