@@ -113,6 +113,7 @@ pub(super) fn conservative_keyword_search_terms(keyword_lower: &str) -> Vec<Stri
             "proof of auto insurance",
             "proof of insurance",
             "auto insurance",
+            "car insurance",
             "vehicle insurance",
             "insured vehicle",
         ],

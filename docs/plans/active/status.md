@@ -117,6 +117,8 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 - Resume Match now treats clean driving record, MVR, proof of auto insurance,
   and insured-vehicle wording as hard requirements with conservative evidence
   equivalence.
+- Resume Match now treats car-insurance wording as conservative evidence for
+  required proof of auto insurance.
 
 - First-run hourly pay controls now live in a focused setup component, keeping
   the main setup page farther below the file-size limit.

@@ -358,6 +358,8 @@ Out of scope:
   wording as Resume Match hard requirements.
 - [x] Move first-run hourly pay controls into a focused component so the setup
   page stays below the file-size limit.
+- [x] Treat car-insurance wording as Resume Match evidence for auto-insurance
+  hard requirements.
 
 ## Orchestration Log
 
@@ -439,6 +441,8 @@ Out of scope:
 - Coordinator moved first-run pay-floor controls into
   `src/pages/SetupWizardPayFloorSection.tsx`, reducing the main setup page from
   1,166 to 1,101 lines without changing hourly or yearly pay behavior.
+- Coordinator added conservative Resume Match equivalence for car-insurance
+  wording when a posting requires proof of auto insurance.
 - Pay-protection sidecar was read-only and changed no files. Coordinator
   accepted its finding that negotiation-note drafts could treat benchmark
   values as offer facts, then fixed the Salary page, dev mock, tests, feature

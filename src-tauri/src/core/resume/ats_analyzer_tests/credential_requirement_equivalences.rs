@@ -157,6 +157,27 @@ fn test_auto_insurance_requirement_accepts_insured_vehicle_evidence() {
 }
 
 #[test]
+fn test_auto_insurance_requirement_accepts_car_insurance_evidence() {
+    let result = AtsAnalyzer::analyze_text_for_job(
+        "Jordan Lee\njordan@example.com\n\nSummary\nValid car insurance for client visits.",
+        &[],
+        "Required: proof of auto insurance",
+    );
+
+    let insurance = result
+        .requirement_reviews
+        .iter()
+        .find(|review| review.keyword == "proof of auto insurance")
+        .expect("auto insurance review");
+    assert_eq!(insurance.match_state, RequirementMatchState::Direct);
+    assert!(insurance.hard_constraint);
+    assert!(!result
+        .hard_constraint_risks
+        .iter()
+        .any(|risk| risk.requirement == "proof of auto insurance"));
+}
+
+#[test]
 fn test_rn_license_requirement_accepts_registered_nurse_evidence() {
     let result = AtsAnalyzer::analyze_text_for_job(
         "Jordan Lee\njordan@example.com\n\nLicenses\nRegistered Nurse",

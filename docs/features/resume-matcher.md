@@ -215,7 +215,7 @@ The current local matcher:
 - flags recognized missing or weakly supported hard requirements such as
   authorization, location, citizenship, schedule, availability, commute or
   transportation, travel, years of experience, language fluency, background or
-  drug screening, driving record, auto insurance or insured vehicle, physical
+  drug screening, driving record, auto or car insurance, insured vehicle, physical
   demands, license, certification, degree, or clearance and limits the fit label
   until the user verifies the requirement;
 - treats explicit **degree or equivalent experience** wording, including
@@ -341,9 +341,9 @@ The current local matcher:
 - treats **reliable transportation** and **own transportation** as the same
   local location evidence for required commute or transportation constraints;
 - treats **reliable vehicle**, **insured vehicle**, **proof of auto
-  insurance**, **proof of insurance**, **auto insurance**, and **vehicle
-  insurance** as local vehicle or insurance evidence for required field-work
-  constraints;
+  insurance**, **proof of insurance**, **auto insurance**, **car insurance**,
+  and **vehicle insurance** as local vehicle or insurance evidence for required
+  field-work constraints;
 - treats **commute** and **commuting** as the same local commute evidence;
 - treats **night shift**, **overnight shift**, **third shift**, and **3rd
   shift** as the same local schedule evidence for required night-shift
