@@ -839,6 +839,10 @@ Out of scope:
   `src-tauri/src/core/scoring/tests/salary_tests.rs`. The main scoring test
   file still owns base scoring, title/keyword, location, recency, alert, and
   consistency coverage.
+- Coordinator moved salary BenchmarkManager database tests into
+  `src-tauri/src/core/salary/benchmarks_tests/manager_tests.rs`. The main
+  salary benchmark test file still owns formatting, competitiveness,
+  negotiation, percentile, seniority, and location comparison coverage.
 
 ## Risks
 

@@ -416,6 +416,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 - Graduated salary scoring tests moved out of the main scoring test file into
   a focused salary scoring Rust test module.
 
+- Salary BenchmarkManager database tests moved out of the main salary benchmark
+  test file into a focused manager Rust test module.
+
 ## Recent Completed Slices
 
 Detailed implementation history before the current restart window is in the
