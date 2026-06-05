@@ -8,7 +8,6 @@ import { ResumeSkeleton } from "../components/Skeleton";
 import { useToast } from "../contexts";
 import { safeInvoke, safeInvokeWithToast } from "../utils/api";
 import { getSafeErrorToastCopy } from "../utils/safeErrorCopy";
-import { scoreFractionToPercent } from "../utils/scoreUtils";
 import {
   DEFAULT_SKILL_STRENGTH,
   SKILL_CATEGORIES,
@@ -44,33 +43,8 @@ import {
   XIcon,
 } from "./ResumeIcons";
 import { ResumeLibraryDropdown } from "./ResumeLibraryDropdown";
+import { ResumeScoreBreakdownRow } from "./ResumeScoreBreakdownRow";
 import { ResumeTextPreviewModal } from "./ResumeTextPreviewModal";
-
-function ScoreBreakdownRow({
-  label,
-  score,
-  barClassName,
-}: {
-  label: string;
-  score: number;
-  barClassName: string;
-}) {
-  const percentage = scoreFractionToPercent(score);
-
-  return (
-    <div className="flex items-center gap-2">
-      <span className="text-xs text-surface-600 dark:text-surface-400 w-24">
-        {label}
-      </span>
-      <div className="flex-1 h-4 bg-surface-200 dark:bg-surface-800 rounded overflow-hidden">
-        <div className={`h-full ${barClassName}`} style={{ width: `${percentage}%` }} />
-      </div>
-      <span className="text-xs font-medium text-surface-700 dark:text-surface-300 w-12 text-right">
-        {percentage}%
-      </span>
-    </div>
-  );
-}
 
 interface ResumeProps {
   onBack: () => void;
@@ -1036,21 +1010,21 @@ export default function Resume({ onBack }: ResumeProps) {
                             </p>
                             <div className="space-y-2">
                               {skillsScore !== null && (
-                                <ScoreBreakdownRow
+                                <ResumeScoreBreakdownRow
                                   label="Skills fit"
                                   score={skillsScore}
                                   barClassName="bg-sentinel-500"
                                 />
                               )}
                               {experienceScore !== null && (
-                                <ScoreBreakdownRow
+                                <ResumeScoreBreakdownRow
                                   label="Experience fit"
                                   score={experienceScore}
                                   barClassName="bg-alert-500"
                                 />
                               )}
                               {educationScore !== null && (
-                                <ScoreBreakdownRow
+                                <ResumeScoreBreakdownRow
                                   label="Education fit"
                                   score={educationScore}
                                   barClassName="bg-blue-500"

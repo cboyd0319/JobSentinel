@@ -332,6 +332,8 @@ Out of scope:
   after the user adds resume suggestions.
 - [x] Report Resume Match citizenship requirements as a distinct hard-review
   category instead of generic work authorization.
+- [x] Add file-size headroom by splitting the Resume Match fit-breakdown row
+  out of `src/pages/Resume.tsx`.
 
 ## Orchestration Log
 
@@ -376,6 +378,8 @@ Out of scope:
   so added local resume skills do not collapse into unlabeled search keywords.
 - Coordinator split citizenship into its own Resume Match hard-review category
   while keeping older work-authorization citizenship payloads readable.
+- Coordinator moved the Resume Match fit-breakdown row into a focused
+  component so the main Resume page stays farther from the harness line limit.
 - Pay-protection sidecar was read-only and changed no files. Coordinator
   accepted its finding that negotiation-note drafts could treat benchmark
   values as offer facts, then fixed the Salary page, dev mock, tests, feature

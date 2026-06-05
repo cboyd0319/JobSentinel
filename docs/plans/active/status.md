@@ -51,6 +51,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Resume Match page-size headroom improved by moving the fit-breakdown row
+  into a focused component while preserving build output and UI behavior.
+
 - Resume Match now reports citizenship as an explicit hard-review category
   instead of serializing it as generic work authorization and relying on
   requirement-text inference.
