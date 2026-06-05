@@ -304,6 +304,10 @@ function getMissingKeywordGroups(analysis: AtsAnalysisResult) {
   };
 }
 
+function getHardConstraintRisks(analysis: AtsAnalysisResult | null): HardConstraintRisk[] {
+  return analysis?.hard_constraint_risks ?? [];
+}
+
 function isStoredJobContext(value: unknown): value is StoredJobContext {
   if (!value || typeof value !== "object") {
     return false;
@@ -439,6 +443,7 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
 
   // Memoize tips
   const tips = useMemo(() => getStepTips(currentStep, analysis), [currentStep, analysis]);
+  const hardConstraintRisks = useMemo(() => getHardConstraintRisks(analysis), [analysis]);
 
   // Calculate ring progress
   const ringScore = analysis ? getScoreProgressPercent(analysis.overall_score) : 0;
@@ -532,7 +537,10 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
             </div>
 
             {/* Quick Stats */}
-            {(analysis.keyword_matches.length > 0 || analysis.missing_keywords.length > 0 || analysis.format_issues.length > 0) && (
+            {(analysis.keyword_matches.length > 0 ||
+              analysis.missing_keywords.length > 0 ||
+              analysis.format_issues.length > 0 ||
+              hardConstraintRisks.length > 0) && (
               <div className="flex flex-wrap gap-2 text-xs">
                 {analysis.keyword_matches.length > 0 && (
                   <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded">
@@ -548,6 +556,35 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
                   <span className="px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 rounded">
                     {analysis.format_issues.length} details to check
                   </span>
+                )}
+                {hardConstraintRisks.length > 0 && (
+                  <span className="px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded">
+                    {hardConstraintRisks.length} must-have{hardConstraintRisks.length === 1 ? "" : "s"} to check
+                  </span>
+                )}
+              </div>
+            )}
+
+            {hardConstraintRisks.length > 0 && (
+              <div className="border-l-4 border-danger bg-danger/5 dark:bg-danger/10 px-3 py-2">
+                <p className="text-xs font-semibold text-danger dark:text-red-300">
+                  Must-haves need review before tailoring
+                </p>
+                <ul className="mt-1 space-y-1">
+                  {hardConstraintRisks.slice(0, 2).map((risk, idx) => (
+                    <li
+                      key={`${risk.category}-${risk.requirement}-${idx}`}
+                      className="text-xs text-surface-700 dark:text-surface-300"
+                    >
+                      <span className="font-medium">{formatHardConstraintCategory(risk.category)}:</span>{" "}
+                      Check {risk.requirement} before editing this resume.
+                    </li>
+                  ))}
+                </ul>
+                {hardConstraintRisks.length > 2 && (
+                  <p className="mt-1 text-xs text-surface-500 dark:text-surface-400">
+                    {hardConstraintRisks.length - 2} more must-have{hardConstraintRisks.length - 2 === 1 ? "" : "s"} in details.
+                  </p>
                 )}
               </div>
             )}
@@ -644,13 +681,13 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
             )}
 
             {/* Must-haves to check */}
-            {analysis.hard_constraint_risks && analysis.hard_constraint_risks.length > 0 && (
+            {hardConstraintRisks.length > 0 && (
               <div>
                 <h4 className="text-sm font-semibold text-surface-800 dark:text-surface-200 mb-3">
-                  Must-Haves To Check ({analysis.hard_constraint_risks.length})
+                  Must-Haves To Check ({hardConstraintRisks.length})
                 </h4>
                 <div className="space-y-2">
-                  {analysis.hard_constraint_risks.map((risk, idx) => (
+                  {hardConstraintRisks.map((risk, idx) => (
                     <div
                       key={`${risk.category}-${risk.requirement}-${idx}`}
                       className="p-3 bg-danger/5 dark:bg-danger/10 rounded-lg border border-danger/20"

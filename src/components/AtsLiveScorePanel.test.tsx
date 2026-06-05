@@ -421,7 +421,7 @@ describe("AtsLiveScorePanel", () => {
 
     it("does not show raw private details on analysis failure", async () => {
       mockInvoke.mockRejectedValue(
-        new Error("token=raw-secret chad@example.com /Users/chad/private/resume.pdf")
+        new Error("token=raw-secret private@example.test local-resume-file.pdf")
       );
 
       render(
@@ -437,7 +437,7 @@ describe("AtsLiveScorePanel", () => {
       await waitFor(() => {
         expect(screen.getByText(/safe support report/i)).toBeInTheDocument();
       });
-      expect(screen.queryByText(/raw-secret|chad@example\.com|\/Users\/chad/)).not.toBeInTheDocument();
+      expect(screen.queryByText(/raw-secret|private@example\.test|local-resume-file/)).not.toBeInTheDocument();
     });
 
     it("shows close-message button on error", async () => {
@@ -829,6 +829,12 @@ describe("AtsLiveScorePanel", () => {
       await waitFor(() => {
         expect(screen.getByRole("button", { name: /review details/i })).toBeInTheDocument();
       });
+
+      expect(screen.getByText("1 must-have to check")).toBeInTheDocument();
+      expect(screen.getByText("Must-haves need review before tailoring")).toBeInTheDocument();
+      expect(
+        screen.getByText(/Check work authorization before editing this resume/i),
+      ).toBeInTheDocument();
 
       fireEvent.click(screen.getByRole("button", { name: /review details/i }));
 

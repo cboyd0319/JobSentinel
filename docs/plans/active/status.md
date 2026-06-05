@@ -51,6 +51,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Resume Builder live readability now surfaces must-have warnings before opening
+  the detail modal, so work authorization, language, license, screening, or
+  other hard requirements are visible before a user edits a tailored resume.
+
 - Dashboard duplicate-review copy now says possible repeated postings, not proof
   that multiple sources confirmed the same job, and duplicate-check toasts use
   cautious review-first wording.

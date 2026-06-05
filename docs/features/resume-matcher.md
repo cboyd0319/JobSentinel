@@ -458,8 +458,8 @@ The current local matcher:
   or level, background or drug screening, physical demands, location, schedule,
   availability, and travel before tailoring;
 - shows those must-have checks in the live Resume Builder detail review when
-  available, using plain category labels instead of backend risk names or score
-  caps;
+  available, and shows a compact pre-detail warning in the live Resume Builder
+  panel using plain category labels instead of backend risk names or score caps;
 - keeps required and preferred job-post headings separate even when the posting
   uses ordinary single-line section breaks;
 - treats job posts with too little recognized requirement detail as
