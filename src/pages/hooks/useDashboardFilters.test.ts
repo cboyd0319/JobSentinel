@@ -56,6 +56,99 @@ describe("useDashboardFilters — score edge cases", () => {
 
       expect(result.current.filteredAndSortedJobs.map((j) => j.id)).toEqual([1]);
     });
+
+    it("keeps minimum-only pay visible when top listed pay is unknown", () => {
+      const jobs: Job[] = [
+        makeJob({
+          id: 1,
+          title: "Open-ended Coordinator",
+          salary_min: 45000,
+          salary_max: null,
+        }),
+        makeJob({
+          id: 2,
+          title: "Known Below Floor",
+          salary_min: null,
+          salary_max: 52000,
+        }),
+        makeJob({
+          id: 3,
+          title: "Known Above Floor",
+          salary_min: 70000,
+          salary_max: 90000,
+        }),
+      ];
+
+      const { result } = renderHook(() => useDashboardFilters(jobs));
+
+      act(() => result.current.setSalaryMinFilter(65000));
+
+      expect(result.current.filteredAndSortedJobs.map((j) => j.id).sort()).toEqual([1, 3]);
+    });
+
+    it("keeps maximum-only pay visible when bottom listed pay is unknown", () => {
+      const jobs: Job[] = [
+        makeJob({
+          id: 1,
+          title: "Open-ended Specialist",
+          salary_min: null,
+          salary_max: 150000,
+        }),
+        makeJob({
+          id: 2,
+          title: "Known Above Cap",
+          salary_min: 90000,
+          salary_max: 120000,
+        }),
+        makeJob({
+          id: 3,
+          title: "Known Below Cap",
+          salary_min: 55000,
+          salary_max: 75000,
+        }),
+      ];
+
+      const { result } = renderHook(() => useDashboardFilters(jobs));
+
+      act(() => result.current.setSalaryMaxFilter(80000));
+
+      expect(result.current.filteredAndSortedJobs.map((j) => j.id).sort()).toEqual([1, 3]);
+    });
+
+    it("treats malformed listed pay as unavailable", () => {
+      const jobs: Job[] = [
+        makeJob({
+          id: 1,
+          title: "Reversed Range",
+          salary_min: 150000,
+          salary_max: 80000,
+        }),
+        makeJob({
+          id: 2,
+          title: "Negative Pay",
+          salary_min: -10000,
+          salary_max: 80000,
+        }),
+        makeJob({
+          id: 3,
+          title: "Infinite Pay",
+          salary_min: 70000,
+          salary_max: Infinity,
+        }),
+        makeJob({
+          id: 4,
+          title: "Usable Range",
+          salary_min: 70000,
+          salary_max: 90000,
+        }),
+      ];
+
+      const { result } = renderHook(() => useDashboardFilters(jobs));
+
+      act(() => result.current.setSalaryMinFilter(65000));
+
+      expect(result.current.filteredAndSortedJobs.map((j) => j.id)).toEqual([4]);
+    });
   });
 
   describe("sorting with non-finite scores", () => {

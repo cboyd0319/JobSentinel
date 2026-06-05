@@ -51,11 +51,12 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
-- Job-card posting, pay-floor, wide-range, low-detail, and scam-signal guidance
-  moved from `src/components/JobCard.tsx` to
-  `src/components/jobCardGuidance.ts`.
-- Job-card guidance now catches gift-card scam signals, and product-copy harness
-  sensors cover the extracted helper so protective copy stays scanned.
+- Dashboard salary filters now trust only positive finite listed-pay bounds, keep
+  open-ended one-sided ranges visible when the unknown side could still fit, and
+  treat reversed, negative, or non-finite pay as unavailable.
+- Previous slice moved job-card posting, pay-floor, wide-range, low-detail, and
+  scam-signal guidance to `src/components/jobCardGuidance.ts`, added gift-card
+  scam signals, and kept product-copy harness coverage on the extracted helper.
 
 - Resume Match model types, validators, JSON parsing, fit-status copy, and
   suggestion-category labels moved from `src/pages/ResumeOptimizer.tsx` to

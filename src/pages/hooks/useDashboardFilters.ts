@@ -19,6 +19,33 @@ import {
 const safeScore = (s: number | null | undefined): number =>
   s != null && Number.isFinite(s) ? s : -1;
 
+function isListedSalaryValue(value: number | null | undefined): value is number {
+  return value != null && Number.isFinite(value) && value > 0;
+}
+
+function getListedSalaryBounds(
+  job: Job,
+): { min?: number; max?: number } | null {
+  const hasRawMin = job.salary_min != null;
+  const hasRawMax = job.salary_max != null;
+  const min = isListedSalaryValue(job.salary_min) ? job.salary_min : undefined;
+  const max = isListedSalaryValue(job.salary_max) ? job.salary_max : undefined;
+
+  if ((hasRawMin && min === undefined) || (hasRawMax && max === undefined)) {
+    return null;
+  }
+
+  if (min === undefined && max === undefined) {
+    return null;
+  }
+
+  if (min !== undefined && max !== undefined && max < min) {
+    return null;
+  }
+
+  return { min, max };
+}
+
 // Sort comparators lookup (better performance than switch)
 const SORT_COMPARATORS: Record<SortOption, (a: Job, b: Job) => number> = {
   "score-desc": (a, b) => safeScore(b.score) - safeScore(a.score),
@@ -221,20 +248,15 @@ export function useDashboardFilters(jobs: Job[]): FilterState &
     // Apply salary filter
     if (salaryMinFilter !== null || salaryMaxFilter !== null) {
       result = result.filter((job) => {
-        // Skip jobs without salary info if filter is active
-        const hasMinSalary = job.salary_min != null;
-        const hasMaxSalary = job.salary_max != null;
-        if (!hasMinSalary && !hasMaxSalary) return false;
-
-        const jobMin = job.salary_min ?? job.salary_max ?? 0;
-        const jobMax = job.salary_max ?? job.salary_min ?? 0;
+        const bounds = getListedSalaryBounds(job);
+        if (bounds === null) return false;
 
         // Salary filters use full yearly dollars, matching job salary storage.
         if (salaryMinFilter !== null) {
-          if (jobMax < salaryMinFilter) return false;
+          if (bounds.max !== undefined && bounds.max < salaryMinFilter) return false;
         }
         if (salaryMaxFilter !== null) {
-          if (jobMin > salaryMaxFilter) return false;
+          if (bounds.min !== undefined && bounds.min > salaryMaxFilter) return false;
         }
         return true;
       });
