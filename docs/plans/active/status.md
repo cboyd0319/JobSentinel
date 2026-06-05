@@ -379,6 +379,10 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 - Mock resume degree-specialization hard-constraint tests moved out of the broad
   hard-constraint test file into a focused mock test file.
 
+- ApplyButton browser, submit, storage, human-check, screening summary, and
+  accessibility lifecycle tests moved out of the main ApplyButton test file
+  into a focused lifecycle test file.
+
 ## Recent Completed Slices
 
 Detailed implementation history before the current restart window is in the

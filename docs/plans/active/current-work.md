@@ -793,6 +793,11 @@ Out of scope:
   `src-tauri/src/core/scoring/tests/company_tests.rs`. The main scoring module
   still owns scoring engine behavior, salary/location tests, and shared test
   fixtures.
+- Coordinator moved ApplyButton browser, submit, storage, human-check,
+  screening summary, and accessibility lifecycle coverage into
+  `src/components/automation/ApplyButton.lifecycle.test.tsx`. The main
+  ApplyButton test file still owns initial rendering, platform detection,
+  profile checks, fill flow, loading, and error-state coverage.
 
 ## Risks
 
