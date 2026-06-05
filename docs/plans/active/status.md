@@ -51,6 +51,9 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Latest Slice
 
+- Resume Builder live-score hard-constraint tests moved into a focused file,
+  keeping the main ATS live-score test under the frontend test size target.
+
 - Dashboard job-list, empty-state, and filtered-empty rendering moved into a
   focused component, bringing the main dashboard page down near 1,000 lines
   before more product work touches it.
