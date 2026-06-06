@@ -1,142 +1,184 @@
 //! Credential storage integration test
 //!
-//! Tests that credentials can be stored and retrieved from the OS keyring.
-//! Each test uses a different credential key to avoid race conditions.
+//! Tests that active credentials can be stored and retrieved from the OS
+//! keyring when the local test environment allows it. If the OS denies secure
+//! storage access, the tests assert that JobSentinel returns the sanitized
+//! user-facing error instead of echoing credential values.
 
+use jobsentinel::commands::linkedin_auth::disconnect_linkedin;
 use jobsentinel::core::credentials::{CredentialKey, CredentialStore};
+use keyring_core::{Entry, Error as KeyringError};
 
-#[test]
-fn test_slack_webhook_credential() {
-    // Clean up first in case previous test failed
-    let _ = CredentialStore::delete(CredentialKey::SlackWebhook);
+const SECURE_STORAGE_UNAVAILABLE: &str =
+    "JobSentinel could not use your device's secure storage. Check system permission prompts, then try again.";
+const LINKEDIN_CREDENTIAL_STORAGE_DISABLED: &str =
+    "LinkedIn automatic monitoring is disabled by JobSentinel source policy";
+const SERVICE_NAME: &str = "JobSentinel";
 
-    let test_value = "https://hooks.slack.com/services/TEST/TEST/TEST123";
+struct LegacyLinkedInCleanup;
 
-    // Store credential
-    let result = CredentialStore::store(CredentialKey::SlackWebhook, test_value);
-    assert!(result.is_ok(), "Failed to store credential: {:?}", result);
+impl Drop for LegacyLinkedInCleanup {
+    fn drop(&mut self) {
+        let _ = delete_raw_legacy_credential(CredentialKey::LinkedInCookie);
+        let _ = delete_raw_legacy_credential(CredentialKey::LinkedInCookieExpiry);
+    }
+}
 
-    // Retrieve credential
-    let retrieved = CredentialStore::retrieve(CredentialKey::SlackWebhook);
+fn assert_error_is_sanitized(error: &str, secret: &str) {
+    assert!(
+        !error.contains(secret),
+        "credential errors must not echo secret values: {error}"
+    );
+}
+
+fn raw_legacy_entry(key: CredentialKey) -> Result<Entry, String> {
+    keyring::use_native_store(true).map_err(|_| SECURE_STORAGE_UNAVAILABLE.to_string())?;
+    Entry::new(SERVICE_NAME, key.as_str()).map_err(|_| SECURE_STORAGE_UNAVAILABLE.to_string())
+}
+
+fn seed_raw_legacy_credential(key: CredentialKey, value: &str) -> Result<(), String> {
+    raw_legacy_entry(key)?
+        .set_password(value)
+        .map_err(|_| SECURE_STORAGE_UNAVAILABLE.to_string())
+}
+
+fn raw_legacy_credential_exists(key: CredentialKey) -> Result<bool, String> {
+    match raw_legacy_entry(key)?.get_password() {
+        Ok(_) => Ok(true),
+        Err(KeyringError::NoEntry) => Ok(false),
+        Err(_) => Err(SECURE_STORAGE_UNAVAILABLE.to_string()),
+    }
+}
+
+fn delete_raw_legacy_credential(key: CredentialKey) -> Result<(), String> {
+    match raw_legacy_entry(key)?.delete_credential() {
+        Ok(()) | Err(KeyringError::NoEntry) => Ok(()),
+        Err(_) => Err(SECURE_STORAGE_UNAVAILABLE.to_string()),
+    }
+}
+
+fn roundtrip_or_accept_locked_store(key: CredentialKey, test_value: &str, label: &str) {
+    let _ = CredentialStore::delete(key);
+
+    match CredentialStore::store(key, test_value) {
+        Ok(()) => {}
+        Err(error) if error == SECURE_STORAGE_UNAVAILABLE => {
+            assert_error_is_sanitized(&error, test_value);
+            return;
+        }
+        Err(error) => panic!("Failed to store {label} credential: {error:?}"),
+    }
+
+    let retrieved = CredentialStore::retrieve(key);
     assert!(
         retrieved.is_ok(),
-        "Failed to retrieve credential: {:?}",
+        "Failed to retrieve {label} credential: {:?}",
         retrieved
     );
     assert_eq!(retrieved.unwrap(), Some(test_value.to_string()));
 
-    // Clean up
-    let delete_result = CredentialStore::delete(CredentialKey::SlackWebhook);
+    let delete_result = CredentialStore::delete(key);
     assert!(
         delete_result.is_ok(),
-        "Failed to delete credential: {:?}",
+        "Failed to delete {label} credential: {:?}",
         delete_result
     );
 
-    // Verify deleted
-    let after_delete = CredentialStore::retrieve(CredentialKey::SlackWebhook);
+    let after_delete = CredentialStore::retrieve(key);
     assert!(after_delete.is_ok());
     assert_eq!(after_delete.unwrap(), None);
 }
 
 #[test]
-fn test_discord_webhook_credential() {
-    let _ = CredentialStore::delete(CredentialKey::DiscordWebhook);
+fn test_slack_webhook_credential() {
+    let test_value = "https://hooks.slack.com/services/TEST/TEST/TEST123";
 
+    roundtrip_or_accept_locked_store(CredentialKey::SlackWebhook, test_value, "Slack webhook");
+}
+
+#[test]
+fn test_discord_webhook_credential() {
     let test_value = "https://discord.com/api/webhooks/test/token123";
 
-    let result = CredentialStore::store(CredentialKey::DiscordWebhook, test_value);
-    assert!(
-        result.is_ok(),
-        "Failed to store Discord webhook: {:?}",
-        result
-    );
-
-    let retrieved = CredentialStore::retrieve(CredentialKey::DiscordWebhook);
-    assert!(retrieved.is_ok());
-    assert_eq!(retrieved.unwrap(), Some(test_value.to_string()));
-
-    let _ = CredentialStore::delete(CredentialKey::DiscordWebhook);
+    roundtrip_or_accept_locked_store(CredentialKey::DiscordWebhook, test_value, "Discord webhook");
 }
 
 #[test]
 fn test_teams_webhook_credential() {
-    let _ = CredentialStore::delete(CredentialKey::TeamsWebhook);
-
     let test_value = "https://outlook.office.com/webhook/test/IncomingWebhook/abc123";
 
-    let result = CredentialStore::store(CredentialKey::TeamsWebhook, test_value);
-    assert!(
-        result.is_ok(),
-        "Failed to store Teams webhook: {:?}",
-        result
-    );
-
-    let retrieved = CredentialStore::retrieve(CredentialKey::TeamsWebhook);
-    assert!(retrieved.is_ok());
-    assert_eq!(retrieved.unwrap(), Some(test_value.to_string()));
-
-    let _ = CredentialStore::delete(CredentialKey::TeamsWebhook);
+    roundtrip_or_accept_locked_store(CredentialKey::TeamsWebhook, test_value, "Teams webhook");
 }
 
 #[test]
 fn test_telegram_bot_token_credential() {
-    let _ = CredentialStore::delete(CredentialKey::TelegramBotToken);
-
     let test_value = "123456789:ABCdefGHIjklMNOpqrsTUVwxyz";
 
-    let result = CredentialStore::store(CredentialKey::TelegramBotToken, test_value);
-    assert!(
-        result.is_ok(),
-        "Failed to store Telegram token: {:?}",
-        result
+    roundtrip_or_accept_locked_store(
+        CredentialKey::TelegramBotToken,
+        test_value,
+        "Telegram bot token",
     );
-
-    let retrieved = CredentialStore::retrieve(CredentialKey::TelegramBotToken);
-    assert!(retrieved.is_ok());
-    assert_eq!(retrieved.unwrap(), Some(test_value.to_string()));
-
-    let _ = CredentialStore::delete(CredentialKey::TelegramBotToken);
 }
 
 #[test]
 fn test_linkedin_cookie_credential() {
-    let _ = CredentialStore::delete(CredentialKey::LinkedInCookie);
-
-    // LinkedIn session cookies are typically long base64-like strings
     let test_value = "AQEDAQRlbmNyeXB0ZWQtdGVzdC1jb29raWUtdmFsdWU";
 
     let result = CredentialStore::store(CredentialKey::LinkedInCookie, test_value);
     assert!(
-        result.is_ok(),
-        "Failed to store LinkedIn cookie: {:?}",
-        result
+        result.is_err(),
+        "LinkedIn credential storage should stay disabled"
     );
+    let error = result.unwrap_err();
+    assert_eq!(error, LINKEDIN_CREDENTIAL_STORAGE_DISABLED);
+    assert_error_is_sanitized(&error, test_value);
 
-    let retrieved = CredentialStore::retrieve(CredentialKey::LinkedInCookie);
-    assert!(retrieved.is_ok());
-    assert_eq!(retrieved.unwrap(), Some(test_value.to_string()));
+    let retrieved = CredentialStore::retrieve(CredentialKey::LinkedInCookie)
+        .expect("disabled LinkedIn retrieval should not touch the keyring");
+    assert_eq!(retrieved, None);
 
-    let _ = CredentialStore::delete(CredentialKey::LinkedInCookie);
+    let exists = CredentialStore::exists(CredentialKey::LinkedInCookie)
+        .expect("disabled LinkedIn status should not touch the keyring");
+    assert!(!exists);
+}
+
+#[tokio::test]
+async fn test_disconnect_linkedin_deletes_legacy_cookie_and_expiry_entries() {
+    let _cleanup = LegacyLinkedInCleanup;
+    let cookie_secret = "AQEDAQRlegacy-session-cookie";
+    let expiry_secret = "2099-01-01T00:00:00Z";
+
+    let _ = delete_raw_legacy_credential(CredentialKey::LinkedInCookie);
+    let _ = delete_raw_legacy_credential(CredentialKey::LinkedInCookieExpiry);
+
+    if let Err(error) = seed_raw_legacy_credential(CredentialKey::LinkedInCookie, cookie_secret) {
+        assert_eq!(error, SECURE_STORAGE_UNAVAILABLE);
+        assert_error_is_sanitized(&error, cookie_secret);
+        return;
+    }
+    if let Err(error) =
+        seed_raw_legacy_credential(CredentialKey::LinkedInCookieExpiry, expiry_secret)
+    {
+        assert_eq!(error, SECURE_STORAGE_UNAVAILABLE);
+        assert_error_is_sanitized(&error, expiry_secret);
+        return;
+    }
+
+    assert!(raw_legacy_credential_exists(CredentialKey::LinkedInCookie).unwrap());
+    assert!(raw_legacy_credential_exists(CredentialKey::LinkedInCookieExpiry).unwrap());
+
+    disconnect_linkedin()
+        .await
+        .expect("legacy LinkedIn cleanup should delete cookie and expiry entries");
+
+    assert!(!raw_legacy_credential_exists(CredentialKey::LinkedInCookie).unwrap());
+    assert!(!raw_legacy_credential_exists(CredentialKey::LinkedInCookieExpiry).unwrap());
 }
 
 #[test]
 fn test_usajobs_api_key_credential() {
-    let _ = CredentialStore::delete(CredentialKey::UsaJobsApiKey);
-
-    // USAJobs API keys are typically alphanumeric strings
     let test_value = "xABC123defGHI456jklMNO789pqrSTU";
 
-    let result = CredentialStore::store(CredentialKey::UsaJobsApiKey, test_value);
-    assert!(
-        result.is_ok(),
-        "Failed to store USAJobs API key: {:?}",
-        result
-    );
-
-    let retrieved = CredentialStore::retrieve(CredentialKey::UsaJobsApiKey);
-    assert!(retrieved.is_ok());
-    assert_eq!(retrieved.unwrap(), Some(test_value.to_string()));
-
-    let _ = CredentialStore::delete(CredentialKey::UsaJobsApiKey);
+    roundtrip_or_accept_locked_store(CredentialKey::UsaJobsApiKey, test_value, "USAJobs API key");
 }
