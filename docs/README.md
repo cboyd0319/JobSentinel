@@ -40,12 +40,13 @@ The maintained external source index lives in
 ## Current State
 
 - Package metadata version: `2.7.7`.
-- Latest published public release: `v2.7.5` as of 2026-06-06.
+- Latest published no-account macOS package: `v2.7.7` as of 2026-06-06.
+- Latest full cross-platform public release: `v2.7.5` as of 2026-06-06.
 - Current macOS full-public-readiness is 94%; no-account path completion is
-  100% at the 94% public-readiness ceiling. The published `v2.7.5` release has
-  a no-account universal DMG plus matching `.dmg.sha256`. Source version
-  `2.7.7` still needs a fresh release-artifact build, upload, and public
-  verifier pass before users treat a public `2.7.7` DMG as current.
+  100% at the 94% public-readiness ceiling. The published `v2.7.7` macOS
+  release has a no-account universal DMG plus matching `.dmg.sha256`. Fresh
+  Windows and Linux `2.7.7` assets still need target-platform builds, upload,
+  and public verifier passes before `2.7.7` is the full cross-platform release.
   Zero-friction Gatekeeper-ready public distribution still requires Apple
   Developer Program materials, Developer ID signing, notarization, stapling,
   and signed-artifact verification.

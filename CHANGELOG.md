@@ -7,9 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.7.7] - 2026-06-06
 
-Source version in `main`. Public release assets are pending a fresh build,
-upload, and public-artifact verification; latest published public release
-remains `v2.7.5` as of 2026-06-06.
+Source version in `main`. Public no-account macOS assets are released and
+verified for `v2.7.7`; latest full cross-platform public release remains
+`v2.7.5` as of 2026-06-06 until Windows and Linux `2.7.7` assets are rebuilt
+and verified.
 
 ### Fixed
 
@@ -19,11 +20,16 @@ remains `v2.7.5` as of 2026-06-06.
 - **Hiring Trends semantics** - Local market aggregates now use the current
   job `created_at` field, keep hidden or dismissed jobs as market evidence, and
   leave filled-job counts neutral until a source-backed closure signal exists.
+- **Credential cleanup tests** - Credential integration coverage now keeps
+  active notification credentials round-tripped when secure storage is
+  available, accepts sanitized secure-storage denial when the OS keyring is
+  locked, and verifies legacy LinkedIn cookie and expiry entries are removed.
 
 ### Documentation
 
-- **Release state** - User and developer docs now distinguish source version
-  `2.7.7` from the latest published public release, `v2.7.5`.
+- **Release state** - User and developer docs now distinguish the public
+  `v2.7.7` no-account macOS package from the latest full cross-platform
+  release, `v2.7.5`.
 - **Release process** - Developer docs now document verified local build plus
   manual upload as a supported production path when the same release gates pass.
 

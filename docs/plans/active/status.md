@@ -38,17 +38,19 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Current Posture
 
-- `origin/main` is the source of truth for the pushed baseline before the
-  current `2.7.7` docs and Hiring Trends release-recovery batch.
-- Package metadata is `2.7.7`, while the latest published public release is
-  `v2.7.5` as of 2026-06-06. Fresh `2.7.7` public assets still need build,
-  upload, and public-artifact verification.
-- macOS Computer Use retest is partially complete from an unlocked 2026-06-06
-  session against the fresh local `2.7.7` universal app: first-run setup,
-  dashboard load, URL-safety rejection for a localhost import, and application
-  tracker visibility were exercised with real clicks. Drag/drop board movement
-  and safe support report export still need live UI proof before any full
-  mouse-click E2E claim is made.
+- `origin/main` is the source of truth for the pushed `2.7.7` release-recovery
+  baseline.
+- Package metadata is `2.7.7`. The current public no-account macOS package is
+  `v2.7.7` as of 2026-06-06; the latest full cross-platform public release
+  remains `v2.7.5` until Windows and Linux `2.7.7` assets are rebuilt and
+  verified.
+- macOS Computer Use retest is complete for the critical release path from an
+  unlocked 2026-06-06 session against the fresh local `2.7.7` universal app:
+  first-run setup, dashboard load, seeded application tracker card detail,
+  native status change to Applied, dashboard count refresh, Settings Sources &
+  Alerts navigation, safe support report copy, and safe support report save
+  were exercised with real clicks. The copied and saved reports showed app
+  version `2.7.7` and omitted seeded job title, company, notes, and URL.
 - Fresh harness session evidence reports 2 active docs, 2 indexed workstreams,
   and a 100/100 harness score: this status file and `current-work.md`.
 - Final broad verification for the broad-cleanup baseline passed during the
@@ -67,12 +69,17 @@ failing gate or a blocker to privacy, security, docs accuracy, or verification.
 
 ## Latest Slice
 
+- Release finalization adds credential integration coverage for active
+  keyring-backed credentials, sanitized secure-storage denial, disabled
+  LinkedIn storage, and legacy LinkedIn cookie plus expiry cleanup.
+
 - Hiring Trends release-recovery now uses the current jobs schema for local
   trend refresh, treats hidden or dismissed jobs as market evidence rather than
   source-closed roles, leaves filled-job counts neutral without a
   source-backed closure signal, and adds focused regression coverage for empty
   migrated databases and hidden-job aggregate semantics. Public docs now
-  separate source version `2.7.7` from latest published public release `v2.7.5`.
+  separate current no-account macOS package `v2.7.7` from latest full
+  cross-platform release `v2.7.5`.
 
 - Release docs now treat verified local build plus manual upload as a supported
   production path when the same version, harness, package, checksum, and public
