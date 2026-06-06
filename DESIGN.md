@@ -185,9 +185,9 @@ It should help job seekers answer practical questions:
 - Does my resume support this role?
 - Should I verify before tailoring?
 
-Avoid generic job-board polish, resume keyword-grinder fear tactics, mass-apply
-funnels, and celebratory dashboards. Someone deep in a job search needs signal,
-control, and clear next actions.
+Avoid generic job-board polish, resume keyword-grinder fear tactics,
+volume-first application funnels, and celebratory dashboards. Someone deep in a
+job search needs signal, control, and clear next actions.
 
 ## Colors
 

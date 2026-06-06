@@ -37,8 +37,9 @@ Core questions:
   work, and noisy alerts.
 - **Protect leverage:** make pay floor, range evidence, negotiation notes, and
   compensation gaps visible.
-- **No deception:** no mass-apply UX, automated submissions, CAPTCHA evasion,
-  ATS manipulation, or restricted-source scraping.
+- **No deception:** no volume-first application UX, system-submitted forms,
+  human-check evasion, hiring-system manipulation, or restricted-source
+  scraping.
 - **Optional AI:** external AI is disabled by default, preview-gated, and routed
   through the privacy-first AI gateway.
 
@@ -359,7 +360,7 @@ Use:
 Avoid:
 
 - "Land your dream job instantly."
-- "Beat the ATS."
+- "Outsmart hiring systems."
 - "Auto-apply everywhere."
 - "Guaranteed match."
 - "Your resume is weak."
@@ -368,7 +369,7 @@ Avoid:
 
 Do not add:
 
-- Mass-apply flows.
+- High-volume application flows.
 - Auto-submit behavior.
 - Hidden external sends.
 - Cloud sync by default.
