@@ -2,6 +2,65 @@
 
 use super::*;
 
+#[tokio::test]
+async fn test_run_daily_analysis_empty_migrated_database() {
+    let database = crate::core::Database::connect_memory().await.unwrap();
+    database.migrate().await.unwrap();
+    let market = MarketIntelligence::new(database.pool().clone());
+
+    let snapshot = market.run_daily_analysis().await.unwrap();
+
+    assert_eq!(snapshot.total_jobs, 0);
+    assert_eq!(snapshot.new_jobs_today, 0);
+    assert_eq!(snapshot.jobs_filled_today, 0);
+
+    let snapshot_count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM market_snapshots")
+        .fetch_one(database.pool())
+        .await
+        .unwrap();
+    assert_eq!(snapshot_count, 1);
+}
+
+#[tokio::test]
+async fn test_run_daily_analysis_counts_hidden_jobs_as_market_evidence() {
+    let database = crate::core::Database::connect_memory().await.unwrap();
+    database.migrate().await.unwrap();
+
+    sqlx::query(
+        r#"
+        INSERT INTO jobs (
+            hash, title, company, url, source, created_at, updated_at, last_seen, hidden
+        )
+        VALUES
+            ('visible-market-job', 'Office Assistant', 'Market Co', 'https://example.com/visible', 'manual', datetime('now'), datetime('now'), datetime('now'), 0),
+            ('hidden-market-job', 'Administrative Assistant', 'Hidden Co', 'https://example.com/hidden', 'manual', datetime('now'), datetime('now'), datetime('now'), 1)
+        "#,
+    )
+    .execute(database.pool())
+    .await
+    .unwrap();
+
+    let market = MarketIntelligence::new(database.pool().clone());
+    let snapshot = market.run_daily_analysis().await.unwrap();
+
+    assert_eq!(snapshot.total_jobs, 2);
+    assert_eq!(snapshot.new_jobs_today, 2);
+    assert_eq!(snapshot.total_companies_hiring, 2);
+
+    let hidden_company_activity: (i64, i64) = sqlx::query_as(
+        r#"
+        SELECT jobs_active_count, is_actively_hiring
+        FROM company_hiring_velocity
+        WHERE company_name = 'Hidden Co'
+        "#,
+    )
+    .fetch_one(database.pool())
+    .await
+    .unwrap();
+
+    assert_eq!(hidden_company_activity, (1, 1));
+}
+
 #[test]
 fn test_compute_median_odd_length() {
     let mut values = vec![5.0, 1.0, 3.0];

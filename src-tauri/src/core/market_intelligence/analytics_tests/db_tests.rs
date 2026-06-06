@@ -20,7 +20,9 @@ async fn setup_test_db() -> SqlitePool {
             description TEXT,
             status TEXT DEFAULT 'active',
             posted_at TEXT NOT NULL DEFAULT (datetime('now')),
-            updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+            created_at TEXT NOT NULL DEFAULT (datetime('now')),
+            updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+            hidden INTEGER NOT NULL DEFAULT 0
         )
         "#,
     )
@@ -96,7 +98,7 @@ async fn insert_test_job(
     posted_at: &str,
 ) {
     sqlx::query(
-        "INSERT INTO jobs (hash, title, company, url, location, status, posted_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO jobs (hash, title, company, url, location, status, posted_at, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
     )
     .bind(hash)
     .bind(title)
@@ -104,6 +106,7 @@ async fn insert_test_job(
     .bind(format!("https://example.com/{}", hash))
     .bind(location)
     .bind(status)
+    .bind(posted_at)
     .bind(posted_at)
     .execute(pool)
     .await
@@ -315,7 +318,7 @@ async fn test_create_daily_snapshot_jobs_filled_today() {
     let analyzer = MarketAnalyzer::new(pool);
     let snapshot = analyzer.create_daily_snapshot().await.unwrap();
 
-    assert_eq!(snapshot.jobs_filled_today, 1);
+    assert_eq!(snapshot.jobs_filled_today, 0);
 }
 
 #[tokio::test]

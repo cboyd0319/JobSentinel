@@ -42,17 +42,14 @@ impl MarketAnalyzer {
 
         // New jobs today
         let new_jobs_today = sqlx::query_scalar::<_, i64>(
-            "SELECT COUNT(*) FROM jobs WHERE DATE(posted_at) = DATE('now')",
+            "SELECT COUNT(*) FROM jobs WHERE DATE(created_at) = DATE('now')",
         )
         .fetch_one(&self.db)
         .await?;
 
-        // Jobs filled today
-        let jobs_filled_today = sqlx::query_scalar::<_, i64>(
-            "SELECT COUNT(*) FROM jobs WHERE status IN ('closed', 'filled') AND DATE(updated_at) = DATE('now')"
-        )
-        .fetch_one(&self.db)
-        .await?;
+        // Current jobs schema has no closure status. Keep sentiment neutral here
+        // until a real source-backed closure signal exists.
+        let jobs_filled_today = 0;
 
         // Average salary
         let avg_salary = sqlx::query_scalar::<_, Option<f64>>(
@@ -125,13 +122,13 @@ impl MarketAnalyzer {
         .fetch_optional(&self.db)
         .await?;
 
-        // Total companies hiring
+        // Total companies represented in local market evidence. Hidden jobs are
+        // user-dismissed, not source-closed, so keep them in market analytics.
         let total_companies_hiring = sqlx::query_scalar::<_, i64>(
             r#"
             SELECT COUNT(DISTINCT company)
             FROM jobs
             WHERE company IS NOT NULL AND company != ''
-              AND status = 'active'
             "#,
         )
         .fetch_one(&self.db)

@@ -1,6 +1,6 @@
 # Active Plan Status
 
-Last updated: 2026-06-05.
+Last updated: 2026-06-06.
 
 Read this file first. It is the compact restart surface for current active
 work. Detailed history from the previous open plan set moved to archive on
@@ -38,8 +38,14 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 
 ## Current Posture
 
-- `origin/main` is the source of truth for the pushed baseline. `ce93c51a`
-  was the last broad-cleanup baseline before the current file-size split batch.
+- `origin/main` is the source of truth for the pushed baseline before the
+  current `2.7.7` docs and Hiring Trends release-recovery batch.
+- Package metadata is `2.7.7`, while the latest published public release is
+  `v2.7.5` as of 2026-06-06. Fresh `2.7.7` public assets still need build,
+  upload, and public-artifact verification.
+- macOS Computer Use retest is not complete while the workstation session is
+  locked; the lock blocks screenshot and window control, so no full mouse-click
+  E2E claim should be made from this state.
 - Fresh harness session evidence reports 2 active docs, 2 indexed workstreams,
   and a 100/100 harness score: this status file and `current-work.md`.
 - Final broad verification for the broad-cleanup baseline passed during the
@@ -57,6 +63,13 @@ product and macOS readiness slices; reopen bloat cleanup only for a fresh
 failing gate or a blocker to privacy, security, docs accuracy, or verification.
 
 ## Latest Slice
+
+- Hiring Trends release-recovery now uses the current jobs schema for local
+  trend refresh, treats hidden or dismissed jobs as market evidence rather than
+  source-closed roles, leaves filled-job counts neutral without a
+  source-backed closure signal, and adds focused regression coverage for empty
+  migrated databases and hidden-job aggregate semantics. Public docs now
+  separate source version `2.7.7` from latest published public release `v2.7.5`.
 
 - Repo-bloat product-copy framing fixtures now live in
   `scripts/check-repo-bloat-product-copy-framing.test.mjs`, reducing

@@ -39,14 +39,16 @@ The maintained external source index lives in
 
 ## Current State
 
-- Package metadata version: `2.7.6`.
+- Package metadata version: `2.7.7`.
+- Latest published public release: `v2.7.5` as of 2026-06-06.
 - Current macOS full-public-readiness is 94%; no-account path completion is
-  100% at the 94% public-readiness ceiling. The latest `v2.7.6` release has a
-  verified no-account universal DMG plus matching `.dmg.sha256`, including
-  visible-window launch smoke; zero-friction
-  Gatekeeper-ready public distribution still requires Apple Developer Program
-  materials, Developer ID signing, notarization, stapling, and signed-artifact
-  verification.
+  100% at the 94% public-readiness ceiling. The published `v2.7.5` release has
+  a no-account universal DMG plus matching `.dmg.sha256`. Source version
+  `2.7.7` still needs a fresh release-artifact build, upload, and public
+  verifier pass before users treat a public `2.7.7` DMG as current.
+  Zero-friction Gatekeeper-ready public distribution still requires Apple
+  Developer Program materials, Developer ID signing, notarization, stapling,
+  and signed-artifact verification.
 - Unreleased work is tracked in [CHANGELOG.md](../CHANGELOG.md) and the
   [active plans index](plans/README.md#current-active-plans).
 - Historical release notes are indexed in

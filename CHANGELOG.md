@@ -5,6 +5,26 @@ All notable changes to JobSentinel will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.7.7] - 2026-06-06
+
+Source version in `main`. Public release assets are pending a fresh build,
+upload, and public-artifact verification; latest published public release
+remains `v2.7.5` as of 2026-06-06.
+
+### Fixed
+
+- **Hiring Trends refresh** - Empty first-run and migrated local databases now
+  refresh against the current jobs schema, creating a neutral empty snapshot
+  instead of showing a generic app error.
+- **Hiring Trends semantics** - Local market aggregates now use the current
+  job `created_at` field, keep hidden or dismissed jobs as market evidence, and
+  leave filled-job counts neutral until a source-backed closure signal exists.
+
+### Documentation
+
+- **Release state** - User and developer docs now distinguish source version
+  `2.7.7` from the latest published public release, `v2.7.5`.
+
 ## [2.7.6] - 2026-06-06
 
 ### Fixed

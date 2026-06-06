@@ -22,9 +22,11 @@ help more job seekers, including by building something better.
 1. Open the [JobSentinel latest download page](https://github.com/cboyd0319/JobSentinel/releases/latest).
 2. Choose the package or installer for your computer:
    - **Windows installer**
-   - **Mac package** for Apple silicon and Intel Macs. For `v2.7.6`, use
-     `JobSentinel_2.7.6_no-account_universal.dmg`. Use it only when the same
-     release also shows a matching `.dmg.sha256` checksum file.
+   - **Mac package** for Apple silicon and Intel Macs. Use the
+     `_no-account_universal.dmg` from the latest published release only when
+     the same release also shows a matching `.dmg.sha256` checksum file. As of
+     2026-06-06, the latest published Mac package is
+     `JobSentinel_2.7.5_no-account_universal.dmg`.
    - **Linux installer** when present on the release
 3. Install it:
    - Windows or Linux: double-click and follow the prompts.

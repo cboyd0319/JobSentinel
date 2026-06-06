@@ -231,7 +231,7 @@ impl MarketIntelligence {
     /// Compute company hiring velocity
     ///
     /// OPTIMIZATION: Reduced 4 queries per company to 1 query per company.
-    /// Batches job counts, active count, filled count, and top role into single query.
+    /// Batches job counts, observed count, filled count, and top role into single query.
     pub(super) async fn compute_company_hiring_velocity(&self) -> Result<()> {
         let today = Utc::now().date_naive();
 
@@ -254,9 +254,9 @@ impl MarketIntelligence {
             let stats = sqlx::query(
                 r#"
                 SELECT
-                    SUM(CASE WHEN DATE(posted_at) = DATE('now') THEN 1 ELSE 0 END) as jobs_posted,
-                    SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as jobs_active,
-                    SUM(CASE WHEN status IN ('closed', 'filled') AND DATE(updated_at) = DATE('now') THEN 1 ELSE 0 END) as jobs_filled,
+                    SUM(CASE WHEN DATE(created_at) = DATE('now') THEN 1 ELSE 0 END) as jobs_posted,
+                    COUNT(*) as jobs_active,
+                    0 as jobs_filled,
                     (
                         SELECT title
                         FROM jobs
@@ -342,7 +342,7 @@ impl MarketIntelligence {
             .bind(jobs_active)
             .bind(&top_role)
             .bind(&top_location)
-            .bind((jobs_posted > 0) as i32)
+            .bind((jobs_active > 0) as i32)
             .bind(hiring_trend)
             .execute(&self.db)
             .await?;

@@ -13,7 +13,9 @@ async fn setup_test_db() -> SqlitePool {
             company TEXT,
             location TEXT,
             posted_at TEXT NOT NULL,
+            created_at TEXT NOT NULL DEFAULT (datetime('now')),
             updated_at TEXT NOT NULL,
+            hidden INTEGER NOT NULL DEFAULT 0,
             status TEXT DEFAULT 'active'
         )
         "#,

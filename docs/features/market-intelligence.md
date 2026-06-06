@@ -67,6 +67,11 @@ Hiring Trends only knows about jobs JobSentinel found or you saved. Missing
 salary, stale postings, duplicated listings, source outages, and one job site
 showing only a narrow slice can all distort results.
 
+Hidden or dismissed jobs still count as market evidence because hiding is a
+personal view choice, not proof that an employer closed the role. JobSentinel
+does not currently infer filled or closed jobs for Hiring Trends; filled-count
+metrics stay neutral until a source-backed closure signal exists.
+
 ## Protective Use
 
 Hiring Trends should help job seekers make decisions with less wasted
@@ -84,6 +89,8 @@ effort:
 ## Data Boundaries
 
 - Market metrics are computed from local job data by default.
+- Market metrics use local job records and creation timestamps. Hidden or
+  dismissed jobs remain part of aggregate hiring evidence.
 - Notification delivery is optional and works only after the user turns it on.
 - No market feature should upload the user's local job database.
 - Market summaries should not include private notes, resumes, salary floors, or
