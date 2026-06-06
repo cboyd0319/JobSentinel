@@ -58,7 +58,8 @@ export function hasNoAccountMacosReleaseOrder(releaseWorkflow) {
       "gh release delete-asset",
       "src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg.sha256",
     ]) &&
-    !releaseWorkflow.includes("mapfile ")
+    !releaseWorkflow.includes("mapfile ") &&
+    !releaseWorkflow.includes("macos_assets")
   );
 }
 

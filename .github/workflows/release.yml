@@ -382,20 +382,16 @@ jobs:
         run: |
           set -euo pipefail
 
-          macos_assets=()
           while IFS= read -r asset; do
-            [ -n "$asset" ] && macos_assets+=("$asset")
+            [ -n "$asset" ] || continue
+            printf 'Deleting stale macOS release asset: %s\n' "$asset"
+            gh release delete-asset "$RELEASE_TAG" "$asset" -y
           done < <(
             gh release view "$RELEASE_TAG" \
               --json assets \
               --jq '.assets[].name' \
               | grep -E '\.dmg(\.sha256)?$' || true
           )
-
-          for asset in "${macos_assets[@]}"; do
-            printf 'Deleting stale macOS release asset: %s\n' "$asset"
-            gh release delete-asset "$RELEASE_TAG" "$asset" -y
-          done
 
       # Windows MSI upload
       - name: Upload Windows MSI

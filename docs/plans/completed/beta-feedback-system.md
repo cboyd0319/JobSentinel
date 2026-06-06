@@ -2,7 +2,7 @@
 
 ## Status
 
-Completed on `main`; tracked for the `2.7.1` release.
+Completed on `main`; tracked for the `2.7.2` release.
 
 ## Problem
 

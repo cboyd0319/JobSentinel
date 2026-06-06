@@ -192,6 +192,15 @@ test("macOS readiness checks no-account release workflow order", () => {
     ),
     false,
   );
+  assert.equal(
+    hasNoAccountMacosReleaseOrder(
+      orderedWorkflow.replace(
+        "while IFS= read -r asset; do",
+        "macos_assets=()\nfor asset in \"${macos_assets[@]}\"; do",
+      ),
+    ),
+    false,
+  );
 });
 
 test("macOS readiness checks release asset uploads stay draft", () => {
