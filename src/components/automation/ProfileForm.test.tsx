@@ -234,6 +234,34 @@ describe("ProfileForm resume privacy", () => {
     expect(screen.queryByText("Please fix the errors")).not.toBeInTheDocument();
   });
 
+  it("validates a new unchanged profile before saving", async () => {
+    const user = userEvent.setup();
+    mockInvoke.mockResolvedValueOnce(null);
+
+    renderProfileForm();
+
+    await screen.findByLabelText(/Full Name/);
+    await user.click(screen.getByRole("button", { name: "Save Profile" }));
+
+    expect(await screen.findByText("Check highlighted fields")).toBeInTheDocument();
+    expect(mockInvoke).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not persist an unchanged valid profile", async () => {
+    const user = userEvent.setup();
+    mockInvoke.mockResolvedValueOnce(mockProfile());
+
+    renderProfileForm();
+
+    await screen.findByDisplayValue("Jordan Lee");
+    await user.click(screen.getByRole("button", { name: "Save Profile" }));
+
+    await waitFor(() => {
+      expect(mockInvoke).toHaveBeenCalledTimes(1);
+    });
+    expect(screen.queryByText("Profile saved")).not.toBeInTheDocument();
+  });
+
   it("uses protective review pace choices", async () => {
     mockInvoke.mockResolvedValueOnce(mockProfile());
 

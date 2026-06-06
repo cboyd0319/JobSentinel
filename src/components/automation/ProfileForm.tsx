@@ -147,8 +147,7 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
     }
   }, [touched, validateField]);
 
-  // Compute if form has unsaved changes
-  const isDirty = useMemo(() => {
+  const hasPendingChanges = useCallback(() => {
     if (!originalValues) return false;
     return (
       fullName !== originalValues.fullName ||
@@ -166,6 +165,9 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
       requireManualApproval !== originalValues.requireManualApproval
     );
   }, [originalValues, fullName, email, phone, linkedinUrl, githubUrl, portfolioUrl, websiteUrl, selectedResumeFileToken, resumeFileMarkedForClear, usWorkAuthorized, requiresSponsorship, maxApplicationsPerDay, requireManualApproval]);
+
+  // Compute if form has unsaved changes
+  const isDirty = useMemo(() => hasPendingChanges(), [hasPendingChanges]);
 
   const loadProfile = useCallback(async () => {
     try {
@@ -303,6 +305,10 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
       return;
     }
 
+    if (!hasPendingChanges()) {
+      return;
+    }
+
     try {
       setSaving(true);
       const input: ApplicationProfileInput = {
@@ -373,6 +379,7 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
     maxApplicationsPerDay,
     requireManualApproval,
     validateField,
+    hasPendingChanges,
     showError,
     showSuccess,
     onSaved,
@@ -384,7 +391,7 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
       // Cmd+S or Cmd+Enter to save
       if ((e.key === 's' || e.key === 'Enter') && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
-        if (isDirty && !saving) {
+        if (!saving) {
           handleSave();
         }
       }
@@ -392,7 +399,7 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isDirty, saving, handleSave]);
+  }, [saving, handleSave]);
 
   if (loading) {
     return (

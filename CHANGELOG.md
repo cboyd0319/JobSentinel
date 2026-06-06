@@ -5,6 +5,14 @@ All notable changes to JobSentinel will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.7.5] - 2026-06-06
+
+### Fixed
+
+- **Application Assist save behavior** - Saving an unchanged valid profile now
+  skips the backend write while still letting new or invalid profiles surface
+  required-field guidance from the Save Profile control and keyboard shortcut.
+
 ## [2.7.4] - 2026-06-06
 
 ### Fixed
