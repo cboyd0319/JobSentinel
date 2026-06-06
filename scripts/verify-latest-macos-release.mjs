@@ -10,6 +10,7 @@ import { pathToFileURL } from "node:url";
 import { verifyMacosPackage } from "./verify-macos-package.mjs";
 
 const defaultRepo = "cboyd0319/JobSentinel";
+const verifierUserAgent = "JobSentinel-macOS-release-verifier";
 
 export function getArgValue(args, name) {
   const exactIndex = args.indexOf(name);
@@ -67,6 +68,26 @@ export function parseArgs(args) {
 function releaseApiUrl({ repo, releaseTag }) {
   const base = `https://api.github.com/repos/${repo}/releases`;
   return releaseTag ? `${base}/tags/${encodeURIComponent(releaseTag)}` : `${base}/latest`;
+}
+
+export function githubFetchHeaders({
+  acceptJson = false,
+  token = process.env.GITHUB_TOKEN || process.env.GH_TOKEN || "",
+} = {}) {
+  const headers = {
+    "User-Agent": verifierUserAgent,
+  };
+
+  if (acceptJson) {
+    headers.Accept = "application/vnd.github+json";
+  }
+
+  const trimmedToken = token.trim();
+  if (trimmedToken) {
+    headers.Authorization = `Bearer ${trimmedToken}`;
+  }
+
+  return headers;
 }
 
 export function findMacosDmgAsset(release, assetPattern = "universal.dmg", expectedVersion) {
@@ -188,10 +209,7 @@ async function verifyChecksum({ release, dmgAsset, dmgPath, requireChecksum }) {
 
 async function fetchJson(url) {
   const response = await fetch(url, {
-    headers: {
-      Accept: "application/vnd.github+json",
-      "User-Agent": "JobSentinel-macOS-release-verifier",
-    },
+    headers: githubFetchHeaders({ acceptJson: true }),
   });
 
   if (!response.ok) {
@@ -203,9 +221,7 @@ async function fetchJson(url) {
 
 async function downloadFile(url, destination) {
   const response = await fetch(url, {
-    headers: {
-      "User-Agent": "JobSentinel-macOS-release-verifier",
-    },
+    headers: githubFetchHeaders(),
   });
 
   if (!response.ok || !response.body) {

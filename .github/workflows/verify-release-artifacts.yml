@@ -43,6 +43,7 @@ jobs:
           RELEASE_TAG: ${{ github.event.release.tag_name }}
           DISPATCH_TAG: ${{ inputs.tag }}
           REQUIRE_GATEKEEPER: ${{ inputs.require_gatekeeper || vars.JOBSENTINEL_MACOS_REQUIRE_GATEKEEPER || 'false' }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
 

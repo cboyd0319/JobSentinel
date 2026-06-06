@@ -3672,7 +3672,7 @@ dependencies = [
 
 [[package]]
 name = "jobsentinel"
-version = "2.7.5"
+version = "2.7.6"
 dependencies = [
  "anyhow",
  "arboard",

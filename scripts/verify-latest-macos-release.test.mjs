@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   findChecksumAsset,
   findMacosDmgAsset,
+  githubFetchHeaders,
   parseArgs,
   parseSha256Checksum,
   validateMacosAssetLabel,
@@ -81,6 +82,20 @@ test("latest macOS release verifier supports scoped overrides", () => {
       smokeSeconds: 3,
     },
   );
+});
+
+test("latest macOS release verifier adds GitHub auth when a token is available", () => {
+  assert.deepEqual(githubFetchHeaders({ acceptJson: true, token: "  test-token  " }), {
+    Accept: "application/vnd.github+json",
+    Authorization: "Bearer test-token",
+    "User-Agent": "JobSentinel-macOS-release-verifier",
+  });
+});
+
+test("latest macOS release verifier omits GitHub auth without a token", () => {
+  assert.deepEqual(githubFetchHeaders({ token: "" }), {
+    "User-Agent": "JobSentinel-macOS-release-verifier",
+  });
 });
 
 test("latest macOS release verifier checks no-account asset labels", () => {
