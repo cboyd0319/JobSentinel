@@ -54,10 +54,29 @@ export function hasNoAccountMacosReleaseOrder(releaseWorkflow) {
       "npm run tauri:verify:macos",
       "rm -f \"$current_path.sha256\" \"$labeled_path.sha256\"",
       "shasum -a 256",
+      "while IFS= read -r asset; do",
       "gh release delete-asset",
       "src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg.sha256",
-    ])
+    ]) &&
+    !releaseWorkflow.includes("mapfile ")
   );
+}
+
+function getWorkflowStepBlock(workflow, stepName) {
+  const marker = `- name: ${stepName}`;
+  const start = workflow.indexOf(marker);
+  if (start === -1) return "";
+
+  const rest = workflow.slice(start + marker.length);
+  const nextStep = rest.search(/\n[ \t]*- name: /);
+  return nextStep === -1 ? workflow.slice(start) : workflow.slice(start, start + marker.length + nextStep);
+}
+
+export function releaseAssetUploadsStayDraft(releaseWorkflow) {
+  return ["Upload Windows MSI", "Upload macOS DMG", "Upload Linux AppImage"].every((stepName) => {
+    const step = getWorkflowStepBlock(releaseWorkflow, stepName);
+    return step.includes("uses: softprops/action-gh-release@") && /\n\s+draft: true\b/.test(step);
+  });
 }
 
 function criterion(id, points, ok, detail) {
@@ -150,8 +169,9 @@ export function evaluateMacosReadiness({ root = defaultRoot, env = process.env }
         "Create macOS checksum",
         ".dmg.sha256",
       ]) &&
-        hasNoAccountMacosReleaseOrder(releaseWorkflow),
-      "No-account releases must be verified, labeled, re-checksummed, and uploaded in order.",
+        hasNoAccountMacosReleaseOrder(releaseWorkflow) &&
+        releaseAssetUploadsStayDraft(releaseWorkflow),
+      "No-account releases must be verified, labeled, re-checksummed, uploaded in order, and kept draft until manual publication.",
     ),
     criterion(
       "release workflow keeps Developer ID path strict",

@@ -176,6 +176,7 @@ pub fn get_windows_version() -> String {
     // - os_version_info_size is set before the call as required by the Windows API contract.
     // - We only read version fields if RtlGetVersion returns STATUS_SUCCESS (0).
     unsafe {
+        let mut version_info: OsVersionInfoExW = mem::zeroed();
         version_info.os_version_info_size = mem::size_of::<OsVersionInfoExW>() as u32;
 
         if RtlGetVersion(&mut version_info) == 0 {

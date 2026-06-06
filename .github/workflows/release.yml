@@ -382,7 +382,10 @@ jobs:
         run: |
           set -euo pipefail
 
-          mapfile -t macos_assets < <(
+          macos_assets=()
+          while IFS= read -r asset; do
+            [ -n "$asset" ] && macos_assets+=("$asset")
+          done < <(
             gh release view "$RELEASE_TAG" \
               --json assets \
               --jq '.assets[].name' \
@@ -399,6 +402,7 @@ jobs:
         if: matrix.platform == 'windows-latest'
         uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
         with:
+          draft: true
           files: src-tauri/target/${{ matrix.target }}/release/bundle/msi/*.msi
 
       # macOS DMG upload
@@ -406,6 +410,7 @@ jobs:
         if: startsWith(matrix.platform, 'macos')
         uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
         with:
+          draft: true
           files: |
             src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg
             src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg.sha256
@@ -415,6 +420,7 @@ jobs:
         if: matrix.platform == 'ubuntu-latest'
         uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
         with:
+          draft: true
           files: |
             src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/*.AppImage
             src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/deb/*.deb

@@ -9,6 +9,7 @@ import {
   formatMacosReadinessReport,
   hasNoAccountMacosReleaseOrder,
   noAccountCompletionPercentage,
+  releaseAssetUploadsStayDraft,
   readMacosDevelopmentReadinessClaims,
   readReadmeMacosReadinessPercent,
 } from "./check-macos-readiness.mjs";
@@ -158,6 +159,7 @@ test("macOS readiness checks no-account release workflow order", () => {
     "- name: Create macOS checksum",
     "  run: shasum -a 256 \"${dmg_paths[0]}\" > \"${dmg_paths[0]}.sha256\"",
     "- name: Remove old macOS release assets",
+    "  run: while IFS= read -r asset; do",
     "  run: gh release delete-asset \"$RELEASE_TAG\" \"$asset\" -y",
     "- name: Upload macOS DMG",
     "  with:",
@@ -172,6 +174,7 @@ test("macOS readiness checks no-account release workflow order", () => {
     "- name: Label no-account macOS DMG",
     "  run: rm -f \"$current_path.sha256\" \"$labeled_path.sha256\"",
     "- name: Remove old macOS release assets",
+    "  run: while IFS= read -r asset; do",
     "  run: gh release delete-asset \"$RELEASE_TAG\" \"$asset\" -y",
     "- name: Upload macOS DMG",
     "  with:",
@@ -180,4 +183,44 @@ test("macOS readiness checks no-account release workflow order", () => {
 
   assert.equal(hasNoAccountMacosReleaseOrder(orderedWorkflow), true);
   assert.equal(hasNoAccountMacosReleaseOrder(staleWorkflow), false);
+  assert.equal(
+    hasNoAccountMacosReleaseOrder(
+      orderedWorkflow.replace(
+        "while IFS= read -r asset; do",
+        "mapfile -t macos_assets < <(",
+      ),
+    ),
+    false,
+  );
+});
+
+test("macOS readiness checks release asset uploads stay draft", () => {
+  const workflow = [
+    "- name: Upload Windows MSI",
+    "  uses: softprops/action-gh-release@abc",
+    "  with:",
+    "    draft: true",
+    "    files: windows.msi",
+    "- name: Upload macOS DMG",
+    "  uses: softprops/action-gh-release@abc",
+    "  with:",
+    "    draft: true",
+    "    files: macos.dmg",
+    "- name: Upload Linux AppImage",
+    "  uses: softprops/action-gh-release@abc",
+    "  with:",
+    "    draft: true",
+    "    files: linux.AppImage",
+  ].join("\n");
+
+  assert.equal(releaseAssetUploadsStayDraft(workflow), true);
+  assert.equal(
+    releaseAssetUploadsStayDraft(
+      workflow.replace(
+        "    draft: true\n    files: macos.dmg",
+        "    files: macos.dmg",
+      ),
+    ),
+    false,
+  );
 });
