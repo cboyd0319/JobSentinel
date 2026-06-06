@@ -171,6 +171,80 @@ export function smokeDataPermissionViolations(dataPaths, { platform = process.pl
   return violations;
 }
 
+export function buildCgWindowSmokeScript() {
+  return `
+import CoreGraphics
+import Foundation
+
+guard CommandLine.arguments.count == 2, let expectedPid = Int(CommandLine.arguments[1]) else {
+  fputs("missing pid\\n", stderr)
+  exit(64)
+}
+
+let options: CGWindowListOption = [.optionOnScreenOnly, .excludeDesktopElements]
+let windows = (CGWindowListCopyWindowInfo(options, kCGNullWindowID) as? [[String: Any]]) ?? []
+
+for window in windows {
+  let pid = window[kCGWindowOwnerPID as String] as? Int ?? -1
+  guard pid == expectedPid else {
+    continue
+  }
+
+  let layer = window[kCGWindowLayer as String] as? Int ?? -1
+  let isOnscreen = window[kCGWindowIsOnscreen as String] as? Int ?? 0
+  let bounds = window[kCGWindowBounds as String] as? [String: Any] ?? [:]
+  let width = bounds["Width"] as? Double ?? 0
+  let height = bounds["Height"] as? Double ?? 0
+
+  if layer == 0 && isOnscreen == 1 && width >= 320 && height >= 240 {
+    print("visible-window pid=\\(pid) width=\\(Int(width)) height=\\(Int(height))")
+    exit(0)
+  }
+}
+
+fputs("no visible app window for pid \\(expectedPid)\\n", stderr)
+exit(2)
+`;
+}
+
+export function parseCgWindowSmokeOutput(output) {
+  const match = output.trim().match(/^visible-window pid=(\d+) width=(\d+) height=(\d+)$/);
+  if (!match) {
+    return undefined;
+  }
+
+  return {
+    height: Number.parseInt(match[3], 10),
+    pid: Number.parseInt(match[1], 10),
+    width: Number.parseInt(match[2], 10),
+  };
+}
+
+function assertLaunchWindowVisible(pid) {
+  if (process.platform !== "darwin") {
+    return;
+  }
+
+  const result = spawnSync("swift", ["-", String(pid)], {
+    encoding: "utf8",
+    input: buildCgWindowSmokeScript(),
+    stdio: ["pipe", "pipe", "pipe"],
+  });
+
+  if (result.status !== 0) {
+    throw new Error(
+      `Launch smoke did not expose a visible macOS app window for pid ${pid}:\n${result.stderr || result.stdout}`,
+    );
+  }
+
+  const windowInfo = parseCgWindowSmokeOutput(result.stdout);
+  if (!windowInfo) {
+    throw new Error(`Launch smoke returned unexpected window evidence:\n${result.stdout}`);
+  }
+
+  console.log(`Visible window smoke passed: ${windowInfo.width}x${windowInfo.height} on-screen app window.`);
+}
+
 function assertSmokeDataPermissions(dataPaths) {
   const violations = smokeDataPermissionViolations(dataPaths);
   if (violations.length > 0) {
@@ -489,6 +563,10 @@ async function smokeLaunch({ appPath, seconds }) {
     if (child.exitCode !== null) {
       throw new Error(`Launch smoke exited before ${seconds} seconds with status ${child.exitCode}.`);
     }
+    if (!child.pid) {
+      throw new Error("Launch smoke started without a process id.");
+    }
+    assertLaunchWindowVisible(child.pid);
 
     const exitPromise = new Promise((resolve) => child.once("exit", resolve));
     child.kill("SIGTERM");

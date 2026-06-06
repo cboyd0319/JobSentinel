@@ -5,7 +5,7 @@ All notable changes to JobSentinel will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.7.0] - 2026-06-05
+## [2.7.1] - 2026-06-05
 
 ### Added
 
@@ -60,6 +60,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   labels.
 - **macOS release docs** - Stale public Mac assets are no longer presented as
   passing current data-permission gates.
+- **Release packaging CI** - Windows release builds initialize Windows version
+  metadata correctly, macOS release cleanup avoids Bash 4-only syntax, and
+  asset uploads keep releases in draft until manual publication.
+- **macOS visible-window smoke** - Package verification now fails if launch
+  smoke starts a process without exposing a normal on-screen app window.
 
 ## [2.6.4] - 2026-03-18
 

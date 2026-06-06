@@ -219,6 +219,8 @@ export function evaluateMacosReadiness({ root = defaultRoot, env = process.env }
       "local package verifier covers install, launch, data, checksum, metadata, and Gatekeeper",
       12,
       hasAll(packageVerifier, [
+        "buildCgWindowSmokeScript",
+        "CGWindowListCopyWindowInfo",
         "verifyLocalDmgChecksum",
         "verifyBundleMetadata",
         "parseLipoArchitectures",
@@ -231,6 +233,7 @@ export function evaluateMacosReadiness({ root = defaultRoot, env = process.env }
         "macosSmokeDataPaths",
         "smokeDataPermissionTargets",
         "smokeDataPermissionViolations",
+        "Visible window smoke passed",
         "Local data permissions smoke passed",
         "app data tree is private",
       ]),
@@ -267,7 +270,12 @@ export function evaluateMacosReadiness({ root = defaultRoot, env = process.env }
       8,
       hasAll(buildTests, ["uses hardened runtime", "timestamps Developer ID disk image", "requires accepted notarization JSON"]) &&
         hasAll(latestVerifierTests, ["defaults to no-account public checks", "checks no-account asset labels"]) &&
-        hasAll(packageVerifierTests, ["optional and required Gatekeeper rejection", "validates required bundle metadata", "rejects non-Developer-ID signatures"]),
+        hasAll(packageVerifierTests, [
+          "optional and required Gatekeeper rejection",
+          "validates required bundle metadata",
+          "rejects non-Developer-ID signatures",
+          "visible window evidence",
+        ]),
       "Script tests must cover no-account and future signed-release paths.",
     ),
     criterion(

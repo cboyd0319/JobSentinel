@@ -11,11 +11,13 @@ import {
   buildGatekeeperAssessArgs,
   buildStaplerValidateArgs,
   bundleMetadataViolations,
+  buildCgWindowSmokeScript,
   defaultArchitectures,
   formatGatekeeperStatus,
   hasExpectedArchitectures,
   macosSmokeDataPaths,
   parseArgs,
+  parseCgWindowSmokeOutput,
   parseLipoArchitectures,
   parseSha256Checksum,
   smokeDataPermissionViolations,
@@ -171,6 +173,16 @@ test("macOS verifier resolves launch smoke data paths under isolated home", () =
     dataDir: "/tmp/jobsentinel-smoke-home/Library/Application Support/JobSentinel",
     dbPath: "/tmp/jobsentinel-smoke-home/Library/Application Support/JobSentinel/jobs.db",
   });
+});
+
+test("macOS verifier checks launch smoke visible window evidence", () => {
+  assert.match(buildCgWindowSmokeScript(), /CGWindowListCopyWindowInfo/);
+  assert.deepEqual(parseCgWindowSmokeOutput("visible-window pid=123 width=1200 height=801\n"), {
+    height: 801,
+    pid: 123,
+    width: 1200,
+  });
+  assert.equal(parseCgWindowSmokeOutput("no visible app window for pid 123\n"), undefined);
 });
 
 test("macOS verifier requires private launch smoke data permissions", () => {

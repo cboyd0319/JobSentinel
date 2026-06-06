@@ -7,8 +7,8 @@ control.**
 **Current macOS full-public-readiness: 94%; no-account path completion:
 100%.** The local no-account release path has a universal DMG, matching
 `.sha256` checksum, public release verifier, universal architecture checks,
-install smoke, launch smoke, private isolated local-data smoke, and
-harness-enforced readiness checks. The `v2.7.0` no-account Mac release must
+install smoke, launch smoke with visible-window proof, private isolated local-data smoke, and
+harness-enforced readiness checks. The `v2.7.1` no-account Mac release must
 pass the public verifier after upload before users treat the public DMG as
 current. The no-account path is complete at its 94% public-readiness ceiling.
 Full public Mac readiness cannot honestly reach 100% without Developer ID
@@ -83,8 +83,8 @@ or build something better with it if that helps more people.
 | What can leave the device? | Enabled job-source checks, job sources or career pages the user approves for checking, alerts the user turns on, optional location detection after a click, support links opened by the user, or explicitly approved external AI requests. |
 | Is external AI required? | No. External AI is optional, disabled by default, preview-gated, and gateway-bound. |
 | Is it free? | Yes. JobSentinel is MIT licensed and free forever. |
-| Current release | `v2.7.0` with Windows and Linux installers plus a no-account universal macOS package. A public Mac package is recommended only when the release includes a matching `.sha256` checksum and the public macOS verifier passes. |
-| macOS full-public-readiness | 94%; no-account path completion is 100% at a 94% public-readiness ceiling. Local universal DMG, checksum, metadata, architecture, install, launch, private local-data permissions, public-artifact verifier, and readiness-harness checks are in place. The final 6% is externally blocked by Apple Developer Program materials for Developer ID signing, notarization, stapling, and Gatekeeper acceptance. |
+| Current release | `v2.7.1` with Windows and Linux installers plus a no-account universal macOS package. A public Mac package is recommended only when the release includes a matching `.sha256` checksum and the public macOS verifier passes. |
+| macOS full-public-readiness | 94%; no-account path completion is 100% at a 94% public-readiness ceiling. Local universal DMG, checksum, metadata, architecture, install, visible-window launch, private local-data permissions, public-artifact verifier, and readiness-harness checks are in place. The final 6% is externally blocked by Apple Developer Program materials for Developer ID signing, notarization, stapling, and Gatekeeper acceptance. |
 | Current active plan | Open repo-wide quality work with compact restart state in `docs/plans/active/status.md` and `docs/plans/active/current-work.md`. |
 
 ## Reader Map
@@ -123,8 +123,8 @@ Download the latest package or installer from the
 | macOS | Universal Mac package for Apple silicon and Intel Macs. Use only a Mac package that has a matching `.sha256` checksum asset on the release. Until Developer ID signing and notarization are available, the no-account DMG filename should include `_no-account_`. The project does not currently have an Apple Developer Account, so macOS requires a first-open Privacy & Security approval until Developer ID signing and notarization are available. |
 | Linux | Linux installer |
 
-The current `v2.7.0` release includes Windows and Linux installers plus
-`JobSentinel_2.7.0_no-account_universal.dmg` for macOS. Most Windows and Linux
+The current `v2.7.1` release includes Windows and Linux installers plus
+`JobSentinel_2.7.1_no-account_universal.dmg` for macOS. Most Windows and Linux
 users should use the installer. Mac users should use only a release package with a matching
 `JobSentinel_*_universal.dmg.sha256` checksum and passing public macOS
 verification. Until Developer ID signing and notarization are available, the
@@ -137,7 +137,7 @@ an Apple Developer Account for Developer ID signing and notarization. This is a
 release-distribution constraint, not a core runtime feature gap: the macOS app
 can still be built, packaged, verified, and tested locally. The no-account
 macOS release path verifies ad-hoc packages for metadata, signatures,
-universal architecture, launch smoke, installed-app smoke, checksum, and local
+universal architecture, visible-window launch smoke, installed-app smoke, checksum, and local
 data creation with owner-only data permissions, but it does not claim
 Gatekeeper readiness. It is not Developer ID signed and not notarized. Current
 Mac full-public-readiness is 94%;
@@ -539,13 +539,13 @@ Developer docs:
 
 ## Release Notes
 
-### Current Release: v2.7.0
+### Current Release: v2.7.1
 
 - Windows `.msi`, Linux `.AppImage`, Linux `.deb`, and no-account macOS `.dmg`
   release assets are available. The macOS package is not Developer ID signed or
   notarized, so it requires first-open Privacy & Security approval.
 - Mac full-public-readiness is 94%, and no-account path completion is 100%:
-  package, checksum, universal architecture, install, launch, private
+  package, checksum, universal architecture, install, visible-window launch, private
   local-data permissions, public-artifact verifier, and readiness harness
   verification are covered, while
   zero-friction public distribution still needs Developer ID signing,

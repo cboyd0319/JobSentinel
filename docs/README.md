@@ -39,10 +39,11 @@ The maintained external source index lives in
 
 ## Current State
 
-- Package metadata version: `2.7.0`.
+- Package metadata version: `2.7.1`.
 - Current macOS full-public-readiness is 94%; no-account path completion is
-  100% at the 94% public-readiness ceiling. The latest `v2.7.0` release has a
-  verified no-account universal DMG plus matching `.dmg.sha256`; zero-friction
+  100% at the 94% public-readiness ceiling. The latest `v2.7.1` release has a
+  verified no-account universal DMG plus matching `.dmg.sha256`, including
+  visible-window launch smoke; zero-friction
   Gatekeeper-ready public distribution still requires Apple Developer Program
   materials, Developer ID signing, notarization, stapling, and signed-artifact
   verification.
