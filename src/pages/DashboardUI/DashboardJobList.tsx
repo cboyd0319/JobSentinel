@@ -154,6 +154,7 @@ export function DashboardJobList({
         </p>
         <button
           onClick={onClearFilters}
+          data-testid="btn-clear-filters"
           className="text-sm text-sentinel-600 dark:text-sentinel-400 hover:underline"
           aria-label="Clear all filters to show all jobs"
         >

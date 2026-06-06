@@ -17,6 +17,11 @@ import {
   type ResumeSummary,
 } from "./resumeOptimizerModel";
 import { writeStoredResumeJobContext } from "../utils/resumeJobContext";
+import {
+  readStorageValue,
+  removeStorageValue,
+  writeStorageValue,
+} from "../utils/browserStorage";
 
 type Page = "dashboard" | "applications" | "resume" | "resume-builder" | "ats-optimizer" | "salary" | "market" | "automation";
 
@@ -25,26 +30,68 @@ interface ResumeOptimizerProps {
   onNavigate?: (page: Page) => void;
 }
 
+interface ResumeOptimizerDraft {
+  jobDescription: string;
+  resumeJson: string;
+  analysisResult: AtsAnalysisResult | null;
+  analysisInputSource: "active" | "copied" | null;
+  showAdvancedResumeImport: boolean;
+  showComparison: boolean;
+}
+
+const RESUME_MATCH_DRAFT_STORAGE_KEY = "jobsentinel-resume-match-draft-v1";
+
+function readResumeMatchDraft(): ResumeOptimizerDraft | null {
+  const raw = readStorageValue("session", RESUME_MATCH_DRAFT_STORAGE_KEY);
+  if (!raw) return null;
+
+  try {
+    const parsed = JSON.parse(raw) as Partial<ResumeOptimizerDraft>;
+    if (typeof parsed.jobDescription !== "string") return null;
+    if (typeof parsed.resumeJson !== "string") return null;
+
+    removeStorageValue("session", RESUME_MATCH_DRAFT_STORAGE_KEY);
+
+    return {
+      jobDescription: parsed.jobDescription,
+      resumeJson: parsed.resumeJson,
+      analysisResult: parsed.analysisResult ?? null,
+      analysisInputSource:
+        parsed.analysisInputSource === "active" || parsed.analysisInputSource === "copied"
+          ? parsed.analysisInputSource
+          : null,
+      showAdvancedResumeImport: Boolean(parsed.showAdvancedResumeImport),
+      showComparison: Boolean(parsed.showComparison),
+    };
+  } catch {
+    removeStorageValue("session", RESUME_MATCH_DRAFT_STORAGE_KEY);
+    return null;
+  }
+}
+
 async function getActiveResumeSummary(): Promise<ResumeSummary | null> {
   const selected = await invoke<unknown>("get_active_resume");
   return isResumeSummary(selected) ? selected : null;
 }
 
 export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerProps) {
-  const [jobDescription, setJobDescription] = useState("");
-  const [resumeJson, setResumeJson] = useState("");
+  const [initialDraft] = useState(readResumeMatchDraft);
+  const [jobDescription, setJobDescription] = useState(initialDraft?.jobDescription ?? "");
+  const [resumeJson, setResumeJson] = useState(initialDraft?.resumeJson ?? "");
   const [analyzing, setAnalyzing] = useState(false);
-  const [analysisResult, setAnalysisResult] = useState<AtsAnalysisResult | null>(null);
+  const [analysisResult, setAnalysisResult] = useState<AtsAnalysisResult | null>(initialDraft?.analysisResult ?? null);
   const [actionWords, setActionWords] = useState<string[]>([]);
   const [showActionWords, setShowActionWords] = useState(false);
   const [bulletInput, setBulletInput] = useState("");
   const [improvedBullet, setImprovedBullet] = useState("");
   const [improvingBullet, setImprovingBullet] = useState(false);
   const [showBulletImprover, setShowBulletImprover] = useState(false);
-  const [showComparison, setShowComparison] = useState(false);
-  const [showAdvancedResumeImport, setShowAdvancedResumeImport] = useState(false);
+  const [showComparison, setShowComparison] = useState(initialDraft?.showComparison ?? false);
+  const [showAdvancedResumeImport, setShowAdvancedResumeImport] = useState(initialDraft?.showAdvancedResumeImport ?? false);
   const [activeResume, setActiveResume] = useState<ResumeSummary | null>(null);
-  const [analysisInputSource, setAnalysisInputSource] = useState<"active" | "copied" | null>(null);
+  const [analysisInputSource, setAnalysisInputSource] = useState<"active" | "copied" | null>(
+    initialDraft?.analysisInputSource ?? null,
+  );
 
   const toast = useToast();
 
@@ -87,6 +134,18 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
     }
 
     if (onNavigate) {
+      writeStorageValue(
+        "session",
+        RESUME_MATCH_DRAFT_STORAGE_KEY,
+        JSON.stringify({
+          jobDescription,
+          resumeJson,
+          analysisResult,
+          analysisInputSource,
+          showAdvancedResumeImport,
+          showComparison,
+        } satisfies ResumeOptimizerDraft),
+      );
       onNavigate("resume");
       return;
     }
@@ -297,7 +356,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                 </p>
                 {activeResume && (
                   <div className="rounded-lg border border-success/30 bg-success/10 px-3 py-2 text-sm text-surface-700 dark:text-surface-200">
-                    <p>
+                    <p className="break-words [overflow-wrap:anywhere]">
                       <span className="font-medium">Selected resume:</span> {activeResume.name}
                     </p>
                     <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -368,7 +427,9 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
             {showAdvancedResumeImport && (
               <div className="flex gap-3">
                 <p className="text-xs text-surface-500 dark:text-surface-400">
-                  Copied resume details are used only for this local review.
+                  Copied resume details stay in JobSentinel for this local review
+                  and can be restored during this app session if you add a
+                  resume.
                 </p>
               </div>
             )}

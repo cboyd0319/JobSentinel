@@ -205,17 +205,17 @@ once and dismiss the warning. Then open **System Settings**, go to **Privacy &
 Security**, click **Open Anyway** next to the JobSentinel message, then click
 **Open**.
 
-Windows may show this message because JobSentinel is a new app:
+Windows may show this message when an installer is unsigned or not widely
+trusted yet:
 
 ```text
 Windows protected your PC
 ```
 
 Continue only if you downloaded JobSentinel from the latest download page linked
-above and expected this file. If you are not sure, stop, delete the download,
-and download it again from that page.
-
-After checking the download, click **More info**, then click **Run anyway**.
+above, expected this file, and can verify the installer identity or checksum
+from the same release. If you are not sure, stop, delete the download, and use
+the latest signed installer when available or build from source.
 
 </details>
 

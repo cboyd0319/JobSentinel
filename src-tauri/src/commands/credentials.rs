@@ -15,6 +15,7 @@ const LINKEDIN_CREDENTIALS_DISABLED: &str =
 pub struct CredentialStatus {
     pub key: String,
     pub exists: bool,
+    pub available: bool,
 }
 
 fn parse_credential_key(key: &str) -> Result<CredentialKey, String> {
@@ -87,9 +88,10 @@ pub async fn get_credential_status() -> Result<Vec<CredentialStatus>, String> {
 
     Ok(CredentialStore::list_status()
         .into_iter()
-        .map(|(key, exists)| CredentialStatus {
-            key: key.as_str().to_string(),
-            exists,
+        .map(|status| CredentialStatus {
+            key: status.key.as_str().to_string(),
+            exists: status.exists,
+            available: status.available,
         })
         .collect())
 }

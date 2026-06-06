@@ -111,6 +111,7 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
     portfolioUrl?: string;
     websiteUrl?: string;
   }>({});
+  const [showValidationSummary, setShowValidationSummary] = useState(false);
 
   // Track which fields have been touched (for real-time validation)
   const [touched, setTouched] = useState<Set<string>>(new Set());
@@ -140,6 +141,7 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
 
   // Real-time validation for touched fields
   const handleChange = useCallback((field: string, value: string, setter: (v: string) => void) => {
+    setShowValidationSummary(false);
     setter(value);
     if (touched.has(field)) {
       const error = validateField(field, value);
@@ -301,9 +303,10 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
     // Check if any errors exist
     const hasErrors = Object.values(newErrors).some((error) => error !== undefined);
     if (hasErrors) {
-      showError("Check highlighted fields", "Add the missing details, then save again.");
+      setShowValidationSummary(true);
       return;
     }
+    setShowValidationSummary(false);
 
     if (!hasPendingChanges()) {
       return;
@@ -428,6 +431,16 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
       </div>
 
       <div className="space-y-6" role="form" aria-label="Application profile form">
+        {showValidationSummary && (
+          <div
+            role="alert"
+            className="rounded-lg border border-danger/40 bg-danger/10 p-4 text-sm text-danger"
+          >
+            <p className="font-semibold text-danger">Check highlighted fields</p>
+            <p className="mt-1 text-danger/90">Add the missing details, then save again.</p>
+          </div>
+        )}
+
         {/* Contact Information */}
         <section role="group" aria-labelledby="contact-info-heading">
           <h4 id="contact-info-heading" className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">

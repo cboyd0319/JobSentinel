@@ -1,4 +1,4 @@
-import { memo, useEffect, useState, useCallback, useMemo, lazy, Suspense } from "react";
+import { memo, useEffect, useState, useCallback, useMemo, useRef, lazy, Suspense, type KeyboardEvent } from "react";
 import { Button } from "../components/Button";
 import { Card } from "../components/Card";
 import { Badge } from "../components/Badge";
@@ -182,6 +182,43 @@ export default function Market({ onBack }: MarketProps) {
     { id: "locations", label: "Locations", icon: "location" },
     { id: "alerts", label: "Alerts", icon: "bell", badge: unreadAlertCount || undefined },
   ];
+  const tabRefs = useRef<Record<TabId, HTMLButtonElement | null>>({
+    overview: null,
+    skills: null,
+    companies: null,
+    locations: null,
+    alerts: null,
+  });
+
+  const focusTab = useCallback((tabId: TabId) => {
+    setActiveTab(tabId);
+    window.requestAnimationFrame(() => {
+      tabRefs.current[tabId]?.focus();
+    });
+  }, []);
+
+  const handleTabKeyDown = (event: KeyboardEvent<HTMLButtonElement>, tabId: TabId) => {
+    const currentIndex = tabs.findIndex((tab) => tab.id === tabId);
+    if (currentIndex === -1) return;
+
+    if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+      event.preventDefault();
+      const nextTab = tabs[(currentIndex + 1) % tabs.length];
+      if (nextTab) focusTab(nextTab.id);
+    } else if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+      event.preventDefault();
+      const previousTab = tabs[(currentIndex - 1 + tabs.length) % tabs.length];
+      if (previousTab) focusTab(previousTab.id);
+    } else if (event.key === "Home") {
+      event.preventDefault();
+      const firstTab = tabs[0];
+      if (firstTab) focusTab(firstTab.id);
+    } else if (event.key === "End") {
+      event.preventDefault();
+      const lastTab = tabs[tabs.length - 1];
+      if (lastTab) focusTab(lastTab.id);
+    }
+  };
 
   const fetchData = useCallback(async (signal?: AbortSignal): Promise<MarketDataResult | null> => {
     try {
@@ -376,11 +413,16 @@ export default function Market({ onBack }: MarketProps) {
             {tabs.map((tab) => (
               <button
                 key={tab.id}
+                ref={(element) => {
+                  tabRefs.current[tab.id] = element;
+                }}
                 onClick={() => setActiveTab(tab.id)}
+                onKeyDown={(event) => handleTabKeyDown(event, tab.id)}
                 role="tab"
                 aria-selected={activeTab === tab.id}
-                aria-controls={`${tab.id}-panel`}
+                aria-controls={activeTab === tab.id ? `${tab.id}-panel` : undefined}
                 id={`${tab.id}-tab`}
+                tabIndex={activeTab === tab.id ? 0 : -1}
                 className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors whitespace-nowrap flex items-center gap-2 ${
                   activeTab === tab.id
                     ? "bg-surface-50 dark:bg-surface-900 text-sentinel-600 dark:text-sentinel-400 border-t border-x border-surface-200 dark:border-surface-700"
@@ -400,7 +442,13 @@ export default function Market({ onBack }: MarketProps) {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto p-6">
+      <main
+        className="max-w-7xl mx-auto p-6"
+        role="tabpanel"
+        id={`${activeTab}-panel`}
+        aria-labelledby={`${activeTab}-tab`}
+        tabIndex={0}
+      >
         {/* Overview Tab */}
         {activeTab === "overview" && (
           <div className="space-y-6">

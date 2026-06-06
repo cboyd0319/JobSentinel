@@ -121,10 +121,15 @@ function makeGhostConfig() {
   };
 }
 
+function makeCredentialStatusEntries(keys: string[] = []) {
+  return keys.map((key) => ({ key, exists: true, available: true }));
+}
+
 // Wire up mockInvoke to handle the happy path
 function setupHappyPath() {
   mockInvoke.mockImplementation(async (cmd: string) => {
     if (cmd === "get_config") return makeConfig();
+    if (cmd === "get_credential_status") return [];
     if (cmd === "has_credential") return false;
     if (cmd === "get_ghost_config") return makeGhostConfig();
     if (cmd === "detect_location") return null;
@@ -626,6 +631,9 @@ describe("Settings — handleSave flow", () => {
 
     mockInvoke.mockImplementation(async (cmd: string, args?: unknown) => {
       if (cmd === "get_config") return config;
+      if (cmd === "get_credential_status") {
+        return makeCredentialStatusEntries(["slack_webhook"]);
+      }
       if (cmd === "has_credential") {
         return (args as { key: string }).key === "slack_webhook";
       }
@@ -678,6 +686,9 @@ describe("Settings — handleSave flow", () => {
 
     mockInvoke.mockImplementation(async (cmd: string, args?: unknown) => {
       if (cmd === "get_config") return config;
+      if (cmd === "get_credential_status") {
+        return makeCredentialStatusEntries(["smtp_password"]);
+      }
       if (cmd === "has_credential") {
         return (args as { key: string }).key === "smtp_password";
       }
@@ -725,6 +736,7 @@ describe("Settings — handleSave flow", () => {
 
     mockInvoke.mockImplementation(async (cmd: string) => {
       if (cmd === "get_config") return config;
+      if (cmd === "get_credential_status") return [];
       if (cmd === "has_credential") return false;
       if (cmd === "get_ghost_config") return makeGhostConfig();
       if (cmd === "detect_location") return null;
@@ -756,6 +768,7 @@ describe("Settings — handleSave flow", () => {
 
     mockInvoke.mockImplementation(async (cmd: string) => {
       if (cmd === "get_config") return config;
+      if (cmd === "get_credential_status") return [];
       if (cmd === "has_credential") return false;
       if (cmd === "get_ghost_config") return makeGhostConfig();
       if (cmd === "detect_location") return null;
@@ -791,6 +804,62 @@ describe("Settings — handleSave flow", () => {
       "Add the Telegram details shown below, or turn Telegram alerts off.",
     );
     expect(mockInvoke).not.toHaveBeenCalledWith("save_config", expect.anything());
+  });
+
+  it("does not treat unavailable saved secrets as missing during save", async () => {
+    const user = userEvent.setup();
+    const config = makeConfig();
+    config.alerts.telegram = {
+      enabled: true,
+      chat_id: "saved-destination",
+    };
+    config.usajobs = {
+      ...config.usajobs,
+      enabled: true,
+      email: "user@example.com",
+    };
+    let savedConfig: ReturnType<typeof makeConfig> | null = null;
+
+    mockInvoke.mockImplementation(async (cmd: string, args?: unknown) => {
+      if (cmd === "get_config") return config;
+      if (cmd === "get_credential_status") {
+        return [
+          { key: "telegram_bot_token", exists: false, available: false },
+          { key: "usajobs_api_key", exists: false, available: false },
+        ];
+      }
+      if (cmd === "has_credential") {
+        throw new Error("system password manager locked");
+      }
+      if (cmd === "get_ghost_config") return makeGhostConfig();
+      if (cmd === "detect_location") return null;
+      if (cmd === "save_config") {
+        savedConfig = (args as { config: ReturnType<typeof makeConfig> }).config;
+        return null;
+      }
+      return null;
+    });
+
+    render(<Settings onClose={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Settings")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole("button", { name: /save changes/i }));
+
+    await waitFor(() => {
+      expect(savedConfig?.alerts.telegram.enabled).toBe(true);
+      expect(savedConfig?.usajobs.enabled).toBe(true);
+    });
+    expect(mockToast.error).not.toHaveBeenCalledWith(
+      "Finish Telegram alerts",
+      expect.any(String),
+    );
+    expect(mockToast.error).not.toHaveBeenCalledWith(
+      "Finish USAJobs scheduled checks",
+      expect.any(String),
+    );
   });
 
   it("presents desktop and email alerts before optional chat alerts", async () => {

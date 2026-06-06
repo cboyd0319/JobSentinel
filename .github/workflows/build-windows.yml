@@ -74,11 +74,28 @@ jobs:
       - name: Build Tauri app
         run: npm run tauri build
 
+      - name: Verify Windows MSI signature and checksum
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $msi = Get-ChildItem "src-tauri/target/release/bundle/msi" -Filter "*.msi" | Select-Object -First 1
+          if (-not $msi) {
+            throw "Expected one Windows MSI before release upload."
+          }
+          $signature = Get-AuthenticodeSignature $msi.FullName
+          if ($signature.Status -ne "Valid") {
+            throw "Windows MSI is not Authenticode-signed. Configure certificateThumbprint and timestampUrl before public MSI upload."
+          }
+          $hash = Get-FileHash -Algorithm SHA256 $msi.FullName
+          "$($hash.Hash.ToLowerInvariant())  $($msi.Name)" | Set-Content -NoNewline -Encoding ascii "$($msi.FullName).sha256"
+
       - name: Upload to Release
         uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
         with:
           tag_name: v${{ github.event.inputs.version }}
-          files: src-tauri/target/release/bundle/msi/*.msi
+          files: |
+            src-tauri/target/release/bundle/msi/*.msi
+            src-tauri/target/release/bundle/msi/*.msi.sha256
           draft: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -26,6 +26,7 @@ const allowedRootEntries = new Set([
   "CHANGELOG.md",
   "CLAUDE.md",
   "CODE_OF_CONDUCT.md",
+  "DESIGN.md",
   "LICENSE",
   "PRIVACY.md",
   "README.md",

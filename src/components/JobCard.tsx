@@ -230,10 +230,10 @@ export const JobCard = memo(function JobCard({
           <div className="absolute -top-px -left-px -right-px h-1 bg-gradient-to-r from-alert-400 via-alert-500 to-alert-400 rounded-t-card" />
         )}
 
-        <div className="p-5">
-          <div className="flex gap-4">
+        <div className="p-4 sm:p-5">
+          <div className="flex flex-col gap-4 sm:flex-row">
             {/* Score */}
-            <div className="flex-shrink-0">
+            <div className="self-start sm:flex-shrink-0">
               <ScoreDisplay
                 score={job.score}
                 size="md"
@@ -455,7 +455,7 @@ export const JobCard = memo(function JobCard({
             </div>
 
             {/* Action */}
-            <div className="flex-shrink-0 self-center flex items-center gap-1">
+            <div className="flex flex-wrap items-center gap-1 self-start sm:flex-shrink-0 sm:self-center">
               {/* Research company button */}
               {onResearchCompany && (
                 <button

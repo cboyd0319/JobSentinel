@@ -82,7 +82,7 @@ impl CredentialStore {
     pub fn retrieve(key: CredentialKey) -> Result<Option<String>, String>;
     pub fn delete(key: CredentialKey) -> Result<(), String>;
     pub fn exists(key: CredentialKey) -> Result<bool, String>;
-    pub fn list_status() -> Vec<(CredentialKey, bool)>;
+    pub fn list_status() -> Vec<CredentialPresence>;
 }
 ```
 
@@ -102,6 +102,10 @@ pub async fn has_credential(key: String) -> Result<bool, String>;
 pub async fn get_credential_status() -> Result<Vec<CredentialStatus>, String>;
 ```
 
+`get_credential_status` returns non-secret entries shaped as
+`{ key, exists, available }`. `available: false` means secure storage could not
+be checked and must not be shown as either saved or missing.
+
 ## Migration From Plaintext Config
 
 Startup migration runs when the config file exists and the keyring migration
@@ -109,10 +113,10 @@ flag has not been set.
 
 1. Extract plaintext credentials from `config.json`.
 2. Store each extracted credential in the OS keyring.
-3. Clear plaintext credential fields from config only after every credential was
-   stored successfully.
-4. Set the migration flag only after either no plaintext credentials were found
-   or the successful store-and-clear path completed.
+3. Atomically clear plaintext credential fields from config only after every
+   credential was stored successfully.
+4. Atomically set the migration flag only after either no plaintext credentials
+   were found or the successful store-and-clear path completed.
 5. Leave the migration flag unset after partial keyring failures or config clear
    failures so the next startup retries.
 
@@ -121,16 +125,17 @@ app thinks migration is complete.
 
 ## Settings Status
 
-Settings avoids checking every credential when the Settings window opens. On
-macOS, existence checks can still require Keychain access, so Settings derives
-initial status from non-secret saved config and only checks one credential when
-the user asks for an action that needs it.
+Settings loads non-secret credential status from `get_credential_status` when
+the Settings window opens. On macOS, existence checks can still require
+Keychain access; a denied or unavailable check is shown as unavailable, not as
+saved or missing.
 
 Settings displays credential status without returning credential values:
 
 - `Saved securely on this computer`: credential exists in the OS keyring.
 - `Will be saved securely on this computer`: a newly entered credential will be
   saved there.
+- `Saved details unavailable`: secure storage could not be checked.
 - Empty credential fields mean no new credential value was entered.
 - After a successful credential save, the renderer clears that secret input and
   does not rewrite the same credential on later Settings saves.

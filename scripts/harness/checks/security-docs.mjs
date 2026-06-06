@@ -100,7 +100,7 @@ export function hasStaleKeyringSecurityDocs(root, path) {
     /JobSentinel:slack-webhook|SlackWebhookUrl|DiscordWebhookUrl|TeamsWebhookUrl/.test(text) ||
     /EmailSmtpPassword|LinkedinCookies|TelegramToken/.test(text) ||
     /tauri-plugin-secure-storage` JS API|Does NOT delete plaintext values/.test(text) ||
-    /HashMap<String, bool>|list_status\(\) -> Result/.test(text) ||
+    /HashMap<String, bool>|Vec<\(CredentialKey, bool\)>|list_status\(\) -> Result/.test(text) ||
     /v2\.0\.0 introduces|[✅❌⚠️✓→←]|\*\*(?:Last Updated|Version|Security Level)\*\*:/.test(text);
 
   if (hasStaleKeyringMarkers) {

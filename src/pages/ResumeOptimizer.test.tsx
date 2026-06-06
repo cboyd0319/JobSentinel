@@ -8,9 +8,13 @@ vi.mock("@tauri-apps/api/core", () => ({
   invoke: vi.fn(),
 }));
 
+const mockReadStorageValue = vi.hoisted(() => vi.fn(() => null));
+const mockRemoveStorageValue = vi.hoisted(() => vi.fn(() => true));
 const mockWriteStorageValue = vi.hoisted(() => vi.fn(() => true));
 
 vi.mock("../utils/browserStorage", () => ({
+  readStorageValue: mockReadStorageValue,
+  removeStorageValue: mockRemoveStorageValue,
   writeStorageValue: mockWriteStorageValue,
 }));
 
@@ -148,6 +152,8 @@ describe("ResumeOptimizer", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockReadStorageValue.mockReturnValue(null);
+    mockRemoveStorageValue.mockReturnValue(true);
     mockWriteStorageValue.mockReturnValue(true);
     mockInvokeResponses({});
   });
@@ -171,6 +177,66 @@ describe("ResumeOptimizer", () => {
     await openResumeAppImport(user);
 
     expect(screen.getByLabelText(/copied resume details/i)).toBeInTheDocument();
+  });
+
+  it("restores local review draft after navigating to add a resume", async () => {
+    mockReadStorageValue.mockReturnValueOnce(JSON.stringify({
+      jobDescription: "Need onboarding and retention experience",
+      resumeJson: JSON.stringify(validResume),
+      analysisResult: mockJobAnalysis,
+      analysisInputSource: "copied",
+      showAdvancedResumeImport: true,
+      showComparison: true,
+    }));
+
+    render(<ResumeOptimizer onBack={vi.fn()} onNavigate={vi.fn()} />);
+
+    expect(screen.getByLabelText(/^job post$/i)).toHaveValue(
+      "Need onboarding and retention experience",
+    );
+    expect(screen.getByLabelText(/copied resume details/i)).toHaveValue(
+      JSON.stringify(validResume),
+    );
+    expect(screen.getByText("Resume Fit")).toBeInTheDocument();
+    expect(mockRemoveStorageValue).toHaveBeenCalledWith(
+      "session",
+      "jobsentinel-resume-match-draft-v1",
+    );
+  });
+
+  it("discloses same-session copied resume draft restore behavior", async () => {
+    const user = userEvent.setup();
+
+    render(<ResumeOptimizer onBack={vi.fn()} onNavigate={vi.fn()} />);
+
+    await openResumeAppImport(user);
+
+    expect(
+      screen.getByText(/can be restored during this app session/i),
+    ).toBeInTheDocument();
+  });
+
+  it("saves local review draft before opening the resume page", async () => {
+    const user = userEvent.setup();
+    const onNavigate = vi.fn();
+    render(<ResumeOptimizer onBack={vi.fn()} onNavigate={onNavigate} />);
+
+    fireEvent.change(screen.getByLabelText(/^job post$/i), {
+      target: { value: "Need onboarding and retention experience" },
+    });
+    await openResumeAppImport(user);
+    fireEvent.change(screen.getByLabelText(/copied resume details/i), {
+      target: { value: JSON.stringify(validResume) },
+    });
+
+    await user.click(screen.getByRole("button", { name: /choose or add resume/i }));
+
+    expect(mockWriteStorageValue).toHaveBeenCalledWith(
+      "session",
+      "jobsentinel-resume-match-draft-v1",
+      expect.stringContaining("Need onboarding and retention experience"),
+    );
+    expect(onNavigate).toHaveBeenCalledWith("resume");
   });
 
   it("reviews a job against the active saved resume without copied details", async () => {

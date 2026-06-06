@@ -47,11 +47,7 @@ export class DashboardPage extends BasePage {
   }
 
   get clearFiltersButton(): Locator {
-    return this.page
-      .getByRole("button", {
-        name: /Clear all active filters|Clear all filters to show all jobs|Clear Filters/,
-      })
-      .first();
+    return this.page.locator("[data-testid='btn-clear-filters']:visible").first();
   }
 
   get emptyState(): Locator {
@@ -156,13 +152,10 @@ export class DashboardPage extends BasePage {
   }
 
   async clearAllFilters() {
-    try {
-      await this.clearFiltersButton.waitFor({ state: "visible", timeout: 5000 });
-      await this.clearFiltersButton.click({ force: true });
-      await this.waitForReady();
-    } catch {
-      return;
-    }
+    await this.clearFiltersButton.waitFor({ state: "visible", timeout: 5000 });
+    await this.clearFiltersButton.click({ force: true });
+    await expect(this.searchInput).toHaveValue("", { timeout: 10000 });
+    await this.waitForReady();
   }
 
   async getJobCount(): Promise<number> {

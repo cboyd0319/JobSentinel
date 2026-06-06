@@ -7,9 +7,11 @@ import {
 import type { ToastContextType } from "../contexts/toastContextDef";
 import { logError } from "../utils/errorUtils";
 import {
+  getCredentialStatusEntries,
   hasCredential,
   type Config,
   type CredentialKey,
+  type CredentialStatusMap,
   type Credentials,
 } from "./SettingsConfig";
 
@@ -38,36 +40,32 @@ function createEmptyCredentials(): Credentials {
   };
 }
 
-function createEmptyCredentialStatus(): Record<CredentialKey, boolean> {
+function createCredentialStatusValue(exists = false, available = true) {
+  return { exists, available };
+}
+
+function createEmptyCredentialStatus(): CredentialStatusMap {
   return {
-    slack_webhook: false,
-    smtp_password: false,
-    discord_webhook: false,
-    teams_webhook: false,
-    telegram_bot_token: false,
-    usajobs_api_key: false,
+    slack_webhook: createCredentialStatusValue(),
+    smtp_password: createCredentialStatusValue(),
+    discord_webhook: createCredentialStatusValue(),
+    teams_webhook: createCredentialStatusValue(),
+    telegram_bot_token: createCredentialStatusValue(),
+    usajobs_api_key: createCredentialStatusValue(),
   };
 }
 
-function createCredentialStatusFromConfig(
-  config: Config,
-): Record<CredentialKey, boolean> {
-  return {
-    slack_webhook: config.alerts.slack?.enabled ?? false,
-    smtp_password:
-      Boolean(config.alerts.email?.enabled) &&
-      Boolean(
-        config.alerts.email?.smtp_username?.trim() ||
-          config.alerts.email?.smtp_server?.trim(),
-      ),
-    discord_webhook: config.alerts.discord?.enabled ?? false,
-    teams_webhook: config.alerts.teams?.enabled ?? false,
-    telegram_bot_token:
-      Boolean(config.alerts.telegram?.enabled) &&
-      Boolean(config.alerts.telegram?.chat_id?.trim()),
-    usajobs_api_key:
-      Boolean(config.usajobs?.enabled) && Boolean(config.usajobs?.email?.trim()),
-  };
+function createCredentialStatusFromEntries(
+  entries: Awaited<ReturnType<typeof getCredentialStatusEntries>>,
+): CredentialStatusMap {
+  const status = createEmptyCredentialStatus();
+  entries.forEach((entry) => {
+    status[entry.key] = {
+      exists: entry.exists,
+      available: entry.available ?? true,
+    };
+  });
+  return status;
 }
 
 export function useSettingsCredentials(toast: ToastContextType) {
@@ -78,12 +76,33 @@ export function useSettingsCredentials(toast: ToastContextType) {
     Set<CredentialKey>
   >(() => new Set());
   const [credentialStatus, setCredentialStatus] = useState<
-    Record<CredentialKey, boolean>
+    CredentialStatusMap
   >(createEmptyCredentialStatus);
 
-  const initializeCredentialStatus = useCallback((config: Config) => {
-    setCredentialStatus(createCredentialStatusFromConfig(config));
-  }, []);
+  const initializeCredentialStatus = useCallback((_config: Config) => {
+    void getCredentialStatusEntries()
+      .then((entries) => {
+        setCredentialStatus(
+          Array.isArray(entries)
+            ? createCredentialStatusFromEntries(entries)
+            : createEmptyCredentialStatus(),
+        );
+      })
+      .catch((error) => {
+        logError("Could not load saved connection status:", error);
+        setCredentialStatus((previousStatus) => {
+          const nextStatus = { ...previousStatus };
+          CREDENTIAL_KEYS.forEach((key) => {
+            nextStatus[key] = { exists: false, available: false };
+          });
+          return nextStatus;
+        });
+        toast.warning(
+          "Saved connection details unavailable",
+          "Unlock your system password manager if needed, then try again.",
+        );
+      });
+  }, [toast]);
 
   const handleCredentialsChange = useCallback<
     Dispatch<SetStateAction<Credentials>>
@@ -113,11 +132,15 @@ export function useSettingsCredentials(toast: ToastContextType) {
         const exists = await hasCredential(key);
         setCredentialStatus((previousStatus) => ({
           ...previousStatus,
-          [key]: exists,
+          [key]: { exists, available: true },
         }));
         return exists;
       } catch (error) {
         logError("Could not check saved connection detail:", error);
+        setCredentialStatus((previousStatus) => ({
+          ...previousStatus,
+          [key]: { exists: false, available: false },
+        }));
         toast.warning(
           "Saved connection detail unavailable",
           "Unlock your system password manager if needed, then try again.",
@@ -150,7 +173,7 @@ export function useSettingsCredentials(toast: ToastContextType) {
       setCredentialStatus((previousStatus) => {
         const nextStatus = { ...previousStatus };
         successfulCredentialKeys.forEach((key) => {
-          nextStatus[key] = true;
+          nextStatus[key] = { exists: true, available: true };
         });
         return nextStatus;
       });

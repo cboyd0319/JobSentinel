@@ -395,14 +395,63 @@ async fn test_restore_saves_corrupted_database() {
         .await
         .unwrap();
 
-    let corrupted_backup = corrupted_db.with_extension("db.corrupted");
-    assert!(corrupted_backup.exists());
+    let corrupted_backup = std::fs::read_dir(temp_dir.path())
+        .unwrap()
+        .filter_map(|entry| entry.ok())
+        .map(|entry| entry.path())
+        .find(|path| {
+            path.file_name()
+                .and_then(|name| name.to_str())
+                .is_some_and(|name| name.starts_with("corrupted.db.corrupted."))
+        })
+        .expect("corrupted database should be quarantined");
 
     let saved_data = std::fs::read_to_string(&corrupted_backup).unwrap();
     assert_eq!(saved_data, "corrupted data");
 
     let restored_data = std::fs::read_to_string(&corrupted_db).unwrap();
     assert_eq!(restored_data, "good backup data");
+}
+
+#[tokio::test]
+async fn test_restore_quarantines_sqlite_wal_and_shm_sidecars() {
+    let temp_dir = tempfile::tempdir().unwrap();
+    let current_db = temp_dir.path().join("current.db");
+    let current_wal = temp_dir.path().join("current.db-wal");
+    let current_shm = temp_dir.path().join("current.db-shm");
+    let backup_file = temp_dir.path().join("backup.db");
+
+    std::fs::write(&current_db, b"old main").unwrap();
+    std::fs::write(&current_wal, b"old wal").unwrap();
+    std::fs::write(&current_shm, b"old shm").unwrap();
+    std::fs::write(&backup_file, b"restored main").unwrap();
+
+    let db = create_test_db().await;
+    let integrity = DatabaseIntegrity::new(db, temp_dir.path().to_path_buf());
+
+    integrity
+        .restore_from_backup(&backup_file, &current_db)
+        .await
+        .unwrap();
+
+    assert_eq!(std::fs::read(&current_db).unwrap(), b"restored main");
+    assert!(!current_wal.exists());
+    assert!(!current_shm.exists());
+
+    let quarantined_names = std::fs::read_dir(temp_dir.path())
+        .unwrap()
+        .filter_map(|entry| entry.ok())
+        .filter_map(|entry| entry.file_name().into_string().ok())
+        .collect::<Vec<_>>();
+    assert!(quarantined_names
+        .iter()
+        .any(|name| name.starts_with("current.db.corrupted.")));
+    assert!(quarantined_names
+        .iter()
+        .any(|name| name.starts_with("current.db-wal.corrupted.")));
+    assert!(quarantined_names
+        .iter()
+        .any(|name| name.starts_with("current.db-shm.corrupted.")));
 }
 
 #[tokio::test]

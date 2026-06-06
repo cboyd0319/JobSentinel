@@ -8,12 +8,14 @@ import { Input } from "../components/Input";
 import { NotificationPreferences } from "../components/NotificationPreferences";
 import { useToast } from "../contexts";
 import {
+  credentialExists,
   isValidDiscordWebhook,
   isValidEmail,
   isValidSlackWebhook,
   isValidTeamsWebhook,
   type Config,
   type CredentialKey,
+  type CredentialStatusMap,
   type Credentials,
 } from "./SettingsConfig";
 import { SettingsDesktopAlertsSection } from "./SettingsDesktopAlertsSection";
@@ -27,7 +29,7 @@ import { SecurityBadge } from "./SettingsSecurityBadge";
 
 interface SettingsNotificationsSectionProps {
   config: Config;
-  credentialStatus: Record<CredentialKey, boolean>;
+  credentialStatus: CredentialStatusMap;
   credentials: Credentials;
   onCheckCredential: (key: CredentialKey) => Promise<boolean>;
   setConfig: Dispatch<SetStateAction<Config | null>>;
@@ -51,6 +53,8 @@ export function SettingsNotificationsSection({
   const hasValidToEmails = (config.alerts.email?.to_emails ?? []).every(
     isValidEmail,
   );
+  const hasStoredCredential = (key: CredentialKey) =>
+    credentialExists(credentialStatus, key);
 
   const applyEmailProvider = (provider: EmailProvider) => {
     setEmailProvider(provider);
@@ -80,7 +84,7 @@ export function SettingsNotificationsSection({
     enabled: boolean,
   ) => {
     const trimmed = value.trim();
-    let hasSavedCredential = credentialStatus[credentialKey];
+    let hasSavedCredential = hasStoredCredential(credentialKey);
     if (enabled && !hasSavedCredential && !trimmed) {
       hasSavedCredential = await onCheckCredential(credentialKey);
     }
@@ -116,7 +120,7 @@ export function SettingsNotificationsSection({
     const destination = config.alerts.telegram?.chat_id?.trim() ?? "";
     if (
       enabled &&
-      ((!credentialStatus.telegram_bot_token && !alertCode) || !destination)
+      ((!hasStoredCredential("telegram_bot_token") && !alertCode) || !destination)
     ) {
       toast.info(
         "Telegram setup opened",
@@ -206,7 +210,7 @@ export function SettingsNotificationsSection({
                 {config.alerts.email?.smtp_server &&
                   config.alerts.email?.smtp_username &&
                   (credentials.smtp_password ||
-                    credentialStatus.smtp_password) &&
+                    hasStoredCredential("smtp_password")) &&
                   config.alerts.email?.from_email &&
                   isValidFromEmail &&
                   config.alerts.email?.to_emails?.length > 0 &&
@@ -219,7 +223,7 @@ export function SettingsNotificationsSection({
                         try {
                           if (
                             !credentials.smtp_password &&
-                            !credentialStatus.smtp_password
+                            !hasStoredCredential("smtp_password")
                           ) {
                             toast.error(
                               "App password needed",
@@ -265,7 +269,7 @@ export function SettingsNotificationsSection({
               {config.alerts.email?.smtp_server &&
                 config.alerts.email?.smtp_username &&
                 (credentials.smtp_password ||
-                  credentialStatus.smtp_password) &&
+                  hasStoredCredential("smtp_password")) &&
                 config.alerts.email?.from_email &&
                 isValidFromEmail &&
                 config.alerts.email?.to_emails?.length > 0 &&
@@ -382,7 +386,7 @@ export function SettingsNotificationsSection({
                       App Password
                     </span>
                     <SecurityBadge
-                      stored={credentialStatus.smtp_password}
+                      status={credentialStatus.smtp_password}
                     />
                   </div>
                   <Input
@@ -395,7 +399,7 @@ export function SettingsNotificationsSection({
                       }))
                     }
                     placeholder={
-                      credentialStatus.smtp_password
+                      hasStoredCredential("smtp_password")
                         ? "Enter new app password to update"
                         : "App password from your email service"
                     }
@@ -480,7 +484,7 @@ export function SettingsNotificationsSection({
               text="Get job alerts in a Slack channel. In Slack, add the app that creates channel connection links, choose a channel, then copy the link."
               position="right"
             />
-            <SecurityBadge stored={credentialStatus.slack_webhook} />
+            <SecurityBadge status={credentialStatus.slack_webhook} />
           </label>
           <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
             <div className="flex items-center justify-between">
@@ -513,6 +517,8 @@ export function SettingsNotificationsSection({
             <div className="mt-3 flex gap-2">
               <div className="flex-1">
                 <Input
+                  label="Slack connection link"
+                  hideLabel
                   type="password"
                   value={credentials.slack_webhook}
                   onChange={(e) => {
@@ -523,7 +529,7 @@ export function SettingsNotificationsSection({
                     }));
                   }}
                   placeholder={
-                    credentialStatus.slack_webhook
+                    hasStoredCredential("slack_webhook")
                       ? "Enter new Slack connection link"
                       : "Paste Slack connection link, then turn Slack alerts on"
                   }
@@ -538,7 +544,7 @@ export function SettingsNotificationsSection({
                 />
               </div>
               {(credentials.slack_webhook ||
-                credentialStatus.slack_webhook) && (
+                hasStoredCredential("slack_webhook")) && (
                 <Button
                   variant="secondary"
                   disabled={testingSlack}
@@ -547,7 +553,7 @@ export function SettingsNotificationsSection({
                     try {
                       if (
                         !credentials.slack_webhook &&
-                        !credentialStatus.slack_webhook
+                        !hasStoredCredential("slack_webhook")
                       ) {
                         toast.error(
                           "No Slack link",
@@ -577,7 +583,7 @@ export function SettingsNotificationsSection({
                 </Button>
               )}
             </div>
-            {(credentials.slack_webhook || credentialStatus.slack_webhook) && (
+            {(credentials.slack_webhook || hasStoredCredential("slack_webhook")) && (
               <p className="mt-2 text-xs text-surface-500 dark:text-surface-400">
                 Sends one test message to the Slack channel for this connection.
               </p>
@@ -623,7 +629,7 @@ export function SettingsNotificationsSection({
               </label>
             </div>
             {(config.alerts.discord?.enabled ||
-              !credentialStatus.discord_webhook ||
+              !hasStoredCredential("discord_webhook") ||
               credentials.discord_webhook) && (
               <div className="mt-3 space-y-2">
                 <div className="flex items-center gap-2">
@@ -631,10 +637,12 @@ export function SettingsNotificationsSection({
                     Connection link
                   </span>
                   <SecurityBadge
-                    stored={credentialStatus.discord_webhook}
+                    status={credentialStatus.discord_webhook}
                   />
                 </div>
                 <Input
+                  label="Discord connection link"
+                  hideLabel
                   type="password"
                   value={credentials.discord_webhook}
                   onChange={(e) =>
@@ -644,7 +652,7 @@ export function SettingsNotificationsSection({
                     }))
                   }
                   placeholder={
-                    credentialStatus.discord_webhook
+                    hasStoredCredential("discord_webhook")
                       ? "Enter new Discord connection link"
                       : "Paste Discord connection link"
                   }
@@ -702,7 +710,7 @@ export function SettingsNotificationsSection({
               </label>
             </div>
             {(config.alerts.teams?.enabled ||
-              !credentialStatus.teams_webhook ||
+              !hasStoredCredential("teams_webhook") ||
               credentials.teams_webhook) && (
               <div className="mt-3 space-y-2">
                 <div className="flex items-center gap-2">
@@ -710,10 +718,12 @@ export function SettingsNotificationsSection({
                     Connection link
                   </span>
                   <SecurityBadge
-                    stored={credentialStatus.teams_webhook}
+                    status={credentialStatus.teams_webhook}
                   />
                 </div>
                 <Input
+                  label="Teams connection link"
+                  hideLabel
                   type="password"
                   value={credentials.teams_webhook}
                   onChange={(e) =>
@@ -723,7 +733,7 @@ export function SettingsNotificationsSection({
                     }))
                   }
                   placeholder={
-                    credentialStatus.teams_webhook
+                    hasStoredCredential("teams_webhook")
                       ? "Enter new Teams connection link"
                       : "Paste Teams connection link"
                   }
@@ -779,7 +789,7 @@ export function SettingsNotificationsSection({
             </div>
             {(config.alerts.telegram?.enabled ||
               Boolean(credentials.telegram_bot_token) ||
-              (credentialStatus.telegram_bot_token &&
+              (hasStoredCredential("telegram_bot_token") &&
                 Boolean((config.alerts.telegram?.chat_id ?? "").trim()))) && (
               <div className="mt-3 space-y-3">
                 <div className="p-3 bg-surface-50 dark:bg-surface-900/50 border border-surface-200 dark:border-surface-700 rounded-lg">
@@ -797,10 +807,12 @@ export function SettingsNotificationsSection({
                       Telegram setup code
                     </span>
                     <SecurityBadge
-                      stored={credentialStatus.telegram_bot_token}
+                      status={credentialStatus.telegram_bot_token}
                     />
                   </div>
                   <Input
+                    label="Telegram setup code"
+                    hideLabel
                     type="password"
                     value={credentials.telegram_bot_token}
                     onChange={(e) =>
@@ -810,7 +822,7 @@ export function SettingsNotificationsSection({
                       }))
                     }
                     placeholder={
-                      credentialStatus.telegram_bot_token
+                      hasStoredCredential("telegram_bot_token")
                         ? "Enter new Telegram setup code"
                         : "Paste Telegram setup code"
                     }
@@ -819,10 +831,8 @@ export function SettingsNotificationsSection({
                   />
                 </div>
                 <div>
-                  <span className="text-sm text-surface-600 dark:text-surface-400 mb-1 block">
-                    Telegram destination
-                  </span>
                   <Input
+                    label="Telegram destination"
                     placeholder="Detail shown by Telegram"
                     value={config.alerts.telegram?.chat_id ?? ""}
                     onChange={(e) =>

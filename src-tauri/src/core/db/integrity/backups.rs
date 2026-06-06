@@ -3,6 +3,7 @@
 use anyhow::{Context, Result};
 use chrono::Utc;
 use sqlx::Row;
+use std::ffi::OsString;
 use std::path::{Path, PathBuf};
 
 use crate::core::logging::path_label_for_logging;
@@ -103,14 +104,12 @@ impl DatabaseIntegrity {
 
         // Close current connection (handled by caller)
 
-        // Backup corrupted database for forensics
-        let corrupted_backup = current_db_path.with_extension("db.corrupted");
-        if current_db_path.exists() {
-            std::fs::rename(current_db_path, &corrupted_backup)?;
-            tracing::info!(
-                backup_path = %path_label_for_logging(&corrupted_backup),
-                "Corrupted database saved"
-            );
+        // Backup current database files for forensics. SQLite sidecars must be
+        // quarantined with the main file so stale WAL frames cannot replay into
+        // the restored database on next open.
+        Self::quarantine_existing_sqlite_file(current_db_path)?;
+        for sidecar in sqlite_sidecar_paths(current_db_path) {
+            Self::quarantine_existing_sqlite_file(&sidecar)?;
         }
 
         // Copy backup to main database location
@@ -119,6 +118,20 @@ impl DatabaseIntegrity {
 
         tracing::info!("Database restored successfully");
 
+        Ok(())
+    }
+
+    fn quarantine_existing_sqlite_file(path: &Path) -> Result<()> {
+        if !path.exists() {
+            return Ok(());
+        }
+
+        let quarantined_path = corrupted_sqlite_path(path);
+        std::fs::rename(path, &quarantined_path)?;
+        tracing::info!(
+            backup_path = %path_label_for_logging(&quarantined_path),
+            "Existing SQLite file saved before restore"
+        );
         Ok(())
     }
 
@@ -187,6 +200,28 @@ impl DatabaseIntegrity {
 
         Ok(backups)
     }
+}
+
+fn sqlite_sidecar_paths(db_path: &Path) -> [PathBuf; 2] {
+    [
+        sqlite_path_with_suffix(db_path, "-wal"),
+        sqlite_path_with_suffix(db_path, "-shm"),
+    ]
+}
+
+fn sqlite_path_with_suffix(db_path: &Path, suffix: &str) -> PathBuf {
+    let mut value = OsString::from(db_path.as_os_str());
+    value.push(suffix);
+    PathBuf::from(value)
+}
+
+fn corrupted_sqlite_path(path: &Path) -> PathBuf {
+    let timestamp = Utc::now().format("%Y%m%d_%H%M%S_%3f");
+    let file_name = path
+        .file_name()
+        .map(|name| name.to_string_lossy())
+        .unwrap_or_else(|| "sqlite-file".into());
+    path.with_file_name(format!("{file_name}.corrupted.{timestamp}"))
 }
 
 #[cfg(test)]

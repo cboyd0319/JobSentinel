@@ -26,30 +26,31 @@ export function ResumeLibraryDropdown({
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {resumes.map((resume) => (
-            <div
+            <article
               key={resume.id}
               className={`p-3 rounded-lg border ${
                 resume.is_active
                   ? "border-sentinel-500 bg-sentinel-50 dark:bg-sentinel-900/20"
                   : "border-surface-200 dark:border-surface-700 hover:border-surface-300 dark:hover:border-surface-600"
-              } cursor-pointer transition-colors`}
-              onClick={() => !resume.is_active && onActivateResume(resume.id)}
+              } transition-colors`}
             >
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <DocumentIcon className="w-5 h-5 text-surface-500" />
-                  <div>
-                    <p className="font-medium text-surface-800 dark:text-surface-200 text-sm">
-                      {resume.name}
-                    </p>
-                    <p className="text-xs text-surface-500">
-                      {new Date(resume.created_at).toLocaleDateString()}
-                    </p>
-                    <p className="text-xs text-surface-500">
-                      {getResumeFormatLabel(resume)} - {getReadableTextLabel(resume)}
-                    </p>
+                {resume.is_active ? (
+                  <div className="flex items-center gap-2">
+                    <DocumentIcon className="w-5 h-5 text-surface-500" />
+                    <ResumeLibrarySummary resume={resume} />
                   </div>
-                </div>
+                ) : (
+                  <button
+                    type="button"
+                    className="flex min-w-0 flex-1 items-center gap-2 rounded-md text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-sentinel-500"
+                    onClick={() => onActivateResume(resume.id)}
+                    aria-label={`Use resume: ${resume.name}`}
+                  >
+                    <DocumentIcon className="w-5 h-5 flex-shrink-0 text-surface-500" />
+                    <ResumeLibrarySummary resume={resume} />
+                  </button>
+                )}
                 <div className="flex items-center gap-2">
                   {resume.is_active && (
                     <Badge variant="sentinel" size="sm">
@@ -71,10 +72,26 @@ export function ResumeLibraryDropdown({
                   )}
                 </div>
               </div>
-            </div>
+            </article>
           ))}
         </div>
       </div>
+    </div>
+  );
+}
+
+function ResumeLibrarySummary({ resume }: { resume: ResumeData }) {
+  return (
+    <div className="min-w-0">
+      <p className="truncate text-sm font-medium text-surface-800 dark:text-surface-200">
+        {resume.name}
+      </p>
+      <p className="text-xs text-surface-500">
+        {new Date(resume.created_at).toLocaleDateString()}
+      </p>
+      <p className="text-xs text-surface-500">
+        {getResumeFormatLabel(resume)} - {getReadableTextLabel(resume)}
+      </p>
     </div>
   );
 }

@@ -203,8 +203,8 @@ export const DashboardSkeleton = memo(function DashboardSkeleton() {
     <div className="min-h-screen bg-surface-50 dark:bg-surface-900">
       {/* Header skeleton */}
       <header className="bg-white dark:bg-surface-800 border-b border-surface-100 dark:border-surface-700 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
               <Skeleton variant="rounded" width={40} height={40} />
               <div>
@@ -212,7 +212,7 @@ export const DashboardSkeleton = memo(function DashboardSkeleton() {
                 <Skeleton width={192} height={16} />
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3 sm:justify-end">
               <Skeleton variant="rounded" width={96} height={32} />
               <Skeleton variant="rounded" width={40} height={40} />
               <Skeleton variant="rounded" width={112} height={40} />
@@ -221,7 +221,7 @@ export const DashboardSkeleton = memo(function DashboardSkeleton() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-6 py-8">
+      <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6">
         {/* Stats skeleton */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <SkeletonStatCard />
@@ -239,11 +239,11 @@ export const DashboardSkeleton = memo(function DashboardSkeleton() {
         {/* Status card skeleton */}
         <div className="p-6 bg-white dark:bg-surface-800 rounded-card border border-surface-100 dark:border-surface-700 mb-8">
           <Skeleton width={128} height={20} className="mb-4" />
-          <div className="grid grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
             {[1, 2, 3].map((i) => (
               <div key={i}>
                 <Skeleton width={80} height={14} className="mb-2" />
-                <Skeleton width={128} height={18} />
+                <Skeleton width="min(8rem, 100%)" height={18} />
               </div>
             ))}
           </div>

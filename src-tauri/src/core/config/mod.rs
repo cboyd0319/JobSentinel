@@ -10,6 +10,7 @@ mod validation;
 mod validation_error;
 
 // Re-export public types
+pub(crate) use io::write_file_atomic_private;
 pub use types::{
     AlertConfig, AutoRefreshConfig, Config, DesktopConfig, DiscordConfig, EmailConfig,
     JobsWithGptApproval, JobsWithGptPayload, LinkedInConfig, LocationPreferences, SlackConfig,

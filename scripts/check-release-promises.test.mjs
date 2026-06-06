@@ -7,6 +7,7 @@ import {
   hasFrontDoorMacosDistributionOverpromise,
   hasFrontDoorMacosInstallerOverpromise,
   hasFrontDoorReleaseVersionPromise,
+  hasFrontDoorWindowsLinuxReleaseOverpromise,
   hasSourceReleaseVersionPromise,
 } from "./harness/checks/release-promises.mjs";
 
@@ -76,5 +77,33 @@ test("release promises reject runtime source version promises", () => {
 
     assert.equal(hasSourceReleaseVersionPromise(root, "src/pages/ResumeBuilder.tsx"), true);
     assert.equal(hasSourceReleaseVersionPromise(root, "src/pages/ResumeBuilder.test.tsx"), false);
+  });
+});
+
+test("release promises reject Windows and Linux claims for unreleased source version", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "README.md",
+      [
+        "| Source version | `2.7.7` in `main` |",
+        "| Latest full cross-platform release | `v2.7.5` |",
+        "Windows and Linux 2.7.7 installers are production ready.",
+      ].join("\n"),
+    );
+
+    assert.equal(hasFrontDoorWindowsLinuxReleaseOverpromise(root, "README.md"), true);
+
+    writeFixtureFile(
+      root,
+      "README.md",
+      [
+        "| Source version | `2.7.7` in `main` |",
+        "| Latest full cross-platform release | `v2.7.5` |",
+        "Windows and Linux 2.7.7 assets are still pending target-platform verification.",
+      ].join("\n"),
+    );
+
+    assert.equal(hasFrontDoorWindowsLinuxReleaseOverpromise(root, "README.md"), false);
   });
 });

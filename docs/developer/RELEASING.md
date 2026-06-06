@@ -180,6 +180,12 @@ npx tauri build --target x86_64-unknown-linux-gnu
 # Output: src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/
 ```
 
+Public Windows MSI upload is blocked unless `Get-AuthenticodeSignature` returns
+`Valid` for the built `.msi`. Configure the Tauri Windows signing certificate
+thumbprint and timestamp URL before publishing a Windows MSI. The release
+workflow and manual Windows build workflow also create `.msi.sha256` only after
+signature verification passes.
+
 The `Verify Release Artifacts` GitHub Actions workflow also runs after a
 release is published. It verifies the public macOS DMG from GitHub Releases
 with no-account defaults: universal `x86_64,arm64` architecture checks,
@@ -204,7 +210,7 @@ tag.
 | Platform | Architecture          | Format      | Status   |
 | -------- | --------------------- | ----------- | -------- |
 | macOS    | universal             | `.dmg`      | Verified no-account public package available with matching checksum and first-open Privacy & Security approval; zero-friction Gatekeeper-ready release blocked until Apple Developer Account, Developer ID signing, and notarization |
-| Windows  | x86_64                | `.msi`      | Ready |
-| Linux    | x86_64                | `.AppImage` / `.deb` | Workflow ready |
+| Windows  | x86_64                | `.msi`      | Build path ready; public upload blocked until Authenticode signature and checksum verification pass |
+| Linux    | x86_64                | `.AppImage` / `.deb` | Build path ready; current `2.7.7` public assets pending target-platform build/upload/verification |
 
 See [CHANGELOG.md](../../CHANGELOG.md) for full history.

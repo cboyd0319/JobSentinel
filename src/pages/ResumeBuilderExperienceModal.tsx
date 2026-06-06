@@ -1,3 +1,4 @@
+import { useId } from "react";
 import { Button } from "../components/Button";
 import { Modal, ModalFooter } from "../components/Modal";
 import type { Experience } from "./resumeBuilderData";
@@ -17,16 +18,19 @@ export function ResumeBuilderExperienceModal({
   onChange,
   onClose,
 }: ResumeBuilderExperienceModalProps) {
+  const formId = useId();
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Add Work Experience">
       {experience && (
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
+              <label htmlFor={`${formId}-title`} className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
                 Job Title
               </label>
               <input
+                id={`${formId}-title`}
                 type="text"
                 value={experience.title}
                 onChange={(e) =>
@@ -37,10 +41,11 @@ export function ResumeBuilderExperienceModal({
               />
             </div>
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
+              <label htmlFor={`${formId}-company`} className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
                 Company
               </label>
               <input
+                id={`${formId}-company`}
                 type="text"
                 value={experience.company}
                 onChange={(e) =>
@@ -51,10 +56,11 @@ export function ResumeBuilderExperienceModal({
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
+              <label htmlFor={`${formId}-start-date`} className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
                 Start Date
               </label>
               <input
+                id={`${formId}-start-date`}
                 type="text"
                 value={experience.start_date}
                 onChange={(e) =>
@@ -68,10 +74,11 @@ export function ResumeBuilderExperienceModal({
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
+              <label htmlFor={`${formId}-end-date`} className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
                 End Date
               </label>
               <input
+                id={`${formId}-end-date`}
                 type="text"
                 value={experience.end_date || ""}
                 onChange={(e) =>
@@ -85,10 +92,11 @@ export function ResumeBuilderExperienceModal({
               />
             </div>
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
+              <label htmlFor={`${formId}-location`} className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
                 Location
               </label>
               <input
+                id={`${formId}-location`}
                 type="text"
                 value={experience.location || ""}
                 onChange={(e) =>
@@ -102,10 +110,11 @@ export function ResumeBuilderExperienceModal({
               />
             </div>
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
+              <label htmlFor={`${formId}-achievements`} className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
                 Achievements (one per line)
               </label>
               <textarea
+                id={`${formId}-achievements`}
                 value={experience.achievements.join("\n")}
                 onChange={(e) =>
                   onChange({

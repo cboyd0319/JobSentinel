@@ -73,6 +73,7 @@ The integrity module wraps common maintenance and diagnostic operations.
 | `foreign_key_check` | Runs `PRAGMA foreign_key_check`. |
 | `create_backup` | Uses `VACUUM INTO` to create a compact backup file. |
 | `backup_before_operation` | Creates a named pre-operation backup. |
+| `restore_from_backup` | Quarantines the current database plus `-wal` and `-shm` sidecars, then copies the backup into place. |
 | `cleanup_old_backups` | Deletes older backup files beyond a caller-provided keep count. |
 | `get_backup_history` | Reads backup metadata from `backup_log`. |
 | `checkpoint_wal` | Runs `PRAGMA wal_checkpoint(TRUNCATE)`. |
@@ -81,6 +82,10 @@ The integrity module wraps common maintenance and diagnostic operations.
 
 Backup reason strings are sanitized before becoming part of backup filenames.
 Backup and database paths are logged through non-identifying path labels.
+Pre-migration backups use SQLite `VACUUM INTO` so committed WAL frames are
+included in the snapshot. Restore callers must close the active pool first;
+the restore helper then moves the main database and SQLite sidecars out of the
+way before copying the backup and applying private file permissions.
 
 ## Health Metrics
 

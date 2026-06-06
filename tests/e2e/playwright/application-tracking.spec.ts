@@ -95,6 +95,18 @@ test.describe("Application Tracking", () => {
       await applicationsPage.openApplicationDetails("E-Commerce Manager");
 
       await expect(applicationsPage.detailDialog).toContainText("Previous notes: Applied via website");
+      await expect(applicationsPage.notesTextarea).toHaveValue("Applied via website");
+    });
+
+    test("does not carry unsaved notes between application detail dialogs", async () => {
+      await applicationsPage.openApplicationDetails("SEO Manager");
+      await applicationsPage.notesTextarea.fill("QA stale note leak");
+      await applicationsPage.closeDialogButton.click();
+      await expect(applicationsPage.detailDialog).toBeHidden();
+
+      await applicationsPage.openApplicationDetails("Content Marketing Manager");
+
+      await expect(applicationsPage.notesTextarea).toHaveValue("Recruiter reached out");
     });
   });
 

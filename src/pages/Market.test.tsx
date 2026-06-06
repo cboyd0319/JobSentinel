@@ -134,4 +134,25 @@ describe("Market safe error copy", () => {
       screen.queryByText("Turn on job sources or import job postings to build trends."),
     ).not.toBeInTheDocument();
   });
+
+  it("links active tab to panel and supports arrow-key tab navigation", async () => {
+    const user = userEvent.setup();
+    mockMarketData({ snapshot: makeSnapshot({ total_jobs: 3 }) });
+
+    render(<Market onBack={vi.fn()} />);
+
+    const overviewTab = await screen.findByRole("tab", { name: /overview/i });
+    const skillsTab = screen.getByRole("tab", { name: /skills/i });
+    expect(overviewTab).toHaveAttribute("aria-controls", "overview-panel");
+    expect(screen.getByRole("tabpanel")).toHaveAttribute("id", "overview-panel");
+
+    overviewTab.focus();
+    await user.keyboard("{ArrowRight}");
+
+    await waitFor(() => {
+      expect(skillsTab).toHaveFocus();
+      expect(skillsTab).toHaveAttribute("aria-selected", "true");
+      expect(screen.getByRole("tabpanel")).toHaveAttribute("id", "skills-panel");
+    });
+  });
 });

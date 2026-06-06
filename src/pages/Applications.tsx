@@ -317,6 +317,16 @@ export default function Applications({ onBack, onImportJob }: ApplicationsProps)
     return findColumnForApplication(applications, appId);
   };
 
+  const openApplicationDetail = (app: Application) => {
+    setSelectedApp(app);
+    setNotes(app.notes ?? "");
+  };
+
+  const closeApplicationDetail = () => {
+    setSelectedApp(null);
+    setNotes("");
+  };
+
   const handleDragStart = (event: DragStartEvent) => {
     const appId = event.active.id as number;
     setActiveId(appId);
@@ -416,8 +426,7 @@ export default function Applications({ onBack, onImportJob }: ApplicationsProps)
       });
       // Invalidate cache after mutation
       invalidateCacheByCommand("get_applications_kanban");
-      setNotes("");
-      setSelectedApp(null);
+      closeApplicationDetail();
       fetchData();
 
       // Push undoable action
@@ -645,7 +654,7 @@ export default function Applications({ onBack, onImportJob }: ApplicationsProps)
                     key={column.key}
                     column={column}
                     apps={apps}
-                    onCardClick={setSelectedApp}
+                    onCardClick={openApplicationDetail}
                     formatDate={formatEventDate}
                     showDropHint={hasTrackedApplications}
                   />
@@ -675,10 +684,10 @@ export default function Applications({ onBack, onImportJob }: ApplicationsProps)
         <div
           className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
           onClick={(e) => {
-            if (e.target === e.currentTarget) setSelectedApp(null);
+            if (e.target === e.currentTarget) closeApplicationDetail();
           }}
           onKeyDown={(e) => {
-            if (e.key === "Escape") setSelectedApp(null);
+            if (e.key === "Escape") closeApplicationDetail();
           }}
           role="dialog"
           aria-modal="true"
@@ -692,7 +701,7 @@ export default function Applications({ onBack, onImportJob }: ApplicationsProps)
                   {selectedApp.job_title}
                 </h2>
                 <button
-                  onClick={() => setSelectedApp(null)}
+                  onClick={closeApplicationDetail}
                   className="p-2 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300"
                   aria-label="Close modal"
                 >
@@ -763,7 +772,7 @@ export default function Applications({ onBack, onImportJob }: ApplicationsProps)
               )}
 
               <div className="flex gap-3">
-                <Button variant="secondary" onClick={() => setSelectedApp(null)} className="flex-1">
+                <Button variant="secondary" onClick={closeApplicationDetail} className="flex-1">
                   Close
                 </Button>
                 <Button onClick={handleAddNotes} disabled={!notes.trim()} className="flex-1">

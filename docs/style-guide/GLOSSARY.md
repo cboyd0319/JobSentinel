@@ -177,8 +177,8 @@ matching `.dmg.sha256` checksum. If you cannot verify the checksum, do not click
 **Write this:** "Windows security warning" or just describe the fix
 
 **Example:** "If Windows shows a blue warning screen, first make sure you
-downloaded JobSentinel from the latest download page. Then click 'More info'
-and 'Run anyway'."
+downloaded JobSentinel from the latest download page and can verify the
+installer identity or checksum. If you are not sure, do not run it."
 
 ### Installer / MSI / DMG
 

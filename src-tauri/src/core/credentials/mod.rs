@@ -48,6 +48,14 @@ pub enum CredentialKey {
     UsaJobsApiKey,
 }
 
+/// Non-secret credential availability status for settings diagnostics.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct CredentialPresence {
+    pub key: CredentialKey,
+    pub exists: bool,
+    pub available: bool,
+}
+
 impl CredentialKey {
     /// Convert credential key to its storage identifier.
     ///
@@ -137,6 +145,24 @@ fn credential_entry(key: CredentialKey) -> Result<Entry, String> {
 
 fn secure_storage_error() -> String {
     SECURE_STORAGE_UNAVAILABLE.to_string()
+}
+
+fn credential_presence_from_result(
+    key: CredentialKey,
+    exists_result: Result<bool, String>,
+) -> CredentialPresence {
+    match exists_result {
+        Ok(exists) => CredentialPresence {
+            key,
+            exists,
+            available: true,
+        },
+        Err(_) => CredentialPresence {
+            key,
+            exists: false,
+            available: false,
+        },
+    }
 }
 
 fn validate_credential_value(key: CredentialKey, value: &str) -> Result<(), String> {
@@ -376,12 +402,13 @@ impl CredentialStore {
     ///
     /// # Returns
     ///
-    /// Vector of `(key, exists)` tuples for all credential types.
-    /// If keyring check fails, assumes credential doesn't exist (fail-safe).
-    pub fn list_status() -> Vec<(CredentialKey, bool)> {
+    /// Vector of key/existence/availability statuses for all credential types.
+    /// If a keyring check fails, the entry is marked unavailable instead of
+    /// reporting the credential as missing.
+    pub fn list_status() -> Vec<CredentialPresence> {
         CredentialKey::all()
             .iter()
-            .map(|&key| (key, Self::exists(key).unwrap_or(false)))
+            .map(|&key| credential_presence_from_result(key, Self::exists(key)))
             .collect()
     }
 }
@@ -431,7 +458,7 @@ pub mod migration {
     /// Returns IO error if unable to write flag file.
     pub fn set_migrated() -> std::io::Result<()> {
         let flag_path = platforms::get_config_dir().join(MIGRATION_FLAG_FILE);
-        std::fs::write(&flag_path, "1")?;
+        crate::core::config::write_file_atomic_private(&flag_path, "1")?;
         tracing::info!("Marked keyring migration as complete");
         Ok(())
     }
@@ -576,7 +603,10 @@ pub mod migration {
             }
         }
 
-        std::fs::write(config_path, serde_json::to_string_pretty(&config)?)?;
+        crate::core::config::write_file_atomic_private(
+            config_path,
+            &serde_json::to_string_pretty(&config)?,
+        )?;
         tracing::info!("Cleared plaintext credentials from config.json");
 
         Ok(())
@@ -692,6 +722,18 @@ mod tests {
                 "secure storage error must not echo raw provider details: {err}"
             );
         }
+    }
+
+    #[test]
+    fn list_status_entry_marks_keyring_failure_unavailable() {
+        let status = credential_presence_from_result(
+            CredentialKey::SlackWebhook,
+            Err("raw keyring failure with provider path".to_string()),
+        );
+
+        assert_eq!(status.key, CredentialKey::SlackWebhook);
+        assert!(!status.exists);
+        assert!(!status.available);
     }
 
     #[test]

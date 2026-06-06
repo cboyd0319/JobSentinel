@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { invoke } from "@tauri-apps/api/core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -74,6 +74,28 @@ describe("Salary", () => {
         jobTitle: "Registered Nurse",
         location: "Denver, CO",
         seniority: "principal",
+        yearsExperience: 20,
+      });
+    });
+  });
+
+  it("uses years of experience for pay range lookup", async () => {
+    const user = userEvent.setup();
+    renderSalary();
+
+    await user.type(screen.getByLabelText("Job Title"), "Registered Nurse");
+    await user.type(screen.getByLabelText("Location"), "Denver, CO");
+    fireEvent.change(screen.getByLabelText("Years of Experience"), {
+      target: { value: "0" },
+    });
+    await user.click(screen.getByRole("button", { name: "Check Pay Range" }));
+
+    await waitFor(() => {
+      expect(mockInvoke).toHaveBeenCalledWith("get_salary_benchmark", {
+        jobTitle: "Registered Nurse",
+        location: "Denver, CO",
+        seniority: "entry",
+        yearsExperience: 0,
       });
     });
   });

@@ -40,6 +40,15 @@ export interface MockSettingsSupportCommandResult {
   value: unknown;
 }
 
+const MOCK_CREDENTIAL_KEYS: MockCredentialKey[] = [
+  "slack_webhook",
+  "smtp_password",
+  "discord_webhook",
+  "teams_webhook",
+  "telegram_bot_token",
+  "usajobs_api_key",
+];
+
 export function handleMockSettingsSupportCommand(
   command: string,
   args: Record<string, unknown> | undefined,
@@ -88,6 +97,16 @@ export function handleMockSettingsSupportCommand(
         },
         value: undefined,
       };
+
+    case "get_credential_status":
+      return withoutSave(
+        state,
+        MOCK_CREDENTIAL_KEYS.map((key) => ({
+          key,
+          exists: Boolean(state.credentials[key]),
+          available: true,
+        })),
+      );
 
     case "has_credential": {
       const key = getArg(args, "key");

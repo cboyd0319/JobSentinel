@@ -12,6 +12,7 @@ import {
   releaseAssetUploadsStayDraft,
   readMacosDevelopmentReadinessClaims,
   readReadmeMacosReadinessPercent,
+  windowsMsiUploadRequiresSignature,
 } from "./check-macos-readiness.mjs";
 
 test("macOS readiness report separates public and no-account completion", () => {
@@ -229,6 +230,27 @@ test("macOS readiness checks release asset uploads stay draft", () => {
         "    draft: true\n    files: macos.dmg",
         "    files: macos.dmg",
       ),
+    ),
+    false,
+  );
+});
+
+test("macOS readiness checks Windows MSI signature gate", () => {
+  const workflow = [
+    "- name: Verify Windows MSI signature and checksum",
+    "  run: |",
+    "    $signature = Get-AuthenticodeSignature $msi.FullName",
+    '    if ($signature.Status -ne "Valid") { throw "unsigned" }',
+    "    $hash = Get-FileHash -Algorithm SHA256 $msi.FullName",
+    "    Set-Content output.msi.sha256",
+    "- name: Upload Windows MSI",
+    "  uses: softprops/action-gh-release@abc",
+  ].join("\n");
+
+  assert.equal(windowsMsiUploadRequiresSignature(workflow), true);
+  assert.equal(
+    windowsMsiUploadRequiresSignature(
+      workflow.replace("Get-AuthenticodeSignature", "Get-FileHash"),
     ),
     false,
   );

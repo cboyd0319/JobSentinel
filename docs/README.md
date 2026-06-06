@@ -29,6 +29,7 @@ skill to get value.
 | --- | --- | --- |
 | Job seeker | [Quick Start](user/QUICK_START.md) | Install, set up, and get help without technical setup. |
 | Support request | [Safe support reports](features/user-data-management.md) | Save or copy a safe support report locally, review it, and share it only if you want help. |
+| Design reviewer | [DESIGN.md](../DESIGN.md), [Design Spec](design/design-spec.md), [Style Guide](style-guide/README.md), [Frontend Testing](developer/FRONTEND_TESTING.md) | Review visual direction, UI tone, accessibility checks, and responsive expectations. |
 | Privacy reviewer | [Privacy](../PRIVACY.md), [Responsible AI](../RESPONSIBLE_AI.md), [AI gateway](architecture/privacy-first-ai-gateway.md) | Review data boundaries and external-AI gates. |
 | Research or grant reviewer | [Research notes](research/README.md), [public roadmap](../ROADMAP.md), [current plan](plans/active/current-work.md) | Review evidence, evaluation boundaries, and product pillars. |
 | Contributor | [Getting Started](developer/GETTING_STARTED.md), [Architecture](developer/ARCHITECTURE.md), [Testing](developer/TESTING.md) | Build, understand, and verify the app. |
@@ -90,6 +91,15 @@ The maintained external source index lives in
 | Broad skill matching | [Synonym Matching](features/synonym-matching.md) |
 | Structured resume import | [Resume Data Import](features/json-resume-import.md) |
 | Saved secrets | [Saved Secrets](features/credentials-security.md) |
+
+## Design Docs
+
+| Need | Doc |
+| --- | --- |
+| Design-system source | [DESIGN.md](../DESIGN.md) |
+| Product design spec | [Design Spec](design/design-spec.md) |
+| UI writing style | [Style Guide](style-guide/README.md) |
+| Frontend verification | [Frontend Testing](developer/FRONTEND_TESTING.md) |
 
 ## Privacy, Security, And Responsible AI
 

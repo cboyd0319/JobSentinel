@@ -159,7 +159,9 @@ artifact verification gates before upload.
 
 ### `build-windows.yml` (Windows manual build)
 
-Builds a Windows `.msi` and uploads it as a draft release asset for the specified version tag.
+Builds a Windows `.msi` for the specified version tag. Public draft upload is
+blocked unless the MSI has a valid Authenticode signature. The workflow then
+writes a matching `.msi.sha256` checksum and uploads both files.
 
 **Input:** `version` - the version string, for example `X.Y.Z`
 
@@ -265,7 +267,9 @@ npm run tauri:verify:macos:latest -- --tag vX.Y.Z
 For a complete local release, build Windows and Linux installers on native
 hosts or VMs from the same tag, then attach those assets to the same release.
 Do not publish a release as complete until all advertised platform assets are
-present and verified.
+present and verified. Windows MSI assets must pass
+`Get-AuthenticodeSignature` with status `Valid` and have a matching
+`.msi.sha256` checksum before upload.
 
 ### 3. Publish the draft release
 

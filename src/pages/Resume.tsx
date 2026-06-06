@@ -476,7 +476,9 @@ export default function Resume({ onBack }: ResumeProps) {
                   <DocumentIcon className="w-6 h-6 text-sentinel-600 dark:text-sentinel-400" />
                 </div>
                 <div className="min-w-0">
-                  <p className="break-words font-medium text-surface-800 dark:text-surface-200">{resume.name}</p>
+                  <p className="break-words [overflow-wrap:anywhere] font-medium text-surface-800 dark:text-surface-200">
+                    {resume.name}
+                  </p>
                   <p className="text-sm text-surface-500 dark:text-surface-400">
                     Added: {new Date(resume.created_at).toLocaleDateString("en-US")}
                   </p>

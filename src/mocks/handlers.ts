@@ -472,6 +472,7 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
     case "get_resume_matching_preference":
     case "set_resume_matching_enabled":
     case "save_config":
+    case "get_credential_status":
     case "has_credential":
     case "store_credential":
     case "disconnect_linkedin":

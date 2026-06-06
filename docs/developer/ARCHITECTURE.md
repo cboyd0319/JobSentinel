@@ -609,8 +609,8 @@ get_config_dir()  // ~/.config/jobsentinel
 1. User edits configuration in the UI.
 2. Frontend calls `save_config(config)`.
 3. Rust validates the configuration.
-4. Valid configuration is saved to `~/.config/jobsentinel/config.json`.
-5. The shared runtime configuration is updated after the disk save succeeds.
+4. Valid configuration is atomically saved to the local `config.json`.
+5. Runtime configuration is updated only after the durable local save succeeds.
 6. Manual searches, scheduled source checks, source-status smoke tests, scoring,
    posting-risk settings, and support-report summaries read the updated runtime
    configuration without requiring an app restart.

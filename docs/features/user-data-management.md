@@ -118,7 +118,9 @@ JobSentinel and check Settings.
 - Delete templates and saved searches carefully; deleted items may not be
   recoverable inside the app yet.
 - Use safe support reports before changing more data if something looks wrong.
-- A fuller backup and restore workflow remains a planned product need.
+- JobSentinel has internal SQLite integrity backups and a WAL-safe restore
+  helper for support/recovery paths. A user-facing backup and restore workflow
+  remains a planned product need.
 
 ## When Something Does Not Work
 

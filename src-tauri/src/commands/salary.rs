@@ -35,17 +35,21 @@ pub async fn get_salary_benchmark(
     job_title: String,
     location: String,
     seniority: String,
+    years_experience: Option<i32>,
     state: State<'_, AppState>,
 ) -> Result<Option<Value>, String> {
     tracing::info!(
         job_title_len = job_title.len(),
         location_len = location.len(),
         seniority_requested = !seniority.trim().is_empty(),
+        years_provided = years_experience.is_some(),
         "Command: get_salary_benchmark"
     );
 
     let analyzer = SalaryAnalyzer::new(state.database.pool().clone());
-    let seniority_level = SeniorityLevel::parse(&seniority);
+    let seniority_level = years_experience
+        .map(SeniorityLevel::from_years_of_experience)
+        .unwrap_or_else(|| SeniorityLevel::parse(&seniority));
 
     match analyzer
         .get_benchmark(&job_title, &location, seniority_level)

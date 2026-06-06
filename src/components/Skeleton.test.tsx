@@ -316,7 +316,7 @@ describe("DashboardSkeleton", () => {
 
   it("renders status card skeleton", () => {
     const { container } = render(<DashboardSkeleton />);
-    const statusCard = container.querySelector(".grid-cols-3");
+    const statusCard = container.querySelector(".grid-cols-1.sm\\:grid-cols-3");
     expect(statusCard).toBeInTheDocument();
   });
 

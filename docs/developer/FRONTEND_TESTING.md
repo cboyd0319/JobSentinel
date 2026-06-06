@@ -25,6 +25,8 @@ JobSentinel frontend uses a modern testing stack optimized for React 19 and Taur
 - **React Testing Library** - Component testing (semantic queries)
 - **Playwright** - End-to-end testing (real browser automation)
 - **@testing-library/user-event** - User interaction simulation
+- **Storybook 10 + @storybook/addon-a11y** - Component states,
+  accessibility scans, and visual review
 
 ### Testing Philosophy
 
@@ -34,9 +36,14 @@ We prioritize:
 
 1. **Semantic queries** - Test what users see (role, label, text)
 2. **User events** - Simulate realistic interactions (click, type, submit)
-3. **Accessibility** - All tests validate ARIA and semantic HTML
+3. **Accessibility** - Tests validate ARIA, semantic HTML, keyboard focus,
+   live regions, and useful accessible names
 4. **Isolation** - Components tested independently with proper mocking
 5. **Speed** - Unit tests run in milliseconds, E2E tests in seconds
+
+For UI surface changes, run focused RTL tests and then use Storybook or
+Playwright for keyboard, focus, live-region, and narrow-width checks. Use
+`npm run build-storybook` when stories or Storybook configuration change.
 
 ---
 

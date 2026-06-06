@@ -85,7 +85,9 @@ User story:
 Who needs this and why.
 
 UX states:
-Loading, empty, error, disabled, narrow-width, keyboard, and success states.
+Loading, empty, error, disabled, narrow-width, keyboard, focus order and
+return, accessible names, live-region behavior, contrast, reduced-motion where
+relevant, and success states.
 
 Support path:
 Where a user can recover, copy a safe support report, or get help without

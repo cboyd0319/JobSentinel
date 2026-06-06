@@ -57,6 +57,28 @@ export function hasFrontDoorMacosDistributionOverpromise(root, path) {
     });
 }
 
+export function hasFrontDoorWindowsLinuxReleaseOverpromise(root, path) {
+  if (path !== "README.md") {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  const sourceVersion = text.match(/Source version\s*\|\s*`?v?(\d+\.\d+\.\d+)`?/i)?.[1];
+  const fullReleaseVersion = text.match(/Latest full cross-platform release\s*\|\s*`?v?(\d+\.\d+\.\d+)`?/i)?.[1];
+  if (!sourceVersion || !fullReleaseVersion || sourceVersion === fullReleaseVersion) {
+    return false;
+  }
+
+  return text.split(/\r?\n/).some((line) => {
+    const mentionsPlatform = /\b(?:Windows|Linux)\b/i.test(line);
+    const mentionsSourceVersion = line.includes(sourceVersion);
+    const makesReadyClaim = /\b(?:ready|current|latest|available|released|complete|production)\b/i.test(line);
+    const namesLimit = /\b(?:pending|not|blocked|until|still need|still needs|latest full cross-platform|should use)\b/i.test(line);
+
+    return mentionsPlatform && mentionsSourceVersion && makesReadyClaim && !namesLimit;
+  });
+}
+
 export function hasSourceReleaseVersionPromise(root, path) {
   if (!isRuntimeFrontendSource(path)) {
     return false;

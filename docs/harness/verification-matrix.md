@@ -40,6 +40,7 @@ user-facing workflow risk requires more evidence.
 | Shared hook | Relevant hook test | Full `npm run test:run` |
 | Page workflow | Relevant page test | `npm run test:e2e` for major flows |
 | Styling or layout | Component test if present | Browser screenshot or Playwright flow |
+| Accessibility or interactive controls | Focused RTL test for roles, labels, focus, keyboard, and ARIA state | Playwright or Storybook a11y/narrow-width check for changed surface |
 | Build config | `npm run build` | CI dry run when possible |
 
 Use `npm run test:e2e:smoke:budget` when a frontend workflow change should

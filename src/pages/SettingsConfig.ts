@@ -223,6 +223,19 @@ export type CredentialKey =
   | "telegram_bot_token"
   | "usajobs_api_key";
 
+export interface CredentialStatusEntry {
+  key: CredentialKey;
+  exists: boolean;
+  available?: boolean;
+}
+
+export interface CredentialStatusValue {
+  exists: boolean;
+  available: boolean;
+}
+
+export type CredentialStatusMap = Record<CredentialKey, CredentialStatusValue>;
+
 // Helper to store a credential in secure storage
 export async function storeCredential(
   key: CredentialKey,
@@ -234,6 +247,26 @@ export async function storeCredential(
 // Helper to check if a credential exists
 export async function hasCredential(key: CredentialKey): Promise<boolean> {
   return await invoke<boolean>("has_credential", { key });
+}
+
+export async function getCredentialStatusEntries(): Promise<CredentialStatusEntry[]> {
+  return await invoke<CredentialStatusEntry[]>("get_credential_status");
+}
+
+export function credentialExists(
+  credentialStatus: CredentialStatusMap,
+  key: CredentialKey,
+): boolean {
+  const status = credentialStatus[key];
+  return status.available && status.exists;
+}
+
+export function credentialMayExist(
+  credentialStatus: CredentialStatusMap,
+  key: CredentialKey,
+): boolean {
+  const status = credentialStatus[key];
+  return status.exists || !status.available;
 }
 
 export const isValidSlackWebhook = (url: string): boolean =>
@@ -537,7 +570,7 @@ export interface CredentialValidationError {
 export function getCredentialValidationError(
   credentials: Credentials,
   config?: Config,
-  credentialStatus?: Record<CredentialKey, boolean>,
+  credentialStatus?: CredentialStatusMap,
 ): CredentialValidationError | null {
   if (validateSlackWebhook(credentials.slack_webhook)) {
     return {
@@ -565,7 +598,7 @@ export function getCredentialValidationError(
 
   if (config?.alerts.telegram?.enabled) {
     const hasAlertCode =
-      Boolean(credentialStatus?.telegram_bot_token) ||
+      Boolean(credentialStatus && credentialMayExist(credentialStatus, "telegram_bot_token")) ||
       Boolean(credentials.telegram_bot_token.trim());
     const hasDestination = Boolean(config.alerts.telegram.chat_id?.trim());
 
@@ -580,7 +613,7 @@ export function getCredentialValidationError(
 
   if (config?.usajobs?.enabled) {
     const hasAccessCode =
-      Boolean(credentialStatus?.usajobs_api_key) ||
+      Boolean(credentialStatus && credentialMayExist(credentialStatus, "usajobs_api_key")) ||
       Boolean(credentials.usajobs_api_key.trim());
     const hasEmail = Boolean(config.usajobs.email?.trim());
 

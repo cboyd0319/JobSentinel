@@ -15,7 +15,10 @@ export interface MockSalaryBenchmark {
 export function getMockSalaryBenchmark(args?: Record<string, unknown>): MockSalaryBenchmark {
   const jobTitle = getStringArg(args, "jobTitle") ?? getStringArg(args, "job_title") ?? "Marketing Manager";
   const location = getStringArg(args, "location") ?? "Remote";
-  const seniority = getStringArg(args, "seniority") ?? "mid";
+  const yearsExperience = getNumberArg(args, "yearsExperience") ?? getNumberArg(args, "years_experience");
+  const seniority = yearsExperience === undefined
+    ? getStringArg(args, "seniority") ?? "mid"
+    : seniorityForYears(yearsExperience);
   const seniorityLabel = toMockSeniorityLabel(seniority);
   const seniorityMultiplier = seniorityLabel === "Entry"
     ? 0.72
@@ -39,6 +42,14 @@ export function getMockSalaryBenchmark(args?: Record<string, unknown>): MockSala
     sample_size: 128,
     last_updated: new Date().toISOString(),
   };
+}
+
+function seniorityForYears(years: number): string {
+  if (years <= 2) return "entry";
+  if (years <= 5) return "mid";
+  if (years <= 10) return "senior";
+  if (years <= 15) return "staff";
+  return "principal";
 }
 
 function toMockSeniorityLabel(value: string): string {
@@ -102,6 +113,14 @@ function getStringArg(
 ): string | undefined {
   const value = getArg(args, key);
   return typeof value === "string" ? value : undefined;
+}
+
+function getNumberArg(
+  args: Record<string, unknown> | undefined,
+  key: string,
+): number | undefined {
+  const value = getArg(args, key);
+  return typeof value === "number" && Number.isFinite(value) ? value : undefined;
 }
 
 function getArg(

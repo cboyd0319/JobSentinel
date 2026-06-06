@@ -65,7 +65,8 @@ External AI is not required for resume matching.
 4. Choose **See what JobSentinel read** if you want to inspect the readable
    resume text before using match results.
 5. Use **Import from resume app** only if another resume app gave you export
-   text.
+   text. Copied resume details stay local and can be restored during the same
+   app session if you leave Resume Match to add a saved resume.
 6. Click **Review Match**.
 7. Review suggested skills and add anything important that was missed.
 8. Choose **Use these skills to sort jobs** if the reviewed local skills should

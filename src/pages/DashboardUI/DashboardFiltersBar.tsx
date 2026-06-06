@@ -380,6 +380,7 @@ export const DashboardFiltersBar = memo(function DashboardFiltersBar({
           {hasActiveFilters && (
             <button
               onClick={clearFilters}
+              data-testid="btn-clear-filters"
               className="text-sm text-sentinel-600 dark:text-sentinel-400 hover:underline"
               aria-label="Clear all active filters"
             >

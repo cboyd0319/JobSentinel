@@ -1,3 +1,4 @@
+import { useId } from "react";
 import { Button } from "../components/Button";
 import { Modal, ModalFooter } from "../components/Modal";
 import type { Education } from "./resumeBuilderData";
@@ -17,16 +18,19 @@ export function ResumeBuilderEducationModal({
   onChange,
   onClose,
 }: ResumeBuilderEducationModalProps) {
+  const formId = useId();
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Add Education">
       {education && (
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
+              <label htmlFor={`${formId}-degree`} className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
                 Degree
               </label>
               <input
+                id={`${formId}-degree`}
                 type="text"
                 value={education.degree}
                 onChange={(e) =>
@@ -37,10 +41,11 @@ export function ResumeBuilderEducationModal({
               />
             </div>
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
+              <label htmlFor={`${formId}-institution`} className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
                 Institution
               </label>
               <input
+                id={`${formId}-institution`}
                 type="text"
                 value={education.institution}
                 onChange={(e) =>
@@ -51,10 +56,11 @@ export function ResumeBuilderEducationModal({
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
+              <label htmlFor={`${formId}-graduation-date`} className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
                 Graduation Date
               </label>
               <input
+                id={`${formId}-graduation-date`}
                 type="text"
                 value={education.graduation_date || ""}
                 onChange={(e) =>
@@ -68,10 +74,11 @@ export function ResumeBuilderEducationModal({
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
+              <label htmlFor={`${formId}-gpa`} className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
                 GPA
               </label>
               <input
+                id={`${formId}-gpa`}
                 type="text"
                 value={education.gpa || ""}
                 onChange={(e) =>
@@ -85,10 +92,11 @@ export function ResumeBuilderEducationModal({
               />
             </div>
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
+              <label htmlFor={`${formId}-location`} className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
                 Location
               </label>
               <input
+                id={`${formId}-location`}
                 type="text"
                 value={education.location || ""}
                 onChange={(e) =>
@@ -102,10 +110,11 @@ export function ResumeBuilderEducationModal({
               />
             </div>
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
+              <label htmlFor={`${formId}-honors`} className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
                 Honors & Awards (one per line)
               </label>
               <textarea
+                id={`${formId}-honors`}
                 value={education.honors.join("\n")}
                 onChange={(e) =>
                   onChange({

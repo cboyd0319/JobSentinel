@@ -44,6 +44,29 @@ const SENIORITY_LEVELS: readonly { value: SalarySeniority; label: string }[] = [
   { value: "principal", label: "Executive or top-level specialist (16+ years)" },
 ];
 
+function getSalarySeniorityForYears(years: number): SalarySeniority {
+  if (years <= 2) return "entry";
+  if (years <= 5) return "mid";
+  if (years <= 10) return "senior";
+  if (years <= 15) return "staff";
+  return "principal";
+}
+
+function getRepresentativeYearsForSeniority(seniority: SalarySeniority): number {
+  switch (seniority) {
+    case "entry":
+      return 2;
+    case "mid":
+      return 5;
+    case "senior":
+      return 10;
+    case "staff":
+      return 15;
+    case "principal":
+      return 20;
+  }
+}
+
 function getSalaryStageLabel(value: string) {
   const normalized = value.trim().toLowerCase();
   if (normalized === "entry") return "Starting out";
@@ -150,6 +173,7 @@ export default function Salary({ onBack }: SalaryProps) {
         jobTitle,
         location,
         seniority,
+        yearsExperience: yearsExp,
       });
 
       if (result) {
@@ -169,7 +193,7 @@ export default function Salary({ onBack }: SalaryProps) {
     } finally {
       setLoading(false);
     }
-  }, [jobTitle, location, seniority, toast]);
+  }, [jobTitle, location, seniority, toast, yearsExp]);
 
   const handleGenerateScript = useCallback(async () => {
     if (!benchmark) return;
@@ -303,9 +327,11 @@ export default function Salary({ onBack }: SalaryProps) {
                 </label>
                 <select
                   id="seniority-level"
-                  value={seniority}
-                  onChange={(e) => {
-                    setSeniority(e.target.value as SalarySeniority);
+                value={seniority}
+                onChange={(e) => {
+                    const nextSeniority = e.target.value as SalarySeniority;
+                    setSeniority(nextSeniority);
+                    setYearsExp(getRepresentativeYearsForSeniority(nextSeniority));
                     clearBenchmarkResult();
                   }}
                   className="w-full px-3 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus-visible:ring-2 focus-visible:ring-sentinel-500 focus:border-sentinel-500"
@@ -328,7 +354,12 @@ export default function Salary({ onBack }: SalaryProps) {
                   min="0"
                   max="20"
                   value={yearsExp}
-                  onChange={(e) => setYearsExp(parseInt(e.target.value))}
+                  onChange={(e) => {
+                    const nextYears = parseInt(e.target.value, 10);
+                    setYearsExp(nextYears);
+                    setSeniority(getSalarySeniorityForYears(nextYears));
+                    clearBenchmarkResult();
+                  }}
                   className="w-full accent-sentinel-500"
                   aria-valuemin={0}
                   aria-valuemax={20}

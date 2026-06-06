@@ -419,12 +419,23 @@ pub async fn save_config(&self, path: &Path) -> Result<()> {
         .context("Failed to serialize config to JSON")?;
 
     if let Some(parent) = path.parent() {
-        std::fs::create_dir_all(parent)
-            .context(format!("Failed to create config directory: {:?}", parent))?;
+        ensure_private_dir(parent)
+            .context("Failed to create config directory")?;
     }
 
-    std::fs::write(path, content)
-        .context(format!("Failed to write config to {:?}", path))?;
+    let mut temp = tempfile::NamedTempFile::new_in(
+        path.parent().context("Config path must have a parent directory")?,
+    )
+    .context("Failed to create temporary config file")?;
+    temp.write_all(content.as_bytes())
+        .context("Failed to write temporary config file")?;
+    temp.as_file()
+        .sync_all()
+        .context("Failed to flush temporary config file")?;
+    temp.into_temp_path()
+        .persist(path)
+        .map_err(|err| err.error)
+        .context("Failed to replace config file")?;
 
     Ok(())
 }
@@ -434,7 +445,7 @@ pub async fn save_config(&self, path: &Path) -> Result<()> {
 
 - Add context at each step
 - Build error chain from bottom up
-- Include relevant details in context
+- Include relevant details in context, but do not include raw local paths or secrets
 
 ---
 

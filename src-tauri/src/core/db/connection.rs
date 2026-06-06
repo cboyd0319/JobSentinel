@@ -351,7 +351,7 @@ impl Database {
                 > 0;
 
             if is_existing_db {
-                if let Err(_e) = Self::backup_pre_migration(db_path) {
+                if let Err(_e) = Self::backup_pre_migration(&self.pool, db_path).await {
                     tracing::warn!("Pre-migration backup failed; migration will continue");
                 }
             }
@@ -364,26 +364,48 @@ impl Database {
         Ok(())
     }
 
-    /// Create a timestamped `backup_pre_migration_YYYYMMDD_HHMMSS.db` copy of
+    /// Create a timestamped `backup_pre_migration_YYYYMMDD_HHMMSS_mmm.db`
+    /// SQLite snapshot of
     /// the database file, then prune old pre-migration backups so that at most
     /// [`PRE_MIGRATION_BACKUP_KEEP`] copies are retained.
-    fn backup_pre_migration(db_path: &std::path::Path) -> Result<(), Box<dyn std::error::Error>> {
+    async fn backup_pre_migration(
+        pool: &SqlitePool,
+        db_path: &std::path::Path,
+    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+        Self::backup_pre_migration_to_dir(pool, db_path, &Self::default_backup_dir())
+            .await
+            .map(|_| ())
+    }
+
+    async fn backup_pre_migration_to_dir(
+        pool: &SqlitePool,
+        db_path: &std::path::Path,
+        backup_dir: &std::path::Path,
+    ) -> Result<Option<std::path::PathBuf>, Box<dyn std::error::Error + Send + Sync>> {
         /// Maximum number of pre-migration backups to retain.
         const PRE_MIGRATION_BACKUP_KEEP: usize = 5;
 
         if !db_path.exists() {
             // Nothing to back up (fresh database that hasn't been written yet).
-            return Ok(());
+            return Ok(None);
         }
 
-        let backup_dir = Self::default_backup_dir();
-        crate::platforms::ensure_private_dir(&backup_dir)?;
+        crate::platforms::ensure_private_dir(backup_dir)?;
 
-        let timestamp = chrono::Utc::now().format("%Y%m%d_%H%M%S");
+        let timestamp = chrono::Utc::now().format("%Y%m%d_%H%M%S_%3f");
         let backup_name = format!("backup_pre_migration_{}.db", timestamp);
         let backup_path = backup_dir.join(&backup_name);
+        let backup_path_str = backup_path.to_str().ok_or_else(|| {
+            std::io::Error::new(
+                std::io::ErrorKind::InvalidInput,
+                "Invalid backup path encoding",
+            )
+        })?;
 
-        std::fs::copy(db_path, &backup_path)?;
+        sqlx::query("VACUUM INTO ?")
+            .bind(backup_path_str)
+            .execute(pool)
+            .await?;
         crate::platforms::ensure_private_file(&backup_path)?;
         tracing::info!(
             backup_path = %path_label_for_logging(&backup_path),
@@ -391,9 +413,9 @@ impl Database {
         );
 
         // Prune pre-migration backups beyond the keep limit.
-        Self::prune_pre_migration_backups(&backup_dir, PRE_MIGRATION_BACKUP_KEEP);
+        Self::prune_pre_migration_backups(backup_dir, PRE_MIGRATION_BACKUP_KEEP);
 
-        Ok(())
+        Ok(Some(backup_path))
     }
 
     /// Delete old `backup_pre_migration_*.db` files, keeping the `keep` newest.
@@ -595,6 +617,43 @@ impl Database {
             .await?;
         tracing::info!("Checkpointed WAL file");
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod backup_tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn pre_migration_backup_captures_committed_wal_data() {
+        let temp_dir = tempfile::tempdir().unwrap();
+        let db_path = temp_dir.path().join("jobs.db");
+        let backup_dir = temp_dir.path().join("backups");
+        let database = Database::connect(&db_path).await.unwrap();
+
+        sqlx::query("CREATE TABLE qa_wal_capture (id INTEGER PRIMARY KEY, note TEXT NOT NULL)")
+            .execute(database.pool())
+            .await
+            .unwrap();
+        sqlx::query("INSERT INTO qa_wal_capture (note) VALUES ('saved in wal')")
+            .execute(database.pool())
+            .await
+            .unwrap();
+
+        let backup_path =
+            Database::backup_pre_migration_to_dir(database.pool(), &db_path, &backup_dir)
+                .await
+                .unwrap()
+                .expect("existing database should create pre-migration backup");
+
+        let backup_url = format!("sqlite://{}", backup_path.display());
+        let backup_pool = SqlitePool::connect(&backup_url).await.unwrap();
+        let note: String = sqlx::query_scalar("SELECT note FROM qa_wal_capture WHERE id = 1")
+            .fetch_one(&backup_pool)
+            .await
+            .unwrap();
+
+        assert_eq!(note, "saved in wal");
     }
 }
 

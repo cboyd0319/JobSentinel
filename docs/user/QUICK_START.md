@@ -26,7 +26,7 @@ help more job seekers, including by building something better.
      `_no-account_universal.dmg` from the latest published release only when
      the same release also shows a matching `.dmg.sha256` checksum file. As of
      2026-06-06, the latest published Mac package is
-     `JobSentinel_2.7.5_no-account_universal.dmg`.
+     `JobSentinel_2.7.7_no-account_universal.dmg`.
    - **Linux installer** when present on the release
 3. Install it:
    - Windows or Linux: double-click and follow the prompts.
@@ -71,18 +71,13 @@ approve it once.
 <summary><strong>Windows showing a blue warning?</strong></summary>
 <br>
 
-Windows SmartScreen may show "Windows protected your PC" because JobSentinel is new.
+Windows SmartScreen may show "Windows protected your PC" when an installer is
+unsigned or not widely trusted yet.
 
 Continue only if you downloaded JobSentinel from the latest download page
-linked above and expected this file. If you are not sure, stop, delete the
-download, and download it again from that page.
-
-**To continue after checking the download:**
-
-1. Click **"More info"**
-2. Click **"Run anyway"**
-
-This can happen because JobSentinel is a new open-source app.
+linked above, expected this file, and can verify the installer identity or
+checksum from the same release. If you are not sure, stop, delete the download,
+and use the latest signed installer when available or build from source.
 
 </details>
 
@@ -344,6 +339,10 @@ screening software:
 3. Choose or add a saved resume
 4. Click **Review Match**
 5. Get feedback on job-post evidence, readability, and truthful edits
+
+If you use **Import from resume app**, copied resume details stay local and can
+be restored during the same app session if you leave Resume Match to add a
+saved resume.
 
 ### Application Assist
 

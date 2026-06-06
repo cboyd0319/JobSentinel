@@ -8,9 +8,10 @@ import { SecurityBadge } from "./SettingsSecurityBadge";
 import { SettingsConnectedJobSource } from "./SettingsConnectedJobSource";
 import {
   buildSettingsSourceQuery,
+  credentialExists,
   getSettingsSourceLocation,
   type Config,
-  type CredentialKey,
+  type CredentialStatusMap,
   type Credentials,
   type JobsWithGptPayload,
   type SourceRequestSummary,
@@ -18,7 +19,7 @@ import {
 
 interface SettingsJobSourcesSectionProps {
   config: Config;
-  credentialStatus: Record<CredentialKey, boolean>;
+  credentialStatus: CredentialStatusMap;
   credentials: Credentials;
   jobBoardRecommendations: JobBoardRecommendation[];
   jobsWithGptLastRequest: SourceRequestSummary | null;
@@ -47,6 +48,8 @@ export function SettingsJobSourcesSection({
   setShowJobsWithGptEndpoint,
   showJobsWithGptEndpoint,
 }: SettingsJobSourcesSectionProps) {
+  const hasUsaJobsAccessCode = credentialExists(credentialStatus, "usajobs_api_key");
+
   return (
     <>
               {/* Job Sources */}
@@ -133,7 +136,7 @@ export function SettingsJobSourcesSection({
                         for browser-only search.
                       </p>
                       {/* Advanced USAJobs setup */}
-                      {!credentialStatus.usajobs_api_key && (
+                      {!hasUsaJobsAccessCode && (
                         <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
                           <p className="flex items-center gap-1.5 text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">
                             <SettingsSymbol icon="bolt" className="h-4 w-4" />
@@ -181,7 +184,7 @@ export function SettingsJobSourcesSection({
                           <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1 flex items-center gap-2">
                             USAJobs access code
                             <SecurityBadge
-                              stored={credentialStatus.usajobs_api_key}
+                              status={credentialStatus.usajobs_api_key}
                             />
                           </label>
                           <Input
@@ -194,7 +197,7 @@ export function SettingsJobSourcesSection({
                               }))
                             }
                             placeholder={
-                              credentialStatus.usajobs_api_key
+                              hasUsaJobsAccessCode
                                 ? "Enter new code to update"
                                 : "Paste your USAJobs access code"
                             }

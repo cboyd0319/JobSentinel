@@ -80,6 +80,21 @@ export function releaseAssetUploadsStayDraft(releaseWorkflow) {
   });
 }
 
+export function windowsMsiUploadRequiresSignature(releaseWorkflow) {
+  return (
+    hasOrderedSnippets(releaseWorkflow, [
+      "- name: Verify Windows MSI signature and checksum",
+      "- name: Upload Windows MSI",
+    ]) &&
+    hasAll(getWorkflowStepBlock(releaseWorkflow, "Verify Windows MSI signature and checksum"), [
+      "Get-AuthenticodeSignature",
+      'Status -ne "Valid"',
+      "Get-FileHash",
+      ".sha256",
+    ])
+  );
+}
+
 function criterion(id, points, ok, detail) {
   return {
     detail,
@@ -299,6 +314,12 @@ export function evaluateMacosReadiness({ root = defaultRoot, env = process.env }
           "npm run tauri:verify:macos:latest",
         ]),
       "Front-door docs must tell nontechnical users where friction remains.",
+    ),
+    criterion(
+      "Windows MSI public upload is signature-gated",
+      0,
+      windowsMsiUploadRequiresSignature(releaseWorkflow),
+      "Unsigned Windows MSI artifacts must fail before public upload.",
     ),
   ];
 

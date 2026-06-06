@@ -31,6 +31,7 @@ import {
   hasFrontDoorMacosDistributionOverpromise,
   hasFrontDoorMacosInstallerOverpromise,
   hasFrontDoorReleaseVersionPromise,
+  hasFrontDoorWindowsLinuxReleaseOverpromise,
   hasSourceReleaseVersionPromise,
 } from "./harness/checks/release-promises.mjs";
 import {
@@ -223,6 +224,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasFrontDoorMacosDistributionOverpromise(root, path)) {
       violations.push(`replace front-door macOS distribution overpromise: ${path}`);
+    }
+
+    if (hasFrontDoorWindowsLinuxReleaseOverpromise(root, path)) {
+      violations.push(`replace front-door Windows/Linux release overpromise: ${path}`);
     }
 
     if (hasSourceReleaseVersionPromise(root, path)) {
