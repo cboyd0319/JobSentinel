@@ -305,7 +305,8 @@ DATABASE_URL="sqlite:jobs.db" cargo sqlx prepare
 
 To maintain code quality and regenerability, all files follow the LLM-first coding principle:
 
-- **File size limits**: Keep modules under 500 lines for easy maintenance and AI regeneration
+- **File size policy**: Follow the current maintainable thresholds in
+  [Harness Engineering](../harness/README.md) and run `npm run lint:bloat`
 - **Flat hierarchy**: Explicit code over deep abstractions
 - **Modular structure**: Each module has clear boundaries and minimal coupling
 - **Separated concerns**: Tests go in `tests.rs` files, not inline `#[cfg(test)]` blocks

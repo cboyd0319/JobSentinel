@@ -1,6 +1,6 @@
 # CI/CD pipeline guide
 
-**How JobSentinel tests, builds, and releases across platforms**
+**How JobSentinel tests, builds, verifies, and releases across platforms**
 
 ---
 
@@ -20,13 +20,16 @@
 
 ## Overview
 
-JobSentinel uses six GitHub Actions workflows:
+JobSentinel uses six GitHub Actions workflows for shared verification and
+hosted release builds. Production release assets can also be built locally on
+the target platform and uploaded manually when the same preflight and artifact
+verification gates pass.
 
 | Workflow                 | File                           | Trigger                      | Purpose                         |
 | ------------------------ | ------------------------------ | ---------------------------- | ------------------------------- |
 | CI                       | `ci.yml`                       | Push or PR to `main`         | Tests, linting, security        |
 | Docs Harness             | `docs-harness.yml`             | Docs and harness changes     | Harness, markdown lint          |
-| Release                  | `release.yml`                  | Version tag (`v*`)           | Build and publish installers    |
+| Release                  | `release.yml`                  | Version tag (`v*`)           | Build and stage draft installers |
 | Verify Release Artifacts | `verify-release-artifacts.yml` | Published release or manual  | Verify public downloadable DMGs |
 | Build Windows            | `build-windows.yml`            | Manual (`workflow_dispatch`) | Windows MSI on demand           |
 | Build Linux              | `build-linux.yml`              | Manual (`workflow_dispatch`) | Linux AppImage/deb on demand    |
@@ -81,7 +84,9 @@ Audits both dependency trees for known vulnerabilities.
 
 **Trigger:** Push of a tag matching `v*`, for example `vX.Y.Z`
 
-This workflow creates a draft GitHub Release, then builds installers in parallel across three platforms.
+This workflow creates a draft GitHub Release, then builds installers in
+parallel across three platforms. It is the hosted cross-platform path, not the
+only permitted production path.
 
 ### Platforms and artifacts
 
@@ -101,7 +106,8 @@ and `x86_64-apple-darwin` and links them into a single binary. This means the `.
 natively on both Apple Silicon and Intel Macs.
 
 The release workflow verifies the macOS DMG before upload with
-`npm run tauri:verify:macos -- --launch-smoke --install-smoke`. This gate
+`npm run tauri:verify:macos -- --launch-smoke --install-smoke --require-checksum`.
+This gate
 checks the DMG layout, bundle id, product name, version, icon metadata and
 resource file, macOS 13.0 minimum-system metadata, mounted app signature,
 universal architectures, mounted-app launch smoke, copied installed-app launch
@@ -145,6 +151,11 @@ the strict Gatekeeper gate when all required Apple secrets are present.
 These workflows run only when triggered manually via **Actions > Run workflow** in the GitHub UI.
 They are useful for producing a build outside of the normal release flow, for example to test a
 hotfix or create a pre-release artifact.
+
+Local platform builds are also supported. Prefer local builds when you have a
+trusted Windows, macOS, or Linux host available and want to avoid unnecessary
+hosted runner time. Run the same version, harness, lint, test, build, and
+artifact verification gates before upload.
 
 ### `build-windows.yml` (Windows manual build)
 
@@ -197,17 +208,28 @@ npm run lint && npm run test:run
 ### 1. Prepare the release
 
 ```bash
-# Update version in both places
+# Update version in release metadata and lock files
 # src-tauri/Cargo.toml -> [package] version = "X.Y.Z"
 # package.json -> "version": "X.Y.Z"
+# package-lock.json -> root "version" and packages[""].version = "X.Y.Z"
+# src-tauri/tauri.conf.json -> "version": "X.Y.Z"
 
 # Update CHANGELOG.md, then commit
-git add src-tauri/Cargo.toml package.json CHANGELOG.md
+git add src-tauri/Cargo.toml package.json package-lock.json src-tauri/tauri.conf.json CHANGELOG.md
 git commit -m "chore: bump version to X.Y.Z"
 git push origin main
 ```
 
-### 2. Tag and push
+Before tagging or uploading local assets, run the full release gate in
+[Releasing](RELEASING.md). It includes version validation, harness checks,
+environment doctors, docs lint, frontend tests, full Playwright E2E, frontend
+build, Rust formatting, Rust clippy, and the full Rust test suite.
+
+### 2. Choose release build path
+
+Use either hosted tag CI or local platform builds.
+
+For hosted tag CI:
 
 ```bash
 git tag vX.Y.Z
@@ -215,6 +237,35 @@ git push origin vX.Y.Z
 ```
 
 Pushing the tag triggers `release.yml` automatically.
+
+For local macOS no-account asset upload:
+
+```bash
+rustup target add aarch64-apple-darwin x86_64-apple-darwin
+JOBSENTINEL_MACOS_NO_ACCOUNT=true npm run tauri:build:macos -- --target universal-apple-darwin
+npm run tauri:verify:macos -- \
+  --dmg src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_X.Y.Z_no-account_universal.dmg \
+  --expected-architectures x86_64,arm64 \
+  --expected-bundle-id com.jobsentinel.main \
+  --expected-product-name JobSentinel \
+  --expected-version X.Y.Z \
+  --expected-icon-file icon.icns \
+  --expected-minimum-system-version 13.0 \
+  --launch-smoke \
+  --install-smoke \
+  --require-checksum
+
+gh release upload vX.Y.Z \
+  src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_X.Y.Z_no-account_universal.dmg \
+  src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_X.Y.Z_no-account_universal.dmg.sha256
+
+npm run tauri:verify:macos:latest -- --tag vX.Y.Z
+```
+
+For a complete local release, build Windows and Linux installers on native
+hosts or VMs from the same tag, then attach those assets to the same release.
+Do not publish a release as complete until all advertised platform assets are
+present and verified.
 
 ### 3. Publish the draft release
 
@@ -288,7 +339,7 @@ secrets are present, the workflow imports the Developer ID
 certificate into a temporary keychain, `npm run tauri:build:macos` signs,
 notarizes, staples, and validates the custom DMG. The release workflow then
 verifies the package with
-`npm run tauri:verify:macos -- --launch-smoke --install-smoke --require-gatekeeper`
+`npm run tauri:verify:macos -- --launch-smoke --install-smoke --require-checksum --require-gatekeeper`
 before upload. Without the expected bundle id, product name, release version,
 icon resource file, macOS 13.0 minimum-system metadata, checksum, Developer ID
 signing, notarization, Gatekeeper acceptance, mounted-app plus installed-app
@@ -322,9 +373,10 @@ cargo clippy -- -D warnings
 
 ### `cargo test --lib` vs `cargo test`
 
-CI runs `cargo test --lib`, which skips integration tests in `tests/`. Integration tests that
-require a file-based database, network access, or Chrome are excluded by design — they run
-locally with `cargo test --ignored` or `cargo test`.
+CI runs `cargo test --lib`, which skips integration tests in `tests/`. Normal
+integration tests run locally with `cargo test`. Ignored or live tests should
+use targeted commands such as
+`cargo test --test live_scraper_test -- --ignored --nocapture`.
 
 ### npm audit blocks CI
 

@@ -103,9 +103,10 @@ src-tauri/
 - tests/: integration test crates
 ```
 
-**Note**: As of v1.5.0, test files have been extracted to separate `tests.rs` files within each
-module directory. This improves code organization and keeps module files under 500 lines for
-easier maintenance and regeneration.
+**Note**: As of v1.5.0, test files have been extracted to separate `tests.rs`
+files within each module directory. This improves code organization and keeps
+module files easier to maintain under the current
+[harness file-size policy](../harness/README.md).
 
 ### Test Coverage Map
 
@@ -384,9 +385,10 @@ The three CI jobs are:
 - **test-frontend** — runs `npx tsc --noEmit`, `npm run lint`, and `npm test -- --run`
 - **security** — runs `npm audit --audit-level=moderate` and `cargo deny check advisories`
 
-Note that CI runs `cargo test --lib`, which covers unit tests only. Integration tests in `tests/`
-that require a file-based database or external services are excluded from CI and run locally with
-`cargo test --ignored`.
+Note that CI runs `cargo test --lib`, which covers unit tests only. Normal
+integration tests in `tests/` run locally with `cargo test`. Ignored or live
+integration tests should use targeted commands such as
+`cargo test --test live_scraper_test -- --ignored --nocapture`.
 
 For full CI/CD documentation see [CI_CD.md](./CI_CD.md).
 

@@ -1,6 +1,6 @@
 # Current Product And Quality Work
 
-Last updated: 2026-06-05.
+Last updated: 2026-06-06.
 
 ## Purpose
 
@@ -45,7 +45,7 @@ Out of scope:
 
 | Area | State | Next useful slice |
 | ---- | ----- | ----------------- |
-| macOS readiness | Active | Keep README, release docs, harness checks, and wiki guidance aligned with 94% full-public readiness and 100% no-account path completion. |
+| macOS readiness | Active | Keep README, release docs, harness checks, local upload guidance, and wiki guidance aligned with 94% full-public readiness and 100% no-account path completion. |
 | Resume assistance | Active | Tighten hard-requirement categories, evidence caps, live review copy, and mock/Rust parity only when evidence is local and explainable. |
 | Job-card protection | Active | Keep posting-risk cues visible without implying employer intent or confirmed duplicate/source proof. |
 | Guided intake | Active | Add optional suggestions only after user review; keep broad defaults and non-technical paths first-class. |
@@ -69,6 +69,8 @@ Out of scope:
 
 - macOS docs, README, release notes, readiness scripts, and release workflow
   now separate 94% full-public readiness from 100% no-account path completion.
+- Release docs now support verified local build plus manual upload when the
+  same release gates pass, while keeping hosted tag CI available.
 - Public wiki inventory and upkeep are part of the harness, including
   `Home.md` and `Capabilities.md`.
 - Resume Match and Resume Builder hard-requirement handling now covers age,

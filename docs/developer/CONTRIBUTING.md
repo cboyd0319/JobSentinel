@@ -29,12 +29,16 @@ After any significant change, update all relevant docs:
 
 Before committing, ask: "Did I update all relevant docs?"
 
-### File Size Limits
+### File Size Policy
 
-**Keep files under 500 lines.** Large files are hard to maintain and regenerate with AI assistance.
+Use the current maintainable file-size policy in
+[Harness Engineering](../harness/README.md). Large files are hard to maintain
+and regenerate with AI assistance, but the enforced thresholds live in harness
+docs and `npm run lint:bloat`.
 
-**Test organization:** Move test modules to separate `tests.rs` files when a file exceeds 400
-lines. This keeps the main logic focused and tests discoverable.
+**Test organization:** Move test modules to separate `tests.rs` files when
+tests start to obscure main logic or a file approaches the tracked
+maintainability thresholds.
 
 See `docs/plans/tech-debt-tracker.md` for current refactor and debt items.
 
@@ -332,11 +336,12 @@ export function JobList({ jobs, onSelect }: JobListProps) {
 
 ### Rust Tests
 
-**Write tests for all new code.** For files over 400 lines, move tests to a separate `tests.rs`
-file to keep the main module focused:
+**Write tests for all new code.** When tests make main logic harder to read or
+push a file toward the tracked maintainability thresholds, move tests to a
+separate `tests.rs` file:
 
 ```rust
-// In src/feature/mod.rs (main logic, <400 lines)
+// In src/feature/mod.rs (main logic)
 pub fn calculate_score(job: &Job) -> u32 {
     // Implementation
 }
@@ -421,7 +426,7 @@ Before submitting:
 - [ ] AGENTS.md or `docs/harness/` updated (if agent workflow changed)
 - [ ] docs/ROADMAP.md updated (if adding to technical debt)
 - [ ] Tested on Windows and/or macOS
-- [ ] No files exceed 500 lines (move tests to `tests.rs` if needed)
+- [ ] No maintainable file-size policy regressions (`npm run lint:bloat`)
 
 ### PR Template
 
@@ -463,10 +468,10 @@ Closes #123
 ## Checklist
 
 - [ ] Code follows project conventions
-- [ ] Tests added/updated (in separate `tests.rs` if file >400 lines)
+- [ ] Tests added/updated, with sidecar `tests.rs` files when they keep main logic readable
 - [ ] All documentation updated
 - [ ] No new warnings
-- [ ] No files exceed 500 lines
+- [ ] No maintainable file-size policy regressions
 ```
 
 ---

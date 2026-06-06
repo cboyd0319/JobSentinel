@@ -1,9 +1,12 @@
 # Releases
 
-Production builds are created by the tag-triggered
-[`release.yml`](../../.github/workflows/release.yml) workflow and published to
-[GitHub Releases](https://github.com/cboyd0319/JobSentinel/releases). Local
-builds are for development, verification, and emergency replacement packages.
+Production assets can be produced either by the tag-triggered
+[`release.yml`](../../.github/workflows/release.yml) workflow or by verified
+local builds from the target platform, then attached to
+[GitHub Releases](https://github.com/cboyd0319/JobSentinel/releases). The
+workflow remains the easiest full cross-platform path. Local build plus manual
+upload is a supported release path when it runs the same version, docs,
+package, and artifact gates before publication.
 
 ## macOS public release status
 
@@ -26,7 +29,25 @@ public artifact passes
 ### 1. Prepare and tag
 
 Update the package version, changelog, and release notes as needed, then commit
-and push `main`. Create a version tag:
+and push `main`. Run the local release gate before tagging or uploading
+artifacts:
+
+```bash
+npm run release:check-version -- vX.Y.Z
+npm run harness:check
+npm run doctor
+npm run doctor:e2e
+npm run lint:docs
+npm run lint
+npm run test:run
+npm run test:e2e:all
+npm run build
+cargo fmt --manifest-path src-tauri/Cargo.toml --all -- --check
+cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings
+cargo test --manifest-path src-tauri/Cargo.toml
+```
+
+For a normal workflow-driven release, create a version tag:
 
 ```bash
 git tag vX.Y.Z
@@ -36,6 +57,11 @@ git push origin vX.Y.Z
 Pushing the tag triggers `release.yml`. The workflow creates a draft release,
 runs preflight checks, builds Windows, macOS, and Linux packages, verifies the
 macOS package before upload, and attaches release assets.
+
+For a local-first release, build each platform on that platform or VM, attach
+the verified artifacts to the matching draft release, and run the public
+artifact verifier before publishing or sharing the release. Do not mix
+artifacts from different source commits under one tag.
 
 ### 2. macOS signing mode
 
@@ -61,10 +87,10 @@ If only some Apple secrets are configured, the macOS job fails before building.
 If all required Apple secrets are configured, the workflow signs, notarizes,
 staples, validates, and requires `--require-gatekeeper` before upload.
 
-### 3. Local macOS verification or emergency replacement
+### 3. Local macOS verification and upload
 
-Use local builds when testing the macOS package path or replacing a broken
-public Mac asset outside normal tag CI:
+Use local builds when testing the macOS package path, reducing release-runner
+cost, or replacing a broken public Mac asset outside normal tag CI:
 
 ```bash
 # macOS (from Mac)
@@ -113,12 +139,12 @@ npm run tauri:verify:macos:latest
 npm run tauri:verify:macos:latest -- --require-gatekeeper
 ```
 
-If replacing an already-public no-account Mac asset manually, use a unique
-filename such as `JobSentinel_X.Y.Z_no-account_universal.dmg`. Reusing a
-previous browser-download filename can leave stale CDN content behind. Build
-with the no-account filename label, delete any old Mac `.dmg` and `.dmg.sha256`
-assets from that tag, upload exactly one replacement `.dmg` and its matching
-checksum, and then run the public verifier:
+For local upload, use a unique no-account filename such as
+`JobSentinel_X.Y.Z_no-account_universal.dmg`. Reusing a previous
+browser-download filename can leave stale CDN content behind. Build with the
+no-account filename label, delete any old Mac `.dmg` and `.dmg.sha256` assets
+from that tag, upload exactly one replacement `.dmg` and its matching checksum,
+and then run the public verifier:
 
 ```bash
 JOBSENTINEL_MACOS_NO_ACCOUNT=true npm run tauri:build:macos -- --target universal-apple-darwin
@@ -138,9 +164,11 @@ npm run tauri:verify:macos:latest -- --tag vX.Y.Z
 Do not publish a Mac package without its checksum, and do not leave multiple Mac
 DMGs attached to the same release tag.
 
-### 4. Local Windows and Linux checks
+### 4. Local Windows and Linux builds
 
-These are fallback commands. Normal production builds come from `release.yml`.
+Use native Windows and Linux hosts or VMs for local release assets. The
+workflow path is still available when local access to a target platform is not
+ready.
 
 ```bash
 # Windows (from Windows machine or VM)

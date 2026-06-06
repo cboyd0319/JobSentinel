@@ -150,7 +150,9 @@ custom DMG before returning.
 JobSentinel does not currently have an Apple Developer Account. Without that
 account, the app cannot be Developer ID signed, notarized, stapled, or accepted
 by Gatekeeper as a zero-friction public macOS download. The local package path
-remains useful for development and testing.
+remains useful for development, testing, and clearly labeled no-account public
+packages when the DMG and checksum are uploaded together and the public
+artifact verifier passes.
 
 Required public-release environment once an Apple Developer Account exists:
 
@@ -208,6 +210,11 @@ For a local no-account DMG that is ready to upload or replace manually, build
 with `JOBSENTINEL_MACOS_NO_ACCOUNT=true`. The builder writes
 `JobSentinel_<version>_no-account_universal.dmg` and a matching `.sha256`
 sidecar directly, so the checksum is created for the public filename.
+
+This local upload path is supported for macOS release work when it is cheaper
+or faster than hosted release CI. It still needs the same release-version,
+harness, package-verification, checksum, and public-artifact verification gates
+before users should treat the DMG as current.
 
 After a release is published, verify the downloaded public artifact too:
 

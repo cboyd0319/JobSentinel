@@ -7,9 +7,9 @@ verification, and contribution routing.
 
 Use `package.json` for the current release package version.
 
-Do not use this file as a changelog. Historical release detail belongs in
-[CHANGELOG.md](../CHANGELOG.md), release notes such as
-[v2.6.3](releases/v2.6.3.md), and completed plans.
+Do not use this file as a changelog. Current release detail belongs in
+[CHANGELOG.md](../CHANGELOG.md). Historical release snapshots belong in the
+[release notes index](releases/README.md) and completed plans.
 
 ## Current product priorities
 

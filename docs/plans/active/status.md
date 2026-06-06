@@ -43,9 +43,12 @@ These plans are no longer active restart surfaces. Keep them as provenance only:
 - Package metadata is `2.7.7`, while the latest published public release is
   `v2.7.5` as of 2026-06-06. Fresh `2.7.7` public assets still need build,
   upload, and public-artifact verification.
-- macOS Computer Use retest is not complete while the workstation session is
-  locked; the lock blocks screenshot and window control, so no full mouse-click
-  E2E claim should be made from this state.
+- macOS Computer Use retest is partially complete from an unlocked 2026-06-06
+  session against the fresh local `2.7.7` universal app: first-run setup,
+  dashboard load, URL-safety rejection for a localhost import, and application
+  tracker visibility were exercised with real clicks. Drag/drop board movement
+  and safe support report export still need live UI proof before any full
+  mouse-click E2E claim is made.
 - Fresh harness session evidence reports 2 active docs, 2 indexed workstreams,
   and a 100/100 harness score: this status file and `current-work.md`.
 - Final broad verification for the broad-cleanup baseline passed during the
@@ -70,6 +73,11 @@ failing gate or a blocker to privacy, security, docs accuracy, or verification.
   source-backed closure signal, and adds focused regression coverage for empty
   migrated databases and hidden-job aggregate semantics. Public docs now
   separate source version `2.7.7` from latest published public release `v2.7.5`.
+
+- Release docs now treat verified local build plus manual upload as a supported
+  production path when the same version, harness, package, checksum, and public
+  artifact gates pass. This keeps hosted tag CI available without making it
+  the only release route.
 
 - Repo-bloat product-copy framing fixtures now live in
   `scripts/check-repo-bloat-product-copy-framing.test.mjs`, reducing

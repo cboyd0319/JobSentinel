@@ -24,6 +24,8 @@ remains `v2.7.5` as of 2026-06-06.
 
 - **Release state** - User and developer docs now distinguish source version
   `2.7.7` from the latest published public release, `v2.7.5`.
+- **Release process** - Developer docs now document verified local build plus
+  manual upload as a supported production path when the same release gates pass.
 
 ## [2.7.6] - 2026-06-06
 

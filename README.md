@@ -461,6 +461,12 @@ use `JobSentinel_<version>_universal.dmg` instead. The verifier can require
 the checksum sidecar before upload or sharing. Upload or share both files
 together.
 
+Verified local packages may be uploaded manually to a GitHub release instead
+of using hosted release CI. For macOS, upload exactly one `.dmg` and its
+matching `.dmg.sha256` for the tag, then run
+`npm run tauri:verify:macos:latest -- --tag vX.Y.Z` against the public
+download before calling that Mac package current.
+
 Installer output:
 
 | Platform | Output path |
@@ -560,6 +566,8 @@ Developer docs:
 - Source version is `2.7.7`. Public assets still need a fresh release build,
   upload, and public-artifact verification before any `v2.7.7` download is
   current for users.
+- Release docs now treat verified local build plus manual upload as a
+  supported production path when the same release gates pass.
 - Hiring Trends now refreshes against the current jobs schema, creates a
   neutral empty snapshot for first-run or migrated local databases, counts
   hidden or dismissed jobs as local market evidence, and does not claim

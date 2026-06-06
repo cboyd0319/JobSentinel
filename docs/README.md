@@ -49,6 +49,10 @@ The maintained external source index lives in
   Zero-friction Gatekeeper-ready public distribution still requires Apple
   Developer Program materials, Developer ID signing, notarization, stapling,
   and signed-artifact verification.
+- Verified local build plus manual upload is a supported production release
+  path when the same version, harness, package, checksum, and public-artifact
+  verification gates pass. Hosted tag CI remains available for full
+  cross-platform builds.
 - Unreleased work is tracked in [CHANGELOG.md](../CHANGELOG.md) and the
   [active plans index](plans/README.md#current-active-plans).
 - Historical release notes are indexed in
