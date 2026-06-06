@@ -678,7 +678,7 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
           ) : (
             <span />
           )}
-          <Button onClick={handleSave} loading={saving} loadingText="Saving..." disabled={!isDirty && !saving}>
+          <Button onClick={handleSave} loading={saving} loadingText="Saving..." disabled={saving}>
             Save Profile
           </Button>
         </div>
