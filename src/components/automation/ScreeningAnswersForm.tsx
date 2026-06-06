@@ -72,6 +72,94 @@ const COMMON_PATTERNS = [
   { pattern: "cover letter", label: "Cover letter / Why this role", type: "textarea" },
 ];
 
+const LEGACY_SCREENING_PATTERNS = [
+  {
+    pattern: "(?i)authorized.*work.*(united states|us|usa)",
+    label: "Work authorization",
+    editablePattern: "work authorization",
+  },
+  {
+    pattern: "(?i)require.*sponsor.*work",
+    label: "Visa sponsorship",
+    editablePattern: "sponsorship",
+  },
+  {
+    pattern: "(?i)require.*sponsor.*(now|future)",
+    label: "Future sponsorship",
+    editablePattern: "sponsorship now or in the future",
+  },
+  {
+    pattern: "(?i)18.*years.*age",
+    label: "Age requirement",
+    editablePattern: "18 years of age",
+  },
+  {
+    pattern: "(?i)drug.*test",
+    label: "Drug screen",
+    editablePattern: "drug screen",
+  },
+  {
+    pattern: "(?i)background.*check",
+    label: "Background check",
+    editablePattern: "background check",
+  },
+  {
+    pattern: "(?i)security.*clearance",
+    label: "Security clearance",
+    editablePattern: "security clearance",
+  },
+  {
+    pattern: "(?i)willing.*relocate",
+    label: "Willingness to relocate",
+    editablePattern: "relocate",
+  },
+  {
+    pattern: "(?i)notice.*period",
+    label: "Start date / Notice period",
+    editablePattern: "notice period",
+  },
+  {
+    pattern: "(?i)salary.*expectation",
+    label: "Salary expectation",
+    editablePattern: "salary",
+  },
+];
+
+const PLAIN_SCREENING_PATTERN_ALIASES = [
+  {
+    patterns: [
+      "work authorized",
+      "authorized to work",
+      "legally authorized to work",
+      "eligible to work",
+      "employment authorization",
+    ],
+    label: "Work authorization",
+    editablePattern: "work authorization",
+  },
+  {
+    patterns: ["visa sponsorship", "need sponsorship", "require sponsorship"],
+    label: "Visa sponsorship",
+    editablePattern: "sponsorship",
+  },
+  {
+    patterns: ["notice period"],
+    label: "Start date / Notice period",
+    editablePattern: "notice period",
+  },
+];
+
+function normalizePatternKey(pattern: string) {
+  return pattern.trim().toLowerCase();
+}
+
+function getPlainPatternAlias(pattern: string) {
+  const normalizedPattern = normalizePatternKey(pattern);
+  return PLAIN_SCREENING_PATTERN_ALIASES.find((item) =>
+    item.patterns.some((alias) => alias.toLowerCase() === normalizedPattern)
+  );
+}
+
 // Format relative time (e.g., "2 days ago", "1 week ago")
 function formatRelativeTime(isoDate: string): string {
   const date = new Date(isoDate);
@@ -88,10 +176,47 @@ function formatRelativeTime(isoDate: string): string {
 }
 
 function getQuestionMatchLabel(pattern: string) {
+  const normalizedPattern = normalizePatternKey(pattern);
   const common = COMMON_PATTERNS.find(
-    (item) => item.pattern.toLowerCase() === pattern.trim().toLowerCase(),
+    (item) => item.pattern.toLowerCase() === normalizedPattern,
   );
-  return common?.label ?? pattern.trim();
+  if (common) return common.label;
+
+  const legacy = LEGACY_SCREENING_PATTERNS.find(
+    (item) => item.pattern.toLowerCase() === normalizedPattern,
+  );
+  if (legacy) return legacy.label;
+
+  const plainAlias = getPlainPatternAlias(pattern);
+  return plainAlias?.label ?? pattern.trim();
+}
+
+function getEditableQuestionPattern(pattern: string) {
+  const normalizedPattern = normalizePatternKey(pattern);
+  const legacy = LEGACY_SCREENING_PATTERNS.find(
+    (item) => item.pattern.toLowerCase() === normalizedPattern,
+  );
+  if (legacy) return legacy.editablePattern;
+
+  const plainAlias = getPlainPatternAlias(pattern);
+  return plainAlias?.editablePattern ?? pattern.trim();
+}
+
+function getPersistedQuestionPattern(currentPattern: string, originalPattern: string | null) {
+  const trimmedPattern = currentPattern.trim();
+  if (!originalPattern) return trimmedPattern;
+
+  return normalizePatternKey(trimmedPattern) === normalizePatternKey(getEditableQuestionPattern(originalPattern))
+    ? originalPattern
+    : trimmedPattern;
+}
+
+function answerMatchesCommonPattern(answerPattern: string, commonPattern: (typeof COMMON_PATTERNS)[number]) {
+  const normalizedAnswerPattern = normalizePatternKey(answerPattern);
+  return (
+    normalizedAnswerPattern === commonPattern.pattern.toLowerCase() ||
+    getQuestionMatchLabel(answerPattern).toLowerCase() === commonPattern.label.toLowerCase()
+  );
 }
 
 function getConfidenceLabel(score?: number) {
@@ -116,6 +241,7 @@ export const ScreeningAnswersForm = memo(function ScreeningAnswersForm({ onSaved
 
   // Add/Edit form state
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingOriginalQuestionPattern, setEditingOriginalQuestionPattern] = useState<string | null>(null);
   const [questionPattern, setQuestionPattern] = useState("");
   const [answer, setAnswer] = useState("");
   const [answerType, setAnswerType] = useState("text");
@@ -154,6 +280,7 @@ export const ScreeningAnswersForm = memo(function ScreeningAnswersForm({ onSaved
 
   const resetForm = () => {
     setEditingId(null);
+    setEditingOriginalQuestionPattern(null);
     setQuestionPattern("");
     setAnswer("");
     setAnswerType("text");
@@ -179,7 +306,7 @@ export const ScreeningAnswersForm = memo(function ScreeningAnswersForm({ onSaved
     try {
       setSaving(true);
       await safeInvokeWithToast("upsert_screening_answer", {
-        questionPattern: questionPattern.trim(),
+        questionPattern: getPersistedQuestionPattern(questionPattern, editingOriginalQuestionPattern),
         answer: answer.trim(),
         answerType,
         notes: notes.trim() || null,
@@ -201,7 +328,8 @@ export const ScreeningAnswersForm = memo(function ScreeningAnswersForm({ onSaved
 
   const handleEdit = (a: ScreeningAnswer) => {
     setEditingId(a.id);
-    setQuestionPattern(a.questionPattern);
+    setEditingOriginalQuestionPattern(a.questionPattern);
+    setQuestionPattern(getEditableQuestionPattern(a.questionPattern));
     setAnswer(a.answer);
     setAnswerType(a.answerType || "text");
     setNotes(a.notes || "");
@@ -209,6 +337,7 @@ export const ScreeningAnswersForm = memo(function ScreeningAnswersForm({ onSaved
   };
 
   const handleAddCommon = (pattern: { pattern: string; label: string; type: string }) => {
+    setEditingOriginalQuestionPattern(null);
     setQuestionPattern(pattern.pattern);
     setAnswerType(pattern.type);
     setNotes(`Saved answer for "${pattern.label}" questions`);
@@ -253,7 +382,7 @@ export const ScreeningAnswersForm = memo(function ScreeningAnswersForm({ onSaved
           </h4>
           <div className="flex flex-wrap gap-2">
             {COMMON_PATTERNS.filter(
-              (p) => !answers?.some((a) => a.questionPattern === p.pattern)
+              (p) => !answers?.some((a) => answerMatchesCommonPattern(a.questionPattern, p))
             ).map((pattern) => (
               <button
                 key={pattern.pattern}
@@ -286,12 +415,14 @@ export const ScreeningAnswersForm = memo(function ScreeningAnswersForm({ onSaved
             {answers.map((a) => (
               <div
                 key={a.id}
+                role="article"
+                aria-label={`Screening answer ${getQuestionMatchLabel(a.questionPattern)}`}
                 className="p-4 border border-surface-200 dark:border-surface-700 rounded-lg hover:border-sentinel-300 dark:hover:border-sentinel-700 transition-colors"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-sm bg-surface-100 dark:bg-surface-700 px-2 py-0.5 rounded text-surface-800 dark:text-surface-200">
+                    <div className="flex flex-wrap items-center gap-2 mb-1">
+                      <span className="text-sm bg-surface-100 dark:bg-surface-700 px-2 py-0.5 rounded text-surface-800 dark:text-surface-200 break-words">
                         Looks for: {getQuestionMatchLabel(a.questionPattern)}
                       </span>
                       {getAnswerTypeBadge(a.answerType)}

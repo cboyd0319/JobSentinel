@@ -52,15 +52,16 @@ export function ResumeSkillsManagementCard({
 }: ResumeSkillsManagementCardProps) {
   return (
     <Card className="lg:col-span-2 dark:bg-surface-800">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-col gap-3 mb-4 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="font-display text-display-sm text-surface-900 dark:text-white">
           Skills Management
         </h2>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
           <select
+            aria-label="Filter skills by category"
             value={categoryFilter || ""}
             onChange={(e) => setCategoryFilter(e.target.value || null)}
-            className="px-3 py-1.5 text-sm rounded-lg border border-surface-300 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-800 dark:text-surface-200 focus-visible:ring-2 focus-visible:ring-sentinel-500"
+            className="w-full px-3 py-1.5 text-sm rounded-lg border border-surface-300 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-800 dark:text-surface-200 focus-visible:ring-2 focus-visible:ring-sentinel-500 sm:w-56"
           >
             <option value="">All Categories</option>
             {SKILL_CATEGORIES.map((cat) => (
@@ -217,7 +218,7 @@ export function ResumeSkillsManagementCard({
           </div>
         </div>
       ) : (
-        <div className="space-y-2 max-h-[500px] overflow-y-auto pr-2">
+        <div className="space-y-2">
           {skills
             .filter((skill) => !categoryFilter || skill.skill_category === categoryFilter)
             .map((skill) => (
@@ -231,8 +232,9 @@ export function ResumeSkillsManagementCard({
               >
                 {editingSkillId === skill.id ? (
                   <div className="space-y-3">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4">
                       <input
+                        aria-label={`Skill name for ${skill.skill_name}`}
                         type="text"
                         value={editForm.skill_name || ""}
                         onChange={(e) =>
@@ -242,6 +244,7 @@ export function ResumeSkillsManagementCard({
                         placeholder="Skill name"
                       />
                       <select
+                        aria-label={`Skill strength for ${skill.skill_name}`}
                         value={editForm.proficiency_level || DEFAULT_SKILL_STRENGTH}
                         onChange={(e) =>
                           setEditForm({ ...editForm, proficiency_level: e.target.value })
@@ -255,6 +258,7 @@ export function ResumeSkillsManagementCard({
                         ))}
                       </select>
                       <select
+                        aria-label={`Skill category for ${skill.skill_name}`}
                         value={editForm.skill_category || ""}
                         onChange={(e) =>
                           setEditForm({
@@ -272,6 +276,7 @@ export function ResumeSkillsManagementCard({
                         ))}
                       </select>
                       <input
+                        aria-label={`Years of experience for ${skill.skill_name}`}
                         type="number"
                         value={editForm.years_experience ?? ""}
                         onChange={(e) =>
@@ -303,13 +308,13 @@ export function ResumeSkillsManagementCard({
                     </div>
                   </div>
                 ) : (
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div>
-                        <p className="font-medium text-surface-800 dark:text-surface-200">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0">
+                      <div className="min-w-0">
+                        <p className="break-words font-medium text-surface-800 dark:text-surface-200">
                           {skill.skill_name}
                         </p>
-                        <div className="flex items-center gap-2 mt-0.5">
+                        <div className="flex flex-wrap items-center gap-2 mt-0.5">
                           <Badge
                             variant={getSkillStrengthColor(skill.proficiency_level)}
                             size="sm"
@@ -332,7 +337,7 @@ export function ResumeSkillsManagementCard({
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1">
+                    <div className="flex shrink-0 items-center gap-1">
                       <button
                         onClick={() => onStartEditingSkill(skill)}
                         className="p-1.5 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 transition-colors"

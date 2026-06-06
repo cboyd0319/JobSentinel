@@ -15,9 +15,14 @@ interface LocationHeat {
 interface LocationHeatmapProps {
   locations: LocationHeat[];
   loading?: boolean;
+  emptyMessage?: string;
 }
 
-export const LocationHeatmap = memo(function LocationHeatmap({ locations, loading = false }: LocationHeatmapProps) {
+export const LocationHeatmap = memo(function LocationHeatmap({
+  locations,
+  loading = false,
+  emptyMessage = "No location trends yet. Refresh hiring trends to see where jobs are showing up.",
+}: LocationHeatmapProps) {
   const [selectedLocation, setSelectedLocation] = useState<LocationHeat | null>(null);
 
   // Calculate max jobs for intensity scaling (memoized for performance)
@@ -53,7 +58,7 @@ export const LocationHeatmap = memo(function LocationHeatmap({ locations, loadin
           Jobs by Location
         </h3>
         <p className="text-center text-surface-500 dark:text-surface-400 py-8" role="status">
-          No location trends yet. Refresh hiring trends to see where jobs are showing up.
+          {emptyMessage}
         </p>
       </Card>
     );

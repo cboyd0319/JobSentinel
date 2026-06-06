@@ -78,6 +78,22 @@ describe("Salary", () => {
     });
   });
 
+  it("keeps no-data result visible after checking pay", async () => {
+    const user = userEvent.setup();
+    mockInvoke.mockResolvedValueOnce(null);
+    renderSalary();
+
+    await user.type(screen.getByLabelText("Job Title"), "Security Engineer");
+    await user.type(screen.getByLabelText("Location"), "Denver, CO");
+    await user.click(screen.getByRole("button", { name: "Check Pay Range" }));
+
+    expect(await screen.findByText("No pay range found")).toBeInTheDocument();
+    expect(
+      screen.getByText(/could not find salary data for this title, location, and role stage/i),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("No salary data found for this combination")).not.toBeInTheDocument();
+  });
+
   it("warns when the salary floor is below market evidence", async () => {
     const user = userEvent.setup();
     renderSalary();

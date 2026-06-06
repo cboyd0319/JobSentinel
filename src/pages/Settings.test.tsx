@@ -163,8 +163,8 @@ describe("Settings — handleSave flow", () => {
 
     await waitFor(() => {
       expect(mockToast.success).toHaveBeenCalledWith(
-        "Settings saved!",
-        expect.any(String),
+        "Settings saved",
+        "Your job-search preferences were saved.",
       );
     });
 
@@ -239,8 +239,8 @@ describe("Settings — handleSave flow", () => {
 
     await waitFor(() => {
       expect(mockToast.success).toHaveBeenCalledWith(
-        "Settings saved!",
-        expect.any(String),
+        "Settings saved",
+        "Your job-search preferences were saved.",
       );
     });
 

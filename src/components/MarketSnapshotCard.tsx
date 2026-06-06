@@ -21,6 +21,7 @@ interface MarketSnapshot {
 interface MarketSnapshotCardProps {
   snapshot: MarketSnapshot | null;
   loading?: boolean;
+  emptyMessage?: string;
 }
 
 type SnapshotIconName = "trend-up" | "trend-down" | "trend-flat" | "tool" | "building" | "location" | "factory";
@@ -108,7 +109,11 @@ function BadgeContent({ icon, children }: { icon: SnapshotIconName; children: Re
   );
 }
 
-export const MarketSnapshotCard = memo(function MarketSnapshotCard({ snapshot, loading = false }: MarketSnapshotCardProps) {
+export const MarketSnapshotCard = memo(function MarketSnapshotCard({
+  snapshot,
+  loading = false,
+  emptyMessage = "No hiring trends snapshot yet. Refresh hiring trends to create one.",
+}: MarketSnapshotCardProps) {
   if (loading) {
     return (
       <Card className="dark:bg-surface-800 animate-pulse" role="status" aria-busy="true" aria-label="Loading hiring trends snapshot">
@@ -121,7 +126,7 @@ export const MarketSnapshotCard = memo(function MarketSnapshotCard({ snapshot, l
     return (
       <Card className="dark:bg-surface-800" role="status">
         <p className="text-center text-surface-500 dark:text-surface-400 py-6">
-          No hiring trends snapshot yet. Refresh hiring trends to create one.
+          {emptyMessage}
         </p>
       </Card>
     );

@@ -358,9 +358,13 @@ export default function Settings({ onClose }: SettingsProps) {
           `${credentialFailures.length} saved connection detail(s) were not saved. Settings were saved. Try saving again.`,
         );
       } else {
+        const saveMessage =
+          successfulCredentialKeys.length > 0
+            ? "Connection details are stored in your system password manager."
+            : "Your job-search preferences were saved.";
         toast.success(
-          "Settings saved!",
-          "Saved connection details are stored in your system password manager.",
+          "Settings saved",
+          saveMessage,
         );
         onClose();
       }

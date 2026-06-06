@@ -46,22 +46,22 @@ const SourceConfigRow = memo(function SourceConfigRow({ sourceKey, config, onCha
   const alertPickyLabel = getAlertPickyLabel(config.minScoreThreshold);
 
   return (
-    <div className="flex items-center gap-4 py-3 border-b border-surface-200 dark:border-surface-700 last:border-b-0">
+    <div className="grid gap-3 py-3 border-b border-surface-200 dark:border-surface-700 last:border-b-0 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
       {/* Source icon and name */}
-      <div className="flex items-center gap-3 w-36">
+      <div className="flex min-w-0 items-center gap-3">
         <div
-          className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm"
+          className="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-white font-bold text-sm"
           style={{ backgroundColor: info.color }}
         >
           {info.icon}
         </div>
-        <span className="font-medium text-surface-800 dark:text-surface-200">
+        <span className="min-w-0 break-words font-medium text-surface-800 dark:text-surface-200">
           {info.name}
         </span>
       </div>
 
       {/* Enable toggle */}
-      <label className="relative inline-flex items-center cursor-pointer">
+      <label className="relative inline-flex items-center cursor-pointer justify-self-start sm:justify-self-end">
         <input
           type="checkbox"
           aria-label={`Turn ${info.name} alerts on or off`}
@@ -73,29 +73,31 @@ const SourceConfigRow = memo(function SourceConfigRow({ sourceKey, config, onCha
       </label>
 
       {/* Alert filtering slider */}
-      <div className="flex items-center gap-2 flex-1">
-        <label className="text-sm text-surface-600 dark:text-surface-400 whitespace-nowrap flex items-center gap-1">
+      <div className="min-w-0 sm:col-span-2 flex flex-col gap-2">
+        <label className="text-sm text-surface-600 dark:text-surface-400 flex items-center gap-1">
           How picky alerts are:
           <HelpIcon text="Higher means fewer alerts. Lower means more alerts." size="sm" />
         </label>
-        <input
-          type="range"
-          min="0"
-          max="100"
-          step="5"
-          value={config.minScoreThreshold}
-          onChange={(e) => onChange({ ...config, minScoreThreshold: parseInt(e.target.value) })}
-          disabled={!config.enabled}
-          aria-label={`How picky ${info.name} alerts are`}
-          className="flex-1 h-2 bg-surface-200 dark:bg-surface-600 rounded-lg appearance-none cursor-pointer disabled:opacity-50"
-        />
-        <Badge variant={alertPickyLabel.variant}>
-          {alertPickyLabel.label}
-        </Badge>
+        <div className="flex min-w-0 flex-1 items-center gap-2">
+          <input
+            type="range"
+            min="0"
+            max="100"
+            step="5"
+            value={config.minScoreThreshold}
+            onChange={(e) => onChange({ ...config, minScoreThreshold: parseInt(e.target.value) })}
+            disabled={!config.enabled}
+            aria-label={`How picky ${info.name} alerts are`}
+            className="min-w-28 flex-1 h-2 bg-surface-200 dark:bg-surface-600 rounded-lg appearance-none cursor-pointer disabled:opacity-50"
+          />
+          <Badge variant={alertPickyLabel.variant} className="shrink-0">
+            {alertPickyLabel.label}
+          </Badge>
+        </div>
       </div>
 
       {/* Sound toggle - larger touch target for mobile */}
-      <label className="flex items-center gap-2 cursor-pointer p-2 -m-2 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-700/50 transition-colors">
+      <label className="flex items-center gap-2 cursor-pointer rounded-lg p-2 hover:bg-surface-100 dark:hover:bg-surface-700/50 transition-colors justify-self-start sm:justify-self-end">
         <input
           type="checkbox"
           aria-label={`Turn ${info.name} alert sound on or off`}
@@ -395,17 +397,21 @@ function AdvancedFiltersSection({ filters, onChange, disabled }: AdvancedFilters
       <div className="space-y-3 mb-4">
         {/* Include Keywords */}
         <div>
-          <label className="text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5 block">
+          <label
+            htmlFor="notification-include-keyword"
+            className="text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5 block"
+          >
             Alert only when the job title has
           </label>
-          <div className="flex gap-2 mb-2">
+          <div className="flex flex-col gap-2 mb-2 sm:flex-row">
             <input
+              id="notification-include-keyword"
               type="text"
               value={includeInput}
               onChange={(e) => setIncludeInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && addKeyword('include', includeInput)}
               placeholder="e.g., Manager, Lead, Coordinator"
-              className="flex-1 px-3 py-1.5 text-sm border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100 placeholder:text-surface-400"
+              className="min-w-0 flex-1 px-3 py-1.5 text-sm border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100 placeholder:text-surface-400"
             />
             <button
               onClick={() => addKeyword('include', includeInput)}
@@ -436,17 +442,21 @@ function AdvancedFiltersSection({ filters, onChange, disabled }: AdvancedFilters
 
         {/* Exclude Keywords */}
         <div>
-          <label className="text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5 block">
+          <label
+            htmlFor="notification-exclude-keyword"
+            className="text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5 block"
+          >
             Do not alert when the job title has
           </label>
-          <div className="flex gap-2 mb-2">
+          <div className="flex flex-col gap-2 mb-2 sm:flex-row">
             <input
+              id="notification-exclude-keyword"
               type="text"
               value={excludeInput}
               onChange={(e) => setExcludeInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && addKeyword('exclude', excludeInput)}
               placeholder="e.g., Intern, Contract, Temporary"
-              className="flex-1 px-3 py-1.5 text-sm border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100 placeholder:text-surface-400"
+              className="min-w-0 flex-1 px-3 py-1.5 text-sm border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100 placeholder:text-surface-400"
             />
             <button
               onClick={() => addKeyword('exclude', excludeInput)}
@@ -477,13 +487,13 @@ function AdvancedFiltersSection({ filters, onChange, disabled }: AdvancedFilters
       </div>
 
       {/* Salary & Remote Filters */}
-      <div className="grid grid-cols-2 gap-4 mb-4">
+      <div className="grid grid-cols-1 gap-4 mb-4 sm:grid-cols-2">
         {/* Minimum yearly pay */}
         <div>
           <label htmlFor="notification-min-salary" className="text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5 block">
             Minimum yearly pay
           </label>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <span className="text-surface-500">$</span>
             <input
               id="notification-min-salary"
@@ -493,7 +503,7 @@ function AdvancedFiltersSection({ filters, onChange, disabled }: AdvancedFilters
                 minSalary: e.target.value ? Math.round(parseInt(e.target.value) / 1000) : null
               })}
               placeholder="e.g., 90000"
-              className="w-24 px-3 py-1.5 text-sm border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100"
+              className="w-full max-w-32 px-3 py-1.5 text-sm border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100"
             />
             <span className="text-surface-500 text-sm">per year</span>
           </div>

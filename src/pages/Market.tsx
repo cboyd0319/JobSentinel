@@ -136,6 +136,26 @@ interface MarketProps {
   onBack: () => void;
 }
 
+interface MarketDataResult {
+  skillsData: SkillTrend[];
+  companiesData: CompanyActivity[];
+  locationsData: LocationHeat[];
+  alertsData: MarketAlert[];
+  snapshotData: MarketSnapshot | null;
+}
+
+const NO_TREND_INPUTS_MESSAGE = "Turn on job sources or import job postings to build trends.";
+
+function marketDataHasInputs(data: Pick<MarketDataResult, "skillsData" | "companiesData" | "locationsData" | "snapshotData">) {
+  return (
+    data.skillsData.length > 0 ||
+    data.companiesData.length > 0 ||
+    data.locationsData.length > 0 ||
+    (data.snapshotData?.total_jobs ?? 0) > 0 ||
+    (data.snapshotData?.total_companies_hiring ?? 0) > 0
+  );
+}
+
 // ============================================================================
 // Main Component
 // ============================================================================
@@ -163,7 +183,7 @@ export default function Market({ onBack }: MarketProps) {
     { id: "alerts", label: "Alerts", icon: "bell", badge: unreadAlertCount || undefined },
   ];
 
-  const fetchData = useCallback(async (signal?: AbortSignal) => {
+  const fetchData = useCallback(async (signal?: AbortSignal): Promise<MarketDataResult | null> => {
     try {
       setLoading(true);
       setError(null);
@@ -175,7 +195,7 @@ export default function Market({ onBack }: MarketProps) {
         safeInvoke<MarketSnapshot | null>("get_market_snapshot", {}, { logContext: "Get market snapshot" }),
       ]);
 
-      if (signal?.aborted) return;
+      if (signal?.aborted) return null;
 
       setSkills(skillsData);
       setCompanies(companiesData);
@@ -183,8 +203,15 @@ export default function Market({ onBack }: MarketProps) {
       setAlerts(alertsData);
       setSnapshot(snapshotData);
       setLastFetched(new Date());
+      return {
+        skillsData,
+        companiesData,
+        locationsData,
+        alertsData,
+        snapshotData,
+      };
     } catch (error: unknown) {
-      if (signal?.aborted) return;
+      if (signal?.aborted) return null;
       const safeError = getMarketDataErrorCopy(error);
       setError(safeError.inlineMessage);
       toast.error(safeError.toastTitle, safeError.toastMessage);
@@ -193,6 +220,7 @@ export default function Market({ onBack }: MarketProps) {
         setLoading(false);
       }
     }
+    return null;
   }, [toast]);
 
   useEffect(() => {
@@ -209,8 +237,17 @@ export default function Market({ onBack }: MarketProps) {
       await safeInvokeWithToast("run_market_analysis", {}, toast, {
         logContext: "Run market analysis"
       });
-      toast.success("Hiring trends refreshed", "Current job trends are up to date.");
-      await fetchData();
+      const refreshed = await fetchData();
+      if (!refreshed) return;
+
+      if (marketDataHasInputs(refreshed)) {
+        toast.success("Hiring trends refreshed", "Current job trends are up to date.");
+      } else {
+        toast.info(
+          "No job data yet",
+          "Turn on job sources or import jobs, then refresh trends again.",
+        );
+      }
     } catch {
       // Error already logged and shown to user
     } finally {
@@ -242,6 +279,25 @@ export default function Market({ onBack }: MarketProps) {
       // Error already logged and shown to user
     }
   };
+
+  const hasTrendInputs = marketDataHasInputs({
+    skillsData: skills,
+    companiesData: companies,
+    locationsData: locations,
+    snapshotData: snapshot,
+  });
+  const skillEmptyMessage = hasTrendInputs
+    ? "No skill trends yet for saved jobs."
+    : NO_TREND_INPUTS_MESSAGE;
+  const companyEmptyMessage = hasTrendInputs
+    ? "No company activity yet for saved jobs."
+    : NO_TREND_INPUTS_MESSAGE;
+  const locationEmptyMessage = hasTrendInputs
+    ? "No location trends yet for saved jobs."
+    : NO_TREND_INPUTS_MESSAGE;
+  const snapshotEmptyMessage = hasTrendInputs
+    ? "Trend snapshot is not ready yet. Other trend signals are available below."
+    : NO_TREND_INPUTS_MESSAGE;
 
 
   if (loading) {
@@ -348,7 +404,10 @@ export default function Market({ onBack }: MarketProps) {
         {/* Overview Tab */}
         {activeTab === "overview" && (
           <div className="space-y-6">
-            <MarketSnapshotCard snapshot={snapshot} />
+            <MarketSnapshotCard
+              snapshot={snapshot}
+              emptyMessage={snapshotEmptyMessage}
+            />
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Suspense fallback={<ChartSkeleton />}>
@@ -360,7 +419,7 @@ export default function Market({ onBack }: MarketProps) {
                   yKey="total_jobs"
                   yLabel="Jobs"
                   color="#6366f1"
-                  emptyMessage="Refresh hiring trends to see skill trends"
+                  emptyMessage={skillEmptyMessage}
                 />
               </Suspense>
               <Suspense fallback={<ChartSkeleton />}>
@@ -372,12 +431,12 @@ export default function Market({ onBack }: MarketProps) {
                   yKey="total_posted"
                   yLabel="Jobs Posted"
                   color="#10b981"
-                  emptyMessage="Refresh hiring trends to see company activity"
+                  emptyMessage={companyEmptyMessage}
                 />
               </Suspense>
             </div>
 
-            <LocationHeatmap locations={locations} />
+            <LocationHeatmap locations={locations} emptyMessage={locationEmptyMessage} />
 
             {unreadAlertCount > 0 && (
               <Card className="dark:bg-surface-800">
@@ -411,7 +470,7 @@ export default function Market({ onBack }: MarketProps) {
                 yLabel="Total Jobs"
                 color="#6366f1"
                 height={350}
-                emptyMessage="No skill trends yet. Refresh hiring trends to see current trends."
+                emptyMessage={skillEmptyMessage}
               />
             </Suspense>
 
@@ -421,7 +480,7 @@ export default function Market({ onBack }: MarketProps) {
               </h3>
               {skills.length === 0 ? (
                 <p className="text-surface-500 dark:text-surface-400 text-center py-8">
-                  No skill trends yet. Refresh hiring trends to see current trends.
+                  {skillEmptyMessage}
                 </p>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -475,7 +534,7 @@ export default function Market({ onBack }: MarketProps) {
                 yLabel="Jobs Posted"
                 color="#10b981"
                 height={350}
-                emptyMessage="No company trends yet. Refresh hiring trends to see current trends."
+                emptyMessage={companyEmptyMessage}
               />
             </Suspense>
 
@@ -485,7 +544,7 @@ export default function Market({ onBack }: MarketProps) {
               </h3>
               {companies.length === 0 ? (
                 <p className="text-surface-500 dark:text-surface-400 text-center py-8">
-                  No company trends yet. Refresh hiring trends to see current trends.
+                  {companyEmptyMessage}
                 </p>
               ) : (
                 <div className="overflow-x-auto">
@@ -545,7 +604,7 @@ export default function Market({ onBack }: MarketProps) {
 
         {/* Locations Tab */}
         {activeTab === "locations" && (
-          <LocationHeatmap locations={locations} />
+          <LocationHeatmap locations={locations} emptyMessage={locationEmptyMessage} />
         )}
 
         {/* Alerts Tab */}

@@ -98,6 +98,7 @@ export default function Salary({ onBack }: SalaryProps) {
   const [targetMin, setTargetMin] = useState("");
   const [targetMax, setTargetMax] = useState("");
   const [benchmark, setBenchmark] = useState<SalaryBenchmark | null>(null);
+  const [benchmarkChecked, setBenchmarkChecked] = useState(false);
   const [negotiationScript, setNegotiationScript] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [scriptLoading, setScriptLoading] = useState(false);
@@ -130,8 +131,15 @@ export default function Salary({ onBack }: SalaryProps) {
     setNegotiationScript(null);
   };
 
+  const clearBenchmarkResult = () => {
+    setBenchmark(null);
+    setBenchmarkChecked(false);
+    setNegotiationScript(null);
+  };
+
   const handleGetBenchmark = useCallback(async () => {
     if (!jobTitle.trim() || !location.trim()) {
+      setBenchmarkChecked(false);
       toast.error("Add pay details", "Add job title and location, then check pay again.");
       return;
     }
@@ -146,10 +154,12 @@ export default function Salary({ onBack }: SalaryProps) {
 
       if (result) {
         setBenchmark(result);
+        setBenchmarkChecked(true);
         setNegotiationScript(null);
         toast.success("Pay range found", "Salary evidence is ready");
       } else {
-        toast.info("No data", "No salary data found for this combination");
+        setBenchmarkChecked(true);
+        toast.info("No pay data yet", "Try a broader role title, role stage, or nearby location.");
         setBenchmark(null);
         setNegotiationScript(null);
       }
@@ -259,14 +269,20 @@ export default function Salary({ onBack }: SalaryProps) {
               <Input
                 label="Job Title"
                 value={jobTitle}
-                onChange={(e) => setJobTitle(e.target.value)}
+                onChange={(e) => {
+                  setJobTitle(e.target.value);
+                  clearBenchmarkResult();
+                }}
                 placeholder="e.g., Registered Nurse"
               />
 
               <Input
                 label="Location"
                 value={location}
-                onChange={(e) => setLocation(e.target.value)}
+                onChange={(e) => {
+                  setLocation(e.target.value);
+                  clearBenchmarkResult();
+                }}
                 placeholder="e.g., Chicago, IL"
               />
 
@@ -288,7 +304,10 @@ export default function Salary({ onBack }: SalaryProps) {
                 <select
                   id="seniority-level"
                   value={seniority}
-                  onChange={(e) => setSeniority(e.target.value as SalarySeniority)}
+                  onChange={(e) => {
+                    setSeniority(e.target.value as SalarySeniority);
+                    clearBenchmarkResult();
+                  }}
                   className="w-full px-3 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus-visible:ring-2 focus-visible:ring-sentinel-500 focus:border-sentinel-500"
                 >
                   {SENIORITY_LEVELS.map((level) => (
@@ -342,9 +361,23 @@ export default function Salary({ onBack }: SalaryProps) {
                 <div className="w-16 h-16 bg-surface-100 dark:bg-surface-700 rounded-full flex items-center justify-center mx-auto mb-4">
                   <ChartIcon className="w-8 h-8 text-surface-400" />
                 </div>
-                <p className="text-surface-500 dark:text-surface-400">
-                  Enter role details to compare pay ranges and protect your floor
-                </p>
+                {benchmarkChecked ? (
+                  <div role="status" aria-live="polite">
+                    <p className="font-medium text-surface-800 dark:text-surface-200">
+                      No pay range found
+                    </p>
+                    <p className="mt-2 text-surface-500 dark:text-surface-400">
+                      JobSentinel could not find salary data for this title, location, and role stage.
+                    </p>
+                    <p className="mt-2 text-sm text-surface-500 dark:text-surface-400">
+                      Try a broader title, a nearby metro area, or a different role stage.
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-surface-500 dark:text-surface-400">
+                    Enter role details to compare pay ranges and protect your floor
+                  </p>
+                )}
               </div>
             ) : (
               <div className="space-y-6">

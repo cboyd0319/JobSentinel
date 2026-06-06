@@ -472,11 +472,11 @@ export default function Resume({ onBack }: ResumeProps) {
                 Active Resume
               </h2>
               <div className="flex items-center gap-3 p-4 bg-surface-50 dark:bg-surface-700 rounded-lg mb-4">
-                <div className="w-12 h-12 bg-sentinel-100 dark:bg-sentinel-900/30 rounded-lg flex items-center justify-center">
+                <div className="w-12 h-12 shrink-0 bg-sentinel-100 dark:bg-sentinel-900/30 rounded-lg flex items-center justify-center">
                   <DocumentIcon className="w-6 h-6 text-sentinel-600 dark:text-sentinel-400" />
                 </div>
-                <div>
-                  <p className="font-medium text-surface-800 dark:text-surface-200">{resume.name}</p>
+                <div className="min-w-0">
+                  <p className="break-words font-medium text-surface-800 dark:text-surface-200">{resume.name}</p>
                   <p className="text-sm text-surface-500 dark:text-surface-400">
                     Added: {new Date(resume.created_at).toLocaleDateString("en-US")}
                   </p>

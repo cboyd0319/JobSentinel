@@ -100,10 +100,13 @@ test.describe("Application Assist Settings", () => {
   test("shows saved screening answers", async ({ page }) => {
     await applyPage.switchToScreeningQuestions();
 
-    await expect(page.getByText("work authorized")).toBeVisible();
-    await expect(page.getByText("Yes", { exact: true })).toBeVisible();
-    await expect(page.getByText("Usually matches")).toBeVisible();
-    await expect(page.getByText(/Used 4/)).toBeVisible();
+    const workAuthorizationAnswer = page
+      .getByRole("article", { name: /Screening answer Work authorization/ })
+      .first();
+    await expect(workAuthorizationAnswer).toBeVisible();
+    await expect(workAuthorizationAnswer.getByText("Yes", { exact: true })).toBeVisible();
+    await expect(workAuthorizationAnswer.getByText("Usually matches")).toBeVisible();
+    await expect(workAuthorizationAnswer.getByText(/Used 4/)).toBeVisible();
   });
 
   test("adds a screening answer from a common pattern and persists it", async ({ page }) => {
@@ -145,12 +148,16 @@ test.describe("Application Assist Settings", () => {
     await applyPage.switchToScreeningQuestions();
     await applyPage.editAnswerButtons.first().click();
     await expect(applyPage.screeningAnswerDialog).toBeVisible();
+    await expect(applyPage.questionPatternInput).toHaveValue("work authorization");
 
     await applyPage.saveScreeningAnswer({ answer: "No" });
 
     await expect(page.getByText("Answer saved")).toBeVisible();
-    await expect(page.getByText("work authorized")).toBeVisible();
-    await expect(page.getByText("No", { exact: true })).toBeVisible();
-    await expect(page.getByText("Yes", { exact: true })).not.toBeVisible();
+    const workAuthorizationAnswer = page
+      .getByRole("article", { name: /Screening answer Work authorization/ })
+      .first();
+    await expect(workAuthorizationAnswer).toBeVisible();
+    await expect(workAuthorizationAnswer.getByText("No", { exact: true })).toBeVisible();
+    await expect(workAuthorizationAnswer.getByText("Yes", { exact: true })).not.toBeVisible();
   });
 });

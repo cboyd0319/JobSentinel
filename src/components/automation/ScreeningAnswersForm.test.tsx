@@ -180,6 +180,80 @@ describe("ScreeningAnswersForm", () => {
       });
     });
 
+    it("hides legacy regex defaults behind plain labels", async () => {
+      mockInvoke.mockResolvedValue([
+        {
+          id: 4,
+          questionPattern: "(?i)18.*years.*age",
+          answer: "Yes",
+          answerType: "yes_no",
+          notes: "Age requirement",
+          createdAt: "2024-01-04T00:00:00Z",
+          updatedAt: "2024-01-04T00:00:00Z",
+        },
+        {
+          id: 5,
+          questionPattern: "(?i)authorized.*work.*(united states|us|usa)",
+          answer: "Yes",
+          answerType: "yes_no",
+          notes: "US work authorization",
+          createdAt: "2024-01-05T00:00:00Z",
+          updatedAt: "2024-01-05T00:00:00Z",
+        },
+      ]);
+
+      render(<ScreeningAnswersForm />);
+
+      await waitFor(() => {
+        expect(screen.getByText("Looks for: Age requirement")).toBeInTheDocument();
+        expect(screen.getByText("Looks for: Work authorization")).toBeInTheDocument();
+      });
+      expect(screen.queryByText(/\(\?i\)/)).not.toBeInTheDocument();
+    });
+
+    it("uses plain labels for older saved wording aliases", async () => {
+      mockInvoke.mockResolvedValue([
+        {
+          id: 6,
+          questionPattern: "work authorized",
+          answer: "Yes",
+          answerType: "yes_no",
+          notes: "US work authorization",
+          createdAt: "2024-01-06T00:00:00Z",
+          updatedAt: "2024-01-06T00:00:00Z",
+        },
+      ]);
+
+      render(<ScreeningAnswersForm />);
+
+      await waitFor(() => {
+        expect(screen.getByText("Looks for: Work authorization")).toBeInTheDocument();
+      });
+      expect(screen.queryByText("Looks for: work authorized")).not.toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: /\+ work authorization/i })).not.toBeInTheDocument();
+    });
+
+    it("does not quick-add a duplicate when a legacy default already exists", async () => {
+      mockInvoke.mockResolvedValue([
+        {
+          id: 4,
+          questionPattern: "(?i)18.*years.*age",
+          answer: "Yes",
+          answerType: "yes_no",
+          notes: "Age requirement",
+          createdAt: "2024-01-04T00:00:00Z",
+          updatedAt: "2024-01-04T00:00:00Z",
+        },
+      ]);
+
+      render(<ScreeningAnswersForm />);
+
+      await waitFor(() => {
+        expect(screen.getByText("Looks for: Age requirement")).toBeInTheDocument();
+      });
+      expect(screen.queryByRole("button", { name: /\+ age requirement/i })).not.toBeInTheDocument();
+    });
+
     it("uses plain labels for answer learning state", async () => {
       mockInvoke.mockResolvedValue([
         {
@@ -670,6 +744,80 @@ describe("ScreeningAnswersForm", () => {
         expect(patternInput.value).toBe("years of experience");
         expect(answerInput.value).toBe("5 years");
         expect(notesInput.value).toBe("Professional experience");
+      });
+    });
+
+    it("opens legacy defaults with editable plain wording", async () => {
+      const user = userEvent.setup();
+      mockInvoke.mockResolvedValue([
+        {
+          id: 4,
+          questionPattern: "(?i)18.*years.*age",
+          answer: "Yes",
+          answerType: "yes_no",
+          notes: "Age requirement",
+          createdAt: "2024-01-04T00:00:00Z",
+          updatedAt: "2024-01-04T00:00:00Z",
+        },
+      ]);
+      render(<ScreeningAnswersForm />);
+
+      await waitFor(() => {
+        expect(screen.getByLabelText("Edit answer")).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByLabelText("Edit answer"));
+
+      await waitFor(() => {
+        expect(screen.getByLabelText(/question wording to look for/i)).toHaveValue(
+          "18 years of age",
+        );
+      });
+      expect(screen.queryByDisplayValue(/\(\?i\)/)).not.toBeInTheDocument();
+    });
+
+    it("updates legacy aliases without creating a new saved answer", async () => {
+      const user = userEvent.setup();
+      const legacyAnswer = {
+        id: 6,
+        questionPattern: "work authorized",
+        answer: "Yes",
+        answerType: "yes_no",
+        notes: "US work authorization",
+        createdAt: "2024-01-06T00:00:00Z",
+        updatedAt: "2024-01-06T00:00:00Z",
+      };
+      mockInvoke
+        .mockResolvedValueOnce([legacyAnswer])
+        .mockResolvedValueOnce(undefined)
+        .mockResolvedValueOnce([{ ...legacyAnswer, answer: "No" }]);
+
+      render(<ScreeningAnswersForm />);
+
+      await waitFor(() => {
+        expect(screen.getByLabelText("Edit answer")).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByLabelText("Edit answer"));
+      await waitFor(() => {
+        expect(screen.getByLabelText(/question wording to look for/i)).toHaveValue(
+          "work authorization",
+        );
+      });
+
+      const answerInput = screen.getByLabelText(/your answer/i);
+      await user.clear(answerInput);
+      await user.type(answerInput, "No");
+      await user.click(screen.getByRole("button", { name: /update answer/i }));
+
+      await waitFor(() => {
+        expect(mockInvoke).toHaveBeenCalledWith(
+          "upsert_screening_answer",
+          expect.objectContaining({
+            questionPattern: "work authorized",
+            answer: "No",
+          }),
+        );
       });
     });
 
