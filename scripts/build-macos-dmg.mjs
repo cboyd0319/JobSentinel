@@ -105,6 +105,13 @@ function run(command, args, options = {}) {
   });
 }
 
+function sleepSync(ms) {
+  if (ms <= 0) {
+    return;
+  }
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+}
+
 function runCapture(command, args, options = {}) {
   const logArgs = options.logArgs ?? args;
   console.log(`$ ${[command, ...logArgs].join(" ")}`);
@@ -115,6 +122,48 @@ function runCapture(command, args, options = {}) {
     encoding: "utf8",
     timeout: options.timeout,
   });
+}
+
+export function isTransientHdiutilVerifyError(error) {
+  const detail = [
+    error instanceof Error ? error.message : String(error),
+    error?.stdout,
+    error?.stderr,
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  return /resource temporarily unavailable|temporarily unavailable|resource busy/i.test(detail);
+}
+
+export function verifyDmgWithRetry(
+  dmgPath,
+  {
+    delaysMs = [1000, 2000, 5000, 10000],
+    runCommand = run,
+    sleep = sleepSync,
+  } = {},
+) {
+  const maxAttempts = delaysMs.length + 1;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    try {
+      runCommand("hdiutil", ["verify", dmgPath]);
+      return;
+    } catch (error) {
+      const canRetry = attempt < maxAttempts && isTransientHdiutilVerifyError(error);
+      if (!canRetry) {
+        throw error;
+      }
+
+      const delayMs = delaysMs[attempt - 1];
+      console.warn(
+        `hdiutil verify busy for ${dmgPath}; retrying in ${delayMs}ms ` +
+          `(${attempt}/${maxAttempts})`,
+      );
+      sleep(delayMs);
+    }
+  }
 }
 
 export function prependPathDir(pathValue, dir) {
@@ -551,7 +600,7 @@ function createDmg({ appPath, dmgPath, productName }) {
       "zlib-level=9",
       dmgPath,
     ]);
-    run("hdiutil", ["verify", dmgPath]);
+    verifyDmgWithRetry(dmgPath);
     notarizeAndStapleDmg(dmgPath);
     writeDmgChecksum(dmgPath);
   } finally {

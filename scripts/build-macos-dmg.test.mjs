@@ -18,12 +18,14 @@ import {
   getSigningIdentity,
   hasPartialNotarizationCredentials,
   hasArg,
+  isTransientHdiutilVerifyError,
   parseNotarytoolSubmitResult,
   prependPathDir,
   redactNotarytoolArgs,
   removeStaleDmgArtifacts,
   stripMacosTauriBuildSecrets,
   staleDmgArtifactNames,
+  verifyDmgWithRetry,
 } from "./build-macos-dmg.mjs";
 
 test("macOS DMG builder defaults to app bundle builds", () => {
@@ -167,6 +169,55 @@ test("macOS DMG builder formats public checksum artifact content", () => {
     formatDmgChecksum("/tmp/JobSentinel_2.6.4_universal.dmg", "0123456789abcdef"),
     "0123456789abcdef  JobSentinel_2.6.4_universal.dmg\n",
   );
+});
+
+test("macOS DMG builder retries transient hdiutil verify races", () => {
+  const calls = [];
+  const delays = [];
+
+  verifyDmgWithRetry("/tmp/JobSentinel.dmg", {
+    delaysMs: [1, 2],
+    runCommand(command, args) {
+      calls.push([command, args]);
+      if (calls.length === 1) {
+        const error = new Error("Command failed: hdiutil verify /tmp/JobSentinel.dmg");
+        error.stderr =
+          'hdiutil: verify: unable to recognize "/tmp/JobSentinel.dmg" as a disk image. ' +
+          "(Resource temporarily unavailable)";
+        throw error;
+      }
+    },
+    sleep(ms) {
+      delays.push(ms);
+    },
+  });
+
+  assert.deepEqual(calls, [
+    ["hdiutil", ["verify", "/tmp/JobSentinel.dmg"]],
+    ["hdiutil", ["verify", "/tmp/JobSentinel.dmg"]],
+  ]);
+  assert.deepEqual(delays, [1]);
+});
+
+test("macOS DMG builder does not retry hard hdiutil verify failures", () => {
+  let calls = 0;
+  const error = new Error("hdiutil: verify failed - image checksum mismatch");
+
+  assert.equal(isTransientHdiutilVerifyError(error), false);
+  assert.throws(
+    () => verifyDmgWithRetry("/tmp/JobSentinel.dmg", {
+      delaysMs: [1, 2],
+      runCommand() {
+        calls += 1;
+        throw error;
+      },
+      sleep() {
+        throw new Error("sleep should not run");
+      },
+    }),
+    error,
+  );
+  assert.equal(calls, 1);
 });
 
 test("macOS DMG builder identifies stale no-account artifact variants", () => {

@@ -223,7 +223,7 @@ and resource file, macOS 13.0 minimum-system metadata, and isolated macOS data
 directory and owner-only database permissions during launch smoke.
 
 The latest local universal smoke built
-`src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_2.7.2_no-account_universal.dmg`,
+`src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_2.7.3_no-account_universal.dmg`,
 verified the DMG checksum through `npm run tauri:verify:macos`, confirmed the
 app binary contains both `x86_64` and `arm64`, verified the mounted app
 signature, copied the app into a temporary install root, and kept both mounted
@@ -239,7 +239,7 @@ an Apple Developer Account, Developer ID signing, notarization, and stapling.
 The previous public `v2.6.4` no-account asset
 `JobSentinel_2.6.4_no-account_universal.dmg` passed the older public verifier on
 2026-06-02, but fresh package verification now also requires owner-only
-local-data permissions for the whole isolated app data tree. The `v2.7.2` Mac
+local-data permissions for the whole isolated app data tree. The `v2.7.3` Mac
 release must pass the current public verifier after upload before users treat
 the public Mac download as current. Gatekeeper rejection remains expected for
 the no-account package.
@@ -459,11 +459,11 @@ verification.
 
 1. **Local package path verified** - Universal DMG build, checksum
    verification, app signature verification, architecture check, and packaged
-   plus installed visible-window launch smoke pass locally, including local
-   database creation under isolated macOS homes.
+  plus installed visible-window launch smoke pass locally, including local
+  database creation under isolated macOS homes.
 2. **No-account public package path available** - Public macOS releases can use
    a clearly labeled ad-hoc signed package with a matching `.dmg.sha256` and
-   passing public verifier. The local `v2.7.2` no-account artifact must pass
+   passing public verifier. The local `v2.7.3` no-account artifact must pass
    again after public upload. It still requires first-open Privacy & Security
    approval.
 3. **Zero-friction public release blocked on Apple account** - Gatekeeper-ready
