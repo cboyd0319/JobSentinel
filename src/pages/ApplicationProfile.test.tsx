@@ -1,4 +1,5 @@
 import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { invoke } from "@tauri-apps/api/core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import ApplicationProfile from "./ApplicationProfile";
@@ -53,5 +54,57 @@ describe("ApplicationProfile", () => {
     expect(screen.queryByText("Marked Sent")).not.toBeInTheDocument();
     expect(screen.queryByText("Ready to Send")).not.toBeInTheDocument();
     expect(screen.queryByText("Submission Rate")).not.toBeInTheDocument();
+  });
+
+  it("keeps the visible selected tab state aligned with the active panel", async () => {
+    const user = userEvent.setup();
+
+    render(<ApplicationProfile onBack={vi.fn()} />);
+
+    const profileTab = screen.getByRole("tab", { name: "Profile" });
+    const screeningTab = screen.getByRole("tab", { name: "Screening Questions" });
+
+    expect(profileTab).toHaveAttribute("aria-selected", "true");
+    expect(profileTab).toHaveAttribute("data-visual-state", "selected");
+    expect(profileTab).toHaveClass("app-section-tab-selected");
+    expect(screen.getByTestId("application-assist-tab-indicator-profile")).toBeInTheDocument();
+    expect(screen.getByTestId("profile-form")).toBeInTheDocument();
+
+    await user.click(screeningTab);
+
+    expect(screeningTab).toHaveAttribute("aria-selected", "true");
+    expect(screeningTab).toHaveAttribute("data-visual-state", "selected");
+    expect(screeningTab).toHaveClass("app-section-tab-selected");
+    expect(screen.getByTestId("application-assist-tab-indicator-screening")).toBeInTheDocument();
+    expect(profileTab).toHaveAttribute("data-visual-state", "idle");
+    expect(profileTab).toHaveClass("app-section-tab-idle");
+    expect(screen.queryByTestId("application-assist-tab-indicator-profile")).not.toBeInTheDocument();
+    expect(screen.getByTestId("screening-answers-form")).toBeInTheDocument();
+  });
+
+  it("keeps keyboard tab navigation in sync with the visible selected tab state", async () => {
+    const user = userEvent.setup();
+
+    render(<ApplicationProfile onBack={vi.fn()} />);
+
+    const profileTab = screen.getByRole("tab", { name: "Profile" });
+    const screeningTab = screen.getByRole("tab", { name: "Screening Questions" });
+
+    profileTab.focus();
+    await user.keyboard("{ArrowRight}");
+
+    expect(screeningTab).toHaveAttribute("aria-selected", "true");
+    expect(screeningTab).toHaveAttribute("data-visual-state", "selected");
+    expect(screeningTab).toHaveClass("app-section-tab-selected");
+    expect(screen.getByTestId("application-assist-tab-indicator-screening")).toBeInTheDocument();
+    expect(screen.getByTestId("screening-answers-form")).toBeInTheDocument();
+
+    await user.keyboard("{Home}");
+
+    expect(profileTab).toHaveAttribute("aria-selected", "true");
+    expect(profileTab).toHaveAttribute("data-visual-state", "selected");
+    expect(profileTab).toHaveClass("app-section-tab-selected");
+    expect(screen.getByTestId("application-assist-tab-indicator-profile")).toBeInTheDocument();
+    expect(screen.getByTestId("profile-form")).toBeInTheDocument();
   });
 });

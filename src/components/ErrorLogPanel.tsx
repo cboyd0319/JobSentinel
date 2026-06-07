@@ -136,7 +136,7 @@ const ErrorItem = memo(function ErrorItem({ error, onClear }: ErrorItemProps) {
           </Badge>
         </span>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-surface-900 dark:text-white truncate">
+          <p className="break-words text-sm font-medium text-surface-900 [overflow-wrap:anywhere] dark:text-white">
             {safeProblemSummary}
           </p>
           <p className="text-xs text-surface-500 mt-0.5">

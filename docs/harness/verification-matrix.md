@@ -40,6 +40,7 @@ user-facing workflow risk requires more evidence.
 | Shared hook | Relevant hook test | Full `npm run test:run` |
 | Page workflow | Relevant page test | `npm run test:e2e` for major flows |
 | Styling or layout | Component test if present | Browser screenshot or Playwright flow |
+| Design-system or redesign contract | Review `DESIGN.md`, `docs/design/README.md`, and `docs/design/design-spec.md`; record the Quiet Shield impact; run `npm run harness:check`, `npm run lint:md`, and focused UI tests for touched surfaces | Computer Use or Playwright screenshot pass for major route, theme, spacing, modal, toast, settings, navigation, keyboard-flow, or responsive changes; record evidence in the active plan or status docs |
 | Accessibility or interactive controls | Focused RTL test for roles, labels, focus, keyboard, and ARIA state | Playwright or Storybook a11y/narrow-width check for changed surface |
 | Build config | `npm run build` | CI dry run when possible |
 
@@ -88,6 +89,7 @@ with warnings-as-errors as a required local or CI gate.
 | ------ | --------------- |
 | `AGENTS.md` | `npm run harness:check` |
 | `docs/harness/*` | `npm run harness:check` and `npm run lint:md` |
+| `DESIGN.md` or `docs/design/*` | `npm run harness:check`, `npm run lint:md`, and `npm run lint:bloat` |
 | `docs/plans/*` | `npm run harness:check` |
 | `docs/plans/templates/*` | `npm run harness:check` and `npm run lint:md` |
 | README developer links | `npm run harness:check` |

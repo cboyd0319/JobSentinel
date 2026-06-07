@@ -35,6 +35,22 @@ describe("Tooltip", () => {
       const button = screen.getByRole("button", { name: "Hover me" });
       expect(button).toBeInTheDocument();
     });
+
+    it("wraps long content inside the viewport", async () => {
+      const user = userEvent.setup();
+
+      render(
+        <Tooltip content="A very long help message that should wrap instead of forcing horizontal scrolling" delay={0}>
+          <button>Hover me</button>
+        </Tooltip>
+      );
+
+      await user.hover(screen.getByRole("button", { name: "Hover me" }));
+
+      const tooltip = await screen.findByRole("tooltip");
+      expect(tooltip).toHaveClass("whitespace-normal", "break-words");
+      expect(tooltip.className).toContain("calc(100vw-2rem)");
+    });
   });
 
   describe("mouse interaction", () => {
@@ -391,4 +407,3 @@ describe("Tooltip", () => {
     });
   });
 });
-

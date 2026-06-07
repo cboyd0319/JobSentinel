@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, memo } from "react";
 import { cachedInvoke } from "../utils/api";
-import { Card } from "./Card";
+import { Modal } from "./Modal";
 import { logError } from "../utils/errorUtils";
 import { BarChart } from "recharts/es6/chart/BarChart";
 import { Bar } from "recharts/es6/cartesian/Bar";
@@ -43,17 +43,6 @@ export const AnalyticsPanel = memo(function AnalyticsPanel({ onClose }: Analytic
   useEffect(() => {
     setWeeklyGoal(getWeeklyGoal());
   }, []);
-
-  // Handle Escape key to close
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        onClose();
-      }
-    };
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [onClose]);
 
   const handleSetGoal = () => {
     const target = parseInt(goalInput, 10);
@@ -127,72 +116,64 @@ export const AnalyticsPanel = memo(function AnalyticsPanel({ onClose }: Analytic
 
   if (loading) {
     return (
-      <div
-        className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-        onClick={(e) => e.target === e.currentTarget && onClose()}
-        onKeyDown={(e) => e.key === "Escape" && onClose()}
-        role="dialog"
-        aria-modal="true"
-        aria-label="Loading application summary"
+      <Modal
+        isOpen
+        onClose={onClose}
+        title="Application Summary"
+        description="Loading application summary"
+        size="wide"
+        closeButtonLabel="Close application summary"
       >
-        <Card className="w-full max-w-4xl max-h-[90vh] overflow-y-auto dark:bg-surface-800">
-          <div className="p-6 space-y-6">
-            <div className="h-8 w-48 bg-surface-200 dark:bg-surface-700 rounded animate-pulse" />
-            <div className="grid grid-cols-3 gap-4">
-              {[1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className="h-24 bg-surface-200 dark:bg-surface-700 rounded animate-pulse"
-                />
-              ))}
-            </div>
-            <div className="h-64 bg-surface-200 dark:bg-surface-700 rounded animate-pulse" />
+        <div className="space-y-6" role="status" aria-label="Loading application summary">
+          <div className="h-8 w-48 rounded bg-surface-200 motion-safe:animate-pulse dark:bg-surface-700" />
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="h-24 rounded bg-surface-200 motion-safe:animate-pulse dark:bg-surface-700"
+              />
+            ))}
           </div>
-        </Card>
-      </div>
+          <div className="h-64 rounded bg-surface-200 motion-safe:animate-pulse dark:bg-surface-700" />
+        </div>
+      </Modal>
     );
   }
 
   if (error || !stats) {
     return (
-      <div
-        className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-        onClick={(e) => e.target === e.currentTarget && onClose()}
-        onKeyDown={(e) => e.key === "Escape" && onClose()}
-        role="dialog"
-        aria-modal="true"
-        aria-label="Application summary problem"
+      <Modal
+        isOpen
+        onClose={onClose}
+        title={error || "No application summary yet"}
+        description={error ? "There was a problem loading your application summary." : "Start tracking applications to see your summary."}
+        size="md"
+        closeButtonLabel="Close application summary"
       >
-        <Card className="w-full max-w-md dark:bg-surface-800 text-center p-8">
-          <div className="text-red-500 mb-4">
+        <div className="text-center">
+          <div className="mb-4 text-red-700 dark:text-red-400">
             <svg className="w-12 h-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
           </div>
-          <h3 className="text-lg font-semibold text-surface-900 dark:text-white mb-2">
-            {error || "No application summary yet"}
-          </h3>
-          <p className="text-sm text-surface-500 dark:text-surface-400 mb-6">
-            {error ? "There was a problem loading your application summary." : "Start tracking applications to see your summary."}
-          </p>
-          <div className="flex justify-center gap-3">
+          <div className="flex flex-col justify-center gap-3 sm:flex-row">
             {error && (
               <button
                 onClick={fetchStats}
-                className="px-4 py-2 bg-sentinel-500 text-white rounded-lg hover:bg-sentinel-600 transition-colors"
+                className="rounded-lg bg-sentinel-600 px-4 py-2 text-white transition-colors hover:bg-sentinel-700"
               >
                 Try Again
               </button>
             )}
             <button
               onClick={onClose}
-              className="px-4 py-2 bg-surface-200 dark:bg-surface-700 text-surface-700 dark:text-surface-300 rounded-lg hover:bg-surface-300 dark:hover:bg-surface-600 transition-colors"
+              className="rounded-lg bg-surface-200 px-4 py-2 text-surface-700 transition-colors hover:bg-surface-300 dark:bg-surface-700 dark:text-surface-300 dark:hover:bg-surface-600"
             >
               Close
             </button>
           </div>
-        </Card>
-      </div>
+        </div>
+      </Modal>
     );
   }
 
@@ -215,53 +196,34 @@ export const AnalyticsPanel = memo(function AnalyticsPanel({ onClose }: Analytic
   ].filter((d) => d.value > 0);
 
   return (
-    <div
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-      onClick={(e) => e.target === e.currentTarget && onClose()}
-      onKeyDown={(e) => e.key === "Escape" && onClose()}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="analytics-title"
+    <Modal
+      isOpen
+      onClose={onClose}
+      title="Application Summary"
+      size="wide"
+      closeButtonLabel="Close application summary"
     >
-      <Card className="w-full max-w-4xl max-h-[90vh] overflow-y-auto dark:bg-surface-800">
-        <div className="p-6 space-y-6">
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <h2
-              id="analytics-title"
-              className="font-display text-display-md text-surface-900 dark:text-white"
+      <div className="space-y-6">
+          <div className="flex flex-wrap items-center justify-end gap-3">
+            <select
+              value={dateRange}
+              onChange={(e) => setDateRange(e.target.value as DateRange)}
+              className="rounded-lg border border-surface-300 bg-white px-3 py-1.5 text-sm text-surface-900 dark:border-surface-600 dark:bg-surface-700 dark:text-surface-100"
+              aria-label="Application summary date range"
             >
-              Application Summary
-            </h2>
-            <div className="flex items-center gap-3">
-              {/* Date Range Filter */}
-              <select
-                value={dateRange}
-                onChange={(e) => setDateRange(e.target.value as DateRange)}
-                className="text-sm px-3 py-1.5 border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100"
-              >
-                <option value="all">All Time</option>
-                <option value="30">Last 30 Days</option>
-                <option value="60">Last 60 Days</option>
-                <option value="90">Last 90 Days</option>
-              </select>
-              {/* Download Button */}
-              <button
-                onClick={handleExportCSV}
-                className="flex items-center gap-1 text-sm px-3 py-1.5 bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 rounded-lg text-surface-700 dark:text-surface-300 transition-colors"
-                title="Download application summary"
-              >
-                <ExportIcon />
-                Download
-              </button>
-              <button
-                onClick={onClose}
-                className="p-2 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 transition-colors"
-                aria-label="Close application summary"
-              >
-                <CloseIcon />
-              </button>
-            </div>
+              <option value="all">All Time</option>
+              <option value="30">Last 30 Days</option>
+              <option value="60">Last 60 Days</option>
+              <option value="90">Last 90 Days</option>
+            </select>
+            <button
+              onClick={handleExportCSV}
+              className="flex items-center gap-1 rounded-lg bg-surface-100 px-3 py-1.5 text-sm text-surface-700 transition-colors hover:bg-surface-200 dark:bg-surface-700 dark:text-surface-300 dark:hover:bg-surface-600"
+              title="Download application summary"
+            >
+              <ExportIcon />
+              Download
+            </button>
           </div>
 
           {/* Key Metrics */}
@@ -536,7 +498,7 @@ export const AnalyticsPanel = memo(function AnalyticsPanel({ onClose }: Analytic
                           key={company.company}
                           className="flex items-center justify-between p-2 bg-white dark:bg-surface-600 rounded text-sm"
                         >
-                          <span className="font-medium text-surface-800 dark:text-surface-200 truncate">
+                          <span className="min-w-0 break-words font-medium text-surface-800 [overflow-wrap:anywhere] dark:text-surface-200">
                             {company.company}
                           </span>
                           <span className="text-green-600 dark:text-green-400 whitespace-nowrap ml-2">
@@ -561,7 +523,7 @@ export const AnalyticsPanel = memo(function AnalyticsPanel({ onClose }: Analytic
                           key={company.company}
                           className="flex items-center justify-between p-2 bg-white dark:bg-surface-600 rounded text-sm"
                         >
-                          <span className="font-medium text-surface-800 dark:text-surface-200 truncate">
+                          <span className="min-w-0 break-words font-medium text-surface-800 [overflow-wrap:anywhere] dark:text-surface-200">
                             {company.company}
                           </span>
                           <span className="text-amber-600 dark:text-amber-400 whitespace-nowrap ml-2">
@@ -628,9 +590,8 @@ export const AnalyticsPanel = memo(function AnalyticsPanel({ onClose }: Analytic
               ))}
             </div>
           </div>
-        </div>
-      </Card>
-    </div>
+      </div>
+    </Modal>
   );
 });
 
@@ -666,25 +627,6 @@ function MetricCard({
         </div>
       </div>
     </div>
-  );
-}
-
-function CloseIcon() {
-  return (
-    <svg
-      className="w-6 h-6"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      aria-hidden="true"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M6 18L18 6M6 6l12 12"
-      />
-    </svg>
   );
 }
 

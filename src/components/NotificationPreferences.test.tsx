@@ -488,6 +488,9 @@ describe("NotificationPreferences Component", () => {
       await waitFor(() => {
         expect(screen.getByText("All job alerts")).toBeInTheDocument();
         expect(screen.getByText("Turn every job alert on or off")).toBeInTheDocument();
+        expect(
+          screen.getByRole("checkbox", { name: "All job alerts" }),
+        ).toBeInTheDocument();
         expect(screen.queryByText(/Master switch/i)).not.toBeInTheDocument();
       });
     });
@@ -497,6 +500,9 @@ describe("NotificationPreferences Component", () => {
 
       await waitFor(() => {
         expect(screen.getByText("Quiet Hours")).toBeInTheDocument();
+        expect(
+          screen.getByRole("checkbox", { name: "Quiet Hours" }),
+        ).toBeInTheDocument();
       });
     });
 
@@ -654,6 +660,9 @@ describe("NotificationPreferences Component", () => {
 
       await waitFor(() => {
         expect(screen.getByText("Remote jobs only")).toBeInTheDocument();
+        expect(
+          screen.getByRole("checkbox", { name: "Remote jobs only" }),
+        ).toBeInTheDocument();
         expect(screen.queryByText("Remote Only")).not.toBeInTheDocument();
       });
     });

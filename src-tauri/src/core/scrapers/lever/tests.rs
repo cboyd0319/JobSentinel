@@ -254,6 +254,28 @@ async fn test_scrape_company_handles_non_array_response() {
 }
 
 #[tokio::test]
+async fn test_scrape_reports_error_when_all_companies_fail() {
+    let scraper = LeverScraper::new(vec![LeverCompany {
+        id: "broken".to_string(),
+        name: "Broken Company".to_string(),
+        url: "not a valid url".to_string(),
+    }]);
+
+    let error = scraper
+        .scrape()
+        .await
+        .expect_err("all failed companies should not look like an empty success");
+
+    assert!(matches!(
+        error,
+        ScraperError::Generic {
+            scraper,
+            message
+        } if scraper == "lever" && message.contains("All configured company boards failed")
+    ));
+}
+
+#[tokio::test]
 async fn test_scrape_with_empty_companies() {
     let scraper = LeverScraper::new(vec![]);
     let result = scraper.scrape().await;

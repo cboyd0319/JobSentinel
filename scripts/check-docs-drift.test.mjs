@@ -24,6 +24,7 @@ import {
   hasFixedWaitInActiveE2eRuntime,
   hasFrontDoorDocEmojiMarkers,
   hasMaintainedDocGlyphMarkers,
+  hasMacosVerificationClaimWithoutEvidence,
   hasMarketIntelligenceDocGlyphMarkers,
   hasNotificationsDocGlyphMarkers,
   hasOverbroadLocalStorageMigrationClaim,
@@ -33,10 +34,13 @@ import {
   hasSpeculativeCloudDeploymentDoc,
   hasStaleApplicationTrackingDocClaims,
   hasStaleE2eWaitGuidance,
+  hasStaleArchitectureCloudDependencyClaim,
   hasStaleGettingStartedToolingDocs,
   hasStaleHardcodedMigrationCount,
   hasStaleInformalMaintainerFooter,
   hasStaleMacosDeveloperDocs,
+  hasStalePlatformVersionTags,
+  hasStaleTestingReleaseScopedNote,
   hasStalePlatformDataPathDocs,
   hasStaleMarketIntelligenceDocShape,
   hasStaleLinuxBuildWorkflowTriggerDoc,
@@ -228,6 +232,62 @@ test("docs drift check rejects developer doc stale markers", () => {
     assert.equal(
       hasDeveloperMaintenanceDocDrift(root, "docs/developer/GETTING_STARTED.md"),
       true,
+    );
+  });
+});
+
+test("docs drift check rejects release-scoped developer doc claims", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "docs/developer/ARCHITECTURE.md",
+      "The application runs entirely on the user's machine with no cloud dependencies (v1.0).\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/developer/TESTING.md",
+      "**Note**: As of v1.5.0, test files have been extracted.\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/developer/GETTING_STARTED.md",
+      "- **macos**: macOS 13+ specific features (v2.1+)\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/developer/MACOS_DEVELOPMENT.md",
+      "**Status:** Local app packaging and universal DMG packaging verified on macOS\n",
+    );
+
+    assert.equal(
+      hasStaleArchitectureCloudDependencyClaim(root, "docs/developer/ARCHITECTURE.md"),
+      true,
+    );
+    assert.equal(
+      hasStaleTestingReleaseScopedNote(root, "docs/developer/TESTING.md"),
+      true,
+    );
+    assert.equal(
+      hasStalePlatformVersionTags(root, "docs/developer/GETTING_STARTED.md"),
+      true,
+    );
+    assert.equal(
+      hasMacosVerificationClaimWithoutEvidence(root, "docs/developer/MACOS_DEVELOPMENT.md"),
+      true,
+    );
+
+    writeFixtureFile(
+      root,
+      "docs/developer/MACOS_DEVELOPMENT.md",
+      [
+        "**Status:** Local app packaging and universal DMG packaging verified on macOS",
+        "**Evidence:** See [Current macOS Readiness](#current-macos-readiness) for commands.",
+        "",
+      ].join("\n"),
+    );
+    assert.equal(
+      hasMacosVerificationClaimWithoutEvidence(root, "docs/developer/MACOS_DEVELOPMENT.md"),
+      false,
     );
   });
 });

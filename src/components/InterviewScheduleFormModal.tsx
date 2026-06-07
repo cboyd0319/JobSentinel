@@ -1,5 +1,5 @@
 import { Button } from "./Button";
-import { Card } from "./Card";
+import { Modal } from "./Modal";
 
 export interface InterviewScheduleApplication {
   id: number;
@@ -46,26 +46,22 @@ export function InterviewScheduleFormModal({
   onFormDataChange,
   onSchedule,
 }: InterviewScheduleFormModalProps) {
-  return (
-    <div
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4"
-      onClick={(e) => e.target === e.currentTarget && onClose()}
-      onKeyDown={(e) => {
-        if (e.key === "Escape") onClose();
-        if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
-          e.preventDefault();
-          onSchedule();
-        }
-      }}
-      role="dialog"
-      aria-modal="true"
-    >
-      <Card className="w-full max-w-md dark:bg-surface-800">
-        <div className="p-6 space-y-4">
-          <h3 className="font-display text-display-sm text-surface-900 dark:text-white">
-            Schedule Interview
-          </h3>
+  const handleFormKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
+      event.preventDefault();
+      onSchedule();
+    }
+  };
 
+  return (
+    <Modal
+      isOpen
+      onClose={onClose}
+      title="Schedule Interview"
+      size="md"
+      closeButtonLabel="Close interview form"
+    >
+      <div className="space-y-4" onKeyDown={handleFormKeyDown}>
           <div>
             <label htmlFor="app-select" className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
               Application (required)
@@ -172,7 +168,7 @@ export function InterviewScheduleFormModal({
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
               <label htmlFor="interviewer-name" className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
                 Interviewer Name
@@ -223,8 +219,7 @@ export function InterviewScheduleFormModal({
               Schedule
             </Button>
           </div>
-        </div>
-      </Card>
-    </div>
+      </div>
+    </Modal>
   );
 }

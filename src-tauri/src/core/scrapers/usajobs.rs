@@ -8,7 +8,8 @@
 
 use super::error::ScraperError;
 use super::http_client::{
-    read_json_with_limit, read_text_with_limit, send_with_retry_on_client, DEFAULT_TIMEOUT_SECS,
+    read_json_with_limit, read_text_with_limit, scraper_client_builder, send_with_retry_on_client,
+    DEFAULT_TIMEOUT_SECS,
 };
 use super::rate_limiter::RateLimiter;
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
@@ -156,7 +157,7 @@ impl UsaJobsScraper {
             })?,
         );
 
-        reqwest::Client::builder()
+        scraper_client_builder()
             .default_headers(headers)
             .timeout(std::time::Duration::from_secs(DEFAULT_TIMEOUT_SECS))
             .build()
@@ -471,6 +472,9 @@ struct JobDetails {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use reqwest::StatusCode;
+    use wiremock::matchers::{method, path};
+    use wiremock::{Mock, MockServer, ResponseTemplate};
 
     #[test]
     fn test_new_scraper() {
@@ -514,6 +518,34 @@ mod tests {
             !debug_output.contains("Private City"),
             "USAJobs scraper Debug output must not contain location. Got: {}",
             debug_output
+        );
+    }
+
+    #[tokio::test]
+    async fn test_client_does_not_follow_redirects_with_authorization_key() {
+        let target = MockServer::start().await;
+        let source = MockServer::start().await;
+        let location = format!("{}/capture", target.uri());
+
+        Mock::given(method("GET"))
+            .and(path("/api/Search"))
+            .respond_with(ResponseTemplate::new(302).insert_header("Location", location))
+            .mount(&source)
+            .await;
+
+        let scraper =
+            UsaJobsScraper::new("secret-api-key".to_string(), "user@example.com".to_string());
+        let client = scraper.build_client().expect("client should build");
+        let response = client
+            .get(format!("{}/api/Search", source.uri()))
+            .send()
+            .await
+            .expect("request should complete");
+
+        assert_eq!(response.status(), StatusCode::FOUND);
+        assert!(
+            target.received_requests().await.unwrap().is_empty(),
+            "USAJobs client must not forward Authorization-Key across redirects"
         );
     }
 

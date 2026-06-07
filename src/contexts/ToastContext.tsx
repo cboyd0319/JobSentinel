@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo, memo, ReactNode, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { ToastContext, Toast, ToastAction } from "./toastContextDef";
 
 let toastId = 0;
@@ -87,18 +88,23 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 const ToastContainer = memo(function ToastContainer({ toasts, onRemove }: { toasts: Toast[]; onRemove: (id: string) => void }) {
   if (toasts.length === 0) return null;
 
-  return (
+  return createPortal(
     <div
-      className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"
+      className="fixed bottom-4 left-4 right-4 z-[2147483647] flex w-auto max-w-[calc(100vw-2rem)] flex-col justify-end gap-2 overflow-hidden pointer-events-none sm:left-auto sm:w-full sm:max-w-sm"
+      data-testid="toast-viewport"
       role="region"
       aria-live="polite"
       aria-atomic="false"
       aria-label="Notifications"
+      style={{
+        maxHeight: "calc(100dvh - 2rem)",
+      }}
     >
       {toasts.map((toast) => (
         <ToastItem key={toast.id} toast={toast} onRemove={onRemove} />
       ))}
-    </div>
+    </div>,
+    document.body
   );
 });
 
@@ -106,19 +112,23 @@ const ToastContainer = memo(function ToastContainer({ toasts, onRemove }: { toas
 const ToastItem = memo(function ToastItem({ toast, onRemove }: { toast: Toast; onRemove: (id: string) => void }) {
   const typeStyles = {
     success: {
-      bg: "bg-success dark:bg-success/90",
+      card: "border-green-700 bg-white text-surface-900 dark:border-green-500 dark:bg-surface-800 dark:text-surface-100",
+      iconClass: "text-green-700 dark:text-green-400",
       icon: <CheckCircleIcon />,
     },
     error: {
-      bg: "bg-danger dark:bg-danger/90",
+      card: "border-red-700 bg-white text-surface-900 dark:border-red-500 dark:bg-surface-800 dark:text-surface-100",
+      iconClass: "text-red-700 dark:text-red-400",
       icon: <XCircleIcon />,
     },
     warning: {
-      bg: "bg-warning dark:bg-warning/90",
+      card: "border-amber-700 bg-white text-surface-900 dark:border-amber-500 dark:bg-surface-800 dark:text-surface-100",
+      iconClass: "text-amber-700 dark:text-amber-400",
       icon: <ExclamationIcon />,
     },
     info: {
-      bg: "bg-sentinel-500 dark:bg-sentinel-600",
+      card: "border-sentinel-700 bg-white text-surface-900 dark:border-sentinel-400 dark:bg-surface-800 dark:text-surface-100",
+      iconClass: "text-sentinel-700 dark:text-sentinel-400",
       icon: <InfoIcon />,
     },
   };
@@ -136,24 +146,24 @@ const ToastItem = memo(function ToastItem({ toast, onRemove }: { toast: Toast; o
     <div
       className={`
         pointer-events-auto motion-safe:animate-slide-in-right
-        ${styles.bg} text-white rounded-lg shadow-lg p-4
+        ${styles.card} rounded-lg border-l-4 shadow-lg p-4
         flex items-start gap-3
       `}
       role="alert"
     >
-      <div className="flex-shrink-0 mt-0.5">{styles.icon}</div>
+      <div className={`flex-shrink-0 mt-0.5 ${styles.iconClass}`}>{styles.icon}</div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-3">
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             <p className="font-semibold text-sm">{toast.title}</p>
             {toast.message && (
-              <p className="text-sm text-white/80 mt-0.5">{toast.message}</p>
+              <p className="mt-0.5 break-words text-sm text-surface-700 [overflow-wrap:anywhere] dark:text-surface-300">{toast.message}</p>
             )}
           </div>
           {toast.action && (
             <button
               onClick={handleAction}
-              className="flex-shrink-0 px-3 py-1 text-sm font-medium bg-white/20 hover:bg-white/30 rounded-md transition-colors"
+              className="flex-shrink-0 rounded-md bg-surface-100 px-3 py-1 text-sm font-medium text-surface-800 transition-colors hover:bg-surface-200 dark:bg-surface-700 dark:text-surface-100 dark:hover:bg-surface-600"
             >
               {toast.action.label}
             </button>
@@ -162,7 +172,7 @@ const ToastItem = memo(function ToastItem({ toast, onRemove }: { toast: Toast; o
       </div>
       <button
         onClick={() => onRemove(toast.id)}
-        className="flex-shrink-0 text-white/60 hover:text-white transition-colors"
+        className="flex-shrink-0 text-surface-500 transition-colors hover:text-surface-800 dark:text-surface-400 dark:hover:text-surface-100"
         aria-label={`Dismiss ${toast.title} notification`}
       >
         <XIcon />

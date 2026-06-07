@@ -19,13 +19,14 @@ System architecture for JobSentinel.
 ## Overview
 
 JobSentinel is a **privacy-first, desktop-native job-search assistant** built with Rust
-and Tauri. The application runs entirely on the user's machine with no cloud dependencies
-(v1.0), ensuring complete data privacy and control.
+and Tauri. User data is stored locally by default. External alerts, support links,
+USAJobs access, GitHub issue links, Google Drive export, and external AI providers run
+only after the user explicitly turns on and configures those paths.
 
 ### Key Characteristics
 
 - **Desktop-first**: Native Windows/macOS/Linux application
-- **Privacy-focused**: All data stored locally, no telemetry
+- **Privacy-focused**: Local-first storage, no telemetry, and opt-in external channels
 - **Async-first**: Built on Tokio for efficient I/O
 - **Type-safe**: Leverages Rust's type system for correctness
 - **Modular**: Clean separation between core logic and platform code
@@ -102,6 +103,7 @@ pub struct Config {
 - Full-text search (FTS5)
 - Statistics aggregation
 - Data integrity validation
+- Encrypted-at-rest database target for local job-search data and preferences
 - **Submodules:**
   - `types.rs` - Database types (Job, Application, etc.)
   - `connection.rs` - Connection pool management
@@ -220,13 +222,20 @@ total_score = (
 
 #### `core/credentials/`
 
-**Purpose**: OS password-store boundary
+**Purpose**: Local secret boundary
 
 - Frontend reaches saved secrets only through Tauri credential commands.
 - Backend notification and source code uses `CredentialStore` directly.
 - Both paths use service name `JobSentinel` and `jobsentinel_*` storage keys.
 - Legacy LinkedIn entries are retained only for cleanup and redaction, not new
   storage.
+- Current compatibility code stores individual credentials in the OS password
+  store. Target architecture stores secrets in an encrypted SQLite
+  secret-vault table with per-row AEAD and protects one vault key with the OS
+  credential store.
+- macOS target implementation uses native Keychain plus LocalAuthentication for
+  Touch ID-capable user-presence unlock instead of generic passive keyring
+  probes.
 
 **Key Types:**
 
@@ -251,7 +260,7 @@ pub enum CredentialKey {
 - USAJobs access code
 - Legacy LinkedIn entries for cleanup and redaction only
 
-See [Security: Keyring Integration](../security/KEYRING.md) for full documentation.
+See [Local Secret Vault And Keychain Integration](../security/KEYRING.md) for full documentation.
 
 #### `core/notify/`
 
@@ -751,6 +760,9 @@ match result {
    - Transaction isolation
    - Field length validation
    - XSS prevention: `javascript:` protocol validation in URLs
+   - Target encrypted SQLite at rest for job-search records and preferences
+   - Target per-row AEAD secret vault for saved alert credentials, access codes,
+     and private connection links
 
 3. **Network Security**
    - HTTPS only for external requests
@@ -762,11 +774,14 @@ match result {
 
 4. **Data Privacy**
    - All data stored locally
-   - Job-search records and durable preferences are stored in SQLite
+   - Job-search records and durable preferences are stored in encrypted SQLite
+     once the storage-hardening work lands
+   - Saved secrets are resolved through backend commands and must not be
+     returned to the renderer
    - Browser localStorage is limited to UI preferences, caches, sanitized error
      reports, and transient recovery hints
    - No telemetry
-   - No cloud dependencies by default
+   - External channels stay opt-in and user-configured
 
 ---
 

@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, memo } from "react";
 import { invalidateCacheByCommand, safeInvoke } from "../utils/api";
 import { Button } from "./Button";
-import { Card, CardHeader } from "./Card";
 import { Badge } from "./Badge";
 import { StatCard } from "./StatCard";
 import { LoadingSpinner } from "./LoadingSpinner";
@@ -111,6 +110,30 @@ function StatusIcon({ status }: { status: string }) {
     ),
   };
   return icons[status as keyof typeof icons] || icons.question;
+}
+
+function getSmokeResultStatus(result: SmokeTestResult) {
+  const skipped = result.details?.status === "skipped";
+  if (skipped) {
+    return {
+      badge: "Skipped",
+      variant: "surface" as const,
+      className:
+        "bg-surface-50 border-surface-200 dark:bg-surface-800/60 dark:border-surface-700",
+    };
+  }
+
+  return result.passed
+    ? {
+        badge: "Worked",
+        variant: "success" as const,
+        className: "bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800",
+      }
+    : {
+        badge: "Problem found",
+        variant: "danger" as const,
+        className: "bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800",
+      };
 }
 
 export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
@@ -296,48 +319,48 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
 
   if (loading) {
     return (
-      <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
-        <Card className="w-full max-w-md">
-          <LoadingSpinner message="Loading job sources..." />
-        </Card>
-      </div>
+      <Modal
+        isOpen
+        onClose={onClose}
+        title="Job Sources"
+        description="Loading job sources"
+        size="md"
+      >
+        <LoadingSpinner message="Loading job sources" delay={0} fullScreen={false} />
+      </Modal>
     );
   }
 
   if (error) {
     return (
-      <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
-          <CardHeader title="Could not check job sources" />
-          <p className="text-danger mb-4">{error}</p>
-          <div className="flex gap-2">
-            <Button onClick={() => loadHealthData()}>Try Again</Button>
-            <Button variant="secondary" onClick={onClose}>
-              Close
-            </Button>
-          </div>
-        </Card>
-      </div>
+      <Modal
+        isOpen
+        onClose={onClose}
+        title="Could not check job sources"
+        size="md"
+      >
+        <p className="mb-4 break-words text-danger [overflow-wrap:anywhere]">{error}</p>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <Button onClick={() => loadHealthData()}>Try Again</Button>
+          <Button variant="secondary" onClick={onClose}>
+            Close
+          </Button>
+        </div>
+      </Modal>
     );
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 overflow-y-auto">
-      <div className="min-h-screen p-4 md:p-8">
-        <div className="max-w-6xl mx-auto">
-          <Card>
-            {/* Header */}
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h2 className="font-display text-display-lg text-surface-900 dark:text-white">
-                  Job Sources
-                </h2>
-                <p className="text-sm text-surface-500 dark:text-surface-400 mt-1">
-                  Check whether job sources are available and when they last
-                  found jobs.
-                </p>
-              </div>
-              <div className="flex items-center gap-2">
+    <>
+      <Modal
+        isOpen
+        onClose={onClose}
+        title="Job Sources"
+        description="Check whether job sources are available and when they last found jobs."
+        size="wide"
+      >
+        <div className="space-y-6">
+              <div className="flex flex-wrap items-center justify-end gap-2">
                 <Button
                   variant="secondary"
                   onClick={runAllSmokeTests}
@@ -352,7 +375,6 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
                   Close
                 </Button>
               </div>
-            </div>
 
             {/* Summary Stats */}
             {summary && (
@@ -431,9 +453,9 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
             )}
 
             {/* Source List */}
-            <div className="overflow-x-auto">
+            <div className="overflow-visible">
               <table
-                className="w-full text-sm"
+                className="app-responsive-table w-full text-sm"
                 role="table"
                 aria-label="Job source status"
               >
@@ -491,7 +513,7 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
                             : ""
                         }`}
                       >
-                        <td className="py-3 px-4">
+                        <td className="py-3 px-4" data-label="Source">
                           <button
                             onClick={() =>
                               setSelectedScraper(
@@ -514,26 +536,26 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
                             </div>
                           </button>
                         </td>
-                        <td className="py-3 px-4">
+                        <td className="py-3 px-4" data-label="Status">
                           <Badge variant={statusConfig.variant} size="sm">
                             <StatusIcon status={statusConfig.icon} />
                             <span className="ml-1">{statusConfig.label}</span>
                           </Badge>
                         </td>
-                        <td className="py-3 px-4">
+                        <td className="py-3 px-4" data-label="Kind">
                           <Badge variant="surface" size="sm">
                             {formatSourceType(scraper.scraper_type)}
                           </Badge>
                         </td>
-                        <td className="py-3 px-4 text-right">
+                        <td className="py-3 px-4 text-right" data-label="Recent Status">
                           <span className={recentStatus.className}>
                             {recentStatus.label}
                           </span>
                         </td>
-                        <td className="py-3 px-4 text-right text-surface-600 dark:text-surface-400">
+                        <td className="py-3 px-4 text-right text-surface-600 dark:text-surface-400" data-label="Time Needed">
                           {formatDuration(scraper.avg_duration_ms)}
                         </td>
-                        <td className="py-3 px-4 text-right">
+                        <td className="py-3 px-4 text-right" data-label="Jobs Found">
                           {scraper.jobs_found_24h === 0 &&
                           scraper.total_runs_24h > 0 &&
                           scraper.health_status === "healthy" ? (
@@ -554,10 +576,10 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
                             from {scraper.total_runs_24h} checks
                           </span>
                         </td>
-                        <td className="py-3 px-4 text-surface-600 dark:text-surface-400">
+                        <td className="py-3 px-4 text-surface-600 dark:text-surface-400" data-label="Last Checked">
                           {formatRelativeTime(scraper.last_success)}
                         </td>
-                        <td className="py-3 px-4">
+                        <td className="py-3 px-4" data-label="Reads Job Details">
                           {scraper.scraper_type === "html" ||
                           scraper.scraper_type === "hybrid" ? (
                             <Badge variant={selectorConfig.variant} size="sm">
@@ -569,10 +591,10 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
                             </span>
                           )}
                         </td>
-                        <td className="py-3 px-4 text-surface-700 dark:text-surface-300 max-w-xs">
+                        <td className="max-w-xs px-4 py-3 text-surface-700 dark:text-surface-300" data-label="What To Do">
                           {formatSourceNextStep(scraper)}
                         </td>
-                        <td className="py-3 px-4 text-right">
+                        <td className="py-3 px-4 text-right" data-label="Actions">
                           <div className="flex items-center justify-end gap-2">
                             <button
                               aria-label={
@@ -646,9 +668,9 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
                     No recent checks found.
                   </p>
                 ) : (
-                  <div className="overflow-x-auto">
+                  <div className="overflow-visible">
                     <table
-                      className="w-full text-sm"
+                      className="app-responsive-table w-full text-sm"
                       role="table"
                       aria-label="Source check history"
                     >
@@ -680,10 +702,10 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
                             key={run.id}
                             className="border-b border-surface-100 dark:border-surface-600/50"
                           >
-                            <td className="py-2 px-3 text-surface-600 dark:text-surface-400">
+                            <td className="px-3 py-2 text-surface-600 dark:text-surface-400" data-label="Checked">
                               {formatRelativeTime(run.started_at)}
                             </td>
-                            <td className="py-2 px-3">
+                            <td className="px-3 py-2" data-label="Status">
                               <Badge
                                 variant={
                                   run.status === "success"
@@ -699,16 +721,16 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
                                 {formatRunStatus(run.status, run.retry_attempt)}
                               </Badge>
                             </td>
-                            <td className="py-2 px-3 text-right text-surface-600 dark:text-surface-400">
+                            <td className="px-3 py-2 text-right text-surface-600 dark:text-surface-400" data-label="Time">
                               {formatDuration(run.duration_ms)}
                             </td>
-                            <td className="py-2 px-3 text-right text-surface-900 dark:text-white">
+                            <td className="px-3 py-2 text-right text-surface-900 dark:text-white" data-label="Jobs found">
                               {run.jobs_found}
                             </td>
-                            <td className="py-2 px-3 text-right text-green-600 dark:text-green-400">
+                            <td className="px-3 py-2 text-right text-green-600 dark:text-green-400" data-label="New jobs">
                               +{run.jobs_new}
                             </td>
-                            <td className="py-2 px-3 text-surface-500 dark:text-surface-400 max-w-xs truncate">
+                            <td className="max-w-xs break-words px-3 py-2 text-surface-500 [overflow-wrap:anywhere] dark:text-surface-400" data-label="Problem">
                               {formatSafeIssue(run.error_message)}
                             </td>
                           </tr>
@@ -719,9 +741,8 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
                 )}
               </div>
             )}
-          </Card>
         </div>
-      </div>
+      </Modal>
 
       {/* Check Results Modal */}
       <Modal
@@ -731,38 +752,34 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
         size="lg"
       >
         <div className="space-y-3">
-          {testResults.map((result) => (
-            <div
-              key={result.scraper_name}
-              className={`p-3 rounded-lg border ${
-                result.passed
-                  ? "bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800"
-                  : "bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800"
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <span className="font-medium text-surface-900 dark:text-white">
-                  {getSourceDisplayName(result.scraper_name)}
-                </span>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-surface-500 dark:text-surface-400">
-                    {formatDuration(result.duration_ms)}
+          {testResults.map((result) => {
+            const status = getSmokeResultStatus(result);
+            return (
+              <div
+                key={result.scraper_name}
+                className={`p-3 rounded-lg border ${status.className}`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="font-medium text-surface-900 dark:text-white">
+                    {getSourceDisplayName(result.scraper_name)}
                   </span>
-                  <Badge
-                    variant={result.passed ? "success" : "danger"}
-                    size="sm"
-                  >
-                    {result.passed ? "Worked" : "Problem found"}
-                  </Badge>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-surface-500 dark:text-surface-400">
+                      {formatDuration(result.duration_ms)}
+                    </span>
+                    <Badge variant={status.variant} size="sm">
+                      {status.badge}
+                    </Badge>
+                  </div>
                 </div>
+                {result.error && (
+                  <p className="text-sm text-red-600 dark:text-red-400 mt-1">
+                    {formatSafeIssue(result.error)}
+                  </p>
+                )}
               </div>
-              {result.error && (
-                <p className="text-sm text-red-600 dark:text-red-400 mt-1">
-                  {formatSafeIssue(result.error)}
-                </p>
-              )}
-            </div>
-          ))}
+            );
+          })}
         </div>
         <div className="mt-4 flex justify-end">
           <Button variant="secondary" onClick={() => setShowTestResults(false)}>
@@ -770,6 +787,6 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
           </Button>
         </div>
       </Modal>
-    </div>
+    </>
   );
 });

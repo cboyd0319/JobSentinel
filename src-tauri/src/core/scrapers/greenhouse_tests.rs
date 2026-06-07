@@ -189,6 +189,28 @@ fn test_new_scraper_empty() {
     assert_eq!(scraper.companies.len(), 0);
 }
 
+#[tokio::test]
+async fn test_scrape_reports_error_when_all_companies_fail() {
+    let scraper = GreenhouseScraper::new(vec![GreenhouseCompany {
+        id: "broken".to_string(),
+        name: "Broken Company".to_string(),
+        url: "not a valid url".to_string(),
+    }]);
+
+    let error = scraper
+        .scrape()
+        .await
+        .expect_err("all failed companies should not look like an empty success");
+
+    assert!(matches!(
+        error,
+        ScraperError::Generic {
+            scraper,
+            message
+        } if scraper == "greenhouse" && message.contains("All configured company boards failed")
+    ));
+}
+
 // ========================================
 // Property-Based Tests
 // ========================================

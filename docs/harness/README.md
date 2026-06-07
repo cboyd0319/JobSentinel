@@ -46,6 +46,7 @@ Use this structure:
 | Feature privacy labels | `docs/harness/feature-privacy-labels.json` | Machine-readable feature labels for local-only, external-AI, sensitive, and public-data boundaries |
 | Plans | `docs/plans/` | Multi-step work, progress, decisions |
 | Active plan index | `docs/plans/index.json` | Machine-readable active workstream map for restart and scoring |
+| Design contract | `DESIGN.md`, `docs/design/README.md`, `docs/design/design-spec.md` | Locked Quiet Shield redesign, screen contracts, privacy UX, responsive rules, and visual verification expectations |
 | Session snapshot | `npm run harness:session` | One-command restart surface for branch state, active plan count, indexed workstreams, harness score, harness module/test counts, bloat-runner size, and next work. Use `npm run harness:session -- --json` when a machine-readable snapshot is needed, and `npm run harness:session -- --limit 2` to cap next-work items |
 | Harness score | `npm run harness:score` | Repo-native five-tuple evidence score for the WalkingLabs lecture and harness-creator tuples |
 | Harness benchmark | `npm run harness:benchmark` | Portable before/after benchmark output for score, session metrics, next work, and recommendation |
@@ -66,6 +67,9 @@ For non-trivial work, capture this before edits:
 - Goal, user, and success condition.
 - Relevant source-of-truth docs and code paths inspected.
 - Audience and ease risk, especially any zero-technical-skill assumption.
+- Design contract impact: whether the work touches Quiet Shield redesign,
+  Protective Navy migration, screen contracts, empty states, toasts, forms,
+  settings, navigation, or saved-secret UX.
 - Privacy, local-data, and external-side-effect boundary.
 - Rule 0 impact: user privacy, credential safety, source boundary, and review
   gate.
@@ -105,6 +109,9 @@ Guides:
 
 - `AGENTS.md`
 - `docs/developer/ARCHITECTURE.md`
+- `DESIGN.md`
+- `docs/design/README.md`
+- `docs/design/design-spec.md`
 - `docs/features/*.md`
 - `docs/security/*.md`
 - `docs/harness/change-contract.md`
@@ -123,6 +130,9 @@ Sensors:
   and non-archive docs at or below 900 lines. Current oversized files are
   explicit legacy debt and may shrink, but may not grow.
 - User experience checks against zero-technical-skill and broad-audience rules.
+- Design checks against Quiet Shield, Protective Navy, stable layout, wrapping,
+  keyboard, accessibility, empty-state, toast, modal, and saved-secret UX
+  contracts.
 - Vitest unit and integration tests.
 - Playwright E2E tests.
 - Rust formatting, clippy, and tests.
@@ -142,6 +152,12 @@ Sensors:
 - Prefer deterministic checks before inferential review.
 - Promote repeated review comments into docs, scripts, or tests.
 - Keep current behavior discoverable from repo files, not chat history.
+- Treat the redesign as a harness-controlled active-goal acceptance gate. UI
+  and UX changes must preserve or move toward `DESIGN.md` and
+  `docs/design/design-spec.md`; do not introduce new green-heavy, cramped,
+  horizontal-scroll, nested-card, or passive secure-storage-prompt patterns.
+  Broad visual changes must record Computer Use or Playwright screenshot
+  evidence in the active plan or status docs before release work resumes.
 - Treat prompt files, plans, and scripts as maintained software.
 - Put repeated failures into a sensor when the rule is cheap to check.
 - Never commit machine-specific absolute local paths. Use repo-relative paths,
@@ -166,6 +182,8 @@ Sensors:
 
 - Clear task scope.
 - Relevant files inspected.
+- Design contract impact recorded, or reason the change does not touch UI or
+  UX.
 - Acceptance criteria listed for non-trivial work.
 - Smallest relevant verification run.
 - Repo docs and the public GitHub wiki updated when behavior or workflow

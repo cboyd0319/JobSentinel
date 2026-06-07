@@ -65,6 +65,10 @@ impl GlassdoorScraper {
             query_encoded, location_param
         );
 
+        self.fetch_jobs_from_url(api_url).await
+    }
+
+    async fn fetch_jobs_from_url(&self, api_url: String) -> ScraperResult {
         let response = send_with_retry(&api_url, |client| {
             client
                 .get(&api_url)
@@ -84,7 +88,10 @@ impl GlassdoorScraper {
         if !status.is_success() {
             if status.as_u16() == 403 || status.as_u16() == 503 {
                 tracing::warn!("Glassdoor returned {} - likely Cloudflare blocked", status);
-                return Ok(vec![]); // Return empty instead of error
+                return Err(ScraperError::BotProtection {
+                    url: api_url,
+                    protection_type: "Cloudflare".to_string(),
+                });
             }
             return Err(ScraperError::http_status(
                 status.as_u16(),
@@ -95,17 +102,33 @@ impl GlassdoorScraper {
 
         let body = read_text_with_limit(response, &api_url).await?;
 
-        // Check for Cloudflare challenge
-        if body.contains("cf-browser-verification")
-            || body.contains("Checking your browser")
-            || body.contains("cf_chl_opt")
-        {
+        if Self::is_bot_protection_page(&body) {
             tracing::warn!("Glassdoor: Cloudflare challenge detected, skipping");
-            return Ok(vec![]);
+            return Err(ScraperError::BotProtection {
+                url: api_url,
+                protection_type: "Cloudflare".to_string(),
+            });
         }
 
         // Try to extract JSON data from the page
         self.parse_html(&body)
+    }
+
+    fn is_bot_protection_page(body: &str) -> bool {
+        let body_lower = body.to_ascii_lowercase();
+        [
+            "cf-browser-verification",
+            "checking your browser",
+            "cf_chl_opt",
+            "verify you are human",
+            "access to this page has been denied",
+            "attention required",
+            "enable javascript and cookies to continue",
+            "unusual traffic",
+            "captcha",
+        ]
+        .iter()
+        .any(|marker| body_lower.contains(marker))
     }
 
     /// Parse HTML response and extract job data
@@ -486,6 +509,8 @@ impl JobScraper for GlassdoorScraper {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use wiremock::matchers::{method, path};
+    use wiremock::{Mock, MockServer, ResponseTemplate};
 
     #[test]
     fn test_scraper_name() {
@@ -592,5 +617,61 @@ mod tests {
         assert_eq!(job.company, "FreshMart");
         assert_eq!(job.location, Some("San Francisco".to_string()));
         assert_eq!(job.source, "glassdoor");
+    }
+
+    #[tokio::test]
+    async fn fetch_jobs_reports_cloudflare_status_as_bot_protection() {
+        let server = MockServer::start().await;
+        Mock::given(method("GET"))
+            .and(path("/jobs"))
+            .respond_with(ResponseTemplate::new(503).set_body_string("service unavailable"))
+            .mount(&server)
+            .await;
+
+        let scraper = GlassdoorScraper::new("care coordinator", None, 10);
+        let error = scraper
+            .fetch_jobs_from_url(format!("{}/jobs", server.uri()))
+            .await
+            .expect_err("blocked status should be source-health error");
+
+        assert!(matches!(error, ScraperError::BotProtection { .. }));
+    }
+
+    #[tokio::test]
+    async fn fetch_jobs_reports_cloudflare_challenge_as_bot_protection() {
+        let server = MockServer::start().await;
+        Mock::given(method("GET"))
+            .and(path("/jobs"))
+            .respond_with(ResponseTemplate::new(200).set_body_string("<html>cf_chl_opt</html>"))
+            .mount(&server)
+            .await;
+
+        let scraper = GlassdoorScraper::new("care coordinator", None, 10);
+        let error = scraper
+            .fetch_jobs_from_url(format!("{}/jobs", server.uri()))
+            .await
+            .expect_err("challenge page should be source-health error");
+
+        assert!(matches!(error, ScraperError::BotProtection { .. }));
+    }
+
+    #[tokio::test]
+    async fn fetch_jobs_reports_access_denied_html_as_bot_protection() {
+        let server = MockServer::start().await;
+        Mock::given(method("GET"))
+            .and(path("/jobs"))
+            .respond_with(ResponseTemplate::new(200).set_body_string(
+                "<html><body>Please verify you are a human. Access to this page has been denied.</body></html>",
+            ))
+            .mount(&server)
+            .await;
+
+        let scraper = GlassdoorScraper::new("care coordinator", None, 10);
+        let error = scraper
+            .fetch_jobs_from_url(format!("{}/jobs", server.uri()))
+            .await
+            .expect_err("access denied page should be source-health error");
+
+        assert!(matches!(error, ScraperError::BotProtection { .. }));
     }
 }

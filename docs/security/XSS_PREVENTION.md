@@ -171,7 +171,7 @@ DOMPurify does not replace:
 
 - Backend or Tauri command validation.
 - URL allowlisting.
-- Credential handling through the OS keyring.
+- Credential handling through JobSentinel's local secret-storage boundary.
 - Feedback/debug-log redaction.
 - Dependency audit and update workflow.
 
@@ -180,5 +180,5 @@ DOMPurify does not replace:
 - [Security overview](./README.md)
 - [URL validation](./URL_VALIDATION.md)
 - [Command execution](./COMMAND_EXECUTION.md)
-- [Keyring integration](./KEYRING.md)
+- [Local secret vault and Keychain integration](./KEYRING.md)
 - [Verification matrix](../harness/verification-matrix.md)

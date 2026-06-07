@@ -124,8 +124,9 @@ describe("AnalyticsPanel", () => {
 
       render(<AnalyticsPanel onClose={mockOnClose} />);
 
-      expect(screen.getByRole("dialog", { name: /loading application summary/i })).toBeInTheDocument();
-      expect(document.querySelectorAll(".animate-pulse").length).toBeGreaterThan(0);
+      expect(screen.getByRole("dialog", { name: /application summary/i })).toBeInTheDocument();
+      expect(screen.getByRole("status", { name: /loading application summary/i })).toBeInTheDocument();
+      expect(document.querySelectorAll('[class*="animate-pulse"]').length).toBeGreaterThan(0);
     });
 
     it("shows loading dialog while fetching", () => {
@@ -343,7 +344,7 @@ describe("AnalyticsPanel", () => {
         expect(screen.getByText("Application Summary")).toBeInTheDocument();
       });
 
-      fireEvent.keyDown(document, { key: "Escape" });
+      fireEvent.keyDown(screen.getByRole("dialog"), { key: "Escape" });
       expect(mockOnClose).toHaveBeenCalled();
     });
 
@@ -675,10 +676,9 @@ describe("AnalyticsPanel", () => {
       render(<AnalyticsPanel onClose={mockOnClose} />);
 
       await waitFor(() => {
-        expect(screen.getByRole("dialog")).toHaveAttribute(
-          "aria-labelledby",
-          "analytics-title"
-        );
+        const dialog = screen.getByRole("dialog");
+        const title = screen.getByRole("heading", { name: /application summary/i });
+        expect(dialog).toHaveAttribute("aria-labelledby", title.id);
       });
     });
 

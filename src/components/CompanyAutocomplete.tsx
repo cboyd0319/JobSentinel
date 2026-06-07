@@ -120,14 +120,14 @@ export const CompanyAutocomplete = memo(function CompanyAutocomplete({
   };
 
   return (
-    <div ref={wrapperRef} className="relative" role="combobox" aria-expanded={showSuggestions && suggestions.length > 0} aria-haspopup="listbox" aria-controls="company-suggestions-list">
+    <div ref={wrapperRef} className="relative min-w-0" role="combobox" aria-expanded={showSuggestions && suggestions.length > 0} aria-haspopup="listbox" aria-controls="company-suggestions-list">
       {/* Screen reader announcement for suggestion count */}
       <span className="sr-only" role="status" aria-live="polite" aria-atomic="true">
         {showSuggestions && value.trim().length >= 1 && suggestions.length > 0
           ? `${suggestions.length} suggestion${suggestions.length === 1 ? '' : 's'} available`
           : ''}
       </span>
-      <div className="flex gap-2">
+      <div className="flex flex-col gap-2 sm:flex-row">
         <input
           ref={inputRef}
           type="text"
@@ -139,7 +139,7 @@ export const CompanyAutocomplete = memo(function CompanyAutocomplete({
           onFocus={() => setShowSuggestions(true)}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
-          className="flex-1 px-3 py-1.5 text-sm border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100 placeholder:text-surface-400"
+          className="min-w-0 flex-1 px-3 py-1.5 text-sm border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100 placeholder:text-surface-400"
           autoComplete="off"
           aria-label="Company name"
           aria-autocomplete="list"

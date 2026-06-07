@@ -21,6 +21,24 @@ static WINDOWS_PATH_REGEX: Lazy<Regex> = Lazy::new(|| {
         .expect("Windows path regex pattern is valid and should compile")
 });
 
+// Non-home local paths can still contain user-specific temp, container, or
+// mounted-volume details.
+#[allow(clippy::expect_used)]
+static LOCAL_UNIX_PATH_REGEX: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r#"/(?:private/var|var/folders|tmp|var/tmp|run/user|Volumes)/[^\s"'<>\\)]+"#)
+        .expect("Local Unix path regex pattern is valid and should compile")
+});
+
+// Non-home Windows paths can include temp folders, alternate drives, or
+// user-created folders with private job-search file names.
+#[allow(clippy::expect_used)]
+static LOCAL_WINDOWS_PATH_REGEX: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(
+        r#"[A-Za-z]:\\(?:(?:Temp|Windows\\Temp|ProgramData)(?:\\[A-Za-z0-9._ -]+)*|(?:[A-Za-z0-9._ -]+\\)+[A-Za-z0-9._ -]+)"#,
+    )
+    .expect("Local Windows path regex pattern is valid and should compile")
+});
+
 // Emails: john@example.com → [EMAIL]
 #[allow(clippy::expect_used)]
 static EMAIL_REGEX: Lazy<Regex> = Lazy::new(|| {
@@ -146,6 +164,14 @@ impl Sanitizer {
             .replace_all(&result, "C:\\[USER_PATH]")
             .to_string();
 
+        // Non-home local paths are reduced to /[LOCAL_PATH].
+        result = LOCAL_UNIX_PATH_REGEX
+            .replace_all(&result, "/[LOCAL_PATH]")
+            .to_string();
+        result = LOCAL_WINDOWS_PATH_REGEX
+            .replace_all(&result, "C:\\[LOCAL_PATH]")
+            .to_string();
+
         // Emails: john@example.com → [EMAIL]
         result = EMAIL_REGEX.replace_all(&result, "[EMAIL]").to_string();
 
@@ -220,6 +246,12 @@ impl Sanitizer {
         let mut result = PATH_REGEX.replace_all(path, "/[USER_PATH]").to_string();
         result = WINDOWS_PATH_REGEX
             .replace_all(&result, "C:\\[USER_PATH]")
+            .to_string();
+        result = LOCAL_UNIX_PATH_REGEX
+            .replace_all(&result, "/[LOCAL_PATH]")
+            .to_string();
+        result = LOCAL_WINDOWS_PATH_REGEX
+            .replace_all(&result, "C:\\[LOCAL_PATH]")
             .to_string();
         result
     }
@@ -329,6 +361,41 @@ mod tests {
             output,
             r"Syncing from /[USER_PATH]/Desktop to C:\[USER_PATH]\Documents"
         );
+    }
+
+    #[test]
+    fn test_sanitize_non_home_unix_paths() {
+        let input = concat!(
+            "Temp config /private/var/folders/zz/abc123/T/jobsentinel/config.json ",
+            "cache /var/folders/aa/bb/T/resume-name.pdf ",
+            "linux /tmp/jobsentinel/private-resume.docx ",
+            "runtime /run/user/1000/jobsentinel/jobs.db"
+        );
+        let output = Sanitizer::sanitize(input);
+
+        assert!(output.contains("/[LOCAL_PATH]"));
+        assert!(!output.contains("/private/var"));
+        assert!(!output.contains("/var/folders"));
+        assert!(!output.contains("/tmp/jobsentinel"));
+        assert!(!output.contains("/run/user/1000"));
+        assert!(!output.contains("resume-name.pdf"));
+    }
+
+    #[test]
+    fn test_sanitize_non_home_windows_paths() {
+        let input = concat!(
+            r#"Temp "C:\Temp\JobSentinel\config.json" "#,
+            r#"project D:\Job Search\Acme Services\resume final.pdf "#,
+            r#"program data C:\ProgramData\JobSentinel\jobs.db"#
+        );
+        let output = Sanitizer::sanitize(input);
+
+        assert!(output.contains(r#"C:\[LOCAL_PATH]"#));
+        assert!(!output.contains(r#"C:\Temp"#));
+        assert!(!output.contains(r#"D:\Job Search"#));
+        assert!(!output.contains(r#"Acme Services"#));
+        assert!(!output.contains("resume final.pdf"));
+        assert!(!output.contains(r#"C:\ProgramData"#));
     }
 
     #[test]

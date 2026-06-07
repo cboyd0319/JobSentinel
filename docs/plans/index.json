@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "lastUpdated": "2026-06-05",
-  "goal": "Move JobSentinel toward zero known errors, privacy leaks, stale docs, brittle tests, user-facing technical assumptions, engineer-only defaults, and unverified claims.",
+  "lastUpdated": "2026-06-06",
+  "goal": "Move JobSentinel toward zero known errors, privacy leaks, stale docs, brittle tests, user-facing technical assumptions, engineer-only defaults, unverified claims, and drift from the locked Quiet Shield redesign in DESIGN.md, docs/design/README.md, and docs/design/design-spec.md.",
   "activeWorkstreams": [
     {
       "id": "active-status",
@@ -14,8 +14,8 @@
       "id": "current-product-and-quality-work",
       "path": "docs/plans/active/current-work.md",
       "state": "active",
-      "nextStep": "Continue critical product functionality and macOS readiness while preserving Rule 0, user ease, and verification discipline.",
-      "verification": "npm run harness:check"
+      "nextStep": "Continue critical product functionality, macOS readiness, encrypted local storage, and Quiet Shield redesign work while preserving Rule 0, user ease, and verification discipline.",
+      "verification": "npm run harness:check; for redesign changes, add Computer Use or Playwright screenshot proof across touched routes, modals, toasts, settings, keyboard flow, and narrow-width states."
     }
   ],
   "archivedWorkstreams": [

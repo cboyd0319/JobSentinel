@@ -81,12 +81,15 @@ export function JobWordsOverviewCard({
                 {matches.map((match, idx) => (
                   <div
                     key={idx}
-                    className={`group relative ${getKeywordOpacity(keywordMatches, match.keyword)}`}
+                    className={`group relative max-w-full ${getKeywordOpacity(keywordMatches, match.keyword)}`}
                   >
-                    <Badge variant={group.variant}>
+                    <Badge
+                      variant={group.variant}
+                      className="max-w-full break-words text-left [overflow-wrap:anywhere]"
+                    >
                       {match.keyword}
                     </Badge>
-                    <div className="absolute hidden group-hover:block bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-surface-900 dark:bg-surface-700 text-white text-xs rounded whitespace-nowrap z-10">
+                    <div className="absolute bottom-full left-1/2 z-10 mb-2 hidden max-w-xs -translate-x-1/2 rounded bg-surface-900 px-2 py-1 text-xs text-white [overflow-wrap:anywhere] group-hover:block dark:bg-surface-700">
                       Found in: {formatEvidenceSections(match.found_in)}
                     </div>
                   </div>

@@ -249,13 +249,13 @@ export const JobCard = memo(function JobCard({
               {/* Title and company */}
               <h3
                 data-testid="job-title"
-                className="font-display text-display-md text-surface-900 dark:text-white mb-1 truncate group-hover:text-sentinel-600 dark:group-hover:text-sentinel-400 transition-colors"
+                className="break-words [overflow-wrap:anywhere] font-display text-display-md text-surface-900 dark:text-white mb-1 group-hover:text-sentinel-600 dark:group-hover:text-sentinel-400 transition-colors"
               >
                 {job.title}
               </h3>
               <p
                 data-testid="job-company"
-                className="text-surface-600 dark:text-surface-400 font-medium mb-2"
+                className="break-words [overflow-wrap:anywhere] text-surface-600 dark:text-surface-400 font-medium mb-2"
               >
                 {job.company}
               </p>

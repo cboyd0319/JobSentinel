@@ -113,7 +113,7 @@ pub fn create_custom_client(user_agent: &str, timeout_secs: u64) -> Result<reqwe
     Ok(client)
 }
 
-fn scraper_client_builder() -> reqwest::ClientBuilder {
+pub(crate) fn scraper_client_builder() -> reqwest::ClientBuilder {
     reqwest::Client::builder().redirect(Policy::none())
 }
 

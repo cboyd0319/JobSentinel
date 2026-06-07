@@ -24,15 +24,15 @@ describe("HelpIcon", () => {
       expect(wrapper).toHaveAttribute("data-content", "This is helpful information");
     });
 
-    it("has img role for accessibility", () => {
+    it("is keyboard focusable as a button", () => {
       render(<HelpIcon text="Help information" />);
-      const icon = screen.getByRole("img");
+      const icon = screen.getByRole("button", { name: "Help information" });
       expect(icon).toBeInTheDocument();
     });
 
     it("aria-label matches text content", () => {
       render(<HelpIcon text="Additional info" />);
-      const icon = screen.getByRole("img");
+      const icon = screen.getByRole("button");
       expect(icon).toHaveAttribute("aria-label", "Additional info");
     });
   });
@@ -216,7 +216,7 @@ describe("HelpIcon", () => {
       );
       
       expect(screen.getByText("?")).toBeInTheDocument();
-      expect(screen.getByRole("img")).toHaveAttribute(
+      expect(screen.getByRole("button", { name: "Detailed help information" })).toHaveAttribute(
         "aria-label",
         "Detailed help information"
       );
@@ -260,7 +260,7 @@ describe("HelpIcon", () => {
       const specialText = "Help with <tags> & 'quotes' and \"more\"!";
       render(<HelpIcon text={specialText} />);
       
-      const icon = screen.getByRole("img");
+      const icon = screen.getByRole("button");
       expect(icon).toHaveAttribute("aria-label", specialText);
     });
   });
@@ -268,19 +268,19 @@ describe("HelpIcon", () => {
   describe("accessibility", () => {
     it("provides accessible label matching tooltip text", () => {
       render(<HelpIcon text="Password requirements" />);
-      const icon = screen.getByRole("img");
+      const icon = screen.getByRole("button");
       expect(icon).toHaveAttribute("aria-label", "Password requirements");
     });
 
     it("can be focused and interacted with keyboard", () => {
       render(<HelpIcon text="Help" />);
-      const icon = screen.getByRole("img");
+      const icon = screen.getByRole("button");
       expect(icon).toBeInTheDocument();
     });
 
-    it("uses semantic role for screen readers", () => {
+    it("uses semantic button role for screen readers", () => {
       render(<HelpIcon text="Accessibility help" />);
-      expect(screen.getByRole("img")).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "Accessibility help" })).toBeInTheDocument();
     });
 
     it("help icon is perceivable by screen readers", () => {

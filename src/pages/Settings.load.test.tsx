@@ -494,7 +494,7 @@ describe("Settings — loadConfig flow", () => {
       screen.getByRole("heading", { name: /help and status/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("img", {
+      screen.getByRole("button", {
         name: /check job-source status or save a safe support report/i,
       }),
     ).toBeInTheDocument();

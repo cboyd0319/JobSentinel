@@ -158,6 +158,10 @@ function sanitizeMockSupportReportText(content: string): string {
   result = result.replace(/li_at=[^\s;]+/g, "li_at=[REDACTED]");
   result = result.replace(/\/(?:Users|home)\/[^/\s]+/g, "/[USER_PATH]");
   result = result.replace(/[A-Za-z]:\\Users\\[^\\\s]+/g, "C:\\[USER_PATH]");
+  result = result.replace(
+    /\/(?:private\/var|var\/folders|tmp|var\/tmp|run\/user|Volumes)\/[^\s"'<>\\)]+/g,
+    "/[LOCAL_PATH]",
+  );
   result = result.replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, "[EMAIL]");
   result = result.replace(
     /(?:\+?1[\s.-]?)?(?:\([2-9][0-9]{2}\)|[2-9][0-9]{2})[\s.-]?[2-9][0-9]{2}[\s.-]?[0-9]{4}\b/g,

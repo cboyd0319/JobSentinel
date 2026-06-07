@@ -100,7 +100,7 @@ export const LocationHeatmap = memo(function LocationHeatmap({
             aria-pressed={selectedLocation?.location === loc.location}
           >
             <div className="flex items-start justify-between">
-              <h4 className="font-medium text-surface-800 dark:text-surface-200 text-sm truncate">
+              <h4 className="break-words text-sm font-medium text-surface-800 [overflow-wrap:anywhere] dark:text-surface-200">
                 {formatLocationName(loc)}
               </h4>
             </div>

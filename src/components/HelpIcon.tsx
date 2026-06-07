@@ -16,7 +16,8 @@ const sizeStyles = {
 export const HelpIcon = memo(function HelpIcon({ text, size = "sm", position = "top" }: HelpIconProps) {
   return (
     <Tooltip content={text} position={position}>
-      <div
+      <button
+        type="button"
         className={`
           inline-flex items-center justify-center
           ${sizeStyles[size]}
@@ -27,12 +28,13 @@ export const HelpIcon = memo(function HelpIcon({ text, size = "sm", position = "
           transition-colors
           cursor-help
           font-semibold
+          focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sentinel-500 focus-visible:ring-offset-2
+          dark:focus-visible:ring-offset-surface-900
         `}
-        role="img"
         aria-label={text}
       >
         ?
-      </div>
+      </button>
     </Tooltip>
   );
 });

@@ -111,7 +111,7 @@ export function hasStaleKeyringSecurityDocs(root, path) {
     return (
       !text.includes("USAJobs access code") ||
       !text.includes("Legacy LinkedIn saved details") ||
-      !text.includes("[Keyring Security](../security/KEYRING.md)")
+      !text.includes("[Local Secret Vault And Keychain Integration](../security/KEYRING.md)")
     );
   }
 

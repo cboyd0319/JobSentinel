@@ -19,10 +19,10 @@ export function SettingsResumeMatchingSection({
           <HelpIcon text="When enabled, fit estimates can use reviewed local resume skills plus the search words you chose." />
         </h3>
         <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex min-w-0 items-center gap-3">
               <SettingsSymbol icon="document" className="h-6 w-6 text-surface-500 dark:text-surface-400" />
-              <div>
+              <div className="min-w-0">
                 <div className="text-sm font-medium text-surface-900 dark:text-white">
                   Use Resume to Sort Jobs
                 </div>
@@ -34,6 +34,7 @@ export function SettingsResumeMatchingSection({
             <label className="relative inline-flex items-center cursor-pointer">
               <input
                 type="checkbox"
+                aria-label="Use Resume to Sort Jobs"
                 checked={config.use_resume_matching ?? false}
                 onChange={(e) =>
                   onConfigChange({

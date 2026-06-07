@@ -26,6 +26,15 @@ Audience and ease:
 - What technical knowledge is assumed.
 - How the path stays usable for non-technical job seekers.
 
+Design contract:
+- Whether the change touches `DESIGN.md`, `docs/design/README.md`, or
+  `docs/design/design-spec.md`.
+- Whether the change affects the harness-controlled Quiet Shield redesign
+  acceptance gate.
+- How it preserves or moves toward Quiet Shield and Protective Navy.
+- Visual, responsive, keyboard, accessibility, empty, loading, error, modal,
+  toast, settings, and saved-secret UX states to verify.
+
 Source-of-truth docs:
 - Existing docs that must stay accurate.
 - New docs to create or update.
@@ -52,6 +61,8 @@ Sensors:
 
 Harness impact:
 - Docs, scripts, tests, templates, or recurring checks to update.
+- Whether `docs/harness/manifest.json` needs new required files or snippets to
+  keep the design contract from drifting.
 - New gap to record if this change exposes missing harness coverage.
 
 Rollback:
@@ -88,6 +99,11 @@ UX states:
 Loading, empty, error, disabled, narrow-width, keyboard, focus order and
 return, accessible names, live-region behavior, contrast, reduced-motion where
 relevant, and success states.
+
+Design alignment:
+Quiet Shield tone, Protective Navy migration impact, no horizontal scroll,
+stable controls, no nested cards, no passive secure-storage prompts, and no
+engineer-only UI assumptions.
 
 Support path:
 Where a user can recover, copy a safe support report, or get help without

@@ -1,16 +1,25 @@
 import type { CredentialStatusValue } from "./SettingsConfig";
 
 export function SecurityBadge({ status }: { status?: CredentialStatusValue }) {
-  if (status && !status.available) {
+  if (status?.state === "needs_attention") {
     return (
       <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-xs text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">
         <LockIcon />
-        Saved details unavailable
+        Saved details need attention
       </span>
     );
   }
 
-  if (status?.exists) {
+  if (status?.state === "expected") {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full bg-surface-100 px-2 py-0.5 text-xs text-surface-600 dark:bg-surface-800 dark:text-surface-300">
+        <LockIcon />
+        Saved details need confirmation
+      </span>
+    );
+  }
+
+  if (status?.state === "saved" || (status?.exists && status.available)) {
     return (
       <span className="inline-flex items-center gap-1 text-xs text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/30 px-2 py-0.5 rounded-full">
         <LockIcon />

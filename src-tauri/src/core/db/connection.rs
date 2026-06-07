@@ -224,7 +224,7 @@ impl Database {
         // Set application ID (unique identifier for JobSentinel)
         // Helps identify database files in forensic analysis
         // Using ASCII "JSDB" = 0x4A534442
-        sqlx::query("PRAGMA application_id = 1246979138")
+        sqlx::query("PRAGMA application_id = 1246970946")
             .execute(pool)
             .await?;
         tracing::debug!("Application ID set (JSDB)");

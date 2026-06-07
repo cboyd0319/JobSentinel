@@ -42,6 +42,23 @@ test("plans harness and markdown checks for active docs", () => {
   });
 });
 
+test("plans harness, markdown, and bloat checks for design contract docs", () => {
+  withFixture((root) => {
+    const plan = summarizeHarnessPlan(root, {
+      changedFiles: ["DESIGN.md", "docs/design/README.md", "docs/design/design-spec.md"],
+    });
+
+    assert.deepEqual(commandsFor(plan), [
+      "npm run harness:check",
+      "npm run lint:md",
+      "npm run lint:bloat",
+    ]);
+    assert.deepEqual(plan.notes, [
+      "Manual visual proof required: use Computer Use or Playwright screenshots for touched routes, modals, toasts, settings, keyboard flow, and narrow-width states.",
+    ]);
+  });
+});
+
 test("plans focused frontend tests when adjacent coverage exists", () => {
   withFixture((root) => {
     writeFixtureFile(root, "src/components/JobCard.test.tsx");
@@ -55,6 +72,7 @@ test("plans focused frontend tests when adjacent coverage exists", () => {
       "npm run test:run -- src/components/JobCard.test.tsx",
       "npm run lint:bloat",
     ]);
+    assert.match(formatHarnessPlan(plan), /Manual visual proof required/);
   });
 });
 

@@ -240,7 +240,7 @@ function App() {
           <Navigation currentPage={currentPage} onNavigate={navigateTo} />
           
           {/* Main content with left margin for sidebar */}
-          <div className="min-h-screen ml-16" id="main-content" tabIndex={-1}>
+          <div className="min-h-screen ml-16 overflow-x-hidden" id="main-content" tabIndex={-1}>
             <Suspense fallback={<PageLoader />}>
               {currentPage === "dashboard" && (
                 <PageErrorBoundary pageName="Dashboard">

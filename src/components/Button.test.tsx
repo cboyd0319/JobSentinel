@@ -13,7 +13,7 @@ describe("Button", () => {
     it("renders with default variant (primary)", () => {
       render(<Button>Test</Button>);
       const button = screen.getByRole("button");
-      expect(button).toHaveClass("bg-sentinel-500");
+      expect(button).toHaveClass("bg-sentinel-600", "text-white");
     });
 
     it("renders with secondary variant", () => {
@@ -31,13 +31,13 @@ describe("Button", () => {
     it("renders with success variant", () => {
       render(<Button variant="success">Test</Button>);
       const button = screen.getByRole("button");
-      expect(button).toHaveClass("bg-success");
+      expect(button).toHaveClass("bg-green-700", "text-white");
     });
 
     it("renders with danger variant", () => {
       render(<Button variant="danger">Test</Button>);
       const button = screen.getByRole("button");
-      expect(button).toHaveClass("bg-danger");
+      expect(button).toHaveClass("bg-red-700", "text-white");
     });
 
     it("renders with default size (md)", () => {

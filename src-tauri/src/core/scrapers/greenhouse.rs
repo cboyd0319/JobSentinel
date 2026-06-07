@@ -288,6 +288,7 @@ impl GreenhouseScraper {
 impl JobScraper for GreenhouseScraper {
     async fn scrape(&self) -> ScraperResult {
         let mut all_jobs = Vec::new();
+        let mut failed_companies = 0usize;
 
         for company in &self.companies {
             // Use rate limiter to respect Greenhouse's limits
@@ -300,6 +301,7 @@ impl JobScraper for GreenhouseScraper {
                     all_jobs.extend(jobs);
                 }
                 Err(_) => {
+                    failed_companies += 1;
                     tracing::warn!(
                         source = "greenhouse",
                         message = COMPANY_SCRAPE_FAILED,
@@ -308,6 +310,13 @@ impl JobScraper for GreenhouseScraper {
                     // Continue with other companies
                 }
             }
+        }
+
+        if !self.companies.is_empty() && failed_companies == self.companies.len() {
+            return Err(ScraperError::Generic {
+                scraper: "greenhouse".to_string(),
+                message: "All configured company boards failed".to_string(),
+            });
         }
 
         Ok(all_jobs)

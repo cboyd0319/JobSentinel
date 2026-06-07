@@ -5,6 +5,7 @@ interface LoadingSpinnerProps {
   size?: "sm" | "md" | "lg";
   /** Delay in ms before showing spinner to prevent flash for fast loads. Set to 0 for immediate display. */
   delay?: number;
+  fullScreen?: boolean;
 }
 
 // Size configurations (extracted to prevent re-creation on each render)
@@ -24,7 +25,8 @@ const SPINNER_DELAY_MS = 250;
 export const LoadingSpinner = memo(function LoadingSpinner({
   message = "Loading...",
   size = "md",
-  delay = SPINNER_DELAY_MS
+  delay = SPINNER_DELAY_MS,
+  fullScreen = true,
 }: LoadingSpinnerProps) {
   const [showSpinner, setShowSpinner] = useState(delay === 0);
 
@@ -41,7 +43,9 @@ export const LoadingSpinner = memo(function LoadingSpinner({
       role="status"
       aria-busy="true"
       aria-label={message}
-      className="flex items-center justify-center h-screen bg-surface-50 dark:bg-surface-900"
+      className={`flex items-center justify-center ${
+        fullScreen ? "h-screen bg-surface-50 dark:bg-surface-900" : "min-h-32"
+      }`}
     >
       <div className="text-center motion-safe:animate-fade-in">
         {/* Sentinel-themed scanner animation */}

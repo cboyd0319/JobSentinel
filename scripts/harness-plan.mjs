@@ -110,8 +110,10 @@ function isHarnessPath(path) {
     path === "CLAUDE.md" ||
     path === ".github/copilot-instructions.md" ||
     path === "README.md" ||
+    path === "DESIGN.md" ||
     path === "package.json" ||
     path === "package-lock.json" ||
+    path.startsWith("docs/design/") ||
     path.startsWith("docs/harness/") ||
     path.startsWith("docs/plans/") ||
     path === "docs/plans/index.json" ||
@@ -124,10 +126,21 @@ function isHarnessPath(path) {
 function isUserFacingPath(path) {
   return (
     path === "README.md" ||
+    path === "DESIGN.md" ||
+    path.startsWith("docs/design/") ||
     path.startsWith("docs/user/") ||
     path.startsWith("docs/features/") ||
     path.startsWith(".github/ISSUE_TEMPLATE/") ||
     path.startsWith("profiles/") ||
+    path.startsWith("src/pages/") ||
+    path.startsWith("src/components/")
+  );
+}
+
+function isDesignOrVisualPath(path) {
+  return (
+    path === "DESIGN.md" ||
+    path.startsWith("docs/design/") ||
     path.startsWith("src/pages/") ||
     path.startsWith("src/components/")
   );
@@ -314,6 +327,12 @@ export function summarizeHarnessPlan(root = defaultRoot, options = {}) {
 
     if (isUserFacingPath(path)) {
       addCommand(commands, "npm run lint:bloat", "User-facing copy or fixture surface changed.", path);
+    }
+
+    if (isDesignOrVisualPath(path)) {
+      notes.push(
+        "Manual visual proof required: use Computer Use or Playwright screenshots for touched routes, modals, toasts, settings, keyboard flow, and narrow-width states.",
+      );
     }
 
     if (isE2ePath(path)) {

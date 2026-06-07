@@ -409,7 +409,7 @@ export default function Market({ onBack }: MarketProps) {
           </div>
 
           {/* Tabs */}
-          <div className="flex gap-1 mt-4 -mb-4 overflow-x-auto" role="tablist" aria-label="Hiring Trends sections">
+          <div className="mt-4 flex flex-wrap gap-1" role="tablist" aria-label="Hiring Trends sections">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
@@ -423,7 +423,7 @@ export default function Market({ onBack }: MarketProps) {
                 aria-controls={activeTab === tab.id ? `${tab.id}-panel` : undefined}
                 id={`${tab.id}-tab`}
                 tabIndex={activeTab === tab.id ? 0 : -1}
-                className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors whitespace-nowrap flex items-center gap-2 ${
+                className={`flex min-w-0 items-center gap-2 rounded-t-lg px-4 py-2 text-sm font-medium transition-colors ${
                   activeTab === tab.id
                     ? "bg-surface-50 dark:bg-surface-900 text-sentinel-600 dark:text-sentinel-400 border-t border-x border-surface-200 dark:border-surface-700"
                     : "text-surface-600 dark:text-surface-400 hover:text-surface-900 dark:hover:text-white"
@@ -595,8 +595,8 @@ export default function Market({ onBack }: MarketProps) {
                   {companyEmptyMessage}
                 </p>
               ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
+                <div className="overflow-visible">
+                  <table className="app-responsive-table w-full text-sm">
                     <thead>
                       <tr className="border-b border-surface-200 dark:border-surface-700">
                         <th className="text-left py-3 px-4 font-medium text-surface-500 dark:text-surface-400">
@@ -622,19 +622,19 @@ export default function Market({ onBack }: MarketProps) {
                           key={company.company_name}
                           className="border-b border-surface-100 dark:border-surface-700 hover:bg-surface-50 dark:hover:bg-surface-800"
                         >
-                          <td className="py-3 px-4 font-medium text-surface-900 dark:text-white">
+                          <td className="px-4 py-3 font-medium text-surface-900 dark:text-white" data-label="Company">
                             {company.company_name}
                           </td>
-                          <td className="py-3 px-4 text-right text-surface-700 dark:text-surface-300">
+                          <td className="px-4 py-3 text-right text-surface-700 dark:text-surface-300" data-label="Jobs Posted">
                             {company.total_posted}
                           </td>
-                          <td className="py-3 px-4 text-right text-surface-700 dark:text-surface-300">
+                          <td className="px-4 py-3 text-right text-surface-700 dark:text-surface-300" data-label="Average Open Roles">
                             {company.avg_active.toFixed(0)}
                           </td>
-                          <td className="py-3 px-4 text-right text-surface-700 dark:text-surface-300">
+                          <td className="px-4 py-3 text-right text-surface-700 dark:text-surface-300" data-label="Avg Salary">
                             {formatCurrency(company.avg_salary)}
                           </td>
-                          <td className="py-3 px-4 text-right">
+                          <td className="px-4 py-3 text-right" data-label="Change in Local Sample">
                             <TrendIndicator
                               direction={company.growth_rate > 5 ? "up" : company.growth_rate < -5 ? "down" : "flat"}
                               percent={company.growth_rate}

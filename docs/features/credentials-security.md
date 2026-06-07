@@ -37,6 +37,8 @@ salary floors stay in JobSentinel's local app data, not in the password store.
 
 If your computer asks whether JobSentinel can use a saved item, allow
 JobSentinel if you want that alert or job-source connection to work.
+JobSentinel should ask only when it is saving, testing, or using that saved
+detail, not repeatedly while you browse Settings.
 
 ## If Something Stops Working
 
@@ -80,4 +82,5 @@ Review every support report before sharing it.
 - JobSentinel validates chat connection links before saving them.
 - Exported settings backups must leave saved secret values out.
 
-Implementation details live in [Keyring Security](../security/KEYRING.md).
+Implementation details live in
+[Local Secret Vault And Keychain Integration](../security/KEYRING.md).

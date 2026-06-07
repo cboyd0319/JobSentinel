@@ -95,7 +95,7 @@ impl YcStartupScraper {
         }
 
         let html = read_text_with_limit(response, &url).await?;
-        let jobs = self.parse_inertia_page(&html);
+        let jobs = self.parse_inertia_page(&html)?;
 
         tracing::info!("Found {} jobs from YC Work at a Startup", jobs.len());
         Ok(jobs)
@@ -118,26 +118,31 @@ impl YcStartupScraper {
     /// props.companiesWithJobs[].company.name  – company name
     /// ```
     ///
-    /// On any parse failure we log a warning and return an empty vec — this
-    /// matches the existing scheduler fallback behaviour.
-    fn parse_inertia_page(&self, html: &str) -> Vec<Job> {
+    /// Page-shape drift is reported as a source error so health checks do not
+    /// treat a broken page as a successful empty result.
+    fn parse_inertia_page(&self, html: &str) -> Result<Vec<Job>, ScraperError> {
         let payload = match Self::extract_inertia_payload(html) {
             Some(p) => p,
             None => {
                 tracing::warn!("YC scraper: could not find Inertia data-page attribute");
-                return vec![];
+                return Err(ScraperError::SelectorNotFound {
+                    url: YC_JOBS_URL.to_string(),
+                    selector: "div#app[data-page]".to_string(),
+                });
             }
         };
 
         let data: serde_json::Value = match serde_json::from_str(&payload) {
             Ok(v) => v,
-            Err(e) => {
-                tracing::warn!(
-                    line = e.line(),
-                    column = e.column(),
-                    "YC scraper: failed to parse Inertia JSON"
-                );
-                return vec![];
+            Err(_) => {
+                let source =
+                    std::io::Error::new(std::io::ErrorKind::InvalidData, "Invalid Inertia JSON");
+                tracing::warn!("YC scraper: failed to parse Inertia JSON");
+                return Err(ScraperError::ParseError {
+                    format: "JSON".to_string(),
+                    url: YC_JOBS_URL.to_string(),
+                    source: Box::new(source),
+                });
             }
         };
 
@@ -150,11 +155,15 @@ impl YcStartupScraper {
             Some(arr) => arr,
             None => {
                 tracing::warn!("YC scraper: props.companiesWithJobs not found in payload");
-                return vec![];
+                return Err(ScraperError::MissingField {
+                    field: "props.companiesWithJobs".to_string(),
+                    url: YC_JOBS_URL.to_string(),
+                });
             }
         };
 
         let mut jobs: Vec<Job> = Vec::new();
+        let mut found_job_postings_array = false;
 
         'companies: for company_obj in companies {
             let company_name = company_obj
@@ -166,7 +175,10 @@ impl YcStartupScraper {
                 .to_string();
 
             let postings = match company_obj.get("jobPostings").and_then(|p| p.as_array()) {
-                Some(arr) => arr,
+                Some(arr) => {
+                    found_job_postings_array = true;
+                    arr
+                }
                 None => continue,
             };
 
@@ -268,7 +280,15 @@ impl YcStartupScraper {
             }
         }
 
-        jobs
+        if !companies.is_empty() && !found_job_postings_array {
+            tracing::warn!("YC scraper: companiesWithJobs items missing jobPostings arrays");
+            return Err(ScraperError::MissingField {
+                field: "props.companiesWithJobs[].jobPostings".to_string(),
+                url: YC_JOBS_URL.to_string(),
+            });
+        }
+
+        Ok(jobs)
     }
 
     /// Extract the raw JSON string from the `data-page` attribute on `<div id="app">`.

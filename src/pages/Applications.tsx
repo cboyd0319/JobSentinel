@@ -25,6 +25,7 @@ import { Button } from "../components/Button";
 import { Card } from "../components/Card";
 import { Badge } from "../components/Badge";
 import { AnalyticsSkeleton, ModalSkeleton } from "../components/LoadingFallbacks";
+import { Modal, ModalFooter } from "../components/Modal";
 import { useToast } from "../contexts";
 import { useUndo } from "../hooks/useUndo";
 import { logError } from "../utils/errorUtils";
@@ -34,7 +35,6 @@ import {
   AppliedIcon,
   BackIcon,
   CalendarIcon,
-  CloseIcon,
   OfferIcon,
   PhoneStatIcon,
   ProgressIcon,
@@ -151,7 +151,7 @@ const SortableApplicationCard = memo(function SortableApplicationCard({
         {app.applied_at ? `Applied: ${formatDate(app.applied_at)}` : "Not applied yet"}
       </p>
       {app.notes && (
-        <p className="text-xs text-surface-500 dark:text-surface-400 mt-2 truncate">
+        <p className="mt-2 break-words text-xs text-surface-500 [overflow-wrap:anywhere] dark:text-surface-400">
           Note: {app.notes}
         </p>
       )}
@@ -178,7 +178,7 @@ const DroppableColumn = memo(function DroppableColumn({
   return (
     <div
       ref={setNodeRef}
-      className={`w-72 flex-shrink-0 bg-surface-100 dark:bg-surface-800 rounded-lg p-4 transition-shadow ${
+      className={`w-full min-w-0 bg-surface-100 dark:bg-surface-800 rounded-lg p-4 transition-shadow ${
         isOver ? "ring-2 ring-sentinel-500" : ""
       }`}
       data-testid="kanban-column"
@@ -220,7 +220,7 @@ const DroppableColumn = memo(function DroppableColumn({
 // Skeleton loader for initial load
 function KanbanSkeleton() {
   return (
-    <div className="min-h-screen bg-surface-50 dark:bg-surface-900">
+    <div className="min-h-screen overflow-x-hidden bg-surface-50 dark:bg-surface-900">
       <header className="bg-white dark:bg-surface-800 border-b border-surface-100 dark:border-surface-700 sticky top-0 z-10">
         <div className="max-w-full mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
@@ -236,9 +236,9 @@ function KanbanSkeleton() {
         </div>
       </header>
       <main className="p-6">
-        <div className="flex gap-4 overflow-x-auto pb-4">
+	        <div className="grid gap-4 pb-4 md:grid-cols-2 xl:grid-cols-5">
           {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="w-72 flex-shrink-0 bg-surface-100 dark:bg-surface-800 rounded-lg p-4">
+	            <div key={i} className="w-full min-w-0 bg-surface-100 dark:bg-surface-800 rounded-lg p-4">
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-3 h-3 rounded-full bg-surface-300 dark:bg-surface-600 motion-safe:animate-pulse" />
                 <div className="h-5 w-24 bg-surface-200 dark:bg-surface-700 rounded motion-safe:animate-pulse" />
@@ -510,38 +510,38 @@ export default function Applications({ onBack, onImportJob }: ApplicationsProps)
       {/* Header */}
       <header className="bg-white dark:bg-surface-800 border-b border-surface-100 dark:border-surface-700 sticky top-0 z-10">
         <div className="max-w-full mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
+          <div className="flex min-w-0 flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div className="flex min-w-0 items-start gap-3 md:items-center">
               <button
                 onClick={onBack}
-                className="p-2 text-surface-500 hover:text-surface-700 dark:text-surface-400 dark:hover:text-surface-200 transition-colors"
+                className="shrink-0 p-2 text-surface-500 hover:text-surface-700 dark:text-surface-400 dark:hover:text-surface-200 transition-colors"
                 aria-label="Go back"
               >
                 <BackIcon />
               </button>
-              <div>
-                <h1 className="font-display text-display-md text-surface-900 dark:text-white">
+              <div className="min-w-0">
+                <h1 className="break-words font-display text-display-md text-surface-900 dark:text-white">
                   Application Tracker
                 </h1>
-                <p className="text-sm text-surface-500 dark:text-surface-400">
+                <p className="break-words text-sm text-surface-500 dark:text-surface-400">
                   Track each application from saved job to final decision.
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Button onClick={() => setShowTemplates(true)} variant="secondary">
+            <div className="flex min-w-0 flex-wrap items-center gap-2 md:justify-end">
+              <Button onClick={() => setShowTemplates(true)} variant="secondary" className="min-w-0">
                 <TemplateIcon />
                 Templates
               </Button>
-              <Button onClick={() => setShowInterviews(true)} variant="secondary">
+              <Button onClick={() => setShowInterviews(true)} variant="secondary" className="min-w-0">
                 <CalendarIcon />
                 Interviews
               </Button>
-              <Button onClick={() => setShowAnalytics(true)} variant="secondary">
+              <Button onClick={() => setShowAnalytics(true)} variant="secondary" className="min-w-0">
                 <AnalyticsIcon />
                 Summary
               </Button>
-              <Button onClick={handleReviewNoResponses} variant="secondary">
+              <Button onClick={handleReviewNoResponses} variant="secondary" className="min-w-0 whitespace-normal">
                 Review No Responses
               </Button>
             </div>
@@ -552,7 +552,7 @@ export default function Applications({ onBack, onImportJob }: ApplicationsProps)
       {/* Quick Stats Bar */}
       {stats && (
         <div className="bg-white dark:bg-surface-800 border-b border-surface-100 dark:border-surface-700 px-6 py-3">
-          <div className="flex items-center gap-6 text-sm">
+          <div className="flex min-w-0 flex-wrap items-center gap-x-6 gap-y-2 text-sm">
             <QuickStat
               label="Applied"
               value={stats.totalApplied}
@@ -623,7 +623,7 @@ export default function Applications({ onBack, onImportJob }: ApplicationsProps)
           onDragOver={handleDragOver}
           onDragEnd={handleDragEnd}
         >
-          <div className="overflow-x-auto pb-4" data-testid="kanban-board">
+          <div className="pb-4" data-testid="kanban-board">
             {!hasTrackedApplications && (
               <Card
                 className="mb-4 max-w-xl dark:bg-surface-800"
@@ -646,7 +646,7 @@ export default function Applications({ onBack, onImportJob }: ApplicationsProps)
                 </div>
               </Card>
             )}
-            <div className="flex gap-4 min-w-max">
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
               {STATUS_COLUMNS.map((column) => {
                 const apps = applications?.[column.key] || [];
                 return (
@@ -680,38 +680,19 @@ export default function Applications({ onBack, onImportJob }: ApplicationsProps)
       </main>
 
       {/* Application Detail Modal */}
-      {selectedApp && (
-        <div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) closeApplicationDetail();
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Escape") closeApplicationDetail();
-          }}
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="modal-title"
-          data-testid="application-detail-dialog"
-        >
-          <Card className="w-full max-w-lg dark:bg-surface-800">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 id="modal-title" className="font-display text-display-md text-surface-900 dark:text-white">
-                  {selectedApp.job_title}
-                </h2>
-                <button
-                  onClick={closeApplicationDetail}
-                  className="p-2 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300"
-                  aria-label="Close modal"
-                >
-                  <CloseIcon />
-                </button>
-              </div>
+      <Modal
+        isOpen={Boolean(selectedApp)}
+        onClose={closeApplicationDetail}
+        title={selectedApp?.job_title}
+        size="lg"
+      >
+        {selectedApp && (
+          <div data-testid="application-detail-dialog" className="min-w-0">
+            <p className="mb-4 break-words text-surface-600 [overflow-wrap:anywhere] dark:text-surface-400">
+              {selectedApp.company}
+            </p>
 
-              <p className="text-surface-600 dark:text-surface-400 mb-4">{selectedApp.company}</p>
-
-              <div className="mb-4">
+            <div className="mb-4">
                 <label htmlFor={appStatusId} className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
                   Status
                 </label>
@@ -743,9 +724,9 @@ export default function Applications({ onBack, onImportJob }: ApplicationsProps)
                     </option>
                   ))}
                 </select>
-              </div>
+            </div>
 
-              <div className="mb-4">
+            <div className="mb-4">
                 <label htmlFor={appNotesId} className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
                   Add Notes
                 </label>
@@ -756,33 +737,32 @@ export default function Applications({ onBack, onImportJob }: ApplicationsProps)
                   placeholder="Add notes about this application..."
                   rows={3}
                   maxLength={500}
-                  className="w-full px-3 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 resize-none focus-visible:ring-2 focus-visible:ring-sentinel-500 focus:border-sentinel-500"
+                  className="w-full px-3 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 resize-none break-words [overflow-wrap:anywhere] focus-visible:ring-2 focus-visible:ring-sentinel-500 focus:border-sentinel-500"
                 />
                 <p className="text-xs text-surface-500 dark:text-surface-400 mt-1 text-right">
                   {notes.length}/500 characters
                 </p>
-              </div>
-
-              {selectedApp.notes && (
-                <div className="mb-4 p-3 bg-surface-50 dark:bg-surface-700 rounded-lg">
-                  <p className="text-sm text-surface-600 dark:text-surface-400">
-                    Previous notes: {selectedApp.notes}
-                  </p>
-                </div>
-              )}
-
-              <div className="flex gap-3">
-                <Button variant="secondary" onClick={closeApplicationDetail} className="flex-1">
-                  Close
-                </Button>
-                <Button onClick={handleAddNotes} disabled={!notes.trim()} className="flex-1">
-                  Save Notes
-                </Button>
-              </div>
             </div>
-          </Card>
-        </div>
-      )}
+
+            {selectedApp.notes && (
+              <div className="mb-4 rounded-lg bg-surface-50 p-3 dark:bg-surface-700">
+                <p className="whitespace-pre-wrap break-words text-sm text-surface-600 [overflow-wrap:anywhere] dark:text-surface-400">
+                    Previous notes: {selectedApp.notes}
+                </p>
+              </div>
+            )}
+
+            <ModalFooter className="flex-col sm:flex-row">
+              <Button variant="secondary" onClick={closeApplicationDetail} className="w-full sm:flex-1">
+                Close
+              </Button>
+              <Button onClick={handleAddNotes} disabled={!notes.trim()} className="w-full sm:flex-1">
+                Save Notes
+              </Button>
+            </ModalFooter>
+          </div>
+        )}
+      </Modal>
 
       {/* Application summary panel */}
       {showAnalytics && (
@@ -803,34 +783,16 @@ export default function Applications({ onBack, onImportJob }: ApplicationsProps)
 
       {/* Cover Letter Templates */}
       {showTemplates && (
-        <div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setShowTemplates(false);
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Escape") setShowTemplates(false);
-          }}
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="templates-title"
+        <Modal
+          isOpen
+          onClose={() => setShowTemplates(false)}
+          title="Cover Letter Templates"
+          size="wide"
         >
-          <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-4">
-              <h2 id="templates-title" className="sr-only">Cover Letter Templates</h2>
-              <button
-                onClick={() => setShowTemplates(false)}
-                className="ml-auto p-2 text-white hover:text-surface-300 transition-colors"
-                aria-label="Close templates"
-              >
-                <CloseIcon />
-              </button>
-            </div>
-            <Suspense fallback={<ModalSkeleton />}>
-              <CoverLetterTemplates />
-            </Suspense>
-          </div>
-        </div>
+          <Suspense fallback={<ModalSkeleton />}>
+            <CoverLetterTemplates />
+          </Suspense>
+        </Modal>
       )}
     </div>
   );
@@ -851,14 +813,14 @@ function QuickStat({
   highlight?: boolean;
 }) {
   return (
-    <div className={`flex items-center gap-2 ${highlight && value > 0 ? "text-success" : "text-surface-600 dark:text-surface-300"}`}>
-      <span className="text-base" aria-hidden="true">{icon}</span>
-      <span className="font-medium">{label}:</span>
+    <div className={`flex min-w-0 items-center gap-2 ${highlight && value > 0 ? "text-success" : "text-surface-600 dark:text-surface-300"}`}>
+      <span className="shrink-0 text-base" aria-hidden="true">{icon}</span>
+      <span className="min-w-0 break-words font-medium">{label}:</span>
       <span className={`font-semibold ${highlight && value > 0 ? "text-success" : "text-surface-900 dark:text-white"}`}>
         {value}
       </span>
       {percent !== undefined && (
-        <span className="text-surface-400 dark:text-surface-500">
+        <span className="shrink-0 text-surface-400 dark:text-surface-500">
           ({percent}%)
         </span>
       )}

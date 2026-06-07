@@ -39,6 +39,42 @@ test("harness policy manifest owns required docs and source policy", () => {
     ),
   );
   assert.ok(manifest.requiredFiles.includes("docs/references.md"));
+  assert.ok(manifest.requiredFiles.includes("docs/developer/DESIGN_SPEC.md"));
+  assert.ok(
+    manifest.requiredHarnessSnippets["docs/plans/index.json"].includes(
+      "Quiet Shield redesign",
+    ),
+  );
+  assert.ok(
+    manifest.requiredHarnessSnippets["docs/plans/index.json"].includes(
+      "Computer Use or Playwright screenshot proof",
+    ),
+  );
+  assert.ok(
+    manifest.requiredHarnessSnippets["docs/plans/active/status.md"].includes(
+      "Quiet Shield redesign is now part of the active repo-wide goal and the repo harness.",
+    ),
+  );
+  assert.ok(
+    manifest.requiredHarnessSnippets["docs/plans/active/current-work.md"].includes(
+      "Locked redesign:",
+    ),
+  );
+  assert.ok(
+    manifest.requiredHarnessSnippets["DESIGN.md"].includes(
+      "theme tokens, contrast checks, screenshots, and native Computer Use validation",
+    ),
+  );
+  assert.ok(
+    manifest.requiredHarnessSnippets["docs/design/design-spec.md"].includes(
+      "full migration until all major routes are verified",
+    ),
+  );
+  assert.ok(
+    manifest.requiredHarnessSnippets["docs/developer/DESIGN_SPEC.md"].includes(
+      "Harness checks require this file to stay a pointer",
+    ),
+  );
   assert.equal(manifest.readmeReferences.path, "docs/references.md");
   assert.equal(manifest.readmeReferences.heading, "## References and external sources");
   assert.equal(manifest.readmeReferences.indexHeading, "# References and External Sources");

@@ -113,12 +113,10 @@ export function SettingsPostingRiskSection({
 
           {ghostPreset === "custom" && (
             <>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
-                    Warn when a posting is older than
-                  </label>
                   <Input
+                    label="Warn when a posting is older than"
                     type="number"
                     min="1"
                     max="365"
@@ -133,10 +131,8 @@ export function SettingsPostingRiskSection({
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
-                    Warn after a posting appears this many times
-                  </label>
                   <Input
+                    label="Warn after a posting appears this many times"
                     type="number"
                     min="1"
                     max="20"
@@ -153,10 +149,8 @@ export function SettingsPostingRiskSection({
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
-                  Warn when a job description is very short
-                </label>
                 <Input
+                  label="Warn when a job description is very short"
                   type="number"
                   min="50"
                   max="1000"
@@ -198,16 +192,18 @@ export function SettingsPostingRiskSection({
 
               <div className="space-y-3">
                 <div>
-                  <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
+                  <label htmlFor="posting-risk-warning-threshold" className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
                     Show posting-risk warning:{" "}
                     {formatPostingRiskWarningLabel(ghostConfig.warning_threshold)}
                   </label>
                   <input
+                    id="posting-risk-warning-threshold"
                     type="range"
                     min="0"
                     max="1"
                     step="0.05"
                     value={ghostConfig.warning_threshold}
+                    aria-valuetext={formatPostingRiskWarningLabel(ghostConfig.warning_threshold)}
                     onChange={(e) =>
                       onGhostConfigChange({
                         ...ghostConfig,
@@ -222,16 +218,18 @@ export function SettingsPostingRiskSection({
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
+                  <label htmlFor="posting-risk-hide-threshold" className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
                     Hide postings that need review:{" "}
                     {formatPostingRiskHideLabel(ghostConfig.hide_threshold)}
                   </label>
                   <input
+                    id="posting-risk-hide-threshold"
                     type="range"
                     min="0"
                     max="1"
                     step="0.05"
                     value={ghostConfig.hide_threshold}
+                    aria-valuetext={formatPostingRiskHideLabel(ghostConfig.hide_threshold)}
                     onChange={(e) =>
                       onGhostConfigChange({
                         ...ghostConfig,

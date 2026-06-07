@@ -57,6 +57,7 @@ const SENSITIVE_KEY_PATTERN = new RegExp(
 const URL_PATTERN = /https?:\/\/[^\s"'<>\\)]+/gi;
 const USER_PATH_PATTERN = /\/(?:Users|home)\/[^/\s]+/g;
 const WINDOWS_USER_PATH_PATTERN = /[A-Za-z]:\\Users\\[^\\\s]+/g;
+const LOCAL_UNIX_PATH_PATTERN = /\/(?:private\/var|var\/folders|tmp|var\/tmp|run\/user|Volumes)\/[^\s"'<>\\)]+/g;
 const EMAIL_PATTERN = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
 const PHONE_PATTERN = /(?:\+?1[\s.-]?)?(?:\([2-9][0-9]{2}\)|[2-9][0-9]{2})[\s.-]?[2-9][0-9]{2}[\s.-]?[0-9]{4}\b/g;
 const LINKEDIN_COOKIE_PATTERN = /li_at=[^\s;]+/g;
@@ -97,6 +98,7 @@ export function sanitizeTextForStorage(value: string): string {
   sanitized = sanitized.replace(LINKEDIN_COOKIE_PATTERN, 'li_at=[REDACTED]');
   sanitized = sanitized.replace(USER_PATH_PATTERN, '/[USER_PATH]');
   sanitized = sanitized.replace(WINDOWS_USER_PATH_PATTERN, 'C:\\[USER_PATH]');
+  sanitized = sanitized.replace(LOCAL_UNIX_PATH_PATTERN, '/[LOCAL_PATH]');
   sanitized = sanitized.replace(URL_PATTERN, (url) => sanitizeUrlForStorage(url));
   sanitized = sanitized.replace(EMAIL_PATTERN, '[EMAIL]');
   sanitized = sanitized.replace(PHONE_PATTERN, '[PHONE]');

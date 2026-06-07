@@ -272,7 +272,9 @@ mod tests {
             ],
         )]);
         let html = inertia_html(&payload);
-        let jobs = scraper.parse_inertia_page(&html);
+        let jobs = scraper
+            .parse_inertia_page(&html)
+            .expect("valid YC Inertia payload");
 
         assert_eq!(jobs.len(), 2);
 
@@ -294,7 +296,9 @@ mod tests {
         let scraper = YcStartupScraper::new(None, false, 10);
         let payload = r#"{"component":"Jobs","props":{"companiesWithJobs":[{"company":{"name":"Startup"},"jobPostings":[{"title":"Platform Engineer","url":"https://www.ycombinator.com/companies/startup/jobs/123","location":null,"type":"Full Time","role":"eng","salaryRange":null}]}]},"url":"/jobs","version":"1"}"#;
         let html = inertia_html(payload);
-        let jobs = scraper.parse_inertia_page(&html);
+        let jobs = scraper
+            .parse_inertia_page(&html)
+            .expect("valid YC Inertia payload");
 
         assert_eq!(jobs.len(), 1);
         assert!(jobs[0].url.starts_with("https://"));
@@ -305,8 +309,11 @@ mod tests {
     #[test]
     fn test_parse_inertia_empty_document() {
         let scraper = YcStartupScraper::new(None, false, 10);
-        let jobs = scraper.parse_inertia_page("<html><body></body></html>");
-        assert_eq!(jobs.len(), 0);
+        let error = scraper
+            .parse_inertia_page("<html><body></body></html>")
+            .expect_err("missing data-page should be a source-health error");
+
+        assert!(matches!(error, ScraperError::SelectorNotFound { .. }));
     }
 
     #[test]
@@ -314,18 +321,36 @@ mod tests {
         let scraper = YcStartupScraper::new(None, false, 10);
         let payload = r#"{"component":"Jobs","props":{"other":[]},"url":"/jobs","version":"1"}"#;
         let html = inertia_html(payload);
-        let jobs = scraper.parse_inertia_page(&html);
-        assert_eq!(jobs.len(), 0);
+        let error = scraper
+            .parse_inertia_page(&html)
+            .expect_err("missing companiesWithJobs should be a source-health error");
+
+        assert!(matches!(error, ScraperError::MissingField { .. }));
     }
 
     #[test]
-    fn test_parse_inertia_malformed_json_returns_empty() {
+    fn test_parse_inertia_missing_job_postings_array_returns_error() {
+        let scraper = YcStartupScraper::new(None, false, 10);
+        let payload = r#"{"component":"Jobs","props":{"companiesWithJobs":[{"company":{"name":"Startup"}}]},"url":"/jobs","version":"1"}"#;
+        let html = inertia_html(payload);
+        let error = scraper
+            .parse_inertia_page(&html)
+            .expect_err("missing jobPostings should be a source-health error");
+
+        assert!(matches!(error, ScraperError::MissingField { .. }));
+    }
+
+    #[test]
+    fn test_parse_inertia_malformed_json_returns_error() {
         let scraper = YcStartupScraper::new(None, false, 10);
         // data-page is present but contains garbage JSON
         let html =
             r#"<html><body><div id="app" data-page="not valid json at all"></div></body></html>"#;
-        let jobs = scraper.parse_inertia_page(html);
-        assert_eq!(jobs.len(), 0);
+        let error = scraper
+            .parse_inertia_page(html)
+            .expect_err("malformed JSON should be a source-health error");
+
+        assert!(matches!(error, ScraperError::ParseError { .. }));
     }
 
     #[test]
@@ -339,7 +364,9 @@ mod tests {
             ],
         )]);
         let html = inertia_html(&payload);
-        let jobs = scraper.parse_inertia_page(&html);
+        let jobs = scraper
+            .parse_inertia_page(&html)
+            .expect("valid YC Inertia payload");
         assert_eq!(jobs.len(), 1);
         assert_eq!(jobs[0].title, "Real Engineer");
     }
@@ -350,7 +377,9 @@ mod tests {
         let payload =
             build_payload(&[("TechCorp", vec![("AB", "/companies/techcorp/jobs/1", None)])]);
         let html = inertia_html(&payload);
-        let jobs = scraper.parse_inertia_page(&html);
+        let jobs = scraper
+            .parse_inertia_page(&html)
+            .expect("valid YC Inertia payload");
         assert_eq!(jobs.len(), 0);
     }
 
@@ -360,7 +389,9 @@ mod tests {
         // company.name is missing
         let payload = r#"{"component":"Jobs","props":{"companiesWithJobs":[{"company":{},"jobPostings":[{"title":"Software Engineer","url":"/companies/x/jobs/1","location":null,"type":"Full Time","role":"eng","salaryRange":null}]}]},"url":"/jobs","version":"1"}"#;
         let html = inertia_html(payload);
-        let jobs = scraper.parse_inertia_page(&html);
+        let jobs = scraper
+            .parse_inertia_page(&html)
+            .expect("valid YC Inertia payload");
         assert_eq!(jobs.len(), 1);
         assert_eq!(jobs[0].company, "YC Startup");
     }
@@ -376,7 +407,9 @@ mod tests {
             ],
         )]);
         let html = inertia_html(&payload);
-        let jobs = scraper.parse_inertia_page(&html);
+        let jobs = scraper
+            .parse_inertia_page(&html)
+            .expect("valid YC Inertia payload");
         assert_eq!(jobs.len(), 1);
     }
 
@@ -392,7 +425,9 @@ mod tests {
             ],
         )]);
         let html = inertia_html(&payload);
-        let jobs = scraper.parse_inertia_page(&html);
+        let jobs = scraper
+            .parse_inertia_page(&html)
+            .expect("valid YC Inertia payload");
         assert_eq!(jobs.len(), 2);
     }
 
@@ -411,7 +446,9 @@ mod tests {
             ],
         )]);
         let html = inertia_html(&payload);
-        let jobs = scraper.parse_inertia_page(&html);
+        let jobs = scraper
+            .parse_inertia_page(&html)
+            .expect("valid YC Inertia payload");
         assert_eq!(jobs.len(), 1);
         assert_eq!(jobs[0].remote, Some(true));
     }
@@ -427,7 +464,9 @@ mod tests {
             ],
         )]);
         let html = inertia_html(&payload);
-        let jobs = scraper.parse_inertia_page(&html);
+        let jobs = scraper
+            .parse_inertia_page(&html)
+            .expect("valid YC Inertia payload");
         assert_eq!(jobs.len(), 1);
         assert!(jobs[0].title.to_lowercase().contains("rust"));
     }
@@ -446,7 +485,9 @@ mod tests {
             ),
         ]);
         let html = inertia_html(&payload);
-        let jobs = scraper.parse_inertia_page(&html);
+        let jobs = scraper
+            .parse_inertia_page(&html)
+            .expect("valid YC Inertia payload");
         assert_eq!(jobs.len(), 1);
         assert!(jobs[0].company.to_lowercase().contains("ai"));
     }
@@ -459,7 +500,9 @@ mod tests {
             vec![("software engineer", "/companies/s/jobs/1", None)],
         )]);
         let html = inertia_html(&payload);
-        let jobs = scraper.parse_inertia_page(&html);
+        let jobs = scraper
+            .parse_inertia_page(&html)
+            .expect("valid YC Inertia payload");
         assert_eq!(jobs.len(), 1);
     }
 
@@ -487,7 +530,9 @@ mod tests {
             ],
         )]);
         let html = inertia_html(&payload);
-        let jobs = scraper.parse_inertia_page(&html);
+        let jobs = scraper
+            .parse_inertia_page(&html)
+            .expect("valid YC Inertia payload");
         assert_eq!(jobs.len(), 1);
         assert!(jobs[0].title.to_lowercase().contains("backend"));
         assert_eq!(jobs[0].remote, Some(true));
@@ -507,7 +552,9 @@ mod tests {
             ),
         ]);
         let html = inertia_html(&payload);
-        let jobs = scraper.parse_inertia_page(&html);
+        let jobs = scraper
+            .parse_inertia_page(&html)
+            .expect("valid YC Inertia payload");
         assert_eq!(jobs.len(), 2);
         assert_eq!(jobs[0].company, "Company A");
         assert_eq!(jobs[1].company, "Company B");
@@ -518,7 +565,9 @@ mod tests {
         let scraper = YcStartupScraper::new(None, false, 10);
         let payload = r#"{"component":"Jobs","props":{"companiesWithJobs":[{"company":{"name":"Startup"},"jobPostings":[{"title":"Senior Engineer","url":"/companies/startup/jobs/1","location":null,"type":"Full Time","role":"eng","salaryRange":"$120K - $180K"}]}]},"url":"/jobs","version":"1"}"#;
         let html = inertia_html(payload);
-        let jobs = scraper.parse_inertia_page(&html);
+        let jobs = scraper
+            .parse_inertia_page(&html)
+            .expect("valid YC Inertia payload");
         assert_eq!(jobs.len(), 1);
         assert_eq!(jobs[0].salary_min, Some(120_000));
         assert_eq!(jobs[0].salary_max, Some(180_000));
@@ -530,7 +579,9 @@ mod tests {
         let payload =
             build_payload(&[("Startup", vec![("Engineer", "/companies/s/jobs/1", None)])]);
         let html = inertia_html(&payload);
-        let jobs = scraper.parse_inertia_page(&html);
+        let jobs = scraper
+            .parse_inertia_page(&html)
+            .expect("valid YC Inertia payload");
         assert_eq!(jobs.len(), 1);
         assert_eq!(jobs[0].salary_min, None);
         assert_eq!(jobs[0].salary_max, None);
@@ -544,7 +595,9 @@ mod tests {
             vec![("Engineer", "/companies/mystartup/jobs/555", None)],
         )]);
         let html = inertia_html(&payload);
-        let jobs = scraper.parse_inertia_page(&html);
+        let jobs = scraper
+            .parse_inertia_page(&html)
+            .expect("valid YC Inertia payload");
         assert_eq!(jobs.len(), 1);
         assert_eq!(
             jobs[0].url,

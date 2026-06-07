@@ -1,5 +1,4 @@
-import { memo, useEffect, useRef, ReactNode, KeyboardEvent } from "react";
-import { createPortal } from "react-dom";
+import { memo, useEffect, useId, useRef, ReactNode, KeyboardEvent, MouseEvent } from "react";
 import { lockBodyScroll } from "../utils/bodyScrollLock";
 
 interface ModalProps {
@@ -8,17 +7,19 @@ interface ModalProps {
   title?: string;
   description?: string;
   children: ReactNode;
-  size?: "sm" | "md" | "lg" | "xl";
+  size?: "sm" | "md" | "lg" | "xl" | "wide";
   closeOnOverlayClick?: boolean;
   showCloseButton?: boolean;
+  closeButtonLabel?: string;
 }
 
 // Size styles (extracted to prevent re-creation on each render)
 const SIZE_STYLES = {
-  sm: "max-w-sm",
-  md: "max-w-md",
-  lg: "max-w-lg",
-  xl: "max-w-xl",
+  sm: "app-modal-size-sm max-w-sm",
+  md: "app-modal-size-md max-w-md",
+  lg: "app-modal-size-lg max-w-lg",
+  xl: "app-modal-size-xl max-w-xl",
+  wide: "app-modal-size-wide max-w-6xl",
 } as const;
 
 export const Modal = memo(function Modal({
@@ -30,10 +31,14 @@ export const Modal = memo(function Modal({
   size = "md",
   closeOnOverlayClick = true,
   showCloseButton = true,
+  closeButtonLabel = "Close modal",
 }: ModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
   const previousActiveElement = useRef<Element | null>(null);
   const isMountedRef = useRef(true);
+  const generatedId = useId();
+  const titleId = `${generatedId}-modal-title`;
+  const descriptionId = `${generatedId}-modal-description`;
 
   useEffect(() => {
     if (isOpen) {
@@ -90,21 +95,55 @@ export const Modal = memo(function Modal({
     }
   };
 
+  const handleOverlayClick = (event: MouseEvent<HTMLDivElement>): void => {
+    if (closeOnOverlayClick && event.target === event.currentTarget) {
+      onClose();
+    }
+  };
+
+  const handleOverlayKeyDown = (event: KeyboardEvent<HTMLDivElement>): void => {
+    if (event.key === "Escape" && event.target === event.currentTarget) {
+      onClose();
+    }
+  };
+
   if (!isOpen) return null;
 
-  return createPortal(
+  return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="app-modal-overlay fixed inset-0 z-[1000] flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
-      aria-labelledby={title ? "modal-title" : undefined}
-      aria-describedby={description ? "modal-description" : undefined}
+      aria-labelledby={title ? titleId : undefined}
+      aria-describedby={description ? descriptionId : undefined}
+      onClick={handleOverlayClick}
+      onKeyDown={handleOverlayKeyDown}
+      style={{
+        position: "fixed",
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0,
+        zIndex: 1000,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "1rem",
+      }}
     >
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-surface-900/60 dark:bg-black/70 backdrop-blur-sm motion-safe:animate-fade-in"
+        className="app-modal-backdrop absolute inset-0"
         onClick={closeOnOverlayClick ? onClose : undefined}
         aria-hidden="true"
+        style={{
+          position: "absolute",
+          top: 0,
+          right: 0,
+          bottom: 0,
+          left: 0,
+          opacity: 1,
+        }}
       />
 
       {/* Modal content */}
@@ -113,30 +152,37 @@ export const Modal = memo(function Modal({
         tabIndex={-1}
         onKeyDown={handleKeyDown}
         className={`
-          relative w-full ${SIZE_STYLES[size]}
-          bg-white dark:bg-surface-800
-          rounded-card shadow-xl
-          motion-safe:animate-slide-up
+          app-modal-panel relative w-full ${SIZE_STYLES[size]}
+          flex max-h-[calc(100dvh-2rem)] flex-col overflow-hidden
           focus:outline-none
         `}
+        style={{
+          position: "relative",
+          width: "100%",
+          maxHeight: "calc(100vh - 2rem)",
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
+          opacity: 1,
+        }}
       >
         {/* Header */}
         {(title || showCloseButton) && (
-          <div className="flex items-start justify-between p-6 pb-0">
-            <div>
-              {title && (
-                <h2
-                  id="modal-title"
-                  className="font-display text-display-lg text-surface-900 dark:text-white"
-                >
+          <div className="app-modal-header flex min-w-0 items-start justify-between gap-3 p-6 pb-0">
+            <div className="min-w-0">
+	              {title && (
+	                <h2
+	                  id={titleId}
+	                  className="app-modal-title break-words font-display text-display-lg text-surface-900 [overflow-wrap:anywhere] dark:text-white"
+	                >
                   {title}
                 </h2>
               )}
-              {description && (
-                <p
-                  id="modal-description"
-                  className="text-sm text-surface-500 dark:text-surface-400 mt-1"
-                >
+	              {description && (
+	                <p
+	                  id={descriptionId}
+	                  className="mt-1 break-words text-sm text-surface-500 [overflow-wrap:anywhere] dark:text-surface-400"
+	                >
                   {description}
                 </p>
               )}
@@ -145,14 +191,14 @@ export const Modal = memo(function Modal({
               <button
                 type="button"
                 onClick={onClose}
-                className="
-                  -mt-1 -mr-1 p-2 rounded-lg
+                className="app-modal-close
+                  -mt-1 -mr-1 shrink-0 p-2 rounded-lg
                   text-surface-400 hover:text-surface-600
                   dark:text-surface-500 dark:hover:text-surface-300
                   hover:bg-surface-100 dark:hover:bg-surface-700
                   transition-colors
                 "
-                aria-label="Close modal"
+                aria-label={closeButtonLabel}
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -163,10 +209,9 @@ export const Modal = memo(function Modal({
         )}
 
         {/* Body */}
-        <div className="p-6">{children}</div>
+        <div className="app-modal-body overflow-y-auto p-6">{children}</div>
       </div>
-    </div>,
-    document.body
+    </div>
   );
 });
 
@@ -178,7 +223,7 @@ interface ModalFooterProps {
 
 export const ModalFooter = memo(function ModalFooter({ children, className = "" }: ModalFooterProps) {
   return (
-    <div className={`flex items-center justify-end gap-3 pt-4 border-t border-surface-100 dark:border-surface-700 ${className}`}>
+    <div className={`app-modal-footer sticky bottom-0 flex items-center justify-end gap-3 border-t border-surface-100 bg-white pt-4 dark:border-surface-700 dark:bg-surface-800 ${className}`}>
       {children}
     </div>
   );

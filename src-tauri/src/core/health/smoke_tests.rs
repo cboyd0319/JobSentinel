@@ -1,12 +1,17 @@
 //! Smoke tests for scraper connectivity and functionality
 
 use crate::core::{
+    credentials::{CredentialKey, CredentialStore},
     http_body::{read_json_with_limit, read_text_with_limit},
+    scrapers::{
+        http_client::scraper_client_builder,
+        rate_limiter::{limits, RateLimiter},
+    },
     url_security::validate_external_http_url_for_fetch,
     Config, Database,
 };
 use anyhow::Result;
-use std::time::Instant;
+use std::time::{Duration, Instant};
 
 use super::types::{SmokeTestResult, SmokeTestType};
 
@@ -90,6 +95,69 @@ fn source_check_error_message(error: &anyhow::Error) -> String {
     SOURCE_CHECK_DEFAULT_ERROR.to_string()
 }
 
+fn validate_smoke_details(scraper_name: &str, details: &serde_json::Value) -> Result<()> {
+    if details
+        .get("status")
+        .and_then(serde_json::Value::as_str)
+        .is_some_and(|status| status == "skipped")
+    {
+        return Ok(());
+    }
+
+    if details
+        .get("selectors_found")
+        .and_then(serde_json::Value::as_bool)
+        .is_some_and(|selectors_found| !selectors_found)
+    {
+        return Err(anyhow::anyhow!(
+            "{} source check did not find expected job selectors",
+            scraper_name
+        ));
+    }
+
+    if details
+        .get("jobs_found")
+        .and_then(serde_json::Value::as_i64)
+        .is_some_and(|jobs_found| jobs_found <= 0)
+    {
+        return Err(anyhow::anyhow!(
+            "{} source check did not find any jobs",
+            scraper_name
+        ));
+    }
+
+    Ok(())
+}
+
+fn smoke_rate_limit(scraper_name: &str) -> u32 {
+    match scraper_name {
+        "greenhouse" => limits::GREENHOUSE,
+        "lever" => limits::LEVER,
+        "indeed" => limits::INDEED,
+        "remoteok" => limits::REMOTEOK,
+        "wellfound" => 200,
+        "weworkremotely" => limits::WEWORKREMOTELY,
+        "builtin" => limits::BUILTIN,
+        "hn_hiring" => limits::HN_HIRING,
+        "jobswithgpt" => limits::JOBSWITHGPT,
+        "dice" => limits::DICE,
+        "yc_startup" => limits::YC_STARTUP,
+        "ziprecruiter" => 300,
+        "usajobs" => limits::USAJOBS,
+        "simplyhired" => limits::SIMPLYHIRED,
+        "glassdoor" => limits::GLASSDOOR,
+        _ => 60,
+    }
+}
+
+fn smoke_client(user_agent: Option<&str>) -> Result<reqwest::Client> {
+    let mut builder = scraper_client_builder().timeout(Duration::from_secs(10));
+    if let Some(user_agent) = user_agent {
+        builder = builder.user_agent(user_agent);
+    }
+    Ok(builder.build()?)
+}
+
 /// Run a connectivity smoke test for a specific scraper
 pub async fn run_smoke_test(
     db: &Database,
@@ -97,6 +165,9 @@ pub async fn run_smoke_test(
     scraper_name: &str,
 ) -> Result<SmokeTestResult> {
     let start = Instant::now();
+    RateLimiter::shared()
+        .wait(scraper_name, smoke_rate_limit(scraper_name))
+        .await;
 
     let result = match scraper_name {
         "greenhouse" => test_greenhouse().await,
@@ -119,7 +190,10 @@ pub async fn run_smoke_test(
 
     let duration_ms = start.elapsed().as_millis() as i64;
 
-    let smoke_result = match result {
+    let smoke_result = match result.and_then(|details| {
+        validate_smoke_details(scraper_name, &details)?;
+        Ok(details)
+    }) {
         Ok(details) => SmokeTestResult {
             scraper_name: scraper_name.to_string(),
             test_type: SmokeTestType::Connectivity,
@@ -188,9 +262,7 @@ async fn record_smoke_test(db: &Database, result: &SmokeTestResult) -> Result<()
 async fn test_greenhouse() -> Result<serde_json::Value> {
     // Test with a known company (Cloudflare has a public Greenhouse board)
     let url = "https://boards-api.greenhouse.io/v1/boards/cloudflare/jobs";
-    let client = reqwest::Client::builder()
-        .timeout(std::time::Duration::from_secs(10))
-        .build()?;
+    let client = smoke_client(None)?;
 
     let resp = client
         .get(url)
@@ -220,9 +292,7 @@ async fn test_greenhouse() -> Result<serde_json::Value> {
 async fn test_lever() -> Result<serde_json::Value> {
     // Test with a known company
     let url = "https://api.lever.co/v0/postings/netflix?mode=json";
-    let client = reqwest::Client::builder()
-        .timeout(std::time::Duration::from_secs(10))
-        .build()?;
+    let client = smoke_client(None)?;
 
     let resp = client
         .get(url)
@@ -247,10 +317,9 @@ async fn test_lever() -> Result<serde_json::Value> {
 
 async fn test_indeed() -> Result<serde_json::Value> {
     let url = "https://www.indeed.com/jobs?q=customer+support&l=remote";
-    let client = reqwest::Client::builder()
-        .timeout(std::time::Duration::from_secs(10))
-        .user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
-        .build()?;
+    let client = smoke_client(Some(
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+    ))?;
 
     let resp = client
         .get(url)
@@ -275,9 +344,7 @@ async fn test_indeed() -> Result<serde_json::Value> {
 
 async fn test_remoteok() -> Result<serde_json::Value> {
     let url = "https://remoteok.com/api";
-    let client = reqwest::Client::builder()
-        .timeout(std::time::Duration::from_secs(10))
-        .build()?;
+    let client = smoke_client(None)?;
 
     let resp = client
         .get(url)
@@ -305,10 +372,9 @@ async fn test_remoteok() -> Result<serde_json::Value> {
 
 async fn test_wellfound() -> Result<serde_json::Value> {
     let url = "https://wellfound.com/role/software-engineer";
-    let client = reqwest::Client::builder()
-        .timeout(std::time::Duration::from_secs(10))
-        .user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
-        .build()?;
+    let client = smoke_client(Some(
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+    ))?;
 
     let resp = client
         .get(url)
@@ -333,9 +399,7 @@ async fn test_wellfound() -> Result<serde_json::Value> {
 
 async fn test_weworkremotely() -> Result<serde_json::Value> {
     let url = "https://weworkremotely.com/categories/remote-programming-jobs.rss";
-    let client = reqwest::Client::builder()
-        .timeout(std::time::Duration::from_secs(10))
-        .build()?;
+    let client = smoke_client(None)?;
 
     let resp =
         client.get(url).send().await.map_err(|e| {
@@ -359,10 +423,9 @@ async fn test_weworkremotely() -> Result<serde_json::Value> {
 
 async fn test_builtin() -> Result<serde_json::Value> {
     let url = "https://builtin.com/jobs/remote/dev-engineering";
-    let client = reqwest::Client::builder()
-        .timeout(std::time::Duration::from_secs(10))
-        .user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
-        .build()?;
+    let client = smoke_client(Some(
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+    ))?;
 
     let resp = client
         .get(url)
@@ -388,9 +451,7 @@ async fn test_builtin() -> Result<serde_json::Value> {
 async fn test_hn_hiring() -> Result<serde_json::Value> {
     // Search for most recent "Who is hiring" thread
     let url = "https://hn.algolia.com/api/v1/search_by_date";
-    let client = reqwest::Client::builder()
-        .timeout(std::time::Duration::from_secs(10))
-        .build()?;
+    let client = smoke_client(None)?;
 
     let resp = client
         .get(url)
@@ -447,10 +508,7 @@ async fn test_jobswithgpt(config: &Config) -> Result<serde_json::Value> {
         .map_err(|reason| anyhow::anyhow!("Invalid JobsWithGPT endpoint: {}", reason))?;
 
     // Just verify the endpoint is reachable
-    let client = reqwest::Client::builder()
-        .redirect(reqwest::redirect::Policy::none())
-        .timeout(std::time::Duration::from_secs(10))
-        .build()?;
+    let client = smoke_client(None)?;
 
     let resp = client.get(endpoint.as_str()).send().await;
 
@@ -472,10 +530,9 @@ async fn test_jobswithgpt(config: &Config) -> Result<serde_json::Value> {
 
 async fn test_dice() -> Result<serde_json::Value> {
     let url = "https://www.dice.com/jobs?q=software%20engineer&countryCode=US&radius=30&radiusUnit=mi&page=1&pageSize=20";
-    let client = reqwest::Client::builder()
-        .timeout(std::time::Duration::from_secs(10))
-        .user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
-        .build()?;
+    let client = smoke_client(Some(
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+    ))?;
 
     let resp = client
         .get(url)
@@ -500,10 +557,9 @@ async fn test_dice() -> Result<serde_json::Value> {
 
 async fn test_yc_startup() -> Result<serde_json::Value> {
     let url = "https://www.ycombinator.com/jobs";
-    let client = reqwest::Client::builder()
-        .timeout(std::time::Duration::from_secs(10))
-        .user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
-        .build()?;
+    let client = smoke_client(Some(
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+    ))?;
 
     let resp = client
         .get(url)
@@ -528,9 +584,7 @@ async fn test_yc_startup() -> Result<serde_json::Value> {
 
 async fn test_ziprecruiter() -> Result<serde_json::Value> {
     let url = "https://www.ziprecruiter.com/jobs-rss?search=customer+support&location=Remote";
-    let client = reqwest::Client::builder()
-        .timeout(std::time::Duration::from_secs(10))
-        .build()?;
+    let client = smoke_client(None)?;
 
     let resp = client
         .get(url)
@@ -568,23 +622,26 @@ async fn test_usajobs(config: &Config) -> Result<serde_json::Value> {
         }));
     }
 
-    if config.usajobs.api_key.is_empty() {
-        return Ok(serde_json::json!({
-            "status": "skipped",
-            "reason": "USAJobs API key not loaded"
-        }));
-    }
+    let api_key = match CredentialStore::retrieve(CredentialKey::UsaJobsApiKey)
+        .map_err(|_| anyhow::anyhow!("USAJobs API key could not be read from secure storage"))?
+    {
+        Some(api_key) if !api_key.trim().is_empty() => api_key,
+        _ => {
+            return Ok(serde_json::json!({
+                "status": "skipped",
+                "reason": "USAJobs API key not saved"
+            }));
+        }
+    };
 
     let url = "https://data.usajobs.gov/api/Search?Keyword=software&ResultsPerPage=1";
-    let client = reqwest::Client::builder()
-        .timeout(std::time::Duration::from_secs(10))
-        .build()?;
+    let client = smoke_client(None)?;
 
     let resp = client
         .get(url)
         .header("Host", "data.usajobs.gov")
         .header("User-Agent", &config.usajobs.email)
-        .header("Authorization-Key", &config.usajobs.api_key)
+        .header("Authorization-Key", api_key.trim())
         .send()
         .await
         .map_err(|e| sanitized_request_error("USAJobs smoke test request failed", e))?;
@@ -609,10 +666,9 @@ async fn test_usajobs(config: &Config) -> Result<serde_json::Value> {
 
 async fn test_simplyhired() -> Result<serde_json::Value> {
     let url = "https://www.simplyhired.com/search?q=customer+support&l=remote&output=rss";
-    let client = reqwest::Client::builder()
-        .timeout(std::time::Duration::from_secs(10))
-        .user_agent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36")
-        .build()?;
+    let client = smoke_client(Some(
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+    ))?;
 
     let resp = client
         .get(url)
@@ -641,10 +697,9 @@ async fn test_simplyhired() -> Result<serde_json::Value> {
 
 async fn test_glassdoor() -> Result<serde_json::Value> {
     let url = "https://www.glassdoor.com/Job/jobs.htm?sc.keyword=customer+support&jobType=all";
-    let client = reqwest::Client::builder()
-        .timeout(std::time::Duration::from_secs(10))
-        .user_agent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36")
-        .build()?;
+    let client = smoke_client(Some(
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+    ))?;
 
     let resp = client
         .get(url)
@@ -674,6 +729,70 @@ async fn test_glassdoor() -> Result<serde_json::Value> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use reqwest::StatusCode;
+    use wiremock::matchers::{method, path};
+    use wiremock::{Mock, MockServer, ResponseTemplate};
+
+    #[tokio::test]
+    async fn smoke_client_does_not_follow_redirects() {
+        let target = MockServer::start().await;
+        let source = MockServer::start().await;
+        let location = format!("{}/capture", target.uri());
+
+        Mock::given(method("GET"))
+            .and(path("/private"))
+            .respond_with(ResponseTemplate::new(302).insert_header("Location", location))
+            .mount(&source)
+            .await;
+
+        let client = smoke_client(None).expect("smoke client should build");
+        let response = client
+            .get(format!("{}/private", source.uri()))
+            .header("Authorization-Key", "secret-token")
+            .send()
+            .await
+            .expect("request should complete");
+
+        assert_eq!(response.status(), StatusCode::FOUND);
+        assert!(
+            target.received_requests().await.unwrap().is_empty(),
+            "smoke client must not forward credentialed requests across redirects"
+        );
+    }
+
+    #[test]
+    fn validate_smoke_details_allows_skipped_sources() {
+        let details = serde_json::json!({
+            "status": "skipped",
+            "reason": "source disabled"
+        });
+
+        validate_smoke_details("usajobs", &details).expect("skipped checks are neutral");
+    }
+
+    #[test]
+    fn validate_smoke_details_rejects_missing_selectors() {
+        let details = serde_json::json!({
+            "status": 200,
+            "selectors_found": false,
+            "html_size_kb": 12
+        });
+
+        let error = validate_smoke_details("glassdoor", &details).unwrap_err();
+        assert!(error.to_string().contains("expected job selectors"));
+    }
+
+    #[test]
+    fn validate_smoke_details_rejects_empty_job_counts() {
+        let details = serde_json::json!({
+            "status": 200,
+            "jobs_found": 0,
+            "format": "rss"
+        });
+
+        let error = validate_smoke_details("simplyhired", &details).unwrap_err();
+        assert!(error.to_string().contains("did not find any jobs"));
+    }
 
     #[test]
     fn source_check_error_message_hides_raw_urls_and_tokens() {

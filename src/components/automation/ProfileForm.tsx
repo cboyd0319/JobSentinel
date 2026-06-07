@@ -551,15 +551,22 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
             <HelpIcon text="Choose a resume file saved on this device. You decide whether to attach it on each application." />
           </h4>
           <div className="flex items-center gap-3">
-            <div className="flex-1">
-              <Input
-                label="Selected resume"
-                hideLabel
-                value={resumeFileLabel}
-                placeholder="No resume selected"
-                readOnly
-                leftIcon={<DocumentIcon className="w-4 h-4" />}
-              />
+            <div className="min-w-0 flex-1">
+              <label className="sr-only" htmlFor="selected-resume-file">
+                Selected resume
+              </label>
+              <div
+                className="relative"
+              >
+                <DocumentIcon className="pointer-events-none absolute left-4 top-4 h-4 w-4 text-surface-400 dark:text-surface-500" />
+                <textarea
+                  id="selected-resume-file"
+                  value={resumeFileLabel || "No resume selected"}
+                  readOnly
+                  rows={2}
+                  className="min-h-12 w-full resize-none rounded-lg border border-surface-200 bg-white py-3 pl-10 pr-4 text-surface-800 [overflow-wrap:anywhere] dark:border-surface-700 dark:bg-surface-800 dark:text-white"
+                />
+              </div>
             </div>
             <Button
               variant="secondary"

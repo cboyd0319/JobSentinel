@@ -26,6 +26,14 @@ describe("LoadingSpinner", () => {
       expect(flexContainer).toBeInTheDocument();
       expect(flexContainer).toHaveClass("h-screen");
     });
+
+    it("supports compact layout inside dialogs", () => {
+      render(<LoadingSpinner delay={0} fullScreen={false} />);
+      const status = screen.getByRole("status", { name: "Loading..." });
+
+      expect(status).toHaveClass("min-h-32");
+      expect(status).not.toHaveClass("h-screen");
+    });
   });
 
   describe("size variations", () => {

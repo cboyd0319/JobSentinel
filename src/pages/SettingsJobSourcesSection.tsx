@@ -9,6 +9,7 @@ import { SettingsConnectedJobSource } from "./SettingsConnectedJobSource";
 import {
   buildSettingsSourceQuery,
   credentialExists,
+  credentialIsExpected,
   getSettingsSourceLocation,
   type Config,
   type CredentialStatusMap,
@@ -48,7 +49,13 @@ export function SettingsJobSourcesSection({
   setShowJobsWithGptEndpoint,
   showJobsWithGptEndpoint,
 }: SettingsJobSourcesSectionProps) {
-  const hasUsaJobsAccessCode = credentialExists(credentialStatus, "usajobs_api_key");
+  const hasConfirmedUsaJobsAccessCode = credentialExists(
+    credentialStatus,
+    "usajobs_api_key",
+  );
+  const hasConfiguredUsaJobsAccessCode =
+    hasConfirmedUsaJobsAccessCode ||
+    credentialIsExpected(credentialStatus, "usajobs_api_key");
 
   return (
     <>
@@ -65,8 +72,8 @@ export function SettingsJobSourcesSection({
 
                 {/* LinkedIn */}
                 <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-4 mb-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
+                  <div className="flex flex-col gap-3 mb-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex min-w-0 flex-wrap items-center gap-2">
                       <LinkedInIcon className="w-5 h-5 text-[#0077B5]" />
                       <span className="font-medium text-surface-800 dark:text-surface-200">
                         LinkedIn
@@ -91,8 +98,8 @@ export function SettingsJobSourcesSection({
 
                 {/* USAJobs */}
                 <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-4 mb-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
+                  <div className="flex flex-col gap-3 mb-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex min-w-0 flex-wrap items-center gap-2">
                       <span className="text-lg">🇺🇸</span>
                       <span className="font-medium text-surface-800 dark:text-surface-200">
                         USAJobs
@@ -101,7 +108,7 @@ export function SettingsJobSourcesSection({
                         (Federal government jobs)
                       </span>
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
+                    <label className="relative inline-flex flex-shrink-0 items-center cursor-pointer">
                       <input
                         type="checkbox"
                         aria-label="Turn USAJobs scheduled job checks on or off"
@@ -136,7 +143,7 @@ export function SettingsJobSourcesSection({
                         for browser-only search.
                       </p>
                       {/* Advanced USAJobs setup */}
-                      {!hasUsaJobsAccessCode && (
+                      {!hasConfirmedUsaJobsAccessCode && (
                         <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
                           <p className="flex items-center gap-1.5 text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">
                             <SettingsSymbol icon="bolt" className="h-4 w-4" />
@@ -188,6 +195,8 @@ export function SettingsJobSourcesSection({
                             />
                           </label>
                           <Input
+                            label="USAJobs access code"
+                            hideLabel
                             type="password"
                             value={credentials.usajobs_api_key}
                             onChange={(e) =>
@@ -197,7 +206,7 @@ export function SettingsJobSourcesSection({
                               }))
                             }
                             placeholder={
-                              hasUsaJobsAccessCode
+                              hasConfiguredUsaJobsAccessCode
                                 ? "Enter new code to update"
                                 : "Paste your USAJobs access code"
                             }
@@ -272,7 +281,7 @@ export function SettingsJobSourcesSection({
                         />
                       </div>
                       <div className="flex flex-wrap items-center gap-4">
-                        <label className="flex items-center gap-2 cursor-pointer">
+                        <label className="flex min-w-0 items-center gap-2 cursor-pointer">
                           <input
                             type="checkbox"
                             checked={config.usajobs?.remote_only ?? false}
@@ -292,11 +301,11 @@ export function SettingsJobSourcesSection({
                             }
                             className="rounded border-surface-300 text-sentinel-500 focus-visible:ring-sentinel-500"
                           />
-                          <span className="text-sm text-surface-700 dark:text-surface-300">
+                          <span className="text-sm text-surface-700 dark:text-surface-300 break-words">
                             Remote only
                           </span>
                         </label>
-                        <div className="flex items-center gap-2">
+                        <div className="flex min-w-0 flex-wrap items-center gap-2">
                           <label className="text-sm text-surface-700 dark:text-surface-300">
                             Posted in last:
                           </label>
@@ -324,7 +333,7 @@ export function SettingsJobSourcesSection({
                             <option value={60}>60 days</option>
                           </select>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex min-w-0 flex-wrap items-center gap-2">
                           <label className="text-sm text-surface-700 dark:text-surface-300">
                             Jobs to check:
                           </label>
@@ -369,20 +378,20 @@ export function SettingsJobSourcesSection({
                       {jobBoardRecommendations.map((rec) => (
                         <div
                           key={rec.board}
-                          className="flex items-center justify-between"
+                          className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
                         >
-                          <div>
-                            <span className="text-sm font-medium text-surface-800 dark:text-surface-200">
+                          <div className="min-w-0">
+                            <span className="text-sm font-medium text-surface-800 dark:text-surface-200 break-words">
                               {rec.board}
                             </span>
-                            <span className="text-xs text-surface-500 dark:text-surface-400 ml-2">
+                            <span className="text-xs text-surface-500 dark:text-surface-400 ml-0 block break-words sm:ml-2 sm:inline">
                               — {rec.reason}
                             </span>
                           </div>
                           <button
                             type="button"
                             onClick={rec.enable}
-                            className="text-xs px-2 py-1 bg-sentinel-500 hover:bg-sentinel-600 text-white rounded transition-colors"
+                            className="self-start text-xs px-2 py-1 bg-sentinel-500 hover:bg-sentinel-600 text-white rounded transition-colors sm:self-auto"
                           >
                             Review source
                           </button>
@@ -416,8 +425,8 @@ export function SettingsJobSourcesSection({
 
                     {/* RemoteOK */}
                     <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
+                      <div className="flex flex-col gap-3 mb-2 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex min-w-0 flex-wrap items-center gap-2">
                           <SettingsSymbol icon="globe" className="h-5 w-5 text-surface-500 dark:text-surface-400" />
                           <span className="font-medium text-surface-800 dark:text-surface-200">
                             RemoteOK
@@ -426,7 +435,7 @@ export function SettingsJobSourcesSection({
                             (Remote-only jobs)
                           </span>
                         </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
+                        <label className="relative inline-flex flex-shrink-0 items-center cursor-pointer">
                           <input
                             type="checkbox"
                             aria-label="Turn Remote OK scheduled job checks on or off"
@@ -451,8 +460,8 @@ export function SettingsJobSourcesSection({
 
                     {/* WeWorkRemotely */}
                     <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
+                      <div className="flex flex-col gap-3 mb-2 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex min-w-0 flex-wrap items-center gap-2">
                           <SettingsSymbol icon="home" className="h-5 w-5 text-surface-500 dark:text-surface-400" />
                           <span className="font-medium text-surface-800 dark:text-surface-200">
                             WeWorkRemotely
@@ -461,7 +470,7 @@ export function SettingsJobSourcesSection({
                             (Remote jobs)
                           </span>
                         </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
+                        <label className="relative inline-flex flex-shrink-0 items-center cursor-pointer">
                           <input
                             type="checkbox"
                             aria-label="Turn We Work Remotely scheduled job checks on or off"
@@ -485,8 +494,8 @@ export function SettingsJobSourcesSection({
 
                     {/* BuiltIn */}
                     <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
+                      <div className="flex flex-col gap-3 mb-2 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex min-w-0 flex-wrap items-center gap-2">
                           <SettingsSymbol icon="city" className="h-5 w-5 text-surface-500 dark:text-surface-400" />
                           <span className="font-medium text-surface-800 dark:text-surface-200">
                             BuiltIn
@@ -495,7 +504,7 @@ export function SettingsJobSourcesSection({
                             (Technology-focused local jobs)
                           </span>
                         </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
+                        <label className="relative inline-flex flex-shrink-0 items-center cursor-pointer">
                           <input
                             type="checkbox"
                             aria-label="Turn BuiltIn scheduled job checks on or off"
@@ -520,8 +529,8 @@ export function SettingsJobSourcesSection({
 
                     {/* Startup and tech hiring posts */}
                     <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
+                      <div className="flex flex-col gap-3 mb-2 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex min-w-0 flex-wrap items-center gap-2">
                           <SettingsSymbol icon="chat" className="h-5 w-5 text-surface-500 dark:text-surface-400" />
                           <span className="font-medium text-surface-800 dark:text-surface-200">
                             Startup and tech hiring posts
@@ -530,7 +539,7 @@ export function SettingsJobSourcesSection({
                             (Monthly hiring posts)
                           </span>
                         </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
+                        <label className="relative inline-flex flex-shrink-0 items-center cursor-pointer">
                           <input
                             type="checkbox"
                             aria-label="Turn startup and tech hiring post checks on or off"
@@ -556,8 +565,8 @@ export function SettingsJobSourcesSection({
 
                     {/* Dice */}
                     <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
+                      <div className="flex flex-col gap-3 mb-2 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex min-w-0 flex-wrap items-center gap-2">
                           <SettingsSymbol icon="briefcase" className="h-5 w-5 text-surface-500 dark:text-surface-400" />
                           <span className="font-medium text-surface-800 dark:text-surface-200">
                             Dice
@@ -566,7 +575,7 @@ export function SettingsJobSourcesSection({
                             (Technology-focused jobs)
                           </span>
                         </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
+                        <label className="relative inline-flex flex-shrink-0 items-center cursor-pointer">
                           <input
                             type="checkbox"
                             aria-label="Turn Dice scheduled job checks on or off"
@@ -598,8 +607,8 @@ export function SettingsJobSourcesSection({
 
                     {/* YC Work at a Startup */}
                     <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
+                      <div className="flex flex-col gap-3 mb-2 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex min-w-0 flex-wrap items-center gap-2">
                           <SettingsSymbol icon="rocket" className="h-5 w-5 text-surface-500 dark:text-surface-400" />
                           <span className="font-medium text-surface-800 dark:text-surface-200">
                             YC Startups
@@ -608,7 +617,7 @@ export function SettingsJobSourcesSection({
                             (Y Combinator)
                           </span>
                         </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
+                        <label className="relative inline-flex flex-shrink-0 items-center cursor-pointer">
                           <input
                             type="checkbox"
                             aria-label="Turn YC Startup scheduled job checks on or off"
@@ -634,8 +643,8 @@ export function SettingsJobSourcesSection({
 
                     {/* SimplyHired */}
                     <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
+                      <div className="flex flex-col gap-3 mb-2 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex min-w-0 flex-wrap items-center gap-2">
                           <SettingsSymbol icon="clipboard" className="h-5 w-5 text-surface-500 dark:text-surface-400" />
                           <span className="font-medium text-surface-800 dark:text-surface-200">
                             SimplyHired
@@ -644,7 +653,7 @@ export function SettingsJobSourcesSection({
                             (Job aggregator)
                           </span>
                         </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
+                        <label className="relative inline-flex flex-shrink-0 items-center cursor-pointer">
                           <input
                             type="checkbox"
                             aria-label="Turn SimplyHired scheduled job checks on or off"
@@ -686,8 +695,8 @@ export function SettingsJobSourcesSection({
 
                     {/* Glassdoor */}
                     <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
+                      <div className="flex flex-col gap-3 mb-2 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex min-w-0 flex-wrap items-center gap-2">
                           <SettingsSymbol icon="search" className="h-5 w-5 text-surface-500 dark:text-surface-400" />
                           <span className="font-medium text-surface-800 dark:text-surface-200">
                             Glassdoor
@@ -696,7 +705,7 @@ export function SettingsJobSourcesSection({
                             (Jobs + reviews)
                           </span>
                         </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
+                        <label className="relative inline-flex flex-shrink-0 items-center cursor-pointer">
                           <input
                             type="checkbox"
                             aria-label="Turn Glassdoor scheduled job checks on or off"

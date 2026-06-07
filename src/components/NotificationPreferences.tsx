@@ -242,6 +242,7 @@ export const NotificationPreferences = memo(function NotificationPreferences() {
           <label className="relative inline-flex items-center cursor-pointer">
             <input
               type="checkbox"
+              aria-label="All job alerts"
               checked={prefs.global.enabled}
               onChange={(e) => handleGlobalChange({ enabled: e.target.checked })}
               className="sr-only peer"
@@ -260,11 +261,12 @@ export const NotificationPreferences = memo(function NotificationPreferences() {
               </span>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                checked={prefs.global.quietHoursEnabled}
-                onChange={(e) => handleGlobalChange({ quietHoursEnabled: e.target.checked })}
-                disabled={!prefs.global.enabled}
+            <input
+              type="checkbox"
+              aria-label="Quiet Hours"
+              checked={prefs.global.quietHoursEnabled}
+              onChange={(e) => handleGlobalChange({ quietHoursEnabled: e.target.checked })}
+              disabled={!prefs.global.enabled}
                 className="sr-only peer"
               />
               <div className="w-9 h-5 bg-surface-200 peer-focus:outline-none peer-focus-visible:ring-2 peer-focus-visible:ring-sentinel-300 rounded-full peer dark:bg-surface-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-sentinel-500 peer-disabled:opacity-50"></div>
@@ -275,6 +277,7 @@ export const NotificationPreferences = memo(function NotificationPreferences() {
               <span className="text-surface-500">From</span>
               <input
                 type="time"
+                aria-label="Quiet hours start"
                 value={prefs.global.quietHoursStart}
                 onChange={(e) => handleGlobalChange({ quietHoursStart: e.target.value })}
                 className="px-2 py-1 border border-surface-300 dark:border-surface-600 rounded bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100"
@@ -282,6 +285,7 @@ export const NotificationPreferences = memo(function NotificationPreferences() {
               <span className="text-surface-500">to</span>
               <input
                 type="time"
+                aria-label="Quiet hours end"
                 value={prefs.global.quietHoursEnd}
                 onChange={(e) => handleGlobalChange({ quietHoursEnd: e.target.value })}
                 className="px-2 py-1 border border-surface-300 dark:border-surface-600 rounded bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100"
@@ -425,12 +429,15 @@ function AdvancedFiltersSection({ filters, onChange, disabled }: AdvancedFilters
               {filters.includeKeywords.map((keyword) => (
                 <span
                   key={keyword}
-                  className="inline-flex items-center gap-1 px-2 py-0.5 text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full"
+                  className="inline-flex max-w-full min-w-0 items-center gap-1 px-2 py-0.5 text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full"
                 >
-                  {keyword}
+                  <span className="min-w-0 break-words [overflow-wrap:anywhere]">
+                    {keyword}
+                  </span>
                   <button
                     onClick={() => removeKeyword('include', keyword)}
-                    className="hover:text-green-900 dark:hover:text-green-300"
+                    className="flex-shrink-0 hover:text-green-900 dark:hover:text-green-300"
+                    aria-label={`Remove include keyword ${keyword}`}
                   >
                     &times;
                   </button>
@@ -470,12 +477,15 @@ function AdvancedFiltersSection({ filters, onChange, disabled }: AdvancedFilters
               {filters.excludeKeywords.map((keyword) => (
                 <span
                   key={keyword}
-                  className="inline-flex items-center gap-1 px-2 py-0.5 text-xs bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-full"
+                  className="inline-flex max-w-full min-w-0 items-center gap-1 px-2 py-0.5 text-xs bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-full"
                 >
-                  {keyword}
+                  <span className="min-w-0 break-words [overflow-wrap:anywhere]">
+                    {keyword}
+                  </span>
                   <button
                     onClick={() => removeKeyword('exclude', keyword)}
-                    className="hover:text-red-900 dark:hover:text-red-300"
+                    className="flex-shrink-0 hover:text-red-900 dark:hover:text-red-300"
+                    aria-label={`Remove exclude keyword ${keyword}`}
                   >
                     &times;
                   </button>
@@ -517,6 +527,7 @@ function AdvancedFiltersSection({ filters, onChange, disabled }: AdvancedFilters
           <label className="relative inline-flex items-center cursor-pointer">
             <input
               type="checkbox"
+              aria-label="Remote jobs only"
               checked={filters.remoteOnly}
               onChange={(e) => onChange({ remoteOnly: e.target.checked })}
               className="sr-only peer"
@@ -535,7 +546,9 @@ function AdvancedFiltersSection({ filters, onChange, disabled }: AdvancedFilters
         <div>
           <label className="text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5 block">
             Companies you want alerts from
-            <span className="font-normal text-surface-500 ml-1">(get alerts only from these, or leave empty for all)</span>
+            <span className="block font-normal text-surface-500">
+              Get alerts only from these, or leave empty for all.
+            </span>
           </label>
           <div className="mb-2">
             <CompanyAutocomplete
@@ -552,12 +565,15 @@ function AdvancedFiltersSection({ filters, onChange, disabled }: AdvancedFilters
               {filters.companyWhitelist.map((company) => (
                 <span
                   key={company}
-                  className="inline-flex items-center gap-1 px-2 py-0.5 text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-full"
+                  className="inline-flex max-w-full min-w-0 items-center gap-1 px-2 py-0.5 text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-full"
                 >
-                  {company}
+                  <span className="min-w-0 break-words [overflow-wrap:anywhere]">
+                    {company}
+                  </span>
                   <button
                     onClick={() => removeCompany('favorite', company)}
-                    className="hover:text-blue-900 dark:hover:text-blue-300"
+                    className="flex-shrink-0 hover:text-blue-900 dark:hover:text-blue-300"
+                    aria-label={`Remove preferred company ${company}`}
                   >
                     &times;
                   </button>
@@ -571,7 +587,9 @@ function AdvancedFiltersSection({ filters, onChange, disabled }: AdvancedFilters
         <div>
           <label className="text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5 block">
             Companies to skip
-            <span className="font-normal text-surface-500 ml-1">(never get alerts from these)</span>
+            <span className="block font-normal text-surface-500">
+              Never get alerts from these.
+            </span>
           </label>
           <div className="mb-2">
             <CompanyAutocomplete
@@ -588,12 +606,15 @@ function AdvancedFiltersSection({ filters, onChange, disabled }: AdvancedFilters
               {filters.companyBlacklist.map((company) => (
                 <span
                   key={company}
-                  className="inline-flex items-center gap-1 px-2 py-0.5 text-xs bg-surface-200 dark:bg-surface-700 text-surface-700 dark:text-surface-300 rounded-full"
+                  className="inline-flex max-w-full min-w-0 items-center gap-1 px-2 py-0.5 text-xs bg-surface-200 dark:bg-surface-700 text-surface-700 dark:text-surface-300 rounded-full"
                 >
-                  {company}
+                  <span className="min-w-0 break-words [overflow-wrap:anywhere]">
+                    {company}
+                  </span>
                   <button
                     onClick={() => removeCompany('skip', company)}
-                    className="hover:text-surface-900 dark:hover:text-surface-100"
+                    className="flex-shrink-0 hover:text-surface-900 dark:hover:text-surface-100"
+                    aria-label={`Remove skipped company ${company}`}
                   >
                     &times;
                   </button>

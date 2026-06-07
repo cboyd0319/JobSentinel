@@ -79,7 +79,8 @@ export const Tooltip = memo(function Tooltip({
             px-3 py-2 text-sm font-medium text-white
             bg-surface-800 dark:bg-surface-700
             rounded-lg shadow-lg
-            whitespace-nowrap
+            max-w-[min(20rem,calc(100vw-2rem))]
+            whitespace-normal break-words [overflow-wrap:anywhere]
             motion-safe:animate-fade-in
           `}
         >

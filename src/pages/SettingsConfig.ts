@@ -47,7 +47,7 @@ export interface SourceRequestSummary {
   outcome: SourceRequestOutcome;
 }
 
-// Config interface without sensitive credential fields (stored in OS keyring)
+// Config interface without sensitive credential fields (stored through secure storage)
 export interface Config {
   title_allowlist: string[];
   title_blocklist: string[];
@@ -70,31 +70,31 @@ export interface Config {
   alerts: {
     slack: {
       enabled: boolean;
-      // webhook_url stored securely in keyring
+      // webhook_url stored securely
     };
     email: {
       enabled: boolean;
       smtp_server: string;
       smtp_port: number;
       smtp_username: string;
-      // smtp_password stored securely in keyring
+      // smtp_password stored securely
       from_email: string;
       to_emails: string[];
       use_starttls: boolean;
     };
     discord: {
       enabled: boolean;
-      // webhook_url stored securely in keyring
+      // webhook_url stored securely
       user_id_to_mention?: string;
     };
     telegram: {
       enabled: boolean;
-      // bot_token stored securely in keyring
+      // bot_token stored securely
       chat_id?: string;
     };
     teams: {
       enabled: boolean;
-      // webhook_url stored securely in keyring
+      // webhook_url stored securely
     };
     desktop: {
       enabled: boolean;
@@ -104,7 +104,7 @@ export interface Config {
   };
   linkedin: {
     enabled: boolean;
-    // session_cookie stored securely in keyring
+    // session_cookie stored securely
     query: string;
     location: string;
     remote_only: boolean;
@@ -145,7 +145,7 @@ export interface Config {
   };
   usajobs: {
     enabled: boolean;
-    // api_key stored securely in keyring
+    // api_key stored securely
     email: string;
     keywords?: string;
     location?: string;
@@ -232,7 +232,14 @@ export interface CredentialStatusEntry {
 export interface CredentialStatusValue {
   exists: boolean;
   available: boolean;
+  state: CredentialStatusState;
 }
+
+export type CredentialStatusState =
+  | "empty"
+  | "expected"
+  | "saved"
+  | "needs_attention";
 
 export type CredentialStatusMap = Record<CredentialKey, CredentialStatusValue>;
 
@@ -258,15 +265,21 @@ export function credentialExists(
   key: CredentialKey,
 ): boolean {
   const status = credentialStatus[key];
-  return status.available && status.exists;
+  return status.state === "saved" || (status.available && status.exists);
 }
 
-export function credentialMayExist(
+export function credentialIsExpected(
   credentialStatus: CredentialStatusMap,
   key: CredentialKey,
 ): boolean {
-  const status = credentialStatus[key];
-  return status.exists || !status.available;
+  return credentialStatus[key].state === "expected";
+}
+
+export function credentialNeedsAttention(
+  credentialStatus: CredentialStatusMap,
+  key: CredentialKey,
+): boolean {
+  return credentialStatus[key].state === "needs_attention";
 }
 
 export const isValidSlackWebhook = (url: string): boolean =>
@@ -596,9 +609,61 @@ export function getCredentialValidationError(
     };
   }
 
+  if (config?.alerts.slack?.enabled) {
+    const hasSlackConnection =
+      Boolean(credentialStatus && credentialExists(credentialStatus, "slack_webhook")) ||
+      Boolean(credentials.slack_webhook.trim());
+
+    if (!hasSlackConnection) {
+      return {
+        title: "Finish Slack alerts",
+        message: "Paste the Slack connection link again, or turn Slack alerts off.",
+      };
+    }
+  }
+
+  if (config?.alerts.email?.enabled) {
+    const hasEmailPassword =
+      Boolean(credentialStatus && credentialExists(credentialStatus, "smtp_password")) ||
+      Boolean(credentials.smtp_password.trim());
+
+    if (!hasEmailPassword) {
+      return {
+        title: "Finish email alerts",
+        message: "Add the email app password, or turn email alerts off.",
+      };
+    }
+  }
+
+  if (config?.alerts.discord?.enabled) {
+    const hasDiscordConnection =
+      Boolean(credentialStatus && credentialExists(credentialStatus, "discord_webhook")) ||
+      Boolean(credentials.discord_webhook.trim());
+
+    if (!hasDiscordConnection) {
+      return {
+        title: "Finish Discord alerts",
+        message: "Paste the Discord connection link again, or turn Discord alerts off.",
+      };
+    }
+  }
+
+  if (config?.alerts.teams?.enabled) {
+    const hasTeamsConnection =
+      Boolean(credentialStatus && credentialExists(credentialStatus, "teams_webhook")) ||
+      Boolean(credentials.teams_webhook.trim());
+
+    if (!hasTeamsConnection) {
+      return {
+        title: "Finish Teams alerts",
+        message: "Paste the Teams connection link again, or turn Teams alerts off.",
+      };
+    }
+  }
+
   if (config?.alerts.telegram?.enabled) {
     const hasAlertCode =
-      Boolean(credentialStatus && credentialMayExist(credentialStatus, "telegram_bot_token")) ||
+      Boolean(credentialStatus && credentialExists(credentialStatus, "telegram_bot_token")) ||
       Boolean(credentials.telegram_bot_token.trim());
     const hasDestination = Boolean(config.alerts.telegram.chat_id?.trim());
 
@@ -613,7 +678,7 @@ export function getCredentialValidationError(
 
   if (config?.usajobs?.enabled) {
     const hasAccessCode =
-      Boolean(credentialStatus && credentialMayExist(credentialStatus, "usajobs_api_key")) ||
+      Boolean(credentialStatus && credentialExists(credentialStatus, "usajobs_api_key")) ||
       Boolean(credentials.usajobs_api_key.trim());
     const hasEmail = Boolean(config.usajobs.email?.trim());
 

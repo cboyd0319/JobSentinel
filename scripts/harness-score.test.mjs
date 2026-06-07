@@ -61,7 +61,49 @@ function writeCompleteHarnessFixture(root) {
     [
       "docs/harness/README.md",
       "docs/harness/verification-matrix.md",
+      "DESIGN.md",
+      "docs/design/README.md",
+      "docs/design/design-spec.md",
       "npm run harness:check",
+    ].join("\n"),
+  );
+  writeFixtureFile(
+    root,
+    "DESIGN.md",
+    [
+      'name: "JobSentinel Quiet Shield"',
+      "Protective Navy is the target dark theme.",
+      "Responsive layouts must never create horizontal page scroll.",
+      "theme tokens, contrast checks, screenshots, and native Computer Use validation",
+    ].join("\n"),
+  );
+  writeFixtureFile(
+    root,
+    "docs/design/README.md",
+    [
+      "# JobSentinel Design Docs",
+      "They are product contracts, not inspiration boards.",
+      "Do not claim the full Protective Navy migration is complete until visual verification confirms every major route and state.",
+    ].join("\n"),
+  );
+  writeFixtureFile(
+    root,
+    "docs/design/design-spec.md",
+    [
+      "# JobSentinel Design Spec",
+      "Protective Navy is the target dark theme.",
+      "Toasts and modals stay in viewport.",
+      "full migration until all major routes are verified",
+    ].join("\n"),
+  );
+  writeFixtureFile(
+    root,
+    "docs/developer/DESIGN_SPEC.md",
+    [
+      "# Design Spec Compatibility Pointer",
+      "DESIGN.md",
+      "docs/design/design-spec.md",
+      "Harness checks require this file to stay a pointer",
     ].join("\n"),
   );
   writeFixtureFile(
@@ -72,6 +114,8 @@ function writeCompleteHarnessFixture(root) {
       "User privacy and security are non-negotiable.",
       "Rule 0 wins",
       "## Current Standard",
+      "Design contract",
+      "DESIGN.md",
       "docs/",
       "PRIVACY.md",
       "RESPONSIBLE_AI.md",
@@ -113,18 +157,43 @@ function writeCompleteHarnessFixture(root) {
     root,
     "docs/plans/index.json",
     JSON.stringify({
+      goal:
+        "Move toward zero drift from the locked Quiet Shield redesign in DESIGN.md, docs/design/README.md, and docs/design/design-spec.md.",
       activeWorkstreams: [
         { id: "active-status", path: "docs/plans/active/status.md", state: "active", nextStep: "Next" },
-        { id: "current-work", path: "docs/plans/active/current-work.md", state: "active", nextStep: "Next" },
+        {
+          id: "current-work",
+          path: "docs/plans/active/current-work.md",
+          state: "active",
+          nextStep: "Next",
+          verification: "Computer Use or Playwright screenshot proof",
+        },
       ],
     }),
   );
   writeFixtureFile(
     root,
     "docs/plans/active/status.md",
-    ["## Next Best Work", "1. Continue.", "## Completion Bar"].join("\n"),
+    [
+      "## Next Best Work",
+      "1. Continue.",
+      "Quiet Shield redesign is now part of the active repo-wide goal and the repo harness.",
+      "DESIGN.md",
+      "docs/design/README.md",
+      "docs/design/design-spec.md",
+      "## Completion Bar",
+    ].join("\n"),
   );
-  writeFixtureFile(root, "docs/plans/active/current-work.md", "# Current Work\n\n## Sensors\n\n## Handoff\n");
+  writeFixtureFile(
+    root,
+    "docs/plans/active/current-work.md",
+    [
+      "# Current Work",
+      "Locked redesign: DESIGN.md, docs/design/README.md, and docs/design/design-spec.md.",
+      "## Sensors",
+      "## Handoff",
+    ].join("\n"),
+  );
   writeFixtureFile(root, "docs/plans/tech-debt-tracker.md", "# Debt\n");
   writeFixtureFile(
     root,
@@ -166,6 +235,28 @@ test("summarizeHarnessScore reports all repo-managed subsystems at 5/5", () => {
         assert.equal(subsystem.score, 5, `${framework.name} ${subsystem.name}`);
       }
     }
+  });
+});
+
+test("summarizeHarnessScore catches stubbed design contract docs", () => {
+  withFixture((root) => {
+    writeCompleteHarnessFixture(root);
+    writeFixtureFile(root, "DESIGN.md", "# Design\n");
+
+    const summary = summarizeHarnessScore(root);
+    const creator = summary.frameworks.find(
+      (framework) => framework.id === "walkinglabs-harness-creator",
+    );
+    const instructions = creator.subsystems.find(
+      (subsystem) => subsystem.name === "Instructions",
+    );
+
+    assert.equal(summary.allPerfect, false);
+    assert.equal(instructions.score < 5, true);
+    assert.equal(
+      instructions.checks.find((item) => item.label === "Design contract docs carry Quiet Shield rules").pass,
+      false,
+    );
   });
 });
 

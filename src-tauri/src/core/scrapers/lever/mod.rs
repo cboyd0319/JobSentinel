@@ -171,6 +171,7 @@ impl LeverScraper {
 impl JobScraper for LeverScraper {
     async fn scrape(&self) -> ScraperResult {
         let mut all_jobs = Vec::new();
+        let mut failed_companies = 0usize;
 
         for company in &self.companies {
             // Use rate limiter to respect Lever's limits
@@ -181,6 +182,7 @@ impl JobScraper for LeverScraper {
                     all_jobs.extend(jobs);
                 }
                 Err(_) => {
+                    failed_companies += 1;
                     tracing::warn!(
                         source = "lever",
                         message = COMPANY_SCRAPE_FAILED,
@@ -189,6 +191,13 @@ impl JobScraper for LeverScraper {
                     // Continue with other companies
                 }
             }
+        }
+
+        if !self.companies.is_empty() && failed_companies == self.companies.len() {
+            return Err(ScraperError::Generic {
+                scraper: "lever".to_string(),
+                message: "All configured company boards failed".to_string(),
+            });
         }
 
         Ok(all_jobs)

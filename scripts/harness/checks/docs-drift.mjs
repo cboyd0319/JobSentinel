@@ -371,6 +371,16 @@ export function hasDeveloperArchitectureDocMarkers(root, path) {
   return stalePatterns.some((pattern) => pattern.test(text));
 }
 
+export function hasStaleArchitectureCloudDependencyClaim(root, path) {
+  if (path !== "docs/developer/ARCHITECTURE.md") {
+    return false;
+  }
+
+  return /no cloud dependencies(?:\s*\(v\d+\.\d+\))?/i.test(
+    readFileSync(join(root, path), "utf8"),
+  );
+}
+
 export function hasDeveloperMaintenanceDocDrift(root, path) {
   if (!developerMaintenanceDocsPaths.has(path)) {
     return false;
@@ -452,6 +462,16 @@ export function hasStaleGettingStartedToolingDocs(root, path) {
   );
 }
 
+export function hasStalePlatformVersionTags(root, path) {
+  if (path !== "docs/developer/GETTING_STARTED.md") {
+    return false;
+  }
+
+  return /\b(?:Windows|macos|linux)\*\*:\s+[^.\n]*specific features\s+\(v\d+\.\d+\+?\)/i.test(
+    readFileSync(join(root, path), "utf8"),
+  );
+}
+
 export function hasStalePlatformDataPathDocs(root, path) {
   if (path !== "docs/developer/GETTING_STARTED.md") {
     return false;
@@ -471,6 +491,28 @@ export function hasStaleMacosDeveloperDocs(root, path) {
   return /JobSentinel_1\.0\.0_aarch64\.dmg|[✅❌⚠️⏳🔐📄📝🟢🟡🔴📊📧📈📉🎯🚀💡🔍⭐🔄📋]/u.test(
     text,
   );
+}
+
+export function hasMacosVerificationClaimWithoutEvidence(root, path) {
+  if (path !== "docs/developer/MACOS_DEVELOPMENT.md") {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /\*\*Status:\*\*[^.\n]*verified/i.test(text) &&
+    !/\*\*Evidence:\*\*\s+See\s+\[Current macOS Readiness\]\(#current-macos-readiness\)/i.test(
+      text,
+    )
+  );
+}
+
+export function hasStaleTestingReleaseScopedNote(root, path) {
+  if (path !== "docs/developer/TESTING.md") {
+    return false;
+  }
+
+  return /\bAs of v\d+\.\d+(?:\.\d+)?\b/i.test(readFileSync(join(root, path), "utf8"));
 }
 
 export function hasStaleSqliteConfigurationDoc(root, path) {
@@ -590,15 +632,19 @@ const docsDriftRules = [
   [hasSynonymOrRemotePreferenceDocDrift, "sync synonym and remote preference docs"],
   [hasStaleTestQualityDocGuidance, "replace stale test-quality doc guidance"],
   [hasDeveloperTestingDocMarkers, "replace developer testing doc stale markers"],
+  [hasStaleTestingReleaseScopedNote, "replace release-scoped testing note"],
   [hasDeveloperArchitectureDocMarkers, "replace developer architecture doc stale markers"],
+  [hasStaleArchitectureCloudDependencyClaim, "replace obsolete cloud-dependency claim"],
   [hasDeveloperMaintenanceDocDrift, "replace developer maintenance doc stale markers"],
   [hasTopLevelActiveDocDrift, "replace top-level active doc stale markers"],
   [hasTopLevelActiveDocGlyphMarkers, "replace top-level active doc glyph markers"],
   [hasStaleE2eWaitGuidance, "replace stale E2E wait guidance"],
   [hasFixedWaitInActiveE2eRuntime, "replace fixed E2E runtime wait"],
   [hasStaleGettingStartedToolingDocs, "sync getting-started tooling docs"],
+  [hasStalePlatformVersionTags, "replace platform release tags"],
   [hasStalePlatformDataPathDocs, "sync platform data path docs"],
   [hasStaleMacosDeveloperDocs, "sync macOS developer docs"],
+  [hasMacosVerificationClaimWithoutEvidence, "add macOS verification evidence pointer"],
   [hasStaleSqliteConfigurationDoc, "sync SQLite configuration doc"],
   [hasUnlinkedLinuxBuildGuide, "link Linux build guide from docs hub"],
   [hasStaleLinuxBuildWorkflowTriggerDoc, "sync Linux build workflow trigger doc"],

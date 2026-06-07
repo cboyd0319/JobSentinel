@@ -437,7 +437,7 @@ export default function Salary({ onBack }: SalaryProps) {
 
                 {/* Salary Range Visualization */}
                 <div className="bg-surface-50 dark:bg-surface-700 rounded-lg p-4">
-                  <div className="flex items-center justify-between text-sm text-surface-500 dark:text-surface-400 mb-2">
+                  <div className="mb-2 grid grid-cols-2 gap-x-3 gap-y-1 text-sm text-surface-500 dark:text-surface-400 sm:grid-cols-4">
                     <span>Lower range</span>
                     <span>Middle</span>
                     <span>Higher range</span>
@@ -454,7 +454,7 @@ export default function Salary({ onBack }: SalaryProps) {
                     />
                   </div>
 
-                  <div className="flex justify-between mt-2">
+                  <div className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 sm:grid-cols-4">
                     <span className="text-sm font-medium text-surface-800 dark:text-surface-200">
                       {formatCurrency(benchmark.p25_salary)}
                     </span>

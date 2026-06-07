@@ -302,6 +302,9 @@ React 19 + TypeScript UI
 Architecture and maintenance docs:
 
 - [Developer architecture](docs/developer/ARCHITECTURE.md)
+- [Design docs hub](docs/design/README.md)
+- [Product design guide](DESIGN.md)
+- [Full design spec](docs/design/design-spec.md)
 - [Privacy-first AI gateway](docs/architecture/privacy-first-ai-gateway.md)
 - [Security docs](docs/security/README.md)
 - [Harness engineering](docs/harness/README.md)

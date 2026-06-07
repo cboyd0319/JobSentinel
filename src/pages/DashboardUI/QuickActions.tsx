@@ -191,7 +191,9 @@ const ShortcutItem = memo(function ShortcutItem({ keys, description }: { keys: s
           </kbd>
         ))}
       </div>
-      <span className="text-surface-600 dark:text-surface-400 truncate">{description}</span>
+      <span className="break-words text-surface-600 [overflow-wrap:anywhere] dark:text-surface-400">
+        {description}
+      </span>
     </div>
   );
 });

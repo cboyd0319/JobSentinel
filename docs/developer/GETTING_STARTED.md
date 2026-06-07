@@ -179,9 +179,9 @@ All core functionality is in `src-tauri/src/core/` and works identically on all 
 
 Platform code is in `src-tauri/src/platforms/` and uses conditional compilation:
 
-- **Windows**: Windows 11+ specific features (v1.0)
-- **macos**: macOS 13+ specific features (v2.1+)
-- **linux**: Linux specific features (v2.1+)
+- **Windows**: Windows 11+ platform features
+- **macos**: macOS 13+ platform features
+- **linux**: Linux platform features
 
 Example:
 

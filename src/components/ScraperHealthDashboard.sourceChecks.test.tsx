@@ -111,6 +111,44 @@ describe("ScraperHealthDashboard source checks", () => {
       });
     });
 
+    it("shows skipped checks as neutral instead of worked", async () => {
+      mockInvoke.mockImplementation((cmd: string) => {
+        if (cmd === "get_health_summary") return Promise.resolve(mockSummary);
+        if (cmd === "get_scraper_health") return Promise.resolve(mockScrapers);
+        if (cmd === "get_expiring_credentials") return Promise.resolve([]);
+        if (cmd === "run_all_smoke_tests") {
+          return Promise.resolve([
+            {
+              scraper_name: "usajobs",
+              test_type: "connectivity",
+              passed: true,
+              duration_ms: 25,
+              details: {
+                status: "skipped",
+                reason: "USAJobs API key not saved",
+              },
+              error: null,
+            },
+          ]);
+        }
+        return Promise.resolve(null);
+      });
+
+      const user = userEvent.setup();
+      render(<ScraperHealthDashboard onClose={onClose} />);
+
+      await waitFor(() => {
+        expect(screen.getByText("Check Sources Now")).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByText("Check Sources Now"));
+
+      await waitFor(() => {
+        expect(screen.getByText("Skipped")).toBeInTheDocument();
+      });
+      expect(screen.queryByText("Worked")).not.toBeInTheDocument();
+    });
+
     it("displays plain check speeds in results", async () => {
       const user = userEvent.setup();
       render(<ScraperHealthDashboard onClose={onClose} />);

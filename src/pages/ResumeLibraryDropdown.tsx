@@ -83,7 +83,7 @@ export function ResumeLibraryDropdown({
 function ResumeLibrarySummary({ resume }: { resume: ResumeData }) {
   return (
     <div className="min-w-0">
-      <p className="truncate text-sm font-medium text-surface-800 dark:text-surface-200">
+      <p className="break-words [overflow-wrap:anywhere] text-sm font-medium text-surface-800 dark:text-surface-200">
         {resume.name}
       </p>
       <p className="text-xs text-surface-500">

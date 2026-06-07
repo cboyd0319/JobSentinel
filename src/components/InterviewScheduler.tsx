@@ -2,12 +2,12 @@ import { useEffect, useState, useCallback, memo } from "react";
 import { cachedInvoke, invalidateCacheByCommand, safeInvoke, safeInvokeWithToast } from "../utils/api";
 import { Badge } from "./Badge";
 import { Button } from "./Button";
-import { Card } from "./Card";
 import { CompanyResearchPanel } from "./CompanyResearchPanel";
 import {
   InterviewScheduleFormModal,
   type InterviewScheduleFormData,
 } from "./InterviewScheduleFormModal";
+import { Modal } from "./Modal";
 import { useToast } from "../contexts";
 import { formatInterviewDate, getRelativeTimeUntil } from "../utils/formatUtils";
 import { MIN_INTERVIEW_DURATION, MAX_INTERVIEW_DURATION } from "../utils/constants";
@@ -30,7 +30,6 @@ import {
 } from "./InterviewSchedulerModel";
 import {
   CalendarIcon,
-  CloseIcon,
   DownloadIcon,
   HistoryIcon,
   LocationIcon,
@@ -344,58 +343,39 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
 
   if (loading) {
     return (
-      <div
-        className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-        onClick={(e) => e.target === e.currentTarget && onClose()}
-        onKeyDown={(e) => e.key === "Escape" && onClose()}
-        role="dialog"
-        aria-modal="true"
-        aria-label="Loading interviews"
+      <Modal
+        isOpen
+        onClose={onClose}
+        title="Interview Schedule"
+        description="Loading interviews"
+        size="wide"
+        closeButtonLabel="Close interview scheduler"
       >
-        <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto dark:bg-surface-800">
-          <div className="p-6 space-y-4">
-            <div className="h-8 w-48 bg-surface-200 dark:bg-surface-700 rounded animate-pulse" />
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-24 bg-surface-200 dark:bg-surface-700 rounded animate-pulse" />
-            ))}
-          </div>
-        </Card>
-      </div>
+        <div className="space-y-4" role="status" aria-label="Loading interviews">
+          <div className="h-8 w-48 rounded bg-surface-200 motion-safe:animate-pulse dark:bg-surface-700" />
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-24 rounded bg-surface-200 motion-safe:animate-pulse dark:bg-surface-700" />
+          ))}
+        </div>
+      </Modal>
     );
   }
 
   return (
-    <div
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-      onClick={(e) => e.target === e.currentTarget && onClose()}
-      onKeyDown={(e) => e.key === "Escape" && onClose()}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="interviews-title"
-    >
-      <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto dark:bg-surface-800">
-        <div className="p-6 space-y-6">
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <h2
-              id="interviews-title"
-              className="font-display text-display-md text-surface-900 dark:text-white"
-            >
-              Interview Schedule
-            </h2>
-            <div className="flex items-center gap-2">
-              <Button variant="primary" onClick={() => setShowAddForm(true)}>
-                <PlusIcon />
-                Schedule
-              </Button>
-              <button
-                onClick={onClose}
-                className="p-2.5 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-700/50 transition-colors"
-                aria-label="Close interview scheduler"
-              >
-                <CloseIcon />
-              </button>
-            </div>
+    <>
+      <Modal
+        isOpen
+        onClose={onClose}
+        title="Interview Schedule"
+        size="wide"
+        closeButtonLabel="Close interview scheduler"
+      >
+        <div className="space-y-6">
+          <div className="flex justify-end">
+            <Button variant="primary" onClick={() => setShowAddForm(true)}>
+              <PlusIcon />
+              Schedule
+            </Button>
           </div>
 
           {/* Tabs */}
@@ -453,10 +433,10 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
                           </span>
                           <Badge variant="surface">{getRelativeTimeUntil(interview.scheduled_at)}</Badge>
                         </div>
-                        <h3 className="font-medium text-surface-900 dark:text-white truncate">
+                        <h3 className="break-words font-medium text-surface-900 [overflow-wrap:anywhere] dark:text-white">
                           {interview.job_title}
                         </h3>
-                        <p className="text-sm text-surface-500 dark:text-surface-400">
+                        <p className="break-words text-sm text-surface-500 [overflow-wrap:anywhere] dark:text-surface-400">
                           {interview.company}
                         </p>
                       </div>
@@ -527,10 +507,10 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
                             </span>
                           )}
                         </div>
-                        <h3 className="font-medium text-surface-900 dark:text-white truncate">
+                        <h3 className="break-words font-medium text-surface-900 [overflow-wrap:anywhere] dark:text-white">
                           {interview.job_title}
                         </h3>
-                        <p className="text-sm text-surface-500 dark:text-surface-400">
+                        <p className="break-words text-sm text-surface-500 [overflow-wrap:anywhere] dark:text-surface-400">
                           {interview.company}
                         </p>
                       </div>
@@ -589,7 +569,7 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
             )
           )}
         </div>
-      </Card>
+      </Modal>
 
       {showAddForm && (
         <InterviewScheduleFormModal
@@ -607,36 +587,17 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
 
       {/* Interview Detail Modal */}
       {selectedInterview && (
-        <div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4"
-          onClick={(e) => e.target === e.currentTarget && setSelectedInterview(null)}
-          onKeyDown={(e) => e.key === "Escape" && setSelectedInterview(null)}
-          role="dialog"
-          aria-modal="true"
+        <Modal
+          isOpen
+          onClose={() => setSelectedInterview(null)}
+          title={selectedInterview.job_title}
+          description={selectedInterview.company}
+          size="md"
         >
-          <Card className="w-full max-w-md dark:bg-surface-800">
-            <div className="p-6 space-y-4">
-              <div className="flex items-center justify-between">
-                <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${TYPE_COLORS[selectedInterview.interview_type] || TYPE_COLORS.other}`}>
-                  {INTERVIEW_TYPES.find((t) => t.value === selectedInterview.interview_type)?.label || selectedInterview.interview_type}
-                </span>
-                <button
-                  onClick={() => setSelectedInterview(null)}
-                  className="p-2.5 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-700/50 transition-colors"
-                  aria-label="Close interview details"
-                >
-                  <CloseIcon />
-                </button>
-              </div>
-
-              <div>
-                <h3 className="font-display text-display-sm text-surface-900 dark:text-white">
-                  {selectedInterview.job_title}
-                </h3>
-                <p className="text-surface-500 dark:text-surface-400">
-                  {selectedInterview.company}
-                </p>
-              </div>
+          <div className="space-y-4">
+              <span className={`inline-flex px-2 py-0.5 text-xs rounded-full font-medium ${TYPE_COLORS[selectedInterview.interview_type] || TYPE_COLORS.other}`}>
+                {INTERVIEW_TYPES.find((t) => t.value === selectedInterview.interview_type)?.label || selectedInterview.interview_type}
+              </span>
 
               <div className="space-y-2 text-sm">
                 <div className="flex items-center gap-2">
@@ -836,9 +797,8 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
                   </Button>
                 )}
               </div>
-            </div>
-          </Card>
-        </div>
+          </div>
+        </Modal>
       )}
 
       {/* Company Research Panel Modal */}
@@ -851,6 +811,6 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
           }}
         />
       )}
-    </div>
+    </>
   );
 });

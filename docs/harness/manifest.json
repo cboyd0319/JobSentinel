@@ -4,10 +4,14 @@
     ".nvmrc",
     ".github/PULL_REQUEST_TEMPLATE.md",
     "AGENTS.md",
+    "DESIGN.md",
     "PRIVACY.md",
     "RESPONSIBLE_AI.md",
     "rust-toolchain.toml",
     "docs/architecture/privacy-first-ai-gateway.md",
+    "docs/design/README.md",
+    "docs/design/design-spec.md",
+    "docs/developer/DESIGN_SPEC.md",
     "docs/harness/README.md",
     "docs/harness/manifest.json",
     "docs/harness/sources.md",
@@ -37,6 +41,8 @@
       "Rule 0: user privacy and security are non-negotiable.",
       "External AI stays optional, disabled by default, and routed through the",
       "zero technical knowledge",
+      "DESIGN.md",
+      "docs/design/README.md",
       "multi-agent-orchestration.md",
       "Update the whole public GitHub wiki when behavior, setup, commands,"
     ],
@@ -92,6 +98,8 @@
       "User privacy and security are non-negotiable.",
       "## Session Start Checklist",
       "## When To Add Harness",
+      "Design contract",
+      "harness-controlled active-goal acceptance gate",
       "Multi-agent orchestration",
       "Experience contract",
       "Support path",
@@ -110,6 +118,8 @@
       "Rule 0 evidence:",
       "Rule 0 risk:",
       "Audience and ease:",
+      "Design contract:",
+      "harness-controlled Quiet Shield redesign",
       "Orchestration:",
       "Harness impact:",
       "User-ease evidence:",
@@ -117,9 +127,67 @@
     ],
     "docs/harness/verification-matrix.md": [
       "## Experience And Support",
+      "Design-system or redesign contract",
+      "record the Quiet Shield impact",
       "Multi-agent orchestration or delegated implementation",
       "External AI provider path",
       "Public GitHub wiki-impacting change"
+    ],
+    "docs/plans/index.json": [
+      "Quiet Shield redesign",
+      "DESIGN.md",
+      "docs/design/README.md",
+      "docs/design/design-spec.md",
+      "Computer Use or Playwright screenshot proof"
+    ],
+    "docs/plans/active/status.md": [
+      "Release creation is paused until development and QA blockers are closed.",
+      "Quiet Shield redesign is now part of the active repo-wide goal and the repo harness.",
+      "harness-controlled active-goal acceptance gate",
+      "`DESIGN.md`, `docs/design/README.md`, and `docs/design/design-spec.md`"
+    ],
+    "docs/plans/active/current-work.md": [
+      "Locked redesign:",
+      "Harness-controlled redesign lock:",
+      "`DESIGN.md`, `docs/design/README.md`, and `docs/design/design-spec.md`",
+      "Confirm major route screenshots, Computer Use clicks, keyboard flow"
+    ],
+    "DESIGN.md": [
+      "JobSentinel Quiet Shield",
+      "quiet shield",
+      "Protective Navy",
+      "Privacy And Secret UX",
+      "JobSentinel's SQLite database must be encrypted at rest.",
+      "Settings, dashboards, and passive status views must not probe saved secrets",
+      "harness-controlled active-goal acceptance gate",
+      "theme tokens, contrast checks, screenshots, and native Computer Use validation"
+    ],
+    "docs/design/README.md": [
+      "JobSentinel Design Docs",
+      "product contracts, not inspiration boards",
+      "Harness Lock",
+      "DESIGN.md",
+      "Design Spec",
+      "Local Secret Vault And Keychain Integration",
+      "harness-controlled active-goal acceptance gate",
+      "Passive screens must not trigger repeated credential prompts",
+      "Do not claim the full Protective Navy migration is complete until visual"
+    ],
+    "docs/design/design-spec.md": [
+      "quiet shield",
+      "Protective Navy",
+      "Screen Contracts",
+      "Privacy And AI Interaction",
+      "SQLite app data is encrypted at rest.",
+      "Passive views, including Settings load and saved-status badges",
+      "full migration until all major routes are verified"
+    ],
+    "docs/developer/DESIGN_SPEC.md": [
+      "Design Spec Compatibility Pointer",
+      "DESIGN.md",
+      "docs/design/design-spec.md",
+      "Harness checks require this file to stay a pointer",
+      "Do not claim the full Protective Navy migration is complete until visual"
     ],
     ".github/PULL_REQUEST_TEMPLATE.md": [
       "Rule 0: user privacy and security are non-negotiable.",
@@ -177,7 +245,9 @@
       "security",
       "release flow",
       "capabilities",
-      "user-facing copy"
+      "user-facing copy",
+      "screenshots",
+      "visual design"
     ]
   },
   "readmeReferences": {

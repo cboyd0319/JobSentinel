@@ -96,6 +96,7 @@ The maintained external source index lives in
 
 | Need | Doc |
 | --- | --- |
+| Design docs hub | [Design Docs](design/README.md) |
 | Design-system source | [DESIGN.md](../DESIGN.md) |
 | Product design spec | [Design Spec](design/design-spec.md) |
 | UI writing style | [Style Guide](style-guide/README.md) |
@@ -108,7 +109,7 @@ The maintained external source index lives in
 | Privacy philosophy and data boundaries | [PRIVACY.md](../PRIVACY.md) |
 | Responsible AI boundaries | [RESPONSIBLE_AI.md](../RESPONSIBLE_AI.md) |
 | External-AI gateway architecture | [Privacy-first AI Gateway](architecture/privacy-first-ai-gateway.md) |
-| OS keyring storage | [Keyring Security](security/KEYRING.md) |
+| Local secret storage | [Local Secret Vault And Keychain Integration](security/KEYRING.md) |
 | Security reporting | [SECURITY.md](../SECURITY.md) |
 
 ## Research Docs

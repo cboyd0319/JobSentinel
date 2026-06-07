@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef, type KeyboardEvent } from "react";
 import { Card } from "../components/Card";
 import { StatCard } from "../components/StatCard";
 import { Skeleton } from "../components/Skeleton";
@@ -22,11 +22,43 @@ interface AutomationStats {
 
 type Tab = "profile" | "screening";
 
+const getTabClassName = (tab: Tab, activeTab: Tab) =>
+  `app-section-tab ${activeTab === tab ? "app-section-tab-selected" : "app-section-tab-idle"}`;
+
 export default function ApplicationProfile({ onBack }: ApplicationProfileProps) {
   const [activeTab, setActiveTab] = useState<Tab>("profile");
   const [stats, setStats] = useState<AutomationStats | null>(null);
   const [loadingStats, setLoadingStats] = useState(false);
+  const tabRefs = useRef<Record<Tab, HTMLButtonElement | null>>({
+    profile: null,
+    screening: null,
+  });
   const toast = useToast();
+
+  const focusTab = useCallback((tab: Tab) => {
+    setActiveTab(tab);
+    window.requestAnimationFrame(() => tabRefs.current[tab]?.focus());
+  }, []);
+
+  const handleTabKeyDown = (event: KeyboardEvent<HTMLButtonElement>, tab: Tab) => {
+    const tabs: readonly Tab[] = ["profile", "screening"];
+    const currentIndex = tabs.indexOf(tab);
+    if (currentIndex === -1) return;
+
+    if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+      event.preventDefault();
+      focusTab(tabs[(currentIndex + 1) % tabs.length]!);
+    } else if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+      event.preventDefault();
+      focusTab(tabs[(currentIndex - 1 + tabs.length) % tabs.length]!);
+    } else if (event.key === "Home") {
+      event.preventDefault();
+      focusTab(tabs[0]!);
+    } else if (event.key === "End") {
+      event.preventDefault();
+      focusTab(tabs[tabs.length - 1]!);
+    }
+  };
 
   const loadStats = useCallback(async (signal?: AbortSignal) => {
     try {
@@ -119,42 +151,60 @@ export default function ApplicationProfile({ onBack }: ApplicationProfileProps) 
 
         {/* Tabs */}
         <div className="border-b border-surface-200 dark:border-surface-700 mb-6">
-          <nav className="flex gap-6" aria-label="Application assist settings" role="tablist">
+          <nav className="app-section-tabs" aria-label="Application assist settings" role="tablist">
             <button
               type="button"
+              ref={(element) => {
+                tabRefs.current.profile = element;
+              }}
               role="tab"
               id="one-click-profile-tab"
               aria-controls="one-click-profile-panel"
               aria-selected={activeTab === "profile"}
               onClick={() => setActiveTab("profile")}
-              className={`py-3 border-b-2 text-sm font-medium transition-colors ${
-                activeTab === "profile"
-                  ? "border-sentinel-500 text-sentinel-600 dark:text-sentinel-400"
-                  : "border-transparent text-surface-500 hover:text-surface-700 dark:hover:text-surface-300"
-              }`}
+              onKeyDown={(event) => handleTabKeyDown(event, "profile")}
+              tabIndex={activeTab === "profile" ? 0 : -1}
+              data-visual-state={activeTab === "profile" ? "selected" : "idle"}
+              className={getTabClassName("profile", activeTab)}
             >
-              <div className="flex items-center gap-2">
+              <span className="app-section-tab-content">
                 <UserIcon className="w-4 h-4" />
                 Profile
-              </div>
+              </span>
+              {activeTab === "profile" && (
+                <span
+                  aria-hidden="true"
+                  className="app-section-tab-indicator"
+                  data-testid="application-assist-tab-indicator-profile"
+                />
+              )}
             </button>
             <button
               type="button"
+              ref={(element) => {
+                tabRefs.current.screening = element;
+              }}
               role="tab"
               id="one-click-screening-tab"
               aria-controls="one-click-screening-panel"
               aria-selected={activeTab === "screening"}
               onClick={() => setActiveTab("screening")}
-              className={`py-3 border-b-2 text-sm font-medium transition-colors ${
-                activeTab === "screening"
-                  ? "border-sentinel-500 text-sentinel-600 dark:text-sentinel-400"
-                  : "border-transparent text-surface-500 hover:text-surface-700 dark:hover:text-surface-300"
-              }`}
+              onKeyDown={(event) => handleTabKeyDown(event, "screening")}
+              tabIndex={activeTab === "screening" ? 0 : -1}
+              data-visual-state={activeTab === "screening" ? "selected" : "idle"}
+              className={getTabClassName("screening", activeTab)}
             >
-              <div className="flex items-center gap-2">
+              <span className="app-section-tab-content">
                 <QuestionIcon className="w-4 h-4" />
                 Screening Questions
-              </div>
+              </span>
+              {activeTab === "screening" && (
+                <span
+                  aria-hidden="true"
+                  className="app-section-tab-indicator"
+                  data-testid="application-assist-tab-indicator-screening"
+                />
+              )}
             </button>
           </nav>
         </div>

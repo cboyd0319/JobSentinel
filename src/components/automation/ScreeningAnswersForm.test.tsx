@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ScreeningAnswersForm } from "./ScreeningAnswersForm";
 import { mockAnswers } from "./ScreeningAnswersForm.testData";
@@ -209,6 +209,39 @@ describe("ScreeningAnswersForm", () => {
         expect(screen.getByText("Looks for: Work authorization")).toBeInTheDocument();
       });
       expect(screen.queryByText(/\(\?i\)/)).not.toBeInTheDocument();
+    });
+
+    it("hides custom matcher syntax behind a plain fallback label", async () => {
+      mockInvoke.mockResolvedValue([
+        {
+          id: 10,
+          questionPattern: "salary|compensation",
+          answer: "Open to discussion",
+          answerType: "text",
+          notes: "Compensation",
+          createdAt: "2024-01-10T00:00:00Z",
+          updatedAt: "2024-01-10T00:00:00Z",
+        },
+        {
+          id: 11,
+          questionPattern: "^\\bremote\\b.+preference$",
+          answer: "Remote preferred",
+          answerType: "text",
+          notes: "Remote preference",
+          createdAt: "2024-01-11T00:00:00Z",
+          updatedAt: "2024-01-11T00:00:00Z",
+        },
+      ]);
+
+      render(<ScreeningAnswersForm />);
+
+      await waitFor(() => {
+        expect(
+          screen.getAllByText("Looks for: Custom screening question"),
+        ).toHaveLength(2);
+      });
+      expect(screen.queryByText(/salary\|compensation/)).not.toBeInTheDocument();
+      expect(screen.queryByText(/\^\\bremote/)).not.toBeInTheDocument();
     });
 
     it("uses plain labels for older saved wording aliases", async () => {
@@ -806,9 +839,15 @@ describe("ScreeningAnswersForm", () => {
       });
 
       const answerInput = screen.getByLabelText(/your answer/i);
-      await user.clear(answerInput);
-      await user.type(answerInput, "No");
-      await user.click(screen.getByRole("button", { name: /update answer/i }));
+      fireEvent.change(answerInput, { target: { value: "No" } });
+      await waitFor(() => {
+        expect(answerInput).toHaveValue("No");
+      });
+      const updateButton = screen.getByRole("button", { name: /update answer/i });
+      await waitFor(() => {
+        expect(updateButton).toBeEnabled();
+      });
+      await user.click(updateButton);
 
       await waitFor(() => {
         expect(mockInvoke).toHaveBeenCalledWith(

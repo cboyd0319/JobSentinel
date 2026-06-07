@@ -121,6 +121,18 @@ const publishedReleaseWorkflowChecks = [
   },
 ];
 
+const credentialUiGateFiles = [
+  "src/pages/SettingsNotificationsSection.tsx",
+  "src/pages/SettingsJobSourcesSection.tsx",
+];
+
+const credentialPassiveProbeFiles = [
+  "src/pages/Settings.tsx",
+  "src/pages/useSettingsCredentials.ts",
+  "src/pages/SettingsNotificationsSection.tsx",
+  "src/pages/SettingsJobSourcesSection.tsx",
+];
+
 const ciDocsChecks = [
   {
     label: "npm audit",
@@ -162,6 +174,7 @@ export function formatSecuritySensorSummary() {
     "ci=2",
     `ci-docs=${ciDocsChecks.length}`,
     "renderer-csp=1",
+    "credential-ui=2",
   ].join(" ");
 }
 
@@ -239,6 +252,35 @@ export function checkSecuritySensors(root = defaultRoot) {
     }
   } catch {
     violations.push("src-tauri/tauri.conf.json must be valid JSON for security sensor check");
+  }
+
+  const settingsConfig = readIfExists(root, "src/pages/SettingsConfig.ts", violations);
+  if (
+    !settingsConfig.includes('state: CredentialStatusState') ||
+    !settingsConfig.includes('credentialExists(credentialStatus, "telegram_bot_token")') ||
+    !settingsConfig.includes('credentialExists(credentialStatus, "usajobs_api_key")')
+  ) {
+    violations.push(
+      "settings credential validation must use explicit credential states and confirmed saved-secret checks",
+    );
+  }
+
+  for (const path of credentialUiGateFiles) {
+    const text = readIfExists(root, path, violations);
+    if (/\bcredentialMayExist\b/.test(text)) {
+      violations.push(
+        `${path} must not use passive expected credential state for save, test, or enable gating`,
+      );
+    }
+  }
+
+  for (const path of credentialPassiveProbeFiles) {
+    const text = readIfExists(root, path, violations);
+    if (/\b(?:get_credential_status|has_credential)\b/.test(text)) {
+      violations.push(
+        `${path} must not call secure-storage probe commands during passive Settings load`,
+      );
+    }
   }
 
   return violations;

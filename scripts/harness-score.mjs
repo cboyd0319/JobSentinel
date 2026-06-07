@@ -140,6 +140,15 @@ function buildFrameworks(root) {
               "AGENTS.md",
             ),
             check(
+              "Root guide routes to design contract",
+              fileHasAll(root, "AGENTS.md", [
+                "DESIGN.md",
+                "docs/design/README.md",
+                "docs/design/design-spec.md",
+              ]),
+              "AGENTS.md",
+            ),
+            check(
               "Rule 0 is visible in harness guide",
               fileHasAll(root, "docs/harness/README.md", [
                 "## Rule 0",
@@ -240,6 +249,28 @@ function buildFrameworks(root) {
               "docs/plans/index.json",
             ),
             check(
+              "Active goal locks redesign contract",
+              fileHasAll(root, "docs/plans/index.json", [
+                "Quiet Shield redesign",
+                "DESIGN.md",
+                "docs/design/README.md",
+                "docs/design/design-spec.md",
+              ]) &&
+                fileHasAll(root, "docs/plans/active/status.md", [
+                  "Quiet Shield redesign",
+                  "DESIGN.md",
+                  "docs/design/README.md",
+                  "docs/design/design-spec.md",
+                ]) &&
+                fileHasAll(root, "docs/plans/active/current-work.md", [
+                  "Locked redesign",
+                  "DESIGN.md",
+                  "docs/design/README.md",
+                  "docs/design/design-spec.md",
+                ]),
+              "docs/plans/index.json, docs/plans/active/status.md, docs/plans/active/current-work.md",
+            ),
+            check(
               "Active plan directory stays compact",
               countMatchingFiles(root, "docs/plans/active", /\.md$/) >= 2 &&
                 countMatchingFiles(root, "docs/plans/active", /\.md$/) <= 3,
@@ -318,8 +349,42 @@ function buildFrameworks(root) {
             check("Agent guide exists", exists(root, "AGENTS.md"), "AGENTS.md"),
             check(
               "Harness guide exists and names source-of-truth docs",
-              fileHasAll(root, "docs/harness/README.md", ["## Current Standard", "docs/"]),
+              fileHasAll(root, "docs/harness/README.md", [
+                "## Current Standard",
+                "Design contract",
+                "DESIGN.md",
+              ]),
               "docs/harness/README.md",
+            ),
+            check(
+              "Design contract docs carry Quiet Shield rules",
+              exists(root, "DESIGN.md") &&
+                exists(root, "docs/design/README.md") &&
+                exists(root, "docs/design/design-spec.md") &&
+                exists(root, "docs/developer/DESIGN_SPEC.md") &&
+                fileHasAll(root, "DESIGN.md", [
+                  "JobSentinel Quiet Shield",
+                  "Protective Navy",
+                  "horizontal page scroll",
+                  "theme tokens, contrast checks, screenshots, and native Computer Use validation",
+                ]) &&
+                fileHasAll(root, "docs/design/README.md", [
+                  "JobSentinel Design Docs",
+                  "product contracts",
+                  "Protective Navy",
+                  "Do not claim the full Protective Navy migration is complete until visual",
+                ]) &&
+                fileHasAll(root, "docs/design/design-spec.md", [
+                  "JobSentinel Design Spec",
+                  "Protective Navy is the target dark theme.",
+                  "Toasts and modals stay in viewport.",
+                  "full migration until all major routes are verified",
+                ]) &&
+                fileHasAll(root, "docs/developer/DESIGN_SPEC.md", [
+                  "Design Spec Compatibility Pointer",
+                  "Harness checks require this file to stay a pointer",
+                ]),
+              "DESIGN.md, docs/design/README.md, docs/design/design-spec.md, docs/developer/DESIGN_SPEC.md",
             ),
             check(
               "Developer architecture guide exists",
@@ -352,6 +417,23 @@ function buildFrameworks(root) {
               "Plan index lists active workstreams",
               activePlanIndexWorkstreamCount(root) >= 2,
               "docs/plans/index.json",
+            ),
+            check(
+              "Active state carries redesign contract",
+                fileHasAll(root, "docs/plans/index.json", [
+                  "Quiet Shield redesign",
+                  "DESIGN.md",
+                  "docs/design/README.md",
+                  "docs/design/design-spec.md",
+                  "Computer Use or Playwright screenshot proof",
+                ]) &&
+                fileHasAll(root, "docs/plans/active/current-work.md", [
+                  "Locked redesign",
+                  "DESIGN.md",
+                  "docs/design/README.md",
+                  "docs/design/design-spec.md",
+                ]),
+              "docs/plans/index.json, docs/plans/active/current-work.md",
             ),
             check(
               "Current active plan captures restart evidence",

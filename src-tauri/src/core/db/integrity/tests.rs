@@ -3,6 +3,7 @@
 use super::*;
 use chrono::Utc;
 use sqlx::SqlitePool;
+use std::path::PathBuf;
 
 mod backup_tests;
 mod health_metrics_tests;
@@ -15,6 +16,43 @@ async fn create_test_db() -> SqlitePool {
     sqlx::migrate!("./migrations").run(&pool).await.unwrap();
 
     pool
+}
+
+async fn create_file_test_db() -> (SqlitePool, tempfile::TempDir, PathBuf) {
+    let temp_dir = tempfile::tempdir().unwrap();
+    let db_path = temp_dir.path().join("jobsentinel-integrity-test.db");
+    let db_url = format!("sqlite://{}?mode=rwc", db_path.display());
+    let pool = SqlitePool::connect(&db_url).await.unwrap();
+    sqlx::query("PRAGMA page_size = 4096")
+        .execute(&pool)
+        .await
+        .unwrap();
+    sqlx::query("PRAGMA journal_mode = WAL")
+        .execute(&pool)
+        .await
+        .unwrap();
+    sqlx::query("PRAGMA synchronous = NORMAL")
+        .execute(&pool)
+        .await
+        .unwrap();
+    sqlx::query("PRAGMA foreign_keys = ON")
+        .execute(&pool)
+        .await
+        .unwrap();
+    sqlx::query("PRAGMA cache_size = -128000")
+        .execute(&pool)
+        .await
+        .unwrap();
+    sqlx::query("PRAGMA application_id = 1246970946")
+        .execute(&pool)
+        .await
+        .unwrap();
+    sqlx::query("PRAGMA user_version = 2")
+        .execute(&pool)
+        .await
+        .unwrap();
+    sqlx::migrate!("./migrations").run(&pool).await.unwrap();
+    (pool, temp_dir, db_path)
 }
 
 #[tokio::test]
@@ -49,11 +87,9 @@ async fn test_optimize_query_planner() {
 }
 
 #[tokio::test]
-#[ignore = "WAL checkpoint requires file-based database"]
 async fn test_checkpoint_wal() {
-    let db = create_test_db().await;
-    let temp_dir = tempfile::tempdir().unwrap();
-    let integrity = DatabaseIntegrity::new(db, temp_dir.path().to_path_buf());
+    let (db, temp_dir, _) = create_file_test_db().await;
+    let integrity = DatabaseIntegrity::new(db, temp_dir.path().join("backups"));
 
     // Checkpoint WAL
     let result = integrity.checkpoint_wal().await.unwrap();
@@ -68,11 +104,9 @@ async fn test_checkpoint_wal() {
 }
 
 #[tokio::test]
-#[ignore = "PRAGMA diagnostics require file-based database"]
 async fn test_pragma_diagnostics() {
-    let db = create_test_db().await;
-    let temp_dir = tempfile::tempdir().unwrap();
-    let integrity = DatabaseIntegrity::new(db, temp_dir.path().to_path_buf());
+    let (db, temp_dir, _) = create_file_test_db().await;
+    let integrity = DatabaseIntegrity::new(db, temp_dir.path().join("backups"));
 
     let diag = integrity.get_pragma_diagnostics().await.unwrap();
 

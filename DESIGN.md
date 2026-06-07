@@ -329,6 +329,9 @@ Avoid motivational filler:
   estimates.
 - **Do** keep alert, settings, and credential copy plain enough for users who
   do not debug software.
+- **Do** make saved-secret states calm and predictable: expected saved details
+  need confirmation before use, and Settings must not repeatedly interrupt users
+  with secure-storage prompts.
 - **Do** test keyboard, focus order, accessible names, live regions, empty
   states, loading states, error states, and narrow widths for UI changes.
 - **Don't** use yellow or amber for high match.
@@ -341,6 +344,44 @@ Avoid motivational filler:
   horizontal scrolling.
 - **Don't** introduce telemetry, cloud sync, hosted accounts, or external AI
   dependencies as design assumptions.
+- **Don't** store secrets in plaintext app config, localStorage, logs, support
+  reports, or unencrypted SQLite rows.
+
+## Privacy And Secret UX
+
+Privacy is part of the design system. JobSentinel should not make users choose
+between a usable app and safe local storage.
+
+Locked product direction as of 2026-06-06:
+
+- JobSentinel's SQLite database must be encrypted at rest.
+- Notification secrets, access codes, and private connection links must use
+  per-row AEAD encryption in a secret-vault table, never plaintext SQLite.
+- Default unlock should use a local vault master key protected by the operating
+  system credential store.
+- macOS unlock should use native Keychain and LocalAuthentication APIs so Touch
+  ID can satisfy user-presence prompts when the device allows it.
+- Advanced unlock may use a user-supplied passphrase that wraps the vault key.
+  This mode gives users more custody and more recovery responsibility.
+- Settings, dashboards, and passive status views must not probe saved secrets
+  in ways that trigger repeated unlock prompts. Expected saved details are not
+  proof that secure storage still has the secret; use, test, and save gates must
+  require a confirmed saved state, a newly typed secret, or an explicit
+  user-started secure-storage verification.
+- Secret fields must show four concepts without exposing values: saved,
+  expected but unconfirmed, will be saved when entered, and needs attention
+  after an attempted use fails.
+
+Design copy should make this feel normal, not scary. Prefer:
+
+> Saved details need confirmation
+
+Avoid:
+
+> Keychain unavailable
+
+unless the user just attempted an action that truly failed because secure
+storage could not be unlocked.
 
 ## Implementation Status
 
@@ -349,6 +390,11 @@ work. The current app still contains older green-heavy surfaces while it moves
 toward Protective Navy. Do not claim a full visual-theme migration until the
 theme tokens, contrast checks, screenshots, and native Computer Use validation
 prove it.
+
+The Quiet Shield redesign is also a harness-controlled active-goal acceptance
+gate. UI and UX changes must record how they preserve or move toward this
+document and `docs/design/design-spec.md`, and broad visual changes need fresh
+Computer Use or Playwright screenshot evidence before release work resumes.
 
 When this design conflicts with local implementation, prefer a small, verified
 migration step over broad visual churn. Privacy, security, accessibility, and

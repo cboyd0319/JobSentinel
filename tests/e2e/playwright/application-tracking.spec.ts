@@ -61,6 +61,21 @@ test.describe("Application Tracking", () => {
       await expect(page.getByText("Offers:", { exact: true })).toBeVisible();
       await expect(page.getByText("In Progress:", { exact: true })).toBeVisible();
     });
+
+    test("keeps the page inside a narrow viewport", async ({ page }) => {
+      await page.setViewportSize({ width: 390, height: 844 });
+      await expect(applicationsPage.kanbanBoard).toBeVisible();
+
+      const metrics = await page.evaluate(() => {
+        return {
+          viewportWidth: window.innerWidth,
+          documentWidth: document.documentElement.scrollWidth,
+          bodyWidth: document.body.scrollWidth,
+        };
+      });
+
+      expect(Math.max(metrics.documentWidth, metrics.bodyWidth)).toBeLessThanOrEqual(metrics.viewportWidth);
+    });
   });
 
   test.describe("Application Cards", () => {

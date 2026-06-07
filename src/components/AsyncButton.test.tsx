@@ -29,7 +29,7 @@ describe("AsyncButton", () => {
         </AsyncButton>
       );
       const button = container.querySelector("button");
-      expect(button).toHaveClass("bg-danger");
+      expect(button).toHaveClass("bg-red-700");
     });
 
     it("renders with custom size", () => {

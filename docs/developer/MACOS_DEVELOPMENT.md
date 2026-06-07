@@ -2,6 +2,9 @@
 
 **Status:** Local app packaging and universal DMG packaging verified on macOS
 **Latest Tested:** macOS 26.5 on Apple Silicon - June 2026
+**Evidence:** See [Current macOS Readiness](#current-macos-readiness) for the
+latest local commands, checksum checks, architecture checks, and mounted-app
+launch checks.
 
 ---
 

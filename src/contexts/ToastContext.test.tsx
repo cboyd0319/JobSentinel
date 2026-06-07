@@ -75,6 +75,37 @@ describe("ToastContext", () => {
       expect(screen.getByText("Operation completed")).toBeInTheDocument();
     });
 
+    it("uses readable surface toast colors instead of low-contrast bright fills", async () => {
+      render(
+        <ToastProvider>
+          <TestComponent />
+        </ToastProvider>
+      );
+
+      fireEvent.click(screen.getByText("Show Warning"));
+
+      const alert = await screen.findByRole("alert");
+      expect(alert).toHaveClass("bg-white", "text-surface-900", "border-amber-700");
+      expect(alert).not.toHaveClass("bg-warning", "text-white");
+      expect(screen.getByText("Be careful")).toHaveClass("text-surface-700");
+    });
+
+    it("portals the toast viewport to the document body", async () => {
+      render(
+        <ToastProvider>
+          <div data-testid="app-shell">
+            <TestComponent />
+          </div>
+        </ToastProvider>
+      );
+
+      fireEvent.click(screen.getByText("Show Warning"));
+
+      const viewport = await screen.findByTestId("toast-viewport");
+      expect(viewport.parentElement).toBe(document.body);
+      expect(viewport).toHaveClass("fixed", "bottom-4", "right-4", "justify-end");
+    });
+
     it("shows error toast", async () => {
       render(
         <ToastProvider>

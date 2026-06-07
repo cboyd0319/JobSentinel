@@ -109,7 +109,7 @@ export class SettingsPage extends BasePage {
   async addListValue(sectionName: string | RegExp, value: string) {
     const section = this.section(sectionName);
     await section.locator("input").first().fill(value);
-    await section.getByRole("button", { name: "Add" }).click();
+    await section.getByRole("button", { name: "Add", exact: true }).click();
   }
 
   async removeBadge(value: string) {

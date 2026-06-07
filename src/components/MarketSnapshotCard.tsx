@@ -122,7 +122,7 @@ export const MarketSnapshotCard = memo(function MarketSnapshotCard({
     );
   }
 
-  if (!snapshot) {
+  if (!snapshot || (snapshot.total_jobs ?? 0) <= 0) {
     return (
       <Card className="dark:bg-surface-800" role="status">
         <p className="text-center text-surface-500 dark:text-surface-400 py-6">

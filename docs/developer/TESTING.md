@@ -103,8 +103,8 @@ src-tauri/
 - tests/: integration test crates
 ```
 
-**Note**: As of v1.5.0, test files have been extracted to separate `tests.rs`
-files within each module directory. This improves code organization and keeps
+**Note**: Large Rust modules keep most tests in separate `tests.rs` files or
+feature-specific test subdirectories. This improves code organization and keeps
 module files easier to maintain under the current
 [harness file-size policy](../harness/README.md).
 

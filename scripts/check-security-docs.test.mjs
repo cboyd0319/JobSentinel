@@ -148,7 +148,8 @@ test("keyring docs allow plain feature copy with implementation link", () => {
       [
         "USAJobs access code",
         "Legacy LinkedIn saved details",
-        "Implementation details live in [Keyring Security](../security/KEYRING.md).",
+        "Implementation details live in",
+        "[Local Secret Vault And Keychain Integration](../security/KEYRING.md).",
       ].join("\n"),
     );
     writeFixtureFile(

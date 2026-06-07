@@ -2,11 +2,9 @@ use super::*;
 use chrono::Utc;
 
 #[tokio::test]
-#[ignore = "Requires file-based database (VACUUM INTO doesn't work with in-memory)"]
 async fn test_health_metrics() {
-    let db = create_test_db().await;
-    let temp_dir = tempfile::tempdir().unwrap();
-    let integrity = DatabaseIntegrity::new(db, temp_dir.path().to_path_buf());
+    let (db, temp_dir, _) = create_file_test_db().await;
+    let integrity = DatabaseIntegrity::new(db, temp_dir.path().join("backups"));
 
     let health = integrity.get_health_metrics().await.unwrap();
 

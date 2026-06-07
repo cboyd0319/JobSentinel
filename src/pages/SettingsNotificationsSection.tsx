@@ -9,6 +9,7 @@ import { NotificationPreferences } from "../components/NotificationPreferences";
 import { useToast } from "../contexts";
 import {
   credentialExists,
+  credentialIsExpected,
   isValidDiscordWebhook,
   isValidEmail,
   isValidSlackWebhook,
@@ -31,7 +32,7 @@ interface SettingsNotificationsSectionProps {
   config: Config;
   credentialStatus: CredentialStatusMap;
   credentials: Credentials;
-  onCheckCredential: (key: CredentialKey) => Promise<boolean>;
+  markCredentialNeedsAttention: (key: CredentialKey) => void;
   setConfig: Dispatch<SetStateAction<Config | null>>;
   setCredentials: Dispatch<SetStateAction<Credentials>>;
 }
@@ -40,7 +41,7 @@ export function SettingsNotificationsSection({
   config,
   credentialStatus,
   credentials,
-  onCheckCredential,
+  markCredentialNeedsAttention,
   setConfig,
   setCredentials,
 }: SettingsNotificationsSectionProps) {
@@ -53,8 +54,10 @@ export function SettingsNotificationsSection({
   const hasValidToEmails = (config.alerts.email?.to_emails ?? []).every(
     isValidEmail,
   );
-  const hasStoredCredential = (key: CredentialKey) =>
+  const hasConfirmedCredential = (key: CredentialKey) =>
     credentialExists(credentialStatus, key);
+  const hasConfiguredCredential = (key: CredentialKey) =>
+    hasConfirmedCredential(key) || credentialIsExpected(credentialStatus, key);
 
   const applyEmailProvider = (provider: EmailProvider) => {
     setEmailProvider(provider);
@@ -75,7 +78,7 @@ export function SettingsNotificationsSection({
     }
   };
 
-  const handleWebhookAlertToggle = async (
+  const handleWebhookAlertToggle = (
     channel: "slack" | "discord" | "teams",
     label: "Slack" | "Discord" | "Teams",
     credentialKey: "slack_webhook" | "discord_webhook" | "teams_webhook",
@@ -84,10 +87,7 @@ export function SettingsNotificationsSection({
     enabled: boolean,
   ) => {
     const trimmed = value.trim();
-    let hasSavedCredential = hasStoredCredential(credentialKey);
-    if (enabled && !hasSavedCredential && !trimmed) {
-      hasSavedCredential = await onCheckCredential(credentialKey);
-    }
+    const hasSavedCredential = hasConfirmedCredential(credentialKey);
     if (enabled && !hasSavedCredential && !trimmed) {
       toast.info(
         `Paste ${label} connection link first`,
@@ -120,7 +120,8 @@ export function SettingsNotificationsSection({
     const destination = config.alerts.telegram?.chat_id?.trim() ?? "";
     if (
       enabled &&
-      ((!hasStoredCredential("telegram_bot_token") && !alertCode) || !destination)
+      ((!hasConfirmedCredential("telegram_bot_token") && !alertCode) ||
+        !destination)
     ) {
       toast.info(
         "Telegram setup opened",
@@ -165,8 +166,8 @@ export function SettingsNotificationsSection({
 
         {/* Email */}
         <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-4">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
+          <div className="flex flex-col gap-3 mb-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex min-w-0 flex-wrap items-center gap-2">
               <EmailIcon className="w-5 h-5 text-blue-500" />
               <span className="font-medium text-surface-800 dark:text-surface-200">
                 Email Alerts
@@ -174,7 +175,7 @@ export function SettingsNotificationsSection({
               <HelpIcon text="Email alerts are optional. Leave this off unless your email service gives you an app password or sending settings." />
             </div>
             <label
-              className="relative inline-flex items-center cursor-pointer"
+              className="relative inline-flex flex-shrink-0 items-center cursor-pointer"
               data-testid="email-alerts-toggle"
             >
               <input
@@ -205,12 +206,12 @@ export function SettingsNotificationsSection({
                 emailProvider={emailProvider}
                 onProviderSelect={applyEmailProvider}
               />
-              <div className="flex items-center justify-between -mt-1 mb-3">
+              <div className="flex flex-col items-start gap-2 -mt-1 mb-3 sm:flex-row sm:items-center sm:justify-between">
                 <span></span>
                 {config.alerts.email?.smtp_server &&
                   config.alerts.email?.smtp_username &&
                   (credentials.smtp_password ||
-                    hasStoredCredential("smtp_password")) &&
+                    hasConfirmedCredential("smtp_password")) &&
                   config.alerts.email?.from_email &&
                   isValidFromEmail &&
                   config.alerts.email?.to_emails?.length > 0 &&
@@ -223,7 +224,7 @@ export function SettingsNotificationsSection({
                         try {
                           if (
                             !credentials.smtp_password &&
-                            !hasStoredCredential("smtp_password")
+                            !hasConfirmedCredential("smtp_password")
                           ) {
                             toast.error(
                               "App password needed",
@@ -252,6 +253,9 @@ export function SettingsNotificationsSection({
                             "Check your email inbox",
                           );
                         } catch {
+                          if (!credentials.smtp_password) {
+                            markCredentialNeedsAttention("smtp_password");
+                          }
                           toast.error(
                             "Could not send test",
                             "Check the email account, app password, and recipient addresses.",
@@ -269,7 +273,7 @@ export function SettingsNotificationsSection({
               {config.alerts.email?.smtp_server &&
                 config.alerts.email?.smtp_username &&
                 (credentials.smtp_password ||
-                  hasStoredCredential("smtp_password")) &&
+                  hasConfirmedCredential("smtp_password")) &&
                 config.alerts.email?.from_email &&
                 isValidFromEmail &&
                 config.alerts.email?.to_emails?.length > 0 &&
@@ -390,6 +394,8 @@ export function SettingsNotificationsSection({
                     />
                   </div>
                   <Input
+                    label="App Password"
+                    hideLabel
                     type="password"
                     value={credentials.smtp_password}
                     onChange={(e) =>
@@ -399,7 +405,7 @@ export function SettingsNotificationsSection({
                       }))
                     }
                     placeholder={
-                      hasStoredCredential("smtp_password")
+                      hasConfiguredCredential("smtp_password")
                         ? "Enter new app password to update"
                         : "App password from your email service"
                     }
@@ -478,7 +484,7 @@ export function SettingsNotificationsSection({
 
         {/* Slack */}
         <div className="mb-4">
-          <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1 flex items-center gap-2">
+            <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1 flex flex-wrap items-center gap-2">
             Slack Notifications
             <HelpIcon
               text="Get job alerts in a Slack channel. In Slack, add the app that creates channel connection links, choose a channel, then copy the link."
@@ -487,14 +493,14 @@ export function SettingsNotificationsSection({
             <SecurityBadge status={credentialStatus.slack_webhook} />
           </label>
           <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex min-w-0 flex-wrap items-center gap-2">
                 <SettingsSymbol icon="chat" className="h-5 w-5 text-surface-500 dark:text-surface-400" />
                 <span className="text-sm text-surface-600 dark:text-surface-300">
                   Send alerts to Slack
                 </span>
               </div>
-              <label className="relative inline-flex items-center cursor-pointer">
+                <label className="relative inline-flex flex-shrink-0 items-center cursor-pointer">
                 <input
                   type="checkbox"
                   aria-label="Enable Slack alerts"
@@ -514,8 +520,8 @@ export function SettingsNotificationsSection({
                 <div className="w-11 h-6 bg-surface-200 peer-focus:outline-none peer-focus-visible:ring-4 peer-focus-visible:ring-sentinel-300 dark:peer-focus-visible:ring-sentinel-800 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-surface-600 peer-checked:bg-sentinel-500"></div>
               </label>
             </div>
-            <div className="mt-3 flex gap-2">
-              <div className="flex-1">
+              <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+                <div className="flex-1">
                 <Input
                   label="Slack connection link"
                   hideLabel
@@ -528,8 +534,8 @@ export function SettingsNotificationsSection({
                       slack_webhook: value,
                     }));
                   }}
-                  placeholder={
-                    hasStoredCredential("slack_webhook")
+                    placeholder={
+                      hasConfiguredCredential("slack_webhook")
                       ? "Enter new Slack connection link"
                       : "Paste Slack connection link, then turn Slack alerts on"
                   }
@@ -544,7 +550,7 @@ export function SettingsNotificationsSection({
                 />
               </div>
               {(credentials.slack_webhook ||
-                hasStoredCredential("slack_webhook")) && (
+                hasConfirmedCredential("slack_webhook")) && (
                 <Button
                   variant="secondary"
                   disabled={testingSlack}
@@ -552,8 +558,8 @@ export function SettingsNotificationsSection({
                     setTestingSlack(true);
                     try {
                       if (
-                        !credentials.slack_webhook &&
-                        !hasStoredCredential("slack_webhook")
+                          !credentials.slack_webhook &&
+                          !hasConfirmedCredential("slack_webhook")
                       ) {
                         toast.error(
                           "No Slack link",
@@ -568,8 +574,11 @@ export function SettingsNotificationsSection({
                         "Test sent!",
                         "Check your Slack channel",
                       );
-                    } catch {
-                      toast.error(
+                      } catch {
+                        if (!credentials.slack_webhook) {
+                          markCredentialNeedsAttention("slack_webhook");
+                        }
+                        toast.error(
                         "Could not send test",
                         "Check that the Slack connection link is correct and try again",
                       );
@@ -583,7 +592,8 @@ export function SettingsNotificationsSection({
                 </Button>
               )}
             </div>
-            {(credentials.slack_webhook || hasStoredCredential("slack_webhook")) && (
+            {(credentials.slack_webhook ||
+              hasConfirmedCredential("slack_webhook")) && (
               <p className="mt-2 text-xs text-surface-500 dark:text-surface-400">
                 Sends one test message to the Slack channel for this connection.
               </p>
@@ -593,7 +603,7 @@ export function SettingsNotificationsSection({
 
         {/* Discord */}
         <div className="mb-4">
-          <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1 flex items-center gap-2">
+            <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1 flex flex-wrap items-center gap-2">
             Discord Notifications
             <HelpIcon
               text="Get job alerts in a Discord channel. In Discord, create a channel connection link, then paste it here."
@@ -601,14 +611,14 @@ export function SettingsNotificationsSection({
             />
           </label>
           <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex min-w-0 flex-wrap items-center gap-2">
                 <SettingsSymbol icon="chat" className="h-5 w-5 text-surface-500 dark:text-surface-400" />
                 <span className="text-sm text-surface-600 dark:text-surface-300">
                   Send alerts to Discord
                 </span>
               </div>
-              <label className="relative inline-flex items-center cursor-pointer">
+                <label className="relative inline-flex flex-shrink-0 items-center cursor-pointer">
                 <input
                   type="checkbox"
                   aria-label="Enable Discord alerts"
@@ -629,7 +639,7 @@ export function SettingsNotificationsSection({
               </label>
             </div>
             {(config.alerts.discord?.enabled ||
-              !hasStoredCredential("discord_webhook") ||
+              !hasConfiguredCredential("discord_webhook") ||
               credentials.discord_webhook) && (
               <div className="mt-3 space-y-2">
                 <div className="flex items-center gap-2">
@@ -652,7 +662,7 @@ export function SettingsNotificationsSection({
                     }))
                   }
                   placeholder={
-                    hasStoredCredential("discord_webhook")
+                    hasConfiguredCredential("discord_webhook")
                       ? "Enter new Discord connection link"
                       : "Paste Discord connection link"
                   }
@@ -674,7 +684,7 @@ export function SettingsNotificationsSection({
 
         {/* Microsoft Teams */}
         <div className="mb-4">
-          <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1 flex items-center gap-2">
+            <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1 flex flex-wrap items-center gap-2">
             Microsoft Teams Notifications
             <HelpIcon
               text="Get job alerts in a Teams channel. Create a channel connection link in Teams, then paste it here."
@@ -682,14 +692,14 @@ export function SettingsNotificationsSection({
             />
           </label>
           <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex min-w-0 flex-wrap items-center gap-2">
                 <SettingsSymbol icon="users" className="h-5 w-5 text-surface-500 dark:text-surface-400" />
                 <span className="text-sm text-surface-600 dark:text-surface-300">
                   Send alerts to Teams
                 </span>
               </div>
-              <label className="relative inline-flex items-center cursor-pointer">
+                <label className="relative inline-flex flex-shrink-0 items-center cursor-pointer">
                 <input
                   type="checkbox"
                   aria-label="Enable Teams alerts"
@@ -710,7 +720,7 @@ export function SettingsNotificationsSection({
               </label>
             </div>
             {(config.alerts.teams?.enabled ||
-              !hasStoredCredential("teams_webhook") ||
+              !hasConfiguredCredential("teams_webhook") ||
               credentials.teams_webhook) && (
               <div className="mt-3 space-y-2">
                 <div className="flex items-center gap-2">
@@ -733,7 +743,7 @@ export function SettingsNotificationsSection({
                     }))
                   }
                   placeholder={
-                    hasStoredCredential("teams_webhook")
+                    hasConfiguredCredential("teams_webhook")
                       ? "Enter new Teams connection link"
                       : "Paste Teams connection link"
                   }
@@ -753,7 +763,7 @@ export function SettingsNotificationsSection({
 
         {/* Telegram */}
         <div className="mb-4">
-          <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1 flex items-center gap-2">
+            <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1 flex flex-wrap items-center gap-2">
             Telegram Notifications
             <Badge variant="surface" size="sm">Optional chat alert</Badge>
             <HelpIcon
@@ -767,14 +777,14 @@ export function SettingsNotificationsSection({
               part of your alert routine. Telegram needs two details
               from Telegram before it can receive JobSentinel alerts.
             </p>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex min-w-0 flex-wrap items-center gap-2">
                 <SettingsSymbol icon="send" className="h-5 w-5 text-surface-500 dark:text-surface-400" />
                 <span className="text-sm text-surface-600 dark:text-surface-300">
                   Send alerts to Telegram
                 </span>
               </div>
-              <label className="relative inline-flex items-center cursor-pointer">
+                <label className="relative inline-flex flex-shrink-0 items-center cursor-pointer">
                 <input
                   type="checkbox"
                   aria-label="Enable Telegram alerts"
@@ -789,7 +799,7 @@ export function SettingsNotificationsSection({
             </div>
             {(config.alerts.telegram?.enabled ||
               Boolean(credentials.telegram_bot_token) ||
-              (hasStoredCredential("telegram_bot_token") &&
+              (hasConfiguredCredential("telegram_bot_token") &&
                 Boolean((config.alerts.telegram?.chat_id ?? "").trim()))) && (
               <div className="mt-3 space-y-3">
                 <div className="p-3 bg-surface-50 dark:bg-surface-900/50 border border-surface-200 dark:border-surface-700 rounded-lg">
@@ -822,7 +832,7 @@ export function SettingsNotificationsSection({
                       }))
                     }
                     placeholder={
-                      hasStoredCredential("telegram_bot_token")
+                      hasConfiguredCredential("telegram_bot_token")
                         ? "Enter new Telegram setup code"
                         : "Paste Telegram setup code"
                     }

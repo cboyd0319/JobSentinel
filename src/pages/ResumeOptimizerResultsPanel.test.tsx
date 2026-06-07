@@ -217,6 +217,38 @@ describe("ResumeOptimizerResultsPanel", () => {
     expect(onReviewInResumeBuilder).toHaveBeenCalledTimes(1);
   });
 
+  it("wraps long matched words and evidence instead of truncating them", () => {
+    const longKeyword =
+      "customer-success-platform-administration-and-cross-functional-escalation";
+
+    renderPanel({
+      ...baseAnalysis,
+      keyword_matches: [
+        {
+          keyword: longKeyword,
+          importance: "Required",
+          found_in: ["recent customer implementation experience"],
+          frequency: 1,
+        },
+      ],
+    });
+
+    const keywordElements = screen.getAllByText(longKeyword);
+    const overviewBadge = keywordElements.find(
+      (element) => element.tagName === "SPAN" && element.className.includes("break-words"),
+    );
+    const keywordRow = keywordElements.find((element) => element.tagName === "P");
+    const evidenceElements = screen.getAllByText(/recent customer implementation experience/i);
+
+    expect(overviewBadge).toBeDefined();
+    expect(keywordRow).toBeDefined();
+    expect(overviewBadge!).toHaveClass("break-words", "[overflow-wrap:anywhere]");
+    expect(keywordRow!).toHaveClass("break-words", "[overflow-wrap:anywhere]");
+    expect(keywordElements.every((element) => element.className.includes("truncate"))).toBe(false);
+    expect(evidenceElements.some((element) => element.className.includes("whitespace-nowrap"))).toBe(false);
+    expect(evidenceElements.some((element) => element.className.includes("[overflow-wrap:anywhere]"))).toBe(true);
+  });
+
   it("keeps comparison hidden for active saved resume reviews", () => {
     renderPanel(jobAnalysis, {
       canShowComparison: false,

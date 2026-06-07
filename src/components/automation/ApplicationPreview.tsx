@@ -531,17 +531,17 @@ export const ApplicationPreview = memo(function ApplicationPreview({ job, atsPla
     <div className="space-y-6" role="region" aria-label="Application preview">
       {/* Job Summary */}
       <Card className="p-4 bg-surface-50 dark:bg-surface-800/50">
-        <div className="flex items-start justify-between">
-          <div>
-            <h4 className="font-medium text-surface-900 dark:text-white">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <h4 className="break-words font-medium text-surface-900 [overflow-wrap:anywhere] dark:text-white">
               {job.title}
             </h4>
-            <p className="text-surface-600 dark:text-surface-400">
+            <p className="break-words text-surface-600 [overflow-wrap:anywhere] dark:text-surface-400">
               {job.company} • {job.location}
             </p>
           </div>
           {applicationFormName && (
-            <Badge variant="surface" aria-label={`Application form: ${applicationFormName}`}>
+            <Badge variant="surface" className="w-fit flex-shrink-0" aria-label={`Application form: ${applicationFormName}`}>
               {applicationFormName}
             </Badge>
           )}
@@ -560,13 +560,13 @@ export const ApplicationPreview = memo(function ApplicationPreview({ job, atsPla
             .map((field) => (
               <div
                 key={field.label}
-                className="px-4 py-3 flex items-center justify-between"
+                className="flex items-start justify-between gap-4 px-4 py-3"
                 role="listitem"
               >
                 <span className="text-surface-600 dark:text-surface-400 text-sm">
                   {field.label}
                 </span>
-                <span className="text-surface-900 dark:text-white font-medium truncate ml-4 max-w-[250px]">
+                <span className="min-w-0 break-words [overflow-wrap:anywhere] text-right font-medium text-surface-900 dark:text-white">
                   {field.value}
                 </span>
               </div>

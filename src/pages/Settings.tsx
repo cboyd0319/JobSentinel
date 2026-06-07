@@ -4,21 +4,20 @@ import {
   useCallback,
   useMemo,
   useRef,
+  type KeyboardEvent as ReactKeyboardEvent,
 } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { Button } from "../components/Button";
-import { Card } from "../components/Card";
 import { HelpIcon } from "../components/HelpIcon";
+import { Modal } from "../components/Modal";
 import { ScraperHealthDashboard } from "../components/ScraperHealthDashboard";
 import { FeedbackModal } from "../components/feedback/FeedbackModal";
-import { CloseIcon, SettingsIcon } from "./SettingsIcons";
 import { BookmarkletGenerator } from "../components/BookmarkletGenerator";
 import { useToast } from "../contexts";
 import { logError } from "../utils/errorUtils";
 import { getUserFriendlyError } from "../utils/errorMessages";
 import { exportConfigToJSON, importConfigFromJSON } from "../utils/export";
 import { invalidateCacheByCommand } from "../utils/api";
-import { lockBodyScroll } from "../utils/bodyScrollLock";
 import {
   cacheDetectedLocation,
   readCachedDetectedLocation,
@@ -51,8 +50,6 @@ import { useSettingsCredentials } from "./useSettingsCredentials";
 import { useSettingsSupportReports } from "./useSettingsSupportReports";
 
 export default function Settings({ onClose }: SettingsProps) {
-  const dialogRef = useRef<HTMLDivElement>(null);
-  const previousActiveElement = useRef<Element | null>(null);
   const [config, setConfig] = useState<Config | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -71,13 +68,17 @@ export default function Settings({ onClose }: SettingsProps) {
   const [showJobsWithGptEndpoint, setShowJobsWithGptEndpoint] = useState(false);
   const [ghostPreset, setGhostPreset] = useState<GhostPresetSelection>("balanced");
   const [activeTab, setActiveTab] = useState<"basic" | "advanced">("basic");
+  const settingsTabRefs = useRef<Record<"basic" | "advanced", HTMLButtonElement | null>>({
+    basic: null,
+    advanced: null,
+  });
   const toast = useToast();
   const {
     credentials,
     credentialStatus,
-    checkCredentialStatus,
     getCredentialSaveEntries,
     initializeCredentialStatus,
+    markCredentialNeedsAttention,
     markCredentialsSaved,
     setCredentials,
   } = useSettingsCredentials(toast);
@@ -97,69 +98,39 @@ export default function Settings({ onClose }: SettingsProps) {
   );
   const [isDetectingLocation, setIsDetectingLocation] = useState(false);
 
-  useEffect(() => {
-    previousActiveElement.current = document.activeElement;
-    const unlockBodyScroll = lockBodyScroll();
-
-    return () => {
-      unlockBodyScroll();
-      if (
-        previousActiveElement.current instanceof HTMLElement &&
-        document.body.contains(previousActiveElement.current)
-      ) {
-        previousActiveElement.current.focus();
-      }
-    };
+  const focusSettingsTab = useCallback((tab: "basic" | "advanced") => {
+    setActiveTab(tab);
+    requestAnimationFrame(() => settingsTabRefs.current[tab]?.focus());
   }, []);
 
-  useEffect(() => {
-    if (loading) {
-      return;
-    }
+  const handleSettingsTabKeyDown = useCallback(
+    (event: ReactKeyboardEvent<HTMLButtonElement>, currentTab: "basic" | "advanced") => {
+      const orderedTabs = ["basic", "advanced"] as const;
+      const currentIndex = orderedTabs.indexOf(currentTab);
+      const nextTab = (() => {
+        switch (event.key) {
+          case "ArrowLeft":
+          case "ArrowUp":
+            return orderedTabs[(currentIndex - 1 + orderedTabs.length) % orderedTabs.length];
+          case "ArrowRight":
+          case "ArrowDown":
+            return orderedTabs[(currentIndex + 1) % orderedTabs.length];
+          case "Home":
+            return orderedTabs[0];
+          case "End":
+            return orderedTabs[orderedTabs.length - 1];
+          default:
+            return null;
+        }
+      })();
 
-    const frame = requestAnimationFrame(() => {
-      dialogRef.current?.focus();
-    });
+      if (!nextTab) return;
 
-    return () => {
-      cancelAnimationFrame(frame);
-    };
-  }, [loading]);
-
-  const handleDialogKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === "Escape") {
-      onClose();
-      return;
-    }
-
-    if (e.key !== "Tab" || !dialogRef.current) {
-      return;
-    }
-
-    const focusable = Array.from(
-      dialogRef.current.querySelectorAll<HTMLElement>(
-        'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
-      ),
-    ).filter((element) => element.offsetParent !== null);
-    if (focusable.length === 0) {
-      return;
-    }
-
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-    if (!first || !last) {
-      return;
-    }
-
-    if (e.shiftKey && document.activeElement === first) {
-      e.preventDefault();
-      last.focus();
-    } else if (!e.shiftKey && document.activeElement === last) {
-      e.preventDefault();
-      first.focus();
-    }
-  }, [onClose]);
-
+      event.preventDefault();
+      focusSettingsTab(nextTab);
+    },
+    [focusSettingsTab],
+  );
 
   const jobBoardRecommendations = useJobBoardRecommendations(config, setConfig);
 
@@ -641,54 +612,45 @@ export default function Settings({ onClose }: SettingsProps) {
 
   if (loading) {
     return (
-      <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50">
-        <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto m-4">
+      <Modal
+        isOpen
+        onClose={onClose}
+        title="Settings"
+        description="Loading settings"
+        size="wide"
+        closeButtonLabel="Close settings"
+      >
+        <div
+          className="flex items-center justify-center py-12"
+          role="status"
+          aria-label="Loading settings"
+        >
           <div
-            className="flex items-center justify-center py-12"
-            role="status"
-            aria-label="Loading settings"
-          >
-            <div
-              className="animate-spin w-8 h-8 border-4 border-sentinel-500 border-t-transparent rounded-full"
-              aria-hidden="true"
-            />
-            <span className="sr-only">Loading settings...</span>
-          </div>
-        </Card>
-      </div>
+            className="h-8 w-8 animate-spin rounded-full border-4 border-sentinel-500 border-t-transparent"
+            aria-hidden="true"
+          />
+          <span className="sr-only">Loading settings...</span>
+        </div>
+      </Modal>
     );
   }
 
   if (!config) {
     return (
-      <div
-        className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50 p-4"
-        onClick={(e) => {
-          if (e.target === e.currentTarget) onClose();
-        }}
-        onKeyDown={(e) => {
-          handleDialogKeyDown(e);
-        }}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="settings-load-error-title"
+      <>
+        <Modal
+          isOpen
+          onClose={onClose}
+          title="Settings could not load"
+          description="Try again. If this keeps happening, copy or save a safe support report before closing and reopening JobSentinel."
+          size="wide"
+          closeButtonLabel="Close settings"
       >
-        <div
-          ref={dialogRef}
-          tabIndex={-1}
-          className="w-full max-w-2xl max-h-[90vh] overflow-y-auto focus:outline-none"
-        >
-          <Card>
-            <div className="flex flex-col items-center justify-center py-12 gap-4">
-              <p
-                id="settings-load-error-title"
-                className="text-sm text-red-500 dark:text-red-400 text-center max-w-md"
-              >
-                Settings could not load. Try again. If this keeps happening,
-                copy or save a safe support report before closing and reopening
-                JobSentinel.
+          <div className="flex flex-col items-center justify-center gap-4 py-8">
+              <p className="max-w-md text-center text-sm text-red-600 dark:text-red-400">
+                Settings did not load.
               </p>
-              <div className="flex gap-3">
+              <div className="flex flex-col gap-3 sm:flex-row">
                 <button
                   onClick={() => void loadConfig()}
                   className="px-4 py-2 text-sm rounded bg-sentinel-500 text-white hover:bg-sentinel-600"
@@ -711,64 +673,26 @@ export default function Settings({ onClose }: SettingsProps) {
                   savingDebugReport={savingDebugReport}
                 />
               </div>
-            </div>
-          </Card>
-        </div>
+          </div>
+        </Modal>
         <FeedbackModal
           isOpen={showFeedbackModal}
           onClose={closeFeedbackModal}
         />
-      </div>
+      </>
     );
   }
 
   return (
-    <div
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
-      onKeyDown={(e) => {
-        handleDialogKeyDown(e);
-      }}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="settings-title"
+    <>
+      <Modal
+        isOpen
+        onClose={onClose}
+        title="Settings"
+        description="Update your job search preferences"
+        size="wide"
+        closeButtonLabel="Close settings"
     >
-      <div
-        ref={dialogRef}
-        tabIndex={-1}
-        className="w-full max-w-2xl max-h-[90vh] overflow-y-auto focus:outline-none"
-      >
-        <Card className="dark:bg-surface-800">
-          <div className="p-6">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-sentinel-100 dark:bg-sentinel-900/30 rounded-lg flex items-center justify-center">
-                <SettingsIcon className="w-5 h-5 text-sentinel-600 dark:text-sentinel-400" />
-              </div>
-              <div>
-                <h2
-                  id="settings-title"
-                  className="font-display text-display-lg text-surface-900 dark:text-white"
-                >
-                  Settings
-                </h2>
-                <p className="text-sm text-surface-500 dark:text-surface-400">
-                  Update your job search preferences
-                </p>
-              </div>
-            </div>
-            <button
-              onClick={onClose}
-              className="p-2 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 transition-colors"
-              aria-label="Close settings"
-            >
-              <CloseIcon />
-            </button>
-          </div>
-
           {/* Tab Navigation */}
           <div
             role="tablist"
@@ -777,10 +701,15 @@ export default function Settings({ onClose }: SettingsProps) {
           >
             <button
               role="tab"
+              ref={(element) => {
+                settingsTabRefs.current.basic = element;
+              }}
               aria-selected={activeTab === "basic"}
               aria-controls="basic-settings-panel"
               id="basic-settings-tab"
+              tabIndex={activeTab === "basic" ? 0 : -1}
               onClick={() => setActiveTab("basic")}
+              onKeyDown={(event) => handleSettingsTabKeyDown(event, "basic")}
               className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === "basic"
                   ? "border-sentinel-500 text-sentinel-600 dark:text-sentinel-400"
@@ -791,10 +720,15 @@ export default function Settings({ onClose }: SettingsProps) {
             </button>
             <button
               role="tab"
+              ref={(element) => {
+                settingsTabRefs.current.advanced = element;
+              }}
               aria-selected={activeTab === "advanced"}
               aria-controls="advanced-settings-panel"
               id="advanced-settings-tab"
+              tabIndex={activeTab === "advanced" ? 0 : -1}
               onClick={() => setActiveTab("advanced")}
+              onKeyDown={(event) => handleSettingsTabKeyDown(event, "advanced")}
               className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === "advanced"
                   ? "border-sentinel-500 text-sentinel-600 dark:text-sentinel-400"
@@ -862,7 +796,7 @@ export default function Settings({ onClose }: SettingsProps) {
                 config={config}
                 credentialStatus={credentialStatus}
                 credentials={credentials}
-                onCheckCredential={checkCredentialStatus}
+                markCredentialNeedsAttention={markCredentialNeedsAttention}
                 setConfig={setConfig}
                 setCredentials={setCredentials}
               />
@@ -940,9 +874,7 @@ export default function Settings({ onClose }: SettingsProps) {
               Save Changes
             </Button>
           </div>
-          </div>
-        </Card>
-      </div>
+      </Modal>
 
       {/* Job Sources Modal */}
       {showHealthDashboard && (
@@ -954,6 +886,6 @@ export default function Settings({ onClose }: SettingsProps) {
         isOpen={showFeedbackModal}
         onClose={closeFeedbackModal}
       />
-    </div>
+    </>
   );
 }

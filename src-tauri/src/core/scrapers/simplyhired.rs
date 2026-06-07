@@ -63,6 +63,10 @@ impl SimplyHiredScraper {
             query_encoded, location_param
         );
 
+        self.fetch_jobs_from_url(url).await
+    }
+
+    async fn fetch_jobs_from_url(&self, url: String) -> ScraperResult {
         let response = send_with_retry(&url, |client| {
             client
                 .get(&url)
@@ -85,7 +89,10 @@ impl SimplyHiredScraper {
                     "SimplyHired returned {} - likely Cloudflare blocked",
                     status
                 );
-                return Ok(vec![]); // Return empty instead of error
+                return Err(ScraperError::BotProtection {
+                    url,
+                    protection_type: "Cloudflare".to_string(),
+                });
             }
             return Err(ScraperError::http_status(
                 status.as_u16(),
@@ -96,10 +103,23 @@ impl SimplyHiredScraper {
 
         let body = read_text_with_limit(response, &url).await?;
 
-        // Check for Cloudflare challenge page
-        if body.contains("cf-browser-verification") || body.contains("Checking your browser") {
+        if Self::is_bot_protection_page(&body) {
             tracing::warn!("SimplyHired: Cloudflare challenge detected, skipping");
-            return Ok(vec![]);
+            return Err(ScraperError::BotProtection {
+                url,
+                protection_type: "Cloudflare".to_string(),
+            });
+        }
+
+        if !Self::looks_like_feed(&body) {
+            return Err(ScraperError::ParseError {
+                format: "RSS".to_string(),
+                url,
+                source: Box::new(std::io::Error::new(
+                    std::io::ErrorKind::InvalidData,
+                    "SimplyHired response was not RSS XML",
+                )),
+            });
         }
 
         // Parse RSS XML
@@ -195,6 +215,29 @@ impl SimplyHiredScraper {
         let end = content[start..].find(&end_tag)?;
 
         Some(content[start..start + end].trim().to_string())
+    }
+
+    fn is_bot_protection_page(body: &str) -> bool {
+        let body_lower = body.to_ascii_lowercase();
+        [
+            "cf-browser-verification",
+            "checking your browser",
+            "verify you are human",
+            "access to this page has been denied",
+            "enable javascript and cookies to continue",
+            "automation tools",
+            "unusual traffic",
+            "captcha",
+        ]
+        .iter()
+        .any(|marker| body_lower.contains(marker))
+    }
+
+    fn looks_like_feed(body: &str) -> bool {
+        let body_lower = body.to_ascii_lowercase();
+        body_lower.contains("<rss")
+            || body_lower.contains("<feed")
+            || body_lower.contains("<rdf:rdf")
     }
 
     /// Decode HTML entities
@@ -321,6 +364,8 @@ impl JobScraper for SimplyHiredScraper {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use wiremock::matchers::{method, path};
+    use wiremock::{Mock, MockServer, ResponseTemplate};
 
     #[test]
     fn test_scraper_name() {
@@ -412,5 +457,63 @@ mod tests {
             Some("https://example.com".to_string())
         );
         assert_eq!(SimplyHiredScraper::extract_tag(xml, "missing"), None);
+    }
+
+    #[tokio::test]
+    async fn fetch_jobs_reports_cloudflare_status_as_bot_protection() {
+        let server = MockServer::start().await;
+        Mock::given(method("GET"))
+            .and(path("/rss"))
+            .respond_with(ResponseTemplate::new(403).set_body_string("forbidden"))
+            .mount(&server)
+            .await;
+
+        let scraper = SimplyHiredScraper::new("care coordinator", None, 10);
+        let error = scraper
+            .fetch_jobs_from_url(format!("{}/rss", server.uri()))
+            .await
+            .expect_err("blocked status should be source-health error");
+
+        assert!(matches!(error, ScraperError::BotProtection { .. }));
+    }
+
+    #[tokio::test]
+    async fn fetch_jobs_reports_cloudflare_challenge_as_bot_protection() {
+        let server = MockServer::start().await;
+        Mock::given(method("GET"))
+            .and(path("/rss"))
+            .respond_with(
+                ResponseTemplate::new(200).set_body_string("<html>Checking your browser</html>"),
+            )
+            .mount(&server)
+            .await;
+
+        let scraper = SimplyHiredScraper::new("care coordinator", None, 10);
+        let error = scraper
+            .fetch_jobs_from_url(format!("{}/rss", server.uri()))
+            .await
+            .expect_err("challenge page should be source-health error");
+
+        assert!(matches!(error, ScraperError::BotProtection { .. }));
+    }
+
+    #[tokio::test]
+    async fn fetch_jobs_reports_access_denied_html_as_bot_protection() {
+        let server = MockServer::start().await;
+        Mock::given(method("GET"))
+            .and(path("/rss"))
+            .respond_with(ResponseTemplate::new(200).set_body_string(
+                "<html><body>Access to this page has been denied because we believe you are using automation tools.</body></html>",
+            ))
+            .mount(&server)
+            .await;
+
+        let scraper = SimplyHiredScraper::new("care coordinator", None, 10);
+        let error = scraper
+            .fetch_jobs_from_url(format!("{}/rss", server.uri()))
+            .await
+            .expect_err("access denied page should be source-health error");
+
+        assert!(matches!(error, ScraperError::BotProtection { .. }));
     }
 }

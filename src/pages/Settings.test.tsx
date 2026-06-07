@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { invoke } from "@tauri-apps/api/core";
 import Settings from "./Settings";
@@ -121,10 +121,6 @@ function makeGhostConfig() {
   };
 }
 
-function makeCredentialStatusEntries(keys: string[] = []) {
-  return keys.map((key) => ({ key, exists: true, available: true }));
-}
-
 // Wire up mockInvoke to handle the happy path
 function setupHappyPath() {
   mockInvoke.mockImplementation(async (cmd: string) => {
@@ -140,6 +136,38 @@ function setupHappyPath() {
 describe("Settings — handleSave flow", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  it("moves settings tabs with arrow keys and keeps one tab stop", async () => {
+    setupHappyPath();
+    render(<Settings onClose={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Settings")).toBeInTheDocument();
+    });
+
+    const searchTab = screen.getByRole("tab", { name: "Search Preferences" });
+    const sourcesTab = screen.getByRole("tab", { name: "Sources & Alerts" });
+
+    expect(searchTab).toHaveAttribute("tabIndex", "0");
+    expect(sourcesTab).toHaveAttribute("tabIndex", "-1");
+
+    searchTab.focus();
+    fireEvent.keyDown(searchTab, { key: "ArrowRight" });
+
+    await waitFor(() => {
+      expect(sourcesTab).toHaveAttribute("aria-selected", "true");
+      expect(sourcesTab).toHaveFocus();
+    });
+    expect(searchTab).toHaveAttribute("tabIndex", "-1");
+    expect(sourcesTab).toHaveAttribute("tabIndex", "0");
+
+    fireEvent.keyDown(sourcesTab, { key: "Home" });
+
+    await waitFor(() => {
+      expect(searchTab).toHaveAttribute("aria-selected", "true");
+      expect(searchTab).toHaveFocus();
+    });
   });
 
   it("shows success toast and closes on successful save", async () => {
@@ -624,21 +652,14 @@ describe("Settings — handleSave flow", () => {
     );
   });
 
-  it("tests an existing Slack webhook without retrieving it into the renderer", async () => {
+  it("does not test an expected Slack webhook until saved details are confirmed or re-entered", async () => {
     const user = userEvent.setup();
     const config = makeConfig();
     config.alerts.slack.enabled = true;
 
-    mockInvoke.mockImplementation(async (cmd: string, args?: unknown) => {
+    mockInvoke.mockImplementation(async (cmd: string) => {
       if (cmd === "get_config") return config;
-      if (cmd === "get_credential_status") {
-        return makeCredentialStatusEntries(["slack_webhook"]);
-      }
-      if (cmd === "has_credential") {
-        return (args as { key: string }).key === "slack_webhook";
-      }
       if (cmd === "get_ghost_config") return makeGhostConfig();
-      if (cmd === "validate_slack_webhook") return true;
       return null;
     });
 
@@ -650,27 +671,26 @@ describe("Settings — handleSave flow", () => {
 
     await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
     expect(
-      screen.getByText(/sends one test message to the Slack channel/i),
+      screen.getByText("Saved details need confirmation"),
     ).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Send test Slack message" }));
+    expect(
+      screen.queryByRole("button", { name: "Send test Slack message" }),
+    ).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /save changes/i }));
 
-    await waitFor(() => {
-      expect(mockToast.success).toHaveBeenCalledWith(
-        "Test sent!",
-        "Check your Slack channel",
-      );
-    });
-
-    expect(mockInvoke).toHaveBeenCalledWith("validate_slack_webhook", {
-      webhookUrl: "",
-    });
+    expect(mockToast.error).toHaveBeenCalledWith(
+      "Finish Slack alerts",
+      "Paste the Slack connection link again, or turn Slack alerts off.",
+    );
+    expect(mockInvoke).not.toHaveBeenCalledWith("validate_slack_webhook", expect.anything());
+    expect(mockInvoke).not.toHaveBeenCalledWith("has_credential", expect.anything());
     expect(mockInvoke).not.toHaveBeenCalledWith(
       "retrieve_credential",
       expect.anything(),
     );
   });
 
-  it("tests an existing email app password without retrieving it into the renderer", async () => {
+  it("does not test an expected email app password until saved details are confirmed or re-entered", async () => {
     const user = userEvent.setup();
     const config = makeConfig();
     config.alerts.email = {
@@ -684,16 +704,9 @@ describe("Settings — handleSave flow", () => {
       use_starttls: true,
     };
 
-    mockInvoke.mockImplementation(async (cmd: string, args?: unknown) => {
+    mockInvoke.mockImplementation(async (cmd: string) => {
       if (cmd === "get_config") return config;
-      if (cmd === "get_credential_status") {
-        return makeCredentialStatusEntries(["smtp_password"]);
-      }
-      if (cmd === "has_credential") {
-        return (args as { key: string }).key === "smtp_password";
-      }
       if (cmd === "get_ghost_config") return makeGhostConfig();
-      if (cmd === "test_email_notification") return null;
       return null;
     });
 
@@ -705,22 +718,17 @@ describe("Settings — handleSave flow", () => {
 
     await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
     expect(
-      screen.getByText(/sends one test email to the recipients/i),
+      screen.getByText("Saved details need confirmation"),
     ).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Send test email" }));
+    expect(screen.queryByRole("button", { name: "Send test email" })).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /save changes/i }));
 
-    await waitFor(() => {
-      expect(mockToast.success).toHaveBeenCalledWith(
-        "Test sent!",
-        "Check your email inbox",
-      );
-    });
-
-    expect(mockInvoke).toHaveBeenCalledWith("test_email_notification", {
-      emailConfig: expect.objectContaining({
-        smtp_password: "",
-      }),
-    });
+    expect(mockToast.error).toHaveBeenCalledWith(
+      "Finish email alerts",
+      "Add the email app password, or turn email alerts off.",
+    );
+    expect(mockInvoke).not.toHaveBeenCalledWith("test_email_notification", expect.anything());
+    expect(mockInvoke).not.toHaveBeenCalledWith("has_credential", expect.anything());
     expect(mockInvoke).not.toHaveBeenCalledWith(
       "retrieve_credential",
       expect.anything(),
@@ -806,7 +814,7 @@ describe("Settings — handleSave flow", () => {
     expect(mockInvoke).not.toHaveBeenCalledWith("save_config", expect.anything());
   });
 
-  it("does not treat unavailable saved secrets as missing during save", async () => {
+  it("requires re-entered or confirmed saved secrets before keeping restored secret-backed settings enabled", async () => {
     const user = userEvent.setup();
     const config = makeConfig();
     config.alerts.telegram = {
@@ -818,25 +826,10 @@ describe("Settings — handleSave flow", () => {
       enabled: true,
       email: "user@example.com",
     };
-    let savedConfig: ReturnType<typeof makeConfig> | null = null;
-
-    mockInvoke.mockImplementation(async (cmd: string, args?: unknown) => {
+    mockInvoke.mockImplementation(async (cmd: string) => {
       if (cmd === "get_config") return config;
-      if (cmd === "get_credential_status") {
-        return [
-          { key: "telegram_bot_token", exists: false, available: false },
-          { key: "usajobs_api_key", exists: false, available: false },
-        ];
-      }
-      if (cmd === "has_credential") {
-        throw new Error("system password manager locked");
-      }
       if (cmd === "get_ghost_config") return makeGhostConfig();
       if (cmd === "detect_location") return null;
-      if (cmd === "save_config") {
-        savedConfig = (args as { config: ReturnType<typeof makeConfig> }).config;
-        return null;
-      }
       return null;
     });
 
@@ -848,18 +841,12 @@ describe("Settings — handleSave flow", () => {
 
     await user.click(screen.getByRole("button", { name: /save changes/i }));
 
-    await waitFor(() => {
-      expect(savedConfig?.alerts.telegram.enabled).toBe(true);
-      expect(savedConfig?.usajobs.enabled).toBe(true);
-    });
-    expect(mockToast.error).not.toHaveBeenCalledWith(
+    expect(mockToast.error).toHaveBeenCalledWith(
       "Finish Telegram alerts",
-      expect.any(String),
+      "Add the Telegram details shown below, or turn Telegram alerts off.",
     );
-    expect(mockToast.error).not.toHaveBeenCalledWith(
-      "Finish USAJobs scheduled checks",
-      expect.any(String),
-    );
+    expect(mockInvoke).not.toHaveBeenCalledWith("save_config", expect.anything());
+    expect(mockInvoke).not.toHaveBeenCalledWith("has_credential", expect.anything());
   });
 
   it("presents desktop and email alerts before optional chat alerts", async () => {
@@ -908,6 +895,23 @@ describe("Settings — handleSave flow", () => {
     expect(desktopIndex).toBeLessThan(emailIndex);
     expect(emailIndex).toBeLessThan(chatIndex);
     expect(chatIndex).toBeLessThan(slackIndex);
+  });
+
+  it("labels the resume sorting toggle for assistive tech", async () => {
+    const user = userEvent.setup();
+    setupHappyPath();
+
+    render(<Settings onClose={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Settings")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
+
+    expect(
+      screen.getByRole("checkbox", { name: "Use Resume to Sort Jobs" }),
+    ).toBeInTheDocument();
   });
 
   it("keeps missing desktop sound settings quiet in Settings", async () => {

@@ -202,15 +202,17 @@ if !url_parsed.path().starts_with("/webhook/") {
 
 ### 5. Secure Credential Storage
 
-Webhook URLs are stored in the OS keyring, not plaintext config files.
+Webhook URLs are stored through JobSentinel's local secret-storage boundary,
+not plaintext config files. Current compatibility builds use the OS credential
+store directly; the target storage path is the encrypted SQLite secret vault.
 
-See: [Keyring Integration](./KEYRING.md)
+See: [Local Secret Vault And Keychain Integration](./KEYRING.md)
 
 **Benefits**:
 
-- OS-level encryption at rest
+- Local encryption at rest
 - Access control (only JobSentinel can read)
-- Automatic logout protection (keyring locks)
+- Unlock protection before secret use
 - No accidental commits to Git
 
 ### 6. Validation Before Use
@@ -523,7 +525,7 @@ mod tests {
 ## Related Documentation
 
 - [URL Validation Security](./URL_VALIDATION.md)
-- [Keyring Integration](./KEYRING.md)
+- [Local Secret Vault And Keychain Integration](./KEYRING.md)
 - [Security Policy](../../SECURITY.md)
 - [Notifications Setup](../features/notifications.md)
 

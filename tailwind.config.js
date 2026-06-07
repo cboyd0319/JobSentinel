@@ -65,10 +65,10 @@ export default {
       },
       fontSize: {
         // Custom scale with tighter line heights for display
-        'display-2xl': ['3rem', { lineHeight: '1.1', letterSpacing: '-0.02em', fontWeight: '700' }],
-        'display-xl': ['2.25rem', { lineHeight: '1.15', letterSpacing: '-0.02em', fontWeight: '700' }],
-        'display-lg': ['1.5rem', { lineHeight: '1.2', letterSpacing: '-0.01em', fontWeight: '600' }],
-        'display-md': ['1.25rem', { lineHeight: '1.25', letterSpacing: '-0.01em', fontWeight: '600' }],
+        'display-2xl': ['3rem', { lineHeight: '1.1', letterSpacing: '0', fontWeight: '700' }],
+        'display-xl': ['2.25rem', { lineHeight: '1.15', letterSpacing: '0', fontWeight: '700' }],
+        'display-lg': ['1.5rem', { lineHeight: '1.2', letterSpacing: '0', fontWeight: '600' }],
+        'display-md': ['1.25rem', { lineHeight: '1.25', letterSpacing: '0', fontWeight: '600' }],
       },
       spacing: {
         // Custom rhythm (not default 4px base)

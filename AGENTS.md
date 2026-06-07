@@ -33,7 +33,8 @@ Read in this order for non-trivial work:
    safe parallel code, docs, test, review, or verification slices.
 4. `docs/harness/verification-matrix.md` for required checks.
 5. `docs/harness/change-contract.md` for feature, bug, and refactor specs.
-6. `DESIGN.md` and `docs/design/design-spec.md` for UI and UX changes.
+6. `DESIGN.md`, `docs/design/README.md`, and
+   `docs/design/design-spec.md` for UI and UX changes.
 7. `docs/developer/ARCHITECTURE.md` for system layout.
 8. `docs/developer/TESTING.md` for test patterns and commands.
 9. Closest feature doc under `docs/features/` for user-facing behavior.

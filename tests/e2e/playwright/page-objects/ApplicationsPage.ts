@@ -72,7 +72,9 @@ export class ApplicationsPage extends BasePage {
   }
 
   get detailDialog(): Locator {
-    return this.page.locator("[data-testid='application-detail-dialog']");
+    return this.page
+      .getByRole("dialog")
+      .filter({ has: this.page.locator("[data-testid='application-detail-dialog']") });
   }
 
   get statusSelect(): Locator {

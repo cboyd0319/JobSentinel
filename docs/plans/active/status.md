@@ -17,6 +17,11 @@ closed as of 2026-06-05; do not continue proactive file-size split work unless
 a fresh bloat failure blocks product, privacy, security, docs accuracy, or
 verification.
 
+Release creation is paused until development and QA blockers are closed. Do not
+spend time creating, uploading, or announcing new release assets while confirmed
+product, scraper, privacy, documentation, harness, or Computer Use validation
+work remains open.
+
 Rule 0 still controls the work: user data stays local unless the user explicitly
 configures an external channel, external AI stays optional and disabled by
 default, and users stay in control before anything leaves the device.
@@ -25,7 +30,7 @@ default, and users stay in control before anything leaves the device.
 
 | Workstream | State | Current focus | Source |
 | ---------- | ----- | ------------- | ------ |
-| Current product and quality work | Active | Resume assistance, application readability, job-card protection, guided intake, pay protection, and macOS readiness | [Plan](current-work.md) |
+| Current product and quality work | Active | Resume assistance, application readability, job-card protection, guided intake, pay protection, encrypted local storage, Quiet Shield redesign, and macOS readiness | [Plan](current-work.md) |
 
 ## Archived Context
 
@@ -68,6 +73,83 @@ product and macOS readiness slices; reopen bloat cleanup only for a fresh
 failing gate or a blocker to privacy, security, docs accuracy, or verification.
 
 ## Latest Slice
+
+- Current redesign QA slice fixed the shared modal paint regression that
+  Computer Use reproduced in the packaged macOS debug app: shared `Modal`
+  dialogs were present in the accessibility tree but invisible in screenshots.
+  The shared modal now uses deterministic `app-modal-*` paint classes and
+  critical inline viewport styles, with no animation-only visibility
+  dependency. Live Computer Use on the rebuilt debug bundle confirmed the
+  Dashboard Import Job modal and Application Assist Edit Screening Answer modal
+  both paint visibly, focus inside the modal, and keep readable content inside
+  the viewport.
+
+- Current visual polish also removed truncation from user-controlled notes,
+  companies, locations, interview titles, compare rows, resume word evidence,
+  safe problem summaries, and scraper issue details. Remaining truncation hits
+  are limited to intentional compact labels, snippets, or bounded controls.
+  Previous verification passed: focused UI tests for modal/import/application
+  assist/dashboard/resume optimizer/location/analytics/interviews/scraper
+  health, full `npm run lint`, full `npm run test:run`, `npm run build`, and
+  `npx tauri build --debug --bundles app`.
+
+- Follow-up redesign lock-in on 2026-06-06 migrated remaining confirmed custom
+  overlay surfaces for Application Summary, Interview Schedule, Job Sources, and
+  Cover Letter Templates onto the shared `Modal`, added unique modal ids for
+  nested dialog safety, preserved the Interview Schedule close label, wrapped
+  Hiring Trends tabs instead of scrolling them horizontally, and added
+  responsive labeled table behavior for Job Sources and source check history.
+  Verification passed: `npm run test:run -- src/components/Modal.test.tsx
+  src/components/ScraperHealthDashboard.test.tsx
+  src/components/ScraperHealthDashboard.sourceChecks.test.tsx
+  src/components/InterviewScheduler.test.tsx src/pages/Market.test.tsx
+  src/pages/ApplicationProfile.test.tsx src/components/Button.test.tsx
+  src/contexts/ToastContext.test.tsx src/components/HelpIcon.test.tsx
+  src/components/Tooltip.test.tsx src/pages/applicationsModel.test.ts`,
+  `npm run lint`, `npm run harness:check`, and `npm run harness:score`. Full
+  `npm run test:run`, `npm run build`, packaged-app rebuild, and Computer Use
+  screenshots still need to run after this latest UI migration before any
+  production-ready claim.
+
+- Local encrypted storage and saved-secret UX are now part of the active
+  repo-wide goal. Locked direction as of 2026-06-06: encrypt SQLite at rest,
+  store secrets in per-row AEAD vault rows, protect the default vault key with
+  the OS credential store, add advanced passphrase unlock, use macOS native
+  Keychain plus LocalAuthentication for Touch ID-capable unlock, and keep
+  Settings/dashboard/passive status views from triggering repeated secure-store
+  prompts.
+
+- Quiet Shield redesign is now part of the active repo-wide goal and the repo
+  harness. Locked direction as of 2026-06-06: `DESIGN.md`,
+  `docs/design/README.md`, and `docs/design/design-spec.md` are required
+  product contracts for UI and UX work; new work must preserve or move toward
+  Protective Navy, calm operational density, broad-audience copy, accessible
+  controls, stable responsive layouts, no horizontal scroll, and no passive
+  secure-storage prompts.
+
+- Current redesign lock-in now treats Quiet Shield as a harness-controlled
+  active-goal acceptance gate, not optional visual polish. `docs/harness` must
+  keep design files required, change contracts must record design impact, and
+  broad UI changes need Computer Use or Playwright screenshot evidence recorded
+  before release work resumes.
+
+- Current QA-hardening slice is in progress after live app screenshots exposed
+  real visual and interaction bugs. Work now focuses on fixing confirmed UI
+  overflow, labeling, toast placement, dashboard empty-state, market empty-state,
+  Application Assist tab keyboarding, support-report redaction, scraper source
+  health semantics, docs drift, and harness sensors before any release work.
+
+- Fresh packaged-app Computer Use validation on 2026-06-06 confirmed another
+  QA fix slice: dashboard summary cards paint, dashboard and Hiring Trends
+  toasts are visible in the viewport, Hiring Trends no-data refresh avoids
+  false success wording, Application Assist tab content and underline now agree
+  after real clicks, the Application Assist tab row no longer shows a stray
+  native scrollbar, Pay Protection lays out without clipping, Resume Match
+  shows the saved resume name inside the panel, and Settings opens Sources &
+  Alerts without a passive Keychain prompt. Focused verification passed:
+  `npm run test:run -- src/pages/ApplicationProfile.test.tsx`,
+  `npm run test:run -- src/contexts/ToastContext.test.tsx`, `npm run lint --
+  --quiet`, and `npx tauri build --debug --bundles app`.
 
 - Release finalization adds credential integration coverage for active
   keyring-backed credentials, sanitized secure-storage denial, disabled
@@ -243,13 +325,18 @@ the active-doc budget.
 
 ## Next Best Work
 
-1. Continue resume assistance only where it improves truthful local requirement
+1. Continue the Quiet Shield redesign pass against `DESIGN.md`,
+   `docs/design/README.md`, and `docs/design/design-spec.md`; modals now have
+   focused regression proof, so the next proof should rerun full test/build,
+   rebuild the packaged debug app, and use Computer Use on toasts, settings,
+   keyboard flow, route empty states, and narrow-width states.
+2. Continue resume assistance only where it improves truthful local requirement
    review, hard-constraint handling, readable evidence, or next-action guidance.
-2. Continue guided intake only where resume/profile suggestions stay optional,
+3. Continue guided intake only where resume/profile suggestions stay optional,
    reviewed, local, and understandable for non-technical job seekers.
-3. Continue job-card protection for stale, risky, duplicate, unclear, or
+4. Continue job-card protection for stale, risky, duplicate, unclear, or
    pay-problem postings without treating local signals as employer predictions.
-4. Continue macOS readiness docs, release checks, and user guidance without
+5. Continue macOS readiness docs, release checks, and user guidance without
    claiming Gatekeeper-ready public distribution before Apple credentials exist.
 
 ## Completion Bar

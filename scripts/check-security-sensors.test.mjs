@@ -12,6 +12,7 @@ function writeBaseRepo(root, csp) {
   mkdirSync(join(root, "docs/developer"), { recursive: true });
   mkdirSync(join(root, ".github/workflows"), { recursive: true });
   mkdirSync(join(root, "src-tauri"), { recursive: true });
+  mkdirSync(join(root, "src/pages"), { recursive: true });
 
   for (const file of [
     "README.md",
@@ -74,6 +75,32 @@ function writeBaseRepo(root, csp) {
   writeFileSync(
     join(root, "src-tauri/tauri.conf.json"),
     JSON.stringify({ app: { security: { csp } } }),
+  );
+  writeFileSync(
+    join(root, "src/pages/SettingsConfig.ts"),
+    [
+      "export interface CredentialStatusValue {",
+      "  exists: boolean;",
+      "  available: boolean;",
+      "  state: CredentialStatusState;",
+      "}",
+      "export type CredentialStatusState = 'empty' | 'expected' | 'saved' | 'needs_attention';",
+      "credentialExists(credentialStatus, \"telegram_bot_token\");",
+      "credentialExists(credentialStatus, \"usajobs_api_key\");",
+    ].join("\n"),
+  );
+  writeFileSync(
+    join(root, "src/pages/SettingsNotificationsSection.tsx"),
+    "import { credentialExists } from './SettingsConfig';\n",
+  );
+  writeFileSync(
+    join(root, "src/pages/SettingsJobSourcesSection.tsx"),
+    "import { credentialExists } from './SettingsConfig';\n",
+  );
+  writeFileSync(join(root, "src/pages/Settings.tsx"), "export function Settings() {}\n");
+  writeFileSync(
+    join(root, "src/pages/useSettingsCredentials.ts"),
+    "export function useSettingsCredentials() { return {}; }\n",
   );
 }
 
@@ -223,6 +250,42 @@ test("checkSecuritySensors rejects missing public macOS artifact verifier", () =
   assert(
     checkSecuritySensors(root).includes(
       "published release workflow is missing public artifact gate: public macOS artifact verifier",
+    ),
+  );
+});
+
+test("checkSecuritySensors rejects passive credential state in Settings gating", () => {
+  const root = mkdtempRoot("jobsentinel-security-sensors-credential-ui-");
+  writeBaseRepo(
+    root,
+    "default-src 'self'; connect-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'",
+  );
+  writeFileSync(
+    join(root, "src/pages/SettingsNotificationsSection.tsx"),
+    "import { credentialMayExist } from './SettingsConfig';\ncredentialMayExist(status, 'slack_webhook');\n",
+  );
+
+  assert(
+    checkSecuritySensors(root).includes(
+      "src/pages/SettingsNotificationsSection.tsx must not use passive expected credential state for save, test, or enable gating",
+    ),
+  );
+});
+
+test("checkSecuritySensors rejects passive secure-storage probes in Settings hooks", () => {
+  const root = mkdtempRoot("jobsentinel-security-sensors-passive-probe-");
+  writeBaseRepo(
+    root,
+    "default-src 'self'; connect-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'",
+  );
+  writeFileSync(
+    join(root, "src/pages/useSettingsCredentials.ts"),
+    "import { invoke } from '@tauri-apps/api/core';\ninvoke('has_credential', { key: 'smtp_password' });\n",
+  );
+
+  assert(
+    checkSecuritySensors(root).includes(
+      "src/pages/useSettingsCredentials.ts must not call secure-storage probe commands during passive Settings load",
     ),
   );
 });

@@ -296,11 +296,9 @@ describe("Settings source setup", () => {
   it("labels USAJobs source setup as optional scheduled checks", async () => {
     const user = userEvent.setup();
     const config = makeConfig();
-    config.usajobs.enabled = true;
 
     mockInvoke.mockImplementation(async (cmd: string) => {
       if (cmd === "get_config") return config;
-      if (cmd === "has_credential") return false;
       if (cmd === "get_ghost_config") return makeGhostConfig();
       if (cmd === "detect_location") return null;
       return null;
@@ -313,6 +311,11 @@ describe("Settings source setup", () => {
     });
 
     await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
+    await user.click(
+      screen.getByRole("checkbox", {
+        name: /Turn USAJobs scheduled job checks on or off/i,
+      }),
+    );
 
     expect(screen.getByText(/Optional USAJobs scheduled checks/i)).toBeInTheDocument();
     expect(screen.getByText(/Skip this if you only want to open USAJobs/i)).toBeInTheDocument();

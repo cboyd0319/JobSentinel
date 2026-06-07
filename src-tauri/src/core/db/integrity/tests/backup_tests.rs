@@ -1,12 +1,48 @@
 use super::*;
 use sqlx::SqlitePool;
+use std::path::PathBuf;
+
+async fn create_file_test_db() -> (SqlitePool, tempfile::TempDir, PathBuf) {
+    let temp_dir = tempfile::tempdir().unwrap();
+    let db_path = temp_dir.path().join("jobsentinel-test.db");
+    let db_url = format!("sqlite://{}?mode=rwc", db_path.display());
+    let pool = SqlitePool::connect(&db_url).await.unwrap();
+    sqlx::query("PRAGMA page_size = 4096")
+        .execute(&pool)
+        .await
+        .unwrap();
+    sqlx::query("PRAGMA journal_mode = WAL")
+        .execute(&pool)
+        .await
+        .unwrap();
+    sqlx::query("PRAGMA synchronous = NORMAL")
+        .execute(&pool)
+        .await
+        .unwrap();
+    sqlx::query("PRAGMA foreign_keys = ON")
+        .execute(&pool)
+        .await
+        .unwrap();
+    sqlx::query("PRAGMA cache_size = -128000")
+        .execute(&pool)
+        .await
+        .unwrap();
+    sqlx::query("PRAGMA application_id = 1246970946")
+        .execute(&pool)
+        .await
+        .unwrap();
+    sqlx::query("PRAGMA user_version = 2")
+        .execute(&pool)
+        .await
+        .unwrap();
+    sqlx::migrate!("./migrations").run(&pool).await.unwrap();
+    (pool, temp_dir, db_path)
+}
 
 #[tokio::test]
-#[ignore = "Requires file-based database (VACUUM INTO doesn't work with in-memory)"]
 async fn test_backup_creation() {
-    let db = create_test_db().await;
-    let temp_dir = tempfile::tempdir().unwrap();
-    let integrity = DatabaseIntegrity::new(db, temp_dir.path().to_path_buf());
+    let (db, temp_dir, _) = create_file_test_db().await;
+    let integrity = DatabaseIntegrity::new(db, temp_dir.path().join("backups"));
 
     let backup_path = integrity.create_backup("test").await.unwrap();
     assert!(backup_path.exists(), "Backup file should exist");
@@ -17,11 +53,10 @@ async fn test_backup_creation() {
 }
 
 #[tokio::test]
-#[ignore = "Requires file-based database (VACUUM INTO doesn't work with in-memory)"]
 async fn test_cleanup_old_backups() {
-    let db = create_test_db().await;
-    let temp_dir = tempfile::tempdir().unwrap();
-    let integrity = DatabaseIntegrity::new(db, temp_dir.path().to_path_buf());
+    let (db, temp_dir, _) = create_file_test_db().await;
+    let backup_dir = temp_dir.path().join("backups");
+    let integrity = DatabaseIntegrity::new(db, backup_dir.clone());
 
     for i in 0..5 {
         integrity
@@ -34,7 +69,7 @@ async fn test_cleanup_old_backups() {
     let deleted = integrity.cleanup_old_backups(2).await.unwrap();
     assert_eq!(deleted, 3, "Should delete 3 old backups");
 
-    let remaining: Vec<_> = std::fs::read_dir(temp_dir.path())
+    let remaining: Vec<_> = std::fs::read_dir(&backup_dir)
         .unwrap()
         .filter_map(|e| e.ok())
         .filter(|e| {
@@ -50,11 +85,9 @@ async fn test_cleanup_old_backups() {
 }
 
 #[tokio::test]
-#[ignore = "Requires file-based database (VACUUM INTO doesn't work with in-memory)"]
 async fn test_get_backup_history() {
-    let db = create_test_db().await;
-    let temp_dir = tempfile::tempdir().unwrap();
-    let integrity = DatabaseIntegrity::new(db, temp_dir.path().to_path_buf());
+    let (db, temp_dir, _) = create_file_test_db().await;
+    let integrity = DatabaseIntegrity::new(db, temp_dir.path().join("backups"));
 
     integrity.create_backup("test_history").await.unwrap();
 
@@ -64,11 +97,9 @@ async fn test_get_backup_history() {
 }
 
 #[tokio::test]
-#[ignore = "Backup/restore requires file-based database"]
 async fn test_backup_and_restore() {
-    let db = create_test_db().await;
-    let temp_dir = tempfile::tempdir().unwrap();
-    let integrity = DatabaseIntegrity::new(db.clone(), temp_dir.path().to_path_buf());
+    let (db, temp_dir, _) = create_file_test_db().await;
+    let integrity = DatabaseIntegrity::new(db.clone(), temp_dir.path().join("backups"));
 
     sqlx::query(
         r#"
@@ -105,11 +136,10 @@ VALUES (?, ?, ?, ?, ?)
 }
 
 #[tokio::test]
-#[ignore = "Backup cleanup requires file-based database"]
 async fn test_multiple_backups_cleanup() {
-    let db = create_test_db().await;
-    let temp_dir = tempfile::tempdir().unwrap();
-    let integrity = DatabaseIntegrity::new(db, temp_dir.path().to_path_buf());
+    let (db, temp_dir, _) = create_file_test_db().await;
+    let backup_dir = temp_dir.path().join("backups");
+    let integrity = DatabaseIntegrity::new(db, backup_dir.clone());
 
     for i in 0..10 {
         integrity
@@ -119,7 +149,7 @@ async fn test_multiple_backups_cleanup() {
         tokio::time::sleep(tokio::time::Duration::from_millis(50)).await;
     }
 
-    let backup_count: usize = std::fs::read_dir(temp_dir.path())
+    let backup_count: usize = std::fs::read_dir(&backup_dir)
         .unwrap()
         .filter_map(|e| e.ok())
         .filter(|e| {
@@ -135,7 +165,7 @@ async fn test_multiple_backups_cleanup() {
     let deleted = integrity.cleanup_old_backups(3).await.unwrap();
     assert_eq!(deleted, 7, "Should delete 7 old backups");
 
-    let remaining_count: usize = std::fs::read_dir(temp_dir.path())
+    let remaining_count: usize = std::fs::read_dir(&backup_dir)
         .unwrap()
         .filter_map(|e| e.ok())
         .filter(|e| {
@@ -150,11 +180,9 @@ async fn test_multiple_backups_cleanup() {
 }
 
 #[tokio::test]
-#[ignore = "Requires file-based database (VACUUM INTO doesn't work with in-memory)"]
 async fn test_backup_before_operation() {
-    let db = create_test_db().await;
-    let temp_dir = tempfile::tempdir().unwrap();
-    let integrity = DatabaseIntegrity::new(db, temp_dir.path().to_path_buf());
+    let (db, temp_dir, _) = create_file_test_db().await;
+    let integrity = DatabaseIntegrity::new(db, temp_dir.path().join("backups"));
 
     let backup_path = integrity
         .backup_before_operation("migration")
@@ -324,19 +352,16 @@ async fn test_get_backup_history_ordering() {
 }
 
 #[tokio::test]
-#[ignore = "Requires file-based database for restore"]
 async fn test_restore_from_backup_success() {
-    use tempfile::NamedTempFile;
-
-    let temp_db_file = NamedTempFile::new().unwrap();
-    let db_path = temp_db_file.path().to_path_buf();
-    let db_url = format!("sqlite:{}", db_path.display());
+    let temp_dir = tempfile::tempdir().unwrap();
+    let db_path = temp_dir.path().join("restore-source.db");
+    let db_url = format!("sqlite://{}?mode=rwc", db_path.display());
 
     let db = SqlitePool::connect(&db_url).await.unwrap();
     sqlx::migrate!("./migrations").run(&db).await.unwrap();
 
-    let temp_dir = tempfile::tempdir().unwrap();
-    let integrity = DatabaseIntegrity::new(db.clone(), temp_dir.path().to_path_buf());
+    let backup_dir = temp_dir.path().join("backups");
+    let integrity = DatabaseIntegrity::new(db.clone(), backup_dir.clone());
 
     sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES (?, ?, ?, ?, ?)")
         .bind("restore_test")
@@ -357,7 +382,7 @@ async fn test_restore_from_backup_success() {
 
     let new_integrity = DatabaseIntegrity::new(
         SqlitePool::connect("sqlite::memory:").await.unwrap(),
-        temp_dir.path().to_path_buf(),
+        backup_dir,
     );
     new_integrity
         .restore_from_backup(&backup_path, &db_path)
@@ -377,7 +402,6 @@ async fn test_restore_from_backup_success() {
 }
 
 #[tokio::test]
-#[ignore = "Requires file-based database for restore"]
 async fn test_restore_saves_corrupted_database() {
     let temp_dir = tempfile::tempdir().unwrap();
 

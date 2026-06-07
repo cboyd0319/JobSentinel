@@ -19,10 +19,11 @@ export const DashboardCompareModal = memo(function DashboardCompareModal({
   comparedJobs,
   onClose,
 }: DashboardCompareModalProps) {
-  const gridClass =
+  const desktopGridClass =
     comparedJobs.length === 2
-      ? "grid gap-4 grid-cols-2"
-      : "grid gap-4 grid-cols-3";
+      ? "sm:grid-cols-2"
+      : "sm:grid-cols-2 lg:grid-cols-3";
+  const gridClass = `grid grid-cols-1 gap-4 ${desktopGridClass}`;
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Compare Jobs" size="xl">
@@ -35,19 +36,19 @@ export const DashboardCompareModal = memo(function DashboardCompareModal({
                   key={job.id}
                   className="p-4 bg-surface-50 dark:bg-surface-700 rounded-lg border border-surface-200 dark:border-surface-600"
                 >
-                  <h4 className="font-semibold text-surface-800 dark:text-surface-200 truncate">
+                  <h4 className="break-words font-semibold text-surface-800 [overflow-wrap:anywhere] dark:text-surface-200">
                     {job.title}
                   </h4>
-                  <p className="text-sm text-surface-500 dark:text-surface-400 truncate">
+                  <p className="break-words text-sm text-surface-500 [overflow-wrap:anywhere] dark:text-surface-400">
                     {job.company}
                   </p>
                   <ScoreDisplay score={job.score} size="sm" showLabel={false} />
                 </div>
               ))}
             </div>
-            <div className="overflow-x-auto">
+            <div className="overflow-visible">
               <table
-                className="w-full text-sm"
+                className="app-responsive-table w-full text-sm"
                 role="table"
                 aria-label="Job comparison"
               >
@@ -143,14 +144,15 @@ const CompareRow = memo(function CompareRow({
     <tr>
       <th
         scope="row"
-        className="py-2 pr-4 font-medium text-surface-700 dark:text-surface-300 whitespace-nowrap text-left"
+        className="py-2 pr-4 text-left font-medium text-surface-700 dark:text-surface-300"
       >
         {label}
       </th>
       {values.map((value, i) => (
         <td
           key={i}
-          className="py-2 px-4 text-surface-600 dark:text-surface-400"
+          data-label={label}
+          className="break-words px-4 py-2 text-surface-600 [overflow-wrap:anywhere] dark:text-surface-400"
         >
           {value}
         </td>

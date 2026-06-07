@@ -121,8 +121,8 @@ export function ResumeOptimizerResultsPanel({
       {showComparison && canShowComparison && (
         <Card>
           <CardHeader title="Resume-Job Comparison" />
-          <div className="grid grid-cols-2 gap-4">
-            <div className="border-r border-surface-200 dark:border-surface-700 pr-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="min-w-0 border-b border-surface-200 pb-4 dark:border-surface-700 md:border-b-0 md:border-r md:pb-0 md:pr-4">
               <h3 className="font-semibold text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
                 <svg
                   className="w-5 h-5 text-sentinel-500"
@@ -139,7 +139,7 @@ export function ResumeOptimizerResultsPanel({
                 </svg>
                 Job Requirements
               </h3>
-              <div className="bg-surface-50 dark:bg-surface-800 rounded-lg p-4 max-h-96 overflow-y-auto text-sm text-surface-700 dark:text-surface-300 whitespace-pre-wrap font-mono">
+              <div className="max-h-96 overflow-y-auto rounded-lg bg-surface-50 p-4 font-mono text-sm text-surface-700 whitespace-pre-wrap break-words [overflow-wrap:anywhere] dark:bg-surface-800 dark:text-surface-300">
                 {highlightKeywordGroups(
                   jobDescription,
                   matchedKeywords,
@@ -148,7 +148,7 @@ export function ResumeOptimizerResultsPanel({
               </div>
             </div>
 
-            <div className="pl-4">
+            <div className="min-w-0 md:pl-4">
               <h3 className="font-semibold text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
                 <svg
                   className="w-5 h-5 text-green-500"
@@ -165,7 +165,7 @@ export function ResumeOptimizerResultsPanel({
                 </svg>
                 Your Resume
               </h3>
-              <div className="bg-surface-50 dark:bg-surface-800 rounded-lg p-4 max-h-96 overflow-y-auto text-sm text-surface-700 dark:text-surface-300 whitespace-pre-wrap font-mono">
+              <div className="max-h-96 overflow-y-auto rounded-lg bg-surface-50 p-4 font-mono text-sm text-surface-700 whitespace-pre-wrap break-words [overflow-wrap:anywhere] dark:bg-surface-800 dark:text-surface-300">
                 {highlightKeywords(comparisonResumeText, matchedKeywords, "match")}
               </div>
             </div>
@@ -352,14 +352,14 @@ export function ResumeOptimizerResultsPanel({
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-surface-800 dark:text-surface-200 truncate">
+                    <p className="break-words [overflow-wrap:anywhere] font-medium text-surface-800 dark:text-surface-200">
                       {match.keyword}
                     </p>
-                    <p className="text-xs text-surface-500 dark:text-surface-400 mt-0.5">
+                    <p className="mt-0.5 break-words text-xs text-surface-500 [overflow-wrap:anywhere] dark:text-surface-400">
                       Found in: {formatRequirementEvidenceSections(match.found_in)}
                     </p>
                   </div>
-                  <Badge variant={getImportanceVariant(match.importance)} size="sm">
+                  <Badge variant={getImportanceVariant(match.importance)} size="sm" className="shrink-0">
                     {match.importance}
                   </Badge>
                 </div>

@@ -5,13 +5,11 @@ import {
   type SetStateAction,
 } from "react";
 import type { ToastContextType } from "../contexts/toastContextDef";
-import { logError } from "../utils/errorUtils";
 import {
-  getCredentialStatusEntries,
-  hasCredential,
   type Config,
   type CredentialKey,
   type CredentialStatusMap,
+  type CredentialStatusState,
   type Credentials,
 } from "./SettingsConfig";
 
@@ -40,8 +38,14 @@ function createEmptyCredentials(): Credentials {
   };
 }
 
-function createCredentialStatusValue(exists = false, available = true) {
-  return { exists, available };
+function createCredentialStatusValue(
+  state: CredentialStatusState = "empty",
+) {
+  return {
+    exists: state === "saved" || state === "needs_attention",
+    available: state !== "expected" && state !== "needs_attention",
+    state,
+  };
 }
 
 function createEmptyCredentialStatus(): CredentialStatusMap {
@@ -55,108 +59,62 @@ function createEmptyCredentialStatus(): CredentialStatusMap {
   };
 }
 
-function createCredentialStatusFromEntries(
-  entries: Awaited<ReturnType<typeof getCredentialStatusEntries>>,
-): CredentialStatusMap {
+function markExpectedCredential(
+  status: CredentialStatusMap,
+  key: CredentialKey,
+) {
+  status[key] = createCredentialStatusValue("expected");
+}
+
+function createCredentialStatusFromConfig(config: Config): CredentialStatusMap {
   const status = createEmptyCredentialStatus();
-  entries.forEach((entry) => {
-    status[entry.key] = {
-      exists: entry.exists,
-      available: entry.available ?? true,
-    };
-  });
+
+  if (config.alerts.slack?.enabled) {
+    markExpectedCredential(status, "slack_webhook");
+  }
+  if (config.alerts.email?.enabled) {
+    markExpectedCredential(status, "smtp_password");
+  }
+  if (config.alerts.discord?.enabled) {
+    markExpectedCredential(status, "discord_webhook");
+  }
+  if (config.alerts.teams?.enabled) {
+    markExpectedCredential(status, "teams_webhook");
+  }
+  if (config.alerts.telegram?.enabled) {
+    markExpectedCredential(status, "telegram_bot_token");
+  }
+  if (config.usajobs?.enabled) {
+    markExpectedCredential(status, "usajobs_api_key");
+  }
+
   return status;
 }
 
-export function useSettingsCredentials(toast: ToastContextType) {
+export function useSettingsCredentials(_toast: ToastContextType) {
   const [credentials, setCredentials] = useState<Credentials>(
     createEmptyCredentials,
   );
-  const [dirtyCredentialKeys, setDirtyCredentialKeys] = useState<
-    Set<CredentialKey>
-  >(() => new Set());
   const [credentialStatus, setCredentialStatus] = useState<
     CredentialStatusMap
   >(createEmptyCredentialStatus);
 
-  const initializeCredentialStatus = useCallback((_config: Config) => {
-    void getCredentialStatusEntries()
-      .then((entries) => {
-        setCredentialStatus(
-          Array.isArray(entries)
-            ? createCredentialStatusFromEntries(entries)
-            : createEmptyCredentialStatus(),
-        );
-      })
-      .catch((error) => {
-        logError("Could not load saved connection status:", error);
-        setCredentialStatus((previousStatus) => {
-          const nextStatus = { ...previousStatus };
-          CREDENTIAL_KEYS.forEach((key) => {
-            nextStatus[key] = { exists: false, available: false };
-          });
-          return nextStatus;
-        });
-        toast.warning(
-          "Saved connection details unavailable",
-          "Unlock your system password manager if needed, then try again.",
-        );
-      });
-  }, [toast]);
+  const initializeCredentialStatus = useCallback((config: Config) => {
+    setCredentialStatus(createCredentialStatusFromConfig(config));
+  }, []);
 
   const handleCredentialsChange = useCallback<
     Dispatch<SetStateAction<Credentials>>
   >((updater) => {
-    setCredentials((previousCredentials) => {
-      const nextCredentials =
-        typeof updater === "function" ? updater(previousCredentials) : updater;
-      const changedKeys = CREDENTIAL_KEYS.filter(
-        (key) => nextCredentials[key] !== previousCredentials[key],
-      );
-
-      if (changedKeys.length > 0) {
-        setDirtyCredentialKeys((previousDirtyKeys) => {
-          const nextDirtyKeys = new Set(previousDirtyKeys);
-          changedKeys.forEach((key) => nextDirtyKeys.add(key));
-          return nextDirtyKeys;
-        });
-      }
-
-      return nextCredentials;
-    });
+    setCredentials(updater);
   }, []);
-
-  const checkCredentialStatus = useCallback(
-    async (key: CredentialKey): Promise<boolean> => {
-      try {
-        const exists = await hasCredential(key);
-        setCredentialStatus((previousStatus) => ({
-          ...previousStatus,
-          [key]: { exists, available: true },
-        }));
-        return exists;
-      } catch (error) {
-        logError("Could not check saved connection detail:", error);
-        setCredentialStatus((previousStatus) => ({
-          ...previousStatus,
-          [key]: { exists: false, available: false },
-        }));
-        toast.warning(
-          "Saved connection detail unavailable",
-          "Unlock your system password manager if needed, then try again.",
-        );
-        return false;
-      }
-    },
-    [toast],
-  );
 
   const getCredentialSaveEntries = useCallback(
     (): CredentialSaveEntry[] =>
       CREDENTIAL_KEYS.filter(
-        (key) => dirtyCredentialKeys.has(key) && credentials[key].trim(),
+        (key) => credentials[key].trim(),
       ).map((key) => ({ key, value: credentials[key] })),
-    [credentials, dirtyCredentialKeys],
+    [credentials],
   );
 
   const markCredentialsSaved = useCallback(
@@ -173,25 +131,27 @@ export function useSettingsCredentials(toast: ToastContextType) {
       setCredentialStatus((previousStatus) => {
         const nextStatus = { ...previousStatus };
         successfulCredentialKeys.forEach((key) => {
-          nextStatus[key] = { exists: true, available: true };
+          nextStatus[key] = createCredentialStatusValue("saved");
         });
         return nextStatus;
-      });
-      setDirtyCredentialKeys((previousDirtyKeys) => {
-        const nextDirtyKeys = new Set(previousDirtyKeys);
-        successfulCredentialKeys.forEach((key) => nextDirtyKeys.delete(key));
-        return nextDirtyKeys;
       });
     },
     [],
   );
 
+  const markCredentialNeedsAttention = useCallback((key: CredentialKey) => {
+    setCredentialStatus((previousStatus) => ({
+      ...previousStatus,
+      [key]: createCredentialStatusValue("needs_attention"),
+    }));
+  }, []);
+
   return {
     credentials,
     credentialStatus,
-    checkCredentialStatus,
     getCredentialSaveEntries,
     initializeCredentialStatus,
+    markCredentialNeedsAttention,
     markCredentialsSaved,
     setCredentials: handleCredentialsChange,
   };

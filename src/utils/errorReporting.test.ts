@@ -3,6 +3,7 @@ import {
   errorReporter,
   parseStoredErrorReports,
   sanitizeConsoleArgsForLogging,
+  sanitizeTextForStorage,
   sanitizeStorageWarningError,
   withErrorCapture,
 } from "./errorReporting";
@@ -149,9 +150,28 @@ describe("errorReporting", () => {
     expect(report.context?.fullName).toBe("[REDACTED]");
     expect(report.context?.phone).toBe("[REDACTED]");
     expect(report.context?.companyName).toBe("CareBridge Health");
-    expect(serialized).not.toContain("303");
-    expect(serialized).not.toContain("720");
+    expect(serialized).not.toContain("+1 (303) 555-1212");
+    expect(serialized).not.toContain("720-555-9911");
+    expect(serialized).not.toMatch(/\(303\)|720-555/);
     expect(serialized).not.toContain("Chad Boyd");
+  });
+
+  it("redacts non-home local paths before local persistence", () => {
+    const sanitized = sanitizeTextForStorage(
+      [
+        "/private/var/folders/zz/abc123/T/jobsentinel/config.json",
+        "/var/folders/aa/bb/T/resume-name.pdf",
+        "/tmp/jobsentinel/private-resume.docx",
+        "/run/user/1000/jobsentinel/jobs.db",
+      ].join(" "),
+    );
+
+    expect(sanitized).toContain("/[LOCAL_PATH]");
+    expect(sanitized).not.toContain("/private/var");
+    expect(sanitized).not.toContain("/var/folders");
+    expect(sanitized).not.toContain("/tmp/jobsentinel");
+    expect(sanitized).not.toContain("/run/user/1000");
+    expect(sanitized).not.toContain("resume-name.pdf");
   });
 
   it("uses sanitized reports in development console logging", () => {

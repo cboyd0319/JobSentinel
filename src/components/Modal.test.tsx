@@ -43,7 +43,7 @@ describe("Modal", () => {
       expect(screen.getByText("Test content")).toBeInTheDocument();
     });
 
-    it("renders in a portal", () => {
+    it("renders inside the app tree with a viewport-fixed overlay", () => {
       render(
         <div data-testid="parent">
           <Modal isOpen={true} onClose={vi.fn()}>
@@ -55,10 +55,29 @@ describe("Modal", () => {
       const parent = screen.getByTestId("parent");
       const dialog = screen.getByRole("dialog");
 
-      // Dialog should not be inside the parent
-      expect(parent.contains(dialog)).toBe(false);
-      // Dialog should be direct child of body
-      expect(dialog.parentElement).toBe(document.body);
+      expect(parent.contains(dialog)).toBe(true);
+      expect(dialog).toHaveClass("app-modal-overlay", "fixed", "inset-0");
+      expect(dialog).toHaveStyle({
+        position: "fixed",
+        zIndex: "1000",
+      });
+    });
+
+    it("uses deterministic modal paint classes instead of animation-only visibility", () => {
+      render(
+        <Modal isOpen={true} onClose={vi.fn()} title="Stable modal">
+          Content
+        </Modal>
+      );
+
+      const dialog = screen.getByRole("dialog");
+      const backdrop = dialog.querySelector('[aria-hidden="true"]');
+      const panel = screen.getByText("Content").closest(".app-modal-panel");
+
+      expect(backdrop).toHaveClass("app-modal-backdrop");
+      expect(backdrop).not.toHaveClass("motion-safe:animate-fade-in");
+      expect(panel).toHaveClass("app-modal-panel");
+      expect(panel).not.toHaveClass("motion-safe:animate-slide-up");
     });
   });
 
@@ -101,7 +120,8 @@ describe("Modal", () => {
       );
 
       const dialog = screen.getByRole("dialog");
-      expect(dialog).toHaveAttribute("aria-labelledby", "modal-title");
+      const title = screen.getByRole("heading", { name: "Test Title" });
+      expect(dialog).toHaveAttribute("aria-labelledby", title.id);
     });
 
     it("sets aria-describedby when description is provided", () => {
@@ -112,7 +132,8 @@ describe("Modal", () => {
       );
 
       const dialog = screen.getByRole("dialog");
-      expect(dialog).toHaveAttribute("aria-describedby", "modal-description");
+      const description = screen.getByText("Test description");
+      expect(dialog).toHaveAttribute("aria-describedby", description.id);
     });
   });
 
@@ -242,6 +263,22 @@ describe("Modal", () => {
 
       const modalContent = screen.getByText("Content").parentElement;
       expect(modalContent?.className).toContain("max-w-xl");
+    });
+
+    it("keeps tall modal content inside the viewport with an internal scroll area", () => {
+      render(
+        <Modal isOpen={true} onClose={vi.fn()} size="lg">
+          <div>Tall modal content</div>
+        </Modal>
+      );
+
+      const content = screen.getByText("Tall modal content");
+      const scrollArea = content.parentElement;
+      const modalContent = scrollArea?.parentElement;
+
+      expect(modalContent?.className).toContain("max-h-[calc(100dvh-2rem)]");
+      expect(modalContent?.className).toContain("overflow-hidden");
+      expect(scrollArea?.className).toContain("overflow-y-auto");
     });
   });
 

@@ -319,6 +319,20 @@ Required behavior:
 
 - External AI remains disabled by default.
 - Users preview and approve any external AI send.
+- SQLite app data is encrypted at rest.
+- Saved alert credentials, access codes, and private connection links are
+  encrypted per row in a local secret vault. They are never stored as plaintext
+  SQLite, config, localStorage, logs, screenshots, or support-report content.
+- Default secret unlock uses a local vault master key protected by the OS
+  credential store. macOS uses native Keychain plus LocalAuthentication so
+  Touch ID can satisfy user-presence prompts when available.
+- Advanced passphrase mode can wrap the vault key for users who want more
+  custody. The app must explain recovery responsibility before enabling it.
+- Passive views, including Settings load and saved-status badges, do not
+  verify secrets in ways that trigger repeated unlock prompts. Secret checks
+  happen when the user saves a changed secret, tests a channel, runs a source
+  that needs a secret, exports sensitive backup data, or explicitly asks to
+  verify secure storage.
 - Resume text, private notes, application history, and local match reasons stay
   local unless explicitly approved.
 - Support reports hide common private details and require user review before

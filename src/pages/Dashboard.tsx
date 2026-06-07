@@ -340,7 +340,14 @@ export default function Dashboard({
       setJobs(jobsData);
       setStatistics(statsData);
       setScrapingStatus(statusData);
-      toast.success("Job check complete", `Found ${statsData.total_jobs} jobs`);
+      if (statsData.total_jobs > 0) {
+        toast.success("Job check complete", `Found ${statsData.total_jobs} jobs`);
+      } else {
+        toast.info(
+          "No jobs found yet",
+          "Turn on more sources, broaden your search, or import a job posting.",
+        );
+      }
 
       if (statsData.high_matches > 0) {
         notifyScrapingComplete(jobsData.length, statsData.high_matches);

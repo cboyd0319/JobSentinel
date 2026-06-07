@@ -160,6 +160,10 @@ function getPlainPatternAlias(pattern: string) {
   );
 }
 
+function looksLikeMatcherPattern(pattern: string) {
+  return /(\(\?[a-z-]*\)|\\[dDsSwWbB]|\.\*|\.\+|\[[^\]]+\]|\([^)]*\|[^)]*\)|[|^$]|\{\d+(,\d*)?\})/.test(pattern);
+}
+
 // Format relative time (e.g., "2 days ago", "1 week ago")
 function formatRelativeTime(isoDate: string): string {
   const date = new Date(isoDate);
@@ -188,7 +192,8 @@ function getQuestionMatchLabel(pattern: string) {
   if (legacy) return legacy.label;
 
   const plainAlias = getPlainPatternAlias(pattern);
-  return plainAlias?.label ?? pattern.trim();
+  if (plainAlias) return plainAlias.label;
+  return looksLikeMatcherPattern(pattern) ? "Custom screening question" : pattern.trim();
 }
 
 function getEditableQuestionPattern(pattern: string) {
@@ -435,7 +440,7 @@ export const ScreeningAnswersForm = memo(function ScreeningAnswersForm({ onSaved
                         </Badge>
                       )}
                     </div>
-                    <p className="text-surface-700 dark:text-surface-300 truncate">
+                    <p className="text-surface-700 dark:text-surface-300 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">
                       {a.answer}
                     </p>
                     {/* Usage statistics */}
