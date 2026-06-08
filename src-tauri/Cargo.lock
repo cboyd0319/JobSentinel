@@ -3698,7 +3698,7 @@ dependencies = [
  "once_cell",
  "pdf-extract",
  "proptest",
- "quick-xml 0.36.2",
+ "quick-xml 0.39.4",
  "regex",
  "reqwest 0.13.4",
  "scopeguard",
