@@ -93,7 +93,7 @@ lettre = { version = "0.11", default-features = false, features = ["tokio1-rustl
 pdf-extract = "0.10"
 docx-rs = "0.4"
 quick-xml = "0.36"
-zip = { version = "0.6", default-features = false, features = ["deflate"] }
+zip = { version = "7.2", default-features = false, features = ["deflate"] }
 
 # Note: OCR feature uses command-line tesseract and pdftoppm (no Rust crate dependencies)
 # This avoids complex native library linking while still providing OCR support
