@@ -814,8 +814,9 @@ describe("Settings — handleSave flow", () => {
     expect(mockInvoke).not.toHaveBeenCalledWith("save_config", expect.anything());
   });
 
-  it("requires re-entered or confirmed saved secrets before keeping restored secret-backed settings enabled", async () => {
+  it("saves unchanged restored secret-backed settings without keychain reads", async () => {
     const user = userEvent.setup();
+    const onClose = vi.fn();
     const config = makeConfig();
     config.alerts.telegram = {
       enabled: true,
@@ -833,7 +834,7 @@ describe("Settings — handleSave flow", () => {
       return null;
     });
 
-    render(<Settings onClose={vi.fn()} />);
+    render(<Settings onClose={onClose} />);
 
     await waitFor(() => {
       expect(screen.getByText("Settings")).toBeInTheDocument();
@@ -841,12 +842,16 @@ describe("Settings — handleSave flow", () => {
 
     await user.click(screen.getByRole("button", { name: /save changes/i }));
 
-    expect(mockToast.error).toHaveBeenCalledWith(
-      "Finish Telegram alerts",
-      "Add the Telegram details shown below, or turn Telegram alerts off.",
+    await waitFor(() => {
+      expect(mockInvoke).toHaveBeenCalledWith("save_config", { config });
+    });
+    expect(mockInvoke).not.toHaveBeenCalledWith(
+      "store_credential",
+      expect.anything(),
     );
-    expect(mockInvoke).not.toHaveBeenCalledWith("save_config", expect.anything());
     expect(mockInvoke).not.toHaveBeenCalledWith("has_credential", expect.anything());
+    expect(mockToast.error).not.toHaveBeenCalled();
+    expect(onClose).toHaveBeenCalled();
   });
 
   it("presents desktop and email alerts before optional chat alerts", async () => {
