@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { mockInvoke, resetMockData } from "../handlers";
 
-describe("mock ATS platform commands", () => {
+describe("mock application platform commands", () => {
   beforeEach(() => {
     resetMockData();
   });
@@ -41,7 +41,7 @@ describe("mock ATS platform commands", () => {
     });
   });
 
-  it("rejects unsafe form fill links before platform detection", async () => {
+  it("rejects unsafe form fill links before application platform detection", async () => {
     await expect(
       mockInvoke("fill_application_form", {
         jobUrl: "file:///private/resume.pdf",

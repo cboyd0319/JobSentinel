@@ -316,6 +316,11 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
+      "src/mocks/handlers/atsPlatform.ts",
+      '"Unknown ATS. Review fields carefully before submitting."\n',
+    );
+    writeFixtureFile(
+      root,
       "src/pages/Settings.tsx",
       [
         '"Invalid Discord webhook"',
@@ -571,6 +576,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/components/feedback/SuccessScreen.tsx",
         "src/contexts/KeyboardShortcutsContext.tsx",
         "src/mocks/handlers.ts",
+        "src/mocks/handlers/atsPlatform.ts",
         "src/utils/formValidation.ts",
         "src/utils/errorMessages.ts",
         "docs/features/notifications.md",
@@ -627,6 +633,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/components/feedback/SuccessScreen.tsx",
       "src/contexts/KeyboardShortcutsContext.tsx",
       "src/mocks/handlers.ts",
+      "src/mocks/handlers/atsPlatform.ts",
       "src/utils/formValidation.ts",
       "src/utils/errorMessages.ts",
       "README.md",

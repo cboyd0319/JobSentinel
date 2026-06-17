@@ -446,6 +446,7 @@ export function hasTechnicalFirstFallbackCopy(text) {
     /Paste the code into the URL\/Location field/i,
     /Any with Schema\.org data/i,
     /Official ATS job pages/i,
+    /Unknown ATS/i,
     /public ATS sources/i,
     /structured Schema\.org/i,
     /Schema\.org JobPosting/i,

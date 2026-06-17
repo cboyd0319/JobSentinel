@@ -111,8 +111,8 @@ describe("ApplyButton", () => {
     });
   });
 
-  describe("ATS platform detection", () => {
-    it("shows loading skeleton during ATS detection", () => {
+  describe("application form detection", () => {
+    it("shows loading skeleton during form detection", () => {
       mockInvoke.mockImplementation((cmd) => {
         if (cmd === "detect_ats_platform") return new Promise(() => {}); // Never resolves
         if (cmd === "has_application_profile") return Promise.resolve(true);
@@ -191,7 +191,7 @@ describe("ApplyButton", () => {
         expect(screen.getByRole("button", { name: /prepare form/i })).toBeInTheDocument();
       });
 
-      expect(screen.queryByText("Unknown ATS")).not.toBeInTheDocument();
+      expect(screen.queryByText("Unknown application form")).not.toBeInTheDocument();
     });
 
     it("badge uses fixed plain-language help text", async () => {
@@ -210,7 +210,7 @@ describe("ApplyButton", () => {
       });
     });
 
-    it("handles ATS detection failure gracefully", async () => {
+    it("handles application form detection failure gracefully", async () => {
       mockInvoke.mockImplementation((cmd) => {
         if (cmd === "detect_ats_platform") return Promise.reject(new Error("Network error"));
         if (cmd === "has_application_profile") return Promise.resolve(true);
@@ -224,7 +224,7 @@ describe("ApplyButton", () => {
         expect(screen.getByRole("button", { name: /prepare form/i })).toBeInTheDocument();
       });
 
-      // Should not show any ATS badge
+      // Should not show any application form badge
       expect(screen.queryByText(/greenhouse|lever|workday/i)).not.toBeInTheDocument();
     });
   });

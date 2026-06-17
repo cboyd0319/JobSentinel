@@ -38,7 +38,7 @@ function getMockAtsCommonFields(platform: string): string[] {
 
 function getMockAtsAutomationNotes(platform: string): string {
   if (platform === "unknown") {
-    return "Unknown ATS. Review fields carefully before submitting.";
+    return "Unknown application form. Review fields carefully before submitting.";
   }
   return `${platform} supports guided form filling. Review before submitting.`;
 }

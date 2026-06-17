@@ -1,5 +1,5 @@
 import { memo, useState, useEffect, useCallback } from "react";
-// memo applied to ApplyButton, AtsBadge
+// memo applied to ApplyButton and application-form badges
 import { invoke } from "@tauri-apps/api/core";
 import { Button } from "../Button";
 import { Modal, ModalFooter } from "../Modal";
@@ -68,7 +68,7 @@ function formatScreeningTopicList(topics: string[]) {
   }`;
 }
 
-const ATS_COLORS: Record<string, string> = {
+const APPLICATION_FORM_COLORS: Record<string, string> = {
   greenhouse: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
   lever: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
   workday: "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300",
@@ -102,16 +102,16 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied, onOpenApp
     }
   }, [job.hash]);
 
-  // Detect ATS platform from URL
+  // Detect recognized application form from URL
   const detectPlatform = useCallback(async () => {
     try {
       setAtsLoading(true);
       const result = await safeInvoke<AtsDetectionResponse>("detect_ats_platform", {
         url: job.url,
-      }, { silent: true }); // Silent mode - ATS detection is optional
+      }, { silent: true }); // Silent mode - form detection is optional
       setAtsPlatform(result.platform);
     } catch {
-      // Silently fail - ATS detection is optional
+      // Silently fail - form detection is optional
     } finally {
       setAtsLoading(false);
     }
@@ -305,12 +305,12 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied, onOpenApp
   return (
     <>
       <div className="flex items-center gap-2">
-        {/* ATS Platform Badge */}
+        {/* Application form badge */}
         {atsLoading ? (
           <span className="w-16 h-6 bg-surface-200 dark:bg-surface-700 rounded-full animate-pulse" />
         ) : applicationFormName ? (
           <span
-            className={`px-2 py-1 text-xs font-medium rounded-full ${(atsPlatform && ATS_COLORS[atsPlatform]) || ATS_COLORS.unknown}`}
+            className={`px-2 py-1 text-xs font-medium rounded-full ${(atsPlatform && APPLICATION_FORM_COLORS[atsPlatform]) || APPLICATION_FORM_COLORS.unknown}`}
             title={APPLICATION_PLATFORM_HELP}
           >
             {applicationFormName}
@@ -422,7 +422,7 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied, onOpenApp
   );
 });
 
-// Standalone ATS badge for use in job cards
+// Standalone application-form badge for use in job cards
 export const AtsBadge = memo(function AtsBadge({ url }: { url: string }) {
   const [platform, setPlatform] = useState<string | null>(null);
   const [error, setError] = useState(false);
@@ -431,7 +431,7 @@ export const AtsBadge = memo(function AtsBadge({ url }: { url: string }) {
     invoke<AtsDetectionResponse>("detect_ats_platform", { url })
       .then((result) => setPlatform(result.platform))
       .catch((err) => {
-        logError("ATS detection failed for badge:", err);
+        logError("Application form detection failed for badge:", err);
         setError(true);
       });
   }, [url]);
@@ -443,7 +443,7 @@ export const AtsBadge = memo(function AtsBadge({ url }: { url: string }) {
   // Use inline styles since Badge doesn't support className
   return (
     <span
-      className={`px-2 py-1 text-xs font-medium rounded-full ${(platform && ATS_COLORS[platform]) || ATS_COLORS.unknown}`}
+      className={`px-2 py-1 text-xs font-medium rounded-full ${(platform && APPLICATION_FORM_COLORS[platform]) || APPLICATION_FORM_COLORS.unknown}`}
     >
       {applicationFormName}
     </span>

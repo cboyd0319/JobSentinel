@@ -210,7 +210,7 @@ test.describe("Documentation Screenshots", () => {
     });
   });
 
-  test("capture ats optimizer screenshot", async ({ page }, testInfo) => {
+  test("capture resume match screenshot", async ({ page }, testInfo) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
 
@@ -221,13 +221,13 @@ test.describe("Documentation Screenshots", () => {
       await page.waitForLoadState("networkidle");
     }
 
-    // Navigate to ATS Optimizer page with Cmd+8
+    // Navigate to Resume Match page with Cmd+8
     await page.keyboard.press("Meta+8");
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(1500);
 
     await page.screenshot({
-      path: screenshotPath(testInfo, "ats-optimizer.png"),
+      path: screenshotPath(testInfo, "resume-match.png"),
       fullPage: false,
     });
   });
