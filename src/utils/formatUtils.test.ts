@@ -189,7 +189,8 @@ describe("formatUtils", () => {
     it("ignores invalid salary values", () => {
       expect(formatSalaryRange(-50000, null)).toBe(null);
       expect(formatSalaryRange(null, Infinity)).toBe(null);
-      expect(formatSalaryRange(NaN, 150000)).toBe("Up to $150k");
+      expect(formatSalaryRange(NaN, 150000)).toBe(null);
+      expect(formatSalaryRange(-50000, 150000)).toBe(null);
     });
 
     it("hides reversed salary ranges instead of showing malformed listed pay", () => {

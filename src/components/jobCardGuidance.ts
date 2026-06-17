@@ -3,6 +3,7 @@ import {
   hasPostingEvidenceReviewCue,
   hasScamPostingReviewCue,
 } from "../utils/postingRisk";
+import { hasMalformedSalaryRangeInput } from "../utils/formatUtils";
 
 export interface PostingRiskGuidance {
   level: "low" | "medium" | "high";
@@ -197,6 +198,15 @@ export function getSalaryRangeQualityGuidance(
   salaryMin: number | null | undefined,
   salaryMax: number | null | undefined,
 ): SalaryRangeQualityGuidance | null {
+  if (hasMalformedSalaryRangeInput(salaryMin, salaryMax)) {
+    return {
+      title: "Check listed pay",
+      description:
+        "The listed pay fields could not be read as a usable range. Open the posting and confirm the written range before tailoring.",
+      ariaLabel: "listed pay to check",
+    };
+  }
+
   if (
     salaryMin != null &&
     Number.isFinite(salaryMin) &&

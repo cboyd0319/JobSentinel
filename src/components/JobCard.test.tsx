@@ -147,6 +147,24 @@ describe("JobCard", () => {
       expect(screen.getByText("$55k - $72k")).toBeInTheDocument();
     });
 
+    it("shows malformed listed-pay guidance without treating it as a range", () => {
+      const malformedPayJob = {
+        ...mockJob,
+        salary_min: 120000,
+        salary_max: 70000,
+      };
+
+      renderWithToast(<JobCard job={malformedPayJob} />);
+
+      expect(screen.getByText("Pay not listed")).toBeInTheDocument();
+      expect(screen.getByTestId("salary-range-quality-guidance")).toHaveTextContent(
+        "Check listed pay",
+      );
+      expect(
+        screen.getByText(/could not be read as a usable range/i),
+      ).toBeInTheDocument();
+    });
+
     it("explains repeat sightings without claiming separate sources", () => {
       renderWithToast(<JobCard job={{ ...mockJob, times_seen: 3 }} />);
 

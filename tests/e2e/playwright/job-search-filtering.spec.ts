@@ -147,6 +147,45 @@ test.describe("Job Search and Filtering", () => {
       await expect(firstCard.bookmarkButton).toBeVisible();
       await expect(firstCard.viewButton).toBeVisible();
     });
+
+    test("should flag malformed listed pay without showing it as a range", async ({ page }) => {
+      await page.evaluate(() => {
+        localStorage.setItem(
+          "jobsentinel.mockState.v1",
+          JSON.stringify({
+            jobs: [
+              {
+                id: 9101,
+                hash: "job-hash-malformed-pay",
+                title: "Program Coordinator",
+                company: "Community Services Group",
+                location: "Denver, CO",
+                description:
+                  "Coordinate service delivery, scheduling, and participant follow-up across community programs.",
+                url: "https://example.com/jobs/malformed-pay",
+                source: "greenhouse",
+                salary_min: 120000,
+                salary_max: 70000,
+                remote: false,
+                score: 0.82,
+                hidden: false,
+                bookmarked: false,
+                notes: null,
+                created_at: new Date().toISOString(),
+              },
+            ],
+          }),
+        );
+      });
+
+      await dashboard.navigateTo();
+      const card = dashboard.jobCards.first();
+
+      await expect(card).toContainText("Pay not listed");
+      await expect(card).toContainText("Check listed pay");
+      await expect(card).toContainText("could not be read as a usable range");
+      await expect(card).not.toContainText("$120k - $70k");
+    });
   });
 
   test.describe("Error Handling", () => {

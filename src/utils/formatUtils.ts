@@ -134,17 +134,40 @@ export function formatSalaryNumber(salary: number): string {
   return `$${salary}`;
 }
 
+export function hasMalformedSalaryRangeInput(
+  min?: number | null,
+  max?: number | null,
+): boolean {
+  const minProvided = min !== null && min !== undefined;
+  const maxProvided = max !== null && max !== undefined;
+
+  if (minProvided && (typeof min !== "number" || !Number.isFinite(min) || min < 0)) {
+    return true;
+  }
+  if (maxProvided && (typeof max !== "number" || !Number.isFinite(max) || max < 0)) {
+    return true;
+  }
+
+  const minUsable = typeof min === "number" && Number.isFinite(min);
+  const maxUsable = typeof max === "number" && Number.isFinite(max);
+  const hasMin = minUsable && min > 0;
+  const hasMax = maxUsable && max > 0;
+
+  return hasMin && hasMax && max < min;
+}
+
 /**
  * Format a salary range for display
  */
 export function formatSalaryRange(min?: number | null, max?: number | null): string | null {
+  if (hasMalformedSalaryRangeInput(min, max)) return null;
+
   const hasMin = typeof min === "number" && Number.isFinite(min) && min > 0;
   const hasMax = typeof max === "number" && Number.isFinite(max) && max > 0;
 
   if (!hasMin && !hasMax) return null;
 
   if (hasMin && hasMax) {
-    if (max < min) return null;
     return `${formatSalaryNumber(min)} - ${formatSalaryNumber(max)}`;
   }
   if (hasMin) {

@@ -167,6 +167,15 @@ describe("jobCardGuidance", () => {
     });
   });
 
+  it("flags malformed structured pay as listed pay to check", () => {
+    expect(getSalaryRangeQualityGuidance(120000, 70000)).toEqual({
+      title: "Check listed pay",
+      description:
+        "The listed pay fields could not be read as a usable range. Open the posting and confirm the written range before tailoring.",
+      ariaLabel: "listed pay to check",
+    });
+  });
+
   it("flags starting-only listed pay as open-ended range evidence", () => {
     expect(getSalaryRangeQualityGuidance(45000, null)).toEqual({
       title: "Open-ended listed pay",
