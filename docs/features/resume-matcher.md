@@ -340,6 +340,9 @@ The current local matcher:
   evidence for required location constraints;
 - treats **remote work**, **remote role**, and related remote wording as the
   same local location evidence for required remote-work constraints;
+- treats **reliable internet**, **high-speed internet**, **home office**,
+  **quiet workspace**, and **dedicated workspace** as local evidence for
+  required remote-work setup constraints;
 - treats **hybrid work**, **hybrid role**, and **hybrid schedule** as the same
   local location evidence for required hybrid-work constraints;
 - treats **relocation**, **relocate**, and **willing to relocate** as the same

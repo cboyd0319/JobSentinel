@@ -270,6 +270,9 @@ Future implementation should improve:
 - Resume/job fit now treats `remote work`, `remote role`, `remote position`,
   and related remote wording as equivalent local location evidence for required
   remote-work constraints.
+- Resume/job fit now treats `reliable internet`, `high-speed internet`,
+  `home office`, `quiet workspace`, and `dedicated workspace` as local evidence
+  for required remote-work setup constraints.
 - Resume/job fit now treats `hybrid work`, `hybrid role`, `hybrid schedule`,
   and related hybrid wording as equivalent local location evidence for required
   hybrid-work constraints.
