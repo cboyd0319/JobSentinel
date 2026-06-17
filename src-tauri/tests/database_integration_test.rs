@@ -89,23 +89,18 @@ async fn test_migrations_run_successfully() {
 
 #[tokio::test]
 async fn test_migrations_are_idempotent() {
-    let temp_dir = TempDir::new().unwrap();
-    let db_path = temp_dir.path().join("test.db");
-
-    // Run migrations first time
-    let db1 = Database::connect(&db_path).await.unwrap();
-    db1.migrate().await.unwrap();
+    let db = Database::connect_memory().await.unwrap();
+    db.migrate().await.unwrap();
 
     // Insert a job
     let job = create_test_job("idempotent_001", "Program Coordinator", "Example Services");
-    db1.upsert_job(&job).await.unwrap();
+    db.upsert_job(&job).await.unwrap();
 
-    // Connect again and run migrations (should be no-op)
-    let db2 = Database::connect(&db_path).await.unwrap();
-    db2.migrate().await.unwrap();
+    // Run migrations again (should be no-op)
+    db.migrate().await.unwrap();
 
     // Verify data is preserved
-    let retrieved = db2.get_job_by_hash("idempotent_001").await.unwrap();
+    let retrieved = db.get_job_by_hash("idempotent_001").await.unwrap();
     assert!(retrieved.is_some());
     assert_eq!(retrieved.unwrap().title, "Program Coordinator");
 }
