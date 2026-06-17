@@ -167,7 +167,7 @@ markdownlint checks Markdown formatting:
 Run markdownlint locally:
 
 ```bash
-npx markdownlint-cli2 "docs/**/*.md"
+npm run lint:md
 ```
 
 ### Pre-commit hooks

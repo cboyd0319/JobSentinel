@@ -1,6 +1,6 @@
 {
   "!(.*)**/*.md": [
-    "markdownlint-cli2 --fix",
+    "markdownlint --fix --config .markdownlint.json",
     "vale --no-exit"
   ],
   "src/**/*.{ts,tsx}": [

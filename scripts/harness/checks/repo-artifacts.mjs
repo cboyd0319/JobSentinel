@@ -16,7 +16,6 @@ const allowedRootEntries = new Set([
   ".gitignore",
   ".husky",
   ".lintstagedrc.json",
-  ".markdownlint-cli2.jsonc",
   ".markdownlint.json",
   ".nvmrc",
   ".storybook",

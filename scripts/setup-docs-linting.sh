@@ -35,7 +35,7 @@ echo "Installing npm dependencies..."
 npm install
 
 echo ""
-echo "✓ npm dependencies installed (including husky, lint-staged, markdownlint-cli2)"
+echo "✓ npm dependencies installed (including husky, lint-staged, markdownlint-cli)"
 
 # Set up husky
 echo ""
