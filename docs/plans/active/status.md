@@ -2,8 +2,7 @@
 
 Last updated: 2026-06-17.
 
-Read this file first. It is the bounded restart index for current active work.
-Load archived history only when old decision context is needed.
+Read this file first; load archived history only for old decision context.
 
 ## Goal State
 
@@ -17,9 +16,8 @@ Repo-bloat cleanup is closed as of 2026-06-05; reopen only for a fresh bloat
 failure blocking product, privacy, security, docs accuracy, or verification.
 
 Release creation is paused until development and QA blockers are closed. Do not
-spend time creating, uploading, or announcing new release assets while confirmed
-product, scraper, privacy, documentation, harness, or Computer Use validation
-work remains open.
+create, upload, or announce assets while product, scraper, privacy, docs,
+harness, or Computer Use validation work remains open.
 
 Rule 0 still controls the work: user data stays local unless the user explicitly
 configures an external channel, external AI stays optional and disabled by
@@ -27,11 +25,11 @@ default, and users stay in control before anything leaves the device.
 
 Quiet Shield redesign is now part of the active repo-wide goal and the repo
 harness. It remains a harness-controlled active-goal acceptance gate, but broad
-implementation waits behind primary v2.9.0 readiness gates. `DESIGN.md`,
-`docs/design/README.md`, and `docs/design/design-spec.md` stay required product
+implementation waits behind primary v2.9.0 gates. `DESIGN.md`,
+`docs/design/README.md`, and `docs/design/design-spec.md` stay required
 contracts for UI/UX changes when design work resumes.
 
-The v2.9.0 goal adds two durable release-readiness requirements:
+The v2.9.0 goal adds three durable release-readiness requirements:
 
 - Add a downloadable `skills/` directory with Agent Skills that comply with the
   Agent Skills specification.
@@ -39,6 +37,8 @@ The v2.9.0 goal adds two durable release-readiness requirements:
   Import only. Do not add LinkedIn session-cookie storage, token replay,
   background monitoring, result-list crawling, or account automation unless a
   future plan records official API approval for that exact use case.
+- Near the end, run a Rust expert and multi-agent improvement analysis across
+  non-`content/` surfaces, then apply and verify accepted fixes before push.
 
 ## Active Workstreams
 
@@ -83,8 +83,7 @@ The v2.9.0 goal adds two durable release-readiness requirements:
 - v2.9.0 cannot be called done until every UI route, click, action, modal,
   toast, form, settings panel, import flow, keyboard path, empty/loading/error
   state, and narrow-width surface has fresh manual verification evidence.
-- Detailed historical slice evidence from the former status file is archived in
-  [active status history](../archive/active-status-history-2026-06-17.md).
+- Detailed slice history is archived in [active status history](../archive/active-status-history-2026-06-17.md).
 
 ## Next Best Work
 
@@ -92,22 +91,25 @@ The v2.9.0 goal adds two durable release-readiness requirements:
    action, modal, toast, form, settings panel, import flow, keyboard path,
    empty/loading/error state, and narrow-width surface before calling v2.9.0
    done.
-2. Apply Quiet Shield/Protective Navy design decisions only after primary
+2. After primary gates close, run the final Rust expert plus multi-agent
+   improvement analysis across non-`content/` surfaces, apply accepted fixes,
+   and verify them before final release readiness.
+3. Apply Quiet Shield/Protective Navy design decisions only after primary
    v2.9.0 readiness gates and whole-UI verification blockers are closed.
-3. Continue resume assistance only where it improves truthful local requirement
+4. Continue resume assistance only where it improves truthful local requirement
    review, hard-constraint handling, readable evidence, or next-action
    guidance.
-4. Continue guided intake only where resume/profile suggestions stay optional,
+5. Continue guided intake only where resume/profile suggestions stay optional,
    reviewed, local, and understandable for non-technical job seekers.
-5. Continue job-card protection for stale, risky, duplicate, unclear, or
+6. Continue job-card protection for stale, risky, duplicate, unclear, or
    pay-problem postings without treating local signals as employer
    predictions.
-6. Continue macOS readiness docs and checks without claiming Gatekeeper-ready
+7. Continue macOS readiness docs and checks without claiming Gatekeeper-ready
    distribution before Apple credentials exist.
-7. Continue encrypted local storage and saved-secret UX: encrypted SQLite,
+8. Continue encrypted local storage and saved-secret UX: encrypted SQLite,
    per-row AEAD vault rows, OS-protected key, passphrase mode, macOS native
    unlock, and no passive secure-storage prompts.
-8. Keep harness work focused on bounded startup context, runnable verification,
+9. Keep harness work focused on bounded startup context, runnable verification,
    privacy/security gates, and docs accuracy. Do not add new ceremony unless it
    prevents a repeated failure.
 

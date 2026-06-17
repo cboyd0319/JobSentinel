@@ -5,8 +5,8 @@ Last updated: 2026-06-17.
 ## Purpose
 
 Keep one active execution plan for current product and quality work. Detailed
-slice history belongs in archived plans and git history. This file and
-`status.md` should stay small enough to remain useful as restart surfaces.
+history belongs in archives and git. This file and `status.md` should stay
+small enough to remain useful as restart surfaces.
 
 ## Problem
 
@@ -40,17 +40,19 @@ In scope:
 - Local encrypted storage and saved-secret UX: encrypted SQLite at rest,
   per-row AEAD secret vault, lazy unlock, and passphrase mode.
 - Locked redesign: move UI and UX toward Quiet Shield and Protective Navy after
-  primary v2.9.0 readiness gates are complete. `DESIGN.md`, `docs/design/README.md`, and `docs/design/design-spec.md`
-  remain the design contract.
+  primary v2.9.0 gates. `DESIGN.md`, `docs/design/README.md`, and
+  `docs/design/design-spec.md` remain the design contract.
 - Manual whole-UI verification before v2.9.0 completion: every route, click,
   action, modal, toast, empty/loading/error state, settings panel, import flow,
   keyboard path, and narrow-width surface must be exercised and recorded.
+- Late-stage Rust expert plus multi-agent analysis across non-`content/`
+  surfaces, with accepted fixes applied and verified before the final push.
 - Harness-controlled redesign lock: keep required design files, change
   contracts, and screenshot or Computer Use evidence for broad UI changes.
 - Cleanup only when a fresh failing gate or blocker affects Rule 0, user ease,
   verification, or docs accuracy.
-- macOS readiness docs and harness checks that stay honest about the
-  no-Apple-account ceiling, without treating release creation as current work
+- macOS readiness docs that stay honest about the no-Apple-account ceiling,
+  without treating release creation as work
   while development blockers remain.
 
 Out of scope:
@@ -80,16 +82,17 @@ Out of scope:
 | Pay protection | Active | Keep missing, minimum-only, maximum-only, malformed, or broad listed-pay evidence plain and review-first. |
 | Encrypted local storage | Active | Implement encrypted SQLite plus AEAD secret vault; replace passive Keychain checks with lazy secret-use unlock and macOS native Touch ID-capable key access. |
 | Quiet Shield redesign | Deferred until primary gates close | Apply Quiet Shield/Protective Navy after primary blockers close; then verify the design contract. |
+| Final Rust and agent improvement pass | Deferred until primary gates close | Run a comprehensive non-`content/` review near the end, apply accepted fixes, and verify before the final push. |
 | Cleanup and harness | Closed for proactive repo-bloat work | Reopen only for a fresh failing gate or blocker to privacy, security, docs accuracy, or verification. |
 
 ## Completion Bar
 
 - Active plan directory contains only current restart docs.
-- `status.md` answers current state, recent evidence, current macOS percentage,
-  and next best work without requiring old plan reads.
+- `status.md` answers current state, recent evidence, macOS posture, and next
+  best work without old plan reads.
 - Historical active plans stay under `docs/plans/archive/`.
-- `docs/plans/index.json`, docs hubs, roadmap links, README, release notes, and
-  harness score expectations match current state.
+- Plan indexes, docs hubs, roadmap links, README, release notes, and harness
+  score expectations match current state.
 - Every product change preserves Rule 0: local-first storage, credential
   safety, explicit user review, privacy-preserving defaults, and optional
   external AI.
@@ -112,15 +115,11 @@ Out of scope:
   opt-in, reviewed source choices, reviewed resume-skill suggestions, and
   non-technical starter paths.
 - Active plan sprawl has been reduced to this plan plus `status.md`.
-- Quiet Shield QA fixed shared modal visibility, user-text truncation, dialog
-  migration to shared `Modal`, wrapped Hiring Trends tabs, responsive Job
-  Sources tables, Application Assist tab paint, viewport-fixed toasts, and
-  Settings Sources & Alerts opening without a passive Keychain prompt. Focused
-  UI tests, lint, harness gates, debug app build, and Computer Use passed.
-- The v2.9.0 pass confirmed the compliant LinkedIn path is the existing
-  user-clicked Browser Import model, not session-cookie storage or automatic
-  monitoring. Private resume/profile test inputs stay local and must not be
-  committed.
+- Quiet Shield QA fixed shared modal visibility, truncation, dialog migration,
+  wrapped tabs, responsive source tables, Application Assist paint,
+  viewport-fixed toasts, and Settings opening without passive Keychain prompts.
+- The v2.9.0 pass confirmed Browser Import is the LinkedIn path, not session
+  storage or automatic monitoring. Private profile inputs stay local.
 - Frontend and Rust direct dependencies are exact-pinned to current stable
   versions. Markdown lint, DOCX parsing, and `keyring` 4.1 migrations are done.
 - Live OS keyring integration tests are opt-in behind
@@ -130,9 +129,8 @@ Out of scope:
 - Downloadable Agent Skills now cover search planning, posting-risk review,
   resume tailoring, form review, tracking, interview prep, and offer/pay review.
 - Browser Import desktop/mobile manual verification passed on 2026-06-17:
-  settings, port validation, copy behavior, private-link rejection, LinkedIn
-  single-job preview/save, duplicate handling, no console errors, and no
-  horizontal overflow.
+  settings, port validation, copy, private-link rejection, LinkedIn preview/save,
+  duplicate handling, no console errors, and no overflow.
 
 ## Next Work
 
@@ -140,27 +138,30 @@ Out of scope:
    click, action, modal, toast, form, settings surface, import flow, keyboard
    path, empty/loading/error state, and narrow-width state before calling
    v2.9.0 done.
-2. Continue macOS readiness only after development and QA blockers close; do
+2. After primary gates close, run the final Rust expert plus multi-agent
+   improvement analysis across non-`content/` surfaces, apply accepted fixes,
+   and verify them before final release readiness.
+3. Continue macOS readiness only after development and QA blockers close; do
    not claim Gatekeeper-ready distribution before signing, notarization,
    stapling, and install proof exist.
-3. Finish current verified product and QA slices in resume assistance, job-card
+4. Finish current verified product and QA slices in resume assistance, job-card
    protection, guided intake, and pay protection.
-4. Implement encrypted local storage: encrypted SQLite, per-row AEAD vault,
+5. Implement encrypted local storage: encrypted SQLite, per-row AEAD vault,
    OS-protected default key, passphrase mode, macOS native unlock, and no
    passive Settings probes.
-5. Apply Quiet Shield/Protective Navy design decisions only after primary
+6. Apply Quiet Shield/Protective Navy design decisions only after primary
    readiness gates and whole-UI verification blockers close; then verify with
    `DESIGN.md`, `docs/design/README.md`, and `docs/design/design-spec.md`.
    Confirm major route screenshots, Computer Use clicks, keyboard flow,
    narrow widths, full tests, build, and empty/error/loading states.
-6. Keep the LinkedIn-compatible Browser Import path user-opened and
+7. Keep the LinkedIn-compatible Browser Import path user-opened and
    user-clicked; do not add browser-session capture, background page access, or
    scheduled LinkedIn fetches.
-7. Do not reopen repo-bloat cleanup unless a fresh bloat gate failure or
+8. Do not reopen repo-bloat cleanup unless a fresh bloat gate failure or
    product/privacy/security/docs verification blocker appears.
-8. Keep README, docs hubs, release docs, wiki inventory, and active status in
+9. Keep README, docs hubs, release docs, wiki inventory, and active status in
    sync when behavior, readiness, or public guidance changes.
-9. Commit each major verified change locally; push only at goal completion or
+10. Commit each major verified change locally; push only at goal completion or
    on newer explicit instruction.
 
 ## Sensors
@@ -184,8 +185,8 @@ workflow, packaging, or macOS deployment behavior.
 - Archived docs may contain stale statements; treat them as provenance.
 - macOS public-readiness language can drift if no-account completion and
   Apple-account-only release work are not kept separate.
-- Plan docs can grow back into slow restart surfaces if completed slice logs
-  are copied into active files instead of archived.
+- Plan docs can grow into slow restart surfaces if completed logs are copied
+  into active files instead of archived.
 - Secret-storage UX can regress if passive Settings or status checks call
   secure storage. Saved-secret verification must stay lazy and action-driven.
 - Redesign work can regress if screens keep older green-heavy styling,
