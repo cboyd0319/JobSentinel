@@ -447,12 +447,22 @@ export function getSuggestedJobSourceOptions(
 export function buildSetupSourceQuery(
   config: Pick<SetupConfig, "title_allowlist" | "keywords_boost">
 ): string {
-  return [...config.title_allowlist, ...config.keywords_boost]
-    .map((term) => term.trim())
-    .filter((term) => term.length > 0)
-    .slice(0, 4)
-    .join(" ")
-    .slice(0, 200);
+  const seen = new Set<string>();
+  const terms: string[] = [];
+
+  for (const rawTerm of [...config.title_allowlist, ...config.keywords_boost]) {
+    const term = rawTerm.trim();
+    const key = term.toLocaleLowerCase();
+
+    if (!term || seen.has(key)) continue;
+
+    seen.add(key);
+    terms.push(term);
+
+    if (terms.length >= 4) break;
+  }
+
+  return terms.join(" ").slice(0, 200);
 }
 
 export function toResumeSkillSuggestions(skills: SetupResumeSkill[]): string[] {

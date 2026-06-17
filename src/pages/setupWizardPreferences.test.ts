@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   applyReviewVolumePreference,
+  buildSetupSourceQuery,
   buildSetupSearchSummary,
   createDefaultSetupConfig,
   formatSetupPayFloorSummary,
@@ -74,6 +75,24 @@ describe("Setup Wizard preference helpers", () => {
       "Data entry",
       "Front desk",
     ]);
+  });
+
+  it("builds source queries from distinct reviewed search words", () => {
+    const config = {
+      ...createDefaultSetupConfig(),
+      title_allowlist: ["Office Manager", " office manager "],
+      keywords_boost: [
+        "Scheduling",
+        "scheduling",
+        "Client service",
+        "Excel",
+        "Inventory",
+      ],
+    };
+
+    expect(buildSetupSourceQuery(config)).toBe(
+      "Office Manager Scheduling Client service Excel",
+    );
   });
 
   it("builds plain-language search summaries from config", () => {
