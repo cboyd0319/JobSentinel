@@ -23,29 +23,38 @@ Ask only for missing details that change the plan:
   physical requirements, or caregiving schedule.
 - Existing resume, LinkedIn profile, portfolio, work samples, or saved jobs.
 - Urgency window and realistic daily time budget.
+- Companies, domains, industries, job types, or sources to prefer or avoid.
 
 ## Workflow
 
 1. Separate must-haves from preferences.
-2. Pick 2-4 target role lanes, not an unlimited title list.
-3. Create a source mix:
+2. Build a role thesis before searching:
+   - target title cluster, alternate titles, seniority band, and must-have
+     conditions;
+   - proof points the resume can credibly support;
+   - gaps, unclear story points, or missing keywords;
+   - search terms, adjacent titles, domain terms, and exclusion terms.
+3. Pick 2-4 target role lanes, not an unlimited title list.
+4. Create a source mix:
    - official employer or application-platform pages first;
    - trusted job boards and saved searches second;
    - user-opened LinkedIn searches or user-provided LinkedIn job pages only;
    - recruiter, referral, alumni, community, and local-network routes where
      relevant.
-4. Define a daily loop with time boxes for search, posting review, tailoring,
+5. Define a daily loop with time boxes for search, posting review, tailoring,
    applications, follow-up, and interview prep.
-5. Set a quality bar before tailoring: role fit, pay evidence, source strength,
+6. Set a quality bar before tailoring: role fit, pay evidence, source strength,
    commute/schedule, and hard requirements.
-6. Define stop rules for weak lanes or sources:
+7. Label fit as `strong`, `possible`, or `skip` unless the user asks for numeric
+   scoring. Name evidence and uncertainty separately.
+8. Define stop rules for weak lanes or sources:
    - pause lanes with low evidence fit after one weekly review;
    - retire sources that produce stale, duplicate, low-pay, or weak-source roles;
    - switch effort toward referrals, employer pages, or adjacent titles when
      response rate or fit quality stays poor.
-7. Replan from the tracker weekly: compare applications, responses, interviews,
+9. Replan from the tracker weekly: compare applications, responses, interviews,
    skips, no-response items, and source quality before changing pace.
-8. Make the output actionable for the next 7 days.
+10. Make the output actionable for the next 7 days.
 
 ## Load References
 
@@ -57,6 +66,7 @@ Ask only for missing details that change the plan:
 Produce:
 
 - Search lanes.
+- Role thesis.
 - Must-have filters.
 - Source plan.
 - Daily operating loop.

@@ -27,13 +27,16 @@ scope, title, reporting line, travel, and promotion path.
    review timing.
 4. Review role scope: title, level, decision rights, team size, budget,
    expected hours, travel, schedule, and support.
-5. Review life-cost factors: commute, parking, relocation, travel, remote or
+5. Review offer constraints: vesting, cliffs, option exercise periods, repayment
+   clauses, relocation terms, noncompete or nonsolicit language, overtime, and
+   termination terms when present.
+6. Review life-cost factors: commute, parking, relocation, travel, remote or
    hybrid terms, schedule, childcare/caregiving constraints, and start date.
-6. Check deadline pressure: written deadline, recruiter pressure, missing
+7. Check deadline pressure: written deadline, recruiter pressure, missing
    documents, open questions, and whether the user has enough time to decide.
-7. Identify questions to ask before accepting or countering.
-8. Draft counter, clarification, or decline notes only from confirmed facts.
-9. End with options: accept, counter, ask questions, decline, or pause.
+8. Identify questions to ask before accepting or countering.
+9. Draft counter, clarification, or decline notes only from confirmed facts.
+10. End with options: accept, counter, ask questions, decline, or pause.
 
 ## Load References
 
@@ -48,6 +51,8 @@ Produce:
 - Pay-floor and target comparison.
 - Scope and schedule risks.
 - Benefits and non-pay tradeoffs.
+- Contract or repayment terms to verify with a qualified professional when
+  needed.
 - Questions to ask.
 - Counter or clarification note draft, if requested.
 

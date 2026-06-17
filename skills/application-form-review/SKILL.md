@@ -41,6 +41,8 @@ documents, background-check details, salary history, or references.
    do not choose for the user.
 7. Flag questions that need user review before continuing.
 8. End with a submission checklist. The user submits manually.
+9. Require explicit user approval before connecting accounts, uploading files,
+   using automation to fill fields, saving credentials, or saving cookies.
 
 ## Output
 
@@ -72,3 +74,5 @@ Use `assets/form-review-checklist.md` for a reusable checklist.
 - Do not store or reuse sensitive answers outside the user's chosen local
   tracker.
 - Do not automate restricted application portals or bypass human checks.
+- Do not connect accounts, save credentials, save cookies, or upload resumes
+  without explicit approval for that exact action.

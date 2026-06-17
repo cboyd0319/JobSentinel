@@ -24,6 +24,12 @@ Source:
 | --------------- | ---------------- | ------------- | ----------------- | ----------- |
 |  |  |  |  |  |
 
+## Change Log
+
+| Change | Why it helps | Source that supports it | User must confirm | Do not add |
+| ------ | ------------ | ----------------------- | ----------------- | ---------- |
+|  |  | Resume / job post / user note |  | Unsupported metric, credential, or tool |
+
 ## ATS And Readability
 
 | Check | Evidence | Next action |

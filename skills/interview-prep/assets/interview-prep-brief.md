@@ -49,3 +49,9 @@ Recruiter / behavioral / panel / work sample / case / portfolio:
 What happened:
 
 Next action:
+
+## Post-Interview Debrief
+
+| Questions asked | Answers that worked | Weak answers | Promised follow-up | Expected timeline | Probability | Concerns |
+| --------------- | ------------------- | ------------ | ------------------ | ----------------- | ----------- | -------- |
+|  |  |  |  |  |  |  |

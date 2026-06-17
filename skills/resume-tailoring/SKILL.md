@@ -45,6 +45,8 @@ approves that exact transfer.
 8. Improve bullets with action, scope, result, and context. Use numbers only
    when the user provides or approves them.
 9. Keep unsupported requirements as questions, gaps, or skip reasons.
+10. Create a change log: what changed, why it changed, and which resume,
+    job-post, or user-provided source supports it.
 
 ## Load References
 
@@ -60,6 +62,7 @@ Produce:
 - Evidence map.
 - Suggested resume edits.
 - Bullet rewrites with before/after wording.
+- Change log with evidence source for each material edit.
 - Questions to ask the user.
 - Do-not-add list for unsupported terms.
 

@@ -45,5 +45,7 @@ Thank you,
 - [ ] Fit evidence is true and visible in the resume or work history.
 - [ ] Ask is specific and low pressure.
 - [ ] No private salary floor, sensitive note, or unsupported claim is included.
+- [ ] Salary, visa, location, timing, and work-authorization details are
+      intentional if included.
 - [ ] Do not infer a referral, endorsement, relationship, or urgency.
 - [ ] User sends manually.

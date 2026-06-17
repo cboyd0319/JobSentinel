@@ -1,12 +1,18 @@
 # Weekly Job Search Plan
 
+## Role Thesis
+
+| Target | Proof | Gaps | Search terms | Sources |
+| ------ | ----- | ---- | ------------ | ------- |
+|  |  |  |  |  |
+
 ## Search Lanes
 
-| Lane | Target titles | Evidence fit | Unknown | User must confirm | Stop rule |
-| ---- | ------------- | ------------ | ------- | ----------------- | --------- |
-| 1 |  |  |  |  |  |
-| 2 |  |  |  |  |  |
-| 3 |  |  |  |  |  |
+| Lane | Target titles | Evidence fit | Fit label | Unknown | User must confirm | Stop rule |
+| ---- | ------------- | ------------ | --------- | ------- | ----------------- | --------- |
+| 1 |  |  | Strong / Possible / Skip |  |  |  |
+| 2 |  |  | Strong / Possible / Skip |  |  |  |
+| 3 |  |  | Strong / Possible / Skip |  |  |  |
 
 ## Source Mix
 

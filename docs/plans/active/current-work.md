@@ -71,7 +71,7 @@ Out of scope:
 | Area | State | Next useful slice |
 | ---- | ----- | ----------------- |
 | Dependency readiness | Complete | Package-manager, direct deps, overrides, and Action pins are latest; transitives stay lockfile-pinned/latest-compatible |
-| Downloadable Agent Skills | Complete locally | Eight skills include `agents/openai.yaml`, handoffs, decision templates, references, and `lint:skills` coverage. |
+| Downloadable Agent Skills | Complete locally | Eight skills include `agents/openai.yaml`, handoffs, decision templates, references, Persona job-hunting reference coverage, and `lint:skills` coverage. |
 | Browser Import and LinkedIn-compatible flow | Complete locally | Manual desktop/mobile verification passed; revisit only if whole-UI QA finds a blocker. Keep LinkedIn user-opened and user-clicked without session cookies or background monitoring. |
 | Development and QA completion | Finalizing | Primary product/security fixes and whole-UI verification are complete locally; finish design, packaging, and release checks. |
 | macOS readiness | Release-gated | Keep docs honest when touched, but do not create or upload assets until final local gates close. |
@@ -129,7 +129,9 @@ Out of scope:
 - File-backed app data opens through SQLCipher; legacy plaintext databases
   upgrade in place and delete temporary plaintext backups after success.
 - Downloadable Agent Skills cover the full search flow with OpenAI UI metadata,
-  handoffs, decision templates, and reference rubrics.
+  handoffs, decision templates, reference rubrics, role-thesis planning,
+  material versioning, debrief capture, and approval boundaries cross-checked
+  against Persona job-hunting references.
 - Browser Import desktop/mobile manual verification passed on 2026-06-17 for
   setup, private-link rejection, LinkedIn preview/save, duplicates, and overflow.
 - Final whole-UI post-design pass: 266/266 E2E plus 16 route inventories, no
@@ -140,28 +142,26 @@ Out of scope:
 
 ## Next Work
 
-1. Complete final whole-UI click/action verification after the Quiet Shield
-   token pass and record route, modal, toast, keyboard, and narrow-width evidence.
-2. Verify `2.9.0` release metadata, packaging docs, and Windows/macOS/Linux
+1. Verify `2.9.0` release metadata, packaging docs, and Windows/macOS/Linux
    release evidence before any asset creation or final push.
-3. Confirm major route screenshots, Computer Use clicks, keyboard flow, and
-   affected route/action/state checks after any UI change before calling
+2. Confirm major route screenshots, Computer Use clicks, keyboard flow, and
+   affected route/action/state checks after any further UI change before calling
    v2.9.0 done.
-4. Continue macOS readiness only after final local gates close; do
+3. Continue macOS readiness only after final local gates close; do
    not claim Gatekeeper-ready distribution before signing, notarization,
    stapling, and install proof exist.
-5. Finish current verified product and QA slices in resume assistance, job-card
+4. Finish current verified product and QA slices in resume assistance, job-card
    protection, guided intake, and pay protection.
-6. Continue encrypted storage UX: release/packaging readiness and no passive
+5. Continue encrypted storage UX: release/packaging readiness and no passive
    Settings probes.
-7. Keep the LinkedIn-compatible Browser Import path user-opened and
+6. Keep the LinkedIn-compatible Browser Import path user-opened and
    user-clicked; do not add browser-session capture, background page access, or
    scheduled LinkedIn fetches.
-8. Do not reopen repo-bloat cleanup unless a fresh bloat gate failure or
+7. Do not reopen repo-bloat cleanup unless a fresh bloat gate failure or
    product/privacy/security/docs verification blocker appears.
-9. Keep README, docs hubs, release docs, wiki inventory, and active status in
+8. Keep README, docs hubs, release docs, wiki inventory, and active status in
    sync when behavior, readiness, or public guidance changes.
-10. Commit each major verified change locally; push only at goal completion or
+9. Commit each major verified change locally; push only at goal completion or
    on newer explicit instruction.
 
 ## Sensors

@@ -14,14 +14,19 @@ rejection counter.
 ## Inputs
 
 Use the user's tracker, saved jobs, application receipts, resume version names,
-message notes, interview notes, contact details, status updates, and next-action
-preferences. Scrub private URL tokens before storing links.
+cover-letter or outreach version names, submitted-claim notes, interview notes,
+contact details, status updates, and next-action preferences. Scrub private URL
+tokens before storing links.
 
 ## Workflow
 
-1. Record each opportunity with title, company, source, link, location, pay,
-   date saved, current status, and next action.
+1. Record each opportunity with title, company, source, scrubbed link, location,
+   remote policy, pay, posting date or deadline, date saved, current status,
+   material versions, contact, risks, decision reason, and next action.
 2. Use broad statuses:
+   - Saved;
+   - Researching;
+   - Networking;
    - To Apply;
    - Verify First;
    - Applied;
@@ -34,6 +39,8 @@ preferences. Scrub private URL tokens before storing links.
    - Offer Declined;
    - Not Selected;
    - No Response;
+   - Closed;
+   - Skip;
    - Withdrawn.
 3. Enforce status transitions:
    - saved roles move to To Apply, Verify First, Skip, or Withdrawn;
@@ -49,7 +56,12 @@ preferences. Scrub private URL tokens before storing links.
 6. Track recruiter or hiring contact details beside the role.
 7. Track interview notes and thank-you follow-ups.
 8. Track salary floor, listed pay, offer notes, and risk flags locally.
-9. Produce a daily next-action list.
+9. Tie each role to the exact material versions used:
+   - resume version;
+   - cover letter version or none;
+   - outreach version or none;
+   - submitted-claims snapshot when the form or resume changed.
+10. Produce a daily next-action list.
 
 ## Output
 
@@ -61,6 +73,7 @@ Produce:
 - Follow-ups due.
 - No-response review list.
 - Roles worth tailoring next.
+- Material version gaps or missing submitted-claim notes.
 
 Use `assets/application-tracker.csv` when the user wants a simple portable
 tracker.

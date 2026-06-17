@@ -37,8 +37,14 @@ or roles if provided, and the user's must-haves.
    location, schedule, authorization, sponsorship, travel, and work samples.
 7. Draft questions the user can ask about role scope, success measures, team,
    schedule, pay range, interview process, and timeline.
-8. Create a follow-up note only after the user confirms what happened.
-9. End with decision criteria: what would make the role worth pursuing or not.
+8. For take-homes or work samples, confirm scope, deadline, evaluation
+   criteria, data rights, and time expectations before recommending effort.
+   Flag unpaid excessive labor and do not use confidential employer assets.
+9. Create a follow-up note only after the user confirms what happened.
+10. Capture a debrief after each interview: questions asked, answers that
+    worked, weak answers, promised follow-ups, expected timeline, probability,
+    and concerns.
+11. End with decision criteria: what would make the role worth pursuing or not.
 
 ## Load References
 
@@ -54,6 +60,7 @@ Produce:
 - Likely questions and answer outlines.
 - Questions to ask the employer.
 - Red flags or must-verify items.
+- Debrief capture list after the interview.
 - Follow-up note draft, if requested.
 
 Use `assets/interview-prep-brief.md` for a reusable brief.
@@ -74,5 +81,7 @@ Use `assets/interview-prep-brief.md` for a reusable brief.
 - Do not invent accomplishments, metrics, credentials, titles, or interviews.
 - Do not script the user into rigid answers. Provide flexible outlines.
 - Do not suggest sharing private salary floors unless the user chooses to.
+- Do not recommend unpaid excessive work or sharing confidential code,
+  customer data, internal content, proprietary metrics, or employer assets.
 - Do not give legal advice on protected topics or employment law.
 - Keep advice candidate-side: clarity, evidence, questions, and decisions.

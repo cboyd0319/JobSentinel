@@ -32,7 +32,11 @@ evidence, shared context, preferred channel, and the user’s boundaries.
    - an easy opt-out.
 6. Keep follow-ups spaced and useful. If there is no new reason to follow up,
    recommend pausing instead of sending another note.
-7. End with a send-review checklist.
+7. Avoid over-polished AI phrasing such as generic excitement, vague flattery,
+   or unsupported "unique fit" claims.
+8. End with a send-review checklist: recipient, channel, role URL, factual
+   claims, attachments, links, salary/location/visa/timing details, and
+   confidential information.
 
 ## Load References
 
@@ -67,6 +71,7 @@ Use `assets/outreach-note-template.md` for reusable message notes.
 
 - Do not invent referrals, relationships, endorsements, achievements, metrics,
   credentials, interviews, offers, or employer interest.
+- Do not imply a closer relationship than the user actually has.
 - Do not send messages automatically.
 - Do not scrape contact lists, collect session cookies, or automate account
   activity on LinkedIn or other restricted platforms.
