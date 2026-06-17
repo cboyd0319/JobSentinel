@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Tooltip } from "./Tooltip";
@@ -205,6 +205,29 @@ describe("Tooltip", () => {
       await waitFor(() => {
         expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
       });
+    });
+
+    it("does not bubble Escape when dismissing an open tooltip", async () => {
+      const user = userEvent.setup();
+      const onParentKeyDown = vi.fn();
+
+      render(
+        <div onKeyDown={onParentKeyDown}>
+          <Tooltip content="Tooltip text" delay={0}>
+            <button>Focus me</button>
+          </Tooltip>
+        </div>
+      );
+
+      await user.click(screen.getByRole("button", { name: "Focus me" }));
+      expect(await screen.findByRole("tooltip")).toBeInTheDocument();
+
+      await user.keyboard("{Escape}");
+
+      await waitFor(() => {
+        expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
+      });
+      expect(onParentKeyDown).not.toHaveBeenCalled();
     });
   });
 

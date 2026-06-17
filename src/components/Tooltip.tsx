@@ -55,6 +55,8 @@ export const Tooltip = memo(function Tooltip({
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Escape" && isVisible) {
+      e.preventDefault();
+      e.stopPropagation();
       hideTooltip();
     }
   };
