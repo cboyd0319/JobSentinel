@@ -383,6 +383,15 @@ describe("mock core command handlers", () => {
         url: "http://localhost:3000/jobs/care-coordinator",
       }),
     ).rejects.toThrow("Paste the full job link from your browser address bar.");
+
+    const redirectPreview = await mockInvoke<JobImportPreview>("preview_job_import", {
+      url: "https://jobs.example.com/careers/case-manager?jobId=456&redirect=https%3A%2F%2Fprivate.example%2Fcallback%3Ftoken%3Draw-secret&source=mail",
+    });
+
+    expect(redirectPreview.url).toBe(
+      "https://jobs.example.com/careers/case-manager?jobId=456",
+    );
+    expect(redirectPreview.url).not.toContain("raw-secret");
   });
 
   it("returns minimized application profile and dashboard preferences mocks", async () => {

@@ -6,6 +6,15 @@ use url::{form_urlencoded::Serializer, Url};
 
 const MAX_LOG_URL_LEN: usize = 80;
 const BLOCKED_HOST_SUFFIXES: &[&str] = &["local", "lan", "home", "internal", "corp"];
+const SENSITIVE_JOB_QUERY_MARKERS: &[&str] = &[
+    "token",
+    "session",
+    "auth",
+    "credential",
+    "password",
+    "email",
+    "candidate",
+];
 
 fn truncate_log_label(label: &str) -> String {
     if label.len() <= MAX_LOG_URL_LEN {
@@ -131,7 +140,7 @@ pub fn canonicalize_user_supplied_job_url(url: &str) -> Result<String, String> {
 
     let retained_pairs: Vec<(String, String)> = parsed
         .query_pairs()
-        .filter(|(name, _)| !is_sensitive_job_query_param(name))
+        .filter(|(name, value)| !is_sensitive_job_query_param(name, value))
         .map(|(name, value)| (name.into_owned(), value.into_owned()))
         .collect();
 
@@ -154,7 +163,7 @@ pub fn canonicalize_user_supplied_job_url(url: &str) -> Result<String, String> {
     Ok(parsed.to_string())
 }
 
-fn is_sensitive_job_query_param(name: &str) -> bool {
+fn is_sensitive_job_query_param(name: &str, value: &str) -> bool {
     let normalized = name.to_ascii_lowercase();
 
     normalized.starts_with("utm_")
@@ -170,17 +179,22 @@ fn is_sensitive_job_query_param(name: &str) -> bool {
                 | "ref"
                 | "referrer"
         )
-        || [
-            "token",
-            "session",
-            "auth",
-            "credential",
-            "password",
-            "email",
-            "candidate",
-        ]
-        .iter()
-        .any(|marker| normalized.contains(marker))
+        || SENSITIVE_JOB_QUERY_MARKERS
+            .iter()
+            .any(|marker| normalized.contains(marker))
+        || is_sensitive_job_query_value(value)
+}
+
+fn is_sensitive_job_query_value(value: &str) -> bool {
+    if Url::parse(value).is_ok() {
+        return true;
+    }
+
+    let normalized = value.to_ascii_lowercase();
+
+    SENSITIVE_JOB_QUERY_MARKERS.iter().any(|marker| {
+        normalized.contains(&format!("{marker}=")) || normalized.contains(&format!("{marker}%3d"))
+    })
 }
 
 fn is_blocked_ip(ip: IpAddr) -> bool {
@@ -364,6 +378,19 @@ mod tests {
         ] {
             assert!(validate_external_http_url(url).is_err(), "{url}");
         }
+    }
+
+    #[test]
+    fn canonical_job_url_strips_sensitive_nested_query_values() {
+        let canonical = canonicalize_user_supplied_job_url(
+            "https://example.com/jobs/case-manager?jobId=456&redirect=https%3A%2F%2Fprivate.example%2Fcallback%3Ftoken%3Draw-secret&source=mail",
+        )
+        .expect("public URL should canonicalize");
+
+        assert_eq!(canonical, "https://example.com/jobs/case-manager?jobId=456");
+        assert!(!canonical.contains("raw-secret"));
+        assert!(!canonical.contains("redirect"));
+        assert!(!canonical.contains("source"));
     }
 
     #[test]

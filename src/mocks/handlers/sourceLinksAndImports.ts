@@ -506,11 +506,7 @@ function canonicalizeMockJobImportUrl(url: string): string {
   const keptParams = new URLSearchParams();
   parsed.searchParams.forEach((value, key) => {
     const normalizedKey = key.toLowerCase();
-    if (
-      normalizedKey.startsWith("utm_") ||
-      STRIPPED_JOB_IMPORT_QUERY_KEYS.has(normalizedKey) ||
-      STRIPPED_JOB_IMPORT_QUERY_MARKERS.some((marker) => normalizedKey.includes(marker))
-    ) {
+    if (isStrippedJobImportQueryParam(normalizedKey, value)) {
       return;
     }
     keptParams.append(key, value);
@@ -519,6 +515,29 @@ function canonicalizeMockJobImportUrl(url: string): string {
   const query = keptParams.toString();
   parsed.search = query ? `?${query}` : "";
   return parsed.toString();
+}
+
+function isStrippedJobImportQueryParam(normalizedKey: string, value: string): boolean {
+  return (
+    normalizedKey.startsWith("utm_") ||
+    STRIPPED_JOB_IMPORT_QUERY_KEYS.has(normalizedKey) ||
+    STRIPPED_JOB_IMPORT_QUERY_MARKERS.some((marker) => normalizedKey.includes(marker)) ||
+    isSensitiveJobImportQueryValue(value)
+  );
+}
+
+function isSensitiveJobImportQueryValue(value: string): boolean {
+  try {
+    new URL(value);
+    return true;
+  } catch {
+    const normalizedValue = value.toLowerCase();
+    return STRIPPED_JOB_IMPORT_QUERY_MARKERS.some(
+      (marker) =>
+        normalizedValue.includes(`${marker}=`) ||
+        normalizedValue.includes(`${marker}%3d`),
+    );
+  }
 }
 
 function getMockImportTitle(url: string): string {
