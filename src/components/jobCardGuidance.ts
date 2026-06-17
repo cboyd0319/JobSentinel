@@ -169,6 +169,19 @@ export function getPayFloorGuidance(
     };
   }
 
+  if (
+    hasSalaryMin &&
+    hasSalaryMax &&
+    salaryMin < salaryFloorUsd &&
+    salaryMax >= salaryFloorUsd
+  ) {
+    return {
+      title: "Starting pay below your floor",
+      description: `Listed pay starts below your ${formattedFloor} floor. Confirm where your experience would land before tailoring.`,
+      ariaLabel: "starting pay below your floor; confirm range before tailoring",
+    };
+  }
+
   if (!hasSalaryMax || salaryMax >= salaryFloorUsd) {
     return null;
   }

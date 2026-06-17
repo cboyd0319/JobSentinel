@@ -151,6 +151,15 @@ describe("jobCardGuidance", () => {
     });
   });
 
+  it("flags listed ranges that start below the user's floor", () => {
+    expect(getPayFloorGuidance(45000, 90000, 65000)).toEqual({
+      title: "Starting pay below your floor",
+      description:
+        "Listed pay starts below your $65,000/year floor. Confirm where your experience would land before tailoring.",
+      ariaLabel: "starting pay below your floor; confirm range before tailoring",
+    });
+  });
+
   it("flags very wide pay ranges as weaker evidence", () => {
     expect(getSalaryRangeQualityGuidance(45000, 140000)).toMatchObject({
       title: "Very wide pay range",

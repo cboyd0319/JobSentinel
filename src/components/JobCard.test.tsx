@@ -386,10 +386,40 @@ describe("JobCard", () => {
       ).toBeInTheDocument();
     });
 
-    it("does not warn when listed pay reaches the user's floor", () => {
-      renderWithToast(<JobCard job={mockJob} salaryFloorUsd={65000} />);
+    it("does not warn when listed pay starts at the user's floor", () => {
+      const atFloorJob = {
+        ...mockJob,
+        salary_min: 65000,
+        salary_max: 72000,
+      };
 
+      renderWithToast(<JobCard job={atFloorJob} salaryFloorUsd={65000} />);
+
+      expect(screen.getByText("$65k - $72k")).toBeInTheDocument();
       expect(screen.queryByTestId("pay-floor-guidance")).not.toBeInTheDocument();
+    });
+
+    it("warns when listed pay starts below the user's floor", () => {
+      const lowStartJob = {
+        ...mockJob,
+        salary_min: 55000,
+        salary_max: 72000,
+      };
+
+      renderWithToast(<JobCard job={lowStartJob} salaryFloorUsd={65000} />);
+
+      expect(screen.getByText("$55k - $72k")).toBeInTheDocument();
+      expect(screen.getByTestId("pay-floor-guidance")).toHaveTextContent(
+        "Starting pay below your floor",
+      );
+      expect(
+        screen.getByText(/confirm where your experience would land before tailoring/i),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("article", {
+          name: /starting pay below your floor; confirm range before tailoring/i,
+        }),
+      ).toBeInTheDocument();
     });
 
     it("shows a review cue when only starting pay is below the user's floor", () => {
