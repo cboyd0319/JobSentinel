@@ -668,6 +668,70 @@ test("Cargo latest-stable check compares exact pins to crates.io versions", asyn
   });
 });
 
+test("Cargo latest-stable check accepts SQLx-constrained SQLCipher bridge", async () => {
+  await withFixtureAsync(async (root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/Cargo.toml",
+      [
+        "[package]",
+        'name = "jobsentinel"',
+        'version = "0.0.0"',
+        "",
+        "[dependencies]",
+        'sqlx = { version = "=0.9.0", default-features = false, features = ["sqlite"] }',
+        'libsqlite3-sys = { version = "=0.37.0", default-features = false, features = ["bundled-sqlcipher-vendored-openssl"] }',
+      ].join("\n"),
+    );
+
+    const violations = await collectCargoLatestStableViolations(root, {
+      fetchImpl: async (url) => ({
+        ok: true,
+        json: async () => ({
+          versions: String(url).endsWith("libsqlite3-sys")
+            ? [{ num: "0.37.0" }, { num: "0.38.1" }]
+            : [{ num: "0.9.0" }, { num: "0.10.0-alpha.1" }],
+        }),
+      }),
+    });
+
+    assert.deepEqual(violations, []);
+  });
+});
+
+test("Cargo latest-stable check rejects SQLCipher bridge exception drift", async () => {
+  await withFixtureAsync(async (root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/Cargo.toml",
+      [
+        "[package]",
+        'name = "jobsentinel"',
+        'version = "0.0.0"',
+        "",
+        "[dependencies]",
+        'sqlx = { version = "=0.9.0", default-features = false, features = ["sqlite"] }',
+        'libsqlite3-sys = { version = "=0.37.0", default-features = false, features = ["bundled"] }',
+      ].join("\n"),
+    );
+
+    const violations = await collectCargoLatestStableViolations(root, {
+      fetchImpl: async (url) => ({
+        ok: true,
+        json: async () => ({
+          versions: String(url).endsWith("libsqlite3-sys")
+            ? [{ num: "0.37.0" }, { num: "0.38.1" }]
+            : [{ num: "0.9.0" }],
+        }),
+      }),
+    });
+
+    assert.deepEqual(violations, [
+      "Cargo.toml libsqlite3-sys is pinned to 0.37.0; latest stable crates.io version is 0.38.1",
+    ]);
+  });
+});
+
 test("Cargo compatible update check ignores index refresh and reports package updates", () => {
   const violations = collectCargoCompatibleUpdateViolations("/tmp/jobsentinel-fixture", {
     spawn: () => ({

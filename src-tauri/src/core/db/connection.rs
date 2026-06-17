@@ -5,6 +5,10 @@
 use sqlx::{sqlite::SqlitePool, Row};
 use std::path::PathBuf;
 
+use super::encryption::{
+    connect_encrypted_pool, encrypt_plaintext_database, load_or_create_database_key,
+    plaintext_database_readable,
+};
 use crate::core::logging::path_label_for_logging;
 
 /// Database handle
@@ -39,8 +43,23 @@ impl Database {
             })?;
         }
 
-        let url = format!("sqlite://{}?mode=rwc", path.display());
-        let pool = SqlitePool::connect(&url).await?;
+        let key = load_or_create_database_key().await?;
+        let pool = match connect_encrypted_pool(path, &key, true).await {
+            Ok(pool) => pool,
+            Err(error) => {
+                if path.exists() && plaintext_database_readable(path).await.unwrap_or(false) {
+                    let backup_dir = path
+                        .parent()
+                        .filter(|parent| !parent.as_os_str().is_empty())
+                        .map(|parent| parent.join("backups"))
+                        .unwrap_or_else(Self::default_backup_dir);
+                    encrypt_plaintext_database(path, &key, &backup_dir).await?;
+                    connect_encrypted_pool(path, &key, true).await?
+                } else {
+                    return Err(error);
+                }
+            }
+        };
 
         // Configure SQLite for better integrity and performance
         Self::configure_pragmas(&pool).await?;
@@ -623,6 +642,8 @@ impl Database {
 #[cfg(test)]
 mod backup_tests {
     use super::*;
+    use sqlx::{sqlite::SqliteConnectOptions, ConnectOptions};
+    use std::str::FromStr;
 
     #[tokio::test]
     async fn pre_migration_backup_captures_committed_wal_data() {
@@ -646,10 +667,16 @@ mod backup_tests {
                 .unwrap()
                 .expect("existing database should create pre-migration backup");
 
-        let backup_url = format!("sqlite://{}", backup_path.display());
-        let backup_pool = SqlitePool::connect(&backup_url).await.unwrap();
+        let backup_url = format!("sqlite://{}?mode=ro", backup_path.display());
+        let backup_key = hex::encode([0xDB; 32]);
+        let mut backup_connection = SqliteConnectOptions::from_str(&backup_url)
+            .unwrap()
+            .pragma("key", backup_key)
+            .connect()
+            .await
+            .unwrap();
         let note: String = sqlx::query_scalar("SELECT note FROM qa_wal_capture WHERE id = 1")
-            .fetch_one(&backup_pool)
+            .fetch_one(&mut backup_connection)
             .await
             .unwrap();
 

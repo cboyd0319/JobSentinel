@@ -79,7 +79,7 @@ Out of scope:
 | Job-card protection | Active | Keep posting-risk cues visible without implying employer intent or confirmed duplicate/source proof. |
 | Guided intake | Active | Add optional suggestions only after user review; keep broad defaults and non-technical paths first-class. |
 | Pay protection | Active | Keep missing, minimum-only, maximum-only, malformed, or broad listed-pay evidence plain and review-first. |
-| Encrypted local storage | Active | Runtime AEAD vault storage and legacy migration exist; next: encrypted SQLite, passphrase mode, and macOS native unlock. |
+| Encrypted local storage | Active | SQLCipher, runtime AEAD vault storage, and legacy migration exist; next: passphrase mode and macOS native unlock. |
 | Quiet Shield redesign | Deferred until primary gates close | Apply Quiet Shield/Protective Navy after primary blockers close; then verify the design contract. |
 | Final Rust and agent improvement pass | Deferred until primary gates close | Run a comprehensive non-`content/` review near the end, apply accepted fixes, and verify before the final push. |
 | Cleanup and harness | Closed for proactive repo-bloat work | Reopen only for a fresh failing gate or blocker to privacy, security, docs accuracy, or verification. |
@@ -101,9 +101,8 @@ Out of scope:
 
 ## Done Recently
 
-- macOS docs and release workflow separate 94% full-public readiness from 100%
-  no-account path completion.
-- Public wiki inventory and upkeep are part of the harness.
+- macOS docs and release workflow separate full-public readiness from the
+  no-account path, and public wiki upkeep is harness-owned.
 - Resume Match and Resume Builder hard-requirement handling now covers age,
   citizenship, screening, driving, insurance, language, schedule, and related
   review-first categories more consistently across Rust, mocks, and UI.
@@ -114,22 +113,21 @@ Out of scope:
   opt-in, reviewed source choices, reviewed resume-skill suggestions, and
   non-technical starter paths.
 - Active plan sprawl has been reduced to this plan plus `status.md`.
-- Quiet Shield QA fixed shared modal visibility, truncation, dialog migration,
-  wrapped tabs, responsive source tables, Application Assist paint,
-  viewport-fixed toasts, and Settings opening without passive Keychain prompts.
+- Quiet Shield QA fixed modals, truncation, wrapped tabs, source tables,
+  Application Assist paint, viewport-fixed toasts, and passive Keychain prompts.
 - The v2.9.0 pass confirmed Browser Import is the LinkedIn path, not session
   storage or automatic monitoring. Private profile inputs stay local.
 - Package-manager, npm/Cargo, npm override, Action, OS-runner, and apt direct
-  pins are exact latest stable; transitives are lockfile-pinned and
-  latest-compatible. `lint:deps`, `lint:actions`, and `release:check-deps`
-  enforce registry, lockfile, compatible-transitive, action, OS, apt,
-  local-tool, and `npx --no-install` freshness.
+  pins are exact latest stable; transitives are latest-compatible.
+  `lint:deps`, `lint:actions`, and `release:check-deps` enforce freshness.
 - Live OS keyring integration tests are opt-in behind
   `JOBSENTINEL_LIVE_KEYRING_TESTS=1`; default credential tests remain
   non-interactive and still prove LinkedIn credential storage is blocked before
   keyring access.
 - Runtime credentials now use the encrypted vault provider; status checks read
   metadata only.
+- File-backed app data now opens through SQLCipher; legacy plaintext databases
+  upgrade in place and delete temporary plaintext backups after success.
 - Downloadable Agent Skills now cover search planning, posting-risk review,
   resume tailoring, form review, tracking, outreach, interview prep, and
   offer/pay review.
@@ -149,8 +147,8 @@ Out of scope:
    stapling, and install proof exist.
 4. Finish current verified product and QA slices in resume assistance, job-card
    protection, guided intake, and pay protection.
-5. Continue encrypted storage: encrypted SQLite, passphrase mode, macOS native
-   unlock, and no passive Settings probes.
+5. Continue encrypted storage UX: passphrase mode, macOS native unlock, and no
+   passive Settings probes.
 6. Apply Quiet Shield/Protective Navy design decisions only after primary
    readiness gates and whole-UI verification blockers close; then verify with
    `DESIGN.md`, `docs/design/README.md`, and `docs/design/design-spec.md`.

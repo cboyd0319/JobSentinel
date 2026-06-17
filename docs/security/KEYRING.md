@@ -4,12 +4,12 @@ JobSentinel stores sensitive credentials locally and never in plaintext app
 config. This applies to notification secrets, access codes, private connection
 links, API keys, and passwords.
 
-The locked direction as of 2026-06-06 is:
+The storage model as of 2026-06-17 is:
 
-- Encrypt the SQLite database at rest.
+- Encrypt the SQLite database at rest with bundled SQLCipher.
 - Store secrets in a local SQLite secret-vault table as per-row AEAD envelopes.
-- Protect the vault master key with the operating system credential store by
-  default.
+- Protect the database key and vault master key with the operating system
+  credential store by default.
 - Offer an advanced user passphrase mode that wraps the vault key.
 - On macOS, use native Keychain and LocalAuthentication APIs so Touch ID can
   satisfy user-presence prompts when the device and policy allow it.
@@ -20,16 +20,16 @@ use `CredentialService`. Active secrets are stored in the `secret_vault` table
 as AEAD envelopes; the OS credential store protects one vault key item and is
 used for legacy fallback only when a secret is explicitly retrieved. Status
 checks read SQLite vault metadata only and do not unlock the OS credential
-store. Remaining storage work is encrypted SQLite at rest, passphrase mode, and
-native macOS unlock/user-presence support.
+store. Remaining storage work is passphrase mode and native macOS
+unlock/user-presence support.
 
 ## Supported Credential Stores
 
 | Platform | Current runtime path | Remaining target |
 | -------- | -------------------- | ---------------- |
-| Windows | Encrypted SQLite vault rows; vault key protected by Windows Credential Manager through `keyring` | SQLite database encryption and equivalent user-presence policy when available |
-| macOS | Encrypted SQLite vault rows; vault key protected by macOS Keychain through `keyring` | SQLite database encryption and native `Security.framework` plus `LocalAuthentication` unlock |
-| Linux | Encrypted SQLite vault rows; vault key protected by Secret Service through `keyring` | SQLite database encryption with passphrase mode available |
+| Windows | SQLCipher database, encrypted SQLite vault rows, and database/vault keys protected by Windows Credential Manager through `keyring` | Equivalent user-presence policy when available |
+| macOS | SQLCipher database, encrypted SQLite vault rows, and database/vault keys protected by macOS Keychain through `keyring` | Native `Security.framework` plus `LocalAuthentication` unlock |
+| Linux | SQLCipher database, encrypted SQLite vault rows, and database/vault keys protected by Secret Service through `keyring` | Passphrase mode available |
 
 The default mode optimizes for user experience and local device security: the
 user unlocks once when a secret is actually needed, then JobSentinel reuses the
@@ -61,9 +61,8 @@ AEAD envelope per row
 
 Vault requirements:
 
-- The SQLite database must be encrypted at rest. SQLCipher or an approved
-  encrypted SQLite/VFS path is acceptable if it preserves SQLx behavior and
-  cross-platform build support.
+- The SQLite database is encrypted at rest with bundled SQLCipher through the
+  SQLx SQLite connection layer.
 - Secret values must use per-row AEAD encryption even inside the encrypted
   database.
 - AEAD associated data must bind ciphertext to the secret key name and app
@@ -79,7 +78,9 @@ Current default key mode:
 1. Generate a random vault master key locally.
 2. Store the raw vault key as one OS-protected credential item named
    `jobsentinel_vault_key` through the `keyring` crate.
-3. Cache the unlocked vault key in memory for the app session after successful
+3. Generate a separate random SQLCipher database key and store it as
+   `jobsentinel_database_key` through the same OS credential service.
+4. Cache the unlocked vault key in memory for the app session after successful
    retrieval.
 
 Target default key mode:
@@ -325,8 +326,8 @@ attempted action fails because secure storage could not be unlocked.
 
 - Runtime credentials are encrypted as per-row AEAD envelopes in the
   `secret_vault` table.
-- Remaining target vault credentials will be encrypted twice at rest: by the
-  encrypted SQLite database and by per-row AEAD envelopes.
+- Runtime credentials are encrypted twice at rest: by the SQLCipher database
+  and by per-row AEAD envelopes.
 - Do not store secret values as plaintext SQLite, app config, localStorage,
   logs, screenshots, support reports, or unencrypted backups.
 - JobSentinel stores credentials under service name `JobSentinel`.
@@ -344,8 +345,7 @@ attempted action fails because secure storage could not be unlocked.
   legacy entries can be deleted and are redacted from logs and debug reports.
 
 Non-sensitive config remains in `config.json`, including job titles, keywords,
-locations, scraping intervals, alert thresholds, company URLs, and search query
-settings.
+locations, alert thresholds, company URLs, and search query settings.
 
 The encrypted SQLite database protects local job-search records and durable
 preferences at rest. The per-row AEAD vault adds compartmentalized protection

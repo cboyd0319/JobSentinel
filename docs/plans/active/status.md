@@ -66,11 +66,12 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   match latest/stable; transitives are lockfile-pinned/latest-compatible.
   `lint:deps`, `lint:actions`, and `release:check-deps` enforce registry,
   lockfile, compatible-transitive, action, OS, apt, local-tool, and
-  `npx --no-install`; constraints are recorded in the UI ledger.
+  `npx --no-install`; the SQLCipher bridge is pinned to the newest stable
+  `libsqlite3-sys` allowed by SQLx 0.9.0.
 - Runtime credential commands, scheduler, notifications, and smoke tests use
-  the encrypted SQLite secret-vault provider. Status checks read vault metadata
-  only, and live OS keyring tests remain opt-in behind
-  `JOBSENTINEL_LIVE_KEYRING_TESTS=1`.
+  the encrypted SQLite secret-vault provider, and file-backed app data opens
+  through SQLCipher. Status checks read vault metadata only, and live OS
+  keyring tests remain opt-in behind `JOBSENTINEL_LIVE_KEYRING_TESTS=1`.
 - Private resume parser smoke checks passed on 2026-06-17 for the supplied PDF
   and eight reference profiles via `JOBSENTINEL_LOCAL_RESUME_SMOKE_PATHS`, with
   no committed local paths or names.
@@ -106,9 +107,8 @@ The v2.9.0 goal adds four durable release-readiness requirements:
    predictions.
 6. Continue macOS readiness docs and checks without claiming Gatekeeper-ready
    distribution before Apple credentials exist.
-7. Continue encrypted local storage and saved-secret UX: runtime AEAD vault
-   storage and legacy migration now exist; next are encrypted SQLite,
-   passphrase mode, and macOS native unlock.
+7. Continue encrypted storage UX: SQLCipher, runtime AEAD vault storage, and
+   legacy migration exist; next are passphrase mode and macOS native unlock.
 8. Keep harness work focused on bounded startup context, runnable verification,
    privacy/security gates, and docs accuracy. Do not add new ceremony unless it
    prevents a repeated failure.

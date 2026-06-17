@@ -9,6 +9,7 @@ pub mod integrity;
 mod analytics;
 mod connection;
 mod crud;
+mod encryption;
 pub mod error;
 mod ghost;
 mod interactions;

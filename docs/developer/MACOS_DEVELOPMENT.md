@@ -94,8 +94,9 @@ macOS 13.
 # View configuration
 cat ~/.config/jobsentinel/config.json
 
-# View database (requires sqlite3)
-sqlite3 ~/Library/Application\ Support/JobSentinel/jobs.db
+# Database note
+# jobs.db is SQLCipher encrypted at rest. Inspect data through the app UI,
+# safe support reports, or purpose-built encrypted database diagnostics.
 ```
 
 ---
@@ -349,11 +350,8 @@ npm ci
 
 4. **View results:**
    - Check the dashboard for jobs
-   - Look in the database:
-
-     ```bash
-     sqlite3 ~/Library/Application\ Support/JobSentinel/jobs.db "SELECT title, company, score FROM jobs ORDER BY score DESC LIMIT 10;"
-     ```
+   - Use safe support reports or encrypted database diagnostics for deeper
+     local inspection. Raw `sqlite3 jobs.db` cannot read the SQLCipher file.
 
 ---
 

@@ -5,6 +5,7 @@ import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { collectCargoCompatibleUpdateViolations } from "./dependency/cargo-compatible-updates.mjs";
+import { cargoLatestStableException } from "./dependency/cargo-latest-exceptions.mjs";
 import {
   collectNpmCompatibleOutdatedViolations,
   collectNpmCompatibleUpdateViolations,
@@ -790,9 +791,10 @@ export async function collectCargoLatestStableViolations(
     return ["Cargo latest-stable check requires a fetch-capable Node runtime"];
   }
 
-  const dependencies = collectCargoDependencySpecs(
-    readFileSync(repoPath(root, "src-tauri/Cargo.toml"), "utf8"),
-  ).filter((dependency) => dependency.version?.startsWith("="));
+  const cargoTomlText = readFileSync(repoPath(root, "src-tauri/Cargo.toml"), "utf8");
+  const dependencies = collectCargoDependencySpecs(cargoTomlText).filter((dependency) =>
+    dependency.version?.startsWith("=")
+  );
   const uniqueDependencies = [
     ...new Map(dependencies.map((dependency) => [dependency.name, dependency])).values(),
   ];
@@ -815,6 +817,11 @@ export async function collectCargoLatestStableViolations(
 
       const current = dependency.version.slice(1);
       if (compareStableSemver(current, latest) !== 0) {
+        const exception = cargoLatestStableException(dependency, dependencies, cargoTomlText);
+        if (exception) {
+          return null;
+        }
+
         return `Cargo.toml ${dependency.name} is pinned to ${current}; latest stable crates.io version is ${latest}`;
       }
     } catch (error) {

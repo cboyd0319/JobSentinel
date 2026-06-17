@@ -1,17 +1,23 @@
 # SQLite Configuration
 
-> **Source:** `src-tauri/src/core/db/connection.rs` and
+> **Source:** `src-tauri/src/core/db/connection.rs`,
+> `src-tauri/src/core/db/encryption.rs`, and
 > `src-tauri/src/core/db/integrity/`
 
 JobSentinel uses SQLite with SQLx and an on-disk database by default. The
-connection layer applies PRAGMA settings for crash recovery, local data
-integrity, and read-heavy desktop performance. Test databases use a smaller
-in-memory configuration where WAL and file-backed features do not apply.
+connection layer opens file-backed databases through SQLCipher, then applies
+PRAGMA settings for crash recovery, local data integrity, and read-heavy
+desktop performance. Test databases use a smaller in-memory configuration where
+WAL and file-backed features do not apply.
 
 ## On-Disk Startup Settings
 
-`Database::connect` creates the parent directory, opens the database with
-`mode=rwc`, and calls `Database::configure_pragmas`.
+`Database::connect` creates the parent directory, loads or creates the
+OS-protected `jobsentinel_database_key`, opens the database with SQLCipher and
+`mode=rwc`, and calls `Database::configure_pragmas`. If a legacy plaintext
+database is detected, startup exports it into a new encrypted database, verifies
+the encrypted copy, replaces the original file, and deletes the temporary
+plaintext backup after success.
 
 | Setting | Value | Purpose |
 | --- | --- | --- |
@@ -83,9 +89,10 @@ The integrity module wraps common maintenance and diagnostic operations.
 Backup reason strings are sanitized before becoming part of backup filenames.
 Backup and database paths are logged through non-identifying path labels.
 Pre-migration backups use SQLite `VACUUM INTO` so committed WAL frames are
-included in the snapshot. Restore callers must close the active pool first;
-the restore helper then moves the main database and SQLite sidecars out of the
-way before copying the backup and applying private file permissions.
+included in the snapshot, and they inherit the SQLCipher encryption key.
+Restore callers must close the active pool first; the restore helper then moves
+the main database and SQLite sidecars out of the way before copying the backup
+and applying private file permissions.
 
 ## Health Metrics
 
@@ -131,6 +138,8 @@ if health.backup_overdue {
 - Run a WAL checkpoint before backup-sensitive size checks.
 - Use `VACUUM` only for explicit maintenance because it rebuilds the database.
 - Keep backup and diagnostic paths sanitized in logs.
+- Do not inspect `jobs.db` with raw `sqlite3`; it is SQLCipher encrypted and
+  must be opened through the keyed connection path.
 - Do not add cloud backup behavior without an explicit product decision.
 
 ## Verification

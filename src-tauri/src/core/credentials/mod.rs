@@ -121,7 +121,7 @@ impl FromStr for CredentialKey {
 }
 
 /// Service name for all keyring entries (used as namespace).
-const SERVICE_NAME: &str = "JobSentinel";
+pub(crate) const SERVICE_NAME: &str = "JobSentinel";
 const MAX_LINKEDIN_COOKIE_LEN: usize = 500;
 const LINKEDIN_CREDENTIAL_STORAGE_DISABLED: &str =
     "LinkedIn automatic monitoring is disabled by JobSentinel source policy";

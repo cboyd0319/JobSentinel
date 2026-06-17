@@ -58,6 +58,11 @@ regex = "=1.12.4"
 
 # Database
 sqlx = { version = "=0.9.0", default-features = false, features = ["runtime-tokio", "tls-rustls", "sqlite", "migrate", "chrono", "macros"] }
+# SQLCipher feature bridge for SQLx's constrained SQLite backend.
+# SQLx 0.9.0 requires libsqlite3-sys <0.38, so this pins the max compatible
+# stable version and enables bundled SQLCipher with vendored OpenSSL for
+# Windows/macOS/Linux portability.
+libsqlite3-sys = { version = "=0.37.0", default-features = false, features = ["bundled-sqlcipher-vendored-openssl"] }
 
 # Date/Time
 chrono = { version = "=0.4.45", features = ["serde"] }

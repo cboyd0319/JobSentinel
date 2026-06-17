@@ -757,11 +757,11 @@ match result {
    - XSS prevention in resume HTML generation with `escape_html()`
 
 2. **Database Security**
+   - SQLCipher encryption at rest for job-search records and preferences
    - Parameterized queries (no string concatenation)
    - Transaction isolation
    - Field length validation
    - XSS prevention: `javascript:` protocol validation in URLs
-   - Target encrypted SQLite at rest for job-search records and preferences
    - Per-row AEAD secret vault for saved alert credentials, access codes, and
      private connection links
 
@@ -776,7 +776,6 @@ match result {
 4. **Data Privacy**
    - All data stored locally
    - Job-search records and durable preferences are stored in encrypted SQLite
-     once the storage-hardening work lands
    - Saved secrets are resolved through backend commands and must not be
      returned to the renderer
    - Browser localStorage is limited to UI preferences, caches, sanitized error

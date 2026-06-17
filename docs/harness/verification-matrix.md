@@ -22,7 +22,7 @@ user-facing workflow risk requires more evidence.
 | Multi-agent orchestration or delegated implementation | `npm run harness:check`, focused checks for each accepted slice, and coordinator diff review evidence |
 | Markdown docs | `npm run lint:md` |
 | Package scripts | `npm run harness:check` and affected script command |
-| Dependency manifests, lockfiles, package-manager pins, workflow runners, workflow apt packages, or workflow actions | `npm run lint:deps`; for workflow action changes also run `npm run lint:actions`; before release run `npm run release:check-deps`. The npm package manager, all repo-declared direct npm packages, npm overrides, Cargo crates, workflow OS runners, direct workflow apt packages, and GitHub Actions must be exact-pinned to latest stable; resolved transitives must stay exact lockfile-pinned and latest-compatible. Do not force transitive updates outside upstream-supported ranges with overrides or patches. |
+| Dependency manifests, lockfiles, package-manager pins, workflow runners, workflow apt packages, or workflow actions | `npm run lint:deps`; for workflow action changes also run `npm run lint:actions`; before release run `npm run release:check-deps`. The npm package manager, all repo-declared direct npm packages, npm overrides, Cargo crates, workflow OS runners, direct workflow apt packages, and GitHub Actions must be exact-pinned to latest stable; resolved transitives must stay exact lockfile-pinned and latest-compatible. Any behind-latest direct exception must be exact, test-covered, and upstream-constrained. Do not force transitive updates outside upstream-supported ranges with overrides or patches. |
 | Environment readiness or setup commands | `npm run doctor`, `npm run doctor:e2e` when E2E readiness matters, and `npm run harness:check` |
 | Frontend architecture boundary rules | `npm run lint:architecture` and `npm run harness:check` |
 | Tauri invoke command map | `npm run lint:tauri-invokes` and `npm run harness:check` |
@@ -69,7 +69,8 @@ with warnings-as-errors as a required local or CI gate.
 | Change | Required sensor |
 | ------ | --------------- |
 | URL, file path, command, or HTML input | Unit tests for malicious input |
-| Credential handling | Keyring behavior check and no plaintext path |
+| Credential handling | Keyring behavior check and no plaintext path, focused storage tests, and `cargo clippy -- -D warnings` when Rust code changes |
+| Local database encryption | Focused storage tests, plaintext-upgrade cleanup proof, and no raw `sqlite3` inspection guidance |
 | External network destination | Privacy docs update and explicit user configuration |
 | External AI provider path | `npm run lint:external-ai`, AI gateway test, privacy label update, payload preview gate, and no direct provider call outside `src/services/aiGateway.ts` |
 | Browser automation | Human-in-the-loop submit behavior preserved |
