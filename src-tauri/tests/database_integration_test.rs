@@ -159,6 +159,8 @@ async fn test_all_tables_created() {
         "app_metadata",
         "integrity_check_log",
         "backup_log",
+        // Secrets
+        "secret_vault",
         // User data
         "job_repost_history",
         "cover_letter_templates",

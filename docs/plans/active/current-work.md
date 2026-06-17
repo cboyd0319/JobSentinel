@@ -78,7 +78,7 @@ Out of scope:
 | Job-card protection | Active | Keep posting-risk cues visible without implying employer intent or confirmed duplicate/source proof. |
 | Guided intake | Active | Add optional suggestions only after user review; keep broad defaults and non-technical paths first-class. |
 | Pay protection | Active | Keep missing, minimum-only, maximum-only, malformed, or broad listed-pay evidence plain and review-first. |
-| Encrypted local storage | Active | Implement encrypted SQLite plus AEAD secret vault; replace passive Keychain checks with lazy secret-use unlock and macOS native Touch ID-capable key access. |
+| Encrypted local storage | Active | AEAD `secret_vault` table and primitive exist; next: OS-protected vault key, runtime credential migration, encrypted SQLite, passphrase mode, and macOS native unlock. |
 | Quiet Shield redesign | Deferred until primary gates close | Apply Quiet Shield/Protective Navy after primary blockers close; then verify the design contract. |
 | Final Rust and agent improvement pass | Deferred until primary gates close | Run a comprehensive non-`content/` review near the end, apply accepted fixes, and verify before the final push. |
 | Cleanup and harness | Closed for proactive repo-bloat work | Reopen only for a fresh failing gate or blocker to privacy, security, docs accuracy, or verification. |
@@ -145,8 +145,8 @@ Out of scope:
    stapling, and install proof exist.
 4. Finish current verified product and QA slices in resume assistance, job-card
    protection, guided intake, and pay protection.
-5. Implement encrypted local storage: encrypted SQLite, per-row AEAD vault,
-   OS-protected default key, passphrase mode, macOS native unlock, and no
+5. Continue encrypted storage: OS-protected vault key, runtime credential
+   migration, encrypted SQLite, passphrase mode, macOS native unlock, and no
    passive Settings probes.
 6. Apply Quiet Shield/Protective Navy design decisions only after primary
    readiness gates and whole-UI verification blockers close; then verify with

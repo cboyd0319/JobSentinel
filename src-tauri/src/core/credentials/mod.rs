@@ -12,6 +12,8 @@
 //!
 //! Both paths use the same underlying keyring with consistent key naming.
 
+pub mod vault;
+
 use keyring::{Entry, Error as KeyringError};
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;

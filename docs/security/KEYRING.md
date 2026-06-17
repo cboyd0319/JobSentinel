@@ -16,9 +16,11 @@ The locked direction as of 2026-06-06 is:
 - Avoid passive secure-storage probes that trigger repeated unlock prompts.
 
 Current compatibility code still uses the OS credential store directly for
-individual credential items while the vault migration is implemented. New
-credential work should move toward the vault architecture below and should not
-add new passive Keychain checks.
+individual credential items. The `secret_vault` table and `SecretVault` AEAD
+primitive exist, but runtime credential commands, scheduler, notifications, and
+smoke tests still need to migrate to the vault-backed provider. New credential
+work should move toward the vault architecture below and should not add new
+passive Keychain checks.
 
 ## Supported Credential Stores
 
@@ -164,6 +166,24 @@ still call command APIs and must not depend on whether the backend resolves a
 secret from the compatibility OS item or the encrypted local vault.
 
 ## Code Modules
+
+### `src-tauri/src/core/credentials/vault.rs`
+
+```rust
+pub struct SecretVault;
+
+impl SecretVault {
+    pub fn generate_master_key() -> [u8; 32];
+    pub async fn store(&self, key: CredentialKey, value: &str) -> Result<(), SecretVaultError>;
+    pub async fn retrieve(&self, key: CredentialKey) -> Result<Option<String>, SecretVaultError>;
+    pub async fn delete(&self, key: CredentialKey) -> Result<(), SecretVaultError>;
+    pub async fn exists(&self, key: CredentialKey) -> Result<bool, SecretVaultError>;
+}
+```
+
+The vault uses `XChaCha20Poly1305`, per-row random 24-byte nonces, and
+associated data shaped as `jobsentinel.secret-vault.v1:<credential-key>`.
+Disabled LinkedIn credential keys are rejected before storage.
 
 ### `src-tauri/src/core/credentials/mod.rs`
 

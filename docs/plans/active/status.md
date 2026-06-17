@@ -106,9 +106,9 @@ The v2.9.0 goal adds four durable release-readiness requirements:
    predictions.
 6. Continue macOS readiness docs and checks without claiming Gatekeeper-ready
    distribution before Apple credentials exist.
-7. Continue encrypted local storage and saved-secret UX: encrypted SQLite,
-   per-row AEAD vault rows, OS-protected key, passphrase mode, macOS native
-   unlock, and no passive secure-storage prompts.
+7. Continue encrypted local storage and saved-secret UX: AEAD vault rows now
+   exist; next are encrypted SQLite, OS-protected key, passphrase mode, macOS
+   native unlock, runtime migration, and no passive secure-storage prompts.
 8. Keep harness work focused on bounded startup context, runnable verification,
    privacy/security gates, and docs accuracy. Do not add new ceremony unless it
    prevents a repeated failure.
