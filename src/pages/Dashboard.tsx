@@ -397,6 +397,21 @@ export default function Dashboard({
     [toast],
   );
 
+  useEffect(() => {
+    if (!researchCompany) return;
+
+    const handleResearchEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setResearchCompany(null);
+      }
+    };
+
+    document.addEventListener("keydown", handleResearchEscape);
+    return () => {
+      document.removeEventListener("keydown", handleResearchEscape);
+    };
+  }, [researchCompany]);
+
   // Keyboard navigation
   const { selectedIndex, isKeyboardActive } = useKeyboardNavigation({
     items: filters.filteredAndSortedJobs,
