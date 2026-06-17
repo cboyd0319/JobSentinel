@@ -10,7 +10,8 @@ The storage model as of 2026-06-17 is:
 - Store secrets in a local SQLite secret-vault table as per-row AEAD envelopes.
 - Protect the database key and vault master key with the operating system
   credential store by default.
-- Offer an advanced user passphrase mode that wraps the vault key.
+- Support an advanced user passphrase mode that wraps the vault key with
+  Argon2id and XChaCha20-Poly1305.
 - On macOS, use native Keychain and LocalAuthentication APIs so Touch ID can
   satisfy user-presence prompts when the device and policy allow it.
 - Avoid passive secure-storage probes that trigger repeated unlock prompts.
@@ -20,16 +21,17 @@ use `CredentialService`. Active secrets are stored in the `secret_vault` table
 as AEAD envelopes; the OS credential store protects one vault key item and is
 used for legacy fallback only when a secret is explicitly retrieved. Status
 checks read SQLite vault metadata only and do not unlock the OS credential
-store. Remaining storage work is passphrase mode and native macOS
-unlock/user-presence support.
+store. Passphrase backend commands can wrap, unlock, and disable wrapping for
+the credential vault key. Remaining storage work is Settings UI exposure and
+native macOS unlock/user-presence support.
 
 ## Supported Credential Stores
 
 | Platform | Current runtime path | Remaining target |
 | -------- | -------------------- | ---------------- |
-| Windows | SQLCipher database, encrypted SQLite vault rows, and database/vault keys protected by Windows Credential Manager through `keyring` | Equivalent user-presence policy when available |
-| macOS | SQLCipher database, encrypted SQLite vault rows, and database/vault keys protected by macOS Keychain through `keyring` | Native `Security.framework` plus `LocalAuthentication` unlock |
-| Linux | SQLCipher database, encrypted SQLite vault rows, and database/vault keys protected by Secret Service through `keyring` | Passphrase mode available |
+| Windows | SQLCipher database, encrypted SQLite vault rows, database/vault keys protected by Windows Credential Manager through `keyring`, and optional passphrase wrapping for the vault key | Equivalent user-presence policy when available |
+| macOS | SQLCipher database, encrypted SQLite vault rows, database/vault keys protected by macOS Keychain through `keyring`, and optional passphrase wrapping for the vault key | Native `Security.framework` plus `LocalAuthentication` unlock |
+| Linux | SQLCipher database, encrypted SQLite vault rows, database/vault keys protected by Secret Service through `keyring`, and optional passphrase wrapping for the vault key | Native user-presence support when available |
 
 The default mode optimizes for user experience and local device security: the
 user unlocks once when a secret is actually needed, then JobSentinel reuses the
@@ -94,11 +96,16 @@ Target default key mode:
 
 Advanced passphrase mode:
 
-1. Ask the user for a passphrase only after explaining recovery tradeoffs.
-2. Derive a wrapping key with a memory-hard KDF such as Argon2id.
-3. Store only salt, KDF parameters, and wrapped vault key metadata.
-4. Never store the passphrase.
-5. Require the user to unlock after app start before secret use.
+1. Ask the user for a passphrase only after explaining recovery tradeoffs in
+   the UI.
+2. Derive a wrapping key with Argon2id.
+3. Wrap the vault key with XChaCha20-Poly1305 and fixed associated data.
+4. Store only salt, KDF parameters, nonce, algorithm metadata, and wrapped
+   vault-key ciphertext in `credential_key_wrapping`.
+5. Never store the passphrase.
+6. Remove the raw `jobsentinel_vault_key` OS keyring item after wrapping
+   succeeds in production mode.
+7. Require the user to unlock after app start before secret use.
 
 macOS implementation target:
 
@@ -218,12 +225,17 @@ impl CredentialService {
     pub async fn delete(&self, key: CredentialKey) -> Result<(), String>;
     pub async fn exists(&self, key: CredentialKey) -> Result<bool, String>;
     pub async fn list_status(&self) -> Vec<CredentialPresence>;
+    pub async fn unlock_status(&self) -> Result<CredentialUnlockState, String>;
+    pub async fn enable_passphrase_lock(&self, passphrase: &str) -> Result<(), String>;
+    pub async fn unlock_passphrase_vault(&self, passphrase: &str) -> Result<(), String>;
+    pub async fn disable_passphrase_lock(&self, passphrase: &str) -> Result<(), String>;
 }
 ```
 
 `CredentialService` is the runtime provider. `exists` and `list_status` read
 vault row metadata only. `retrieve` migrates a legacy OS keyring item into the
-vault only when a secret is explicitly needed.
+vault only when a secret is explicitly needed. Passphrase status also reads
+SQLite metadata only.
 
 ### Legacy `CredentialStore`
 
@@ -256,11 +268,28 @@ pub async fn has_credential(key: String) -> Result<bool, String>;
 
 #[tauri::command]
 pub async fn get_credential_status() -> Result<Vec<CredentialStatus>, String>;
+
+#[tauri::command]
+pub async fn get_credential_unlock_status() -> Result<CredentialUnlockStatus, String>;
+
+#[tauri::command]
+pub async fn enable_credential_passphrase(passphrase: String) -> Result<(), String>;
+
+#[tauri::command]
+pub async fn unlock_credential_vault(passphrase: String) -> Result<(), String>;
+
+#[tauri::command]
+pub async fn disable_credential_passphrase(passphrase: String) -> Result<(), String>;
 ```
 
 `get_credential_status` returns non-secret entries shaped as
 `{ key, exists, available }`. `available: false` means secure storage could not
 be checked and must not be shown as either saved or missing.
+
+`get_credential_unlock_status` returns non-secret lock state shaped as
+`{ mode, configured, unlocked }`. It must not touch the OS credential store.
+Passphrase command inputs are never logged and command errors must not echo the
+passphrase.
 
 ## Migration From Plaintext Config
 
@@ -328,6 +357,8 @@ attempted action fails because secure storage could not be unlocked.
   `secret_vault` table.
 - Runtime credentials are encrypted twice at rest: by the SQLCipher database
   and by per-row AEAD envelopes.
+- Passphrase mode wraps only the credential-vault master key. It does not
+  replace SQLCipher database-key protection.
 - Do not store secret values as plaintext SQLite, app config, localStorage,
   logs, screenshots, support reports, or unencrypted backups.
 - JobSentinel stores credentials under service name `JobSentinel`.
@@ -401,8 +432,9 @@ should remain empty during normal use:
 
 1. Check credential status in Settings.
 2. Re-enter credentials that are missing or need rotation.
-3. Verify the OS credential store is unlocked.
-4. On Linux, confirm a Secret Service provider is running.
+3. If passphrase lock is enabled, unlock the credential vault in Settings.
+4. Verify the OS credential store is unlocked.
+5. On Linux, confirm a Secret Service provider is running.
 
 ### Linux Secret Service
 
@@ -461,22 +493,17 @@ Credential tests must not write real user secrets.
 Current compatibility path:
 
 ```toml
+argon2 = { version = "=0.5.3", default-features = false, features = ["alloc", "zeroize"] }
+chacha20poly1305 = "=0.10.1"
+zeroize = "=1.9.0"
 tauri-plugin-secure-storage = "=1.5.0"
 keyring = "=4.1.1"
+libsqlite3-sys = { version = "=0.37.0", default-features = false, features = ["bundled-sqlcipher-vendored-openssl"] }
 ```
 
-Target macOS vault-key path:
-
-```toml
-security-framework = "3"
-security-framework-sys = "2"
-objc2-local-authentication = "0.3"
-block2 = "0.6"
-```
-
-Target vault cryptography should use a reviewed Rust AEAD crate such as
-`chacha20poly1305` for XChaCha20-Poly1305 or `aes-gcm` where AES-GCM is
-required. Passphrase mode should use a memory-hard KDF crate such as `argon2`.
+Any future native macOS vault-key dependency must be exact-pinned to the latest
+stable compatible crate version when implemented. Do not add unpinned target
+dependency examples to docs or manifests.
 
 ## Related Documentation
 

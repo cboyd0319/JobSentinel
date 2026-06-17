@@ -15,7 +15,7 @@ models, and best practices.
 
 | Document                                           | Description                     | Topics Covered                                                     |
 | -------------------------------------------------- | ------------------------------- | ------------------------------------------------------------------ |
-| [**KEYRING.md**](./KEYRING.md)                     | Local secret-vault and Keychain integration | SQLCipher database, encrypted vault rows, OS-protected keys, macOS Keychain, Touch ID, and passphrase work |
+| [**KEYRING.md**](./KEYRING.md)                     | Local secret-vault and Keychain integration | SQLCipher database, encrypted vault rows, OS-protected keys, macOS Keychain, Touch ID target, and passphrase wrapping |
 | [**XSS_PREVENTION.md**](./XSS_PREVENTION.md)       | Cross-site scripting protection | DOMPurify, HTML sanitization, Resume Builder security              |
 | [**URL_VALIDATION.md**](./URL_VALIDATION.md)       | Secure URL parsing              | URL parsing vs string matching, bypass prevention, SSRF protection |
 | [**COMMAND_EXECUTION.md**](./COMMAND_EXECUTION.md) | External command security       | Path canonicalization, command injection prevention, OCR security  |
@@ -36,7 +36,7 @@ models, and best practices.
 | Feature                   | Security Measures                                    | Documentation                                  |
 | ------------------------- | ---------------------------------------------------- | ---------------------------------------------- |
 | **Resume Builder**        | DOMPurify sanitization, XSS prevention               | [XSS_PREVENTION.md](./XSS_PREVENTION.md)       |
-| **Credential Storage**    | SQLCipher database, encrypted local vault rows, OS-protected keys, no plaintext secrets in config | [KEYRING.md](./KEYRING.md)                     |
+| **Credential Storage**    | SQLCipher database, encrypted local vault rows, OS-protected keys or passphrase wrapping, no plaintext secrets in config | [KEYRING.md](./KEYRING.md)                     |
 | **Webhook Notifications** | URL parsing, HTTPS-only, allowlisting                | [WEBHOOK_SECURITY.md](./WEBHOOK_SECURITY.md)   |
 | **OCR (Resume Parsing)**  | Path canonicalization, no shell invocation           | [COMMAND_EXECUTION.md](./COMMAND_EXECUTION.md) |
 | **Database**              | SQLCipher at rest, SQLx parameterized queries, SQL injection prevention | [KEYRING.md](./KEYRING.md)                     |
@@ -51,7 +51,7 @@ models, and best practices.
 | **Command Injection**          | No shell invocation, argument validation    | [COMMAND_EXECUTION.md](./COMMAND_EXECUTION.md) |
 | **Path Traversal**             | Path canonicalization, directory validation | [COMMAND_EXECUTION.md](./COMMAND_EXECUTION.md) |
 | **URL Bypass Attacks**         | Proper URL parsing with `url` crate         | [URL_VALIDATION.md](./URL_VALIDATION.md)       |
-| **Credential Theft**           | SQLCipher at rest, AEAD-encrypted vault rows, OS-protected keys, and access control | [KEYRING.md](./KEYRING.md)                     |
+| **Credential Theft**           | SQLCipher at rest, AEAD-encrypted vault rows, OS-protected keys, passphrase wrapping, and access control | [KEYRING.md](./KEYRING.md)                     |
 | **SQL Injection**              | Parameterized queries (SQLx)                | [../../SECURITY.md](../../SECURITY.md)         |
 | **MITM (Man-in-the-Middle)**   | HTTPS-only, TLS certificate validation      | [WEBHOOK_SECURITY.md](./WEBHOOK_SECURITY.md)   |
 

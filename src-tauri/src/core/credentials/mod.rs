@@ -9,10 +9,11 @@
 //! - **Backend**: Uses `CredentialService` for scheduler, notifications, smoke tests, and commands
 //! - **Compatibility**: Uses `CredentialStore` only for legacy fallback and live keyring tests
 
+mod passphrase;
 mod service;
 pub mod vault;
 
-pub use service::CredentialService;
+pub use service::{CredentialService, CredentialUnlockMode, CredentialUnlockState};
 pub use vault::{SecretVault, SecretVaultError};
 
 use keyring::{Entry, Error as KeyringError};

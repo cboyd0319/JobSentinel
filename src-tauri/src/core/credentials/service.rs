@@ -9,14 +9,40 @@ use std::{fmt, sync::Arc};
 use tokio::sync::OnceCell;
 use zeroize::Zeroizing;
 
-use super::vault::MASTER_KEY_LEN;
 use super::{
+    passphrase::{self, PassphraseError},
     reject_disabled_credential_storage, secure_storage_error, validate_credential_value,
+    vault::MASTER_KEY_LEN,
     CredentialKey, CredentialPresence, CredentialStore, SecretVault, SecretVaultError,
     SERVICE_NAME,
 };
 
 const VAULT_KEY_NAME: &str = "jobsentinel_vault_key";
+
+/// App-level credential vault lock mode.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum CredentialUnlockMode {
+    System,
+    Passphrase,
+}
+
+impl CredentialUnlockMode {
+    #[must_use]
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::System => passphrase::MODE_SYSTEM,
+            Self::Passphrase => passphrase::MODE_PASSPHRASE,
+        }
+    }
+}
+
+/// Non-secret credential-vault unlock state for settings diagnostics.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct CredentialUnlockState {
+    pub mode: CredentialUnlockMode,
+    pub configured: bool,
+    pub unlocked: bool,
+}
 
 /// Credential access service used by Tauri commands and backend workers.
 pub struct CredentialService {
@@ -165,6 +191,99 @@ impl CredentialService {
         statuses
     }
 
+    /// Return non-secret vault-lock status without touching the OS keyring.
+    pub async fn unlock_status(&self) -> Result<CredentialUnlockState, String> {
+        let Some(pool) = &self.pool else {
+            return Ok(CredentialUnlockState {
+                mode: CredentialUnlockMode::System,
+                configured: false,
+                unlocked: true,
+            });
+        };
+
+        let configured = passphrase::is_configured(pool)
+            .await
+            .map_err(sanitize_passphrase_error)?;
+
+        if configured {
+            Ok(CredentialUnlockState {
+                mode: CredentialUnlockMode::Passphrase,
+                configured: true,
+                unlocked: self.master_key.get().is_some(),
+            })
+        } else {
+            Ok(CredentialUnlockState {
+                mode: CredentialUnlockMode::System,
+                configured: false,
+                unlocked: true,
+            })
+        }
+    }
+
+    /// Enable passphrase wrapping for the credential-vault master key.
+    pub async fn enable_passphrase_lock(&self, passphrase: &str) -> Result<(), String> {
+        let Some(pool) = &self.pool else {
+            return Err(secure_storage_error());
+        };
+
+        let key = self.master_key(true).await?;
+        passphrase::wrap_key(pool, passphrase, copy_key_bytes(key.as_ref()))
+            .await
+            .map_err(sanitize_passphrase_error)?;
+
+        if self.fixed_master_key.is_none() {
+            if let Err(error) = delete_vault_key_from_keyring().await {
+                let _ = passphrase::delete_config(pool).await;
+                return Err(error);
+            }
+        }
+
+        Ok(())
+    }
+
+    /// Unlock a passphrase-protected credential vault for this app session.
+    pub async fn unlock_passphrase_vault(&self, passphrase: &str) -> Result<(), String> {
+        let Some(pool) = &self.pool else {
+            return Err(secure_storage_error());
+        };
+
+        if !passphrase::is_configured(pool)
+            .await
+            .map_err(sanitize_passphrase_error)?
+        {
+            return Err(PassphraseError::NotConfigured.to_string());
+        }
+
+        if self.master_key.get().is_some() {
+            return Ok(());
+        }
+
+        let key = passphrase::unwrap_key(pool, passphrase)
+            .await
+            .map_err(sanitize_passphrase_error)?;
+        self.cache_master_key(key)
+    }
+
+    /// Disable passphrase wrapping and return the vault key to the OS keyring.
+    pub async fn disable_passphrase_lock(&self, passphrase: &str) -> Result<(), String> {
+        let Some(pool) = &self.pool else {
+            return Err(secure_storage_error());
+        };
+
+        let key = passphrase::unwrap_key(pool, passphrase)
+            .await
+            .map_err(sanitize_passphrase_error)?;
+
+        if self.fixed_master_key.is_none() {
+            store_vault_key_in_keyring(key.as_ref()).await?;
+        }
+
+        passphrase::delete_config(pool)
+            .await
+            .map_err(sanitize_passphrase_error)?;
+        self.cache_master_key(key)
+    }
+
     async fn vault(&self, create_if_missing: bool) -> Result<Option<SecretVault>, String> {
         let Some(pool) = &self.pool else {
             return Ok(None);
@@ -179,6 +298,15 @@ impl CredentialService {
     ) -> Result<Arc<Zeroizing<[u8; MASTER_KEY_LEN]>>, String> {
         self.master_key
             .get_or_try_init(|| async move {
+                if let Some(pool) = &self.pool {
+                    if passphrase::is_configured(pool)
+                        .await
+                        .map_err(sanitize_passphrase_error)?
+                    {
+                        return Err(secure_storage_error());
+                    }
+                }
+
                 let key = if let Some(fixed_key) = &self.fixed_master_key {
                     let mut bytes = [0_u8; MASTER_KEY_LEN];
                     bytes.copy_from_slice(fixed_key.as_ref());
@@ -191,6 +319,18 @@ impl CredentialService {
             })
             .await
             .cloned()
+    }
+
+    fn cache_master_key(&self, key: Zeroizing<[u8; MASTER_KEY_LEN]>) -> Result<(), String> {
+        if self.master_key.get().is_some() {
+            return Ok(());
+        }
+
+        if self.master_key.set(Arc::new(key)).is_err() && self.master_key.get().is_none() {
+            return Err(secure_storage_error());
+        }
+
+        Ok(())
     }
 
     async fn vault_row_exists(&self, key: CredentialKey) -> Result<bool, String> {
@@ -242,6 +382,37 @@ impl CredentialService {
     }
 }
 
+async fn store_vault_key_in_keyring(key: &[u8]) -> Result<(), String> {
+    if key.len() != MASTER_KEY_LEN {
+        return Err(secure_storage_error());
+    }
+
+    let mut key_bytes = [0_u8; MASTER_KEY_LEN];
+    key_bytes.copy_from_slice(key);
+    let key = Zeroizing::new(key_bytes);
+    tokio::task::spawn_blocking(move || {
+        let entry = Entry::new(SERVICE_NAME, VAULT_KEY_NAME).map_err(|_| secure_storage_error())?;
+        let encoded_key = Zeroizing::new(hex::encode(key.as_ref()));
+        entry
+            .set_password(encoded_key.as_str())
+            .map_err(|_| secure_storage_error())
+    })
+    .await
+    .map_err(|_| secure_storage_error())?
+}
+
+async fn delete_vault_key_from_keyring() -> Result<(), String> {
+    tokio::task::spawn_blocking(move || {
+        let entry = Entry::new(SERVICE_NAME, VAULT_KEY_NAME).map_err(|_| secure_storage_error())?;
+        match entry.delete_credential() {
+            Ok(()) | Err(KeyringError::NoEntry) => Ok(()),
+            Err(_) => Err(secure_storage_error()),
+        }
+    })
+    .await
+    .map_err(|_| secure_storage_error())?
+}
+
 async fn load_vault_key_from_keyring(
     create_if_missing: bool,
 ) -> Result<[u8; MASTER_KEY_LEN], String> {
@@ -286,6 +457,22 @@ fn sanitize_vault_error(error: SecretVaultError) -> String {
         | SecretVaultError::Storage
         | SecretVaultError::UnsupportedEnvelope => secure_storage_error(),
     }
+}
+
+fn sanitize_passphrase_error(error: PassphraseError) -> String {
+    match error {
+        PassphraseError::AlreadyConfigured
+        | PassphraseError::InvalidPassphrase
+        | PassphraseError::NotConfigured
+        | PassphraseError::Policy => error.to_string(),
+        PassphraseError::Storage | PassphraseError::UnsupportedEnvelope => secure_storage_error(),
+    }
+}
+
+fn copy_key_bytes(key: &Zeroizing<[u8; MASTER_KEY_LEN]>) -> [u8; MASTER_KEY_LEN] {
+    let mut bytes = [0_u8; MASTER_KEY_LEN];
+    bytes.copy_from_slice(key.as_ref());
+    bytes
 }
 
 #[cfg(test)]

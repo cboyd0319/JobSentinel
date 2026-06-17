@@ -270,6 +270,10 @@ fn main() {
             commands::credentials::delete_credential,
             commands::credentials::has_credential,
             commands::credentials::get_credential_status,
+            commands::credentials::get_credential_unlock_status,
+            commands::credentials::enable_credential_passphrase,
+            commands::credentials::unlock_credential_vault,
+            commands::credentials::disable_credential_passphrase,
             // Legacy LinkedIn source-policy commands
             commands::linkedin_auth::linkedin_login,
             commands::linkedin_auth::store_linkedin_cookie,

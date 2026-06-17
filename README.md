@@ -350,7 +350,7 @@ a hosted JobSentinel service.
 | Data or action | Where it lives |
 | -------------- | -------------- |
 | Search settings, saved jobs, notes, and applications | Saved on your computer |
-| Slack, Discord, Teams, email, Telegram, and USAJobs secrets | Your computer's password store |
+| Slack, Discord, Teams, email, Telegram, and USAJobs secrets | Encrypted local vault, with keys protected by your computer's password store or optional passphrase lock |
 | Desktop notifications | Your computer |
 | External alerts | Only the channels you configure |
 | Enabled job-source checks | Public job-source services or user-approved job sources and career pages; selected search details only |
@@ -359,11 +359,15 @@ a hosted JobSentinel service.
 | Optional external AI | Disabled by default; every request needs opt-in, preview, approval, minimization, and local request logging |
 | Telemetry and analytics | Not collected |
 
-Credentials use platform storage:
+Credential keys use platform storage by default:
 
 - **Windows:** Windows Credential Manager
 - **macOS:** Keychain
 - **Linux:** Secret Service, such as GNOME Keyring or KWallet
+
+Saved secret values are stored as encrypted vault rows inside the SQLCipher
+database. The platform store protects the vault and database keys; optional
+passphrase mode can protect the credential-vault key instead.
 
 JobSentinel keeps each application under your review, never clicks Submit for
 you, and does not send your profile data to an external service unless you
@@ -508,7 +512,7 @@ JobSentinel is built as a Tauri desktop app.
 | Storage | SQLite with SQLx offline mode |
 | Tests | Vitest, Playwright, Rust tests, docs harness checks |
 
-Current backend surface: **201 registered Tauri commands**.
+Current backend surface: **205 registered Tauri commands**.
 
 Common checks:
 

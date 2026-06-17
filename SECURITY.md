@@ -92,7 +92,8 @@ JobSentinel is built with privacy and security as core principles:
 - **HTTPS-only:** All webhook URLs must use HTTPS
 - **Domain allowlisting:** Only known webhook providers (Slack, Discord, Teams) allowed
 - **Path validation:** Webhook paths verified for correct structure
-- **Keyring storage:** Webhook URLs stored encrypted in OS keyring
+- **Encrypted local vault:** Webhook URLs stored as AEAD-encrypted vault rows,
+  with keys protected by OS credential storage or optional passphrase lock
 - **Documentation:** See [Webhook Security Guide](./docs/security/WEBHOOK_SECURITY.md)
 
 ## Security Documentation
@@ -101,7 +102,8 @@ Detailed security documentation is available in the `docs/security/` directory:
 
 ### Core Security Features
 
-- **[Keyring Integration](./docs/security/KEYRING.md)** - OS-native secure credential storage
+- **[Secret Vault And Keychain Integration](./docs/security/KEYRING.md)** - SQLCipher storage,
+  encrypted vault rows, OS key protection, and passphrase wrapping
 - **[XSS Prevention](./docs/security/XSS_PREVENTION.md)** - Cross-site scripting protection with DOMPurify
 - **[URL Validation](./docs/security/URL_VALIDATION.md)** - Proper URL parsing vs string prefix matching
 - **[Command Execution Security](./docs/security/COMMAND_EXECUTION.md)** - OCR and external tool security

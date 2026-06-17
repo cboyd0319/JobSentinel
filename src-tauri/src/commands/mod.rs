@@ -172,7 +172,11 @@ pub use config::{
 pub use geo::detect_location;
 
 // Credential commands
-pub use credentials::{delete_credential, get_credential_status, has_credential, store_credential};
+pub use credentials::{
+    delete_credential, disable_credential_passphrase, enable_credential_passphrase,
+    get_credential_status, get_credential_unlock_status, has_credential, store_credential,
+    unlock_credential_vault,
+};
 
 // Legacy LinkedIn source-policy commands
 pub use linkedin_auth::{

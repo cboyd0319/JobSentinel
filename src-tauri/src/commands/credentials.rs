@@ -6,6 +6,7 @@ use crate::commands::AppState;
 use crate::core::credentials::{CredentialKey, CredentialService};
 use serde::{Deserialize, Serialize};
 use tauri::State;
+use zeroize::Zeroizing;
 
 const UNKNOWN_CREDENTIAL_KEY: &str = "Unknown credential key";
 const LINKEDIN_CREDENTIALS_DISABLED: &str =
@@ -17,6 +18,14 @@ pub struct CredentialStatus {
     pub key: String,
     pub exists: bool,
     pub available: bool,
+}
+
+/// Non-secret credential vault unlock status for frontend display.
+#[derive(Debug, Serialize, Deserialize)]
+pub struct CredentialUnlockStatus {
+    pub mode: String,
+    pub configured: bool,
+    pub unlocked: bool,
 }
 
 fn parse_credential_key(key: &str) -> Result<CredentialKey, String> {
@@ -103,6 +112,55 @@ async fn get_credential_status_with_service(
         .collect())
 }
 
+async fn get_credential_unlock_status_with_service(
+    credentials: &CredentialService,
+) -> Result<CredentialUnlockStatus, String> {
+    tracing::info!("Command: get_credential_unlock_status");
+
+    let status = credentials.unlock_status().await?;
+    Ok(CredentialUnlockStatus {
+        mode: status.mode.as_str().to_string(),
+        configured: status.configured,
+        unlocked: status.unlocked,
+    })
+}
+
+async fn enable_credential_passphrase_with_service(
+    passphrase: String,
+    credentials: &CredentialService,
+) -> Result<(), String> {
+    tracing::info!("Command: enable_credential_passphrase");
+
+    let passphrase = Zeroizing::new(passphrase);
+    credentials
+        .enable_passphrase_lock(passphrase.as_str())
+        .await
+}
+
+async fn unlock_credential_vault_with_service(
+    passphrase: String,
+    credentials: &CredentialService,
+) -> Result<(), String> {
+    tracing::info!("Command: unlock_credential_vault");
+
+    let passphrase = Zeroizing::new(passphrase);
+    credentials
+        .unlock_passphrase_vault(passphrase.as_str())
+        .await
+}
+
+async fn disable_credential_passphrase_with_service(
+    passphrase: String,
+    credentials: &CredentialService,
+) -> Result<(), String> {
+    tracing::info!("Command: disable_credential_passphrase");
+
+    let passphrase = Zeroizing::new(passphrase);
+    credentials
+        .disable_passphrase_lock(passphrase.as_str())
+        .await
+}
+
 /// Store a credential in the encrypted local vault.
 #[tauri::command]
 pub async fn store_credential(
@@ -133,6 +191,41 @@ pub async fn get_credential_status(
     get_credential_status_with_service(state.credentials.as_ref()).await
 }
 
+/// Get non-secret app-level credential vault lock status.
+#[tauri::command]
+pub async fn get_credential_unlock_status(
+    state: State<'_, AppState>,
+) -> Result<CredentialUnlockStatus, String> {
+    get_credential_unlock_status_with_service(state.credentials.as_ref()).await
+}
+
+/// Enable passphrase wrapping for the credential vault.
+#[tauri::command]
+pub async fn enable_credential_passphrase(
+    passphrase: String,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
+    enable_credential_passphrase_with_service(passphrase, state.credentials.as_ref()).await
+}
+
+/// Unlock a passphrase-protected credential vault for this app session.
+#[tauri::command]
+pub async fn unlock_credential_vault(
+    passphrase: String,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
+    unlock_credential_vault_with_service(passphrase, state.credentials.as_ref()).await
+}
+
+/// Disable passphrase wrapping and return to system credential locking.
+#[tauri::command]
+pub async fn disable_credential_passphrase(
+    passphrase: String,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
+    disable_credential_passphrase_with_service(passphrase, state.credentials.as_ref()).await
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -142,6 +235,14 @@ mod tests {
         let database = Database::connect_memory().await.unwrap();
         database.migrate().await.unwrap();
         CredentialService::with_fixed_master_key(database.pool().clone(), [17_u8; 32], false)
+    }
+
+    async fn test_credentials_with_pool() -> (Database, CredentialService) {
+        let database = Database::connect_memory().await.unwrap();
+        database.migrate().await.unwrap();
+        let credentials =
+            CredentialService::with_fixed_master_key(database.pool().clone(), [17_u8; 32], false);
+        (database, credentials)
     }
 
     #[tokio::test]
@@ -209,6 +310,121 @@ mod tests {
                 .await
                 .unwrap()
         );
+    }
+
+    #[tokio::test]
+    async fn credential_unlock_status_defaults_to_system_mode_without_keyring() {
+        let credentials = test_credentials().await;
+
+        let status = get_credential_unlock_status_with_service(&credentials)
+            .await
+            .unwrap();
+
+        assert_eq!(status.mode, "system");
+        assert!(!status.configured);
+        assert!(status.unlocked);
+    }
+
+    #[tokio::test]
+    async fn passphrase_mode_locks_restarted_service_until_unlock() {
+        let (database, credentials) = test_credentials_with_pool().await;
+
+        store_credential_with_service(
+            "smtp_password".to_string(),
+            "mail-password".to_string(),
+            &credentials,
+        )
+        .await
+        .unwrap();
+        enable_credential_passphrase_with_service(
+            "correct battery staple".to_string(),
+            &credentials,
+        )
+        .await
+        .unwrap();
+
+        let restarted =
+            CredentialService::with_fixed_master_key(database.pool().clone(), [17_u8; 32], false);
+        let locked_status = get_credential_unlock_status_with_service(&restarted)
+            .await
+            .unwrap();
+        assert_eq!(locked_status.mode, "passphrase");
+        assert!(locked_status.configured);
+        assert!(!locked_status.unlocked);
+
+        assert!(
+            has_credential_with_service("smtp_password".to_string(), &restarted)
+                .await
+                .unwrap()
+        );
+        let locked_err = restarted
+            .retrieve(CredentialKey::SmtpPassword)
+            .await
+            .unwrap_err();
+        assert!(
+            !locked_err.contains("mail-password"),
+            "locked vault error must not echo stored secret: {locked_err}"
+        );
+
+        unlock_credential_vault_with_service("correct battery staple".to_string(), &restarted)
+            .await
+            .unwrap();
+
+        assert_eq!(
+            restarted
+                .retrieve(CredentialKey::SmtpPassword)
+                .await
+                .unwrap(),
+            Some("mail-password".to_string())
+        );
+    }
+
+    #[tokio::test]
+    async fn wrong_passphrase_error_does_not_echo_input() {
+        let (database, credentials) = test_credentials_with_pool().await;
+        enable_credential_passphrase_with_service(
+            "correct battery staple".to_string(),
+            &credentials,
+        )
+        .await
+        .unwrap();
+
+        let restarted =
+            CredentialService::with_fixed_master_key(database.pool().clone(), [17_u8; 32], false);
+        let err =
+            unlock_credential_vault_with_service("wrong secret value".to_string(), &restarted)
+                .await
+                .unwrap_err();
+
+        assert_eq!(err, "Passphrase could not unlock credential storage");
+        assert!(!err.contains("wrong secret value"));
+    }
+
+    #[tokio::test]
+    async fn passphrase_mode_can_return_to_system_locking() {
+        let (database, credentials) = test_credentials_with_pool().await;
+        enable_credential_passphrase_with_service(
+            "correct battery staple".to_string(),
+            &credentials,
+        )
+        .await
+        .unwrap();
+
+        disable_credential_passphrase_with_service(
+            "correct battery staple".to_string(),
+            &credentials,
+        )
+        .await
+        .unwrap();
+
+        let restarted =
+            CredentialService::with_fixed_master_key(database.pool().clone(), [17_u8; 32], false);
+        let status = get_credential_unlock_status_with_service(&restarted)
+            .await
+            .unwrap();
+        assert_eq!(status.mode, "system");
+        assert!(!status.configured);
+        assert!(status.unlocked);
     }
 
     #[tokio::test]

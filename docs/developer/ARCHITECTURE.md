@@ -225,7 +225,7 @@ total_score = (
 **Purpose**: Local secret boundary
 
 - Frontend reaches saved secrets only through Tauri credential commands.
-- Backend notification and source code uses `CredentialStore` directly.
+- Backend notification and source code uses `CredentialService`.
 - Both paths use `CredentialKey` names for vault rows and legacy cleanup keys.
 - Legacy LinkedIn entries are retained only for cleanup and redaction, not new
   storage.
@@ -233,6 +233,9 @@ total_score = (
   with per-row AEAD and protects one vault key with the OS credential store.
   The direct OS credential-store path remains only for legacy fallback and live
   keyring tests.
+- Optional passphrase mode wraps the credential-vault key with Argon2id and
+  XChaCha20-Poly1305 metadata in `credential_key_wrapping`; status checks stay
+  SQLite-only and do not prompt for secure storage.
 - macOS target implementation uses native Keychain plus LocalAuthentication for
   Touch ID-capable user-presence unlock instead of generic passive keyring
   probes.

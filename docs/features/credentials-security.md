@@ -1,7 +1,7 @@
 # Saved Secrets
 
-JobSentinel keeps alert passwords, access codes, and private connection links in
-your computer's password store. They should not live in plain app files,
+JobSentinel keeps alert passwords, access codes, and private connection links
+inside an encrypted local vault. They should not live in plain app files,
 screenshots, shared notes, support reports, or logs.
 
 ## Why It Matters
@@ -10,8 +10,9 @@ Job-search data is sensitive, and alert setup details can be sensitive too. A
 private connection link or app password can let someone else send alerts as you
 or connect to an account you own.
 
-JobSentinel reduces that risk by saving those details in the password store
-already built into your operating system.
+JobSentinel reduces that risk by encrypting saved details inside the local app
+database and protecting the vault key with your computer's password store by
+default.
 
 ## What Gets Saved There
 
@@ -25,7 +26,7 @@ already built into your operating system.
 | USAJobs access code | USAJobs checks |
 
 Search preferences, alert choices, saved jobs, applications, private notes, and
-salary floors stay in JobSentinel's local app data, not in the password store.
+salary floors also stay in JobSentinel's encrypted local app data.
 
 ## What You May See
 
@@ -36,9 +37,14 @@ salary floors stay in JobSentinel's local app data, not in the password store.
 | Linux | Linux password store, such as GNOME Keyring or KWallet |
 
 If your computer asks whether JobSentinel can use a saved item, allow
-JobSentinel if you want that alert or job-source connection to work.
-JobSentinel should ask only when it is saving, testing, or using that saved
-detail, not repeatedly while you browse Settings.
+JobSentinel if you want saved details to work. JobSentinel should ask only when
+it is saving, testing, unlocking, or using a saved detail, not repeatedly while
+you browse Settings.
+
+JobSentinel can also use an advanced passphrase lock for the saved-detail
+vault. If that lock is enabled, you must unlock it after app start before saved
+details can be used. If the passphrase is lost, saved details cannot be
+recovered.
 
 Settings may also say **Saved details need confirmation**. That means
 JobSentinel expects a saved detail, but has not opened the password store during
@@ -83,6 +89,7 @@ Review every support report before sharing it.
   job-source connection that needs them.
 - Settings can show whether a detail is saved or needs confirmation, but must
   not show the saved secret value.
+- Passive Settings status must not trigger password-store prompts.
 - Safe support reports and logs must redact secrets and private connection
   details.
 - JobSentinel validates chat connection links before saving them.

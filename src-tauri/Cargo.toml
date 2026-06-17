@@ -32,6 +32,7 @@ tauri-plugin-secure-storage = "=1.5.0"
 keyring = "=4.1.1"
 
 # Local secret vault encryption
+argon2 = { version = "=0.5.3", default-features = false, features = ["alloc", "zeroize"] }
 chacha20poly1305 = "=0.10.1"
 zeroize = "=1.9.0"
 
