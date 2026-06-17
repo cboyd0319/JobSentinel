@@ -137,9 +137,8 @@ Out of scope:
 
 ## Next Work
 
-1. Build and execute the whole-UI manual verification map for every route,
-   click, action, modal, toast, form, settings/import/keyboard path,
-   empty/loading/error state, and narrow width before calling v2.9.0 done.
+1. Keep the whole-UI manual verification ledger current; rerun affected
+   route/action/state checks after any UI change before calling v2.9.0 done.
 2. After primary gates close, run the final Rust expert plus multi-agent
    improvement analysis across non-`content/` surfaces, apply accepted fixes,
    and verify them before final release readiness.
