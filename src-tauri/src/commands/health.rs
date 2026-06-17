@@ -12,7 +12,8 @@ use crate::core::health::{
     get_expiring_credentials as fetch_expiring_credentials, get_health_summary as health_summary,
     get_latest_source_request as latest_source_request, get_scraper_configs as scraper_configs,
     get_scraper_runs as scraper_runs, is_known_scraper_name,
-    run_all_smoke_tests as all_smoke_tests, run_smoke_test, set_scraper_enabled as scraper_enabled,
+    run_all_smoke_tests_with_credentials as all_smoke_tests,
+    run_smoke_test_with_credentials as run_smoke_test, set_scraper_enabled as scraper_enabled,
     CredentialHealth, HealthSummary, ScraperConfig, ScraperHealthMetrics, ScraperRun,
     SmokeTestResult, SourceRequestSummary,
 };
@@ -239,9 +240,14 @@ pub async fn run_scraper_smoke_test(
 ) -> Result<SmokeTestResult, String> {
     validate_scraper_name(&scraper_name)?;
     let config = state.config.read().await.clone();
-    run_smoke_test(&state.database, &config, &scraper_name)
-        .await
-        .map_err(|e| health_command_error("Failed to run scraper smoke test", e))
+    run_smoke_test(
+        &state.database,
+        &config,
+        &scraper_name,
+        state.credentials.as_ref(),
+    )
+    .await
+    .map_err(|e| health_command_error("Failed to run scraper smoke test", e))
 }
 
 /// Run smoke tests for all scrapers
@@ -250,7 +256,7 @@ pub async fn run_all_smoke_tests(
     state: State<'_, AppState>,
 ) -> Result<Vec<SmokeTestResult>, String> {
     let config = state.config.read().await.clone();
-    all_smoke_tests(&state.database, &config)
+    all_smoke_tests(&state.database, &config, state.credentials.as_ref())
         .await
         .map_err(|e| health_command_error("Failed to run scraper smoke tests", e))
 }

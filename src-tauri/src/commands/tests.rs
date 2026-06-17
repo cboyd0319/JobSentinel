@@ -5,6 +5,7 @@ mod tests {
     use crate::commands::AppState;
     use crate::core::{
         config::{AlertConfig, Config, LocationPreferences},
+        credentials::CredentialService,
         db::{Database, Job},
     };
     use chrono::Utc;
@@ -70,6 +71,11 @@ mod tests {
 
         AppState {
             config: Arc::new(RwLock::new(config)),
+            credentials: Arc::new(CredentialService::with_fixed_master_key(
+                database.pool().clone(),
+                [23_u8; 32],
+                false,
+            )),
             database: Arc::new(database),
             scheduler: None,
             scheduler_status: Arc::new(RwLock::new(SchedulerStatus::default())),

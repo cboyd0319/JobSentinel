@@ -8,7 +8,7 @@ use chacha20poly1305::{
     Key, XChaCha20Poly1305, XNonce,
 };
 use sqlx::{sqlite::SqlitePool, Row};
-use std::fmt;
+use std::{fmt, sync::Arc};
 use zeroize::Zeroizing;
 
 use super::{
@@ -18,7 +18,7 @@ use super::{
 
 const ALGORITHM: &str = "xchacha20poly1305";
 const KEY_VERSION: i64 = 1;
-const MASTER_KEY_LEN: usize = 32;
+pub const MASTER_KEY_LEN: usize = 32;
 const NONCE_LEN: usize = 24;
 
 /// Sanitized errors from local secret-vault operations.
@@ -68,7 +68,7 @@ impl From<std::string::FromUtf8Error> for SecretVaultError {
 /// SQLite-backed encrypted credential vault.
 pub struct SecretVault {
     pool: SqlitePool,
-    master_key: Zeroizing<[u8; MASTER_KEY_LEN]>,
+    master_key: Arc<Zeroizing<[u8; MASTER_KEY_LEN]>>,
 }
 
 impl SecretVault {
@@ -83,10 +83,16 @@ impl SecretVault {
     /// Create a vault backed by an existing SQLite pool.
     #[must_use]
     pub fn new(pool: SqlitePool, master_key: [u8; MASTER_KEY_LEN]) -> Self {
-        Self {
-            pool,
-            master_key: Zeroizing::new(master_key),
-        }
+        Self::from_shared_key(pool, Arc::new(Zeroizing::new(master_key)))
+    }
+
+    /// Create a vault backed by a session-cached master key.
+    #[must_use]
+    pub fn from_shared_key(
+        pool: SqlitePool,
+        master_key: Arc<Zeroizing<[u8; MASTER_KEY_LEN]>>,
+    ) -> Self {
+        Self { pool, master_key }
     }
 
     /// Store or replace an encrypted credential. Empty values delete the row.
@@ -209,7 +215,7 @@ impl SecretVault {
     }
 
     fn cipher(&self) -> XChaCha20Poly1305 {
-        XChaCha20Poly1305::new(Key::from_slice(self.master_key.as_ref()))
+        XChaCha20Poly1305::new(Key::from_slice(self.master_key.as_ref().as_ref()))
     }
 }
 

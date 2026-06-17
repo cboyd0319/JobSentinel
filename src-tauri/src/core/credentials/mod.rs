@@ -1,18 +1,19 @@
 //! Secure Credential Storage
 //!
-//! Provides secure credential storage using the OS-native keyring:
-//! - macOS: Keychain
-//! - Windows: Credential Manager
-//! - Linux: Secret Service API (libsecret)
+//! Provides credential key definitions, a vault-backed runtime provider, and
+//! a legacy OS credential-store compatibility path.
 //!
 //! ## Architecture
 //!
 //! - **Frontend**: Uses Tauri credential commands (`store_credential`, `has_credential`, etc.)
-//! - **Backend**: Uses `keyring` crate directly for Rust access (scheduler, notify)
-//!
-//! Both paths use the same underlying keyring with consistent key naming.
+//! - **Backend**: Uses `CredentialService` for scheduler, notifications, smoke tests, and commands
+//! - **Compatibility**: Uses `CredentialStore` only for legacy fallback and live keyring tests
 
+mod service;
 pub mod vault;
+
+pub use service::CredentialService;
+pub use vault::{SecretVault, SecretVaultError};
 
 use keyring::{Entry, Error as KeyringError};
 use serde::{Deserialize, Serialize};
@@ -20,14 +21,8 @@ use std::str::FromStr;
 
 /// Enumeration of all credential types supported by JobSentinel.
 ///
-/// Each variant maps to a specific keyring entry with a prefixed key name.
-/// Credentials are stored securely in the OS-native keyring backend.
-///
-/// # Platform Support
-///
-/// - macOS: Keychain
-/// - Windows: Credential Manager
-/// - Linux: Secret Service API (libsecret)
+/// Each variant maps to a specific storage identifier used as an encrypted
+/// vault row key and, during legacy fallback, as an OS credential item name.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum CredentialKey {
@@ -60,7 +55,8 @@ pub struct CredentialPresence {
 impl CredentialKey {
     /// Convert credential key to its storage identifier.
     ///
-    /// All keys are prefixed with `jobsentinel_` for namespacing in the keyring.
+    /// All keys are prefixed with `jobsentinel_` for namespacing in the vault
+    /// and legacy keyring.
     pub fn as_str(&self) -> &'static str {
         match self {
             Self::SmtpPassword => "jobsentinel_smtp_password",
@@ -252,17 +248,18 @@ fn validate_webhook_credential(
     Ok(())
 }
 
-/// Secure credential storage using OS-native keyring.
+/// Legacy secure credential storage using the OS-native keyring.
 ///
-/// Provides direct Rust access to credentials stored in the OS keyring.
-/// Used by backend modules (scheduler, notify) that don't have access to
-/// Tauri's JS API.
+/// This compatibility path is retained for migration fallback, legacy cleanup,
+/// and opt-in live keyring tests. Runtime app code should use
+/// `CredentialService`, which stores encrypted secret rows in SQLite and only
+/// touches the OS credential store to protect or migrate the vault key.
 ///
 /// # Architecture
 ///
-/// - Frontend uses Tauri credential commands backed by this store
-/// - Backend uses this `CredentialStore` (Rust API)
-/// - Both access the same underlying keyring entries
+/// - Frontend uses Tauri credential commands backed by `CredentialService`
+/// - Backend uses `CredentialService` for scheduled and user-triggered work
+/// - Legacy fallback reads these keyring entries only when a secret is needed
 ///
 /// # Platform Backends
 ///
@@ -405,20 +402,21 @@ impl CredentialStore {
     }
 }
 
-/// Migration utilities for moving active credentials from plaintext config to secure keyring.
+/// Migration utilities for moving active credentials out of plaintext config.
 ///
 /// Security-sensitive migration.
 ///
 /// Early versions of JobSentinel stored credentials in plaintext `config.json`.
-/// This module migrates active credentials to OS keyring and clears all known
-/// plaintext credential fields from config. Legacy LinkedIn session values are
-/// cleared but not migrated because LinkedIn automatic monitoring is disabled.
+/// Runtime startup stores active credentials through `CredentialService`, then
+/// clears all known plaintext credential fields from config. Legacy LinkedIn
+/// session values are cleared but not migrated because LinkedIn automatic
+/// monitoring is disabled.
 ///
 /// # Migration Process
 ///
 /// 1. Check if migration already completed (flag file)
 /// 2. Extract credentials from `config.json`
-/// 3. Store each credential in OS keyring
+/// 3. Store each credential through runtime secure storage
 /// 4. Clear plaintext credentials from config
 /// 5. Write migration flag only after successful cleanup
 ///
@@ -433,7 +431,7 @@ pub mod migration {
 
     const MIGRATION_FLAG_FILE: &str = "keyring_migrated_v1";
 
-    /// Check if keyring migration has already been performed.
+    /// Check if plaintext credential migration has already been performed.
     ///
     /// # Returns
     ///
@@ -548,7 +546,7 @@ pub mod migration {
     ///
     /// # Safety
     ///
-    /// Only call this AFTER successfully storing credentials in keyring.
+    /// Only call this AFTER successfully storing credentials in secure storage.
     /// Otherwise credentials will be lost.
     pub fn clear_config_credentials(config_path: &Path) -> Result<(), Box<dyn std::error::Error>> {
         if !config_path.exists() {

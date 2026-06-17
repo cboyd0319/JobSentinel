@@ -673,7 +673,8 @@ mod user_data_commands {
 // ============================================================================
 
 mod credential_commands {
-    use jobsentinel::core::credentials::{CredentialKey, CredentialStore};
+    use jobsentinel::core::credentials::{CredentialKey, CredentialService};
+    use jobsentinel::core::Database;
 
     #[test]
     fn test_credential_key_variants() {
@@ -691,18 +692,20 @@ mod credential_commands {
         }
     }
 
-    #[test]
-    fn test_credential_store_interface() {
-        // CredentialStore static methods: store, retrieve, delete, exists
+    #[tokio::test]
+    async fn test_credential_service_interface_is_noninteractive() {
+        let database = Database::connect_memory().await.unwrap();
+        database.migrate().await.unwrap();
+        let credentials =
+            CredentialService::with_fixed_master_key(database.pool().clone(), [29_u8; 32], false);
 
-        // exists returns Result<bool, String>
-        let result = CredentialStore::exists(CredentialKey::SmtpPassword);
-        // May fail in test environment without keyring, that's OK
-        assert!(result.is_ok() || result.is_err());
+        // exists returns Result<bool, String> without touching OS keyring.
+        let result = credentials.exists(CredentialKey::SmtpPassword).await;
+        assert_eq!(result.unwrap(), false);
 
         // retrieve returns Result<Option<String>, String>
-        let result = CredentialStore::retrieve(CredentialKey::SmtpPassword);
-        assert!(result.is_ok() || result.is_err());
+        let result = credentials.retrieve(CredentialKey::SmtpPassword).await;
+        assert_eq!(result.unwrap(), None);
     }
 
     #[test]

@@ -98,7 +98,7 @@ pub use user_data::{
 };
 
 // v2.0+ security re-exports
-pub use credentials::{CredentialKey, CredentialStore};
+pub use credentials::{CredentialKey, CredentialService, CredentialStore};
 
 // v2.0+ Application Assist re-exports
 pub use automation::profile::{ApplicationProfileInput, ProfileManager, ScreeningAnswer};

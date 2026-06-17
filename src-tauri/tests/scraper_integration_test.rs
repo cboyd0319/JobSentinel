@@ -51,39 +51,6 @@ const GREENHOUSE_JSON_RESPONSE: &str = r#"{
     ]
 }"#;
 
-const LEVER_JSON_RESPONSE: &str = r#"[
-    {
-        "id": "abc123",
-        "text": "Program Manager",
-        "categories": {
-            "location": "Atlanta, GA",
-            "team": "Client Services"
-        },
-        "hostedUrl": "https://jobs.lever.co/company/abc123"
-    }
-]"#;
-
-const REMOTEOK_JSON_RESPONSE: &str = r#"[
-    {"id": "legal"},
-    {
-        "id": "1",
-        "company": "CareBridge",
-        "position": "Remote Case Manager",
-        "url": "https://remoteok.com/jobs/1",
-        "location": "Worldwide",
-        "tags": ["case-management", "remote"],
-        "salary_min": 100000,
-        "salary_max": 150000
-    },
-    {
-        "id": "2",
-        "company": "CommunityWorks",
-        "position": "Program Coordinator",
-        "url": "https://remoteok.com/jobs/2",
-        "location": "US Only"
-    }
-]"#;
-
 const WEWORKREMOTELY_RSS_RESPONSE: &str = r#"<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
 <channel>

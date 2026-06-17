@@ -1,7 +1,7 @@
 //! Smoke tests for scraper connectivity and functionality
 
 use crate::core::{
-    credentials::{CredentialKey, CredentialStore},
+    credentials::{CredentialKey, CredentialService},
     http_body::{read_json_with_limit, read_text_with_limit},
     scrapers::{
         http_client::scraper_client_builder,
@@ -164,6 +164,17 @@ pub async fn run_smoke_test(
     config: &Config,
     scraper_name: &str,
 ) -> Result<SmokeTestResult> {
+    let credentials = CredentialService::compatibility_keyring();
+    run_smoke_test_with_credentials(db, config, scraper_name, &credentials).await
+}
+
+/// Run a connectivity smoke test with an explicit credential provider.
+pub async fn run_smoke_test_with_credentials(
+    db: &Database,
+    config: &Config,
+    scraper_name: &str,
+    credentials: &CredentialService,
+) -> Result<SmokeTestResult> {
     let start = Instant::now();
     RateLimiter::shared()
         .wait(scraper_name, smoke_rate_limit(scraper_name))
@@ -182,7 +193,7 @@ pub async fn run_smoke_test(
         "dice" => test_dice().await,
         "yc_startup" => test_yc_startup().await,
         "ziprecruiter" => test_ziprecruiter().await,
-        "usajobs" => test_usajobs(config).await,
+        "usajobs" => test_usajobs(config, credentials).await,
         "simplyhired" => test_simplyhired().await,
         "glassdoor" => test_glassdoor().await,
         _ => Err(anyhow::anyhow!("Unknown scraper")),
@@ -220,10 +231,20 @@ pub async fn run_smoke_test(
 
 /// Run smoke tests for all enabled scrapers
 pub async fn run_all_smoke_tests(db: &Database, config: &Config) -> Result<Vec<SmokeTestResult>> {
+    let credentials = CredentialService::compatibility_keyring();
+    run_all_smoke_tests_with_credentials(db, config, &credentials).await
+}
+
+/// Run smoke tests for all enabled scrapers with an explicit credential provider.
+pub async fn run_all_smoke_tests_with_credentials(
+    db: &Database,
+    config: &Config,
+    credentials: &CredentialService,
+) -> Result<Vec<SmokeTestResult>> {
     let mut results = Vec::new();
 
     for scraper in SMOKE_TEST_SCRAPERS {
-        let result = run_smoke_test(db, config, scraper).await?;
+        let result = run_smoke_test_with_credentials(db, config, scraper, credentials).await?;
         results.push(result);
     }
 
@@ -607,7 +628,10 @@ async fn test_ziprecruiter() -> Result<serde_json::Value> {
     }))
 }
 
-async fn test_usajobs(config: &Config) -> Result<serde_json::Value> {
+async fn test_usajobs(
+    config: &Config,
+    credentials: &CredentialService,
+) -> Result<serde_json::Value> {
     if !config.usajobs.enabled {
         return Ok(serde_json::json!({
             "status": "skipped",
@@ -622,7 +646,9 @@ async fn test_usajobs(config: &Config) -> Result<serde_json::Value> {
         }));
     }
 
-    let api_key = match CredentialStore::retrieve(CredentialKey::UsaJobsApiKey)
+    let api_key = match credentials
+        .retrieve(CredentialKey::UsaJobsApiKey)
+        .await
         .map_err(|_| anyhow::anyhow!("USAJobs API key could not be read from secure storage"))?
     {
         Some(api_key) if !api_key.trim().is_empty() => api_key,

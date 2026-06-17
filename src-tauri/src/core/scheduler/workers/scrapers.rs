@@ -5,7 +5,7 @@
 use crate::core::db::Database;
 use crate::core::{
     config::Config,
-    credentials::{CredentialKey, CredentialStore},
+    credentials::{CredentialKey, CredentialService},
     db::Job,
     scrapers::{
         builtin::BuiltInScraper,
@@ -112,7 +112,11 @@ fn record_source_credential_failure(errors: &mut Vec<String>, source_label: &'st
 
 /// Run all configured scrapers and return jobs and errors
 #[tracing::instrument(skip_all)]
-pub async fn run_scrapers(config: &Arc<Config>, db: &Arc<Database>) -> (Vec<Job>, Vec<String>) {
+pub async fn run_scrapers(
+    config: &Arc<Config>,
+    db: &Arc<Database>,
+    credentials: &CredentialService,
+) -> (Vec<Job>, Vec<String>) {
     tracing::info!("Starting scraper execution across all enabled sources");
     let mut all_jobs = Vec::new();
     let mut errors = Vec::new();
@@ -510,7 +514,7 @@ pub async fn run_scrapers(config: &Arc<Config>, db: &Arc<Database>) -> (Vec<Job>
 
     // 11. USAJobs federal government scraper - requires API key from keyring
     if config.usajobs.enabled && !config.usajobs.email.is_empty() {
-        match CredentialStore::retrieve(CredentialKey::UsaJobsApiKey) {
+        match credentials.retrieve(CredentialKey::UsaJobsApiKey).await {
             Ok(Some(api_key)) => {
                 tracing::info!("Running USAJobs scraper");
                 let mut scraper = UsaJobsScraper::new(api_key, config.usajobs.email.clone());

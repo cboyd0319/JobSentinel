@@ -12,20 +12,93 @@
 // Import library modules
 use jobsentinel::commands::{self, AppState, SchedulerStatus};
 use jobsentinel::core::bookmarklet::{BookmarkletConfig, BookmarkletServer};
-use jobsentinel::core::credentials::{migration, CredentialStore};
+use jobsentinel::core::credentials::{migration, CredentialService};
 use jobsentinel::core::logging::path_label_for_logging;
 use jobsentinel::core::scheduler::Scheduler;
 use jobsentinel::platforms;
 use jobsentinel::{Config, Database};
 
 use chrono::{Duration, Utc};
-use std::sync::Arc;
+use std::{path::Path, sync::Arc};
 use tauri::{
     menu::{Menu, MenuItem},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
 };
 use tauri::{Emitter, Manager};
 use tokio::sync::RwLock;
+
+async fn migrate_plaintext_credentials_to_secure_storage(
+    config_path: &Path,
+    credentials: &CredentialService,
+) -> bool {
+    if !config_path.exists() || migration::is_migrated() {
+        return false;
+    }
+
+    tracing::info!("Checking for plaintext credentials to migrate to secure storage");
+
+    let credentials_to_migrate = match migration::extract_plaintext_credentials(config_path) {
+        Ok(credentials_to_migrate) => credentials_to_migrate,
+        Err(e) => {
+            tracing::error!(
+                "Failed to extract plaintext credentials for migration: {}",
+                e
+            );
+            return false;
+        }
+    };
+
+    let mark_migration_complete = if credentials_to_migrate.is_empty() {
+        tracing::info!("No active plaintext credentials found");
+        if let Err(e) = migration::clear_config_credentials(config_path) {
+            tracing::error!("Failed to clear legacy credential fields: {}", e);
+            tracing::warn!("Secure-storage migration will retry on next startup");
+            false
+        } else {
+            true
+        }
+    } else {
+        tracing::info!(
+            "Found {} plaintext credentials to migrate",
+            credentials_to_migrate.len()
+        );
+
+        let mut migration_success = true;
+        for (key, value) in &credentials_to_migrate {
+            if let Err(e) = credentials.store(*key, value).await {
+                tracing::error!(
+                    "Failed to migrate credential {:?} to secure storage: {}",
+                    key,
+                    e
+                );
+                migration_success = false;
+            } else {
+                tracing::info!("Migrated {:?} to secure storage", key);
+            }
+        }
+
+        if migration_success {
+            if let Err(e) = migration::clear_config_credentials(config_path) {
+                tracing::error!("Failed to clear plaintext credentials from config: {}", e);
+                tracing::warn!("Secure-storage migration will retry on next startup");
+                false
+            } else {
+                true
+            }
+        } else {
+            tracing::warn!("Secure-storage migration incomplete; will retry on next startup");
+            false
+        }
+    };
+
+    if mark_migration_complete {
+        if let Err(e) = migration::set_migrated() {
+            tracing::warn!("Failed to set migration flag: {}", e);
+        }
+    }
+
+    mark_migration_complete
+}
 
 fn main() {
     // Initialize logging with environment filter support
@@ -44,74 +117,6 @@ fn main() {
     if let Err(e) = platforms::initialize() {
         eprintln!("Failed to initialize platform: {}", e);
         std::process::exit(1);
-    }
-
-    // Migrate plaintext credentials to secure storage (one-time migration)
-    let config_path = Config::default_path();
-    if config_path.exists() && !migration::is_migrated() {
-        tracing::info!("Checking for plaintext credentials to migrate to secure storage");
-
-        match migration::extract_plaintext_credentials(&config_path) {
-            Ok(credentials) => {
-                let mark_migration_complete = if credentials.is_empty() {
-                    tracing::info!("No active plaintext credentials found");
-                    if let Err(e) = migration::clear_config_credentials(&config_path) {
-                        tracing::error!("Failed to clear legacy credential fields: {}", e);
-                        tracing::warn!("Keyring migration will retry on next startup");
-                        false
-                    } else {
-                        true
-                    }
-                } else {
-                    tracing::info!(
-                        "Found {} plaintext credentials to migrate",
-                        credentials.len()
-                    );
-
-                    let mut migration_success = true;
-                    for (key, value) in &credentials {
-                        if let Err(e) = CredentialStore::store(*key, value) {
-                            tracing::error!(
-                                "Failed to migrate credential {:?} to keyring: {}",
-                                key,
-                                e
-                            );
-                            migration_success = false;
-                        } else {
-                            tracing::info!("Migrated {:?} to secure storage", key);
-                        }
-                    }
-
-                    if migration_success {
-                        if let Err(e) = migration::clear_config_credentials(&config_path) {
-                            tracing::error!(
-                                "Failed to clear plaintext credentials from config: {}",
-                                e
-                            );
-                            tracing::warn!("Keyring migration will retry on next startup");
-                            false
-                        } else {
-                            true
-                        }
-                    } else {
-                        tracing::warn!("Keyring migration incomplete; will retry on next startup");
-                        false
-                    }
-                };
-
-                if mark_migration_complete {
-                    if let Err(e) = migration::set_migrated() {
-                        tracing::warn!("Failed to set migration flag: {}", e);
-                    }
-                }
-            }
-            Err(e) => {
-                tracing::error!(
-                    "Failed to extract plaintext credentials for migration: {}",
-                    e
-                );
-            }
-        }
     }
 
     tauri::Builder::default()
@@ -357,7 +362,7 @@ fn main() {
         .setup(|app| {
             // Initialize configuration
             let config_path = Config::default_path();
-            let config = if config_path.exists() {
+            let mut config = if config_path.exists() {
                 match Config::load(&config_path) {
                     Ok(cfg) => {
                         tracing::info!(
@@ -452,15 +457,38 @@ fn main() {
 
             tracing::info!("Database initialized successfully");
 
+            let database_arc = Arc::new(database);
+            let credentials_arc = Arc::new(CredentialService::new(database_arc.pool().clone()));
+            let reload_config_after_migration =
+                tauri::async_runtime::block_on(migrate_plaintext_credentials_to_secure_storage(
+                    &config_path,
+                    credentials_arc.as_ref(),
+                ));
+
+            if reload_config_after_migration {
+                config = Config::load(&config_path).map_err(|e| {
+                    let message = commands::errors::user_friendly_error("Configuration error", &e);
+                    tracing::error!(
+                        config_path = %path_label_for_logging(&config_path),
+                        error = %message,
+                        "Failed to reload configuration after secure-storage migration"
+                    );
+                    message
+                })?;
+            }
+
             // Wrap shared state in Arc
             let config_arc = Arc::new(RwLock::new(config));
-            let database_arc = Arc::new(database);
 
             // Initialize scheduler status tracking
             let scheduler_status = Arc::new(RwLock::new(SchedulerStatus::default()));
 
             // Create scheduler (will be started after setup if not first run)
-            let scheduler = Scheduler::new_shared(Arc::clone(&config_arc), Arc::clone(&database_arc));
+            let scheduler = Scheduler::new_shared_with_credentials(
+                Arc::clone(&config_arc),
+                Arc::clone(&database_arc),
+                Arc::clone(&credentials_arc),
+            );
             let scheduler_arc = Arc::new(scheduler);
 
             // Create bookmarklet server (not started automatically)
@@ -471,6 +499,7 @@ fn main() {
             let app_state = AppState {
                 config: Arc::clone(&config_arc),
                 database: Arc::clone(&database_arc),
+                credentials: Arc::clone(&credentials_arc),
                 scheduler: Some(Arc::clone(&scheduler_arc)),
                 scheduler_status: Arc::clone(&scheduler_status),
                 bookmarklet_server: Arc::clone(&bookmarklet_server),

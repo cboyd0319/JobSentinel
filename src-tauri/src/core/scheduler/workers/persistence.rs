@@ -2,6 +2,7 @@
 
 use crate::core::{
     config::Config,
+    credentials::CredentialService,
     db::Database,
     notify::{Notification, NotificationService},
     scoring::{JobScore, ScoringEngine},
@@ -43,6 +44,7 @@ pub async fn persist_and_notify(
     scored_jobs: &[(crate::core::db::Job, JobScore)],
     config: &Arc<Config>,
     database: &Arc<Database>,
+    credentials: &Arc<CredentialService>,
 ) -> PersistenceStats {
     use std::time::Instant;
 
@@ -108,7 +110,8 @@ pub async fn persist_and_notify(
     // Send notifications for high-scoring jobs
     let notify_start = Instant::now();
     tracing::debug!("Processing notifications");
-    let notification_service = NotificationService::new(Arc::clone(config));
+    let notification_service =
+        NotificationService::with_credentials(Arc::clone(config), Arc::clone(credentials));
     let scoring_engine = ScoringEngine::new(Arc::clone(config));
 
     for (job, score) in scored_jobs {

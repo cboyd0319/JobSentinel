@@ -18,8 +18,11 @@ pub async fn search_jobs(state: State<'_, AppState>) -> Result<Value, String> {
     tracing::info!("Manual job search triggered via command");
 
     // Create scheduler instance
-    let scheduler =
-        crate::core::scheduler::Scheduler::new_shared(state.config.clone(), state.database.clone());
+    let scheduler = crate::core::scheduler::Scheduler::new_shared_with_credentials(
+        state.config.clone(),
+        state.database.clone(),
+        state.credentials.clone(),
+    );
 
     // Run single scraping cycle
     match scheduler.run_scraping_cycle().await {

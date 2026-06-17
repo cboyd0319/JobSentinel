@@ -29,7 +29,7 @@ impl Scheduler {
         // 1. Run all scrapers
         let stage1_start = Instant::now();
         tracing::info!("Pipeline stage 1/3: Running scrapers");
-        let (all_jobs, mut errors) = run_scrapers(&config, &self.database).await;
+        let (all_jobs, mut errors) = run_scrapers(&config, &self.database, &self.credentials).await;
         let stage1_duration = stage1_start.elapsed();
         tracing::info!(
             job_count = all_jobs.len(),
@@ -51,7 +51,8 @@ impl Scheduler {
         // 3. Store in database and send notifications
         let stage3_start = Instant::now();
         tracing::info!("Pipeline stage 3/3: Persisting jobs and sending notifications");
-        let stats = persist_and_notify(&scored_jobs, &config, &self.database).await;
+        let stats =
+            persist_and_notify(&scored_jobs, &config, &self.database, &self.credentials).await;
         let stage3_duration = stage3_start.elapsed();
         tracing::info!(
             elapsed_ms = stage3_duration.as_millis(),

@@ -125,6 +125,7 @@ async fn test_scheduler_creation() {
     let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
 
     // Scheduler should be created successfully
+    assert!(scheduler.shutdown().is_ok());
     let schedule_config = ScheduleConfig::from(config.as_ref());
     assert_eq!(schedule_config.interval_hours, 2);
 }
@@ -193,16 +194,11 @@ async fn test_scraping_result_fields() {
     let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
     let result = scheduler.run_scraping_cycle().await.unwrap();
 
-    // Verify all result fields are accessible
-    let _jobs_found = result.jobs_found;
-    let _jobs_new = result.jobs_new;
-    let _jobs_updated = result.jobs_updated;
-    let _high_matches = result.high_matches;
-    let _alerts_sent = result.alerts_sent;
-    let _errors = &result.errors;
-
-    // Should be zero-initialized for empty config
-    assert!(result.jobs_found >= 0);
+    assert_eq!(result.jobs_found, 0);
+    assert_eq!(result.jobs_new, 0);
+    assert_eq!(result.jobs_updated, 0);
+    assert_eq!(result.alerts_sent, 0);
+    assert!(result.errors.is_empty());
     assert!(result.high_matches <= result.jobs_found);
 }
 
@@ -335,7 +331,10 @@ async fn test_salary_influence_on_scoring() {
         score_good.total >= score_bad.total,
         "Job with salary above floor should score >= job below floor"
     );
-    // No salary shouldn't be penalized as harshly as explicitly low salary
+    assert!(
+        (0.0..=1.0).contains(&score_none.total),
+        "Job with no salary should still produce a bounded score"
+    );
 }
 
 #[tokio::test]

@@ -6,8 +6,9 @@
 //! session cookies.
 
 use crate::commands::errors::user_friendly_error;
-use crate::core::credentials::{CredentialKey, CredentialStore};
-use tauri::{AppHandle, Manager};
+use crate::commands::AppState;
+use crate::core::credentials::{CredentialKey, CredentialService};
+use tauri::{AppHandle, Manager, State};
 
 pub const LINKEDIN_AUTH_DISABLED_MESSAGE: &str =
     "LinkedIn automatic monitoring is disabled by JobSentinel source policy. \
@@ -54,14 +55,25 @@ pub async fn is_linkedin_connected() -> Result<bool, String> {
 }
 
 /// Remove legacy LinkedIn session entries from the OS credential store.
-#[tauri::command]
-pub async fn disconnect_linkedin() -> Result<(), String> {
-    CredentialStore::delete(CredentialKey::LinkedInCookie)
+pub async fn disconnect_linkedin_with_credentials(
+    credentials: &CredentialService,
+) -> Result<(), String> {
+    credentials
+        .delete(CredentialKey::LinkedInCookie)
+        .await
         .map_err(|e| user_friendly_error("Failed to remove legacy LinkedIn credential", e))?;
-    CredentialStore::delete(CredentialKey::LinkedInCookieExpiry)
+    credentials
+        .delete(CredentialKey::LinkedInCookieExpiry)
+        .await
         .map_err(|e| user_friendly_error("Failed to remove legacy LinkedIn credential", e))?;
     tracing::info!("Removed legacy LinkedIn credential entries");
     Ok(())
+}
+
+/// Remove legacy LinkedIn session entries from secure storage.
+#[tauri::command]
+pub async fn disconnect_linkedin(state: State<'_, AppState>) -> Result<(), String> {
+    disconnect_linkedin_with_credentials(state.credentials.as_ref()).await
 }
 
 /// Close any legacy LinkedIn login window if it exists.

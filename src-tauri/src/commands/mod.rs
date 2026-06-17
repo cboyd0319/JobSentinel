@@ -8,7 +8,8 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 
 use crate::core::{
-    bookmarklet::BookmarkletServer, config::Config, db::Database, scheduler::Scheduler,
+    bookmarklet::BookmarkletServer, config::Config, credentials::CredentialService, db::Database,
+    scheduler::Scheduler,
 };
 
 // Module declarations (public for Tauri macro access)
@@ -53,6 +54,7 @@ pub struct SchedulerStatus {
 pub struct AppState {
     pub config: Arc<RwLock<Config>>,
     pub database: Arc<Database>,
+    pub credentials: Arc<CredentialService>,
     pub scheduler: Option<Arc<Scheduler>>,
     pub scheduler_status: Arc<RwLock<SchedulerStatus>>,
     pub bookmarklet_server: Arc<RwLock<BookmarkletServer>>,

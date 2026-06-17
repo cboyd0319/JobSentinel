@@ -70,10 +70,10 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   registry freshness, stable-lockfile policy, and lock compatibility. Audits
   report no blocking issues. Upstream constraints: npm `@polka/url`,
   `gensync`; Cargo `generic-array`, `toml`, `toml_datetime`, `toml_edit`.
-- Live OS keyring integration tests are opt-in behind
-  `JOBSENTINEL_LIVE_KEYRING_TESTS=1`; default credential tests do not prompt
-  Keychain and still prove LinkedIn credential storage is disabled before
-  keyring access.
+- Runtime credential commands, scheduler, notifications, and smoke tests use
+  the encrypted SQLite secret-vault provider. Status checks read vault metadata
+  only, and live OS keyring tests remain opt-in behind
+  `JOBSENTINEL_LIVE_KEYRING_TESTS=1`.
 - Downloadable Agent Skills cover search planning, posting-risk review, resume
   tailoring, form review, tracking, interview prep, and offer/pay review;
   `skills/` is an intentional harness-validated root.
@@ -106,9 +106,9 @@ The v2.9.0 goal adds four durable release-readiness requirements:
    predictions.
 6. Continue macOS readiness docs and checks without claiming Gatekeeper-ready
    distribution before Apple credentials exist.
-7. Continue encrypted local storage and saved-secret UX: AEAD vault rows now
-   exist; next are encrypted SQLite, OS-protected key, passphrase mode, macOS
-   native unlock, runtime migration, and no passive secure-storage prompts.
+7. Continue encrypted local storage and saved-secret UX: runtime AEAD vault
+   storage and legacy migration now exist; next are encrypted SQLite,
+   passphrase mode, and macOS native unlock.
 8. Keep harness work focused on bounded startup context, runnable verification,
    privacy/security gates, and docs accuracy. Do not add new ceremony unless it
    prevents a repeated failure.

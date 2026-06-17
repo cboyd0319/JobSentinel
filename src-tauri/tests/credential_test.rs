@@ -4,8 +4,8 @@
 //! OS keyring roundtrips are opt-in because macOS Keychain and equivalent
 //! stores can prompt the user.
 
-use jobsentinel::commands::linkedin_auth::disconnect_linkedin;
-use jobsentinel::core::credentials::{CredentialKey, CredentialStore};
+use jobsentinel::commands::linkedin_auth::disconnect_linkedin_with_credentials;
+use jobsentinel::core::credentials::{CredentialKey, CredentialService, CredentialStore};
 use keyring::{Entry, Error as KeyringError};
 
 const SECURE_STORAGE_UNAVAILABLE: &str =
@@ -202,7 +202,8 @@ async fn test_disconnect_linkedin_deletes_legacy_cookie_and_expiry_entries() {
     assert!(raw_legacy_credential_exists(CredentialKey::LinkedInCookie).unwrap());
     assert!(raw_legacy_credential_exists(CredentialKey::LinkedInCookieExpiry).unwrap());
 
-    disconnect_linkedin()
+    let credentials = CredentialService::compatibility_keyring();
+    disconnect_linkedin_with_credentials(&credentials)
         .await
         .expect("legacy LinkedIn cleanup should delete cookie and expiry entries");
 

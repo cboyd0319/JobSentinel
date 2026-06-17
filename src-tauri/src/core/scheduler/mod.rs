@@ -27,10 +27,23 @@ impl Scheduler {
         config: Arc<RwLock<crate::core::config::Config>>,
         database: Arc<crate::core::db::Database>,
     ) -> Self {
+        Self::new_shared_with_credentials(
+            config,
+            database,
+            Arc::new(crate::core::credentials::CredentialService::compatibility_keyring()),
+        )
+    }
+
+    pub fn new_shared_with_credentials(
+        config: Arc<RwLock<crate::core::config::Config>>,
+        database: Arc<crate::core::db::Database>,
+        credentials: Arc<crate::core::credentials::CredentialService>,
+    ) -> Self {
         let (shutdown_tx, _) = tokio::sync::broadcast::channel(1);
         Self {
             config,
             database,
+            credentials,
             shutdown_tx,
         }
     }

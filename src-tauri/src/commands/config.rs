@@ -5,7 +5,7 @@
 use crate::commands::errors::user_friendly_error;
 use crate::commands::AppState;
 use crate::core::config::{AutoRefreshConfig, Config, EmailConfig};
-use crate::core::credentials::{CredentialKey, CredentialStore};
+use crate::core::credentials::{CredentialKey, CredentialService};
 use crate::core::db::Database;
 use crate::core::logging::path_label_for_logging;
 use serde::{Deserialize, Serialize};
@@ -53,8 +53,12 @@ fn default_starttls() -> bool {
     true
 }
 
-fn get_stored_credential_for_test(key: CredentialKey, label: &str) -> Result<String, String> {
-    match CredentialStore::retrieve(key) {
+async fn get_stored_credential_for_test(
+    key: CredentialKey,
+    label: &str,
+    credentials: &CredentialService,
+) -> Result<String, String> {
+    match credentials.retrieve(key).await {
         Ok(Some(value)) if !value.is_empty() => Ok(value),
         Ok(_) => Err(format!("{label} credential is required")),
         Err(e) => {
@@ -69,13 +73,16 @@ fn get_stored_credential_for_test(key: CredentialKey, label: &str) -> Result<Str
     }
 }
 
-fn resolve_slack_webhook_for_test(webhook_url: String) -> Result<String, String> {
+async fn resolve_slack_webhook_for_test(
+    webhook_url: String,
+    credentials: &CredentialService,
+) -> Result<String, String> {
     let webhook_url = webhook_url.trim().to_string();
     if !webhook_url.is_empty() {
         return Ok(webhook_url);
     }
 
-    get_stored_credential_for_test(CredentialKey::SlackWebhook, "Slack webhook")
+    get_stored_credential_for_test(CredentialKey::SlackWebhook, "Slack webhook", credentials).await
 }
 
 fn is_first_run_for_path(config_path: &Path) -> Result<bool, String> {
@@ -89,12 +96,15 @@ fn is_first_run_for_path(config_path: &Path) -> Result<bool, String> {
     })
 }
 
-fn resolve_smtp_password_for_test(smtp_password: String) -> Result<String, String> {
+async fn resolve_smtp_password_for_test(
+    smtp_password: String,
+    credentials: &CredentialService,
+) -> Result<String, String> {
     if !smtp_password.is_empty() {
         return Ok(smtp_password);
     }
 
-    get_stored_credential_for_test(CredentialKey::SmtpPassword, "SMTP password")
+    get_stored_credential_for_test(CredentialKey::SmtpPassword, "SMTP password", credentials).await
 }
 
 async fn save_config_to_runtime_and_path(
@@ -276,9 +286,13 @@ fn any_job_source_enabled(config: &Config) -> bool {
 
 /// Validate Slack webhook URL
 #[tauri::command]
-pub async fn validate_slack_webhook(webhook_url: String) -> Result<bool, String> {
+pub async fn validate_slack_webhook(
+    webhook_url: String,
+    state: State<'_, AppState>,
+) -> Result<bool, String> {
     tracing::info!("Command: validate_slack_webhook");
-    let webhook_url = resolve_slack_webhook_for_test(webhook_url)?;
+    let webhook_url =
+        resolve_slack_webhook_for_test(webhook_url, state.credentials.as_ref()).await?;
 
     match crate::core::notify::slack::validate_webhook(&webhook_url).await {
         Ok(valid) => Ok(valid),
@@ -319,9 +333,14 @@ pub async fn complete_setup(config: Value, state: State<'_, AppState>) -> Result
 
 /// Test email notification configuration by sending a test email
 #[tauri::command]
-pub async fn test_email_notification(email_config: TestEmailConfig) -> Result<(), String> {
+pub async fn test_email_notification(
+    email_config: TestEmailConfig,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
     tracing::info!("Command: test_email_notification");
-    let smtp_password = resolve_smtp_password_for_test(email_config.smtp_password)?;
+    let smtp_password =
+        resolve_smtp_password_for_test(email_config.smtp_password, state.credentials.as_ref())
+            .await?;
 
     // Convert to EmailConfig for the validate function
     let config = EmailConfig {

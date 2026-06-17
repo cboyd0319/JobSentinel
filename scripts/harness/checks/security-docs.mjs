@@ -128,11 +128,15 @@ export function hasUnsafeKeyringMigration(root, path) {
   }
 
   const text = readFileSync(join(root, path), "utf8");
+  const hasRetrySafeMarker =
+    text.includes("Keyring migration incomplete; will retry on next startup") ||
+    text.includes("Secure-storage migration incomplete; will retry on next startup");
+
   return (
     /even if partial/.test(text) ||
     /✓ Migrated/.test(text) ||
     !text.includes("mark_migration_complete") ||
-    !text.includes("Keyring migration incomplete; will retry on next startup")
+    !hasRetrySafeMarker
   );
 }
 

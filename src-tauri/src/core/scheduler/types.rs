@@ -1,6 +1,7 @@
 //! Type definitions for the scheduler module
 
 use crate::core::config::Config;
+use crate::core::credentials::CredentialService;
 use std::sync::Arc;
 use tokio::sync::{broadcast, RwLock};
 
@@ -28,6 +29,7 @@ impl From<&Config> for ScheduleConfig {
 pub struct Scheduler {
     pub(crate) config: Arc<RwLock<Config>>,
     pub(crate) database: Arc<crate::core::db::Database>,
+    pub(crate) credentials: Arc<CredentialService>,
     pub(crate) shutdown_tx: broadcast::Sender<()>,
 }
 

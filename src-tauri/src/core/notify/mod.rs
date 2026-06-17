@@ -2,11 +2,11 @@
 //!
 //! Sends alerts via multiple channels: Slack, Email, Discord, Telegram, Teams, and Desktop.
 //!
-//! Credentials are stored securely in the OS keyring and fetched at runtime.
+//! Credentials are stored in the encrypted local vault and fetched at runtime.
 
 use crate::core::{
     config::Config,
-    credentials::{CredentialKey, CredentialStore},
+    credentials::{CredentialKey, CredentialService},
     db::Job,
     scoring::JobScore,
     url_security::canonicalize_user_supplied_job_url,
@@ -39,6 +39,7 @@ pub(crate) fn notification_job_href(url: &str) -> Option<String> {
 /// Notification service
 pub struct NotificationService {
     config: Arc<Config>,
+    credentials: Arc<CredentialService>,
 }
 
 fn log_notification_sent(channel: &'static str, notification: &Notification) {
@@ -130,18 +131,28 @@ fn validate_webhook_url_security_parts(url: &url::Url) -> Result<()> {
 
 impl NotificationService {
     pub fn new(config: Arc<Config>) -> Self {
-        Self { config }
+        Self {
+            config,
+            credentials: Arc::new(CredentialService::compatibility_keyring()),
+        }
+    }
+
+    pub fn with_credentials(config: Arc<Config>, credentials: Arc<CredentialService>) -> Self {
+        Self {
+            config,
+            credentials,
+        }
     }
 
     /// Send immediate alert for high-scoring job across all enabled channels
     ///
-    /// Credentials are fetched from OS keyring at runtime (not stored in config).
+    /// Credentials are fetched from secure storage at runtime (not stored in config).
     pub async fn send_immediate_alert(&self, notification: &Notification) -> Result<()> {
         let mut errors = Vec::new();
 
         // Send to Slack if enabled
         if self.config.alerts.slack.enabled {
-            match CredentialStore::retrieve(CredentialKey::SlackWebhook) {
+            match self.credentials.retrieve(CredentialKey::SlackWebhook).await {
                 Ok(Some(webhook_url)) => {
                     if let Err(_e) =
                         slack::send_slack_notification(&webhook_url, notification).await
@@ -162,9 +173,9 @@ impl NotificationService {
 
         // Send to Email if enabled
         if self.config.alerts.email.enabled {
-            match CredentialStore::retrieve(CredentialKey::SmtpPassword) {
+            match self.credentials.retrieve(CredentialKey::SmtpPassword).await {
                 Ok(Some(smtp_password)) => {
-                    // Create config with password from keyring
+                    // Create config with password from secure storage.
                     let email_config = crate::core::config::EmailConfig {
                         enabled: self.config.alerts.email.enabled,
                         smtp_server: self.config.alerts.email.smtp_server.clone(),
@@ -194,9 +205,13 @@ impl NotificationService {
 
         // Send to Discord if enabled
         if self.config.alerts.discord.enabled {
-            match CredentialStore::retrieve(CredentialKey::DiscordWebhook) {
+            match self
+                .credentials
+                .retrieve(CredentialKey::DiscordWebhook)
+                .await
+            {
                 Ok(Some(webhook_url)) => {
-                    // Create config with webhook from keyring
+                    // Create config with webhook from secure storage.
                     let discord_config = crate::core::config::DiscordConfig {
                         enabled: self.config.alerts.discord.enabled,
                         webhook_url,
@@ -221,9 +236,13 @@ impl NotificationService {
 
         // Send to Telegram if enabled
         if self.config.alerts.telegram.enabled {
-            match CredentialStore::retrieve(CredentialKey::TelegramBotToken) {
+            match self
+                .credentials
+                .retrieve(CredentialKey::TelegramBotToken)
+                .await
+            {
                 Ok(Some(bot_token)) => {
-                    // Create config with bot token from keyring
+                    // Create config with bot token from secure storage.
                     let telegram_config = crate::core::config::TelegramConfig {
                         enabled: self.config.alerts.telegram.enabled,
                         bot_token,
@@ -248,7 +267,7 @@ impl NotificationService {
 
         // Send to Teams if enabled
         if self.config.alerts.teams.enabled {
-            match CredentialStore::retrieve(CredentialKey::TeamsWebhook) {
+            match self.credentials.retrieve(CredentialKey::TeamsWebhook).await {
                 Ok(Some(webhook_url)) => {
                     if let Err(_e) =
                         teams::send_teams_notification(&webhook_url, notification).await

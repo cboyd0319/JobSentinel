@@ -182,6 +182,22 @@ test("security docs reject unsafe keyring migration", () => {
   });
 });
 
+test("security docs allow secure-storage migration retry marker", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/main.rs",
+      [
+        "let mark_migration_complete = migration_success;",
+        'tracing::warn!("Secure-storage migration incomplete; will retry on next startup");',
+        "if mark_migration_complete { migration::set_migrated(); }",
+      ].join("\n"),
+    );
+
+    assert.equal(hasUnsafeKeyringMigration(root, "src-tauri/src/main.rs"), false);
+  });
+});
+
 test("security docs reject stale notification preference docs", () => {
   withFixture((root) => {
     writeFixtureFile(

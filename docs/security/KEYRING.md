@@ -15,20 +15,21 @@ The locked direction as of 2026-06-06 is:
   satisfy user-presence prompts when the device and policy allow it.
 - Avoid passive secure-storage probes that trigger repeated unlock prompts.
 
-Current compatibility code still uses the OS credential store directly for
-individual credential items. The `secret_vault` table and `SecretVault` AEAD
-primitive exist, but runtime credential commands, scheduler, notifications, and
-smoke tests still need to migrate to the vault-backed provider. New credential
-work should move toward the vault architecture below and should not add new
-passive Keychain checks.
+Runtime credential commands, scheduler jobs, notifications, and smoke tests now
+use `CredentialService`. Active secrets are stored in the `secret_vault` table
+as AEAD envelopes; the OS credential store protects one vault key item and is
+used for legacy fallback only when a secret is explicitly retrieved. Status
+checks read SQLite vault metadata only and do not unlock the OS credential
+store. Remaining storage work is encrypted SQLite at rest, passphrase mode, and
+native macOS unlock/user-presence support.
 
 ## Supported Credential Stores
 
-| Platform | Current compatibility path | Target path |
-| -------- | -------------------------- | ----------- |
-| Windows | Windows Credential Manager through `keyring` | Encrypted SQLite vault; vault key protected by Windows credential APIs or equivalent user-presence policy when available |
-| macOS | macOS Keychain through `keyring` | Encrypted SQLite vault; one vault key item in Keychain with native `Security.framework` plus `LocalAuthentication` |
-| Linux | Secret Service API through `keyring` | Encrypted SQLite vault; vault key protected by Secret Service when available, with passphrase mode available |
+| Platform | Current runtime path | Remaining target |
+| -------- | -------------------- | ---------------- |
+| Windows | Encrypted SQLite vault rows; vault key protected by Windows Credential Manager through `keyring` | SQLite database encryption and equivalent user-presence policy when available |
+| macOS | Encrypted SQLite vault rows; vault key protected by macOS Keychain through `keyring` | SQLite database encryption and native `Security.framework` plus `LocalAuthentication` unlock |
+| Linux | Encrypted SQLite vault rows; vault key protected by Secret Service through `keyring` | SQLite database encryption with passphrase mode available |
 
 The default mode optimizes for user experience and local device security: the
 user unlocks once when a secret is actually needed, then JobSentinel reuses the
@@ -38,8 +39,7 @@ be explained before use.
 
 ## Secret Vault Contract
 
-The secret vault is the future authoritative storage boundary for saved
-credentials.
+The secret vault is the runtime storage boundary for saved credentials.
 
 ```text
 SQLite database encryption at connection layer
@@ -74,14 +74,21 @@ Vault requirements:
 - Backups must not export plaintext secret values unless a future encrypted
   backup flow explicitly asks the user and re-encrypts the payload.
 
-Default key mode:
+Current default key mode:
 
 1. Generate a random vault master key locally.
-2. Store the wrapped or raw vault key as one OS-protected credential item named
-   `jobsentinel_vault_key`.
-3. On macOS, require user presence with Keychain access control and pass a
+2. Store the raw vault key as one OS-protected credential item named
+   `jobsentinel_vault_key` through the `keyring` crate.
+3. Cache the unlocked vault key in memory for the app session after successful
+   retrieval.
+
+Target default key mode:
+
+1. Wrap or protect the vault key with the strongest practical OS credential
+   policy.
+2. On macOS, require user presence with Keychain access control and pass a
    reused `LAContext` through Keychain queries.
-4. Cache the unlocked vault key in memory for the app session after successful
+3. Cache the unlocked vault key in memory for the app session after successful
    user presence.
 
 Advanced passphrase mode:
@@ -107,9 +114,9 @@ macOS implementation target:
 
 ## Stored Credentials
 
-The service name for all entries is `JobSentinel`. Each key is namespaced with
-the `jobsentinel_` prefix. Under the target vault these names become secret
-vault row keys. Under the current compatibility path they are OS credential
+The service name for OS-protected items is `JobSentinel`. Each credential key
+is namespaced with the `jobsentinel_` prefix. In the runtime vault these names
+are `secret_vault` row keys. During legacy fallback they are also OS credential
 item names.
 
 | Storage key | `CredentialKey` variant | Used by |
@@ -141,29 +148,29 @@ src-tauri/src/commands/credentials.rs
 src-tauri/src/core/credentials/mod.rs
     |
     v
-compatibility OS credential store today
-target encrypted SQLite secret vault
+CredentialService
+  encrypted SQLite secret vault rows
+  legacy OS credential fallback only on explicit secret read
     |
     v
 OS-protected vault key
 ```
 
-Backend notification and scraper code uses `CredentialStore` directly when it
-needs credentials outside the frontend command path. Both paths use the same
-service name and storage keys.
+Backend notification, scheduler, and smoke-test code use `CredentialService`
+with the same runtime provider as frontend commands.
 
 Legacy LinkedIn credential keys may exist on older installations. They are
 supported only for cleanup and redaction. JobSentinel does not collect new
 LinkedIn session credentials or use LinkedIn as a background source.
 
 `tauri-plugin-secure-storage` remains registered with the app, but the current
-React credential flow uses Tauri commands backed by `CredentialStore`.
-`CredentialStore` initializes the `keyring` native store once at startup, then
-uses `keyring-core` entries for OS credential access.
+React credential flow uses Tauri commands backed by `CredentialService`.
+`CredentialStore` remains as a legacy fallback path and for opt-in live
+keyring integration tests.
 
-Vault migration will keep public command names stable. Renderer code should
-still call command APIs and must not depend on whether the backend resolves a
-secret from the compatibility OS item or the encrypted local vault.
+Vault migration keeps public command names stable. Renderer code should still
+call command APIs and must not depend on whether the backend resolves a secret
+from the encrypted local vault or the legacy OS item.
 
 ## Code Modules
 
@@ -196,7 +203,30 @@ pub enum CredentialKey {
     TeamsWebhook,
     UsaJobsApiKey,
 }
+```
 
+### `src-tauri/src/core/credentials/service.rs`
+
+```rust
+pub struct CredentialService;
+
+impl CredentialService {
+    pub fn new(pool: SqlitePool) -> Self;
+    pub async fn store(&self, key: CredentialKey, value: &str) -> Result<(), String>;
+    pub async fn retrieve(&self, key: CredentialKey) -> Result<Option<String>, String>;
+    pub async fn delete(&self, key: CredentialKey) -> Result<(), String>;
+    pub async fn exists(&self, key: CredentialKey) -> Result<bool, String>;
+    pub async fn list_status(&self) -> Vec<CredentialPresence>;
+}
+```
+
+`CredentialService` is the runtime provider. `exists` and `list_status` read
+vault row metadata only. `retrieve` migrates a legacy OS keyring item into the
+vault only when a secret is explicitly needed.
+
+### Legacy `CredentialStore`
+
+```rust
 pub struct CredentialStore;
 
 impl CredentialStore {
@@ -207,6 +237,9 @@ impl CredentialStore {
     pub fn list_status() -> Vec<CredentialPresence>;
 }
 ```
+
+`CredentialStore` is retained for legacy fallback and opt-in live keyring
+integration tests. New runtime code should not call it directly.
 
 ### `src-tauri/src/commands/credentials.rs`
 
@@ -230,16 +263,16 @@ be checked and must not be shown as either saved or missing.
 
 ## Migration From Plaintext Config
 
-Startup migration runs when the config file exists and the keyring migration
+Startup migration runs when the config file exists and the secure-storage migration
 flag has not been set.
 
 1. Extract plaintext credentials from `config.json`.
-2. Store each extracted credential in the OS keyring.
+2. Store each extracted credential through `CredentialService`.
 3. Atomically clear plaintext credential fields from config only after every
    credential was stored successfully.
 4. Atomically set the migration flag only after either no plaintext credentials
    were found or the successful store-and-clear path completed.
-5. Leave the migration flag unset after partial keyring failures or config clear
+5. Leave the migration flag unset after partial storage failures or config clear
    failures so the next startup retries.
 
 This avoids the unsafe state where plaintext secrets remain in config while the
@@ -271,7 +304,7 @@ Disallowed checks:
 
 Settings displays credential status without returning credential values:
 
-- `Saved securely on this computer`: credential exists in the OS keyring.
+- `Saved securely on this computer`: credential exists in the local secret vault.
 - `Will be saved securely on this computer`: a newly entered credential will be
   saved there.
 - `Saved details need confirmation`: config indicates a saved detail is
@@ -290,10 +323,10 @@ attempted action fails because secure storage could not be unlocked.
 
 ## Security Considerations
 
-- Current compatibility credentials are encrypted at rest by the OS credential
-  manager.
-- Target vault credentials are encrypted twice at rest: by the encrypted SQLite
-  database and by per-row AEAD envelopes.
+- Runtime credentials are encrypted as per-row AEAD envelopes in the
+  `secret_vault` table.
+- Remaining target vault credentials will be encrypted twice at rest: by the
+  encrypted SQLite database and by per-row AEAD envelopes.
 - Do not store secret values as plaintext SQLite, app config, localStorage,
   logs, screenshots, support reports, or unencrypted backups.
 - JobSentinel stores credentials under service name `JobSentinel`.
