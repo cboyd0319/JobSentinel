@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastUpdated": "2026-06-06",
+  "lastUpdated": "2026-06-17",
   "goal": "Move JobSentinel toward zero known errors, privacy leaks, stale docs, brittle tests, user-facing technical assumptions, engineer-only defaults, unverified claims, and drift from the locked Quiet Shield redesign in DESIGN.md, docs/design/README.md, and docs/design/design-spec.md.",
   "activeWorkstreams": [
     {
@@ -19,6 +19,11 @@
     }
   ],
   "archivedWorkstreams": [
+    {
+      "id": "active-status-history",
+      "path": "docs/plans/archive/active-status-history-2026-06-17.md",
+      "state": "archived"
+    },
     {
       "id": "guided-job-search-intake",
       "path": "docs/plans/archive/guided-job-search-intake-superseded-2026-06-04.md",

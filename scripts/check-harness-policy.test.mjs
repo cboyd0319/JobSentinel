@@ -138,6 +138,8 @@ test("check-harness consumes manifest instead of hardcoding large policy tables"
   assert.ok(checker.includes("<repo-root>/<home> placeholders"));
   assert.ok(checker.includes("manifestPublicWiki"));
   assert.ok(checker.includes("publicWiki.requiredPages"));
+  assert.ok(checker.includes("startupContextBudgets"));
+  assert.ok(checker.includes("startup context budget"));
   assert.equal(checker.includes("const requiredHarnessSnippets = {"), false);
   assert.equal(checker.includes("const requiredReadmeReferenceUrls = ["), false);
 });

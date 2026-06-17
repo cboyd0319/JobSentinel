@@ -40,6 +40,12 @@ JobSentinel if you want that alert or job-source connection to work.
 JobSentinel should ask only when it is saving, testing, or using that saved
 detail, not repeatedly while you browse Settings.
 
+Settings may also say **Saved details need confirmation**. That means
+JobSentinel expects a saved detail, but has not opened the password store during
+this passive Settings view. Re-enter the connection link, app password, or
+access code before saving, or use the Test button for that alert when you are
+ready to confirm it.
+
 ## If Something Stops Working
 
 Try these steps in order:
@@ -75,8 +81,8 @@ Review every support report before sharing it.
 
 - Saved secret values stay local unless you turn on an outside alert or
   job-source connection that needs them.
-- Settings can show whether a detail is saved, but must not show the saved
-  secret value.
+- Settings can show whether a detail is saved or needs confirmation, but must
+  not show the saved secret value.
 - Safe support reports and logs must redact secrets and private connection
   details.
 - JobSentinel validates chat connection links before saving them.

@@ -202,6 +202,11 @@ password store:
 Older saved details are moved into that password store and cleared when
 possible.
 
+If Settings says **Saved details need confirmation**, JobSentinel has not opened
+the password store from that passive view. Re-enter the connection link, app
+password, or alert code before saving, or click the Test button when you are
+ready to confirm that channel.
+
 ---
 
 ## Testing Your Setup

@@ -318,6 +318,15 @@ function lineNumberAtIndex(text, index) {
   return line;
 }
 
+function countTextLines(text) {
+  if (text.length === 0) {
+    return 0;
+  }
+
+  const trailingNewlineAdjustment = /\r?\n$/.test(text) ? 1 : 0;
+  return text.split(/\r?\n/).length - trailingNewlineAdjustment;
+}
+
 function localPathBoundaryAllowsLeak(text, index, needle) {
   const next = text[index + needle.length] ?? "";
 
@@ -552,10 +561,32 @@ if (readmeReferencePath && existsSync(repoPath(readmeReferencePath))) {
   errors.push(`${readmeReferencePath} must exist for README source references`);
 }
 
-if (existsSync(repoPath("AGENTS.md"))) {
-  const lineCount = read("AGENTS.md").split(/\r?\n/).length;
-  if (lineCount > 160) {
-    errors.push(`AGENTS.md has ${lineCount} lines; keep it at or below 160 lines`);
+const startupContextBudgets = new Map([
+  ["AGENTS.md", { maxLines: 160, maxBytes: 8000 }],
+  ["docs/harness/README.md", { maxLines: 160, maxBytes: 9000 }],
+  ["docs/plans/active/status.md", { maxLines: 140, maxBytes: 9000 }],
+  ["docs/plans/active/current-work.md", { maxLines: 220, maxBytes: 12000 }],
+]);
+
+for (const [path, budget] of startupContextBudgets) {
+  if (!existsSync(repoPath(path))) {
+    continue;
+  }
+
+  const text = read(path);
+  const lineCount = countTextLines(text);
+  const byteCount = Buffer.byteLength(text, "utf8");
+
+  if (lineCount > budget.maxLines) {
+    errors.push(
+      `${path} has ${lineCount} lines; keep it at or below ${budget.maxLines} lines for the startup context budget`,
+    );
+  }
+
+  if (byteCount > budget.maxBytes) {
+    errors.push(
+      `${path} has ${byteCount} bytes; keep it at or below ${budget.maxBytes} bytes for the startup context budget`,
+    );
   }
 }
 

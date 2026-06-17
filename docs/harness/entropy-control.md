@@ -12,6 +12,8 @@ Capture these as docs, scripts, tests, or tracker items:
 - Stale test counts or version claims.
 - Docs that duplicate the same command differently.
 - Large files that agents avoid reading.
+- Always-read restart docs that collect detailed slice history instead of
+  routing to archive detail.
 - Unclear ownership between frontend, Tauri commands, and core logic.
 - Security rules written only as prose with no tests.
 

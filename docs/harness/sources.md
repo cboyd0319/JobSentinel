@@ -42,6 +42,8 @@ large harness redesigns.
 ## Local Decisions
 
 - Do not put all guidance in `AGENTS.md`. It stays short.
+- Do not put detailed slice history in always-read docs. Keep startup and
+  active-state files as bounded indexes, then load archive detail on demand.
 - Do not rely on agent-written tests alone. Use existing deterministic sensors.
 - Do not use raw chat as durable project memory. Put stable facts in docs,
   plans, tests, scripts, or issues.

@@ -1,12 +1,12 @@
 # Current Product And Quality Work
 
-Last updated: 2026-06-06.
+Last updated: 2026-06-17.
 
 ## Purpose
 
 Keep one active execution plan for current product and quality work. Detailed
-slice history belongs in `status.md`, archived plans, and git history. This
-file should stay small enough to remain useful as a restart surface.
+slice history belongs in archived plans and git history. This file and
+`status.md` should stay small enough to remain useful as restart surfaces.
 
 ## Problem
 
@@ -170,7 +170,7 @@ workflow, packaging, or macOS deployment behavior.
 - macOS public-readiness language can drift if no-account completion and
   Apple-account-only release work are not kept separate.
 - Plan docs can grow back into slow restart surfaces if completed slice logs
-  are copied here instead of summarized in `status.md`.
+  are copied into active files instead of archived.
 - Secret-storage UX can regress if passive Settings or status checks call
   Keychain/secure storage. Saved-secret verification must stay lazy and
   action-driven.
@@ -190,6 +190,7 @@ When resuming, read:
 
 Archived plan history:
 
+- [Active status history](../archive/active-status-history-2026-06-17.md)
 - [Guided job-search intake](../archive/guided-job-search-intake-superseded-2026-06-04.md)
 - [Repo cleanup and quality sweep](../archive/repo-cleanup-and-quality-sweep-superseded-2026-06-04.md)
 - [Repo cleanup handoff](../archive/repo-cleanup-handoff-superseded-2026-06-04.md)

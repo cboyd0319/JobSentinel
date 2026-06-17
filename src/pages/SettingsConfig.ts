@@ -282,17 +282,6 @@ export function credentialNeedsAttention(
   return credentialStatus[key].state === "needs_attention";
 }
 
-function credentialCanSatisfyRequiredSecret(
-  credentialStatus: CredentialStatusMap | undefined,
-  key: CredentialKey,
-): boolean {
-  return Boolean(
-    credentialStatus &&
-      (credentialExists(credentialStatus, key) ||
-        credentialIsExpected(credentialStatus, key)),
-  );
-}
-
 export const isValidSlackWebhook = (url: string): boolean =>
   validateSlackWebhook(url) === undefined;
 
@@ -622,7 +611,10 @@ export function getCredentialValidationError(
 
   if (config?.alerts.slack?.enabled) {
     const hasSlackConnection =
-      credentialCanSatisfyRequiredSecret(credentialStatus, "slack_webhook") ||
+      Boolean(
+        credentialStatus &&
+          credentialExists(credentialStatus, "slack_webhook"),
+      ) ||
       Boolean(credentials.slack_webhook.trim());
 
     if (!hasSlackConnection) {
@@ -635,7 +627,10 @@ export function getCredentialValidationError(
 
   if (config?.alerts.email?.enabled) {
     const hasEmailPassword =
-      credentialCanSatisfyRequiredSecret(credentialStatus, "smtp_password") ||
+      Boolean(
+        credentialStatus &&
+          credentialExists(credentialStatus, "smtp_password"),
+      ) ||
       Boolean(credentials.smtp_password.trim());
 
     if (!hasEmailPassword) {
@@ -648,7 +643,10 @@ export function getCredentialValidationError(
 
   if (config?.alerts.discord?.enabled) {
     const hasDiscordConnection =
-      credentialCanSatisfyRequiredSecret(credentialStatus, "discord_webhook") ||
+      Boolean(
+        credentialStatus &&
+          credentialExists(credentialStatus, "discord_webhook"),
+      ) ||
       Boolean(credentials.discord_webhook.trim());
 
     if (!hasDiscordConnection) {
@@ -661,7 +659,10 @@ export function getCredentialValidationError(
 
   if (config?.alerts.teams?.enabled) {
     const hasTeamsConnection =
-      credentialCanSatisfyRequiredSecret(credentialStatus, "teams_webhook") ||
+      Boolean(
+        credentialStatus &&
+          credentialExists(credentialStatus, "teams_webhook"),
+      ) ||
       Boolean(credentials.teams_webhook.trim());
 
     if (!hasTeamsConnection) {
@@ -674,7 +675,10 @@ export function getCredentialValidationError(
 
   if (config?.alerts.telegram?.enabled) {
     const hasAlertCode =
-      credentialCanSatisfyRequiredSecret(credentialStatus, "telegram_bot_token") ||
+      Boolean(
+        credentialStatus &&
+          credentialExists(credentialStatus, "telegram_bot_token"),
+      ) ||
       Boolean(credentials.telegram_bot_token.trim());
     const hasDestination = Boolean(config.alerts.telegram.chat_id?.trim());
 
@@ -689,7 +693,10 @@ export function getCredentialValidationError(
 
   if (config?.usajobs?.enabled) {
     const hasAccessCode =
-      credentialCanSatisfyRequiredSecret(credentialStatus, "usajobs_api_key") ||
+      Boolean(
+        credentialStatus &&
+          credentialExists(credentialStatus, "usajobs_api_key"),
+      ) ||
       Boolean(credentials.usajobs_api_key.trim());
     const hasEmail = Boolean(config.usajobs.email?.trim());
 

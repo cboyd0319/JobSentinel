@@ -18,6 +18,7 @@ user-facing workflow risk requires more evidence.
 | Change | Required sensor |
 | ------ | --------------- |
 | Agent docs, plans, or harness files | `npm run harness:check` |
+| Always-read harness or active-state docs | `npm run harness:check` verifies context budgets |
 | Multi-agent orchestration or delegated implementation | `npm run harness:check`, focused checks for each accepted slice, and coordinator diff review evidence |
 | Markdown docs | `npm run lint:md` |
 | Package scripts | `npm run harness:check` and affected script command |
@@ -88,9 +89,9 @@ with warnings-as-errors as a required local or CI gate.
 | Change | Required sensor |
 | ------ | --------------- |
 | `AGENTS.md` | `npm run harness:check` |
-| `docs/harness/*` | `npm run harness:check` and `npm run lint:md` |
+| `docs/harness/*` | `npm run harness:check` and `npm run lint:md`; keep always-read files within the context budgets in `docs/harness/README.md` |
 | `DESIGN.md` or `docs/design/*` | `npm run harness:check`, `npm run lint:md`, and `npm run lint:bloat` |
-| `docs/plans/*` | `npm run harness:check` |
+| `docs/plans/*` | `npm run harness:check`; keep active restart files bounded and archive detailed slice history |
 | `docs/plans/templates/*` | `npm run harness:check` and `npm run lint:md` |
 | README developer links | `npm run harness:check` |
 | PR template or CI docs | Manual link check plus `npm run harness:check` |

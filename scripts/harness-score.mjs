@@ -42,6 +42,33 @@ function countMatchingFiles(root, dirPath, pattern) {
   return readdirSync(fullPath).filter((entry) => pattern.test(entry)).length;
 }
 
+function countTextLines(text) {
+  if (text.length === 0) {
+    return 0;
+  }
+
+  const trailingNewlineAdjustment = /\r?\n$/.test(text) ? 1 : 0;
+  return text.split(/\r?\n/).length - trailingNewlineAdjustment;
+}
+
+function fileWithinBudget(root, path, maxLines, maxBytes) {
+  const text = readText(root, path);
+  if (!text) {
+    return false;
+  }
+
+  return countTextLines(text) <= maxLines && Buffer.byteLength(text, "utf8") <= maxBytes;
+}
+
+function startupContextStaysBounded(root) {
+  return (
+    fileWithinBudget(root, "AGENTS.md", 160, 8000) &&
+    fileWithinBudget(root, "docs/harness/README.md", 160, 9000) &&
+    fileWithinBudget(root, "docs/plans/active/status.md", 140, 9000) &&
+    fileWithinBudget(root, "docs/plans/active/current-work.md", 220, 12000)
+  );
+}
+
 function fileHasAll(root, path, fragments) {
   const text = readText(root, path).toLowerCase();
   return fragments.every((fragment) => text.includes(fragment.toLowerCase()));
@@ -277,6 +304,11 @@ function buildFrameworks(root) {
               "docs/plans/active",
             ),
             check(
+              "Startup context stays bounded",
+              startupContextStaysBounded(root),
+              "AGENTS.md, docs/harness/README.md, docs/plans/active/status.md, docs/plans/active/current-work.md",
+            ),
+            check(
               "Tech-debt tracker preserves harness drift",
               exists(root, "docs/plans/tech-debt-tracker.md"),
               "docs/plans/tech-debt-tracker.md",
@@ -440,6 +472,11 @@ function buildFrameworks(root) {
               exists(root, "docs/plans/active/current-work.md") &&
                 fileHasAll(root, "docs/plans/active/current-work.md", ["## Handoff", "## Sensors"]),
               "docs/plans/active/current-work.md",
+            ),
+            check(
+              "Active state stays within context budget",
+              startupContextStaysBounded(root),
+              "docs/harness/README.md, docs/plans/active/status.md, docs/plans/active/current-work.md",
             ),
             check("Tech-debt tracker exists", exists(root, "docs/plans/tech-debt-tracker.md"), "docs/plans/tech-debt-tracker.md"),
           ],

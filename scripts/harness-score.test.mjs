@@ -279,6 +279,36 @@ test("summarizeHarnessScore catches missing environment pins", () => {
   });
 });
 
+test("summarizeHarnessScore catches bloated startup context", () => {
+  withFixture((root) => {
+    writeCompleteHarnessFixture(root);
+    writeFixtureFile(
+      root,
+      "docs/plans/active/status.md",
+      [
+        "## Next Best Work",
+        "1. Continue.",
+        "Quiet Shield redesign is now part of the active repo-wide goal and the repo harness.",
+        "DESIGN.md",
+        "docs/design/README.md",
+        "docs/design/design-spec.md",
+        "## Completion Bar",
+        ...Array.from({ length: 150 }, (_, index) => `Historical detail ${index + 1}.`),
+      ].join("\n"),
+    );
+
+    const summary = summarizeHarnessScore(root);
+    const lecture = summary.frameworks.find((framework) => framework.id === "walkinglabs-lecture");
+    const state = lecture.subsystems.find((subsystem) => subsystem.name === "State");
+
+    assert.equal(summary.allPerfect, false);
+    assert.equal(
+      state.checks.find((item) => item.label === "Startup context stays bounded").pass,
+      false,
+    );
+  });
+});
+
 test("formatHarnessScoreReport shows both five-tuple frameworks", () => {
   withFixture((root) => {
     writeCompleteHarnessFixture(root);
