@@ -210,14 +210,7 @@ impl SkillExtractor {
     fn contains_skill(&self, text: &str, skill: &str) -> bool {
         let skill_lower = skill.to_lowercase();
 
-        // Check for exact match with word boundaries
-        let pattern = format!(r"\b{}\b", regex::escape(&skill_lower));
-        if let Ok(re) = regex::Regex::new(&pattern) {
-            re.is_match(text)
-        } else {
-            // Fallback to simple contains
-            text.contains(&skill_lower)
-        }
+        skill_match_count(text, &skill_lower) > 0
     }
 
     /// Calculate confidence score based on:
@@ -228,7 +221,7 @@ impl SkillExtractor {
         let skill_lower = skill.to_lowercase();
 
         // Count occurrences
-        let count = text.matches(&skill_lower).count();
+        let count = skill_match_count(text, &skill_lower);
         let frequency_score = (count as f64 * 0.1).min(0.5);
 
         // Check if in "Skills" section
@@ -243,6 +236,31 @@ impl SkillExtractor {
 
         (frequency_score + context_score + base_score).min(1.0)
     }
+}
+
+fn skill_match_count(text: &str, skill: &str) -> usize {
+    if skill.trim().is_empty() {
+        return 0;
+    }
+
+    text.match_indices(skill)
+        .filter(|(start, _)| skill_match_has_boundaries(text, skill, *start))
+        .count()
+}
+
+fn skill_match_has_boundaries(text: &str, skill: &str, start: usize) -> bool {
+    let end = start + skill.len();
+    let before_is_term = text[..start]
+        .chars()
+        .next_back()
+        .is_some_and(is_skill_term_char);
+    let after_is_term = text[end..].chars().next().is_some_and(is_skill_term_char);
+
+    !before_is_term && !after_is_term
+}
+
+fn is_skill_term_char(ch: char) -> bool {
+    ch.is_alphanumeric() || matches!(ch, '#' | '+')
 }
 
 impl Default for SkillExtractor {

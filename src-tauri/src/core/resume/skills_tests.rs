@@ -365,19 +365,28 @@ fn test_all_skill_categories_coverage() {
 #[test]
 fn test_special_characters_in_skills() {
     let extractor = SkillExtractor::new();
-    // Skills with special chars like C++, C#, .NET
-    let resume_text = "Expert in C++, C#, .NET, and Node.js";
+    let resume_text = "Expert in C++, C#, .NET, Node.js, CI/CD, and F#";
     let skills = extractor.extract_skills(resume_text);
 
     let skill_names: Vec<String> = skills.iter().map(|s| s.skill_name.clone()).collect();
 
-    // At minimum, Node.js and .NET should be in the database
-    assert!(
-        skill_names.contains(&"Node.js".to_string())
-            || skill_names.contains(&".NET".to_string())
-            || skill_names.len() > 0,
-        "Should extract at least some skills from text with special characters"
-    );
+    assert!(skill_names.contains(&"C++".to_string()));
+    assert!(skill_names.contains(&"C#".to_string()));
+    assert!(skill_names.contains(&".NET".to_string()));
+    assert!(skill_names.contains(&"Node.js".to_string()));
+    assert!(skill_names.contains(&"CI/CD".to_string()));
+    assert!(skill_names.contains(&"F#".to_string()));
+}
+
+#[test]
+fn test_symbol_skill_boundaries_do_not_create_partial_matches() {
+    let extractor = SkillExtractor::new();
+
+    assert!(!extractor.contains_skill("c++17 systems work", "C++"));
+    assert!(!extractor.contains_skill("c#9 application", "C#"));
+    assert!(!extractor.contains_skill("javascript developer", "Java"));
+    assert!(extractor.contains_skill("c++ systems work", "C++"));
+    assert!(extractor.contains_skill("c# application", "C#"));
 }
 
 #[test]
