@@ -32,8 +32,8 @@ for the harness-creator tuple.
 
 Implemented:
 
-- `.nvmrc` pins local Node guidance to CI's Node 20 baseline.
-- `rust-toolchain.toml` pins stable Rust with `clippy` and `rustfmt`.
+- `.nvmrc` pins local Node guidance to CI's Node 24.16.0 baseline.
+- `rust-toolchain.toml` pins Rust 1.96.0 with `clippy` and `rustfmt`.
 - `scripts/doctor.mjs` now checks those pin files.
 - `docs/plans/index.json` gives active workstreams a machine-readable restart
   surface.

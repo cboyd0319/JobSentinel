@@ -22,8 +22,8 @@ function withDoctorFixture(callback) {
   const root = mkdtempSync(join(tmpdir(), "jobsentinel-doctor-"));
 
   try {
-    writeFixtureFile(root, ".nvmrc", "20\n");
-    writeFixtureFile(root, "rust-toolchain.toml", 'channel = "stable"\n');
+    writeFixtureFile(root, ".nvmrc", "24.16.0\n");
+    writeFixtureFile(root, "rust-toolchain.toml", 'channel = "1.96.0"\n');
     writeFixtureFile(root, "package-lock.json", "{}");
     writeFixtureFile(root, "node_modules/.bin/tauri", "");
     writeFixtureFile(root, "node_modules/@playwright/test/package.json", "{}");
@@ -55,20 +55,20 @@ function createMockExec(options = {}) {
 
     if (command === "cargo") {
       if (firstArg === "--version") {
-        return "cargo 1.91.1";
+        return "cargo 1.96.0";
       }
 
       if (firstArg === "fmt") {
-        return "rustfmt 1.91.1";
+        return "rustfmt 1.96.0";
       }
 
       if (firstArg === "clippy") {
-        return "clippy 0.1.91";
+        return "clippy 0.1.96";
       }
     }
 
     if (command === "rustc") {
-      return options.rustcOutput ?? "rustc 1.91.1";
+      return options.rustcOutput ?? "rustc 1.96.0";
     }
 
     if (command === "pkg-config") {
@@ -151,7 +151,7 @@ test("runDoctor checks Linux Tauri system packages through pkg-config", () => {
     const results = runDoctor({
       root,
       platform: "linux",
-      nodeVersion: "v20.11.1",
+      nodeVersion: "v24.16.0",
       execFileSync: createMockExec({
         installedPkgConfigPackages: ["gtk+-3.0", "ayatana-appindicator3-0.1", "librsvg-2.0"],
       }),
@@ -174,7 +174,7 @@ test("runDoctor warns on Playwright readiness by default", () => {
     const results = runDoctor({
       root,
       platform: "darwin",
-      nodeVersion: "v20.11.1",
+      nodeVersion: "v24.16.0",
       execFileSync: createMockExec({ playwrightFails: true }),
     });
 
@@ -193,7 +193,7 @@ test("runDoctor can make Playwright readiness a strict E2E gate", () => {
     const results = runDoctor({
       root,
       platform: "darwin",
-      nodeVersion: "v20.11.1",
+      nodeVersion: "v24.16.0",
       strictPlaywright: true,
       execFileSync: createMockExec({ playwrightFails: true }),
     });
@@ -213,18 +213,18 @@ test("runDoctor warns on toolchain baseline drift", () => {
     const results = runDoctor({
       root,
       platform: "darwin",
-      nodeVersion: "v22.21.1",
-      execFileSync: createMockExec({ rustcOutput: "rustc 1.92.0-nightly" }),
+      nodeVersion: "v26.3.0",
+      execFileSync: createMockExec({ rustcOutput: "rustc 1.97.0-nightly" }),
     });
 
     assert.ok(
       results.some(
-        (result) => result.status === "warn" && result.label === "Node.js CI baseline",
+        (result) => result.status === "warn" && result.label === "Node.js release baseline",
       ),
       formatDoctorResults(results),
     );
     assert.ok(
-      results.some((result) => result.status === "warn" && result.label === "Rust CI baseline"),
+      results.some((result) => result.status === "warn" && result.label === "Rust release baseline"),
       formatDoctorResults(results),
     );
   });
@@ -238,7 +238,7 @@ test("runDoctor checks local runtime pin files", () => {
     const results = runDoctor({
       root,
       platform: "darwin",
-      nodeVersion: "v20.11.1",
+      nodeVersion: "v24.16.0",
       execFileSync: createMockExec(),
     });
 

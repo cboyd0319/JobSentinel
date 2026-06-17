@@ -426,8 +426,8 @@ See [RESPONSIBLE_AI.md](RESPONSIBLE_AI.md), [PRIVACY.md](PRIVACY.md), and
 
 You need:
 
-- Node.js 20; `.nvmrc` pins the repo baseline
-- Rust from [rustup.rs](https://rustup.rs); `rust-toolchain.toml` pins stable
+- Node.js 24.16.0; `.nvmrc` pins the repo baseline
+- Rust from [rustup.rs](https://rustup.rs); `rust-toolchain.toml` pins 1.96.0
 - Platform dependencies listed in the
   [developer setup guide](docs/developer/GETTING_STARTED.md)
 

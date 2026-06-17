@@ -292,8 +292,8 @@ Before merging, verify:
 
 ```bash
 # Install pre-commit hooks
-cargo install cargo-audit
-cargo install cargo-geiger
+cargo install cargo-audit --version 0.22.2 --locked
+cargo install cargo-geiger --version 0.13.0 --locked
 
 # Run before committing
 cargo test

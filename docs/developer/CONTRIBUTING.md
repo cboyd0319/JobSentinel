@@ -95,8 +95,8 @@ seekers, that is a good outcome.
 
 **Required:**
 
-- Rust 1.83+ ([Install](https://rustup.rs/))
-- Node.js 20+ ([Install](https://nodejs.org/))
+- Rust 1.96.0+ ([Install](https://rustup.rs/))
+- Node.js 24.16.0+ ([Install](https://nodejs.org/))
 - Git
 
 **Platform-Specific:**

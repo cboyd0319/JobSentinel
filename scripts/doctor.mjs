@@ -7,6 +7,8 @@ import { fileURLToPath } from "node:url";
 
 const scriptPath = fileURLToPath(import.meta.url);
 const defaultRoot = resolve(dirname(scriptPath), "..");
+const nodeBaselineVersion = "24.16.0";
+const rustBaselineVersion = "1.96.0";
 
 export function parseVersion(value) {
   const match = String(value).match(/(\d+)(?:\.(\d+))?(?:\.(\d+))?/);
@@ -279,65 +281,74 @@ export function runDoctor(options = {}) {
   const nodeVersion = options.nodeVersion ?? process.version;
   const results = [];
 
-  if (compareVersions(nodeVersion, "20.0.0") < 0) {
+  if (compareVersions(nodeVersion, nodeBaselineVersion) < 0) {
     results.push({
       status: "fail",
       label: "Node.js runtime",
-      detail: `${nodeVersion}; need 20.0.0 or newer`,
+      detail: `${nodeVersion}; need ${nodeBaselineVersion} or newer`,
     });
   } else {
     results.push({
       status: "pass",
       label: "Node.js runtime",
-      detail: `${nodeVersion}; need 20.0.0+`,
+      detail: `${nodeVersion}; need ${nodeBaselineVersion}+`,
     });
   }
 
-  const nodeMajor = parseVersion(nodeVersion)?.[0];
-  if (nodeMajor && nodeMajor !== 20) {
+  if (compareVersions(nodeVersion, nodeBaselineVersion) !== 0) {
     results.push({
       status: "warn",
-      label: "Node.js CI baseline",
-      detail: `${nodeVersion}; CI uses Node 20. Use Node 20 if behavior differs.`,
+      label: "Node.js release baseline",
+      detail: `${nodeVersion}; CI uses Node ${nodeBaselineVersion}. Use ${nodeBaselineVersion} if behavior differs.`,
     });
   }
 
   checkPath(results, root, ".nvmrc", "Node version file", {
-    mustContain: "20",
-    fix: "Set .nvmrc to Node 20 to match CI",
+    mustContain: nodeBaselineVersion,
+    fix: `Set .nvmrc to Node ${nodeBaselineVersion} to match CI`,
   });
 
   runVersionCheck(results, "npm", ["--version"], "npm CLI", {
     cwd: root,
     platform,
     execFileSync: options.execFileSync,
-    fix: "Install Node.js 20+ with npm",
+    fix: `Install Node.js ${nodeBaselineVersion}+ with npm`,
   });
 
   runVersionCheck(results, "cargo", ["--version"], "Cargo CLI", {
     cwd: join(root, "src-tauri"),
     platform,
     execFileSync: options.execFileSync,
-    fix: "Install stable Rust with Cargo",
+    fix: `Install Rust ${rustBaselineVersion} with Cargo`,
   });
 
   const rustc = runVersionCheck(results, "rustc", ["--version"], "Rust compiler", {
     cwd: join(root, "src-tauri"),
     platform,
     execFileSync: options.execFileSync,
-    fix: "Install stable Rust",
+    fix: `Install Rust ${rustBaselineVersion}`,
   });
-  if (rustc.ok && /\b(?:nightly|beta)\b/i.test(rustc.output)) {
+  if (rustc.ok && compareVersions(rustc.output, rustBaselineVersion) < 0) {
+    results.push({
+      status: "fail",
+      label: "Rust release baseline",
+      detail: `${rustc.output}; need ${rustBaselineVersion} or newer`,
+    });
+  } else if (
+    rustc.ok &&
+    (compareVersions(rustc.output, rustBaselineVersion) !== 0 ||
+      /\b(?:nightly|beta)\b/i.test(rustc.output))
+  ) {
     results.push({
       status: "warn",
-      label: "Rust CI baseline",
-      detail: `${rustc.output}; CI uses stable Rust.`,
+      label: "Rust release baseline",
+      detail: `${rustc.output}; CI uses Rust ${rustBaselineVersion}.`,
     });
   }
 
   checkPath(results, root, "rust-toolchain.toml", "Rust toolchain file", {
-    mustContain: 'channel = "stable"',
-    fix: "Set rust-toolchain.toml to stable to match CI",
+    mustContain: `channel = "${rustBaselineVersion}"`,
+    fix: `Set rust-toolchain.toml to Rust ${rustBaselineVersion} to match CI`,
   });
 
   runVersionCheck(results, "cargo", ["fmt", "--version"], "Rust formatter", {

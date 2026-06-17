@@ -351,7 +351,7 @@ Run tests with coverage flags:
 
 ```bash
 # Install tarpaulin
-cargo install cargo-tarpaulin
+cargo install cargo-tarpaulin --version 0.35.4 --locked
 
 # Generate coverage report
 cargo tarpaulin --out Html --output-dir coverage
@@ -376,8 +376,9 @@ Open `coverage/index.html` to view detailed coverage.
 
 ### GitHub Actions workflow
 
-CI runs on every push and pull request targeting `main`. All jobs run on `ubuntu-latest` with
-the stable Rust toolchain — there is no OS matrix and no beta toolchain run.
+CI runs on every push and pull request targeting `main`. All jobs run on
+`ubuntu-latest` with Rust 1.96.0; there is no OS matrix and no beta toolchain
+run.
 
 The three CI jobs are:
 

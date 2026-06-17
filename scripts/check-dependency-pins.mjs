@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { spawnSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -17,6 +17,8 @@ const npmDependencySections = [
 
 const cargoDependencySectionPattern =
   /^(?:dependencies|dev-dependencies|build-dependencies|target\..+\.dependencies)$/;
+const workflowDirectory = ".github/workflows";
+const cargoInstallScanRoots = [".github/workflows", "docs", "README.md"];
 
 const allowedNpmPrereleaseLockEntries = new Map([
   [
@@ -35,6 +37,37 @@ function repoPath(root, path) {
 
 function readJson(root, path) {
   return JSON.parse(readFileSync(repoPath(root, path), "utf8"));
+}
+
+function readText(root, path) {
+  return readFileSync(repoPath(root, path), "utf8");
+}
+
+function listFiles(root, path, predicate) {
+  const fullPath = repoPath(root, path);
+
+  if (!existsSync(fullPath)) {
+    return [];
+  }
+
+  if (!statSync(fullPath).isDirectory()) {
+    return predicate(path) ? [path] : [];
+  }
+
+  const files = [];
+  for (const entry of readdirSync(fullPath, { withFileTypes: true })) {
+    const childPath = `${path}/${entry.name}`;
+    if (entry.isDirectory()) {
+      files.push(...listFiles(root, childPath, predicate));
+      continue;
+    }
+
+    if (predicate(childPath)) {
+      files.push(childPath);
+    }
+  }
+
+  return files.sort();
 }
 
 export function parseStableSemver(version) {
@@ -75,6 +108,167 @@ export function highestStableVersion(versions) {
     .filter(Boolean)
     .sort(compareStableSemver)
     .at(-1)?.raw;
+}
+
+function exactStableVersion(value) {
+  const version = String(value).trim().replace(/^v/, "");
+  return parseStableSemver(version)?.raw ?? null;
+}
+
+function workflowFiles(root) {
+  return listFiles(root, workflowDirectory, (path) => /\.(?:ya?ml)$/.test(path));
+}
+
+function markdownPolicyFiles(root) {
+  return cargoInstallScanRoots.flatMap((path) =>
+    listFiles(root, path, (candidate) => candidate.endsWith(".md") || /\.ya?ml$/.test(candidate)),
+  );
+}
+
+function parseNodeRuntimePin(root) {
+  const path = ".nvmrc";
+  if (!existsSync(repoPath(root, path))) {
+    return { path, version: null, error: `${path} is missing` };
+  }
+
+  const version = readText(root, path).trim();
+  const stable = exactStableVersion(version);
+  if (!stable) {
+    return {
+      path,
+      version,
+      error: `${path} must pin an exact stable Node.js version, found ${version || "empty"}`,
+    };
+  }
+
+  return { path, version: stable };
+}
+
+function parseRustToolchainPin(root) {
+  const path = "rust-toolchain.toml";
+  if (!existsSync(repoPath(root, path))) {
+    return { path, version: null, error: `${path} is missing` };
+  }
+
+  const text = readText(root, path);
+  const channel = text.match(/^\s*channel\s*=\s*"([^"]+)"/m)?.[1];
+  const stable = exactStableVersion(channel ?? "");
+  if (!stable) {
+    return {
+      path,
+      version: channel ?? "",
+      error: `${path} channel must pin an exact stable Rust version, found ${channel ?? "missing"}`,
+    };
+  }
+
+  return { path, version: stable };
+}
+
+function parseCargoInstallVersion(rest) {
+  const optionVersion = rest.match(/(?:^|\s)--version(?:=|\s+)(=?v?\d+\.\d+\.\d+(?:\+[0-9A-Za-z.-]+)?)(?=\s|$)/);
+  if (optionVersion) {
+    return exactStableVersion(optionVersion[1].replace(/^=/, ""));
+  }
+
+  const crateAtVersion = rest.match(/^@?(?:[A-Za-z0-9_-]+)?@(?<version>v?\d+\.\d+\.\d+(?:\+[0-9A-Za-z.-]+)?)(?=\s|$)/);
+  return crateAtVersion?.groups?.version ? exactStableVersion(crateAtVersion.groups.version) : null;
+}
+
+function parseCargoInstallCommands(text, path) {
+  const commands = [];
+  const lines = text.split(/\r?\n/);
+  const pattern = /\bcargo\s+install\s+([A-Za-z0-9_-]+)((?:\s+[^\n`#;&|]+)*)/g;
+
+  lines.forEach((line, index) => {
+    for (const match of line.matchAll(pattern)) {
+      const rest = match[2] ?? "";
+      commands.push({
+        name: match[1],
+        version: parseCargoInstallVersion(rest),
+        locked: /(?:^|\s)--locked(?=\s|$)/.test(rest),
+        path,
+        line: index + 1,
+      });
+    }
+  });
+
+  return commands;
+}
+
+function collectCargoInstallPins(root) {
+  return markdownPolicyFiles(root).flatMap((path) =>
+    parseCargoInstallCommands(readText(root, path), path),
+  );
+}
+
+function workflowToolPinViolations(root, nodeVersion, rustVersion) {
+  const violations = [];
+
+  for (const path of workflowFiles(root)) {
+    const lines = readText(root, path).split(/\r?\n/);
+    lines.forEach((line, index) => {
+      const nodeMatch = line.match(/\bnode-version:\s*["']?([^"'\s]+)["']?/);
+      if (nodeMatch) {
+        const pinned = exactStableVersion(nodeMatch[1]);
+        if (!pinned) {
+          violations.push(`${path}:${index + 1} node-version must pin an exact stable version, found ${nodeMatch[1]}`);
+        } else if (nodeVersion && pinned !== nodeVersion) {
+          violations.push(`${path}:${index + 1} node-version must match .nvmrc ${nodeVersion}, found ${pinned}`);
+        }
+      }
+
+      const rustMatch = line.match(/\btoolchain:\s*["']?([^"'\s]+)["']?/);
+      if (rustMatch) {
+        const pinned = exactStableVersion(rustMatch[1]);
+        if (!pinned) {
+          violations.push(`${path}:${index + 1} Rust toolchain must pin an exact stable version, found ${rustMatch[1]}`);
+        } else if (rustVersion && pinned !== rustVersion) {
+          violations.push(`${path}:${index + 1} Rust toolchain must match rust-toolchain.toml ${rustVersion}, found ${pinned}`);
+        }
+      }
+    });
+  }
+
+  return violations;
+}
+
+export function collectRuntimePinViolations(root = defaultRoot) {
+  const violations = [];
+  const nodePin = parseNodeRuntimePin(root);
+  const rustPin = parseRustToolchainPin(root);
+
+  if (nodePin.error) {
+    violations.push(nodePin.error);
+  }
+
+  if (rustPin.error) {
+    violations.push(rustPin.error);
+  }
+
+  violations.push(...workflowToolPinViolations(root, nodePin.version, rustPin.version));
+
+  const seenCargoInstalls = new Map();
+  for (const command of collectCargoInstallPins(root)) {
+    const location = `${command.path}:${command.line} cargo install ${command.name}`;
+    if (!command.version) {
+      violations.push(`${location} must include an exact stable --version pin`);
+    }
+
+    if (!command.locked) {
+      violations.push(`${location} must include --locked`);
+    }
+
+    const previous = seenCargoInstalls.get(command.name);
+    if (previous && previous.version !== command.version) {
+      violations.push(
+        `${location} must match ${previous.path}:${previous.line}; found ${command.version ?? "missing"}, expected ${previous.version ?? "missing"}`,
+      );
+    } else {
+      seenCargoInstalls.set(command.name, command);
+    }
+  }
+
+  return violations;
 }
 
 function directNpmDependencies(packageJson) {
@@ -374,9 +568,7 @@ async function mapWithLimit(items, limit, callback) {
     }
   }
 
-  await Promise.all(
-    Array.from({ length: Math.min(limit, items.length) }, () => worker()),
-  );
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, () => worker()));
 
   return results;
 }
@@ -389,6 +581,115 @@ async function fetchJson(fetchImpl, url, headers = {}) {
   }
 
   return response.json();
+}
+
+async function fetchText(fetchImpl, url, headers = {}) {
+  const response = await fetchImpl(url, { headers });
+
+  if (!response.ok) {
+    throw new Error(`${url} returned HTTP ${response.status}`);
+  }
+
+  return response.text();
+}
+
+function rustStableVersionFromChannelToml(text) {
+  const rawVersion = String(text).match(
+    /^\s*\[pkg\.rust\][\s\S]*?^\s*version\s*=\s*"([^"]+)"/m,
+  )?.[1];
+  return rawVersion?.match(/\b\d+\.\d+\.\d+\b/)?.[0] ?? null;
+}
+
+export async function collectRuntimeLatestStableViolations(
+  root = defaultRoot,
+  { fetchImpl = globalThis.fetch } = {},
+) {
+  if (typeof fetchImpl !== "function") {
+    return ["runtime latest-stable check requires a fetch-capable Node runtime"];
+  }
+
+  const violations = [];
+  const nodePin = parseNodeRuntimePin(root);
+  const rustPin = parseRustToolchainPin(root);
+
+  if (!nodePin.error) {
+    try {
+      const nodeIndex = await fetchJson(fetchImpl, "https://nodejs.org/dist/index.json");
+      const latestLts = highestStableVersion(
+        nodeIndex
+          .filter((release) => release.lts)
+          .map((release) => String(release.version).replace(/^v/, "")),
+      );
+
+      if (!latestLts) {
+        violations.push("Node.js release index has no stable LTS versions");
+      } else if (compareStableSemver(nodePin.version, latestLts) !== 0) {
+        violations.push(`.nvmrc is pinned to ${nodePin.version}; latest stable Node.js LTS version is ${latestLts}`);
+      }
+    } catch (error) {
+      violations.push(`Node.js latest-stable lookup failed: ${error.message}`);
+    }
+  }
+
+  if (!rustPin.error) {
+    try {
+      const rustChannel = await fetchText(
+        fetchImpl,
+        "https://static.rust-lang.org/dist/channel-rust-stable.toml",
+      );
+      const latestRust = rustStableVersionFromChannelToml(rustChannel);
+
+      if (!latestRust) {
+        violations.push("Rust stable channel metadata did not include a stable version");
+      } else if (compareStableSemver(rustPin.version, latestRust) !== 0) {
+        violations.push(
+          `rust-toolchain.toml is pinned to ${rustPin.version}; latest stable Rust version is ${latestRust}`,
+        );
+      }
+    } catch (error) {
+      violations.push(`Rust latest-stable lookup failed: ${error.message}`);
+    }
+  }
+
+  const uniqueCargoInstalls = [
+    ...new Map(
+      collectCargoInstallPins(root)
+        .filter((command) => command.version)
+        .map((command) => [command.name, command]),
+    ).values(),
+  ];
+  const cargoInstallChecks = await mapWithLimit(uniqueCargoInstalls, 4, async (command) => {
+    try {
+      const metadata = await fetchJson(
+        fetchImpl,
+        `https://crates.io/api/v1/crates/${encodeURIComponent(command.name)}`,
+        {
+          "User-Agent":
+            "JobSentinel dependency pin check (https://github.com/cboyd0319/JobSentinel)",
+        },
+      );
+      const latest = highestStableVersion(
+        (metadata.versions ?? [])
+          .filter((version) => !version.yanked)
+          .map((version) => version.num),
+      );
+
+      if (!latest) {
+        return `crates.io has no stable non-yanked versions for ${command.name}`;
+      }
+
+      if (compareStableSemver(command.version, latest) !== 0) {
+        return `${command.path}:${command.line} cargo install ${command.name} is pinned to ${command.version}; latest stable crates.io version is ${latest}`;
+      }
+    } catch (error) {
+      return `crates.io latest-stable lookup failed for ${command.name}: ${error.message}`;
+    }
+
+    return null;
+  });
+
+  violations.push(...cargoInstallChecks.filter(Boolean));
+  return violations;
 }
 
 export async function collectNpmLatestStableViolations(
@@ -542,6 +843,7 @@ export function collectCargoCompatibleUpdateViolations(root = defaultRoot, { spa
 
 export function collectDependencyPinViolations(root = defaultRoot) {
   return [
+    ...collectRuntimePinViolations(root),
     ...collectNpmPinViolations(root),
     ...collectCargoPinViolations(root),
   ];
@@ -550,6 +852,7 @@ export function collectDependencyPinViolations(root = defaultRoot) {
 export async function collectLatestStableViolations(root = defaultRoot) {
   return [
     ...collectDependencyPinViolations(root),
+    ...(await collectRuntimeLatestStableViolations(root)),
     ...(await collectNpmLatestStableViolations(root)),
     ...(await collectCargoLatestStableViolations(root)),
     ...collectNpmCompatibleUpdateViolations(root),
@@ -583,9 +886,9 @@ export async function main(argv = process.argv.slice(2), root = defaultRoot) {
   }
 
   if (checkLatest) {
-    console.log("Dependency pin check passed: exact direct pins, latest stable direct dependencies, stable lockfile policy, and lockfile freshness verified.");
+    console.log("Dependency pin check passed: exact runtime/tool pins, exact direct pins, latest stable direct dependencies and tools, stable lockfile policy, and lockfile freshness verified.");
   } else {
-    console.log("Dependency pin check passed: exact direct package and crate pins plus stable lockfile policy verified.");
+    console.log("Dependency pin check passed: exact runtime/tool, package, and crate pins plus stable lockfile policy verified.");
   }
 }
 

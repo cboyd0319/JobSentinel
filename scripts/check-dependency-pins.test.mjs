@@ -11,6 +11,8 @@ import {
   collectNpmCompatibleUpdateViolations,
   collectNpmLatestStableViolations,
   collectNpmPinViolations,
+  collectRuntimeLatestStableViolations,
+  collectRuntimePinViolations,
   compareStableSemver,
   highestStableVersion,
   parseStableSemver,
@@ -128,6 +130,38 @@ function writeMinimalCargoFixture(root, version = "=1.0.228") {
       `version = "${version.slice(1)}"`,
       "",
     ].join("\n"),
+  );
+}
+
+function writeMinimalRuntimeFixture(root, options = {}) {
+  const nodeVersion = options.nodeVersion ?? "24.16.0";
+  const rustVersion = options.rustVersion ?? "1.96.0";
+  const cargoDenyVersion = options.cargoDenyVersion ?? "0.19.9";
+
+  writeFixtureFile(root, ".nvmrc", `${nodeVersion}\n`);
+  writeFixtureFile(
+    root,
+    "rust-toolchain.toml",
+    ['[toolchain]', `channel = "${rustVersion}"`, 'components = ["clippy", "rustfmt"]'].join("\n"),
+  );
+  writeFixtureFile(
+    root,
+    ".github/workflows/ci.yml",
+    [
+      "jobs:",
+      "  test:",
+      "    steps:",
+      "      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0",
+      `        with: { node-version: "${options.workflowNodeVersion ?? nodeVersion}" }`,
+      "      - uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8 # stable",
+      `        with: { toolchain: "${options.workflowRustVersion ?? rustVersion}" }`,
+      `      - run: cargo install cargo-deny --version ${cargoDenyVersion} --locked`,
+    ].join("\n"),
+  );
+  writeFixtureFile(
+    root,
+    "docs/developer/TESTING.md",
+    "cargo install cargo-tarpaulin --version 0.35.4 --locked\n",
   );
 }
 
@@ -263,6 +297,64 @@ test("Cargo pin check rejects prerelease lockfile crate versions", () => {
   });
 });
 
+test("runtime pin check accepts exact Node, Rust, workflow, and cargo install pins", () => {
+  withFixture((root) => {
+    writeMinimalRuntimeFixture(root);
+
+    assert.deepEqual(collectRuntimePinViolations(root), []);
+  });
+});
+
+test("runtime pin check rejects floating workflow and cargo install tool pins", () => {
+  withFixture((root) => {
+    writeMinimalRuntimeFixture(root, {
+      nodeVersion: "24",
+      rustVersion: "stable",
+      workflowNodeVersion: "24",
+      workflowRustVersion: "stable",
+      cargoDenyVersion: "0.19",
+    });
+    writeFixtureFile(
+      root,
+      "docs/security/README.md",
+      "cargo install cargo-audit\ncargo install cargo-geiger --version 0.13.0\n",
+    );
+
+    const violations = collectRuntimePinViolations(root);
+
+    assert.equal(
+      violations.some((violation) => violation.includes(".nvmrc must pin an exact stable")),
+      true,
+    );
+    assert.equal(
+      violations.some((violation) => violation.includes("rust-toolchain.toml channel")),
+      true,
+    );
+    assert.equal(
+      violations.some((violation) => violation.includes("node-version must pin an exact stable")),
+      true,
+    );
+    assert.equal(
+      violations.some((violation) => violation.includes("Rust toolchain must pin an exact stable")),
+      true,
+    );
+    assert.equal(
+      violations.some((violation) => violation.includes("cargo install cargo-deny")),
+      true,
+    );
+    assert.equal(
+      violations.some((violation) => violation.includes("cargo install cargo-audit")),
+      true,
+    );
+    assert.equal(
+      violations.some(
+        (violation) => violation.includes("cargo install cargo-geiger") && violation.includes("--locked"),
+      ),
+      true,
+    );
+  });
+});
+
 test("npm latest-stable check compares direct pins to registry versions", async () => {
   await withFixtureAsync(async (root) => {
     writeMinimalNpmFixture(root);
@@ -280,6 +372,49 @@ test("npm latest-stable check compares direct pins to registry versions", async 
 
     assert.deepEqual(violations, [
       "package.json react is pinned to 1.2.3; latest stable npm version is 1.3.0",
+    ]);
+  });
+});
+
+test("runtime latest-stable check compares tool pins to upstream versions", async () => {
+  await withFixtureAsync(async (root) => {
+    writeMinimalRuntimeFixture(root);
+
+    const violations = await collectRuntimeLatestStableViolations(root, {
+      fetchImpl: async (url) => {
+        if (String(url).includes("nodejs.org/dist/index.json")) {
+          return {
+            ok: true,
+            json: async () => [
+              { version: "v26.3.0", lts: false },
+              { version: "v24.17.0", lts: "Krypton" },
+              { version: "v24.16.0", lts: "Krypton" },
+            ],
+          };
+        }
+
+        if (String(url).includes("channel-rust-stable.toml")) {
+          return {
+            ok: true,
+            text: async () => '[pkg.rust]\nversion = "1.97.0 (abcdef 2026-06-01)"\n',
+          };
+        }
+
+        return {
+          ok: true,
+          json: async () => ({
+            versions: String(url).endsWith("cargo-deny")
+              ? [{ num: "0.19.9" }, { num: "0.20.0" }]
+              : [{ num: "0.35.4" }, { num: "1.0.0-beta.1" }],
+          }),
+        };
+      },
+    });
+
+    assert.deepEqual(violations, [
+      ".nvmrc is pinned to 24.16.0; latest stable Node.js LTS version is 24.17.0",
+      "rust-toolchain.toml is pinned to 1.96.0; latest stable Rust version is 1.97.0",
+      ".github/workflows/ci.yml:8 cargo install cargo-deny is pinned to 0.19.9; latest stable crates.io version is 0.20.0",
     ]);
   });
 });

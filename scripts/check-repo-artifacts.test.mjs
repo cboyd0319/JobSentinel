@@ -37,8 +37,8 @@ test("artifact checks reject unexpected root entries and local artifacts", () =>
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(root, "README.md", "# JobSentinel\n");
-    writeFixtureFile(root, ".nvmrc", "20\n");
-    writeFixtureFile(root, "rust-toolchain.toml", 'channel = "stable"\n');
+    writeFixtureFile(root, ".nvmrc", "24.16.0\n");
+    writeFixtureFile(root, "rust-toolchain.toml", 'channel = "1.96.0"\n');
     writeFixtureFile(root, "scratch.log", "local log\n");
     writeFixtureFile(root, "dist/bundle.js", "generated\n");
     mkdirSync(join(root, "src/unused"), { recursive: true });

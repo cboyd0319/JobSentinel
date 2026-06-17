@@ -44,7 +44,7 @@ The docs harness workflow covers maintained docs and agent-facing harness files.
 **Trigger:** Push to `main` or pull request targeting `main`
 
 All four jobs run in parallel on `ubuntu-latest`. There is no OS matrix and no
-beta toolchain, only stable Rust on Linux.
+beta toolchain, only pinned Rust 1.96.0 on Linux.
 
 ### Job: harness
 

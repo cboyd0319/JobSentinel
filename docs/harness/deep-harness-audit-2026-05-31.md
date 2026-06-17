@@ -69,7 +69,7 @@ module-ownership work below. Remaining recommendations stay tracked here and in
 | Priority | Improvement | Evidence | Risk | Recommended fix |
 | -------- | ----------- | -------- | ---- | --------------- |
 | P1 | Extend `npm run doctor` for Linux Tauri dependencies | `scripts/doctor.mjs` now checks WebKitGTK, GTK, appindicator, librsvg, and `patchelf` on Linux. | Closed: Linux contributors get an early failure with install guidance before Tauri build. | Keep package names current with Tauri Linux requirements. |
-| P1 | Pin local toolchain expectations | Closed: `.nvmrc` pins Node 20, `rust-toolchain.toml` pins stable Rust with `clippy` and `rustfmt`, and `doctor` checks both files. | Closed for current local expectations; future risk is CI/runtime drift when workflows change Node or Rust baselines. | Update the pin files, doctor checks, and CI workflows together when changing runtime baselines. |
+| P1 | Pin local toolchain expectations | Closed: `.nvmrc` pins Node 24.16.0, `rust-toolchain.toml` pins Rust 1.96.0 with `clippy` and `rustfmt`, and `doctor` checks both files. | Closed for current local expectations; future risk is CI/runtime drift when workflows change Node or Rust baselines. | Update the pin files, doctor checks, and CI workflows together when changing runtime baselines. |
 | P2 | Check Playwright browser install state | `doctor` now launches Playwright Chromium as a warning by default, and `npm run doctor:e2e` makes that launch a failure gate. | Closed: E2E setup can fail early with the browser install command before test runs. | Keep `doctor:e2e` in E2E setup and troubleshooting docs. |
 
 ## Verification Speed Improvements

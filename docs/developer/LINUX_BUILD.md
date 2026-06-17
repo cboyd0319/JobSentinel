@@ -27,8 +27,8 @@ sudo apt-get install -y \
 
 ### Build Tools
 
-- **Node.js** 20+ (frontend)
-- **Rust** stable, matching `rust-toolchain.toml`
+- **Node.js** 24.16.0+ (frontend)
+- **Rust** 1.96.0, matching `rust-toolchain.toml`
 - **npm** (package manager)
 
 ## Building Locally
@@ -198,7 +198,7 @@ docker run -it --rm \
   ubuntu:24.04 \
   bash -c "apt-get update && \
     apt-get install -y curl build-essential libwebkit2gtk-4.1-dev libgtk-3-dev libappindicator3-dev librsvg2-dev patchelf && \
-    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    curl -fsSL https://deb.nodesource.com/setup_24.x | bash - && \
     apt-get install -y nodejs && \
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y && \
     source ~/.cargo/env && \

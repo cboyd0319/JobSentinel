@@ -245,10 +245,18 @@ function buildFrameworks(root) {
         {
           name: "Environment",
           checks: [
-            check("Node runtime target is pinned", fileHasAny(root, ".nvmrc", ["20"]), ".nvmrc"),
+            check(
+              "Node runtime target is pinned",
+              fileHasAny(root, ".nvmrc", ["24.16.0"]),
+              ".nvmrc",
+            ),
             check(
               "Rust toolchain target is pinned",
-              fileHasAll(root, "rust-toolchain.toml", ["channel = \"stable\"", "clippy", "rustfmt"]),
+              fileHasAll(root, "rust-toolchain.toml", [
+                "channel = \"1.96.0\"",
+                "clippy",
+                "rustfmt",
+              ]),
               "rust-toolchain.toml",
             ),
             check("npm lockfile exists", exists(root, "package-lock.json"), "package-lock.json"),

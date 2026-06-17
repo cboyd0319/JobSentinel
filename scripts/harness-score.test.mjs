@@ -22,11 +22,11 @@ function withFixture(callback) {
 }
 
 function writeCompleteHarnessFixture(root) {
-  writeFixtureFile(root, ".nvmrc", "20\n");
+  writeFixtureFile(root, ".nvmrc", "24.16.0\n");
   writeFixtureFile(
     root,
     "rust-toolchain.toml",
-    ['[toolchain]', 'channel = "stable"', 'components = ["clippy", "rustfmt"]'].join("\n"),
+    ['[toolchain]', 'channel = "1.96.0"', 'components = ["clippy", "rustfmt"]'].join("\n"),
   );
   writeFixtureFile(
     root,

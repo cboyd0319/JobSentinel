@@ -53,7 +53,7 @@ Mutation testing would change `>` to `>=` and detect that no test fails!
 
 ```bash
 # Install cargo-mutants
-cargo install cargo-mutants
+cargo install cargo-mutants --version 27.1.0 --locked
 
 # Verify installation
 cargo mutants --version
@@ -367,15 +367,15 @@ jobs:
   mutants:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
 
       - name: Install Rust
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8 # stable
         with:
-          toolchain: stable
+          toolchain: "1.96.0"
 
       - name: Install cargo-mutants
-        run: cargo install cargo-mutants
+        run: cargo install cargo-mutants --version 27.1.0 --locked
 
       - name: Run mutation tests on changed files
         run: cd src-tauri && cargo mutants --in-diff
