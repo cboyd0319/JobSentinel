@@ -766,6 +766,45 @@ JavaScript
     }
 
     #[test]
+    #[ignore = "requires local private resume paths"]
+    fn test_parse_local_resume_smoke_paths() {
+        const LOCAL_RESUME_SMOKE_PATHS_ENV: &str = "JOBSENTINEL_LOCAL_RESUME_SMOKE_PATHS";
+
+        let Some(raw_paths) = std::env::var_os(LOCAL_RESUME_SMOKE_PATHS_ENV) else {
+            eprintln!(
+                "Set {LOCAL_RESUME_SMOKE_PATHS_ENV} to run local resume parser smoke checks."
+            );
+            return;
+        };
+
+        let parser = ResumeParser::new();
+        let mut parsed_count = 0;
+
+        for path in std::env::split_paths(&raw_paths) {
+            if path.as_os_str().is_empty() {
+                continue;
+            }
+
+            parsed_count += 1;
+            let text = parser.parse_resume(&path).unwrap_or_else(|error| {
+                panic!("local resume smoke input {parsed_count} did not parse: {error:#}");
+            });
+            let char_count = text.chars().count();
+
+            assert!(
+                char_count >= 100,
+                "local resume smoke input {parsed_count} produced only {char_count} readable chars"
+            );
+            eprintln!("local resume smoke input {parsed_count}: {char_count} readable chars");
+        }
+
+        assert!(
+            parsed_count > 0,
+            "{LOCAL_RESUME_SMOKE_PATHS_ENV} did not contain any local resume paths"
+        );
+    }
+
+    #[test]
     fn test_parse_resume_docx_extracts_document_text() {
         use docx_rs::{Docx, Paragraph, Run};
         use std::io::Cursor;
