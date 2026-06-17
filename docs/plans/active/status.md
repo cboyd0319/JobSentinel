@@ -86,18 +86,19 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   routes; forced empty/loading/error checks passed across startup and setup.
 - Setup Wizard desktop/mobile, whole-UI post-design click/action coverage, and
   keyboard paths now have fresh Playwright evidence.
-- Full local release gates passed on 2026-06-17: deps, docs, security,
-  frontend, Rust, and cross-browser Playwright (`266/266`).
+- Final local release gates passed on 2026-06-17: version/deps, docs, harness,
+  macOS readiness, frontend lint/unit/build, Playwright (`266/266`), Rust
+  fmt/clippy/full `cargo test`, and local macOS package verify.
 - Final non-`content/` expert/agent pass is applied locally: memory-only
   company research, accessible onboarding, auto-refresh gating, atomic alert
   claims, HTTPS JobsWithGPT endpoints, shared import hashes, and metadata.
-- v2.9.0 remains blocked until packaging verification and final release checks
-  close.
+- v2.9.0 local readiness is closed; final push/CI artifact build remains, and
+  Gatekeeper-ready macOS remains externally blocked by Apple Developer ID/notarization.
 
 ## Next Best Work
 
-1. Verify `2.9.0` release metadata, packaging docs, and Windows/macOS/Linux
-   release evidence before any asset creation or final push.
+1. Push after final handoff; use CI/release workflows for Windows/macOS/Linux
+   artifacts and keep no Gatekeeper-ready macOS claim before Apple credentials.
 2. Continue resume assistance only where it improves truthful requirement review,
    hard-constraint handling, readable evidence, or next-action guidance.
 3. Continue guided intake only where resume/profile suggestions stay optional,
