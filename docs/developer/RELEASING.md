@@ -215,6 +215,12 @@ for Developer ID signed and notarized releases. In that mode, the verifier
 rejects `_no-account_` filenames. If this workflow fails, the public DMG should
 be replaced before sharing the release.
 
+The local macOS package smoke launches the app through `open -F -n` with
+`ApplePersistenceIgnoreState=YES`, so it starts fresh instead of reopening a
+previous crashed session. The smoke path passes a verifier-only temporary data
+root and verifier-only database key; it must not read or write the user's live
+JobSentinel data or prompt for the user's Keychain.
+
 ### 5. Publish
 
 Review the draft release on GitHub and click "Publish release".

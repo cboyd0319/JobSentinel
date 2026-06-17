@@ -21,11 +21,10 @@ Rule 0 still controls the work: user data stays local unless the user explicitly
 configures an external channel, external AI stays optional and disabled by
 default, and users stay in control before anything leaves the device.
 
-Quiet Shield redesign is now part of the active repo-wide goal and the repo
-harness. It remains a harness-controlled active-goal acceptance gate, but broad
-implementation waits behind primary v2.9.0 gates. `DESIGN.md`,
-`docs/design/README.md`, and `docs/design/design-spec.md` stay required
-contracts for UI/UX changes when design work resumes.
+Quiet Shield redesign is now part of the active repo-wide goal and the repo harness.
+It remains a harness-controlled active-goal acceptance gate; broad implementation
+waits behind primary v2.9.0 gates. `DESIGN.md`, `docs/design/README.md`, and
+`docs/design/design-spec.md` remain UI/UX contracts.
 
 The v2.9.0 goal adds four durable release-readiness requirements:
 
@@ -68,15 +67,17 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   encrypted SQLite vault storage, file-backed app data opens through SQLCipher,
   and passive status checks stay non-interactive. Settings passphrase controls
   exist; macOS vault keys use native Keychain user-presence access control.
+- macOS package smoke verification now launches fresh with restore-state
+  ignored and verifier-owned temporary data plus a verifier-only database key,
+  so mounted and installed package checks do not touch live app data or prompt
+  for the user's Keychain.
 - Private resume parser smoke checks passed on 2026-06-17 for the supplied PDF
   and eight reference profiles via `JOBSENTINEL_LOCAL_RESUME_SMOKE_PATHS`, with
   no committed local paths or names.
 - Downloadable Agent Skills cover search planning, posting-risk review, resume
   tailoring, form review, tracking, outreach, interview prep, and offer/pay with
-  `agents/openai.yaml`, handoffs, decision templates, reference rubrics,
-  Persona, ResumeSkills, career-ops, article, and JobSentinel research coverage
-  for validation layers, source liveness, tracker history, salary-history
-  handling, and evidence-first handoffs.
+  `agents/openai.yaml`, handoffs, templates, rubrics, Persona, ResumeSkills,
+  career-ops, article, and JobSentinel research coverage.
 - LinkedIn runtime config/scraper types expose no session-cookie fields, and
   Browser Import manual verification passed on 2026-06-17 for desktop/mobile:
   settings, port validation, copy, private-link rejection, LinkedIn preview/save,
@@ -97,13 +98,11 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 
 1. Verify `2.9.0` release metadata, packaging docs, and Windows/macOS/Linux
    release evidence before any asset creation or final push.
-2. Continue resume assistance only where it improves truthful local requirement
-   review, hard-constraint handling, readable evidence, or next-action
-   guidance.
+2. Continue resume assistance only where it improves truthful requirement review,
+   hard-constraint handling, readable evidence, or next-action guidance.
 3. Continue guided intake only where resume/profile suggestions stay optional,
    reviewed, local, and understandable for non-technical job seekers.
-4. Continue job-card protection for stale, risky, duplicate, unclear, or
-   pay-problem postings without treating local signals as employer
+4. Continue job-card protection without treating local signals as employer
    predictions.
 5. Continue macOS readiness docs and checks without claiming Gatekeeper-ready
    distribution before Apple credentials exist.

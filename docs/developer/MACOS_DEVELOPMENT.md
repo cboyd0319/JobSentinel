@@ -210,6 +210,12 @@ ID public release gating, add `--require-gatekeeper`; that mode also requires
 the signed and notarized public app plus disk image to pass Gatekeeper
 assessment.
 
+The package smoke starts the app with `open -F -n` and
+`ApplePersistenceIgnoreState=YES` so macOS does not restore prior app state after
+a crash. It also routes data to a verifier-owned temporary root and uses a
+verifier-only database key, so package verification does not touch live app data
+or prompt for the user's Keychain.
+
 For a local no-account DMG that is ready to upload or replace manually, build
 with `JOBSENTINEL_MACOS_NO_ACCOUNT=true`. The builder writes
 `JobSentinel_<version>_no-account_universal.dmg` and a matching `.sha256`
