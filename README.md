@@ -536,10 +536,12 @@ Quality guardrails:
 - `npm run harness:check` keeps agent-facing docs, plan lifecycle rules, and
   version-linked front-door claims in sync.
 - `npm run lint:deps` blocks non-exact direct npm or Cargo pins and unstable
-  lockfile drift; `npm run release:check-deps` adds registry and lockfile
-  dry-run checks. All repo-declared direct packages and crates must be
-  exact-pinned to latest stable; resolved transitives stay exact lockfile-pinned
-  and latest-compatible rather than forced outside upstream-supported ranges.
+  lockfile drift; `npm run lint:actions` blocks unpinned or stale workflow
+  action refs. `npm run release:check-deps` adds registry, lockfile dry-run,
+  and action-ref freshness checks. All repo-declared direct packages, crates,
+  and workflow actions must be exact-pinned to latest stable; resolved
+  transitives stay exact lockfile-pinned and latest-compatible rather than
+  forced outside upstream-supported ranges.
 - `npm run lint:bloat` blocks disposable artifacts, stale docs patterns, weak
   test shortcuts, and recurring junk classes found during cleanup.
 - `npm run lint:tests` rejects focused tests, runtime skips, and weak E2E

@@ -65,9 +65,9 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   Hiring Trends toasts, Application Assist tabs, Pay Protection, Resume Match,
   and Settings Sources & Alerts opening without a passive Keychain prompt.
 - Dependency evidence on 2026-06-17 (`dompurify` `3.4.11`): repo-declared
-  direct npm/Cargo deps match latest/stable; resolved transitives are
-  lockfile-pinned; `npm run lint:deps` and `npm run release:check-deps`
-  enforce exact pins, registry freshness, stable lockfiles, and compatibility.
+  direct npm/Cargo deps and GitHub Actions match latest/stable; resolved
+  transitives are lockfile-pinned; `lint:deps`, `lint:actions`, and
+  `release:check-deps` enforce registry, lockfile, and action-ref freshness.
   Upstream constraints: npm `@polka/url`, `gensync`; Cargo
   `generic-array`, `toml`, `toml_datetime`, `toml_edit`.
 - Runtime credential commands, scheduler, notifications, and smoke tests use
