@@ -11,10 +11,11 @@ The repo-wide goal remains open. JobSentinel should keep moving toward zero
 known errors, privacy leaks, stale docs, brittle tests, user-facing technical
 assumptions, engineer-only defaults, and unverified claims.
 
-Current priority is critical product functionality. Repo-bloat cleanup is
-closed as of 2026-06-05; do not continue proactive file-size split work unless
-a fresh bloat failure blocks product, privacy, security, docs accuracy, or
-verification.
+Current priority is v2.9.0 readiness for an urgent single-user job search while
+keeping the broader product safe for non-technical job seekers. Repo-bloat
+cleanup is closed as of 2026-06-05; do not continue proactive file-size split
+work unless a fresh bloat failure blocks product, privacy, security, docs
+accuracy, or verification.
 
 Release creation is paused until development and QA blockers are closed. Do not
 spend time creating, uploading, or announcing new release assets while confirmed
@@ -29,6 +30,15 @@ Quiet Shield redesign is now part of the active repo-wide goal and the repo
 harness. It is a harness-controlled active-goal acceptance gate. `DESIGN.md`,
 `docs/design/README.md`, and `docs/design/design-spec.md` are required product
 contracts for UI and UX work.
+
+The v2.9.0 goal adds two durable release-readiness requirements:
+
+- Add a downloadable `skills/` directory with Agent Skills that comply with the
+  Agent Skills specification.
+- Support LinkedIn through user-opened search links and user-clicked Browser
+  Import only. Do not add LinkedIn session-cookie storage, token replay,
+  background monitoring, result-list crawling, or account automation unless a
+  future plan records official API approval for that exact use case.
 
 ## Active Workstreams
 
@@ -56,32 +66,44 @@ contracts for UI and UX work.
   Trends toasts, Application Assist tab behavior, Pay Protection layout, Resume
   Match saved-resume display, and Settings Sources & Alerts opening without a
   passive Keychain prompt.
+- Fresh dependency evidence on 2026-06-17 shows open npm freshness and security
+  blockers: `npm outdated --json` reports stale frontend/tooling packages, and
+  `npm audit --audit-level=moderate --json` reports critical Vitest browser
+  advisories plus high Vite, Storybook/esbuild, and `ws` advisories.
 - Detailed historical slice evidence from the former status file is archived in
   [active status history](../archive/active-status-history-2026-06-17.md).
 
 ## Next Best Work
 
-1. Continue the Quiet Shield redesign pass against `DESIGN.md`,
+1. Upgrade and hard-pin package metadata to latest stable versions, then rerun
+   `npm outdated --json`, `npm audit --audit-level=moderate`, focused package
+   checks, and the harness gates.
+2. Add and validate the downloadable `skills/` directory for job hunting and
+   resume assistance, keeping private resume/profile references out of the repo.
+3. Harden Browser Import as the compliant LinkedIn path: user opens a job page,
+   clicks import, reviews locally, and tracks the application without JobSentinel
+   logging in to LinkedIn or monitoring LinkedIn in the background.
+4. Continue the Quiet Shield redesign pass against `DESIGN.md`,
    `docs/design/README.md`, and `docs/design/design-spec.md`; modals now have
    focused regression proof, so the next proof should rerun full test/build,
    rebuild the packaged debug app, and use Computer Use on toasts, settings,
    keyboard flow, route empty states, and narrow-width states.
-2. Continue resume assistance only where it improves truthful local requirement
+5. Continue resume assistance only where it improves truthful local requirement
    review, hard-constraint handling, readable evidence, or next-action
    guidance.
-3. Continue guided intake only where resume/profile suggestions stay optional,
+6. Continue guided intake only where resume/profile suggestions stay optional,
    reviewed, local, and understandable for non-technical job seekers.
-4. Continue job-card protection for stale, risky, duplicate, unclear, or
+7. Continue job-card protection for stale, risky, duplicate, unclear, or
    pay-problem postings without treating local signals as employer
    predictions.
-5. Continue macOS readiness docs, release checks, and user guidance without
+8. Continue macOS readiness docs, release checks, and user guidance without
    claiming Gatekeeper-ready public distribution before Apple credentials
    exist.
-6. Continue encrypted local storage and saved-secret UX work with encrypted
+9. Continue encrypted local storage and saved-secret UX work with encrypted
    SQLite at rest, per-row AEAD vault rows, OS-protected default vault key,
    advanced passphrase mode, macOS native Keychain/LocalAuthentication unlock,
    and no passive secure-storage prompts from Settings or status views.
-7. Keep harness work focused on bounded startup context, runnable verification,
+10. Keep harness work focused on bounded startup context, runnable verification,
    privacy/security gates, and docs accuracy. Do not add new ceremony unless it
    prevents a repeated failure.
 
