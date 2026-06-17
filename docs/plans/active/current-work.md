@@ -131,8 +131,8 @@ Out of scope:
   resume tailoring, form review, tracking, interview prep, and offer/pay review.
 - Browser Import desktop/mobile manual verification passed on 2026-06-17 for
   setup, private-link rejection, LinkedIn preview/save, duplicates, and overflow.
-- Settings desktop/mobile verification passed for tabs, alert rules, sources,
-  Browser Import, support.
+- Settings/Applications checks passed for desktop/mobile tabs, modals,
+  details, keyboard, support, overflow.
 
 ## Next Work
 

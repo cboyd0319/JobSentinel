@@ -80,10 +80,10 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   Browser Import manual verification passed on 2026-06-17 for desktop/mobile:
   settings, port validation, copy, private-link rejection, LinkedIn preview/save,
   duplicate handling, no console errors, and no overflow.
-- Settings normal-state desktop/mobile verification passed: tabs, alerts/rules,
-  sources, Browser Import, support, keyboard, persistence; loading/error pending.
-- v2.9.0 remains blocked until every UI route, action, modal, toast, form,
-  settings/import/keyboard path, empty/loading/error state, and narrow-width surface has fresh evidence.
+- Settings and Applications normal-state desktop/mobile verification passed;
+  route loading/error states and remaining UI routes remain pending.
+- v2.9.0 remains blocked until all routes/actions/modals/toasts/forms,
+  keyboard, empty/loading/error, and narrow-width surfaces have fresh evidence.
 
 ## Next Best Work
 

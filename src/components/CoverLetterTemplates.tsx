@@ -129,7 +129,7 @@ function TemplateEditor({ template, onSave, onCancel, saving }: TemplateEditorPr
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Input
           label="Template Name"
           value={name}
@@ -253,9 +253,9 @@ function TemplatePreview({ template, selectedJob, onEdit, onDelete, onCopy, onUs
 
   return (
     <div className="border border-surface-200 dark:border-surface-700 rounded-lg overflow-hidden">
-      <div className="px-4 py-3 bg-surface-50 dark:bg-surface-800/50 flex items-center justify-between">
-        <div>
-          <div className="flex items-center gap-2">
+      <div className="flex flex-col gap-3 bg-surface-50 px-4 py-3 dark:bg-surface-800/50 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
             <h4 className="font-medium text-surface-900 dark:text-white">
               {template.name}
             </h4>
@@ -267,7 +267,7 @@ function TemplatePreview({ template, selectedJob, onEdit, onDelete, onCopy, onUs
             {wordCount} words · Updated {new Date(template.updatedAt).toLocaleDateString('en-US')}
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2 sm:justify-end">
           {selectedJob && onUseForJob && (
             <Button size="sm" onClick={handleUseForJob} title={`Fill for ${selectedJob.company}`}>
               Use for Job
@@ -561,8 +561,8 @@ export const CoverLetterTemplates = memo(function CoverLetterTemplates({ selecte
   return (
     <Card>
       <div className="p-4 border-b border-surface-200 dark:border-surface-700">
-        <div className="flex items-center justify-between">
-          <div>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
             <h3 className="font-medium text-surface-900 dark:text-white">
               Cover Letter Templates
             </h3>

@@ -90,6 +90,22 @@ describe("ToastContext", () => {
       expect(screen.getByText("Be careful")).toHaveClass("text-surface-700");
     });
 
+    it("keeps toast text click-through while controls remain clickable", async () => {
+      render(
+        <ToastProvider>
+          <TestComponent />
+        </ToastProvider>
+      );
+
+      fireEvent.click(screen.getByText("Show With Action"));
+
+      const alert = await screen.findByRole("alert");
+      expect(alert).toHaveClass("pointer-events-none");
+      expect(screen.getByText("Undo")).toHaveClass("pointer-events-auto");
+      expect(screen.getByLabelText(/Dismiss.*notification/i))
+        .toHaveClass("pointer-events-auto");
+    });
+
     it("portals the toast viewport to the document body", async () => {
       render(
         <ToastProvider>

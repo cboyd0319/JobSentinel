@@ -161,7 +161,7 @@ const ToastItem = memo(function ToastItem({ toast, onRemove }: { toast: Toast; o
   return (
     <div
       className={`
-        pointer-events-auto motion-safe:animate-slide-in-right
+        pointer-events-none motion-safe:animate-slide-in-right
         ${styles.card} rounded-lg border-l-4 shadow-lg p-4
         flex items-start gap-3
       `}
@@ -179,7 +179,7 @@ const ToastItem = memo(function ToastItem({ toast, onRemove }: { toast: Toast; o
           {toast.action && (
             <button
               onClick={handleAction}
-              className="flex-shrink-0 rounded-md bg-surface-100 px-3 py-1 text-sm font-medium text-surface-800 transition-colors hover:bg-surface-200 dark:bg-surface-700 dark:text-surface-100 dark:hover:bg-surface-600"
+              className="pointer-events-auto flex-shrink-0 rounded-md bg-surface-100 px-3 py-1 text-sm font-medium text-surface-800 transition-colors hover:bg-surface-200 dark:bg-surface-700 dark:text-surface-100 dark:hover:bg-surface-600"
             >
               {toast.action.label}
             </button>
@@ -188,7 +188,7 @@ const ToastItem = memo(function ToastItem({ toast, onRemove }: { toast: Toast; o
       </div>
       <button
         onClick={() => onRemove(toast.id)}
-        className="flex-shrink-0 text-surface-500 transition-colors hover:text-surface-800 dark:text-surface-400 dark:hover:text-surface-100"
+        className="pointer-events-auto flex-shrink-0 text-surface-500 transition-colors hover:text-surface-800 dark:text-surface-400 dark:hover:text-surface-100"
         aria-label={`Dismiss ${toast.title} notification`}
       >
         <XIcon />

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, within } from "@testing-library/react";
 import { Modal, ModalFooter } from "./Modal";
 import { resetBodyScrollLocksForTests } from "../utils/bodyScrollLock";
 
@@ -43,7 +43,7 @@ describe("Modal", () => {
       expect(screen.getByText("Test content")).toBeInTheDocument();
     });
 
-    it("renders inside the app tree with a viewport-fixed overlay", () => {
+    it("renders through a body portal with a viewport-fixed overlay", () => {
       render(
         <div data-testid="parent">
           <Modal isOpen={true} onClose={vi.fn()}>
@@ -55,11 +55,12 @@ describe("Modal", () => {
       const parent = screen.getByTestId("parent");
       const dialog = screen.getByRole("dialog");
 
-      expect(parent.contains(dialog)).toBe(true);
+      expect(parent.contains(dialog)).toBe(false);
+      expect(dialog.parentElement).toBe(document.body);
       expect(dialog).toHaveClass("app-modal-overlay", "fixed", "inset-0");
       expect(dialog).toHaveStyle({
         position: "fixed",
-        zIndex: "1000",
+        zIndex: "1001",
       });
     });
 
@@ -78,6 +79,24 @@ describe("Modal", () => {
       expect(backdrop).not.toHaveClass("motion-safe:animate-fade-in");
       expect(panel).toHaveClass("app-modal-panel");
       expect(panel).not.toHaveClass("motion-safe:animate-slide-up");
+    });
+
+    it("keeps nested modal actions reachable through the body portal", () => {
+      render(
+        <Modal isOpen={true} onClose={vi.fn()} title="Parent modal">
+          <div style={{ maxHeight: 100, overflow: "hidden" }}>
+            <Modal isOpen={true} onClose={vi.fn()} title="Nested confirmation">
+              <button type="button">Confirm nested action</button>
+            </Modal>
+          </div>
+        </Modal>
+      );
+
+      const nested = screen.getByRole("dialog", { name: "Nested confirmation" });
+
+      expect(nested.parentElement).toBe(document.body);
+      expect(within(nested).getByRole("button", { name: "Confirm nested action" }))
+        .toBeVisible();
     });
   });
 
@@ -250,6 +269,25 @@ describe("Modal", () => {
 
       expect(onCloseOuter).not.toHaveBeenCalled();
       expect(onCloseInner).toHaveBeenCalledTimes(1);
+    });
+
+    it("closes a nested modal before its parent when Escape is pressed", () => {
+      const onParentClose = vi.fn();
+      const onChildClose = vi.fn();
+
+      render(
+        <Modal isOpen={true} onClose={onParentClose} title="Parent modal">
+          <button type="button">Parent action</button>
+          <Modal isOpen={true} onClose={onChildClose} title="Child modal">
+            Child content
+          </Modal>
+        </Modal>
+      );
+
+      fireEvent.keyDown(document, { key: "Escape" });
+
+      expect(onChildClose).toHaveBeenCalledTimes(1);
+      expect(onParentClose).not.toHaveBeenCalled();
     });
   });
 

@@ -751,7 +751,7 @@ describe("Settings — handleSave flow", () => {
       return null;
     });
 
-    const { container } = render(<Settings onClose={vi.fn()} />);
+    render(<Settings onClose={vi.fn()} />);
 
     await waitFor(() => {
       expect(screen.getByText("Settings")).toBeInTheDocument();
@@ -765,7 +765,7 @@ describe("Settings — handleSave flow", () => {
     expect(screen.getByPlaceholderText(/Telegram setup code/i)).toBeInTheDocument();
     expect(screen.getByText("Telegram destination")).toBeInTheDocument();
     expect(screen.getByText(/Optional Telegram alert setup/i)).toBeInTheDocument();
-    expect(container.innerHTML).not.toMatch(
+    expect(document.body.innerHTML).not.toMatch(
       /Incoming Webhooks|incoming webhook connector|Webhooks → New Webhook|Incoming Webhook → Configure|Telegram Connection Token|Telegram Chat ID|passwords, tokens|Message @BotFather to create a private alert bot|already use Telegram for automatic alerts|Telegram chat number|@BotFather|@userinfobot|\/newbot/i,
     );
   });
@@ -867,7 +867,7 @@ describe("Settings — handleSave flow", () => {
       return null;
     });
 
-    const { container } = render(<Settings onClose={vi.fn()} />);
+    render(<Settings onClose={vi.fn()} />);
 
     await waitFor(() => {
       expect(screen.getByText("Settings")).toBeInTheDocument();
@@ -888,7 +888,7 @@ describe("Settings — handleSave flow", () => {
       screen.getByText(/Resume text, private notes, application history, and local match reasons stay in JobSentinel/i),
     ).toBeInTheDocument();
 
-    const notificationText = container.textContent ?? "";
+    const notificationText = document.body.textContent ?? "";
     const desktopIndex = notificationText.indexOf("Desktop Notifications");
     const emailIndex = notificationText.indexOf("Email Alerts");
     const chatIndex = notificationText.indexOf("Optional chat alerts");

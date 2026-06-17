@@ -1,4 +1,15 @@
-import { memo, useEffect, useId, useRef, ReactNode, KeyboardEvent, MouseEvent } from "react";
+import {
+  createContext,
+  memo,
+  useContext,
+  useEffect,
+  useId,
+  useRef,
+  ReactNode,
+  KeyboardEvent,
+  MouseEvent,
+} from "react";
+import { createPortal } from "react-dom";
 import { lockBodyScroll } from "../utils/bodyScrollLock";
 
 interface ModalProps {
@@ -22,6 +33,21 @@ const SIZE_STYLES = {
   wide: "app-modal-size-wide max-w-6xl",
 } as const;
 
+const ModalDepthContext = createContext(0);
+
+function getTopmostModalOverlay(): HTMLDivElement | undefined {
+  const openModalOverlays = Array.from(
+    document.querySelectorAll<HTMLDivElement>('.app-modal-overlay[role="dialog"]'),
+  );
+
+  return openModalOverlays.reduce<HTMLDivElement | undefined>((topmost, modal) => {
+    if (!topmost) return modal;
+    const modalDepth = Number(modal.dataset.modalDepth ?? 0);
+    const topmostDepth = Number(topmost.dataset.modalDepth ?? 0);
+    return modalDepth >= topmostDepth ? modal : topmost;
+  }, undefined);
+}
+
 export const Modal = memo(function Modal({
   isOpen,
   onClose,
@@ -38,6 +64,8 @@ export const Modal = memo(function Modal({
   const previousActiveElement = useRef<Element | null>(null);
   const isMountedRef = useRef(true);
   const generatedId = useId();
+  const parentDepth = useContext(ModalDepthContext);
+  const modalDepth = parentDepth + 1;
   const titleId = `${generatedId}-modal-title`;
   const descriptionId = `${generatedId}-modal-description`;
 
@@ -48,7 +76,11 @@ export const Modal = memo(function Modal({
 
       // Focus the modal with proper timing and mounted check
       const rafId = requestAnimationFrame(() => {
-        if (isMountedRef.current && modalRef.current) {
+        if (
+          isMountedRef.current &&
+          modalRef.current &&
+          overlayRef.current === getTopmostModalOverlay()
+        ) {
           modalRef.current.focus();
         }
       });
@@ -79,14 +111,7 @@ export const Modal = memo(function Modal({
     const handleDocumentKeyDown = (event: globalThis.KeyboardEvent) => {
       if (event.key !== "Escape") return;
 
-      const openModalOverlays = Array.from(
-        document.querySelectorAll<HTMLDivElement>(
-          '.app-modal-overlay[role="dialog"]'
-        )
-      );
-      const topmostModal = openModalOverlays[openModalOverlays.length - 1];
-
-      if (topmostModal !== overlayRef.current) return;
+      if (getTopmostModalOverlay() !== overlayRef.current) return;
 
       event.preventDefault();
       onClose();
@@ -124,10 +149,11 @@ export const Modal = memo(function Modal({
 
   if (!isOpen) return null;
 
-  return (
+  const modal = (
     <div
       ref={overlayRef}
       className="app-modal-overlay fixed inset-0 z-[1000] flex items-center justify-center p-4"
+      data-modal-depth={modalDepth}
       role="dialog"
       aria-modal="true"
       aria-labelledby={title ? titleId : undefined}
@@ -139,7 +165,7 @@ export const Modal = memo(function Modal({
         right: 0,
         bottom: 0,
         left: 0,
-        zIndex: 1000,
+        zIndex: 1000 + modalDepth,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -224,10 +250,16 @@ export const Modal = memo(function Modal({
         )}
 
         {/* Body */}
-        <div className="app-modal-body overflow-y-auto p-6">{children}</div>
+        <div className="app-modal-body overflow-y-auto p-6">
+          <ModalDepthContext.Provider value={modalDepth}>
+            {children}
+          </ModalDepthContext.Provider>
+        </div>
       </div>
     </div>
   );
+
+  return typeof document === "undefined" ? modal : createPortal(modal, document.body);
 });
 
 // Modal footer component for action buttons
@@ -238,7 +270,7 @@ interface ModalFooterProps {
 
 export const ModalFooter = memo(function ModalFooter({ children, className = "" }: ModalFooterProps) {
   return (
-    <div className={`app-modal-footer sticky bottom-0 flex items-center justify-end gap-3 border-t border-surface-100 bg-white pt-4 dark:border-surface-700 dark:bg-surface-800 ${className}`}>
+    <div className={`app-modal-footer sticky bottom-0 flex flex-wrap items-center justify-end gap-3 border-t border-surface-100 bg-white pt-4 dark:border-surface-700 dark:bg-surface-800 ${className}`}>
       {children}
     </div>
   );
