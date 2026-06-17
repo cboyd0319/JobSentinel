@@ -70,7 +70,7 @@ Out of scope:
 | Area | State | Next useful slice |
 | ---- | ----- | ----------------- |
 | v2.9.0 dependency readiness | Complete | Package-manager, direct dependency, and Action pins are exact latest stable; transitives stay lockfile-pinned and latest-compatible |
-| Downloadable Agent Skills | Complete locally | Eight spec-compliant skills exist and are guarded by `npm run lint:skills` plus the harness. |
+| Downloadable Agent Skills | Complete locally | Eight spec-compliant skills are guarded by `lint:skills`, the harness, and `skills-ref@0.1.5`. |
 | Browser Import and LinkedIn-compatible flow | Complete locally | Manual desktop/mobile verification passed; revisit only if whole-UI QA finds a blocker. Keep LinkedIn user-opened and user-clicked without session cookies or background monitoring. |
 | Development and QA completion | Active | Fix confirmed UI, scraper, privacy, docs, harness, and Computer Use validation blockers before any new release work. |
 | macOS readiness | Paused for release creation | Keep docs honest when touched, but do not create or upload new release assets until development and QA blockers are closed. |
