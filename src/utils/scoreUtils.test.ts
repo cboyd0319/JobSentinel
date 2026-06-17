@@ -25,28 +25,28 @@ describe("scoreUtils", () => {
   });
 
   describe("getScoreColor", () => {
-    it("returns green for scores >= 80", () => {
-      expect(getScoreColor(80)).toBe("text-green-600 dark:text-green-400");
-      expect(getScoreColor(90)).toBe("text-green-600 dark:text-green-400");
-      expect(getScoreColor(100)).toBe("text-green-600 dark:text-green-400");
+    it("returns teal for scores >= 80", () => {
+      expect(getScoreColor(80)).toBe("text-sentinel-600 dark:text-sentinel-300");
+      expect(getScoreColor(90)).toBe("text-sentinel-600 dark:text-sentinel-300");
+      expect(getScoreColor(100)).toBe("text-sentinel-600 dark:text-sentinel-300");
     });
 
-    it("returns yellow for scores >= 60 and < 80", () => {
-      expect(getScoreColor(60)).toBe("text-yellow-600 dark:text-yellow-400");
-      expect(getScoreColor(70)).toBe("text-yellow-600 dark:text-yellow-400");
-      expect(getScoreColor(79)).toBe("text-yellow-600 dark:text-yellow-400");
+    it("returns blue for scores >= 60 and < 80", () => {
+      expect(getScoreColor(60)).toBe("text-blue-700 dark:text-info");
+      expect(getScoreColor(70)).toBe("text-blue-700 dark:text-info");
+      expect(getScoreColor(79)).toBe("text-blue-700 dark:text-info");
     });
 
-    it("returns orange for scores >= 40 and < 60", () => {
-      expect(getScoreColor(40)).toBe("text-orange-600 dark:text-orange-400");
-      expect(getScoreColor(50)).toBe("text-orange-600 dark:text-orange-400");
-      expect(getScoreColor(59)).toBe("text-orange-600 dark:text-orange-400");
+    it("returns amber for scores >= 40 and < 60", () => {
+      expect(getScoreColor(40)).toBe("text-alert-700 dark:text-alert-300");
+      expect(getScoreColor(50)).toBe("text-alert-700 dark:text-alert-300");
+      expect(getScoreColor(59)).toBe("text-alert-700 dark:text-alert-300");
     });
 
     it("returns red for scores < 40", () => {
-      expect(getScoreColor(0)).toBe("text-red-600 dark:text-red-400");
-      expect(getScoreColor(20)).toBe("text-red-600 dark:text-red-400");
-      expect(getScoreColor(39)).toBe("text-red-600 dark:text-red-400");
+      expect(getScoreColor(0)).toBe("text-danger");
+      expect(getScoreColor(20)).toBe("text-danger");
+      expect(getScoreColor(39)).toBe("text-danger");
     });
 
     it("returns neutral for invalid display scores", () => {
@@ -58,24 +58,24 @@ describe("scoreUtils", () => {
   });
 
   describe("getScoreBg", () => {
-    it("returns green for scores >= 80", () => {
-      expect(getScoreBg(80)).toBe("bg-green-500");
-      expect(getScoreBg(100)).toBe("bg-green-500");
+    it("returns teal for scores >= 80", () => {
+      expect(getScoreBg(80)).toBe("bg-sentinel-500");
+      expect(getScoreBg(100)).toBe("bg-sentinel-500");
     });
 
-    it("returns yellow for scores >= 60 and < 80", () => {
-      expect(getScoreBg(60)).toBe("bg-yellow-500");
-      expect(getScoreBg(79)).toBe("bg-yellow-500");
+    it("returns blue for scores >= 60 and < 80", () => {
+      expect(getScoreBg(60)).toBe("bg-info");
+      expect(getScoreBg(79)).toBe("bg-info");
     });
 
-    it("returns orange for scores >= 40 and < 60", () => {
-      expect(getScoreBg(40)).toBe("bg-orange-500");
-      expect(getScoreBg(59)).toBe("bg-orange-500");
+    it("returns amber for scores >= 40 and < 60", () => {
+      expect(getScoreBg(40)).toBe("bg-alert-500");
+      expect(getScoreBg(59)).toBe("bg-alert-500");
     });
 
     it("returns red for scores < 40", () => {
-      expect(getScoreBg(0)).toBe("bg-red-500");
-      expect(getScoreBg(39)).toBe("bg-red-500");
+      expect(getScoreBg(0)).toBe("bg-danger");
+      expect(getScoreBg(39)).toBe("bg-danger");
     });
 
     it("returns neutral for invalid display scores", () => {

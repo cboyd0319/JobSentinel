@@ -77,7 +77,7 @@ export function ResumeRecentMatches({ matches }: ResumeRecentMatchesProps) {
                         <ResumeScoreBreakdownRow
                           label="Experience fit"
                           score={experienceScore}
-                          barClassName="bg-alert-500"
+                          barClassName="bg-info"
                         />
                       )}
                       {educationScore !== null && (

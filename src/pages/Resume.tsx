@@ -610,7 +610,7 @@ export default function Resume({ onBack }: ResumeProps) {
                                 option.value === "Can train others"
                                   ? "bg-sentinel-500"
                                   : option.value === "Regular use"
-                                    ? "bg-alert-500"
+                                    ? "bg-info"
                                     : option.value === "Some practice"
                                       ? "bg-blue-500"
                                       : "bg-surface-400"

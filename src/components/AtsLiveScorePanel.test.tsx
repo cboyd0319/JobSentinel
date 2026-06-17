@@ -186,7 +186,7 @@ describe("AtsLiveScorePanel", () => {
   });
 
   describe("score colors", () => {
-    it("shows green for excellent scores (>=80)", async () => {
+    it("shows teal for excellent scores (>=80)", async () => {
       mockInvoke.mockResolvedValue({ ...mockAnalysis, overall_score: 85 });
 
       render(
@@ -201,11 +201,11 @@ describe("AtsLiveScorePanel", () => {
 
       await waitFor(() => {
         const scoreElement = screen.getAllByText("Clear evidence")[0];
-        expect(scoreElement.className).toContain("text-green");
+        expect(scoreElement.className).toContain("text-sentinel");
       });
     });
 
-    it("shows yellow for fair scores (60-79)", async () => {
+    it("shows blue for fair scores (60-79)", async () => {
       mockInvoke.mockResolvedValue({ ...mockAnalysis, overall_score: 65 });
 
       render(
@@ -220,7 +220,7 @@ describe("AtsLiveScorePanel", () => {
 
       await waitFor(() => {
         const scoreElement = screen.getByText("Mixed evidence");
-        expect(scoreElement.className).toContain("text-yellow");
+        expect(scoreElement.className).toContain("text-blue");
       });
     });
 
@@ -239,7 +239,7 @@ describe("AtsLiveScorePanel", () => {
 
       await waitFor(() => {
         const scoreElement = screen.getByText("Low evidence");
-        expect(scoreElement.className).toContain("text-red");
+        expect(scoreElement.className).toContain("text-danger");
       });
     });
   });

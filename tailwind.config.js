@@ -7,60 +7,55 @@ export default {
   darkMode: 'class',
   theme: {
     extend: {
-      // JobSentinel Brand: Confident, Private, Intelligent, Vigilant
+      // Quiet Shield: protective navy surfaces with teal action color.
       colors: {
-        // Primary: Deep teal - trust, security, intelligence
         sentinel: {
-          50: '#E6F4F1',
-          100: '#CCE9E3',
-          200: '#99D3C7',
-          300: '#66BDAB',
-          400: '#33A78F',
-          500: '#0D9373', // Primary brand
-          600: '#0A7A5F',
-          700: '#08614B',
-          800: '#054837',
-          900: '#032F24',
-          950: '#011812',
+          50: '#F0FDFA',
+          100: '#CCFBF1',
+          200: '#99F6E4',
+          300: '#5EEAD4',
+          400: '#2DD4BF',
+          500: '#14B8A6',
+          600: '#0F766E',
+          700: '#115E59',
+          800: '#134E4A',
+          900: '#0F3F3A',
+          950: '#042F2E',
         },
-        // Accent: Warm amber - alerts, matches, opportunities
+        // Amber is caution and missing evidence, never high-match color.
         alert: {
-          50: '#FFF8E6',
-          100: '#FFF1CC',
-          200: '#FFE399',
-          300: '#FFD566',
-          400: '#FFC733',
-          500: '#FFB800', // High-match gold
-          600: '#CC9300',
-          700: '#996E00',
-          800: '#664A00',
-          900: '#332500',
+          50: '#FFFBEB',
+          100: '#FEF3C7',
+          200: '#FDE68A',
+          300: '#FCD34D',
+          400: '#FBBF24',
+          500: '#F59E0B',
+          600: '#D97706',
+          700: '#B45309',
+          800: '#92400E',
+          900: '#78350F',
         },
-        // Surface colors - subtle warmth
         surface: {
-          50: '#FAFBFA',
-          100: '#F4F6F5',
-          200: '#E8EDEB',
-          300: '#D1DBD7',
-          400: '#9CAEA6',
-          500: '#6B8077',
-          600: '#4A5D54',
-          700: '#364540',
-          800: '#252F2B',
-          900: '#141B18',
-          950: '#0A0E0C',
+          50: '#F6F8F7',
+          100: '#EEF3F1',
+          200: '#D6E0DC',
+          300: '#B7C4C0',
+          400: '#94A3B8',
+          500: '#6B7280',
+          600: '#475569',
+          700: '#334155',
+          800: '#1F2937',
+          900: '#0B1020',
+          950: '#060A14',
         },
-        // Semantic
         success: '#22C55E',
-        warning: '#F59E0B',
-        danger: '#EF4444',
+        warning: '#FBBF24',
+        danger: '#F87171',
+        info: '#38BDF8',
       },
       fontFamily: {
-        // Display: Space Grotesk - modern, technical, confident
-        display: ['"Space Grotesk"', 'system-ui', 'sans-serif'],
-        // Body: Inter - clean, readable, professional
-        body: ['Inter', 'system-ui', 'sans-serif'],
-        // Mono: JetBrains Mono - for scores/stats
+        display: ['Inter', '"IBM Plex Sans"', '"Source Sans 3"', 'system-ui', 'sans-serif'],
+        body: ['Inter', '"IBM Plex Sans"', '"Source Sans 3"', 'system-ui', 'sans-serif'],
         mono: ['"JetBrains Mono"', 'monospace'],
       },
       fontSize: {
@@ -84,15 +79,14 @@ export default {
         'lg': '0.75rem',
         'xl': '1rem',
         '2xl': '1.5rem',
-        'card': '1.25rem', // Distinctive card radius
+        'card': '0.5rem',
       },
       boxShadow: {
-        // Subtle, sophisticated shadows
-        'soft': '0 2px 8px -2px rgba(13, 147, 115, 0.08), 0 4px 16px -4px rgba(13, 147, 115, 0.12)',
-        'card': '0 4px 12px -4px rgba(13, 147, 115, 0.1), 0 8px 24px -8px rgba(13, 147, 115, 0.08)',
-        'card-hover': '0 8px 24px -4px rgba(13, 147, 115, 0.15), 0 16px 40px -8px rgba(13, 147, 115, 0.12)',
-        'glow': '0 0 20px rgba(13, 147, 115, 0.3)',
-        'alert-glow': '0 0 20px rgba(255, 184, 0, 0.4)',
+        'soft': '0 1px 2px rgba(15, 23, 42, 0.08), 0 8px 20px -16px rgba(15, 23, 42, 0.22)',
+        'card': '0 8px 28px -18px rgba(15, 23, 42, 0.35)',
+        'card-hover': '0 14px 36px -22px rgba(15, 23, 42, 0.45)',
+        'glow': '0 0 0 1px rgba(45, 212, 191, 0.22), 0 10px 32px -24px rgba(45, 212, 191, 0.45)',
+        'alert-glow': '0 0 0 1px rgba(251, 191, 36, 0.2), 0 10px 32px -24px rgba(251, 191, 36, 0.42)',
       },
       animation: {
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',

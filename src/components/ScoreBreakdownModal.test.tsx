@@ -253,16 +253,16 @@ describe("ScoreBreakdownModal", () => {
 
       const overallScore = screen.getByText("92%");
 
-      expect(overallScore).toHaveClass("text-green-600", "dark:text-green-400");
+      expect(overallScore).toHaveClass("text-sentinel-600", "dark:text-sentinel-300");
       expect(overallScore).not.toHaveAttribute("style");
     });
 
-    it("applies green styling for high factor evidence", () => {
+    it("applies teal styling for high factor evidence", () => {
       render(<ScoreBreakdownModal {...defaultProps} score={1.0} />);
 
       const evidenceBadges = screen.getAllByText("Clear evidence");
       expect(evidenceBadges.length).toBeGreaterThan(0);
-      expect(evidenceBadges[0]).toHaveClass("text-green-600", "dark:text-green-400");
+      expect(evidenceBadges[0]).toHaveClass("text-sentinel-700", "dark:text-sentinel-300");
     });
 
     it("handles zero factor scores", () => {

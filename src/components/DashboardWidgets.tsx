@@ -138,7 +138,11 @@ export const DashboardWidgets = memo(function DashboardWidgets({ className = '' 
   if (loading) {
     return (
       <div className={`flex items-center justify-center p-8 ${className}`}>
-        <LoadingSpinner />
+        <LoadingSpinner
+          fullScreen={false}
+          message="Loading application summary..."
+          size="sm"
+        />
       </div>
     );
   }

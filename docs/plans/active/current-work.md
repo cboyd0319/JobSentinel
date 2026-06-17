@@ -80,7 +80,7 @@ Out of scope:
 | Guided intake | Active | Add optional suggestions only after user review; keep broad defaults and non-technical paths first-class. |
 | Pay protection | Active | Keep missing, minimum-only, maximum-only, malformed, or broad listed-pay evidence plain and review-first. |
 | Encrypted local storage | Active | SQLCipher, AEAD vault rows, migration, passphrase controls, and macOS vault-key user-presence locking exist; continue release/packaging readiness. |
-| Quiet Shield redesign | Next | Apply Quiet Shield/Protective Navy and verify the design contract. |
+| Quiet Shield redesign | Applied locally | Protective Navy/teal tokens, score-color semantics, and compact dashboard widget loading are screenshot-checked; final click/action coverage still required. |
 | Final Rust and agent improvement pass | Complete locally | Accepted non-`content/` fixes are applied and verified; revisit only for regressions. |
 | Cleanup and harness | Closed for proactive repo-bloat work | Reopen only for a fresh failing gate or blocker to privacy, security, docs accuracy, or verification. |
 
@@ -114,7 +114,8 @@ Out of scope:
   non-technical starter paths.
 - Active plan sprawl has been reduced to this plan plus `status.md`.
 - Quiet Shield QA fixed modals, truncation, wrapped tabs, source tables,
-  Application Assist paint, viewport-fixed toasts, and passive Keychain prompts.
+  Application Assist paint, viewport-fixed toasts, passive Keychain prompts,
+  Protective Navy tokens, score colors, and compact dashboard widget loading.
 - The v2.9.0 pass confirmed Browser Import is the LinkedIn path, not session
   storage or automatic monitoring. Private profile inputs stay local.
 - Package-manager, npm/Cargo, npm override, Action, OS-runner, and apt direct
@@ -140,8 +141,8 @@ Out of scope:
 
 ## Next Work
 
-1. Apply Quiet Shield/Protective Navy design decisions; verify with
-   `DESIGN.md`, `docs/design/README.md`, and `docs/design/design-spec.md`.
+1. Complete final whole-UI click/action verification after the Quiet Shield
+   token pass and record route, modal, toast, keyboard, and narrow-width evidence.
 2. Verify `2.9.0` release metadata, packaging docs, and Windows/macOS/Linux
    release evidence before any asset creation or final push.
 3. Confirm major route screenshots, Computer Use clicks, keyboard flow, and

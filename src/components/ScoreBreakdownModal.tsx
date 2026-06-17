@@ -258,7 +258,7 @@ function getScoreEvidenceStatus(
     return {
       label: "Clear fit evidence",
       detail: "Saved reasons support this local fit estimate. Check the original posting before tailoring.",
-      color: "text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-900/20",
+      color: "text-sentinel-700 dark:text-sentinel-300 bg-sentinel-50 dark:bg-sentinel-900/30",
     };
   }
 
@@ -316,9 +316,9 @@ function estimateBreakdown(_score: number, reasons: ReturnType<typeof parseScore
  */
 function getScoreColor(score: number, maxScore: number): string {
   const percentage = score / maxScore;
-  if (percentage >= SCORE_THRESHOLD_HIGH) return "text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20";
-  if (percentage >= SCORE_THRESHOLD_PARTIAL) return "text-yellow-600 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-900/20";
-  return "text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20";
+  if (percentage >= SCORE_THRESHOLD_HIGH) return "text-sentinel-700 dark:text-sentinel-300 bg-sentinel-50 dark:bg-sentinel-900/30";
+  if (percentage >= SCORE_THRESHOLD_PARTIAL) return "text-alert-700 dark:text-alert-300 bg-alert-50 dark:bg-alert-900/20";
+  return "text-danger bg-red-50 dark:bg-red-900/20";
 }
 
 /**
@@ -336,9 +336,9 @@ function getFactorEvidenceLabel(score: number, maxScore: number): string {
  */
 function getBarColor(score: number, maxScore: number): string {
   const percentage = score / maxScore;
-  if (percentage >= SCORE_THRESHOLD_HIGH) return "bg-green-500 dark:bg-green-400";
-  if (percentage >= SCORE_THRESHOLD_PARTIAL) return "bg-yellow-500 dark:bg-yellow-400";
-  return "bg-red-500 dark:bg-red-400";
+  if (percentage >= SCORE_THRESHOLD_HIGH) return "bg-sentinel-500 dark:bg-sentinel-400";
+  if (percentage >= SCORE_THRESHOLD_PARTIAL) return "bg-alert-500 dark:bg-alert-400";
+  return "bg-danger";
 }
 
 export const ScoreBreakdownModal = memo(function ScoreBreakdownModal({
@@ -355,9 +355,9 @@ export const ScoreBreakdownModal = memo(function ScoreBreakdownModal({
   const evidenceStatus = getScoreEvidenceStatus(reasons);
 
   const getScoreLabel = () => {
-    if (safeScore >= SCORE_THRESHOLD_HIGH) return { label: "Strong Fit", color: "text-green-600 dark:text-green-400" };
-    if (safeScore >= SCORE_THRESHOLD_GOOD) return { label: "Good Fit", color: "text-sentinel-600 dark:text-sentinel-400" };
-    if (safeScore >= SCORE_THRESHOLD_PARTIAL) return { label: "Possible Fit", color: "text-yellow-600 dark:text-yellow-400" };
+    if (safeScore >= SCORE_THRESHOLD_HIGH) return { label: "Strong Fit", color: "text-sentinel-600 dark:text-sentinel-300" };
+    if (safeScore >= SCORE_THRESHOLD_GOOD) return { label: "Good Fit", color: "text-blue-700 dark:text-info" };
+    if (safeScore >= SCORE_THRESHOLD_PARTIAL) return { label: "Possible Fit", color: "text-alert-700 dark:text-alert-300" };
     return { label: "Needs Review", color: "text-surface-500 dark:text-surface-400" };
   };
 
@@ -456,7 +456,7 @@ export const ScoreBreakdownModal = memo(function ScoreBreakdownModal({
                           key={idx}
                           className={`text-xs ${
                             hasCheck
-                              ? "text-green-600 dark:text-green-400"
+                              ? "text-sentinel-600 dark:text-sentinel-300"
                               : hasCross
                               ? "text-red-600 dark:text-red-400"
                               : "text-surface-600 dark:text-surface-400"

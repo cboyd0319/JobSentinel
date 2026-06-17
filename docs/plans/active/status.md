@@ -78,9 +78,8 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   Browser Import manual verification passed on 2026-06-17 for desktop/mobile:
   settings, port validation, copy, private-link rejection, LinkedIn preview/save,
   duplicate handling, no console errors, and no overflow.
-- Desktop/mobile normal-state checks passed for Settings, Apps, Resumes, Salary,
-  Trends, Assist, Builder, and Resume Match. Forced empty/loading/error checks
-  passed across startup, setup, and all primary routes.
+- Desktop/mobile normal-state and Quiet Shield token checks passed for primary
+  routes; forced empty/loading/error checks passed across startup and setup.
 - Setup Wizard desktop/mobile, whole-UI click/action coverage, and keyboard
   paths now have fresh Playwright evidence.
 - Full local release gates passed on 2026-06-17: deps, docs, security,
@@ -88,13 +87,13 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 - Final non-`content/` expert/agent pass is applied locally: memory-only
   company research, accessible onboarding, auto-refresh gating, atomic alert
   claims, HTTPS JobsWithGPT endpoints, shared import hashes, and metadata.
-- v2.9.0 remains blocked until the redesign pass, packaging verification, and
-  final release checks close.
+- v2.9.0 remains blocked until final manual UI verification, packaging
+  verification, and final release checks close.
 
 ## Next Best Work
 
-1. Apply Quiet Shield/Protective Navy design decisions now that primary
-   v2.9.0 product/security gates and whole-UI verification blockers are closed.
+1. Complete final whole-UI click/action verification after the Quiet Shield
+   token pass and record evidence before any release-ready claim.
 2. Verify `2.9.0` release metadata, packaging docs, and Windows/macOS/Linux
    release evidence before any asset creation or final push.
 3. Continue resume assistance only where it improves truthful local requirement

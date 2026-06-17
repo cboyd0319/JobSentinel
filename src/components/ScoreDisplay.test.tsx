@@ -44,20 +44,17 @@ describe("ScoreDisplay", () => {
   describe("color styling", () => {
     it("applies high match styling for scores >= 0.9", () => {
       const { container } = render(<ScoreDisplay score={0.95} />);
-      // High match scores use alert (red/orange) styling
-      expect(container.querySelector(".stroke-alert-500")).toBeInTheDocument();
+      expect(container.querySelector(".stroke-sentinel-400")).toBeInTheDocument();
     });
 
     it("applies good match styling for scores >= 0.7", () => {
       const { container } = render(<ScoreDisplay score={0.75} />);
-      // Good match scores use sentinel (brand) styling
-      expect(container.querySelector(".stroke-sentinel-500")).toBeInTheDocument();
+      expect(container.querySelector(".stroke-info")).toBeInTheDocument();
     });
 
     it("applies partial match styling for scores >= 0.5", () => {
       const { container } = render(<ScoreDisplay score={0.5} />);
-      // Partial match scores use surface-400 styling
-      expect(container.querySelector(".stroke-surface-400")).toBeInTheDocument();
+      expect(container.querySelector(".stroke-alert-500")).toBeInTheDocument();
     });
 
     it("applies low match styling for scores < 0.5", () => {
@@ -68,12 +65,12 @@ describe("ScoreDisplay", () => {
 
     it("applies glow effect for excellent scores", () => {
       const { container } = render(<ScoreDisplay score={0.95} />);
-      expect(container.querySelector(".shadow-alert-glow")).toBeInTheDocument();
+      expect(container.querySelector(".shadow-glow")).toBeInTheDocument();
     });
 
     it("does not apply glow for lower scores", () => {
       const { container } = render(<ScoreDisplay score={0.85} />);
-      expect(container.querySelector(".shadow-alert-glow")).not.toBeInTheDocument();
+      expect(container.querySelector(".shadow-glow")).not.toBeInTheDocument();
     });
   });
 
@@ -311,19 +308,19 @@ describe("ScoreBar", () => {
   });
 
   describe("color styling", () => {
-    it("uses alert color for scores >= 0.9", () => {
+    it("uses sentinel color for scores >= 0.9", () => {
       const { container } = render(<ScoreBar score={0.95} />);
-      expect(container.querySelector(".bg-alert-500")).toBeInTheDocument();
-    });
-
-    it("uses sentinel color for scores >= 0.7", () => {
-      const { container } = render(<ScoreBar score={0.75} />);
       expect(container.querySelector(".bg-sentinel-500")).toBeInTheDocument();
     });
 
-    it("uses surface-400 for scores >= 0.5", () => {
+    it("uses info color for scores >= 0.7", () => {
+      const { container } = render(<ScoreBar score={0.75} />);
+      expect(container.querySelector(".bg-info")).toBeInTheDocument();
+    });
+
+    it("uses alert color for scores >= 0.5", () => {
       const { container } = render(<ScoreBar score={0.55} />);
-      expect(container.querySelector(".bg-surface-400")).toBeInTheDocument();
+      expect(container.querySelector(".bg-alert-500")).toBeInTheDocument();
     });
 
     it("uses surface-300 for scores < 0.5", () => {

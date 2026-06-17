@@ -299,7 +299,7 @@ function ScoreBreakdownTooltip({
             const statusColor = hasFail
               ? "text-red-400"
               : hasPass
-                ? "text-green-400"
+                ? "text-sentinel-300"
                 : "text-surface-400";
 
             return (
@@ -361,20 +361,20 @@ export const ScoreDisplay = memo(function ScoreDisplay({
   const getScoreColor = () => {
     if (safeScore >= SCORE_THRESHOLD_HIGH)
       return {
-        ring: "stroke-alert-500",
-        text: "text-alert-600 dark:text-alert-400",
-        glow: "shadow-alert-glow",
+        ring: "stroke-sentinel-400",
+        text: "text-sentinel-600 dark:text-sentinel-300",
+        glow: "shadow-glow",
       };
     if (safeScore >= SCORE_THRESHOLD_GOOD)
       return {
-        ring: "stroke-sentinel-500",
-        text: "text-sentinel-600 dark:text-sentinel-400",
+        ring: "stroke-info",
+        text: "text-blue-700 dark:text-info",
         glow: "",
       };
     if (safeScore >= SCORE_THRESHOLD_PARTIAL)
       return {
-        ring: "stroke-surface-400",
-        text: "text-surface-600 dark:text-surface-400",
+        ring: "stroke-alert-500",
+        text: "text-alert-700 dark:text-alert-300",
         glow: "",
       };
     return {
@@ -494,9 +494,9 @@ export const ScoreBar = memo(function ScoreBar({
   const percentage = Math.round(safeBarScore * 100);
 
   const getColor = () => {
-    if (safeBarScore >= SCORE_THRESHOLD_HIGH) return "bg-alert-500";
-    if (safeBarScore >= SCORE_THRESHOLD_GOOD) return "bg-sentinel-500";
-    if (safeBarScore >= SCORE_THRESHOLD_PARTIAL) return "bg-surface-400";
+    if (safeBarScore >= SCORE_THRESHOLD_HIGH) return "bg-sentinel-500";
+    if (safeBarScore >= SCORE_THRESHOLD_GOOD) return "bg-info";
+    if (safeBarScore >= SCORE_THRESHOLD_PARTIAL) return "bg-alert-500";
     return "bg-surface-300";
   };
 
