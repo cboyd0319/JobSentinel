@@ -22,7 +22,7 @@ user-facing workflow risk requires more evidence.
 | Multi-agent orchestration or delegated implementation | `npm run harness:check`, focused checks for each accepted slice, and coordinator diff review evidence |
 | Markdown docs | `npm run lint:md` |
 | Package scripts | `npm run harness:check` and affected script command |
-| Dependency manifests or lockfiles | `npm run lint:deps`; before release also run `npm run release:check-deps` |
+| Dependency manifests or lockfiles | `npm run lint:deps`; before release also run `npm run release:check-deps`. All repo-declared direct npm packages and Cargo crates must be exact-pinned to latest stable; resolved transitives must stay exact lockfile-pinned and latest-compatible. Do not force transitive updates outside upstream-supported ranges with overrides or patches. |
 | Environment readiness or setup commands | `npm run doctor`, `npm run doctor:e2e` when E2E readiness matters, and `npm run harness:check` |
 | Frontend architecture boundary rules | `npm run lint:architecture` and `npm run harness:check` |
 | Tauri invoke command map | `npm run lint:tauri-invokes` and `npm run harness:check` |

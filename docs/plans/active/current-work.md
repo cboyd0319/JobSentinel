@@ -22,8 +22,8 @@ In scope:
 
 - Completing current development and QA blockers before any new release
   creation, upload, or announcement work.
-- Keeping repo-owned npm and Cargo pins exact at latest stable, with lockfiles
-  latest-compatible and upstream exceptions recorded.
+- Keeping npm/Cargo direct pins exact latest stable, with resolved transitives
+  lockfile-pinned and upstream exceptions recorded.
 - Adding downloadable Agent Skills under `skills/` for job hunting and resume
   work, with specification-compliant `SKILL.md` packages.
 - Hardening Browser Import as the LinkedIn-compatible path: user-opened page,
@@ -69,7 +69,7 @@ Out of scope:
 
 | Area | State | Next useful slice |
 | ---- | ----- | ----------------- |
-| v2.9.0 dependency readiness | Complete | Direct pins exact latest stable; lockfiles latest-compatible; revisit when freshness/audit fails |
+| v2.9.0 dependency readiness | Complete | Direct pins exact latest stable; resolved transitives lockfile-pinned and latest-compatible; revisit when freshness/audit fails |
 | Downloadable Agent Skills | Complete locally | Seven spec-compliant `skills/` packages exist and are guarded by `npm run lint:skills` plus the harness. |
 | Browser Import and LinkedIn-compatible flow | Complete locally | Manual desktop/mobile verification passed; revisit only if whole-UI QA finds a blocker. Keep LinkedIn user-opened and user-clicked without session cookies or background monitoring. |
 | Development and QA completion | Active | Fix confirmed UI, scraper, privacy, docs, harness, and Computer Use validation blockers before any new release work. |
@@ -118,10 +118,10 @@ Out of scope:
   viewport-fixed toasts, and Settings opening without passive Keychain prompts.
 - The v2.9.0 pass confirmed Browser Import is the LinkedIn path, not session
   storage or automatic monitoring. Private profile inputs stay local.
-- Direct npm/Cargo dependencies are exact-pinned to latest stable; transitive
-  deps are lockfile-pinned. `npm run lint:deps` enforces exact pins plus
-  stable-lockfile policy, `npm run release:check-deps` verifies registries and
-  dry-runs, and remaining behind-latest transitive deps are upstream-bound.
+- Direct npm/Cargo deps are exact-pinned latest stable; resolved transitives
+  are lockfile-pinned. `npm run lint:deps` enforces exact direct pins plus
+  stable-lockfile policy; `npm run release:check-deps` verifies registries and
+  dry-runs; remaining behind-latest transitives are upstream-bound.
 - Live OS keyring integration tests are opt-in behind
   `JOBSENTINEL_LIVE_KEYRING_TESTS=1`; default credential tests remain
   non-interactive and still prove LinkedIn credential storage is blocked before

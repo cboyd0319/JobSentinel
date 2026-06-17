@@ -565,7 +565,7 @@ export async function main(argv = process.argv.slice(2), root = defaultRoot) {
     console.log("Usage: node scripts/check-dependency-pins.mjs [--latest]");
     console.log("");
     console.log("Default: offline exact-pin and lockfile consistency checks.");
-    console.log("--latest: also query npm and crates.io latest stable versions and run cargo update --dry-run.");
+    console.log("--latest: also query npm/crates.io latest stable direct versions and run npm/Cargo lockfile dry-runs.");
     return;
   }
 
@@ -583,9 +583,9 @@ export async function main(argv = process.argv.slice(2), root = defaultRoot) {
   }
 
   if (checkLatest) {
-    console.log("Dependency pin check passed: exact pins, latest stable direct dependencies, stable lockfile policy, and lockfile freshness verified.");
+    console.log("Dependency pin check passed: exact direct pins, latest stable direct dependencies, stable lockfile policy, and lockfile freshness verified.");
   } else {
-    console.log("Dependency pin check passed: exact package and crate pins plus stable lockfile policy verified.");
+    console.log("Dependency pin check passed: exact direct package and crate pins plus stable lockfile policy verified.");
   }
 }
 

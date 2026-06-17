@@ -12,7 +12,7 @@ engineer-only defaults, and unverified claims. Current priority is v2.9.0
 readiness for an urgent single-user job search while keeping the broader
 product safe for non-technical job seekers.
 
-Repo-bloat cleanup is closed as of 2026-06-05; reopen only for a fresh bloat
+Repo-bloat cleanup is closed as of 2026-06-05; reopen only for a fresh gate
 failure blocking product, privacy, security, docs accuracy, or verification.
 
 Release creation is paused until development and QA blockers are closed. Do not
@@ -31,10 +31,10 @@ contracts for UI/UX changes when design work resumes.
 
 The v2.9.0 goal adds four durable release-readiness requirements:
 
-- Add a downloadable `skills/` directory with Agent Skills that comply with the
-  Agent Skills specification.
-- Keep repo-owned npm and Cargo pins exact at current latest stable, keep
-  lockfiles latest-compatible, and record upstream-constrained exceptions.
+- Add spec-compliant downloadable Agent Skills under `skills/`.
+- Keep repo-declared npm packages and Cargo crates exact-pinned latest stable;
+  keep resolved transitives lockfile-pinned, latest-compatible, and never
+  forced outside upstream constraints.
 - Support LinkedIn through user-opened search links and user-clicked Browser
   Import only. Do not add LinkedIn session-cookie storage, token replay,
   background monitoring, result-list crawling, or account automation unless a
@@ -64,12 +64,12 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 - Current UI QA evidence confirms modal paint fixes, visible Dashboard and
   Hiring Trends toasts, Application Assist tabs, Pay Protection, Resume Match,
   and Settings Sources & Alerts opening without a passive Keychain prompt.
-- Dependency evidence on 2026-06-17 (`dompurify` `3.4.11`): direct npm/Cargo
-  pins match latest/stable; transitive npm/Cargo versions are lockfile-pinned;
-  `npm run lint:deps` and `npm run release:check-deps` enforce exact pins,
-  registry freshness, stable-lockfile policy, and lock compatibility. Audits
-  report no blocking issues. Upstream constraints: npm `@polka/url`,
-  `gensync`; Cargo `generic-array`, `toml`, `toml_datetime`, `toml_edit`.
+- Dependency evidence on 2026-06-17 (`dompurify` `3.4.11`): repo-declared
+  direct npm/Cargo deps match latest/stable; resolved transitives are
+  lockfile-pinned; `npm run lint:deps` and `npm run release:check-deps`
+  enforce exact pins, registry freshness, stable lockfiles, and compatibility.
+  Upstream constraints: npm `@polka/url`, `gensync`; Cargo
+  `generic-array`, `toml`, `toml_datetime`, `toml_edit`.
 - Runtime credential commands, scheduler, notifications, and smoke tests use
   the encrypted SQLite secret-vault provider. Status checks read vault metadata
   only, and live OS keyring tests remain opt-in behind
