@@ -463,17 +463,28 @@ export function useDashboardJobOps(
     [selectedJobIds, jobs, setJobs, toast, pushAction],
   );
 
-  const handleBulkExport = useCallback(
-    (filteredJobs: Job[]) => {
-      const selectedJobs = filteredJobs.filter((j) => selectedJobIds.has(j.id));
-      if (selectedJobs.length === 0) return;
-      exportJobsToCSV(selectedJobs);
+  const handleExportJobs = useCallback(
+    (jobsToExport: Job[]) => {
+      if (jobsToExport.length === 0) {
+        toast.info("No jobs to download", "Change filters or select jobs first.");
+        return;
+      }
+
+      exportJobsToCSV(jobsToExport);
       toast.success(
-        `Downloaded ${selectedJobs.length} jobs`,
+        `Downloaded ${jobsToExport.length} jobs`,
         "Job list downloaded to your computer.",
       );
     },
-    [selectedJobIds, toast],
+    [toast],
+  );
+
+  const handleBulkExport = useCallback(
+    (filteredJobs: Job[]) => {
+      const selectedJobs = filteredJobs.filter((j) => selectedJobIds.has(j.id));
+      handleExportJobs(selectedJobs);
+    },
+    [selectedJobIds, handleExportJobs],
   );
 
   // Deduplication handlers
@@ -641,6 +652,7 @@ export function useDashboardJobOps(
     // Bulk operations
     handleBulkHide,
     handleBulkBookmark,
+    handleExportJobs,
     handleBulkExport,
 
     // Deduplication state

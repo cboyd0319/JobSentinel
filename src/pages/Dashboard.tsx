@@ -477,7 +477,7 @@ export default function Dashboard({
     const highMatchJobs = jobs.filter(
       (j) => (j.score ?? 0) >= SCORE_THRESHOLD_GOOD,
     );
-    jobOps.handleBulkExport(highMatchJobs);
+    jobOps.handleExportJobs(highMatchJobs);
   }, [jobs, jobOps]);
 
   const handleShowHighMatchesOnly = useCallback(() => {
@@ -489,7 +489,7 @@ export default function Dashboard({
   }, [filters]);
 
   const handleExportFilteredJobs = useCallback(() => {
-    jobOps.handleBulkExport(filters.filteredAndSortedJobs);
+    jobOps.handleExportJobs(filters.filteredAndSortedJobs);
   }, [jobOps, filters.filteredAndSortedJobs]);
 
   const handleLoadSearch = useCallback(

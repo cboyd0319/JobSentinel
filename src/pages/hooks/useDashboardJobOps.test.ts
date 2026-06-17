@@ -4,6 +4,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { useDashboardJobOps } from "./useDashboardJobOps";
 import type { Job, DuplicateGroup } from "../DashboardTypes";
 import { safeInvokeWithToast } from "../../utils/api";
+import { exportJobsToCSV } from "../../utils/export";
 
 vi.mock("@tauri-apps/api/core", () => ({ invoke: vi.fn() }));
 
@@ -29,6 +30,7 @@ vi.mock("../../utils/api", () => ({
 
 const mockInvoke = vi.mocked(invoke);
 const mockSafeInvokeWithToast = vi.mocked(safeInvokeWithToast);
+const mockExportJobsToCSV = vi.mocked(exportJobsToCSV);
 
 function makeJob(overrides: Partial<Job> = {}): Job {
   return {
@@ -276,6 +278,61 @@ describe("handleBulkHide", () => {
     );
 
     expect(mockToast.warning).not.toHaveBeenCalled();
+  });
+});
+
+// ─── Export handlers ─────────────────────────────────────────────────────────
+
+describe("export handlers", () => {
+  it("exports a provided job list without requiring selected jobs", () => {
+    const jobs = [makeJob({ id: 1 }), makeJob({ id: 2 })];
+    const { result } = renderJobOps(jobs);
+
+    act(() => {
+      result.current.handleExportJobs(jobs);
+    });
+
+    expect(mockExportJobsToCSV).toHaveBeenCalledWith(jobs);
+    expect(mockToast.success).toHaveBeenCalledWith(
+      "Downloaded 2 jobs",
+      "Job list downloaded to your computer.",
+    );
+  });
+
+  it("shows reviewable copy instead of downloading an empty list", () => {
+    const { result } = renderJobOps([]);
+
+    act(() => {
+      result.current.handleExportJobs([]);
+    });
+
+    expect(mockExportJobsToCSV).not.toHaveBeenCalled();
+    expect(mockToast.info).toHaveBeenCalledWith(
+      "No jobs to download",
+      "Change filters or select jobs first.",
+    );
+  });
+
+  it("bulk export still exports only selected jobs", () => {
+    const jobs = [makeJob({ id: 1 }), makeJob({ id: 2 }), makeJob({ id: 3 })];
+    const { result } = renderJobOps(jobs);
+
+    act(() => {
+      result.current.setSelectedJobIds(new Set([2, 3]));
+    });
+
+    act(() => {
+      result.current.handleBulkExport(jobs);
+    });
+
+    expect(mockExportJobsToCSV).toHaveBeenCalledWith([
+      jobs[1],
+      jobs[2],
+    ]);
+    expect(mockToast.success).toHaveBeenCalledWith(
+      "Downloaded 2 jobs",
+      "Job list downloaded to your computer.",
+    );
   });
 });
 
