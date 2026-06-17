@@ -283,14 +283,13 @@ fn format_import_error(error: &ImportError) -> String {
             format!("Missing required information: {}. This job posting may be incomplete.", field)
         }
         ImportError::Timeout => {
-            "The request timed out. Please check your internet connection and try again.".to_string()
+            "This took too long. Check your internet connection and try again.".to_string()
         }
-        ImportError::InvalidUrl(msg) => user_friendly_error("Invalid URL", msg),
-        ImportError::RedirectBlocked { location } => {
-            let location_label = sanitize_url_for_logging(location);
-            format!(
-                "The URL redirects to another location ({location_label}). Please paste the final public job posting URL directly."
-            )
+        ImportError::InvalidUrl(_) => {
+            "Paste the full job link from your browser address bar.".to_string()
+        }
+        ImportError::RedirectBlocked { .. } => {
+            "The job link redirects to another page. Paste the final public job posting link from your browser address bar.".to_string()
         }
         ImportError::HttpError(e) => {
             if e.is_connect() {
@@ -436,8 +435,9 @@ mod tests {
 
         let message = format_import_error(&error);
 
-        assert!(message.contains("https://example.com/final"));
+        assert!(message.contains("redirects to another page"));
         assert!(!message.contains("secret123"));
+        assert!(!message.contains("example.com"));
         assert!(!message.contains("query=security"));
         assert!(!message.contains("user"));
         assert!(!message.contains("pass"));
@@ -459,6 +459,7 @@ mod tests {
 
         for error in cases {
             let message = format_import_error(&error);
+            assert!(!message.is_empty());
             assert!(!message.contains("secret"));
             assert!(!message.contains("private-page-content"));
             assert!(!message.contains("candidate-specific"));

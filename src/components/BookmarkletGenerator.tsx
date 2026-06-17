@@ -16,6 +16,9 @@ const DEFAULT_BOOKMARKLET_CONFIG: BookmarkletConfig = {
   enabled: false,
 };
 
+const MIN_BOOKMARKLET_PORT = 1024;
+const MAX_BOOKMARKLET_PORT = 65535;
+
 function isBookmarkletConfig(value: unknown): value is BookmarkletConfig {
   return (
     typeof value === "object" &&
@@ -27,21 +30,36 @@ function isBookmarkletConfig(value: unknown): value is BookmarkletConfig {
 
 export function BookmarkletGenerator() {
   const [config, setConfig] = useState<BookmarkletConfig>(DEFAULT_BOOKMARKLET_CONFIG);
+  const [portInput, setPortInput] = useState(String(DEFAULT_BOOKMARKLET_CONFIG.port));
   const [loading, setLoading] = useState(true);
+  const [hasLoaded, setHasLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
+
+  const parsedPort = Number(portInput);
+  const portChanged = portInput !== String(config.port);
+  const portInputError =
+    portChanged &&
+    (!Number.isInteger(parsedPort) ||
+      parsedPort < MIN_BOOKMARKLET_PORT ||
+      parsedPort > MAX_BOOKMARKLET_PORT)
+      ? `Use a number from ${MIN_BOOKMARKLET_PORT} to ${MAX_BOOKMARKLET_PORT}.`
+      : null;
 
   const loadConfig = useCallback(async () => {
     try {
       setLoading(true);
       const cfg = await invoke<BookmarkletConfig>("get_bookmarklet_config");
-      setConfig(isBookmarkletConfig(cfg) ? cfg : DEFAULT_BOOKMARKLET_CONFIG);
+      const nextConfig = isBookmarkletConfig(cfg) ? cfg : DEFAULT_BOOKMARKLET_CONFIG;
+      setConfig(nextConfig);
+      setPortInput(String(nextConfig.port));
       setError(null);
     } catch (err) {
       logError("Failed to load bookmarklet config:", err);
       setError("Browser Import could not load. Close and reopen Settings. If this keeps happening, copy or save a safe support report from Settings.");
     } finally {
+      setHasLoaded(true);
       setLoading(false);
     }
   }, []);
@@ -69,11 +87,16 @@ export function BookmarkletGenerator() {
     }
   };
 
-  const updatePort = async (newPort: number) => {
+  const updatePort = async () => {
+    if (portInputError || !portChanged) {
+      return;
+    }
+
     try {
       setLoading(true);
-      await invoke("set_bookmarklet_port", { port: newPort });
-      setConfig({ ...config, port: newPort });
+      await invoke("set_bookmarklet_port", { port: parsedPort });
+      setConfig({ ...config, port: parsedPort });
+      setPortInput(String(parsedPort));
       setError(null);
     } catch (err) {
       logError("Failed to update bookmarklet port:", err);
@@ -96,9 +119,9 @@ export function BookmarkletGenerator() {
     }
   };
 
-  if (loading && !config) {
+  if (loading && !hasLoaded) {
     return (
-      <Card className="p-6">
+      <Card className="p-6" aria-busy="true">
         <div className="text-center text-gray-400">Loading Browser Import...</div>
       </Card>
     );
@@ -158,19 +181,37 @@ export function BookmarkletGenerator() {
           </button>
           {showAdvanced && (
             <div className="mt-3 rounded-lg border border-gray-700 p-4">
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label htmlFor="bookmarklet-port" className="block text-sm font-medium text-gray-300 mb-2">
                 Button setup number
               </label>
-              <input
-                type="number"
-                value={config.port}
-                onChange={(e) => updatePort(Number(e.target.value))}
-                disabled={config.enabled || loading}
-                className="w-32 px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
-                min="1024"
-                max="65535"
-              />
-              <p className="text-xs text-gray-500 mt-1">
+              <div className="flex flex-wrap items-start gap-3">
+                <input
+                  id="bookmarklet-port"
+                  type="number"
+                  value={portInput}
+                  onChange={(e) => setPortInput(e.target.value)}
+                  disabled={config.enabled || loading}
+                  aria-invalid={Boolean(portInputError)}
+                  aria-describedby={portInputError ? "bookmarklet-port-error" : "bookmarklet-port-help"}
+                  className="w-32 px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+                  min={MIN_BOOKMARKLET_PORT}
+                  max={MAX_BOOKMARKLET_PORT}
+                />
+                <Button
+                  onClick={updatePort}
+                  size="sm"
+                  variant="secondary"
+                  disabled={config.enabled || loading || !portChanged || Boolean(portInputError)}
+                >
+                  Save Number
+                </Button>
+              </div>
+              {portInputError && (
+                <p id="bookmarklet-port-error" className="text-xs text-red-400 mt-1">
+                  {portInputError}
+                </p>
+              )}
+              <p id="bookmarklet-port-help" className="text-xs text-gray-500 mt-1">
                 Leave this number unchanged unless JobSentinel help instructions
                 tell you otherwise.
               </p>

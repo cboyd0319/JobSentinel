@@ -12,6 +12,9 @@ use arboard::Clipboard;
 use serde::{Deserialize, Serialize};
 use tauri::State;
 
+const MIN_BOOKMARKLET_PORT: u16 = 1024;
+const MAX_BOOKMARKLET_PORT: u32 = u16::MAX as u32;
+
 /// Bookmarklet configuration returned to frontend
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BookmarkletConfigResponse {
@@ -21,6 +24,14 @@ pub struct BookmarkletConfigResponse {
 
 fn bookmarklet_copy_error() -> String {
     "Could not copy browser button. Allow clipboard access and try again, or copy a safe support report if this keeps happening.".to_string()
+}
+
+fn validate_bookmarklet_port(port: u32) -> Result<u16, String> {
+    if port < u32::from(MIN_BOOKMARKLET_PORT) || port > MAX_BOOKMARKLET_PORT {
+        return Err("Choose a browser button number from 1024 to 65535.".to_string());
+    }
+
+    Ok(port as u16)
 }
 
 fn bookmarklet_code(port: u16, auth_token: &str) -> String {
@@ -80,7 +91,8 @@ pub async fn copy_bookmarklet_code(state: State<'_, AppState>) -> Result<(), Str
 /// Start the bookmarklet server
 #[tauri::command]
 #[tracing::instrument(skip(state), fields(port))]
-pub async fn start_bookmarklet_server(state: State<'_, AppState>, port: u16) -> Result<(), String> {
+pub async fn start_bookmarklet_server(state: State<'_, AppState>, port: u32) -> Result<(), String> {
+    let port = validate_bookmarklet_port(port)?;
     tracing::info!(port = port, "Starting bookmarklet server");
 
     let mut server_guard = state.bookmarklet_server.write().await;
@@ -132,7 +144,8 @@ pub async fn stop_bookmarklet_server(state: State<'_, AppState>) -> Result<(), S
 /// Set bookmarklet server port (only when server is stopped)
 #[tauri::command]
 #[tracing::instrument(skip(state), fields(port))]
-pub async fn set_bookmarklet_port(state: State<'_, AppState>, port: u16) -> Result<(), String> {
+pub async fn set_bookmarklet_port(state: State<'_, AppState>, port: u32) -> Result<(), String> {
+    let port = validate_bookmarklet_port(port)?;
     tracing::debug!(port = port, "Setting bookmarklet port");
 
     let mut server_guard = state.bookmarklet_server.write().await;
@@ -192,6 +205,29 @@ mod tests {
 
         assert!(message.contains("safe support report"));
         assert!(message.contains("Allow clipboard access and try again, or copy"));
+    }
+
+    #[test]
+    fn test_bookmarklet_port_validation_rejects_reserved_ports() {
+        let err = validate_bookmarklet_port(80).unwrap_err();
+
+        assert!(err.contains("1024"));
+        assert!(err.contains("65535"));
+    }
+
+    #[test]
+    fn test_bookmarklet_port_validation_rejects_out_of_range_ports() {
+        let err = validate_bookmarklet_port(65_536).unwrap_err();
+
+        assert!(err.contains("1024"));
+        assert!(err.contains("65535"));
+    }
+
+    #[test]
+    fn test_bookmarklet_port_validation_accepts_user_port_range() {
+        assert_eq!(validate_bookmarklet_port(1024), Ok(1024));
+        assert_eq!(validate_bookmarklet_port(4321), Ok(4321));
+        assert_eq!(validate_bookmarklet_port(65535), Ok(65535));
     }
 
     #[test]

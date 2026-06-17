@@ -95,6 +95,24 @@ describe("JobImportModal", () => {
     expect(screen.queryByText(/raw-secret|private@example\.test|resume=private-file/)).not.toBeInTheDocument();
   });
 
+  it("keeps safe import validation guidance visible when preview rejects a link", async () => {
+    const user = userEvent.setup();
+    mockInvoke.mockRejectedValueOnce(
+      new Error("Paste the full job link from your browser address bar."),
+    );
+    renderModal();
+
+    fireEvent.change(screen.getByLabelText("Job link"), {
+      target: { value: "http://localhost:4321/private-job" },
+    });
+    await user.click(screen.getByRole("button", { name: "Check Job Link" }));
+
+    expect(
+      await screen.findAllByText("Paste the full job link from your browser address bar."),
+    ).toHaveLength(2);
+    expect(screen.queryByText("JobSentinel ran into a problem.")).not.toBeInTheDocument();
+  });
+
   it("does not show raw private details when saving fails", async () => {
     const user = userEvent.setup();
     mockInvoke

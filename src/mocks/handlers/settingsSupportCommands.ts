@@ -48,6 +48,8 @@ const MOCK_CREDENTIAL_KEYS: MockCredentialKey[] = [
   "telegram_bot_token",
   "usajobs_api_key",
 ];
+const MIN_BOOKMARKLET_PORT = 1024;
+const MAX_BOOKMARKLET_PORT = 65535;
 
 export function handleMockSettingsSupportCommand(
   command: string,
@@ -307,6 +309,16 @@ function updateBookmarkletPort(
   enabled: boolean,
 ): MockSettingsSupportCommandResult {
   const port = getNumericArg(args, "port") ?? state.bookmarkletConfig.port;
+  if (
+    !Number.isInteger(port) ||
+    port < MIN_BOOKMARKLET_PORT ||
+    port > MAX_BOOKMARKLET_PORT
+  ) {
+    throw new Error(
+      `Choose a browser button number from ${MIN_BOOKMARKLET_PORT} to ${MAX_BOOKMARKLET_PORT}.`,
+    );
+  }
+
   return {
     handled: true,
     shouldSave: true,

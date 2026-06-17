@@ -39,9 +39,9 @@ In scope:
   pay signals.
 - Local encrypted storage and saved-secret UX: encrypted SQLite at rest,
   per-row AEAD secret vault, lazy unlock, and passphrase mode.
-- Locked redesign: move UI and UX toward Quiet Shield and Protective Navy,
-  with no horizontal-scroll, cramped-settings, passive secure-storage prompt,
-  or engineer-only-user regressions.
+- Locked redesign: move UI and UX toward Quiet Shield and Protective Navy after
+  primary v2.9.0 readiness gates are complete. `DESIGN.md`, `docs/design/README.md`, and `docs/design/design-spec.md`
+  remain the design contract.
 - Manual whole-UI verification before v2.9.0 completion: every route, click,
   action, modal, toast, empty/loading/error state, settings panel, import flow,
   keyboard path, and narrow-width surface must be exercised and recorded.
@@ -71,7 +71,7 @@ Out of scope:
 | ---- | ----- | ----------------- |
 | v2.9.0 dependency readiness | Complete locally | Frontend and Rust direct dependencies are exact-pinned to current stable versions; continue only if a fresh audit, freshness, or platform check fails. |
 | Downloadable Agent Skills | Complete locally | Seven spec-compliant `skills/` packages exist and are guarded by `npm run lint:skills` plus the harness. |
-| Browser Import and LinkedIn-compatible flow | Active | Keep LinkedIn user-opened and user-clicked; improve single-page import, local review, and application tracking without session cookies or background monitoring. |
+| Browser Import and LinkedIn-compatible flow | Complete locally | Manual desktop/mobile verification passed; revisit only if whole-UI QA finds a blocker. Keep LinkedIn user-opened and user-clicked without session cookies or background monitoring. |
 | Development and QA completion | Active | Fix confirmed UI, scraper, privacy, docs, harness, and Computer Use validation blockers before any new release work. |
 | macOS readiness | Paused for release creation | Keep docs honest when touched, but do not create or upload new release assets until development and QA blockers are closed. |
 | Resume assistance | Active | Tighten hard-requirement categories, evidence caps, live review copy, and mock/Rust parity only when evidence is local and explainable. |
@@ -79,7 +79,7 @@ Out of scope:
 | Guided intake | Active | Add optional suggestions only after user review; keep broad defaults and non-technical paths first-class. |
 | Pay protection | Active | Keep missing, minimum-only, maximum-only, malformed, or broad listed-pay evidence plain and review-first. |
 | Encrypted local storage | Active | Implement encrypted SQLite plus AEAD secret vault; replace passive Keychain checks with lazy secret-use unlock and macOS native Touch ID-capable key access. |
-| Quiet Shield redesign | Active | Apply the design contract to current UI QA work; verify layout, contrast, navigation, modals, toasts, settings, saved-secret UX, and narrow widths before release. |
+| Quiet Shield redesign | Deferred until primary gates close | Apply Quiet Shield/Protective Navy after primary blockers close; then verify the design contract. |
 | Cleanup and harness | Closed for proactive repo-bloat work | Reopen only for a fresh failing gate or blocker to privacy, security, docs accuracy, or verification. |
 
 ## Completion Bar
@@ -111,10 +111,6 @@ Out of scope:
 - First-run setup now keeps broad work-location defaults, explicit alert
   opt-in, reviewed source choices, reviewed resume-skill suggestions, and
   non-technical starter paths.
-- Large files and tests have been split across product, Rust, and harness
-  modules.
-- Repo-bloat cleanup is closed as of 2026-06-05. Do not continue proactive
-  file-size split work unless a fresh gate failure or blocker appears.
 - Active plan sprawl has been reduced to this plan plus `status.md`.
 - Quiet Shield QA fixed shared modal visibility, user-text truncation, dialog
   migration to shared `Modal`, wrapped Hiring Trends tabs, responsive Job
@@ -133,12 +129,17 @@ Out of scope:
   keyring access.
 - Downloadable Agent Skills now cover search planning, posting-risk review,
   resume tailoring, form review, tracking, interview prep, and offer/pay review.
+- Browser Import desktop/mobile manual verification passed on 2026-06-17:
+  settings, port validation, copy behavior, private-link rejection, LinkedIn
+  single-job preview/save, duplicate handling, no console errors, and no
+  horizontal overflow.
 
 ## Next Work
 
-1. Harden Browser Import for user-clicked LinkedIn job saves and application
-   tracking without browser-session capture, background page access, or
-   scheduled LinkedIn fetches.
+1. Build and execute the whole-UI manual verification map for every route,
+   click, action, modal, toast, form, settings surface, import flow, keyboard
+   path, empty/loading/error state, and narrow-width state before calling
+   v2.9.0 done.
 2. Continue macOS readiness only after development and QA blockers close; do
    not claim Gatekeeper-ready distribution before signing, notarization,
    stapling, and install proof exist.
@@ -147,13 +148,14 @@ Out of scope:
 4. Implement encrypted local storage: encrypted SQLite, per-row AEAD vault,
    OS-protected default key, passphrase mode, macOS native unlock, and no
    passive Settings probes.
-5. Finish Quiet Shield QA using `DESIGN.md`, `docs/design/README.md`, and
-   `docs/design/design-spec.md`. Confirm major route screenshots, Computer Use
-   clicks, keyboard flow, narrow widths, full tests, build, packaged debug
-   rebuild, and empty/error/loading states.
-6. Complete and record whole-UI manual verification for every click, action,
-   route, modal, toast, form, settings surface, import flow, keyboard path,
-   empty/loading/error state, and narrow-width state before calling v2.9.0 done.
+5. Apply Quiet Shield/Protective Navy design decisions only after primary
+   readiness gates and whole-UI verification blockers close; then verify with
+   `DESIGN.md`, `docs/design/README.md`, and `docs/design/design-spec.md`.
+   Confirm major route screenshots, Computer Use clicks, keyboard flow,
+   narrow widths, full tests, build, and empty/error/loading states.
+6. Keep the LinkedIn-compatible Browser Import path user-opened and
+   user-clicked; do not add browser-session capture, background page access, or
+   scheduled LinkedIn fetches.
 7. Do not reopen repo-bloat cleanup unless a fresh bloat gate failure or
    product/privacy/security/docs verification blocker appears.
 8. Keep README, docs hubs, release docs, wiki inventory, and active status in

@@ -26,9 +26,10 @@ configures an external channel, external AI stays optional and disabled by
 default, and users stay in control before anything leaves the device.
 
 Quiet Shield redesign is now part of the active repo-wide goal and the repo
-harness. It is a harness-controlled active-goal acceptance gate. `DESIGN.md`,
-`docs/design/README.md`, and `docs/design/design-spec.md` are required product
-contracts for UI and UX work.
+harness. It remains a harness-controlled active-goal acceptance gate, but broad
+implementation waits behind primary v2.9.0 readiness gates. `DESIGN.md`,
+`docs/design/README.md`, and `docs/design/design-spec.md` stay required product
+contracts for UI/UX changes when design work resumes.
 
 The v2.9.0 goal adds two durable release-readiness requirements:
 
@@ -75,9 +76,10 @@ The v2.9.0 goal adds two durable release-readiness requirements:
 - Downloadable Agent Skills cover search planning, posting-risk review, resume
   tailoring, form review, tracking, interview prep, and offer/pay review;
   `skills/` is an intentional harness-validated root.
-- LinkedIn runtime config/scraper types no longer expose session-cookie fields.
-  Legacy cleanup/redaction remains only for old data, and source-boundary
-  sensors reject drift.
+- LinkedIn runtime config/scraper types expose no session-cookie fields, and
+  Browser Import manual verification passed on 2026-06-17 for desktop/mobile:
+  settings, port validation, copy, private-link rejection, LinkedIn preview/save,
+  duplicate handling, no console errors, and no overflow.
 - v2.9.0 cannot be called done until every UI route, click, action, modal,
   toast, form, settings panel, import flow, keyboard path, empty/loading/error
   state, and narrow-width surface has fresh manual verification evidence.
@@ -86,30 +88,26 @@ The v2.9.0 goal adds two durable release-readiness requirements:
 
 ## Next Best Work
 
-1. Manually verify Browser Import end to end as the compliant LinkedIn path:
-   user-opened page, click import, local review, local tracking, no login or
-   monitoring.
-2. Continue Quiet Shield QA against design contracts; next proof should rerun
-   full test/build, packaged debug rebuild, and Computer Use for toasts,
-   settings, keyboard flow, route empty states, and narrow widths.
-3. Build a whole-UI manual verification map and exercise every route, click,
+1. Build a whole-UI manual verification map and exercise every route, click,
    action, modal, toast, form, settings panel, import flow, keyboard path,
    empty/loading/error state, and narrow-width surface before calling v2.9.0
    done.
-4. Continue resume assistance only where it improves truthful local requirement
+2. Apply Quiet Shield/Protective Navy design decisions only after primary
+   v2.9.0 readiness gates and whole-UI verification blockers are closed.
+3. Continue resume assistance only where it improves truthful local requirement
    review, hard-constraint handling, readable evidence, or next-action
    guidance.
-5. Continue guided intake only where resume/profile suggestions stay optional,
+4. Continue guided intake only where resume/profile suggestions stay optional,
    reviewed, local, and understandable for non-technical job seekers.
-6. Continue job-card protection for stale, risky, duplicate, unclear, or
+5. Continue job-card protection for stale, risky, duplicate, unclear, or
    pay-problem postings without treating local signals as employer
    predictions.
-7. Continue macOS readiness docs and checks without claiming Gatekeeper-ready
+6. Continue macOS readiness docs and checks without claiming Gatekeeper-ready
    distribution before Apple credentials exist.
-8. Continue encrypted local storage and saved-secret UX: encrypted SQLite,
+7. Continue encrypted local storage and saved-secret UX: encrypted SQLite,
    per-row AEAD vault rows, OS-protected key, passphrase mode, macOS native
    unlock, and no passive secure-storage prompts.
-9. Keep harness work focused on bounded startup context, runnable verification,
+8. Keep harness work focused on bounded startup context, runnable verification,
    privacy/security gates, and docs accuracy. Do not add new ceremony unless it
    prevents a repeated failure.
 

@@ -60,6 +60,8 @@ describe("BookmarkletGenerator", () => {
     expect(screen.queryByText("Advanced browser button setting")).not.toBeInTheDocument();
     expect(screen.queryByText("Browser helper number")).not.toBeInTheDocument();
     expect(screen.getByText("Button setup number")).toBeInTheDocument();
+    expect(screen.getByLabelText("Button setup number")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /save number/i })).toBeDisabled();
     expect(screen.queryByText("Connection Number")).not.toBeInTheDocument();
     expect(screen.queryByText("Support number")).not.toBeInTheDocument();
     expect(screen.getByText(/help instructions tell you otherwise/i)).toBeInTheDocument();
@@ -156,7 +158,8 @@ describe("BookmarkletGenerator", () => {
     render(<BookmarkletGenerator />);
 
     fireEvent.click(await screen.findByRole("button", { name: /optional browser button setting/i }));
-    fireEvent.change(screen.getByRole("spinbutton"), { target: { value: "4322" } });
+    fireEvent.change(screen.getByLabelText("Button setup number"), { target: { value: "4322" } });
+    fireEvent.click(screen.getByRole("button", { name: /save number/i }));
 
     expect(
       await screen.findByText(/That browser button number could not be saved/i),
@@ -165,5 +168,34 @@ describe("BookmarkletGenerator", () => {
     expect(screen.queryByText(/browser import connection/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/token=secret/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/resume=private-file/i)).not.toBeInTheDocument();
+  });
+
+  it("validates the browser button number before saving", async () => {
+    mockInvoke.mockResolvedValueOnce({
+      port: 4321,
+      enabled: false,
+    });
+
+    render(<BookmarkletGenerator />);
+
+    fireEvent.click(await screen.findByRole("button", { name: /optional browser button setting/i }));
+    const portInput = screen.getByLabelText("Button setup number");
+    const saveButton = screen.getByRole("button", { name: /save number/i });
+
+    fireEvent.change(portInput, { target: { value: "80" } });
+
+    expect(await screen.findByText(/Use a number from 1024 to 65535/i)).toBeInTheDocument();
+    expect(portInput).toHaveAttribute("aria-invalid", "true");
+    expect(saveButton).toBeDisabled();
+    expect(mockInvoke).toHaveBeenCalledTimes(1);
+
+    fireEvent.change(portInput, { target: { value: "4322" } });
+
+    await waitFor(() => expect(saveButton).toBeEnabled());
+    fireEvent.click(saveButton);
+
+    await waitFor(() =>
+      expect(mockInvoke).toHaveBeenCalledWith("set_bookmarklet_port", { port: 4322 }),
+    );
   });
 });

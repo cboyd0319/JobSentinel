@@ -81,7 +81,47 @@ function formatImportDate(value: string) {
   return date.toLocaleDateString("en-US", { timeZone: "UTC" });
 }
 
+function extractImportErrorMessage(error: unknown): string {
+  if (typeof error === "string") return error;
+  if (error instanceof Error) return error.message;
+  if (error && typeof error === "object" && "message" in error && typeof error.message === "string") {
+    return error.message;
+  }
+  return "";
+}
+
+function getSafeImportSpecificMessage(error: unknown): string | null {
+  const message = extractImportErrorMessage(error).trim();
+  if (!message) return null;
+
+  const safePatterns = [
+    /^Paste the full job link from your browser address bar\.$/,
+    /^Add a job link from your browser address bar\.$/,
+    /^Could not read this page as a single job posting\. Open one job posting, copy its browser address, or save the job with the details JobSentinel can find\.$/,
+    /^Could not read this as one job posting\. Open one job posting and copy its browser address\.$/,
+    /^Found \d+ job postings on this page\. Please use a more specific URL that links to a single job\.$/,
+    /^Missing required information: [A-Za-z ]+\. This job posting may be incomplete\.$/,
+    /^This took too long\. Check your internet connection and try again\.$/,
+    /^Could not connect to the website\. Please check your internet connection\.$/,
+    /^Failed to fetch the page\. Please check the URL and try again\.$/,
+    /^The website returned an error: [0-9]{3}(?: [A-Za-z ]+)?$/,
+    /^The job page response is too large to import safely\. Maximum size is \d+ MiB\.$/,
+    /^The job link redirects to another page\. Paste the final public job posting link from your browser address bar\.$/,
+    /^This job is already in your saved jobs$/,
+  ];
+
+  return safePatterns.some((pattern) => pattern.test(message)) ? message : null;
+}
+
 function getSafeJobImportError(error: unknown) {
+  const importMessage = getSafeImportSpecificMessage(error);
+  if (importMessage) {
+    return {
+      message: importMessage,
+      action: importMessage,
+    };
+  }
+
   const friendly = getUserFriendlyError(error);
   return {
     message: friendly.message,
