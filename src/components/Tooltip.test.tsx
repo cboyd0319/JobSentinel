@@ -51,6 +51,22 @@ describe("Tooltip", () => {
       expect(tooltip).toHaveClass("whitespace-normal", "break-words");
       expect(tooltip.className).toContain("calc(100vw-2rem)");
     });
+
+    it("does not let tooltip content intercept nearby clicks", async () => {
+      const user = userEvent.setup();
+
+      render(
+        <Tooltip content="Tooltip text" delay={0}>
+          <button>Hover me</button>
+        </Tooltip>
+      );
+
+      await user.hover(screen.getByRole("button", { name: "Hover me" }));
+
+      expect(await screen.findByRole("tooltip")).toHaveClass(
+        "pointer-events-none",
+      );
+    });
   });
 
   describe("mouse interaction", () => {
