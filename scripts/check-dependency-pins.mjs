@@ -4,7 +4,7 @@ import { spawnSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-
+import { collectWorkflowEnvironmentPinViolations } from "./dependency/workflow-environment-pins.mjs";
 const scriptPath = fileURLToPath(import.meta.url);
 const defaultRoot = resolve(dirname(scriptPath), "..");
 
@@ -250,6 +250,7 @@ export function collectRuntimePinViolations(root = defaultRoot) {
     }
   }
 
+  violations.push(...collectWorkflowEnvironmentPinViolations(root));
   violations.push(...collectNpxInstallGuardViolations(root));
 
   return violations;
@@ -888,9 +889,9 @@ export async function main(argv = process.argv.slice(2), root = defaultRoot) {
   }
 
   if (checkLatest) {
-    console.log("Dependency pin check passed: exact runtime/tool/package-manager pins, exact direct pins, latest stable package manager/direct dependencies/tools, stable lockfile policy, and lockfile freshness verified.");
+    console.log("Dependency pin check passed: exact runtime/tool/package-manager pins, workflow OS runner and apt-package pins, exact direct pins, latest stable package manager/direct dependencies/tools, stable lockfile policy, and lockfile freshness verified.");
   } else {
-    console.log("Dependency pin check passed: exact runtime/tool/package-manager, package, and crate pins plus stable lockfile policy verified.");
+    console.log("Dependency pin check passed: exact runtime/tool/package-manager pins, workflow OS runner and apt-package pins, package and crate pins, plus stable lockfile policy verified.");
   }
 }
 

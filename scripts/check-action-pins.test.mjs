@@ -39,7 +39,7 @@ function writeWorkflow(root, lines) {
       "name: CI",
       "jobs:",
       "  test:",
-      "    runs-on: ubuntu-latest",
+      "    runs-on: ubuntu-24.04",
       "    steps:",
       ...lines.map((line) => `      ${line}`),
     ].join("\n"),

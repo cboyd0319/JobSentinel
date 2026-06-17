@@ -113,7 +113,7 @@ const publishedReleaseWorkflowChecks = [
   },
   {
     label: "public macOS artifact verifier",
-    phrases: ["macos-latest", "npm run tauri:verify:macos:latest"],
+    phrases: ["macos-26", "npm run tauri:verify:macos:latest"],
   },
   {
     label: "scoped release tag",

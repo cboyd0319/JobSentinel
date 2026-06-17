@@ -167,7 +167,7 @@ export function evaluateMacosReadiness({ root = defaultRoot, env = process.env }
       "release workflow builds universal macOS package",
       8,
       hasAll(releaseWorkflow, [
-        "platform: macos-latest",
+        "platform: macos-26",
         "target: universal-apple-darwin",
         "aarch64-apple-darwin,x86_64-apple-darwin",
         "npm run tauri:build:macos -- --target",
@@ -275,7 +275,7 @@ export function evaluateMacosReadiness({ root = defaultRoot, env = process.env }
       7,
       hasAll(verifyWorkflow, [
         "Verify public macOS DMG",
-        "runs-on: macos-latest",
+        "runs-on: macos-26",
         "require_gatekeeper",
         "npm run tauri:verify:macos:latest",
       ]),

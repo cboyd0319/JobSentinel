@@ -60,7 +60,7 @@ function writeBaseRepo(root, csp) {
       "      tag:",
       "jobs:",
       "  verify-macos-public-artifact:",
-      "    runs-on: macos-latest",
+      "    runs-on: macos-26",
       "    steps:",
       "      - run: |",
       "          RELEASE_TAG=\"$RELEASE_TAG\"",
@@ -244,7 +244,7 @@ test("checkSecuritySensors rejects missing public macOS artifact verifier", () =
   );
   writeFileSync(
     join(root, ".github/workflows/verify-release-artifacts.yml"),
-    "on:\n  release:\n    types:\n      - published\njobs:\n  verify:\n    runs-on: ubuntu-latest\n",
+    "on:\n  release:\n    types:\n      - published\njobs:\n  verify:\n    runs-on: ubuntu-24.04\n",
   );
 
   assert(

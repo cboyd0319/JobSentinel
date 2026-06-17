@@ -13,7 +13,7 @@ env:
 
 jobs:
   preflight:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout repository
@@ -22,7 +22,11 @@ jobs:
       - name: Install Linux dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev=2.52.3-0ubuntu0.24.04.1 \
+            libgtk-3-dev=3.24.41-4ubuntu1.3 \
+            libappindicator3-dev=12.10.1+20.10.20200706.1-0ubuntu5 \
+            librsvg2-dev=2.58.0+dfsg-1build1
 
       - name: Setup Node.js
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
@@ -76,7 +80,7 @@ jobs:
 
   create-release:
     needs: preflight
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
     outputs:
@@ -107,13 +111,13 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - platform: windows-latest
+          - platform: windows-2025
             target: x86_64-pc-windows-msvc
             asset_name_prefix: JobSentinel-Windows
-          - platform: macos-latest
+          - platform: macos-26
             target: universal-apple-darwin
             asset_name_prefix: JobSentinel-macOS
-          - platform: ubuntu-latest
+          - platform: ubuntu-24.04
             target: x86_64-unknown-linux-gnu
             asset_name_prefix: JobSentinel-Linux
 
@@ -124,15 +128,15 @@ jobs:
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
 
       - name: Install Linux dependencies
-        if: matrix.platform == 'ubuntu-latest'
+        if: matrix.platform == 'ubuntu-24.04'
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            libwebkit2gtk-4.1-dev \
-            libgtk-3-dev \
-            libappindicator3-dev \
-            librsvg2-dev \
-            patchelf
+            libwebkit2gtk-4.1-dev=2.52.3-0ubuntu0.24.04.1 \
+            libgtk-3-dev=3.24.41-4ubuntu1.3 \
+            libappindicator3-dev=12.10.1+20.10.20200706.1-0ubuntu5 \
+            librsvg2-dev=2.58.0+dfsg-1build1 \
+            patchelf=0.18.0-1.1build1
 
       - name: Setup Node.js
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
@@ -155,7 +159,7 @@ jobs:
         run: npm ci
 
       - name: Configure macOS signing and notarization
-        if: matrix.platform == 'macos-latest'
+        if: matrix.platform == 'macos-26'
         env:
           APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
           APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
@@ -284,11 +288,11 @@ jobs:
           } >> "$GITHUB_ENV"
 
       - name: Build Tauri app
-        if: matrix.platform != 'macos-latest'
+        if: matrix.platform != 'macos-26'
         run: npx --no-install tauri build --target ${{ matrix.target }}
 
       - name: Build macOS app and DMG
-        if: matrix.platform == 'macos-latest'
+        if: matrix.platform == 'macos-26'
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
@@ -298,7 +302,7 @@ jobs:
         run: npm run tauri:build:macos -- --target ${{ matrix.target }}
 
       - name: Verify macOS app and DMG
-        if: matrix.platform == 'macos-latest'
+        if: matrix.platform == 'macos-26'
         shell: bash
         run: |
           set -euo pipefail
@@ -329,7 +333,7 @@ jobs:
           npm run tauri:verify:macos -- "${args[@]}"
 
       - name: Label no-account macOS DMG
-        if: matrix.platform == 'macos-latest' && env.JOBSENTINEL_MACOS_NO_ACCOUNT == 'true'
+        if: matrix.platform == 'macos-26' && env.JOBSENTINEL_MACOS_NO_ACCOUNT == 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -361,7 +365,7 @@ jobs:
           printf 'Labeled no-account macOS DMG: %s\n' "$labeled_path"
 
       - name: Create macOS checksum
-        if: matrix.platform == 'macos-latest'
+        if: matrix.platform == 'macos-26'
         shell: bash
         run: |
           set -euo pipefail
@@ -398,7 +402,7 @@ jobs:
 
       # Windows MSI upload
       - name: Verify Windows MSI signature and checksum
-        if: matrix.platform == 'windows-latest'
+        if: matrix.platform == 'windows-2025'
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
@@ -414,7 +418,7 @@ jobs:
           "$($hash.Hash.ToLowerInvariant())  $($msi.Name)" | Set-Content -NoNewline -Encoding ascii "$($msi.FullName).sha256"
 
       - name: Upload Windows MSI
-        if: matrix.platform == 'windows-latest'
+        if: matrix.platform == 'windows-2025'
         uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
         with:
           draft: true
@@ -434,7 +438,7 @@ jobs:
 
       # Linux uploads
       - name: Upload Linux AppImage
-        if: matrix.platform == 'ubuntu-latest'
+        if: matrix.platform == 'ubuntu-24.04'
         uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
         with:
           draft: true

@@ -333,6 +333,21 @@ test("Cargo pin check rejects prerelease lockfile crate versions", () => {
 test("runtime pin check accepts exact Node, Rust, workflow, and cargo install pins", () => {
   withFixture((root) => {
     writeMinimalRuntimeFixture(root);
+    writeFixtureFile(
+      root,
+      ".github/workflows/linux.yml",
+      [
+        "jobs:",
+        "  linux:",
+        "    runs-on: ubuntu-24.04",
+        "    steps:",
+        "      - run: |",
+        "          sudo apt-get update",
+        "          sudo apt-get install -y \\",
+        "            libwebkit2gtk-4.1-dev=2.52.3-0ubuntu0.24.04.1 \\",
+        "            libgtk-3-dev=3.24.41-4ubuntu1.1",
+      ].join("\n"),
+    );
 
     assert.deepEqual(collectRuntimePinViolations(root), []);
   });
@@ -384,6 +399,48 @@ test("runtime pin check rejects floating workflow and cargo install tool pins", 
         (violation) => violation.includes("cargo install cargo-geiger") && violation.includes("--locked"),
       ),
       true,
+    );
+  });
+});
+
+test("runtime pin check rejects floating runner labels and unpinned apt packages", () => {
+  withFixture((root) => {
+    writeMinimalRuntimeFixture(root);
+    writeFixtureFile(
+      root,
+      ".github/workflows/release.yml",
+      [
+        "jobs:",
+        "  build:",
+        "    strategy:",
+        "      matrix:",
+        "        include:",
+        "          - platform: macos-latest",
+        "    runs-on: ubuntu-latest",
+        "    steps:",
+        "      - run: sudo apt-get install -y libwebkit2gtk-4.1-dev librsvg2-dev=2.58.0+dfsg-1build1",
+      ].join("\n"),
+    );
+
+    const violations = collectRuntimePinViolations(root);
+
+    assert.equal(
+      violations.some((violation) => violation.includes("found macos-latest")),
+      true,
+    );
+    assert.equal(
+      violations.some((violation) => violation.includes("found ubuntu-latest")),
+      true,
+    );
+    assert.equal(
+      violations.some((violation) =>
+        violation.includes("apt-get install package libwebkit2gtk-4.1-dev must include an exact distro version pin"),
+      ),
+      true,
+    );
+    assert.equal(
+      violations.some((violation) => violation.includes("librsvg2-dev=2.58.0+dfsg-1build1")),
+      false,
     );
   });
 });

@@ -118,10 +118,10 @@ Out of scope:
   viewport-fixed toasts, and Settings opening without passive Keychain prompts.
 - The v2.9.0 pass confirmed Browser Import is the LinkedIn path, not session
   storage or automatic monitoring. Private profile inputs stay local.
-- Package-manager, direct npm/Cargo, and Action pins are exact latest stable;
-  transitives are lockfile-pinned; `npx` paths use `--no-install`. `lint:deps`,
-  `lint:actions`, and `release:check-deps` enforce registry, lockfile, action,
-  and local-tool freshness.
+- Package-manager, npm/Cargo, Action, OS-runner, and apt direct pins are exact
+  latest stable; transitives are lockfile-pinned. `lint:deps`, `lint:actions`,
+  and `release:check-deps` enforce registry, lockfile, action, OS, apt,
+  local-tool, and `npx --no-install` freshness.
 - Live OS keyring integration tests are opt-in behind
   `JOBSENTINEL_LIVE_KEYRING_TESTS=1`; default credential tests remain
   non-interactive and still prove LinkedIn credential storage is blocked before

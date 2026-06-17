@@ -22,7 +22,7 @@ permissions:
 jobs:
   verify-macos-public-artifact:
     name: Verify public macOS DMG
-    runs-on: macos-latest
+    runs-on: macos-26
 
     steps:
       - name: Checkout repository
