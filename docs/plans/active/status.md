@@ -29,10 +29,12 @@ implementation waits behind primary v2.9.0 gates. `DESIGN.md`,
 `docs/design/README.md`, and `docs/design/design-spec.md` stay required
 contracts for UI/UX changes when design work resumes.
 
-The v2.9.0 goal adds three durable release-readiness requirements:
+The v2.9.0 goal adds four durable release-readiness requirements:
 
 - Add a downloadable `skills/` directory with Agent Skills that comply with the
   Agent Skills specification.
+- Keep repo-owned npm and Cargo pins exact at current latest stable, keep
+  lockfiles latest-compatible, and record upstream-constrained exceptions.
 - Support LinkedIn through user-opened search links and user-clicked Browser
   Import only. Do not add LinkedIn session-cookie storage, token replay,
   background monitoring, result-list crawling, or account automation unless a
@@ -62,13 +64,11 @@ The v2.9.0 goal adds three durable release-readiness requirements:
 - Current UI QA evidence confirms modal paint fixes, visible Dashboard and
   Hiring Trends toasts, Application Assist tabs, Pay Protection, Resume Match,
   and Settings Sources & Alerts opening without a passive Keychain prompt.
-- Fresh dependency evidence on 2026-06-17: frontend/Rust direct dependencies
-  are hard-pinned to current stable versions; `npm outdated --json` is `{}`;
-  `npm audit --audit-level=moderate`, `cargo deny check advisories`, and
-  `cargo audit` are clean; `cargo update --dry-run` reports zero compatible
-  updates. Four transitive crates remain behind absolute latest through
-  upstream Linux/Tauri and crypto paths; strict warning audit is tracked as
-  SEC-002.
+- Fresh dependency evidence on 2026-06-17: direct npm/Cargo pins match current
+  registry latest/stable; `npm outdated --json` is `{}`; `npm audit
+  --audit-level=high` is clean; `cargo update` refreshed three transitive
+  crates; dry-run reports zero compatible updates. `cargo audit` reports no
+  blocking vulnerabilities, with 19 allowed upstream warnings.
 - Live OS keyring integration tests are opt-in behind
   `JOBSENTINEL_LIVE_KEYRING_TESTS=1`; default credential tests do not prompt
   Keychain and still prove LinkedIn credential storage is disabled before
