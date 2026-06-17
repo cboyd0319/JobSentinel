@@ -17,7 +17,7 @@ Use the job post, saved job details, or user-provided page context. If the user
 only has a link, ask for the visible posting text or details instead of logging
 in, scraping restricted pages, or collecting session cookies.
 
-## Review Steps
+## Workflow
 
 1. Confirm basic facts: title, company, source, location, schedule, pay, posting
    date, closing date, and application route.
@@ -33,9 +33,23 @@ in, scraping restricted pages, or collecting session cookies.
    - missing, very broad, top-only, or below-floor pay;
    - money requests, gift cards, fake checks, payment apps, crypto, messaging
      app interviews, or sensitive information requested too early.
-4. Decide the next action: apply, verify first, save for later, ask a question,
+4. Label evidence confidence:
+   - high confidence: official employer or ATS page, written details, current
+     date, and matching application route;
+   - medium confidence: reputable board or recruiter context with enough role
+     detail but open questions;
+   - low confidence: scraped, reposted, anonymous, stale, thin, or unverifiable
+     context.
+5. Separate scam evidence, low confidence, and poor fit. A role can be
+   legitimate but low fit, or low confidence without direct scam evidence.
+6. Decide the next action: apply, verify first, save for later, ask a question,
    or skip.
-5. Explain the decision using observed evidence and unknowns.
+7. Explain the decision using observed evidence and unknowns.
+
+## Load References
+
+- Load `references/posting-risk-scoring.md` when the role has multiple warnings,
+  disputed source quality, compensation uncertainty, or hard-requirement risk.
 
 ## Output
 
@@ -48,6 +62,16 @@ Use plain labels:
   confirmed.
 
 Use `assets/posting-review-template.md` for a reusable review note.
+
+## Handoff
+
+- Use `$resume-tailoring` when the next action is apply or light tailoring.
+- Use `$application-form-review` when the application form has hard screening
+  questions or exact-answer risk.
+- Use `$application-tracking` to record apply, verify-first, save, skip, risk
+  level, and unknowns.
+- Use `$networking-outreach` when source confidence depends on recruiter,
+  referral, or insider clarification.
 
 ## Guardrails
 

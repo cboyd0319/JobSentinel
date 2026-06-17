@@ -38,7 +38,19 @@ Ask only for missing details that change the plan:
    applications, follow-up, and interview prep.
 5. Set a quality bar before tailoring: role fit, pay evidence, source strength,
    commute/schedule, and hard requirements.
-6. Make the output actionable for the next 7 days.
+6. Define stop rules for weak lanes or sources:
+   - pause lanes with low evidence fit after one weekly review;
+   - retire sources that produce stale, duplicate, low-pay, or weak-source roles;
+   - switch effort toward referrals, employer pages, or adjacent titles when
+     response rate or fit quality stays poor.
+7. Replan from the tracker weekly: compare applications, responses, interviews,
+   skips, no-response items, and source quality before changing pace.
+8. Make the output actionable for the next 7 days.
+
+## Load References
+
+- Load `references/weekly-review-rubric.md` when the user asks for a weekly
+  review, replan, source audit, or tracker-based search adjustment.
 
 ## Output
 
@@ -53,6 +65,16 @@ Produce:
 - Next 10 actions.
 
 Use `assets/search-plan-template.md` when the user wants a reusable plan.
+
+## Handoff
+
+- Use `$job-posting-risk-review` before tailoring a saved role.
+- Use `$resume-tailoring` only after the role passes the must-have and risk
+  review.
+- Use `$application-tracking` after each save, skip, apply, follow-up, or weekly
+  review.
+- Use `$networking-outreach` when a warm path, recruiter reply, or referral ask
+  is the better next action than another cold application.
 
 ## Guardrails
 

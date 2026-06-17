@@ -2,38 +2,47 @@
 
 ## Written Offer Facts
 
-| Field | Offer |
-| ----- | ----- |
-| Base pay |  |
-| Bonus |  |
-| Equity |  |
-| Benefits |  |
-| Schedule |  |
-| Location |  |
-| Start date |  |
-| Review timing |  |
+| Field | Written offer | Verbal claim | Unknown | User must confirm |
+| ----- | ------------- | ------------ | ------- | ----------------- |
+| Base pay |  |  |  |  |
+| Bonus |  |  |  |  |
+| Equity |  |  |  |  |
+| Benefits |  |  |  |  |
+| Schedule |  |  |  |  |
+| Location |  |  |  |  |
+| Commute or relocation |  |  |  |  |
+| Start date |  |  |  |  |
+| Review timing |  |  |  |  |
+| Deadline |  |  |  |  |
 
 ## User Targets
 
-| Item | Value |
-| ---- | ----- |
-| Salary floor |  |
-| Target range |  |
-| Must-have schedule/location |  |
-| Walk-away issues |  |
+| Item | Value | Evidence | Do not infer |
+| ---- | ----- | -------- | ------------ |
+| Salary floor |  |  | Flexibility |
+| Target range |  |  | Market proof |
+| Must-have schedule/location |  |  | Tolerance for change |
+| Walk-away issues |  |  | Legal or financial advice |
 
 ## Review
 
-| Area | Evidence | Question or action |
-| ---- | -------- | ------------------ |
-| Pay |  |  |
-| Scope and level |  |  |
-| Benefits |  |  |
-| Schedule and commute |  |  |
-| Growth path |  |  |
+| Area | Evidence | Risk level | Question or action |
+| ---- | -------- | ---------- | ------------------ |
+| Pay |  |  |  |
+| Total compensation |  |  |  |
+| Scope and level |  |  |  |
+| Benefits |  |  |  |
+| Schedule and commute |  |  |  |
+| Relocation or travel |  |  |  |
+| Growth path |  |  |  |
+| Deadline pressure |  |  |  |
 
 ## Draft Note
 
 Subject:
 
 Message:
+
+## Decision
+
+Accept / counter / ask questions / decline / pause:

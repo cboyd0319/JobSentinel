@@ -21,16 +21,23 @@ evidence, shared context, preferred channel, and the user’s boundaries.
 1. Identify the outreach goal: referral request, role context, recruiter reply,
    alumni note, community follow-up, informational chat, or thank-you.
 2. Separate confirmed facts from assumptions.
-3. Pick one clear ask, such as a brief call, a role-context question, a referral
+3. Pick the channel: email, LinkedIn message, text, recruiter reply, referral
+   ask, community DM, or follow-up. Match length and tone to the channel.
+4. Pick one clear ask, such as a brief call, a role-context question, a referral
    path, or permission to share a resume.
-4. Draft a message with:
+5. Draft a message with:
    - a specific reason for contacting this person;
    - one sentence of truthful fit evidence;
    - a low-pressure ask;
    - an easy opt-out.
-5. Keep follow-ups spaced and useful. If there is no new reason to follow up,
+6. Keep follow-ups spaced and useful. If there is no new reason to follow up,
    recommend pausing instead of sending another note.
-6. End with a send-review checklist.
+7. End with a send-review checklist.
+
+## Load References
+
+- Load `references/channel-patterns.md` for email, LinkedIn, text, recruiter
+  reply, referral ask, and follow-up variants.
 
 ## Output
 
@@ -44,6 +51,17 @@ Produce:
 - Send-review checklist.
 
 Use `assets/outreach-note-template.md` for reusable message notes.
+
+## Handoff
+
+- Use `$application-tracking` after a message is sent, paused, answered, or
+  converted to an application, referral, screen, or interview.
+- Use `$resume-tailoring` before attaching or sharing a resume for a specific
+  role.
+- Use `$interview-prep` after a recruiter or contact schedules a screen,
+  interview, panel, or work sample.
+- Use `$offer-pay-review` if outreach turns into compensation, deadline, or
+  competing-offer discussion.
 
 ## Guardrails
 

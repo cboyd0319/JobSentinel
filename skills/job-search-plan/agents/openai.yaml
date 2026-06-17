@@ -1,0 +1,8 @@
+interface:
+  display_name: "Job Search Plan"
+  short_description: "Build a focused weekly job-search plan"
+  brand_color: "#0F766E"
+  default_prompt: "Use $job-search-plan to build a focused weekly job-search plan with lanes, sources, and next actions."
+
+policy:
+  allow_implicit_invocation: true

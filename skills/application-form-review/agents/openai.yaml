@@ -1,0 +1,8 @@
+interface:
+  display_name: "Application Form Review"
+  short_description: "Prepare safe application-form answers"
+  brand_color: "#0F766E"
+  default_prompt: "Use $application-form-review to review these application questions before I submit them manually."
+
+policy:
+  allow_implicit_invocation: true

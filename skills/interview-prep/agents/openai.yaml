@@ -1,0 +1,8 @@
+interface:
+  display_name: "Interview Prep"
+  short_description: "Prepare interview stories and questions"
+  brand_color: "#0F766E"
+  default_prompt: "Use $interview-prep to build an interview brief, story bank, and questions for this role."
+
+policy:
+  allow_implicit_invocation: true

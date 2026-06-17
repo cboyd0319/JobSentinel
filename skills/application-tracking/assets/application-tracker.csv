@@ -1,2 +1,2 @@
-title,company,source,link,location,listed_pay,status,date_saved,date_applied,next_action,next_action_date,contact,notes,risk_flags
-,,,,,,,,,,,,,
+title,company,source,scrubbed_link,location,listed_pay,status,date_saved,date_applied,resume_version,fit_evidence,unknowns,user_must_confirm,next_action,next_action_date,contact,follow_up_cadence,risk_level,risk_flags,do_not_infer,notes
+,,,,,,,,,,,,,,,,,,,,

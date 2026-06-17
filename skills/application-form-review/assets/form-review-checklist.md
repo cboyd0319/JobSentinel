@@ -2,23 +2,32 @@
 
 ## Prepared Details
 
-| Field | Proposed answer | Resume or record evidence | User confirmed |
-| ----- | --------------- | ------------------------- | -------------- |
-| Name |  |  |  |
-| Email |  |  |  |
-| Phone |  |  |  |
-| Location |  |  |  |
-| Profile or portfolio link |  |  |  |
+| Field | Exact question | Proposed answer | Evidence | User confirmed | Do not infer |
+| ----- | -------------- | --------------- | -------- | -------------- | ------------ |
+| Name |  |  |  |  | Legal name preference |
+| Email |  |  |  |  | Alternate contact |
+| Phone |  |  |  |  | Availability by phone |
+| Location |  |  |  |  | Relocation willingness |
+| Profile or portfolio link |  |  |  |  | Ownership or completeness |
 
 ## Hard Questions
 
-| Question topic | Exact wording | Proposed answer | Needs review |
-| -------------- | ------------- | --------------- | ------------ |
-| Work authorization |  |  |  |
-| Sponsorship |  |  |  |
-| Salary or pay |  |  |  |
-| Schedule or availability |  |  |  |
-| License or certification |  |  |  |
+| Question topic | Exact wording | Proposed answer | Evidence | Risk level | User must confirm |
+| -------------- | ------------- | --------------- | -------- | ---------- | ----------------- |
+| Work authorization |  |  |  | High |  |
+| Sponsorship |  |  |  | High |  |
+| Salary or pay |  |  |  | Medium |  |
+| Schedule or availability |  |  |  | Medium |  |
+| License or certification |  |  |  | High |  |
+
+## Voluntary Or Protected Questions
+
+| Topic | Exact wording | User choice needed | Do not infer |
+| ----- | ------------- | ------------------ | ------------ |
+| Demographic |  |  | Any answer |
+| Disability |  |  | Any answer |
+| Veteran status |  |  | Any answer |
+| Background check |  |  | Eligibility or outcome |
 
 ## Before Submitting
 
@@ -26,4 +35,5 @@
 - [ ] Required fields reviewed.
 - [ ] Hard questions match the exact wording.
 - [ ] Salary answer matches the user's floor or target.
+- [ ] Protected or voluntary answers are user-chosen.
 - [ ] User chooses whether to submit.

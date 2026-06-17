@@ -30,15 +30,26 @@ approves that exact transfer.
    - preferred qualifications;
    - other role language;
    - hard screening topics.
-3. Map each important requirement to real candidate evidence:
+3. Fail fast on hard requirements that the user cannot truthfully meet. Treat
+   the role as skip, verify, or ask-first before drafting unsupported edits.
+4. Map each important requirement to real candidate evidence:
    - strong visible evidence;
    - partial or older evidence;
    - unsupported or unknown;
    - not true for the candidate.
-4. Draft edits only where the user has truthful evidence.
-5. Improve bullets with action, scope, result, and context. Use numbers only
+5. Draft edits only where the user has truthful evidence.
+6. Cap keyword edits to supported evidence. Do not add more role language than
+   the resume can defend in an interview or application form.
+7. Apply an ATS and readability checklist: clear headings, normal text, simple
+   bullets, consistent dates, readable file text, and no hidden content.
+8. Improve bullets with action, scope, result, and context. Use numbers only
    when the user provides or approves them.
-6. Keep unsupported requirements as questions, gaps, or skip reasons.
+9. Keep unsupported requirements as questions, gaps, or skip reasons.
+
+## Load References
+
+- Load `references/evidence-mapping.md` for detailed requirement mapping,
+  ATS/readability checks, keyword caps, and hard-requirement decisions.
 
 ## Output
 
@@ -53,6 +64,17 @@ Produce:
 - Do-not-add list for unsupported terms.
 
 Use `assets/resume-tailoring-notes.md` when the user wants a reusable worksheet.
+
+## Handoff
+
+- Use `$application-form-review` after tailoring when form answers must match
+  the resume and exact job questions.
+- Use `$application-tracking` to record the resume version, evidence gaps, and
+  submitted claims.
+- Use `$interview-prep` when a tailored claim needs a defensible story before an
+  interview.
+- Return to `$job-posting-risk-review` when a hard requirement, source issue, or
+  pay concern appears during tailoring.
 
 ## Guardrails
 

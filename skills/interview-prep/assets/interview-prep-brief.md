@@ -9,15 +9,23 @@ Date/time:
 
 ## What They Need
 
-| Requirement | Evidence story | Confidence |
-| ----------- | -------------- | ---------- |
-|  |  |  |
+| Requirement | Evidence story | Confidence | Unknown | User must confirm |
+| ----------- | -------------- | ---------- | ------- | ----------------- |
+|  |  | High / Medium / Low |  |  |
 
 ## Story Bank
 
-| Story | Situation | Action | Result | Use for |
-| ----- | --------- | ------ | ------ | ------- |
-|  |  |  |  |  |
+| Story | Situation | Action | Result | Use for | Risk level | Do not infer |
+| ----- | --------- | ------ | ------ | ------- | ---------- | ------------ |
+|  |  |  |  |  |  | Metrics, ownership, or confidentiality |
+
+## Format Branch
+
+Recruiter / behavioral / panel / work sample / case / portfolio:
+
+| Branch | Prep focus | Next action |
+| ------ | ---------- | ----------- |
+|  |  |  |
 
 ## Questions to Ask
 
@@ -34,6 +42,7 @@ Date/time:
 - Location:
 - Travel:
 - Hiring timeline:
+- Work sample scope or data rights:
 
 ## Follow-Up Notes
 

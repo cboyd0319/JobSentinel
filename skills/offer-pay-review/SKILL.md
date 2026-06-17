@@ -19,15 +19,26 @@ scope, title, reporting line, travel, and promotion path.
 
 ## Workflow
 
-1. Separate written offer facts from assumptions.
+1. Separate written offer facts, verbal recruiter claims, public market data,
+   and user assumptions. Treat written facts as strongest.
 2. Compare known pay against the user's floor or target.
-3. Review role scope: title, level, decision rights, team size, budget,
+3. Compare total compensation: base, bonus, commission, equity, sign-on,
+   benefits, retirement, PTO, healthcare, equipment, education budget, and
+   review timing.
+4. Review role scope: title, level, decision rights, team size, budget,
    expected hours, travel, schedule, and support.
-4. Review total package: base pay, bonus, equity, benefits, leave, retirement,
-   healthcare, remote/hybrid terms, commute, relocation, and review timing.
-5. Identify questions to ask before accepting or countering.
-6. Draft negotiation notes only from confirmed facts.
-7. End with options: accept, counter, ask questions, decline, or pause.
+5. Review life-cost factors: commute, parking, relocation, travel, remote or
+   hybrid terms, schedule, childcare/caregiving constraints, and start date.
+6. Check deadline pressure: written deadline, recruiter pressure, missing
+   documents, open questions, and whether the user has enough time to decide.
+7. Identify questions to ask before accepting or countering.
+8. Draft counter, clarification, or decline notes only from confirmed facts.
+9. End with options: accept, counter, ask questions, decline, or pause.
+
+## Load References
+
+- Load `references/offer-pay-rubric.md` for total-comp comparison, deadline
+  pressure, written-vs-verbal evidence, counter notes, and decline notes.
 
 ## Output
 
@@ -41,6 +52,14 @@ Produce:
 - Counter or clarification note draft, if requested.
 
 Use `assets/offer-comparison-template.md` for a reusable comparison.
+
+## Handoff
+
+- Use `$application-tracking` to record written offer facts, deadline, response,
+  accept, decline, withdrawal, or open questions.
+- Use `$networking-outreach` for recruiter replies, counter notes, clarification
+  requests, acceptance, or decline messages.
+- Use `$interview-prep` if the user needs another conversation before deciding.
 
 ## Guardrails
 

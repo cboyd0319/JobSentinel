@@ -11,12 +11,19 @@ metadata:
 Use this skill to keep a job search organized without turning it into a
 rejection counter.
 
+## Inputs
+
+Use the user's tracker, saved jobs, application receipts, resume version names,
+message notes, interview notes, contact details, status updates, and next-action
+preferences. Scrub private URL tokens before storing links.
+
 ## Workflow
 
 1. Record each opportunity with title, company, source, link, location, pay,
    date saved, current status, and next action.
 2. Use broad statuses:
    - To Apply;
+   - Verify First;
    - Applied;
    - Screening Call;
    - Phone Interview;
@@ -28,11 +35,21 @@ rejection counter.
    - Not Selected;
    - No Response;
    - Withdrawn.
-3. Add follow-up dates only when a useful next action exists.
-4. Track recruiter or hiring contact details beside the role.
-5. Track interview notes and thank-you follow-ups.
-6. Track salary floor, listed pay, offer notes, and risk flags locally.
-7. Produce a daily next-action list.
+3. Enforce status transitions:
+   - saved roles move to To Apply, Verify First, Skip, or Withdrawn;
+   - Applied roles move only after receipt, contact, rejection, interview, offer,
+     no-response review, or user withdrawal;
+   - terminal statuses keep a reason and no follow-up date.
+4. Add stale/no-response thresholds:
+   - application with a real contact: review after 7-10 business days;
+   - interview: thank-you within 24 hours and follow up after the stated
+     timeline plus 1-2 business days;
+   - offer: track decision deadline and open questions immediately.
+5. Add follow-up dates only when a useful next action exists.
+6. Track recruiter or hiring contact details beside the role.
+7. Track interview notes and thank-you follow-ups.
+8. Track salary floor, listed pay, offer notes, and risk flags locally.
+9. Produce a daily next-action list.
 
 ## Output
 
@@ -47,6 +64,17 @@ Produce:
 
 Use `assets/application-tracker.csv` when the user wants a simple portable
 tracker.
+
+## Handoff
+
+- Use `$networking-outreach` for recruiter replies, referral asks, warm follow
+  ups, or thank-you notes.
+- Use `$interview-prep` when a status moves to recruiter screen, interview,
+  panel, work sample, or final conversation.
+- Use `$offer-pay-review` when a status moves to offer, counter, accept,
+  decline, or deadline review.
+- Use `$job-search-plan` during weekly review when sources, lanes, or pacing
+  need to change.
 
 ## Guardrails
 

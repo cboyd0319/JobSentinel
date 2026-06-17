@@ -1,0 +1,8 @@
+interface:
+  display_name: "Application Tracking"
+  short_description: "Track applications, status, and follow-ups"
+  brand_color: "#0F766E"
+  default_prompt: "Use $application-tracking to update my job tracker and decide the next actions."
+
+policy:
+  allow_implicit_invocation: true

@@ -11,6 +11,14 @@ metadata:
 Use this skill to help the user prepare application-form answers without taking
 submission control away from them.
 
+## Inputs
+
+Use the exact application question text, resume version, job post, saved
+profile details, user-confirmed records, and any application-form context the
+user provides. Ask before using sensitive answers such as birth date, identity
+numbers, demographic choices, disability, veteran status, authorization
+documents, background-check details, salary history, or references.
+
 ## Workflow
 
 1. Identify repeated fields: contact details, links, authorization, location,
@@ -26,8 +34,13 @@ submission control away from them.
 3. Compare answers with the resume and user-provided records.
 4. Draft answer wording only when the answer is true and matches the exact
    question.
-5. Flag questions that need user review before continuing.
-6. End with a submission checklist. The user submits manually.
+5. Preserve exact-question provenance: keep the application question, proposed
+   answer, evidence source, and user-confirmation state together.
+6. Flag protected, voluntary, demographic, disability, veteran, background, and
+   salary-history questions as user-choice items. Explain what is being asked;
+   do not choose for the user.
+7. Flag questions that need user review before continuing.
+8. End with a submission checklist. The user submits manually.
 
 ## Output
 
@@ -40,6 +53,15 @@ Produce:
 - Submission checklist.
 
 Use `assets/form-review-checklist.md` for a reusable checklist.
+
+## Handoff
+
+- Use `$application-tracking` after the user submits, saves, withdraws, or skips
+  the application.
+- Use `$resume-tailoring` when the form exposes a resume mismatch that should be
+  corrected before submission.
+- Use `$offer-pay-review` when pay, relocation, deadline, or benefits questions
+  need a decision before answering.
 
 ## Guardrails
 

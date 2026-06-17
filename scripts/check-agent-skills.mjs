@@ -11,6 +11,7 @@ const allowedSkillRootEntries = new Set([
   "README.md",
   "LICENSE",
   "LICENSE.txt",
+  "agents",
   "assets",
   "references",
   "scripts",
@@ -103,6 +104,76 @@ function referencedSkillFiles(text) {
   ];
 }
 
+function parseQuotedYamlField(text, field) {
+  const escapedField = field.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const match = text.match(new RegExp(`^\\s{2}${escapedField}:\\s+"([^"\\n]+)"\\s*$`, "m"));
+  return match?.[1] ?? "";
+}
+
+function validateOpenAiYaml(skillDirName, skillRoot) {
+  const errors = [];
+  const agentsDir = join(skillRoot, "agents");
+  const openAiPath = join(agentsDir, "openai.yaml");
+
+  if (!existsSync(agentsDir)) {
+    return [`${skillDirName}/ must include agents/openai.yaml`];
+  }
+
+  for (const entry of readdirSync(agentsDir, { withFileTypes: true })) {
+    if (entry.name !== "openai.yaml") {
+      errors.push(`${skillDirName}/agents/ contains unsupported entry: ${entry.name}`);
+    }
+
+    if (entry.isDirectory()) {
+      errors.push(`${skillDirName}/agents/ contains unsupported directory: ${entry.name}`);
+    }
+  }
+
+  if (!existsSync(openAiPath)) {
+    errors.push(`${skillDirName}/ must include agents/openai.yaml`);
+    return errors;
+  }
+
+  const text = readText(openAiPath);
+  const displayName = parseQuotedYamlField(text, "display_name");
+  const shortDescription = parseQuotedYamlField(text, "short_description");
+  const defaultPrompt = parseQuotedYamlField(text, "default_prompt");
+
+  if (!/^interface:\r?\n/m.test(text)) {
+    errors.push(`${skillDirName}/agents/openai.yaml must include interface metadata`);
+  }
+
+  if (displayName.length === 0 || displayName.length > 80) {
+    errors.push(
+      `${skillDirName}/agents/openai.yaml interface.display_name must be 1-80 quoted characters`,
+    );
+  }
+
+  if (shortDescription.length < 25 || shortDescription.length > 64) {
+    errors.push(
+      `${skillDirName}/agents/openai.yaml interface.short_description must be 25-64 quoted characters`,
+    );
+  }
+
+  if (!defaultPrompt.includes(`$${skillDirName}`)) {
+    errors.push(
+      `${skillDirName}/agents/openai.yaml interface.default_prompt must mention $${skillDirName}`,
+    );
+  }
+
+  if (defaultPrompt.length === 0 || defaultPrompt.length > 180) {
+    errors.push(
+      `${skillDirName}/agents/openai.yaml interface.default_prompt must be 1-180 quoted characters`,
+    );
+  }
+
+  if (statSync(openAiPath).size === 0) {
+    errors.push(`${skillDirName}/agents/openai.yaml must not be empty`);
+  }
+
+  return errors;
+}
+
 export function validateSkillPackage(skillRoot) {
   const errors = [];
   const skillDirName = skillRoot.split(/[\\/]/).pop();
@@ -170,6 +241,12 @@ export function validateSkillPackage(skillRoot) {
     errors.push(`${skillDirName}/SKILL.md must include a Guardrails section`);
   }
 
+  for (const section of ["Inputs", "Workflow", "Output", "Handoff"]) {
+    if (!new RegExp(`^## ${section}$`, "m").test(text)) {
+      errors.push(`${skillDirName}/SKILL.md must include a ${section} section`);
+    }
+  }
+
   for (const referencedFile of referencedSkillFiles(text)) {
     if (!existsSync(join(skillRoot, referencedFile))) {
       errors.push(`${skillDirName}/SKILL.md references missing file: ${referencedFile}`);
@@ -181,10 +258,15 @@ export function validateSkillPackage(skillRoot) {
       errors.push(`${skillDirName}/ contains unsupported entry: ${entry.name}`);
     }
 
-    if (entry.isDirectory() && !["assets", "references", "scripts"].includes(entry.name)) {
+    if (
+      entry.isDirectory()
+      && !["agents", "assets", "references", "scripts"].includes(entry.name)
+    ) {
       errors.push(`${skillDirName}/ contains unsupported directory: ${entry.name}`);
     }
   }
+
+  errors.push(...validateOpenAiYaml(skillDirName, skillRoot));
 
   for (const resourceDir of ["assets", "references", "scripts"]) {
     const dir = join(skillRoot, resourceDir);

@@ -72,8 +72,8 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   and eight reference profiles via `JOBSENTINEL_LOCAL_RESUME_SMOKE_PATHS`, with
   no committed local paths or names.
 - Downloadable Agent Skills cover search planning, posting-risk review, resume
-  tailoring, form review, tracking, outreach, interview prep, and offer/pay;
-  `skills/` is harness- and `skills-ref@0.1.5`-validated.
+  tailoring, form review, tracking, outreach, interview prep, and offer/pay with
+  `agents/openai.yaml`, handoffs, decision templates, and reference rubrics.
 - LinkedIn runtime config/scraper types expose no session-cookie fields, and
   Browser Import manual verification passed on 2026-06-17 for desktop/mobile:
   settings, port validation, copy, private-link rejection, LinkedIn preview/save,

@@ -19,15 +19,31 @@ or roles if provided, and the user's must-haves.
 ## Workflow
 
 1. Summarize the role, team, must-haves, and likely interview focus.
-2. Build 5-8 evidence stories using situation, task, action, result, and
+2. Branch by interview format:
+   - recruiter screen: motivation, logistics, pay range, authorization,
+     timeline, and basic fit;
+   - behavioral or hiring manager: evidence stories, collaboration, tradeoffs,
+     ownership, and gaps;
+   - panel or loop: story coverage, repeated themes, and interviewer-specific
+     questions;
+   - work sample, case, technical, or portfolio: scope, assumptions,
+     communication structure, artifacts, and data boundaries.
+3. Build 5-8 evidence stories using situation, task, action, result, and
    reflection.
-3. Match stories to required and preferred qualifications.
-4. Prepare direct answers for hard topics such as gaps, transitions, salary,
+4. Rate story quality with the rubric in `references/story-quality-rubric.md`
+   when stories feel thin, unsupported, too long, or hard to map to the role.
+5. Match stories to required and preferred qualifications.
+6. Prepare direct answers for hard topics such as gaps, transitions, salary,
    location, schedule, authorization, sponsorship, travel, and work samples.
-5. Draft questions the user can ask about role scope, success measures, team,
+7. Draft questions the user can ask about role scope, success measures, team,
    schedule, pay range, interview process, and timeline.
-6. Create a follow-up note only after the user confirms what happened.
-7. End with decision criteria: what would make the role worth pursuing or not.
+8. Create a follow-up note only after the user confirms what happened.
+9. End with decision criteria: what would make the role worth pursuing or not.
+
+## Load References
+
+- Load `references/story-quality-rubric.md` for behavioral, panel, work-sample,
+  portfolio, case, or weak-story prep.
 
 ## Output
 
@@ -41,6 +57,17 @@ Produce:
 - Follow-up note draft, if requested.
 
 Use `assets/interview-prep-brief.md` for a reusable brief.
+
+## Handoff
+
+- Use `$application-tracking` after prep, thank-you notes, debriefs, status
+  changes, or timeline updates.
+- Use `$networking-outreach` for thank-you notes, recruiter replies, or
+  follow-up messages.
+- Use `$resume-tailoring` when interview prep reveals a resume claim that needs
+  cleanup for truthfulness or readability.
+- Use `$offer-pay-review` if the process reaches verbal offer, written offer,
+  compensation discussion, deadline, or decision support.
 
 ## Guardrails
 

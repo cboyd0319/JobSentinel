@@ -6,10 +6,21 @@ Name:
 Relationship:
 Company or community:
 Channel:
+Evidence of relationship:
 
 ## Goal
 
 Referral / role context / recruiter reply / alumni note / follow-up / thank-you:
+
+## Message Decision
+
+| Item | Evidence | Unknown | User must confirm | Risk level |
+| ---- | -------- | ------- | ----------------- | ---------- |
+| Recipient |  |  |  |  |
+| Role or company |  |  |  |  |
+| Fit claim |  |  |  |  |
+| Ask |  |  |  |  |
+| Attachment or link |  |  |  |  |
 
 ## Message Draft
 
@@ -34,4 +45,5 @@ Thank you,
 - [ ] Fit evidence is true and visible in the resume or work history.
 - [ ] Ask is specific and low pressure.
 - [ ] No private salary floor, sensitive note, or unsupported claim is included.
+- [ ] Do not infer a referral, endorsement, relationship, or urgency.
 - [ ] User sends manually.

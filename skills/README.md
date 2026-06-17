@@ -3,8 +3,9 @@
 This directory contains downloadable Agent Skills for job-search and resume
 workflows. Each subdirectory is a standalone skill package that follows the
 Agent Skills specification: the directory name matches the `name` field in
-`SKILL.md`, metadata uses YAML frontmatter, and reusable templates live in
-`assets/`.
+`SKILL.md`, metadata uses YAML frontmatter, UI metadata lives in
+`agents/openai.yaml`, reusable templates live in `assets/`, and optional deeper
+rubrics live in `references/`.
 
 Use these skills with an Agent Skills-compatible assistant when you want
 structured help with a job search while preserving JobSentinel's core rules:
@@ -31,6 +32,11 @@ structured help with a job search while preserving JobSentinel's core rules:
 | `networking-outreach` | Draft recruiter, referral, alumni, community, and warm-contact messages. |
 | `interview-prep` | Build interview briefs, evidence stories, questions, and follow-up notes. |
 | `offer-pay-review` | Compare written offers, listed pay, salary floors, benefits, schedule, scope, and negotiation notes. |
+
+Each skill keeps `SKILL.md` compact and routes to references only when deeper
+rubrics are useful. Handoff sections connect the normal job-search flow:
+planning, posting review, resume tailoring, application review, tracking,
+outreach, interview prep, and offer review.
 
 Validate packages with:
 

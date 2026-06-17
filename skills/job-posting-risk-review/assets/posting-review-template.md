@@ -2,26 +2,26 @@
 
 ## Basic Facts
 
-| Field | Evidence |
-| ----- | -------- |
-| Title |  |
-| Company |  |
-| Source |  |
-| Location and schedule |  |
-| Listed pay |  |
-| Posting or closing date |  |
-| Application route |  |
+| Field | Evidence | Unknown | User must confirm |
+| ----- | -------- | ------- | ----------------- |
+| Title |  |  |  |
+| Company |  |  |  |
+| Source |  |  |  |
+| Location and schedule |  |  |  |
+| Listed pay |  |  |  |
+| Posting or closing date |  |  |  |
+| Application route |  |  |  |
 
 ## Risk Signals
 
-| Signal | Evidence | Impact |
-| ------ | -------- | ------ |
-| Stale or repeated |  |  |
-| Thin role details |  |  |
-| Weak source |  |  |
-| Scam-like cue |  |  |
-| Pay concern |  |  |
-| Hard requirement |  |  |
+| Signal | Evidence | Confidence | Risk level | Next action | Do not infer |
+| ------ | -------- | ---------- | ---------- | ----------- | ------------ |
+| Stale or repeated |  | High / Medium / Low |  |  | Employer intent |
+| Thin role details |  | High / Medium / Low |  |  | Role legitimacy |
+| Weak source |  | High / Medium / Low |  |  | Company endorsement |
+| Scam-like cue |  | High / Medium / Low |  |  | Fraud without direct proof |
+| Pay concern |  | High / Medium / Low |  |  | Flexibility or legality |
+| Hard requirement |  | High / Medium / Low |  |  | Candidate eligibility |
 
 ## Decision
 
@@ -30,3 +30,5 @@ Recommended next action:
 Reason:
 
 What to verify before tailoring:
+
+What the user must confirm:

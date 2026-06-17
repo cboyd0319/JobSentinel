@@ -1,0 +1,8 @@
+interface:
+  display_name: "Resume Tailoring"
+  short_description: "Tailor resumes with truthful evidence"
+  brand_color: "#0F766E"
+  default_prompt: "Use $resume-tailoring to compare my resume to this job post and draft truthful, evidence-backed edits."
+
+policy:
+  allow_implicit_invocation: true

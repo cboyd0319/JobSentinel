@@ -1,0 +1,8 @@
+interface:
+  display_name: "Networking Outreach"
+  short_description: "Draft recruiter, referral, and follow-up notes"
+  brand_color: "#0F766E"
+  default_prompt: "Use $networking-outreach to draft a concise job-search message I can review and send manually."
+
+policy:
+  allow_implicit_invocation: true

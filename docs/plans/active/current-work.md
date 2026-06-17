@@ -71,7 +71,7 @@ Out of scope:
 | Area | State | Next useful slice |
 | ---- | ----- | ----------------- |
 | Dependency readiness | Complete | Package-manager, direct deps, overrides, and Action pins are latest; transitives stay lockfile-pinned/latest-compatible |
-| Downloadable Agent Skills | Complete locally | Eight spec-compliant skills are guarded by `lint:skills`, the harness, and `skills-ref@0.1.5`. |
+| Downloadable Agent Skills | Complete locally | Eight skills include `agents/openai.yaml`, handoffs, decision templates, references, and `lint:skills` coverage. |
 | Browser Import and LinkedIn-compatible flow | Complete locally | Manual desktop/mobile verification passed; revisit only if whole-UI QA finds a blocker. Keep LinkedIn user-opened and user-clicked without session cookies or background monitoring. |
 | Development and QA completion | Finalizing | Primary product/security fixes and whole-UI verification are complete locally; finish design, packaging, and release checks. |
 | macOS readiness | Release-gated | Keep docs honest when touched, but do not create or upload assets until final local gates close. |
@@ -129,9 +129,8 @@ Out of scope:
   only, and passphrase Settings controls stay non-interactive until user action.
 - File-backed app data opens through SQLCipher; legacy plaintext databases
   upgrade in place and delete temporary plaintext backups after success.
-- Downloadable Agent Skills now cover search planning, posting-risk review,
-  resume tailoring, form review, tracking, outreach, interview prep, and
-  offer/pay review.
+- Downloadable Agent Skills cover the full search flow with OpenAI UI metadata,
+  handoffs, decision templates, and reference rubrics.
 - Browser Import desktop/mobile manual verification passed on 2026-06-17 for
   setup, private-link rejection, LinkedIn preview/save, duplicates, and overflow.
 - Whole-UI normal actions, Setup Wizard, keyboard paths, and forced states passed.
