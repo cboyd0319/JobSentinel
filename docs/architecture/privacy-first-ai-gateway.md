@@ -147,7 +147,8 @@ Implemented now:
 TODO before shipping any user-facing external AI feature:
 
 - Add Settings UI for enabling providers and showing privacy labels.
-- Add provider credential storage through OS keyring.
+- Add provider credential storage through `CredentialService` and the local
+  secret vault.
 - Add payload preview, redaction, edit, and cancel UI.
 - Add local request-log storage and viewer.
 - Add feature-specific local fallback or external-AI-required label.

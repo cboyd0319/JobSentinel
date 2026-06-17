@@ -559,6 +559,36 @@ test("checkRepoBloat rejects notification webhook keyring storage without valida
   });
 });
 
+test("checkRepoBloat rejects stale active credential storage wording", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/config/types.rs",
+      [
+        "pub struct SlackConfig {",
+        "  /// Webhook URL - stored in OS keyring, not serialized",
+        "  pub webhook_url: String,",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/core/config/types.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "replace stale OS-keyring credential storage wording: src-tauri/src/core/config/types.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects stale settings partial-save messages", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

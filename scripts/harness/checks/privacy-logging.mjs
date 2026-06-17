@@ -29,6 +29,7 @@ const privacyLoggingViolationChecks = [
   [credentials.hasSecretBearingDebugDerive, "sanitize secret-bearing debug derive"],
   [credentials.hasCredentialKeyInputEcho, "avoid echoing credential key input"],
   [credentials.hasRawCredentialStorageErrors, "sanitize credential storage errors"],
+  [credentials.hasStaleActiveSecretStorageWording, "replace stale OS-keyring credential storage wording"],
   [credentials.hasMissingLinkedInCredentialStorageDisable, "disable LinkedIn credential storage"],
   [
     credentials.hasMissingWebhookCredentialStorageValidation,

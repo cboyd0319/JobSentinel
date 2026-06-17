@@ -254,7 +254,7 @@ pub struct AlertConfig {
 pub struct SlackConfig {
     pub enabled: bool,
 
-    /// Webhook URL - stored in OS keyring, not serialized
+    /// Webhook URL - stored through `CredentialService`, not serialized.
     #[serde(skip)]
     pub webhook_url: String,
 }
@@ -279,10 +279,9 @@ impl fmt::Debug for SlackConfig {
 ///
 /// # Security
 ///
-/// The `smtp_password` field is stored securely in the OS keyring:
-/// - macOS: Keychain
-/// - Windows: Credential Manager
-/// - Linux: Secret Service API (libsecret)
+/// The `smtp_password` field is stored through `CredentialService`, not config.
+/// Active secrets live in the local secret vault; the operating system
+/// credential store protects the vault key and supports legacy fallback.
 ///
 /// For Gmail, use app-specific passwords rather than your main password.
 #[derive(Clone, Serialize, Deserialize, Default)]
@@ -302,8 +301,8 @@ pub struct EmailConfig {
     #[serde(default)]
     pub smtp_username: String,
 
-    /// SMTP password or app-specific password
-    /// Stored securely in OS keyring (macOS Keychain, Windows Credential Manager)
+    /// SMTP password or app-specific password.
+    /// Stored through `CredentialService`, not serialized.
     #[serde(skip)]
     pub smtp_password: String,
 
@@ -347,7 +346,7 @@ pub struct DiscordConfig {
     #[serde(default)]
     pub enabled: bool,
 
-    /// Discord webhook URL - stored in OS keyring, not serialized
+    /// Discord webhook URL - stored through `CredentialService`, not serialized.
     #[serde(skip)]
     pub webhook_url: String,
 
@@ -378,7 +377,7 @@ pub struct TelegramConfig {
     #[serde(default)]
     pub enabled: bool,
 
-    /// Telegram Bot API token - stored in OS keyring, not serialized
+    /// Telegram Bot API token - stored through `CredentialService`, not serialized.
     #[serde(skip)]
     pub bot_token: String,
 
@@ -409,7 +408,7 @@ pub struct TeamsConfig {
     #[serde(default)]
     pub enabled: bool,
 
-    /// Microsoft Teams webhook URL - stored in OS keyring, not serialized
+    /// Microsoft Teams webhook URL - stored through `CredentialService`, not serialized.
     #[serde(skip)]
     pub webhook_url: String,
 }
@@ -662,14 +661,14 @@ pub struct GlassdoorConfig {
 /// https://developer.usajobs.gov/
 ///
 /// # Security
-/// The API key is stored securely in the OS keyring.
+/// The API key is stored through `CredentialService`, not config.
 #[derive(Clone, Serialize, Deserialize, Default)]
 pub struct UsaJobsConfig {
     /// Enable USAJobs scraping
     #[serde(default)]
     pub enabled: bool,
 
-    /// API key from developer.usajobs.gov - stored in OS keyring
+    /// API key from developer.usajobs.gov - stored through `CredentialService`.
     #[serde(skip)]
     pub api_key: String,
 

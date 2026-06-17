@@ -44,7 +44,7 @@ fn test_email_enabled_but_empty_username_fails() {
 
 #[test]
 fn test_email_enabled_with_empty_password_passes_validation() {
-    // In v2.0+, SMTP password is stored in OS keyring, not config.
+    // In v2.9+, SMTP password is stored through CredentialService, not config.
     let mut config = create_valid_config();
     config.alerts.email.enabled = true;
     config.alerts.email.smtp_server = "smtp.gmail.com".to_string();
@@ -56,7 +56,7 @@ fn test_email_enabled_with_empty_password_passes_validation() {
     let result = validate_config(&config);
     assert!(
         result.is_ok(),
-        "Empty SMTP password should pass validation (credential is in keyring)"
+        "Empty SMTP password should pass validation (credential is behind CredentialService)"
     );
 }
 

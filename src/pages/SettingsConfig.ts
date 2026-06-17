@@ -204,7 +204,7 @@ export function formatPostingRiskHideLabel(value: number): string {
   return "Keep more visible";
 }
 
-// Credentials stored in OS keyring (macOS Keychain, Windows Credential Manager)
+// Credentials are stored through the backend CredentialService, not config.
 export interface Credentials {
   slack_webhook: string;
   smtp_password: string;

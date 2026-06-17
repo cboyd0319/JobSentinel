@@ -2,7 +2,7 @@ use super::*;
 
 #[test]
 fn test_discord_enabled_with_empty_webhook_passes_validation() {
-    // In v2.0+, Discord webhook is stored in OS keyring, not config.
+    // In v2.9+, Discord webhook is stored through CredentialService, not config.
     let mut config = create_valid_config();
     config.alerts.discord.enabled = true;
     config.alerts.discord.webhook_url = "".to_string();
@@ -10,13 +10,13 @@ fn test_discord_enabled_with_empty_webhook_passes_validation() {
     let result = validate_config(&config);
     assert!(
         result.is_ok(),
-        "Empty Discord webhook should pass validation (credential is in keyring)"
+        "Empty Discord webhook should pass validation (credential is behind CredentialService)"
     );
 }
 
 #[test]
 fn test_discord_webhook_format_not_validated_in_config() {
-    // In v2.0+, Discord webhook is stored in OS keyring, not config.
+    // In v2.9+, Discord webhook is stored through CredentialService, not config.
     let mut config = create_valid_config();
     config.alerts.discord.enabled = true;
     config.alerts.discord.webhook_url = "https://evil.com/webhook".to_string();
@@ -24,13 +24,13 @@ fn test_discord_webhook_format_not_validated_in_config() {
     let result = validate_config(&config);
     assert!(
         result.is_ok(),
-        "Discord webhook format not validated in config (validated in keyring)"
+        "Discord webhook format not validated in config (validated by CredentialService)"
     );
 }
 
 #[test]
 fn test_discord_webhook_length_not_validated_in_config() {
-    // In v2.0+, Discord webhook is stored in OS keyring, not config.
+    // In v2.9+, Discord webhook is stored through CredentialService, not config.
     let mut config = create_valid_config();
     config.alerts.discord.enabled = true;
     config.alerts.discord.webhook_url =
@@ -39,7 +39,7 @@ fn test_discord_webhook_length_not_validated_in_config() {
     let result = validate_config(&config);
     assert!(
         result.is_ok(),
-        "Discord webhook length not validated in config (validated in keyring)"
+        "Discord webhook length not validated in config (validated by CredentialService)"
     );
 }
 

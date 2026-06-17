@@ -319,7 +319,7 @@ npm install
 - Cache and logs directory support
 - Menu bar tray integration through Tauri's tray APIs
 - Native desktop notifications through the Tauri notification plugin
-- Keychain-backed credential storage through the OS keyring
+- Secret-vault credential storage with a Keychain-protected vault key
 
 ### Planned Or Distribution-Dependent
 

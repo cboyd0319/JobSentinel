@@ -226,13 +226,13 @@ total_score = (
 
 - Frontend reaches saved secrets only through Tauri credential commands.
 - Backend notification and source code uses `CredentialStore` directly.
-- Both paths use service name `JobSentinel` and `jobsentinel_*` storage keys.
+- Both paths use `CredentialKey` names for vault rows and legacy cleanup keys.
 - Legacy LinkedIn entries are retained only for cleanup and redaction, not new
   storage.
-- Current compatibility code stores individual credentials in the OS password
-  store. Target architecture stores secrets in an encrypted SQLite
-  secret-vault table with per-row AEAD and protects one vault key with the OS
-  credential store.
+- Current runtime code stores active secrets in the local `secret_vault` table
+  with per-row AEAD and protects one vault key with the OS credential store.
+  The direct OS credential-store path remains only for legacy fallback and live
+  keyring tests.
 - macOS target implementation uses native Keychain plus LocalAuthentication for
   Touch ID-capable user-presence unlock instead of generic passive keyring
   probes.
@@ -762,8 +762,8 @@ match result {
    - Field length validation
    - XSS prevention: `javascript:` protocol validation in URLs
    - Target encrypted SQLite at rest for job-search records and preferences
-   - Target per-row AEAD secret vault for saved alert credentials, access codes,
-     and private connection links
+   - Per-row AEAD secret vault for saved alert credentials, access codes, and
+     private connection links
 
 3. **Network Security**
    - HTTPS only for external requests

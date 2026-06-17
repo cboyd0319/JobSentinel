@@ -68,6 +68,37 @@ import {
   stripTypeScriptComments,
 } from "./shared.mjs";
 
+const activeSecretStorageWordingPaths = new Set([
+  "docs/architecture/privacy-first-ai-gateway.md",
+  "docs/developer/ARCHITECTURE.md",
+  "docs/developer/MACOS_DEVELOPMENT.md",
+  "src/pages/SettingsConfig.ts",
+  "src/pages/SetupWizard.tsx",
+  "src-tauri/src/core/config/types.rs",
+]);
+
+function isActiveSecretStorageWordingPath(path) {
+  return (
+    activeSecretStorageWordingPaths.has(path) ||
+    path.startsWith("src-tauri/src/core/config/tests/")
+  );
+}
+
+export function hasStaleActiveSecretStorageWording(root, path) {
+  if (!isActiveSecretStorageWordingPath(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /stored (?:securely )?in (?:the )?OS keyring/i.test(text) ||
+    /Credentials stored in OS keyring/i.test(text) ||
+    /credential storage through (?:the )?OS keyring/i.test(text) ||
+    /validated in keyring/i.test(text) ||
+    /credential is in keyring/i.test(text)
+  );
+}
+
 export function hasLinkedInLoginCookieReturn(root, path) {
   if (!linkedInAuthPrivacyPaths.has(path)) {
     return false;

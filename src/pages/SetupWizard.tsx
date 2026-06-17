@@ -403,14 +403,14 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
     }
 
     try {
-      // Create config object without the webhook_url (it's stored in keyring, not config file)
+      // Create config object without the webhook_url; saved secrets stay behind CredentialService.
       const configToSave = {
         ...config,
         alerts: {
           ...config.alerts,
           slack: {
             enabled: config.alerts.slack.enabled,
-            // webhook_url is intentionally omitted - stored in OS keyring
+            // webhook_url is intentionally omitted from config.
           },
         },
       };

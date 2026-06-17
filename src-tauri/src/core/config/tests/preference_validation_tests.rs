@@ -324,7 +324,7 @@ fn test_country_name_too_long_fails() {
 
 #[test]
 fn test_slack_enabled_with_empty_webhook_passes_validation() {
-    // In v2.0+, Slack webhook is stored in OS keyring, not config.
+    // In v2.9+, Slack webhook is stored through CredentialService, not config.
     // Validation passes because the actual credential check happens at runtime.
     let mut config = create_valid_config();
     config.alerts.slack.enabled = true;
@@ -333,7 +333,7 @@ fn test_slack_enabled_with_empty_webhook_passes_validation() {
     let result = validate_config(&config);
     assert!(
         result.is_ok(),
-        "Empty webhook URL should pass validation (credential is in keyring)"
+        "Empty webhook URL should pass validation (credential is behind CredentialService)"
     );
 }
 
@@ -351,21 +351,21 @@ fn test_slack_disabled_with_empty_webhook_passes() {
 
 #[test]
 fn test_slack_webhook_format_not_validated_in_config() {
-    // In v2.0+, Slack webhook is stored in OS keyring, not config.
-    // Format validation happens at runtime when storing in keyring.
+    // In v2.9+, Slack webhook is stored through CredentialService, not config.
+    // Format validation happens at runtime when storing through CredentialService.
     let mut config = create_valid_config();
     config.alerts.slack.webhook_url = "https://evil.com/webhook".to_string();
 
     let result = validate_config(&config);
     assert!(
         result.is_ok(),
-        "Webhook format not validated in config (validated in keyring)"
+        "Webhook format not validated in config (validated by CredentialService)"
     );
 }
 
 #[test]
 fn test_slack_webhook_length_not_validated_in_config() {
-    // In v2.0+, Slack webhook is stored in OS keyring, not config.
+    // In v2.9+, Slack webhook is stored through CredentialService, not config.
     let mut config = create_valid_config();
     config.alerts.slack.webhook_url =
         format!("https://hooks.slack.com/services/{}", "X".repeat(500));
@@ -373,6 +373,6 @@ fn test_slack_webhook_length_not_validated_in_config() {
     let result = validate_config(&config);
     assert!(
         result.is_ok(),
-        "Webhook length not validated in config (validated in keyring)"
+        "Webhook length not validated in config (validated by CredentialService)"
     );
 }
