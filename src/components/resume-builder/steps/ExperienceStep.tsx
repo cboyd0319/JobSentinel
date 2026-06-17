@@ -80,7 +80,7 @@ const ExperienceStep = memo(function ExperienceStep({
                 <button
                   onClick={() => onDeleteClick(exp)}
                   className="p-2 text-surface-400 hover:text-red-500 transition-colors"
-                  aria-label="Delete experience"
+                  aria-label={`Delete experience: ${exp.title} at ${exp.company}`}
                 >
                   <TrashIcon className="w-4 h-4" />
                 </button>

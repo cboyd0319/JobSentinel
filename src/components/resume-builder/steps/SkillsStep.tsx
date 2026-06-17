@@ -113,9 +113,9 @@ const SkillsStep = memo(function SkillsStep({
           {skills.map((skill, idx) => (
             <div
               key={idx}
-              className="flex items-center justify-between p-3 bg-surface-50 dark:bg-surface-700 rounded-lg border border-surface-200 dark:border-surface-600"
+              className="flex items-start justify-between gap-3 p-3 bg-surface-50 dark:bg-surface-700 rounded-lg border border-surface-200 dark:border-surface-600"
             >
-              <div className="flex-1">
+              <div className="min-w-0 flex-1 break-words">
                 <span className="font-medium text-surface-800 dark:text-surface-200">
                   {skill.name}
                 </span>
@@ -134,8 +134,8 @@ const SkillsStep = memo(function SkillsStep({
               </div>
               <button
                 onClick={() => onDeleteSkill(idx, skill.name)}
-                className="p-2 text-surface-400 hover:text-red-500 transition-colors"
-                aria-label="Delete skill"
+                className="shrink-0 p-2 text-surface-400 hover:text-red-500 transition-colors"
+                aria-label={`Delete skill: ${skill.name}`}
               >
                 <TrashIcon className="w-4 h-4" />
               </button>

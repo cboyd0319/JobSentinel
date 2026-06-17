@@ -120,7 +120,11 @@ test.describe("Resume Builder Wizard", () => {
     await expect(page.getByText("Senior Customer Success Manager")).toBeVisible();
     await expect(page.getByText("BrightPath")).toBeVisible();
     await expect(page.getByText("Improved onboarding completion by 22%")).toBeVisible();
-    await expect(page.getByRole("button", { name: "Delete experience" })).toBeVisible();
+    await expect(
+      page.getByRole("button", {
+        name: /Delete experience: Senior Customer Success Manager at BrightPath/,
+      }),
+    ).toBeVisible();
   });
 
   test("adds education and skills", async ({ page }) => {

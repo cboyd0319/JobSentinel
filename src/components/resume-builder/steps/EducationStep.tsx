@@ -88,7 +88,7 @@ const EducationStep = memo(function EducationStep({
                 <button
                   onClick={() => onDeleteClick(edu)}
                   className="p-2 text-surface-400 hover:text-red-500 transition-colors"
-                  aria-label="Delete education"
+                  aria-label={`Delete education: ${edu.degree} at ${edu.institution}`}
                 >
                   <TrashIcon className="w-4 h-4" />
                 </button>
