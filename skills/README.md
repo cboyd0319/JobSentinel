@@ -19,6 +19,11 @@ structured help with a job search while preserving JobSentinel's core rules:
   behavior.
 - Treat LinkedIn as a user-opened source or user-provided posting context, not
   as a background automation target.
+- Prefer validation layers over autonomous agent claims: confirm extracted
+  skills, posting liveness, source confidence, form answers, follow-up history,
+  and offer facts before acting.
+- Treat local fit checks, parsing checks, and pay or posting reviews as
+  candidate-side decision aids, not predictions about employers or outcomes.
 
 ## Included Skills
 

@@ -33,18 +33,22 @@ or roles if provided, and the user's must-haves.
 4. Rate story quality with the rubric in `references/story-quality-rubric.md`
    when stories feel thin, unsupported, too long, or hard to map to the role.
 5. Match stories to required and preferred qualifications.
-6. Prepare direct answers for hard topics such as gaps, transitions, salary,
+6. Separate sourced interview intelligence from inferred prep:
+   - sourced questions or process details need a source/date;
+   - likely questions inferred from the job post must be labeled as inferred;
+   - do not turn generic company reviews into attributed questions.
+7. Prepare direct answers for hard topics such as gaps, transitions, salary,
    location, schedule, authorization, sponsorship, travel, and work samples.
-7. Draft questions the user can ask about role scope, success measures, team,
+8. Draft questions the user can ask about role scope, success measures, team,
    schedule, pay range, interview process, and timeline.
-8. For take-homes or work samples, confirm scope, deadline, evaluation
+9. For take-homes or work samples, confirm scope, deadline, evaluation
    criteria, data rights, and time expectations before recommending effort.
    Flag unpaid excessive labor and do not use confidential employer assets.
-9. Create a follow-up note only after the user confirms what happened.
-10. Capture a debrief after each interview: questions asked, answers that
+10. Create a follow-up note only after the user confirms what happened.
+11. Capture a debrief after each interview: questions asked, answers that
     worked, weak answers, promised follow-ups, expected timeline, probability,
     and concerns.
-11. End with decision criteria: what would make the role worth pursuing or not.
+12. End with decision criteria: what would make the role worth pursuing or not.
 
 ## Load References
 

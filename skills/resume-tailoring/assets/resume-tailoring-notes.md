@@ -18,11 +18,23 @@ Source:
 | ----------- | --------------- | ------- | ---------------- | ---------- |
 |  |  |  |  |  |
 
+## Skill And Keyword Validation
+
+| Extracted term | Source | Classification | Evidence | User must confirm | Action |
+| -------------- | ------ | -------------- | -------- | ----------------- | ------ |
+|  | Job post / resume / user note | Exact / Adjacent / Family / False positive / Unsupported |  |  | Use / ask / remove / do not add |
+
+## Experience Duration Check
+
+| Skill or requirement | Evidence period | Overlap or non-professional exposure | User must confirm | Resume wording |
+| -------------------- | --------------- | ------------------------------------ | ----------------- | -------------- |
+|  |  |  |  |  |
+
 ## Bullet Edits
 
-| Current wording | Proposed wording | Evidence used | User must confirm | Keyword cap |
-| --------------- | ---------------- | ------------- | ----------------- | ----------- |
-|  |  |  |  |  |
+| Current wording | Proposed wording | Evidence used | Capability level | User must confirm | Keyword cap |
+| --------------- | ---------------- | ------------- | ---------------- | ----------------- | ----------- |
+|  |  |  | Exposure / Hands-on / Independent / Ownership / Strategic |  |  |
 
 ## Change Log
 

@@ -34,9 +34,16 @@ scope, title, reporting line, travel, and promotion path.
    hybrid terms, schedule, childcare/caregiving constraints, and start date.
 7. Check deadline pressure: written deadline, recruiter pressure, missing
    documents, open questions, and whether the user has enough time to decide.
-8. Identify questions to ask before accepting or countering.
-9. Draft counter, clarification, or decline notes only from confirmed facts.
-10. End with options: accept, counter, ask questions, decline, or pause.
+8. Check pay-equity and anchoring risks: salary-history requests, vague or
+   broad ranges, downleveling, lower-title/lower-pay tradeoffs, and pressure to
+   decide before written facts are complete.
+9. Identify questions to ask before accepting or countering.
+10. If comparing multiple offers, use a user-weighted decision matrix for
+   total compensation, schedule, commute or relocation, growth, risk, and
+   must-haves. Do not let a numeric score override a failed must-have.
+11. Draft counter, clarification, or decline notes only from confirmed facts.
+    Frame them as editable notes, not pressure scripts.
+12. End with options: accept, counter, ask questions, decline, or pause.
 
 ## Load References
 
@@ -73,5 +80,6 @@ Use `assets/offer-comparison-template.md` for a reusable comparison.
 - Do not pressure the user to negotiate if the role violates must-haves.
 - Do not treat H1B, public salary, or benchmark data as a complete market.
 - Do not infer protected-class details or give legal advice.
+- Do not blame the user for pay gaps, ambiguity, or negotiation outcomes.
 - Keep private salary floors and offer notes local unless the user explicitly
   chooses to share them.

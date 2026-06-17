@@ -11,6 +11,30 @@ obvious. It protects time without overclaiming employer intent.
 | Medium | Reputable job board, recruiter message with identifiable company context, enough role detail, but not all facts confirmed |
 | Low | Scraped, reposted, anonymous, expired, redirected, unverifiable, or missing basic facts |
 
+## Liveness And Company Signals
+
+| Signal | Evidence | Decision use |
+| ------ | -------- | ------------ |
+| Active posting | Current page shows the role, company, job details or form fields, and active apply path | Continue review |
+| Closed posting | Expired/closed language, no longer accepting applications, missing job content, generic redirect, or 404/410 | Stop before tailoring unless the user has a live recruiter route |
+| Login-gated posting | Details require account access, session cookies, or restricted page access | Ask the user to paste visible details; do not automate access |
+| Recruiter-sourced role | Named recruiter or hiring contact has current written context | Treat active contact as positive source context, but keep missing public facts as unknown |
+| Company hiring context | Official careers page, recent company updates, layoffs, hiring freezes, funding, or team signals with source/date | Use only as context; do not claim employer intent |
+
+## Posting History
+
+Track posting history when visible:
+
+- first seen
+- last seen
+- repost count
+- canonical URL
+- closure evidence
+- user correction or recruiter confirmation
+
+Repeated or old postings are not scam proof. Use them to decide whether to
+verify, network first, or avoid deep tailoring until the active route is clear.
+
 ## Evidence Labels
 
 - `Observed`: visible in the posting, official page, recruiter message, or user

@@ -10,6 +10,8 @@ the next week of job-search effort belongs.
 - User constraints that changed: location, schedule, salary floor, start date,
   commute, authorization, travel, or urgency.
 - Resume variants and outreach variants used during the week.
+- Energy, confidence, and fatigue signals that should change pacing without
+  lowering the quality bar.
 
 ## Lane Decision Rubric
 
@@ -27,9 +29,11 @@ the next week of job-search effort belongs.
    no response, rejected, skipped, and withdrawn.
 2. Name the top two sources by quality, not volume.
 3. Name the weakest lane or source and the evidence behind that decision.
-4. Decide one change: narrow titles, broaden adjacent roles, switch sources,
+4. Check pacing: reduce low-fit cold applications, add recovery time, or shift
+   toward referrals/direct sources when fatigue is hurting judgment.
+5. Decide one change: narrow titles, broaden adjacent roles, switch sources,
    increase outreach, reduce low-fit applications, or update the resume base.
-5. Set next week's actions with owners, dates, and stop rules.
+6. Set next week's actions with owners, dates, and stop rules.
 
 ## Output
 

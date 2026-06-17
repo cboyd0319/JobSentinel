@@ -30,22 +30,34 @@ approves that exact transfer.
    - preferred qualifications;
    - other role language;
    - hard screening topics.
-3. Fail fast on hard requirements that the user cannot truthfully meet. Treat
+3. Validate extracted skills and keywords before comparing or tailoring:
+   - remove job titles, company names, product slogans, and section labels that
+     are not candidate skills;
+   - separate exact matches, adjacent or semantic matches, technology-family
+     matches, unsupported terms, and false positives;
+   - check date math and overlapping roles before assigning years of
+     experience;
+   - keep academic, course, volunteer, project, and professional exposure
+     separate unless the user confirms how to present it.
+4. Fail fast on hard requirements that the user cannot truthfully meet. Treat
    the role as skip, verify, or ask-first before drafting unsupported edits.
-4. Map each important requirement to real candidate evidence:
+5. Map each important requirement to real candidate evidence:
    - strong visible evidence;
    - partial or older evidence;
    - unsupported or unknown;
    - not true for the candidate.
-5. Draft edits only where the user has truthful evidence.
-6. Cap keyword edits to supported evidence. Do not add more role language than
+6. Draft edits only where the user has truthful evidence.
+7. Cap keyword edits to supported evidence. Do not add more role language than
    the resume can defend in an interview or application form.
-7. Apply an ATS and readability checklist: clear headings, normal text, simple
+8. Apply an ATS and readability checklist: clear headings, normal text, simple
    bullets, consistent dates, readable file text, and no hidden content.
-8. Improve bullets with action, scope, result, and context. Use numbers only
+9. Improve bullets with action, scope, result, and context. Use numbers only
    when the user provides or approves them.
-9. Keep unsupported requirements as questions, gaps, or skip reasons.
-10. Create a change log: what changed, why it changed, and which resume,
+10. Use a capability ladder before strengthening wording: exposure, assisted
+    work, hands-on use, independent delivery, ownership, or expert/strategic
+    work. Do not upgrade a claim above the evidence.
+11. Keep unsupported requirements as questions, gaps, or skip reasons.
+12. Create a change log: what changed, why it changed, and which resume,
     job-post, or user-provided source supports it.
 
 ## Load References
@@ -59,6 +71,8 @@ Produce:
 
 - Fit summary.
 - Must-have review.
+- Validated requirement and skill map.
+- False-positive removals.
 - Evidence map.
 - Suggested resume edits.
 - Bullet rewrites with before/after wording.
@@ -86,4 +100,6 @@ Use `assets/resume-tailoring-notes.md` when the user wants a reusable worksheet.
 - Do not hide keywords or write prompt-injection content.
 - Do not present the review as an employer decision or response prediction.
 - Do not force every job-post word into the resume.
+- Do not present a local fit score, ATS check, or parser result as a universal
+  employer-system prediction.
 - Prioritize required evidence before nice-to-have language.

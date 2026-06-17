@@ -18,6 +18,7 @@ Referral / role context / recruiter reply / alumni note / follow-up / thank-you:
 | ---- | -------- | ------- | ----------------- | ---------- |
 | Recipient |  |  |  |  |
 | Role or company |  |  |  |  |
+| Warm-tie or referral claim |  |  |  |  |
 | Fit claim |  |  |  |  |
 | Ask |  |  |  |  |
 | Attachment or link |  |  |  |  |

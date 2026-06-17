@@ -25,16 +25,23 @@ evidence, shared context, preferred channel, and the user’s boundaries.
    ask, community DM, or follow-up. Match length and tone to the channel.
 4. Pick one clear ask, such as a brief call, a role-context question, a referral
    path, or permission to share a resume.
-5. Draft a message with:
+5. Verify warm-tie provenance before using it. The user must confirm referrals,
+   endorsements, shared employers, alumni ties, communities, previous
+   conversations, and permission to name another person.
+6. Draft a message with:
    - a specific reason for contacting this person;
    - one sentence of truthful fit evidence;
    - a low-pressure ask;
    - an easy opt-out.
-6. Keep follow-ups spaced and useful. If there is no new reason to follow up,
+7. Keep follow-ups spaced and useful. If there is no new reason to follow up,
    recommend pausing instead of sending another note.
-7. Avoid over-polished AI phrasing such as generic excitement, vague flattery,
+8. Stop after two unanswered follow-ups unless the user provides new context,
+   a changed timeline, or a specific contact reason. Recommend closing,
+   deprioritizing, or switching channels instead of sending a third generic
+   note.
+9. Avoid over-polished AI phrasing such as generic excitement, vague flattery,
    or unsupported "unique fit" claims.
-8. End with a send-review checklist: recipient, channel, role URL, factual
+10. End with a send-review checklist: recipient, channel, role URL, factual
    claims, attachments, links, salary/location/visa/timing details, and
    confidential information.
 

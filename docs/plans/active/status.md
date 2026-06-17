@@ -73,8 +73,10 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   no committed local paths or names.
 - Downloadable Agent Skills cover search planning, posting-risk review, resume
   tailoring, form review, tracking, outreach, interview prep, and offer/pay with
-  `agents/openai.yaml`, handoffs, decision templates, reference rubrics, and a
-  final cross-check against Persona job-hunting references.
+  `agents/openai.yaml`, handoffs, decision templates, reference rubrics,
+  Persona, ResumeSkills, career-ops, article, and JobSentinel research coverage
+  for validation layers, source liveness, tracker history, salary-history
+  handling, and evidence-first handoffs.
 - LinkedIn runtime config/scraper types expose no session-cookie fields, and
   Browser Import manual verification passed on 2026-06-17 for desktop/mobile:
   settings, port validation, copy, private-link rejection, LinkedIn preview/save,

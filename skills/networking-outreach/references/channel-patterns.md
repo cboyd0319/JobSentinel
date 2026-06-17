@@ -52,3 +52,6 @@ Use when a real connection or credible weak tie exists:
 - After recruiter process timeline passes: follow up after timeline plus 1-2
   business days.
 - Pause when there is no new reason to write.
+- After two unanswered follow-ups, do not draft another generic follow-up.
+  Recommend close, deprioritize, or change channel only if there is a concrete
+  new reason.

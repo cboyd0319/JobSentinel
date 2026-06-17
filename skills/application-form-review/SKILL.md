@@ -36,12 +36,23 @@ documents, background-check details, salary history, or references.
    question.
 5. Preserve exact-question provenance: keep the application question, proposed
    answer, evidence source, and user-confirmation state together.
-6. Flag protected, voluntary, demographic, disability, veteran, background, and
+6. For free-text answers or cover-letter fields, use the same evidence rules:
+   cite one or two truthful fit points, label gaps honestly, and do not claim
+   company research, referrals, metrics, or preferences without a source.
+7. Run a knockout consistency check for answers that affect screening:
+   authorization, citizenship, location, schedule, travel, relocation,
+   licenses, certifications, clearances, degrees, years of experience,
+   salary, and availability must match the resume version and user-confirmed
+   records.
+8. Treat salary-history questions as high-risk user-choice items. Help the user
+   redirect toward the role range, target range, or "prefer not to answer" when
+   that fits their preference; do not choose for them.
+9. Flag protected, voluntary, demographic, disability, veteran, background, and
    salary-history questions as user-choice items. Explain what is being asked;
    do not choose for the user.
-7. Flag questions that need user review before continuing.
-8. End with a submission checklist. The user submits manually.
-9. Require explicit user approval before connecting accounts, uploading files,
+10. Flag questions that need user review before continuing.
+11. End with a submission checklist. The user submits manually.
+12. Require explicit user approval before connecting accounts, uploading files,
    using automation to fill fields, saving credentials, or saving cookies.
 
 ## Output

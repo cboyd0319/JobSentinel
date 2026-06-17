@@ -23,6 +23,19 @@ deadline pressure, or counter and decline drafts.
 - start date, review cycle, promotion path, overtime, expected hours, and
   repayment clauses
 
+## Pay Range And Salary History
+
+| Signal | Action |
+| ------ | ------ |
+| Specific written range | Compare against floor, target, level, schedule, and total compensation |
+| Broad or vague written range | Ask what determines placement in the range |
+| Verbal-only range | Request written confirmation before relying on it |
+| Salary-history question | Treat as user choice; redirect toward role range, target range, or "prefer not to answer" if the user chooses |
+| Downlevel or lower-title tradeoff | Compare scope, pay, review timing, promotion criteria, and future options |
+
+Keep framing blame-free. Negotiation guidance helps with ambiguity, but it does
+not fix structural pay inequity or biased pay systems.
+
 ## Deadline Pressure
 
 Flag:
@@ -32,6 +45,23 @@ Flag:
 - pressure to answer without benefits, relocation, or role scope details
 - mismatch between verbal and written terms
 - relocation, visa, tax, noncompete, or repayment complexity
+
+## Decision Matrix
+
+Use a weighted matrix only when comparing offers or tradeoffs. Ask the user for
+weights before ranking. Keep must-haves separate: an offer that fails a
+non-negotiable constraint should be `decline` or `ask questions`, even if its
+weighted score is high.
+
+Suggested factors:
+
+- total compensation
+- schedule and flexibility
+- commute, relocation, travel, and equipment costs
+- role scope, level, manager, and team support
+- growth path and review timing
+- company and offer risk
+- deadline pressure and unanswered questions
 
 ## Counter Note Shape
 

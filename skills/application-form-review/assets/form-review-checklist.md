@@ -20,6 +20,22 @@
 | Schedule or availability |  |  |  | Medium |  |
 | License or certification |  |  |  | High |  |
 
+## Knockout Consistency
+
+| Topic | Form answer | Resume or record evidence | Mismatch risk | User must confirm |
+| ----- | ----------- | ------------------------- | ------------- | ----------------- |
+| Authorization or citizenship |  |  | High |  |
+| Years of experience |  |  | High |  |
+| Schedule, travel, or location |  |  | Medium |  |
+| Salary history or expectations |  |  | Medium |  |
+| License, degree, certification, or clearance |  |  | High |  |
+
+## Free-Text Or Cover-Letter Fields
+
+| Field | Exact prompt | Fit evidence | Gap or unknown | Proposed wording | Source required |
+| ----- | ------------ | ------------ | -------------- | ---------------- | --------------- |
+|  |  |  |  |  | Resume / job post / user note / company page |
+
 ## Voluntary Or Protected Questions
 
 | Topic | Exact wording | User choice needed | Do not infer |

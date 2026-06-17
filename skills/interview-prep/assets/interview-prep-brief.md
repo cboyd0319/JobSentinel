@@ -27,6 +27,12 @@ Recruiter / behavioral / panel / work sample / case / portfolio:
 | ------ | ---------- | ----------- |
 |  |  |  |
 
+## Question Intelligence
+
+| Question or topic | Source | Source date | Label | Prep action |
+| ----------------- | ------ | ----------- | ----- | ----------- |
+|  | Job post / company page / review / user note |  | Sourced / inferred from job post / unknown |  |
+
 ## Questions to Ask
 
 1. [Question]

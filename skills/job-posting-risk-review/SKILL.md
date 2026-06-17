@@ -21,11 +21,20 @@ in, scraping restricted pages, or collecting session cookies.
 
 1. Confirm basic facts: title, company, source, location, schedule, pay, posting
    date, closing date, and application route.
-2. Check hard requirements: authorization, citizenship, location, travel,
+2. If a URL is available, check source liveness before deeper review when
+   feasible:
+   - active evidence: visible role title, company, job description or form
+     fields, and an active apply route;
+   - closed evidence: expired, closed, no longer accepting applications,
+     missing job details, generic careers redirect, or 404/410;
+   - unknown: user pasted text without a live source, page is login-gated, or
+     liveness cannot be checked without restricted access.
+3. Check hard requirements: authorization, citizenship, location, travel,
    commute, schedule, screening, age, license, certification, degree, language,
    physical requirements, and years of experience.
-3. Check posting-risk signals:
+4. Check posting-risk signals:
    - stale or missing posting date;
+   - first-seen date, last-seen date, or repost count when available;
    - repeated or evergreen-looking role;
    - vague title or thin responsibilities;
    - weak or unclear source;
@@ -33,18 +42,18 @@ in, scraping restricted pages, or collecting session cookies.
    - missing, very broad, top-only, or below-floor pay;
    - money requests, gift cards, fake checks, payment apps, crypto, messaging
      app interviews, or sensitive information requested too early.
-4. Label evidence confidence:
+5. Label evidence confidence:
    - high confidence: official employer or ATS page, written details, current
      date, and matching application route;
    - medium confidence: reputable board or recruiter context with enough role
      detail but open questions;
    - low confidence: scraped, reposted, anonymous, stale, thin, or unverifiable
      context.
-5. Separate scam evidence, low confidence, and poor fit. A role can be
+6. Separate scam evidence, low confidence, and poor fit. A role can be
    legitimate but low fit, or low confidence without direct scam evidence.
-6. Decide the next action: apply, verify first, save for later, ask a question,
+7. Decide the next action: apply, verify first, save for later, ask a question,
    or skip.
-7. Explain the decision using observed evidence and unknowns.
+8. Explain the decision using observed evidence and unknowns.
 
 ## Load References
 
@@ -69,7 +78,7 @@ Use `assets/posting-review-template.md` for a reusable review note.
 - Use `$application-form-review` when the application form has hard screening
   questions or exact-answer risk.
 - Use `$application-tracking` to record apply, verify-first, save, skip, risk
-  level, and unknowns.
+  level, source liveness, and unknowns.
 - Use `$networking-outreach` when source confidence depends on recruiter,
   referral, or insider clarification.
 
@@ -78,6 +87,8 @@ Use `assets/posting-review-template.md` for a reusable review note.
 - Do not state that a job is fake unless the evidence directly proves it.
 - Do not treat missing pay as scam proof. Treat it as a pay-review cue.
 - Do not bypass human checks, login gates, robots policies, or site controls.
+- Do not collect candidate profiles, recruiter profiles, employee lists, social
+  graph data, login-only pages, or restricted content.
 - Do not infer protected-class information or give legal advice.
 - Keep the review candidate-side: time protection, fit, source confidence, and
   next action.

@@ -34,27 +34,33 @@ Ask only for missing details that change the plan:
    - proof points the resume can credibly support;
    - gaps, unclear story points, or missing keywords;
    - search terms, adjacent titles, domain terms, and exclusion terms.
-3. Pick 2-4 target role lanes, not an unlimited title list.
-4. Create a source mix:
+3. Build a reviewable search profile packet:
+   - target titles, alternate titles, required constraints, nice-to-haves,
+     exclusion terms, source boundaries, pay/location/schedule filters, and
+     quality thresholds;
+   - use it to guide discovery and matching, not to auto-apply or bypass user
+     review.
+4. Pick 2-4 target role lanes, not an unlimited title list.
+5. Create a source mix:
    - official employer or application-platform pages first;
    - trusted job boards and saved searches second;
    - user-opened LinkedIn searches or user-provided LinkedIn job pages only;
    - recruiter, referral, alumni, community, and local-network routes where
      relevant.
-5. Define a daily loop with time boxes for search, posting review, tailoring,
+6. Define a daily loop with time boxes for search, posting review, tailoring,
    applications, follow-up, and interview prep.
-6. Set a quality bar before tailoring: role fit, pay evidence, source strength,
+7. Set a quality bar before tailoring: role fit, pay evidence, source strength,
    commute/schedule, and hard requirements.
-7. Label fit as `strong`, `possible`, or `skip` unless the user asks for numeric
+8. Label fit as `strong`, `possible`, or `skip` unless the user asks for numeric
    scoring. Name evidence and uncertainty separately.
-8. Define stop rules for weak lanes or sources:
+9. Define stop rules for weak lanes or sources:
    - pause lanes with low evidence fit after one weekly review;
    - retire sources that produce stale, duplicate, low-pay, or weak-source roles;
    - switch effort toward referrals, employer pages, or adjacent titles when
      response rate or fit quality stays poor.
-9. Replan from the tracker weekly: compare applications, responses, interviews,
+10. Replan from the tracker weekly: compare applications, responses, interviews,
    skips, no-response items, and source quality before changing pace.
-10. Make the output actionable for the next 7 days.
+11. Make the output actionable for the next 7 days.
 
 ## Load References
 
@@ -67,6 +73,7 @@ Produce:
 
 - Search lanes.
 - Role thesis.
+- Search profile packet.
 - Must-have filters.
 - Source plan.
 - Daily operating loop.

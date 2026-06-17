@@ -8,6 +8,8 @@
 | Bonus |  |  |  |  |
 | Equity |  |  |  |  |
 | Benefits |  |  |  |  |
+| Written pay range quality |  |  |  |  |
+| Salary-history request |  |  |  |  |
 | Schedule |  |  |  |  |
 | Location |  |  |  |  |
 | Commute or relocation |  |  |  |  |
@@ -36,6 +38,19 @@
 | Relocation or travel |  |  |  |
 | Growth path |  |  |  |
 | Deadline pressure |  |  |  |
+
+## Weighted Decision Matrix
+
+| Factor | Weight | Offer A evidence | Offer A score | Offer B evidence | Offer B score | User must confirm |
+| ------ | ------ | ---------------- | ------------- | ---------------- | ------------- | ----------------- |
+| Total compensation |  |  |  |  |  |  |
+| Schedule and flexibility |  |  |  |  |  |  |
+| Commute, relocation, or travel |  |  |  |  |  |  |
+| Scope, manager, and support |  |  |  |  |  |  |
+| Growth path |  |  |  |  |  |  |
+| Risk and unanswered questions |  |  |  |  |  |  |
+
+Must-have failures:
 
 ## Draft Note
 

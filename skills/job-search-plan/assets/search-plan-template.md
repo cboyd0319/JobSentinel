@@ -6,6 +6,18 @@
 | ------ | ----- | ---- | ------------ | ------- |
 |  |  |  |  |  |
 
+## Search Profile Packet
+
+| Field | Value | Evidence | User must confirm | Do not infer |
+| ----- | ----- | -------- | ----------------- | ------------ |
+| Target titles |  |  |  | Seniority flexibility |
+| Alternate titles |  |  |  | Interest in unrelated lanes |
+| Required constraints |  |  |  | Authorization, commute, schedule, pay flexibility |
+| Nice-to-haves |  |  |  | Dealbreakers |
+| Exclusion terms |  |  |  | Employer intent |
+| Source boundaries |  |  |  | Permission to access accounts |
+| Quality threshold |  |  |  | Interview likelihood |
+
 ## Search Lanes
 
 | Lane | Target titles | Evidence fit | Fit label | Unknown | User must confirm | Stop rule |
