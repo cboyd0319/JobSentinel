@@ -22,8 +22,9 @@ In scope:
 
 - Completing current development and QA blockers before any new release
   creation, upload, or announcement work.
-- Keeping package-manager, npm/Cargo direct, and Action pins exact latest
-  stable, with transitives lockfile-pinned and upstream exceptions recorded.
+- Keeping package-manager, npm/Cargo direct, npm override, and Action pins exact
+  latest stable, with transitives lockfile-pinned/latest-compatible and
+  upstream exceptions recorded.
 - Adding downloadable Agent Skills under `skills/` for job hunting and resume
   work, with specification-compliant `SKILL.md` packages.
 - Hardening Browser Import as the LinkedIn-compatible path: user-opened page,
@@ -69,7 +70,7 @@ Out of scope:
 
 | Area | State | Next useful slice |
 | ---- | ----- | ----------------- |
-| v2.9.0 dependency readiness | Complete | Package-manager, direct dependency, and Action pins are exact latest stable; transitives stay lockfile-pinned and latest-compatible |
+| Dependency readiness | Complete | Package-manager, direct deps, overrides, and Action pins are latest; transitives stay lockfile-pinned/latest-compatible |
 | Downloadable Agent Skills | Complete locally | Eight spec-compliant skills are guarded by `lint:skills`, the harness, and `skills-ref@0.1.5`. |
 | Browser Import and LinkedIn-compatible flow | Complete locally | Manual desktop/mobile verification passed; revisit only if whole-UI QA finds a blocker. Keep LinkedIn user-opened and user-clicked without session cookies or background monitoring. |
 | Development and QA completion | Active | Fix confirmed UI, scraper, privacy, docs, harness, and Computer Use validation blockers before any new release work. |
@@ -118,9 +119,10 @@ Out of scope:
   viewport-fixed toasts, and Settings opening without passive Keychain prompts.
 - The v2.9.0 pass confirmed Browser Import is the LinkedIn path, not session
   storage or automatic monitoring. Private profile inputs stay local.
-- Package-manager, npm/Cargo, Action, OS-runner, and apt direct pins are exact
-  latest stable; transitives are lockfile-pinned. `lint:deps`, `lint:actions`,
-  and `release:check-deps` enforce registry, lockfile, action, OS, apt,
+- Package-manager, npm/Cargo, npm override, Action, OS-runner, and apt direct
+  pins are exact latest stable; transitives are lockfile-pinned and
+  latest-compatible. `lint:deps`, `lint:actions`, and `release:check-deps`
+  enforce registry, lockfile, compatible-transitive, action, OS, apt,
   local-tool, and `npx --no-install` freshness.
 - Live OS keyring integration tests are opt-in behind
   `JOBSENTINEL_LIVE_KEYRING_TESTS=1`; default credential tests remain

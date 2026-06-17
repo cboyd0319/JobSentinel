@@ -62,11 +62,11 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   Hiring Trends toasts, Application Assist tabs, Pay Protection, Resume Match,
   and Settings Sources & Alerts opening without a passive Keychain prompt.
 - Dependency evidence on 2026-06-17 (`dompurify` `3.4.11`, `npm` `11.17.0`):
-  npm/Cargo deps, GitHub Actions, OS runners, and direct apt packages match
-  latest/stable; transitives are lockfile-pinned. `lint:deps`, `lint:actions`,
-  and `release:check-deps` enforce OS, apt, local-tool, registry, lockfile,
-  action-ref, and `npx --no-install` freshness. Constraints: npm `@polka/url`,
-  `gensync`; Cargo `generic-array`, `toml`, `toml_datetime`, `toml_edit`.
+  npm/Cargo deps, npm overrides, Actions, OS runners, and direct apt packages
+  match latest/stable; transitives are lockfile-pinned/latest-compatible.
+  `lint:deps`, `lint:actions`, and `release:check-deps` enforce registry,
+  lockfile, compatible-transitive, action, OS, apt, local-tool, and
+  `npx --no-install`; constraints are recorded in the UI ledger.
 - Runtime credential commands, scheduler, notifications, and smoke tests use
   the encrypted SQLite secret-vault provider. Status checks read vault metadata
   only, and live OS keyring tests remain opt-in behind
