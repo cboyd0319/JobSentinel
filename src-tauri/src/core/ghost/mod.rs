@@ -1,6 +1,6 @@
 //! Ghost Job Detection v2 (ML-Enhanced)
 //!
-//! Identifies fake, stale, or misleading job listings using multiple signals
+//! Identifies stale, low-detail, or hard-to-verify job listings using multiple signals
 //! combined with ML-like scoring algorithms:
 //!
 //! ## Core Signals
@@ -9,13 +9,13 @@
 //! - **Generic content**: Buzzword-heavy descriptions with no substance
 //! - **Missing details**: Vague responsibilities, no salary, unclear requirements
 //! - **Unrealistic requirements**: Entry-level with 10+ years experience
-//! - **Company behavior**: Companies with 50+ perpetually open positions
+//! - **Employer patterns**: Companies with many open postings in local data
 //!
 //! ## ML-Enhanced Features (v2.5.5)
 //! - **Substance-to-fluff ratio**: Measures actionable content vs. buzzwords
-//! - **Urgency signals**: Detects fake urgency patterns
+//! - **Urgency signals**: Detects pressure-style urgency wording
 //! - **Sentiment analysis**: Identifies overly promotional language
-//! - **Pattern matching**: TF-IDF style matching against known ghost patterns
+//! - **Pattern matching**: TF-IDF style matching against low-detail patterns
 //! - **Sigmoid scoring**: Non-linear weight combination for better discrimination
 //!
 //! # Example
@@ -24,7 +24,7 @@
 //! let detector = GhostDetector::new(GhostConfig::default());
 //! let analysis = detector.analyze(&job, repost_count, company_open_jobs);
 //! if analysis.score >= 0.5 {
-//!     println!("Likely ghost job: {:?}", analysis.reasons);
+//!     println!("Posting needs review: {:?}", analysis.reasons);
 //! }
 //! ```
 
@@ -71,7 +71,7 @@ pub enum GhostCategory {
     MissingDetails,
     /// Unrealistic requirements
     Unrealistic,
-    /// Suspicious company behavior
+    /// Employer posting pattern
     CompanyBehavior,
 }
 
@@ -89,9 +89,9 @@ pub enum Severity {
 pub struct GhostConfig {
     /// Days after which a job is considered stale
     pub stale_threshold_days: i64,
-    /// Repost count threshold for suspicion
+    /// Repeated posting count threshold for review
     pub repost_threshold: i64,
-    /// Minimum description length (chars) - below this is suspicious
+    /// Minimum description length (chars) - below this needs review
     pub min_description_length: usize,
     /// Whether to penalize missing salary
     pub penalize_missing_salary: bool,
@@ -177,7 +177,7 @@ static UNREALISTIC_PATTERNS: LazyLock<Vec<Regex>> = LazyLock::new(|| {
 
 // ==================== ML-Enhanced Patterns (v2.5.5) ====================
 
-/// Urgency signals that indicate fake pressure tactics
+/// Urgency signals that indicate pressure-style wording
 static URGENCY_PATTERNS: LazyLock<Vec<Regex>> = LazyLock::new(|| {
     [
         r"(urgent|immediately|asap|right\s+away)",
@@ -194,7 +194,7 @@ static URGENCY_PATTERNS: LazyLock<Vec<Regex>> = LazyLock::new(|| {
     .collect()
 });
 
-/// Overly promotional language (sentiment signal)
+/// Promotional wording patterns (sentiment signal)
 static PROMOTIONAL_PATTERNS: LazyLock<Vec<Regex>> = LazyLock::new(|| {
     [
         r"(amazing|incredible|unbelievable)\s+(opportunity|role|position)",
@@ -406,9 +406,9 @@ impl GhostDetector {
             let weight = base_weight * decay_factor;
 
             let description = if decay_factor < 1.0 {
-                format!("Reposted {repost_count} times (older repost)")
+                format!("Repeated posting seen {repost_count} times (older sighting)")
             } else {
-                format!("Reposted {repost_count} times")
+                format!("Repeated posting seen {repost_count} times")
             };
 
             reasons.push(GhostReason {
@@ -432,7 +432,7 @@ impl GhostDetector {
             let weight = 0.1 * (f64::from(generic_count.min(6) as u32) / 6.0);
             reasons.push(GhostReason {
                 category: GhostCategory::Generic,
-                description: format!("{generic_count} generic phrases detected"),
+                description: format!("{generic_count} low-detail phrases found"),
                 weight,
                 severity: if generic_count > 5 {
                     Severity::Medium
@@ -451,7 +451,7 @@ impl GhostDetector {
             let weight = weight.min(0.15);
             reasons.push(GhostReason {
                 category: GhostCategory::MissingDetails,
-                description: format!("Missing: {}", missing_details.join(", ")),
+                description: format!("Missing details: {}", missing_details.join(", ")),
                 weight,
                 severity: if missing_details.len() > 2 {
                     Severity::Medium
@@ -466,18 +466,18 @@ impl GhostDetector {
         if self.has_unrealistic_requirements(&title_lower, description) {
             reasons.push(GhostReason {
                 category: GhostCategory::Unrealistic,
-                description: "Unrealistic experience requirements".to_string(),
+                description: "Unusual experience requirement".to_string(),
                 weight: 0.2,
                 severity: Severity::High,
             });
             total_weight += 0.2;
         }
 
-        // 6. Vague/suspicious title
+        // 6. Broad or unclear title
         if self.has_vague_title(title) {
             reasons.push(GhostReason {
                 category: GhostCategory::Generic,
-                description: "Vague or generic job title".to_string(),
+                description: "Broad or unclear job title".to_string(),
                 weight: 0.25,
                 severity: Severity::High,
             });
@@ -488,7 +488,7 @@ impl GhostDetector {
         if !description.is_empty() && description.len() < self.config.min_description_length {
             reasons.push(GhostReason {
                 category: GhostCategory::MissingDetails,
-                description: format!("Very short description ({} chars)", description.len()),
+                description: format!("Short posting description ({} chars)", description.len()),
                 weight: 0.1,
                 severity: Severity::Low,
             });
@@ -502,7 +502,7 @@ impl GhostDetector {
             let weight = 0.05 * (f64::from((company_open_jobs - 50).min(100) as i32) / 100.0);
             reasons.push(GhostReason {
                 category: GhostCategory::CompanyBehavior,
-                description: format!("Company has {company_open_jobs} open positions"),
+                description: format!("Employer has {company_open_jobs} open postings in this data"),
                 weight,
                 severity: Severity::Low,
             });
@@ -545,7 +545,7 @@ impl GhostDetector {
     /// - > 180 days: 0.25 (quarter weight)
     fn calculate_repost_decay_factor(&self, age_days: i64) -> f64 {
         if age_days < 90 {
-            1.0 // Recent reposts are highly suspicious
+            1.0 // Recent repeated sightings carry full weight
         } else if age_days < 180 {
             0.5 // Older reposts less concerning (may be historical data)
         } else {
@@ -645,7 +645,7 @@ impl GhostDetector {
 
     // ==================== ML-Enhanced Methods (v2.5.5) ====================
 
-    /// Count urgency patterns (fake pressure tactics)
+    /// Count urgency-style wording patterns
     fn count_urgency_patterns(&self, text: &str) -> usize {
         URGENCY_PATTERNS
             .iter()
@@ -693,7 +693,7 @@ impl GhostDetector {
         substance_count as f64 / (substance_count + fluff_count) as f64
     }
 
-    /// Calculate similarity to known ghost job templates (TF-IDF style)
+    /// Calculate similarity to known low-detail posting patterns (TF-IDF style)
     fn calculate_template_similarity(&self, text: &str) -> f64 {
         let text_lower = text.to_lowercase();
         let mut matches = 0;
@@ -758,13 +758,13 @@ impl GhostDetector {
 
         // === ML-Enhanced Signals ===
 
-        // 1. Urgency patterns (fake pressure)
+        // 1. Urgency-style wording
         let urgency_count = self.count_urgency_patterns(&combined_text);
         if urgency_count >= 2 {
             let weight = 0.08 * (urgency_count.min(4) as f64 / 4.0);
             base_analysis.reasons.push(GhostReason {
                 category: GhostCategory::Generic,
-                description: format!("{} urgency pressure patterns detected", urgency_count),
+                description: format!("{urgency_count} urgency-style phrases found"),
                 weight,
                 severity: if urgency_count >= 3 {
                     Severity::Medium
@@ -780,10 +780,7 @@ impl GhostDetector {
             let weight = 0.1 * (promotional_count.min(4) as f64 / 4.0);
             base_analysis.reasons.push(GhostReason {
                 category: GhostCategory::Generic,
-                description: format!(
-                    "Overly promotional language ({} patterns)",
-                    promotional_count
-                ),
+                description: format!("promotional wording ({} phrases)", promotional_count),
                 weight,
                 severity: if promotional_count >= 3 {
                     Severity::Medium
@@ -800,7 +797,7 @@ impl GhostDetector {
             base_analysis.reasons.push(GhostReason {
                 category: GhostCategory::MissingDetails,
                 description: format!(
-                    "Low substance ratio ({:.0}% actionable content)",
+                    "Limited concrete detail ({:.0}% actionable content)",
                     substance_ratio * 100.0
                 ),
                 weight,
@@ -819,7 +816,7 @@ impl GhostDetector {
             base_analysis.reasons.push(GhostReason {
                 category: GhostCategory::Generic,
                 description: format!(
-                    "Matches ghost job templates ({:.0}% similarity)",
+                    "Similar to repeated low-detail posting patterns ({:.0}% match)",
                     template_sim * 100.0
                 ),
                 weight,

@@ -106,9 +106,9 @@ Out of scope:
 - Resume Match and Resume Builder hard-requirement handling now covers age,
   citizenship, screening, driving, insurance, language, schedule, and related
   review-first categories more consistently across Rust, mocks, and UI.
-- Job cards and posting-risk filters now keep repeated-sighting, low-detail,
-  source-trust, unsafe-link, pay-risk, and scam-cue evidence visible without
-  overclaiming.
+- Job cards, filters, and backend reasons now keep repeated-sighting,
+  low-detail, source, unsafe-link, pay-risk, and scam-cue evidence visible
+  without overclaiming.
 - First-run setup now keeps broad work-location defaults, explicit alert
   opt-in, reviewed source choices, reviewed resume-skill suggestions, and
   non-technical starter paths.

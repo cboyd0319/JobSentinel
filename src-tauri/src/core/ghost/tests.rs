@@ -4,6 +4,30 @@ fn create_test_job_created_at(days_ago: i64) -> DateTime<Utc> {
     Utc::now() - chrono::Duration::days(days_ago)
 }
 
+fn assert_review_first_descriptions(analysis: &GhostAnalysis) {
+    let joined = analysis
+        .reasons
+        .iter()
+        .map(|reason| reason.description.to_lowercase())
+        .collect::<Vec<_>>()
+        .join("\n");
+
+    for forbidden in [
+        "ghost job template",
+        "unrealistic",
+        "vague or generic",
+        "very short",
+        "company has",
+        "suspicious",
+        "fake",
+    ] {
+        assert!(
+            !joined.contains(forbidden),
+            "reason descriptions should stay review-first, found {forbidden:?} in {joined}"
+        );
+    }
+}
+
 #[test]
 fn test_fresh_job_low_ghost_score() {
     let detector = GhostDetector::new(GhostConfig::default());
@@ -312,6 +336,22 @@ fn test_combined_signals_add_up() {
         "Should have multiple reasons, got {}",
         analysis.reasons.len()
     );
+    assert!(analysis
+        .reasons
+        .iter()
+        .any(|r| r.description.contains("Repeated posting seen 6 times")));
+    assert!(analysis
+        .reasons
+        .iter()
+        .any(|r| r.description.contains("Broad or unclear job title")));
+    assert!(analysis
+        .reasons
+        .iter()
+        .any(|r| r.description.contains("Short posting description")));
+    assert!(analysis.reasons.iter().any(|r| r
+        .description
+        .contains("Employer has 60 open postings in this data")));
+    assert_review_first_descriptions(&analysis);
 }
 
 #[test]
@@ -514,14 +554,14 @@ fn test_ml_template_matching() {
         10,
     );
 
-    // Should match ghost templates
     assert!(
         analysis
             .reasons
             .iter()
-            .any(|r| r.description.contains("template")),
-        "Should detect ghost job templates"
+            .any(|r| r.description.contains("low-detail posting patterns")),
+        "Should detect repeated low-detail posting patterns"
     );
+    assert_review_first_descriptions(&analysis);
 }
 
 #[test]
