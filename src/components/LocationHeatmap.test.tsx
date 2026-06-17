@@ -66,11 +66,11 @@ describe("LocationHeatmap", () => {
       expect(screen.getByRole("list", { name: "Job locations" })).toBeInTheDocument();
     });
 
-    it("renders all location buttons", () => {
+    it("renders all location list items and buttons", () => {
       render(<LocationHeatmap locations={defaultLocations} />);
 
-      const buttons = screen.getAllByRole("listitem");
-      expect(buttons).toHaveLength(4);
+      expect(screen.getAllByRole("listitem")).toHaveLength(4);
+      expect(screen.getAllByRole("button", { name: /jobs/i })).toHaveLength(4);
     });
 
     it("renders location names", () => {
@@ -209,7 +209,7 @@ describe("LocationHeatmap", () => {
     it("toggles selection when clicking same location twice", () => {
       render(<LocationHeatmap locations={defaultLocations} />);
 
-      const chicagoButton = screen.getByRole("listitem", {
+      const chicagoButton = screen.getByRole("button", {
         name: /Chicago, IL: 500 jobs/i,
       });
 
@@ -244,7 +244,7 @@ describe("LocationHeatmap", () => {
     it("sets aria-pressed correctly on selected location", () => {
       render(<LocationHeatmap locations={defaultLocations} />);
 
-      const chicagoButton = screen.getByRole("listitem", {
+      const chicagoButton = screen.getByRole("button", {
         name: /Chicago, IL: 500 jobs/i,
       });
       expect(chicagoButton).toHaveAttribute("aria-pressed", "false");
@@ -259,7 +259,7 @@ describe("LocationHeatmap", () => {
       render(<LocationHeatmap locations={defaultLocations} />);
 
       expect(
-        screen.getByRole("listitem", { name: /Chicago, IL: 500 jobs/i })
+        screen.getByRole("button", { name: /Chicago, IL: 500 jobs/i })
       ).toBeInTheDocument();
     });
 
@@ -314,7 +314,7 @@ describe("LocationHeatmap", () => {
 
       render(<LocationHeatmap locations={locations} />);
 
-      const buttons = screen.getAllByRole("listitem");
+      const buttons = screen.getAllByRole("button", { name: /jobs/i });
       // First location has 1000 jobs (highest) - should have sentinel color
       expect(buttons[0].className).toContain("bg-sentinel-100");
     });
@@ -337,7 +337,7 @@ describe("LocationHeatmap", () => {
 
       render(<LocationHeatmap locations={locations} />);
 
-      const buttons = screen.getAllByRole("listitem");
+      const buttons = screen.getAllByRole("button", { name: /jobs/i });
       // Second location has 100 jobs (10% of max) - should have surface color
       expect(buttons[1].className).toContain("bg-surface-100");
     });
@@ -366,7 +366,7 @@ describe("LocationHeatmap", () => {
 
       render(<LocationHeatmap locations={locations} />);
 
-      const buttons = screen.getAllByRole("listitem");
+      const buttons = screen.getAllByRole("button", { name: /jobs/i });
       // Middle location has 400 jobs (40% of max) - should have green color
       expect(buttons[1].className).toContain("bg-green-100");
     });
@@ -412,7 +412,7 @@ describe("LocationHeatmap", () => {
         />
       );
 
-      fireEvent.click(screen.getByRole("listitem"));
+      fireEvent.click(screen.getByRole("button", { name: /jobs/i }));
 
       expect(screen.getByText("$125,000")).toBeInTheDocument();
     });
@@ -424,7 +424,7 @@ describe("LocationHeatmap", () => {
         />
       );
 
-      fireEvent.click(screen.getByRole("listitem"));
+      fireEvent.click(screen.getByRole("button", { name: /jobs/i }));
 
       expect(screen.getByText("N/A")).toBeInTheDocument();
     });
@@ -479,7 +479,7 @@ describe("LocationHeatmap", () => {
         />
       );
 
-      fireEvent.click(screen.getByRole("listitem"));
+      fireEvent.click(screen.getByRole("button", { name: /Chicago, IL: 100 jobs/i }));
 
       expect(screen.getByText("Total Jobs")).toBeInTheDocument();
     });

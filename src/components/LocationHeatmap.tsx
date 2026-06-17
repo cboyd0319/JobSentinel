@@ -87,35 +87,35 @@ export const LocationHeatmap = memo(function LocationHeatmap({
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3" role="list" aria-label="Job locations">
         {locations.map((loc) => (
-          <button
-            key={loc.location}
-            onClick={() => setSelectedLocation(selectedLocation?.location === loc.location ? null : loc)}
-            className={`p-3 rounded-lg border transition-all text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sentinel-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-900 ${getIntensityColor(loc.total_jobs)} ${
-              selectedLocation?.location === loc.location
-                ? "ring-2 ring-sentinel-500 ring-offset-2 dark:ring-offset-surface-900"
-                : "hover:scale-[1.02]"
-            }`}
-            role="listitem"
-            aria-label={`${formatLocationName(loc)}: ${loc.total_jobs.toLocaleString()} jobs`}
-            aria-pressed={selectedLocation?.location === loc.location}
-          >
-            <div className="flex items-start justify-between">
-              <h4 className="break-words text-sm font-medium text-surface-800 [overflow-wrap:anywhere] dark:text-surface-200">
-                {formatLocationName(loc)}
-              </h4>
-            </div>
-            <p className="text-lg font-bold text-surface-900 dark:text-white mt-1">
-              {loc.total_jobs.toLocaleString()}
-            </p>
-            <p className="text-xs text-surface-500 dark:text-surface-400">jobs</p>
-            <div className="flex items-center gap-2 mt-2">
-              {loc.remote_percent > 0 && (
-                <Badge variant="surface" className="text-xs">
-                  {loc.remote_percent.toFixed(0)}% remote
-                </Badge>
-              )}
-            </div>
-          </button>
+          <div key={loc.location} role="listitem">
+            <button
+              onClick={() => setSelectedLocation(selectedLocation?.location === loc.location ? null : loc)}
+              className={`h-full w-full p-3 rounded-lg border transition-all text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sentinel-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-900 ${getIntensityColor(loc.total_jobs)} ${
+                selectedLocation?.location === loc.location
+                  ? "ring-2 ring-sentinel-500 ring-offset-2 dark:ring-offset-surface-900"
+                  : "hover:scale-[1.02]"
+              }`}
+              aria-label={`${formatLocationName(loc)}: ${loc.total_jobs.toLocaleString()} jobs`}
+              aria-pressed={selectedLocation?.location === loc.location}
+            >
+              <div className="flex items-start justify-between">
+                <h4 className="break-words text-sm font-medium text-surface-800 [overflow-wrap:anywhere] dark:text-surface-200">
+                  {formatLocationName(loc)}
+                </h4>
+              </div>
+              <p className="text-lg font-bold text-surface-900 dark:text-white mt-1">
+                {loc.total_jobs.toLocaleString()}
+              </p>
+              <p className="text-xs text-surface-500 dark:text-surface-400">jobs</p>
+              <div className="flex items-center gap-2 mt-2">
+                {loc.remote_percent > 0 && (
+                  <Badge variant="surface" className="text-xs">
+                    {loc.remote_percent.toFixed(0)}% remote
+                  </Badge>
+                )}
+              </div>
+            </button>
+          </div>
         ))}
       </div>
 
@@ -158,7 +158,7 @@ export const LocationHeatmap = memo(function LocationHeatmap({
       )}
 
       {/* Legend */}
-      <div className="flex items-center gap-4 mt-4 pt-4 border-t border-surface-200 dark:border-surface-700 text-xs text-surface-500 dark:text-surface-400" role="img" aria-label="Saved location comparison legend">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-4 pt-4 border-t border-surface-200 dark:border-surface-700 text-xs text-surface-500 dark:text-surface-400" role="img" aria-label="Saved location comparison legend">
         <span>Compared with other saved locations:</span>
         <div className="flex items-center gap-1">
           <div className="w-4 h-4 rounded bg-surface-100 dark:bg-surface-800 border border-surface-300" />
