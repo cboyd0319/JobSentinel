@@ -229,6 +229,14 @@ export interface CredentialStatusEntry {
   available?: boolean;
 }
 
+export type CredentialUnlockMode = "system" | "passphrase";
+
+export interface CredentialUnlockStatus {
+  mode: CredentialUnlockMode;
+  configured: boolean;
+  unlocked: boolean;
+}
+
 export interface CredentialStatusValue {
   exists: boolean;
   available: boolean;
@@ -258,6 +266,39 @@ export async function hasCredential(key: CredentialKey): Promise<boolean> {
 
 export async function getCredentialStatusEntries(): Promise<CredentialStatusEntry[]> {
   return await invoke<CredentialStatusEntry[]>("get_credential_status");
+}
+
+export async function getCredentialUnlockStatus(): Promise<CredentialUnlockStatus> {
+  const status = await invoke<unknown>("get_credential_unlock_status");
+  if (!isCredentialUnlockStatus(status)) {
+    throw new Error("Credential lock status is unavailable");
+  }
+  return status;
+}
+
+export async function enableCredentialPassphrase(passphrase: string): Promise<void> {
+  await invoke("enable_credential_passphrase", { passphrase });
+}
+
+export async function unlockCredentialVault(passphrase: string): Promise<void> {
+  await invoke("unlock_credential_vault", { passphrase });
+}
+
+export async function disableCredentialPassphrase(passphrase: string): Promise<void> {
+  await invoke("disable_credential_passphrase", { passphrase });
+}
+
+function isCredentialUnlockStatus(value: unknown): value is CredentialUnlockStatus {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const status = value as Partial<CredentialUnlockStatus>;
+  return (
+    (status.mode === "system" || status.mode === "passphrase") &&
+    typeof status.configured === "boolean" &&
+    typeof status.unlocked === "boolean"
+  );
 }
 
 export function credentialExists(

@@ -22,6 +22,7 @@ import type {
   MockBookmarkletConfig,
   MockConfig,
   MockCredentialKey,
+  MockCredentialUnlockState,
   MockDashboardPreferences,
   MockGhostConfig,
 } from "./types";
@@ -29,6 +30,7 @@ import type {
 export interface MockSettingsSupportCommandState {
   config: MockConfig;
   credentials: Partial<Record<MockCredentialKey, string>>;
+  credentialUnlock: MockCredentialUnlockState;
   ghostConfig: MockGhostConfig;
   bookmarkletConfig: MockBookmarkletConfig;
 }
@@ -120,6 +122,18 @@ export function handleMockSettingsSupportCommand(
 
     case "store_credential":
       return storeCredential(args, state);
+
+    case "get_credential_unlock_status":
+      return withoutSave(state, state.credentialUnlock);
+
+    case "enable_credential_passphrase":
+      return updateCredentialUnlock(args, state, "enable");
+
+    case "unlock_credential_vault":
+      return updateCredentialUnlock(args, state, "unlock");
+
+    case "disable_credential_passphrase":
+      return updateCredentialUnlock(args, state, "disable");
 
     case "disconnect_linkedin":
       return {
@@ -299,6 +313,59 @@ function storeCredential(
       ...state,
       credentials: { ...state.credentials, [key]: value },
     },
+    value: undefined,
+  };
+}
+
+function updateCredentialUnlock(
+  args: Record<string, unknown> | undefined,
+  state: MockSettingsSupportCommandState,
+  action: "enable" | "unlock" | "disable",
+): MockSettingsSupportCommandResult {
+  const passphrase = getStringArg(args, "passphrase");
+  if (!passphrase) {
+    throw new Error("Enter the passphrase.");
+  }
+
+  if (action === "enable") {
+    if (passphrase.trim().length < 12) {
+      throw new Error("Use a passphrase with at least 12 non-space characters");
+    }
+
+    return credentialUnlockResult(state, {
+      mode: "passphrase",
+      configured: true,
+      unlocked: true,
+    });
+  }
+
+  if (!state.credentialUnlock.configured) {
+    throw new Error("Credential passphrase lock is not enabled");
+  }
+
+  if (action === "disable") {
+    return credentialUnlockResult(state, {
+      mode: "system",
+      configured: false,
+      unlocked: true,
+    });
+  }
+
+  return credentialUnlockResult(state, {
+    mode: "passphrase",
+    configured: true,
+    unlocked: true,
+  });
+}
+
+function credentialUnlockResult(
+  state: MockSettingsSupportCommandState,
+  credentialUnlock: MockCredentialUnlockState,
+): MockSettingsSupportCommandResult {
+  return {
+    handled: true,
+    shouldSave: true,
+    state: { ...state, credentialUnlock },
     value: undefined,
   };
 }

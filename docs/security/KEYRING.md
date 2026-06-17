@@ -21,9 +21,9 @@ use `CredentialService`. Active secrets are stored in the `secret_vault` table
 as AEAD envelopes; the OS credential store protects one vault key item and is
 used for legacy fallback only when a secret is explicitly retrieved. Status
 checks read SQLite vault metadata only and do not unlock the OS credential
-store. Passphrase backend commands can wrap, unlock, and disable wrapping for
-the credential vault key. Remaining storage work is Settings UI exposure and
-native macOS unlock/user-presence support.
+store. Passphrase settings can wrap, unlock, and disable wrapping for the
+credential vault key. Remaining storage work is native macOS
+unlock/user-presence support.
 
 ## Supported Credential Stores
 

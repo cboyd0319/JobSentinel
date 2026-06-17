@@ -47,6 +47,12 @@ export type MockCredentialKey =
   | "telegram_bot_token"
   | "usajobs_api_key";
 
+export interface MockCredentialUnlockState {
+  mode: "system" | "passphrase";
+  configured: boolean;
+  unlocked: boolean;
+}
+
 export interface MockGhostConfig {
   stale_threshold_days: number;
   repost_threshold: number;
@@ -167,6 +173,7 @@ export interface MockState {
   searchHistory: string[];
   notificationPreferences: NotificationPreferences | null;
   credentials: Partial<Record<MockCredentialKey, string>>;
+  credentialUnlock: MockCredentialUnlockState;
   ghostConfig: MockGhostConfig;
   bookmarkletConfig: MockBookmarkletConfig;
   resumes: MockResumeData[];

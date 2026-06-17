@@ -41,6 +41,7 @@ import { SettingsPostingRiskSection } from "./SettingsPostingRiskSection";
 import { SettingsResumeMatchingSection } from "./SettingsResumeMatchingSection";
 import { SettingsNotificationsSection } from "./SettingsNotificationsSection";
 import { SettingsSearchPreferencesSection } from "./SettingsSearchPreferencesSection";
+import { SettingsCredentialLockSection } from "./SettingsCredentialLockSection";
 import {
   SettingsBackupSection,
   SettingsHelpStatusSection,
@@ -837,6 +838,8 @@ export default function Settings({ onClose }: SettingsProps) {
                 setConfig={setConfig}
                 setCredentials={setCredentials}
               />
+
+              <SettingsCredentialLockSection />
 
               <SettingsJobSourcesSection
                 config={config}

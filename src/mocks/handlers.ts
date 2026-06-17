@@ -97,6 +97,7 @@ import type {
   MockBookmarkletConfig,
   MockCoverLetterTemplate,
   MockCredentialKey,
+  MockCredentialUnlockState,
   MockFillResultWithAttempt,
   MockGhostConfig,
   MockInterview,
@@ -129,6 +130,12 @@ let savedSearches: MockSavedSearch[] = [];
 let searchHistory: string[] = [];
 let notificationPreferences: NotificationPreferences | null = null;
 let credentials: Partial<Record<MockCredentialKey, string>> = {};
+const defaultCredentialUnlock: MockCredentialUnlockState = {
+  mode: "system",
+  configured: false,
+  unlocked: true,
+};
+let credentialUnlock: MockCredentialUnlockState = { ...defaultCredentialUnlock };
 let ghostConfig: MockGhostConfig = getDefaultGhostConfig();
 let bookmarkletConfig: MockBookmarkletConfig = {
   port: 4321,
@@ -172,6 +179,21 @@ function canUseStorage(): boolean {
   );
 }
 
+function isMockCredentialUnlockState(
+  value: unknown,
+): value is MockCredentialUnlockState {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const state = value as Partial<MockCredentialUnlockState>;
+  return (
+    (state.mode === "system" || state.mode === "passphrase") &&
+    typeof state.configured === "boolean" &&
+    typeof state.unlocked === "boolean"
+  );
+}
+
 function saveMockState(): void {
   if (!canUseStorage()) return;
 
@@ -186,6 +208,7 @@ function saveMockState(): void {
     searchHistory,
     notificationPreferences,
     credentials,
+    credentialUnlock,
     ghostConfig,
     bookmarkletConfig,
     resumes,
@@ -244,6 +267,9 @@ function loadMockState(): void {
     }
     if (state.credentials && typeof state.credentials === "object") {
       credentials = state.credentials;
+    }
+    if (isMockCredentialUnlockState(state.credentialUnlock)) {
+      credentialUnlock = state.credentialUnlock;
     }
     if (state.ghostConfig && typeof state.ghostConfig === "object") {
       ghostConfig = { ...getDefaultGhostConfig(), ...state.ghostConfig };
@@ -432,6 +458,7 @@ function applyMockSettingsSupportCommand<T>(
     {
       config,
       credentials,
+      credentialUnlock,
       ghostConfig,
       bookmarkletConfig,
     },
@@ -444,6 +471,7 @@ function applyMockSettingsSupportCommand<T>(
 
   config = result.state.config;
   credentials = result.state.credentials;
+  credentialUnlock = result.state.credentialUnlock;
   ghostConfig = result.state.ghostConfig;
   bookmarkletConfig = result.state.bookmarkletConfig;
 
@@ -583,6 +611,10 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
     case "get_credential_status":
     case "has_credential":
     case "store_credential":
+    case "get_credential_unlock_status":
+    case "enable_credential_passphrase":
+    case "unlock_credential_vault":
+    case "disable_credential_passphrase":
     case "disconnect_linkedin":
     case "linkedin_login":
     case "get_linkedin_expiry_status":
@@ -881,6 +913,7 @@ export function resetMockData() {
   searchHistory = [];
   notificationPreferences = null;
   credentials = {};
+  credentialUnlock = { ...defaultCredentialUnlock };
   ghostConfig = getDefaultGhostConfig();
   bookmarkletConfig = {
     port: 4321,

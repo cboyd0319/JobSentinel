@@ -126,6 +126,9 @@ function setupHappyPath() {
   mockInvoke.mockImplementation(async (cmd: string) => {
     if (cmd === "get_config") return makeConfig();
     if (cmd === "get_credential_status") return [];
+    if (cmd === "get_credential_unlock_status") {
+      return { mode: "system", configured: false, unlocked: true };
+    }
     if (cmd === "has_credential") return false;
     if (cmd === "get_ghost_config") return makeGhostConfig();
     if (cmd === "detect_location") return null;
@@ -168,6 +171,90 @@ describe("Settings — handleSave flow", () => {
       expect(searchTab).toHaveAttribute("aria-selected", "true");
       expect(searchTab).toHaveFocus();
     });
+  });
+
+  it("enables the saved-details passphrase lock from Settings", async () => {
+    const user = userEvent.setup();
+    let unlockStatus = { mode: "system", configured: false, unlocked: true };
+
+    mockInvoke.mockImplementation(async (cmd: string) => {
+      if (cmd === "get_config") return makeConfig();
+      if (cmd === "get_credential_status") return [];
+      if (cmd === "get_credential_unlock_status") return unlockStatus;
+      if (cmd === "enable_credential_passphrase") {
+        unlockStatus = { mode: "passphrase", configured: true, unlocked: true };
+        return null;
+      }
+      if (cmd === "get_ghost_config") return makeGhostConfig();
+      if (cmd === "detect_location") return null;
+      return null;
+    });
+
+    render(<Settings onClose={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Settings")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
+    expect(await screen.findByText("Saved Details Lock")).toBeInTheDocument();
+    expect(screen.getByText("System lock is active")).toBeInTheDocument();
+
+    await user.type(screen.getByLabelText("New passphrase"), "correct battery staple");
+    await user.type(screen.getByLabelText("Confirm passphrase"), "correct battery staple");
+    await user.click(screen.getByRole("button", { name: "Use Passphrase Lock" }));
+
+    await waitFor(() => {
+      expect(mockInvoke).toHaveBeenCalledWith("enable_credential_passphrase", {
+        passphrase: "correct battery staple",
+      });
+    });
+    expect(mockToast.success).toHaveBeenCalledWith(
+      "Passphrase lock enabled",
+      "Saved details will need this passphrase after app start.",
+    );
+    expect(mockInvoke).not.toHaveBeenCalledWith("has_credential", expect.anything());
+  });
+
+  it("unlocks saved details without checking credential existence", async () => {
+    const user = userEvent.setup();
+    let unlockStatus = { mode: "passphrase", configured: true, unlocked: false };
+
+    mockInvoke.mockImplementation(async (cmd: string) => {
+      if (cmd === "get_config") return makeConfig();
+      if (cmd === "get_credential_status") return [];
+      if (cmd === "get_credential_unlock_status") return unlockStatus;
+      if (cmd === "unlock_credential_vault") {
+        unlockStatus = { mode: "passphrase", configured: true, unlocked: true };
+        return null;
+      }
+      if (cmd === "get_ghost_config") return makeGhostConfig();
+      if (cmd === "detect_location") return null;
+      return null;
+    });
+
+    render(<Settings onClose={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Settings")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
+    expect(await screen.findByText("Passphrase lock is on")).toBeInTheDocument();
+
+    await user.type(screen.getByLabelText("Current passphrase"), "correct battery staple");
+    await user.click(screen.getByRole("button", { name: "Unlock Saved Details" }));
+
+    await waitFor(() => {
+      expect(mockInvoke).toHaveBeenCalledWith("unlock_credential_vault", {
+        passphrase: "correct battery staple",
+      });
+    });
+    expect(mockToast.success).toHaveBeenCalledWith(
+      "Saved details unlocked",
+      "Saved details can be used during this app session.",
+    );
+    expect(mockInvoke).not.toHaveBeenCalledWith("has_credential", expect.anything());
   });
 
   it("shows success toast and closes on successful save", async () => {
