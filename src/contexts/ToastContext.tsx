@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { ToastContext, Toast, ToastAction } from "./toastContextDef";
 
 let toastId = 0;
+const MAX_VISIBLE_TOASTS = 3;
 
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
@@ -40,7 +41,22 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       duration = toast.action ? Math.max(calculatedDuration, 8000) : calculatedDuration;
     }
 
-    setToasts((prev) => [...prev, { ...toast, id }]);
+    setToasts((prev) => {
+      const next = [...prev, { ...toast, id }];
+      const overflow = next.length - MAX_VISIBLE_TOASTS;
+
+      if (overflow <= 0) return next;
+
+      next.slice(0, overflow).forEach((removedToast) => {
+        const timer = timerRefs.current.get(removedToast.id);
+        if (timer) {
+          clearTimeout(timer);
+          timerRefs.current.delete(removedToast.id);
+        }
+      });
+
+      return next.slice(overflow);
+    });
 
     if (duration > 0) {
       const timer = setTimeout(() => removeToast(id), duration);

@@ -209,5 +209,27 @@ describe("ToastContext", () => {
         expect(alerts).toHaveLength(2);
       });
     });
+
+    it("limits visible toasts to the newest three", async () => {
+      render(
+        <ToastProvider>
+          <TestComponent />
+        </ToastProvider>
+      );
+
+      fireEvent.click(screen.getByText("Show Success"));
+      fireEvent.click(screen.getByText("Show Error"));
+      fireEvent.click(screen.getByText("Show Warning"));
+      fireEvent.click(screen.getByText("Show Info"));
+
+      await waitFor(() => {
+        expect(screen.getAllByRole("alert")).toHaveLength(3);
+      });
+
+      expect(screen.queryByText("Success!")).not.toBeInTheDocument();
+      expect(screen.getByText("Error!")).toBeInTheDocument();
+      expect(screen.getByText("Warning!")).toBeInTheDocument();
+      expect(screen.getByText("Info")).toBeInTheDocument();
+    });
   });
 });
