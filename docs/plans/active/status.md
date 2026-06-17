@@ -52,15 +52,12 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 
 - `origin/main` is the source of truth for the pushed `2.7.7`
   release-recovery baseline.
-- Package metadata is `2.7.7`. The current public no-account macOS package is
-  `v2.7.7` as of 2026-06-06; the latest full cross-platform public release
-  remains `v2.7.5` until Windows and Linux `2.7.7` assets are rebuilt and
-  verified.
+- Package metadata is `2.7.7`; public macOS is `v2.7.7` as of 2026-06-06, and
+  full cross-platform public release remains `v2.7.5` until Windows/Linux
+  assets are rebuilt and verified.
 - Fresh harness evidence reports 2 active docs, 2 indexed workstreams, and a
-  100/100 harness score.
-- macOS Computer Use retest is complete for first-run setup, dashboard,
-  application tracking, Settings Sources & Alerts, and safe support report
-  copy/save from an unlocked 2026-06-06 local `2.7.7` universal app.
+  100/100 score; macOS Computer Use retest covered first-run setup, dashboard,
+  application tracking, Settings Sources & Alerts, and safe support report.
 - Current UI QA evidence confirms modal paint fixes, visible Dashboard and
   Hiring Trends toasts, Application Assist tabs, Pay Protection, Resume Match,
   and Settings Sources & Alerts opening without a passive Keychain prompt.
@@ -74,6 +71,9 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   the encrypted SQLite secret-vault provider. Status checks read vault metadata
   only, and live OS keyring tests remain opt-in behind
   `JOBSENTINEL_LIVE_KEYRING_TESTS=1`.
+- Private resume parser smoke checks passed on 2026-06-17 for the supplied PDF
+  and eight reference profiles via `JOBSENTINEL_LOCAL_RESUME_SMOKE_PATHS`, with
+  no committed local paths or names.
 - Downloadable Agent Skills cover search planning, posting-risk review, resume
   tailoring, form review, tracking, outreach, interview prep, and offer/pay;
   `skills/` is a harness-validated root.
