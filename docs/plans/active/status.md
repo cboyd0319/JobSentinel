@@ -82,34 +82,32 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 - Desktop/mobile normal-state checks passed for Settings, Apps, Resumes, Salary,
   Trends, Assist, Builder, and Resume Match. Forced empty/loading/error checks
   passed across startup, setup, and all primary routes.
-- v2.9.0 remains blocked until all routes/actions/modals/toasts/forms,
-  keyboard, empty/loading/error, and narrow-width surfaces have fresh evidence.
+- Setup Wizard desktop/mobile, whole-UI click/action coverage, and keyboard
+  paths now have fresh Playwright evidence.
+- v2.9.0 remains blocked until the remaining primary product/security gates,
+  final non-`content/` expert/agent pass, redesign pass, and release checks close.
 
 ## Next Best Work
 
-1. Use [v2.9.0 UI verification](../../harness/ui-manual-verification-v2.9.0.md) to exercise every route, click,
-   action, modal, toast, form, settings panel, import flow, keyboard path,
-   empty/loading/error state, and narrow-width surface before calling v2.9.0
-   done.
-2. After primary gates close, run the final Rust expert plus multi-agent
+1. After primary gates close, run the final Rust expert plus multi-agent
    improvement analysis across non-`content/` surfaces, apply accepted fixes,
    and verify them before final release readiness.
-3. Apply Quiet Shield/Protective Navy design decisions only after primary
+2. Apply Quiet Shield/Protective Navy design decisions only after primary
    v2.9.0 readiness gates and whole-UI verification blockers are closed.
-4. Continue resume assistance only where it improves truthful local requirement
+3. Continue resume assistance only where it improves truthful local requirement
    review, hard-constraint handling, readable evidence, or next-action
    guidance.
-5. Continue guided intake only where resume/profile suggestions stay optional,
+4. Continue guided intake only where resume/profile suggestions stay optional,
    reviewed, local, and understandable for non-technical job seekers.
-6. Continue job-card protection for stale, risky, duplicate, unclear, or
+5. Continue job-card protection for stale, risky, duplicate, unclear, or
    pay-problem postings without treating local signals as employer
    predictions.
-7. Continue macOS readiness docs and checks without claiming Gatekeeper-ready
+6. Continue macOS readiness docs and checks without claiming Gatekeeper-ready
    distribution before Apple credentials exist.
-8. Continue encrypted local storage and saved-secret UX: encrypted SQLite,
+7. Continue encrypted local storage and saved-secret UX: encrypted SQLite,
    per-row AEAD vault rows, OS-protected key, passphrase mode, macOS native
    unlock, and no passive secure-storage prompts.
-9. Keep harness work focused on bounded startup context, runnable verification,
+8. Keep harness work focused on bounded startup context, runnable verification,
    privacy/security gates, and docs accuracy. Do not add new ceremony unless it
    prevents a repeated failure.
 
