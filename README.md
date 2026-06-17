@@ -535,6 +535,8 @@ Quality guardrails:
 
 - `npm run harness:check` keeps agent-facing docs, plan lifecycle rules, and
   version-linked front-door claims in sync.
+- `npm run lint:deps` blocks non-exact direct npm or Cargo pins;
+  `npm run release:check-deps` adds registry and lockfile dry-run checks.
 - `npm run lint:bloat` blocks disposable artifacts, stale docs patterns, weak
   test shortcuts, and recurring junk classes found during cleanup.
 - `npm run lint:tests` rejects focused tests, runtime skips, and weak E2E

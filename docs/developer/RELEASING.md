@@ -35,6 +35,7 @@ artifacts:
 ```bash
 npm run release:check-version -- vX.Y.Z
 npm run harness:check
+npm run release:check-deps
 npm run doctor
 npm run doctor:e2e
 npm run lint:docs

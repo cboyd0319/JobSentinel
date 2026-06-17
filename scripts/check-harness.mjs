@@ -10,6 +10,7 @@ import {
   formatSecuritySensorSummary,
 } from "./check-security-sensors.mjs";
 import { checkAgentSkills } from "./check-agent-skills.mjs";
+import { collectDependencyPinViolations } from "./check-dependency-pins.mjs";
 import { checkRepoBloat } from "./check-repo-bloat.mjs";
 import {
   evaluateMacosReadiness,
@@ -775,6 +776,10 @@ for (const violation of checkSecuritySensors(root)) {
 }
 
 for (const violation of checkAgentSkills(root)) {
+  errors.push(violation);
+}
+
+for (const violation of collectDependencyPinViolations(root)) {
   errors.push(violation);
 }
 

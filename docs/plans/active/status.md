@@ -64,11 +64,10 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 - Current UI QA evidence confirms modal paint fixes, visible Dashboard and
   Hiring Trends toasts, Application Assist tabs, Pay Protection, Resume Match,
   and Settings Sources & Alerts opening without a passive Keychain prompt.
-- Fresh dependency evidence on 2026-06-17 (`dompurify` `3.4.11`): direct
-  npm/Cargo pins match registry latest/stable; `npm outdated --json` is `{}`;
-  `npm audit --audit-level=high` is clean; `cargo update` refreshed three transitive
-  crates; dry-run reports zero compatible updates. `cargo audit` reports no
-  blocking vulnerabilities, with 19 allowed upstream warnings.
+- Dependency evidence on 2026-06-17 (`dompurify` `3.4.11`): direct npm/Cargo
+  pins match latest/stable; `npm run lint:deps` and
+  `npm run release:check-deps` enforce exact pins, registry freshness, and
+  npm/Cargo lock compatibility. npm/Cargo audits report no blocking issues.
 - Live OS keyring integration tests are opt-in behind
   `JOBSENTINEL_LIVE_KEYRING_TESTS=1`; default credential tests do not prompt
   Keychain and still prove LinkedIn credential storage is disabled before

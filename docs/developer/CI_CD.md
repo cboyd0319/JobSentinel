@@ -43,7 +43,19 @@ The docs harness workflow covers maintained docs and agent-facing harness files.
 
 **Trigger:** Push to `main` or pull request targeting `main`
 
-All three jobs run in parallel on `ubuntu-latest`. There is no OS matrix and no beta toolchain — only stable Rust on Linux.
+All four jobs run in parallel on `ubuntu-latest`. There is no OS matrix and no
+beta toolchain, only stable Rust on Linux.
+
+### Job: harness
+
+Runs repo harness checks, exact dependency-pin checks, and harness script tests.
+
+| Step                  | Command                 |
+| --------------------- | ----------------------- |
+| Install dependencies  | `npm ci`                |
+| Harness checks        | `npm run harness:check` |
+| Dependency pin checks | `npm run lint:deps`     |
+| Harness script tests  | `npm run test:scripts`  |
 
 ### Job: test-rust
 
@@ -224,8 +236,9 @@ git push origin main
 
 Before tagging or uploading local assets, run the full release gate in
 [Releasing](RELEASING.md). It includes version validation, harness checks,
-environment doctors, docs lint, frontend tests, full Playwright E2E, frontend
-build, Rust formatting, Rust clippy, and the full Rust test suite.
+latest-stable dependency checks, environment doctors, docs lint, frontend
+tests, full Playwright E2E, frontend build, Rust formatting, Rust clippy, and
+the full Rust test suite.
 
 ### 2. Choose release build path
 

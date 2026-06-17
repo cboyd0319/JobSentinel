@@ -55,6 +55,9 @@ jobs:
       - name: Run harness checks
         run: npm run harness:check
 
+      - name: Check dependency pins
+        run: npm run lint:deps
+
       - name: Run harness script tests
         run: npm run test:scripts
 

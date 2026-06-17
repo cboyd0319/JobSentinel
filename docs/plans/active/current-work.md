@@ -120,9 +120,9 @@ Out of scope:
 - The v2.9.0 pass confirmed Browser Import is the LinkedIn path, not session
   storage or automatic monitoring. Private profile inputs stay local.
 - Direct npm/Cargo dependencies are exact-pinned to latest stable.
-  `Cargo.lock` was refreshed for latest compatible `muda`,
-  `webpki-root-certs`, and `webpki-roots`; remaining behind-latest transitive
-  crates are blocked by upstream exact constraints.
+  `npm run lint:deps` enforces exact pins, `npm run release:check-deps`
+  verifies registries and lockfile dry-runs, and remaining behind-latest
+  transitive packages/crates are blocked by upstream constraints.
 - Live OS keyring integration tests are opt-in behind
   `JOBSENTINEL_LIVE_KEYRING_TESTS=1`; default credential tests remain
   non-interactive and still prove LinkedIn credential storage is blocked before

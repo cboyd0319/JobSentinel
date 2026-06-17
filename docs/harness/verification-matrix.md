@@ -22,6 +22,7 @@ user-facing workflow risk requires more evidence.
 | Multi-agent orchestration or delegated implementation | `npm run harness:check`, focused checks for each accepted slice, and coordinator diff review evidence |
 | Markdown docs | `npm run lint:md` |
 | Package scripts | `npm run harness:check` and affected script command |
+| Dependency manifests or lockfiles | `npm run lint:deps`; before release also run `npm run release:check-deps` |
 | Environment readiness or setup commands | `npm run doctor`, `npm run doctor:e2e` when E2E readiness matters, and `npm run harness:check` |
 | Frontend architecture boundary rules | `npm run lint:architecture` and `npm run harness:check` |
 | Tauri invoke command map | `npm run lint:tauri-invokes` and `npm run harness:check` |
@@ -118,6 +119,7 @@ Use before release:
 
 ```bash
 npm run harness:check
+npm run release:check-deps
 npm run doctor
 npm run lint:docs
 npm run lint
