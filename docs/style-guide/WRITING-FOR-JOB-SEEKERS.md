@@ -137,11 +137,10 @@ Instead of saying something is easy, just explain how to do it.
 ### When something goes wrong
 
 **Good:**
-> "We couldn't connect to LinkedIn. This sometimes happens when the site is busy. Try again in a
-> few minutes, or check your internet connection."
+> "We couldn't open that job link. Check the link and try again."
 
 **Not great:**
-> "Error: Connection timeout. LinkedIn API endpoint unreachable. Status code 503."
+> "Error: Connection timeout. Remote endpoint unreachable. Status code 503."
 
 ### Encouraging action
 

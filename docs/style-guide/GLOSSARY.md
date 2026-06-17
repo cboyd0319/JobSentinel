@@ -79,7 +79,7 @@ saved preferences.
 
 **Don't write:** "JobSentinel uses the LinkedIn API"
 
-**Write instead:** "JobSentinel connects to LinkedIn to find jobs"
+**Write instead:** "JobSentinel can open LinkedIn searches for you to review"
 
 ### Database
 

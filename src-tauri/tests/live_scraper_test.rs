@@ -191,15 +191,13 @@ async fn test_yc_startups_live() {
 }
 
 // ============================================================================
-// AUTH-REQUIRED SCRAPERS (Skipped - require credentials)
+// EXTERNALLY CONFIGURED OR SOURCE-POLICY LIMITED SCRAPERS
 // ============================================================================
 
 #[tokio::test]
-#[ignore = "Requires LinkedIn session cookie (li_at)"]
+#[ignore = "LinkedIn automatic monitoring is disabled by source policy"]
 async fn test_linkedin_live() {
-    // LinkedIn requires authentication via li_at cookie
-    // This test is skipped by default
-    println!("⏭️  LinkedIn: Skipped (requires authentication)");
+    println!("LinkedIn: automatic monitoring disabled; use browser import instead");
 }
 
 #[tokio::test]

@@ -454,10 +454,6 @@ pub struct LinkedInConfig {
     #[serde(default)]
     pub enabled: bool,
 
-    /// Legacy field kept only so old configs can deserialize.
-    #[serde(skip)]
-    pub session_cookie: String,
-
     /// Search query (job title, keywords)
     /// Example: "registered nurse", "program coordinator"
     #[serde(default)]
@@ -481,14 +477,6 @@ impl fmt::Debug for LinkedInConfig {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("LinkedInConfig")
             .field("enabled", &self.enabled)
-            .field(
-                "session_cookie",
-                &if self.session_cookie.is_empty() {
-                    "[empty]"
-                } else {
-                    "[REDACTED]"
-                },
-            )
             .field("query", &self.query)
             .field("location", &self.location)
             .field("remote_only", &self.remote_only)
@@ -771,16 +759,31 @@ mod tests {
     }
 
     #[test]
-    fn test_linkedin_config_debug_does_not_leak_cookie() {
-        let config = LinkedInConfig {
-            session_cookie: "AQEDARAbc123_secret_cookie_value".to_string(),
-            ..Default::default()
-        };
+    fn test_linkedin_config_ignores_legacy_session_cookie() {
+        let config: LinkedInConfig = serde_json::from_value(serde_json::json!({
+            "enabled": false,
+            "session_cookie": "AQEDARAbc123_secret_cookie_value",
+            "query": "manager",
+            "location": "Remote",
+            "remote_only": true,
+            "limit": 25
+        }))
+        .expect("legacy LinkedIn config should deserialize");
+
         let debug_output = format!("{:?}", config);
         assert!(
             !debug_output.contains("AQEDARAbc123_secret_cookie_value"),
-            "LinkedInConfig Debug output must not contain session cookie. Got: {}",
+            "LinkedInConfig Debug output must not contain legacy session cookie. Got: {}",
             debug_output
+        );
+        assert_eq!(config.query, "manager");
+        assert_eq!(config.location, "Remote");
+
+        let serialized = serde_json::to_value(&config).expect("config should serialize");
+        assert!(
+            serialized.get("session_cookie").is_none(),
+            "LinkedInConfig serialization must omit legacy session_cookie. Got: {}",
+            serialized
         );
     }
 

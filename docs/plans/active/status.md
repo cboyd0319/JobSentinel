@@ -55,16 +55,12 @@ The v2.9.0 goal adds two durable release-readiness requirements:
   verified.
 - Fresh harness evidence reports 2 active docs, 2 indexed workstreams, and a
   100/100 harness score.
-- macOS Computer Use retest is complete for the critical release path from an
-  unlocked 2026-06-06 session against the fresh local `2.7.7` universal app:
-  first-run setup, dashboard load, seeded application tracker card detail,
-  native status change to Applied, dashboard count refresh, Settings Sources &
-  Alerts navigation, safe support report copy, and safe support report save.
-- Current UI QA evidence confirms shared modal paint fixes, removal of
-  avoidable user-controlled text truncation, visible Dashboard and Hiring
-  Trends toasts, Application Assist tab behavior, Pay Protection layout, Resume
-  Match saved-resume display, and Settings Sources & Alerts opening without a
-  passive Keychain prompt.
+- macOS Computer Use retest is complete for first-run setup, dashboard,
+  application tracking, Settings Sources & Alerts, and safe support report
+  copy/save from an unlocked 2026-06-06 local `2.7.7` universal app.
+- Current UI QA evidence confirms modal paint fixes, visible Dashboard and
+  Hiring Trends toasts, Application Assist tabs, Pay Protection, Resume Match,
+  and Settings Sources & Alerts opening without a passive Keychain prompt.
 - Fresh dependency evidence on 2026-06-17: frontend/Rust direct dependencies
   are hard-pinned to current stable versions; `npm outdated --json` is `{}`;
   `npm audit --audit-level=moderate`, `cargo deny check advisories`, and
@@ -72,12 +68,16 @@ The v2.9.0 goal adds two durable release-readiness requirements:
   updates. Four transitive crates remain behind absolute latest through
   upstream Linux/Tauri and crypto paths; strict warning audit is tracked as
   SEC-002.
-- Live OS keyring integration tests are now opt-in behind
-  `JOBSENTINEL_LIVE_KEYRING_TESTS=1`, so default credential tests no longer
-  prompt macOS Keychain while still proving LinkedIn credential storage is
-  disabled before keyring access.
-- Downloadable Agent Skills now cover search planning, posting-risk review,
-  resume tailoring, form review, tracking, interview prep, and offer/pay review.
+- Live OS keyring integration tests are opt-in behind
+  `JOBSENTINEL_LIVE_KEYRING_TESTS=1`; default credential tests do not prompt
+  Keychain and still prove LinkedIn credential storage is disabled before
+  keyring access.
+- Downloadable Agent Skills cover search planning, posting-risk review, resume
+  tailoring, form review, tracking, interview prep, and offer/pay review;
+  `skills/` is an intentional harness-validated root.
+- LinkedIn runtime config/scraper types no longer expose session-cookie fields.
+  Legacy cleanup/redaction remains only for old data, and source-boundary
+  sensors reject drift.
 - v2.9.0 cannot be called done until every UI route, click, action, modal,
   toast, form, settings panel, import flow, keyboard path, empty/loading/error
   state, and narrow-width surface has fresh manual verification evidence.
@@ -86,9 +86,9 @@ The v2.9.0 goal adds two durable release-readiness requirements:
 
 ## Next Best Work
 
-1. Harden Browser Import as the compliant LinkedIn path: user opens a job page,
-   clicks import, reviews locally, and tracks the application without JobSentinel
-   logging in to LinkedIn or monitoring LinkedIn in the background.
+1. Manually verify Browser Import end to end as the compliant LinkedIn path:
+   user-opened page, click import, local review, local tracking, no login or
+   monitoring.
 2. Continue Quiet Shield QA against design contracts; next proof should rerun
    full test/build, packaged debug rebuild, and Computer Use for toasts,
    settings, keyboard flow, route empty states, and narrow widths.

@@ -16,7 +16,6 @@ pub const LINKEDIN_AUTOMATION_DISABLED_MESSAGE: &str =
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct LinkedInScraper {
-    pub session_cookie: String,
     pub query: String,
     pub location: String,
     pub remote_only: bool,
@@ -26,10 +25,6 @@ pub struct LinkedInScraper {
 impl fmt::Debug for LinkedInScraper {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("LinkedInScraper")
-            .field(
-                "session_cookie_configured",
-                &!self.session_cookie.is_empty(),
-            )
             .field("query_chars", &self.query.chars().count())
             .field("location_chars", &self.location.chars().count())
             .field("remote_only", &self.remote_only)
@@ -39,13 +34,8 @@ impl fmt::Debug for LinkedInScraper {
 }
 
 impl LinkedInScraper {
-    pub fn new(
-        session_cookie: impl Into<String>,
-        query: impl Into<String>,
-        location: impl Into<String>,
-    ) -> Self {
+    pub fn new(query: impl Into<String>, location: impl Into<String>) -> Self {
         Self {
-            session_cookie: session_cookie.into(),
             query: query.into(),
             location: location.into(),
             remote_only: false,
@@ -83,25 +73,24 @@ mod tests {
     use super::*;
 
     #[test]
-    fn debug_output_does_not_expose_session_cookie() {
-        let scraper = LinkedInScraper::new("legacy-session-secret", "manager", "Denver");
+    fn debug_output_has_no_session_cookie_surface() {
+        let scraper = LinkedInScraper::new("manager", "Denver");
 
         let debug = format!("{scraper:?}");
 
-        assert!(debug.contains("session_cookie_configured"));
-        assert!(!debug.contains("legacy-session-secret"));
+        assert!(!debug.contains("session_cookie"));
     }
 
     #[test]
     fn with_limit_caps_results() {
-        let scraper = LinkedInScraper::new("cookie", "manager", "Denver").with_limit(500);
+        let scraper = LinkedInScraper::new("manager", "Denver").with_limit(500);
 
         assert_eq!(scraper.limit, 100);
     }
 
     #[tokio::test]
     async fn scrape_is_disabled_by_source_policy() {
-        let scraper = LinkedInScraper::new("cookie", "manager", "Denver");
+        let scraper = LinkedInScraper::new("manager", "Denver");
 
         let err = scraper.scrape().await.unwrap_err();
 

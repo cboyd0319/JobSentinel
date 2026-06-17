@@ -232,7 +232,6 @@ async fn test_scraping_cycle_all_error_branches() {
     config.lever_urls = vec!["https://jobs.lever.co/test_company".to_string()];
     config.title_allowlist = vec!["Engineer".to_string()];
     config.linkedin.enabled = true;
-    config.linkedin.session_cookie = "invalid_session".to_string();
     config.linkedin.query = "Software Engineer".to_string();
     config.immediate_alert_threshold = 0.3;
 

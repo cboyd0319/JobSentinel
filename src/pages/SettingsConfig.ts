@@ -104,7 +104,7 @@ export interface Config {
   };
   linkedin: {
     enabled: boolean;
-    // session_cookie stored securely
+    // LinkedIn stays user-opened; no session cookie is stored.
     query: string;
     location: string;
     remote_only: boolean;

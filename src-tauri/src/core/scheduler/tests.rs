@@ -572,7 +572,6 @@ async fn test_scraping_cycle_all_scrapers_error_accumulation() {
     config.jobswithgpt_endpoint = "not-a-url".to_string();
     approve_jobswithgpt_payload(&mut config);
     config.linkedin.enabled = true;
-    config.linkedin.session_cookie = "invalid".to_string();
     config.linkedin.query = "Engineer".to_string();
     let config = Arc::new(config);
     let db = Database::connect_memory().await.unwrap();
@@ -710,7 +709,6 @@ async fn test_complete_workflow_with_all_error_paths() {
     config.lever_urls = vec!["https://jobs.lever.co/test".to_string()];
     config.title_allowlist = vec!["Engineer".to_string()];
     config.linkedin.enabled = true;
-    config.linkedin.session_cookie = "test".to_string();
     config.linkedin.query = "Test".to_string();
     config.immediate_alert_threshold = 0.5;
 

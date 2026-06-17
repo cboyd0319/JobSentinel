@@ -251,7 +251,6 @@ async fn test_scraping_cycle_skips_already_alerted_jobs() {
 async fn test_scraping_cycle_with_linkedin_enabled() {
     let mut config = create_test_config();
     config.linkedin.enabled = true;
-    config.linkedin.session_cookie = "fake_cookie".to_string();
     config.linkedin.query = "Security Engineer".to_string();
     config.linkedin.location = "Remote".to_string();
     config.linkedin.remote_only = true;
@@ -263,11 +262,10 @@ async fn test_scraping_cycle_with_linkedin_enabled() {
 
     let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
 
-    // Run cycle - will fail to scrape but should handle gracefully
+    // Run cycle - LinkedIn automatic monitoring is rejected.
     let result = scheduler.run_scraping_cycle().await.unwrap();
 
-    // Cycle should complete (LinkedIn errors expected)
-    assert!(result.jobs_found == 0 || result.errors.len() > 0);
+    assert!(result.errors.iter().any(|e| e.contains("source policy")));
 }
 
 #[tokio::test]
@@ -288,10 +286,9 @@ async fn test_scraping_cycle_with_linkedin_disabled() {
 }
 
 #[tokio::test]
-async fn test_scraping_cycle_with_linkedin_empty_cookie() {
+async fn test_scraping_cycle_with_linkedin_enabled_without_credentials() {
     let mut config = create_test_config();
     config.linkedin.enabled = true;
-    config.linkedin.session_cookie = "".to_string(); // Empty cookie
     let config = Arc::new(config);
     let db = Database::connect_memory().await.unwrap();
     db.migrate().await.unwrap();
@@ -382,7 +379,6 @@ async fn test_scraping_cycle_all_scrapers_enabled() {
     config.lever_urls = vec!["https://jobs.lever.co/test".to_string()];
     config.title_allowlist = vec!["Engineer".to_string()];
     config.linkedin.enabled = true;
-    config.linkedin.session_cookie = "cookie".to_string();
     config.linkedin.query = "Engineer".to_string();
     let config = Arc::new(config);
     let db = Database::connect_memory().await.unwrap();

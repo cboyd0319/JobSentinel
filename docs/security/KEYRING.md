@@ -332,8 +332,7 @@ should remain empty during normal use:
     }
   },
   "linkedin": {
-    "enabled": false,
-    "session_cookie": ""
+    "enabled": false
   },
   "usajobs": {
     "enabled": true,

@@ -355,11 +355,7 @@ fn test_lever_scraper_multiple_companies() {
 
 #[test]
 fn test_linkedin_scraper_construction() {
-    let scraper = LinkedInScraper::new(
-        "li_at=test_cookie".to_string(),
-        "customer support".to_string(),
-        "Chicago".to_string(),
-    );
+    let scraper = LinkedInScraper::new("customer support".to_string(), "Chicago".to_string());
     assert_eq!(scraper.name(), "LinkedIn");
     assert_eq!(scraper.query, "customer support");
     assert_eq!(scraper.location, "Chicago");
@@ -412,11 +408,7 @@ fn test_all_scrapers_implement_job_scraper() {
     let lever = LeverScraper::new(vec![test_lever_company()]);
     assert_job_scraper(&lever);
 
-    let linkedin = LinkedInScraper::new(
-        "cookie".to_string(),
-        "query".to_string(),
-        "location".to_string(),
-    );
+    let linkedin = LinkedInScraper::new("query".to_string(), "location".to_string());
     assert_job_scraper(&linkedin);
 
     let builtin = BuiltInScraper::new(false, 10);
@@ -434,7 +426,7 @@ fn test_scraper_names_are_unique() {
         HnHiringScraper::new(10, false).name(),
         GreenhouseScraper::new(vec![test_greenhouse_company()]).name(),
         LeverScraper::new(vec![test_lever_company()]).name(),
-        LinkedInScraper::new("c".to_string(), "q".to_string(), "l".to_string()).name(),
+        LinkedInScraper::new("q".to_string(), "l".to_string()).name(),
         BuiltInScraper::new(false, 10).name(),
     ];
 

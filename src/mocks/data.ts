@@ -181,7 +181,6 @@ export const mockConfig = {
   },
   linkedin: {
     enabled: false,
-    session_cookie: "",
     query: "marketing manager",
     location: "United States",
     remote_only: true,

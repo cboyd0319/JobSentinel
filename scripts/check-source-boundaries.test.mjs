@@ -156,12 +156,30 @@ test("source boundaries reject LinkedIn credential and automation drift", () => 
     writeFixtureFile(root, "docs/security/KEYRING.md", "voyager/api\n");
     writeFixtureFile(
       root,
+      "src-tauri/src/core/config/types.rs",
+      "pub struct LinkedInConfig {\n  pub session_cookie: String,\n}\n",
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scrapers/linkedin.rs",
+      "debug.field(\"session_cookie_configured\", &true);\n",
+    );
+    writeFixtureFile(
+      root,
       "src/utils/notificationPreferences.ts",
       "linkedin: { enabled: true, name: 'LinkedIn' }\n",
     );
 
     assert.equal(hasStaleLinkedInCredentialDocs(root, "docs/features/scrapers.md"), true);
     assert.equal(hasLinkedInAutomationBoundaryDrift(root, "docs/security/KEYRING.md"), true);
+    assert.equal(
+      hasLinkedInAutomationBoundaryDrift(root, "src-tauri/src/core/config/types.rs"),
+      true,
+    );
+    assert.equal(
+      hasLinkedInAutomationBoundaryDrift(root, "src-tauri/src/core/scrapers/linkedin.rs"),
+      true,
+    );
     assert.equal(
       hasLinkedInNotificationBoundaryDrift(root, "src/utils/notificationPreferences.ts"),
       true,

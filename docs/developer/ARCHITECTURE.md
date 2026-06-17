@@ -154,7 +154,7 @@ CREATE VIRTUAL TABLE jobs_fts USING fts5(
 
 - **Greenhouse** - ATS scraper with HTML fetch and public API fallback
 - **Lever** - ATS public API scraper
-- **LinkedIn** - Session cookie authentication
+- **LinkedIn** - User-opened search links and browser import only; no session storage
 - **RemoteOK** - JSON API
 - **WeWorkRemotely** - RSS feed parsing
 - **BuiltIn** - Tech jobs and remote jobs (HTML)
@@ -440,8 +440,9 @@ See [Application Assist Feature](../features/one-click-apply.md) for full docume
 
 1. Scheduler fires on the configured interval.
 2. Scraper workers query enabled sources in parallel, including Greenhouse, Lever,
-   LinkedIn, RemoteOK, WeWorkRemotely, BuiltIn, HN Hiring, JobsGPT, Dice, YC Startup
-   Jobs, USAJobs, SimplyHired, and Glassdoor.
+   RemoteOK, WeWorkRemotely, BuiltIn, HN Hiring, JobsGPT, Dice, YC Startup Jobs,
+   USAJobs, SimplyHired, and Glassdoor. LinkedIn stays user-opened and can be added
+   through browser import.
 3. Scoring workers apply multi-factor scoring.
 4. Persistence workers upsert jobs into SQLite.
 5. Notification workers send alerts through configured Slack, Discord, Teams, or email

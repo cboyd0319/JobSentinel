@@ -182,7 +182,6 @@ mod tests {
     fn test_linkedin_disabled_with_invalid_config_passes() {
         let mut config = create_valid_config();
         config.linkedin.enabled = false;
-        config.linkedin.session_cookie = "".to_string();
         config.linkedin.query = "".to_string();
         config.linkedin.limit = 0;
 
