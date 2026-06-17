@@ -2,16 +2,21 @@ import { test, expect } from "@playwright/test";
 import { OneClickApplyPage } from "./page-objects/OneClickApplyPage";
 
 const MOCK_STATE_KEY = "jobsentinel.mockState.v1";
+const MOCK_INVOKE_CONTROLS_KEY = "jobsentinel.mockInvokeControls.v1";
 
 test.describe("Application Assist Settings", () => {
   let applyPage: OneClickApplyPage;
 
   test.beforeEach(async ({ page }) => {
-    await page.addInitScript((key) => {
+    await page.addInitScript(({ controlsKey, stateKey }) => {
       if (window.sessionStorage.getItem("one-click-e2e-reset")) return;
-      window.localStorage.removeItem(key);
+      window.localStorage.removeItem(stateKey);
+      window.localStorage.setItem(controlsKey, JSON.stringify({ delayMs: 0 }));
       window.sessionStorage.setItem("one-click-e2e-reset", "true");
-    }, MOCK_STATE_KEY);
+    }, {
+      controlsKey: MOCK_INVOKE_CONTROLS_KEY,
+      stateKey: MOCK_STATE_KEY,
+    });
 
     applyPage = new OneClickApplyPage(page);
     await applyPage.navigateTo();

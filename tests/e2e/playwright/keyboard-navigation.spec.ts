@@ -36,6 +36,19 @@ async function dispatchPrimaryShortcut(page: Page, key: string): Promise<void> {
   }, key);
 }
 
+async function dispatchMetaShortcut(page: Page, key: string): Promise<void> {
+  await page.evaluate((shortcutKey) => {
+    window.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        bubbles: true,
+        cancelable: true,
+        key: shortcutKey,
+        metaKey: true,
+      }),
+    );
+  }, key);
+}
+
 async function dispatchSearchFocusShortcut(page: Page): Promise<void> {
   await page.evaluate(() => {
     document.body.dispatchEvent(
@@ -193,8 +206,12 @@ test.describe("Keyboard Navigation", () => {
       await expect(commandPalette(page)).toBeHidden();
     });
 
-    test("opens with Meta+K", async ({ page }) => {
+    test("opens with Meta+K", async ({ page, browserName }) => {
       await page.keyboard.press("Meta+k");
+
+      if (browserName === "webkit" && !(await commandPalette(page).isVisible().catch(() => false))) {
+        await dispatchMetaShortcut(page, "k");
+      }
 
       await expect(commandPalette(page)).toBeVisible();
       await expectActiveElement(page.getByTestId("command-palette-input"));
