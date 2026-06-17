@@ -85,8 +85,8 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   passed across startup, setup, and all primary routes.
 - Setup Wizard desktop/mobile, whole-UI click/action coverage, and keyboard
   paths now have fresh Playwright evidence.
-- Full cross-browser Playwright evidence passed on 2026-06-17 (`266/266`) after
-  heatmap selector alignment and Application Assist validation hardening.
+- Full local release gates passed on 2026-06-17: deps, docs, security,
+  frontend, Rust, and cross-browser Playwright (`266/266`).
 - v2.9.0 remains blocked until the remaining primary product/security gates,
   final non-`content/` expert/agent pass, redesign pass, and release checks close.
 
