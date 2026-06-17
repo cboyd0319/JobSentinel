@@ -42,9 +42,11 @@ In scope:
 - Locked redesign: move UI and UX toward Quiet Shield and Protective Navy,
   with no horizontal-scroll, cramped-settings, passive secure-storage prompt,
   or engineer-only-user regressions.
-- Harness-controlled redesign lock: treat Quiet Shield as an active-goal gate.
-  Keep required design files, change contracts, and screenshot or Computer Use
-  evidence for broad UI changes before release work resumes.
+- Manual whole-UI verification before v2.9.0 completion: every route, click,
+  action, modal, toast, empty/loading/error state, settings panel, import flow,
+  keyboard path, and narrow-width surface must be exercised and recorded.
+- Harness-controlled redesign lock: keep required design files, change
+  contracts, and screenshot or Computer Use evidence for broad UI changes.
 - Cleanup only when a fresh failing gate or blocker affects Rule 0, user ease,
   verification, or docs accuracy.
 - macOS readiness docs and harness checks that stay honest about the
@@ -92,6 +94,8 @@ Out of scope:
   safety, explicit user review, privacy-preserving defaults, and optional
   external AI.
 - Every claim of completion has fresh verification evidence.
+- v2.9.0 is not done until whole-UI manual verification covers every click,
+  action, and surface across the app.
 
 ## Done Recently
 
@@ -112,18 +116,11 @@ Out of scope:
 - Repo-bloat cleanup is closed as of 2026-06-05. Do not continue proactive
   file-size split work unless a fresh gate failure or blocker appears.
 - Active plan sprawl has been reduced to this plan plus `status.md`.
-- Current Quiet Shield QA fixed shared modal visibility in the packaged macOS
-  debug app and removed avoidable truncation from user-controlled UI text.
-  Computer Use confirmed visible Dashboard import and Application Assist edit
-  modals on the rebuilt debug bundle.
-- Follow-up redesign lock-in migrated several dialogs onto shared `Modal`,
-  added unique modal aria ids, wrapped Hiring Trends tabs, and made Job Sources
-  tables responsive. Focused UI tests, lint, harness check, and harness score
-  passed on 2026-06-06.
-- Latest packaged-app QA fixed Application Assist tab paint, removed native
-  tab-row overflow, fixed toasts to the viewport, kept Dashboard/Hiring Trends
-  toasts visible, and verified Settings Sources & Alerts opens without a
-  passive Keychain prompt. Focused tests, lint, and debug app build passed.
+- Quiet Shield QA fixed shared modal visibility, user-text truncation, dialog
+  migration to shared `Modal`, wrapped Hiring Trends tabs, responsive Job
+  Sources tables, Application Assist tab paint, viewport-fixed toasts, and
+  Settings Sources & Alerts opening without a passive Keychain prompt. Focused
+  UI tests, lint, harness gates, debug app build, and Computer Use passed.
 - The v2.9.0 pass confirmed the compliant LinkedIn path is the existing
   user-clicked Browser Import model, not session-cookie storage or automatic
   monitoring. Private resume/profile test inputs stay local and must not be
@@ -142,26 +139,26 @@ Out of scope:
 2. Harden Browser Import for user-clicked LinkedIn job saves and application
    tracking without browser-session capture, background page access, or
    scheduled LinkedIn fetches.
-3. Keep pushing macOS readiness as far as possible without Apple Developer
-   Program credentials only after current development and QA blockers close; do
-   not claim Gatekeeper-ready distribution until signing, notarization,
+3. Continue macOS readiness only after development and QA blockers close; do
+   not claim Gatekeeper-ready distribution before signing, notarization,
    stapling, and install proof exist.
 4. Finish current verified product and QA slices in resume assistance, job-card
    protection, guided intake, and pay protection.
-5. Implement the encrypted local storage slice: encrypted SQLite, per-row AEAD
-   vault rows, OS-protected default vault key, advanced passphrase mode,
-   macOS native Keychain/LocalAuthentication unlock, and no passive Settings
-   probes that cause repeated prompts.
-6. Finish the Quiet Shield redesign pass across current QA surfaces using
-   `DESIGN.md`, `docs/design/README.md`, and `docs/design/design-spec.md`.
-   Confirm major route screenshots, Computer Use clicks, keyboard flow, narrow
-   widths, full frontend tests, build, packaged debug app rebuild, and major
-   empty/error/loading states before release work resumes.
-7. Do not reopen repo-bloat cleanup unless a fresh bloat gate failure or
+5. Implement encrypted local storage: encrypted SQLite, per-row AEAD vault,
+   OS-protected default key, passphrase mode, macOS native unlock, and no
+   passive Settings probes.
+6. Finish Quiet Shield QA using `DESIGN.md`, `docs/design/README.md`, and
+   `docs/design/design-spec.md`. Confirm major route screenshots, Computer Use
+   clicks, keyboard flow, narrow widths, full tests, build, packaged debug
+   rebuild, and empty/error/loading states.
+7. Complete and record whole-UI manual verification for every click, action,
+   route, modal, toast, form, settings surface, import flow, keyboard path,
+   empty/loading/error state, and narrow-width state before calling v2.9.0 done.
+8. Do not reopen repo-bloat cleanup unless a fresh bloat gate failure or
    product/privacy/security/docs verification blocker appears.
-8. Keep README, docs hubs, release docs, wiki inventory, and active status in
+9. Keep README, docs hubs, release docs, wiki inventory, and active status in
    sync when behavior, readiness, or public guidance changes.
-9. Commit each major verified change locally; push only at goal completion or
+10. Commit each major verified change locally; push only at goal completion or
    on newer explicit instruction.
 
 ## Sensors

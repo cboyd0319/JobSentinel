@@ -7,15 +7,14 @@ Load archived history only when old decision context is needed.
 
 ## Goal State
 
-The repo-wide goal remains open. JobSentinel should keep moving toward zero
-known errors, privacy leaks, stale docs, brittle tests, user-facing technical
-assumptions, engineer-only defaults, and unverified claims.
+The repo-wide goal remains open: move JobSentinel toward zero known errors,
+privacy leaks, stale docs, brittle tests, user-facing technical assumptions,
+engineer-only defaults, and unverified claims. Current priority is v2.9.0
+readiness for an urgent single-user job search while keeping the broader
+product safe for non-technical job seekers.
 
-Current priority is v2.9.0 readiness for an urgent single-user job search while
-keeping the broader product safe for non-technical job seekers. Repo-bloat
-cleanup is closed as of 2026-06-05; do not continue proactive file-size split
-work unless a fresh bloat failure blocks product, privacy, security, docs
-accuracy, or verification.
+Repo-bloat cleanup is closed as of 2026-06-05; reopen only for a fresh bloat
+failure blocking product, privacy, security, docs accuracy, or verification.
 
 Release creation is paused until development and QA blockers are closed. Do not
 spend time creating, uploading, or announcing new release assets while confirmed
@@ -66,19 +65,20 @@ The v2.9.0 goal adds two durable release-readiness requirements:
   Trends toasts, Application Assist tab behavior, Pay Protection layout, Resume
   Match saved-resume display, and Settings Sources & Alerts opening without a
   passive Keychain prompt.
-- Fresh dependency evidence on 2026-06-17 shows frontend and Rust direct
-  dependencies hard-pinned to current stable versions. `npm outdated --json`
-  returns `{}`, `npm audit --audit-level=moderate` reports zero
-  vulnerabilities, `cargo update --dry-run` reports zero compatible lockfile
-  updates, `cargo deny check advisories` passes, and `cargo audit` reports no
-  vulnerabilities. Verbose Cargo freshness notes still show four transitive
-  crates behind absolute latest through Linux/Tauri build-time and shared crypto
-  paths; extra-strict `cargo audit --deny warnings` still reports upstream
-  informational maintenance warnings tracked as SEC-002.
+- Fresh dependency evidence on 2026-06-17: frontend/Rust direct dependencies
+  are hard-pinned to current stable versions; `npm outdated --json` is `{}`;
+  `npm audit --audit-level=moderate`, `cargo deny check advisories`, and
+  `cargo audit` are clean; `cargo update --dry-run` reports zero compatible
+  updates. Four transitive crates remain behind absolute latest through
+  upstream Linux/Tauri and crypto paths; strict warning audit is tracked as
+  SEC-002.
 - Live OS keyring integration tests are now opt-in behind
   `JOBSENTINEL_LIVE_KEYRING_TESTS=1`, so default credential tests no longer
   prompt macOS Keychain while still proving LinkedIn credential storage is
   disabled before keyring access.
+- v2.9.0 cannot be called done until every UI route, click, action, modal,
+  toast, form, settings panel, import flow, keyboard path, empty/loading/error
+  state, and narrow-width surface has fresh manual verification evidence.
 - Detailed historical slice evidence from the former status file is archived in
   [active status history](../archive/active-status-history-2026-06-17.md).
 
@@ -89,27 +89,27 @@ The v2.9.0 goal adds two durable release-readiness requirements:
 2. Harden Browser Import as the compliant LinkedIn path: user opens a job page,
    clicks import, reviews locally, and tracks the application without JobSentinel
    logging in to LinkedIn or monitoring LinkedIn in the background.
-3. Continue the Quiet Shield redesign pass against `DESIGN.md`,
-   `docs/design/README.md`, and `docs/design/design-spec.md`; modals now have
-   focused regression proof, so the next proof should rerun full test/build,
-   rebuild the packaged debug app, and use Computer Use on toasts, settings,
-   keyboard flow, route empty states, and narrow-width states.
-4. Continue resume assistance only where it improves truthful local requirement
+3. Continue Quiet Shield QA against design contracts; next proof should rerun
+   full test/build, packaged debug rebuild, and Computer Use for toasts,
+   settings, keyboard flow, route empty states, and narrow widths.
+4. Build a whole-UI manual verification map and exercise every route, click,
+   action, modal, toast, form, settings panel, import flow, keyboard path,
+   empty/loading/error state, and narrow-width surface before calling v2.9.0
+   done.
+5. Continue resume assistance only where it improves truthful local requirement
    review, hard-constraint handling, readable evidence, or next-action
    guidance.
-5. Continue guided intake only where resume/profile suggestions stay optional,
+6. Continue guided intake only where resume/profile suggestions stay optional,
    reviewed, local, and understandable for non-technical job seekers.
-6. Continue job-card protection for stale, risky, duplicate, unclear, or
+7. Continue job-card protection for stale, risky, duplicate, unclear, or
    pay-problem postings without treating local signals as employer
    predictions.
-7. Continue macOS readiness docs, release checks, and user guidance without
-   claiming Gatekeeper-ready public distribution before Apple credentials
-   exist.
-8. Continue encrypted local storage and saved-secret UX work with encrypted
-   SQLite at rest, per-row AEAD vault rows, OS-protected default vault key,
-   advanced passphrase mode, macOS native Keychain/LocalAuthentication unlock,
-   and no passive secure-storage prompts from Settings or status views.
-9. Keep harness work focused on bounded startup context, runnable verification,
+8. Continue macOS readiness docs and checks without claiming Gatekeeper-ready
+   distribution before Apple credentials exist.
+9. Continue encrypted local storage and saved-secret UX: encrypted SQLite,
+   per-row AEAD vault rows, OS-protected key, passphrase mode, macOS native
+   unlock, and no passive secure-storage prompts.
+10. Keep harness work focused on bounded startup context, runnable verification,
    privacy/security gates, and docs accuracy. Do not add new ceremony unless it
    prevents a repeated failure.
 
