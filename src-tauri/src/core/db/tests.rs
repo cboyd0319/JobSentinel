@@ -240,6 +240,30 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn test_claim_immediate_alert_is_atomic() {
+        let db = Database::connect_memory().await.unwrap();
+        db.migrate().await.unwrap();
+
+        let job = create_test_job("hash_alert_claim", "Test Job", 0.95);
+        let id = db.upsert_job(&job).await.unwrap();
+
+        let (first, second) = tokio::join!(
+            db.claim_immediate_alert("hash_alert_claim"),
+            db.claim_immediate_alert("hash_alert_claim")
+        );
+
+        let claimed_count = [first.unwrap(), second.unwrap()]
+            .into_iter()
+            .filter(|claimed| *claimed)
+            .count();
+        assert_eq!(claimed_count, 1);
+
+        let after = db.get_job_by_id(id).await.unwrap().unwrap();
+        assert!(after.immediate_alert_sent);
+        assert!(!db.claim_immediate_alert("missing_hash").await.unwrap());
+    }
+
+    #[tokio::test]
     async fn test_get_recent_jobs() {
         let db = Database::connect_memory().await.unwrap();
         db.migrate().await.unwrap();

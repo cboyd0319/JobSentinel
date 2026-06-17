@@ -8,21 +8,31 @@ fn test_calculate_job_hash() {
     let hash1 = calculate_job_hash(
         "Community Care",
         "Care Coordinator",
+        Some("Denver, CO"),
         "https://example.com/job/1",
     );
     let hash2 = calculate_job_hash(
         "Community Care",
         "Care Coordinator",
+        Some("Denver, CO"),
         "https://example.com/job/1",
     );
     let hash3 = calculate_job_hash(
         "Community Care",
         "Care Coordinator",
+        Some("Phoenix, AZ"),
+        "https://example.com/job/1",
+    );
+    let hash4 = calculate_job_hash(
+        "Community Care",
+        "Care Coordinator",
+        Some("Denver, CO"),
         "https://example.com/job/2",
     );
 
     assert_eq!(hash1, hash2);
     assert_ne!(hash1, hash3);
+    assert_ne!(hash1, hash4);
 }
 
 #[test]
@@ -307,8 +317,8 @@ async fn test_bookmarklet_import_stores_valid_job_through_shared_path() {
     .await;
     let parsed: serde_json::Value =
         serde_json::from_str(&response).expect("success response should be JSON");
-    let stored: (String, String, String, bool) =
-        sqlx::query_as("SELECT title, company, source, remote FROM jobs LIMIT 1")
+    let stored: (String, String, String, bool, String, Option<String>) =
+        sqlx::query_as("SELECT title, company, source, remote, hash, location FROM jobs LIMIT 1")
             .fetch_one(database.pool())
             .await
             .expect("stored job should load");
@@ -319,6 +329,16 @@ async fn test_bookmarklet_import_stores_valid_job_through_shared_path() {
     assert_eq!(stored.1, "Community Care");
     assert_eq!(stored.2, "bookmarklet");
     assert!(stored.3);
+    assert_eq!(
+        stored.4,
+        calculate_job_hash(
+            "Community Care",
+            "Care Coordinator",
+            Some("Denver, CO"),
+            "https://example.com/jobs/1"
+        )
+    );
+    assert_eq!(stored.5, Some("Denver, CO".to_string()));
 }
 
 #[tokio::test]

@@ -4,13 +4,13 @@
 
 use super::BookmarkletJobData;
 use crate::core::{
+    calculate_job_hash,
     db::{Database, Job},
     url_security::canonicalize_user_supplied_job_url,
 };
 use chrono::{DateTime, TimeDelta, Utc};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
-use sha2::{Digest, Sha256};
 use std::net::SocketAddr;
 use std::sync::{Arc, RwLock};
 use thiserror::Error;
@@ -526,7 +526,7 @@ async fn handle_import_request(
     };
 
     // Calculate job hash for deduplication
-    let job_hash = calculate_job_hash(&company, &title, &url);
+    let job_hash = calculate_job_hash(&company, &title, location.as_deref(), &url);
 
     // Check if job already exists
     match database.job_exists_by_hash(&job_hash).await {
@@ -624,15 +624,6 @@ fn bookmarklet_error_label(error: &BookmarkletError) -> &'static str {
 
 fn json_error_response(message: impl AsRef<str>) -> String {
     json!({ "error": message.as_ref() }).to_string()
-}
-
-/// Calculate job hash for deduplication
-fn calculate_job_hash(company: &str, title: &str, url: &str) -> String {
-    let mut hasher = Sha256::new();
-    hasher.update(company.to_lowercase().as_bytes());
-    hasher.update(title.to_lowercase().as_bytes());
-    hasher.update(url.as_bytes());
-    hex::encode(hasher.finalize())
 }
 
 #[cfg(test)]

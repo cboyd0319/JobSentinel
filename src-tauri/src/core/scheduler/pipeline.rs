@@ -18,6 +18,7 @@ impl Scheduler {
     pub async fn run_scraping_cycle(&self) -> Result<ScrapingResult> {
         use std::time::Instant;
 
+        let _scrape_guard = self.scrape_lock.lock().await;
         let cycle_start = Instant::now();
         tracing::info!("Starting full scraping cycle");
 

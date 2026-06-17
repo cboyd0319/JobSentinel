@@ -1,6 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { CompanyResearchPanel } from "./CompanyResearchPanel";
+import {
+  CompanyResearchPanel,
+  clearCompanyResearchMemoryCacheForTests,
+  seedCompanyResearchMemoryCacheForTests,
+} from "./CompanyResearchPanel";
 
 // Mock localStorage
 const localStorageMock = (() => {
@@ -23,6 +27,7 @@ Object.defineProperty(window, "localStorage", { value: localStorageMock });
 
 describe("CompanyResearchPanel", () => {
   beforeEach(() => {
+    clearCompanyResearchMemoryCacheForTests();
     localStorageMock.clear();
     vi.clearAllMocks();
   });
@@ -113,17 +118,11 @@ describe("CompanyResearchPanel", () => {
     });
 
     it("displays Glassdoor rating with stars", async () => {
-      const cache = {
-        "ratedcompany": {
-          data: {
-            name: "RatedCompany",
-            industry: "Testing",
-            glassdoorRating: 4.4,
-          },
-          timestamp: Date.now(),
-        },
-      };
-      localStorageMock.getItem.mockReturnValue(JSON.stringify(cache));
+      seedCompanyResearchMemoryCacheForTests("RatedCompany", {
+        name: "RatedCompany",
+        industry: "Testing",
+        glassdoorRating: 4.4,
+      });
 
       render(<CompanyResearchPanel companyName="RatedCompany" />);
 
@@ -187,37 +186,27 @@ describe("CompanyResearchPanel", () => {
   });
 
   describe("caching", () => {
-    it("caches company info in localStorage", async () => {
+    it("keeps company info out of localStorage and clears the legacy cache key", async () => {
       render(<CompanyResearchPanel companyName="Kaiser" />);
 
       await waitFor(() => {
         expect(screen.getByText("Healthcare / Care Delivery")).toBeInTheDocument();
       });
 
-      // Verify cache was written
-      expect(localStorageMock.setItem).toHaveBeenCalled();
-
-      // Verify cache key
-      const cacheCall = localStorageMock.setItem.mock.calls.find(
-        (call: [string, string]) => call[0] === "jobsentinel_company_cache"
+      expect(localStorageMock.setItem).not.toHaveBeenCalledWith(
+        "jobsentinel_company_cache",
+        expect.any(String),
       );
-      expect(cacheCall).toBeDefined();
+      expect(localStorageMock.removeItem).toHaveBeenCalledWith("jobsentinel_company_cache");
     });
 
-    it("uses cached data on subsequent renders", async () => {
-      // Pre-populate cache
-      const cache = {
-        "testcached": {
-          data: {
-            name: "TestCached",
-            industry: "Testing",
-            founded: "2024",
-            headquarters: "Test City",
-          },
-          timestamp: Date.now(),
-        },
-      };
-      localStorageMock.getItem.mockReturnValue(JSON.stringify(cache));
+    it("uses in-memory cached data on subsequent renders", async () => {
+      seedCompanyResearchMemoryCacheForTests("TestCached", {
+        name: "TestCached",
+        industry: "Testing",
+        founded: "2024",
+        headquarters: "Test City",
+      });
 
       render(<CompanyResearchPanel companyName="TestCached" />);
 
@@ -227,18 +216,16 @@ describe("CompanyResearchPanel", () => {
       expect(screen.getByText("Test City")).toBeInTheDocument();
     });
 
-    it("ignores malformed valid JSON cache entries", async () => {
-      const cache = {
-        "badco": {
+    it("ignores legacy localStorage cache entries", async () => {
+      localStorageMock.getItem.mockReturnValue(JSON.stringify({
+        badco: {
           data: {
-            name: { text: "BadCo" },
+            name: "BadCo",
             industry: "Bad Industry",
-            toolsAndSystems: { length: 1 },
           },
           timestamp: Date.now(),
         },
-      };
-      localStorageMock.getItem.mockReturnValue(JSON.stringify(cache));
+      }));
 
       render(<CompanyResearchPanel companyName="BadCo" />);
 
@@ -249,17 +236,11 @@ describe("CompanyResearchPanel", () => {
     });
 
     it("renders legacy cached tool values as tools and systems", async () => {
-      const cache = {
-        "legacyco": {
-          data: {
-            name: "LegacyCo",
-            industry: "Saved cache",
-            techStack: ["Scheduling", "Customer support"],
-          },
-          timestamp: Date.now(),
-        },
-      };
-      localStorageMock.getItem.mockReturnValue(JSON.stringify(cache));
+      seedCompanyResearchMemoryCacheForTests("LegacyCo", {
+        name: "LegacyCo",
+        industry: "Saved cache",
+        techStack: ["Scheduling", "Customer support"],
+      });
 
       render(<CompanyResearchPanel companyName="LegacyCo" />);
 
@@ -271,17 +252,14 @@ describe("CompanyResearchPanel", () => {
     });
 
     it("ignores expired cache entries", async () => {
-      // Pre-populate cache with expired entry (older than COMPANY_CACHE_TTL)
-      const cache = {
-        "unknownexpired": {
-          data: {
-            name: "UnknownExpired",
-            industry: "Old Industry",
-          },
-          timestamp: Date.now() - 25 * 60 * 60 * 1000, // 25 hours ago
+      seedCompanyResearchMemoryCacheForTests(
+        "UnknownExpired",
+        {
+          name: "UnknownExpired",
+          industry: "Old Industry",
         },
-      };
-      localStorageMock.getItem.mockReturnValue(JSON.stringify(cache));
+        Date.now() - 25 * 60 * 60 * 1000,
+      );
 
       render(<CompanyResearchPanel companyName="UnknownExpired" />);
 
@@ -312,17 +290,11 @@ describe("CompanyResearchPanel", () => {
 
   describe("company details", () => {
     it("displays founded year from saved company data", async () => {
-      const cache = {
-        "localclinic": {
-          data: {
-            name: "LocalClinic",
-            industry: "Healthcare",
-            founded: "1985",
-          },
-          timestamp: Date.now(),
-        },
-      };
-      localStorageMock.getItem.mockReturnValue(JSON.stringify(cache));
+      seedCompanyResearchMemoryCacheForTests("LocalClinic", {
+        name: "LocalClinic",
+        industry: "Healthcare",
+        founded: "1985",
+      });
 
       render(<CompanyResearchPanel companyName="LocalClinic" />);
 
@@ -333,17 +305,11 @@ describe("CompanyResearchPanel", () => {
     });
 
     it("displays headquarters from saved company data", async () => {
-      const cache = {
-        "regionalschool": {
-          data: {
-            name: "RegionalSchool",
-            industry: "Education",
-            headquarters: "Denver, CO",
-          },
-          timestamp: Date.now(),
-        },
-      };
-      localStorageMock.getItem.mockReturnValue(JSON.stringify(cache));
+      seedCompanyResearchMemoryCacheForTests("RegionalSchool", {
+        name: "RegionalSchool",
+        industry: "Education",
+        headquarters: "Denver, CO",
+      });
 
       render(<CompanyResearchPanel companyName="RegionalSchool" />);
 
@@ -366,17 +332,11 @@ describe("CompanyResearchPanel", () => {
 
   describe("rating display", () => {
     it("renders rating number correctly", async () => {
-      const cache = {
-        "steadywork": {
-          data: {
-            name: "SteadyWork",
-            industry: "Operations",
-            glassdoorRating: 4.5,
-          },
-          timestamp: Date.now(),
-        },
-      };
-      localStorageMock.getItem.mockReturnValue(JSON.stringify(cache));
+      seedCompanyResearchMemoryCacheForTests("SteadyWork", {
+        name: "SteadyWork",
+        industry: "Operations",
+        glassdoorRating: 4.5,
+      });
 
       render(<CompanyResearchPanel companyName="SteadyWork" />);
 
@@ -386,17 +346,11 @@ describe("CompanyResearchPanel", () => {
     });
 
     it("renders high rating correctly", async () => {
-      const cache = {
-        "communitycare": {
-          data: {
-            name: "CommunityCare",
-            industry: "Healthcare",
-            glassdoorRating: 4.8,
-          },
-          timestamp: Date.now(),
-        },
-      };
-      localStorageMock.getItem.mockReturnValue(JSON.stringify(cache));
+      seedCompanyResearchMemoryCacheForTests("CommunityCare", {
+        name: "CommunityCare",
+        industry: "Healthcare",
+        glassdoorRating: 4.8,
+      });
 
       render(<CompanyResearchPanel companyName="CommunityCare" />);
 
@@ -408,18 +362,12 @@ describe("CompanyResearchPanel", () => {
 
   describe("info row display", () => {
     it("displays label and value correctly", async () => {
-      const cache = {
-        "neighborhoodbank": {
-          data: {
-            name: "NeighborhoodBank",
-            industry: "Banking",
-            founded: "1972",
-            employeeCount: "250+",
-          },
-          timestamp: Date.now(),
-        },
-      };
-      localStorageMock.getItem.mockReturnValue(JSON.stringify(cache));
+      seedCompanyResearchMemoryCacheForTests("NeighborhoodBank", {
+        name: "NeighborhoodBank",
+        industry: "Banking",
+        founded: "1972",
+        employeeCount: "250+",
+      });
 
       render(<CompanyResearchPanel companyName="NeighborhoodBank" />);
 

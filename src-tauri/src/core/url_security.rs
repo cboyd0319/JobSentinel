@@ -82,6 +82,17 @@ pub fn validate_external_http_url(url: &str) -> Result<Url, String> {
     Ok(parsed)
 }
 
+/// Parse and validate an external HTTPS-only URL.
+pub fn validate_external_https_url(url: &str) -> Result<Url, String> {
+    let parsed = validate_external_http_url(url)?;
+
+    if parsed.scheme() != "https" {
+        return Err("Blocked insecure URL: https required".to_string());
+    }
+
+    Ok(parsed)
+}
+
 /// Validate a URL for an actual HTTP fetch.
 ///
 /// This keeps config validation deterministic while fetch paths also reject
@@ -89,6 +100,27 @@ pub fn validate_external_http_url(url: &str) -> Result<Url, String> {
 /// addresses.
 pub async fn validate_external_http_url_for_fetch(url: &str) -> Result<Url, String> {
     let parsed = validate_external_http_url(url)?;
+    let host = normalized_host(&parsed)?;
+
+    if host.parse::<IpAddr>().is_ok() {
+        return Ok(parsed);
+    }
+
+    let port = parsed
+        .port_or_known_default()
+        .ok_or_else(|| "URL must include a valid port".to_string())?;
+    let addrs = lookup_host((host.as_str(), port))
+        .await
+        .map_err(|_| "Could not verify URL host".to_string())?;
+
+    validate_resolved_ips(addrs.map(|addr| addr.ip()))?;
+
+    Ok(parsed)
+}
+
+/// Validate an HTTPS-only URL for an actual HTTP fetch.
+pub async fn validate_external_https_url_for_fetch(url: &str) -> Result<Url, String> {
+    let parsed = validate_external_https_url(url)?;
     let host = normalized_host(&parsed)?;
 
     if host.parse::<IpAddr>().is_ok() {
@@ -288,6 +320,12 @@ mod tests {
     fn allows_public_http_urls() {
         assert!(validate_external_http_url("https://example.com/jobs").is_ok());
         assert!(validate_external_http_url("http://example.com/jobs").is_ok());
+    }
+
+    #[test]
+    fn https_validator_blocks_public_http_urls() {
+        assert!(validate_external_https_url("https://example.com/jobs").is_ok());
+        assert!(validate_external_https_url("http://example.com/jobs").is_err());
     }
 
     #[test]

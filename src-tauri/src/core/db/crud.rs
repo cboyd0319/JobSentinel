@@ -231,6 +231,18 @@ impl Database {
         Ok(())
     }
 
+    /// Atomically claim immediate alert delivery for a job hash.
+    pub async fn claim_immediate_alert(&self, job_hash: &str) -> Result<bool, sqlx::Error> {
+        let result = sqlx::query(
+            "UPDATE jobs SET immediate_alert_sent = 1 WHERE hash = ? AND immediate_alert_sent = 0",
+        )
+        .bind(job_hash)
+        .execute(self.pool())
+        .await?;
+
+        Ok(result.rows_affected() == 1)
+    }
+
     /// Merge duplicate jobs: hide all duplicates except the primary one
     ///
     /// OPTIMIZATION: Single UPDATE with IN clause instead of loop with N queries.

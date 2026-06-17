@@ -525,10 +525,36 @@ fn main() {
                 let mut shutdown_rx = scheduler_arc.subscribe_shutdown();
 
                 tauri::async_runtime::spawn(async move {
-                    // Run immediately on startup, then periodically
-                    tracing::info!("Running initial scraping cycle on startup");
+                    tracing::info!("Background scheduler task started");
 
                     loop {
+                        let auto_refresh_enabled = {
+                            let config = config_arc.read().await;
+                            config.auto_refresh.enabled
+                        };
+
+                        if !auto_refresh_enabled {
+                            {
+                                let mut status = status_clone.write().await;
+                                status.is_running = false;
+                                status.next_run = None;
+                            }
+
+                            tracing::info!("Background scheduler is disabled; waiting before rechecking");
+                            tokio::select! {
+                                _ = tokio::time::sleep(tokio::time::Duration::from_mins(1)) => {
+                                    continue;
+                                }
+                                _ = shutdown_rx.recv() => {
+                                    tracing::info!("Background scheduler received shutdown signal, stopping gracefully");
+                                    let mut status = status_clone.write().await;
+                                    status.is_running = false;
+                                    status.next_run = None;
+                                    break;
+                                }
+                            }
+                        }
+
                         // Update status atomically: running, clear next_run
                         {
                             let mut status = status_clone.write().await;
@@ -556,25 +582,30 @@ fn main() {
                             }
                         }
 
-                        let interval_hours = {
+                        let (auto_refresh_enabled, interval_hours) = {
                             let config = config_arc.read().await;
-                            config.scraping_interval_hours
+                            (config.auto_refresh.enabled, config.scraping_interval_hours)
                         };
 
                         // Calculate next run time first to ensure consistency
                         let now = Utc::now();
-                        let next_run_time = now + Duration::hours(interval_hours as i64);
+                        let next_run_time = auto_refresh_enabled
+                            .then(|| now + Duration::hours(interval_hours as i64));
 
                         // Update status atomically: completed, set times
                         {
                             let mut status = status_clone.write().await;
                             status.is_running = false;
                             status.last_run = Some(now);
-                            status.next_run = Some(next_run_time);
+                            status.next_run = next_run_time;
                         }
 
                         // Wait for next interval or shutdown signal
-                        let sleep_duration = tokio::time::Duration::from_secs(interval_hours * 3600);
+                        let sleep_duration = if auto_refresh_enabled {
+                            tokio::time::Duration::from_secs(interval_hours.saturating_mul(3600))
+                        } else {
+                            tokio::time::Duration::from_mins(1)
+                        };
                         tokio::select! {
                             _ = tokio::time::sleep(sleep_duration) => {
                                 // Continue to next iteration

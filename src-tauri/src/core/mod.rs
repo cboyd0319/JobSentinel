@@ -24,6 +24,7 @@
 pub mod config;
 pub mod db;
 pub mod http_body;
+pub mod job_hash;
 pub mod logging;
 pub mod notify;
 pub mod scheduler;
@@ -69,6 +70,7 @@ pub mod ml;
 // Re-export commonly used types
 pub use config::Config;
 pub use db::{Database, Job};
+pub use job_hash::calculate_job_hash;
 pub use notify::{Notification, NotificationService};
 pub use scheduler::{ScheduleConfig, Scheduler, ScrapingResult};
 pub use scoring::{JobScore, ScoringEngine};

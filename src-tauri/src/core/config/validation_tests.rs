@@ -165,6 +165,7 @@ mod validation_tests {
     #[test]
     fn test_jobswithgpt_endpoint_blocks_private_networks() {
         for endpoint in [
+            "http://api.jobswithgpt.com/mcp",
             "http://localhost:3000/mcp",
             "http://127.0.0.1:3000/mcp",
             "http://10.0.0.5/mcp",

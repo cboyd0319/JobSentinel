@@ -45,6 +45,7 @@ impl Scheduler {
             database,
             credentials,
             shutdown_tx,
+            scrape_lock: Arc::new(tokio::sync::Mutex::new(())),
         }
     }
 
@@ -74,11 +75,26 @@ impl Scheduler {
         let mut shutdown_rx = self.shutdown_tx.subscribe();
 
         loop {
-            let interval_hours = {
+            let schedule = {
                 let config = self.config.read().await;
-                config.scraping_interval_hours
+                ScheduleConfig::from(&*config)
             };
-            let interval = Duration::from_secs(interval_hours * 3600);
+
+            if !schedule.enabled {
+                tracing::info!("Scheduler: auto-refresh disabled; waiting before rechecking");
+
+                tokio::select! {
+                    _ = time::sleep(Duration::from_mins(1)) => {
+                        continue;
+                    }
+                    _ = shutdown_rx.recv() => {
+                        tracing::info!("Scheduler received shutdown signal, stopping gracefully");
+                        break;
+                    }
+                }
+            }
+
+            let interval = Duration::from_secs(schedule.interval_hours.saturating_mul(3600));
 
             tracing::info!("Scheduler: Running job scraping cycle");
 
@@ -113,7 +129,7 @@ impl Scheduler {
             }
 
             // Wait for next run or shutdown signal
-            tracing::info!("Next scraping cycle in {} hours", interval_hours);
+            tracing::info!("Next scraping cycle in {} hours", schedule.interval_hours);
 
             tokio::select! {
                 _ = time::sleep(interval) => {

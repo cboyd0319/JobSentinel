@@ -128,6 +128,79 @@ describe("OnboardingProvider", () => {
     });
   });
 
+  describe("tour overlay accessibility", () => {
+    it("opens as a modal dialog with an accessible name", () => {
+      const TestComponent = () => {
+        const { startTour } = useOnboarding();
+        return <button onClick={startTour}>Start Tour</button>;
+      };
+
+      render(
+        <OnboardingProvider steps={testSteps}>
+          <TestComponent />
+        </OnboardingProvider>
+      );
+
+      fireEvent.click(screen.getByRole("button", { name: "Start Tour" }));
+
+      const dialog = screen.getByRole("dialog", { name: "Step 1" });
+      expect(dialog).toHaveAttribute("aria-modal", "true");
+      expect(dialog).toHaveFocus();
+    });
+
+    it("closes the tour with Escape", () => {
+      const TestComponent = () => {
+        const { isActive, startTour } = useOnboarding();
+        return (
+          <div>
+            <span>{isActive ? "active" : "inactive"}</span>
+            <button onClick={startTour}>Start Tour</button>
+          </div>
+        );
+      };
+
+      render(
+        <OnboardingProvider steps={testSteps}>
+          <TestComponent />
+        </OnboardingProvider>
+      );
+
+      fireEvent.click(screen.getByRole("button", { name: "Start Tour" }));
+      fireEvent.keyDown(screen.getByRole("dialog", { name: "Step 1" }), {
+        key: "Escape",
+      });
+
+      expect(screen.getByText("inactive")).toBeInTheDocument();
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    });
+
+    it("keeps tab focus inside the tour dialog", () => {
+      const TestComponent = () => {
+        const { startTour } = useOnboarding();
+        return <button onClick={startTour}>Start Tour</button>;
+      };
+
+      render(
+        <OnboardingProvider steps={testSteps}>
+          <TestComponent />
+        </OnboardingProvider>
+      );
+
+      fireEvent.click(screen.getByRole("button", { name: "Start Tour" }));
+      const dialog = screen.getByRole("dialog", { name: "Step 1" });
+      const closeButton = screen.getByRole("button", { name: "Close tour" });
+      const nextButton = screen.getByRole("button", { name: "Next" });
+
+      nextButton.focus();
+      fireEvent.keyDown(dialog, { key: "Tab" });
+      expect(closeButton).toHaveFocus();
+
+      closeButton.focus();
+      fireEvent.keyDown(dialog, { key: "Tab", shiftKey: true });
+      expect(nextButton).toHaveFocus();
+    });
+  });
+
   describe("endTour", () => {
     it("deactivates the tour", () => {
       const TestComponent = () => {

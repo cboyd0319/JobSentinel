@@ -118,53 +118,47 @@ pub async fn persist_and_notify(
         if scoring_engine.should_alert_immediately(score) {
             high_matches += 1;
 
-            // Check if we already sent an alert for this job
-            if !job.immediate_alert_sent {
-                let notification = Notification {
-                    job: job.clone(),
-                    score: score.clone(),
-                };
+            match database.claim_immediate_alert(&job.hash).await {
+                Ok(true) => {}
+                Ok(false) => continue,
+                Err(e) => {
+                    tracing::error!(
+                        job_hash = %job.hash,
+                        error_kind = database_error_kind(&e),
+                        "Failed to claim alert delivery"
+                    );
+                    errors.push(format!(
+                        "Database error while claiming one alert ({})",
+                        database_error_kind(&e)
+                    ));
+                    continue;
+                }
+            }
 
-                match notification_service
-                    .send_immediate_alert(&notification)
-                    .await
-                {
-                    Ok(()) => {
-                        tracing::info!(
-                            job_hash = %job.hash,
-                            job_score = score.total,
-                            "Notification alert sent"
-                        );
-                        alerts_sent += 1;
+            let notification = Notification {
+                job: job.clone(),
+                score: score.clone(),
+            };
 
-                        // Mark as alerted in database (use hash to avoid race conditions)
-                        // Note: This relies on the unique constraint on the hash column to prevent
-                        // duplicate alert notifications even if multiple scraping cycles run concurrently
-                        if let Some(existing_job) =
-                            database.get_job_by_hash(&job.hash).await.ok().flatten()
-                        {
-                            if let Err(e) = database.mark_alert_sent(existing_job.id).await {
-                                tracing::error!(
-                                    job_id = existing_job.id,
-                                    job_hash = %job.hash,
-                                    error_kind = database_error_kind(&e),
-                                    "Failed to mark alert as sent"
-                                );
-                                errors.push(format!(
-                                    "Database error while updating one alert state ({})",
-                                    database_error_kind(&e)
-                                ));
-                            }
-                        }
-                    }
-                    Err(_e) => {
-                        tracing::error!(
-                            job_hash = %job.hash,
-                            error_kind = "notification_delivery",
-                            "Failed to send notification alert"
-                        );
-                        errors.push("Notification delivery error for one job".to_string());
-                    }
+            match notification_service
+                .send_immediate_alert(&notification)
+                .await
+            {
+                Ok(()) => {
+                    tracing::info!(
+                        job_hash = %job.hash,
+                        job_score = score.total,
+                        "Notification alert sent"
+                    );
+                    alerts_sent += 1;
+                }
+                Err(_e) => {
+                    tracing::error!(
+                        job_hash = %job.hash,
+                        error_kind = "notification_delivery",
+                        "Failed to send notification alert"
+                    );
+                    errors.push("Notification delivery error for one job".to_string());
                 }
             }
         }

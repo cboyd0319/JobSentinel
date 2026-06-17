@@ -491,6 +491,24 @@ async fn test_query_mcp_rejects_endpoint_credentials_before_request() {
     assert!(matches!(result, Err(ScraperError::InvalidUrl { .. })));
 }
 
+#[tokio::test]
+async fn test_query_mcp_rejects_plain_http_endpoint_before_request() {
+    let scraper = JobsWithGptScraper::new(
+        "http://api.jobswithgpt.com/mcp".to_string(),
+        JobQuery {
+            titles: vec!["Care Coordinator".to_string()],
+            location: None,
+            remote_only: true,
+            limit: 10,
+        },
+    );
+
+    let result = scraper.query_mcp().await;
+
+    assert!(matches!(result, Err(ScraperError::InvalidUrl { .. })));
+    assert!(result.unwrap_err().to_string().contains("https required"));
+}
+
 #[test]
 fn test_mcp_error_message_does_not_echo_private_query_data() {
     let error = serde_json::json!({

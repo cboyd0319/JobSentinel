@@ -3,14 +3,16 @@
 //! Tauri commands for importing jobs from external URLs via Schema.org parsing.
 
 use crate::commands::{errors::user_friendly_error, AppState};
-use crate::core::import::{
-    fetch_job_page, parse_schema_org_job_posting, salary::parse_schema_org_salary,
-    schema_org::create_preview, ImportError, JobImportPreview,
-};
 use crate::core::url_security::{canonicalize_user_supplied_job_url, sanitize_url_for_logging};
+use crate::core::{
+    calculate_job_hash,
+    import::{
+        fetch_job_page, parse_schema_org_job_posting, salary::parse_schema_org_salary,
+        schema_org::create_preview, ImportError, JobImportPreview,
+    },
+};
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
-use sha2::{Digest, Sha256};
 use tauri::State;
 
 /// Preview a job import from a URL
@@ -43,6 +45,10 @@ pub async fn preview_job_import(
     }
 
     let posting = &postings[0];
+    let location = posting
+        .job_location
+        .as_ref()
+        .and_then(extract_location_string);
 
     // Check if job already exists in database
     let job_hash = calculate_job_hash(
@@ -52,6 +58,7 @@ pub async fn preview_job_import(
             .and_then(|o| o.name.as_deref())
             .unwrap_or(""),
         posting.title.as_deref().unwrap_or(""),
+        location.as_deref(),
         &canonical_url,
     );
 
@@ -119,8 +126,14 @@ pub async fn import_job_from_url(
         .and_then(|o| o.name.as_ref())
         .ok_or_else(|| "Missing required field: company name".to_string())?;
 
+    // Extract location
+    let location = posting
+        .job_location
+        .as_ref()
+        .and_then(extract_location_string);
+
     // Calculate job hash for deduplication
-    let job_hash = calculate_job_hash(company, title, &canonical_url);
+    let job_hash = calculate_job_hash(company, title, location.as_deref(), &canonical_url);
 
     // Check if job already exists
     if state
@@ -131,12 +144,6 @@ pub async fn import_job_from_url(
     {
         return Err("This job already exists in your database".to_string());
     }
-
-    // Extract location
-    let location = posting
-        .job_location
-        .as_ref()
-        .and_then(extract_location_string);
 
     // Extract description
     let description = posting.description.clone();
@@ -203,15 +210,6 @@ pub async fn import_job_from_url(
 #[serde(rename_all = "camelCase")]
 pub struct ImportedJobSummary {
     pub job_id: i64,
-}
-
-/// Calculate job hash for deduplication
-fn calculate_job_hash(company: &str, title: &str, url: &str) -> String {
-    let mut hasher = Sha256::new();
-    hasher.update(company.to_lowercase().as_bytes());
-    hasher.update(title.to_lowercase().as_bytes());
-    hasher.update(url.as_bytes());
-    hex::encode(hasher.finalize())
 }
 
 fn canonicalize_import_url(url: &str) -> Result<String, ImportError> {
@@ -333,17 +331,26 @@ mod tests {
         let hash1 = calculate_job_hash(
             "Community Services Org",
             "Program Coordinator",
+            Some("Remote"),
             "https://example.com/job/1",
         );
         let hash2 = calculate_job_hash(
             "Community Services Org",
             "Program Coordinator",
+            Some("Remote"),
             "https://example.com/job/1",
         );
         let hash3 = calculate_job_hash(
             "Community Services Org",
             "Program Coordinator",
+            Some("Remote"),
             "https://example.com/job/2",
+        );
+        let hash4 = calculate_job_hash(
+            "Community Services Org",
+            "Program Coordinator",
+            Some("Phoenix, AZ"),
+            "https://example.com/job/1",
         );
 
         // Same inputs should produce same hash
@@ -351,6 +358,9 @@ mod tests {
 
         // Different URL should produce different hash
         assert_ne!(hash1, hash3);
+
+        // Different location should produce different hash
+        assert_ne!(hash1, hash4);
     }
 
     #[test]
@@ -387,8 +397,8 @@ mod tests {
 
         assert_eq!(first, second);
         assert_eq!(
-            calculate_job_hash("Example Org", "Care Coordinator", &first),
-            calculate_job_hash("Example Org", "Care Coordinator", &second)
+            calculate_job_hash("Example Org", "Care Coordinator", None, &first),
+            calculate_job_hash("Example Org", "Care Coordinator", None, &second)
         );
     }
 

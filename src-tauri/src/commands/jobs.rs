@@ -7,6 +7,7 @@ use crate::commands::limits::validate_command_limit_usize_as_i64;
 use crate::commands::AppState;
 use crate::core::db::DuplicateGroup;
 use serde_json::Value;
+use std::sync::Arc;
 use tauri::State;
 
 /// Search for jobs from all enabled sources
@@ -17,12 +18,15 @@ use tauri::State;
 pub async fn search_jobs(state: State<'_, AppState>) -> Result<Value, String> {
     tracing::info!("Manual job search triggered via command");
 
-    // Create scheduler instance
-    let scheduler = crate::core::scheduler::Scheduler::new_shared_with_credentials(
-        state.config.clone(),
-        state.database.clone(),
-        state.credentials.clone(),
-    );
+    let scheduler = state.scheduler.clone().unwrap_or_else(|| {
+        Arc::new(
+            crate::core::scheduler::Scheduler::new_shared_with_credentials(
+                state.config.clone(),
+                state.database.clone(),
+                state.credentials.clone(),
+            ),
+        )
+    });
 
     // Run single scraping cycle
     match scheduler.run_scraping_cycle().await {

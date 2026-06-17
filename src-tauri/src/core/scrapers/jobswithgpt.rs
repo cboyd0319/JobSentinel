@@ -8,7 +8,7 @@ use super::http_client::{read_json_with_limit, send_with_retry};
 use super::rate_limiter::{limits, RateLimiter};
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
-use crate::core::url_security::{sanitize_url_for_logging, validate_external_http_url_for_fetch};
+use crate::core::url_security::{sanitize_url_for_logging, validate_external_https_url_for_fetch};
 
 use async_trait::async_trait;
 use chrono::Utc;
@@ -70,7 +70,7 @@ impl JobsWithGptScraper {
 
     /// Query JobsWithGPT MCP server
     async fn query_mcp(&self) -> ScraperResult {
-        validate_external_http_url_for_fetch(&self.endpoint)
+        validate_external_https_url_for_fetch(&self.endpoint)
             .await
             .map_err(|reason| ScraperError::InvalidUrl {
                 url: self.endpoint.clone(),

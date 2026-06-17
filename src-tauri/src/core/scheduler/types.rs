@@ -3,7 +3,7 @@
 use crate::core::config::Config;
 use crate::core::credentials::CredentialService;
 use std::sync::Arc;
-use tokio::sync::{broadcast, RwLock};
+use tokio::sync::{broadcast, Mutex, RwLock};
 
 /// Schedule configuration
 #[derive(Debug, Clone)]
@@ -31,6 +31,7 @@ pub struct Scheduler {
     pub(crate) database: Arc<crate::core::db::Database>,
     pub(crate) credentials: Arc<CredentialService>,
     pub(crate) shutdown_tx: broadcast::Sender<()>,
+    pub(crate) scrape_lock: Arc<Mutex<()>>,
 }
 
 /// Scraping result statistics

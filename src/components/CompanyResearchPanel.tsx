@@ -4,7 +4,7 @@ import { Button } from './Button';
 import { Badge } from './Badge';
 import { LoadingSpinner } from './LoadingSpinner';
 import { COMPANY_CACHE_TTL } from '../utils/constants';
-import { readStorageValue, writeStorageValue } from '../utils/browserStorage';
+import { removeStorageValue } from '../utils/browserStorage';
 
 import { KNOWN_COMPANIES, type CompanyInfo } from './companyResearchData';
 
@@ -13,87 +13,21 @@ interface CompanyResearchPanelProps {
   onClose?: () => void;
 }
 
-const CACHE_KEY = 'jobsentinel_company_cache';
+const LEGACY_CACHE_KEY = 'jobsentinel_company_cache';
 
 interface CacheEntry {
   data: CompanyInfo;
   timestamp: number;
 }
 
-function loadCache(): Record<string, CacheEntry> {
-  try {
-    const stored = readStorageValue('local', CACHE_KEY);
-    if (!stored) return {};
+let companyMemoryCache: Record<string, CacheEntry> = {};
 
-    const parsed: unknown = JSON.parse(stored);
-    if (!isRecord(parsed)) return {};
-
-    return Object.fromEntries(
-      Object.entries(parsed).filter((entry): entry is [string, CacheEntry] =>
-        isCacheEntry(entry[1])
-      )
-    );
-  } catch {
-    return {};
-  }
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
-}
-
-function isStringArray(value: unknown): value is string[] {
-  return Array.isArray(value) && value.every((item) => typeof item === "string");
-}
-
-function isCompanyInfo(value: unknown): value is CompanyInfo {
-  if (!isRecord(value) || typeof value.name !== "string") {
-    return false;
-  }
-
-  const optionalStringKeys = [
-    "description",
-    "industry",
-    "founded",
-    "headquarters",
-    "employeeCount",
-    "website",
-    "linkedinUrl",
-    "fundingStage",
-    "totalFunding",
-    "remotePolicy",
-  ];
-  const hasInvalidString = optionalStringKeys.some((key) => {
-    const candidate = value[key];
-    return candidate !== undefined && typeof candidate !== "string";
-  });
-
-  return (
-    !hasInvalidString &&
-    (value.glassdoorRating === undefined ||
-      (typeof value.glassdoorRating === "number" && Number.isFinite(value.glassdoorRating))) &&
-    (value.toolsAndSystems === undefined || isStringArray(value.toolsAndSystems)) &&
-    (value.techStack === undefined || isStringArray(value.techStack))
-  );
-}
-
-function isCacheEntry(value: unknown): value is CacheEntry {
-  return (
-    isRecord(value) &&
-    isCompanyInfo(value.data) &&
-    typeof value.timestamp === "number" &&
-    Number.isFinite(value.timestamp)
-  );
-}
-
-function saveCache(cache: Record<string, CacheEntry>): void {
-  writeStorageValue('local', CACHE_KEY, JSON.stringify(cache));
+function getCompanyCacheKey(name: string): string {
+  return name.toLowerCase().trim();
 }
 
 function getCachedCompany(name: string): CompanyInfo | null {
-  const cache = loadCache();
-  const key = name.toLowerCase().trim();
-  const entry = cache[key];
+  const entry = companyMemoryCache[getCompanyCacheKey(name)];
 
   if (entry && Date.now() - entry.timestamp < COMPANY_CACHE_TTL) {
     return entry.data;
@@ -102,20 +36,29 @@ function getCachedCompany(name: string): CompanyInfo | null {
 }
 
 function setCachedCompany(name: string, data: CompanyInfo): void {
-  const cache = loadCache();
-  const key = name.toLowerCase().trim();
-  cache[key] = { data, timestamp: Date.now() };
+  const key = getCompanyCacheKey(name);
+  companyMemoryCache[key] = { data, timestamp: Date.now() };
 
   // Keep cache size reasonable (max 100 companies)
-  const keys = Object.keys(cache);
+  const keys = Object.keys(companyMemoryCache);
   if (keys.length > 100) {
-    const oldest = keys.sort((a, b) => (cache[a]?.timestamp ?? 0) - (cache[b]?.timestamp ?? 0))[0];
+    const oldest = keys.sort((a, b) => (companyMemoryCache[a]?.timestamp ?? 0) - (companyMemoryCache[b]?.timestamp ?? 0))[0];
     if (oldest) {
-      delete cache[oldest];
+      delete companyMemoryCache[oldest];
     }
   }
+}
 
-  saveCache(cache);
+export function clearCompanyResearchMemoryCacheForTests(): void {
+  companyMemoryCache = {};
+}
+
+export function seedCompanyResearchMemoryCacheForTests(
+  name: string,
+  data: CompanyInfo,
+  timestamp = Date.now(),
+): void {
+  companyMemoryCache[getCompanyCacheKey(name)] = { data, timestamp };
 }
 
 function getToolsAndSystems(info: CompanyInfo): string[] {
@@ -207,6 +150,10 @@ export const CompanyResearchPanel = memo(function CompanyResearchPanel({ company
   const [info, setInfo] = useState<CompanyInfo | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
+
+  useEffect(() => {
+    removeStorageValue('local', LEGACY_CACHE_KEY);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;

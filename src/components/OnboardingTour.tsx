@@ -1,4 +1,4 @@
-import { memo, useState, useEffect, useCallback, type ReactNode } from "react";
+import { memo, useState, useEffect, useCallback, useRef, type KeyboardEvent, type ReactNode } from "react";
 import { OnboardingContext, useOnboarding } from "../hooks/useOnboarding";
 import { readStorageValue, writeStorageValue } from "../utils/browserStorage";
 
@@ -96,6 +96,7 @@ const TourOverlay = memo(function TourOverlay({ steps }: TourOverlayProps) {
   const { currentStep, nextStep, prevStep, endTour } = useOnboarding();
   const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 });
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
+  const dialogRef = useRef<HTMLDivElement | null>(null);
 
   const step = steps[currentStep];
 
@@ -113,7 +114,28 @@ const TourOverlay = memo(function TourOverlay({ steps }: TourOverlayProps) {
       const padding = 12;
 
       const calculator = PLACEMENT_CALCULATORS[placement];
-      setTooltipPosition(calculator(rect, padding));
+      const basePosition = calculator(rect, padding);
+      const tooltipWidth = Math.min(288, window.innerWidth - 32);
+      const tooltipHeight = 240;
+
+      if (window.innerWidth < 640) {
+        setTooltipPosition({
+          top: Math.max(16, window.innerHeight - tooltipHeight - 16),
+          left: 16,
+        });
+        return;
+      }
+
+      setTooltipPosition({
+        top: Math.min(
+          Math.max(basePosition.top, 16),
+          Math.max(16, window.innerHeight - tooltipHeight - 16),
+        ),
+        left: Math.min(
+          Math.max(basePosition.left - tooltipWidth / 2, 16),
+          Math.max(16, window.innerWidth - tooltipWidth - 16),
+        ),
+      });
     };
 
     updatePosition();
@@ -126,7 +148,54 @@ const TourOverlay = memo(function TourOverlay({ steps }: TourOverlayProps) {
     };
   }, [step]);
 
+  useEffect(() => {
+    const previousActiveElement = document.activeElement instanceof HTMLElement
+      ? document.activeElement
+      : null;
+
+    dialogRef.current?.focus();
+
+    return () => {
+      previousActiveElement?.focus();
+    };
+  }, []);
+
+  const handleDialogKeyDown = useCallback((event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      endTour();
+      return;
+    }
+
+    if (event.key !== "Tab") return;
+
+    const focusableElements = Array.from(
+      event.currentTarget.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+      ),
+    ).filter((element) => !element.hasAttribute("disabled") && element.tabIndex >= 0);
+
+    if (focusableElements.length === 0) {
+      event.preventDefault();
+      return;
+    }
+
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    if (event.shiftKey && document.activeElement === firstElement) {
+      event.preventDefault();
+      lastElement?.focus();
+    } else if (!event.shiftKey && document.activeElement === lastElement) {
+      event.preventDefault();
+      firstElement?.focus();
+    }
+  }, [endTour]);
+
   if (!step) return null;
+
+  const titleId = `tour-step-title-${currentStep}`;
+  const contentId = `tour-step-content-${currentStep}`;
 
   return (
     <div className="fixed inset-0 z-50">
@@ -172,12 +241,19 @@ const TourOverlay = memo(function TourOverlay({ steps }: TourOverlayProps) {
 
       {/* Tooltip */}
       <div
-        className="absolute z-10 w-72 bg-white dark:bg-surface-800 rounded-xl shadow-2xl border border-surface-200 dark:border-surface-700 p-4 transform -translate-x-1/2"
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        aria-describedby={contentId}
+        tabIndex={-1}
+        onKeyDown={handleDialogKeyDown}
+        className="absolute z-10 w-[calc(100vw-2rem)] max-w-72 rounded-xl border border-surface-200 bg-white p-4 shadow-2xl outline-none focus-visible:ring-2 focus-visible:ring-sentinel-500 focus-visible:ring-offset-2 dark:border-surface-700 dark:bg-surface-800 dark:focus-visible:ring-offset-surface-900"
         style={{ top: tooltipPosition.top, left: tooltipPosition.left }}
       >
         {/* Arrow - simplified, just shows placement */}
         <div className="mb-2 flex items-center justify-between">
-          <h4 className="font-semibold text-surface-900 dark:text-white">
+          <h4 id={titleId} className="font-semibold text-surface-900 dark:text-white">
             {step.title}
           </h4>
           <button
@@ -191,7 +267,7 @@ const TourOverlay = memo(function TourOverlay({ steps }: TourOverlayProps) {
           </button>
         </div>
 
-        <p className="text-sm text-surface-600 dark:text-surface-300 mb-4">
+        <p id={contentId} className="text-sm text-surface-600 dark:text-surface-300 mb-4">
           {step.content}
         </p>
 

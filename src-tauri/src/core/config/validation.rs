@@ -2,7 +2,7 @@
 
 use super::types::Config;
 use super::validation_error::{ValidationError, ValidationErrors};
-use crate::core::url_security::validate_external_http_url;
+use crate::core::url_security::validate_external_https_url;
 
 /// Validate configuration values
 pub fn validate_config(config: &Config) -> Result<(), Box<dyn std::error::Error>> {
@@ -774,7 +774,7 @@ fn validate_urls(config: &Config, errors: &mut ValidationErrors) {
                 config.jobswithgpt_endpoint.len(),
                 MAX_URL_LENGTH,
             ));
-        } else if let Err(reason) = validate_external_http_url(&config.jobswithgpt_endpoint) {
+        } else if let Err(reason) = validate_external_https_url(&config.jobswithgpt_endpoint) {
             errors.add(ValidationError::invalid_url(
                 "jobswithgpt_endpoint",
                 &config.jobswithgpt_endpoint,
