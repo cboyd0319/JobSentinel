@@ -405,7 +405,7 @@ npm update       # Try updating first
 # If the advisory is low-risk and no fix is available yet,
 # add an override in package.json:
 "overrides": {
-  "vulnerable-package": "^patched-version"
+  "vulnerable-package": "1.2.3"
 }
 ```
 

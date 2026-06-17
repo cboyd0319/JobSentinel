@@ -4,9 +4,22 @@ import { spawnSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { collectCargoCompatibleUpdateViolations } from "./dependency/cargo-compatible-updates.mjs";
+import {
+  collectNpmCompatibleOutdatedViolations,
+  collectNpmCompatibleUpdateViolations,
+} from "./dependency/npm-compatible-updates.mjs";
+import { npmOverrideDependencyPins } from "./dependency/npm-overrides.mjs";
 import { collectWorkflowEnvironmentPinViolations } from "./dependency/workflow-environment-pins.mjs";
 const scriptPath = fileURLToPath(import.meta.url);
 const defaultRoot = resolve(dirname(scriptPath), "..");
+
+export {
+  collectCargoCompatibleUpdateViolations,
+  collectNpmCompatibleOutdatedViolations,
+  collectNpmCompatibleUpdateViolations,
+  npmOverrideDependencyPins,
+};
 
 const npmDependencySections = ["dependencies", "devDependencies", "optionalDependencies", "peerDependencies"];
 const cargoDependencySectionPattern =
@@ -306,6 +319,7 @@ export function collectNpmPinViolations(root = defaultRoot) {
 
   const packageJson = readJson(root, packageJsonPath);
   const directDependencies = directNpmDependencies(packageJson);
+  const overridePins = npmOverrideDependencyPins(packageJson);
   const packageManager = npmPackageManagerPin(packageJson);
 
   if (!packageManager.version) {
@@ -322,6 +336,14 @@ export function collectNpmPinViolations(root = defaultRoot) {
     }
   }
 
+  for (const override of overridePins) {
+    if (!override.name || !parseStableSemver(override.version)) {
+      violations.push(
+        `${override.label} must use an exact stable override version, found ${override.version}`,
+      );
+    }
+  }
+
   if (!existsSync(repoPath(root, lockPath))) {
     violations.push(`missing required npm lockfile: ${lockPath}`);
     return violations;
@@ -329,6 +351,7 @@ export function collectNpmPinViolations(root = defaultRoot) {
 
   const packageLock = readJson(root, lockPath);
   const lockRoot = packageLock.packages?.[""] ?? {};
+  const lockedVersionsByName = new Map();
 
   for (const [location, packageEntry] of Object.entries(packageLock.packages ?? {})) {
     if (!location || !packageEntry?.version) {
@@ -336,11 +359,18 @@ export function collectNpmPinViolations(root = defaultRoot) {
     }
 
     const version = String(packageEntry.version);
+    const name = npmLockPackageName(location);
+    if (name) {
+      if (!lockedVersionsByName.has(name)) {
+        lockedVersionsByName.set(name, new Set());
+      }
+      lockedVersionsByName.get(name).add(version);
+    }
+
     if (parseStableSemver(version)) {
       continue;
     }
 
-    const name = npmLockPackageName(location);
     const key = `${name}@${version}`;
     if (name && allowedNpmPrereleaseLockEntries.has(key)) {
       continue;
@@ -364,6 +394,18 @@ export function collectNpmPinViolations(root = defaultRoot) {
     if (rootDeclared !== dependency.version) {
       violations.push(
         `${lockPath} root ${dependency.section}.${dependency.name} must match ${dependency.version}, found ${rootDeclared ?? "missing"}`,
+      );
+    }
+  }
+
+  for (const override of overridePins) {
+    if (!override.name || !parseStableSemver(override.version)) {
+      continue;
+    }
+
+    if (!lockedVersionsByName.get(override.name)?.has(override.version)) {
+      violations.push(
+        `${lockPath} must contain override ${override.name} ${override.version} from ${override.label}`,
       );
     }
   }
@@ -697,6 +739,13 @@ export async function collectNpmLatestStableViolations(
 
   const packageJson = readJson(root, "package.json");
   const directDependencies = directNpmDependencies(packageJson);
+  const overrideDependencies = npmOverrideDependencyPins(packageJson)
+    .filter((dependency) => dependency.name && parseStableSemver(dependency.version))
+    .map((dependency) => ({
+      label: dependency.label,
+      name: dependency.name,
+      version: dependency.version,
+    }));
   const packageManager = npmPackageManagerPin(packageJson);
   const packageManagerTarget = packageManager.version
     ? [{ label: "package.json packageManager npm", name: "npm", version: packageManager.version }]
@@ -706,7 +755,7 @@ export async function collectNpmLatestStableViolations(
     name: dependency.name,
     version: dependency.version,
   }));
-  const checkTargets = packageManagerTarget.concat(dependencyTargets);
+  const checkTargets = packageManagerTarget.concat(dependencyTargets, overrideDependencies);
 
   const checks = await mapWithLimit(checkTargets, 8, async (dependency) => {
     try {
@@ -778,72 +827,6 @@ export async function collectCargoLatestStableViolations(
   return checks.filter(Boolean);
 }
 
-export function collectNpmCompatibleUpdateViolations(root = defaultRoot, { spawn = spawnSync } = {}) {
-  const result = spawn(
-    process.platform === "win32" ? "npm.cmd" : "npm",
-    ["update", "--package-lock-only", "--dry-run", "--ignore-scripts"],
-    {
-      cwd: root,
-      encoding: "utf8",
-      maxBuffer: 1024 * 1024 * 10,
-    },
-  );
-
-  if (result.error) {
-    return [`npm update dry-run failed: ${result.error.message}`];
-  }
-
-  if (result.status !== 0) {
-    return [
-      `npm update dry-run exited ${result.status}: ${String(result.stderr || result.stdout).trim()}`,
-    ];
-  }
-
-  const output = `${result.stdout}\n${result.stderr}`.trim();
-  if (!output || output.includes("up to date")) {
-    return [];
-  }
-
-  if (/\b(?:added|changed|removed|updated)\b/i.test(output)) {
-    const firstLine = output.split(/\r?\n/).find(Boolean) ?? output;
-    return [`package-lock.json has compatible updates pending: ${firstLine}`];
-  }
-
-  return [];
-}
-
-export function collectCargoCompatibleUpdateViolations(root = defaultRoot, { spawn = spawnSync } = {}) {
-  const result = spawn(
-    "cargo",
-    ["update", "--dry-run", "--verbose", "--manifest-path", repoPath(root, "src-tauri/Cargo.toml")],
-    {
-      cwd: repoPath(root, "src-tauri"),
-      encoding: "utf8",
-      maxBuffer: 1024 * 1024 * 10,
-    },
-  );
-
-  if (result.error) {
-    return [`cargo update dry-run failed: ${result.error.message}`];
-  }
-
-  if (result.status !== 0) {
-    return [
-      `cargo update dry-run exited ${result.status}: ${String(result.stderr || result.stdout).trim()}`,
-    ];
-  }
-
-  const updateLines = `${result.stdout}\n${result.stderr}`
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter((line) => {
-      return /^(Adding|Downgrading|Removing|Updating)\s/.test(line) &&
-        !line.includes("crates.io index");
-    });
-
-  return updateLines.map((line) => `Cargo.lock has a compatible update pending: ${line}`);
-}
-
 export function collectDependencyPinViolations(root = defaultRoot) {
   return [
     ...collectRuntimePinViolations(root),
@@ -859,6 +842,7 @@ export async function collectLatestStableViolations(root = defaultRoot) {
     ...(await collectNpmLatestStableViolations(root)),
     ...(await collectCargoLatestStableViolations(root)),
     ...collectNpmCompatibleUpdateViolations(root),
+    ...collectNpmCompatibleOutdatedViolations(root),
     ...collectCargoCompatibleUpdateViolations(root),
   ];
 }
@@ -871,7 +855,7 @@ export async function main(argv = process.argv.slice(2), root = defaultRoot) {
     console.log("Usage: node scripts/check-dependency-pins.mjs [--latest]");
     console.log("");
     console.log("Default: offline exact-pin and lockfile consistency checks.");
-    console.log("--latest: also query npm/crates.io latest stable direct versions and run npm/Cargo lockfile dry-runs.");
+    console.log("--latest: also query npm/crates.io latest stable direct/override versions and run npm/Cargo lockfile freshness checks.");
     return;
   }
 
@@ -889,9 +873,9 @@ export async function main(argv = process.argv.slice(2), root = defaultRoot) {
   }
 
   if (checkLatest) {
-    console.log("Dependency pin check passed: exact runtime/tool/package-manager pins, workflow OS runner and apt-package pins, exact direct pins, latest stable package manager/direct dependencies/tools, stable lockfile policy, and lockfile freshness verified.");
+    console.log("Dependency pin check passed: exact runtime/tool/package-manager pins, workflow OS runner and apt-package pins, exact direct and override pins, latest stable package manager/direct/override dependencies/tools, stable lockfile policy, and lockfile freshness verified.");
   } else {
-    console.log("Dependency pin check passed: exact runtime/tool/package-manager pins, workflow OS runner and apt-package pins, package and crate pins, plus stable lockfile policy verified.");
+    console.log("Dependency pin check passed: exact runtime/tool/package-manager pins, workflow OS runner and apt-package pins, package, crate, and override pins, plus stable lockfile policy verified.");
   }
 }
 

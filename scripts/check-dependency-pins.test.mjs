@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import test from "node:test";
@@ -8,6 +8,7 @@ import {
   collectCargoCompatibleUpdateViolations,
   collectCargoLatestStableViolations,
   collectCargoPinViolations,
+  collectNpmCompatibleOutdatedViolations,
   collectNpmCompatibleUpdateViolations,
   collectNpmLatestStableViolations,
   collectNpmPinViolations,
@@ -22,6 +23,10 @@ function writeFixtureFile(root, path, content = "") {
   const fullPath = join(root, path);
   mkdirSync(dirname(fullPath), { recursive: true });
   writeFileSync(fullPath, content, "utf8");
+}
+
+function readFixtureFile(root, path) {
+  return readFileSync(join(root, path), "utf8");
 }
 
 function withFixture(callback) {
@@ -251,6 +256,58 @@ test("npm pin check rejects unreviewed prerelease lockfile entries", () => {
 
     assert.equal(
       violations.some((violation) => violation.includes("node_modules/example")),
+      true,
+    );
+  });
+});
+
+test("npm pin check accepts exact stable overrides present in lockfile", () => {
+  withFixture((root) => {
+    writeMinimalNpmFixture(root);
+    const packageJson = JSON.parse(readFixtureFile(root, "package.json"));
+    packageJson.overrides = {
+      "@testing-library/jest-dom": {
+        "aria-query": "5.3.2",
+      },
+    };
+    writeFixtureFile(root, "package.json", JSON.stringify(packageJson));
+
+    const packageLock = JSON.parse(readFixtureFile(root, "package-lock.json"));
+    packageLock.packages["node_modules/@testing-library/jest-dom/node_modules/aria-query"] = {
+      version: "5.3.2",
+    };
+    writeFixtureFile(root, "package-lock.json", JSON.stringify(packageLock));
+
+    assert.deepEqual(collectNpmPinViolations(root), []);
+  });
+});
+
+test("npm pin check rejects override ranges and missing lockfile entries", () => {
+  withFixture((root) => {
+    writeMinimalNpmFixture(root);
+    const packageJson = JSON.parse(readFixtureFile(root, "package.json"));
+    packageJson.overrides = {
+      "@testing-library/jest-dom": {
+        "aria-query": "^5.3.2",
+      },
+      "@reduxjs/toolkit": {
+        reselect: "5.2.0",
+      },
+    };
+    writeFixtureFile(root, "package.json", JSON.stringify(packageJson));
+
+    const violations = collectNpmPinViolations(root);
+
+    assert.equal(
+      violations.some((violation) =>
+        violation.includes("package.json overrides.@testing-library/jest-dom.aria-query must use an exact stable override version"),
+      ),
+      true,
+    );
+    assert.equal(
+      violations.some((violation) =>
+        violation.includes("package-lock.json must contain override reselect 5.2.0"),
+      ),
       true,
     );
   });
@@ -558,6 +615,38 @@ test("npm latest-stable check compares package manager pin to registry version",
   });
 });
 
+test("npm latest-stable check compares override pins to registry versions", async () => {
+  await withFixtureAsync(async (root) => {
+    writeMinimalNpmFixture(root);
+    const packageJson = JSON.parse(readFixtureFile(root, "package.json"));
+    packageJson.overrides = {
+      "@testing-library/jest-dom": {
+        "aria-query": "5.3.2",
+      },
+    };
+    writeFixtureFile(root, "package.json", JSON.stringify(packageJson));
+
+    const violations = await collectNpmLatestStableViolations(root, {
+      fetchImpl: async (url) => ({
+        ok: true,
+        json: async () => ({
+          versions: String(url).endsWith("npm")
+            ? { "11.17.0": {} }
+            : String(url).endsWith("react")
+              ? { "1.2.3": {} }
+              : String(url).endsWith("aria-query")
+                ? { "5.3.2": {}, "5.3.3": {} }
+                : { "8.0.16": {} },
+        }),
+      }),
+    });
+
+    assert.deepEqual(violations, [
+      "package.json overrides.@testing-library/jest-dom.aria-query is pinned to 5.3.2; latest stable npm version is 5.3.3",
+    ]);
+  });
+});
+
 test("Cargo latest-stable check compares exact pins to crates.io versions", async () => {
   await withFixtureAsync(async (root) => {
     writeMinimalCargoFixture(root, "=1.0.0");
@@ -619,5 +708,32 @@ test("npm compatible update check reports package-lock dry-run changes", () => {
 
   assert.deepEqual(violations, [
     "package-lock.json has compatible updates pending: changed 3 packages in 1s",
+  ]);
+});
+
+test("npm compatible outdated check reports current-vs-wanted transitive drift", () => {
+  const violations = collectNpmCompatibleOutdatedViolations("/tmp/jobsentinel-fixture", {
+    spawn: () => ({
+      status: 1,
+      stdout: JSON.stringify({
+        "aria-query": {
+          current: "5.3.0",
+          wanted: "5.3.2",
+          latest: "5.3.2",
+          dependent: "@testing-library/jest-dom",
+        },
+        "major-only": {
+          current: "1.0.0",
+          wanted: "1.0.0",
+          latest: "2.0.0",
+          dependent: "example",
+        },
+      }),
+      stderr: "",
+    }),
+  });
+
+  assert.deepEqual(violations, [
+    "package-lock.json has compatible npm transitive drift for @testing-library/jest-dom: aria-query is 5.3.0; wanted 5.3.2",
   ]);
 });
