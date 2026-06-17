@@ -148,6 +148,22 @@ let automationBrowserRunning = false;
 let nextAutomationAttemptId = 1;
 
 const MOCK_STATE_KEY = "jobsentinel.mockState.v1";
+const MOCK_INVOKE_CONTROLS_KEY = "jobsentinel.mockInvokeControls.v1";
+const MAX_MOCK_DELAY_MS = 30_000;
+
+interface MockInvokeControls {
+  delayMs?: unknown;
+  delays?: Record<string, unknown>;
+  failures?: Record<string, unknown>;
+  responses?: Record<string, unknown>;
+}
+
+interface MockInvokeControl {
+  delayMs: number;
+  failureMessage: string | null;
+  hasResponse: boolean;
+  responseValue: unknown;
+}
 
 function canUseStorage(): boolean {
   return (
@@ -266,6 +282,89 @@ function loadMockState(): void {
     }
   } catch {
     window.localStorage.removeItem(MOCK_STATE_KEY);
+  }
+}
+
+function getCommandControlEntry(
+  controls: Record<string, unknown> | undefined,
+  cmd: string,
+): { found: boolean; value: unknown } {
+  if (!controls) return { found: false, value: undefined };
+  if (Object.prototype.hasOwnProperty.call(controls, cmd)) {
+    return { found: true, value: controls[cmd] };
+  }
+  if (Object.prototype.hasOwnProperty.call(controls, "*")) {
+    return { found: true, value: controls["*"] };
+  }
+  return { found: false, value: undefined };
+}
+
+function parseDelayMs(value: unknown): number | null {
+  if (typeof value !== "number" || !Number.isFinite(value)) return null;
+  return Math.min(MAX_MOCK_DELAY_MS, Math.max(0, value));
+}
+
+function parseFailureMessage(value: unknown): string | null {
+  if (value === true) return "Forced mock command failure";
+  if (typeof value === "string" && value.trim()) return value.trim();
+  if (
+    value &&
+    typeof value === "object" &&
+    "message" in value &&
+    typeof value.message === "string" &&
+    value.message.trim()
+  ) {
+    return value.message.trim();
+  }
+  return null;
+}
+
+function readMockInvokeControl(cmd: string): MockInvokeControl {
+  const defaultDelayMs = 100 + Math.random() * 200;
+  if (!canUseStorage()) {
+    return {
+      delayMs: defaultDelayMs,
+      failureMessage: null,
+      hasResponse: false,
+      responseValue: undefined,
+    };
+  }
+
+  const rawControls = window.localStorage.getItem(MOCK_INVOKE_CONTROLS_KEY);
+  if (!rawControls) {
+    return {
+      delayMs: defaultDelayMs,
+      failureMessage: null,
+      hasResponse: false,
+      responseValue: undefined,
+    };
+  }
+
+  try {
+    const controls = JSON.parse(rawControls) as MockInvokeControls;
+    const commandDelay = parseDelayMs(
+      getCommandControlEntry(controls.delays, cmd).value,
+    );
+    const globalDelay = parseDelayMs(controls.delayMs);
+    const failureMessage = parseFailureMessage(
+      getCommandControlEntry(controls.failures, cmd).value,
+    );
+    const response = getCommandControlEntry(controls.responses, cmd);
+
+    return {
+      delayMs: commandDelay ?? globalDelay ?? defaultDelayMs,
+      failureMessage,
+      hasResponse: response.found,
+      responseValue: response.value,
+    };
+  } catch {
+    window.localStorage.removeItem(MOCK_INVOKE_CONTROLS_KEY);
+    return {
+      delayMs: defaultDelayMs,
+      failureMessage: null,
+      hasResponse: false,
+      responseValue: undefined,
+    };
   }
 }
 
@@ -447,8 +546,17 @@ function upsertMockScreeningAnswer(args?: Record<string, unknown>): void {
  * Mock implementation of Tauri invoke
  */
 export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>): Promise<T> {
-  // Simulate network latency
-  await delay(100 + Math.random() * 200);
+  const control = readMockInvokeControl(cmd);
+
+  await delay(control.delayMs);
+
+  if (control.failureMessage) {
+    throw new Error(control.failureMessage);
+  }
+
+  if (control.hasResponse) {
+    return control.responseValue as T;
+  }
 
   switch (cmd) {
     // Job commands
@@ -785,5 +893,8 @@ export function resetMockData() {
   marketAlerts = getDefaultMarketAlerts();
   applicationProfile = getDefaultMockApplicationProfile();
   screeningAnswers = getDefaultMockScreeningAnswers();
+  if (canUseStorage()) {
+    window.localStorage.removeItem(MOCK_INVOKE_CONTROLS_KEY);
+  }
   saveMockState();
 }

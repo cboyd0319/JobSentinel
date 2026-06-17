@@ -4,9 +4,8 @@ Last updated: 2026-06-17.
 
 ## Purpose
 
-Keep one active execution plan for current product and quality work. Detailed
-history belongs in archives and git. This file and `status.md` should stay
-small enough to remain useful as restart surfaces.
+Keep one active plan for current product and quality work. Detailed history
+belongs in archives and git. This file and `status.md` should stay compact.
 
 ## Problem
 
@@ -49,7 +48,7 @@ In scope:
   surfaces, with accepted fixes applied and verified before the final push.
 - Harness-controlled redesign lock: keep required design files, change
   contracts, and screenshot or Computer Use evidence for broad UI changes.
-- Cleanup only when a fresh failing gate or blocker affects Rule 0, user ease,
+- Cleanup only when a failing gate or blocker affects Rule 0, user ease,
   verification, or docs accuracy.
 - macOS readiness docs that stay honest about the no-Apple-account ceiling
   while development blockers remain.
@@ -132,6 +131,7 @@ Out of scope:
 - Browser Import desktop/mobile manual verification passed on 2026-06-17 for
   setup, private-link rejection, LinkedIn preview/save, duplicates, and overflow.
 - Settings/Apps/Resumes/Salary/Trends/Assist/Builder/Match checks passed.
+- Forced empty/loading/error checks passed for startup, setup, and routes.
 
 ## Next Work
 

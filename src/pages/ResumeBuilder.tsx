@@ -53,7 +53,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const [resumeId, setResumeId] = useState<number | null>(null);
   const [resumeData, setResumeData] = useState<ResumeData | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [templates, setTemplates] = useState<Template[]>([]);
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateId>("Modern");
@@ -61,6 +61,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
   const [exporting, setExporting] = useState(false);
   const [atsAnalysis, setAtsAnalysis] = useState<ATSAnalysis | null>(null);
   const [importingSkills, setImportingSkills] = useState(false);
+  const [initializationError, setInitializationError] = useState(false);
   const initializedRef = useRef(false);
   const hasJobContext = hasStoredResumeJobContext();
 
@@ -101,6 +102,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
   const initializeResume = useCallback(async () => {
     try {
       setLoading(true);
+      setInitializationError(false);
       const id = await safeInvoke<number>("create_resume_draft", {}, {
         logContext: "Create resume draft"
       });
@@ -120,6 +122,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
           "Resume builder did not start. Copy a safe support report if this keeps happening, then close and reopen JobSentinel.",
       });
       toast.error(safeError.title, safeError.message);
+      setInitializationError(true);
     } finally {
       setLoading(false);
     }
@@ -542,6 +545,30 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
           <LoadingSpinner size="lg" />
           <p className="mt-4 text-surface-600 dark:text-surface-400">Initializing resume builder...</p>
         </div>
+      </div>
+    );
+  }
+
+  if (initializationError && !resumeId) {
+    return (
+      <div className="min-h-screen bg-surface-50 dark:bg-surface-900 flex items-center justify-center p-6">
+        <Card className="w-full max-w-md text-center dark:bg-surface-800">
+          <h1 className="font-display text-display-md text-surface-900 dark:text-white mb-2">
+            Resume Builder did not start
+          </h1>
+          <p className="text-sm text-surface-600 dark:text-surface-400 mb-6">
+            Your resume was not changed. Try again, or copy a safe support report
+            if this keeps happening.
+          </p>
+          <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+            <Button onClick={initializeResume} loading={loading}>
+              Try Again
+            </Button>
+            <Button variant="secondary" onClick={onBack}>
+              Back to Dashboard
+            </Button>
+          </div>
+        </Card>
       </div>
     );
   }

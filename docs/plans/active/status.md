@@ -80,7 +80,8 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   settings, port validation, copy, private-link rejection, LinkedIn preview/save,
   duplicate handling, no console errors, and no overflow.
 - Desktop/mobile normal-state checks passed for Settings, Apps, Resumes, Salary,
-  Trends, Assist, Builder, and Resume Match; route loading/error states remain pending.
+  Trends, Assist, Builder, and Resume Match. Forced empty/loading/error checks
+  passed across startup, setup, and all primary routes.
 - v2.9.0 remains blocked until all routes/actions/modals/toasts/forms,
   keyboard, empty/loading/error, and narrow-width surfaces have fresh evidence.
 

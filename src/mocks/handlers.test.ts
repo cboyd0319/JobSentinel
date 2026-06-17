@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { mockInvoke, resetMockData } from "./handlers";
 import { atsResume } from "./handlers/resumeAnalysisTestData";
 import type { AtsAnalysisResult } from "./handlers/resumeAnalysisTestData";
@@ -65,9 +65,104 @@ type AnswerSuggestion = {
   modificationRate: number;
 };
 
+const MOCK_INVOKE_CONTROLS_KEY = "jobsentinel.mockInvokeControls.v1";
+
 describe("mock Tauri handlers", () => {
+  let localStore: Record<string, string>;
+
   beforeEach(() => {
+    vi.useRealTimers();
+    localStore = {};
+    vi.mocked(window.localStorage.getItem).mockImplementation(
+      (key) => localStore[key] ?? null,
+    );
+    vi.mocked(window.localStorage.setItem).mockImplementation((key, value) => {
+      localStore[key] = value;
+    });
+    vi.mocked(window.localStorage.removeItem).mockImplementation((key) => {
+      delete localStore[key];
+    });
+    vi.mocked(window.localStorage.clear).mockImplementation(() => {
+      localStore = {};
+    });
     resetMockData();
+  });
+
+  it("supports forced command failures for browser state verification", async () => {
+    window.localStorage.setItem(
+      MOCK_INVOKE_CONTROLS_KEY,
+      JSON.stringify({
+        delayMs: 0,
+        failures: {
+          get_jobs: "Forced test failure",
+        },
+      }),
+    );
+
+    await expect(mockInvoke<unknown>("get_jobs")).rejects.toThrow(
+      "Forced test failure",
+    );
+  });
+
+  it("supports command-specific delays for loading-state verification", async () => {
+    vi.useFakeTimers();
+    window.localStorage.setItem(
+      MOCK_INVOKE_CONTROLS_KEY,
+      JSON.stringify({
+        delayMs: 0,
+        delays: {
+          get_jobs: 500,
+        },
+      }),
+    );
+
+    let settled = false;
+    const result = mockInvoke<MockJobSummary[]>("get_jobs").finally(() => {
+      settled = true;
+    });
+
+    await vi.advanceTimersByTimeAsync(499);
+    expect(settled).toBe(false);
+
+    await vi.advanceTimersByTimeAsync(1);
+    await expect(result).resolves.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ hash: expect.any(String) }),
+      ]),
+    );
+    expect(settled).toBe(true);
+  });
+
+  it("supports response overrides for empty and first-run verification", async () => {
+    window.localStorage.setItem(
+      MOCK_INVOKE_CONTROLS_KEY,
+      JSON.stringify({
+        delayMs: 0,
+        responses: {
+          get_jobs: [],
+          is_first_run: true,
+        },
+      }),
+    );
+
+    await expect(mockInvoke<MockJobSummary[]>("get_jobs")).resolves.toEqual([]);
+    await expect(mockInvoke<boolean>("is_first_run")).resolves.toBe(true);
+  });
+
+  it("clears forced mock controls when mock data resets", async () => {
+    window.localStorage.setItem(
+      MOCK_INVOKE_CONTROLS_KEY,
+      JSON.stringify({
+        delayMs: 0,
+        failures: {
+          get_jobs: "Forced test failure",
+        },
+      }),
+    );
+
+    resetMockData();
+
+    expect(window.localStorage.getItem(MOCK_INVOKE_CONTROLS_KEY)).toBeNull();
   });
 
   it("does not cap degree-or-equivalent experience requirements in mock resume review", async () => {

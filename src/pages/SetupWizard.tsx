@@ -454,12 +454,15 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
       <div className="relative w-full max-w-xl motion-safe:animate-fade-in">
         {/* Progress indicator */}
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-3">
+          <div className="mb-3 flex w-full items-center">
             {STEPS.map((s, i) => (
-              <div key={s.id} className="flex items-center">
+              <div
+                key={s.id}
+                className={`flex items-center ${i < STEPS.length - 1 ? "flex-1" : "shrink-0"}`}
+              >
                 <div
                   className={`
-                    w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm
+                    h-9 w-9 shrink-0 rounded-full flex items-center justify-center font-semibold text-sm sm:h-10 sm:w-10
                     transition-all duration-300
                     ${step > s.id
                       ? "bg-sentinel-500 text-white"
@@ -478,10 +481,9 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                 {i < STEPS.length - 1 && (
                   <div
                     className={`
-                      w-full h-0.5 mx-2 transition-colors duration-300
+                      mx-1 h-0.5 flex-1 transition-colors duration-300 sm:mx-2
                       ${step > s.id ? "bg-sentinel-500" : "bg-surface-700"}
                     `}
-                    style={{ width: "60px" }}
                   />
                 )}
               </div>

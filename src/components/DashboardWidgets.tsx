@@ -162,17 +162,17 @@ export const DashboardWidgets = memo(function DashboardWidgets({ className = '' 
       {/* Toggle Button */}
       <button
         onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center justify-between px-4 py-3 bg-surface-50 dark:bg-surface-800 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-700 transition-colors mb-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sentinel-500 focus-visible:ring-offset-2"
+        className="mb-4 flex w-full flex-col gap-3 rounded-lg bg-surface-50 px-4 py-3 transition-colors hover:bg-surface-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sentinel-500 focus-visible:ring-offset-2 dark:bg-surface-800 dark:hover:bg-surface-700 sm:flex-row sm:items-center sm:justify-between"
         aria-expanded={expanded}
         aria-controls="analytics-dashboard-content"
       >
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 items-center gap-2">
           <ChartIcon className="w-5 h-5 text-sentinel-500" />
-          <span className="font-medium text-surface-800 dark:text-surface-200">Application Summary</span>
+          <span className="min-w-0 font-medium text-surface-800 dark:text-surface-200">Application Summary</span>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex w-full min-w-0 items-center justify-between gap-3 sm:w-auto sm:justify-end">
           {appStats && (
-            <div className="flex items-center gap-4 text-sm text-surface-500 dark:text-surface-400">
+            <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-sm text-surface-500 dark:text-surface-400 sm:justify-end">
               <span>{appStats.total} applications</span>
               <span>{Math.round(appStats.response_rate)}% employer replies</span>
             </div>
