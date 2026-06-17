@@ -45,6 +45,7 @@ const allowedRootEntries = new Set([
   "public",
   "rust-toolchain.toml",
   "scripts",
+  "skills",
   "src",
   "src-tauri",
   "tailwind.config.js",

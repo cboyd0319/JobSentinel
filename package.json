@@ -18,6 +18,7 @@
     "lint:security": "node scripts/check-security-sensors.mjs",
     "lint:bloat": "node scripts/check-repo-bloat.mjs",
     "lint:external-ai": "node scripts/check-external-ai-gateway.mjs",
+    "lint:skills": "node scripts/check-agent-skills.mjs",
     "lint:tauri-invokes": "node scripts/check-tauri-invokes.mjs",
     "lint:tests": "node scripts/check-test-quality.mjs",
     "harness:check": "node scripts/check-harness.mjs",

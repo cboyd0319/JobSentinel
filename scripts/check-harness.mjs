@@ -9,6 +9,7 @@ import {
   checkSecuritySensors,
   formatSecuritySensorSummary,
 } from "./check-security-sensors.mjs";
+import { checkAgentSkills } from "./check-agent-skills.mjs";
 import { checkRepoBloat } from "./check-repo-bloat.mjs";
 import {
   evaluateMacosReadiness,
@@ -770,6 +771,10 @@ for (const violation of checkExternalAiGateway(root)) {
 }
 
 for (const violation of checkSecuritySensors(root)) {
+  errors.push(violation);
+}
+
+for (const violation of checkAgentSkills(root)) {
   errors.push(violation);
 }
 

@@ -53,8 +53,8 @@ The v2.9.0 goal adds two durable release-readiness requirements:
   `v2.7.7` as of 2026-06-06; the latest full cross-platform public release
   remains `v2.7.5` until Windows and Linux `2.7.7` assets are rebuilt and
   verified.
-- Fresh harness session evidence before this compaction reported 2 active docs,
-  2 indexed workstreams, and a 100/100 harness score.
+- Fresh harness evidence reports 2 active docs, 2 indexed workstreams, and a
+  100/100 harness score.
 - macOS Computer Use retest is complete for the critical release path from an
   unlocked 2026-06-06 session against the fresh local `2.7.7` universal app:
   first-run setup, dashboard load, seeded application tracker card detail,
@@ -76,6 +76,8 @@ The v2.9.0 goal adds two durable release-readiness requirements:
   `JOBSENTINEL_LIVE_KEYRING_TESTS=1`, so default credential tests no longer
   prompt macOS Keychain while still proving LinkedIn credential storage is
   disabled before keyring access.
+- Downloadable Agent Skills now cover search planning, posting-risk review,
+  resume tailoring, form review, tracking, interview prep, and offer/pay review.
 - v2.9.0 cannot be called done until every UI route, click, action, modal,
   toast, form, settings panel, import flow, keyboard path, empty/loading/error
   state, and narrow-width surface has fresh manual verification evidence.
@@ -84,32 +86,30 @@ The v2.9.0 goal adds two durable release-readiness requirements:
 
 ## Next Best Work
 
-1. Add and validate the downloadable `skills/` directory for job hunting and
-   resume assistance, keeping private resume/profile references out of the repo.
-2. Harden Browser Import as the compliant LinkedIn path: user opens a job page,
+1. Harden Browser Import as the compliant LinkedIn path: user opens a job page,
    clicks import, reviews locally, and tracks the application without JobSentinel
    logging in to LinkedIn or monitoring LinkedIn in the background.
-3. Continue Quiet Shield QA against design contracts; next proof should rerun
+2. Continue Quiet Shield QA against design contracts; next proof should rerun
    full test/build, packaged debug rebuild, and Computer Use for toasts,
    settings, keyboard flow, route empty states, and narrow widths.
-4. Build a whole-UI manual verification map and exercise every route, click,
+3. Build a whole-UI manual verification map and exercise every route, click,
    action, modal, toast, form, settings panel, import flow, keyboard path,
    empty/loading/error state, and narrow-width surface before calling v2.9.0
    done.
-5. Continue resume assistance only where it improves truthful local requirement
+4. Continue resume assistance only where it improves truthful local requirement
    review, hard-constraint handling, readable evidence, or next-action
    guidance.
-6. Continue guided intake only where resume/profile suggestions stay optional,
+5. Continue guided intake only where resume/profile suggestions stay optional,
    reviewed, local, and understandable for non-technical job seekers.
-7. Continue job-card protection for stale, risky, duplicate, unclear, or
+6. Continue job-card protection for stale, risky, duplicate, unclear, or
    pay-problem postings without treating local signals as employer
    predictions.
-8. Continue macOS readiness docs and checks without claiming Gatekeeper-ready
+7. Continue macOS readiness docs and checks without claiming Gatekeeper-ready
    distribution before Apple credentials exist.
-9. Continue encrypted local storage and saved-secret UX: encrypted SQLite,
+8. Continue encrypted local storage and saved-secret UX: encrypted SQLite,
    per-row AEAD vault rows, OS-protected key, passphrase mode, macOS native
    unlock, and no passive secure-storage prompts.
-10. Keep harness work focused on bounded startup context, runnable verification,
+9. Keep harness work focused on bounded startup context, runnable verification,
    privacy/security gates, and docs accuracy. Do not add new ceremony unless it
    prevents a repeated failure.
 

@@ -70,7 +70,7 @@ Out of scope:
 | Area | State | Next useful slice |
 | ---- | ----- | ----------------- |
 | v2.9.0 dependency readiness | Complete locally | Frontend and Rust direct dependencies are exact-pinned to current stable versions; continue only if a fresh audit, freshness, or platform check fails. |
-| Downloadable Agent Skills | Active | Create spec-compliant `skills/` packages for job hunting, resume review, application tracking, and interview prep; validate package structure. |
+| Downloadable Agent Skills | Complete locally | Seven spec-compliant `skills/` packages exist and are guarded by `npm run lint:skills` plus the harness. |
 | Browser Import and LinkedIn-compatible flow | Active | Keep LinkedIn user-opened and user-clicked; improve single-page import, local review, and application tracking without session cookies or background monitoring. |
 | Development and QA completion | Active | Fix confirmed UI, scraper, privacy, docs, harness, and Computer Use validation blockers before any new release work. |
 | macOS readiness | Paused for release creation | Keep docs honest when touched, but do not create or upload new release assets until development and QA blockers are closed. |
@@ -131,34 +131,34 @@ Out of scope:
   `JOBSENTINEL_LIVE_KEYRING_TESTS=1`; default credential tests remain
   non-interactive and still prove LinkedIn credential storage is blocked before
   keyring access.
+- Downloadable Agent Skills now cover search planning, posting-risk review,
+  resume tailoring, form review, tracking, interview prep, and offer/pay review.
 
 ## Next Work
 
-1. Create and validate the downloadable `skills/` directory using the Agent
-   Skills specification and job-search/resume workflows.
-2. Harden Browser Import for user-clicked LinkedIn job saves and application
+1. Harden Browser Import for user-clicked LinkedIn job saves and application
    tracking without browser-session capture, background page access, or
    scheduled LinkedIn fetches.
-3. Continue macOS readiness only after development and QA blockers close; do
+2. Continue macOS readiness only after development and QA blockers close; do
    not claim Gatekeeper-ready distribution before signing, notarization,
    stapling, and install proof exist.
-4. Finish current verified product and QA slices in resume assistance, job-card
+3. Finish current verified product and QA slices in resume assistance, job-card
    protection, guided intake, and pay protection.
-5. Implement encrypted local storage: encrypted SQLite, per-row AEAD vault,
+4. Implement encrypted local storage: encrypted SQLite, per-row AEAD vault,
    OS-protected default key, passphrase mode, macOS native unlock, and no
    passive Settings probes.
-6. Finish Quiet Shield QA using `DESIGN.md`, `docs/design/README.md`, and
+5. Finish Quiet Shield QA using `DESIGN.md`, `docs/design/README.md`, and
    `docs/design/design-spec.md`. Confirm major route screenshots, Computer Use
    clicks, keyboard flow, narrow widths, full tests, build, packaged debug
    rebuild, and empty/error/loading states.
-7. Complete and record whole-UI manual verification for every click, action,
+6. Complete and record whole-UI manual verification for every click, action,
    route, modal, toast, form, settings surface, import flow, keyboard path,
    empty/loading/error state, and narrow-width state before calling v2.9.0 done.
-8. Do not reopen repo-bloat cleanup unless a fresh bloat gate failure or
+7. Do not reopen repo-bloat cleanup unless a fresh bloat gate failure or
    product/privacy/security/docs verification blocker appears.
-9. Keep README, docs hubs, release docs, wiki inventory, and active status in
+8. Keep README, docs hubs, release docs, wiki inventory, and active status in
    sync when behavior, readiness, or public guidance changes.
-10. Commit each major verified change locally; push only at goal completion or
+9. Commit each major verified change locally; push only at goal completion or
    on newer explicit instruction.
 
 ## Sensors
