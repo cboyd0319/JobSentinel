@@ -22,8 +22,8 @@ In scope:
 
 - Completing current development and QA blockers before any new release
   creation, upload, or announcement work.
-- Keeping npm/Cargo direct pins and GitHub Actions exact latest stable, with
-  resolved transitives lockfile-pinned and upstream exceptions recorded.
+- Keeping package-manager, npm/Cargo direct, and Action pins exact latest
+  stable, with transitives lockfile-pinned and upstream exceptions recorded.
 - Adding downloadable Agent Skills under `skills/` for job hunting and resume
   work, with specification-compliant `SKILL.md` packages.
 - Hardening Browser Import as the LinkedIn-compatible path: user-opened page,
@@ -69,7 +69,7 @@ Out of scope:
 
 | Area | State | Next useful slice |
 | ---- | ----- | ----------------- |
-| v2.9.0 dependency readiness | Complete | Direct pins and Actions exact latest stable; resolved transitives lockfile-pinned and latest-compatible; revisit when freshness/audit fails |
+| v2.9.0 dependency readiness | Complete | Package-manager, direct dependency, and Action pins are exact latest stable; transitives stay lockfile-pinned and latest-compatible |
 | Downloadable Agent Skills | Complete locally | Eight spec-compliant skills exist and are guarded by `npm run lint:skills` plus the harness. |
 | Browser Import and LinkedIn-compatible flow | Complete locally | Manual desktop/mobile verification passed; revisit only if whole-UI QA finds a blocker. Keep LinkedIn user-opened and user-clicked without session cookies or background monitoring. |
 | Development and QA completion | Active | Fix confirmed UI, scraper, privacy, docs, harness, and Computer Use validation blockers before any new release work. |
@@ -118,7 +118,7 @@ Out of scope:
   viewport-fixed toasts, and Settings opening without passive Keychain prompts.
 - The v2.9.0 pass confirmed Browser Import is the LinkedIn path, not session
   storage or automatic monitoring. Private profile inputs stay local.
-- Direct npm/Cargo deps and Actions are exact-pinned latest stable; resolved
+- Package-manager, direct npm/Cargo, and Action pins are exact latest stable;
   transitives are lockfile-pinned. `lint:deps`, `lint:actions`, and
   `release:check-deps` enforce registry, lockfile, and action freshness;
   remaining behind-latest transitives are upstream-bound.
