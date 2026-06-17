@@ -80,7 +80,7 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   Browser Import manual verification passed on 2026-06-17 for desktop/mobile:
   settings, port validation, copy, private-link rejection, LinkedIn preview/save,
   duplicate handling, no console errors, and no overflow.
-- Settings, Applications, Resumes, Salary, and Hiring Trends normal-state desktop/mobile verification passed;
+- Desktop/mobile normal-state checks passed for Settings, Apps, Resumes, Salary, Trends, and Assist;
   route loading/error states and remaining UI routes remain pending.
 - v2.9.0 remains blocked until all routes/actions/modals/toasts/forms,
   keyboard, empty/loading/error, and narrow-width surfaces have fresh evidence.

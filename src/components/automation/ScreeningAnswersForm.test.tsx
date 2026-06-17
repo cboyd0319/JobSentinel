@@ -340,7 +340,7 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        const editButtons = screen.getAllByLabelText("Edit answer");
+        const editButtons = screen.getAllByLabelText(/Edit answer/);
         expect(editButtons).toHaveLength(3);
       });
     });
@@ -745,10 +745,10 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getAllByLabelText("Edit answer")[0]).toBeInTheDocument();
+        expect(screen.getAllByLabelText(/Edit answer/)[0]).toBeInTheDocument();
       });
 
-      await user.click(screen.getAllByLabelText("Edit answer")[0]);
+      await user.click(screen.getAllByLabelText(/Edit answer/)[0]);
 
       await waitFor(() => {
         expect(screen.getByText("Edit Screening Answer")).toBeInTheDocument();
@@ -760,10 +760,10 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getAllByLabelText("Edit answer")[0]).toBeInTheDocument();
+        expect(screen.getAllByLabelText(/Edit answer/)[0]).toBeInTheDocument();
       });
 
-      await user.click(screen.getAllByLabelText("Edit answer")[0]);
+      await user.click(screen.getAllByLabelText(/Edit answer/)[0]);
 
       await waitFor(() => {
         const patternInput = screen.getByLabelText(
@@ -796,10 +796,10 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getByLabelText("Edit answer")).toBeInTheDocument();
+        expect(screen.getByLabelText(/Edit answer/)).toBeInTheDocument();
       });
 
-      await user.click(screen.getByLabelText("Edit answer"));
+      await user.click(screen.getByLabelText(/Edit answer/));
 
       await waitFor(() => {
         expect(screen.getByLabelText(/question wording to look for/i)).toHaveValue(
@@ -828,10 +828,10 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getByLabelText("Edit answer")).toBeInTheDocument();
+        expect(screen.getByLabelText(/Edit answer/)).toBeInTheDocument();
       });
 
-      await user.click(screen.getByLabelText("Edit answer"));
+      await user.click(screen.getByLabelText(/Edit answer/));
       await waitFor(() => {
         expect(screen.getByLabelText(/question wording to look for/i)).toHaveValue(
           "work authorization",
@@ -865,10 +865,10 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getAllByLabelText("Edit answer")[1]).toBeInTheDocument();
+        expect(screen.getAllByLabelText(/Edit answer/)[1]).toBeInTheDocument();
       });
 
-      await user.click(screen.getAllByLabelText("Edit answer")[1]);
+      await user.click(screen.getAllByLabelText(/Edit answer/)[1]);
 
       await waitFor(() => {
         const answerTypeSelect = screen.getByLabelText(
@@ -883,10 +883,10 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getAllByLabelText("Edit answer")[0]).toBeInTheDocument();
+        expect(screen.getAllByLabelText(/Edit answer/)[0]).toBeInTheDocument();
       });
 
-      await user.click(screen.getAllByLabelText("Edit answer")[0]);
+      await user.click(screen.getAllByLabelText(/Edit answer/)[0]);
 
       await waitFor(() => {
         expect(
@@ -904,10 +904,10 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getAllByLabelText("Edit answer")[0]).toBeInTheDocument();
+        expect(screen.getAllByLabelText(/Edit answer/)[0]).toBeInTheDocument();
       });
 
-      await user.click(screen.getAllByLabelText("Edit answer")[0]);
+      await user.click(screen.getAllByLabelText(/Edit answer/)[0]);
 
       await waitFor(() => {
         expect(
@@ -927,10 +927,10 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getAllByLabelText("Edit answer")[1]).toBeInTheDocument();
+        expect(screen.getAllByLabelText(/Edit answer/)[1]).toBeInTheDocument();
       });
 
-      await user.click(screen.getAllByLabelText("Edit answer")[1]);
+      await user.click(screen.getAllByLabelText(/Edit answer/)[1]);
 
       await waitFor(() => {
         const notesInput = screen.getByLabelText(/notes/i) as HTMLInputElement;
@@ -943,10 +943,10 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getAllByLabelText("Edit answer")[2]).toBeInTheDocument();
+        expect(screen.getAllByLabelText(/Edit answer/)[2]).toBeInTheDocument();
       });
 
-      await user.click(screen.getAllByLabelText("Edit answer")[2]);
+      await user.click(screen.getAllByLabelText(/Edit answer/)[2]);
 
       await waitFor(() => {
         const answerInput = screen.getByLabelText(/your answer/i);

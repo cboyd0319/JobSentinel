@@ -69,7 +69,7 @@ describe("ScreeningAnswersForm form contracts", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        const editButtons = screen.getAllByLabelText("Edit answer");
+        const editButtons = screen.getAllByLabelText(/Edit answer/);
         expect(editButtons.length).toBeGreaterThan(0);
       });
     });

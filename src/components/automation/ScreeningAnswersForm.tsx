@@ -466,7 +466,7 @@ export const ScreeningAnswersForm = memo(function ScreeningAnswersForm({ onSaved
                   <button
                     onClick={() => handleEdit(a)}
                     className="p-2 text-surface-400 hover:text-sentinel-500 transition-colors"
-                    aria-label="Edit answer"
+                    aria-label={`Edit answer: ${getQuestionMatchLabel(a.questionPattern)}`}
                   >
                     <EditIcon className="w-4 h-4" />
                   </button>
