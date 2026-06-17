@@ -247,6 +247,28 @@ describe("ProfileForm resume privacy", () => {
     expect(mockInvoke).toHaveBeenCalledTimes(1);
   });
 
+  it("keeps validation summary visible until submitted errors are corrected", async () => {
+    const user = userEvent.setup();
+    mockInvoke.mockResolvedValueOnce(mockProfile());
+
+    renderProfileForm();
+
+    await screen.findByDisplayValue("Jordan Lee");
+    await user.clear(screen.getByLabelText(/Full Name/));
+    await user.clear(screen.getByLabelText(/Email/));
+    await user.type(screen.getByLabelText(/Email/), "not-an-email");
+    await user.click(screen.getByRole("button", { name: "Save Profile" }));
+
+    expect(await screen.findByText("Check highlighted fields")).toBeInTheDocument();
+
+    await user.type(screen.getByLabelText(/Full Name/), "Jordan Parker");
+    expect(screen.getByText("Check highlighted fields")).toBeInTheDocument();
+
+    await user.clear(screen.getByLabelText(/Email/));
+    await user.type(screen.getByLabelText(/Email/), "jordan@example.com");
+    expect(screen.queryByText("Check highlighted fields")).not.toBeInTheDocument();
+  });
+
   it("does not persist an unchanged valid profile", async () => {
     const user = userEvent.setup();
     mockInvoke.mockResolvedValueOnce(mockProfile());

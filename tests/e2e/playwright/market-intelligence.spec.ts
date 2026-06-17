@@ -20,7 +20,7 @@ test.describe("Hiring Trends", () => {
     await expect(page.getByRole("region", { name: "Skills Appearing More Often" })).toBeVisible();
     await expect(page.getByRole("region", { name: "Company Hiring Activity" })).toBeVisible();
     await expect(marketPage.locationRegion).toBeVisible();
-    await expect(page.getByRole("listitem", { name: /Remote: 312 jobs/ })).toBeVisible();
+    await expect(marketPage.locationRegion.getByRole("button", { name: /Remote: 312 jobs/ })).toBeVisible();
   });
 
   test("opens location details from the heatmap", async ({ page }) => {
@@ -57,8 +57,8 @@ test.describe("Hiring Trends", () => {
     await marketPage.switchToTab("Locations");
 
     await expect(marketPage.locationRegion).toBeVisible();
-    await expect(page.getByRole("listitem", { name: /Chicago, IL: 245 jobs/ })).toBeVisible();
-    await expect(page.getByRole("listitem", { name: /Phoenix, AZ: 198 jobs/ })).toBeVisible();
+    await expect(marketPage.locationRegion.getByRole("button", { name: /Chicago, IL: 245 jobs/ })).toBeVisible();
+    await expect(marketPage.locationRegion.getByRole("button", { name: /Phoenix, AZ: 198 jobs/ })).toBeVisible();
     await expect(page.getByRole("img", { name: "Saved location comparison legend" })).toBeVisible();
   });
 

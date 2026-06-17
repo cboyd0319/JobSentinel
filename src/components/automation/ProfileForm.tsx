@@ -141,7 +141,6 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
 
   // Real-time validation for touched fields
   const handleChange = useCallback((field: string, value: string, setter: (v: string) => void) => {
-    setShowValidationSummary(false);
     setter(value);
     if (touched.has(field)) {
       const error = validateField(field, value);
@@ -303,6 +302,7 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
     // Check if any errors exist
     const hasErrors = Object.values(newErrors).some((error) => error !== undefined);
     if (hasErrors) {
+      setTouched(new Set(Object.keys(newErrors)));
       setShowValidationSummary(true);
       return;
     }
@@ -388,6 +388,9 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
     onSaved,
   ]);
 
+  const shouldShowValidationSummary = showValidationSummary
+    && Object.values(errors).some((error) => error !== undefined);
+
   // Keyboard shortcuts: Cmd+S to save, Cmd+Enter to submit
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent): void => {
@@ -431,7 +434,7 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
       </div>
 
       <div className="space-y-6" role="form" aria-label="Application profile form">
-        {showValidationSummary && (
+        {shouldShowValidationSummary && (
           <div
             role="alert"
             className="rounded-lg border border-danger/40 bg-danger/10 p-4 text-sm text-danger"
