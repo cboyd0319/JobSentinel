@@ -158,6 +158,22 @@ describe("ResumeOptimizer", () => {
     mockInvokeResponses({});
   });
 
+  it("exposes named back and bullet draft controls", async () => {
+    const user = userEvent.setup();
+    const onBack = vi.fn();
+
+    render(<ResumeOptimizer onBack={onBack} />);
+
+    await user.click(screen.getByRole("button", { name: /back to dashboard/i }));
+    expect(onBack).toHaveBeenCalledOnce();
+
+    await user.click(screen.getByRole("button", { name: /draft alternative bullet/i }));
+
+    expect(
+      screen.getByRole("textbox", { name: /current bullet point/i }),
+    ).toBeInTheDocument();
+  });
+
   it("starts with choose or add before copied resume details import", async () => {
     const user = userEvent.setup();
     const onNavigate = vi.fn();

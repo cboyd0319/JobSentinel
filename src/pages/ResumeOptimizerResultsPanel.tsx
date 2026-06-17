@@ -207,7 +207,7 @@ export function ResumeOptimizerResultsPanel({
 
       <Card>
         <CardHeader title="Resume Fit" />
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="text-center">
             <div className={`text-2xl font-bold ${getScoreColor(analysisResult.overall_score)}`}>
               {getScoreLabel(analysisResult.overall_score)}
@@ -652,16 +652,18 @@ function getRequirementStateVariant(
 
 function ScoreItem({ label, score }: { label: string; score: number }) {
   return (
-    <div className="flex items-center justify-between">
-      <span className="text-sm text-surface-600 dark:text-surface-400">{label}</span>
-      <div className="flex items-center gap-2">
-        <div className="w-24 h-2 bg-surface-200 dark:bg-surface-700 rounded-full overflow-hidden">
+    <div className="flex flex-wrap items-center justify-between gap-2">
+      <span className="min-w-0 text-sm text-surface-600 dark:text-surface-400">
+        {label}
+      </span>
+      <div className="flex min-w-0 flex-1 items-center justify-end gap-2 sm:flex-none">
+        <div className="h-2 min-w-16 flex-1 overflow-hidden rounded-full bg-surface-200 dark:bg-surface-700 sm:w-24 sm:flex-none">
           <div
             className={`h-full ${getScoreBg(score)} transition-all duration-300`}
             style={{ width: `${getScoreProgressPercent(score)}%` }}
           />
         </div>
-        <span className="text-sm font-semibold text-surface-700 dark:text-surface-300 w-28 text-right">
+        <span className="min-w-24 text-right text-sm font-semibold text-surface-700 dark:text-surface-300 sm:w-28">
           {getScoreLabel(score)}
         </span>
       </div>

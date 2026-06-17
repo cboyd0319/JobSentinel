@@ -314,8 +314,9 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
               onClick={onBack}
               className="p-2 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-700 transition-colors"
               title="Back to Dashboard"
+              aria-label="Back to Dashboard"
             >
-              <svg className="w-5 h-5 text-surface-600 dark:text-surface-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-surface-600 dark:text-surface-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
             </button>
@@ -517,10 +518,11 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
             Enter a resume bullet point and we'll draft clearer, job-aligned language for you to review.
           </p>
           <div>
-            <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
+            <label htmlFor="resume-bullet-input" className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
               Current Bullet Point
             </label>
             <textarea
+              id="resume-bullet-input"
               value={bulletInput}
               onChange={(e) => setBulletInput(e.target.value)}
               placeholder="e.g., Helped reduce missed appointments by 20%"
