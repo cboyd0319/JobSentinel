@@ -15,7 +15,7 @@ models, and best practices.
 
 | Document                                           | Description                     | Topics Covered                                                     |
 | -------------------------------------------------- | ------------------------------- | ------------------------------------------------------------------ |
-| [**KEYRING.md**](./KEYRING.md)                     | Local secret-vault and Keychain integration | SQLCipher database, encrypted vault rows, OS-protected keys, macOS Keychain, Touch ID target, and passphrase wrapping |
+| [**KEYRING.md**](./KEYRING.md)                     | Local secret-vault and Keychain integration | SQLCipher database, encrypted vault rows, OS-protected keys, macOS Keychain user presence, and passphrase wrapping |
 | [**XSS_PREVENTION.md**](./XSS_PREVENTION.md)       | Cross-site scripting protection | DOMPurify, HTML sanitization, Resume Builder security              |
 | [**URL_VALIDATION.md**](./URL_VALIDATION.md)       | Secure URL parsing              | URL parsing vs string matching, bypass prevention, SSRF protection |
 | [**COMMAND_EXECUTION.md**](./COMMAND_EXECUTION.md) | External command security       | Path canonicalization, command injection prevention, OCR security  |

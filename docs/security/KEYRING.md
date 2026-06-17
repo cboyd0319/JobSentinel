@@ -22,15 +22,14 @@ as AEAD envelopes; the OS credential store protects one vault key item and is
 used for legacy fallback only when a secret is explicitly retrieved. Status
 checks read SQLite vault metadata only and do not unlock the OS credential
 store. Passphrase settings can wrap, unlock, and disable wrapping for the
-credential vault key. Remaining storage work is native macOS
-unlock/user-presence support.
+credential vault key.
 
 ## Supported Credential Stores
 
 | Platform | Current runtime path | Remaining target |
 | -------- | -------------------- | ---------------- |
 | Windows | SQLCipher database, encrypted SQLite vault rows, database/vault keys protected by Windows Credential Manager through `keyring`, and optional passphrase wrapping for the vault key | Equivalent user-presence policy when available |
-| macOS | SQLCipher database, encrypted SQLite vault rows, database/vault keys protected by macOS Keychain through `keyring`, and optional passphrase wrapping for the vault key | Native `Security.framework` plus `LocalAuthentication` unlock |
+| macOS | SQLCipher database, encrypted SQLite vault rows, database key protected by macOS Keychain through `keyring`, vault key protected by native `Security.framework` Keychain access control with `LocalAuthentication` context and user presence, and optional passphrase wrapping for the vault key | Signed-app packaging and notarization verification when Apple credentials are available |
 | Linux | SQLCipher database, encrypted SQLite vault rows, database/vault keys protected by Secret Service through `keyring`, and optional passphrase wrapping for the vault key | Native user-presence support when available |
 
 The default mode optimizes for user experience and local device security: the
@@ -79,19 +78,24 @@ Current default key mode:
 
 1. Generate a random vault master key locally.
 2. Store the raw vault key as one OS-protected credential item named
-   `jobsentinel_vault_key` through the `keyring` crate.
+   `jobsentinel_vault_key`. On macOS, the vault key uses native
+   `Security.framework` Keychain access control with
+   `AccessibleWhenUnlockedThisDeviceOnly`, `kSecAccessControlUserPresence`,
+   `kSecUseAuthenticationContext`, and an `LAContext`. On Windows and Linux,
+   the vault key uses the `keyring` crate.
 3. Generate a separate random SQLCipher database key and store it as
    `jobsentinel_database_key` through the same OS credential service.
 4. Cache the unlocked vault key in memory for the app session after successful
    retrieval.
 
-Target default key mode:
+macOS default key policy:
 
-1. Wrap or protect the vault key with the strongest practical OS credential
-   policy.
-2. On macOS, require user presence with Keychain access control and pass a
-   reused `LAContext` through Keychain queries.
-3. Cache the unlocked vault key in memory for the app session after successful
+1. Protect the vault key with Keychain access control.
+2. Require user presence with Touch ID or password fallback when the device and
+   policy allow it.
+3. Pass an `LAContext` into vault-key Keychain queries.
+4. Keep the item device-local and avoid iCloud Keychain synchronization.
+5. Cache the unlocked vault key in memory for the app session after successful
    user presence.
 
 Advanced passphrase mode:
@@ -107,12 +111,11 @@ Advanced passphrase mode:
    succeeds in production mode.
 7. Require the user to unlock after app start before secret use.
 
-macOS implementation target:
+macOS implementation:
 
-- Use `security-framework` / `security-framework-sys` for native Keychain
+- Use `security-framework` for native Keychain
   access instead of the generic `keyring` wrapper for the vault key.
-- Use `objc2-local-authentication` and `block2` to create and reuse an
-  `LAContext`.
+- Use `objc2-local-authentication` to create an `LAContext`.
 - Pass the context into Keychain calls with `kSecUseAuthenticationContext`.
 - Use user-presence access control by default so Touch ID works when available
   and password fallback remains possible.
@@ -501,9 +504,16 @@ keyring = "=4.1.1"
 libsqlite3-sys = { version = "=0.37.0", default-features = false, features = ["bundled-sqlcipher-vendored-openssl"] }
 ```
 
-Any future native macOS vault-key dependency must be exact-pinned to the latest
-stable compatible crate version when implemented. Do not add unpinned target
-dependency examples to docs or manifests.
+Current native macOS vault-key path:
+
+```toml
+objc2-local-authentication = { version = "=0.3.2", default-features = false, features = ["std", "LAContext"] }
+security-framework = "=3.7.0"
+```
+
+Credential-storage dependencies must remain exact-pinned to the latest stable
+compatible crate version. Do not add unpinned target dependency examples to docs
+or manifests.
 
 ## Related Documentation
 

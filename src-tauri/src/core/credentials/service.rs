@@ -3,7 +3,6 @@
 //! Status checks use SQLite metadata only and do not touch the OS credential
 //! store. Actual secret reads and writes lazily unlock or create the vault key.
 
-use keyring::{Entry, Error as KeyringError};
 use sqlx::sqlite::SqlitePool;
 use std::{fmt, sync::Arc};
 use tokio::sync::OnceCell;
@@ -13,11 +12,9 @@ use super::{
     passphrase::{self, PassphraseError},
     reject_disabled_credential_storage, secure_storage_error, validate_credential_value,
     vault::MASTER_KEY_LEN,
-    CredentialKey, CredentialPresence, CredentialStore, SecretVault, SecretVaultError,
-    SERVICE_NAME,
+    vault_key_store, CredentialKey, CredentialPresence, CredentialStore, SecretVault,
+    SecretVaultError,
 };
-
-const VAULT_KEY_NAME: &str = "jobsentinel_vault_key";
 
 /// App-level credential vault lock mode.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -232,7 +229,7 @@ impl CredentialService {
             .map_err(sanitize_passphrase_error)?;
 
         if self.fixed_master_key.is_none() {
-            if let Err(error) = delete_vault_key_from_keyring().await {
+            if let Err(error) = vault_key_store::delete_vault_key().await {
                 let _ = passphrase::delete_config(pool).await;
                 return Err(error);
             }
@@ -275,7 +272,7 @@ impl CredentialService {
             .map_err(sanitize_passphrase_error)?;
 
         if self.fixed_master_key.is_none() {
-            store_vault_key_in_keyring(key.as_ref()).await?;
+            vault_key_store::store_vault_key(key.as_ref()).await?;
         }
 
         passphrase::delete_config(pool)
@@ -312,7 +309,7 @@ impl CredentialService {
                     bytes.copy_from_slice(fixed_key.as_ref());
                     bytes
                 } else {
-                    load_vault_key_from_keyring(create_if_missing).await?
+                    vault_key_store::load_vault_key(create_if_missing).await?
                 };
 
                 Ok(Arc::new(Zeroizing::new(key)))
@@ -380,73 +377,6 @@ impl CredentialService {
             .await
             .map_err(|_| secure_storage_error())?
     }
-}
-
-async fn store_vault_key_in_keyring(key: &[u8]) -> Result<(), String> {
-    if key.len() != MASTER_KEY_LEN {
-        return Err(secure_storage_error());
-    }
-
-    let mut key_bytes = [0_u8; MASTER_KEY_LEN];
-    key_bytes.copy_from_slice(key);
-    let key = Zeroizing::new(key_bytes);
-    tokio::task::spawn_blocking(move || {
-        let entry = Entry::new(SERVICE_NAME, VAULT_KEY_NAME).map_err(|_| secure_storage_error())?;
-        let encoded_key = Zeroizing::new(hex::encode(key.as_ref()));
-        entry
-            .set_password(encoded_key.as_str())
-            .map_err(|_| secure_storage_error())
-    })
-    .await
-    .map_err(|_| secure_storage_error())?
-}
-
-async fn delete_vault_key_from_keyring() -> Result<(), String> {
-    tokio::task::spawn_blocking(move || {
-        let entry = Entry::new(SERVICE_NAME, VAULT_KEY_NAME).map_err(|_| secure_storage_error())?;
-        match entry.delete_credential() {
-            Ok(()) | Err(KeyringError::NoEntry) => Ok(()),
-            Err(_) => Err(secure_storage_error()),
-        }
-    })
-    .await
-    .map_err(|_| secure_storage_error())?
-}
-
-async fn load_vault_key_from_keyring(
-    create_if_missing: bool,
-) -> Result<[u8; MASTER_KEY_LEN], String> {
-    tokio::task::spawn_blocking(move || {
-        let entry = Entry::new(SERVICE_NAME, VAULT_KEY_NAME).map_err(|_| secure_storage_error())?;
-
-        match entry.get_password() {
-            Ok(encoded_key) => decode_vault_key(&encoded_key),
-            Err(KeyringError::NoEntry) if create_if_missing => {
-                let key = SecretVault::generate_master_key();
-                let encoded_key = Zeroizing::new(hex::encode(key));
-                entry
-                    .set_password(encoded_key.as_str())
-                    .map_err(|_| secure_storage_error())?;
-                Ok(key)
-            }
-            Err(KeyringError::NoEntry) => Err(secure_storage_error()),
-            Err(_) => Err(secure_storage_error()),
-        }
-    })
-    .await
-    .map_err(|_| secure_storage_error())?
-}
-
-fn decode_vault_key(encoded_key: &str) -> Result<[u8; MASTER_KEY_LEN], String> {
-    let decoded =
-        Zeroizing::new(hex::decode(encoded_key.trim()).map_err(|_| secure_storage_error())?);
-    if decoded.len() != MASTER_KEY_LEN {
-        return Err(secure_storage_error());
-    }
-
-    let mut key = [0_u8; MASTER_KEY_LEN];
-    key.copy_from_slice(decoded.as_slice());
-    Ok(key)
 }
 
 fn sanitize_vault_error(error: SecretVaultError) -> String {
@@ -558,9 +488,36 @@ mod tests {
 
     #[test]
     fn decode_vault_key_rejects_malformed_values_without_echo() {
-        let err = decode_vault_key("not-a-key").unwrap_err();
+        let err = vault_key_store::decode_vault_key("not-a-key").unwrap_err();
 
         assert_eq!(err, secure_storage_error());
         assert!(!err.contains("not-a-key"));
+    }
+
+    #[test]
+    fn production_vault_key_backend_uses_expected_platform_policy() {
+        let policy = vault_key_store::runtime_policy();
+
+        #[cfg(target_os = "macos")]
+        {
+            assert_eq!(
+                policy.backend,
+                vault_key_store::VaultKeyBackend::MacosUserPresenceKeychain
+            );
+            assert!(policy.user_presence_required);
+            assert!(policy.device_local);
+            assert!(!policy.biometry_current_set);
+        }
+
+        #[cfg(not(target_os = "macos"))]
+        {
+            assert_eq!(
+                policy.backend,
+                vault_key_store::VaultKeyBackend::GenericKeyring
+            );
+            assert!(!policy.user_presence_required);
+            assert!(!policy.device_local);
+            assert!(!policy.biometry_current_set);
+        }
     }
 }

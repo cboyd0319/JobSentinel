@@ -12,6 +12,7 @@
 mod passphrase;
 mod service;
 pub mod vault;
+mod vault_key_store;
 
 pub use service::{CredentialService, CredentialUnlockMode, CredentialUnlockState};
 pub use vault::{SecretVault, SecretVaultError};
