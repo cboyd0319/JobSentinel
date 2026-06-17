@@ -78,6 +78,9 @@ describe("BookmarkletGenerator", () => {
     expect(screen.queryByText(/import helper/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/^LinkedIn$/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/^Indeed$/i)).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /trusted public job pages/i }),
+    ).toBeInTheDocument();
     expect(screen.queryByText(/Cmd\/Ctrl\+D/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/bookmark address field/i)).not.toBeInTheDocument();
     expect(screen.getByText(/recommended: paste the job link into jobsentinel/i)).toBeInTheDocument();

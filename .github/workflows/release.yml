@@ -404,11 +404,17 @@ jobs:
       - name: Verify Windows MSI signature and checksum
         if: matrix.platform == 'windows-2025'
         shell: pwsh
+        env:
+          EXPECTED_VERSION: ${{ needs.create-release.outputs.version }}
         run: |
           $ErrorActionPreference = "Stop"
-          $msi = Get-ChildItem "src-tauri/target/${{ matrix.target }}/release/bundle/msi" -Filter "*.msi" | Select-Object -First 1
-          if (-not $msi) {
-            throw "Expected one Windows MSI before release upload."
+          $msis = @(Get-ChildItem "src-tauri/target/${{ matrix.target }}/release/bundle/msi" -Filter "*.msi")
+          if ($msis.Count -ne 1) {
+            throw "Expected exactly one Windows MSI before release upload; found $($msis.Count)."
+          }
+          $msi = $msis[0]
+          if ($msi.Name -notlike "*$env:EXPECTED_VERSION*") {
+            throw "Windows MSI filename does not include release version $env:EXPECTED_VERSION."
           }
           $signature = Get-AuthenticodeSignature $msi.FullName
           if ($signature.Status -ne "Valid") {
@@ -437,6 +443,44 @@ jobs:
             src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg.sha256
 
       # Linux uploads
+      - name: Verify Linux packages and checksums
+        if: matrix.platform == 'ubuntu-24.04'
+        shell: bash
+        env:
+          EXPECTED_VERSION: ${{ needs.create-release.outputs.version }}
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+
+          appimages=(src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/*.AppImage)
+          debs=(src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/deb/*.deb)
+
+          if [ "${#appimages[@]}" -ne 1 ]; then
+            printf 'Expected exactly one Linux AppImage before release upload; found %s\n' "${#appimages[@]}"
+            exit 1
+          fi
+          if [ "${#debs[@]}" -ne 1 ]; then
+            printf 'Expected exactly one Linux deb before release upload; found %s\n' "${#debs[@]}"
+            exit 1
+          fi
+
+          for asset in "${appimages[0]}" "${debs[0]}"; do
+            if [ ! -s "$asset" ]; then
+              printf 'Linux asset is empty: %s\n' "$asset"
+              exit 1
+            fi
+            if [[ "$(basename "$asset")" != *"$EXPECTED_VERSION"* ]]; then
+              printf 'Linux asset filename does not include release version %s: %s\n' "$EXPECTED_VERSION" "$asset"
+              exit 1
+            fi
+            sha256sum "$asset" > "$asset.sha256"
+            cat "$asset.sha256"
+          done
+
+          file "${appimages[0]}"
+          dpkg-deb --info "${debs[0]}" >/dev/null
+          dpkg-deb --contents "${debs[0]}" >/dev/null
+
       - name: Upload Linux AppImage
         if: matrix.platform == 'ubuntu-24.04'
         uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
@@ -444,4 +488,6 @@ jobs:
           draft: true
           files: |
             src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/*.AppImage
+            src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/*.AppImage.sha256
             src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/deb/*.deb
+            src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/deb/*.deb.sha256

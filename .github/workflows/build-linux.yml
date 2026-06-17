@@ -55,6 +55,9 @@ jobs:
       - name: Validate requested version
         run: npm run release:check-version -- "${{ github.event.inputs.version }}"
 
+      - name: Check latest stable dependency pins
+        run: npm run release:check-deps
+
       - name: Run harness checks
         run: npm run harness:check
 
@@ -82,16 +85,57 @@ jobs:
       - name: Build Tauri app
         run: npx --no-install tauri build --target x86_64-unknown-linux-gnu
 
+      - name: Verify Linux packages and checksums
+        shell: bash
+        env:
+          EXPECTED_VERSION: ${{ github.event.inputs.version }}
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+
+          appimages=(src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/*.AppImage)
+          debs=(src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/deb/*.deb)
+
+          if [ "${#appimages[@]}" -ne 1 ]; then
+            printf 'Expected exactly one Linux AppImage before upload; found %s\n' "${#appimages[@]}"
+            exit 1
+          fi
+          if [ "${#debs[@]}" -ne 1 ]; then
+            printf 'Expected exactly one Linux deb before upload; found %s\n' "${#debs[@]}"
+            exit 1
+          fi
+
+          for asset in "${appimages[0]}" "${debs[0]}"; do
+            if [ ! -s "$asset" ]; then
+              printf 'Linux asset is empty: %s\n' "$asset"
+              exit 1
+            fi
+            if [[ "$(basename "$asset")" != *"$EXPECTED_VERSION"* ]]; then
+              printf 'Linux asset filename does not include release version %s: %s\n' "$EXPECTED_VERSION" "$asset"
+              exit 1
+            fi
+            sha256sum "$asset" > "$asset.sha256"
+            cat "$asset.sha256"
+          done
+
+          file "${appimages[0]}"
+          dpkg-deb --info "${debs[0]}" >/dev/null
+          dpkg-deb --contents "${debs[0]}" >/dev/null
+
       - name: Upload AppImage
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: JobSentinel-Linux-AppImage
-          path: src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/*.AppImage
-          if-no-files-found: warn
+          path: |
+            src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/*.AppImage
+            src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/*.AppImage.sha256
+          if-no-files-found: error
 
       - name: Upload Debian package
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: JobSentinel-Linux-deb
-          path: src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/deb/*.deb
-          if-no-files-found: warn
+          path: |
+            src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/deb/*.deb
+            src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/deb/*.deb.sha256
+          if-no-files-found: error

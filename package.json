@@ -1,6 +1,6 @@
 {
   "name": "jobsentinel",
-  "version": "2.7.7",
+  "version": "2.9.0",
   "description": "Privacy-preserving local-first job-search assistant for desktop",
   "type": "module",
   "packageManager": "npm@11.17.0",

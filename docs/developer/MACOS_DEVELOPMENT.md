@@ -250,8 +250,8 @@ an Apple Developer Account, Developer ID signing, notarization, and stapling.
 
 The latest published no-account macOS package is `v2.7.7` as of 2026-06-06.
 Its universal DMG and matching checksum are public assets. The latest full
-cross-platform public release remains `v2.7.5` until Windows and Linux `2.7.7`
-assets are rebuilt and verified. Gatekeeper rejection remains expected for
+cross-platform public release remains `v2.7.5` until Windows and Linux `2.9.0`
+assets are built and verified. Gatekeeper rejection remains expected for
 no-account packages.
 
 **Note:** The `.dmg` installer is for distribution. You can also run the binary directly:

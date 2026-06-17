@@ -282,7 +282,13 @@ hosts or VMs from the same tag, then attach those assets to the same release.
 Do not publish a release as complete until all advertised platform assets are
 present and verified. Windows MSI assets must pass
 `Get-AuthenticodeSignature` with status `Valid` and have a matching
-`.msi.sha256` checksum before upload.
+`.msi.sha256` checksum before upload. Linux assets must include exactly one
+non-empty `.AppImage` and one non-empty `.deb`, filenames must include the
+release version, the `.deb` must pass `dpkg-deb --info` and
+`dpkg-deb --contents`, and both Linux assets must have matching `.sha256`
+checksums before upload. The post-publish public artifact workflow currently
+verifies the downloadable macOS DMG; Windows and Linux verification happens
+before upload in the release and manual build workflows.
 
 ### 3. Publish the draft release
 

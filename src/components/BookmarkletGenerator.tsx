@@ -137,7 +137,7 @@ export function BookmarkletGenerator() {
           </p>
         </div>
         <HelpIcon
-          text="The browser import button saves the job page you are viewing into JobSentinel. It works best on official career pages and public job pages that show the full posting, and all processing stays on your computer."
+          text="The browser import button saves the job page you are viewing into JobSentinel. Use it only on official career pages and trusted public job pages that show the full posting. All processing stays on your computer."
           position="left"
         />
       </div>

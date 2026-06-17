@@ -434,6 +434,39 @@ test("checkRepoBloat rejects unsafe storage JSON parsing", () => {
   });
 });
 
+test("checkRepoBloat accepts memory-only company research cache cleanup", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/components/CompanyResearchPanel.tsx",
+      [
+        "import { removeStorageValue } from '../utils/browserStorage';",
+        "const LEGACY_CACHE_KEY = 'jobsentinel_company_cache';",
+        "let companyMemoryCache = {};",
+        "function clearLegacyCache() {",
+        "  removeStorageValue('local', LEGACY_CACHE_KEY);",
+        "  companyMemoryCache = {};",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src/components/CompanyResearchPanel.tsx"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      !violations.includes(
+        "validate storage JSON before rendering: src/components/CompanyResearchPanel.tsx",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat accepts current frontend webhook redaction patterns", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

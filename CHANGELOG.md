@@ -5,6 +5,50 @@ All notable changes to JobSentinel will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.9.0] - 2026-06-17
+
+Local release candidate for the v2.9.0 job-search readiness push. Public
+release assets are not published until final design verification and release
+packaging gates close.
+
+### Added
+
+- **Downloadable Agent Skills** - Added spec-compliant job-search, resume,
+  application, outreach, interview, tracking, posting-risk, and offer/pay
+  skills under `skills/`.
+- **Browser Import workflow** - Kept LinkedIn-compatible job capture on
+  user-opened pages and user-clicked import, with no session-cookie storage,
+  token replay, background monitoring, result-list crawling, or account
+  automation.
+
+### Changed
+
+- **Release metadata** - Bumped npm, Cargo, and Tauri package metadata to
+  `2.9.0`.
+- **Dependency posture** - Release dependency checks now require exact latest
+  stable direct pins, current package-manager and tool baselines, lockfile
+  freshness, and pinned GitHub Actions.
+- **Company research privacy** - Company research suggestions now use
+  memory-only caching and clear the legacy localStorage cache key.
+- **Onboarding accessibility** - The tour overlay now behaves as a modal dialog
+  with focus handling, Escape close, and viewport-clamped placement.
+
+### Fixed
+
+- **Auto-refresh privacy gate** - Background scraping no longer runs on
+  startup or loop iterations unless auto-refresh is enabled.
+- **Alert race protection** - Immediate-alert delivery now uses an atomic
+  database claim so overlapping scrape cycles cannot duplicate the same alert.
+- **JobsWithGPT transport** - Optional JobsWithGPT outbound endpoints now
+  require HTTPS at config validation and runtime fetch validation.
+- **Import deduplication** - Manual URL import and Browser Import now use the
+  shared company, title, location, and URL hash contract used for job
+  deduplication.
+- **Application Assist validation** - Profile validation guidance stays visible
+  after failed save and clears after the submitted errors are corrected.
+- **Hiring Trends QA** - Cross-browser Hiring Trends checks now target stable
+  button semantics for location heatmap interactions.
+
 ## [2.7.7] - 2026-06-06
 
 Source version in `main`. Public no-account macOS assets are released and

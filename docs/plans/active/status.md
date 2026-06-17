@@ -12,12 +12,10 @@ engineer-only defaults, and unverified claims. Current priority is v2.9.0
 readiness for an urgent single-user job search while keeping the broader
 product safe for non-technical job seekers.
 
-Repo-bloat cleanup is closed as of 2026-06-05; reopen only for a fresh gate
-failure blocking product, privacy, security, docs accuracy, or verification.
+Repo-bloat cleanup is closed; reopen only for a fresh blocking gate failure.
 
 Release creation is paused until development and QA blockers are closed. Do not
-create, upload, or announce assets while product, scraper, privacy, docs,
-harness, or Computer Use validation work remains open.
+create, upload, or announce assets until final design, packaging, and final verification close.
 
 Rule 0 still controls the work: user data stays local unless the user explicitly
 configures an external channel, external AI stays optional and disabled by
@@ -51,10 +49,10 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 ## Current Posture
 
 - `origin/main` is the source of truth for the pushed `2.7.7`
-  release-recovery baseline.
-- Package metadata is `2.7.7`; public macOS is `v2.7.7` as of 2026-06-06, and
-  full cross-platform public release remains `v2.7.5` until Windows/Linux
-  assets are rebuilt and verified.
+  release-recovery baseline; local metadata is now staged for `2.9.0`.
+- Public macOS is `v2.7.7` as of 2026-06-06, and the latest full
+  cross-platform public release remains `v2.7.5` until `2.9.0`
+  Windows/macOS/Linux assets are built and verified.
 - Fresh harness evidence reports 2 active docs, 2 indexed workstreams, and a
   100/100 score; macOS Computer Use retest covered first-run setup, dashboard,
   application tracking, Settings Sources & Alerts, and safe support report.
@@ -87,16 +85,18 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   paths now have fresh Playwright evidence.
 - Full local release gates passed on 2026-06-17: deps, docs, security,
   frontend, Rust, and cross-browser Playwright (`266/266`).
-- v2.9.0 remains blocked until the remaining primary product/security gates,
-  final non-`content/` expert/agent pass, redesign pass, and release checks close.
+- Final non-`content/` expert/agent pass is applied locally: memory-only
+  company research, accessible onboarding, auto-refresh gating, atomic alert
+  claims, HTTPS JobsWithGPT endpoints, shared import hashes, and metadata.
+- v2.9.0 remains blocked until the redesign pass, packaging verification, and
+  final release checks close.
 
 ## Next Best Work
 
-1. After primary gates close, run the final Rust expert plus multi-agent
-   improvement analysis across non-`content/` surfaces, apply accepted fixes,
-   and verify them before final release readiness.
-2. Apply Quiet Shield/Protective Navy design decisions only after primary
-   v2.9.0 readiness gates and whole-UI verification blockers are closed.
+1. Apply Quiet Shield/Protective Navy design decisions now that primary
+   v2.9.0 product/security gates and whole-UI verification blockers are closed.
+2. Verify `2.9.0` release metadata, packaging docs, and Windows/macOS/Linux
+   release evidence before any asset creation or final push.
 3. Continue resume assistance only where it improves truthful local requirement
    review, hard-constraint handling, readable evidence, or next-action
    guidance.

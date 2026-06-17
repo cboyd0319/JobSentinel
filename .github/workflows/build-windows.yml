@@ -47,6 +47,9 @@ jobs:
       - name: Validate requested version
         run: npm run release:check-version -- "${{ github.event.inputs.version }}"
 
+      - name: Check latest stable dependency pins
+        run: npm run release:check-deps
+
       - name: Run harness checks
         run: npm run harness:check
 
@@ -76,11 +79,17 @@ jobs:
 
       - name: Verify Windows MSI signature and checksum
         shell: pwsh
+        env:
+          EXPECTED_VERSION: ${{ github.event.inputs.version }}
         run: |
           $ErrorActionPreference = "Stop"
-          $msi = Get-ChildItem "src-tauri/target/release/bundle/msi" -Filter "*.msi" | Select-Object -First 1
-          if (-not $msi) {
-            throw "Expected one Windows MSI before release upload."
+          $msis = @(Get-ChildItem "src-tauri/target/release/bundle/msi" -Filter "*.msi")
+          if ($msis.Count -ne 1) {
+            throw "Expected exactly one Windows MSI before release upload; found $($msis.Count)."
+          }
+          $msi = $msis[0]
+          if ($msi.Name -notlike "*$env:EXPECTED_VERSION*") {
+            throw "Windows MSI filename does not include release version $env:EXPECTED_VERSION."
           }
           $signature = Get-AuthenticodeSignature $msi.FullName
           if ($signature.Status -ne "Valid") {

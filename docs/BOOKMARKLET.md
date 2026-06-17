@@ -6,8 +6,8 @@ this up.
 
 ## What It Does
 
-- Saves jobs from official career pages and public job pages when the page
-  shows enough job details.
+- Saves jobs from official career pages and trusted public job pages when the
+  page shows enough job details.
 - Uses the browser page you already opened.
 - Sends the job only to the JobSentinel app running on your computer.
 - Keeps the saved job local.
@@ -51,7 +51,8 @@ The browser import button works best on individual job pages from:
 
 - Company career pages.
 - Company application pages.
-- Public pages that show the full job description, employer name, and location.
+- Trusted public pages that show the full job description, employer name, and
+  location.
 - Pages you opened yourself in your browser.
 
 Job search result pages may not include enough job details. Some large job

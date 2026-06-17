@@ -20,8 +20,8 @@ restart surfaces.
 
 In scope:
 
-- Completing current development and QA blockers before any new release
-  creation, upload, or announcement work.
+- Completing final design, packaging, and release-verification blockers before
+  any new release creation, upload, or announcement work.
 - Keeping package-manager, npm/Cargo direct, npm override, and Action pins exact
   latest stable, with transitives lockfile-pinned/latest-compatible and
   upstream exceptions recorded.
@@ -64,7 +64,7 @@ Out of scope:
 - Broad product implementation unrelated to current user safety, privacy,
   macOS readiness, or maintainability.
 - Releases, remote CI runs, cloud actions, or credentialed vendor changes
-  unless requested after development and QA blockers are closed.
+  unless requested after final local release gates close.
 
 ## Current Priorities
 
@@ -73,15 +73,15 @@ Out of scope:
 | Dependency readiness | Complete | Package-manager, direct deps, overrides, and Action pins are latest; transitives stay lockfile-pinned/latest-compatible |
 | Downloadable Agent Skills | Complete locally | Eight spec-compliant skills are guarded by `lint:skills`, the harness, and `skills-ref@0.1.5`. |
 | Browser Import and LinkedIn-compatible flow | Complete locally | Manual desktop/mobile verification passed; revisit only if whole-UI QA finds a blocker. Keep LinkedIn user-opened and user-clicked without session cookies or background monitoring. |
-| Development and QA completion | Active | Fix confirmed UI, scraper, privacy, docs, harness, and Computer Use validation blockers before any new release work. |
-| macOS readiness | Paused for release creation | Keep docs honest when touched, but do not create or upload new release assets until development and QA blockers are closed. |
+| Development and QA completion | Finalizing | Primary product/security fixes and whole-UI verification are complete locally; finish design, packaging, and release checks. |
+| macOS readiness | Release-gated | Keep docs honest when touched, but do not create or upload assets until final local gates close. |
 | Resume assistance | Active | Tighten hard-requirement categories, evidence caps, live review copy, and mock/Rust parity only when evidence is local and explainable. |
 | Job-card protection | Active | Keep posting-risk cues visible without implying employer intent or confirmed duplicate/source proof. |
 | Guided intake | Active | Add optional suggestions only after user review; keep broad defaults and non-technical paths first-class. |
 | Pay protection | Active | Keep missing, minimum-only, maximum-only, malformed, or broad listed-pay evidence plain and review-first. |
 | Encrypted local storage | Active | SQLCipher, AEAD vault rows, migration, passphrase controls, and macOS vault-key user-presence locking exist; continue release/packaging readiness. |
-| Quiet Shield redesign | Deferred until primary gates close | Apply Quiet Shield/Protective Navy after primary blockers close; then verify the design contract. |
-| Final Rust and agent improvement pass | Deferred until primary gates close | Run a comprehensive non-`content/` review near the end, apply accepted fixes, and verify before the final push. |
+| Quiet Shield redesign | Next | Apply Quiet Shield/Protective Navy and verify the design contract. |
+| Final Rust and agent improvement pass | Complete locally | Accepted non-`content/` fixes are applied and verified; revisit only for regressions. |
 | Cleanup and harness | Closed for proactive repo-bloat work | Reopen only for a fresh failing gate or blocker to privacy, security, docs accuracy, or verification. |
 
 ## Completion Bar
@@ -134,26 +134,26 @@ Out of scope:
 - Browser Import desktop/mobile manual verification passed on 2026-06-17 for
   setup, private-link rejection, LinkedIn preview/save, duplicates, and overflow.
 - Whole-UI normal actions, Setup Wizard, keyboard paths, and forced states passed.
+- Final non-`content/` audit fixes landed: memory-only company research,
+  accessible onboarding, auto-refresh gating, atomic alert claims, HTTPS
+  JobsWithGPT endpoints, shared import hashes, and `2.9.0` metadata/changelog.
 
 ## Next Work
 
-1. Keep the whole-UI manual verification ledger current; rerun affected
-   route/action/state checks after any UI change before calling v2.9.0 done.
-2. After primary gates close, run the final Rust expert plus multi-agent
-   improvement analysis across non-`content/` surfaces, apply accepted fixes,
-   and verify them before final release readiness.
-3. Continue macOS readiness only after development and QA blockers close; do
+1. Apply Quiet Shield/Protective Navy design decisions; verify with
+   `DESIGN.md`, `docs/design/README.md`, and `docs/design/design-spec.md`.
+2. Verify `2.9.0` release metadata, packaging docs, and Windows/macOS/Linux
+   release evidence before any asset creation or final push.
+3. Confirm major route screenshots, Computer Use clicks, keyboard flow, and
+   affected route/action/state checks after any UI change before calling
+   v2.9.0 done.
+4. Continue macOS readiness only after final local gates close; do
    not claim Gatekeeper-ready distribution before signing, notarization,
    stapling, and install proof exist.
-4. Finish current verified product and QA slices in resume assistance, job-card
+5. Finish current verified product and QA slices in resume assistance, job-card
    protection, guided intake, and pay protection.
-5. Continue encrypted storage UX: release/packaging readiness and no passive
+6. Continue encrypted storage UX: release/packaging readiness and no passive
    Settings probes.
-6. Apply Quiet Shield/Protective Navy design decisions only after primary
-   readiness gates and whole-UI verification blockers close; then verify with
-   `DESIGN.md`, `docs/design/README.md`, and `docs/design/design-spec.md`.
-   Confirm major route screenshots, Computer Use clicks, keyboard flow,
-   narrow widths, full tests, build, and empty/error/loading states.
 7. Keep the LinkedIn-compatible Browser Import path user-opened and
    user-clicked; do not add browser-session capture, background page access, or
    scheduled LinkedIn fetches.

@@ -202,6 +202,10 @@ export function hasUnsafeStorageJsonParsing(root, path) {
   }
 
   const text = readFileSync(join(root, path), "utf8");
+  if (!/JSON\.parse\(/.test(text) && !/readStorageValue\(/.test(text)) {
+    return false;
+  }
+
   if (path === "src/components/AnalyticsPanel.tsx") {
     if (/from "\.\/analyticsPanelModel"/.test(text)) {
       return false;

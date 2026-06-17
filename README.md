@@ -10,17 +10,18 @@ matching `.sha256` checksum, public release verifier, universal architecture
 checks, install smoke, launch smoke with visible-window proof, private isolated
 local-data smoke, and harness-enforced readiness checks. The latest full
 cross-platform public release remains `v2.7.5` until Windows and Linux
-`2.7.7` assets are rebuilt and verified. The no-account path is complete at
+`2.9.0` assets are built and verified. The no-account path is complete at
 its 94% public-readiness ceiling.
 Full public Mac readiness cannot honestly reach 100% without Developer ID
 signing, notarization, stapling, and Gatekeeper acceptance, all of which require
 Apple Developer Program materials.
 
 Active-plan implementation status is separate. Current active work remains
-open, with focus, latest evidence, known gaps, and next useful slices recorded
-in [active plan status](docs/plans/active/status.md). Ongoing work focuses on
-resume assistance, job-card protection, guided intake, pay protection, and
-cleanup where they improve privacy, security, verification, or user ease.
+open, with local package metadata staged for `v2.9.0` and next useful slices
+recorded in [active plan status](docs/plans/active/status.md). Ongoing work
+focuses on resume assistance, job-card protection, guided intake, pay
+protection, and cleanup where they improve privacy, security, verification, or
+user ease.
 
 [![CI](https://github.com/cboyd0319/JobSentinel/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/cboyd0319/JobSentinel/actions/workflows/ci.yml)
 [![Docs Harness](https://github.com/cboyd0319/JobSentinel/actions/workflows/docs-harness.yml/badge.svg?branch=main)](https://github.com/cboyd0319/JobSentinel/actions/workflows/docs-harness.yml)
@@ -84,7 +85,7 @@ or build something better with it if that helps more people.
 | What can leave the device? | Enabled job-source checks, job sources or career pages the user approves for checking, alerts the user turns on, optional location detection after a click, support links opened by the user, or explicitly approved external AI requests. |
 | Is external AI required? | No. External AI is optional, disabled by default, preview-gated, and gateway-bound. |
 | Is it free? | Yes. JobSentinel is MIT licensed and free forever. |
-| Source version | `2.7.7` in `main`; public no-account macOS assets are released, while fresh Windows and Linux `2.7.7` assets are still pending. |
+| Source version | `2.9.0` in `main`; public no-account macOS `v2.7.7` assets are released, while fresh Windows and Linux `2.9.0` assets are still pending. |
 | Latest published macOS package | `v2.7.7` no-account universal `.dmg` with matching `.dmg.sha256` checksum. |
 | Latest full cross-platform release | `v2.7.5` with Windows and Linux installers plus a no-account universal macOS package and matching checksum. |
 | macOS full-public-readiness | 94%; no-account path completion is 100% at a 94% public-readiness ceiling. Local universal DMG, checksum, metadata, architecture, install, visible-window launch, private local-data permissions, public-artifact verifier, and readiness-harness checks are in place. The final 6% is externally blocked by Apple Developer Program materials for Developer ID signing, notarization, stapling, and Gatekeeper acceptance. |
@@ -587,9 +588,9 @@ Developer docs:
 
 ### Mainline Changes Since v2.7.5
 
-- Source version is `2.7.7`. Public macOS no-account assets are released and
-  verified; fresh Windows and Linux `2.7.7` assets still need target-platform
-  builds, upload, and public-artifact verification.
+- Source version is `2.9.0`. Public macOS no-account `v2.7.7` assets are
+  released and verified; fresh Windows and Linux `2.9.0` assets still need
+  target-platform builds, upload, and verification.
 - Release docs now treat verified local build plus manual upload as a
   supported production path when the same release gates pass.
 - Hiring Trends now refreshes against the current jobs schema, creates a

@@ -175,10 +175,19 @@ ready.
 # Windows (from Windows machine or VM)
 npm run tauri build
 # Output: src-tauri/target/release/bundle/msi/JobSentinel_*.msi
+Get-AuthenticodeSignature src-tauri/target/release/bundle/msi/JobSentinel_*.msi
 
 # Linux (from Linux)
 npx --no-install tauri build --target x86_64-unknown-linux-gnu
 # Output: src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/
+file src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/*.AppImage
+dpkg-deb --info src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/deb/*.deb
+dpkg-deb --contents src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/deb/*.deb >/dev/null
+for asset in \
+  src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/*.AppImage \
+  src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/deb/*.deb; do
+  sha256sum "$asset" > "$asset.sha256"
+done
 ```
 
 Public Windows MSI upload is blocked unless `Get-AuthenticodeSignature` returns
@@ -186,6 +195,12 @@ Public Windows MSI upload is blocked unless `Get-AuthenticodeSignature` returns
 thumbprint and timestamp URL before publishing a Windows MSI. The release
 workflow and manual Windows build workflow also create `.msi.sha256` only after
 signature verification passes.
+
+Public Linux upload is blocked unless exactly one `.AppImage` and one `.deb`
+exist, both filenames include the release version, both files are non-empty,
+the `.deb` passes `dpkg-deb --info` and `dpkg-deb --contents`, and matching
+`.sha256` files are generated. The release workflow and manual Linux build
+workflow enforce those checks before upload.
 
 The `Verify Release Artifacts` GitHub Actions workflow also runs after a
 release is published. It verifies the public macOS DMG from GitHub Releases
@@ -212,6 +227,6 @@ tag.
 | -------- | --------------------- | ----------- | -------- |
 | macOS    | universal             | `.dmg`      | Verified no-account public package available with matching checksum and first-open Privacy & Security approval; zero-friction Gatekeeper-ready release blocked until Apple Developer Account, Developer ID signing, and notarization |
 | Windows  | x86_64                | `.msi`      | Build path ready; public upload blocked until Authenticode signature and checksum verification pass |
-| Linux    | x86_64                | `.AppImage` / `.deb` | Build path ready; current `2.7.7` public assets pending target-platform build/upload/verification |
+| Linux    | x86_64                | `.AppImage` / `.deb` | Build path ready; current `2.9.0` public assets pending target-platform build/upload/verification |
 
 See [CHANGELOG.md](../../CHANGELOG.md) for full history.
