@@ -88,7 +88,7 @@ The v2.9.0 goal adds two durable release-readiness requirements:
 
 ## Next Best Work
 
-1. Build a whole-UI manual verification map and exercise every route, click,
+1. Use [v2.9.0 UI verification](../../harness/ui-manual-verification-v2.9.0.md) to exercise every route, click,
    action, modal, toast, form, settings panel, import flow, keyboard path,
    empty/loading/error state, and narrow-width surface before calling v2.9.0
    done.
