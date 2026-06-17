@@ -110,6 +110,8 @@ You can save reusable answers for common questions:
 | `travel`              | "Are you able to travel..."        |
 | `reliable transportation` | "Do you have reliable transportation?" |
 | `driver's license`    | "Do you have a driver's license?" |
+| `proof of auto insurance` | "Can you provide proof of auto insurance?" |
+| `clean driving record` | "Do you have a clean driving record?" |
 | `work authorization`  | "Are you authorized to work..."    |
 | `US citizen`          | "Are you a U.S. citizen?"         |
 | `availability`        | "What is your availability..."     |
@@ -133,16 +135,17 @@ availability, management experience, language fluency, physical requirements,
 and age requirement so you can prepare those answers before the form asks.
 Saved-answer matching also treats common equivalent wording as the same review
 topic, such as authorized-to-work questions, able-to-lift questions, degree
-questions, weekend or rotating-shift availability, and reliable-vehicle wording.
+questions, weekend or rotating-shift availability, reliable-vehicle wording,
+and MVR, driving-record, or auto-insurance wording.
 
 When you add a saved answer for hard screening topics such as citizenship, work
 authorization, sponsorship, transportation, travel, relocation, education,
 salary, start date, schedule, availability, management experience, language
 fluency, background checks, drug screens, physical requirements, age
-requirements, licenses, certifications, or clearances, JobSentinel shows an
-extra review note. The note reminds you to compare the answer with the exact
-application question and use only what is true and backed by your resume or
-records.
+requirements, driving record, auto insurance, licenses, certifications, or
+clearances, JobSentinel shows an extra review note. The note reminds you to
+compare the answer with the exact application question and use only what is
+true and backed by your resume or records.
 Suggested saved answers show the same review note before the **Use** button
 when the current question matches one of these hard screening topics.
 
@@ -154,8 +157,9 @@ evidence for citizenship, work authorization, location, relocation, travel,
 transportation, vehicle requirements, licenses, certifications, clearances,
 education, years of experience, salary, schedule, overtime, availability,
 holiday availability, management experience, background checks, drug screens,
-pre-employment screening, language fluency, physical requirements, and
-minimum-age requirements before submitting.
+pre-employment screening, language fluency, physical requirements,
+driving-record, MVR, auto-insurance, and minimum-age requirements before
+submitting.
 
 For citizenship topics, the preview can show a matching saved answer so you can
 confirm it matches the employer's wording. JobSentinel does not treat work
@@ -174,6 +178,10 @@ availability, so you can compare it before continuing.
 For transportation or vehicle topics, the preview can show a matching saved
 answer so you can confirm commute, license, and vehicle details are true before
 continuing.
+
+For driving-record, MVR, or auto-insurance topics, the preview can show a
+matching saved answer so you can confirm the requirement is current, workable,
+and true before continuing.
 
 For license, certification, or clearance topics, the preview can show a
 matching saved credential answer so you can confirm it is documented before

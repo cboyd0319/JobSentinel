@@ -1,6 +1,7 @@
 const HARD_SCREENING_ANSWER_PATTERNS = [
   /\bcitizenship\b|\bUS citizen\b|\bU\.S\. citizen\b/i,
   /\bwork authorization\b|\bauthorized to work\b|\bsponsorship\b|\bvisa\b/i,
+  /\bclean driving record\b|\bacceptable driving record\b|\bdriving record\b|\bMVR\b|\bmotor vehicle record\b|\bproof of auto insurance\b|\bproof of insurance\b|\bauto insurance\b|\bcar insurance\b|\bvehicle insurance\b|\binsured vehicle\b/i,
   /\breliable transportation\b|\btransportation\b|\bvehicle\b/i,
   /\brelocat(?:e|ion)\b|\btravel\b/i,
   /\beducation\b|\bdegree\b|\bdiploma\b|\bGED\b|\bbachelor'?s?\b/i,

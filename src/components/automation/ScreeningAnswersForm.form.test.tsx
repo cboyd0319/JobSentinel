@@ -101,6 +101,28 @@ describe("ScreeningAnswersForm", () => {
       );
     });
 
+    it("shows hard screening guidance for auto-insurance wording", async () => {
+      const user = userEvent.setup();
+      render(<ScreeningAnswersForm />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByRole("button", { name: /add answer/i }),
+        ).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByRole("button", { name: /add answer/i }));
+
+      const patternInput = screen.getByLabelText(/question wording to look for/i);
+      fireEvent.change(patternInput, {
+        target: { value: "proof of auto insurance" },
+      });
+
+      expect(screen.getByTestId("hard-screening-answer-guidance")).toHaveTextContent(
+        "Use only what is true and backed by your resume or records.",
+      );
+    });
+
     it("allows typing in answer field", async () => {
       const user = userEvent.setup();
       render(<ScreeningAnswersForm />);

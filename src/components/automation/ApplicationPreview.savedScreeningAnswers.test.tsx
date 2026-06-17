@@ -291,6 +291,18 @@ describe("ApplicationPreview", () => {
       );
     });
 
+    it("shows saved driving-record or insurance answers when the job asks about MVR", async () => {
+      await expectSavedGuidance(
+        "Required: MVR review and proof of auto insurance for field visits.",
+        {
+          questionPattern: "proof of auto insurance",
+          answer: "I have current auto insurance for field visits.",
+          answerType: "yes_no",
+        },
+        "Saved driving record or insurance answer says: I have current auto insurance for field visits. Confirm it matches the employer's wording and resume evidence before continuing.",
+      );
+    });
+
     it("shows saved citizenship answers when the job asks about citizenship", async () => {
       await expectSavedGuidance(
         "Applicants must be U.S. citizens for this contract.",

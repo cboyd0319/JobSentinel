@@ -186,6 +186,70 @@ test.describe("Job Search and Filtering", () => {
       await expect(card).toContainText("could not be read as a usable range");
       await expect(card).not.toContainText("$120k - $70k");
     });
+
+    test("should flag MVR and auto-insurance requirements before preparing a form", async ({ page }) => {
+      await page.evaluate(() => {
+        const now = new Date().toISOString();
+        localStorage.setItem(
+          "jobsentinel.mockState.v1",
+          JSON.stringify({
+            jobs: [
+              {
+                id: 9102,
+                hash: "job-hash-application-preview-mvr",
+                title: "Field Operations Coordinator",
+                company: "Community Services Group",
+                location: "Denver, CO",
+                description:
+                  "Required: clean driving record, MVR review, and proof of auto insurance for field visits.",
+                url: "https://example.com/jobs/application-preview-mvr",
+                source: "greenhouse",
+                salary_min: 70000,
+                salary_max: 84000,
+                remote: false,
+                score: 0.82,
+                hidden: false,
+                bookmarked: false,
+                notes: null,
+                created_at: now,
+              },
+            ],
+            applicationProfile: {
+              fullName: "Jordan Lee",
+              email: "jordan@example.com",
+              usWorkAuthorized: true,
+              requiresSponsorship: false,
+            },
+            screeningAnswers: [
+              {
+                id: 77,
+                questionPattern: "proof of auto insurance",
+                answer: "I have current auto insurance for field visits.",
+                answerType: "yes_no",
+                notes: null,
+                createdAt: now,
+                updatedAt: now,
+              },
+            ],
+          }),
+        );
+      });
+
+      await dashboard.navigateTo();
+      const card = await dashboard.getJobCard(0);
+      await expect(card.locator).toContainText("Field Operations Coordinator");
+
+      await card.hover();
+      await expect(card.applyButton).toBeEnabled();
+      await card.applyButton.click();
+
+      await expect(page.getByRole("dialog", { name: "Review Application" })).toBeVisible();
+      await expect(page.getByText("Hard Question Review")).toBeVisible();
+      await expect(page.getByText("Driving record, vehicle, or insurance")).toBeVisible();
+      await expect(page.getByText(
+        "Saved driving record or insurance answer says: I have current auto insurance for field visits. Confirm it matches the employer's wording and resume evidence before continuing.",
+      )).toBeVisible();
+    });
   });
 
   test.describe("Error Handling", () => {

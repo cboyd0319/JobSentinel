@@ -328,6 +328,7 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied, onOpenApp
             onClick={handlePrepareApplication}
             disabled={!hasProfile}
             size="sm"
+            data-testid="btn-apply"
             title={
               !hasProfile
                 ? "Save your application profile in Application Assist"

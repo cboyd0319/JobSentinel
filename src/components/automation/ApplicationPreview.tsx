@@ -97,6 +97,20 @@ const TRANSPORTATION_SCREENING_PATTERNS = [
   /\breliable vehicle\b/i,
 ];
 
+const DRIVING_RECORD_OR_INSURANCE_PATTERNS = [
+  /\bclean driving record\b/i,
+  /\bacceptable driving record\b/i,
+  /\bdriving record\b/i,
+  /\bMVR\b/,
+  /\bmotor vehicle record\b/i,
+  /\bproof of auto insurance\b/i,
+  /\bproof of insurance\b/i,
+  /\bauto insurance\b/i,
+  /\bcar insurance\b/i,
+  /\bvehicle insurance\b/i,
+  /\binsured vehicle\b/i,
+];
+
 const MANAGEMENT_EXPERIENCE_PATTERNS = [
   /\bmanagement experience\b/i,
   /\bpeople management\b/i,
@@ -161,6 +175,16 @@ const HARD_QUESTION_REVIEWS: HardQuestionReview[] = [
       "Confirm transportation or vehicle requirements before answering. Use only commute, license, or vehicle details that are true.",
     ),
     patterns: TRANSPORTATION_SCREENING_PATTERNS,
+  },
+  {
+    label: "Driving record, vehicle, or insurance",
+    detail: "Confirm driving record, vehicle, or auto insurance requirements before answering. If it is not current, workable, or true for you, do not claim it.",
+    getDetail: ({ screeningAnswers }) => getSavedScreeningAnswerReviewDetail(
+      screeningAnswers,
+      DRIVING_RECORD_OR_INSURANCE_PATTERNS,
+      "Confirm driving record, vehicle, or auto insurance requirements before answering. If it is not current, workable, or true for you, do not claim it.",
+    ),
+    patterns: DRIVING_RECORD_OR_INSURANCE_PATTERNS,
   },
   {
     label: "License, certification, or clearance",
@@ -353,6 +377,9 @@ function getSavedScreeningAnswerLabel(questionPattern: string) {
   if (/\bremote\b|\bhybrid\b|\bon[-\s]?site\b/.test(normalizedPattern)) return "location";
   if (CITIZENSHIP_SCREENING_PATTERNS.some((pattern) => pattern.test(questionPattern))) {
     return "citizenship";
+  }
+  if (DRIVING_RECORD_OR_INSURANCE_PATTERNS.some((pattern) => pattern.test(questionPattern))) {
+    return "driving record or insurance";
   }
   if (TRANSPORTATION_SCREENING_PATTERNS.some((pattern) => pattern.test(questionPattern))) {
     return "transportation";

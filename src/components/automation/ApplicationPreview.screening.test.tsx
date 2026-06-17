@@ -203,6 +203,29 @@ describe("ApplicationPreview", () => {
       ).toBeInTheDocument();
     });
 
+    it("flags driving-record and auto-insurance requirements from job details", async () => {
+      mockInvoke.mockResolvedValue(mockProfile);
+
+      render(
+        <ApplicationPreview
+          job={{
+            ...mockJob,
+            description:
+              "Required: clean driving record, MVR review, and proof of auto insurance for field visits.",
+          }}
+          atsPlatform="greenhouse"
+        />,
+      );
+
+      expect(await screen.findByText("Hard Question Review")).toBeInTheDocument();
+      expect(screen.getByText("Driving record, vehicle, or insurance")).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          "Confirm driving record, vehicle, or auto insurance requirements before answering. If it is not current, workable, or true for you, do not claim it.",
+        ),
+      ).toBeInTheDocument();
+    });
+
     it("flags language fluency requirements from job details", async () => {
       mockInvoke.mockResolvedValue(mockProfile);
 
