@@ -71,11 +71,11 @@ export function SettingsPostingRiskSection({
       </h3>
       {ghostConfig && (
         <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-4 space-y-4">
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <span className="text-sm font-medium text-surface-700 dark:text-surface-300">
               Freshness behavior:
             </span>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               {GHOST_PRESETS.map((preset) => (
                 <button
                   key={preset}

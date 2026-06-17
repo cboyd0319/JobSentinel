@@ -162,6 +162,8 @@ export const mockConfig = {
     cities: ["Remote", "Chicago", "Austin", "Atlanta"],
   },
   salary_floor_usd: 80000,
+  company_whitelist: [],
+  company_blacklist: [],
   use_resume_matching: false,
   alerts: {
     slack: {
@@ -177,6 +179,14 @@ export const mockConfig = {
       from_email: "",
       to_emails: [],
       use_starttls: true,
+    },
+    discord: { enabled: false },
+    telegram: { enabled: false },
+    teams: { enabled: false },
+    desktop: {
+      enabled: true,
+      show_when_focused: false,
+      play_sound: false,
     },
   },
   linkedin: {

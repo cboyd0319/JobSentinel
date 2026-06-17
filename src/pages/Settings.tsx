@@ -74,6 +74,11 @@ export default function Settings({ onClose }: SettingsProps) {
   });
   const toast = useToast();
   const {
+    error: toastError,
+    success: toastSuccess,
+    warning: toastWarning,
+  } = toast;
+  const {
     credentials,
     credentialStatus,
     getCredentialSaveEntries,
@@ -177,8 +182,36 @@ export default function Settings({ onClose }: SettingsProps) {
 
       // Load config (non-sensitive settings)
       const configData = await invoke<Config>("get_config");
+      const alerts = configData.alerts;
+      const emailAlerts = alerts.email as Partial<
+        Config["alerts"]["email"]
+      > | undefined;
       const nextConfig = {
         ...configData,
+        company_whitelist: configData.company_whitelist ?? [],
+        company_blacklist: configData.company_blacklist ?? [],
+        alerts: {
+          ...alerts,
+          slack: alerts.slack ?? { enabled: false },
+          email: {
+            enabled: false,
+            smtp_server: "",
+            smtp_port: 587,
+            smtp_username: "",
+            from_email: "",
+            to_emails: [],
+            use_starttls: true,
+            ...emailAlerts,
+          },
+          discord: alerts.discord ?? { enabled: false },
+          telegram: alerts.telegram ?? { enabled: false },
+          teams: alerts.teams ?? { enabled: false },
+          desktop: {
+            enabled: alerts.desktop?.enabled ?? true,
+            show_when_focused: alerts.desktop?.show_when_focused ?? false,
+            play_sound: alerts.desktop?.play_sound ?? false,
+          },
+        },
         jobswithgpt_endpoint: configData.jobswithgpt_endpoint ?? "",
         jobswithgpt_approval: configData.jobswithgpt_approval ?? {
           enabled: false,
@@ -207,11 +240,11 @@ export default function Settings({ onClose }: SettingsProps) {
     } catch (error: unknown) {
       logError("Failed to load config:", error);
       const friendly = getUserFriendlyError(error);
-      toast.error(friendly.title, friendly.message);
+      toastError(friendly.title, friendly.message);
     } finally {
       setLoading(false);
     }
-  }, [initializeCredentialStatus, toast]);
+  }, [initializeCredentialStatus, toastError]);
 
   const loadGhostConfig = useCallback(async () => {
     try {
@@ -229,14 +262,14 @@ export default function Settings({ onClose }: SettingsProps) {
         warning_threshold: 0.3,
         hide_threshold: 0.7,
       });
-      toast.warning(
+      toastWarning(
         "Posting risk defaults loaded",
         "Couldn't load your saved posting-risk settings. Using defaults.",
       );
     } finally {
       setGhostConfigLoading(false);
     }
-  }, [toast]);
+  }, [toastWarning]);
 
   const handleDetectLocation = useCallback(async () => {
     setIsDetectingLocation(true);
@@ -245,11 +278,11 @@ export default function Settings({ onClose }: SettingsProps) {
       setDetectedLocation(location);
       cacheDetectedLocation(location);
     } catch {
-      toast.warning("Location unavailable", "Enter a city manually.");
+      toastWarning("Location unavailable", "Enter a city manually.");
     } finally {
       setIsDetectingLocation(false);
     }
-  }, [toast]);
+  }, [toastWarning]);
 
   const handleUseDetectedLocation = useCallback(() => {
     if (!config || !detectedLocation) return;
@@ -264,8 +297,8 @@ export default function Settings({ onClose }: SettingsProps) {
         cities: [...config.location_preferences.cities, locationStr],
       },
     });
-    toast.success("Location added", `Added ${locationStr}`);
-  }, [config, detectedLocation, toast]);
+    toastSuccess("Location added", `Added ${locationStr}`);
+  }, [config, detectedLocation, toastSuccess]);
 
   useEffect(() => {
     loadConfig();
@@ -281,7 +314,7 @@ export default function Settings({ onClose }: SettingsProps) {
       credentialStatus,
     );
     if (credentialValidationError) {
-      toast.error(
+      toastError(
         credentialValidationError.title,
         credentialValidationError.message,
       );
@@ -324,7 +357,7 @@ export default function Settings({ onClose }: SettingsProps) {
           "Credential save failures:",
           credentialFailures.map((f) => f.reason),
         );
-        toast.warning(
+        toastWarning(
           "Some connection details were not saved",
           `${credentialFailures.length} saved connection detail(s) were not saved. Settings were saved. Try saving again.`,
         );
@@ -333,7 +366,7 @@ export default function Settings({ onClose }: SettingsProps) {
           successfulCredentialKeys.length > 0
             ? "Connection details are stored in your system password manager."
             : "Your job-search preferences were saved.";
-        toast.success(
+        toastSuccess(
           "Settings saved",
           saveMessage,
         );
@@ -341,7 +374,7 @@ export default function Settings({ onClose }: SettingsProps) {
       }
     } catch (error) {
       logError("Settings config save failed:", error);
-      toast.error(
+      toastError(
         "Could not save settings",
         "Settings could not be saved. Try saving again.",
       );
@@ -354,7 +387,9 @@ export default function Settings({ onClose }: SettingsProps) {
     credentials,
     getCredentialSaveEntries,
     markCredentialsSaved,
-    toast,
+    toastError,
+    toastSuccess,
+    toastWarning,
     onClose,
   ]);
 
@@ -377,14 +412,14 @@ export default function Settings({ onClose }: SettingsProps) {
     if (!config) return;
     try {
       exportConfigToJSON(config);
-      toast.success(
+      toastSuccess(
         "Private settings backup saved",
         "Saved passwords and connection codes are left out. This backup can still include search, pay, location, company, and alert settings.",
       );
     } catch (error: unknown) {
       logError("Failed to export config:", error);
       const friendly = getUserFriendlyError(error);
-      toast.error(friendly.title, friendly.message);
+      toastError(friendly.title, friendly.message);
     }
   };
 
@@ -395,14 +430,14 @@ export default function Settings({ onClose }: SettingsProps) {
         return; // User cancelled
       }
       if (result.status === "invalid") {
-        toast.error(
+        toastError(
           "Could not read settings backup",
           "Choose another JobSentinel settings backup file.",
         );
         return;
       }
       if (!isSettingsBackupConfig(result.config)) {
-        toast.error(
+        toastError(
           "That is not a JobSentinel settings backup",
           "Choose a settings backup created from JobSentinel Settings.",
         );
@@ -411,13 +446,13 @@ export default function Settings({ onClose }: SettingsProps) {
 
       // Connection secrets stay in OS secure storage, not in backup files.
       setConfig(result.config);
-      toast.success(
+      toastSuccess(
         "Settings restored",
         "Review settings and use Save. Saved connection details are not included in backups, so add them again if needed.",
       );
     } catch (error: unknown) {
       logError("Failed to restore settings backup:", error);
-      toast.error(
+      toastError(
         "Could not restore settings",
         "Choose another JobSentinel settings backup file.",
       );
@@ -537,10 +572,11 @@ export default function Settings({ onClose }: SettingsProps) {
   const handleAddWhitelistCompany = () => {
     if (!config) return;
     const trimmed = whitelistCompanyInput.trim();
-    if (trimmed && !config.company_whitelist.includes(trimmed)) {
+    const companyWhitelist = config.company_whitelist ?? [];
+    if (trimmed && !companyWhitelist.includes(trimmed)) {
       setConfig({
         ...config,
-        company_whitelist: [...config.company_whitelist, trimmed],
+        company_whitelist: [...companyWhitelist, trimmed],
       });
       setWhitelistCompanyInput("");
     }
@@ -550,7 +586,7 @@ export default function Settings({ onClose }: SettingsProps) {
     if (!config) return;
     setConfig({
       ...config,
-      company_whitelist: config.company_whitelist.filter((c) => c !== company),
+      company_whitelist: (config.company_whitelist ?? []).filter((c) => c !== company),
     });
   };
 
@@ -558,10 +594,11 @@ export default function Settings({ onClose }: SettingsProps) {
   const handleAddBlacklistCompany = () => {
     if (!config) return;
     const trimmed = blacklistCompanyInput.trim();
-    if (trimmed && !config.company_blacklist.includes(trimmed)) {
+    const companyBlacklist = config.company_blacklist ?? [];
+    if (trimmed && !companyBlacklist.includes(trimmed)) {
       setConfig({
         ...config,
-        company_blacklist: [...config.company_blacklist, trimmed],
+        company_blacklist: [...companyBlacklist, trimmed],
       });
       setBlacklistCompanyInput("");
     }
@@ -571,7 +608,7 @@ export default function Settings({ onClose }: SettingsProps) {
     if (!config) return;
     setConfig({
       ...config,
-      company_blacklist: config.company_blacklist.filter((c) => c !== company),
+      company_blacklist: (config.company_blacklist ?? []).filter((c) => c !== company),
     });
   };
 
@@ -581,14 +618,14 @@ export default function Settings({ onClose }: SettingsProps) {
     try {
       setGhostConfigLoading(true);
       await invoke("set_ghost_config", { config: ghostConfig });
-      toast.success(
+      toastSuccess(
         "Posting risk settings saved",
         "New job checks use these warnings.",
       );
     } catch (error: unknown) {
       logError("Failed to save ghost config:", error);
       const friendly = getUserFriendlyError(error);
-      toast.error(friendly.title, friendly.message);
+      toastError(friendly.title, friendly.message);
     } finally {
       setGhostConfigLoading(false);
     }
@@ -599,14 +636,14 @@ export default function Settings({ onClose }: SettingsProps) {
       setGhostConfigLoading(true);
       await invoke("reset_ghost_config");
       await loadGhostConfig();
-      toast.success(
+      toastSuccess(
         "Posting risk defaults restored",
         "Balanced warnings are back on.",
       );
     } catch (error: unknown) {
       logError("Failed to reset ghost config:", error);
       const friendly = getUserFriendlyError(error);
-      toast.error(friendly.title, friendly.message);
+      toastError(friendly.title, friendly.message);
     }
   };
 

@@ -129,16 +129,16 @@ Out of scope:
   keyring access.
 - Downloadable Agent Skills now cover search planning, posting-risk review,
   resume tailoring, form review, tracking, interview prep, and offer/pay review.
-- Browser Import desktop/mobile manual verification passed on 2026-06-17:
-  settings, port validation, copy, private-link rejection, LinkedIn preview/save,
-  duplicate handling, no console errors, and no overflow.
+- Browser Import desktop/mobile manual verification passed on 2026-06-17 for
+  setup, private-link rejection, LinkedIn preview/save, duplicates, and overflow.
+- Settings desktop/mobile verification passed for tabs, alert rules, sources,
+  Browser Import, support.
 
 ## Next Work
 
 1. Build and execute the whole-UI manual verification map for every route,
-   click, action, modal, toast, form, settings surface, import flow, keyboard
-   path, empty/loading/error state, and narrow-width state before calling
-   v2.9.0 done.
+   click, action, modal, toast, form, settings/import/keyboard path,
+   empty/loading/error state, and narrow width before calling v2.9.0 done.
 2. After primary gates close, run the final Rust expert plus multi-agent
    improvement analysis across non-`content/` surfaces, apply accepted fixes,
    and verify them before final release readiness.
@@ -190,10 +190,9 @@ workflow, packaging, or macOS deployment behavior.
   into active files instead of archived.
 - Secret-storage UX can regress if passive Settings or status checks call
   secure storage. Saved-secret verification must stay lazy and action-driven.
-- Redesign work can regress if screens keep older green-heavy styling,
-  horizontal scrolling, nested cards, cramped settings rows, over-large type in
-  compact panels, or visual states that have not been checked with screenshots
-  and Computer Use.
+- Redesign work can regress if screens keep older styling, horizontal
+  scrolling, nested cards, cramped settings rows, over-large compact-panel type,
+  or visual states not checked with screenshots and Computer Use.
 
 ## Handoff
 

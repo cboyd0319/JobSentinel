@@ -273,7 +273,7 @@ export const NotificationPreferences = memo(function NotificationPreferences() {
             </label>
           </div>
           {prefs.global.quietHoursEnabled && prefs.global.enabled && (
-            <div className="flex items-center gap-3 text-sm">
+            <div className="flex flex-wrap items-center gap-2 text-sm sm:gap-3">
               <span className="text-surface-500">From</span>
               <input
                 type="time"
