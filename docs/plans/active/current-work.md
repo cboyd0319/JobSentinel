@@ -113,9 +113,8 @@ Out of scope:
   opt-in, reviewed source choices, reviewed resume-skill suggestions, and
   non-technical starter paths.
 - Active plan sprawl has been reduced to this plan plus `status.md`.
-- Quiet Shield QA fixed modals, truncation, wrapped tabs, source tables,
-  Application Assist paint, viewport-fixed toasts, passive Keychain prompts,
-  Protective Navy tokens, score colors, and compact dashboard widget loading.
+- Quiet Shield QA fixed wrapping, passive Keychain prompts, Protective Navy
+  tokens, score colors, dashboard loading, and mobile Application Assist layout.
 - The v2.9.0 pass confirmed Browser Import is the LinkedIn path, not session
   storage or automatic monitoring. Private profile inputs stay local.
 - Package-manager, npm/Cargo, npm override, Action, OS-runner, and apt direct
@@ -133,7 +132,8 @@ Out of scope:
   handoffs, decision templates, and reference rubrics.
 - Browser Import desktop/mobile manual verification passed on 2026-06-17 for
   setup, private-link rejection, LinkedIn preview/save, duplicates, and overflow.
-- Whole-UI normal actions, Setup Wizard, keyboard paths, and forced states passed.
+- Final whole-UI post-design pass: 266/266 E2E plus 16 route inventories, no
+  console/page errors or overflow.
 - Final non-`content/` audit fixes landed: memory-only company research,
   accessible onboarding, auto-refresh gating, atomic alert claims, HTTPS
   JobsWithGPT endpoints, shared import hashes, and `2.9.0` metadata/changelog.

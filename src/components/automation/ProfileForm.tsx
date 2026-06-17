@@ -553,7 +553,7 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
             Resume File
             <HelpIcon text="Choose a resume file saved on this device. You decide whether to attach it on each application." />
           </h4>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <div className="min-w-0 flex-1">
               <label className="sr-only" htmlFor="selected-resume-file">
                 Selected resume
@@ -574,7 +574,7 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
             <Button
               variant="secondary"
               onClick={handleSelectResume}
-              className="shrink-0"
+              className="w-full justify-center sm:w-auto sm:shrink-0"
             >
               Choose Resume
             </Button>

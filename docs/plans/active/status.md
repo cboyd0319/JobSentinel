@@ -80,35 +80,33 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   duplicate handling, no console errors, and no overflow.
 - Desktop/mobile normal-state and Quiet Shield token checks passed for primary
   routes; forced empty/loading/error checks passed across startup and setup.
-- Setup Wizard desktop/mobile, whole-UI click/action coverage, and keyboard
-  paths now have fresh Playwright evidence.
+- Setup Wizard desktop/mobile, whole-UI post-design click/action coverage, and
+  keyboard paths now have fresh Playwright evidence.
 - Full local release gates passed on 2026-06-17: deps, docs, security,
   frontend, Rust, and cross-browser Playwright (`266/266`).
 - Final non-`content/` expert/agent pass is applied locally: memory-only
   company research, accessible onboarding, auto-refresh gating, atomic alert
   claims, HTTPS JobsWithGPT endpoints, shared import hashes, and metadata.
-- v2.9.0 remains blocked until final manual UI verification, packaging
-  verification, and final release checks close.
+- v2.9.0 remains blocked until packaging verification and final release checks
+  close.
 
 ## Next Best Work
 
-1. Complete final whole-UI click/action verification after the Quiet Shield
-   token pass and record evidence before any release-ready claim.
-2. Verify `2.9.0` release metadata, packaging docs, and Windows/macOS/Linux
+1. Verify `2.9.0` release metadata, packaging docs, and Windows/macOS/Linux
    release evidence before any asset creation or final push.
-3. Continue resume assistance only where it improves truthful local requirement
+2. Continue resume assistance only where it improves truthful local requirement
    review, hard-constraint handling, readable evidence, or next-action
    guidance.
-4. Continue guided intake only where resume/profile suggestions stay optional,
+3. Continue guided intake only where resume/profile suggestions stay optional,
    reviewed, local, and understandable for non-technical job seekers.
-5. Continue job-card protection for stale, risky, duplicate, unclear, or
+4. Continue job-card protection for stale, risky, duplicate, unclear, or
    pay-problem postings without treating local signals as employer
    predictions.
-6. Continue macOS readiness docs and checks without claiming Gatekeeper-ready
+5. Continue macOS readiness docs and checks without claiming Gatekeeper-ready
    distribution before Apple credentials exist.
-7. Continue encrypted storage UX; storage primitives exist, and remaining work
+6. Continue encrypted storage UX; storage primitives exist, and remaining work
    is release verification and packaging readiness.
-8. Keep harness work focused on bounded startup context, runnable verification,
+7. Keep harness work focused on bounded startup context, runnable verification,
    privacy/security gates, and docs accuracy. Do not add new ceremony unless it
    prevents a repeated failure.
 
