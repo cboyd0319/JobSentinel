@@ -61,11 +61,11 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 - Current UI QA evidence confirms modal paint fixes, visible Dashboard and
   Hiring Trends toasts, Application Assist tabs, Pay Protection, Resume Match,
   and Settings Sources & Alerts opening without a passive Keychain prompt.
-- Dependency evidence on 2026-06-17 (`dompurify` `3.4.11`, `npm` `11.17.0`):
-  direct pins are latest/stable; transitives are lockfile-pinned and
-  latest-compatible. `lint:deps`, `lint:actions`, and `release:check-deps`
-  enforce registry, lockfile, action, OS, apt, local-tool, `npx --no-install`,
-  and the newest SQLx-compatible `libsqlite3-sys` SQLCipher bridge.
+- Dependency evidence on 2026-06-17 (`npm` `11.17.0`, Node `24.16.0`, Rust
+  `1.96.0`, `getrandom` `0.4.3`): `release:check-deps` passes after the Rust
+  lockfile refresh. Direct pins are latest/stable; transitives are
+  lockfile-pinned and latest-compatible. `release:check-deps` enforces
+  registry, lockfile, action, OS, apt, local-tool, and SQLCipher bridge freshness.
 - Runtime credential commands, scheduler, notifications, and smoke tests use
   the encrypted SQLite secret-vault provider, and file-backed app data opens
   through SQLCipher. Status checks read vault metadata only, and live OS
