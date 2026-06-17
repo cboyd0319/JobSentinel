@@ -398,6 +398,47 @@ fn test_remote_work_requirement_accepts_remote_role_evidence() {
 }
 
 #[test]
+fn test_reliable_internet_requirement_accepts_high_speed_internet_evidence() {
+    let result = AtsAnalyzer::analyze_text_for_job(
+        "Jordan Lee\njordan@example.com\n\nExperience\nReliable high-speed internet for remote work.",
+        &[],
+        "Required: reliable internet connection",
+    );
+
+    let internet = result
+        .requirement_reviews
+        .iter()
+        .find(|review| review.keyword == "reliable internet connection")
+        .expect("reliable internet connection review");
+    assert_eq!(internet.match_state, RequirementMatchState::Direct);
+    assert!(internet.hard_constraint);
+    assert!(internet
+        .evidence_sections
+        .contains(&"experience".to_string()));
+    assert!(!result
+        .hard_constraint_risks
+        .iter()
+        .any(|risk| risk.requirement == "reliable internet connection"));
+}
+
+#[test]
+fn test_missing_required_home_office_constraint_caps_overall_score() {
+    let resume = sample_resume();
+
+    let result = AtsAnalyzer::analyze_for_job(&resume, "Required: client intake, home office");
+
+    assert!(result.overall_score <= 70.0);
+    assert!(result.hard_constraint_risks.iter().any(|risk| {
+        risk.requirement == "home office"
+            && risk.category == HardConstraintCategory::Location
+            && risk.score_cap == 70.0
+            && risk
+                .action
+                .contains("Check location, schedule, availability, or travel")
+    }));
+}
+
+#[test]
 fn test_missing_required_bilingual_spanish_constraint_caps_overall_score() {
     let resume = sample_resume();
 

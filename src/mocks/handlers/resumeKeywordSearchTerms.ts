@@ -102,6 +102,15 @@ export function getConservativeMockSearchTerms(keyword: string): string[] {
       "remote job",
     ],
     [
+      "reliable internet",
+      "reliable internet connection",
+      "high-speed internet",
+      "high speed internet",
+      "home office",
+      "quiet workspace",
+      "dedicated workspace",
+    ],
+    [
       "hybrid",
       "hybrid work",
       "hybrid-work",

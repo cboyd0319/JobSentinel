@@ -91,6 +91,18 @@ const availabilityConstraintCases: AvailabilityConstraintCase[] = [
     keyword: "remote work",
   },
   {
+    name: "reliable internet connection",
+    achievement: "Reliable high-speed internet for remote work.",
+    jobDescription: "Required: reliable internet connection",
+    keyword: "reliable internet connection",
+  },
+  {
+    name: "home office",
+    achievement: "Dedicated home office for remote work.",
+    jobDescription: "Required: home office",
+    keyword: "home office",
+  },
+  {
     name: "hybrid work",
     achievement: "Available for a hybrid schedule in Denver.",
     jobDescription: "Required: hybrid work",

@@ -272,6 +272,7 @@ pub(super) fn hard_constraint_category(keyword: &str) -> Option<HardConstraintCa
         || lower.contains("on site")
         || lower.contains("remote")
         || lower.contains("hybrid")
+        || remote_workspace_constraint_keyword(&lower)
         || lower.contains("relocation")
         || lower.contains("relocate")
         || lower.contains("travel")
@@ -330,7 +331,7 @@ pub(super) fn extract_hard_constraint_keywords(text: &str) -> Vec<String> {
         r"(?i)\b(bilingual(?:\s+(?:english|spanish|french|mandarin|cantonese|arabic|portuguese|german|japanese|korean))?|(?:spanish|french|mandarin|cantonese|arabic|portuguese|german|japanese|korean)\s+fluency|fluent(?:\s+in)?\s+(?:spanish|french|mandarin|cantonese|arabic|portuguese|german|japanese|korean)|(?:spanish|french|mandarin|cantonese|arabic|portuguese|german|japanese|korean)\s+language|english/(?:spanish|french|mandarin|cantonese|arabic|portuguese|german|japanese|korean)|english and (?:spanish|french|mandarin|cantonese|arabic|portuguese|german|japanese|korean))\b",
         r"(?i)\b(background checks?|background screenings?|pre[- ]employment screenings?|drug screens?|drug screenings?|drug tests?|drug testing)\b",
         r"(?i)\b(lift(?:\s+up\s+to)?\s+\d+\s*(?:pounds?|lbs?)|(?:stand|standing) for long periods?|physical requirements?|physical demands?)\b",
-        r"(?i)\b(onsite|on-site|on site|remote(?:[- ](?:work|role|position|job))?|hybrid(?:[- ](?:work|role|schedule|position|job))?|relocation|relocate|willing to relocate|travel|reliable transportation|own transportation|reliable vehicle|insured vehicle|proof of auto insurance|proof of insurance|auto insurance|car insurance|vehicle insurance|commute|commuting|full[- ]time(?:\s+availability)?|part[- ]time(?:\s+availability)?|availability|available|schedule|weekend availability|weekend shifts?|night shift|overnight shift|third shift|3rd shift|evening shift|second shift|2nd shift|day shift|first shift|1st shift|overtime(?:\s+(?:availability|shifts?|hours?))?|holiday(?:\s+(?:availability|shifts?|hours?))?)\b",
+        r"(?i)\b(onsite|on-site|on site|remote(?:[- ](?:work|role|position|job))?|hybrid(?:[- ](?:work|role|schedule|position|job))?|reliable internet(?:\s+connection)?|high[- ]speed internet(?:\s+connection)?|home office|quiet workspace|dedicated workspace|relocation|relocate|willing to relocate|travel|reliable transportation|own transportation|reliable vehicle|insured vehicle|proof of auto insurance|proof of insurance|auto insurance|car insurance|vehicle insurance|commute|commuting|full[- ]time(?:\s+availability)?|part[- ]time(?:\s+availability)?|availability|available|schedule|weekend availability|weekend shifts?|night shift|overnight shift|third shift|3rd shift|evening shift|second shift|2nd shift|day shift|first shift|1st shift|overtime(?:\s+(?:availability|shifts?|hours?))?|holiday(?:\s+(?:availability|shifts?|hours?))?)\b",
     ];
 
     for pattern in &hard_constraint_patterns {
@@ -475,6 +476,15 @@ fn age_requirement_keyword(keyword: &str) -> bool {
         || lower.contains("minimum age")
         || lower.contains("age requirement")
         || lower.contains("legal work age")
+}
+
+fn remote_workspace_constraint_keyword(keyword: &str) -> bool {
+    keyword.contains("reliable internet")
+        || keyword.contains("high-speed internet")
+        || keyword.contains("high speed internet")
+        || keyword.contains("home office")
+        || keyword.contains("quiet workspace")
+        || keyword.contains("dedicated workspace")
 }
 
 pub(super) fn extract_seniority_constraint_keywords(text: &str) -> Vec<String> {

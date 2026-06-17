@@ -361,6 +361,7 @@ function getMockHardConstraintCategory(keyword: string): MockHardConstraintCateg
     lower.includes("on site") ||
     lower.includes("remote") ||
     lower.includes("hybrid") ||
+    isMockRemoteWorkspaceConstraint(lower) ||
     lower.includes("relocation") ||
     lower.includes("relocate") ||
     lower.includes("travel") ||
@@ -392,6 +393,17 @@ function getMockHardConstraintCategory(keyword: string): MockHardConstraintCateg
     return "Location";
   }
   return null;
+}
+
+function isMockRemoteWorkspaceConstraint(keyword: string): boolean {
+  return (
+    keyword.includes("reliable internet") ||
+    keyword.includes("high-speed internet") ||
+    keyword.includes("high speed internet") ||
+    keyword.includes("home office") ||
+    keyword.includes("quiet workspace") ||
+    keyword.includes("dedicated workspace")
+  );
 }
 
 function isMockAgeRequirementKeyword(keyword: string): boolean {

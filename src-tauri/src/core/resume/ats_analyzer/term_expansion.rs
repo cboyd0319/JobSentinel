@@ -98,6 +98,15 @@ pub(super) fn conservative_keyword_search_terms(keyword_lower: &str) -> Vec<Stri
             "remote job",
         ],
         &[
+            "reliable internet",
+            "reliable internet connection",
+            "high-speed internet",
+            "high speed internet",
+            "home office",
+            "quiet workspace",
+            "dedicated workspace",
+        ],
+        &[
             "hybrid",
             "hybrid work",
             "hybrid-work",
