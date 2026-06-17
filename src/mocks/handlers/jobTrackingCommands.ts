@@ -107,7 +107,7 @@ export function handleMockJobTrackingCommand(
                 ghost_reasons: JSON.stringify([
                   {
                     category: "company_behavior",
-                    description: "User confirmed this listing is a ghost job.",
+                    description: "User marked this listing as needing review.",
                     weight: 1,
                     severity: "high",
                   },

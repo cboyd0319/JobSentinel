@@ -67,9 +67,8 @@ describe("GhostIndicator", () => {
       expect(indicator).toHaveClass("bg-red-100");
     });
 
-    it("displays ghost icon for low/medium severity", () => {
+    it("displays review icon for low/medium severity", () => {
       render(<GhostIndicator ghostScore={0.6} ghostReasons={null} />);
-      // Check for SVG with ghost icon path
       const svg = screen.getByText(/needs review/i).parentElement?.querySelector("svg");
       expect(svg).toBeInTheDocument();
     });
@@ -361,7 +360,7 @@ describe("GhostIndicatorCompact", () => {
         expect(screen.getByText(/reason 1/i)).toBeInTheDocument();
         expect(screen.getByText(/reason 2/i)).toBeInTheDocument();
         expect(screen.getByText(/reason 3/i)).toBeInTheDocument();
-        expect(screen.getByText(/\+1 more warnings/i)).toBeInTheDocument();
+        expect(screen.getByText(/\+1 more details to check/i)).toBeInTheDocument();
       });
     });
 
@@ -373,7 +372,7 @@ describe("GhostIndicatorCompact", () => {
       await user.hover(indicator);
 
       await waitFor(() => {
-        expect(screen.getByText(/this job may be stale, reposted, or hard to verify/i)).toBeInTheDocument();
+        expect(screen.getByText(/this posting may be stale, reposted, or hard to verify/i)).toBeInTheDocument();
       });
     });
   });

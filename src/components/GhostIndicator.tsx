@@ -20,14 +20,13 @@ const ghostReasonCategories = new Set<string>([
 
 const ghostReasonSeverities = new Set<string>(["low", "medium", "high"]);
 
-// Category display names for ML-enhanced signals
 const categoryLabels: Record<GhostReason["category"], string> = {
-  stale: "Stale Listing",
-  repost: "Reposted",
+  stale: "Older posting",
+  repost: "Repeated posting",
   generic: "Low-detail posting",
-  missing_details: "Missing Details",
-  unrealistic: "Unrealistic",
-  company_behavior: "Company Pattern",
+  missing_details: "Missing details",
+  unrealistic: "Unusual details",
+  company_behavior: "Employer posting pattern",
 };
 
 interface GhostIndicatorProps {
@@ -94,7 +93,7 @@ function isGhostReason(value: unknown): value is GhostReason {
   );
 }
 
-function GhostIcon({ className }: { className?: string }) {
+function ReviewIcon({ className }: { className?: string }) {
   return (
     <svg
       className={className}
@@ -103,12 +102,11 @@ function GhostIcon({ className }: { className?: string }) {
       stroke="currentColor"
       aria-hidden="true"
     >
-      {/* Ghost icon */}
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
         strokeWidth={1.5}
-        d="M12 2C8.13 2 5 5.13 5 9v10l2.5-2 2.5 2 2-2 2 2 2.5-2 2.5 2V9c0-3.87-3.13-7-7-7zm-2 7a1 1 0 11-2 0 1 1 0 012 0zm5 0a1 1 0 11-2 0 1 1 0 012 0z"
+        d="M9 11l2 2 4-4m4 9V6a2 2 0 00-2-2H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2z"
       />
     </svg>
   );
@@ -178,7 +176,7 @@ export const GhostIndicator = memo(function GhostIndicator({
         });
       } else {
         await safeInvoke("mark_job_as_ghost", { jobId }, {
-          logContext: "Mark job as ghost",
+          logContext: "Mark posting as needs review",
           silent: true
         });
       }
@@ -278,7 +276,7 @@ export const GhostIndicator = memo(function GhostIndicator({
         {severity === "high" ? (
           <WarningIcon className={sizeClass} />
         ) : (
-          <GhostIcon className={sizeClass} />
+          <ReviewIcon className={sizeClass} />
         )}
         <span className="sr-only sm:not-sr-only">
           {feedbackState === "real"
@@ -324,7 +322,7 @@ export const GhostIndicatorCompact = memo(function GhostIndicatorCompact({
         });
       } else {
         await safeInvoke("mark_job_as_ghost", { jobId }, {
-          logContext: "Mark job as ghost",
+          logContext: "Mark posting as needs review",
           silent: true
         });
       }
@@ -349,12 +347,12 @@ export const GhostIndicatorCompact = memo(function GhostIndicatorCompact({
           ))}
           {reasons.length > 3 && (
             <li className="text-surface-400">
-              +{reasons.length - 3} more warnings
+              +{reasons.length - 3} more details to check
             </li>
           )}
         </ul>
       ) : (
-        <p className="text-xs">This job may be stale, reposted, or hard to verify</p>
+        <p className="text-xs">This posting may be stale, reposted, or hard to verify</p>
       )}
       {jobId && !feedbackState && (
         <div className="mt-2 pt-2 border-t border-surface-200 dark:border-surface-600">
@@ -412,7 +410,7 @@ export const GhostIndicatorCompact = memo(function GhostIndicatorCompact({
         aria-label={ariaLabel}
         tabIndex={0}
       >
-        <GhostIcon className="w-3 h-3" />
+        <ReviewIcon className="w-3 h-3" />
       </span>
     </Tooltip>
   );
