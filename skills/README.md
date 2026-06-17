@@ -28,6 +28,7 @@ structured help with a job search while preserving JobSentinel's core rules:
 | `resume-tailoring` | Compare a resume with a job post and draft truthful, readable resume edits. |
 | `application-form-review` | Prepare safe answers and review repeated application-form fields before the user submits manually. |
 | `application-tracking` | Maintain application status, follow-ups, notes, contacts, and next actions. |
+| `networking-outreach` | Draft recruiter, referral, alumni, community, and warm-contact messages. |
 | `interview-prep` | Build interview briefs, evidence stories, questions, and follow-up notes. |
 | `offer-pay-review` | Compare written offers, listed pay, salary floors, benefits, schedule, scope, and negotiation notes. |
 

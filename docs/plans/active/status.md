@@ -75,8 +75,8 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   only, and live OS keyring tests remain opt-in behind
   `JOBSENTINEL_LIVE_KEYRING_TESTS=1`.
 - Downloadable Agent Skills cover search planning, posting-risk review, resume
-  tailoring, form review, tracking, interview prep, and offer/pay review;
-  `skills/` is an intentional harness-validated root.
+  tailoring, form review, tracking, outreach, interview prep, and offer/pay;
+  `skills/` is a harness-validated root.
 - LinkedIn runtime config/scraper types expose no session-cookie fields, and
   Browser Import manual verification passed on 2026-06-17 for desktop/mobile:
   settings, port validation, copy, private-link rejection, LinkedIn preview/save,

@@ -36,23 +36,39 @@ function parseFrontmatter(text) {
   }
 
   const fields = new Map();
+  const metadataFields = new Map();
+  let currentMap = null;
   for (const rawLine of match[1].split(/\r?\n/)) {
-    if (/^\s/.test(rawLine) || rawLine.trim() === "" || rawLine.trim().startsWith("#")) {
+    if (rawLine.trim() === "" || rawLine.trim().startsWith("#")) {
+      continue;
+    }
+
+    if (/^\s/.test(rawLine)) {
+      if (currentMap === "metadata") {
+        const metadataMatch = rawLine.match(/^\s+([A-Za-z0-9_-]+):(?:\s*(.*))?$/);
+        if (metadataMatch) {
+          const [, key, rawValue = ""] = metadataMatch;
+          metadataFields.set(key, rawValue.trim().replace(/^["']|["']$/g, ""));
+        }
+      }
       continue;
     }
 
     const fieldMatch = rawLine.match(/^([A-Za-z0-9_-]+):(?:\s*(.*))?$/);
     if (!fieldMatch) {
+      currentMap = null;
       continue;
     }
 
     const [, key, rawValue = ""] = fieldMatch;
     fields.set(key, rawValue.trim().replace(/^["']|["']$/g, ""));
+    currentMap = key === "metadata" ? "metadata" : null;
   }
 
   return {
     bodyStart: match[0].length,
     fields,
+    metadataFields,
   };
 }
 
@@ -77,6 +93,16 @@ function collectResourceFiles(root, dir) {
   return files;
 }
 
+function referencedSkillFiles(text) {
+  return [
+    ...new Set(
+      [...text.matchAll(/\b(?:assets|references|scripts)\/[A-Za-z0-9_.\/-]+/g)].map(
+        (match) => match[0],
+      ),
+    ),
+  ];
+}
+
 export function validateSkillPackage(skillRoot) {
   const errors = [];
   const skillDirName = skillRoot.split(/[\\/]/).pop();
@@ -96,8 +122,10 @@ export function validateSkillPackage(skillRoot) {
 
   const name = frontmatter.fields.get("name") ?? "";
   const description = frontmatter.fields.get("description") ?? "";
+  const license = frontmatter.fields.get("license");
   const compatibility = frontmatter.fields.get("compatibility");
   const allowedTools = frontmatter.fields.get("allowed-tools");
+  const versionTarget = frontmatter.metadataFields.get("jobsentinel_version_target");
   const body = text.slice(frontmatter.bodyStart).trim();
 
   if (!skillNamePattern.test(name) || name.includes("--")) {
@@ -110,6 +138,16 @@ export function validateSkillPackage(skillRoot) {
 
   if (description.length === 0 || description.length > 1024) {
     errors.push(`${skillDirName}/SKILL.md description must be 1-1024 characters`);
+  }
+
+  if (license !== "MIT") {
+    errors.push(`${skillDirName}/SKILL.md license must be MIT`);
+  }
+
+  if (versionTarget !== "2.9.0") {
+    errors.push(
+      `${skillDirName}/SKILL.md metadata.jobsentinel_version_target must be "2.9.0"`,
+    );
   }
 
   if (compatibility !== undefined && (compatibility.length === 0 || compatibility.length > 500)) {
@@ -130,6 +168,12 @@ export function validateSkillPackage(skillRoot) {
 
   if (!/^## Guardrails$/m.test(text)) {
     errors.push(`${skillDirName}/SKILL.md must include a Guardrails section`);
+  }
+
+  for (const referencedFile of referencedSkillFiles(text)) {
+    if (!existsSync(join(skillRoot, referencedFile))) {
+      errors.push(`${skillDirName}/SKILL.md references missing file: ${referencedFile}`);
+    }
   }
 
   for (const entry of readdirSync(skillRoot, { withFileTypes: true })) {
@@ -177,8 +221,8 @@ export function checkAgentSkills(root = repoRoot) {
     .map((entry) => entry.name)
     .sort();
 
-  if (skillDirs.length < 6) {
-    errors.push("skills/ must include at least six job-search skill packages");
+  if (skillDirs.length < 8) {
+    errors.push("skills/ must include at least eight job-search skill packages");
   }
 
   for (const entry of entries) {

@@ -1,0 +1,57 @@
+---
+name: networking-outreach
+description: Draft truthful recruiter, referral, alumni, community, and warm-contact outreach for a job search. Use when asking for introductions, following up on conversations, replying to recruiters, requesting role context, or writing concise networking messages without spam or exaggeration.
+license: MIT
+metadata:
+  jobsentinel_version_target: "2.9.0"
+---
+
+# Networking Outreach
+
+Use this skill to turn a job seeker’s real background and target role into
+short, respectful outreach messages the user can review and send manually.
+
+## Inputs
+
+Use the target role, company, relationship to the contact, relevant resume
+evidence, shared context, preferred channel, and the user’s boundaries.
+
+## Workflow
+
+1. Identify the outreach goal: referral request, role context, recruiter reply,
+   alumni note, community follow-up, informational chat, or thank-you.
+2. Separate confirmed facts from assumptions.
+3. Pick one clear ask, such as a brief call, a role-context question, a referral
+   path, or permission to share a resume.
+4. Draft a message with:
+   - a specific reason for contacting this person;
+   - one sentence of truthful fit evidence;
+   - a low-pressure ask;
+   - an easy opt-out.
+5. Keep follow-ups spaced and useful. If there is no new reason to follow up,
+   recommend pausing instead of sending another note.
+6. End with a send-review checklist.
+
+## Output
+
+Produce:
+
+- Outreach goal and contact context.
+- Message draft.
+- Optional shorter version.
+- Follow-up timing.
+- Questions or facts the user must confirm before sending.
+- Send-review checklist.
+
+Use `assets/outreach-note-template.md` for reusable message notes.
+
+## Guardrails
+
+- Do not invent referrals, relationships, endorsements, achievements, metrics,
+  credentials, interviews, offers, or employer interest.
+- Do not send messages automatically.
+- Do not scrape contact lists, collect session cookies, or automate account
+  activity on LinkedIn or other restricted platforms.
+- Do not pressure contacts or hide the job-search purpose.
+- Keep private salary floors, personal circumstances, and application history
+  out of outreach unless the user explicitly chooses to include them.

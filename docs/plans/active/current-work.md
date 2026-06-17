@@ -70,7 +70,7 @@ Out of scope:
 | Area | State | Next useful slice |
 | ---- | ----- | ----------------- |
 | v2.9.0 dependency readiness | Complete | Direct pins and Actions exact latest stable; resolved transitives lockfile-pinned and latest-compatible; revisit when freshness/audit fails |
-| Downloadable Agent Skills | Complete locally | Seven spec-compliant `skills/` packages exist and are guarded by `npm run lint:skills` plus the harness. |
+| Downloadable Agent Skills | Complete locally | Eight spec-compliant skills exist and are guarded by `npm run lint:skills` plus the harness. |
 | Browser Import and LinkedIn-compatible flow | Complete locally | Manual desktop/mobile verification passed; revisit only if whole-UI QA finds a blocker. Keep LinkedIn user-opened and user-clicked without session cookies or background monitoring. |
 | Development and QA completion | Active | Fix confirmed UI, scraper, privacy, docs, harness, and Computer Use validation blockers before any new release work. |
 | macOS readiness | Paused for release creation | Keep docs honest when touched, but do not create or upload new release assets until development and QA blockers are closed. |
@@ -129,7 +129,8 @@ Out of scope:
 - Runtime credentials now use the encrypted vault provider; status checks read
   metadata only.
 - Downloadable Agent Skills now cover search planning, posting-risk review,
-  resume tailoring, form review, tracking, interview prep, and offer/pay review.
+  resume tailoring, form review, tracking, outreach, interview prep, and
+  offer/pay review.
 - Browser Import desktop/mobile manual verification passed on 2026-06-17 for
   setup, private-link rejection, LinkedIn preview/save, duplicates, and overflow.
 - Whole-UI normal actions, Setup Wizard, keyboard paths, and forced states passed.
