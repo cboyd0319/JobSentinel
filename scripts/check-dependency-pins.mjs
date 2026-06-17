@@ -8,27 +8,18 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 const scriptPath = fileURLToPath(import.meta.url);
 const defaultRoot = resolve(dirname(scriptPath), "..");
 
-const npmDependencySections = [
-  "dependencies",
-  "devDependencies",
-  "optionalDependencies",
-  "peerDependencies",
-];
-
+const npmDependencySections = ["dependencies", "devDependencies", "optionalDependencies", "peerDependencies"];
 const cargoDependencySectionPattern =
   /^(?:dependencies|dev-dependencies|build-dependencies|target\..+\.dependencies)$/;
 const workflowDirectory = ".github/workflows";
 const cargoInstallScanRoots = [".github/workflows", "docs", "README.md"];
+const cratesIoHeaders = {
+  "User-Agent": "JobSentinel dependency pin check (https://github.com/cboyd0319/JobSentinel)",
+};
 
 const allowedNpmPrereleaseLockEntries = new Map([
-  [
-    "@polka/url@1.0.0-next.29",
-    "sirv@3.0.2 depends on ^1.0.0-next.24 and @polka/url publishes no stable 1.x version",
-  ],
-  [
-    "gensync@1.0.0-beta.2",
-    "@babel/core@7.29.7 depends on ^1.0.0-beta.2 and gensync publishes no stable 1.x version",
-  ],
+  ["@polka/url@1.0.0-next.29", "sirv@3.0.2 depends on ^1.0.0-next.24 and @polka/url publishes no stable 1.x version"],
+  ["gensync@1.0.0-beta.2", "@babel/core@7.29.7 depends on ^1.0.0-beta.2 and gensync publishes no stable 1.x version"],
 ]);
 
 function repoPath(root, path) {
@@ -77,12 +68,7 @@ export function parseStableSemver(version) {
     return null;
   }
 
-  return {
-    major: Number(match[1]),
-    minor: Number(match[2]),
-    patch: Number(match[3]),
-    raw: String(version).replace(/^v/, "").split("+")[0],
-  };
+  return { major: Number(match[1]), minor: Number(match[2]), patch: Number(match[3]), raw: String(version).replace(/^v/, "").split("+")[0] };
 }
 
 export function compareStableSemver(left, right) {
@@ -133,13 +119,7 @@ function parseNodeRuntimePin(root) {
 
   const version = readText(root, path).trim();
   const stable = exactStableVersion(version);
-  if (!stable) {
-    return {
-      path,
-      version,
-      error: `${path} must pin an exact stable Node.js version, found ${version || "empty"}`,
-    };
-  }
+  if (!stable) return { path, version, error: `${path} must pin an exact stable Node.js version, found ${version || "empty"}` };
 
   return { path, version: stable };
 }
@@ -153,13 +133,7 @@ function parseRustToolchainPin(root) {
   const text = readText(root, path);
   const channel = text.match(/^\s*channel\s*=\s*"([^"]+)"/m)?.[1];
   const stable = exactStableVersion(channel ?? "");
-  if (!stable) {
-    return {
-      path,
-      version: channel ?? "",
-      error: `${path} channel must pin an exact stable Rust version, found ${channel ?? "missing"}`,
-    };
-  }
+  if (!stable) return { path, version: channel ?? "", error: `${path} channel must pin an exact stable Rust version, found ${channel ?? "missing"}` };
 
   return { path, version: stable };
 }
@@ -182,13 +156,7 @@ function parseCargoInstallCommands(text, path) {
   lines.forEach((line, index) => {
     for (const match of line.matchAll(pattern)) {
       const rest = match[2] ?? "";
-      commands.push({
-        name: match[1],
-        version: parseCargoInstallVersion(rest),
-        locked: /(?:^|\s)--locked(?=\s|$)/.test(rest),
-        path,
-        line: index + 1,
-      });
+      commands.push({ name: match[1], version: parseCargoInstallVersion(rest), locked: /(?:^|\s)--locked(?=\s|$)/.test(rest), path, line: index + 1 });
     }
   });
 
@@ -272,15 +240,21 @@ export function collectRuntimePinViolations(root = defaultRoot) {
 }
 
 function directNpmDependencies(packageJson) {
-  const entries = [];
+  return npmDependencySections.flatMap((section) =>
+    Object.entries(packageJson[section] ?? {}).map(([name, version]) => ({
+      name,
+      section,
+      version: String(version),
+    })),
+  );
+}
 
-  for (const section of npmDependencySections) {
-    for (const [name, version] of Object.entries(packageJson[section] ?? {})) {
-      entries.push({ name, section, version: String(version) });
-    }
-  }
+function npmPackageManagerPin(packageJson) {
+  const raw = String(packageJson.packageManager ?? "").trim();
+  const match = raw.match(/^npm@([^+\s]+)(?:\+[0-9A-Za-z.-]+)?$/);
+  const version = match ? exactStableVersion(match[1]) : null;
 
-  return entries;
+  return { raw, version };
 }
 
 function npmLockPackageName(location) {
@@ -315,6 +289,13 @@ export function collectNpmPinViolations(root = defaultRoot) {
 
   const packageJson = readJson(root, packageJsonPath);
   const directDependencies = directNpmDependencies(packageJson);
+  const packageManager = npmPackageManagerPin(packageJson);
+
+  if (!packageManager.version) {
+    violations.push(
+      `${packageJsonPath} packageManager must pin npm to an exact stable version, found ${packageManager.raw || "missing"}`,
+    );
+  }
 
   for (const dependency of directDependencies) {
     if (!parseStableSemver(dependency.version)) {
@@ -663,10 +644,7 @@ export async function collectRuntimeLatestStableViolations(
       const metadata = await fetchJson(
         fetchImpl,
         `https://crates.io/api/v1/crates/${encodeURIComponent(command.name)}`,
-        {
-          "User-Agent":
-            "JobSentinel dependency pin check (https://github.com/cboyd0319/JobSentinel)",
-        },
+        cratesIoHeaders,
       );
       const latest = highestStableVersion(
         (metadata.versions ?? [])
@@ -702,7 +680,18 @@ export async function collectNpmLatestStableViolations(
 
   const packageJson = readJson(root, "package.json");
   const directDependencies = directNpmDependencies(packageJson);
-  const checks = await mapWithLimit(directDependencies, 8, async (dependency) => {
+  const packageManager = npmPackageManagerPin(packageJson);
+  const packageManagerTarget = packageManager.version
+    ? [{ label: "package.json packageManager npm", name: "npm", version: packageManager.version }]
+    : [];
+  const dependencyTargets = directDependencies.map((dependency) => ({
+    label: `package.json ${dependency.name}`,
+    name: dependency.name,
+    version: dependency.version,
+  }));
+  const checkTargets = packageManagerTarget.concat(dependencyTargets);
+
+  const checks = await mapWithLimit(checkTargets, 8, async (dependency) => {
     try {
       const metadata = await fetchJson(
         fetchImpl,
@@ -715,7 +704,7 @@ export async function collectNpmLatestStableViolations(
       }
 
       if (compareStableSemver(dependency.version, latest) !== 0) {
-        return `package.json ${dependency.name} is pinned to ${dependency.version}; latest stable npm version is ${latest}`;
+        return `${dependency.label} is pinned to ${dependency.version}; latest stable npm version is ${latest}`;
       }
     } catch (error) {
       return `npm latest-stable lookup failed for ${dependency.name}: ${error.message}`;
@@ -746,10 +735,7 @@ export async function collectCargoLatestStableViolations(
       const metadata = await fetchJson(
         fetchImpl,
         `https://crates.io/api/v1/crates/${encodeURIComponent(dependency.name)}`,
-        {
-          "User-Agent":
-            "JobSentinel dependency pin check (https://github.com/cboyd0319/JobSentinel)",
-        },
+        cratesIoHeaders,
       );
       const latest = highestStableVersion(
         (metadata.versions ?? [])
@@ -886,9 +872,9 @@ export async function main(argv = process.argv.slice(2), root = defaultRoot) {
   }
 
   if (checkLatest) {
-    console.log("Dependency pin check passed: exact runtime/tool pins, exact direct pins, latest stable direct dependencies and tools, stable lockfile policy, and lockfile freshness verified.");
+    console.log("Dependency pin check passed: exact runtime/tool/package-manager pins, exact direct pins, latest stable package manager/direct dependencies/tools, stable lockfile policy, and lockfile freshness verified.");
   } else {
-    console.log("Dependency pin check passed: exact runtime/tool, package, and crate pins plus stable lockfile policy verified.");
+    console.log("Dependency pin check passed: exact runtime/tool/package-manager, package, and crate pins plus stable lockfile policy verified.");
   }
 }
 

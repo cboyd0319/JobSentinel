@@ -32,9 +32,9 @@ contracts for UI/UX changes when design work resumes.
 The v2.9.0 goal adds four durable release-readiness requirements:
 
 - Add spec-compliant downloadable Agent Skills under `skills/`.
-- Keep repo-declared npm packages and Cargo crates exact-pinned latest stable;
-  keep resolved transitives lockfile-pinned, latest-compatible, and never
-  forced outside upstream constraints.
+- Keep the npm package manager, repo-declared npm packages, and Cargo crates
+  exact-pinned latest stable; keep resolved transitives lockfile-pinned,
+  latest-compatible, and never forced outside upstream constraints.
 - Support LinkedIn through user-opened search links and user-clicked Browser
   Import only. Do not add LinkedIn session-cookie storage, token replay,
   background monitoring, result-list crawling, or account automation unless a
@@ -64,12 +64,12 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 - Current UI QA evidence confirms modal paint fixes, visible Dashboard and
   Hiring Trends toasts, Application Assist tabs, Pay Protection, Resume Match,
   and Settings Sources & Alerts opening without a passive Keychain prompt.
-- Dependency evidence on 2026-06-17 (`dompurify` `3.4.11`): repo-declared
-  direct npm/Cargo deps and GitHub Actions match latest/stable; resolved
-  transitives are lockfile-pinned; `lint:deps`, `lint:actions`, and
-  `release:check-deps` enforce registry, lockfile, and action-ref freshness.
-  Upstream constraints: npm `@polka/url`, `gensync`; Cargo
-  `generic-array`, `toml`, `toml_datetime`, `toml_edit`.
+- Dependency evidence on 2026-06-17 (`dompurify` `3.4.11`, `npm` `11.17.0`):
+  the npm package manager, repo-declared direct npm/Cargo deps, and GitHub
+  Actions match latest/stable; resolved transitives are lockfile-pinned;
+  `lint:deps`, `lint:actions`, and `release:check-deps` enforce registry,
+  lockfile, and action-ref freshness. Upstream constraints: npm `@polka/url`,
+  `gensync`; Cargo `generic-array`, `toml`, `toml_datetime`, `toml_edit`.
 - Runtime credential commands, scheduler, notifications, and smoke tests use
   the encrypted SQLite secret-vault provider. Status checks read vault metadata
   only, and live OS keyring tests remain opt-in behind

@@ -3,6 +3,7 @@
   "version": "2.7.7",
   "description": "Privacy-preserving local-first job-search assistant for desktop",
   "type": "module",
+  "packageManager": "npm@11.17.0",
   "scripts": {
     "dev": "vite",
     "dev:mock": "VITE_MOCK_API=true vite",

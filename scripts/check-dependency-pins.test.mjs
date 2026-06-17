@@ -49,6 +49,7 @@ function writeMinimalNpmFixture(root, version = "1.2.3") {
     root,
     "package.json",
     JSON.stringify({
+      packageManager: "npm@11.17.0",
       dependencies: {
         react: version,
       },
@@ -192,6 +193,38 @@ test("npm pin check rejects ranges and lockfile drift", () => {
     const violations = collectNpmPinViolations(root);
 
     assert.equal(violations.some((violation) => violation.includes("exact stable version")), true);
+  });
+});
+
+test("npm pin check rejects missing or floating package manager pins", () => {
+  withFixture((root) => {
+    writeMinimalNpmFixture(root);
+    const packageJson = JSON.parse(
+      [
+        "{",
+        '  "dependencies": { "react": "1.2.3" },',
+        '  "devDependencies": { "vite": "8.0.16" }',
+        "}",
+      ].join("\n"),
+    );
+    writeFixtureFile(root, "package.json", JSON.stringify(packageJson));
+
+    assert.equal(
+      collectNpmPinViolations(root).some((violation) =>
+        violation.includes("packageManager must pin npm to an exact stable version"),
+      ),
+      true,
+    );
+
+    packageJson.packageManager = "npm@^11.17.0";
+    writeFixtureFile(root, "package.json", JSON.stringify(packageJson));
+
+    assert.equal(
+      collectNpmPinViolations(root).some((violation) =>
+        violation.includes("packageManager must pin npm to an exact stable version"),
+      ),
+      true,
+    );
   });
 });
 
@@ -365,7 +398,9 @@ test("npm latest-stable check compares direct pins to registry versions", async 
         json: async () => ({
           versions: String(url).endsWith("react")
             ? { "1.2.3": {}, "1.3.0": {}, "2.0.0-beta.1": {} }
-            : { "8.0.16": {}, "9.0.0-beta.1": {} },
+            : String(url).endsWith("npm")
+              ? { "11.17.0": {}, "12.0.0-beta.1": {} }
+              : { "8.0.16": {}, "9.0.0-beta.1": {} },
         }),
       }),
     });
@@ -415,6 +450,29 @@ test("runtime latest-stable check compares tool pins to upstream versions", asyn
       ".nvmrc is pinned to 24.16.0; latest stable Node.js LTS version is 24.17.0",
       "rust-toolchain.toml is pinned to 1.96.0; latest stable Rust version is 1.97.0",
       ".github/workflows/ci.yml:8 cargo install cargo-deny is pinned to 0.19.9; latest stable crates.io version is 0.20.0",
+    ]);
+  });
+});
+
+test("npm latest-stable check compares package manager pin to registry version", async () => {
+  await withFixtureAsync(async (root) => {
+    writeMinimalNpmFixture(root);
+
+    const violations = await collectNpmLatestStableViolations(root, {
+      fetchImpl: async (url) => ({
+        ok: true,
+        json: async () => ({
+          versions: String(url).endsWith("npm")
+            ? { "11.17.0": {}, "11.18.0": {} }
+            : String(url).endsWith("react")
+              ? { "1.2.3": {} }
+              : { "8.0.16": {} },
+        }),
+      }),
+    });
+
+    assert.deepEqual(violations, [
+      "package.json packageManager npm is pinned to 11.17.0; latest stable npm version is 11.18.0",
     ]);
   });
 });
