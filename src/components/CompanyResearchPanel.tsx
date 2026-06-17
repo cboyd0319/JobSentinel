@@ -3,10 +3,10 @@ import { Card } from './Card';
 import { Button } from './Button';
 import { Badge } from './Badge';
 import { LoadingSpinner } from './LoadingSpinner';
-import { COMPANY_CACHE_TTL } from '../utils/constants';
 import { removeStorageValue } from '../utils/browserStorage';
 
 import { KNOWN_COMPANIES, type CompanyInfo } from './companyResearchData';
+import { getCachedCompany, setCachedCompany } from './companyResearchCache';
 
 interface CompanyResearchPanelProps {
   companyName: string;
@@ -14,52 +14,6 @@ interface CompanyResearchPanelProps {
 }
 
 const LEGACY_CACHE_KEY = 'jobsentinel_company_cache';
-
-interface CacheEntry {
-  data: CompanyInfo;
-  timestamp: number;
-}
-
-let companyMemoryCache: Record<string, CacheEntry> = {};
-
-function getCompanyCacheKey(name: string): string {
-  return name.toLowerCase().trim();
-}
-
-function getCachedCompany(name: string): CompanyInfo | null {
-  const entry = companyMemoryCache[getCompanyCacheKey(name)];
-
-  if (entry && Date.now() - entry.timestamp < COMPANY_CACHE_TTL) {
-    return entry.data;
-  }
-  return null;
-}
-
-function setCachedCompany(name: string, data: CompanyInfo): void {
-  const key = getCompanyCacheKey(name);
-  companyMemoryCache[key] = { data, timestamp: Date.now() };
-
-  // Keep cache size reasonable (max 100 companies)
-  const keys = Object.keys(companyMemoryCache);
-  if (keys.length > 100) {
-    const oldest = keys.sort((a, b) => (companyMemoryCache[a]?.timestamp ?? 0) - (companyMemoryCache[b]?.timestamp ?? 0))[0];
-    if (oldest) {
-      delete companyMemoryCache[oldest];
-    }
-  }
-}
-
-export function clearCompanyResearchMemoryCacheForTests(): void {
-  companyMemoryCache = {};
-}
-
-export function seedCompanyResearchMemoryCacheForTests(
-  name: string,
-  data: CompanyInfo,
-  timestamp = Date.now(),
-): void {
-  companyMemoryCache[getCompanyCacheKey(name)] = { data, timestamp };
-}
 
 function getToolsAndSystems(info: CompanyInfo): string[] {
   return info.toolsAndSystems ?? info.techStack ?? [];

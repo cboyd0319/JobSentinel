@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { CompanyResearchPanel } from "./CompanyResearchPanel";
 import {
-  CompanyResearchPanel,
   clearCompanyResearchMemoryCacheForTests,
   seedCompanyResearchMemoryCacheForTests,
-} from "./CompanyResearchPanel";
+} from "./companyResearchCache";
 
 // Mock localStorage
 const localStorageMock = (() => {
