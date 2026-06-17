@@ -18,6 +18,17 @@ const npmDependencySections = [
 const cargoDependencySectionPattern =
   /^(?:dependencies|dev-dependencies|build-dependencies|target\..+\.dependencies)$/;
 
+const allowedNpmPrereleaseLockEntries = new Map([
+  [
+    "@polka/url@1.0.0-next.29",
+    "sirv@3.0.2 depends on ^1.0.0-next.24 and @polka/url publishes no stable 1.x version",
+  ],
+  [
+    "gensync@1.0.0-beta.2",
+    "@babel/core@7.29.7 depends on ^1.0.0-beta.2 and gensync publishes no stable 1.x version",
+  ],
+]);
+
 function repoPath(root, path) {
   return join(root, path);
 }
@@ -78,6 +89,27 @@ function directNpmDependencies(packageJson) {
   return entries;
 }
 
+function npmLockPackageName(location) {
+  const parts = String(location).split("/");
+  const nodeModulesIndex = parts.lastIndexOf("node_modules");
+
+  if (nodeModulesIndex === -1) {
+    return null;
+  }
+
+  const name = parts[nodeModulesIndex + 1];
+  if (!name) {
+    return null;
+  }
+
+  if (name.startsWith("@")) {
+    const scopedName = parts[nodeModulesIndex + 2];
+    return scopedName ? `${name}/${scopedName}` : null;
+  }
+
+  return name;
+}
+
 export function collectNpmPinViolations(root = defaultRoot) {
   const violations = [];
   const packageJsonPath = "package.json";
@@ -105,6 +137,27 @@ export function collectNpmPinViolations(root = defaultRoot) {
 
   const packageLock = readJson(root, lockPath);
   const lockRoot = packageLock.packages?.[""] ?? {};
+
+  for (const [location, packageEntry] of Object.entries(packageLock.packages ?? {})) {
+    if (!location || !packageEntry?.version) {
+      continue;
+    }
+
+    const version = String(packageEntry.version);
+    if (parseStableSemver(version)) {
+      continue;
+    }
+
+    const name = npmLockPackageName(location);
+    const key = `${name}@${version}`;
+    if (name && allowedNpmPrereleaseLockEntries.has(key)) {
+      continue;
+    }
+
+    violations.push(
+      `${lockPath} ${location} must lock a stable semver package version or record an upstream-constrained exception, found ${key}`,
+    );
+  }
 
   for (const dependency of directDependencies) {
     const locked = packageLock.packages?.[`node_modules/${dependency.name}`]?.version;
@@ -284,6 +337,14 @@ export function collectCargoPinViolations(root = defaultRoot) {
   const lockedVersions = parseCargoLockPackageVersions(
     readFileSync(repoPath(root, lockPath), "utf8"),
   );
+
+  for (const [name, versions] of lockedVersions.entries()) {
+    for (const version of versions) {
+      if (!parseStableSemver(version)) {
+        violations.push(`${lockPath} ${name} must lock a stable semver crate version, found ${version}`);
+      }
+    }
+  }
 
   for (const dependency of dependencies) {
     if (!dependency.version?.startsWith("=") || !parseStableSemver(dependency.version.slice(1))) {
@@ -522,9 +583,9 @@ export async function main(argv = process.argv.slice(2), root = defaultRoot) {
   }
 
   if (checkLatest) {
-    console.log("Dependency pin check passed: exact pins, latest stable direct dependencies, and lockfile freshness verified.");
+    console.log("Dependency pin check passed: exact pins, latest stable direct dependencies, stable lockfile policy, and lockfile freshness verified.");
   } else {
-    console.log("Dependency pin check passed: exact package and crate pins verified.");
+    console.log("Dependency pin check passed: exact package and crate pins plus stable lockfile policy verified.");
   }
 }
 

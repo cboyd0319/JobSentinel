@@ -118,10 +118,10 @@ Out of scope:
   viewport-fixed toasts, and Settings opening without passive Keychain prompts.
 - The v2.9.0 pass confirmed Browser Import is the LinkedIn path, not session
   storage or automatic monitoring. Private profile inputs stay local.
-- Direct npm/Cargo dependencies are exact-pinned to latest stable.
-  `npm run lint:deps` enforces exact pins, `npm run release:check-deps`
-  verifies registries and lockfile dry-runs, and remaining behind-latest
-  transitive packages/crates are blocked by upstream constraints.
+- Direct npm/Cargo dependencies are exact-pinned to latest stable; transitive
+  deps are lockfile-pinned. `npm run lint:deps` enforces exact pins plus
+  stable-lockfile policy, `npm run release:check-deps` verifies registries and
+  dry-runs, and remaining behind-latest transitive deps are upstream-bound.
 - Live OS keyring integration tests are opt-in behind
   `JOBSENTINEL_LIVE_KEYRING_TESTS=1`; default credential tests remain
   non-interactive and still prove LinkedIn credential storage is blocked before

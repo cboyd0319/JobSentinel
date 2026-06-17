@@ -75,6 +75,12 @@ function writeMinimalNpmFixture(root, version = "1.2.3") {
         "node_modules/vite": {
           version: "8.0.16",
         },
+        "node_modules/vite/node_modules/@polka/url": {
+          version: "1.0.0-next.29",
+        },
+        "node_modules/gensync": {
+          version: "1.0.0-beta.2",
+        },
       },
     }),
   );
@@ -155,6 +161,34 @@ test("npm pin check rejects ranges and lockfile drift", () => {
   });
 });
 
+test("npm pin check rejects unreviewed prerelease lockfile entries", () => {
+  withFixture((root) => {
+    writeMinimalNpmFixture(root);
+    const packageLockPath = "package-lock.json";
+    const packageLock = JSON.parse(
+      [
+        "{",
+        '  "lockfileVersion": 3,',
+        '  "packages": {',
+        '    "": { "dependencies": { "react": "1.2.3" }, "devDependencies": { "vite": "8.0.16" } },',
+        '    "node_modules/react": { "version": "1.2.3" },',
+        '    "node_modules/vite": { "version": "8.0.16" },',
+        '    "node_modules/example": { "version": "2.0.0-rc.1" }',
+        "  }",
+        "}",
+      ].join("\n"),
+    );
+    writeFixtureFile(root, packageLockPath, JSON.stringify(packageLock));
+
+    const violations = collectNpmPinViolations(root);
+
+    assert.equal(
+      violations.some((violation) => violation.includes("node_modules/example")),
+      true,
+    );
+  });
+});
+
 test("Cargo dependency parser includes normal, build, and target dependencies", () => {
   const specs = collectCargoDependencySpecs(
     [
@@ -197,6 +231,33 @@ test("Cargo pin check rejects non-exact pins and lockfile drift", () => {
 
     assert.equal(
       violations.some((violation) => violation.includes("must use an exact =version pin")),
+      true,
+    );
+  });
+});
+
+test("Cargo pin check rejects prerelease lockfile crate versions", () => {
+  withFixture((root) => {
+    writeMinimalCargoFixture(root);
+    writeFixtureFile(
+      root,
+      "src-tauri/Cargo.lock",
+      [
+        "[[package]]",
+        'name = "serde"',
+        'version = "1.0.228"',
+        "",
+        "[[package]]",
+        'name = "unstable-crate"',
+        'version = "2.0.0-alpha.1"',
+        "",
+      ].join("\n"),
+    );
+
+    const violations = collectCargoPinViolations(root);
+
+    assert.equal(
+      violations.some((violation) => violation.includes("unstable-crate")),
       true,
     );
   });
