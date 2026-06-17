@@ -383,7 +383,7 @@ run.
 The three CI jobs are:
 
 - **test-rust** — runs `cargo fmt --all -- --check`, `cargo clippy -- -D warnings`, and `cargo test --lib`
-- **test-frontend** — runs `npx tsc --noEmit`, `npm run lint`, and `npm test -- --run`
+- **test-frontend** — runs `npx --no-install tsc --noEmit`, `npm run lint`, and `npm test -- --run`
 - **security** — runs `npm audit --audit-level=moderate` and `cargo deny check advisories`
 
 Note that CI runs `cargo test --lib`, which covers unit tests only. Normal

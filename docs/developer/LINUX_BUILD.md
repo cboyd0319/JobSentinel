@@ -50,7 +50,7 @@ cd ..
 The Tauri CLI builds both the frontend and the Rust backend:
 
 ```bash
-npx tauri build --target x86_64-unknown-linux-gnu
+npx --no-install tauri build --target x86_64-unknown-linux-gnu
 ```
 
 ### 3. Locate Build Artifacts
@@ -202,7 +202,7 @@ docker run -it --rm \
     apt-get install -y nodejs && \
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y && \
     source ~/.cargo/env && \
-    npm ci && npx tauri build --target x86_64-unknown-linux-gnu"
+    npm ci && npx --no-install tauri build --target x86_64-unknown-linux-gnu"
 ```
 
 ## Signing and Auto-Updates

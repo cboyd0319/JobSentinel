@@ -177,7 +177,7 @@ npm run tauri build
 # Output: src-tauri/target/release/bundle/msi/JobSentinel_*.msi
 
 # Linux (from Linux)
-npx tauri build --target x86_64-unknown-linux-gnu
+npx --no-install tauri build --target x86_64-unknown-linux-gnu
 # Output: src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/
 ```
 

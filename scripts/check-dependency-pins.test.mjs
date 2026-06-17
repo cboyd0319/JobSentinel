@@ -388,6 +388,30 @@ test("runtime pin check rejects floating workflow and cargo install tool pins", 
   });
 });
 
+test("runtime pin check rejects install-capable npx commands", () => {
+  withFixture((root) => {
+    writeMinimalRuntimeFixture(root);
+    writeFixtureFile(
+      root,
+      "docs/developer/TESTING.md",
+      "npx playwright test\nnpx --no-install playwright show-report\n",
+    );
+
+    const violations = collectRuntimePinViolations(root);
+
+    assert.equal(
+      violations.some((violation) =>
+        violation.includes("docs/developer/TESTING.md:1 npx-based commands must include --no-install"),
+      ),
+      true,
+    );
+    assert.equal(
+      violations.some((violation) => violation.includes("docs/developer/TESTING.md:2")),
+      false,
+    );
+  });
+});
+
 test("npm latest-stable check compares direct pins to registry versions", async () => {
   await withFixtureAsync(async (root) => {
     writeMinimalNpmFixture(root);

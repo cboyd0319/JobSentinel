@@ -32,8 +32,8 @@ launch checks.
 
 3. **Use the repo-local Tauri CLI:**
 
-   `npm install` installs `@tauri-apps/cli`. Use `npm run tauri:*` scripts or
-   `npx tauri` from the repo root.
+   `npm ci` installs `@tauri-apps/cli`. Use `npm run tauri:*` scripts or
+   `npx --no-install tauri` from the repo root.
 
 ### Development Setup
 
@@ -41,7 +41,7 @@ launch checks.
 
    ```bash
    cd <repo-root>
-   npm install
+   npm ci
    ```
 
 2. **Run in development mode:**
@@ -300,9 +300,9 @@ lsof -ti:1420 | xargs kill -9
 ### Node modules issues
 
 ```bash
-# Clear and reinstall
-rm -rf node_modules package-lock.json
-npm install
+# Clear installed packages and reinstall from the lockfile
+rm -rf node_modules
+npm ci
 ```
 
 ---

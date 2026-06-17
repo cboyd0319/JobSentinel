@@ -32,7 +32,7 @@ echo "✓ Vale styles synced"
 # Install npm dependencies
 echo ""
 echo "Installing npm dependencies..."
-npm install
+npm ci
 
 echo ""
 echo "✓ npm dependencies installed (including husky, lint-staged, markdownlint-cli)"
@@ -40,7 +40,7 @@ echo "✓ npm dependencies installed (including husky, lint-staged, markdownlint
 # Set up husky
 echo ""
 echo "Setting up git hooks..."
-npx husky
+npx --no-install husky
 
 echo ""
 echo "============================================"

@@ -77,7 +77,7 @@ Installs dependencies, type-checks, lints, and runs the Vitest suite.
 | Step                 | Command             |
 | -------------------- | ------------------- |
 | Install dependencies | `npm ci`            |
-| TypeScript check     | `npx tsc --noEmit`  |
+| TypeScript check     | `npx --no-install tsc --noEmit` |
 | Lint                 | `npm run lint`      |
 | Unit tests           | `npm test -- --run` |
 
@@ -197,7 +197,7 @@ cargo clippy -- -D warnings
 cargo test --lib
 
 # Frontend — from repo root
-npx tsc --noEmit
+npx --no-install tsc --noEmit
 npm run lint
 npm test -- --run
 

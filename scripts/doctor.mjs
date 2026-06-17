@@ -269,8 +269,8 @@ await browser.close();
       detailOnFailure: "Chromium cannot launch",
       fix:
         options.platform === "linux"
-          ? "Run npx playwright install --with-deps chromium"
-          : "Run npx playwright install chromium",
+          ? "Run npx --no-install playwright install --with-deps chromium"
+          : "Run npx --no-install playwright install chromium",
     },
   );
 }

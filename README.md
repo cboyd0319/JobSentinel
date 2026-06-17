@@ -436,7 +436,7 @@ Build the app from source:
 ```bash
 git clone https://github.com/cboyd0319/JobSentinel
 cd JobSentinel
-npm install
+npm ci
 npm run tauri:build
 ```
 

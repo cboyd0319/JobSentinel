@@ -166,14 +166,14 @@ npm run test:e2e:headed
 ### Debug Mode
 
 ```bash
-npx playwright test --debug
+npx --no-install playwright test --debug
 ```
 
 ### Specific Browser
 
 ```bash
-npx playwright test --project=chromium
-npx playwright test --project=webkit
+npx --no-install playwright test --project=chromium
+npx --no-install playwright test --project=webkit
 ```
 
 ## Configuration
@@ -260,13 +260,13 @@ Tests run in CI with:
 ### View Test Report
 
 ```bash
-npx playwright show-report
+npx --no-install playwright show-report
 ```
 
 ### View Trace
 
 ```bash
-npx playwright show-trace trace.zip
+npx --no-install playwright show-trace trace.zip
 ```
 
 ### Screenshots on Failure

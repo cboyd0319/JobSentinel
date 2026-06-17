@@ -24,8 +24,8 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 # `.nvmrc` pins the local baseline used by CI.
 
 # Tauri CLI
-# `npm install` installs the repo-local CLI from @tauri-apps/cli.
-# Use `npm run tauri:*` scripts or `npx tauri` from the repo root.
+# `npm ci` installs the repo-local CLI from @tauri-apps/cli.
+# Use `npm run tauri:*` scripts or `npx --no-install tauri` from the repo root.
 ```
 
 **Windows Only:**
@@ -58,8 +58,8 @@ xcode-select --install
 git clone https://github.com/cboyd0319/JobSentinel
 cd JobSentinel
 
-# Install npm dependencies
-npm install
+# Install npm dependencies from the lockfile
+npm ci
 
 # Run in development mode (hot reload enabled)
 npm run tauri:dev
@@ -250,17 +250,17 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 # Restart terminal
 ```
 
-### "npm install fails"
+### "npm ci fails"
 
 ```bash
 # Clear cache
 npm cache clean --force
 
-# Delete node_modules
-rm -rf node_modules package-lock.json
+# Delete installed packages, but keep package-lock.json
+rm -rf node_modules
 
-# Reinstall
-npm install
+# Reinstall from the lockfile
+npm ci
 ```
 
 ### "Build fails on Windows"

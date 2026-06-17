@@ -123,8 +123,8 @@ git checkout -b feature/your-feature-name
 ### Install Dependencies
 
 ```bash
-# Install npm dependencies
-npm install
+# Install npm dependencies from the lockfile
+npm ci
 
 # Check Rust compilation
 cd src-tauri

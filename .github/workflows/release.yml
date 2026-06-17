@@ -285,7 +285,7 @@ jobs:
 
       - name: Build Tauri app
         if: matrix.platform != 'macos-latest'
-        run: npx tauri build --target ${{ matrix.target }}
+        run: npx --no-install tauri build --target ${{ matrix.target }}
 
       - name: Build macOS app and DMG
         if: matrix.platform == 'macos-latest'

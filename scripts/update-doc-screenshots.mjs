@@ -2,6 +2,7 @@ import { spawnSync } from "node:child_process";
 
 const npxCommand = process.platform === "win32" ? "npx.cmd" : "npx";
 const args = [
+  "--no-install",
   "playwright",
   "test",
   "tests/e2e/playwright/screenshots.spec.ts",
