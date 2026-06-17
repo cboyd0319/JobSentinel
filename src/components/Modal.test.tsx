@@ -218,6 +218,39 @@ describe("Modal", () => {
       fireEvent.keyDown(modalContent!, { key: "Escape" });
       expect(onClose).toHaveBeenCalledTimes(1);
     });
+
+    it("calls onClose when Escape is dispatched outside the modal panel", () => {
+      const onClose = vi.fn();
+      render(
+        <Modal isOpen={true} onClose={onClose}>
+          Content
+        </Modal>
+      );
+
+      fireEvent.keyDown(document, { key: "Escape" });
+
+      expect(onClose).toHaveBeenCalledTimes(1);
+    });
+
+    it("only closes the topmost modal when Escape is pressed", () => {
+      const onCloseOuter = vi.fn();
+      const onCloseInner = vi.fn();
+      render(
+        <>
+          <Modal isOpen={true} onClose={onCloseOuter}>
+            Outer content
+          </Modal>
+          <Modal isOpen={true} onClose={onCloseInner}>
+            Inner content
+          </Modal>
+        </>
+      );
+
+      fireEvent.keyDown(document, { key: "Escape" });
+
+      expect(onCloseOuter).not.toHaveBeenCalled();
+      expect(onCloseInner).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe("sizes", () => {

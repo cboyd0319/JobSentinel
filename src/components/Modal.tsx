@@ -33,6 +33,7 @@ export const Modal = memo(function Modal({
   showCloseButton = true,
   closeButtonLabel = "Close modal",
 }: ModalProps) {
+  const overlayRef = useRef<HTMLDivElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
   const previousActiveElement = useRef<Element | null>(null);
   const isMountedRef = useRef(true);
@@ -72,11 +73,31 @@ export const Modal = memo(function Modal({
     };
   }, []);
 
-  const handleKeyDown = (e: KeyboardEvent): void => {
-    if (e.key === "Escape") {
-      onClose();
-    }
+  useEffect(() => {
+    if (!isOpen) return undefined;
 
+    const handleDocumentKeyDown = (event: globalThis.KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+
+      const openModalOverlays = Array.from(
+        document.querySelectorAll<HTMLDivElement>(
+          '.app-modal-overlay[role="dialog"]'
+        )
+      );
+      const topmostModal = openModalOverlays[openModalOverlays.length - 1];
+
+      if (topmostModal !== overlayRef.current) return;
+
+      event.preventDefault();
+      onClose();
+    };
+
+    document.addEventListener("keydown", handleDocumentKeyDown);
+    return () =>
+      document.removeEventListener("keydown", handleDocumentKeyDown);
+  }, [isOpen, onClose]);
+
+  const handleKeyDown = (e: KeyboardEvent): void => {
     // Focus trap
     if (e.key === "Tab" && modalRef.current) {
       const focusableElements = modalRef.current.querySelectorAll(
@@ -101,23 +122,17 @@ export const Modal = memo(function Modal({
     }
   };
 
-  const handleOverlayKeyDown = (event: KeyboardEvent<HTMLDivElement>): void => {
-    if (event.key === "Escape" && event.target === event.currentTarget) {
-      onClose();
-    }
-  };
-
   if (!isOpen) return null;
 
   return (
     <div
+      ref={overlayRef}
       className="app-modal-overlay fixed inset-0 z-[1000] flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby={title ? titleId : undefined}
       aria-describedby={description ? descriptionId : undefined}
       onClick={handleOverlayClick}
-      onKeyDown={handleOverlayKeyDown}
       style={{
         position: "fixed",
         top: 0,
