@@ -14,8 +14,8 @@ JobSentinel still needs steady work toward zero known errors, privacy leaks,
 stale docs, brittle tests, user-facing technical assumptions, engineer-only
 defaults, and unverified claims. The current push is v2.9.0 readiness for an
 urgent single-user job search without weakening the public product contract.
-Active planning had become too large and too duplicated, so future work needs a
-compact plan plus a compact status file.
+Active planning had become too duplicated, so future work needs compact
+restart surfaces.
 
 ## Scope
 
@@ -27,9 +27,8 @@ In scope:
   current freshness and security-audit blockers.
 - Adding downloadable Agent Skills under `skills/` for job hunting and resume
   work, with specification-compliant `SKILL.md` packages.
-- Hardening the existing Browser Import Button as the LinkedIn-compatible path:
-  the user opens a job page, clicks import, reviews the saved job locally, and
-  tracks the application without JobSentinel logging in to LinkedIn.
+- Hardening Browser Import as the LinkedIn-compatible path: user-opened page,
+  user-clicked import, local review, and no LinkedIn login automation.
 - Truthful local resume assistance, hard-requirement review, readable evidence,
   and next-action guidance.
 - Job-card protection for stale, repeated, scam-like, weak-source,
@@ -43,10 +42,9 @@ In scope:
 - Locked redesign: move UI and UX toward Quiet Shield and Protective Navy,
   with no horizontal-scroll, cramped-settings, passive secure-storage prompt,
   or engineer-only-user regressions.
-- Harness-controlled redesign lock: treat Quiet Shield as an active-goal
-  acceptance gate. Keep design files required by the harness, record design
-  impact in change contracts, and capture screenshot or Computer Use evidence
-  for broad UI changes before release work resumes.
+- Harness-controlled redesign lock: treat Quiet Shield as an active-goal gate.
+  Keep required design files, change contracts, and screenshot or Computer Use
+  evidence for broad UI changes before release work resumes.
 - Cleanup only when a fresh failing gate or blocker affects Rule 0, user ease,
   verification, or docs accuracy.
 - macOS readiness docs and harness checks that stay honest about the
@@ -69,7 +67,7 @@ Out of scope:
 
 | Area | State | Next useful slice |
 | ---- | ----- | ----------------- |
-| v2.9.0 dependency readiness | Active | Upgrade and hard-pin stable Node and Rust dependencies; rerun audit, outdated, harness, and focused gates. |
+| v2.9.0 dependency readiness | Complete locally | Frontend and Rust direct dependencies are exact-pinned to current stable versions; continue only if a fresh audit, freshness, or platform check fails. |
 | Downloadable Agent Skills | Active | Create spec-compliant `skills/` packages for job hunting, resume review, application tracking, and interview prep; validate package structure. |
 | Browser Import and LinkedIn-compatible flow | Active | Keep LinkedIn user-opened and user-clicked; improve single-page import, local review, and application tracking without session cookies or background monitoring. |
 | Development and QA completion | Active | Fix confirmed UI, scraper, privacy, docs, harness, and Computer Use validation blockers before any new release work. |
@@ -122,46 +120,48 @@ Out of scope:
   added unique modal aria ids, wrapped Hiring Trends tabs, and made Job Sources
   tables responsive. Focused UI tests, lint, harness check, and harness score
   passed on 2026-06-06.
-- Latest packaged-app QA fixed Application Assist tab paint, removed the
-  native tab-row overflow thumb, made toasts fixed to the viewport, kept
-  Dashboard and Hiring Trends toasts visible, and verified Settings Sources &
-  Alerts opens without a passive Keychain prompt. Focused ApplicationProfile
-  and ToastContext tests, lint, and packaged debug app build passed.
+- Latest packaged-app QA fixed Application Assist tab paint, removed native
+  tab-row overflow, fixed toasts to the viewport, kept Dashboard/Hiring Trends
+  toasts visible, and verified Settings Sources & Alerts opens without a
+  passive Keychain prompt. Focused tests, lint, and debug app build passed.
 - The v2.9.0 pass confirmed the compliant LinkedIn path is the existing
   user-clicked Browser Import model, not session-cookie storage or automatic
   monitoring. Private resume/profile test inputs stay local and must not be
   committed.
+- Frontend and Rust direct dependencies are exact-pinned to current stable
+  versions. Markdown lint, DOCX parsing, and `keyring` 4.1 migrations are done.
+- Live OS keyring integration tests are opt-in behind
+  `JOBSENTINEL_LIVE_KEYRING_TESTS=1`; default credential tests remain
+  non-interactive and still prove LinkedIn credential storage is blocked before
+  keyring access.
 
 ## Next Work
 
-1. Upgrade and hard-pin dependencies; clear `npm outdated`, `npm audit
-   --audit-level=moderate`, and Rust freshness findings before claiming v2.9.0
-   readiness.
-2. Create and validate the downloadable `skills/` directory using the Agent
+1. Create and validate the downloadable `skills/` directory using the Agent
    Skills specification and job-search/resume workflows.
-3. Harden Browser Import for user-clicked LinkedIn job saves and application
+2. Harden Browser Import for user-clicked LinkedIn job saves and application
    tracking without browser-session capture, background page access, or
    scheduled LinkedIn fetches.
-4. Keep pushing macOS readiness as far as possible without Apple Developer
+3. Keep pushing macOS readiness as far as possible without Apple Developer
    Program credentials only after current development and QA blockers close; do
    not claim Gatekeeper-ready distribution until signing, notarization,
    stapling, and install proof exist.
-5. Finish current verified product and QA slices in resume assistance, job-card
+4. Finish current verified product and QA slices in resume assistance, job-card
    protection, guided intake, and pay protection.
-6. Implement the encrypted local storage slice: encrypted SQLite, per-row AEAD
+5. Implement the encrypted local storage slice: encrypted SQLite, per-row AEAD
    vault rows, OS-protected default vault key, advanced passphrase mode,
    macOS native Keychain/LocalAuthentication unlock, and no passive Settings
    probes that cause repeated prompts.
-7. Finish the Quiet Shield redesign pass across current QA surfaces using
+6. Finish the Quiet Shield redesign pass across current QA surfaces using
    `DESIGN.md`, `docs/design/README.md`, and `docs/design/design-spec.md`.
    Confirm major route screenshots, Computer Use clicks, keyboard flow, narrow
    widths, full frontend tests, build, packaged debug app rebuild, and major
    empty/error/loading states before release work resumes.
-8. Do not reopen repo-bloat cleanup unless a fresh bloat gate failure or
+7. Do not reopen repo-bloat cleanup unless a fresh bloat gate failure or
    product/privacy/security/docs verification blocker appears.
-9. Keep README, docs hubs, release docs, wiki inventory, and active status in
+8. Keep README, docs hubs, release docs, wiki inventory, and active status in
    sync when behavior, readiness, or public guidance changes.
-10. Commit each major verified change locally; push only at goal completion or
+9. Commit each major verified change locally; push only at goal completion or
    on newer explicit instruction.
 
 ## Sensors

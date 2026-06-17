@@ -55,7 +55,7 @@ src-tauri/tests/
 - api_contract_test.rs: Tauri command signatures
 - automation_integration_test.rs: Application Assist
 - cow_zero_copy_tests.rs: Cow zero-copy behavior
-- credential_test.rs: credential storage
+- credential_test.rs: credential policy plus opt-in live OS keyring roundtrips
 - database_integration_test.rs: database layer
 - live_scraper_test.rs: ignored live scraper smoke tests
 - scheduler_integration_test.rs: scheduling workflow
@@ -125,6 +125,16 @@ cargo test --test scheduler_integration_test
 
 # Test scrapers
 cargo test --test scraper_integration_test
+```
+
+Credential-store roundtrips can prompt on macOS Keychain and equivalent OS
+stores, so they are disabled unless explicitly requested. The default
+credential integration test still verifies non-interactive policy behavior.
+
+```bash
+cd src-tauri
+cargo test --test credential_test
+JOBSENTINEL_LIVE_KEYRING_TESTS=1 cargo test --test credential_test
 ```
 
 ### Run Specific Test

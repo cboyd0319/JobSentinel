@@ -390,19 +390,27 @@ entries owned by `JobSentinel`.
 ```bash
 cd src-tauri
 cargo test credentials --lib
+cargo test --test credential_test
 ```
 
-Credential tests use test-owned key names and should avoid writing real user
-secrets.
+Default credential tests are non-interactive. Live OS keyring roundtrips use
+test-owned key names but can prompt on macOS Keychain and equivalent stores, so
+they are opt-in:
+
+```bash
+cd src-tauri
+JOBSENTINEL_LIVE_KEYRING_TESTS=1 cargo test --test credential_test
+```
+
+Credential tests must not write real user secrets.
 
 ## Dependencies
 
 Current compatibility path:
 
 ```toml
-tauri-plugin-secure-storage = "1.5"
-keyring = "4"
-keyring-core = "1"
+tauri-plugin-secure-storage = "=1.5.0"
+keyring = "=4.1.1"
 ```
 
 Target macOS vault-key path:

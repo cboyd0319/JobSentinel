@@ -1,18 +1,18 @@
 //! Credential storage integration test
 //!
-//! Tests that active credentials can be stored and retrieved from the OS
-//! keyring when the local test environment allows it. If the OS denies secure
-//! storage access, the tests assert that JobSentinel returns the sanitized
-//! user-facing error instead of echoing credential values.
+//! Tests that disabled credential paths stay non-interactive by default. Live
+//! OS keyring roundtrips are opt-in because macOS Keychain and equivalent
+//! stores can prompt the user.
 
 use jobsentinel::commands::linkedin_auth::disconnect_linkedin;
 use jobsentinel::core::credentials::{CredentialKey, CredentialStore};
-use keyring_core::{Entry, Error as KeyringError};
+use keyring::{Entry, Error as KeyringError};
 
 const SECURE_STORAGE_UNAVAILABLE: &str =
     "JobSentinel could not use your device's secure storage. Check system permission prompts, then try again.";
 const LINKEDIN_CREDENTIAL_STORAGE_DISABLED: &str =
     "LinkedIn automatic monitoring is disabled by JobSentinel source policy";
+const LIVE_KEYRING_TESTS_ENV: &str = "JOBSENTINEL_LIVE_KEYRING_TESTS";
 const SERVICE_NAME: &str = "JobSentinel";
 
 struct LegacyLinkedInCleanup;
@@ -31,8 +31,22 @@ fn assert_error_is_sanitized(error: &str, secret: &str) {
     );
 }
 
+fn live_keyring_tests_enabled() -> bool {
+    std::env::var(LIVE_KEYRING_TESTS_ENV).is_ok_and(|value| value == "1")
+}
+
+fn require_live_keyring_test(label: &str) -> bool {
+    if live_keyring_tests_enabled() {
+        true
+    } else {
+        eprintln!(
+            "skipping {label}; set {LIVE_KEYRING_TESTS_ENV}=1 to run live OS keyring integration tests"
+        );
+        false
+    }
+}
+
 fn raw_legacy_entry(key: CredentialKey) -> Result<Entry, String> {
-    keyring::use_native_store(true).map_err(|_| SECURE_STORAGE_UNAVAILABLE.to_string())?;
     Entry::new(SERVICE_NAME, key.as_str()).map_err(|_| SECURE_STORAGE_UNAVAILABLE.to_string())
 }
 
@@ -91,6 +105,10 @@ fn roundtrip_or_accept_locked_store(key: CredentialKey, test_value: &str, label:
 
 #[test]
 fn test_slack_webhook_credential() {
+    if !require_live_keyring_test("Slack webhook keyring roundtrip") {
+        return;
+    }
+
     let test_value = "https://hooks.slack.com/services/TEST/TEST/TEST123";
 
     roundtrip_or_accept_locked_store(CredentialKey::SlackWebhook, test_value, "Slack webhook");
@@ -98,6 +116,10 @@ fn test_slack_webhook_credential() {
 
 #[test]
 fn test_discord_webhook_credential() {
+    if !require_live_keyring_test("Discord webhook keyring roundtrip") {
+        return;
+    }
+
     let test_value = "https://discord.com/api/webhooks/test/token123";
 
     roundtrip_or_accept_locked_store(CredentialKey::DiscordWebhook, test_value, "Discord webhook");
@@ -105,6 +127,10 @@ fn test_discord_webhook_credential() {
 
 #[test]
 fn test_teams_webhook_credential() {
+    if !require_live_keyring_test("Teams webhook keyring roundtrip") {
+        return;
+    }
+
     let test_value = "https://outlook.office.com/webhook/test/IncomingWebhook/abc123";
 
     roundtrip_or_accept_locked_store(CredentialKey::TeamsWebhook, test_value, "Teams webhook");
@@ -112,6 +138,10 @@ fn test_teams_webhook_credential() {
 
 #[test]
 fn test_telegram_bot_token_credential() {
+    if !require_live_keyring_test("Telegram bot token keyring roundtrip") {
+        return;
+    }
+
     let test_value = "123456789:ABCdefGHIjklMNOpqrsTUVwxyz";
 
     roundtrip_or_accept_locked_store(
@@ -145,6 +175,10 @@ fn test_linkedin_cookie_credential() {
 
 #[tokio::test]
 async fn test_disconnect_linkedin_deletes_legacy_cookie_and_expiry_entries() {
+    if !require_live_keyring_test("legacy LinkedIn keyring cleanup") {
+        return;
+    }
+
     let _cleanup = LegacyLinkedInCleanup;
     let cookie_secret = "AQEDAQRlegacy-session-cookie";
     let expiry_secret = "2099-01-01T00:00:00Z";
@@ -178,6 +212,10 @@ async fn test_disconnect_linkedin_deletes_legacy_cookie_and_expiry_entries() {
 
 #[test]
 fn test_usajobs_api_key_credential() {
+    if !require_live_keyring_test("USAJobs API key keyring roundtrip") {
+        return;
+    }
+
     let test_value = "xABC123defGHI456jklMNO789pqrSTU";
 
     roundtrip_or_accept_locked_store(CredentialKey::UsaJobsApiKey, test_value, "USAJobs API key");

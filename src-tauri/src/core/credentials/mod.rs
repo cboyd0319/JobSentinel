@@ -12,10 +12,9 @@
 //!
 //! Both paths use the same underlying keyring with consistent key naming.
 
-use keyring_core::{Entry, Error as KeyringError};
+use keyring::{Entry, Error as KeyringError};
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
-use std::sync::OnceLock;
 
 /// Enumeration of all credential types supported by JobSentinel.
 ///
@@ -130,16 +129,7 @@ const LINKEDIN_CREDENTIAL_STORAGE_DISABLED: &str =
     "LinkedIn automatic monitoring is disabled by JobSentinel source policy";
 const SECURE_STORAGE_UNAVAILABLE: &str =
     "JobSentinel could not use your device's secure storage. Check system permission prompts, then try again.";
-static KEYRING_STORE_INIT: OnceLock<Result<(), String>> = OnceLock::new();
-
-fn ensure_keyring_store() -> Result<(), String> {
-    KEYRING_STORE_INIT
-        .get_or_init(|| keyring::use_native_store(true).map_err(|_| secure_storage_error()))
-        .clone()
-}
-
 fn credential_entry(key: CredentialKey) -> Result<Entry, String> {
-    ensure_keyring_store()?;
     Entry::new(SERVICE_NAME, key.as_str()).map_err(|_| secure_storage_error())
 }
 

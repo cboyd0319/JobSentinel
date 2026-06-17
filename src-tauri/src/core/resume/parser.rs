@@ -4,7 +4,7 @@
 //! Supports OCR fallback for scanned PDFs when the `ocr` feature is enabled.
 
 use anyhow::{Context, Result};
-use quick_xml::{events::Event, Reader};
+use quick_xml::{escape::unescape, events::Event, Reader};
 use std::{
     fs::File,
     io::Read,
@@ -218,11 +218,21 @@ impl ResumeParser {
                     _ => {}
                 },
                 Event::Text(text) if in_text => {
-                    current_paragraph.push_str(
-                        &text
-                            .unescape()
-                            .context("Failed to decode DOCX document text")?,
-                    );
+                    let decoded = text
+                        .decode()
+                        .context("Failed to decode DOCX document text")?;
+                    let unescaped = unescape(decoded.as_ref())
+                        .context("Failed to decode DOCX document text")?;
+                    current_paragraph.push_str(&unescaped);
+                }
+                Event::GeneralRef(reference) if in_text => {
+                    let decoded = reference
+                        .decode()
+                        .context("Failed to decode DOCX document text")?;
+                    let entity = format!("&{};", decoded);
+                    let unescaped =
+                        unescape(&entity).context("Failed to decode DOCX document text")?;
+                    current_paragraph.push_str(&unescaped);
                 }
                 Event::Eof => break,
                 _ => {}
@@ -766,7 +776,9 @@ JavaScript
         let mut buffer = Cursor::new(Vec::new());
         Docx::new()
             .add_paragraph(Paragraph::new().add_run(Run::new().add_text("Jordan Lee")))
-            .add_paragraph(Paragraph::new().add_run(Run::new().add_text("Program Coordinator")))
+            .add_paragraph(
+                Paragraph::new().add_run(Run::new().add_text("Program & Operations Coordinator")),
+            )
             .add_paragraph(Paragraph::new().add_run(Run::new().add_text("SKILLS")))
             .add_paragraph(Paragraph::new().add_run(Run::new().add_text("Scheduling")))
             .build()
@@ -778,7 +790,7 @@ JavaScript
         let text = parser.parse_resume(&file_path).unwrap();
 
         assert!(text.contains("Jordan Lee"));
-        assert!(text.contains("Program Coordinator"));
+        assert!(text.contains("Program & Operations Coordinator"));
         assert!(text.contains("Scheduling"));
     }
 }

@@ -66,44 +66,50 @@ The v2.9.0 goal adds two durable release-readiness requirements:
   Trends toasts, Application Assist tab behavior, Pay Protection layout, Resume
   Match saved-resume display, and Settings Sources & Alerts opening without a
   passive Keychain prompt.
-- Fresh dependency evidence on 2026-06-17 shows open npm freshness and security
-  blockers: `npm outdated --json` reports stale frontend/tooling packages, and
-  `npm audit --audit-level=moderate --json` reports critical Vitest browser
-  advisories plus high Vite, Storybook/esbuild, and `ws` advisories.
+- Fresh dependency evidence on 2026-06-17 shows frontend and Rust direct
+  dependencies hard-pinned to current stable versions. `npm outdated --json`
+  returns `{}`, `npm audit --audit-level=moderate` reports zero
+  vulnerabilities, `cargo update --dry-run` reports zero compatible lockfile
+  updates, `cargo deny check advisories` passes, and `cargo audit` reports no
+  vulnerabilities. Verbose Cargo freshness notes still show four transitive
+  crates behind absolute latest through Linux/Tauri build-time and shared crypto
+  paths; extra-strict `cargo audit --deny warnings` still reports upstream
+  informational maintenance warnings tracked as SEC-002.
+- Live OS keyring integration tests are now opt-in behind
+  `JOBSENTINEL_LIVE_KEYRING_TESTS=1`, so default credential tests no longer
+  prompt macOS Keychain while still proving LinkedIn credential storage is
+  disabled before keyring access.
 - Detailed historical slice evidence from the former status file is archived in
   [active status history](../archive/active-status-history-2026-06-17.md).
 
 ## Next Best Work
 
-1. Upgrade and hard-pin package metadata to latest stable versions, then rerun
-   `npm outdated --json`, `npm audit --audit-level=moderate`, focused package
-   checks, and the harness gates.
-2. Add and validate the downloadable `skills/` directory for job hunting and
+1. Add and validate the downloadable `skills/` directory for job hunting and
    resume assistance, keeping private resume/profile references out of the repo.
-3. Harden Browser Import as the compliant LinkedIn path: user opens a job page,
+2. Harden Browser Import as the compliant LinkedIn path: user opens a job page,
    clicks import, reviews locally, and tracks the application without JobSentinel
    logging in to LinkedIn or monitoring LinkedIn in the background.
-4. Continue the Quiet Shield redesign pass against `DESIGN.md`,
+3. Continue the Quiet Shield redesign pass against `DESIGN.md`,
    `docs/design/README.md`, and `docs/design/design-spec.md`; modals now have
    focused regression proof, so the next proof should rerun full test/build,
    rebuild the packaged debug app, and use Computer Use on toasts, settings,
    keyboard flow, route empty states, and narrow-width states.
-5. Continue resume assistance only where it improves truthful local requirement
+4. Continue resume assistance only where it improves truthful local requirement
    review, hard-constraint handling, readable evidence, or next-action
    guidance.
-6. Continue guided intake only where resume/profile suggestions stay optional,
+5. Continue guided intake only where resume/profile suggestions stay optional,
    reviewed, local, and understandable for non-technical job seekers.
-7. Continue job-card protection for stale, risky, duplicate, unclear, or
+6. Continue job-card protection for stale, risky, duplicate, unclear, or
    pay-problem postings without treating local signals as employer
    predictions.
-8. Continue macOS readiness docs, release checks, and user guidance without
+7. Continue macOS readiness docs, release checks, and user guidance without
    claiming Gatekeeper-ready public distribution before Apple credentials
    exist.
-9. Continue encrypted local storage and saved-secret UX work with encrypted
+8. Continue encrypted local storage and saved-secret UX work with encrypted
    SQLite at rest, per-row AEAD vault rows, OS-protected default vault key,
    advanced passphrase mode, macOS native Keychain/LocalAuthentication unlock,
    and no passive secure-storage prompts from Settings or status views.
-10. Keep harness work focused on bounded startup context, runnable verification,
+9. Keep harness work focused on bounded startup context, runnable verification,
    privacy/security gates, and docs accuracy. Do not add new ceremony unless it
    prevents a repeated failure.
 

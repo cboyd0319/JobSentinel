@@ -390,6 +390,15 @@ integration tests in `tests/` run locally with `cargo test`. Ignored or live
 integration tests should use targeted commands such as
 `cargo test --test live_scraper_test -- --ignored --nocapture`.
 
+Credential-store roundtrips are opt-in because macOS Keychain and equivalent
+stores can prompt for user approval. Default credential tests stay
+non-interactive. Run live keyring checks only when you are ready for OS prompts:
+
+```bash
+cd src-tauri
+JOBSENTINEL_LIVE_KEYRING_TESTS=1 cargo test --test credential_test
+```
+
 For full CI/CD documentation see [CI_CD.md](./CI_CD.md).
 
 ### Pre-commit Hook
