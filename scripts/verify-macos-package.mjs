@@ -1,17 +1,16 @@
 #!/usr/bin/env node
 
 import { execFileSync, spawn, spawnSync } from "node:child_process";
-import { createHash } from "node:crypto";
+import { createHash, randomBytes } from "node:crypto";
 import {
-  closeSync,
   existsSync,
   lstatSync,
   mkdirSync,
   mkdtempSync,
-  openSync,
   readdirSync,
   readFileSync,
   rmSync,
+  writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { basename, dirname, join, resolve } from "node:path";
@@ -24,6 +23,8 @@ import {
 const scriptPath = fileURLToPath(import.meta.url);
 const defaultRoot = resolve(dirname(scriptPath), "..");
 const defaultSmokeSeconds = 12;
+const smokeDatabaseKeyHexEnv = "JOBSENTINEL_MACOS_PACKAGE_SMOKE_DATABASE_KEY_HEX";
+const smokeRootEnv = "JOBSENTINEL_MACOS_PACKAGE_SMOKE_ROOT";
 
 export function getArgValue(args, name) {
   const exactIndex = args.indexOf(name);
@@ -114,8 +115,8 @@ export function formatGatekeeperStatus({ subject, accepted, requireGatekeeper })
   return `Gatekeeper rejected optional check: ${subject}. Developer ID signing and notarization are still required for a zero-friction public macOS release.`;
 }
 
-export function macosSmokeDataPaths(homePath) {
-  const dataDir = join(homePath, "Library", "Application Support", "JobSentinel");
+export function macosSmokeDataPaths(smokeRoot) {
+  const dataDir = join(smokeRoot, "home", "Library", "Application Support", "JobSentinel");
   return {
     dataDir,
     dbPath: join(dataDir, "jobs.db"),
@@ -252,6 +253,63 @@ function assertSmokeDataPermissions(dataPaths) {
   }
 
   console.log("Local data permissions smoke passed: app data tree is private and jobs.db is owner-only.");
+}
+
+export function buildMacosOpenArgs({
+  appPath,
+  smokeDatabaseKeyHex,
+  smokeRoot,
+  stdoutPath,
+  stderrPath,
+}) {
+  return [
+    "-F",
+    "-n",
+    "--env",
+    "ApplePersistenceIgnoreState=YES",
+    "--env",
+    `${smokeRootEnv}=${smokeRoot}`,
+    "--env",
+    `${smokeDatabaseKeyHexEnv}=${smokeDatabaseKeyHex}`,
+    "-o",
+    stdoutPath,
+    "--stderr",
+    stderrPath,
+    appPath,
+  ];
+}
+
+export function formatMacosOpenArgsForLog(args) {
+  const smokeDatabaseKeyPrefix = `${smokeDatabaseKeyHexEnv}=`;
+  return args.map((arg) =>
+    arg.startsWith(smokeDatabaseKeyPrefix) ? `${smokeDatabaseKeyPrefix}<redacted>` : arg,
+  );
+}
+
+export function createSmokeDatabaseKeyHex() {
+  return randomBytes(32).toString("hex");
+}
+
+export function findMacosAppProcess(appPath, executableName) {
+  const executablePath = join(appPath, "Contents", "MacOS", executableName);
+  const result = spawnSync("ps", ["-axo", "pid,args"], {
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+
+  if (result.status !== 0) {
+    return undefined;
+  }
+
+  const line = result.stdout
+    .split("\n")
+    .find((candidate) => candidate.includes(executablePath));
+  if (!line) {
+    return undefined;
+  }
+
+  const pid = Number.parseInt(line.trim().split(/\s+/)[0], 10);
+  return Number.isFinite(pid) ? pid : undefined;
 }
 
 export function parseSha256Checksum(content, expectedFileName) {
@@ -541,51 +599,73 @@ async function smokeLaunch({ appPath, seconds }) {
   const smokeRoot = mkdtempSync(join(tmpdir(), "jobsentinel-macos-smoke-"));
   const stdoutPath = join(smokeRoot, "stdout.log");
   const stderrPath = join(smokeRoot, "stderr.log");
-  const stdoutFd = openSync(stdoutPath, "w");
-  const stderrFd = openSync(stderrPath, "w");
+  let child;
+  let pid;
+  const smokeDatabaseKeyHex = createSmokeDatabaseKeyHex();
 
   try {
     const homePath = join(smokeRoot, "home");
     mkdirSync(homePath);
     mkdirSync(join(smokeRoot, "xdg"));
+    writeFileSync(stdoutPath, "");
+    writeFileSync(stderrPath, "");
 
-    const child = spawn(executable, [], {
-      env: {
-        ...process.env,
-        HOME: homePath,
-        XDG_CONFIG_HOME: join(smokeRoot, "xdg"),
-      },
-      stdio: ["ignore", stdoutFd, stderrFd],
+    const openArgs = buildMacosOpenArgs({
+      appPath,
+      stderrPath,
+      stdoutPath,
+      smokeDatabaseKeyHex,
+      smokeRoot,
+    });
+    console.log(`$ open ${formatMacosOpenArgsForLog(openArgs).join(" ")}`);
+    child = spawn("open", openArgs, {
+      stdio: ["ignore", "pipe", "pipe"],
     });
 
     await sleep(seconds * 1000);
 
     if (child.exitCode !== null) {
-      throw new Error(`Launch smoke exited before ${seconds} seconds with status ${child.exitCode}.`);
+      if (child.exitCode !== 0) {
+        throw new Error(`Launch smoke open command exited with status ${child.exitCode}.`);
+      }
     }
-    if (!child.pid) {
-      throw new Error("Launch smoke started without a process id.");
-    }
-    assertLaunchWindowVisible(child.pid);
 
-    const exitPromise = new Promise((resolve) => child.once("exit", resolve));
-    child.kill("SIGTERM");
-    await exitPromise;
+    pid = findMacosAppProcess(appPath, getBundleExecutable(appPath));
+    if (!pid) {
+      const stdout = readFileSync(stdoutPath, "utf8");
+      const stderr = readFileSync(stderrPath, "utf8");
+      throw new Error(
+        `Launch smoke did not find a running app process.\nstdout:\n${stdout}\nstderr:\n${stderr}`,
+      );
+    }
+    assertLaunchWindowVisible(pid);
+
+    try {
+      process.kill(pid, "SIGTERM");
+    } catch {
+      // The process can exit between window verification and shutdown.
+    }
+    await sleep(500);
 
     const stderr = readFileSync(stderrPath, "utf8");
     if (stderr.trim()) {
       throw new Error(`Launch smoke wrote stderr:\n${stderr}`);
     }
 
-    const dataPaths = macosSmokeDataPaths(homePath);
+    const dataPaths = macosSmokeDataPaths(smokeRoot);
     assertPathExists(dataPaths.dataDir, "Smoke data directory");
     assertPathExists(dataPaths.dbPath, "Smoke database");
     assertSmokeDataPermissions(dataPaths);
     console.log("Local data smoke passed: app created isolated macOS data directory and jobs.db.");
     console.log(`Launch smoke passed: app stayed running for ${seconds} seconds with empty stderr.`);
   } finally {
-    closeSync(stdoutFd);
-    closeSync(stderrFd);
+    if (pid) {
+      try {
+        process.kill(pid, "SIGTERM");
+      } catch {
+        // Already stopped.
+      }
+    }
     rmSync(smokeRoot, { recursive: true, force: true });
   }
 }

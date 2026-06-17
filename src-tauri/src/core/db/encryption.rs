@@ -6,11 +6,13 @@ use sqlx::{
     sqlite::{SqliteConnectOptions, SqlitePool, SqlitePoolOptions},
     ConnectOptions,
 };
-use std::{path::Path, str::FromStr};
+use std::path::Path;
 use zeroize::Zeroizing;
 
 #[cfg(not(test))]
 const DATABASE_KEY_NAME: &str = "jobsentinel_database_key";
+#[cfg(all(not(test), target_os = "macos"))]
+const SMOKE_DATABASE_KEY_HEX_ENV: &str = "JOBSENTINEL_MACOS_PACKAGE_SMOKE_DATABASE_KEY_HEX";
 const DATABASE_KEY_LEN: usize = 32;
 #[cfg(not(test))]
 const DATABASE_KEY_HEX_LEN: usize = DATABASE_KEY_LEN * 2;
@@ -33,6 +35,14 @@ pub(super) async fn load_or_create_database_key() -> Result<Zeroizing<String>, s
 
 #[cfg(not(test))]
 fn load_or_create_database_key_blocking() -> Result<Zeroizing<String>, sqlx::Error> {
+    #[cfg(target_os = "macos")]
+    if let Some(encoded_key) = smoke_database_key_hex() {
+        tracing::info!("Using isolated macOS package-smoke database key");
+        let key = validate_database_key_hex(encoded_key)?;
+        tracing::info!("Validated macOS package-smoke database key");
+        return Ok(key);
+    }
+
     let entry = Entry::new(crate::core::credentials::SERVICE_NAME, DATABASE_KEY_NAME)
         .map_err(|_| database_encryption_error())?;
 
@@ -50,6 +60,15 @@ fn load_or_create_database_key_blocking() -> Result<Zeroizing<String>, sqlx::Err
     }
 }
 
+#[cfg(all(not(test), target_os = "macos"))]
+fn smoke_database_key_hex() -> Option<String> {
+    crate::platforms::macos::package_smoke_root()?;
+    let encoded_key = std::env::var(SMOKE_DATABASE_KEY_HEX_ENV).ok()?;
+    let valid_key = encoded_key.len() == DATABASE_KEY_HEX_LEN
+        && encoded_key.chars().all(|char| char.is_ascii_hexdigit());
+    valid_key.then_some(encoded_key)
+}
+
 #[cfg(not(test))]
 fn validate_database_key_hex(encoded_key: String) -> Result<Zeroizing<String>, sqlx::Error> {
     let trimmed = encoded_key.trim();
@@ -65,12 +84,37 @@ pub(super) async fn connect_encrypted_pool(
     key: &str,
     create_if_missing: bool,
 ) -> Result<SqlitePool, sqlx::Error> {
-    let url = format!("sqlite://{}?mode=rwc", path.display());
-    let options = SqliteConnectOptions::from_str(&url)?
-        .pragma("key", key.to_string())
+    let options = SqliteConnectOptions::new()
+        .filename(path)
+        .pragma("key", sqlcipher_key_pragma_value(key))
         .create_if_missing(create_if_missing);
-    let pool = SqlitePoolOptions::new().connect_with(options).await?;
-    verify_sqlcipher_connection(&pool).await?;
+    let smoke_logging = package_smoke_logging_enabled();
+    let pool = match SqlitePoolOptions::new().connect_with(options).await {
+        Ok(pool) => {
+            if smoke_logging {
+                tracing::info!("Opened macOS package-smoke encrypted database connection");
+            }
+            pool
+        }
+        Err(error) => {
+            if smoke_logging {
+                tracing::warn!(
+                    error = ?error,
+                    "Failed to open macOS package-smoke encrypted database connection"
+                );
+            }
+            return Err(error);
+        }
+    };
+    if let Err(error) = verify_sqlcipher_connection(&pool).await {
+        if smoke_logging {
+            tracing::warn!(
+                error = ?error,
+                "Failed to verify macOS package-smoke SQLCipher connection"
+            );
+        }
+        return Err(error);
+    }
     Ok(pool)
 }
 
@@ -135,8 +179,8 @@ async fn verify_sqlcipher_connection(pool: &SqlitePool) -> Result<(), sqlx::Erro
 }
 
 pub(super) async fn plaintext_database_readable(path: &Path) -> Result<bool, sqlx::Error> {
-    let url = format!("sqlite://{}?mode=ro", path.display());
-    let pool = SqlitePool::connect(&url).await?;
+    let options = SqliteConnectOptions::new().filename(path).read_only(true);
+    let pool = SqlitePool::connect_with(options).await?;
     let readable = sqlx::query("SELECT COUNT(*) FROM sqlite_master")
         .fetch_one(&pool)
         .await
@@ -150,8 +194,11 @@ async fn export_plaintext_database_to_encrypted(
     encrypted_path: &Path,
     key: &str,
 ) -> Result<(), sqlx::Error> {
-    let url = format!("sqlite://{}?mode=rw", plaintext_path.display());
-    let mut conn = SqliteConnectOptions::from_str(&url)?.connect().await?;
+    let mut conn = SqliteConnectOptions::new()
+        .filename(plaintext_path)
+        .create_if_missing(false)
+        .connect()
+        .await?;
 
     let _ = sqlx::query("PRAGMA wal_checkpoint(TRUNCATE)")
         .execute(&mut conn)
@@ -203,6 +250,22 @@ fn database_encryption_error() -> sqlx::Error {
     ))
 }
 
+fn sqlcipher_key_pragma_value(key: &str) -> String {
+    format!("'{key}'")
+}
+
+fn package_smoke_logging_enabled() -> bool {
+    #[cfg(target_os = "macos")]
+    {
+        crate::platforms::macos::package_smoke_root().is_some()
+    }
+
+    #[cfg(not(target_os = "macos"))]
+    {
+        false
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::super::connection::Database;
@@ -237,6 +300,66 @@ mod tests {
             unkeyed_read.is_err(),
             "unkeyed SQLite connection should not read a JobSentinel database"
         );
+    }
+
+    #[tokio::test]
+    async fn encrypted_database_handles_paths_with_spaces() {
+        let temp_dir = tempfile::tempdir().unwrap();
+        let db_path = temp_dir
+            .path()
+            .join("Library")
+            .join("Application Support")
+            .join("JobSentinel")
+            .join("jobs.db");
+
+        let database = Database::connect(&db_path).await.unwrap();
+        database.migrate().await.unwrap();
+        sqlx::query("CREATE TABLE path_probe(value TEXT NOT NULL)")
+            .execute(database.pool())
+            .await
+            .unwrap();
+        sqlx::query("INSERT INTO path_probe(value) VALUES ('macOS app data path')")
+            .execute(database.pool())
+            .await
+            .unwrap();
+
+        let value: String = sqlx::query_scalar("SELECT value FROM path_probe")
+            .fetch_one(database.pool())
+            .await
+            .unwrap();
+        assert_eq!(value, "macOS app data path");
+        database.checkpoint_wal().await.unwrap();
+        database.pool().close().await;
+    }
+
+    #[tokio::test]
+    async fn encrypted_database_handles_hex_keys_starting_with_digits() {
+        let temp_dir = tempfile::tempdir().unwrap();
+        let db_path = temp_dir.path().join("jobs.db");
+        let key = "58ffd25e23c63a6fcab6baffe23e9a667c4a1504ae07454573607f036017a9c4";
+
+        let pool = super::connect_encrypted_pool(&db_path, key, true)
+            .await
+            .unwrap();
+        sqlx::query("CREATE TABLE numeric_key_probe(value TEXT NOT NULL)")
+            .execute(&pool)
+            .await
+            .unwrap();
+        sqlx::query("INSERT INTO numeric_key_probe(value) VALUES ('opened')")
+            .execute(&pool)
+            .await
+            .unwrap();
+        pool.close().await;
+
+        let reopened_pool = super::connect_encrypted_pool(&db_path, key, false)
+            .await
+            .unwrap();
+        let value: String = sqlx::query_scalar("SELECT value FROM numeric_key_probe")
+            .fetch_one(&reopened_pool)
+            .await
+            .unwrap();
+        assert_eq!(value, "opened");
+        reopened_pool.close().await;
     }
 
     #[tokio::test]

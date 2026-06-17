@@ -9,10 +9,13 @@ import {
 } from "./macos-signature.mjs";
 import {
   buildGatekeeperAssessArgs,
+  buildMacosOpenArgs,
   buildStaplerValidateArgs,
   bundleMetadataViolations,
   buildCgWindowSmokeScript,
+  createSmokeDatabaseKeyHex,
   defaultArchitectures,
+  formatMacosOpenArgsForLog,
   formatGatekeeperStatus,
   hasExpectedArchitectures,
   macosSmokeDataPaths,
@@ -168,10 +171,10 @@ test("macOS verifier distinguishes optional and required Gatekeeper rejection", 
   );
 });
 
-test("macOS verifier resolves launch smoke data paths under isolated home", () => {
-  assert.deepEqual(macosSmokeDataPaths("/tmp/jobsentinel-smoke-home"), {
-    dataDir: "/tmp/jobsentinel-smoke-home/Library/Application Support/JobSentinel",
-    dbPath: "/tmp/jobsentinel-smoke-home/Library/Application Support/JobSentinel/jobs.db",
+test("macOS verifier resolves launch smoke data paths under isolated smoke root", () => {
+  assert.deepEqual(macosSmokeDataPaths("/tmp/jobsentinel-macos-smoke-root"), {
+    dataDir: "/tmp/jobsentinel-macos-smoke-root/home/Library/Application Support/JobSentinel",
+    dbPath: "/tmp/jobsentinel-macos-smoke-root/home/Library/Application Support/JobSentinel/jobs.db",
   });
 });
 
@@ -183,6 +186,57 @@ test("macOS verifier checks launch smoke visible window evidence", () => {
     width: 1200,
   });
   assert.equal(parseCgWindowSmokeOutput("no visible app window for pid 123\n"), undefined);
+});
+
+test("macOS verifier launches app bundles fresh with isolated smoke paths", () => {
+  assert.deepEqual(
+    buildMacosOpenArgs({
+      appPath: "/tmp/JobSentinel.app",
+      stderrPath: "/tmp/stderr.log",
+      stdoutPath: "/tmp/stdout.log",
+      smokeDatabaseKeyHex: "58ffd25e23c63a6fcab6baffe23e9a667c4a1504ae07454573607f036017a9c4",
+      smokeRoot: "/tmp/jobsentinel-macos-smoke-root",
+    }),
+    [
+      "-F",
+      "-n",
+      "--env",
+      "ApplePersistenceIgnoreState=YES",
+      "--env",
+      "JOBSENTINEL_MACOS_PACKAGE_SMOKE_ROOT=/tmp/jobsentinel-macos-smoke-root",
+      "--env",
+      "JOBSENTINEL_MACOS_PACKAGE_SMOKE_DATABASE_KEY_HEX=58ffd25e23c63a6fcab6baffe23e9a667c4a1504ae07454573607f036017a9c4",
+      "-o",
+      "/tmp/stdout.log",
+      "--stderr",
+      "/tmp/stderr.log",
+      "/tmp/JobSentinel.app",
+    ],
+  );
+});
+
+test("macOS verifier creates bounded smoke database keys", () => {
+  const key = createSmokeDatabaseKeyHex();
+  assert.match(key, /^[a-f0-9]{64}$/);
+});
+
+test("macOS verifier redacts smoke database keys in launch logs", () => {
+  const key = "58ffd25e23c63a6fcab6baffe23e9a667c4a1504ae07454573607f036017a9c4";
+  const loggedArgs = formatMacosOpenArgsForLog(
+    buildMacosOpenArgs({
+      appPath: "/tmp/JobSentinel.app",
+      stderrPath: "/tmp/stderr.log",
+      stdoutPath: "/tmp/stdout.log",
+      smokeDatabaseKeyHex: key,
+      smokeRoot: "/tmp/jobsentinel-macos-smoke-root",
+    }),
+  );
+
+  assert.equal(loggedArgs.includes(`JOBSENTINEL_MACOS_PACKAGE_SMOKE_DATABASE_KEY_HEX=${key}`), false);
+  assert.equal(
+    loggedArgs.includes("JOBSENTINEL_MACOS_PACKAGE_SMOKE_DATABASE_KEY_HEX=<redacted>"),
+    true,
+  );
 });
 
 test("macOS verifier requires private launch smoke data permissions", () => {

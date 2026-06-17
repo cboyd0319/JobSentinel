@@ -7,6 +7,8 @@ use std::path::PathBuf;
 
 use crate::core::logging::path_label_for_logging;
 
+pub(crate) const PACKAGE_SMOKE_ROOT_ENV: &str = "JOBSENTINEL_MACOS_PACKAGE_SMOKE_ROOT";
+
 /// Get macOS application support directory
 ///
 /// Returns: ~/Library/Application Support/JobSentinel
@@ -14,6 +16,13 @@ use crate::core::logging::path_label_for_logging;
 /// This follows Apple's File System Programming Guide recommendations:
 /// https://developer.apple.com/library/archive/documentation/FileManagement/Conceptual/FileSystemProgrammingGuide/
 pub fn get_data_dir() -> PathBuf {
+    if let Some(root) = package_smoke_root() {
+        return smoke_home_dir(root)
+            .join("Library")
+            .join("Application Support")
+            .join("JobSentinel");
+    }
+
     // Try HOME first, then fall back to ~ expansion
     let home = std::env::var("HOME").unwrap_or_else(|_| {
         // Fallback: try to get from tilde expansion
@@ -35,6 +44,10 @@ pub fn get_data_dir() -> PathBuf {
 /// Uses XDG Base Directory Specification for cross-platform consistency:
 /// https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
 pub fn get_config_dir() -> PathBuf {
+    if let Some(root) = package_smoke_root() {
+        return root.join("xdg").join("jobsentinel");
+    }
+
     // Check XDG_CONFIG_HOME first (for advanced users)
     if let Ok(xdg_config) = std::env::var("XDG_CONFIG_HOME") {
         return PathBuf::from(xdg_config).join("jobsentinel");
@@ -122,6 +135,13 @@ pub fn is_sandboxed() -> bool {
 ///
 /// Returns: ~/Library/Caches/JobSentinel
 pub fn get_cache_dir() -> PathBuf {
+    if let Some(root) = package_smoke_root() {
+        return smoke_home_dir(root)
+            .join("Library")
+            .join("Caches")
+            .join("JobSentinel");
+    }
+
     let home = std::env::var("HOME").unwrap_or_else(|_| {
         dirs::home_dir()
             .map(|p| p.to_string_lossy().to_string())
@@ -138,6 +158,13 @@ pub fn get_cache_dir() -> PathBuf {
 ///
 /// Returns: ~/Library/Logs/JobSentinel
 pub fn get_logs_dir() -> PathBuf {
+    if let Some(root) = package_smoke_root() {
+        return smoke_home_dir(root)
+            .join("Library")
+            .join("Logs")
+            .join("JobSentinel");
+    }
+
     let home = std::env::var("HOME").unwrap_or_else(|_| {
         dirs::home_dir()
             .map(|p| p.to_string_lossy().to_string())
@@ -148,6 +175,29 @@ pub fn get_logs_dir() -> PathBuf {
         .join("Library")
         .join("Logs")
         .join("JobSentinel")
+}
+
+pub(crate) fn package_smoke_root() -> Option<PathBuf> {
+    let root = PathBuf::from(std::env::var(PACKAGE_SMOKE_ROOT_ENV).ok()?);
+    package_smoke_root_from(root, std::env::temp_dir())
+}
+
+fn package_smoke_root_from(root: PathBuf, temp_dir: PathBuf) -> Option<PathBuf> {
+    if !root.starts_with(&temp_dir) {
+        return None;
+    }
+
+    let is_smoke_root = root.components().any(|component| {
+        component
+            .as_os_str()
+            .to_string_lossy()
+            .starts_with("jobsentinel-macos-smoke-")
+    });
+    is_smoke_root.then_some(root)
+}
+
+fn smoke_home_dir(root: PathBuf) -> PathBuf {
+    root.join("home")
 }
 
 #[cfg(test)]
@@ -204,6 +254,85 @@ mod tests {
             Some(home) => env::set_var("HOME", home),
             None => env::remove_var("HOME"),
         }
+    }
+
+    #[test]
+    fn package_smoke_root_redirects_app_paths() {
+        let _env = env_guard();
+        let smoke_root = tempfile::Builder::new()
+            .prefix("jobsentinel-macos-smoke-")
+            .tempdir()
+            .expect("create smoke root");
+
+        let original_home = env::var("HOME").ok();
+        let original_xdg = env::var("XDG_CONFIG_HOME").ok();
+        let original_smoke = env::var(PACKAGE_SMOKE_ROOT_ENV).ok();
+
+        env::set_var(PACKAGE_SMOKE_ROOT_ENV, smoke_root.path());
+        env::set_var("HOME", "fixture-home-that-should-not-be-used");
+        env::set_var("XDG_CONFIG_HOME", "fixture-xdg-that-should-not-be-used");
+
+        assert_eq!(
+            get_data_dir(),
+            smoke_root
+                .path()
+                .join("home")
+                .join("Library")
+                .join("Application Support")
+                .join("JobSentinel")
+        );
+        assert_eq!(
+            get_config_dir(),
+            smoke_root.path().join("xdg").join("jobsentinel")
+        );
+        assert_eq!(
+            get_cache_dir(),
+            smoke_root
+                .path()
+                .join("home")
+                .join("Library")
+                .join("Caches")
+                .join("JobSentinel")
+        );
+        assert_eq!(
+            get_logs_dir(),
+            smoke_root
+                .path()
+                .join("home")
+                .join("Library")
+                .join("Logs")
+                .join("JobSentinel")
+        );
+
+        match original_home {
+            Some(home) => env::set_var("HOME", home),
+            None => env::remove_var("HOME"),
+        }
+        match original_xdg {
+            Some(xdg) => env::set_var("XDG_CONFIG_HOME", xdg),
+            None => env::remove_var("XDG_CONFIG_HOME"),
+        }
+        match original_smoke {
+            Some(smoke) => env::set_var(PACKAGE_SMOKE_ROOT_ENV, smoke),
+            None => env::remove_var(PACKAGE_SMOKE_ROOT_ENV),
+        }
+    }
+
+    #[test]
+    fn package_smoke_root_rejects_non_verifier_roots() {
+        let _env = env_guard();
+        let temp_dir = tempfile::tempdir().expect("create temp dir");
+
+        assert!(package_smoke_root_from(
+            temp_dir.path().join("not-a-smoke-root"),
+            std::env::temp_dir()
+        )
+        .is_none());
+        assert!(package_smoke_root_from(
+            PathBuf::from("/tmp/jobsentinel-macos-smoke-outside"),
+            PathBuf::from("/different-temp")
+        )
+        .is_none());
     }
 
     #[test]
