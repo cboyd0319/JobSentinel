@@ -203,8 +203,10 @@ if !url_parsed.path().starts_with("/webhook/") {
 ### 5. Secure Credential Storage
 
 Webhook URLs are stored through JobSentinel's local secret-storage boundary,
-not plaintext config files. Current compatibility builds use the OS credential
-store directly; the target storage path is the encrypted SQLite secret vault.
+not plaintext config files. Current builds store active webhook secrets in the
+local SQLite `secret_vault` table as AEAD envelopes. The operating system
+credential store protects the vault master key and is used for legacy fallback
+only when a saved secret is explicitly retrieved.
 
 See: [Local Secret Vault And Keychain Integration](./KEYRING.md)
 
@@ -339,7 +341,7 @@ https://outlook.office.com/webhook/{tenant}/IncomingWebhook/{channel}/{connector
 
 **Mitigation**:
 
-1. Webhooks stored in keyring (v2.0+), not config file
+1. Webhooks stored through the encrypted local secret vault, not config files
 2. URL validation on load and before use
 3. Error shown to user if validation fails
 
@@ -377,10 +379,10 @@ https://hooks.slack.com.evil.com/services/T/B/X
 
 **Mitigation**:
 
-1. Current builds store webhooks in the OS keyring
-2. Requires user authentication to access keyring
+1. Current builds store active webhooks as encrypted local vault rows
+2. The OS credential store protects the vault master key
 3. No plaintext webhooks in config file
-4. Even with file access, attacker cannot read webhooks
+4. Even with config-file access, attacker cannot read webhooks
 
 ### Scenario 5: Man-in-the-Middle (MITM)
 
@@ -412,7 +414,7 @@ https://hooks.slack.com.evil.com/services/T/B/X
 Avoid: sharing in Slack/Discord/Teams
 Avoid: committing to Git repositories
 Avoid: posting in public forums
-Use: JobSentinel keyring storage
+Use: JobSentinel secret-vault storage
 Use: rotation after compromise
 Use: deletion for unused webhooks
 ```
