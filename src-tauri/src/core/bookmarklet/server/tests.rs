@@ -118,6 +118,22 @@ fn test_bookmarklet_host_validation_requires_loopback_host_with_port() {
 }
 
 #[test]
+fn test_bookmarklet_origin_validation_rejects_non_web_contexts() {
+    let no_origin = "POST /api/bookmarklet/import HTTP/1.1\r\nHost: localhost:4321\r\n\r\n{}";
+    let https_origin = "POST /api/bookmarklet/import HTTP/1.1\r\nHost: localhost:4321\r\nOrigin: https://jobs.example\r\nReferer: https://jobs.example/posting\r\n\r\n{}";
+    let null_origin =
+        "POST /api/bookmarklet/import HTTP/1.1\r\nHost: localhost:4321\r\nOrigin: null\r\n\r\n{}";
+    let file_referer = "POST /api/bookmarklet/import HTTP/1.1\r\nHost: localhost:4321\r\nReferer: file:///Users/example/job.html\r\n\r\n{}";
+    let extension_origin = "POST /api/bookmarklet/import HTTP/1.1\r\nHost: localhost:4321\r\nOrigin: chrome-extension://abcdef\r\n\r\n{}";
+
+    assert!(has_allowed_bookmarklet_origin(no_origin));
+    assert!(has_allowed_bookmarklet_origin(https_origin));
+    assert!(!has_allowed_bookmarklet_origin(null_origin));
+    assert!(!has_allowed_bookmarklet_origin(file_referer));
+    assert!(!has_allowed_bookmarklet_origin(extension_origin));
+}
+
+#[test]
 fn test_bookmarklet_http_response_does_not_advertise_wildcard_cors() {
     let response = http_response_data("200 OK", "application/json", "{\"success\":true}");
 

@@ -315,6 +315,11 @@ async fn handle_connection(
             json_error_response("Invalid browser import host"),
             "application/json".to_string(),
         )
+    } else if !has_allowed_bookmarklet_origin(&request) {
+        (
+            json_error_response("Invalid browser import origin"),
+            "application/json".to_string(),
+        )
     } else if is_bookmarklet_import_request(&request) {
         handle_import_request(&request, &auth_state, database).await
     } else if request.starts_with("OPTIONS") {
@@ -495,6 +500,19 @@ fn has_valid_bookmarklet_host(request: &str, port: u16) -> bool {
             || normalized == format!("127.0.0.1:{port}")
             || normalized == format!("[::1]:{port}")
     })
+}
+
+fn has_allowed_bookmarklet_origin(request: &str) -> bool {
+    request_header_value(request, "origin").is_none_or(is_http_or_https_url)
+        && request_header_value(request, "referer").is_none_or(is_http_or_https_url)
+}
+
+fn is_http_or_https_url(value: &str) -> bool {
+    let Ok(url) = url::Url::parse(value.trim()) else {
+        return false;
+    };
+
+    matches!(url.scheme(), "http" | "https") && url.host_str().is_some()
 }
 
 fn request_buffer_has_complete_body(buffer: &[u8]) -> bool {

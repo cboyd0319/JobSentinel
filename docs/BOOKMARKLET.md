@@ -117,6 +117,8 @@ interface should keep technical details hidden:
   back to host-page `window.fetch` or host-page `JSON.stringify`.
 - Bookmarklet sends can be blocked by a target page Content Security Policy,
   especially strict `connect-src` rules that exclude loopback endpoints.
+- The local receiver accepts missing origin/referrer headers but rejects explicit
+  non-web origins such as `null`, `file:`, or browser-extension origins.
 - The local send path intentionally uses a no-preflight request shape, which
   means browser script cannot reliably inspect a failed local response. Keep the
   in-app import and manual add flows as the fallback.
