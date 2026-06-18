@@ -2,6 +2,8 @@ name: CI
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: "17 11 * * 1"
   push:
     branches: [main]
   pull_request:
@@ -47,6 +49,16 @@ jobs:
 
           if [ "$event" = "workflow_dispatch" ]; then
             git ls-files > changed-files.txt
+          elif [ "$event" = "schedule" ]; then
+            printf '%s\n' \
+              .github/dependabot.yml \
+              .github/workflows/ci.yml \
+              package.json \
+              package-lock.json \
+              src-tauri/Cargo.lock \
+              src-tauri/Cargo.toml \
+              src-tauri/deny.toml \
+              > changed-files.txt
           elif [ "$event" = "pull_request" ]; then
             git diff --name-only "${{ github.event.pull_request.base.sha }}" "$GITHUB_SHA" > changed-files.txt
           elif [ "${{ github.event.before }}" = "$zero" ]; then
@@ -96,6 +108,11 @@ jobs:
             frontend=true
             harness=true
             rust=true
+            security=true
+          elif [ "$event" = "schedule" ]; then
+            frontend=false
+            harness=true
+            rust=false
             security=true
           fi
 
@@ -261,6 +278,9 @@ jobs:
       - name: Install dependencies
         run: npm ci --prefer-offline --no-audit --no-fund
 
+      - name: Run security sensors
+        run: npm run lint:security
+
       - name: npm audit
         run: npm audit --audit-level=moderate
 
@@ -270,3 +290,7 @@ jobs:
       - name: cargo deny check advisories
         working-directory: src-tauri
         run: cargo deny check advisories
+
+      - name: Check latest stable dependency and action pins
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        run: npm run release:check-deps

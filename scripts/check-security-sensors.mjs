@@ -4,6 +4,11 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { dirname, extname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
+import {
+  checkBrowserExtensionManifestBoundary,
+  checkTauriCapabilityBoundary,
+} from "./security/permission-boundaries.mjs";
+
 const scriptPath = fileURLToPath(import.meta.url);
 const defaultRoot = resolve(dirname(scriptPath), "..");
 
@@ -45,6 +50,14 @@ const requiredMatrixEntries = [
     phrases: ["Browser automation", "Human-in-the-loop submit behavior preserved"],
   },
   {
+    label: "browser extension manifest",
+    phrases: [
+      "Browser extension manifest",
+      "least-privilege manifest review",
+      "no broad host permissions",
+    ],
+  },
+  {
     label: "scraper behavior",
     phrases: ["Scraper behavior", "Rate limit and error handling tests"],
   },
@@ -56,12 +69,34 @@ const ciWorkflowChecks = [
     phrases: ["jobs:", "security:"],
   },
   {
+    label: "scheduled security drift trigger",
+    phrases: ["schedule:", "cron:"],
+  },
+  {
+    label: "scheduled security drift selection",
+    phrases: [
+      '"$event" = "schedule"',
+      "frontend=false",
+      "harness=true",
+      "rust=false",
+      "security=true",
+    ],
+  },
+  {
+    label: "security sensors",
+    phrases: ["npm run lint:security"],
+  },
+  {
     label: "npm audit",
     phrases: ["npm audit --audit-level=moderate"],
   },
   {
     label: "cargo deny advisories",
     phrases: ["cargo deny check advisories"],
+  },
+  {
+    label: "latest stable drift check",
+    phrases: ["npm run release:check-deps"],
   },
 ];
 
@@ -275,6 +310,7 @@ const requiredCodeownersEntries = [
   "scripts/check-dependency-pins.mjs",
   "scripts/check-security-sensors.mjs",
   "scripts/check-security-sensors.test.mjs",
+  "scripts/security/",
   "src-tauri/Cargo.toml",
   "src-tauri/Cargo.lock",
   "src-tauri/deny.toml",
@@ -567,11 +603,13 @@ export function formatSecuritySensorSummary() {
     `release-preflight=${releasePreflightChecks.length}`,
     `published-release-workflow=${publishedReleaseWorkflowChecks.length}`,
     `public-release-verifier=${publicReleaseVerifierChecks.length}`,
-    "ci=2",
+    `ci=${ciWorkflowChecks.length}`,
     `ci-docs=${ciDocsChecks.length}`,
     `dependabot=${dependabotGovernanceChecks.length}`,
     `codeowners=${requiredCodeownersEntries.length}`,
     "agent-instructions=1",
+    "browser-extension=1",
+    "tauri-capabilities=1",
     "renderer-csp=1",
     "credential-ui=2",
   ].join(" ");
@@ -602,6 +640,8 @@ export function checkSecuritySensors(root = defaultRoot) {
   checkDependabotGovernance(root, violations);
   checkCodeownersBoundary(root, violations);
   checkAgentInstructionFileBoundary(root, violations);
+  checkBrowserExtensionManifestBoundary(root, violations);
+  checkTauriCapabilityBoundary(root, violations);
 
   const ciWorkflow = readIfExists(root, ".github/workflows/ci.yml", violations);
 

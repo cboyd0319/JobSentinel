@@ -14,6 +14,7 @@ function writeBaseRepo(root, csp) {
   mkdirSync(join(root, ".github"), { recursive: true });
   mkdirSync(join(root, "scripts"), { recursive: true });
   mkdirSync(join(root, "src-tauri"), { recursive: true });
+  mkdirSync(join(root, "src-tauri/capabilities"), { recursive: true });
   mkdirSync(join(root, "src/pages"), { recursive: true });
 
   for (const file of [
@@ -38,13 +39,37 @@ function writeBaseRepo(root, csp) {
       "Privacy docs update and explicit user configuration",
       "Browser automation",
       "Human-in-the-loop submit behavior preserved",
+      "Browser extension manifest",
+      "least-privilege manifest review",
+      "no broad host permissions",
       "Scraper behavior",
       "Rate limit and error handling tests",
     ].join("\n"),
   );
   writeFileSync(
     join(root, ".github/workflows/ci.yml"),
-    "permissions: {}\njobs:\n  security:\n    steps:\n      - run: npm audit --audit-level=moderate\n      - run: cargo deny check advisories\n",
+    [
+      "on:",
+      "  schedule:",
+      "    - cron: \"17 11 * * 1\"",
+      "permissions: {}",
+      "jobs:",
+      "  changes:",
+      "    steps:",
+      "      - run: |",
+      "          if [ \"$event\" = \"schedule\" ]; then",
+      "            frontend=false",
+      "            harness=true",
+      "            rust=false",
+      "            security=true",
+      "          fi",
+      "  security:",
+      "    steps:",
+      "      - run: npm run lint:security",
+      "      - run: npm audit --audit-level=moderate",
+      "      - run: cargo deny check advisories",
+      "      - run: npm run release:check-deps",
+    ].join("\n"),
   );
   writeFileSync(
     join(root, ".github/workflows/release.yml"),
@@ -161,6 +186,7 @@ function writeBaseRepo(root, csp) {
       "scripts/check-dependency-pins.mjs @cboyd0319",
       "scripts/check-security-sensors.mjs @cboyd0319",
       "scripts/check-security-sensors.test.mjs @cboyd0319",
+      "scripts/security/ @cboyd0319",
       "src-tauri/Cargo.toml @cboyd0319",
       "src-tauri/Cargo.lock @cboyd0319",
       "src-tauri/deny.toml @cboyd0319",
@@ -181,6 +207,14 @@ function writeBaseRepo(root, csp) {
   writeFileSync(
     join(root, "src-tauri/tauri.conf.json"),
     JSON.stringify({ app: { security: { csp } } }),
+  );
+  writeFileSync(
+    join(root, "src-tauri/capabilities/default.json"),
+    JSON.stringify({
+      identifier: "default",
+      windows: ["main"],
+      permissions: ["core:default", "notification:default", "dialog:default"],
+    }),
   );
   writeFileSync(
     join(root, "src/pages/SettingsConfig.ts"),
@@ -230,6 +264,28 @@ test("checkSecuritySensors rejects renderer external connect hosts", () => {
   assert(
     checkSecuritySensors(root).includes(
       "Tauri renderer CSP must not allow external connect host: https://hooks.slack.com",
+    ),
+  );
+});
+
+test("checkSecuritySensors rejects frontend shell capability grants", () => {
+  const root = mkdtempRoot("jobsentinel-security-sensors-shell-capability-");
+  writeBaseRepo(
+    root,
+    "default-src 'self'; connect-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'",
+  );
+  writeFileSync(
+    join(root, "src-tauri/capabilities/default.json"),
+    JSON.stringify({
+      identifier: "default",
+      windows: ["main"],
+      permissions: ["core:default", "shell:allow-open"],
+    }),
+  );
+
+  assert(
+    checkSecuritySensors(root).includes(
+      "src-tauri/capabilities/default.json must not grant frontend shell permissions; route browser opens through validated Rust IPC",
     ),
   );
 });
@@ -683,6 +739,56 @@ test("checkSecuritySensors rejects passive secure-storage probes in Settings hoo
   assert(
     checkSecuritySensors(root).includes(
       "src/pages/useSettingsCredentials.ts must not call secure-storage probe commands during passive Settings load",
+    ),
+  );
+});
+
+test("checkSecuritySensors accepts least-privilege browser extension manifest", () => {
+  const root = mkdtempRoot("jobsentinel-security-sensors-extension-good-");
+  writeBaseRepo(
+    root,
+    "default-src 'self'; connect-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'",
+  );
+  mkdirSync(join(root, "browser-extension"), { recursive: true });
+  writeFileSync(
+    join(root, "browser-extension/manifest.json"),
+    JSON.stringify({
+      manifest_version: 3,
+      name: "JobSentinel Clip",
+      permissions: ["activeTab", "scripting", "storage"],
+      host_permissions: ["https://jobs.lever.co/*"],
+    }),
+  );
+
+  assert.deepEqual(checkSecuritySensors(root), []);
+});
+
+test("checkSecuritySensors rejects broad browser extension permissions", () => {
+  const root = mkdtempRoot("jobsentinel-security-sensors-extension-broad-");
+  writeBaseRepo(
+    root,
+    "default-src 'self'; connect-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'",
+  );
+  mkdirSync(join(root, "browser-extension"), { recursive: true });
+  writeFileSync(
+    join(root, "browser-extension/manifest.json"),
+    JSON.stringify({
+      manifest_version: 3,
+      name: "JobSentinel Clip",
+      permissions: ["tabs", "storage"],
+      host_permissions: ["<all_urls>"],
+    }),
+  );
+
+  const violations = checkSecuritySensors(root);
+  assert(
+    violations.includes(
+      "browser-extension/manifest.json must not request high-risk browser-extension permission: tabs",
+    ),
+  );
+  assert(
+    violations.includes(
+      "browser-extension/manifest.json must not request broad browser-extension host permission: <all_urls>",
     ),
   );
 });

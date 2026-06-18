@@ -28,14 +28,16 @@ verification gates pass.
 
 | Workflow                 | File                           | Trigger                     | Purpose                         |
 | ------------------------ | ------------------------------ | --------------------------- | ------------------------------- |
-| CI                       | `ci.yml`                       | Push, PR, or manual         | Path-aware tests, linting, security, docs, and harness |
+| CI                       | `ci.yml`                       | Push, PR, manual, or weekly | Path-aware tests, linting, security, docs, and harness |
 | Release                  | `release.yml`                  | Version tag or manual       | Build and stage draft installers |
 | Verify Release Artifacts | `verify-release-artifacts.yml` | Published release or manual | Verify public downloadable DMGs, SBOMs, and attestations |
 
 CI no longer has a separate docs workflow. A first `changes` job classifies the
 diff, then only the relevant jobs run. Documentation-only changes run harness
 and markdown checks without Rust, frontend, or security jobs. Rust, frontend,
-dependency, and workflow changes still trigger their matching gates.
+dependency, and workflow changes still trigger their matching gates. The weekly
+schedule runs only the harness and security jobs, then checks latest stable
+dependency and Action pin drift.
 
 Dependabot runs weekly for npm, Cargo, and GitHub Actions. Non-security
 minor and patch version updates are grouped to reduce review and CI pressure.
@@ -86,7 +88,8 @@ Workflow changes must preserve the GitHub Actions security baseline:
 
 ## Continuous integration (ci.yml)
 
-**Trigger:** Push to `main`, pull request targeting `main`, or manual run
+**Trigger:** Push to `main`, pull request targeting `main`, weekly schedule,
+or manual run
 
 CI runs on `ubuntu-24.04`. There is no OS matrix and no beta toolchain, only
 pinned Rust 1.96.0 on Linux. Jobs are path-aware so docs-only changes avoid
@@ -95,7 +98,8 @@ unrelated Rust and frontend work.
 ### Job: changes
 
 Classifies the changed files and exposes booleans for harness/docs, frontend,
-Rust, and security checks. Manual dispatch runs the full CI set.
+Rust, and security checks. Manual dispatch runs the full CI set. The weekly
+schedule runs the harness and security jobs only.
 
 ### Job: harness
 
@@ -143,13 +147,16 @@ changed.
 ### Job: security
 
 Audits both dependency trees for known vulnerabilities when dependency,
-security, Dependabot, or workflow files changed. This job intentionally skips
-Linux WebKit build dependencies because it does not compile the app.
+security, Dependabot, or workflow files changed. The weekly and manual runs
+also check latest stable dependency and Action pin drift. This job intentionally
+skips Linux WebKit build dependencies because it does not compile the app.
 
-| Step            | Tool                               |
-| --------------- | ---------------------------------- |
-| npm audit       | `npm audit --audit-level=moderate` |
-| Rust advisories | `cargo deny check advisories`      |
+| Step             | Tool                               |
+| ---------------- | ---------------------------------- |
+| Security sensors | `npm run lint:security`            |
+| npm audit        | `npm audit --audit-level=moderate` |
+| Rust advisories  | `cargo deny check advisories`      |
+| Drift check      | `npm run release:check-deps`       |
 
 ---
 
@@ -299,8 +306,10 @@ npm run lint
 npm test -- --run
 
 # Security
+npm run lint:security
 npm audit --audit-level=moderate
-cd src-tauri && cargo deny check advisories
+(cd src-tauri && cargo deny check advisories)
+npm run release:check-deps
 ```
 
 For broader local validation, use the [verification matrix](../harness/verification-matrix.md):

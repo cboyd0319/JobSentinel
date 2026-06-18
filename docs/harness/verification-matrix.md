@@ -76,6 +76,7 @@ with warnings-as-errors as a required local or CI gate.
 | External network destination | Privacy docs update and explicit user configuration |
 | External AI provider path | `npm run lint:external-ai`, AI gateway test, privacy label update, payload preview gate, and no direct provider call outside `src/services/aiGateway.ts` |
 | Browser automation | Human-in-the-loop submit behavior preserved |
+| Browser extension manifest | `npm run lint:security`, least-privilege manifest review, and no broad host permissions |
 | Scraper behavior | Rate limit and error handling tests |
 
 ## Experience And Support

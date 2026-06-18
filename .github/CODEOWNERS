@@ -11,6 +11,7 @@ scripts/check-action-pins.mjs @cboyd0319
 scripts/check-dependency-pins.mjs @cboyd0319
 scripts/check-security-sensors.mjs @cboyd0319
 scripts/check-security-sensors.test.mjs @cboyd0319
+scripts/security/ @cboyd0319
 src-tauri/Cargo.toml @cboyd0319
 src-tauri/Cargo.lock @cboyd0319
 src-tauri/deny.toml @cboyd0319
