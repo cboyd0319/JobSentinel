@@ -42,6 +42,9 @@ packaging gates close.
 - **Browser Import hardening** - The generated browser button now sends through
   clean transient browser APIs instead of host-page `window.fetch` or
   `JSON.stringify` while keeping one-use local tokens.
+- **macOS dependency surface** - Removed unused direct WebKit and cookie
+  extraction dependencies from the Tauri crate while keeping native
+  user-presence protection for the local credential vault key.
 - **Company research privacy** - Company research suggestions now use
   memory-only caching and clear the legacy localStorage cache key.
 - **Onboarding accessibility** - The tour overlay now behaves as a modal dialog

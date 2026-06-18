@@ -8,6 +8,7 @@ const linkedInCredentialDocsPaths = new Set([
 ]);
 
 const linkedInAutomationBoundaryPaths = new Set([
+  "src-tauri/Cargo.toml",
   "src-tauri/src/core/config/types.rs",
   "src-tauri/src/core/scrapers/linkedin.rs",
   "src-tauri/src/core/scheduler/workers/scrapers.rs",
@@ -230,6 +231,9 @@ export function hasLinkedInAutomationBoundaryDrift(root, path) {
   return (
     /voyager\/api|jobs-guest\/jobs\/api|parse_linkedin_html|fetch_linkedin_html|csrf-token/.test(text) ||
     linkedInAutomationCopyPattern.test(text) ||
+    /objc2-web-kit|WKHTTPCookieStore|WKWebsiteDataStore|Native macOS cookie extraction/.test(
+      text,
+    ) ||
     /pub\s+session_cookie:\s*String/.test(text) ||
     /session_cookie_configured/.test(text) ||
     /linkedin_login|get_linkedin_expiry_status|CredentialKey::LinkedInCookie/.test(text) ||

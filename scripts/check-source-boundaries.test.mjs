@@ -161,6 +161,11 @@ test("source boundaries reject LinkedIn credential and automation drift", () => 
     );
     writeFixtureFile(
       root,
+      "src-tauri/Cargo.toml",
+      'objc2-web-kit = { version = "=0.3.2", features = ["WKHTTPCookieStore"] }\n',
+    );
+    writeFixtureFile(
+      root,
       "src-tauri/src/core/scrapers/linkedin.rs",
       "debug.field(\"session_cookie_configured\", &true);\n",
     );
@@ -176,6 +181,7 @@ test("source boundaries reject LinkedIn credential and automation drift", () => 
       hasLinkedInAutomationBoundaryDrift(root, "src-tauri/src/core/config/types.rs"),
       true,
     );
+    assert.equal(hasLinkedInAutomationBoundaryDrift(root, "src-tauri/Cargo.toml"), true);
     assert.equal(
       hasLinkedInAutomationBoundaryDrift(root, "src-tauri/src/core/scrapers/linkedin.rs"),
       true,

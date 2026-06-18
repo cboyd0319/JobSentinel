@@ -96,7 +96,9 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   local follow-up. Current committed local work adds release SBOMs, manifests,
   GitHub provenance/SBOM attestations, public macOS supply-chain verification,
   Browser Import clean-API hardening, and optional local-model
-  revision/checksum pinning. Gatekeeper-ready macOS remains Apple-blocked.
+  revision/checksum pinning. Current local follow-up removes unused direct
+  macOS WebKit/cookie dependencies and aligns release metadata. Gatekeeper-ready
+  macOS remains Apple-blocked.
 
 ## Next Best Work
 

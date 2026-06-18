@@ -1,7 +1,7 @@
 [package]
 name = "jobsentinel"
 version = "2.9.0"
-description = "Privacy-preserving job-search assistant for Windows 11+"
+description = "Privacy-preserving local-first job-search assistant for desktop"
 authors = ["Chad Boyd"]
 license = "MIT"
 repository = "https://github.com/cboyd0319/JobSentinel"
@@ -123,12 +123,10 @@ tempfile = "=3.27.0"
 windows = { version = "=0.62.2", features = ["Win32_Foundation", "Win32_System_Threading"] }
 
 [target.'cfg(target_os = "macos")'.dependencies]
-# Native macOS cookie extraction from WKWebView
+# Native macOS user-presence protection for the local credential vault key.
 objc2 = "=0.6.4"
-objc2-foundation = { version = "=0.3.2", features = ["NSString", "NSArray", "NSDictionary", "NSDate", "NSURL", "block2"] }
-objc2-web-kit = { version = "=0.3.2", features = ["WKWebsiteDataStore", "WKHTTPCookieStore", "WKWebViewConfiguration", "WKWebView", "block2"] }
+objc2-foundation = { version = "=0.3.2", default-features = false, features = ["std", "NSString"] }
 objc2-local-authentication = { version = "=0.3.2", default-features = false, features = ["std", "LAContext"] }
-block2 = "=0.6.2"
 security-framework = "=3.7.0"
 
 [dev-dependencies]
