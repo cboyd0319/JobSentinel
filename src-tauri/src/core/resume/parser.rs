@@ -1,10 +1,11 @@
 //! Local resume parser
 //!
-//! Extracts text content from PDF, DOCX, TXT, and Markdown resumes.
+//! Extracts text content from PDF, DOCX, TXT, Markdown, and HTML resumes.
 //! Supports OCR fallback for scanned PDFs when the `ocr` feature is enabled.
 
 use anyhow::{Context, Result};
 use quick_xml::{escape::unescape, events::Event, Reader};
+use scraper::{ElementRef, Html, Selector as HtmlSelector};
 use std::{
     fs::File,
     io::Read,
@@ -92,7 +93,7 @@ impl ResumeParser {
 
     /// Parse a supported resume file and extract text content.
     ///
-    /// Supported formats are PDF, DOCX, TXT, and Markdown.
+    /// Supported formats are PDF, DOCX, TXT, Markdown, and HTML.
     pub fn parse_resume(&self, file_path: &Path) -> Result<String> {
         let canonical_path = canonical_regular_file(file_path)?;
 
@@ -100,7 +101,10 @@ impl ResumeParser {
             Some("pdf") => self.parse_pdf_from_canonical(&canonical_path),
             Some("docx") => self.parse_docx_from_canonical(&canonical_path),
             Some("txt" | "md") => self.parse_plain_text_from_canonical(&canonical_path),
-            _ => Err(anyhow::anyhow!("File must be PDF, DOCX, TXT, or Markdown")),
+            Some("html" | "htm") => self.parse_html_from_canonical(&canonical_path),
+            _ => Err(anyhow::anyhow!(
+                "File must be PDF, DOCX, TXT, Markdown, or HTML"
+            )),
         }
     }
 
@@ -167,6 +171,35 @@ impl ResumeParser {
             std::fs::read_to_string(canonical_path).context("Failed to read resume text file")?;
 
         Ok(self.clean_text(&text))
+    }
+
+    fn parse_html_from_canonical(&self, canonical_path: &Path) -> Result<String> {
+        let html =
+            std::fs::read_to_string(canonical_path).context("Failed to read resume HTML file")?;
+        let text = self.extract_html_visible_text(&html);
+
+        if text.is_empty() {
+            return Err(anyhow::anyhow!("HTML resume did not contain readable text"));
+        }
+
+        Ok(text)
+    }
+
+    fn extract_html_visible_text(&self, html: &str) -> String {
+        let document = Html::parse_document(html);
+        let mut chunks = Vec::new();
+
+        if let Ok(body_selector) = HtmlSelector::parse("body") {
+            if let Some(body) = document.select(&body_selector).next() {
+                collect_visible_html_text(body, &mut chunks);
+            }
+        }
+
+        if chunks.is_empty() {
+            collect_visible_html_text(document.root_element(), &mut chunks);
+        }
+
+        self.clean_text(&chunks.join("\n"))
     }
 
     fn parse_docx_from_canonical(&self, canonical_path: &Path) -> Result<String> {
@@ -659,6 +692,31 @@ fn resume_extension(path: &Path) -> Option<String> {
         .map(str::to_ascii_lowercase)
 }
 
+fn collect_visible_html_text(root: ElementRef<'_>, chunks: &mut Vec<String>) {
+    for node in root.descendants() {
+        if let Some(text) = node.value().as_text() {
+            if node.ancestors().any(|ancestor| {
+                ElementRef::wrap(ancestor)
+                    .is_some_and(|element| is_hidden_html_text_element(element.value().name()))
+            }) {
+                continue;
+            }
+
+            let text = text.trim();
+            if !text.is_empty() {
+                chunks.push(text.to_string());
+            }
+        }
+    }
+}
+
+fn is_hidden_html_text_element(name: &str) -> bool {
+    matches!(
+        name,
+        "script" | "style" | "noscript" | "template" | "svg" | "canvas"
+    )
+}
+
 fn xml_local_name(name: &[u8]) -> &[u8] {
     name.rsplit(|byte| *byte == b':').next().unwrap_or(name)
 }
@@ -668,6 +726,10 @@ impl Default for ResumeParser {
         Self::new()
     }
 }
+
+#[cfg(test)]
+#[path = "parser_html_tests.rs"]
+mod html_tests;
 
 #[cfg(test)]
 mod tests {

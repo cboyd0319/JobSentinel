@@ -10,10 +10,8 @@ engineer-only defaults, and unverified claims. Current priority is v2.9.0
 readiness for an urgent single-user job search while keeping the broader
 product safe for non-technical job seekers.
 
-Repo-bloat cleanup is closed; reopen only for a fresh blocking gate failure.
-
-Release creation is paused until development and QA blockers are closed. Do not
-create, upload, or announce assets until final design, packaging, and final verification close.
+Release creation is paused until development and QA blockers are closed. Do not create,
+upload, or announce assets until final design, packaging, and final verification close.
 
 Rule 0 still controls the work: user data stays local unless the user explicitly
 configures an external channel, external AI stays optional and disabled by
@@ -100,7 +98,9 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   executable x86_64 AppImage `bb1d58aadce73254ab80510ce659710dd6b63f20491ee76a4e0781f63da00ee4`;
   `.sha256` sidecar verified.
 - 2026-06-18 credential taxonomy moved license/certification/designation groups
-  into shared Rust/TypeScript data with a CPA guard and verified green gates.
+  into shared data with a CPA guard and verified green gates.
+- 2026-06-18 resume reference mining added HTML upload/parsing, source-aware
+  ATS format warnings, and shared format taxonomy; Rust/Vitest gates pass.
 
 ## Next Best Work
 

@@ -315,7 +315,7 @@ describe("ResumeOptimizer", () => {
     expect(screen.getByText("DOCX")).toBeInTheDocument();
     expect(
       screen.getByText(
-        "No readable text found. Follow employer file instructions first, then choose a readable PDF, DOCX, TXT, or Markdown resume.",
+        "No readable text found. Follow employer file instructions first, then choose a readable PDF, DOCX, TXT, Markdown, or HTML resume.",
       ),
     ).toBeInTheDocument();
   });

@@ -4,7 +4,7 @@
 //!
 //! ## Features
 //!
-//! - **Local Resume Parsing** - Extract text from PDF, DOCX, TXT, and Markdown resumes
+//! - **Local Resume Parsing** - Extract text from PDF, DOCX, TXT, Markdown, and HTML resumes
 //! - **Skill Extraction** - Identify technical, workplace, and role-specific skills
 //! - **Semantic Matching** - Compare resume skills against job requirements
 //! - **Gap Analysis** - Identify missing skills and strengths

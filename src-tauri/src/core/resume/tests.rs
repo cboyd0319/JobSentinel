@@ -273,6 +273,46 @@ async fn test_upload_resume_docx_parses_text_and_extracts_skills() {
 }
 
 #[tokio::test]
+async fn test_upload_resume_html_parses_visible_text_and_extracts_skills() {
+    let pool = setup_test_db().await;
+    let matcher = ResumeMatcher::new(pool.clone());
+    let temp_dir = tempfile::TempDir::new().unwrap();
+    let file_path = temp_dir.path().join("operations-resume.html");
+    std::fs::write(
+        &file_path,
+        r#"
+<!doctype html>
+<html lang="en">
+  <head><style>body { font-family: Arial; }</style></head>
+  <body>
+    <h1>Jordan Lee</h1>
+    <h2>Skills</h2>
+    <p>Project Management</p>
+    <p>Communication</p>
+    <script>alert('ignore');</script>
+  </body>
+</html>
+        "#,
+    )
+    .unwrap();
+
+    let resume_id = matcher
+        .upload_resume("HTML Operations Resume", &file_path.to_string_lossy())
+        .await
+        .unwrap();
+    let resume = matcher.get_resume(resume_id).await.unwrap();
+    let parsed_text = resume.parsed_text.unwrap();
+    let skill_names = uploaded_skill_names(matcher.get_user_skills(resume_id).await.unwrap());
+
+    assert!(parsed_text.contains("Jordan Lee"));
+    assert!(parsed_text.contains("Project Management"));
+    assert!(!parsed_text.contains("font-family"));
+    assert!(!parsed_text.contains("alert"));
+    assert!(skill_names.contains(&"Project Management".to_string()));
+    assert!(skill_names.contains(&"Communication".to_string()));
+}
+
+#[tokio::test]
 async fn test_import_json_resume_preserves_builder_evidence_sections() {
     let pool = setup_test_db().await;
     let matcher = ResumeMatcher::new(pool.clone());

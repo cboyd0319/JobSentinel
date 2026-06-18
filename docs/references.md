@@ -320,6 +320,9 @@ and fake example links are intentionally excluded.
 - [JSON Resume getting started](https://jsonresume.org/getting-started/)
 - [JSON Resume schema](https://jsonresume.org/schema/)
 - [JSON Resume registry](https://registry.jsonresume.org/)
+- [JSON Resume ATS validator package](https://github.com/jsonresume/jsonresume.org/tree/main/packages/ats-validator)
+- [Scrapling Rust crate documentation](https://docs.rs/scrapling/0.2.0/scrapling/)
+- [Scrapling Python project](https://github.com/D4Vinci/Scrapling)
 
 ## Community and Project References
 

@@ -119,6 +119,14 @@ fn resume_upload_extension_validation_accepts_supported_local_formats() {
         supported_resume_extension(Path::new("resume.md")).as_deref(),
         Some("md")
     );
+    assert_eq!(
+        supported_resume_extension(Path::new("resume.HTML")).as_deref(),
+        Some("html")
+    );
+    assert_eq!(
+        supported_resume_extension(Path::new("resume.htm")).as_deref(),
+        Some("htm")
+    );
     assert!(supported_resume_extension(Path::new("resume.doc")).is_none());
 }
 
@@ -126,11 +134,14 @@ fn resume_upload_extension_validation_accepts_supported_local_formats() {
 fn safe_resume_upload_file_name_preserves_supported_extension() {
     let docx_name = safe_resume_upload_file_name(Path::new("Jordan Resume.docx"));
     let text_name = safe_resume_upload_file_name(Path::new("Jordan Resume.txt"));
+    let html_name = safe_resume_upload_file_name(Path::new("Jordan Resume.html"));
 
     assert!(docx_name.ends_with("--Jordan-Resume.docx"));
     assert!(text_name.ends_with("--Jordan-Resume.txt"));
+    assert!(html_name.ends_with("--Jordan-Resume.html"));
     assert!(!docx_name.contains(' '));
     assert!(!text_name.contains(' '));
+    assert!(!html_name.contains(' '));
 }
 
 #[test]
@@ -238,4 +249,19 @@ fn renderer_supplied_resume_file_paths_are_rejected() {
 
     assert!(err.contains("Choose"));
     assert!(err.contains("Resume"));
+}
+
+#[test]
+fn html_resume_source_is_available_only_for_format_review() {
+    let temp_dir = tempfile::tempdir().unwrap();
+    let html_path = temp_dir.path().join("Private Resume.html");
+    let txt_path = temp_dir.path().join("Private Resume.txt");
+    std::fs::write(&html_path, "<html><body>Jordan Lee</body></html>").unwrap();
+    std::fs::write(&txt_path, "Jordan Lee").unwrap();
+
+    let source = read_html_resume_source_for_format_review(&html_path.to_string_lossy())
+        .expect("HTML source should be available for local format review");
+
+    assert!(source.contains("Jordan Lee"));
+    assert!(read_html_resume_source_for_format_review(&txt_path.to_string_lossy()).is_none());
 }

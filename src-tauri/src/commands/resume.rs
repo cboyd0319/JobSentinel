@@ -32,7 +32,7 @@ const MAX_JSON_RESUME_IMPORT_BYTES: u64 = 5 * 1024 * 1024;
 const MAX_SELECTED_RESUME_UPLOAD_BYTES: u64 = 10 * 1024 * 1024;
 const MANAGED_RESUME_UPLOAD_DIR: &str = "resume-uploads";
 const MAX_RESUME_TEXT_PREVIEW_CHARS: usize = 6_000;
-const SUPPORTED_RESUME_UPLOAD_EXTENSIONS: &[&str] = &["pdf", "docx", "txt", "md"];
+const SUPPORTED_RESUME_UPLOAD_EXTENSIONS: &[&str] = &["pdf", "docx", "txt", "md", "html", "htm"];
 
 #[derive(Debug, Clone, Serialize)]
 pub struct ResumeSummary {
@@ -86,6 +86,7 @@ fn resume_format_label(resume: &Resume) -> String {
         "docx" => "DOCX",
         "txt" => "Plain text",
         "md" | "markdown" => "Markdown",
+        "html" | "htm" => "HTML",
         _ => "Resume file",
     }
     .to_string()
@@ -549,7 +550,7 @@ fn safe_resume_upload_file_name(path: &Path) -> String {
 
 fn validate_selected_resume(path: &Path) -> Result<(), String> {
     if supported_resume_extension(path).is_none() {
-        return Err("Choose a PDF, DOCX, TXT, or Markdown resume file.".to_string());
+        return Err("Choose a PDF, DOCX, TXT, Markdown, or HTML resume file.".to_string());
     }
 
     let metadata = std::fs::metadata(path)
@@ -560,7 +561,7 @@ fn validate_selected_resume(path: &Path) -> Result<(), String> {
 
     if metadata.len() > MAX_SELECTED_RESUME_UPLOAD_BYTES {
         return Err(
-            "That resume file is too large for local review. Choose a file under 10 MB or export a smaller readable PDF, DOCX, TXT, or Markdown resume."
+            "That resume file is too large for local review. Choose a file under 10 MB or export a smaller readable PDF, DOCX, TXT, Markdown, or HTML resume."
                 .to_string(),
         );
     }
@@ -756,7 +757,7 @@ pub async fn analyze_active_resume_for_job(
     let readable_text = resume.parsed_text.as_deref().unwrap_or("").trim();
     if readable_text.is_empty() {
         return Err(
-            "JobSentinel could not find readable text in the active resume. Add a PDF, DOCX, TXT, or Markdown resume with readable text, or use Import from Resume App."
+            "JobSentinel could not find readable text in the active resume. Add a PDF, DOCX, TXT, Markdown, or HTML resume with readable text, or use Import from Resume App."
                 .to_string(),
         );
     }
@@ -769,11 +770,29 @@ pub async fn analyze_active_resume_for_job(
         .map(|skill| skill.skill_name)
         .collect::<Vec<_>>();
 
-    Ok(AtsAnalyzer::analyze_text_for_job(
+    let source_text = read_html_resume_source_for_format_review(&resume.file_path);
+
+    Ok(AtsAnalyzer::analyze_text_for_job_with_source(
         readable_text,
         &skill_names,
         &job_description,
+        source_text.as_deref(),
     ))
+}
+
+fn read_html_resume_source_for_format_review(file_path: &str) -> Option<String> {
+    let path = Path::new(file_path);
+    let extension = path.extension()?.to_str()?.to_ascii_lowercase();
+    if !matches!(extension.as_str(), "html" | "htm") {
+        return None;
+    }
+
+    let metadata = std::fs::metadata(path).ok()?;
+    if !metadata.is_file() || metadata.len() > MAX_SELECTED_RESUME_UPLOAD_BYTES {
+        return None;
+    }
+
+    std::fs::read_to_string(path).ok()
 }
 
 /// Analyze resume format without job context

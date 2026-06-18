@@ -119,7 +119,7 @@ employer screening systems.
 
 The current local matcher:
 
-- extracts readable text from PDF, DOCX, TXT, and Markdown resumes;
+- extracts readable text from PDF, DOCX, TXT, Markdown, and HTML resumes;
 - keeps selected resume uploads local and rejects files over 10 MB before
   copying them into managed local storage;
 - shows the resume format and whether readable text is available before review;
@@ -131,8 +131,8 @@ The current local matcher:
   and credentials should be selectable text instead of photos, logos, or
   image-only sections;
 - tells users to follow employer file instructions first when readable text is
-  missing, then suggests readable PDF, DOCX, TXT, or Markdown when no format is
-  named;
+  missing, then suggests readable PDF, DOCX, TXT, Markdown, or HTML when no
+  format is named;
 - tells users when a PDF may be scanned or image-only because local parsing
   could not find selectable text;
 - uses the same employer-instructions-first guidance inside the empty
@@ -143,6 +143,9 @@ The current local matcher:
   HTML comments, metadata tags, and work bullets that read like keyword lists,
   generic filler, or mix ownership with exposure-only wording instead of plain
   work evidence;
+- checks HTML resume source for table layouts, multi-column CSS, risky
+  decorative fonts, custom web-font dependencies, and very small font sizes
+  before treating the resume as safe for submission;
 - treats **Career Break**, **Career Pause**, and caregiving labels as readable
   resume headings instead of structural mistakes;
 - treats **Volunteer Experience**, **Community Involvement**, and **Military
@@ -493,7 +496,7 @@ The skill list is self-contained and deterministic. Same input should produce
 the same local result. Optional OCR is available for scanned PDFs when the app
 is built with OCR support and local OCR tools are installed.
 
-Current import support covers PDF, DOCX, TXT, and Markdown. Private reference
+Current import support covers PDF, DOCX, TXT, Markdown, and HTML. Private reference
 examples reviewed during planning also showed RTF, ODT, EPUB, and archive
 exports. Future importer work should use synthetic fixtures based on those
 format patterns instead of committing private resume text.

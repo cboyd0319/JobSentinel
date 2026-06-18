@@ -220,6 +220,99 @@ fn test_analyze_text_for_job_flags_missing_top_contact_and_standard_headings() {
 }
 
 #[test]
+fn test_analyze_text_for_job_flags_html_layout_and_font_risks() {
+    let result = AtsAnalyzer::analyze_text_for_job(
+        r#"
+<!doctype html>
+<html lang="en">
+  <head>
+    <style>
+      @font-face { font-family: "DecorativeResume"; src: url("resume.woff2"); }
+      body { font-family: Papyrus, DecorativeResume, sans-serif; }
+      .resume-grid { display: grid; grid-template-columns: 1fr 2fr; }
+      .tiny { font-size: 8px; }
+    </style>
+  </head>
+  <body>
+    <header><h1>Jordan Lee</h1><a href="mailto:jordan@example.com">jordan@example.com</a></header>
+    <table>
+      <tr><td>Experience</td><td>Program Operations Lead</td></tr>
+      <tr><td>Skills</td><td>Scheduling</td></tr>
+    </table>
+  </body>
+</html>
+        "#,
+        &[],
+        "Required: scheduling",
+    );
+
+    assert!(result.format_issues.iter().any(|issue| {
+        issue.severity == IssueSeverity::Warning
+            && issue.issue.contains("HTML table or multi-column layout")
+            && issue.fix.contains("single-column")
+    }));
+    assert!(result.format_issues.iter().any(|issue| {
+        issue.severity == IssueSeverity::Warning
+            && issue.issue.contains("Non-standard resume font")
+            && issue.fix.contains("standard ATS-friendly font")
+    }));
+    assert!(result.format_issues.iter().any(|issue| {
+        issue.severity == IssueSeverity::Warning
+            && issue.issue.contains("Custom web font")
+            && issue.fix.contains("fallback")
+    }));
+    assert!(result.format_issues.iter().any(|issue| {
+        issue.severity == IssueSeverity::Warning
+            && issue.issue.contains("Very small HTML font size")
+            && issue.fix.contains("10px")
+    }));
+}
+
+#[test]
+fn test_analyze_text_for_job_uses_html_source_without_matching_style_text() {
+    let source_html = r#"
+<!doctype html>
+<html lang="en">
+  <head>
+    <style>
+      body { font-family: Papyrus, sans-serif; }
+      .resume-grid { display: grid; grid-template-columns: 1fr 2fr; }
+    </style>
+  </head>
+  <body>
+    <h1>Jordan Lee</h1>
+    <p>jordan@example.com</p>
+    <h2>Experience</h2>
+    <p>Led scheduling improvements.</p>
+  </body>
+</html>
+    "#;
+    let result = AtsAnalyzer::analyze_text_for_job_with_source(
+        "Jordan Lee\njordan@example.com\nExperience\nLed scheduling improvements.",
+        &[],
+        "Required: scheduling",
+        Some(source_html),
+    );
+
+    assert!(result
+        .format_issues
+        .iter()
+        .any(|issue| issue.issue.contains("HTML table or multi-column layout")));
+    assert!(result
+        .format_issues
+        .iter()
+        .any(|issue| issue.issue.contains("Non-standard resume font")));
+    assert!(result
+        .keyword_matches
+        .iter()
+        .any(|keyword| keyword.keyword == "scheduling"));
+    assert!(!result
+        .keyword_matches
+        .iter()
+        .any(|keyword| keyword.keyword.contains("papyrus")));
+}
+
+#[test]
 fn test_analyze_text_for_job_flags_obvious_keyword_stuffing() {
     let result = AtsAnalyzer::analyze_text_for_job(
         "Jordan Lee\njordan@example.com\n\nSkills\nAWS AWS AWS IAM IAM IAM",

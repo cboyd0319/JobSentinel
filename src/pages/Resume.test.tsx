@@ -313,7 +313,7 @@ describe("Resume page", () => {
     expect(screen.getByText("No readable text found")).toBeInTheDocument();
     expect(
       screen.getByText(
-        "Follow employer file instructions first. This PDF may be scanned or image-only, so JobSentinel could not find selectable text. If no format is named, export a readable PDF, DOCX, TXT, or Markdown resume.",
+        "Follow employer file instructions first. This PDF may be scanned or image-only, so JobSentinel could not find selectable text. If no format is named, export a readable PDF, DOCX, TXT, Markdown, or HTML resume.",
       ),
     ).toBeInTheDocument();
   });
@@ -378,7 +378,7 @@ describe("Resume page", () => {
     expect(screen.getByText("Preview not available")).toBeInTheDocument();
     expect(
       screen.getByText(
-        "No selectable text found in this PDF. Follow employer file instructions first. If no format is named, try exporting a readable PDF, DOCX, TXT, Markdown resume, or resume app export.",
+        "No selectable text found in this PDF. Follow employer file instructions first. If no format is named, try exporting a readable PDF, DOCX, TXT, Markdown, or HTML resume, or use a resume app export.",
       ),
     ).toBeInTheDocument();
   });

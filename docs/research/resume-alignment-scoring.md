@@ -200,6 +200,14 @@ Future implementation should improve:
 - Local readable-text review flags missing top contact details, missing
   standard headings, table-like extracted text, hidden instructions,
   prompt-injection-like content, and obvious keyword stuffing.
+- Resume upload now accepts readable HTML and extracts visible body text while
+  skipping script, style, template, SVG, and canvas content.
+- Readable-text review now checks HTML source for ATS-risky tables,
+  multi-column CSS, decorative fonts, custom web-font dependencies, and tiny
+  font sizes, following the local JSON Resume ATS-validator review.
+- Readable-text format headings, icon-font terms, ATS-friendly fonts, risky
+  fonts, and custom-font signals now live in
+  `src/shared/resumeFormatTaxonomy.json` instead of Rust-only arrays.
 - Resume/job fit keeps required and preferred job-post language separate.
 - Resume/job fit now returns requirement-review rows for recognized local
   job-post keywords with direct, strong, partial, implied, or missing states,

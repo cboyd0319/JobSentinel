@@ -67,8 +67,23 @@ impl AtsAnalyzer {
         skills: &[String],
         job_description: &str,
     ) -> AtsAnalysisResult {
+        Self::analyze_text_for_job_with_source(resume_text, skills, job_description, None)
+    }
+
+    /// Analyze readable resume text against a job description with optional source markup for
+    /// format-only checks.
+    pub fn analyze_text_for_job_with_source(
+        resume_text: &str,
+        skills: &[String],
+        job_description: &str,
+        source_text: Option<&str>,
+    ) -> AtsAnalysisResult {
         let job_keywords = Self::extract_job_keywords(job_description);
-        let format_result = plain_text_format::analyze_plain_text_format(resume_text);
+        let format_result = if source_text.is_some() {
+            plain_text_format::analyze_plain_text_format_with_source(resume_text, source_text)
+        } else {
+            plain_text_format::analyze_plain_text_format(resume_text)
+        };
         let (keyword_matches, missing_keyword_details) =
             Self::find_keyword_matches_in_text(resume_text, skills, &job_keywords);
 

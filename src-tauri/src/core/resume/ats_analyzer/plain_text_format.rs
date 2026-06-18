@@ -3,9 +3,39 @@ use super::super::ats_types::{
 };
 use super::structured_format;
 use super::AtsAnalyzer;
+use once_cell::sync::Lazy;
+use scraper::{Html, Selector as HtmlSelector};
+use serde::Deserialize;
+
+const RESUME_FORMAT_TAXONOMY_JSON: &str =
+    include_str!("../../../../../src/shared/resumeFormatTaxonomy.json");
+
+static RESUME_FORMAT_TAXONOMY: Lazy<ResumeFormatTaxonomy> = Lazy::new(|| {
+    serde_json::from_str(RESUME_FORMAT_TAXONOMY_JSON)
+        .expect("resume format taxonomy JSON must be valid")
+});
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct ResumeFormatTaxonomy {
+    standard_resume_headings: Vec<String>,
+    icon_class_tokens: Vec<String>,
+    icon_font_families: Vec<String>,
+    ats_friendly_fonts: Vec<String>,
+    risky_fonts: Vec<String>,
+    custom_font_signals: Vec<String>,
+}
 
 pub(super) fn analyze_plain_text_format(resume_text: &str) -> AtsAnalysisResult {
+    analyze_plain_text_format_with_source(resume_text, None)
+}
+
+pub(super) fn analyze_plain_text_format_with_source(
+    resume_text: &str,
+    source_text: Option<&str>,
+) -> AtsAnalysisResult {
     let readable_text = resume_text.trim();
+    let source_text = source_text.map(str::trim).filter(|text| !text.is_empty());
     let mut format_issues = Vec::new();
     let mut suggestions = Vec::new();
 
@@ -17,7 +47,9 @@ pub(super) fn analyze_plain_text_format(resume_text: &str) -> AtsAnalysisResult 
         });
     }
 
-    if structured_format::text_has_adversarial_content(readable_text) {
+    if structured_format::text_has_adversarial_content(readable_text)
+        || source_text.is_some_and(structured_format::text_has_adversarial_content)
+    {
         format_issues.push(FormatIssue {
             severity: IssueSeverity::Warning,
             issue: "Instruction-like or hidden resume text detected".to_string(),
@@ -50,6 +82,11 @@ pub(super) fn analyze_plain_text_format(resume_text: &str) -> AtsAnalysisResult 
     }
 
     push_special_character_issues(readable_text, &mut format_issues, &mut suggestions);
+    check_html_source_risks(
+        source_text.unwrap_or(readable_text),
+        &mut format_issues,
+        &mut suggestions,
+    );
 
     if text_has_keyword_list_bullet(readable_text) {
         structured_format::push_keyword_list_issue(&mut format_issues, &mut suggestions);
@@ -185,6 +222,169 @@ fn check_plain_text_layout_risks(
             "Keeps qualifications readable when the resume is copied, parsed, or reviewed quickly."
                 .to_string(),
     });
+}
+
+fn check_html_source_risks(
+    resume_text: &str,
+    issues: &mut Vec<FormatIssue>,
+    suggestions: &mut Vec<AtsSuggestion>,
+) {
+    if !looks_like_html_resume_source(resume_text) {
+        return;
+    }
+
+    let style_text = collect_html_style_text(resume_text);
+    if has_html_table_or_multicolumn_layout(resume_text, &style_text) {
+        issues.push(FormatIssue {
+            severity: IssueSeverity::Warning,
+            issue: "HTML table or multi-column layout detected".to_string(),
+            fix:
+                "Use a simple single-column resume layout for important content before submitting."
+                    .to_string(),
+        });
+        suggestions.push(AtsSuggestion {
+            category: SuggestionCategory::FormatFix,
+            suggestion: "Check the HTML resume in a plain-text preview before sending it."
+                .to_string(),
+            impact:
+                "Tables, CSS grid columns, floats, and wrapped flex layouts can scramble reading order for parsers."
+                    .to_string(),
+        });
+    }
+
+    let taxonomy = resume_format_taxonomy();
+    let lower_style_text = style_text.to_ascii_lowercase();
+    if let Some(font) = taxonomy
+        .risky_fonts
+        .iter()
+        .find(|font| lower_style_text.contains(font.as_str()))
+    {
+        issues.push(FormatIssue {
+            severity: IssueSeverity::Warning,
+            issue: format!("Non-standard resume font detected: {font}"),
+            fix: "Use a standard ATS-friendly font such as Arial, Calibri, Helvetica, Georgia, Times New Roman, Verdana, Tahoma, or Segoe UI.".to_string(),
+        });
+        suggestions.push(AtsSuggestion {
+            category: SuggestionCategory::FormatFix,
+            suggestion: "Replace decorative resume fonts with a common system font stack."
+                .to_string(),
+            impact: "Reduces the chance that automated systems render or extract text poorly."
+                .to_string(),
+        });
+    }
+
+    if taxonomy
+        .custom_font_signals
+        .iter()
+        .any(|signal| lower_style_text.contains(signal.as_str()))
+    {
+        issues.push(FormatIssue {
+            severity: IssueSeverity::Warning,
+            issue: "Custom web font dependency detected".to_string(),
+            fix: "Use standard fonts or provide a plain fallback font stack for the resume."
+                .to_string(),
+        });
+    }
+
+    if lower_style_text.contains("font-family")
+        && !taxonomy
+            .ats_friendly_fonts
+            .iter()
+            .any(|font| lower_style_text.contains(font.as_str()))
+    {
+        issues.push(FormatIssue {
+            severity: IssueSeverity::Info,
+            issue: "No standard ATS-friendly font found in HTML styles".to_string(),
+            fix: "Use a common system font such as Arial, Calibri, Helvetica, Georgia, Times New Roman, Verdana, Tahoma, or Segoe UI.".to_string(),
+        });
+    }
+
+    if has_tiny_html_font_size(&style_text) {
+        issues.push(FormatIssue {
+            severity: IssueSeverity::Warning,
+            issue: "Very small HTML font size detected".to_string(),
+            fix:
+                "Keep resume body text at 10px or larger and do not hide text with tiny font sizes."
+                    .to_string(),
+        });
+    }
+}
+
+fn looks_like_html_resume_source(text: &str) -> bool {
+    let lower = text.to_ascii_lowercase();
+    lower.contains("<html")
+        || lower.contains("<body")
+        || lower.contains("<style")
+        || lower.contains("<table")
+        || lower.contains("<section")
+}
+
+fn collect_html_style_text(html: &str) -> String {
+    let document = Html::parse_document(html);
+    let mut chunks = Vec::new();
+
+    if let Ok(style_selector) = HtmlSelector::parse("style") {
+        for style in document.select(&style_selector) {
+            let text = style.text().collect::<Vec<_>>().join(" ");
+            if !text.trim().is_empty() {
+                chunks.push(text);
+            }
+        }
+    }
+
+    let inline_style_re = regex::Regex::new(r#"(?is)\bstyle\s*=\s*["']([^"']+)["']"#).unwrap();
+    chunks.extend(
+        inline_style_re
+            .captures_iter(html)
+            .filter_map(|captures| captures.get(1).map(|style| style.as_str().to_string())),
+    );
+
+    chunks.join("\n")
+}
+
+fn has_html_table_or_multicolumn_layout(html: &str, style_text: &str) -> bool {
+    let lower_html = html.to_ascii_lowercase();
+    let lower_style = style_text.to_ascii_lowercase();
+
+    lower_html.contains("<table")
+        || lower_style.contains("column-count")
+        || lower_style.contains("columns:")
+        || regex::Regex::new(r"(?i)float\s*:\s*(?:left|right)")
+            .unwrap()
+            .find_iter(style_text)
+            .count()
+            > 1
+        || regex::Regex::new(r"(?is)grid-template-columns\s*:[^;]*\S+\s+\S+")
+            .unwrap()
+            .is_match(style_text)
+        || (lower_style.contains("flex-wrap")
+            && lower_style.contains("justify-content: space-between"))
+}
+
+fn has_tiny_html_font_size(style_text: &str) -> bool {
+    let font_size_re =
+        regex::Regex::new(r"(?i)font-size\s*:\s*([0-9]+(?:\.[0-9]+)?)\s*(px|pt)\b").unwrap();
+
+    let has_tiny_size = font_size_re.captures_iter(style_text).any(|captures| {
+        let Some(value) = captures
+            .get(1)
+            .and_then(|value| value.as_str().parse::<f64>().ok())
+        else {
+            return false;
+        };
+        let unit = captures
+            .get(2)
+            .map(|unit| unit.as_str().to_ascii_lowercase())
+            .unwrap_or_default();
+
+        match unit.as_str() {
+            "px" => value < 10.0,
+            "pt" => value < 8.0,
+            _ => false,
+        }
+    });
+
+    has_tiny_size
 }
 
 fn contains_email(text: &str) -> bool {
@@ -424,37 +624,18 @@ fn text_has_icon_class_token(text: &str) -> bool {
 
 fn is_icon_class_token(token: &str) -> bool {
     let token = token.to_ascii_lowercase();
-    let icon_tokens = [
-        "fa",
-        "fas",
-        "far",
-        "fab",
-        "fal",
-        "glyphicon",
-        "material-icons",
-        "material-symbols",
-        "bi",
-        "mdi",
-        "icon",
-    ];
-    icon_tokens
+    resume_format_taxonomy()
+        .icon_class_tokens
         .iter()
-        .any(|icon| token == *icon || token.starts_with(&format!("{icon}-")))
+        .any(|icon| token == icon.as_str() || token.starts_with(&format!("{icon}-")))
 }
 
 fn text_has_icon_font_family(text: &str) -> bool {
     let lower = text.to_ascii_lowercase();
-    [
-        "font awesome",
-        "fontawesome",
-        "material icons",
-        "material symbols",
-        "glyphicons",
-        "bootstrap-icons",
-        "icomoon",
-    ]
-    .iter()
-    .any(|family| lower.contains(family))
+    resume_format_taxonomy()
+        .icon_font_families
+        .iter()
+        .any(|family| lower.contains(family.as_str()))
 }
 
 fn is_standard_resume_heading(line: &str) -> bool {
@@ -465,56 +646,13 @@ fn is_standard_resume_heading(line: &str) -> bool {
         .replace('/', " ")
         .replace('&', " and ");
     let normalized = normalized.split_whitespace().collect::<Vec<_>>().join(" ");
-    matches!(
-        normalized.as_str(),
-        "summary"
-            | "profile"
-            | "skills"
-            | "skills technical skills"
-            | "technical skills"
-            | "core skills"
-            | "professional experience"
-            | "work experience"
-            | "relevant experience"
-            | "selected experience"
-            | "additional experience"
-            | "employment history"
-            | "work history"
-            | "professional history"
-            | "experience"
-            | "projects"
-            | "selected projects"
-            | "education"
-            | "academic background"
-            | "academic history"
-            | "education background"
-            | "certifications"
-            | "licenses"
-            | "licenses and certifications"
-            | "certifications and licenses"
-            | "professional credentials"
-            | "credentials"
-            | "professional training"
-            | "training"
-            | "certificates"
-            | "languages"
-            | "language skills"
-            | "awards"
-            | "honors and awards"
-            | "career break"
-            | "career breaks"
-            | "career pause"
-            | "family caregiving"
-            | "caregiving"
-            | "volunteer experience"
-            | "volunteering"
-            | "community involvement"
-            | "community service"
-            | "military service"
-            | "military experience"
-            | "service"
-            | "publications"
-            | "references"
-            | "interests"
-    )
+
+    resume_format_taxonomy()
+        .standard_resume_headings
+        .iter()
+        .any(|heading| heading == &normalized)
+}
+
+fn resume_format_taxonomy() -> &'static ResumeFormatTaxonomy {
+    &RESUME_FORMAT_TAXONOMY
 }

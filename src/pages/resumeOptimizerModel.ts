@@ -402,7 +402,7 @@ export function getSelectedResumeReadableStatus(resume: ResumeSummary): string {
   }
 
   if (resume.has_readable_text === false) {
-    return "No readable text found. Follow employer file instructions first, then choose a readable PDF, DOCX, TXT, or Markdown resume.";
+    return "No readable text found. Follow employer file instructions first, then choose a readable PDF, DOCX, TXT, Markdown, or HTML resume.";
   }
 
   return "Open Resumes to preview what JobSentinel can read.";

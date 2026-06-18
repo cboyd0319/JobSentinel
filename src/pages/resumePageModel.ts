@@ -188,13 +188,13 @@ export function getReadableTextDescription(resume: ResumeData) {
       return [
         "Follow employer file instructions first.",
         "This PDF may be scanned or image-only, so JobSentinel could not find selectable text.",
-        "If no format is named, export a readable PDF, DOCX, TXT, or Markdown resume.",
+        "If no format is named, export a readable PDF, DOCX, TXT, Markdown, or HTML resume.",
       ].join(" ");
     }
 
     return [
       "Follow employer file instructions first.",
-      "If no format is named, add a PDF, DOCX, TXT, or Markdown resume with readable text.",
+      "If no format is named, add a PDF, DOCX, TXT, Markdown, or HTML resume with readable text.",
     ].join(" ");
   }
   return "Open the readable-text preview to check what JobSentinel can read.";
@@ -205,14 +205,14 @@ export function getEmptyReadablePreviewMessage(resume: ResumeData | null) {
     return [
       "No selectable text found in this PDF.",
       "Follow employer file instructions first.",
-      "If no format is named, try exporting a readable PDF, DOCX, TXT, Markdown resume, or resume app export.",
+      "If no format is named, try exporting a readable PDF, DOCX, TXT, Markdown, or HTML resume, or use a resume app export.",
     ].join(" ");
   }
 
   return [
     "No readable text found.",
     "Follow employer file instructions first.",
-    "If no format is named, try a readable PDF, DOCX, TXT, Markdown resume, or resume app export.",
+    "If no format is named, try a readable PDF, DOCX, TXT, Markdown, or HTML resume, or use a resume app export.",
   ].join(" ");
 }
 
@@ -233,7 +233,7 @@ export function getReadablePreviewChecklist(
       label: hasText ? "Text found" : "Needs readable text",
       detail: hasText
         ? `${preview.text_chars.toLocaleString()} readable characters available.`
-        : "Try a readable PDF, DOCX, TXT, Markdown resume, or resume app export.",
+        : "Try a readable PDF, DOCX, TXT, Markdown, or HTML resume, or use a resume app export.",
       variant: hasText ? "success" : "danger",
     },
     {
