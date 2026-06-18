@@ -4,8 +4,8 @@ This directory contains downloadable Agent Skills for job-search and resume
 workflows. Each subdirectory is a standalone skill package that follows the
 Agent Skills specification: the directory name matches the `name` field in
 `SKILL.md`, metadata uses YAML frontmatter, UI metadata lives in
-`agents/openai.yaml`, reusable templates live in `assets/`, and optional deeper
-rubrics live in `references/`.
+`agents/openai.yaml`, reusable templates live in `assets/`, repeatable helper
+code can live in `scripts/`, and optional deeper rubrics live in `references/`.
 
 Use these skills with an Agent Skills-compatible assistant when you want
 structured help with a job search while preserving JobSentinel's core rules:
