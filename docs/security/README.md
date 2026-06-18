@@ -144,7 +144,9 @@ cargo tarpaulin --out Html
 `npm run lint:security` checks that required security docs exist, that the
 verification matrix preserves security-specific sensors, that CI plus CI/CD
 docs keep dependency audit and Rust advisory gates visible, and that the Tauri
-renderer CSP keeps external network calls out of the frontend.
+renderer CSP keeps external network calls out of the frontend. It also runs
+`npm run lint:secrets` to block high-confidence committed provider keys,
+webhooks, private keys, and session-cookie values.
 
 ### Manual Security Testing
 

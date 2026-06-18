@@ -69,6 +69,9 @@ Workflow changes must preserve the GitHub Actions security baseline:
   for new releases; security updates stay separate and prompt.
 - Keep `npm run lint:deps` blocking `package-lock.json` entries that resolve
   outside `https://registry.npmjs.org/` or omit registry integrity hashes.
+- Keep `npm run lint:security` blocking high-confidence committed secrets
+  through `npm run lint:secrets`. The same secret scan runs before local
+  commits through `.husky/pre-commit`.
 
 ---
 

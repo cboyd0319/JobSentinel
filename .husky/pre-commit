@@ -1,1 +1,2 @@
+npm run lint:secrets
 npx --no-install lint-staged

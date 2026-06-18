@@ -26,7 +26,7 @@ user-facing workflow risk requires more evidence.
 | Environment readiness or setup commands | `npm run doctor`, `npm run doctor:e2e` when E2E readiness matters, and `npm run harness:check` |
 | Frontend architecture boundary rules | `npm run lint:architecture` and `npm run harness:check` |
 | Tauri invoke command map | `npm run lint:tauri-invokes` and `npm run harness:check` |
-| Security sensor policy | `npm run lint:security` and `npm run harness:check` |
+| Security sensor policy or secret-scanning rules | `npm run lint:security` and `npm run harness:check` |
 | External AI provider detection | `npm run lint:external-ai` and `npm run harness:check` |
 | Test quality policy | `npm run lint:tests` and `npm run harness:check` |
 | Repo bloat policy | `npm run lint:bloat` and `npm run harness:check` |
