@@ -124,6 +124,45 @@ const MANAGEMENT_EXPERIENCE_PATTERNS = [
   /\blead experience\b/i,
 ];
 
+const SALARY_HISTORY_PATTERNS = [
+  /\bsalary history\b/i,
+  /\bcompensation history\b/i,
+  /\bpay history\b/i,
+  /\bcurrent (?:salary|compensation|pay(?: rate)?)\b/i,
+  /\bprevious (?:salary|compensation|pay(?: rate)?)\b/i,
+  /\bprior (?:salary|compensation|pay(?: rate)?)\b/i,
+  /\bpast (?:salary|compensation|pay(?: rate)?)\b/i,
+];
+
+const SALARY_EXPECTATION_PATTERNS = [
+  /\bsalary expectations?\b/i,
+  /\bcompensation expectations?\b/i,
+  /\bpay expectations?\b/i,
+  /\bexpected (?:salary|compensation|pay)\b/i,
+  /\bdesired (?:salary|compensation|pay)\b/i,
+  /\btarget (?:salary|compensation|pay)\b/i,
+];
+
+const SAVED_SALARY_ANSWER_PATTERNS = [
+  ...SALARY_EXPECTATION_PATTERNS,
+  /\bsalary\b/i,
+  /\bcompensation\b/i,
+  /\bpay\b/i,
+];
+
+const AVAILABILITY_SCREENING_PATTERNS = [
+  /\bavailability\b/i,
+  /\bavailable\b/i,
+  /\bstart date\b/i,
+  /\bnotice period\b/i,
+  /\bschedule\b/i,
+  /\bshift\b/i,
+  /\bweekend\b/i,
+  /\bovernight\b/i,
+  /\bovertime\b/i,
+  /\bholiday\b/i,
+];
+
 const HARD_QUESTION_REVIEWS: HardQuestionReview[] = [
   {
     label: "Citizenship requirement",
@@ -319,39 +358,30 @@ const HARD_QUESTION_REVIEWS: HardQuestionReview[] = [
     patterns: MANAGEMENT_EXPERIENCE_PATTERNS,
   },
   {
+    label: "Current or past pay",
+    detail: "Review current-pay or salary-history questions carefully. Consider using the role range and your target pay; do not invent or reveal past pay unless you choose to.",
+    getDetail: ({ screeningAnswers }) => getSavedScreeningAnswerReviewDetail(
+      screeningAnswers,
+      SALARY_HISTORY_PATTERNS,
+      "Review current-pay or salary-history questions carefully. Consider using the role range and your target pay; do not invent or reveal past pay unless you choose to.",
+      "Confirm it answers the exact question with role range or target pay, not unsupported past pay.",
+    ),
+    patterns: SALARY_HISTORY_PATTERNS,
+  },
+  {
     label: "Salary or availability",
     detail: "Review salary, start-date, schedule, and availability answers before submission.",
     getDetail: ({ screeningAnswers }) => getSavedScreeningAnswerReviewDetail(
       screeningAnswers,
       [
-        /\bsalary\b/i,
-        /\bcompensation\b/i,
-        /\bavailability\b/i,
-        /\bavailable\b/i,
-        /\bstart date\b/i,
-        /\bnotice period\b/i,
-        /\bschedule\b/i,
-        /\bshift\b/i,
-        /\bweekend\b/i,
-        /\bovernight\b/i,
-        /\bovertime\b/i,
-        /\bholiday\b/i,
+        ...SAVED_SALARY_ANSWER_PATTERNS,
+        ...AVAILABILITY_SCREENING_PATTERNS,
       ],
       "Review salary, start-date, schedule, and availability answers before submission.",
     ),
     patterns: [
-      /\bsalary\b/i,
-      /\bcompensation\b/i,
-      /\bavailability\b/i,
-      /\bavailable\b/i,
-      /\bstart date\b/i,
-      /\bnotice period\b/i,
-      /\bschedule\b/i,
-      /\bshift\b/i,
-      /\bweekend\b/i,
-      /\bovernight\b/i,
-      /\bovertime\b/i,
-      /\bholiday\b/i,
+      ...SALARY_EXPECTATION_PATTERNS,
+      ...AVAILABILITY_SCREENING_PATTERNS,
     ],
   },
 ];
@@ -408,10 +438,13 @@ function getSavedScreeningAnswerLabel(questionPattern: string) {
   if (/\byears? of experience\b|\bexperience\b/i.test(questionPattern)) {
     return "experience";
   }
-  if (/\bsalary\b|\bcompensation\b/i.test(questionPattern)) {
+  if (SALARY_HISTORY_PATTERNS.some((pattern) => pattern.test(questionPattern))) {
+    return "salary-history";
+  }
+  if (SAVED_SALARY_ANSWER_PATTERNS.some((pattern) => pattern.test(questionPattern))) {
     return "salary";
   }
-  if (/\bavailability\b|\bavailable\b|\bstart date\b|\bnotice period\b|\bschedule\b|\bshift\b|\bweekend\b|\bovernight\b|\bovertime\b|\bholiday\b/i.test(questionPattern)) {
+  if (AVAILABILITY_SCREENING_PATTERNS.some((pattern) => pattern.test(questionPattern))) {
     return "availability";
   }
 

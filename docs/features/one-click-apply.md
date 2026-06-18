@@ -140,12 +140,13 @@ and MVR, driving-record, or auto-insurance wording.
 
 When you add a saved answer for hard screening topics such as citizenship, work
 authorization, sponsorship, transportation, travel, relocation, education,
-salary, start date, schedule, availability, management experience, language
-fluency, background checks, drug screens, physical requirements, age
-requirements, driving record, auto insurance, licenses, certifications, or
-clearances, JobSentinel shows an extra review note. The note reminds you to
-compare the answer with the exact application question and use only what is
-true and backed by your resume or records.
+salary expectations, salary history, current or past pay, start date, schedule,
+availability, management experience, language fluency, background checks, drug
+screens, physical requirements, age requirements, driving record, auto
+insurance, licenses, certifications, or clearances, JobSentinel shows an extra
+review note. The note reminds you to compare the answer with the exact
+application question and use only what is true and backed by your resume or
+records.
 Suggested saved answers show the same review note before the **Use** button
 when the current question matches one of these hard screening topics.
 
@@ -155,11 +156,11 @@ When the saved job details mention hard screening topics, the Application Assist
 preview flags them before opening the form. Review saved answers and resume
 evidence for citizenship, work authorization, location, relocation, travel,
 transportation, vehicle requirements, licenses, certifications, clearances,
-education, years of experience, salary, schedule, overtime, availability,
-holiday availability, management experience, background checks, drug screens,
-pre-employment screening, language fluency, physical requirements,
-driving-record, MVR, auto-insurance, and minimum-age requirements before
-submitting.
+education, years of experience, salary expectations, current or past pay,
+schedule, overtime, availability, holiday availability, management experience,
+background checks, drug screens, pre-employment screening, language fluency,
+physical requirements, driving-record, MVR, auto-insurance, and minimum-age
+requirements before submitting.
 
 For citizenship topics, the preview can show a matching saved answer so you can
 confirm it matches the employer's wording. JobSentinel does not treat work
@@ -197,9 +198,13 @@ For management, supervision, or lead-experience topics, the preview can show a
 matching saved management answer so you can compare it with visible resume
 evidence before continuing.
 
-For salary, compensation, start-date, schedule, shift, weekend, overnight,
-overtime, holiday availability, or availability topics, the preview can show a
-matching saved answer before you continue.
+For salary or compensation expectations, start-date, schedule, shift, weekend,
+overnight, overtime, holiday availability, or availability topics, the preview
+can show a matching saved answer before you continue.
+
+For current-pay, previous-pay, salary-history, compensation-history, or
+pay-history topics, the preview shows a separate note to consider the role range
+and target pay instead of unsupported past-pay claims.
 
 For language-fluency topics such as bilingual or multilingual requirements,
 the preview can show a matching saved language answer so you can confirm it is

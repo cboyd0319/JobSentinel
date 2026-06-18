@@ -158,8 +158,7 @@ Out of scope:
 4. Continue macOS readiness only after final local gates close; do
    not claim Gatekeeper-ready distribution before signing, notarization,
    stapling, and install proof exist.
-5. Finish current verified product and QA slices in resume assistance, job-card
-   protection, guided intake, and pay protection.
+5. Finish remaining verified slices; salary-history app preview is covered.
 6. Continue encrypted storage UX: release/packaging readiness and no passive
    Settings probes.
 7. Keep the LinkedIn-compatible Browser Import path user-opened and

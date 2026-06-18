@@ -337,6 +337,30 @@ describe("ApplicationPreview", () => {
       ).toBeInTheDocument();
     });
 
+    it("flags current-pay and salary-history questions separately from salary expectations", async () => {
+      mockInvoke.mockResolvedValue(mockProfile);
+
+      render(
+        <ApplicationPreview
+          job={{
+            ...mockJob,
+            description:
+              "Application question: please provide your current salary and salary history.",
+          }}
+          atsPlatform="greenhouse"
+        />,
+      );
+
+      expect(await screen.findByText("Hard Question Review")).toBeInTheDocument();
+      expect(screen.getByText("Current or past pay")).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          "Review current-pay or salary-history questions carefully. Consider using the role range and your target pay; do not invent or reveal past pay unless you choose to.",
+        ),
+      ).toBeInTheDocument();
+      expect(screen.queryByText("Salary or availability")).not.toBeInTheDocument();
+    });
+
     it("flags holiday availability requirements from job details", async () => {
       mockInvoke.mockResolvedValue(mockProfile);
 

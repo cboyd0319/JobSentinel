@@ -191,6 +191,17 @@ describe("ApplicationPreview", () => {
       );
     });
 
+    it("shows saved salary-history answers with target-pay guidance", async () => {
+      await expectSavedGuidance(
+        "Please provide your current compensation and salary history.",
+        {
+          questionPattern: "salary history",
+          answer: "My target range is $85,000 to $95,000 based on this role.",
+        },
+        "Saved salary-history answer says: My target range is $85,000 to $95,000 based on this role. Confirm it answers the exact question with role range or target pay, not unsupported past pay.",
+      );
+    });
+
     it("shows saved availability answers when the job asks about weekend availability", async () => {
       await expectSavedGuidance(
         "Weekend availability is required for this role.",
