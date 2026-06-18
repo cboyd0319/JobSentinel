@@ -69,6 +69,10 @@ Workflow changes must preserve the GitHub Actions security baseline:
   step and before any `npm` command so CI uses the exact `packageManager` pin.
 - Keep Dependabot version updates grouped by ecosystem or risk with cooldowns
   for new releases; security updates stay separate and prompt.
+- Treat persistent agent instruction files as security-sensitive. New
+  `AGENTS.md`, `CLAUDE.md`, `CODEX.md`, `GEMINI.md`, Cursor, Windsurf, or
+  Copilot instruction paths must be deliberate and added to the harness
+  allowlist before they can pass `npm run lint:security`.
 - Keep `npm run lint:deps` blocking `package-lock.json` entries that resolve
   outside `https://registry.npmjs.org/` or omit registry integrity hashes.
 - Keep `npm run lint:security` blocking high-confidence committed secrets

@@ -264,6 +264,35 @@ const publicReleaseVerifierChecks = [
   },
 ];
 
+const ignoredAgentInstructionPathParts = new Set([
+  ".git",
+  ".husky",
+  "dist",
+  "node_modules",
+  "playwright-report",
+  "target",
+  "test-results",
+]);
+
+const allowedAgentInstructionFiles = new Set([
+  ".github/copilot-instructions.md",
+  "AGENTS.md",
+  "CLAUDE.md",
+  "docs/CLAUDE.md",
+]);
+
+const agentInstructionFilePatterns = [
+  /(?:^|\/)AGENTS\.md$/i,
+  /(?:^|\/)CLAUDE\.md$/i,
+  /(?:^|\/)CODEX\.md$/i,
+  /(?:^|\/)GEMINI\.md$/i,
+  /^\.cursorrules$/i,
+  /^\.windsurfrules$/i,
+  /^\.cursor\/rules\/.+/i,
+  /^\.github\/copilot-instructions\.md$/i,
+  /^\.github\/instructions\/.+\.instructions\.md$/i,
+];
+
 const credentialUiGateFiles = [
   "src/pages/SettingsNotificationsSection.tsx",
   "src/pages/SettingsJobSourcesSection.tsx",
@@ -420,6 +449,54 @@ function workflowJobBlock(text, jobName) {
   return match?.[1] ?? "";
 }
 
+function normalizePath(path) {
+  return path.split(/[\\/]/).join("/");
+}
+
+function shouldSkipAgentInstructionPath(path) {
+  return normalizePath(path)
+    .split("/")
+    .some((part) => ignoredAgentInstructionPathParts.has(part));
+}
+
+function collectAgentInstructionCandidates(root, dir = root, prefix = "") {
+  const files = [];
+
+  if (!existsSync(dir)) {
+    return files;
+  }
+
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const rel = prefix ? `${prefix}/${entry.name}` : entry.name;
+
+    if (shouldSkipAgentInstructionPath(rel)) {
+      continue;
+    }
+
+    const fullPath = join(dir, entry.name);
+    if (entry.isDirectory()) {
+      files.push(...collectAgentInstructionCandidates(root, fullPath, rel));
+      continue;
+    }
+
+    if (entry.isFile() && agentInstructionFilePatterns.some((pattern) => pattern.test(rel))) {
+      files.push(rel);
+    }
+  }
+
+  return files.sort();
+}
+
+function checkAgentInstructionFileBoundary(root, violations) {
+  for (const path of collectAgentInstructionCandidates(root)) {
+    if (!allowedAgentInstructionFiles.has(path)) {
+      violations.push(
+        `unexpected persistent agent instruction file must be reviewed and added to the harness allowlist: ${path}`,
+      );
+    }
+  }
+}
+
 export function formatSecuritySensorSummary() {
   return [
     "Security sensors:",
@@ -433,6 +510,7 @@ export function formatSecuritySensorSummary() {
     "ci=2",
     `ci-docs=${ciDocsChecks.length}`,
     `dependabot=${dependabotGovernanceChecks.length}`,
+    "agent-instructions=1",
     "renderer-csp=1",
     "credential-ui=2",
   ].join(" ");
@@ -461,6 +539,7 @@ export function checkSecuritySensors(root = defaultRoot) {
 
   checkWorkflowSecurityBaseline(root, violations);
   checkDependabotGovernance(root, violations);
+  checkAgentInstructionFileBoundary(root, violations);
 
   const ciWorkflow = readIfExists(root, ".github/workflows/ci.yml", violations);
 

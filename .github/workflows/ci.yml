@@ -86,7 +86,7 @@ jobs:
             esac
 
             case "$path" in
-              package.json|package-lock.json|src-tauri/Cargo.toml|src-tauri/Cargo.lock|src-tauri/deny.toml|.github/dependabot.yml|.github/workflows/*)
+              AGENTS.md|CLAUDE.md|docs/CLAUDE.md|CODEX.md|GEMINI.md|.cursorrules|.windsurfrules|.cursor/rules/*|.github/copilot-instructions.md|.github/instructions/*.instructions.md|package.json|package-lock.json|src-tauri/Cargo.toml|src-tauri/Cargo.lock|src-tauri/deny.toml|.github/dependabot.yml|.github/workflows/*)
                 security=true
                 ;;
             esac
