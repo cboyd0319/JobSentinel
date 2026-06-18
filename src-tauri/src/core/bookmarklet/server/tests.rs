@@ -63,6 +63,22 @@ fn test_bookmarklet_token_validation_requires_matching_header() {
 }
 
 #[test]
+fn test_bookmarklet_token_validation_requires_exact_token() {
+    let request = "POST /api/bookmarklet/import HTTP/1.1\r\nHost: localhost\r\nX-JobSentinel-Token: secret-token\r\n\r\n{}";
+
+    assert!(constant_time_ascii_eq(TEST_AUTH_TOKEN, TEST_AUTH_TOKEN));
+    assert!(!constant_time_ascii_eq("secret", TEST_AUTH_TOKEN));
+    assert!(!constant_time_ascii_eq(
+        "secret-token-extra",
+        TEST_AUTH_TOKEN
+    ));
+    assert!(!constant_time_ascii_eq("secret-taken", TEST_AUTH_TOKEN));
+    assert!(!constant_time_ascii_eq("", TEST_AUTH_TOKEN));
+    assert!(!has_valid_bookmarklet_token(request, "secret"));
+    assert!(!has_valid_bookmarklet_token(request, "secret-token-extra"));
+}
+
+#[test]
 fn test_bookmarklet_token_validation_accepts_body_envelope() {
     let body = serde_json::json!({
         "token": TEST_AUTH_TOKEN,

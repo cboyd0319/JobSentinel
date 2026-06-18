@@ -90,4 +90,23 @@ describe("sanitizeResumeHtmlDocument", () => {
     expect(sanitized).not.toContain("@font-face");
     expect(sanitized).not.toContain("image-set");
   });
+
+  it("decodes CSS escapes before blocking resource-loading syntax", () => {
+    const sanitized = sanitizeResumeHtmlDocument(String.raw`
+      <style>
+        @\000069mport "https://attacker.com/escaped.css";
+        @\66 ont-face { font-family: Leak; src: \75 rl(https://attacker.com/font.woff2); }
+        .avatar { background-image: \000075rl("https://attacker.com/leak.png"); }
+        .logo { background-image: \69 mage-set("https://attacker.com/2x.png" 2x); }
+        .body { color: #111; }
+      </style>
+    `);
+
+    expect(sanitized).toContain(".body { color: #111; }");
+    expect(sanitized).not.toContain("attacker.com");
+    expect(sanitized).not.toContain("@import");
+    expect(sanitized).not.toContain("@font-face");
+    expect(sanitized).not.toContain("url(");
+    expect(sanitized).not.toContain("image-set");
+  });
 });

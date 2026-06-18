@@ -6,10 +6,32 @@ const cssResourceLoadPatterns = [
   /\b(?:url|image-set)\s*\([^)]*\)/gi,
 ];
 
+const cssEscapePattern = /\\(?:([0-9a-fA-F]{1,6})\s?|([\s\S]))/g;
+
+function decodeCssEscapes(css: string): string {
+  return css.replace(
+    cssEscapePattern,
+    (_match: string, hex: string | undefined, escaped: string | undefined) => {
+      if (hex === undefined) {
+        return escaped ?? "";
+      }
+
+      const codePoint = Number.parseInt(hex, 16);
+      if (codePoint <= 0 || codePoint > 0x10ffff) {
+        return "\uFFFD";
+      }
+
+      return String.fromCodePoint(codePoint);
+    },
+  );
+}
+
 function sanitizeResumeStyleSheet(css: string): string {
+  const normalizedCss = decodeCssEscapes(css);
+
   return cssResourceLoadPatterns.reduce(
     (sanitized, pattern) => sanitized.replace(pattern, "none"),
-    css,
+    normalizedCss,
   );
 }
 

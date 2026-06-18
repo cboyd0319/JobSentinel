@@ -18,6 +18,7 @@ function writeBaseRepo(root, csp) {
   mkdirSync(join(root, "scripts"), { recursive: true });
   mkdirSync(join(root, "src-tauri"), { recursive: true });
   mkdirSync(join(root, "src-tauri/capabilities"), { recursive: true });
+  mkdirSync(join(root, "src-tauri/src/core/automation/browser"), { recursive: true });
   mkdirSync(join(root, "src/pages"), { recursive: true });
   mkdirSync(join(root, "src/services"), { recursive: true });
 
@@ -254,6 +255,10 @@ function writeBaseRepo(root, csp) {
     }),
   );
   writeFileSync(
+    join(root, "src-tauri/src/core/automation/browser/page.rs"),
+    "fn javascript_string_literal(value: &str) { serde_json::to_string(value); }\nfn dropdown_select_script(selector: &str, value: &str) {\n  document.querySelector({selector});\n  select.value = {value};\n}\n",
+  );
+  writeFileSync(
     join(root, "src/pages/SettingsConfig.ts"),
     [
       "export interface CredentialStatusValue {",
@@ -300,14 +305,8 @@ function writeBaseRepo(root, csp) {
       "}",
     ].join("\n"),
   );
-  writeFileSync(
-    join(root, "src/pages/SettingsNotificationsSection.tsx"),
-    "import { credentialExists } from './SettingsConfig';\n",
-  );
-  writeFileSync(
-    join(root, "src/pages/SettingsJobSourcesSection.tsx"),
-    "import { credentialExists } from './SettingsConfig';\n",
-  );
+  writeFileSync(join(root, "src/pages/SettingsNotificationsSection.tsx"), "import { credentialExists } from './SettingsConfig';\n");
+  writeFileSync(join(root, "src/pages/SettingsJobSourcesSection.tsx"), "import { credentialExists } from './SettingsConfig';\n");
   writeFileSync(join(root, "src/pages/Settings.tsx"), "export function Settings() {}\n");
   writeFileSync(
     join(root, "src/pages/useSettingsCredentials.ts"),

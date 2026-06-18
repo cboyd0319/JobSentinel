@@ -16,6 +16,28 @@ use tokio::time::timeout;
 const FILE_UPLOAD_UNAVAILABLE: &str = "Could not attach the selected resume file";
 const FILE_UPLOAD_SETUP_ERROR: &str = "Could not prepare the resume upload field";
 
+fn javascript_string_literal(value: &str) -> Result<String> {
+    serde_json::to_string(value).context("Failed to encode JavaScript string literal")
+}
+
+fn dropdown_select_script(selector: &str, value: &str) -> Result<String> {
+    let selector = javascript_string_literal(selector)?;
+    let value = javascript_string_literal(value)?;
+
+    Ok(format!(
+        r#"
+                    const select = document.querySelector({selector});
+                    if (select) {{
+                        select.value = {value};
+                        select.dispatchEvent(new Event('change', {{ bubbles: true }}));
+                        true;
+                    }} else {{
+                        false;
+                    }}
+                    "#
+    ))
+}
+
 /// Automation page wrapper
 pub struct AutomationPage {
     page: Page,
@@ -189,20 +211,7 @@ impl AutomationPage {
         match self.page.find_element(selector).await {
             Ok(element) => {
                 // Use JavaScript to set select value
-                let script = format!(
-                    r#"
-                    const select = document.querySelector('{}');
-                    if (select) {{
-                        select.value = '{}';
-                        select.dispatchEvent(new Event('change', {{ bubbles: true }}));
-                        true;
-                    }} else {{
-                        false;
-                    }}
-                    "#,
-                    selector.replace('\'', "\\'"),
-                    value.replace('\'', "\\'")
-                );
+                let script = dropdown_select_script(selector, value)?;
 
                 let _ = element;
                 self.page
@@ -364,6 +373,20 @@ mod tests {
         let result = FillResult::new().with_captcha();
         assert!(result.captcha_detected);
         assert!(result.error_message.is_some());
+    }
+
+    #[test]
+    fn dropdown_select_script_json_encodes_untrusted_values() -> Result<()> {
+        let script = dropdown_select_script(
+            "select[name='state']",
+            r#"CO\';window.__jobsentinelInjected=true;//"#,
+        )?;
+
+        assert!(script.contains(r#"document.querySelector("select[name='state']")"#));
+        assert!(script.contains(r#"select.value = "CO\\';window.__jobsentinelInjected=true;//";"#));
+        assert!(!script.contains("select.value = 'CO"));
+        assert!(!script.contains("querySelector('select"));
+        Ok(())
     }
 
     #[test]

@@ -6,6 +6,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { checkBrowserExtensionManifestBoundary, checkTauriCapabilityBoundary, checkWorkflowInstallBoundary } from "./security/permission-boundaries.mjs";
 import { checkExternalAiGatewayBoundary, checkResumeHtmlSinkBoundary } from "./security/ai-html-boundaries.mjs";
+import { checkBrowserAutomationBoundary } from "./security/automation-boundaries.mjs";
 import { checkRendererCspBoundary as checkTauriRendererCsp } from "./security/renderer-csp.mjs";
 
 const scriptPath = fileURLToPath(import.meta.url);
@@ -700,20 +701,17 @@ export function formatSecuritySensorSummary() {
     `docs=${requiredSecurityDocs.length}`,
     `matrix=${requiredMatrixEntries.length}`,
     "workflow=5",
-    `release-workflow=${releaseWorkflowChecks.length}`,
-    `release-preflight=${releasePreflightChecks.length}`,
+    `release-workflow=${releaseWorkflowChecks.length}`, `release-preflight=${releasePreflightChecks.length}`,
     `published-release-workflow=${publishedReleaseWorkflowChecks.length}`,
     `public-release-verifier=${publicReleaseVerifierChecks.length}`,
-    `ci=${ciWorkflowChecks.length}`,
-    `ci-docs=${ciDocsChecks.length}`,
+    `ci=${ciWorkflowChecks.length}`, `ci-docs=${ciDocsChecks.length}`,
     `dependabot=${dependabotGovernanceChecks.length}`,
     `codeowners=${requiredCodeownersEntries.length}`,
     "agent-instructions=1",
-    "browser-extension=1",
+    "browser-automation=1", "browser-extension=1",
     "tauri-capabilities=1",
     "notification-egress=1",
-    "renderer-csp=1",
-    "renderer-assets=1",
+    "renderer-csp=1", "renderer-assets=1",
     "credential-ui=2",
     "external-ai=1",
     "resume-html-sinks=1",
@@ -745,6 +743,7 @@ export function checkSecuritySensors(root = defaultRoot) {
   checkDependabotGovernance(root, violations);
   checkCodeownersBoundary(root, violations);
   checkAgentInstructionFileBoundary(root, violations);
+  checkBrowserAutomationBoundary(root, violations);
   checkBrowserExtensionManifestBoundary(root, violations);
   checkTauriCapabilityBoundary(root, violations);
   checkRendererAssetBoundary(root, violations);
