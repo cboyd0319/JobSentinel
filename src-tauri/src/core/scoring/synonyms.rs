@@ -3,7 +3,51 @@
 //! Provides fuzzy matching for job keywords using synonym groups.
 //! Supports bidirectional matching and word boundary detection.
 
+use serde::Deserialize;
 use std::collections::HashMap;
+use std::sync::LazyLock;
+
+const JOB_SCORING_SYNONYM_TAXONOMY_JSON: &str =
+    include_str!("../../../../src/shared/jobScoringSynonymTaxonomy.json");
+
+static JOB_SCORING_SYNONYM_TAXONOMY: LazyLock<JobScoringSynonymTaxonomy> =
+    LazyLock::new(load_job_scoring_synonym_taxonomy);
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct JobScoringSynonymTaxonomy {
+    schema_version: u32,
+    synonym_groups: Vec<Vec<String>>,
+}
+
+fn load_job_scoring_synonym_taxonomy() -> JobScoringSynonymTaxonomy {
+    let taxonomy: JobScoringSynonymTaxonomy =
+        match serde_json::from_str(JOB_SCORING_SYNONYM_TAXONOMY_JSON) {
+            Ok(taxonomy) => taxonomy,
+            Err(error) => panic!("job scoring synonym taxonomy must be valid JSON: {error}"),
+        };
+
+    assert_eq!(
+        taxonomy.schema_version, 1,
+        "unsupported job scoring synonym taxonomy schema version"
+    );
+
+    for (group_index, group) in taxonomy.synonym_groups.iter().enumerate() {
+        assert!(
+            !group.is_empty(),
+            "job scoring synonym taxonomy group {group_index} must not be empty"
+        );
+
+        for term in group {
+            assert!(
+                !term.trim().is_empty(),
+                "job scoring synonym taxonomy group {group_index} contains a blank term"
+            );
+        }
+    }
+
+    taxonomy
+}
 
 /// Synonym mapping system
 #[derive(Debug, Clone)]
@@ -32,342 +76,15 @@ impl SynonymMap {
             synonym_groups: Vec::new(),
         };
 
-        // Customer, office, and coordination roles
-        map.add_synonym_group(&[
-            "Customer Support",
-            "Customer Service",
-            "Client Support",
-            "Client Service",
-            "Member Support",
-            "Support Specialist",
-            "Help Desk",
-            "Call Center",
-            "Contact Center",
-            "Customer Care",
-        ]);
-        map.add_synonym_group(&[
-            "Administrative Assistant",
-            "Admin Assistant",
-            "Office Assistant",
-            "Office Administrator",
-            "Office Coordinator",
-            "Front Desk",
-            "Receptionist",
-            "Administrative Coordinator",
-        ]);
-        map.add_synonym_group(&[
-            "Project Coordinator",
-            "Program Coordinator",
-            "Project Administrator",
-            "Project Specialist",
-            "Program Specialist",
-            "Program Assistant",
-        ]);
-        map.add_synonym_group(&[
-            "Operations",
-            "Ops",
-            "Operations Coordinator",
-            "Operations Specialist",
-            "Business Operations",
-            "Office Operations",
-            "Operations Assistant",
-        ]);
-
-        // Sales, people, and finance roles
-        map.add_synonym_group(&[
-            "Sales Representative",
-            "Sales Rep",
-            "Sales Associate",
-            "Account Executive",
-            "Business Development Representative",
-            "BDR",
-        ]);
-        map.add_synonym_group(&[
-            "Human Resources",
-            "HR",
-            "People Operations",
-            "People Ops",
-            "Talent Acquisition",
-            "Recruiting",
-        ]);
-        map.add_synonym_group(&[
-            "Bookkeeper",
-            "Bookkeeping",
-            "Accounting",
-            "Accounting Clerk",
-            "Accounting Assistant",
-            "Accounts Payable",
-            "Accounts Receivable",
-            "AP",
-            "AR",
-            "Payroll",
-        ]);
-
-        // Healthcare, education, and care roles
-        map.add_synonym_group(&[
-            "Registered Nurse",
-            "RN",
-            "Staff Nurse",
-            "Clinical Nurse",
-            "Nurse",
-        ]);
-        map.add_synonym_group(&[
-            "Certified Nursing Assistant",
-            "CNA",
-            "Nursing Assistant",
-            "Patient Care Assistant",
-            "Patient Care Aide",
-            "Caregiver",
-        ]);
-        map.add_synonym_group(&[
-            "Medical Assistant",
-            "Clinical Assistant",
-            "Patient Care Technician",
-            "PCT",
-            "Clinic Assistant",
-        ]);
-        map.add_synonym_group(&[
-            "Care Coordination",
-            "Care Coordinator",
-            "Patient Navigator",
-            "Care Navigator",
-            "Case Management",
-            "Case Manager",
-            "Service Coordinator",
-        ]);
-        map.add_synonym_group(&[
-            "Healthcare Administration",
-            "Medical Office",
-            "Medical Receptionist",
-            "Patient Access",
-            "Patient Services",
-            "Clinic Coordinator",
-            "Practice Coordinator",
-        ]);
-        map.add_synonym_group(&[
-            "Teacher",
-            "Educator",
-            "Instructor",
-            "Tutor",
-            "Training Specialist",
-            "Trainer",
-        ]);
-        map.add_synonym_group(&[
-            "Instructional Designer",
-            "Curriculum Developer",
-            "Learning Designer",
-            "Course Developer",
-        ]);
-        map.add_synonym_group(&[
-            "Training",
-            "Training Coordinator",
-            "Learning and Development",
-            "L&D",
-            "Staff Development",
-            "Workforce Development",
-        ]);
-
-        // Common business, healthcare, education, and public-sector tools
-        map.add_synonym_group(&[
-            "EMR",
-            "EHR",
-            "Electronic Medical Record",
-            "Electronic Health Record",
-            "Medical Records System",
-            "Charting System",
-        ]);
-        map.add_synonym_group(&[
-            "LMS",
-            "Learning Management System",
-            "Training Platform",
-            "Course Platform",
-        ]);
-        map.add_synonym_group(&[
-            "CRM",
-            "Customer Relationship Management",
-            "Salesforce",
-            "Client Database",
-            "Donor Database",
-            "Constituent Database",
-        ]);
-        map.add_synonym_group(&[
-            "POS",
-            "Point of Sale",
-            "Cash Register",
-            "Register System",
-            "Retail System",
-        ]);
-        map.add_synonym_group(&[
-            "Inventory",
-            "Inventory Control",
-            "Stock Control",
-            "Stockroom",
-            "Warehouse Inventory",
-            "Materials Management",
-        ]);
-        map.add_synonym_group(&[
-            "QuickBooks",
-            "Quick Books",
-            "QuickBooks Online",
-            "QBO",
-            "NetSuite",
-            "Oracle NetSuite",
-            "Accounting Software",
-        ]);
-        map.add_synonym_group(&[
-            "Scheduling",
-            "Appointment Scheduling",
-            "Calendar Management",
-            "Staff Scheduling",
-            "Dispatch",
-            "Rostering",
-        ]);
-        map.add_synonym_group(&[
-            "Compliance",
-            "Regulatory Compliance",
-            "Policy Compliance",
-            "Audit Readiness",
-            "Records Compliance",
-        ]);
-        map.add_synonym_group(&[
-            "Public Sector",
-            "Government",
-            "Municipal",
-            "County",
-            "State Agency",
-            "Public Health",
-            "Social Services",
-            "Human Services",
-        ]);
-
-        // Creative, marketing, and product roles
-        map.add_synonym_group(&[
-            "Graphic Designer",
-            "Visual Designer",
-            "Brand Designer",
-            "Creative Designer",
-        ]);
-        map.add_synonym_group(&["User Experience", "UX", "UX Designer", "Product Designer"]);
-        map.add_synonym_group(&[
-            "Marketing Coordinator",
-            "Marketing Specialist",
-            "Digital Marketing",
-            "Growth Marketing",
-        ]);
-
-        // Programming Languages
-        map.add_synonym_group(&["Python", "Python3", "py", "python3"]);
-        map.add_synonym_group(&["JavaScript", "JS", "js", "javascript"]);
-        map.add_synonym_group(&["TypeScript", "TS", "ts", "typescript"]);
-        map.add_synonym_group(&["C++", "CPP", "Cpp", "cpp", "c++"]);
-        map.add_synonym_group(&["C#", "CSharp", "csharp", "c#"]);
-        map.add_synonym_group(&["Golang", "Go", "golang", "go"]);
-        map.add_synonym_group(&["Rust", "rust", "rustlang"]);
-
-        // Job Titles
-        map.add_synonym_group(&["Senior", "Sr.", "Sr", "sr", "senior"]);
-        map.add_synonym_group(&["Junior", "Jr.", "Jr", "jr", "junior"]);
-        map.add_synonym_group(&[
-            "Engineer",
-            "Developer",
-            "Dev",
-            "SWE",
-            "engineer",
-            "developer",
-            "dev",
-            "swe",
-        ]);
-        map.add_synonym_group(&["Lead", "Principal", "Staff", "lead", "principal", "staff"]);
-        map.add_synonym_group(&["Manager", "Mgr", "mgr", "manager"]);
-
-        // Frameworks & Libraries
-        map.add_synonym_group(&["React", "ReactJS", "React.js", "react", "reactjs"]);
-        map.add_synonym_group(&["Node", "NodeJS", "Node.js", "node", "nodejs"]);
-        map.add_synonym_group(&["Vue", "VueJS", "Vue.js", "vue", "vuejs"]);
-        map.add_synonym_group(&["Angular", "AngularJS", "angular", "angularjs"]);
-        map.add_synonym_group(&["Django", "django"]);
-        map.add_synonym_group(&["Flask", "flask"]);
-        map.add_synonym_group(&["Spring", "SpringBoot", "spring", "springboot"]);
-
-        // Cloud & DevOps
-        map.add_synonym_group(&["AWS", "Amazon Web Services", "aws"]);
-        map.add_synonym_group(&["GCP", "Google Cloud", "Google Cloud Platform", "gcp"]);
-        map.add_synonym_group(&["Azure", "Microsoft Azure", "azure"]);
-        map.add_synonym_group(&["Kubernetes", "K8s", "k8s", "kubernetes"]);
-        map.add_synonym_group(&["Docker", "docker"]);
-        map.add_synonym_group(&[
-            "CI/CD",
-            "CICD",
-            "cicd",
-            "continuous integration",
-            "continuous deployment",
-        ]);
-        map.add_synonym_group(&["Terraform", "terraform", "TF"]);
-
-        // Skills & Concepts
-        map.add_synonym_group(&["Machine Learning", "ML", "ml", "machine learning"]);
-        map.add_synonym_group(&[
-            "Artificial Intelligence",
-            "AI",
-            "ai",
-            "artificial intelligence",
-        ]);
-        map.add_synonym_group(&["Deep Learning", "DL", "dl", "deep learning"]);
-        map.add_synonym_group(&["Natural Language Processing", "NLP", "nlp"]);
-        map.add_synonym_group(&["Computer Vision", "CV", "cv", "computer vision"]);
-        map.add_synonym_group(&["Backend", "Back-end", "backend", "back-end"]);
-        map.add_synonym_group(&["Frontend", "Front-end", "frontend", "front-end"]);
-        map.add_synonym_group(&["Full Stack", "Fullstack", "full-stack", "fullstack"]);
-        map.add_synonym_group(&["DevOps", "Dev Ops", "devops"]);
-        map.add_synonym_group(&[
-            "SRE",
-            "Site Reliability Engineer",
-            "Site Reliability Engineering",
-            "sre",
-        ]);
-
-        // Databases
-        map.add_synonym_group(&["PostgreSQL", "Postgres", "postgres", "postgresql"]);
-        map.add_synonym_group(&["MySQL", "mysql"]);
-        map.add_synonym_group(&["MongoDB", "Mongo", "mongo", "mongodb"]);
-        map.add_synonym_group(&["Redis", "redis"]);
-        map.add_synonym_group(&["SQL", "sql"]);
-        map.add_synonym_group(&["NoSQL", "nosql", "no-sql"]);
-
-        // Security
-        map.add_synonym_group(&[
-            "Security",
-            "Cybersecurity",
-            "InfoSec",
-            "security",
-            "cybersecurity",
-            "infosec",
-        ]);
-        map.add_synonym_group(&[
-            "AppSec",
-            "Application Security",
-            "appsec",
-            "application security",
-        ]);
-        map.add_synonym_group(&["DevSecOps", "devsecops"]);
-
-        // Testing
-        map.add_synonym_group(&[
-            "Test",
-            "Testing",
-            "QA",
-            "Quality Assurance",
-            "test",
-            "testing",
-            "qa",
-        ]);
-        map.add_synonym_group(&["Automation", "automation", "automated testing"]);
+        for synonym_group in &JOB_SCORING_SYNONYM_TAXONOMY.synonym_groups {
+            map.add_synonym_group(synonym_group);
+        }
 
         map
     }
 
     /// Add a new synonym group
-    pub fn add_synonym_group(&mut self, synonyms: &[&str]) {
+    pub fn add_synonym_group<S: AsRef<str>>(&mut self, synonyms: &[S]) {
         if synonyms.is_empty() {
             return;
         }
@@ -376,7 +93,7 @@ impl SynonymMap {
         // Pre-allocate with exact capacity
         let mut normalized_synonyms = Vec::with_capacity(synonyms.len());
         for s in synonyms {
-            let normalized = s.to_lowercase();
+            let normalized = s.as_ref().to_lowercase();
             self.keyword_to_group
                 .insert(normalized.clone(), group_index);
             normalized_synonyms.push(normalized);

@@ -1,0 +1,501 @@
+{
+  "schemaVersion": 1,
+  "synonymGroups": [
+    [
+      "Customer Support",
+      "Customer Service",
+      "Client Support",
+      "Client Service",
+      "Member Support",
+      "Support Specialist",
+      "Help Desk",
+      "Call Center",
+      "Contact Center",
+      "Customer Care"
+    ],
+    [
+      "Administrative Assistant",
+      "Admin Assistant",
+      "Office Assistant",
+      "Office Administrator",
+      "Office Coordinator",
+      "Front Desk",
+      "Receptionist",
+      "Administrative Coordinator"
+    ],
+    [
+      "Project Coordinator",
+      "Program Coordinator",
+      "Project Administrator",
+      "Project Specialist",
+      "Program Specialist",
+      "Program Assistant"
+    ],
+    [
+      "Operations",
+      "Ops",
+      "Operations Coordinator",
+      "Operations Specialist",
+      "Business Operations",
+      "Office Operations",
+      "Operations Assistant"
+    ],
+    [
+      "Sales Representative",
+      "Sales Rep",
+      "Sales Associate",
+      "Account Executive",
+      "Business Development Representative",
+      "BDR"
+    ],
+    [
+      "Human Resources",
+      "HR",
+      "People Operations",
+      "People Ops",
+      "Talent Acquisition",
+      "Recruiting"
+    ],
+    [
+      "Bookkeeper",
+      "Bookkeeping",
+      "Accounting",
+      "Accounting Clerk",
+      "Accounting Assistant",
+      "Accounts Payable",
+      "Accounts Receivable",
+      "AP",
+      "AR",
+      "Payroll"
+    ],
+    [
+      "Registered Nurse",
+      "RN",
+      "Staff Nurse",
+      "Clinical Nurse",
+      "Nurse"
+    ],
+    [
+      "Certified Nursing Assistant",
+      "CNA",
+      "Nursing Assistant",
+      "Patient Care Assistant",
+      "Patient Care Aide",
+      "Caregiver"
+    ],
+    [
+      "Medical Assistant",
+      "Clinical Assistant",
+      "Patient Care Technician",
+      "PCT",
+      "Clinic Assistant"
+    ],
+    [
+      "Care Coordination",
+      "Care Coordinator",
+      "Patient Navigator",
+      "Care Navigator",
+      "Case Management",
+      "Case Manager",
+      "Service Coordinator"
+    ],
+    [
+      "Healthcare Administration",
+      "Medical Office",
+      "Medical Receptionist",
+      "Patient Access",
+      "Patient Services",
+      "Clinic Coordinator",
+      "Practice Coordinator"
+    ],
+    [
+      "Teacher",
+      "Educator",
+      "Instructor",
+      "Tutor",
+      "Training Specialist",
+      "Trainer"
+    ],
+    [
+      "Instructional Designer",
+      "Curriculum Developer",
+      "Learning Designer",
+      "Course Developer"
+    ],
+    [
+      "Training",
+      "Training Coordinator",
+      "Learning and Development",
+      "L&D",
+      "Staff Development",
+      "Workforce Development"
+    ],
+    [
+      "EMR",
+      "EHR",
+      "Electronic Medical Record",
+      "Electronic Health Record",
+      "Medical Records System",
+      "Charting System"
+    ],
+    [
+      "LMS",
+      "Learning Management System",
+      "Training Platform",
+      "Course Platform"
+    ],
+    [
+      "CRM",
+      "Customer Relationship Management",
+      "Salesforce",
+      "Client Database",
+      "Donor Database",
+      "Constituent Database"
+    ],
+    [
+      "POS",
+      "Point of Sale",
+      "Cash Register",
+      "Register System",
+      "Retail System"
+    ],
+    [
+      "Inventory",
+      "Inventory Control",
+      "Stock Control",
+      "Stockroom",
+      "Warehouse Inventory",
+      "Materials Management"
+    ],
+    [
+      "QuickBooks",
+      "Quick Books",
+      "QuickBooks Online",
+      "QBO",
+      "NetSuite",
+      "Oracle NetSuite",
+      "Accounting Software"
+    ],
+    [
+      "Scheduling",
+      "Appointment Scheduling",
+      "Calendar Management",
+      "Staff Scheduling",
+      "Dispatch",
+      "Rostering"
+    ],
+    [
+      "Compliance",
+      "Regulatory Compliance",
+      "Policy Compliance",
+      "Audit Readiness",
+      "Records Compliance"
+    ],
+    [
+      "Public Sector",
+      "Government",
+      "Municipal",
+      "County",
+      "State Agency",
+      "Public Health",
+      "Social Services",
+      "Human Services"
+    ],
+    [
+      "Graphic Designer",
+      "Visual Designer",
+      "Brand Designer",
+      "Creative Designer"
+    ],
+    [
+      "User Experience",
+      "UX",
+      "UX Designer",
+      "Product Designer"
+    ],
+    [
+      "Marketing Coordinator",
+      "Marketing Specialist",
+      "Digital Marketing",
+      "Growth Marketing"
+    ],
+    [
+      "Python",
+      "Python3",
+      "py",
+      "python3"
+    ],
+    [
+      "JavaScript",
+      "JS",
+      "js",
+      "javascript"
+    ],
+    [
+      "TypeScript",
+      "TS",
+      "ts",
+      "typescript"
+    ],
+    [
+      "C++",
+      "CPP",
+      "Cpp",
+      "cpp",
+      "c++"
+    ],
+    [
+      "C#",
+      "CSharp",
+      "csharp",
+      "c#"
+    ],
+    [
+      "Golang",
+      "Go",
+      "golang",
+      "go"
+    ],
+    [
+      "Rust",
+      "rust",
+      "rustlang"
+    ],
+    [
+      "Senior",
+      "Sr.",
+      "Sr",
+      "sr",
+      "senior"
+    ],
+    [
+      "Junior",
+      "Jr.",
+      "Jr",
+      "jr",
+      "junior"
+    ],
+    [
+      "Engineer",
+      "Developer",
+      "Dev",
+      "SWE",
+      "engineer",
+      "developer",
+      "dev",
+      "swe"
+    ],
+    [
+      "Lead",
+      "Principal",
+      "Staff",
+      "lead",
+      "principal",
+      "staff"
+    ],
+    [
+      "Manager",
+      "Mgr",
+      "mgr",
+      "manager"
+    ],
+    [
+      "React",
+      "ReactJS",
+      "React.js",
+      "react",
+      "reactjs"
+    ],
+    [
+      "Node",
+      "NodeJS",
+      "Node.js",
+      "node",
+      "nodejs"
+    ],
+    [
+      "Vue",
+      "VueJS",
+      "Vue.js",
+      "vue",
+      "vuejs"
+    ],
+    [
+      "Angular",
+      "AngularJS",
+      "angular",
+      "angularjs"
+    ],
+    [
+      "Django",
+      "django"
+    ],
+    [
+      "Flask",
+      "flask"
+    ],
+    [
+      "Spring",
+      "SpringBoot",
+      "spring",
+      "springboot"
+    ],
+    [
+      "AWS",
+      "Amazon Web Services",
+      "aws"
+    ],
+    [
+      "GCP",
+      "Google Cloud",
+      "Google Cloud Platform",
+      "gcp"
+    ],
+    [
+      "Azure",
+      "Microsoft Azure",
+      "azure"
+    ],
+    [
+      "Kubernetes",
+      "K8s",
+      "k8s",
+      "kubernetes"
+    ],
+    [
+      "Docker",
+      "docker"
+    ],
+    [
+      "CI/CD",
+      "CICD",
+      "cicd",
+      "continuous integration",
+      "continuous deployment"
+    ],
+    [
+      "Terraform",
+      "terraform",
+      "TF"
+    ],
+    [
+      "Machine Learning",
+      "ML",
+      "ml",
+      "machine learning"
+    ],
+    [
+      "Artificial Intelligence",
+      "AI",
+      "ai",
+      "artificial intelligence"
+    ],
+    [
+      "Deep Learning",
+      "DL",
+      "dl",
+      "deep learning"
+    ],
+    [
+      "Natural Language Processing",
+      "NLP",
+      "nlp"
+    ],
+    [
+      "Computer Vision",
+      "CV",
+      "cv",
+      "computer vision"
+    ],
+    [
+      "Backend",
+      "Back-end",
+      "backend",
+      "back-end"
+    ],
+    [
+      "Frontend",
+      "Front-end",
+      "frontend",
+      "front-end"
+    ],
+    [
+      "Full Stack",
+      "Fullstack",
+      "full-stack",
+      "fullstack"
+    ],
+    [
+      "DevOps",
+      "Dev Ops",
+      "devops"
+    ],
+    [
+      "SRE",
+      "Site Reliability Engineer",
+      "Site Reliability Engineering",
+      "sre"
+    ],
+    [
+      "PostgreSQL",
+      "Postgres",
+      "postgres",
+      "postgresql"
+    ],
+    [
+      "MySQL",
+      "mysql"
+    ],
+    [
+      "MongoDB",
+      "Mongo",
+      "mongo",
+      "mongodb"
+    ],
+    [
+      "Redis",
+      "redis"
+    ],
+    [
+      "SQL",
+      "sql"
+    ],
+    [
+      "NoSQL",
+      "nosql",
+      "no-sql"
+    ],
+    [
+      "Security",
+      "Cybersecurity",
+      "InfoSec",
+      "security",
+      "cybersecurity",
+      "infosec"
+    ],
+    [
+      "AppSec",
+      "Application Security",
+      "appsec",
+      "application security"
+    ],
+    [
+      "DevSecOps",
+      "devsecops"
+    ],
+    [
+      "Test",
+      "Testing",
+      "QA",
+      "Quality Assurance",
+      "test",
+      "testing",
+      "qa"
+    ],
+    [
+      "Automation",
+      "automation",
+      "automated testing"
+    ]
+  ]
+}

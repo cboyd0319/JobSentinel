@@ -508,6 +508,30 @@ export function hasEngineerFirstAudienceExamples(root, path) {
   }
 
   if (path === "src-tauri/src/core/scoring/synonyms.rs") {
+    if (text.includes("jobScoringSynonymTaxonomy.json")) {
+      const taxonomy = JSON.parse(
+        readFileSync(join(root, "src/shared/jobScoringSynonymTaxonomy.json"), "utf8"),
+      );
+      const synonymGroups = Array.isArray(taxonomy.synonymGroups)
+        ? taxonomy.synonymGroups
+        : [];
+      const groupText = synonymGroups.map((group) =>
+        Array.isArray(group) ? group.join(" ") : "",
+      );
+      const broadStartIndex = groupText.findIndex((group) =>
+        /Customer Support|Administrative Assistant|Project Coordinator/i.test(group),
+      );
+      const technicalIndex = groupText.findIndex((group) =>
+        /\bPython\b|JavaScript|TypeScript|Kubernetes|AWS/i.test(group),
+      );
+
+      return (
+        broadStartIndex === -1 ||
+        technicalIndex === -1 ||
+        technicalIndex < broadStartIndex
+      );
+    }
+
     const broadStartIndex = text.indexOf("// Customer, office, and coordination roles");
     const technicalIndex = text.indexOf("// Programming Languages");
 
