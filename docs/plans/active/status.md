@@ -97,10 +97,9 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   `Capabilities.md` are stale and need approval before wiki remote writes.
 - OWASP CheatSheetSeries scan across 120 local files on 2026-06-18 verified
   Actions, supply-chain, AI, storage, URL, logging, and Browser Import surfaces;
-  follow-up added Browser Import caps/port, release checks, resume guards,
-  URL/DNS/print/alert privacy, browser sandbox, OCR fixes, exact-host ATS
-  source URL parsing, MCP result URL minimization, Browser Import Host checks,
-  declarative-only skills, salary-history review, and Rust Config fixtures.
+  follow-up now includes release/import/source/privacy/resume guards,
+  declarative-only skills, salary-history review, Rust Config fixtures,
+  Dependabot grouping/cooldowns, workflow sensors, and AI job-posting guards.
 
 ## Next Best Work
 

@@ -95,6 +95,7 @@ export type ExternalAiGatewayErrorCode =
   | "user_approval_required"
   | "redacted_payload_required"
   | "unclassified_payload_key"
+  | "job_posting_prompt_injection_blocked"
   | "full_database_blocked"
   | "sensitive_payload_blocked"
   | "public_data_only_violation";
@@ -187,6 +188,30 @@ const classifiedPayloadKeysByCategory: Record<ExternalAiDataCategory, Set<string
   ]),
 };
 
+const jobPostingPromptTextKeys = new Set([
+  "benefits",
+  "compensation",
+  "description",
+  "jobDescription",
+  "qualifications",
+  "requirements",
+  "responsibilities",
+]);
+
+const promptLikeJobPostingPhrases = [
+  "ignore previous instructions",
+  "ignore all previous instructions",
+  "disregard previous instructions",
+  "override instructions",
+  "system prompt",
+  "developer message",
+  "prompt injection",
+  "ignore the job description",
+  "do not follow the job description",
+  "instruction to recruiter software",
+  "for ai screeners",
+];
+
 function collectClassifiedPayloadKeys(): Set<string> {
   const keys = new Set<string>();
 
@@ -231,6 +256,61 @@ function findUnclassifiedPayloadKey(
   const classifiedKeys = collectClassifiedPayloadKeys();
 
   return [...collectPayloadKeys(payload)].find((key) => !classifiedKeys.has(key));
+}
+
+function textHasPromptLikeJobPostingContent(text: string): boolean {
+  if (
+    text
+      .split("")
+      .some((char) => ["\u200B", "\u200C", "\u200D", "\u2060", "\uFEFF"].includes(char))
+  ) {
+    return true;
+  }
+
+  const hiddenMarkupPatterns = [/<!--[\s\S]*?-->/i, /<meta\b[^>]*(?:keywords|description|content)\b/i];
+  if (hiddenMarkupPatterns.some((pattern) => pattern.test(text))) {
+    return true;
+  }
+
+  const lower = text.toLowerCase();
+  return promptLikeJobPostingPhrases.some((phrase) => lower.includes(phrase));
+}
+
+function valueHasPromptLikeJobPostingContent(value: unknown): boolean {
+  if (typeof value === "string") {
+    return textHasPromptLikeJobPostingContent(value);
+  }
+
+  if (Array.isArray(value)) {
+    return value.some(valueHasPromptLikeJobPostingContent);
+  }
+
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  return Object.values(value).some(valueHasPromptLikeJobPostingContent);
+}
+
+function hasPromptLikeJobPostingContent(payload: Record<string, unknown>): boolean {
+  for (const [key, value] of Object.entries(payload)) {
+    if (
+      jobPostingPromptTextKeys.has(key) &&
+      valueHasPromptLikeJobPostingContent(value)
+    ) {
+      return true;
+    }
+
+    if (
+      value &&
+      typeof value === "object" &&
+      hasPromptLikeJobPostingContent(value as Record<string, unknown>)
+    ) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 function getOutgoingPayload(
@@ -319,6 +399,16 @@ function validateRequest(
     throw new ExternalAiGatewayError(
       "unclassified_payload_key",
       "Outside AI details include something JobSentinel has not reviewed for sharing.",
+    );
+  }
+
+  if (
+    request.dataCategories.includes("job_posting") &&
+    hasPromptLikeJobPostingContent(outgoingPayload)
+  ) {
+    throw new ExternalAiGatewayError(
+      "job_posting_prompt_injection_blocked",
+      "The job posting includes instructions aimed at AI tools. Keep this review local or remove those instructions before sending.",
     );
   }
 

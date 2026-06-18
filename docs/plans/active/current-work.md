@@ -118,8 +118,8 @@ Out of scope:
   tokens, score colors, dashboard loading, and mobile Application Assist layout.
 - The v2.9.0 pass confirmed Browser Import is the LinkedIn path, not session
   storage or automatic monitoring. Private profile inputs stay local.
-- Package-manager, npm/Cargo, npm override, Action, OS-runner, and apt direct
-  pins are exact latest stable; transitives are latest-compatible.
+- Package-manager, npm/Cargo, override, Action, runner, and apt direct pins are
+  exact latest stable; Dependabot groups/cools version updates while
   `lint:deps`, `lint:actions`, and `release:check-deps` enforce freshness.
 - Live OS keyring integration tests are opt-in behind
   `JOBSENTINEL_LIVE_KEYRING_TESTS=1`; default credential tests remain

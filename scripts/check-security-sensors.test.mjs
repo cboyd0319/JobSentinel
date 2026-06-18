@@ -11,6 +11,7 @@ function writeBaseRepo(root, csp) {
   mkdirSync(join(root, "docs/harness"), { recursive: true });
   mkdirSync(join(root, "docs/developer"), { recursive: true });
   mkdirSync(join(root, ".github/workflows"), { recursive: true });
+  mkdirSync(join(root, ".github"), { recursive: true });
   mkdirSync(join(root, "src-tauri"), { recursive: true });
   mkdirSync(join(root, "src/pages"), { recursive: true });
 
@@ -42,11 +43,12 @@ function writeBaseRepo(root, csp) {
   );
   writeFileSync(
     join(root, ".github/workflows/ci.yml"),
-    "jobs:\n  security:\n    steps:\n      - run: npm audit --audit-level=moderate\n      - run: cargo deny check advisories\n",
+    "permissions: {}\njobs:\n  security:\n    steps:\n      - run: npm audit --audit-level=moderate\n      - run: cargo deny check advisories\n",
   );
   writeFileSync(
     join(root, ".github/workflows/release.yml"),
     [
+      "permissions: {}",
       "jobs:",
       "  preflight:",
       "    steps:",
@@ -92,6 +94,7 @@ function writeBaseRepo(root, csp) {
   writeFileSync(
     join(root, ".github/workflows/verify-release-artifacts.yml"),
     [
+      "permissions: {}",
       "on:",
       "  release:",
       "    types:",
@@ -115,6 +118,63 @@ function writeBaseRepo(root, csp) {
   writeFileSync(
     join(root, "docs/developer/CI_CD.md"),
     "GitHub `release` environment\nrequired reviewers\nnpm audit --audit-level=moderate\ncargo deny check advisories\n",
+  );
+  writeFileSync(
+    join(root, ".github/dependabot.yml"),
+    [
+      "version: 2",
+      "updates:",
+      "  - package-ecosystem: \"npm\"",
+      "    directory: \"/\"",
+      "    open-pull-requests-limit: 5",
+      "    cooldown:",
+      "      semver-major-days: 7",
+      "      semver-minor-days: 3",
+      "      semver-patch-days: 1",
+      "    groups:",
+      "      npm-production:",
+      "        dependency-type: \"production\"",
+      "        patterns:",
+      "          - \"*\"",
+      "        update-types:",
+      "          - \"minor\"",
+      "          - \"patch\"",
+      "      npm-development:",
+      "        dependency-type: \"development\"",
+      "        patterns:",
+      "          - \"*\"",
+      "        update-types:",
+      "          - \"minor\"",
+      "          - \"patch\"",
+      "  - package-ecosystem: \"cargo\"",
+      "    directory: \"/src-tauri\"",
+      "    open-pull-requests-limit: 5",
+      "    cooldown:",
+      "      semver-major-days: 7",
+      "      semver-minor-days: 3",
+      "      semver-patch-days: 1",
+      "    groups:",
+      "      cargo-minor-patch:",
+      "        patterns:",
+      "          - \"*\"",
+      "        update-types:",
+      "          - \"minor\"",
+      "          - \"patch\"",
+      "  - package-ecosystem: \"github-actions\"",
+      "    directory: \"/\"",
+      "    open-pull-requests-limit: 3",
+      "    cooldown:",
+      "      semver-major-days: 7",
+      "      semver-minor-days: 3",
+      "      semver-patch-days: 1",
+      "    groups:",
+      "      actions-minor-patch:",
+      "        patterns:",
+      "          - \"*\"",
+      "        update-types:",
+      "          - \"minor\"",
+      "          - \"patch\"",
+    ].join("\n"),
   );
   writeFileSync(
     join(root, "src-tauri/tauri.conf.json"),
@@ -290,6 +350,118 @@ test("checkSecuritySensors rejects release workflow without keychain password ma
   assert(
     checkSecuritySensors(root).includes(
       "release workflow is missing macOS package gate: macOS keychain password mask",
+    ),
+  );
+});
+
+test("checkSecuritySensors rejects workflow token defaults that are not disabled", () => {
+  const root = mkdtempRoot("jobsentinel-security-sensors-workflow-permissions-");
+  writeBaseRepo(
+    root,
+    "default-src 'self'; connect-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'",
+  );
+  writeFileSync(
+    join(root, ".github/workflows/ci.yml"),
+    "jobs:\n  security:\n    steps:\n      - run: npm audit --audit-level=moderate\n      - run: cargo deny check advisories\n",
+  );
+
+  assert(
+    checkSecuritySensors(root).includes(
+      ".github/workflows/ci.yml must disable default workflow token permissions with top-level permissions: {}",
+    ),
+  );
+});
+
+test("checkSecuritySensors rejects privileged workflow triggers", () => {
+  const root = mkdtempRoot("jobsentinel-security-sensors-workflow-triggers-");
+  writeBaseRepo(
+    root,
+    "default-src 'self'; connect-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'",
+  );
+  writeFileSync(
+    join(root, ".github/workflows/ci.yml"),
+    [
+      "on:",
+      "  pull_request_target:",
+      "permissions: {}",
+      "jobs:",
+      "  security:",
+      "    steps:",
+      "      - run: npm audit --audit-level=moderate",
+      "      - run: cargo deny check advisories",
+    ].join("\n"),
+  );
+
+  assert(
+    checkSecuritySensors(root).includes(
+      ".github/workflows/ci.yml must not use privileged or chained trigger: pull_request_target:",
+    ),
+  );
+});
+
+test("checkSecuritySensors rejects persisted checkout credentials", () => {
+  const root = mkdtempRoot("jobsentinel-security-sensors-checkout-creds-");
+  writeBaseRepo(
+    root,
+    "default-src 'self'; connect-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'",
+  );
+  writeFileSync(
+    join(root, ".github/workflows/ci.yml"),
+    [
+      "permissions: {}",
+      "jobs:",
+      "  security:",
+      "    steps:",
+      "      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3",
+      "      - run: npm audit --audit-level=moderate",
+      "      - run: cargo deny check advisories",
+    ].join("\n"),
+  );
+
+  assert(
+    checkSecuritySensors(root).includes(
+      ".github/workflows/ci.yml checkout steps must set persist-credentials: false",
+    ),
+  );
+});
+
+test("checkSecuritySensors rejects release dependency caches", () => {
+  const root = mkdtempRoot("jobsentinel-security-sensors-release-cache-");
+  writeBaseRepo(
+    root,
+    "default-src 'self'; connect-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'",
+  );
+  writeFileSync(
+    join(root, ".github/workflows/release.yml"),
+    `${readBaseReleaseWorkflowWithout("")}\n      - uses: Swatinem/rust-cache@c19371144df3bb44fab255c43d04cbc2ab54d1c4 # v2.9.1\n`,
+  );
+
+  assert(
+    checkSecuritySensors(root).includes(
+      "release workflow must not restore dependency caches before publishing artifacts",
+    ),
+  );
+});
+
+test("checkSecuritySensors rejects Dependabot without grouped cooldown governance", () => {
+  const root = mkdtempRoot("jobsentinel-security-sensors-dependabot-");
+  writeBaseRepo(
+    root,
+    "default-src 'self'; connect-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'",
+  );
+  writeFileSync(
+    join(root, ".github/dependabot.yml"),
+    "version: 2\nupdates:\n  - package-ecosystem: \"npm\"\n    directory: \"/\"\n",
+  );
+
+  assert(
+    checkSecuritySensors(root).includes(
+      "Dependabot config is missing supply-chain update governance: version update cooldown",
+    ),
+  );
+  assert(
+    checkSecuritySensors(root).includes(
+      "Dependabot config is missing supply-chain update governance: npm grouped version updates",
     ),
   );
 });

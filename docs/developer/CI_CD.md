@@ -37,6 +37,11 @@ diff, then only the relevant jobs run. Documentation-only changes run harness
 and markdown checks without Rust, frontend, or security jobs. Rust, frontend,
 dependency, and workflow changes still trigger their matching gates.
 
+Dependabot runs weekly for npm, Cargo, and GitHub Actions. Non-security
+minor and patch version updates are grouped to reduce review and CI pressure.
+Version updates use short cooldowns before opening PRs for new releases;
+Dependabot security updates are not delayed by that cooldown.
+
 ---
 
 ## Workflow security baseline
@@ -47,6 +52,8 @@ Workflow changes must preserve the GitHub Actions security baseline:
   that are required.
 - Use `actions/checkout` with `persist-credentials: false` unless a job needs
   Git credentials persisted after checkout.
+- Do not use `pull_request_target`, `workflow_run`, or comment-triggered
+  privileged workflows for untrusted code.
 - Pin third-party actions to full commit SHAs and keep the stable version
   comment current with `npm run lint:actions`.
 - Pass workflow-dispatch inputs into shell steps through environment variables,
@@ -56,6 +63,8 @@ Workflow changes must preserve the GitHub Actions security baseline:
   reviewers before production releases.
 - Do not use dependency caches in release or publishing jobs. CI may cache to
   speed feedback, but release artifacts must not depend on shared caches.
+- Keep Dependabot version updates grouped by ecosystem or risk with cooldowns
+  for new releases; security updates stay separate and prompt.
 
 ---
 

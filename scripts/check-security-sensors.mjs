@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-import { existsSync, readFileSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { dirname, extname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const scriptPath = fileURLToPath(import.meta.url);
@@ -63,6 +63,19 @@ const ciWorkflowChecks = [
     label: "cargo deny advisories",
     phrases: ["cargo deny check advisories"],
   },
+];
+
+const forbiddenWorkflowTriggers = [
+  "pull_request_target:",
+  "workflow_run:",
+  "issue_comment:",
+];
+
+const releaseCacheMarkers = [
+  "actions/cache@",
+  "Swatinem/rust-cache@",
+  "cache: \"npm\"",
+  "cache: npm",
 ];
 
 const releaseWorkflowChecks = [
@@ -205,6 +218,31 @@ const ciDocsChecks = [
   },
 ];
 
+const dependabotGovernanceChecks = [
+  {
+    label: "version update cooldown",
+    phrases: ["cooldown:", "semver-major-days:", "semver-minor-days:", "semver-patch-days:"],
+  },
+  {
+    label: "npm grouped version updates",
+    phrases: [
+      'package-ecosystem: "npm"',
+      "npm-production:",
+      "npm-development:",
+      'dependency-type: "production"',
+      'dependency-type: "development"',
+    ],
+  },
+  {
+    label: "cargo grouped version updates",
+    phrases: ['package-ecosystem: "cargo"', "cargo-minor-patch:"],
+  },
+  {
+    label: "GitHub Actions grouped version updates",
+    phrases: ['package-ecosystem: "github-actions"', "actions-minor-patch:"],
+  },
+];
+
 function repoPath(root, path) {
   return join(root, path);
 }
@@ -224,6 +262,72 @@ function includesAll(text, phrases) {
   return phrases.every((phrase) => text.includes(phrase));
 }
 
+function workflowPaths(root) {
+  const dir = repoPath(root, ".github/workflows");
+  if (!existsSync(dir)) {
+    return [];
+  }
+
+  return readdirSync(dir)
+    .filter((file) => [".yml", ".yaml"].includes(extname(file)))
+    .map((file) => `.github/workflows/${file}`)
+    .sort();
+}
+
+function hasTopLevelDisabledPermissions(text) {
+  return /(?:^|\n)permissions:\s*\{\}\s*(?:\n|$)/.test(text);
+}
+
+function countMatches(text, pattern) {
+  return text.match(pattern)?.length ?? 0;
+}
+
+function checkWorkflowSecurityBaseline(root, violations) {
+  for (const path of workflowPaths(root)) {
+    const text = readIfExists(root, path, violations);
+    if (!hasTopLevelDisabledPermissions(text)) {
+      violations.push(
+        `${path} must disable default workflow token permissions with top-level permissions: {}`,
+      );
+    }
+
+    for (const trigger of forbiddenWorkflowTriggers) {
+      if (text.includes(trigger)) {
+        violations.push(`${path} must not use privileged or chained trigger: ${trigger}`);
+      }
+    }
+
+    const checkoutCount = countMatches(text, /\buses:\s*actions\/checkout@/g);
+    const persistedCredentialGuards = countMatches(
+      text,
+      /\bpersist-credentials:\s*false\b/g,
+    );
+    if (checkoutCount > persistedCredentialGuards) {
+      violations.push(`${path} checkout steps must set persist-credentials: false`);
+    }
+  }
+}
+
+function checkReleaseCacheIsolation(releaseWorkflow, violations) {
+  if (releaseCacheMarkers.some((marker) => releaseWorkflow.includes(marker))) {
+    violations.push(
+      "release workflow must not restore dependency caches before publishing artifacts",
+    );
+  }
+}
+
+function checkDependabotGovernance(root, violations) {
+  const dependabotConfig = readIfExists(root, ".github/dependabot.yml", violations);
+
+  for (const check of dependabotGovernanceChecks) {
+    if (!includesAll(dependabotConfig, check.phrases)) {
+      violations.push(
+        `Dependabot config is missing supply-chain update governance: ${check.label}`,
+      );
+    }
+  }
+}
+
 function workflowJobBlock(text, jobName) {
   const match = String(text ?? "").match(
     new RegExp(`(?:^|\\n)  ${jobName}:\\n([\\s\\S]*?)(?=\\n  [A-Za-z0-9_-]+:\\n|\\s*$)`),
@@ -237,12 +341,13 @@ export function formatSecuritySensorSummary() {
     "Security sensors:",
     `docs=${requiredSecurityDocs.length}`,
     `matrix=${requiredMatrixEntries.length}`,
-    "workflow=1",
+    "workflow=5",
     `release-workflow=${releaseWorkflowChecks.length}`,
     `release-preflight=${releasePreflightChecks.length}`,
     `published-release-workflow=${publishedReleaseWorkflowChecks.length}`,
     "ci=2",
     `ci-docs=${ciDocsChecks.length}`,
+    `dependabot=${dependabotGovernanceChecks.length}`,
     "renderer-csp=1",
     "credential-ui=2",
   ].join(" ");
@@ -269,6 +374,9 @@ export function checkSecuritySensors(root = defaultRoot) {
     }
   }
 
+  checkWorkflowSecurityBaseline(root, violations);
+  checkDependabotGovernance(root, violations);
+
   const ciWorkflow = readIfExists(root, ".github/workflows/ci.yml", violations);
 
   for (const check of ciWorkflowChecks) {
@@ -278,6 +386,7 @@ export function checkSecuritySensors(root = defaultRoot) {
   }
 
   const releaseWorkflow = readIfExists(root, ".github/workflows/release.yml", violations);
+  checkReleaseCacheIsolation(releaseWorkflow, violations);
 
   for (const check of releaseWorkflowChecks) {
     if (!includesAll(releaseWorkflow, check.phrases)) {
