@@ -64,6 +64,9 @@ Vault requirements:
 
 - The SQLite database is encrypted at rest with bundled SQLCipher through the
   SQLx SQLite connection layer.
+- Pre-migration SQLite snapshots are created through the active SQLCipher
+  connection and verified with `PRAGMA pre_migration_backup.quick_check` before
+  they are logged or older pre-migration snapshots are pruned.
 - Secret values must use per-row AEAD encryption even inside the encrypted
   database.
 - AEAD associated data must bind ciphertext to the secret key name and app

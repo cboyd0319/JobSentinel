@@ -424,6 +424,7 @@ impl Database {
             .execute(pool)
             .await?;
         crate::platforms::ensure_private_file(&backup_path)?;
+        Self::verify_pre_migration_backup(pool, backup_path_str).await?;
         tracing::info!(
             backup_path = %path_label_for_logging(&backup_path),
             "Pre-migration backup created"
@@ -433,6 +434,36 @@ impl Database {
         Self::prune_pre_migration_backups(backup_dir, PRE_MIGRATION_BACKUP_KEEP);
 
         Ok(Some(backup_path))
+    }
+
+    async fn verify_pre_migration_backup(
+        pool: &SqlitePool,
+        backup_path: &str,
+    ) -> Result<(), sqlx::Error> {
+        let mut conn = pool.acquire().await?;
+        sqlx::query("ATTACH DATABASE ? AS pre_migration_backup")
+            .bind(backup_path)
+            .execute(&mut *conn)
+            .await?;
+
+        let check_result =
+            sqlx::query_scalar::<_, String>("PRAGMA pre_migration_backup.quick_check")
+                .fetch_one(&mut *conn)
+                .await;
+        let detach_result = sqlx::query("DETACH DATABASE pre_migration_backup")
+            .execute(&mut *conn)
+            .await;
+
+        let check = check_result?;
+        detach_result?;
+
+        if check.trim().eq_ignore_ascii_case("ok") {
+            Ok(())
+        } else {
+            Err(sqlx::Error::Protocol(
+                "Pre-migration backup integrity check failed".into(),
+            ))
+        }
     }
 
     /// Delete old `backup_pre_migration_*.db` files, keeping the `keep` newest.

@@ -162,6 +162,19 @@ export function hasDatabaseLogEmojiMarkers(root, path) {
   );
 }
 
+export function hasUnverifiedPreMigrationBackup(root, path) {
+  if (path !== "src-tauri/src/core/db/connection.rs") {
+    return false;
+  }
+
+  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
+  return (
+    /VACUUM INTO/.test(productionText) &&
+    (!/verify_pre_migration_backup/.test(productionText) ||
+      !/PRAGMA pre_migration_backup\.quick_check/.test(productionText))
+  );
+}
+
 export function hasOpaqueCommandUnitError(root, path) {
   if (!path.startsWith("src-tauri/src/commands/") || !path.endsWith(".rs")) {
     return false;

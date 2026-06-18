@@ -104,6 +104,7 @@ pub struct Config {
 - Statistics aggregation
 - Data integrity validation
 - Encrypted-at-rest database target for local job-search data and preferences
+- SQLCipher pre-migration snapshots verified with `quick_check`
 - **Submodules:**
   - `types.rs` - Database types (Job, Application, etc.)
   - `connection.rs` - Connection pool management

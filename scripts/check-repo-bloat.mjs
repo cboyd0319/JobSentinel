@@ -109,6 +109,7 @@ import {
   hasStaleResumeExportPdfStub,
   hasStaleScrapeAllStub,
   hasStaleSettingsPartialSaveMessage,
+  hasUnverifiedPreMigrationBackup,
   hasUnsafeScoreReasonJsonParsing,
   hasUnsafeStorageJsonParsing,
 } from "./harness/checks/source-quality.mjs";
@@ -380,6 +381,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasDatabaseLogEmojiMarkers(root, path)) {
       violations.push(`replace database log emoji markers: ${path}`);
+    }
+
+    if (hasUnverifiedPreMigrationBackup(root, path)) {
+      violations.push(`verify pre-migration SQLite backups before migration: ${path}`);
     }
 
     if (hasStaleCacheUsageDoc(root, path)) {

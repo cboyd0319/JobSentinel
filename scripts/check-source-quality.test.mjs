@@ -21,6 +21,7 @@ import {
   hasStaleResumeExportPdfStub,
   hasStaleScrapeAllStub,
   hasStaleSettingsPartialSaveMessage,
+  hasUnverifiedPreMigrationBackup,
   hasUnsafeScoreReasonJsonParsing,
   hasUnsafeStorageJsonParsing,
 } from "./harness/checks/source-quality.mjs";
@@ -121,6 +122,39 @@ test("source quality rejects opaque command unit errors outside Rust tests", () 
 
     assert.equal(hasOpaqueCommandUnitError(root, "src-tauri/src/commands/cache.rs"), true);
     assert.equal(hasOpaqueCommandUnitError(root, "src-tauri/src/commands/test_only.rs"), false);
+  });
+});
+
+test("source quality requires verified pre-migration SQLite backups", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/db/connection.rs",
+      'sqlx::query("VACUUM INTO ?").execute(pool).await?;\n',
+    );
+
+    assert.equal(
+      hasUnverifiedPreMigrationBackup(root, "src-tauri/src/core/db/connection.rs"),
+      true,
+    );
+
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/db/connection.rs",
+      [
+        'sqlx::query("VACUUM INTO ?").execute(pool).await?;',
+        "Self::verify_pre_migration_backup(pool, backup_path_str).await?;",
+        "async fn verify_pre_migration_backup() {",
+        '  sqlx::query_scalar::<_, String>("PRAGMA pre_migration_backup.quick_check");',
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    assert.equal(
+      hasUnverifiedPreMigrationBackup(root, "src-tauri/src/core/db/connection.rs"),
+      false,
+    );
   });
 });
 
