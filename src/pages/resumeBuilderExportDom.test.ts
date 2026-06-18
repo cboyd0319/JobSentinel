@@ -17,12 +17,14 @@ describe("openResumePrintDialog", () => {
 
     const iframe = document.querySelector("iframe");
     expect(iframe).not.toBeNull();
-    const html = iframe?.contentDocument?.body.innerHTML ?? "";
+    expect(iframe).toHaveAttribute("sandbox", "allow-modals");
+    expect(iframe).toHaveAttribute("referrerpolicy", "no-referrer");
+    const html = iframe?.getAttribute("srcdoc") ?? "";
 
-    expect(iframe?.contentDocument?.querySelector("style")).not.toBeNull();
-    expect(iframe?.contentDocument?.querySelector("script")).toBeNull();
-    expect(iframe?.contentDocument?.querySelector("form")).toBeNull();
+    expect(html).toContain("<style>.name{color:#111}</style>");
     expect(html).toContain('class="name"');
+    expect(html).not.toContain("<script");
+    expect(html).not.toContain("<form");
     expect(html).not.toContain("javascript:");
     expect(html).not.toContain("onclick");
     expect(html).not.toContain("target=");

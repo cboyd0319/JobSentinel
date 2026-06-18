@@ -60,7 +60,7 @@ Required lifecycle:
 - Redaction, edit, and cancel paths are required where UI exists.
 - Public-data-only prompts must include only job posting content or public
   metadata.
-- Public job-posting text with obvious prompt-like instructions, hidden
+- Reviewed outgoing text with obvious prompt-like instructions, hidden
   instructions, or invisible instruction markers must stay local until the user
   removes that text from the reviewed outgoing payload.
 - Local-only fallback is preferred. If a feature cannot run locally, label it
@@ -142,8 +142,8 @@ Implemented now:
 - Redacted payload required when redaction is enabled.
 - Reviewed redacted payload sent instead of raw feature payload.
 - Classified payload-key guard for unknown fields.
-- Prompt-like, hidden, encoded, and typo-obfuscated public job-posting text
-  block before provider transport.
+- Prompt-like, hidden, encoded, and typo-obfuscated reviewed outgoing text
+  blocks before provider transport.
 - Sensitive-payload guard.
 - Full-database block.
 - Public-data-only payload guard.

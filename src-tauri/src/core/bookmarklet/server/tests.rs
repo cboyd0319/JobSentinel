@@ -185,6 +185,22 @@ fn test_request_buffer_waits_for_declared_body() {
     ));
 }
 
+#[test]
+fn test_request_buffer_stops_when_declared_body_exceeds_cap() {
+    let oversized_request =
+        b"POST /api/bookmarklet/import HTTP/1.1\r\nHost: localhost\r\nContent-Length: 9000\r\n\r\n";
+
+    assert!(!request_buffer_has_complete_body(oversized_request));
+    assert!(request_buffer_has_declared_oversized_body(
+        oversized_request,
+        MAX_BOOKMARKLET_REQUEST_BYTES
+    ));
+    assert!(request_buffer_should_stop_reading(
+        oversized_request,
+        MAX_BOOKMARKLET_REQUEST_BYTES
+    ));
+}
+
 #[tokio::test]
 async fn test_bookmarklet_connection_times_out_incomplete_body() {
     let listener = tokio::net::TcpListener::bind("127.0.0.1:0")

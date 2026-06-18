@@ -374,7 +374,7 @@ async fn read_bookmarklet_request_bytes(
                 if total_read >= buffer.len() {
                     break;
                 }
-                if request_buffer_has_complete_body(&buffer[..total_read]) {
+                if request_buffer_should_stop_reading(&buffer[..total_read], buffer.len()) {
                     break;
                 }
             }
@@ -483,12 +483,32 @@ fn has_valid_bookmarklet_host(request: &str, port: u16) -> bool {
 }
 
 fn request_buffer_has_complete_body(buffer: &[u8]) -> bool {
-    let Some(header_end) = buffer
-        .windows(HEADER_BODY_SEPARATOR.len())
-        .position(|window| window == HEADER_BODY_SEPARATOR)
-    else {
+    let Some((body_start, content_length)) = request_body_start_and_content_length(buffer) else {
         return false;
     };
+
+    buffer.len() >= body_start + content_length
+}
+
+fn request_buffer_has_declared_oversized_body(buffer: &[u8], max_bytes: usize) -> bool {
+    let Some((body_start, content_length)) = request_body_start_and_content_length(buffer) else {
+        return false;
+    };
+
+    body_start
+        .checked_add(content_length)
+        .is_none_or(|declared_size| declared_size > max_bytes)
+}
+
+fn request_buffer_should_stop_reading(buffer: &[u8], max_bytes: usize) -> bool {
+    request_buffer_has_complete_body(buffer)
+        || request_buffer_has_declared_oversized_body(buffer, max_bytes)
+}
+
+fn request_body_start_and_content_length(buffer: &[u8]) -> Option<(usize, usize)> {
+    let header_end = buffer
+        .windows(HEADER_BODY_SEPARATOR.len())
+        .position(|window| window == HEADER_BODY_SEPARATOR)?;
 
     let headers = String::from_utf8_lossy(&buffer[..header_end]);
     let body_start = header_end + HEADER_BODY_SEPARATOR.len();
@@ -496,7 +516,7 @@ fn request_buffer_has_complete_body(buffer: &[u8]) -> bool {
         .and_then(|value| value.parse::<usize>().ok())
         .unwrap_or(0);
 
-    buffer.len() >= body_start + content_length
+    Some((body_start, content_length))
 }
 
 fn is_bookmarklet_import_request(request: &str) -> bool {

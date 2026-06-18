@@ -4,11 +4,8 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { dirname, extname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-import {
-  checkBrowserExtensionManifestBoundary,
-  checkTauriCapabilityBoundary,
-  checkWorkflowInstallBoundary,
-} from "./security/permission-boundaries.mjs";
+import { checkBrowserExtensionManifestBoundary, checkTauriCapabilityBoundary, checkWorkflowInstallBoundary } from "./security/permission-boundaries.mjs";
+import { checkExternalAiGatewayBoundary, checkResumeHtmlSinkBoundary } from "./security/ai-html-boundaries.mjs";
 import { checkRendererCspBoundary as checkTauriRendererCsp } from "./security/renderer-csp.mjs";
 
 const scriptPath = fileURLToPath(import.meta.url);
@@ -718,6 +715,8 @@ export function formatSecuritySensorSummary() {
     "renderer-csp=1",
     "renderer-assets=1",
     "credential-ui=2",
+    "external-ai=1",
+    "resume-html-sinks=1",
   ].join(" ");
 }
 
@@ -749,6 +748,8 @@ export function checkSecuritySensors(root = defaultRoot) {
   checkBrowserExtensionManifestBoundary(root, violations);
   checkTauriCapabilityBoundary(root, violations);
   checkRendererAssetBoundary(root, violations);
+  checkExternalAiGatewayBoundary(root, violations);
+  checkResumeHtmlSinkBoundary(root, violations);
   checkNotificationEgressBoundary(root, violations);
 
   const ciWorkflow = readIfExists(root, ".github/workflows/ci.yml", violations);

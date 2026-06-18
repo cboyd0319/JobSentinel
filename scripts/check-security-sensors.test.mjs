@@ -8,9 +8,9 @@ import { checkSecuritySensors } from "./check-security-sensors.mjs";
 
 const selfOnlyCsp =
   "default-src 'self'; connect-src 'self'; img-src 'self' data:; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'";
-
 function writeBaseRepo(root, csp) {
   mkdirSync(join(root, "docs/security"), { recursive: true });
+  mkdirSync(join(root, "docs/architecture"), { recursive: true });
   mkdirSync(join(root, "docs/harness"), { recursive: true });
   mkdirSync(join(root, "docs/developer"), { recursive: true });
   mkdirSync(join(root, ".github/workflows"), { recursive: true });
@@ -19,6 +19,7 @@ function writeBaseRepo(root, csp) {
   mkdirSync(join(root, "src-tauri"), { recursive: true });
   mkdirSync(join(root, "src-tauri/capabilities"), { recursive: true });
   mkdirSync(join(root, "src/pages"), { recursive: true });
+  mkdirSync(join(root, "src/services"), { recursive: true });
 
   for (const file of [
     "README.md",
@@ -30,6 +31,23 @@ function writeBaseRepo(root, csp) {
   ]) {
     writeFileSync(join(root, "docs/security", file), "# Security\n");
   }
+  writeFileSync(
+    join(root, "docs/security/XSS_PREVENTION.md"),
+    [
+      "# Security",
+      "temporary print iframe",
+      'iframe.setAttribute("sandbox", "allow-modals")',
+      "iframe.srcdoc = sanitizeResumeHtmlDocument(html)",
+    ].join("\n"),
+  );
+  writeFileSync(
+    join(root, "docs/architecture/privacy-first-ai-gateway.md"),
+    [
+      "# AI Gateway",
+      "Reviewed outgoing text with obvious prompt-like instructions",
+      "Prompt-like, hidden, encoded, and typo-obfuscated reviewed outgoing text",
+    ].join("\n"),
+  );
 
   writeFileSync(
     join(root, "docs/harness/verification-matrix.md"),
@@ -246,6 +264,40 @@ function writeBaseRepo(root, csp) {
       "export type CredentialStatusState = 'empty' | 'expected' | 'saved' | 'needs_attention';",
       "credentialExists(credentialStatus, \"telegram_bot_token\");",
       "credentialExists(credentialStatus, \"usajobs_api_key\");",
+    ].join("\n"),
+  );
+  writeFileSync(
+    join(root, "src/services/aiGateway.ts"),
+    [
+      "export type ExternalAiGatewayErrorCode = 'external_ai_prompt_injection_blocked';",
+      "function hasPromptLikeExternalAiContent() { return false; }",
+      "function validateRequest(outgoingPayload) {",
+      "  if (hasPromptLikeExternalAiContent(outgoingPayload)) {",
+      "    throw new Error('Details selected for outside AI include instructions aimed at AI tools');",
+      "  }",
+      "}",
+    ].join("\n"),
+  );
+  writeFileSync(
+    join(root, "src/pages/ResumeBuilderPreviewStep.tsx"),
+    [
+      "<iframe",
+      "  sandbox=\"\"",
+      "  referrerPolicy=\"no-referrer\"",
+      "  srcDoc={sanitizeResumeHtmlDocument(previewHtml)}",
+      "/>",
+    ].join("\n"),
+  );
+  writeFileSync(
+    join(root, "src/pages/resumeBuilderExportDom.ts"),
+    [
+      "function openResumePrintDialog(html) {",
+      "  const iframe = document.createElement('iframe');",
+      "  iframe.setAttribute(\"sandbox\", \"allow-modals\");",
+      "  iframe.setAttribute(\"referrerpolicy\", \"no-referrer\");",
+      "  const safeHtml = sanitizeResumeHtmlDocument(html);",
+      "  iframe.srcdoc = safeHtml;",
+      "}",
     ].join("\n"),
   );
   writeFileSync(

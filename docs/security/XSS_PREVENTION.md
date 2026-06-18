@@ -7,7 +7,9 @@ render path must sanitize before using `dangerouslySetInnerHTML`.
 
 The active Resume Builder preview is in
 `src/pages/ResumeBuilderPreviewStep.tsx`, with the shared sanitizer policy in
-`src/pages/resumeHtmlSanitizer.ts`.
+`src/pages/resumeHtmlSanitizer.ts`. PDF export uses the same sanitizer before
+placing resume HTML into the temporary print iframe in
+`src/pages/resumeBuilderExportDom.ts`.
 
 ```typescript
 <iframe
@@ -16,6 +18,11 @@ The active Resume Builder preview is in
   referrerPolicy="no-referrer"
   srcDoc={sanitizeResumeHtmlDocument(previewHtml)}
 />
+
+// Print export uses a temporary iframe with srcdoc.
+iframe.setAttribute("sandbox", "allow-modals");
+iframe.setAttribute("referrerpolicy", "no-referrer");
+iframe.srcdoc = sanitizeResumeHtmlDocument(html);
 ```
 
 `package.json` owns the DOMPurify dependency. Check the current installed
@@ -139,9 +146,11 @@ Safe resume formatting remains:
 The allowlist intentionally keeps only resume document tags and attributes.
 Inline style attributes, scripts, forms, embedded content, media, SVG, MathML,
 custom elements, data attributes, ARIA attributes, `target`, and `src`/`srcset`
-are removed. Generated template CSS is kept in `<style>` blocks, and preview
-content is rendered in a sandboxed iframe without script, form, popup, or
-same-origin permissions.
+are removed. Generated template CSS is kept in `<style>` blocks. Preview
+content is rendered in a sandboxed iframe without script, form, popup, modal,
+or same-origin permissions. Print content is rendered in a temporary sandboxed
+iframe without script, form, popup, or same-origin permissions; it allows modals
+only so the browser print dialog can open.
 
 Style blocks are not allowed to load network resources. The sanitizer strips
 stylesheet imports, `@font-face`, `url(...)`, and `image-set(...)` so resume

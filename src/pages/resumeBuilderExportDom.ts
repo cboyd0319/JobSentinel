@@ -20,21 +20,16 @@ export function downloadResumeDocx(docxData: number[], candidateName: string): v
 
 export function openResumePrintDialog(html: string): void {
   const iframe = document.createElement("iframe");
+  iframe.setAttribute("sandbox", "allow-modals");
+  iframe.setAttribute("referrerpolicy", "no-referrer");
   iframe.style.position = "fixed";
   iframe.style.right = "0";
   iframe.style.bottom = "0";
   iframe.style.width = "0";
   iframe.style.height = "0";
   iframe.style.border = "0";
-  document.body.appendChild(iframe);
-
-  const doc = iframe.contentWindow?.document;
-  if (!doc) return;
 
   const safeHtml = sanitizeResumeHtmlDocument(html);
-  doc.open();
-  doc.write(safeHtml);
-  doc.close();
 
   iframe.onload = () => {
     setTimeout(() => {
@@ -54,4 +49,7 @@ export function openResumePrintDialog(html: string): void {
       // Print dialog may have been triggered already.
     }
   }, 500);
+
+  iframe.srcdoc = safeHtml;
+  document.body.appendChild(iframe);
 }

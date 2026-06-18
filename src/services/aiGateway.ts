@@ -95,7 +95,7 @@ export type ExternalAiGatewayErrorCode =
   | "user_approval_required"
   | "redacted_payload_required"
   | "unclassified_payload_key"
-  | "job_posting_prompt_injection_blocked"
+  | "external_ai_prompt_injection_blocked"
   | "full_database_blocked"
   | "sensitive_payload_blocked"
   | "public_data_only_violation";
@@ -188,17 +188,7 @@ const classifiedPayloadKeysByCategory: Record<ExternalAiDataCategory, Set<string
   ]),
 };
 
-const jobPostingPromptTextKeys = new Set([
-  "benefits",
-  "compensation",
-  "description",
-  "jobDescription",
-  "qualifications",
-  "requirements",
-  "responsibilities",
-]);
-
-const promptLikeJobPostingPhrases = [
+const promptLikeExternalAiPhrases = [
   "ignore previous instructions",
   "ignore all previous instructions",
   "ignroe previous instructions",
@@ -408,7 +398,7 @@ function normalizePromptInspectionText(text: string): string {
     .join("");
 }
 
-function textHasPromptLikeJobPostingContent(text: string, decodeDepth = 0): boolean {
+function textHasPromptLikeExternalAiContent(text: string, decodeDepth = 0): boolean {
   if (text.split("").some((char) => zeroWidthCharacters.has(char))) {
     return true;
   }
@@ -423,7 +413,7 @@ function textHasPromptLikeJobPostingContent(text: string, decodeDepth = 0): bool
     return true;
   }
 
-  if (promptLikeJobPostingPhrases.some((phrase) => inspectionText.includes(phrase))) {
+  if (promptLikeExternalAiPhrases.some((phrase) => inspectionText.includes(phrase))) {
     return true;
   }
 
@@ -432,7 +422,7 @@ function textHasPromptLikeJobPostingContent(text: string, decodeDepth = 0): bool
   }
 
   return decodedCandidateText(text).some((decoded) =>
-    textHasPromptLikeJobPostingContent(decoded, decodeDepth + 1),
+    textHasPromptLikeExternalAiContent(decoded, decodeDepth + 1),
   );
 }
 
@@ -489,41 +479,24 @@ function mostlyPrintable(value: string): boolean {
   return printable / value.length >= 0.85;
 }
 
-function valueHasPromptLikeJobPostingContent(value: unknown): boolean {
+function valueHasPromptLikeExternalAiContent(value: unknown): boolean {
   if (typeof value === "string") {
-    return textHasPromptLikeJobPostingContent(value);
+    return textHasPromptLikeExternalAiContent(value);
   }
 
   if (Array.isArray(value)) {
-    return value.some(valueHasPromptLikeJobPostingContent);
+    return value.some(valueHasPromptLikeExternalAiContent);
   }
 
   if (!value || typeof value !== "object") {
     return false;
   }
 
-  return Object.values(value).some(valueHasPromptLikeJobPostingContent);
+  return Object.values(value).some(valueHasPromptLikeExternalAiContent);
 }
 
-function hasPromptLikeJobPostingContent(payload: Record<string, unknown>): boolean {
-  for (const [key, value] of Object.entries(payload)) {
-    if (
-      jobPostingPromptTextKeys.has(key) &&
-      valueHasPromptLikeJobPostingContent(value)
-    ) {
-      return true;
-    }
-
-    if (
-      value &&
-      typeof value === "object" &&
-      hasPromptLikeJobPostingContent(value as Record<string, unknown>)
-    ) {
-      return true;
-    }
-  }
-
-  return false;
+function hasPromptLikeExternalAiContent(payload: Record<string, unknown>): boolean {
+  return Object.values(payload).some(valueHasPromptLikeExternalAiContent);
 }
 
 function getOutgoingPayload(
@@ -615,13 +588,10 @@ function validateRequest(
     );
   }
 
-  if (
-    request.dataCategories.includes("job_posting") &&
-    hasPromptLikeJobPostingContent(outgoingPayload)
-  ) {
+  if (hasPromptLikeExternalAiContent(outgoingPayload)) {
     throw new ExternalAiGatewayError(
-      "job_posting_prompt_injection_blocked",
-      "The job posting includes instructions aimed at AI tools. Keep this review local or remove those instructions before sending.",
+      "external_ai_prompt_injection_blocked",
+      "Details selected for outside AI include instructions aimed at AI tools. Keep this review local or remove those instructions before sending.",
     );
   }
 
