@@ -102,7 +102,9 @@ Advanced passphrase mode:
 
 1. Ask the user for a passphrase only after explaining recovery tradeoffs in
    the UI.
-2. Derive a wrapping key with Argon2id.
+2. Derive a wrapping key with Argon2id. New envelopes use 64 MiB memory,
+   3 iterations, and parallelism 1; loaded envelopes must meet at least the
+   OWASP minimum of 19 MiB memory, 2 iterations, and parallelism 1.
 3. Wrap the vault key with XChaCha20-Poly1305 and fixed associated data.
 4. Store only salt, KDF parameters, nonce, algorithm metadata, and wrapped
    vault-key ciphertext in `credential_key_wrapping`.

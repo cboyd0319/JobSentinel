@@ -105,8 +105,9 @@ full migration until all major routes are verified.
 
 ## Typography
 
-Use Inter first, then IBM Plex Sans, Source Sans 3, and system UI fallbacks.
-Typography should be readable, stable, and work-focused.
+Use platform-local system fonts first. Do not load remote font stylesheets or
+font files in the renderer. Typography should be readable, stable, and
+work-focused.
 
 Rules:
 

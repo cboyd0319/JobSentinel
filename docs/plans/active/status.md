@@ -100,7 +100,7 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   DOCX parser boundaries; follow-up now includes tag-bound releases, CI drift
   gates, OCR override restrictions, cargo-deny policy, scraper DNS pinning,
   AI obfuscation guards, sandboxed previews, secure delete, and query-plan
-  boundaries.
+  boundaries, plus local-only renderer fonts, parser caps, and KDF floors.
 
 ## Next Best Work
 

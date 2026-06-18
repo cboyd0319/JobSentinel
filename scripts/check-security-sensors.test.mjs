@@ -242,6 +242,10 @@ function writeBaseRepo(root, csp) {
     join(root, "src/pages/useSettingsCredentials.ts"),
     "export function useSettingsCredentials() { return {}; }\n",
   );
+  writeFileSync(
+    join(root, "src/index.css"),
+    '@import "tailwindcss";\n@config "../tailwind.config.js";\n',
+  );
 }
 
 test("checkSecuritySensors accepts self-only renderer connect CSP", () => {
@@ -264,6 +268,30 @@ test("checkSecuritySensors rejects renderer external connect hosts", () => {
   assert(
     checkSecuritySensors(root).includes(
       "Tauri renderer CSP must not allow external connect host: https://hooks.slack.com",
+    ),
+  );
+});
+
+test("checkSecuritySensors rejects external renderer font and style imports", () => {
+  const root = mkdtempRoot("jobsentinel-security-sensors-renderer-assets-");
+  writeBaseRepo(
+    root,
+    "default-src 'self'; connect-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'",
+  );
+  writeFileSync(
+    join(root, "src/index.css"),
+    "@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400&display=swap');\n@import \"https://cdn.example.test/app.css\";\n@import \"tailwindcss\";\n",
+  );
+
+  const violations = checkSecuritySensors(root);
+  assert(
+    violations.includes(
+      "src/index.css must not load external renderer assets: remote CSS import",
+    ),
+  );
+  assert(
+    violations.includes(
+      "src/index.css must not load external renderer assets: Google Fonts host",
     ),
   );
 });

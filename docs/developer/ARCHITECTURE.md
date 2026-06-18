@@ -234,8 +234,9 @@ total_score = (
   The direct OS credential-store path remains only for legacy fallback and live
   keyring tests.
 - Optional passphrase mode wraps the credential-vault key with Argon2id and
-  XChaCha20-Poly1305 metadata in `credential_key_wrapping`; status checks stay
-  SQLite-only and do not prompt for secure storage.
+  XChaCha20-Poly1305 metadata in `credential_key_wrapping`; loaded envelopes
+  must meet the repo's Argon2id work-factor floor, and status checks stay
+  SQLite-only without secure-storage prompts.
 - macOS target implementation uses native Keychain plus LocalAuthentication for
   Touch ID-capable user-presence unlock instead of generic passive keyring
   probes.

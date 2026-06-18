@@ -54,9 +54,30 @@ export default {
         info: '#38BDF8',
       },
       fontFamily: {
-        display: ['Inter', '"IBM Plex Sans"', '"Source Sans 3"', 'system-ui', 'sans-serif'],
-        body: ['Inter', '"IBM Plex Sans"', '"Source Sans 3"', 'system-ui', 'sans-serif'],
-        mono: ['"JetBrains Mono"', 'monospace'],
+        display: [
+          'ui-sans-serif',
+          'system-ui',
+          '-apple-system',
+          'BlinkMacSystemFont',
+          '"Segoe UI"',
+          'sans-serif',
+        ],
+        body: [
+          'ui-sans-serif',
+          'system-ui',
+          '-apple-system',
+          'BlinkMacSystemFont',
+          '"Segoe UI"',
+          'sans-serif',
+        ],
+        mono: [
+          'ui-monospace',
+          '"SFMono-Regular"',
+          'Consolas',
+          '"Liberation Mono"',
+          'Menlo',
+          'monospace',
+        ],
       },
       fontSize: {
         // Custom scale with tighter line heights for display

@@ -15,6 +15,7 @@ use zip::ZipArchive;
 /// Minimum text length to consider PDF extraction successful (before falling back to OCR)
 #[cfg(feature = "ocr")]
 const MIN_TEXT_LENGTH: usize = 100;
+const MAX_RESUME_FILE_BYTES: u64 = 10 * 1024 * 1024;
 const MAX_DOCX_DOCUMENT_XML_BYTES: u64 = 8 * 1024 * 1024;
 
 /// Resume parser for extracting text from local resume files
@@ -642,6 +643,13 @@ fn canonical_regular_file(file_path: &Path) -> Result<PathBuf> {
         return Err(anyhow::anyhow!("Path is not a regular file"));
     }
 
+    let metadata = canonical_path
+        .metadata()
+        .context("Failed to inspect resume file")?;
+    if metadata.len() > MAX_RESUME_FILE_BYTES {
+        return Err(anyhow::anyhow!("Resume file is too large for local review"));
+    }
+
     Ok(canonical_path)
 }
 
@@ -733,6 +741,29 @@ Scheduling, case documentation, Spanish
         let error = result.unwrap_err().to_string();
         assert!(error.contains("must be a PDF"));
         assert!(!error.contains("test.txt"), "path leaked: {error}");
+    }
+
+    #[test]
+    fn test_parse_resume_rejects_oversized_file_without_path_leak() {
+        use std::fs::File;
+        use tempfile::TempDir;
+
+        let temp_dir = TempDir::new().unwrap();
+        let file_path = temp_dir.path().join("large-resume.txt");
+        let file = File::create(&file_path).unwrap();
+        file.set_len(MAX_RESUME_FILE_BYTES + 1).unwrap();
+
+        let parser = ResumeParser::new();
+        let result = parser.parse_resume(&file_path);
+
+        assert!(result.is_err());
+        let error = result.unwrap_err().to_string();
+        assert!(error.contains("too large"));
+        assert!(!error.contains("large-resume.txt"), "path leaked: {error}");
+        assert!(
+            !error.contains(temp_dir.path().to_string_lossy().as_ref()),
+            "path leaked: {error}"
+        );
     }
 
     #[test]

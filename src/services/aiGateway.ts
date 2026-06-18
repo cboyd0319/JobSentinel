@@ -224,6 +224,24 @@ const zeroWidthCharacters = new Set([
   "\uFEFF",
 ]);
 
+const promptInspectionConfusables = new Map<string, string>([
+  ["\u03B5", "e"],
+  ["\u03B9", "i"],
+  ["\u03BF", "o"],
+  ["\u03C1", "p"],
+  ["\u03C5", "y"],
+  ["\u0430", "a"],
+  ["\u0435", "e"],
+  ["\u043E", "o"],
+  ["\u0440", "p"],
+  ["\u0441", "c"],
+  ["\u0443", "y"],
+  ["\u0445", "x"],
+  ["\u0455", "s"],
+  ["\u0456", "i"],
+  ["\u0458", "j"],
+]);
+
 const hiddenMarkupPatterns = [
   /<!--[\s\S]*?-->/i,
   /<meta\b[^>]*(?:keywords|description|content)\b/i,
@@ -384,6 +402,12 @@ function hasObfuscatedPromptPhrases(text: string): boolean {
   return false;
 }
 
+function normalizePromptInspectionText(text: string): string {
+  return [...text.normalize("NFKC").toLowerCase()]
+    .map((char) => promptInspectionConfusables.get(char) ?? char)
+    .join("");
+}
+
 function textHasPromptLikeJobPostingContent(text: string, decodeDepth = 0): boolean {
   if (text.split("").some((char) => zeroWidthCharacters.has(char))) {
     return true;
@@ -393,12 +417,13 @@ function textHasPromptLikeJobPostingContent(text: string, decodeDepth = 0): bool
     return true;
   }
 
-  if (hasObfuscatedPromptPhrases(text)) {
+  const inspectionText = normalizePromptInspectionText(text);
+
+  if (hasObfuscatedPromptPhrases(inspectionText)) {
     return true;
   }
 
-  const lower = text.toLowerCase();
-  if (promptLikeJobPostingPhrases.some((phrase) => lower.includes(phrase))) {
+  if (promptLikeJobPostingPhrases.some((phrase) => inspectionText.includes(phrase))) {
     return true;
   }
 

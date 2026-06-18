@@ -40,7 +40,7 @@ models, and best practices.
 | **Webhook Notifications** | URL parsing, HTTPS-only, allowlisting                | [WEBHOOK_SECURITY.md](./WEBHOOK_SECURITY.md)   |
 | **OCR (Resume Parsing)**  | Path canonicalization, no shell invocation           | [COMMAND_EXECUTION.md](./COMMAND_EXECUTION.md) |
 | **Database**              | SQLCipher at rest, SQLx parameterized queries, SQL injection prevention | [KEYRING.md](./KEYRING.md)                     |
-| **Network**               | TLS, backend URL guards, self-only renderer CSP      | [URL_VALIDATION.md](./URL_VALIDATION.md)       |
+| **Network**               | TLS, backend URL guards, self-only renderer CSP, and no remote renderer style or font imports | [URL_VALIDATION.md](./URL_VALIDATION.md)       |
 
 ### Security by Threat
 
@@ -146,9 +146,10 @@ verification matrix preserves security-specific sensors, that CI plus CI/CD
 docs keep dependency audit, Rust supply-chain, and scheduled drift gates visible,
 that browser-extension manifests avoid broad host and high-risk permissions,
 that the Tauri renderer CSP keeps external network calls out of the frontend,
-and that Tauri capabilities do not grant frontend shell-open permissions. It
-also runs `npm run lint:secrets` to block high-confidence committed provider
-keys, webhooks, private keys, and session-cookie values.
+that renderer CSS does not load third-party styles or fonts, and that Tauri
+capabilities do not grant frontend shell-open permissions. It also runs
+`npm run lint:secrets` to block high-confidence committed provider keys,
+webhooks, private keys, and session-cookie values.
 
 ### Manual Security Testing
 

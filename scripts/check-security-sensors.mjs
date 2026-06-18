@@ -605,6 +605,28 @@ function checkAgentInstructionFileBoundary(root, violations) {
   }
 }
 
+function checkRendererAssetBoundary(root, violations) {
+  const css = readIfExists(root, "src/index.css", violations);
+  const forbiddenRendererAssetPatterns = [
+    {
+      label: "remote CSS import",
+      pattern: /@import\s+(?:url\s*\(\s*)?["']?(?:https?:)?\/\//i,
+    },
+    {
+      label: "Google Fonts host",
+      pattern: /fonts\.(?:googleapis|gstatic)\.com/i,
+    },
+  ];
+
+  for (const { label, pattern } of forbiddenRendererAssetPatterns) {
+    if (pattern.test(css)) {
+      violations.push(
+        `src/index.css must not load external renderer assets: ${label}`,
+      );
+    }
+  }
+}
+
 export function formatSecuritySensorSummary() {
   return [
     "Security sensors:",
@@ -623,6 +645,7 @@ export function formatSecuritySensorSummary() {
     "browser-extension=1",
     "tauri-capabilities=1",
     "renderer-csp=1",
+    "renderer-assets=1",
     "credential-ui=2",
   ].join(" ");
 }
@@ -654,6 +677,7 @@ export function checkSecuritySensors(root = defaultRoot) {
   checkAgentInstructionFileBoundary(root, violations);
   checkBrowserExtensionManifestBoundary(root, violations);
   checkTauriCapabilityBoundary(root, violations);
+  checkRendererAssetBoundary(root, violations);
 
   const ciWorkflow = readIfExists(root, ".github/workflows/ci.yml", violations);
 

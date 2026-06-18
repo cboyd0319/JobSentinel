@@ -33,37 +33,37 @@ colors:
   light-brand-soft: "#CCFBF1"
 typography:
   h1:
-    fontFamily: "Inter, IBM Plex Sans, Source Sans 3, system-ui, sans-serif"
+    fontFamily: "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
     fontSize: "32px"
     fontWeight: "700"
     lineHeight: "1.15"
     letterSpacing: "0px"
   h2:
-    fontFamily: "Inter, IBM Plex Sans, Source Sans 3, system-ui, sans-serif"
+    fontFamily: "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
     fontSize: "24px"
     fontWeight: "650"
     lineHeight: "1.2"
     letterSpacing: "0px"
   h3:
-    fontFamily: "Inter, IBM Plex Sans, Source Sans 3, system-ui, sans-serif"
+    fontFamily: "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
     fontSize: "18px"
     fontWeight: "650"
     lineHeight: "1.3"
     letterSpacing: "0px"
   body:
-    fontFamily: "Inter, IBM Plex Sans, Source Sans 3, system-ui, sans-serif"
+    fontFamily: "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
     fontSize: "16px"
     fontWeight: "400"
     lineHeight: "1.5"
     letterSpacing: "0px"
   body-sm:
-    fontFamily: "Inter, IBM Plex Sans, Source Sans 3, system-ui, sans-serif"
+    fontFamily: "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
     fontSize: "14px"
     fontWeight: "400"
     lineHeight: "1.45"
     letterSpacing: "0px"
   label:
-    fontFamily: "Inter, IBM Plex Sans, Source Sans 3, system-ui, sans-serif"
+    fontFamily: "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
     fontSize: "12px"
     fontWeight: "650"
     lineHeight: "1.3"
@@ -216,8 +216,8 @@ feel like the same protective product in daylight, not a separate cheerful app.
 
 ## Typography
 
-Use a clean, highly readable sans-serif: Inter first, then IBM Plex Sans,
-Source Sans 3, and system UI fallbacks. Text must be functional and calm.
+Use clean, highly readable platform-local system fonts. Do not load remote font
+stylesheets or font files in the renderer. Text must be functional and calm.
 
 Use sentence case. Avoid all-caps except small labels like "Quick actions" or
 section metadata. Do not scale font size with viewport width. Letter spacing

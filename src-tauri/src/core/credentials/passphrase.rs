@@ -25,6 +25,9 @@ const WRAP_AAD: &[u8] = b"jobsentinel.credential-vault-key.wrap.v1";
 const DEFAULT_MEMORY_KIB: u32 = 65_536;
 const DEFAULT_ITERATIONS: u32 = 3;
 const DEFAULT_PARALLELISM: u32 = 1;
+const MIN_ARGON2ID_MEMORY_KIB: u32 = 19_456;
+const MIN_ARGON2ID_ITERATIONS: u32 = 2;
+const MIN_ARGON2ID_PARALLELISM: u32 = 1;
 const SALT_LEN: usize = 16;
 const NONCE_LEN: usize = 24;
 const MIN_PASSPHRASE_CHARS: usize = 12;
@@ -365,6 +368,12 @@ impl WrappedVaultKey {
         if self.salt.len() != SALT_LEN || self.nonce.len() != NONCE_LEN {
             return Err(PassphraseError::UnsupportedEnvelope);
         }
+        if self.memory_kib < MIN_ARGON2ID_MEMORY_KIB
+            || self.iterations < MIN_ARGON2ID_ITERATIONS
+            || self.parallelism < MIN_ARGON2ID_PARALLELISM
+        {
+            return Err(PassphraseError::UnsupportedEnvelope);
+        }
         Ok(())
     }
 }
@@ -375,9 +384,9 @@ mod tests {
     use crate::core::db::Database;
 
     const TEST_PARAMS: KdfParams = KdfParams {
-        memory_kib: 1024,
-        iterations: 1,
-        parallelism: 1,
+        memory_kib: MIN_ARGON2ID_MEMORY_KIB,
+        iterations: MIN_ARGON2ID_ITERATIONS,
+        parallelism: MIN_ARGON2ID_PARALLELISM,
     };
 
     async fn test_pool() -> SqlitePool {
@@ -446,5 +455,22 @@ mod tests {
 
         assert_eq!(err, PassphraseError::Policy);
         assert!(!err.to_string().contains("too short"));
+    }
+
+    #[test]
+    fn wrapped_key_rejects_weak_kdf_metadata() {
+        let envelope = WrappedVaultKey {
+            memory_kib: 1024,
+            iterations: 1,
+            parallelism: 1,
+            salt: vec![1_u8; SALT_LEN],
+            nonce: vec![2_u8; NONCE_LEN],
+            ciphertext: vec![3_u8; MASTER_KEY_LEN],
+        };
+
+        assert_eq!(
+            envelope.validate().unwrap_err(),
+            PassphraseError::UnsupportedEnvelope
+        );
     }
 }
