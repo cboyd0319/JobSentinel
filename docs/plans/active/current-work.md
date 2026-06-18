@@ -71,7 +71,7 @@ Out of scope:
 | Area | State | Next useful slice |
 | ---- | ----- | ----------------- |
 | Dependency readiness | Complete | Package-manager, direct deps, overrides, and Action pins are latest; transitives stay lockfile-pinned/latest-compatible |
-| Downloadable Agent Skills | Complete locally | Eight skills include UI metadata, handoffs, templates, references, Persona/ResumeSkills/career-ops/JobSentinel research coverage, and `lint:skills`. |
+| Downloadable Agent Skills | Complete locally | Eight skills pass upstream `skills-ref`, `lint:skills`, UI metadata, handoffs, templates, references, and research coverage. |
 | Browser Import and LinkedIn-compatible flow | Complete locally | Manual desktop/mobile verification passed; revisit only if whole-UI QA finds a blocker. Keep LinkedIn user-opened and user-clicked without session cookies or background monitoring. |
 | Development and QA completion | Finalizing | Primary product/security fixes and whole-UI verification are complete locally; finish design, packaging, and release checks. |
 | macOS readiness | Release-gated | Keep docs honest when touched, but do not create or upload assets until final local gates close. |
@@ -131,8 +131,8 @@ Out of scope:
   upgrade in place and delete temporary plaintext backups after success.
 - Downloadable Agent Skills cover the full search flow with UI metadata,
   handoffs, templates, evidence validation, posting liveness, tracker history,
-  sourced interview intel, and pay/offer decisions cross-checked against
-  Persona, ResumeSkills, career-ops, and JobSentinel research.
+  sourced interview intel, and pay/offer decisions; upstream `skills-ref` and
+  local `lint:skills` pass.
 - Browser Import desktop/mobile manual verification passed on 2026-06-17 for
   setup, private-link rejection, LinkedIn preview/save, duplicates, and
   overflow; commit `361560f9` added clean send APIs and local-model
