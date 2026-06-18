@@ -7,6 +7,7 @@ import { tmpdir } from "node:os";
 import { basename, join, resolve } from "node:path";
 import { pipeline } from "node:stream/promises";
 import { pathToFileURL } from "node:url";
+import { gunzipSync, inflateRawSync } from "node:zlib";
 import {
   expectedReleaseSbomNames,
   findChecksumAsset,
@@ -19,6 +20,25 @@ const defaultRepo = "cboyd0319/JobSentinel";
 const verifierUserAgent = "JobSentinel-public-release-verifier";
 const spdxPredicateType = "https://spdx.dev/Document/v2.3";
 const slsaPredicateType = "https://slsa.dev/provenance/v1";
+const agentSkillNames = [
+  "application-form-review",
+  "application-tracking",
+  "interview-prep",
+  "job-posting-risk-review",
+  "job-search-plan",
+  "networking-outreach",
+  "offer-pay-review",
+  "resume-tailoring",
+];
+
+const crc32Table = new Uint32Array(256);
+for (let index = 0; index < crc32Table.length; index += 1) {
+  let value = index;
+  for (let bit = 0; bit < 8; bit += 1) {
+    value = value & 1 ? 0xedb88320 ^ (value >>> 1) : value >>> 1;
+  }
+  crc32Table[index] = value >>> 0;
+}
 
 export const publicReleaseAssetSpecs = {
   windows: [{ extension: ".msi" }],
@@ -45,6 +65,14 @@ function splitList(value) {
     .split(",")
     .map((item) => item.trim())
     .filter(Boolean);
+}
+
+function crc32(buffer) {
+  let value = 0xffffffff;
+  for (const byte of buffer) {
+    value = crc32Table[(value ^ byte) & 0xff] ^ (value >>> 8);
+  }
+  return (value ^ 0xffffffff) >>> 0;
 }
 
 export function parseArgs(args) {
@@ -185,6 +213,138 @@ export function validateExactAgentSkillsAssetSet(release, { expectedVersion }) {
   if (unexpected.length > 0) {
     throw new Error(`Release contains stale or unexpected Agent Skills assets: ${unexpected.join(", ")}`);
   }
+}
+
+export function listTarGzArchivePaths(archive) {
+  const tar = gunzipSync(archive);
+  const paths = [];
+  let offset = 0;
+
+  while (offset + 512 <= tar.length) {
+    const header = tar.subarray(offset, offset + 512);
+    if (header.every((byte) => byte === 0)) {
+      break;
+    }
+
+    const name = header.toString("utf8", 0, 100).replace(/\0.*$/u, "");
+    const sizeText = header.toString("utf8", 124, 136).replace(/\0.*$/u, "").trim();
+    const size = Number.parseInt(sizeText || "0", 8);
+    if (!Number.isFinite(size) || size < 0) {
+      throw new Error(`Invalid tar entry size for ${name || "(unnamed entry)"}.`);
+    }
+
+    paths.push(name);
+    offset += 512 + Math.ceil(size / 512) * 512;
+  }
+
+  return paths;
+}
+
+export function listZipArchivePaths(archive) {
+  const paths = [];
+  let offset = 0;
+
+  while (offset + 30 <= archive.length) {
+    const signature = archive.readUInt32LE(offset);
+    if (signature !== 0x04034b50) {
+      break;
+    }
+
+    const method = archive.readUInt16LE(offset + 8);
+    const expectedCrc = archive.readUInt32LE(offset + 14);
+    const compressedSize = archive.readUInt32LE(offset + 18);
+    const uncompressedSize = archive.readUInt32LE(offset + 22);
+    const nameLength = archive.readUInt16LE(offset + 26);
+    const extraLength = archive.readUInt16LE(offset + 28);
+    const nameStart = offset + 30;
+    const nameEnd = nameStart + nameLength;
+    const bodyStart = nameEnd + extraLength;
+    const bodyEnd = bodyStart + compressedSize;
+
+    if (bodyEnd > archive.length) {
+      throw new Error("Agent Skills ZIP archive has a truncated entry.");
+    }
+
+    const name = archive.toString("utf8", nameStart, nameEnd);
+    const compressedBody = archive.subarray(bodyStart, bodyEnd);
+    const body =
+      method === 0 ? compressedBody : method === 8 ? inflateRawSync(compressedBody) : undefined;
+    if (!body) {
+      throw new Error(`Agent Skills ZIP archive uses unsupported compression method ${method}.`);
+    }
+
+    if (body.length !== uncompressedSize) {
+      throw new Error(`Agent Skills ZIP entry size mismatch: ${name}`);
+    }
+
+    if (crc32(body) !== expectedCrc) {
+      throw new Error(`Agent Skills ZIP entry CRC mismatch: ${name}`);
+    }
+
+    paths.push(name);
+    offset = bodyEnd;
+  }
+
+  return paths;
+}
+
+function validateAgentSkillsArchivePaths(paths, { expectedVersion, assetName }) {
+  const version = String(expectedVersion ?? "").trim().replace(/^v/i, "");
+  const prefix = `JobSentinel-${version}-agent-skills/skills`;
+  const missing = [];
+
+  for (const path of paths) {
+    const parts = path.split("/");
+    if (path.startsWith("/") || parts.includes("..")) {
+      throw new Error(`Agent Skills archive contains unsafe path: ${path}`);
+    }
+
+    if (parts.some((part) => part.startsWith("."))) {
+      throw new Error(`Agent Skills archive contains hidden path: ${path}`);
+    }
+  }
+
+  if (!paths.includes(`${prefix}/README.md`)) {
+    missing.push(`${prefix}/README.md`);
+  }
+
+  for (const skillName of agentSkillNames) {
+    const skillPrefix = `${prefix}/${skillName}`;
+    for (const requiredPath of [
+      `${skillPrefix}/SKILL.md`,
+      `${skillPrefix}/agents/openai.yaml`,
+    ]) {
+      if (!paths.includes(requiredPath)) {
+        missing.push(requiredPath);
+      }
+    }
+
+    if (!paths.some((path) => path.startsWith(`${skillPrefix}/assets/`))) {
+      missing.push(`${skillPrefix}/assets/`);
+    }
+
+    if (!paths.some((path) => path.startsWith(`${skillPrefix}/references/`))) {
+      missing.push(`${skillPrefix}/references/`);
+    }
+  }
+
+  if (missing.length > 0) {
+    throw new Error(`${assetName} is missing required Agent Skills entries: ${missing.join(", ")}`);
+  }
+}
+
+export function validateAgentSkillsArchiveContents({ assetName, archive, expectedVersion }) {
+  const paths = assetName.endsWith(".tar.gz")
+    ? listTarGzArchivePaths(archive)
+    : assetName.endsWith(".zip")
+      ? listZipArchivePaths(archive)
+      : undefined;
+
+  if (!paths) {
+    throw new Error(`Unsupported Agent Skills archive type: ${assetName}`);
+  }
+
+  validateAgentSkillsArchivePaths(paths, { assetName, expectedVersion });
 }
 
 function selectedPlatformAssetExtensions(platforms) {
@@ -441,6 +601,11 @@ async function verifyAgentSkillsArchives({ release, expectedVersion, options, te
       asset,
       assetPath,
       requireChecksum: options.requireChecksum,
+    });
+    validateAgentSkillsArchiveContents({
+      archive: await readFile(assetPath),
+      assetName: asset.name,
+      expectedVersion,
     });
 
     if (options.requireAttestations) {

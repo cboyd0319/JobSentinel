@@ -1,13 +1,19 @@
 import assert from "node:assert/strict";
+import { dirname, resolve } from "node:path";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
+import { buildSkillsTarGz, buildSkillsZip } from "./package-agent-skills.mjs";
 import {
   findAgentSkillsArchiveAssets,
   findPlatformInstallerAssets,
   parseArgs,
+  validateAgentSkillsArchiveContents,
   validateExactAgentSkillsAssetSet,
   validatePublicReleaseSupplyChain,
   validateExactPublicInstallerAssetSet,
 } from "./verify-public-release-assets.mjs";
+
+const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 test("public release verifier defaults to all supported platforms", () => {
   assert.deepEqual(parseArgs([]), {
@@ -197,6 +203,50 @@ test("public release verifier rejects stale Agent Skills assets", () => {
         { expectedVersion: "2.9.0" },
       ),
     /stale or unexpected Agent Skills assets.*JobSentinel-2\.8\.0-agent-skills\.zip/,
+  );
+});
+
+test("public release verifier validates generated Agent Skills archive contents", () => {
+  assert.doesNotThrow(() =>
+    validateAgentSkillsArchiveContents({
+      archive: buildSkillsTarGz(repoRoot, "JobSentinel-9.9.9-agent-skills"),
+      assetName: "JobSentinel-9.9.9-agent-skills.tar.gz",
+      expectedVersion: "9.9.9",
+    }),
+  );
+
+  assert.doesNotThrow(() =>
+    validateAgentSkillsArchiveContents({
+      archive: buildSkillsZip(repoRoot, "JobSentinel-9.9.9-agent-skills"),
+      assetName: "JobSentinel-9.9.9-agent-skills.zip",
+      expectedVersion: "9.9.9",
+    }),
+  );
+});
+
+test("public release verifier rejects corrupted Agent Skills ZIP entries", () => {
+  const archive = Buffer.from(buildSkillsZip(repoRoot, "JobSentinel-9.9.9-agent-skills"));
+  let offset = 0;
+  while (offset + 30 <= archive.length && archive.readUInt32LE(offset) === 0x04034b50) {
+    const compressedSize = archive.readUInt32LE(offset + 18);
+    const nameLength = archive.readUInt16LE(offset + 26);
+    const extraLength = archive.readUInt16LE(offset + 28);
+    const bodyStart = offset + 30 + nameLength + extraLength;
+    if (compressedSize > 0) {
+      archive[bodyStart] ^= 0xff;
+      break;
+    }
+    offset = bodyStart + compressedSize;
+  }
+
+  assert.throws(
+    () =>
+      validateAgentSkillsArchiveContents({
+        archive,
+        assetName: "JobSentinel-9.9.9-agent-skills.zip",
+        expectedVersion: "9.9.9",
+      }),
+    /CRC mismatch|invalid|unexpected end/i,
   );
 });
 
