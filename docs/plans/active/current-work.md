@@ -140,8 +140,8 @@ Out of scope:
   overrides, scraper SSRF/DNS-pinning, deps, Browser Import, resume intake, URL
   handling, release cache/exact assets, lockfiles, AI obfuscation, declarative
   skills, Linux metadata, sandboxed previews, secure deletion, and query plans.
-- Final whole-UI post-design pass: 266/266 pinned-runtime E2E, 16 route
-  inventories, and no console/page errors or overflow.
+- Final whole-UI post-design pass: 266/266 post-security-hardening E2E, 16
+  route inventories, and no console/page errors or overflow.
 - Final non-`content/` audit fixes landed: memory-only company research,
   accessible onboarding, auto-refresh gating, atomic alert claims, HTTPS
   JobsWithGPT endpoints, shared import hashes, and `2.9.0` metadata/changelog.
