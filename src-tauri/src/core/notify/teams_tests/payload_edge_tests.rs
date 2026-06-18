@@ -345,15 +345,6 @@ fn test_message_card_context_url() {
 }
 
 #[test]
-fn test_activity_image_url_format() {
-    let image_url = "https://raw.githubusercontent.com/cboyd0319/JobSentinel/main/assets/icon.png";
-    assert!(image_url.starts_with("https://"));
-    assert!(image_url.ends_with(".png"));
-    assert!(image_url.contains("JobSentinel"));
-    assert!(image_url.contains("github"));
-}
-
-#[test]
 fn test_sections_array_structure() {
     let notification = create_test_notification();
 
@@ -361,7 +352,6 @@ fn test_sections_array_structure() {
         {
             "activityTitle": format!("**{}**", notification.job.title),
             "activitySubtitle": format!("{} • {}", notification.job.company, notification.job.source),
-            "activityImage": "https://raw.githubusercontent.com/cboyd0319/JobSentinel/main/assets/icon.png",
             "facts": [],
             "text": "Sample text"
         }
@@ -371,9 +361,18 @@ fn test_sections_array_structure() {
     assert_eq!(array.len(), 1);
     assert!(array[0].get("activityTitle").is_some());
     assert!(array[0].get("activitySubtitle").is_some());
-    assert!(array[0].get("activityImage").is_some());
+    assert!(array[0].get("activityImage").is_none());
     assert!(array[0].get("facts").is_some());
     assert!(array[0].get("text").is_some());
+}
+
+#[test]
+fn test_payload_omits_remote_activity_image() {
+    let payload = build_teams_payload(&create_test_notification());
+    let section = &payload["sections"][0];
+
+    assert!(section.get("activityImage").is_none());
+    assert!(!payload.to_string().contains("raw.githubusercontent.com"));
 }
 
 #[test]

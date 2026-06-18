@@ -252,14 +252,6 @@ fn test_score_percentage_precision() {
 }
 
 #[test]
-fn test_thumbnail_url_validation() {
-    let thumbnail_url =
-        "https://raw.githubusercontent.com/cboyd0319/JobSentinel/main/assets/icon.png";
-    assert!(thumbnail_url.starts_with("https://"));
-    assert!(thumbnail_url.ends_with(".png"));
-}
-
-#[test]
 fn test_timestamp_rfc3339_components() {
     let timestamp = chrono::Utc::now().to_rfc3339();
     assert!(timestamp.contains('T'));
@@ -268,16 +260,13 @@ fn test_timestamp_rfc3339_components() {
 }
 
 #[test]
-fn test_embed_with_thumbnail_structure() {
-    let mut embed = json!({"title": "Test"});
-    embed["thumbnail"] = json!({
-        "url": "https://raw.githubusercontent.com/cboyd0319/JobSentinel/main/assets/icon.png"
-    });
-    assert!(embed.get("thumbnail").is_some());
-    assert_eq!(
-        embed["thumbnail"]["url"],
-        "https://raw.githubusercontent.com/cboyd0319/JobSentinel/main/assets/icon.png"
-    );
+fn test_payload_omits_remote_thumbnail() {
+    let config = DiscordConfig::default();
+    let payload = build_discord_payload(&config, &create_test_notification());
+    let embed = &payload["embeds"][0];
+
+    assert!(embed.get("thumbnail").is_none());
+    assert!(!payload.to_string().contains("raw.githubusercontent.com"));
 }
 
 #[test]

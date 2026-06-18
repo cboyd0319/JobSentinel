@@ -74,7 +74,6 @@ fn build_teams_payload(notification: &Notification) -> serde_json::Value {
             {
                 "activityTitle": format!("**{}**", job.title),
                 "activitySubtitle": format!("{} • {}", job.company, job.source),
-                "activityImage": "https://raw.githubusercontent.com/cboyd0319/JobSentinel/main/assets/icon.png",
                 "facts": [
                     {
                         "name": "Location:",

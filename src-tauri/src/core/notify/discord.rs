@@ -101,10 +101,6 @@ fn build_discord_payload(config: &DiscordConfig, notification: &Notification) ->
         embed["url"] = json!(href);
     }
 
-    embed["thumbnail"] = json!({
-        "url": "https://raw.githubusercontent.com/cboyd0319/JobSentinel/main/assets/icon.png"
-    });
-
     let mut payload = json!({
         "embeds": [embed]
     });

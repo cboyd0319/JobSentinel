@@ -357,16 +357,6 @@ fn test_payload_with_mention() {
 }
 
 #[test]
-fn test_thumbnail_url_structure() {
-    let thumbnail = json!({
-        "url": "https://raw.githubusercontent.com/cboyd0319/JobSentinel/main/assets/icon.png"
-    });
-
-    assert!(thumbnail.get("url").is_some());
-    assert!(thumbnail["url"].as_str().unwrap().starts_with("https://"));
-}
-
-#[test]
 fn test_embed_url_field() {
     let notification = create_test_notification();
     assert_eq!(notification.job.url, "https://example.com/jobs/123");

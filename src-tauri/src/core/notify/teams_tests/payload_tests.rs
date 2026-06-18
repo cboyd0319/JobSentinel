@@ -33,7 +33,6 @@ fn test_full_message_card_payload_structure() {
             {
                 "activityTitle": format!("**{}**", job.title),
                 "activitySubtitle": format!("{} • {}", job.company, job.source),
-                "activityImage": "https://raw.githubusercontent.com/cboyd0319/JobSentinel/main/assets/icon.png",
                 "facts": [
                     {
                         "name": "Location:",
@@ -362,13 +361,6 @@ fn test_webhook_url_with_username_fails() {
 }
 
 #[test]
-fn test_activity_image_url() {
-    let image_url = "https://raw.githubusercontent.com/cboyd0319/JobSentinel/main/assets/icon.png";
-    assert!(image_url.starts_with("https://"));
-    assert!(image_url.contains("JobSentinel"));
-}
-
-#[test]
 fn test_message_card_text_formatting() {
     let notification = create_test_notification();
     let text = format!(
@@ -528,7 +520,6 @@ fn test_full_payload_with_all_none_optional_fields() {
             {
                 "activityTitle": format!("**{}**", job.title),
                 "activitySubtitle": format!("{} • {}", job.company, job.source),
-                "activityImage": "https://raw.githubusercontent.com/cboyd0319/JobSentinel/main/assets/icon.png",
                 "facts": [
                     {
                         "name": "Location:",
