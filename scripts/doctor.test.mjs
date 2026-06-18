@@ -142,14 +142,14 @@ test("formatDoctorResults prints actionable status lines", () => {
     {
       status: "fail",
       label: "npm dependencies",
-      detail: "Run node scripts/install-pinned-npm.mjs, then npm ci",
+      detail: "Run node scripts/install-pinned-npm.mjs, then npm ci --ignore-scripts",
     },
   ]);
 
   assert.match(output, /PASS Node\.js runtime: v22\.21\.1/);
   assert.match(
     output,
-    /FAIL npm dependencies: Run node scripts\/install-pinned-npm\.mjs, then npm ci/,
+    /FAIL npm dependencies: Run node scripts\/install-pinned-npm\.mjs, then npm ci --ignore-scripts/,
   );
   assert.match(output, /Environment not ready: 1 failure\(s\), 0 warning\(s\)\./);
 });

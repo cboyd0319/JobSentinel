@@ -25,7 +25,7 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 # `package.json` pins npm 11.17.0.
 
 # Tauri CLI
-# `npm ci` installs the repo-local CLI from @tauri-apps/cli.
+# `npm ci --ignore-scripts` installs the repo-local CLI from @tauri-apps/cli.
 # Use `npm run tauri:*` scripts or `npx --no-install tauri` from the repo root.
 ```
 
