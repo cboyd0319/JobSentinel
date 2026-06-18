@@ -218,16 +218,16 @@ before upload, including manual release dispatch for `platform=linux`.
 
 The `Verify Release Artifacts` GitHub Actions workflow also runs after a
 release is published. Its Linux job verifies the public Windows, macOS, and
-Linux asset set from GitHub Releases: expected installer assets with exact
-release-version filename segments, matching
-`.sha256` files, non-empty downloads, public SBOM manifest binding, SBOM digest
-verification, and GitHub artifact attestations for SLSA provenance plus the
-SPDX SBOM predicate. Its macOS job then verifies the public macOS DMG with
-no-account defaults: universal `x86_64,arm64` architecture checks, checksum
-verification, signature verification, bundle identity, release-tag version,
-icon metadata and resource file, macOS 13.0 minimum-system metadata,
-mounted-app launch smoke, installed-app launch smoke, isolated local database
-creation, and a visible `_no-account_` filename label.
+Linux asset set from GitHub Releases: exactly the expected installer and
+checksum assets for verified platforms, exact release-version filename
+segments, matching `.sha256` files, non-empty downloads, public SBOM manifest
+binding, SBOM digest verification, and GitHub artifact attestations for SLSA
+provenance plus the SPDX SBOM predicate. Its macOS job then verifies the public
+macOS DMG with no-account defaults: universal `x86_64,arm64` architecture
+checks, checksum verification, signature verification, bundle identity,
+release-tag version, icon metadata and resource file, macOS 13.0
+minimum-system metadata, mounted-app launch smoke, installed-app launch smoke,
+isolated local database creation, and a visible `_no-account_` filename label.
 Gatekeeper acceptance is opt-in with the `require_gatekeeper` workflow input or
 `JOBSENTINEL_MACOS_REQUIRE_GATEKEEPER` repository variable, and should be used
 for Developer ID signed and notarized releases. In that mode, the verifier

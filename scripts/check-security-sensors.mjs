@@ -253,6 +253,17 @@ const publishedReleaseWorkflowChecks = [
   },
 ];
 
+const publicReleaseVerifierChecks = [
+  {
+    label: "exact public installer asset set",
+    phrases: [
+      "validateExactPublicInstallerAssetSet",
+      "selectedPlatformAssetExtensions",
+      "stale or unexpected installer assets",
+    ],
+  },
+];
+
 const credentialUiGateFiles = [
   "src/pages/SettingsNotificationsSection.tsx",
   "src/pages/SettingsJobSourcesSection.tsx",
@@ -418,6 +429,7 @@ export function formatSecuritySensorSummary() {
     `release-workflow=${releaseWorkflowChecks.length}`,
     `release-preflight=${releasePreflightChecks.length}`,
     `published-release-workflow=${publishedReleaseWorkflowChecks.length}`,
+    `public-release-verifier=${publicReleaseVerifierChecks.length}`,
     "ci=2",
     `ci-docs=${ciDocsChecks.length}`,
     `dependabot=${dependabotGovernanceChecks.length}`,
@@ -511,6 +523,17 @@ export function checkSecuritySensors(root = defaultRoot) {
       violations.push(
         `published release workflow is missing public artifact gate: ${check.label}`,
       );
+    }
+  }
+
+  const publicReleaseVerifier = readIfExists(
+    root,
+    "scripts/verify-public-release-assets.mjs",
+    violations,
+  );
+  for (const check of publicReleaseVerifierChecks) {
+    if (!includesAll(publicReleaseVerifier, check.phrases)) {
+      violations.push(`public release verifier is missing artifact gate: ${check.label}`);
     }
   }
 

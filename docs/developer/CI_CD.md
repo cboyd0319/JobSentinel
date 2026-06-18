@@ -215,6 +215,11 @@ dependency advisory checks already block CI and release preflight. This keeps
 the post-publish verifier focused on the downloadable assets, checksums, SBOMs,
 and attestations.
 
+For each verified platform, the public verifier rejects stale installer or
+checksum assets left on the release tag. A published `2.9.0` release must not
+carry an older `.msi`, `.dmg`, `.AppImage`, `.deb`, or matching checksum for a
+platform included in the verification run.
+
 The public macOS verifier defaults to the current no-Apple-account release
 path: expected JobSentinel bundle id, product name, icon metadata and resource
 file, release-tag version, macOS 13.0 minimum-system metadata, universal
@@ -362,7 +367,8 @@ default supply-chain check.
 For a complete local release, build Windows and Linux installers on native
 hosts or VMs from the same tag, then attach those assets to the same release.
 Do not publish a release as complete until all advertised platform assets are
-present and verified. Windows MSI assets must pass
+present and verified, with stale installer and checksum assets removed from the
+tag. Windows MSI assets must pass
 `Get-AuthenticodeSignature` with status `Valid` and have a matching
 `.msi.sha256` checksum before upload. Linux assets must include exactly one
 non-empty `.AppImage` and one non-empty `.deb`, filenames must include the

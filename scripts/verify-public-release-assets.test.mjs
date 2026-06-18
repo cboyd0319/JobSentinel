@@ -4,6 +4,7 @@ import {
   findPlatformInstallerAssets,
   parseArgs,
   validatePublicReleaseSupplyChain,
+  validateExactPublicInstallerAssetSet,
 } from "./verify-public-release-assets.mjs";
 
 test("public release verifier defaults to all supported platforms", () => {
@@ -83,6 +84,49 @@ test("public release verifier rejects missing or duplicate installer assets", ()
   assert.throws(
     () => findPlatformInstallerAssets({ assets: [] }, { platform: "windows", expectedVersion: "2.9.0" }),
     /Expected exactly one windows .msi asset/,
+  );
+});
+
+test("public release verifier rejects stale selected-platform installers and checksums", () => {
+  const release = {
+    assets: [
+      { name: "JobSentinel-Windows-v2.9.0-x64.msi", browser_download_url: "https://example.invalid/win" },
+      { name: "JobSentinel-Windows-v2.9.0-x64.msi.sha256", browser_download_url: "https://example.invalid/win.sha256" },
+      { name: "JobSentinel-Windows-v2.8.0-x64.msi", browser_download_url: "https://example.invalid/old-win" },
+      { name: "JobSentinel_2.8.0_no-account_universal.dmg.sha256", browser_download_url: "https://example.invalid/old-mac-sha" },
+      { name: "JobSentinel-2.9.0-windows.sbom.spdx.json", browser_download_url: "https://example.invalid/sbom" },
+    ],
+  };
+  const expectedAssets = [
+    { name: "JobSentinel-Windows-v2.9.0-x64.msi" },
+    { name: "JobSentinel_2.9.0_no-account_universal.dmg" },
+  ];
+
+  assert.throws(
+    () =>
+      validateExactPublicInstallerAssetSet(release, {
+        platforms: ["windows", "macos"],
+        expectedAssets,
+      }),
+    /stale or unexpected installer assets.*JobSentinel-Windows-v2\.8\.0-x64\.msi.*JobSentinel_2\.8\.0_no-account_universal\.dmg\.sha256/,
+  );
+});
+
+test("public release verifier exact asset set honors scoped platforms", () => {
+  assert.doesNotThrow(() =>
+    validateExactPublicInstallerAssetSet(
+      {
+        assets: [
+          { name: "JobSentinel-Windows-v2.8.0-x64.msi", browser_download_url: "https://example.invalid/old-win" },
+          { name: "JobSentinel_2.9.0_no-account_universal.dmg", browser_download_url: "https://example.invalid/mac" },
+          { name: "JobSentinel_2.9.0_no-account_universal.dmg.sha256", browser_download_url: "https://example.invalid/mac-sha" },
+        ],
+      },
+      {
+        platforms: ["macos"],
+        expectedAssets: [{ name: "JobSentinel_2.9.0_no-account_universal.dmg" }],
+      },
+    ),
   );
 });
 

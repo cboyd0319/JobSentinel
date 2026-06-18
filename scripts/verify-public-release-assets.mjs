@@ -140,6 +140,41 @@ export function findPlatformInstallerAssets(release, { platform, expectedVersion
   });
 }
 
+function selectedPlatformAssetExtensions(platforms) {
+  return new Set(
+    platforms.flatMap((platform) => platformSpec(platform).map(({ extension }) => extension)),
+  );
+}
+
+function selectedAssetExtension(name, selectedExtensions) {
+  for (const extension of selectedExtensions) {
+    if (name.endsWith(extension) || name.endsWith(`${extension}.sha256`)) {
+      return extension;
+    }
+  }
+
+  return undefined;
+}
+
+export function validateExactPublicInstallerAssetSet(release, { platforms, expectedAssets }) {
+  const assets = Array.isArray(release?.assets) ? release.assets : [];
+  const selectedExtensions = selectedPlatformAssetExtensions(platforms);
+  const expectedNames = new Set(
+    expectedAssets.flatMap((asset) => [asset.name, `${asset.name}.sha256`]),
+  );
+  const unexpected = assets
+    .map((asset) => (typeof asset?.name === "string" ? asset.name : ""))
+    .filter(Boolean)
+    .filter((name) => selectedAssetExtension(name, selectedExtensions))
+    .filter((name) => !expectedNames.has(name));
+
+  if (unexpected.length > 0) {
+    throw new Error(
+      `Release contains stale or unexpected installer assets for selected platforms: ${unexpected.join(", ")}`,
+    );
+  }
+}
+
 async function sha256File(path) {
   const data = await readFile(path);
   return createHash("sha256").update(data).digest("hex");
@@ -303,8 +338,7 @@ async function verifySupplyChain({
   }
 }
 
-async function verifyPlatform({ release, platform, expectedVersion, options, tempRoot }) {
-  const assets = findPlatformInstallerAssets(release, { platform, expectedVersion });
+async function verifyPlatform({ release, platform, expectedVersion, options, tempRoot, assets }) {
   const assetDigests = {};
   const assetPaths = [];
 
@@ -354,8 +388,26 @@ export async function verifyPublicReleaseAssets(options) {
 
   const tempRoot = mkdtempSync(join(tmpdir(), "jobsentinel-public-release-"));
   try {
+    const platformAssets = new Map(
+      options.platforms.map((platform) => [
+        platform,
+        findPlatformInstallerAssets(release, { platform, expectedVersion }),
+      ]),
+    );
+    validateExactPublicInstallerAssetSet(release, {
+      platforms: options.platforms,
+      expectedAssets: [...platformAssets.values()].flat(),
+    });
+
     for (const platform of options.platforms) {
-      await verifyPlatform({ release, platform, expectedVersion, options, tempRoot });
+      await verifyPlatform({
+        release,
+        platform,
+        expectedVersion,
+        options,
+        tempRoot,
+        assets: platformAssets.get(platform),
+      });
     }
   } finally {
     rmSync(tempRoot, { recursive: true, force: true });

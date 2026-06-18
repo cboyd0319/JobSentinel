@@ -12,6 +12,7 @@ function writeBaseRepo(root, csp) {
   mkdirSync(join(root, "docs/developer"), { recursive: true });
   mkdirSync(join(root, ".github/workflows"), { recursive: true });
   mkdirSync(join(root, ".github"), { recursive: true });
+  mkdirSync(join(root, "scripts"), { recursive: true });
   mkdirSync(join(root, "src-tauri"), { recursive: true });
   mkdirSync(join(root, "src/pages"), { recursive: true });
 
@@ -75,6 +76,15 @@ function writeBaseRepo(root, csp) {
       "          RELEASE_TAG=\"$RELEASE_TAG\"",
       "          DISPATCH_TAG=\"$DISPATCH_TAG\"",
       "          npm run tauri:verify:macos:latest -- --tag \"$RELEASE_TAG\" --require-supply-chain",
+    ].join("\n"),
+  );
+  writeFileSync(
+    join(root, "scripts/verify-public-release-assets.mjs"),
+    [
+      "function selectedPlatformAssetExtensions() {}",
+      "export function validateExactPublicInstallerAssetSet() {",
+      "  throw new Error('stale or unexpected installer assets');",
+      "}",
     ].join("\n"),
   );
   writeFileSync(
@@ -550,6 +560,24 @@ test("checkSecuritySensors rejects missing public macOS artifact verifier", () =
   assert(
     checkSecuritySensors(root).includes(
       "published release workflow is missing public artifact gate: public macOS artifact verifier",
+    ),
+  );
+});
+
+test("checkSecuritySensors rejects public release verifier without exact asset-set guard", () => {
+  const root = mkdtempRoot("jobsentinel-security-sensors-public-release-assets-");
+  writeBaseRepo(
+    root,
+    "default-src 'self'; connect-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'",
+  );
+  writeFileSync(
+    join(root, "scripts/verify-public-release-assets.mjs"),
+    "export function findPlatformInstallerAssets() {}\n",
+  );
+
+  assert(
+    checkSecuritySensors(root).includes(
+      "public release verifier is missing artifact gate: exact public installer asset set",
     ),
   );
 });
