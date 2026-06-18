@@ -13,6 +13,7 @@ import { useToast } from "../hooks/useToast";
 import { safeInvoke, safeInvokeWithToast } from "../utils/api";
 import { getSafeErrorToastCopy } from "../utils/safeErrorCopy";
 import { hasStoredResumeJobContext } from "../utils/resumeJobContext";
+import { mapSkillProficiencyLevel } from "../shared/resumeSkillUiTaxonomy";
 import {
   canProceedResumeBuilderStep,
   getResumeBuilderStepValidationMessage,
@@ -403,7 +404,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
       const importedSkills: SkillEntry[] = userSkills.map((skill) => ({
         name: skill.skill_name,
         category: skill.skill_category || "General",
-        proficiency: mapProficiencyLevel(skill.proficiency_level),
+        proficiency: mapSkillProficiencyLevel(skill.proficiency_level),
       }));
 
       // Merge with existing skills (avoid duplicates)
@@ -427,19 +428,6 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
     } finally {
       setImportingSkills(false);
     }
-  };
-
-  // Map proficiency level from UserSkill to builder format
-  const mapProficiencyLevel = (
-    level: string | null
-  ): "beginner" | "intermediate" | "advanced" | "expert" | null => {
-    if (!level) return null;
-    const normalized = level.toLowerCase();
-    if (normalized.includes("expert") || normalized.includes("advanced")) return "expert";
-    if (normalized.includes("intermediate") || normalized.includes("proficient"))
-      return "intermediate";
-    if (normalized.includes("beginner") || normalized.includes("basic")) return "beginner";
-    return "intermediate"; // Default fallback
   };
 
   // Preview handlers

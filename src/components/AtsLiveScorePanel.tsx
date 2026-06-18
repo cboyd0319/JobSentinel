@@ -15,6 +15,7 @@ import { Modal, ModalFooter } from "./Modal";
 import { Tooltip } from "./Tooltip";
 import { logError } from "../utils/errorUtils";
 import { getUserFriendlyError } from "../utils/errorMessages";
+import type { SkillProficiency } from "../shared/resumeSkillUiTaxonomy";
 import {
   getScoreBg,
   getScoreColor,
@@ -71,7 +72,7 @@ interface Education {
 interface SkillEntry {
   name: string;
   category: string;
-  proficiency: "beginner" | "intermediate" | "advanced" | "expert" | null;
+  proficiency: SkillProficiency | null;
 }
 
 interface ResumeData {

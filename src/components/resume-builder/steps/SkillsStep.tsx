@@ -1,23 +1,20 @@
 import { memo } from "react";
 import { Button } from "../../Button";
 import { CardHeader } from "../../Card";
-
-const SKILL_STRENGTH_VALUES = ["beginner", "intermediate", "advanced", "expert"] as const;
-const SKILL_STRENGTH_LABELS: Record<(typeof SKILL_STRENGTH_VALUES)[number], string> = {
-  beginner: "Learning",
-  intermediate: "Some practice",
-  advanced: "Regular use",
-  expert: "Can train others",
-};
+import {
+  SKILL_PROFICIENCY_LABELS,
+  SKILL_PROFICIENCY_VALUES,
+  type SkillProficiency,
+} from "../../../shared/resumeSkillUiTaxonomy";
 
 interface SkillEntry {
   name: string;
   category: string;
-  proficiency: "beginner" | "intermediate" | "advanced" | "expert" | null;
+  proficiency: SkillProficiency | null;
 }
 
 function getSkillStrengthLabel(proficiency: SkillEntry["proficiency"]) {
-  return proficiency ? SKILL_STRENGTH_LABELS[proficiency] : "";
+  return proficiency ? SKILL_PROFICIENCY_LABELS[proficiency] : "";
 }
 
 interface SkillsStepProps {
@@ -96,9 +93,9 @@ const SkillsStep = memo(function SkillsStep({
               className="flex-1 px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
             >
               <option value="">Select strength</option>
-              {SKILL_STRENGTH_VALUES.map((level) => (
+              {SKILL_PROFICIENCY_VALUES.map((level) => (
                 <option key={level} value={level}>
-                  {SKILL_STRENGTH_LABELS[level]}
+                  {SKILL_PROFICIENCY_LABELS[level]}
                 </option>
               ))}
             </select>

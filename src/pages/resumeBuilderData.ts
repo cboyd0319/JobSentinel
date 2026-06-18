@@ -1,3 +1,9 @@
+import {
+  SKILL_PROFICIENCY_LABELS,
+  SKILL_PROFICIENCY_VALUES,
+  type SkillProficiency,
+} from "../shared/resumeSkillUiTaxonomy";
+
 export interface Resume {
   id: number;
   name: string;
@@ -56,7 +62,7 @@ export interface Education {
 export interface SkillEntry {
   name: string;
   category: string;
-  proficiency: "beginner" | "intermediate" | "advanced" | "expert" | null;
+  proficiency: SkillProficiency | null;
 }
 
 export interface Certification {
@@ -314,22 +320,12 @@ export const STEPS = [
   { id: 7, name: "Export", description: "Download resume" },
 ];
 
-export const SKILL_STRENGTH_VALUES = [
-  "beginner",
-  "intermediate",
-  "advanced",
-  "expert",
-] as const;
+export const SKILL_STRENGTH_VALUES = SKILL_PROFICIENCY_VALUES;
 
 export const SKILL_STRENGTH_LABELS: Record<
   (typeof SKILL_STRENGTH_VALUES)[number],
   string
-> = {
-  beginner: "Learning",
-  intermediate: "Some practice",
-  advanced: "Regular use",
-  expert: "Can train others",
-};
+> = SKILL_PROFICIENCY_LABELS;
 
 export function getSkillStrengthLabel(
   proficiency: SkillEntry["proficiency"],

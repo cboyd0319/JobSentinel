@@ -1,46 +1,22 @@
+import {
+  DEFAULT_SKILL_STRENGTH,
+  RESUME_SKILL_CATEGORIES,
+  SKILL_STRENGTH_COLORS as SHARED_SKILL_STRENGTH_COLORS,
+  SKILL_STRENGTH_LABELS as SHARED_SKILL_STRENGTH_LABELS,
+  SKILL_STRENGTH_OPTIONS,
+} from "../shared/resumeSkillUiTaxonomy";
+
 type BadgeVariant = "sentinel" | "alert" | "surface" | "success" | "danger";
 
 export type { BadgeVariant };
 
-export const SKILL_STRENGTH_COLORS: Record<string, BadgeVariant> = {
-  "can train others": "sentinel",
-  "regular use": "alert",
-  "some practice": "surface",
-  learning: "surface",
-  expert: "sentinel",
-  advanced: "alert",
-  intermediate: "surface",
-  beginner: "surface",
-};
+export { DEFAULT_SKILL_STRENGTH, SKILL_STRENGTH_OPTIONS };
 
-export const SKILL_STRENGTH_LABELS: Record<string, string> = {
-  beginner: "Learning",
-  intermediate: "Some practice",
-  proficient: "Regular use",
-  advanced: "Regular use",
-  expert: "Can train others",
-};
-
-export const SKILL_STRENGTH_OPTIONS = [
-  { value: "Learning", label: "Learning" },
-  { value: "Some practice", label: "Some practice" },
-  { value: "Regular use", label: "Regular use" },
-  { value: "Can train others", label: "Can train others" },
-] as const;
-
-export const DEFAULT_SKILL_STRENGTH = "Regular use";
-
-export const SKILL_CATEGORIES = [
-  "Work Skills",
-  "Tools and Systems",
-  "People and Communication",
-  "Customer or Patient Support",
-  "Operations and Administration",
-  "Leadership",
-  "Languages",
-  "Licenses and Credentials",
-  "Other",
-];
+export const SKILL_STRENGTH_COLORS: Record<string, BadgeVariant> =
+  SHARED_SKILL_STRENGTH_COLORS;
+export const SKILL_STRENGTH_LABELS: Record<string, string> =
+  SHARED_SKILL_STRENGTH_LABELS;
+export const SKILL_CATEGORIES = [...RESUME_SKILL_CATEGORIES];
 
 export interface ResumeData {
   id: number;
