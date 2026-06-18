@@ -13,6 +13,10 @@ use super::page::AutomationPage;
 
 const BROWSER_CONFIG_ERROR: &str = "Could not prepare browser settings for guided form filling";
 
+fn automation_browser_launch_args() -> &'static [&'static str] {
+    &[]
+}
+
 /// Browser manager for automation
 pub struct BrowserManager {
     browser: Arc<Mutex<Option<Browser>>>,
@@ -43,15 +47,14 @@ impl BrowserManager {
         }
 
         // Configure browser for visible mode (not headless)
-        let config = BrowserConfig::builder()
+        let mut config_builder = BrowserConfig::builder()
             .window_size(1280, 900)
             // Visible mode - user can see form being filled
-            .with_head()
-            // Disable sandbox for compatibility
-            .arg("--no-sandbox")
-            .arg("--disable-setuid-sandbox")
-            // Disable automation detection where possible
-            .arg("--disable-blink-features=AutomationControlled")
+            .with_head();
+        for arg in automation_browser_launch_args() {
+            config_builder = config_builder.arg(*arg);
+        }
+        let config = config_builder
             .build()
             .map_err(|_| anyhow::anyhow!(BROWSER_CONFIG_ERROR))?;
 
@@ -159,6 +162,14 @@ mod tests {
         assert!(!BROWSER_CONFIG_ERROR.contains("Chrome"));
         assert!(!BROWSER_CONFIG_ERROR.contains("--"));
         assert!(!BROWSER_CONFIG_ERROR.contains(&format!("/{}/", "Users")));
+    }
+
+    #[test]
+    fn browser_launch_args_keep_sandbox_and_automation_visibility() {
+        let args = automation_browser_launch_args();
+        assert!(!args.contains(&"--no-sandbox"));
+        assert!(!args.contains(&"--disable-setuid-sandbox"));
+        assert!(!args.contains(&"--disable-blink-features=AutomationControlled"));
     }
 
     #[tokio::test]
