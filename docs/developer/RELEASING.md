@@ -217,7 +217,8 @@ before upload, including manual release dispatch for `platform=linux`.
 
 The `Verify Release Artifacts` GitHub Actions workflow also runs after a
 release is published. Its Linux job verifies the public Windows, macOS, and
-Linux asset set from GitHub Releases: expected installer assets, matching
+Linux asset set from GitHub Releases: expected installer assets with exact
+release-version filename segments, matching
 `.sha256` files, non-empty downloads, public SBOM manifest binding, SBOM digest
 verification, and GitHub artifact attestations for SLSA provenance plus the
 SPDX SBOM predicate. Its macOS job then verifies the public macOS DMG with

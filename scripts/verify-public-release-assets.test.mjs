@@ -86,6 +86,34 @@ test("public release verifier rejects missing or duplicate installer assets", ()
   );
 });
 
+test("public release verifier requires exact version filename segment", () => {
+  assert.throws(
+    () =>
+      findPlatformInstallerAssets(
+        {
+          assets: [
+            { name: "JobSentinel_12.9.0_x64_en-US.msi", browser_download_url: "https://example.invalid/win" },
+            { name: "JobSentinel_2.9.0.1_x64_en-US.msi", browser_download_url: "https://example.invalid/win-patch" },
+          ],
+        },
+        { platform: "windows", expectedVersion: "2.9.0" },
+      ),
+    /Expected exactly one windows .msi asset/,
+  );
+
+  assert.equal(
+    findPlatformInstallerAssets(
+      {
+        assets: [
+          { name: "JobSentinel-Windows-v2.9.0-x64.msi", browser_download_url: "https://example.invalid/win" },
+        ],
+      },
+      { platform: "windows", expectedVersion: "2.9.0" },
+    )[0].name,
+    "JobSentinel-Windows-v2.9.0-x64.msi",
+  );
+});
+
 test("public release verifier validates SBOM manifest binding to every installer asset", () => {
   const digest = "0".repeat(64);
   assert.doesNotThrow(() =>

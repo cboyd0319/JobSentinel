@@ -90,8 +90,8 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   company research, accessible onboarding, auto-refresh gating, atomic alert
   claims, HTTPS JobsWithGPT endpoints, shared import hashes, and metadata.
 - Last pushed v2.9.0 readiness baseline had CI passing before local follow-up.
-  Current local work adds release SBOMs/manifests, GitHub attestations, public
-  macOS supply-chain checks, Browser Import API hardening, local-model pins,
+  Current local work adds release SBOMs/manifests, exact-version asset checks,
+  GitHub attestations, macOS supply-chain checks, import hardening, model pins,
   macOS dependency trimming, and Linux Debian WebKitGTK 4.1 metadata.
   Gatekeeper-ready macOS remains Apple-blocked. Public wiki `Home.md` and
   `Capabilities.md` are stale and need approval before wiki remote writes.

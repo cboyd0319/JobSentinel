@@ -230,8 +230,9 @@ Inputs:
 Manual runs still execute the release preflight before packaging. Windows MSI
 upload is blocked unless the MSI has a valid Authenticode signature. Linux
 uploads are blocked unless exactly one AppImage and one Debian package exist,
-both filenames include the release version, both files are non-empty, Debian
-metadata can be inspected, and matching checksums are generated.
+both filenames include the exact release-version segment, both files are
+non-empty, Debian metadata can be inspected, and matching checksums are
+generated.
 
 ---
 

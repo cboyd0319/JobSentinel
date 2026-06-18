@@ -92,9 +92,15 @@ function githubFetchHeaders({
 }
 
 function assetNameMatchesVersion(name, expectedVersion) {
-  return String(name ?? "")
-    .toLowerCase()
-    .includes(String(expectedVersion ?? "").toLowerCase());
+  const version = String(expectedVersion ?? "").trim().replace(/^v/i, "");
+  if (!version) {
+    return false;
+  }
+
+  const escapedVersion = version.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`(^|[^0-9a-z.])v?${escapedVersion}($|[^0-9a-z.])`, "i").test(
+    String(name ?? ""),
+  );
 }
 
 function platformSpec(platform) {
