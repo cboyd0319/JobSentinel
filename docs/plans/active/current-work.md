@@ -150,8 +150,7 @@ Out of scope:
 
 1. Get approval before updating the public GitHub wiki, then sync `Home.md`
    and `Capabilities.md` with current `2.9.0` readiness.
-2. Verify Windows/macOS/Linux release evidence before any asset creation or
-   final push.
+2. Build/upload/verify `2.9.0` platform assets after approval and credentials.
 3. Confirm major route screenshots, Computer Use clicks, keyboard flow, and
    affected route/action/state checks after any further UI change before calling
    v2.9.0 done.

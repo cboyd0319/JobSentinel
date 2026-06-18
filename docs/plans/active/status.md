@@ -77,11 +77,11 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   routes; forced empty/loading/error checks passed across startup and setup.
 - Setup Wizard desktop/mobile, whole-UI post-design click/action coverage, and
   keyboard paths now have fresh Playwright evidence.
-- Fresh 2026-06-18 post-`e70e8b88` workflow/dependency gates pass:
-  actionlint, release readiness, version, latest deps/actions, docs, harness
-  score 100, scripts, security, bloat, npm audit, cargo-deny, doctor/e2e with Node 26 vs CI 24
-  warning. Earlier post-`4287830a` evidence covers frontend/Rust/E2E `266/266`
-  and macOS no-account 100% / full-public 94%.
+- Fresh 2026-06-18 post-`75bbbf49` local release gates pass:
+  version/readiness, latest deps/actions, actionlint, docs, harness score 100,
+  scripts, security, bloat, npm audit, doctor/e2e with Node 26 vs CI 24 warning,
+  frontend lint/build/tests `3100/3100`, Rust fmt/clippy/lib `2854/2854`,
+  macOS no-account 100% / full-public 94%, and E2E `266/266`.
 - Final non-`content/` expert/agent pass is applied locally: memory-only
   company research, accessible onboarding, auto-refresh gating, atomic alert
   claims, HTTPS JobsWithGPT endpoints, shared import hashes, and metadata.
@@ -107,8 +107,7 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 1. Get explicit approval to update the public GitHub wiki, then sync
    `Home.md` and `Capabilities.md` with the current `2.9.0` release, security,
    source-boundary, and capability posture.
-2. Verify `2.9.0` Windows/macOS/Linux release evidence before any asset
-   creation or final push.
+2. Build/upload/verify `2.9.0` platform assets after approval and credentials.
 3. Continue resume assistance only where it improves truthful requirement review,
    hard-constraint handling, readable evidence, or next-action guidance.
 4. Continue guided intake only where resume/profile suggestions stay optional,
