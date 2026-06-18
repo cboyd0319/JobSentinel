@@ -170,7 +170,7 @@ npm run tauri:verify:macos:latest
 # Developer ID signed and notarized release path:
 npm run tauri:verify:macos:latest -- --require-gatekeeper
 
-# Verify the public Windows, macOS, and Linux release asset set.
+# Verify the public Windows, macOS, Linux, and Agent Skills asset set.
 npm run release:verify:public -- --tag vX.Y.Z --platforms windows,macos,linux
 
 # Legacy releases without SBOM or attestation assets only:

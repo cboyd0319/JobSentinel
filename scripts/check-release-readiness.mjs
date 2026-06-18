@@ -57,6 +57,7 @@ export function loadReleaseReadinessInputs({
     readme: read(root, "README.md"),
     releaseDocs: read(root, "docs/developer/RELEASING.md"),
     releaseWorkflow: read(root, ".github/workflows/release.yml"),
+    verifyPublicScript: read(root, "scripts/verify-public-release-assets.mjs"),
     verifyWorkflow: read(root, ".github/workflows/verify-release-artifacts.yml"),
     versions: readReleaseVersions(root),
   };
@@ -146,8 +147,13 @@ export function evaluateReleaseReadinessFromInputs(inputs) {
         "--require-supply-chain",
         "npm run tauri:verify:macos:latest",
         "attestations: read",
-      ]),
-      "Published releases must verify platform assets, checksums, SBOMs, and attestations.",
+      ]) &&
+        hasAll(inputs.verifyPublicScript, [
+          "findAgentSkillsArchiveAssets",
+          "validateExactAgentSkillsAssetSet",
+          "Public Agent Skills archives verified.",
+        ]),
+      "Published releases must verify platform assets, skills archives, checksums, SBOMs, and attestations.",
     ),
     criterion(
       "release workflow generates SBOMs and attestations",

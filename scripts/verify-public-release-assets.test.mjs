@@ -1,8 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  findAgentSkillsArchiveAssets,
   findPlatformInstallerAssets,
   parseArgs,
+  validateExactAgentSkillsAssetSet,
   validatePublicReleaseSupplyChain,
   validateExactPublicInstallerAssetSet,
 } from "./verify-public-release-assets.mjs";
@@ -127,6 +129,74 @@ test("public release verifier exact asset set honors scoped platforms", () => {
         expectedAssets: [{ name: "JobSentinel_2.9.0_no-account_universal.dmg" }],
       },
     ),
+  );
+});
+
+test("public release verifier selects Agent Skills tarball and ZIP assets", () => {
+  const release = {
+    assets: [
+      {
+        name: "JobSentinel-2.9.0-agent-skills.tar.gz",
+        browser_download_url: "https://example.invalid/skills.tar.gz",
+      },
+      {
+        name: "JobSentinel-2.9.0-agent-skills.zip",
+        browser_download_url: "https://example.invalid/skills.zip",
+      },
+    ],
+  };
+
+  assert.deepEqual(
+    findAgentSkillsArchiveAssets(release, { expectedVersion: "2.9.0" }).map(
+      (asset) => asset.name,
+    ),
+    ["JobSentinel-2.9.0-agent-skills.tar.gz", "JobSentinel-2.9.0-agent-skills.zip"],
+  );
+});
+
+test("public release verifier rejects missing or non-HTTPS Agent Skills assets", () => {
+  assert.throws(
+    () => findAgentSkillsArchiveAssets({ assets: [] }, { expectedVersion: "2.9.0" }),
+    /missing required Agent Skills archive/,
+  );
+
+  assert.throws(
+    () =>
+      findAgentSkillsArchiveAssets(
+        {
+          assets: [
+            {
+              name: "JobSentinel-2.9.0-agent-skills.tar.gz",
+              browser_download_url: "https://example.invalid/skills.tar.gz",
+            },
+            {
+              name: "JobSentinel-2.9.0-agent-skills.zip",
+              browser_download_url: "http://example.invalid/skills.zip",
+            },
+          ],
+        },
+        { expectedVersion: "2.9.0" },
+      ),
+    /must use an HTTPS download URL/,
+  );
+});
+
+test("public release verifier rejects stale Agent Skills assets", () => {
+  assert.throws(
+    () =>
+      validateExactAgentSkillsAssetSet(
+        {
+          assets: [
+            { name: "JobSentinel-2.9.0-agent-skills.tar.gz" },
+            { name: "JobSentinel-2.9.0-agent-skills.tar.gz.sha256" },
+            { name: "JobSentinel-2.9.0-agent-skills.zip" },
+            { name: "JobSentinel-2.9.0-agent-skills.zip.sha256" },
+            { name: "JobSentinel-2.8.0-agent-skills.zip" },
+          ],
+        },
+        { expectedVersion: "2.9.0" },
+      ),
+    /stale or unexpected Agent Skills assets.*JobSentinel-2\.8\.0-agent-skills\.zip/,
   );
 });
 

@@ -102,6 +102,20 @@ test("release readiness rejects missing Agent Skills archive upload", () => {
   );
 });
 
+test("release readiness rejects public verifier without Agent Skills checks", () => {
+  const inputs = loadReleaseReadinessInputs({ env: {} });
+  const report = evaluateReleaseReadinessFromInputs({
+    ...inputs,
+    verifyPublicScript: inputs.verifyPublicScript.replaceAll("findAgentSkillsArchiveAssets", ""),
+  });
+
+  assert(
+    report.criteria.some(
+      (item) => item.id === "public release verifier covers installers and supply chain" && !item.ok,
+    ),
+  );
+});
+
 test("release readiness rejects Agent Skills packages without ZIP artifact", () => {
   const inputs = loadReleaseReadinessInputs({ env: {} });
   const report = evaluateReleaseReadinessFromInputs({

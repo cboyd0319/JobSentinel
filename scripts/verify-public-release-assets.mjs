@@ -140,6 +140,53 @@ export function findPlatformInstallerAssets(release, { platform, expectedVersion
   });
 }
 
+export function expectedAgentSkillsArchiveNames(expectedVersion) {
+  const version = String(expectedVersion ?? "").trim().replace(/^v/i, "");
+  return [
+    `JobSentinel-${version}-agent-skills.tar.gz`,
+    `JobSentinel-${version}-agent-skills.zip`,
+  ];
+}
+
+function isAgentSkillsAssetName(name) {
+  return /^JobSentinel-[0-9]+\.[0-9]+\.[0-9]+-agent-skills\.(?:tar\.gz|zip)(?:\.sha256)?$/.test(
+    name,
+  );
+}
+
+export function findAgentSkillsArchiveAssets(release, { expectedVersion }) {
+  const assets = Array.isArray(release?.assets) ? release.assets : [];
+  return expectedAgentSkillsArchiveNames(expectedVersion).map((name) => {
+    const asset = assets.find((candidate) => candidate?.name === name);
+    if (!asset) {
+      throw new Error(`Release is missing required Agent Skills archive: ${name}`);
+    }
+
+    const url =
+      typeof asset.browser_download_url === "string" ? asset.browser_download_url : "";
+    if (!url.startsWith("https://")) {
+      throw new Error(`Agent Skills archive must use an HTTPS download URL: ${name}`);
+    }
+
+    return asset;
+  });
+}
+
+export function validateExactAgentSkillsAssetSet(release, { expectedVersion }) {
+  const expectedNames = new Set(
+    expectedAgentSkillsArchiveNames(expectedVersion).flatMap((name) => [name, `${name}.sha256`]),
+  );
+  const unexpected = (Array.isArray(release?.assets) ? release.assets : [])
+    .map((asset) => (typeof asset?.name === "string" ? asset.name : ""))
+    .filter(Boolean)
+    .filter(isAgentSkillsAssetName)
+    .filter((name) => !expectedNames.has(name));
+
+  if (unexpected.length > 0) {
+    throw new Error(`Release contains stale or unexpected Agent Skills assets: ${unexpected.join(", ")}`);
+  }
+}
+
 function selectedPlatformAssetExtensions(platforms) {
   return new Set(
     platforms.flatMap((platform) => platformSpec(platform).map(({ extension }) => extension)),
@@ -376,6 +423,38 @@ async function verifyPlatform({ release, platform, expectedVersion, options, tem
   console.log(`Public ${platform} release assets verified.`);
 }
 
+async function verifyAgentSkillsArchives({ release, expectedVersion, options, tempRoot }) {
+  const assets = findAgentSkillsArchiveAssets(release, { expectedVersion });
+
+  for (const asset of assets) {
+    const assetPath = join(tempRoot, basename(asset.name));
+    console.log(`Downloading public Agent Skills archive: ${asset.browser_download_url}`);
+    await downloadFile(asset.browser_download_url, assetPath);
+
+    const assetStat = await stat(assetPath);
+    if (!assetStat.isFile() || assetStat.size === 0) {
+      throw new Error(`Downloaded Agent Skills archive is empty: ${asset.name}`);
+    }
+
+    await verifyChecksum({
+      release,
+      asset,
+      assetPath,
+      requireChecksum: options.requireChecksum,
+    });
+
+    if (options.requireAttestations) {
+      verifyGitHubAttestation({
+        artifactPath: assetPath,
+        repo: options.repo,
+        predicateType: slsaPredicateType,
+      });
+    }
+  }
+
+  console.log("Public Agent Skills archives verified.");
+}
+
 export async function verifyPublicReleaseAssets(options) {
   const release = await fetchJson(releaseApiUrl(options));
   const expectedVersion =
@@ -397,6 +476,14 @@ export async function verifyPublicReleaseAssets(options) {
     validateExactPublicInstallerAssetSet(release, {
       platforms: options.platforms,
       expectedAssets: [...platformAssets.values()].flat(),
+    });
+    validateExactAgentSkillsAssetSet(release, { expectedVersion });
+
+    await verifyAgentSkillsArchives({
+      release,
+      expectedVersion,
+      options,
+      tempRoot,
     });
 
     for (const platform of options.platforms) {
