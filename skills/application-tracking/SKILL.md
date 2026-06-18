@@ -70,6 +70,12 @@ tokens before storing links.
    - submitted-claims snapshot when the form or resume changed.
 10. Produce a daily next-action list.
 
+## Load References
+
+- Load `references/status-transition-rules.md` when creating a tracker,
+  normalizing statuses, deciding follow-up timing, handling no-response items,
+  scrubbing links, or recording submitted material versions.
+
 ## Output
 
 Produce:

@@ -55,6 +55,13 @@ documents, background-check details, salary history, or references.
 12. Require explicit user approval before connecting accounts, uploading files,
    using automation to fill fields, saving credentials, or saving cookies.
 
+## Load References
+
+- Load `references/answer-provenance.md` when the form has hard screening
+  questions, protected or voluntary questions, salary-history prompts,
+  background-check fields, exact-answer disputes, or repeated fields that must
+  match a resume or profile.
+
 ## Output
 
 Produce:

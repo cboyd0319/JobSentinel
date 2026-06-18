@@ -152,7 +152,7 @@ test("validator catches missing untrusted-content guardrail", () => {
   assert.ok(errors.some((error) => error.includes("untrusted-content")));
 });
 
-test("validator allows spec-standard bundled skill scripts", () => {
+test("validator allows spec-standard bundled scripts and extra resources", () => {
   const root = mkdtempSync(join(tmpdir(), "jobsentinel-skill-script-"));
   writeSkill(
     root,
@@ -189,6 +189,17 @@ test("validator allows spec-standard bundled skill scripts", () => {
     join(root, "skills", "scripted-skill", "scripts", "helper.py"),
     "print('ok')\n",
   );
+  writeFileSync(join(root, "skills", "scripted-skill", "USAGE.md"), "# Usage\n");
+  mkdirSync(join(root, "skills", "scripted-skill", "examples"), { recursive: true });
+  writeFileSync(
+    join(root, "skills", "scripted-skill", "examples", "decision-table.md"),
+    "# Decision Table\n",
+  );
+  mkdirSync(join(root, "skills", "scripted-skill", "reference"), { recursive: true });
+  writeFileSync(
+    join(root, "skills", "scripted-skill", "reference", "legacy-compatible.yaml"),
+    "source: spec-standard-extra-directory\n",
+  );
 
   assert.deepEqual(validateSkillPackage(join(root, "skills", "scripted-skill")), []);
 });
@@ -206,10 +217,21 @@ test("validator rejects executable resources outside scripts", () => {
     join(root, "skills", "executable-resource", "assets", "helper.py"),
     "print('unsafe')\n",
   );
+  mkdirSync(join(root, "skills", "executable-resource", "examples"), { recursive: true });
+  writeFileSync(
+    join(root, "skills", "executable-resource", "examples", "helper.sh"),
+    "echo unsafe\n",
+  );
+  writeFileSync(
+    join(root, "skills", "executable-resource", "helper.py"),
+    "print('unsafe')\n",
+  );
 
   const errors = validateSkillPackage(join(root, "skills", "executable-resource"));
 
   assert.ok(errors.some((error) => error.includes("assets/helper.py")));
+  assert.ok(errors.some((error) => error.includes("examples/helper.sh")));
+  assert.ok(errors.some((error) => error.includes("helper.py")));
   assert.ok(errors.some((error) => error.includes("scripts/helper.bin")));
 });
 
