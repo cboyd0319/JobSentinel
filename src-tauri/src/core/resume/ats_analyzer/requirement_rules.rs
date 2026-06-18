@@ -16,6 +16,8 @@ struct ResumeKeywordTaxonomy {
     bullet_power_words: Vec<String>,
     #[serde(rename = "physicalWeightRequirements")]
     physical_weight_requirements: PhysicalWeightRequirements,
+    #[serde(rename = "credentialKeywordGroups")]
+    credential_keyword_groups: Vec<CredentialKeywordGroup>,
     #[serde(rename = "supplementalKeywordGroups")]
     supplemental_keyword_groups: Vec<SupplementalKeywordGroup>,
 }
@@ -47,6 +49,21 @@ struct SupplementalKeywordGroup {
     terms: Vec<String>,
 }
 
+#[derive(Debug, Deserialize)]
+struct CredentialKeywordGroup {
+    canonical: String,
+    terms: Vec<String>,
+    #[serde(default, rename = "requirementTerms")]
+    requirement_terms: Vec<String>,
+    #[serde(
+        default = "default_preserve_requirement_text",
+        rename = "preserveRequirementText"
+    )]
+    preserve_requirement_text: bool,
+    #[serde(default, rename = "catalogTerms")]
+    catalog_terms: Vec<String>,
+}
+
 struct CompiledPhysicalWeightFamily {
     regex: Regex,
     evidence_prefixes: Vec<String>,
@@ -55,6 +72,12 @@ struct CompiledPhysicalWeightFamily {
 struct CompiledSupplementalKeywordGroup {
     canonical: String,
     regexes: Vec<Regex>,
+}
+
+struct CompiledCredentialKeywordGroup {
+    canonical: String,
+    preserve_requirement_text: bool,
+    requirement_regexes: Vec<(String, Regex)>,
 }
 
 static TAXONOMY: Lazy<ResumeKeywordTaxonomy> = Lazy::new(|| {
@@ -114,6 +137,31 @@ static SUPPLEMENTAL_KEYWORD_GROUPS: Lazy<Vec<CompiledSupplementalKeywordGroup>> 
                         .expect("shared supplemental keyword regex must compile")
                 })
                 .collect(),
+        })
+        .collect()
+});
+
+static CREDENTIAL_KEYWORD_GROUPS: Lazy<Vec<CompiledCredentialKeywordGroup>> = Lazy::new(|| {
+    TAXONOMY
+        .credential_keyword_groups
+        .iter()
+        .map(|group| {
+            let requirement_terms = if group.requirement_terms.is_empty() {
+                std::iter::once(&group.canonical)
+                    .chain(group.terms.iter())
+                    .collect::<Vec<_>>()
+            } else {
+                group.requirement_terms.iter().collect::<Vec<_>>()
+            };
+
+            CompiledCredentialKeywordGroup {
+                canonical: group.canonical.clone(),
+                preserve_requirement_text: group.preserve_requirement_text,
+                requirement_regexes: requirement_terms
+                    .into_iter()
+                    .map(|term| (term.clone(), whole_term_regex(term)))
+                    .collect(),
+            }
         })
         .collect()
 });
@@ -201,6 +249,100 @@ pub(super) fn supplemental_keyword_search_terms(keyword_lower: &str) -> Vec<Stri
     terms
 }
 
+pub(super) fn extract_credential_keywords(text: &str) -> Vec<String> {
+    let mut seen = HashSet::new();
+    let mut keywords = Vec::new();
+
+    for group in CREDENTIAL_KEYWORD_GROUPS.iter() {
+        let matched_term = group
+            .requirement_regexes
+            .iter()
+            .find(|(_, regex)| regex.is_match(text))
+            .map(|(term, _)| term);
+        let Some(matched_term) = matched_term else {
+            continue;
+        };
+
+        let keyword = if group.preserve_requirement_text {
+            matched_term.clone()
+        } else {
+            group.canonical.clone()
+        };
+        if seen.insert(keyword.clone()) {
+            keywords.push(keyword);
+        }
+    }
+
+    keywords
+}
+
+pub(super) fn credential_keyword_search_terms(keyword_lower: &str) -> Vec<String> {
+    let Some(group) = TAXONOMY.credential_keyword_groups.iter().find(|group| {
+        group.canonical == keyword_lower || group.terms.iter().any(|term| term == keyword_lower)
+    }) else {
+        return Vec::new();
+    };
+
+    let mut terms = Vec::new();
+    for term in std::iter::once(&group.canonical).chain(group.terms.iter()) {
+        if !terms.iter().any(|existing| existing == term) {
+            terms.push(term.clone());
+        }
+    }
+    terms
+}
+
+pub(super) fn credential_keyword_catalog_terms() -> Vec<String> {
+    let mut seen = HashSet::new();
+    let mut terms = Vec::new();
+
+    for group in &TAXONOMY.credential_keyword_groups {
+        let catalog_terms = if group.catalog_terms.is_empty() {
+            std::iter::once(&group.canonical).collect::<Vec<_>>()
+        } else {
+            group.catalog_terms.iter().collect::<Vec<_>>()
+        };
+
+        for term in catalog_terms {
+            if seen.insert(term.clone()) {
+                terms.push(term.clone());
+            }
+        }
+    }
+
+    terms
+}
+
+pub(super) fn specific_credential_keywords() -> HashSet<String> {
+    let mut keywords = HashSet::new();
+
+    for group in &TAXONOMY.credential_keyword_groups {
+        keywords.insert(group.canonical.clone());
+        for term in group
+            .terms
+            .iter()
+            .chain(group.requirement_terms.iter())
+            .chain(group.catalog_terms.iter())
+        {
+            keywords.insert(term.clone());
+        }
+    }
+
+    keywords
+}
+
+pub(super) fn is_credential_keyword(keyword_lower: &str) -> bool {
+    TAXONOMY.credential_keyword_groups.iter().any(|group| {
+        group.canonical == keyword_lower
+            || group.terms.iter().any(|term| term == keyword_lower)
+            || group
+                .requirement_terms
+                .iter()
+                .any(|term| term == keyword_lower)
+            || group.catalog_terms.iter().any(|term| term == keyword_lower)
+    })
+}
+
 fn physical_weight_match(keyword_lower: &str) -> Option<(String, &[String])> {
     for family in PHYSICAL_WEIGHT_FAMILY_REGEXES.iter() {
         let Some(captures) = family.regex.captures(keyword_lower) else {
@@ -215,4 +357,16 @@ fn physical_weight_match(keyword_lower: &str) -> Option<(String, &[String])> {
 
 fn literal_term_pattern(term: &str) -> String {
     regex::escape(term).replace(r"\ ", r"[\s-]+")
+}
+
+fn whole_term_regex(term: &str) -> Regex {
+    Regex::new(&format!(
+        r"(?i)(?:^|[^[:alnum:]_]){}(?:$|[^[:alnum:]_])",
+        literal_term_pattern(term)
+    ))
+    .expect("shared credential keyword regex must compile")
+}
+
+fn default_preserve_requirement_text() -> bool {
+    true
 }

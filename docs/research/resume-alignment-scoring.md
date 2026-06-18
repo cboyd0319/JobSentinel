@@ -321,6 +321,12 @@ Future implementation should improve:
   are curated from JobSentinel research, private local reference profiles, and
   current public resume-keyword guidance; they should stay evidence-oriented
   and must not become copied third-party keyword dumps.
+- Resume/job fit now keeps credential, license, and designation groups in
+  `src/shared/resumeKeywordTaxonomy.json` so Rust and TypeScript paths do not
+  drift. Each group separates evidence/search terms from requirement extraction
+  terms and catalog terms. This keeps credentials such as `CPA certification`
+  source-backed without treating marketing uses such as cost-per-acquisition
+  `CPA optimization` as accounting-license evidence.
 - Resume/job fit now treats `stand for long periods` and
   `standing for long periods` as equivalent local physical-demand evidence.
 - Resume/job fit now treats clear credential equivalents such as `BLS` and
@@ -350,6 +356,12 @@ Future implementation should improve:
 - Resume/job fit now treats `PMP`, `Project Management Professional`, PMP
   certification, and Project Management Professional certification as the same
   local credential evidence.
+- Resume/job fit now treats source-backed professional designations and
+  certifications such as `CPA`, `CFA`, `CFP`, `CMA`, `CIA`, `CFE`, `CAMS`,
+  `FRM`, `SHRM-CP`, `SHRM-SCP`, `PHR`, `SPHR`, AWS certifications, CompTIA
+  certifications, Six Sigma belt/certification wording, Certified Scrum Master,
+  LEED, Professional Engineer, and HVAC certification wording as curated
+  credential groups when the job post uses credential-specific language.
 - Resume/job fit now treats `food safety`, `food safety certification`,
   `ServSafe`, and food handler, food-handler, food handler's, or food handlers
   certification, certificate, permit, or card wording as the same local

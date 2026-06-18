@@ -769,6 +769,128 @@ describe("mock Tauri handlers", () => {
     );
   });
 
+  it("recognizes Certified Public Accountant as CPA evidence in mock resume review", async () => {
+    const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        certifications: ["Certified Public Accountant"],
+      },
+      jobDescription: "Required: CPA certification",
+    });
+
+    expect(result.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "cpa",
+          match_state: "Direct",
+          hard_constraint: true,
+          evidence_sections: expect.arrayContaining(["certifications"]),
+        }),
+      ]),
+    );
+    expect(result.hard_constraint_risks).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          requirement: "cpa",
+        }),
+      ]),
+    );
+  });
+
+  it("does not treat CPA optimization as an accounting credential in mock resume review", async () => {
+    const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        experience: [
+          {
+            ...atsResume.experience[0],
+            achievements: ["Reduced paid search CPA through conversion optimization."],
+          },
+        ],
+      },
+      jobDescription: "Required: CPA optimization and paid search reporting",
+    });
+
+    expect(result.requirement_reviews).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "cpa",
+          hard_constraint: true,
+        }),
+      ]),
+    );
+    expect(result.hard_constraint_risks).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          requirement: "cpa",
+        }),
+      ]),
+    );
+  });
+
+  it("recognizes Six Sigma belt evidence for certification requirements in mock resume review", async () => {
+    const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        certifications: ["Lean Six Sigma Green Belt"],
+      },
+      jobDescription: "Required: Six Sigma certification",
+    });
+
+    expect(result.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "six sigma certification",
+          match_state: "Direct",
+          hard_constraint: true,
+          evidence_sections: expect.arrayContaining(["certifications"]),
+        }),
+      ]),
+    );
+  });
+
+  it("recognizes AWS Certified credential wording in mock resume review", async () => {
+    const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        certifications: ["AWS Certified Cloud Practitioner"],
+      },
+      jobDescription: "Required: AWS certification",
+    });
+
+    expect(result.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "aws certification",
+          match_state: "Direct",
+          hard_constraint: true,
+          evidence_sections: expect.arrayContaining(["certifications"]),
+        }),
+      ]),
+    );
+  });
+
+  it("recognizes SHRM-CP credential wording in mock resume review", async () => {
+    const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        certifications: ["SHRM Certified Professional"],
+      },
+      jobDescription: "Required: SHRM-CP certification",
+    });
+
+    expect(result.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "shrm-cp",
+          match_state: "Direct",
+          hard_constraint: true,
+          evidence_sections: expect.arrayContaining(["certifications"]),
+        }),
+      ]),
+    );
+  });
+
   it("returns mock resume match scores as backend-compatible fractions", async () => {
     const [job] = await mockInvoke<MockJobSummary[]>("get_jobs", {});
     const resumeId = await mockInvoke<number>("select_and_upload_resume");

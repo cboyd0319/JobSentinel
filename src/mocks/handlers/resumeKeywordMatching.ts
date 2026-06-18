@@ -7,6 +7,10 @@ import {
 import resumeKeywordTaxonomy from "../../shared/resumeKeywordTaxonomy.json";
 import type { MockAtsResumeSections } from "./resumeAnalysisSections";
 import {
+  extractMockCredentialKeywords,
+  getMockSpecificCredentialKeywords,
+} from "./resumeCredentialTaxonomy";
+import {
   containsAnyMockKeyword,
   getConservativeMockJobSearchTerms,
   getConservativeMockSearchTerms,
@@ -173,11 +177,9 @@ function extractMockHardConstraintKeywords(jobDescription: string): string[] {
   const patterns = [
     /\b(work authorization|authorized to work|visa sponsorship|u\.?s\.?\s+citizenship|u\.?s\.?\s+citizen|citizenship required)\b/gi,
     /\b(security clearance|clearance)\b/gi,
-    /\bsecurity\+/gi,
-    /\b(commercial driver'?s license|commercial driver license|driver'?s license|driver license|cdl|rn license|registered nurse license|nursing license|lpn|lvn|licensed practical nurse|licensed vocational nurse)\b/gi,
     /\b(clean driving record|acceptable driving record|driving record|mvr|motor vehicle record)\b/gi,
     /\bfood[- ]handler'?s?\s+(?:certification|certificate|permit|card)\b/gi,
-    /\b(certification|cissp|certified information systems security professional|security plus|bls|basic life support|acls|advanced cardiovascular life support|cpr|cardiopulmonary resuscitation|cna|certified nursing assistant|certified nurse assistant|certified nurse aide|pmp|project management professional|servsafe|food safety certification|food[- ]handler certification|food[- ]handler certificate|food[- ]handler permit|food[- ]handlers permit|food[- ]handler card|first[- ]aid certification|first[- ]aid certified|first[- ]aid certificate|first[- ]aid|forklift certification|forklift operator certification|forklift certified|forklift license|forklift operator license|osha\s*10(?:[- ]hour)?(?:\s+certification)?|osha\s*30(?:[- ]hour)?(?:\s+certification)?)\b/gi,
+    /\b(certification)\b/gi,
     /\b(ph\.?d\.?(?:\s+degree)?|doctorate(?:\s+degree)?|doctoral degree|associate'?s degree|associate degree|baccalaureate degree|bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree|high[- ]school diploma|high[- ]school degree|ged|high[- ]school equivalency|general education development)\b/gi,
     /\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b/gi,
     /\b(?:minimum age(?:\s+is)?\s*)?\d{2}\s*(?:\+|(?:years?|yrs?)\s+(?:old|of\s+age))\b/gi,
@@ -195,6 +197,9 @@ function extractMockHardConstraintKeywords(jobDescription: string): string[] {
   const hasDegreeEquivalent = hasMockDegreeEquivalentRequirement(jobDescription);
   if (hasDegreeEquivalent) {
     keywords.add("degree or equivalent experience");
+  }
+  for (const keyword of extractMockCredentialKeywords(jobDescription)) {
+    keywords.add(keyword);
   }
 
   for (const pattern of patterns) {
@@ -244,73 +249,8 @@ function extractMockHardConstraintKeywords(jobDescription: string): string[] {
       keywords.delete(genericLicense);
     }
   }
-  const specificCertificationKeywords = [
-    "cissp",
-    "certified information systems security professional",
-    "security+",
-    "security plus",
-    "bls",
-    "basic life support",
-    "acls",
-    "advanced cardiovascular life support",
-    "cpr",
-    "cardiopulmonary resuscitation",
-    "cna",
-    "certified nursing assistant",
-    "certified nurse assistant",
-    "certified nurse aide",
-    "lpn",
-    "lvn",
-    "licensed practical nurse",
-    "licensed vocational nurse",
-    "pmp",
-    "project management professional",
-    "servsafe",
-    "food safety certification",
-    "food handler certification",
-    "food handler's certification",
-    "food handlers certification",
-    "food handler certificate",
-    "food handler's certificate",
-    "food handlers certificate",
-    "food handler permit",
-    "food handler's permit",
-    "food handlers permit",
-    "food handler card",
-    "food handler's card",
-    "food handlers card",
-    "first aid",
-    "first-aid",
-    "first aid certification",
-    "first-aid certification",
-    "first aid certified",
-    "first-aid certified",
-    "first aid certificate",
-    "first-aid certificate",
-    "forklift certification",
-    "forklift certified",
-    "forklift operator certification",
-    "forklift operator certified",
-    "forklift license",
-    "forklift operator license",
-    "osha 10",
-    "osha10",
-    "osha 10 certification",
-    "osha10 certification",
-    "osha 10-hour",
-    "osha 10-hour certification",
-    "osha 10 hour",
-    "osha 10 hour certification",
-    "osha 30",
-    "osha30",
-    "osha 30 certification",
-    "osha30 certification",
-    "osha 30-hour",
-    "osha 30-hour certification",
-    "osha 30 hour",
-    "osha 30 hour certification",
-  ];
-  if ([...keywords].some((keyword) => specificCertificationKeywords.includes(keyword))) {
+  const specificCertificationKeywords = getMockSpecificCredentialKeywords();
+  if ([...keywords].some((keyword) => specificCertificationKeywords.has(keyword))) {
     keywords.delete("certification");
   }
   for (const keyword of extractMockSeniorityConstraintKeywords(jobDescription)) {

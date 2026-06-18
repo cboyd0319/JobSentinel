@@ -180,42 +180,7 @@ pub(super) fn hard_constraint_category(keyword: &str) -> Option<HardConstraintCa
     }
     if lower.contains("license")
         || lower.contains("certification")
-        || lower == "cdl"
-        || lower == "cissp"
-        || lower.contains("certified information systems security professional")
-        || lower == "security+"
-        || lower == "security plus"
-        || lower == "rn"
-        || lower == "cna"
-        || lower == "lpn"
-        || lower == "lvn"
-        || lower == "bls"
-        || lower == "acls"
-        || lower == "cpr"
-        || lower.contains("certified nursing assistant")
-        || lower.contains("certified nurse assistant")
-        || lower.contains("certified nurse aide")
-        || lower.contains("licensed practical nurse")
-        || lower.contains("licensed vocational nurse")
-        || lower == "pmp"
-        || lower.contains("project management professional")
-        || lower == "servsafe"
-        || lower.contains("food safety certification")
-        || lower.contains("food handler")
-        || lower.contains("food-handler")
-        || lower.contains("first aid")
-        || lower.contains("first-aid")
-        || lower.contains("forklift certification")
-        || lower.contains("forklift certified")
-        || lower.contains("forklift license")
-        || lower.contains("forklift operator")
-        || lower.contains("osha 10")
-        || lower.contains("osha10")
-        || lower.contains("osha 30")
-        || lower.contains("osha30")
-        || lower.contains("basic life support")
-        || lower.contains("advanced cardiovascular life support")
-        || lower.contains("cardiopulmonary resuscitation")
+        || requirement_rules::is_credential_keyword(&lower)
     {
         return Some(HardConstraintCategory::LicenseOrCertification);
     }
@@ -322,10 +287,8 @@ pub(super) fn extract_hard_constraint_keywords(text: &str) -> Vec<String> {
     let hard_constraint_patterns = [
         r"(?i)\b(work authorization|authorized to work|visa sponsorship|u\.?s\.?\s+citizenship|u\.?s\.?\s+citizen|citizenship required)\b".to_string(),
         r"(?i)\b(security clearance|clearance)\b".to_string(),
-        r"(?i)\bsecurity\+".to_string(),
-        r"(?i)\b(commercial driver'?s license|commercial driver license|driver'?s license|driver license|cdl|rn license|registered nurse license|nursing license|lpn|lvn|licensed practical nurse|licensed vocational nurse)\b".to_string(),
         r"(?i)\b(clean driving record|acceptable driving record|driving record|mvr|motor vehicle record)\b".to_string(),
-        r"(?i)\b(certification|cissp|certified information systems security professional|security plus|bls|basic life support|acls|advanced cardiovascular life support|cpr|cardiopulmonary resuscitation|cna|certified nursing assistant|certified nurse assistant|certified nurse aide|pmp|project management professional|servsafe|food safety certification|food[- ]handler'?s?\s+(?:certification|certificate|permit|card)|first[- ]aid certification|first[- ]aid certified|first[- ]aid certificate|first[- ]aid|forklift certification|forklift certified|forklift operator certification|forklift operator certified|forklift license|forklift operator license|osha\s*10(?:[- ]hour)?(?:\s+certification)?|osha\s*30(?:[- ]hour)?(?:\s+certification)?)\b".to_string(),
+        r"(?i)\b(certification|food[- ]handler'?s?\s+(?:certification|certificate|permit|card))\b".to_string(),
         r"(?i)\b(ph\.?d\.?(?:\s+degree)?|doctorate(?:\s+degree)?|doctoral degree|associate'?s degree|associate degree|baccalaureate degree|bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree|high[- ]school diploma|high[- ]school degree|ged|high[- ]school equivalency|general education development)\b".to_string(),
         r"(?i)\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b".to_string(),
         r"(?i)\b(?:minimum age(?:\s+is)?\s*)?\d{2}\s*(?:\+|(?:years?|yrs?)\s+(?:old|of\s+age))\b".to_string(),
@@ -337,6 +300,9 @@ pub(super) fn extract_hard_constraint_keywords(text: &str) -> Vec<String> {
     ];
 
     for keyword in requirement_rules::extract_physical_weight_keywords(text) {
+        keywords.insert(keyword);
+    }
+    for keyword in requirement_rules::extract_credential_keywords(text) {
         keywords.insert(keyword);
     }
 
@@ -388,75 +354,10 @@ pub(super) fn extract_hard_constraint_keywords(text: &str) -> Vec<String> {
             keywords.remove(generic_license);
         }
     }
-    let specific_certification_keywords = [
-        "cissp",
-        "certified information systems security professional",
-        "security+",
-        "security plus",
-        "bls",
-        "basic life support",
-        "acls",
-        "advanced cardiovascular life support",
-        "cpr",
-        "cardiopulmonary resuscitation",
-        "cna",
-        "certified nursing assistant",
-        "certified nurse assistant",
-        "certified nurse aide",
-        "lpn",
-        "lvn",
-        "licensed practical nurse",
-        "licensed vocational nurse",
-        "pmp",
-        "project management professional",
-        "servsafe",
-        "food safety certification",
-        "food handler certification",
-        "food handler's certification",
-        "food handlers certification",
-        "food handler certificate",
-        "food handler's certificate",
-        "food handlers certificate",
-        "food handler permit",
-        "food handler's permit",
-        "food handlers permit",
-        "food handler card",
-        "food handler's card",
-        "food handlers card",
-        "first aid",
-        "first-aid",
-        "first aid certification",
-        "first-aid certification",
-        "first aid certified",
-        "first-aid certified",
-        "first aid certificate",
-        "first-aid certificate",
-        "forklift certification",
-        "forklift certified",
-        "forklift operator certification",
-        "forklift operator certified",
-        "forklift license",
-        "forklift operator license",
-        "osha 10",
-        "osha10",
-        "osha 10 certification",
-        "osha10 certification",
-        "osha 10-hour",
-        "osha 10-hour certification",
-        "osha 10 hour",
-        "osha 10 hour certification",
-        "osha 30",
-        "osha30",
-        "osha 30 certification",
-        "osha30 certification",
-        "osha 30-hour",
-        "osha 30-hour certification",
-        "osha 30 hour",
-        "osha 30 hour certification",
-    ];
+    let specific_certification_keywords = requirement_rules::specific_credential_keywords();
     if keywords
         .iter()
-        .any(|keyword| specific_certification_keywords.contains(&keyword.as_str()))
+        .any(|keyword| specific_certification_keywords.contains(keyword))
     {
         keywords.remove("certification");
     }

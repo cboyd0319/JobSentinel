@@ -90,18 +90,17 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   import hardening, model pins, Linux metadata, Windows signing, and macOS
   trimming. Gatekeeper-ready macOS remains Apple-blocked; wiki drafts await
   approval to push.
-- 2026-06-18 OWASP CheatSheetSeries scan across 120 files covered Actions,
-  supply-chain, AI, storage, URL, logging, Browser Import, CSS, and parsers;
-  follow-up hardening covers SMTP binding, HTTPS imports, previews, DNS/IP
-  pinning, Teams redaction, AI guards, Tauri narrowing, signing cleanup, secure
-  delete, parser caps, KDF floors, sandboxed print export, external-AI payload,
-  automation JS, CSS escapes, bookmarklet token/body checks, and release drift.
+- 2026-06-18 OWASP CheatSheetSeries scan covered Actions, supply-chain, AI,
+  storage, URL, logging, Browser Import, CSS, parsers, and follow-up hardening
+  for credential binding, imports, redaction, signing, AI guards, and release drift.
 - 2026-06-18 Linux packaging hardening adds exact AppImage helper hashes,
   project-local Tauri bundler tools, exact build package pins, and a fallback
   wrapper for Tauri linuxdeploy failures. Clean Ubuntu 24.04 Apple container
   output: `.deb` `ec5cfad2a3ef9a5ba0207c515b7e6687b118eb9361401583b48651e626b343a1`;
   executable x86_64 AppImage `bb1d58aadce73254ab80510ce659710dd6b63f20491ee76a4e0781f63da00ee4`;
   `.sha256` sidecar verified.
+- 2026-06-18 credential taxonomy moved license/certification/designation groups
+  into shared Rust/TypeScript data with a CPA guard and verified green gates.
 
 ## Next Best Work
 

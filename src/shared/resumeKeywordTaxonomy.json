@@ -95,6 +95,210 @@
       }
     ]
   },
+  "credentialKeywordGroups": [
+    {
+      "canonical": "driver's license",
+      "terms": ["driver's license", "drivers license", "driver license"],
+      "catalogTerms": ["driver's license"]
+    },
+    {
+      "canonical": "cdl",
+      "terms": ["cdl", "commercial driver's license", "commercial drivers license", "commercial driver license"],
+      "catalogTerms": ["cdl", "commercial driver's license"]
+    },
+    {
+      "canonical": "rn",
+      "terms": ["rn license", "registered nurse license", "nursing license", "registered nurse", "rn"],
+      "catalogTerms": ["rn", "registered nurse", "rn license"]
+    },
+    {
+      "canonical": "lpn",
+      "terms": ["lpn", "licensed practical nurse", "lvn", "licensed vocational nurse"],
+      "catalogTerms": ["lpn", "licensed practical nurse", "lvn", "licensed vocational nurse"]
+    },
+    {
+      "canonical": "cna",
+      "terms": ["cna", "certified nursing assistant", "certified nurse assistant", "certified nurse aide"],
+      "catalogTerms": ["cna", "certified nursing assistant"]
+    },
+    {
+      "canonical": "bls",
+      "terms": ["bls", "basic life support"],
+      "catalogTerms": ["bls", "basic life support"]
+    },
+    {
+      "canonical": "acls",
+      "terms": ["acls", "advanced cardiovascular life support"],
+      "catalogTerms": ["acls", "advanced cardiovascular life support"]
+    },
+    {
+      "canonical": "cpr",
+      "terms": ["cpr", "cardiopulmonary resuscitation"],
+      "catalogTerms": ["cpr", "cardiopulmonary resuscitation"]
+    },
+    {
+      "canonical": "pmp",
+      "terms": ["pmp", "project management professional", "pmp certification", "project management professional certification"],
+      "catalogTerms": ["pmp", "project management professional"]
+    },
+    {
+      "canonical": "security+",
+      "terms": ["security+", "security plus", "comptia security+", "comptia security plus", "security+ certification", "security plus certification"],
+      "catalogTerms": ["security+", "security plus"]
+    },
+    {
+      "canonical": "cissp",
+      "terms": ["cissp", "certified information systems security professional"],
+      "catalogTerms": ["cissp", "certified information systems security professional"]
+    },
+    {
+      "canonical": "cisa",
+      "terms": ["cisa", "certified information systems auditor"],
+      "catalogTerms": ["cisa", "certified information systems auditor"]
+    },
+    {
+      "canonical": "cism",
+      "terms": ["cism", "certified information security manager"],
+      "catalogTerms": ["cism", "certified information security manager"]
+    },
+    {
+      "canonical": "crisc",
+      "terms": ["crisc", "certified in risk and information systems control"],
+      "catalogTerms": ["crisc", "certified in risk and information systems control"]
+    },
+    {
+      "canonical": "ceh",
+      "terms": ["ceh", "certified ethical hacker"],
+      "catalogTerms": ["ceh", "certified ethical hacker"]
+    },
+    {
+      "canonical": "cpa",
+      "terms": ["certified public accountant", "cpa certification", "cpa license", "certified public accountant certification", "certified public accountant license"],
+      "requirementTerms": ["certified public accountant", "cpa certification", "cpa license", "certified public accountant certification", "certified public accountant license"],
+      "preserveRequirementText": false,
+      "catalogTerms": ["certified public accountant"]
+    },
+    {
+      "canonical": "cfa",
+      "terms": ["cfa", "chartered financial analyst", "cfa certification", "chartered financial analyst certification"],
+      "catalogTerms": ["cfa", "chartered financial analyst"]
+    },
+    {
+      "canonical": "cfp",
+      "terms": ["cfp", "certified financial planner", "cfp certification", "certified financial planner certification"],
+      "catalogTerms": ["cfp", "certified financial planner"]
+    },
+    {
+      "canonical": "cma",
+      "terms": ["cma", "certified management accountant", "cma certification", "certified management accountant certification"],
+      "catalogTerms": ["cma", "certified management accountant"]
+    },
+    {
+      "canonical": "cia",
+      "terms": ["cia", "certified internal auditor", "cia certification", "certified internal auditor certification"],
+      "catalogTerms": ["cia", "certified internal auditor"]
+    },
+    {
+      "canonical": "cfe",
+      "terms": ["cfe", "certified fraud examiner", "cfe certification", "certified fraud examiner certification"],
+      "catalogTerms": ["cfe", "certified fraud examiner"]
+    },
+    {
+      "canonical": "cams",
+      "terms": ["cams", "certified anti-money laundering specialist", "certified anti money laundering specialist"],
+      "catalogTerms": ["cams", "certified anti-money laundering specialist"]
+    },
+    {
+      "canonical": "frm",
+      "terms": ["frm", "financial risk manager", "frm certification", "financial risk manager certification"],
+      "catalogTerms": ["frm", "financial risk manager"]
+    },
+    {
+      "canonical": "shrm-cp",
+      "terms": ["shrm-cp", "shrm cp", "shrm certified professional", "shrm-cp certification", "shrm certified professional certification"],
+      "catalogTerms": ["shrm-cp", "shrm certified professional"]
+    },
+    {
+      "canonical": "shrm-scp",
+      "terms": ["shrm-scp", "shrm scp", "shrm senior certified professional", "shrm-scp certification", "shrm senior certified professional certification"],
+      "catalogTerms": ["shrm-scp", "shrm senior certified professional"]
+    },
+    {
+      "canonical": "phr",
+      "terms": ["phr", "professional in human resources", "phr certification", "professional in human resources certification"],
+      "catalogTerms": ["phr", "professional in human resources"]
+    },
+    {
+      "canonical": "sphr",
+      "terms": ["sphr", "senior professional in human resources", "sphr certification", "senior professional in human resources certification"],
+      "catalogTerms": ["sphr", "senior professional in human resources"]
+    },
+    {
+      "canonical": "aws certification",
+      "terms": ["aws certification", "aws certified", "aws certified cloud practitioner", "aws certified solutions architect", "aws certified developer", "aws certified sysops administrator"],
+      "catalogTerms": ["aws certification", "aws certified cloud practitioner", "aws certified solutions architect"]
+    },
+    {
+      "canonical": "comptia a+",
+      "terms": ["comptia a+", "comptia a plus", "a+ certification", "a plus certification"],
+      "catalogTerms": ["comptia a+", "comptia a plus"]
+    },
+    {
+      "canonical": "comptia network+",
+      "terms": ["comptia network+", "comptia network plus", "network+ certification", "network plus certification"],
+      "catalogTerms": ["comptia network+", "comptia network plus"]
+    },
+    {
+      "canonical": "six sigma certification",
+      "terms": ["six sigma certification", "six-sigma certification", "lean six sigma certification", "six sigma green belt", "six sigma black belt", "six sigma yellow belt", "lean six sigma green belt", "lean six sigma black belt", "lean six sigma yellow belt"],
+      "catalogTerms": ["six sigma certification", "six sigma green belt", "lean six sigma green belt"]
+    },
+    {
+      "canonical": "certified scrum master",
+      "terms": ["certified scrum master", "csm", "csm certification"],
+      "catalogTerms": ["certified scrum master", "csm"]
+    },
+    {
+      "canonical": "leed",
+      "terms": ["leed", "leed certification", "leed green associate", "leed ga", "leed accredited professional", "leed ap"],
+      "catalogTerms": ["leed", "leed green associate", "leed ap"]
+    },
+    {
+      "canonical": "professional engineer",
+      "terms": ["professional engineer", "pe license", "professional engineer license", "professional engineer licensure"],
+      "catalogTerms": ["professional engineer", "pe license"]
+    },
+    {
+      "canonical": "hvac certification",
+      "terms": ["hvac certification", "hvac technician certification", "epa 608", "epa 608 certification", "nate certification", "r-410a certification", "r410a certification"],
+      "catalogTerms": ["hvac certification", "epa 608", "nate certification"]
+    },
+    {
+      "canonical": "food safety certification",
+      "terms": ["food safety certification", "food-handler certification", "food handler certification", "food-handler's certification", "food handler's certification", "food-handlers certification", "food handlers certification", "food-handler certificate", "food handler certificate", "food-handler's certificate", "food handler's certificate", "food-handlers certificate", "food handlers certificate", "food-handler permit", "food handler permit", "food-handler's permit", "food handler's permit", "food-handlers permit", "food handlers permit", "food-handler card", "food handler card", "food-handler's card", "food handler's card", "food-handlers card", "food handlers card", "servsafe", "food safety"],
+      "catalogTerms": ["food safety", "food safety certification", "servsafe", "food handler certification"]
+    },
+    {
+      "canonical": "first aid certification",
+      "terms": ["first aid certification", "first-aid certification", "first aid certified", "first-aid certified", "first aid certificate", "first-aid certificate", "first aid", "first-aid"],
+      "catalogTerms": ["first aid", "first aid certification"]
+    },
+    {
+      "canonical": "forklift certification",
+      "terms": ["forklift certification", "forklift certified", "forklift operator certification", "forklift operator certified", "forklift license", "forklift operator license", "forklift"],
+      "catalogTerms": ["forklift", "forklift certification"]
+    },
+    {
+      "canonical": "osha 10",
+      "terms": ["osha 10 certification", "osha10 certification", "osha 10-hour certification", "osha 10 hour certification", "osha 10-hour", "osha 10 hour", "osha 10", "osha10"],
+      "catalogTerms": ["osha 10", "osha 10 certification"]
+    },
+    {
+      "canonical": "osha 30",
+      "terms": ["osha 30 certification", "osha30 certification", "osha 30-hour certification", "osha 30 hour certification", "osha 30-hour", "osha 30 hour", "osha 30", "osha30"],
+      "catalogTerms": ["osha 30", "osha 30 certification"]
+    }
+  ],
   "supplementalKeywordGroups": [
     {
       "canonical": "microsoft office",

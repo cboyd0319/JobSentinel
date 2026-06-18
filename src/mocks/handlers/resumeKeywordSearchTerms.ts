@@ -1,6 +1,7 @@
 import { MOCK_HUMAN_LANGUAGES } from "./resumeAnalysis";
 import type { MockAtsResumeSections } from "./resumeAnalysisSections";
 import { countMockKeywordFrequency } from "./resumeKeywordFrequency";
+import { getMockCredentialSearchTerms } from "./resumeCredentialTaxonomy";
 import resumeKeywordTaxonomy from "../../shared/resumeKeywordTaxonomy.json";
 
 export function getConservativeMockSearchTerms(keyword: string): string[] {
@@ -9,7 +10,6 @@ export function getConservativeMockSearchTerms(keyword: string): string[] {
   const equivalenceGroups = [
     ["crm", "customer relationship management"],
     ["security clearance", "clearance"],
-    ["security+", "security plus"],
     [
       "us citizenship",
       "u.s. citizenship",
@@ -187,104 +187,6 @@ export function getConservativeMockSearchTerms(keyword: string): string[] {
       "part-time",
       "part time",
     ],
-    ["bls", "basic life support"],
-    ["acls", "advanced cardiovascular life support"],
-    ["cpr", "cardiopulmonary resuscitation"],
-    ["driver's license", "drivers license", "driver license"],
-    [
-      "cdl",
-      "commercial driver's license",
-      "commercial drivers license",
-      "commercial driver license",
-    ],
-    ["rn", "rn license", "registered nurse", "registered nurse license"],
-    [
-      "lpn",
-      "licensed practical nurse",
-      "lvn",
-      "licensed vocational nurse",
-    ],
-    [
-      "pmp",
-      "project management professional",
-      "pmp certification",
-      "project management professional certification",
-    ],
-    [
-      "cna",
-      "certified nursing assistant",
-      "certified nurse assistant",
-      "certified nurse aide",
-    ],
-    [
-      "food safety",
-      "food safety certification",
-      "servsafe",
-      "food handler certification",
-      "food-handler certification",
-      "food handler's certification",
-      "food-handler's certification",
-      "food handlers certification",
-      "food-handlers certification",
-      "food handler certificate",
-      "food-handler certificate",
-      "food handler's certificate",
-      "food-handler's certificate",
-      "food handlers certificate",
-      "food-handlers certificate",
-      "food handler permit",
-      "food-handler permit",
-      "food handler's permit",
-      "food-handler's permit",
-      "food handlers permit",
-      "food-handlers permit",
-      "food handler card",
-      "food-handler card",
-      "food handler's card",
-      "food-handler's card",
-      "food handlers card",
-      "food-handlers card",
-    ],
-    [
-      "first aid",
-      "first-aid",
-      "first aid certification",
-      "first-aid certification",
-      "first aid certified",
-      "first-aid certified",
-      "first aid certificate",
-      "first-aid certificate",
-    ],
-    [
-      "forklift",
-      "forklift certification",
-      "forklift certified",
-      "forklift operator certification",
-      "forklift operator certified",
-      "forklift license",
-      "forklift operator license",
-    ],
-    [
-      "osha 10",
-      "osha10",
-      "osha 10 certification",
-      "osha10 certification",
-      "osha 10-hour",
-      "osha 10-hour certification",
-      "osha 10 hour",
-      "osha 10 hour certification",
-    ],
-    [
-      "osha 30",
-      "osha30",
-      "osha 30 certification",
-      "osha30 certification",
-      "osha 30-hour",
-      "osha 30-hour certification",
-      "osha 30 hour",
-      "osha 30 hour certification",
-    ],
-    ["cissp", "certified information systems security professional"],
     [
       "high school diploma",
       "high-school diploma",
@@ -357,6 +259,11 @@ export function getConservativeMockSearchTerms(keyword: string): string[] {
     }
   }
   for (const term of getMockSupplementalKeywordSearchTerms(lower)) {
+    if (!terms.includes(term)) {
+      terms.push(term);
+    }
+  }
+  for (const term of getMockCredentialSearchTerms(lower)) {
     if (!terms.includes(term)) {
       terms.push(term);
     }

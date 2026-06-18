@@ -8,6 +8,7 @@ import type {
   MockRequirementMatchState,
   MockRequirementReview,
 } from "./resumeAnalysis";
+import { isMockCredentialKeyword } from "./resumeCredentialTaxonomy";
 
 export function buildMockRequirementReviews(
   keywords: MockAtsKeyword[],
@@ -266,36 +267,7 @@ function getMockHardConstraintCategory(keyword: string): MockHardConstraintCateg
   if (
     lower.includes("license") ||
     lower.includes("certification") ||
-    ["cdl", "cissp", "security+", "rn", "bls", "acls", "cpr"].includes(lower) ||
-    lower.includes("certified information systems security professional") ||
-    lower === "security plus" ||
-    lower === "cna" ||
-    lower === "lpn" ||
-    lower === "lvn" ||
-    lower.includes("certified nursing assistant") ||
-    lower.includes("certified nurse assistant") ||
-    lower.includes("certified nurse aide") ||
-    lower.includes("licensed practical nurse") ||
-    lower.includes("licensed vocational nurse") ||
-    lower === "pmp" ||
-    lower.includes("project management professional") ||
-    lower === "servsafe" ||
-    lower.includes("food safety certification") ||
-    lower.includes("food handler") ||
-    lower.includes("food-handler") ||
-    lower.includes("first aid") ||
-    lower.includes("first-aid") ||
-    lower.includes("forklift certification") ||
-    lower.includes("forklift certified") ||
-    lower.includes("forklift license") ||
-    lower.includes("forklift operator") ||
-    lower.includes("osha 10") ||
-    lower.includes("osha10") ||
-    lower.includes("osha 30") ||
-    lower.includes("osha30") ||
-    lower.includes("basic life support") ||
-    lower.includes("advanced cardiovascular life support") ||
-    lower.includes("cardiopulmonary resuscitation")
+    isMockCredentialKeyword(lower)
   ) {
     return "LicenseOrCertification";
   }

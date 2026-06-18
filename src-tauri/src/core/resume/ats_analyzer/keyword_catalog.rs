@@ -99,8 +99,6 @@ pub(super) fn industry_keywords() -> Vec<String> {
         "sales",
         "account management",
         "crm",
-        "pmp",
-        "project management professional",
         "payroll",
         "bookkeeping",
         "bookkeeper",
@@ -129,10 +127,6 @@ pub(super) fn industry_keywords() -> Vec<String> {
         "data entry",
         "excel",
         "patient care",
-        "cna",
-        "certified nursing assistant",
-        "lpn",
-        "licensed practical nurse",
         "medication administration",
         "vital signs",
         "care plans",
@@ -151,22 +145,11 @@ pub(super) fn industry_keywords() -> Vec<String> {
         "welding",
         "equipment maintenance",
         "safety inspections",
-        "food safety",
-        "food safety certification",
         "point of sale",
         "pos system",
         "pos systems",
-        "servsafe",
-        "food handler certification",
-        "first aid",
-        "first aid certification",
         "cash handling",
         "cashier",
-        "forklift certification",
-        "osha 10",
-        "osha 10 certification",
-        "osha 30",
-        "osha 30 certification",
         "document review",
         "case files",
         "legal research",
@@ -191,5 +174,6 @@ pub(super) fn industry_keywords() -> Vec<String> {
     .map(str::to_string)
     .collect::<Vec<_>>();
     keywords.extend(super::requirement_rules::supplemental_keyword_canonicals());
+    keywords.extend(super::requirement_rules::credential_keyword_catalog_terms());
     keywords
 }

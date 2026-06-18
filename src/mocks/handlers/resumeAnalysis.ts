@@ -1,4 +1,5 @@
 import resumeKeywordTaxonomy from "../../shared/resumeKeywordTaxonomy.json";
+import { getMockCredentialCatalogTerms } from "./resumeCredentialTaxonomy";
 
 export type MockKeywordImportance = "Required" | "Preferred" | "Industry";
 export type MockIssueSeverity = "Critical" | "Warning" | "Info";
@@ -83,6 +84,7 @@ export const ATS_POWER_WORDS = resumeKeywordTaxonomy.bulletPowerWords;
 
 export const ATS_KNOWN_KEYWORDS: readonly string[] = [
   ...resumeKeywordTaxonomy.supplementalKeywordGroups.map((group) => group.canonical),
+  ...getMockCredentialCatalogTerms(),
   "forecasting",
   "workflow improvement",
   "quality assurance",
@@ -108,8 +110,6 @@ export const ATS_KNOWN_KEYWORDS: readonly string[] = [
   "employee orientation",
   "customer support",
   "project coordination",
-  "pmp",
-  "project management professional",
   "bookkeeping",
   "bookkeeper",
   "quickbooks",
@@ -142,17 +142,12 @@ export const ATS_KNOWN_KEYWORDS: readonly string[] = [
   "patient-care",
   "security clearance",
   "work authorization",
-  "driver's license",
   "bachelor's degree",
   "high school diploma",
   "ged",
   "high school equivalency",
   "degree",
   "patient care",
-  "cna",
-  "certified nursing assistant",
-  "lpn",
-  "licensed practical nurse",
   "medication administration",
   "medication-administration",
   "vital sign",
@@ -181,22 +176,11 @@ export const ATS_KNOWN_KEYWORDS: readonly string[] = [
   "welding",
   "equipment maintenance",
   "safety inspections",
-  "food safety",
-  "food safety certification",
-  "servsafe",
-  "food handler certification",
-  "first aid",
-  "first aid certification",
   "cash handling",
   "cashier",
   "point of sale",
   "pos system",
   "pos systems",
-  "forklift certification",
-  "osha 10",
-  "osha 10 certification",
-  "osha 30",
-  "osha 30 certification",
   "document review",
   "document-review",
   "case files",
