@@ -66,9 +66,9 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   and eight reference profiles via `JOBSENTINEL_LOCAL_RESUME_SMOKE_PATHS`, with
   no committed local paths or names.
 - Downloadable Agent Skills cover the search flow with spec-compatible
-  tar.gz/ZIP packaging, release content checks, upstream `skills-ref`,
-  `lint:skills`, handoffs, templates, rubrics, and Persona/ResumeSkills/career-ops
-  coverage.
+  tar.gz/ZIP packaging, strict archive root/checksum/CRC/central-directory
+  release content checks, upstream `skills-ref`, `lint:skills`, handoffs,
+  templates, rubrics, and Persona/ResumeSkills/career-ops coverage.
 - LinkedIn runtime config/scraper types expose no session-cookie fields, and
   Browser Import manual verification passed on 2026-06-17 for desktop/mobile:
   settings, port validation, copy, private-link rejection, LinkedIn preview/save,
