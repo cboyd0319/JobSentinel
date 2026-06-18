@@ -65,10 +65,10 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 - Private resume parser smoke checks passed on 2026-06-17 for the supplied PDF
   and eight reference profiles via `JOBSENTINEL_LOCAL_RESUME_SMOKE_PATHS`, with
   no committed local paths or names.
-- Downloadable Agent Skills cover search planning, posting-risk review, resume
-  tailoring, form review, tracking, outreach, interview prep, and offer/pay with
-  spec-compatible tar.gz/ZIP packaging, `agents/openai.yaml`, `lint:skills`,
-  handoffs, templates, rubrics, and Persona/ResumeSkills/career-ops coverage.
+- Downloadable Agent Skills cover the search flow with spec-compatible
+  tar.gz/ZIP packaging, upstream `skills-ref` validation, `agents/openai.yaml`,
+  `lint:skills`, handoffs, templates, rubrics, and Persona/ResumeSkills/career-ops
+  coverage.
 - LinkedIn runtime config/scraper types expose no session-cookie fields, and
   Browser Import manual verification passed on 2026-06-17 for desktop/mobile:
   settings, port validation, copy, private-link rejection, LinkedIn preview/save,
