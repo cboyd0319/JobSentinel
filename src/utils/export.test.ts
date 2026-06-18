@@ -5,6 +5,7 @@ import {
   exportJobsToCSV,
   exportConfigToJSON,
   importConfigFromJSON,
+  sanitizeDownloadFilename,
 } from "./export";
 
 describe("export utilities", () => {
@@ -264,6 +265,40 @@ describe("export utilities", () => {
       const csv = jobsToCSV(jobs);
       expect(csv).toContain("86%"); // Rounded
     });
+
+    it("neutralizes spreadsheet formulas from untrusted job fields", () => {
+      const jobs = [
+        {
+          id: 1,
+          title: "=cmd",
+          company: "+SUM(1)",
+          location: " @lookup",
+          url: "https://example.com",
+          source: "-remote",
+          score: null,
+          created_at: "2024-01-15T10:00:00Z",
+        },
+      ];
+
+      const csv = jobsToCSV(jobs);
+
+      expect(csv).toContain(",'=cmd,");
+      expect(csv).toContain(",'+SUM(1),");
+      expect(csv).toContain(",' @lookup,");
+      expect(csv).toContain(",'-remote,");
+    });
+  });
+
+  describe("sanitizeDownloadFilename", () => {
+    it("keeps only a safe basename", () => {
+      expect(sanitizeDownloadFilename("../bad:name?.csv")).toBe("bad-name-.csv");
+      expect(sanitizeDownloadFilename("C:\\Users\\person\\report.json")).toBe("report.json");
+    });
+
+    it("uses a fallback for empty or dot-only names", () => {
+      expect(sanitizeDownloadFilename("...")).toBe("jobsentinel-download");
+      expect(sanitizeDownloadFilename("   ", "fallback.txt")).toBe("fallback.txt");
+    });
   });
 
   describe("downloadFile", () => {
@@ -316,6 +351,12 @@ describe("export utilities", () => {
       downloadFile("test content", "my-file.csv");
 
       expect(mockLink.download).toBe("my-file.csv");
+    });
+
+    it("sanitizes path-like download filenames", () => {
+      downloadFile("test content", "../bad:name?.csv");
+
+      expect(mockLink.download).toBe("bad-name-.csv");
     });
 
     it("defaults to text/csv mimeType", () => {

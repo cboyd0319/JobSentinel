@@ -17,19 +17,51 @@ interface Job {
   remote?: boolean | null;
 }
 
+const SPREADSHEET_FORMULA_PREFIX = /^\s*[=+\-@]/;
+
+function neutralizeSpreadsheetFormula(value: string): string {
+  return SPREADSHEET_FORMULA_PREFIX.test(value) ? `'${value}` : value;
+}
+
 /**
- * Escape CSV cell values (handles commas, quotes, newlines)
+ * Escape CSV cell values and neutralize spreadsheet formulas.
  */
 function escapeCSV(
   value: string | number | boolean | null | undefined,
 ): string {
   if (value === null || value === undefined) return "";
-  const str = String(value);
+  const str = neutralizeSpreadsheetFormula(String(value));
   // If contains comma, quote, or newline, wrap in quotes and escape internal quotes
   if (str.includes(",") || str.includes('"') || str.includes("\n")) {
     return `"${str.replace(/"/g, '""')}"`;
   }
   return str;
+}
+
+export function sanitizeDownloadFilename(
+  filename: string,
+  fallback: string = "jobsentinel-download",
+): string {
+  const basename = filename
+    .split(/[\\/]+/)
+    .filter((segment) => segment.length > 0)
+    .pop()
+    ?.trim();
+
+  const withoutControlCharacters = Array.from(basename ?? "")
+    .filter((char) => {
+      const code = char.charCodeAt(0);
+      return code >= 32 && code !== 127;
+    })
+    .join("");
+
+  const sanitized = withoutControlCharacters
+    .replace(/[<>:"|?*]/g, "-")
+    .replace(/^\.+/, "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  return sanitized || fallback;
 }
 
 /**
@@ -81,7 +113,7 @@ export function downloadFile(
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = filename;
+  link.download = sanitizeDownloadFilename(filename);
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);

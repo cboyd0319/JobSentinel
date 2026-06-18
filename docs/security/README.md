@@ -41,6 +41,7 @@ models, and best practices.
 | **OCR (Resume Parsing)**  | Path canonicalization, no shell invocation           | [COMMAND_EXECUTION.md](./COMMAND_EXECUTION.md) |
 | **Database**              | SQLCipher at rest, SQLx parameterized queries, SQL injection prevention | [KEYRING.md](./KEYRING.md)                     |
 | **Network**               | TLS, backend URL guards, self-only renderer CSP, and no remote renderer style or font imports | [URL_VALIDATION.md](./URL_VALIDATION.md)       |
+| **Downloads And CSV**     | Safe basenames, CSV escaping, spreadsheet formula neutralization | [URL_VALIDATION.md](./URL_VALIDATION.md)       |
 
 ### Security by Threat
 
@@ -53,6 +54,7 @@ models, and best practices.
 | **URL Bypass Attacks**         | Proper URL parsing with `url` crate         | [URL_VALIDATION.md](./URL_VALIDATION.md)       |
 | **Credential Theft**           | SQLCipher at rest, AEAD-encrypted vault rows, OS-protected keys, passphrase wrapping, and access control | [KEYRING.md](./KEYRING.md)                     |
 | **SQL Injection**              | Parameterized queries (SQLx)                | [../../SECURITY.md](../../SECURITY.md)         |
+| **Spreadsheet Formula Injection** | Apostrophe-prefix neutralization for untrusted CSV cells | [URL_VALIDATION.md](./URL_VALIDATION.md) |
 | **MITM (Man-in-the-Middle)**   | HTTPS-only, TLS certificate validation      | [WEBHOOK_SECURITY.md](./WEBHOOK_SECURITY.md)   |
 
 ---

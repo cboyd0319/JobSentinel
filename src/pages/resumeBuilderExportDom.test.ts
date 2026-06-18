@@ -1,10 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { openResumePrintDialog } from "./resumeBuilderExportDom";
+import { downloadResumeDocx, openResumePrintDialog } from "./resumeBuilderExportDom";
 
 describe("openResumePrintDialog", () => {
   afterEach(() => {
     document.querySelectorAll("iframe").forEach((iframe) => iframe.remove());
     vi.useRealTimers();
+    vi.restoreAllMocks();
   });
 
   it("sanitizes scriptable HTML before writing the print iframe", () => {
@@ -29,5 +30,30 @@ describe("openResumePrintDialog", () => {
     expect(html).not.toContain('name="location"');
     expect(html).not.toContain('id="constructor"');
     expect(html).toContain("Portfolio");
+  });
+
+  it("sanitizes DOCX download names from candidate names", () => {
+    const mockLink = {
+      href: "",
+      download: "",
+      click: vi.fn(),
+    };
+    vi.spyOn(document, "createElement").mockReturnValue(
+      mockLink as unknown as HTMLAnchorElement,
+    );
+    vi.spyOn(document.body, "appendChild").mockReturnValue(
+      mockLink as unknown as HTMLAnchorElement,
+    );
+    vi.spyOn(document.body, "removeChild").mockReturnValue(
+      mockLink as unknown as HTMLAnchorElement,
+    );
+    globalThis.URL.createObjectURL = vi.fn().mockReturnValue("blob:resume");
+    globalThis.URL.revokeObjectURL = vi.fn();
+
+    downloadResumeDocx([1, 2, 3], "../Jane: Doe?");
+
+    expect(mockLink.download).toBe("Jane-_Doe-_Resume.docx");
+    expect(mockLink.click).toHaveBeenCalled();
+    expect(globalThis.URL.revokeObjectURL).toHaveBeenCalledWith("blob:resume");
   });
 });

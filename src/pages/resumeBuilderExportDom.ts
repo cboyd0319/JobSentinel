@@ -1,4 +1,5 @@
 import { sanitizeResumeHtmlDocument } from "./resumeHtmlSanitizer";
+import { sanitizeDownloadFilename } from "../utils/export";
 
 export function downloadResumeDocx(docxData: number[], candidateName: string): void {
   const blob = new Blob([new Uint8Array(docxData)], {
@@ -7,7 +8,10 @@ export function downloadResumeDocx(docxData: number[], candidateName: string): v
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement("a");
   anchor.href = url;
-  anchor.download = `${candidateName.replace(/\s+/g, "_")}_Resume.docx`;
+  anchor.download = sanitizeDownloadFilename(
+    `${candidateName.replace(/\s+/g, "_")}_Resume.docx`,
+    "JobSentinel_Resume.docx",
+  );
   document.body.appendChild(anchor);
   anchor.click();
   document.body.removeChild(anchor);

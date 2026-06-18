@@ -209,6 +209,32 @@ validated Rust IPC paths instead of direct renderer `fetch()` calls. The securit
 sensor fails if known external job-source or webhook hosts are added back to the
 renderer CSP.
 
+### Browser Import Local Receiver
+
+**Files**: `src-tauri/src/commands/bookmarklet.rs`,
+`src-tauri/src/core/bookmarklet/server.rs`
+
+Browser Import uses a loopback-only HTTP receiver and a generated browser button
+instead of account cookies or background site monitoring. The receiver binds to
+`127.0.0.1`, requires the exact loopback `Host` header and selected port,
+limits request size and concurrent connections, and requires a short-lived
+single-use import token before any job data is stored. It does not advertise
+wildcard CORS headers.
+
+Responses include defensive browser headers: `Cache-Control: no-store`,
+`X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`,
+`Cross-Origin-Resource-Policy: same-origin`, and `Connection: close`.
+
+### CSV And Download Filenames
+
+**File**: `src/utils/export.ts`
+
+Downloaded filenames are reduced to a safe basename before assigning
+`HTMLAnchorElement.download`. CSV exports escape commas, quotes, and newlines,
+and prefix untrusted job fields that begin with spreadsheet formula characters
+(`=`, `+`, `-`, or `@`, including after whitespace) so opening an export in a
+spreadsheet does not execute remote job-posting content as a formula.
+
 ### Slack Webhooks
 
 **File**: `src-tauri/src/core/notify/slack.rs`

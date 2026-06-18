@@ -391,7 +391,7 @@ async fn read_bookmarklet_request_bytes(
 
 fn http_response_data(status: &str, content_type: &str, response: &str) -> String {
     format!(
-        "HTTP/1.1 {}\r\nContent-Type: {}\r\nContent-Length: {}\r\n\r\n{}",
+        "HTTP/1.1 {}\r\nContent-Type: {}\r\nContent-Length: {}\r\nCache-Control: no-store\r\nPragma: no-cache\r\nX-Content-Type-Options: nosniff\r\nReferrer-Policy: no-referrer\r\nCross-Origin-Resource-Policy: same-origin\r\nConnection: close\r\n\r\n{}",
         status,
         content_type,
         response.len(),

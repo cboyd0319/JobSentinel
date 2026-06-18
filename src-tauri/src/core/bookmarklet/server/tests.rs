@@ -110,6 +110,18 @@ fn test_bookmarklet_http_response_does_not_advertise_wildcard_cors() {
 }
 
 #[test]
+fn test_bookmarklet_http_response_has_defensive_headers() {
+    let response = http_response_data("200 OK", "application/json", "{\"success\":true}");
+
+    assert!(response.contains("Cache-Control: no-store"));
+    assert!(response.contains("Pragma: no-cache"));
+    assert!(response.contains("X-Content-Type-Options: nosniff"));
+    assert!(response.contains("Referrer-Policy: no-referrer"));
+    assert!(response.contains("Cross-Origin-Resource-Policy: same-origin"));
+    assert!(response.contains("Connection: close"));
+}
+
+#[test]
 fn test_bookmarklet_connection_limit_releases_permits() {
     let connection_limit = Arc::new(Semaphore::new(1));
     let permit = try_bookmarklet_connection_permit(&connection_limit)
