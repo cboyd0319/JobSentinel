@@ -359,6 +359,12 @@ pub(super) fn conservative_keyword_search_terms(keyword_lower: &str) -> Vec<Stri
             "standing for long period",
             "standing for long periods",
         ],
+        &[
+            "climb ladder",
+            "climb ladders",
+            "climbing ladder",
+            "climbing ladders",
+        ],
     ];
 
     for group in equivalence_groups {

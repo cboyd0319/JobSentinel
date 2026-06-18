@@ -345,6 +345,7 @@ export function getConservativeMockSearchTerms(keyword: string): string[] {
       "standing for long period",
       "standing for long periods",
     ],
+    ["climb ladder", "climb ladders", "climbing ladder", "climbing ladders"],
   ];
 
   for (const group of equivalenceGroups) {

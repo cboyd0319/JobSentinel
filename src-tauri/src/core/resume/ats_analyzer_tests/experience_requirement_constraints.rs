@@ -467,3 +467,47 @@ fn test_stand_requirement_accepts_standing_evidence() {
         .iter()
         .any(|risk| risk.requirement == "stand for long periods"));
 }
+
+#[test]
+fn test_missing_required_ladder_climbing_constraint_caps_overall_score() {
+    let resume = sample_resume();
+
+    let result = AtsAnalyzer::analyze_for_job(&resume, "Required: client intake, climb ladders");
+
+    assert!(result.overall_score <= 70.0);
+    assert!(result.hard_constraint_risks.iter().any(|risk| {
+        risk.requirement == "climb ladders"
+            && risk.category == HardConstraintCategory::PhysicalRequirement
+            && risk.score_cap == 70.0
+            && risk.action.contains("not workable or safe")
+    }));
+    assert!(result.requirement_reviews.iter().any(|review| {
+        review.keyword == "climb ladders"
+            && review.hard_constraint
+            && review.match_state == RequirementMatchState::Missing
+    }));
+}
+
+#[test]
+fn test_climb_ladders_requirement_accepts_climbing_ladders_evidence() {
+    let result = AtsAnalyzer::analyze_text_for_job(
+        "Jordan Lee\njordan@example.com\n\nExperience\nClimbing ladders safely during inventory and maintenance work.",
+        &[],
+        "Required: climb ladders",
+    );
+
+    let climbing = result
+        .requirement_reviews
+        .iter()
+        .find(|review| review.keyword == "climb ladders")
+        .expect("climb ladders review");
+    assert_eq!(climbing.match_state, RequirementMatchState::Direct);
+    assert!(climbing.hard_constraint);
+    assert!(climbing
+        .evidence_sections
+        .contains(&"experience".to_string()));
+    assert!(!result
+        .hard_constraint_risks
+        .iter()
+        .any(|risk| risk.requirement == "climb ladders"));
+}

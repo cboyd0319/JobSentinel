@@ -351,7 +351,9 @@ function getMockHardConstraintCategory(keyword: string): MockHardConstraintCateg
     lower.includes("physical requirement") ||
     lower.includes("physical demand") ||
     lower.includes("stand for long") ||
-    lower.includes("standing for long")
+    lower.includes("standing for long") ||
+    lower.includes("climb ladder") ||
+    lower.includes("climbing ladder")
   ) {
     return "PhysicalRequirement";
   }

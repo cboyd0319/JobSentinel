@@ -78,6 +78,41 @@ describe("mock resume hard-constraint handlers", () => {
     );
   });
 
+  it("matches climb and climbing ladder mock hard constraints", async () => {
+    const climbingResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        experience: [
+          {
+            ...atsResume.experience[0],
+            achievements: ["Climbing ladders safely during inventory work."],
+          },
+        ],
+        skills: [],
+      },
+      jobDescription: "Required: climb ladders",
+    });
+
+    expect(climbingResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "climb ladders",
+          match_state: "Strong",
+          hard_constraint: true,
+          evidence_sections: expect.arrayContaining(["current experience"]),
+        }),
+      ]),
+    );
+    expect(climbingResult.hard_constraint_risks).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          requirement: "climb ladders",
+        }),
+      ]),
+    );
+  });
+
   it("matches background screening wording in mock hard constraints", async () => {
     const backgroundResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
