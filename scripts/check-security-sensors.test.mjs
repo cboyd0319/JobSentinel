@@ -1123,7 +1123,7 @@ function readBaseReleaseWorkflowWithout(removedLine) {
     "        with:",
     "          node-version: \"24.17.0\"",
     "          package-manager-cache: false",
-    "      - run: npm audit --audit-level=moderate",
+    "      - run: npm run lint:security\n      - uses: zizmorcore/zizmor-action@5f14fd08f7cf1cb1609c1e344975f152c7ee938d # v0.5.6\n        with:\n          advanced-security: false\n          inputs: .github/workflows\n      - run: npm audit --audit-level=moderate",
     "  preflight-security-rust:",
     "    needs: release-inputs",
     "    steps:",

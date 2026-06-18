@@ -279,8 +279,8 @@ const releasePreflightChecks = [
     phrases: ["npm test -- --run"],
   },
   {
-    label: "npm audit",
-    phrases: ["npm audit --audit-level=moderate"],
+    label: "Node security preflight",
+    phrases: ["npm run lint:security", "zizmorcore/zizmor-action@", "npm audit --audit-level=moderate"],
   },
   {
     label: "cargo deny supply-chain policy",

@@ -60,6 +60,34 @@ test("release readiness rejects Linux upload without package verification", () =
   );
 });
 
+test("release readiness rejects release preflight without Node security sensors", () => {
+  const inputs = loadReleaseReadinessInputs({ env: {} });
+  const report = evaluateReleaseReadinessFromInputs({
+    ...inputs,
+    releaseWorkflow: inputs.releaseWorkflow.replace("npm run lint:security", ""),
+  });
+
+  assert(
+    report.criteria.some(
+      (item) => item.id === "release preflight blocks security scanners" && !item.ok,
+    ),
+  );
+});
+
+test("release readiness rejects release preflight without workflow static analysis", () => {
+  const inputs = loadReleaseReadinessInputs({ env: {} });
+  const report = evaluateReleaseReadinessFromInputs({
+    ...inputs,
+    releaseWorkflow: inputs.releaseWorkflow.replace("zizmorcore/zizmor-action@", ""),
+  });
+
+  assert(
+    report.criteria.some(
+      (item) => item.id === "release preflight blocks security scanners" && !item.ok,
+    ),
+  );
+});
+
 test("release readiness parses version flags", () => {
   assert.deepEqual(parseArgs(["--version", "v2.9.0"]), { version: "v2.9.0" });
   assert.deepEqual(parseArgs(["--tag=v2.9.0"]), { version: "v2.9.0" });

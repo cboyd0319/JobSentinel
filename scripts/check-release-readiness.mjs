@@ -114,6 +114,17 @@ export function evaluateReleaseReadinessFromInputs(inputs) {
       "Draft release creation must wait for harness, frontend, Rust, and split security preflights.",
     ),
     criterion(
+      "release preflight blocks security scanners",
+      hasAll(inputs.releaseWorkflow, [
+        "npm run lint:security",
+        "zizmorcore/zizmor-action@",
+        "npm audit --audit-level=moderate",
+        "cargo install cargo-deny --version 0.19.9 --locked",
+        "cargo deny check advisories bans licenses sources",
+      ]),
+      "Release preflight must block on security sensors, workflow static analysis, npm audit, and cargo-deny.",
+    ),
+    criterion(
       "Windows public upload is signature and checksum gated",
       windowsMsiUploadRequiresSignature(inputs.releaseWorkflow),
       "Unsigned or unchecksummed MSI artifacts must fail before upload.",
