@@ -77,11 +77,11 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   routes; forced empty/loading/error checks passed across startup and setup.
 - Setup Wizard desktop/mobile, whole-UI post-design click/action coverage, and
   keyboard paths now have fresh Playwright evidence.
-- Fresh 2026-06-18 post-`fcf7fb84` local release gate passes: version,
+- Fresh 2026-06-18 post-`4287830a` local release gate passes: version,
   latest deps/actions, docs, harness score 100, scripts, security, bloat,
-  external AI, Tauri invokes, npm audit, cargo-deny, doctor/e2e with Node 26 vs
-  CI 24 warning, frontend lint/unit/build, Rust fmt/clippy/full `cargo test`,
-  E2E `266/266`, and macOS no-account 100% / full-public 94%.
+  external AI, Tauri invokes, test quality, npm audit, cargo-deny, doctor/e2e
+  with Node 26 vs CI 24 warning, frontend lint/unit/build, Rust fmt/clippy/lib
+  tests, E2E `266/266`, and macOS no-account 100% / full-public 94%.
 - Final non-`content/` expert/agent pass is applied locally: memory-only
   company research, accessible onboarding, auto-refresh gating, atomic alert
   claims, HTTPS JobsWithGPT endpoints, shared import hashes, and metadata.
