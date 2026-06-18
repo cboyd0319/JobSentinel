@@ -1017,6 +1017,7 @@ function readBaseReleaseWorkflowWithout(removedLine) {
     "        with:",
     "          node-version: \"24.17.0\"",
     "          package-manager-cache: false",
+    "      - run: npm run release:readiness -- --version \"$RELEASE_VERSION\"",
     "      - run: npm run harness:check",
     "      - run: npm run release:check-deps",
     "      - run: npm run test:scripts",

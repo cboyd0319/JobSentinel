@@ -253,8 +253,8 @@ const releaseWorkflowChecks = [
 
 const releasePreflightChecks = [
   {
-    label: "release metadata validation",
-    phrases: ["npm run release:check-version"],
+    label: "release metadata and readiness validation",
+    phrases: ["npm run release:check-version", "npm run release:readiness"],
   },
   {
     label: "harness checks",

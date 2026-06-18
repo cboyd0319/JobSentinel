@@ -99,6 +99,7 @@ export function evaluateReleaseReadinessFromInputs(inputs) {
     criterion(
       "release preflight gates run before draft creation",
       hasAll(inputs.releaseWorkflow, [
+        "npm run release:readiness",
         "preflight-harness:",
         "preflight-frontend:",
         "preflight-rust:",

@@ -184,8 +184,8 @@ Before any draft release or package build starts, the release workflow resolves
 and validates release metadata, then runs independent preflight jobs in
 parallel:
 
-- Harness and dependency preflight: harness policy, latest stable dependency
-  and Action pins, harness script tests, and markdown lint.
+- Harness and dependency preflight: release readiness, harness policy, latest
+  stable dependency and Action pins, harness script tests, and markdown lint.
 - Frontend preflight: frontend lint, frontend unit tests, and frontend build.
 - Rust preflight: Rust formatting before Linux build dependencies, then Rust
   clippy and Rust tests.
