@@ -179,7 +179,10 @@ test.describe("Resume Builder Wizard", () => {
 
     await resumeBuilder.selectTemplate("Skills-First");
     await expect(page.getByText("Resume Format Readability")).toBeVisible();
-    await expect(page.getByText("Jane Smith").first()).toBeVisible();
+    await expect(page.locator('iframe[title="Resume preview"]')).toHaveAttribute("sandbox", "");
+    await expect(
+      page.frameLocator('iframe[title="Resume preview"]').getByText("Jane Smith").first(),
+    ).toBeVisible();
 
     await resumeBuilder.goNext(7, "Export");
     await expect(page.getByRole("heading", { name: "Export Resume" })).toBeVisible();
