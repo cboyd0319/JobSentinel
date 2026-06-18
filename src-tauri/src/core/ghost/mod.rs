@@ -33,6 +33,54 @@ use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::sync::LazyLock;
 
+const JOB_POSTING_RISK_TAXONOMY_JSON: &str =
+    include_str!("../../../../src/shared/jobPostingRiskTaxonomy.json");
+
+static JOB_POSTING_RISK_TAXONOMY: LazyLock<JobPostingRiskTaxonomy> =
+    LazyLock::new(load_job_posting_risk_taxonomy);
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct JobPostingRiskTaxonomy {
+    schema_version: u32,
+    generic_phrases: Vec<String>,
+    vague_title_patterns: Vec<String>,
+    unrealistic_requirement_patterns: Vec<String>,
+    urgency_patterns: Vec<String>,
+    promotional_patterns: Vec<String>,
+    substance_keywords: Vec<String>,
+    fluff_keywords: Vec<String>,
+    ghost_templates: Vec<String>,
+}
+
+fn load_job_posting_risk_taxonomy() -> JobPostingRiskTaxonomy {
+    let taxonomy: JobPostingRiskTaxonomy =
+        match serde_json::from_str(JOB_POSTING_RISK_TAXONOMY_JSON) {
+            Ok(taxonomy) => taxonomy,
+            Err(error) => panic!("job posting risk taxonomy must be valid JSON: {error}"),
+        };
+
+    assert_eq!(
+        taxonomy.schema_version, 1,
+        "unsupported job posting risk taxonomy schema version"
+    );
+
+    taxonomy
+}
+
+fn compile_case_insensitive_patterns(patterns: &[String], label: &str) -> Vec<Regex> {
+    patterns
+        .iter()
+        .map(|pattern| {
+            let case_insensitive_pattern = format!("(?i){pattern}");
+            match Regex::new(&case_insensitive_pattern) {
+                Ok(regex) => regex,
+                Err(error) => panic!("invalid {label} regex pattern {pattern:?}: {error}"),
+            }
+        })
+        .collect()
+}
+
 /// Ghost detection result
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GhostAnalysis {
@@ -116,224 +164,51 @@ impl Default for GhostConfig {
 
 /// Lazy-initialized regex patterns for generic phrases
 static GENERIC_PHRASES: LazyLock<Vec<Regex>> = LazyLock::new(|| {
-    [
-        r"fast[- ]paced environment",
-        r"work hard[,]? play hard",
-        r"like a family",
-        r"wear many hats",
-        r"self[- ]starter",
-        r"rockstar",
-        r"\bninja\b",
-        r"\bguru\b",
-        r"\bwizard\b",
-        r"dynamic environment",
-        r"competitive compensation",
-        r"great benefits",
-        r"exciting opportunity",
-        r"growing company",
-        r"make an impact",
-        r"hit the ground running",
-        r"synergy",
-        r"disrupt(ive|or|ion)?",
-        r"passionate about",
-        r"team player",
-    ]
-    .iter()
-    .filter_map(|p| Regex::new(&format!(r"(?i){p}")).ok())
-    .collect()
+    compile_case_insensitive_patterns(&JOB_POSTING_RISK_TAXONOMY.generic_phrases, "generic phrase")
 });
 
 /// Lazy-initialized regex patterns for vague job titles
 static VAGUE_TITLES: LazyLock<Vec<Regex>> = LazyLock::new(|| {
-    [
-        r"^various\s+(positions?|roles?)",
-        r"^multiple\s+(positions?|openings?)",
-        r"^(general|open)\s+application",
-        r"talent\s+pool",
-        r"future\s+opportunities?",
-        r"^(we'?re|we are)\s+hiring",
-        r"join\s+(our|the)\s+team",
-    ]
-    .iter()
-    .filter_map(|p| Regex::new(&format!(r"(?i){p}")).ok())
-    .collect()
+    compile_case_insensitive_patterns(
+        &JOB_POSTING_RISK_TAXONOMY.vague_title_patterns,
+        "vague title",
+    )
 });
 
 /// Lazy-initialized regex patterns for unrealistic requirements
 static UNREALISTIC_PATTERNS: LazyLock<Vec<Regex>> = LazyLock::new(|| {
-    [
-        // Entry level + many years experience
-        r"entry[- ]level.*(\d{2,})\+?\s*(years?|yrs?)",
-        r"junior.*(\d{2,})\+?\s*(years?|yrs?)",
-        // Associate + senior-level years
-        r"associate.*(\d{7,})\+?\s*(years?|yrs?)",
-        // New grad + experience
-        r"(new|recent)\s+grad(uate)?.*(\d{3,})\+?\s*(years?|yrs?)",
-    ]
-    .iter()
-    .filter_map(|p| Regex::new(&format!(r"(?i){p}")).ok())
-    .collect()
+    compile_case_insensitive_patterns(
+        &JOB_POSTING_RISK_TAXONOMY.unrealistic_requirement_patterns,
+        "unrealistic requirement",
+    )
 });
 
 // ==================== ML-Enhanced Patterns (v2.5.5) ====================
 
 /// Urgency signals that indicate pressure-style wording
 static URGENCY_PATTERNS: LazyLock<Vec<Regex>> = LazyLock::new(|| {
-    [
-        r"(urgent|immediately|asap|right\s+away)",
-        r"(hiring\s+now|start\s+immediately)",
-        r"(don'?t\s+miss|limited\s+time)",
-        r"(act\s+fast|apply\s+today)",
-        r"(positions?\s+filling\s+fast)",
-        r"(won'?t\s+last\s+long)",
-        r"(immediate\s+opening)",
-        r"(interview\s+this\s+week)",
-    ]
-    .iter()
-    .filter_map(|p| Regex::new(&format!(r"(?i){p}")).ok())
-    .collect()
+    compile_case_insensitive_patterns(&JOB_POSTING_RISK_TAXONOMY.urgency_patterns, "urgency")
 });
 
 /// Promotional wording patterns (sentiment signal)
 static PROMOTIONAL_PATTERNS: LazyLock<Vec<Regex>> = LazyLock::new(|| {
-    [
-        r"(amazing|incredible|unbelievable)\s+(opportunity|role|position)",
-        r"(dream\s+job|once\s+in\s+a\s+lifetime)",
-        r"(best|top|leading)\s+company\s+in",
-        r"(change\s+your\s+life|life[- ]changing)",
-        r"(unlimited\s+(potential|growth|earning))",
-        r"(world[- ]class|cutting[- ]edge|revolutionary)",
-        r"(groundbreaking|trailblazing)",
-        r"(skyrocket|explosive\s+growth)",
-    ]
-    .iter()
-    .filter_map(|p| Regex::new(&format!(r"(?i){p}")).ok())
-    .collect()
+    compile_case_insensitive_patterns(
+        &JOB_POSTING_RISK_TAXONOMY.promotional_patterns,
+        "promotional",
+    )
 });
 
 /// Substance keywords - terms that indicate real job content
-static SUBSTANCE_KEYWORDS: LazyLock<Vec<&'static str>> = LazyLock::new(|| {
-    vec![
-        // Technical terms
-        "api",
-        "database",
-        "server",
-        "client",
-        "architecture",
-        "design",
-        "implement",
-        "build",
-        "develop",
-        "test",
-        "deploy",
-        "maintain",
-        "debug",
-        "optimize",
-        "integrate",
-        "scale",
-        "monitor",
-        "automate",
-        "document",
-        "review",
-        // Specific technologies (sampled - these indicate real requirements)
-        "python",
-        "java",
-        "javascript",
-        "typescript",
-        "rust",
-        "go",
-        "sql",
-        "react",
-        "angular",
-        "vue",
-        "node",
-        "docker",
-        "kubernetes",
-        "aws",
-        "azure",
-        "gcp",
-        "linux",
-        "git",
-        "ci/cd",
-        "agile",
-        "scrum",
-        // Business substance
-        "revenue",
-        "customers",
-        "users",
-        "stakeholders",
-        "deliverables",
-        "deadline",
-        "milestone",
-        "sprint",
-        "roadmap",
-        "specification",
-        "requirement",
-        "analysis",
-        "report",
-        "metrics",
-        "kpi",
-    ]
-});
+static SUBSTANCE_KEYWORDS: LazyLock<Vec<String>> =
+    LazyLock::new(|| JOB_POSTING_RISK_TAXONOMY.substance_keywords.clone());
 
 /// Fluff keywords - terms that add no substance
-static FLUFF_KEYWORDS: LazyLock<Vec<&'static str>> = LazyLock::new(|| {
-    vec![
-        // Generic positivity
-        "exciting",
-        "amazing",
-        "incredible",
-        "wonderful",
-        "fantastic",
-        "thrilling",
-        "dynamic",
-        "vibrant",
-        "energetic",
-        "passionate",
-        // Empty promises
-        "competitive",
-        "attractive",
-        "generous",
-        "excellent",
-        "outstanding",
-        "exceptional",
-        "world-class",
-        "best-in-class",
-        "top-tier",
-        // Meaningless descriptors
-        "synergy",
-        "leverage",
-        "optimize",
-        "maximize",
-        "streamline",
-        "holistic",
-        "innovative",
-        "cutting-edge",
-        "state-of-the-art",
-        "next-generation",
-        "game-changing",
-        "disruptive",
-    ]
-});
+static FLUFF_KEYWORDS: LazyLock<Vec<String>> =
+    LazyLock::new(|| JOB_POSTING_RISK_TAXONOMY.fluff_keywords.clone());
 
 /// Known ghost job patterns (template-like descriptions)
-static GHOST_TEMPLATES: LazyLock<Vec<&'static str>> = LazyLock::new(|| {
-    vec![
-        // Generic opener patterns
-        "we are looking for a motivated",
-        "seeking a talented individual",
-        "join our growing team",
-        "opportunity to work with",
-        "looking for someone who",
-        "ideal candidate will have",
-        // Generic closer patterns
-        "competitive salary and benefits",
-        "great work environment",
-        "room for growth",
-        "make a difference",
-        "be part of something",
-    ]
-});
+static GHOST_TEMPLATES: LazyLock<Vec<String>> =
+    LazyLock::new(|| JOB_POSTING_RISK_TAXONOMY.ghost_templates.clone());
 
 /// Ghost job detection engine
 pub struct GhostDetector {
@@ -672,12 +547,12 @@ impl GhostDetector {
 
         let substance_count = SUBSTANCE_KEYWORDS
             .iter()
-            .filter(|kw| text_lower.contains(*kw))
+            .filter(|keyword| text_lower.contains(keyword.as_str()))
             .count();
 
         let fluff_count = FLUFF_KEYWORDS
             .iter()
-            .filter(|kw| text_lower.contains(*kw))
+            .filter(|keyword| text_lower.contains(keyword.as_str()))
             .count();
 
         // Avoid division by zero
@@ -700,7 +575,7 @@ impl GhostDetector {
         let total = GHOST_TEMPLATES.len();
 
         for template in GHOST_TEMPLATES.iter() {
-            if text_lower.contains(template) {
+            if text_lower.contains(template.as_str()) {
                 matches += 1;
             }
         }
