@@ -10,6 +10,9 @@ use super::error::ScraperError;
 use super::http_client::send_with_retry_to_test_url;
 use super::http_client::{read_text_with_limit, send_with_retry};
 use super::rate_limiter::RateLimiter;
+#[cfg(test)]
+use super::rss::extract_xml_tag;
+use super::rss::{parse_rss_items, RssItem};
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
 
@@ -147,11 +150,19 @@ impl SimplyHiredScraper {
     /// Parse RSS feed XML
     fn parse_rss(&self, xml: &str) -> Result<Vec<Job>, ScraperError> {
         let mut jobs = Vec::with_capacity(self.limit);
+        if self.limit == 0 {
+            return Ok(jobs);
+        }
 
-        // Simple XML parsing for RSS items
-        // Using string manipulation since we don't need a full XML parser
-        for item in xml.split("<item>").skip(1) {
-            if let Some(job) = self.parse_item(item)? {
+        let items =
+            parse_rss_items(xml, usize::MAX).map_err(|source| ScraperError::ParseError {
+                format: "RSS".to_string(),
+                url: "simplyhired:rss".to_string(),
+                source,
+            })?;
+
+        for item in items {
+            if let Some(job) = self.parse_item(&item) {
                 jobs.push(job);
                 if jobs.len() >= self.limit {
                     break;
@@ -164,22 +175,23 @@ impl SimplyHiredScraper {
     }
 
     /// Parse a single RSS item
-    fn parse_item(&self, item: &str) -> Result<Option<Job>, ScraperError> {
+    fn parse_item(&self, item: &RssItem) -> Option<Job> {
         // Extract title
-        let title = match Self::extract_tag(item, "title") {
-            Some(t) if !t.is_empty() => Self::decode_html_entities(&t),
-            _ => return Ok(None),
+        let title = match item.get("title") {
+            Some(t) if !t.is_empty() => Self::decode_html_entities(t),
+            _ => return None,
         };
 
         // Extract link
-        let url = match Self::extract_tag(item, "link") {
-            Some(u) if !u.is_empty() => u,
-            _ => return Ok(None),
+        let url = match item.get("link") {
+            Some(u) if !u.is_empty() => u.to_string(),
+            _ => return None,
         };
 
         // Extract description
-        let description = Self::extract_tag(item, "description")
-            .map(|d| Self::decode_html_entities(&Self::strip_html_tags(&d)));
+        let description = item
+            .get("description")
+            .map(|d| Self::decode_html_entities(&Self::strip_html_tags(d)));
 
         // Extract company from title or description
         let company = self
@@ -187,13 +199,15 @@ impl SimplyHiredScraper {
             .unwrap_or_else(|| "Unknown".to_string());
 
         // Extract location
-        let location = Self::extract_tag(item, "georss:point")
+        let location = item
+            .get("georss:point")
+            .map(String::from)
             .or_else(|| Self::extract_location_from_description(description.as_deref()));
 
         let hash = Self::compute_hash(&company, &title, location.as_deref(), &url);
         let remote = self.is_remote_job(&self.query, location.as_deref());
 
-        Ok(Some(Job {
+        Some(Job {
             id: 0,
             hash,
             title,
@@ -221,18 +235,13 @@ impl SimplyHiredScraper {
             ghost_reasons: None,
             first_seen: None,
             repost_count: 0,
-        }))
+        })
     }
 
     /// Extract XML tag content
+    #[cfg(test)]
     fn extract_tag(content: &str, tag: &str) -> Option<String> {
-        let start_tag = format!("<{}>", tag);
-        let end_tag = format!("</{}>", tag);
-
-        let start = content.find(&start_tag)? + start_tag.len();
-        let end = content[start..].find(&end_tag)?;
-
-        Some(content[start..start + end].trim().to_string())
+        extract_xml_tag(content, tag)
     }
 
     fn is_bot_protection_page(body: &str) -> bool {
@@ -475,6 +484,32 @@ mod tests {
             Some("https://example.com".to_string())
         );
         assert_eq!(SimplyHiredScraper::extract_tag(xml, "missing"), None);
+    }
+
+    #[test]
+    fn test_parse_rss_accepts_item_attributes_and_namespaced_location() {
+        let scraper = SimplyHiredScraper::new("care coordinator", None, 10);
+        let rss = r#"
+            <rss>
+              <channel>
+                <item rdf:about="https://www.simplyhired.com/job/789">
+                  <title>Care Coordinator - Acme Health</title>
+                  <link>https://www.simplyhired.com/job/789</link>
+                  <description>&lt;p&gt;Company: Acme Health&lt;/p&gt;</description>
+                  <georss:point>39.7392 -104.9903</georss:point>
+                </item>
+              </channel>
+            </rss>
+        "#;
+
+        let jobs = scraper
+            .parse_rss(rss)
+            .expect("rss should parse item attributes and namespaced fields");
+
+        assert_eq!(jobs.len(), 1);
+        assert_eq!(jobs[0].title, "Care Coordinator - Acme Health");
+        assert_eq!(jobs[0].company, "Acme Health");
+        assert_eq!(jobs[0].location, Some("39.7392 -104.9903".to_string()));
     }
 
     #[tokio::test]

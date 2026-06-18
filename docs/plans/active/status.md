@@ -99,9 +99,9 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   `.sha256` sidecar verified.
 - 2026-06-18 credential taxonomy moved license/certification/designation groups
   into shared data with CPA guard plus source-backed cross-role terms.
-- 2026-06-18 resume reference mining added HTML upload/parsing, source-aware
-  ATS format warnings, shared format taxonomy, JSON Resume export, and builder
-  draft DTO alignment; focused Rust/Vitest gates pass.
+- 2026-06-18 resume/source research added HTML parsing, source-aware warnings,
+  shared taxonomies, JSON Resume export, builder DTO alignment, and dependency-
+  free RSS/JSON-LD parser hardening.
 
 ## Next Best Work
 

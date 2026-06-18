@@ -6,6 +6,9 @@
 use super::error::ScraperError;
 use super::http_client::{read_text_with_limit, send_with_retry};
 use super::rate_limiter::RateLimiter;
+#[cfg(test)]
+use super::rss::extract_xml_tag;
+use super::rss::parse_rss_items;
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
 
@@ -75,14 +78,20 @@ impl WeWorkRemotelyScraper {
     fn parse_rss(&self, xml: &str) -> Result<Vec<Job>, ScraperError> {
         let mut jobs = Vec::with_capacity(self.limit);
 
-        // Simple XML parsing for RSS items
-        // Format: <item><title>...</title><link>...</link><description>...</description></item>
-        for item in xml.split("<item>").skip(1).take(self.limit) {
-            let title = Self::extract_tag(item, "title")
-                .map(|t| Self::decode_html_entities(&t))
+        let items =
+            parse_rss_items(xml, self.limit).map_err(|source| ScraperError::ParseError {
+                format: "RSS".to_string(),
+                url: self.build_url(),
+                source,
+            })?;
+
+        for item in items {
+            let title = item
+                .get("title")
+                .map(Self::decode_html_entities)
                 .unwrap_or_default();
 
-            let url = Self::extract_tag(item, "link").unwrap_or_default();
+            let url = item.get("link").unwrap_or_default().to_string();
 
             // WeWorkRemotely titles often include company: "Company: Job Title"
             let (company, job_title) = if let Some(pos) = title.find(':') {
@@ -97,8 +106,9 @@ impl WeWorkRemotelyScraper {
             }
 
             // Extract description and clean HTML
-            let description = Self::extract_tag(item, "description")
-                .map(|d| Self::decode_html_entities(&d))
+            let description = item
+                .get("description")
+                .map(Self::decode_html_entities)
                 .map(|d| Self::strip_html_tags(&d));
 
             // Try to extract location from description
@@ -141,29 +151,9 @@ impl WeWorkRemotelyScraper {
     }
 
     /// Extract content between XML tags
+    #[cfg(test)]
     fn extract_tag(xml: &str, tag: &str) -> Option<String> {
-        let start_tag = format!("<{}>", tag);
-        let end_tag = format!("</{}>", tag);
-
-        // Also handle CDATA sections
-        let cdata_start = format!("<{}><![CDATA[", tag);
-        let cdata_end = format!("]]></{}>", tag);
-
-        if let (Some(start), Some(end)) = (xml.find(&cdata_start), xml.find(&cdata_end)) {
-            let content_start = start + cdata_start.len();
-            if content_start < end {
-                return Some(xml[content_start..end].to_string());
-            }
-        }
-
-        if let (Some(start), Some(end)) = (xml.find(&start_tag), xml.find(&end_tag)) {
-            let content_start = start + start_tag.len();
-            if content_start < end {
-                return Some(xml[content_start..end].to_string());
-            }
-        }
-
-        None
+        extract_xml_tag(xml, tag)
     }
 
     /// Decode HTML entities

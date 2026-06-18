@@ -132,6 +132,31 @@ fn test_parse_rss_complete_job() {
 }
 
 #[test]
+fn test_parse_rss_accepts_item_attributes() {
+    let scraper = WeWorkRemotelyScraper::new(None, 10);
+    let rss = r#"
+        <rss>
+            <channel>
+                <item rdf:about="https://weworkremotely.com/jobs/67890">
+                    <title><![CDATA[Northstar Clinic: Patient Support Lead]]></title>
+                    <link>https://weworkremotely.com/jobs/67890</link>
+                    <description><![CDATA[Remote team. USA only position.]]></description>
+                </item>
+            </channel>
+        </rss>
+    "#;
+
+    let jobs = scraper
+        .parse_rss(rss)
+        .expect("rss should parse item attributes");
+
+    assert_eq!(jobs.len(), 1);
+    assert_eq!(jobs[0].title, "Patient Support Lead");
+    assert_eq!(jobs[0].company, "Northstar Clinic");
+    assert_eq!(jobs[0].location, Some("USA".to_string()));
+}
+
+#[test]
 fn test_parse_rss_multiple_jobs() {
     let scraper = WeWorkRemotelyScraper::new(Some("programming".to_string()), 10);
     let rss = r#"

@@ -22,6 +22,14 @@ This brief condenses research and source-governance guidance for job monitoring.
   graph data, login-only pages, or restricted content.
 - Track source health and source confidence in plain language.
 - Record source, fetch date, canonical URL, and closure evidence.
+- Keep parser resilience inside the existing source-adapter boundaries. The
+  Scrapling Rust core can parse already-fetched HTML, but adopting it is not
+  justified while JobSentinel already pins `scraper` and `quick-xml`; Scrapling
+  fetch, browser, and spider features are out of scope because they add
+  fingerprint impersonation, cookies, proxy rotation, or browser automation.
+- Prefer structured parsing over string splitting for source formats that
+  already have stable structure, such as JSON-LD script tags and RSS item
+  fields.
 
 ## Open evaluation ideas
 

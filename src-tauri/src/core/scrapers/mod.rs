@@ -19,6 +19,7 @@ pub mod linkedin;
 pub mod location_utils;
 pub mod rate_limiter;
 pub mod remoteok;
+pub mod rss;
 pub mod simplyhired;
 pub mod title_utils;
 pub mod url_utils;

@@ -16,6 +16,7 @@ use crate::core::db::Job;
 
 use async_trait::async_trait;
 use chrono::Utc;
+use scraper::{Html, Selector as HtmlSelector};
 use sha2::{Digest, Sha256};
 
 /// Glassdoor job scraper
@@ -174,14 +175,19 @@ impl GlassdoorScraper {
 
     /// Extract jobs from JSON-LD structured data
     fn extract_json_ld(&self, html: &str) -> Result<Option<Vec<Job>>, ScraperError> {
-        // Find JSON-LD script tags
-        for script in html.split("<script type=\"application/ld+json\">") {
-            if let Some(end) = script.find("</script>") {
-                let json_str = &script[..end];
-                if let Ok(data) = serde_json::from_str::<serde_json::Value>(json_str) {
-                    if let Some(jobs) = self.parse_json_ld_data(&data) {
-                        return Ok(Some(jobs));
-                    }
+        let document = Html::parse_document(html);
+        let selector = HtmlSelector::parse("script[type='application/ld+json']").map_err(|_| {
+            ScraperError::Generic {
+                scraper: "glassdoor".to_string(),
+                message: "Internal JSON-LD selector failed".to_string(),
+            }
+        })?;
+
+        for script in document.select(&selector) {
+            let json_str = script.inner_html();
+            if let Ok(data) = serde_json::from_str::<serde_json::Value>(json_str.trim()) {
+                if let Some(jobs) = self.parse_json_ld_data(&data) {
+                    return Ok(Some(jobs));
                 }
             }
         }
@@ -635,6 +641,36 @@ mod tests {
         assert_eq!(job.company, "FreshMart");
         assert_eq!(job.location, Some("San Francisco".to_string()));
         assert_eq!(job.source, "glassdoor");
+    }
+
+    #[test]
+    fn test_extract_json_ld_accepts_script_attributes() {
+        let scraper = GlassdoorScraper::new("test".to_string(), None, 10);
+        let html = r#"
+            <html>
+              <body>
+                <script id="job-data" type="application/ld+json" data-source="schema">
+                  {
+                    "@type": "JobPosting",
+                    "title": "Program Coordinator",
+                    "url": "https://glassdoor.com/job/456",
+                    "hiringOrganization": { "name": "City Health" },
+                    "jobLocation": { "address": { "addressLocality": "Denver" } },
+                    "description": "Coordinate public programs"
+                  }
+                </script>
+              </body>
+            </html>
+        "#;
+
+        let jobs = scraper
+            .extract_json_ld(html)
+            .expect("json-ld extraction should parse script attributes")
+            .expect("json-ld jobs should be found");
+
+        assert_eq!(jobs.len(), 1);
+        assert_eq!(jobs[0].title, "Program Coordinator");
+        assert_eq!(jobs[0].company, "City Health");
     }
 
     #[tokio::test]
