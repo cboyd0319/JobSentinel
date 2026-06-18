@@ -123,6 +123,7 @@ Use before release:
 
 ```bash
 npm run harness:check
+npm run release:readiness -- --version <version>
 npm run release:check-deps
 npm run release:sbom -- --platform macos --out-dir <staged-assets> --checksums-out <staged-assets>/attestation-subjects.sha256 --require-artifacts
 npm run doctor

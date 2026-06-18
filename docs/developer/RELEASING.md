@@ -37,6 +37,7 @@ artifacts:
 ```bash
 node scripts/install-pinned-npm.mjs
 npm run release:check-version -- vX.Y.Z
+npm run release:readiness -- --version vX.Y.Z
 npm run harness:check
 npm run release:check-deps
 npm run doctor
