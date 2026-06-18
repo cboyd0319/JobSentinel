@@ -137,6 +137,43 @@
       "catalogTerms": ["cpr", "cardiopulmonary resuscitation"]
     },
     {
+      "canonical": "pals",
+      "terms": ["pals", "pediatric advanced life support", "pals certification", "pediatric advanced life support certification"],
+      "catalogTerms": ["pals", "pediatric advanced life support"]
+    },
+    {
+      "canonical": "certified medical assistant",
+      "terms": ["certified medical assistant", "medical assistant certification", "certified clinical medical assistant", "registered medical assistant"],
+      "catalogTerms": ["certified medical assistant", "medical assistant certification"]
+    },
+    {
+      "canonical": "cpc",
+      "terms": ["cpc", "cpc certification", "certified professional coder", "certified professional coder certification", "medical coding certification", "medical coder certification"],
+      "requirementTerms": ["cpc certification", "certified professional coder", "certified professional coder certification", "medical coding certification", "medical coder certification"],
+      "preserveRequirementText": false,
+      "catalogTerms": ["certified professional coder", "medical coding certification"]
+    },
+    {
+      "canonical": "arrt certification",
+      "terms": ["arrt", "arrt certification", "american registry of radiologic technologists", "radiologic technologist certification", "radiation therapy certification"],
+      "catalogTerms": ["arrt certification", "radiologic technologist certification"]
+    },
+    {
+      "canonical": "pharmacy technician certification",
+      "terms": ["pharmacy technician certification", "pharmacy tech certification", "certified pharmacy technician", "cpht", "ptcb certification", "excp certification"],
+      "catalogTerms": ["pharmacy technician certification", "certified pharmacy technician"]
+    },
+    {
+      "canonical": "nrp",
+      "terms": ["nrp", "neonatal resuscitation program", "nrp certification", "neonatal resuscitation program certification"],
+      "catalogTerms": ["nrp", "neonatal resuscitation program"]
+    },
+    {
+      "canonical": "home health aide certification",
+      "terms": ["home health aide certification", "hha certification", "certified home health aide", "home care aide certification"],
+      "catalogTerms": ["home health aide certification", "hha certification"]
+    },
+    {
       "canonical": "pmp",
       "terms": ["pmp", "project management professional", "pmp certification", "project management professional certification"],
       "catalogTerms": ["pmp", "project management professional"]
@@ -234,6 +271,42 @@
       "catalogTerms": ["sphr", "senior professional in human resources"]
     },
     {
+      "canonical": "child development associate",
+      "terms": ["child development associate", "cda credential", "cda certification", "child development associate credential", "child development associate certification"],
+      "requirementTerms": ["cda credential", "cda certification", "child development associate", "child development associate credential", "child development associate certification"],
+      "catalogTerms": ["child development associate", "cda credential"]
+    },
+    {
+      "canonical": "tefl",
+      "terms": ["tefl", "tefl certification", "teaching english as a foreign language", "teaching english as a foreign language certification"],
+      "catalogTerms": ["tefl", "teaching english as a foreign language"]
+    },
+    {
+      "canonical": "national board certification",
+      "terms": ["national board certification", "national board certified teacher", "nbct", "nbc teaching certification"],
+      "catalogTerms": ["national board certification", "national board certified teacher"]
+    },
+    {
+      "canonical": "google certified educator",
+      "terms": ["google certified educator", "google educator certification", "google certified educator level 1", "google certified educator level 2"],
+      "catalogTerms": ["google certified educator", "google educator certification"]
+    },
+    {
+      "canonical": "google analytics certification",
+      "terms": ["google analytics certification", "google analytics individual qualification", "gaiq", "ga4 certification", "google analytics 4 certification"],
+      "catalogTerms": ["google analytics certification", "google analytics individual qualification"]
+    },
+    {
+      "canonical": "hubspot content marketing certification",
+      "terms": ["hubspot content marketing certification", "hubspot certification", "hubspot inbound certification", "hubspot marketing certification"],
+      "catalogTerms": ["hubspot content marketing certification", "hubspot certification"]
+    },
+    {
+      "canonical": "professional certified marketer",
+      "terms": ["professional certified marketer", "pcm certification", "ama professional certified marketer"],
+      "catalogTerms": ["professional certified marketer", "pcm certification"]
+    },
+    {
       "canonical": "aws certification",
       "terms": ["aws certification", "aws certified", "aws certified cloud practitioner", "aws certified solutions architect", "aws certified developer", "aws certified sysops administrator"],
       "catalogTerms": ["aws certification", "aws certified cloud practitioner", "aws certified solutions architect"]
@@ -269,8 +342,18 @@
       "catalogTerms": ["professional engineer", "pe license"]
     },
     {
+      "canonical": "engineer in training",
+      "terms": ["engineer in training", "engineer-in-training", "eit", "eit certification", "engineer intern", "ei certification", "fe exam"],
+      "catalogTerms": ["engineer in training", "eit certification"]
+    },
+    {
+      "canonical": "ase certification",
+      "terms": ["ase certification", "automotive service excellence", "automotive service excellence certification", "ase certified"],
+      "catalogTerms": ["ase certification", "automotive service excellence"]
+    },
+    {
       "canonical": "hvac certification",
-      "terms": ["hvac certification", "hvac technician certification", "epa 608", "epa 608 certification", "nate certification", "r-410a certification", "r410a certification"],
+      "terms": ["hvac certification", "hvac technician certification", "epa 608 certification", "epa 608", "nate certification", "nate certified", "r-410a certification", "r-410a certified", "r410a certification", "r410a certified"],
       "catalogTerms": ["hvac certification", "epa 608", "nate certification"]
     },
     {

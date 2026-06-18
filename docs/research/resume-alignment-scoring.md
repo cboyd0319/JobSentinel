@@ -370,6 +370,13 @@ Future implementation should improve:
   certifications, Six Sigma belt/certification wording, Certified Scrum Master,
   LEED, Professional Engineer, and HVAC certification wording as curated
   credential groups when the job post uses credential-specific language.
+- Resume/job fit now also includes source-backed healthcare, education,
+  marketing, and trade credentials such as Certified Medical Assistant, CPC,
+  ARRT, pharmacy technician certification, NRP, home health aide certification,
+  Child Development Associate, TEFL, National Board Certification, Google
+  Certified Educator, Google Analytics certification, HubSpot Content Marketing
+  certification, Professional Certified Marketer, EPA 608, NATE, and
+  Engineer-in-Training wording.
 - Resume/job fit now treats `food safety`, `food safety certification`,
   `ServSafe`, and food handler, food-handler, food handler's, or food handlers
   certification, certificate, permit, or card wording as the same local

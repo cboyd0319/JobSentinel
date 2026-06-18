@@ -606,3 +606,113 @@ fn test_requirement_review_uses_hr_credential_equivalence() {
         .iter()
         .any(|risk| risk.requirement == "shrm-cp"));
 }
+
+#[test]
+fn test_requirement_review_uses_certified_medical_assistant_equivalence() {
+    let result = AtsAnalyzer::analyze_text_for_job(
+        "Jordan Lee\njordan@example.com\n\nCertifications\nCertified Medical Assistant",
+        &[],
+        "Required: medical assistant certification",
+    );
+
+    let medical_assistant = result
+        .requirement_reviews
+        .iter()
+        .find(|review| review.keyword == "medical assistant certification")
+        .expect("medical assistant certification review");
+    assert_eq!(medical_assistant.match_state, RequirementMatchState::Direct);
+    assert!(medical_assistant.hard_constraint);
+    assert!(medical_assistant
+        .evidence_sections
+        .contains(&"certifications".to_string()));
+    assert!(!result
+        .hard_constraint_risks
+        .iter()
+        .any(|risk| risk.requirement == "medical assistant certification"));
+}
+
+#[test]
+fn test_requirement_review_uses_medical_coding_cpc_equivalence() {
+    let result = AtsAnalyzer::analyze_text_for_job(
+        "Jordan Lee\njordan@example.com\n\nCertifications\nCertified Professional Coder",
+        &[],
+        "Required: CPC certification",
+    );
+
+    let cpc = result
+        .requirement_reviews
+        .iter()
+        .find(|review| review.keyword == "cpc")
+        .expect("cpc review");
+    assert_eq!(cpc.match_state, RequirementMatchState::Direct);
+    assert!(cpc.hard_constraint);
+    assert!(cpc
+        .evidence_sections
+        .contains(&"certifications".to_string()));
+    assert!(!result
+        .hard_constraint_risks
+        .iter()
+        .any(|risk| risk.requirement == "cpc"));
+}
+
+#[test]
+fn test_requirement_review_uses_arrt_and_pharmacy_tech_equivalences() {
+    let result = AtsAnalyzer::analyze_text_for_job(
+        "Jordan Lee\njordan@example.com\n\nCertifications\nARRT Certification\nPharmacy Technician Certification",
+        &[],
+        "Required: ARRT certification and pharmacy technician certification",
+    );
+
+    for keyword in ["arrt certification", "pharmacy technician certification"] {
+        let review = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == keyword)
+            .unwrap_or_else(|| panic!("credential review for {keyword}"));
+        assert_eq!(review.match_state, RequirementMatchState::Direct);
+        assert!(review.hard_constraint);
+        assert!(review
+            .evidence_sections
+            .contains(&"certifications".to_string()));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == keyword));
+    }
+}
+
+#[test]
+fn test_requirement_review_uses_cda_and_hvac_specific_equivalences() {
+    let result = AtsAnalyzer::analyze_text_for_job(
+        "Jordan Lee\njordan@example.com\n\nCertifications\nChild Development Associate\nEPA 608\nNATE Certified",
+        &[],
+        "Required: CDA credential, EPA 608 certification, and NATE certification",
+    );
+
+    for keyword in [
+        "cda credential",
+        "epa 608 certification",
+        "nate certification",
+    ] {
+        let review = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == keyword)
+            .unwrap_or_else(|| panic!("credential review for {keyword}"));
+        assert!(
+            matches!(
+                review.match_state,
+                RequirementMatchState::Direct | RequirementMatchState::Strong
+            ),
+            "{keyword} should have direct or stronger credential evidence"
+        );
+        assert!(review.hard_constraint);
+        assert!(review
+            .evidence_sections
+            .contains(&"certifications".to_string()));
+        assert!(!result
+            .hard_constraint_risks
+            .iter()
+            .any(|risk| risk.requirement == keyword));
+    }
+}

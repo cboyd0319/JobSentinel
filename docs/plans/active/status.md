@@ -98,7 +98,7 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   executable x86_64 AppImage `bb1d58aadce73254ab80510ce659710dd6b63f20491ee76a4e0781f63da00ee4`;
   `.sha256` sidecar verified.
 - 2026-06-18 credential taxonomy moved license/certification/designation groups
-  into shared data with a CPA guard and verified green gates.
+  into shared data with CPA guard plus source-backed cross-role terms.
 - 2026-06-18 resume reference mining added HTML upload/parsing, source-aware
   ATS format warnings, shared format taxonomy, JSON Resume export, and builder
   draft DTO alignment; focused Rust/Vitest gates pass.
