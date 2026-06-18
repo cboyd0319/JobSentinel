@@ -82,8 +82,26 @@ export const MOCK_HUMAN_LANGUAGES = resumeKeywordTaxonomy.humanLanguages;
 
 export const ATS_POWER_WORDS = resumeKeywordTaxonomy.bulletPowerWords;
 
+type SupplementalKeywordGroup = {
+  canonical: string;
+  catalogTerms?: string[];
+};
+
+function getSupplementalKeywordCatalogTerms(): string[] {
+  return [
+    ...new Set(
+      (resumeKeywordTaxonomy.supplementalKeywordGroups as SupplementalKeywordGroup[])
+        .flatMap((group) =>
+          group.catalogTerms && group.catalogTerms.length > 0
+            ? group.catalogTerms
+            : [group.canonical]
+        ),
+    ),
+  ];
+}
+
 export const ATS_KNOWN_KEYWORDS: readonly string[] = [
-  ...resumeKeywordTaxonomy.supplementalKeywordGroups.map((group) => group.canonical),
+  ...getSupplementalKeywordCatalogTerms(),
   ...getMockCredentialCatalogTerms(),
   "forecasting",
   "workflow improvement",
@@ -181,25 +199,9 @@ export const ATS_KNOWN_KEYWORDS: readonly string[] = [
   "point of sale",
   "pos system",
   "pos systems",
-  "document review",
-  "document-review",
-  "case files",
-  "case-files",
-  "legal research",
-  "legal-research",
-  "records management",
-  "records-management",
-  "policy analysis",
-  "policy-analysis",
-  "grant administration",
-  "grant-administration",
   "public benefits",
-  "financial reconciliation",
-  "financial-reconciliation",
   "reconciliation",
   "billing",
   "invoicing",
-  "loan processing",
-  "loan-processing",
   "financial reporting",
 ];

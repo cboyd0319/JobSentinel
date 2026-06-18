@@ -150,18 +150,10 @@ pub(super) fn industry_keywords() -> Vec<String> {
         "pos systems",
         "cash handling",
         "cashier",
-        "document review",
-        "case files",
-        "legal research",
-        "records management",
-        "policy analysis",
-        "grant administration",
         "public benefits",
-        "financial reconciliation",
         "reconciliation",
         "billing",
         "invoicing",
-        "loan processing",
         "financial reporting",
         "tdd",
         "testing",
@@ -173,7 +165,7 @@ pub(super) fn industry_keywords() -> Vec<String> {
     .into_iter()
     .map(str::to_string)
     .collect::<Vec<_>>();
-    keywords.extend(super::requirement_rules::supplemental_keyword_canonicals());
+    keywords.extend(super::requirement_rules::supplemental_keyword_catalog_terms());
     keywords.extend(super::requirement_rules::credential_keyword_catalog_terms());
     keywords
 }

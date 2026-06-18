@@ -47,6 +47,8 @@ struct PhysicalWeightFamily {
 struct SupplementalKeywordGroup {
     canonical: String,
     terms: Vec<String>,
+    #[serde(default, rename = "catalogTerms")]
+    catalog_terms: Vec<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -225,12 +227,25 @@ pub(super) fn extract_supplemental_keywords(text: &str) -> Vec<String> {
     keywords
 }
 
-pub(super) fn supplemental_keyword_canonicals() -> Vec<String> {
-    TAXONOMY
-        .supplemental_keyword_groups
-        .iter()
-        .map(|group| group.canonical.clone())
-        .collect()
+pub(super) fn supplemental_keyword_catalog_terms() -> Vec<String> {
+    let mut seen = HashSet::new();
+    let mut terms = Vec::new();
+
+    for group in &TAXONOMY.supplemental_keyword_groups {
+        let catalog_terms: &[String] = if group.catalog_terms.is_empty() {
+            std::slice::from_ref(&group.canonical)
+        } else {
+            &group.catalog_terms
+        };
+
+        for term in catalog_terms {
+            if seen.insert(term.clone()) {
+                terms.push(term.clone());
+            }
+        }
+    }
+
+    terms
 }
 
 pub(super) fn supplemental_keyword_search_terms(keyword_lower: &str) -> Vec<String> {

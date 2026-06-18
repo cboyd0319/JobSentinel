@@ -404,6 +404,36 @@
       "terms": ["document preparation", "document-preparation"]
     },
     {
+      "canonical": "document review",
+      "terms": ["document review", "document-review"],
+      "catalogTerms": ["document review", "document-review"]
+    },
+    {
+      "canonical": "records management",
+      "terms": ["records management", "records-management"],
+      "catalogTerms": ["records management", "records-management"]
+    },
+    {
+      "canonical": "case files",
+      "terms": ["case files", "case-files"],
+      "catalogTerms": ["case files", "case-files"]
+    },
+    {
+      "canonical": "legal research",
+      "terms": ["legal research", "legal-research"],
+      "catalogTerms": ["legal research", "legal-research"]
+    },
+    {
+      "canonical": "policy analysis",
+      "terms": ["policy analysis", "policy-analysis"],
+      "catalogTerms": ["policy analysis", "policy-analysis"]
+    },
+    {
+      "canonical": "grant administration",
+      "terms": ["grant administration", "grant-administration"],
+      "catalogTerms": ["grant administration", "grant-administration"]
+    },
+    {
       "canonical": "confidentiality",
       "terms": ["confidentiality", "confidential information"]
     },
@@ -548,6 +578,11 @@
       "terms": ["financial analysis", "financial-analysis"]
     },
     {
+      "canonical": "financial reconciliation",
+      "terms": ["financial reconciliation", "financial-reconciliation"],
+      "catalogTerms": ["financial reconciliation", "financial-reconciliation"]
+    },
+    {
       "canonical": "variance analysis",
       "terms": ["variance analysis", "variance-analysis"]
     },
@@ -558,6 +593,11 @@
     {
       "canonical": "budget management",
       "terms": ["budget management", "budget-management"]
+    },
+    {
+      "canonical": "loan processing",
+      "terms": ["loan processing", "loan-processing"],
+      "catalogTerms": ["loan processing", "loan-processing"]
     },
     {
       "canonical": "sap",
