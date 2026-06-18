@@ -94,7 +94,7 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   GitHub attestations, macOS supply-chain checks, import hardening, model pins,
   macOS dependency trimming, and Linux Debian WebKitGTK 4.1 metadata.
   Gatekeeper-ready macOS remains Apple-blocked. Public wiki `Home.md` and
-  `Capabilities.md` are stale and need approval before wiki remote writes.
+  `Capabilities.md` have a validated local draft pending approval to push.
 - OWASP CheatSheetSeries scan across 120 local files on 2026-06-18 verified
   Actions, supply-chain, AI, storage, URL, logging, Browser Import, CSS, and
   DOCX parser boundaries; follow-up now includes tag-bound releases, CI drift
