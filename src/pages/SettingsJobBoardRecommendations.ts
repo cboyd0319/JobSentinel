@@ -1,4 +1,10 @@
 import { useMemo, type Dispatch, type SetStateAction } from "react";
+import {
+  BUILTIN_TECH_CITY_TERMS,
+  GOVERNMENT_SOURCE_TERMS,
+  REMOTE_INTENT_TERMS,
+  STARTUP_SOURCE_TERMS,
+} from "../shared/jobSourceRecommendationTaxonomy";
 import { searchLooksTechFocused } from "../utils/profiles";
 import {
   buildSettingsSourceQuery,
@@ -9,6 +15,12 @@ export interface JobBoardRecommendation {
   board: string;
   reason: string;
   enable: () => void;
+}
+
+function includesAnyTerm(values: string[], terms: readonly string[]): boolean {
+  return values.some((value) =>
+    terms.some((term) => value.toLowerCase().includes(term)),
+  );
 }
 
 export function useJobBoardRecommendations(
@@ -28,7 +40,8 @@ export function useJobBoardRecommendations(
     const allowRemote = config.location_preferences?.allow_remote ?? false;
     const cities = config.location_preferences?.cities ?? [];
     const isTechFocused = searchLooksTechFocused(keywords);
-    const hasRemoteIntent = allowRemote || keywords.some((k) => k.includes("remote"));
+    const hasRemoteIntent =
+      allowRemote || includesAnyTerm(keywords, REMOTE_INTENT_TERMS);
 
     if (isTechFocused && hasRemoteIntent) {
       if (!config.remoteok?.enabled) {
@@ -64,14 +77,7 @@ export function useJobBoardRecommendations(
       }
     }
 
-    if (
-      keywords.some(
-        (k) =>
-          k.includes("startup") ||
-          k.includes("early stage") ||
-          k.includes("seed"),
-      )
-    ) {
+    if (includesAnyTerm(keywords, STARTUP_SOURCE_TERMS)) {
       if (!config.yc_startup?.enabled) {
         recommendations.push({
           board: "YC Startups",
@@ -126,15 +132,7 @@ export function useJobBoardRecommendations(
       }
     }
 
-    if (
-      keywords.some(
-        (k) =>
-          k.includes("federal") ||
-          k.includes("government") ||
-          k.includes("clearance") ||
-          k.includes("public sector"),
-      )
-    ) {
+    if (includesAnyTerm(keywords, GOVERNMENT_SOURCE_TERMS)) {
       if (!config.usajobs?.enabled) {
         recommendations.push({
           board: "USAJobs",
@@ -157,14 +155,7 @@ export function useJobBoardRecommendations(
 
     if (
       isTechFocused &&
-      cities.some(
-        (c) =>
-          c.toLowerCase().includes("san francisco") ||
-          c.toLowerCase().includes("new york") ||
-          c.toLowerCase().includes("austin") ||
-          c.toLowerCase().includes("seattle") ||
-          c.toLowerCase().includes("chicago"),
-      )
+      includesAnyTerm(cities, BUILTIN_TECH_CITY_TERMS)
     ) {
       if (!config.builtin?.enabled) {
         recommendations.push({

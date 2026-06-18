@@ -101,7 +101,7 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   into shared data with CPA guard plus source-backed cross-role terms.
 - 2026-06-18 resume/source research added HTML parsing, source-aware warnings,
   shared taxonomies, JSON Resume import/export, builder DTO alignment, print CSS,
-  and dependency-free RSS/JSON-LD parser hardening.
+  source recommendation routing, and dependency-free RSS/JSON-LD parser hardening.
 
 ## Next Best Work
 

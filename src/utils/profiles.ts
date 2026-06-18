@@ -3,6 +3,11 @@
  * Loads pre-configured profiles for different career paths
  */
 
+import {
+  TECH_SOURCE_PROFILE_IDS,
+  TECH_SOURCE_TERMS,
+} from "../shared/jobSourceRecommendationTaxonomy";
+
 export interface CareerProfile {
   id: string;
   name: string;
@@ -28,59 +33,7 @@ export interface SourceDefaults {
   weworkremotelyEnabled: boolean;
 }
 
-const TECH_SOURCE_PROFILE_IDS = new Set([
-  "software-engineering",
-  "cybersecurity",
-  "data-science",
-]);
-
-// Keep this list role-specific so broad roles with common tools, such as
-// Accountant + SQL, do not inherit software-job-board defaults.
-const TECH_SOURCE_TERMS = [
-  "software engineer",
-  "software developer",
-  "web developer",
-  "frontend",
-  "front end",
-  "frontend developer",
-  "backend",
-  "back end",
-  "backend developer",
-  "full stack",
-  "full stack developer",
-  "programmer",
-  "devops",
-  "sre",
-  "site reliability",
-  "platform engineer",
-  "cloud engineer",
-  "infrastructure engineer",
-  "systems engineer",
-  "cybersecurity",
-  "security engineer",
-  "security analyst",
-  "soc analyst",
-  "appsec",
-  "data scientist",
-  "data analyst",
-  "business intelligence analyst",
-  "bi analyst",
-  "machine learning",
-  "ml engineer",
-  "ai engineer",
-  "data engineer",
-  "analytics engineer",
-  "ux engineer",
-  "design engineer",
-  "react developer",
-  "typescript developer",
-  "javascript developer",
-  "python developer",
-  "rust developer",
-  "java developer",
-  "node developer",
-  "node.js developer",
-];
+const TECH_SOURCE_PROFILE_ID_SET = new Set<string>(TECH_SOURCE_PROFILE_IDS);
 
 function buildSourceDefaults(isTechFocused: boolean, allowRemote: boolean): SourceDefaults {
   return {
@@ -106,7 +59,7 @@ function normalizeSearchTerm(term: string): string {
 
 export function getProfileSourceDefaults(profile: CareerProfile): SourceDefaults {
   return buildSourceDefaults(
-    TECH_SOURCE_PROFILE_IDS.has(profile.id),
+    TECH_SOURCE_PROFILE_ID_SET.has(profile.id),
     profile.locationPreferences.allow_remote,
   );
 }
