@@ -15,6 +15,7 @@ use std::net::SocketAddr;
 use std::sync::{Arc, RwLock};
 use std::time::Duration;
 use thiserror::Error;
+use tokio::sync::{OwnedSemaphorePermit, Semaphore};
 use tokio::task::JoinHandle;
 use uuid::Uuid;
 
@@ -22,6 +23,7 @@ const BOOKMARKLET_TOKEN_HEADER: &str = "x-jobsentinel-token";
 const CONTENT_LENGTH_HEADER: &str = "content-length";
 const HEADER_BODY_SEPARATOR: &[u8] = b"\r\n\r\n";
 const MAX_BOOKMARKLET_REQUEST_BYTES: usize = 8192;
+const MAX_BOOKMARKLET_CONNECTIONS: usize = 16;
 #[cfg(not(test))]
 const BOOKMARKLET_READ_TIMEOUT: Duration = Duration::from_secs(3);
 #[cfg(test)]
@@ -247,15 +249,24 @@ async fn run_server(
         tracing::info!(address = %address, "Listening on bookmarklet import port");
     }
 
+    let connection_limit = Arc::new(Semaphore::new(MAX_BOOKMARKLET_CONNECTIONS));
+
     // Accept connections until shutdown
     loop {
         tokio::select! {
             result = listener.accept() => {
                 match result {
                     Ok((stream, _)) => {
+                        let Some(connection_permit) =
+                            try_bookmarklet_connection_permit(&connection_limit)
+                        else {
+                            tracing::warn!("Bookmarklet connection limit reached");
+                            continue;
+                        };
                         let db = database.clone();
                         let auth = auth_state.clone();
                         tokio::spawn(async move {
+                            let _connection_permit = connection_permit;
                             if let Err(_e) =
                                 handle_connection(stream, auth, db).await
                             {
@@ -279,6 +290,12 @@ async fn run_server(
     }
 
     Ok(())
+}
+
+fn try_bookmarklet_connection_permit(
+    connection_limit: &Arc<Semaphore>,
+) -> Option<OwnedSemaphorePermit> {
+    Arc::clone(connection_limit).try_acquire_owned().ok()
 }
 
 /// Handle a single HTTP connection

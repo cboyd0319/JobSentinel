@@ -87,6 +87,18 @@ fn test_bookmarklet_http_response_does_not_advertise_wildcard_cors() {
 }
 
 #[test]
+fn test_bookmarklet_connection_limit_releases_permits() {
+    let connection_limit = Arc::new(Semaphore::new(1));
+    let permit = try_bookmarklet_connection_permit(&connection_limit)
+        .expect("first connection should get a permit");
+
+    assert!(try_bookmarklet_connection_permit(&connection_limit).is_none());
+
+    drop(permit);
+    assert!(try_bookmarklet_connection_permit(&connection_limit).is_some());
+}
+
+#[test]
 fn test_bookmarklet_config_refreshes_auth_token_with_expiry() {
     let mut config = BookmarkletConfig {
         port: 4321,
