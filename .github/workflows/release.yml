@@ -583,7 +583,7 @@ jobs:
         if: matrix.platform != 'macos-26'
         run: npx --no-install tauri build --target ${{ matrix.target }}
 
-      - name: Remove Windows signing certificate
+      - name: Clean Windows signing material
         if: always() && matrix.platform == 'windows-2025'
         shell: pwsh
         env:
@@ -605,6 +605,8 @@ jobs:
           foreach ($certificate in $matchingCertificates) {
             Remove-Item -LiteralPath $certificate.PSPath -DeleteKey -Force
           }
+
+          Remove-Item -LiteralPath "src-tauri/tauri.windows.conf.json" -Force -ErrorAction SilentlyContinue
 
       - name: Build macOS app and DMG
         if: matrix.platform == 'macos-26'
@@ -648,6 +650,16 @@ jobs:
           fi
 
           npm run tauri:verify:macos -- "${args[@]}"
+
+      - name: Clean up macOS signing material
+        if: always() && matrix.platform == 'macos-26'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          security delete-keychain "$RUNNER_TEMP/jobsentinel-signing.keychain-db" >/dev/null 2>&1 || :
+          rm -f "$RUNNER_TEMP/jobsentinel-certificate.p12"
+          rm -f "$RUNNER_TEMP"/AuthKey_*.p8
 
       - name: Label no-account macOS DMG
         if: matrix.platform == 'macos-26' && env.JOBSENTINEL_MACOS_NO_ACCOUNT == 'true'

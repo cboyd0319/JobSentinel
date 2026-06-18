@@ -213,7 +213,12 @@ function writeBaseRepo(root, csp) {
     JSON.stringify({
       identifier: "default",
       windows: ["main"],
-      permissions: ["core:default", "notification:default", "dialog:default"],
+      permissions: [
+        "core:default",
+        "notification:allow-is-permission-granted",
+        "notification:allow-request-permission",
+        "notification:allow-notify",
+      ],
     }),
   );
   writeFileSync(
@@ -314,6 +319,60 @@ test("checkSecuritySensors rejects frontend shell capability grants", () => {
   assert(
     checkSecuritySensors(root).includes(
       "src-tauri/capabilities/default.json must not grant frontend shell permissions; route browser opens through validated Rust IPC",
+    ),
+  );
+});
+
+test("checkSecuritySensors rejects frontend dialog capability grants", () => {
+  const root = mkdtempRoot("jobsentinel-security-sensors-dialog-capability-");
+  writeBaseRepo(
+    root,
+    "default-src 'self'; connect-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'",
+  );
+  writeFileSync(
+    join(root, "src-tauri/capabilities/default.json"),
+    JSON.stringify({
+      identifier: "default",
+      windows: ["main"],
+      permissions: ["core:default", "dialog:default"],
+    }),
+  );
+
+  assert(
+    checkSecuritySensors(root).includes(
+      "src-tauri/capabilities/default.json must not grant frontend dialog permissions; open native file dialogs through validated Rust IPC commands",
+    ),
+  );
+});
+
+test("checkSecuritySensors rejects broad or unused frontend notification grants", () => {
+  const root = mkdtempRoot("jobsentinel-security-sensors-notification-capability-");
+  writeBaseRepo(
+    root,
+    "default-src 'self'; connect-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'",
+  );
+  writeFileSync(
+    join(root, "src-tauri/capabilities/default.json"),
+    JSON.stringify({
+      identifier: "default",
+      windows: ["main"],
+      permissions: [
+        "core:default",
+        "notification:default",
+        "notification:allow-list-channels",
+      ],
+    }),
+  );
+
+  const violations = checkSecuritySensors(root);
+  assert(
+    violations.includes(
+      "src-tauri/capabilities/default.json must not grant notification:default; allow only the notification commands the renderer uses",
+    ),
+  );
+  assert(
+    violations.includes(
+      "src-tauri/capabilities/default.json must not grant unused frontend notification permission: notification:allow-list-channels",
     ),
   );
 });
@@ -492,6 +551,26 @@ test("checkSecuritySensors rejects release workflow without Windows key cleanup"
   assert(
     checkSecuritySensors(root).includes(
       "release workflow is missing package gate: Windows signing setup",
+    ),
+  );
+});
+
+test("checkSecuritySensors rejects release workflow without macOS signing material cleanup", () => {
+  const root = mkdtempRoot("jobsentinel-security-sensors-macos-signing-cleanup-");
+  writeBaseRepo(
+    root,
+    "default-src 'self'; connect-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'",
+  );
+  writeFileSync(
+    join(root, ".github/workflows/release.yml"),
+    readBaseReleaseWorkflowWithout(
+      '          security delete-keychain "$RUNNER_TEMP/jobsentinel-signing.keychain-db" >/dev/null 2>&1 || :\n',
+    ),
+  );
+
+  assert(
+    checkSecuritySensors(root).includes(
+      "release workflow is missing package gate: macOS signing material cleanup",
     ),
   );
 });
@@ -976,15 +1055,22 @@ function readBaseReleaseWorkflowWithout(removedLine) {
     "          Import-PfxCertificate",
     "          Remove-Item -LiteralPath $certificatePath",
     "          tauri.windows.conf.json",
-    "      - name: Remove Windows signing certificate",
+    "      - name: Clean Windows signing material",
     "        run: |",
     "          Remove-Item -LiteralPath $certificate.PSPath -DeleteKey",
+    "          Remove-Item -LiteralPath \"src-tauri/tauri.windows.conf.json\" -Force -ErrorAction SilentlyContinue",
     "      - run: |",
     "          keychain_password=\"$(openssl rand -hex 24)\"",
     "          printf '::add-mask::%s\\n' \"$keychain_password\"",
     "          JOBSENTINEL_MACOS_NO_ACCOUNT=true",
     "          labeled_name=JobSentinel_1.2.3_no-account_universal.dmg",
     "          npm run tauri:verify:macos -- --launch-smoke --install-smoke --require-checksum --require-gatekeeper --expected-bundle-id com.jobsentinel.main --expected-product-name JobSentinel --expected-version 1.2.3 --expected-icon-file icon.icns --expected-minimum-system-version 13.0",
+    "      - name: Clean up macOS signing material",
+    "        run: |",
+    "          security delete-keychain \"$RUNNER_TEMP/jobsentinel-signing.keychain-db\" >/dev/null 2>&1 || :",
+    "          rm -f \"$RUNNER_TEMP/jobsentinel-certificate.p12\"",
+    "          rm -f \"$RUNNER_TEMP\"/AuthKey_*.p8",
+    "      - run: |",
     "          npm run release:sbom -- --require-artifacts --checksums-out release-assets/attestation-subjects.sha256",
     "      - uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26 # v4.1.0",
     "        with:",

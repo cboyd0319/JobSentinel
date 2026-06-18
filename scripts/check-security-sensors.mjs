@@ -195,6 +195,15 @@ const releaseWorkflowChecks = [
     phrases: ["JOBSENTINEL_MACOS_NO_ACCOUNT", "_no-account_"],
   },
   {
+    label: "macOS signing material cleanup",
+    phrases: [
+      "Clean up macOS signing material",
+      'security delete-keychain "$RUNNER_TEMP/jobsentinel-signing.keychain-db"',
+      'rm -f "$RUNNER_TEMP/jobsentinel-certificate.p12"',
+      'rm -f "$RUNNER_TEMP"/AuthKey_*.p8',
+    ],
+  },
+  {
     label: "Windows signing setup",
     phrases: [
       "Configure Windows signing",
@@ -204,8 +213,9 @@ const releaseWorkflowChecks = [
       "WINDOWS_TIMESTAMP_URL",
       "Import-PfxCertificate",
       "Remove-Item -LiteralPath $certificatePath",
-      "Remove Windows signing certificate",
+      "Clean Windows signing material",
       "Remove-Item -LiteralPath $certificate.PSPath -DeleteKey",
+      'Remove-Item -LiteralPath "src-tauri/tauri.windows.conf.json"',
       "tauri.windows.conf.json",
     ],
   },

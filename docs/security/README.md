@@ -147,7 +147,8 @@ docs keep dependency audit, Rust supply-chain, and scheduled drift gates visible
 that browser-extension manifests avoid broad host and high-risk permissions,
 that the Tauri renderer CSP keeps external network calls out of the frontend,
 that renderer CSS does not load third-party styles or fonts, and that Tauri
-capabilities do not grant frontend shell-open permissions. It also runs
+capabilities do not grant frontend shell or dialog permissions or broad
+notification plugin access. It also runs
 `npm run lint:secrets` to block high-confidence committed provider keys,
 webhooks, private keys, and session-cookie values.
 

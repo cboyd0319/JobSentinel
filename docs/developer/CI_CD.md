@@ -522,6 +522,9 @@ signing, notarization, Gatekeeper acceptance, mounted-app plus installed-app
 launch smoke, local data initialization, and owner-only local-data permissions,
 the signed macOS release job should fail instead of publishing a package that
 nontechnical users cannot open cleanly.
+After the macOS build and verification steps, CI deletes the temporary signing
+keychain, decoded `.p12` certificate, and materialized App Store Connect `.p8`
+key from the hosted runner.
 
 After the GitHub release is published, the `Verify Release Artifacts` workflow
 runs automatically. It downloads the public Windows, macOS, and Linux

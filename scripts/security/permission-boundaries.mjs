@@ -27,6 +27,12 @@ const broadBrowserExtensionHostPatterns = [
   /^file:\/\/\*\/\*$/i,
 ];
 
+const allowedTauriNotificationPermissions = new Set([
+  "notification:allow-is-permission-granted",
+  "notification:allow-request-permission",
+  "notification:allow-notify",
+]);
+
 function repoPath(root, path) {
   return join(root, path);
 }
@@ -132,6 +138,26 @@ export function checkTauriCapabilityBoundary(root, violations) {
       if (typeof identifier === "string" && identifier.startsWith("shell:")) {
         violations.push(
           `${path} must not grant frontend shell permissions; route browser opens through validated Rust IPC`,
+        );
+      }
+
+      if (typeof identifier === "string" && identifier.startsWith("dialog:")) {
+        violations.push(
+          `${path} must not grant frontend dialog permissions; open native file dialogs through validated Rust IPC commands`,
+        );
+      }
+
+      if (identifier === "notification:default") {
+        violations.push(
+          `${path} must not grant notification:default; allow only the notification commands the renderer uses`,
+        );
+      } else if (
+        typeof identifier === "string" &&
+        identifier.startsWith("notification:") &&
+        !allowedTauriNotificationPermissions.has(identifier)
+      ) {
+        violations.push(
+          `${path} must not grant unused frontend notification permission: ${identifier}`,
         );
       }
     }

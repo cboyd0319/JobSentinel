@@ -101,6 +101,9 @@ export APPLE_TEAM_ID="TEAMID"
 If only some Apple secrets are configured, the macOS job fails before building.
 If all required Apple secrets are configured, the workflow signs, notarizes,
 staples, validates, and requires `--require-gatekeeper` before upload.
+The hosted release job deletes the temporary signing keychain, decoded `.p12`
+certificate, and materialized App Store Connect `.p8` key after macOS build
+verification.
 
 ### 3. Local macOS verification and upload
 
