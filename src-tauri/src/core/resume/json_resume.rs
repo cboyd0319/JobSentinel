@@ -453,6 +453,18 @@ impl JsonResume {
                     "Personal Project".to_string()
                 };
 
+                let mut achievements = Vec::new();
+                if !project.description.is_empty() {
+                    achievements.push(project.description.clone());
+                }
+                achievements.extend(project.highlights.clone());
+                if !project.keywords.is_empty() {
+                    achievements.push(format!("Tools and topics: {}", project.keywords.join(", ")));
+                }
+                if !project.url.is_empty() {
+                    achievements.push(format!("Project link: {}", project.url));
+                }
+
                 ConvertedExperience {
                     title,
                     company,
@@ -463,7 +475,7 @@ impl JsonResume {
                     } else {
                         project.end_date.clone()
                     },
-                    achievements: project.highlights.clone(),
+                    achievements,
                     current: project.end_date.is_empty(),
                 }
             })
@@ -534,6 +546,22 @@ impl JsonResume {
             }
         }
 
+        for language in &self.languages {
+            if language.language.is_empty() {
+                continue;
+            }
+
+            let name = if language.fluency.is_empty() {
+                language.language.clone()
+            } else {
+                format!("{} - {}", language.language, language.fluency)
+            };
+            skills.push(ConvertedSkill {
+                name,
+                proficiency: Some(language_proficiency(&language.fluency)),
+            });
+        }
+
         skills
     }
 
@@ -559,7 +587,43 @@ impl JsonResume {
             });
         }
 
+        for publication in &self.publications {
+            if publication.name.is_empty() {
+                continue;
+            }
+
+            certifications.push(ConvertedCertification {
+                name: format!("Publication: {}", publication.name),
+                issuer: publication.publisher.clone(),
+                date: publication.release_date.clone(),
+            });
+        }
+
         certifications
+    }
+}
+
+fn language_proficiency(fluency: &str) -> Proficiency {
+    let lower = fluency.to_lowercase();
+    if lower.contains("native")
+        || lower.contains("fluent")
+        || lower.contains("bilingual")
+        || lower.contains("full professional")
+    {
+        Proficiency::Expert
+    } else if lower.contains("professional") || lower.contains("advanced") {
+        Proficiency::Advanced
+    } else if lower.contains("limited")
+        || lower.contains("working")
+        || lower.contains("intermediate")
+        || lower.contains("conversational")
+    {
+        Proficiency::Intermediate
+    } else if lower.contains("elementary") || lower.contains("basic") || lower.contains("beginner")
+    {
+        Proficiency::Beginner
+    } else {
+        Proficiency::Intermediate
     }
 }
 
@@ -738,6 +802,28 @@ mod tests {
     }
 
     #[test]
+    fn test_convert_languages_to_skills() {
+        let json = r#"{
+            "languages": [{
+                "language": "Spanish",
+                "fluency": "Professional working proficiency"
+            }, {
+                "language": "Arabic",
+                "fluency": "Elementary"
+            }]
+        }"#;
+
+        let resume = JsonResume::from_json(json).unwrap();
+        let skills = resume.convert_skills();
+
+        assert_eq!(skills.len(), 2);
+        assert_eq!(skills[0].name, "Spanish - Professional working proficiency");
+        assert_eq!(skills[0].proficiency, Some(Proficiency::Advanced));
+        assert_eq!(skills[1].name, "Arabic - Elementary");
+        assert_eq!(skills[1].proficiency, Some(Proficiency::Beginner));
+    }
+
+    #[test]
     fn test_convert_certifications() {
         let json = r#"{
             "certificates": [{
@@ -758,6 +844,61 @@ mod tests {
         assert_eq!(certifications.len(), 2);
         assert_eq!(certifications[0].name, "AWS Certified");
         assert_eq!(certifications[1].name, "Employee of the Year");
+    }
+
+    #[test]
+    fn test_convert_publications_to_certifications() {
+        let json = r#"{
+            "publications": [{
+                "name": "Accessible Hiring Forms",
+                "publisher": "Operations Journal",
+                "releaseDate": "2024-02-01",
+                "summary": "Case study on accessible application forms."
+            }]
+        }"#;
+
+        let resume = JsonResume::from_json(json).unwrap();
+        let certifications = resume.convert_certifications();
+
+        assert_eq!(certifications.len(), 1);
+        assert_eq!(
+            certifications[0].name,
+            "Publication: Accessible Hiring Forms"
+        );
+        assert_eq!(certifications[0].issuer, "Operations Journal");
+        assert_eq!(certifications[0].date, "2024-02-01");
+    }
+
+    #[test]
+    fn test_convert_projects_preserves_description_keywords_and_url() {
+        let json = r#"{
+            "projects": [{
+                "name": "Clinic Intake Redesign",
+                "description": "Improved appointment intake for community clinic.",
+                "highlights": ["Reduced missed calls by 18%"],
+                "keywords": ["Scheduling", "Patient intake"],
+                "url": "https://example.test/project",
+                "roles": ["Coordinator"],
+                "entity": "Neighborhood Clinic",
+                "type": "process"
+            }]
+        }"#;
+
+        let resume = JsonResume::from_json(json).unwrap();
+        let projects = resume.convert_projects();
+
+        assert_eq!(projects.len(), 1);
+        assert_eq!(projects[0].title, "Clinic Intake Redesign - Coordinator");
+        assert_eq!(projects[0].company, "Project at Neighborhood Clinic");
+        assert_eq!(
+            projects[0].achievements,
+            vec![
+                "Improved appointment intake for community clinic.",
+                "Reduced missed calls by 18%",
+                "Tools and topics: Scheduling, Patient intake",
+                "Project link: https://example.test/project"
+            ]
+        );
     }
 
     #[test]

@@ -1,5 +1,6 @@
 //! Tests for the resume module
 
+use super::builder::ResumeBuilder;
 use super::skills::SkillExtractor;
 use super::types::{NewSkill, NullableFieldUpdate, SkillUpdate};
 use super::ResumeMatcher;
@@ -100,6 +101,20 @@ async fn setup_test_db() -> SqlitePool {
             gap_analysis TEXT,
             created_at TEXT NOT NULL DEFAULT (datetime('now')),
             UNIQUE(resume_id, job_hash)
+        )
+        "#,
+    )
+    .execute(&pool)
+    .await
+    .unwrap();
+
+    sqlx::query(
+        r#"
+        CREATE TABLE IF NOT EXISTS resume_drafts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            data TEXT NOT NULL,
+            created_at TEXT NOT NULL DEFAULT (datetime('now')),
+            updated_at TEXT NOT NULL DEFAULT (datetime('now'))
         )
         "#,
     )
@@ -255,6 +270,69 @@ async fn test_upload_resume_docx_parses_text_and_extracts_skills() {
     assert!(parsed_text.contains("Agile"));
     assert!(skill_names.contains(&"Project Management".to_string()));
     assert!(skill_names.contains(&"Agile".to_string()));
+}
+
+#[tokio::test]
+async fn test_import_json_resume_preserves_builder_evidence_sections() {
+    let pool = setup_test_db().await;
+    let matcher = ResumeMatcher::new(pool.clone());
+
+    let json = r#"{
+        "basics": {
+            "name": "Applicant Example",
+            "email": "applicant@example.test",
+            "summary": "Operations coordinator focused on accessible services."
+        },
+        "languages": [{
+            "language": "Spanish",
+            "fluency": "Professional working proficiency"
+        }],
+        "publications": [{
+            "name": "Accessible Hiring Forms",
+            "publisher": "Operations Journal",
+            "releaseDate": "2024-02-01"
+        }],
+        "projects": [{
+            "name": "Clinic Intake Redesign",
+            "description": "Improved appointment intake for community clinic.",
+            "highlights": ["Reduced missed calls by 18%"],
+            "keywords": ["Scheduling", "Patient intake"],
+            "url": "https://example.test/project",
+            "roles": ["Coordinator"],
+            "entity": "Neighborhood Clinic"
+        }]
+    }"#;
+
+    let resume_id = matcher
+        .import_json_resume("Imported Resume".to_string(), json)
+        .await
+        .unwrap();
+    let builder = ResumeBuilder::new(pool);
+    let draft = builder.get_resume(resume_id).await.unwrap().unwrap();
+
+    assert_eq!(draft.contact.name, "Applicant Example");
+    assert!(draft
+        .skills
+        .iter()
+        .any(|skill| skill.name == "Spanish - Professional working proficiency"));
+    assert!(draft.certifications.iter().any(|cert| {
+        cert.name == "Publication: Accessible Hiring Forms"
+            && cert.issuer == "Operations Journal"
+            && cert.date_obtained.as_deref() == Some("2024-02-01")
+    }));
+    assert!(draft.experience.iter().any(|experience| {
+        experience.title == "Clinic Intake Redesign - Coordinator"
+            && experience.company == "Project at Neighborhood Clinic"
+            && experience
+                .bullets
+                .contains(&"Improved appointment intake for community clinic.".to_string())
+            && experience
+                .bullets
+                .contains(&"Tools and topics: Scheduling, Patient intake".to_string())
+            && experience
+                .bullets
+                .contains(&"Project link: https://example.test/project".to_string())
+    }));
 }
 
 #[tokio::test]

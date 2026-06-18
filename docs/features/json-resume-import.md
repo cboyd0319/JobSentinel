@@ -11,8 +11,8 @@ service.
 ## What users can do
 
 - Import a resume app export from the Resume page.
-- Review the imported contact, work, education, skills, project, award, and
-  certification details before using them.
+- Review the imported contact, work, education, skills, language, project,
+  publication, award, and certification details before using them.
 - Edit or remove imported items in Resume Builder.
 - Run local resume/job fit review after import.
 - Delete the imported draft later from local resume management.
@@ -27,11 +27,13 @@ JobSentinel can bring in common resume sections such as:
 
 - Contact name, email, phone, website, location, and public profile links.
 - Summary text.
-- Work, volunteer, education, project, award, and certification details.
-- Skill groups and listed skills.
+- Work, volunteer, education, project, award, certification, and publication
+  details.
+- Skill groups, listed skills, and languages.
+- Project descriptions, highlights, keywords, and links.
 
-Unsupported sections are ignored instead of blocking import. The user can add
-those details manually after import.
+Unsupported sections, such as interests and references, are ignored instead of
+blocking import. The user can add those details manually after import.
 
 ## Safe defaults
 
