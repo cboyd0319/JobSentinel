@@ -7,6 +7,8 @@
 //! back gracefully if blocked.
 
 use super::error::ScraperError;
+#[cfg(test)]
+use super::http_client::send_with_retry_to_test_url;
 use super::http_client::{read_text_with_limit, send_with_retry};
 use super::rate_limiter::RateLimiter;
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
@@ -69,21 +71,37 @@ impl GlassdoorScraper {
     }
 
     async fn fetch_jobs_from_url(&self, api_url: String) -> ScraperResult {
-        let response = send_with_retry(&api_url, |client| {
-            client
-                .get(&api_url)
-                .header("User-Agent", super::http_client::DEFAULT_USER_AGENT)
-                .header(
-                    "Accept",
-                    "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-                )
-                .header("Accept-Language", "en-US,en;q=0.5")
-                .header("Connection", "keep-alive")
-                .header("Upgrade-Insecure-Requests", "1")
-        })
-        .await
-        .map_err(|e| ScraperError::from_anyhow("glassdoor", e))?;
+        let response = send_with_retry(&api_url, |client| Self::build_request(client, &api_url))
+            .await
+            .map_err(|e| ScraperError::from_anyhow("glassdoor", e))?;
 
+        self.parse_response(api_url, response).await
+    }
+
+    #[cfg(test)]
+    async fn fetch_jobs_from_test_url(&self, api_url: String) -> ScraperResult {
+        let response =
+            send_with_retry_to_test_url(&api_url, |client| Self::build_request(client, &api_url))
+                .await
+                .map_err(|e| ScraperError::from_anyhow("glassdoor", e))?;
+
+        self.parse_response(api_url, response).await
+    }
+
+    fn build_request(client: &reqwest::Client, api_url: &str) -> reqwest::RequestBuilder {
+        client
+            .get(api_url)
+            .header("User-Agent", super::http_client::DEFAULT_USER_AGENT)
+            .header(
+                "Accept",
+                "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+            )
+            .header("Accept-Language", "en-US,en;q=0.5")
+            .header("Connection", "keep-alive")
+            .header("Upgrade-Insecure-Requests", "1")
+    }
+
+    async fn parse_response(&self, api_url: String, response: reqwest::Response) -> ScraperResult {
         let status = response.status();
         if !status.is_success() {
             if status.as_u16() == 403 || status.as_u16() == 503 {
@@ -630,7 +648,7 @@ mod tests {
 
         let scraper = GlassdoorScraper::new("care coordinator", None, 10);
         let error = scraper
-            .fetch_jobs_from_url(format!("{}/jobs", server.uri()))
+            .fetch_jobs_from_test_url(format!("{}/jobs", server.uri()))
             .await
             .expect_err("blocked status should be source-health error");
 
@@ -648,7 +666,7 @@ mod tests {
 
         let scraper = GlassdoorScraper::new("care coordinator", None, 10);
         let error = scraper
-            .fetch_jobs_from_url(format!("{}/jobs", server.uri()))
+            .fetch_jobs_from_test_url(format!("{}/jobs", server.uri()))
             .await
             .expect_err("challenge page should be source-health error");
 
@@ -668,7 +686,7 @@ mod tests {
 
         let scraper = GlassdoorScraper::new("care coordinator", None, 10);
         let error = scraper
-            .fetch_jobs_from_url(format!("{}/jobs", server.uri()))
+            .fetch_jobs_from_test_url(format!("{}/jobs", server.uri()))
             .await
             .expect_err("access denied page should be source-health error");
 

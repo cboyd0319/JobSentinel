@@ -149,6 +149,8 @@ It is used by:
   visible review browser and loads local profile data.
 - `src-tauri/src/commands/deeplinks.rs` before opening a job URL in the user's browser.
 - `src-tauri/src/core/import/fetcher.rs` before fetching a user-supplied job page.
+- `src-tauri/src/core/scrapers/http_client.rs` before shared scraper HTTP
+  retry helpers fetch a source URL.
 - `src-tauri/src/core/config/validation.rs`, `src-tauri/src/core/scrapers/jobswithgpt.rs`,
   and `src-tauri/src/core/health/smoke_tests.rs` before using a configured JobsWithGPT endpoint.
 
@@ -169,6 +171,14 @@ URL rules before calling the backend open command.
 The import fetcher does not follow HTTP redirects. A redirect can move from a
 validated public URL to a different host or private-network target, so the user
 must paste the final public job posting URL directly.
+
+Shared scraper fetch helpers resolve production URLs before sending requests,
+reject localhost and non-public resolved IPs, and pin the checked DNS answers on
+reqwest clients when the target is a domain. Custom scraper clients, such as API
+clients with credential headers, must use the resolved-target retry helper after
+applying the DNS override to their client builder. Retry closures are checked so
+they cannot switch the scheme, host, port, or path after validation. Local
+WireMock servers are reachable only through test-only helper code.
 
 **Rules**:
 
@@ -571,9 +581,11 @@ fn validate_external_url(url: &str) -> Result<()> {
 }
 ```
 
-In JobSentinel, use `crate::core::url_security::validate_external_http_url`
-instead of creating one-off SSRF checks. Add unit tests for malicious input when
-touching URL, file path, command, or HTML input boundaries.
+In JobSentinel, use `crate::core::url_security::validate_external_http_url` for
+deterministic validation and `resolve_external_http_url_for_fetch` or
+`resolve_external_https_url_for_fetch` before backend fetches. Do not create
+one-off SSRF checks. Add unit tests for malicious input when touching URL, file
+path, command, or HTML input boundaries.
 
 ## Best Practices
 

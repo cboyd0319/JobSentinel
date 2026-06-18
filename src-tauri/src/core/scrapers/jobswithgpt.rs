@@ -5,8 +5,8 @@
 
 use super::error::ScraperError;
 use super::http_client::{
-    read_json_with_limit, scraper_client_builder, send_with_retry_on_client, DEFAULT_TIMEOUT_SECS,
-    DEFAULT_USER_AGENT,
+    read_json_with_limit, scraper_client_builder, send_with_retry_to_resolved_url,
+    DEFAULT_TIMEOUT_SECS, DEFAULT_USER_AGENT,
 };
 use super::rate_limiter::{limits, RateLimiter};
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
@@ -123,7 +123,7 @@ impl JobsWithGptScraper {
             "Sending JobsWithGPT MCP request"
         );
 
-        let response = send_with_retry_on_client(&client, &endpoint_url, |client| {
+        let response = send_with_retry_to_resolved_url(&client, &endpoint, |client| {
             client.post(&endpoint_url).json(&request)
         })
         .await

@@ -8,12 +8,13 @@
 
 use super::error::ScraperError;
 use super::http_client::{
-    read_json_with_limit, read_text_with_limit, scraper_client_builder, send_with_retry_on_client,
-    DEFAULT_TIMEOUT_SECS,
+    read_json_with_limit, read_text_with_limit, scraper_client_builder,
+    send_with_retry_to_resolved_url, DEFAULT_TIMEOUT_SECS,
 };
 use super::rate_limiter::RateLimiter;
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
+use crate::core::url_security::{resolve_external_https_url_for_fetch, ResolvedExternalUrl};
 
 use async_trait::async_trait;
 use chrono::Utc;
@@ -135,7 +136,15 @@ impl UsaJobsScraper {
     }
 
     /// Build HTTP client with required headers
+    #[cfg(test)]
     fn build_client(&self) -> Result<reqwest::Client, ScraperError> {
+        self.build_client_for_target(None)
+    }
+
+    fn build_client_for_target(
+        &self,
+        target: Option<&ResolvedExternalUrl>,
+    ) -> Result<reqwest::Client, ScraperError> {
         let mut headers = HeaderMap::new();
         headers.insert(HOST, HeaderValue::from_static("data.usajobs.gov"));
         headers.insert(
@@ -157,14 +166,18 @@ impl UsaJobsScraper {
             })?,
         );
 
-        scraper_client_builder()
+        let mut builder = scraper_client_builder()
             .default_headers(headers)
-            .timeout(std::time::Duration::from_secs(DEFAULT_TIMEOUT_SECS))
-            .build()
-            .map_err(|_e| ScraperError::Generic {
-                scraper: "usajobs".to_string(),
-                message: "Failed to build HTTP client".to_string(),
-            })
+            .timeout(std::time::Duration::from_secs(DEFAULT_TIMEOUT_SECS));
+
+        if let Some((host, addrs)) = target.and_then(ResolvedExternalUrl::dns_override) {
+            builder = builder.resolve_to_addrs(host, addrs);
+        }
+
+        builder.build().map_err(|_e| ScraperError::Generic {
+            scraper: "usajobs".to_string(),
+            message: "Failed to build HTTP client".to_string(),
+        })
     }
 
     /// Build query parameters for the search API
@@ -212,14 +225,21 @@ impl UsaJobsScraper {
         // Use rate limiter (official API, generous limit)
         self.rate_limiter.wait("usajobs", 1000).await;
 
-        let client = self.build_client()?;
         let url = format!("{}{}", BASE_URL, SEARCH_ENDPOINT);
+        let target = resolve_external_https_url_for_fetch(&url)
+            .await
+            .map_err(|reason| ScraperError::InvalidUrl {
+                url: url.clone(),
+                reason,
+            })?;
+        let client = self.build_client_for_target(Some(&target))?;
         let params = self.build_query_params(1);
 
-        let response =
-            send_with_retry_on_client(&client, &url, |client| client.get(&url).query(&params))
-                .await
-                .map_err(|e| ScraperError::from_anyhow("usajobs", e))?;
+        let response = send_with_retry_to_resolved_url(&client, &target, |client| {
+            client.get(&url).query(&params)
+        })
+        .await
+        .map_err(|e| ScraperError::from_anyhow("usajobs", e))?;
 
         if !response.status().is_success() {
             let status = response.status();

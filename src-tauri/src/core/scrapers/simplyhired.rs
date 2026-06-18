@@ -6,6 +6,8 @@
 //! but RSS feeds may work. Falls back gracefully if blocked.
 
 use super::error::ScraperError;
+#[cfg(test)]
+use super::http_client::send_with_retry_to_test_url;
 use super::http_client::{read_text_with_limit, send_with_retry};
 use super::rate_limiter::RateLimiter;
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
@@ -67,21 +69,37 @@ impl SimplyHiredScraper {
     }
 
     async fn fetch_jobs_from_url(&self, url: String) -> ScraperResult {
-        let response = send_with_retry(&url, |client| {
-            client
-                .get(&url)
-                .header(
-                    "User-Agent",
-                    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
-                )
-                .header(
-                    "Accept",
-                    "application/rss+xml, application/xml, text/xml, */*",
-                )
-        })
-        .await
-        .map_err(|e| ScraperError::from_anyhow("simplyhired", e))?;
+        let response = send_with_retry(&url, |client| Self::build_request(client, &url))
+            .await
+            .map_err(|e| ScraperError::from_anyhow("simplyhired", e))?;
 
+        self.parse_response(url, response).await
+    }
+
+    #[cfg(test)]
+    async fn fetch_jobs_from_test_url(&self, url: String) -> ScraperResult {
+        let response =
+            send_with_retry_to_test_url(&url, |client| Self::build_request(client, &url))
+                .await
+                .map_err(|e| ScraperError::from_anyhow("simplyhired", e))?;
+
+        self.parse_response(url, response).await
+    }
+
+    fn build_request(client: &reqwest::Client, url: &str) -> reqwest::RequestBuilder {
+        client
+            .get(url)
+            .header(
+                "User-Agent",
+                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+            )
+            .header(
+                "Accept",
+                "application/rss+xml, application/xml, text/xml, */*",
+            )
+    }
+
+    async fn parse_response(&self, url: String, response: reqwest::Response) -> ScraperResult {
         let status = response.status();
         if !status.is_success() {
             if status.as_u16() == 403 || status.as_u16() == 503 {
@@ -470,7 +488,7 @@ mod tests {
 
         let scraper = SimplyHiredScraper::new("care coordinator", None, 10);
         let error = scraper
-            .fetch_jobs_from_url(format!("{}/rss", server.uri()))
+            .fetch_jobs_from_test_url(format!("{}/rss", server.uri()))
             .await
             .expect_err("blocked status should be source-health error");
 
@@ -490,7 +508,7 @@ mod tests {
 
         let scraper = SimplyHiredScraper::new("care coordinator", None, 10);
         let error = scraper
-            .fetch_jobs_from_url(format!("{}/rss", server.uri()))
+            .fetch_jobs_from_test_url(format!("{}/rss", server.uri()))
             .await
             .expect_err("challenge page should be source-health error");
 
@@ -510,7 +528,7 @@ mod tests {
 
         let scraper = SimplyHiredScraper::new("care coordinator", None, 10);
         let error = scraper
-            .fetch_jobs_from_url(format!("{}/rss", server.uri()))
+            .fetch_jobs_from_test_url(format!("{}/rss", server.uri()))
             .await
             .expect_err("access denied page should be source-health error");
 

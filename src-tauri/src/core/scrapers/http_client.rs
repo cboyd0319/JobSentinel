@@ -5,7 +5,9 @@
 //! connection pools instead of creating new clients per request.
 
 use crate::core::scrapers::cache;
-use crate::core::url_security::sanitize_url_for_logging;
+use crate::core::url_security::{
+    resolve_external_http_url_for_fetch, sanitize_url_for_logging, ResolvedExternalUrl,
+};
 use anyhow::{Context, Result};
 use reqwest::redirect::Policy;
 use std::time::Duration;
@@ -36,11 +38,27 @@ static SHARED_CLIENT: once_cell::sync::OnceCell<reqwest::Client> = once_cell::sy
 
 /// Initialize the shared HTTP client
 fn init_shared_client() -> Result<reqwest::Client> {
+    default_scraper_client_builder()
+        .build()
+        .map_err(|e| anyhow::anyhow!("Failed to create HTTP client: {}", e))
+}
+
+fn default_scraper_client_builder() -> reqwest::ClientBuilder {
     scraper_client_builder()
         .user_agent(DEFAULT_USER_AGENT)
         .timeout(Duration::from_secs(DEFAULT_TIMEOUT_SECS))
         .pool_max_idle_per_host(10)
         .pool_idle_timeout(Duration::from_secs(90))
+}
+
+fn build_client_for_resolved_target(target: &ResolvedExternalUrl) -> Result<reqwest::Client> {
+    let mut builder = default_scraper_client_builder();
+
+    if let Some((host, addrs)) = target.dns_override() {
+        builder = builder.resolve_to_addrs(host, addrs);
+    }
+
+    builder
         .build()
         .map_err(|e| anyhow::anyhow!("Failed to create HTTP client: {}", e))
 }
@@ -74,8 +92,7 @@ pub fn get_client() -> &'static reqwest::Client {
                     "Failed to create optimized HTTP client: {}. Using fallback.",
                     e
                 );
-                scraper_client_builder()
-                    .timeout(Duration::from_secs(DEFAULT_TIMEOUT_SECS))
+                default_scraper_client_builder()
                     .build()
                     .unwrap_or_else(|_| {
                         // Absolute fallback - default client with no customization
@@ -176,25 +193,47 @@ pub async fn send_with_retry<F>(url: &str, build_request: F) -> Result<reqwest::
 where
     F: FnMut(&reqwest::Client) -> reqwest::RequestBuilder,
 {
-    send_with_retry_on_client(get_client(), url, build_request).await
+    let target = resolve_retry_target(url).await?;
+    let resolved_client = if target.dns_override().is_some() {
+        Some(build_client_for_resolved_target(&target)?)
+    } else {
+        None
+    };
+    if let Some(client) = resolved_client.as_ref() {
+        send_with_retry_to_resolved_url(client, &target, build_request).await
+    } else {
+        send_with_retry_to_resolved_url(get_client(), &target, build_request).await
+    }
 }
 
-/// Send a scraper request through a caller-provided client with retry behavior.
+/// Send a scraper request to an already validated and resolved external URL.
 ///
-/// Use this for sources that need custom client-level defaults, such as API
-/// authentication headers.
-pub async fn send_with_retry_on_client<F>(
+/// Callers that build custom clients should use this after applying
+/// [`ResolvedExternalUrl::dns_override`] to the client builder. The request
+/// built on each retry must keep the same scheme, host, port, and path as the
+/// resolved target; query parameters may differ because some scrapers attach
+/// parameters through `RequestBuilder::query`.
+pub(crate) async fn send_with_retry_to_resolved_url<F>(
     client: &reqwest::Client,
-    url: &str,
+    target: &ResolvedExternalUrl,
     mut build_request: F,
 ) -> Result<reqwest::Response>
 where
     F: FnMut(&reqwest::Client) -> reqwest::RequestBuilder,
 {
-    let log_url = sanitize_url_for_logging(url);
+    let log_url = sanitize_url_for_logging(target.as_str());
 
     for attempt in 0..=MAX_RETRIES {
-        let response = match build_request(client).send().await {
+        let request = match build_request(client).build() {
+            Ok(request) => request,
+            Err(error) => {
+                return Err(error).with_context(|| format!("Failed to build request: {log_url}"));
+            }
+        };
+
+        ensure_request_matches_target(request.url(), target.url())?;
+
+        let response = match client.execute(request).await {
             Ok(response) => response,
             Err(error) => {
                 let should_retry = is_retryable_request_error(&error);
@@ -248,6 +287,44 @@ where
     }
 
     Err(anyhow::anyhow!("Retry logic error"))
+}
+
+async fn resolve_retry_target(url: &str) -> Result<ResolvedExternalUrl> {
+    resolve_external_http_url_for_fetch(url)
+        .await
+        .map_err(|reason| anyhow::anyhow!("Blocked scraper request URL: {reason}"))
+}
+
+fn ensure_request_matches_target(actual: &url::Url, expected: &url::Url) -> Result<()> {
+    let same_target = actual.scheme() == expected.scheme()
+        && actual.host_str() == expected.host_str()
+        && actual.port_or_known_default() == expected.port_or_known_default()
+        && actual.path() == expected.path();
+
+    if same_target {
+        return Ok(());
+    }
+
+    Err(anyhow::anyhow!(
+        "Request builder changed the validated scraper request target"
+    ))
+}
+
+#[cfg(test)]
+pub(crate) async fn send_with_retry_to_test_url<F>(
+    url: &str,
+    build_request: F,
+) -> Result<reqwest::Response>
+where
+    F: FnMut(&reqwest::Client) -> reqwest::RequestBuilder,
+{
+    let target = ResolvedExternalUrl::from_parts_for_test(
+        url::Url::parse(url).context("test URL should parse")?,
+        None,
+        Vec::new(),
+    );
+
+    send_with_retry_to_resolved_url(get_client(), &target, build_request).await
 }
 
 /// HTTP GET with cache support
@@ -654,13 +731,59 @@ mod tests {
             .mount(&server)
             .await;
 
-        let response =
-            send_with_retry(&url, |client| client.get(&url).header("x-source", "custom"))
-                .await
-                .expect("retry should return eventual success");
+        let response = send_with_retry_to_test_url(&url, |client| {
+            client.get(&url).header("x-source", "custom")
+        })
+        .await
+        .expect("retry should return eventual success");
 
         assert_eq!(response.status(), reqwest::StatusCode::OK);
         assert_eq!(response.text().await.expect("body"), "ok");
+    }
+
+    #[tokio::test]
+    async fn test_send_with_retry_blocks_loopback_before_request() {
+        use wiremock::MockServer;
+
+        let server = MockServer::start().await;
+        let url = format!("{}/internal", server.uri());
+
+        let error = send_with_retry(&url, |client| client.get(&url))
+            .await
+            .expect_err("loopback targets should be rejected before network I/O");
+
+        assert!(
+            error.to_string().contains("Blocked non-public IP address")
+                || error.to_string().contains("Blocked localhost URL"),
+            "{error}"
+        );
+        let requests = server.received_requests().await.unwrap();
+        assert!(
+            requests.is_empty(),
+            "blocked loopback target should not receive a request"
+        );
+    }
+
+    #[tokio::test]
+    async fn test_send_with_retry_rejects_request_builder_target_drift() {
+        let target = ResolvedExternalUrl::from_parts_for_test(
+            url::Url::parse("https://example.com/jobs").unwrap(),
+            None,
+            Vec::new(),
+        );
+
+        let error = send_with_retry_to_resolved_url(get_client(), &target, |client| {
+            client.get("https://example.org/jobs")
+        })
+        .await
+        .expect_err("request builders must keep the validated target");
+
+        assert!(
+            error
+                .to_string()
+                .contains("changed the validated scraper request target"),
+            "{error}"
+        );
     }
 
     #[tokio::test]
@@ -679,7 +802,7 @@ mod tests {
             .mount(&server)
             .await;
 
-        let response = send_with_retry(&url, |client| client.get(&url))
+        let response = send_with_retry_to_test_url(&url, |client| client.get(&url))
             .await
             .expect("non-retryable statuses should be returned to callers");
 
@@ -715,7 +838,7 @@ mod tests {
             .mount(&server)
             .await;
 
-        let response = send_with_retry(&start_url, |client| client.get(&start_url))
+        let response = send_with_retry_to_test_url(&start_url, |client| client.get(&start_url))
             .await
             .expect("redirect response should be returned to caller");
 
