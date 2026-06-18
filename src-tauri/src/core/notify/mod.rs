@@ -12,11 +12,13 @@ use crate::core::{
     },
     db::Job,
     scoring::JobScore,
-    url_security::canonicalize_user_supplied_job_url,
+    url_security::{canonicalize_user_supplied_job_url, resolve_external_https_url_for_fetch},
 };
 use anyhow::{anyhow, Result};
+use reqwest::redirect::Policy;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
+use std::time::Duration;
 
 pub mod discord;
 pub mod email;
@@ -34,6 +36,7 @@ pub struct Notification {
 pub(crate) const LOCAL_MATCH_DETAILS_MESSAGE: &str =
     "Open JobSentinel to review match details saved on this computer.";
 pub(crate) const LOCAL_JOB_LINK_MESSAGE: &str = "Open JobSentinel to view the saved job link.";
+const NOTIFICATION_HTTP_TIMEOUT: Duration = Duration::from_secs(10);
 
 pub(crate) fn notification_job_href(url: &str) -> Option<String> {
     canonicalize_user_supplied_job_url(url).ok()
@@ -130,6 +133,24 @@ fn validate_webhook_url_security_parts(url: &url::Url) -> Result<()> {
     }
 
     Ok(())
+}
+
+pub(crate) async fn notification_http_client_for_url(
+    url: &str,
+) -> Result<(reqwest::Client, url::Url)> {
+    let target = resolve_external_https_url_for_fetch(url)
+        .await
+        .map_err(|reason| anyhow!("Blocked notification destination: {reason}"))?;
+    let mut builder = reqwest::Client::builder()
+        .redirect(Policy::none())
+        .timeout(NOTIFICATION_HTTP_TIMEOUT);
+
+    if let Some((host, addrs)) = target.dns_override() {
+        builder = builder.resolve_to_addrs(host, addrs);
+    }
+
+    let client = builder.build()?;
+    Ok((client, target.into_url()))
 }
 
 impl NotificationService {

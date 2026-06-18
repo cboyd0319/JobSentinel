@@ -3,8 +3,8 @@
 //! Sends rich-formatted job alerts to Slack via incoming webhooks.
 
 use super::{
-    notification_job_href, validate_webhook_url_security_parts, Notification,
-    LOCAL_MATCH_DETAILS_MESSAGE,
+    notification_http_client_for_url, notification_job_href, validate_webhook_url_security_parts,
+    Notification, LOCAL_MATCH_DETAILS_MESSAGE,
 };
 use anyhow::{anyhow, Result};
 use serde_json::json;
@@ -146,10 +146,8 @@ pub async fn send_slack_notification(webhook_url: &str, notification: &Notificat
     // Build Slack message with blocks
     let payload = build_slack_payload(notification);
 
-    // Send POST request to Slack webhook with timeout
-    let client = reqwest::Client::builder()
-        .timeout(std::time::Duration::from_secs(10))
-        .build()?;
+    // Send POST request to Slack webhook with DNS/IP validation and pinned resolution.
+    let (client, webhook_url) = notification_http_client_for_url(webhook_url).await?;
     let response = client
         .post(webhook_url)
         .json(&payload)
@@ -172,10 +170,8 @@ pub async fn validate_webhook(webhook_url: &str) -> Result<bool> {
     // First validate the URL format
     validate_webhook_url(webhook_url)?;
 
-    // Send a test message
-    let client = reqwest::Client::builder()
-        .timeout(std::time::Duration::from_secs(10))
-        .build()?;
+    // Send a test message with DNS/IP validation and pinned resolution.
+    let (client, webhook_url) = notification_http_client_for_url(webhook_url).await?;
     let response = client
         .post(webhook_url)
         .json(&json!({"text": "JobSentinel: Webhook validation successful ✅"}))

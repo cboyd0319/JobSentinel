@@ -204,6 +204,8 @@ describe("errorReporting", () => {
         "Slack parse failed https://hooks.slack.com/T000/B000/SECRET",
         "Discord failed https://discord.com/api/webhooks/123456789/discord-secret",
         "Teams failed https://outlook.office365.com/webhook/team-secret/IncomingWebhook/channel/connector",
+        "Teams connector failed https://tenant.webhook.office.com/team-secret/IncomingWebhook/channel/connector",
+        "Teams workflow failed https://prod-12.westus.logic.azure.com:443/workflows/team-secret/triggers/manual/paths/invoke",
       ].join(" ")
     );
 
@@ -215,6 +217,8 @@ describe("errorReporting", () => {
     expect(serialized).not.toContain("hooks.slack.com/T000");
     expect(serialized).not.toContain("discord-secret");
     expect(serialized).not.toContain("team-secret");
+    expect(serialized).not.toContain("tenant.webhook.office.com");
+    expect(serialized).not.toContain("prod-12.westus.logic.azure.com");
   });
 
   it("sanitizes storage warning errors before console output", () => {

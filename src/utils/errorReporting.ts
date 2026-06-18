@@ -62,7 +62,7 @@ const EMAIL_PATTERN = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
 const PHONE_PATTERN = /(?:\+?1[\s.-]?)?(?:\([2-9][0-9]{2}\)|[2-9][0-9]{2})[\s.-]?[2-9][0-9]{2}[\s.-]?[0-9]{4}\b/g;
 const LINKEDIN_COOKIE_PATTERN = /li_at=[^\s;]+/g;
 const TOKEN_PATTERN = /\b(?:Bearer\s+[^\s]+|token(?:\s+|=)[^\s&]+|api_key=[^\s&]+|access_token=[^\s&]+|refresh_token=[^\s&]+|secret=[^\s&]+|password=[^\s&]+)/gi;
-const WEBHOOK_PATTERN = /https:\/\/(?:hooks\.slack\.com|discord(?:app)?\.com\/api\/webhooks|outlook\.office(?:365)?\.com\/webhook|hooks\.discord\.com\/api\/webhooks|hooks\.teams\.com\/workflows)[^\s"'<>\\)]*/gi;
+const WEBHOOK_PATTERN = /https:\/\/(?:hooks\.slack\.com|discord(?:app)?\.com\/api\/webhooks|outlook\.office(?:365)?\.com\/webhook|(?:[a-z0-9-]+\.)+webhook\.office\.com|(?:[a-z0-9-]+\.)+logic\.azure\.com|hooks\.discord\.com\/api\/webhooks|hooks\.teams\.com\/workflows)[^\s"'<>\\)]*/gi;
 const SENSITIVE_LABELED_TEXT_PATTERNS = [
   /\b((?:salary|compensation)(?:[_ -]?(?:floor|expectation|range|preference|prefs?))?\s*[:=]\s*)[^\n\r;|]+/gi,
   /\b((?:resume|cover letter)(?:[_ -]?(?:text|data|content|summary))?\s*[:=]\s*)[^\n\r;|]+/gi,

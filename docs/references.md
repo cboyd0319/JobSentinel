@@ -220,7 +220,8 @@ and fake example links are intentionally excluded.
 - [LinkedIn system status](https://www.linkedin.com/system-status)
 - [Slack connection-link docs](https://api.slack.com/messaging/webhooks)
 - [Discord connection-link docs](https://discord.com/developers/docs/resources/webhook)
-- [Microsoft Teams connector-link docs](https://docs.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/connectors-using)
+- [Microsoft Teams incoming webhooks](https://learn.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/add-incoming-webhook)
+- [Microsoft Teams workflow webhooks](https://learn.microsoft.com/en-us/connectors/teams/)
 - [Telegram BotFather](https://t.me/BotFather)
 
 ## Security, Privacy, and Reliability References

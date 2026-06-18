@@ -875,6 +875,29 @@ fn test_provider_failure_summary_handles_unreadable_body() {
     );
 }
 
+#[tokio::test]
+async fn test_notification_http_client_blocks_loopback_destination() {
+    let error = notification_http_client_for_url("https://127.0.0.1/webhook")
+        .await
+        .expect_err("loopback notification destinations should be blocked");
+
+    assert!(
+        error
+            .to_string()
+            .contains("Blocked notification destination"),
+        "{error}"
+    );
+}
+
+#[tokio::test]
+async fn test_notification_http_client_accepts_public_https_ip_destination() {
+    let (_client, url) = notification_http_client_for_url("https://93.184.216.34/webhook")
+        .await
+        .expect("public HTTPS IP destinations should build a client");
+
+    assert_eq!(url.as_str(), "https://93.184.216.34/webhook");
+}
+
 // Note: Tests for actual HTTP notification sending are in the individual modules
 // (slack.rs, discord.rs, teams.rs, telegram.rs, email.rs) as they require
 // mocking HTTP clients or integration testing with real endpoints.

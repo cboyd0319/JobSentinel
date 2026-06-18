@@ -59,7 +59,7 @@ static PHONE_REGEX: Lazy<Regex> = Lazy::new(|| {
 #[allow(clippy::expect_used)]
 static WEBHOOK_REGEX: Lazy<Regex> = Lazy::new(|| {
     Regex::new(
-        r#"https://(?:hooks\.slack\.com|discord(?:app)?\.com/api/webhooks|outlook\.office(?:365)?\.com/webhook|hooks\.discord\.com/api/webhooks|hooks\.teams\.com/workflows)[^\s"'<>\\)]*"#,
+        r#"https://(?:hooks\.slack\.com|discord(?:app)?\.com/api/webhooks|outlook\.office(?:365)?\.com/webhook|(?:[a-z0-9-]+\.)+webhook\.office\.com|(?:[a-z0-9-]+\.)+logic\.azure\.com|hooks\.discord\.com/api/webhooks|hooks\.teams\.com/workflows)[^\s"'<>\\)]*"#,
     )
         .expect("Webhook URL regex pattern is valid and should compile")
 });
@@ -448,6 +448,14 @@ mod tests {
             (
                 "Teams webhook: https://outlook.office365.com/webhook/abc123/IncomingWebhook/def456/ghi789",
                 "Teams webhook: [WEBHOOK_CONFIGURED]",
+            ),
+            (
+                "Teams webhook: https://tenant.webhook.office.com/abc123/IncomingWebhook/def456/ghi789",
+                "Teams webhook: [WEBHOOK_CONFIGURED]",
+            ),
+            (
+                "Teams workflow: https://prod-12.westus.logic.azure.com:443/workflows/abc123/triggers/manual/paths/invoke",
+                "Teams workflow: [WEBHOOK_CONFIGURED]",
             ),
         ];
 

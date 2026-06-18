@@ -81,6 +81,39 @@ fn test_valid_office365_com_webhook_url_passes() {
 }
 
 #[test]
+fn test_valid_webhook_office_com_url_passes() {
+    let valid_url = "https://tenant.webhook.office.com/12345678-1234-1234-1234-123456789012";
+    let result = validate_webhook_url(valid_url);
+    assert!(
+        result.is_ok(),
+        "Valid webhook.office.com Teams URL should pass validation"
+    );
+}
+
+#[test]
+fn test_valid_logic_azure_workflow_url_passes() {
+    let valid_url =
+        "https://prod-12.westus.logic.azure.com:443/workflows/abc/triggers/manual/paths/invoke";
+    let result = validate_webhook_url(valid_url);
+    assert!(
+        result.is_ok(),
+        "Valid logic.azure.com Teams workflow URL should pass validation"
+    );
+}
+
+#[test]
+fn test_base_webhook_office_and_logic_azure_hosts_fail() {
+    for url in [
+        "https://webhook.office.com/123",
+        "https://logic.azure.com/workflows/abc",
+        "https://prod-12.westus.logic.azure.com/",
+    ] {
+        let result = validate_webhook_url(url);
+        assert!(result.is_err(), "{url} should fail validation");
+    }
+}
+
+#[test]
 fn test_invalid_scheme_fails() {
     let invalid_url = "http://outlook.office.com/webhook/123/456";
     let result = validate_webhook_url(invalid_url);

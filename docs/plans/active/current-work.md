@@ -132,10 +132,11 @@ Out of scope:
   handoffs, templates, rubrics, and upstream/local validation.
 - Browser Import desktop/mobile manual verification passed on 2026-06-17;
   commit `361560f9` added clean send APIs and local-model revision pins.
-- CheatSheetSeries follow-ups hardened CI, cargo-deny, scraper DNS pinning,
-  deps, Browser Import, HTTPS imports, SMTP binding, managed resume cleanup,
-  isolated Application Assist browser profiles, release assets, AI guards,
-  skills, sandboxed previews, secure deletion, parser caps, and KDF floors.
+- CheatSheetSeries follow-ups hardened CI, cargo-deny, scraper and notification
+  DNS/IP pinning, Teams Workflows validation/redaction, deps, Browser Import,
+  HTTPS imports, SMTP binding, managed resume cleanup, isolated Application
+  Assist browser profiles, release assets, AI guards, skills, sandboxed
+  previews, secure deletion, parser caps, and KDF floors.
 - Hosted release hardening now gates signing, cleans CI signing material,
   blocks unsigned MSI upload, and narrows renderer notification/dialog permissions.
 - Final whole-UI post-design pass: 266/266 post-security-hardening E2E, 16

@@ -97,10 +97,10 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   `Capabilities.md` have a validated local draft pending approval to push.
 - 2026-06-18 OWASP CheatSheetSeries scan across 120 files covered Actions,
   supply-chain, AI, storage, URL, logging, Browser Import, CSS, and parsers.
-  Follow-up hardening includes SMTP binding, HTTPS imports, managed resume
-  cleanup, isolated Application Assist browser profiles, CI/release drift, DNS
-  pinning, AI guards, sandboxed previews, Tauri capability narrowing, release
-  signing cleanup, secure delete, parser caps, and KDF floors; fresh checks pass.
+  Follow-up hardening includes SMTP binding, HTTPS imports, app-preview isolation,
+  CI/release drift, scraper/notification DNS-IP pinning, Teams Workflows
+  validation/redaction, AI guards, sandboxed previews, Tauri narrowing, signing
+  cleanup, secure delete, parser caps, and KDF floors; fresh checks pass.
 
 ## Next Best Work
 

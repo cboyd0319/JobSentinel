@@ -413,11 +413,14 @@ not.
 
 #### Microsoft Teams
 
-1. In your Teams channel, click More options > Connectors
-2. Add a channel connection.
+1. In your Teams channel, click More options > Workflows
+2. Add a workflow that receives a Teams webhook request.
 3. Copy the connection link.
 4. In JobSentinel, open Settings, choose **Sources & Alerts**, then paste it in
    **Microsoft Teams Notifications**.
+
+Existing Microsoft 365 connector links still work if Teams already created one
+for your channel. For a new setup, use the Workflows link.
 
 ---
 

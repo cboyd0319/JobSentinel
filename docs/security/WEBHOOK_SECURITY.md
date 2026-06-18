@@ -122,12 +122,18 @@ fn validate_webhook_url(url: &str) -> Result<()> {
     let host = url_parsed.host_str()
         .ok_or_else(|| anyhow!("Invalid webhook URL host"))?;
 
-    if host != "outlook.office.com" && host != "outlook.office365.com" {
-        return Err(anyhow!("Invalid Teams host"));
-    }
+    let has_generated_path = url_parsed.path().len() > 1;
+    let legacy_connector =
+        matches!(host, "outlook.office.com" | "outlook.office365.com")
+            && url_parsed.path().starts_with("/webhook/");
+    let current_connector = host.ends_with(".webhook.office.com")
+        && host != "webhook.office.com"
+        && has_generated_path;
+    let workflow_trigger =
+        host.ends_with(".logic.azure.com") && host != "logic.azure.com" && has_generated_path;
 
-    if !url_parsed.path().starts_with("/webhook/") {
-        return Err(anyhow!("Invalid Teams webhook path"));
+    if !(legacy_connector || current_connector || workflow_trigger) {
+        return Err(anyhow!("Invalid Teams host"));
     }
 
     Ok(())
@@ -138,6 +144,8 @@ fn validate_webhook_url(url: &str) -> Result<()> {
 
 - `https://outlook.office.com/webhook/...`
 - `https://outlook.office365.com/webhook/...`
+- `https://tenant.webhook.office.com/...`
+- `https://prod-12.westus.logic.azure.com:443/...`
 
 ### 2. HTTPS-Only
 
@@ -163,7 +171,7 @@ JobSentinel only allows webhooks to known, trusted domains:
 | ------- | --------------------------------------------- |
 | Slack   | `hooks.slack.com`                             |
 | Discord | `discord.com`, `discordapp.com`               |
-| Teams   | `outlook.office.com`, `outlook.office365.com` |
+| Teams   | `outlook.office.com`, `outlook.office365.com`, `*.webhook.office.com`, `*.logic.azure.com` |
 
 **Denylisting doesn't work**:
 
@@ -194,10 +202,9 @@ if !url_parsed.path().starts_with("/api/webhooks/") {
     return Err(anyhow!("Invalid Discord webhook path"));
 }
 
-// Teams: Must start with /webhook/
-if !url_parsed.path().starts_with("/webhook/") {
-    return Err(anyhow!("Invalid Teams webhook path"));
-}
+// Teams: legacy Outlook connector links must start with /webhook/.
+// Current Microsoft-hosted connector and workflow links must include a
+// generated non-root path from Teams or Power Automate.
 ```
 
 ### 5. Secure Credential Storage
@@ -219,7 +226,10 @@ See: [Local Secret Vault And Keychain Integration](./KEYRING.md)
 
 ### 6. Validation Before Use
 
-Webhooks are validated before every HTTP request:
+Webhooks are validated before every HTTP request. Delivery also resolves the
+provider host before sending, rejects loopback or private resolved IPs, disables
+redirect following, and pins the checked DNS answers on the `reqwest` client so
+a request cannot reconnect to a different address after validation:
 
 ```rust
 pub async fn send_slack_notification(
@@ -232,8 +242,8 @@ pub async fn send_slack_notification(
     // Build payload
     let payload = build_slack_payload(notification);
 
-    // Send HTTP request
-    let client = reqwest::Client::new();
+    // Send HTTP request through the notification egress guard.
+    let (client, webhook_url) = notification_http_client_for_url(webhook_url).await?;
     let response = client.post(webhook_url)
         .json(&payload)
         .send()
@@ -306,6 +316,8 @@ https://discord.com/api/webhooks/{id}/{token}
 
 ```text
 https://outlook.office.com/webhook/{tenant}/IncomingWebhook/{channel}/{connector}
+https://{tenant}.webhook.office.com/{generated-path}
+https://{region}.logic.azure.com:443/{generated-path}
 ```
 
 **Security Features**:
@@ -535,5 +547,6 @@ mod tests {
 
 - [Slack Webhooks Security](https://api.slack.com/messaging/webhooks)
 - [Discord Webhooks Guide](https://discord.com/developers/docs/resources/webhook)
-- [Teams Webhooks](https://docs.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/connectors-using)
+- [Teams Incoming Webhooks](https://learn.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/add-incoming-webhook)
+- [Teams Workflow Webhooks](https://learn.microsoft.com/en-us/connectors/teams/)
 - [OWASP API Security](https://owasp.org/www-project-api-security/)

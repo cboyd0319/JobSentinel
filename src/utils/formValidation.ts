@@ -221,13 +221,7 @@ export function validateTeamsWebhook(url: string): string | undefined {
       return help;
     }
 
-    // Validate host
-    if (parsed.hostname !== "outlook.office.com" && parsed.hostname !== "outlook.office365.com") {
-      return help;
-    }
-
-    // Validate path
-    if (!parsed.pathname.startsWith("/webhook/")) {
+    if (!isSupportedTeamsWebhookTarget(parsed)) {
       return help;
     }
 
@@ -235,6 +229,28 @@ export function validateTeamsWebhook(url: string): string | undefined {
   } catch {
     return help;
   }
+}
+
+function isSupportedTeamsWebhookTarget(parsed: URL): boolean {
+  const host = parsed.hostname.toLowerCase();
+  const hasGeneratedPath = parsed.pathname.length > 1;
+
+  if (
+    (host === "outlook.office.com" || host === "outlook.office365.com") &&
+    parsed.pathname.startsWith("/webhook/")
+  ) {
+    return true;
+  }
+
+  if (host.endsWith(".webhook.office.com") && host !== "webhook.office.com") {
+    return hasGeneratedPath;
+  }
+
+  if (host.endsWith(".logic.azure.com") && host !== "logic.azure.com") {
+    return hasGeneratedPath;
+  }
+
+  return false;
 }
 
 /**

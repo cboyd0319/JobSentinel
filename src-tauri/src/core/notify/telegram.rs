@@ -3,8 +3,8 @@
 //! Sends formatted job alerts to Telegram using the Bot API with Markdown.
 
 use super::{
-    notification_job_href, notification_provider_failure_summary, Notification,
-    LOCAL_JOB_LINK_MESSAGE, LOCAL_MATCH_DETAILS_MESSAGE,
+    notification_http_client_for_url, notification_job_href, notification_provider_failure_summary,
+    Notification, LOCAL_JOB_LINK_MESSAGE, LOCAL_MATCH_DETAILS_MESSAGE,
 };
 use crate::core::config::TelegramConfig;
 use anyhow::{anyhow, Result};
@@ -119,13 +119,11 @@ pub async fn send_telegram_notification(
         "disable_notification": false
     });
 
-    // Send POST request to Telegram Bot API with timeout
-    let client = reqwest::Client::builder()
-        .timeout(std::time::Duration::from_secs(10))
-        .build()?;
+    // Send POST request to Telegram Bot API with DNS/IP validation and pinned resolution.
+    let (client, api_url) = notification_http_client_for_url(&api_url).await?;
 
     let response = client
-        .post(&api_url)
+        .post(api_url)
         .json(&payload)
         .send()
         .await
@@ -231,12 +229,10 @@ pub async fn validate_telegram_config(config: &TelegramConfig) -> Result<bool> {
         "parse_mode": "MarkdownV2"
     });
 
-    let client = reqwest::Client::builder()
-        .timeout(std::time::Duration::from_secs(10))
-        .build()?;
+    let (client, api_url) = notification_http_client_for_url(&api_url).await?;
 
     let response = client
-        .post(&api_url)
+        .post(api_url)
         .json(&payload)
         .send()
         .await

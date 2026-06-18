@@ -3,7 +3,7 @@
 //! Sends rich-formatted job alerts to Discord using webhooks with embeds.
 
 use super::{
-    notification_job_href, notification_provider_failure_summary,
+    notification_http_client_for_url, notification_job_href, notification_provider_failure_summary,
     validate_webhook_url_security_parts, Notification, LOCAL_MATCH_DETAILS_MESSAGE,
 };
 use crate::core::config::DiscordConfig;
@@ -122,13 +122,11 @@ pub async fn send_discord_notification(
 
     let payload = build_discord_payload(config, notification);
 
-    // Send POST request to Discord webhook with timeout
-    let client = reqwest::Client::builder()
-        .timeout(std::time::Duration::from_secs(10))
-        .build()?;
+    // Send POST request to Discord webhook with DNS/IP validation and pinned resolution.
+    let (client, webhook_url) = notification_http_client_for_url(&config.webhook_url).await?;
 
     let response = client
-        .post(&config.webhook_url)
+        .post(webhook_url)
         .json(&payload)
         .send()
         .await
@@ -149,11 +147,6 @@ pub async fn validate_webhook(webhook_url: &str) -> Result<bool> {
     // First validate the URL format
     validate_webhook_url(webhook_url)?;
 
-    // Send a test message
-    let client = reqwest::Client::builder()
-        .timeout(std::time::Duration::from_secs(10))
-        .build()?;
-
     let payload = json!({
         "embeds": [{
             "title": "✅ JobSentinel Webhook Test",
@@ -166,6 +159,8 @@ pub async fn validate_webhook(webhook_url: &str) -> Result<bool> {
         }]
     });
 
+    // Send a test message with DNS/IP validation and pinned resolution.
+    let (client, webhook_url) = notification_http_client_for_url(webhook_url).await?;
     let response = client
         .post(webhook_url)
         .json(&payload)

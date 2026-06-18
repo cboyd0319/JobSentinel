@@ -3,7 +3,7 @@
 //! Sends formatted job alerts to Microsoft Teams using Incoming Webhooks.
 
 use super::{
-    notification_job_href, notification_provider_failure_summary,
+    notification_http_client_for_url, notification_job_href, notification_provider_failure_summary,
     validate_webhook_url_security_parts, Notification, LOCAL_MATCH_DETAILS_MESSAGE,
 };
 use anyhow::{anyhow, Result};
@@ -23,24 +23,35 @@ fn validate_webhook_url(url: &str) -> Result<()> {
 
     validate_webhook_url_security_parts(&url_parsed)?;
 
-    // Ensure correct host (validate host BEFORE checking string prefix)
+    // Ensure correct host and path (validate host BEFORE checking string prefix)
     let host = url_parsed
         .host_str()
         .ok_or_else(|| anyhow!("Paste the full Teams connection link copied from Teams."))?;
-    if host != "outlook.office.com" && host != "outlook.office365.com" {
-        return Err(anyhow!(
-            "Paste the full Teams connection link copied from Teams."
-        ));
-    }
 
-    // Ensure path starts with /webhook/
-    if !url_parsed.path().starts_with("/webhook/") {
+    if !is_supported_teams_webhook_target(&url_parsed, host) {
         return Err(anyhow!(
             "Paste the full Teams connection link copied from Teams."
         ));
     }
 
     Ok(())
+}
+
+fn is_supported_teams_webhook_target(url: &url::Url, host: &str) -> bool {
+    let host = host.to_ascii_lowercase();
+    let path = url.path();
+    let has_generated_path = path.len() > 1;
+
+    let legacy_connector = matches!(
+        host.as_str(),
+        "outlook.office.com" | "outlook.office365.com"
+    ) && path.starts_with("/webhook/");
+    let current_connector =
+        host.ends_with(".webhook.office.com") && host != "webhook.office.com" && has_generated_path;
+    let workflow_trigger =
+        host.ends_with(".logic.azure.com") && host != "logic.azure.com" && has_generated_path;
+
+    legacy_connector || current_connector || workflow_trigger
 }
 
 fn build_teams_payload(notification: &Notification) -> serde_json::Value {
@@ -125,10 +136,8 @@ pub async fn send_teams_notification(webhook_url: &str, notification: &Notificat
 
     let payload = build_teams_payload(notification);
 
-    // Send POST request to Teams webhook with timeout
-    let client = reqwest::Client::builder()
-        .timeout(std::time::Duration::from_secs(10))
-        .build()?;
+    // Send POST request to Teams webhook with DNS/IP validation and pinned resolution.
+    let (client, webhook_url) = notification_http_client_for_url(webhook_url).await?;
 
     let response = client
         .post(webhook_url)
@@ -152,11 +161,6 @@ pub async fn validate_webhook(webhook_url: &str) -> Result<bool> {
     // First validate the URL format
     validate_webhook_url(webhook_url)?;
 
-    // Send a test message
-    let client = reqwest::Client::builder()
-        .timeout(std::time::Duration::from_secs(10))
-        .build()?;
-
     let payload = json!({
         "@type": "MessageCard",
         "@context": "https://schema.org/extensions",
@@ -178,6 +182,8 @@ pub async fn validate_webhook(webhook_url: &str) -> Result<bool> {
         ]
     });
 
+    // Send a test message with DNS/IP validation and pinned resolution.
+    let (client, webhook_url) = notification_http_client_for_url(webhook_url).await?;
     let response = client
         .post(webhook_url)
         .json(&payload)

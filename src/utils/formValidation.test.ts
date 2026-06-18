@@ -426,6 +426,14 @@ describe("formValidation", () => {
       expect(
         validateTeamsWebhook("https://outlook.office365.com/webhook/abc/IncomingWebhook/def/ghi")
       ).toBeUndefined();
+      expect(
+        validateTeamsWebhook("https://tenant.webhook.office.com/abc/IncomingWebhook/def/ghi")
+      ).toBeUndefined();
+      expect(
+        validateTeamsWebhook(
+          "https://prod-12.westus.logic.azure.com:443/workflows/abc/triggers/manual/paths/invoke"
+        )
+      ).toBeUndefined();
     });
 
     it("returns undefined for empty string (optional field)", () => {
@@ -458,6 +466,12 @@ describe("formValidation", () => {
       expect(
         validateTeamsWebhook("https://teams.microsoft.com/webhook/abc")
       ).toBe(TEAMS_CONNECTION_LINK_HELP);
+      expect(
+        validateTeamsWebhook("https://webhook.office.com/abc")
+      ).toBe(TEAMS_CONNECTION_LINK_HELP);
+      expect(
+        validateTeamsWebhook("https://logic.azure.com/workflows/abc")
+      ).toBe(TEAMS_CONNECTION_LINK_HELP);
     });
 
     it("returns error message for invalid path", () => {
@@ -466,6 +480,12 @@ describe("formValidation", () => {
         TEAMS_CONNECTION_LINK_HELP
       );
       expect(validateTeamsWebhook("https://outlook.office.com/")).toBe(
+        TEAMS_CONNECTION_LINK_HELP
+      );
+      expect(validateTeamsWebhook("https://tenant.webhook.office.com/")).toBe(
+        TEAMS_CONNECTION_LINK_HELP
+      );
+      expect(validateTeamsWebhook("https://prod-12.westus.logic.azure.com/")).toBe(
         TEAMS_CONNECTION_LINK_HELP
       );
     });

@@ -113,6 +113,13 @@ const releaseCacheMarkers = [
   "cache: npm",
 ];
 
+const notificationProviderPaths = [
+  "src-tauri/src/core/notify/slack.rs",
+  "src-tauri/src/core/notify/discord.rs",
+  "src-tauri/src/core/notify/teams.rs",
+  "src-tauri/src/core/notify/telegram.rs",
+];
+
 const releaseWorkflowChecks = [
   {
     label: "parallel release preflight",
@@ -531,6 +538,41 @@ function checkSetupNodeCacheDisabled(path, text, violations) {
   }
 }
 
+function checkNotificationEgressBoundary(root, violations) {
+  const notifyDir = "src-tauri/src/core/notify";
+  if (!existsSync(repoPath(root, notifyDir))) {
+    return;
+  }
+
+  const notifyMod = readIfExists(root, `${notifyDir}/mod.rs`, violations);
+  if (
+    !includesAll(notifyMod, [
+      "resolve_external_https_url_for_fetch",
+      "notification_http_client_for_url",
+      "redirect(Policy::none())",
+      "resolve_to_addrs",
+      "NOTIFICATION_HTTP_TIMEOUT",
+    ])
+  ) {
+    violations.push(
+      "notification HTTP egress must resolve HTTPS destinations, pin checked DNS answers, disable redirects, and use a timeout",
+    );
+  }
+
+  for (const path of notificationProviderPaths) {
+    if (!existsSync(repoPath(root, path))) {
+      continue;
+    }
+
+    const text = readIfExists(root, path, violations);
+    if (/\breqwest::Client::(?:builder|new)\s*\(/.test(text)) {
+      violations.push(
+        `${path} must use notification_http_client_for_url instead of raw reqwest clients`,
+      );
+    }
+  }
+}
+
 function checkDependabotGovernance(root, violations) {
   const dependabotConfig = readIfExists(root, ".github/dependabot.yml", violations);
 
@@ -669,6 +711,7 @@ export function formatSecuritySensorSummary() {
     "agent-instructions=1",
     "browser-extension=1",
     "tauri-capabilities=1",
+    "notification-egress=1",
     "renderer-csp=1",
     "renderer-assets=1",
     "credential-ui=2",
@@ -703,6 +746,7 @@ export function checkSecuritySensors(root = defaultRoot) {
   checkBrowserExtensionManifestBoundary(root, violations);
   checkTauriCapabilityBoundary(root, violations);
   checkRendererAssetBoundary(root, violations);
+  checkNotificationEgressBoundary(root, violations);
 
   const ciWorkflow = readIfExists(root, ".github/workflows/ci.yml", violations);
 
