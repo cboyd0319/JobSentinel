@@ -22,14 +22,17 @@ sudo apt-get install -y \
   libgtk-3-dev \
   libappindicator3-dev \
   librsvg2-dev \
+  libfuse2t64 \
   patchelf
 ```
 
 ### Build Tools
 
-- **Node.js** 24.17.0+ (frontend)
+- **Node.js** 24.17.0 (frontend)
 - **Rust** 1.96.0, matching `rust-toolchain.toml`
 - **npm** (package manager)
+- **libfuse2t64** on Ubuntu 24.04, or **libfuse2** on older Debian/Ubuntu
+  releases, for AppImage helper compatibility
 
 ## Building Locally
 
@@ -51,7 +54,7 @@ cd ..
 The Tauri CLI builds both the frontend and the Rust backend:
 
 ```bash
-npx --no-install tauri build --target x86_64-unknown-linux-gnu
+APPIMAGE_EXTRACT_AND_RUN=1 npx --no-install tauri build --target x86_64-unknown-linux-gnu
 ```
 
 ### 3. Locate Build Artifacts
@@ -200,13 +203,13 @@ docker run -it --rm \
   -w /workspace \
   ubuntu:24.04 \
   bash -c "apt-get update && \
-    apt-get install -y curl build-essential libwebkit2gtk-4.1-dev libgtk-3-dev libappindicator3-dev librsvg2-dev patchelf && \
+    apt-get install -y curl build-essential libwebkit2gtk-4.1-dev libgtk-3-dev libappindicator3-dev librsvg2-dev libfuse2t64 patchelf && \
     curl -fsSL https://deb.nodesource.com/setup_24.x | bash - && \
     apt-get install -y nodejs && \
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y && \
     source ~/.cargo/env && \
     node scripts/install-pinned-npm.mjs && \
-    npm ci --ignore-scripts && npx --no-install tauri build --target x86_64-unknown-linux-gnu"
+    npm ci --ignore-scripts && APPIMAGE_EXTRACT_AND_RUN=1 npx --no-install tauri build --target x86_64-unknown-linux-gnu"
 ```
 
 ## Signing and Auto-Updates

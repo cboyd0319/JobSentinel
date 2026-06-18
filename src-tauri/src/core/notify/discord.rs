@@ -28,7 +28,7 @@ fn validate_webhook_url(url: &str) -> Result<()> {
     let host = url_parsed
         .host_str()
         .ok_or_else(|| anyhow!("Paste the full Discord connection link copied from Discord."))?;
-    if host != "discord.com" && host != "discordapp.com" {
+    if !is_supported_discord_webhook_host(host) {
         return Err(anyhow!(
             "Paste the full Discord connection link copied from Discord."
         ));
@@ -42,6 +42,13 @@ fn validate_webhook_url(url: &str) -> Result<()> {
     }
 
     Ok(())
+}
+
+fn is_supported_discord_webhook_host(host: &str) -> bool {
+    matches!(
+        host.to_ascii_lowercase().as_str(),
+        "discord.com" | "discordapp.com" | "hooks.discord.com"
+    )
 }
 
 fn build_discord_payload(config: &DiscordConfig, notification: &Notification) -> serde_json::Value {

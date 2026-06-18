@@ -88,6 +88,14 @@ function createMockExec(options = {}) {
       return "patchelf 0.18.0";
     }
 
+    if (command === "sh" && firstArg === "-c" && secondArg.includes("libfuse.so.2")) {
+      if (options.hasLibfuse === false) {
+        throw new Error("missing libfuse.so.2");
+      }
+
+      return "";
+    }
+
     if (command === process.execPath) {
       if (options.playwrightFails) {
         throw new Error("chromium missing");
@@ -171,6 +179,27 @@ test("runDoctor checks Linux Tauri system packages through pkg-config", () => {
           result.status === "fail" &&
           result.label === "Linux WebKitGTK dev package" &&
           result.detail.includes("libwebkit2gtk-4.1-dev"),
+      ),
+      formatDoctorResults(results),
+    );
+  });
+});
+
+test("runDoctor checks Linux AppImage FUSE compatibility", () => {
+  withDoctorFixture((root) => {
+    const results = runDoctor({
+      root,
+      platform: "linux",
+      nodeVersion: "v24.17.0",
+      execFileSync: createMockExec({ hasLibfuse: false }),
+    });
+
+    assert.ok(
+      results.some(
+        (result) =>
+          result.status === "fail" &&
+          result.label === "Linux AppImage FUSE compatibility" &&
+          result.detail.includes("libfuse2t64"),
       ),
       formatDoctorResults(results),
     );

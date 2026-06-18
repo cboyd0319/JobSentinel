@@ -58,6 +58,8 @@ Workflow changes must preserve the GitHub Actions security baseline:
   privileged workflows for untrusted code.
 - Pin third-party actions to full commit SHAs and keep the stable version
   comment current with `npm run lint:actions`.
+- Run GitHub Actions static analysis in the CI security job with a SHA-pinned
+  `zizmor-action` step.
 - Pass workflow-dispatch inputs into shell steps through environment variables,
   then quote those variables in `run:` scripts.
 - Route release jobs with write permissions or signing secrets through the
@@ -150,14 +152,16 @@ changed.
 
 ### Job: security
 
-Audits both dependency trees for known vulnerabilities when dependency,
-security, Dependabot, or workflow files changed. The weekly and manual runs
-also check latest stable dependency and Action pin drift. This job intentionally
-skips Linux WebKit build dependencies because it does not compile the app.
+Audits workflows and both dependency trees for known vulnerabilities when
+dependency, security, Dependabot, or workflow files changed. The weekly and
+manual runs also check latest stable dependency and Action pin drift. This job
+intentionally skips Linux WebKit build dependencies because it does not compile
+the app.
 
 | Step             | Tool                               |
 | ---------------- | ---------------------------------- |
 | Security sensors | `npm run lint:security`            |
+| Workflow static analysis | `zizmor-action`            |
 | npm audit        | `npm audit --audit-level=moderate` |
 | Rust policy      | `cargo deny check advisories bans licenses sources` |
 | Drift check      | `npm run release:check-deps`       |

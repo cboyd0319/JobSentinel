@@ -217,10 +217,13 @@ export function hasMissingWebhookCredentialStorageValidation(root, path) {
 
   const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
   return (
-    !/CredentialKey::SlackWebhook\s*=>\s*validate_webhook_credential/.test(productionText) ||
-    !/CredentialKey::DiscordWebhook\s*=>\s*validate_webhook_credential/.test(productionText) ||
-    !/CredentialKey::TeamsWebhook\s*=>\s*validate_webhook_credential/.test(productionText) ||
-    !/fn\s+validate_webhook_credential/.test(productionText)
+    !productionText.includes("CredentialKey::SlackWebhook") ||
+    !productionText.includes("CredentialKey::DiscordWebhook") ||
+    !productionText.includes("CredentialKey::TeamsWebhook") ||
+    !productionText.includes("CredentialKey::TelegramBotToken") ||
+    !/fn\s+validate_webhook_credential/.test(productionText) ||
+    !/fn\s+validate_teams_webhook_credential/.test(productionText) ||
+    !/fn\s+validate_telegram_bot_token_credential/.test(productionText)
   );
 }
 

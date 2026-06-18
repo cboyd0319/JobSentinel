@@ -178,7 +178,7 @@ export function validateDiscordWebhook(url: string): string | undefined {
     }
     
     // Validate host
-    if (parsed.hostname !== "discord.com" && parsed.hostname !== "discordapp.com") {
+    if (!isSupportedDiscordWebhookHost(parsed.hostname)) {
       return help;
     }
     
@@ -191,6 +191,11 @@ export function validateDiscordWebhook(url: string): string | undefined {
   } catch {
     return help;
   }
+}
+
+function isSupportedDiscordWebhookHost(hostname: string): boolean {
+  const host = hostname.toLowerCase();
+  return host === "discord.com" || host === "discordapp.com" || host === "hooks.discord.com";
 }
 
 /**

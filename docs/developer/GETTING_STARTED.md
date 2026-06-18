@@ -42,6 +42,7 @@ sudo apt-get install -y \
   libgtk-3-dev \
   libappindicator3-dev \
   librsvg2-dev \
+  libfuse2t64 \
   patchelf
 ```
 
@@ -85,6 +86,7 @@ JOBSENTINEL_MACOS_NO_ACCOUNT=true npm run tauri:build:macos -- --target universa
 # src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_<version>_no-account_universal.dmg.sha256
 
 # Linux packages output
+APPIMAGE_EXTRACT_AND_RUN=1 npx --no-install tauri build --target x86_64-unknown-linux-gnu
 # src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/deb/JobSentinel_<version>_amd64.deb
 # src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/JobSentinel_<version>_amd64.AppImage
 ```
@@ -285,6 +287,7 @@ sudo apt-get install -y \
   libgtk-3-dev \
   libappindicator3-dev \
   librsvg2-dev \
+  libfuse2t64 \
   patchelf
 ```
 

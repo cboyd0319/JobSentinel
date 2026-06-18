@@ -346,6 +346,9 @@ describe("formValidation", () => {
       expect(
         validateDiscordWebhook("https://discordapp.com/api/webhooks/123/abc")
       ).toBeUndefined();
+      expect(
+        validateDiscordWebhook("https://hooks.discord.com/api/webhooks/123/abc")
+      ).toBeUndefined();
     });
 
     it("returns undefined for empty string (optional field)", () => {

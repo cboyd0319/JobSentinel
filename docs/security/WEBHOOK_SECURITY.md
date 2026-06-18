@@ -92,7 +92,7 @@ fn validate_webhook_url(url: &str) -> Result<()> {
     let host = url_parsed.host_str()
         .ok_or_else(|| anyhow!("Invalid webhook URL host"))?;
 
-    if host != "discord.com" && host != "discordapp.com" {
+    if !matches!(host, "discord.com" | "discordapp.com" | "hooks.discord.com") {
         return Err(anyhow!("Invalid Discord host"));
     }
 
@@ -108,6 +108,7 @@ fn validate_webhook_url(url: &str) -> Result<()> {
 
 - `https://discord.com/api/webhooks/123/ABC`
 - `https://discordapp.com/api/webhooks/123/ABC`
+- `https://hooks.discord.com/api/webhooks/123/ABC`
 
 #### Teams Webhook Validation
 
@@ -170,7 +171,7 @@ JobSentinel only allows webhooks to known, trusted domains:
 | Service | Allowed Hosts                                 |
 | ------- | --------------------------------------------- |
 | Slack   | `hooks.slack.com`                             |
-| Discord | `discord.com`, `discordapp.com`               |
+| Discord | `discord.com`, `discordapp.com`, `hooks.discord.com` |
 | Teams   | `outlook.office.com`, `outlook.office365.com`, `*.webhook.office.com`, `*.logic.azure.com` |
 
 **Denylisting doesn't work**:
@@ -294,6 +295,7 @@ https://hooks.slack.com/services/T{workspace}/B{channel}/{token}
 
 ```text
 https://discord.com/api/webhooks/{id}/{token}
+https://hooks.discord.com/api/webhooks/{id}/{token}
 ```
 
 **Security Features**:

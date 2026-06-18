@@ -159,27 +159,17 @@ fn credential_presence_from_result(
 fn validate_credential_value(key: CredentialKey, value: &str) -> Result<(), String> {
     match key {
         CredentialKey::LinkedInCookie => validate_legacy_linkedin_cookie(value),
-        CredentialKey::SlackWebhook => validate_webhook_credential(
-            value,
-            &["hooks.slack.com"],
-            "/services/",
-            "Slack",
-            "hooks.slack.com",
-        ),
+        CredentialKey::SlackWebhook => {
+            validate_webhook_credential(value, &["hooks.slack.com"], "/services/", "Slack")
+        }
         CredentialKey::DiscordWebhook => validate_webhook_credential(
             value,
-            &["discord.com", "discordapp.com"],
+            &["discord.com", "discordapp.com", "hooks.discord.com"],
             "/api/webhooks/",
             "Discord",
-            "discord.com or discordapp.com",
         ),
-        CredentialKey::TeamsWebhook => validate_webhook_credential(
-            value,
-            &["outlook.office.com", "outlook.office365.com"],
-            "/webhook/",
-            "Teams",
-            "outlook.office.com or outlook.office365.com",
-        ),
+        CredentialKey::TeamsWebhook => validate_teams_webhook_credential(value),
+        CredentialKey::TelegramBotToken => validate_telegram_bot_token_credential(value),
         _ => Ok(()),
     }
 }
@@ -216,7 +206,6 @@ fn validate_webhook_credential(
     allowed_hosts: &[&str],
     required_path_prefix: &str,
     provider_label: &str,
-    _host_label: &str,
 ) -> Result<(), String> {
     let help = format!(
         "Paste the full {provider_label} connection link copied from {provider_label}. If you are not sure, leave it blank and set it up later."
@@ -237,15 +226,81 @@ fn validate_webhook_credential(
         }
     }
 
-    if !url
-        .host_str()
-        .is_some_and(|host| allowed_hosts.contains(&host))
-    {
+    let host = url.host_str().map(str::to_ascii_lowercase);
+    if !host.is_some_and(|host| allowed_hosts.contains(&host.as_str())) {
         return Err(help);
     }
 
     if !url.path().starts_with(required_path_prefix) {
         return Err(help);
+    }
+
+    Ok(())
+}
+
+fn validate_teams_webhook_credential(value: &str) -> Result<(), String> {
+    let help =
+        "Paste the full Teams connection link copied from Teams. If you are not sure, leave it blank and set it up later."
+            .to_string();
+    let url = url::Url::parse(value).map_err(|_| help.clone())?;
+
+    if url.scheme() != "https" {
+        return Err(help);
+    }
+
+    if !url.username().is_empty() || url.password().is_some() {
+        return Err(help);
+    }
+
+    if let Some(port) = url.port() {
+        if port != 443 {
+            return Err(help);
+        }
+    }
+
+    let Some(host) = url.host_str().map(str::to_ascii_lowercase) else {
+        return Err(help);
+    };
+    let path = url.path();
+    let has_generated_path = path.len() > 1;
+
+    let legacy_connector = matches!(
+        host.as_str(),
+        "outlook.office.com" | "outlook.office365.com"
+    ) && path.starts_with("/webhook/");
+    let current_connector =
+        host.ends_with(".webhook.office.com") && host != "webhook.office.com" && has_generated_path;
+    let workflow_trigger =
+        host.ends_with(".logic.azure.com") && host != "logic.azure.com" && has_generated_path;
+
+    if legacy_connector || current_connector || workflow_trigger {
+        Ok(())
+    } else {
+        Err(help)
+    }
+}
+
+fn validate_telegram_bot_token_credential(value: &str) -> Result<(), String> {
+    let help =
+        "Paste the Telegram bot token copied from BotFather. If you are not sure, leave it blank and set it up later.";
+    let Some((bot_id, token_part)) = value.split_once(':') else {
+        return Err(help.to_string());
+    };
+
+    if token_part.contains(':') {
+        return Err(help.to_string());
+    }
+
+    if bot_id.is_empty() || !bot_id.chars().all(|ch| ch.is_ascii_digit()) {
+        return Err(help.to_string());
+    }
+
+    if token_part.len() < 20
+        || !token_part
+            .chars()
+            .all(|ch| ch.is_ascii_alphanumeric() || ch == '_' || ch == '-')
+    {
+        return Err(help.to_string());
     }
 
     Ok(())
@@ -686,6 +741,67 @@ mod tests {
             !err.contains("x-secret"),
             "validation error must not echo cookie value: {err}"
         );
+    }
+
+    #[test]
+    fn teams_credential_validation_accepts_current_connector_and_workflow_urls() {
+        for url in [
+            "https://tenant.webhook.office.com/abc/IncomingWebhook/def/ghi",
+            "https://prod-12.westus.logic.azure.com:443/workflows/abc/triggers/manual/paths/invoke",
+        ] {
+            assert!(
+                validate_credential_value(CredentialKey::TeamsWebhook, url).is_ok(),
+                "{url} should pass Teams credential validation",
+            );
+        }
+    }
+
+    #[test]
+    fn teams_credential_validation_rejects_base_current_hosts() {
+        for url in [
+            "https://webhook.office.com/abc",
+            "https://logic.azure.com/workflows/abc",
+            "https://prod-12.westus.logic.azure.com/",
+        ] {
+            assert!(
+                validate_credential_value(CredentialKey::TeamsWebhook, url).is_err(),
+                "{url} should fail Teams credential validation",
+            );
+        }
+    }
+
+    #[test]
+    fn discord_credential_validation_accepts_hooks_domain() {
+        assert!(validate_credential_value(
+            CredentialKey::DiscordWebhook,
+            "https://hooks.discord.com/api/webhooks/123456789/abcdefghijklmnopqrstuvwxyz",
+        )
+        .is_ok());
+    }
+
+    #[test]
+    fn telegram_bot_token_validation_rejects_bad_format_without_echo() {
+        let secret_like_value = "telegram-secret-without-colon";
+        let err = validate_credential_value(CredentialKey::TelegramBotToken, secret_like_value)
+            .unwrap_err();
+
+        assert_eq!(
+            err,
+            "Paste the Telegram bot token copied from BotFather. If you are not sure, leave it blank and set it up later."
+        );
+        assert!(
+            !err.contains(secret_like_value),
+            "validation error must not echo token value: {err}"
+        );
+    }
+
+    #[test]
+    fn telegram_bot_token_validation_accepts_token_shape() {
+        assert!(validate_credential_value(
+            CredentialKey::TelegramBotToken,
+            "123456789:ABCdefGHIjklMNOpqrsTUVwxyz-ABCDEFGHIJ",
+        )
+        .is_ok());
     }
 
     #[test]

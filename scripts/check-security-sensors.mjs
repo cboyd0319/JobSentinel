@@ -88,6 +88,10 @@ const ciWorkflowChecks = [
     phrases: ["npm run lint:security"],
   },
   {
+    label: "GitHub Actions static analysis",
+    phrases: ["zizmorcore/zizmor-action@", "advanced-security: false", "inputs: .github/workflows"],
+  },
+  {
     label: "npm audit",
     phrases: ["npm audit --audit-level=moderate"],
   },
@@ -101,18 +105,9 @@ const ciWorkflowChecks = [
   },
 ];
 
-const forbiddenWorkflowTriggers = [
-  "pull_request_target:",
-  "workflow_run:",
-  "issue_comment:",
-];
+const forbiddenWorkflowTriggers = ["pull_request_target:", "workflow_run:", "issue_comment:"];
 
-const releaseCacheMarkers = [
-  "actions/cache@",
-  "Swatinem/rust-cache@",
-  "cache: \"npm\"",
-  "cache: npm",
-];
+const releaseCacheMarkers = ["actions/cache@", "Swatinem/rust-cache@", "cache: \"npm\"", "cache: npm"];
 
 const notificationProviderPaths = [
   "src-tauri/src/core/notify/slack.rs",
@@ -226,6 +221,10 @@ const releaseWorkflowChecks = [
       'Remove-Item -LiteralPath "src-tauri/tauri.windows.conf.json"',
       "tauri.windows.conf.json",
     ],
+  },
+  {
+    label: "Linux AppImage build compatibility",
+    phrases: ["libfuse2t64=2.9.9-8.1build1", "Build Linux Tauri app", "APPIMAGE_EXTRACT_AND_RUN: \"1\""],
   },
   {
     label: "release attestation permissions",

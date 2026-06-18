@@ -268,9 +268,9 @@ fn validate_webhook_url(url: &str) -> Result<()> {
     let host = url_parsed.host_str()
         .ok_or_else(|| anyhow!("Invalid webhook URL host"))?;
 
-    if host != "discord.com" && host != "discordapp.com" {
+    if !matches!(host, "discord.com" | "discordapp.com" | "hooks.discord.com") {
         return Err(anyhow!(
-            "Webhook URL must use discord.com or discordapp.com domain"
+            "Webhook URL must use a supported Discord webhook domain"
         ));
     }
 
@@ -287,6 +287,7 @@ fn validate_webhook_url(url: &str) -> Result<()> {
 ```text
 https://discord.com/api/webhooks/123456789/ABCDEFG
 https://discordapp.com/api/webhooks/123456789/ABCDEFG
+https://hooks.discord.com/api/webhooks/123456789/ABCDEFG
 ```
 
 ### Microsoft Teams Webhooks
@@ -370,7 +371,7 @@ if url_parsed.host_str() != Some("hooks.slack.com") {
 }
 
 // For multiple valid hosts, use a list
-const VALID_HOSTS: &[&str] = &["discord.com", "discordapp.com"];
+const VALID_HOSTS: &[&str] = &["discord.com", "discordapp.com", "hooks.discord.com"];
 if !VALID_HOSTS.contains(&url_parsed.host_str().unwrap_or("")) {
     return Err(anyhow!("Invalid host"));
 }

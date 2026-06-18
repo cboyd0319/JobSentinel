@@ -202,7 +202,7 @@ npm run tauri build
 Get-AuthenticodeSignature src-tauri/target/release/bundle/msi/JobSentinel_*.msi
 
 # Linux (from Linux)
-npx --no-install tauri build --target x86_64-unknown-linux-gnu
+APPIMAGE_EXTRACT_AND_RUN=1 npx --no-install tauri build --target x86_64-unknown-linux-gnu
 # Output: src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/
 file src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/*.AppImage
 dpkg-deb --info src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/deb/*.deb

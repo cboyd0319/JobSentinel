@@ -263,7 +263,10 @@ mod tests {
         let vault = test_vault().await;
 
         vault
-            .store(CredentialKey::TelegramBotToken, "telegram-secret")
+            .store(
+                CredentialKey::TelegramBotToken,
+                "123456789:ABCdefGHIjklMNOpqrsTUVwxyz",
+            )
             .await
             .unwrap();
         vault

@@ -21,6 +21,16 @@ fn test_valid_discordapp_webhook_url_passes() {
 }
 
 #[test]
+fn test_valid_hooks_discord_webhook_url_passes() {
+    let valid_url = "https://hooks.discord.com/api/webhooks/123456789/abcdefghijklmnopqrstuvwxyz";
+    let result = validate_webhook_url(valid_url);
+    assert!(
+        result.is_ok(),
+        "Valid hooks.discord.com webhook URL should pass validation"
+    );
+}
+
+#[test]
 fn test_invalid_scheme_fails() {
     let invalid_url = "http://discord.com/api/webhooks/123456789/token";
     let result = validate_webhook_url(invalid_url);

@@ -465,7 +465,10 @@ mod tests {
         let service = test_service().await;
 
         service
-            .store(CredentialKey::TelegramBotToken, "telegram-token")
+            .store(
+                CredentialKey::TelegramBotToken,
+                "123456789:ABCdefGHIjklMNOpqrsTUVwxyz",
+            )
             .await
             .unwrap();
         service

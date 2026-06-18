@@ -196,6 +196,23 @@ function checkPkgConfigRequirement(results, packageNames, label, options = {}) {
   return false;
 }
 
+function checkLinuxSharedLibrary(results, libraryName, label, options = {}) {
+  runCommandCheck(
+    results,
+    "sh",
+    ["-c", `ldconfig -p 2>/dev/null | grep -q -- '${libraryName}'`],
+    label,
+    {
+      cwd: options.cwd,
+      platform: options.platform,
+      execFileSync: options.execFileSync,
+      detail: `${libraryName} available`,
+      detailOnFailure: `missing ${libraryName}`,
+      fix: options.fix,
+    },
+  );
+}
+
 function checkLinuxTauriDependencies(results, root, options = {}) {
   if (options.platform !== "linux") {
     return;
@@ -245,6 +262,12 @@ function checkLinuxTauriDependencies(results, root, options = {}) {
     platform: options.platform,
     execFileSync: options.execFileSync,
     fix: "Install patchelf",
+  });
+  checkLinuxSharedLibrary(results, "libfuse.so.2", "Linux AppImage FUSE compatibility", {
+    cwd: root,
+    platform: options.platform,
+    execFileSync: options.execFileSync,
+    fix: "Install libfuse2t64 on Ubuntu 24.04, or libfuse2 on older Debian/Ubuntu releases",
   });
 }
 

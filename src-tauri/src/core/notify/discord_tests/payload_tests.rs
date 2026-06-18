@@ -212,6 +212,7 @@ fn test_webhook_url_host_validation() {
     let test_cases = vec![
         ("https://discord.com/api/webhooks/123/token", true),
         ("https://discordapp.com/api/webhooks/123/token", true),
+        ("https://hooks.discord.com/api/webhooks/123/token", true),
         ("https://discord.co/api/webhooks/123/token", false),
         ("https://evil-discord.com/api/webhooks/123/token", false),
     ];
