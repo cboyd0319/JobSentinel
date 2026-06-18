@@ -661,31 +661,22 @@ impl ScoringEngine {
         let max_score = self.scoring_config.location_weight;
         let mut reasons = Vec::new();
 
-        let location_text = job.location.as_deref().unwrap_or("").to_lowercase();
-        let title_text = job.title.to_lowercase();
+        let remote_status = match detect_remote_status(job) {
+            RemoteStatus::Unspecified => RemoteStatus::Onsite,
+            status => status,
+        };
 
-        // Check if job is remote
-        let is_remote = job.remote.unwrap_or(false)
-            || location_text.contains("remote")
-            || title_text.contains("remote");
-
-        // Check if job is hybrid
-        let is_hybrid = location_text.contains("hybrid");
-
-        // Check if job is onsite
-        let is_onsite = !is_remote && !is_hybrid;
-
-        if is_remote && self.config.location_preferences.allow_remote {
+        if remote_status == RemoteStatus::Remote && self.config.location_preferences.allow_remote {
             reasons.push("Remote job (matches preference)".to_string());
             return (max_score, reasons);
         }
 
-        if is_hybrid && self.config.location_preferences.allow_hybrid {
+        if remote_status == RemoteStatus::Hybrid && self.config.location_preferences.allow_hybrid {
             reasons.push("Hybrid job (matches preference)".to_string());
             return (max_score, reasons);
         }
 
-        if is_onsite && self.config.location_preferences.allow_onsite {
+        if remote_status == RemoteStatus::Onsite && self.config.location_preferences.allow_onsite {
             reasons.push("Onsite job (matches preference)".to_string());
             return (max_score, reasons);
         }

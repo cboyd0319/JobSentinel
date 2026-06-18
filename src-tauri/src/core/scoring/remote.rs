@@ -3,6 +3,32 @@
 //! Provides graduated scoring for remote/hybrid/onsite jobs based on user preferences.
 
 use crate::core::db::Job;
+use serde::Deserialize;
+use std::sync::LazyLock;
+
+const WORK_ARRANGEMENT_TAXONOMY_JSON: &str =
+    include_str!("../../../../src/shared/workArrangementTaxonomy.json");
+
+static WORK_ARRANGEMENT_TAXONOMY: LazyLock<WorkArrangementTaxonomy> =
+    LazyLock::new(
+        || match serde_json::from_str(WORK_ARRANGEMENT_TAXONOMY_JSON) {
+            Ok(taxonomy) => taxonomy,
+            Err(error) => panic!("work arrangement taxonomy must be valid JSON: {error}"),
+        },
+    );
+
+#[derive(Debug, Deserialize)]
+struct WorkArrangementTaxonomy {
+    #[serde(rename = "workArrangementIndicators")]
+    work_arrangement_indicators: WorkArrangementIndicators,
+}
+
+#[derive(Debug, Deserialize)]
+struct WorkArrangementIndicators {
+    hybrid: Vec<String>,
+    remote: Vec<String>,
+    onsite: Vec<String>,
+}
 
 /// Detected remote status of a job
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -60,48 +86,29 @@ pub fn detect_remote_status(job: &Job) -> RemoteStatus {
         return RemoteStatus::Remote;
     }
 
-    // Check for hybrid indicators (check before remote to catch "hybrid remote")
-    let hybrid_keywords = [
-        "hybrid",
-        "flexible location",
-        "remote with occasional office",
-        "partially remote",
-        "mix of remote and office",
-    ];
-    if hybrid_keywords.iter().any(|&kw| combined_text.contains(kw)) {
+    let indicators = &WORK_ARRANGEMENT_TAXONOMY.work_arrangement_indicators;
+
+    // Check for hybrid indicators before remote to catch "hybrid remote".
+    if contains_any_indicator(&combined_text, &indicators.hybrid) {
         return RemoteStatus::Hybrid;
     }
 
-    // Check for remote indicators
-    let remote_keywords = [
-        "remote",
-        "work from home",
-        "wfh",
-        "distributed",
-        "100% remote",
-        "fully remote",
-        "remote-first",
-        "work anywhere",
-    ];
-    if remote_keywords.iter().any(|&kw| combined_text.contains(kw)) {
+    if contains_any_indicator(&combined_text, &indicators.remote) {
         return RemoteStatus::Remote;
     }
 
-    // Check for onsite indicators
-    let onsite_keywords = [
-        "on-site",
-        "onsite",
-        "in-office",
-        "office-based",
-        "on site",
-        "in person",
-    ];
-    if onsite_keywords.iter().any(|&kw| combined_text.contains(kw)) {
+    if contains_any_indicator(&combined_text, &indicators.onsite) {
         return RemoteStatus::Onsite;
     }
 
     // Default: unspecified (no clear indicators found)
     RemoteStatus::Unspecified
+}
+
+fn contains_any_indicator(text: &str, indicators: &[String]) -> bool {
+    indicators
+        .iter()
+        .any(|indicator| text.contains(indicator.as_str()))
 }
 
 /// Calculate remote preference score multiplier and reason

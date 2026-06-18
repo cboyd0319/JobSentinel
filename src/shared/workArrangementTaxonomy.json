@@ -1,0 +1,29 @@
+{
+  "workArrangementIndicators": {
+    "hybrid": [
+      "hybrid",
+      "flexible location",
+      "remote with occasional office",
+      "partially remote",
+      "mix of remote and office"
+    ],
+    "remote": [
+      "remote",
+      "work from home",
+      "wfh",
+      "distributed",
+      "100% remote",
+      "fully remote",
+      "remote-first",
+      "work anywhere"
+    ],
+    "onsite": [
+      "on-site",
+      "onsite",
+      "in-office",
+      "office-based",
+      "on site",
+      "in person"
+    ]
+  }
+}

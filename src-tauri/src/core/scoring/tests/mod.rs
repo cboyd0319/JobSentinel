@@ -258,6 +258,40 @@ fn test_location_remote_match() {
 }
 
 #[test]
+fn test_location_remote_match_from_taxonomy_description() {
+    let config = create_test_config();
+    let mut job = create_test_job();
+    job.remote = Some(false);
+    job.location = Some("Denver, CO".to_string());
+    job.description = Some("This is a work from home position.".to_string());
+
+    let engine = ScoringEngine::new(Arc::new(config));
+    let score = engine.score(&job);
+
+    assert_eq!(
+        score.breakdown.location, 0.20,
+        "Should get full location score for remote taxonomy phrase in description"
+    );
+    assert!(score.reasons.iter().any(|r| r.contains("Remote job")));
+}
+
+#[test]
+fn test_location_hybrid_taxonomy_takes_priority_over_remote() {
+    let config = create_test_config();
+    let mut job = create_test_job();
+    job.remote = Some(false);
+    job.location = Some("Hybrid remote - Denver".to_string());
+
+    let engine = ScoringEngine::new(Arc::new(config));
+    let score = engine.score(&job);
+
+    assert_eq!(
+        score.breakdown.location, 0.0,
+        "Hybrid taxonomy phrases should not score as remote-only matches"
+    );
+}
+
+#[test]
 fn test_location_hybrid_no_match() {
     let config = create_test_config();
     let mut job = create_test_job();
