@@ -6,6 +6,7 @@
 #[cfg(test)]
 mod tests {
     use crate::core::ml::*;
+    use std::fs;
     use tempfile::TempDir;
 
     fn get_test_cache_dir() -> TempDir {
@@ -18,6 +19,24 @@ mod tests {
         let manager = ModelManager::new(cache_dir.path().to_path_buf());
 
         let status = manager.get_status();
+        assert!(!status.is_downloaded);
+        assert!(status.model_size_bytes.is_none());
+    }
+
+    #[test]
+    fn test_model_status_rejects_tampered_cached_files() {
+        let cache_dir = get_test_cache_dir();
+        let model_dir = cache_dir.path().join("ml_models/all-MiniLM-L6-v2");
+        fs::create_dir_all(&model_dir).unwrap();
+
+        for file in ["config.json", "tokenizer.json", "model.safetensors"] {
+            fs::write(model_dir.join(file), b"tampered model file").unwrap();
+        }
+
+        let manager = ModelManager::new(cache_dir.path().to_path_buf());
+        let status = manager.get_status();
+
+        assert!(!manager.is_model_downloaded());
         assert!(!status.is_downloaded);
         assert!(status.model_size_bytes.is_none());
     }

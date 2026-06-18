@@ -93,6 +93,8 @@ fill in any blank details in JobSentinel.
   of normal setup.
 - The private one-use detail is refreshed when the browser button is copied,
   works for one save, and expires after about one hour.
+- The button uses a transient hidden browser context for its local send path so
+  page scripts are less likely to observe the one-use detail.
 - If copying fails, the previous browser button keeps working until its safety
   code is used once or expires.
 - Job data stays local unless you choose to share it.
@@ -108,6 +110,8 @@ interface should keep technical details hidden:
 - Do not expose the private one-use browser button detail.
 - Keep copied browser-button codes one-use, short-lived, and session-scoped.
 - Activate a refreshed safety code only after the browser button is copied.
+- Keep local sends on clean transient browser APIs where practical; do not fall
+  back to host-page `window.fetch` or host-page `JSON.stringify`.
 - Prefer "browser import button", "Browser Import", and "button setup number"
   in user-facing copy.
 - Keep lower-level implementation details in developer docs or code comments,

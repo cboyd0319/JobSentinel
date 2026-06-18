@@ -12,9 +12,10 @@ from external AI.
 | Default app behavior | Disabled unless built with the feature |
 | Core workflow dependency | None; deterministic matching remains available |
 | Data flow | Resume and job-skill matching runs locally |
-| Model source | `sentence-transformers/all-MiniLM-L6-v2` model files from Hugging Face Hub |
+| Model source | `sentence-transformers/all-MiniLM-L6-v2` files from pinned Hugging Face revision `1110a243fdf4706b3f48f1d95db1a4f5529b4d41` |
 | Network behavior | Model download only, when the model is explicitly requested |
 | User data sent during model download | None |
+| Integrity check | Required SHA-256 checks for `config.json`, `tokenizer.json`, and `model.safetensors` |
 | Runtime stack | Candle, tokenizers, `safetensors`, optional macOS Metal acceleration |
 
 Privacy label: **Local only** for matching. Model download is an explicit
@@ -28,6 +29,8 @@ application history, or job-search records.
 - It must not replace plain, inspectable match explanations.
 - It must not claim to predict hiring outcomes.
 - It must fall back to deterministic matching when unavailable.
+- Downloaded model files must stay revision-pinned and checksum-verified before
+  cache status or loading reports success.
 - If exposed in user-facing UI, model download must have clear consent,
   progress, retry, cancel, and plain fallback copy.
 
@@ -110,6 +113,7 @@ truth.
 | Problem | Safe response |
 | ------- | ------------- |
 | Model download fails | Keep deterministic matching available and let the user retry later. |
+| Model checksum fails | Delete or replace the local model cache through a reviewed app flow, then retry the pinned download. |
 | Metal acceleration is unavailable | Fall back to CPU inference. |
 | Model files are missing | Show local matching fallback and an explicit download action. |
 | Matching output looks wrong | Let the user edit skills and visible assumptions before using the result. |

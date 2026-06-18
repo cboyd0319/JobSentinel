@@ -1,6 +1,6 @@
 # Current Product And Quality Work
 
-Last updated: 2026-06-17.
+Last updated: 2026-06-18.
 
 ## Purpose
 
@@ -133,8 +133,10 @@ Out of scope:
   sourced interview intel, and pay/offer decisions cross-checked against
   Persona, ResumeSkills, career-ops, and JobSentinel research.
 - Browser Import desktop/mobile manual verification passed on 2026-06-17 for
-  setup, private-link rejection, LinkedIn preview/save, duplicates, and overflow.
-- Final whole-UI post-design pass: 266/266 E2E plus 16 route inventories, no
+  setup, private-link rejection, LinkedIn preview/save, duplicates, and
+  overflow; CheatSheetSeries scan added clean send APIs and local-model
+  revision/checksum pinning.
+- Final whole-UI post-design pass: 266/266 E2E, 16 route inventories, and no
   console/page errors or overflow.
 - Final non-`content/` audit fixes landed: memory-only company research,
   accessible onboarding, auto-refresh gating, atomic alert claims, HTTPS
@@ -202,10 +204,4 @@ When resuming, read:
 3. [Verification matrix](../../harness/verification-matrix.md)
 4. Archived plans only if old decision context is needed
 
-Archived plan history:
-
-- [Active status history](../archive/active-status-history-2026-06-17.md)
-- [Guided job-search intake](../archive/guided-job-search-intake-superseded-2026-06-04.md)
-- [Repo cleanup and quality sweep](../archive/repo-cleanup-and-quality-sweep-superseded-2026-06-04.md)
-- [Repo cleanup handoff](../archive/repo-cleanup-handoff-superseded-2026-06-04.md)
-- [Research-backed product improvements](../archive/research-backed-product-improvements-superseded-2026-06-04.md)
+Archived history stays under `docs/plans/archive/`.

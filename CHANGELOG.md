@@ -25,9 +25,18 @@ packaging gates close.
 
 - **Release metadata** - Bumped npm, Cargo, and Tauri package metadata to
   `2.9.0`.
+- **Release supply chain** - Consolidated CI/release workflows now generate
+  release SBOM manifests, require provenance and SBOM attestations, and verify
+  public macOS supply-chain evidence.
 - **Dependency posture** - Release dependency checks now require exact latest
   stable direct pins, current package-manager and tool baselines, lockfile
   freshness, and pinned GitHub Actions.
+- **Local model integrity** - Optional embedded ML downloads now use an exact
+  Hugging Face revision and verify SHA-256 checksums before cache status or
+  model loading succeeds.
+- **Browser Import hardening** - The generated browser button now sends through
+  clean transient browser APIs instead of host-page `window.fetch` or
+  `JSON.stringify` while keeping one-use local tokens.
 - **Company research privacy** - Company research suggestions now use
   memory-only caching and clear the legacy localStorage cache key.
 - **Onboarding accessibility** - The tour overlay now behaves as a modal dialog

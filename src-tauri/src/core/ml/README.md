@@ -33,13 +33,20 @@ This module implements a simplified BERT-like model (all-MiniLM-L6-v2):
 - 384 hidden dimensions
 - Mean pooling over sequence
 
+Model downloads are pinned to Hugging Face revision
+`1110a243fdf4706b3f48f1d95db1a4f5529b4d41`. `config.json`,
+`tokenizer.json`, and `model.safetensors` must match the SHA-256 manifest in
+`model.rs` before the cache is treated as downloaded or loaded.
+
 ## Adding New Features
 
 ### Adding a New Model
 
 1. Update `MODEL_ID` constant in `model.rs`
-2. Adjust `HIDDEN_SIZE`, `NUM_LAYERS`, `NUM_HEADS` as needed
-3. Regenerate model artifacts
+2. Update `MODEL_REVISION` to an exact commit hash
+3. Regenerate the SHA-256 manifest for every required model file
+4. Adjust `HIDDEN_SIZE`, `NUM_LAYERS`, `NUM_HEADS` as needed
+5. Regenerate model artifacts
 
 ### Custom Matching Logic
 

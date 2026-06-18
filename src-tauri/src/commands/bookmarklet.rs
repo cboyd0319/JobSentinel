@@ -40,9 +40,11 @@ fn bookmarklet_code(port: u16, auth_token: &str) -> String {
         Err(_) => "\"\"".to_string(),
     };
 
-    format!(
-        "javascript:(function(){{var scripts=document.querySelectorAll('script[type=\"application/ld+json\"]');var job=null;scripts.forEach(function(s){{try{{var data=JSON.parse(s.textContent);if(data['@type']==='JobPosting')job=data;}}catch(e){{}}}});if(!job){{var title=document.querySelector('h1');var company=document.querySelector('[class*=\"company\"]')||document.querySelector('[class*=\"employer\"]');var desc=document.querySelector('[class*=\"description\"]')||document.querySelector('[class*=\"desc\"]');job={{title:title?title.textContent:'',company:company?company.textContent:'',description:desc?desc.textContent:'',url:window.location.href}};}}else{{job.url=window.location.href;}}fetch('http://localhost:{port}/api/bookmarklet/import',{{method:'POST',mode:'no-cors',headers:{{'Content-Type':'text/plain'}},body:JSON.stringify({{token:{token},job:job}})}}).then(function(){{alert('Sent to JobSentinel. Open saved jobs to confirm. If missing, copy the browser button again.');}}).catch(function(e){{alert('Cannot connect to JobSentinel. Turn on Browser Import in Settings.');}});}})();"
-    )
+    const TEMPLATE: &str = r#"javascript:(function(){var frame=null;function done(message){try{if(frame&&frame.parentNode){frame.parentNode.removeChild(frame);}}catch(e){}alert(message);}try{frame=document.createElement('iframe');frame.setAttribute('aria-hidden','true');frame.style.display='none';(document.documentElement||document.body).appendChild(frame);var cleanWindow=frame.contentWindow;var cleanFetch=cleanWindow.fetch.bind(cleanWindow);var cleanStringify=cleanWindow.JSON.stringify.bind(cleanWindow.JSON);var scripts=document.querySelectorAll('script[type="application/ld+json"]');var job=null;scripts.forEach(function(s){try{var data=cleanWindow.JSON.parse(s.textContent);if(data['@type']==='JobPosting')job=data;}catch(e){}});if(!job){var title=document.querySelector('h1');var company=document.querySelector('[class*="company"]')||document.querySelector('[class*="employer"]');var desc=document.querySelector('[class*="description"]')||document.querySelector('[class*="desc"]');job={title:title?title.textContent:'',company:company?company.textContent:'',description:desc?desc.textContent:'',url:window.location.href};}else{job.url=window.location.href;}cleanFetch('http://localhost:__PORT__/api/bookmarklet/import',{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:cleanStringify({token:__TOKEN__,job:job})}).then(function(){done('Sent to JobSentinel. Open saved jobs to confirm. If missing, copy the browser button again.');}).catch(function(){done('Cannot connect to JobSentinel. Turn on Browser Import in Settings.');});}catch(e){done('Cannot connect to JobSentinel. Turn on Browser Import in Settings.');}})();"#;
+
+    TEMPLATE
+        .replace("__PORT__", &port.to_string())
+        .replace("__TOKEN__", &token)
 }
 
 fn refreshed_bookmarklet_config_for_copy(current: &BookmarkletConfig) -> BookmarkletConfig {
@@ -192,6 +194,12 @@ mod tests {
 
         assert!(code.contains("http://localhost:4321/api/bookmarklet/import"));
         assert!(code.contains("mode:'no-cors'"));
+        assert!(code.contains("cleanWindow.fetch.bind(cleanWindow)"));
+        assert!(code.contains("cleanWindow.JSON.stringify.bind(cleanWindow.JSON)"));
+        assert!(code.contains("cleanWindow.JSON.parse"));
+        assert!(code.contains("parentNode.removeChild"));
+        assert!(!code.contains("fetch('http://localhost"));
+        assert!(!code.contains("JSON.stringify({token"));
         assert!(code.contains("Turn on Browser Import in Settings."));
         let old_setup_label = ["import", "helper"].join(" ");
         assert!(!code.contains(&old_setup_label));

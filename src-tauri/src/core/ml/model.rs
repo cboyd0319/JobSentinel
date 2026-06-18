@@ -8,13 +8,39 @@ use anyhow::{Context, Result};
 use candle_core::{DType, Device, Module, Tensor};
 use candle_nn::VarBuilder;
 use hf_hub::{api::tokio::Api, Repo, RepoType};
-use std::path::PathBuf;
+use sha2::{Digest, Sha256};
+use std::{
+    fs::File,
+    io::{BufReader, Read},
+    path::{Path, PathBuf},
+};
 use tokenizers::Tokenizer;
 
 /// Model identifier on HuggingFace Hub
 const MODEL_ID: &str = "sentence-transformers/all-MiniLM-L6-v2";
+/// Exact model repository revision verified for runtime downloads.
+const MODEL_REVISION: &str = "1110a243fdf4706b3f48f1d95db1a4f5529b4d41";
 /// Required files for the model
-const MODEL_FILES: &[&str] = &["config.json", "tokenizer.json", "model.safetensors"];
+const MODEL_FILES: &[ModelFile] = &[
+    ModelFile {
+        name: "config.json",
+        sha256: "953f9c0d463486b10a6871cc2fd59f223b2c70184f49815e7efbcab5d8908b41",
+    },
+    ModelFile {
+        name: "tokenizer.json",
+        sha256: "be50c3628f2bf5bb5e3a7f17b1f74611b2561a3a27eeab05e5aa30f411572037",
+    },
+    ModelFile {
+        name: "model.safetensors",
+        sha256: "53aa51172d142c89d9012cce15ae4d6cc0ca6895895114379cacb4fab128d9db",
+    },
+];
+
+#[derive(Debug, Clone, Copy)]
+struct ModelFile {
+    name: &'static str,
+    sha256: &'static str,
+}
 
 /// Model download and loading status
 #[derive(Debug, Clone, serde::Serialize)]
@@ -43,8 +69,10 @@ impl ModelManager {
             return false;
         }
 
-        // Verify all required files exist
-        MODEL_FILES.iter().all(|file| model_dir.join(file).exists())
+        MODEL_FILES.iter().all(|file| {
+            let path = model_dir.join(file.name);
+            path.exists() && verify_model_file_checksum(&path, file.sha256).is_ok()
+        })
     }
 
     /// Get model status
@@ -70,7 +98,11 @@ impl ModelManager {
 
     /// Download model from HuggingFace Hub
     pub async fn download_model(&self) -> Result<PathBuf> {
-        tracing::info!("Downloading model {} from HuggingFace Hub", MODEL_ID);
+        tracing::info!(
+            model_id = MODEL_ID,
+            revision = MODEL_REVISION,
+            "Downloading model from HuggingFace Hub"
+        );
 
         // Create cache directory
         std::fs::create_dir_all(&self.cache_dir).context("Failed to create cache directory")?;
@@ -79,22 +111,37 @@ impl ModelManager {
             MlError::DownloadFailed("Failed to initialize model download client".to_string())
         })?;
 
-        let repo = api.repo(Repo::new(MODEL_ID.to_string(), RepoType::Model));
+        let repo = api.repo(Repo::with_revision(
+            MODEL_ID.to_string(),
+            RepoType::Model,
+            MODEL_REVISION.to_string(),
+        ));
 
         // Download each required file
         let model_dir = self.cache_dir.join("all-MiniLM-L6-v2");
         std::fs::create_dir_all(&model_dir).context("Failed to create model directory")?;
 
         for file in MODEL_FILES {
-            tracing::info!("Downloading {}", file);
+            tracing::info!(file = file.name, "Downloading model file");
 
-            let remote_path = repo.get(file).await.map_err(|_e| {
-                MlError::DownloadFailed(format!("Failed to download required model file: {file}"))
+            let remote_path = repo.get(file.name).await.map_err(|_e| {
+                MlError::DownloadFailed(format!(
+                    "Failed to download required model file: {}",
+                    file.name
+                ))
             })?;
 
-            let target_path = model_dir.join(file);
+            let target_path = model_dir.join(file.name);
             std::fs::copy(&remote_path, &target_path)
-                .with_context(|| format!("Failed to copy {} to cache", file))?;
+                .with_context(|| format!("Failed to copy {} to cache", file.name))?;
+
+            if let Err(error) = verify_model_file_checksum(&target_path, file.sha256) {
+                let _ = std::fs::remove_file(&target_path);
+                return Err(error.context(format!(
+                    "Downloaded model file failed integrity check: {}",
+                    file.name
+                )));
+            }
         }
 
         tracing::info!(
@@ -115,6 +162,12 @@ impl ModelManager {
             .into());
         }
 
+        let expected_sha256 = model_file_sha256("tokenizer.json").ok_or_else(|| {
+            MlError::ModelLoadFailed("model checksum manifest is incomplete".to_string())
+        })?;
+        verify_model_file_checksum(&tokenizer_path, expected_sha256)
+            .context("cached tokenizer failed integrity check")?;
+
         Tokenizer::from_file(&tokenizer_path)
             .map_err(|e| MlError::TokenizationFailed(e.to_string()).into())
     }
@@ -129,6 +182,12 @@ impl ModelManager {
             )
             .into());
         }
+
+        let expected_sha256 = model_file_sha256("model.safetensors").ok_or_else(|| {
+            MlError::ModelLoadFailed("model checksum manifest is incomplete".to_string())
+        })?;
+        verify_model_file_checksum(&model_path, expected_sha256)
+            .context("cached model weights failed integrity check")?;
 
         let model_data = std::fs::read(&model_path).with_context(|| {
             format!(
@@ -162,6 +221,54 @@ impl ModelManager {
         tracing::info!("Using CPU for inference");
         Ok(Device::Cpu)
     }
+}
+
+fn model_file_sha256(name: &str) -> Option<&'static str> {
+    MODEL_FILES
+        .iter()
+        .find(|file| file.name == name)
+        .map(|file| file.sha256)
+}
+
+fn sha256_hex_for_file(path: &Path) -> Result<String> {
+    let file = File::open(path).with_context(|| {
+        format!(
+            "failed to open model file for integrity check: {}",
+            path_label_for_logging(path)
+        )
+    })?;
+    let mut reader = BufReader::new(file);
+    let mut hasher = Sha256::new();
+    let mut buffer = vec![0_u8; 64 * 1024];
+
+    loop {
+        let bytes_read = reader.read(&mut buffer).with_context(|| {
+            format!(
+                "failed to read model file for integrity check: {}",
+                path_label_for_logging(path)
+            )
+        })?;
+
+        if bytes_read == 0 {
+            break;
+        }
+
+        hasher.update(&buffer[..bytes_read]);
+    }
+
+    Ok(hex::encode(hasher.finalize()))
+}
+
+fn verify_model_file_checksum(path: &Path, expected_sha256: &str) -> Result<()> {
+    let actual_sha256 = sha256_hex_for_file(path)?;
+
+    if actual_sha256 != expected_sha256 {
+        return Err(
+            MlError::DownloadFailed("model file integrity check failed".to_string()).into(),
+        );
+    }
+
+    Ok(())
 }
 
 /// Simple BERT-like model for sentence embeddings (all-MiniLM-L6-v2 architecture)

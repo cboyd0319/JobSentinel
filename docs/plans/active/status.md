@@ -94,12 +94,14 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   claims, HTTPS JobsWithGPT endpoints, shared import hashes, and metadata.
 - v2.9.0 local readiness was pushed and CI passed; current workflow follow-up
   adds release SBOMs, manifests, GitHub provenance/SBOM attestations, and public
-  macOS supply-chain verification. Gatekeeper-ready macOS remains Apple-blocked.
+  macOS supply-chain verification. A CheatSheetSeries security scan is applying
+  browser-import and optional local-model supply-chain hardening.
+  Gatekeeper-ready macOS remains Apple-blocked.
 
 ## Next Best Work
 
-1. Verify and commit release SBOM/provenance hardening, then push the secure
-   workflow consolidation when the broader goal is ready for final push.
+1. Verify and commit the CheatSheetSeries hardening slice, then continue release
+   packaging and final push only when the broader goal is ready.
 2. Continue resume assistance only where it improves truthful requirement review,
    hard-constraint handling, readable evidence, or next-action guidance.
 3. Continue guided intake only where resume/profile suggestions stay optional,
