@@ -430,7 +430,8 @@ See [RESPONSIBLE_AI.md](RESPONSIBLE_AI.md), [PRIVACY.md](PRIVACY.md), and
 
 You need:
 
-- Node.js 24.16.0; `.nvmrc` pins the repo baseline
+- Node.js 24.17.0; `.nvmrc` pins the repo baseline
+- npm 11.17.0; `package.json` pins the package-manager baseline
 - Rust from [rustup.rs](https://rustup.rs); `rust-toolchain.toml` pins 1.96.0
 - Platform dependencies listed in the
   [developer setup guide](docs/developer/GETTING_STARTED.md)
@@ -440,6 +441,7 @@ Build the app from source:
 ```bash
 git clone https://github.com/cboyd0319/JobSentinel
 cd JobSentinel
+node scripts/install-pinned-npm.mjs
 npm ci
 npm run tauri:build
 ```

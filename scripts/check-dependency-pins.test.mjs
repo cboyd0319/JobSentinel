@@ -145,6 +145,8 @@ function writeMinimalRuntimeFixture(root, options = {}) {
   const rustVersion = options.rustVersion ?? "1.96.0";
   const cargoDenyVersion = options.cargoDenyVersion ?? "0.19.9";
 
+  writeFixtureFile(root, "package.json", JSON.stringify({ packageManager: "npm@11.17.0" }));
+  writeFixtureFile(root, "scripts/install-pinned-npm.mjs", "");
   writeFixtureFile(root, ".nvmrc", `${nodeVersion}\n`);
   writeFixtureFile(
     root,
@@ -160,6 +162,8 @@ function writeMinimalRuntimeFixture(root, options = {}) {
       "    steps:",
       "      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0",
       `        with: { node-version: "${options.workflowNodeVersion ?? nodeVersion}" }`,
+      "      - run: node scripts/install-pinned-npm.mjs",
+      "      - run: npm ci --prefer-offline --no-audit --no-fund",
       "      - uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8 # stable",
       `        with: { toolchain: "${options.workflowRustVersion ?? rustVersion}" }`,
       `      - run: cargo install cargo-deny --version ${cargoDenyVersion} --locked`,
@@ -581,6 +585,33 @@ test("runtime pin check rejects floating runner labels and unpinned apt packages
   });
 });
 
+test("runtime pin check rejects npm commands before pinned npm activation", () => {
+  withFixture((root) => {
+    writeMinimalRuntimeFixture(root);
+    writeFixtureFile(
+      root,
+      ".github/workflows/ci.yml",
+      [
+        "jobs:",
+        "  test:",
+        "    steps:",
+        "      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0",
+        '        with: { node-version: "24.17.0" }',
+        "      - run: npm ci --prefer-offline --no-audit --no-fund",
+      ].join("\n"),
+    );
+
+    const violations = collectRuntimePinViolations(root);
+
+    assert.equal(
+      violations.some((violation) =>
+        violation.includes("npm commands after setup-node must first run `node scripts/install-pinned-npm.mjs`"),
+      ),
+      true,
+    );
+  });
+});
+
 test("runtime pin check rejects install-capable npx commands", () => {
   withFixture((root) => {
     writeMinimalRuntimeFixture(root);
@@ -666,7 +697,7 @@ test("runtime latest-stable check compares tool pins to upstream versions", asyn
     assert.deepEqual(violations, [
       ".nvmrc is pinned to 24.17.0; latest stable Node.js LTS version is 24.18.0",
       "rust-toolchain.toml is pinned to 1.96.0; latest stable Rust version is 1.97.0",
-      ".github/workflows/ci.yml:8 cargo install cargo-deny is pinned to 0.19.9; latest stable crates.io version is 0.20.0",
+      ".github/workflows/ci.yml:10 cargo install cargo-deny is pinned to 0.19.9; latest stable crates.io version is 0.20.0",
     ]);
   });
 });

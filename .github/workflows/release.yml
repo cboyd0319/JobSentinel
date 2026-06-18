@@ -50,6 +50,9 @@ jobs:
           node-version: "24.17.0"
           package-manager-cache: false
 
+      - name: Install pinned npm
+        run: node scripts/install-pinned-npm.mjs
+
       - name: Resolve release inputs
         id: release_inputs
         shell: bash
@@ -119,6 +122,9 @@ jobs:
           node-version: "24.17.0"
           package-manager-cache: false
 
+      - name: Install pinned npm
+        run: node scripts/install-pinned-npm.mjs
+
       - name: Install dependencies
         run: npm ci --prefer-offline --no-audit --no-fund
 
@@ -152,6 +158,9 @@ jobs:
         with:
           node-version: "24.17.0"
           package-manager-cache: false
+
+      - name: Install pinned npm
+        run: node scripts/install-pinned-npm.mjs
 
       - name: Install dependencies
         run: npm ci --prefer-offline --no-audit --no-fund
@@ -223,6 +232,9 @@ jobs:
         with:
           node-version: "24.17.0"
           package-manager-cache: false
+
+      - name: Install pinned npm
+        run: node scripts/install-pinned-npm.mjs
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8 # stable
@@ -345,6 +357,9 @@ jobs:
         with:
           node-version: "24.17.0"
           package-manager-cache: false
+
+      - name: Install pinned npm
+        run: node scripts/install-pinned-npm.mjs
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8 # stable

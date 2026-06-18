@@ -24,6 +24,7 @@ function withDoctorFixture(callback) {
   try {
     writeFixtureFile(root, ".nvmrc", "24.17.0\n");
     writeFixtureFile(root, "rust-toolchain.toml", 'channel = "1.96.0"\n');
+    writeFixtureFile(root, "package.json", '{"packageManager":"npm@11.17.0"}');
     writeFixtureFile(root, "package-lock.json", "{}");
     writeFixtureFile(root, "node_modules/.bin/tauri", "");
     writeFixtureFile(root, "node_modules/@playwright/test/package.json", "{}");
@@ -227,6 +228,28 @@ test("runDoctor warns on toolchain baseline drift", () => {
       results.some((result) => result.status === "warn" && result.label === "Rust release baseline"),
       formatDoctorResults(results),
     );
+  });
+});
+
+test("runDoctor warns when local npm differs from the package-manager pin", () => {
+  withDoctorFixture((root) => {
+    const results = runDoctor({
+      root,
+      platform: "darwin",
+      nodeVersion: "v24.17.0",
+      execFileSync: createMockExec(),
+    });
+
+    assert.ok(
+      results.some(
+        (result) =>
+          result.status === "warn" &&
+          result.label === "npm package-manager baseline" &&
+          result.detail.includes("package.json pins npm 11.17.0"),
+      ),
+      formatDoctorResults(results),
+    );
+    assert.equal(summarizeDoctorResults(results).exitCode, 0);
   });
 });
 

@@ -13,6 +13,7 @@ import {
 import { npmOverrideDependencyPins } from "./dependency/npm-overrides.mjs";
 import { collectTauriLinuxDebDependencyViolations } from "./dependency/tauri-linux-deb.mjs";
 import { collectWorkflowEnvironmentPinViolations } from "./dependency/workflow-environment-pins.mjs";
+import { collectWorkflowPinnedNpmViolations } from "./dependency/workflow-npm-pins.mjs";
 const scriptPath = fileURLToPath(import.meta.url);
 const defaultRoot = resolve(dirname(scriptPath), "..");
 
@@ -47,7 +48,6 @@ function repoPath(root, path) {
 function readJson(root, path) {
   return JSON.parse(readFileSync(repoPath(root, path), "utf8"));
 }
-
 function readText(root, path) {
   return readFileSync(repoPath(root, path), "utf8");
 }
@@ -92,17 +92,14 @@ export function parseStableSemver(version) {
 export function compareStableSemver(left, right) {
   const parsedLeft = typeof left === "string" ? parseStableSemver(left) : left;
   const parsedRight = typeof right === "string" ? parseStableSemver(right) : right;
-
   if (!parsedLeft || !parsedRight) {
     throw new Error(`Cannot compare non-stable semver values: ${left}, ${right}`);
   }
-
   for (const key of ["major", "minor", "patch"]) {
     if (parsedLeft[key] !== parsedRight[key]) {
       return parsedLeft[key] - parsedRight[key];
     }
   }
-
   return 0;
 }
 
@@ -122,7 +119,6 @@ function exactStableVersion(value) {
 function workflowFiles(root) {
   return listFiles(root, workflowDirectory, (path) => /\.(?:ya?ml)$/.test(path));
 }
-
 function markdownPolicyFiles(root) {
   return cargoInstallScanRoots.flatMap((path) =>
     listFiles(root, path, (candidate) => candidate.endsWith(".md") || /\.ya?ml$/.test(candidate)),
@@ -235,6 +231,9 @@ export function collectRuntimePinViolations(root = defaultRoot) {
   const violations = [];
   const nodePin = parseNodeRuntimePin(root);
   const rustPin = parseRustToolchainPin(root);
+  const packageManager = existsSync(repoPath(root, "package.json"))
+    ? npmPackageManagerPin(readJson(root, "package.json"))
+    : { version: null };
 
   if (nodePin.error) {
     violations.push(nodePin.error);
@@ -268,6 +267,7 @@ export function collectRuntimePinViolations(root = defaultRoot) {
   }
 
   violations.push(...collectWorkflowEnvironmentPinViolations(root));
+  violations.push(...collectWorkflowPinnedNpmViolations(root, packageManager.version));
   violations.push(...collectNpxInstallGuardViolations(root));
   violations.push(...collectTauriLinuxDebDependencyViolations(root));
 

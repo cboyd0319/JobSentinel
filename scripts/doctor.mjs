@@ -133,6 +133,16 @@ function runVersionCheck(results, command, args, label, options = {}) {
   }
 }
 
+function readPinnedNpmVersion(root) {
+  try {
+    const packageJson = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
+    const packageManager = String(packageJson.packageManager ?? "").trim();
+    return packageManager.match(/^npm@(\d+\.\d+\.\d+)$/)?.[1] ?? null;
+  } catch {
+    return null;
+  }
+}
+
 function runCommandCheck(results, command, args, label, options = {}) {
   const executable = platformBin(command, options.platform);
   const exec = options.execFileSync ?? execFileSync;
@@ -308,12 +318,26 @@ export function runDoctor(options = {}) {
     fix: `Set .nvmrc to Node ${nodeBaselineVersion} to match CI`,
   });
 
-  runVersionCheck(results, "npm", ["--version"], "npm CLI", {
+  const npm = runVersionCheck(results, "npm", ["--version"], "npm CLI", {
     cwd: root,
     platform,
     execFileSync: options.execFileSync,
     fix: `Install Node.js ${nodeBaselineVersion}+ with npm`,
   });
+  const pinnedNpmVersion = readPinnedNpmVersion(root);
+  if (!pinnedNpmVersion) {
+    results.push({
+      status: "fail",
+      label: "npm package-manager pin",
+      detail: "package.json must declare packageManager as npm@x.y.z",
+    });
+  } else if (npm.ok && npm.output !== pinnedNpmVersion) {
+    results.push({
+      status: "warn",
+      label: "npm package-manager baseline",
+      detail: `${npm.output}; package.json pins npm ${pinnedNpmVersion}. CI runs node scripts/install-pinned-npm.mjs before npm commands.`,
+    });
+  }
 
   runVersionCheck(results, "cargo", ["--version"], "Cargo CLI", {
     cwd: join(root, "src-tauri"),

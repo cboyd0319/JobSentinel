@@ -34,6 +34,7 @@ and push `main`. Run the local release gate before tagging or uploading
 artifacts:
 
 ```bash
+node scripts/install-pinned-npm.mjs
 npm run release:check-version -- vX.Y.Z
 npm run harness:check
 npm run release:check-deps

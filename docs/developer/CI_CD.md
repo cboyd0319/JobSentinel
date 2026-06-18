@@ -65,6 +65,8 @@ Workflow changes must preserve the GitHub Actions security baseline:
   speed feedback, but release artifacts must not depend on shared caches. Set
   `package-manager-cache: false` on `actions/setup-node` in release and public
   verification workflows.
+- Run `node scripts/install-pinned-npm.mjs` after every `actions/setup-node`
+  step and before any `npm` command so CI uses the exact `packageManager` pin.
 - Keep Dependabot version updates grouped by ecosystem or risk with cooldowns
   for new releases; security updates stay separate and prompt.
 - Keep `npm run lint:deps` blocking `package-lock.json` entries that resolve

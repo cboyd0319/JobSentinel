@@ -22,6 +22,7 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
 # Install Node.js 24.17.0 (https://nodejs.org/)
 # `.nvmrc` pins the local baseline used by CI.
+# `package.json` pins npm 11.17.0.
 
 # Tauri CLI
 # `npm ci` installs the repo-local CLI from @tauri-apps/cli.
@@ -58,7 +59,8 @@ xcode-select --install
 git clone https://github.com/cboyd0319/JobSentinel
 cd JobSentinel
 
-# Install npm dependencies from the lockfile
+# Activate the repo-pinned npm, then install dependencies from the lockfile
+node scripts/install-pinned-npm.mjs
 npm ci
 
 # Run in development mode (hot reload enabled)
@@ -259,7 +261,8 @@ npm cache clean --force
 # Delete installed packages, but keep package-lock.json
 rm -rf node_modules
 
-# Reinstall from the lockfile
+# Reinstall from the lockfile with the repo-pinned npm
+node scripts/install-pinned-npm.mjs
 npm ci
 ```
 
