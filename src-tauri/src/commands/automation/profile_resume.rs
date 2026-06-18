@@ -131,6 +131,47 @@ fn resolve_application_resume_path(managed_dir: &Path, token: &str) -> Result<Pa
     Ok(managed_dir.join(token))
 }
 
+fn managed_application_resume_cleanup_path(
+    stored_path: Option<&str>,
+    managed_dir: &Path,
+) -> Option<PathBuf> {
+    let stored_path = stored_path.map(str::trim).filter(|path| !path.is_empty())?;
+    let stored_path = PathBuf::from(stored_path);
+    let file_name = stored_path.file_name()?.to_str()?;
+    validate_application_resume_token(file_name).ok()?;
+
+    let canonical_dir = managed_dir.canonicalize().ok()?;
+    let canonical_parent = stored_path.parent()?.canonicalize().ok()?;
+    if canonical_parent != canonical_dir {
+        return None;
+    }
+
+    let metadata = std::fs::symlink_metadata(&stored_path).ok()?;
+    if metadata.is_file() || metadata.file_type().is_symlink() {
+        Some(stored_path)
+    } else {
+        None
+    }
+}
+
+pub(super) fn delete_managed_application_resume_file(
+    stored_path: Option<&str>,
+    managed_dir: &Path,
+) -> Result<(), String> {
+    let Some(path) = managed_application_resume_cleanup_path(stored_path, managed_dir) else {
+        return Ok(());
+    };
+
+    match std::fs::remove_file(&path) {
+        Ok(()) => Ok(()),
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(()),
+        Err(_) => Err(
+            "Profile was saved, but JobSentinel could not remove the old local resume copy."
+                .to_string(),
+        ),
+    }
+}
+
 fn validate_selected_application_resume(source_path: &Path) -> Result<&'static str, String> {
     let extension = allowed_application_resume_extension(source_path)?;
     let metadata = std::fs::metadata(source_path)
@@ -292,5 +333,31 @@ mod tests {
 
         assert!(err.contains("too large"));
         assert!(err.contains("10 MB"));
+    }
+
+    #[test]
+    fn managed_application_resume_cleanup_deletes_only_managed_tokens() {
+        let managed_dir = tempfile::tempdir().unwrap();
+        let outside_dir = tempfile::tempdir().unwrap();
+        let token = "7d9d16a1-2e5d-4b32-9eb2-bfbffb4ee871--selected-resume.pdf";
+        let managed_resume = managed_dir.path().join(token);
+        let outside_resume = outside_dir.path().join(token);
+        std::fs::write(&managed_resume, b"managed").unwrap();
+        std::fs::write(&outside_resume, b"outside").unwrap();
+
+        delete_managed_application_resume_file(
+            Some(outside_resume.to_string_lossy().as_ref()),
+            managed_dir.path(),
+        )
+        .unwrap();
+        assert!(outside_resume.exists());
+        assert!(managed_resume.exists());
+
+        delete_managed_application_resume_file(
+            Some(managed_resume.to_string_lossy().as_ref()),
+            managed_dir.path(),
+        )
+        .unwrap();
+        assert!(!managed_resume.exists());
     }
 }

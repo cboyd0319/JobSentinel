@@ -134,6 +134,91 @@ fn safe_resume_upload_file_name_preserves_supported_extension() {
 }
 
 #[test]
+fn managed_resume_upload_cleanup_deletes_only_managed_tokens() {
+    let managed_dir = tempfile::tempdir().unwrap();
+    let outside_dir = tempfile::tempdir().unwrap();
+    let token = "7d9d16a1-2e5d-4b32-9eb2-bfbffb4ee871--Jordan-Resume.pdf";
+    let managed_resume = managed_dir.path().join(token);
+    let outside_resume = outside_dir.path().join(token);
+    std::fs::write(&managed_resume, b"managed").unwrap();
+    std::fs::write(&outside_resume, b"outside").unwrap();
+
+    assert!(managed_resume_upload_cleanup_path(
+        Some(outside_resume.to_string_lossy().as_ref()),
+        managed_dir.path(),
+    )
+    .is_none());
+    assert!(outside_resume.exists());
+
+    let cleanup_path = managed_resume_upload_cleanup_path(
+        Some(managed_resume.to_string_lossy().as_ref()),
+        managed_dir.path(),
+    )
+    .expect("managed upload should be eligible for cleanup");
+
+    std::fs::remove_file(cleanup_path).unwrap();
+    assert!(!managed_resume.exists());
+}
+
+#[tokio::test]
+async fn delete_resume_with_file_cleanup_removes_managed_upload_after_database_delete() {
+    let pool = sqlx::sqlite::SqlitePoolOptions::new()
+        .connect("sqlite::memory:")
+        .await
+        .unwrap();
+    sqlx::query(
+        r#"
+        CREATE TABLE resumes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            file_path TEXT NOT NULL,
+            parsed_text TEXT,
+            is_active INTEGER NOT NULL DEFAULT 0,
+            created_at TEXT NOT NULL DEFAULT (datetime('now')),
+            updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+        )
+        "#,
+    )
+    .execute(&pool)
+    .await
+    .unwrap();
+    sqlx::query("CREATE TABLE user_skills (id INTEGER PRIMARY KEY, resume_id INTEGER)")
+        .execute(&pool)
+        .await
+        .unwrap();
+    sqlx::query("CREATE TABLE resume_job_matches (id INTEGER PRIMARY KEY, resume_id INTEGER)")
+        .execute(&pool)
+        .await
+        .unwrap();
+
+    let managed_dir = tempfile::tempdir().unwrap();
+    let token = "7d9d16a1-2e5d-4b32-9eb2-bfbffb4ee871--Jordan-Resume.pdf";
+    let managed_resume = managed_dir.path().join(token);
+    std::fs::write(&managed_resume, b"resume").unwrap();
+    let result = sqlx::query(
+        "INSERT INTO resumes (name, file_path, parsed_text, is_active) VALUES (?, ?, ?, 1)",
+    )
+    .bind("Jordan Resume")
+    .bind(managed_resume.to_string_lossy().as_ref())
+    .bind("resume text")
+    .execute(&pool)
+    .await
+    .unwrap();
+
+    let matcher = ResumeMatcher::new(pool.clone());
+    delete_resume_with_file_cleanup(result.last_insert_rowid(), &matcher, managed_dir.path())
+        .await
+        .unwrap();
+
+    let remaining: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM resumes")
+        .fetch_one(&pool)
+        .await
+        .unwrap();
+    assert_eq!(remaining, 0);
+    assert!(!managed_resume.exists());
+}
+
+#[test]
 fn selected_resume_validation_rejects_oversized_file_without_path_leak() {
     let temp_dir = tempfile::tempdir().unwrap();
     let resume_path = temp_dir.path().join("Private Large Resume.pdf");

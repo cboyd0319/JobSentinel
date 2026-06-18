@@ -21,6 +21,7 @@ use crate::core::automation::{
 use crate::core::url_security::validate_external_http_url;
 use crate::core::url_security::{sanitize_url_for_logging, validate_external_http_url_for_fetch};
 use serde::{Deserialize, Serialize};
+use std::path::Path;
 use tauri::State;
 
 mod profile_resume;
@@ -30,7 +31,8 @@ const UNSUPPORTED_PREPARE_FORM_TARGET: &str =
 
 pub use profile_resume::ApplicationResumeFileSelection;
 use profile_resume::{
-    application_resume_dir, prepare_application_profile_resume_input, resume_file_display_name,
+    application_resume_dir, delete_managed_application_resume_file,
+    prepare_application_profile_resume_input, resume_file_display_name,
     select_application_resume_file as select_application_resume_file_impl,
     trusted_application_resume_path,
 };
@@ -115,12 +117,46 @@ pub async fn upsert_application_profile(
 ) -> Result<i64, String> {
     tracing::info!("Command: upsert_application_profile");
 
-    let input = prepare_application_profile_resume_input(input, &application_resume_dir())?;
     let manager = ProfileManager::new(state.database.pool().clone());
-    manager
-        .upsert_profile(&input)
+    let managed_resume_dir = application_resume_dir();
+    upsert_application_profile_with_resume_cleanup(input, &manager, &managed_resume_dir).await
+}
+
+async fn upsert_application_profile_with_resume_cleanup(
+    input: ApplicationProfileInput,
+    manager: &ProfileManager,
+    managed_resume_dir: &Path,
+) -> Result<i64, String> {
+    let previous_resume_path = manager
+        .get_profile()
         .await
-        .map_err(|e| user_friendly_error("Failed to save profile", e))
+        .map_err(|e| user_friendly_error("Failed to save profile", e))?
+        .and_then(|profile| profile.resume_file_path);
+
+    let input = prepare_application_profile_resume_input(input, managed_resume_dir)?;
+    let requested_resume_change =
+        input.clear_resume_file.unwrap_or(false) || input.resume_file_path.is_some();
+    let next_resume_path = input.resume_file_path.clone();
+
+    match manager.upsert_profile(&input).await {
+        Ok(profile_id) => {
+            if requested_resume_change
+                && previous_resume_path.as_deref().map(str::trim)
+                    != next_resume_path.as_deref().map(str::trim)
+            {
+                delete_managed_application_resume_file(
+                    previous_resume_path.as_deref(),
+                    managed_resume_dir,
+                )?;
+            }
+            Ok(profile_id)
+        }
+        Err(error) => {
+            delete_managed_application_resume_file(next_resume_path.as_deref(), managed_resume_dir)
+                .ok();
+            Err(user_friendly_error("Failed to save profile", error))
+        }
+    }
 }
 
 /// Get the current application profile

@@ -1,5 +1,26 @@
 use super::*;
 
+fn valid_application_profile_input() -> ApplicationProfileInput {
+    ApplicationProfileInput {
+        full_name: "Jordan Lee".to_string(),
+        email: "jordan@example.com".to_string(),
+        phone: None,
+        linkedin_url: None,
+        github_url: None,
+        portfolio_url: None,
+        website_url: None,
+        default_resume_id: None,
+        resume_file_path: None,
+        resume_file_token: None,
+        clear_resume_file: None,
+        default_cover_letter_template: None,
+        us_work_authorized: true,
+        requires_sponsorship: false,
+        max_applications_per_day: 10,
+        require_manual_approval: true,
+    }
+}
+
 #[test]
 fn test_sanitize_automation_log_url_removes_sensitive_parts() {
     let sanitized = sanitize_url_for_logging(
@@ -102,4 +123,74 @@ fn attempt_response_exposes_screenshot_presence_not_paths() {
     assert!(json.contains("hasScreenshot"));
     assert!(!json.contains("private/apply.png"));
     assert!(!json.contains("screenshotPath"));
+}
+
+#[tokio::test]
+async fn upsert_application_profile_cleans_replaced_and_cleared_managed_resume_files() {
+    let database = crate::core::db::Database::connect_memory()
+        .await
+        .expect("test database");
+    database.migrate().await.expect("migrations");
+    let manager = ProfileManager::new(database.pool().clone());
+    let managed_dir = tempfile::tempdir().unwrap();
+
+    let old_token = "7d9d16a1-2e5d-4b32-9eb2-bfbffb4ee871--old-resume.pdf";
+    let new_token = "9f65f13d-6f6e-4bf7-a6ee-6982edfb93c5--new-resume.pdf";
+    let old_resume = managed_dir.path().join(old_token);
+    let new_resume = managed_dir.path().join(new_token);
+    std::fs::write(&old_resume, b"old").unwrap();
+    std::fs::write(&new_resume, b"new").unwrap();
+
+    manager
+        .upsert_profile(&ApplicationProfileInput {
+            resume_file_path: Some(old_resume.to_string_lossy().to_string()),
+            ..valid_application_profile_input()
+        })
+        .await
+        .unwrap();
+
+    upsert_application_profile_with_resume_cleanup(
+        ApplicationProfileInput {
+            resume_file_token: Some(new_token.to_string()),
+            ..valid_application_profile_input()
+        },
+        &manager,
+        managed_dir.path(),
+    )
+    .await
+    .unwrap();
+
+    assert!(!old_resume.exists());
+    assert!(new_resume.exists());
+    assert_eq!(
+        manager
+            .get_profile()
+            .await
+            .unwrap()
+            .unwrap()
+            .resume_file_path,
+        Some(new_resume.to_string_lossy().to_string())
+    );
+
+    upsert_application_profile_with_resume_cleanup(
+        ApplicationProfileInput {
+            clear_resume_file: Some(true),
+            ..valid_application_profile_input()
+        },
+        &manager,
+        managed_dir.path(),
+    )
+    .await
+    .unwrap();
+
+    assert!(!new_resume.exists());
+    assert_eq!(
+        manager
+            .get_profile()
+            .await
+            .unwrap()
+            .unwrap()
+            .resume_file_path,
+        None
+    );
 }

@@ -153,7 +153,17 @@ pub async fn select_and_upload_resume(
         .into_path()
         .map_err(|_| "Could not read the selected resume file.".to_string())?;
     let (name, managed_path) = copy_selected_resume_to_managed_storage(&source_path)?;
-    let resume_id = upload_resume_from_managed_path(name, managed_path, state).await?;
+    let resume_id = match upload_resume_from_managed_path(name, managed_path.clone(), state).await {
+        Ok(resume_id) => resume_id,
+        Err(error) => {
+            delete_managed_resume_upload_file(
+                Some(managed_path.to_string_lossy().as_ref()),
+                &managed_resume_upload_dir(),
+            )
+            .ok();
+            return Err(error);
+        }
+    };
 
     Ok(Some(resume_id))
 }
@@ -571,16 +581,86 @@ fn copy_selected_resume_to_managed_storage(path: &Path) -> Result<(String, PathB
     Ok((name, destination))
 }
 
+fn validate_managed_resume_upload_file_name(file_name: &str) -> bool {
+    let Some((uuid_part, display_name)) = file_name.split_once("--") else {
+        return false;
+    };
+    if Uuid::parse_str(uuid_part).is_err() || display_name.trim().is_empty() {
+        return false;
+    }
+    if file_name.contains(['/', '\\', ':']) || file_name.contains("..") {
+        return false;
+    }
+
+    supported_resume_extension(Path::new(display_name)).is_some()
+}
+
+fn managed_resume_upload_cleanup_path(
+    stored_path: Option<&str>,
+    managed_dir: &Path,
+) -> Option<PathBuf> {
+    let stored_path = stored_path.map(str::trim).filter(|path| !path.is_empty())?;
+    let stored_path = PathBuf::from(stored_path);
+    let file_name = stored_path.file_name()?.to_str()?;
+    if !validate_managed_resume_upload_file_name(file_name) {
+        return None;
+    }
+
+    let canonical_dir = managed_dir.canonicalize().ok()?;
+    let canonical_parent = stored_path.parent()?.canonicalize().ok()?;
+    if canonical_parent != canonical_dir {
+        return None;
+    }
+
+    let metadata = std::fs::symlink_metadata(&stored_path).ok()?;
+    if metadata.is_file() || metadata.file_type().is_symlink() {
+        Some(stored_path)
+    } else {
+        None
+    }
+}
+
+fn delete_managed_resume_upload_file(
+    stored_path: Option<&str>,
+    managed_dir: &Path,
+) -> Result<(), String> {
+    let Some(path) = managed_resume_upload_cleanup_path(stored_path, managed_dir) else {
+        return Ok(());
+    };
+
+    match std::fs::remove_file(&path) {
+        Ok(()) => Ok(()),
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(()),
+        Err(_) => Err(
+            "Resume was removed, but JobSentinel could not remove its local file copy.".to_string(),
+        ),
+    }
+}
+
 /// Delete a resume
 #[tauri::command]
 pub async fn delete_resume(resume_id: i64, state: State<'_, AppState>) -> Result<(), String> {
     tracing::info!("Command: delete_resume (id: {})", resume_id);
 
     let matcher = ResumeMatcher::new(state.database.pool().clone());
+    delete_resume_with_file_cleanup(resume_id, &matcher, &managed_resume_upload_dir()).await
+}
+
+async fn delete_resume_with_file_cleanup(
+    resume_id: i64,
+    matcher: &ResumeMatcher,
+    managed_dir: &Path,
+) -> Result<(), String> {
+    let resume = matcher
+        .get_resume(resume_id)
+        .await
+        .map_err(|e| user_friendly_error("Failed to delete resume", e))?;
+
     matcher
         .delete_resume(resume_id)
         .await
-        .map_err(|e| user_friendly_error("Failed to delete resume", e))
+        .map_err(|e| user_friendly_error("Failed to delete resume", e))?;
+    delete_managed_resume_upload_file(Some(&resume.file_path), managed_dir)
 }
 
 // ============================================================================
