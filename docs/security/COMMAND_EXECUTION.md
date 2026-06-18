@@ -31,8 +31,9 @@ JobSentinel's OCR feature uses two external tools:
    - Windows: Download poppler binaries
 
 Advanced builds may set `JOBSENTINEL_TESSERACT_PATH` and `JOBSENTINEL_PDFTOPPM_PATH`, but each value must be
-an absolute path to a regular executable file. If those variables are not set, JobSentinel checks known install
-locations such as Homebrew, `/usr/bin`, and common Windows Program Files paths.
+an absolute path to a regular executable file in a known install location. If those variables are not set,
+JobSentinel checks known install locations such as Homebrew, `/usr/bin`, and common Windows Program Files
+paths.
 
 ### Workflow
 
@@ -313,7 +314,8 @@ pub fn is_ocr_available(&self) -> bool {
 
 ### 7. Runtime Tool Validation
 
-**Purpose**: Check that external tools resolve to absolute regular files before attempting to use them.
+**Purpose**: Check that external tools resolve to absolute regular files in trusted install locations before
+attempting to use them.
 
 ```rust
 #[cfg(feature = "ocr")]
@@ -342,6 +344,9 @@ fn validate_ocr_tool_path(tool: OcrTool, path: PathBuf) -> Result<PathBuf> {
     if !canonical_path.is_file() {
         return Err(anyhow::anyhow!("OCR executable path is not a regular file"));
     }
+    if !is_parent_in_trusted_install_roots(&path, tool.trusted_roots()) {
+        return Err(anyhow::anyhow!("OCR executable path must be in a trusted install location"));
+    }
 
     Ok(canonical_path)
 }
@@ -351,6 +356,7 @@ fn validate_ocr_tool_path(tool: OcrTool, path: PathBuf) -> Result<PathBuf> {
 
 - Current-directory or `PATH` hijacking
 - Relative executable overrides
+- Arbitrary executable overrides from temporary or user-writable directories
 - Directory or device paths being executed
 - Raw tool paths leaking through normal OCR availability checks
 - Missing tools fail closed before OCR attempts

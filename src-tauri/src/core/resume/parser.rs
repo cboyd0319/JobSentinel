@@ -508,6 +508,25 @@ impl OcrTool {
             ],
         }
     }
+
+    const fn trusted_roots(self) -> &'static [&'static str] {
+        match self {
+            Self::Tesseract => &[
+                "/opt/homebrew/bin",
+                "/usr/local/bin",
+                "/usr/bin",
+                r"C:\Program Files\Tesseract-OCR",
+                r"C:\Program Files (x86)\Tesseract-OCR",
+            ],
+            Self::PdfToPpm => &[
+                "/opt/homebrew/bin",
+                "/usr/local/bin",
+                "/usr/bin",
+                r"C:\Program Files\poppler\Library\bin",
+                r"C:\Program Files (x86)\poppler\Library\bin",
+            ],
+        }
+    }
 }
 
 #[cfg(feature = "ocr")]
@@ -531,6 +550,19 @@ fn resolve_ocr_tool(tool: OcrTool) -> Result<PathBuf> {
 
 #[cfg(feature = "ocr")]
 fn validate_ocr_tool_path(tool: OcrTool, path: PathBuf) -> Result<PathBuf> {
+    validate_ocr_tool_path_against_roots(tool, path, tool.trusted_roots())
+}
+
+#[cfg(feature = "ocr")]
+fn validate_ocr_tool_path_against_roots<I, P>(
+    tool: OcrTool,
+    path: PathBuf,
+    trusted_roots: I,
+) -> Result<PathBuf>
+where
+    I: IntoIterator<Item = P>,
+    P: AsRef<Path>,
+{
     if !path.is_absolute() {
         return Err(anyhow::anyhow!(
             "{} path must be an absolute executable path",
@@ -549,7 +581,51 @@ fn validate_ocr_tool_path(tool: OcrTool, path: PathBuf) -> Result<PathBuf> {
         ));
     }
 
+    let parent = path.parent().ok_or_else(|| {
+        anyhow::anyhow!(
+            "{} path must be in a trusted install location",
+            tool.label()
+        )
+    })?;
+    let canonical_parent = parent
+        .canonicalize()
+        .with_context(|| format!("{} executable parent is not accessible", tool.label()))?;
+
+    let is_trusted = trusted_roots
+        .into_iter()
+        .filter_map(|root| root.as_ref().canonicalize().ok())
+        .any(|root| path_starts_with(&canonical_parent, &root));
+
+    if !is_trusted {
+        return Err(anyhow::anyhow!(
+            "{} path must be in a trusted install location",
+            tool.label()
+        ));
+    }
+
     Ok(canonical_path)
+}
+
+#[cfg(feature = "ocr")]
+fn path_starts_with(path: &Path, root: &Path) -> bool {
+    #[cfg(windows)]
+    {
+        let path_components = lowercase_path_components(path);
+        let root_components = lowercase_path_components(root);
+        path_components.starts_with(&root_components)
+    }
+
+    #[cfg(not(windows))]
+    {
+        path.starts_with(root)
+    }
+}
+
+#[cfg(all(feature = "ocr", windows))]
+fn lowercase_path_components(path: &Path) -> Vec<String> {
+    path.components()
+        .map(|component| component.as_os_str().to_string_lossy().to_ascii_lowercase())
+        .collect()
 }
 
 fn canonical_regular_file(file_path: &Path) -> Result<PathBuf> {
@@ -784,7 +860,7 @@ JavaScript
 
     #[cfg(feature = "ocr")]
     #[test]
-    fn test_ocr_tool_path_accepts_absolute_regular_file() {
+    fn test_ocr_tool_path_rejects_untrusted_absolute_regular_file() {
         use tempfile::TempDir;
 
         let temp_dir = TempDir::new().unwrap();
@@ -795,7 +871,38 @@ JavaScript
         });
         std::fs::write(&tool_path, b"test").unwrap();
 
-        let resolved = validate_ocr_tool_path(OcrTool::PdfToPpm, tool_path.clone()).unwrap();
+        let error = validate_ocr_tool_path(OcrTool::PdfToPpm, tool_path.clone())
+            .unwrap_err()
+            .to_string();
+
+        assert!(error.contains("trusted install location"));
+        assert!(
+            !error.contains(tool_path.to_string_lossy().as_ref()),
+            "path leaked: {error}"
+        );
+    }
+
+    #[cfg(feature = "ocr")]
+    #[test]
+    fn test_ocr_tool_path_accepts_regular_file_in_trusted_root() {
+        use tempfile::TempDir;
+
+        let temp_dir = TempDir::new().unwrap();
+        let trusted_root = temp_dir.path().join("trusted-bin");
+        std::fs::create_dir(&trusted_root).unwrap();
+        let tool_path = trusted_root.join(if cfg!(windows) {
+            "pdftoppm.exe"
+        } else {
+            "pdftoppm"
+        });
+        std::fs::write(&tool_path, b"test").unwrap();
+
+        let resolved = validate_ocr_tool_path_against_roots(
+            OcrTool::PdfToPpm,
+            tool_path.clone(),
+            [&trusted_root],
+        )
+        .unwrap();
 
         assert_eq!(resolved, tool_path.canonicalize().unwrap());
     }
