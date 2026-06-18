@@ -4,6 +4,7 @@ import { Badge } from "../Badge";
 import { Card } from "../Card";
 import { logError } from "../../utils/errorUtils";
 import { getApplicationFormDisplayName } from "./applicationFormLabels";
+import * as screeningTaxonomy from "../../shared/applicationScreeningTaxonomy";
 
 interface Job {
   id: number;
@@ -46,122 +47,31 @@ interface HardQuestionDetailContext {
 interface HardQuestionReview {
   label: string;
   detail: string;
-  patterns: RegExp[];
+  patterns: readonly RegExp[];
   getDetail?: (context: HardQuestionDetailContext) => string;
 }
 
-const LANGUAGE_SCREENING_PATTERNS = [
-  /\b(?:bilingual|multilingual)\b/i,
-  /\blanguage (?:fluency|proficiency)\b/i,
-  /\b(?:fluent|fluency|proficient)\s+(?:in\s+)?(?:spanish|french|mandarin|cantonese|arabic|portuguese|german|japanese|korean)\b/i,
-  /\b(?:spanish|french|mandarin|cantonese|arabic|portuguese|german|japanese|korean)[-\s]?(?:speaking|language|fluency|proficiency)\b/i,
-];
-
-const PHYSICAL_REQUIREMENT_PATTERNS = [
-  /\blift(?:\s+up\s+to)?\s+\d+\s*(?:pounds?|lbs?)\b/i,
-  /\b(?:stand|standing) for long periods?\b/i,
-  /\bphysical (?:requirements?|demands?)\b/i,
-  /\bable to (?:lift|stand)\b/i,
-];
-
-const MINIMUM_AGE_PATTERNS = [
-  /\b(?:must be|at least|minimum age(?: is)?|age requirement(?: is)?)\s*\d{2}\s*(?:\+|years? (?:old|of age))\b/i,
-  /\b\d{2}\s*\+?\s*(?:years? old|years? of age)\b/i,
-];
-
-const CITIZENSHIP_SCREENING_PATTERNS = [
-  /\b(?:u\.?s\.?|united states)\s+citizens?\b/i,
-  /\bcitizenship (?:required|requirement)\b/i,
-  /\bmust be (?:a\s+)?(?:u\.?s\.?|united states)\s+citizens?\b/i,
-];
-
-const WORK_AUTHORIZATION_PATTERNS = [
-  /\bwork authorization\b/i,
-  /\bauthorized to work\b/i,
-  /\blegally authorized\b/i,
-  /\blegally able to work\b/i,
-  /\beligible to work\b/i,
-  /\bemployment authorization\b/i,
-  /\bEAD\b/,
-  /\bgreen card\b/i,
-  /\bsponsorship\b/i,
-  /\bvisa\b/i,
-];
-
-const TRANSPORTATION_SCREENING_PATTERNS = [
-  /\breliable transportation\b/i,
-  /\bown transportation\b/i,
-  /\bown vehicle\b/i,
-  /\bpersonal vehicle\b/i,
-  /\baccess to (?:a|your own) vehicle\b/i,
-  /\breliable vehicle\b/i,
-];
-
-const DRIVING_RECORD_OR_INSURANCE_PATTERNS = [
-  /\bclean driving record\b/i,
-  /\bacceptable driving record\b/i,
-  /\bdriving record\b/i,
-  /\bMVR\b/,
-  /\bmotor vehicle record\b/i,
-  /\bproof of auto insurance\b/i,
-  /\bproof of insurance\b/i,
-  /\bauto insurance\b/i,
-  /\bcar insurance\b/i,
-  /\bvehicle insurance\b/i,
-  /\binsured vehicle\b/i,
-];
-
-const MANAGEMENT_EXPERIENCE_PATTERNS = [
-  /\bmanagement experience\b/i,
-  /\bpeople management\b/i,
-  /\bteam management\b/i,
-  /\bteam supervision\b/i,
-  /\bsupervis(?:or|ory|ion|ing|ed)\b/i,
-  /\bmanaged\s+(?:a\s+)?team\b/i,
-  /\bmanaged (?:staff|people|employees)\b/i,
-  /\b(?:shift|crew) lead\b/i,
-  /\blead worker\b/i,
-  /\blead experience\b/i,
-];
-
-const SALARY_HISTORY_PATTERNS = [
-  /\bsalary history\b/i,
-  /\bcompensation history\b/i,
-  /\bpay history\b/i,
-  /\bcurrent (?:salary|compensation|pay(?: rate)?)\b/i,
-  /\bprevious (?:salary|compensation|pay(?: rate)?)\b/i,
-  /\bprior (?:salary|compensation|pay(?: rate)?)\b/i,
-  /\bpast (?:salary|compensation|pay(?: rate)?)\b/i,
-];
-
-const SALARY_EXPECTATION_PATTERNS = [
-  /\bsalary expectations?\b/i,
-  /\bcompensation expectations?\b/i,
-  /\bpay expectations?\b/i,
-  /\bexpected (?:salary|compensation|pay)\b/i,
-  /\bdesired (?:salary|compensation|pay)\b/i,
-  /\btarget (?:salary|compensation|pay)\b/i,
-];
-
-const SAVED_SALARY_ANSWER_PATTERNS = [
-  ...SALARY_EXPECTATION_PATTERNS,
-  /\bsalary\b/i,
-  /\bcompensation\b/i,
-  /\bpay\b/i,
-];
-
-const AVAILABILITY_SCREENING_PATTERNS = [
-  /\bavailability\b/i,
-  /\bavailable\b/i,
-  /\bstart date\b/i,
-  /\bnotice period\b/i,
-  /\bschedule\b/i,
-  /\bshift\b/i,
-  /\bweekend\b/i,
-  /\bovernight\b/i,
-  /\bovertime\b/i,
-  /\bholiday\b/i,
-];
+const {
+  AVAILABILITY_SCREENING_PATTERNS,
+  BACKGROUND_SCREENING_PATTERNS,
+  CITIZENSHIP_SCREENING_PATTERNS,
+  CREDENTIAL_SCREENING_PATTERNS,
+  DRIVING_RECORD_OR_INSURANCE_PATTERNS,
+  EDUCATION_SCREENING_PATTERNS,
+  EXPERIENCE_ANSWER_SCREENING_PATTERNS,
+  EXPERIENCE_REQUIREMENT_PATTERNS,
+  LANGUAGE_SCREENING_PATTERNS,
+  LOCATION_SCREENING_PATTERNS,
+  MANAGEMENT_EXPERIENCE_PATTERNS,
+  MINIMUM_AGE_PATTERNS,
+  PHYSICAL_REQUIREMENT_PATTERNS,
+  SALARY_EXPECTATION_PATTERNS,
+  SALARY_HISTORY_PATTERNS,
+  SAVED_SALARY_ANSWER_PATTERNS,
+  SCREENING_ANSWER_LABEL_RULES,
+  TRANSPORTATION_SCREENING_PATTERNS,
+  WORK_AUTHORIZATION_PATTERNS,
+} = screeningTaxonomy;
 
 const HARD_QUESTION_REVIEWS: HardQuestionReview[] = [
   {
@@ -186,24 +96,10 @@ const HARD_QUESTION_REVIEWS: HardQuestionReview[] = [
     detail: "Confirm location, commute, relocation, remote, hybrid, travel, and shift constraints.",
     getDetail: ({ screeningAnswers }) => getSavedScreeningAnswerReviewDetail(
       screeningAnswers,
-      [
-        /\brelocat(?:e|ion)\b/i,
-        /\bremote\b/i,
-        /\bhybrid\b/i,
-        /\bon[-\s]?site\b/i,
-        /\bcommut(?:e|ing)\b/i,
-        /\btravel\b/i,
-      ],
+      LOCATION_SCREENING_PATTERNS,
       "Confirm location, commute, relocation, remote, hybrid, travel, and shift constraints.",
     ),
-    patterns: [
-      /\brelocat(?:e|ion)\b/i,
-      /\bremote\b/i,
-      /\bhybrid\b/i,
-      /\bon[-\s]?site\b/i,
-      /\bcommut(?:e|ing)\b/i,
-      /\btravel\b/i,
-    ],
+    patterns: LOCATION_SCREENING_PATTERNS,
   },
   {
     label: "Transportation requirement",
@@ -230,50 +126,20 @@ const HARD_QUESTION_REVIEWS: HardQuestionReview[] = [
     detail: "Use only credentials, licenses, certifications, or clearances you can document.",
     getDetail: ({ screeningAnswers }) => getSavedScreeningAnswerReviewDetail(
       screeningAnswers,
-      [
-        /\blicen[cs]e\b/i,
-        /\bcertif(?:ication|ied)\b/i,
-        /\bclearance\b/i,
-        /\bRN\b/,
-        /\bCNA\b/,
-        /\bCDL\b/,
-        /\bPMP\b/,
-        /\bSecurity\+\b/i,
-      ],
+      CREDENTIAL_SCREENING_PATTERNS,
       "Use only credentials, licenses, certifications, or clearances you can document.",
     ),
-    patterns: [
-      /\blicen[cs]e\b/i,
-      /\bcertif(?:ication|ied)\b/i,
-      /\bclearance\b/i,
-      /\bRN\b/,
-      /\bCNA\b/,
-      /\bCDL\b/,
-      /\bPMP\b/,
-      /\bSecurity\+\b/i,
-    ],
+    patterns: CREDENTIAL_SCREENING_PATTERNS,
   },
   {
     label: "Background check or drug screen",
     detail: "Confirm background-check, drug-screen, or pre-employment screening requirements before continuing.",
     getDetail: ({ screeningAnswers }) => getSavedScreeningAnswerReviewDetail(
       screeningAnswers,
-      [
-        /\bbackground check\b/i,
-        /\bbackground screening\b/i,
-        /\bdrug screen\b/i,
-        /\bdrug test\b/i,
-        /\bpre[-\s]?employment screening\b/i,
-      ],
+      BACKGROUND_SCREENING_PATTERNS,
       "Confirm background-check, drug-screen, or pre-employment screening requirements before continuing.",
     ),
-    patterns: [
-      /\bbackground check\b/i,
-      /\bbackground screening\b/i,
-      /\bdrug screen\b/i,
-      /\bdrug test\b/i,
-      /\bpre[-\s]?employment screening\b/i,
-    ],
+    patterns: BACKGROUND_SCREENING_PATTERNS,
   },
   {
     label: "Language fluency",
@@ -311,41 +177,20 @@ const HARD_QUESTION_REVIEWS: HardQuestionReview[] = [
     detail: "Check degree, diploma, or education-equivalent answers against visible evidence.",
     getDetail: ({ screeningAnswers }) => getSavedScreeningAnswerReviewDetail(
       screeningAnswers,
-      [
-        /\beducation\b/i,
-        /\bdegree\b/i,
-        /\bbachelor'?s?\b/i,
-        /\bmaster'?s?\b/i,
-        /\bhigh school\b/i,
-        /\bdiploma\b/i,
-      ],
+      EDUCATION_SCREENING_PATTERNS,
       "Check degree, diploma, or education-equivalent answers against visible evidence.",
     ),
-    patterns: [
-      /\beducation\b/i,
-      /\bdegree\b/i,
-      /\bbachelor'?s?\b/i,
-      /\bmaster'?s?\b/i,
-      /\bhigh school\b/i,
-      /\bdiploma\b/i,
-    ],
+    patterns: EDUCATION_SCREENING_PATTERNS,
   },
   {
     label: "Years of experience",
     detail: "Make years, level, and seniority answers match the experience you can explain.",
     getDetail: ({ screeningAnswers }) => getSavedScreeningAnswerReviewDetail(
       screeningAnswers,
-      [
-        /\byears? of experience\b/i,
-        /\bexperience\b/i,
-      ],
+      EXPERIENCE_ANSWER_SCREENING_PATTERNS,
       "Make years, level, and seniority answers match the experience you can explain.",
     ),
-    patterns: [
-      /\b\d+\+?\s*(?:years|yrs)\b(?!\s*(?:of age|old))/i,
-      /\byears? of experience\b/i,
-      /\bexperience required\b/i,
-    ],
+    patterns: EXPERIENCE_REQUIREMENT_PATTERNS,
   },
   {
     label: "Management experience",
@@ -399,53 +244,8 @@ function getWorkAuthorizationReviewDetail({ profile }: HardQuestionDetailContext
 }
 
 function getSavedScreeningAnswerLabel(questionPattern: string) {
-  const normalizedPattern = questionPattern.toLowerCase();
-
-  if (/\btravel\b/.test(normalizedPattern)) return "travel";
-  if (/\brelocat/.test(normalizedPattern)) return "relocation";
-  if (/\bcommut/.test(normalizedPattern)) return "commute";
-  if (/\bremote\b|\bhybrid\b|\bon[-\s]?site\b/.test(normalizedPattern)) return "location";
-  if (CITIZENSHIP_SCREENING_PATTERNS.some((pattern) => pattern.test(questionPattern))) {
-    return "citizenship";
-  }
-  if (DRIVING_RECORD_OR_INSURANCE_PATTERNS.some((pattern) => pattern.test(questionPattern))) {
-    return "driving record or insurance";
-  }
-  if (TRANSPORTATION_SCREENING_PATTERNS.some((pattern) => pattern.test(questionPattern))) {
-    return "transportation";
-  }
-  if (/\blicen[cs]e\b|\bcertif|\bclearance\b|\bRN\b|\bCNA\b|\bCDL\b|\bPMP\b|\bSecurity\+\b/i.test(questionPattern)) {
-    return "credential";
-  }
-  if (/\bbackground check\b|\bbackground screening\b|\bdrug screen\b|\bdrug test\b|\bpre[-\s]?employment screening\b/i.test(questionPattern)) {
-    return "screening";
-  }
-  if (LANGUAGE_SCREENING_PATTERNS.some((pattern) => pattern.test(questionPattern))) {
-    return "language";
-  }
-  if (PHYSICAL_REQUIREMENT_PATTERNS.some((pattern) => pattern.test(questionPattern))) {
-    return "physical requirement";
-  }
-  if (MINIMUM_AGE_PATTERNS.some((pattern) => pattern.test(questionPattern))) {
-    return "age requirement";
-  }
-  if (/\beducation\b|\bdegree\b|\bbachelor'?s?\b|\bmaster'?s?\b|\bhigh school\b|\bdiploma\b/i.test(questionPattern)) {
-    return "education";
-  }
-  if (MANAGEMENT_EXPERIENCE_PATTERNS.some((pattern) => pattern.test(questionPattern))) {
-    return "management experience";
-  }
-  if (/\byears? of experience\b|\bexperience\b/i.test(questionPattern)) {
-    return "experience";
-  }
-  if (SALARY_HISTORY_PATTERNS.some((pattern) => pattern.test(questionPattern))) {
-    return "salary-history";
-  }
-  if (SAVED_SALARY_ANSWER_PATTERNS.some((pattern) => pattern.test(questionPattern))) {
-    return "salary";
-  }
-  if (AVAILABILITY_SCREENING_PATTERNS.some((pattern) => pattern.test(questionPattern))) {
-    return "availability";
+  for (const { label, patterns } of SCREENING_ANSWER_LABEL_RULES) {
+    if (patterns.some((pattern) => pattern.test(questionPattern))) return label;
   }
 
   return "screening";
@@ -462,7 +262,7 @@ function getSavedAnswerSnippet(answer: string) {
 
 function getSavedScreeningAnswerReviewDetail(
   screeningAnswers: ScreeningAnswerPreview[],
-  answerPatterns: RegExp[],
+  answerPatterns: readonly RegExp[],
   fallbackDetail: string,
   confirmationDetail = "Confirm it matches the employer's wording and resume evidence before continuing.",
 ) {

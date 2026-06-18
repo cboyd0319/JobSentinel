@@ -10,6 +10,11 @@ import { safeInvoke, safeInvokeWithToast } from "../../utils/api";
 import { validateRequired, validateRequiredQuestionWording } from "../../utils/formValidation";
 import { getSafeErrorToastCopy } from "../../utils/safeErrorCopy";
 import { getHardScreeningAnswerGuidance } from "./screeningReviewGuidance";
+import {
+  COMMON_SCREENING_PATTERNS,
+  LEGACY_SCREENING_PATTERNS,
+  PLAIN_SCREENING_PATTERN_ALIASES,
+} from "../../shared/applicationScreeningTaxonomy";
 
 // Lookup object for answer type badges (better performance than switch)
 const ANSWER_TYPE_BADGES: Record<string, ReactElement> = {
@@ -44,110 +49,7 @@ interface ScreeningAnswersFormProps {
   onSaved?: () => void;
 }
 
-// Common screening questions with plain matching text.
-const COMMON_PATTERNS = [
-  { pattern: "years of experience", label: "Years of experience", type: "text" },
-  { pattern: "salary", label: "Salary expectation", type: "text" },
-  { pattern: "start date", label: "Start date / Notice period", type: "text" },
-  { pattern: "relocate", label: "Willingness to relocate", type: "yes_no" },
-  { pattern: "travel", label: "Travel availability", type: "text" },
-  { pattern: "reliable transportation", label: "Reliable transportation", type: "yes_no" },
-  { pattern: "work authorization", label: "Work authorization", type: "yes_no" },
-  { pattern: "US citizen", label: "Citizenship", type: "yes_no" },
-  { pattern: "availability", label: "Schedule availability", type: "text" },
-  { pattern: "overtime", label: "Overtime availability", type: "yes_no" },
-  { pattern: "holiday", label: "Holiday availability", type: "yes_no" },
-  { pattern: "managed a team", label: "Management experience", type: "text" },
-  { pattern: "sponsorship", label: "Visa sponsorship", type: "yes_no" },
-  { pattern: "remote", label: "Remote work preference", type: "text" },
-  { pattern: "driver's license", label: "Driver's license", type: "yes_no" },
-  { pattern: "security clearance", label: "Security clearance", type: "yes_no" },
-  { pattern: "certification", label: "Certification or license", type: "text" },
-  { pattern: "background check", label: "Background check", type: "text" },
-  { pattern: "drug screen", label: "Drug screen", type: "text" },
-  { pattern: "bilingual", label: "Language fluency", type: "text" },
-  { pattern: "physical requirements", label: "Physical requirements", type: "text" },
-  { pattern: "18 years of age", label: "Age requirement", type: "yes_no" },
-  { pattern: "education", label: "Education level", type: "text" },
-  { pattern: "cover letter", label: "Cover letter / Why this role", type: "textarea" },
-];
-
-const LEGACY_SCREENING_PATTERNS = [
-  {
-    pattern: "(?i)authorized.*work.*(united states|us|usa)",
-    label: "Work authorization",
-    editablePattern: "work authorization",
-  },
-  {
-    pattern: "(?i)require.*sponsor.*work",
-    label: "Visa sponsorship",
-    editablePattern: "sponsorship",
-  },
-  {
-    pattern: "(?i)require.*sponsor.*(now|future)",
-    label: "Future sponsorship",
-    editablePattern: "sponsorship now or in the future",
-  },
-  {
-    pattern: "(?i)18.*years.*age",
-    label: "Age requirement",
-    editablePattern: "18 years of age",
-  },
-  {
-    pattern: "(?i)drug.*test",
-    label: "Drug screen",
-    editablePattern: "drug screen",
-  },
-  {
-    pattern: "(?i)background.*check",
-    label: "Background check",
-    editablePattern: "background check",
-  },
-  {
-    pattern: "(?i)security.*clearance",
-    label: "Security clearance",
-    editablePattern: "security clearance",
-  },
-  {
-    pattern: "(?i)willing.*relocate",
-    label: "Willingness to relocate",
-    editablePattern: "relocate",
-  },
-  {
-    pattern: "(?i)notice.*period",
-    label: "Start date / Notice period",
-    editablePattern: "notice period",
-  },
-  {
-    pattern: "(?i)salary.*expectation",
-    label: "Salary expectation",
-    editablePattern: "salary",
-  },
-];
-
-const PLAIN_SCREENING_PATTERN_ALIASES = [
-  {
-    patterns: [
-      "work authorized",
-      "authorized to work",
-      "legally authorized to work",
-      "eligible to work",
-      "employment authorization",
-    ],
-    label: "Work authorization",
-    editablePattern: "work authorization",
-  },
-  {
-    patterns: ["visa sponsorship", "need sponsorship", "require sponsorship"],
-    label: "Visa sponsorship",
-    editablePattern: "sponsorship",
-  },
-  {
-    patterns: ["notice period"],
-    label: "Start date / Notice period",
-    editablePattern: "notice period",
-  },
-];
+const COMMON_PATTERNS = COMMON_SCREENING_PATTERNS;
 
 function normalizePatternKey(pattern: string) {
   return pattern.trim().toLowerCase();
