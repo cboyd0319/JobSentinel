@@ -62,6 +62,30 @@ describe("DeepLinkGenerator", () => {
     expect(screen.queryByText(/linkedin\.com\/jobs\/search/i)).not.toBeInTheDocument();
   });
 
+  it("does not load remote site logos when showing search links", async () => {
+    const user = userEvent.setup();
+    vi.mocked(deeplinks.generateDeepLinks).mockResolvedValueOnce([
+      {
+        site: {
+          id: "linkedin",
+          name: "LinkedIn",
+          category: SiteCategory.Professional,
+          requires_login: true,
+          logo_url: "https://www.linkedin.com/favicon.ico",
+        },
+        url: "https://www.linkedin.com/jobs/search/?keywords=marketing",
+      },
+    ]);
+
+    render(<DeepLinkGenerator />);
+
+    await user.type(screen.getByLabelText(/job title or work words/i), "Marketing Manager");
+    await user.click(screen.getByRole("button", { name: /create search links/i }));
+
+    expect(await screen.findByText("LinkedIn")).toBeInTheDocument();
+    expect(screen.queryByRole("img", { name: /linkedin logo/i })).not.toBeInTheDocument();
+  });
+
   it("guides users when the search words are missing", async () => {
     const user = userEvent.setup();
     render(<DeepLinkGenerator />);

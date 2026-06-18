@@ -138,7 +138,7 @@ Out of scope:
   revision/checksum pinning from the CheatSheetSeries scan.
 - Current CheatSheetSeries follow-ups removed unused macOS WebKit/cookie deps,
   refreshed stale transitives, added source-boundary and Browser Import timeout
-  sensors, added resume file-size guards, and aligned Linux Debian runtime metadata.
+  sensors, resume guards, URL privacy fixes, and Linux runtime metadata.
 - Final whole-UI post-design pass: 266/266 E2E, 16 route inventories, and no
   console/page errors or overflow.
 - Final non-`content/` audit fixes landed: memory-only company research,

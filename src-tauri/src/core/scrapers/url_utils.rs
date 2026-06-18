@@ -54,6 +54,16 @@ const TRACKING_PARAMS: &[&str] = &[
     "lever-source[]",
 ];
 
+const SENSITIVE_QUERY_MARKERS: &[&str] = &[
+    "token",
+    "session",
+    "auth",
+    "credential",
+    "password",
+    "email",
+    "candidate",
+];
+
 /// Essential job identifier parameters to preserve
 ///
 /// These parameters typically contain job posting IDs that are required
@@ -138,11 +148,9 @@ pub fn normalize_url(url_str: &str) -> Cow<'_, str> {
     }
 
     // Collect tracking params to check if we need to modify
-    let has_tracking_params = url.query_pairs().any(|(key, _)| {
+    let has_tracking_params = url.query_pairs().any(|(key, value)| {
         let key_lower = key.to_lowercase();
-        TRACKING_PARAMS
-            .iter()
-            .any(|&param| key_lower == param.to_lowercase())
+        should_strip_query_pair(&key_lower, &value)
     });
 
     // If no tracking params, return as-is (zero-copy optimization)
@@ -159,11 +167,7 @@ pub fn normalize_url(url_str: &str) -> Cow<'_, str> {
     for (key, value) in url.query_pairs() {
         let key_lower = key.to_lowercase();
 
-        // Remove tracking parameters
-        if TRACKING_PARAMS
-            .iter()
-            .any(|&param| key_lower == param.to_lowercase())
-        {
+        if should_strip_query_pair(&key_lower, &value) {
             continue;
         }
 
@@ -182,6 +186,27 @@ pub fn normalize_url(url_str: &str) -> Cow<'_, str> {
     }
 
     Cow::Owned(url.to_string())
+}
+
+fn should_strip_query_pair(normalized_key: &str, value: &str) -> bool {
+    TRACKING_PARAMS
+        .iter()
+        .any(|&param| normalized_key == param.to_lowercase())
+        || SENSITIVE_QUERY_MARKERS
+            .iter()
+            .any(|marker| normalized_key.contains(marker))
+        || is_sensitive_query_value(value)
+}
+
+fn is_sensitive_query_value(value: &str) -> bool {
+    if Url::parse(value).is_ok() {
+        return true;
+    }
+
+    let normalized = value.to_ascii_lowercase();
+    SENSITIVE_QUERY_MARKERS.iter().any(|marker| {
+        normalized.contains(&format!("{marker}=")) || normalized.contains(&format!("{marker}%3d"))
+    })
 }
 
 #[cfg(test)]
@@ -295,6 +320,13 @@ mod tests {
     fn test_mixed_essential_and_tracking() {
         let input = "https://example.com/apply?job_id=456&posting_id=789&utm_campaign=spring&ref=linkedin&session=abc123";
         let expected = "https://example.com/apply?job_id=456&posting_id=789";
+        assert_eq!(normalize_url(input), expected);
+    }
+
+    #[test]
+    fn test_sensitive_query_params_and_nested_urls_removed() {
+        let input = "https://example.com/apply?job_id=456&candidateEmail=person@example.com&token=secret&redirect=https%3A%2F%2Fprivate.example%2Fcallback%3Ftoken%3Draw-secret";
+        let expected = "https://example.com/apply?job_id=456";
         assert_eq!(normalize_url(input), expected);
     }
 

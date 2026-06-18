@@ -13,7 +13,7 @@ pub fn get_all_sites() -> Vec<SiteInfo> {
             name: "Indeed".to_string(),
             category: SiteCategory::General,
             requires_login: false,
-            logo_url: Some("https://www.indeed.com/apple-touch-icon.png".to_string()),
+            logo_url: None,
             notes: Some("Largest job board with millions of listings".to_string()),
         },
         SiteInfo {
@@ -21,7 +21,7 @@ pub fn get_all_sites() -> Vec<SiteInfo> {
             name: "Monster".to_string(),
             category: SiteCategory::General,
             requires_login: false,
-            logo_url: Some("https://www.monster.com/favicon.ico".to_string()),
+            logo_url: None,
             notes: Some("Established job board with career resources".to_string()),
         },
         SiteInfo {
@@ -29,7 +29,7 @@ pub fn get_all_sites() -> Vec<SiteInfo> {
             name: "CareerBuilder".to_string(),
             category: SiteCategory::General,
             requires_login: false,
-            logo_url: Some("https://www.careerbuilder.com/favicon.ico".to_string()),
+            logo_url: None,
             notes: None,
         },
         SiteInfo {
@@ -37,7 +37,7 @@ pub fn get_all_sites() -> Vec<SiteInfo> {
             name: "SimplyHired".to_string(),
             category: SiteCategory::General,
             requires_login: false,
-            logo_url: Some("https://www.simplyhired.com/favicon.ico".to_string()),
+            logo_url: None,
             notes: Some("Job aggregator with salary estimates".to_string()),
         },
         SiteInfo {
@@ -45,7 +45,7 @@ pub fn get_all_sites() -> Vec<SiteInfo> {
             name: "ZipRecruiter".to_string(),
             category: SiteCategory::General,
             requires_login: false,
-            logo_url: Some("https://www.ziprecruiter.com/favicon.ico".to_string()),
+            logo_url: None,
             notes: Some("Fast-growing job board with Application Assist".to_string()),
         },
         // Professional networking
@@ -54,7 +54,7 @@ pub fn get_all_sites() -> Vec<SiteInfo> {
             name: "LinkedIn".to_string(),
             category: SiteCategory::Professional,
             requires_login: true,
-            logo_url: Some("https://www.linkedin.com/favicon.ico".to_string()),
+            logo_url: None,
             notes: Some("Professional network with extensive job listings".to_string()),
         },
         SiteInfo {
@@ -62,7 +62,7 @@ pub fn get_all_sites() -> Vec<SiteInfo> {
             name: "Glassdoor".to_string(),
             category: SiteCategory::Professional,
             requires_login: true,
-            logo_url: Some("https://www.glassdoor.com/favicon.ico".to_string()),
+            logo_url: None,
             notes: Some("Job board with company reviews and salaries".to_string()),
         },
         // Tech-specific
@@ -71,7 +71,7 @@ pub fn get_all_sites() -> Vec<SiteInfo> {
             name: "Dice".to_string(),
             category: SiteCategory::Tech,
             requires_login: false,
-            logo_url: Some("https://www.dice.com/favicon.ico".to_string()),
+            logo_url: None,
             notes: Some("Technology and IT-focused job board".to_string()),
         },
         // Government
@@ -80,7 +80,7 @@ pub fn get_all_sites() -> Vec<SiteInfo> {
             name: "USAJobs".to_string(),
             category: SiteCategory::Government,
             requires_login: false,
-            logo_url: Some("https://www.usajobs.gov/favicon.ico".to_string()),
+            logo_url: None,
             notes: Some("Official federal government job board".to_string()),
         },
         SiteInfo {
@@ -88,7 +88,7 @@ pub fn get_all_sites() -> Vec<SiteInfo> {
             name: "GovernmentJobs".to_string(),
             category: SiteCategory::Government,
             requires_login: false,
-            logo_url: Some("https://www.governmentjobs.com/favicon.ico".to_string()),
+            logo_url: None,
             notes: Some("State and local government positions".to_string()),
         },
         SiteInfo {
@@ -113,7 +113,7 @@ pub fn get_all_sites() -> Vec<SiteInfo> {
             name: "ClearanceJobs".to_string(),
             category: SiteCategory::Cleared,
             requires_login: false,
-            logo_url: Some("https://www.clearancejobs.com/favicon.ico".to_string()),
+            logo_url: None,
             notes: Some("Jobs requiring security clearances".to_string()),
         },
         // Remote-specific
@@ -122,7 +122,7 @@ pub fn get_all_sites() -> Vec<SiteInfo> {
             name: "FlexJobs".to_string(),
             category: SiteCategory::Remote,
             requires_login: true,
-            logo_url: Some("https://www.flexjobs.com/favicon.ico".to_string()),
+            logo_url: None,
             notes: Some("Curated remote and flexible jobs (subscription)".to_string()),
         },
         SiteInfo {
@@ -130,7 +130,7 @@ pub fn get_all_sites() -> Vec<SiteInfo> {
             name: "We Work Remotely".to_string(),
             category: SiteCategory::Remote,
             requires_login: false,
-            logo_url: Some("https://weworkremotely.com/favicon.ico".to_string()),
+            logo_url: None,
             notes: Some("Popular remote job board".to_string()),
         },
         SiteInfo {
@@ -138,7 +138,7 @@ pub fn get_all_sites() -> Vec<SiteInfo> {
             name: "Remote OK".to_string(),
             category: SiteCategory::Remote,
             requires_login: false,
-            logo_url: Some("https://remoteok.com/favicon.ico".to_string()),
+            logo_url: None,
             notes: Some("Remote jobs aggregator".to_string()),
         },
         // Startups
@@ -147,7 +147,7 @@ pub fn get_all_sites() -> Vec<SiteInfo> {
             name: "Wellfound (AngelList)".to_string(),
             category: SiteCategory::Startups,
             requires_login: true,
-            logo_url: Some("https://wellfound.com/favicon.ico".to_string()),
+            logo_url: None,
             notes: Some("Startup jobs with equity information".to_string()),
         },
         SiteInfo {
@@ -155,7 +155,7 @@ pub fn get_all_sites() -> Vec<SiteInfo> {
             name: "Y Combinator Jobs".to_string(),
             category: SiteCategory::Startups,
             requires_login: false,
-            logo_url: Some("https://www.ycombinator.com/favicon.ico".to_string()),
+            logo_url: None,
             notes: Some("Jobs at Y Combinator companies".to_string()),
         },
     ]
@@ -213,6 +213,12 @@ mod tests {
         let unique_count = ids.len();
         ids.dedup();
         assert_eq!(ids.len(), unique_count, "Duplicate site IDs found");
+    }
+
+    #[test]
+    fn test_sites_do_not_publish_remote_logo_urls() {
+        let sites = get_all_sites();
+        assert!(sites.iter().all(|site| site.logo_url.is_none()));
     }
 
     #[test]

@@ -50,7 +50,6 @@ const MOCK_DEEP_LINK_SITES = [
     name: "Indeed",
     category: SiteCategory.General,
     requires_login: false,
-    logo_url: "https://www.indeed.com/apple-touch-icon.png",
     notes: "Largest job board with millions of listings",
   },
   {
@@ -58,7 +57,6 @@ const MOCK_DEEP_LINK_SITES = [
     name: "Monster",
     category: SiteCategory.General,
     requires_login: false,
-    logo_url: "https://www.monster.com/favicon.ico",
     notes: "Established job board with career resources",
   },
   {
@@ -66,14 +64,12 @@ const MOCK_DEEP_LINK_SITES = [
     name: "CareerBuilder",
     category: SiteCategory.General,
     requires_login: false,
-    logo_url: "https://www.careerbuilder.com/favicon.ico",
   },
   {
     id: "simplyhired",
     name: "SimplyHired",
     category: SiteCategory.General,
     requires_login: false,
-    logo_url: "https://www.simplyhired.com/favicon.ico",
     notes: "Job aggregator with salary estimates",
   },
   {
@@ -81,7 +77,6 @@ const MOCK_DEEP_LINK_SITES = [
     name: "ZipRecruiter",
     category: SiteCategory.General,
     requires_login: false,
-    logo_url: "https://www.ziprecruiter.com/favicon.ico",
     notes: "General job board with Application Assist support",
   },
   {
@@ -89,7 +84,6 @@ const MOCK_DEEP_LINK_SITES = [
     name: "LinkedIn",
     category: SiteCategory.Professional,
     requires_login: true,
-    logo_url: "https://www.linkedin.com/favicon.ico",
     notes: "Professional network with extensive job listings",
   },
   {
@@ -97,7 +91,6 @@ const MOCK_DEEP_LINK_SITES = [
     name: "Glassdoor",
     category: SiteCategory.Professional,
     requires_login: true,
-    logo_url: "https://www.glassdoor.com/favicon.ico",
     notes: "Job board with company reviews and salaries",
   },
   {
@@ -105,7 +98,6 @@ const MOCK_DEEP_LINK_SITES = [
     name: "Dice",
     category: SiteCategory.Tech,
     requires_login: false,
-    logo_url: "https://www.dice.com/favicon.ico",
     notes: "Technology and IT-focused job board",
   },
   {
@@ -113,7 +105,6 @@ const MOCK_DEEP_LINK_SITES = [
     name: "USAJobs",
     category: SiteCategory.Government,
     requires_login: false,
-    logo_url: "https://www.usajobs.gov/favicon.ico",
     notes: "Official federal government job board",
   },
   {
@@ -121,7 +112,6 @@ const MOCK_DEEP_LINK_SITES = [
     name: "GovernmentJobs",
     category: SiteCategory.Government,
     requires_login: false,
-    logo_url: "https://www.governmentjobs.com/favicon.ico",
     notes: "State and local government positions",
   },
   {
@@ -143,7 +133,6 @@ const MOCK_DEEP_LINK_SITES = [
     name: "ClearanceJobs",
     category: SiteCategory.Cleared,
     requires_login: false,
-    logo_url: "https://www.clearancejobs.com/favicon.ico",
     notes: "Jobs requiring security clearances",
   },
   {
@@ -151,7 +140,6 @@ const MOCK_DEEP_LINK_SITES = [
     name: "FlexJobs",
     category: SiteCategory.Remote,
     requires_login: true,
-    logo_url: "https://www.flexjobs.com/favicon.ico",
     notes: "Curated remote and flexible jobs (subscription)",
   },
   {
@@ -159,7 +147,6 @@ const MOCK_DEEP_LINK_SITES = [
     name: "We Work Remotely",
     category: SiteCategory.Remote,
     requires_login: false,
-    logo_url: "https://weworkremotely.com/favicon.ico",
     notes: "Popular remote job board",
   },
   {
@@ -167,7 +154,6 @@ const MOCK_DEEP_LINK_SITES = [
     name: "Remote OK",
     category: SiteCategory.Remote,
     requires_login: false,
-    logo_url: "https://remoteok.com/favicon.ico",
     notes: "Remote jobs aggregator",
   },
   {
@@ -175,7 +161,6 @@ const MOCK_DEEP_LINK_SITES = [
     name: "Wellfound (AngelList)",
     category: SiteCategory.Startups,
     requires_login: true,
-    logo_url: "https://wellfound.com/favicon.ico",
     notes: "Startup jobs with equity information",
   },
   {
@@ -183,7 +168,6 @@ const MOCK_DEEP_LINK_SITES = [
     name: "Y Combinator Jobs",
     category: SiteCategory.Startups,
     requires_login: false,
-    logo_url: "https://www.ycombinator.com/favicon.ico",
     notes: "Jobs at Y Combinator companies",
   },
 ] as const satisfies readonly SiteInfo[];

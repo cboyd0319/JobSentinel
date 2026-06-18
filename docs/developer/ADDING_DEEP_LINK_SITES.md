@@ -78,7 +78,7 @@ pub fn get_all_sites() -> Vec<SiteInfo> {
             name: "NewSite Jobs".to_string(),       // Display name
             category: SiteCategory::General,        // Category (see below)
             requires_login: false,                  // Does it require login?
-            logo_url: Some("https://newsite.com/favicon.ico".to_string()),
+            logo_url: None,
             notes: Some("Brief description of what makes this site unique".to_string()),
         },
     ]
@@ -101,8 +101,8 @@ Choose the most appropriate category:
 
 1. Visit the site
 2. Right-click and choose "View Page Source"
-3. Search for `favicon.ico` or `apple-touch-icon.png`
-4. Use the full URL (e.g., `https://example.com/favicon.ico`)
+3. Do not add remote favicon or logo URLs. The UI uses local initials so the
+   search-link panel does not contact job boards until the user opens a link.
 
 ## Step 3: Add URL Generator
 
@@ -310,7 +310,7 @@ SiteInfo {
     name: "JobBoard.com".to_string(),
     category: SiteCategory::General,
     requires_login: false,
-    logo_url: Some("https://jobboard.com/favicon.ico".to_string()),
+    logo_url: None,
     notes: None,
 }
 
@@ -332,7 +332,7 @@ SiteInfo {
     name: "TechJobs".to_string(),
     category: SiteCategory::Tech,
     requires_login: true,
-    logo_url: Some("https://techjobs.io/favicon.ico".to_string()),
+    logo_url: None,
     notes: Some("Requires login for full results".to_string()),
 }
 

@@ -188,6 +188,20 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn test_upsert_job_canonicalizes_stored_url() {
+        let db = Database::connect_memory().await.unwrap();
+        db.migrate().await.unwrap();
+
+        let mut job = create_test_job("hash_canonical_url", "Test Job", 0.9);
+        job.url = "https://example.com/jobs/123?gh_jid=123&utm_source=newsletter&token=secret&candidate_email=person@example.com&redirect=https%3A%2F%2Fprivate.example%2Fcallback%3Ftoken%3Draw#private".to_string();
+
+        let id = db.upsert_job(&job).await.unwrap();
+        let stored = db.get_job_by_id(id).await.unwrap().unwrap();
+
+        assert_eq!(stored.url, "https://example.com/jobs/123?gh_jid=123");
+    }
+
+    #[tokio::test]
     async fn test_upsert_job_location_too_long() {
         let db = Database::connect_memory().await.unwrap();
         db.migrate().await.unwrap();

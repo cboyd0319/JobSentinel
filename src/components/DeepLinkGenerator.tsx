@@ -330,13 +330,7 @@ export function DeepLinkGenerator({
                 >
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      {link.site.logo_url && (
-                        <img
-                          src={link.site.logo_url}
-                          alt={`${link.site.name} logo`}
-                          className="w-6 h-6 rounded"
-                        />
-                      )}
+                      <SiteInitial name={link.site.name} />
                       <h3 className="font-semibold text-gray-900 dark:text-white">
                         {link.site.name}
                       </h3>
@@ -393,5 +387,18 @@ export function DeepLinkGenerator({
         </div>
       )}
     </div>
+  );
+}
+
+function SiteInitial({ name }: { name: string }) {
+  const initial = name.trim().charAt(0).toUpperCase() || "?";
+
+  return (
+    <span
+      aria-hidden="true"
+      className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded bg-gray-100 text-xs font-semibold text-gray-700 dark:bg-gray-700 dark:text-gray-200"
+    >
+      {initial}
+    </span>
   );
 }

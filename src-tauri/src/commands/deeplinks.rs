@@ -7,7 +7,7 @@ use crate::core::deeplinks::{
     generate_all_links, generate_link_for_site, get_all_sites, DeepLink, SearchCriteria,
     SiteCategory, SiteInfo,
 };
-use crate::core::url_security::sanitize_url_for_logging;
+use crate::core::url_security::{sanitize_url_for_logging, validate_external_http_url_for_fetch};
 use serde::{Deserialize, Serialize};
 use tauri::Emitter;
 
@@ -65,8 +65,8 @@ pub async fn get_sites_by_category_cmd(
 
 /// Validate that a URL is safe to open in the user's browser.
 /// Allows external HTTP(S) URLs while blocking localhost, private networks, and unsafe schemes.
-fn validate_deep_link_url(url: &str) -> Result<(), String> {
-    crate::core::url_security::validate_external_http_url(url).map(|_| ())
+async fn validate_deep_link_url(url: &str) -> Result<(), String> {
+    validate_external_http_url_for_fetch(url).await.map(|_| ())
 }
 
 /// Open a deep link URL in the default browser
@@ -75,7 +75,7 @@ fn validate_deep_link_url(url: &str) -> Result<(), String> {
 pub async fn open_deep_link(app: tauri::AppHandle, url: String) -> Result<(), String> {
     use tauri_plugin_shell::ShellExt;
 
-    validate_deep_link_url(&url)?;
+    validate_deep_link_url(&url).await?;
 
     let url_label = sanitize_url_for_logging(&url);
     tracing::info!(url = %url_label, "Opening deep link in browser");
@@ -146,48 +146,68 @@ mod tests {
     // Security: deep link URL validation (CWE-601 Open Redirect)
     // ========================================================================
 
-    #[test]
-    fn test_deep_link_allows_https() {
-        assert!(validate_deep_link_url("https://www.indeed.com/jobs?q=rust").is_ok());
+    #[tokio::test]
+    async fn test_deep_link_allows_https_public_ip() {
+        assert!(validate_deep_link_url("https://93.184.216.34/jobs?q=rust")
+            .await
+            .is_ok());
     }
 
-    #[test]
-    fn test_deep_link_allows_http() {
-        assert!(validate_deep_link_url("http://jobs.example.com/search").is_ok());
+    #[tokio::test]
+    async fn test_deep_link_allows_http_public_ip() {
+        assert!(validate_deep_link_url("http://93.184.216.34/search")
+            .await
+            .is_ok());
     }
 
-    #[test]
-    fn test_deep_link_blocks_file_scheme() {
-        assert!(validate_deep_link_url("file:///etc/passwd").is_err());
+    #[tokio::test]
+    async fn test_deep_link_blocks_file_scheme() {
+        assert!(validate_deep_link_url("file:///etc/passwd").await.is_err());
     }
 
-    #[test]
-    fn test_deep_link_blocks_localhost() {
-        assert!(validate_deep_link_url("http://localhost:3000/jobs").is_err());
-        assert!(validate_deep_link_url("http://127.0.0.1/jobs").is_err());
-        assert!(validate_deep_link_url("http://[::1]/jobs").is_err());
+    #[tokio::test]
+    async fn test_deep_link_blocks_localhost() {
+        assert!(validate_deep_link_url("http://localhost:3000/jobs")
+            .await
+            .is_err());
+        assert!(validate_deep_link_url("http://127.0.0.1/jobs")
+            .await
+            .is_err());
+        assert!(validate_deep_link_url("http://[::1]/jobs").await.is_err());
     }
 
-    #[test]
-    fn test_deep_link_blocks_private_network_urls() {
-        assert!(validate_deep_link_url("http://10.0.0.5/jobs").is_err());
-        assert!(validate_deep_link_url("http://172.20.0.5/jobs").is_err());
-        assert!(validate_deep_link_url("http://192.168.1.5/jobs").is_err());
-        assert!(validate_deep_link_url("http://169.254.1.5/jobs").is_err());
+    #[tokio::test]
+    async fn test_deep_link_blocks_private_network_urls() {
+        assert!(validate_deep_link_url("http://10.0.0.5/jobs")
+            .await
+            .is_err());
+        assert!(validate_deep_link_url("http://172.20.0.5/jobs")
+            .await
+            .is_err());
+        assert!(validate_deep_link_url("http://192.168.1.5/jobs")
+            .await
+            .is_err());
+        assert!(validate_deep_link_url("http://169.254.1.5/jobs")
+            .await
+            .is_err());
     }
 
-    #[test]
-    fn test_deep_link_blocks_javascript_scheme() {
-        assert!(validate_deep_link_url("javascript:alert(1)").is_err());
+    #[tokio::test]
+    async fn test_deep_link_blocks_javascript_scheme() {
+        assert!(validate_deep_link_url("javascript:alert(1)").await.is_err());
     }
 
-    #[test]
-    fn test_deep_link_blocks_data_scheme() {
-        assert!(validate_deep_link_url("data:text/html,<script>alert(1)</script>").is_err());
+    #[tokio::test]
+    async fn test_deep_link_blocks_data_scheme() {
+        assert!(
+            validate_deep_link_url("data:text/html,<script>alert(1)</script>")
+                .await
+                .is_err()
+        );
     }
 
-    #[test]
-    fn test_deep_link_rejects_invalid_url() {
-        assert!(validate_deep_link_url("not a url").is_err());
+    #[tokio::test]
+    async fn test_deep_link_rejects_invalid_url() {
+        assert!(validate_deep_link_url("not a url").await.is_err());
     }
 }

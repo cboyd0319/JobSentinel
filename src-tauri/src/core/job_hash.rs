@@ -54,4 +54,22 @@ mod tests {
 
         assert_eq!(first, second);
     }
+
+    #[test]
+    fn strips_sensitive_query_data_before_hashing() {
+        let first = calculate_job_hash(
+            "Community Care",
+            "Care Coordinator",
+            Some("Remote"),
+            "https://example.com/jobs/1?candidateEmail=person@example.com&token=secret&redirect=https%3A%2F%2Fprivate.example%2Fcallback%3Ftoken%3Draw",
+        );
+        let second = calculate_job_hash(
+            "Community Care",
+            "Care Coordinator",
+            Some("Remote"),
+            "https://example.com/jobs/1",
+        );
+
+        assert_eq!(first, second);
+    }
 }

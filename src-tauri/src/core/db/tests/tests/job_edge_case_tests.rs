@@ -158,7 +158,7 @@ mod edge_case_tests {
 
         let mut job = create_test_job("long_url", "Test Job", 0.9);
         // Create a URL at the limit (2000 chars exactly)
-        job.url = format!("https://example.com/job?{}", "x".repeat(1976));
+        job.url = format!("https://example.com/job/{}", "x".repeat(1976));
 
         let id = db.upsert_job(&job).await.unwrap();
         let fetched = db.get_job_by_id(id).await.unwrap().unwrap();
