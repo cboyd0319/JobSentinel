@@ -188,6 +188,12 @@ and fake example links are intentionally excluded.
 - [White & Case analysis of hiQ and CFAA](https://www.whitecase.com/insight-our-thinking/web-scraping-website-terms-and-cfaa-hiqs-preliminary-injunction-affirmed-again)
 - [Web access legal landscape and practice tips](https://www.swlaw.com/publication/legal-landscape-of-web-scraping-and-practice-tips/)
 - [Website terms and CFAA analysis](https://www.metaverselaw.com/hiq-v-linkedin-user-agreements-in-the-age-of-data-scraping/)
+- [Scrapling Rust crate documentation](https://docs.rs/scrapling/0.2.0/scrapling/)
+- [Scrapling fetch crate documentation](https://docs.rs/scrapling-fetch/0.2.0/scrapling_fetch/)
+- [Scrapling browser crate documentation](https://docs.rs/scrapling-browser/0.2.0/scrapling_browser/)
+- [Scrapling spider crate documentation](https://docs.rs/scrapling-spider/0.2.0/scrapling_spider/)
+- [Scrapling Rust project](https://github.com/chrisabruce/scrapling-rs)
+- [Scrapling Python project](https://github.com/D4Vinci/Scrapling)
 - [Indeed legal terms](https://www.indeed.com/legal)
 - [Greenhouse job board API](https://developers.greenhouse.io/job-board.html)
 - [Greenhouse board API template](https://boards-api.greenhouse.io/v1/boards/{company}/jobs)
@@ -321,8 +327,6 @@ and fake example links are intentionally excluded.
 - [JSON Resume schema](https://jsonresume.org/schema/)
 - [JSON Resume registry](https://registry.jsonresume.org/)
 - [JSON Resume ATS validator package](https://github.com/jsonresume/jsonresume.org/tree/main/packages/ats-validator)
-- [Scrapling Rust crate documentation](https://docs.rs/scrapling/0.2.0/scrapling/)
-- [Scrapling Python project](https://github.com/D4Vinci/Scrapling)
 
 ## Community and Project References
 

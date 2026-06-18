@@ -28,6 +28,14 @@ call private LinkedIn systems, or read LinkedIn pages in the background.
 | Response size | JobSentinel stops reading very large responses; the current safety limit is 16 MiB |
 | User control | Job-site search links open in the user's browser and do not run in the background |
 
+Third-party scraping frameworks must be evaluated against these boundaries
+before adoption. Libraries that add browser fingerprint impersonation, proxy
+rotation, hidden browser sessions, challenge solving, persistent cookies,
+automatic redirect following, uncapped response reads, or broad crawling do not
+fit the scheduled source-check model. Parser-only libraries may be considered
+only when source HTML has already passed through JobSentinel's existing URL,
+redirect, logging, cache, rate-limit, and response-size controls.
+
 ## How Job Checks Work
 
 ```text
@@ -153,6 +161,9 @@ abbreviations, and maps location aliases such as `SF`, `Remote US`, and
 - Use official posting sources where available.
 - Confirm source terms, robots policy, and practical access boundaries.
 - Check sources politely and avoid reading more page data than needed.
+- Keep new source fetches inside the shared HTTP helpers so URL validation,
+  redirect policy, response caps, retries, caching, and sanitized logs stay
+  consistent.
 - Add health metadata and user-safe errors.
 - Do not add hidden data paths, session-cookie collection, human-check workarounds,
   or evasion of platform controls.
