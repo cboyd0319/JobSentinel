@@ -21,6 +21,7 @@ pub struct ConvertedResumeData {
     pub education: Vec<ConvertedEducation>,
     pub skills: Vec<ConvertedSkill>,
     pub certifications: Vec<ConvertedCertification>,
+    pub projects: Vec<ConvertedProject>,
 }
 
 #[derive(Debug, Clone)]
@@ -58,6 +59,7 @@ pub struct ConvertedEducation {
 #[derive(Debug, Clone)]
 pub struct ConvertedSkill {
     pub name: String,
+    pub category: String,
     pub proficiency: Option<Proficiency>,
 }
 
@@ -66,6 +68,16 @@ pub struct ConvertedCertification {
     pub name: String,
     pub issuer: String,
     pub date: String,
+}
+
+#[derive(Debug, Clone)]
+pub struct ConvertedProject {
+    pub name: String,
+    pub description: String,
+    pub technologies: Vec<String>,
+    pub url: Option<String>,
+    pub start_date: Option<String>,
+    pub end_date: Option<String>,
 }
 
 // ============================================================================
@@ -324,18 +336,16 @@ impl JsonResume {
         let education = self.convert_education();
         let skills = self.convert_skills();
         let certifications = self.convert_certifications();
-
-        // Projects are represented as experience entries with project-specific flags
-        let mut all_experience = experience;
-        all_experience.extend(self.convert_projects());
+        let projects = self.convert_projects();
 
         Ok(ConvertedResumeData {
             contact_info,
             summary,
-            experience: all_experience,
+            experience,
             education,
             skills,
             certifications,
+            projects,
         })
     }
 
@@ -436,47 +446,36 @@ impl JsonResume {
         experiences
     }
 
-    /// Convert projects to ConvertedExperience entries
-    fn convert_projects(&self) -> Vec<ConvertedExperience> {
+    /// Convert projects to project entries instead of folding them into experience.
+    fn convert_projects(&self) -> Vec<ConvertedProject> {
         self.projects
             .iter()
             .map(|project| {
-                let title = if !project.roles.is_empty() {
+                let name = if !project.roles.is_empty() {
                     format!("{} - {}", project.name, project.roles.join(", "))
                 } else {
                     project.name.clone()
                 };
 
-                let company = if !project.entity.is_empty() {
-                    format!("Project at {}", project.entity)
-                } else {
-                    "Personal Project".to_string()
-                };
-
-                let mut achievements = Vec::new();
+                let mut description_parts = Vec::new();
                 if !project.description.is_empty() {
-                    achievements.push(project.description.clone());
+                    description_parts.push(project.description.clone());
                 }
-                achievements.extend(project.highlights.clone());
-                if !project.keywords.is_empty() {
-                    achievements.push(format!("Tools and topics: {}", project.keywords.join(", ")));
+                if !project.entity.is_empty() {
+                    description_parts.push(format!("Organization: {}", project.entity));
                 }
-                if !project.url.is_empty() {
-                    achievements.push(format!("Project link: {}", project.url));
+                if !project.project_type.is_empty() {
+                    description_parts.push(format!("Type: {}", project.project_type));
                 }
+                description_parts.extend(project.highlights.clone());
 
-                ConvertedExperience {
-                    title,
-                    company,
-                    location: String::new(),
-                    start_date: project.start_date.clone(),
-                    end_date: if project.end_date.is_empty() {
-                        "Present".to_string()
-                    } else {
-                        project.end_date.clone()
-                    },
-                    achievements,
-                    current: project.end_date.is_empty(),
+                ConvertedProject {
+                    name,
+                    description: description_parts.join("\n"),
+                    technologies: project.keywords.clone(),
+                    url: non_empty_string(&project.url),
+                    start_date: non_empty_string(&project.start_date),
+                    end_date: non_empty_string(&project.end_date),
                 }
             })
             .collect()
@@ -527,22 +526,30 @@ impl JsonResume {
                 _ => Proficiency::Intermediate, // Default to intermediate
             };
 
-            // Add the skill name as a skill entry
-            if !skill.name.is_empty() {
-                skills.push(ConvertedSkill {
-                    name: skill.name.clone(),
-                    proficiency: Some(proficiency.clone()),
-                });
-            }
+            let category = non_empty_string(&skill.name).unwrap_or_else(|| "Imported".to_string());
+            let keywords: Vec<&String> = skill
+                .keywords
+                .iter()
+                .filter(|keyword| !keyword.trim().is_empty())
+                .collect();
 
-            // Add all keywords as separate skills with the same proficiency
-            for keyword in &skill.keywords {
-                if !keyword.is_empty() {
+            if keywords.is_empty() {
+                if !skill.name.trim().is_empty() {
                     skills.push(ConvertedSkill {
-                        name: keyword.clone(),
+                        name: skill.name.clone(),
+                        category: "Imported".to_string(),
                         proficiency: Some(proficiency.clone()),
                     });
                 }
+                continue;
+            }
+
+            for keyword in keywords {
+                skills.push(ConvertedSkill {
+                    name: keyword.clone(),
+                    category: category.clone(),
+                    proficiency: Some(proficiency.clone()),
+                });
             }
         }
 
@@ -558,6 +565,7 @@ impl JsonResume {
             };
             skills.push(ConvertedSkill {
                 name,
+                category: "Languages".to_string(),
                 proficiency: Some(language_proficiency(&language.fluency)),
             });
         }
@@ -600,6 +608,15 @@ impl JsonResume {
         }
 
         certifications
+    }
+}
+
+fn non_empty_string(value: &str) -> Option<String> {
+    let trimmed = value.trim();
+    if trimmed.is_empty() {
+        None
+    } else {
+        Some(trimmed.to_string())
     }
 }
 
@@ -793,11 +810,13 @@ mod tests {
         let resume = JsonResume::from_json(json).unwrap();
         let skills = resume.convert_skills();
 
-        // Should have category rows plus all expanded keyword skills.
-        assert_eq!(skills.len(), 6);
-        assert_eq!(skills[0].name, "Client Services");
+        // Group names become categories, not separate fake skill rows.
+        assert_eq!(skills.len(), 4);
+        assert_eq!(skills[0].name, "Scheduling");
+        assert_eq!(skills[0].category, "Client Services");
         assert_eq!(skills[0].proficiency, Some(Proficiency::Advanced));
-        assert_eq!(skills[1].name, "Scheduling");
+        assert_eq!(skills[1].name, "Case notes");
+        assert_eq!(skills[1].category, "Client Services");
         assert_eq!(skills[1].proficiency, Some(Proficiency::Advanced));
     }
 
@@ -818,8 +837,10 @@ mod tests {
 
         assert_eq!(skills.len(), 2);
         assert_eq!(skills[0].name, "Spanish - Professional working proficiency");
+        assert_eq!(skills[0].category, "Languages");
         assert_eq!(skills[0].proficiency, Some(Proficiency::Advanced));
         assert_eq!(skills[1].name, "Arabic - Elementary");
+        assert_eq!(skills[1].category, "Languages");
         assert_eq!(skills[1].proficiency, Some(Proficiency::Beginner));
     }
 
@@ -888,16 +909,24 @@ mod tests {
         let projects = resume.convert_projects();
 
         assert_eq!(projects.len(), 1);
-        assert_eq!(projects[0].title, "Clinic Intake Redesign - Coordinator");
-        assert_eq!(projects[0].company, "Project at Neighborhood Clinic");
+        assert_eq!(projects[0].name, "Clinic Intake Redesign - Coordinator");
+        assert!(projects[0]
+            .description
+            .contains("Improved appointment intake for community clinic."));
+        assert!(projects[0]
+            .description
+            .contains("Organization: Neighborhood Clinic"));
+        assert!(projects[0].description.contains("Type: process"));
+        assert!(projects[0]
+            .description
+            .contains("Reduced missed calls by 18%"));
         assert_eq!(
-            projects[0].achievements,
-            vec![
-                "Improved appointment intake for community clinic.",
-                "Reduced missed calls by 18%",
-                "Tools and topics: Scheduling, Patient intake",
-                "Project link: https://example.test/project"
-            ]
+            projects[0].technologies,
+            vec!["Scheduling", "Patient intake"]
+        );
+        assert_eq!(
+            projects[0].url.as_deref(),
+            Some("https://example.test/project")
         );
     }
 
@@ -936,7 +965,9 @@ mod tests {
         assert_eq!(resume_data.summary, "Full-stack developer");
         assert_eq!(resume_data.experience.len(), 1);
         assert_eq!(resume_data.education.len(), 1);
-        assert_eq!(resume_data.skills.len(), 3); // JavaScript + React + Node
+        assert_eq!(resume_data.skills.len(), 2); // React + Node under JavaScript
+        assert_eq!(resume_data.skills[0].category, "JavaScript");
+        assert!(resume_data.projects.is_empty());
     }
 
     #[test]

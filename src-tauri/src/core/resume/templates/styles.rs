@@ -53,6 +53,43 @@ li {
 .skill-category {
     margin-bottom: 6pt;
 }
+    "#
+}
+
+pub(super) fn print() -> &'static str {
+    r#"
+@page {
+    size: Letter;
+    margin: 0.5in;
+}
+@media print {
+    html,
+    body {
+        width: auto;
+        max-width: none;
+        margin: 0;
+        padding: 0;
+    }
+    body {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    h2,
+    h3,
+    li,
+    .experience-item,
+    .education-item,
+    .certification-item,
+    .project-item,
+    .skill-category {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+    a {
+        color: inherit;
+        text-decoration: none;
+    }
+}
 "#
 }
 

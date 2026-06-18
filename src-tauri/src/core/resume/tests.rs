@@ -327,6 +327,11 @@ async fn test_import_json_resume_preserves_builder_evidence_sections() {
             "language": "Spanish",
             "fluency": "Professional working proficiency"
         }],
+        "skills": [{
+            "name": "Client Services",
+            "level": "Advanced",
+            "keywords": ["Scheduling", "Case notes"]
+        }],
         "publications": [{
             "name": "Accessible Hiring Forms",
             "publisher": "Operations Journal",
@@ -355,23 +360,29 @@ async fn test_import_json_resume_preserves_builder_evidence_sections() {
         .skills
         .iter()
         .any(|skill| skill.name == "Spanish - Professional working proficiency"));
+    assert!(draft.skills.iter().any(|skill| {
+        skill.name == "Scheduling"
+            && skill.category == "Client Services"
+            && skill.proficiency.as_deref() == Some("advanced")
+    }));
+    assert!(!draft
+        .skills
+        .iter()
+        .any(|skill| skill.name == "Client Services"));
     assert!(draft.certifications.iter().any(|cert| {
         cert.name == "Publication: Accessible Hiring Forms"
             && cert.issuer == "Operations Journal"
             && cert.date_obtained.as_deref() == Some("2024-02-01")
     }));
-    assert!(draft.experience.iter().any(|experience| {
-        experience.title == "Clinic Intake Redesign - Coordinator"
-            && experience.company == "Project at Neighborhood Clinic"
-            && experience
-                .achievements
-                .contains(&"Improved appointment intake for community clinic.".to_string())
-            && experience
-                .achievements
-                .contains(&"Tools and topics: Scheduling, Patient intake".to_string())
-            && experience
-                .achievements
-                .contains(&"Project link: https://example.test/project".to_string())
+    assert_eq!(draft.experience.len(), 0);
+    assert!(draft.projects.iter().any(|project| {
+        project.name == "Clinic Intake Redesign - Coordinator"
+            && project
+                .description
+                .contains("Improved appointment intake for community clinic.")
+            && project.description.contains("Reduced missed calls by 18%")
+            && project.technologies == vec!["Scheduling", "Patient intake"]
+            && project.url.as_deref() == Some("https://example.test/project")
     }));
 }
 

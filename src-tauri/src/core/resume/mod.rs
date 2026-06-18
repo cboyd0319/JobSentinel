@@ -776,13 +776,26 @@ impl ResumeMatcher {
             .into_iter()
             .map(|s| builder::SkillEntry {
                 name: s.name,
-                category: "Imported".to_string(),
+                category: s.category,
                 proficiency: s.proficiency.map(builder_proficiency_label),
                 years_experience: None,
             })
             .collect();
 
         builder.set_skills(resume_id, builder_skills).await?;
+
+        // Add projects
+        for project in json_data.projects {
+            let builder_project = builder::Project {
+                name: project.name,
+                description: project.description,
+                technologies: project.technologies,
+                url: project.url,
+                start_date: project.start_date,
+                end_date: project.end_date,
+            };
+            builder.add_project(resume_id, builder_project).await?;
+        }
 
         // Add certifications
         for cert in json_data.certifications {

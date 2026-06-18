@@ -557,9 +557,6 @@ impl TemplateRenderer {
             }
         }
 
-        Self::append_certifications(&mut html, resume);
-        Self::append_projects(&mut html, resume);
-
         html.push_str("</body>\n</html>");
         html
     }
@@ -642,6 +639,9 @@ impl TemplateRenderer {
                 ));
             }
         }
+
+        Self::append_certifications(&mut html, resume);
+        Self::append_projects(&mut html, resume);
 
         html.push_str("</body>\n</html>");
         html
@@ -811,12 +811,14 @@ impl TemplateRenderer {
 <title>{}</title>
 <style>
 {}
+{}
 </style>
 </head>
 <body>
 "#,
             escape_html(title),
-            styles
+            styles,
+            styles::print()
         )
     }
 }

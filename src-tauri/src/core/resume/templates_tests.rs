@@ -92,6 +92,21 @@ fn test_render_classic_html() {
 }
 
 #[test]
+fn test_render_html_includes_browser_print_rules() {
+    let resume = create_test_resume();
+    let html = TemplateRenderer::render_html(&resume, TemplateId::Classic);
+
+    assert!(html.contains("@page"));
+    assert!(html.contains("@media print"));
+    assert!(html.contains("break-inside: avoid"));
+    assert!(html.contains(".experience-item"));
+    assert!(html.contains(".education-item"));
+    assert!(html.contains(".certification-item"));
+    assert!(html.contains(".project-item"));
+    assert!(html.contains(".skill-category"));
+}
+
+#[test]
 fn test_render_modern_html() {
     let resume = create_test_resume();
     let html = TemplateRenderer::render_html(&resume, TemplateId::Modern);
@@ -178,6 +193,69 @@ fn test_render_html_and_text_include_certifications_and_projects() {
     assert!(text.contains("Certified Community Health Worker"));
     assert!(text.contains("PROJECTS"));
     assert!(text.contains("Clinic Intake Redesign"));
+}
+
+#[test]
+fn test_technical_html_does_not_duplicate_certifications_or_projects() {
+    let mut resume = create_test_resume();
+    resume.certifications = vec![Certification {
+        name: "Certified Community Health Worker".to_string(),
+        issuer: "State Health Board".to_string(),
+        date: Some("2024".to_string()),
+        expiry: None,
+    }];
+    resume.projects = vec![Project {
+        name: "Clinic Intake Redesign".to_string(),
+        description: "Improved appointment intake for community clinic.".to_string(),
+        technologies: vec!["Scheduling".to_string(), "Patient intake".to_string()],
+        url: Some("https://example.test/project".to_string()),
+        start_date: None,
+        end_date: None,
+    }];
+
+    let html = TemplateRenderer::render_html(&resume, TemplateId::Technical);
+
+    assert_eq!(html.matches("Certified Community Health Worker").count(), 1);
+    assert_eq!(html.matches("Clinic Intake Redesign").count(), 1);
+}
+
+#[test]
+fn test_all_html_templates_include_certifications_and_projects_once() {
+    let mut resume = create_test_resume();
+    resume.certifications = vec![Certification {
+        name: "Certified Community Health Worker".to_string(),
+        issuer: "State Health Board".to_string(),
+        date: Some("2024".to_string()),
+        expiry: None,
+    }];
+    resume.projects = vec![Project {
+        name: "Clinic Intake Redesign".to_string(),
+        description: "Improved appointment intake for community clinic.".to_string(),
+        technologies: vec!["Scheduling".to_string(), "Patient intake".to_string()],
+        url: Some("https://example.test/project".to_string()),
+        start_date: None,
+        end_date: None,
+    }];
+
+    for template in [
+        TemplateId::Classic,
+        TemplateId::Modern,
+        TemplateId::Technical,
+        TemplateId::Executive,
+        TemplateId::Military,
+    ] {
+        let html = TemplateRenderer::render_html(&resume, template);
+        assert_eq!(
+            html.matches("Certified Community Health Worker").count(),
+            1,
+            "{template:?} should render certification once"
+        );
+        assert_eq!(
+            html.matches("Clinic Intake Redesign").count(),
+            1,
+            "{template:?} should render project once"
+        );
+    }
 }
 
 #[test]
