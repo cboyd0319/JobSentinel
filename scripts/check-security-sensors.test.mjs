@@ -476,6 +476,26 @@ test("checkSecuritySensors rejects release workflow without Windows signing setu
   );
 });
 
+test("checkSecuritySensors rejects release workflow without Windows key cleanup", () => {
+  const root = mkdtempRoot("jobsentinel-security-sensors-windows-key-cleanup-");
+  writeBaseRepo(
+    root,
+    "default-src 'self'; connect-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'",
+  );
+  writeFileSync(
+    join(root, ".github/workflows/release.yml"),
+    readBaseReleaseWorkflowWithout(
+      "          Remove-Item -LiteralPath $certificate.PSPath -DeleteKey\n",
+    ),
+  );
+
+  assert(
+    checkSecuritySensors(root).includes(
+      "release workflow is missing package gate: Windows signing setup",
+    ),
+  );
+});
+
 test("checkSecuritySensors rejects workflow token defaults that are not disabled", () => {
   const root = mkdtempRoot("jobsentinel-security-sensors-workflow-permissions-");
   writeBaseRepo(
@@ -956,6 +976,9 @@ function readBaseReleaseWorkflowWithout(removedLine) {
     "          Import-PfxCertificate",
     "          Remove-Item -LiteralPath $certificatePath",
     "          tauri.windows.conf.json",
+    "      - name: Remove Windows signing certificate",
+    "        run: |",
+    "          Remove-Item -LiteralPath $certificate.PSPath -DeleteKey",
     "      - run: |",
     "          keychain_password=\"$(openssl rand -hex 24)\"",
     "          printf '::add-mask::%s\\n' \"$keychain_password\"",

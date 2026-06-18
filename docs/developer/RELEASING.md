@@ -216,9 +216,10 @@ Public Windows MSI upload is blocked unless `Get-AuthenticodeSignature` returns
 `WINDOWS_CERTIFICATE`, `WINDOWS_CERTIFICATE_PASSWORD`,
 `WINDOWS_CERTIFICATE_THUMBPRINT`, and `WINDOWS_TIMESTAMP_URL` in the GitHub
 `release` environment; the workflow imports the PFX, writes a temporary
-`tauri.windows.conf.json`, removes the temporary PFX file, and creates
-`.msi.sha256` only after signature verification passes, including manual
-release dispatch for `platform=windows`.
+`tauri.windows.conf.json`, removes the temporary PFX file, removes the imported
+certificate and private key from the runner certificate store after the build,
+and creates `.msi.sha256` only after signature verification passes, including
+manual release dispatch for `platform=windows`.
 For local Windows builds, configure equivalent local code-signing material
 outside the repo before running `tauri build`.
 

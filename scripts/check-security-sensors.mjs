@@ -204,6 +204,8 @@ const releaseWorkflowChecks = [
       "WINDOWS_TIMESTAMP_URL",
       "Import-PfxCertificate",
       "Remove-Item -LiteralPath $certificatePath",
+      "Remove Windows signing certificate",
+      "Remove-Item -LiteralPath $certificate.PSPath -DeleteKey",
       "tauri.windows.conf.json",
     ],
   },

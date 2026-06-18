@@ -210,8 +210,9 @@ Hosted Windows release builds require Authenticode signing before the MSI can
 be uploaded. The workflow imports a base64-encoded PFX certificate into the
 current-user certificate store, removes the temporary PFX file, writes a
 temporary `tauri.windows.conf.json` with the signing thumbprint and timestamp
-URL, runs `tauri build`, then blocks upload unless `Get-AuthenticodeSignature`
-reports `Valid`.
+URL, runs `tauri build`, removes the imported certificate and private key from
+the runner certificate store, then blocks upload unless
+`Get-AuthenticodeSignature` reports `Valid`.
 
 Configure these secrets in the GitHub `release` environment before building
 Windows assets:

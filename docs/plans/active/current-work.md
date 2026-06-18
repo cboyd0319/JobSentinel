@@ -136,8 +136,8 @@ Out of scope:
   deps, Browser Import, HTTPS imports, SMTP binding, managed resume cleanup,
   isolated Application Assist browser profiles, release assets, AI guards,
   skills, sandboxed previews, secure deletion, parser caps, and KDF floors.
-- Hosted Windows release builds now secret-gate signing setup and block MSI
-  upload unless Authenticode verification passes.
+- Hosted Windows release builds now secret-gate signing, remove cert keys after
+  build, and block MSI upload unless Authenticode verification passes.
 - Final whole-UI post-design pass: 266/266 post-security-hardening E2E, 16
   route inventories, and no console/page errors or overflow.
 - Final non-`content/` audit fixes landed: memory-only company research,
