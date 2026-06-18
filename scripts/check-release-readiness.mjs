@@ -150,10 +150,11 @@ export function evaluateReleaseReadinessFromInputs(inputs) {
       ]) &&
         hasAll(inputs.verifyPublicScript, [
           "findAgentSkillsArchiveAssets",
+          "validateAgentSkillsArchiveContents",
           "validateExactAgentSkillsAssetSet",
           "Public Agent Skills archives verified.",
         ]),
-      "Published releases must verify platform assets, skills archives, checksums, SBOMs, and attestations.",
+      "Published releases must verify platform assets, skills archive contents, checksums, SBOMs, and attestations.",
     ),
     criterion(
       "release workflow generates SBOMs and attestations",

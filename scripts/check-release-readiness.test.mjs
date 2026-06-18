@@ -106,7 +106,7 @@ test("release readiness rejects public verifier without Agent Skills checks", ()
   const inputs = loadReleaseReadinessInputs({ env: {} });
   const report = evaluateReleaseReadinessFromInputs({
     ...inputs,
-    verifyPublicScript: inputs.verifyPublicScript.replaceAll("findAgentSkillsArchiveAssets", ""),
+    verifyPublicScript: inputs.verifyPublicScript.replaceAll("validateAgentSkillsArchiveContents", ""),
   });
 
   assert(
