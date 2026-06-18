@@ -10,7 +10,7 @@ cookie/session storage and automatic account-backed monitoring are disabled.
 Historical entries below may describe removed experiments. The current
 supported path is user-opened search links plus user-clicked Browser Import.
 
-## [2.9.0] - 2026-06-17
+## [2.9.0] - 2026-06-18
 
 Local release candidate for the v2.9.0 job-search readiness push. Public
 release assets are not published until final design verification and release
@@ -63,8 +63,15 @@ packaging gates close.
   deduplication.
 - **Application Assist validation** - Profile validation guidance stays visible
   after failed save and clears after the submitted errors are corrected.
+- **Application Assist pay-history review** - Current-pay, previous-pay, and
+  salary-history questions now get a separate review prompt that steers users
+  toward role range and target-pay evidence instead of unsupported past-pay
+  claims.
 - **Hiring Trends QA** - Cross-browser Hiring Trends checks now target stable
   button semantics for location heatmap interactions.
+- **Release test gate** - Rust integration fixtures now include the Browser
+  Import port config field so the full `cargo test` release gate compiles and
+  runs after config schema changes.
 
 ## [2.7.7] - 2026-06-06
 
