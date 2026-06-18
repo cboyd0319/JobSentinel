@@ -35,6 +35,7 @@
     "release:check-version": "node scripts/validate-release-version.mjs",
     "release:check-deps": "node scripts/check-dependency-pins.mjs --latest && node scripts/check-action-pins.mjs --latest",
     "release:sbom": "node scripts/generate-release-sbom.mjs",
+    "release:verify:public": "node scripts/verify-public-release-assets.mjs",
     "lint:harness": "npm run harness:check",
     "lint:docs": "npm run harness:check && npm run lint:md && npm run lint:prose",
     "test": "vitest",

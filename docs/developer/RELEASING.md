@@ -145,6 +145,9 @@ npm run tauri:verify:macos:latest
 # Developer ID signed and notarized release path:
 npm run tauri:verify:macos:latest -- --require-gatekeeper
 
+# Verify the public Windows, macOS, and Linux release asset set.
+npm run release:verify:public -- --tag vX.Y.Z --platforms windows,macos,linux
+
 # Legacy releases without SBOM or attestation assets only:
 npm run tauri:verify:macos:latest -- --tag vX.Y.Z --no-require-supply-chain
 ```
@@ -213,14 +216,16 @@ the `.deb` passes `dpkg-deb --info` and `dpkg-deb --contents`, and matching
 before upload, including manual release dispatch for `platform=linux`.
 
 The `Verify Release Artifacts` GitHub Actions workflow also runs after a
-release is published. It verifies the public macOS DMG from GitHub Releases
-with no-account defaults: universal `x86_64,arm64` architecture checks,
-checksum verification, signature verification, bundle identity, release-tag
-version, icon metadata and resource file, macOS 13.0 minimum-system metadata,
+release is published. Its Linux job verifies the public Windows, macOS, and
+Linux asset set from GitHub Releases: expected installer assets, matching
+`.sha256` files, non-empty downloads, public SBOM manifest binding, SBOM digest
+verification, and GitHub artifact attestations for SLSA provenance plus the
+SPDX SBOM predicate. Its macOS job then verifies the public macOS DMG with
+no-account defaults: universal `x86_64,arm64` architecture checks, checksum
+verification, signature verification, bundle identity, release-tag version,
+icon metadata and resource file, macOS 13.0 minimum-system metadata,
 mounted-app launch smoke, installed-app launch smoke, isolated local database
-creation, a visible `_no-account_` filename label, public SBOM manifest
-binding, SBOM digest verification, and GitHub artifact attestations for SLSA
-provenance plus the SPDX SBOM predicate.
+creation, and a visible `_no-account_` filename label.
 Gatekeeper acceptance is opt-in with the `require_gatekeeper` workflow input or
 `JOBSENTINEL_MACOS_REQUIRE_GATEKEEPER` repository variable, and should be used
 for Developer ID signed and notarized releases. In that mode, the verifier
