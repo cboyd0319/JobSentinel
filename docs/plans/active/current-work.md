@@ -134,8 +134,8 @@ Out of scope:
   Persona, ResumeSkills, career-ops, and JobSentinel research.
 - Browser Import desktop/mobile manual verification passed on 2026-06-17 for
   setup, private-link rejection, LinkedIn preview/save, duplicates, and
-  overflow; CheatSheetSeries scan added clean send APIs and local-model
-  revision/checksum pinning.
+  overflow; commit `361560f9` added clean send APIs and local-model
+  revision/checksum pinning from the CheatSheetSeries scan.
 - Final whole-UI post-design pass: 266/266 E2E, 16 route inventories, and no
   console/page errors or overflow.
 - Final non-`content/` audit fixes landed: memory-only company research,

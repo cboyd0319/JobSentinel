@@ -5,6 +5,11 @@ All notable changes to JobSentinel will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+Current LinkedIn source policy: Starting with `2.9.0`, legacy LinkedIn
+cookie/session storage and automatic account-backed monitoring are disabled.
+Historical entries below may describe removed experiments. The current
+supported path is user-opened search links plus user-clicked Browser Import.
+
 ## [2.9.0] - 2026-06-17
 
 Local release candidate for the v2.9.0 job-search readiness push. Public

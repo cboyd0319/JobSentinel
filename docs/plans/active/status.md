@@ -92,16 +92,16 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 - Final non-`content/` expert/agent pass is applied locally: memory-only
   company research, accessible onboarding, auto-refresh gating, atomic alert
   claims, HTTPS JobsWithGPT endpoints, shared import hashes, and metadata.
-- v2.9.0 local readiness was pushed and CI passed; current workflow follow-up
-  adds release SBOMs, manifests, GitHub provenance/SBOM attestations, and public
-  macOS supply-chain verification. A CheatSheetSeries security scan is applying
-  browser-import and optional local-model supply-chain hardening.
-  Gatekeeper-ready macOS remains Apple-blocked.
+- The last pushed v2.9.0 readiness baseline had CI passing before the current
+  local follow-up. Current committed local work adds release SBOMs, manifests,
+  GitHub provenance/SBOM attestations, public macOS supply-chain verification,
+  Browser Import clean-API hardening, and optional local-model
+  revision/checksum pinning. Gatekeeper-ready macOS remains Apple-blocked.
 
 ## Next Best Work
 
-1. Verify and commit the CheatSheetSeries hardening slice, then continue release
-   packaging and final push only when the broader goal is ready.
+1. Verify `2.9.0` release metadata, packaging docs, public wiki readiness, and
+   Windows/macOS/Linux release evidence before any asset creation or final push.
 2. Continue resume assistance only where it improves truthful requirement review,
    hard-constraint handling, readable evidence, or next-action guidance.
 3. Continue guided intake only where resume/profile suggestions stay optional,

@@ -9,15 +9,15 @@ Older release notes are snapshots from the date they were written. If an older
 note conflicts with the current README, docs hub, privacy rules, or active
 plans, use the newer maintained source.
 
-The current `v2.7.x` line is tracked in the root
-[CHANGELOG](../../CHANGELOG.md) until a separate historical release-note
-snapshot is created.
+The current `v2.9.0` local release candidate and `v2.7.x` public release line
+are tracked in the root [CHANGELOG](../../CHANGELOG.md) until separate
+historical release-note snapshots are created.
 
 ## Notes
 
 | Version | Note |
 | --- | --- |
-| v2.7.x | [Current changelog entries](../../CHANGELOG.md) |
+| v2.9.0 candidate and v2.7.x public line | [Current changelog entries](../../CHANGELOG.md) |
 | v2.6.3 | [Security and stability](v2.6.3.md) |
 | v2.6.0 | [UX improvements and performance](v2.6.0.md) |
 | v2.5.3 | [Release notes](v2.5.3.md) |
