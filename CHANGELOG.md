@@ -72,6 +72,14 @@ packaging gates close.
 - **Release test gate** - Rust integration fixtures now include the Browser
   Import port config field so the full `cargo test` release gate compiles and
   runs after config schema changes.
+- **Browser automation script safety** - Application Assist dropdown filling
+  now JSON-encodes selector and value literals before page evaluation, and the
+  security harness rejects the old manual quote-escaping pattern.
+- **Resume preview CSS filtering** - Resume Builder sanitization now decodes
+  CSS escapes before blocking stylesheet imports, `@font-face`, `url(...)`, and
+  `image-set(...)` resource loads.
+- **Browser Import token checks** - Local Browser Import token matching now
+  requires exact non-early-exit string comparison for header and body tokens.
 
 ## [2.7.7] - 2026-06-06
 
