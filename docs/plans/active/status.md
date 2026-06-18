@@ -100,7 +100,7 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   follow-up added Browser Import caps/port, release checks, resume guards,
   URL/DNS/print/alert privacy, browser sandbox, OCR fixes, exact-host ATS
   source URL parsing, MCP result URL minimization, Browser Import Host checks,
-  declarative-only skills, and salary-history app-question review.
+  declarative-only skills, salary-history review, and Rust Config fixtures.
 
 ## Next Best Work
 

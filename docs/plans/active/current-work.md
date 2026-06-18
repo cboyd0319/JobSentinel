@@ -139,7 +139,7 @@ Out of scope:
   revision/checksum pinning from the CheatSheetSeries scan.
 - Current CheatSheetSeries follow-ups hardened deps, Browser Import, resume
   intake, URL/DNS/print/alert/browser/OCR, ATS/MCP URLs, release versioning,
-  declarative skills, and Linux metadata.
+  declarative skills, Linux metadata, and Rust release-test fixtures.
 - Final whole-UI post-design pass: 266/266 pinned-runtime E2E, 16 route
   inventories, and no console/page errors or overflow.
 - Final non-`content/` audit fixes landed: memory-only company research,

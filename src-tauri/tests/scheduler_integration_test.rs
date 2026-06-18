@@ -45,6 +45,7 @@ fn create_test_config() -> Config {
         auto_refresh: Default::default(),
         immediate_alert_threshold: 0.85,
         scraping_interval_hours: 2,
+        bookmarklet_port: 4321,
         alerts: Default::default(),
         greenhouse_urls: vec![],
         lever_urls: vec![],
