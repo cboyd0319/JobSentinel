@@ -97,10 +97,9 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   `Capabilities.md` are stale and need approval before wiki remote writes.
 - OWASP CheatSheetSeries scan across 120 local files on 2026-06-18 verified
   Actions, supply-chain, AI, storage, URL, logging, and Browser Import surfaces;
-  follow-up now includes release/import/source/privacy/resume guards,
-  declarative-only skills, salary-history review, Rust Config fixtures,
-  Dependabot grouping/cooldowns, Zizmor-clean workflow sensors, lockfile
-  integrity sensors, and AI obfuscation guards.
+  follow-up includes release/import/source/privacy/resume guards,
+  declarative skills, workflow and lockfile sensors, AI obfuscation guards,
+  sandboxed resume previews, full secure delete, and query-plan boundaries.
 
 ## Next Best Work
 

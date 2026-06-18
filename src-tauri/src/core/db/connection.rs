@@ -147,14 +147,12 @@ impl Database {
             tracing::debug!("  - Trusted schema setting not supported (SQLite < 3.31)");
         }
 
-        // Enable secure delete - overwrites deleted content with zeros
-        // Slower but prevents data recovery from deleted records
-        // Set to FAST (overwrite free pages but not individual deleted rows)
-        // Options: ON (slow, max security), FAST (balanced), OFF (fast, less secure)
-        sqlx::query("PRAGMA secure_delete = FAST")
+        // Enable full secure delete for local privacy data. This costs extra
+        // write I/O, but deleted rows should not remain recoverable in free cells.
+        sqlx::query("PRAGMA secure_delete = ON")
             .execute(pool)
             .await?;
-        tracing::debug!("Secure delete = FAST (balanced security)");
+        tracing::debug!("Secure delete = ON");
 
         // Help detect code relying on undefined ordering (useful for testing)
         // Can be disabled in production if needed for performance

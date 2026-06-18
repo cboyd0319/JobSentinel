@@ -29,7 +29,7 @@ plaintext backup after success.
 | `cell_size_check` | `ON` | Adds B-tree corruption checks. |
 | `checksum_verification` | `ON` when supported | Enables SQLite checksum verification on supported builds. |
 | `trusted_schema` | `OFF` when supported | Disables unsafe schema-controlled SQL behavior. |
-| `secure_delete` | `FAST` | Overwrites free pages without the full cost of `ON`. |
+| `secure_delete` | `ON` | Overwrites deleted row content for stronger local privacy. |
 | `reverse_unordered_selects` | `ON` in debug builds | Exposes tests that rely on undefined row ordering. |
 | `cache_size` | `-128000` KB | Uses an approximately 128 MB page cache. |
 | `temp_store` | `MEMORY` | Keeps temporary tables and indexes in RAM. |

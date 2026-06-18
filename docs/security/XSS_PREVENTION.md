@@ -6,19 +6,15 @@ render path must sanitize before using `dangerouslySetInnerHTML`.
 ## Current Implementation
 
 The active Resume Builder preview is in
-`src/pages/ResumeBuilderPreviewStep.tsx`.
+`src/pages/ResumeBuilderPreviewStep.tsx`, with the shared sanitizer policy in
+`src/pages/resumeHtmlSanitizer.ts`.
 
 ```typescript
-import DOMPurify from "dompurify";
-
-const resumePreviewSanitizeOptions = {
-  SANITIZE_NAMED_PROPS: true,
-} as const;
-
-<div
-  dangerouslySetInnerHTML={{
-    __html: DOMPurify.sanitize(previewHtml, resumePreviewSanitizeOptions),
-  }}
+<iframe
+  title="Resume preview"
+  sandbox=""
+  referrerPolicy="no-referrer"
+  srcDoc={sanitizeResumeHtmlDocument(previewHtml)}
 />
 ```
 
@@ -119,6 +115,13 @@ Safe resume formatting remains:
 </ul>
 ```
 
+The allowlist intentionally keeps only resume document tags and attributes.
+Inline style attributes, scripts, forms, embedded content, media, SVG, MathML,
+custom elements, data attributes, ARIA attributes, `target`, and `src`/`srcset`
+are removed. Generated template CSS is kept in `<style>` blocks, and preview
+content is rendered in a sandboxed iframe without script, form, popup, or
+same-origin permissions.
+
 ## Testing
 
 Manual examples live in `docs/security/dompurify-test-examples.js`. For current
@@ -128,15 +131,15 @@ sanitized output.
 Focused manual checks:
 
 ```javascript
-const options = { SANITIZE_NAMED_PROPS: true };
+import { sanitizeResumeHtmlDocument } from "../../src/pages/resumeHtmlSanitizer";
 
-DOMPurify.sanitize('<h1>Safe</h1><script>alert("XSS")</script>', options);
+sanitizeResumeHtmlDocument('<h1>Safe</h1><script>alert("XSS")</script>');
 // Expected: <h1>Safe</h1>
 
-DOMPurify.sanitize('<img src="x" onerror="alert(1)">', options);
-// Expected: <img src="x">
+sanitizeResumeHtmlDocument('<img src="x" onerror="alert(1)">');
+// Expected: image removed
 
-DOMPurify.sanitize('<a href="javascript:alert(1)">Click</a>', options);
+sanitizeResumeHtmlDocument('<a href="javascript:alert(1)">Click</a>');
 // Expected: <a>Click</a>
 ```
 

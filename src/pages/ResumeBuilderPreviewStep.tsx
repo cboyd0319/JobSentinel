@@ -1,6 +1,6 @@
-import DOMPurify from "dompurify";
 import { CardHeader } from "../components/Card";
 import type { ATSAnalysis, Template, TemplateId } from "./resumeBuilderData";
+import { sanitizeResumeHtmlDocument } from "./resumeHtmlSanitizer";
 import { TemplateThumbnail } from "./ResumeBuilderVisuals";
 
 interface ResumeBuilderPreviewStepProps {
@@ -10,10 +10,6 @@ interface ResumeBuilderPreviewStepProps {
   atsAnalysis: ATSAnalysis | null;
   onSelectTemplate: (templateId: TemplateId) => void;
 }
-
-const resumePreviewSanitizeOptions = {
-  SANITIZE_NAMED_PROPS: true,
-} as const;
 
 export function ResumeBuilderPreviewStep({
   templates,
@@ -141,11 +137,12 @@ export function ResumeBuilderPreviewStep({
                 atsAnalysis ? "lg:col-span-2" : "lg:col-span-3"
               } border border-surface-200 dark:border-surface-600 rounded-lg p-6 bg-white dark:bg-surface-700 max-h-96 overflow-y-auto`}
             >
-              {/* SAFETY: DOMPurify removes scriptable HTML and clobberable named properties. */}
-              <div
-                dangerouslySetInnerHTML={{
-                  __html: DOMPurify.sanitize(previewHtml, resumePreviewSanitizeOptions),
-                }}
+              <iframe
+                title="Resume preview"
+                sandbox=""
+                referrerPolicy="no-referrer"
+                srcDoc={sanitizeResumeHtmlDocument(previewHtml)}
+                className="h-96 w-full border-0 bg-white"
               />
             </div>
           )}

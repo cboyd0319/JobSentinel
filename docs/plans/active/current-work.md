@@ -137,9 +137,10 @@ Out of scope:
   setup, private-link rejection, LinkedIn preview/save, duplicates, and
   overflow; commit `361560f9` added clean send APIs and local-model
   revision/checksum pinning from the CheatSheetSeries scan.
-- Current CheatSheetSeries follow-ups hardened deps, Browser Import, resume
+- CheatSheetSeries follow-ups hardened deps, Browser Import, resume
   intake, URL handling, release cache/exact asset-set policy, lockfile
-  integrity, AI obfuscation, declarative skills, and Linux metadata.
+  integrity, AI obfuscation, declarative skills, Linux metadata, sandboxed
+  previews, secure deletion, query-plan boundaries.
 - Final whole-UI post-design pass: 266/266 pinned-runtime E2E, 16 route
   inventories, and no console/page errors or overflow.
 - Final non-`content/` audit fixes landed: memory-only company research,

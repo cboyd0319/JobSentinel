@@ -102,6 +102,12 @@ impl QueryAnalyzer {
     pub async fn explain_query_plan(pool: &SqlitePool, query: &str) -> Result<String, sqlx::Error> {
         // Validate query starts with a read-only statement to prevent misuse
         let trimmed = query.trim_start().to_uppercase();
+        if query.contains(';') {
+            return Err(sqlx::Error::Protocol(
+                "explain_query_plan rejects semicolons and stacked statements".to_string(),
+            ));
+        }
+
         if !trimmed.starts_with("SELECT")
             && !trimmed.starts_with("INSERT")
             && !trimmed.starts_with("UPDATE")
@@ -222,6 +228,13 @@ mod tests {
             QueryAnalyzer::explain_query_plan(&pool, "ATTACH DATABASE '/tmp/evil.db' AS evil")
                 .await;
         assert!(result.is_err(), "ATTACH must be rejected");
+    }
+
+    #[tokio::test]
+    async fn test_explain_rejects_stacked_statements() {
+        let pool = SqlitePool::connect("sqlite::memory:").await.unwrap();
+        let result = QueryAnalyzer::explain_query_plan(&pool, "SELECT 1; DROP TABLE users").await;
+        assert!(result.is_err(), "stacked statements must be rejected");
     }
 
     #[tokio::test]
