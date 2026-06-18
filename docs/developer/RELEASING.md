@@ -64,6 +64,11 @@ pass, builds Windows, macOS, and Linux packages, verifies the macOS package
 before upload, generates platform SBOMs, creates GitHub provenance and SBOM
 attestations, and attaches release assets.
 
+Manual release dispatch uses the same workflow but must be launched from the
+existing matching `vX.Y.Z` tag ref. If the selected workflow ref is `main`,
+another branch, or a different tag, the release workflow fails before creating
+or editing a draft release.
+
 For a local-first release, build each platform on that platform or VM, attach
 the verified artifacts to the matching draft release, and run the public
 artifact verifier before publishing or sharing the release. Do not mix

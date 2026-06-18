@@ -271,6 +271,11 @@ Manual hosted package builds now run through **Actions > Release > Run workflow*
 They are useful for producing one platform outside of a tag-triggered full
 release, for example to test a hotfix or replace a draft asset.
 
+Manual release dispatch must be run from the existing `vX.Y.Z` tag that matches
+the `version` input. The workflow fails when the selected workflow ref is not
+that tag, so release assets and attestations stay bound to one immutable source
+commit instead of creating a release tag implicitly.
+
 Local platform builds are also supported. Prefer local builds when you have a
 trusted Windows, macOS, or Linux host available and want to avoid unnecessary
 hosted runner time. Run the same version, harness, lint, test, build, and
@@ -280,7 +285,7 @@ Inputs:
 
 | Input      | Value                                      |
 | ---------- | ------------------------------------------ |
-| `version`  | `X.Y.Z` or `vX.Y.Z`; must match repo metadata |
+| `version`  | `X.Y.Z` or `vX.Y.Z`; must match repo metadata and selected tag ref |
 | `platform` | `all`, `windows`, `macos`, or `linux`      |
 
 Manual runs still execute every release preflight job before packaging. Windows

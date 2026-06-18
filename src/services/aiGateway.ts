@@ -233,6 +233,16 @@ const hiddenMarkupPatterns = [
 
 const base64LikePattern = /\b[A-Za-z0-9+/]{24,}={0,2}\b/g;
 const hexLikePattern = /\b(?:0x)?[0-9a-fA-F]{32,}\b/g;
+const obfuscatedPromptPhraseTargets = [
+  ["ignore", "previous", "instructions"],
+  ["ignore", "instructions"],
+  ["disregard", "previous", "instructions"],
+  ["disregard", "instructions"],
+  ["override", "instructions"],
+  ["system", "prompt"],
+  ["developer", "message"],
+  ["prompt", "injection"],
+] as const;
 
 function collectClassifiedPayloadKeys(): Set<string> {
   const keys = new Set<string>();
@@ -280,12 +290,110 @@ function findUnclassifiedPayloadKey(
   return [...collectPayloadKeys(payload)].find((key) => !classifiedKeys.has(key));
 }
 
+function isTypoglycemiaMatch(word: string, target: string): boolean {
+  if (word.length !== target.length || word.length < 3) {
+    return false;
+  }
+  if (word[0] !== target[0] || word[word.length - 1] !== target[target.length - 1]) {
+    return false;
+  }
+  const sortStr = (s: string) => [...s].sort().join("");
+  return sortStr(word.slice(1, -1)) === sortStr(target.slice(1, -1));
+}
+
+function hasAtMostOneEdit(left: string, right: string): boolean {
+  if (Math.abs(left.length - right.length) > 1) {
+    return false;
+  }
+
+  let leftIndex = 0;
+  let rightIndex = 0;
+  let edits = 0;
+
+  while (leftIndex < left.length && rightIndex < right.length) {
+    if (left[leftIndex] === right[rightIndex]) {
+      leftIndex += 1;
+      rightIndex += 1;
+      continue;
+    }
+
+    edits += 1;
+    if (edits > 1) {
+      return false;
+    }
+
+    if (left.length > right.length) {
+      leftIndex += 1;
+    } else if (right.length > left.length) {
+      rightIndex += 1;
+    } else {
+      leftIndex += 1;
+      rightIndex += 1;
+    }
+  }
+
+  return true;
+}
+
+function isFuzzyMatch(word: string, target: string): boolean {
+  if (isTypoglycemiaMatch(word, target)) {
+    return true;
+  }
+  return hasAtMostOneEdit(word, target);
+}
+
+function hasFuzzyPhrase(
+  words: string[],
+  startIndex: number,
+  targets: readonly string[],
+): boolean {
+  let cursor = startIndex;
+
+  for (const target of targets) {
+    let matchedIndex = -1;
+    const end = Math.min(words.length, cursor + 2);
+    for (let index = cursor; index < end; index += 1) {
+      const word = words[index];
+      if (word && isFuzzyMatch(word, target)) {
+        matchedIndex = index;
+        break;
+      }
+    }
+
+    if (matchedIndex === -1) {
+      return false;
+    }
+
+    cursor = matchedIndex + 1;
+  }
+
+  return true;
+}
+
+function hasObfuscatedPromptPhrases(text: string): boolean {
+  const words = text.toLowerCase().match(/\b\w+\b/g) || [];
+  for (let index = 0; index < words.length; index += 1) {
+    if (
+      obfuscatedPromptPhraseTargets.some((targets) =>
+        hasFuzzyPhrase(words, index, targets),
+      )
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
 function textHasPromptLikeJobPostingContent(text: string, decodeDepth = 0): boolean {
   if (text.split("").some((char) => zeroWidthCharacters.has(char))) {
     return true;
   }
 
   if (hiddenMarkupPatterns.some((pattern) => pattern.test(text))) {
+    return true;
+  }
+
+  if (hasObfuscatedPromptPhrases(text)) {
     return true;
   }
 

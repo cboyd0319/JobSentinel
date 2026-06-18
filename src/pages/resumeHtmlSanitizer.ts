@@ -1,5 +1,24 @@
 import DOMPurify, { type Config } from "dompurify";
 
+const cssResourceLoadPatterns = [
+  /@import\b[^;]*(?:;|$)/gi,
+  /@font-face\s*\{[^}]*\}/gi,
+  /\b(?:url|image-set)\s*\([^)]*\)/gi,
+];
+
+function sanitizeResumeStyleSheet(css: string): string {
+  return cssResourceLoadPatterns.reduce(
+    (sanitized, pattern) => sanitized.replace(pattern, "none"),
+    css,
+  );
+}
+
+DOMPurify.addHook("uponSanitizeElement", (node) => {
+  if (node.nodeName.toLowerCase() === "style") {
+    node.textContent = sanitizeResumeStyleSheet(node.textContent ?? "");
+  }
+});
+
 const resumeHtmlSanitizeOptions: Config = {
   ALLOWED_TAGS: [
     "html",

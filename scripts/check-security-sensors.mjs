@@ -140,6 +140,15 @@ const releaseWorkflowChecks = [
     ],
   },
   {
+    label: "release tag ref guard",
+    phrases: [
+      'expected_ref="refs/tags/v${version}"',
+      'if [ "${GITHUB_REF:-}" != "$expected_ref" ]; then',
+      "Manual release dispatch must run from",
+      "Select the existing release tag as the workflow ref",
+    ],
+  },
+  {
     label: "release setup-node cache disabled",
     phrases: ["actions/setup-node@", "package-manager-cache: false"],
   },

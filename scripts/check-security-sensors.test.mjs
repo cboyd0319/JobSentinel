@@ -326,6 +326,24 @@ test("checkSecuritySensors rejects release preflight without frontend unit tests
   );
 });
 
+test("checkSecuritySensors rejects release workflow without tag ref guard", () => {
+  const root = mkdtempRoot("jobsentinel-security-sensors-release-tag-ref-");
+  writeBaseRepo(
+    root,
+    "default-src 'self'; connect-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'",
+  );
+  writeFileSync(
+    join(root, ".github/workflows/release.yml"),
+    readBaseReleaseWorkflowWithout('          expected_ref="refs/tags/v${version}"\n          if [ "${GITHUB_REF:-}" != "$expected_ref" ]; then\n            printf \'Manual release dispatch must run from %s. Select the existing release tag as the workflow ref. Found: %s\\n\' "$expected_ref" "${GITHUB_REF:-<unset>}"\n            exit 1\n          fi\n'),
+  );
+
+  assert(
+    checkSecuritySensors(root).includes(
+      "release workflow is missing macOS package gate: release tag ref guard",
+    ),
+  );
+});
+
 test("checkSecuritySensors rejects release workflow without release environment", () => {
   const root = mkdtempRoot("jobsentinel-security-sensors-release-environment-");
   writeBaseRepo(
@@ -812,6 +830,11 @@ function readBaseReleaseWorkflowWithout(removedLine) {
     "      - run: |",
     "          if [[ ! \"$version\" =~ ^[0-9]+\\.[0-9]+\\.[0-9]+$ ]]; then",
     "            printf 'Release version must be an exact stable semver (x.y.z), found: %s\\n' \"$version\"",
+    "            exit 1",
+    "          fi",
+    "          expected_ref=\"refs/tags/v${version}\"",
+    "          if [ \"${GITHUB_REF:-}\" != \"$expected_ref\" ]; then",
+    "            printf 'Manual release dispatch must run from %s. Select the existing release tag as the workflow ref. Found: %s\\n' \"$expected_ref\" \"${GITHUB_REF:-<unset>}\"",
     "            exit 1",
     "          fi",
     "      - run: npm run release:check-version -- \"$RELEASE_VERSION\"",

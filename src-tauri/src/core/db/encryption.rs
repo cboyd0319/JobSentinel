@@ -87,6 +87,8 @@ pub(super) async fn connect_encrypted_pool(
     let options = SqliteConnectOptions::new()
         .filename(path)
         .pragma("key", sqlcipher_key_pragma_value(key))
+        .pragma("secure_delete", "ON")
+        .pragma("temp_store", "MEMORY")
         .create_if_missing(create_if_missing);
     let smoke_logging = package_smoke_logging_enabled();
     let pool = match SqlitePoolOptions::new().connect_with(options).await {
@@ -360,6 +362,30 @@ mod tests {
             .unwrap();
         assert_eq!(value, "opened");
         reopened_pool.close().await;
+    }
+
+    #[tokio::test]
+    async fn encrypted_connection_sets_privacy_pragmas_before_migration() {
+        let temp_dir = tempfile::tempdir().unwrap();
+        let db_path = temp_dir.path().join("jobs.db");
+        let key = "f13ce74a61cc859993f02767e3bb751546e4a588985f517fb8c3f8b9ad12c901";
+
+        let pool = super::connect_encrypted_pool(&db_path, key, true)
+            .await
+            .unwrap();
+
+        let secure_delete: i64 = sqlx::query_scalar("PRAGMA secure_delete")
+            .fetch_one(&pool)
+            .await
+            .unwrap();
+        let temp_store: i64 = sqlx::query_scalar("PRAGMA temp_store")
+            .fetch_one(&pool)
+            .await
+            .unwrap();
+
+        assert_eq!(secure_delete, 1);
+        assert_eq!(temp_store, 2);
+        pool.close().await;
     }
 
     #[tokio::test]

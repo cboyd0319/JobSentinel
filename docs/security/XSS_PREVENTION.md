@@ -104,11 +104,15 @@ shadowing sensitive browser or app properties.
 Safe resume formatting remains:
 
 ```html
-<h1 class="name" style="color: #333;">Jordan Lee</h1>
+<style>
+.name { color: #333; }
+.contact { margin-bottom: 10px; }
+</style>
+<h1 class="name">Jordan Lee</h1>
 <div class="contact">
   <a href="mailto:jordan@example.com">jordan@example.com</a>
 </div>
-<p style="margin-bottom: 10px;">Program Coordinator</p>
+<p>Program Coordinator</p>
 <ul>
   <li><strong>Skill:</strong> Case documentation</li>
   <li><em>Experience:</em> 5 years</li>
@@ -121,6 +125,10 @@ custom elements, data attributes, ARIA attributes, `target`, and `src`/`srcset`
 are removed. Generated template CSS is kept in `<style>` blocks, and preview
 content is rendered in a sandboxed iframe without script, form, popup, or
 same-origin permissions.
+
+Style blocks are not allowed to load network resources. The sanitizer strips
+stylesheet imports, `@font-face`, `url(...)`, and `image-set(...)` so resume
+preview and print HTML cannot use CSS to fetch attacker-controlled resources.
 
 ## Testing
 

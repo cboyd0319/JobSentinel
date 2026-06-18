@@ -96,11 +96,11 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   Gatekeeper-ready macOS remains Apple-blocked. Public wiki `Home.md` and
   `Capabilities.md` are stale and need approval before wiki remote writes.
 - OWASP CheatSheetSeries scan across 120 local files on 2026-06-18 verified
-  Actions, supply-chain, AI, storage, URL, logging, and Browser Import; follow-up
-  now includes CI drift gates, OCR override restrictions, cargo-deny policy,
-  scraper SSRF/DNS-pinning, release/import/source/privacy/resume guards, skills,
-  workflow, secret/lockfile sensors, AI obfuscation guards, sandboxed previews,
-  secure delete, and query-plan boundaries.
+  Actions, supply-chain, AI, storage, URL, logging, Browser Import, CSS, and
+  DOCX parser boundaries; follow-up now includes tag-bound releases, CI drift
+  gates, OCR override restrictions, cargo-deny policy, scraper DNS pinning,
+  AI obfuscation guards, sandboxed previews, secure delete, and query-plan
+  boundaries.
 
 ## Next Best Work
 

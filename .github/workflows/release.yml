@@ -57,10 +57,12 @@ jobs:
         id: release_inputs
         shell: bash
         env:
+          EVENT_NAME: ${{ github.event_name }}
           INPUT_PLATFORM: ${{ github.event_name == 'workflow_dispatch' && inputs.platform || 'all' }}
           INPUT_VERSION: ${{ github.event_name == 'workflow_dispatch' && inputs.version || '' }}
         run: |
           set -euo pipefail
+          event="${EVENT_NAME:-}"
 
           if [ -n "$INPUT_VERSION" ]; then
             version="${INPUT_VERSION#v}"
@@ -70,6 +72,16 @@ jobs:
 
           if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             printf 'Release version must be an exact stable semver (x.y.z), found: %s\n' "$version"
+            exit 1
+          fi
+
+          expected_ref="refs/tags/v${version}"
+          if [ "${GITHUB_REF:-}" != "$expected_ref" ]; then
+            if [ "$event" = "workflow_dispatch" ]; then
+              printf 'Manual release dispatch must run from %s. Select the existing release tag as the workflow ref. Found: %s\n' "$expected_ref" "${GITHUB_REF:-<unset>}"
+            else
+              printf 'Release workflow must run from %s. Found: %s\n' "$expected_ref" "${GITHUB_REF:-<unset>}"
+            fi
             exit 1
           fi
 

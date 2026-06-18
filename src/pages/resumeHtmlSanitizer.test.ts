@@ -72,4 +72,22 @@ describe("sanitizeResumeHtmlDocument", () => {
     expect(sanitized).not.toContain("style=");
     expect(sanitized).not.toContain("pixel");
   });
+
+  it("sanitizes CSS inside style tags to prevent external resource loads and imports", () => {
+    const sanitized = sanitizeResumeHtmlDocument(`
+      <style>
+        @import url("https://attacker.com/leak.css");
+        @import "http://attacker.com/bad.css";
+        .avatar { background-image: url('https://attacker.com/leak.png'); }
+        @font-face { font-family: Leak; src: url(https://attacker.com/font.woff2); }
+        .logo { background-image: image-set("https://attacker.com/1x.png" 1x); }
+        .body { font-size: 14px; }
+      </style>
+    `);
+    expect(sanitized).toContain(".body { font-size: 14px; }");
+    expect(sanitized).not.toContain("attacker.com");
+    expect(sanitized).not.toContain("@import");
+    expect(sanitized).not.toContain("@font-face");
+    expect(sanitized).not.toContain("image-set");
+  });
 });

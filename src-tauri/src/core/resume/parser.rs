@@ -1072,4 +1072,25 @@ JavaScript
         assert!(text.contains("Program & Operations Coordinator"));
         assert!(text.contains("Scheduling"));
     }
+
+    #[test]
+    fn test_docx_text_rejects_external_entity_reference() {
+        let parser = ResumeParser::new();
+        let xml = r#"<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE w:document [
+  <!ENTITY xxe SYSTEM "file:///etc/passwd">
+]>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:body><w:p><w:r><w:t>&xxe;</w:t></w:r></w:p></w:body>
+</w:document>"#;
+
+        let error = parser.extract_docx_text(xml).unwrap_err();
+
+        assert!(
+            error
+                .to_string()
+                .contains("Failed to decode DOCX document text"),
+            "unexpected error: {error:#}"
+        );
+    }
 }
