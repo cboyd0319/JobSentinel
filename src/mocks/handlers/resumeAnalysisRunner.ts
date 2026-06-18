@@ -68,6 +68,7 @@ export function analyzeMockResumeFormat(resume: unknown): MockAtsAnalysisResult 
         "Keeps the resume readable and avoids tactics that can backfire with employers or screening systems.",
     });
   }
+  pushMockSpecialCharacterIssues(sections.allText, formatIssues, suggestions);
   if (hasMockKeywordListBullet(sections)) {
     formatIssues.push({
       severity: "Warning",
@@ -127,6 +128,115 @@ export function analyzeMockResumeFormat(resume: unknown): MockAtsAnalysisResult 
     format_issues: formatIssues,
     suggestions,
   };
+}
+
+function pushMockSpecialCharacterIssues(
+  text: string,
+  formatIssues: MockFormatIssue[],
+  suggestions: MockAtsSuggestion[],
+): void {
+  if (hasMockIconOrPrivateUnicode(text)) {
+    formatIssues.push({
+      severity: "Warning",
+      issue: "Icon or private-use Unicode detected",
+      fix: "Replace icon-font glyphs with plain text labels so contact details and section markers stay readable.",
+    });
+    suggestions.push({
+      category: "FormatFix",
+      suggestion: "Review icons, decorative glyphs, and icon-font exports before submitting this resume.",
+      impact: "Keeps important text readable when application systems extract plain text.",
+    });
+  }
+
+  const decorativeSymbolCount = countMockDecorativeSymbols(text);
+  if (decorativeSymbolCount > 3) {
+    formatIssues.push({
+      severity: "Warning",
+      issue: "Too many emoji or decorative symbols in resume text",
+      fix: "Use plain resume text for bullets, section markers, and contact labels.",
+    });
+    suggestions.push({
+      category: "FormatFix",
+      suggestion: "Replace decorative symbols with ordinary words or standard punctuation.",
+      impact: "Reduces the chance that parsing tools drop or mangle resume text.",
+    });
+  } else if (decorativeSymbolCount > 0) {
+    formatIssues.push({
+      severity: "Info",
+      issue: "Decorative symbol found in resume text",
+      fix: "Keep important qualifications in plain words, not decorative symbols.",
+    });
+  }
+}
+
+function hasMockIconOrPrivateUnicode(text: string): boolean {
+  return /[\uE000-\uF8FF]/u.test(text) ||
+    hasMockSupplementaryPrivateUseUnicode(text) ||
+    hasMockIconClassToken(text) ||
+    hasMockIconFontFamily(text);
+}
+
+function hasMockSupplementaryPrivateUseUnicode(text: string): boolean {
+  return Array.from(text).some((character) => {
+    const codePoint = character.codePointAt(0) ?? 0;
+    return codePoint >= 0xF0000 && codePoint <= 0xFFFFD;
+  });
+}
+
+function hasMockIconClassToken(text: string): boolean {
+  const classPattern = /\bclass\s*=\s*["']([^"']*)["']/gis;
+  let match = classPattern.exec(text);
+  while (match) {
+    const classes = match[1] ?? "";
+    if (classes.split(/\s+/).some(isMockIconClassToken)) {
+      return true;
+    }
+    match = classPattern.exec(text);
+  }
+  return false;
+}
+
+function isMockIconClassToken(token: string): boolean {
+  const lower = token.toLowerCase();
+  return [
+    "fa",
+    "fas",
+    "far",
+    "fab",
+    "fal",
+    "glyphicon",
+    "material-icons",
+    "material-symbols",
+    "bi",
+    "mdi",
+    "icon",
+  ].some((icon) => lower === icon || lower.startsWith(`${icon}-`));
+}
+
+function hasMockIconFontFamily(text: string): boolean {
+  const lower = text.toLowerCase();
+  return [
+    "font awesome",
+    "fontawesome",
+    "material icons",
+    "material symbols",
+    "glyphicons",
+    "bootstrap-icons",
+    "icomoon",
+  ].some((family) => lower.includes(family));
+}
+
+function countMockDecorativeSymbols(text: string): number {
+  return Array.from(text).filter(isMockDecorativeSymbol).length;
+}
+
+function isMockDecorativeSymbol(character: string): boolean {
+  const codePoint = character.codePointAt(0) ?? 0;
+  return (codePoint >= 0x1F000 && codePoint <= 0x1FAFF) ||
+    (codePoint >= 0x2600 && codePoint <= 0x27BF) ||
+    (codePoint >= 0x2B00 && codePoint <= 0x2BFF) ||
+    (codePoint >= 0xFE00 && codePoint <= 0xFE0F) ||
+    (codePoint >= 0x1F1E6 && codePoint <= 0x1F1FF);
 }
 
 export function analyzeMockResumeForJob(

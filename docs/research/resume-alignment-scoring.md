@@ -310,9 +310,17 @@ Future implementation should improve:
   languages, including Spanish, French, Mandarin, Cantonese, Arabic,
   Portuguese, German, Japanese, and Korean, as equivalent local language
   evidence for required language constraints.
-- Resume/job fit now treats lift-weight wording with the same number, such as
-  `lift 50 lbs` and `lift 50 pounds`, as equivalent local physical-demand
-  evidence.
+- Resume/job fit now treats curated physical-weight wording with the same
+  number, such as `lift 50 lbs`, `lift and carry 50 lbs`, and matching
+  pound/lbs evidence, as equivalent local physical-demand evidence. The
+  taxonomy lives in `src/shared/resumeKeywordTaxonomy.json` so Rust and
+  TypeScript paths do not drift.
+- Resume/job fit now keeps shared supplemental keyword groups for office,
+  project, marketing, finance, healthcare, legal, supply-chain, support,
+  retail, and security terms in `src/shared/resumeKeywordTaxonomy.json`. These
+  are curated from JobSentinel research, private local reference profiles, and
+  current public resume-keyword guidance; they should stay evidence-oriented
+  and must not become copied third-party keyword dumps.
 - Resume/job fit now treats `stand for long periods` and
   `standing for long periods` as equivalent local physical-demand evidence.
 - Resume/job fit now treats clear credential equivalents such as `BLS` and

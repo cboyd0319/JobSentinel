@@ -1,3 +1,5 @@
+import resumeKeywordTaxonomy from "../../shared/resumeKeywordTaxonomy.json";
+
 export type MockKeywordImportance = "Required" | "Preferred" | "Industry";
 export type MockIssueSeverity = "Critical" | "Warning" | "Info";
 export type MockRequirementMatchState = "Direct" | "Strong" | "Partial" | "Implied" | "Missing";
@@ -75,54 +77,12 @@ export interface MockAtsKeyword {
   importance: MockKeywordImportance;
 }
 
-export const MOCK_HUMAN_LANGUAGES = [
-  "spanish",
-  "french",
-  "mandarin",
-  "cantonese",
-  "arabic",
-  "portuguese",
-  "german",
-  "japanese",
-  "korean",
-] as const;
+export const MOCK_HUMAN_LANGUAGES = resumeKeywordTaxonomy.humanLanguages;
 
-export const ATS_POWER_WORDS = [
-  "led",
-  "managed",
-  "directed",
-  "coordinated",
-  "supervised",
-  "mentored",
-  "achieved",
-  "accomplished",
-  "delivered",
-  "exceeded",
-  "developed",
-  "created",
-  "designed",
-  "built",
-  "implemented",
-  "launched",
-  "improved",
-  "optimized",
-  "enhanced",
-  "streamlined",
-  "organized",
-  "trained",
-  "increased",
-  "reduced",
-  "saved",
-  "generated",
-  "analyzed",
-  "researched",
-  "evaluated",
-  "collaborated",
-  "partnered",
-  "supported",
-] as const;
+export const ATS_POWER_WORDS = resumeKeywordTaxonomy.bulletPowerWords;
 
-export const ATS_KNOWN_KEYWORDS = [
+export const ATS_KNOWN_KEYWORDS: readonly string[] = [
+  ...resumeKeywordTaxonomy.supplementalKeywordGroups.map((group) => group.canonical),
   "forecasting",
   "workflow improvement",
   "quality assurance",
@@ -258,4 +218,4 @@ export const ATS_KNOWN_KEYWORDS = [
   "loan processing",
   "loan-processing",
   "financial reporting",
-] as const;
+];

@@ -30,6 +30,9 @@ qualifications.
   a header, footer, image, or design container.
 - Use standard headings such as Summary, Skills, Professional Experience,
   Education, Certifications, Projects, and Licenses.
+- Accept common CV and JSON Resume headings such as Volunteer Experience,
+  Awards, Languages, Publications, References, and Interests when they appear
+  as normal readable sections.
 - Avoid important content in tables, sidebars, text boxes, columns, icons,
   graphics, photos, skill bars, or image-only exports.
 - Prefer selectable text and clean reading order over decorative templates.
@@ -270,9 +273,10 @@ resume help should adjust examples and evidence prompts for:
 - Application Assist flags bilingual, multilingual, and language-fluency
   requirements from saved job details and shows matching saved language answers
   in the hard question review when users have saved one.
-- Application Assist flags physical requirements such as lifting or standing
-  from saved job details and shows matching saved screening answers in the hard
-  question review when users have saved one.
+- Application Assist flags physical requirements such as lifting, carrying,
+  pushing, pulling, standing, or ladder climbing from saved job details and
+  shows matching saved screening answers in the hard question review when users
+  have saved one.
 - Application Assist flags minimum-age or legal work-age requirements from
   saved job details, shows matching saved screening answers when users have
   saved one, and does not treat age wording as years-of-experience wording.
@@ -303,6 +307,13 @@ resume help should adjust examples and evidence prompts for:
 - Local readability checks now warn about missing top contact details, missing
   standard headings, table-like extracted text, hidden instructions, and
   prompt-injection-like content.
+- Local readability checks now warn about icon-font/private-use Unicode glyphs
+  and excessive emoji or decorative symbols that can pollute plain-text resume
+  extraction.
+- Local readable-text review accepts common CV and JSON Resume headings such as
+  Awards, Languages, Publications, References, and Interests, and treats
+  language, award, publication, and reference sections as visible evidence when
+  matching explicit requirements.
 - Drafted bullet improvements include a reminder to explain the problem, role,
   action, result, and evidence before using strengthened wording.
 - Drafted bullet improvements add a healthcare and licensed-work evidence
@@ -337,6 +348,12 @@ resume help should adjust examples and evidence prompts for:
 ## Backlog To Lock Next
 
 - Add a guided requirement-inventory workflow for serious applications.
+- Expand Resume Builder data and import/export coverage toward JSON Resume
+  compatible sections such as volunteer work, awards, structured languages,
+  publications, interests, references, project roles, and resume metadata.
+- Add resume export layout controls for Letter versus A4 page ratios, print
+  break-avoid behavior, and tabular date-number alignment without making the
+  builder depend on decorative templates.
 - Extend file-size metadata guidance if employer-specific limits are available.
 - Expand Application Assist hard-question review with direct saved-answer and
   resume-evidence comparisons.

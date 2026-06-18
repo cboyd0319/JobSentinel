@@ -1,6 +1,7 @@
 import { MOCK_HUMAN_LANGUAGES } from "./resumeAnalysis";
 import type { MockAtsResumeSections } from "./resumeAnalysisSections";
 import { countMockKeywordFrequency } from "./resumeKeywordFrequency";
+import resumeKeywordTaxonomy from "../../shared/resumeKeywordTaxonomy.json";
 
 export function getConservativeMockSearchTerms(keyword: string): string[] {
   const lower = keyword.toLowerCase();
@@ -355,16 +356,14 @@ export function getConservativeMockSearchTerms(keyword: string): string[] {
       }
     }
   }
-  const liftWeightMatch = lower.match(
-    /\blift(?:\s+up\s+to)?\s+(\d+)\s*(?:lbs?|pounds?)\b/i,
-  );
-  if (liftWeightMatch) {
-    const amount = liftWeightMatch[1];
-    for (const prefix of [`lift ${amount}`, `lift up to ${amount}`]) {
-      for (const unit of ["lb", "lbs", "pound", "pounds"]) {
-        const term = `${prefix} ${unit}`;
-        if (!terms.includes(term)) terms.push(term);
-      }
+  for (const term of getMockSupplementalKeywordSearchTerms(lower)) {
+    if (!terms.includes(term)) {
+      terms.push(term);
+    }
+  }
+  for (const term of getMockPhysicalWeightSearchTerms(lower)) {
+    if (!terms.includes(term)) {
+      terms.push(term);
     }
   }
 
@@ -539,6 +538,37 @@ function extendMockLanguageFluencyTerms(keywordLower: string, terms: string[]): 
       if (!terms.includes(term)) terms.push(term);
     }
   }
+}
+
+function getMockPhysicalWeightSearchTerms(keywordLower: string): string[] {
+  const rules = resumeKeywordTaxonomy.physicalWeightRequirements;
+  for (const family of rules.families) {
+    const regex = new RegExp(
+      String.raw`\b${family.requirementPattern}${rules.optionalAmountPrefixPattern}\s+(\d+)\s*${rules.unitPattern}\b`,
+      "i",
+    );
+    const match = keywordLower.match(regex);
+    const amount = match?.[1];
+    if (!amount) {
+      continue;
+    }
+
+    return family.evidencePrefixes.flatMap((prefix) =>
+      rules.searchUnits.map((unit) => `${prefix} ${amount} ${unit}`),
+    );
+  }
+  return [];
+}
+
+function getMockSupplementalKeywordSearchTerms(keywordLower: string): string[] {
+  const group = resumeKeywordTaxonomy.supplementalKeywordGroups.find((candidate) =>
+    candidate.canonical === keywordLower || candidate.terms.includes(keywordLower)
+  );
+  if (!group) {
+    return [];
+  }
+
+  return [...new Set([group.canonical, ...group.terms])];
 }
 
 function getMockExperienceYearSearchTerms(minYears: number): string[] {

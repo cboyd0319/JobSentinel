@@ -18,7 +18,37 @@ fn test_requirement_review_recognizes_legal_finance_and_government_terms() {
             .iter()
             .find(|review| review.keyword == keyword)
             .expect("recognized legal finance government review");
-        assert_eq!(review.match_state, RequirementMatchState::Direct);
+        assert!(matches!(
+            review.match_state,
+            RequirementMatchState::Direct | RequirementMatchState::Strong
+        ));
+        assert!(review.evidence_sections.contains(&"experience".to_string()));
+    }
+}
+
+#[test]
+fn test_requirement_review_recognizes_shared_supplemental_keyword_taxonomy() {
+    let result = AtsAnalyzer::analyze_text_for_job(
+        "Jordan Lee\njordan@example.com\n\nExperience\nCoordinated expense reports and used MS Office to prepare team documents.\nTracked KPIs for risk management reviews.",
+        &[],
+        "Required: Microsoft Office, expense reports, risk management, KPIs",
+    );
+
+    for keyword in [
+        "microsoft office",
+        "expense reports",
+        "risk management",
+        "kpis",
+    ] {
+        let review = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == keyword)
+            .expect("shared supplemental taxonomy review");
+        assert!(matches!(
+            review.match_state,
+            RequirementMatchState::Direct | RequirementMatchState::Strong
+        ));
         assert!(review.evidence_sections.contains(&"experience".to_string()));
     }
 }

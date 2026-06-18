@@ -43,10 +43,13 @@ pub(super) fn analyze_plain_text_format(resume_text: &str) -> AtsAnalysisResult 
         suggestions.push(AtsSuggestion {
             category: SuggestionCategory::FormatFix,
             suggestion: "Replace repeated keywords with readable evidence a recruiter can understand and you can defend in an interview.".to_string(),
-            impact: "Keeps the resume credible while still making real qualifications visible."
+            impact:
+                "Keeps the resume credible while still making real qualifications visible."
                 .to_string(),
         });
     }
+
+    push_special_character_issues(readable_text, &mut format_issues, &mut suggestions);
 
     if text_has_keyword_list_bullet(readable_text) {
         structured_format::push_keyword_list_issue(&mut format_issues, &mut suggestions);
@@ -201,7 +204,15 @@ fn text_has_keyword_list_bullet(text: &str) -> bool {
 
         if matches!(
             current_section,
-            "skills" | "education" | "certifications" | "licenses" | "publications"
+            "skills"
+                | "education"
+                | "certifications"
+                | "licenses"
+                | "languages"
+                | "awards"
+                | "publications"
+                | "references"
+                | "interests"
         ) {
             continue;
         }
@@ -263,7 +274,15 @@ fn text_has_generic_filler_bullet(text: &str) -> bool {
 
         if matches!(
             current_section,
-            "skills" | "education" | "certifications" | "licenses" | "publications"
+            "skills"
+                | "education"
+                | "certifications"
+                | "licenses"
+                | "languages"
+                | "awards"
+                | "publications"
+                | "references"
+                | "interests"
         ) {
             continue;
         }
@@ -322,6 +341,122 @@ pub(super) fn line_looks_like_generic_resume_filler(line: &str) -> bool {
     phrase_count >= 4
 }
 
+pub(super) fn push_special_character_issues(
+    text: &str,
+    issues: &mut Vec<FormatIssue>,
+    suggestions: &mut Vec<AtsSuggestion>,
+) {
+    if text_has_icon_or_private_unicode(text) {
+        issues.push(FormatIssue {
+            severity: IssueSeverity::Warning,
+            issue: "Icon or private-use Unicode detected".to_string(),
+            fix:
+                "Replace icon-font glyphs with plain text labels so contact details and section markers stay readable."
+                    .to_string(),
+        });
+        suggestions.push(AtsSuggestion {
+            category: SuggestionCategory::FormatFix,
+            suggestion:
+                "Review icons, decorative glyphs, and icon-font exports before submitting this resume."
+                    .to_string(),
+            impact:
+                "Keeps important text readable when application systems extract plain text."
+                    .to_string(),
+        });
+    }
+
+    let decorative_symbol_count = count_decorative_symbols(text);
+    if decorative_symbol_count > 3 {
+        issues.push(FormatIssue {
+            severity: IssueSeverity::Warning,
+            issue: "Too many emoji or decorative symbols in resume text".to_string(),
+            fix: "Use plain resume text for bullets, section markers, and contact labels."
+                .to_string(),
+        });
+        suggestions.push(AtsSuggestion {
+            category: SuggestionCategory::FormatFix,
+            suggestion: "Replace decorative symbols with ordinary words or standard punctuation."
+                .to_string(),
+            impact: "Reduces the chance that parsing tools drop or mangle resume text.".to_string(),
+        });
+    } else if decorative_symbol_count > 0 {
+        issues.push(FormatIssue {
+            severity: IssueSeverity::Info,
+            issue: "Decorative symbol found in resume text".to_string(),
+            fix: "Keep important qualifications in plain words, not decorative symbols."
+                .to_string(),
+        });
+    }
+}
+
+fn text_has_icon_or_private_unicode(text: &str) -> bool {
+    text.chars().any(is_private_use_unicode)
+        || text_has_icon_class_token(text)
+        || text_has_icon_font_family(text)
+}
+
+fn is_private_use_unicode(ch: char) -> bool {
+    ('\u{E000}'..='\u{F8FF}').contains(&ch) || ('\u{F0000}'..='\u{FFFFD}').contains(&ch)
+}
+
+fn count_decorative_symbols(text: &str) -> usize {
+    text.chars().filter(|ch| is_decorative_symbol(*ch)).count()
+}
+
+fn is_decorative_symbol(ch: char) -> bool {
+    ('\u{1F000}'..='\u{1FAFF}').contains(&ch)
+        || ('\u{2600}'..='\u{27BF}').contains(&ch)
+        || ('\u{2B00}'..='\u{2BFF}').contains(&ch)
+        || ('\u{FE00}'..='\u{FE0F}').contains(&ch)
+        || ('\u{1F1E6}'..='\u{1F1FF}').contains(&ch)
+}
+
+fn text_has_icon_class_token(text: &str) -> bool {
+    let class_re = regex::Regex::new(r#"(?is)\bclass\s*=\s*["']([^"']*)["']"#).unwrap();
+    let has_icon_class = class_re.captures_iter(text).any(|captures| {
+        captures
+            .get(1)
+            .map(|classes| classes.as_str().split_whitespace().any(is_icon_class_token))
+            .unwrap_or(false)
+    });
+    has_icon_class
+}
+
+fn is_icon_class_token(token: &str) -> bool {
+    let token = token.to_ascii_lowercase();
+    let icon_tokens = [
+        "fa",
+        "fas",
+        "far",
+        "fab",
+        "fal",
+        "glyphicon",
+        "material-icons",
+        "material-symbols",
+        "bi",
+        "mdi",
+        "icon",
+    ];
+    icon_tokens
+        .iter()
+        .any(|icon| token == *icon || token.starts_with(&format!("{icon}-")))
+}
+
+fn text_has_icon_font_family(text: &str) -> bool {
+    let lower = text.to_ascii_lowercase();
+    [
+        "font awesome",
+        "fontawesome",
+        "material icons",
+        "material symbols",
+        "glyphicons",
+        "bootstrap-icons",
+        "icomoon",
+    ]
+    .iter()
+    .any(|family| lower.contains(family))
+}
+
 fn is_standard_resume_heading(line: &str) -> bool {
     let normalized = line
         .trim()
@@ -362,6 +497,10 @@ fn is_standard_resume_heading(line: &str) -> bool {
             | "professional training"
             | "training"
             | "certificates"
+            | "languages"
+            | "language skills"
+            | "awards"
+            | "honors and awards"
             | "career break"
             | "career breaks"
             | "career pause"
@@ -375,5 +514,7 @@ fn is_standard_resume_heading(line: &str) -> bool {
             | "military experience"
             | "service"
             | "publications"
+            | "references"
+            | "interests"
     )
 }

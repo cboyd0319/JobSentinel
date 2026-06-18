@@ -4,6 +4,7 @@ use super::super::ats_types::{
     HardConstraintCategory, HardConstraintRisk, KeywordImportance, RequirementMatchState,
     RequirementReview,
 };
+use super::requirement_rules;
 use super::term_expansion;
 
 pub(super) fn build_hard_constraint_risks(
@@ -257,9 +258,7 @@ pub(super) fn hard_constraint_category(keyword: &str) -> Option<HardConstraintCa
     {
         return Some(HardConstraintCategory::BackgroundScreening);
     }
-    if lower.contains("lift ")
-        || lower.contains("pound")
-        || lower.contains("lbs")
+    if requirement_rules::is_physical_weight_requirement(&lower)
         || lower.contains("physical requirement")
         || lower.contains("physical demand")
         || lower.contains("stand for long")
@@ -319,22 +318,27 @@ pub(super) fn extract_hard_constraint_keywords(text: &str) -> Vec<String> {
         keywords.insert("degree or equivalent experience".to_string());
     }
 
+    let language_alternation = requirement_rules::human_languages().join("|");
     let hard_constraint_patterns = [
-        r"(?i)\b(work authorization|authorized to work|visa sponsorship|u\.?s\.?\s+citizenship|u\.?s\.?\s+citizen|citizenship required)\b",
-        r"(?i)\b(security clearance|clearance)\b",
-        r"(?i)\bsecurity\+",
-        r"(?i)\b(commercial driver'?s license|commercial driver license|driver'?s license|driver license|cdl|rn license|registered nurse license|nursing license|lpn|lvn|licensed practical nurse|licensed vocational nurse)\b",
-        r"(?i)\b(clean driving record|acceptable driving record|driving record|mvr|motor vehicle record)\b",
-        r"(?i)\b(certification|cissp|certified information systems security professional|security plus|bls|basic life support|acls|advanced cardiovascular life support|cpr|cardiopulmonary resuscitation|cna|certified nursing assistant|certified nurse assistant|certified nurse aide|pmp|project management professional|servsafe|food safety certification|food[- ]handler'?s?\s+(?:certification|certificate|permit|card)|first[- ]aid certification|first[- ]aid certified|first[- ]aid certificate|first[- ]aid|forklift certification|forklift certified|forklift operator certification|forklift operator certified|forklift license|forklift operator license|osha\s*10(?:[- ]hour)?(?:\s+certification)?|osha\s*30(?:[- ]hour)?(?:\s+certification)?)\b",
-        r"(?i)\b(ph\.?d\.?(?:\s+degree)?|doctorate(?:\s+degree)?|doctoral degree|associate'?s degree|associate degree|baccalaureate degree|bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree|high[- ]school diploma|high[- ]school degree|ged|high[- ]school equivalency|general education development)\b",
-        r"(?i)\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b",
-        r"(?i)\b(?:minimum age(?:\s+is)?\s*)?\d{2}\s*(?:\+|(?:years?|yrs?)\s+(?:old|of\s+age))\b",
-        r"(?i)\b(?:minimum age|age requirement|legal work age)\b",
-        r"(?i)\b(bilingual(?:\s+(?:english|spanish|french|mandarin|cantonese|arabic|portuguese|german|japanese|korean))?|(?:spanish|french|mandarin|cantonese|arabic|portuguese|german|japanese|korean)\s+fluency|fluent(?:\s+in)?\s+(?:spanish|french|mandarin|cantonese|arabic|portuguese|german|japanese|korean)|(?:spanish|french|mandarin|cantonese|arabic|portuguese|german|japanese|korean)\s+language|english/(?:spanish|french|mandarin|cantonese|arabic|portuguese|german|japanese|korean)|english and (?:spanish|french|mandarin|cantonese|arabic|portuguese|german|japanese|korean))\b",
-        r"(?i)\b(background checks?|background screenings?|pre[- ]employment screenings?|drug screens?|drug screenings?|drug tests?|drug testing)\b",
-        r"(?i)\b(lift(?:\s+up\s+to)?\s+\d+\s*(?:pounds?|lbs?)|(?:stand|standing) for long periods?|climb(?:ing)? ladders?|physical requirements?|physical demands?)\b",
-        r"(?i)\b(onsite|on-site|on site|remote(?:[- ](?:work|role|position|job))?|hybrid(?:[- ](?:work|role|schedule|position|job))?|reliable internet(?:\s+connection)?|high[- ]speed internet(?:\s+connection)?|home office|quiet workspace|dedicated workspace|relocation|relocate|willing to relocate|travel|reliable transportation|own transportation|reliable vehicle|insured vehicle|proof of auto insurance|proof of insurance|auto insurance|car insurance|vehicle insurance|commute|commuting|full[- ]time(?:\s+availability)?|part[- ]time(?:\s+availability)?|availability|available|schedule|weekend availability|weekend shifts?|night shift|overnight shift|third shift|3rd shift|evening shift|second shift|2nd shift|day shift|first shift|1st shift|overtime(?:\s+(?:availability|shifts?|hours?))?|holiday(?:\s+(?:availability|shifts?|hours?))?)\b",
+        r"(?i)\b(work authorization|authorized to work|visa sponsorship|u\.?s\.?\s+citizenship|u\.?s\.?\s+citizen|citizenship required)\b".to_string(),
+        r"(?i)\b(security clearance|clearance)\b".to_string(),
+        r"(?i)\bsecurity\+".to_string(),
+        r"(?i)\b(commercial driver'?s license|commercial driver license|driver'?s license|driver license|cdl|rn license|registered nurse license|nursing license|lpn|lvn|licensed practical nurse|licensed vocational nurse)\b".to_string(),
+        r"(?i)\b(clean driving record|acceptable driving record|driving record|mvr|motor vehicle record)\b".to_string(),
+        r"(?i)\b(certification|cissp|certified information systems security professional|security plus|bls|basic life support|acls|advanced cardiovascular life support|cpr|cardiopulmonary resuscitation|cna|certified nursing assistant|certified nurse assistant|certified nurse aide|pmp|project management professional|servsafe|food safety certification|food[- ]handler'?s?\s+(?:certification|certificate|permit|card)|first[- ]aid certification|first[- ]aid certified|first[- ]aid certificate|first[- ]aid|forklift certification|forklift certified|forklift operator certification|forklift operator certified|forklift license|forklift operator license|osha\s*10(?:[- ]hour)?(?:\s+certification)?|osha\s*30(?:[- ]hour)?(?:\s+certification)?)\b".to_string(),
+        r"(?i)\b(ph\.?d\.?(?:\s+degree)?|doctorate(?:\s+degree)?|doctoral degree|associate'?s degree|associate degree|baccalaureate degree|bachelor'?s degree|bachelor degree|master'?s degree|master degree|degree|high[- ]school diploma|high[- ]school degree|ged|high[- ]school equivalency|general education development)\b".to_string(),
+        r"(?i)\b\d+\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:with|in)\s+)?[a-zA-Z][a-zA-Z0-9+#/.-]*(?:\s+[a-zA-Z][a-zA-Z0-9+#/.-]*){0,3}\b".to_string(),
+        r"(?i)\b(?:minimum age(?:\s+is)?\s*)?\d{2}\s*(?:\+|(?:years?|yrs?)\s+(?:old|of\s+age))\b".to_string(),
+        r"(?i)\b(?:minimum age|age requirement|legal work age)\b".to_string(),
+        format!(r"(?i)\b(bilingual(?:\s+(?:english|{language_alternation}))?|(?:{language_alternation})\s+fluency|fluent(?:\s+in)?\s+(?:{language_alternation})|(?:{language_alternation})\s+language|english/(?:{language_alternation})|english and (?:{language_alternation}))\b"),
+        r"(?i)\b(background checks?|background screenings?|pre[- ]employment screenings?|drug screens?|drug screenings?|drug tests?|drug testing)\b".to_string(),
+        r"(?i)\b((?:stand|standing) for long periods?|climb(?:ing)? ladders?|physical requirements?|physical demands?)\b".to_string(),
+        r"(?i)\b(onsite|on-site|on site|remote(?:[- ](?:work|role|position|job))?|hybrid(?:[- ](?:work|role|schedule|position|job))?|reliable internet(?:\s+connection)?|high[- ]speed internet(?:\s+connection)?|home office|quiet workspace|dedicated workspace|relocation|relocate|willing to relocate|travel|reliable transportation|own transportation|reliable vehicle|insured vehicle|proof of auto insurance|proof of insurance|auto insurance|car insurance|vehicle insurance|commute|commuting|full[- ]time(?:\s+availability)?|part[- ]time(?:\s+availability)?|availability|available|schedule|weekend availability|weekend shifts?|night shift|overnight shift|third shift|3rd shift|evening shift|second shift|2nd shift|day shift|first shift|1st shift|overtime(?:\s+(?:availability|shifts?|hours?))?|holiday(?:\s+(?:availability|shifts?|hours?))?)\b".to_string(),
     ];
+
+    for keyword in requirement_rules::extract_physical_weight_keywords(text) {
+        keywords.insert(keyword);
+    }
 
     for pattern in &hard_constraint_patterns {
         if let Ok(re) = regex::Regex::new(pattern) {

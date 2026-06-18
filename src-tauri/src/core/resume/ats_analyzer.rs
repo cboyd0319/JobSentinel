@@ -16,6 +16,7 @@ mod hard_constraints;
 mod keyword_catalog;
 mod plain_text_format;
 mod requirement_reviews;
+mod requirement_rules;
 mod structured_format;
 mod term_expansion;
 
@@ -122,8 +123,8 @@ impl AtsAnalyzer {
 
         // Add industry keywords if found
         for keyword in keyword_catalog::industry_keywords() {
-            let canonical_keyword = keyword_catalog::canonical_requirement_keyword(keyword);
-            if Self::keyword_appears_in_text(&lower, keyword)
+            let canonical_keyword = keyword_catalog::canonical_requirement_keyword(&keyword);
+            if Self::keyword_appears_in_text(&lower, &keyword)
                 && !keywords.iter().any(|(k, _)| k == &canonical_keyword)
             {
                 keywords.push((canonical_keyword, KeywordImportance::Industry));
@@ -683,7 +684,13 @@ impl AtsAnalyzer {
             ("certificates", "certifications"),
             ("certifications", "certifications"),
             ("licenses", "licenses"),
+            ("languages", "languages"),
+            ("language skills", "languages"),
+            ("awards", "awards"),
+            ("honors and awards", "awards"),
             ("publications", "publications"),
+            ("references", "references"),
+            ("interests", "interests"),
             ("academic background", "education"),
             ("academic history", "education"),
             ("education background", "education"),

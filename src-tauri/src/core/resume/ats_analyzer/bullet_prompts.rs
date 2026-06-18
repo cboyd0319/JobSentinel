@@ -1,58 +1,8 @@
 pub(super) fn get_power_words() -> Vec<&'static str> {
-    vec![
-        // Leadership
-        "led",
-        "managed",
-        "directed",
-        "coordinated",
-        "supervised",
-        "mentored",
-        "trained",
-        // Achievement
-        "achieved",
-        "accomplished",
-        "delivered",
-        "exceeded",
-        "surpassed",
-        "completed",
-        // Creation
-        "developed",
-        "created",
-        "designed",
-        "built",
-        "implemented",
-        "launched",
-        "established",
-        // Improvement
-        "improved",
-        "optimized",
-        "enhanced",
-        "streamlined",
-        "modernized",
-        "automated",
-        "refactored",
-        // Impact
-        "increased",
-        "reduced",
-        "decreased",
-        "saved",
-        "generated",
-        "accelerated",
-        // Analysis
-        "analyzed",
-        "researched",
-        "evaluated",
-        "assessed",
-        "investigated",
-        "identified",
-        // Collaboration
-        "collaborated",
-        "partnered",
-        "contributed",
-        "participated",
-        "supported",
-        "facilitated",
-    ]
+    super::requirement_rules::bullet_power_words()
+        .iter()
+        .map(String::as_str)
+        .collect()
 }
 
 pub(super) fn append_interview_defense_prompt(text: &mut String) {

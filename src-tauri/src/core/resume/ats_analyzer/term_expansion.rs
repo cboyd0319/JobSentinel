@@ -376,7 +376,14 @@ pub(super) fn conservative_keyword_search_terms(keyword_lower: &str) -> Vec<Stri
             }
         }
     }
-    extend_lift_weight_unit_terms(keyword_lower, &mut terms);
+    for term in super::requirement_rules::supplemental_keyword_search_terms(keyword_lower) {
+        if !terms.iter().any(|existing| existing == &term) {
+            terms.push(term);
+        }
+    }
+    terms.extend(super::requirement_rules::physical_weight_search_terms(
+        keyword_lower,
+    ));
     extend_language_fluency_terms(keyword_lower, &mut terms);
 
     match keyword_lower {
@@ -512,28 +519,6 @@ pub(super) fn conservative_keyword_search_terms(keyword_lower: &str) -> Vec<Stri
     terms
 }
 
-fn extend_lift_weight_unit_terms(keyword_lower: &str, terms: &mut Vec<String>) {
-    let Ok(lift_re) = regex::Regex::new(r"(?i)\blift(?:\s+up\s+to)?\s+(\d+)\s*(?:lbs?|pounds?)\b")
-    else {
-        return;
-    };
-    let Some(captures) = lift_re.captures(keyword_lower) else {
-        return;
-    };
-    let Some(amount) = captures.get(1).map(|capture| capture.as_str()) else {
-        return;
-    };
-
-    for prefix in [format!("lift {amount}"), format!("lift up to {amount}")] {
-        for unit in ["lb", "lbs", "pound", "pounds"] {
-            let term = format!("{prefix} {unit}");
-            if !terms.iter().any(|existing| existing == &term) {
-                terms.push(term);
-            }
-        }
-    }
-}
-
 fn experience_year_search_terms(min_years: usize) -> Vec<String> {
     let mut terms = Vec::new();
     for years in min_years..=50 {
@@ -545,37 +530,25 @@ fn experience_year_search_terms(min_years: usize) -> Vec<String> {
     terms
 }
 
-fn known_language_names() -> &'static [&'static str] {
-    &[
-        "spanish",
-        "french",
-        "mandarin",
-        "cantonese",
-        "arabic",
-        "portuguese",
-        "german",
-        "japanese",
-        "korean",
-    ]
-}
-
 pub(super) fn known_human_language_requirement(lower: &str) -> bool {
     if lower.contains("bilingual") {
         return true;
     }
 
-    known_language_names().iter().any(|language| {
-        lower.contains(&format!("{language} fluency"))
-            || lower.contains(&format!("fluent {language}"))
-            || lower.contains(&format!("fluent in {language}"))
-            || lower.contains(&format!("{language} language"))
-            || lower.contains(&format!("english/{language}"))
-            || lower.contains(&format!("english and {language}"))
-    })
+    super::requirement_rules::human_languages()
+        .iter()
+        .any(|language| {
+            lower.contains(&format!("{language} fluency"))
+                || lower.contains(&format!("fluent {language}"))
+                || lower.contains(&format!("fluent in {language}"))
+                || lower.contains(&format!("{language} language"))
+                || lower.contains(&format!("english/{language}"))
+                || lower.contains(&format!("english and {language}"))
+        })
 }
 
 fn extend_language_fluency_terms(keyword_lower: &str, terms: &mut Vec<String>) {
-    for language in known_language_names() {
+    for language in super::requirement_rules::human_languages() {
         if !keyword_lower.contains(language) {
             continue;
         }
@@ -588,7 +561,7 @@ fn extend_language_fluency_terms(keyword_lower: &str, terms: &mut Vec<String>) {
             format!("{language} language"),
             format!("english/{language}"),
             format!("english and {language}"),
-            language.to_string(),
+            language.clone(),
         ] {
             if !terms.iter().any(|existing| existing == &term) {
                 terms.push(term);

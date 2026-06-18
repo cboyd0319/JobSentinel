@@ -13,6 +13,7 @@ pub(super) fn analyze_format(resume: &ResumeData) -> AtsAnalysisResult {
     check_skills(&resume.skills, &mut format_issues, &mut suggestions);
     check_education(&resume.education, &mut format_issues, &mut suggestions);
     check_adversarial_content(resume, &mut format_issues, &mut suggestions);
+    check_special_character_risks(resume, &mut format_issues, &mut suggestions);
     check_keyword_stuffing(resume, &mut format_issues, &mut suggestions);
     check_keyword_list_bullets(resume, &mut format_issues, &mut suggestions);
     check_capability_level_claims(resume, &mut format_issues, &mut suggestions);
@@ -198,6 +199,15 @@ fn check_adversarial_content(
     });
 }
 
+fn check_special_character_risks(
+    resume: &ResumeData,
+    issues: &mut Vec<FormatIssue>,
+    suggestions: &mut Vec<AtsSuggestion>,
+) {
+    let text = collect_resume_text(resume);
+    plain_text_format::push_special_character_issues(&text, issues, suggestions);
+}
+
 fn check_keyword_stuffing(
     resume: &ResumeData,
     issues: &mut Vec<FormatIssue>,
@@ -374,6 +384,36 @@ fn has_adversarial_content(resume: &ResumeData) -> bool {
             text_has_adversarial_content(section)
                 || values.iter().any(|item| text_has_adversarial_content(item))
         })
+}
+
+fn collect_resume_text(resume: &ResumeData) -> String {
+    let mut chunks = vec![resume.summary.as_str(), resume.contact_info.name.as_str()];
+
+    for experience in &resume.experience {
+        chunks.push(experience.title.as_str());
+        chunks.push(experience.company.as_str());
+        chunks.extend(experience.achievements.iter().map(String::as_str));
+    }
+    for skill in &resume.skills {
+        chunks.push(skill.name.as_str());
+        chunks.push(skill.category.as_str());
+        if let Some(proficiency) = skill.proficiency.as_deref() {
+            chunks.push(proficiency);
+        }
+    }
+    for education in &resume.education {
+        chunks.push(education.degree.as_str());
+        chunks.push(education.institution.as_str());
+        chunks.extend(education.honors.iter().map(String::as_str));
+    }
+    chunks.extend(resume.certifications.iter().map(String::as_str));
+    chunks.extend(resume.projects.iter().map(String::as_str));
+    for (section, values) in &resume.custom_sections {
+        chunks.push(section.as_str());
+        chunks.extend(values.iter().map(String::as_str));
+    }
+
+    chunks.join("\n")
 }
 
 fn has_keyword_stuffing(resume: &ResumeData) -> bool {

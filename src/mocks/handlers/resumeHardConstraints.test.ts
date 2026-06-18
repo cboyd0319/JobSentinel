@@ -43,6 +43,41 @@ describe("mock resume hard-constraint handlers", () => {
     );
   });
 
+  it("matches lift-and-carry weighted mock hard constraints", async () => {
+    const liftCarryResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        experience: [
+          {
+            ...atsResume.experience[0],
+            achievements: ["Lifted and carried 50 pounds safely during warehouse shifts."],
+          },
+        ],
+        skills: [],
+      },
+      jobDescription: "Required: lift and carry 50 lbs",
+    });
+
+    expect(liftCarryResult.requirement_reviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "lift and carry 50 lbs",
+          match_state: "Strong",
+          hard_constraint: true,
+          evidence_sections: expect.arrayContaining(["current experience"]),
+        }),
+      ]),
+    );
+    expect(liftCarryResult.hard_constraint_risks).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          requirement: "lift and carry 50 lbs",
+        }),
+      ]),
+    );
+  });
+
   it("matches stand and standing long-period mock hard constraints", async () => {
     const standingResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {

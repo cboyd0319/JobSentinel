@@ -51,6 +51,37 @@ fn test_analyze_format_flags_invisible_resume_text() {
 }
 
 #[test]
+fn test_analyze_format_flags_private_use_icon_glyphs() {
+    let mut resume = sample_resume();
+    resume
+        .projects
+        .push("Contact icon glyph \u{E000}".to_string());
+
+    let result = AtsAnalyzer::analyze_format(&resume);
+
+    assert!(result.format_issues.iter().any(|issue| {
+        issue.severity == IssueSeverity::Warning
+            && issue.issue.contains("Icon or private-use Unicode")
+            && issue.fix.contains("plain text labels")
+    }));
+}
+
+#[test]
+fn test_analyze_text_for_job_flags_excessive_decorative_symbols() {
+    let result = AtsAnalyzer::analyze_text_for_job(
+        "Jordan Lee\njordan@example.com\n\nExperience\nLed support queue \u{1F4A1}\u{1F4A1}\u{1F4A1}\u{1F4A1}",
+        &[],
+        "Required: customer service",
+    );
+
+    assert!(result.format_issues.iter().any(|issue| {
+        issue.severity == IssueSeverity::Warning
+            && issue.issue.contains("decorative symbols")
+            && issue.fix.contains("plain resume text")
+    }));
+}
+
+#[test]
 fn test_analyze_format_flags_css_like_hidden_resume_text() {
     let mut resume = sample_resume();
     resume.projects.push(
@@ -246,6 +277,31 @@ fn test_analyze_text_for_job_accepts_slash_standard_heading() {
         .format_issues
         .iter()
         .any(|issue| issue.issue.contains("standard resume section headings")));
+}
+
+#[test]
+fn test_analyze_text_for_job_accepts_json_resume_section_headings() {
+    let result = AtsAnalyzer::analyze_text_for_job(
+        "Jordan Lee\njordan@example.com\n\nAwards\nTop Contributor\n\nLanguages\nSpanish - Professional\n\nReferences\nAvailable on request",
+        &[],
+        "Required: Spanish fluency",
+    );
+
+    assert!(!result
+        .format_issues
+        .iter()
+        .any(|issue| issue.issue.contains("standard resume section headings")));
+    assert!(!result
+        .format_issues
+        .iter()
+        .any(|issue| issue.issue.contains("keyword list")));
+
+    let review = result
+        .requirement_reviews
+        .iter()
+        .find(|review| review.keyword == "spanish fluency")
+        .expect("Spanish fluency review");
+    assert!(review.evidence_sections.contains(&"languages".to_string()));
 }
 
 #[test]

@@ -1,0 +1,480 @@
+{
+  "schemaVersion": 1,
+  "humanLanguages": [
+    "spanish",
+    "french",
+    "mandarin",
+    "cantonese",
+    "arabic",
+    "portuguese",
+    "german",
+    "japanese",
+    "korean"
+  ],
+  "bulletPowerWords": [
+    "led",
+    "managed",
+    "directed",
+    "coordinated",
+    "supervised",
+    "mentored",
+    "trained",
+    "achieved",
+    "accomplished",
+    "delivered",
+    "exceeded",
+    "surpassed",
+    "completed",
+    "developed",
+    "created",
+    "designed",
+    "built",
+    "implemented",
+    "launched",
+    "established",
+    "improved",
+    "optimized",
+    "enhanced",
+    "streamlined",
+    "modernized",
+    "automated",
+    "refactored",
+    "increased",
+    "reduced",
+    "decreased",
+    "saved",
+    "generated",
+    "accelerated",
+    "analyzed",
+    "researched",
+    "evaluated",
+    "assessed",
+    "investigated",
+    "identified",
+    "collaborated",
+    "partnered",
+    "contributed",
+    "participated",
+    "supported",
+    "facilitated"
+  ],
+  "physicalWeightRequirements": {
+    "optionalAmountPrefixPattern": "(?:\\s+up\\s+to)?",
+    "unitPattern": "(?:lbs?|pounds?)",
+    "searchUnits": ["lb", "lbs", "pound", "pounds"],
+    "families": [
+      {
+        "id": "lift_and_carry",
+        "requirementPattern": "lift\\s*(?:and/or|and|or|/)\\s*carry",
+        "evidencePrefixes": ["lift and carry", "lifting and carrying", "lifted and carried"]
+      },
+      {
+        "id": "lift",
+        "requirementPattern": "lift",
+        "evidencePrefixes": ["lift", "lifting", "lifted", "lift up to"]
+      },
+      {
+        "id": "carry",
+        "requirementPattern": "carry",
+        "evidencePrefixes": ["carry", "carrying", "carried"]
+      },
+      {
+        "id": "push_and_pull",
+        "requirementPattern": "push\\s*(?:and/or|and|or|/)\\s*pull",
+        "evidencePrefixes": ["push and pull", "pushing and pulling", "pushed and pulled"]
+      },
+      {
+        "id": "push",
+        "requirementPattern": "push",
+        "evidencePrefixes": ["push", "pushing", "pushed"]
+      },
+      {
+        "id": "pull",
+        "requirementPattern": "pull",
+        "evidencePrefixes": ["pull", "pulling", "pulled"]
+      }
+    ]
+  },
+  "supplementalKeywordGroups": [
+    {
+      "canonical": "microsoft office",
+      "terms": ["microsoft office", "microsoft office suite", "ms office"]
+    },
+    {
+      "canonical": "outlook",
+      "terms": ["outlook", "microsoft outlook"]
+    },
+    {
+      "canonical": "google workspace",
+      "terms": ["google workspace", "google suite", "g suite"]
+    },
+    {
+      "canonical": "document management",
+      "terms": ["document management", "document-management"]
+    },
+    {
+      "canonical": "document preparation",
+      "terms": ["document preparation", "document-preparation"]
+    },
+    {
+      "canonical": "confidentiality",
+      "terms": ["confidentiality", "confidential information"]
+    },
+    {
+      "canonical": "travel coordination",
+      "terms": ["travel coordination", "travel-coordination"]
+    },
+    {
+      "canonical": "expense reports",
+      "terms": ["expense reports", "expense reporting", "expense report"]
+    },
+    {
+      "canonical": "meeting coordination",
+      "terms": ["meeting coordination", "meeting-coordination"]
+    },
+    {
+      "canonical": "office management",
+      "terms": ["office management", "office-management"]
+    },
+    {
+      "canonical": "stakeholder management",
+      "terms": ["stakeholder management", "stakeholder-management"]
+    },
+    {
+      "canonical": "risk management",
+      "terms": ["risk management", "risk-management"]
+    },
+    {
+      "canonical": "process improvement",
+      "terms": ["process improvement", "process-improvement"]
+    },
+    {
+      "canonical": "continuous improvement",
+      "terms": ["continuous improvement", "continuous-improvement"]
+    },
+    {
+      "canonical": "kpis",
+      "terms": ["kpis", "kpi", "key performance indicators", "key performance indicator"]
+    },
+    {
+      "canonical": "okrs",
+      "terms": ["okrs", "okr", "objectives and key results"]
+    },
+    {
+      "canonical": "jira",
+      "terms": ["jira"]
+    },
+    {
+      "canonical": "confluence",
+      "terms": ["confluence"]
+    },
+    {
+      "canonical": "kanban",
+      "terms": ["kanban"]
+    },
+    {
+      "canonical": "asana",
+      "terms": ["asana"]
+    },
+    {
+      "canonical": "microsoft project",
+      "terms": ["microsoft project", "ms project"]
+    },
+    {
+      "canonical": "seo",
+      "terms": ["seo", "search engine optimization"]
+    },
+    {
+      "canonical": "sem",
+      "terms": ["sem", "search engine marketing"]
+    },
+    {
+      "canonical": "google ads",
+      "terms": ["google ads", "google adwords", "adwords"]
+    },
+    {
+      "canonical": "paid social",
+      "terms": ["paid social", "paid-social"]
+    },
+    {
+      "canonical": "social media marketing",
+      "terms": ["social media marketing", "social-media marketing"]
+    },
+    {
+      "canonical": "content marketing",
+      "terms": ["content marketing", "content-marketing"]
+    },
+    {
+      "canonical": "email marketing",
+      "terms": ["email marketing", "email-marketing"]
+    },
+    {
+      "canonical": "google analytics",
+      "terms": ["google analytics", "ga4"]
+    },
+    {
+      "canonical": "mailchimp",
+      "terms": ["mailchimp"]
+    },
+    {
+      "canonical": "marketo",
+      "terms": ["marketo"]
+    },
+    {
+      "canonical": "lead generation",
+      "terms": ["lead generation", "lead-generation"]
+    },
+    {
+      "canonical": "brand management",
+      "terms": ["brand management", "brand-management"]
+    },
+    {
+      "canonical": "conversion rate optimization",
+      "terms": ["conversion rate optimization", "conversion-rate optimization", "cro"]
+    },
+    {
+      "canonical": "gaap",
+      "terms": ["gaap", "generally accepted accounting principles"]
+    },
+    {
+      "canonical": "ifrs",
+      "terms": ["ifrs", "international financial reporting standards"]
+    },
+    {
+      "canonical": "sox",
+      "terms": ["sox", "sarbanes-oxley", "sarbanes oxley"]
+    },
+    {
+      "canonical": "audit",
+      "terms": ["audit", "auditing"]
+    },
+    {
+      "canonical": "internal controls",
+      "terms": ["internal controls", "internal control"]
+    },
+    {
+      "canonical": "financial modeling",
+      "terms": ["financial modeling", "financial modelling"]
+    },
+    {
+      "canonical": "financial analysis",
+      "terms": ["financial analysis", "financial-analysis"]
+    },
+    {
+      "canonical": "variance analysis",
+      "terms": ["variance analysis", "variance-analysis"]
+    },
+    {
+      "canonical": "cash flow",
+      "terms": ["cash flow", "cash-flow"]
+    },
+    {
+      "canonical": "budget management",
+      "terms": ["budget management", "budget-management"]
+    },
+    {
+      "canonical": "sap",
+      "terms": ["sap"]
+    },
+    {
+      "canonical": "oracle",
+      "terms": ["oracle"]
+    },
+    {
+      "canonical": "netsuite",
+      "terms": ["netsuite", "net suite"]
+    },
+    {
+      "canonical": "ehr",
+      "terms": ["ehr", "electronic health record", "electronic health records"]
+    },
+    {
+      "canonical": "emr",
+      "terms": ["emr", "electronic medical record", "electronic medical records"]
+    },
+    {
+      "canonical": "epic",
+      "terms": ["epic"]
+    },
+    {
+      "canonical": "cerner",
+      "terms": ["cerner"]
+    },
+    {
+      "canonical": "meditech",
+      "terms": ["meditech"]
+    },
+    {
+      "canonical": "clinical documentation",
+      "terms": ["clinical documentation", "clinical-documentation"]
+    },
+    {
+      "canonical": "icd-10",
+      "terms": ["icd-10", "icd 10"]
+    },
+    {
+      "canonical": "cpt",
+      "terms": ["cpt", "current procedural terminology"]
+    },
+    {
+      "canonical": "revenue cycle",
+      "terms": ["revenue cycle", "revenue-cycle"]
+    },
+    {
+      "canonical": "pals",
+      "terms": ["pals", "pediatric advanced life support"]
+    },
+    {
+      "canonical": "nrp",
+      "terms": ["nrp", "neonatal resuscitation program"]
+    },
+    {
+      "canonical": "legal document preparation",
+      "terms": ["legal document preparation", "legal-document preparation"]
+    },
+    {
+      "canonical": "court filing",
+      "terms": ["court filing", "court filings", "court-filing"]
+    },
+    {
+      "canonical": "e-filing",
+      "terms": ["e-filing", "efiling", "electronic filing"]
+    },
+    {
+      "canonical": "docket management",
+      "terms": ["docket management", "docket-management"]
+    },
+    {
+      "canonical": "litigation support",
+      "terms": ["litigation support", "litigation-support"]
+    },
+    {
+      "canonical": "e-discovery",
+      "terms": ["e-discovery", "ediscovery", "electronic discovery"]
+    },
+    {
+      "canonical": "westlaw",
+      "terms": ["westlaw"]
+    },
+    {
+      "canonical": "lexisnexis",
+      "terms": ["lexisnexis", "lexis nexis"]
+    },
+    {
+      "canonical": "pacer",
+      "terms": ["pacer"]
+    },
+    {
+      "canonical": "contracts",
+      "terms": ["contracts", "contract review", "contract management"]
+    },
+    {
+      "canonical": "due diligence",
+      "terms": ["due diligence", "due-diligence"]
+    },
+    {
+      "canonical": "supply chain management",
+      "terms": ["supply chain management", "supply-chain management"]
+    },
+    {
+      "canonical": "demand planning",
+      "terms": ["demand planning", "demand-planning"]
+    },
+    {
+      "canonical": "s&op",
+      "terms": ["s&op", "sales and operations planning"]
+    },
+    {
+      "canonical": "freight",
+      "terms": ["freight"]
+    },
+    {
+      "canonical": "tms",
+      "terms": ["tms", "transportation management system"]
+    },
+    {
+      "canonical": "wms",
+      "terms": ["wms", "warehouse management system"]
+    },
+    {
+      "canonical": "dot compliance",
+      "terms": ["dot compliance", "department of transportation compliance"]
+    },
+    {
+      "canonical": "lean",
+      "terms": ["lean"]
+    },
+    {
+      "canonical": "six sigma",
+      "terms": ["six sigma", "six-sigma"]
+    },
+    {
+      "canonical": "zendesk",
+      "terms": ["zendesk"]
+    },
+    {
+      "canonical": "ticketing",
+      "terms": ["ticketing", "ticketing system", "ticketing systems"]
+    },
+    {
+      "canonical": "de-escalation",
+      "terms": ["de-escalation", "deescalation", "de escalation"]
+    },
+    {
+      "canonical": "conflict resolution",
+      "terms": ["conflict resolution", "conflict-resolution"]
+    },
+    {
+      "canonical": "csat",
+      "terms": ["csat", "customer satisfaction"]
+    },
+    {
+      "canonical": "retention",
+      "terms": ["retention", "customer retention", "employee retention"]
+    },
+    {
+      "canonical": "loss prevention",
+      "terms": ["loss prevention", "loss-prevention"]
+    },
+    {
+      "canonical": "visual merchandising",
+      "terms": ["visual merchandising", "visual-merchandising"]
+    },
+    {
+      "canonical": "upselling",
+      "terms": ["upselling", "up selling", "upsell"]
+    },
+    {
+      "canonical": "governance",
+      "terms": ["governance"]
+    },
+    {
+      "canonical": "incident response",
+      "terms": ["incident response", "incident-response"]
+    },
+    {
+      "canonical": "vulnerability management",
+      "terms": ["vulnerability management", "vulnerability-management"]
+    },
+    {
+      "canonical": "security architecture",
+      "terms": ["security architecture", "security-architecture"]
+    },
+    {
+      "canonical": "cloud security",
+      "terms": ["cloud security", "cloud-security"]
+    },
+    {
+      "canonical": "identity and access management",
+      "terms": ["identity and access management", "iam"]
+    },
+    {
+      "canonical": "siem",
+      "terms": ["siem", "security information and event management"]
+    },
+    {
+      "canonical": "zero trust",
+      "terms": ["zero trust", "zero-trust"]
+    }
+  ]
+}

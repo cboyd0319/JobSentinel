@@ -32,6 +32,9 @@ pub(super) fn extract_keywords_from_text(text: &str) -> Vec<String> {
             }
         }
     }
+    for keyword in super::requirement_rules::extract_supplemental_keywords(text) {
+        keywords.insert(keyword);
+    }
 
     let mut sorted_keywords = keywords.into_iter().collect::<Vec<_>>();
     sorted_keywords.sort();
@@ -49,8 +52,8 @@ pub(super) fn canonical_requirement_keyword(keyword: &str) -> String {
     }
 }
 
-pub(super) fn industry_keywords() -> &'static [&'static str] {
-    &[
+pub(super) fn industry_keywords() -> Vec<String> {
+    let mut keywords = [
         // Development
         "agile",
         "scrum",
@@ -184,4 +187,9 @@ pub(super) fn industry_keywords() -> &'static [&'static str] {
         "scalability",
         "security",
     ]
+    .into_iter()
+    .map(str::to_string)
+    .collect::<Vec<_>>();
+    keywords.extend(super::requirement_rules::supplemental_keyword_canonicals());
+    keywords
 }

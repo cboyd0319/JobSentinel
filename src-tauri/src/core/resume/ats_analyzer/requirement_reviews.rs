@@ -74,6 +74,10 @@ fn classify_requirement_match_state(matched: &KeywordMatch) -> RequirementMatchS
                 | "education"
                 | "certifications"
                 | "licenses"
+                | "languages"
+                | "awards"
+                | "publications"
+                | "references"
         )
     });
 

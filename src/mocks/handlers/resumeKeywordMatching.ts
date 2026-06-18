@@ -4,6 +4,7 @@ import {
   type MockAtsKeyword,
   type MockKeywordImportance,
 } from "./resumeAnalysis";
+import resumeKeywordTaxonomy from "../../shared/resumeKeywordTaxonomy.json";
 import type { MockAtsResumeSections } from "./resumeAnalysisSections";
 import {
   containsAnyMockKeyword,
@@ -130,7 +131,7 @@ export function extractMockAtsKeywords(jobDescription: string): MockAtsKeyword[]
       hasCommercialDriverLicense &&
       ["driver's license", "drivers license", "driver license"].includes(keyword)
     ) &&
-    getConservativeMockJobSearchTerms(keyword).some((term) => lower.includes(term))
+    containsAnyMockKeyword(jobDescription, getConservativeMockJobSearchTerms(keyword))
   );
   const keywords = [
     ...knownKeywords,
@@ -186,7 +187,8 @@ function extractMockHardConstraintKeywords(jobDescription: string): string[] {
       "gi",
     ),
     /\b(background checks?|background screenings?|pre[- ]employment screenings?|drug screens?|drug screenings?|drug tests?|drug testing)\b/gi,
-    /\b(lift(?:\s+up\s+to)?\s+\d+\s*(?:pounds?|lbs?)|(?:stand|standing) for long periods?|climb(?:ing)? ladders?|physical requirements?|physical demands?)\b/gi,
+    buildMockPhysicalWeightRequirementRegex(),
+    /\b((?:stand|standing) for long periods?|climb(?:ing)? ladders?|physical requirements?|physical demands?)\b/gi,
     /\b(onsite|on-site|on site|remote(?:[- ](?:work|role|position|job))?|hybrid(?:[- ](?:work|role|schedule|position|job))?|reliable internet(?: connection)?|high[- ]speed internet(?: connection)?|home office|quiet workspace|dedicated workspace|relocation|relocate|willing to relocate|travel|reliable transportation|own transportation|reliable vehicle|insured vehicle|proof of auto insurance|proof of insurance|auto insurance|car insurance|vehicle insurance|commute|commuting|availability|available|schedule|weekend availability|weekend shifts?|night shift|overnight shift|third shift|3rd shift|evening shift|second shift|2nd shift|day shift|first shift|1st shift|overtime(?: availability| shifts?)?|holiday(?: availability| shifts?)?|full[- ]time(?: availability)?|part[- ]time(?: availability)?)\b/gi,
   ];
   const keywords = new Set<string>();
@@ -316,6 +318,17 @@ function extractMockHardConstraintKeywords(jobDescription: string): string[] {
   }
 
   return [...keywords].sort();
+}
+
+function buildMockPhysicalWeightRequirementRegex(): RegExp {
+  const rules = resumeKeywordTaxonomy.physicalWeightRequirements;
+  const familyPattern = rules.families
+    .map((family) => family.requirementPattern)
+    .join("|");
+  return new RegExp(
+    String.raw`\b(?:${familyPattern})${rules.optionalAmountPrefixPattern}\s+\d+\s*${rules.unitPattern}\b`,
+    "gi",
+  );
 }
 
 function hasMockDegreeEquivalentRequirement(text: string): boolean {

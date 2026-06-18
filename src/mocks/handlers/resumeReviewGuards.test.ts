@@ -54,6 +54,49 @@ describe("mock resume review guard handlers", () => {
     }
   });
 
+  it("flags private-use icon glyphs in mock resume review", async () => {
+    const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_format", {
+      resume: {
+        ...atsResume,
+        projects: ["Contact icon glyph \uE000"],
+      },
+    });
+
+    expect(result.format_issues).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          severity: "Warning",
+          issue: expect.stringContaining("Icon or private-use Unicode"),
+          fix: expect.stringContaining("plain text labels"),
+        }),
+      ]),
+    );
+  });
+
+  it("flags excessive decorative symbols in mock resume review", async () => {
+    const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_format", {
+      resume: {
+        ...atsResume,
+        experience: [
+          {
+            ...atsResume.experience[0],
+            achievements: ["Led support queue \u{1F4A1}\u{1F4A1}\u{1F4A1}\u{1F4A1}"],
+          },
+        ],
+      },
+    });
+
+    expect(result.format_issues).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          severity: "Warning",
+          issue: expect.stringContaining("decorative symbols"),
+          fix: expect.stringContaining("plain resume text"),
+        }),
+      ]),
+    );
+  });
+
   it("flags CSS-like hidden or tiny resume text in mock resume review", async () => {
     const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_format", {
       resume: {

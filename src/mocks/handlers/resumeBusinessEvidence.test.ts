@@ -170,6 +170,36 @@ describe("mock resume business evidence handlers", () => {
     );
   });
 
+  it("uses shared supplemental keyword taxonomy for mock business evidence", async () => {
+    const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        ...atsResume,
+        summary: "",
+        skills: [],
+        experience: [
+          {
+            ...atsResume.experience[0],
+            current: false,
+            end_date: "2022",
+            achievements: [
+              "Prepared expense reports in MS Office and tracked KPIs for risk management reviews.",
+            ],
+          },
+        ],
+      },
+      jobDescription: "Required: Microsoft Office, expense reports, risk management, KPIs",
+    });
+
+    for (const keyword of ["microsoft office", "expense reports", "risk management", "kpis"]) {
+      const review = result.requirement_reviews.find((candidate) => candidate.keyword === keyword);
+      expect(review).toMatchObject({
+        keyword,
+        evidence_sections: ["experience"],
+      });
+      expect(["Direct", "Strong"]).toContain(review?.match_state);
+    }
+  });
+
   it("treats point of sale and POS system as equivalent mock evidence", async () => {
     const pointOfSaleResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
