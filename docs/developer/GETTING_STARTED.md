@@ -38,12 +38,15 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
 ```bash
 sudo apt-get install -y \
+  file \
   libwebkit2gtk-4.1-dev \
   libgtk-3-dev \
+  libgtk-3-bin \
   libappindicator3-dev \
   librsvg2-dev \
   libfuse2t64 \
-  patchelf
+  patchelf \
+  squashfs-tools
 ```
 
 **macOS Only:**
@@ -86,7 +89,7 @@ JOBSENTINEL_MACOS_NO_ACCOUNT=true npm run tauri:build:macos -- --target universa
 # src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_<version>_no-account_universal.dmg.sha256
 
 # Linux packages output
-APPIMAGE_EXTRACT_AND_RUN=1 npx --no-install tauri build --target x86_64-unknown-linux-gnu
+node scripts/build-linux-appimage.mjs --target x86_64-unknown-linux-gnu
 # src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/deb/JobSentinel_<version>_amd64.deb
 # src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/JobSentinel_<version>_amd64.AppImage
 ```
@@ -283,12 +286,15 @@ Install the required system libraries:
 
 ```bash
 sudo apt-get install -y \
+  file \
   libwebkit2gtk-4.1-dev \
   libgtk-3-dev \
+  libgtk-3-bin \
   libappindicator3-dev \
   librsvg2-dev \
   libfuse2t64 \
-  patchelf
+  patchelf \
+  squashfs-tools
 ```
 
 ### "sqlx error" or "no cached data for this query"

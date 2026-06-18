@@ -11,7 +11,7 @@ import {
   parseWorkflowActionUses,
 } from "./check-action-pins.mjs";
 
-const checkoutSha = "df4cb1c069e1874edd31b4311f1884172cec0e10";
+const checkoutSha = "9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0";
 const setupNodeSha = "48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e";
 const rustStableSha = "29eef336d9b2848a0b548edc03f92a220660cdb8";
 
@@ -49,7 +49,7 @@ function writeWorkflow(root, lines) {
 test("workflow action parser extracts pins and comments", () => {
   const actions = parseWorkflowActionUses(
     [
-      `- uses: actions/checkout@${checkoutSha} # v6.0.3`,
+      `- uses: actions/checkout@${checkoutSha} # v7.0.0`,
       `- uses: dtolnay/rust-toolchain@${rustStableSha} # stable`,
     ].join("\n"),
     ".github/workflows/ci.yml",
@@ -58,7 +58,7 @@ test("workflow action parser extracts pins and comments", () => {
   assert.deepEqual(
     actions.map((action) => [action.spec, action.ref, action.comment, action.line]),
     [
-      ["actions/checkout", checkoutSha, "v6.0.3", 1],
+      ["actions/checkout", checkoutSha, "v7.0.0", 1],
       ["dtolnay/rust-toolchain", rustStableSha, "stable", 2],
     ],
   );
@@ -67,7 +67,7 @@ test("workflow action parser extracts pins and comments", () => {
 test("action pin check accepts full SHA pins with stable comments", async () => {
   await withFixture(async (root) => {
     writeWorkflow(root, [
-      `- uses: actions/checkout@${checkoutSha} # v6.0.3`,
+      `- uses: actions/checkout@${checkoutSha} # v7.0.0`,
       `- uses: actions/setup-node@${setupNodeSha} # v6.4.0`,
       `- uses: dtolnay/rust-toolchain@${rustStableSha} # stable`,
     ]);
@@ -82,7 +82,7 @@ test("action pin check rejects tag refs, missing comments, prerelease comments, 
       root,
       ".github/workflows/ci.yml",
       [
-        `- uses: actions/checkout@v6.0.3 # v6.0.3`,
+        `- uses: actions/checkout@v7.0.0 # v7.0.0`,
         `- uses: actions/setup-node@${setupNodeSha}`,
         `- uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1-beta.1`,
         `- uses: dtolnay/rust-toolchain@${rustStableSha} # stable`,
@@ -102,13 +102,13 @@ test("action pin check rejects tag refs, missing comments, prerelease comments, 
 test("ls-remote tag parser prefers dereferenced annotated tags", () => {
   const tags = parseLsRemoteTags(
     [
-      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\trefs/tags/v6.0.3",
-      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\trefs/tags/v6.0.3^{}",
+      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\trefs/tags/v7.0.0",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\trefs/tags/v7.0.0^{}",
       "cccccccccccccccccccccccccccccccccccccccc\trefs/tags/v6.0.2",
     ].join("\n"),
   );
 
-  assert.equal(tags.get("v6.0.3"), "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+  assert.equal(tags.get("v7.0.0"), "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
   assert.equal(tags.get("v6.0.2"), "cccccccccccccccccccccccccccccccccccccccc");
 });
 
@@ -126,7 +126,7 @@ test("latest action check reports stale semver tags and stale rolling stable ref
           return {
             status: 0,
             stdout: [
-              `${checkoutSha}\trefs/tags/v6.0.3`,
+              `${checkoutSha}\trefs/tags/v7.0.0`,
               "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\trefs/tags/v6.0.2",
             ].join("\n"),
             stderr: "",
@@ -146,7 +146,7 @@ test("latest action check reports stale semver tags and stale rolling stable ref
     });
 
     assert.deepEqual(violations, [
-      "actions/checkout comment is # v6.0.2; latest stable tag is v6.0.3",
+      "actions/checkout comment is # v6.0.2; latest stable tag is v7.0.0",
       "dtolnay/rust-toolchain is pinned to 631a55b12751854ce901bb631d5902ceb48146f7; stable ref is 29eef336d9b2848a0b548edc03f92a220660cdb8",
     ]);
   });

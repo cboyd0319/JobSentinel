@@ -615,7 +615,7 @@ test("checkSecuritySensors rejects persisted checkout credentials", () => {
       "jobs:",
       "  security:",
       "    steps:",
-      "      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3",
+      "      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0",
       "      - run: npm audit --audit-level=moderate",
       "      - run: cargo deny check advisories bans licenses sources",
     ].join("\n"),
@@ -687,7 +687,9 @@ test("checkSecuritySensors rejects release workflow without Linux AppImage compa
   writeSelfOnlyBaseRepo(root);
   writeFileSync(
     join(root, ".github/workflows/release.yml"),
-    readBaseReleaseWorkflowWithout("          APPIMAGE_EXTRACT_AND_RUN: \"1\"\n"),
+    readBaseReleaseWorkflowWithout(
+      "        run: node scripts/build-linux-appimage.mjs --target x86_64-unknown-linux-gnu\n",
+    ),
   );
 
   assert(
@@ -1063,14 +1065,14 @@ function readBaseReleaseWorkflowWithout(removedLine) {
     "      contents: write",
     "      id-token: write",
     "    steps:",
-    "      - run: libfuse2t64=2.9.9-8.1build1",
+    "      - run: file=1:5.45-3build1 libfuse2t64=2.9.9-8.1build1 squashfs-tools=1:4.6.1-1build1",
     "      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0",
     "        with:",
     "          node-version: \"24.17.0\"",
     "          package-manager-cache: false",
     "      - name: Build Linux Tauri app",
     "          APPIMAGE_EXTRACT_AND_RUN: \"1\"",
-    "        run: npx --no-install tauri build --target x86_64-unknown-linux-gnu",
+    "        run: node scripts/build-linux-appimage.mjs --target x86_64-unknown-linux-gnu",
     "      - name: Configure Windows signing",
     "        run: |",
     "          WINDOWS_CERTIFICATE",

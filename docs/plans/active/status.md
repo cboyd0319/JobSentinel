@@ -1,8 +1,6 @@
 # Active Plan Status
 
-Last updated: 2026-06-18.
-
-Read this file first; load archived history only for old decision context.
+Last updated: 2026-06-18. Read this file first; load archived history only for old decision context.
 
 ## Goal State
 
@@ -51,9 +49,8 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   is staged for `2.9.0`. Public macOS `v2.7.7` and full cross-platform
   `v2.7.5` are legacy fallbacks until `2.9.0` assets are verified.
 - Fresh harness evidence reports 2 active docs, 2 indexed workstreams, and a
-  100/100 score. Current UI QA covers first-run setup, dashboard, application
-  tracking, Settings Sources & Alerts, key routes, toasts, and no passive
-  Keychain prompt.
+  100/100 score. UI QA covers setup, dashboard, tracking, Settings Sources &
+  Alerts, key routes, toasts, and no passive Keychain prompt.
 - Dependency evidence on 2026-06-18 (`npm` `11.17.0`, Node `24.17.0`, Rust
   `1.96.0`, `getrandom` `0.4.3`): `lint:deps`, `lint:actions`, and
   `release:check-deps` pass; CI/local setup activates pinned npm, direct pins
@@ -88,18 +85,22 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 - Final non-`content/` expert/agent pass is applied locally: memory-only
   company research, accessible onboarding, auto-refresh gating, atomic alert
   claims, HTTPS JobsWithGPT endpoints, shared import hashes, and metadata.
-- Last pushed v2.9.0 readiness baseline had CI passing before local follow-up.
-  Current local work adds release SBOMs/manifests, exact-version asset checks,
-  GitHub attestations, macOS supply-chain checks, import hardening, model pins,
-  macOS dependency trimming, Linux WebKitGTK 4.1 metadata, and Windows signing.
-  Gatekeeper-ready macOS remains Apple-blocked. Public wiki `Home.md` and
-  `Capabilities.md` have a validated local draft pending approval to push.
+- Last pushed v2.9.0 readiness baseline had CI passing. Local follow-up adds
+  SBOMs/manifests, exact asset checks, attestations, supply-chain checks,
+  import hardening, model pins, Linux metadata, Windows signing, and macOS
+  trimming. Gatekeeper-ready macOS remains Apple-blocked; wiki drafts await
+  approval to push.
 - 2026-06-18 OWASP CheatSheetSeries scan across 120 files covered Actions,
-  supply-chain, AI, storage, URL, logging, Browser Import, CSS, and parsers.
-  Follow-up hardening includes SMTP binding, HTTPS imports, app-preview isolation,
-  CI/release drift, scraper/notification DNS-IP pinning, Teams Workflows
-  validation/redaction, AI guards, sandboxed previews, Tauri narrowing, signing
-  cleanup, secure delete, parser caps, and KDF floors; fresh checks pass.
+  supply-chain, AI, storage, URL, logging, Browser Import, CSS, and parsers;
+  follow-up hardening covers SMTP binding, HTTPS imports, previews, DNS/IP
+  pinning, Teams redaction, AI guards, Tauri narrowing, signing cleanup, secure
+  delete, parser caps, KDF floors, and CI/release drift.
+- 2026-06-18 Linux packaging hardening adds exact AppImage helper hashes,
+  project-local Tauri bundler tools, exact build package pins, and a fallback
+  wrapper for Tauri linuxdeploy failures. Clean Ubuntu 24.04 Apple container
+  output: `.deb` `ec5cfad2a3ef9a5ba0207c515b7e6687b118eb9361401583b48651e626b343a1`;
+  executable x86_64 AppImage `bb1d58aadce73254ab80510ce659710dd6b63f20491ee76a4e0781f63da00ee4`;
+  `.sha256` sidecar verified.
 
 ## Next Best Work
 

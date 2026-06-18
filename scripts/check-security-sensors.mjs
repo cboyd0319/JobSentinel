@@ -224,7 +224,7 @@ const releaseWorkflowChecks = [
   },
   {
     label: "Linux AppImage build compatibility",
-    phrases: ["libfuse2t64=2.9.9-8.1build1", "Build Linux Tauri app", "APPIMAGE_EXTRACT_AND_RUN: \"1\""],
+    phrases: ["file=1:5.45-3build1", "libfuse2t64=2.9.9-8.1build1", "squashfs-tools=1:4.6.1-1build1", "Build Linux Tauri app", "APPIMAGE_EXTRACT_AND_RUN: \"1\"", "scripts/build-linux-appimage.mjs"],
   },
   {
     label: "release attestation permissions",

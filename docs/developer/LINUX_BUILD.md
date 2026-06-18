@@ -18,12 +18,15 @@ Install the required development libraries:
 ```bash
 sudo apt-get update
 sudo apt-get install -y \
+  file \
   libwebkit2gtk-4.1-dev \
   libgtk-3-dev \
+  libgtk-3-bin \
   libappindicator3-dev \
   librsvg2-dev \
   libfuse2t64 \
-  patchelf
+  patchelf \
+  squashfs-tools
 ```
 
 ### Build Tools
@@ -54,8 +57,13 @@ cd ..
 The Tauri CLI builds both the frontend and the Rust backend:
 
 ```bash
-APPIMAGE_EXTRACT_AND_RUN=1 npx --no-install tauri build --target x86_64-unknown-linux-gnu
+node scripts/build-linux-appimage.mjs --target x86_64-unknown-linux-gnu
 ```
+
+The AppImage wrapper keeps `APPIMAGE_EXTRACT_AND_RUN=1` enabled, uses Tauri's
+project-local helper cache under `src-tauri/target/.tauri/`, downloads only
+missing fallback helpers from pinned HTTPS URLs, and verifies SHA-256 before
+executing helper scripts or extracted `linuxdeploy` AppRun binaries.
 
 ### 3. Locate Build Artifacts
 
@@ -203,13 +211,13 @@ docker run -it --rm \
   -w /workspace \
   ubuntu:24.04 \
   bash -c "apt-get update && \
-    apt-get install -y curl build-essential libwebkit2gtk-4.1-dev libgtk-3-dev libappindicator3-dev librsvg2-dev libfuse2t64 patchelf && \
+    apt-get install -y curl file build-essential libwebkit2gtk-4.1-dev libgtk-3-dev libgtk-3-bin libappindicator3-dev librsvg2-dev libfuse2t64 patchelf squashfs-tools && \
     curl -fsSL https://deb.nodesource.com/setup_24.x | bash - && \
     apt-get install -y nodejs && \
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y && \
     source ~/.cargo/env && \
     node scripts/install-pinned-npm.mjs && \
-    npm ci --ignore-scripts && APPIMAGE_EXTRACT_AND_RUN=1 npx --no-install tauri build --target x86_64-unknown-linux-gnu"
+    npm ci --ignore-scripts && node scripts/build-linux-appimage.mjs --target x86_64-unknown-linux-gnu"
 ```
 
 ## Signing and Auto-Updates
