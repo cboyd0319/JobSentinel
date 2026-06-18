@@ -136,6 +136,9 @@ Out of scope:
   setup, private-link rejection, LinkedIn preview/save, duplicates, and
   overflow; commit `361560f9` added clean send APIs and local-model
   revision/checksum pinning from the CheatSheetSeries scan.
+- Commit `fc2e6c6a` removed unused direct macOS WebKit/cookie dependencies,
+  aligned release metadata, refreshed stale npm transitives, and added a
+  source-boundary sensor.
 - Final whole-UI post-design pass: 266/266 E2E, 16 route inventories, and no
   console/page errors or overflow.
 - Final non-`content/` audit fixes landed: memory-only company research,
@@ -144,26 +147,28 @@ Out of scope:
 
 ## Next Work
 
-1. Verify `2.9.0` release metadata, packaging docs, and Windows/macOS/Linux
-   release evidence before any asset creation or final push.
-2. Confirm major route screenshots, Computer Use clicks, keyboard flow, and
+1. Get approval before updating the public GitHub wiki, then sync `Home.md`
+   and `Capabilities.md` with current `2.9.0` readiness.
+2. Verify Windows/macOS/Linux release evidence before any asset creation or
+   final push.
+3. Confirm major route screenshots, Computer Use clicks, keyboard flow, and
    affected route/action/state checks after any further UI change before calling
    v2.9.0 done.
-3. Continue macOS readiness only after final local gates close; do
+4. Continue macOS readiness only after final local gates close; do
    not claim Gatekeeper-ready distribution before signing, notarization,
    stapling, and install proof exist.
-4. Finish current verified product and QA slices in resume assistance, job-card
+5. Finish current verified product and QA slices in resume assistance, job-card
    protection, guided intake, and pay protection.
-5. Continue encrypted storage UX: release/packaging readiness and no passive
+6. Continue encrypted storage UX: release/packaging readiness and no passive
    Settings probes.
-6. Keep the LinkedIn-compatible Browser Import path user-opened and
+7. Keep the LinkedIn-compatible Browser Import path user-opened and
    user-clicked; do not add browser-session capture, background page access, or
    scheduled LinkedIn fetches.
-7. Do not reopen repo-bloat cleanup unless a fresh bloat gate failure or
+8. Do not reopen repo-bloat cleanup unless a fresh bloat gate failure or
    product/privacy/security/docs verification blocker appears.
-8. Keep README, docs hubs, release docs, wiki inventory, and active status in
+9. Keep README, docs hubs, release docs, wiki inventory, and active status in
    sync when behavior, readiness, or public guidance changes.
-9. Commit each major verified change locally; push only at goal completion or
+10. Commit each major verified change locally; push only at goal completion or
    on newer explicit instruction.
 
 ## Sensors

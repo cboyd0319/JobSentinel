@@ -47,22 +47,17 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 
 ## Current Posture
 
-- `origin/main` is the source of truth for the pushed `2.7.7`
-  release-recovery baseline; local metadata is now staged for `2.9.0`.
-- Public macOS is `v2.7.7` as of 2026-06-06, and the latest full
-  cross-platform public release remains `v2.7.5` until `2.9.0`
-  Windows/macOS/Linux assets are built and verified.
+- `origin/main` is the pushed `2.7.7` release-recovery baseline; local metadata
+  is staged for `2.9.0`. Public macOS is `v2.7.7`, and the latest full
+  cross-platform public release is `v2.7.5` until `2.9.0` assets are verified.
 - Fresh harness evidence reports 2 active docs, 2 indexed workstreams, and a
-  100/100 score; macOS Computer Use retest covered first-run setup, dashboard,
-  application tracking, Settings Sources & Alerts, and safe support report.
-- Current UI QA evidence confirms modal paint fixes, visible Dashboard and
-  Hiring Trends toasts, Application Assist tabs, Pay Protection, Resume Match,
-  and Settings Sources & Alerts opening without a passive Keychain prompt.
-- Dependency evidence on 2026-06-17 (`npm` `11.17.0`, Node `24.16.0`, Rust
-  `1.96.0`, `getrandom` `0.4.3`): `release:check-deps` passes after the Rust
-  lockfile refresh. Direct pins are latest/stable; transitives are
-  lockfile-pinned and latest-compatible. `release:check-deps` enforces
-  registry, lockfile, action, OS, apt, local-tool, and SQLCipher bridge freshness.
+  100/100 score. Current UI QA covers first-run setup, dashboard, application
+  tracking, Settings Sources & Alerts, key routes, toasts, and no passive
+  Keychain prompt.
+- Dependency evidence on 2026-06-18 (`npm` `11.17.0`, Node `24.16.0`, Rust
+  `1.96.0`, `getrandom` `0.4.3`): `release:check-deps` passes after Rust and
+  npm lockfile refreshes; direct pins are latest/stable and transitives are
+  lockfile-pinned/latest-compatible.
 - Runtime credential commands, scheduler, notifications, and smoke tests use
   encrypted SQLite vault storage, file-backed app data opens through SQLCipher,
   and passive status checks stay non-interactive. Settings passphrase controls
@@ -88,7 +83,10 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   keyboard paths now have fresh Playwright evidence.
 - Final local release gates passed on 2026-06-17: version/deps, docs, harness,
   macOS readiness, frontend lint/unit/build, Playwright (`266/266`), Rust
-  fmt/clippy/full `cargo test`, and local macOS package verify.
+  fmt/clippy/full `cargo test`, and local macOS package verify. On
+  2026-06-18, post-follow-up checks passed release version/deps, docs, harness,
+  security, frontend lint/build/focused test, Tauri invoke lint, npm audit,
+  Rust fmt/clippy, and full `cargo test`.
 - Final non-`content/` expert/agent pass is applied locally: memory-only
   company research, accessible onboarding, auto-refresh gating, atomic alert
   claims, HTTPS JobsWithGPT endpoints, shared import hashes, and metadata.
@@ -96,25 +94,29 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   local follow-up. Current committed local work adds release SBOMs, manifests,
   GitHub provenance/SBOM attestations, public macOS supply-chain verification,
   Browser Import clean-API hardening, and optional local-model
-  revision/checksum pinning. Current local follow-up removes unused direct
-  macOS WebKit/cookie dependencies and aligns release metadata. Gatekeeper-ready
-  macOS remains Apple-blocked.
+  revision/checksum pinning. Commit `fc2e6c6a` removes unused direct macOS
+  WebKit/cookie dependencies and aligns release metadata. Gatekeeper-ready macOS
+  remains Apple-blocked. Public wiki `Home.md` and `Capabilities.md` are stale
+  and need explicit approval before the public wiki remote is updated.
 
 ## Next Best Work
 
-1. Verify `2.9.0` release metadata, packaging docs, public wiki readiness, and
-   Windows/macOS/Linux release evidence before any asset creation or final push.
-2. Continue resume assistance only where it improves truthful requirement review,
+1. Get explicit approval to update the public GitHub wiki, then sync
+   `Home.md` and `Capabilities.md` with the current `2.9.0` release, security,
+   source-boundary, and capability posture.
+2. Verify `2.9.0` Windows/macOS/Linux release evidence before any asset
+   creation or final push.
+3. Continue resume assistance only where it improves truthful requirement review,
    hard-constraint handling, readable evidence, or next-action guidance.
-3. Continue guided intake only where resume/profile suggestions stay optional,
+4. Continue guided intake only where resume/profile suggestions stay optional,
    reviewed, local, and understandable for non-technical job seekers.
-4. Continue job-card protection without treating local signals as employer
+5. Continue job-card protection without treating local signals as employer
    predictions.
-5. Continue macOS readiness docs and checks without claiming Gatekeeper-ready
+6. Continue macOS readiness docs and checks without claiming Gatekeeper-ready
    distribution before Apple credentials exist.
-6. Continue encrypted storage UX; storage primitives exist, and remaining work
+7. Continue encrypted storage UX; storage primitives exist, and remaining work
    is release verification and packaging readiness.
-7. Keep harness work focused on bounded startup context, runnable verification,
+8. Keep harness work focused on bounded startup context, runnable verification,
    privacy/security gates, and docs accuracy. Do not add new ceremony unless it
    prevents a repeated failure.
 
@@ -133,8 +135,3 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 - Final docs, bloat, security, architecture, frontend, build, Rust, and chosen
   E2E or Computer Use gates pass before any production-ready or release-ready
   claim.
-
-## Archived Context
-
-Archived plans under `docs/plans/archive/` are provenance only, not startup
-context.
