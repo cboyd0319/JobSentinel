@@ -149,10 +149,19 @@ for the requested platforms. Tag pushes build all platforms. Manual dispatch
 accepts a `version` input and a `platform` choice of `all`, `windows`, `macos`,
 or `linux`, replacing the old standalone manual Windows and Linux workflows.
 
-Before any draft release or package build starts, the release preflight validates
-release metadata, harness policy, latest stable dependency and Action pins,
-harness scripts, markdown, frontend lint, frontend unit tests, frontend build,
-npm advisories, Rust advisories, Rust formatting, Rust clippy, and Rust tests.
+Before any draft release or package build starts, the release workflow resolves
+and validates release metadata, then runs independent preflight jobs in
+parallel:
+
+- Harness and dependency preflight: harness policy, latest stable dependency
+  and Action pins, harness script tests, and markdown lint.
+- Frontend preflight: frontend lint, frontend unit tests, and frontend build.
+- Rust preflight: Linux build dependencies, Rust formatting, Rust clippy, and
+  Rust tests.
+- Security preflight: npm advisories and Rust advisories.
+
+Draft-release creation waits for every preflight job before write permissions
+or the GitHub `release` environment are used.
 
 ### Platforms and artifacts
 
@@ -201,6 +210,11 @@ publish events, it scopes the check to the published tag. On manual runs, the
 optional `tag` input checks a specific release, and a blank tag checks the
 latest public release.
 
+The public verifier uses `npm ci --prefer-offline --no-audit --no-fund` because
+dependency advisory checks already block CI and release preflight. This keeps
+the post-publish verifier focused on the downloadable assets, checksums, SBOMs,
+and attestations.
+
 The public macOS verifier defaults to the current no-Apple-account release
 path: expected JobSentinel bundle id, product name, icon metadata and resource
 file, release-tag version, macOS 13.0 minimum-system metadata, universal
@@ -240,8 +254,8 @@ Inputs:
 | `version`  | `X.Y.Z` or `vX.Y.Z`; must match repo metadata |
 | `platform` | `all`, `windows`, `macos`, or `linux`      |
 
-Manual runs still execute the release preflight before packaging. Windows MSI
-upload is blocked unless the MSI has a valid Authenticode signature. Linux
+Manual runs still execute every release preflight job before packaging. Windows
+MSI upload is blocked unless the MSI has a valid Authenticode signature. Linux
 uploads are blocked unless exactly one AppImage and one Debian package exist,
 both filenames include the exact release-version segment, both files are
 non-empty, Debian metadata can be inspected, and matching checksums are

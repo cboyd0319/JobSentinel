@@ -85,7 +85,7 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   docs, harness, scripts, frontend lint/unit/build, Rust fmt/full clippy/full
   `cargo test`, E2E `266/266`, npm audit, cargo deny, Tauri invokes, macOS
   readiness, and existing `2.9.0` no-account DMG verification. Hosted release
-  preflight now blocks on frontend lint/unit and npm/Cargo advisories.
+  preflight now parallelizes metadata, harness, frontend, Rust, and advisories.
 - Final non-`content/` expert/agent pass is applied locally: memory-only
   company research, accessible onboarding, auto-refresh gating, atomic alert
   claims, HTTPS JobsWithGPT endpoints, shared import hashes, and metadata.

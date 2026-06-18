@@ -27,6 +27,7 @@ jobs:
   verify-public-release-assets:
     name: Verify public release assets
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     permissions:
       attestations: read
       contents: read
@@ -44,7 +45,7 @@ jobs:
           package-manager-cache: false
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --prefer-offline --no-audit --no-fund
 
       - name: Verify public release asset set
         shell: bash
@@ -70,6 +71,7 @@ jobs:
   verify-macos-public-artifact:
     name: Verify public macOS DMG
     runs-on: macos-26
+    timeout-minutes: 30
     permissions:
       attestations: read
       contents: read
@@ -87,7 +89,7 @@ jobs:
           package-manager-cache: false
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --prefer-offline --no-audit --no-fund
 
       - name: Verify public macOS release artifact
         shell: bash

@@ -252,7 +252,7 @@ test("macOS readiness checks release asset uploads stay draft", () => {
     "- name: Create draft release",
     "  env:",
     "    GH_TOKEN: ${{ github.token }}",
-    "    RELEASE_TAG: ${{ steps.get_version.outputs.tag }}",
+    "    RELEASE_TAG: ${{ steps.release_inputs.outputs.tag }}",
     "  run: |",
     "    gh release edit \"$RELEASE_TAG\" --draft --prerelease=false --notes-file \"$notes_file\"",
     "    gh release create \"$RELEASE_TAG\" --draft --notes-file \"$notes_file\"",
@@ -267,6 +267,12 @@ test("macOS readiness checks release asset uploads stay draft", () => {
 
   assert.equal(releaseAssetUploadsStayDraft(legacyWorkflow), true);
   assert.equal(releaseAssetUploadsStayDraft(workflow), true);
+  assert.equal(
+    releaseAssetUploadsStayDraft(
+      workflow.replace("steps.release_inputs.outputs.tag", "steps.get_version.outputs.tag"),
+    ),
+    true,
+  );
   assert.equal(
     releaseAssetUploadsStayDraft(
       workflow.replace(

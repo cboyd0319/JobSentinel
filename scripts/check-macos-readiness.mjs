@@ -110,10 +110,11 @@ export function releaseAssetUploadsStayDraft(releaseWorkflow) {
   const releaseEdit = getShellCommandBlock(createRelease, 'gh release edit "$RELEASE_TAG"');
   const releaseCreate = getShellCommandBlock(createRelease, 'gh release create "$RELEASE_TAG"');
   const createsDraftRelease =
-    (hasAll(createRelease, [
-      "GH_TOKEN: ${{ github.token }}",
-      "RELEASE_TAG: ${{ steps.get_version.outputs.tag }}",
-    ]) &&
+    (createRelease.includes("GH_TOKEN: ${{ github.token }}") &&
+      hasAny(createRelease, [
+        "RELEASE_TAG: ${{ steps.get_version.outputs.tag }}",
+        "RELEASE_TAG: ${{ steps.release_inputs.outputs.tag }}",
+      ]) &&
       hasAll(releaseEdit, [
         'gh release edit "$RELEASE_TAG"',
         "--draft",

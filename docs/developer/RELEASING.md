@@ -56,10 +56,11 @@ git tag vX.Y.Z
 git push origin vX.Y.Z
 ```
 
-Pushing the tag triggers `release.yml`. The workflow creates a draft release,
-runs preflight checks, builds Windows, macOS, and Linux packages, verifies the
-macOS package before upload, generates platform SBOMs, creates GitHub
-provenance and SBOM attestations, and attaches release assets.
+Pushing the tag triggers `release.yml`. The workflow resolves release inputs,
+runs parallel preflight checks, creates a draft release only after those checks
+pass, builds Windows, macOS, and Linux packages, verifies the macOS package
+before upload, generates platform SBOMs, creates GitHub provenance and SBOM
+attestations, and attaches release assets.
 
 For a local-first release, build each platform on that platform or VM, attach
 the verified artifacts to the matching draft release, and run the public

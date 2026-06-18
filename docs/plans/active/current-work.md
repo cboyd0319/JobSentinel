@@ -102,8 +102,8 @@ Out of scope:
 ## Done Recently
 
 - macOS docs and release workflow separate full-public and no-account paths;
-  hosted release preflight blocks on lint/unit/advisories, and public wiki
-  upkeep is harness-owned.
+  hosted release preflight now runs metadata, harness, frontend, Rust, and
+  advisory gates in parallel, and public wiki upkeep is harness-owned.
 - Resume Match and Resume Builder hard-requirement handling now covers age,
   citizenship, screening, driving, insurance, language, schedule, and related
   review-first categories more consistently across Rust, mocks, and UI.

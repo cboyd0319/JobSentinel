@@ -80,6 +80,20 @@ const releaseCacheMarkers = [
 
 const releaseWorkflowChecks = [
   {
+    label: "parallel release preflight",
+    phrases: [
+      "release-inputs:",
+      "preflight-harness:",
+      "preflight-frontend:",
+      "preflight-rust:",
+      "preflight-security:",
+      "- preflight-harness",
+      "- preflight-frontend",
+      "- preflight-rust",
+      "- preflight-security",
+    ],
+  },
+  {
     label: "release environment gate",
     phrases: ["environment:", "name: release"],
   },
@@ -163,6 +177,26 @@ const releaseWorkflowChecks = [
 
 const releasePreflightChecks = [
   {
+    label: "release metadata validation",
+    phrases: ["npm run release:check-version"],
+  },
+  {
+    label: "harness checks",
+    phrases: ["npm run harness:check"],
+  },
+  {
+    label: "latest stable dependency pins",
+    phrases: ["npm run release:check-deps"],
+  },
+  {
+    label: "harness script tests",
+    phrases: ["npm run test:scripts"],
+  },
+  {
+    label: "markdown lint",
+    phrases: ["npm run lint:md"],
+  },
+  {
     label: "frontend lint",
     phrases: ["npm run lint"],
   },
@@ -177,6 +211,18 @@ const releasePreflightChecks = [
   {
     label: "cargo deny advisories",
     phrases: ["cargo install cargo-deny --version 0.19.9 --locked", "cargo deny check advisories"],
+  },
+  {
+    label: "Rust formatting",
+    phrases: ["cargo fmt --all -- --check"],
+  },
+  {
+    label: "Rust clippy",
+    phrases: ["cargo clippy -- -D warnings"],
+  },
+  {
+    label: "Rust tests",
+    phrases: ["cargo test --lib"],
   },
 ];
 
@@ -422,7 +468,15 @@ export function checkSecuritySensors(root = defaultRoot) {
     }
   }
 
-  const preflightJob = workflowJobBlock(releaseWorkflow, "preflight");
+  const preflightJob = [
+    "release-inputs",
+    "preflight-harness",
+    "preflight-frontend",
+    "preflight-rust",
+    "preflight-security",
+  ]
+    .map((jobName) => workflowJobBlock(releaseWorkflow, jobName))
+    .join("\n");
   for (const check of releasePreflightChecks) {
     if (!includesAll(preflightJob, check.phrases)) {
       violations.push(`release workflow preflight is missing gate: ${check.label}`);
