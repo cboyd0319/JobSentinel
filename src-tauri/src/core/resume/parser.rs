@@ -55,12 +55,25 @@ impl ResumeParser {
     fn check_tesseract_available() -> bool {
         use std::process::Command;
 
-        // Try to run tesseract --version
-        Command::new("tesseract")
+        let Ok(tesseract_path) = resolve_ocr_tool(OcrTool::Tesseract) else {
+            return false;
+        };
+
+        Command::new(tesseract_path)
             .arg("--version")
             .output()
             .map(|output| output.status.success())
             .unwrap_or(false)
+    }
+
+    #[cfg(feature = "ocr")]
+    const fn tesseract_env_var() -> &'static str {
+        "JOBSENTINEL_TESSERACT_PATH"
+    }
+
+    #[cfg(feature = "ocr")]
+    const fn pdftoppm_env_var() -> &'static str {
+        "JOBSENTINEL_PDFTOPPM_PATH"
     }
 
     /// Check if OCR is available for scanned PDFs
@@ -131,7 +144,7 @@ impl ResumeParser {
                 cleaned_text.len()
             );
 
-            match self.ocr_pdf(&canonical_path) {
+            match self.ocr_pdf(canonical_path) {
                 Ok(ocr_text) => {
                     if ocr_text.len() > cleaned_text.len() {
                         tracing::info!("OCR extraction successful ({} chars)", ocr_text.len());
@@ -262,11 +275,17 @@ impl ResumeParser {
     /// - `file_path` must be pre-validated (canonicalized, extension checked) by caller
     /// - Temp directory uses UUID to prevent collisions/races
     /// - Image paths are validated to prevent symlink attacks outside temp_dir
+    /// - External OCR tools are resolved to canonical absolute paths before execution
     /// - Command arguments are passed directly (not via shell) to prevent injection
     #[cfg(feature = "ocr")]
     fn ocr_pdf(&self, file_path: &Path) -> Result<String> {
         use std::process::Command;
         use uuid::Uuid;
+
+        let pdftoppm_path = resolve_ocr_tool(OcrTool::PdfToPpm)
+            .context("pdftoppm is not available for OCR support")?;
+        let tesseract_path = resolve_ocr_tool(OcrTool::Tesseract)
+            .context("Tesseract OCR is not available for OCR support")?;
 
         // Create temp directory for intermediate files
         let temp_dir = std::env::temp_dir().join(format!("jobsentinel_ocr_{}", Uuid::new_v4()));
@@ -281,7 +300,7 @@ impl ResumeParser {
         // Convert PDF pages to images using pdftoppm (commonly installed with poppler)
         // Security: output_prefix is in our controlled temp_dir, file_path is already canonicalized
         let output_prefix = temp_dir.join("page");
-        let pdftoppm_result = Command::new("pdftoppm")
+        let pdftoppm_result = Command::new(&pdftoppm_path)
             .arg("-png")
             .arg("-r")
             .arg("300") // 300 DPI for good OCR quality
@@ -337,7 +356,7 @@ impl ResumeParser {
             // - Within temp_dir
             // - A regular file with .png extension
             // - Not a symlink outside temp_dir
-            let output = Command::new("tesseract")
+            let output = Command::new(&tesseract_path)
                 .arg(image_path) // Safe: validated above
                 .arg("stdout")
                 .arg("-l")
@@ -446,6 +465,91 @@ impl ResumeParser {
 
         sections
     }
+}
+
+#[cfg(feature = "ocr")]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum OcrTool {
+    Tesseract,
+    PdfToPpm,
+}
+
+#[cfg(feature = "ocr")]
+impl OcrTool {
+    fn env_var(self) -> &'static str {
+        match self {
+            Self::Tesseract => ResumeParser::tesseract_env_var(),
+            Self::PdfToPpm => ResumeParser::pdftoppm_env_var(),
+        }
+    }
+
+    const fn label(self) -> &'static str {
+        match self {
+            Self::Tesseract => "Tesseract OCR",
+            Self::PdfToPpm => "pdftoppm",
+        }
+    }
+
+    const fn default_candidates(self) -> &'static [&'static str] {
+        match self {
+            Self::Tesseract => &[
+                "/opt/homebrew/bin/tesseract",
+                "/usr/local/bin/tesseract",
+                "/usr/bin/tesseract",
+                r"C:\Program Files\Tesseract-OCR\tesseract.exe",
+                r"C:\Program Files (x86)\Tesseract-OCR\tesseract.exe",
+            ],
+            Self::PdfToPpm => &[
+                "/opt/homebrew/bin/pdftoppm",
+                "/usr/local/bin/pdftoppm",
+                "/usr/bin/pdftoppm",
+                r"C:\Program Files\poppler\Library\bin\pdftoppm.exe",
+                r"C:\Program Files (x86)\poppler\Library\bin\pdftoppm.exe",
+            ],
+        }
+    }
+}
+
+#[cfg(feature = "ocr")]
+fn resolve_ocr_tool(tool: OcrTool) -> Result<PathBuf> {
+    if let Some(path) = std::env::var_os(tool.env_var()).filter(|value| !value.is_empty()) {
+        return validate_ocr_tool_path(tool, PathBuf::from(path));
+    }
+
+    for candidate in tool.default_candidates() {
+        let path = PathBuf::from(candidate);
+        if path.is_file() {
+            return validate_ocr_tool_path(tool, path);
+        }
+    }
+
+    Err(anyhow::anyhow!(
+        "{} executable was not found in a trusted install location",
+        tool.label()
+    ))
+}
+
+#[cfg(feature = "ocr")]
+fn validate_ocr_tool_path(tool: OcrTool, path: PathBuf) -> Result<PathBuf> {
+    if !path.is_absolute() {
+        return Err(anyhow::anyhow!(
+            "{} path must be an absolute executable path",
+            tool.label()
+        ));
+    }
+
+    let canonical_path = path
+        .canonicalize()
+        .with_context(|| format!("{} executable is not accessible", tool.label()))?;
+
+    if !canonical_path.is_file() {
+        return Err(anyhow::anyhow!(
+            "{} executable path is not a regular file",
+            tool.label()
+        ));
+    }
+
+    Ok(canonical_path)
 }
 
 fn canonical_regular_file(file_path: &Path) -> Result<PathBuf> {
@@ -665,6 +769,35 @@ JavaScript
         // Both should work identically
         let text = "  Line 1  \n  Line 2  ";
         assert_eq!(parser1.clean_text(text), parser2.clean_text(text));
+    }
+
+    #[cfg(feature = "ocr")]
+    #[test]
+    fn test_ocr_tool_path_rejects_relative_executable() {
+        let error = validate_ocr_tool_path(OcrTool::Tesseract, PathBuf::from("tesseract"))
+            .unwrap_err()
+            .to_string();
+
+        assert!(error.contains("absolute executable path"));
+        assert!(!error.contains("JOBSENTINEL_TESSERACT_PATH"));
+    }
+
+    #[cfg(feature = "ocr")]
+    #[test]
+    fn test_ocr_tool_path_accepts_absolute_regular_file() {
+        use tempfile::TempDir;
+
+        let temp_dir = TempDir::new().unwrap();
+        let tool_path = temp_dir.path().join(if cfg!(windows) {
+            "pdftoppm.exe"
+        } else {
+            "pdftoppm"
+        });
+        std::fs::write(&tool_path, b"test").unwrap();
+
+        let resolved = validate_ocr_tool_path(OcrTool::PdfToPpm, tool_path.clone()).unwrap();
+
+        assert_eq!(resolved, tool_path.canonicalize().unwrap());
     }
 
     #[test]

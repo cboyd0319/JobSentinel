@@ -8,7 +8,8 @@
 
 JobSentinel's Resume Parser includes OCR (Optical Character Recognition) support for extracting text from
 scanned PDF resumes. This feature requires executing external command-line tools (`tesseract` and `pdftoppm`),
-which introduces security risks if not properly implemented.
+which introduces security risks if not properly implemented. OCR tool execution uses canonical absolute paths
+and does not rely on ambient `PATH` lookup.
 
 This document describes the security measures in place to prevent command injection, path traversal, and other
 command execution vulnerabilities.
@@ -28,6 +29,10 @@ JobSentinel's OCR feature uses two external tools:
    - macOS: `brew install poppler`
    - Linux: `apt install poppler-utils`
    - Windows: Download poppler binaries
+
+Advanced builds may set `JOBSENTINEL_TESSERACT_PATH` and `JOBSENTINEL_PDFTOPPM_PATH`, but each value must be
+an absolute path to a regular executable file. If those variables are not set, JobSentinel checks known install
+locations such as Homebrew, `/usr/bin`, and common Windows Program Files paths.
 
 ### Workflow
 
@@ -154,8 +159,9 @@ Command::new("sh")
     .arg(format!("tesseract {} output", path))
     .output()?;
 
-// Safe: direct command execution, no shell
-Command::new("tesseract")
+// Safe: canonical absolute executable path, direct execution, no shell
+let tesseract_path = resolve_ocr_tool(OcrTool::Tesseract)?;
+Command::new(&tesseract_path)
     .arg(path)           // Argument 1
     .arg("stdout")       // Argument 2
     .arg("-l")           // Argument 3
@@ -169,6 +175,7 @@ Command::new("tesseract")
 - No shell interpretation
 - No globbing, expansion, or command substitution
 - Special characters are literal values
+- OCR executables are resolved before execution; the operating system does not search `PATH`
 
 ### 3. Controlled Temp Directory
 
@@ -206,7 +213,8 @@ let _cleanup = scopeguard::guard((), |_| {
 // Convert PDF pages to images
 let output_prefix = temp_dir.join("page");
 
-let pdftoppm_result = Command::new("pdftoppm")
+let pdftoppm_path = resolve_ocr_tool(OcrTool::PdfToPpm)?;
+let pdftoppm_result = Command::new(&pdftoppm_path)
     .arg("-png")
     .arg("-r")
     .arg("300")
@@ -247,7 +255,8 @@ let mut image_paths: Vec<PathBuf> = std::fs::read_dir(&temp_dir)?
 
 ```rust
 // Safe: all flags are hardcoded
-let output = Command::new("tesseract")
+let tesseract_path = resolve_ocr_tool(OcrTool::Tesseract)?;
+let output = Command::new(&tesseract_path)
     .arg(image_path)    // User data (but validated path)
     .arg("stdout")      // Hardcoded: output destination
     .arg("-l")          // Hardcoded: language flag
@@ -304,41 +313,47 @@ pub fn is_ocr_available(&self) -> bool {
 
 ### 7. Runtime Tool Validation
 
-**Purpose**: Check if external tools exist before attempting to use them.
+**Purpose**: Check that external tools resolve to absolute regular files before attempting to use them.
 
 ```rust
-/// Check if Tesseract OCR is available on the system
 #[cfg(feature = "ocr")]
-fn check_tesseract_available() -> bool {
-    use std::process::Command;
+fn resolve_ocr_tool(tool: OcrTool) -> Result<PathBuf> {
+    if let Some(path) = std::env::var_os(tool.env_var()).filter(|value| !value.is_empty()) {
+        return validate_ocr_tool_path(tool, PathBuf::from(path));
+    }
 
-    // Try to run tesseract --version
-    Command::new("tesseract")
-        .arg("--version")
-        .output()
-        .map(|output| output.status.success())
-        .unwrap_or(false)
+    for candidate in tool.default_candidates() {
+        let path = PathBuf::from(candidate);
+        if path.is_file() {
+            return validate_ocr_tool_path(tool, path);
+        }
+    }
+
+    Err(anyhow::anyhow!("OCR executable was not found in a trusted install location"))
 }
 
-pub fn new() -> Self {
-    #[cfg(feature = "ocr")]
-    {
-        let ocr_available = Self::check_tesseract_available();
-        Self { ocr_available }
+#[cfg(feature = "ocr")]
+fn validate_ocr_tool_path(tool: OcrTool, path: PathBuf) -> Result<PathBuf> {
+    if !path.is_absolute() {
+        return Err(anyhow::anyhow!("OCR tool path must be absolute"));
     }
 
-    #[cfg(not(feature = "ocr"))]
-    {
-        Self {}
+    let canonical_path = path.canonicalize().context("OCR executable is not accessible")?;
+    if !canonical_path.is_file() {
+        return Err(anyhow::anyhow!("OCR executable path is not a regular file"));
     }
+
+    Ok(canonical_path)
 }
 ```
 
 **What this prevents**:
 
-- Runtime errors: gracefully handle missing tools
-- Information disclosure: avoid exposing system paths in control flow
-- User confusion: return clear error messages
+- Current-directory or `PATH` hijacking
+- Relative executable overrides
+- Directory or device paths being executed
+- Raw tool paths leaking through normal OCR availability checks
+- Missing tools fail closed before OCR attempts
 
 ## Complete Security Flow
 
@@ -361,8 +376,12 @@ if canonical_path.extension() != Some("pdf") { return Err(...); }
 let temp_dir = std::env::temp_dir()
     .join(format!("jobsentinel_ocr_{}", Uuid::new_v4()));
 
-// 6. Execute pdftoppm with validated paths
-Command::new("pdftoppm")
+// 6. Resolve OCR tools to canonical absolute paths
+let pdftoppm_path = resolve_ocr_tool(OcrTool::PdfToPpm)?;
+let tesseract_path = resolve_ocr_tool(OcrTool::Tesseract)?;
+
+// 7. Execute pdftoppm with validated paths
+Command::new(&pdftoppm_path)
     .arg("-png")                    // Hardcoded flag
     .arg("-r")                      // Hardcoded flag
     .arg("300")                     // Hardcoded value
@@ -370,7 +389,7 @@ Command::new("pdftoppm")
     .arg(&temp_dir.join("page"))    // Controlled output
     .output()?;
 
-// 7. Validate each generated image file
+// 8. Validate each generated image file
 for image_path in generated_images {
     let canonical_image = image_path.canonicalize()?;
     let canonical_temp = temp_dir.canonicalize()?;
@@ -391,7 +410,7 @@ for image_path in generated_images {
     }
 
     // Now safe to process
-    Command::new("tesseract")
+    Command::new(&tesseract_path)
         .arg(&canonical_image)  // Validated path
         .arg("stdout")          // Hardcoded
         .arg("-l")              // Hardcoded
@@ -399,7 +418,7 @@ for image_path in generated_images {
         .output()?;
 }
 
-// 8. Cleanup temp directory
+// 9. Cleanup temp directory
 std::fs::remove_dir_all(&temp_dir)?;
 ```
 
@@ -478,7 +497,8 @@ let _cleanup = guard(temp_dir.clone(), |dir| {
 ### 6. Validate command output
 
 ```rust
-let output = Command::new("tesseract")
+let tesseract_path = resolve_ocr_tool(OcrTool::Tesseract)?;
+let output = Command::new(&tesseract_path)
     .arg(image_path)
     .arg("stdout")
     .output()?;
