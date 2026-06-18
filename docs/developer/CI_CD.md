@@ -119,7 +119,9 @@ agent-facing files, workflow files, or release metadata changed.
 
 ### Job: test-rust
 
-Checks formatting, lints, and runs the library test suite.
+Checks formatting, installs Linux Tauri dependencies only after formatting
+passes, lints, and runs the library test suite. This keeps format failures from
+waiting on Ubuntu package installation.
 
 | Step             | Command                       |
 | ---------------- | ----------------------------- |
@@ -177,8 +179,8 @@ parallel:
 - Harness and dependency preflight: harness policy, latest stable dependency
   and Action pins, harness script tests, and markdown lint.
 - Frontend preflight: frontend lint, frontend unit tests, and frontend build.
-- Rust preflight: Linux build dependencies, Rust formatting, Rust clippy, and
-  Rust tests.
+- Rust preflight: Rust formatting before Linux build dependencies, then Rust
+  clippy and Rust tests.
 - Security preflight: npm advisories and Rust advisories.
 
 Draft-release creation waits for every preflight job before write permissions
@@ -544,7 +546,8 @@ Check the failed job's logs directly. Common causes:
   bundle metadata, missing `.dmg.sha256`, missing `_no-account_` asset label
   for ad-hoc public packages, or a no-account package that fails mounted or
   installed launch smoke
-- Linux: system library version mismatch (the workflow installs `libwebkit2gtk-4.1-dev` specifically)
+- Linux: system library version mismatch. The workflow installs exact-pinned
+  Tauri Linux packages with `--no-install-recommends`.
 - Windows: MSI bundler configuration error in `tauri.conf.json`
 
 ### Retag a broken release
