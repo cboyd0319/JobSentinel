@@ -13,6 +13,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::net::SocketAddr;
 use std::sync::{Arc, RwLock};
+use std::time::Duration;
 use thiserror::Error;
 use tokio::task::JoinHandle;
 use uuid::Uuid;
@@ -21,6 +22,10 @@ const BOOKMARKLET_TOKEN_HEADER: &str = "x-jobsentinel-token";
 const CONTENT_LENGTH_HEADER: &str = "content-length";
 const HEADER_BODY_SEPARATOR: &[u8] = b"\r\n\r\n";
 const MAX_BOOKMARKLET_REQUEST_BYTES: usize = 8192;
+#[cfg(not(test))]
+const BOOKMARKLET_READ_TIMEOUT: Duration = Duration::from_secs(3);
+#[cfg(test)]
+const BOOKMARKLET_READ_TIMEOUT: Duration = Duration::from_millis(50);
 const BOOKMARKLET_TOKEN_LIFETIME_MINUTES: i64 = 60;
 const INVALID_BOOKMARKLET_PAYLOAD_MESSAGE: &str =
     "Invalid bookmarklet payload. Reload the page and try again.";
@@ -284,31 +289,7 @@ async fn handle_connection(
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     use tokio::io::AsyncWriteExt;
 
-    let mut buffer = vec![0u8; MAX_BOOKMARKLET_REQUEST_BYTES];
-    let mut total_read = 0;
-
-    // Read request
-    loop {
-        match stream.try_read(&mut buffer[total_read..]) {
-            Ok(0) => break,
-            Ok(n) => {
-                total_read += n;
-                if total_read >= buffer.len() {
-                    break;
-                }
-                if request_buffer_has_complete_body(&buffer[..total_read]) {
-                    break;
-                }
-            }
-            Err(ref e) if e.kind() == std::io::ErrorKind::WouldBlock => {
-                // Wait for more data
-                tokio::time::sleep(tokio::time::Duration::from_millis(10)).await;
-            }
-            Err(e) => return Err(Box::new(e)),
-        }
-    }
-
-    let request = String::from_utf8_lossy(&buffer[..total_read]);
+    let request = read_bookmarklet_request(&stream).await?;
 
     // Parse request
     let (response, content_type) = if is_bookmarklet_import_request(&request) {
@@ -336,6 +317,53 @@ async fn handle_connection(
     writable_stream.flush().await?;
 
     Ok(())
+}
+
+async fn read_bookmarklet_request(
+    stream: &tokio::net::TcpStream,
+) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
+    let bytes = tokio::time::timeout(
+        BOOKMARKLET_READ_TIMEOUT,
+        read_bookmarklet_request_bytes(stream),
+    )
+    .await
+    .map_err(|_| {
+        std::io::Error::new(
+            std::io::ErrorKind::TimedOut,
+            "Bookmarklet request timed out",
+        )
+    })??;
+
+    Ok(String::from_utf8_lossy(&bytes).into_owned())
+}
+
+async fn read_bookmarklet_request_bytes(
+    stream: &tokio::net::TcpStream,
+) -> std::io::Result<Vec<u8>> {
+    let mut buffer = vec![0u8; MAX_BOOKMARKLET_REQUEST_BYTES];
+    let mut total_read = 0;
+
+    loop {
+        match stream.try_read(&mut buffer[total_read..]) {
+            Ok(0) => break,
+            Ok(n) => {
+                total_read += n;
+                if total_read >= buffer.len() {
+                    break;
+                }
+                if request_buffer_has_complete_body(&buffer[..total_read]) {
+                    break;
+                }
+            }
+            Err(ref e) if e.kind() == std::io::ErrorKind::WouldBlock => {
+                tokio::time::sleep(Duration::from_millis(10)).await;
+            }
+            Err(e) => return Err(e),
+        }
+    }
+
+    buffer.truncate(total_read);
+    Ok(buffer)
 }
 
 fn http_response_data(status: &str, content_type: &str, response: &str) -> String {

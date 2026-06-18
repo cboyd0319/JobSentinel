@@ -98,6 +98,9 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   WebKit/cookie dependencies and aligns release metadata. Gatekeeper-ready macOS
   remains Apple-blocked. Public wiki `Home.md` and `Capabilities.md` are stale
   and need explicit approval before the public wiki remote is updated.
+- OWASP CheatSheetSeries scan across 120 local files on 2026-06-18 verified
+  Actions, supply-chain, AI, storage, URL, logging, and Browser Import surfaces;
+  local follow-up added an incomplete-request timeout to the localhost server.
 
 ## Next Best Work
 

@@ -1,5 +1,6 @@
 use super::*;
 use std::sync::Arc;
+use tokio::io::AsyncWriteExt;
 
 const TEST_AUTH_TOKEN: &str = "secret-token";
 
@@ -135,6 +136,43 @@ fn test_request_buffer_waits_for_declared_body() {
     assert!(request_buffer_has_complete_body(
         b"OPTIONS /api/bookmarklet/import HTTP/1.1\r\nHost: localhost\r\n\r\n"
     ));
+}
+
+#[tokio::test]
+async fn test_bookmarklet_connection_times_out_incomplete_body() {
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0")
+        .await
+        .expect("test listener should bind");
+    let addr = listener
+        .local_addr()
+        .expect("test listener should expose address");
+    let database = bookmarklet_test_database().await;
+    let auth_state = bookmarklet_auth_state(TEST_AUTH_TOKEN, bookmarklet_auth_expiry());
+
+    let server_task = tokio::spawn(async move {
+        let (stream, _) = listener
+            .accept()
+            .await
+            .expect("test connection should be accepted");
+        handle_connection(stream, auth_state, database).await
+    });
+
+    let mut client = tokio::net::TcpStream::connect(addr)
+        .await
+        .expect("test client should connect");
+    client
+        .write_all(
+            b"POST /api/bookmarklet/import HTTP/1.1\r\nHost: localhost\r\nContent-Length: 5\r\n\r\n",
+        )
+        .await
+        .expect("test request should write");
+
+    let result = tokio::time::timeout(Duration::from_secs(1), server_task)
+        .await
+        .expect("incomplete request should not hold a connection indefinitely")
+        .expect("server task should not panic");
+
+    assert!(result.is_err());
 }
 
 fn bookmarklet_import_request(body: &str) -> String {

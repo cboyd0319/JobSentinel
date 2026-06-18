@@ -136,9 +136,9 @@ Out of scope:
   setup, private-link rejection, LinkedIn preview/save, duplicates, and
   overflow; commit `361560f9` added clean send APIs and local-model
   revision/checksum pinning from the CheatSheetSeries scan.
-- Commit `fc2e6c6a` removed unused direct macOS WebKit/cookie dependencies,
-  aligned release metadata, refreshed stale npm transitives, and added a
-  source-boundary sensor.
+- Commit `fc2e6c6a` and the current OWASP CheatSheetSeries pass removed unused
+  direct macOS WebKit/cookie dependencies, refreshed stale transitives, added a
+  source-boundary sensor, and hardened Browser Import incomplete requests.
 - Final whole-UI post-design pass: 266/266 E2E, 16 route inventories, and no
   console/page errors or overflow.
 - Final non-`content/` audit fixes landed: memory-only company research,
