@@ -636,6 +636,31 @@ test("runtime pin check rejects install-capable npx commands", () => {
   });
 });
 
+test("runtime pin check rejects local npm installs without pinned npm activation", () => {
+  withFixture((root) => {
+    writeMinimalRuntimeFixture(root);
+    writeFixtureFile(root, "scripts/setup-docs-linting.sh", "npm ci\n");
+    writeFixtureFile(
+      root,
+      "docs/developer/GETTING_STARTED.md",
+      ["node scripts/install-pinned-npm.mjs", "npm ci"].join("\n"),
+    );
+
+    const violations = collectRuntimePinViolations(root);
+
+    assert.equal(
+      violations.some((violation) =>
+        violation.includes("scripts/setup-docs-linting.sh:1 npm install commands must run after"),
+      ),
+      true,
+    );
+    assert.equal(
+      violations.some((violation) => violation.includes("docs/developer/GETTING_STARTED.md")),
+      false,
+    );
+  });
+});
+
 test("npm latest-stable check compares direct pins to registry versions", async () => {
   await withFixtureAsync(async (root) => {
     writeMinimalNpmFixture(root);

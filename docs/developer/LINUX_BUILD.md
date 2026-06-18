@@ -36,7 +36,8 @@ sudo apt-get install -y \
 ### 1. Install Dependencies
 
 ```bash
-# Install frontend dependencies
+# Activate pinned npm, then install frontend dependencies
+node scripts/install-pinned-npm.mjs
 npm ci
 
 # Fetch Rust dependencies
@@ -204,6 +205,7 @@ docker run -it --rm \
     apt-get install -y nodejs && \
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y && \
     source ~/.cargo/env && \
+    node scripts/install-pinned-npm.mjs && \
     npm ci && npx --no-install tauri build --target x86_64-unknown-linux-gnu"
 ```
 

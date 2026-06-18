@@ -55,9 +55,9 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   tracking, Settings Sources & Alerts, key routes, toasts, and no passive
   Keychain prompt.
 - Dependency evidence on 2026-06-18 (`npm` `11.17.0`, Node `24.17.0`, Rust
-  `1.96.0`, `getrandom` `0.4.3`): `release:check-deps` passes; CI now activates
-  the exact package-manager pin before npm commands, direct pins are
-  latest/stable, and transitives are lockfile-pinned/latest-compatible.
+  `1.96.0`, `getrandom` `0.4.3`): `release:check-deps` passes; CI and local
+  setup paths activate the exact package-manager pin before npm commands,
+  direct pins are latest/stable, and transitives are lockfile-pinned/latest-compatible.
 - Runtime credential commands, scheduler, notifications, and smoke tests use
   encrypted SQLite vault storage, file-backed app data opens through SQLCipher,
   and passive status checks stay non-interactive. Settings passphrase controls

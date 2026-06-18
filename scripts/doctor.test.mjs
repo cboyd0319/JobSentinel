@@ -139,11 +139,18 @@ test("summarizeDoctorResults fails only for failures", () => {
 test("formatDoctorResults prints actionable status lines", () => {
   const output = formatDoctorResults([
     { status: "pass", label: "Node.js runtime", detail: "v22.21.1" },
-    { status: "fail", label: "npm dependencies", detail: "Run npm ci" },
+    {
+      status: "fail",
+      label: "npm dependencies",
+      detail: "Run node scripts/install-pinned-npm.mjs, then npm ci",
+    },
   ]);
 
   assert.match(output, /PASS Node\.js runtime: v22\.21\.1/);
-  assert.match(output, /FAIL npm dependencies: Run npm ci/);
+  assert.match(
+    output,
+    /FAIL npm dependencies: Run node scripts\/install-pinned-npm\.mjs, then npm ci/,
+  );
   assert.match(output, /Environment not ready: 1 failure\(s\), 0 warning\(s\)\./);
 });
 

@@ -123,7 +123,8 @@ git checkout -b feature/your-feature-name
 ### Install Dependencies
 
 ```bash
-# Install npm dependencies from the lockfile
+# Activate pinned npm, then install dependencies from the lockfile
+node scripts/install-pinned-npm.mjs
 npm ci
 
 # Check Rust compilation

@@ -32,6 +32,7 @@ echo "✓ Vale styles synced"
 # Install npm dependencies
 echo ""
 echo "Installing npm dependencies..."
+node scripts/install-pinned-npm.mjs
 npm ci
 
 echo ""

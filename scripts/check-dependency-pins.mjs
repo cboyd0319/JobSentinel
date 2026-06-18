@@ -10,6 +10,7 @@ import {
   collectNpmCompatibleOutdatedViolations,
   collectNpmCompatibleUpdateViolations,
 } from "./dependency/npm-compatible-updates.mjs";
+import { collectNpmCommandGuardViolations } from "./dependency/npm-command-guards.mjs";
 import { npmOverrideDependencyPins } from "./dependency/npm-overrides.mjs";
 import { collectTauriLinuxDebDependencyViolations } from "./dependency/tauri-linux-deb.mjs";
 import { collectWorkflowEnvironmentPinViolations } from "./dependency/workflow-environment-pins.mjs";
@@ -30,7 +31,6 @@ const cargoDependencySectionPattern =
   /^(?:dependencies|dev-dependencies|build-dependencies|target\..+\.dependencies)$/;
 const workflowDirectory = ".github/workflows";
 const cargoInstallScanRoots = [".github/workflows", "docs", "README.md"];
-const npxInstallGuardScanRoots = [".github/workflows", ".husky", "scripts", "docs/developer", "docs/security", "tests/e2e/README.md", "README.md"];
 const cratesIoHeaders = {
   "User-Agent": "JobSentinel dependency pin check (https://github.com/cboyd0319/JobSentinel)",
 };
@@ -183,19 +183,6 @@ function collectCargoInstallPins(root) {
   );
 }
 
-function collectNpxInstallGuardViolations(root) {
-  const installCapableNpxPattern = /(^|[\s`"'>|;&(])npx\s+(?!--no-install(?:\s|$))/;
-  const isPolicyFile = (candidate) =>
-    candidate.startsWith(".husky/") ||
-    (!candidate.endsWith(".test.mjs") && /\.(?:md|mjs|sh|ya?ml)$/.test(candidate));
-  return npxInstallGuardScanRoots
-    .flatMap((path) => listFiles(root, path, isPolicyFile))
-    .flatMap((path) => readText(root, path).split(/\r?\n/).flatMap((line, index) =>
-      installCapableNpxPattern.test(line)
-        ? [`${path}:${index + 1} npx-based commands must include --no-install so repo-local pinned tools cannot fall back to registry installs`]
-        : []));
-}
-
 function workflowToolPinViolations(root, nodeVersion, rustVersion) {
   const violations = [];
 
@@ -268,7 +255,7 @@ export function collectRuntimePinViolations(root = defaultRoot) {
 
   violations.push(...collectWorkflowEnvironmentPinViolations(root));
   violations.push(...collectWorkflowPinnedNpmViolations(root, packageManager.version));
-  violations.push(...collectNpxInstallGuardViolations(root));
+  violations.push(...collectNpmCommandGuardViolations(root));
   violations.push(...collectTauriLinuxDebDependencyViolations(root));
 
   return violations;

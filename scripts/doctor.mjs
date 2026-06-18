@@ -254,7 +254,7 @@ function checkPlaywrightReadiness(results, root, options = {}) {
       results,
       options.strict ? "fail" : "warn",
       "Playwright package",
-      "node_modules/@playwright/test is missing. Run npm ci",
+      "node_modules/@playwright/test is missing. Run node scripts/install-pinned-npm.mjs, then npm ci",
     );
     return;
   }
@@ -396,14 +396,14 @@ export function runDoctor(options = {}) {
 
   checkPath(results, root, "package-lock.json", "npm lockfile");
   checkPath(results, root, "node_modules", "npm dependencies", {
-    fix: "Run npm ci",
+    fix: "Run node scripts/install-pinned-npm.mjs, then npm ci",
   });
   checkPath(
     results,
     root,
     platform === "win32" ? "node_modules/.bin/tauri.cmd" : "node_modules/.bin/tauri",
     "Tauri CLI bin",
-    { fix: "Run npm ci" },
+    { fix: "Run node scripts/install-pinned-npm.mjs, then npm ci" },
   );
   checkPath(results, root, "src-tauri/Cargo.lock", "Cargo lockfile");
   checkPath(results, root, "src-tauri/.sqlx", "SQLx offline cache", {
