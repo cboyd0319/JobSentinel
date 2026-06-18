@@ -180,6 +180,35 @@ export function windowsMsiUploadRequiresSignature(releaseWorkflow) {
   );
 }
 
+export function linuxPackageUploadRequiresVerification(releaseWorkflow) {
+  return (
+    hasOrderedSnippets(releaseWorkflow, [
+      "- name: Verify Linux packages and checksums",
+      "- name: Stage Linux release assets",
+      "- name: Upload release assets",
+    ]) &&
+    hasAll(getWorkflowStepBlock(releaseWorkflow, "Verify Linux packages and checksums"), [
+      "appimages=(",
+      "debs=(",
+      "Expected exactly one Linux AppImage",
+      "Expected exactly one Linux deb",
+      "EXPECTED_VERSION",
+      "Linux asset filename does not include release version",
+      "sha256sum",
+      "dpkg-deb --info",
+      "dpkg-deb --contents",
+    ]) &&
+    hasAll(getWorkflowStepBlock(releaseWorkflow, "Stage Linux release assets"), [
+      "release-assets/public",
+      "*.AppImage",
+      "*.AppImage.sha256",
+      "*.deb",
+      "*.deb.sha256",
+    ]) &&
+    releaseAssetUploadsStayDraft(releaseWorkflow)
+  );
+}
+
 function criterion(id, points, ok, detail) {
   return {
     detail,
@@ -400,6 +429,12 @@ export function evaluateMacosReadiness({ root = defaultRoot, env = process.env }
       0,
       windowsMsiUploadRequiresSignature(releaseWorkflow),
       "Unsigned Windows MSI artifacts must fail before public upload.",
+    ),
+    criterion(
+      "Linux public upload is package-verified and checksummed",
+      0,
+      linuxPackageUploadRequiresVerification(releaseWorkflow),
+      "Linux AppImage and deb artifacts must be exact-version, non-empty, structurally verified, and checksummed before public upload.",
     ),
   ];
 

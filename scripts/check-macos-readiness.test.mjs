@@ -14,6 +14,7 @@ import {
   readMacosDevelopmentReadinessClaims,
   readReadmeMacosReadinessPercent,
   windowsMsiUploadRequiresSignature,
+  linuxPackageUploadRequiresVerification,
 } from "./check-macos-readiness.mjs";
 
 test("macOS readiness report separates public and no-account completion", () => {
@@ -309,6 +310,50 @@ test("macOS readiness checks Windows MSI signature gate", () => {
     windowsMsiUploadRequiresSignature(
       workflow.replace("Get-AuthenticodeSignature", "Get-FileHash"),
     ),
+    false,
+  );
+});
+
+test("macOS readiness checks Linux package verification gate", () => {
+  const workflow = [
+    "- name: Create draft release",
+    "  env:",
+    "    GH_TOKEN: ${{ github.token }}",
+    "    RELEASE_TAG: ${{ steps.release_inputs.outputs.tag }}",
+    "  run: |",
+    "    gh release edit \"$RELEASE_TAG\" --draft --prerelease=false --notes-file \"$notes_file\"",
+    "    gh release create \"$RELEASE_TAG\" --draft --notes-file \"$notes_file\"",
+    "- name: Verify Linux packages and checksums",
+    "  env:",
+    "    EXPECTED_VERSION: ${{ needs.create-release.outputs.version }}",
+    "  run: |",
+    "    appimages=(src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/*.AppImage)",
+    "    debs=(src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/deb/*.deb)",
+    "    printf 'Expected exactly one Linux AppImage before release upload'",
+    "    printf 'Expected exactly one Linux deb before release upload'",
+    "    printf 'Linux asset filename does not include release version %s' \"$EXPECTED_VERSION\"",
+    "    sha256sum \"$asset\" > \"$asset.sha256\"",
+    "    dpkg-deb --info \"${debs[0]}\" >/dev/null",
+    "    dpkg-deb --contents \"${debs[0]}\" >/dev/null",
+    "- name: Stage Linux release assets",
+    "  run: |",
+    "    mkdir -p release-assets/public",
+    "    cp src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/*.AppImage release-assets/public/",
+    "    cp src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/*.AppImage.sha256 release-assets/public/",
+    "    cp src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/deb/*.deb release-assets/public/",
+    "    cp src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/deb/*.deb.sha256 release-assets/public/",
+    "- name: Upload release assets",
+    "  env:",
+    "    GH_TOKEN: ${{ github.token }}",
+    "    RELEASE_TAG: ${{ needs.create-release.outputs.tag }}",
+    "  run: |",
+    "    assets=(release-assets/public/*)",
+    "    gh release upload \"$RELEASE_TAG\" \"${assets[@]}\" --clobber",
+  ].join("\n");
+
+  assert.equal(linuxPackageUploadRequiresVerification(workflow), true);
+  assert.equal(
+    linuxPackageUploadRequiresVerification(workflow.replace("dpkg-deb --contents", "true #")),
     false,
   );
 });
