@@ -10,7 +10,7 @@ export interface StoredResumeJobContext {
 }
 
 export const RESUME_JOB_CONTEXT_KEY = "jobContext";
-export const RESUME_JOB_CONTEXT_TTL_MS = 24 * 60 * 60 * 1_000;
+export const RESUME_JOB_CONTEXT_TTL_MS = 30 * 60 * 1_000;
 
 function isStoredResumeJobContext(value: unknown): value is StoredResumeJobContext {
   if (!value || typeof value !== "object") {
@@ -60,6 +60,17 @@ export function readStoredResumeJobContext(
   const context = parseStoredResumeJobContext(stored, now);
 
   if (stored !== null && context === null) {
+    removeStorageValue("session", RESUME_JOB_CONTEXT_KEY);
+  }
+
+  return context;
+}
+
+export function takeStoredResumeJobContext(
+  now = Date.now(),
+): StoredResumeJobContext | null {
+  const context = readStoredResumeJobContext(now);
+  if (context) {
     removeStorageValue("session", RESUME_JOB_CONTEXT_KEY);
   }
 

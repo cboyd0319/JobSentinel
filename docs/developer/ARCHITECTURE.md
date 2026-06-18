@@ -328,9 +328,11 @@ See [Local Secret Vault And Keychain Integration](../security/KEYRING.md) for fu
 
 **Migration:** Includes localStorage to SQLite migration for existing users.
 
-SQLite is authoritative for job-search records and durable preferences. Frontend
-localStorage remains available only for non-authoritative UI preferences, cached
-lookup results, sanitized error reports, and transient recovery hints.
+SQLite is authoritative for job-search records and durable preferences.
+Frontend browser storage remains available only for non-authoritative UI
+preferences, cached lookup results, sanitized error reports, transient recovery
+hints, and single-read `sessionStorage` handoffs for current-window resume
+context.
 
 #### `core/resume/`
 
@@ -782,8 +784,8 @@ match result {
    - Job-search records and durable preferences are stored in encrypted SQLite
    - Saved secrets are resolved through backend commands and must not be
      returned to the renderer
-   - Browser localStorage is limited to UI preferences, caches, sanitized error
-     reports, and transient recovery hints
+   - Browser storage is limited to UI preferences, caches, sanitized error
+     reports, transient recovery hints, and single-read current-window handoffs
    - No telemetry
    - External channels stay opt-in and user-configured
 

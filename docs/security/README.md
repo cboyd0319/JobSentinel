@@ -42,6 +42,7 @@ models, and best practices.
 | **Database**              | SQLCipher at rest, SQLx parameterized queries, SQL injection prevention | [KEYRING.md](./KEYRING.md)                     |
 | **Network**               | TLS, backend URL guards, exact renderer CSP, and no remote renderer style or font imports | [URL_VALIDATION.md](./URL_VALIDATION.md)       |
 | **Downloads And CSV**     | Safe basenames, CSV escaping, spreadsheet formula neutralization | [URL_VALIDATION.md](./URL_VALIDATION.md)       |
+| **Browser Storage**       | No secrets, sanitized error reports, and single-read current-window job context handoffs | [XSS_PREVENTION.md](./XSS_PREVENTION.md)       |
 
 ### Security by Threat
 

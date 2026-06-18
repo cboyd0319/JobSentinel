@@ -22,7 +22,7 @@ import {
   getScoreLabel,
   getScoreProgressPercent,
 } from "../utils/scoreUtils";
-import { readStoredResumeJobContext } from "../utils/resumeJobContext";
+import { takeStoredResumeJobContext } from "../utils/resumeJobContext";
 import {
   formatHardConstraintRiskCategory,
   formatIssueSeverity,
@@ -104,7 +104,7 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
 
   // Load job context from sessionStorage (set by Resume Match)
   useEffect(() => {
-    const stored = readStoredResumeJobContext();
+    const stored = takeStoredResumeJobContext();
     if (stored) {
       setJobDescription(stored.description);
     }

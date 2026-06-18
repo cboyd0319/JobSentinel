@@ -4,6 +4,7 @@ import {
   clearStoredResumeJobContext,
   hasStoredResumeJobContext,
   readStoredResumeJobContext,
+  takeStoredResumeJobContext,
   writeStoredResumeJobContext,
 } from "./resumeJobContext";
 
@@ -36,10 +37,21 @@ describe("resumeJobContext", () => {
 
   it("removes expired saved job context", () => {
     const now = 100 * 60 * 60 * 1_000;
-    writeStoredResumeJobContext("Expired job post", now - 25 * 60 * 60 * 1_000);
+    writeStoredResumeJobContext("Expired job post", now - 31 * 60 * 1_000);
 
     expect(readStoredResumeJobContext(now)).toBeNull();
     expect(readStorageValue("session", "jobContext")).toBeNull();
+  });
+
+  it("takes valid saved job context once", () => {
+    expect(writeStoredResumeJobContext("Required: case notes", 1_000)).toBe(true);
+
+    expect(takeStoredResumeJobContext(1_500)).toEqual({
+      timestamp: 1_000,
+      description: "Required: case notes",
+    });
+    expect(readStorageValue("session", "jobContext")).toBeNull();
+    expect(takeStoredResumeJobContext(1_600)).toBeNull();
   });
 
   it("does not save empty job context", () => {

@@ -160,6 +160,26 @@ test("source quality rejects unsafe rendered JSON parsing", () => {
   });
 });
 
+test("source quality requires ATS job context to be consumed from session storage", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src/components/AtsLiveScorePanel.tsx",
+      'import { readStoredResumeJobContext } from "../utils/resumeJobContext";\nreadStoredResumeJobContext();\n',
+    );
+
+    assert.equal(hasUnsafeStorageJsonParsing(root, "src/components/AtsLiveScorePanel.tsx"), true);
+
+    writeFixtureFile(
+      root,
+      "src/components/AtsLiveScorePanel.tsx",
+      'import { takeStoredResumeJobContext } from "../utils/resumeJobContext";\ntakeStoredResumeJobContext();\n',
+    );
+
+    assert.equal(hasUnsafeStorageJsonParsing(root, "src/components/AtsLiveScorePanel.tsx"), false);
+  });
+});
+
 test("source quality accepts analytics storage validation in model helper", () => {
   withFixture((root) => {
     writeFixtureFile(

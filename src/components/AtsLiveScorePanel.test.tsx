@@ -598,6 +598,7 @@ describe("AtsLiveScorePanel", () => {
           expect.objectContaining({ jobDescription: "Bilingual customer support role" }),
         );
       });
+      expect(window.sessionStorage.getItem("jobContext")).toBeNull();
     });
 
     it("ignores malformed stored job context", async () => {
@@ -628,11 +629,11 @@ describe("AtsLiveScorePanel", () => {
       });
     });
 
-    it("ignores expired job context (>24 hours old)", () => {
+    it("ignores expired job context after 30 minutes", () => {
       window.sessionStorage.setItem(
         "jobContext",
         JSON.stringify({
-          timestamp: Date.now() - 25 * 60 * 60 * 1000,
+          timestamp: Date.now() - 31 * 60 * 1000,
           description: "Expired context",
         }),
       );
@@ -646,6 +647,7 @@ describe("AtsLiveScorePanel", () => {
       );
 
       expect(screen.queryByText("Saved Job")).not.toBeInTheDocument();
+      expect(window.sessionStorage.getItem("jobContext")).toBeNull();
     });
   });
 

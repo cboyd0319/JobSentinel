@@ -63,7 +63,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
   const [importingSkills, setImportingSkills] = useState(false);
   const [initializationError, setInitializationError] = useState(false);
   const initializedRef = useRef(false);
-  const hasJobContext = hasStoredResumeJobContext();
+  const [hasJobContext] = useState(() => hasStoredResumeJobContext());
 
   const [contact, setContact] = useState<ContactInfo>({
     name: "",

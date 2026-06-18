@@ -202,7 +202,11 @@ export function hasUnsafeStorageJsonParsing(root, path) {
   }
 
   const text = readFileSync(join(root, path), "utf8");
-  if (!/JSON\.parse\(/.test(text) && !/readStorageValue\(/.test(text)) {
+  if (
+    path !== "src/components/AtsLiveScorePanel.tsx" &&
+    !/JSON\.parse\(/.test(text) &&
+    !/readStorageValue\(/.test(text)
+  ) {
     return false;
   }
 
@@ -230,7 +234,7 @@ export function hasUnsafeStorageJsonParsing(root, path) {
     return (
       /const\s+parsed\s*=\s*JSON\.parse\(stored\)/.test(text) ||
       /readStorageValue\("session",\s*["']jobContext["']\)/.test(text) ||
-      !/readStoredResumeJobContext/.test(text)
+      !/takeStoredResumeJobContext/.test(text)
     );
   }
 
