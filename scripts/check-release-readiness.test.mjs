@@ -130,6 +130,20 @@ test("release readiness rejects Agent Skills packages without ZIP artifact", () 
   );
 });
 
+test("release readiness rejects Agent Skills docs without Windows ZIP guidance", () => {
+  const inputs = loadReleaseReadinessInputs({ env: {} });
+  const report = evaluateReleaseReadinessFromInputs({
+    ...inputs,
+    readme: inputs.readme.replace("Use the ZIP archive on Windows", "Use either archive"),
+  });
+
+  assert(
+    report.criteria.some(
+      (item) => item.id === "Agent Skills download docs stay Windows-portable" && !item.ok,
+    ),
+  );
+});
+
 test("release readiness parses version flags", () => {
   assert.deepEqual(parseArgs(["--version", "v2.9.0"]), { version: "v2.9.0" });
   assert.deepEqual(parseArgs(["--tag=v2.9.0"]), { version: "v2.9.0" });

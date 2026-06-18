@@ -52,6 +52,7 @@ export function loadReleaseReadinessInputs({
 
   return {
     expectedVersion: normalizeReleaseVersion(version ?? packageJson.version),
+    ciDocs: read(root, "docs/developer/CI_CD.md"),
     macosReport: evaluateMacosReadiness({ root, env }),
     packageJson,
     readme: read(root, "README.md"),
@@ -180,6 +181,28 @@ export function evaluateReleaseReadinessFromInputs(inputs) {
         "gh release upload \"$RELEASE_TAG\" \"${assets[@]}\" --clobber",
       ]),
       "Release workflow must upload validated, attested Agent Skills tar.gz and ZIP archives.",
+    ),
+    criterion(
+      "Agent Skills download docs stay Windows-portable",
+      hasAll(inputs.readme, [
+        "Agent Skills downloads are separate from the desktop installer.",
+        "JobSentinel-X.Y.Z-agent-skills.tar.gz",
+        "JobSentinel-X.Y.Z-agent-skills.zip",
+        "Use the ZIP archive on Windows",
+        "matching `.sha256` checksums",
+      ]) &&
+        hasAll(inputs.releaseDocs, [
+          "Upload `JobSentinel-X.Y.Z-agent-skills.tar.gz`,",
+          "`JobSentinel-X.Y.Z-agent-skills.zip`, and both `.sha256` sidecars.",
+        ]) &&
+        hasAll(inputs.ciDocs, [
+          "both downloadable Agent Skills archives",
+          "JobSentinel-X.Y.Z-agent-skills.tar.gz",
+          "JobSentinel-X.Y.Z-agent-skills.zip",
+          "Windows-friendly extraction",
+          "Agent Skills tar.gz/ZIP archives",
+        ]),
+      "Docs must name both Agent Skills archive formats and prefer ZIP for Windows extraction.",
     ),
     criterion(
       "front-door docs do not overclaim public 2.9.0 assets",

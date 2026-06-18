@@ -130,6 +130,13 @@ as a legacy fallback after confirming the matching `.sha256` checksum.
 | macOS | Universal Mac package for Apple silicon and Intel Macs. The current published no-account Mac package is legacy `JobSentinel_2.7.7_no-account_universal.dmg` with a matching `.sha256` checksum. Until Developer ID signing and notarization are available, the no-account DMG filename should include `_no-account_`. The project does not currently have an Apple Developer Account, so macOS requires a first-open Privacy & Security approval until Developer ID signing and notarization are available. |
 | Linux | Linux installer from the latest full cross-platform release, currently legacy `v2.7.5`. |
 
+Agent Skills downloads are separate from the desktop installer. The pending
+`2.9.0` release path attaches both
+`JobSentinel-X.Y.Z-agent-skills.tar.gz` and
+`JobSentinel-X.Y.Z-agent-skills.zip`, plus matching `.sha256` checksums.
+Use the ZIP archive on Windows for the most portable extraction path; use either
+archive on macOS or Linux after verifying the checksum from the same release.
+
 The latest published no-account macOS package is `v2.7.7` as of 2026-06-06.
 The latest full cross-platform public release is `v2.7.5`; it includes Windows
 and Linux installers plus `JobSentinel_2.7.5_no-account_universal.dmg` and a

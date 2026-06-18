@@ -268,6 +268,10 @@ macOS job also runs `npm run tauri:verify:macos:latest -- --require-supply-chain
 on `macos-26` for the downloadable DMG. On release publish events, both jobs
 scope checks to the published tag. On manual runs, the optional `tag` input
 checks a specific release, and a blank tag checks the latest public release.
+The Ubuntu job also verifies both downloadable Agent Skills archives:
+`JobSentinel-X.Y.Z-agent-skills.tar.gz` for Unix-like tooling and
+`JobSentinel-X.Y.Z-agent-skills.zip` for Windows-friendly extraction, along
+with both `.sha256` checksum sidecars.
 
 The public verifier runs `node scripts/install-pinned-npm.mjs` before
 `npm ci --ignore-scripts --prefer-offline --no-audit --no-fund` because
@@ -443,9 +447,9 @@ non-empty `.AppImage` and one non-empty `.deb`, filenames must include the
 release version, the `.deb` must pass `dpkg-deb --info` and
 `dpkg-deb --contents`, and both Linux assets must have matching `.sha256`
 checksums before upload. The post-publish public artifact workflow verifies the
-downloadable Windows, macOS, and Linux asset set, checksums, SBOM manifests,
-and GitHub attestations; its macOS job also smoke-verifies the downloadable
-DMG on `macos-26`.
+downloadable Windows, macOS, and Linux asset set, Agent Skills tar.gz/ZIP archives,
+checksums, SBOM manifests, and GitHub attestations; its macOS job also
+smoke-verifies the downloadable DMG on `macos-26`.
 
 ### 3. Publish the draft release
 
