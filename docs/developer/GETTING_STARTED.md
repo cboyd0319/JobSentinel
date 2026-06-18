@@ -61,7 +61,7 @@ cd JobSentinel
 
 # Activate the repo-pinned npm, then install dependencies from the lockfile
 node scripts/install-pinned-npm.mjs
-npm ci
+npm ci --ignore-scripts
 
 # Run in development mode (hot reload enabled)
 npm run tauri:dev
@@ -263,7 +263,7 @@ rm -rf node_modules
 
 # Reinstall from the lockfile with the repo-pinned npm
 node scripts/install-pinned-npm.mjs
-npm ci
+npm ci --ignore-scripts
 ```
 
 ### "Build fails on Windows"

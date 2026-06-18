@@ -48,7 +48,7 @@ jobs:
         run: node scripts/install-pinned-npm.mjs
 
       - name: Install dependencies
-        run: npm ci --prefer-offline --no-audit --no-fund
+        run: npm ci --ignore-scripts --prefer-offline --no-audit --no-fund
 
       - name: Verify public release asset set
         shell: bash
@@ -95,7 +95,7 @@ jobs:
         run: node scripts/install-pinned-npm.mjs
 
       - name: Install dependencies
-        run: npm ci --prefer-offline --no-audit --no-fund
+        run: npm ci --ignore-scripts --prefer-offline --no-audit --no-fund
 
       - name: Verify public macOS release artifact
         shell: bash

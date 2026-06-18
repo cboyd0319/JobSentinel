@@ -646,6 +646,33 @@ test("checkSecuritySensors rejects persisted checkout credentials", () => {
   );
 });
 
+test("checkSecuritySensors rejects workflow npm installs that run lifecycle scripts", () => {
+  const root = mkdtempRoot("jobsentinel-security-sensors-npm-scripts-");
+  writeBaseRepo(
+    root,
+    "default-src 'self'; connect-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'",
+  );
+  writeFileSync(
+    join(root, ".github/workflows/ci.yml"),
+    [
+      "permissions: {}",
+      "jobs:",
+      "  security:",
+      "    steps:",
+      "      - run: npm ci --prefer-offline --no-audit --no-fund",
+      "      - run: npm run lint:security",
+      "      - run: npm audit --audit-level=moderate",
+      "      - run: cargo deny check advisories bans licenses sources",
+    ].join("\n"),
+  );
+
+  assert(
+    checkSecuritySensors(root).includes(
+      ".github/workflows/ci.yml:5 workflow npm-ci commands must include --ignore-scripts",
+    ),
+  );
+});
+
 test("checkSecuritySensors rejects release dependency caches", () => {
   const root = mkdtempRoot("jobsentinel-security-sensors-release-cache-");
   writeBaseRepo(

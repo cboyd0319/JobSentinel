@@ -163,3 +163,13 @@ export function checkTauriCapabilityBoundary(root, violations) {
     }
   }
 }
+
+export function checkWorkflowInstallBoundary(path, text, violations) {
+  for (const [index, line] of text.split(/\r?\n/).entries()) {
+    if (/\bnpm\s+ci\b/.test(line) && !/(?:^|\s)--ignore-scripts(?:\s|$)/.test(line)) {
+      violations.push(
+        `${path}:${index + 1} workflow npm-ci commands must include --ignore-scripts`,
+      );
+    }
+  }
+}

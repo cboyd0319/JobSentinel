@@ -32,9 +32,10 @@ launch checks.
 
 3. **Use the repo-local Tauri CLI:**
 
-   Run `node scripts/install-pinned-npm.mjs` before `npm ci`. The install uses
-   the repo-pinned npm and installs `@tauri-apps/cli`. Use `npm run tauri:*`
-   scripts or `npx --no-install tauri` from the repo root.
+   Run `node scripts/install-pinned-npm.mjs` before `npm ci --ignore-scripts`.
+   The install uses the repo-pinned npm, installs `@tauri-apps/cli`, and skips
+   third-party lifecycle scripts. Use `npm run tauri:*` scripts or
+   `npx --no-install tauri` from the repo root.
 
 ### Development Setup
 
@@ -43,7 +44,7 @@ launch checks.
    ```bash
    cd <repo-root>
    node scripts/install-pinned-npm.mjs
-   npm ci
+   npm ci --ignore-scripts
    ```
 
 2. **Run in development mode:**
@@ -315,7 +316,7 @@ lsof -ti:1420 | xargs kill -9
 # Clear installed packages and reinstall from the lockfile
 rm -rf node_modules
 node scripts/install-pinned-npm.mjs
-npm ci
+npm ci --ignore-scripts
 ```
 
 ---

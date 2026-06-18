@@ -33,7 +33,7 @@ echo "✓ Vale styles synced"
 echo ""
 echo "Installing npm dependencies..."
 node scripts/install-pinned-npm.mjs
-npm ci
+npm ci --ignore-scripts
 
 echo ""
 echo "✓ npm dependencies installed (including husky, lint-staged, markdownlint-cli)"

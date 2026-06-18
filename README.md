@@ -443,7 +443,7 @@ Build the app from source:
 git clone https://github.com/cboyd0319/JobSentinel
 cd JobSentinel
 node scripts/install-pinned-npm.mjs
-npm ci
+npm ci --ignore-scripts
 npm run tauri:build
 ```
 

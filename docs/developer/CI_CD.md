@@ -69,6 +69,8 @@ Workflow changes must preserve the GitHub Actions security baseline:
   verification workflows.
 - Run `node scripts/install-pinned-npm.mjs` after every `actions/setup-node`
   step and before any `npm` command so CI uses the exact `packageManager` pin.
+- Add `--ignore-scripts` to workflow `npm ci` installs so dependency lifecycle
+  scripts cannot execute during automated checks or release verification.
 - Keep Dependabot version updates grouped by ecosystem or risk with cooldowns
   for new releases; security updates stay separate and prompt.
 - Keep `.github/CODEOWNERS` covering workflow, dependency, release,
@@ -110,7 +112,7 @@ agent-facing files, workflow files, or release metadata changed.
 | Step                       | Command                 |
 | -------------------------- | ----------------------- |
 | Install pinned npm         | `node scripts/install-pinned-npm.mjs` |
-| Install dependencies       | `npm ci --prefer-offline --no-audit --no-fund` |
+| Install dependencies       | `npm ci --ignore-scripts --prefer-offline --no-audit --no-fund` |
 | Harness checks             | `npm run harness:check` |
 | Dependency pin checks      | `npm run lint:deps`     |
 | GitHub Actions pin checks  | `npm run lint:actions`  |
@@ -141,7 +143,7 @@ changed.
 | Step                 | Command             |
 | -------------------- | ------------------- |
 | Install pinned npm   | `node scripts/install-pinned-npm.mjs` |
-| Install dependencies | `npm ci --prefer-offline --no-audit --no-fund` |
+| Install dependencies | `npm ci --ignore-scripts --prefer-offline --no-audit --no-fund` |
 | TypeScript check     | `npx --no-install tsc --noEmit` |
 | Lint                 | `npm run lint`      |
 | Unit tests           | `npm test -- --run` |
@@ -262,10 +264,11 @@ scope checks to the published tag. On manual runs, the optional `tag` input
 checks a specific release, and a blank tag checks the latest public release.
 
 The public verifier runs `node scripts/install-pinned-npm.mjs` before
-`npm ci --prefer-offline --no-audit --no-fund` because dependency advisory
-checks already block CI and release preflight. This keeps the post-publish
-verifier focused on the downloadable assets, checksums, SBOMs, and
-attestations.
+`npm ci --ignore-scripts --prefer-offline --no-audit --no-fund` because
+dependency advisory checks already block CI and release preflight. Lifecycle
+scripts stay disabled in automated installs so third-party packages cannot run
+install-time code in CI. This keeps the post-publish verifier focused on the
+downloadable assets, checksums, SBOMs, and attestations.
 
 For each verified platform, the public verifier rejects stale installer or
 checksum assets left on the release tag. A published `2.9.0` release must not

@@ -38,7 +38,7 @@ sudo apt-get install -y \
 ```bash
 # Activate pinned npm, then install frontend dependencies
 node scripts/install-pinned-npm.mjs
-npm ci
+npm ci --ignore-scripts
 
 # Fetch Rust dependencies
 cd src-tauri
@@ -206,7 +206,7 @@ docker run -it --rm \
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y && \
     source ~/.cargo/env && \
     node scripts/install-pinned-npm.mjs && \
-    npm ci && npx --no-install tauri build --target x86_64-unknown-linux-gnu"
+    npm ci --ignore-scripts && npx --no-install tauri build --target x86_64-unknown-linux-gnu"
 ```
 
 ## Signing and Auto-Updates

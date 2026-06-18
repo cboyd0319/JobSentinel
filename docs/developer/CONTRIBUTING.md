@@ -125,7 +125,7 @@ git checkout -b feature/your-feature-name
 ```bash
 # Activate pinned npm, then install dependencies from the lockfile
 node scripts/install-pinned-npm.mjs
-npm ci
+npm ci --ignore-scripts
 
 # Check Rust compilation
 cd src-tauri

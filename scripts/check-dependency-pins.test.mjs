@@ -163,7 +163,7 @@ function writeMinimalRuntimeFixture(root, options = {}) {
       "      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0",
       `        with: { node-version: "${options.workflowNodeVersion ?? nodeVersion}" }`,
       "      - run: node scripts/install-pinned-npm.mjs",
-      "      - run: npm ci --prefer-offline --no-audit --no-fund",
+      "      - run: npm ci --ignore-scripts --prefer-offline --no-audit --no-fund",
       "      - uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8 # stable",
       `        with: { toolchain: "${options.workflowRustVersion ?? rustVersion}" }`,
       `      - run: cargo install cargo-deny --version ${cargoDenyVersion} --locked`,
@@ -597,7 +597,7 @@ test("runtime pin check rejects npm commands before pinned npm activation", () =
         "    steps:",
         "      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0",
         '        with: { node-version: "24.17.0" }',
-        "      - run: npm ci --prefer-offline --no-audit --no-fund",
+        "      - run: npm ci --ignore-scripts --prefer-offline --no-audit --no-fund",
       ].join("\n"),
     );
 
@@ -643,7 +643,7 @@ test("runtime pin check rejects local npm installs without pinned npm activation
     writeFixtureFile(
       root,
       "docs/developer/GETTING_STARTED.md",
-      ["node scripts/install-pinned-npm.mjs", "npm ci"].join("\n"),
+      ["node scripts/install-pinned-npm.mjs", "npm ci --ignore-scripts"].join("\n"),
     );
 
     const violations = collectRuntimePinViolations(root);

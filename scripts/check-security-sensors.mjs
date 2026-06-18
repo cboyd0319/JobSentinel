@@ -7,6 +7,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import {
   checkBrowserExtensionManifestBoundary,
   checkTauriCapabilityBoundary,
+  checkWorkflowInstallBoundary,
 } from "./security/permission-boundaries.mjs";
 
 const scriptPath = fileURLToPath(import.meta.url);
@@ -496,6 +497,8 @@ function countMatches(text, pattern) {
 function checkWorkflowSecurityBaseline(root, violations) {
   for (const path of workflowPaths(root)) {
     const text = readIfExists(root, path, violations);
+    checkWorkflowInstallBoundary(path, text, violations);
+
     if (!hasTopLevelDisabledPermissions(text)) {
       violations.push(
         `${path} must disable default workflow token permissions with top-level permissions: {}`,
