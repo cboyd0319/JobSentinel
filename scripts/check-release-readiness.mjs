@@ -161,6 +161,17 @@ export function evaluateReleaseReadinessFromInputs(inputs) {
       "Release assets must have SPDX SBOMs plus provenance and SBOM attestations.",
     ),
     criterion(
+      "release workflow publishes downloadable Agent Skills",
+      hasAll(inputs.releaseWorkflow, [
+        "package-agent-skills:",
+        "npm run release:skills",
+        "Agent Skills archive and checksum",
+        "subject-path: release-assets/public/JobSentinel-${{ needs.create-release.outputs.version }}-agent-skills.tar.gz",
+        "gh release upload \"$RELEASE_TAG\" \"${assets[@]}\" --clobber",
+      ]),
+      "Release workflow must upload a validated, attested Agent Skills archive.",
+    ),
+    criterion(
       "front-door docs do not overclaim public 2.9.0 assets",
       hasAll(inputs.readme, [
         "fresh public Windows and Linux `2.9.0` assets are still pending",

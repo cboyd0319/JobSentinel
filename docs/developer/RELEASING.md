@@ -61,9 +61,10 @@ git push origin vX.Y.Z
 
 Pushing the tag triggers `release.yml`. The workflow resolves release inputs,
 runs parallel preflight checks, creates a draft release only after those checks
-pass, builds Windows, macOS, and Linux packages, verifies the macOS package
-before upload, generates platform SBOMs, creates GitHub provenance and SBOM
-attestations, and attaches release assets.
+pass, packages the downloadable Agent Skills archive, builds Windows, macOS,
+and Linux packages, verifies the macOS package before upload, generates
+platform SBOMs, creates GitHub provenance and SBOM attestations, and attaches
+release assets.
 
 Manual release dispatch uses the same workflow but must be launched from the
 existing matching `vX.Y.Z` tag ref. If the selected workflow ref is `main`,
@@ -74,6 +75,18 @@ For a local-first release, build each platform on that platform or VM, attach
 the verified artifacts to the matching draft release, and run the public
 artifact verifier before publishing or sharing the release. Do not mix
 artifacts from different source commits under one tag.
+
+Package the downloadable Agent Skills archive from the tagged source before
+publishing:
+
+```bash
+npm run release:skills -- --version X.Y.Z --out-dir release-assets/public
+```
+
+Upload both `JobSentinel-X.Y.Z-agent-skills.tar.gz` and its `.sha256`
+sidecar.
+The archive is not an installer, but hosted releases still attest it before
+upload.
 
 ### 2. macOS signing mode
 

@@ -88,6 +88,20 @@ test("release readiness rejects release preflight without workflow static analys
   );
 });
 
+test("release readiness rejects missing Agent Skills archive upload", () => {
+  const inputs = loadReleaseReadinessInputs({ env: {} });
+  const report = evaluateReleaseReadinessFromInputs({
+    ...inputs,
+    releaseWorkflow: inputs.releaseWorkflow.replace("package-agent-skills:", ""),
+  });
+
+  assert(
+    report.criteria.some(
+      (item) => item.id === "release workflow publishes downloadable Agent Skills" && !item.ok,
+    ),
+  );
+});
+
 test("release readiness parses version flags", () => {
   assert.deepEqual(parseArgs(["--version", "v2.9.0"]), { version: "v2.9.0" });
   assert.deepEqual(parseArgs(["--tag=v2.9.0"]), { version: "v2.9.0" });

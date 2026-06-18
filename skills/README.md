@@ -54,3 +54,13 @@ Validate packages with:
 ```bash
 npm run lint:skills
 ```
+
+Package the whole directory as a release artifact with:
+
+```bash
+npm run release:skills -- --version 2.9.0 --out-dir release-assets/public
+```
+
+The command validates `skills/`, creates
+`JobSentinel-2.9.0-agent-skills.tar.gz`, and writes a matching `.sha256`
+sidecar for download verification.
