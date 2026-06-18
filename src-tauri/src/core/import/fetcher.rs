@@ -4,7 +4,9 @@
 
 use super::types::{ImportError, ImportResult};
 use crate::core::http_body::read_text_with_limit;
-use crate::core::url_security::sanitize_url_for_logging;
+use crate::core::url_security::{
+    resolve_external_http_url_for_fetch, sanitize_url_for_logging, ResolvedExternalUrl,
+};
 use reqwest::header::LOCATION;
 use reqwest::{redirect::Policy, Client};
 use std::time::Duration;
@@ -22,22 +24,26 @@ const HTTP_TIMEOUT: Duration = Duration::from_secs(30);
 /// - No cookies or authentication (user-initiated, public page)
 pub async fn fetch_job_page(url: &str) -> ImportResult<String> {
     // Validate URL
-    let parsed_url = crate::core::url_security::validate_external_http_url_for_fetch(url)
+    let fetch_target = resolve_external_http_url_for_fetch(url)
         .await
         .map_err(ImportError::InvalidUrl)?;
 
     tracing::info!(url = %sanitize_url_for_logging(url), "Fetching job page");
 
-    let client = build_import_http_client().map_err(ImportError::HttpError)?;
+    let client = build_import_http_client(&fetch_target).map_err(ImportError::HttpError)?;
 
     // Fetch the page
-    let response = client.get(parsed_url).send().await.map_err(|e| {
-        if e.is_timeout() {
-            ImportError::Timeout
-        } else {
-            ImportError::HttpError(e)
-        }
-    })?;
+    let response = client
+        .get(fetch_target.as_str())
+        .send()
+        .await
+        .map_err(|e| {
+            if e.is_timeout() {
+                ImportError::Timeout
+            } else {
+                ImportError::HttpError(e)
+            }
+        })?;
 
     if response.status().is_redirection() {
         let location = response
@@ -66,12 +72,17 @@ pub async fn fetch_job_page(url: &str) -> ImportResult<String> {
     Ok(html)
 }
 
-fn build_import_http_client() -> Result<Client, reqwest::Error> {
-    Client::builder()
+fn build_import_http_client(fetch_target: &ResolvedExternalUrl) -> Result<Client, reqwest::Error> {
+    let mut builder = Client::builder()
         .redirect(Policy::none())
         .timeout(HTTP_TIMEOUT)
-        .user_agent(crate::core::scrapers::http_client::DEFAULT_USER_AGENT)
-        .build()
+        .user_agent(crate::core::scrapers::http_client::DEFAULT_USER_AGENT);
+
+    if let Some((host, addrs)) = fetch_target.dns_override() {
+        builder = builder.resolve_to_addrs(host, addrs);
+    }
+
+    builder.build()
 }
 
 #[cfg(test)]
@@ -116,11 +127,17 @@ mod tests {
     #[tokio::test]
     async fn test_import_client_does_not_follow_redirects() {
         use reqwest::StatusCode;
+        use url::Url;
         use wiremock::matchers::{method, path};
         use wiremock::{Mock, MockServer, ResponseTemplate};
 
         let server = MockServer::start().await;
         let redirect_target = format!("{}/target", server.uri());
+        let fetch_target = ResolvedExternalUrl::from_parts_for_test(
+            Url::parse(&format!("{}/start", server.uri())).unwrap(),
+            None,
+            Vec::new(),
+        );
 
         Mock::given(method("GET"))
             .and(path("/start"))
@@ -139,14 +156,50 @@ mod tests {
             .mount(&server)
             .await;
 
-        let response = build_import_http_client()
+        let response = build_import_http_client(&fetch_target)
             .expect("client should build")
-            .get(format!("{}/start", server.uri()))
+            .get(fetch_target.as_str())
             .send()
             .await
             .expect("request should return redirect response");
 
         assert_eq!(response.status(), StatusCode::FOUND);
+        server.verify().await;
+    }
+
+    #[tokio::test]
+    async fn test_import_client_uses_validated_dns_override() {
+        use reqwest::StatusCode;
+        use url::Url;
+        use wiremock::matchers::{method, path};
+        use wiremock::{Mock, MockServer, ResponseTemplate};
+
+        let server = MockServer::start().await;
+        let fetch_target = ResolvedExternalUrl::from_parts_for_test(
+            Url::parse(&format!(
+                "http://example.com:{}/job",
+                server.address().port()
+            ))
+            .unwrap(),
+            Some("example.com".to_string()),
+            vec![*server.address()],
+        );
+
+        Mock::given(method("GET"))
+            .and(path("/job"))
+            .respond_with(ResponseTemplate::new(StatusCode::OK.as_u16()).set_body_string("ok"))
+            .expect(1)
+            .mount(&server)
+            .await;
+
+        let response = build_import_http_client(&fetch_target)
+            .expect("client should build")
+            .get(fetch_target.as_str())
+            .send()
+            .await
+            .expect("request should use pinned address");
+
+        assert_eq!(response.status(), StatusCode::OK);
         server.verify().await;
     }
 }

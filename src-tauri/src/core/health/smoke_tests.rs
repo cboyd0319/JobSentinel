@@ -7,7 +7,7 @@ use crate::core::{
         http_client::scraper_client_builder,
         rate_limiter::{limits, RateLimiter},
     },
-    url_security::validate_external_http_url_for_fetch,
+    url_security::{resolve_external_http_url_for_fetch, ResolvedExternalUrl},
     Config, Database,
 };
 use anyhow::Result;
@@ -151,9 +151,26 @@ fn smoke_rate_limit(scraper_name: &str) -> u32 {
 }
 
 fn smoke_client(user_agent: Option<&str>) -> Result<reqwest::Client> {
+    smoke_client_for_target(user_agent, None)
+}
+
+fn smoke_client_for_resolved_target(
+    user_agent: Option<&str>,
+    target: &ResolvedExternalUrl,
+) -> Result<reqwest::Client> {
+    smoke_client_for_target(user_agent, Some(target))
+}
+
+fn smoke_client_for_target(
+    user_agent: Option<&str>,
+    target: Option<&ResolvedExternalUrl>,
+) -> Result<reqwest::Client> {
     let mut builder = scraper_client_builder().timeout(Duration::from_secs(10));
     if let Some(user_agent) = user_agent {
         builder = builder.user_agent(user_agent);
+    }
+    if let Some((host, addrs)) = target.and_then(ResolvedExternalUrl::dns_override) {
+        builder = builder.resolve_to_addrs(host, addrs);
     }
     Ok(builder.build()?)
 }
@@ -524,12 +541,12 @@ async fn test_jobswithgpt(config: &Config) -> Result<serde_json::Value> {
         }));
     }
 
-    let endpoint = validate_external_http_url_for_fetch(&payload.endpoint)
+    let endpoint = resolve_external_http_url_for_fetch(&payload.endpoint)
         .await
         .map_err(|reason| anyhow::anyhow!("Invalid JobsWithGPT endpoint: {}", reason))?;
 
     // Just verify the endpoint is reachable
-    let client = smoke_client(None)?;
+    let client = smoke_client_for_resolved_target(None, &endpoint)?;
 
     let resp = client.get(endpoint.as_str()).send().await;
 
@@ -756,6 +773,7 @@ async fn test_glassdoor() -> Result<serde_json::Value> {
 mod tests {
     use super::*;
     use reqwest::StatusCode;
+    use url::Url;
     use wiremock::matchers::{method, path};
     use wiremock::{Mock, MockServer, ResponseTemplate};
 
@@ -784,6 +802,38 @@ mod tests {
             target.received_requests().await.unwrap().is_empty(),
             "smoke client must not forward credentialed requests across redirects"
         );
+    }
+
+    #[tokio::test]
+    async fn smoke_client_uses_resolved_target_dns_override() {
+        let server = MockServer::start().await;
+        let target = ResolvedExternalUrl::from_parts_for_test(
+            Url::parse(&format!(
+                "http://example.com:{}/health",
+                server.address().port()
+            ))
+            .unwrap(),
+            Some("example.com".to_string()),
+            vec![*server.address()],
+        );
+
+        Mock::given(method("GET"))
+            .and(path("/health"))
+            .respond_with(ResponseTemplate::new(StatusCode::OK.as_u16()))
+            .expect(1)
+            .mount(&server)
+            .await;
+
+        let client = smoke_client_for_resolved_target(None, &target)
+            .expect("smoke client should build with DNS override");
+        let response = client
+            .get(target.as_str())
+            .send()
+            .await
+            .expect("request should use pinned address");
+
+        assert_eq!(response.status(), StatusCode::OK);
+        server.verify().await;
     }
 
     #[test]

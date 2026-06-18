@@ -1,6 +1,6 @@
 //! Shared URL validation for user-controlled external destinations.
 
-use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
+use std::net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr};
 use tokio::net::lookup_host;
 use url::{form_urlencoded::Serializer, Url};
 
@@ -15,6 +15,50 @@ const SENSITIVE_JOB_QUERY_MARKERS: &[&str] = &[
     "email",
     "candidate",
 ];
+
+#[derive(Clone, Debug)]
+pub struct ResolvedExternalUrl {
+    url: Url,
+    dns_host: Option<String>,
+    socket_addrs: Vec<SocketAddr>,
+}
+
+impl ResolvedExternalUrl {
+    #[must_use]
+    pub fn url(&self) -> &Url {
+        &self.url
+    }
+
+    #[must_use]
+    pub fn as_str(&self) -> &str {
+        self.url.as_str()
+    }
+
+    #[must_use]
+    pub fn into_url(self) -> Url {
+        self.url
+    }
+
+    #[must_use]
+    pub fn dns_override(&self) -> Option<(&str, &[SocketAddr])> {
+        self.dns_host
+            .as_deref()
+            .map(|host| (host, self.socket_addrs.as_slice()))
+    }
+
+    #[cfg(test)]
+    pub(crate) fn from_parts_for_test(
+        url: Url,
+        dns_host: Option<String>,
+        socket_addrs: Vec<SocketAddr>,
+    ) -> Self {
+        Self {
+            url,
+            dns_host,
+            socket_addrs,
+        }
+    }
+}
 
 fn truncate_log_label(label: &str) -> String {
     if label.len() <= MAX_LOG_URL_LEN {
@@ -99,32 +143,45 @@ pub fn validate_external_https_url(url: &str) -> Result<Url, String> {
 /// hostnames that resolve to loopback, private, link-local, or other non-public
 /// addresses.
 pub async fn validate_external_http_url_for_fetch(url: &str) -> Result<Url, String> {
-    let parsed = validate_external_http_url(url)?;
-    let host = normalized_host(&parsed)?;
-
-    if host.parse::<IpAddr>().is_ok() {
-        return Ok(parsed);
-    }
-
-    let port = parsed
-        .port_or_known_default()
-        .ok_or_else(|| "URL must include a valid port".to_string())?;
-    let addrs = lookup_host((host.as_str(), port))
+    resolve_external_http_url_for_fetch(url)
         .await
-        .map_err(|_| "Could not verify URL host".to_string())?;
+        .map(ResolvedExternalUrl::into_url)
+}
 
-    validate_resolved_ips(addrs.map(|addr| addr.ip()))?;
-
-    Ok(parsed)
+/// Resolve and validate a URL for an actual HTTP fetch.
+///
+/// In addition to rejecting non-public resolved IPs, this returns the checked
+/// socket addresses so callers can pin reqwest DNS resolution for the request
+/// and avoid a validate-then-reconnect DNS rebinding gap.
+pub async fn resolve_external_http_url_for_fetch(url: &str) -> Result<ResolvedExternalUrl, String> {
+    let parsed = validate_external_http_url(url)?;
+    resolve_external_url_for_fetch(parsed).await
 }
 
 /// Validate an HTTPS-only URL for an actual HTTP fetch.
 pub async fn validate_external_https_url_for_fetch(url: &str) -> Result<Url, String> {
+    resolve_external_https_url_for_fetch(url)
+        .await
+        .map(ResolvedExternalUrl::into_url)
+}
+
+/// Resolve and validate an HTTPS-only URL for an actual HTTP fetch.
+pub async fn resolve_external_https_url_for_fetch(
+    url: &str,
+) -> Result<ResolvedExternalUrl, String> {
     let parsed = validate_external_https_url(url)?;
+    resolve_external_url_for_fetch(parsed).await
+}
+
+async fn resolve_external_url_for_fetch(parsed: Url) -> Result<ResolvedExternalUrl, String> {
     let host = normalized_host(&parsed)?;
 
     if host.parse::<IpAddr>().is_ok() {
-        return Ok(parsed);
+        return Ok(ResolvedExternalUrl {
+            url: parsed,
+            dns_host: None,
+            socket_addrs: Vec::new(),
+        });
     }
 
     let port = parsed
@@ -133,10 +190,15 @@ pub async fn validate_external_https_url_for_fetch(url: &str) -> Result<Url, Str
     let addrs = lookup_host((host.as_str(), port))
         .await
         .map_err(|_| "Could not verify URL host".to_string())?;
+    let socket_addrs: Vec<SocketAddr> = addrs.collect();
 
-    validate_resolved_ips(addrs.map(|addr| addr.ip()))?;
+    validate_resolved_ips(socket_addrs.iter().map(|addr| addr.ip()))?;
 
-    Ok(parsed)
+    Ok(ResolvedExternalUrl {
+        url: parsed,
+        dns_host: Some(host),
+        socket_addrs,
+    })
 }
 
 /// Return a URL label safe for logs.
@@ -479,5 +541,33 @@ mod tests {
             validate_resolved_ips(ips).unwrap_err(),
             "Could not verify URL host"
         );
+    }
+
+    #[tokio::test]
+    async fn resolved_literal_ip_targets_do_not_need_dns_override() {
+        let target = resolve_external_http_url_for_fetch("http://8.8.8.8/jobs")
+            .await
+            .expect("public IP literal should validate without DNS lookup");
+
+        assert_eq!(target.as_str(), "http://8.8.8.8/jobs");
+        assert!(target.dns_override().is_none());
+    }
+
+    #[test]
+    fn resolved_domain_targets_expose_dns_override() {
+        let url = Url::parse("https://example.com/jobs").unwrap();
+        let addr: SocketAddr = "203.0.113.10:443".parse().unwrap();
+        let target = ResolvedExternalUrl::from_parts_for_test(
+            url,
+            Some("example.com".to_string()),
+            vec![addr],
+        );
+        let (host, addrs) = target
+            .dns_override()
+            .expect("domain should carry DNS override");
+
+        assert_eq!(host, "example.com");
+        assert_eq!(addrs, &[addr]);
+        assert_eq!(target.url().as_str(), "https://example.com/jobs");
     }
 }

@@ -4,16 +4,20 @@
 //! MCP is a JSON-RPC based protocol for querying structured data.
 
 use super::error::ScraperError;
-use super::http_client::{read_json_with_limit, send_with_retry};
+use super::http_client::{
+    read_json_with_limit, scraper_client_builder, send_with_retry_on_client, DEFAULT_TIMEOUT_SECS,
+    DEFAULT_USER_AGENT,
+};
 use super::rate_limiter::{limits, RateLimiter};
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
-use crate::core::url_security::{sanitize_url_for_logging, validate_external_https_url_for_fetch};
+use crate::core::url_security::{resolve_external_https_url_for_fetch, sanitize_url_for_logging};
 
 use async_trait::async_trait;
 use chrono::Utc;
 use sha2::{Digest, Sha256};
 use std::fmt;
+use std::time::Duration;
 
 /// JobsWithGPT MCP scraper
 #[derive(Clone)]
@@ -70,12 +74,21 @@ impl JobsWithGptScraper {
 
     /// Query JobsWithGPT MCP server
     async fn query_mcp(&self) -> ScraperResult {
-        validate_external_https_url_for_fetch(&self.endpoint)
+        let endpoint = resolve_external_https_url_for_fetch(&self.endpoint)
             .await
             .map_err(|reason| ScraperError::InvalidUrl {
                 url: self.endpoint.clone(),
                 reason,
             })?;
+        let endpoint_url = endpoint.as_str().to_string();
+
+        let mut client_builder = scraper_client_builder()
+            .user_agent(DEFAULT_USER_AGENT)
+            .timeout(Duration::from_secs(DEFAULT_TIMEOUT_SECS));
+        if let Some((host, addrs)) = endpoint.dns_override() {
+            client_builder = client_builder.resolve_to_addrs(host, addrs);
+        }
+        let client = client_builder.build()?;
 
         tracing::info!("Querying JobsWithGPT MCP server");
 
@@ -107,8 +120,8 @@ impl JobsWithGptScraper {
             "Sending JobsWithGPT MCP request"
         );
 
-        let response = send_with_retry(&self.endpoint, |client| {
-            client.post(&self.endpoint).json(&request)
+        let response = send_with_retry_on_client(&client, &endpoint_url, |client| {
+            client.post(&endpoint_url).json(&request)
         })
         .await
         .map_err(|e| ScraperError::from_anyhow("jobswithgpt", e))?;
@@ -116,12 +129,12 @@ impl JobsWithGptScraper {
         if !response.status().is_success() {
             return Err(ScraperError::http_status(
                 response.status().as_u16(),
-                &self.endpoint,
+                &endpoint_url,
                 format!("MCP server failed: {}", response.status()),
             ));
         }
 
-        let json: serde_json::Value = read_json_with_limit(response, &self.endpoint).await?;
+        let json: serde_json::Value = read_json_with_limit(response, &endpoint_url).await?;
 
         // Parse MCP response: { "jsonrpc": "2.0", "result": [...], "id": 1 }
         if let Some(error) = json.get("error") {
