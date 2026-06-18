@@ -1,23 +1,44 @@
 name: Release
 
 on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version or tag, for example 2.9.0 or v2.9.0"
+        required: true
+        type: string
+      platform:
+        description: "Platform assets to build"
+        required: true
+        default: all
+        type: choice
+        options:
+          - all
+          - windows
+          - macos
+          - linux
   push:
     tags:
       - "v*"
 
-permissions:
-  contents: read
+permissions: {}
 
 env:
+  CARGO_INCREMENTAL: "0"
   SQLX_OFFLINE: true
 
 jobs:
   preflight:
     runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
 
       - name: Install Linux dependencies
         run: |
@@ -32,7 +53,6 @@ jobs:
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: "24.16.0"
-          cache: "npm"
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8 # stable
@@ -40,16 +60,13 @@ jobs:
           toolchain: "1.96.0"
           components: clippy, rustfmt
 
-      - name: Cache cargo
-        uses: Swatinem/rust-cache@c19371144df3bb44fab255c43d04cbc2ab54d1c4 # v2.9.1
-        with:
-          workspaces: src-tauri
-
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --prefer-offline --no-audit --no-fund
 
       - name: Validate release version
-        run: npm run release:check-version -- "${GITHUB_REF_NAME}"
+        env:
+          RELEASE_VERSION: ${{ github.event_name == 'workflow_dispatch' && inputs.version || github.ref_name }}
+        run: npm run release:check-version -- "$RELEASE_VERSION"
 
       - name: Run harness checks
         run: npm run harness:check
@@ -81,18 +98,60 @@ jobs:
   create-release:
     needs: preflight
     runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    environment:
+      name: release
     permissions:
       contents: write
     outputs:
       version: ${{ steps.get_version.outputs.version }}
+      tag: ${{ steps.get_version.outputs.tag }}
+      matrix: ${{ steps.get_version.outputs.matrix }}
     steps:
-      - name: Get version from tag
+      - name: Get release inputs
         id: get_version
-        run: echo "version=${GITHUB_REF#refs/tags/v}" >> "$GITHUB_OUTPUT"
+        shell: bash
+        env:
+          INPUT_PLATFORM: ${{ github.event_name == 'workflow_dispatch' && inputs.platform || 'all' }}
+          INPUT_VERSION: ${{ github.event_name == 'workflow_dispatch' && inputs.version || '' }}
+        run: |
+          set -euo pipefail
+
+          if [ -n "$INPUT_VERSION" ]; then
+            version="${INPUT_VERSION#v}"
+          else
+            version="${GITHUB_REF#refs/tags/v}"
+          fi
+
+          case "$INPUT_PLATFORM" in
+            all)
+              matrix='[{"platform_key":"windows","platform":"windows-2025","target":"x86_64-pc-windows-msvc","asset_name_prefix":"JobSentinel-Windows"},{"platform_key":"macos","platform":"macos-26","target":"universal-apple-darwin","asset_name_prefix":"JobSentinel-macOS"},{"platform_key":"linux","platform":"ubuntu-24.04","target":"x86_64-unknown-linux-gnu","asset_name_prefix":"JobSentinel-Linux"}]'
+              ;;
+            windows)
+              matrix='[{"platform_key":"windows","platform":"windows-2025","target":"x86_64-pc-windows-msvc","asset_name_prefix":"JobSentinel-Windows"}]'
+              ;;
+            macos)
+              matrix='[{"platform_key":"macos","platform":"macos-26","target":"universal-apple-darwin","asset_name_prefix":"JobSentinel-macOS"}]'
+              ;;
+            linux)
+              matrix='[{"platform_key":"linux","platform":"ubuntu-24.04","target":"x86_64-unknown-linux-gnu","asset_name_prefix":"JobSentinel-Linux"}]'
+              ;;
+            *)
+              printf 'Unsupported release platform: %s\n' "$INPUT_PLATFORM"
+              exit 1
+              ;;
+          esac
+
+          {
+            printf 'version=%s\n' "$version"
+            printf 'tag=v%s\n' "$version"
+            printf 'matrix=%s\n' "$matrix"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Create Release
         uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
         with:
+          tag_name: ${{ steps.get_version.outputs.tag }}
           name: JobSentinel ${{ steps.get_version.outputs.version }}
           draft: true
           prerelease: false
@@ -105,27 +164,23 @@ jobs:
 
   build-release:
     needs: create-release
+    environment:
+      name: release
     permissions:
       contents: write
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - platform: windows-2025
-            target: x86_64-pc-windows-msvc
-            asset_name_prefix: JobSentinel-Windows
-          - platform: macos-26
-            target: universal-apple-darwin
-            asset_name_prefix: JobSentinel-macOS
-          - platform: ubuntu-24.04
-            target: x86_64-unknown-linux-gnu
-            asset_name_prefix: JobSentinel-Linux
+        include: ${{ fromJSON(needs.create-release.outputs.matrix) }}
 
     runs-on: ${{ matrix.platform }}
+    timeout-minutes: 120
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
 
       - name: Install Linux dependencies
         if: matrix.platform == 'ubuntu-24.04'
@@ -142,7 +197,6 @@ jobs:
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: "24.16.0"
-          cache: "npm"
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8 # stable
@@ -150,13 +204,8 @@ jobs:
           toolchain: "1.96.0"
           targets: ${{ matrix.target == 'universal-apple-darwin' && 'aarch64-apple-darwin,x86_64-apple-darwin' || matrix.target }}
 
-      - name: Cache cargo
-        uses: Swatinem/rust-cache@c19371144df3bb44fab255c43d04cbc2ab54d1c4 # v2.9.1
-        with:
-          workspaces: src-tauri
-
       - name: Install frontend dependencies
-        run: npm ci
+        run: npm ci --prefer-offline --no-audit --no-fund
 
       - name: Configure macOS signing and notarization
         if: matrix.platform == 'macos-26'
@@ -242,6 +291,7 @@ jobs:
           fi
 
           keychain_password="$(openssl rand -hex 24)"
+          printf '::add-mask::%s\n' "$keychain_password"
           keychain_path="$RUNNER_TEMP/jobsentinel-signing.keychain-db"
           certificate_path="$RUNNER_TEMP/jobsentinel-certificate.p12"
 

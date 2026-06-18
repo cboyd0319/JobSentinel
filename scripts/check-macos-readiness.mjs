@@ -63,6 +63,20 @@ export function hasNoAccountMacosReleaseOrder(releaseWorkflow) {
   );
 }
 
+export function releaseWorkflowBuildsUniversalMacosPackage(releaseWorkflow) {
+  return (
+    hasAny(releaseWorkflow, ['platform: macos-26', '"platform":"macos-26"']) &&
+    hasAny(releaseWorkflow, [
+      "target: universal-apple-darwin",
+      '"target":"universal-apple-darwin"',
+    ]) &&
+    hasAll(releaseWorkflow, [
+      "aarch64-apple-darwin,x86_64-apple-darwin",
+      "npm run tauri:build:macos -- --target",
+    ])
+  );
+}
+
 function getWorkflowStepBlock(workflow, stepName) {
   const marker = `- name: ${stepName}`;
   const start = workflow.indexOf(marker);
@@ -166,12 +180,7 @@ export function evaluateMacosReadiness({ root = defaultRoot, env = process.env }
     criterion(
       "release workflow builds universal macOS package",
       8,
-      hasAll(releaseWorkflow, [
-        "platform: macos-26",
-        "target: universal-apple-darwin",
-        "aarch64-apple-darwin,x86_64-apple-darwin",
-        "npm run tauri:build:macos -- --target",
-      ]),
+      releaseWorkflowBuildsUniversalMacosPackage(releaseWorkflow),
       "Release CI must build one universal Intel plus Apple silicon DMG.",
     ),
     criterion(

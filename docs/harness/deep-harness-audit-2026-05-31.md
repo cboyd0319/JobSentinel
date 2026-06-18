@@ -36,19 +36,19 @@ harness policy extraction, broader external-AI provider detection, environment
 doctor platform/E2E readiness checks, and active-plan status compaction were
 implemented after this audit and closed in `docs/plans/tech-debt-tracker.md`.
 
-Follow-up on 2026-06-01: this audit was reconciled against the live workflows
-and harness files. Normal CI harness coverage, docs-harness script coverage,
-release/manual-build preflight, local toolchain pins, the machine-readable plan
-index, and the main bloat-runner split are now closed or narrowed to residual
-module-ownership work below. Remaining recommendations stay tracked here and in
-`docs/plans/tech-debt-tracker.md`.
+Follow-up on 2026-06-01 and 2026-06-17: this audit was reconciled against the
+live workflows and harness files. Normal CI harness coverage, path-aware
+docs/harness coverage inside CI, release/manual-dispatch preflight, local
+toolchain pins, the machine-readable plan index, and the main bloat-runner split
+are now closed or narrowed to residual module-ownership work below. Remaining
+recommendations stay tracked here and in `docs/plans/tech-debt-tracker.md`.
 
 ## Highest-Impact Improvements
 
 | Priority | Improvement | Evidence | Risk | Recommended fix |
 | -------- | ----------- | -------- | ---- | --------------- |
 | P0 | Run harness sensors in normal CI | Closed: `.github/workflows/ci.yml` now has a dedicated `harness` job that runs `npm run harness:check` and `npm run test:scripts`. | Closed for normal CI; future risk is accidental removal of the harness job or path filters that hide code changes. | Keep the normal-CI harness job and script-test step visible in workflow reviews. |
-| P0 | Make release workflows require a preflight gate | Closed: `.github/workflows/release.yml`, `build-linux.yml`, and `build-windows.yml` now validate release version metadata and run harness checks, harness script tests, markdown linting, frontend build, Rust formatting, Rust clippy, and Rust unit tests before artifact build or upload. | Closed for current release and manual build workflows; future risk is new packaging workflows skipping the preflight pattern. | Reuse this preflight shape for any new release or artifact workflow. |
+| P0 | Make release workflows require a preflight gate | Closed: `.github/workflows/release.yml` now handles tag releases and manual platform dispatch. It validates release version metadata and runs harness checks, harness script tests, markdown linting, frontend build, Rust formatting, Rust clippy, and Rust unit tests before artifact build or upload. | Closed for current release and manual package paths; future risk is new packaging workflows skipping the preflight pattern. | Keep package builds in `release.yml` unless a new workflow can prove the same preflight shape. |
 | P0 | Extract hardcoded harness policy data from `check-harness.mjs` | `docs/harness/manifest.json` now owns required harness files, policy snippets, and README reference-source URLs; `scripts/check-harness.mjs` reads the manifest and remains the validator. | Closed: source and snippet policy changes are reviewable as data instead of script edits. | Keep new harness policy lists in the manifest unless logic, not policy data, changes. |
 | P1 | Split `check-repo-bloat.mjs` into named sensors | Closed for the main runner: `scripts/check-repo-bloat.mjs` is now a 609-line orchestrator. Named modules live under `scripts/harness/checks/`; the largest remaining modules are `privacy-logging.mjs`, `docs-drift.mjs`, `product-copy.mjs`, and `broad-audience-fixtures.mjs`. | Residual review cost now sits in large named modules instead of one mixed runner. | Continue splitting named modules only where the ownership boundary is clear and focused tests can prove the split. |
 | P1 | Strengthen security sensors beyond doc-presence checks | Partly closed: security-sensitive implementation checks now live in named modules including `privacy-logging.mjs`, `security-docs.mjs`, `source-quality.mjs`, `source-boundaries.mjs`, and `ipc-minimization.mjs`. | Remaining risk is discoverability across several security-adjacent modules rather than absence of implementation checks. | Add a sensor registry or harness architecture map that names each security-sensitive module, owner, source, and retire condition. |
@@ -93,10 +93,10 @@ module-ownership work below. Remaining recommendations stay tracked here and in
 
 | Priority | Improvement | Evidence | Risk | Recommended fix |
 | -------- | ----------- | -------- | ---- | --------------- |
-| P1 | Expand Docs Harness workflow paths | Closed: `.github/workflows/docs-harness.yml` now watches `scripts/**`, `package.json`, `package-lock.json`, harness docs, wrapper docs, and README surfaces, then runs `npm run harness:check`, `npm run test:scripts`, and `npm run lint:md`. | Closed for current docs-harness script coverage; future risk is adding harness files outside watched paths. | Keep new harness surfaces under watched paths or update the workflow path list in the same change. |
+| P1 | Expand Docs Harness workflow paths | Closed: `.github/workflows/ci.yml` now classifies changed files and routes docs, scripts, package metadata, workflow files, harness docs, wrapper docs, and README surfaces through the CI harness job with `npm run harness:check`, `npm run test:scripts`, and `npm run lint:md` when relevant. | Closed for current docs/harness script coverage; future risk is adding harness files outside the classifier. | Update the CI classifier when new harness surfaces are added. |
 | P1 | Group Dependabot updates by ecosystem/risk | `.github/dependabot.yml` allows up to 25 open PRs across npm, cargo, and GitHub Actions. | Dependency maintenance can flood review and CI. | Use Dependabot `groups` for non-security updates while keeping security updates isolated and prompt. |
-| P2 | Validate manual build inputs | Closed: `build-linux.yml` and `build-windows.yml` run `npm run release:check-version -- "${{ github.event.inputs.version }}"` before build or upload. | Closed for current manual build workflows; future risk is adding manual packaging workflows without metadata validation. | Reuse `scripts/validate-release-version.mjs` for new manual release inputs. |
-| P2 | Reduce release workflow permission scope | Closed: manual build workflows now keep workflow-level permissions read-only and grant write permissions only to jobs that upload release artifacts. | Closed for current workflow scope; future risk is broad permissions returning during workflow edits. | Keep upload permissions scoped to release-upload jobs or steps. |
+| P2 | Validate manual build inputs | Closed: `release.yml` manual dispatch runs `npm run release:check-version -- "${{ inputs.version }}"` before build or upload. | Closed for current manual package path; future risk is adding manual packaging workflows without metadata validation. | Keep manual package dispatch in `release.yml` or reuse `scripts/validate-release-version.mjs` for any new package workflow. |
+| P2 | Reduce release workflow permission scope | Closed: workflow-level permissions stay read-only, and `release.yml` grants write permissions only to release creation and asset-upload jobs. | Closed for current workflow scope; future risk is broad permissions returning during workflow edits. | Keep upload permissions scoped to release-upload jobs or steps. |
 
 ## Sensor Coverage Improvements
 

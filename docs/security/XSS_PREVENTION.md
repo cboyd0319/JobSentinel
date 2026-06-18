@@ -11,7 +11,15 @@ The active Resume Builder preview is in
 ```typescript
 import DOMPurify from "dompurify";
 
-<div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(previewHtml) }} />
+const resumePreviewSanitizeOptions = {
+  SANITIZE_NAMED_PROPS: true,
+} as const;
+
+<div
+  dangerouslySetInnerHTML={{
+    __html: DOMPurify.sanitize(previewHtml, resumePreviewSanitizeOptions),
+  }}
+/>
 ```
 
 `package.json` owns the DOMPurify dependency. Check the current installed
@@ -82,6 +90,19 @@ Treat these inputs as untrusted:
 <!-- Sanitized output -->
 ```
 
+### DOM Clobbering Names
+
+`SANITIZE_NAMED_PROPS` prevents user-authored `id` or `name` attributes from
+shadowing sensitive browser or app properties.
+
+```html
+<!-- Input -->
+<form id="document" name="location"></form>
+
+<!-- Sanitized output -->
+<!-- id/name are removed or safely prefixed, not preserved as submitted -->
+```
+
 ## What Remains Allowed
 
 Safe resume formatting remains:
@@ -107,13 +128,15 @@ sanitized output.
 Focused manual checks:
 
 ```javascript
-DOMPurify.sanitize('<h1>Safe</h1><script>alert("XSS")</script>');
+const options = { SANITIZE_NAMED_PROPS: true };
+
+DOMPurify.sanitize('<h1>Safe</h1><script>alert("XSS")</script>', options);
 // Expected: <h1>Safe</h1>
 
-DOMPurify.sanitize('<img src="x" onerror="alert(1)">');
+DOMPurify.sanitize('<img src="x" onerror="alert(1)">', options);
 // Expected: <img src="x">
 
-DOMPurify.sanitize('<a href="javascript:alert(1)">Click</a>');
+DOMPurify.sanitize('<a href="javascript:alert(1)">Click</a>', options);
 // Expected: <a>Click</a>
 ```
 
@@ -147,7 +170,7 @@ assume upstream storage stayed safe.
 
 ```typescript
 const ResumePreview = ({ html }: { html: string }) => {
-  const cleanHtml = DOMPurify.sanitize(html);
+  const cleanHtml = DOMPurify.sanitize(html, { SANITIZE_NAMED_PROPS: true });
 
   return <div dangerouslySetInnerHTML={{ __html: cleanHtml }} />;
 };

@@ -7,10 +7,11 @@
 ## Table of contents
 
 - [Overview](#overview)
+- [Workflow security baseline](#workflow-security-baseline)
 - [Continuous integration (ci.yml)](#continuous-integration-ciyml)
 - [Release builds (release.yml)](#release-builds-releaseyml)
 - [Published release verification (verify-release-artifacts.yml)](#published-release-verification-verify-release-artifactsyml)
-- [Manual build workflows](#manual-build-workflows)
+- [Manual release dispatch](#manual-release-dispatch)
 - [Local CI simulation](#local-ci-simulation)
 - [Release process](#release-process)
 - [Secrets and environment variables](#secrets-and-environment-variables)
@@ -20,42 +21,71 @@
 
 ## Overview
 
-JobSentinel uses six GitHub Actions workflows for shared verification and
+JobSentinel uses three GitHub Actions workflows for shared verification and
 hosted release builds. Production release assets can also be built locally on
 the target platform and uploaded manually when the same preflight and artifact
 verification gates pass.
 
-| Workflow                 | File                           | Trigger                      | Purpose                         |
-| ------------------------ | ------------------------------ | ---------------------------- | ------------------------------- |
-| CI                       | `ci.yml`                       | Push or PR to `main`         | Tests, linting, security        |
-| Docs Harness             | `docs-harness.yml`             | Docs and harness changes     | Harness, markdown lint          |
-| Release                  | `release.yml`                  | Version tag (`v*`)           | Build and stage draft installers |
-| Verify Release Artifacts | `verify-release-artifacts.yml` | Published release or manual  | Verify public downloadable DMGs |
-| Build Windows            | `build-windows.yml`            | Manual (`workflow_dispatch`) | Windows MSI on demand           |
-| Build Linux              | `build-linux.yml`              | Manual (`workflow_dispatch`) | Linux AppImage/deb on demand    |
+| Workflow                 | File                           | Trigger                     | Purpose                         |
+| ------------------------ | ------------------------------ | --------------------------- | ------------------------------- |
+| CI                       | `ci.yml`                       | Push, PR, or manual         | Path-aware tests, linting, security, docs, and harness |
+| Release                  | `release.yml`                  | Version tag or manual       | Build and stage draft installers |
+| Verify Release Artifacts | `verify-release-artifacts.yml` | Published release or manual | Verify public downloadable DMGs |
 
-CI skips runs when only documentation files change (`.md`, `docs/**`, Storybook, etc.).
-The docs harness workflow covers maintained docs and agent-facing harness files.
+CI no longer has a separate docs workflow. A first `changes` job classifies the
+diff, then only the relevant jobs run. Documentation-only changes run harness
+and markdown checks without Rust, frontend, or security jobs. Rust, frontend,
+dependency, and workflow changes still trigger their matching gates.
+
+---
+
+## Workflow security baseline
+
+Workflow changes must preserve the GitHub Actions security baseline:
+
+- Use `permissions: {}` at workflow level and grant only job-level permissions
+  that are required.
+- Use `actions/checkout` with `persist-credentials: false` unless a job needs
+  Git credentials persisted after checkout.
+- Pin third-party actions to full commit SHAs and keep the stable version
+  comment current with `npm run lint:actions`.
+- Pass workflow-dispatch inputs into shell steps through environment variables,
+  then quote those variables in `run:` scripts.
+- Route release jobs with write permissions or signing secrets through the
+  GitHub `release` environment, and configure that environment with required
+  reviewers before production releases.
+- Do not use dependency caches in release or publishing jobs. CI may cache to
+  speed feedback, but release artifacts must not depend on shared caches.
 
 ---
 
 ## Continuous integration (ci.yml)
 
-**Trigger:** Push to `main` or pull request targeting `main`
+**Trigger:** Push to `main`, pull request targeting `main`, or manual run
 
-All four jobs run in parallel on `ubuntu-latest`. There is no OS matrix and no
-beta toolchain, only pinned Rust 1.96.0 on Linux.
+CI runs on `ubuntu-24.04`. There is no OS matrix and no beta toolchain, only
+pinned Rust 1.96.0 on Linux. Jobs are path-aware so docs-only changes avoid
+unrelated Rust and frontend work.
+
+### Job: changes
+
+Classifies the changed files and exposes booleans for harness/docs, frontend,
+Rust, and security checks. Manual dispatch runs the full CI set.
 
 ### Job: harness
 
-Runs repo harness checks, exact dependency-pin checks, and harness script tests.
+Runs repo harness checks, exact dependency-pin checks, GitHub Actions pin
+checks, and harness script tests. Markdown lint runs when docs, scripts,
+agent-facing files, workflow files, or release metadata changed.
 
-| Step                  | Command                 |
-| --------------------- | ----------------------- |
-| Install dependencies  | `npm ci`                |
-| Harness checks        | `npm run harness:check` |
-| Dependency pin checks | `npm run lint:deps`     |
-| Harness script tests  | `npm run test:scripts`  |
+| Step                       | Command                 |
+| -------------------------- | ----------------------- |
+| Install dependencies       | `npm ci --prefer-offline --no-audit --no-fund` |
+| Harness checks             | `npm run harness:check` |
+| Dependency pin checks      | `npm run lint:deps`     |
+| GitHub Actions pin checks  | `npm run lint:actions`  |
+| Harness script tests       | `npm run test:scripts`  |
+| Markdown lint, when needed | `npm run lint:md`       |
 
 ### Job: test-rust
 
@@ -72,18 +102,22 @@ so SQLx does not attempt a live database connection.
 
 ### Job: test-frontend
 
-Installs dependencies, type-checks, lints, and runs the Vitest suite.
+Installs dependencies, type-checks, lints, and runs the Vitest suite when
+frontend, package, browser extension, public asset, or frontend config files
+changed.
 
 | Step                 | Command             |
 | -------------------- | ------------------- |
-| Install dependencies | `npm ci`            |
+| Install dependencies | `npm ci --prefer-offline --no-audit --no-fund` |
 | TypeScript check     | `npx --no-install tsc --noEmit` |
 | Lint                 | `npm run lint`      |
 | Unit tests           | `npm test -- --run` |
 
 ### Job: security
 
-Audits both dependency trees for known vulnerabilities.
+Audits both dependency trees for known vulnerabilities when dependency,
+security, Dependabot, or workflow files changed. This job intentionally skips
+Linux WebKit build dependencies because it does not compile the app.
 
 | Step            | Tool                               |
 | --------------- | ---------------------------------- |
@@ -94,19 +128,21 @@ Audits both dependency trees for known vulnerabilities.
 
 ## Release builds (release.yml)
 
-**Trigger:** Push of a tag matching `v*`, for example `vX.Y.Z`
+**Trigger:** Push of a tag matching `v*`, for example `vX.Y.Z`, or manual
+`workflow_dispatch`
 
-This workflow creates a draft GitHub Release, then builds installers in
-parallel across three platforms. It is the hosted cross-platform path, not the
-only permitted production path.
+This workflow creates or updates a draft GitHub Release, then builds installers
+for the requested platforms. Tag pushes build all platforms. Manual dispatch
+accepts a `version` input and a `platform` choice of `all`, `windows`, `macos`,
+or `linux`, replacing the old standalone manual Windows and Linux workflows.
 
 ### Platforms and artifacts
 
 | Platform         | Target                     | Artifacts uploaded                                |
 | ---------------- | -------------------------- | ------------------------------------------------- |
-| `windows-latest` | `x86_64-pc-windows-msvc`   | `.msi`                                            |
-| `macos-latest`   | `universal-apple-darwin`   | `.dmg` plus `.dmg.sha256` (universal binary - Intel + Apple Silicon) |
-| `ubuntu-latest`  | `x86_64-unknown-linux-gnu` | `.AppImage`, `.deb`                               |
+| `windows-2025` | `x86_64-pc-windows-msvc`   | `.msi` plus `.msi.sha256`                         |
+| `macos-26`     | `universal-apple-darwin`   | `.dmg` plus `.dmg.sha256` (universal binary - Intel + Apple Silicon) |
+| `ubuntu-24.04` | `x86_64-unknown-linux-gnu` | `.AppImage`, `.deb`, and matching checksums       |
 
 The release starts as a draft. After reviewing the generated release notes, publish it manually
 from the GitHub Releases page.
@@ -134,7 +170,7 @@ adds `--require-gatekeeper`.
 **Trigger:** Published GitHub Release or manual `workflow_dispatch`
 
 This workflow verifies the macOS artifact exactly as users download it from
-GitHub Releases. It runs on `macos-latest`, installs Node dependencies, and runs
+GitHub Releases. It runs on `macos-26`, installs Node dependencies, and runs
 `npm run tauri:verify:macos:latest`. On release publish events, it scopes the
 check to the published tag. On manual runs, the optional `tag` input checks a
 specific release, and a blank tag checks the latest public release.
@@ -158,31 +194,29 @@ the strict Gatekeeper gate when all required Apple secrets are present.
 
 ---
 
-## Manual build workflows
+## Manual release dispatch
 
-These workflows run only when triggered manually via **Actions > Run workflow** in the GitHub UI.
-They are useful for producing a build outside of the normal release flow, for example to test a
-hotfix or create a pre-release artifact.
+Manual hosted package builds now run through **Actions > Release > Run workflow**.
+They are useful for producing one platform outside of a tag-triggered full
+release, for example to test a hotfix or replace a draft asset.
 
 Local platform builds are also supported. Prefer local builds when you have a
 trusted Windows, macOS, or Linux host available and want to avoid unnecessary
 hosted runner time. Run the same version, harness, lint, test, build, and
 artifact verification gates before upload.
 
-### `build-windows.yml` (Windows manual build)
+Inputs:
 
-Builds a Windows `.msi` for the specified version tag. Public draft upload is
-blocked unless the MSI has a valid Authenticode signature. The workflow then
-writes a matching `.msi.sha256` checksum and uploads both files.
+| Input      | Value                                      |
+| ---------- | ------------------------------------------ |
+| `version`  | `X.Y.Z` or `vX.Y.Z`; must match repo metadata |
+| `platform` | `all`, `windows`, `macos`, or `linux`      |
 
-**Input:** `version` - the version string, for example `X.Y.Z`
-
-### build-linux.yml
-
-Builds a Linux `.AppImage` and `.deb` and uploads them as workflow artifacts (not a release).
-Download them from the Actions run summary.
-
-**Input:** `version` - the version string, for example `X.Y.Z`
+Manual runs still execute the release preflight before packaging. Windows MSI
+upload is blocked unless the MSI has a valid Authenticode signature. Linux
+uploads are blocked unless exactly one AppImage and one Debian package exist,
+both filenames include the release version, both files are non-empty, Debian
+metadata can be inspected, and matching checksums are generated.
 
 ---
 
@@ -288,7 +322,7 @@ release version, the `.deb` must pass `dpkg-deb --info` and
 `dpkg-deb --contents`, and both Linux assets must have matching `.sha256`
 checksums before upload. The post-publish public artifact workflow currently
 verifies the downloadable macOS DMG; Windows and Linux verification happens
-before upload in the release and manual build workflows.
+before upload in the release workflow.
 
 ### 3. Publish the draft release
 
@@ -323,6 +357,11 @@ These are set at the workflow level and require no secrets:
 
 `GITHUB_TOKEN` is automatically available to all workflows. It is used by the release and build
 workflows to create releases and upload assets.
+
+Release publishing and platform-signing secrets should live in the GitHub
+`release` environment when available. Configure required reviewers on that
+environment so draft-release creation, asset upload, and macOS signing secrets
+require explicit release approval.
 
 ### macOS signing and notarization
 

@@ -376,12 +376,15 @@ Open `coverage/index.html` to view detailed coverage.
 
 ### GitHub Actions workflow
 
-CI runs on every push and pull request targeting `main`. All jobs run on
-`ubuntu-latest` with Rust 1.96.0; there is no OS matrix and no beta toolchain
-run.
+CI runs on every push and pull request targeting `main`. Jobs run on
+`ubuntu-24.04` with Rust 1.96.0; there is no OS matrix and no beta toolchain
+run. CI first classifies changed files, then runs only the relevant harness,
+frontend, Rust, and security jobs.
 
-The three CI jobs are:
+The main CI jobs are:
 
+- **harness** — runs `npm run harness:check`, dependency/action pin checks,
+  harness script tests, and markdown lint for docs/harness changes
 - **test-rust** — runs `cargo fmt --all -- --check`, `cargo clippy -- -D warnings`, and `cargo test --lib`
 - **test-frontend** — runs `npx --no-install tsc --noEmit`, `npm run lint`, and `npm test -- --run`
 - **security** — runs `npm audit --audit-level=moderate` and `cargo deny check advisories`

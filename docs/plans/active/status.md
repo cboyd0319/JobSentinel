@@ -92,13 +92,13 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 - Final non-`content/` expert/agent pass is applied locally: memory-only
   company research, accessible onboarding, auto-refresh gating, atomic alert
   claims, HTTPS JobsWithGPT endpoints, shared import hashes, and metadata.
-- v2.9.0 local readiness is closed; final push/CI artifact build remains, and
-  Gatekeeper-ready macOS remains externally blocked by Apple Developer ID/notarization.
+- v2.9.0 local readiness was pushed and CI passed; current follow-up is secure
+  workflow consolidation. Gatekeeper-ready macOS remains Apple-blocked.
 
 ## Next Best Work
 
-1. Push after final handoff; use CI/release workflows for Windows/macOS/Linux
-   artifacts and keep no Gatekeeper-ready macOS claim before Apple credentials.
+1. Finish and push CI/release workflow consolidation; use release dispatch for
+   Windows/macOS/Linux artifacts without Gatekeeper claims before credentials.
 2. Continue resume assistance only where it improves truthful requirement review,
    hard-constraint handling, readable evidence, or next-action guidance.
 3. Continue guided intake only where resume/profile suggestions stay optional,

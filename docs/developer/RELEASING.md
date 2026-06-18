@@ -75,6 +75,10 @@ both files without claiming Gatekeeper readiness.
 For a zero-friction public macOS release, configure the Developer ID signing and
 notarization secrets before tagging:
 
+Prefer GitHub `release` environment secrets with required reviewers over
+repository-wide secrets. The hosted release workflow targets that environment
+for draft-release creation, asset upload, and macOS signing.
+
 ```bash
 export APPLE_CERTIFICATE="base64-encoded-p12"
 export APPLE_CERTIFICATE_PASSWORD="p12-export-password"
@@ -193,14 +197,14 @@ done
 Public Windows MSI upload is blocked unless `Get-AuthenticodeSignature` returns
 `Valid` for the built `.msi`. Configure the Tauri Windows signing certificate
 thumbprint and timestamp URL before publishing a Windows MSI. The release
-workflow and manual Windows build workflow also create `.msi.sha256` only after
-signature verification passes.
+workflow creates `.msi.sha256` only after signature verification passes,
+including manual release dispatch for `platform=windows`.
 
 Public Linux upload is blocked unless exactly one `.AppImage` and one `.deb`
 exist, both filenames include the release version, both files are non-empty,
 the `.deb` passes `dpkg-deb --info` and `dpkg-deb --contents`, and matching
-`.sha256` files are generated. The release workflow and manual Linux build
-workflow enforce those checks before upload.
+`.sha256` files are generated. The release workflow enforces those checks
+before upload, including manual release dispatch for `platform=linux`.
 
 The `Verify Release Artifacts` GitHub Actions workflow also runs after a
 release is published. It verifies the public macOS DMG from GitHub Releases

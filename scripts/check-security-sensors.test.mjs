@@ -46,7 +46,7 @@ function writeBaseRepo(root, csp) {
   );
   writeFileSync(
     join(root, ".github/workflows/release.yml"),
-    "jobs:\n  release:\n    steps:\n      - run: |\n          JOBSENTINEL_MACOS_NO_ACCOUNT=true\n          labeled_name=JobSentinel_1.2.3_no-account_universal.dmg\n          npm run tauri:verify:macos -- --launch-smoke --install-smoke --require-checksum --require-gatekeeper --expected-bundle-id com.jobsentinel.main --expected-product-name JobSentinel --expected-version 1.2.3 --expected-icon-file icon.icns --expected-minimum-system-version 13.0\n",
+    "jobs:\n  release:\n    environment:\n      name: release\n    steps:\n      - run: |\n          keychain_password=\"$(openssl rand -hex 24)\"\n          printf '::add-mask::%s\\n' \"$keychain_password\"\n          JOBSENTINEL_MACOS_NO_ACCOUNT=true\n          labeled_name=JobSentinel_1.2.3_no-account_universal.dmg\n          npm run tauri:verify:macos -- --launch-smoke --install-smoke --require-checksum --require-gatekeeper --expected-bundle-id com.jobsentinel.main --expected-product-name JobSentinel --expected-version 1.2.3 --expected-icon-file icon.icns --expected-minimum-system-version 13.0\n",
   );
   writeFileSync(
     join(root, ".github/workflows/verify-release-artifacts.yml"),
@@ -70,7 +70,7 @@ function writeBaseRepo(root, csp) {
   );
   writeFileSync(
     join(root, "docs/developer/CI_CD.md"),
-    "npm audit --audit-level=moderate\ncargo deny check advisories\n",
+    "GitHub `release` environment\nrequired reviewers\nnpm audit --audit-level=moderate\ncargo deny check advisories\n",
   );
   writeFileSync(
     join(root, "src-tauri/tauri.conf.json"),
@@ -142,6 +142,42 @@ test("checkSecuritySensors rejects macOS release gates without launch smoke", ()
   assert(
     checkSecuritySensors(root).includes(
       "release workflow is missing macOS package gate: macOS launch smoke gate",
+    ),
+  );
+});
+
+test("checkSecuritySensors rejects release workflow without release environment", () => {
+  const root = mkdtempRoot("jobsentinel-security-sensors-release-environment-");
+  writeBaseRepo(
+    root,
+    "default-src 'self'; connect-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'",
+  );
+  writeFileSync(
+    join(root, ".github/workflows/release.yml"),
+    "jobs:\n  release:\n    steps:\n      - run: |\n          keychain_password=\"$(openssl rand -hex 24)\"\n          printf '::add-mask::%s\\n' \"$keychain_password\"\n          JOBSENTINEL_MACOS_NO_ACCOUNT=true\n          labeled_name=JobSentinel_1.2.3_no-account_universal.dmg\n          npm run tauri:verify:macos -- --launch-smoke --install-smoke --require-checksum --require-gatekeeper --expected-bundle-id com.jobsentinel.main --expected-product-name JobSentinel --expected-version 1.2.3 --expected-icon-file icon.icns --expected-minimum-system-version 13.0\n",
+  );
+
+  assert(
+    checkSecuritySensors(root).includes(
+      "release workflow is missing macOS package gate: release environment gate",
+    ),
+  );
+});
+
+test("checkSecuritySensors rejects release workflow without keychain password mask", () => {
+  const root = mkdtempRoot("jobsentinel-security-sensors-keychain-mask-");
+  writeBaseRepo(
+    root,
+    "default-src 'self'; connect-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'",
+  );
+  writeFileSync(
+    join(root, ".github/workflows/release.yml"),
+    "jobs:\n  release:\n    environment:\n      name: release\n    steps:\n      - run: |\n          keychain_password=\"$(openssl rand -hex 24)\"\n          JOBSENTINEL_MACOS_NO_ACCOUNT=true\n          labeled_name=JobSentinel_1.2.3_no-account_universal.dmg\n          npm run tauri:verify:macos -- --launch-smoke --install-smoke --require-checksum --require-gatekeeper --expected-bundle-id com.jobsentinel.main --expected-product-name JobSentinel --expected-version 1.2.3 --expected-icon-file icon.icns --expected-minimum-system-version 13.0\n",
+  );
+
+  assert(
+    checkSecuritySensors(root).includes(
+      "release workflow is missing macOS package gate: macOS keychain password mask",
     ),
   );
 });

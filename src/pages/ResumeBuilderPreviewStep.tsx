@@ -11,6 +11,10 @@ interface ResumeBuilderPreviewStepProps {
   onSelectTemplate: (templateId: TemplateId) => void;
 }
 
+const resumePreviewSanitizeOptions = {
+  SANITIZE_NAMED_PROPS: true,
+} as const;
+
 export function ResumeBuilderPreviewStep({
   templates,
   selectedTemplate,
@@ -137,8 +141,12 @@ export function ResumeBuilderPreviewStep({
                 atsAnalysis ? "lg:col-span-2" : "lg:col-span-3"
               } border border-surface-200 dark:border-surface-600 rounded-lg p-6 bg-white dark:bg-surface-700 max-h-96 overflow-y-auto`}
             >
-              {/* SAFETY: HTML is sanitized by DOMPurify (defense in depth with Rust backend) */}
-              <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(previewHtml) }} />
+              {/* SAFETY: DOMPurify removes scriptable HTML and clobberable named properties. */}
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: DOMPurify.sanitize(previewHtml, resumePreviewSanitizeOptions),
+                }}
+              />
             </div>
           )}
         </div>

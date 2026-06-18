@@ -62,23 +62,25 @@ Build outputs are located at:
 
 ## GitHub Build Workflow
 
-JobSentinel has a manual GitHub Actions workflow for Linux packages.
+JobSentinel builds Linux packages through the consolidated Release workflow.
 
-### Build Workflow
+### Manual Release Dispatch
 
-`.github/workflows/build-linux.yml` runs through `workflow_dispatch` with a
-required version input.
+`.github/workflows/release.yml` runs through `workflow_dispatch` with a
+required `version` input and a `platform` choice. Select `linux` to build only
+Linux assets, or `all` to build Windows, macOS, and Linux assets.
 
 Before packaging, the workflow validates the requested version and runs harness
 checks, harness script tests, markdown linting, the frontend build, Rust
 formatting, Rust clippy, and Rust unit tests. AppImage and Debian artifacts are
-uploaded from the workflow run.
+attached to the draft release with matching checksums.
 
 ### Release Workflow
 
 `.github/workflows/release.yml` runs on:
 
 - Git tags matching `v*` (e.g., `v2.7.0`)
+- Manual dispatch with `platform` set to `all` or `linux`
 
 Releases include:
 
@@ -185,7 +187,7 @@ chmod +x JobSentinel-Linux-*.AppImage
 
 ### Build Fails on Non-Ubuntu Systems
 
-JobSentinel CI builds on **Ubuntu 24.04** (`ubuntu-latest`) for glibc compatibility.
+JobSentinel CI builds on **Ubuntu 24.04** for glibc compatibility.
 
 If building on a newer system, the binary may not run on older distributions.
 
@@ -222,7 +224,7 @@ See [Tauri Signing Documentation](https://tauri.app/distribute/sign/linux/) for 
 
 ## Notes
 
-- **Ubuntu 24.04 baseline** (`ubuntu-latest`) ensures glibc 2.39 compatibility across distributions
+- **Ubuntu 24.04 baseline** ensures glibc 2.39 compatibility across distributions
 - AppImage is **recommended** for maximum compatibility
 - `.deb` is provided for users who prefer package managers
 - **No RPM packages yet** - contributions welcome for Fedora/RHEL support

@@ -10,6 +10,7 @@ import {
   hasNoAccountMacosReleaseOrder,
   noAccountCompletionPercentage,
   releaseAssetUploadsStayDraft,
+  releaseWorkflowBuildsUniversalMacosPackage,
   readMacosDevelopmentReadinessClaims,
   readReadmeMacosReadinessPercent,
   windowsMsiUploadRequiresSignature,
@@ -199,6 +200,29 @@ test("macOS readiness checks no-account release workflow order", () => {
         "while IFS= read -r asset; do",
         "macos_assets=()\nfor asset in \"${macos_assets[@]}\"; do",
       ),
+    ),
+    false,
+  );
+});
+
+test("macOS readiness recognizes universal macOS release matrices", () => {
+  const yamlMatrixWorkflow = [
+    "platform: macos-26",
+    "target: universal-apple-darwin",
+    "targets: ${{ matrix.target == 'universal-apple-darwin' && 'aarch64-apple-darwin,x86_64-apple-darwin' || matrix.target }}",
+    "run: npm run tauri:build:macos -- --target ${{ matrix.target }}",
+  ].join("\n");
+  const jsonMatrixWorkflow = [
+    'matrix=\'[{"platform_key":"macos","platform":"macos-26","target":"universal-apple-darwin"}]\'',
+    "targets: ${{ matrix.target == 'universal-apple-darwin' && 'aarch64-apple-darwin,x86_64-apple-darwin' || matrix.target }}",
+    "run: npm run tauri:build:macos -- --target ${{ matrix.target }}",
+  ].join("\n");
+
+  assert.equal(releaseWorkflowBuildsUniversalMacosPackage(yamlMatrixWorkflow), true);
+  assert.equal(releaseWorkflowBuildsUniversalMacosPackage(jsonMatrixWorkflow), true);
+  assert.equal(
+    releaseWorkflowBuildsUniversalMacosPackage(
+      jsonMatrixWorkflow.replace('"target":"universal-apple-darwin"', '"target":"x86_64-apple-darwin"'),
     ),
     false,
   );

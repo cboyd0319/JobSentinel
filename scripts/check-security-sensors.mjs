@@ -67,6 +67,14 @@ const ciWorkflowChecks = [
 
 const releaseWorkflowChecks = [
   {
+    label: "release environment gate",
+    phrases: ["environment:", "name: release"],
+  },
+  {
+    label: "macOS keychain password mask",
+    phrases: ['keychain_password="$(openssl rand -hex 24)"', "::add-mask::"],
+  },
+  {
     label: "macOS Gatekeeper gate",
     phrases: ["npm run tauri:verify:macos", "--require-gatekeeper"],
   },
@@ -134,6 +142,10 @@ const credentialPassiveProbeFiles = [
 ];
 
 const ciDocsChecks = [
+  {
+    label: "release environment",
+    phrases: ["GitHub `release` environment", "required reviewers"],
+  },
   {
     label: "npm audit",
     phrases: ["npm audit --audit-level=moderate"],
