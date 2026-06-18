@@ -201,7 +201,11 @@ const jobPostingPromptTextKeys = new Set([
 const promptLikeJobPostingPhrases = [
   "ignore previous instructions",
   "ignore all previous instructions",
+  "ignroe previous instructions",
+  "ignore previous instructons",
+  "ignore prevous instructions",
   "disregard previous instructions",
+  "disregard previous instructons",
   "override instructions",
   "system prompt",
   "developer message",
@@ -211,6 +215,24 @@ const promptLikeJobPostingPhrases = [
   "instruction to recruiter software",
   "for ai screeners",
 ];
+
+const zeroWidthCharacters = new Set([
+  "\u200B",
+  "\u200C",
+  "\u200D",
+  "\u2060",
+  "\uFEFF",
+]);
+
+const hiddenMarkupPatterns = [
+  /<!--[\s\S]*?-->/i,
+  /<meta\b[^>]*(?:keywords|description|content)\b/i,
+  /style\s*=\s*["'][^"']*(?:display\s*:\s*none|visibility\s*:\s*hidden|opacity\s*:\s*0|font-size\s*:\s*0)/i,
+  /\\(?:color|textcolor)\s*\{\s*(?:white|transparent|#fff(?:fff)?|rgb\(\s*255\s*,\s*255\s*,\s*255\s*\))\s*\}/i,
+];
+
+const base64LikePattern = /\b[A-Za-z0-9+/]{24,}={0,2}\b/g;
+const hexLikePattern = /\b(?:0x)?[0-9a-fA-F]{32,}\b/g;
 
 function collectClassifiedPayloadKeys(): Set<string> {
   const keys = new Set<string>();
@@ -258,22 +280,80 @@ function findUnclassifiedPayloadKey(
   return [...collectPayloadKeys(payload)].find((key) => !classifiedKeys.has(key));
 }
 
-function textHasPromptLikeJobPostingContent(text: string): boolean {
-  if (
-    text
-      .split("")
-      .some((char) => ["\u200B", "\u200C", "\u200D", "\u2060", "\uFEFF"].includes(char))
-  ) {
+function textHasPromptLikeJobPostingContent(text: string, decodeDepth = 0): boolean {
+  if (text.split("").some((char) => zeroWidthCharacters.has(char))) {
     return true;
   }
 
-  const hiddenMarkupPatterns = [/<!--[\s\S]*?-->/i, /<meta\b[^>]*(?:keywords|description|content)\b/i];
   if (hiddenMarkupPatterns.some((pattern) => pattern.test(text))) {
     return true;
   }
 
   const lower = text.toLowerCase();
-  return promptLikeJobPostingPhrases.some((phrase) => lower.includes(phrase));
+  if (promptLikeJobPostingPhrases.some((phrase) => lower.includes(phrase))) {
+    return true;
+  }
+
+  if (decodeDepth > 0) {
+    return false;
+  }
+
+  return decodedCandidateText(text).some((decoded) =>
+    textHasPromptLikeJobPostingContent(decoded, decodeDepth + 1),
+  );
+}
+
+function decodedCandidateText(text: string): string[] {
+  const decoded: string[] = [];
+
+  for (const match of text.matchAll(base64LikePattern)) {
+    const value = decodeBase64Text(match[0]);
+    if (value) {
+      decoded.push(value);
+    }
+  }
+
+  for (const match of text.matchAll(hexLikePattern)) {
+    const value = decodeHexText(match[0]);
+    if (value) {
+      decoded.push(value);
+    }
+  }
+
+  return decoded;
+}
+
+function decodeBase64Text(value: string): string | undefined {
+  try {
+    const decoded = atob(value);
+    return mostlyPrintable(decoded) ? decoded : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function decodeHexText(value: string): string | undefined {
+  const normalized = value.replace(/^0x/i, "");
+  if (normalized.length % 2 !== 0) {
+    return undefined;
+  }
+
+  const chars: string[] = [];
+  for (let index = 0; index < normalized.length; index += 2) {
+    chars.push(String.fromCharCode(Number.parseInt(normalized.slice(index, index + 2), 16)));
+  }
+
+  const decoded = chars.join("");
+  return mostlyPrintable(decoded) ? decoded : undefined;
+}
+
+function mostlyPrintable(value: string): boolean {
+  if (value.length < 8) {
+    return false;
+  }
+
+  const printable = [...value].filter((char) => /[\t\n\r -~]/.test(char)).length;
+  return printable / value.length >= 0.85;
 }
 
 function valueHasPromptLikeJobPostingContent(value: unknown): boolean {

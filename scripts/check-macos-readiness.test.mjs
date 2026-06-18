@@ -174,8 +174,9 @@ test("macOS readiness checks no-account release workflow order", () => {
     "  with:",
     "    subject-checksums: release-assets/attestation-subjects.sha256",
     "- name: Upload release assets",
-    "  with:",
-    "    files: release-assets/public/*",
+    "  run: |",
+    "    assets=(release-assets/public/*)",
+    "    gh release upload \"$RELEASE_TAG\" \"${assets[@]}\" --clobber",
   ].join("\n");
 
   const staleWorkflow = [
@@ -239,7 +240,7 @@ test("macOS readiness recognizes universal macOS release matrices", () => {
 });
 
 test("macOS readiness checks release asset uploads stay draft", () => {
-  const workflow = [
+  const legacyWorkflow = [
     "- name: Upload release assets",
     "  uses: softprops/action-gh-release@abc",
     "  with:",
@@ -247,13 +248,30 @@ test("macOS readiness checks release asset uploads stay draft", () => {
     "    tag_name: ${{ needs.create-release.outputs.tag }}",
     "    files: release-assets/public/*",
   ].join("\n");
+  const workflow = [
+    "- name: Create draft release",
+    "  env:",
+    "    GH_TOKEN: ${{ github.token }}",
+    "    RELEASE_TAG: ${{ steps.get_version.outputs.tag }}",
+    "  run: |",
+    "    gh release edit \"$RELEASE_TAG\" --draft --prerelease=false --notes-file \"$notes_file\"",
+    "    gh release create \"$RELEASE_TAG\" --draft --notes-file \"$notes_file\"",
+    "- name: Upload release assets",
+    "  env:",
+    "    GH_TOKEN: ${{ github.token }}",
+    "    RELEASE_TAG: ${{ needs.create-release.outputs.tag }}",
+    "  run: |",
+    "    assets=(release-assets/public/*)",
+    "    gh release upload \"$RELEASE_TAG\" \"${assets[@]}\" --clobber",
+  ].join("\n");
 
+  assert.equal(releaseAssetUploadsStayDraft(legacyWorkflow), true);
   assert.equal(releaseAssetUploadsStayDraft(workflow), true);
   assert.equal(
     releaseAssetUploadsStayDraft(
       workflow.replace(
-        "    draft: true\n    tag_name: ${{ needs.create-release.outputs.tag }}",
-        "    tag_name: ${{ needs.create-release.outputs.tag }}",
+        "    gh release create \"$RELEASE_TAG\" --draft --notes-file \"$notes_file\"",
+        "    gh release create \"$RELEASE_TAG\" --notes-file \"$notes_file\"",
       ),
     ),
     false,

@@ -52,6 +52,10 @@ function writeBaseRepo(root, csp) {
       "jobs:",
       "  preflight:",
       "    steps:",
+      "      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0",
+      "        with:",
+      "          node-version: \"24.17.0\"",
+      "          package-manager-cache: false",
       "      - run: npm run lint",
       "      - run: npm test -- --run",
       "      - run: npm audit --audit-level=moderate",
@@ -66,6 +70,8 @@ function writeBaseRepo(root, csp) {
       "            printf 'Release version must be an exact stable semver (x.y.z), found: %s\\n' \"$version\"",
       "            exit 1",
       "          fi",
+      "          gh release edit \"$RELEASE_TAG\" --notes-file \"$notes_file\"",
+      "          gh release create \"$RELEASE_TAG\" --notes-file \"$notes_file\"",
       "  build-release:",
       "    environment:",
       "      name: release",
@@ -75,6 +81,10 @@ function writeBaseRepo(root, csp) {
       "      contents: write",
       "      id-token: write",
       "    steps:",
+      "      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0",
+      "        with:",
+      "          node-version: \"24.17.0\"",
+      "          package-manager-cache: false",
       "      - run: |",
       "          keychain_password=\"$(openssl rand -hex 24)\"",
       "          printf '::add-mask::%s\\n' \"$keychain_password\"",
@@ -89,6 +99,7 @@ function writeBaseRepo(root, csp) {
       "        with:",
       "          subject-checksums: release-assets/attestation-subjects.sha256",
       "          sbom-path: release-assets/public/JobSentinel-1.2.3-macos.sbom.spdx.json",
+      "      - run: gh release upload \"$RELEASE_TAG\" release-assets/public/* --clobber",
     ].join("\n"),
   );
   writeFileSync(
@@ -109,6 +120,10 @@ function writeBaseRepo(root, csp) {
       "      attestations: read",
       "      contents: read",
       "    steps:",
+      "      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0",
+      "        with:",
+      "          node-version: \"24.17.0\"",
+      "          package-manager-cache: false",
       "      - run: |",
       "          RELEASE_TAG=\"$RELEASE_TAG\"",
       "          DISPATCH_TAG=\"$DISPATCH_TAG\"",
@@ -443,6 +458,24 @@ test("checkSecuritySensors rejects release dependency caches", () => {
   );
 });
 
+test("checkSecuritySensors rejects release setup-node automatic package-manager cache", () => {
+  const root = mkdtempRoot("jobsentinel-security-sensors-setup-node-cache-");
+  writeBaseRepo(
+    root,
+    "default-src 'self'; connect-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'",
+  );
+  writeFileSync(
+    join(root, ".github/workflows/release.yml"),
+    readBaseReleaseWorkflowWithout("          package-manager-cache: false\n"),
+  );
+
+  assert(
+    checkSecuritySensors(root).includes(
+      ".github/workflows/release.yml setup-node steps must set package-manager-cache: false",
+    ),
+  );
+});
+
 test("checkSecuritySensors rejects Dependabot without grouped cooldown governance", () => {
   const root = mkdtempRoot("jobsentinel-security-sensors-dependabot-");
   writeBaseRepo(
@@ -621,6 +654,10 @@ function readBaseReleaseWorkflowWithout(removedLine) {
     "jobs:",
     "  preflight:",
     "    steps:",
+    "      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0",
+    "        with:",
+    "          node-version: \"24.17.0\"",
+    "          package-manager-cache: false",
     "      - run: npm run lint",
     "      - run: npm test -- --run",
     "      - run: npm audit --audit-level=moderate",
@@ -635,6 +672,8 @@ function readBaseReleaseWorkflowWithout(removedLine) {
     "            printf 'Release version must be an exact stable semver (x.y.z), found: %s\\n' \"$version\"",
     "            exit 1",
     "          fi",
+    "          gh release edit \"$RELEASE_TAG\" --notes-file \"$notes_file\"",
+    "          gh release create \"$RELEASE_TAG\" --notes-file \"$notes_file\"",
     "  build-release:",
     "    environment:",
     "      name: release",
@@ -644,6 +683,10 @@ function readBaseReleaseWorkflowWithout(removedLine) {
     "      contents: write",
     "      id-token: write",
     "    steps:",
+    "      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0",
+    "        with:",
+    "          node-version: \"24.17.0\"",
+    "          package-manager-cache: false",
     "      - run: |",
     "          keychain_password=\"$(openssl rand -hex 24)\"",
     "          printf '::add-mask::%s\\n' \"$keychain_password\"",
@@ -658,6 +701,7 @@ function readBaseReleaseWorkflowWithout(removedLine) {
     "        with:",
     "          subject-checksums: release-assets/attestation-subjects.sha256",
     "          sbom-path: release-assets/public/JobSentinel-1.2.3-macos.sbom.spdx.json",
+    "      - run: gh release upload \"$RELEASE_TAG\" release-assets/public/* --clobber",
   ]
     .join("\n")
     .replace(removedLine, "");

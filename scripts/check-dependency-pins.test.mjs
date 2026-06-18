@@ -141,7 +141,7 @@ function writeMinimalCargoFixture(root, version = "=1.0.228") {
 }
 
 function writeMinimalRuntimeFixture(root, options = {}) {
-  const nodeVersion = options.nodeVersion ?? "24.16.0";
+  const nodeVersion = options.nodeVersion ?? "24.17.0";
   const rustVersion = options.rustVersion ?? "1.96.0";
   const cargoDenyVersion = options.cargoDenyVersion ?? "0.19.9";
 
@@ -257,6 +257,33 @@ test("npm pin check rejects unreviewed prerelease lockfile entries", () => {
 
     assert.equal(
       violations.some((violation) => violation.includes("node_modules/example")),
+      true,
+    );
+  });
+});
+
+test("npm pin check rejects untrusted lockfile tarball metadata", () => {
+  withFixture((root) => {
+    writeMinimalNpmFixture(root);
+    const packageLock = JSON.parse(readFixtureFile(root, "package-lock.json"));
+    packageLock.packages["node_modules/react"].resolved =
+      "https://evil.example.invalid/react-1.2.3.tgz";
+    packageLock.packages["node_modules/vite"].resolved =
+      "https://registry.npmjs.org/vite/-/vite-8.0.16.tgz";
+    writeFixtureFile(root, "package-lock.json", JSON.stringify(packageLock));
+
+    const violations = collectNpmPinViolations(root);
+
+    assert.equal(
+      violations.some((violation) =>
+        violation.includes("node_modules/react resolved URL must use https://registry.npmjs.org/"),
+      ),
+      true,
+    );
+    assert.equal(
+      violations.some((violation) =>
+        violation.includes("node_modules/vite must include an integrity hash"),
+      ),
       true,
     );
   });
@@ -612,8 +639,8 @@ test("runtime latest-stable check compares tool pins to upstream versions", asyn
             ok: true,
             json: async () => [
               { version: "v26.3.0", lts: false },
+              { version: "v24.18.0", lts: "Krypton" },
               { version: "v24.17.0", lts: "Krypton" },
-              { version: "v24.16.0", lts: "Krypton" },
             ],
           };
         }
@@ -637,7 +664,7 @@ test("runtime latest-stable check compares tool pins to upstream versions", asyn
     });
 
     assert.deepEqual(violations, [
-      ".nvmrc is pinned to 24.16.0; latest stable Node.js LTS version is 24.17.0",
+      ".nvmrc is pinned to 24.17.0; latest stable Node.js LTS version is 24.18.0",
       "rust-toolchain.toml is pinned to 1.96.0; latest stable Rust version is 1.97.0",
       ".github/workflows/ci.yml:8 cargo install cargo-deny is pinned to 0.19.9; latest stable crates.io version is 0.20.0",
     ]);

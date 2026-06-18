@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 
 const scriptPath = fileURLToPath(import.meta.url);
 const defaultRoot = resolve(dirname(scriptPath), "..");
-const nodeBaselineVersion = "24.16.0";
+const nodeBaselineVersion = "24.17.0";
 const rustBaselineVersion = "1.96.0";
 
 export function parseVersion(value) {

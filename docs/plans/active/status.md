@@ -54,7 +54,7 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   100/100 score. Current UI QA covers first-run setup, dashboard, application
   tracking, Settings Sources & Alerts, key routes, toasts, and no passive
   Keychain prompt.
-- Dependency evidence on 2026-06-18 (`npm` `11.17.0`, Node `24.16.0`, Rust
+- Dependency evidence on 2026-06-18 (`npm` `11.17.0`, Node `24.17.0`, Rust
   `1.96.0`, `getrandom` `0.4.3`): `release:check-deps` passes after Rust and
   npm lockfile refreshes; direct pins are latest/stable and transitives are
   lockfile-pinned/latest-compatible.
@@ -99,7 +99,8 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   Actions, supply-chain, AI, storage, URL, logging, and Browser Import surfaces;
   follow-up now includes release/import/source/privacy/resume guards,
   declarative-only skills, salary-history review, Rust Config fixtures,
-  Dependabot grouping/cooldowns, workflow sensors, and AI job-posting guards.
+  Dependabot grouping/cooldowns, Zizmor-clean workflow sensors, lockfile
+  integrity sensors, and AI obfuscation guards.
 
 ## Next Best Work
 

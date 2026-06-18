@@ -91,6 +91,14 @@ const releaseWorkflowChecks = [
     ],
   },
   {
+    label: "release setup-node cache disabled",
+    phrases: ["actions/setup-node@", "package-manager-cache: false"],
+  },
+  {
+    label: "release creation through GitHub CLI",
+    phrases: ["gh release create", "gh release edit", "notes-file"],
+  },
+  {
     label: "macOS keychain password mask",
     phrases: ['keychain_password="$(openssl rand -hex 24)"', "::add-mask::"],
   },
@@ -135,6 +143,10 @@ const releaseWorkflowChecks = [
   {
     label: "release SBOM generation",
     phrases: ["npm run release:sbom", "--require-artifacts", "attestation-subjects.sha256"],
+  },
+  {
+    label: "release upload through GitHub CLI",
+    phrases: ["gh release upload", "--clobber"],
   },
   {
     label: "release provenance attestation",
@@ -188,6 +200,10 @@ const publishedReleaseWorkflowChecks = [
   {
     label: "public supply-chain verifier",
     phrases: ["attestations: read", "--require-supply-chain"],
+  },
+  {
+    label: "public setup-node cache disabled",
+    phrases: ["actions/setup-node@", "package-manager-cache: false"],
   },
 ];
 
@@ -316,6 +332,17 @@ function checkReleaseCacheIsolation(releaseWorkflow, violations) {
   }
 }
 
+function checkSetupNodeCacheDisabled(path, text, violations) {
+  const setupNodeCount = countMatches(text, /\buses:\s*actions\/setup-node@/g);
+  const disabledCount = countMatches(text, /\bpackage-manager-cache:\s*false\b/g);
+
+  if (setupNodeCount > disabledCount) {
+    violations.push(
+      `${path} setup-node steps must set package-manager-cache: false`,
+    );
+  }
+}
+
 function checkDependabotGovernance(root, violations) {
   const dependabotConfig = readIfExists(root, ".github/dependabot.yml", violations);
 
@@ -387,6 +414,7 @@ export function checkSecuritySensors(root = defaultRoot) {
 
   const releaseWorkflow = readIfExists(root, ".github/workflows/release.yml", violations);
   checkReleaseCacheIsolation(releaseWorkflow, violations);
+  checkSetupNodeCacheDisabled(".github/workflows/release.yml", releaseWorkflow, violations);
 
   for (const check of releaseWorkflowChecks) {
     if (!includesAll(releaseWorkflow, check.phrases)) {
@@ -416,6 +444,11 @@ export function checkSecuritySensors(root = defaultRoot) {
   const publishedReleaseWorkflow = readIfExists(
     root,
     ".github/workflows/verify-release-artifacts.yml",
+    violations,
+  );
+  checkSetupNodeCacheDisabled(
+    ".github/workflows/verify-release-artifacts.yml",
+    publishedReleaseWorkflow,
     violations,
   );
 

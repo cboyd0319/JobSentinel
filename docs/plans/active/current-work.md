@@ -138,8 +138,8 @@ Out of scope:
   overflow; commit `361560f9` added clean send APIs and local-model
   revision/checksum pinning from the CheatSheetSeries scan.
 - Current CheatSheetSeries follow-ups hardened deps, Browser Import, resume
-  intake, URL/DNS/print/alert/browser/OCR, ATS/MCP URLs, release versioning,
-  declarative skills, Linux metadata, and Rust release-test fixtures.
+  intake, URL/DNS/print/alert/browser/OCR, ATS/MCP URLs, release cache policy,
+  lockfile integrity, AI obfuscation, declarative skills, and Linux metadata.
 - Final whole-UI post-design pass: 266/266 pinned-runtime E2E, 16 route
   inventories, and no console/page errors or overflow.
 - Final non-`content/` audit fixes landed: memory-only company research,

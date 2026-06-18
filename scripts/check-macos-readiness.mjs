@@ -65,7 +65,7 @@ export function hasNoAccountMacosReleaseOrder(releaseWorkflow) {
       "--require-artifacts",
       "subject-path: release-assets/public/*",
       "subject-checksums: release-assets/attestation-subjects.sha256",
-      "files: release-assets/public/*",
+      'gh release upload "$RELEASE_TAG" "${assets[@]}" --clobber',
     ]) &&
     !releaseWorkflow.includes("mapfile ") &&
     !releaseWorkflow.includes("macos_assets")
@@ -96,14 +96,57 @@ function getWorkflowStepBlock(workflow, stepName) {
   return nextStep === -1 ? workflow.slice(start) : workflow.slice(start, start + marker.length + nextStep);
 }
 
+function getShellCommandBlock(step, command) {
+  const start = step.indexOf(command);
+  if (start === -1) return "";
+
+  const rest = step.slice(start);
+  const next = rest.slice(command.length).search(/\n\s*(?:gh\s+release|else\b|fi\b)/);
+  return next === -1 ? rest : rest.slice(0, command.length + next);
+}
+
 export function releaseAssetUploadsStayDraft(releaseWorkflow) {
+  const createRelease = getWorkflowStepBlock(releaseWorkflow, "Create draft release");
+  const releaseEdit = getShellCommandBlock(createRelease, 'gh release edit "$RELEASE_TAG"');
+  const releaseCreate = getShellCommandBlock(createRelease, 'gh release create "$RELEASE_TAG"');
+  const createsDraftRelease =
+    (hasAll(createRelease, [
+      "GH_TOKEN: ${{ github.token }}",
+      "RELEASE_TAG: ${{ steps.get_version.outputs.tag }}",
+    ]) &&
+      hasAll(releaseEdit, [
+        'gh release edit "$RELEASE_TAG"',
+        "--draft",
+        "--prerelease=false",
+        "--notes-file",
+      ]) &&
+      hasAll(releaseCreate, [
+        'gh release create "$RELEASE_TAG"',
+        "--draft",
+        "--notes-file",
+      ])) ||
+    (() => {
+      const legacyCreateRelease = getWorkflowStepBlock(releaseWorkflow, "Create Release");
+      return (
+        legacyCreateRelease.includes("uses: softprops/action-gh-release@") &&
+        /\n\s+draft: true\b/.test(legacyCreateRelease)
+      );
+    })();
+
   const commonUpload = getWorkflowStepBlock(releaseWorkflow, "Upload release assets");
   if (commonUpload) {
     return (
-      commonUpload.includes("uses: softprops/action-gh-release@") &&
-      /\n\s+draft: true\b/.test(commonUpload) &&
-      commonUpload.includes("tag_name: ${{ needs.create-release.outputs.tag }}") &&
-      commonUpload.includes("files: release-assets/public/*")
+      (commonUpload.includes("uses: softprops/action-gh-release@") &&
+        /\n\s+draft: true\b/.test(commonUpload) &&
+        commonUpload.includes("tag_name: ${{ needs.create-release.outputs.tag }}") &&
+        commonUpload.includes("files: release-assets/public/*")) ||
+      (createsDraftRelease &&
+        hasAll(commonUpload, [
+          "GH_TOKEN: ${{ github.token }}",
+          "RELEASE_TAG: ${{ needs.create-release.outputs.tag }}",
+          "assets=(release-assets/public/*)",
+          'gh release upload "$RELEASE_TAG" "${assets[@]}" --clobber',
+        ]))
     );
   }
 

@@ -142,7 +142,8 @@ Implemented now:
 - Redacted payload required when redaction is enabled.
 - Reviewed redacted payload sent instead of raw feature payload.
 - Classified payload-key guard for unknown fields.
-- Prompt-like public job-posting text block before provider transport.
+- Prompt-like, hidden, encoded, and typo-obfuscated public job-posting text
+  block before provider transport.
 - Sensitive-payload guard.
 - Full-database block.
 - Public-data-only payload guard.

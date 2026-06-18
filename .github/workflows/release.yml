@@ -52,7 +52,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
-          node-version: "24.16.0"
+          node-version: "24.17.0"
+          package-manager-cache: false
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8 # stable
@@ -169,19 +170,36 @@ jobs:
             printf 'matrix=%s\n' "$matrix"
           } >> "$GITHUB_OUTPUT"
 
-      - name: Create Release
-        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
-        with:
-          tag_name: ${{ steps.get_version.outputs.tag }}
-          name: JobSentinel ${{ steps.get_version.outputs.version }}
-          draft: true
-          prerelease: false
-          body: |
-            macOS package status is enforced by the release workflow.
+      - name: Create draft release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.get_version.outputs.tag }}
+          RELEASE_VERSION: ${{ steps.get_version.outputs.version }}
+        run: |
+          set -euo pipefail
 
-            In no-Apple-Developer-account mode, the macOS DMG is ad-hoc signed, not Developer ID signed, not notarized, and not Gatekeeper-ready. It requires a first-open Privacy & Security approval on macOS. Verify the matching `.sha256` checksum before opening.
+          notes_file="$(mktemp)"
+          cat > "$notes_file" <<'EOF'
+          macOS package status is enforced by the release workflow.
 
-            When Developer ID signing and notarization are configured, the macOS workflow requires Gatekeeper acceptance before upload.
+          In no-Apple-Developer-account mode, the macOS DMG is ad-hoc signed, not Developer ID signed, not notarized, and not Gatekeeper-ready. It requires a first-open Privacy & Security approval on macOS. Verify the matching `.sha256` checksum before opening.
+
+          When Developer ID signing and notarization are configured, the macOS workflow requires Gatekeeper acceptance before upload.
+          EOF
+
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release edit "$RELEASE_TAG" \
+              --title "JobSentinel $RELEASE_VERSION" \
+              --draft \
+              --prerelease=false \
+              --notes-file "$notes_file"
+          else
+            gh release create "$RELEASE_TAG" \
+              --title "JobSentinel $RELEASE_VERSION" \
+              --draft \
+              --notes-file "$notes_file"
+          fi
 
   build-release:
     needs: create-release
@@ -220,7 +238,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
-          node-version: "24.16.0"
+          node-version: "24.17.0"
+          package-manager-cache: false
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8 # stable
@@ -378,6 +397,8 @@ jobs:
       - name: Verify macOS app and DMG
         if: matrix.platform == 'macos-26'
         shell: bash
+        env:
+          EXPECTED_VERSION: ${{ needs.create-release.outputs.version }}
         run: |
           set -euo pipefail
           shopt -s nullglob
@@ -392,7 +413,7 @@ jobs:
             --expected-architectures "x86_64,arm64"
             --expected-bundle-id "com.jobsentinel.main"
             --expected-product-name "JobSentinel"
-            --expected-version "${{ needs.create-release.outputs.version }}"
+            --expected-version "$EXPECTED_VERSION"
             --expected-icon-file "icon.icns"
             --expected-minimum-system-version "13.0"
             --launch-smoke
@@ -565,10 +586,13 @@ jobs:
 
       - name: Generate release SBOM
         shell: bash
+        env:
+          PLATFORM_KEY: ${{ matrix.platform_key }}
+          RELEASE_VERSION: ${{ needs.create-release.outputs.version }}
         run: |
           npm run release:sbom -- \
-            --platform "${{ matrix.platform_key }}" \
-            --version "${{ needs.create-release.outputs.version }}" \
+            --platform "$PLATFORM_KEY" \
+            --version "$RELEASE_VERSION" \
             --out-dir release-assets/public \
             --checksums-out release-assets/attestation-subjects.sha256 \
             --require-artifacts
@@ -585,8 +609,18 @@ jobs:
           sbom-path: release-assets/public/JobSentinel-${{ needs.create-release.outputs.version }}-${{ matrix.platform_key }}.sbom.spdx.json
 
       - name: Upload release assets
-        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
-        with:
-          draft: true
-          tag_name: ${{ needs.create-release.outputs.tag }}
-          files: release-assets/public/*
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ needs.create-release.outputs.tag }}
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+
+          assets=(release-assets/public/*)
+          if [ "${#assets[@]}" -eq 0 ]; then
+            printf 'No release assets were staged for upload.\n'
+            exit 1
+          fi
+
+          gh release upload "$RELEASE_TAG" "${assets[@]}" --clobber

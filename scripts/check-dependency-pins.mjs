@@ -38,6 +38,7 @@ const allowedNpmPrereleaseLockEntries = new Map([
   ["@polka/url@1.0.0-next.29", "sirv@3.0.2 depends on ^1.0.0-next.24 and @polka/url publishes no stable 1.x version"],
   ["gensync@1.0.0-beta.2", "@babel/core@7.29.7 depends on ^1.0.0-beta.2 and gensync publishes no stable 1.x version"],
 ]);
+const npmRegistryTarballPrefix = "https://registry.npmjs.org/";
 
 function repoPath(root, path) {
   return join(root, path);
@@ -364,6 +365,14 @@ export function collectNpmPinViolations(root = defaultRoot) {
 
     const version = String(packageEntry.version);
     const name = npmLockPackageName(location);
+
+    const resolved = packageEntry.resolved ? String(packageEntry.resolved) : "";
+    if (resolved && !resolved.startsWith(npmRegistryTarballPrefix)) {
+      violations.push(`${lockPath} ${location} resolved URL must use ${npmRegistryTarballPrefix}, found ${resolved}`);
+    } else if (resolved && !packageEntry.integrity) {
+      violations.push(`${lockPath} ${location} must include an integrity hash for ${resolved}`);
+    }
+
     if (name) {
       if (!lockedVersionsByName.has(name)) {
         lockedVersionsByName.set(name, new Set());
@@ -888,7 +897,4 @@ export async function main(argv = process.argv.slice(2), root = defaultRoot) {
     console.log("Dependency pin check passed: exact runtime/tool/package-manager pins, workflow OS runner and apt-package pins, package, crate, and override pins, plus stable lockfile policy verified.");
   }
 }
-
-if (import.meta.url === pathToFileURL(process.argv[1]).href) {
-  await main();
-}
+if (import.meta.url === pathToFileURL(process.argv[1]).href) await main();

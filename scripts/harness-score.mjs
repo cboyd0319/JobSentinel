@@ -247,7 +247,7 @@ function buildFrameworks(root) {
           checks: [
             check(
               "Node runtime target is pinned",
-              fileHasAny(root, ".nvmrc", ["24.16.0"]),
+              fileHasAny(root, ".nvmrc", ["24.17.0"]),
               ".nvmrc",
             ),
             check(

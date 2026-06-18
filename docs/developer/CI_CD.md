@@ -62,9 +62,13 @@ Workflow changes must preserve the GitHub Actions security baseline:
   GitHub `release` environment, and configure that environment with required
   reviewers before production releases.
 - Do not use dependency caches in release or publishing jobs. CI may cache to
-  speed feedback, but release artifacts must not depend on shared caches.
+  speed feedback, but release artifacts must not depend on shared caches. Set
+  `package-manager-cache: false` on `actions/setup-node` in release and public
+  verification workflows.
 - Keep Dependabot version updates grouped by ecosystem or risk with cooldowns
   for new releases; security updates stay separate and prompt.
+- Keep `npm run lint:deps` blocking `package-lock.json` entries that resolve
+  outside `https://registry.npmjs.org/` or omit registry integrity hashes.
 
 ---
 
