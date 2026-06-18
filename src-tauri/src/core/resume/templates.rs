@@ -108,6 +108,17 @@ pub struct Certification {
     pub expiry: Option<String>,
 }
 
+/// Project entry
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Project {
+    pub name: String,
+    pub description: String,
+    pub technologies: Vec<String>,
+    pub url: Option<String>,
+    pub start_date: Option<String>,
+    pub end_date: Option<String>,
+}
+
 /// Structured resume data for rendering
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ResumeData {
@@ -117,6 +128,7 @@ pub struct ResumeData {
     pub education: Vec<Education>,
     pub skills: Vec<SkillCategory>,
     pub certifications: Vec<Certification>,
+    pub projects: Vec<Project>,
     pub clearance: Option<String>,     // For military template
     pub military_info: Option<String>, // MOS/rating for military template
 }
@@ -234,6 +246,46 @@ impl TemplateRenderer {
             }
         }
 
+        if !resume.certifications.is_empty() {
+            text.push_str("\nCERTIFICATIONS\n\n");
+            for cert in &resume.certifications {
+                text.push_str(&cert.name);
+                if !cert.issuer.is_empty() {
+                    text.push_str(&format!(" - {}", cert.issuer));
+                }
+                if let Some(date) = &cert.date {
+                    text.push_str(&format!(" - {}", date));
+                }
+                if let Some(expiry) = &cert.expiry {
+                    text.push_str(&format!(" - Expires {}", expiry));
+                }
+                text.push_str("\n");
+            }
+        }
+
+        if !resume.projects.is_empty() {
+            text.push_str("\nPROJECTS\n\n");
+            for project in &resume.projects {
+                text.push_str(&project.name);
+                text.push_str("\n");
+                if !project.description.is_empty() {
+                    text.push_str(&project.description);
+                    text.push_str("\n");
+                }
+                if !project.technologies.is_empty() {
+                    text.push_str(&format!(
+                        "Technologies: {}\n",
+                        project.technologies.join(", ")
+                    ));
+                }
+                if let Some(url) = &project.url {
+                    text.push_str(url);
+                    text.push_str("\n");
+                }
+                text.push_str("\n");
+            }
+        }
+
         text
     }
 
@@ -319,6 +371,9 @@ impl TemplateRenderer {
                 ));
             }
         }
+
+        Self::append_certifications(&mut html, resume);
+        Self::append_projects(&mut html, resume);
 
         html.push_str("</body>\n</html>");
         html
@@ -412,6 +467,9 @@ impl TemplateRenderer {
             }
         }
 
+        Self::append_certifications(&mut html, resume);
+        Self::append_projects(&mut html, resume);
+
         html.push_str("</body>\n</html>");
         html
     }
@@ -458,6 +516,9 @@ impl TemplateRenderer {
             html.push_str("\n");
         }
 
+        Self::append_projects(&mut html, resume);
+        Self::append_certifications(&mut html, resume);
+
         // Experience
         if !resume.experience.is_empty() {
             html.push_str("<h2>EXPERIENCE</h2>\n");
@@ -495,6 +556,9 @@ impl TemplateRenderer {
                 html.push_str("</div>\n\n");
             }
         }
+
+        Self::append_certifications(&mut html, resume);
+        Self::append_projects(&mut html, resume);
 
         html.push_str("</body>\n</html>");
         html
@@ -670,8 +734,70 @@ impl TemplateRenderer {
             }
         }
 
+        Self::append_certifications(&mut html, resume);
+        Self::append_projects(&mut html, resume);
+
         html.push_str("</body>\n</html>");
         html
+    }
+
+    fn append_certifications(html: &mut String, resume: &ResumeData) {
+        if resume.certifications.is_empty() {
+            return;
+        }
+
+        html.push_str("<h2>CERTIFICATIONS</h2>\n");
+        for cert in &resume.certifications {
+            html.push_str("<div class=\"certification-item\">\n");
+            html.push_str(&format!("<h3>{}</h3>\n", escape_html(&cert.name)));
+
+            let mut details = Vec::new();
+            if !cert.issuer.is_empty() {
+                details.push(cert.issuer.clone());
+            }
+            if let Some(date) = &cert.date {
+                details.push(date.clone());
+            }
+            if let Some(expiry) = &cert.expiry {
+                details.push(format!("Expires {}", expiry));
+            }
+            if !details.is_empty() {
+                html.push_str(&format!(
+                    "<div class=\"details\">{}</div>\n",
+                    escape_html(&details.join(" | "))
+                ));
+            }
+
+            html.push_str("</div>\n\n");
+        }
+    }
+
+    fn append_projects(html: &mut String, resume: &ResumeData) {
+        if resume.projects.is_empty() {
+            return;
+        }
+
+        html.push_str("<h2>PROJECTS</h2>\n");
+        for project in &resume.projects {
+            html.push_str("<div class=\"project-item\">\n");
+            html.push_str(&format!("<h3>{}</h3>\n", escape_html(&project.name)));
+            if !project.description.is_empty() {
+                html.push_str(&format!("<p>{}</p>\n", escape_html(&project.description)));
+            }
+            if !project.technologies.is_empty() {
+                html.push_str(&format!(
+                    "<div class=\"project-meta\"><strong>Technologies:</strong> {}</div>\n",
+                    escape_html(&project.technologies.join(", "))
+                ));
+            }
+            if let Some(url) = &project.url {
+                html.push_str(&format!(
+                    "<div class=\"project-url\">{}</div>\n",
+                    escape_html(url)
+                ));
+            }
+            html.push_str("</div>\n\n");
+        }
     }
 
     // HTML document structure

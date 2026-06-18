@@ -47,6 +47,7 @@ fn create_test_resume() -> ResumeData {
             },
         ],
         certifications: vec![],
+        projects: vec![],
         clearance: None,
         military_info: None,
     }
@@ -147,6 +148,39 @@ fn test_render_plain_text() {
 }
 
 #[test]
+fn test_render_html_and_text_include_certifications_and_projects() {
+    let mut resume = create_test_resume();
+    resume.certifications = vec![Certification {
+        name: "Certified Community Health Worker".to_string(),
+        issuer: "State Health Board".to_string(),
+        date: Some("2024".to_string()),
+        expiry: None,
+    }];
+    resume.projects = vec![Project {
+        name: "Clinic Intake Redesign".to_string(),
+        description: "Improved appointment intake for community clinic.".to_string(),
+        technologies: vec!["Scheduling".to_string(), "Patient intake".to_string()],
+        url: Some("https://example.test/project".to_string()),
+        start_date: None,
+        end_date: None,
+    }];
+
+    let html = TemplateRenderer::render_html(&resume, TemplateId::Classic);
+    let text = TemplateRenderer::render_plain_text(&resume);
+
+    assert!(html.contains("CERTIFICATIONS"));
+    assert!(html.contains("Certified Community Health Worker"));
+    assert!(html.contains("State Health Board"));
+    assert!(html.contains("PROJECTS"));
+    assert!(html.contains("Clinic Intake Redesign"));
+    assert!(html.contains("Scheduling, Patient intake"));
+    assert!(text.contains("CERTIFICATIONS"));
+    assert!(text.contains("Certified Community Health Worker"));
+    assert!(text.contains("PROJECTS"));
+    assert!(text.contains("Clinic Intake Redesign"));
+}
+
+#[test]
 fn test_html_escaping() {
     let resume = ResumeData {
         contact: ContactInfo {
@@ -162,6 +196,7 @@ fn test_html_escaping() {
         education: vec![],
         skills: vec![],
         certifications: vec![],
+        projects: vec![],
         clearance: None,
         military_info: None,
     };
@@ -192,6 +227,7 @@ fn test_empty_sections() {
         education: vec![],
         skills: vec![],
         certifications: vec![],
+        projects: vec![],
         clearance: None,
         military_info: None,
     };

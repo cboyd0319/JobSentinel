@@ -59,6 +59,23 @@ export interface SkillEntry {
   proficiency: "beginner" | "intermediate" | "advanced" | "expert" | null;
 }
 
+export interface Certification {
+  name: string;
+  issuer: string;
+  date_obtained: string | null;
+  expiration_date: string | null;
+  credential_id: string | null;
+}
+
+export interface Project {
+  name: string;
+  description: string;
+  technologies: string[];
+  url: string | null;
+  start_date: string | null;
+  end_date: string | null;
+}
+
 export interface ResumeData {
   id: number;
   contact: ContactInfo;
@@ -66,8 +83,8 @@ export interface ResumeData {
   experience: Experience[];
   education: Education[];
   skills: SkillEntry[];
-  certifications: string[];
-  projects: string[];
+  certifications: Certification[];
+  projects: Project[];
   created_at: string;
   updated_at: string;
 }
@@ -116,6 +133,14 @@ interface TemplateResumeData {
     issuer: string;
     date: string | null;
     expiry: string | null;
+  }>;
+  projects: Array<{
+    name: string;
+    description: string;
+    technologies: string[];
+    url: string | null;
+    start_date: string | null;
+    end_date: string | null;
   }>;
   clearance: string | null;
   military_info: string | null;
@@ -280,7 +305,20 @@ export function toTemplateResumeData(resume: ResumeData): TemplateResumeData {
     })),
     education: resume.education,
     skills: groupSkills(resume.skills),
-    certifications: [],
+    certifications: resume.certifications.map((certification) => ({
+      name: certification.name,
+      issuer: certification.issuer,
+      date: certification.date_obtained,
+      expiry: certification.expiration_date,
+    })),
+    projects: resume.projects.map((project) => ({
+      name: project.name,
+      description: project.description,
+      technologies: project.technologies,
+      url: project.url,
+      start_date: project.start_date,
+      end_date: project.end_date,
+    })),
     clearance: null,
     military_info: null,
   };
@@ -329,8 +367,18 @@ export function toExportResumeData(resume: ResumeData): ExportResumeData {
       category: skillGroup.name,
       skills: skillGroup.skills,
     })),
-    certifications: [],
-    projects: [],
+    certifications: resume.certifications.map((certification) => ({
+      name: certification.name,
+      issuer: certification.issuer,
+      date: certification.date_obtained ?? "",
+      credential_id: certification.credential_id,
+    })),
+    projects: resume.projects.map((project) => ({
+      name: project.name,
+      description: project.description,
+      technologies: project.technologies,
+      url: project.url,
+    })),
   };
 }
 
@@ -368,10 +416,36 @@ export function toAtsResumeData(resume: ResumeData): AtsResumeData {
       gpa: parseOptionalNumber(education.gpa),
       honors: education.honors,
     })),
-    certifications: resume.certifications,
-    projects: resume.projects,
+    certifications: resume.certifications.map(formatCertificationEvidence),
+    projects: resume.projects.map(formatProjectEvidence),
     custom_sections: {},
   };
+}
+
+function formatCertificationEvidence(certification: Certification): string {
+  return [
+    certification.name,
+    certification.issuer,
+    certification.date_obtained,
+    certification.credential_id
+      ? `Credential ID: ${certification.credential_id}`
+      : null,
+  ]
+    .filter((part): part is string => !!part)
+    .join(" - ");
+}
+
+function formatProjectEvidence(project: Project): string {
+  return [
+    project.name,
+    project.description,
+    project.technologies.length > 0
+      ? `Technologies: ${project.technologies.join(", ")}`
+      : null,
+    project.url,
+  ]
+    .filter((part): part is string => !!part)
+    .join(" - ");
 }
 
 export function normalizeAtsAnalysis(

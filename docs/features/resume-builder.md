@@ -82,6 +82,8 @@ All templates are designed for application readability:
 - Single column for consistent application previews
 - Standard fonts
 - Clear section headers
+- Imported certifications, publications, awards, and projects remain visible
+  when they are present in a local draft
 - No graphics or icons that distract from the content
 - Warnings for instruction-like text, invisible characters, or prompt-injection
   style content that should be removed before using the resume

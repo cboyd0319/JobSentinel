@@ -34,6 +34,23 @@ export interface MockBuilderSkill {
   proficiency: "beginner" | "intermediate" | "advanced" | "expert" | null;
 }
 
+export interface MockBuilderCertification {
+  name: string;
+  issuer: string;
+  date_obtained: string | null;
+  expiration_date: string | null;
+  credential_id: string | null;
+}
+
+export interface MockBuilderProject {
+  name: string;
+  description: string;
+  technologies: string[];
+  url: string | null;
+  start_date: string | null;
+  end_date: string | null;
+}
+
 export interface MockResumeDraft {
   id: number;
   contact: MockBuilderContact;
@@ -41,8 +58,8 @@ export interface MockResumeDraft {
   experience: MockBuilderExperience[];
   education: MockBuilderEducation[];
   skills: MockBuilderSkill[];
-  certifications: string[];
-  projects: string[];
+  certifications: MockBuilderCertification[];
+  projects: MockBuilderProject[];
   created_at: string;
   updated_at: string;
 }
@@ -129,6 +146,60 @@ export function normalizeBuilderSkill(value: unknown): MockBuilderSkill | null {
   };
 }
 
+export function normalizeBuilderCertification(
+  value: unknown,
+): MockBuilderCertification | null {
+  if (typeof value === "string" && value.length > 0) {
+    return {
+      name: value,
+      issuer: "",
+      date_obtained: null,
+      expiration_date: null,
+      credential_id: null,
+    };
+  }
+
+  const source = isRecord(value) ? value : {};
+  if (typeof source.name !== "string" || source.name.length === 0) {
+    return null;
+  }
+
+  return {
+    name: source.name,
+    issuer: typeof source.issuer === "string" ? source.issuer : "",
+    date_obtained: nullableString(source.date_obtained),
+    expiration_date: nullableString(source.expiration_date),
+    credential_id: nullableString(source.credential_id),
+  };
+}
+
+export function normalizeBuilderProject(value: unknown): MockBuilderProject | null {
+  if (typeof value === "string" && value.length > 0) {
+    return {
+      name: value,
+      description: "",
+      technologies: [],
+      url: null,
+      start_date: null,
+      end_date: null,
+    };
+  }
+
+  const source = isRecord(value) ? value : {};
+  if (typeof source.name !== "string" || source.name.length === 0) {
+    return null;
+  }
+
+  return {
+    name: source.name,
+    description: typeof source.description === "string" ? source.description : "",
+    technologies: stringArray(source.technologies),
+    url: nullableString(source.url),
+    start_date: nullableString(source.start_date),
+    end_date: nullableString(source.end_date),
+  };
+}
+
 export function normalizeResumeDraft(value: unknown): MockResumeDraft {
   const source = isRecord(value) ? value : {};
   const now = new Date().toISOString();
@@ -148,8 +219,16 @@ export function normalizeResumeDraft(value: unknown): MockResumeDraft {
     skills: Array.isArray(source.skills)
       ? source.skills.map(normalizeBuilderSkill).filter((skill): skill is MockBuilderSkill => !!skill)
       : [],
-    certifications: stringArray(source.certifications),
-    projects: stringArray(source.projects),
+    certifications: Array.isArray(source.certifications)
+      ? source.certifications
+        .map(normalizeBuilderCertification)
+        .filter((certification): certification is MockBuilderCertification => !!certification)
+      : [],
+    projects: Array.isArray(source.projects)
+      ? source.projects
+        .map(normalizeBuilderProject)
+        .filter((project): project is MockBuilderProject => !!project)
+      : [],
     created_at: typeof source.created_at === "string" ? source.created_at : now,
     updated_at: typeof source.updated_at === "string" ? source.updated_at : now,
   };
@@ -196,6 +275,12 @@ export function renderMockResumeHtml(value: unknown): string {
   const experience = draft.experience
     .map((item) => `<li>${escapeHtml(item.title)} at ${escapeHtml(item.company)}</li>`)
     .join("");
+  const certifications = draft.certifications
+    .map((item) => `<li>${escapeHtml(item.name)}</li>`)
+    .join("");
+  const projects = draft.projects
+    .map((item) => `<li>${escapeHtml(item.name)}</li>`)
+    .join("");
 
   return `
     <article>
@@ -212,6 +297,14 @@ export function renderMockResumeHtml(value: unknown): string {
       <section>
         <h2>Skills</h2>
         <p>${skills}</p>
+      </section>
+      <section>
+        <h2>Certifications</h2>
+        <ul>${certifications}</ul>
+      </section>
+      <section>
+        <h2>Projects</h2>
+        <ul>${projects}</ul>
       </section>
     </article>
   `;

@@ -411,6 +411,18 @@ fn convert_to_template_resume(resume: ResumeData) -> crate::core::resume::templa
                 expiry: None,
             })
             .collect(),
+        projects: resume
+            .projects
+            .into_iter()
+            .map(|project| templates::Project {
+                name: project.name,
+                description: project.description,
+                technologies: project.technologies,
+                url: project.url,
+                start_date: None,
+                end_date: None,
+            })
+            .collect(),
         clearance: None,
         military_info: None,
     }

@@ -13,6 +13,8 @@ service.
 - Import a resume app export from the Resume page.
 - Review the imported contact, work, education, skills, language, project,
   publication, award, and certification details before using them.
+- Preserve imported project and credential evidence in Resume Builder preview,
+  PDF print, DOCX export, and local resume/job fit review.
 - Edit or remove imported items in Resume Builder.
 - Run local resume/job fit review after import.
 - Delete the imported draft later from local resume management.
@@ -43,6 +45,8 @@ blocking import. The user can add those details manually after import.
 - Empty end dates are treated as current roles.
 - Skill groups import both the group name and listed keywords so the user can
   decide what to keep.
+- Imported credential and project details stay structured so export and local
+  review do not silently drop them.
 - Imported resume content is saved as a local draft.
 
 ## User-facing failure states
