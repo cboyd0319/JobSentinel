@@ -223,10 +223,28 @@ export function listTarGzArchivePaths(archive) {
   while (offset + 512 <= tar.length) {
     const header = tar.subarray(offset, offset + 512);
     if (header.every((byte) => byte === 0)) {
+      if (!tar.subarray(offset).every((byte) => byte === 0)) {
+        throw new Error("Agent Skills tar archive contains unexpected data after end marker.");
+      }
       break;
     }
 
     const name = header.toString("utf8", 0, 100).replace(/\0.*$/u, "");
+    const expectedChecksum = Number.parseInt(
+      header.toString("utf8", 148, 156).replace(/\0.*$/u, "").trim() || "0",
+      8,
+    );
+    const checksumHeader = Buffer.from(header);
+    checksumHeader.fill(0x20, 148, 156);
+    let actualChecksum = 0;
+    for (const byte of checksumHeader) {
+      actualChecksum += byte;
+    }
+
+    if (actualChecksum !== expectedChecksum) {
+      throw new Error(`Agent Skills tar header checksum mismatch: ${name || "(unnamed entry)"}`);
+    }
+
     const sizeText = header.toString("utf8", 124, 136).replace(/\0.*$/u, "").trim();
     const size = Number.parseInt(sizeText || "0", 8);
     if (!Number.isFinite(size) || size < 0) {
@@ -242,6 +260,7 @@ export function listTarGzArchivePaths(archive) {
 
 export function listZipArchivePaths(archive) {
   const paths = [];
+  const localEntries = [];
   let offset = 0;
 
   while (offset + 30 <= archive.length) {
@@ -282,7 +301,69 @@ export function listZipArchivePaths(archive) {
     }
 
     paths.push(name);
+    localEntries.push({ name, offset });
     offset = bodyEnd;
+  }
+
+  const centralDirectoryOffset = offset;
+  const centralEntries = [];
+  while (offset + 46 <= archive.length && archive.readUInt32LE(offset) === 0x02014b50) {
+    const nameLength = archive.readUInt16LE(offset + 28);
+    const extraLength = archive.readUInt16LE(offset + 30);
+    const commentLength = archive.readUInt16LE(offset + 32);
+    const localHeaderOffset = archive.readUInt32LE(offset + 42);
+    const nameStart = offset + 46;
+    const nameEnd = nameStart + nameLength;
+    const entryEnd = nameEnd + extraLength + commentLength;
+    if (entryEnd > archive.length) {
+      throw new Error("Agent Skills ZIP archive has a truncated central directory entry.");
+    }
+
+    centralEntries.push({
+      localHeaderOffset,
+      name: archive.toString("utf8", nameStart, nameEnd),
+    });
+    offset = entryEnd;
+  }
+
+  if (offset + 22 > archive.length || archive.readUInt32LE(offset) !== 0x06054b50) {
+    throw new Error("Agent Skills ZIP archive is missing the end of central directory.");
+  }
+
+  const diskEntryCount = archive.readUInt16LE(offset + 8);
+  const totalEntryCount = archive.readUInt16LE(offset + 10);
+  const centralDirectorySize = archive.readUInt32LE(offset + 12);
+  const reportedCentralDirectoryOffset = archive.readUInt32LE(offset + 16);
+  const commentLength = archive.readUInt16LE(offset + 20);
+  const archiveEnd = offset + 22 + commentLength;
+
+  if (archiveEnd !== archive.length) {
+    throw new Error("Agent Skills ZIP archive contains trailing data after central directory.");
+  }
+
+  if (
+    diskEntryCount !== localEntries.length ||
+    totalEntryCount !== localEntries.length ||
+    centralEntries.length !== localEntries.length
+  ) {
+    throw new Error("Agent Skills ZIP central directory entry count mismatch.");
+  }
+
+  if (reportedCentralDirectoryOffset !== centralDirectoryOffset) {
+    throw new Error("Agent Skills ZIP central directory offset mismatch.");
+  }
+
+  if (centralDirectorySize !== offset - centralDirectoryOffset) {
+    throw new Error("Agent Skills ZIP central directory size mismatch.");
+  }
+
+  for (let index = 0; index < localEntries.length; index += 1) {
+    if (
+      centralEntries[index].name !== localEntries[index].name ||
+      centralEntries[index].localHeaderOffset !== localEntries[index].offset
+    ) {
+      throw new Error("Agent Skills ZIP central directory does not match local entries.");
+    }
   }
 
   return paths;
@@ -301,6 +382,10 @@ function validateAgentSkillsArchivePaths(paths, { expectedVersion, assetName }) 
 
     if (parts.some((part) => part.startsWith("."))) {
       throw new Error(`Agent Skills archive contains hidden path: ${path}`);
+    }
+
+    if (!path.startsWith(`${prefix}/`)) {
+      throw new Error(`Agent Skills archive contains path outside expected Agent Skills root: ${path}`);
     }
   }
 

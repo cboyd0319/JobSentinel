@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { dirname, resolve } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
+import { gzipSync, gunzipSync } from "node:zlib";
 import { buildSkillsTarGz, buildSkillsZip } from "./package-agent-skills.mjs";
 import {
   findAgentSkillsArchiveAssets,
@@ -206,6 +207,44 @@ test("public release verifier rejects stale Agent Skills assets", () => {
   );
 });
 
+test("public release verifier rejects extra Agent Skills archive roots", () => {
+  const archive = gzipSync(
+    Buffer.concat([
+      gunzipSync(buildSkillsTarGz(repoRoot, "JobSentinel-9.9.9-agent-skills")),
+      gunzipSync(buildSkillsTarGz(repoRoot, "unexpected-root")),
+    ]),
+  );
+
+  assert.throws(
+    () =>
+      validateAgentSkillsArchiveContents({
+        archive,
+        assetName: "JobSentinel-9.9.9-agent-skills.tar.gz",
+        expectedVersion: "9.9.9",
+      }),
+    /outside expected Agent Skills root|unexpected data/i,
+  );
+});
+
+test("public release verifier rejects Agent Skills archive entries outside the package root", () => {
+  const archive = gzipSync(
+    Buffer.concat([
+      gunzipSync(buildSkillsTarGz(repoRoot, "unexpected-root")),
+      gunzipSync(buildSkillsTarGz(repoRoot, "JobSentinel-9.9.9-agent-skills")),
+    ]),
+  );
+
+  assert.throws(
+    () =>
+      validateAgentSkillsArchiveContents({
+        archive,
+        assetName: "JobSentinel-9.9.9-agent-skills.tar.gz",
+        expectedVersion: "9.9.9",
+      }),
+    /outside expected Agent Skills root|unexpected data/i,
+  );
+});
+
 test("public release verifier validates generated Agent Skills archive contents", () => {
   assert.doesNotThrow(() =>
     validateAgentSkillsArchiveContents({
@@ -221,6 +260,22 @@ test("public release verifier validates generated Agent Skills archive contents"
       assetName: "JobSentinel-9.9.9-agent-skills.zip",
       expectedVersion: "9.9.9",
     }),
+  );
+});
+
+test("public release verifier rejects corrupted Agent Skills tar headers", () => {
+  const tar = Buffer.from(gunzipSync(buildSkillsTarGz(repoRoot, "JobSentinel-9.9.9-agent-skills")));
+  tar[0] ^= 0xff;
+  const archive = gzipSync(tar);
+
+  assert.throws(
+    () =>
+      validateAgentSkillsArchiveContents({
+        archive,
+        assetName: "JobSentinel-9.9.9-agent-skills.tar.gz",
+        expectedVersion: "9.9.9",
+      }),
+    /checksum/i,
   );
 });
 
@@ -247,6 +302,26 @@ test("public release verifier rejects corrupted Agent Skills ZIP entries", () =>
         expectedVersion: "9.9.9",
       }),
     /CRC mismatch|invalid|unexpected end/i,
+  );
+});
+
+test("public release verifier rejects ZIP central directory drift", () => {
+  const archive = Buffer.from(buildSkillsZip(repoRoot, "JobSentinel-9.9.9-agent-skills"));
+  const centralOffset = archive.indexOf(Buffer.from([0x50, 0x4b, 0x01, 0x02]));
+  assert.notEqual(centralOffset, -1);
+  const nameLength = archive.readUInt16LE(centralOffset + 28);
+  const nameStart = centralOffset + 46;
+  assert.ok(nameLength > 0);
+  archive[nameStart] = archive[nameStart] === 0x78 ? 0x79 : 0x78;
+
+  assert.throws(
+    () =>
+      validateAgentSkillsArchiveContents({
+        archive,
+        assetName: "JobSentinel-9.9.9-agent-skills.zip",
+        expectedVersion: "9.9.9",
+      }),
+    /central directory/i,
   );
 });
 
