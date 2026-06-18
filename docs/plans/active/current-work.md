@@ -46,7 +46,7 @@ In scope:
   action, modal, toast, empty/loading/error state, settings panel, import flow,
   keyboard path, and narrow-width surface must be exercised and recorded.
 - Late-stage Rust expert plus multi-agent analysis across non-`content/`
-  surfaces, with accepted fixes applied and verified before the final push.
+  surfaces, with accepted fixes applied and verified before final push.
 - Harness-controlled redesign lock: keep required design files, change
   contracts, and screenshot or Computer Use evidence for broad UI changes.
 - Cleanup only when a failing gate or blocker affects Rule 0, user ease,
@@ -118,9 +118,9 @@ Out of scope:
   tokens, score colors, dashboard loading, and mobile Application Assist layout.
 - The v2.9.0 pass confirmed Browser Import is the LinkedIn path, not session
   storage or automatic monitoring. Private profile inputs stay local.
-- Package-manager, npm/Cargo, override, Action, runner, apt direct pins are
-  latest stable; CI activates the pinned npm before npm commands, and
-  `lint:deps`, `lint:actions`, and `release:check-deps` enforce freshness.
+- Package-manager, npm/Cargo, override, Action/runner/apt pins are
+  latest stable; CI uses pinned npm, and `lint:deps`, `lint:actions`, plus
+  `release:check-deps` enforce freshness.
 - Live OS keyring integration tests are opt-in behind
   `JOBSENTINEL_LIVE_KEYRING_TESTS=1`; default credential tests remain
   non-interactive and still prove LinkedIn credential storage is blocked before
@@ -137,10 +137,10 @@ Out of scope:
   setup, private-link rejection, LinkedIn preview/save, duplicates, and
   overflow; commit `361560f9` added clean send APIs and local-model
   revision/checksum pinning from the CheatSheetSeries scan.
-- CheatSheetSeries follow-ups hardened deps, Browser Import, resume
-  intake, URL handling, release cache/exact asset-set policy, lockfile
-  integrity, AI obfuscation, declarative skills, Linux metadata, sandboxed
-  previews, secure deletion, query-plan boundaries.
+- CheatSheetSeries follow-ups hardened CI drift gates, cargo-deny, OCR
+  overrides, scraper SSRF/DNS-pinning, deps, Browser Import, resume intake, URL
+  handling, release cache/exact assets, lockfiles, AI obfuscation, declarative
+  skills, Linux metadata, sandboxed previews, secure deletion, and query plans.
 - Final whole-UI post-design pass: 266/266 pinned-runtime E2E, 16 route
   inventories, and no console/page errors or overflow.
 - Final non-`content/` audit fixes landed: memory-only company research,

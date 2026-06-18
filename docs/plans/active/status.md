@@ -55,9 +55,9 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   tracking, Settings Sources & Alerts, key routes, toasts, and no passive
   Keychain prompt.
 - Dependency evidence on 2026-06-18 (`npm` `11.17.0`, Node `24.17.0`, Rust
-  `1.96.0`, `getrandom` `0.4.3`): `release:check-deps` passes; CI and local
-  setup paths activate the exact package-manager pin before npm commands,
-  direct pins are latest/stable, and transitives are lockfile-pinned/latest-compatible.
+  `1.96.0`, `getrandom` `0.4.3`): `lint:deps`, `lint:actions`, and
+  `release:check-deps` pass; CI/local setup activates pinned npm, direct pins
+  are latest/stable, and transitives are lockfile-pinned/latest-compatible.
 - Runtime credential commands, scheduler, notifications, and smoke tests use
   encrypted SQLite vault storage, file-backed app data opens through SQLCipher,
   and passive status checks stay non-interactive. Settings passphrase controls
@@ -96,10 +96,11 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   Gatekeeper-ready macOS remains Apple-blocked. Public wiki `Home.md` and
   `Capabilities.md` are stale and need approval before wiki remote writes.
 - OWASP CheatSheetSeries scan across 120 local files on 2026-06-18 verified
-  Actions, supply-chain, AI, storage, URL, logging, and Browser Import surfaces;
-  follow-up includes release/import/source/privacy/resume guards,
-  declarative skills, workflow, secret, and lockfile sensors, AI obfuscation guards,
-  sandboxed resume previews, full secure delete, and query-plan boundaries.
+  Actions, supply-chain, AI, storage, URL, logging, and Browser Import; follow-up
+  now includes CI drift gates, OCR override restrictions, cargo-deny policy,
+  scraper SSRF/DNS-pinning, release/import/source/privacy/resume guards, skills,
+  workflow, secret/lockfile sensors, AI obfuscation guards, sandboxed previews,
+  secure delete, and query-plan boundaries.
 
 ## Next Best Work
 
