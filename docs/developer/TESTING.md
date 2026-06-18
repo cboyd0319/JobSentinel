@@ -379,7 +379,7 @@ Open `coverage/index.html` to view detailed coverage.
 CI runs on every push and pull request targeting `main`. Jobs run on
 `ubuntu-24.04` with Rust 1.96.0; there is no OS matrix and no beta toolchain
 run. CI first classifies changed files, then runs only the relevant harness,
-frontend, Rust, and security jobs.
+frontend, Rust, Node security, and Rust security jobs.
 
 The main CI jobs are:
 
@@ -387,7 +387,9 @@ The main CI jobs are:
   harness script tests, and markdown lint for docs/harness changes
 - **test-rust** — runs `cargo fmt --all -- --check`, `cargo clippy -- -D warnings`, and `cargo test --lib`
 - **test-frontend** — runs `npx --no-install tsc --noEmit`, `npm run lint`, and `npm test -- --run`
-- **security** — runs `npm audit --audit-level=moderate` and `cargo deny check advisories`
+- **security-node** — runs security sensors, workflow static analysis,
+  `npm audit --audit-level=moderate`, and scheduled/manual dependency drift checks
+- **security-rust** — runs `cargo deny check advisories bans licenses sources`
 
 Note that CI runs `cargo test --lib`, which covers unit tests only. Normal
 integration tests in `tests/` run locally with `cargo test`. Ignored or live

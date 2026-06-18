@@ -144,6 +144,7 @@ Out of scope:
 - Final non-`content/` audit fixes landed: memory-only company research,
   accessible onboarding, auto-refresh gating, atomic alert claims, HTTPS
   JobsWithGPT endpoints, shared import hashes, and `2.9.0` metadata/changelog.
+- CI security is split into Node and Rust lanes in CI and release preflight.
 
 ## Next Work
 

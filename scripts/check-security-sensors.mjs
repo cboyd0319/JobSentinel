@@ -66,8 +66,8 @@ const requiredMatrixEntries = [
 
 const ciWorkflowChecks = [
   {
-    label: "security job",
-    phrases: ["jobs:", "security:"],
+    label: "split security jobs",
+    phrases: ["jobs:", "security-node:", "security-rust:"],
   },
   {
     label: "scheduled security drift trigger",
@@ -124,11 +124,11 @@ const releaseWorkflowChecks = [
       "preflight-harness:",
       "preflight-frontend:",
       "preflight-rust:",
-      "preflight-security:",
+      "preflight-security-node:", "preflight-security-rust:",
       "- preflight-harness",
       "- preflight-frontend",
       "- preflight-rust",
-      "- preflight-security",
+      "- preflight-security-node", "- preflight-security-rust",
     ],
   },
   {
@@ -773,7 +773,8 @@ export function checkSecuritySensors(root = defaultRoot) {
     "preflight-harness",
     "preflight-frontend",
     "preflight-rust",
-    "preflight-security",
+    "preflight-security-node",
+    "preflight-security-rust",
   ]
     .map((jobName) => workflowJobBlock(releaseWorkflow, jobName))
     .join("\n");

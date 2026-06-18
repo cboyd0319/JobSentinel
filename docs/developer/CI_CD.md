@@ -34,10 +34,10 @@ verification gates pass.
 
 CI no longer has a separate docs workflow. A first `changes` job classifies the
 diff, then only the relevant jobs run. Documentation-only changes run harness
-and markdown checks without Rust, frontend, or security jobs. Rust, frontend,
+and markdown checks without Rust, frontend, or security lanes. Rust, frontend,
 dependency, and workflow changes still trigger their matching gates. The weekly
-schedule runs only the harness and security jobs, then checks latest stable
-dependency and Action pin drift.
+schedule runs only the harness plus split Node/Rust security lanes, then checks
+latest stable dependency and Action pin drift.
 
 Dependabot runs weekly for npm, Cargo, and GitHub Actions. Non-security
 minor and patch version updates are grouped to reduce review and CI pressure.
@@ -58,7 +58,7 @@ Workflow changes must preserve the GitHub Actions security baseline:
   privileged workflows for untrusted code.
 - Pin third-party actions to full commit SHAs and keep the stable version
   comment current with `npm run lint:actions`.
-- Run GitHub Actions static analysis in the CI security job with a SHA-pinned
+- Run GitHub Actions static analysis in the CI Node security job with a SHA-pinned
   `zizmor-action` step.
 - Pass workflow-dispatch inputs into shell steps through environment variables,
   then quote those variables in `run:` scripts.
@@ -103,7 +103,7 @@ unrelated Rust and frontend work.
 
 Classifies the changed files and exposes booleans for harness/docs, frontend,
 Rust, and security checks. Manual dispatch runs the full CI set. The weekly
-schedule runs the harness and security jobs only.
+schedule runs the harness plus Node/Rust security lanes only.
 
 ### Job: harness
 
@@ -150,13 +150,15 @@ changed.
 | Lint                 | `npm run lint`      |
 | Unit tests           | `npm test -- --run` |
 
-### Job: security
+### Jobs: security-node and security-rust
 
-Audits workflows and both dependency trees for known vulnerabilities when
+Audit workflows and both dependency trees for known vulnerabilities when
 dependency, security, Dependabot, or workflow files changed. The weekly and
-manual runs also check latest stable dependency and Action pin drift. This job
-intentionally skips Linux WebKit build dependencies because it does not compile
-the app.
+manual runs also check latest stable dependency and Action pin drift. These
+lanes intentionally skip Linux WebKit build dependencies because they do not
+compile the app. Node security work and Rust dependency policy run in separate
+jobs so a broad CI run does not serialize `npm audit`/zizmor checks behind
+`cargo-deny` installation and advisory analysis.
 
 | Step             | Tool                               |
 | ---------------- | ---------------------------------- |
@@ -187,7 +189,7 @@ parallel:
 - Frontend preflight: frontend lint, frontend unit tests, and frontend build.
 - Rust preflight: Rust formatting before Linux build dependencies, then Rust
   clippy and Rust tests.
-- Security preflight: npm advisories and Rust advisories.
+- Split security preflights: npm advisories and Rust dependency policy.
 
 Draft-release creation waits for every preflight job before write permissions
 or the GitHub `release` environment are used.

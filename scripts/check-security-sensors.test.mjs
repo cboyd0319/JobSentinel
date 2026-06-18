@@ -66,7 +66,7 @@ function writeBaseRepo(root, csp) {
       "            rust=false",
       "            security=true",
       "          fi",
-      "  security:",
+      "  security-node:",
       "    permissions:",
       "      actions: read",
       "      contents: read",
@@ -77,8 +77,12 @@ function writeBaseRepo(root, csp) {
       "          advanced-security: false",
       "          inputs: .github/workflows",
       "      - run: npm audit --audit-level=moderate",
-      "      - run: cargo deny check advisories bans licenses sources",
       "      - run: npm run release:check-deps",
+      "  security-rust:",
+      "    permissions:",
+      "      contents: read",
+      "    steps:",
+      "      - run: cargo deny check advisories bans licenses sources",
     ].join("\n"),
   );
   writeFileSync(
@@ -562,7 +566,7 @@ test("checkSecuritySensors rejects workflow token defaults that are not disabled
   );
 });
 
-test("checkSecuritySensors rejects CI security job without GitHub Actions static analysis", () => {
+test("checkSecuritySensors rejects CI Node security job without GitHub Actions static analysis", () => {
   const root = mkdtempRoot("jobsentinel-security-sensors-zizmor-");
   writeSelfOnlyBaseRepo(root);
   const ciWorkflowPath = join(root, ".github/workflows/ci.yml");
@@ -1033,7 +1037,7 @@ function readBaseReleaseWorkflowWithout(removedLine) {
     "      - run: cargo fmt --all -- --check",
     "      - run: cargo clippy -- -D warnings",
     "      - run: cargo test --lib",
-    "  preflight-security:",
+    "  preflight-security-node:",
     "    needs: release-inputs",
     "    steps:",
     "      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0",
@@ -1041,6 +1045,9 @@ function readBaseReleaseWorkflowWithout(removedLine) {
     "          node-version: \"24.17.0\"",
     "          package-manager-cache: false",
     "      - run: npm audit --audit-level=moderate",
+    "  preflight-security-rust:",
+    "    needs: release-inputs",
+    "    steps:",
     "      - run: cargo install cargo-deny --version 0.19.9 --locked",
     "      - run: cargo deny check advisories bans licenses sources",
     "  create-release:",
@@ -1049,7 +1056,8 @@ function readBaseReleaseWorkflowWithout(removedLine) {
     "      - preflight-harness",
     "      - preflight-frontend",
     "      - preflight-rust",
-    "      - preflight-security",
+    "      - preflight-security-node",
+    "      - preflight-security-rust",
     "    environment:",
     "      name: release",
     "    steps:",
