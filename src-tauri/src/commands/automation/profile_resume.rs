@@ -7,6 +7,7 @@ use uuid::Uuid;
 
 const APPLICATION_RESUME_DIR: &str = "application-resumes";
 const ALLOWED_APPLICATION_RESUME_EXTENSIONS: &[&str] = &["pdf", "docx", "doc"];
+const MAX_APPLICATION_RESUME_FILE_BYTES: u64 = 10 * 1024 * 1024;
 
 pub(super) fn resume_file_display_name(path: &str) -> Option<String> {
     let trimmed = path.trim();
@@ -130,6 +131,24 @@ fn resolve_application_resume_path(managed_dir: &Path, token: &str) -> Result<Pa
     Ok(managed_dir.join(token))
 }
 
+fn validate_selected_application_resume(source_path: &Path) -> Result<&'static str, String> {
+    let extension = allowed_application_resume_extension(source_path)?;
+    let metadata = std::fs::metadata(source_path)
+        .map_err(|_| "Could not read the selected resume file.".to_string())?;
+    if !metadata.is_file() {
+        return Err("Choose a resume file, not a folder.".to_string());
+    }
+
+    if metadata.len() > MAX_APPLICATION_RESUME_FILE_BYTES {
+        return Err(
+            "That resume file is too large for Application Assist. Choose a PDF, DOCX, or DOC file under 10 MB."
+                .to_string(),
+        );
+    }
+
+    Ok(extension)
+}
+
 pub(super) fn prepare_application_profile_resume_input(
     mut input: ApplicationProfileInput,
     managed_dir: &Path,
@@ -201,13 +220,7 @@ pub(super) fn trusted_application_resume_path(
 fn copy_selected_resume_to_managed_storage(
     source_path: &Path,
 ) -> Result<ApplicationResumeFileSelection, String> {
-    let extension = allowed_application_resume_extension(source_path)?;
-    let metadata = std::fs::metadata(source_path)
-        .map_err(|_| "Could not read the selected resume file.".to_string())?;
-    if !metadata.is_file() {
-        return Err("Choose a resume file, not a folder.".to_string());
-    }
-
+    let extension = validate_selected_application_resume(source_path)?;
     let display_name = safe_resume_file_name(source_path, extension);
     let token = format!("{}--{}", Uuid::new_v4(), display_name);
     let managed_dir = application_resume_dir();
@@ -249,4 +262,35 @@ pub(super) async fn select_application_resume_file(
         .map_err(|_| "Could not read the selected resume file.".to_string())?;
 
     copy_selected_resume_to_managed_storage(&source_path).map(Some)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn application_resume_selection_accepts_supported_file_under_limit() {
+        let temp_dir = tempfile::tempdir().unwrap();
+        let resume_path = temp_dir.path().join("resume.docx");
+        std::fs::write(&resume_path, b"resume").unwrap();
+
+        assert_eq!(
+            validate_selected_application_resume(&resume_path),
+            Ok("docx")
+        );
+    }
+
+    #[test]
+    fn application_resume_selection_rejects_oversized_file() {
+        let temp_dir = tempfile::tempdir().unwrap();
+        let resume_path = temp_dir.path().join("large-resume.pdf");
+        let file = std::fs::File::create(&resume_path).unwrap();
+        file.set_len(MAX_APPLICATION_RESUME_FILE_BYTES + 1).unwrap();
+        drop(file);
+
+        let err = validate_selected_application_resume(&resume_path).unwrap_err();
+
+        assert!(err.contains("too large"));
+        assert!(err.contains("10 MB"));
+    }
 }

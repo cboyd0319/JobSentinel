@@ -98,7 +98,7 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   `Capabilities.md` are stale and need approval before wiki remote writes.
 - OWASP CheatSheetSeries scan across 120 local files on 2026-06-18 verified
   Actions, supply-chain, AI, storage, URL, logging, and Browser Import surfaces;
-  local follow-up added an incomplete-request timeout to the localhost server.
+  follow-up added Browser Import timeout and resume file-size guards.
 
 ## Next Best Work
 
