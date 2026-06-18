@@ -27,6 +27,7 @@ mod tests {
                 country: "US".to_string(),
             },
             salary_floor_usd: 150000,
+            bookmarklet_port: 4321,
             immediate_alert_threshold: 0.9,
             scraping_interval_hours: 2,
             alerts: AlertConfig {

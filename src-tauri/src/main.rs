@@ -404,6 +404,7 @@ fn main() {
                     },
                     salary_floor_usd: 0,
                     auto_refresh: Default::default(),
+                    bookmarklet_port: 4321,
                     immediate_alert_threshold: 0.9,
                     scraping_interval_hours: 2,
                     alerts: Default::default(),
@@ -481,6 +482,8 @@ fn main() {
                 })?;
             }
 
+            let bookmarklet_port = config.bookmarklet_port;
+
             // Wrap shared state in Arc
             let config_arc = Arc::new(RwLock::new(config));
 
@@ -496,7 +499,8 @@ fn main() {
             let scheduler_arc = Arc::new(scheduler);
 
             // Create bookmarklet server (not started automatically)
-            let bookmarklet_config = BookmarkletConfig::default();
+            let mut bookmarklet_config = BookmarkletConfig::default();
+            bookmarklet_config.port = bookmarklet_port;
             let bookmarklet_server = Arc::new(RwLock::new(BookmarkletServer::new(bookmarklet_config)));
 
             // Create AppState with Arc-wrapped shared state

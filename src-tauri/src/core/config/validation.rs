@@ -4,6 +4,9 @@ use super::types::Config;
 use super::validation_error::{ValidationError, ValidationErrors};
 use crate::core::url_security::validate_external_https_url;
 
+const MIN_BOOKMARKLET_PORT: u16 = 1024;
+const MAX_BOOKMARKLET_PORT: u16 = u16::MAX;
+
 /// Validate configuration values
 pub fn validate_config(config: &Config) -> Result<(), Box<dyn std::error::Error>> {
     let mut errors = ValidationErrors::new();
@@ -52,6 +55,15 @@ fn validate_core_settings(config: &Config, errors: &mut ValidationErrors) {
             config.auto_refresh.interval_minutes,
             Some(1_u32),
             None::<u32>,
+        ));
+    }
+
+    if config.bookmarklet_port < MIN_BOOKMARKLET_PORT {
+        errors.add(ValidationError::out_of_range(
+            "bookmarklet_port",
+            config.bookmarklet_port,
+            Some(MIN_BOOKMARKLET_PORT),
+            Some(MAX_BOOKMARKLET_PORT),
         ));
     }
 }

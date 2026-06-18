@@ -67,6 +67,7 @@ export interface Config {
     enabled: boolean;
     interval_minutes: number;
   };
+  bookmarklet_port?: number;
   alerts: {
     slack: {
       enabled: boolean;

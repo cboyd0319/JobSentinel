@@ -191,6 +191,7 @@ export default function Settings({ onClose }: SettingsProps) {
         ...configData,
         company_whitelist: configData.company_whitelist ?? [],
         company_blacklist: configData.company_blacklist ?? [],
+        bookmarklet_port: configData.bookmarklet_port ?? 4321,
         alerts: {
           ...alerts,
           slack: alerts.slack ?? { enabled: false },

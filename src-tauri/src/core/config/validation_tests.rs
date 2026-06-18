@@ -21,6 +21,7 @@ mod validation_tests {
             salary_floor_usd: 100000,
             salary_target_usd: None,
             penalize_missing_salary: false,
+            bookmarklet_port: 4321,
             immediate_alert_threshold: 0.8,
             scraping_interval_hours: 2,
             alerts: AlertConfig::default(),

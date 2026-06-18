@@ -9,6 +9,12 @@ pub(crate) fn default_jobswithgpt_endpoint() -> String {
     String::new()
 }
 
+/// Default Browser Import local helper port
+#[must_use]
+pub(crate) const fn default_bookmarklet_port() -> u16 {
+    4321
+}
+
 /// Default immediate alert threshold (0.9)
 #[must_use]
 pub(crate) const fn default_immediate_threshold() -> f64 {

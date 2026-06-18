@@ -162,6 +162,7 @@ export const mockConfig = {
     cities: ["Remote", "Chicago", "Austin", "Atlanta"],
   },
   salary_floor_usd: 80000,
+  bookmarklet_port: 4321,
   company_whitelist: [],
   company_blacklist: [],
   use_resume_matching: false,

@@ -304,6 +304,7 @@ mod tests {
             salary_target_usd: None,
             penalize_missing_salary: false,
             auto_refresh: AutoRefreshConfig::default(),
+            bookmarklet_port: 4321,
             immediate_alert_threshold: 0.8,
             scraping_interval_hours: 2,
             alerts: AlertConfig::default(),

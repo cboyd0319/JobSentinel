@@ -1,4 +1,5 @@
 use super::*;
+use crate::core::config::defaults::default_bookmarklet_port;
 
 #[test]
 fn test_save_and_load_config_roundtrip() {
@@ -35,6 +36,32 @@ fn test_save_and_load_config_roundtrip() {
         loaded_config.greenhouse_urls,
         original_config.greenhouse_urls
     );
+    assert_eq!(
+        loaded_config.bookmarklet_port,
+        original_config.bookmarklet_port
+    );
+}
+
+#[test]
+fn test_load_legacy_config_defaults_bookmarklet_port() {
+    let temp_dir = TempDir::new().expect("Failed to create temp dir");
+    let config_path = temp_dir.path().join("config.json");
+    let mut legacy_config =
+        serde_json::to_value(create_valid_config()).expect("Failed to serialize test config");
+    legacy_config
+        .as_object_mut()
+        .expect("test config should be an object")
+        .remove("bookmarklet_port");
+
+    fs::write(
+        &config_path,
+        serde_json::to_string_pretty(&legacy_config).expect("Failed to serialize legacy config"),
+    )
+    .expect("Failed to write legacy config");
+
+    let loaded_config = Config::load(&config_path).expect("Failed to load legacy config");
+
+    assert_eq!(loaded_config.bookmarklet_port, default_bookmarklet_port());
 }
 
 #[test]
@@ -90,4 +117,19 @@ fn test_save_invalid_config_fails() {
 
     let result = config.save(&config_path);
     assert!(result.is_err(), "Saving invalid config should fail");
+}
+
+#[test]
+fn test_save_invalid_bookmarklet_port_fails() {
+    let temp_dir = TempDir::new().expect("Failed to create temp dir");
+    let config_path = temp_dir.path().join("config.json");
+
+    let mut config = create_valid_config();
+    config.bookmarklet_port = 80;
+
+    let result = config.save(&config_path);
+    assert!(
+        result.is_err(),
+        "Saving reserved Browser Import port should fail"
+    );
 }

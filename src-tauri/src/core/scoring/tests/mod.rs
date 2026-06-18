@@ -19,6 +19,7 @@ fn create_test_config() -> Config {
         salary_target_usd: Some(180000), // Target salary for graduated scoring
         penalize_missing_salary: false,
         auto_refresh: Default::default(),
+        bookmarklet_port: 4321,
         immediate_alert_threshold: 0.9,
         scraping_interval_hours: 2,
         alerts: Default::default(),

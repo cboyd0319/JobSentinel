@@ -41,6 +41,10 @@ pub struct Config {
     #[serde(default)]
     pub auto_refresh: AutoRefreshConfig,
 
+    /// Browser Import local helper port.
+    #[serde(default = "super::defaults::default_bookmarklet_port")]
+    pub bookmarklet_port: u16,
+
     /// Immediate alert threshold (0.0 - 1.0)
     #[serde(default = "super::defaults::default_immediate_threshold")]
     pub immediate_alert_threshold: f64,

@@ -6,7 +6,7 @@
 
 use crate::{
     commands::{errors::user_friendly_error, AppState},
-    core::bookmarklet::BookmarkletConfig,
+    core::{bookmarklet::BookmarkletConfig, config::Config, logging::path_label_for_logging},
 };
 use arboard::Clipboard;
 use serde::{Deserialize, Serialize};
@@ -51,6 +51,32 @@ fn refreshed_bookmarklet_config_for_copy(current: &BookmarkletConfig) -> Bookmar
     let mut config = current.clone();
     config.refresh_auth_token();
     config
+}
+
+async fn persist_bookmarklet_port(state: &AppState, port: u16) -> Result<(), String> {
+    let config_path = Config::default_path();
+    let mut next_config = {
+        let runtime_config = state.config.read().await;
+        runtime_config.clone()
+    };
+    next_config.bookmarklet_port = port;
+
+    next_config.save(&config_path).map_err(|e| {
+        let message = user_friendly_error("Failed to save Browser Import settings", &e);
+        tracing::error!(
+            config_path = %path_label_for_logging(&config_path),
+            error = %message,
+            "Failed to save Browser Import settings"
+        );
+        message
+    })?;
+
+    {
+        let mut runtime_config = state.config.write().await;
+        *runtime_config = next_config;
+    }
+
+    Ok(())
 }
 
 /// Get current bookmarklet configuration
@@ -150,14 +176,23 @@ pub async fn set_bookmarklet_port(state: State<'_, AppState>, port: u32) -> Resu
     let port = validate_bookmarklet_port(port)?;
     tracing::debug!(port = port, "Setting bookmarklet port");
 
-    let mut server_guard = state.bookmarklet_server.write().await;
+    {
+        let server_guard = state.bookmarklet_server.read().await;
+        if server_guard.is_running() {
+            return Err(
+                "Cannot change port while server is running. Stop the server first.".to_string(),
+            );
+        }
+    }
 
+    persist_bookmarklet_port(&state, port).await?;
+
+    let mut server_guard = state.bookmarklet_server.write().await;
     if server_guard.is_running() {
         return Err(
             "Cannot change port while server is running. Stop the server first.".to_string(),
         );
     }
-
     let mut config = server_guard.config().clone();
     config.port = port;
     server_guard.set_config(config);

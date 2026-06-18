@@ -79,6 +79,7 @@ fn create_disabled_config() -> Arc<Config> {
             enabled: false,
             interval_minutes: 30,
         },
+        bookmarklet_port: 4321,
         immediate_alert_threshold: 0.9,
         scraping_interval_hours: 2,
         alerts: AlertConfig {
