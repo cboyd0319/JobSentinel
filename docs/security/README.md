@@ -147,6 +147,7 @@ cargo tarpaulin --out Html
 verification matrix preserves security-specific sensors, that CI plus CI/CD
 docs keep dependency audit, Rust supply-chain, and scheduled drift gates visible,
 that browser-extension manifests avoid broad host and high-risk permissions,
+that browser automation script inputs are JSON-encoded before evaluation,
 that the Tauri renderer CSP keeps external network calls out of the frontend,
 that renderer CSS does not load third-party styles or fonts, and that Tauri
 capabilities do not grant frontend shell or dialog permissions or broad

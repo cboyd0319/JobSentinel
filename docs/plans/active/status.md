@@ -94,8 +94,8 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   supply-chain, AI, storage, URL, logging, Browser Import, CSS, and parsers;
   follow-up hardening covers SMTP binding, HTTPS imports, previews, DNS/IP
   pinning, Teams redaction, AI guards, Tauri narrowing, signing cleanup, secure
-  delete, parser caps, KDF floors, sandboxed print export, external-AI payload
-  guards, bookmarklet oversized-body stops, and CI/release drift.
+  delete, parser caps, KDF floors, sandboxed print export, external-AI payload,
+  automation JS, CSS escapes, bookmarklet token/body checks, and release drift.
 - 2026-06-18 Linux packaging hardening adds exact AppImage helper hashes,
   project-local Tauri bundler tools, exact build package pins, and a fallback
   wrapper for Tauri linuxdeploy failures. Clean Ubuntu 24.04 Apple container

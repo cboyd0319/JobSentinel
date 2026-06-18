@@ -155,6 +155,8 @@ only so the browser print dialog can open.
 Style blocks are not allowed to load network resources. The sanitizer strips
 stylesheet imports, `@font-face`, `url(...)`, and `image-set(...)` so resume
 preview and print HTML cannot use CSS to fetch attacker-controlled resources.
+CSS escapes are decoded before this filter runs, so escaped spellings such as
+`@\000069mport` and `\75 rl(...)` do not bypass the resource-load block.
 
 ## Testing
 
@@ -175,6 +177,9 @@ sanitizeResumeHtmlDocument('<img src="x" onerror="alert(1)">');
 
 sanitizeResumeHtmlDocument('<a href="javascript:alert(1)">Click</a>');
 // Expected: <a>Click</a>
+
+sanitizeResumeHtmlDocument('<style>@\\000069mport "https://example.invalid/x.css";</style>');
+// Expected: no external CSS import remains
 ```
 
 Repository checks:
