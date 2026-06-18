@@ -137,9 +137,10 @@ Out of scope:
   overflow; commit `361560f9` added clean send APIs and local-model
   revision/checksum pinning from the CheatSheetSeries scan.
 - CheatSheetSeries follow-ups hardened CI drift gates, cargo-deny, OCR
-  overrides, scraper SSRF/DNS-pinning, deps, Browser Import, resume intake, URL
-  handling, release cache/exact assets, lockfiles, AI obfuscation, declarative
-  skills, Linux metadata, sandboxed previews, secure deletion, query plans, renderer fonts, parser caps, and KDF floors.
+  overrides, scraper SSRF/DNS pinning, deps, Browser Import, URL/import HTTPS
+  handling, SMTP binding, sample config defaults, resume intake,
+  release assets, AI obfuscation, skills, Linux metadata, sandboxed previews,
+  secure deletion, query plans, renderer fonts, parser caps, and KDF floors.
 - Final whole-UI post-design pass: 266/266 post-security-hardening E2E, 16
   route inventories, and no console/page errors or overflow.
 - Final non-`content/` audit fixes landed: memory-only company research,

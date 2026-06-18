@@ -346,6 +346,17 @@ describe("Settings — handleSave flow", () => {
     ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Hide full link" })).toBeInTheDocument();
     expect(screen.getByText("Case Manager")).toBeInTheDocument();
+    const approvalSummary = screen
+      .getByText("Review before JobSentinel contacts this source")
+      .closest("div");
+    expect(approvalSummary).not.toBeNull();
+    expect(within(approvalSummary!).getByText("Location")).toBeInTheDocument();
+    expect(within(approvalSummary!).getByText("Not sent")).toBeInTheDocument();
+    expect(within(approvalSummary!).getByText("Remote-only filter")).toBeInTheDocument();
+    expect(within(approvalSummary!).getByText("Yes")).toBeInTheDocument();
+    expect(
+      within(approvalSummary!).queryByText("Uses your saved work-location choices"),
+    ).not.toBeInTheDocument();
 
     await user.click(
       screen.getByRole("button", { name: "Approve these exact details" }),
@@ -434,7 +445,8 @@ describe("Settings — handleSave flow", () => {
     expect(within(contactSummary!).getByText("api.jobswithgpt.example")).toBeInTheDocument();
     expect(within(contactSummary!).getByText("Needs attention")).toBeInTheDocument();
     expect(within(contactSummary!).queryByText("Failed")).not.toBeInTheDocument();
-    expect(within(contactSummary!).getByText("Remote only")).toBeInTheDocument();
+    expect(within(contactSummary!).getByText("Remote-only filter")).toBeInTheDocument();
+    expect(within(contactSummary!).getByText("Yes")).toBeInTheDocument();
     expect(within(contactSummary!).getByText("No")).toBeInTheDocument();
     expect(within(contactSummary!).getByText("Data not sent")).toBeInTheDocument();
     expect(

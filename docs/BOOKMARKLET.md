@@ -79,6 +79,9 @@ search for the company or title.
 
 - Make sure you are on an individual job page.
 - Try opening the job on the company career site.
+- Some job sites block browser buttons from sending to apps on your computer.
+  If that happens, copy the job link and use **Import Job from Link** inside
+  JobSentinel.
 - Add the job manually if the page does not include enough details.
 
 ### Missing Details
@@ -112,6 +115,11 @@ interface should keep technical details hidden:
 - Activate a refreshed safety code only after the browser button is copied.
 - Keep local sends on clean transient browser APIs where practical; do not fall
   back to host-page `window.fetch` or host-page `JSON.stringify`.
+- Bookmarklet sends can be blocked by a target page Content Security Policy,
+  especially strict `connect-src` rules that exclude loopback endpoints.
+- The local send path intentionally uses a no-preflight request shape, which
+  means browser script cannot reliably inspect a failed local response. Keep the
+  in-app import and manual add flows as the fallback.
 - Prefer "browser import button", "Browser Import", and "button setup number"
   in user-facing copy.
 - Keep lower-level implementation details in developer docs or code comments,

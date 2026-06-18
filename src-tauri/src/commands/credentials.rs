@@ -3,7 +3,10 @@
 //! Commands for secure credential storage using the runtime credential service.
 
 use crate::commands::AppState;
-use crate::core::credentials::{CredentialKey, CredentialService};
+use crate::core::credentials::{
+    smtp::{encode_smtp_password, SmtpCredentialBinding},
+    CredentialKey, CredentialService,
+};
 use serde::{Deserialize, Serialize};
 use tauri::State;
 use zeroize::Zeroizing;
@@ -55,14 +58,29 @@ fn is_disabled_credential(key: CredentialKey) -> bool {
     )
 }
 
+#[cfg(test)]
 async fn store_credential_with_service(
     key: String,
     value: String,
     credentials: &CredentialService,
 ) -> Result<(), String> {
+    store_credential_with_optional_smtp_binding(key, value, credentials, None).await
+}
+
+async fn store_credential_with_optional_smtp_binding(
+    key: String,
+    value: String,
+    credentials: &CredentialService,
+    smtp_binding: Option<SmtpCredentialBinding>,
+) -> Result<(), String> {
     let cred_key = parse_credential_key(&key)?;
     reject_disabled_credential_storage(cred_key)?;
-    let value = normalize_credential_value(cred_key, value);
+    let mut value = normalize_credential_value(cred_key, value);
+    if cred_key == CredentialKey::SmtpPassword && !value.is_empty() {
+        if let Some(binding) = smtp_binding {
+            value = encode_smtp_password(&value, binding)?;
+        }
+    }
 
     tracing::info!("Command: store_credential for {}", cred_key.as_str());
 
@@ -168,7 +186,22 @@ pub async fn store_credential(
     value: String,
     state: State<'_, AppState>,
 ) -> Result<(), String> {
-    store_credential_with_service(key, value, state.credentials.as_ref()).await
+    let smtp_binding = match parse_credential_key(&key) {
+        Ok(CredentialKey::SmtpPassword) => {
+            let config = state.config.read().await;
+            Some(SmtpCredentialBinding::from_email_config(
+                &config.alerts.email,
+            ))
+        }
+        _ => None,
+    };
+    store_credential_with_optional_smtp_binding(
+        key,
+        value,
+        state.credentials.as_ref(),
+        smtp_binding,
+    )
+    .await
 }
 
 /// Delete a credential from the encrypted local vault and legacy keyring entry.

@@ -95,12 +95,12 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   macOS dependency trimming, and Linux Debian WebKitGTK 4.1 metadata.
   Gatekeeper-ready macOS remains Apple-blocked. Public wiki `Home.md` and
   `Capabilities.md` have a validated local draft pending approval to push.
-- OWASP CheatSheetSeries scan across 120 local files on 2026-06-18 verified
-  Actions, supply-chain, AI, storage, URL, logging, Browser Import, CSS, and
-  DOCX parser boundaries; follow-up now includes tag-bound releases, CI drift
-  gates, OCR override restrictions, cargo-deny policy, scraper DNS pinning,
-  AI obfuscation guards, sandboxed previews, secure delete, and query-plan
-  boundaries, plus local-only renderer fonts, parser caps, and KDF floors.
+- 2026-06-18 OWASP CheatSheetSeries scan across 120 files covered Actions,
+  supply-chain, AI, storage, URL, logging, Browser Import, CSS, and DOCX parser
+  boundaries. Follow-up hardening includes SMTP secret binding, HTTPS-only
+  imports, loopback browser-import validation, sample defaults, CI/release
+  drift, OCR, cargo-deny, DNS pinning, AI guards, sandboxed previews, secure
+  delete, parser caps, KDF floors; fresh checks pass: cargo/Vitest/build, fmt/clippy, lint, harness, diff.
 
 ## Next Best Work
 

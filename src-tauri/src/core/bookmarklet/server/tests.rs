@@ -82,9 +82,11 @@ fn test_bookmarklet_token_validation_accepts_body_envelope() {
 fn test_bookmarklet_host_validation_requires_loopback_host_with_port() {
     let localhost = "POST /api/bookmarklet/import HTTP/1.1\r\nHost: localhost:4321\r\n\r\n{}";
     let loopback = "POST /api/bookmarklet/import HTTP/1.1\r\nHost: 127.0.0.1:4321\r\n\r\n{}";
+    let ipv6_loopback = "POST /api/bookmarklet/import HTTP/1.1\r\nHost: [::1]:4321\r\n\r\n{}";
 
     assert!(has_valid_bookmarklet_host(localhost, 4321));
     assert!(has_valid_bookmarklet_host(loopback, 4321));
+    assert!(has_valid_bookmarklet_host(ipv6_loopback, 4321));
     assert!(!has_valid_bookmarklet_host(
         "POST /api/bookmarklet/import HTTP/1.1\r\nHost: localhost\r\n\r\n{}",
         4321

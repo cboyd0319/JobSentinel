@@ -5,7 +5,7 @@
 use super::types::{ImportError, ImportResult};
 use crate::core::http_body::read_text_with_limit;
 use crate::core::url_security::{
-    resolve_external_http_url_for_fetch, sanitize_url_for_logging, ResolvedExternalUrl,
+    resolve_external_https_url_for_fetch, sanitize_url_for_logging, ResolvedExternalUrl,
 };
 use reqwest::header::LOCATION;
 use reqwest::{redirect::Policy, Client};
@@ -24,7 +24,7 @@ const HTTP_TIMEOUT: Duration = Duration::from_secs(30);
 /// - No cookies or authentication (user-initiated, public page)
 pub async fn fetch_job_page(url: &str) -> ImportResult<String> {
     // Validate URL
-    let fetch_target = resolve_external_http_url_for_fetch(url)
+    let fetch_target = resolve_external_https_url_for_fetch(url)
         .await
         .map_err(ImportError::InvalidUrl)?;
 
@@ -98,6 +98,12 @@ mod tests {
     #[tokio::test]
     async fn test_invalid_scheme() {
         let result = fetch_job_page("ftp://example.com").await;
+        assert!(matches!(result, Err(ImportError::InvalidUrl(_))));
+    }
+
+    #[tokio::test]
+    async fn test_blocks_plaintext_http_urls_before_fetch() {
+        let result = fetch_job_page("http://example.com/jobs").await;
         assert!(matches!(result, Err(ImportError::InvalidUrl(_))));
     }
 

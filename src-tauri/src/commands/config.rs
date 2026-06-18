@@ -5,7 +5,10 @@
 use crate::commands::errors::user_friendly_error;
 use crate::commands::AppState;
 use crate::core::config::{AutoRefreshConfig, Config, EmailConfig};
-use crate::core::credentials::{CredentialKey, CredentialService};
+use crate::core::credentials::{
+    smtp::{decode_smtp_password_for_binding, SmtpCredentialBinding},
+    CredentialKey, CredentialService,
+};
 use crate::core::db::Database;
 use crate::core::logging::path_label_for_logging;
 use serde::{Deserialize, Serialize};
@@ -97,14 +100,22 @@ fn is_first_run_for_path(config_path: &Path) -> Result<bool, String> {
 }
 
 async fn resolve_smtp_password_for_test(
-    smtp_password: String,
+    email_config: &TestEmailConfig,
     credentials: &CredentialService,
 ) -> Result<String, String> {
-    if !smtp_password.is_empty() {
-        return Ok(smtp_password);
+    if !email_config.smtp_password.is_empty() {
+        return Ok(email_config.smtp_password.clone());
     }
 
-    get_stored_credential_for_test(CredentialKey::SmtpPassword, "SMTP password", credentials).await
+    let stored =
+        get_stored_credential_for_test(CredentialKey::SmtpPassword, "SMTP password", credentials)
+            .await?;
+    let binding = SmtpCredentialBinding::new(
+        &email_config.smtp_server,
+        email_config.smtp_port,
+        &email_config.smtp_username,
+    );
+    decode_smtp_password_for_binding(&stored, &binding)
 }
 
 async fn save_config_to_runtime_and_path(
@@ -339,8 +350,7 @@ pub async fn test_email_notification(
 ) -> Result<(), String> {
     tracing::info!("Command: test_email_notification");
     let smtp_password =
-        resolve_smtp_password_for_test(email_config.smtp_password, state.credentials.as_ref())
-            .await?;
+        resolve_smtp_password_for_test(&email_config, state.credentials.as_ref()).await?;
 
     // Convert to EmailConfig for the validate function
     let config = EmailConfig {
@@ -365,7 +375,14 @@ pub async fn test_email_notification(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::core::config::{AlertConfig, LocationPreferences};
+    use crate::core::{
+        config::{AlertConfig, LocationPreferences},
+        credentials::{
+            smtp::{encode_smtp_password, SmtpCredentialBinding, SMTP_CREDENTIAL_REENTRY_REQUIRED},
+            CredentialService,
+        },
+        db::Database,
+    };
 
     fn create_dashboard_test_config() -> Config {
         Config {
@@ -410,6 +427,24 @@ mod tests {
         }
     }
 
+    async fn test_credentials() -> CredentialService {
+        let database = Database::connect_memory().await.unwrap();
+        database.migrate().await.unwrap();
+        CredentialService::with_fixed_master_key(database.pool().clone(), [21_u8; 32], false)
+    }
+
+    fn test_email_config_for(server: &str, username: &str) -> TestEmailConfig {
+        TestEmailConfig {
+            smtp_server: server.to_string(),
+            smtp_port: 587,
+            smtp_username: username.to_string(),
+            smtp_password: String::new(),
+            from_email: "from@example.com".to_string(),
+            to_emails: vec!["to@example.com".to_string()],
+            use_starttls: true,
+        }
+    }
+
     #[test]
     fn test_email_config_debug_does_not_leak_password() {
         let config = TestEmailConfig {
@@ -429,6 +464,52 @@ mod tests {
             "TestEmailConfig Debug output must not contain password. Got: {}",
             debug_output
         );
+    }
+
+    #[tokio::test]
+    async fn test_email_resolves_stored_smtp_password_only_for_matching_binding() {
+        let credentials = test_credentials().await;
+        let stored = encode_smtp_password(
+            "smtp-secret",
+            SmtpCredentialBinding::new("smtp.example.com", 587, "user@example.com"),
+        )
+        .unwrap();
+        credentials
+            .store(CredentialKey::SmtpPassword, &stored)
+            .await
+            .unwrap();
+
+        let matching = test_email_config_for("smtp.example.com", "user@example.com");
+        assert_eq!(
+            resolve_smtp_password_for_test(&matching, &credentials)
+                .await
+                .unwrap(),
+            "smtp-secret"
+        );
+
+        let changed = test_email_config_for("attacker.example.com", "user@example.com");
+        let err = resolve_smtp_password_for_test(&changed, &credentials)
+            .await
+            .unwrap_err();
+        assert_eq!(err, SMTP_CREDENTIAL_REENTRY_REQUIRED);
+        assert!(!err.contains("smtp-secret"));
+    }
+
+    #[tokio::test]
+    async fn test_email_rejects_legacy_unbound_smtp_password() {
+        let credentials = test_credentials().await;
+        credentials
+            .store(CredentialKey::SmtpPassword, "smtp-secret")
+            .await
+            .unwrap();
+
+        let config = test_email_config_for("smtp.example.com", "user@example.com");
+        let err = resolve_smtp_password_for_test(&config, &credentials)
+            .await
+            .unwrap_err();
+
+        assert_eq!(err, SMTP_CREDENTIAL_REENTRY_REQUIRED);
+        assert!(!err.contains("smtp-secret"));
     }
 
     #[test]

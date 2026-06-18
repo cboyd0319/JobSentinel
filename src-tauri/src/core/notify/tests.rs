@@ -1,6 +1,10 @@
 use super::*;
 use crate::core::{
     config::{AlertConfig, DiscordConfig, EmailConfig, SlackConfig, TeamsConfig, TelegramConfig},
+    credentials::{
+        smtp::{encode_smtp_password, SmtpCredentialBinding, SMTP_CREDENTIAL_REENTRY_REQUIRED},
+        CredentialKey, CredentialService,
+    },
     db::Job,
     scoring::{JobScore, ScoreBreakdown},
 };
@@ -485,6 +489,66 @@ fn test_notification_service_checks_email_enabled() {
         !service.config.alerts.slack.enabled,
         "Slack should remain disabled"
     );
+}
+
+async fn test_credentials() -> CredentialService {
+    let database = crate::core::db::Database::connect_memory().await.unwrap();
+    database.migrate().await.unwrap();
+    CredentialService::with_fixed_master_key(database.pool().clone(), [22_u8; 32], false)
+}
+
+fn email_config_for(server: &str, username: &str) -> EmailConfig {
+    EmailConfig {
+        enabled: true,
+        smtp_server: server.to_string(),
+        smtp_port: 587,
+        smtp_username: username.to_string(),
+        smtp_password: String::new(),
+        from_email: "from@example.com".to_string(),
+        to_emails: vec!["to@example.com".to_string()],
+        use_starttls: true,
+    }
+}
+
+#[tokio::test]
+async fn runtime_email_resolution_rejects_changed_smtp_binding() {
+    let credentials = test_credentials().await;
+    let stored = encode_smtp_password(
+        "smtp-secret",
+        SmtpCredentialBinding::new("smtp.example.com", 587, "user@example.com"),
+    )
+    .unwrap();
+    credentials
+        .store(CredentialKey::SmtpPassword, &stored)
+        .await
+        .unwrap();
+
+    let changed = email_config_for("attacker.example.com", "user@example.com");
+    let err = resolve_smtp_password_for_email_config(&changed, &credentials)
+        .await
+        .unwrap_err()
+        .to_string();
+
+    assert_eq!(err, SMTP_CREDENTIAL_REENTRY_REQUIRED);
+    assert!(!err.contains("smtp-secret"));
+}
+
+#[tokio::test]
+async fn runtime_email_resolution_rejects_legacy_unbound_smtp_password() {
+    let credentials = test_credentials().await;
+    credentials
+        .store(CredentialKey::SmtpPassword, "smtp-secret")
+        .await
+        .unwrap();
+
+    let config = email_config_for("smtp.example.com", "user@example.com");
+    let err = resolve_smtp_password_for_email_config(&config, &credentials)
+        .await
+        .unwrap_err()
+        .to_string();
+
+    assert_eq!(err, SMTP_CREDENTIAL_REENTRY_REQUIRED);
+    assert!(!err.contains("smtp-secret"));
 }
 
 #[test]

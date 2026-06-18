@@ -95,22 +95,40 @@ describe("JobImportModal", () => {
     expect(screen.queryByText(/raw-secret|private@example\.test|resume=private-file/)).not.toBeInTheDocument();
   });
 
-  it("keeps safe import validation guidance visible when preview rejects a link", async () => {
+  it.each([
+    "http://localhost:4321/private-job",
+    "http://127.0.0.1/private-job",
+    "http://192.168.1.10/private-job",
+    "file:///Users/example/private-job.html",
+  ])("blocks private or local links before preview: %s", async (privateUrl) => {
     const user = userEvent.setup();
-    mockInvoke.mockRejectedValueOnce(
-      new Error("Paste the full job link from your browser address bar."),
-    );
     renderModal();
 
     fireEvent.change(screen.getByLabelText("Job link"), {
-      target: { value: "http://localhost:4321/private-job" },
+      target: { value: privateUrl },
     });
     await user.click(screen.getByRole("button", { name: "Check Job Link" }));
 
     expect(
-      await screen.findAllByText("Paste the full job link from your browser address bar."),
-    ).toHaveLength(2);
+      await screen.findByText("Paste a public job posting link from your browser address bar."),
+    ).toBeInTheDocument();
+    expect(invoke).not.toHaveBeenCalled();
     expect(screen.queryByText("JobSentinel ran into a problem.")).not.toBeInTheDocument();
+  });
+
+  it("blocks plaintext public job links before preview", async () => {
+    const user = userEvent.setup();
+    renderModal();
+
+    fireEvent.change(screen.getByLabelText("Job link"), {
+      target: { value: "http://example.com/jobs/office-manager" },
+    });
+    await user.click(screen.getByRole("button", { name: "Check Job Link" }));
+
+    expect(
+      await screen.findByText("Paste an https job posting link from your browser address bar."),
+    ).toBeInTheDocument();
+    expect(invoke).not.toHaveBeenCalled();
   });
 
   it("does not show raw private details when saving fails", async () => {

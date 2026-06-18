@@ -11,6 +11,7 @@ import { Modal, ModalFooter } from "./Modal";
 import { Button } from "./Button";
 import { useToast } from "../contexts";
 import { getUserFriendlyError } from "../utils/errorMessages";
+import { isValidJobUrl } from "../utils/urlValidation";
 
 interface JobImportPreview {
   title: string;
@@ -62,6 +63,10 @@ const missingDetailLabels = new Map<string, string>([
   ["job_link", "job link"],
 ]);
 
+const fullJobLinkMessage = "Paste the full job link from your browser address bar.";
+const publicJobLinkMessage = "Paste a public job posting link from your browser address bar.";
+const secureJobLinkMessage = "Paste an https job posting link from your browser address bar.";
+
 function formatMissingDetail(field: string) {
   const normalized = field.trim().toLowerCase().replace(/[\s-]+/g, "_");
   return missingDetailLabels.get(normalized) ?? normalized.replace(/_/g, " ");
@@ -95,7 +100,9 @@ function getSafeImportSpecificMessage(error: unknown): string | null {
   if (!message) return null;
 
   const safePatterns = [
-    /^Paste the full job link from your browser address bar\.$/,
+    new RegExp(`^${fullJobLinkMessage.replace(/\./g, "\\.")}$`),
+    new RegExp(`^${publicJobLinkMessage.replace(/\./g, "\\.")}$`),
+    new RegExp(`^${secureJobLinkMessage.replace(/\./g, "\\.")}$`),
     /^Add a job link from your browser address bar\.$/,
     /^Could not read this page as a single job posting\. Open one job posting, copy its browser address, or save the job with the details JobSentinel can find\.$/,
     /^Could not read this as one job posting\. Open one job posting and copy its browser address\.$/,
@@ -156,11 +163,22 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
       return;
     }
 
-    // Basic URL validation
+    const trimmedUrl = url.trim();
+
     try {
-      new URL(url);
+      new URL(trimmedUrl);
     } catch {
-      setError("Paste the full job link from your browser address bar.");
+      setError(fullJobLinkMessage);
+      return;
+    }
+
+    if (!isValidJobUrl(trimmedUrl)) {
+      setError(publicJobLinkMessage);
+      return;
+    }
+
+    if (new URL(trimmedUrl).protocol !== "https:") {
+      setError(secureJobLinkMessage);
       return;
     }
 
@@ -169,7 +187,7 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
     setPreview(null);
 
     try {
-      const result = await invoke<JobImportPreview>("preview_job_import", { url: url.trim() });
+      const result = await invoke<JobImportPreview>("preview_job_import", { url: trimmedUrl });
       setPreview(result);
 
       if (result.already_exists) {

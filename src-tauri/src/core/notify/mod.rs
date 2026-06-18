@@ -6,7 +6,10 @@
 
 use crate::core::{
     config::Config,
-    credentials::{CredentialKey, CredentialService},
+    credentials::{
+        smtp::{decode_smtp_password_for_binding, SmtpCredentialBinding},
+        CredentialKey, CredentialService,
+    },
     db::Job,
     scoring::JobScore,
     url_security::canonicalize_user_supplied_job_url,
@@ -173,8 +176,13 @@ impl NotificationService {
 
         // Send to Email if enabled
         if self.config.alerts.email.enabled {
-            match self.credentials.retrieve(CredentialKey::SmtpPassword).await {
-                Ok(Some(smtp_password)) => {
+            match resolve_smtp_password_for_email_config(
+                &self.config.alerts.email,
+                &self.credentials,
+            )
+            .await
+            {
+                Ok(smtp_password) => {
                     // Create config with password from secure storage.
                     let email_config = crate::core::config::EmailConfig {
                         enabled: self.config.alerts.email.enabled,
@@ -193,9 +201,6 @@ impl NotificationService {
                     } else {
                         log_notification_sent("email", notification);
                     }
-                }
-                Ok(None) => {
-                    record_notification_configuration_missing(&mut errors, "Email");
                 }
                 Err(_e) => {
                     record_notification_credential_failure(&mut errors, "Email");
@@ -310,6 +315,20 @@ impl NotificationService {
 
         Ok(())
     }
+}
+
+async fn resolve_smtp_password_for_email_config(
+    email_config: &crate::core::config::EmailConfig,
+    credentials: &CredentialService,
+) -> Result<String> {
+    let stored = credentials
+        .retrieve(CredentialKey::SmtpPassword)
+        .await
+        .map_err(|_| anyhow!("Stored email password is unavailable"))?
+        .ok_or_else(|| anyhow!("Stored email password is missing"))?;
+    let binding = SmtpCredentialBinding::from_email_config(email_config);
+
+    decode_smtp_password_for_binding(&stored, &binding).map_err(anyhow::Error::msg)
 }
 
 #[cfg(test)]

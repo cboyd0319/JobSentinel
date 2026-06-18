@@ -129,12 +129,8 @@ export function SettingsConnectedJobSource({
             <dd>{jobsWithGptPayload.titles.join(", ")}</dd>
             <dt className="font-medium">Location</dt>
             <dd>Not sent</dd>
-            <dt className="font-medium">Work location sent</dt>
-            <dd>
-              {jobsWithGptPayload.remote_only
-                ? "Remote only"
-                : "Uses your saved work-location choices"}
-            </dd>
+            <dt className="font-medium">Remote-only filter</dt>
+            <dd>{jobsWithGptPayload.remote_only ? "Yes" : "No"}</dd>
             <dt className="font-medium">Jobs to check</dt>
             <dd>{jobsWithGptPayload.limit}</dd>
           </dl>
@@ -162,12 +158,8 @@ export function SettingsConnectedJobSource({
                   <dd>{jobsWithGptLastRequest.titleCount}</dd>
                   <dt className="font-medium">Location sent</dt>
                   <dd>{jobsWithGptLastRequest.hasLocation ? "Yes" : "No"}</dd>
-                  <dt className="font-medium">Work location</dt>
-                  <dd>
-                    {jobsWithGptLastRequest.remoteOnly
-                      ? "Remote only"
-                      : "Saved choices"}
-                  </dd>
+                  <dt className="font-medium">Remote-only filter</dt>
+                  <dd>{jobsWithGptLastRequest.remoteOnly ? "Yes" : "No"}</dd>
                   <dt className="font-medium">Jobs checked</dt>
                   <dd>{jobsWithGptLastRequest.resultLimit}</dd>
                   <dt className="font-medium">Last result</dt>

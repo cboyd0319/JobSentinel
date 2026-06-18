@@ -11,6 +11,7 @@
 
 mod passphrase;
 mod service;
+pub mod smtp;
 pub mod vault;
 mod vault_key_store;
 

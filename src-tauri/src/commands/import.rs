@@ -283,6 +283,9 @@ fn format_import_error(error: &ImportError) -> String {
         ImportError::Timeout => {
             "This took too long. Check your internet connection and try again.".to_string()
         }
+        ImportError::InvalidUrl(message) if message == "Blocked insecure URL: https required" => {
+            "Paste an https job posting link from your browser address bar.".to_string()
+        }
         ImportError::InvalidUrl(_) => {
             "Paste the full job link from your browser address bar.".to_string()
         }
@@ -475,5 +478,17 @@ mod tests {
             assert!(!message.contains("candidate-specific"));
             assert!(!message.contains("<local-private-db>"));
         }
+    }
+
+    #[test]
+    fn test_format_import_error_explains_https_required() {
+        let message = format_import_error(&ImportError::InvalidUrl(
+            "Blocked insecure URL: https required".to_string(),
+        ));
+
+        assert_eq!(
+            message,
+            "Paste an https job posting link from your browser address bar."
+        );
     }
 }

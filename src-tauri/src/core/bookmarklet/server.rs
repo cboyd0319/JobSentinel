@@ -476,7 +476,9 @@ fn request_header_value<'a>(request: &'a str, header_name: &str) -> Option<&'a s
 fn has_valid_bookmarklet_host(request: &str, port: u16) -> bool {
     request_header_value(request, "host").is_some_and(|value| {
         let normalized = value.trim().to_ascii_lowercase();
-        normalized == format!("localhost:{port}") || normalized == format!("127.0.0.1:{port}")
+        normalized == format!("localhost:{port}")
+            || normalized == format!("127.0.0.1:{port}")
+            || normalized == format!("[::1]:{port}")
     })
 }
 

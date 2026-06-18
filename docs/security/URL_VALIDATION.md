@@ -148,7 +148,6 @@ It is used by:
 - `src-tauri/src/commands/automation.rs` before Application Assist opens a
   visible review browser and loads local profile data.
 - `src-tauri/src/commands/deeplinks.rs` before opening a job URL in the user's browser.
-- `src-tauri/src/core/import/fetcher.rs` before fetching a user-supplied job page.
 - `src-tauri/src/core/scrapers/http_client.rs` before shared scraper HTTP
   retry helpers fetch a source URL.
 - `src-tauri/src/core/config/validation.rs`, `src-tauri/src/core/scrapers/jobswithgpt.rs`,
@@ -163,7 +162,10 @@ Job import commands canonicalize the pasted URL before preview, fetch, duplicate
 hashing, and storage. Canonicalization removes embedded credentials, fragments,
 tracking parameters, and sensitive query parameters such as tokens, sessions,
 auth values, email fields, passwords, and candidate identifiers while preserving
-public job identifiers such as `gh_jid`.
+public job identifiers such as `gh_jid`. The import fetcher then uses
+`resolve_external_https_url_for_fetch`, so JobSentinel fetches and parses only
+HTTPS job pages. Plain HTTP job links can still be stored or opened after public
+URL validation, but they are not fetched into JobSentinel's import parser.
 
 The frontend guard in `src/utils/urlValidation.ts` mirrors these external job
 URL rules before calling the backend open command.
@@ -183,7 +185,8 @@ WireMock servers are reachable only through test-only helper code.
 **Rules**:
 
 - Parse with `url::Url` before checking components.
-- Allow only `http` and `https`.
+- Allow only `http` and `https` for stored/opened external job links.
+- Require `https` for job-page import fetches.
 - Require a host.
 - Reject embedded username or password credentials.
 - Reject `localhost` and `*.localhost`.

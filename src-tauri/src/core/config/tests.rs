@@ -6,6 +6,7 @@ mod tests {
     use super::super::types::*;
     use super::super::validation::validate_config;
     use std::fs;
+    use std::path::Path;
     use tempfile::TempDir;
 
     /// Helper function to create a valid test config
@@ -74,6 +75,37 @@ mod tests {
             validate_config(&config).is_ok(),
             "Valid config should pass validation"
         );
+    }
+
+    #[test]
+    fn config_example_matches_current_schema_and_source_policy() {
+        let manifest_dir = Path::new(env!("CARGO_MANIFEST_DIR"));
+        let sample_path = manifest_dir.join("../config/config.example.json");
+        let sample_text = fs::read_to_string(&sample_path).unwrap_or_else(|error| {
+            panic!(
+                "failed to read sample config at {}: {error}",
+                sample_path.display()
+            )
+        });
+        let sample_value: serde_json::Value =
+            serde_json::from_str(&sample_text).expect("sample config should be valid JSON");
+
+        assert!(
+            sample_value.get("indeed").is_none(),
+            "sample config must not advertise unsupported Indeed settings"
+        );
+        assert_eq!(
+            sample_value
+                .pointer("/linkedin/enabled")
+                .and_then(serde_json::Value::as_bool),
+            Some(false),
+            "sample config must keep LinkedIn automatic monitoring disabled"
+        );
+
+        let config: Config =
+            serde_json::from_value(sample_value).expect("sample config should deserialize");
+        validate_config(&config).expect("sample config should pass validation");
+        assert!(!config.linkedin.enabled);
     }
 
     #[test]

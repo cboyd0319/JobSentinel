@@ -52,9 +52,9 @@ JobSentinel is built with privacy and security as core principles:
 ### Network Security
 
 - **HTTPS-first external paths:** Webhooks, location lookup, provider calls,
-  and configured secrets use HTTPS. Public job URLs may be `http` or `https`
-  when validation confirms a public host and blocks local, private, and
-  userinfo targets.
+  configured secrets, and job-page import fetches use HTTPS. Saved public job
+  links may be `http` or `https` only when validation confirms a public host
+  and blocks local, private, and userinfo targets.
 - **User-controlled webhooks:** Notifications only sent to user-configured endpoints
 
 ### Code Security

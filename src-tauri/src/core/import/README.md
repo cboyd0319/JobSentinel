@@ -157,7 +157,7 @@ cargo test import
 - Requires Schema.org/JobPosting data to be present on the page
 - Only extracts data from the first JobPosting if multiple are found
 - Limited to single-page imports (no bulk import)
-- Requires valid HTTP/HTTPS URLs
+- Requires valid HTTPS URLs for fetched job-page imports
 
 ## Future Enhancements
 
