@@ -30,6 +30,7 @@ import {
 import {
   hasFrontDoorMacosDistributionOverpromise,
   hasFrontDoorMacosInstallerOverpromise,
+  hasFrontDoorLegacyMacosVerifierOverclaim,
   hasFrontDoorReleaseVersionPromise,
   hasFrontDoorWindowsLinuxReleaseOverpromise,
   hasSourceReleaseVersionPromise,
@@ -228,6 +229,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasFrontDoorWindowsLinuxReleaseOverpromise(root, path)) {
       violations.push(`replace front-door Windows/Linux release overpromise: ${path}`);
+    }
+
+    if (hasFrontDoorLegacyMacosVerifierOverclaim(root, path)) {
+      violations.push(`replace front-door legacy macOS verifier overclaim: ${path}`);
     }
 
     if (hasSourceReleaseVersionPromise(root, path)) {

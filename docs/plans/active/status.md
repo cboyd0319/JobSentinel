@@ -48,8 +48,8 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 ## Current Posture
 
 - `origin/main` is the pushed `2.7.7` release-recovery baseline; local metadata
-  is staged for `2.9.0`. Public macOS is `v2.7.7`, and the latest full
-  cross-platform public release is `v2.7.5` until `2.9.0` assets are verified.
+  is staged for `2.9.0`. Public macOS `v2.7.7` and full cross-platform
+  `v2.7.5` are legacy fallbacks until `2.9.0` assets are verified.
 - Fresh harness evidence reports 2 active docs, 2 indexed workstreams, and a
   100/100 score. Current UI QA covers first-run setup, dashboard, application
   tracking, Settings Sources & Alerts, key routes, toasts, and no passive
@@ -84,7 +84,7 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 - Fresh 2026-06-18 local release gates pass: version/deps/actions/security,
   docs, harness, scripts, frontend lint/unit/build, Rust fmt/full clippy/full
   `cargo test`, E2E `266/266`, npm audit, cargo deny, Tauri invokes, macOS
-  readiness, existing `2.9.0` no-account DMG verification, parallel hosted
+  readiness, current `2.9.0` no-account DMG verification, parallel hosted
   preflight, and Rust format checks before Linux package installs.
 - Final non-`content/` expert/agent pass is applied locally: memory-only
   company research, accessible onboarding, auto-refresh gating, atomic alert

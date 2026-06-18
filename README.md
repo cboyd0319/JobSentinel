@@ -5,13 +5,14 @@ relevant, fairly compensated work while keeping sensitive job-search data under 
 control.**
 
 **Current macOS full-public-readiness: 94%; no-account path completion:
-100%.** The public no-account macOS package for `v2.7.7` has a universal DMG,
-matching `.sha256` checksum, public release verifier, universal architecture
-checks, install smoke, launch smoke with visible-window proof, private isolated
-local-data smoke, and harness-enforced readiness checks. The latest full
-cross-platform public release remains `v2.7.5` until Windows and Linux
-`2.9.0` assets are built and verified. The no-account path is complete at
-its 94% public-readiness ceiling.
+100%.** The local `2.9.0` no-account universal DMG now passes checksum,
+metadata, universal architecture, mounted launch, installed launch, visible
+window, and private isolated-data smoke checks. The published `v2.7.7` macOS
+package is a legacy no-account fallback with a universal DMG and matching
+`.sha256`; it predates the current public verifier's isolated-data and
+supply-chain gates. The latest full cross-platform public release remains
+`v2.7.5` until Windows and Linux `2.9.0` assets are built and verified. The
+no-account path is complete at its 94% public-readiness ceiling.
 Full public Mac readiness cannot honestly reach 100% without Developer ID
 signing, notarization, stapling, and Gatekeeper acceptance, all of which require
 Apple Developer Program materials.
@@ -84,10 +85,10 @@ or build something better with it if that helps more people.
 | What can leave the device? | Enabled job-source checks, job sources or career pages the user approves for checking, alerts the user turns on, optional location detection after a click, support links opened by the user, or explicitly approved external AI requests. |
 | Is external AI required? | No. External AI is optional, disabled by default, preview-gated, and gateway-bound. |
 | Is it free? | Yes. JobSentinel is MIT licensed and free forever. |
-| Source version | `2.9.0` in `main`; public no-account macOS `v2.7.7` assets are released, while fresh Windows and Linux `2.9.0` assets are still pending. |
-| Latest published macOS package | `v2.7.7` no-account universal `.dmg` with matching `.dmg.sha256` checksum. |
-| Latest full cross-platform release | `v2.7.5` with Windows and Linux installers plus a no-account universal macOS package and matching checksum. |
-| macOS full-public-readiness | 94%; no-account path completion is 100% at a 94% public-readiness ceiling. Local universal DMG, checksum, metadata, architecture, install, visible-window launch, private local-data permissions, public-artifact verifier, and readiness-harness checks are in place. The final 6% is externally blocked by Apple Developer Program materials for Developer ID signing, notarization, stapling, and Gatekeeper acceptance. |
+| Source version | `2.9.0` in `main`; local `2.9.0` no-account macOS package evidence exists, while fresh public Windows and Linux `2.9.0` assets are still pending. |
+| Latest published macOS package | `v2.7.7` no-account universal `.dmg` with matching `.dmg.sha256` checksum; legacy fallback that predates current isolated-data and supply-chain public verifier gates. |
+| Latest full cross-platform release | `v2.7.5` with Windows and Linux installers plus a no-account universal macOS package; legacy fallback that predates current checksum/SBOM public verifier gates for all platforms. |
+| macOS full-public-readiness | 94%; no-account path completion is 100% at a 94% public-readiness ceiling. Local `2.9.0` universal DMG, checksum, metadata, architecture, install, visible-window launch, private local-data permissions, and readiness-harness checks are in place. The final 6% is externally blocked by Apple Developer Program materials for Developer ID signing, notarization, stapling, and Gatekeeper acceptance. |
 | Current active plan | Open repo-wide quality work with compact restart state in `docs/plans/active/status.md` and `docs/plans/active/current-work.md`. |
 
 ## Reader Map
@@ -121,34 +122,34 @@ Download the latest package or installer from the
 [latest download page](https://github.com/cboyd0319/JobSentinel/releases/latest).
 Mac users can use the newer
 [v2.7.7 macOS package](https://github.com/cboyd0319/JobSentinel/releases/tag/v2.7.7)
-after confirming the matching `.sha256` checksum.
+as a legacy fallback after confirming the matching `.sha256` checksum.
 
 | Platform | Download |
 | -------- | --------- |
-| Windows | Windows installer from the latest full cross-platform release, currently `v2.7.5`. |
-| macOS | Universal Mac package for Apple silicon and Intel Macs. The current no-account Mac package is `JobSentinel_2.7.7_no-account_universal.dmg` with a matching `.sha256` checksum. Until Developer ID signing and notarization are available, the no-account DMG filename should include `_no-account_`. The project does not currently have an Apple Developer Account, so macOS requires a first-open Privacy & Security approval until Developer ID signing and notarization are available. |
-| Linux | Linux installer from the latest full cross-platform release, currently `v2.7.5`. |
+| Windows | Windows installer from the latest full cross-platform release, currently legacy `v2.7.5`. |
+| macOS | Universal Mac package for Apple silicon and Intel Macs. The current published no-account Mac package is legacy `JobSentinel_2.7.7_no-account_universal.dmg` with a matching `.sha256` checksum. Until Developer ID signing and notarization are available, the no-account DMG filename should include `_no-account_`. The project does not currently have an Apple Developer Account, so macOS requires a first-open Privacy & Security approval until Developer ID signing and notarization are available. |
+| Linux | Linux installer from the latest full cross-platform release, currently legacy `v2.7.5`. |
 
 The latest published no-account macOS package is `v2.7.7` as of 2026-06-06.
 The latest full cross-platform public release is `v2.7.5`; it includes Windows
 and Linux installers plus `JobSentinel_2.7.5_no-account_universal.dmg` and a
 matching `JobSentinel_2.7.5_no-account_universal.dmg.sha256` checksum for
-macOS. Most Windows and Linux users should use the installer from `v2.7.5`.
-Mac users should use only a release package with a matching
-`JobSentinel_*_universal.dmg.sha256` checksum and passing public macOS
-verification. Until Developer ID signing and
-notarization are available, the no-account DMG filename should include
-`_no-account_`. If a release is missing the checksum, that no-account label, or
-passing public verification, treat the Mac package as pending replacement and
-use a fresh local build instead.
+macOS. These are legacy fallback assets and predate the current public
+checksum, SBOM, attestation, and isolated-data verifier gates that `2.9.0`
+assets must pass. Most Windows and Linux users should use the installer from
+`v2.7.5` until `2.9.0` public assets are available. Mac users should use only a
+release package with a matching `JobSentinel_*_universal.dmg.sha256` checksum
+and a visible `_no-account_` label until Developer ID signing and notarization
+are available. If a release is missing the checksum or no-account label, treat
+the Mac package as pending replacement and use a fresh local build instead.
 
 Mac first open is not zero-friction because JobSentinel does not currently have
 an Apple Developer Account for Developer ID signing and notarization. This is a
 release-distribution constraint, not a core runtime feature gap: the macOS app
 can still be built, packaged, verified, and tested locally. The no-account
 macOS release path verifies ad-hoc packages for metadata, signatures,
-universal architecture, visible-window launch smoke, installed-app smoke, checksum, and local
-data creation with owner-only data permissions, but it does not claim
+universal architecture, visible-window launch smoke, installed-app smoke,
+checksum, and local data creation with owner-only data permissions, but it does not claim
 Gatekeeper readiness. It is not Developer ID signed and not notarized. Current
 Mac full-public-readiness is 94%;
 no-account path completion is 100% at the 94% public-readiness ceiling. The
@@ -575,6 +576,8 @@ Developer docs:
 
 - Public assets include the no-account universal macOS `.dmg` plus matching
   `.dmg.sha256`.
+- This is a legacy fallback package that predates the current isolated-data
+  public verifier and `2.9.0` supply-chain gates.
 - The macOS package is not Developer ID signed or notarized, so it requires
   first-open Privacy & Security approval.
 - Hiring Trends refresh and local market aggregate fixes are included.
@@ -583,14 +586,16 @@ Developer docs:
 
 - Public assets include Windows `.msi`, Linux `.AppImage`, Linux `.deb`, and
   no-account universal macOS `.dmg` plus matching `.dmg.sha256`.
+- This is a legacy fallback release that predates current checksum, SBOM, and
+  attestation gates for all public platform assets.
 - The macOS package is not Developer ID signed or notarized, so it requires
   first-open Privacy & Security approval.
 - Application Assist save and validation fixes are included through `v2.7.5`.
 
 ### Mainline Changes Since v2.7.5
 
-- Source version is `2.9.0`. Public macOS no-account `v2.7.7` assets are
-  released and verified; fresh Windows and Linux `2.9.0` assets still need
+- Source version is `2.9.0`. Local `2.9.0` no-account macOS package evidence
+  exists; fresh public Windows and Linux `2.9.0` assets still need
   target-platform builds, upload, and verification.
 - Release docs now treat verified local build plus manual upload as a
   supported production path when the same release gates pass.

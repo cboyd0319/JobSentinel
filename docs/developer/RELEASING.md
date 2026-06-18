@@ -15,14 +15,15 @@ zero-friction public macOS DMG cannot be Developer ID signed, notarized,
 stapled, or accepted by Gatekeeper yet.
 
 The no-account macOS path is still useful and verified. Use it for development,
-testing, internal checks, and clearly labeled no-account public packages. A
-public no-account Mac package must include the `.dmg` and matching
-`.dmg.sha256` checksum, the DMG filename must include `_no-account_`, the
-release must include the generated macOS SBOM plus SBOM manifest, and
-`npm run tauri:verify:macos:latest` must pass after publication. Do not publish
-a macOS package as zero-friction or Gatekeeper-ready until the project has an
-Apple Developer Account, the release secrets below are configured, and the
-public artifact passes
+testing, internal checks, and clearly labeled no-account public packages. For
+`2.9.0` and newer public no-account Mac packages, the release must include the
+`.dmg` and matching `.dmg.sha256` checksum, the DMG filename must include
+`_no-account_`, the release must include the generated macOS SBOM plus SBOM
+manifest, and `npm run tauri:verify:macos:latest` must pass after publication.
+Historical `v2.7.x` public assets predate these current public verifier gates.
+Do not publish a macOS package as zero-friction or Gatekeeper-ready until the
+project has an Apple Developer Account, the release secrets below are
+configured, and the public artifact passes
 `npm run tauri:verify:macos:latest -- --require-gatekeeper`.
 
 ## Creating a Release
@@ -255,7 +256,7 @@ assets existed.
 
 | Platform | Architecture          | Format      | Status   |
 | -------- | --------------------- | ----------- | -------- |
-| macOS    | universal             | `.dmg`      | Verified no-account public package available with matching checksum and first-open Privacy & Security approval; zero-friction Gatekeeper-ready release blocked until Apple Developer Account, Developer ID signing, and notarization |
+| macOS    | universal             | `.dmg`      | Local `2.9.0` no-account package passes the current verifier; published `v2.7.7` is a legacy fallback with matching checksum and first-open Privacy & Security approval |
 | Windows  | x86_64                | `.msi`      | Build path ready; public upload blocked until Authenticode signature and checksum verification pass |
 | Linux    | x86_64                | `.AppImage` / `.deb` | Build path ready; current `2.9.0` public assets pending target-platform build/upload/verification |
 

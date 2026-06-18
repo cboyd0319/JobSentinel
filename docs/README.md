@@ -44,13 +44,16 @@ The maintained external source index lives in
 - Latest published no-account macOS package: `v2.7.7` as of 2026-06-06.
 - Latest full cross-platform public release: `v2.7.5` as of 2026-06-06.
 - Current macOS full-public-readiness is 94%; no-account path completion is
-  100% at the 94% public-readiness ceiling. The published `v2.7.7` macOS
-  release has a no-account universal DMG plus matching `.dmg.sha256`. Fresh
-  Windows and Linux `2.9.0` assets still need target-platform builds, upload,
-  and public verifier passes before `2.9.0` is the full cross-platform release.
-  Zero-friction Gatekeeper-ready public distribution still requires Apple
-  Developer Program materials, Developer ID signing, notarization, stapling,
-  and signed-artifact verification.
+  100% at the 94% public-readiness ceiling. The local `2.9.0` no-account
+  universal DMG passes the current checksum, metadata, architecture, launch,
+  install, and isolated-data smoke gate. The published `v2.7.7` macOS package
+  is a legacy fallback with a no-account universal DMG plus matching
+  `.dmg.sha256`; it predates current isolated-data and supply-chain verifier
+  gates. Fresh Windows and Linux `2.9.0` assets still need target-platform
+  builds, upload, and public verifier passes before `2.9.0` is the full
+  cross-platform release. Zero-friction Gatekeeper-ready public distribution
+  still requires Apple Developer Program materials, Developer ID signing,
+  notarization, stapling, and signed-artifact verification.
 - Verified local build plus manual upload is a supported production release
   path when the same version, harness, package, checksum, and public-artifact
   verification gates pass. Hosted tag CI remains available for full

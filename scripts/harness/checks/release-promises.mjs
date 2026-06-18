@@ -79,6 +79,26 @@ export function hasFrontDoorWindowsLinuxReleaseOverpromise(root, path) {
   });
 }
 
+export function hasFrontDoorLegacyMacosVerifierOverclaim(root, path) {
+  if (path !== "README.md") {
+    return false;
+  }
+
+  const lines = readFileSync(join(root, path), "utf8").split(/\r?\n/);
+  return lines.some((_, index) => {
+    const window = lines.slice(index, index + 4).join(" ");
+    const mentionsLegacyMacos = /\bv2\.7\.7\b/i.test(window);
+    const claimsCurrentVerifier =
+      /\bpublic release verifier\b/i.test(window) ||
+      /\bprivate isolated local-data smoke\b/i.test(window) ||
+      /\breleased and verified\b/i.test(window);
+    const namesLegacyLimit =
+      /\b(?:legacy|predates|does not pass current|not current|historical)\b/i.test(window);
+
+    return mentionsLegacyMacos && claimsCurrentVerifier && !namesLegacyLimit;
+  });
+}
+
 export function hasSourceReleaseVersionPromise(root, path) {
   if (!isRuntimeFrontendSource(path)) {
     return false;

@@ -6,6 +6,7 @@ import test from "node:test";
 import {
   hasFrontDoorMacosDistributionOverpromise,
   hasFrontDoorMacosInstallerOverpromise,
+  hasFrontDoorLegacyMacosVerifierOverclaim,
   hasFrontDoorReleaseVersionPromise,
   hasFrontDoorWindowsLinuxReleaseOverpromise,
   hasSourceReleaseVersionPromise,
@@ -105,5 +106,33 @@ test("release promises reject Windows and Linux claims for unreleased source ver
     );
 
     assert.equal(hasFrontDoorWindowsLinuxReleaseOverpromise(root, "README.md"), false);
+  });
+});
+
+test("release promises reject legacy macOS current-verifier overclaims", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "README.md",
+      [
+        "The public no-account macOS package for `v2.7.7` has a universal DMG,",
+        "matching `.sha256` checksum, public release verifier, install smoke,",
+        "launch smoke, and private isolated local-data smoke.",
+      ].join("\n"),
+    );
+
+    assert.equal(hasFrontDoorLegacyMacosVerifierOverclaim(root, "README.md"), true);
+    assert.equal(hasFrontDoorLegacyMacosVerifierOverclaim(root, "docs/README.md"), false);
+
+    writeFixtureFile(
+      root,
+      "README.md",
+      [
+        "The published `v2.7.7` macOS package is a legacy fallback that predates",
+        "the current public release verifier and isolated local-data smoke.",
+      ].join("\n"),
+    );
+
+    assert.equal(hasFrontDoorLegacyMacosVerifierOverclaim(root, "README.md"), false);
   });
 });
