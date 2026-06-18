@@ -129,17 +129,15 @@ Out of scope:
 - File-backed app data opens through SQLCipher; legacy plaintext databases
   upgrade in place and delete temporary plaintext backups after success.
 - Downloadable Agent Skills cover the full search flow with UI metadata,
-  handoffs, templates, evidence validation, posting liveness, tracker history,
-  sourced interview intel, and pay/offer decisions; upstream `skills-ref` and
-  local `lint:skills` pass.
-- Browser Import desktop/mobile manual verification passed on 2026-06-17 for
-  setup, private-link rejection, LinkedIn preview/save, duplicates, and
-  overflow; commit `361560f9` added clean send APIs and local-model
-  revision/checksum pinning from the CheatSheetSeries scan.
+  handoffs, templates, rubrics, and upstream/local validation.
+- Browser Import desktop/mobile manual verification passed on 2026-06-17;
+  commit `361560f9` added clean send APIs and local-model revision pins.
 - CheatSheetSeries follow-ups hardened CI, cargo-deny, scraper DNS pinning,
   deps, Browser Import, HTTPS imports, SMTP binding, managed resume cleanup,
   isolated Application Assist browser profiles, release assets, AI guards,
   skills, sandboxed previews, secure deletion, parser caps, and KDF floors.
+- Hosted Windows release builds now secret-gate signing setup and block MSI
+  upload unless Authenticode verification passes.
 - Final whole-UI post-design pass: 266/266 post-security-hardening E2E, 16
   route inventories, and no console/page errors or overflow.
 - Final non-`content/` audit fixes landed: memory-only company research,

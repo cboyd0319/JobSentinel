@@ -382,6 +382,73 @@ jobs:
       - name: Install frontend dependencies
         run: npm ci --prefer-offline --no-audit --no-fund
 
+      - name: Configure Windows signing
+        if: matrix.platform == 'windows-2025'
+        shell: pwsh
+        env:
+          WINDOWS_CERTIFICATE: ${{ secrets.WINDOWS_CERTIFICATE }}
+          WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
+          WINDOWS_CERTIFICATE_THUMBPRINT: ${{ secrets.WINDOWS_CERTIFICATE_THUMBPRINT }}
+          WINDOWS_TIMESTAMP_URL: ${{ secrets.WINDOWS_TIMESTAMP_URL }}
+          WINDOWS_TSP: ${{ secrets.WINDOWS_TSP }}
+        run: |
+          $ErrorActionPreference = "Stop"
+
+          $required = @(
+            "WINDOWS_CERTIFICATE",
+            "WINDOWS_CERTIFICATE_PASSWORD",
+            "WINDOWS_CERTIFICATE_THUMBPRINT",
+            "WINDOWS_TIMESTAMP_URL"
+          )
+          $missing = @()
+          foreach ($name in $required) {
+            if ([string]::IsNullOrWhiteSpace([Environment]::GetEnvironmentVariable($name))) {
+              $missing += $name
+            }
+          }
+
+          if ($missing.Count -gt 0) {
+            throw "Windows release signing secrets are required before public MSI upload. Missing: $($missing -join ', ')."
+          }
+
+          $thumbprint = ($env:WINDOWS_CERTIFICATE_THUMBPRINT -replace "\s", "").ToUpperInvariant()
+          if ($thumbprint -notmatch "^[A-F0-9]{40}$") {
+            throw "WINDOWS_CERTIFICATE_THUMBPRINT must be a 40-character SHA-1 certificate thumbprint."
+          }
+
+          if ($env:WINDOWS_TIMESTAMP_URL -notmatch "^https?://") {
+            throw "WINDOWS_TIMESTAMP_URL must be an HTTP(S) timestamp service URL from the certificate provider."
+          }
+
+          $certificatePath = Join-Path $env:RUNNER_TEMP "jobsentinel-windows-signing.pfx"
+          $certificateBytes = [Convert]::FromBase64String(($env:WINDOWS_CERTIFICATE -replace "\s", ""))
+          [IO.File]::WriteAllBytes($certificatePath, $certificateBytes)
+
+          try {
+            Import-PfxCertificate `
+              -FilePath $certificatePath `
+              -CertStoreLocation Cert:\CurrentUser\My `
+              -Password (ConvertTo-SecureString -String $env:WINDOWS_CERTIFICATE_PASSWORD -Force -AsPlainText) `
+              | Out-Null
+          } finally {
+            Remove-Item -LiteralPath $certificatePath -Force -ErrorAction SilentlyContinue
+          }
+
+          $windowsConfig = [ordered]@{
+            bundle = [ordered]@{
+              windows = [ordered]@{
+                certificateThumbprint = $thumbprint
+                digestAlgorithm = "sha256"
+                timestampUrl = $env:WINDOWS_TIMESTAMP_URL
+                tsp = $env:WINDOWS_TSP -eq "true"
+              }
+            }
+          }
+
+          $windowsConfig |
+            ConvertTo-Json -Depth 5 |
+            Set-Content -Path "src-tauri/tauri.windows.conf.json" -Encoding utf8NoBOM
+
       - name: Configure macOS signing and notarization
         if: matrix.platform == 'macos-26'
         env:

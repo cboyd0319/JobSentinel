@@ -212,10 +212,15 @@ done
 ```
 
 Public Windows MSI upload is blocked unless `Get-AuthenticodeSignature` returns
-`Valid` for the built `.msi`. Configure the Tauri Windows signing certificate
-thumbprint and timestamp URL before publishing a Windows MSI. The release
-workflow creates `.msi.sha256` only after signature verification passes,
-including manual release dispatch for `platform=windows`.
+`Valid` for the built `.msi`. Hosted Windows release builds require
+`WINDOWS_CERTIFICATE`, `WINDOWS_CERTIFICATE_PASSWORD`,
+`WINDOWS_CERTIFICATE_THUMBPRINT`, and `WINDOWS_TIMESTAMP_URL` in the GitHub
+`release` environment; the workflow imports the PFX, writes a temporary
+`tauri.windows.conf.json`, removes the temporary PFX file, and creates
+`.msi.sha256` only after signature verification passes, including manual
+release dispatch for `platform=windows`.
+For local Windows builds, configure equivalent local code-signing material
+outside the repo before running `tauri build`.
 
 Public Linux upload is blocked unless exactly one `.AppImage` and one `.deb`
 exist, both filenames include the release version, both files are non-empty,

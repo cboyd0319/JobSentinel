@@ -195,6 +195,19 @@ const releaseWorkflowChecks = [
     phrases: ["JOBSENTINEL_MACOS_NO_ACCOUNT", "_no-account_"],
   },
   {
+    label: "Windows signing setup",
+    phrases: [
+      "Configure Windows signing",
+      "WINDOWS_CERTIFICATE",
+      "WINDOWS_CERTIFICATE_PASSWORD",
+      "WINDOWS_CERTIFICATE_THUMBPRINT",
+      "WINDOWS_TIMESTAMP_URL",
+      "Import-PfxCertificate",
+      "Remove-Item -LiteralPath $certificatePath",
+      "tauri.windows.conf.json",
+    ],
+  },
+  {
     label: "release attestation permissions",
     phrases: ["artifact-metadata: write", "attestations: write", "id-token: write"],
   },
@@ -693,7 +706,7 @@ export function checkSecuritySensors(root = defaultRoot) {
 
   for (const check of releaseWorkflowChecks) {
     if (!includesAll(releaseWorkflow, check.phrases)) {
-      violations.push(`release workflow is missing macOS package gate: ${check.label}`);
+      violations.push(`release workflow is missing package gate: ${check.label}`);
     }
   }
 

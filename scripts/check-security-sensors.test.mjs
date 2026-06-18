@@ -331,7 +331,7 @@ test("checkSecuritySensors rejects macOS release gates without launch smoke", ()
 
   assert(
     checkSecuritySensors(root).includes(
-      "release workflow is missing macOS package gate: macOS launch smoke gate",
+      "release workflow is missing package gate: macOS launch smoke gate",
     ),
   );
 });
@@ -367,7 +367,7 @@ test("checkSecuritySensors rejects release workflow without tag ref guard", () =
 
   assert(
     checkSecuritySensors(root).includes(
-      "release workflow is missing macOS package gate: release tag ref guard",
+      "release workflow is missing package gate: release tag ref guard",
     ),
   );
 });
@@ -385,7 +385,7 @@ test("checkSecuritySensors rejects release workflow without release environment"
 
   assert(
     checkSecuritySensors(root).includes(
-      "release workflow is missing macOS package gate: release environment gate",
+      "release workflow is missing package gate: release environment gate",
     ),
   );
 });
@@ -453,7 +453,25 @@ test("checkSecuritySensors rejects release workflow without keychain password ma
 
   assert(
     checkSecuritySensors(root).includes(
-      "release workflow is missing macOS package gate: macOS keychain password mask",
+      "release workflow is missing package gate: macOS keychain password mask",
+    ),
+  );
+});
+
+test("checkSecuritySensors rejects release workflow without Windows signing setup", () => {
+  const root = mkdtempRoot("jobsentinel-security-sensors-windows-signing-");
+  writeBaseRepo(
+    root,
+    "default-src 'self'; connect-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'",
+  );
+  writeFileSync(
+    join(root, ".github/workflows/release.yml"),
+    readBaseReleaseWorkflowWithout("          Import-PfxCertificate\n"),
+  );
+
+  assert(
+    checkSecuritySensors(root).includes(
+      "release workflow is missing package gate: Windows signing setup",
     ),
   );
 });
@@ -640,7 +658,7 @@ test("checkSecuritySensors rejects macOS release gates without install smoke", (
 
   assert(
     checkSecuritySensors(root).includes(
-      "release workflow is missing macOS package gate: macOS installed app smoke gate",
+      "release workflow is missing package gate: macOS installed app smoke gate",
     ),
   );
 });
@@ -658,7 +676,7 @@ test("checkSecuritySensors rejects macOS release gates without bundle metadata c
 
   assert(
     checkSecuritySensors(root).includes(
-      "release workflow is missing macOS package gate: macOS bundle metadata gate",
+      "release workflow is missing package gate: macOS bundle metadata gate",
     ),
   );
 });
@@ -676,7 +694,7 @@ test("checkSecuritySensors rejects macOS release gates without checksum sidecar 
 
   assert(
     checkSecuritySensors(root).includes(
-      "release workflow is missing macOS package gate: macOS checksum sidecar gate",
+      "release workflow is missing package gate: macOS checksum sidecar gate",
     ),
   );
 });
@@ -694,7 +712,7 @@ test("checkSecuritySensors rejects macOS release gates without minimum system ve
 
   assert(
     checkSecuritySensors(root).includes(
-      "release workflow is missing macOS package gate: macOS bundle metadata gate",
+      "release workflow is missing package gate: macOS bundle metadata gate",
     ),
   );
 });
@@ -712,7 +730,7 @@ test("checkSecuritySensors rejects macOS release workflow without no-account ass
 
   assert(
     checkSecuritySensors(root).includes(
-      "release workflow is missing macOS package gate: macOS no-account asset label",
+      "release workflow is missing package gate: macOS no-account asset label",
     ),
   );
 });
@@ -929,6 +947,15 @@ function readBaseReleaseWorkflowWithout(removedLine) {
     "        with:",
     "          node-version: \"24.17.0\"",
     "          package-manager-cache: false",
+    "      - name: Configure Windows signing",
+    "        run: |",
+    "          WINDOWS_CERTIFICATE",
+    "          WINDOWS_CERTIFICATE_PASSWORD",
+    "          WINDOWS_CERTIFICATE_THUMBPRINT",
+    "          WINDOWS_TIMESTAMP_URL",
+    "          Import-PfxCertificate",
+    "          Remove-Item -LiteralPath $certificatePath",
+    "          tauri.windows.conf.json",
     "      - run: |",
     "          keychain_password=\"$(openssl rand -hex 24)\"",
     "          printf '::add-mask::%s\\n' \"$keychain_password\"",

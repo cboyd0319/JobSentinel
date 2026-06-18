@@ -92,7 +92,7 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 - Last pushed v2.9.0 readiness baseline had CI passing before local follow-up.
   Current local work adds release SBOMs/manifests, exact-version asset checks,
   GitHub attestations, macOS supply-chain checks, import hardening, model pins,
-  macOS dependency trimming, and Linux Debian WebKitGTK 4.1 metadata.
+  macOS dependency trimming, Linux WebKitGTK 4.1 metadata, and Windows signing.
   Gatekeeper-ready macOS remains Apple-blocked. Public wiki `Home.md` and
   `Capabilities.md` have a validated local draft pending approval to push.
 - 2026-06-18 OWASP CheatSheetSeries scan across 120 files covered Actions,

@@ -30,7 +30,7 @@ verification gates pass.
 | ------------------------ | ------------------------------ | --------------------------- | ------------------------------- |
 | CI                       | `ci.yml`                       | Push, PR, manual, or weekly | Path-aware tests, linting, security, docs, and harness |
 | Release                  | `release.yml`                  | Version tag or manual       | Build and stage draft installers |
-| Verify Release Artifacts | `verify-release-artifacts.yml` | Published release or manual | Verify public downloadable DMGs, SBOMs, and attestations |
+| Verify Release Artifacts | `verify-release-artifacts.yml` | Published release or manual | Verify public installers, checksums, SBOMs, and attestations |
 
 CI no longer has a separate docs workflow. A first `changes` job classifies the
 diff, then only the relevant jobs run. Documentation-only changes run harness
@@ -204,6 +204,30 @@ before uploading assets to the draft release.
 The release starts as a draft. After reviewing the generated release notes, publish it manually
 from the GitHub Releases page.
 
+### Windows signing
+
+Hosted Windows release builds require Authenticode signing before the MSI can
+be uploaded. The workflow imports a base64-encoded PFX certificate into the
+current-user certificate store, removes the temporary PFX file, writes a
+temporary `tauri.windows.conf.json` with the signing thumbprint and timestamp
+URL, runs `tauri build`, then blocks upload unless `Get-AuthenticodeSignature`
+reports `Valid`.
+
+Configure these secrets in the GitHub `release` environment before building
+Windows assets:
+
+```text
+WINDOWS_CERTIFICATE             # Base64-encoded .pfx code-signing certificate
+WINDOWS_CERTIFICATE_PASSWORD    # Password used when exporting the .pfx file
+WINDOWS_CERTIFICATE_THUMBPRINT  # 40-character SHA-1 certificate thumbprint
+WINDOWS_TIMESTAMP_URL           # Certificate-provider timestamp service URL
+WINDOWS_TSP                     # Optional: true for RFC 3161/TSP timestamping
+```
+
+The workflow fails before packaging if any required Windows signing secret is
+missing or malformed. Do not commit certificate material, local thumbprints, or
+provider-specific signing config to the repo.
+
 ### macOS universal binary
 
 The macOS build targets `universal-apple-darwin`, which compiles for both `aarch64-apple-darwin`
@@ -226,12 +250,15 @@ adds `--require-gatekeeper`.
 
 **Trigger:** Published GitHub Release or manual `workflow_dispatch`
 
-This workflow verifies the macOS artifact exactly as users download it from
-GitHub Releases. It runs on `macos-26`, installs Node dependencies, and runs
-`npm run tauri:verify:macos:latest -- --require-supply-chain`. On release
-publish events, it scopes the check to the published tag. On manual runs, the
-optional `tag` input checks a specific release, and a blank tag checks the
-latest public release.
+This workflow verifies the public installers exactly as users download them
+from GitHub Releases. The Ubuntu job downloads the selected Windows, macOS, and
+Linux installer assets, verifies matching checksums, rejects stale installer
+assets for selected platforms, verifies SBOM manifests, and verifies GitHub
+artifact attestations for SLSA provenance plus the SPDX SBOM predicate. The
+macOS job also runs `npm run tauri:verify:macos:latest -- --require-supply-chain`
+on `macos-26` for the downloadable DMG. On release publish events, both jobs
+scope checks to the published tag. On manual runs, the optional `tag` input
+checks a specific release, and a blank tag checks the latest public release.
 
 The public verifier runs `node scripts/install-pinned-npm.mjs` before
 `npm ci --prefer-offline --no-audit --no-fund` because dependency advisory
@@ -405,9 +432,10 @@ tag. Windows MSI assets must pass
 non-empty `.AppImage` and one non-empty `.deb`, filenames must include the
 release version, the `.deb` must pass `dpkg-deb --info` and
 `dpkg-deb --contents`, and both Linux assets must have matching `.sha256`
-checksums before upload. The post-publish public artifact workflow currently
-verifies the downloadable macOS DMG; Windows and Linux verification happens
-before upload in the release workflow.
+checksums before upload. The post-publish public artifact workflow verifies the
+downloadable Windows, macOS, and Linux asset set, checksums, SBOM manifests,
+and GitHub attestations; its macOS job also smoke-verifies the downloadable
+DMG on `macos-26`.
 
 ### 3. Publish the draft release
 
@@ -495,15 +523,16 @@ the signed macOS release job should fail instead of publishing a package that
 nontechnical users cannot open cleanly.
 
 After the GitHub release is published, the `Verify Release Artifacts` workflow
-runs automatically. It downloads the public release DMG and applies the same
-checksum, signature, architecture, launch-smoke, installed-app smoke, local
-data initialization, owner-only local-data permissions, and optional Gatekeeper
-checks to the artifact users can actually download. It also verifies the public
-macOS SBOM manifest, the SBOM digest, and GitHub artifact attestations for SLSA
-provenance and the SPDX SBOM predicate. The no-account public
-verifier also requires `_no-account_` in the DMG filename, while the
-Gatekeeper-required verifier rejects that label for Developer ID signed and
-notarized releases. The same no-account check can be run locally on a Mac with
+runs automatically. It downloads the public Windows, macOS, and Linux
+installers, verifies their checksums, exact versioned asset set, SBOM
+manifests, SBOM digests, and GitHub artifact attestations. It also downloads
+the public release DMG on macOS and applies the same checksum, signature,
+architecture, launch-smoke, installed-app smoke, local data initialization,
+owner-only local-data permissions, and optional Gatekeeper checks to the
+artifact users can actually download. The no-account public macOS verifier
+requires `_no-account_` in the DMG filename, while the Gatekeeper-required
+verifier rejects that label for Developer ID signed and notarized releases.
+The same no-account check can be run locally on a Mac with
 `npm run tauri:verify:macos:latest`; add `--require-gatekeeper` only for a
 Developer ID signed and notarized release. Use `--no-require-supply-chain`
 only when checking an older release that has no SBOM or attestation assets.
