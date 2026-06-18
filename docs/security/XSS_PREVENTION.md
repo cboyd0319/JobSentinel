@@ -25,6 +25,23 @@ version with:
 npm ls dompurify
 ```
 
+## Renderer CSP
+
+The Tauri renderer CSP in `src-tauri/tauri.conf.json` keeps network access
+local to the app:
+
+```text
+default-src 'self'; connect-src 'self'; img-src 'self' data:; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'
+```
+
+The only current CSP exception is `style-src 'unsafe-inline'`. React components
+still use inline style attributes for dynamic widths, positions, animation
+delays, and chart colors. That exception must stay limited to styles only.
+Inline scripts, `unsafe-eval`, external `connect-src`, external fonts, external
+style imports, object/embed content, document base changes, and form submission
+remain blocked. `npm run lint:security` enforces the exact renderer CSP shape
+and fails if a new directive or source is added without review.
+
 ## Threat Model
 
 XSS can execute attacker-controlled JavaScript in the app webview. In a desktop

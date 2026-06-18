@@ -7,7 +7,7 @@ import test from "node:test";
 import { checkSecuritySensors } from "./check-security-sensors.mjs";
 
 const selfOnlyCsp =
-  "default-src 'self'; connect-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'";
+  "default-src 'self'; connect-src 'self'; img-src 'self' data:; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'";
 
 function writeBaseRepo(root, csp) {
   mkdirSync(join(root, "docs/security"), { recursive: true });
@@ -282,13 +282,39 @@ test("checkSecuritySensors rejects renderer external connect hosts", () => {
   const root = mkdtempRoot("jobsentinel-security-sensors-csp-");
   writeBaseRepo(
     root,
-    "default-src 'self'; connect-src 'self' https://hooks.slack.com; style-src 'self' 'unsafe-inline'",
+    "default-src 'self'; connect-src 'self' https://hooks.slack.com; img-src 'self' data:; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'",
   );
 
   assert(
     checkSecuritySensors(root).includes(
       "Tauri renderer CSP must not allow external connect host: https://hooks.slack.com",
     ),
+  );
+});
+
+test("checkSecuritySensors rejects renderer CSP drift", () => {
+  const root = mkdtempRoot("jobsentinel-security-sensors-csp-drift-");
+  writeBaseRepo(
+    root,
+    "default-src 'self'; connect-src 'self'; img-src 'self' data: https://cdn.example.test; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval'; object-src 'none'; form-action 'none'; frame-src 'self'",
+  );
+
+  const violations = checkSecuritySensors(root);
+  assert(
+    violations.includes(
+      "Tauri renderer CSP directive img-src must equal \"img-src 'self' data:\"",
+    ),
+  );
+  assert(
+    violations.includes(
+      "Tauri renderer CSP directive script-src must equal \"script-src 'self'\"",
+    ),
+  );
+  assert(
+    violations.includes("Tauri renderer CSP is missing directive: base-uri 'self'"),
+  );
+  assert(
+    violations.includes("Tauri renderer CSP must not add unreviewed directive: frame-src"),
   );
 });
 

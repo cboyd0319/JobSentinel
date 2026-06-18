@@ -71,6 +71,7 @@ with warnings-as-errors as a required local or CI gate.
 | Change | Required sensor |
 | ------ | --------------- |
 | URL, file path, command, or HTML input | Unit tests for malicious input |
+| Renderer CSP, renderer asset, or frontend network boundary | `npm run lint:security` and focused CSP or asset sensor test |
 | Credential handling | Keyring behavior check and no plaintext path, focused storage tests, and `cargo clippy -- -D warnings` when Rust code changes |
 | Local database encryption | Focused storage tests, plaintext-upgrade cleanup proof, and no raw `sqlite3` inspection guidance |
 | External network destination | Privacy docs update and explicit user configuration |

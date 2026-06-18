@@ -9,6 +9,7 @@ import {
   checkTauriCapabilityBoundary,
   checkWorkflowInstallBoundary,
 } from "./security/permission-boundaries.mjs";
+import { checkRendererCspBoundary as checkTauriRendererCsp } from "./security/renderer-csp.mjs";
 
 const scriptPath = fileURLToPath(import.meta.url);
 const defaultRoot = resolve(dirname(scriptPath), "..");
@@ -838,9 +839,7 @@ export function checkSecuritySensors(root = defaultRoot) {
   try {
     const tauriConfig = JSON.parse(tauriConfigText);
     const csp = tauriConfig?.app?.security?.csp;
-    if (typeof csp !== "string" || !csp.includes("connect-src 'self'")) {
-      violations.push("Tauri renderer CSP must keep connect-src restricted to self");
-    }
+    checkTauriRendererCsp(csp, violations);
 
     for (const host of forbiddenRendererConnectHosts) {
       if (typeof csp === "string" && csp.includes(host)) {

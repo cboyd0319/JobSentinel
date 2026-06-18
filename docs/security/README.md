@@ -40,7 +40,7 @@ models, and best practices.
 | **Webhook Notifications** | URL parsing, HTTPS-only, allowlisting                | [WEBHOOK_SECURITY.md](./WEBHOOK_SECURITY.md)   |
 | **OCR (Resume Parsing)**  | Path canonicalization, no shell invocation           | [COMMAND_EXECUTION.md](./COMMAND_EXECUTION.md) |
 | **Database**              | SQLCipher at rest, SQLx parameterized queries, SQL injection prevention | [KEYRING.md](./KEYRING.md)                     |
-| **Network**               | TLS, backend URL guards, self-only renderer CSP, and no remote renderer style or font imports | [URL_VALIDATION.md](./URL_VALIDATION.md)       |
+| **Network**               | TLS, backend URL guards, exact renderer CSP, and no remote renderer style or font imports | [URL_VALIDATION.md](./URL_VALIDATION.md)       |
 | **Downloads And CSV**     | Safe basenames, CSV escaping, spreadsheet formula neutralization | [URL_VALIDATION.md](./URL_VALIDATION.md)       |
 
 ### Security by Threat
