@@ -751,7 +751,7 @@ impl ResumeMatcher {
                     Some(exp.end_date)
                 },
                 is_current: exp.current,
-                bullets: exp.achievements,
+                achievements: exp.achievements,
             };
             builder.add_experience(resume_id, builder_exp).await?;
         }
@@ -762,10 +762,10 @@ impl ResumeMatcher {
                 id: 0, // Will be assigned by database
                 institution: edu.institution,
                 degree: edu.degree,
-                field_of_study: None,
-                graduation_year: edu.graduation_date.parse::<i32>().ok(),
-                gpa: edu.gpa,
-                honors: Some(edu.honors.join(", ")),
+                location: Some(edu.location),
+                graduation_date: Some(edu.graduation_date),
+                gpa: edu.gpa.map(|gpa| gpa.to_string()),
+                honors: edu.honors,
             };
             builder.add_education(resume_id, builder_edu).await?;
         }
@@ -776,8 +776,8 @@ impl ResumeMatcher {
             .into_iter()
             .map(|s| builder::SkillEntry {
                 name: s.name,
-                category: builder::SkillCategory::Other, // Default category
-                proficiency: s.proficiency.unwrap_or(builder::Proficiency::Intermediate),
+                category: "Imported".to_string(),
+                proficiency: s.proficiency.map(builder_proficiency_label),
                 years_experience: None,
             })
             .collect();
@@ -799,6 +799,16 @@ impl ResumeMatcher {
         tracing::info!("Imported JSON Resume as draft {}", resume_id);
         Ok(resume_id)
     }
+}
+
+fn builder_proficiency_label(proficiency: builder::Proficiency) -> String {
+    match proficiency {
+        builder::Proficiency::Beginner => "beginner",
+        builder::Proficiency::Intermediate => "intermediate",
+        builder::Proficiency::Advanced => "advanced",
+        builder::Proficiency::Expert => "expert",
+    }
+    .to_string()
 }
 
 fn normalize_skill_name(name: &str) -> Result<String> {

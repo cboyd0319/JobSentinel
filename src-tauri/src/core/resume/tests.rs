@@ -364,13 +364,13 @@ async fn test_import_json_resume_preserves_builder_evidence_sections() {
         experience.title == "Clinic Intake Redesign - Coordinator"
             && experience.company == "Project at Neighborhood Clinic"
             && experience
-                .bullets
+                .achievements
                 .contains(&"Improved appointment intake for community clinic.".to_string())
             && experience
-                .bullets
+                .achievements
                 .contains(&"Tools and topics: Scheduling, Patient intake".to_string())
             && experience
-                .bullets
+                .achievements
                 .contains(&"Project link: https://example.test/project".to_string())
     }));
 }

@@ -1,23 +1,25 @@
 import { Button } from "../components/Button";
 import { CardHeader } from "../components/Card";
-import { CheckCircleIcon, DocxIcon, PdfIcon } from "./ResumeBuilderVisuals";
+import { CheckCircleIcon, DocxIcon, JsonIcon, PdfIcon } from "./ResumeBuilderVisuals";
 
 interface ResumeBuilderExportStepProps {
   exporting: boolean;
   onExportDocx: () => void;
+  onExportJson: () => void;
   onExportPdf: () => void;
 }
 
 export function ResumeBuilderExportStep({
   exporting,
   onExportDocx,
+  onExportJson,
   onExportPdf,
 }: ResumeBuilderExportStepProps) {
   return (
     <div className="space-y-6 text-center">
       <CardHeader
         title="Export Resume"
-        subtitle="Download your resume in PDF or DOCX format"
+        subtitle="Download your resume in PDF, DOCX, or JSON Resume format"
       />
       <div className="py-8">
         <CheckCircleIcon className="w-16 h-16 text-success mx-auto mb-4" />
@@ -25,7 +27,7 @@ export function ResumeBuilderExportStep({
           Your resume is ready!
         </h3>
         <p className="text-sm text-surface-600 dark:text-surface-400 mb-6">
-          Export as PDF for final submission or DOCX for further editing
+          Export as PDF for final submission, DOCX for editing, or JSON Resume for portability
         </p>
         <div className="flex gap-3 justify-center flex-wrap">
           <Button onClick={onExportPdf} loading={exporting} size="lg">
@@ -40,6 +42,15 @@ export function ResumeBuilderExportStep({
           >
             <DocxIcon className="w-5 h-5 mr-2" />
             Download DOCX
+          </Button>
+          <Button
+            onClick={onExportJson}
+            loading={exporting}
+            size="lg"
+            variant="secondary"
+          >
+            <JsonIcon className="w-5 h-5 mr-2" />
+            Download JSON
           </Button>
         </div>
         <p className="text-xs text-surface-500 dark:text-surface-400 mt-4">

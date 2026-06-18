@@ -1,5 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { downloadResumeDocx, openResumePrintDialog } from "./resumeBuilderExportDom";
+import {
+  downloadResumeDocx,
+  downloadResumeJson,
+  openResumePrintDialog,
+} from "./resumeBuilderExportDom";
 
 describe("openResumePrintDialog", () => {
   afterEach(() => {
@@ -57,5 +61,36 @@ describe("openResumePrintDialog", () => {
     expect(mockLink.download).toBe("Jane-_Doe-_Resume.docx");
     expect(mockLink.click).toHaveBeenCalled();
     expect(globalThis.URL.revokeObjectURL).toHaveBeenCalledWith("blob:resume");
+  });
+
+  it("downloads JSON Resume files with sanitized names", async () => {
+    const mockLink = {
+      href: "",
+      download: "",
+      click: vi.fn(),
+    };
+    vi.spyOn(document, "createElement").mockReturnValue(
+      mockLink as unknown as HTMLAnchorElement,
+    );
+    vi.spyOn(document.body, "appendChild").mockReturnValue(
+      mockLink as unknown as HTMLAnchorElement,
+    );
+    vi.spyOn(document.body, "removeChild").mockReturnValue(
+      mockLink as unknown as HTMLAnchorElement,
+    );
+    const createdBlobs: Blob[] = [];
+    globalThis.URL.createObjectURL = vi.fn((blob: Blob) => {
+      createdBlobs.push(blob);
+      return "blob:resume-json";
+    });
+    globalThis.URL.revokeObjectURL = vi.fn();
+
+    downloadResumeJson({ basics: { name: "Jane Doe" } }, "../Jane: Doe?");
+
+    expect(mockLink.download).toBe("Jane-_Doe-_Resume.json");
+    expect(mockLink.click).toHaveBeenCalled();
+    expect(globalThis.URL.revokeObjectURL).toHaveBeenCalledWith("blob:resume-json");
+    expect(createdBlobs[0]?.type).toBe("application/json");
+    await expect(createdBlobs[0]?.text()).resolves.toContain('"basics"');
   });
 });

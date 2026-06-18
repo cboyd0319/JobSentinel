@@ -230,6 +230,72 @@ interface AtsResumeData {
   custom_sections: Record<string, string[]>;
 }
 
+export interface JsonResumeData {
+  basics: {
+    name: string;
+    label: string;
+    image: string;
+    email: string;
+    phone: string;
+    url: string;
+    summary: string;
+    location: {
+      address: string;
+      postalCode: string;
+      city: string;
+      countryCode: string;
+      region: string;
+    };
+    profiles: Array<{
+      network: string;
+      username: string;
+      url: string;
+    }>;
+  };
+  work: Array<{
+    name: string;
+    position: string;
+    url: string;
+    startDate: string;
+    endDate: string;
+    summary: string;
+    highlights: string[];
+  }>;
+  education: Array<{
+    institution: string;
+    url: string;
+    area: string;
+    studyType: string;
+    startDate: string;
+    endDate: string;
+    score: string;
+    courses: string[];
+  }>;
+  certificates: Array<{
+    name: string;
+    date: string;
+    issuer: string;
+    url: string;
+  }>;
+  skills: Array<{
+    name: string;
+    level: string;
+    keywords: string[];
+  }>;
+  projects: Array<{
+    name: string;
+    description: string;
+    highlights: string[];
+    keywords: string[];
+    startDate: string;
+    endDate: string;
+    url: string;
+    roles: string[];
+    entity: string;
+    type: string;
+  }>;
+}
+
 export interface BackendATSAnalysis {
   format_score: number;
   issues?: string[];
@@ -281,6 +347,63 @@ function groupSkills(skills: SkillEntry[]): TemplateSkillCategory[] {
   return Object.entries(grouped).map(([name, values]) => ({
     name,
     skills: values,
+  }));
+}
+
+function jsonResumeProfiles(contact: ContactInfo): JsonResumeData["basics"]["profiles"] {
+  return [
+    contact.linkedin
+      ? {
+          network: "LinkedIn",
+          username: "",
+          url: contact.linkedin,
+        }
+      : null,
+    contact.github
+      ? {
+          network: "GitHub",
+          username: "",
+          url: contact.github,
+        }
+      : null,
+  ].filter((profile): profile is JsonResumeData["basics"]["profiles"][number] =>
+    Boolean(profile),
+  );
+}
+
+function jsonResumeSkillLevel(skills: SkillEntry[]) {
+  const strengthRank: Record<NonNullable<SkillEntry["proficiency"]>, number> = {
+    beginner: 1,
+    intermediate: 2,
+    advanced: 3,
+    expert: 4,
+  };
+  const strongest = skills.reduce<NonNullable<SkillEntry["proficiency"]> | null>(
+    (best, skill) => {
+      if (!skill.proficiency) return best;
+      if (!best) return skill.proficiency;
+
+      return strengthRank[skill.proficiency] > strengthRank[best]
+        ? skill.proficiency
+        : best;
+    },
+    null,
+  );
+
+  return strongest ?? "intermediate";
+}
+
+function toJsonResumeSkillGroups(skills: SkillEntry[]): JsonResumeData["skills"] {
+  const grouped = skills.reduce<Record<string, SkillEntry[]>>((acc, skill) => {
+    const category = skill.category || "General";
+    acc[category] = [...(acc[category] ?? []), skill];
+    return acc;
+  }, {});
+
+  return Object.entries(grouped).map(([name, values]) => ({
+    name,
+    level: jsonResumeSkillLevel(values),
+    keywords: values.map((skill) => skill.name),
   }));
 }
 
@@ -419,6 +542,66 @@ export function toAtsResumeData(resume: ResumeData): AtsResumeData {
     certifications: resume.certifications.map(formatCertificationEvidence),
     projects: resume.projects.map(formatProjectEvidence),
     custom_sections: {},
+  };
+}
+
+export function toJsonResumeData(resume: ResumeData): JsonResumeData {
+  return {
+    basics: {
+      name: resume.contact.name,
+      label: "",
+      image: "",
+      email: resume.contact.email,
+      phone: resume.contact.phone ?? "",
+      url: resume.contact.website ?? "",
+      summary: resume.summary,
+      location: {
+        address: resume.contact.location ?? "",
+        postalCode: "",
+        city: "",
+        countryCode: "",
+        region: "",
+      },
+      profiles: jsonResumeProfiles(resume.contact),
+    },
+    work: resume.experience.map((experience) => ({
+      name: experience.company,
+      position: experience.title,
+      url: "",
+      startDate: experience.start_date,
+      endDate: experience.end_date ?? "",
+      summary: "",
+      highlights: experience.achievements,
+    })),
+    education: resume.education.map((education) => ({
+      institution: education.institution,
+      url: "",
+      area: "",
+      studyType: education.degree,
+      startDate: "",
+      endDate: education.graduation_date ?? "",
+      score: education.gpa ?? "",
+      courses: education.honors,
+    })),
+    certificates: resume.certifications.map((certification) => ({
+      name: certification.name,
+      date: certification.date_obtained ?? "",
+      issuer: certification.issuer,
+      url: "",
+    })),
+    skills: toJsonResumeSkillGroups(resume.skills),
+    projects: resume.projects.map((project) => ({
+      name: project.name,
+      description: project.description,
+      highlights: [],
+      keywords: project.technologies,
+      startDate: project.start_date ?? "",
+      endDate: project.end_date ?? "",
+      url: project.url ?? "",
+      roles: [],
+      entity: "",
+      type: "",
+    })),
   };
 }
 

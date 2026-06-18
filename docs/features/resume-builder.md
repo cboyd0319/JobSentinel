@@ -90,7 +90,11 @@ All templates are designed for application readability:
 
 ### Step 7: Export
 
-Download your resume as a Word document (.docx), ready to attach to any job application.
+Download your resume as:
+
+- PDF for final submission through the browser print dialog
+- Word document (.docx) for editing or attaching to an application
+- JSON Resume (.json) for portable resume data you can use in other tools
 
 When Resume Builder has job-post context from Resume Match, the live review
 panel keeps required, preferred, and other job-post language separate. It also

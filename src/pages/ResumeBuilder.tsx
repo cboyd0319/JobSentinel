@@ -17,7 +17,11 @@ import {
   canProceedResumeBuilderStep,
   getResumeBuilderStepValidationMessage,
 } from "./resumeBuilderValidation";
-import { downloadResumeDocx, openResumePrintDialog } from "./resumeBuilderExportDom";
+import {
+  downloadResumeDocx,
+  downloadResumeJson,
+  openResumePrintDialog,
+} from "./resumeBuilderExportDom";
 import { ResumeBuilderExportStep } from "./ResumeBuilderExportStep";
 import { ResumeBuilderJobContextCard } from "./ResumeBuilderJobContextCard";
 import { ResumeBuilderNavigation } from "./ResumeBuilderNavigation";
@@ -31,6 +35,7 @@ import {
   toAtsResumeData,
   toExportResumeData,
   toExportTemplateId,
+  toJsonResumeData,
   toTemplateResumeData,
   type ATSAnalysis,
   type BackendATSAnalysis,
@@ -506,6 +511,23 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
     }
   };
 
+  const handleExportJson = () => {
+    if (!resumeData) return;
+
+    try {
+      setExporting(true);
+      downloadResumeJson(toJsonResumeData(resumeData), contact.name);
+      toast.success("Resume exported", "Downloaded as JSON Resume");
+    } catch (error: unknown) {
+      const safeError = getSafeErrorToastCopy(error, {
+        fallbackTitle: "Could not export resume",
+      });
+      toast.error(safeError.title, safeError.message);
+    } finally {
+      setExporting(false);
+    }
+  };
+
   // Export PDF handler (via browser print)
   const handleExportPdf = async () => {
     if (!resumeData) return;
@@ -660,6 +682,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
             <ResumeBuilderExportStep
               exporting={exporting}
               onExportDocx={handleExportDocx}
+              onExportJson={handleExportJson}
               onExportPdf={handleExportPdf}
             />
           )}

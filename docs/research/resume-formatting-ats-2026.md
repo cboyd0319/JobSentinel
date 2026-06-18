@@ -187,7 +187,7 @@ resume help should adjust examples and evidence prompts for:
 - The readable-text preview reminds users that important details such as contact
   details, roles, skills, and credentials should be selectable text instead of
   photos, logos, or image-only sections.
-- PDF, DOCX, TXT, and Markdown resume import are supported locally.
+- PDF, DOCX, TXT, Markdown, and HTML resume import are supported locally.
 - Selected resume uploads are checked locally and files over 10 MB are rejected
   before being copied into managed local storage.
 - Active saved resume can be used for local fit review without copying
@@ -348,9 +348,10 @@ resume help should adjust examples and evidence prompts for:
 ## Backlog To Lock Next
 
 - Add a guided requirement-inventory workflow for serious applications.
-- Expand Resume Builder data and import/export coverage toward JSON Resume
-  compatible sections such as volunteer work, awards, structured languages,
-  publications, interests, references, project roles, and resume metadata.
+- Expand Resume Builder JSON Resume export coverage beyond current contact,
+  work, education, certifications, skills, and project fields toward volunteer
+  work, awards, structured languages, publications, interests, references,
+  project roles, and resume metadata.
 - Add resume export layout controls for Letter versus A4 page ratios, print
   break-avoid behavior, and tabular date-number alignment without making the
   builder depend on decorative templates.

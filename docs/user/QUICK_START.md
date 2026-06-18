@@ -326,7 +326,7 @@ Create professional resumes right inside JobSentinel:
 1. Click **Resume Builder** in the sidebar
 2. Answer the guided resume questions
 3. Pick from 5 clean templates designed for readable applications
-4. Export to Word (.docx)
+4. Export to PDF, Word (.docx), or JSON Resume (.json)
 
 ### Resume Match
 

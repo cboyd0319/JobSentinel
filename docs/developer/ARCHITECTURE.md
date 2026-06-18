@@ -339,7 +339,7 @@ context.
 
 **Purpose**: Local resume fit review and parsing
 
-- PDF, DOCX, TXT, and Markdown resume parsing
+- PDF, DOCX, TXT, Markdown, and HTML resume parsing
 - Skill extraction
 - Job-resume matching with confidence scores
 

@@ -100,7 +100,8 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 - 2026-06-18 credential taxonomy moved license/certification/designation groups
   into shared data with a CPA guard and verified green gates.
 - 2026-06-18 resume reference mining added HTML upload/parsing, source-aware
-  ATS format warnings, and shared format taxonomy; Rust/Vitest gates pass.
+  ATS format warnings, shared format taxonomy, JSON Resume export, and builder
+  draft DTO alignment; focused Rust/Vitest gates pass.
 
 ## Next Best Work
 

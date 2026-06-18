@@ -1,6 +1,7 @@
 use anyhow::{Context, Result};
 use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
+use serde::{de, Deserialize, Deserializer, Serialize};
+use serde_json::Value;
 use sqlx::SqlitePool;
 
 /// Complete resume data structure
@@ -33,34 +34,51 @@ pub struct ContactInfo {
 /// Work experience entry
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Experience {
+    #[serde(default)]
     pub id: i64,
     pub company: String,
     pub title: String,
+    #[serde(default)]
     pub location: Option<String>,
-    pub start_date: String,       // "2020-01" format
+    pub start_date: String, // "2020-01" format
+    #[serde(default)]
     pub end_date: Option<String>, // None means current
+    #[serde(default)]
     pub is_current: bool,
-    pub bullets: Vec<String>, // Action-verb bullet points
+    #[serde(default, alias = "bullets")]
+    pub achievements: Vec<String>, // Action-verb bullet points
 }
 
 /// Education entry
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Education {
+    #[serde(default)]
     pub id: i64,
     pub institution: String,
     pub degree: String,
-    pub field_of_study: Option<String>,
-    pub graduation_year: Option<i32>,
-    pub gpa: Option<f64>,
-    pub honors: Option<String>,
+    #[serde(default)]
+    pub location: Option<String>,
+    #[serde(
+        default,
+        alias = "graduation_year",
+        deserialize_with = "optional_string_from_value"
+    )]
+    pub graduation_date: Option<String>,
+    #[serde(default, deserialize_with = "optional_string_from_value")]
+    pub gpa: Option<String>,
+    #[serde(default, deserialize_with = "string_vec_from_value")]
+    pub honors: Vec<String>,
 }
 
 /// Skill entry with categorization
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SkillEntry {
     pub name: String,
-    pub category: SkillCategory,
-    pub proficiency: Proficiency,
+    #[serde(default, deserialize_with = "string_from_value")]
+    pub category: String,
+    #[serde(default, deserialize_with = "optional_lowercase_string_from_value")]
+    pub proficiency: Option<String>,
+    #[serde(default)]
     pub years_experience: Option<f64>,
 }
 
@@ -83,6 +101,82 @@ pub enum Proficiency {
     Intermediate,
     Advanced,
     Expert,
+}
+
+fn optional_string_from_value<'de, D>(
+    deserializer: D,
+) -> std::result::Result<Option<String>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let value = Option::<Value>::deserialize(deserializer)?;
+    value_to_optional_string(value).map_err(de::Error::custom)
+}
+
+fn optional_lowercase_string_from_value<'de, D>(
+    deserializer: D,
+) -> std::result::Result<Option<String>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    Ok(optional_string_from_value(deserializer)?.map(|value| value.to_ascii_lowercase()))
+}
+
+fn string_from_value<'de, D>(deserializer: D) -> std::result::Result<String, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    Ok(optional_string_from_value(deserializer)?.unwrap_or_default())
+}
+
+fn string_vec_from_value<'de, D>(deserializer: D) -> std::result::Result<Vec<String>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let value = Option::<Value>::deserialize(deserializer)?;
+    let Some(value) = value else {
+        return Ok(Vec::new());
+    };
+
+    match value {
+        Value::Null => Ok(Vec::new()),
+        Value::String(value) => Ok(split_legacy_honors_string(&value)),
+        Value::Array(values) => values
+            .into_iter()
+            .filter_map(|value| match value_to_optional_string(Some(value)) {
+                Ok(Some(value)) => Some(Ok(value)),
+                Ok(None) => None,
+                Err(error) => Some(Err(error)),
+            })
+            .collect::<std::result::Result<Vec<_>, _>>()
+            .map_err(de::Error::custom),
+        other => value_to_optional_string(Some(other))
+            .map(|value| value.into_iter().collect())
+            .map_err(de::Error::custom),
+    }
+}
+
+fn split_legacy_honors_string(value: &str) -> Vec<String> {
+    value
+        .split(',')
+        .map(str::trim)
+        .filter(|part| !part.is_empty())
+        .map(ToOwned::to_owned)
+        .collect()
+}
+
+fn value_to_optional_string(value: Option<Value>) -> std::result::Result<Option<String>, String> {
+    let Some(value) = value else {
+        return Ok(None);
+    };
+
+    match value {
+        Value::Null => Ok(None),
+        Value::String(value) => Ok(Some(value)),
+        Value::Number(value) => Ok(Some(value.to_string())),
+        Value::Bool(value) => Ok(Some(value.to_string())),
+        Value::Array(_) | Value::Object(_) => Err("expected string-compatible value".to_string()),
+    }
 }
 
 /// Certification entry
@@ -515,7 +609,7 @@ mod tests {
             start_date: "2020-01".to_string(),
             end_date: None,
             is_current: true,
-            bullets: vec![
+            achievements: vec![
                 "Coordinated a 5-person intake team".to_string(),
                 "Reduced client intake turnaround by 30%".to_string(),
             ],
@@ -527,7 +621,7 @@ mod tests {
         let resume = builder.get_resume(resume_id).await.unwrap().unwrap();
         assert_eq!(resume.experience.len(), 1);
         assert_eq!(resume.experience[0].company, "Harbor Community Services");
-        assert_eq!(resume.experience[0].bullets.len(), 2);
+        assert_eq!(resume.experience[0].achievements.len(), 2);
     }
 
     #[tokio::test]
@@ -545,7 +639,7 @@ mod tests {
             start_date: "2020-01".to_string(),
             end_date: None,
             is_current: true,
-            bullets: vec![],
+            achievements: vec![],
         };
 
         let exp_id = builder.add_experience(resume_id, exp).await.unwrap();
@@ -576,14 +670,14 @@ mod tests {
         let skills = vec![
             SkillEntry {
                 name: "Rust".to_string(),
-                category: SkillCategory::ProgrammingLanguage,
-                proficiency: Proficiency::Expert,
+                category: "Programming Language".to_string(),
+                proficiency: Some("expert".to_string()),
                 years_experience: Some(5.0),
             },
             SkillEntry {
                 name: "Tokio".to_string(),
-                category: SkillCategory::Framework,
-                proficiency: Proficiency::Advanced,
+                category: "Framework".to_string(),
+                proficiency: Some("advanced".to_string()),
                 years_experience: Some(3.0),
             },
         ];
@@ -593,6 +687,46 @@ mod tests {
         let resume = builder.get_resume(resume_id).await.unwrap().unwrap();
         assert_eq!(resume.skills.len(), 2);
         assert_eq!(resume.skills[0].name, "Rust");
+    }
+
+    #[test]
+    fn test_builder_deserializes_frontend_resume_payload_shapes() {
+        let experience: Experience = serde_json::from_value(serde_json::json!({
+            "id": 0,
+            "title": "Program Coordinator",
+            "company": "Community Clinic",
+            "location": "Portland, OR",
+            "start_date": "2022-01",
+            "end_date": null,
+            "achievements": ["Improved intake scheduling"]
+        }))
+        .expect("frontend experience payload should deserialize");
+
+        assert_eq!(experience.achievements, vec!["Improved intake scheduling"]);
+
+        let education: Education = serde_json::from_value(serde_json::json!({
+            "id": 0,
+            "degree": "BA",
+            "institution": "Metro College",
+            "location": "Portland, OR",
+            "graduation_date": "2020",
+            "gpa": "3.8",
+            "honors": ["Dean's List"]
+        }))
+        .expect("frontend education payload should deserialize");
+
+        assert_eq!(education.graduation_date.as_deref(), Some("2020"));
+        assert_eq!(education.honors, vec!["Dean's List"]);
+
+        let skill: SkillEntry = serde_json::from_value(serde_json::json!({
+            "name": "Patient Intake",
+            "category": "Operations",
+            "proficiency": "advanced"
+        }))
+        .expect("frontend skill payload should deserialize");
+
+        assert_eq!(skill.category, "Operations");
+        assert_eq!(skill.proficiency.as_deref(), Some("advanced"));
     }
 
     #[tokio::test]

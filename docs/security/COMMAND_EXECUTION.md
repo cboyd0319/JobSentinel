@@ -44,7 +44,7 @@ PDF file -> pdftoppm -> PNG images -> tesseract -> extracted text
 **File**: `src-tauri/src/core/resume/parser.rs`
 
 Local resume parsing rejects files over 10 MB before PDF, DOCX, TXT, Markdown,
-or optional OCR parsing begins. DOCX parsing also bounds `word/document.xml`
+HTML, or optional OCR parsing begins. DOCX parsing also bounds `word/document.xml`
 before extracting text.
 
 ## Security Threats

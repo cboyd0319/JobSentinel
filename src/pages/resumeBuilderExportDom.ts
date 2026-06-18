@@ -18,6 +18,23 @@ export function downloadResumeDocx(docxData: number[], candidateName: string): v
   URL.revokeObjectURL(url);
 }
 
+export function downloadResumeJson(jsonResumeData: unknown, candidateName: string): void {
+  const blob = new Blob([`${JSON.stringify(jsonResumeData, null, 2)}\n`], {
+    type: "application/json",
+  });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = sanitizeDownloadFilename(
+    `${candidateName.replace(/\s+/g, "_")}_Resume.json`,
+    "JobSentinel_Resume.json",
+  );
+  document.body.appendChild(anchor);
+  anchor.click();
+  document.body.removeChild(anchor);
+  URL.revokeObjectURL(url);
+}
+
 export function openResumePrintDialog(html: string): void {
   const iframe = document.createElement("iframe");
   iframe.setAttribute("sandbox", "allow-modals");

@@ -1,7 +1,8 @@
-# Import from Resume App
+# Import and Export Resume App Data
 
 JobSentinel can import a resume app export saved in a supported format and turn
-it into an editable local resume draft.
+it into an editable local resume draft. Resume Builder can also export a local
+draft as a portable resume app file for use in other tools.
 
 Privacy label: **Local only** and **Sensitive**. Resume content stays on the
 user's device. Importing a resume must not send the file, parsed text, contact
@@ -14,7 +15,9 @@ service.
 - Review the imported contact, work, education, skills, language, project,
   publication, award, and certification details before using them.
 - Preserve imported project and credential evidence in Resume Builder preview,
-  PDF print, DOCX export, and local resume/job fit review.
+  PDF print, Word export, portable app export, and local resume/job fit review.
+- Export Resume Builder contact, work, education, certifications, skills, and
+  projects as a local portable resume app file.
 - Edit or remove imported items in Resume Builder.
 - Run local resume/job fit review after import.
 - Delete the imported draft later from local resume management.
@@ -73,7 +76,7 @@ resume text in user-facing error copy.
 
 ## Validation Requirements
 
-- Keep import tolerant of partial resume app export files.
+- Keep import tolerant of incomplete resume app export files.
 - Keep unsupported fields non-fatal.
 - Keep unreadable export errors clear and non-technical.
 - Keep tests broad enough to cover non-software resumes.

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   toAtsResumeData,
   toExportResumeData,
+  toJsonResumeData,
   toTemplateResumeData,
   type ResumeData,
 } from "./resumeBuilderData";
@@ -92,5 +93,109 @@ describe("resume builder data conversion", () => {
     expect(toAtsResumeData(resume).projects).toEqual([
       "Clinic Intake Redesign - Improved appointment intake for community clinic. - Technologies: Scheduling, Patient intake - https://example.test/project",
     ]);
+  });
+
+  it("exports builder data in JSON Resume shape", () => {
+    const resume = {
+      ...createResumeWithEvidenceSections(),
+      contact: {
+        ...createResumeWithEvidenceSections().contact,
+        phone: "555-0100",
+        linkedin: "https://linkedin.com/in/applicant",
+        github: "https://github.com/applicant",
+        location: "Portland, OR",
+        website: "https://example.test",
+      },
+      experience: [
+        {
+          id: 1,
+          company: "Neighborhood Clinic",
+          title: "Operations Coordinator",
+          location: "Portland, OR",
+          start_date: "2022-01",
+          end_date: null,
+          achievements: ["Improved intake scheduling by 18%"],
+        },
+      ],
+      education: [
+        {
+          id: 2,
+          institution: "State University",
+          degree: "Bachelor of Arts",
+          graduation_date: "2020",
+          gpa: "3.8",
+          honors: ["Dean's List"],
+        },
+      ],
+      skills: [
+        {
+          name: "Scheduling",
+          category: "Operations",
+          proficiency: "advanced",
+        },
+      ],
+    } satisfies ResumeData;
+
+    expect(toJsonResumeData(resume)).toMatchObject({
+      basics: {
+        name: "Applicant Example",
+        email: "applicant@example.test",
+        phone: "555-0100",
+        url: "https://example.test",
+        summary: "Operations coordinator focused on accessible services.",
+        location: { address: "Portland, OR" },
+        profiles: [
+          {
+            network: "LinkedIn",
+            url: "https://linkedin.com/in/applicant",
+          },
+          {
+            network: "GitHub",
+            url: "https://github.com/applicant",
+          },
+        ],
+      },
+      work: [
+        {
+          name: "Neighborhood Clinic",
+          position: "Operations Coordinator",
+          startDate: "2022-01",
+          endDate: "",
+          highlights: ["Improved intake scheduling by 18%"],
+        },
+      ],
+      education: [
+        {
+          institution: "State University",
+          studyType: "Bachelor of Arts",
+          area: "",
+          endDate: "2020",
+          score: "3.8",
+          courses: ["Dean's List"],
+        },
+      ],
+      certificates: [
+        {
+          name: "Certified Community Health Worker",
+          issuer: "State Health Board",
+          date: "2024",
+        },
+      ],
+      skills: [
+        {
+          name: "Operations",
+          level: "advanced",
+          keywords: ["Scheduling"],
+        },
+      ],
+      projects: [
+        {
+          name: "Clinic Intake Redesign",
+          description: "Improved appointment intake for community clinic.",
+          keywords: ["Scheduling", "Patient intake"],
+          url: "https://example.test/project",
+        },
+      ],
+    });
   });
 });
