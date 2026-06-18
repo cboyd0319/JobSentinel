@@ -76,16 +76,16 @@ the verified artifacts to the matching draft release, and run the public
 artifact verifier before publishing or sharing the release. Do not mix
 artifacts from different source commits under one tag.
 
-Package the downloadable Agent Skills archive from the tagged source before
+Package the downloadable Agent Skills archives from the tagged source before
 publishing:
 
 ```bash
 npm run release:skills -- --version X.Y.Z --out-dir release-assets/public
 ```
 
-Upload both `JobSentinel-X.Y.Z-agent-skills.tar.gz` and its `.sha256`
-sidecar.
-The archive is not an installer, but hosted releases still attest it before
+Upload `JobSentinel-X.Y.Z-agent-skills.tar.gz`,
+`JobSentinel-X.Y.Z-agent-skills.zip`, and both `.sha256` sidecars. The
+archives are not installers, but hosted releases still attest them before
 upload.
 
 ### 2. macOS signing mode

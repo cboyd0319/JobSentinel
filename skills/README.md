@@ -62,5 +62,7 @@ npm run release:skills -- --version 2.9.0 --out-dir release-assets/public
 ```
 
 The command validates `skills/`, creates
-`JobSentinel-2.9.0-agent-skills.tar.gz`, and writes a matching `.sha256`
-sidecar for download verification.
+`JobSentinel-2.9.0-agent-skills.tar.gz` and
+`JobSentinel-2.9.0-agent-skills.zip`, and writes matching `.sha256` sidecars
+for download verification. Use the ZIP on Windows when a built-in extractor is
+preferred.

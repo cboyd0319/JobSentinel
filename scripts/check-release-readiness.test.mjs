@@ -102,6 +102,20 @@ test("release readiness rejects missing Agent Skills archive upload", () => {
   );
 });
 
+test("release readiness rejects Agent Skills packages without ZIP artifact", () => {
+  const inputs = loadReleaseReadinessInputs({ env: {} });
+  const report = evaluateReleaseReadinessFromInputs({
+    ...inputs,
+    releaseWorkflow: inputs.releaseWorkflow.replaceAll("agent-skills.zip", "agent-skills.tar.gz"),
+  });
+
+  assert(
+    report.criteria.some(
+      (item) => item.id === "release workflow publishes downloadable Agent Skills" && !item.ok,
+    ),
+  );
+});
+
 test("release readiness parses version flags", () => {
   assert.deepEqual(parseArgs(["--version", "v2.9.0"]), { version: "v2.9.0" });
   assert.deepEqual(parseArgs(["--tag=v2.9.0"]), { version: "v2.9.0" });

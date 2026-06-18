@@ -71,7 +71,7 @@ Out of scope:
 | Area | State | Next useful slice |
 | ---- | ----- | ----------------- |
 | Dependency readiness | Complete | Package-manager, direct deps, overrides, and Action pins are latest; transitives stay lockfile-pinned/latest-compatible |
-| Downloadable Agent Skills | Complete locally | Eight skills pass upstream `skills-ref`, `lint:skills`, UI metadata, handoffs, templates, references, and research coverage. |
+| Downloadable Agent Skills | Complete locally | Skills pass `lint:skills`; release packaging creates deterministic tar/ZIP artifacts. |
 | Browser Import and LinkedIn-compatible flow | Complete locally | Manual desktop/mobile verification passed; revisit only if whole-UI QA finds a blocker. Keep LinkedIn user-opened and user-clicked without session cookies or background monitoring. |
 | Development and QA completion | Finalizing | Primary product/security fixes and whole-UI verification are complete locally; finish design, packaging, and release checks. |
 | macOS readiness | Release-gated | Keep docs honest when touched, but do not create or upload assets until final local gates close. |

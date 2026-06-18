@@ -165,11 +165,14 @@ export function evaluateReleaseReadinessFromInputs(inputs) {
       hasAll(inputs.releaseWorkflow, [
         "package-agent-skills:",
         "npm run release:skills",
-        "Agent Skills archive and checksum",
+        "Agent Skills archives",
         "subject-path: release-assets/public/JobSentinel-${{ needs.create-release.outputs.version }}-agent-skills.tar.gz",
+        "subject-path: release-assets/public/JobSentinel-${{ needs.create-release.outputs.version }}-agent-skills.zip",
+        "JobSentinel-$RELEASE_VERSION-agent-skills.tar.gz.sha256",
+        "JobSentinel-$RELEASE_VERSION-agent-skills.zip.sha256",
         "gh release upload \"$RELEASE_TAG\" \"${assets[@]}\" --clobber",
       ]),
-      "Release workflow must upload a validated, attested Agent Skills archive.",
+      "Release workflow must upload validated, attested Agent Skills tar.gz and ZIP archives.",
     ),
     criterion(
       "front-door docs do not overclaim public 2.9.0 assets",

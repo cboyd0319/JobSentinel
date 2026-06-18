@@ -392,25 +392,38 @@ jobs:
           RELEASE_VERSION: ${{ needs.create-release.outputs.version }}
         run: npm run release:skills -- --version "$RELEASE_VERSION" --out-dir release-assets/public
 
-      - name: Attest Agent Skills archive provenance
+      - name: Attest Agent Skills tarball provenance
         uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26 # v4.1.0
         with:
           subject-path: release-assets/public/JobSentinel-${{ needs.create-release.outputs.version }}-agent-skills.tar.gz
 
-      - name: Upload Agent Skills archive
+      - name: Attest Agent Skills ZIP provenance
+        uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26 # v4.1.0
+        with:
+          subject-path: release-assets/public/JobSentinel-${{ needs.create-release.outputs.version }}-agent-skills.zip
+
+      - name: Upload Agent Skills archives
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ needs.create-release.outputs.tag }}
+          RELEASE_VERSION: ${{ needs.create-release.outputs.version }}
         run: |
           set -euo pipefail
-          shopt -s nullglob
 
-          assets=(release-assets/public/JobSentinel-${{ needs.create-release.outputs.version }}-agent-skills.tar.gz*)
-          if [ "${#assets[@]}" -ne 2 ]; then
-            printf 'Expected Agent Skills archive and checksum before upload; found %s\n' "${#assets[@]}"
-            exit 1
-          fi
+          assets=(
+            "release-assets/public/JobSentinel-$RELEASE_VERSION-agent-skills.tar.gz"
+            "release-assets/public/JobSentinel-$RELEASE_VERSION-agent-skills.tar.gz.sha256"
+            "release-assets/public/JobSentinel-$RELEASE_VERSION-agent-skills.zip"
+            "release-assets/public/JobSentinel-$RELEASE_VERSION-agent-skills.zip.sha256"
+          )
+
+          for asset in "${assets[@]}"; do
+            if [ ! -s "$asset" ]; then
+              printf 'Expected Agent Skills archive or checksum before upload: %s\n' "$asset"
+              exit 1
+            fi
+          done
 
           gh release upload "$RELEASE_TAG" "${assets[@]}" --clobber
 
