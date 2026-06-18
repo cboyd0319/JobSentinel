@@ -1,4 +1,5 @@
 import { GHOST_SCORE_THRESHOLD } from "./constants";
+import jobPostingRiskTaxonomy from "../shared/jobPostingRiskTaxonomy.json";
 
 interface PostingRiskReason {
   category: "stale" | "repost" | "generic" | "missing_details" | "unrealistic" | "company_behavior";
@@ -12,32 +13,19 @@ const reviewCueReasonCategories = new Set<PostingRiskReason["category"]>([
   "repost",
 ]);
 
-const LOW_DETAIL_TITLE_PATTERNS = [
-  /^\s*(?:various|multiple)\s+(?:positions|roles|openings)\s*$/i,
-  /^\s*(?:general|open)\s+(?:application|position|role|opening)\s*$/i,
-  /\btalent\s+pool\b/i,
-  /\bfuture\s+opportunities?\b/i,
-  /^\s*(?:we'?re|we are)\s+hiring\b/i,
-  /^\s*(?:now hiring|hiring now|join our team)\s*$/i,
-  /\bjoin\s+(?:our|the)\s+team\b/i,
-  /^\s*(?:work\s+from\s+home|remote)\s+(?:job|position|role|opportunity|opening)\s*$/i,
-  /^\s*(?:entry\s+level|immediate\s+hire)\s+(?:job|position|role|opportunity|opening)\s*$/i,
-] as const;
-
-const THIN_DESCRIPTION_PATTERN = /\b(?:apply|hiring|opportunity|position|role|team)\b/i;
-const MIN_THIN_DESCRIPTION_LENGTH = 45;
-
-const SCAM_SIGNAL_PATTERNS = [
-  /\b(?:cashier'?s\s+check|fake\s+check|deposit\s+(?:the\s+)?check|mobile\s+deposit)\b/i,
-  /\b(?:pay|send|wire|transfer)\b.{0,50}\b(?:money|fee|deposit|gift\s+cards?|funds)\b/i,
-  /\b(?:pay|send|wire|transfer|receive)\b.{0,50}\b(?:bitcoin|crypto(?:currency)?|zelle|venmo|cash\s*app|paypal)\b/i,
-  /\b(?:buy|purchase|get|send)\b.{0,40}\b(?:gift\s+cards?|prepaid\s+cards?|money\s+orders?)\b/i,
-  /\b(?:upfront|application|training|equipment)\b.{0,30}\b(?:fee|payment)\b/i,
-  /\b(?:social\s+security\s+number|ssn|bank\s+account|direct\s+deposit|passport|date\s+of\s+birth|driver'?s\s+license)\b.{0,80}\b(?:before|interview|start|offer)\b/i,
-  /\b(?:before|prior\s+to)\b.{0,40}\b(?:interview|start|offer)\b.{0,60}\b(?:send|provide|share|submit)\b.{0,50}\b(?:social\s+security\s+number|ssn|bank\s+account|direct\s+deposit|passport|date\s+of\s+birth|driver'?s\s+license)\b/i,
-  /\b(?:telegram|whats\s*app|whatsapp|signal)\b.{0,60}\b(?:interview|screening|chat|message)\b/i,
-  /\b(?:interview|screening|chat|message)\b.{0,60}\b(?:telegram|whats\s*app|whatsapp|signal)\b/i,
-] as const;
+const LOW_DETAIL_TITLE_PATTERNS =
+  jobPostingRiskTaxonomy.vagueTitlePatterns.map(
+    (pattern) => new RegExp(pattern, "i"),
+  );
+const THIN_DESCRIPTION_PATTERN = new RegExp(
+  jobPostingRiskTaxonomy.thinDescriptionPattern,
+  "i",
+);
+const MIN_THIN_DESCRIPTION_LENGTH =
+  jobPostingRiskTaxonomy.minThinDescriptionLength;
+const SCAM_SIGNAL_PATTERNS = jobPostingRiskTaxonomy.scamSignalPatterns.map(
+  (pattern) => new RegExp(pattern, "i"),
+);
 
 function parsePostingRiskReasons(reasonsJson: string | null | undefined): PostingRiskReason[] {
   if (!reasonsJson) {

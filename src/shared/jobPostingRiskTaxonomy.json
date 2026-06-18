@@ -23,13 +23,15 @@
     "team player"
   ],
   "vagueTitlePatterns": [
-    "^various\\s+(positions?|roles?)",
-    "^multiple\\s+(positions?|openings?)",
-    "^(general|open)\\s+application",
-    "talent\\s+pool",
-    "future\\s+opportunities?",
-    "^(we'?re|we are)\\s+hiring",
-    "join\\s+(our|the)\\s+team"
+    "^\\s*(?:various|multiple)\\s+(?:positions?|roles?|openings?)\\b",
+    "^\\s*(?:general|open)\\s+(?:application|position|role|opening)\\s*$",
+    "\\btalent\\s+pool\\b",
+    "\\bfuture\\s+opportunities?\\b",
+    "^\\s*(?:we'?re|we are)\\s+hiring\\b",
+    "^\\s*(?:now hiring|hiring now|join our team)\\s*$",
+    "\\bjoin\\s+(?:our|the)\\s+team\\b",
+    "^\\s*(?:work\\s+from\\s+home|remote)\\s+(?:job|position|role|opportunity|opening)\\s*$",
+    "^\\s*(?:entry\\s+level|immediate\\s+hire)\\s+(?:job|position|role|opportunity|opening)\\s*$"
   ],
   "unrealisticRequirementPatterns": [
     "entry[- ]level.*(\\d{2,})\\+?\\s*(years?|yrs?)",
@@ -56,6 +58,19 @@
     "(world[- ]class|cutting[- ]edge|revolutionary)",
     "(groundbreaking|trailblazing)",
     "(skyrocket|explosive\\s+growth)"
+  ],
+  "thinDescriptionPattern": "\\b(?:apply|hiring|opportunity|position|role|team)\\b",
+  "minThinDescriptionLength": 45,
+  "scamSignalPatterns": [
+    "\\b(?:cashier'?s\\s+check|fake\\s+check|deposit\\s+(?:the\\s+)?check|mobile\\s+deposit)\\b",
+    "\\b(?:pay|send|wire|transfer)\\b.{0,50}\\b(?:money|fee|deposit|gift\\s+cards?|funds)\\b",
+    "\\b(?:pay|send|wire|transfer|receive)\\b.{0,50}\\b(?:bitcoin|crypto(?:currency)?|zelle|venmo|cash\\s*app|paypal)\\b",
+    "\\b(?:buy|purchase|get|send)\\b.{0,40}\\b(?:gift\\s+cards?|prepaid\\s+cards?|money\\s+orders?)\\b",
+    "\\b(?:upfront|application|training|equipment)\\b.{0,30}\\b(?:fee|payment)\\b",
+    "\\b(?:social\\s+security\\s+number|ssn|bank\\s+account|direct\\s+deposit|passport|date\\s+of\\s+birth|driver'?s\\s+license)\\b.{0,80}\\b(?:before|interview|start|offer)\\b",
+    "\\b(?:before|prior\\s+to)\\b.{0,40}\\b(?:interview|start|offer)\\b.{0,60}\\b(?:send|provide|share|submit)\\b.{0,50}\\b(?:social\\s+security\\s+number|ssn|bank\\s+account|direct\\s+deposit|passport|date\\s+of\\s+birth|driver'?s\\s+license)\\b",
+    "\\b(?:telegram|whats\\s*app|whatsapp|signal)\\b.{0,60}\\b(?:interview|screening|chat|message)\\b",
+    "\\b(?:interview|screening|chat|message)\\b.{0,60}\\b(?:telegram|whats\\s*app|whatsapp|signal)\\b"
   ],
   "substanceKeywords": [
     "api",
