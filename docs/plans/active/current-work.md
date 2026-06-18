@@ -138,8 +138,8 @@ Out of scope:
   revision/checksum pinning from the CheatSheetSeries scan.
 - Current CheatSheetSeries follow-ups hardened deps, Browser Import caps/port, resume
   intake, URL/DNS/print/alert/browser/OCR paths, release checks, and Linux metadata.
-- Final whole-UI post-design pass: 266/266 E2E, 16 route inventories, and no
-  console/page errors or overflow.
+- Final whole-UI post-design pass: 266/266 pinned-runtime E2E, 16 route
+  inventories, and no console/page errors or overflow.
 - Final non-`content/` audit fixes landed: memory-only company research,
   accessible onboarding, auto-refresh gating, atomic alert claims, HTTPS
   JobsWithGPT endpoints, shared import hashes, and `2.9.0` metadata/changelog.

@@ -81,12 +81,10 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   routes; forced empty/loading/error checks passed across startup and setup.
 - Setup Wizard desktop/mobile, whole-UI post-design click/action coverage, and
   keyboard paths now have fresh Playwright evidence.
-- Final local release gates passed on 2026-06-17: version/deps, docs, harness,
-  macOS readiness, frontend lint/unit/build, Playwright (`266/266`), Rust
-  fmt/clippy/full `cargo test`, and local macOS package verify. On
-  2026-06-18, post-follow-up checks passed release version/deps, docs, harness,
-  security, frontend lint/build/focused test, Tauri invoke lint, npm audit,
-  Rust fmt/clippy, and full `cargo test`.
+- Fresh 2026-06-18 local release gates pass: pinned Node/npm doctor, version/deps,
+  docs, harness, security, frontend lint/unit/build, scripts, E2E `266/266`,
+  Rust fmt/clippy/full `cargo test`, npm audit, cargo deny, Tauri invokes,
+  macOS readiness, and existing `2.9.0` no-account DMG verification.
 - Final non-`content/` expert/agent pass is applied locally: memory-only
   company research, accessible onboarding, auto-refresh gating, atomic alert
   claims, HTTPS JobsWithGPT endpoints, shared import hashes, and metadata.
