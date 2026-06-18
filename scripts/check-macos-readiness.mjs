@@ -48,7 +48,11 @@ export function hasNoAccountMacosReleaseOrder(releaseWorkflow) {
       "- name: Label no-account macOS DMG",
       "- name: Create macOS checksum",
       "- name: Remove old macOS release assets",
-      "- name: Upload macOS DMG",
+      "- name: Stage macOS release assets",
+      "- name: Generate release SBOM",
+      "- name: Attest release artifact provenance",
+      "- name: Attest release artifact SBOM",
+      "- name: Upload release assets",
     ]) &&
     hasOrderedSnippets(releaseWorkflow, [
       "npm run tauri:verify:macos",
@@ -56,7 +60,12 @@ export function hasNoAccountMacosReleaseOrder(releaseWorkflow) {
       "shasum -a 256",
       "while IFS= read -r asset; do",
       "gh release delete-asset",
-      "src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg.sha256",
+      "cp src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg.sha256 release-assets/public/",
+      "npm run release:sbom",
+      "--require-artifacts",
+      "subject-path: release-assets/public/*",
+      "subject-checksums: release-assets/attestation-subjects.sha256",
+      "files: release-assets/public/*",
     ]) &&
     !releaseWorkflow.includes("mapfile ") &&
     !releaseWorkflow.includes("macos_assets")
@@ -88,6 +97,16 @@ function getWorkflowStepBlock(workflow, stepName) {
 }
 
 export function releaseAssetUploadsStayDraft(releaseWorkflow) {
+  const commonUpload = getWorkflowStepBlock(releaseWorkflow, "Upload release assets");
+  if (commonUpload) {
+    return (
+      commonUpload.includes("uses: softprops/action-gh-release@") &&
+      /\n\s+draft: true\b/.test(commonUpload) &&
+      commonUpload.includes("tag_name: ${{ needs.create-release.outputs.tag }}") &&
+      commonUpload.includes("files: release-assets/public/*")
+    );
+  }
+
   return ["Upload Windows MSI", "Upload macOS DMG", "Upload Linux AppImage"].every((stepName) => {
     const step = getWorkflowStepBlock(releaseWorkflow, stepName);
     return step.includes("uses: softprops/action-gh-release@") && /\n\s+draft: true\b/.test(step);
@@ -98,14 +117,22 @@ export function windowsMsiUploadRequiresSignature(releaseWorkflow) {
   return (
     hasOrderedSnippets(releaseWorkflow, [
       "- name: Verify Windows MSI signature and checksum",
-      "- name: Upload Windows MSI",
+      "- name: Stage Windows release assets",
+      "- name: Upload release assets",
     ]) &&
     hasAll(getWorkflowStepBlock(releaseWorkflow, "Verify Windows MSI signature and checksum"), [
       "Get-AuthenticodeSignature",
       'Status -ne "Valid"',
       "Get-FileHash",
       ".sha256",
-    ])
+    ]) &&
+    hasAll(getWorkflowStepBlock(releaseWorkflow, "Stage Windows release assets"), [
+      "Copy-Item",
+      "*.msi",
+      "*.msi.sha256",
+      "release-assets/public/",
+    ]) &&
+    releaseAssetUploadsStayDraft(releaseWorkflow)
   );
 }
 

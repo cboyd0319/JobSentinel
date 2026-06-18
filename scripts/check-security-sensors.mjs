@@ -108,6 +108,25 @@ const releaseWorkflowChecks = [
     label: "macOS no-account asset label",
     phrases: ["JOBSENTINEL_MACOS_NO_ACCOUNT", "_no-account_"],
   },
+  {
+    label: "release attestation permissions",
+    phrases: ["artifact-metadata: write", "attestations: write", "id-token: write"],
+  },
+  {
+    label: "release SBOM generation",
+    phrases: ["npm run release:sbom", "--require-artifacts", "attestation-subjects.sha256"],
+  },
+  {
+    label: "release provenance attestation",
+    phrases: ["actions/attest@", "subject-path: release-assets/public/*"],
+  },
+  {
+    label: "release SBOM attestation",
+    phrases: [
+      "subject-checksums: release-assets/attestation-subjects.sha256",
+      "sbom-path: release-assets/public/JobSentinel-",
+    ],
+  },
 ];
 
 const publishedReleaseWorkflowChecks = [
@@ -126,6 +145,10 @@ const publishedReleaseWorkflowChecks = [
   {
     label: "scoped release tag",
     phrases: ["RELEASE_TAG", "DISPATCH_TAG", "--tag"],
+  },
+  {
+    label: "public supply-chain verifier",
+    phrases: ["attestations: read", "--require-supply-chain"],
   },
 ];
 
@@ -173,6 +196,14 @@ function readIfExists(root, path, violations) {
 
 function includesAll(text, phrases) {
   return phrases.every((phrase) => text.includes(phrase));
+}
+
+function workflowJobBlock(text, jobName) {
+  const match = String(text ?? "").match(
+    new RegExp(`(?:^|\\n)  ${jobName}:\\n([\\s\\S]*?)(?=\\n  [A-Za-z0-9_-]+:\\n|\\s*$)`),
+  );
+
+  return match?.[1] ?? "";
 }
 
 export function formatSecuritySensorSummary() {
@@ -225,6 +256,18 @@ export function checkSecuritySensors(root = defaultRoot) {
     if (!includesAll(releaseWorkflow, check.phrases)) {
       violations.push(`release workflow is missing macOS package gate: ${check.label}`);
     }
+  }
+
+  const buildReleaseJob = workflowJobBlock(releaseWorkflow, "build-release");
+  if (
+    !includesAll(buildReleaseJob, [
+      "artifact-metadata: write",
+      "attestations: write",
+      "contents: write",
+      "id-token: write",
+    ])
+  ) {
+    violations.push("release workflow build-release job is missing attestation permissions");
   }
 
   const publishedReleaseWorkflow = readIfExists(

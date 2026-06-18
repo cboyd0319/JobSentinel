@@ -17,7 +17,8 @@ stapled, or accepted by Gatekeeper yet.
 The no-account macOS path is still useful and verified. Use it for development,
 testing, internal checks, and clearly labeled no-account public packages. A
 public no-account Mac package must include the `.dmg` and matching
-`.dmg.sha256` checksum, the DMG filename must include `_no-account_`, and
+`.dmg.sha256` checksum, the DMG filename must include `_no-account_`, the
+release must include the generated macOS SBOM plus SBOM manifest, and
 `npm run tauri:verify:macos:latest` must pass after publication. Do not publish
 a macOS package as zero-friction or Gatekeeper-ready until the project has an
 Apple Developer Account, the release secrets below are configured, and the
@@ -57,7 +58,8 @@ git push origin vX.Y.Z
 
 Pushing the tag triggers `release.yml`. The workflow creates a draft release,
 runs preflight checks, builds Windows, macOS, and Linux packages, verifies the
-macOS package before upload, and attaches release assets.
+macOS package before upload, generates platform SBOMs, creates GitHub
+provenance and SBOM attestations, and attaches release assets.
 
 For a local-first release, build each platform on that platform or VM, attach
 the verified artifacts to the matching draft release, and run the public
@@ -142,6 +144,9 @@ npm run tauri:verify:macos:latest
 
 # Developer ID signed and notarized release path:
 npm run tauri:verify:macos:latest -- --require-gatekeeper
+
+# Legacy releases without SBOM or attestation assets only:
+npm run tauri:verify:macos:latest -- --tag vX.Y.Z --no-require-supply-chain
 ```
 
 For local upload, use a unique no-account filename such as
@@ -162,8 +167,9 @@ gh release upload vX.Y.Z \
   src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_X.Y.Z_no-account_universal.dmg \
   src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_X.Y.Z_no-account_universal.dmg.sha256
 
-# Then verify the downloaded public asset.
-npm run tauri:verify:macos:latest -- --tag vX.Y.Z
+# Then verify the downloaded public asset. Use the legacy flag only because
+# this local upload path does not create hosted attestations.
+npm run tauri:verify:macos:latest -- --tag vX.Y.Z --no-require-supply-chain
 ```
 
 Do not publish a Mac package without its checksum, and do not leave multiple Mac
@@ -212,8 +218,10 @@ with no-account defaults: universal `x86_64,arm64` architecture checks,
 checksum verification, signature verification, bundle identity, release-tag
 version, icon metadata and resource file, macOS 13.0 minimum-system metadata,
 mounted-app launch smoke, installed-app launch smoke, isolated local database
-creation, and a visible `_no-account_` filename label. Gatekeeper acceptance is
-opt-in with the `require_gatekeeper` workflow input or
+creation, a visible `_no-account_` filename label, public SBOM manifest
+binding, SBOM digest verification, and GitHub artifact attestations for SLSA
+provenance plus the SPDX SBOM predicate.
+Gatekeeper acceptance is opt-in with the `require_gatekeeper` workflow input or
 `JOBSENTINEL_MACOS_REQUIRE_GATEKEEPER` repository variable, and should be used
 for Developer ID signed and notarized releases. In that mode, the verifier
 rejects `_no-account_` filenames. If this workflow fails, the public DMG should
@@ -230,6 +238,10 @@ JobSentinel data or prompt for the user's Keychain.
 Review the draft release on GitHub and click "Publish release".
 Then confirm the `Verify Release Artifacts` workflow passes for the published
 tag.
+
+For hosted releases, do not pass `--no-require-supply-chain`; that flag exists
+only to inspect old releases that were published before SBOM and attestation
+assets existed.
 
 ## Supported Platforms
 

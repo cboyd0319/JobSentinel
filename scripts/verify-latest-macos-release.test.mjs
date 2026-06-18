@@ -1,12 +1,16 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  expectedReleaseSbomNames,
   findChecksumAsset,
   findMacosDmgAsset,
+  findReleaseAssetByName,
   githubFetchHeaders,
   parseArgs,
   parseSha256Checksum,
+  validateReleaseSbomManifest,
   validateMacosAssetLabel,
+  verifyGitHubAttestation,
 } from "./verify-latest-macos-release.mjs";
 
 test("latest macOS release verifier defaults to no-account public checks", () => {
@@ -28,6 +32,7 @@ test("latest macOS release verifier defaults to no-account public checks", () =>
     requireNoAccountLabel: true,
     repo: "cboyd0319/JobSentinel",
     requireGatekeeper: false,
+    requireSupplyChain: true,
     smokeSeconds: 12,
   });
 });
@@ -55,6 +60,7 @@ test("latest macOS release verifier supports scoped overrides", () => {
       "--no-install-smoke",
       "--no-launch-smoke",
       "--no-require-checksum",
+      "--no-require-supply-chain",
       "--require-gatekeeper",
       "--smoke-seconds",
       "3",
@@ -79,6 +85,7 @@ test("latest macOS release verifier supports scoped overrides", () => {
       requireNoAccountLabel: false,
       repo: "example/project",
       requireGatekeeper: true,
+      requireSupplyChain: false,
       smokeSeconds: 3,
     },
   );
@@ -143,6 +150,45 @@ test("latest macOS release verifier selects matching checksum asset", () => {
   assert.equal(checksumAsset?.name, "JobSentinel_2.6.4_universal.dmg.sha256");
 });
 
+test("latest macOS release verifier selects expected SBOM assets by exact name and HTTPS", () => {
+  assert.deepEqual(expectedReleaseSbomNames("2.9.0"), {
+    manifestName: "JobSentinel-2.9.0-macos.sbom-manifest.json",
+    sbomName: "JobSentinel-2.9.0-macos.sbom.spdx.json",
+  });
+  assert.equal(
+    findReleaseAssetByName(
+      {
+        assets: [
+          {
+            name: "JobSentinel-2.9.0-macos.sbom.spdx.json",
+            browser_download_url: "https://example.invalid/sbom",
+          },
+          {
+            name: "JobSentinel-2.9.0-macos.sbom-manifest.json",
+            browser_download_url: "http://example.invalid/manifest",
+          },
+        ],
+      },
+      "JobSentinel-2.9.0-macos.sbom.spdx.json",
+    )?.browser_download_url,
+    "https://example.invalid/sbom",
+  );
+  assert.equal(
+    findReleaseAssetByName(
+      {
+        assets: [
+          {
+            name: "JobSentinel-2.9.0-macos.sbom-manifest.json",
+            browser_download_url: "http://example.invalid/manifest",
+          },
+        ],
+      },
+      "JobSentinel-2.9.0-macos.sbom-manifest.json",
+    ),
+    undefined,
+  );
+});
+
 test("latest macOS release verifier parses SHA-256 checksum files", () => {
   assert.equal(
     parseSha256Checksum(
@@ -159,6 +205,104 @@ test("latest macOS release verifier parses SHA-256 checksum files", () => {
         "JobSentinel.dmg",
       ),
     /filename expected JobSentinel.dmg/,
+  );
+});
+
+test("latest macOS release verifier validates SBOM manifest binding to downloaded DMG", () => {
+  const digest = "0".repeat(64);
+  assert.doesNotThrow(() =>
+    validateReleaseSbomManifest({
+      manifest: {
+        schemaVersion: 1,
+        version: "2.9.0",
+        platform: "macos",
+        sbom: {
+          fileName: "JobSentinel-2.9.0-macos.sbom.spdx.json",
+          sha256: digest,
+        },
+        assets: [
+          {
+            fileName: "JobSentinel_2.9.0_no-account_universal.dmg",
+            kind: "installer",
+            sha256: digest,
+          },
+        ],
+      },
+      sbom: {
+        spdxVersion: "SPDX-2.3",
+        SPDXID: "SPDXRef-DOCUMENT",
+        packages: [{ name: "jobsentinel" }],
+      },
+      sbomDigest: digest,
+      dmgAsset: { name: "JobSentinel_2.9.0_no-account_universal.dmg" },
+      dmgDigest: digest,
+      expectedVersion: "2.9.0",
+    }),
+  );
+
+  assert.throws(
+    () =>
+      validateReleaseSbomManifest({
+        manifest: {
+          schemaVersion: 1,
+          version: "2.9.0",
+          platform: "macos",
+          sbom: {
+            fileName: "JobSentinel-2.9.0-macos.sbom.spdx.json",
+            sha256: digest,
+          },
+          assets: [],
+        },
+        sbom: {
+          spdxVersion: "SPDX-2.3",
+          SPDXID: "SPDXRef-DOCUMENT",
+          packages: [{ name: "jobsentinel" }],
+        },
+        sbomDigest: digest,
+        dmgAsset: { name: "JobSentinel_2.9.0_no-account_universal.dmg" },
+        dmgDigest: digest,
+        expectedVersion: "2.9.0",
+      }),
+    /must include downloaded DMG asset/,
+  );
+});
+
+test("latest macOS release verifier invokes gh attestation with repo, workflow, and predicate", () => {
+  const calls = [];
+  verifyGitHubAttestation({
+    artifactPath: "/tmp/JobSentinel.dmg",
+    repo: "example/project",
+    predicateType: "https://slsa.dev/provenance/v1",
+    spawn(command, args) {
+      calls.push([command, args]);
+      return { status: 0, stdout: "", stderr: "" };
+    },
+  });
+
+  assert.equal(calls[0][0], "gh");
+  assert.deepEqual(calls[0][1], [
+    "attestation",
+    "verify",
+    "/tmp/JobSentinel.dmg",
+    "--repo",
+    "example/project",
+    "--predicate-type",
+    "https://slsa.dev/provenance/v1",
+    "--signer-workflow",
+    "example/project/.github/workflows/release.yml",
+  ]);
+
+  assert.throws(
+    () =>
+      verifyGitHubAttestation({
+        artifactPath: "/tmp/JobSentinel.dmg",
+        repo: "example/project",
+        predicateType: "https://spdx.dev/Document/v2.3",
+        spawn() {
+          return { status: 1, stdout: "verification failed", stderr: "" };
+        },
+      }),
+    /GitHub attestation verification failed/,
   );
 });
 

@@ -224,7 +224,8 @@ sidecar directly, so the checksum is created for the public filename.
 This local upload path is supported for macOS release work when it is cheaper
 or faster than hosted release CI. It still needs the same release-version,
 harness, package-verification, checksum, and public-artifact verification gates
-before users should treat the DMG as current.
+before users should treat the DMG as current. Hosted release CI is preferred
+for public releases because it also creates SBOM and provenance attestations.
 
 After a release is published, verify the downloaded public artifact too:
 
@@ -234,10 +235,12 @@ npm run tauri:verify:macos:latest
 
 That command downloads the latest public GitHub release DMG and applies the
 same checksum, universal-architecture, visible-window launch-smoke,
-installed-app smoke, and
-signature checks, including bundle identity, release-tag version, icon metadata
-and resource file, macOS 13.0 minimum-system metadata, and isolated macOS data
-directory and owner-only database permissions during launch smoke.
+installed-app smoke, signature checks, SBOM manifest binding, and GitHub
+attestation checks, including bundle identity, release-tag version, icon
+metadata and resource file, macOS 13.0 minimum-system metadata, and isolated
+macOS data directory and owner-only database permissions during launch smoke.
+Use `--no-require-supply-chain` only for older releases that predate hosted
+SBOM and attestation assets.
 
 The current complete local universal DMG smoke in the `2.7.7`
 release-recovery run built a `JobSentinel_2.7.7_no-account_universal.dmg`,
@@ -472,8 +475,8 @@ verification.
 
 1. **Local package path verified** - Universal DMG build, checksum
    verification, app signature verification, architecture check, and packaged
-  plus installed visible-window launch smoke pass locally, including local
-  database creation under isolated macOS homes.
+   plus installed visible-window launch smoke pass locally, including local
+   database creation under isolated macOS homes.
 2. **No-account public package path available** - Public macOS releases can use
    a clearly labeled ad-hoc signed package with a matching `.dmg.sha256` and
    passing public verifier. The current no-account macOS package is `v2.7.7`;
@@ -484,7 +487,8 @@ verification.
    signing, notarization, then `--launch-smoke --install-smoke
    --require-gatekeeper` verification before upload.
 4. **Published artifact gate active** - After publishing, run
-   `npm run tauri:verify:macos:latest` to verify the downloaded public DMG.
+   `npm run tauri:verify:macos:latest` to verify the downloaded public DMG,
+   SBOM manifest, and GitHub attestations.
 5. **Runtime workflow checks before release** - Run the app, complete setup,
    create a first search, save an application, and generate a safe support
    report before publishing a release.

@@ -1,6 +1,6 @@
 # Active Plan Status
 
-Last updated: 2026-06-17.
+Last updated: 2026-06-18.
 
 Read this file first; load archived history only for old decision context.
 
@@ -92,13 +92,14 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 - Final non-`content/` expert/agent pass is applied locally: memory-only
   company research, accessible onboarding, auto-refresh gating, atomic alert
   claims, HTTPS JobsWithGPT endpoints, shared import hashes, and metadata.
-- v2.9.0 local readiness was pushed and CI passed; current follow-up is secure
-  workflow consolidation. Gatekeeper-ready macOS remains Apple-blocked.
+- v2.9.0 local readiness was pushed and CI passed; current workflow follow-up
+  adds release SBOMs, manifests, GitHub provenance/SBOM attestations, and public
+  macOS supply-chain verification. Gatekeeper-ready macOS remains Apple-blocked.
 
 ## Next Best Work
 
-1. Finish and push CI/release workflow consolidation; use release dispatch for
-   Windows/macOS/Linux artifacts without Gatekeeper claims before credentials.
+1. Verify and commit release SBOM/provenance hardening, then push the secure
+   workflow consolidation when the broader goal is ready for final push.
 2. Continue resume assistance only where it improves truthful requirement review,
    hard-constraint handling, readable evidence, or next-action guidance.
 3. Continue guided intake only where resume/profile suggestions stay optional,
@@ -131,10 +132,5 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 
 ## Archived Context
 
-These files are provenance only, not startup context:
-
-- [Active status history](../archive/active-status-history-2026-06-17.md)
-- [Guided job-search intake](../archive/guided-job-search-intake-superseded-2026-06-04.md)
-- [Repo cleanup and quality sweep](../archive/repo-cleanup-and-quality-sweep-superseded-2026-06-04.md)
-- [Repo cleanup handoff](../archive/repo-cleanup-handoff-superseded-2026-06-04.md)
-- [Research-backed product improvements](../archive/research-backed-product-improvements-superseded-2026-06-04.md)
+Archived plans under `docs/plans/archive/` are provenance only, not startup
+context.

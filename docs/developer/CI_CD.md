@@ -30,7 +30,7 @@ verification gates pass.
 | ------------------------ | ------------------------------ | --------------------------- | ------------------------------- |
 | CI                       | `ci.yml`                       | Push, PR, or manual         | Path-aware tests, linting, security, docs, and harness |
 | Release                  | `release.yml`                  | Version tag or manual       | Build and stage draft installers |
-| Verify Release Artifacts | `verify-release-artifacts.yml` | Published release or manual | Verify public downloadable DMGs |
+| Verify Release Artifacts | `verify-release-artifacts.yml` | Published release or manual | Verify public downloadable DMGs, SBOMs, and attestations |
 
 CI no longer has a separate docs workflow. A first `changes` job classifies the
 diff, then only the relevant jobs run. Documentation-only changes run harness
@@ -144,6 +144,13 @@ or `linux`, replacing the old standalone manual Windows and Linux workflows.
 | `macos-26`     | `universal-apple-darwin`   | `.dmg` plus `.dmg.sha256` (universal binary - Intel + Apple Silicon) |
 | `ubuntu-24.04` | `x86_64-unknown-linux-gnu` | `.AppImage`, `.deb`, and matching checksums       |
 
+Each platform job stages its public files under `release-assets/public`, then
+runs `npm run release:sbom`. The generated SPDX 2.3 SBOM combines the npm
+lockfile inventory with the Cargo lockfile inventory and writes a companion
+manifest with release asset names, sizes, and SHA-256 digests. The workflow
+uses GitHub artifact attestations for both build provenance and the SPDX SBOM
+before uploading assets to the draft release.
+
 The release starts as a draft. After reviewing the generated release notes, publish it manually
 from the GitHub Releases page.
 
@@ -171,16 +178,19 @@ adds `--require-gatekeeper`.
 
 This workflow verifies the macOS artifact exactly as users download it from
 GitHub Releases. It runs on `macos-26`, installs Node dependencies, and runs
-`npm run tauri:verify:macos:latest`. On release publish events, it scopes the
-check to the published tag. On manual runs, the optional `tag` input checks a
-specific release, and a blank tag checks the latest public release.
+`npm run tauri:verify:macos:latest -- --require-supply-chain`. On release
+publish events, it scopes the check to the published tag. On manual runs, the
+optional `tag` input checks a specific release, and a blank tag checks the
+latest public release.
 
 The public macOS verifier defaults to the current no-Apple-account release
 path: expected JobSentinel bundle id, product name, icon metadata and resource
 file, release-tag version, macOS 13.0 minimum-system metadata, universal
 `x86_64,arm64` architecture checks, mounted app signature verification,
 matching `.dmg.sha256` checksum verification, installed-app smoke, launch
-smoke, local data initialization, and owner-only local-data permissions.
+smoke, local data initialization, owner-only local-data permissions, public
+macOS SBOM manifest binding, SBOM digest verification, and GitHub artifact
+attestations for SLSA provenance plus the SPDX SBOM predicate.
 Gatekeeper acceptance is required only when the manual `require_gatekeeper` input or
 `JOBSENTINEL_MACOS_REQUIRE_GATEKEEPER` repository variable is set to `true`.
 
@@ -308,8 +318,13 @@ gh release upload vX.Y.Z \
   src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_X.Y.Z_no-account_universal.dmg \
   src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_X.Y.Z_no-account_universal.dmg.sha256
 
-npm run tauri:verify:macos:latest -- --tag vX.Y.Z
+npm run tauri:verify:macos:latest -- --tag vX.Y.Z --no-require-supply-chain
 ```
+
+Use `--no-require-supply-chain` only for legacy local uploads that predate
+release SBOM and attestation support. Normal hosted releases must publish the
+SBOM, SBOM manifest, and GitHub attestations, and should be verified with the
+default supply-chain check.
 
 For a complete local release, build Windows and Linux installers on native
 hosts or VMs from the same tag, then attach those assets to the same release.
@@ -413,12 +428,15 @@ After the GitHub release is published, the `Verify Release Artifacts` workflow
 runs automatically. It downloads the public release DMG and applies the same
 checksum, signature, architecture, launch-smoke, installed-app smoke, local
 data initialization, owner-only local-data permissions, and optional Gatekeeper
-checks to the artifact users can actually download. The no-account public
+checks to the artifact users can actually download. It also verifies the public
+macOS SBOM manifest, the SBOM digest, and GitHub artifact attestations for SLSA
+provenance and the SPDX SBOM predicate. The no-account public
 verifier also requires `_no-account_` in the DMG filename, while the
 Gatekeeper-required verifier rejects that label for Developer ID signed and
 notarized releases. The same no-account check can be run locally on a Mac with
 `npm run tauri:verify:macos:latest`; add `--require-gatekeeper` only for a
-Developer ID signed and notarized release.
+Developer ID signed and notarized release. Use `--no-require-supply-chain`
+only when checking an older release that has no SBOM or attestation assets.
 
 ---
 

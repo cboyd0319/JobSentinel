@@ -163,9 +163,19 @@ test("macOS readiness checks no-account release workflow order", () => {
     "- name: Remove old macOS release assets",
     "  run: while IFS= read -r asset; do",
     "  run: gh release delete-asset \"$RELEASE_TAG\" \"$asset\" -y",
-    "- name: Upload macOS DMG",
+    "- name: Stage macOS release assets",
+    "  run: cp src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg.sha256 release-assets/public/",
+    "- name: Generate release SBOM",
+    "  run: npm run release:sbom -- --require-artifacts",
+    "- name: Attest release artifact provenance",
     "  with:",
-    "    files: src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg.sha256",
+    "    subject-path: release-assets/public/*",
+    "- name: Attest release artifact SBOM",
+    "  with:",
+    "    subject-checksums: release-assets/attestation-subjects.sha256",
+    "- name: Upload release assets",
+    "  with:",
+    "    files: release-assets/public/*",
   ].join("\n");
 
   const staleWorkflow = [
@@ -230,29 +240,20 @@ test("macOS readiness recognizes universal macOS release matrices", () => {
 
 test("macOS readiness checks release asset uploads stay draft", () => {
   const workflow = [
-    "- name: Upload Windows MSI",
+    "- name: Upload release assets",
     "  uses: softprops/action-gh-release@abc",
     "  with:",
     "    draft: true",
-    "    files: windows.msi",
-    "- name: Upload macOS DMG",
-    "  uses: softprops/action-gh-release@abc",
-    "  with:",
-    "    draft: true",
-    "    files: macos.dmg",
-    "- name: Upload Linux AppImage",
-    "  uses: softprops/action-gh-release@abc",
-    "  with:",
-    "    draft: true",
-    "    files: linux.AppImage",
+    "    tag_name: ${{ needs.create-release.outputs.tag }}",
+    "    files: release-assets/public/*",
   ].join("\n");
 
   assert.equal(releaseAssetUploadsStayDraft(workflow), true);
   assert.equal(
     releaseAssetUploadsStayDraft(
       workflow.replace(
-        "    draft: true\n    files: macos.dmg",
-        "    files: macos.dmg",
+        "    draft: true\n    tag_name: ${{ needs.create-release.outputs.tag }}",
+        "    tag_name: ${{ needs.create-release.outputs.tag }}",
       ),
     ),
     false,
@@ -267,8 +268,16 @@ test("macOS readiness checks Windows MSI signature gate", () => {
     '    if ($signature.Status -ne "Valid") { throw "unsigned" }',
     "    $hash = Get-FileHash -Algorithm SHA256 $msi.FullName",
     "    Set-Content output.msi.sha256",
-    "- name: Upload Windows MSI",
+    "- name: Stage Windows release assets",
+    "  run: |",
+    "    Copy-Item *.msi release-assets/public/",
+    "    Copy-Item *.msi.sha256 release-assets/public/",
+    "- name: Upload release assets",
     "  uses: softprops/action-gh-release@abc",
+    "  with:",
+    "    draft: true",
+    "    tag_name: ${{ needs.create-release.outputs.tag }}",
+    "    files: release-assets/public/*",
   ].join("\n");
 
   assert.equal(windowsMsiUploadRequiresSignature(workflow), true);

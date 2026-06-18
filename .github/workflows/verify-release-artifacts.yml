@@ -23,6 +23,7 @@ jobs:
     name: Verify public macOS DMG
     runs-on: macos-26
     permissions:
+      attestations: read
       contents: read
 
     steps:
@@ -58,5 +59,6 @@ jobs:
           if [ "${REQUIRE_GATEKEEPER:-false}" = "true" ]; then
             args+=(--require-gatekeeper)
           fi
+          args+=(--require-supply-chain)
 
           npm run tauri:verify:macos:latest -- "${args[@]}"

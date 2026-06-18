@@ -167,7 +167,10 @@ jobs:
     environment:
       name: release
     permissions:
+      artifact-metadata: write
+      attestations: write
       contents: write
+      id-token: write
     strategy:
       fail-fast: false
       matrix:
@@ -434,7 +437,7 @@ jobs:
         if: startsWith(matrix.platform, 'macos')
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: ${{ github.ref_name }}
+          RELEASE_TAG: ${{ needs.create-release.outputs.tag }}
         shell: bash
         run: |
           set -euo pipefail
@@ -450,7 +453,6 @@ jobs:
               | grep -E '\.dmg(\.sha256)?$' || true
           )
 
-      # Windows MSI upload
       - name: Verify Windows MSI signature and checksum
         if: matrix.platform == 'windows-2025'
         shell: pwsh
@@ -473,26 +475,24 @@ jobs:
           $hash = Get-FileHash -Algorithm SHA256 $msi.FullName
           "$($hash.Hash.ToLowerInvariant())  $($msi.Name)" | Set-Content -NoNewline -Encoding ascii "$($msi.FullName).sha256"
 
-      - name: Upload Windows MSI
+      - name: Stage Windows release assets
         if: matrix.platform == 'windows-2025'
-        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
-        with:
-          draft: true
-          files: |
-            src-tauri/target/${{ matrix.target }}/release/bundle/msi/*.msi
-            src-tauri/target/${{ matrix.target }}/release/bundle/msi/*.msi.sha256
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          New-Item -ItemType Directory -Force "release-assets/public" | Out-Null
+          Copy-Item "src-tauri/target/${{ matrix.target }}/release/bundle/msi/*.msi" "release-assets/public/"
+          Copy-Item "src-tauri/target/${{ matrix.target }}/release/bundle/msi/*.msi.sha256" "release-assets/public/"
 
-      # macOS DMG upload
-      - name: Upload macOS DMG
+      - name: Stage macOS release assets
         if: startsWith(matrix.platform, 'macos')
-        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
-        with:
-          draft: true
-          files: |
-            src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg
-            src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg.sha256
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p release-assets/public
+          cp src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg release-assets/public/
+          cp src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg.sha256 release-assets/public/
 
-      # Linux uploads
       - name: Verify Linux packages and checksums
         if: matrix.platform == 'ubuntu-24.04'
         shell: bash
@@ -531,13 +531,41 @@ jobs:
           dpkg-deb --info "${debs[0]}" >/dev/null
           dpkg-deb --contents "${debs[0]}" >/dev/null
 
-      - name: Upload Linux AppImage
+      - name: Stage Linux release assets
         if: matrix.platform == 'ubuntu-24.04'
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p release-assets/public
+          cp src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/*.AppImage release-assets/public/
+          cp src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/*.AppImage.sha256 release-assets/public/
+          cp src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/deb/*.deb release-assets/public/
+          cp src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/deb/*.deb.sha256 release-assets/public/
+
+      - name: Generate release SBOM
+        shell: bash
+        run: |
+          npm run release:sbom -- \
+            --platform "${{ matrix.platform_key }}" \
+            --version "${{ needs.create-release.outputs.version }}" \
+            --out-dir release-assets/public \
+            --checksums-out release-assets/attestation-subjects.sha256 \
+            --require-artifacts
+
+      - name: Attest release artifact provenance
+        uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26 # v4.1.0
+        with:
+          subject-path: release-assets/public/*
+
+      - name: Attest release artifact SBOM
+        uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26 # v4.1.0
+        with:
+          subject-checksums: release-assets/attestation-subjects.sha256
+          sbom-path: release-assets/public/JobSentinel-${{ needs.create-release.outputs.version }}-${{ matrix.platform_key }}.sbom.spdx.json
+
+      - name: Upload release assets
         uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
         with:
           draft: true
-          files: |
-            src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/*.AppImage
-            src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/*.AppImage.sha256
-            src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/deb/*.deb
-            src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/deb/*.deb.sha256
+          tag_name: ${{ needs.create-release.outputs.tag }}
+          files: release-assets/public/*
