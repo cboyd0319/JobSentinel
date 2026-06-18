@@ -143,7 +143,7 @@ cargo tarpaulin --out Html
 
 `npm run lint:security` checks that required security docs exist, that the
 verification matrix preserves security-specific sensors, that CI plus CI/CD
-docs keep dependency audit, Rust advisory, and scheduled drift gates visible,
+docs keep dependency audit, Rust supply-chain, and scheduled drift gates visible,
 that browser-extension manifests avoid broad host and high-risk permissions,
 that the Tauri renderer CSP keeps external network calls out of the frontend,
 and that Tauri capabilities do not grant frontend shell-open permissions. It

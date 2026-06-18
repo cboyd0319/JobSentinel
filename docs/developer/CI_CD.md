@@ -155,7 +155,7 @@ skips Linux WebKit build dependencies because it does not compile the app.
 | ---------------- | ---------------------------------- |
 | Security sensors | `npm run lint:security`            |
 | npm audit        | `npm audit --audit-level=moderate` |
-| Rust advisories  | `cargo deny check advisories`      |
+| Rust policy      | `cargo deny check advisories bans licenses sources` |
 | Drift check      | `npm run release:check-deps`       |
 
 ---
@@ -308,7 +308,7 @@ npm test -- --run
 # Security
 npm run lint:security
 npm audit --audit-level=moderate
-(cd src-tauri && cargo deny check advisories)
+(cd src-tauri && cargo deny check advisories bans licenses sources)
 npm run release:check-deps
 ```
 

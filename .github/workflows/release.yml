@@ -250,9 +250,9 @@ jobs:
       - name: Install cargo-deny
         run: cargo install cargo-deny --version 0.19.9 --locked
 
-      - name: cargo deny check advisories
+      - name: cargo deny supply-chain policy
         working-directory: src-tauri
-        run: cargo deny check advisories
+        run: cargo deny check advisories bans licenses sources
 
   create-release:
     needs:

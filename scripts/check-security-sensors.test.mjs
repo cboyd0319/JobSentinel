@@ -67,7 +67,7 @@ function writeBaseRepo(root, csp) {
       "    steps:",
       "      - run: npm run lint:security",
       "      - run: npm audit --audit-level=moderate",
-      "      - run: cargo deny check advisories",
+      "      - run: cargo deny check advisories bans licenses sources",
       "      - run: npm run release:check-deps",
     ].join("\n"),
   );
@@ -114,7 +114,7 @@ function writeBaseRepo(root, csp) {
   );
   writeFileSync(
     join(root, "docs/developer/CI_CD.md"),
-    "GitHub `release` environment\nrequired reviewers\nnpm audit --audit-level=moderate\ncargo deny check advisories\n",
+    "GitHub `release` environment\nrequired reviewers\nnpm audit --audit-level=moderate\ncargo deny check advisories bans licenses sources\n",
   );
   writeFileSync(
     join(root, ".github/dependabot.yml"),
@@ -420,7 +420,7 @@ test("checkSecuritySensors rejects workflow token defaults that are not disabled
   );
   writeFileSync(
     join(root, ".github/workflows/ci.yml"),
-    "jobs:\n  security:\n    steps:\n      - run: npm audit --audit-level=moderate\n      - run: cargo deny check advisories\n",
+    "jobs:\n  security:\n    steps:\n      - run: npm audit --audit-level=moderate\n      - run: cargo deny check advisories bans licenses sources\n",
   );
 
   assert(
@@ -446,7 +446,7 @@ test("checkSecuritySensors rejects privileged workflow triggers", () => {
       "  security:",
       "    steps:",
       "      - run: npm audit --audit-level=moderate",
-      "      - run: cargo deny check advisories",
+      "      - run: cargo deny check advisories bans licenses sources",
     ].join("\n"),
   );
 
@@ -472,7 +472,7 @@ test("checkSecuritySensors rejects persisted checkout credentials", () => {
       "    steps:",
       "      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3",
       "      - run: npm audit --audit-level=moderate",
-      "      - run: cargo deny check advisories",
+      "      - run: cargo deny check advisories bans licenses sources",
     ].join("\n"),
   );
 
@@ -851,7 +851,7 @@ function readBaseReleaseWorkflowWithout(removedLine) {
     "          package-manager-cache: false",
     "      - run: npm audit --audit-level=moderate",
     "      - run: cargo install cargo-deny --version 0.19.9 --locked",
-    "      - run: cargo deny check advisories",
+    "      - run: cargo deny check advisories bans licenses sources",
     "  create-release:",
     "    needs:",
     "      - release-inputs",

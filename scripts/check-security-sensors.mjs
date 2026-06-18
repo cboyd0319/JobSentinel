@@ -91,8 +91,8 @@ const ciWorkflowChecks = [
     phrases: ["npm audit --audit-level=moderate"],
   },
   {
-    label: "cargo deny advisories",
-    phrases: ["cargo deny check advisories"],
+    label: "cargo deny supply-chain policy",
+    phrases: ["cargo deny check advisories bans licenses sources"],
   },
   {
     label: "latest stable drift check",
@@ -244,8 +244,11 @@ const releasePreflightChecks = [
     phrases: ["npm audit --audit-level=moderate"],
   },
   {
-    label: "cargo deny advisories",
-    phrases: ["cargo install cargo-deny --version 0.19.9 --locked", "cargo deny check advisories"],
+    label: "cargo deny supply-chain policy",
+    phrases: [
+      "cargo install cargo-deny --version 0.19.9 --locked",
+      "cargo deny check advisories bans licenses sources",
+    ],
   },
   {
     label: "Rust formatting",
@@ -380,8 +383,8 @@ const ciDocsChecks = [
     phrases: ["npm audit --audit-level=moderate"],
   },
   {
-    label: "cargo deny advisories",
-    phrases: ["cargo deny check advisories"],
+    label: "cargo deny supply-chain policy",
+    phrases: ["cargo deny check advisories bans licenses sources"],
   },
 ];
 
