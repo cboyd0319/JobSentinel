@@ -11,6 +11,7 @@ import {
   collectNpmCompatibleUpdateViolations,
 } from "./dependency/npm-compatible-updates.mjs";
 import { npmOverrideDependencyPins } from "./dependency/npm-overrides.mjs";
+import { collectTauriLinuxDebDependencyViolations } from "./dependency/tauri-linux-deb.mjs";
 import { collectWorkflowEnvironmentPinViolations } from "./dependency/workflow-environment-pins.mjs";
 const scriptPath = fileURLToPath(import.meta.url);
 const defaultRoot = resolve(dirname(scriptPath), "..");
@@ -19,6 +20,7 @@ export {
   collectCargoCompatibleUpdateViolations,
   collectNpmCompatibleOutdatedViolations,
   collectNpmCompatibleUpdateViolations,
+  collectTauriLinuxDebDependencyViolations,
   npmOverrideDependencyPins,
 };
 
@@ -266,6 +268,7 @@ export function collectRuntimePinViolations(root = defaultRoot) {
 
   violations.push(...collectWorkflowEnvironmentPinViolations(root));
   violations.push(...collectNpxInstallGuardViolations(root));
+  violations.push(...collectTauriLinuxDebDependencyViolations(root));
 
   return violations;
 }

@@ -14,6 +14,7 @@ import {
   collectNpmPinViolations,
   collectRuntimeLatestStableViolations,
   collectRuntimePinViolations,
+  collectTauriLinuxDebDependencyViolations,
   compareStableSemver,
   highestStableVersion,
   parseStableSemver,
@@ -407,6 +408,57 @@ test("runtime pin check accepts exact Node, Rust, workflow, and cargo install pi
     );
 
     assert.deepEqual(collectRuntimePinViolations(root), []);
+  });
+});
+
+test("runtime pin check accepts Tauri v2 Linux Debian runtime dependencies", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/tauri.conf.json",
+      JSON.stringify({
+        bundle: {
+          linux: {
+            deb: {
+              depends: ["libwebkit2gtk-4.1-0", "libgtk-3-0", "libappindicator3-1"],
+            },
+          },
+        },
+      }),
+    );
+
+    assert.deepEqual(collectTauriLinuxDebDependencyViolations(root), []);
+  });
+});
+
+test("runtime pin check rejects stale Tauri v1 Linux WebKit dependency", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/tauri.conf.json",
+      JSON.stringify({
+        bundle: {
+          linux: {
+            deb: {
+              depends: ["libwebkit2gtk-4.0-37", "libgtk-3-0", "libappindicator3-1"],
+            },
+          },
+        },
+      }),
+    );
+
+    const violations = collectTauriLinuxDebDependencyViolations(root);
+
+    assert(
+      violations.includes(
+        "src-tauri/tauri.conf.json must not declare Tauri v1 WebKitGTK runtime dependencies; use libwebkit2gtk-4.1-0 for Tauri v2 Debian packages",
+      ),
+    );
+    assert(
+      violations.includes(
+        "src-tauri/tauri.conf.json Debian dependencies must include libwebkit2gtk-4.1-0 for Tauri v2 Linux packages",
+      ),
+    );
   });
 });
 

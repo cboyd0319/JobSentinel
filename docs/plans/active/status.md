@@ -90,14 +90,12 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 - Final non-`content/` expert/agent pass is applied locally: memory-only
   company research, accessible onboarding, auto-refresh gating, atomic alert
   claims, HTTPS JobsWithGPT endpoints, shared import hashes, and metadata.
-- The last pushed v2.9.0 readiness baseline had CI passing before the current
-  local follow-up. Current committed local work adds release SBOMs, manifests,
-  GitHub provenance/SBOM attestations, public macOS supply-chain verification,
-  Browser Import clean-API hardening, and optional local-model
-  revision/checksum pinning. Commit `fc2e6c6a` removes unused direct macOS
-  WebKit/cookie dependencies and aligns release metadata. Gatekeeper-ready macOS
-  remains Apple-blocked. Public wiki `Home.md` and `Capabilities.md` are stale
-  and need explicit approval before the public wiki remote is updated.
+- Last pushed v2.9.0 readiness baseline had CI passing before local follow-up.
+  Current local work adds release SBOMs/manifests, GitHub attestations, public
+  macOS supply-chain checks, Browser Import API hardening, local-model pins,
+  macOS dependency trimming, and Linux Debian WebKitGTK 4.1 metadata.
+  Gatekeeper-ready macOS remains Apple-blocked. Public wiki `Home.md` and
+  `Capabilities.md` are stale and need approval before wiki remote writes.
 - OWASP CheatSheetSeries scan across 120 local files on 2026-06-18 verified
   Actions, supply-chain, AI, storage, URL, logging, and Browser Import surfaces;
   local follow-up added an incomplete-request timeout to the localhost server.
