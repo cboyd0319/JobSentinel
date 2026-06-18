@@ -71,6 +71,13 @@ const releaseWorkflowChecks = [
     phrases: ["environment:", "name: release"],
   },
   {
+    label: "release version output guard",
+    phrases: [
+      "[[ ! \"$version\" =~ ^[0-9]+\\.[0-9]+\\.[0-9]+$ ]]",
+      "Release version must be an exact stable semver",
+    ],
+  },
+  {
     label: "macOS keychain password mask",
     phrases: ['keychain_password="$(openssl rand -hex 24)"', "::add-mask::"],
   },
