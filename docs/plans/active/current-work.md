@@ -80,7 +80,7 @@ Out of scope:
 | Guided intake | Active | Add optional suggestions only after user review; keep broad defaults and non-technical paths first-class. |
 | Pay protection | Active | Keep missing, minimum-only, maximum-only, malformed, or broad listed-pay evidence plain and review-first. |
 | Encrypted local storage | Active | SQLCipher, AEAD vault rows, migration, passphrase controls, and macOS vault-key user-presence locking exist; continue release/packaging readiness. |
-| Quiet Shield redesign | Applied locally | Protective Navy/teal tokens, score-color semantics, and compact dashboard widget loading are screenshot-checked; final click/action coverage still required. |
+| Quiet Shield redesign | Applied locally | Protective Navy/teal tokens, score-color semantics, and compact dashboard widget loading are screenshot-checked; final click/action coverage passed. |
 | Final Rust and agent improvement pass | Complete locally | Accepted non-`content/` fixes are applied and verified; revisit only for regressions. |
 | Cleanup and harness | Closed for proactive repo-bloat work | Reopen only for a fresh failing gate or blocker to privacy, security, docs accuracy, or verification. |
 
