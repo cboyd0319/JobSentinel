@@ -61,7 +61,7 @@ git push origin vX.Y.Z
 
 Pushing the tag triggers `release.yml`. The workflow resolves release inputs,
 runs parallel preflight checks, creates a draft release only after those checks
-pass, packages the downloadable Agent Skills archive, builds Windows, macOS,
+pass, packages the downloadable Agent Skills archives, builds Windows, macOS,
 and Linux packages, verifies the macOS package before upload, generates
 platform SBOMs, creates GitHub provenance and SBOM attestations, and attaches
 release assets.

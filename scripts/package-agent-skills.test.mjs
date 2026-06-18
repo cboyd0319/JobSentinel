@@ -23,7 +23,7 @@ test("parseArgs reads release skills package flags", () => {
   });
 });
 
-test("packageAgentSkills writes a tar.gz archive and checksum", () => {
+test("packageAgentSkills writes tar.gz and ZIP archives with checksums", () => {
   const outDir = mkdtempRoot("jobsentinel-agent-skills-package-");
   const result = packageAgentSkills({
     root: repoRoot,
