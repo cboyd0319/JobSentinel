@@ -1,3 +1,9 @@
+import DOMPurify from "dompurify";
+
+const resumePrintSanitizeOptions = {
+  SANITIZE_NAMED_PROPS: true,
+} as const;
+
 export function downloadResumeDocx(docxData: number[], candidateName: string): void {
   const blob = new Blob([new Uint8Array(docxData)], {
     type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -25,8 +31,9 @@ export function openResumePrintDialog(html: string): void {
   const doc = iframe.contentWindow?.document;
   if (!doc) return;
 
+  const safeHtml = DOMPurify.sanitize(html, resumePrintSanitizeOptions);
   doc.open();
-  doc.write(html);
+  doc.write(safeHtml);
   doc.close();
 
   iframe.onload = () => {
