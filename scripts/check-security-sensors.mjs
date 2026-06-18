@@ -8,7 +8,7 @@ import { checkBrowserExtensionManifestBoundary, checkTauriCapabilityBoundary, ch
 import { checkExternalAiGatewayBoundary, checkResumeHtmlSinkBoundary } from "./security/ai-html-boundaries.mjs";
 import { checkBrowserAutomationBoundary } from "./security/automation-boundaries.mjs";
 import { checkRendererCspBoundary as checkTauriRendererCsp } from "./security/renderer-csp.mjs";
-
+import { checkWorkflowRunExpressionBoundary } from "./security/workflow-boundaries.mjs";
 const scriptPath = fileURLToPath(import.meta.url);
 const defaultRoot = resolve(dirname(scriptPath), "..");
 
@@ -496,6 +496,7 @@ function checkWorkflowSecurityBaseline(root, violations) {
   for (const path of workflowPaths(root)) {
     const text = readIfExists(root, path, violations);
     checkWorkflowInstallBoundary(path, text, violations);
+    checkWorkflowRunExpressionBoundary(path, text, violations);
 
     if (!hasTopLevelDisabledPermissions(text)) {
       violations.push(

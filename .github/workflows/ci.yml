@@ -41,10 +41,14 @@ jobs:
       - name: Classify changed files
         id: filter
         shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_BEFORE: ${{ github.event_name != 'pull_request' && github.event.before || '' }}
+          PR_BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || '' }}
         run: |
           set -euo pipefail
 
-          event="${{ github.event_name }}"
+          event="${EVENT_NAME:-}"
           zero="0000000000000000000000000000000000000000"
 
           if [ "$event" = "workflow_dispatch" ]; then
@@ -60,11 +64,11 @@ jobs:
               src-tauri/deny.toml \
               > changed-files.txt
           elif [ "$event" = "pull_request" ]; then
-            git diff --name-only "${{ github.event.pull_request.base.sha }}" "$GITHUB_SHA" > changed-files.txt
-          elif [ "${{ github.event.before }}" = "$zero" ]; then
+            git diff --name-only "$PR_BASE_SHA" "$GITHUB_SHA" > changed-files.txt
+          elif [ "${EVENT_BEFORE:-}" = "$zero" ]; then
             git diff-tree --no-commit-id --name-only -r "$GITHUB_SHA" > changed-files.txt
           else
-            git diff --name-only "${{ github.event.before }}" "$GITHUB_SHA" > changed-files.txt
+            git diff --name-only "$EVENT_BEFORE" "$GITHUB_SHA" > changed-files.txt
           fi
 
           sort -u changed-files.txt -o changed-files.txt

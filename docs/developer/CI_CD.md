@@ -60,8 +60,8 @@ Workflow changes must preserve the GitHub Actions security baseline:
   comment current with `npm run lint:actions`.
 - Run GitHub Actions static analysis in the CI Node security job with a SHA-pinned
   `zizmor-action` step.
-- Pass workflow-dispatch inputs into shell steps through environment variables,
-  then quote those variables in `run:` scripts.
+- Pass GitHub event data and workflow-dispatch inputs into shell steps through
+  environment variables, then quote those variables in `run:` scripts.
 - Route release jobs with write permissions or signing secrets through the
   GitHub `release` environment, and configure that environment with required
   reviewers before production releases.
