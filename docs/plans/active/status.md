@@ -62,10 +62,9 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   encrypted SQLite vault storage, file-backed app data opens through SQLCipher,
   and passive status checks stay non-interactive. Settings passphrase controls
   exist; macOS vault keys use native Keychain user-presence access control.
-- macOS package smoke verification now launches fresh with restore-state
-  ignored and verifier-owned temporary data plus a verifier-only database key,
-  so mounted and installed package checks do not touch live app data or prompt
-  for the user's Keychain.
+- Current `2.9.0` no-account universal DMG is rebuilt and verified after
+  `96344d70`: checksum, metadata, universal arch, signature, mounted/installed
+  smoke, private isolated data, and no live Keychain access pass.
 - Private resume parser smoke checks passed on 2026-06-17 for the supplied PDF
   and eight reference profiles via `JOBSENTINEL_LOCAL_RESUME_SMOKE_PATHS`, with
   no committed local paths or names.

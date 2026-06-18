@@ -102,7 +102,7 @@ Out of scope:
 ## Done Recently
 
 - macOS docs and release workflow separate full-public, no-account, and legacy
-  public fallback paths; local `2.9.0` DMG passes current smoke gates.
+  public fallback paths; post-`96344d70` local `2.9.0` DMG passes current smoke gates.
 - Resume Match and Resume Builder hard-requirement handling now covers age,
   citizenship, screening, driving, insurance, language, schedule, and related
   review-first categories more consistently across Rust, mocks, and UI.
