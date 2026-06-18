@@ -133,14 +133,15 @@ Out of scope:
 - Browser Import desktop/mobile manual verification passed on 2026-06-17;
   commit `361560f9` added clean send APIs and local-model revision pins.
 - CheatSheetSeries follow-ups hardened CI, cargo-deny, scraper and notification
-  DNS/IP pinning, Teams Workflows validation/redaction, deps, Browser Import,
-  HTTPS imports, SMTP binding, managed resume cleanup, isolated Application
-  Assist browser profiles, release assets, AI guards, skills, sandboxed
-  previews, secure deletion, parser caps, and KDF floors.
+  DNS/IP pinning, Teams validation/redaction, deps, Browser Import,
+  HTTPS imports, SMTP binding, resume cleanup, isolated Application Assist,
+  release assets, AI guards, skills, sandboxed previews/print
+  export, secure deletion, parser caps, KDF floors, reviewed AI
+  payload guards, and bookmarklet oversized-body stops.
 - Hosted release hardening now gates signing, cleans CI signing material,
   blocks unsigned MSI upload, and narrows renderer notification/dialog permissions.
-- Final whole-UI post-design pass: 266/266 post-security-hardening E2E, 16
-  route inventories, and no console/page errors or overflow.
+- Final whole-UI pass: 266/266 E2E after `8b2a167d`, 16 route inventories,
+  no console errors, and no overflow.
 - Final non-`content/` audit fixes landed: memory-only company research,
   accessible onboarding, auto-refresh gating, atomic alert claims, HTTPS
   JobsWithGPT endpoints, shared import hashes, and `2.9.0` metadata/changelog.

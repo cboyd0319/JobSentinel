@@ -77,11 +77,11 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   routes; forced empty/loading/error checks passed across startup and setup.
 - Setup Wizard desktop/mobile, whole-UI post-design click/action coverage, and
   keyboard paths now have fresh Playwright evidence.
-- Fresh 2026-06-18 post-`75bbbf49` local release gates pass:
-  version/readiness, latest deps/actions, actionlint, docs, harness score 100,
-  scripts, security, bloat, npm audit, doctor/e2e with Node 26 vs CI 24 warning,
-  frontend lint/build/tests `3100/3100`, Rust fmt/clippy/lib `2854/2854`,
-  macOS no-account 100% / full-public 94%, and E2E `266/266`.
+- Fresh 2026-06-18 post-`8b2a167d` local gates pass: readiness,
+  deps/actions, docs, harness 100, scripts `682/682`, security, bloat, npm
+  audit, doctor/e2e with Node 26.3.0 vs CI 24.17.0 warning, frontend
+  lint/build/tests `3101/3101`, Rust fmt/clippy/lib `2855/2855`, macOS
+  no-account 100% / full-public 94%, and E2E `266/266`.
 - Final non-`content/` expert/agent pass is applied locally: memory-only
   company research, accessible onboarding, auto-refresh gating, atomic alert
   claims, HTTPS JobsWithGPT endpoints, shared import hashes, and metadata.
@@ -94,7 +94,8 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   supply-chain, AI, storage, URL, logging, Browser Import, CSS, and parsers;
   follow-up hardening covers SMTP binding, HTTPS imports, previews, DNS/IP
   pinning, Teams redaction, AI guards, Tauri narrowing, signing cleanup, secure
-  delete, parser caps, KDF floors, and CI/release drift.
+  delete, parser caps, KDF floors, sandboxed print export, external-AI payload
+  guards, bookmarklet oversized-body stops, and CI/release drift.
 - 2026-06-18 Linux packaging hardening adds exact AppImage helper hashes,
   project-local Tauri bundler tools, exact build package pins, and a fallback
   wrapper for Tauri linuxdeploy failures. Clean Ubuntu 24.04 Apple container
