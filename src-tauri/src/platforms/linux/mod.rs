@@ -34,6 +34,18 @@ pub fn get_config_dir() -> PathBuf {
     }
 }
 
+/// Get Linux cache directory (XDG_CACHE_HOME)
+///
+/// Returns: ~/.cache/jobsentinel
+pub fn get_cache_dir() -> PathBuf {
+    if let Ok(xdg_cache_home) = std::env::var("XDG_CACHE_HOME") {
+        PathBuf::from(xdg_cache_home).join("jobsentinel")
+    } else {
+        let home = std::env::var("HOME").unwrap_or_else(|_| ".".to_string());
+        PathBuf::from(home).join(".cache").join("jobsentinel")
+    }
+}
+
 /// Initialize Linux-specific features
 pub fn initialize() -> Result<(), Box<dyn std::error::Error>> {
     // Create data directory if it doesn't exist
@@ -64,6 +76,12 @@ mod tests {
     #[test]
     fn test_get_config_dir() {
         let dir = get_config_dir();
+        assert!(dir.to_string_lossy().contains("jobsentinel"));
+    }
+
+    #[test]
+    fn test_get_cache_dir() {
+        let dir = get_cache_dir();
         assert!(dir.to_string_lossy().contains("jobsentinel"));
     }
 }

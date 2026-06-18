@@ -136,11 +136,10 @@ Out of scope:
   setup, private-link rejection, LinkedIn preview/save, duplicates, and
   overflow; commit `361560f9` added clean send APIs and local-model
   revision/checksum pinning from the CheatSheetSeries scan.
-- CheatSheetSeries follow-ups hardened CI, cargo-deny, OCR, scraper DNS pinning,
+- CheatSheetSeries follow-ups hardened CI, cargo-deny, scraper DNS pinning,
   deps, Browser Import, HTTPS imports, SMTP binding, managed resume cleanup,
-  sample defaults, resume intake, release assets, AI guards, skills, Linux
-  metadata, sandboxed previews, secure deletion, query plans, fonts, parser
-  caps, and KDF floors.
+  isolated Application Assist browser profiles, release assets, AI guards,
+  skills, sandboxed previews, secure deletion, parser caps, and KDF floors.
 - Final whole-UI post-design pass: 266/266 post-security-hardening E2E, 16
   route inventories, and no console/page errors or overflow.
 - Final non-`content/` audit fixes landed: memory-only company research,

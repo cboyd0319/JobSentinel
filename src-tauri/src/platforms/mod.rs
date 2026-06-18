@@ -86,6 +86,28 @@ pub fn get_config_dir() -> PathBuf {
     }
 }
 
+/// Get the platform-specific application cache directory.
+///
+/// - Windows: %LOCALAPPDATA%\JobSentinel\Cache
+/// - macOS: ~/Library/Caches/JobSentinel
+/// - Linux: ~/.cache/jobsentinel
+pub fn get_cache_dir() -> PathBuf {
+    #[cfg(target_os = "windows")]
+    {
+        windows::get_cache_dir()
+    }
+
+    #[cfg(target_os = "macos")]
+    {
+        macos::get_cache_dir()
+    }
+
+    #[cfg(target_os = "linux")]
+    {
+        linux::get_cache_dir()
+    }
+}
+
 /// Initialize platform-specific features
 ///
 /// This should be called once during application startup.

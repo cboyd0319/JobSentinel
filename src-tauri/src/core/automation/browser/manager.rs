@@ -2,24 +2,111 @@
 //!
 //! Manages browser lifecycle and page creation.
 
-use crate::core::url_security::sanitize_url_for_logging;
+use crate::{core::url_security::sanitize_url_for_logging, platforms};
 use anyhow::{Context, Result};
 use chromiumoxide::browser::{Browser, BrowserConfig};
 use futures_util::StreamExt;
-use std::sync::Arc;
+use std::{
+    path::{Path, PathBuf},
+    sync::Arc,
+    time::Duration,
+};
 use tokio::sync::Mutex;
+use uuid::Uuid;
 
 use super::page::AutomationPage;
 
 const BROWSER_CONFIG_ERROR: &str = "Could not prepare browser settings for guided form filling";
+const AUTOMATION_BROWSER_PROFILE_DIR: &str = "automation-browser-profiles";
+const AUTOMATION_BROWSER_PROFILE_PREFIX: &str = "profile-";
+const BROWSER_PAGE_CLOSE_TIMEOUT: Duration = Duration::from_secs(2);
+const BROWSER_PROCESS_CLOSE_TIMEOUT: Duration = Duration::from_secs(10);
 
 fn automation_browser_launch_args() -> &'static [&'static str] {
     &[]
 }
 
+fn automation_browser_profile_root() -> PathBuf {
+    platforms::get_cache_dir().join(AUTOMATION_BROWSER_PROFILE_DIR)
+}
+
+fn create_automation_browser_profile_dir() -> Result<PathBuf> {
+    create_automation_browser_profile_dir_in(&automation_browser_profile_root())
+}
+
+fn create_automation_browser_profile_dir_in(root: &Path) -> Result<PathBuf> {
+    platforms::ensure_private_dir_tree(root).map_err(|_| anyhow::anyhow!(BROWSER_CONFIG_ERROR))?;
+
+    let profile_dir = root.join(format!(
+        "{}{}",
+        AUTOMATION_BROWSER_PROFILE_PREFIX,
+        Uuid::new_v4()
+    ));
+    platforms::ensure_private_dir_tree(&profile_dir)
+        .map_err(|_| anyhow::anyhow!(BROWSER_CONFIG_ERROR))?;
+
+    Ok(profile_dir)
+}
+
+fn cleanup_automation_browser_profile_dir(profile_dir: &Path) {
+    match std::fs::remove_dir_all(profile_dir) {
+        Ok(()) => {}
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+        Err(_error) => {
+            tracing::debug!("Could not remove automation browser profile directory");
+        }
+    }
+}
+
+fn automation_browser_config(profile_dir: &Path) -> Result<BrowserConfig> {
+    let mut config_builder = BrowserConfig::builder()
+        .window_size(1280, 900)
+        .user_data_dir(profile_dir)
+        // Visible mode - user can see form being filled
+        .with_head();
+
+    for arg in automation_browser_launch_args() {
+        config_builder = config_builder.arg(*arg);
+    }
+
+    config_builder
+        .build()
+        .map_err(|_| anyhow::anyhow!(BROWSER_CONFIG_ERROR))
+}
+
+struct BrowserSession {
+    browser: Browser,
+    profile_dir: PathBuf,
+}
+
+async fn close_browser_session(session: &mut BrowserSession) {
+    if let Ok(pages) = session.browser.pages().await {
+        for page in pages {
+            let _ = tokio::time::timeout(BROWSER_PAGE_CLOSE_TIMEOUT, page.close()).await;
+        }
+    }
+
+    if tokio::time::timeout(BROWSER_PROCESS_CLOSE_TIMEOUT, session.browser.close())
+        .await
+        .is_err()
+    {
+        tracing::debug!("Browser close timed out; killing browser process");
+        let _ = session.browser.kill().await;
+        return;
+    }
+
+    if tokio::time::timeout(BROWSER_PROCESS_CLOSE_TIMEOUT, session.browser.wait())
+        .await
+        .is_err()
+    {
+        tracing::debug!("Browser wait timed out; killing browser process");
+        let _ = session.browser.kill().await;
+    }
+}
+
 /// Browser manager for automation
 pub struct BrowserManager {
-    browser: Arc<Mutex<Option<Browser>>>,
+    browser: Arc<Mutex<Option<BrowserSession>>>,
 }
 
 impl BrowserManager {
@@ -46,22 +133,24 @@ impl BrowserManager {
             return Ok(()); // Already launched
         }
 
-        // Configure browser for visible mode (not headless)
-        let mut config_builder = BrowserConfig::builder()
-            .window_size(1280, 900)
-            // Visible mode - user can see form being filled
-            .with_head();
-        for arg in automation_browser_launch_args() {
-            config_builder = config_builder.arg(*arg);
-        }
-        let config = config_builder
-            .build()
-            .map_err(|_| anyhow::anyhow!(BROWSER_CONFIG_ERROR))?;
+        let profile_dir = create_automation_browser_profile_dir()?;
+        let config = match automation_browser_config(&profile_dir) {
+            Ok(config) => config,
+            Err(error) => {
+                cleanup_automation_browser_profile_dir(&profile_dir);
+                return Err(error);
+            }
+        };
 
         // Launch browser
-        let (browser, mut handler) = Browser::launch(config)
-            .await
-            .context("Failed to launch browser. Is Chrome/Chromium installed?")?;
+        let (browser, mut handler) = match Browser::launch(config).await {
+            Ok(result) => result,
+            Err(error) => {
+                cleanup_automation_browser_profile_dir(&profile_dir);
+                return Err(error)
+                    .context("Failed to launch browser. Is Chrome/Chromium installed?");
+            }
+        };
 
         // Spawn handler task to process browser events
         tokio::spawn(async move {
@@ -78,7 +167,10 @@ impl BrowserManager {
             elapsed_ms = duration.as_millis(),
             "Browser launched successfully (visible mode, 1280x900)"
         );
-        *browser_guard = Some(browser);
+        *browser_guard = Some(BrowserSession {
+            browser,
+            profile_dir,
+        });
 
         Ok(())
     }
@@ -98,6 +190,7 @@ impl BrowserManager {
             .context("Browser not launched. Call launch() first.")?;
 
         let page = browser
+            .browser
             .new_page(url)
             .await
             .context("Failed to create new page")?;
@@ -121,13 +214,9 @@ impl BrowserManager {
     pub async fn close(&self) -> Result<()> {
         let mut browser_guard = self.browser.lock().await;
 
-        if let Some(browser) = browser_guard.take() {
-            // Close all pages first (graceful shutdown)
-            if let Ok(pages) = browser.pages().await {
-                for page in pages {
-                    let _ = page.close().await;
-                }
-            }
+        if let Some(mut session) = browser_guard.take() {
+            close_browser_session(&mut session).await;
+            cleanup_automation_browser_profile_dir(&session.profile_dir);
             tracing::info!("Browser closed");
         }
 
@@ -170,6 +259,51 @@ mod tests {
         assert!(!args.contains(&"--no-sandbox"));
         assert!(!args.contains(&"--disable-setuid-sandbox"));
         assert!(!args.contains(&"--disable-blink-features=AutomationControlled"));
+    }
+
+    #[test]
+    fn browser_config_uses_isolated_profile_dir() {
+        let temp_dir = tempfile::tempdir().unwrap();
+        let profile_dir = temp_dir.path().join("profile");
+        std::fs::create_dir_all(&profile_dir).unwrap();
+
+        let config = automation_browser_config(&profile_dir).unwrap();
+
+        assert_eq!(config.user_data_dir.as_deref(), Some(profile_dir.as_path()));
+    }
+
+    #[test]
+    fn browser_profile_dirs_are_unique_private_and_cleaned_up() {
+        let temp_dir = tempfile::tempdir().unwrap();
+        let root = temp_dir.path().join("profiles");
+
+        let first = create_automation_browser_profile_dir_in(&root).unwrap();
+        let second = create_automation_browser_profile_dir_in(&root).unwrap();
+
+        assert_ne!(first, second);
+        assert!(first.starts_with(&root));
+        assert!(second.starts_with(&root));
+        assert!(first.is_dir());
+        assert!(second.is_dir());
+
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+
+            assert_eq!(
+                std::fs::metadata(&root).unwrap().permissions().mode() & 0o777,
+                0o700
+            );
+            assert_eq!(
+                std::fs::metadata(&first).unwrap().permissions().mode() & 0o777,
+                0o700
+            );
+        }
+
+        cleanup_automation_browser_profile_dir(&first);
+
+        assert!(!first.exists());
+        assert!(second.exists());
     }
 
     #[tokio::test]

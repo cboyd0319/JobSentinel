@@ -37,6 +37,13 @@ pub fn get_config_dir() -> PathBuf {
     PathBuf::from(appdata).join("JobSentinel")
 }
 
+/// Get Windows application cache directory
+///
+/// Returns: %LOCALAPPDATA%\JobSentinel\Cache
+pub fn get_cache_dir() -> PathBuf {
+    get_data_dir().join("Cache")
+}
+
 /// Initialize Windows-specific features
 ///
 /// - Creates application data directories
@@ -225,5 +232,12 @@ mod tests {
     fn test_get_config_dir() {
         let dir = get_config_dir();
         assert!(dir.to_string_lossy().contains("JobSentinel"));
+    }
+
+    #[test]
+    fn test_get_cache_dir() {
+        let dir = get_cache_dir();
+        assert!(dir.to_string_lossy().contains("JobSentinel"));
+        assert_eq!(dir.file_name().unwrap(), "Cache");
     }
 }

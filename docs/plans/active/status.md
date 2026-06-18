@@ -96,11 +96,11 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   Gatekeeper-ready macOS remains Apple-blocked. Public wiki `Home.md` and
   `Capabilities.md` have a validated local draft pending approval to push.
 - 2026-06-18 OWASP CheatSheetSeries scan across 120 files covered Actions,
-  supply-chain, AI, storage, URL, logging, Browser Import, CSS, and DOCX parser
-  boundaries. Follow-up hardening includes SMTP binding, HTTPS imports, managed
-  resume-copy cleanup, loopback Browser Import, sample defaults, CI/release
-  drift, OCR, cargo-deny, DNS pinning, AI guards, sandboxed previews, secure
-  delete, parser caps, KDF floors; fresh checks pass: cargo/Vitest/build, fmt/clippy, lint, harness, diff.
+  supply-chain, AI, storage, URL, logging, Browser Import, CSS, and parsers.
+  Follow-up hardening includes SMTP binding, HTTPS imports, managed resume
+  cleanup, isolated Application Assist browser profiles, CI/release drift, DNS
+  pinning, AI guards, sandboxed previews, secure delete, parser caps, and KDF
+  floors; fresh cargo/fmt/clippy/lint/harness/diff checks pass.
 
 ## Next Best Work
 
