@@ -149,6 +149,36 @@ function writeBaseRepo(root, csp) {
     ].join("\n"),
   );
   writeFileSync(
+    join(root, ".github/CODEOWNERS"),
+    [
+      "* @cboyd0319",
+      ".github/CODEOWNERS @cboyd0319",
+      ".github/dependabot.yml @cboyd0319",
+      ".github/workflows/ @cboyd0319",
+      "package.json @cboyd0319",
+      "package-lock.json @cboyd0319",
+      "scripts/check-action-pins.mjs @cboyd0319",
+      "scripts/check-dependency-pins.mjs @cboyd0319",
+      "scripts/check-security-sensors.mjs @cboyd0319",
+      "scripts/check-security-sensors.test.mjs @cboyd0319",
+      "src-tauri/Cargo.toml @cboyd0319",
+      "src-tauri/Cargo.lock @cboyd0319",
+      "src-tauri/deny.toml @cboyd0319",
+      "AGENTS.md @cboyd0319",
+      "CLAUDE.md @cboyd0319",
+      "docs/CLAUDE.md @cboyd0319",
+      "src/services/aiGateway.ts @cboyd0319",
+      "src/services/aiGateway.test.ts @cboyd0319",
+      "SECURITY.md @cboyd0319",
+      "docs/security/ @cboyd0319",
+      "src-tauri/capabilities/ @cboyd0319",
+      "src-tauri/tauri.conf.json @cboyd0319",
+      "src-tauri/src/core/bookmarklet/ @cboyd0319",
+      "src-tauri/src/core/credentials/ @cboyd0319",
+      "src-tauri/src/core/url_security.rs @cboyd0319",
+    ].join("\n"),
+  );
+  writeFileSync(
     join(root, "src-tauri/tauri.conf.json"),
     JSON.stringify({ app: { security: { csp } } }),
   );
@@ -452,6 +482,28 @@ test("checkSecuritySensors rejects Dependabot without grouped cooldown governanc
   assert(
     checkSecuritySensors(root).includes(
       "Dependabot config is missing supply-chain update governance: npm grouped version updates",
+    ),
+  );
+});
+
+test("checkSecuritySensors rejects missing CODEOWNERS owner boundary", () => {
+  const root = mkdtempRoot("jobsentinel-security-sensors-codeowners-");
+  writeBaseRepo(
+    root,
+    "default-src 'self'; connect-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'",
+  );
+  writeFileSync(
+    join(root, ".github/CODEOWNERS"),
+    [
+      "* @cboyd0319",
+      ".github/workflows/ @someone-else",
+      "src-tauri/tauri.conf.json @cboyd0319",
+    ].join("\n"),
+  );
+
+  assert(
+    checkSecuritySensors(root).includes(
+      "CODEOWNERS is missing owner review boundary for .github/workflows/: @cboyd0319",
     ),
   );
 });

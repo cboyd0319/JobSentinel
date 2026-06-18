@@ -69,6 +69,9 @@ Workflow changes must preserve the GitHub Actions security baseline:
   step and before any `npm` command so CI uses the exact `packageManager` pin.
 - Keep Dependabot version updates grouped by ecosystem or risk with cooldowns
   for new releases; security updates stay separate and prompt.
+- Keep `.github/CODEOWNERS` covering workflow, dependency, release,
+  agent-instruction, AI gateway, and Tauri security boundary files with the
+  repository owner required for review.
 - Treat persistent agent instruction files as security-sensitive. New
   `AGENTS.md`, `CLAUDE.md`, `CODEX.md`, `GEMINI.md`, Cursor, Windsurf, or
   Copilot instruction paths must be deliberate and added to the harness

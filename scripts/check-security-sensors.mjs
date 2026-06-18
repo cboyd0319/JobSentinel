@@ -264,6 +264,35 @@ const publicReleaseVerifierChecks = [
   },
 ];
 
+const requiredCodeownersEntries = [
+  "*",
+  ".github/CODEOWNERS",
+  ".github/dependabot.yml",
+  ".github/workflows/",
+  "package.json",
+  "package-lock.json",
+  "scripts/check-action-pins.mjs",
+  "scripts/check-dependency-pins.mjs",
+  "scripts/check-security-sensors.mjs",
+  "scripts/check-security-sensors.test.mjs",
+  "src-tauri/Cargo.toml",
+  "src-tauri/Cargo.lock",
+  "src-tauri/deny.toml",
+  "AGENTS.md",
+  "CLAUDE.md",
+  "docs/CLAUDE.md",
+  "src/services/aiGateway.ts",
+  "src/services/aiGateway.test.ts",
+  "SECURITY.md",
+  "docs/security/",
+  "src-tauri/capabilities/",
+  "src-tauri/tauri.conf.json",
+  "src-tauri/src/core/bookmarklet/",
+  "src-tauri/src/core/credentials/",
+  "src-tauri/src/core/url_security.rs",
+];
+const requiredCodeowner = "@cboyd0319";
+
 const ignoredAgentInstructionPathParts = new Set([
   ".git",
   ".husky",
@@ -441,6 +470,37 @@ function checkDependabotGovernance(root, violations) {
   }
 }
 
+function codeownersLastOwnersForPattern(text, pattern) {
+  let owners = [];
+
+  for (const line of text.split(/\r?\n/)) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) {
+      continue;
+    }
+
+    const [entryPattern, ...entryOwners] = trimmed.split(/\s+/);
+    if (entryPattern === pattern) {
+      owners = entryOwners;
+    }
+  }
+
+  return owners;
+}
+
+function checkCodeownersBoundary(root, violations) {
+  const text = readIfExists(root, ".github/CODEOWNERS", violations);
+
+  for (const pattern of requiredCodeownersEntries) {
+    const owners = codeownersLastOwnersForPattern(text, pattern);
+    if (!owners.includes(requiredCodeowner)) {
+      violations.push(
+        `CODEOWNERS is missing owner review boundary for ${pattern}: ${requiredCodeowner}`,
+      );
+    }
+  }
+}
+
 function workflowJobBlock(text, jobName) {
   const match = String(text ?? "").match(
     new RegExp(`(?:^|\\n)  ${jobName}:\\n([\\s\\S]*?)(?=\\n  [A-Za-z0-9_-]+:\\n|\\s*$)`),
@@ -510,6 +570,7 @@ export function formatSecuritySensorSummary() {
     "ci=2",
     `ci-docs=${ciDocsChecks.length}`,
     `dependabot=${dependabotGovernanceChecks.length}`,
+    `codeowners=${requiredCodeownersEntries.length}`,
     "agent-instructions=1",
     "renderer-csp=1",
     "credential-ui=2",
@@ -539,6 +600,7 @@ export function checkSecuritySensors(root = defaultRoot) {
 
   checkWorkflowSecurityBaseline(root, violations);
   checkDependabotGovernance(root, violations);
+  checkCodeownersBoundary(root, violations);
   checkAgentInstructionFileBoundary(root, violations);
 
   const ciWorkflow = readIfExists(root, ".github/workflows/ci.yml", violations);

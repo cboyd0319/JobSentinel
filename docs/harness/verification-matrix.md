@@ -27,6 +27,7 @@ user-facing workflow risk requires more evidence.
 | Frontend architecture boundary rules | `npm run lint:architecture` and `npm run harness:check` |
 | Tauri invoke command map | `npm run lint:tauri-invokes` and `npm run harness:check` |
 | Security sensor policy or secret-scanning rules | `npm run lint:security` and `npm run harness:check` |
+| CODEOWNERS review boundary | `npm run lint:security` and `npm run harness:check`; workflow, dependency, release, agent-instruction, AI gateway, and Tauri security files must keep owner review coverage |
 | Persistent agent instruction or AI rule files | `npm run lint:security` and `npm run harness:check`; unexpected new `AGENTS.md`, `CLAUDE.md`, `CODEX.md`, `GEMINI.md`, Cursor, Windsurf, or Copilot instruction paths must be reviewed and added to the harness allowlist |
 | External AI provider detection | `npm run lint:external-ai` and `npm run harness:check` |
 | Test quality policy | `npm run lint:tests` and `npm run harness:check` |
