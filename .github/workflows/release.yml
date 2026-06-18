@@ -80,8 +80,24 @@ jobs:
       - name: Run markdown lint
         run: npm run lint:md
 
+      - name: Run frontend lint
+        run: npm run lint
+
+      - name: Run frontend unit tests
+        run: npm test -- --run
+
       - name: Run frontend build
         run: npm run build
+
+      - name: npm audit
+        run: npm audit --audit-level=moderate
+
+      - name: Install cargo-deny
+        run: cargo install cargo-deny --version 0.19.9 --locked
+
+      - name: cargo deny check advisories
+        working-directory: src-tauri
+        run: cargo deny check advisories
 
       - name: Check Rust formatting
         working-directory: src-tauri

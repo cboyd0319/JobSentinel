@@ -136,6 +136,25 @@ const releaseWorkflowChecks = [
   },
 ];
 
+const releasePreflightChecks = [
+  {
+    label: "frontend lint",
+    phrases: ["npm run lint"],
+  },
+  {
+    label: "frontend unit tests",
+    phrases: ["npm test -- --run"],
+  },
+  {
+    label: "npm audit",
+    phrases: ["npm audit --audit-level=moderate"],
+  },
+  {
+    label: "cargo deny advisories",
+    phrases: ["cargo install cargo-deny --version 0.19.9 --locked", "cargo deny check advisories"],
+  },
+];
+
 const publishedReleaseWorkflowChecks = [
   {
     label: "published release trigger",
@@ -220,6 +239,7 @@ export function formatSecuritySensorSummary() {
     `matrix=${requiredMatrixEntries.length}`,
     "workflow=1",
     `release-workflow=${releaseWorkflowChecks.length}`,
+    `release-preflight=${releasePreflightChecks.length}`,
     `published-release-workflow=${publishedReleaseWorkflowChecks.length}`,
     "ci=2",
     `ci-docs=${ciDocsChecks.length}`,
@@ -262,6 +282,13 @@ export function checkSecuritySensors(root = defaultRoot) {
   for (const check of releaseWorkflowChecks) {
     if (!includesAll(releaseWorkflow, check.phrases)) {
       violations.push(`release workflow is missing macOS package gate: ${check.label}`);
+    }
+  }
+
+  const preflightJob = workflowJobBlock(releaseWorkflow, "preflight");
+  for (const check of releasePreflightChecks) {
+    if (!includesAll(preflightJob, check.phrases)) {
+      violations.push(`release workflow preflight is missing gate: ${check.label}`);
     }
   }
 

@@ -48,6 +48,13 @@ function writeBaseRepo(root, csp) {
     join(root, ".github/workflows/release.yml"),
     [
       "jobs:",
+      "  preflight:",
+      "    steps:",
+      "      - run: npm run lint",
+      "      - run: npm test -- --run",
+      "      - run: npm audit --audit-level=moderate",
+      "      - run: cargo install cargo-deny --version 0.19.9 --locked",
+      "      - run: cargo deny check advisories",
       "  create-release:",
       "    environment:",
       "      name: release",
@@ -179,6 +186,24 @@ test("checkSecuritySensors rejects macOS release gates without launch smoke", ()
   assert(
     checkSecuritySensors(root).includes(
       "release workflow is missing macOS package gate: macOS launch smoke gate",
+    ),
+  );
+});
+
+test("checkSecuritySensors rejects release preflight without frontend unit tests", () => {
+  const root = mkdtempRoot("jobsentinel-security-sensors-release-preflight-");
+  writeBaseRepo(
+    root,
+    "default-src 'self'; connect-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'",
+  );
+  writeFileSync(
+    join(root, ".github/workflows/release.yml"),
+    readBaseReleaseWorkflowWithout("      - run: npm test -- --run\n"),
+  );
+
+  assert(
+    checkSecuritySensors(root).includes(
+      "release workflow preflight is missing gate: frontend unit tests",
     ),
   );
 });
@@ -417,4 +442,51 @@ function mkdtempRoot(prefix) {
   const root = join(tmpdir(), `${prefix}${process.pid}-${Math.random().toString(16).slice(2)}`);
   mkdirSync(root, { recursive: true });
   return root;
+}
+
+function readBaseReleaseWorkflowWithout(removedLine) {
+  return [
+    "jobs:",
+    "  preflight:",
+    "    steps:",
+    "      - run: npm run lint",
+    "      - run: npm test -- --run",
+    "      - run: npm audit --audit-level=moderate",
+    "      - run: cargo install cargo-deny --version 0.19.9 --locked",
+    "      - run: cargo deny check advisories",
+    "  create-release:",
+    "    environment:",
+    "      name: release",
+    "    steps:",
+    "      - run: |",
+    "          if [[ ! \"$version\" =~ ^[0-9]+\\.[0-9]+\\.[0-9]+$ ]]; then",
+    "            printf 'Release version must be an exact stable semver (x.y.z), found: %s\\n' \"$version\"",
+    "            exit 1",
+    "          fi",
+    "  build-release:",
+    "    environment:",
+    "      name: release",
+    "    permissions:",
+    "      artifact-metadata: write",
+    "      attestations: write",
+    "      contents: write",
+    "      id-token: write",
+    "    steps:",
+    "      - run: |",
+    "          keychain_password=\"$(openssl rand -hex 24)\"",
+    "          printf '::add-mask::%s\\n' \"$keychain_password\"",
+    "          JOBSENTINEL_MACOS_NO_ACCOUNT=true",
+    "          labeled_name=JobSentinel_1.2.3_no-account_universal.dmg",
+    "          npm run tauri:verify:macos -- --launch-smoke --install-smoke --require-checksum --require-gatekeeper --expected-bundle-id com.jobsentinel.main --expected-product-name JobSentinel --expected-version 1.2.3 --expected-icon-file icon.icns --expected-minimum-system-version 13.0",
+    "          npm run release:sbom -- --require-artifacts --checksums-out release-assets/attestation-subjects.sha256",
+    "      - uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26 # v4.1.0",
+    "        with:",
+    "          subject-path: release-assets/public/*",
+    "      - uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26 # v4.1.0",
+    "        with:",
+    "          subject-checksums: release-assets/attestation-subjects.sha256",
+    "          sbom-path: release-assets/public/JobSentinel-1.2.3-macos.sbom.spdx.json",
+  ]
+    .join("\n")
+    .replace(removedLine, "");
 }

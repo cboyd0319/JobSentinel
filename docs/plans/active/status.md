@@ -82,9 +82,10 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 - Setup Wizard desktop/mobile, whole-UI post-design click/action coverage, and
   keyboard paths now have fresh Playwright evidence.
 - Fresh 2026-06-18 local release gates pass: version/deps/actions/security,
-  docs, harness, scripts, frontend build, Rust fmt/full clippy/full
+  docs, harness, scripts, frontend lint/unit/build, Rust fmt/full clippy/full
   `cargo test`, E2E `266/266`, npm audit, cargo deny, Tauri invokes, macOS
-  readiness, and existing `2.9.0` no-account DMG verification.
+  readiness, and existing `2.9.0` no-account DMG verification. Hosted release
+  preflight now blocks on frontend lint/unit and npm/Cargo advisories.
 - Final non-`content/` expert/agent pass is applied locally: memory-only
   company research, accessible onboarding, auto-refresh gating, atomic alert
   claims, HTTPS JobsWithGPT endpoints, shared import hashes, and metadata.

@@ -136,6 +136,11 @@ for the requested platforms. Tag pushes build all platforms. Manual dispatch
 accepts a `version` input and a `platform` choice of `all`, `windows`, `macos`,
 or `linux`, replacing the old standalone manual Windows and Linux workflows.
 
+Before any draft release or package build starts, the release preflight validates
+release metadata, harness policy, latest stable dependency and Action pins,
+harness scripts, markdown, frontend lint, frontend unit tests, frontend build,
+npm advisories, Rust advisories, Rust formatting, Rust clippy, and Rust tests.
+
 ### Platforms and artifacts
 
 | Platform         | Target                     | Artifacts uploaded                                |

@@ -101,8 +101,9 @@ Out of scope:
 
 ## Done Recently
 
-- macOS docs and release workflow separate full-public readiness from the
-  no-account path, and public wiki upkeep is harness-owned.
+- macOS docs and release workflow separate full-public and no-account paths;
+  hosted release preflight blocks on lint/unit/advisories, and public wiki
+  upkeep is harness-owned.
 - Resume Match and Resume Builder hard-requirement handling now covers age,
   citizenship, screening, driving, insurance, language, schedule, and related
   review-first categories more consistently across Rust, mocks, and UI.
@@ -136,9 +137,9 @@ Out of scope:
   setup, private-link rejection, LinkedIn preview/save, duplicates, and
   overflow; commit `361560f9` added clean send APIs and local-model
   revision/checksum pinning from the CheatSheetSeries scan.
-- Current CheatSheetSeries follow-ups hardened deps, Browser Import caps/port/Host
-  checks, resume intake, URL/DNS/print/alert/browser/OCR paths, ATS source
-  parsing, MCP result URLs, release checks, declarative skills, and Linux metadata.
+- Current CheatSheetSeries follow-ups hardened deps, Browser Import, resume
+  intake, URL/DNS/print/alert/browser/OCR, ATS/MCP URLs, release preflight,
+  declarative skills, and Linux metadata.
 - Final whole-UI post-design pass: 266/266 pinned-runtime E2E, 16 route
   inventories, and no console/page errors or overflow.
 - Final non-`content/` audit fixes landed: memory-only company research,
