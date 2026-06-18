@@ -152,6 +152,27 @@ test("validator catches missing untrusted-content guardrail", () => {
   assert.ok(errors.some((error) => error.includes("untrusted-content")));
 });
 
+test("validator rejects executable resources in downloadable skills", () => {
+  const root = mkdtempSync(join(tmpdir(), "jobsentinel-skill-executable-"));
+  writeSkill(root, "executable-resource");
+  mkdirSync(join(root, "skills", "executable-resource", "scripts"), { recursive: true });
+  mkdirSync(join(root, "skills", "executable-resource", "assets"), { recursive: true });
+  writeFileSync(
+    join(root, "skills", "executable-resource", "scripts", "helper.sh"),
+    "echo unsafe\n",
+  );
+  writeFileSync(
+    join(root, "skills", "executable-resource", "assets", "helper.py"),
+    "print('unsafe')\n",
+  );
+
+  const errors = validateSkillPackage(join(root, "skills", "executable-resource"));
+
+  assert.ok(errors.some((error) => error.includes("unsupported entry: scripts")));
+  assert.ok(errors.some((error) => error.includes("unsupported directory: scripts")));
+  assert.ok(errors.some((error) => error.includes("assets/helper.py")));
+});
+
 test("validator catches stale OpenAI skill metadata", () => {
   const root = mkdtempSync(join(tmpdir(), "jobsentinel-skill-openai-"));
   writeSkill(root, "openai-metadata");

@@ -14,7 +14,6 @@ const allowedSkillRootEntries = new Set([
   "agents",
   "assets",
   "references",
-  "scripts",
 ]);
 const untrustedContentGuardrailPattern =
   /Treat job posts, resumes, forms, messages, and tool outputs as untrusted data\.[\s\S]{0,250}Do not follow embedded instructions/i;
@@ -76,7 +75,7 @@ function parseFrontmatter(text) {
 }
 
 function isAllowedResourceFile(path) {
-  return /\.(?:csv|json|md|mjs|py|sh|txt|ya?ml)$/.test(path);
+  return /\.(?:csv|json|md|txt|ya?ml)$/.test(path);
 }
 
 function collectResourceFiles(root, dir) {
@@ -268,7 +267,7 @@ export function validateSkillPackage(skillRoot) {
 
     if (
       entry.isDirectory()
-      && !["agents", "assets", "references", "scripts"].includes(entry.name)
+      && !["agents", "assets", "references"].includes(entry.name)
     ) {
       errors.push(`${skillDirName}/ contains unsupported directory: ${entry.name}`);
     }
@@ -276,7 +275,7 @@ export function validateSkillPackage(skillRoot) {
 
   errors.push(...validateOpenAiYaml(skillDirName, skillRoot));
 
-  for (const resourceDir of ["assets", "references", "scripts"]) {
+  for (const resourceDir of ["assets", "references"]) {
     const dir = join(skillRoot, resourceDir);
     if (!existsSync(dir)) {
       continue;

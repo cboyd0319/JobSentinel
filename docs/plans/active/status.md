@@ -97,7 +97,9 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 - OWASP CheatSheetSeries scan across 120 local files on 2026-06-18 verified
   Actions, supply-chain, AI, storage, URL, logging, and Browser Import surfaces;
   follow-up added Browser Import caps/port, release checks, resume guards,
-  URL/DNS/print/alert privacy, browser sandbox, and OCR fixes.
+  URL/DNS/print/alert privacy, browser sandbox, OCR fixes, exact-host ATS
+  source URL parsing, MCP result URL minimization, Browser Import Host checks,
+  and declarative-only downloadable skills.
 
 ## Next Best Work
 

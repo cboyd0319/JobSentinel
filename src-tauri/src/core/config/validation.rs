@@ -2,6 +2,7 @@
 
 use super::types::Config;
 use super::validation_error::{ValidationError, ValidationErrors};
+use crate::core::source_urls::{parse_greenhouse_company_url, parse_lever_company_url};
 use crate::core::url_security::validate_external_https_url;
 
 const MIN_BOOKMARKLET_PORT: u16 = 1024;
@@ -743,11 +744,11 @@ fn validate_urls(config: &Config, errors: &mut ValidationErrors) {
                 url.len(),
                 MAX_URL_LENGTH,
             ));
-        } else if !url.starts_with("https://boards.greenhouse.io/") {
+        } else if let Err(reason) = parse_greenhouse_company_url(url) {
             errors.add(ValidationError::invalid_url(
                 format!("greenhouse_urls[{}]", i),
                 url,
-                "must start with 'https://boards.greenhouse.io/'",
+                reason,
             ));
         }
     }
@@ -769,11 +770,11 @@ fn validate_urls(config: &Config, errors: &mut ValidationErrors) {
                 url.len(),
                 MAX_URL_LENGTH,
             ));
-        } else if !url.starts_with("https://jobs.lever.co/") {
+        } else if let Err(reason) = parse_lever_company_url(url) {
             errors.add(ValidationError::invalid_url(
                 format!("lever_urls[{}]", i),
                 url,
-                "must start with 'https://jobs.lever.co/'",
+                reason,
             ));
         }
     }

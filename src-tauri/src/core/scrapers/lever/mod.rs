@@ -8,6 +8,7 @@ use super::http_client::{read_json_with_limit, send_with_retry};
 use super::rate_limiter::{limits, RateLimiter};
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
+use crate::core::source_urls::is_safe_company_board_id;
 use crate::core::url_security::sanitize_url_for_logging;
 use async_trait::async_trait;
 use chrono::Utc;
@@ -43,6 +44,12 @@ impl LeverScraper {
     /// Scrape a single Lever company via API
     async fn scrape_company(&self, company: &LeverCompany) -> ScraperResult {
         tracing::info!("Scraping Lever: {}", company.name);
+        if !is_safe_company_board_id(&company.id) {
+            return Err(ScraperError::InvalidUrl {
+                url: company.url.clone(),
+                reason: "Lever company id contains unsupported characters".to_string(),
+            });
+        }
 
         // Lever has a public JSON API: https://api.lever.co/v0/postings/{company_id}
         let api_url = format!("https://api.lever.co/v0/postings/{}", company.id);

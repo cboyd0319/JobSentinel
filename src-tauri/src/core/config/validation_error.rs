@@ -317,13 +317,13 @@ impl fmt::Display for ValidationError {
                 if field.contains("greenhouse") {
                     write!(
                         f,
-                        "Invalid Greenhouse URL format. Must start with 'https://boards.greenhouse.io/'. Got: {}",
+                        "Invalid Greenhouse URL format. Must be 'https://boards.greenhouse.io/<company>'. Got: {}",
                         sanitize_url_for_logging(url)
                     )
                 } else if field.contains("lever") {
                     write!(
                         f,
-                        "Invalid Lever URL format. Must start with 'https://jobs.lever.co/'. Got: {}",
+                        "Invalid Lever URL format. Must be 'https://jobs.lever.co/<company>'. Got: {}",
                         sanitize_url_for_logging(url)
                     )
                 } else {

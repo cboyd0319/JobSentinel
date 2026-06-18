@@ -307,9 +307,15 @@ async fn handle_connection(
     use tokio::io::AsyncWriteExt;
 
     let request = read_bookmarklet_request(&stream).await?;
+    let local_addr = stream.local_addr()?;
 
     // Parse request
-    let (response, content_type) = if is_bookmarklet_import_request(&request) {
+    let (response, content_type) = if !has_valid_bookmarklet_host(&request, local_addr.port()) {
+        (
+            json_error_response("Invalid browser import host"),
+            "application/json".to_string(),
+        )
+    } else if is_bookmarklet_import_request(&request) {
         handle_import_request(&request, &auth_state, database).await
     } else if request.starts_with("OPTIONS") {
         ("OK".to_string(), "text/plain".to_string())
@@ -465,6 +471,13 @@ fn request_header_value<'a>(request: &'a str, header_name: &str) -> Option<&'a s
     }
 
     None
+}
+
+fn has_valid_bookmarklet_host(request: &str, port: u16) -> bool {
+    request_header_value(request, "host").is_some_and(|value| {
+        let normalized = value.trim().to_ascii_lowercase();
+        normalized == format!("localhost:{port}") || normalized == format!("127.0.0.1:{port}")
+    })
 }
 
 fn request_buffer_has_complete_body(buffer: &[u8]) -> bool {

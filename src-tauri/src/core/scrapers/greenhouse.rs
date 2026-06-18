@@ -8,6 +8,7 @@ use super::http_client::{get_with_retry, read_json_with_limit, read_text_with_li
 use super::rate_limiter::{limits, RateLimiter};
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
+use crate::core::source_urls::{is_safe_company_board_id, parse_greenhouse_company_url};
 use crate::core::url_security::sanitize_url_for_logging;
 use async_trait::async_trait;
 use chrono::Utc;
@@ -45,9 +46,22 @@ impl GreenhouseScraper {
     #[tracing::instrument(skip(self), fields(company_name = %company.name))]
     async fn scrape_company(&self, company: &GreenhouseCompany) -> ScraperResult {
         tracing::info!("Starting Greenhouse scrape");
+        let board = parse_greenhouse_company_url(&company.url).map_err(|reason| {
+            ScraperError::InvalidUrl {
+                url: company.url.clone(),
+                reason,
+            }
+        })?;
+
+        if board.id != company.id {
+            return Err(ScraperError::InvalidUrl {
+                url: company.url.clone(),
+                reason: "Greenhouse company id does not match configured URL".to_string(),
+            });
+        }
 
         // Fetch the careers page with retry logic
-        let response = get_with_retry(&company.url)
+        let response = get_with_retry(&board.url)
             .await
             .map_err(|e| ScraperError::from_anyhow("greenhouse", e))?;
 
@@ -60,7 +74,7 @@ impl GreenhouseScraper {
             ));
         }
 
-        let html = read_text_with_limit(response, &company.url).await?;
+        let html = read_text_with_limit(response, &board.url).await?;
 
         // Try multiple selector patterns (Greenhouse has different layouts)
         // Parse HTML in a scope so document is dropped before any awaits
@@ -186,17 +200,14 @@ impl GreenhouseScraper {
 
     /// Scrape Greenhouse API (JSON format)
     async fn scrape_greenhouse_api(&self, company: &GreenhouseCompany) -> ScraperResult {
-        // Extract company ID from URL
-        // Example: https://boards.greenhouse.io/cloudflare
-        let company_id = company
-            .url
-            .trim_end_matches('/')
-            .split('/')
-            .next_back()
-            .ok_or_else(|| ScraperError::InvalidUrl {
+        if !is_safe_company_board_id(&company.id) {
+            return Err(ScraperError::InvalidUrl {
                 url: company.url.clone(),
-                reason: "Cannot extract company ID from Greenhouse URL".to_string(),
-            })?;
+                reason: "Greenhouse company id contains unsupported characters".to_string(),
+            });
+        }
+
+        let company_id = company.id.as_str();
 
         let api_url = format!(
             "https://boards-api.greenhouse.io/v1/boards/{}/jobs",

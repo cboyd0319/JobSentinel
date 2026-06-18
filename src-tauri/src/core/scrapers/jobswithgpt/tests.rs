@@ -219,6 +219,63 @@ fn test_parse_mcp_job_minimal() {
 }
 
 #[test]
+fn test_parse_mcp_job_minimizes_returned_url() {
+    let scraper = JobsWithGptScraper::new(
+        "http://localhost:3000/mcp".to_string(),
+        JobQuery {
+            titles: vec![],
+            location: None,
+            remote_only: false,
+            limit: 10,
+        },
+    );
+
+    let job_data = serde_json::json!({
+        "title": "Program Coordinator",
+        "company": "Community Services",
+        "url": "https://user:pass@example.com/job?utm_source=mcp&jobId=123&token=private#resume"
+    });
+
+    let job = scraper.parse_mcp_job(&job_data).unwrap().unwrap();
+
+    assert_eq!(job.url, "https://example.com/job?jobId=123");
+    assert!(!job.url.contains("user"));
+    assert!(!job.url.contains("pass"));
+    assert!(!job.url.contains("utm_source"));
+    assert!(!job.url.contains("token"));
+    assert!(!job.url.contains("resume"));
+}
+
+#[test]
+fn test_parse_mcp_job_rejects_unsafe_returned_url() {
+    let scraper = JobsWithGptScraper::new(
+        "http://localhost:3000/mcp".to_string(),
+        JobQuery {
+            titles: vec![],
+            location: None,
+            remote_only: false,
+            limit: 10,
+        },
+    );
+
+    for url in [
+        "javascript:alert(1)",
+        "file:///private/resume.pdf",
+        "http://127.0.0.1:4321/api/bookmarklet/import?token=private",
+        "https://intranet.corp/jobs/1",
+    ] {
+        let job_data = serde_json::json!({
+            "title": "Program Coordinator",
+            "company": "Community Services",
+            "url": url
+        });
+
+        let result = scraper.parse_mcp_job(&job_data).unwrap();
+        assert!(result.is_none(), "unsafe URL should be dropped: {url}");
+    }
+}
+
+#[test]
 fn test_parse_mcp_job_empty_title_returns_none() {
     let scraper = JobsWithGptScraper::new(
         "http://localhost:3000/mcp".to_string(),

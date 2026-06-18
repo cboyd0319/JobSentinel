@@ -11,7 +11,10 @@ use super::http_client::{
 use super::rate_limiter::{limits, RateLimiter};
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
-use crate::core::url_security::{resolve_external_https_url_for_fetch, sanitize_url_for_logging};
+use crate::core::url_security::{
+    canonicalize_user_supplied_job_url, resolve_external_https_url_for_fetch,
+    sanitize_url_for_logging,
+};
 
 use async_trait::async_trait;
 use chrono::Utc;
@@ -189,7 +192,7 @@ impl JobsWithGptScraper {
     fn parse_mcp_job(&self, data: &serde_json::Value) -> Result<Option<Job>, ScraperError> {
         let title = data["title"].as_str().unwrap_or("").to_string();
         let company = data["company"].as_str().unwrap_or("Unknown").to_string();
-        let url = data["url"].as_str().unwrap_or("").to_string();
+        let raw_url = data["url"].as_str().unwrap_or("").trim();
         let location = data["location"].as_str().map(|s| s.to_string());
         let description = data["description"].as_str().map(|s| s.to_string());
         let remote = data["remote"].as_bool();
@@ -199,9 +202,20 @@ impl JobsWithGptScraper {
         let salary_max = data["salary_max"].as_i64();
         let currency = data["currency"].as_str().map(|s| s.to_string());
 
-        if title.is_empty() || url.is_empty() {
+        if title.is_empty() || raw_url.is_empty() {
             return Ok(None);
         }
+
+        let url = match canonicalize_user_supplied_job_url(raw_url) {
+            Ok(url) => url,
+            Err(_) => {
+                tracing::warn!(
+                    source = "jobswithgpt",
+                    "Dropped JobsWithGPT job with invalid public URL"
+                );
+                return Ok(None);
+            }
+        };
 
         let hash = Self::compute_hash(&company, &title, location.as_deref(), &url);
 

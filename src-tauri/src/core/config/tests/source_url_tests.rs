@@ -27,6 +27,35 @@ fn test_invalid_greenhouse_url_prefix_fails() {
 }
 
 #[test]
+fn test_greenhouse_url_authority_confusion_fails() {
+    let mut config = create_valid_config();
+    config.greenhouse_urls = vec!["https://boards.greenhouse.io@127.0.0.1/company".to_string()];
+
+    let result = validate_config(&config);
+    assert!(
+        result.is_err(),
+        "Greenhouse authority confusion should fail"
+    );
+    assert!(result
+        .unwrap_err()
+        .to_string()
+        .contains("Invalid Greenhouse URL format"));
+}
+
+#[test]
+fn test_greenhouse_url_nested_path_fails() {
+    let mut config = create_valid_config();
+    config.greenhouse_urls = vec!["https://boards.greenhouse.io/company/jobs/123".to_string()];
+
+    let result = validate_config(&config);
+    assert!(result.is_err(), "Nested Greenhouse board URL should fail");
+    assert!(result
+        .unwrap_err()
+        .to_string()
+        .contains("Invalid Greenhouse URL format"));
+}
+
+#[test]
 fn test_invalid_greenhouse_url_error_sanitizes_sensitive_parts() {
     let mut config = create_valid_config();
     config.greenhouse_urls =
@@ -91,6 +120,32 @@ fn test_invalid_lever_url_prefix_fails() {
 
     let result = validate_config(&config);
     assert!(result.is_err(), "Invalid Lever URL prefix should fail");
+    assert!(result
+        .unwrap_err()
+        .to_string()
+        .contains("Invalid Lever URL format"));
+}
+
+#[test]
+fn test_lever_url_authority_confusion_fails() {
+    let mut config = create_valid_config();
+    config.lever_urls = vec!["https://jobs.lever.co@127.0.0.1/company".to_string()];
+
+    let result = validate_config(&config);
+    assert!(result.is_err(), "Lever authority confusion should fail");
+    assert!(result
+        .unwrap_err()
+        .to_string()
+        .contains("Invalid Lever URL format"));
+}
+
+#[test]
+fn test_lever_url_nested_path_fails() {
+    let mut config = create_valid_config();
+    config.lever_urls = vec!["https://jobs.lever.co/company/job-id".to_string()];
+
+    let result = validate_config(&config);
+    assert!(result.is_err(), "Nested Lever board URL should fail");
     assert!(result
         .unwrap_err()
         .to_string()

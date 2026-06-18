@@ -23,6 +23,7 @@ use crate::core::{
         yc_startup::YcStartupScraper,
         JobScraper, ScraperError,
     },
+    source_urls::{parse_greenhouse_company_url, parse_lever_company_url},
 };
 use std::sync::Arc;
 
@@ -127,11 +128,12 @@ pub async fn run_scrapers(
             .greenhouse_urls
             .iter()
             .filter_map(|url| {
-                url.strip_prefix("https://boards.greenhouse.io/")
-                    .map(|id| GreenhouseCompany {
-                        id: id.to_string(),
-                        name: id.to_string(),
-                        url: url.clone(),
+                parse_greenhouse_company_url(url)
+                    .ok()
+                    .map(|board| GreenhouseCompany {
+                        id: board.id.clone(),
+                        name: board.id,
+                        url: board.url,
                     })
             })
             .collect();
@@ -171,12 +173,11 @@ pub async fn run_scrapers(
             .lever_urls
             .iter()
             .filter_map(|url| {
-                url.strip_prefix("https://jobs.lever.co/")
-                    .map(|id| LeverCompany {
-                        id: id.to_string(),
-                        name: id.to_string(),
-                        url: url.clone(),
-                    })
+                parse_lever_company_url(url).ok().map(|board| LeverCompany {
+                    id: board.id.clone(),
+                    name: board.id,
+                    url: board.url,
+                })
             })
             .collect();
 
