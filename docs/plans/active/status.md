@@ -97,11 +97,9 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   output: `.deb` `ec5cfad2a3ef9a5ba0207c515b7e6687b118eb9361401583b48651e626b343a1`;
   executable x86_64 AppImage `bb1d58aadce73254ab80510ce659710dd6b63f20491ee76a4e0781f63da00ee4`;
   `.sha256` sidecar verified.
-- 2026-06-18 credential taxonomy moved license/certification/designation groups
-  into shared data with CPA guard plus source-backed cross-role terms.
-- 2026-06-18 resume/source research added HTML parsing, warnings, shared taxonomies,
-  JSON Resume import/export, print CSS, source routing, RSS/JSON-LD hardening,
-  and a Scrapling no-adoption decision for fetch/browser/spider crates.
+- 2026-06-18 shared taxonomy/research work moved credentials, company suffixes,
+  ATS terms, bullet prompts, and screening aliases into `src/shared/`; added
+  HTML/JSON Resume/source-routing hardening and Scrapling no-adoption decision.
 
 ## Next Best Work
 

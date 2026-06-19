@@ -1,3 +1,5 @@
+import screeningAliasTaxonomy from "./applicationScreeningAliasTaxonomy.json";
+
 export interface CommonScreeningPattern {
   pattern: string;
   label: string;
@@ -43,82 +45,17 @@ export const COMMON_SCREENING_PATTERNS: CommonScreeningPattern[] = [
   { pattern: "cover letter", label: "Cover letter / Why this role", type: "textarea" },
 ];
 
-export const LEGACY_SCREENING_PATTERNS: LegacyScreeningPattern[] = [
-  {
-    pattern: "(?i)authorized.*work.*(united states|us|usa)",
-    label: "Work authorization",
-    editablePattern: "work authorization",
-  },
-  {
-    pattern: "(?i)require.*sponsor.*work",
-    label: "Visa sponsorship",
-    editablePattern: "sponsorship",
-  },
-  {
-    pattern: "(?i)require.*sponsor.*(now|future)",
-    label: "Future sponsorship",
-    editablePattern: "sponsorship now or in the future",
-  },
-  {
-    pattern: "(?i)18.*years.*age",
-    label: "Age requirement",
-    editablePattern: "18 years of age",
-  },
-  {
-    pattern: "(?i)drug.*test",
-    label: "Drug screen",
-    editablePattern: "drug screen",
-  },
-  {
-    pattern: "(?i)background.*check",
-    label: "Background check",
-    editablePattern: "background check",
-  },
-  {
-    pattern: "(?i)security.*clearance",
-    label: "Security clearance",
-    editablePattern: "security clearance",
-  },
-  {
-    pattern: "(?i)willing.*relocate",
-    label: "Willingness to relocate",
-    editablePattern: "relocate",
-  },
-  {
-    pattern: "(?i)notice.*period",
-    label: "Start date / Notice period",
-    editablePattern: "notice period",
-  },
-  {
-    pattern: "(?i)salary.*expectation",
-    label: "Salary expectation",
-    editablePattern: "salary",
-  },
-];
+export const LEGACY_SCREENING_PATTERNS: LegacyScreeningPattern[] =
+  screeningAliasTaxonomy.legacyScreeningPatterns.map(
+    ({ pattern, label, editablePattern }) => ({
+      pattern,
+      label,
+      editablePattern,
+    }),
+  );
 
-export const PLAIN_SCREENING_PATTERN_ALIASES: PlainScreeningPatternAlias[] = [
-  {
-    patterns: [
-      "work authorized",
-      "authorized to work",
-      "legally authorized to work",
-      "eligible to work",
-      "employment authorization",
-    ],
-    label: "Work authorization",
-    editablePattern: "work authorization",
-  },
-  {
-    patterns: ["visa sponsorship", "need sponsorship", "require sponsorship"],
-    label: "Visa sponsorship",
-    editablePattern: "sponsorship",
-  },
-  {
-    patterns: ["notice period"],
-    label: "Start date / Notice period",
-    editablePattern: "notice period",
-  },
-];
+export const PLAIN_SCREENING_PATTERN_ALIASES: PlainScreeningPatternAlias[] =
+  screeningAliasTaxonomy.plainScreeningPatternAliases;
 
 export const LANGUAGE_SCREENING_PATTERNS = [
   /\b(?:bilingual|multilingual)\b/i,

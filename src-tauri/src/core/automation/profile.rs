@@ -7,7 +7,84 @@ use anyhow::Result;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::SqlitePool;
-use std::collections::HashSet;
+use std::{collections::HashSet, sync::LazyLock};
+
+const APPLICATION_SCREENING_ALIAS_TAXONOMY_JSON: &str =
+    include_str!("../../../../src/shared/applicationScreeningAliasTaxonomy.json");
+
+static APPLICATION_SCREENING_ALIAS_TAXONOMY: LazyLock<ApplicationScreeningAliasTaxonomy> =
+    LazyLock::new(load_application_screening_alias_taxonomy);
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct ApplicationScreeningAliasTaxonomy {
+    schema_version: u32,
+    plain_screening_pattern_aliases: Vec<PlainScreeningPatternAlias>,
+    legacy_screening_patterns: Vec<LegacyScreeningPatternAlias>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct PlainScreeningPatternAlias {
+    patterns: Vec<String>,
+    label: String,
+    editable_pattern: String,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct LegacyScreeningPatternAlias {
+    pattern: String,
+    label: String,
+    editable_pattern: String,
+    aliases: Vec<String>,
+}
+
+fn load_application_screening_alias_taxonomy() -> ApplicationScreeningAliasTaxonomy {
+    let taxonomy: ApplicationScreeningAliasTaxonomy =
+        match serde_json::from_str(APPLICATION_SCREENING_ALIAS_TAXONOMY_JSON) {
+            Ok(taxonomy) => taxonomy,
+            Err(error) => {
+                panic!("application screening alias taxonomy must be valid JSON: {error}")
+            }
+        };
+
+    assert_eq!(
+        taxonomy.schema_version, 1,
+        "unsupported application screening alias taxonomy schema version"
+    );
+    assert!(
+        !taxonomy.plain_screening_pattern_aliases.is_empty()
+            && taxonomy
+                .plain_screening_pattern_aliases
+                .iter()
+                .all(|alias| !alias.label.trim().is_empty()
+                    && !alias.editable_pattern.trim().is_empty()
+                    && !alias.patterns.is_empty()
+                    && alias
+                        .patterns
+                        .iter()
+                        .all(|pattern| !pattern.trim().is_empty())),
+        "application screening plain aliases must be non-empty"
+    );
+    assert!(
+        !taxonomy.legacy_screening_patterns.is_empty()
+            && taxonomy.legacy_screening_patterns.iter().all(|alias| !alias
+                .label
+                .trim()
+                .is_empty()
+                && !alias.pattern.trim().is_empty()
+                && !alias.editable_pattern.trim().is_empty()
+                && !alias.aliases.is_empty()
+                && alias
+                    .aliases
+                    .iter()
+                    .all(|pattern| !pattern.trim().is_empty())),
+        "application screening legacy aliases must be non-empty"
+    );
+
+    taxonomy
+}
 
 /// User's application profile
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -327,16 +404,8 @@ fn screening_match_candidates(pattern: &str) -> Vec<String> {
 
     let mut candidates = vec![trimmed.to_string()];
     let normalized_pattern = normalize_screening_match_text(trimmed);
-    candidates.extend(
-        plain_screening_pattern_aliases(&normalized_pattern)
-            .iter()
-            .map(|candidate| (*candidate).to_string()),
-    );
-    candidates.extend(
-        legacy_screening_pattern_aliases(trimmed)
-            .iter()
-            .map(|candidate| (*candidate).to_string()),
-    );
+    candidates.extend(plain_screening_pattern_aliases(&normalized_pattern));
+    candidates.extend(legacy_screening_pattern_aliases(trimmed));
 
     if looks_like_legacy_screening_pattern(trimmed) {
         let simplified = simplify_legacy_screening_pattern(trimmed);
@@ -357,88 +426,13 @@ fn screening_match_candidates(pattern: &str) -> Vec<String> {
     candidates
 }
 
-fn plain_screening_pattern_aliases(pattern: &str) -> &'static [&'static str] {
-    match pattern {
-        "work authorization" => &[
-            "authorized to work",
-            "legally authorized to work",
-            "eligible to work",
-            "employment authorization",
-        ],
-        "sponsorship" => &[
-            "visa sponsorship",
-            "need sponsorship",
-            "require sponsorship",
-            "sponsorship now or in the future",
-        ],
-        "physical requirements" => &[
-            "physical requirements",
-            "able to lift",
-            "can lift",
-            "lift pounds",
-            "standing for long periods",
-            "stand for long periods",
-        ],
-        "education" => &[
-            "education",
-            "bachelor degree",
-            "bachelors degree",
-            "degree or equivalent",
-            "high school diploma",
-            "ged",
-        ],
-        "availability" => &[
-            "availability",
-            "available to work",
-            "schedule availability",
-            "shift availability",
-            "work weekends",
-            "rotating shifts",
-            "rotating schedule",
-        ],
-        "reliable transportation" => &[
-            "reliable transportation",
-            "reliable vehicle",
-            "own vehicle",
-            "access to a vehicle",
-            "transportation for",
-        ],
-        "salary" => &[
-            "salary expectation",
-            "expected salary",
-            "compensation expectation",
-            "expected compensation",
-            "pay expectation",
-        ],
-        "start date" => &[
-            "start date",
-            "when can you start",
-            "available to start",
-            "notice period",
-        ],
-        "overtime" => &["overtime", "work overtime", "overtime availability"],
-        "holiday" => &["holiday", "holidays", "holiday availability"],
-        "managed a team" => &[
-            "managed a team",
-            "management experience",
-            "supervisory experience",
-        ],
-        "bilingual" => &[
-            "bilingual",
-            "multilingual",
-            "language fluency",
-            "fluent in",
-            "speak spanish",
-        ],
-        "drivers license" => &["driver license", "drivers license", "valid driver license"],
-        "certification" => &[
-            "certification",
-            "professional certification",
-            "required certification",
-            "credential",
-        ],
-        _ => &[],
-    }
+fn plain_screening_pattern_aliases(pattern: &str) -> Vec<String> {
+    APPLICATION_SCREENING_ALIAS_TAXONOMY
+        .plain_screening_pattern_aliases
+        .iter()
+        .find(|alias| normalize_screening_match_text(&alias.editable_pattern) == pattern)
+        .map(|alias| alias.patterns.clone())
+        .unwrap_or_default()
 }
 
 fn normalize_screening_match_text(input: &str) -> String {
@@ -500,32 +494,13 @@ fn simplify_legacy_screening_pattern(pattern: &str) -> String {
         .join(" ")
 }
 
-fn legacy_screening_pattern_aliases(pattern: &str) -> &'static [&'static str] {
-    match pattern {
-        "(?i)authorized.*work.*(united states|us|usa)" => &[
-            "authorized to work",
-            "authorized work",
-            "work authorization",
-        ],
-        "(?i)require.*sponsor.*work" => &[
-            "require sponsorship to work",
-            "need sponsorship to work",
-            "sponsorship",
-        ],
-        "(?i)require.*sponsor.*(now|future)" => &[
-            "require sponsorship",
-            "need sponsorship",
-            "visa sponsorship",
-        ],
-        "(?i)18.*years.*age" => &["18 years of age", "18 years age"],
-        "(?i)drug.*test" => &["drug test", "drug screen"],
-        "(?i)background.*check" => &["background check"],
-        "(?i)security.*clearance" => &["security clearance"],
-        "(?i)willing.*relocate" => &["willing to relocate", "willing relocate", "relocate"],
-        "(?i)notice.*period" => &["notice period"],
-        "(?i)salary.*expectation" => &["salary expectation", "expected salary"],
-        _ => &[],
-    }
+fn legacy_screening_pattern_aliases(pattern: &str) -> Vec<String> {
+    APPLICATION_SCREENING_ALIAS_TAXONOMY
+        .legacy_screening_patterns
+        .iter()
+        .find(|alias| alias.pattern == pattern)
+        .map(|alias| alias.aliases.clone())
+        .unwrap_or_default()
 }
 
 /// Input for creating/updating profile
@@ -801,6 +776,14 @@ mod tests {
         assert!(screening_question_matches(
             "reliable transportation",
             "Do you have access to a reliable vehicle for client visits?"
+        ));
+        assert!(screening_question_matches(
+            "driver's license",
+            "Do you have a valid driver license?"
+        ));
+        assert!(screening_question_matches(
+            "salary",
+            "What is your expected compensation?"
         ));
         assert!(!screening_question_matches(
             "certification",

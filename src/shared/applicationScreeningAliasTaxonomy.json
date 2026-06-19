@@ -1,0 +1,211 @@
+{
+  "schemaVersion": 1,
+  "plainScreeningPatternAliases": [
+    {
+      "patterns": [
+        "work authorized",
+        "authorized to work",
+        "authorized work",
+        "legally authorized to work",
+        "eligible to work",
+        "employment authorization"
+      ],
+      "label": "Work authorization",
+      "editablePattern": "work authorization"
+    },
+    {
+      "patterns": [
+        "visa sponsorship",
+        "need sponsorship",
+        "require sponsorship",
+        "sponsorship now or in the future"
+      ],
+      "label": "Visa sponsorship",
+      "editablePattern": "sponsorship"
+    },
+    {
+      "patterns": [
+        "physical requirements",
+        "able to lift",
+        "can lift",
+        "lift pounds",
+        "standing for long periods",
+        "stand for long periods"
+      ],
+      "label": "Physical requirements",
+      "editablePattern": "physical requirements"
+    },
+    {
+      "patterns": [
+        "education",
+        "bachelor degree",
+        "bachelors degree",
+        "degree or equivalent",
+        "high school diploma",
+        "ged"
+      ],
+      "label": "Education level",
+      "editablePattern": "education"
+    },
+    {
+      "patterns": [
+        "availability",
+        "available to work",
+        "schedule availability",
+        "shift availability",
+        "work weekends",
+        "rotating shifts",
+        "rotating schedule"
+      ],
+      "label": "Schedule availability",
+      "editablePattern": "availability"
+    },
+    {
+      "patterns": [
+        "reliable transportation",
+        "reliable vehicle",
+        "own vehicle",
+        "access to a vehicle",
+        "transportation for"
+      ],
+      "label": "Reliable transportation",
+      "editablePattern": "reliable transportation"
+    },
+    {
+      "patterns": [
+        "salary expectation",
+        "expected salary",
+        "compensation expectation",
+        "expected compensation",
+        "pay expectation"
+      ],
+      "label": "Salary expectation",
+      "editablePattern": "salary"
+    },
+    {
+      "patterns": [
+        "start date",
+        "when can you start",
+        "available to start",
+        "notice period"
+      ],
+      "label": "Start date / Notice period",
+      "editablePattern": "start date"
+    },
+    {
+      "patterns": ["overtime", "work overtime", "overtime availability"],
+      "label": "Overtime availability",
+      "editablePattern": "overtime"
+    },
+    {
+      "patterns": ["holiday", "holidays", "holiday availability"],
+      "label": "Holiday availability",
+      "editablePattern": "holiday"
+    },
+    {
+      "patterns": [
+        "managed a team",
+        "management experience",
+        "supervisory experience"
+      ],
+      "label": "Management experience",
+      "editablePattern": "managed a team"
+    },
+    {
+      "patterns": [
+        "bilingual",
+        "multilingual",
+        "language fluency",
+        "fluent in",
+        "speak spanish"
+      ],
+      "label": "Language fluency",
+      "editablePattern": "bilingual"
+    },
+    {
+      "patterns": ["driver license", "drivers license", "valid driver license"],
+      "label": "Driver's license",
+      "editablePattern": "driver's license"
+    },
+    {
+      "patterns": [
+        "certification",
+        "professional certification",
+        "required certification",
+        "credential"
+      ],
+      "label": "Certification or license",
+      "editablePattern": "certification"
+    }
+  ],
+  "legacyScreeningPatterns": [
+    {
+      "pattern": "(?i)authorized.*work.*(united states|us|usa)",
+      "label": "Work authorization",
+      "editablePattern": "work authorization",
+      "aliases": ["authorized to work", "authorized work", "work authorization"]
+    },
+    {
+      "pattern": "(?i)require.*sponsor.*work",
+      "label": "Visa sponsorship",
+      "editablePattern": "sponsorship",
+      "aliases": [
+        "require sponsorship to work",
+        "need sponsorship to work",
+        "sponsorship"
+      ]
+    },
+    {
+      "pattern": "(?i)require.*sponsor.*(now|future)",
+      "label": "Future sponsorship",
+      "editablePattern": "sponsorship now or in the future",
+      "aliases": [
+        "require sponsorship",
+        "need sponsorship",
+        "visa sponsorship"
+      ]
+    },
+    {
+      "pattern": "(?i)18.*years.*age",
+      "label": "Age requirement",
+      "editablePattern": "18 years of age",
+      "aliases": ["18 years of age", "18 years age"]
+    },
+    {
+      "pattern": "(?i)drug.*test",
+      "label": "Drug screen",
+      "editablePattern": "drug screen",
+      "aliases": ["drug test", "drug screen"]
+    },
+    {
+      "pattern": "(?i)background.*check",
+      "label": "Background check",
+      "editablePattern": "background check",
+      "aliases": ["background check"]
+    },
+    {
+      "pattern": "(?i)security.*clearance",
+      "label": "Security clearance",
+      "editablePattern": "security clearance",
+      "aliases": ["security clearance"]
+    },
+    {
+      "pattern": "(?i)willing.*relocate",
+      "label": "Willingness to relocate",
+      "editablePattern": "relocate",
+      "aliases": ["willing to relocate", "willing relocate", "relocate"]
+    },
+    {
+      "pattern": "(?i)notice.*period",
+      "label": "Start date / Notice period",
+      "editablePattern": "notice period",
+      "aliases": ["notice period"]
+    },
+    {
+      "pattern": "(?i)salary.*expectation",
+      "label": "Salary expectation",
+      "editablePattern": "salary",
+      "aliases": ["salary expectation", "expected salary"]
+    }
+  ]
+}
