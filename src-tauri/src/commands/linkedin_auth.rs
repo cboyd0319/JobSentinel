@@ -12,10 +12,14 @@ use tauri::{AppHandle, Manager, State};
 
 pub const LINKEDIN_AUTH_DISABLED_MESSAGE: &str =
     "JobSentinel does not collect LinkedIn login details or session cookies. \
-     Open LinkedIn yourself, use a search link, paste one job link, Browser \
-     Import, or manual entry. LinkedIn says third-party software that scrapes or \
-     automates activity can violate its User Agreement, may lead to account \
-     restrictions, and may raise privacy-law concerns.";
+     Every restricted LinkedIn action must be started by the user, show a terms \
+     warning before any sign-in screen, use a fresh sign-in, and expire after \
+     one hour or less. Open LinkedIn yourself, use a search link, paste one job \
+     link, Browser Import, or manual entry. LinkedIn says third-party software \
+     that scrapes or automates activity can violate its User Agreement, may \
+     lead to account restrictions, and may raise privacy-law concerns.";
+
+pub const LINKEDIN_INTERACTIVE_SESSION_MAX_MINUTES: i64 = 60;
 
 /// Legacy LinkedIn credential expiry status.
 #[derive(serde::Serialize)]
@@ -32,8 +36,51 @@ pub struct LinkedInExpiryStatus {
     pub expired: bool,
 }
 
+/// Restricted interactive LinkedIn session policy.
+#[derive(serde::Serialize)]
+pub struct LinkedInInteractivePolicy {
+    /// Whether a user action is required before any restricted LinkedIn use.
+    pub requires_user_initiated_action: bool,
+    /// Whether a fresh sign-in is required for each restricted session.
+    pub requires_fresh_login: bool,
+    /// Whether a terms/account/privacy warning is required before sign-in.
+    pub pre_login_warning_required: bool,
+    /// Whether auth tokens may be stored.
+    pub stores_auth_tokens: bool,
+    /// Whether session cookies may be stored.
+    pub stores_session_cookies: bool,
+    /// Whether browser localStorage or sessionStorage may be stored.
+    pub stores_browser_storage: bool,
+    /// Whether authorization headers may be stored.
+    pub stores_authorization_headers: bool,
+    /// Whether hidden or scheduled background automation is allowed.
+    pub background_automation_allowed: bool,
+    /// Whether the session may be used after the live user action ends.
+    pub offline_use_allowed: bool,
+    /// Maximum session length in minutes.
+    pub max_session_minutes: i64,
+    /// User-facing source-policy warning.
+    pub warning: &'static str,
+}
+
 fn disabled_error() -> String {
     LINKEDIN_AUTH_DISABLED_MESSAGE.to_string()
+}
+
+fn linkedin_interactive_policy() -> LinkedInInteractivePolicy {
+    LinkedInInteractivePolicy {
+        requires_user_initiated_action: true,
+        requires_fresh_login: true,
+        pre_login_warning_required: true,
+        stores_auth_tokens: false,
+        stores_session_cookies: false,
+        stores_browser_storage: false,
+        stores_authorization_headers: false,
+        background_automation_allowed: false,
+        offline_use_allowed: false,
+        max_session_minutes: LINKEDIN_INTERACTIVE_SESSION_MAX_MINUTES,
+        warning: LINKEDIN_AUTH_DISABLED_MESSAGE,
+    }
 }
 
 /// LinkedIn login capture is disabled.
@@ -101,6 +148,12 @@ pub async fn get_linkedin_expiry_status() -> Result<LinkedInExpiryStatus, String
     })
 }
 
+/// Return the restricted interactive LinkedIn policy without exposing auth state.
+#[tauri::command]
+pub async fn get_linkedin_interactive_policy() -> Result<LinkedInInteractivePolicy, String> {
+    Ok(linkedin_interactive_policy())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -113,6 +166,7 @@ mod tests {
 
         assert!(err.contains("does not collect LinkedIn login details"));
         assert!(err.contains("User Agreement"));
+        assert!(err.contains("one hour or less"));
         assert!(!err.contains("legacy-session-value"));
     }
 
@@ -130,5 +184,26 @@ mod tests {
         assert!(status.days_remaining.is_none());
         assert!(!status.expiry_warning);
         assert!(!status.expired);
+    }
+
+    #[tokio::test]
+    async fn linked_in_interactive_policy_forbids_auth_persistence() {
+        let policy = get_linkedin_interactive_policy().await.unwrap();
+
+        assert!(policy.requires_user_initiated_action);
+        assert!(policy.requires_fresh_login);
+        assert!(policy.pre_login_warning_required);
+        assert!(!policy.stores_auth_tokens);
+        assert!(!policy.stores_session_cookies);
+        assert!(!policy.stores_browser_storage);
+        assert!(!policy.stores_authorization_headers);
+        assert!(!policy.background_automation_allowed);
+        assert!(!policy.offline_use_allowed);
+        assert_eq!(
+            policy.max_session_minutes,
+            LINKEDIN_INTERACTIVE_SESSION_MAX_MINUTES
+        );
+        assert_eq!(policy.max_session_minutes, 60);
+        assert!(policy.warning.contains("User Agreement"));
     }
 }

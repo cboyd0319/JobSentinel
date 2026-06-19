@@ -13,6 +13,10 @@ Before release, every source path must be one of these:
   acknowledgement, no credential or session-cookie capture, and a fallback to
   search link, pasted individual job link, employer career page, or manual
   entry.
+- Restricted authenticated source path with the warning shown before sign-in,
+  fresh user-initiated sign-in for every use, no auth token, session cookie,
+  browser storage, or authorization-header persistence, no background or
+  offline collection, and a maximum one-hour interactive window.
 - Not shipped or disabled, with the reason documented.
 
 Do not claim a source is ready from a single successful live request. A source
@@ -66,7 +70,7 @@ site blocks, changes, or returns no jobs.
 | ZipRecruiter | US | Restricted user-directed path with prominent warning |
 | Indeed | US and global variants | Restricted user-directed path with prominent warning |
 | LinkedIn search and company jobs | Global | User-gated restricted discovery only; no silent scheduled discovery, login or session-cookie capture, hidden background access, or platform-control bypass; do not persist referral, origin, or landing-job session context as source config |
-| LinkedIn Jobs Tracker | Global | User-gated restricted tracking only for jobs the user already saved or applied to; validate prominent warning, applied/saved stage handling, no cookie capture, no hidden background access, and fallback to manual tracking |
+| LinkedIn Jobs Tracker | Global | User-gated restricted tracking only for jobs the user already saved or applied to; validate prominent pre-login warning, fresh sign-in per use, applied/saved stage handling, no auth/session/browser-storage persistence, one-hour session cap, no hidden background access, and fallback to manual tracking |
 | LinkedIn Jobs home navigation | Global | User-opened navigation only for Preferences, Job tracker, and My Career Insights anchors; do not treat text-fragment anchors as saved source query state |
 | Built In network, state/city filters, and regional city boards | US and local markets | Restricted user-directed path with prominent warning; model parent, state-filtered, city-filtered, and regional-host searches in shared taxonomy; use employer-career follow-through after the user reviews a role |
 | State workforce boards, city/county careers, local chambers, local newspapers | Local and regional markets | Research official feeds first; otherwise user-opened search links, pasted job links, and manual entry only |

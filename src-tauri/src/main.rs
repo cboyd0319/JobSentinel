@@ -281,6 +281,7 @@ fn main() {
             commands::linkedin_auth::disconnect_linkedin,
             commands::linkedin_auth::close_linkedin_login,
             commands::linkedin_auth::get_linkedin_expiry_status,
+            commands::linkedin_auth::get_linkedin_interactive_policy,
             // Automation commands (Application Assist)
             commands::automation::select_application_resume_file,
             commands::automation::upsert_application_profile,

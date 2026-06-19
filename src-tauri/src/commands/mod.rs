@@ -180,8 +180,8 @@ pub use credentials::{
 
 // Legacy LinkedIn source-policy commands
 pub use linkedin_auth::{
-    close_linkedin_login, disconnect_linkedin, get_linkedin_expiry_status, is_linkedin_connected,
-    linkedin_login, store_linkedin_cookie,
+    close_linkedin_login, disconnect_linkedin, get_linkedin_expiry_status,
+    get_linkedin_interactive_policy, is_linkedin_connected, linkedin_login, store_linkedin_cookie,
 };
 
 // Automation commands (Application Assist)

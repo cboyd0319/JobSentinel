@@ -3,6 +3,8 @@ import { Badge } from "../components/Badge";
 import { HelpIcon } from "../components/HelpIcon";
 import { Input } from "../components/Input";
 import {
+  RESTRICTED_AUTHENTICATED_SOURCE_WARNING,
+  RESTRICTED_INTERACTIVE_SESSION_MAX_MINUTES,
   RESTRICTED_JOB_SOURCE_WARNING,
   RESTRICTED_SCHEDULED_JOB_SOURCES,
   normalizeRestrictedSourceAcknowledgements,
@@ -167,8 +169,19 @@ export function SettingsJobSourcesSection({
                       JobSentinel will not collect your LinkedIn login, save
                       cookies, or run hidden background LinkedIn checks.
                     </p>
+                    <p className="text-sm text-surface-600 dark:text-surface-300">
+                      If a restricted sign-in flow is added, JobSentinel must
+                      show this warning before the sign-in page, require a fresh
+                      sign-in each time, store no sign-in material, and end that
+                      interactive window within{" "}
+                      {RESTRICTED_INTERACTIVE_SESSION_MAX_MINUTES} minutes.
+                    </p>
                     <p className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-200">
                       Legal and account warning: {RESTRICTED_JOB_SOURCE_WARNING}
+                    </p>
+                    <p className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-200">
+                      Restricted sign-in rule:{" "}
+                      {RESTRICTED_AUTHENTICATED_SOURCE_WARNING}
                     </p>
                     <p className="text-xs text-surface-500 dark:text-surface-400">
                       For scheduled job checks, prefer official company pages

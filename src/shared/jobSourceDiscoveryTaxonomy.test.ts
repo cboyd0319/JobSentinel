@@ -3,9 +3,11 @@ import { CAREER_PROFILES } from "./careerProfileTaxonomy";
 import {
   JOB_SOURCE_DISCOVERY_TAXONOMY,
   publicNativeJobSourceDiscoveryEntries,
+  restrictedInteractiveJobSourceDiscoveryEntries,
   restrictedJobSourceDiscoveryEntries,
   sourceDiscoveryEntriesForCareerProfile,
 } from "./jobSourceDiscoveryTaxonomy";
+import { RESTRICTED_INTERACTIVE_SESSION_MAX_MINUTES } from "./restrictedSourceTaxonomy";
 
 describe("jobSourceDiscoveryTaxonomy", () => {
   it("keeps source IDs unique", () => {
@@ -137,5 +139,29 @@ describe("jobSourceDiscoveryTaxonomy", () => {
     expect(linkedinJobsTracker?.searchParameterPatterns).toEqual(
       expect.arrayContaining(["stage=applied", "stage=saved"]),
     );
+  });
+
+  it("caps restricted authenticated interactive sessions and forbids auth storage", () => {
+    const interactiveSources = restrictedInteractiveJobSourceDiscoveryEntries();
+
+    expect(interactiveSources.map((entry) => entry.id).sort()).toEqual([
+      "linkedin",
+      "linkedin-jobs-tracker",
+    ]);
+
+    for (const source of interactiveSources) {
+      expect(source.restrictedInteractiveSessionPolicy).toMatchObject({
+        requiresUserInitiatedAction: true,
+        requiresFreshLogin: true,
+        preLoginWarningRequired: true,
+        storesAuthTokens: false,
+        storesSessionCookies: false,
+        storesBrowserStorage: false,
+        storesAuthorizationHeaders: false,
+        backgroundAutomationAllowed: false,
+        offlineUseAllowed: false,
+        maxSessionMinutes: RESTRICTED_INTERACTIVE_SESSION_MAX_MINUTES,
+      });
+    }
   });
 });

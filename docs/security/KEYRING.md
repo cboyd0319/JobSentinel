@@ -179,6 +179,13 @@ Legacy LinkedIn credential keys may exist on older installations. They are
 supported only for cleanup and redaction. JobSentinel does not collect new
 LinkedIn session credentials or use LinkedIn as a background source.
 
+Restricted authenticated sources such as LinkedIn must stay outside persistent
+credential storage. If JobSentinel opens a sign-in page for one of these
+sources, it must show the source warning before sign-in, require a fresh
+user-initiated sign-in for that use, store no auth tokens, session cookies,
+browser storage, authorization headers, or equivalent sign-in material, and cap
+the interactive window at one hour.
+
 `tauri-plugin-secure-storage` remains registered with the app, but the current
 React credential flow uses Tauri commands backed by `CredentialService`.
 `CredentialStore` remains as a legacy fallback path and for opt-in live

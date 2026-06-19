@@ -14,6 +14,13 @@ JobSentinel does not encourage terms violations, collect restricted-site login
 details, save session cookies, bypass human checks, call private systems, or
 read restricted pages in hidden background jobs.
 
+Restricted authenticated sites have a stricter rule. If JobSentinel opens a
+sign-in page for LinkedIn or a similar source, the warning must appear before
+that page opens, the action must be started by the user in that moment, no auth
+tokens, session cookies, browser storage, or authorization headers may be saved,
+and the interactive window must expire within one hour. JobSentinel must not
+reuse that sign-in state later for offline or scheduled collection.
+
 The warning must be prominent in the UI and public docs because users should
 not need to understand source internals to make an informed choice. The secure
 path is the easy path: official feeds first, user-opened and reviewed paths
@@ -35,6 +42,7 @@ next, restricted automation only after explicit local acknowledgement.
 | ---- | ----------- |
 | Official source first | Prefer official posting sources, public feeds, and company or application-platform postings |
 | Restricted-site user gate | Warn prominently and require explicit acknowledgement before user-directed restricted-site import, browser import, search-link open, or scheduled restricted-source check |
+| Restricted-domain rationale | Every domain in `RESTRICTED_JOB_SOURCE_DOMAINS` must come from a structured record with a specific reason, category, and source reference; do not add undocumented domains |
 | No secret capture or evasion | Do not add hidden data paths, session-cookie collection, human-check workarounds, or platform-control evasion |
 | Local-first storage | Source results, run history, and notes stay local |
 | Rate limits | Every source check must wait within that source's limits |
@@ -77,6 +85,7 @@ Examples from the 2026-06-19 source pass:
 | SpaceX careers | Custom page, but public Greenhouse board `spacex` exists behind it |
 | Google, Yahoo, IBM, and Microsoft company pages | Open in the user browser while safer handling is reviewed |
 | LinkedIn company jobs | User-gated restricted discovery only; no silent scheduled discovery or session capture |
+| LinkedIn Jobs Tracker | User-gated restricted tracking only for saved or applied jobs; fresh sign-in required and capped to one hour |
 
 ## How Job Checks Work
 

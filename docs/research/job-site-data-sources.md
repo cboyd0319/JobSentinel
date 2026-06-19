@@ -22,6 +22,11 @@ This brief condenses research and source-governance guidance for job monitoring.
   risky action. JobSentinel does not encourage terms violations, but if users
   choose to proceed, the safe path must be local, explicit, reviewed, and
   harder to misuse than an unreviewed script or fork.
+- For restricted authenticated sources such as LinkedIn, do not store auth
+  tokens, session cookies, browser storage, authorization headers, or equivalent
+  sign-in material. Every use must be user-initiated, show the terms warning
+  before any sign-in screen, require a fresh sign-in, and expire within one
+  hour or less.
 - Do not collect candidate profiles, recruiter profiles, employee lists, social
   graph data, login-only pages, or restricted content.
 - Track source health and source confidence in plain language.
@@ -94,6 +99,7 @@ insufficient.
 | Public community source | Native scheduled source with conservative rate limits | Hacker News hiring posts, YC job listings, We Work Remotely, RemoteOK | Normal source opt-in |
 | Employer career system | Company discovery first, then native adapter only if a public endpoint is stable | SpaceX, Fivetran, Google, Yahoo, IBM, Microsoft, other direct employer career pages | Normal source opt-in when public; restricted warning when access model is unclear or account-adjacent |
 | Restricted board | Search link, pasted individual job link, Browser Import, or explicitly acknowledged scheduled check | LinkedIn, Indeed, Glassdoor, Monster, ZipRecruiter, Built In, Dice, Naukri, Shine, Foundit, CV-Library, Totaljobs, Wellfound, FlexJobs, ClearanceJobs | Prominent warning and explicit local acknowledgement before the risky action |
+| Restricted authenticated source | User-initiated interactive use only | LinkedIn search, LinkedIn Jobs Tracker, any future account-backed restricted source | Warning before sign-in, fresh sign-in for every use, no auth/session/browser-storage persistence, no background or offline collection, and one-hour maximum session window |
 | Unknown or changing source | Manual entry or search link until reviewed | New country or niche boards | Treat as restricted until source terms, robots policy, rate limits, and practical access are reviewed |
 
 ## Company-Careers Discovery Examples
