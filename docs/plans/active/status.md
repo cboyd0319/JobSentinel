@@ -103,8 +103,10 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   actions without notes, URLs, browser state, cookies, or hidden page data.
   Fresh evidence: focused learning/UI tests `121/121`, full frontend `3209/3209`,
   lint, build, docs, bloat, harness, score, and whitespace checks passed.
-- 2026-06-19 resume role-family coverage now has shared taxonomy, a Resume
-  Match card, and tests for current profile and analyzer-prompt mappings.
+- 2026-06-19 resume work has role-family taxonomy, Resume Match coverage, and
+  open template/tool guidance in `src/shared/resumeWritingTaxonomy.ts`; bullet
+  drafting shows Action/XYZ/CAR structures, Preview shows local export checks,
+  and retail/service taxonomy covers BOPIS, curbside, planogram, and shrink terms.
 - 2026-06-19 Application Preview now shows an Answer Review Checklist for exact
   questions, confirmed answers, voluntary/protected questions, and unknowns.
 - 2026-06-19 Cover Letter Templates now show a local review checklist for
@@ -113,10 +115,8 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 ## Next Best Work
 
 1. Close the active roadmap backlog checklist before any release action.
-2. Continue resume, guided intake, job-card protection, encrypted storage,
-   browser assistance, source discovery, pay review, backup/restore, and AI
-   readiness only where they improve truthful, reviewed, local, non-technical
-   workflows.
+2. Continue resume, guided intake, job-card protection, encrypted storage, browser
+   assistance, source discovery, pay review, backup/restore, and AI readiness.
 3. Continue macOS readiness without claiming Gatekeeper-ready distribution
    before Apple credentials exist.
 4. Keep harness work focused on bounded startup context, runnable verification,

@@ -1,4 +1,5 @@
 import { CardHeader } from "../components/Card";
+import { RESUME_EXPORT_INTEGRITY_CHECKS } from "../shared/resumeWritingTaxonomy";
 import type { ATSAnalysis, Template, TemplateId } from "./resumeBuilderData";
 import { sanitizeResumeHtmlDocument } from "./resumeHtmlSanitizer";
 import { TemplateThumbnail } from "./ResumeBuilderVisuals";
@@ -48,6 +49,24 @@ export function ResumeBuilderPreviewStep({
             </p>
           </button>
         ))}
+      </div>
+
+      <div className="rounded-lg border border-surface-200 bg-white p-4 dark:border-surface-700 dark:bg-surface-800">
+        <h3 className="text-sm font-semibold text-surface-800 dark:text-surface-100">
+          Export checks
+        </h3>
+        <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          {RESUME_EXPORT_INTEGRITY_CHECKS.map((check) => (
+            <div key={check.id} className="rounded-md bg-surface-50 p-3 dark:bg-surface-900/70">
+              <p className="text-xs font-semibold text-surface-800 dark:text-surface-100">
+                {check.label}
+              </p>
+              <p className="mt-1 text-xs text-surface-600 dark:text-surface-300">
+                {check.userAction}
+              </p>
+            </div>
+          ))}
+        </div>
       </div>
 
       {(atsAnalysis || previewHtml) && (

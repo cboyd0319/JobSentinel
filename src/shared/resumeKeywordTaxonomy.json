@@ -117,6 +117,11 @@
     ["front desk", "front-desk", "reception", "receptionist"],
     ["cash handling", "cashier"],
     ["point of sale", "pos system", "pos systems"],
+    ["buy online pick up in store", "buy online pickup in store", "bopis", "store pickup", "in-store pickup"],
+    ["curbside pickup", "curbside order", "curbside orders"],
+    ["ship from store", "ship-from-store", "store fulfillment"],
+    ["planogram", "planograms", "visual merchandising"],
+    ["shrink", "shrinkage", "loss prevention"],
     ["patient care", "patient-care"],
     ["medical record", "medical records", "medical-record", "medical-records"],
     ["care plan", "care plans", "care-plan", "care-plans"],
@@ -366,6 +371,20 @@
     "pos systems",
     "cash handling",
     "cashier",
+    "store operations",
+    "order fulfillment",
+    "buy online pick up in store",
+    "bopis",
+    "store pickup",
+    "curbside pickup",
+    "ship from store",
+    "planogram",
+    "shrink",
+    "sales floor",
+    "stocking",
+    "returns",
+    "visual merchandising",
+    "loss prevention",
     "public benefits",
     "reconciliation",
     "billing",
@@ -564,6 +583,16 @@
         "appointment setting",
         "calendar management",
         "client intake",
+        "store operations",
+        "order fulfillment",
+        "buy online pick up in store",
+        "bopis",
+        "curbside pickup",
+        "ship from store",
+        "visual merchandising",
+        "planogram",
+        "loss prevention",
+        "shrink",
         "operations",
         "escalation",
         "service quality"
@@ -1442,6 +1471,26 @@
     {
       "canonical": "retention",
       "terms": ["retention", "customer retention", "employee retention"]
+    },
+    {
+      "canonical": "buy online pick up in store",
+      "terms": ["buy online pick up in store", "buy online pickup in store", "bopis", "store pickup", "in-store pickup"]
+    },
+    {
+      "canonical": "curbside pickup",
+      "terms": ["curbside pickup", "curbside order", "curbside orders"]
+    },
+    {
+      "canonical": "ship from store",
+      "terms": ["ship from store", "ship-from-store", "store fulfillment"]
+    },
+    {
+      "canonical": "planogram",
+      "terms": ["planogram", "planograms", "merchandising planogram", "merchandising planograms"]
+    },
+    {
+      "canonical": "shrink",
+      "terms": ["shrink", "shrinkage", "inventory shrink", "retail shrink"]
     },
     {
       "canonical": "loss prevention",

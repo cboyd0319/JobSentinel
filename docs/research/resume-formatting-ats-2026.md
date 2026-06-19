@@ -344,6 +344,46 @@ resume help should adjust examples and evidence prompts for:
 - Drafted bullet improvements add a federal evidence prompt for USAJOBS,
   specialized-experience, grade-level, public-trust, occupational-series,
   job-announcement, and required-document work.
+- The 2026-06-19 open resume tool/template and ATS-optimization pass is now
+  captured in `src/shared/resumeWritingTaxonomy.ts`. Resume Match shows local
+  bullet frameworks for action/scope/method/result, X-Y-Z, and CAR, and Resume
+  Builder Preview shows export checks for selectable text, reading order,
+  employer-requested file type, portal field review, and portable data.
+
+## Open Resume Tool Reference Pass
+
+The 2026-06-19 pass reviewed public resume template collections, static resume
+sites, open-source resume generators, GitHub profile resume tools, ATS
+optimization guides, prompt-based resume drafting articles, Workday-specific
+advice, and role-specific retail examples. Use them as product references, not
+as bundled content.
+
+Durable decisions:
+
+- Keep JobSentinel templates first-party and readable. Do not copy external
+  template files, styles, images, or example resumes without a separate license
+  review.
+- Treat decorative resume themes as risky until the plain-text preview confirms
+  selectable text, sane reading order, visible headings, dates, links, and
+  bullets.
+- Keep JSON Resume export as the portable local baseline. YAML resume import,
+  static-site resume export, and local draft-history diffing remain future work
+  unless implemented with the same local-first privacy rules.
+- Add employer-file-type and portal-field-review reminders near export. A
+  local parse preview helps, but users still need to review employer portal
+  auto-fill fields before submitting.
+- A future public GitHub profile importer can help technical users, but it must
+  be explicit, public-data-only, editable before save, and documented as an
+  external request. It must never become a hidden account connection.
+- AI or prompt-based resume drafting can help users move faster, but every
+  drafted claim must be checked against the user's real evidence. External AI
+  remains a separate opt-in path, not a default resume workflow.
+- Bullet helpers should teach simple structures such as action/scope/method/
+  result, X-Y-Z, and CAR. They must not turn weak evidence into inflated
+  claims.
+- Retail and service roles need modern operating terms in shared taxonomy:
+  BOPIS, curbside pickup, ship-from-store, planograms, shrink, visual
+  merchandising, and loss prevention.
 
 ## Backlog To Lock Next
 
@@ -393,11 +433,21 @@ resume help should adjust examples and evidence prompts for:
 - [Indeed ATS resume template guidance](https://www.indeed.com/career-advice/resumes-cover-letters/ats-resume-template)
 - [Indeed application readability guidance](https://www.indeed.com/career-advice/resumes-cover-letters/how-to-beat-applicant-tracking-system)
 - [Indeed scoring-system overview](https://ca.indeed.com/career-advice/career-development/scoring-system-for-resumes)
+- [Indeed resume improvement guidance](https://www.indeed.com/career-advice/resumes-cover-letters/how-to-improve-resume)
 - [Indeed applying with less experience](https://www.indeed.com/career-advice/finding-a-job/applying-for-a-job-with-less-experience-than-required)
 - [Indeed resume honesty guidance](https://www.indeed.com/career-advice/resumes-cover-letters/lying-on-resume)
 - [SHRM tailoring guidance](https://www.shrm.org/topics-tools/news/organizational-employee-development/5-tips-to-tailor-hr-resume-ats-review)
 - [SHRM keyword guidance](https://www.shrm.org/topics-tools/news/organizational-employee-development/leveraging-keywords-to-advance-career)
 - [The Muse action verb guidance](https://www.themuse.com/advice/185-powerful-verbs-that-will-make-your-resume-awesome)
+- [Microsoft Copilot ATS resume optimization guidance](https://www.microsoft.com/en-us/microsoft-copilot/for-individuals/do-more-with-ai/ai-for-professional-life/optimize-your-resume-for-ats?form=MA13JQ)
+- [Resume Optimizer Pro resume writing guide](https://resumeoptimizerpro.com/blog/how-to-write-a-resume-2026)
+- [ResumeAdapter ATS optimization guidance](https://www.resumeadapter.com/blog/optimize-resume-for-ats)
+- [The Interview Guys ChatGPT resume prompts](https://blog.theinterviewguys.com/25-chatgpt-resume-prompts/)
+- [Novoresume resume improvement guidance](https://novoresume.com/career-blog/improve-your-resume)
+- [Coursera resume enhancement guidance](https://www.coursera.org/articles/ways-to-enhance-your-resume)
+- [Resume Optimizer Pro retail resume examples](https://resumeoptimizerpro.com/blog/retail-resume-examples)
+- [Workable ATS resume optimization guidance](https://resources.workable.com/career-center/how-to-optimize-your-resume-for-an-ats/)
+- [22 Skills Workday ATS resume optimization guidance](https://www.22skills.com/blog/optimize-resume-for-workday-ats)
 - [USAJOBS resume content guidance](https://help.usajobs.gov/faq/application/documents/resume/what-to-include)
 - [OPM two-page federal resume guidance](https://www.opm.gov/policy-data-oversight/hiring-information/merit-hiring-plan-resources/applicant-guidance-on-the-two-page-resume-limit/)
 - [University of Mary Washington resume evaluation guidance](https://adminfinance.umw.edu/hr/best-practices/screening-applicants/how-to-evaluate-resumes-and-cvs/)
@@ -405,6 +455,14 @@ resume help should adjust examples and evidence prompts for:
 - [Colorado State apply-with-gaps guidance](https://bizcareers.colostate.edu/resources/should-i-apply-if-i-dont-meet-the-qualifications/)
 - [HBR 100 percent qualifications article](https://hbr.org/2014/08/why-women-dont-apply-for-jobs-unless-theyre-100-qualified)
 - [Behavioural Insights Team follow-up on 100 percent qualifications](https://www.bi.team/blogs/women-only-apply-when-100-qualified-fact-or-fake-news/)
+- [Sadransh CV and resume template collection](https://github.com/sadransh/awsome-list-of-cv-and-resume-templetes)
+- [Swooped GitHub resume examples](https://swooped.co/company-resume-examples/github)
+- [SebVC resume repository](https://sebvc.github.io/Resume/)
+- [DEV Community open-source resume repo overview](https://dev.to/ns23/5-github-repos-for-creating-resumes-e3k)
+- [Relocate.me free and open-source resume tools](https://relocateme.substack.com/p/free-and-open-source-resume-tools)
+- [Awesome Resumes templates guidance](https://manimozaffar.github.io/awesome-resumes/guidelines/templates/)
+- [GitHub resume generator repository](https://github.com/resume/resume.github.com/tree/master)
+- [Jekyll resume template](https://jekyllthemes.io/theme/resume-template)
 - [ResumeNet paper](https://arxiv.org/abs/1810.02832)
 - [Measuring Validity in LLM-based Resume Screening](https://arxiv.org/abs/2602.18550)
 - [AutoScreen-FW](https://arxiv.org/abs/2603.18390)

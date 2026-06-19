@@ -96,6 +96,13 @@ Download your resume as:
 - Word document (.docx) for editing or attaching to an application
 - JSON Resume (.json) for portable resume data you can use in other tools
 
+Before export, Resume Builder shows simple checks for selectable text, reading
+order, employer-requested file type, portal auto-fill review, and portable
+local data. These checks came from the 2026 open resume tool, ATS, and template
+reference pass and are intentionally local. JobSentinel does not copy
+third-party templates or promise that any one layout works in every employer
+system.
+
 When Resume Builder has job-post context from Resume Match, the live review
 panel keeps required, preferred, and other job-post language separate. It also
 shows must-have checks when local analysis finds a missing or weakly supported
@@ -188,6 +195,14 @@ you write clearer ones.
 
 > "Coordinated daily appointment reminders for 300 patients, reducing missed
 > visits by 18%"
+
+The draft modal now shows three local writing structures before drafting:
+
+- **Action + scope + method + result** for most bullets.
+- **X-Y-Z** when the user has a measurable outcome.
+- **CAR** when the bullet needs clearer context.
+
+Only use details that are true and supported by evidence the user can explain.
 
 ### Action Words
 

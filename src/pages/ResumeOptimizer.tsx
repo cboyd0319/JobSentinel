@@ -6,6 +6,7 @@ import { Badge } from "../components/Badge";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { Modal, ModalFooter } from "../components/Modal";
 import { useToast } from "../contexts";
+import { RESUME_BULLET_FRAMEWORKS } from "../shared/resumeWritingTaxonomy";
 import { logError } from "../utils/errorUtils";
 import { ResumeOptimizerResultsPanel } from "./ResumeOptimizerResultsPanel";
 import {
@@ -517,6 +518,39 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
           <p className="text-sm text-surface-600 dark:text-surface-400">
             Enter a resume bullet point and we'll draft clearer, job-aligned language for you to review.
           </p>
+          <div className="rounded-lg border border-surface-200 bg-surface-50 p-3 dark:border-surface-700 dark:bg-surface-800/60">
+            <p className="text-sm font-semibold text-surface-800 dark:text-surface-100">
+              Use one simple structure
+            </p>
+            <div className="mt-3 grid gap-2 sm:grid-cols-3">
+              {RESUME_BULLET_FRAMEWORKS.map((framework) => (
+                <div
+                  key={framework.id}
+                  className="rounded-md border border-surface-200 bg-white p-3 dark:border-surface-700 dark:bg-surface-900"
+                >
+                  <p className="text-xs font-semibold text-surface-800 dark:text-surface-100">
+                    {framework.label}
+                  </p>
+                  <p className="mt-1 text-xs text-surface-600 dark:text-surface-300">
+                    {framework.whenToUse}
+                  </p>
+                  <ul className="mt-2 space-y-1">
+                    {framework.promptQuestions.slice(0, 3).map((question) => (
+                      <li
+                        key={question}
+                        className="text-xs text-surface-500 dark:text-surface-400"
+                      >
+                        - {question}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+            <p className="mt-3 text-xs text-surface-600 dark:text-surface-300">
+              Only use details that are true and supported by evidence you can explain.
+            </p>
+          </div>
           <div>
             <label htmlFor="resume-bullet-input" className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
               Current Bullet Point

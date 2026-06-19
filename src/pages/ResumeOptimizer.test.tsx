@@ -545,6 +545,20 @@ describe("ResumeOptimizer", () => {
     expect(toastErrorText()).not.toMatch(/raw-secret|private@example\.test|resume=private-file/);
   });
 
+  it("shows plain bullet frameworks before drafting an alternative", async () => {
+    const user = userEvent.setup();
+    render(<ResumeOptimizer onBack={vi.fn()} />);
+
+    await user.click(screen.getByRole("button", { name: /draft alternative bullet/i }));
+
+    expect(screen.getByText("Use one simple structure")).toBeInTheDocument();
+    expect(screen.getByText(/Action \+ scope \+ method \+ result/i)).toBeInTheDocument();
+    expect(screen.getByText(/X-Y-Z/i)).toBeInTheDocument();
+    expect(screen.getByText(/CAR/i)).toBeInTheDocument();
+    expect(screen.getByText(/Only use details that are true/i)).toBeInTheDocument();
+    expect(screen.queryByText(/beat ATS/i)).not.toBeInTheDocument();
+  });
+
   it("uses action-first validation copy before drafting an empty bullet", async () => {
     const user = userEvent.setup();
     render(<ResumeOptimizer onBack={vi.fn()} />);

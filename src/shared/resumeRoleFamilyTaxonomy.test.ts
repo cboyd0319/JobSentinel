@@ -62,4 +62,31 @@ describe("resumeRoleFamilyTaxonomy", () => {
       }
     }
   });
+
+  it("keeps modern retail fulfillment and merchandising terms in shared taxonomy", () => {
+    const retailProfile = CAREER_PROFILES.find(
+      (profile) => profile.id === "retail-hospitality",
+    );
+    const servicePrompt = resumeKeywordTaxonomy.roleSpecificEvidencePrompts.find(
+      (prompt) => prompt.id === "service_operations",
+    );
+    const supplementalTerms = new Set(
+      resumeKeywordTaxonomy.supplementalKeywordGroups.flatMap((group) => group.terms),
+    );
+
+    expect(retailProfile?.keywordsBoost).toEqual(
+      expect.arrayContaining(["BOPIS", "Curbside Pickup", "Planograms", "Shrink"]),
+    );
+    expect(servicePrompt?.terms).toEqual(
+      expect.arrayContaining([
+        "buy online pick up in store",
+        "curbside pickup",
+        "planogram",
+        "shrink",
+      ]),
+    );
+    expect(Array.from(supplementalTerms)).toEqual(
+      expect.arrayContaining(["bopis", "ship-from-store", "retail shrink"]),
+    );
+  });
 });

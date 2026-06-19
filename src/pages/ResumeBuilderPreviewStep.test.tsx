@@ -1,4 +1,4 @@
-import { render } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { ResumeBuilderPreviewStep } from "./ResumeBuilderPreviewStep";
 
@@ -12,6 +12,26 @@ const templates = [
 ];
 
 describe("ResumeBuilderPreviewStep", () => {
+  it("shows local export checks learned from resume-template references", () => {
+    render(
+      <ResumeBuilderPreviewStep
+        templates={templates}
+        selectedTemplate="Classic"
+        previewHtml=""
+        atsAnalysis={null}
+        onSelectTemplate={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText("Export checks")).toBeInTheDocument();
+    expect(screen.getByText(/Selectable text/i)).toBeInTheDocument();
+    expect(screen.getByText(/Reading order/i)).toBeInTheDocument();
+    expect(screen.getByText(/Portable data/i)).toBeInTheDocument();
+    expect(screen.getByText(/Employer file request/i)).toBeInTheDocument();
+    expect(screen.getByText(/Portal field review/i)).toBeInTheDocument();
+    expect(screen.queryByText(/beat ATS/i)).not.toBeInTheDocument();
+  });
+
   it("renders sanitized resume HTML in a sandboxed iframe", () => {
     const { container } = render(
       <ResumeBuilderPreviewStep
