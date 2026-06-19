@@ -74,7 +74,7 @@ Out of scope:
 | ---- | ----- | ----------------- |
 | Dependency readiness | Complete | Package-manager, direct deps, overrides, and Action pins are latest; transitives stay lockfile-pinned/latest-compatible |
 | Downloadable Agent Skills | Complete locally | Skills pass `lint:skills`; release packaging creates deterministic tar/ZIP artifacts. |
-| Browser Import and LinkedIn-compatible flow | Active | Normalize warning/ack gates across search links, pasted links, and Browser Import; keep LinkedIn user-opened and user-clicked without cookies or background monitoring. |
+| LinkedIn Workbench and restricted-source flow | Active | Ship user-opened LinkedIn workbench actions, saved ack, reminder, pasted-text suggestions, and one-click ledger records without cookies, hidden page reading, or background monitoring. |
 | Scraper/source verification | Active | All source adapters and user-gated restricted paths must pass focused parser/import/gate tests before release, with a current Scrapling comparison recorded. |
 | Development and QA completion | Complete locally | Fresh full local gates pass; final release operations remain approval/credential-gated. |
 | macOS readiness | Release-gated | No-account path is complete; Gatekeeper-ready public distribution remains Apple-credential-gated. |

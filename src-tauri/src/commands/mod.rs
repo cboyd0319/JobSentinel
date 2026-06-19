@@ -29,6 +29,7 @@ pub mod import;
 pub mod jobs;
 pub mod limits;
 pub mod linkedin_auth;
+pub mod linkedin_workbench;
 pub mod market;
 pub mod resume;
 pub mod salary;
@@ -183,6 +184,7 @@ pub use linkedin_auth::{
     close_linkedin_login, disconnect_linkedin, get_linkedin_expiry_status,
     get_linkedin_interactive_policy, is_linkedin_connected, linkedin_login, store_linkedin_cookie,
 };
+pub use linkedin_workbench::record_linkedin_workbench_event;
 
 // Automation commands (Application Assist)
 pub use automation::{

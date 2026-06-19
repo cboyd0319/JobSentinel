@@ -155,7 +155,7 @@ CREATE VIRTUAL TABLE jobs_fts USING fts5(
 
 - **Greenhouse** - ATS scraper with HTML fetch and public API fallback
 - **Lever** - ATS public API scraper
-- **LinkedIn** - User-opened search links and browser import only; no session storage
+- **LinkedIn** - User-opened search links, Browser Import, and local Workbench ledger only; no session storage
 - **RemoteOK** - JSON API
 - **WeWorkRemotely** - RSS feed parsing
 - **BuiltIn** - Tech jobs and remote jobs (HTML)

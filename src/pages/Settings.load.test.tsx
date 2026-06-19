@@ -475,7 +475,7 @@ describe("Settings — loadConfig flow", () => {
     expect(
       screen.getByText(/Open LinkedIn when you choose/i),
     ).toBeInTheDocument();
-    expect(screen.getByText(/How this works/i)).toHaveTextContent(
+    expect(screen.getAllByText(/How this works/i)[0]).toHaveTextContent(
       /local buttons and notes/i,
     );
     expect(screen.getByText(/Site rules reminder/i)).toHaveTextContent(

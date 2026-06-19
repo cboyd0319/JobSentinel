@@ -2,6 +2,7 @@ import type { Dispatch, SetStateAction } from "react";
 import { Badge } from "../components/Badge";
 import { HelpIcon } from "../components/HelpIcon";
 import { Input } from "../components/Input";
+import { LinkedInWorkbench } from "../components/LinkedInWorkbench";
 import {
   RESTRICTED_AUTHENTICATED_SOURCE_WARNING,
   RESTRICTED_INTERACTIVE_SESSION_REMINDER_MINUTES,
@@ -196,6 +197,7 @@ export function SettingsJobSourcesSection({
                       and public company application pages such as Greenhouse,
                       Lever, Ashby, SmartRecruiters, and USAJobs.
                     </p>
+                    <LinkedInWorkbench />
                   </div>
                 </div>
 

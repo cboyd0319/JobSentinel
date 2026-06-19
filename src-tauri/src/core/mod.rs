@@ -25,6 +25,7 @@ pub mod config;
 pub mod db;
 pub mod http_body;
 pub mod job_hash;
+pub mod linkedin_workbench;
 pub mod logging;
 pub mod notify;
 pub mod scheduler;
@@ -72,6 +73,10 @@ pub mod ml;
 pub use config::Config;
 pub use db::{Database, Job};
 pub use job_hash::calculate_job_hash;
+pub use linkedin_workbench::{
+    record_event as record_linkedin_workbench_event, LinkedInWorkbenchEventInput,
+    LinkedInWorkbenchEventResult, LinkedInWorkbenchEventType,
+};
 pub use notify::{Notification, NotificationService};
 pub use scheduler::{ScheduleConfig, Scheduler, ScrapingResult};
 pub use scoring::{JobScore, ScoringEngine};
