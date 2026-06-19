@@ -38,6 +38,11 @@ sources before changing restricted-source behavior.
   fresh user-initiated sign-in for each use, no auth/session/browser-storage
   persistence, no background or offline collection, and a one-hour maximum
   session window.
+- Human-controlled restricted browser shell: an isolated browser or webview that
+  JobSentinel opens after the warning and closes at the session limit. This shell
+  is a navigation and time-boxing surface, not a scraper, when JobSentinel does
+  not inspect page DOM, network traffic, browser storage, cookies, auth headers,
+  or drive user actions.
 - Unknown review-required sources: employer career pages or ATS surfaces without
   reviewed public endpoints. Keep them to user-opened search links, Browser
   Import, pasted single-job links, or manual entry until source-specific terms
@@ -75,6 +80,13 @@ Either keep all LinkedIn claims to the current user-directed paths, or implement
 and manually verify an ephemeral interactive session manager before release:
 pre-login warning, fresh sign-in, no persisted auth material, no background use,
 one-hour maximum, and full UI coverage.
+
+A human-controlled LinkedIn browser shell is compatible with that policy only if
+it does not read, extract, capture, or automate LinkedIn pages. JobSentinel may
+open the isolated window, show the timer, provide user-visible navigation links,
+and close the window when the session expires. JobSentinel analysis should run
+after the user brings selected job data back through pasted text, pasted links,
+manual entry, or another separately reviewed import path.
 
 ### High: restricted job boards can create user account and terms risk
 
@@ -123,6 +135,11 @@ Use ephemeral browsers only. Do not capture auth tokens, cookies, storage state,
 HAR, traces, videos, or authorization headers. Record only visible URL/filter
 shape and non-sensitive interaction behavior. Close the browser session after
 the test.
+
+If a browser automation library is used only to create a human-controlled
+window, disable automation recording and page inspection. Do not use it to read
+LinkedIn content, query selectors, intercept requests, collect storage state, or
+click through flows for the user.
 
 ### Medium: JobsWithGPT is an external data path
 
