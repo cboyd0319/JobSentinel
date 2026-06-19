@@ -119,6 +119,7 @@
     "vitest": "4.1.9"
   },
   "overrides": {
+    "semver": "7.8.5",
     "@reduxjs/toolkit": {
       "reselect": "5.2.0"
     },

@@ -289,6 +289,7 @@ describe("jobSourceDiscoveryTaxonomy", () => {
         "greenhouse",
         "lever",
         "remoteok",
+        "remote-first-jobs",
         "we-work-remotely",
         "hacker-news-who-is-hiring",
         "yc-work-at-a-startup",

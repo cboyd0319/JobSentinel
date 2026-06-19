@@ -40,6 +40,11 @@ This brief condenses research and source-governance guidance for job monitoring.
   and career-profile coverage centralized in
   `src/shared/jobSourceDiscoveryTaxonomy.ts` so source discovery can grow
   without hard-coding source lists in UI components or docs-only notes.
+- Keep official job API and employer-owned web API evidence centralized in
+  `src/shared/jobSourceOfficialApiCorpus.ts`. An official path can be a
+  documented public developer API, a documented feed, or an employer-owned
+  public web API behind a careers page; do not collapse those into
+  manual-only notes just because they are JavaScript-heavy.
 - Keep parser resilience inside the existing source-adapter boundaries. The
   Scrapling Rust core can parse already-fetched HTML, but adopting it is not
   justified while JobSentinel already pins `scraper` and `quick-xml`; Scrapling
@@ -96,9 +101,10 @@ that existing `scraper`/`quick-xml` parsing is insufficient.
 | Access model | Technical access | Preferred use | Examples | User agreement |
 | ------------ | ---------------- | ------------- | -------- | -------------- |
 | Official API or feed | Public unauthenticated or local API key | Native scheduled source | USAJobs, Adzuna, Reed, Remotive, official RSS or JSON feeds | Normal source opt-in; API key or source setup plus any required attribution or rate limit when needed |
-| Public ATS postings | Public unauthenticated | Native scheduled source | Greenhouse, Lever, Ashby, Workable, SmartRecruiters | Normal source opt-in, no restricted-source acknowledgement unless the source is reclassified after review |
-| Public community source | Public unauthenticated | Native scheduled source with conservative rate limits | Hacker News hiring posts, YC job listings, We Work Remotely, RemoteOK | Normal source opt-in |
-| Employer career system | Public unauthenticated when reviewed; otherwise unknown | Company discovery first, then native adapter only if a public endpoint is stable | SpaceX, Fivetran, Google, Yahoo, IBM, Microsoft, other direct employer career pages | Normal source opt-in when public; restricted warning when access model is unclear or account-adjacent |
+| Public ATS postings | Public unauthenticated | Native scheduled source | Greenhouse, Lever, Ashby, Workable, SmartRecruiters, Recruitee, Personio | Normal source opt-in, no restricted-source acknowledgement unless the source is reclassified after review |
+| Public community or remote source | Public unauthenticated | Native scheduled source with conservative limits and attribution where required | Hacker News hiring posts, YC job listings, We Work Remotely, RemoteOK, Remote First Jobs | Normal source opt-in |
+| Employer-owned web API | Public unauthenticated when reviewed | Company discovery first, then native adapter after fixtures prove the endpoint is stable | Workday CXS tenants, Amazon Jobs, Google Careers, Microsoft Careers, GitHub iCIMS/Jibe, Tesla Careers | Normal source opt-in when public; keep Browser Import or manual entry fallback if the endpoint is unstable or blocked in the user's environment |
+| Employer career system | Unknown until reviewed | Company discovery first, then classify into public API, public page import, restricted, or manual | Best Choice Products, Champion Petfoods, Ascend Wellness Holdings, Yourgi Pet, AC Lion, ForceBrands, Berri Organics, Renovation Brands, and other direct employer pages | Treat as review-required until source terms, structure, and rate limits are recorded |
 | Restricted public board | Public unauthenticated with terms/account-risk warning | Search link, pasted individual job link, Browser Import, or explicitly acknowledged scheduled check | Indeed, Glassdoor, Monster, ZipRecruiter, Built In, Dice, Naukri, Shine, Foundit, CV-Library, Totaljobs, Wellfound, ClearanceJobs | Prominent warning and explicit local acknowledgement before the risky action; no sign-in-session rules unless a sign-in session is opened |
 | Restricted authenticated source | Authenticated user session | User-initiated interactive use only | LinkedIn search, LinkedIn Jobs Tracker, FlexJobs, Upwork, Freelancer, Toptal, any future account-backed restricted source | Warning before sign-in, fresh sign-in for every use when JobSentinel opens the session, no auth/session/browser-storage persistence, no background or offline collection, and a visible privacy reminder for supported interactive sessions |
 | Unknown or changing source | Unknown review required | Manual entry or search link until reviewed | New country or niche boards | Treat as restricted until source terms, robots policy, rate limits, and practical access are reviewed |
@@ -115,14 +121,23 @@ token.
 | `https://www.fivetran.com/careers#jobs` | Greenhouse public board API, board `fivetran`; canonical job URLs point back to Fivetran careers pages | Detect and normalize to Greenhouse native source; preserve Greenhouse `absolute_url` |
 | `https://job-boards.greenhouse.io/primerai` | Current Greenhouse hosted board, board `primerai` | Accept current `job-boards.greenhouse.io` host and use Greenhouse API first |
 | `https://www.spacex.com/careers` | Custom Angular employer page with public Greenhouse board `spacex` | Detect Greenhouse board and use native Greenhouse API instead of scraping the custom frontend |
+| Klaviyo, Faire, and Mindgruve careers | Verified Greenhouse public board tokens from direct board API probes | Treat as Greenhouse native sources when the user adds these employers |
+| `https://www.tesla.com/careers/search/?site=US` | Tesla employer-owned careers system; local direct fetch can be blocked by edge controls | Keep browser-open and manual import fallback until stable public fixtures are captured without bypassing controls |
 | `https://builtin.com/jobs`, state/city filters such as `?state=California&country=USA&allLocations=true`, and `https://www.builtincolorado.com/jobs` | Restricted Built In network, location-filtered searches, and regional city job boards with custom data and filtering | Keep user-gated restricted source path; prefer employer-career follow-through after the user reviews a role |
 | `https://www.linkedin.com/company/fivetran/jobs/` and search-results URLs with `keywords`, `geoId`, `f_TPR`, or `f_AL` filters | Restricted LinkedIn jobs and company jobs pages | User-gated restricted discovery only; preserve user-entered query intent and selected filters, but do not persist referral, origin, landing-job, or other session-like identifiers |
 | `https://www.linkedin.com/jobs-tracker/?stage=applied` | Restricted LinkedIn Jobs Tracker for user-reviewed jobs | User-gated restricted tracking only for jobs the user already saved or applied to; no broad background discovery, login capture, session-cookie storage, or hidden background access |
 | LinkedIn Jobs home anchors for Preferences, Job tracker, and My Career Insights | Restricted LinkedIn navigation surfaces | User-opened navigation only; use these to help a user reach the right LinkedIn area, not as stored source-query or session state |
-| `https://www.google.com/about/careers/applications/?hl=en_US` | Google proprietary career system | User-opened employer search until a stable public endpoint is reviewed |
+| `https://www.google.com/about/careers/applications/jobs/results?hl=en_US` | Google employer-owned careers web app with public job-search surfaces | Add a source-specific adapter only after a stable public fixture is reviewed; keep user-opened search fallback |
 | `https://www.yahooinc.com/careers/` | Yahoo custom career site with server-rendered search pages | User-opened employer search or source-specific adapter after endpoint and terms review |
 | `https://www.ibm.com/careers/search` | IBM proprietary career search with additional career-domain links | User-opened employer search until a stable public endpoint is reviewed |
-| `https://careers.microsoft.com/v2/global/en/home.html` | Microsoft career site backed by Eightfold career platform surfaces | Treat as employer career system; native adapter only after Eightfold endpoint and terms review |
+| `https://careers.microsoft.com/v2/global/en/home.html` and `https://apply.careers.microsoft.com/careers` | Microsoft employer-owned careers web app backed by Eightfold surfaces | Treat as public employer web API candidate; native adapter only after Eightfold endpoint and terms review |
+| `https://optiv.wd5.myworkdayjobs.com/Optiv_Careers` | Workday CXS public jobs endpoint; direct probe returned published job JSON | Add Workday adapter with tenant fixtures, capped request bodies, and source-specific rate limits |
+| `https://www.amazon.jobs/en/` | Amazon employer-owned public JSON search and recommendations endpoints | Add Amazon Jobs adapter candidate; normalize relative job paths |
+| `https://www.github.careers/careers-home` | GitHub employer-owned iCIMS/Jibe career site | Add iCIMS/Jibe detection and adapter fixtures before scheduled checks |
+| `https://openai.com/careers/search/` | OpenAI employer page with Ashby public job posting API behind application links | Add Ashby adapter and preserve OpenAI canonical job URLs when present |
+| `https://www.anthropic.com/careers/jobs` | Anthropic employer page with Greenhouse public board links and API coverage | Normalize to Greenhouse native source |
+| `https://remotefirstjobs.com/api/search-jobs` and legacy `https://jobscollider.com/api/search-jobs` | Remote First Jobs documented public remote-jobs API; legacy JobsCollider API redirects to it, and a live probe returned cybersecurity jobs with salary fields on 2026-06-19 | Add candidate native remote feed with source attribution and backlink requirements |
+| Old aggregator examples using Adzuna, The Muse, Randstad, GitHub Jobs, and USCIS H-1B files | Useful source-family reminder, but GitHub Jobs is historical and unavailable from current probes | Keep Adzuna and The Muse as optional credentialed APIs, avoid GitHub Jobs as a live source, and use H-1B employer files as optional sponsorship/employer context rather than job postings |
 
 Candidate platform families for the discovery registry include Greenhouse,
 Workday, SmartRecruiters, Lever, Ashby, Breezy, JazzHR, Bullhorn, Workable,

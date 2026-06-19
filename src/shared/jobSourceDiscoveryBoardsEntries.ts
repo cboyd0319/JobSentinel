@@ -416,6 +416,30 @@ export const JOB_SOURCE_BOARDS_DISCOVERY_ENTRIES: readonly model.JobSourceDiscov
       "Keep remote terms separated from role terms so broad-market roles can use this source.",
   },
   {
+    id: "remote-first-jobs",
+    label: "Remote First Jobs",
+    category: "remote-job-board",
+    accessModel: "native-public-feed",
+    status: "candidate",
+    regions: ["global"],
+    careerProfileIds: [
+      ...model.TECH_PROFILE_IDS,
+      ...model.BUSINESS_PROFILE_IDS,
+      ...model.CREATIVE_PROFILE_IDS,
+      "customer-success",
+    ],
+    hostPatterns: ["remotefirstjobs.com", "jobscollider.com"],
+    examples: [
+      "Remote First Jobs API",
+      "Remote First Jobs remote jobs",
+      "JobsCollider legacy API",
+    ],
+    implementationPath:
+      "Candidate feed adapter after attribution, freshness, and rate-limit review.",
+    notes:
+      "Remote-focused public source with explicit source attribution and backlink requirements. JobsCollider API paths now redirect to Remote First Jobs.",
+  },
+  {
     id: "we-work-remotely",
     label: "We Work Remotely",
     category: "remote-job-board",

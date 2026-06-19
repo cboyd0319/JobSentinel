@@ -111,6 +111,8 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   questions, confirmed answers, voluntary/protected questions, and unknowns.
 - 2026-06-19 Cover Letter Templates now show a local review checklist for
   blanks, truthful claims, and job-specific wording before copying/sending.
+- 2026-06-19 official source corpus now covers public ATS APIs, employer web
+  APIs, and restricted sessions as separate source paths.
 - 2026-06-19 active roadmap checklist has no remaining Partial/Open rows; final
   affected UI refresh and E2E budget pass are recorded in the manual UI ledger.
 

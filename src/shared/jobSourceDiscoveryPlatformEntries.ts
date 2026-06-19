@@ -14,7 +14,7 @@ export const JOB_SOURCE_PLATFORM_DISCOVERY_ENTRIES: readonly model.JobSourceDisc
       "job-boards.greenhouse.io",
       "boards.greenhouse.io",
     ],
-    examples: ["Fivetran", "Primer", "SpaceX"],
+    examples: ["Fivetran", "Anthropic", "Klaviyo", "Primer", "SpaceX"],
     implementationPath:
       "Native Greenhouse adapter. Prefer the public job board API and normalize hosted board URLs to the current host.",
     notes:
@@ -44,7 +44,7 @@ export const JOB_SOURCE_PLATFORM_DISCOVERY_ENTRIES: readonly model.JobSourceDisc
     regions: ["global"],
     careerProfileIds: "all",
     hostPatterns: ["jobs.ashbyhq.com", "api.ashbyhq.com"],
-    examples: ["Modern startup and software-company career pages"],
+    examples: ["OpenAI careers", "Modern startup and software-company career pages"],
     implementationPath:
       "Candidate native adapter using Ashby public job posting API and embedded board signals.",
     notes:
@@ -85,6 +85,7 @@ export const JOB_SOURCE_PLATFORM_DISCOVERY_ENTRIES: readonly model.JobSourceDisc
     label: "Workday",
     category: "ats-platform",
     accessModel: "employer-career-system",
+    technicalAccess: "public-unauthenticated",
     status: "candidate",
     regions: ["global"],
     careerProfileIds: "all",
@@ -94,24 +95,29 @@ export const JOB_SOURCE_PLATFORM_DISCOVERY_ENTRIES: readonly model.JobSourceDisc
       "wd3.myworkdayjobs.com",
       "workdayjobs.com",
     ],
-    examples: ["Large enterprise career portals"],
+    examples: ["Optiv careers", "Large enterprise career portals"],
     implementationPath:
-      "Detect employer Workday tenant URLs and use reviewed employer-scoped endpoints only.",
-    notes: model.EMPLOYER_CAREER_SYSTEM_NOTES,
+      "Detect employer Workday tenant URLs and use the public Candidate Experience API only after tenant fixtures and rate limits are reviewed.",
+    notes:
+      "Workday CXS pages can expose public job-search JSON for published jobs. " +
+      model.EMPLOYER_CAREER_SYSTEM_NOTES,
   },
   {
     id: "icims",
     label: "iCIMS",
     category: "ats-platform",
     accessModel: "employer-career-system",
+    technicalAccess: "public-unauthenticated",
     status: "candidate",
     regions: ["global"],
     careerProfileIds: "all",
     hostPatterns: ["icims.com", "careers.icims.com", "jobs.icims.com"],
-    examples: ["Enterprise career portals"],
+    examples: ["GitHub careers", "Enterprise career portals"],
     implementationPath:
-      "Detect iCIMS-hosted pages and add native support only after endpoint review.",
-    notes: model.EMPLOYER_CAREER_SYSTEM_NOTES,
+      "Detect iCIMS and Jibe-hosted career pages and add native support only after endpoint review.",
+    notes:
+      "iCIMS/Jibe career sites can render public jobs through employer-owned web APIs or hosted pages. " +
+      model.EMPLOYER_CAREER_SYSTEM_NOTES,
   },
   {
     id: "jobvite",
@@ -203,14 +209,17 @@ export const JOB_SOURCE_PLATFORM_DISCOVERY_ENTRIES: readonly model.JobSourceDisc
     label: "Eightfold",
     category: "ats-platform",
     accessModel: "employer-career-system",
+    technicalAccess: "public-unauthenticated",
     status: "candidate",
     regions: ["global"],
     careerProfileIds: "all",
     hostPatterns: ["eightfold.ai", "careers.microsoft.com"],
     examples: ["Microsoft careers", "Large enterprise talent portals"],
     implementationPath:
-      "Detect Eightfold-backed portals and review employer-specific endpoints before native automation.",
-    notes: model.EMPLOYER_CAREER_SYSTEM_NOTES,
+      "Detect Eightfold-backed portals and review employer-specific web API endpoints before native automation.",
+    notes:
+      "Microsoft careers demonstrates the employer-owned public web-app pattern. " +
+      model.EMPLOYER_CAREER_SYSTEM_NOTES,
   },
   {
     id: "sap-successfactors",
@@ -431,6 +440,58 @@ export const JOB_SOURCE_PLATFORM_DISCOVERY_ENTRIES: readonly model.JobSourceDisc
       "JobScore documents a Job Feed API separately from its Hire API; source-specific feed access must be verified.",
   },
   {
+    id: "amazon-jobs",
+    label: "Amazon Jobs",
+    category: "employer-careers",
+    accessModel: "native-public",
+    status: "candidate",
+    regions: ["global"],
+    careerProfileIds: "all",
+    hostPatterns: ["amazon.jobs", "www.amazon.jobs", "www.amazon.jobs/en/search.json"],
+    examples: ["Amazon Jobs"],
+    implementationPath:
+      "Candidate native adapter using Amazon's employer-owned public JSON search endpoints.",
+    notes:
+      "Amazon Jobs returns public listing JSON from its own careers domain. Keep request volume bounded and normalize relative job paths.",
+  },
+  {
+    id: "google-careers",
+    label: "Google Careers",
+    category: "employer-careers",
+    accessModel: "employer-career-system",
+    technicalAccess: "public-unauthenticated",
+    status: "candidate",
+    regions: ["global"],
+    careerProfileIds: "all",
+    hostPatterns: [
+      "google.com/about/careers/applications",
+      "www.google.com/about/careers/applications",
+      "gstatic.com/hiring",
+    ],
+    examples: ["Google Careers"],
+    implementationPath:
+      "Detect Google Careers pages and add native support only after a stable public job-search fixture is reviewed.",
+    notes:
+      "Google Careers is public and employer-owned, but the job-search transport is an internal web app. " +
+      model.EMPLOYER_CAREER_SYSTEM_NOTES,
+  },
+  {
+    id: "tesla-careers",
+    label: "Tesla Careers",
+    category: "employer-careers",
+    accessModel: "employer-career-system",
+    technicalAccess: "public-unauthenticated",
+    status: "research",
+    regions: ["global"],
+    careerProfileIds: "all",
+    hostPatterns: ["tesla.com/careers", "www.tesla.com/careers"],
+    examples: ["Tesla Careers"],
+    implementationPath:
+      "Detect Tesla Careers pages and add native support only after stable public fixtures are captured without bypassing edge controls.",
+    notes:
+      "Tesla publishes jobs on its own careers domain, but local direct fetches can be blocked by edge controls. Keep browser-open and manual import fallbacks until adapter fixtures are reliable.",
+  },
+  {
     id: "employer-careers-pages",
     label: "Employer Careers Pages",
     category: "employer-careers",
@@ -442,7 +503,12 @@ export const JOB_SOURCE_PLATFORM_DISCOVERY_ENTRIES: readonly model.JobSourceDisc
     examples: [
       "Fivetran Careers",
       "SpaceX Careers",
+      "Tesla Careers",
       "Google Careers",
+      "Amazon Jobs",
+      "GitHub Careers",
+      "OpenAI Careers",
+      "Anthropic Careers",
       "Yahoo Careers",
       "IBM Careers",
       "Microsoft Careers",

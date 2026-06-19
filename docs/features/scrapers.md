@@ -36,11 +36,10 @@ Use the same privacy-reminder pattern for any browser or webview opened by
 JobSentinel. The user should be able to close the session or keep going. Do not
 force a timeout only because the browser has been open for a while.
 
-Reviewed public APIs, feeds, ATS postings, and official employer posting
-endpoints are low-friction sources. Greenhouse, Lever, public feeds, and
-similar unauthenticated posting sources should use normal source opt-in, rate
-limits, safe errors, and parser tests, not restricted-source acknowledgements
-or authenticated-session time gates.
+Reviewed official hiring sources are low-friction sources. Greenhouse, Lever,
+and similar public posting sources should use normal source opt-in, safe
+messages, and quality checks, not restricted-source acknowledgements or
+authenticated-session time gates.
 
 Do not confuse restricted public boards with authenticated sessions. A job board
 can be technically public and unauthenticated while still requiring a prominent
@@ -171,11 +170,12 @@ careers URL, and have JobSentinel classify it before deciding what to do next.
 
 The discovery order is:
 
-1. Detect public ATS or official API signals such as Greenhouse, Lever, Ashby,
-   SmartRecruiters, Workable, Workday, Breezy, JazzHR, Bullhorn, Eightfold,
-   iCIMS, Jobvite, Teamtailor, Recruitee, Taleo, SAP SuccessFactors, Oracle
-   Recruiting, or Phenom.
-2. Normalize to a native scheduled source only when the public endpoint and
+1. Detect official hiring-source signals such as Greenhouse, Lever, Ashby,
+   SmartRecruiters, Workable, Workday, Amazon Jobs, large employer career
+   pages, iCIMS/Jibe, Breezy, JazzHR, Bullhorn, Eightfold, Jobvite,
+   Teamtailor, Recruitee, Taleo, SAP SuccessFactors, Oracle Recruiting, or
+   Phenom.
+2. Normalize to a native scheduled source only when the public source path and
    source terms are reviewed.
 3. Offer a user-opened search link, pasted job link import, Browser Import, or
    manual entry when the employer page is custom, restricted, blocked, or still
@@ -186,9 +186,16 @@ Examples from the 2026-06-19 source pass:
 | Employer page | Discovery result |
 | ------------- | ---------------- |
 | Fivetran careers | Greenhouse board `fivetran`; keep the employer job links shown by the source |
+| Klaviyo, Faire, and Mindgruve careers | Greenhouse hiring-source paths verified |
 | Primer AI Greenhouse board | Greenhouse board `primerai` on the current `job-boards.greenhouse.io` host |
 | SpaceX careers | Custom page, but public Greenhouse board `spacex` exists behind it |
-| Google, Yahoo, IBM, and Microsoft company pages | Open in the user browser while safer handling is reviewed |
+| OpenAI careers | Ashby hiring-source path behind the employer page |
+| Anthropic careers | Greenhouse hiring-source path behind the employer page |
+| Optiv careers | Workday hiring-source path |
+| Amazon Jobs | Employer-owned public job-search path |
+| GitHub careers | iCIMS/Jibe public career-site signals |
+| Remote First Jobs | Remote jobs source with attribution requirements |
+| Large employer company pages | Open in the user browser while native source support is reviewed |
 | LinkedIn company jobs | User-gated restricted discovery only; no silent scheduled discovery or session capture |
 | LinkedIn Jobs Tracker | User-gated restricted tracking only for saved or applied jobs; no silent scheduled discovery or session capture |
 
