@@ -13,6 +13,8 @@ fixed by asking harder.
 - Show "Pay not listed" on job cards when structured salary fields are empty,
   and, when a salary floor exists, ask the user to compare the role before
   tailoring.
+- Show a regional pay-range review cue when a saved job has no complete pay
+  range and its location matches a supported pay-transparency region.
 - Show missing listed-pay cues during job import preview so users know to
   verify pay before saving and tailoring a posting.
 - Show listed-pay comparison rows in the dashboard using the same malformed-pay
@@ -64,6 +66,10 @@ inputs, not as self-worth scores.
 - Treat missing pay as useful evidence about transparency, not as neutral or as
   proof of bad intent. Missing-pay job-card and import-preview guidance is a
   review cue, not a stale-posting or scam claim.
+- Treat regional pay-range guidance as a plain user reminder, not legal advice
+  and not proof that an employer or job board did anything wrong. The user
+  should open the employer posting and confirm the written range before
+  tailoring or applying.
 - Treat malformed listed-pay values, such as non-finite, negative, or reversed
   structured ranges, as unavailable instead of showing them as real pay
   evidence in job cards or dashboard comparisons.
@@ -87,6 +93,26 @@ inputs, not as self-worth scores.
 - Avoid protected-class inference for salary guidance.
 - Avoid copy that implies marginalized workers caused pay gaps by negotiating
   poorly.
+
+## Regional Pay Range Checks
+
+As of the 2026-06-19 official-source review, JobSentinel has pay-range review
+rules for Colorado, California, Washington, New York, Illinois, Minnesota,
+Maryland, Massachusetts, New Jersey, Vermont, Hawaii, and the District of
+Columbia.
+
+When a saved job in one of those regions has no complete structured pay range,
+job cards show **Check pay range**. This is a review cue only. It does not
+decide whether a posting is legally covered, whether an exemption applies, or
+whether a source omitted information that exists on the employer page.
+
+Current source links are kept with the shared taxonomy in
+`src/shared/payTransparencyRules.ts` and should be rechecked before adding
+regions or changing jurisdiction-specific copy. The 2026-06-19 review used
+official sources from Colorado CDLE, California DIR, Washington L&I, New York
+DOL, Illinois DOL, Minnesota Revisor of Statutes, Maryland Labor,
+Massachusetts Attorney General, New Jersey DOL, Vermont General Assembly,
+Hawaii Civil Rights Commission, and the Council of the District of Columbia.
 
 ## Data Sources
 

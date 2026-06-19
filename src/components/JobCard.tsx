@@ -34,6 +34,7 @@ import {
   type JobFeedbackSignal,
   type JobFeedbackVerdict,
 } from "../shared/jobFeedbackScoring";
+import { getPayTransparencyGuidance } from "../shared/payTransparencyRules";
 
 // Lazy load modal to reduce initial bundle size
 const ScoreBreakdownModal = lazy(() =>
@@ -189,6 +190,11 @@ export const JobCard = memo(function JobCard({
     job.salary_max,
     salaryFloorUsd,
   );
+  const payTransparencyGuidance = getPayTransparencyGuidance({
+    location: job.location,
+    salaryMin: job.salary_min,
+    salaryMax: job.salary_max,
+  });
   const salaryRangeQualityGuidance =
     payFloorGuidance?.title === "Open-ended listed pay"
       ? null
@@ -213,6 +219,8 @@ export const JobCard = memo(function JobCard({
     hasSafeJobUrl ? "" : ", job link to check"
   }${
     payFloorGuidance ? `, ${payFloorGuidance.ariaLabel}` : ""
+  }${
+    payTransparencyGuidance ? `, ${payTransparencyGuidance.ariaLabel}` : ""
   }${
     salaryRangeQualityGuidance ? `, ${salaryRangeQualityGuidance.ariaLabel}` : ""
   }`;
@@ -434,6 +442,21 @@ export const JobCard = memo(function JobCard({
                     <p className="font-semibold">{payFloorGuidance.title}</p>
                     <p className="text-xs leading-5 opacity-90">
                       {payFloorGuidance.description}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {payTransparencyGuidance && (
+                <div
+                  data-testid="pay-transparency-guidance"
+                  className="mb-2 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200"
+                >
+                  <SalaryIcon />
+                  <div>
+                    <p className="font-semibold">{payTransparencyGuidance.title}</p>
+                    <p className="text-xs leading-5 opacity-90">
+                      {payTransparencyGuidance.description}
                     </p>
                   </div>
                 </div>

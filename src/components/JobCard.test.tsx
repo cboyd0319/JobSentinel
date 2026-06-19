@@ -363,6 +363,29 @@ describe("JobCard", () => {
       ).toBeInTheDocument();
     });
 
+    it("shows regional pay-range guidance when a covered location has no listed pay", () => {
+      const coloradoJobNoSalary = {
+        ...mockJob,
+        location: "Denver, CO",
+        salary_min: null,
+        salary_max: null,
+      };
+
+      renderWithToast(<JobCard job={coloradoJobNoSalary} />);
+
+      expect(screen.getByTestId("pay-transparency-guidance")).toHaveTextContent(
+        "Check pay range",
+      );
+      expect(screen.getByTestId("pay-transparency-guidance")).toHaveTextContent(
+        "Colorado has pay-range posting rules for covered employers",
+      );
+      expect(
+        screen.getByRole("article", {
+          name: /pay range to check for colorado/i,
+        }),
+      ).toBeInTheDocument();
+    });
+
     it("shows missing-pay floor guidance when salary floor exists", () => {
       const jobNoSalary = { ...mockJob, salary_min: null, salary_max: null };
 
