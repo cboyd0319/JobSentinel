@@ -77,14 +77,16 @@ export function evaluateReleaseReadinessFromInputs(inputs) {
       versionCheck.failures.join("; ") || "package, Tauri, and Cargo metadata match.",
     ),
     criterion(
-      "release scripts expose readiness and public verification",
+      "release scripts expose environment, readiness, and public verification",
       inputs.packageJson.scripts?.["release:readiness"] ===
         "node scripts/check-release-readiness.mjs" &&
+        inputs.packageJson.scripts?.["release:check-env"] ===
+          "node scripts/check-release-environment.mjs" &&
         inputs.packageJson.scripts?.["release:verify:public"] ===
           "node scripts/verify-public-release-assets.mjs" &&
         inputs.packageJson.scripts?.["macos:readiness"] ===
           "node scripts/check-macos-readiness.mjs",
-      "Release readiness, public asset, and macOS readiness scripts must stay discoverable.",
+      "Release environment, readiness, public asset, and macOS readiness scripts must stay discoverable.",
     ),
     criterion(
       "release workflow targets all supported platforms",

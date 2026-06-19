@@ -76,7 +76,7 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 - Setup Wizard desktop/mobile, whole-UI post-design click/action coverage, and
   keyboard paths now have fresh Playwright evidence.
 - Current 2026-06-19 pre-release gates pass: harness 100, docs, bloat, release
-  version/readiness/deps/skills, security/static sensors, npm audit, cargo audit/deny,
+  version/environment/readiness/deps/skills, security/static sensors, npm audit, cargo audit/deny,
   doctor/doctor:e2e, scripts `710/710`, frontend `3124/3124`, lint/build,
   Rust fmt/clippy/lib/all-target test, E2E `272/272`, and local macOS DMG/SBOM/skills checks.
 - Final non-`content/` expert/agent pass is applied locally. Public wiki pages

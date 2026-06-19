@@ -490,6 +490,12 @@ Release publishing and platform-signing secrets should live in the GitHub
 environment so draft-release creation, asset upload, and macOS signing secrets
 require explicit release approval.
 
+Use `npm run release:check-env` locally before tagging to check release-signing
+environment completeness without reading or printing secret values. Add
+`-- --require-windows` before publishing a Windows MSI, and add
+`-- --require-macos-gatekeeper` only for a Developer ID signed and notarized
+macOS release.
+
 ### macOS signing and notarization
 
 Zero-friction public macOS release builds require an Apple Developer Account,

@@ -37,6 +37,7 @@ artifacts:
 ```bash
 node scripts/install-pinned-npm.mjs
 npm run release:check-version -- vX.Y.Z
+npm run release:check-env
 npm run release:readiness -- --version vX.Y.Z
 npm run harness:check
 npm run release:check-deps
@@ -87,6 +88,12 @@ Upload `JobSentinel-X.Y.Z-agent-skills.tar.gz`,
 `JobSentinel-X.Y.Z-agent-skills.zip`, and both `.sha256` sidecars. The
 archives are not installers, but hosted releases still attest them before
 upload.
+
+`npm run release:check-env` is non-interactive and checks only environment
+variable presence and value shape. It does not call GitHub, read secret values,
+or print secret values. Add `-- --require-windows` when the release must
+include a public Windows MSI. Add `-- --require-macos-gatekeeper` only when the
+release is intended to be Developer ID signed, notarized, and Gatekeeper-ready.
 
 ### 2. macOS signing mode
 
@@ -239,6 +246,12 @@ and creates `.msi.sha256` only after signature verification passes, including
 manual release dispatch for `platform=windows`.
 For local Windows builds, configure equivalent local code-signing material
 outside the repo before running `tauri build`.
+
+Before tagging a Windows release, run:
+
+```bash
+npm run release:check-env -- --platforms windows --require-windows
+```
 
 Public Linux upload is blocked unless exactly one `.AppImage` and one `.deb`
 exist, both filenames include the release version, both files are non-empty,

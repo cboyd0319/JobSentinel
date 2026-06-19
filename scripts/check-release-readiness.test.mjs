@@ -32,6 +32,28 @@ test("release readiness rejects version metadata drift", () => {
   );
 });
 
+test("release readiness rejects missing release environment script", () => {
+  const inputs = loadReleaseReadinessInputs({ env: {} });
+  const report = evaluateReleaseReadinessFromInputs({
+    ...inputs,
+    packageJson: {
+      ...inputs.packageJson,
+      scripts: {
+        ...inputs.packageJson.scripts,
+        "release:check-env": undefined,
+      },
+    },
+  });
+
+  assert(
+    report.criteria.some(
+      (item) =>
+        item.id === "release scripts expose environment, readiness, and public verification" &&
+        !item.ok,
+    ),
+  );
+});
+
 test("release readiness rejects Windows upload without signature gate", () => {
   const inputs = loadReleaseReadinessInputs({ env: {} });
   const report = evaluateReleaseReadinessFromInputs({

@@ -149,6 +149,8 @@ Out of scope:
 - Public wiki `Home.md` and `Capabilities.md` now match the `2.9.0` local
   readiness, release-boundary, macOS, LinkedIn, security, and skills posture.
 - CI/release security blocks on sensors, zizmor, audit, and cargo-deny.
+- Release environment preflight now checks local Windows/macOS signing input
+  completeness without invoking GitHub or printing secret values.
 
 ## Next Work
 
