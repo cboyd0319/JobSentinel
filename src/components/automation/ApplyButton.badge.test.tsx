@@ -100,6 +100,21 @@ describe("AtsBadge", () => {
       });
     });
 
+    it("renders expanded application form labels", async () => {
+      mockInvoke.mockResolvedValue({
+        platform: "smartrecruiters",
+        commonFields: [],
+        automationNotes: null,
+      });
+
+      render(<AtsBadge url="https://jobs.smartrecruiters.com/example/123" />);
+
+      await waitFor(() => {
+        const badge = screen.getByText("SmartRecruiters");
+        expect(badge).toHaveClass("bg-sky-100");
+      });
+    });
+
     it("re-detects when URL changes", async () => {
       mockInvoke.mockResolvedValue({
         platform: "greenhouse",

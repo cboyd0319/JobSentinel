@@ -2,6 +2,38 @@ use super::FieldType;
 use crate::core::automation::AtsPlatform;
 use std::collections::HashMap;
 
+fn insert_generic_contact_resume_selectors(selectors: &mut HashMap<FieldType, Vec<&'static str>>) {
+    selectors.insert(
+        FieldType::FirstName,
+        vec!["input[name*='first']", "input[id*='first']", "#firstName"],
+    );
+    selectors.insert(
+        FieldType::LastName,
+        vec!["input[name*='last']", "input[id*='last']", "#lastName"],
+    );
+    selectors.insert(
+        FieldType::FullName,
+        vec!["input[name='name']", "input[id='name']", "#name"],
+    );
+    selectors.insert(
+        FieldType::Email,
+        vec!["input[type='email']", "input[name*='email']", "#email"],
+    );
+    selectors.insert(
+        FieldType::Phone,
+        vec!["input[type='tel']", "input[name*='phone']", "#phone"],
+    );
+    selectors.insert(
+        FieldType::LinkedIn,
+        vec!["input[name*='linkedin']", "input[id*='linkedin']"],
+    );
+    selectors.insert(
+        FieldType::GitHub,
+        vec!["input[name*='github']", "input[id*='github']"],
+    );
+    selectors.insert(FieldType::Resume, vec!["input[type='file']"]);
+}
+
 pub(super) fn get_field_selectors(platform: &AtsPlatform) -> HashMap<FieldType, Vec<&'static str>> {
     let mut selectors = HashMap::new();
 
@@ -146,36 +178,31 @@ pub(super) fn get_field_selectors(platform: &AtsPlatform) -> HashMap<FieldType, 
             selectors.insert(FieldType::LinkedIn, vec!["input[name*='linkedin']"]);
             selectors.insert(FieldType::Resume, vec!["input[type='file']"]);
         }
-        AtsPlatform::Icims | AtsPlatform::BambooHr => {
-            selectors.insert(
-                FieldType::FirstName,
-                vec!["input[name*='first']", "input[id*='first']", "#firstName"],
-            );
-            selectors.insert(
-                FieldType::LastName,
-                vec!["input[name*='last']", "input[id*='last']", "#lastName"],
-            );
-            selectors.insert(
-                FieldType::FullName,
-                vec!["input[name='name']", "input[id='name']", "#name"],
-            );
-            selectors.insert(
-                FieldType::Email,
-                vec!["input[type='email']", "input[name*='email']", "#email"],
-            );
-            selectors.insert(
-                FieldType::Phone,
-                vec!["input[type='tel']", "input[name*='phone']", "#phone"],
-            );
-            selectors.insert(
-                FieldType::LinkedIn,
-                vec!["input[name*='linkedin']", "input[id*='linkedin']"],
-            );
-            selectors.insert(
-                FieldType::GitHub,
-                vec!["input[name*='github']", "input[id*='github']"],
-            );
-            selectors.insert(FieldType::Resume, vec!["input[type='file']"]);
+        AtsPlatform::Icims
+        | AtsPlatform::BambooHr
+        | AtsPlatform::SmartRecruiters
+        | AtsPlatform::Workable
+        | AtsPlatform::Recruitee
+        | AtsPlatform::BreezyHr
+        | AtsPlatform::JazzHr
+        | AtsPlatform::Bullhorn
+        | AtsPlatform::Jobvite
+        | AtsPlatform::Teamtailor
+        | AtsPlatform::SuccessFactors
+        | AtsPlatform::OracleRecruiting
+        | AtsPlatform::Phenom
+        | AtsPlatform::Personio
+        | AtsPlatform::Comeet
+        | AtsPlatform::Jobylon
+        | AtsPlatform::Eightfold
+        | AtsPlatform::AdpRecruiting
+        | AtsPlatform::Ukg
+        | AtsPlatform::Rippling
+        | AtsPlatform::ZohoRecruit
+        | AtsPlatform::Freshteam
+        | AtsPlatform::Pinpoint
+        | AtsPlatform::JobScore => {
+            insert_generic_contact_resume_selectors(&mut selectors);
         }
         AtsPlatform::Unknown => {}
     }

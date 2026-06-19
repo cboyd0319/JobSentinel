@@ -28,6 +28,7 @@
     "docs/references.md",
     "docs/exec-plans.md",
     "docs/plans/README.md",
+    "docs/plans/active/v2.9.0-completion-and-full-feature-roadmap.md",
     "docs/plans/index.json",
     "docs/plans/templates/exec-plan-template.md",
     "docs/plans/templates/change-contract-template.md",
@@ -121,6 +122,11 @@
       "Do not claim implementation exists until it is in the local working tree and verified."
     ],
     "docs/harness/change-contract.md": [
+      "Product direction:",
+      "maximizes useful job-search automation",
+      "removes arbitrary friction",
+      "user-owned risky paths use warning, consent, review, and a secure local",
+      "easy path stays automatic",
       "Rule 0 evidence:",
       "Rule 0 risk:",
       "Audience and ease:",
@@ -131,6 +137,13 @@
       "Restricted-source risk:",
       "User-ease evidence:",
       "Public GitHub wiki pages from `docs/harness/manifest.json` to update"
+    ],
+    "docs/plans/active/v2.9.0-completion-and-full-feature-roadmap.md": [
+      "## Product Direction",
+      "maximum job-search help",
+      "minimum user friction",
+      "Remove arbitrary roadblocks",
+      "The hard stops remain privacy and security failures"
     ],
     "docs/harness/verification-matrix.md": [
       "## Experience And Support",

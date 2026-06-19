@@ -41,6 +41,20 @@ describe("mock application platform commands", () => {
     });
   });
 
+  it("detects expanded ATS families without trusting query-string mentions", async () => {
+    await expect(
+      mockInvoke<{ platform: string }>("detect_ats_platform", {
+        url: "https://jobs.smartrecruiters.com/Example/123-security-engineer",
+      }),
+    ).resolves.toMatchObject({ platform: "smartrecruiters" });
+
+    await expect(
+      mockInvoke<{ platform: string }>("detect_ats_platform", {
+        url: "https://example.com/apply?next=https://jobs.smartrecruiters.com/Example/123",
+      }),
+    ).resolves.toMatchObject({ platform: "unknown" });
+  });
+
   it("rejects unsafe form fill links before application platform detection", async () => {
     await expect(
       mockInvoke("fill_application_form", {

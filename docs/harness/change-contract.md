@@ -15,6 +15,14 @@ Files, modules, docs, and behaviors in scope.
 Out of scope:
 Nearby work intentionally not included.
 
+Product direction:
+- How the change maximizes useful job-search automation.
+- How it removes arbitrary friction, redundant manual work, or
+  engineer-only setup.
+- Why any warning, confirmation, disabled state, or block is necessary.
+- How user-owned risky paths use warning, consent, review, and a secure local
+  path before blocking.
+
 Acceptance criteria:
 - Observable behavior or documentation result.
 - Edge cases.
@@ -27,6 +35,8 @@ Audience and ease:
 - How the path stays usable for non-technical job seekers.
 - How warnings, confirmations, or disabled states avoid unnecessary friction.
 - How the change helps the user get jobs instead of only reducing project risk.
+- How the easy path stays automatic when the action is local, reversible, and
+  user-reviewed.
 
 Design contract:
 - Whether the change touches `DESIGN.md`, `docs/design/README.md`, or

@@ -664,6 +664,28 @@ mod tests {
     }
 
     #[test]
+    fn test_expanded_platforms_use_generic_review_first_selectors() {
+        for platform in [
+            AtsPlatform::SmartRecruiters,
+            AtsPlatform::Workable,
+            AtsPlatform::Recruitee,
+            AtsPlatform::BreezyHr,
+            AtsPlatform::JazzHr,
+            AtsPlatform::Bullhorn,
+            AtsPlatform::Jobvite,
+            AtsPlatform::Teamtailor,
+            AtsPlatform::SuccessFactors,
+            AtsPlatform::OracleRecruiting,
+            AtsPlatform::Personio,
+            AtsPlatform::Eightfold,
+        ] {
+            let selectors = FormFiller::get_field_selectors(&platform);
+            assert!(selectors.contains_key(&FieldType::Email), "{platform:?}");
+            assert!(selectors.contains_key(&FieldType::Resume), "{platform:?}");
+        }
+    }
+
+    #[test]
     fn test_screening_answer_matching() {
         let profile = make_test_profile();
         let answers = vec![

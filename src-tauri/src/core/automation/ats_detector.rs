@@ -18,6 +18,10 @@ fn path_has_segment(url: &Url, segment: &str) -> bool {
         .is_some_and(|mut segments| segments.any(|part| part.eq_ignore_ascii_case(segment)))
 }
 
+fn path_contains(url: &Url, needle: &str) -> bool {
+    url.path().to_ascii_lowercase().contains(needle)
+}
+
 impl AtsDetector {
     /// Detect ATS platform from job URL
     ///
@@ -60,6 +64,18 @@ impl AtsDetector {
             return AtsPlatform::Workday;
         }
 
+        if host == "jobs.smartrecruiters.com" || host == "careers.smartrecruiters.com" {
+            return AtsPlatform::SmartRecruiters;
+        }
+
+        if host == "apply.workable.com" || host == "jobs.workable.com" {
+            return AtsPlatform::Workable;
+        }
+
+        if host_matches_domain(&host, "recruitee.com") {
+            return AtsPlatform::Recruitee;
+        }
+
         if host_matches_domain(&host, "taleo.net") {
             return AtsPlatform::Taleo;
         }
@@ -74,6 +90,106 @@ impl AtsDetector {
 
         if host_matches_domain(&host, "ashbyhq.com") {
             return AtsPlatform::AshbyHq;
+        }
+
+        if host_matches_domain(&host, "breezy.hr") {
+            return AtsPlatform::BreezyHr;
+        }
+
+        if host_matches_domain(&host, "applytojob.com")
+            || host_matches_domain(&host, "jazzhr.com")
+            || host_matches_domain(&host, "jazz.co")
+        {
+            return AtsPlatform::JazzHr;
+        }
+
+        if host_matches_domain(&host, "bullhornstaffing.com")
+            || (host_matches_domain(&host, "bullhorn.com") && path_contains(&parsed_url, "job"))
+        {
+            return AtsPlatform::Bullhorn;
+        }
+
+        if host == "jobs.jobvite.com"
+            || (host_matches_domain(&host, "jobvite.com") && path_contains(&parsed_url, "job"))
+        {
+            return AtsPlatform::Jobvite;
+        }
+
+        if host_matches_domain(&host, "teamtailor.com") {
+            return AtsPlatform::Teamtailor;
+        }
+
+        if host_matches_domain(&host, "successfactors.com")
+            || host_matches_domain(&host, "sapsf.com")
+            || host_matches_domain(&host, "successfactors.eu")
+        {
+            return AtsPlatform::SuccessFactors;
+        }
+
+        if host == "careers.oracle.com"
+            || (host_matches_domain(&host, "oraclecloud.com")
+                && (path_contains(&parsed_url, "career")
+                    || path_contains(&parsed_url, "recruit")
+                    || path_has_segment(&parsed_url, "job")))
+        {
+            return AtsPlatform::OracleRecruiting;
+        }
+
+        if host_matches_domain(&host, "phenompeople.com") {
+            return AtsPlatform::Phenom;
+        }
+
+        if host_matches_domain(&host, "personio.de") || host_matches_domain(&host, "personio.com") {
+            return AtsPlatform::Personio;
+        }
+
+        if host_matches_domain(&host, "comeet.com")
+            || host_matches_domain(&host, "comeet.co")
+            || host_matches_domain(&host, "sparkhire.com")
+        {
+            return AtsPlatform::Comeet;
+        }
+
+        if host_matches_domain(&host, "jobylon.com") {
+            return AtsPlatform::Jobylon;
+        }
+
+        if host == "careers.microsoft.com" || host_matches_domain(&host, "eightfold.ai") {
+            return AtsPlatform::Eightfold;
+        }
+
+        if host_matches_domain(&host, "workforcenow.adp.com") {
+            return AtsPlatform::AdpRecruiting;
+        }
+
+        if host_matches_domain(&host, "ultipro.com")
+            || (host_matches_domain(&host, "ukg.com") && path_contains(&parsed_url, "career"))
+        {
+            return AtsPlatform::Ukg;
+        }
+
+        if host == "hiring.rippling.com" {
+            return AtsPlatform::Rippling;
+        }
+
+        if host_matches_domain(&host, "zohorecruit.com")
+            || host_matches_domain(&host, "zohorecruit.in")
+            || host_matches_domain(&host, "zohorecruit.eu")
+        {
+            return AtsPlatform::ZohoRecruit;
+        }
+
+        if host_matches_domain(&host, "freshteam.com") || host_matches_domain(&host, "freshteam.io")
+        {
+            return AtsPlatform::Freshteam;
+        }
+
+        if host_matches_domain(&host, "pinpointhq.com") {
+            return AtsPlatform::Pinpoint;
+        }
+
+        if host_matches_domain(&host, "jobscore.com") {
+            return AtsPlatform::JobScore;
         }
 
         AtsPlatform::Unknown
@@ -103,6 +219,20 @@ impl AtsDetector {
             return AtsPlatform::Workday;
         }
 
+        if html_lower.contains("jobs.smartrecruiters.com")
+            || html_lower.contains("smartrecruiters.com")
+        {
+            return AtsPlatform::SmartRecruiters;
+        }
+
+        if html_lower.contains("apply.workable.com") || html_lower.contains("workable.com") {
+            return AtsPlatform::Workable;
+        }
+
+        if html_lower.contains("recruitee.com") {
+            return AtsPlatform::Recruitee;
+        }
+
         // Taleo indicators
         if html_lower.contains("taleo.net") || html_lower.contains("taleocentral") {
             return AtsPlatform::Taleo;
@@ -121,6 +251,91 @@ impl AtsDetector {
         // Ashby indicators
         if html_lower.contains("ashbyhq.com") || html_lower.contains("ashby-") {
             return AtsPlatform::AshbyHq;
+        }
+
+        if html_lower.contains("breezy.hr") {
+            return AtsPlatform::BreezyHr;
+        }
+
+        if html_lower.contains("applytojob.com")
+            || html_lower.contains("jazzhr.com")
+            || html_lower.contains("jazz.co")
+        {
+            return AtsPlatform::JazzHr;
+        }
+
+        if html_lower.contains("bullhornstaffing.com") || html_lower.contains("bullhorn.com") {
+            return AtsPlatform::Bullhorn;
+        }
+
+        if html_lower.contains("jobs.jobvite.com") || html_lower.contains("jobvite.com") {
+            return AtsPlatform::Jobvite;
+        }
+
+        if html_lower.contains("teamtailor.com") {
+            return AtsPlatform::Teamtailor;
+        }
+
+        if html_lower.contains("successfactors.com") || html_lower.contains("sapsf.com") {
+            return AtsPlatform::SuccessFactors;
+        }
+
+        if html_lower.contains("oraclecloud.com") || html_lower.contains("careers.oracle.com") {
+            return AtsPlatform::OracleRecruiting;
+        }
+
+        if html_lower.contains("phenompeople.com") {
+            return AtsPlatform::Phenom;
+        }
+
+        if html_lower.contains("personio.de") || html_lower.contains("personio.com") {
+            return AtsPlatform::Personio;
+        }
+
+        if html_lower.contains("comeet.com")
+            || html_lower.contains("comeet.co")
+            || html_lower.contains("sparkhire.com")
+        {
+            return AtsPlatform::Comeet;
+        }
+
+        if html_lower.contains("jobylon.com") {
+            return AtsPlatform::Jobylon;
+        }
+
+        if html_lower.contains("eightfold.ai") || html_lower.contains("careers.microsoft.com") {
+            return AtsPlatform::Eightfold;
+        }
+
+        if html_lower.contains("workforcenow.adp.com") {
+            return AtsPlatform::AdpRecruiting;
+        }
+
+        if html_lower.contains("ultipro.com") || html_lower.contains("ukg.com") {
+            return AtsPlatform::Ukg;
+        }
+
+        if html_lower.contains("hiring.rippling.com") {
+            return AtsPlatform::Rippling;
+        }
+
+        if html_lower.contains("zohorecruit.com")
+            || html_lower.contains("zohorecruit.in")
+            || html_lower.contains("zohorecruit.eu")
+        {
+            return AtsPlatform::ZohoRecruit;
+        }
+
+        if html_lower.contains("freshteam.com") || html_lower.contains("freshteam.io") {
+            return AtsPlatform::Freshteam;
+        }
+
+        if html_lower.contains("pinpointhq.com") {
+            return AtsPlatform::Pinpoint;
+        }
+
+        if html_lower.contains("jobscore.com") {
+            return AtsPlatform::JobScore;
         }
 
         AtsPlatform::Unknown
@@ -171,6 +386,44 @@ impl AtsDetector {
             ],
             AtsPlatform::BambooHr => vec!["first_name", "last_name", "email", "phone", "resume"],
             AtsPlatform::AshbyHq => vec!["name", "email", "phone", "resume", "linkedin_url"],
+            AtsPlatform::SmartRecruiters => vec![
+                "firstName",
+                "lastName",
+                "email",
+                "phoneNumber",
+                "resume",
+                "linkedin",
+            ],
+            AtsPlatform::Workable
+            | AtsPlatform::Recruitee
+            | AtsPlatform::BreezyHr
+            | AtsPlatform::JazzHr
+            | AtsPlatform::Bullhorn
+            | AtsPlatform::Jobvite
+            | AtsPlatform::Teamtailor
+            | AtsPlatform::SuccessFactors
+            | AtsPlatform::OracleRecruiting
+            | AtsPlatform::Phenom
+            | AtsPlatform::Personio
+            | AtsPlatform::Comeet
+            | AtsPlatform::Jobylon
+            | AtsPlatform::Eightfold
+            | AtsPlatform::AdpRecruiting
+            | AtsPlatform::Ukg
+            | AtsPlatform::Rippling
+            | AtsPlatform::ZohoRecruit
+            | AtsPlatform::Freshteam
+            | AtsPlatform::Pinpoint
+            | AtsPlatform::JobScore => {
+                vec![
+                    "name",
+                    "first_name",
+                    "last_name",
+                    "email",
+                    "phone",
+                    "resume",
+                ]
+            }
             AtsPlatform::Unknown => vec![],
         }
     }
@@ -190,6 +443,18 @@ impl AtsDetector {
                 "Workday: Complex multi-step form. Uses generic field IDs (input-1, input-2). \
                  Requires navigation through multiple pages. High automation difficulty."
             }
+            AtsPlatform::SmartRecruiters => {
+                "SmartRecruiters: Employer-scoped application forms with common contact, resume, \
+                 and screening fields. Review before submitting."
+            }
+            AtsPlatform::Workable => {
+                "Workable: Employer career pages often expose common contact and resume fields. \
+                 Review every field before submitting."
+            }
+            AtsPlatform::Recruitee => {
+                "Recruitee: Careers pages usually use modern forms with contact and resume fields. \
+                 Review screening questions before submitting."
+            }
             AtsPlatform::Taleo => {
                 "Taleo: Legacy ATS with clunky UI. Uses generic field names (text1, text2). \
                  May have long load times."
@@ -205,6 +470,28 @@ impl AtsDetector {
             AtsPlatform::AshbyHq => {
                 "Ashby: Modern ATS with clean UI. Usually single-page application. \
                  Good automation candidate."
+            }
+            AtsPlatform::BreezyHr
+            | AtsPlatform::JazzHr
+            | AtsPlatform::Bullhorn
+            | AtsPlatform::Jobvite
+            | AtsPlatform::Teamtailor
+            | AtsPlatform::SuccessFactors
+            | AtsPlatform::OracleRecruiting
+            | AtsPlatform::Phenom
+            | AtsPlatform::Personio
+            | AtsPlatform::Comeet
+            | AtsPlatform::Jobylon
+            | AtsPlatform::Eightfold
+            | AtsPlatform::AdpRecruiting
+            | AtsPlatform::Ukg
+            | AtsPlatform::Rippling
+            | AtsPlatform::ZohoRecruit
+            | AtsPlatform::Freshteam
+            | AtsPlatform::Pinpoint
+            | AtsPlatform::JobScore => {
+                "Recognized employer application system. JobSentinel can prepare common fields, \
+                 but the user must review the page and submit manually."
             }
             AtsPlatform::Unknown => "Unknown ATS platform. Manual detection required.",
         }
@@ -288,6 +575,55 @@ mod tests {
     }
 
     #[test]
+    fn detects_expanded_source_platform_families() {
+        let cases = [
+            (
+                "https://jobs.smartrecruiters.com/Example/123-product-manager",
+                AtsPlatform::SmartRecruiters,
+            ),
+            ("https://apply.workable.com/example/j/ABC123", AtsPlatform::Workable),
+            ("https://example.recruitee.com/o/security-engineer", AtsPlatform::Recruitee),
+            ("https://example.breezy.hr/p/abc123", AtsPlatform::BreezyHr),
+            ("https://example.applytojob.com/apply/abc123", AtsPlatform::JazzHr),
+            (
+                "https://jobs.bullhornstaffing.com/job/123",
+                AtsPlatform::Bullhorn,
+            ),
+            ("https://jobs.jobvite.com/example/job/abc123", AtsPlatform::Jobvite),
+            ("https://example.teamtailor.com/jobs/123", AtsPlatform::Teamtailor),
+            (
+                "https://example.successfactors.com/career/job/123",
+                AtsPlatform::SuccessFactors,
+            ),
+            (
+                "https://example.fa.us2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1/job/123",
+                AtsPlatform::OracleRecruiting,
+            ),
+            ("https://jobs.personio.de/example/job/123", AtsPlatform::Personio),
+            ("https://www.comeet.com/jobs/example/123", AtsPlatform::Comeet),
+            ("https://example.jobylon.com/jobs/123", AtsPlatform::Jobylon),
+            (
+                "https://careers.microsoft.com/v2/global/en/job/123",
+                AtsPlatform::Eightfold,
+            ),
+            (
+                "https://workforcenow.adp.com/mascsr/default/mdf/recruitment/recruitment.html",
+                AtsPlatform::AdpRecruiting,
+            ),
+            ("https://example.ultipro.com/job/123", AtsPlatform::Ukg),
+            ("https://hiring.rippling.com/example/jobs/123", AtsPlatform::Rippling),
+            ("https://example.zohorecruit.com/jobs/Careers/123", AtsPlatform::ZohoRecruit),
+            ("https://example.freshteam.com/jobs/123", AtsPlatform::Freshteam),
+            ("https://example.pinpointhq.com/jobs/123", AtsPlatform::Pinpoint),
+            ("https://jobs.jobscore.com/careers/example/jobs/123", AtsPlatform::JobScore),
+        ];
+
+        for (url, expected) in cases {
+            assert_eq!(AtsDetector::detect_from_url(url), expected, "{url}");
+        }
+    }
+
+    #[test]
     fn test_detect_unknown() {
         assert_eq!(
             AtsDetector::detect_from_url("https://company.com/careers/job/123"),
@@ -317,6 +653,14 @@ mod tests {
         );
         assert_eq!(
             AtsDetector::detect_from_url("https://notlever.co/jobs/123"),
+            AtsPlatform::Unknown
+        );
+        assert_eq!(
+            AtsDetector::detect_from_url("https://jobs.smartrecruiters.com.evil.example/jobs/123"),
+            AtsPlatform::Unknown
+        );
+        assert_eq!(
+            AtsDetector::detect_from_url("https://oracle.com/about"),
             AtsPlatform::Unknown
         );
     }
@@ -349,6 +693,17 @@ mod tests {
             AtsDetector::detect_from_html(lever_html),
             AtsPlatform::Lever
         );
+
+        let smartrecruiters_html = r#"
+            <html>
+              <script src="https://jobs.smartrecruiters.com/widgets"></script>
+            </html>
+        "#;
+
+        assert_eq!(
+            AtsDetector::detect_from_html(smartrecruiters_html),
+            AtsPlatform::SmartRecruiters
+        );
     }
 
     #[test]
@@ -359,6 +714,10 @@ mod tests {
 
         let workday_fields = AtsDetector::get_common_fields(&AtsPlatform::Workday);
         assert!(workday_fields.contains(&"input-1"));
+
+        let smartrecruiters_fields = AtsDetector::get_common_fields(&AtsPlatform::SmartRecruiters);
+        assert!(smartrecruiters_fields.contains(&"firstName"));
+        assert!(smartrecruiters_fields.contains(&"resume"));
     }
 
     #[test]
@@ -366,5 +725,44 @@ mod tests {
         let notes = AtsDetector::get_automation_notes(&AtsPlatform::Greenhouse);
         assert!(notes.contains("iframe"));
         assert!(notes.contains("grnhse_app"));
+    }
+
+    #[test]
+    fn platform_string_roundtrip_covers_expanded_platforms() {
+        let platforms = [
+            AtsPlatform::Greenhouse,
+            AtsPlatform::Lever,
+            AtsPlatform::Workday,
+            AtsPlatform::SmartRecruiters,
+            AtsPlatform::Workable,
+            AtsPlatform::Recruitee,
+            AtsPlatform::Taleo,
+            AtsPlatform::Icims,
+            AtsPlatform::BambooHr,
+            AtsPlatform::AshbyHq,
+            AtsPlatform::BreezyHr,
+            AtsPlatform::JazzHr,
+            AtsPlatform::Bullhorn,
+            AtsPlatform::Jobvite,
+            AtsPlatform::Teamtailor,
+            AtsPlatform::SuccessFactors,
+            AtsPlatform::OracleRecruiting,
+            AtsPlatform::Phenom,
+            AtsPlatform::Personio,
+            AtsPlatform::Comeet,
+            AtsPlatform::Jobylon,
+            AtsPlatform::Eightfold,
+            AtsPlatform::AdpRecruiting,
+            AtsPlatform::Ukg,
+            AtsPlatform::Rippling,
+            AtsPlatform::ZohoRecruit,
+            AtsPlatform::Freshteam,
+            AtsPlatform::Pinpoint,
+            AtsPlatform::JobScore,
+        ];
+
+        for platform in platforms {
+            assert_eq!(AtsPlatform::from_str(platform.as_str()), platform);
+        }
     }
 }

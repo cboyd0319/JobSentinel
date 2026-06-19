@@ -76,6 +76,17 @@ const APPLICATION_FORM_COLORS: Record<string, string> = {
   icims: "bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300",
   bamboohr: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300",
   ashbyhq: "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300",
+  smartrecruiters: "bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300",
+  workable: "bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-300",
+  recruitee: "bg-lime-100 text-lime-800 dark:bg-lime-900/30 dark:text-lime-300",
+  breezyhr: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300",
+  jazzhr: "bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300",
+  bullhorn: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300",
+  jobvite: "bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-300",
+  teamtailor: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
+  successfactors: "bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300",
+  oracle_recruiting: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
+  eightfold: "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300",
   unknown: "bg-surface-100 text-surface-600 dark:bg-surface-700 dark:text-surface-300",
 };
 

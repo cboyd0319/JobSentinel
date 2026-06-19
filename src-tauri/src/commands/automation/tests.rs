@@ -57,6 +57,17 @@ fn prepare_form_target_accepts_recognized_application_site() {
 }
 
 #[test]
+fn prepare_form_target_accepts_expanded_recognized_application_site() {
+    let (url, platform) = prepare_form_target(
+        "https://jobs.smartrecruiters.com/ExampleCompany/123-security-engineer",
+    )
+    .expect("recognized target");
+
+    assert!(url.starts_with("https://jobs.smartrecruiters.com/ExampleCompany/123"));
+    assert_eq!(platform, AtsPlatform::SmartRecruiters);
+}
+
+#[test]
 fn prepare_form_target_rejects_unknown_application_site() {
     let err = prepare_form_target("https://example.com/apply").unwrap_err();
 
