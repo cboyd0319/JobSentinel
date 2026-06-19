@@ -252,7 +252,7 @@ pub fn canonicalize_user_supplied_job_url(url: &str) -> Result<String, String> {
         parsed.set_query(Some(&encoded_query));
     }
 
-    validate_external_http_url(parsed.as_str())?;
+    validate_external_https_url(parsed.as_str())?;
 
     Ok(parsed.to_string())
 }
@@ -388,6 +388,18 @@ mod tests {
     fn https_validator_blocks_public_http_urls() {
         assert!(validate_external_https_url("https://example.com/jobs").is_ok());
         assert!(validate_external_https_url("http://example.com/jobs").is_err());
+    }
+
+    #[test]
+    fn canonical_job_url_requires_https() {
+        assert!(
+            canonicalize_user_supplied_job_url("http://example.com/jobs/123").is_err(),
+            "stored job destinations should require https"
+        );
+        assert!(
+            canonicalize_user_supplied_job_url("https://example.com/jobs/123").is_ok(),
+            "https job destinations should remain valid"
+        );
     }
 
     #[test]

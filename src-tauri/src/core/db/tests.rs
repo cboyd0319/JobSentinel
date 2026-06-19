@@ -163,11 +163,12 @@ mod tests {
         let result = db.upsert_job(&job).await;
         assert!(result.is_ok(), "https:// URL should be accepted");
 
-        // Test valid http:// URL
+        // Test public http:// URL
         job.hash = "hash_http".to_string(); // Different hash for new job
         job.url = "http://example.com/job/456".to_string();
         let result = db.upsert_job(&job).await;
-        assert!(result.is_ok(), "http:// URL should be accepted");
+        assert!(result.is_err(), "http:// URL should be rejected");
+        assert!(result.unwrap_err().to_string().contains("https required"));
     }
 
     #[tokio::test]

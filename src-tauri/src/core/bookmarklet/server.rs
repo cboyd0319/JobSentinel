@@ -670,7 +670,7 @@ async fn handle_import_request(
         Ok(url) => url,
         Err(_) => {
             return (
-                json_error_response("Job link must be a public http or https address"),
+                json_error_response("Job link must be a public https address"),
                 "application/json".to_string(),
             );
         }

@@ -342,6 +342,12 @@ describe("mock core command handlers", () => {
         url: "http://localhost:3000/jobs?query=Care%20Coordinator",
       }),
     ).rejects.toThrow("This job-site link is not safe to open");
+
+    await expect(
+      mockInvoke<void>("open_deep_link", {
+        url: "http://www.linkedin.com/jobs/search/?keywords=Care%20Coordinator",
+      }),
+    ).rejects.toThrow("This job-site link is not safe to open");
   });
 
   it("previews and imports jobs with minimized backend command payloads", async () => {
@@ -377,6 +383,12 @@ describe("mock core command handlers", () => {
     await expect(mockInvoke<ImportedJobResult>("import_job_from_url", { url })).rejects.toThrow(
       "This job is already in your saved jobs",
     );
+
+    await expect(
+      mockInvoke<JobImportPreview>("preview_job_import", {
+        url: "http://jobs.example.com/careers/care-coordinator",
+      }),
+    ).rejects.toThrow("Paste an https job posting link from your browser address bar.");
 
     await expect(
       mockInvoke<JobImportPreview>("preview_job_import", {

@@ -71,6 +71,13 @@ fn prepare_form_target_rejects_unsafe_application_site() {
 }
 
 #[test]
+fn prepare_form_target_rejects_plain_http_application_site() {
+    let err = prepare_form_target("http://jobs.lever.co/example/123").unwrap_err();
+
+    assert!(err.contains("https required"));
+}
+
+#[test]
 fn application_page_match_accepts_same_platform_url() {
     assert!(application_page_matches_platform(
         "https://jobs.lever.co/example/123",

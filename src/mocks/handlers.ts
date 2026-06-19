@@ -17,7 +17,7 @@ import {
   generateMockDeepLinks,
   getMockSitesByCategory,
   getMockSupportedSites,
-  isExternalHttpUrl,
+  isExternalHttpsUrl,
   previewMockJobImport as buildMockJobImportPreview,
   type MockJobImportPreview,
   type MockJobImportResult,
@@ -533,7 +533,7 @@ function importMockJobFromUrl(args?: Record<string, unknown>): MockJobImportResu
 
 function fillMockApplicationForm(args?: Record<string, unknown>): MockFillResultWithAttempt {
   const jobUrl = getStringArg(args, "jobUrl") ?? getStringArg(args, "job_url") ?? "";
-  if (!isExternalHttpUrl(jobUrl)) {
+  if (!isExternalHttpsUrl(jobUrl)) {
     throw new Error("This application link is not safe to open");
   }
 

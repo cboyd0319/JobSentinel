@@ -72,7 +72,7 @@ impl BookmarkletJobData {
         }
 
         crate::core::url_security::canonicalize_user_supplied_job_url(self.url.trim())
-            .map_err(|_| "Job link must be a public http or https address".to_string())?;
+            .map_err(|_| "Job link must be a public https address".to_string())?;
 
         // Try to get title from Schema.org or fallback field
         let title = if let Some(ref schema_type) = self.schema_type {

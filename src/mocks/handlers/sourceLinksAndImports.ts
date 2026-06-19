@@ -251,7 +251,7 @@ export function generateMockDeepLink(args?: Record<string, unknown>): DeepLink {
 }
 
 export function assertMockDeepLinkUrl(url: string | undefined): void {
-  if (!url || !isExternalHttpUrl(url)) {
+  if (!url || !isExternalHttpsUrl(url)) {
     throw new Error("This job-site link is not safe to open");
   }
 }
@@ -305,10 +305,10 @@ export function buildMockImportedJob(
   };
 }
 
-export function isExternalHttpUrl(value: string): boolean {
+export function isExternalHttpsUrl(value: string): boolean {
   try {
     const url = new URL(value);
-    if (url.protocol !== "http:" && url.protocol !== "https:") {
+    if (url.protocol !== "https:") {
       return false;
     }
 
@@ -474,7 +474,22 @@ function encodeQuery(value: string): string {
 
 function getJobImportUrl(args?: Record<string, unknown>): string {
   const url = getStringArg(args, "url")?.trim();
-  if (!url || !isExternalHttpUrl(url)) {
+  if (!url) {
+    throw new Error("Paste the full job link from your browser address bar.");
+  }
+
+  let parsedUrl: URL;
+  try {
+    parsedUrl = new URL(url);
+  } catch {
+    throw new Error("Paste the full job link from your browser address bar.");
+  }
+
+  if (parsedUrl.protocol === "http:" && !isLocalOrPrivateHost(parsedUrl.hostname)) {
+    throw new Error("Paste an https job posting link from your browser address bar.");
+  }
+
+  if (!isExternalHttpsUrl(url)) {
     throw new Error("Paste the full job link from your browser address bar.");
   }
 

@@ -390,10 +390,7 @@ async fn test_bookmarklet_import_rejects_unsafe_url_without_insert() {
         serde_json::from_str(&response).expect("error response should be JSON");
 
     assert_eq!(content_type, "application/json");
-    assert_eq!(
-        parsed["error"],
-        "Job link must be a public http or https address"
-    );
+    assert_eq!(parsed["error"], "Job link must be a public https address");
     assert_eq!(stored_job_count(&database).await, 0);
 }
 
@@ -621,10 +618,7 @@ async fn test_bookmarklet_import_consumes_token_after_invalid_authenticated_payl
     let second: serde_json::Value =
         serde_json::from_str(&second_response).expect("second response should be JSON");
 
-    assert_eq!(
-        first["error"],
-        "Job link must be a public http or https address"
-    );
+    assert_eq!(first["error"], "Job link must be a public https address");
     assert_eq!(second["error"], BOOKMARKLET_UNAUTHORIZED_MESSAGE);
     assert_eq!(stored_job_count(&database).await, 0);
 }

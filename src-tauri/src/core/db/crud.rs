@@ -4,7 +4,7 @@
 
 use super::connection::Database;
 use super::types::Job;
-use crate::core::url_security::{canonicalize_user_supplied_job_url, validate_external_http_url};
+use crate::core::url_security::{canonicalize_user_supplied_job_url, validate_external_https_url};
 use chrono::Utc;
 use sqlx;
 
@@ -61,7 +61,7 @@ impl Database {
             )));
         }
 
-        validate_external_http_url(&job.url)
+        validate_external_https_url(&job.url)
             .map_err(|reason| sqlx::Error::Protocol(format!("Invalid job URL: {reason}")))?;
 
         let canonical_job_url = canonicalize_user_supplied_job_url(&job.url)

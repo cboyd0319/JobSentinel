@@ -18,8 +18,8 @@ use crate::core::automation::{
     AutomationStatus,
 };
 #[cfg(test)]
-use crate::core::url_security::validate_external_http_url;
-use crate::core::url_security::{sanitize_url_for_logging, validate_external_http_url_for_fetch};
+use crate::core::url_security::validate_external_https_url;
+use crate::core::url_security::{sanitize_url_for_logging, validate_external_https_url_for_fetch};
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 use tauri::State;
@@ -39,7 +39,7 @@ use profile_resume::{
 
 #[cfg(test)]
 fn prepare_form_target(job_url: &str) -> Result<(String, AtsPlatform), String> {
-    let job_url = validate_external_http_url(job_url)
+    let job_url = validate_external_https_url(job_url)
         .map(|url| url.to_string())
         .map_err(|reason| format!("Cannot open that job link. {reason}"))?;
 
@@ -52,7 +52,7 @@ fn prepare_form_target(job_url: &str) -> Result<(String, AtsPlatform), String> {
 }
 
 async fn prepare_form_target_for_fill(job_url: &str) -> Result<(String, AtsPlatform), String> {
-    let job_url = validate_external_http_url_for_fetch(job_url)
+    let job_url = validate_external_https_url_for_fetch(job_url)
         .await
         .map(|url| url.to_string())
         .map_err(|reason| format!("Cannot open that job link. {reason}"))?;
@@ -78,7 +78,7 @@ async fn verify_application_form_page_url(
         "Could not confirm the application page stayed on a supported site.".to_string()
     })?;
 
-    let page_url = validate_external_http_url_for_fetch(&page_url)
+    let page_url = validate_external_https_url_for_fetch(&page_url)
         .await
         .map(|url| url.to_string())
         .map_err(|reason| format!("Stopped before filling the form. {reason}"))?;

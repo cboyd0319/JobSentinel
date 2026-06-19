@@ -165,20 +165,28 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
 
     const trimmedUrl = url.trim();
 
+    let parsedUrl: URL;
     try {
-      new URL(trimmedUrl);
+      parsedUrl = new URL(trimmedUrl);
     } catch {
       setError(fullJobLinkMessage);
       return;
     }
 
-    if (!isValidJobUrl(trimmedUrl)) {
+    if (parsedUrl.protocol !== "http:" && parsedUrl.protocol !== "https:") {
       setError(publicJobLinkMessage);
       return;
     }
 
-    if (new URL(trimmedUrl).protocol !== "https:") {
-      setError(secureJobLinkMessage);
+    if (parsedUrl.protocol === "http:") {
+      const httpsEquivalent = new URL(parsedUrl);
+      httpsEquivalent.protocol = "https:";
+      setError(isValidJobUrl(httpsEquivalent.toString()) ? secureJobLinkMessage : publicJobLinkMessage);
+      return;
+    }
+
+    if (!isValidJobUrl(trimmedUrl)) {
+      setError(publicJobLinkMessage);
       return;
     }
 

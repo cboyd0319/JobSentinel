@@ -7,7 +7,7 @@ use crate::core::deeplinks::{
     generate_all_links, generate_link_for_site, get_all_sites, DeepLink, SearchCriteria,
     SiteCategory, SiteInfo,
 };
-use crate::core::url_security::{sanitize_url_for_logging, validate_external_http_url_for_fetch};
+use crate::core::url_security::{sanitize_url_for_logging, validate_external_https_url_for_fetch};
 use serde::{Deserialize, Serialize};
 use tauri::Emitter;
 
@@ -64,9 +64,9 @@ pub async fn get_sites_by_category_cmd(
 }
 
 /// Validate that a URL is safe to open in the user's browser.
-/// Allows external HTTP(S) URLs while blocking localhost, private networks, and unsafe schemes.
+/// Allows external HTTPS URLs while blocking localhost, private networks, and unsafe schemes.
 async fn validate_deep_link_url(url: &str) -> Result<(), String> {
-    validate_external_http_url_for_fetch(url).await.map(|_| ())
+    validate_external_https_url_for_fetch(url).await.map(|_| ())
 }
 
 /// Open a deep link URL in the default browser
@@ -154,10 +154,10 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_deep_link_allows_http_public_ip() {
+    async fn test_deep_link_blocks_http_public_ip() {
         assert!(validate_deep_link_url("http://93.184.216.34/search")
             .await
-            .is_ok());
+            .is_err());
     }
 
     #[tokio::test]

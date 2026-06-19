@@ -4,7 +4,7 @@
 
 /**
  * Validates that a URL is safe to open
- * - Must be http or https scheme
+ * - Must use https
  * - Cannot be localhost or private IP addresses
  * - Cannot be file:// or other potentially dangerous schemes
  */
@@ -16,8 +16,8 @@ export function isValidJobUrl(url: string): boolean {
   try {
     const parsed = new URL(url);
 
-    // Only allow http and https schemes
-    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+    // Only allow encrypted public job destinations.
+    if (parsed.protocol !== 'https:') {
       return false;
     }
 

@@ -2,9 +2,12 @@ import { describe, expect, it } from "vitest";
 import { isValidJobUrl } from "./urlValidation";
 
 describe("isValidJobUrl", () => {
-  it("allows public http and https URLs", () => {
+  it("allows public https URLs", () => {
     expect(isValidJobUrl("https://example.com/jobs")).toBe(true);
-    expect(isValidJobUrl("http://example.com/jobs")).toBe(true);
+  });
+
+  it("blocks public http URLs", () => {
+    expect(isValidJobUrl("http://example.com/jobs")).toBe(false);
   });
 
   it("blocks localhost names and loopback IPs", () => {

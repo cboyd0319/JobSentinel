@@ -141,8 +141,12 @@ validate_webhook_url("https://hooks.slack.com.evil.com/webhook")
 
 **File**: `src-tauri/src/core/url_security.rs`
 
-`validate_external_http_url` is the shared backend guard for user-controlled external URLs.
-It is used by:
+`validate_external_http_url` is the shared low-level backend guard for
+user-controlled external HTTP(S) URLs. `validate_external_https_url` and
+`canonicalize_user_supplied_job_url` are used for stored or browser-opened job
+destinations, so job links must be public HTTPS.
+
+These guards are used by:
 
 - `src-tauri/src/core/db/crud.rs` before a job link is stored in SQLite.
 - `src-tauri/src/commands/automation.rs` before Application Assist opens a
@@ -153,10 +157,10 @@ It is used by:
 - `src-tauri/src/core/config/validation.rs`, `src-tauri/src/core/scrapers/jobswithgpt.rs`,
   and `src-tauri/src/core/health/smoke_tests.rs` before using a configured JobsWithGPT endpoint.
 
-Saved jobs now use this shared guard instead of a string prefix check, so
-stored job links cannot target localhost, private networks, embedded
-credentials, or non-HTTP schemes. Application Assist also validates the job link
-before loading profile data or creating a browser page.
+Saved jobs now use this shared canonicalization path instead of a string prefix
+check, so stored job links cannot target localhost, private networks, embedded
+credentials, non-HTTP schemes, or plain HTTP. Application Assist also validates
+the HTTPS job link before loading profile data or creating a browser page.
 
 Job import commands canonicalize the pasted URL before preview, fetch, duplicate
 hashing, and storage. Canonicalization removes embedded credentials, fragments,
@@ -623,8 +627,10 @@ fn validate_external_url(url: &str) -> Result<()> {
 }
 ```
 
-In JobSentinel, use `crate::core::url_security::validate_external_http_url` for
-deterministic validation and `resolve_external_http_url_for_fetch` or
+In JobSentinel, use `crate::core::url_security::validate_external_https_url` or
+`canonicalize_user_supplied_job_url` for stored or browser-opened job
+destinations. Use `validate_external_http_url` only when a caller explicitly
+allows public HTTP(S), and use `resolve_external_http_url_for_fetch` or
 `resolve_external_https_url_for_fetch` before backend fetches. Do not create
 one-off SSRF checks. Add unit tests for malicious input when touching URL, file
 path, command, or HTML input boundaries.

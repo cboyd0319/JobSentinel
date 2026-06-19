@@ -100,6 +100,14 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   AppImage script `8/8`, scraper hash `50/50`, bookmarklet `43/43`,
   JobsWithGPT smoke `1/1`, fragment `12/12`, URL normalizer `23/23`, Rust
   fmt/clippy, and Rust lib `2902` passed with `11` ignored.
+- 2026-06-19 job-destination hardening now requires public HTTPS for stored
+  job links, Browser Import jobs, import previews, job-card/open-deep-link
+  destinations, notification job hrefs, and Application Assist targets. The
+  local Browser Import callback remains `http://localhost` because it is the
+  one-shot local receiver, not a job destination. Fresh evidence: affected
+  frontend `121/121`, full frontend `3124/3124`, Rust URL/import/deep-link/
+  automation/bookmarklet/db/notify suites, Rust lib `2904` passed with `11`
+  ignored, build, clippy, readiness, deps, security, docs, bloat, and harness passed.
 
 ## Next Best Work
 
