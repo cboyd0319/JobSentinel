@@ -55,8 +55,8 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   are latest/stable, and transitives are lockfile-pinned/latest-compatible.
 - Runtime credential commands, scheduler, notifications, and smoke tests use
   encrypted SQLite vault storage, file-backed app data opens through SQLCipher,
-  and passive status checks stay non-interactive. Settings passphrase controls
-  exist; macOS vault keys use native Keychain user-presence access control.
+  and passive status/list checks stay non-interactive without caching the vault key.
+  Settings passphrase controls exist; macOS vault keys use native Keychain user-presence access control.
 - Current `2.9.0` no-account universal DMG is rebuilt and verified after
   `96344d70`: checksum, metadata, universal arch, signature, mounted/installed
   smoke, private isolated data, and no live Keychain access pass.

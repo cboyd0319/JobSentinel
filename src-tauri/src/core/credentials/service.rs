@@ -461,6 +461,39 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn status_checks_do_not_unlock_or_cache_master_key() {
+        let (database, credentials) = {
+            let database = Database::connect_memory().await.unwrap();
+            database.migrate().await.unwrap();
+            let credentials = CredentialService::with_fixed_master_key(
+                database.pool().clone(),
+                [9_u8; 32],
+                false,
+            );
+            (database, credentials)
+        };
+
+        credentials
+            .enable_passphrase_lock("correct battery staple")
+            .await
+            .unwrap();
+
+        let restarted =
+            CredentialService::with_fixed_master_key(database.pool().clone(), [9_u8; 32], false);
+        assert!(restarted.master_key.get().is_none());
+
+        let lock_status = restarted.unlock_status().await.unwrap();
+        assert_eq!(lock_status.mode, CredentialUnlockMode::Passphrase);
+        assert!(lock_status.configured);
+        assert!(!lock_status.unlocked);
+        assert!(restarted.master_key.get().is_none());
+
+        let statuses = restarted.list_status().await;
+        assert_eq!(statuses.len(), CredentialKey::all().len());
+        assert!(restarted.master_key.get().is_none());
+    }
+
+    #[tokio::test]
     async fn service_deletes_vault_rows() {
         let service = test_service().await;
 
