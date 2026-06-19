@@ -255,6 +255,40 @@ describe("mock core command handlers", () => {
     ).toBeNull();
   });
 
+  it("imports templates and saved searches with backend command names", async () => {
+    const template = {
+      id: "template-import-1",
+      name: "Imported letter",
+      content: "Hello {company}",
+      category: "general",
+      createdAt: "2026-06-19T12:00:00Z",
+      updatedAt: "2026-06-19T12:00:00Z",
+    };
+    const search = {
+      ...savedSearchInput,
+      id: "search-import-1",
+      createdAt: "2026-06-19T12:00:00Z",
+    };
+
+    expect(
+      await mockInvoke<number>("import_cover_letter_templates", {
+        templates: [template, template],
+      }),
+    ).toBe(1);
+    expect(
+      await mockInvoke<CoverLetterTemplate[]>("list_cover_letter_templates"),
+    ).toEqual([template]);
+
+    expect(
+      await mockInvoke<number>("import_saved_searches", {
+        searches: [search, search],
+      }),
+    ).toBe(1);
+    expect(await mockInvoke<BackendSavedSearch[]>("list_saved_searches")).toEqual([
+      search,
+    ]);
+  });
+
   it("stores notification preferences with the real backend command names", async () => {
     const defaults = await mockInvoke<NotificationPreferences>("get_notification_preferences");
 

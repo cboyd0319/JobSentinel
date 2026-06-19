@@ -64,6 +64,9 @@ export function handleMockUserDataCommand(
     case "delete_cover_letter_template":
       return deleteCoverLetterTemplate(args, state);
 
+    case "import_cover_letter_templates":
+      return importCoverLetterTemplates(args, state);
+
     case "get_notification_preferences":
       return getNotificationPreferences(state);
 
@@ -107,6 +110,9 @@ export function handleMockUserDataCommand(
     case "delete_saved_search":
       return deleteSavedSearch(args, state);
 
+    case "import_saved_searches":
+      return importSavedSearches(args, state);
+
     case "add_search_history":
       return addSearchHistory(args, state);
 
@@ -126,6 +132,64 @@ export function handleMockUserDataCommand(
         value: undefined,
       };
   }
+}
+
+function importCoverLetterTemplates(
+  args: Record<string, unknown> | undefined,
+  state: MockUserDataCommandState,
+): MockUserDataCommandResult {
+  const input = getArg(args, "templates");
+  const templates = Array.isArray(input) ? input : [];
+  const nextTemplates = [...state.coverLetterTemplates];
+  let imported = 0;
+
+  for (const template of templates) {
+    const normalized = normalizeMockCoverLetterTemplate(
+      template,
+      getNextMockCoverLetterTemplateId(nextTemplates),
+    );
+    if (nextTemplates.some((candidate) => candidate.id === normalized.id)) {
+      continue;
+    }
+    nextTemplates.push(normalized);
+    imported += 1;
+  }
+
+  return {
+    handled: true,
+    shouldSave: imported > 0,
+    state: { ...state, coverLetterTemplates: nextTemplates },
+    value: imported,
+  };
+}
+
+function importSavedSearches(
+  args: Record<string, unknown> | undefined,
+  state: MockUserDataCommandState,
+): MockUserDataCommandResult {
+  const input = getArg(args, "searches");
+  const searches = Array.isArray(input) ? input : [];
+  const nextSearches = [...state.savedSearches];
+  let imported = 0;
+
+  for (const search of searches) {
+    const normalized = normalizeMockSavedSearch(
+      search,
+      getNextMockSavedSearchId(nextSearches),
+    );
+    if (nextSearches.some((candidate) => candidate.id === normalized.id)) {
+      continue;
+    }
+    nextSearches.push(normalized);
+    imported += 1;
+  }
+
+  return {
+    handled: true,
+    shouldSave: imported > 0,
+    state: { ...state, savedSearches: nextSearches },
+    value: imported,
+  };
 }
 
 function seedDefaultTemplates(

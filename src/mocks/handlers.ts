@@ -1132,6 +1132,7 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
     case "create_cover_letter_template":
     case "update_cover_letter_template":
     case "delete_cover_letter_template":
+    case "import_cover_letter_templates":
     case "get_notification_preferences":
     case "save_notification_preferences":
     case "get_search_history":
@@ -1139,6 +1140,7 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
     case "create_saved_search":
     case "use_saved_search":
     case "delete_saved_search":
+    case "import_saved_searches":
     case "add_search_history":
     case "clear_search_history":
       return applyMockUserDataCommand<T>(cmd, args);

@@ -138,14 +138,21 @@ scraper. The release-safe model is assistive capture:
   switch, and require user confirmation before durable application records are
   created.
 
-Interest learning should use local JobSentinel signals first: Browser Import
-captures, saved jobs, manual ledger events, search terms, dismissed jobs, notes,
-profile preferences, and user ratings. For restricted authenticated sites,
-JobSentinel may learn from user-clicked visible-page captures and
-JobSentinel-side actions, but not from silent page observation. Any future
-"watch and learn" mode must be visibly on, explain what it records, stay local,
-have an off switch, and never submit applications or create durable application
-records without user confirmation.
+The current Workbench learning control starts off. When the user turns it on,
+JobSentinel keeps a small local list of the Workbench buttons the user clicks
+plus the reviewed job title and company. It shows reviewable suggestions and
+has a clear action for deleting the learned signals. It does not store notes,
+full links, cookies, browser storage, screenshots, hidden fields, or network
+details.
+
+Broader interest learning should continue to use local JobSentinel signals
+first: Browser Import captures, saved jobs, manual ledger events, search terms,
+dismissed jobs, notes, profile preferences, and user ratings. For restricted
+authenticated sites, JobSentinel may learn from user-clicked visible-page
+captures and JobSentinel-side actions, but not from silent page observation.
+Any watch-and-learn mode must be visibly on, explain what it records, stay
+local, have an off switch, and never submit applications or create durable
+application records without user confirmation.
 
 Third-party scraping frameworks must be evaluated against these boundaries
 before adoption. Libraries that add browser fingerprint impersonation, proxy

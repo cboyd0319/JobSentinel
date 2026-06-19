@@ -4,6 +4,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ToastProvider } from "../contexts";
 import { openDeepLink } from "../services/deeplinks";
 import { recordLinkedInWorkbenchEvent } from "../services/linkedinWorkbench";
+import {
+  BROWSER_ASSIST_LEARNING_ENABLED_STORAGE_KEY,
+  BROWSER_ASSIST_LEARNING_STORAGE_KEY,
+} from "../shared/browserAssistLearning";
 import { LINKEDIN_WORKBENCH_ACK_STORAGE_KEY } from "../shared/linkedinWorkbench";
 import { LinkedInWorkbench } from "./LinkedInWorkbench";
 
@@ -96,6 +100,16 @@ describe("LinkedInWorkbench", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("keeps local learning off until the user turns it on", () => {
+    renderWorkbench();
+
+    expect(
+      screen.getByLabelText(/Help JobSentinel learn from my local Workbench actions/i),
+    ).not.toBeChecked();
+    expect(screen.getByText(/Local learning is off/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Reviewable suggestions/i)).not.toBeInTheDocument();
+  });
+
   it("uses pasted selected text as suggestions and logs applied with one click", async () => {
     const user = userEvent.setup();
     renderWorkbench();
@@ -120,6 +134,88 @@ describe("LinkedInWorkbench", () => {
           "Principal Security Engineer at Example Co\nhttps://www.linkedin.com/jobs/view/123\nli_at=[REDACTED]",
       }),
     );
+  });
+
+  it("does not store learning signals while local learning is off", async () => {
+    const user = userEvent.setup();
+    renderWorkbench();
+
+    await user.click(
+      screen.getByLabelText(/I understand\. Remember this on this computer/i),
+    );
+    await user.type(
+      screen.getByRole("textbox", { name: "Job title" }),
+      "Security Program Manager",
+    );
+    await user.type(screen.getByRole("textbox", { name: "Company" }), "Example Co");
+    await user.click(screen.getByRole("button", { name: /save job/i }));
+
+    await waitFor(() => expect(recordLinkedInWorkbenchEvent).toHaveBeenCalled());
+    expect(window.localStorage.setItem).not.toHaveBeenCalledWith(
+      BROWSER_ASSIST_LEARNING_STORAGE_KEY,
+      expect.any(String),
+    );
+  });
+
+  it("records reviewable suggestions after the user turns local learning on", async () => {
+    const user = userEvent.setup();
+    renderWorkbench();
+
+    await user.click(
+      screen.getByLabelText(/Help JobSentinel learn from my local Workbench actions/i),
+    );
+    expect(window.localStorage.setItem).toHaveBeenCalledWith(
+      BROWSER_ASSIST_LEARNING_ENABLED_STORAGE_KEY,
+      "true",
+    );
+    await user.click(
+      screen.getByLabelText(/I understand\. Remember this on this computer/i),
+    );
+    await user.type(
+      screen.getByRole("textbox", { name: "Job title" }),
+      "Security Program Manager",
+    );
+    await user.type(screen.getByRole("textbox", { name: "Company" }), "Example Co");
+    await user.click(screen.getByRole("button", { name: /save job/i }));
+
+    await waitFor(() => {
+      expect(window.localStorage.setItem).toHaveBeenCalledWith(
+        BROWSER_ASSIST_LEARNING_STORAGE_KEY,
+        expect.stringContaining("Security Program Manager"),
+      );
+      expect(screen.getByText(/Reviewable suggestions/i)).toBeInTheDocument();
+      expect(screen.getByText("Security Program Manager")).toBeInTheDocument();
+      expect(screen.getByText("Example Co")).toBeInTheDocument();
+    });
+    expect(
+      screen.getByText(/does not read LinkedIn pages, browser storage, cookies/i),
+    ).toBeInTheDocument();
+  });
+
+  it("lets the user clear learned local suggestions", async () => {
+    const user = userEvent.setup();
+    renderWorkbench();
+
+    await user.click(
+      screen.getByLabelText(/Help JobSentinel learn from my local Workbench actions/i),
+    );
+    await user.click(
+      screen.getByLabelText(/I understand\. Remember this on this computer/i),
+    );
+    await user.type(
+      screen.getByRole("textbox", { name: "Job title" }),
+      "Content Strategist",
+    );
+    await user.click(screen.getByRole("button", { name: /save job/i }));
+
+    await screen.findByText("Content Strategist");
+    await user.click(screen.getByRole("button", { name: /clear learning/i }));
+
+    expect(window.localStorage.removeItem).toHaveBeenCalledWith(
+      BROWSER_ASSIST_LEARNING_STORAGE_KEY,
+    );
+    expect(screen.queryByText("Content Strategist")).not.toBeInTheDocument();
+    expect(screen.getByText(/No local learning yet/i)).toBeInTheDocument();
   });
 
   it("fills suggestions immediately when the user pastes selected text", async () => {

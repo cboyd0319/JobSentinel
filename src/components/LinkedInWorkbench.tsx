@@ -3,6 +3,16 @@ import { Button } from "./Button";
 import { useToast } from "../contexts";
 import { openDeepLink } from "../services/deeplinks";
 import { recordLinkedInWorkbenchEvent } from "../services/linkedinWorkbench";
+import { LinkedInWorkbenchLearning } from "./LinkedInWorkbenchLearning";
+import {
+  clearBrowserAssistLearningSignals,
+  readBrowserAssistLearningEnabled,
+  readBrowserAssistLearningSignals,
+  recordBrowserAssistLearningSignal,
+  summarizeBrowserAssistLearningSignals,
+  writeBrowserAssistLearningEnabled,
+  type BrowserAssistLearningSummary,
+} from "../shared/browserAssistLearning";
 import {
   defaultLinkedInWorkbenchPrefill,
   LINKEDIN_WORKBENCH_ACK_STORAGE_KEY,
@@ -37,6 +47,13 @@ export function LinkedInWorkbench() {
   const [busyAction, setBusyAction] = useState<LinkedInWorkbenchEventType | "open" | null>(
     null,
   );
+  const [learningEnabled, setLearningEnabled] = useState(
+    readBrowserAssistLearningEnabled,
+  );
+  const [learningSummary, setLearningSummary] =
+    useState<BrowserAssistLearningSummary>(() =>
+      summarizeBrowserAssistLearningSignals(readBrowserAssistLearningSignals()),
+    );
 
   useEffect(() => {
     setNow(Date.now());
@@ -115,6 +132,17 @@ export function LinkedInWorkbench() {
         url: cleanOptional(sanitizeLinkedInWorkbenchUrl(draft.url)),
         notes: cleanOptional(sanitizeLinkedInWorkbenchTextForStorage(draft.notes)),
       });
+      if (learningEnabled) {
+        setLearningSummary(
+          recordBrowserAssistLearningSignal({
+            source: "linkedin-workbench",
+            action: eventType,
+            title: cleanOptional(draft.title),
+            company: cleanOptional(draft.company),
+            recordedAt: new Date().toISOString(),
+          }),
+        );
+      }
       toast.success(successTitle(eventType), successMessage(eventType, result.needsDetails));
     } catch (error) {
       logError("Failed to record LinkedIn workbench event:", error);
@@ -122,6 +150,19 @@ export function LinkedInWorkbench() {
     } finally {
       setBusyAction(null);
     }
+  };
+
+  const updateLearningEnabled = (enabled: boolean) => {
+    setLearningEnabled(enabled);
+    writeBrowserAssistLearningEnabled(enabled);
+    setLearningSummary(
+      summarizeBrowserAssistLearningSignals(readBrowserAssistLearningSignals()),
+    );
+  };
+
+  const clearLearning = () => {
+    setLearningSummary(clearBrowserAssistLearningSignals());
+    toast.success("Learning cleared", "Local Workbench suggestions were cleared.");
   };
 
   return (
@@ -140,6 +181,25 @@ export function LinkedInWorkbench() {
             JobSentinel learns from the buttons you click here, not from hidden
             LinkedIn page watching.
           </p>
+          <div className="rounded-lg border border-sentinel-200 bg-white p-3 dark:border-sentinel-800 dark:bg-surface-900">
+            <label className="flex items-start gap-3 text-sm font-medium text-sentinel-900 dark:text-sentinel-100">
+              <input
+                type="checkbox"
+                className="mt-0.5 h-5 w-5 rounded border-sentinel-300 text-sentinel-700 focus:ring-sentinel-500"
+                checked={learningEnabled}
+                onChange={(event) => updateLearningEnabled(event.target.checked)}
+              />
+              <span>
+                Help JobSentinel learn from my local Workbench actions.
+              </span>
+            </label>
+            <p className="mt-2 text-xs leading-5 text-sentinel-700 dark:text-sentinel-200">
+              When this is on, JobSentinel saves a small local list of buttons
+              you click here plus the job title and company you reviewed. It
+              does not read LinkedIn pages, browser storage, cookies,
+              screenshots, hidden fields, or network traffic.
+            </p>
+          </div>
           <label className="flex items-start gap-3 text-sm font-medium text-sentinel-900 dark:text-sentinel-100">
             <input
               type="checkbox"
@@ -208,6 +268,12 @@ export function LinkedInWorkbench() {
             : `Privacy reminder appears after ${LINKEDIN_WORKBENCH_PRIVACY_REMINDER_MINUTES} minutes. JobSentinel will not force this session closed.`}
         </p>
       )}
+
+      <LinkedInWorkbenchLearning
+        enabled={learningEnabled}
+        summary={learningSummary}
+        onClear={clearLearning}
+      />
 
       <div className="grid gap-3 sm:grid-cols-3">
         <Button
