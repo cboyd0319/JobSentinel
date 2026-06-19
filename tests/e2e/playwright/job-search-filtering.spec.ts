@@ -139,6 +139,52 @@ test.describe("Job Search and Filtering", () => {
       await expect(dashboard.mainContent).toBeVisible();
     });
 
+    test("should block opening a saved public HTTP job link", async ({ page }) => {
+      await page.evaluate(() => {
+        localStorage.setItem(
+          "jobsentinel.mockState.v1",
+          JSON.stringify({
+            jobs: [
+              {
+                id: 9103,
+                hash: "job-hash-public-http-link",
+                title: "Operations Coordinator",
+                company: "Example Services",
+                location: "Denver, CO",
+                description: "Coordinate operations and applicant communications.",
+                url: "http://example.com/jobs/operations-coordinator",
+                source: "manual",
+                salary_min: null,
+                salary_max: null,
+                remote: false,
+                score: 0.72,
+                hidden: false,
+                bookmarked: false,
+                notes: null,
+                created_at: new Date().toISOString(),
+              },
+            ],
+          }),
+        );
+      });
+
+      await dashboard.navigateTo();
+      const firstCard = await dashboard.getJobCard(0);
+
+      await expect(firstCard.locator).toContainText("Operations Coordinator");
+      await expect(firstCard.locator.locator("[data-testid='job-link-guidance']")).toContainText("Check job link");
+
+      const popupPromise = page
+        .waitForEvent("popup", { timeout: 750 })
+        .catch(() => null);
+      await firstCard.hover();
+      await firstCard.viewButton.click();
+
+      await expect(page.getByText("This saved link does not look safe to open.")).toBeVisible();
+      expect(await popupPromise).toBeNull();
+      await expect(dashboard.mainContent).toBeVisible();
+    });
+
     test("should expose expected hover actions on job card", async () => {
       const firstCard = await dashboard.getJobCard(0);
 
@@ -249,6 +295,54 @@ test.describe("Job Search and Filtering", () => {
       await expect(page.getByText(
         "Saved driving record or insurance answer says: I have current auto insurance for field visits. Confirm it matches the employer's wording and resume evidence before continuing.",
       )).toBeVisible();
+    });
+  });
+
+  test.describe("Job Import Modal", () => {
+    test("should block plain HTTP imports from the dashboard", async ({ page }) => {
+      await page.getByRole("button", { name: "Import Job" }).click();
+
+      const dialog = page.getByRole("dialog", { name: "Import Job from Link" });
+      await expect(dialog).toBeVisible();
+
+      await dialog.getByLabel("Job link").fill("http://example.com/jobs/office-manager");
+      await dialog.getByRole("button", { name: "Check Job Link" }).click();
+
+      await expect(dialog.getByRole("alert")).toContainText(
+        "Paste an https job posting link from your browser address bar.",
+      );
+
+      await dialog.getByLabel("Job link").fill("http://localhost:4321/private-job");
+      await dialog.getByRole("button", { name: "Check Job Link" }).click();
+
+      await expect(dialog.getByRole("alert")).toContainText(
+        "Paste a public job posting link from your browser address bar.",
+      );
+    });
+
+    test("should keep blocked HTTP import guidance visible on narrow screens", async ({ page }) => {
+      await page.setViewportSize({ width: 390, height: 844 });
+      await page.getByRole("button", { name: "Import Job" }).click();
+
+      const dialog = page.getByRole("dialog", { name: "Import Job from Link" });
+      await expect(dialog).toBeVisible();
+
+      await dialog.getByLabel("Job link").fill("http://example.com/jobs/office-manager");
+      await dialog.getByRole("button", { name: "Check Job Link" }).click();
+
+      await expect(dialog.getByRole("alert")).toContainText(
+        "Paste an https job posting link from your browser address bar.",
+      );
+
+      const metrics = await page.evaluate(() => {
+        return {
+          viewportWidth: window.innerWidth,
+          documentWidth: document.documentElement.scrollWidth,
+          bodyWidth: document.body.scrollWidth,
+        };
+      });
+
+      expect(Math.max(metrics.documentWidth, metrics.bodyWidth)).toBeLessThanOrEqual(metrics.viewportWidth);
     });
   });
 

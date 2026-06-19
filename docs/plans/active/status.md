@@ -107,7 +107,7 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   one-shot local receiver, not a job destination. Fresh evidence: affected
   frontend `121/121`, full frontend `3124/3124`, Rust URL/import/deep-link/
   automation/bookmarklet/db/notify suites, Rust lib `2904` passed with `11`
-  ignored, build, clippy, readiness, deps, security, docs, bloat, and harness passed.
+  ignored, targeted Chromium/WebKit UI checks, build/clippy/readiness/deps/security/docs/bloat/harness passed.
 
 ## Next Best Work
 
