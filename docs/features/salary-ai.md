@@ -41,9 +41,15 @@ fixed by asking harder.
   value.
 - Draft editable negotiation notes grounded in role scope, written ranges, and
   user-confirmed facts.
+- Separate verbal or recruiter-stated numbers from written offer amounts before
+  drafting negotiation notes.
 - Draft negotiation notes only from a user-entered written offer and
   user-entered target range. Benchmark medians or higher-range points must not
   become the current offer.
+- Show offer decision fields for deadline, total compensation, commute,
+  relocation, and deadline pressure before the user accepts, counters, or
+  declines.
+- Provide local counter and decline starter templates without sending them.
 - Compare offers across pay, benefits, schedule, level, promotion path, and
   risk.
 
@@ -52,7 +58,10 @@ fixed by asking harder.
 1. Open **Pay Protection**.
 2. Enter a job title, location, role stage, and optional salary floor.
 3. Review the range evidence and pay-floor guidance.
-4. Draft negotiation notes only after checking that the facts are true.
+4. Separate verbal numbers from the written offer amount.
+5. Review deadline, total compensation, commute, relocation, and pressure
+   notes.
+6. Draft negotiation notes only after checking that the facts are true.
 
 Salary floors are private user choices. JobSentinel treats them as planning
 inputs, not as self-worth scores.
@@ -87,6 +96,13 @@ inputs, not as self-worth scores.
   path match the offered level.
 - Check schedule, travel, expected hours, location, benefits, review timing,
   and support before treating a range as enough evidence.
+- Treat verbal numbers as context. Ask for written base pay, bonus, equity,
+  benefits, work location, start date, and decision deadline before countering
+  or deciding.
+- Show deadline pressure as a review cue, especially when the user reports a
+  same-day or exploding deadline.
+- Include commute, parking, transit, childcare, travel days, relocation, and
+  move costs in offer review prompts.
 - Help users redirect current-pay or past-pay questions toward the role range
   and target pay without making jurisdiction-specific legal claims.
 - Label source, date, sample size, and coverage limits.
@@ -143,6 +159,11 @@ Negotiation notes should also never invent the current offer. The user must
 enter the written offer and target range before notes are drafted, and
 unreplaced template placeholders should stay hidden instead of appearing as
 ready-to-use text.
+
+Counter and decline starters are local drafts. They should remind the user to
+confirm written terms, total compensation, commute or relocation costs, and the
+decision deadline. They must not submit anything or imply that JobSentinel has
+chosen the user's answer.
 
 Pay guidance changes should also be reviewed against:
 

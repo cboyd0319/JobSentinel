@@ -30,6 +30,7 @@ interface SalaryProps {
 }
 
 type SalarySeniority = "entry" | "mid" | "senior" | "staff" | "principal";
+type OfferEvidenceStatus = "written" | "verbal" | "unknown";
 
 type SalarySampleQuality = {
   label: string;
@@ -43,6 +44,12 @@ const SENIORITY_LEVELS: readonly { value: SalarySeniority; label: string }[] = [
   { value: "senior", label: "Experienced (6-10 years)" },
   { value: "staff", label: "Lead or specialist (11-15 years)" },
   { value: "principal", label: "Executive or top-level specialist (16+ years)" },
+];
+
+const OFFER_EVIDENCE_OPTIONS: readonly { value: OfferEvidenceStatus; label: string }[] = [
+  { value: "written", label: "Written offer received" },
+  { value: "verbal", label: "Verbal or recruiter number only" },
+  { value: "unknown", label: "No firm offer yet" },
 ];
 
 function getSalarySeniorityForYears(years: number): SalarySeniority {
@@ -118,9 +125,15 @@ export default function Salary({ onBack }: SalaryProps) {
   const [yearsExp, setYearsExp] = useState<number>(5);
   const [salaryFloor, setSalaryFloor] = useState("");
   const [offerCompany, setOfferCompany] = useState("");
+  const [offerEvidenceStatus, setOfferEvidenceStatus] = useState<OfferEvidenceStatus>("written");
+  const [verbalOffer, setVerbalOffer] = useState("");
   const [currentOffer, setCurrentOffer] = useState("");
   const [targetMin, setTargetMin] = useState("");
   const [targetMax, setTargetMax] = useState("");
+  const [decisionDeadline, setDecisionDeadline] = useState("");
+  const [totalCompNotes, setTotalCompNotes] = useState("");
+  const [commuteRelocationNotes, setCommuteRelocationNotes] = useState("");
+  const [deadlinePressureNotes, setDeadlinePressureNotes] = useState("");
   const [benchmark, setBenchmark] = useState<SalaryBenchmark | null>(null);
   const [benchmarkChecked, setBenchmarkChecked] = useState(false);
   const [negotiationScript, setNegotiationScript] = useState<string | null>(null);
@@ -145,12 +158,24 @@ export default function Salary({ onBack }: SalaryProps) {
   const targetMinAmount = parseSalaryAmount(targetMin);
   const targetMaxAmount = parseSalaryAmount(targetMax);
   const negotiationInputMessage = getNegotiationInputMessage(
+    offerEvidenceStatus,
     currentOfferAmount,
     targetMinAmount,
     targetMaxAmount,
   );
+  const counterStarter = getCounterStarter({
+    company: offerCompany,
+    jobTitle: jobTitle.trim() || benchmark?.job_title || "",
+    targetMinAmount,
+    targetMaxAmount,
+  });
+  const declineStarter = getDeclineStarter({
+    company: offerCompany,
+    jobTitle: jobTitle.trim() || benchmark?.job_title || "",
+  });
   const canGenerateScript =
     benchmark !== null &&
+    offerEvidenceStatus === "written" &&
     currentOfferAmount !== null &&
     targetMinAmount !== null &&
     targetMaxAmount !== null &&
@@ -539,10 +564,31 @@ export default function Salary({ onBack }: SalaryProps) {
                     Negotiation note facts
                   </p>
                   <p className="mt-1 text-sm text-surface-600 dark:text-surface-400">
-                    Add the written offer and target range yourself. JobSentinel will not turn
-                    benchmark points into an offer.
+                    Separate written offer facts from verbal numbers. JobSentinel drafts notes
+                    only from the written amount you enter. It will not turn benchmark points
+                    into an offer.
                   </p>
                   <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    <div>
+                      <label htmlFor="offer-status" className="mb-1.5 block text-sm font-medium text-surface-700 dark:text-surface-300">
+                        Offer status
+                      </label>
+                      <select
+                        id="offer-status"
+                        value={offerEvidenceStatus}
+                        onChange={(e) => {
+                          setOfferEvidenceStatus(e.target.value as OfferEvidenceStatus);
+                          clearNegotiationScript();
+                        }}
+                        className="w-full rounded-lg border border-surface-300 bg-white px-3 py-2 text-surface-900 focus:border-sentinel-500 focus-visible:ring-2 focus-visible:ring-sentinel-500 dark:border-surface-600 dark:bg-surface-700 dark:text-surface-100"
+                      >
+                        {OFFER_EVIDENCE_OPTIONS.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                     <Input
                       label="Company (optional)"
                       value={offerCompany}
@@ -551,6 +597,19 @@ export default function Salary({ onBack }: SalaryProps) {
                         clearNegotiationScript();
                       }}
                       placeholder="e.g., CareBridge Health"
+                    />
+                    <Input
+                      label="Verbal or recruiter number (optional)"
+                      type="number"
+                      min="0"
+                      inputMode="numeric"
+                      value={verbalOffer}
+                      onChange={(e) => {
+                        setVerbalOffer(e.target.value);
+                        clearNegotiationScript();
+                      }}
+                      placeholder="e.g., 180000"
+                      hint="Useful context, but do not treat it as final until it is written."
                     />
                     <Input
                       label="Written offer"
@@ -563,7 +622,7 @@ export default function Salary({ onBack }: SalaryProps) {
                         clearNegotiationScript();
                       }}
                       placeholder="e.g., 95000"
-                      hint="Use the offer you have in writing or from the recruiter."
+                      hint="Use the amount from the written offer. If you only have a verbal number, record it separately."
                     />
                     <Input
                       label="Target minimum"
@@ -597,6 +656,91 @@ export default function Salary({ onBack }: SalaryProps) {
                     {negotiationInputMessage ??
                       "Review these facts before using drafted notes. JobSentinel never submits them for you."}
                   </p>
+                  <p className="mt-2 text-sm text-surface-600 dark:text-surface-400">
+                    Verbal numbers are useful context, but ask for written base pay, bonus,
+                    equity, benefits, location, start date, and deadline before countering or
+                    deciding.
+                  </p>
+                </div>
+
+                <div className="rounded-lg border border-surface-200 bg-white p-4 dark:border-surface-700 dark:bg-surface-800">
+                  <p className="text-sm font-medium text-surface-900 dark:text-surface-100">
+                    Offer decision review
+                  </p>
+                  <p className="mt-1 text-sm text-surface-600 dark:text-surface-400">
+                    Use this to slow down the decision and catch costs that do not show up in
+                    base pay.
+                  </p>
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    <Input
+                      label="Decision deadline (optional)"
+                      type="date"
+                      value={decisionDeadline}
+                      onChange={(e) => {
+                        setDecisionDeadline(e.target.value);
+                        clearNegotiationScript();
+                      }}
+                    />
+                    <OfferReviewTextarea
+                      label="Total compensation notes (optional)"
+                      value={totalCompNotes}
+                      onChange={(value) => {
+                        setTotalCompNotes(value);
+                        clearNegotiationScript();
+                      }}
+                      placeholder="Base, bonus, equity, benefits, PTO, retirement, health costs"
+                    />
+                    <OfferReviewTextarea
+                      label="Commute and relocation costs (optional)"
+                      value={commuteRelocationNotes}
+                      onChange={(value) => {
+                        setCommuteRelocationNotes(value);
+                        clearNegotiationScript();
+                      }}
+                      placeholder="Parking, transit, childcare, relocation, travel days, move costs"
+                    />
+                    <OfferReviewTextarea
+                      label="Deadline pressure notes (optional)"
+                      value={deadlinePressureNotes}
+                      onChange={(value) => {
+                        setDeadlinePressureNotes(value);
+                        clearNegotiationScript();
+                      }}
+                      placeholder="Same-day deadline, limited time, pressure to accept now"
+                    />
+                  </div>
+                  <ul className="mt-4 space-y-1 text-sm text-surface-600 dark:text-surface-400">
+                    <li>Compare base, bonus, equity, benefits, PTO, retirement, and health costs.</li>
+                    <li>Add parking, transit, childcare, relocation, travel days, and move costs.</li>
+                    <li>Watch for a same-day or exploding deadline; ask for more time when needed.</li>
+                  </ul>
+                </div>
+
+                <div className="rounded-lg border border-surface-200 bg-white p-4 dark:border-surface-700 dark:bg-surface-800">
+                  <p className="text-sm font-medium text-surface-900 dark:text-surface-100">
+                    Counter and decline starters
+                  </p>
+                  <p className="mt-1 text-sm text-surface-600 dark:text-surface-400">
+                    These are local drafts. JobSentinel does not send them or decide for you.
+                  </p>
+                  <div className="mt-4 grid gap-4 lg:grid-cols-2">
+                    <div>
+                      <p className="text-sm font-semibold text-surface-900 dark:text-surface-100">
+                        Counter starter
+                      </p>
+                      <pre className="mt-2 whitespace-pre-wrap rounded-md bg-surface-50 p-3 text-sm text-surface-700 dark:bg-surface-900/40 dark:text-surface-300">
+                        {counterStarter}
+                      </pre>
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-surface-900 dark:text-surface-100">
+                        Decline starter
+                      </p>
+                      <pre className="mt-2 whitespace-pre-wrap rounded-md bg-surface-50 p-3 text-sm text-surface-700 dark:bg-surface-900/40 dark:text-surface-300">
+                        {declineStarter}
+                      </pre>
+                    </div>
+                  </div>
                 </div>
 
                 <Button
@@ -648,10 +792,15 @@ function parseSalaryAmount(value: string): number | null {
 }
 
 function getNegotiationInputMessage(
+  offerEvidenceStatus: OfferEvidenceStatus,
   currentOfferAmount: number | null,
   targetMinAmount: number | null,
   targetMaxAmount: number | null,
 ): string | null {
+  if (offerEvidenceStatus !== "written") {
+    return "Ask for written terms before drafting negotiation notes.";
+  }
+
   if (
     currentOfferAmount === null ||
     targetMinAmount === null ||
@@ -667,8 +816,84 @@ function getNegotiationInputMessage(
   return null;
 }
 
+function getCounterStarter({
+  company,
+  jobTitle,
+  targetMinAmount,
+  targetMaxAmount,
+}: {
+  company: string;
+  jobTitle: string;
+  targetMinAmount: number | null;
+  targetMaxAmount: number | null;
+}): string {
+  const employer = company.trim() || "the employer";
+  const role = jobTitle.trim() || "the role";
+  const targetRange = formatTargetRange(targetMinAmount, targetMaxAmount);
+
+  return `Thank you for the offer from ${employer} for ${role}. I am interested in the opportunity. Based on the role scope and the written offer details, I would like to discuss a total package closer to ${targetRange}. Can you confirm the written base pay, bonus, equity, benefits, work location, start date, and decision deadline?`;
+}
+
+function getDeclineStarter({
+  company,
+  jobTitle,
+}: {
+  company: string;
+  jobTitle: string;
+}): string {
+  const employer = company.trim() || "the employer";
+  const role = jobTitle.trim() || "the role";
+
+  return `Thank you for the offer from ${employer} for ${role}. After reviewing the written terms, timing, total compensation, commute or relocation costs, and fit, I am going to decline. I appreciate the time and consideration.`;
+}
+
+function formatTargetRange(
+  targetMinAmount: number | null,
+  targetMaxAmount: number | null,
+): string {
+  if (targetMinAmount !== null && targetMaxAmount !== null) {
+    return `${formatCurrency(targetMinAmount)} to ${formatCurrency(targetMaxAmount)}`;
+  }
+
+  if (targetMinAmount !== null) {
+    return `at least ${formatCurrency(targetMinAmount)}`;
+  }
+
+  return "my target range";
+}
+
 function hasUnresolvedTemplatePlaceholders(script: string) {
   return /{{[^{}]+}}/.test(script);
+}
+
+function OfferReviewTextarea({
+  label,
+  value,
+  onChange,
+  placeholder,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+}) {
+  const id = label.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+
+  return (
+    <div className="sm:col-span-2">
+      <label htmlFor={id} className="mb-1.5 block text-sm font-medium text-surface-700 dark:text-surface-300">
+        {label}
+      </label>
+      <textarea
+        id={id}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        placeholder={placeholder}
+        rows={3}
+        className="w-full rounded-lg border border-surface-200 bg-white px-4 py-3 text-surface-800 placeholder:text-surface-400 transition-all duration-150 hover:border-surface-300 focus:border-sentinel-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-sentinel-100 dark:border-surface-700 dark:bg-surface-800 dark:text-white dark:placeholder:text-surface-500 dark:hover:border-surface-600 dark:focus-visible:ring-sentinel-900"
+      />
+    </div>
+  );
 }
 
 function BackIcon() {

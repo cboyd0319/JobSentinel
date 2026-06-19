@@ -274,6 +274,72 @@ describe("Salary", () => {
     expect(mockInvoke).toHaveBeenCalledTimes(1);
   });
 
+  it("separates verbal numbers from written offer facts before drafting notes", async () => {
+    const user = userEvent.setup();
+    renderSalary();
+
+    await user.type(screen.getByLabelText("Job Title"), "Registered Nurse");
+    await user.type(screen.getByLabelText("Location"), "Denver, CO");
+    await user.click(screen.getByRole("button", { name: "Check Pay Range" }));
+
+    const draftButton = await screen.findByRole("button", {
+      name: "Draft Negotiation Notes",
+    });
+
+    expect(screen.getByLabelText("Offer status")).toBeInTheDocument();
+    expect(screen.getByLabelText("Verbal or recruiter number (optional)")).toBeInTheDocument();
+
+    await user.selectOptions(screen.getByLabelText("Offer status"), "verbal");
+    await user.type(screen.getByLabelText("Verbal or recruiter number (optional)"), "180000");
+    await user.type(screen.getByLabelText("Written offer"), "185000");
+    await user.type(screen.getByLabelText("Target minimum"), "210000");
+    await user.type(screen.getByLabelText("Target maximum"), "225000");
+
+    expect(screen.getByTestId("negotiation-fact-guidance")).toHaveTextContent(
+      "Ask for written terms before drafting negotiation notes.",
+    );
+    expect(draftButton).toBeDisabled();
+    expect(screen.getByText(/Verbal numbers are useful context/i)).toBeInTheDocument();
+    expect(mockInvoke).toHaveBeenCalledTimes(1);
+  });
+
+  it("shows offer review fields for total compensation, deadline, commute, and relocation risk", async () => {
+    const user = userEvent.setup();
+    renderSalary();
+
+    await user.type(screen.getByLabelText("Job Title"), "Registered Nurse");
+    await user.type(screen.getByLabelText("Location"), "Denver, CO");
+    await user.click(screen.getByRole("button", { name: "Check Pay Range" }));
+
+    expect(await screen.findByText("Offer decision review")).toBeInTheDocument();
+    expect(screen.getByLabelText("Decision deadline (optional)")).toBeInTheDocument();
+    expect(screen.getByLabelText("Total compensation notes (optional)")).toBeInTheDocument();
+    expect(screen.getByLabelText("Commute and relocation costs (optional)")).toBeInTheDocument();
+    expect(screen.getByLabelText("Deadline pressure notes (optional)")).toBeInTheDocument();
+    expect(screen.getByText(/base, bonus, equity, benefits/i)).toBeInTheDocument();
+    expect(screen.getByText(/parking, transit, childcare, relocation/i)).toBeInTheDocument();
+    expect(screen.getByText(/same-day or exploding deadline/i)).toBeInTheDocument();
+  });
+
+  it("shows counter and decline starters without submitting them", async () => {
+    const user = userEvent.setup();
+    renderSalary();
+
+    await user.type(screen.getByLabelText("Job Title"), "Registered Nurse");
+    await user.type(screen.getByLabelText("Location"), "Denver, CO");
+    await user.click(screen.getByRole("button", { name: "Check Pay Range" }));
+    await screen.findByRole("button", { name: "Draft Negotiation Notes" });
+    await user.type(screen.getByLabelText("Company (optional)"), "CareBridge Health");
+    await user.type(screen.getByLabelText("Target minimum"), "210000");
+    await user.type(screen.getByLabelText("Target maximum"), "225000");
+
+    expect(screen.getByText("Counter starter")).toBeInTheDocument();
+    expect(screen.getByText("Decline starter")).toBeInTheDocument();
+    expect(screen.getAllByText(/CareBridge Health/i)).toHaveLength(2);
+    expect(screen.getByText(/\$210,000 to \$225,000/i)).toBeInTheDocument();
+    expect(screen.getByText(/These are local drafts/i)).toBeInTheDocument();
+  });
+
   it("sends only user-entered offer facts to the negotiation template", async () => {
     const user = userEvent.setup();
     mockInvoke

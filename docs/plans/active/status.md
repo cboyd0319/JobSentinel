@@ -66,7 +66,7 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   no-account macOS DMG, Linux AppImage/deb, checksums, SBOMs, attestations,
   skills, and final publication after successful matrix uploads.
 - Private resume parser smoke checks passed on 2026-06-17 with no committed
-  local paths or names; 2026-06-19 resume, job-quality, and guided-search evidence passed.
+  local paths or names; 2026-06-19 resume, job-quality, guided-search, and pay-offer evidence passed.
 - Downloadable Agent Skills cover the search flow with spec-compatible
   tar.gz/ZIP packaging, strict archive/checksum/CRC/central-directory checks,
   upstream `skills-ref`, handoffs, templates, rubrics, Persona/ResumeSkills/

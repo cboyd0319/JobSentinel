@@ -276,6 +276,10 @@ Required behavior:
 - Show no-data states as useful guidance, not failure.
 - Use amber for caution when pay is unclear or below floor.
 - Use evidence labels for benchmarks and ranges.
+- Separate verbal numbers from written offer amounts before drafting notes.
+- Keep offer deadline, total compensation, commute, relocation, and pressure
+  checks visible before counter or decline starters.
+- Show counter and decline starters as local drafts, not submitted actions.
 
 ### Hiring Trends
 
