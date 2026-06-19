@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "evidence_labels": [
+    {
+      "dataset_kind": "job_requirement_to_resume_evidence",
+      "query": "Experience making product help clear for customers",
+      "candidate": "Wrote plain-language help articles and customer messages that reduced repeat support questions.",
+      "label": "strong_direct_evidence",
+      "reason": "Direct evidence of clear customer-facing help content."
+    },
+    {
+      "dataset_kind": "job_requirement_to_resume_evidence",
+      "query": "Experience with patient intake and electronic health records",
+      "candidate": "Scheduled patient visits and updated appointment notes in the clinic system.",
+      "label": "related_incomplete",
+      "reason": "Related clinic workflow, but the evidence does not confirm intake ownership or full record documentation."
+    },
+    {
+      "dataset_kind": "resume_profile_to_job_match",
+      "query": "Candidate has customer support writing, help center ownership, and product communication experience.",
+      "candidate": "Role owns help center content, customer education, release notes, and support message quality.",
+      "label": "strong_direct_evidence",
+      "reason": "The role matches the profile across content ownership and customer education."
+    },
+    {
+      "dataset_kind": "skill_phrase_to_resume_evidence",
+      "query": "Point of sale troubleshooting",
+      "candidate": "Resolved checkout register issues, helped cashiers recover orders, and escalated payment terminal outages.",
+      "label": "strong_direct_evidence",
+      "reason": "The resume passage gives hands-on retail system troubleshooting evidence."
+    },
+    {
+      "dataset_kind": "job_title_to_resume_seniority",
+      "query": "Store manager role with scheduling, hiring, and team coaching",
+      "candidate": "Assistant store manager who created weekly schedules and trained new cashiers.",
+      "label": "related_incomplete",
+      "reason": "The title and duties are adjacent, but hiring ownership and full manager scope are not confirmed."
+    },
+    {
+      "dataset_kind": "gap_analysis",
+      "query": "Class A CDL required",
+      "candidate": "Managed delivery schedules and coordinated warehouse loading windows.",
+      "label": "no_evidence",
+      "reason": "Logistics experience is present, but the required license is not evidenced."
+    }
+  ],
+  "hard_negatives": [
+    {
+      "dataset_kind": "job_requirement_to_resume_evidence",
+      "query": "Experience making product help clear for customers",
+      "positive": "Created plain-language help center articles and customer emails for a complex product.",
+      "hard_negative": "Managed a social media content calendar and wrote short campaign captions.",
+      "mining_source": "seed_fixture",
+      "reason": "Both mention content, but campaign writing is not evidence of product help or support education."
+    },
+    {
+      "dataset_kind": "job_requirement_to_resume_evidence",
+      "query": "Experience with patient intake and electronic health records",
+      "positive": "Completed patient intake forms, verified medical history, and updated records in the EHR.",
+      "hard_negative": "Answered clinic phones and scheduled follow-up appointments.",
+      "mining_source": "seed_fixture",
+      "reason": "Shares clinic context but does not show intake or health record ownership."
+    },
+    {
+      "dataset_kind": "job_requirement_to_resume_evidence",
+      "query": "Experience building cloud audit detections for privilege escalation",
+      "positive": "Built cloud audit detections for suspicious permission changes and account persistence.",
+      "hard_negative": "Used cloud identity permissions while deploying application infrastructure.",
+      "mining_source": "seed_fixture",
+      "reason": "Shares cloud identity vocabulary but lacks detection-building evidence."
+    }
+  ],
+  "pairwise_preferences": [
+    {
+      "query_context_hash": "fixture_content_strategy_local_v1",
+      "chosen_id": "job_help_content_lead",
+      "rejected_id": "job_social_media_calendar",
+      "reason": "The chosen job better matches help content, customer education, and product communication evidence."
+    },
+    {
+      "query_context_hash": "fixture_retail_supervisor_local_v1",
+      "chosen_id": "job_store_operations_supervisor",
+      "rejected_id": "job_warehouse_driver_cdl",
+      "reason": "The chosen job matches scheduling and team coaching without requiring an unevidenced license."
+    }
+  ]
+}

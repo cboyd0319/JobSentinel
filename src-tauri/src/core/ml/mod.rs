@@ -1,11 +1,13 @@
 //! Embedded Machine Learning Module
 //!
-//! Optional module for on-device ML inference using Candle framework.
+//! Optional module for on-device ML inference using governed local models.
 //! Provides semantic skill matching via sentence embeddings.
 //!
 //! ## Features
-//! - Quantized all-MiniLM-L6-v2 model (~20MB) for sentence embeddings
-//! - Model download on first use (via HuggingFace Hub)
+//! - Pinned model lock with revision and SHA-256 verification
+//! - Qwen3 embedding and reranker profiles for the production direction
+//! - Legacy all-MiniLM baseline while the Qwen3 backend is wired
+//! - Explicit model download on user or developer action
 //! - Pure Rust inference with Metal acceleration (macOS)
 //! - Graceful fallback to keyword matching if disabled
 //!
@@ -15,15 +17,33 @@
 #![cfg(feature = "embedded-ml")]
 
 mod embeddings;
+mod evaluation;
+mod manifest;
 mod matcher;
 mod model;
+mod runtime;
 
 #[cfg(test)]
 mod tests;
 
 pub use embeddings::EmbeddingGenerator;
+pub use evaluation::{
+    EvalDatasetKind, EvalFixtureSet, EvidenceLabel, EvidenceLabelEvent, EvidenceLabelExample,
+    FeedbackAction, FeedbackEvidenceSummary, HardNegativeExample, HardNegativeMiningSource,
+    JobFeedbackEvent, MatchBlocker, ModelImprovementPhase, PairwisePreferenceExample,
+    RankingFeatures, RetrievalProvenance,
+};
+pub use manifest::{
+    load_model_manifest, model_lock_hash, InstructionProfile, ModelFileSpec, ModelKind,
+    ModelManifest, ModelSpec, ScoreThresholds,
+};
 pub use matcher::{SemanticMatchResult, SemanticMatcher};
 pub use model::{ModelManager, ModelStatus};
+pub use runtime::{
+    EmbeddingBackend, EmbeddingInput, EmbeddingInputKind, RerankCandidate, RerankQuery,
+    RerankQueryKind, RerankScore, RerankerBackend, RuntimeCompatibility, VectorFreshness,
+    VectorFreshnessKey, VectorProvenance,
+};
 
 use anyhow::Result;
 use thiserror::Error;

@@ -14,8 +14,8 @@ default = []
 # OCR support for scanned PDFs (uses command-line tesseract + pdftoppm)
 # Requires: tesseract-ocr and poppler-utils installed on system
 ocr = []
-# Embedded ML for semantic skill matching (Candle framework with quantized models)
-embedded-ml = ["candle-core", "candle-nn", "hf-hub", "tokenizers"]
+# Embedded ML for semantic skill matching with pinned local model governance.
+embedded-ml = ["basic-toml", "candle-core", "candle-nn", "hf-hub", "tokenizers"]
 
 [build-dependencies]
 tauri-build = { version = "=2.6.3", features = [] }
@@ -118,6 +118,7 @@ hf-hub = { version = "=0.5.0", optional = true, default-features = false, featur
 # Model files are downloaded through the pinned hf-hub client; tokenizers only
 # needs local tokenizer loading plus Oniguruma support.
 tokenizers = { version = "=0.23.1", optional = true, default-features = false, features = ["onig"] }
+basic-toml = { version = "=0.1.10", optional = true }
 arboard = "=3.6.1"
 tempfile = "=3.27.0"
 

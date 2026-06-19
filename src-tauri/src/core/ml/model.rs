@@ -1,12 +1,14 @@
 //! Model Management
 //!
-//! Handles downloading, caching, and loading of the sentence embedding model.
+//! Handles downloading, caching, and loading governed local model artifacts.
 
+use super::manifest::{load_model_manifest, model_lock_hash, ModelFileSpec, ModelSpec};
 use super::MlError;
 use crate::core::logging::path_label_for_logging;
 use anyhow::{Context, Result};
 use candle_core::{DType, Device, Module, Tensor};
 use candle_nn::VarBuilder;
+use chrono::Utc;
 use hf_hub::{api::tokio::Api, Repo, RepoType};
 use sha2::{Digest, Sha256};
 use std::{
@@ -16,37 +18,32 @@ use std::{
 };
 use tokenizers::Tokenizer;
 
-/// Model identifier on HuggingFace Hub
-const MODEL_ID: &str = "sentence-transformers/all-MiniLM-L6-v2";
-/// Exact model repository revision verified for runtime downloads.
-const MODEL_REVISION: &str = "1110a243fdf4706b3f48f1d95db1a4f5529b4d41";
-/// Required files for the model
-const MODEL_FILES: &[ModelFile] = &[
-    ModelFile {
-        name: "config.json",
-        sha256: "953f9c0d463486b10a6871cc2fd59f223b2c70184f49815e7efbcab5d8908b41",
-    },
-    ModelFile {
-        name: "tokenizer.json",
-        sha256: "be50c3628f2bf5bb5e3a7f17b1f74611b2561a3a27eeab05e5aa30f411572037",
-    },
-    ModelFile {
-        name: "model.safetensors",
-        sha256: "53aa51172d142c89d9012cce15ae4d6cc0ca6895895114379cacb4fab128d9db",
-    },
-];
-
-#[derive(Debug, Clone, Copy)]
-struct ModelFile {
-    name: &'static str,
-    sha256: &'static str,
-}
+const MODEL_CACHE_METADATA_FILE: &str = ".jobsentinel-model.json";
 
 /// Model download and loading status
 #[derive(Debug, Clone, serde::Serialize)]
 pub struct ModelStatus {
     pub is_downloaded: bool,
     pub model_size_bytes: Option<u64>,
+    pub model_id: String,
+    pub revision: String,
+    pub backend: String,
+    pub manifest_hash: String,
+}
+
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct ModelCacheMetadata {
+    pub manifest_version: u32,
+    pub manifest_hash: String,
+    pub model_id: String,
+    pub kind: String,
+    pub repo: String,
+    pub revision: String,
+    pub source_url: String,
+    pub backend: String,
+    pub license: String,
+    pub downloaded_at: String,
+    pub verified_at: String,
 }
 
 /// Manages model download and caching
@@ -61,23 +58,46 @@ impl ModelManager {
         Self { cache_dir }
     }
 
+    pub(crate) fn runtime_model_spec() -> Result<ModelSpec> {
+        let manifest = load_model_manifest()?;
+        manifest.legacy_runtime_embedding().cloned().ok_or_else(|| {
+            MlError::ModelLoadFailed("runtime model lock entry missing".to_string()).into()
+        })
+    }
+
+    pub(crate) fn model_cache_dir(&self, spec: &ModelSpec) -> PathBuf {
+        self.cache_dir
+            .join(&spec.id)
+            .join(&spec.revision)
+            .join(model_lock_hash())
+    }
+
+    fn model_file_path(&self, spec: &ModelSpec, file: &ModelFileSpec) -> PathBuf {
+        self.model_cache_dir(spec).join(&file.path)
+    }
+
     /// Check if model is already downloaded
     pub fn is_model_downloaded(&self) -> bool {
-        let model_dir = self.cache_dir.join("all-MiniLM-L6-v2");
+        let Ok(spec) = Self::runtime_model_spec() else {
+            return false;
+        };
+        let model_dir = self.model_cache_dir(&spec);
 
         if !model_dir.exists() {
             return false;
         }
 
-        MODEL_FILES.iter().all(|file| {
-            let path = model_dir.join(file.name);
-            path.exists() && verify_model_file_checksum(&path, file.sha256).is_ok()
-        })
+        let valid = spec.required_files().all(|file| {
+            let path = self.model_file_path(&spec, file);
+            path.exists() && verify_model_file_checksum(&path, &file.sha256).is_ok()
+        });
+        valid
     }
 
     /// Get model status
     pub fn get_status(&self) -> ModelStatus {
-        let model_path = self.cache_dir.join("all-MiniLM-L6-v2");
+        let spec = Self::runtime_model_spec().unwrap_or_else(|_| fallback_runtime_model_spec());
+        let model_path = self.model_cache_dir(&spec);
         let is_downloaded = self.is_model_downloaded();
 
         let model_size_bytes = if is_downloaded {
@@ -93,14 +113,23 @@ impl ModelManager {
         ModelStatus {
             is_downloaded,
             model_size_bytes,
+            model_id: spec.id,
+            revision: spec.revision,
+            backend: spec.backend,
+            manifest_hash: model_lock_hash(),
         }
     }
 
     /// Download model from HuggingFace Hub
     pub async fn download_model(&self) -> Result<PathBuf> {
+        let manifest = load_model_manifest()?;
+        let spec = manifest.legacy_runtime_embedding().ok_or_else(|| {
+            MlError::ModelLoadFailed("runtime model lock entry missing".to_string())
+        })?;
+
         tracing::info!(
-            model_id = MODEL_ID,
-            revision = MODEL_REVISION,
+            model_id = spec.id,
+            revision = spec.revision,
             "Downloading model from HuggingFace Hub"
         );
 
@@ -112,37 +141,57 @@ impl ModelManager {
         })?;
 
         let repo = api.repo(Repo::with_revision(
-            MODEL_ID.to_string(),
+            spec.repo.clone(),
             RepoType::Model,
-            MODEL_REVISION.to_string(),
+            spec.revision.clone(),
         ));
 
         // Download each required file
-        let model_dir = self.cache_dir.join("all-MiniLM-L6-v2");
+        let model_dir = self.model_cache_dir(spec);
         std::fs::create_dir_all(&model_dir).context("Failed to create model directory")?;
 
-        for file in MODEL_FILES {
-            tracing::info!(file = file.name, "Downloading model file");
+        let downloaded_at = Utc::now().to_rfc3339();
+        for file in &spec.files {
+            tracing::info!(
+                file = file.path,
+                required = file.required,
+                "Downloading model file"
+            );
 
-            let remote_path = repo.get(file.name).await.map_err(|_e| {
-                MlError::DownloadFailed(format!(
-                    "Failed to download required model file: {}",
-                    file.name
-                ))
-            })?;
+            let remote_path = match repo.get(&file.path).await {
+                Ok(path) => path,
+                Err(_error) if !file.required => {
+                    tracing::warn!(file = file.path, "Optional model file was not downloaded");
+                    continue;
+                }
+                Err(_error) => {
+                    return Err(MlError::DownloadFailed(format!(
+                        "Failed to download required model file: {}",
+                        file.path
+                    ))
+                    .into());
+                }
+            };
 
-            let target_path = model_dir.join(file.name);
+            let target_path = self.model_file_path(spec, file);
+            if let Some(parent) = target_path.parent() {
+                std::fs::create_dir_all(parent).context("Failed to create model file directory")?;
+            }
             std::fs::copy(&remote_path, &target_path)
-                .with_context(|| format!("Failed to copy {} to cache", file.name))?;
+                .with_context(|| format!("Failed to copy {} to cache", file.path))?;
 
-            if let Err(error) = verify_model_file_checksum(&target_path, file.sha256) {
+            if let Err(error) = verify_model_file_checksum(&target_path, &file.sha256) {
                 let _ = std::fs::remove_file(&target_path);
                 return Err(error.context(format!(
                     "Downloaded model file failed integrity check: {}",
-                    file.name
+                    file.path
                 )));
             }
         }
+
+        self.verify_model_cache(spec)?;
+        let verified_at = Utc::now().to_rfc3339();
+        self.write_cache_metadata(&model_dir, &manifest, spec, downloaded_at, verified_at)?;
 
         tracing::info!(
             model_dir = %path_label_for_logging(&model_dir),
@@ -153,7 +202,11 @@ impl ModelManager {
 
     /// Load tokenizer from cache
     pub fn load_tokenizer(&self) -> Result<Tokenizer> {
-        let tokenizer_path = self.cache_dir.join("all-MiniLM-L6-v2/tokenizer.json");
+        let spec = Self::runtime_model_spec()?;
+        let tokenizer_file = spec.file("tokenizer.json").ok_or_else(|| {
+            MlError::ModelLoadFailed("model lockfile missing tokenizer.json".to_string())
+        })?;
+        let tokenizer_path = self.model_file_path(&spec, tokenizer_file);
 
         if !tokenizer_path.exists() {
             return Err(MlError::ModelNotDownloaded(
@@ -162,10 +215,7 @@ impl ModelManager {
             .into());
         }
 
-        let expected_sha256 = model_file_sha256("tokenizer.json").ok_or_else(|| {
-            MlError::ModelLoadFailed("model checksum manifest is incomplete".to_string())
-        })?;
-        verify_model_file_checksum(&tokenizer_path, expected_sha256)
+        verify_model_file_checksum(&tokenizer_path, &tokenizer_file.sha256)
             .context("cached tokenizer failed integrity check")?;
 
         Tokenizer::from_file(&tokenizer_path)
@@ -174,7 +224,11 @@ impl ModelManager {
 
     /// Load model weights from cache
     pub fn load_model(&self, device: &Device) -> Result<VarBuilder<'_>> {
-        let model_path = self.cache_dir.join("all-MiniLM-L6-v2/model.safetensors");
+        let spec = Self::runtime_model_spec()?;
+        let weights_file = spec.file("model.safetensors").ok_or_else(|| {
+            MlError::ModelLoadFailed("model lockfile missing model.safetensors".to_string())
+        })?;
+        let model_path = self.model_file_path(&spec, weights_file);
 
         if !model_path.exists() {
             return Err(MlError::ModelNotDownloaded(
@@ -183,10 +237,7 @@ impl ModelManager {
             .into());
         }
 
-        let expected_sha256 = model_file_sha256("model.safetensors").ok_or_else(|| {
-            MlError::ModelLoadFailed("model checksum manifest is incomplete".to_string())
-        })?;
-        verify_model_file_checksum(&model_path, expected_sha256)
+        verify_model_file_checksum(&model_path, &weights_file.sha256)
             .context("cached model weights failed integrity check")?;
 
         let model_data = std::fs::read(&model_path).with_context(|| {
@@ -199,6 +250,51 @@ impl ModelManager {
             .map_err(|e| MlError::ModelLoadFailed(e.to_string()))?;
 
         Ok(vb)
+    }
+
+    fn verify_model_cache(&self, spec: &ModelSpec) -> Result<()> {
+        for file in spec.required_files() {
+            let path = self.model_file_path(spec, file);
+            if !path.exists() {
+                return Err(MlError::ModelNotDownloaded(format!(
+                    "required model file is missing: {}",
+                    file.path
+                ))
+                .into());
+            }
+            verify_model_file_checksum(&path, &file.sha256)
+                .context("cached model file failed integrity check")?;
+        }
+
+        Ok(())
+    }
+
+    fn write_cache_metadata(
+        &self,
+        model_dir: &Path,
+        manifest: &super::manifest::ModelManifest,
+        spec: &ModelSpec,
+        downloaded_at: String,
+        verified_at: String,
+    ) -> Result<()> {
+        let metadata = ModelCacheMetadata {
+            manifest_version: manifest.manifest_version,
+            manifest_hash: model_lock_hash(),
+            model_id: spec.id.clone(),
+            kind: format!("{:?}", spec.kind),
+            repo: spec.repo.clone(),
+            revision: spec.revision.clone(),
+            source_url: spec.source_url.clone(),
+            backend: spec.backend.clone(),
+            license: spec.license.clone(),
+            downloaded_at,
+            verified_at,
+        };
+        let metadata_json = serde_json::to_vec_pretty(&metadata)
+            .context("failed to serialize model cache metadata")?;
+        std::fs::write(model_dir.join(MODEL_CACHE_METADATA_FILE), metadata_json)
+            .context("failed to write model cache metadata")?;
+        Ok(())
     }
 
     /// Get device (Metal on macOS, CPU fallback)
@@ -223,11 +319,26 @@ impl ModelManager {
     }
 }
 
-fn model_file_sha256(name: &str) -> Option<&'static str> {
-    MODEL_FILES
-        .iter()
-        .find(|file| file.name == name)
-        .map(|file| file.sha256)
+fn fallback_runtime_model_spec() -> ModelSpec {
+    ModelSpec {
+        id: "model-lock-error".to_string(),
+        kind: super::manifest::ModelKind::Embedding,
+        repo: "unknown".to_string(),
+        revision: "0000000000000000000000000000000000000000".to_string(),
+        source_url: "unknown".to_string(),
+        license: "unknown".to_string(),
+        backend: "unavailable".to_string(),
+        backend_compatibility: Vec::new(),
+        dimension: None,
+        native_dimension: None,
+        max_tokens: 0,
+        tokenizer_family: "unknown".to_string(),
+        pooling: "unknown".to_string(),
+        normalization: "unknown".to_string(),
+        supports_instruction: false,
+        notes: None,
+        files: Vec::new(),
+    }
 }
 
 fn sha256_hex_for_file(path: &Path) -> Result<String> {

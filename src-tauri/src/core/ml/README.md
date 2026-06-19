@@ -1,6 +1,6 @@
 # ML Module
 
-Embedded machine learning for semantic skill matching.
+Embedded machine learning for local semantic matching.
 
 ## Quick Start
 
@@ -19,14 +19,41 @@ cargo test --features embedded-ml -- --ignored
 ## Module Structure
 
 - **mod.rs** - Module entry, feature flags, error types
-- **model.rs** - Model download, loading, BERT architecture
+- **manifest.rs** - Model lock parsing and validation
+- **model.rs** - Model download, cache verification, metadata, loading, and legacy baseline inference
+- **runtime.rs** - Backend traits, compatibility checks, vector provenance, and stale-vector keys
+- **evaluation.rs** - Evidence labels, hard-negative, feedback, and training data contracts
+- **eval_fixtures/seed_v1.json** - Seed eval labels, hard negatives, and preference pairs
 - **embeddings.rs** - Embedding generation, cosine similarity
 - **matcher.rs** - Semantic skill matching logic
 - **tests.rs** - Unit and integration tests
 
-## Model Architecture
+## Model Governance
 
-This module implements a simplified BERT-like model (all-MiniLM-L6-v2):
+Model artifacts are governed by `<repo-root>/models.lock.toml`. The lockfile
+owns model id, kind, repo, revision, file hashes, sizes, license, backend
+compatibility, tokenizer family, pooling, normalization, dimensions,
+instruction profiles, and score thresholds.
+
+The production direction is:
+
+- `qwen3-embedding-0.6b`: default embedding profile at 768 dimensions.
+- `qwen3-reranker-0.6b`: default bounded top-K reranker profile.
+- `all-minilm-l6-v2-baseline`: current wired legacy runtime until the Qwen3
+  backend is fully implemented and validated.
+
+The cache path includes model id, revision, and model-lock hash:
+
+```text
+<app-data>/ml_models/<model-id>/<revision>/<model-lock-hash>/
+```
+
+Do not add model identity, revisions, hashes, or scoring semantics as scattered
+Rust constants. Add them to `models.lock.toml`, then update tests.
+
+## Current Runtime
+
+The current wired runtime implements a simplified BERT-like MiniLM baseline:
 
 - 6 transformer layers
 - 12 attention heads
@@ -35,18 +62,31 @@ This module implements a simplified BERT-like model (all-MiniLM-L6-v2):
 
 Model downloads are pinned to Hugging Face revision
 `1110a243fdf4706b3f48f1d95db1a4f5529b4d41`. `config.json`,
-`tokenizer.json`, and `model.safetensors` must match the SHA-256 manifest in
-`model.rs` before the cache is treated as downloaded or loaded.
+`tokenizer.json`, and `model.safetensors` must match `models.lock.toml` before
+the cache is treated as downloaded or loaded.
+
+The Qwen3 backend must validate runtime compatibility before indexing or
+scoring:
+
+- model id and revision
+- backend kind
+- embedding dimension
+- tokenizer hash and family
+- max token limit
+- instruction profile
+- pooling and normalization
 
 ## Adding New Features
 
 ### Adding a New Model
 
-1. Update `MODEL_ID` constant in `model.rs`
-2. Update `MODEL_REVISION` to an exact commit hash
-3. Regenerate the SHA-256 manifest for every required model file
-4. Adjust `HIDDEN_SIZE`, `NUM_LAYERS`, `NUM_HEADS` as needed
-5. Regenerate model artifacts
+1. Add a `[[models]]` entry to `models.lock.toml`.
+2. Use a full upstream commit SHA, not a branch or tag.
+3. Record every required file, SHA-256 hash, size, license, backend
+   compatibility, dimensions, tokenizer family, pooling, normalization, and
+   instruction support.
+4. Add or update backend compatibility tests.
+5. Add eval fixtures before changing scoring behavior.
 
 ### Custom Matching Logic
 
@@ -72,7 +112,29 @@ impl SemanticMatcher {
 - Higher = stricter matching (fewer false positives)
 - Lower = looser matching (more false positives)
 
-Current: `0.7` (good balance)
+Current legacy matcher threshold: `0.7`.
+
+Do not compare raw reranker scores across query kinds. Use query-specific
+thresholds from `models.lock.toml`.
+
+## Evaluation Path
+
+Improve local matching in this order:
+
+1. Build labeled eval sets for requirement-to-resume evidence, resume-to-job
+   fit, skill evidence, title/seniority, and gap analysis.
+2. Mine hard negatives from false positives.
+3. Fine-tune the reranker first when labels justify it.
+4. Fine-tune embeddings only if retrieval recall is poor.
+5. Add a lightweight learning-to-rank layer over explainable features.
+6. Consider contextual bandits only after real feedback volume exists.
+
+Avoid RL-style optimization until the product has enough feedback and a clear
+sequential decision objective.
+
+The seed fixture covers all core eval tasks and is loaded by unit tests. It is
+not a training dataset by itself; it is a schema and regression anchor for
+future scoring, hard-negative mining, and reranker fine-tuning work.
 
 ## Debugging
 
@@ -86,7 +148,9 @@ RUST_LOG=jobsentinel::core::ml=debug cargo run --features embedded-ml
 
 - **Without ML:** ~8MB
 - **With ML:** ~10-13MB
-- **Model (runtime):** ~20MB
+- **Current model (runtime):** ~90MB
+- **Target Qwen3 embedding model:** ~1.1GB
+- **Target Qwen3 reranker model:** ~1.1GB
 
 The binary size increase is minimal because:
 

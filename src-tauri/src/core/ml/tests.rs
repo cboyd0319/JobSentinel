@@ -21,24 +21,46 @@ mod tests {
         let status = manager.get_status();
         assert!(!status.is_downloaded);
         assert!(status.model_size_bytes.is_none());
+        assert_eq!(status.model_id, "all-minilm-l6-v2-baseline");
+        assert_eq!(status.backend, "minilm-candle");
+        assert_eq!(status.manifest_hash.len(), 64);
     }
 
     #[test]
     fn test_model_status_rejects_tampered_cached_files() {
         let cache_dir = get_test_cache_dir();
-        let model_dir = cache_dir.path().join("ml_models/all-MiniLM-L6-v2");
+        let manager = ModelManager::new(cache_dir.path().to_path_buf());
+        let spec = ModelManager::runtime_model_spec().unwrap();
+        let model_dir = manager.model_cache_dir(&spec);
         fs::create_dir_all(&model_dir).unwrap();
 
         for file in ["config.json", "tokenizer.json", "model.safetensors"] {
             fs::write(model_dir.join(file), b"tampered model file").unwrap();
         }
 
-        let manager = ModelManager::new(cache_dir.path().to_path_buf());
         let status = manager.get_status();
 
         assert!(!manager.is_model_downloaded());
         assert!(!status.is_downloaded);
         assert!(status.model_size_bytes.is_none());
+    }
+
+    #[test]
+    fn test_model_manifest_default_profiles_are_available() {
+        let manifest = load_model_manifest().unwrap();
+
+        assert_eq!(
+            manifest.default_embedding().unwrap().id,
+            "qwen3-embedding-0.6b"
+        );
+        assert_eq!(
+            manifest.default_reranker().unwrap().id,
+            "qwen3-reranker-0.6b"
+        );
+        assert_eq!(
+            manifest.legacy_runtime_embedding().unwrap().id,
+            "all-minilm-l6-v2-baseline"
+        );
     }
 
     #[test]

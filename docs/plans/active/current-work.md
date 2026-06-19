@@ -73,16 +73,17 @@ Out of scope:
 | ---- | ----- | ----------------- |
 | Dependency readiness | Complete | Package-manager, direct deps, overrides, and Action pins are latest; transitives stay lockfile-pinned |
 | Downloadable Agent Skills | Complete locally | Skills pass `lint:skills`; release packaging creates deterministic tar/ZIP artifacts. |
-| LinkedIn Workbench and restricted-source flow | Complete locally | Desktop/mobile mock UI, generated Browser Import visible-card coverage, and user-assisted live LinkedIn proof are recorded without cookies, hidden page reads, monitoring, automation, or submit actions. |
-| Scraper/source verification | Complete locally | Live source probes, restricted-source contract tests, manual restricted-source proof, and Scrapling comparison are recorded. |
-| Development and QA completion | Release-gated | Roadmap checklist is closed locally; final local release gates and user-confirmed push/publish remain. |
+| LinkedIn Workbench and restricted-source flow | Open | Revalidate LinkedIn-compatible browser capture, Browser Import visible-card capture, Workbench ledger actions, restricted-source acknowledgement, artifact/session checks, and user-assisted proof without cookies, hidden page reads, monitoring, automation, or submit actions. |
+| Scraper/source verification | Open | Manually re-run and record every current personal scraper, public source adapter, restricted-source compatible flow, and source-specific no-account limitation. |
+| README, docs, and screenshots | Open | Refresh README, docs hub, release notes, and screenshots for current v2.9.0 surfaces; archive/delete stale maintained docs where appropriate. |
+| Development and QA completion | Release-gated | Roadmap checklist is open; final local release gates and user-confirmed push/publish remain after docs, screenshots, source, resume, and UI proof close. |
 | macOS readiness | Release-gated | No-account path is complete; Gatekeeper-ready public distribution remains Apple-credential-gated. |
-| Resume assistance | Complete locally | Hard-requirement categories, evidence caps, readable export checks, and major ATS portal guidance are verified. |
+| Resume assistance | Open | Manually verify parsing, import, matching, tailoring, builder/export, ATS/readability review, application-form help, cover-letter review, and screening-answer review against local resume corpora. |
 | Job-card protection | Complete locally | Posting-risk cues stay visible without implying employer intent or confirmed duplicate/source proof. |
 | Guided intake | Complete locally | Search review guides application next actions; suggestions stay reviewed and explainable. |
 | Pay protection | Complete locally | Missing, one-sided, malformed, broad, and written-vs-verbal offer cues stay plain and review-first. |
 | Encrypted local storage | Complete locally | SQLCipher, AEAD vault rows, migration, passphrase controls, and macOS vault-key locking are release-ready locally. |
-| Quiet Shield redesign | Applied locally | Tokens, score colors, and dashboard loading are screenshot-checked; final click/action coverage passed. |
+| Quiet Shield redesign | Applied locally | Tokens, score colors, and dashboard loading are screenshot-checked; final click/action coverage must rerun after current docs/screenshots and any UI changes. |
 | Final Rust and agent improvement pass | Complete locally | Accepted non-`content/` fixes are applied and verified; revisit only for regressions. |
 | Cleanup and harness | Closed for proactive bloat work | Reopen only for a fresh blocker to privacy, security, docs accuracy, or verification. |
 
@@ -98,71 +99,42 @@ Out of scope:
   safety, explicit user review, privacy-preserving defaults, and optional
   external AI.
 - Every claim of completion has fresh verification evidence.
-- v2.9.0 is not release-ready until final local gates pass from the verified
-  commit and the user confirms the push/publish sequence.
+- v2.9.0 is not release-ready until the active roadmap rows for docs,
+  screenshots, scraper/source verification, resume verification, UI proof, and
+  final local gates close from the verified commit and the user confirms the
+  push/publish sequence.
 
 ## Done Recently
 
-- macOS docs and release workflow separate full-public, no-account, and legacy
-  public fallback paths; post-`28dcd6dd` local `2.9.0` DMG passes current smoke gates.
-- Resume Match and Builder hard-requirement handling now covers age,
-  citizenship, screening, driving, insurance, language, schedule, and related
-  review-first categories across Rust, mocks, and UI.
-- Job cards, filters, and backend reasons keep repeated-sighting, low-detail,
-  source, unsafe-link, pay-risk, and scam-cue evidence visible without overclaiming.
-- First-run setup keeps broad work-location defaults, alert opt-in, reviewed
-  sources/resume skills, and non-technical starter paths.
-- Quiet Shield QA fixed wrapping, passive Keychain prompts, Protective Navy
-  tokens, score colors, dashboard loading, and mobile Application Assist layout.
-- Browser Import captures cards; Workbench has user-clicked
-  applied/saved/tracking/rejected/interview/follow-up/reminder/note/
-  not-interested without hidden reads/session storage.
-- Package-manager, npm/Cargo, override, Action/runner/apt pins are latest
-  stable; `lint:deps`, `lint:actions`, and `release:check-deps` enforce freshness.
-- Live OS keyring integration tests are opt-in behind
-  `JOBSENTINEL_LIVE_KEYRING_TESTS=1`; default credential tests remain
-  non-interactive and still prove LinkedIn credential storage is blocked before
-  keyring access.
-- Runtime credentials use encrypted vault rows; status checks read metadata only,
-  and passphrase controls stay action-driven.
-- File-backed app data opens through SQLCipher; legacy plaintext databases
-  upgrade in place and delete temporary plaintext backups after success.
-- Downloadable Agent Skills cover the search flow with UI metadata, handoffs,
-  templates, rubrics, validation, checksums, and release SBOM staging.
-- Browser Import desktop/mobile verification passed on 2026-06-17.
-- Restricted-source and LinkedIn-compatible proof passed on 2026-06-19 with
-  mock UI, generated visible-card Browser Import, and user-assisted browsing.
-- Source mining rechecked Scrapling/Stygian, added BDJobs, promoted Naukri/Bayt,
-  and kept Google Jobs to user-opened import research.
-- CheatSheetSeries follow-ups hardened CI, dependency gates, source/network
-  pinning, notification validation/redaction, Browser Import, HTTPS imports,
-  Application Assist isolation, release assets, AI guards, skills, sandboxed
-  previews/export, secure deletion, parser caps, KDF floors, and body caps.
-- Hosted release hardening now gates signing, cleans CI signing material,
-  blocks unsigned MSI upload, and narrows renderer notification/dialog permissions.
-- Final non-`content/` audit fixes landed for company research, onboarding,
-  auto-refresh gating, alert claims, HTTPS JobsWithGPT, shared import hashes,
-  and `2.9.0` metadata/changelog.
-- 2026-06-19 release gates cover sensors, zizmor, audit, cargo-deny,
-  unsigned Windows, no-account macOS, Linux, checksums, SBOMs, attestations,
-  skills, and post-matrix publication. Fresh local gates pass release
-  readiness, dependency pins, doctor, security sensors, frontend `3168/3168`,
-  lint/build, Rust fmt/clippy/lib `2932` with `11` ignored, E2E `278/278`,
-  docs/prose, bloat, harness, and whitespace checks.
+- Recent completed work covers no-account release paths, resume hard-requirement
+  handling, job-card protection, first-run setup, Quiet Shield fixes, Browser
+  Import, Workbench, encrypted local storage, downloadable skills, source
+  taxonomy, release hardening, and non-`content/` audit fixes.
+- Dependency, security, frontend, build, Rust, E2E, docs, bloat, harness, and
+  release-readiness gates have passed in prior slices, but final gates must
+  rerun from the final verified commit.
+- Script tests moved into `scripts/tests/` and `scripts/security/tests/` before
+  commit `b238c7d4`; keep future script tests out of the flat `scripts/` root.
 
 ## Next Work
 
-1. Run final local release gates from the verified commit before release action.
-2. Confirm major route screenshots, Computer Use clicks, keyboard flow, and
+1. Refresh README, docs hubs, release notes, and screenshots for current
+   v2.9.0 surfaces; archive/delete maintained stale docs where appropriate.
+2. Revalidate LinkedIn-compatible browser capture, Workbench actions,
+   restricted-source acknowledgement, and no-session-artifact behavior.
+3. Manually verify every current scraper/source path and every resume
+   capability, then record evidence.
+4. Run final local release gates from the verified commit before release action.
+5. Confirm major route screenshots, Computer Use clicks, keyboard flow, and
    affected route/action/state checks after any further UI change.
-3. Continue macOS readiness only after final local gates close; do
+6. Continue macOS readiness only after final local gates close; do
    not claim Gatekeeper-ready distribution before signing, notarization,
    stapling, and install proof exist.
-4. Do not reopen repo-bloat cleanup unless a fresh bloat gate failure or
+7. Do not reopen repo-bloat cleanup unless a fresh bloat gate failure or
    product/privacy/security/docs verification blocker appears.
-5. Keep README, docs hubs, release docs, wiki inventory, and active status in
+8. Keep README, docs hubs, release docs, wiki inventory, and active status in
    sync when behavior, readiness, or public guidance changes.
-6. Commit each major verified change locally; push only at goal completion or
+9. Commit each major verified change locally; push only at goal completion or
    on newer explicit instruction.
 
 ## Sensors

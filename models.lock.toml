@@ -1,0 +1,202 @@
+manifest_version = 1
+
+[defaults]
+embedding = "qwen3-embedding-0.6b"
+reranker = "qwen3-reranker-0.6b"
+legacy_runtime_embedding = "all-minilm-l6-v2-baseline"
+
+[instruction_profiles.resume_requirement_v1]
+query = "Given a job requirement, retrieve resume passages that provide concrete evidence that the candidate satisfies the requirement."
+document = "Resume passage or professional profile evidence."
+
+[instruction_profiles.job_search_v1]
+query = "Given a candidate profile, retrieve jobs that match concrete skills, seniority, role intent, location, and domain evidence."
+document = "Job posting, job summary, or role requirement."
+
+[thresholds.resume_requirement]
+strong = 0.82
+medium = 0.65
+weak = 0.48
+
+[thresholds.job_search]
+strong = 0.76
+medium = 0.60
+weak = 0.42
+
+[[models]]
+id = "qwen3-embedding-0.6b"
+kind = "embedding"
+repo = "Qwen/Qwen3-Embedding-0.6B"
+revision = "97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3"
+source_url = "https://huggingface.co/Qwen/Qwen3-Embedding-0.6B"
+license = "Apache-2.0"
+backend = "fastembed-qwen3"
+backend_compatibility = ["fastembed-qwen3", "qwen3-candle"]
+dimension = 768
+native_dimension = 1024
+max_tokens = 32768
+tokenizer_family = "qwen3"
+pooling = "last-token"
+normalization = "l2"
+supports_instruction = true
+notes = "Default balanced local embedding profile. Runtime must truncate native 1024-dimensional output to 768 and renormalize before storing vectors."
+
+[[models.files]]
+path = "config.json"
+sha256 = "b5bf1f51fc45be473a54718cef92448d90a1be001bf9b9a44b8c7f10a19feaa9"
+size_bytes = 727
+required = true
+
+[[models.files]]
+path = "tokenizer.json"
+sha256 = "def76fb086971c7867b829c23a26261e38d9d74e02139253b38aeb9df8b4b50a"
+size_bytes = 11423705
+required = true
+
+[[models.files]]
+path = "model.safetensors"
+sha256 = "0437e45c94563b09e13cb7a64478fc406947a93cb34a7e05870fc8dcd48e23fd"
+size_bytes = 1191586416
+required = true
+
+[[models.files]]
+path = "modules.json"
+sha256 = "84e40c8e006c9b1d6c122e02cba9b02458120b5fb0c87b746c41e0207cf642cf"
+size_bytes = 349
+required = true
+
+[[models.files]]
+path = "config_sentence_transformers.json"
+sha256 = "10667c72ddb772627bf1780cb7f86af8e2ae0032b8c243c731172064105c6961"
+size_bytes = 215
+required = true
+
+[[models.files]]
+path = "tokenizer_config.json"
+sha256 = "253153d0738ceb4c668d2eff957714dd2bea0b56de772a9fdccd96cbf517e6a0"
+size_bytes = 9706
+required = true
+
+[[models.files]]
+path = "1_Pooling/config.json"
+sha256 = "37bf193fa101f19101bfad9c31d3eb0f786e247b7b1e5cb7f007d730eed1ddbd"
+size_bytes = 313
+required = true
+
+[[models.files]]
+path = "README.md"
+sha256 = "c34d9b7e5a267ad3fdd13227a253686bc90844ff4744a2a6a86c7c905e3d06f3"
+size_bytes = 17237
+required = false
+
+[[models]]
+id = "qwen3-reranker-0.6b"
+kind = "reranker"
+repo = "Qwen/Qwen3-Reranker-0.6B"
+revision = "e61197ed45024b0ed8a2d74b80b4d909f1255473"
+source_url = "https://huggingface.co/Qwen/Qwen3-Reranker-0.6B"
+license = "Apache-2.0"
+backend = "qwen3-reranker-candle"
+backend_compatibility = ["qwen3-reranker-candle", "qwen3-seq-cls-candle", "local-http", "python-sidecar"]
+max_tokens = 32768
+tokenizer_family = "qwen3"
+pooling = "logit-score"
+normalization = "raw-logit-difference"
+supports_instruction = true
+notes = "Default local reranker profile. Runtime must rerank bounded top-k candidates only and must never compare raw reranker scores across query kinds."
+
+[[models.files]]
+path = "config.json"
+sha256 = "d479c427a9ca5295218063d4f9aca4f297ab4ac27487cca7af42c84643d51ef0"
+size_bytes = 727
+required = true
+
+[[models.files]]
+path = "tokenizer.json"
+sha256 = "aeb13307a71acd8fe81861d94ad54ab689df773318809eed3cbe794b4492dae4"
+size_bytes = 11422654
+required = true
+
+[[models.files]]
+path = "model.safetensors"
+sha256 = "27cd75a405b9c1b46b59abfd88aaa209e6fed2a1972cde9b70e7659537c5e65b"
+size_bytes = 1191588280
+required = true
+
+[[models.files]]
+path = "modules.json"
+sha256 = "6f13b6b4a89e577b591b2077bca40c67c26541a6740a8809267cb474f90806a9"
+size_bytes = 280
+required = true
+
+[[models.files]]
+path = "config_sentence_transformers.json"
+sha256 = "6a153d6696f78fd588c1c728967f0b773ea869d3c6028f151ce71ebe49140762"
+size_bytes = 325
+required = true
+
+[[models.files]]
+path = "tokenizer_config.json"
+sha256 = "253153d0738ceb4c668d2eff957714dd2bea0b56de772a9fdccd96cbf517e6a0"
+size_bytes = 9706
+required = true
+
+[[models.files]]
+path = "1_LogitScore/config.json"
+sha256 = "73e3156450564d8a98b7e47bcf5aace0f29600828b51937da545571e84db3ff3"
+size_bytes = 57
+required = true
+
+[[models.files]]
+path = "README.md"
+sha256 = "5bba8c734f6dd3ae48317b4139317e45a7fce48fc55e15670b23a0dd15492ab6"
+size_bytes = 14742
+required = false
+
+[[models]]
+id = "all-minilm-l6-v2-baseline"
+kind = "embedding"
+repo = "sentence-transformers/all-MiniLM-L6-v2"
+revision = "1110a243fdf4706b3f48f1d95db1a4f5529b4d41"
+source_url = "https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2"
+license = "Apache-2.0"
+backend = "minilm-candle"
+backend_compatibility = ["minilm-candle"]
+dimension = 384
+native_dimension = 384
+max_tokens = 256
+tokenizer_family = "bert-wordpiece"
+pooling = "mean"
+normalization = "l2"
+supports_instruction = false
+notes = "Legacy embedded-ml runtime baseline kept for fallback and regression comparison while the Qwen3 backend is wired."
+
+[[models.files]]
+path = "config.json"
+sha256 = "953f9c0d463486b10a6871cc2fd59f223b2c70184f49815e7efbcab5d8908b41"
+size_bytes = 612
+required = true
+
+[[models.files]]
+path = "tokenizer.json"
+sha256 = "be50c3628f2bf5bb5e3a7f17b1f74611b2561a3a27eeab05e5aa30f411572037"
+size_bytes = 466247
+required = true
+
+[[models.files]]
+path = "model.safetensors"
+sha256 = "53aa51172d142c89d9012cce15ae4d6cc0ca6895895114379cacb4fab128d9db"
+size_bytes = 90868376
+required = true
+
+[[models.files]]
+path = "modules.json"
+sha256 = "84e40c8e006c9b1d6c122e02cba9b02458120b5fb0c87b746c41e0207cf642cf"
+size_bytes = 349
+required = false
+
+[[models.files]]
+path = "1_Pooling/config.json"
+sha256 = "4be450dde3b0273bb9787637cfbd28fe04a7ba6ab9d36ac48e92b11e350ffc23"
+size_bytes = 190
+required = false
