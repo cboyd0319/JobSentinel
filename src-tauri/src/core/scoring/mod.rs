@@ -8,6 +8,7 @@
 //! - Recency: 5% (default)
 
 mod cache;
+mod company_normalization;
 mod config;
 mod db;
 mod remote;
@@ -24,6 +25,7 @@ pub use synonyms::SynonymMap;
 
 use crate::core::{config::Config, db::Job, resume::ResumeMatcher};
 use chrono::Utc;
+use company_normalization::company_suffix_patterns;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tracing::debug;
@@ -51,31 +53,8 @@ pub(crate) fn normalize_company_name(name: &str) -> String {
         }
     }
 
-    // Remove company suffixes
-    const SUFFIXES: &[&str] = &[
-        " inc",
-        " inc.",
-        " incorporated",
-        " llc",
-        " llc.",
-        " l.l.c",
-        " l.l.c.",
-        " ltd",
-        " ltd.",
-        " limited",
-        " corp",
-        " corp.",
-        " corporation",
-        " co",
-        " co.",
-        " company",
-        " plc",
-        " plc.",
-        " gmbh",
-        " ag",
-    ];
-    for suffix in SUFFIXES {
-        if let Some(stripped) = result.strip_suffix(suffix) {
+    for suffix in company_suffix_patterns() {
+        if let Some(stripped) = result.strip_suffix(suffix.as_str()) {
             result.truncate(stripped.len());
             break; // Only remove one suffix
         }

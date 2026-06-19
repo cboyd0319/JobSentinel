@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "companySuffixPatterns": [
+    " inc",
+    " inc.",
+    " incorporated",
+    " llc",
+    " llc.",
+    " l.l.c",
+    " l.l.c.",
+    " ltd",
+    " ltd.",
+    " limited",
+    " corp",
+    " corp.",
+    " corporation",
+    " co",
+    " co.",
+    " company",
+    " plc",
+    " plc.",
+    " gmbh",
+    " ag"
+  ]
+}
