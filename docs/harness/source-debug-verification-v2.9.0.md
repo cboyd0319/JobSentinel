@@ -54,6 +54,7 @@ site blocks, changes, or returns no jobs.
 | USAJobs | Official API | Access-code handling, credential-status behavior, request minimization, API failure, status row |
 | SimplyHired | Restricted public unauthenticated scheduled board | Prominent acknowledgement, scheduler skip without acknowledgement, parser or live opt-in check, blocked-site recovery, no authenticated-session cap |
 | Glassdoor | Restricted public unauthenticated scheduled board | Prominent acknowledgement, scheduler skip without acknowledgement, parser or live opt-in check, blocked-site recovery, no authenticated-session cap |
+| Restricted Source Status checks | Public unauthenticated helper checks | One-time review prompt before Indeed, Wellfound, BuiltIn, Dice, ZipRecruiter, SimplyHired, or Glassdoor health checks; skip without acknowledgement; no saved sign-in session |
 | Search links | User-opened browser links | Restricted-board acknowledgement before opening, official/public links stay low-friction |
 | JobSentinel browser sessions | User-opened browser/webview action | Privacy reminder after long manual sessions, user can close or continue, no hard expiry unless JobSentinel reads or automates restricted content |
 | Pasted job link import | User-submitted individual URL | URL validation, restricted-domain acknowledgement, no local/private URLs, sanitized errors |

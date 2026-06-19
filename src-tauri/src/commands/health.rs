@@ -12,10 +12,10 @@ use crate::core::health::{
     get_expiring_credentials as fetch_expiring_credentials, get_health_summary as health_summary,
     get_latest_source_request as latest_source_request, get_scraper_configs as scraper_configs,
     get_scraper_runs as scraper_runs, is_known_scraper_name,
-    run_all_smoke_tests_with_credentials as all_smoke_tests,
-    run_smoke_test_with_credentials as run_smoke_test, set_scraper_enabled as scraper_enabled,
-    CredentialHealth, HealthSummary, ScraperConfig, ScraperHealthMetrics, ScraperRun,
-    SmokeTestResult, SourceRequestSummary,
+    run_all_smoke_tests_with_credentials_and_acknowledgement as all_smoke_tests,
+    run_smoke_test_with_credentials_and_acknowledgement as run_smoke_test,
+    set_scraper_enabled as scraper_enabled, CredentialHealth, HealthSummary, ScraperConfig,
+    ScraperHealthMetrics, ScraperRun, SmokeTestResult, SourceRequestSummary,
 };
 use crate::core::logging::path_label_for_logging;
 use std::path::Path;
@@ -237,6 +237,7 @@ pub async fn get_latest_source_request(
 pub async fn run_scraper_smoke_test(
     state: State<'_, AppState>,
     scraper_name: String,
+    restricted_source_acknowledged: Option<bool>,
 ) -> Result<SmokeTestResult, String> {
     validate_scraper_name(&scraper_name)?;
     let config = state.config.read().await.clone();
@@ -245,6 +246,7 @@ pub async fn run_scraper_smoke_test(
         &config,
         &scraper_name,
         state.credentials.as_ref(),
+        restricted_source_acknowledged.unwrap_or(false),
     )
     .await
     .map_err(|e| health_command_error("Failed to run scraper smoke test", e))
@@ -254,11 +256,17 @@ pub async fn run_scraper_smoke_test(
 #[tauri::command]
 pub async fn run_all_smoke_tests(
     state: State<'_, AppState>,
+    restricted_source_acknowledged: Option<bool>,
 ) -> Result<Vec<SmokeTestResult>, String> {
     let config = state.config.read().await.clone();
-    all_smoke_tests(&state.database, &config, state.credentials.as_ref())
-        .await
-        .map_err(|e| health_command_error("Failed to run scraper smoke tests", e))
+    all_smoke_tests(
+        &state.database,
+        &config,
+        state.credentials.as_ref(),
+        restricted_source_acknowledged.unwrap_or(false),
+    )
+    .await
+    .map_err(|e| health_command_error("Failed to run scraper smoke tests", e))
 }
 
 /// Get inactive legacy LinkedIn credential status.

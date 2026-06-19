@@ -207,6 +207,13 @@ Representative source pacing:
 Checks that cannot operate within source boundaries should fail closed and
 show a clear user-facing explanation.
 
+Source Status must show a one-time review prompt before checking restricted
+public unauthenticated helpers such as Indeed, Wellfound, BuiltIn, Dice,
+ZipRecruiter, SimplyHired, and Glassdoor. The prompt explains that some job
+boards have rules about automated tools and points users to search links,
+Browser Import, pasted links, employer pages, or manual entry if a site blocks
+the check or asks for human review.
+
 Restricted scheduled sources such as BuiltIn, Dice, SimplyHired, and Glassdoor
 must also require a saved local acknowledgement before the scheduler runs them.
 If a config file or backup turns one on without that acknowledgement, the

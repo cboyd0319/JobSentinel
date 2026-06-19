@@ -137,6 +137,11 @@ Evidence:
   sources without acknowledgement.
 - `src-tauri/src/core/scheduler/workers/scrapers.rs` skips restricted scheduled
   sources without acknowledgement.
+- `src/components/ScraperHealthDashboard.tsx` prompts before one-off Source
+  Status checks for restricted public source helpers.
+- `src-tauri/src/core/health/smoke_tests.rs` skips restricted public smoke
+  checks unless the user action supplies acknowledgement or the source already
+  has a saved scheduled-source acknowledgement.
 
 Risk:
 

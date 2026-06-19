@@ -29,6 +29,18 @@ describe("ScraperHealthDashboard source checks", () => {
     vi.useRealTimers();
   });
 
+  async function confirmAndRunAllSourceChecks(
+    user: ReturnType<typeof userEvent.setup>,
+  ) {
+    await user.click(screen.getByText("Check Sources Now"));
+    const reviewDialog = await screen.findByRole("dialog", {
+      name: /review source check/i,
+    });
+    await user.click(
+      within(reviewDialog).getByRole("button", { name: /continue checking/i }),
+    );
+  }
+
   describe("source check all", () => {
     beforeEach(() => {
       mockInvoke.mockImplementation((cmd: string) => {
@@ -50,8 +62,22 @@ describe("ScraperHealthDashboard source checks", () => {
 
       await user.click(screen.getByText("Check Sources Now"));
 
+      const reviewDialog = await screen.findByRole("dialog", {
+        name: /review source check/i,
+      });
+      expect(reviewDialog).toHaveTextContent(/some job boards have rules/i);
+      expect(mockInvoke).not.toHaveBeenCalledWith(
+        "run_all_smoke_tests",
+        expect.anything(),
+      );
+      await user.click(
+        within(reviewDialog).getByRole("button", { name: /continue checking/i }),
+      );
+
       await waitFor(() => {
-        expect(mockInvoke).toHaveBeenCalledWith("run_all_smoke_tests", {});
+        expect(mockInvoke).toHaveBeenCalledWith("run_all_smoke_tests", {
+          restrictedSourceAcknowledged: true,
+        });
       });
     });
 
@@ -73,7 +99,7 @@ describe("ScraperHealthDashboard source checks", () => {
         expect(screen.getByText("Check Sources Now")).toBeInTheDocument();
       });
 
-      await user.click(screen.getByText("Check Sources Now"));
+      await confirmAndRunAllSourceChecks(user);
 
       await waitFor(() => {
         expect(screen.getByText("Checking...")).toBeInTheDocument();
@@ -88,7 +114,7 @@ describe("ScraperHealthDashboard source checks", () => {
         expect(screen.getByText("Check Sources Now")).toBeInTheDocument();
       });
 
-      await user.click(screen.getByText("Check Sources Now"));
+      await confirmAndRunAllSourceChecks(user);
 
       await waitFor(() => {
         expect(screen.getByText("Check Results")).toBeInTheDocument();
@@ -103,7 +129,7 @@ describe("ScraperHealthDashboard source checks", () => {
         expect(screen.getByText("Check Sources Now")).toBeInTheDocument();
       });
 
-      await user.click(screen.getByText("Check Sources Now"));
+      await confirmAndRunAllSourceChecks(user);
 
       await waitFor(() => {
         expect(screen.getByText("Worked")).toBeInTheDocument();
@@ -141,7 +167,7 @@ describe("ScraperHealthDashboard source checks", () => {
         expect(screen.getByText("Check Sources Now")).toBeInTheDocument();
       });
 
-      await user.click(screen.getByText("Check Sources Now"));
+      await confirmAndRunAllSourceChecks(user);
 
       await waitFor(() => {
         expect(screen.getByText("Skipped")).toBeInTheDocument();
@@ -157,7 +183,7 @@ describe("ScraperHealthDashboard source checks", () => {
         expect(screen.getByText("Check Sources Now")).toBeInTheDocument();
       });
 
-      await user.click(screen.getByText("Check Sources Now"));
+      await confirmAndRunAllSourceChecks(user);
 
       await waitFor(() => {
         const resultsDialog = screen.getByRole("dialog", {
@@ -176,7 +202,7 @@ describe("ScraperHealthDashboard source checks", () => {
         expect(screen.getByText("Check Sources Now")).toBeInTheDocument();
       });
 
-      await user.click(screen.getByText("Check Sources Now"));
+      await confirmAndRunAllSourceChecks(user);
 
       await waitFor(() => {
         expect(screen.getByText(/check your internet connection/i)).toBeInTheDocument();
@@ -192,7 +218,7 @@ describe("ScraperHealthDashboard source checks", () => {
         expect(screen.getByText("Check Sources Now")).toBeInTheDocument();
       });
 
-      await user.click(screen.getByText("Check Sources Now"));
+      await confirmAndRunAllSourceChecks(user);
 
       await waitFor(() => {
         expect(screen.getByText("Check Results")).toBeInTheDocument();

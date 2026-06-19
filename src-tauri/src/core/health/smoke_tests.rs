@@ -44,6 +44,20 @@ const SOURCE_CHECK_READ_ERROR: &str =
     "JobSentinel could not read this source response. Try again later.";
 const SOURCE_CHECK_DEFAULT_ERROR: &str =
     "This source check could not finish. Try again later or save a safe support report.";
+const RESTRICTED_SOURCE_CHECK_ACK_REQUIRED: &str =
+    "Review and accept the restricted-source warning before checking this source.";
+// Mirrors restricted public unauthenticated source-check helpers from the
+// shared source taxonomy. Source-specific reasons live in
+// src/shared/restrictedSourceTaxonomy.ts and docs/features/scrapers.md.
+const RESTRICTED_SOURCE_CHECK_SCRAPERS: &[&str] = &[
+    "indeed",
+    "wellfound",
+    "builtin",
+    "dice",
+    "ziprecruiter",
+    "simplyhired",
+    "glassdoor",
+];
 
 #[must_use]
 pub fn smoke_test_scrapers() -> &'static [&'static str] {
@@ -150,6 +164,30 @@ fn smoke_rate_limit(scraper_name: &str) -> u32 {
     }
 }
 
+fn restricted_source_check_requires_acknowledgement(scraper_name: &str) -> bool {
+    RESTRICTED_SOURCE_CHECK_SCRAPERS.contains(&scraper_name)
+}
+
+fn saved_restricted_source_acknowledgement(config: &Config, scraper_name: &str) -> bool {
+    match scraper_name {
+        "builtin" => config.restricted_source_acknowledgements.builtin,
+        "dice" => config.restricted_source_acknowledgements.dice,
+        "simplyhired" => config.restricted_source_acknowledgements.simplyhired,
+        "glassdoor" => config.restricted_source_acknowledgements.glassdoor,
+        _ => false,
+    }
+}
+
+fn restricted_source_check_acknowledged(
+    config: &Config,
+    scraper_name: &str,
+    one_time_acknowledged: bool,
+) -> bool {
+    !restricted_source_check_requires_acknowledgement(scraper_name)
+        || one_time_acknowledged
+        || saved_restricted_source_acknowledgement(config, scraper_name)
+}
+
 fn smoke_client(user_agent: Option<&str>) -> Result<reqwest::Client> {
     smoke_client_for_target(user_agent, None)
 }
@@ -192,7 +230,42 @@ pub async fn run_smoke_test_with_credentials(
     scraper_name: &str,
     credentials: &CredentialService,
 ) -> Result<SmokeTestResult> {
+    run_smoke_test_with_credentials_and_acknowledgement(
+        db,
+        config,
+        scraper_name,
+        credentials,
+        false,
+    )
+    .await
+}
+
+/// Run a connectivity smoke test with an explicit credential provider and
+/// one-time restricted-source acknowledgement from the user action that started it.
+pub async fn run_smoke_test_with_credentials_and_acknowledgement(
+    db: &Database,
+    config: &Config,
+    scraper_name: &str,
+    credentials: &CredentialService,
+    restricted_source_acknowledged: bool,
+) -> Result<SmokeTestResult> {
     let start = Instant::now();
+    if !restricted_source_check_acknowledged(config, scraper_name, restricted_source_acknowledged) {
+        let smoke_result = SmokeTestResult {
+            scraper_name: scraper_name.to_string(),
+            test_type: SmokeTestType::Connectivity,
+            passed: true,
+            duration_ms: start.elapsed().as_millis() as i64,
+            details: Some(serde_json::json!({
+                "status": "skipped",
+                "reason": RESTRICTED_SOURCE_CHECK_ACK_REQUIRED,
+            })),
+            error: None,
+        };
+        record_smoke_test(db, &smoke_result).await?;
+        return Ok(smoke_result);
+    }
+
     RateLimiter::shared()
         .wait(scraper_name, smoke_rate_limit(scraper_name))
         .await;
@@ -258,10 +331,28 @@ pub async fn run_all_smoke_tests_with_credentials(
     config: &Config,
     credentials: &CredentialService,
 ) -> Result<Vec<SmokeTestResult>> {
+    run_all_smoke_tests_with_credentials_and_acknowledgement(db, config, credentials, false).await
+}
+
+/// Run all smoke tests, using a one-time restricted-source acknowledgement for
+/// this user-triggered source check batch.
+pub async fn run_all_smoke_tests_with_credentials_and_acknowledgement(
+    db: &Database,
+    config: &Config,
+    credentials: &CredentialService,
+    restricted_source_acknowledged: bool,
+) -> Result<Vec<SmokeTestResult>> {
     let mut results = Vec::new();
 
     for scraper in SMOKE_TEST_SCRAPERS {
-        let result = run_smoke_test_with_credentials(db, config, scraper, credentials).await?;
+        let result = run_smoke_test_with_credentials_and_acknowledgement(
+            db,
+            config,
+            scraper,
+            credentials,
+            restricted_source_acknowledged,
+        )
+        .await?;
         results.push(result);
     }
 
@@ -901,6 +992,53 @@ mod tests {
         assert!(!result.passed);
         assert!(result.details.is_none());
         assert!(!result.error.unwrap_or_default().contains("http://"));
+    }
+
+    #[tokio::test]
+    async fn restricted_smoke_test_skips_without_user_acknowledgement() {
+        let db = Database::connect_memory()
+            .await
+            .expect("test database should connect");
+        db.migrate().await.expect("test database should migrate");
+        let config = jobswithgpt_smoke_config("https://example.test/jobs");
+
+        let result = run_smoke_test(&db, &config, "indeed")
+            .await
+            .expect("smoke test should record a skipped result");
+
+        assert!(result.passed);
+        assert_eq!(
+            result
+                .details
+                .as_ref()
+                .and_then(|details| details.get("status")),
+            Some(&serde_json::json!("skipped"))
+        );
+        assert_eq!(
+            result
+                .details
+                .as_ref()
+                .and_then(|details| details.get("reason")),
+            Some(&serde_json::json!(RESTRICTED_SOURCE_CHECK_ACK_REQUIRED))
+        );
+    }
+
+    #[test]
+    fn restricted_source_check_accepts_one_time_or_saved_acknowledgement() {
+        let mut config = jobswithgpt_smoke_config("https://example.test/jobs");
+
+        assert!(!restricted_source_check_acknowledged(
+            &config, "dice", false
+        ));
+        assert!(restricted_source_check_acknowledged(&config, "dice", true));
+
+        config.restricted_source_acknowledgements.dice = true;
+        assert!(restricted_source_check_acknowledged(&config, "dice", false));
+        assert!(restricted_source_check_acknowledged(
+            &config,
+            "greenhouse",
+            false
+        ));
     }
 
     #[test]
