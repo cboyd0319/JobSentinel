@@ -146,15 +146,15 @@ Out of scope:
 - Final non-`content/` audit fixes landed: memory-only company research,
   accessible onboarding, auto-refresh gating, atomic alert claims, HTTPS
   JobsWithGPT endpoints, shared import hashes, and `2.9.0` metadata/changelog.
-- Public wiki `Home.md` and `Capabilities.md` now match the `2.9.0` local
-  readiness, release-boundary, macOS, LinkedIn, security, and skills posture.
+- Public wiki matched `2.9.0` posture at `6ac587d`; final sync must add the
+  no-account Windows MSI/setup EXE release expansion before push/release.
 - CI/release gates cover sensors, zizmor, audit, cargo-deny, `_unsigned`
   Windows MSI/setup EXE, no-account macOS, Linux, checksums, SBOMs, attestations, and skills.
 
 ## Next Work
 
-1. Push/tag/build/upload/verify `2.9.0` no-account platform assets; signed
-   Windows and Gatekeeper-ready macOS remain credential-backed upgrades.
+1. Sync wiki, then push/tag/build/upload/verify `2.9.0` no-account assets;
+   signed Windows and Gatekeeper-ready macOS remain credential-backed upgrades.
 2. Confirm major route screenshots, Computer Use clicks, keyboard flow, and
    affected route/action/state checks after any further UI change before calling
    v2.9.0 done.
