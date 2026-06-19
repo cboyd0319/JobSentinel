@@ -48,17 +48,35 @@ async fn test_greenhouse_live() {
 #[tokio::test]
 #[ignore = "Live network scraper check; run manually"]
 async fn test_lever_live() {
-    let scraper = LeverScraper::new(vec![LeverCompany {
-        id: "plaid".to_string(),
-        name: "Plaid".to_string(),
-        url: "https://api.lever.co/v0/postings/plaid".to_string(),
-    }]);
+    let scraper = LeverScraper::new(vec![
+        LeverCompany {
+            id: "gohighlevel".to_string(),
+            name: "HighLevel".to_string(),
+            url: "https://api.lever.co/v0/postings/gohighlevel".to_string(),
+        },
+        LeverCompany {
+            id: "hermeus".to_string(),
+            name: "Hermeus".to_string(),
+            url: "https://api.lever.co/v0/postings/hermeus".to_string(),
+        },
+        LeverCompany {
+            id: "activecampaign".to_string(),
+            name: "ActiveCampaign".to_string(),
+            url: "https://api.lever.co/v0/postings/activecampaign".to_string(),
+        },
+    ]);
 
     let result = scraper.scrape().await;
     match result {
         Ok(jobs) => {
-            println!("✅ Lever: Found {} jobs from Plaid", jobs.len());
-            assert!(!jobs.is_empty(), "Expected jobs from Plaid");
+            println!(
+                "Lever: Found {} jobs from the public sample boards",
+                jobs.len()
+            );
+            assert!(
+                !jobs.is_empty(),
+                "Expected jobs from the public Lever sample boards"
+            );
         }
         Err(e) => panic!("❌ Lever scraper failed: {}", e),
     }

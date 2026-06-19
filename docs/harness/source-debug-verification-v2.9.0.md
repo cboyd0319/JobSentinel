@@ -131,3 +131,21 @@ Record every manual or live source debug pass with:
 
 Live source checks must stay opt-in and low volume. If a source blocks access
 or presents a human check, stop that path and verify the fallback instead.
+
+### 2026-06-19 Source Verification Pass
+
+Platform and build: macOS 26.5.1 arm64, JobSentinel 2.9.0.
+
+| Source or path | Path tested | Result | User-facing recovery message | Exposed credential, cookie, token, private note, resume, salary floor, or application history |
+| -------------- | ----------- | ------ | ---------------------------- | ------------------------------------------------------------------------------------------ |
+| Native scraper parser and transport contracts | `cargo test --lib scrapers` | Passed: 580 passed, 5 ignored network-only tests | Scraper errors use source-level, sanitized messages and fallbacks | No |
+| Scraper construction and pipeline | `cargo test --test scraper_integration_test` and `cargo test --test scraping_pipeline_integration` | Passed: 25 scraper integration tests and 12 pipeline integration tests | Empty or failing sources do not block the local pipeline | No |
+| Restricted-source UI and import contracts | `npm run test:run -- src/shared/jobSourceDiscoveryTaxonomy.test.ts src/shared/restrictedSourceTaxonomy.test.ts src/shared/linkedinWorkbench.test.ts src/components/LinkedInWorkbench.test.tsx src/components/BookmarkletGenerator.test.tsx src/components/ScraperHealthDashboard.sourceChecks.test.tsx src/components/DeepLinkGenerator.test.tsx src/pages/SettingsConfig.test.ts src/pages/Settings.sources.test.tsx src/pages/Settings.load.test.tsx src/mocks/handlers/scraperInterviewCommands.test.ts src/utils/sourceLabels.test.ts` | Passed: 93 tests across 12 files | Users see acknowledgement prompts, safe recovery text, and manual fallback paths | No |
+| LinkedIn-compatible restricted workflow | `cargo test --lib linkedin_workbench`, `cargo test --lib linkedin_auth`, and focused Chromium E2E for LinkedIn Workbench | Passed: local-only event ledger, fail-closed auth persistence, settings entry point, dashboard entry point, pasted-text prefill, privacy reminder, and no forced manual-session close | Add or update local records manually; use pasted link or manual entry if the browser path is unavailable | No |
+| Browser Import local helper | `cargo test --lib bookmarklet` | Passed: 43 local helper tests covering loopback binding, origin checks, one-use tokens, URL safety, defensive headers, safe copy errors, and import minimization | Use pasted job links or manual entry if Browser Import cannot connect | No |
+| Public live source probes | `cargo test --test live_scraper_test -- --ignored --test-threads=1` | Passed: 14 live checks for Greenhouse, Lever, RemoteOK, Hacker News, We Work Remotely, Built In, Dice, YC Startup Jobs, LinkedIn boundary, USAJobs skip path, JobsWithGPT skip path, SimplyHired, and Glassdoor | Live checks are opt-in; blocked, empty, credential-required, or human-check paths must use source-status recovery and manual fallback | No |
+
+Live drift found and corrected: the Lever live test depended on Plaid's public
+Lever board, which returned zero jobs on 2026-06-19. The test now uses a small
+multi-company public Lever sample and verifies aggregate adapter behavior
+instead of depending on one employer's current hiring state.
