@@ -1,6 +1,7 @@
 //! Shared job hash generation.
 
 use crate::core::scrapers::{location_utils, title_utils, url_utils};
+use crate::core::url_security::canonicalize_user_supplied_job_url;
 use sha2::{Digest, Sha256};
 
 /// Compute the canonical job hash used for deduplication.
@@ -11,7 +12,9 @@ pub fn calculate_job_hash(company: &str, title: &str, location: Option<&str>, ur
     if let Some(location) = location {
         hasher.update(location_utils::normalize_location(location).as_bytes());
     }
-    hasher.update(url_utils::normalize_url(url).as_bytes());
+    let canonical_url = canonicalize_user_supplied_job_url(url)
+        .unwrap_or_else(|_| url_utils::normalize_url(url).into_owned());
+    hasher.update(canonical_url.as_bytes());
     hex::encode(hasher.finalize())
 }
 
@@ -68,6 +71,24 @@ mod tests {
             "Care Coordinator",
             Some("Remote"),
             "https://example.com/jobs/1",
+        );
+
+        assert_eq!(first, second);
+    }
+
+    #[test]
+    fn strips_fragments_before_hashing() {
+        let first = calculate_job_hash(
+            "Community Care",
+            "Care Coordinator",
+            Some("Remote"),
+            "https://example.com/jobs/1?gh_jid=123#apply",
+        );
+        let second = calculate_job_hash(
+            "Community Care",
+            "Care Coordinator",
+            Some("Remote"),
+            "https://example.com/jobs/1?gh_jid=123",
         );
 
         assert_eq!(first, second);

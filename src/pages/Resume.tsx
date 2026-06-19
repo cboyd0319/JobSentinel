@@ -404,8 +404,8 @@ export default function Resume({ onBack }: ResumeProps) {
       {/* Header */}
       <header className="bg-white dark:bg-surface-800 border-b border-surface-100 dark:border-surface-700 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex min-w-0 items-center gap-3">
               <button
                 onClick={onBack}
                 className="p-2 text-surface-500 hover:text-surface-700 dark:text-surface-400 dark:hover:text-surface-200 transition-colors"
@@ -413,7 +413,7 @@ export default function Resume({ onBack }: ResumeProps) {
               >
                 <BackIcon />
               </button>
-              <div>
+              <div className="min-w-0">
                 <h1 className="font-display text-display-md text-surface-900 dark:text-white">
                   Resume Match
                 </h1>
@@ -422,10 +422,11 @@ export default function Resume({ onBack }: ResumeProps) {
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex w-full flex-col items-stretch gap-2 sm:w-auto sm:flex-row sm:items-center">
               {allResumes.length > 1 && (
                 <Button
                   variant="secondary"
+                  className="w-full sm:w-auto"
                   onClick={() => setShowResumeLibrary(!showResumeLibrary)}
                 >
                   <FolderIcon className="w-4 h-4 mr-2" />
@@ -434,6 +435,7 @@ export default function Resume({ onBack }: ResumeProps) {
               )}
               <Button
                 variant="secondary"
+                className="w-full sm:w-auto"
                 onClick={handleImportJsonResume}
                 loading={uploading}
                 loadingText="Importing..."
@@ -441,7 +443,12 @@ export default function Resume({ onBack }: ResumeProps) {
               >
                 Import from resume app
               </Button>
-              <Button onClick={handleUploadResume} loading={uploading} loadingText="Adding...">
+              <Button
+                className="w-full sm:w-auto"
+                onClick={handleUploadResume}
+                loading={uploading}
+                loadingText="Adding..."
+              >
                 {resume ? "Add New" : "Add Resume"}
               </Button>
             </div>

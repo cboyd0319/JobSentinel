@@ -134,6 +134,49 @@ fn test_bookmarklet_origin_validation_rejects_non_web_contexts() {
 }
 
 #[test]
+fn test_bookmarklet_payload_origin_must_match_job_url() {
+    let body = serde_json::json!({
+        "token": TEST_AUTH_TOKEN,
+        "job": {
+            "title": "Care Coordinator",
+            "company": "Community Care",
+            "url": "https://jobs.example/posting/1?token=private#apply"
+        }
+    });
+    let matching_origin = "POST /api/bookmarklet/import HTTP/1.1\r\nHost: localhost:4321\r\nOrigin: https://jobs.example\r\nReferer: https://jobs.example/posting/1\r\n\r\n{}";
+    let mismatched_origin = "POST /api/bookmarklet/import HTTP/1.1\r\nHost: localhost:4321\r\nOrigin: https://other.example\r\nReferer: https://jobs.example/posting/1\r\n\r\n{}";
+    let mismatched_referer = "POST /api/bookmarklet/import HTTP/1.1\r\nHost: localhost:4321\r\nOrigin: https://jobs.example\r\nReferer: https://other.example/posting/1\r\n\r\n{}";
+
+    assert!(bookmarklet_payload_matches_request_origin(
+        matching_origin,
+        &body
+    ));
+    assert!(!bookmarklet_payload_matches_request_origin(
+        mismatched_origin,
+        &body
+    ));
+    assert!(!bookmarklet_payload_matches_request_origin(
+        mismatched_referer,
+        &body
+    ));
+}
+
+#[test]
+fn test_bookmarklet_payload_origin_allows_legacy_requests_without_origin_headers() {
+    let body = serde_json::json!({
+        "token": TEST_AUTH_TOKEN,
+        "job": {
+            "title": "Care Coordinator",
+            "company": "Community Care",
+            "url": "https://jobs.example/posting/1"
+        }
+    });
+    let request = "POST /api/bookmarklet/import HTTP/1.1\r\nHost: localhost:4321\r\n\r\n{}";
+
+    assert!(bookmarklet_payload_matches_request_origin(request, &body));
+}
+
+#[test]
 fn test_bookmarklet_http_response_does_not_advertise_wildcard_cors() {
     let response = http_response_data("200 OK", "application/json", "{\"success\":true}");
 

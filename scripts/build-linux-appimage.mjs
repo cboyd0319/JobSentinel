@@ -232,12 +232,30 @@ async function downloadVerifiedTool(name, destination) {
   moveAcrossDevices(temporaryPath, destination);
 }
 
-async function ensureCachedTool(cacheDir, name) {
-  const path = join(cacheDir, name);
-  if (!existsSync(path)) {
-    mkdirSync(cacheDir, { recursive: true });
-    await downloadVerifiedTool(name, path);
+export async function ensureCachedTool(cacheDir, name, options = {}) {
+  const download = tauriAppImageToolDownloads.get(name);
+  if (!download) {
+    throw new Error(`No pinned download source for AppImage helper: ${name}`);
   }
+
+  const downloadTool = options.downloadTool ?? downloadVerifiedTool;
+  const path = join(cacheDir, name);
+  mkdirSync(cacheDir, { recursive: true });
+
+  if (existsSync(path)) {
+    try {
+      verifySha256(path, download.sha256, `${name} cache`);
+      chmodSync(path, 0o755);
+      return path;
+    } catch {
+      console.warn(`Cached AppImage helper failed hash verification; re-downloading ${name}.`);
+      rmSync(path, { force: true });
+    }
+  }
+
+  await downloadTool(name, path);
+  verifySha256(path, download.sha256, `${name} cache`);
+  chmodSync(path, 0o755);
   return path;
 }
 

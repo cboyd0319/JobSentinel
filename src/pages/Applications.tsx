@@ -4,7 +4,6 @@ import { cachedInvoke, invalidateCacheByCommand, safeInvokeWithToast } from "../
 import {
   DndContext,
   DragOverlay,
-  pointerWithin,
   KeyboardSensor,
   PointerSensor,
   useSensor,
@@ -53,6 +52,7 @@ import {
   type PendingReminder,
   type StatusKey,
 } from "./applicationsModel";
+import { APPLICATION_DRAG_COLLISION_DETECTION } from "./applicationsDnd";
 
 // Lazy load heavy components to reduce initial bundle size
 const AnalyticsPanel = lazy(() => import("../components/AnalyticsPanel").then(m => ({ default: m.AnalyticsPanel })));
@@ -618,7 +618,7 @@ export default function Applications({ onBack, onImportJob }: ApplicationsProps)
         {/* Drag and Drop Kanban Board */}
         <DndContext
           sensors={sensors}
-          collisionDetection={pointerWithin}
+          collisionDetection={APPLICATION_DRAG_COLLISION_DETECTION}
           onDragStart={handleDragStart}
           onDragOver={handleDragOver}
           onDragEnd={handleDragEnd}

@@ -265,7 +265,11 @@ export function DeepLinkGenerator({
           </div>
 
           {error && (
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+            <div
+              role="alert"
+              aria-live="assertive"
+              className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4"
+            >
               <p className="text-red-800 dark:text-red-400 text-sm">{error}</p>
             </div>
           )}
@@ -355,6 +359,7 @@ export function DeepLinkGenerator({
 
                   <button
                     onClick={() => handleOpenLink(link.url)}
+                    aria-label={`Open ${link.site.name} search in your browser`}
                     className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
                   >
                     Open Search

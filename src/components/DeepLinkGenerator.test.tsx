@@ -57,9 +57,54 @@ describe("DeepLinkGenerator", () => {
     await user.type(screen.getByLabelText(/job title or work words/i), "Marketing Manager");
     await user.click(screen.getByRole("button", { name: /create search links/i }));
 
-    expect(await screen.findByRole("button", { name: /open search/i })).toBeInTheDocument();
+    expect(
+      await screen.findByRole("button", {
+        name: /open linkedin search in your browser/i,
+      }),
+    ).toBeInTheDocument();
     expect(screen.getByText("Opens in your browser")).toBeInTheDocument();
     expect(screen.queryByText(/linkedin\.com\/jobs\/search/i)).not.toBeInTheDocument();
+  });
+
+  it("gives each generated search action a unique accessible name", async () => {
+    const user = userEvent.setup();
+    vi.mocked(deeplinks.generateDeepLinks).mockResolvedValueOnce([
+      {
+        site: {
+          id: "linkedin",
+          name: "LinkedIn",
+          category: SiteCategory.Professional,
+          requires_login: true,
+        },
+        url: "https://www.linkedin.com/jobs/search/?keywords=marketing",
+      },
+      {
+        site: {
+          id: "company",
+          name: "Company Careers",
+          category: SiteCategory.General,
+          requires_login: false,
+        },
+        url: "https://example.com/careers?query=marketing",
+      },
+    ]);
+
+    render(<DeepLinkGenerator />);
+
+    await user.type(screen.getByLabelText(/job title or work words/i), "Marketing Manager");
+    await user.click(screen.getByRole("button", { name: /create search links/i }));
+
+    expect(
+      await screen.findByRole("button", {
+        name: /open linkedin search in your browser/i,
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", {
+        name: /open company careers search in your browser/i,
+      }),
+    ).toBeInTheDocument();
+    expect(screen.queryAllByRole("button", { name: /^open search$/i })).toHaveLength(0);
   });
 
   it("does not load remote site logos when showing search links", async () => {
@@ -92,7 +137,7 @@ describe("DeepLinkGenerator", () => {
 
     await user.click(screen.getByRole("button", { name: /create search links/i }));
 
-    expect(await screen.findByText("Add a job title or work words.")).toBeInTheDocument();
+    expect(await screen.findByRole("alert")).toHaveTextContent("Add a job title or work words.");
     expect(deeplinks.generateDeepLinks).not.toHaveBeenCalled();
   });
 

@@ -1,10 +1,12 @@
 import assert from "node:assert/strict";
-import { mkdirSync, readdirSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { chmodSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 
 import {
+  ensureCachedTool,
   expectedAppImageName,
   findSquashfsOffsets,
   removeRootAppDirDuplicates,
@@ -74,6 +76,37 @@ test("AppImage helper downloads are exact-pinned HTTPS sources", () => {
       sha256: "e762bea85c8eb0d4b3508d46e5c1f037f717d0f9303ae3b4aafc8b04991fa1ef",
     },
   });
+});
+
+test("ensureCachedTool revalidates cached helpers before reuse", async () => {
+  const root = join(tmpdir(), `jobsentinel-helper-cache-${process.pid}-${Date.now()}`);
+  const helperName = "test-helper.AppImage";
+  const freshHelper = Buffer.from("fresh helper");
+  const freshHash = createHash("sha256").update(freshHelper).digest("hex");
+  const helperPath = join(root, helperName);
+
+  mkdirSync(root, { recursive: true });
+  writeFileSync(helperPath, "tampered helper");
+  tauriAppImageToolDownloads.set(helperName, {
+    url: "https://example.invalid/test-helper.AppImage",
+    sha256: freshHash,
+  });
+
+  try {
+    const cachedPath = await ensureCachedTool(root, helperName, {
+      downloadTool: async (_name, destination) => {
+        writeFileSync(destination, freshHelper);
+        chmodSync(destination, 0o755);
+      },
+    });
+
+    assert.equal(cachedPath, helperPath);
+    assert.equal(readFileSync(cachedPath, "utf8"), "fresh helper");
+    verifySha256(cachedPath, freshHash, helperName);
+  } finally {
+    tauriAppImageToolDownloads.delete(helperName);
+    rmSync(root, { recursive: true, force: true });
+  }
 });
 
 test("removeRootAppDirDuplicates keeps canonical nested desktop file", () => {

@@ -1,6 +1,6 @@
 # Active Plan Status
 
-Last updated: 2026-06-18. Read this file first; load archived history only for old decision context.
+Last updated: 2026-06-19. Read this file first; load archived history only for old decision context.
 
 ## Goal State
 
@@ -46,9 +46,9 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 - `origin/main` is the pushed `2.7.7` release-recovery baseline; local metadata
   is staged for `2.9.0`. Public macOS `v2.7.7` and full cross-platform
   `v2.7.5` are legacy fallbacks until `2.9.0` assets are verified.
-- Fresh harness evidence reports 2 active docs, 2 indexed workstreams, and a
-  100/100 score. UI QA covers setup, dashboard, tracking, Settings Sources &
-  Alerts, key routes, toasts, and no passive Keychain prompt.
+- Fresh harness evidence reports 2 active docs, 2 indexed workstreams, and
+  100/100. UI QA covers key routes, toasts, keyboard paths, and no passive
+  Keychain prompt.
 - Dependency evidence on 2026-06-18 (`npm` `11.17.0`, Node `24.17.0`, Rust
   `1.96.0`, `getrandom` `0.4.3`): `lint:deps`, `lint:actions`, and
   `release:check-deps` pass; CI/local setup activates pinned npm, direct pins
@@ -76,32 +76,30 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 - Setup Wizard desktop/mobile, whole-UI post-design click/action coverage, and
   keyboard paths now have fresh Playwright evidence.
 - Current 2026-06-18 gates pass after `2451e7a7`: harness 100, bloat,
-  release readiness, latest dependency/action pins, security/static sensors,
-  script tests `709/709`, Agent Skills tar/ZIP packaging plus checksum/archive
-  checks, doctor/e2e with Node 26.3.0 vs CI 24.17.0 warning, frontend
-  lint/build/tests `3120/3120`, Rust fmt/clippy/full cargo test, macOS
+  release readiness, dependency/action pins, security/static sensors, scripts
+  `709/709`, frontend `3120/3120`, Rust fmt/clippy/full test, macOS
   no-account 100% / full-public 94%, and E2E `266/266`.
-- Final non-`content/` expert/agent pass is applied locally: memory-only
-  company research, accessible onboarding, auto-refresh gating, atomic alert
-  claims, HTTPS JobsWithGPT endpoints, shared import hashes, and metadata.
-- Last pushed v2.9.0 readiness baseline had CI passing. Local follow-up adds
-  SBOMs/manifests, exact asset checks, attestations, supply-chain checks,
-  import hardening, model pins, Linux metadata, Windows signing, and macOS
-  trimming. Gatekeeper-ready macOS remains Apple-blocked; wiki drafts await
-  approval to push.
+- Final non-`content/` expert/agent pass is applied locally. Gatekeeper-ready
+  macOS remains Apple-blocked; wiki drafts await approval to push.
 - 2026-06-18 OWASP CheatSheetSeries scan covered Actions, supply-chain, AI,
   storage, URL, logging, Browser Import, CSS, parsers, and follow-up hardening
   for credential binding, imports, redaction, signing, AI guards, and release drift.
 - 2026-06-18 Linux packaging hardening adds exact AppImage helper hashes,
-  project-local Tauri bundler tools, exact build package pins, and a fallback
-  wrapper for Tauri linuxdeploy failures. Clean Ubuntu 24.04 Apple container
-  output: `.deb` `ec5cfad2a3ef9a5ba0207c515b7e6687b118eb9361401583b48651e626b343a1`;
-  executable x86_64 AppImage `bb1d58aadce73254ab80510ce659710dd6b63f20491ee76a4e0781f63da00ee4`;
-  `.sha256` sidecar verified.
+  project-local Tauri bundler tools, exact build package pins, fallback
+  linuxdeploy wrapping, clean Ubuntu assets, and verified `.sha256` sidecars.
 - 2026-06-18 shared taxonomy/research work moved credentials, company suffixes,
   ATS terms, bullet prompts, hard-constraint categories, and screening aliases
   into `src/shared/`; added HTML/JSON Resume/source-routing hardening and
   Scrapling no-adoption decision.
+- 2026-06-19 pre-release hardening closes specialist findings: cached AppImage
+  helpers are rehashed before reuse, scraper hashes share
+  `calculate_job_hash`, fragments no longer affect dedupe, JobsWithGPT smoke
+  checks are HTTPS-only, Browser Import binds submitted job URLs to page origin
+  when present, and UI accessibility/layout blockers are fixed. Fresh evidence:
+  frontend `3123/3123`, scripts `710/710`, release readiness/deps pass,
+  AppImage script `8/8`, scraper hash `50/50`, bookmarklet `43/43`,
+  JobsWithGPT smoke `1/1`, fragment `12/12`, URL normalizer `23/23`, Rust
+  fmt/clippy, and Rust lib `2902` passed with `11` ignored.
 
 ## Next Best Work
 
@@ -109,17 +107,11 @@ The v2.9.0 goal adds four durable release-readiness requirements:
    `Home.md` and `Capabilities.md` with the current `2.9.0` release, security,
    source-boundary, and capability posture.
 2. Build/upload/verify `2.9.0` platform assets after approval and credentials.
-3. Continue resume assistance only where it improves truthful requirement review,
-   hard-constraint handling, readable evidence, or next-action guidance.
-4. Continue guided intake only where resume/profile suggestions stay optional,
-   reviewed, local, and understandable for non-technical job seekers.
-5. Continue job-card protection without treating local signals as employer
-   predictions.
-6. Continue macOS readiness docs and checks without claiming Gatekeeper-ready
-   distribution before Apple credentials exist.
-7. Continue encrypted storage UX; storage primitives exist, and remaining work
-   is release verification and packaging readiness.
-8. Keep harness work focused on bounded startup context, runnable verification,
+3. Continue resume, guided intake, job-card protection, and encrypted storage
+   only where they improve truthful, reviewed, local, non-technical workflows.
+4. Continue macOS readiness without claiming Gatekeeper-ready distribution
+   before Apple credentials exist.
+5. Keep harness work focused on bounded startup context, runnable verification,
    privacy/security gates, and docs accuracy. Do not add new ceremony unless it
    prevents a repeated failure.
 

@@ -6,14 +6,14 @@
 use super::error::ScraperError;
 use super::http_client::{get_with_retry, read_json_with_limit, read_text_with_limit};
 use super::rate_limiter::{limits, RateLimiter};
-use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
+use super::{JobScraper, ScraperResult};
+use crate::core::calculate_job_hash;
 use crate::core::db::Job;
 use crate::core::source_urls::{is_safe_company_board_id, parse_greenhouse_company_url};
 use crate::core::url_security::sanitize_url_for_logging;
 use async_trait::async_trait;
 use chrono::Utc;
 use scraper::{Html, Selector};
-use sha2::{Digest, Sha256};
 
 const COMPANY_SCRAPE_FAILED: &str =
     "Company board scrape failed; continuing with other company boards";
@@ -284,14 +284,7 @@ impl GreenhouseScraper {
 
     /// Compute SHA-256 hash for deduplication
     fn compute_hash(company: &str, title: &str, location: Option<&str>, url: &str) -> String {
-        let mut hasher = Sha256::new();
-        hasher.update(company.to_lowercase().as_bytes());
-        hasher.update(title_utils::normalize_title(title).as_bytes());
-        if let Some(loc) = location {
-            hasher.update(location_utils::normalize_location(loc).as_bytes());
-        }
-        hasher.update(url_utils::normalize_url(url).as_bytes());
-        hex::encode(hasher.finalize())
+        calculate_job_hash(company, title, location, url)
     }
 }
 

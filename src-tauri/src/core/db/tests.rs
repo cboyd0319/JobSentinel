@@ -1,5 +1,6 @@
 #[cfg(test)]
 mod tests {
+    use crate::core::calculate_job_hash;
     use crate::core::db::{
         with_timeout, Database, DuplicateGroup, Job, Statistics, DEFAULT_QUERY_TIMEOUT,
     };
@@ -199,6 +200,40 @@ mod tests {
         let stored = db.get_job_by_id(id).await.unwrap().unwrap();
 
         assert_eq!(stored.url, "https://example.com/jobs/123?gh_jid=123");
+    }
+
+    #[tokio::test]
+    async fn test_upsert_job_dedupes_urls_that_only_differ_by_fragment() {
+        let db = Database::connect_memory().await.unwrap();
+        db.migrate().await.unwrap();
+
+        let title = "Care Coordinator";
+        let company = "Community Care";
+        let location = Some("Remote");
+        let base_url = "https://example.com/jobs/123?gh_jid=123";
+        let fragment_url = "https://example.com/jobs/123?gh_jid=123#apply";
+
+        let base_hash = calculate_job_hash(company, title, location, base_url);
+        let fragment_hash = calculate_job_hash(company, title, location, fragment_url);
+        assert_eq!(base_hash, fragment_hash);
+
+        let mut base_job = create_test_job(&base_hash, title, 0.9);
+        base_job.company = company.to_string();
+        base_job.location = location.map(str::to_string);
+        base_job.url = base_url.to_string();
+
+        let mut fragment_job = base_job.clone();
+        fragment_job.hash = fragment_hash;
+        fragment_job.url = fragment_url.to_string();
+
+        let first_id = db.upsert_job(&base_job).await.unwrap();
+        let second_id = db.upsert_job(&fragment_job).await.unwrap();
+
+        assert_eq!(first_id, second_id);
+
+        let stored = db.get_job_by_id(first_id).await.unwrap().unwrap();
+        assert_eq!(stored.url, base_url);
+        assert_eq!(stored.times_seen, 2);
     }
 
     #[tokio::test]

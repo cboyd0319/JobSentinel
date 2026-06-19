@@ -61,7 +61,9 @@ describe("JobImportModal", () => {
 
     await user.click(screen.getByRole("button", { name: "Check Job Link" }));
 
-    expect(await screen.findByText("Add a job link from your browser address bar.")).toBeInTheDocument();
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Add a job link from your browser address bar.",
+    );
     expect(invoke).not.toHaveBeenCalled();
   });
 
@@ -75,8 +77,8 @@ describe("JobImportModal", () => {
     await user.click(screen.getByRole("button", { name: "Check Job Link" }));
 
     expect(
-      await screen.findByText("Paste the full job link from your browser address bar."),
-    ).toBeInTheDocument();
+      await screen.findByRole("alert"),
+    ).toHaveTextContent("Paste the full job link from your browser address bar.");
     expect(invoke).not.toHaveBeenCalled();
   });
 

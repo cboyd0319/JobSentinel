@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import Resume from "./Resume";
@@ -52,6 +52,40 @@ describe("Resume page", () => {
     expect(screen.queryByRole("button", { name: "Import Resume Data" })).not.toBeInTheDocument();
     expect(screen.queryByText("No Resume Uploaded")).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /upload resume/i })).not.toBeInTheDocument();
+  });
+
+  it("keeps resume action buttons stacked on narrow screens", async () => {
+    mockSafeInvoke.mockImplementation((command: string) => {
+      switch (command) {
+        case "get_active_resume":
+          return Promise.resolve(null);
+        case "list_all_resumes":
+        case "get_user_skills":
+        case "get_recent_matches":
+          return Promise.resolve([]);
+        default:
+          return Promise.resolve(null);
+      }
+    });
+
+    render(<Resume onBack={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("No Resume Added")).toBeInTheDocument();
+    });
+
+    const headerAddButton = screen.getAllByRole("button", { name: "Add Resume" })[0];
+    const emptyStateCard = screen.getByText("No Resume Added").closest(".rounded-card");
+    expect(emptyStateCard).not.toBeNull();
+
+    const emptyStateAddButton = within(emptyStateCard as HTMLElement).getByRole("button", {
+      name: "Add Resume",
+    });
+
+    expect(headerAddButton.parentElement).toHaveClass("flex-col", "sm:flex-row");
+    expect(headerAddButton).toHaveClass("w-full", "sm:w-auto");
+    expect(emptyStateAddButton.parentElement).toHaveClass("flex-col", "sm:flex-row");
+    expect(emptyStateAddButton).toHaveClass("w-full", "sm:w-auto");
   });
 
   it("renders resume match sub-scores as percentages from backend fractions", async () => {

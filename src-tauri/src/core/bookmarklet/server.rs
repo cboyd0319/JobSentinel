@@ -508,11 +508,42 @@ fn has_allowed_bookmarklet_origin(request: &str) -> bool {
 }
 
 fn is_http_or_https_url(value: &str) -> bool {
+    http_or_https_origin(value).is_some()
+}
+
+fn http_or_https_origin(value: &str) -> Option<(String, String, u16)> {
     let Ok(url) = url::Url::parse(value.trim()) else {
-        return false;
+        return None;
     };
 
-    matches!(url.scheme(), "http" | "https") && url.host_str().is_some()
+    if !matches!(url.scheme(), "http" | "https") {
+        return None;
+    }
+
+    Some((
+        url.scheme().to_string(),
+        url.host_str()?.trim_end_matches('.').to_ascii_lowercase(),
+        url.port_or_known_default()?,
+    ))
+}
+
+fn bookmarklet_job_url_value(body: &serde_json::Value) -> Option<&str> {
+    body.get("job")
+        .and_then(|job| job.get("url"))
+        .or_else(|| body.get("url"))
+        .and_then(serde_json::Value::as_str)
+}
+
+fn bookmarklet_payload_matches_request_origin(request: &str, body: &serde_json::Value) -> bool {
+    let Some(job_origin) = bookmarklet_job_url_value(body).and_then(http_or_https_origin) else {
+        return true;
+    };
+
+    request_header_value(request, "origin").is_none_or(|origin| {
+        http_or_https_origin(origin).is_some_and(|request_origin| request_origin == job_origin)
+    }) && request_header_value(request, "referer").is_none_or(|referer| {
+        http_or_https_origin(referer).is_some_and(|request_origin| request_origin == job_origin)
+    })
 }
 
 fn request_buffer_has_complete_body(buffer: &[u8]) -> bool {
@@ -587,6 +618,13 @@ async fn handle_import_request(
             );
         }
     };
+
+    if !bookmarklet_payload_matches_request_origin(request, &body_value) {
+        return (
+            json_error_response("Invalid browser import origin"),
+            "application/json".to_string(),
+        );
+    }
 
     if !consume_valid_bookmarklet_token(auth_state, request, &body_value, Utc::now()) {
         return (

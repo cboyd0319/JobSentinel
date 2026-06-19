@@ -9,7 +9,8 @@ use super::http_client::{
     DEFAULT_TIMEOUT_SECS, DEFAULT_USER_AGENT,
 };
 use super::rate_limiter::{limits, RateLimiter};
-use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
+use super::{JobScraper, ScraperResult};
+use crate::core::calculate_job_hash;
 use crate::core::db::Job;
 use crate::core::url_security::{
     canonicalize_user_supplied_job_url, resolve_external_https_url_for_fetch,
@@ -18,7 +19,6 @@ use crate::core::url_security::{
 
 use async_trait::async_trait;
 use chrono::Utc;
-use sha2::{Digest, Sha256};
 use std::fmt;
 use std::time::Duration;
 
@@ -252,14 +252,7 @@ impl JobsWithGptScraper {
 
     /// Compute SHA-256 hash for deduplication
     fn compute_hash(company: &str, title: &str, location: Option<&str>, url: &str) -> String {
-        let mut hasher = Sha256::new();
-        hasher.update(company.to_lowercase().as_bytes());
-        hasher.update(title_utils::normalize_title(title).as_bytes());
-        if let Some(loc) = location {
-            hasher.update(location_utils::normalize_location(loc).as_bytes());
-        }
-        hasher.update(url_utils::normalize_url(url).as_bytes());
-        hex::encode(hasher.finalize())
+        calculate_job_hash(company, title, location, url)
     }
 }
 

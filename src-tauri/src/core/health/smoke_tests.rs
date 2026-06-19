@@ -7,7 +7,7 @@ use crate::core::{
         http_client::scraper_client_builder,
         rate_limiter::{limits, RateLimiter},
     },
-    url_security::{resolve_external_http_url_for_fetch, ResolvedExternalUrl},
+    url_security::{resolve_external_https_url_for_fetch, ResolvedExternalUrl},
     Config, Database,
 };
 use anyhow::Result;
@@ -541,7 +541,7 @@ async fn test_jobswithgpt(config: &Config) -> Result<serde_json::Value> {
         }));
     }
 
-    let endpoint = resolve_external_http_url_for_fetch(&payload.endpoint)
+    let endpoint = resolve_external_https_url_for_fetch(&payload.endpoint)
         .await
         .map_err(|reason| anyhow::anyhow!("Invalid JobsWithGPT endpoint: {}", reason))?;
 
@@ -772,10 +772,59 @@ async fn test_glassdoor() -> Result<serde_json::Value> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::core::config::{
+        AlertConfig, AutoRefreshConfig, LinkedInConfig, LocationPreferences,
+    };
     use reqwest::StatusCode;
     use url::Url;
     use wiremock::matchers::{method, path};
     use wiremock::{Mock, MockServer, ResponseTemplate};
+
+    fn jobswithgpt_smoke_config(endpoint: &str) -> Config {
+        let mut config = Config {
+            title_allowlist: vec!["Care Coordinator".to_string()],
+            title_blocklist: vec![],
+            keywords_boost: vec![],
+            keywords_exclude: vec![],
+            location_preferences: LocationPreferences {
+                allow_remote: true,
+                allow_hybrid: false,
+                allow_onsite: false,
+                cities: vec![],
+                states: vec![],
+                country: "US".to_string(),
+            },
+            salary_floor_usd: 100_000,
+            salary_target_usd: None,
+            penalize_missing_salary: false,
+            bookmarklet_port: 4321,
+            immediate_alert_threshold: 0.8,
+            scraping_interval_hours: 2,
+            alerts: AlertConfig::default(),
+            greenhouse_urls: vec![],
+            lever_urls: vec![],
+            linkedin: LinkedInConfig::default(),
+            auto_refresh: AutoRefreshConfig::default(),
+            jobswithgpt_endpoint: endpoint.to_string(),
+            jobswithgpt_approval: Default::default(),
+            remoteok: Default::default(),
+            weworkremotely: Default::default(),
+            builtin: Default::default(),
+            hn_hiring: Default::default(),
+            dice: Default::default(),
+            yc_startup: Default::default(),
+            usajobs: Default::default(),
+            simplyhired: Default::default(),
+            glassdoor: Default::default(),
+            ghost_config: None,
+            company_whitelist: vec![],
+            company_blacklist: vec![],
+            use_resume_matching: false,
+        };
+        config.jobswithgpt_approval.enabled = true;
+        config.jobswithgpt_approval.payload = config.jobswithgpt_payload_preview();
+        config
+    }
 
     #[tokio::test]
     async fn smoke_client_does_not_follow_redirects() {
@@ -834,6 +883,23 @@ mod tests {
 
         assert_eq!(response.status(), StatusCode::OK);
         server.verify().await;
+    }
+
+    #[tokio::test]
+    async fn jobswithgpt_smoke_rejects_plain_http_endpoint() {
+        let db = Database::connect_memory()
+            .await
+            .expect("test database should connect");
+        db.migrate().await.expect("test database should migrate");
+        let config = jobswithgpt_smoke_config("http://example.com/mcp");
+
+        let result = run_smoke_test(&db, &config, "jobswithgpt")
+            .await
+            .expect("smoke test should record a failed result");
+
+        assert!(!result.passed);
+        assert!(result.details.is_none());
+        assert!(!result.error.unwrap_or_default().contains("http://"));
     }
 
     #[test]

@@ -25,12 +25,18 @@ export function ResumeEmptyState({
         Add your resume to review skills, compare fit evidence, and keep match
         history local.
       </p>
-      <div className="flex gap-3 justify-center">
-        <Button onClick={onUploadResume} loading={uploading} loadingText="Adding...">
+      <div className="mx-auto flex max-w-sm flex-col justify-center gap-3 sm:max-w-none sm:flex-row">
+        <Button
+          className="w-full sm:w-auto"
+          onClick={onUploadResume}
+          loading={uploading}
+          loadingText="Adding..."
+        >
           Add Resume
         </Button>
         <Button
           variant="secondary"
+          className="w-full sm:w-auto"
           onClick={onImportJsonResume}
           loading={uploading}
           loadingText="Importing..."

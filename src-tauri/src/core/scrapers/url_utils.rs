@@ -92,7 +92,7 @@ const ESSENTIAL_PARAMS: &[&str] = &[
     "vjs", // Indeed view job source (kept as it may affect job visibility)
 ];
 
-/// Normalize a URL by stripping tracking parameters
+/// Normalize a URL by stripping private fragments and tracking parameters
 ///
 /// This function removes common tracking parameters while preserving
 /// essential job identifier parameters. This ensures consistent hashing
@@ -136,6 +136,10 @@ pub fn normalize_url(url_str: &str) -> Cow<'_, str> {
             return Cow::Borrowed(url_str);
         }
     };
+
+    let _ = url.set_username("");
+    let _ = url.set_password(None);
+    url.set_fragment(None);
 
     // Check if URL has query parameters
     if url.query().is_none() {
@@ -305,7 +309,14 @@ mod tests {
     #[test]
     fn test_url_with_fragment() {
         let input = "https://example.com/job/123?utm_source=email#apply";
-        let expected = "https://example.com/job/123#apply";
+        let expected = "https://example.com/job/123";
+        assert_eq!(normalize_url(input), expected);
+    }
+
+    #[test]
+    fn test_url_with_fragment_without_query() {
+        let input = "https://example.com/job/123#apply";
+        let expected = "https://example.com/job/123";
         assert_eq!(normalize_url(input), expected);
     }
 
