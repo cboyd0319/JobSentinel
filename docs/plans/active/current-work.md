@@ -75,13 +75,13 @@ Out of scope:
 | Downloadable Agent Skills | Complete locally | Skills pass `lint:skills`; release packaging creates deterministic tar/ZIP artifacts. |
 | LinkedIn Workbench and restricted-source flow | Complete locally | Desktop/mobile mock UI, generated Browser Import visible-card coverage, and user-assisted live LinkedIn proof are recorded without cookies, hidden page reads, monitoring, automation, or submit actions. |
 | Scraper/source verification | Complete locally | Live source probes, restricted-source contract tests, manual restricted-source proof, and Scrapling comparison are recorded. |
-| Development and QA completion | Paused for backlog | Fresh full local gates pass; release operations wait for the roadmap checklist to close. |
+| Development and QA completion | Release-gated | Roadmap checklist is closed locally; final local release gates and user-confirmed push/publish remain. |
 | macOS readiness | Release-gated | No-account path is complete; Gatekeeper-ready public distribution remains Apple-credential-gated. |
-| Resume assistance | Active | Tighten hard-requirement categories, evidence caps, live review copy, and mock/Rust parity only when evidence is local and explainable. |
-| Job-card protection | Active | Keep posting-risk cues visible without implying employer intent or confirmed duplicate/source proof. |
-| Guided intake | Active | Search review guides application next actions; keep suggestions reviewed and explainable. |
-| Pay protection | Active | Keep missing, minimum-only, maximum-only, malformed, or broad listed-pay evidence plain and review-first. |
-| Encrypted local storage | Active | SQLCipher, AEAD vault rows, migration, passphrase controls, and macOS vault-key locking exist; continue release readiness. |
+| Resume assistance | Complete locally | Hard-requirement categories, evidence caps, readable export checks, and major ATS portal guidance are verified. |
+| Job-card protection | Complete locally | Posting-risk cues stay visible without implying employer intent or confirmed duplicate/source proof. |
+| Guided intake | Complete locally | Search review guides application next actions; suggestions stay reviewed and explainable. |
+| Pay protection | Complete locally | Missing, one-sided, malformed, broad, and written-vs-verbal offer cues stay plain and review-first. |
+| Encrypted local storage | Complete locally | SQLCipher, AEAD vault rows, migration, passphrase controls, and macOS vault-key locking are release-ready locally. |
 | Quiet Shield redesign | Applied locally | Tokens, score colors, and dashboard loading are screenshot-checked; final click/action coverage passed. |
 | Final Rust and agent improvement pass | Complete locally | Accepted non-`content/` fixes are applied and verified; revisit only for regressions. |
 | Cleanup and harness | Closed for proactive bloat work | Reopen only for a fresh blocker to privacy, security, docs accuracy, or verification. |
@@ -98,9 +98,8 @@ Out of scope:
   safety, explicit user review, privacy-preserving defaults, and optional
   external AI.
 - Every claim of completion has fresh verification evidence.
-- v2.9.0 is not done until whole-UI verification covers every click, action,
-  and surface, and the source-debug ledger proves every shipped scraper and
-  non-scraper restricted-source workflow.
+- v2.9.0 is not release-ready until final local gates pass from the verified
+  commit and the user confirms the push/publish sequence.
 
 ## Done Recently
 
@@ -152,10 +151,9 @@ Out of scope:
 
 ## Next Work
 
-1. Close the active roadmap backlog checklist before any release action.
+1. Run final local release gates from the verified commit before release action.
 2. Confirm major route screenshots, Computer Use clicks, keyboard flow, and
-   affected route/action/state checks after any further UI change before calling
-   v2.9.0 done.
+   affected route/action/state checks after any further UI change.
 3. Continue macOS readiness only after final local gates close; do
    not claim Gatekeeper-ready distribution before signing, notarization,
    stapling, and install proof exist.

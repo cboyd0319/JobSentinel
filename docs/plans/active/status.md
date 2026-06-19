@@ -6,12 +6,12 @@ Last updated: 2026-06-19. Read this file first; load archived history only for o
 
 The repo-wide goal remains open: zero known errors, privacy leaks, stale docs, brittle tests,
 user-facing technical assumptions, engineer-only defaults, and unverified claims.
-Current priority is v2.9.0 readiness for an urgent single-user search.
+Current priority is final v2.9.0 release-gate handoff for an urgent single-user search.
 
 Release creation is paused. Do not push, retag, upload, or publish `v2.9.0`
-until the backlog completion checklist in the active roadmap is closed and final
-local gates pass again from the verified commit. Do not retag or upload over the
-same `v2.9.0` release while an older workflow run is still building assets.
+until final local gates pass from the verified commit and the user confirms
+publication. Do not retag or upload over the same `v2.9.0` release while an
+older workflow run is still building assets.
 
 Rule 0 still controls the work: user data stays local unless the user explicitly
 configures an external channel, external AI stays optional and disabled by
@@ -40,8 +40,8 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 
 | Workstream | State | Current focus | Source |
 | ---------- | ----- | ------------- | ------ |
-| Current product and quality work | Active | Resume assistance, application readability, job-card protection, guided intake, pay protection, encrypted local storage, Quiet Shield redesign, and macOS readiness | [Plan](current-work.md) |
-| v2.9.0 completion and full-feature roadmap | Active | Final release gates, publication sequence, and post-release product roadmap | [Plan](v2.9.0-completion-and-full-feature-roadmap.md) |
+| Current product and quality work | Active | Final release gates and release handoff; feature rows are complete locally | [Plan](current-work.md) |
+| v2.9.0 completion and full-feature roadmap | Active | Checklist closed locally; publication sequence remains user-confirmed | [Plan](v2.9.0-completion-and-full-feature-roadmap.md) |
 
 ## Current Posture
 
@@ -85,7 +85,7 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   lint/build, Rust fmt/clippy/lib `2932` passed with `11` ignored, E2E
   `278/278`, docs/prose, bloat, harness, and whitespace checks.
 - Final non-`content/` expert/agent pass is applied locally. Public wiki local
-  commit `f12f8c3` adds Windows MSI/setup EXE release notes; final push pending.
+  commit `f34ac86` updates v2.9.0 release, recovery, and ATS portal docs; final push pending.
 - OWASP/security, Linux packaging, shared taxonomy, Scrapling no-adoption,
   specialist hardening, and public-HTTPS job-destination evidence are recorded
   in `current-work.md`, source-debug docs, and the tech-debt tracker; no open
@@ -111,17 +111,14 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   questions, confirmed answers, voluntary/protected questions, and unknowns.
 - 2026-06-19 Cover Letter Templates now show a local review checklist for
   blanks, truthful claims, and job-specific wording before copying/sending.
+- 2026-06-19 active roadmap checklist has no remaining Partial/Open rows; final
+  affected UI refresh and E2E budget pass are recorded in the manual UI ledger.
 
 ## Next Best Work
 
-1. Close the active roadmap backlog checklist before any release action.
-2. Continue resume, guided intake, job-card protection, encrypted storage, browser
-   assistance, source discovery, pay review, backup/restore, and AI readiness.
-3. Continue macOS readiness without claiming Gatekeeper-ready distribution
-   before Apple credentials exist.
-4. Keep harness work focused on bounded startup context, runnable verification,
-   privacy/security gates, and docs accuracy. Do not add new ceremony unless it
-   prevents a repeated failure.
+1. Run final local release gates from the verified commit.
+2. Push `main` and wiki only after the user confirms final publication steps.
+3. Keep macOS readiness honest: no Gatekeeper-ready claim before Apple credentials.
 
 ## Completion Bar
 
