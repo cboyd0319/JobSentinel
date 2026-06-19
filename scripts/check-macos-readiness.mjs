@@ -157,10 +157,10 @@ export function releaseAssetUploadsStayDraft(releaseWorkflow) {
   });
 }
 
-export function windowsMsiUploadRequiresSignatureOrUnsignedLabel(releaseWorkflow) {
+export function windowsInstallerUploadRequiresSignatureOrUnsignedLabel(releaseWorkflow) {
   return (
     hasOrderedSnippets(releaseWorkflow, [
-      "- name: Verify Windows MSI signature and checksum",
+      "- name: Verify Windows installer signatures and checksums",
       "- name: Stage Windows release assets",
       "- name: Upload release assets",
     ]) &&
@@ -170,16 +170,20 @@ export function windowsMsiUploadRequiresSignatureOrUnsignedLabel(releaseWorkflow
       "Partial Windows signing secrets are configured",
       "JOBSENTINEL_WINDOWS_REQUIRE_SIGNATURE=true",
     ]) &&
-    hasAll(getWorkflowStepBlock(releaseWorkflow, "Label unsigned Windows MSI"), [
+    hasAll(getWorkflowStepBlock(releaseWorkflow, "Label unsigned Windows installers"), [
+      'Kind = "Windows MSI"',
+      'Kind = "Windows NSIS setup"',
       "*_unsigned.msi",
+      "*_unsigned.exe",
       "Rename-Item",
-      "Labeled unsigned Windows MSI",
+      "Labeled unsigned",
     ]) &&
-    hasAll(getWorkflowStepBlock(releaseWorkflow, "Verify Windows MSI signature and checksum"), [
+    hasAll(getWorkflowStepBlock(releaseWorkflow, "Verify Windows installer signatures and checksums"), [
       "Get-AuthenticodeSignature",
       "WINDOWS_REQUIRE_SIGNATURE",
       'Status -ne "Valid"',
       "*_unsigned.msi",
+      "*_unsigned.exe",
       "Windows SmartScreen warnings are expected",
       "Get-FileHash",
       ".sha256",
@@ -188,14 +192,19 @@ export function windowsMsiUploadRequiresSignatureOrUnsignedLabel(releaseWorkflow
       "Copy-Item",
       "*.msi",
       "*.msi.sha256",
+      "*.exe",
+      "*.exe.sha256",
       "release-assets/public/",
     ]) &&
     releaseAssetUploadsStayDraft(releaseWorkflow)
   );
 }
 
+export const windowsMsiUploadRequiresSignatureOrUnsignedLabel =
+  windowsInstallerUploadRequiresSignatureOrUnsignedLabel;
+
 export const windowsMsiUploadRequiresSignature =
-  windowsMsiUploadRequiresSignatureOrUnsignedLabel;
+  windowsInstallerUploadRequiresSignatureOrUnsignedLabel;
 
 export function linuxPackageUploadRequiresVerification(releaseWorkflow) {
   return (
@@ -442,10 +451,10 @@ export function evaluateMacosReadiness({ root = defaultRoot, env = process.env }
       "Front-door docs must tell nontechnical users where friction remains.",
     ),
     criterion(
-      "Windows MSI public upload is signed or unsigned-labeled",
+      "Windows installer public upload is signed or unsigned-labeled",
       0,
-      windowsMsiUploadRequiresSignatureOrUnsignedLabel(releaseWorkflow),
-      "Windows MSI artifacts must be signed or explicitly unsigned-labeled, versioned, and checksummed before public upload.",
+      windowsInstallerUploadRequiresSignatureOrUnsignedLabel(releaseWorkflow),
+      "Windows MSI and NSIS setup artifacts must be signed or explicitly unsigned-labeled, versioned, and checksummed before public upload.",
     ),
     criterion(
       "Linux public upload is package-verified and checksummed",

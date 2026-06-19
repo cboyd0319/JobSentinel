@@ -41,7 +41,7 @@ for (let index = 0; index < crc32Table.length; index += 1) {
 }
 
 export const publicReleaseAssetSpecs = {
-  windows: [{ extension: ".msi" }],
+  windows: [{ extension: ".msi" }, { extension: ".exe" }],
   macos: [{ extension: ".dmg" }],
   linux: [{ extension: ".AppImage" }, { extension: ".deb" }],
 };

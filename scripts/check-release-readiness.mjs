@@ -13,7 +13,7 @@ import {
   evaluateMacosReadiness,
   linuxPackageUploadRequiresVerification,
   noAccountCompletionPercentage,
-  windowsMsiUploadRequiresSignatureOrUnsignedLabel,
+  windowsInstallerUploadRequiresSignatureOrUnsignedLabel,
 } from "./check-macos-readiness.mjs";
 
 const scriptPath = fileURLToPath(import.meta.url);
@@ -58,6 +58,7 @@ export function loadReleaseReadinessInputs({
     readme: read(root, "README.md"),
     releaseDocs: read(root, "docs/developer/RELEASING.md"),
     releaseWorkflow: read(root, ".github/workflows/release.yml"),
+    tauriConfig: readJson(root, "src-tauri/tauri.conf.json"),
     verifyPublicScript: read(root, "scripts/verify-public-release-assets.mjs"),
     verifyWorkflow: read(root, ".github/workflows/verify-release-artifacts.yml"),
     versions: readReleaseVersions(root),
@@ -130,8 +131,11 @@ export function evaluateReleaseReadinessFromInputs(inputs) {
     ),
     criterion(
       "Windows public upload is signed or unsigned-labeled and checksum gated",
-      windowsMsiUploadRequiresSignatureOrUnsignedLabel(inputs.releaseWorkflow),
-      "Windows MSI artifacts must be signed or explicitly unsigned-labeled, versioned, and checksummed before upload.",
+      Array.isArray(inputs.tauriConfig.bundle?.targets) &&
+        inputs.tauriConfig.bundle.targets.includes("msi") &&
+        inputs.tauriConfig.bundle.targets.includes("nsis") &&
+        windowsInstallerUploadRequiresSignatureOrUnsignedLabel(inputs.releaseWorkflow),
+      "Windows MSI and NSIS setup artifacts must be signed or explicitly unsigned-labeled, versioned, and checksummed before upload.",
     ),
     criterion(
       "Linux public upload is package and checksum gated",
@@ -157,6 +161,7 @@ export function evaluateReleaseReadinessFromInputs(inputs) {
         "findAgentSkillsArchiveAssets",
         "validateAgentSkillsArchiveContents",
         "validateExactAgentSkillsAssetSet",
+        'windows: [{ extension: ".msi" }, { extension: ".exe" }]',
         "Public Agent Skills archives verified.",
       ]),
       "Published releases must verify platform assets, skills archive contents, checksums, SBOMs, and attestations.",
@@ -211,14 +216,16 @@ export function evaluateReleaseReadinessFromInputs(inputs) {
     criterion(
       "front-door docs do not overclaim public 2.9.0 assets",
       hasAll(inputs.readme, [
-        "signed-or-unsigned-labeled Windows, no-account macOS, and Linux assets",
+        "signed-or-unsigned-labeled Windows MSI and setup EXE, no-account macOS, and Linux assets",
+        "Windows MSI and setup EXE",
         "not Developer ID signed",
         "not notarized",
         "first-open Privacy & Security approval",
       ]) &&
         hasAll(inputs.releaseDocs, [
           "Do not publish a macOS package as zero-friction or Gatekeeper-ready",
-          "Public Windows MSI upload is signed when Windows signing secrets are available",
+          "Public Windows MSI and NSIS setup upload is signed",
+          "Windows signing secrets",
           "Public Linux upload is blocked unless",
         ]),
       "Docs must distinguish source readiness from pending public assets and external signing blockers.",
@@ -232,7 +239,7 @@ export function evaluateReleaseReadinessFromInputs(inputs) {
     platforms: [
       {
         name: "Windows",
-        status: "public asset pending; MSI upload is signed or explicitly unsigned-labeled and checksum gated",
+        status: "public asset pending; MSI and NSIS setup uploads are signed or explicitly unsigned-labeled and checksum gated",
       },
       {
         name: "macOS",

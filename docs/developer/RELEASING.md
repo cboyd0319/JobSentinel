@@ -92,7 +92,7 @@ upload.
 `npm run release:check-env` is non-interactive and checks only environment
 variable presence and value shape. It does not call GitHub, read secret values,
 or print secret values. With no Windows signing inputs, the hosted release
-builds an explicitly `_unsigned` Windows MSI. Add
+builds explicitly `_unsigned` Windows MSI and NSIS setup assets. Add
 `-- --require-windows-signing` only when the release must be Authenticode
 signed. Add `-- --require-macos-gatekeeper` only when the release is intended
 to be Developer ID signed, notarized, and Gatekeeper-ready.
@@ -222,7 +222,9 @@ ready.
 # Windows (from Windows machine or VM)
 npm run tauri build
 # Output: src-tauri/target/release/bundle/msi/JobSentinel_*.msi
+# Output: src-tauri/target/release/bundle/nsis/JobSentinel_*.exe
 Get-AuthenticodeSignature src-tauri/target/release/bundle/msi/JobSentinel_*.msi
+Get-AuthenticodeSignature src-tauri/target/release/bundle/nsis/JobSentinel_*.exe
 
 # Linux (from Linux)
 APPIMAGE_EXTRACT_AND_RUN=1 npx --no-install tauri build --target x86_64-unknown-linux-gnu
@@ -237,18 +239,19 @@ for asset in \
 done
 ```
 
-Public Windows MSI upload is signed when Windows signing secrets are available
-and explicitly unsigned-labeled when they are not. Hosted signed Windows release
-builds require `WINDOWS_CERTIFICATE`, `WINDOWS_CERTIFICATE_PASSWORD`,
-`WINDOWS_CERTIFICATE_THUMBPRINT`, and `WINDOWS_TIMESTAMP_URL` in the GitHub
-`release` environment; the workflow imports the PFX, writes a temporary
-`tauri.windows.conf.json`, removes the temporary PFX file, removes the imported
-certificate and private key from the runner certificate store after the build,
-and creates `.msi.sha256` only after signature verification passes. If all
-Windows signing secrets are missing, the workflow builds the MSI, renames it
-with `_unsigned`, checks that the unsigned label is present, writes the
-checksum, generates SBOM and attestation assets, and leaves the release notes
-and docs responsible for the expected SmartScreen warning.
+Public Windows MSI and NSIS setup upload is signed when Windows signing secrets
+are available and explicitly unsigned-labeled when they are not. Hosted signed
+Windows release builds require `WINDOWS_CERTIFICATE`,
+`WINDOWS_CERTIFICATE_PASSWORD`, `WINDOWS_CERTIFICATE_THUMBPRINT`, and
+`WINDOWS_TIMESTAMP_URL` in the GitHub `release` environment; the workflow
+imports the PFX, writes a temporary `tauri.windows.conf.json`, removes the
+temporary PFX file, removes the imported certificate and private key from the
+runner certificate store after the build, and creates `.sha256` sidecars only
+after signature verification passes. If all Windows signing secrets are
+missing, the workflow builds the MSI and NSIS setup EXE, renames both with
+`_unsigned`, checks that the unsigned labels are present, writes checksums,
+generates SBOM and attestation assets, and leaves the release notes and docs
+responsible for the expected SmartScreen warning.
 For local Windows builds, configure equivalent local code-signing material
 outside the repo before running `tauri build`.
 
@@ -303,7 +306,7 @@ assets existed.
 | Platform | Architecture          | Format      | Status   |
 | -------- | --------------------- | ----------- | -------- |
 | macOS    | universal             | `.dmg`      | Local `2.9.0` no-account package passes the current verifier; published `v2.7.7` is a legacy fallback with matching checksum and first-open Privacy & Security approval |
-| Windows  | x86_64                | `.msi`      | Build path ready; public upload is signed when credentials exist or `_unsigned`-labeled with checksum when they do not |
+| Windows  | x86_64                | `.msi` / setup `.exe` | Build path ready; public upload is signed when credentials exist or `_unsigned`-labeled with checksums when they do not |
 | Linux    | x86_64                | `.AppImage` / `.deb` | Build path ready; current `2.9.0` public assets pending target-platform build/upload/verification |
 
 See [CHANGELOG.md](../../CHANGELOG.md) for full history.

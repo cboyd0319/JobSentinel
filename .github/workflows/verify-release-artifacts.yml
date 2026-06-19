@@ -21,7 +21,7 @@ on:
         default: windows,macos,linux
         type: string
       require_windows_unsigned_label:
-        description: Require the Windows MSI filename to include _unsigned for no-account releases.
+        description: Require Windows installer filenames to include _unsigned for no-account releases.
         required: false
         default: true
         type: boolean

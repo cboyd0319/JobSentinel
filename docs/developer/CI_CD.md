@@ -198,7 +198,7 @@ or the GitHub `release` environment are used.
 
 | Platform         | Target                     | Artifacts uploaded                                |
 | ---------------- | -------------------------- | ------------------------------------------------- |
-| `windows-2025` | `x86_64-pc-windows-msvc`   | Signed `.msi` or `_unsigned.msi` plus `.sha256`   |
+| `windows-2025` | `x86_64-pc-windows-msvc`   | Signed `.msi` and setup `.exe`, or `_unsigned` variants, plus `.sha256` |
 | `macos-26`     | `universal-apple-darwin`   | `.dmg` plus `.dmg.sha256` (universal binary - Intel + Apple Silicon) |
 | `ubuntu-24.04` | `x86_64-unknown-linux-gnu` | `.AppImage`, `.deb`, and matching checksums       |
 
@@ -443,15 +443,16 @@ For a complete local release, build Windows and Linux installers on native
 hosts or VMs from the same tag, then attach those assets to the same release.
 Do not publish a release as complete until all advertised platform assets are
 present and verified, with stale installer and checksum assets removed from the
-tag. Windows MSI assets must be Authenticode-signed or explicitly named with
-`_unsigned`; both paths require a matching `.msi.sha256` checksum before
-upload. Linux assets must include exactly one non-empty `.AppImage` and one
-non-empty `.deb`, filenames must include the release version, the `.deb` must
-pass `dpkg-deb --info` and `dpkg-deb --contents`, and both Linux assets must
-have matching `.sha256` checksums before upload. The post-publish public artifact workflow verifies the
-downloadable Windows, macOS, and Linux asset set, Agent Skills tar.gz/ZIP archives,
-checksums, SBOM manifests, and GitHub attestations; its macOS job also
-smoke-verifies the downloadable DMG on `macos-26`.
+tag. Windows MSI and NSIS setup assets must be Authenticode-signed or
+explicitly named with `_unsigned`; both paths require matching `.sha256`
+checksums before upload. Linux assets must include exactly one non-empty
+`.AppImage` and one non-empty `.deb`, filenames must include the release
+version, the `.deb` must pass `dpkg-deb --info` and `dpkg-deb --contents`, and
+both Linux assets must have matching `.sha256` checksums before upload. The
+post-publish public artifact workflow verifies the downloadable Windows,
+macOS, and Linux asset set, Agent Skills tar.gz/ZIP archives, checksums, SBOM
+manifests, and GitHub attestations; its macOS job also smoke-verifies the
+downloadable DMG on `macos-26`.
 
 ### 3. Publish the draft release
 
@@ -494,8 +495,8 @@ require explicit release approval.
 
 Use `npm run release:check-env` locally before tagging to check release-signing
 environment completeness without reading or printing secret values. Add
-`-- --require-windows-signing` only for an Authenticode-signed Windows MSI, and
-add `-- --require-macos-gatekeeper` only for a Developer ID signed and
+`-- --require-windows-signing` only for Authenticode-signed Windows installers,
+and add `-- --require-macos-gatekeeper` only for a Developer ID signed and
 notarized macOS release.
 
 ### macOS signing and notarization

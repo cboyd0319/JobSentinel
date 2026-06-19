@@ -65,6 +65,12 @@ test("public release verifier can require unsigned Windows asset labels", () => 
   );
   assert.doesNotThrow(() =>
     validateWindowsUnsignedAssetLabel(
+      { name: "JobSentinel_2.9.0_x64-setup_unsigned.exe" },
+      { requireWindowsUnsignedLabel: true },
+    ),
+  );
+  assert.doesNotThrow(() =>
+    validateWindowsUnsignedAssetLabel(
       { name: "JobSentinel_2.9.0_x64_en-US.msi" },
       { requireWindowsUnsignedLabel: false },
     ),
@@ -83,6 +89,7 @@ test("public release verifier selects exact platform installer asset sets", () =
   const release = {
     assets: [
       { name: "JobSentinel_2.9.0_x64_en-US.msi", browser_download_url: "https://example.invalid/win" },
+      { name: "JobSentinel_2.9.0_x64-setup.exe", browser_download_url: "https://example.invalid/win-exe" },
       { name: "JobSentinel_2.9.0_no-account_universal.dmg", browser_download_url: "https://example.invalid/mac" },
       { name: "JobSentinel_2.9.0_amd64.AppImage", browser_download_url: "https://example.invalid/appimage" },
       { name: "JobSentinel_2.9.0_amd64.deb", browser_download_url: "https://example.invalid/deb" },
@@ -95,9 +102,11 @@ test("public release verifier selects exact platform installer asset sets", () =
     ),
     ["JobSentinel_2.9.0_amd64.AppImage", "JobSentinel_2.9.0_amd64.deb"],
   );
-  assert.equal(
-    findPlatformInstallerAssets(release, { platform: "windows", expectedVersion: "2.9.0" })[0].name,
-    "JobSentinel_2.9.0_x64_en-US.msi",
+  assert.deepEqual(
+    findPlatformInstallerAssets(release, { platform: "windows", expectedVersion: "2.9.0" }).map(
+      (asset) => asset.name,
+    ),
+    ["JobSentinel_2.9.0_x64_en-US.msi", "JobSentinel_2.9.0_x64-setup.exe"],
   );
 });
 
@@ -127,13 +136,17 @@ test("public release verifier rejects stale selected-platform installers and che
     assets: [
       { name: "JobSentinel-Windows-v2.9.0-x64.msi", browser_download_url: "https://example.invalid/win" },
       { name: "JobSentinel-Windows-v2.9.0-x64.msi.sha256", browser_download_url: "https://example.invalid/win.sha256" },
+      { name: "JobSentinel-Windows-v2.9.0-x64-setup.exe", browser_download_url: "https://example.invalid/win-exe" },
+      { name: "JobSentinel-Windows-v2.9.0-x64-setup.exe.sha256", browser_download_url: "https://example.invalid/win-exe.sha256" },
       { name: "JobSentinel-Windows-v2.8.0-x64.msi", browser_download_url: "https://example.invalid/old-win" },
+      { name: "JobSentinel-Windows-v2.8.0-x64-setup.exe", browser_download_url: "https://example.invalid/old-win-exe" },
       { name: "JobSentinel_2.8.0_no-account_universal.dmg.sha256", browser_download_url: "https://example.invalid/old-mac-sha" },
       { name: "JobSentinel-2.9.0-windows.sbom.spdx.json", browser_download_url: "https://example.invalid/sbom" },
     ],
   };
   const expectedAssets = [
     { name: "JobSentinel-Windows-v2.9.0-x64.msi" },
+    { name: "JobSentinel-Windows-v2.9.0-x64-setup.exe" },
     { name: "JobSentinel_2.9.0_no-account_universal.dmg" },
   ];
 
@@ -143,7 +156,7 @@ test("public release verifier rejects stale selected-platform installers and che
         platforms: ["windows", "macos"],
         expectedAssets,
       }),
-    /stale or unexpected installer assets.*JobSentinel-Windows-v2\.8\.0-x64\.msi.*JobSentinel_2\.8\.0_no-account_universal\.dmg\.sha256/,
+    /stale or unexpected installer assets.*JobSentinel-Windows-v2\.8\.0-x64\.msi.*JobSentinel-Windows-v2\.8\.0-x64-setup\.exe.*JobSentinel_2\.8\.0_no-account_universal\.dmg\.sha256/,
   );
 });
 
@@ -358,7 +371,9 @@ test("public release verifier requires exact version filename segment", () => {
         {
           assets: [
             { name: "JobSentinel_12.9.0_x64_en-US.msi", browser_download_url: "https://example.invalid/win" },
+            { name: "JobSentinel_12.9.0_x64-setup.exe", browser_download_url: "https://example.invalid/win-exe" },
             { name: "JobSentinel_2.9.0.1_x64_en-US.msi", browser_download_url: "https://example.invalid/win-patch" },
+            { name: "JobSentinel_2.9.0.1_x64-setup.exe", browser_download_url: "https://example.invalid/win-exe-patch" },
           ],
         },
         { platform: "windows", expectedVersion: "2.9.0" },
@@ -366,16 +381,17 @@ test("public release verifier requires exact version filename segment", () => {
     /Expected exactly one windows .msi asset/,
   );
 
-  assert.equal(
+  assert.deepEqual(
     findPlatformInstallerAssets(
       {
         assets: [
           { name: "JobSentinel-Windows-v2.9.0-x64.msi", browser_download_url: "https://example.invalid/win" },
+          { name: "JobSentinel-Windows-v2.9.0-x64-setup.exe", browser_download_url: "https://example.invalid/win-exe" },
         ],
       },
       { platform: "windows", expectedVersion: "2.9.0" },
-    )[0].name,
-    "JobSentinel-Windows-v2.9.0-x64.msi",
+    ).map((asset) => asset.name),
+    ["JobSentinel-Windows-v2.9.0-x64.msi", "JobSentinel-Windows-v2.9.0-x64-setup.exe"],
   );
 });
 

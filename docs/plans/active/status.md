@@ -60,8 +60,8 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 - Current `2.9.0` no-account universal DMG was rebuilt after `28dcd6dd`
   with checksum `7249068da39322b2527f59b12388cb42517459a1f425d85b926ec7e713cd596f`;
   metadata, universal arch, signature, mounted/installed smoke, and private isolated data pass.
-- Hosted no-account release can publish `_unsigned` Windows MSI, no-account
-  macOS DMG, Linux AppImage/deb, checksums, SBOMs, attestations, and skills.
+- Hosted no-account release can publish `_unsigned` Windows MSI/setup EXE,
+  no-account macOS DMG, Linux AppImage/deb, checksums, SBOMs, attestations, and skills.
 - Private resume parser smoke checks passed on 2026-06-17 for the supplied PDF
   and eight reference profiles via `JOBSENTINEL_LOCAL_RESUME_SMOKE_PATHS`, with
   no committed local paths or names.

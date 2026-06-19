@@ -22,8 +22,8 @@ help more job seekers, including by building something better.
 1. Open the [JobSentinel latest download page](https://github.com/cboyd0319/JobSentinel/releases/latest).
 2. Choose the package or installer for your computer:
    - **Windows installer**. If the latest Windows file includes `_unsigned`,
-     expect a SmartScreen warning and verify the matching `.msi.sha256`
-     checksum before opening it.
+     expect a SmartScreen warning and verify the matching `.sha256` checksum
+     for the downloaded `.msi` or setup `.exe` before opening it.
    - **Mac package** for Apple silicon and Intel Macs. Use the
      `_no-account_universal.dmg` from the latest published release only when
      the same release also shows a matching `.dmg.sha256` checksum file. As of
@@ -80,9 +80,9 @@ Continue only if you downloaded JobSentinel from the latest download page
 linked above, expected this file, and can verify the installer identity or
 checksum from the same release. For an unsigned no-account release, the Windows
 installer filename should include `_unsigned` and the same release should include
-a matching `.msi.sha256` checksum. If you are not sure, stop, delete the
-download, and use the latest signed installer when available or build from
-source.
+a matching `.sha256` checksum for that `.msi` or setup `.exe`. If you are not
+sure, stop, delete the download, and use the latest signed installer when
+available or build from source.
 
 </details>
 

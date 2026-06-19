@@ -40,7 +40,7 @@ test("release environment accepts no-secret local no-account posture by default"
   assert.equal(report.failures.length, 0);
   assert.match(formatReleaseEnvironmentReport(report), /release environment: PASS/);
   assert.match(formatReleaseEnvironmentReport(report), /no-account DMG path is available/);
-  assert.match(formatReleaseEnvironmentReport(report), /unsigned MSI path is available/);
+  assert.match(formatReleaseEnvironmentReport(report), /unsigned MSI and NSIS setup paths are available/);
 });
 
 test("release environment can require Windows signing", () => {
@@ -56,7 +56,7 @@ test("Windows signing accepts complete value shapes", () => {
   const check = evaluateWindowsSigning({ ...validWindowsEnv, WINDOWS_TSP: "true" });
 
   assert.equal(check.ok, true);
-  assert.equal(check.mode, "signed-msi");
+  assert.equal(check.mode, "signed-windows-installers");
 });
 
 test("Windows signing rejects partial or malformed configuration", () => {

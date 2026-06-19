@@ -9,7 +9,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 const scriptPath = fileURLToPath(import.meta.url);
 const defaultRoot = resolve(dirname(scriptPath), "..");
 const defaultRepoUrl = "https://github.com/cboyd0319/JobSentinel";
-const installableAssetPattern = /\.(?:dmg|msi|AppImage|deb)$/;
+const installableAssetPattern = /\.(?:dmg|msi|exe|AppImage|deb)$/;
 
 function getArgValue(args, name) {
   const exactIndex = args.indexOf(name);

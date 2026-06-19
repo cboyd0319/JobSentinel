@@ -96,7 +96,7 @@ attached to the draft release with matching checksums.
 
 Releases include:
 
-- Windows MSI
+- Windows MSI and setup EXE
 - macOS DMG (Intel + Apple Silicon)
 - Linux AppImage
 - Linux .deb

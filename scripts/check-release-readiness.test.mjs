@@ -71,6 +71,29 @@ test("release readiness rejects Windows upload without signed or unsigned-labele
   );
 });
 
+test("release readiness rejects Windows uploads without NSIS bundle target", () => {
+  const inputs = loadReleaseReadinessInputs({ env: {} });
+  const report = evaluateReleaseReadinessFromInputs({
+    ...inputs,
+    tauriConfig: {
+      ...inputs.tauriConfig,
+      bundle: {
+        ...inputs.tauriConfig.bundle,
+        targets: inputs.tauriConfig.bundle.targets.filter((target) => target !== "nsis"),
+      },
+    },
+  });
+
+  assert(
+    report.criteria.some(
+      (item) =>
+        item.id ===
+          "Windows public upload is signed or unsigned-labeled and checksum gated" &&
+        !item.ok,
+    ),
+  );
+});
+
 test("release readiness rejects Linux upload without package verification", () => {
   const inputs = loadReleaseReadinessInputs({ env: {} });
   const report = evaluateReleaseReadinessFromInputs({

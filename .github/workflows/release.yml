@@ -511,7 +511,7 @@ jobs:
 
           if ($missing.Count -gt 0) {
             if ($missing.Count -eq $required.Count) {
-              Write-Host "Windows release signing secrets are not configured. Building a clearly labeled unsigned MSI. Windows SmartScreen warnings are expected."
+              Write-Host "Windows release signing secrets are not configured. Building clearly labeled unsigned Windows installers. Windows SmartScreen warnings are expected."
               "JOBSENTINEL_WINDOWS_REQUIRE_SIGNATURE=false" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
               "JOBSENTINEL_WINDOWS_UNSIGNED=true" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
               exit 0
@@ -726,28 +726,45 @@ jobs:
 
           Remove-Item -LiteralPath "src-tauri/tauri.windows.conf.json" -Force -ErrorAction SilentlyContinue
 
-      - name: Label unsigned Windows MSI
+      - name: Label unsigned Windows installers
         if: matrix.platform == 'windows-2025' && env.JOBSENTINEL_WINDOWS_UNSIGNED == 'true'
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
 
-          $msis = @(Get-ChildItem "src-tauri/target/${{ matrix.target }}/release/bundle/msi" -Filter "*.msi")
-          if ($msis.Count -ne 1) {
-            throw "Expected exactly one Windows MSI before unsigned labeling; found $($msis.Count)."
-          }
+          $installerSpecs = @(
+            @{
+              Kind = "Windows MSI"
+              Directory = "src-tauri/target/${{ matrix.target }}/release/bundle/msi"
+              Filter = "*.msi"
+              Pattern = "*_unsigned.msi"
+            },
+            @{
+              Kind = "Windows NSIS setup"
+              Directory = "src-tauri/target/${{ matrix.target }}/release/bundle/nsis"
+              Filter = "*.exe"
+              Pattern = "*_unsigned.exe"
+            }
+          )
 
-          $msi = $msis[0]
-          if ($msi.Name -like "*_unsigned.msi") {
-            Write-Host "Unsigned Windows MSI already labeled: $($msi.FullName)"
-            exit 0
-          }
+          foreach ($spec in $installerSpecs) {
+            $installers = @(Get-ChildItem $spec["Directory"] -Filter $spec["Filter"])
+            if ($installers.Count -ne 1) {
+              throw "Expected exactly one $($spec["Kind"]) before unsigned labeling; found $($installers.Count)."
+            }
 
-          $labeledPath = Join-Path $msi.DirectoryName "$($msi.BaseName)_unsigned$($msi.Extension)"
-          Rename-Item -LiteralPath $msi.FullName -NewName (Split-Path -Leaf $labeledPath)
-          Remove-Item -LiteralPath "$($msi.FullName).sha256" -Force -ErrorAction SilentlyContinue
-          Remove-Item -LiteralPath "$labeledPath.sha256" -Force -ErrorAction SilentlyContinue
-          Write-Host "Labeled unsigned Windows MSI: $labeledPath"
+            $installer = $installers[0]
+            if ($installer.Name -like $spec["Pattern"]) {
+              Write-Host "Unsigned $($spec["Kind"]) already labeled: $($installer.FullName)"
+              continue
+            }
+
+            $labeledPath = Join-Path $installer.DirectoryName "$($installer.BaseName)_unsigned$($installer.Extension)"
+            Rename-Item -LiteralPath $installer.FullName -NewName (Split-Path -Leaf $labeledPath)
+            Remove-Item -LiteralPath "$($installer.FullName).sha256" -Force -ErrorAction SilentlyContinue
+            Remove-Item -LiteralPath "$labeledPath.sha256" -Force -ErrorAction SilentlyContinue
+            Write-Host "Labeled unsigned $($spec["Kind"]): $labeledPath"
+          }
 
       - name: Build macOS app and DMG
         if: matrix.platform == 'macos-26'
@@ -870,7 +887,7 @@ jobs:
               | grep -E '\.dmg(\.sha256)?$' || true
           )
 
-      - name: Verify Windows MSI signature and checksum
+      - name: Verify Windows installer signatures and checksums
         if: matrix.platform == 'windows-2025'
         shell: pwsh
         env:
@@ -878,28 +895,51 @@ jobs:
           WINDOWS_REQUIRE_SIGNATURE: ${{ env.JOBSENTINEL_WINDOWS_REQUIRE_SIGNATURE }}
         run: |
           $ErrorActionPreference = "Stop"
-          $msis = @(Get-ChildItem "src-tauri/target/${{ matrix.target }}/release/bundle/msi" -Filter "*.msi")
-          if ($msis.Count -ne 1) {
-            throw "Expected exactly one Windows MSI before release upload; found $($msis.Count)."
-          }
-          $msi = $msis[0]
-          if ($msi.Name -notlike "*$env:EXPECTED_VERSION*") {
-            throw "Windows MSI filename does not include release version $env:EXPECTED_VERSION."
-          }
-          $signature = Get-AuthenticodeSignature $msi.FullName
-          if ($env:WINDOWS_REQUIRE_SIGNATURE -eq "true") {
-            if ($signature.Status -ne "Valid") {
-              throw "Windows MSI is not Authenticode-signed. Configure certificateThumbprint and timestampUrl before public signed MSI upload."
+          $installerSpecs = @(
+            @{
+              Kind = "Windows MSI"
+              Directory = "src-tauri/target/${{ matrix.target }}/release/bundle/msi"
+              Filter = "*.msi"
+              UnsignedPattern = "*_unsigned.msi"
+            },
+            @{
+              Kind = "Windows NSIS setup"
+              Directory = "src-tauri/target/${{ matrix.target }}/release/bundle/nsis"
+              Filter = "*.exe"
+              UnsignedPattern = "*_unsigned.exe"
             }
-            Write-Host "Windows MSI Authenticode signature is valid."
-          } elseif ($signature.Status -ne "Valid") {
-            if ($msi.Name -notlike "*_unsigned.msi") {
-              throw "Unsigned Windows MSI must include _unsigned in the filename before public upload."
+          )
+
+          foreach ($spec in $installerSpecs) {
+            $installers = @(Get-ChildItem $spec["Directory"] -Filter $spec["Filter"])
+            if ($installers.Count -ne 1) {
+              throw "Expected exactly one $($spec["Kind"]) before release upload; found $($installers.Count)."
             }
-            Write-Host "Windows MSI is unsigned and clearly labeled. Windows SmartScreen warnings are expected."
+            $installer = $installers[0]
+            if ($installer.Name -notlike "*$env:EXPECTED_VERSION*") {
+              throw "$($spec["Kind"]) filename does not include release version $env:EXPECTED_VERSION."
+            }
+
+            $signature = Get-AuthenticodeSignature $installer.FullName
+            if ($env:WINDOWS_REQUIRE_SIGNATURE -eq "true") {
+              if ($signature.Status -ne "Valid") {
+                throw "$($spec["Kind"]) is not Authenticode-signed. Configure certificateThumbprint and timestampUrl before public signed Windows upload."
+              }
+              Write-Host "$($spec["Kind"]) Authenticode signature is valid."
+            } else {
+              if ($installer.Name -notlike $spec["UnsignedPattern"]) {
+                throw "Unsigned $($spec["Kind"]) must include _unsigned in the filename before public upload."
+              }
+              if ($signature.Status -ne "Valid") {
+                Write-Host "$($spec["Kind"]) is unsigned and clearly labeled. Windows SmartScreen warnings are expected."
+              } else {
+                Write-Host "$($spec["Kind"]) is clearly labeled for the no-account Windows path and has a valid signature."
+              }
+            }
+
+            $hash = Get-FileHash -Algorithm SHA256 $installer.FullName
+            "$($hash.Hash.ToLowerInvariant())  $($installer.Name)" | Set-Content -NoNewline -Encoding ascii "$($installer.FullName).sha256"
           }
-          $hash = Get-FileHash -Algorithm SHA256 $msi.FullName
-          "$($hash.Hash.ToLowerInvariant())  $($msi.Name)" | Set-Content -NoNewline -Encoding ascii "$($msi.FullName).sha256"
 
       - name: Remove old Windows release assets
         if: matrix.platform == 'windows-2025'
@@ -912,7 +952,7 @@ jobs:
 
           $assets = @(
             gh release view $env:RELEASE_TAG --json assets --jq '.assets[].name' |
-              Where-Object { $_ -match '\.msi(\.sha256)?$' }
+              Where-Object { $_ -match '\.(msi|exe)(\.sha256)?$' }
           )
 
           foreach ($asset in $assets) {
@@ -931,6 +971,8 @@ jobs:
           New-Item -ItemType Directory -Force "release-assets/public" | Out-Null
           Copy-Item "src-tauri/target/${{ matrix.target }}/release/bundle/msi/*.msi" "release-assets/public/"
           Copy-Item "src-tauri/target/${{ matrix.target }}/release/bundle/msi/*.msi.sha256" "release-assets/public/"
+          Copy-Item "src-tauri/target/${{ matrix.target }}/release/bundle/nsis/*.exe" "release-assets/public/"
+          Copy-Item "src-tauri/target/${{ matrix.target }}/release/bundle/nsis/*.exe.sha256" "release-assets/public/"
 
       - name: Stage macOS release assets
         if: startsWith(matrix.platform, 'macos')

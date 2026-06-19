@@ -81,8 +81,9 @@ npm run tauri:build
 rustup target add aarch64-apple-darwin x86_64-apple-darwin
 JOBSENTINEL_MACOS_NO_ACCOUNT=true npm run tauri:build:macos -- --target universal-apple-darwin
 
-# Windows MSI installer output
+# Windows installer outputs
 # src-tauri/target/<target>/release/bundle/msi/JobSentinel_<version>_x64_en-US.msi
+# src-tauri/target/<target>/release/bundle/nsis/JobSentinel_<version>_x64-setup.exe
 
 # macOS no-account universal DMG output
 # src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_<version>_no-account_universal.dmg

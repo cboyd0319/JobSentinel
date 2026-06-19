@@ -66,11 +66,11 @@ export function evaluateWindowsSigning(env = process.env) {
     return item(
       "Windows signing",
       true,
-      "no Windows signing secrets configured; unsigned MSI path is available but Windows SmartScreen warnings are expected",
+      "no Windows signing secrets configured; unsigned MSI and NSIS setup paths are available but Windows SmartScreen warnings are expected",
       {
         configured,
         missing,
-        mode: "unsigned-msi",
+        mode: "unsigned-windows-installers",
         smartScreenReady: false,
       },
     );
@@ -106,12 +106,12 @@ export function evaluateWindowsSigning(env = process.env) {
     invalid.length === 0,
     invalid.length > 0
       ? invalid.join("; ")
-      : "configured for Authenticode-signed MSI upload; value shapes are valid",
+      : "configured for Authenticode-signed Windows installer upload; value shapes are valid",
       {
         configured,
         invalid,
         missing: [],
-        mode: invalid.length === 0 ? "signed-msi" : "invalid",
+        mode: invalid.length === 0 ? "signed-windows-installers" : "invalid",
         smartScreenReady: invalid.length === 0,
       },
   );
@@ -220,12 +220,12 @@ export function evaluateReleaseEnvironment({
     const windows = evaluateWindowsSigning(env);
     checks.push(windows);
     if (windows.configured && !windows.ok) failures.push(windows);
-    if (requireWindowsSigning && windows.mode !== "signed-msi") {
+    if (requireWindowsSigning && windows.mode !== "signed-windows-installers") {
       failures.push(
         item(
           "Windows signing required",
           false,
-          "complete Authenticode signing inputs are required for a signed Windows MSI release",
+          "complete Authenticode signing inputs are required for a signed Windows installer release",
         ),
       );
     }

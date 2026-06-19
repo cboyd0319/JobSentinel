@@ -13,7 +13,7 @@ import {
   releaseWorkflowBuildsUniversalMacosPackage,
   readMacosDevelopmentReadinessClaims,
   readReadmeMacosReadinessPercent,
-  windowsMsiUploadRequiresSignatureOrUnsignedLabel,
+  windowsInstallerUploadRequiresSignatureOrUnsignedLabel,
   linuxPackageUploadRequiresVerification,
 } from "./check-macos-readiness.mjs";
 
@@ -285,7 +285,7 @@ test("macOS readiness checks release asset uploads stay draft", () => {
   );
 });
 
-test("macOS readiness checks Windows MSI signed or unsigned-labeled gate", () => {
+test("macOS readiness checks Windows installers are signed or unsigned-labeled", () => {
   const workflow = [
     "- name: Configure Windows signing",
     "  run: |",
@@ -293,17 +293,22 @@ test("macOS readiness checks Windows MSI signed or unsigned-labeled gate", () =>
     "    JOBSENTINEL_WINDOWS_UNSIGNED=true",
     "    Partial Windows signing secrets are configured",
     "    JOBSENTINEL_WINDOWS_REQUIRE_SIGNATURE=true",
-    "- name: Label unsigned Windows MSI",
+    "- name: Label unsigned Windows installers",
     "  run: |",
+    "    Kind = \"Windows MSI\"",
+    "    Kind = \"Windows NSIS setup\"",
     "    Rename-Item input.msi output_unsigned.msi",
     "    *_unsigned.msi",
+    "    *_unsigned.exe",
     "    Labeled unsigned Windows MSI",
-    "- name: Verify Windows MSI signature and checksum",
+    "    Labeled unsigned Windows NSIS setup",
+    "- name: Verify Windows installer signatures and checksums",
     "  run: |",
     "    $signature = Get-AuthenticodeSignature $msi.FullName",
     "    WINDOWS_REQUIRE_SIGNATURE",
     '    if ($signature.Status -ne "Valid") { throw "unsigned" }',
     "    *_unsigned.msi",
+    "    *_unsigned.exe",
     "    Windows SmartScreen warnings are expected",
     "    $hash = Get-FileHash -Algorithm SHA256 $msi.FullName",
     "    Set-Content output.msi.sha256",
@@ -311,6 +316,8 @@ test("macOS readiness checks Windows MSI signed or unsigned-labeled gate", () =>
     "  run: |",
     "    Copy-Item *.msi release-assets/public/",
     "    Copy-Item *.msi.sha256 release-assets/public/",
+    "    Copy-Item *.exe release-assets/public/",
+    "    Copy-Item *.exe.sha256 release-assets/public/",
     "- name: Upload release assets",
     "  uses: softprops/action-gh-release@abc",
     "  with:",
@@ -319,9 +326,9 @@ test("macOS readiness checks Windows MSI signed or unsigned-labeled gate", () =>
     "    files: release-assets/public/*",
   ].join("\n");
 
-  assert.equal(windowsMsiUploadRequiresSignatureOrUnsignedLabel(workflow), true);
+  assert.equal(windowsInstallerUploadRequiresSignatureOrUnsignedLabel(workflow), true);
   assert.equal(
-    windowsMsiUploadRequiresSignatureOrUnsignedLabel(
+    windowsInstallerUploadRequiresSignatureOrUnsignedLabel(
       workflow.replace("JOBSENTINEL_WINDOWS_UNSIGNED=true", ""),
     ),
     false,

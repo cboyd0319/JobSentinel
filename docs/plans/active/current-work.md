@@ -149,7 +149,7 @@ Out of scope:
 - Public wiki `Home.md` and `Capabilities.md` now match the `2.9.0` local
   readiness, release-boundary, macOS, LinkedIn, security, and skills posture.
 - CI/release gates cover sensors, zizmor, audit, cargo-deny, `_unsigned`
-  Windows MSI, no-account macOS, Linux, checksums, SBOMs, attestations, and skills.
+  Windows MSI/setup EXE, no-account macOS, Linux, checksums, SBOMs, attestations, and skills.
 
 ## Next Work
 

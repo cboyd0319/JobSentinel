@@ -508,7 +508,7 @@ verification.
 |---------|---------|-------|-------|
 | **Data Dir** | `%LOCALAPPDATA%\JobSentinel` | `~/Library/Application Support/JobSentinel` | Different conventions |
 | **Config Dir** | `%APPDATA%\JobSentinel` | `~/.config/jobsentinel` | XDG standard on macOS |
-| **Installer** | `.msi` | `.dmg` | Platform-specific |
+| **Installer** | `.msi` / setup `.exe` | `.dmg` | Platform-specific |
 | **System Tray** | Bottom-right | Top-right menu bar | Different UI location |
 | **Admin Rights** | Not needed | Not needed | Both run in user space |
 | **Auto-start** | Task Scheduler | Launch Agent | Future feature |
