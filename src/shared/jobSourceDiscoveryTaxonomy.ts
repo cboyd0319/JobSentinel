@@ -4,9 +4,13 @@ export type {
   JobSourceDiscoveryCategory,
   JobSourceDiscoveryEntry,
   JobSourceImplementationStatus,
+  JobSourceTechnicalAccess,
   RestrictedInteractiveSessionPolicy,
 } from "./jobSourceDiscoveryModel";
-import type { JobSourceDiscoveryEntry } from "./jobSourceDiscoveryModel";
+import {
+  technicalAccessForJobSource,
+  type JobSourceDiscoveryEntry,
+} from "./jobSourceDiscoveryModel";
 import { JOB_SOURCE_BOARDS_DISCOVERY_ENTRIES } from "./jobSourceDiscoveryBoardsEntries";
 import { JOB_SOURCE_PLATFORM_DISCOVERY_ENTRIES } from "./jobSourceDiscoveryPlatformEntries";
 import { JOB_SOURCE_SECTOR_DISCOVERY_ENTRIES } from "./jobSourceDiscoverySectorEntries";
@@ -46,8 +50,32 @@ export function restrictedJobSourceDiscoveryEntries(): readonly JobSourceDiscove
   );
 }
 
+export function publicUnauthenticatedJobSourceDiscoveryEntries(): readonly JobSourceDiscoveryEntry[] {
+  return JOB_SOURCE_DISCOVERY_TAXONOMY.filter(
+    (entry) => technicalAccessForJobSource(entry) === "public-unauthenticated",
+  );
+}
+
+export function publicUserAgreementJobSourceDiscoveryEntries(): readonly JobSourceDiscoveryEntry[] {
+  return JOB_SOURCE_DISCOVERY_TAXONOMY.filter(
+    (entry) =>
+      technicalAccessForJobSource(entry) === "public-unauthenticated" &&
+      (entry.accessModel === "restricted-user-gated" ||
+        entry.requiresUserAgreement === true),
+  );
+}
+
+export function authenticatedJobSourceDiscoveryEntries(): readonly JobSourceDiscoveryEntry[] {
+  return JOB_SOURCE_DISCOVERY_TAXONOMY.filter(
+    (entry) =>
+      technicalAccessForJobSource(entry) === "authenticated-user-session",
+  );
+}
+
 export function restrictedInteractiveJobSourceDiscoveryEntries(): readonly JobSourceDiscoveryEntry[] {
   return JOB_SOURCE_DISCOVERY_TAXONOMY.filter(
     (entry) => entry.restrictedInteractiveSessionPolicy !== undefined,
   );
 }
+
+export { technicalAccessForJobSource };

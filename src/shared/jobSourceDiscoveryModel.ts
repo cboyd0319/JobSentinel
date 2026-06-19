@@ -19,6 +19,12 @@ export type JobSourceImplementationStatus =
   | "manual-only"
   | "research";
 
+export type JobSourceTechnicalAccess =
+  | "public-unauthenticated"
+  | "public-local-credential"
+  | "authenticated-user-session"
+  | "unknown-review-required";
+
 export type JobSourceDiscoveryCategory =
   | "ats-platform"
   | "broad-job-board"
@@ -58,6 +64,7 @@ export interface JobSourceDiscoveryEntry {
   readonly label: string;
   readonly category: JobSourceDiscoveryCategory;
   readonly accessModel: JobSourceAccessModel;
+  readonly technicalAccess?: JobSourceTechnicalAccess;
   readonly status: JobSourceImplementationStatus;
   readonly regions: readonly string[];
   readonly careerProfileIds: JobSourceCoverage;
@@ -117,7 +124,29 @@ export const EMPLOYER_CAREER_SYSTEM_NOTES =
   "Use platform-specific public endpoints when documented. Otherwise keep this to user-opened discovery, Browser Import, pasted job links, or manual entry until terms and stability are reviewed.";
 
 export const RESTRICTED_BOARD_NOTES =
-  "Do not run silent scheduled discovery. Require explicit user agreement before automated access and prefer user-opened import paths.";
+  "Do not run silent scheduled discovery. Require explicit user agreement before automated access and prefer user-opened import paths. If the source is public and unauthenticated, do not apply authenticated-session time caps; apply the stricter fresh-login and one-hour cap only to account-backed interactive sessions.";
+
+export function technicalAccessForJobSource(
+  entry: Pick<JobSourceDiscoveryEntry, "accessModel" | "technicalAccess">,
+): JobSourceTechnicalAccess {
+  if (entry.technicalAccess !== undefined) {
+    return entry.technicalAccess;
+  }
+
+  switch (entry.accessModel) {
+    case "native-public":
+    case "native-public-feed":
+    case "public-community":
+      return "public-unauthenticated";
+    case "native-public-with-local-credential":
+      return "public-local-credential";
+    case "restricted-user-gated":
+      return "public-unauthenticated";
+    case "employer-career-system":
+    case "review-required":
+      return "unknown-review-required";
+  }
+}
 
 export const RESTRICTED_AUTHENTICATED_INTERACTIVE_POLICY: RestrictedInteractiveSessionPolicy =
   {

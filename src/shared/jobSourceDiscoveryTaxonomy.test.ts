@@ -2,10 +2,14 @@ import { describe, expect, it } from "vitest";
 import { CAREER_PROFILES } from "./careerProfileTaxonomy";
 import {
   JOB_SOURCE_DISCOVERY_TAXONOMY,
+  authenticatedJobSourceDiscoveryEntries,
   publicNativeJobSourceDiscoveryEntries,
+  publicUnauthenticatedJobSourceDiscoveryEntries,
+  publicUserAgreementJobSourceDiscoveryEntries,
   restrictedInteractiveJobSourceDiscoveryEntries,
   restrictedJobSourceDiscoveryEntries,
   sourceDiscoveryEntriesForCareerProfile,
+  technicalAccessForJobSource,
 } from "./jobSourceDiscoveryTaxonomy";
 import { RESTRICTED_INTERACTIVE_SESSION_MAX_MINUTES } from "./restrictedSourceTaxonomy";
 
@@ -102,6 +106,8 @@ describe("jobSourceDiscoveryTaxonomy", () => {
       accessModel: "restricted-user-gated",
       requiresUserAgreement: true,
     });
+    expect("technicalAccess" in builtin!).toBe(false);
+    expect(technicalAccessForJobSource(builtin!)).toBe("public-unauthenticated");
     expect(builtin?.hostPatterns).toEqual(
       expect.arrayContaining(["builtin.com", "builtincolorado.com"]),
     );
@@ -114,6 +120,7 @@ describe("jobSourceDiscoveryTaxonomy", () => {
     );
     expect(linkedin).toMatchObject({
       accessModel: "restricted-user-gated",
+      technicalAccess: "authenticated-user-session",
       requiresUserAgreement: true,
     });
     expect(linkedin?.searchParameterPatterns).toEqual(
@@ -134,11 +141,69 @@ describe("jobSourceDiscoveryTaxonomy", () => {
     );
     expect(linkedinJobsTracker).toMatchObject({
       accessModel: "restricted-user-gated",
+      technicalAccess: "authenticated-user-session",
       requiresUserAgreement: true,
     });
     expect(linkedinJobsTracker?.searchParameterPatterns).toEqual(
       expect.arrayContaining(["stage=applied", "stage=saved"]),
     );
+  });
+
+  it("separates public consent-gated sources from authenticated user sessions", () => {
+    const publicUnauthenticatedIds =
+      publicUnauthenticatedJobSourceDiscoveryEntries().map((entry) => entry.id);
+    const publicAgreementIds =
+      publicUserAgreementJobSourceDiscoveryEntries().map((entry) => entry.id);
+    const authenticatedIds = authenticatedJobSourceDiscoveryEntries().map(
+      (entry) => entry.id,
+    );
+
+    expect(publicUnauthenticatedIds).toEqual(
+      expect.arrayContaining(["greenhouse", "indeed", "builtin", "dice"]),
+    );
+    expect(publicAgreementIds).toEqual(
+      expect.arrayContaining(["indeed", "builtin", "dice", "glassdoor"]),
+    );
+    expect(authenticatedIds).toEqual(
+      expect.arrayContaining([
+        "linkedin",
+        "linkedin-jobs-tracker",
+        "flexjobs",
+        "upwork",
+        "freelancer",
+        "toptal",
+      ]),
+    );
+
+    expect(publicAgreementIds).not.toContain("linkedin");
+    expect(publicAgreementIds).not.toContain("upwork");
+    expect(authenticatedIds).not.toContain("indeed");
+    expect(authenticatedIds).not.toContain("builtin");
+  });
+
+  it("keeps reviewed public APIs and public feeds low-friction", () => {
+    const lowFrictionPublicIds = publicNativeJobSourceDiscoveryEntries().map(
+      (entry) => entry.id,
+    );
+
+    expect(lowFrictionPublicIds).toEqual(
+      expect.arrayContaining([
+        "greenhouse",
+        "lever",
+        "remoteok",
+        "we-work-remotely",
+        "hacker-news-who-is-hiring",
+        "yc-work-at-a-startup",
+      ]),
+    );
+
+    for (const source of publicNativeJobSourceDiscoveryEntries()) {
+      expect(source.requiresUserAgreement).not.toBe(true);
+      expect(source.restrictedInteractiveSessionPolicy).toBeUndefined();
+      expect(technicalAccessForJobSource(source)).not.toBe(
+        "authenticated-user-session",
+      );
+    }
   });
 
   it("caps restricted authenticated interactive sessions and forbids auth storage", () => {
@@ -150,6 +215,9 @@ describe("jobSourceDiscoveryTaxonomy", () => {
     ]);
 
     for (const source of interactiveSources) {
+      expect(technicalAccessForJobSource(source)).toBe(
+        "authenticated-user-session",
+      );
       expect(source.restrictedInteractiveSessionPolicy).toMatchObject({
         requiresUserInitiatedAction: true,
         requiresFreshLogin: true,
@@ -162,6 +230,13 @@ describe("jobSourceDiscoveryTaxonomy", () => {
         offlineUseAllowed: false,
         maxSessionMinutes: RESTRICTED_INTERACTIVE_SESSION_MAX_MINUTES,
       });
+    }
+  });
+
+  it("does not time-gate unauthenticated restricted public sources", () => {
+    for (const source of publicUserAgreementJobSourceDiscoveryEntries()) {
+      expect(technicalAccessForJobSource(source)).toBe("public-unauthenticated");
+      expect(source.restrictedInteractiveSessionPolicy).toBeUndefined();
     }
   });
 });

@@ -117,6 +117,10 @@ export function SettingsJobSourcesSection({
               JobSentinel will only run this scheduled check from this computer
               after you accept the risk below.
             </p>
+            <p className="text-sm">
+              This is not a sign-in session. The fresh sign-in and one-hour
+              session limit apply only to sources that require you to log in.
+            </p>
             <label className="flex items-start gap-3 text-sm font-medium text-amber-900 dark:text-amber-100">
               <input
                 type="checkbox"

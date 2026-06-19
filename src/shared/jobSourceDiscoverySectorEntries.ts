@@ -510,6 +510,7 @@ export const JOB_SOURCE_SECTOR_DISCOVERY_ENTRIES: readonly model.JobSourceDiscov
     label: "Upwork",
     category: "freelance-contract",
     accessModel: "restricted-user-gated",
+    technicalAccess: "authenticated-user-session",
     status: "research",
     regions: ["global"],
     careerProfileIds: [
@@ -530,6 +531,7 @@ export const JOB_SOURCE_SECTOR_DISCOVERY_ENTRIES: readonly model.JobSourceDiscov
     label: "Freelancer",
     category: "freelance-contract",
     accessModel: "restricted-user-gated",
+    technicalAccess: "authenticated-user-session",
     status: "research",
     regions: ["global"],
     careerProfileIds: [
@@ -550,6 +552,7 @@ export const JOB_SOURCE_SECTOR_DISCOVERY_ENTRIES: readonly model.JobSourceDiscov
     label: "Toptal",
     category: "freelance-contract",
     accessModel: "restricted-user-gated",
+    technicalAccess: "authenticated-user-session",
     status: "research",
     regions: ["global"],
     careerProfileIds: [

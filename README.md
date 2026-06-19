@@ -89,6 +89,14 @@ account restrictions or legal claims, and may raise privacy-law concerns.
 JobSentinel makes that risk prominent before restricted-source actions. Users
 must explicitly accept the warning before those actions continue.
 
+JobSentinel distinguishes technically public sources from authenticated
+account sessions. Public unauthenticated job pages, feeds, or APIs may still
+require user consent, source-specific rate limits, and clear warnings, but they
+do not get account-session time gates. If a source requires the user to sign in,
+JobSentinel must show the warning before sign-in, require a fresh user-started
+session for that use, avoid storing auth tokens, cookies, browser storage, or
+authorization headers, and cap that interactive window at one hour.
+
 Restricted-source actions stay local and user-controlled:
 
 - No hidden background access to restricted job sites.

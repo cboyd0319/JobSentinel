@@ -186,6 +186,11 @@ user-initiated sign-in for that use, store no auth tokens, session cookies,
 browser storage, authorization headers, or equivalent sign-in material, and cap
 the interactive window at one hour.
 
+Consent-gated public sources are different. They can require a local
+acknowledgement before scheduled checks or Browser Import, but they do not
+create an authenticated session and must not write source cookies, tokens,
+browser storage, or account state into the vault.
+
 `tauri-plugin-secure-storage` remains registered with the app, but the current
 React credential flow uses Tauri commands backed by `CredentialService`.
 `CredentialStore` remains as a legacy fallback path and for opt-in live

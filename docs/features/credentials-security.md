@@ -77,11 +77,17 @@ LinkedIn session details, but user-directed search links, pasted job links,
 manual entry, and Browser Import remain available after the risky-source
 warning gate where applicable.
 
-If JobSentinel later opens a restricted-source sign-in page, the warning must
-appear before sign-in, the user must start that action in the moment, and the
-interactive window must expire within one hour. JobSentinel must not store auth
-tokens, session cookies, browser storage, authorization headers, or equivalent
-sign-in material for LinkedIn or any similar restricted source.
+Consent-gated public job sources are not sign-in sessions. They may require a
+prominent warning and explicit local acknowledgement, but they must not create
+or save account credentials, cookies, tokens, browser storage, or other secret
+material.
+
+If JobSentinel later opens a restricted-source sign-in page, the stricter
+authenticated-session rule applies: the warning must appear before sign-in, the
+user must start that action in the moment, and the interactive window must
+expire within one hour. JobSentinel must not store auth tokens, session cookies,
+browser storage, authorization headers, or equivalent sign-in material for
+LinkedIn or any similar restricted source.
 
 ## Safe Support Reports
 

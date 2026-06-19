@@ -9,10 +9,11 @@ Before release, every source path must be one of these:
 
 - Native source check with parser, transport, rate-limit, sanitized-error, and
   source-status coverage.
-- User-directed path with a prominent restricted-source warning, explicit
-  acknowledgement, no credential or session-cookie capture, and a fallback to
-  search link, pasted individual job link, employer career page, or manual
-  entry.
+- Public unauthenticated restricted-source path with a prominent warning,
+  explicit acknowledgement, rate limits, safe errors, no credential or
+  session-cookie capture, and a fallback to search link, pasted individual job
+  link, employer career page, or manual entry. Do not apply fresh-login or
+  one-hour session caps to these public unauthenticated paths.
 - Restricted authenticated source path with the warning shown before sign-in,
   fresh user-initiated sign-in for every use, no auth token, session cookie,
   browser storage, or authorization-header persistence, no background or
@@ -31,19 +32,19 @@ site blocks, changes, or returns no jobs.
 | Lever | Public ATS postings | URL parsing, JSON parser fixture, network failure, duplicate handling, status row |
 | RemoteOK | Public JSON feed | JSON parser fixture, rate limit, empty result, network failure, status row |
 | We Work Remotely | Public feed or page | Feed/parser fixture, rate limit, empty result, network failure, status row |
-| Built In | Restricted scheduled board | Prominent acknowledgement, scheduler skip without acknowledgement, parser or live opt-in check, status recovery |
+| Built In | Restricted public unauthenticated scheduled board | Prominent acknowledgement, scheduler skip without acknowledgement, parser or live opt-in check, status recovery, no authenticated-session cap |
 | Startup and tech hiring posts | Public community source | Parser fixture, monthly thread fallback, empty result, status row |
 | JobsWithGPT | User-approved feed | Exact payload preview, approval invalidation, minimized request metadata, sanitized errors |
-| Dice | Restricted scheduled board | Prominent acknowledgement, scheduler skip without acknowledgement, parser or live opt-in check, status recovery |
+| Dice | Restricted public unauthenticated scheduled board | Prominent acknowledgement, scheduler skip without acknowledgement, parser or live opt-in check, status recovery, no authenticated-session cap |
 | YC Startup Jobs | Public startup source | Parser fixture, rate limit, empty result, network failure, status row |
 | USAJobs | Official API | Access-code handling, credential-status behavior, request minimization, API failure, status row |
-| SimplyHired | Restricted scheduled board | Prominent acknowledgement, scheduler skip without acknowledgement, parser or live opt-in check, blocked-site recovery |
-| Glassdoor | Restricted scheduled board | Prominent acknowledgement, scheduler skip without acknowledgement, parser or live opt-in check, blocked-site recovery |
+| SimplyHired | Restricted public unauthenticated scheduled board | Prominent acknowledgement, scheduler skip without acknowledgement, parser or live opt-in check, blocked-site recovery, no authenticated-session cap |
+| Glassdoor | Restricted public unauthenticated scheduled board | Prominent acknowledgement, scheduler skip without acknowledgement, parser or live opt-in check, blocked-site recovery, no authenticated-session cap |
 | Search links | User-opened browser links | Restricted-board acknowledgement before opening, official/public links stay low-friction |
 | Pasted job link import | User-submitted individual URL | URL validation, restricted-domain acknowledgement, no local/private URLs, sanitized errors |
 | Browser Import | User-clicked browser action | Prominent warning, acknowledgement before enabling/copying, no token exposure, blocked-page fallback |
 | Company careers discovery | User-provided or discovered employer careers URL | Detect public ATS/API where available, normalize to native source when safe, keep unknown/custom pages user-opened until reviewed |
-| Shared source taxonomy | Discovery registry | `src/shared/jobSourceDiscoveryTaxonomy.ts` covers platform families, regional boards, source access models, career-profile coverage, and user-agreement requirements |
+| Shared source taxonomy | Discovery registry | `src/shared/jobSourceDiscoveryTaxonomy.ts` covers platform families, regional boards, source access models, technical authentication access, career-profile coverage, and user-agreement requirements |
 | Manual entry | Local user input | Works when every external source fails; no external side effects |
 
 ## Expansion Candidate Classification
@@ -63,16 +64,16 @@ site blocks, changes, or returns no jobs.
 | Reed | UK | Native API only with local credentials and source terms review |
 | CV-Library | UK | User-directed path unless official partner API access is configured |
 | Totaljobs | UK | User-directed path unless official access is configured |
-| Naukri | India | Restricted user-directed path with prominent warning |
-| Shine | India | Restricted user-directed path with prominent warning |
-| Foundit | India and global variants | Restricted user-directed path with prominent warning |
-| Monster | US and global variants | Restricted user-directed path with prominent warning |
-| ZipRecruiter | US | Restricted user-directed path with prominent warning |
-| Indeed | US and global variants | Restricted user-directed path with prominent warning |
+| Naukri | India | Restricted public unauthenticated path with prominent warning and source-specific review before scheduling |
+| Shine | India | Restricted public unauthenticated path with prominent warning and source-specific review before scheduling |
+| Foundit | India and global variants | Restricted public unauthenticated path with prominent warning and source-specific review before scheduling |
+| Monster | US and global variants | Restricted public unauthenticated path with prominent warning and source-specific review before scheduling |
+| ZipRecruiter | US | Restricted public unauthenticated path with prominent warning and source-specific review before scheduling |
+| Indeed | US and global variants | Restricted public unauthenticated path with prominent warning and source-specific review before scheduling |
 | LinkedIn search and company jobs | Global | User-gated restricted discovery only; no silent scheduled discovery, login or session-cookie capture, hidden background access, or platform-control bypass; do not persist referral, origin, or landing-job session context as source config |
 | LinkedIn Jobs Tracker | Global | User-gated restricted tracking only for jobs the user already saved or applied to; validate prominent pre-login warning, fresh sign-in per use, applied/saved stage handling, no auth/session/browser-storage persistence, one-hour session cap, no hidden background access, and fallback to manual tracking |
 | LinkedIn Jobs home navigation | Global | User-opened navigation only for Preferences, Job tracker, and My Career Insights anchors; do not treat text-fragment anchors as saved source query state |
-| Built In network, state/city filters, and regional city boards | US and local markets | Restricted user-directed path with prominent warning; model parent, state-filtered, city-filtered, and regional-host searches in shared taxonomy; use employer-career follow-through after the user reviews a role |
+| Built In network, state/city filters, and regional city boards | US and local markets | Restricted public unauthenticated path with prominent warning; model parent, state-filtered, city-filtered, and regional-host searches in shared taxonomy; use employer-career follow-through after the user reviews a role |
 | State workforce boards, city/county careers, local chambers, local newspapers | Local and regional markets | Research official feeds first; otherwise user-opened search links, pasted job links, and manual entry only |
 | Sector-specific local sources | Local and regional markets | Review per source; prioritize retail, hospitality, trades, healthcare, education, legal, creative, finance, and HR gaps |
 

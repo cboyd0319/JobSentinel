@@ -434,6 +434,7 @@ export const JOB_SOURCE_BOARDS_DISCOVERY_ENTRIES: readonly model.JobSourceDiscov
     label: "FlexJobs",
     category: "remote-job-board",
     accessModel: "restricted-user-gated",
+    technicalAccess: "authenticated-user-session",
     status: "restricted",
     regions: ["US", "global"],
     careerProfileIds: "all",

@@ -21,6 +21,20 @@ tokens, session cookies, browser storage, or authorization headers may be saved,
 and the interactive window must expire within one hour. JobSentinel must not
 reuse that sign-in state later for offline or scheduled collection.
 
+Reviewed public APIs, feeds, ATS postings, and official employer posting
+endpoints are low-friction sources. Greenhouse, Lever, public feeds, and
+similar unauthenticated posting sources should use normal source opt-in, rate
+limits, safe errors, and parser tests, not restricted-source acknowledgements
+or authenticated-session time gates.
+
+Do not confuse restricted public boards with authenticated sessions. A job board
+can be technically public and unauthenticated while still requiring a prominent
+user agreement because its terms, anti-automation controls, or data-use
+expectations are unclear. Those restricted public unauthenticated sources may
+run as user-approved source checks with rate limits and safe errors; they do
+not receive LinkedIn-style fresh-login or one-hour session restrictions unless
+the flow opens an account-backed sign-in session.
+
 The warning must be prominent in the UI and public docs because users should
 not need to understand source internals to make an informed choice. The secure
 path is the easy path: official feeds first, user-opened and reviewed paths
@@ -42,6 +56,7 @@ next, restricted automation only after explicit local acknowledgement.
 | ---- | ----------- |
 | Official source first | Prefer official posting sources, public feeds, and company or application-platform postings |
 | Restricted-site user gate | Warn prominently and require explicit acknowledgement before user-directed restricted-site import, browser import, search-link open, or scheduled restricted-source check |
+| Technical auth classification | Keep public unauthenticated sources, local API-key sources, authenticated user-session sources, and unknown review-required sources distinct in the shared source taxonomy |
 | Restricted-domain rationale | Every domain in `RESTRICTED_JOB_SOURCE_DOMAINS` must come from a structured record with a specific reason, category, and source reference; do not add undocumented domains |
 | No secret capture or evasion | Do not add hidden data paths, session-cookie collection, human-check workarounds, or platform-control evasion |
 | Local-first storage | Source results, run history, and notes stay local |
