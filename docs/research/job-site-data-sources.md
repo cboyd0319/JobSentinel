@@ -35,7 +35,9 @@ This brief condenses research and source-governance guidance for job monitoring.
 
 Scrapling was reviewed on 2026-06-18 against JobSentinel's source-access
 requirements, using the local `scrapling-rs` checkout, docs.rs crate docs, and
-the upstream Rust and Python project docs.
+the upstream Rust and Python project docs. A secondary implementation guide was
+also checked for its summary of fetcher modes, adaptive selectors, proxy use,
+and browser-resource limits.
 
 | Area | Finding | JobSentinel decision |
 | ---- | ------- | -------------------- |

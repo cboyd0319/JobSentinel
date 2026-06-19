@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "fillerWords": ["of", "the", "and", "or"],
+  "abbreviations": [
+    {
+      "pattern": "\\bsr\\.?(\\s|/|-|$)",
+      "replacement": "senior$1"
+    },
+    {
+      "pattern": "\\bjr\\.?(\\s|/|-|$)",
+      "replacement": "junior$1"
+    },
+    {
+      "pattern": "\\beng\\.?(\\s|/|-|$)",
+      "replacement": "engineer$1"
+    },
+    {
+      "pattern": "\\bengr\\.?(\\s|/|-|$)",
+      "replacement": "engineer$1"
+    },
+    {
+      "pattern": "\\bdev\\.?(\\s|/|-|$)",
+      "replacement": "developer$1"
+    },
+    {
+      "pattern": "\\bmgr\\.?(\\s|/|-|$)",
+      "replacement": "manager$1"
+    },
+    {
+      "pattern": "\\bdir\\.?(\\s|/|-|$)",
+      "replacement": "director$1"
+    },
+    {
+      "pattern": "\\bvp\\.?(\\s|/|-|$)",
+      "replacement": "vice president$1"
+    },
+    {
+      "pattern": "\\bswe\\.?(\\s|/|-|$)",
+      "replacement": "software engineer$1"
+    },
+    {
+      "pattern": "\\bsde\\.?(\\s|/|-|$)",
+      "replacement": "software development engineer$1"
+    },
+    {
+      "pattern": "\\bsw\\.?(\\s|/|-|$)",
+      "replacement": "software$1"
+    },
+    {
+      "pattern": "\\bfe\\.?(\\s|/|-|$)",
+      "replacement": "frontend$1"
+    },
+    {
+      "pattern": "\\bbe\\.?(\\s|/|-|$)",
+      "replacement": "backend$1"
+    },
+    {
+      "pattern": "\\bfs\\.?(\\s|/|-|$)",
+      "replacement": "fullstack$1"
+    },
+    {
+      "pattern": "\\bqa\\.?(\\s|/|-|$)",
+      "replacement": "quality assurance$1"
+    },
+    {
+      "pattern": "\\bui\\.?(\\s|/|-|$)",
+      "replacement": "user interface$1"
+    },
+    {
+      "pattern": "\\bux\\.?(\\s|/|-|$)",
+      "replacement": "user experience$1"
+    },
+    {
+      "pattern": "\\btech\\.?(\\s|/|-|$)",
+      "replacement": "technology$1"
+    },
+    {
+      "pattern": "\\bsys\\.?(\\s|/|-|$)",
+      "replacement": "systems$1"
+    },
+    {
+      "pattern": "\\bdb\\.?(\\s|/|-|$)",
+      "replacement": "database$1"
+    },
+    {
+      "pattern": "\\badmin\\.?(\\s|/|-|$)",
+      "replacement": "administrator$1"
+    },
+    {
+      "pattern": "\\bops\\.?(\\s|/|-|$)",
+      "replacement": "operations$1"
+    },
+    {
+      "pattern": "\\bml\\.?(\\s|/|-|$)",
+      "replacement": "machine learning$1"
+    },
+    {
+      "pattern": "\\bai\\.?(\\s|/|-|$)",
+      "replacement": "artificial intelligence$1"
+    }
+  ]
+}

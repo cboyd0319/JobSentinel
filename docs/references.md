@@ -194,6 +194,7 @@ and fake example links are intentionally excluded.
 - [Scrapling spider crate documentation](https://docs.rs/scrapling-spider/0.2.0/scrapling_spider/)
 - [Scrapling Rust project](https://github.com/chrisabruce/scrapling-rs)
 - [Scrapling Python project](https://github.com/D4Vinci/Scrapling)
+- [Medium guide on Scrapling fetcher modes and limits](https://medium.com/@datajournal/web-scraping-with-scrapling-ae6c7fb1dd81)
 - [Indeed legal terms](https://www.indeed.com/legal)
 - [Greenhouse job board API](https://developers.greenhouse.io/job-board.html)
 - [Greenhouse board API template](https://boards-api.greenhouse.io/v1/boards/{company}/jobs)

@@ -8,7 +8,7 @@
 //! - **Abbreviation expansion**: "Sr. SW Eng" → "senior software engineer"
 //! - **Level indicator removal**: "Engineer (L5)" → "engineer"
 //! - **Whitespace normalization**: "Software  Engineer" → "software engineer"
-#![allow(clippy::unwrap_used, clippy::expect_used)] // Regex patterns are compile-time constants
+#![allow(clippy::unwrap_used, clippy::expect_used)] // Embedded taxonomy regexes must fail fast.
 //! - **Case normalization**: "SENIOR ENGINEER" → "senior engineer"
 //!
 //! # Example
@@ -22,8 +22,65 @@
 //! ```
 
 use regex::Regex;
+use serde::Deserialize;
 use std::borrow::Cow;
 use std::sync::LazyLock;
+
+const JOB_TITLE_NORMALIZATION_TAXONOMY_JSON: &str =
+    include_str!("../../../../src/shared/jobTitleNormalizationTaxonomy.json");
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct JobTitleNormalizationTaxonomy {
+    schema_version: u32,
+    filler_words: Vec<String>,
+    abbreviations: Vec<TitleAbbreviation>,
+}
+
+#[derive(Debug, Deserialize)]
+struct TitleAbbreviation {
+    pattern: String,
+    replacement: String,
+}
+
+static JOB_TITLE_NORMALIZATION_TAXONOMY: LazyLock<JobTitleNormalizationTaxonomy> =
+    LazyLock::new(load_job_title_normalization_taxonomy);
+
+fn load_job_title_normalization_taxonomy() -> JobTitleNormalizationTaxonomy {
+    let taxonomy: JobTitleNormalizationTaxonomy =
+        serde_json::from_str(JOB_TITLE_NORMALIZATION_TAXONOMY_JSON)
+            .expect("job title normalization taxonomy must be valid JSON");
+
+    assert_eq!(
+        taxonomy.schema_version, 1,
+        "unsupported job title normalization taxonomy schema version"
+    );
+    assert!(
+        !taxonomy.filler_words.is_empty(),
+        "job title normalization taxonomy must define filler words"
+    );
+    assert!(
+        !taxonomy.abbreviations.is_empty(),
+        "job title normalization taxonomy must define abbreviations"
+    );
+    assert!(
+        taxonomy
+            .filler_words
+            .iter()
+            .all(|word| !word.trim().is_empty() && word == word.trim()),
+        "job title normalization filler words must be nonblank and trimmed"
+    );
+    assert!(
+        taxonomy.abbreviations.iter().all(|mapping| {
+            !mapping.pattern.trim().is_empty()
+                && !mapping.replacement.trim().is_empty()
+                && mapping.pattern == mapping.pattern.trim()
+        }),
+        "job title normalization abbreviation mappings must be nonblank and trimmed"
+    );
+
+    taxonomy
+}
 
 /// Regex pattern for level indicators to remove
 static LEVEL_PATTERN: LazyLock<Regex> = LazyLock::new(|| {
@@ -44,55 +101,28 @@ static COMMA_PATTERN: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r",\s*").expect("Valid comma regex"));
 
 /// Regex pattern for removing filler words
-static FILLER_WORDS_PATTERN: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"\b(?:of|the|and|or)\b").expect("Valid filler words regex"));
+static FILLER_WORDS_PATTERN: LazyLock<Regex> = LazyLock::new(|| {
+    let escaped_words = JOB_TITLE_NORMALIZATION_TAXONOMY
+        .filler_words
+        .iter()
+        .map(|word| regex::escape(word))
+        .collect::<Vec<_>>()
+        .join("|");
+    Regex::new(&format!(r"\b(?:{})\b", escaped_words)).expect("Valid filler words regex")
+});
 
 /// Pre-compiled abbreviation regexes for performance
-static ABBREVIATION_REGEXES: LazyLock<Vec<(Regex, &'static str)>> = LazyLock::new(|| {
-    ABBREVIATIONS
+static ABBREVIATION_REGEXES: LazyLock<Vec<(Regex, String)>> = LazyLock::new(|| {
+    JOB_TITLE_NORMALIZATION_TAXONOMY
+        .abbreviations
         .iter()
-        .map(|(pattern, replacement)| {
-            let regex =
-                Regex::new(&format!("(?i){}", pattern)).expect("Valid abbreviation regex pattern");
-            (regex, *replacement)
+        .map(|mapping| {
+            let regex = Regex::new(&format!("(?i){}", mapping.pattern))
+                .expect("Valid abbreviation regex pattern");
+            (regex, mapping.replacement.clone())
         })
         .collect()
 });
-
-/// Common abbreviation mappings for job titles
-///
-/// Format: (pattern, replacement)
-/// Patterns match abbreviations with optional periods and word boundaries
-const ABBREVIATIONS: &[(&str, &str)] = &[
-    // Seniority levels (order matters - more specific first)
-    (r"\bsr\.?(\s|/|-|$)", "senior$1"),
-    (r"\bjr\.?(\s|/|-|$)", "junior$1"),
-    // Job functions
-    (r"\beng\.?(\s|/|-|$)", "engineer$1"),
-    (r"\bengr\.?(\s|/|-|$)", "engineer$1"),
-    (r"\bdev\.?(\s|/|-|$)", "developer$1"),
-    (r"\bmgr\.?(\s|/|-|$)", "manager$1"),
-    (r"\bdir\.?(\s|/|-|$)", "director$1"),
-    (r"\bvp\.?(\s|/|-|$)", "vice president$1"),
-    // Tech roles (order matters - more specific first)
-    (r"\bswe\.?(\s|/|-|$)", "software engineer$1"),
-    (r"\bsde\.?(\s|/|-|$)", "software development engineer$1"),
-    (r"\bsw\.?(\s|/|-|$)", "software$1"),
-    (r"\bfe\.?(\s|/|-|$)", "frontend$1"),
-    (r"\bbe\.?(\s|/|-|$)", "backend$1"),
-    (r"\bfs\.?(\s|/|-|$)", "fullstack$1"),
-    (r"\bqa\.?(\s|/|-|$)", "quality assurance$1"),
-    (r"\bui\.?(\s|/|-|$)", "user interface$1"),
-    (r"\bux\.?(\s|/|-|$)", "user experience$1"),
-    // Other common abbreviations
-    (r"\btech\.?(\s|/|-|$)", "technology$1"),
-    (r"\bsys\.?(\s|/|-|$)", "systems$1"),
-    (r"\bdb\.?(\s|/|-|$)", "database$1"),
-    (r"\badmin\.?(\s|/|-|$)", "administrator$1"),
-    (r"\bops\.?(\s|/|-|$)", "operations$1"),
-    (r"\bml\.?(\s|/|-|$)", "machine learning$1"),
-    (r"\bai\.?(\s|/|-|$)", "artificial intelligence$1"),
-];
 
 /// Normalize a job title for fuzzy matching
 ///
@@ -166,7 +196,9 @@ pub fn normalize_title(title: &str) -> Cow<'_, str> {
     // Step 4: Expand abbreviations (with case-insensitive matching)
     for (regex, replacement) in ABBREVIATION_REGEXES.iter() {
         if regex.is_match(&normalized) {
-            normalized = regex.replace_all(&normalized, *replacement).into_owned();
+            normalized = regex
+                .replace_all(&normalized, replacement.as_str())
+                .into_owned();
         }
     }
 
