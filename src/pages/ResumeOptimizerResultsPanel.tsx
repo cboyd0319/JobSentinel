@@ -10,6 +10,7 @@ import {
   getScoreProgressPercent,
 } from "../utils/scoreUtils";
 import { JobWordsOverviewCard } from "./ResumeOptimizerJobWordsOverview";
+import { ResumeRoleFamilyCoverageCard } from "./ResumeRoleFamilyCoverageCard";
 import {
   buildResumeNextActions,
   formatHardConstraintCategory,
@@ -247,6 +248,8 @@ export function ResumeOptimizerResultsPanel({
           <ScoreItem label="Details included" score={analysisResult.completeness_score} />
         </div>
       </Card>
+
+      <ResumeRoleFamilyCoverageCard />
 
       {resumeNextActions.length > 0 && (
         <Card>
