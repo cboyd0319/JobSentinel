@@ -378,6 +378,257 @@
     "scalability",
     "security"
   ],
+  "roleSpecificEvidencePrompts": [
+    {
+      "id": "healthcare",
+      "prompt": "healthcare evidence to check: scope of practice, patient safety, documentation, and required credentials",
+      "terms": [
+        "patient care",
+        "healthcare",
+        "nursing",
+        "rn license",
+        "registered nurse",
+        "lpn",
+        "cna",
+        "medication administration",
+        "clinical",
+        "medical record",
+        "vital sign",
+        "care plan",
+        "home health",
+        "hospital",
+        "clinic"
+      ]
+    },
+    {
+      "id": "trades_field",
+      "prompt": "trades-field evidence to check: equipment or tools used, safety rules, work orders, downtime or quality impact, and required licenses",
+      "terms": [
+        "maintenance technician",
+        "equipment repair",
+        "field service",
+        "forklift",
+        "osha",
+        "work order",
+        "work orders",
+        "installation",
+        "installer",
+        "hvac",
+        "plumbing",
+        "electrical",
+        "welding",
+        "machine operator",
+        "warehouse safety"
+      ]
+    },
+    {
+      "id": "career_change",
+      "prompt": "career-change evidence to check: transferable work, training, adjacent experience, scope, and truthful gaps or transitions",
+      "terms": [
+        "career change",
+        "career-change",
+        "career transition",
+        "career-transition",
+        "transitioning careers",
+        "returnship",
+        "return to work",
+        "transferable skills",
+        "transferable experience"
+      ]
+    },
+    {
+      "id": "early_career",
+      "prompt": "early-career evidence to check: training or coursework, projects or volunteer work, supervised responsibilities, transferable skills, and readiness to learn",
+      "terms": [
+        "entry-level",
+        "entry level",
+        "new graduate",
+        "new grad",
+        "recent graduate",
+        "trainee",
+        "apprentice",
+        "apprenticeship",
+        "internship"
+      ]
+    },
+    {
+      "id": "education_academic",
+      "prompt": "education-academic evidence to check: learner or research audience, standards or methods, outcomes, collaboration, and ethics",
+      "terms": [
+        "teaching",
+        "teacher",
+        "classroom",
+        "student",
+        "curriculum",
+        "lesson plan",
+        "instructional design",
+        "academic",
+        "faculty",
+        "university",
+        "school counselor",
+        "research methods",
+        "publication",
+        "thesis",
+        "dissertation"
+      ]
+    },
+    {
+      "id": "federal",
+      "prompt": "federal evidence to check: specialized experience, grade level, announcement duties, dates and hours, citizenship or clearance, and required documents",
+      "terms": [
+        "federal",
+        "usajobs",
+        "specialized experience",
+        "grade level",
+        "gs-",
+        "public trust",
+        "occupational series",
+        "job announcement",
+        "announcement number",
+        "required documents"
+      ]
+    },
+    {
+      "id": "regulated_work",
+      "prompt": "regulated-work evidence to check: records accuracy, deadlines, confidentiality, compliance, and audit trail",
+      "terms": [
+        "legal research",
+        "case files",
+        "case file",
+        "document review",
+        "records management",
+        "policy analysis",
+        "grant administration",
+        "financial reconciliation",
+        "loan processing",
+        "compliance",
+        "audit",
+        "government",
+        "public sector"
+      ]
+    },
+    {
+      "id": "executive_leadership",
+      "prompt": "executive-leadership evidence to check: scope of ownership, team or budget size, decision authority, measurable business impact, and change risk",
+      "terms": [
+        "executive",
+        "director-level",
+        "director level",
+        "vice president",
+        "senior leadership",
+        "executive leadership",
+        "people management",
+        "budget ownership",
+        "p&l",
+        "organizational strategy",
+        "change management",
+        "board",
+        "chief",
+        "c-suite"
+      ]
+    },
+    {
+      "id": "security",
+      "prompt": "security evidence to check: authorized scope, risk reduced, controls or incidents handled, compliance context, and sensitive-data handling",
+      "terms": [
+        "cybersecurity",
+        "information security",
+        "security operations",
+        "soc analyst",
+        "incident response",
+        "vulnerability management",
+        "risk management framework",
+        "nist",
+        "fedramp",
+        "siem",
+        "threat detection"
+      ]
+    },
+    {
+      "id": "service_operations",
+      "prompt": "service-operations evidence to check: customer impact, volume, escalation path, documentation, and response quality",
+      "terms": [
+        "customer service",
+        "customer support",
+        "client service",
+        "client support",
+        "guest service",
+        "guest services",
+        "front desk",
+        "front-desk",
+        "reception",
+        "receptionist",
+        "case management",
+        "case coordination",
+        "scheduling",
+        "appointment setting",
+        "calendar management",
+        "client intake",
+        "operations",
+        "escalation",
+        "service quality"
+      ]
+    },
+    {
+      "id": "design_creative",
+      "prompt": "design-creative evidence to check: user problem, audience, constraints, decisions, accessibility, and shipped outcome",
+      "terms": [
+        "product design",
+        "user experience",
+        "ux",
+        "ui design",
+        "interaction design",
+        "visual design",
+        "graphic design",
+        "content design",
+        "brand design",
+        "creative direction",
+        "design portfolio",
+        "designer",
+        "figma",
+        "prototype",
+        "accessibility"
+      ]
+    },
+    {
+      "id": "technical_data",
+      "prompt": "technical-data evidence to check: shipped work, users or decisions supported, reliability, data sources, and measurable outcomes",
+      "terms": [
+        "software",
+        "developer",
+        "engineering",
+        "data analysis",
+        "data analyst",
+        "machine learning",
+        "model monitoring",
+        "analytics",
+        "sql",
+        "python",
+        "dashboard",
+        "api",
+        "product"
+      ]
+    },
+    {
+      "id": "sales_marketing",
+      "prompt": "sales-marketing evidence to check: quota or pipeline, audience or account scope, conversion or revenue impact, retention, and budget",
+      "terms": [
+        "sales",
+        "pipeline",
+        "account",
+        "quota",
+        "renewal",
+        "retention",
+        "marketing",
+        "campaign",
+        "audience",
+        "conversion",
+        "revenue",
+        "lead generation",
+        "channel"
+      ]
+    }
+  ],
   "credentialKeywordGroups": [
     {
       "canonical": "driver's license",

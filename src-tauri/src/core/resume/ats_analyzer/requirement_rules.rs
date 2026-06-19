@@ -22,6 +22,8 @@ struct ResumeKeywordTaxonomy {
     canonical_requirement_keyword_aliases: Vec<CanonicalRequirementKeywordAlias>,
     #[serde(rename = "baseIndustryCatalogTerms")]
     base_industry_catalog_terms: Vec<String>,
+    #[serde(rename = "roleSpecificEvidencePrompts")]
+    role_specific_evidence_prompts: Vec<RoleSpecificEvidencePrompt>,
     #[serde(rename = "credentialKeywordGroups")]
     credential_keyword_groups: Vec<CredentialKeywordGroup>,
     #[serde(rename = "supplementalKeywordGroups")]
@@ -60,6 +62,13 @@ struct SupplementalKeywordGroup {
 #[derive(Debug, Deserialize)]
 struct CanonicalRequirementKeywordAlias {
     canonical: String,
+    terms: Vec<String>,
+}
+
+#[derive(Debug, Deserialize)]
+struct RoleSpecificEvidencePrompt {
+    id: String,
+    prompt: String,
     terms: Vec<String>,
 }
 
@@ -124,6 +133,17 @@ static TAXONOMY: Lazy<ResumeKeywordTaxonomy> = Lazy::new(|| {
                 && !alias.terms.is_empty()
                 && alias.terms.iter().all(|term| !term.trim().is_empty())),
         "shared canonical requirement keyword aliases must be non-empty"
+    );
+    assert!(
+        !taxonomy.role_specific_evidence_prompts.is_empty()
+            && taxonomy
+                .role_specific_evidence_prompts
+                .iter()
+                .all(|prompt| !prompt.id.trim().is_empty()
+                    && !prompt.prompt.trim().is_empty()
+                    && !prompt.terms.is_empty()
+                    && prompt.terms.iter().all(|term| !term.trim().is_empty())),
+        "shared role-specific evidence prompts must be non-empty"
     );
     taxonomy
 });
@@ -264,6 +284,19 @@ pub(super) fn canonical_requirement_keyword(keyword: &str) -> String {
     }
 
     keyword.to_string()
+}
+
+pub(super) fn role_specific_evidence_prompt(job_desc_lower: &str) -> Option<&'static str> {
+    TAXONOMY
+        .role_specific_evidence_prompts
+        .iter()
+        .find(|prompt| {
+            prompt
+                .terms
+                .iter()
+                .any(|term| job_desc_lower.contains(term))
+        })
+        .map(|prompt| prompt.prompt.as_str())
 }
 
 pub(super) fn extract_supplemental_keywords(text: &str) -> Vec<String> {
