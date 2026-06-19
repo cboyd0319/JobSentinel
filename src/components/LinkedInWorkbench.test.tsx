@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ToastProvider } from "../contexts";
@@ -95,6 +95,45 @@ describe("LinkedInWorkbench", () => {
         url: "https://www.linkedin.com/jobs/view/123",
         notes:
           "Principal Security Engineer at Example Co\nhttps://www.linkedin.com/jobs/view/123\nli_at=[REDACTED]",
+      }),
+    );
+  });
+
+  it("fills suggestions immediately when the user pastes selected text", async () => {
+    const user = userEvent.setup();
+    renderWorkbench();
+
+    await user.click(
+      screen.getByLabelText(/I understand\. Remember this on this computer/i),
+    );
+
+    fireEvent.paste(screen.getByLabelText(/paste selected job text/i), {
+      clipboardData: {
+        getData: () =>
+          "Staff Security Engineer at Example Co\nhttps://www.linkedin.com/jobs/view/456?token=secret",
+      },
+    });
+
+    expect(screen.getByRole("textbox", { name: "Job title" })).toHaveValue(
+      "Staff Security Engineer",
+    );
+    expect(screen.getByRole("textbox", { name: "Company" })).toHaveValue(
+      "Example Co",
+    );
+    expect(screen.getByRole("textbox", { name: "Job link" })).toHaveValue(
+      "https://www.linkedin.com/jobs/view/456",
+    );
+
+    await user.click(screen.getByRole("button", { name: /save job/i }));
+
+    await waitFor(() =>
+      expect(recordLinkedInWorkbenchEvent).toHaveBeenCalledWith({
+        eventType: "saved",
+        title: "Staff Security Engineer",
+        company: "Example Co",
+        url: "https://www.linkedin.com/jobs/view/456",
+        notes:
+          "Staff Security Engineer at Example Co\nhttps://www.linkedin.com/jobs/view/456",
       }),
     );
   });

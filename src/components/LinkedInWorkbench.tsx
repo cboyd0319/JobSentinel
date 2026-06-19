@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ClipboardEvent } from "react";
 import { Button } from "./Button";
 import { useToast } from "../contexts";
 import { openDeepLink } from "../services/deeplinks";
@@ -75,14 +75,29 @@ export function LinkedInWorkbench() {
     }
   };
 
-  const applyPastedText = () => {
-    const parsed = parseUserProvidedLinkedInText(pastedText);
+  const applyPastedTextValue = (value: string) => {
+    const parsed = parseUserProvidedLinkedInText(value);
     setDraft((current) => ({
       title: parsed.title || current.title,
       company: parsed.company || current.company,
       url: parsed.url || current.url,
       notes: parsed.notes || current.notes,
     }));
+  };
+
+  const applyPastedText = () => {
+    applyPastedTextValue(pastedText);
+  };
+
+  const handlePasteSelectedText = (event: ClipboardEvent<HTMLTextAreaElement>) => {
+    const text = event.clipboardData.getData("text");
+    if (!text.trim()) {
+      return;
+    }
+
+    event.preventDefault();
+    setPastedText(text);
+    applyPastedTextValue(text);
   };
 
   const recordAction = async (eventType: LinkedInWorkbenchEventType) => {
@@ -278,6 +293,7 @@ export function LinkedInWorkbench() {
           className="min-h-24 w-full resize-y rounded-lg border border-surface-300 bg-white px-3 py-2 text-sm text-surface-900 focus:border-sentinel-500 focus-visible:ring-2 focus-visible:ring-sentinel-500 dark:border-surface-600 dark:bg-surface-700 dark:text-surface-100"
           value={pastedText}
           onChange={(event) => setPastedText(event.target.value)}
+          onPaste={handlePasteSelectedText}
           placeholder="Optional"
         />
       </label>

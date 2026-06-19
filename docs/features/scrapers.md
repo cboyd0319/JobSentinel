@@ -101,6 +101,8 @@ page DOM, network traffic, browser storage, accessibility trees, screenshots,
 or hidden browser state. Prefilled values remain suggestions until the user
 confirms them. Pasted Workbench notes must remove session-like URL query
 fields, cookies, and token-like fields before local storage.
+When a user pastes selected text into the Workbench, JobSentinel may fill the
+suggestion fields immediately from that pasted text.
 
 Interest learning should use local JobSentinel signals first: saved jobs,
 manual ledger events, search terms, dismissed jobs, notes, profile preferences,
