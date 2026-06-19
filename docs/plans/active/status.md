@@ -65,8 +65,8 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 - Hosted no-account release can publish `_unsigned` Windows MSI/setup EXE,
   no-account macOS DMG, Linux AppImage/deb, checksums, SBOMs, attestations,
   skills, and final publication after successful matrix uploads.
-- Private resume parser smoke checks passed on 2026-06-17 for the supplied PDF
-  and eight reference profiles, with no committed local paths or names.
+- Private resume parser smoke checks passed on 2026-06-17 with no committed
+  local paths or names; 2026-06-19 focused resume analyzer/UI evidence passed.
 - Downloadable Agent Skills cover the search flow with spec-compatible
   tar.gz/ZIP packaging, strict archive/checksum/CRC/central-directory checks,
   upstream `skills-ref`, handoffs, templates, rubrics, Persona/ResumeSkills/
