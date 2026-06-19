@@ -146,27 +146,27 @@ Out of scope:
 - Final non-`content/` audit fixes landed: memory-only company research,
   accessible onboarding, auto-refresh gating, atomic alert claims, HTTPS
   JobsWithGPT endpoints, shared import hashes, and `2.9.0` metadata/changelog.
+- Public wiki `Home.md` and `Capabilities.md` now match the `2.9.0` local
+  readiness, release-boundary, macOS, LinkedIn, security, and skills posture.
 - CI/release security blocks on sensors, zizmor, audit, and cargo-deny.
 
 ## Next Work
 
-1. Get approval before updating the public GitHub wiki, then sync `Home.md`
-   and `Capabilities.md` with current `2.9.0` readiness.
-2. Build/upload/verify `2.9.0` platform assets after approval and credentials.
-3. Confirm major route screenshots, Computer Use clicks, keyboard flow, and
+1. Build/upload/verify `2.9.0` platform assets after approval and credentials.
+2. Confirm major route screenshots, Computer Use clicks, keyboard flow, and
    affected route/action/state checks after any further UI change before calling
    v2.9.0 done.
-4. Continue macOS readiness only after final local gates close; do
+3. Continue macOS readiness only after final local gates close; do
    not claim Gatekeeper-ready distribution before signing, notarization,
    stapling, and install proof exist.
-5. Keep the LinkedIn-compatible Browser Import path user-opened and
+4. Keep the LinkedIn-compatible Browser Import path user-opened and
    user-clicked; do not add browser-session capture, background page access, or
    scheduled LinkedIn fetches.
-6. Do not reopen repo-bloat cleanup unless a fresh bloat gate failure or
+5. Do not reopen repo-bloat cleanup unless a fresh bloat gate failure or
    product/privacy/security/docs verification blocker appears.
-7. Keep README, docs hubs, release docs, wiki inventory, and active status in
+6. Keep README, docs hubs, release docs, wiki inventory, and active status in
    sync when behavior, readiness, or public guidance changes.
-8. Commit each major verified change locally; push only at goal completion or
+7. Commit each major verified change locally; push only at goal completion or
    on newer explicit instruction.
 
 ## Sensors

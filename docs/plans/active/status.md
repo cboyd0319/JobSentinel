@@ -79,8 +79,8 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   version/readiness/deps/skills, security/static sensors, npm audit, cargo audit/deny,
   doctor/doctor:e2e, scripts `710/710`, frontend `3124/3124`, lint/build,
   Rust fmt/clippy/lib/all-target test, E2E `272/272`, and local macOS DMG/SBOM/skills checks.
-- Final non-`content/` expert/agent pass is applied locally. Gatekeeper-ready
-  macOS remains Apple-blocked; wiki drafts await approval to push.
+- Final non-`content/` expert/agent pass is applied locally. Public wiki pages
+  `Home.md` and `Capabilities.md` are synced at wiki commit `6ac587d`.
 - 2026-06-18 OWASP CheatSheetSeries scan covered Actions, supply-chain, AI,
   storage, URL, logging, Browser Import, CSS, parsers, and follow-up hardening
   for credential binding, imports, redaction, signing, AI guards, and release drift.
@@ -111,15 +111,12 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 
 ## Next Best Work
 
-1. Get explicit approval to update the public GitHub wiki, then sync
-   `Home.md` and `Capabilities.md` with the current `2.9.0` release, security,
-   source-boundary, and capability posture.
-2. Build/upload/verify `2.9.0` platform assets after approval and credentials.
-3. Continue resume, guided intake, job-card protection, and encrypted storage
+1. Build/upload/verify `2.9.0` platform assets after approval and credentials.
+2. Continue resume, guided intake, job-card protection, and encrypted storage
    only where they improve truthful, reviewed, local, non-technical workflows.
-4. Continue macOS readiness without claiming Gatekeeper-ready distribution
+3. Continue macOS readiness without claiming Gatekeeper-ready distribution
    before Apple credentials exist.
-5. Keep harness work focused on bounded startup context, runnable verification,
+4. Keep harness work focused on bounded startup context, runnable verification,
    privacy/security gates, and docs accuracy. Do not add new ceremony unless it
    prevents a repeated failure.
 
