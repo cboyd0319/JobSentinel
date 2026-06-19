@@ -55,6 +55,7 @@ export type ApplicationReviewActionKind =
   | "interviews"
   | "offers"
   | "to_apply"
+  | "weekly_review"
   | "steady";
 
 export type ApplicationReviewPriority = "high" | "medium" | "low";
@@ -64,6 +65,12 @@ export interface ApplicationReviewAction {
   priority: ApplicationReviewPriority;
   count: number;
   title: string;
+  description: string;
+  handoff?: ApplicationReviewHandoff;
+}
+
+export interface ApplicationReviewHandoff {
+  label: string;
   description: string;
 }
 
@@ -218,6 +225,7 @@ export function getApplicationReviewSummary(
           count: 0,
           title: "Add a job to track",
           description: "Start with one saved, pasted, or imported job so the board has something to organize.",
+          handoff: ACTION_HANDOFFS.to_apply,
         },
       ],
     };
@@ -241,6 +249,7 @@ export function getApplicationReviewSummary(
       count: reminders.length,
       title: "Finish reminders",
       description: pluralize(reminders.length, "follow-up, prep item, or deadline is waiting", "follow-ups, prep items, or deadlines are waiting"),
+      handoff: ACTION_HANDOFFS.reminders,
     });
   }
 
@@ -251,6 +260,7 @@ export function getApplicationReviewSummary(
       count: noResponseCount,
       title: "Review quiet roles",
       description: pluralize(noResponseCount, "role has been quiet for 14 days", "roles have been quiet for 14 days"),
+      handoff: ACTION_HANDOFFS.no_response,
     });
   }
 
@@ -261,6 +271,7 @@ export function getApplicationReviewSummary(
       count: interviewCount,
       title: "Prepare for interviews",
       description: pluralize(interviewCount, "conversation needs prep or follow-up", "conversations need prep or follow-up"),
+      handoff: ACTION_HANDOFFS.interviews,
     });
   }
 
@@ -271,6 +282,7 @@ export function getApplicationReviewSummary(
       count: offerCount,
       title: "Review offers",
       description: pluralize(offerCount, "offer needs compensation and deadline review", "offers need compensation and deadline review"),
+      handoff: ACTION_HANDOFFS.offers,
     });
   }
 
@@ -281,6 +293,7 @@ export function getApplicationReviewSummary(
       count: toApplyCount,
       title: "Apply or skip saved roles",
       description: pluralize(toApplyCount, "saved role needs a decision", "saved roles need a decision"),
+      handoff: ACTION_HANDOFFS.to_apply,
     });
   }
 
@@ -291,6 +304,16 @@ export function getApplicationReviewSummary(
       count: 0,
       title: "Everything is organized",
       description: "No reminders, stale applications, interviews, offers, or saved roles need attention right now.",
+      handoff: ACTION_HANDOFFS.steady,
+    });
+  } else {
+    actions.push({
+      kind: "weekly_review",
+      priority: "low",
+      count: 0,
+      title: "Replan this week",
+      description: "Compare sources, quiet roles, saved roles, responses, and interviews before changing pace.",
+      handoff: ACTION_HANDOFFS.weekly_review,
     });
   }
 
@@ -331,3 +354,34 @@ function parseApplicationDate(value: string | null): Date | null {
 function pluralize(count: number, singular: string, plural: string): string {
   return `${count} ${count === 1 ? singular : plural}.`;
 }
+
+const ACTION_HANDOFFS: Record<ApplicationReviewActionKind, ApplicationReviewHandoff> = {
+  reminders: {
+    label: "Networking outreach",
+    description: "Use recruiter replies, referral asks, warm follow ups, or thank-you notes only after review.",
+  },
+  no_response: {
+    label: "Application tracking",
+    description: "Decide whether to follow up once, mark No Response, close, skip, or deprioritize.",
+  },
+  interviews: {
+    label: "Interview prep",
+    description: "Build story prompts, questions, logistics notes, and follow-up reminders.",
+  },
+  offers: {
+    label: "Offer and pay review",
+    description: "Separate written offer facts, deadline, benefits, commute, risks, and counter notes.",
+  },
+  to_apply: {
+    label: "Posting review",
+    description: "Review source, pay, and must-haves, then tailor only if the role is worth applying to.",
+  },
+  weekly_review: {
+    label: "Job-search plan",
+    description: "Replan lanes, sources, pacing, and stop rules from tracker evidence.",
+  },
+  steady: {
+    label: "Job-search plan",
+    description: "Use weekly review when changing sources, lanes, pacing, or stop rules.",
+  },
+};

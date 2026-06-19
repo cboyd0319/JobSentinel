@@ -118,6 +118,14 @@ function ReviewActionItem({
         <p className="mt-1 break-words text-sm text-surface-600 dark:text-surface-400">
           {action.description}
         </p>
+        {action.handoff && (
+          <div className="mt-3 rounded-md border border-surface-200 bg-surface-50 px-3 py-2 text-xs text-surface-700 dark:border-surface-700 dark:bg-surface-900/40 dark:text-surface-300">
+            <p className="font-semibold">
+              After this: {action.handoff.label}
+            </p>
+            <p className="mt-1 leading-5">{action.handoff.description}</p>
+          </div>
+        )}
       </div>
       <Button
         className="mt-4 w-full whitespace-normal"
@@ -143,6 +151,8 @@ function getActionButtonLabel(action: ApplicationReviewAction): string {
       return "Open summary";
     case "to_apply":
       return action.count > 0 ? "Review saved roles" : "Add or import job";
+    case "weekly_review":
+      return "Review weekly plan";
     case "steady":
       return "Open summary";
   }
@@ -160,6 +170,7 @@ function getActionHandler(
     case "interviews":
       return handlers.onOpenInterviews;
     case "offers":
+    case "weekly_review":
     case "steady":
       return handlers.onOpenSummary;
     case "to_apply":

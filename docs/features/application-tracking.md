@@ -47,11 +47,15 @@ External AI is not required for application tracking.
 1. Open **Applications**.
 2. Start with **Search review**. It highlights due reminders, quiet roles,
    interviews, offers, and saved roles that need an apply-or-skip decision.
-3. Review the board and pending follow-ups.
-4. Move each card when status changes.
-5. Open a card to add notes, contact details, salary information, or next steps.
-6. Use interviews, reminders, local summaries, and no-response review to decide
+3. Use each **After this** cue to move from the current review into posting
+   review, outreach, interview prep, offer review, or weekly replanning.
+4. Review the board and pending follow-ups.
+5. Move each card when status changes.
+6. Open a card to add notes, contact details, salary information, or next steps.
+7. Use interviews, reminders, local summaries, and no-response review to decide
    where to spend time next.
+8. Use **Replan this week** to compare tracker evidence before changing lanes,
+   sources, pacing, or stop rules.
 
 JobSentinel should make this usable for a person who has never used a project
 management tool. The board should answer plain questions:
@@ -95,7 +99,10 @@ Follow-up reminders should help the user spend energy carefully:
   non-responsive roles.
 - Recent applications with no contact note must not be moved to **No Response**
   until the quiet period has passed.
-- Weekly summaries should favor useful decisions over motivation copy.
+- Weekly summaries should favor useful decisions over motivation copy:
+  continue sources that produce active employer or ATS pages, replies,
+  interviews, referrals, or strong fit; adjust mixed sources; pause stale,
+  duplicate, weak-source, low-fit, or below-floor lanes.
 - Salary and offer notes should help users avoid accepting below-floor offers.
 
 ## Data Boundaries

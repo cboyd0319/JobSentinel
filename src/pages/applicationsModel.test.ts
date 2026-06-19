@@ -152,7 +152,54 @@ describe("applicationsModel", () => {
       expect.objectContaining({ kind: "interviews", priority: "medium", count: 1 }),
       expect.objectContaining({ kind: "offers", priority: "medium", count: 1 }),
       expect.objectContaining({ kind: "to_apply", priority: "low", count: 1 }),
+      expect.objectContaining({ kind: "weekly_review", priority: "low", count: 0 }),
     ]);
+  });
+
+  it("adds review handoffs so next actions explain what to do after the click", () => {
+    const applications = emptyApplications();
+    applications.to_apply.push({
+      ...baseApplication,
+      id: 2,
+      status: "to_apply",
+      applied_at: null,
+    });
+    applications.offer_received.push({
+      ...baseApplication,
+      id: 3,
+      status: "offer_received",
+    });
+
+    const actions = getApplicationReviewSummary(applications, []).actions;
+
+    expect(actions).toContainEqual(
+      expect.objectContaining({
+        kind: "to_apply",
+        handoff: expect.objectContaining({
+          label: "Posting review",
+          description: expect.stringContaining("tailor"),
+        }),
+      }),
+    );
+    expect(actions).toContainEqual(
+      expect.objectContaining({
+        kind: "offers",
+        handoff: expect.objectContaining({
+          label: "Offer and pay review",
+          description: expect.stringContaining("written offer"),
+        }),
+      }),
+    );
+    expect(actions).toContainEqual(
+      expect.objectContaining({
+        kind: "weekly_review",
+        title: "Replan this week",
+        handoff: expect.objectContaining({
+          label: "Job-search plan",
+          description: expect.stringContaining("stop rules"),
+        }),
+      }),
+    );
   });
 
   it("flags quiet roles only after the no-response review window", () => {
@@ -196,6 +243,10 @@ describe("applicationsModel", () => {
       description: "Use this short list to decide where your job-search time goes next.",
       actions: [
         {
+          handoff: {
+            description: "Use weekly review when changing sources, lanes, pacing, or stop rules.",
+            label: "Job-search plan",
+          },
           kind: "steady",
           priority: "low",
           count: 0,
@@ -212,6 +263,10 @@ describe("applicationsModel", () => {
       description: "Save or import a job, then JobSentinel will help choose the next step.",
       actions: [
         {
+          handoff: {
+            description: "Review source, pay, and must-haves, then tailor only if the role is worth applying to.",
+            label: "Posting review",
+          },
           kind: "to_apply",
           priority: "low",
           count: 0,
