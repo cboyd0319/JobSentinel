@@ -18,6 +18,10 @@ struct ResumeKeywordTaxonomy {
     physical_weight_requirements: PhysicalWeightRequirements,
     #[serde(rename = "conservativeSearchTermGroups")]
     conservative_search_term_groups: Vec<Vec<String>>,
+    #[serde(rename = "canonicalRequirementKeywordAliases")]
+    canonical_requirement_keyword_aliases: Vec<CanonicalRequirementKeywordAlias>,
+    #[serde(rename = "baseIndustryCatalogTerms")]
+    base_industry_catalog_terms: Vec<String>,
     #[serde(rename = "credentialKeywordGroups")]
     credential_keyword_groups: Vec<CredentialKeywordGroup>,
     #[serde(rename = "supplementalKeywordGroups")]
@@ -51,6 +55,12 @@ struct SupplementalKeywordGroup {
     terms: Vec<String>,
     #[serde(default, rename = "catalogTerms")]
     catalog_terms: Vec<String>,
+}
+
+#[derive(Debug, Deserialize)]
+struct CanonicalRequirementKeywordAlias {
+    canonical: String,
+    terms: Vec<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -97,6 +107,23 @@ static TAXONOMY: Lazy<ResumeKeywordTaxonomy> = Lazy::new(|| {
             .iter()
             .all(|group| group.len() >= 2 && group.iter().all(|term| !term.trim().is_empty())),
         "shared conservative search term groups must contain at least two non-empty terms"
+    );
+    assert!(
+        !taxonomy.base_industry_catalog_terms.is_empty()
+            && taxonomy
+                .base_industry_catalog_terms
+                .iter()
+                .all(|term| !term.trim().is_empty()),
+        "shared base industry catalog terms must be non-empty"
+    );
+    assert!(
+        taxonomy
+            .canonical_requirement_keyword_aliases
+            .iter()
+            .all(|alias| !alias.canonical.trim().is_empty()
+                && !alias.terms.is_empty()
+                && alias.terms.iter().all(|term| !term.trim().is_empty())),
+        "shared canonical requirement keyword aliases must be non-empty"
     );
     taxonomy
 });
@@ -223,6 +250,20 @@ pub(super) fn bullet_power_words() -> &'static [String] {
 
 pub(super) fn conservative_search_term_groups() -> &'static [Vec<String>] {
     &TAXONOMY.conservative_search_term_groups
+}
+
+pub(super) fn base_industry_catalog_terms() -> &'static [String] {
+    &TAXONOMY.base_industry_catalog_terms
+}
+
+pub(super) fn canonical_requirement_keyword(keyword: &str) -> String {
+    for alias in &TAXONOMY.canonical_requirement_keyword_aliases {
+        if alias.terms.iter().any(|term| term == keyword) {
+            return alias.canonical.clone();
+        }
+    }
+
+    keyword.to_string()
 }
 
 pub(super) fn extract_supplemental_keywords(text: &str) -> Vec<String> {
