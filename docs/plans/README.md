@@ -21,6 +21,7 @@ See [Exec Plans](../exec-plans.md) for required format.
 | ---------- | -------- |
 | Current active status | [Compact status](active/status.md) |
 | Current product and quality work | [Active plan](active/current-work.md) |
+| v2.9.0 completion and full-feature roadmap | [Release and roadmap plan](active/v2.9.0-completion-and-full-feature-roadmap.md) |
 
 ## Plan Requirements
 

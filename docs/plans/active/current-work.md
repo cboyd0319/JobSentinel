@@ -202,9 +202,9 @@ workflow, packaging, or macOS deployment behavior.
 
 When resuming, read:
 
-1. [Active status](status.md)
-2. This plan
+1. [Status](status.md)
+2. [Release roadmap](v2.9.0-completion-and-full-feature-roadmap.md)
 3. [Verification matrix](../../harness/verification-matrix.md)
-4. Archived plans only if old decision context is needed
+4. Archives only for old decisions
 
 Archived history stays under `docs/plans/archive/`.

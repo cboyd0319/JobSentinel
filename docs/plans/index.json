@@ -16,6 +16,13 @@
       "state": "active",
       "nextStep": "Finish scraper/source verification, non-scraper LinkedIn-compatible workflow proof, approval-gated public wiki sync, target-platform release evidence, macOS readiness honesty, encrypted storage release readiness, and any focused product-safety fixes while preserving Rule 0.",
       "verification": "npm run harness:check; for redesign changes, add Computer Use or Playwright screenshot proof across touched routes, modals, toasts, settings, keyboard flow, and narrow-width states."
+    },
+    {
+      "id": "v2.9.0-completion-and-full-feature-roadmap",
+      "path": "docs/plans/active/v2.9.0-completion-and-full-feature-roadmap.md",
+      "state": "active",
+      "nextStep": "Run final local release gates from the latest commit, publish and verify v2.9.0 assets, then split post-release full-feature roadmap items into versioned follow-up plans.",
+      "verification": "npm run lint:docs; npm run lint:bloat; npm run harness:check; npm run harness:score; git diff --check"
     }
   ],
   "archivedWorkstreams": [

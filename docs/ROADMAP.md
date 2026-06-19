@@ -91,6 +91,7 @@ Current active plan docs are part of the repo goal:
 
 - [Active status](plans/active/status.md)
 - [Current product and quality work](plans/active/current-work.md)
+- [v2.9.0 completion and full-feature roadmap](plans/active/v2.9.0-completion-and-full-feature-roadmap.md)
 
 Superseded long-running plan history is archived under
 [Archived Plans](plans/README.md#archived-plans).

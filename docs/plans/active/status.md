@@ -41,13 +41,14 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 | Workstream | State | Current focus | Source |
 | ---------- | ----- | ------------- | ------ |
 | Current product and quality work | Active | Resume assistance, application readability, job-card protection, guided intake, pay protection, encrypted local storage, Quiet Shield redesign, and macOS readiness | [Plan](current-work.md) |
+| v2.9.0 completion and full-feature roadmap | Active | Final release gates, publication sequence, and post-release product roadmap | [Plan](v2.9.0-completion-and-full-feature-roadmap.md) |
 
 ## Current Posture
 
 - `origin/main` is the pushed `2.7.7` release-recovery baseline; local metadata
   is staged for `2.9.0`. Public macOS `v2.7.7` and full cross-platform
   `v2.7.5` are legacy fallbacks until `2.9.0` assets are verified.
-- Fresh harness evidence reports 2 active docs, 2 indexed workstreams, and
+- Fresh harness evidence reports 3 active docs, 3 indexed workstreams, and
   100/100. UI QA covers key routes, toasts, keyboard paths, and no passive
   Keychain prompt.
 - Dependency evidence on 2026-06-18 (`npm` `11.17.0`, Node `24.17.0`, Rust
