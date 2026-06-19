@@ -86,7 +86,7 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   `278/278`, docs/prose, bloat, harness, and whitespace checks.
 - Final non-`content/` expert/agent pass is applied locally. Public wiki local
   commit `f34ac86` updates v2.9.0 release, recovery, and ATS portal docs; final push pending.
-- OWASP/security, Linux packaging, shared taxonomy, Scrapling no-adoption,
+- OWASP/security, Linux packaging, shared taxonomy, scraper-tooling no-adoption,
   specialist hardening, and public-HTTPS job-destination evidence are recorded
   in `current-work.md`, source-debug docs, and the tech-debt tracker; no open
   tech-debt rows remain from those slices.
@@ -111,8 +111,8 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   questions, confirmed answers, voluntary/protected questions, and unknowns.
 - 2026-06-19 Cover Letter Templates now show a local review checklist for
   blanks, truthful claims, and job-specific wording before copying/sending.
-- 2026-06-19 official source corpus now covers public ATS APIs, employer web
-  APIs, and restricted sessions as separate source paths.
+- 2026-06-19 source corpus/taxonomy covers public ATS APIs, employer web APIs,
+  restricted sessions, and regional candidates.
 - 2026-06-19 active roadmap checklist has no remaining Partial/Open rows; final
   affected UI refresh and E2E budget pass are recorded in the manual UI ledger.
 

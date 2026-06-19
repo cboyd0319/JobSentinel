@@ -31,7 +31,7 @@ In scope:
   contracts as release blockers, including LinkedIn-compatible search-link,
   pasted-link, Browser Import, Workbench, reminder, acknowledgement, ledger,
   fallback, and manual-entry paths.
-- Keeping the current Scrapling Rust no-adoption decision tied to live evidence.
+- Keeping scraper-tooling no-adoption decisions tied to live evidence.
 - Truthful local resume assistance, hard-requirement review, readable evidence,
   and next-action guidance.
 - Job-card protection for stale, repeated, scam-like, weak-source,
@@ -130,9 +130,10 @@ Out of scope:
 - Downloadable Agent Skills cover the search flow with UI metadata, handoffs,
   templates, rubrics, validation, checksums, and release SBOM staging.
 - Browser Import desktop/mobile verification passed on 2026-06-17.
-- Scrapling Rust was rechecked on 2026-06-19; no v2.9.0 adoption is planned.
 - Restricted-source and LinkedIn-compatible proof passed on 2026-06-19 with
   mock UI, generated visible-card Browser Import, and user-assisted browsing.
+- Source mining rechecked Scrapling/Stygian, added BDJobs, promoted Naukri/Bayt,
+  and kept Google Jobs to user-opened import research.
 - CheatSheetSeries follow-ups hardened CI, dependency gates, source/network
   pinning, notification validation/redaction, Browser Import, HTTPS imports,
   Application Assist isolation, release assets, AI guards, skills, sandboxed
