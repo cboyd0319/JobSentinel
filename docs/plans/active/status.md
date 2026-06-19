@@ -75,11 +75,12 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   routes; forced empty/loading/error checks passed across startup and setup.
 - Setup Wizard desktop/mobile, whole-UI post-design click/action coverage, and
   keyboard paths now have fresh Playwright evidence.
-- Current 2026-06-18 gates pass: post-`65ccc7cf` readiness/security/scripts
-  `684/684`; broader same-day evidence covers docs, harness 100, bloat, npm
-  audit, deps/actions, doctor/e2e with Node 26.3.0 vs CI 24.17.0 warning,
-  frontend lint/build/tests `3101/3101`, Rust fmt/clippy/lib `2855/2855`,
-  macOS no-account 100% / full-public 94%, and E2E `266/266`.
+- Current 2026-06-18 gates pass after `2451e7a7`: harness 100, bloat,
+  release readiness, latest dependency/action pins, security/static sensors,
+  script tests `709/709`, Agent Skills tar/ZIP packaging plus checksum/archive
+  checks, doctor/e2e with Node 26.3.0 vs CI 24.17.0 warning, frontend
+  lint/build/tests `3120/3120`, Rust fmt/clippy/full cargo test, macOS
+  no-account 100% / full-public 94%, and E2E `266/266`.
 - Final non-`content/` expert/agent pass is applied locally: memory-only
   company research, accessible onboarding, auto-refresh gating, atomic alert
   claims, HTTPS JobsWithGPT endpoints, shared import hashes, and metadata.

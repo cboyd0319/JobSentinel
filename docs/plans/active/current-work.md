@@ -140,7 +140,7 @@ Out of scope:
   payload guards, and bookmarklet oversized-body stops.
 - Hosted release hardening now gates signing, cleans CI signing material,
   blocks unsigned MSI upload, and narrows renderer notification/dialog permissions.
-- Final whole-UI pass: 266/266 E2E after `8b2a167d`, 16 route inventories,
+- Final whole-UI pass: 266/266 E2E after `2451e7a7`, 16 route inventories,
   no console errors, and no overflow.
 - Final non-`content/` audit fixes landed: memory-only company research,
   accessible onboarding, auto-refresh gating, atomic alert claims, HTTPS
