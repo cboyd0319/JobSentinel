@@ -64,13 +64,15 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 - 2026-06-19 local semantic matching governance now uses `models.lock.toml`
   for pinned model identity, revisions, file hashes, sizes, licenses, backend
   compatibility, instruction profiles, thresholds, and stale-vector rules.
-  Qwen3 embedding and reranker are locked as the target architecture, while the
-  current wired runtime remains the governed MiniLM baseline until Qwen3
-  backend execution and reranking are implemented and live-validated.
+  Qwen3 embedding and reranker are locked as the target architecture. The
+  text-only Qwen3 embedding backend is implemented behind the governed cache
+  and has focused live validation with downloaded artifacts; existing commands
+  still use the MiniLM baseline until reranking, hybrid scoring, diagnostics,
+  and UI/data-flow integration are complete.
 - Script tests were moved out of the flat `scripts/` root in commit
   `b238c7d4`; keep future script tests under test directories.
 - 2026-06-19 release blockers remain open for major README and screenshot
-  refresh, stale docs cleanup, Qwen3 semantic matching backend execution,
+  refresh, stale docs cleanup, Qwen3 reranking/hybrid semantic matching,
   manual verification of every scraper/source flow, manual verification of
   every resume capability, final whole-UI proof, final local gates, and
   user-confirmed push/publish.
@@ -81,8 +83,8 @@ The v2.9.0 goal adds four durable release-readiness requirements:
    public README and screenshots for current v2.9.0 surfaces.
 2. Manually verify every current scraper/source path and every resume feature
    against the local corpora, then record evidence.
-3. Wire and validate the Qwen3 semantic matching backend behind the new model
-   governance layer, including bounded reranking and diagnostics.
+3. Add bounded Qwen3 reranking, hybrid semantic scoring, diagnostics, and
+   integration evidence behind the model governance layer.
 4. Run final local release gates from the verified commit.
 5. Push `main` and wiki only after the user confirms final publication steps.
 6. Keep macOS readiness honest: no Gatekeeper-ready claim before Apple credentials.

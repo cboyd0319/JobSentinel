@@ -21,6 +21,7 @@ mod evaluation;
 mod manifest;
 mod matcher;
 mod model;
+mod qwen3;
 mod runtime;
 
 #[cfg(test)]
@@ -39,6 +40,7 @@ pub use manifest::{
 };
 pub use matcher::{SemanticMatchResult, SemanticMatcher};
 pub use model::{ModelManager, ModelStatus};
+pub use qwen3::Qwen3EmbeddingBackend;
 pub use runtime::{
     EmbeddingBackend, EmbeddingInput, EmbeddingInputKind, RerankCandidate, RerankQuery,
     RerankQueryKind, RerankScore, RerankerBackend, RuntimeCompatibility, VectorFreshness,

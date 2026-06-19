@@ -221,7 +221,7 @@ mod tests {
         let model = manifest
             .default_embedding()
             .expect("default embedding should exist");
-        let compatibility = RuntimeCompatibility::from_spec(model, "fastembed-qwen3", Some(768));
+        let compatibility = RuntimeCompatibility::from_spec(model, "qwen3-candle", Some(768));
 
         compatibility
             .validate_for_model(model)
@@ -234,7 +234,7 @@ mod tests {
         let model = manifest
             .default_embedding()
             .expect("default embedding should exist");
-        let compatibility = RuntimeCompatibility::from_spec(model, "fastembed-qwen3", Some(1024));
+        let compatibility = RuntimeCompatibility::from_spec(model, "qwen3-candle", Some(1024));
 
         let error = compatibility
             .validate_for_model(model)

@@ -21,6 +21,7 @@ cargo test --features embedded-ml -- --ignored
 - **mod.rs** - Module entry, feature flags, error types
 - **manifest.rs** - Model lock parsing and validation
 - **model.rs** - Model download, cache verification, metadata, loading, and legacy baseline inference
+- **qwen3.rs** - Governed Qwen3 text embedding backend using verified cache files
 - **runtime.rs** - Backend traits, compatibility checks, vector provenance, and stale-vector keys
 - **evaluation.rs** - Evidence labels, hard-negative, feedback, and training data contracts
 - **eval_fixtures/seed_v1.json** - Seed eval labels, hard negatives, and preference pairs
@@ -37,7 +38,8 @@ instruction profiles, and score thresholds.
 
 The production direction is:
 
-- `qwen3-embedding-0.6b`: default embedding profile at 768 dimensions.
+- `qwen3-embedding-0.6b`: default embedding profile at 768 dimensions through
+  the `qwen3-candle` backend.
 - `qwen3-reranker-0.6b`: default bounded top-K reranker profile.
 - `all-minilm-l6-v2-baseline`: current wired legacy runtime until the Qwen3
   backend is fully implemented and validated.
@@ -75,6 +77,12 @@ scoring:
 - max token limit
 - instruction profile
 - pooling and normalization
+
+Focused live validation passed on 2026-06-19 with
+`core::ml::qwen3::tests::qwen3_backend_embeds_with_pinned_downloaded_model`.
+The ignored test downloads the pinned model into an explicit external cache,
+verifies the model lock hashes, loads the backend, and checks a normalized
+768-dimensional output.
 
 ## Adding New Features
 

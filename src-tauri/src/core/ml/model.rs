@@ -10,6 +10,7 @@ use candle_core::{DType, Device, Module, Tensor};
 use candle_nn::VarBuilder;
 use chrono::Utc;
 use hf_hub::{api::tokio::Api, Repo, RepoType};
+use serde::de::DeserializeOwned;
 use sha2::{Digest, Sha256};
 use std::{
     fs::File,
@@ -65,6 +66,14 @@ impl ModelManager {
         })
     }
 
+    pub(crate) fn default_embedding_model_spec() -> Result<ModelSpec> {
+        let manifest = load_model_manifest()?;
+        manifest.default_embedding().cloned().ok_or_else(|| {
+            MlError::ModelLoadFailed("default embedding model lock entry missing".to_string())
+                .into()
+        })
+    }
+
     pub(crate) fn model_cache_dir(&self, spec: &ModelSpec) -> PathBuf {
         self.cache_dir
             .join(&spec.id)
@@ -81,17 +90,28 @@ impl ModelManager {
         let Ok(spec) = Self::runtime_model_spec() else {
             return false;
         };
-        let model_dir = self.model_cache_dir(&spec);
+        self.is_model_downloaded_for(&spec)
+    }
+
+    pub(crate) fn is_model_downloaded_for(&self, spec: &ModelSpec) -> bool {
+        let model_dir = self.model_cache_dir(spec);
 
         if !model_dir.exists() {
             return false;
         }
 
         let valid = spec.required_files().all(|file| {
-            let path = self.model_file_path(&spec, file);
+            let path = self.model_file_path(spec, file);
             path.exists() && verify_model_file_checksum(&path, &file.sha256).is_ok()
         });
         valid
+    }
+
+    pub fn is_default_embedding_downloaded(&self) -> bool {
+        let Ok(spec) = Self::default_embedding_model_spec() else {
+            return false;
+        };
+        self.is_model_downloaded_for(&spec)
     }
 
     /// Get model status
@@ -126,7 +146,22 @@ impl ModelManager {
         let spec = manifest.legacy_runtime_embedding().ok_or_else(|| {
             MlError::ModelLoadFailed("runtime model lock entry missing".to_string())
         })?;
+        self.download_model_spec(&manifest, spec).await
+    }
 
+    pub async fn download_model_by_id(&self, model_id: &str) -> Result<PathBuf> {
+        let manifest = load_model_manifest()?;
+        let spec = manifest.model(model_id).ok_or_else(|| {
+            MlError::ModelLoadFailed("requested model lock entry missing".to_string())
+        })?;
+        self.download_model_spec(&manifest, spec).await
+    }
+
+    async fn download_model_spec(
+        &self,
+        manifest: &super::manifest::ModelManifest,
+        spec: &ModelSpec,
+    ) -> Result<PathBuf> {
         tracing::info!(
             model_id = spec.id,
             revision = spec.revision,
@@ -191,7 +226,7 @@ impl ModelManager {
 
         self.verify_model_cache(spec)?;
         let verified_at = Utc::now().to_rfc3339();
-        self.write_cache_metadata(&model_dir, &manifest, spec, downloaded_at, verified_at)?;
+        self.write_cache_metadata(&model_dir, manifest, spec, downloaded_at, verified_at)?;
 
         tracing::info!(
             model_dir = %path_label_for_logging(&model_dir),
@@ -203,10 +238,14 @@ impl ModelManager {
     /// Load tokenizer from cache
     pub fn load_tokenizer(&self) -> Result<Tokenizer> {
         let spec = Self::runtime_model_spec()?;
+        self.load_tokenizer_for_spec(&spec)
+    }
+
+    pub(crate) fn load_tokenizer_for_spec(&self, spec: &ModelSpec) -> Result<Tokenizer> {
         let tokenizer_file = spec.file("tokenizer.json").ok_or_else(|| {
             MlError::ModelLoadFailed("model lockfile missing tokenizer.json".to_string())
         })?;
-        let tokenizer_path = self.model_file_path(&spec, tokenizer_file);
+        let tokenizer_path = self.model_file_path(spec, tokenizer_file);
 
         if !tokenizer_path.exists() {
             return Err(MlError::ModelNotDownloaded(
@@ -223,12 +262,20 @@ impl ModelManager {
     }
 
     /// Load model weights from cache
-    pub fn load_model(&self, device: &Device) -> Result<VarBuilder<'_>> {
+    pub fn load_model<'a>(&self, device: &'a Device) -> Result<VarBuilder<'a>> {
         let spec = Self::runtime_model_spec()?;
+        self.load_model_for_spec(&spec, device)
+    }
+
+    pub(crate) fn load_model_for_spec<'a>(
+        &self,
+        spec: &ModelSpec,
+        device: &'a Device,
+    ) -> Result<VarBuilder<'a>> {
         let weights_file = spec.file("model.safetensors").ok_or_else(|| {
             MlError::ModelLoadFailed("model lockfile missing model.safetensors".to_string())
         })?;
-        let model_path = self.model_file_path(&spec, weights_file);
+        let model_path = self.model_file_path(spec, weights_file);
 
         if !model_path.exists() {
             return Err(MlError::ModelNotDownloaded(
@@ -250,6 +297,37 @@ impl ModelManager {
             .map_err(|e| MlError::ModelLoadFailed(e.to_string()))?;
 
         Ok(vb)
+    }
+
+    pub(crate) fn load_model_json_for_spec<T: DeserializeOwned>(
+        &self,
+        spec: &ModelSpec,
+        file_name: &str,
+    ) -> Result<T> {
+        let file = spec.file(file_name).ok_or_else(|| {
+            MlError::ModelLoadFailed(format!("model lockfile missing {file_name}"))
+        })?;
+        let path = self.model_file_path(spec, file);
+
+        if !path.exists() {
+            return Err(MlError::ModelNotDownloaded(format!(
+                "{file_name} not found. Download the model first."
+            ))
+            .into());
+        }
+
+        verify_model_file_checksum(&path, &file.sha256)
+            .context("cached model JSON failed integrity check")?;
+
+        let bytes = std::fs::read(&path).with_context(|| {
+            format!(
+                "failed to read model JSON from {}",
+                path_label_for_logging(&path)
+            )
+        })?;
+        serde_json::from_slice(&bytes).map_err(|error| {
+            MlError::ModelLoadFailed(format!("failed to parse {file_name}: {error}")).into()
+        })
     }
 
     fn verify_model_cache(&self, spec: &ModelSpec) -> Result<()> {
