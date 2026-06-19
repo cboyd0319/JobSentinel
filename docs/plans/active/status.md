@@ -111,9 +111,9 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 
 ## Next Best Work
 
-1. Finish and commit the restricted-source gate plus full scraper/import
-   verification update, including LinkedIn-compatible user-gated paths and the
-   current Scrapling comparison.
+1. Use the v2.9.0 risk register to finish full scraper/import verification,
+   including LinkedIn-compatible user-gated paths and the current Scrapling
+   comparison.
 2. Wait for the old `v2.9.0` workflow run to finish, then push main/wiki,
    retag/build/upload/publish/verify `2.9.0` no-account assets; signed Windows
    and Gatekeeper-ready macOS remain credential-backed upgrades.

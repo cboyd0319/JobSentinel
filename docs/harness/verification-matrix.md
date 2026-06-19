@@ -83,6 +83,7 @@ with warnings-as-errors as a required local or CI gate.
 | Restricted-source job sites | Prominent terms/account/legal/privacy warning docs and UI, acknowledgement gate tests, no credential or session-cookie capture, no hidden background access, no platform-control bypass, and manual UI validation for exposed search-link, pasted-link, Browser Import, scheduled source, and manual-entry paths |
 | Restricted source domain taxonomy | `RESTRICTED_JOB_SOURCE_DOMAIN_RECORDS` requires a specific reason, category, and source reference for each domain, and tests must prove the exported `RESTRICTED_JOB_SOURCE_DOMAINS` list is derived from those records |
 | Restricted authenticated source sessions | Warning before sign-in, fresh user-initiated sign-in for each use, no auth token, session cookie, browser storage, or authorization-header persistence, no background or offline collection, one-hour maximum session window, and manual UI validation for each exposed source |
+| Source and release risk register | Keep `docs/harness/release-risk-register-v2.9.0.md` current before changing restricted-source behavior, authenticated browser flows, scraper transport, or release-publication claims |
 
 ## Experience And Support
 
