@@ -25,6 +25,10 @@ the site, use a visible privacy reminder instead of forcing the user to stop.
 Hard expiry is reserved for any future restricted-source feature that reads or
 automates restricted content.
 
+Use the same privacy-reminder pattern for any browser or webview opened by
+JobSentinel. The user should be able to close the session or keep going. Do not
+force a timeout only because the browser has been open for a while.
+
 Reviewed public APIs, feeds, ATS postings, and official employer posting
 endpoints are low-friction sources. Greenhouse, Lever, public feeds, and
 similar unauthenticated posting sources should use normal source opt-in, rate
@@ -43,6 +47,10 @@ The warning must be prominent in the UI and public docs because users should
 not need to understand source internals to make an informed choice. The secure
 path is the easy path: official feeds first, user-opened and reviewed paths
 next, restricted automation only after explicit local acknowledgement.
+
+Saved acknowledgements can reduce repeat friction. Keep them local, tied to the
+source and warning version, and reset them when the warning, source class, or
+data behavior changes.
 
 ## Source Model
 
@@ -67,6 +75,38 @@ next, restricted automation only after explicit local acknowledgement.
 | Rate limits | Every source check must wait within that source's limits |
 | Response size | JobSentinel stops reading very large responses; the current safety limit is 16 MiB |
 | User control | Job-site search links open in the user's browser; restricted-site actions continue only after acknowledgement |
+
+## User-Controlled LinkedIn Workbench
+
+The LinkedIn-compatible flow should be a workbench, not a scraper:
+
+1. The user starts the LinkedIn session from JobSentinel.
+2. JobSentinel shows short, friendly copy about what it can help with.
+3. The user signs in and uses LinkedIn directly.
+4. JobSentinel shows local controls beside the browser: save, applied, track,
+   note, follow up, not interested, and paste details.
+5. JobSentinel stores only user-confirmed local records.
+6. Local analysis runs after the record exists in JobSentinel.
+
+`Log applied` should be a one-click action. If title, company, or link are not
+known yet, create a draft application record with `Needs details` fields and
+prompt the user to finish it later. Optional details should come after the
+click, not before it.
+
+Prefill is allowed only from explicit user action: pasted job links, pasted
+details, selected text the user sends to JobSentinel, or previously confirmed
+local records. For restricted authenticated sites, do not prefill by reading
+page DOM, network traffic, browser storage, accessibility trees, screenshots,
+or hidden browser state. Prefilled values remain suggestions until the user
+confirms them.
+
+Interest learning should use local JobSentinel signals first: saved jobs,
+manual ledger events, search terms, dismissed jobs, notes, profile preferences,
+and user ratings. For restricted authenticated sites, JobSentinel may learn from
+JobSentinel-side actions, but not from silent page observation. Any future
+"watch and learn" mode must be visibly on, explain what it records, stay local,
+have an off switch, and never submit applications or create durable application
+records without user confirmation.
 
 Third-party scraping frameworks must be evaluated against these boundaries
 before adoption. Libraries that add browser fingerprint impersonation, proxy

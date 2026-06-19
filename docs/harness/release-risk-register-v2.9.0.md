@@ -44,6 +44,10 @@ sources before changing restricted-source behavior.
   scraper, when JobSentinel does not inspect page DOM, network traffic, browser
   storage, cookies, auth headers, or drive user actions. It may show a privacy
   reminder and a close control without forcing the user to stop.
+- JobSentinel browser sessions: any browser or webview opened by JobSentinel
+  should use the same plain privacy reminder pattern. A long-running manual
+  browser session does not need hard expiry unless JobSentinel reads, extracts,
+  automates, or submits restricted-site content.
 - User-driven authenticated activity ledger: local records the user explicitly
   creates during a restricted browser session, such as applied, saved, tracking,
   rejected, interview, follow-up, or note events. This is not scraping when the
@@ -103,6 +107,25 @@ local records, and never infer an action from LinkedIn DOM, network traffic,
 storage, screenshots, or hidden browser state. Ghost-job analysis may use the
 local ledger, pasted job details, the user's own prior snapshots, and public
 employer or ATS follow-through, but must not silently refresh LinkedIn.
+
+Saved acknowledgements may reduce repeat friction when they stay local and
+specific. Store only source id, warning version, acknowledgement time, and local
+device context. Require a fresh acknowledgement when warning copy, source class,
+or data behavior changes.
+
+Selected-text or pasted-text prefill is allowed only when the user explicitly
+copies, pastes, or sends selected text into JobSentinel. For restricted sites,
+JobSentinel must not read hidden page content, DOM, accessibility trees,
+screenshots, browser storage, or network traffic to fill the ledger. Prefilled
+fields remain suggestions until the user confirms them.
+
+Intent and interest learning is allowed from local JobSentinel actions: saved
+jobs, manual ledger events, thumbs up/down, dismissed jobs, search terms, user
+notes, and user-confirmed imported details. For restricted authenticated sites,
+JobSentinel may learn from the user's JobSentinel-side actions, but not from
+silent page observation. Any future browser-session "watch and learn" mode must
+be visibly on, describe exactly what it records, stay local, have an off switch,
+and never make durable application records without user confirmation.
 
 ### High: restricted job boards can create user account and terms risk
 

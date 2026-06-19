@@ -24,6 +24,9 @@ Before release, every source path must be one of these:
   window, shows the warning and privacy reminder, and provides visible
   navigation. This is not a scraper path unless JobSentinel inspects page DOM,
   network traffic, storage, cookies, auth headers, or drives actions.
+- Any JobSentinel-opened browser session with a visible privacy reminder,
+  user-controlled close/continue behavior, and no hard expiry unless
+  JobSentinel reads, extracts, automates, or submits restricted-site content.
 - User-driven authenticated activity ledger where the user explicitly logs
   applied, saved, tracking, rejected, interview, follow-up, or note events from
   JobSentinel while using a restricted site. The ledger must be local-only,
@@ -52,9 +55,10 @@ site blocks, changes, or returns no jobs.
 | SimplyHired | Restricted public unauthenticated scheduled board | Prominent acknowledgement, scheduler skip without acknowledgement, parser or live opt-in check, blocked-site recovery, no authenticated-session cap |
 | Glassdoor | Restricted public unauthenticated scheduled board | Prominent acknowledgement, scheduler skip without acknowledgement, parser or live opt-in check, blocked-site recovery, no authenticated-session cap |
 | Search links | User-opened browser links | Restricted-board acknowledgement before opening, official/public links stay low-friction |
+| JobSentinel browser sessions | User-opened browser/webview action | Privacy reminder after long manual sessions, user can close or continue, no hard expiry unless JobSentinel reads or automates restricted content |
 | Pasted job link import | User-submitted individual URL | URL validation, restricted-domain acknowledgement, no local/private URLs, sanitized errors |
 | Browser Import | User-clicked browser action | Prominent warning, acknowledgement before enabling/copying, no token exposure, blocked-page fallback |
-| Restricted session activity ledger | User-confirmed local events | Pre-login warning, privacy reminder, explicit user action for each event, local-only storage, no DOM/network/storage inspection, no silent refresh |
+| Restricted session activity ledger | User-confirmed local events | Pre-login warning, privacy reminder, explicit user action for each event, selected/pasted text prefill only, local-only storage, no DOM/network/storage inspection, no silent refresh |
 | Company careers discovery | User-provided or discovered employer careers URL | Detect public ATS/API where available, normalize to native source when safe, keep unknown/custom pages user-opened until reviewed |
 | Shared source taxonomy | Discovery registry | `src/shared/jobSourceDiscoveryTaxonomy.ts` covers platform families, regional boards, source access models, technical authentication access, career-profile coverage, and user-agreement requirements |
 | Manual entry | Local user input | Works when every external source fails; no external side effects |
