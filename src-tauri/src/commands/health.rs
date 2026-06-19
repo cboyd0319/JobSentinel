@@ -311,6 +311,7 @@ mod tests {
             greenhouse_urls: vec![],
             lever_urls: vec![],
             linkedin: Default::default(),
+            restricted_source_acknowledgements: Default::default(),
             remoteok: Default::default(),
             weworkremotely: Default::default(),
             builtin: Default::default(),

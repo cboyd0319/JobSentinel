@@ -10,6 +10,10 @@ import { invoke } from "@tauri-apps/api/core";
 import { Modal, ModalFooter } from "./Modal";
 import { Button } from "./Button";
 import { useToast } from "../contexts";
+import {
+  isRestrictedJobSourceUrl,
+  RESTRICTED_JOB_SOURCE_WARNING,
+} from "../shared/restrictedSourceTaxonomy";
 import { getUserFriendlyError } from "../utils/errorMessages";
 import { isValidJobUrl } from "../utils/urlValidation";
 
@@ -142,8 +146,10 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
   const [loading, setLoading] = useState(false);
   const [importing, setImporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [restrictedSourceAcknowledged, setRestrictedSourceAcknowledged] = useState(false);
 
   const toast = useToast();
+  const needsRestrictedSourceGate = isRestrictedJobSourceUrl(url.trim());
 
   // Reset state when modal closes
   useEffect(() => {
@@ -153,6 +159,7 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
       setError(null);
       setLoading(false);
       setImporting(false);
+      setRestrictedSourceAcknowledged(false);
     }
   }, [isOpen]);
 
@@ -160,6 +167,11 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
   const handlePreview = useCallback(async () => {
     if (!url.trim()) {
       setError("Add a job link from your browser address bar.");
+      return;
+    }
+
+    if (needsRestrictedSourceGate && !restrictedSourceAcknowledged) {
+      setError("Review the restricted-source warning and check the box if you want to continue.");
       return;
     }
 
@@ -208,7 +220,7 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
     } finally {
       setLoading(false);
     }
-  }, [url, toast]);
+  }, [url, toast, needsRestrictedSourceGate, restrictedSourceAcknowledged]);
 
   // Import the job
   const handleImport = useCallback(async () => {
@@ -283,6 +295,27 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
           />
         </div>
 
+        {needsRestrictedSourceGate && (
+          <div className="rounded-lg border-2 border-amber-300 bg-amber-50 p-4 dark:border-amber-700 dark:bg-amber-900/25">
+            <p className="mb-2 text-base font-semibold text-amber-900 dark:text-amber-100">
+              Restricted source warning
+            </p>
+            <p className="text-sm leading-6 text-amber-800 dark:text-amber-200">
+              {RESTRICTED_JOB_SOURCE_WARNING} Import only individual job pages
+              you choose, and verify the saved details before using them.
+            </p>
+            <label className="mt-4 flex items-start gap-3 text-sm font-medium text-amber-900 dark:text-amber-100">
+              <input
+                type="checkbox"
+                className="mt-0.5 h-5 w-5 rounded border-amber-300 text-amber-700 focus:ring-amber-500"
+                checked={restrictedSourceAcknowledged}
+                onChange={(event) => setRestrictedSourceAcknowledged(event.target.checked)}
+              />
+              <span>I understand this risk and want JobSentinel to check this job link.</span>
+            </label>
+          </div>
+        )}
+
         {/* Error Display */}
         {error && (
           <div
@@ -299,7 +332,7 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
           <div className="flex justify-end">
             <Button
               onClick={handlePreview}
-              disabled={loading || importing}
+              disabled={loading || importing || (needsRestrictedSourceGate && !restrictedSourceAcknowledged)}
               loading={loading}
               variant="primary"
             >

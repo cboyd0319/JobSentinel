@@ -68,6 +68,10 @@ pub struct Config {
     #[serde(default)]
     pub linkedin: LinkedInConfig,
 
+    /// User acknowledgements for restricted scheduled job-board checks.
+    #[serde(default)]
+    pub restricted_source_acknowledgements: RestrictedSourceAcknowledgements,
+
     /// RemoteOK scraper configuration
     #[serde(default)]
     pub remoteok: RemoteOkConfig,
@@ -161,6 +165,18 @@ pub struct JobsWithGptApproval {
     pub payload: Option<JobsWithGptPayload>,
     #[serde(default)]
     pub approved_at: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct RestrictedSourceAcknowledgements {
+    #[serde(default)]
+    pub builtin: bool,
+    #[serde(default)]
+    pub dice: bool,
+    #[serde(default)]
+    pub simplyhired: bool,
+    #[serde(default)]
+    pub glassdoor: bool,
 }
 
 impl Config {
@@ -449,11 +465,13 @@ pub struct DesktopConfig {
 
 /// LinkedIn search-link configuration.
 ///
-/// Background monitoring is disabled by source policy. LinkedIn can still be
-/// opened through user-controlled job-site search links.
+/// Hidden background monitoring is not run. LinkedIn can still be opened
+/// through user-controlled job-site search links, manual entry, and Browser
+/// Import for individual pages the user chooses.
 #[derive(Clone, Serialize, Deserialize, Default)]
 pub struct LinkedInConfig {
-    /// Must remain false unless a future source-specific review approves an official path.
+    /// Preserved for imported or legacy settings. The scheduler treats true as
+    /// an advisory request and emits a warning instead of running hidden checks.
     #[serde(default)]
     pub enabled: bool,
 

@@ -47,6 +47,7 @@ mod tests {
             greenhouse_urls: vec!["https://boards.greenhouse.io/cloudflare".to_string()],
             lever_urls: vec!["https://jobs.lever.co/netflix".to_string()],
             linkedin: LinkedInConfig::default(),
+            restricted_source_acknowledgements: Default::default(),
             auto_refresh: Default::default(),
             jobswithgpt_endpoint: "https://api.jobswithgpt.com/mcp".to_string(),
             jobswithgpt_approval: Default::default(),
@@ -99,7 +100,7 @@ mod tests {
                 .pointer("/linkedin/enabled")
                 .and_then(serde_json::Value::as_bool),
             Some(false),
-            "sample config must keep LinkedIn automatic monitoring disabled"
+            "sample config should keep LinkedIn hidden monitoring off by default"
         );
 
         let config: Config =
@@ -196,31 +197,26 @@ mod tests {
     // ========================================
 
     #[test]
-    fn test_linkedin_enabled_fails_by_source_policy() {
+    fn test_linkedin_enabled_is_advisory_not_validation_failure() {
         let mut config = create_valid_config();
         config.linkedin.enabled = true;
 
-        let result = validate_config(&config);
         assert!(
-            result.is_err(),
-            "LinkedIn automatic monitoring should fail validation"
+            validate_config(&config).is_ok(),
+            "User-selected LinkedIn settings should warn at use time instead of blocking config load"
         );
-        assert!(result
-            .unwrap_err()
-            .to_string()
-            .contains("LinkedIn automatic monitoring is disabled"));
     }
 
     #[test]
-    fn test_linkedin_disabled_with_invalid_config_passes() {
+    fn test_linkedin_config_stays_advisory() {
         let mut config = create_valid_config();
-        config.linkedin.enabled = false;
+        config.linkedin.enabled = true;
         config.linkedin.query = "".to_string();
         config.linkedin.limit = 0;
 
         assert!(
             validate_config(&config).is_ok(),
-            "Invalid LinkedIn config should pass when disabled"
+            "LinkedIn advisory config should not block saving preferences"
         );
     }
 

@@ -17,6 +17,7 @@ import {
   RemoteType,
   SiteCategory,
 } from "../types/deeplinks";
+import { RESTRICTED_JOB_SOURCE_WARNING } from "../shared/restrictedSourceTaxonomy";
 import { logError } from "../utils/errorUtils";
 
 interface DeepLinkGeneratorProps {
@@ -96,6 +97,9 @@ export function DeepLinkGenerator({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<SiteCategory | "all">("all");
+  const [acknowledgedSiteIds, setAcknowledgedSiteIds] = useState<Set<string>>(
+    () => new Set(),
+  );
 
   const loadSites = useCallback(async () => {
     try {
@@ -133,6 +137,7 @@ export function DeepLinkGenerator({
 
       const generatedLinks = await generateDeepLinks(criteria);
       setLinks(generatedLinks);
+      setAcknowledgedSiteIds(new Set());
     } catch (err) {
       logError("Failed to generate deep links:", err);
       setError("Could not create search links");
@@ -141,9 +146,29 @@ export function DeepLinkGenerator({
     }
   };
 
-  const handleOpenLink = async (url: string) => {
+  const setSiteAcknowledged = (siteId: string, acknowledged: boolean) => {
+    setAcknowledgedSiteIds((current) => {
+      const next = new Set(current);
+      if (acknowledged) {
+        next.add(siteId);
+      } else {
+        next.delete(siteId);
+      }
+      return next;
+    });
+  };
+
+  const handleOpenLink = async (link: DeepLink) => {
+    if (
+      link.site.requires_user_acknowledgement &&
+      !acknowledgedSiteIds.has(link.site.id)
+    ) {
+      setError("Review the restricted-site warning and check the box before opening this search.");
+      return;
+    }
+
     try {
-      await openDeepLink(url);
+      await openDeepLink(link.url);
     } catch (err) {
       logError("Failed to open deep link:", err);
       setError("Could not open search link");
@@ -327,6 +352,10 @@ export function DeepLinkGenerator({
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredLinks.map((link) => {
               const metadata = CATEGORY_METADATA[link.site.category];
+              const needsAcknowledgement =
+                link.site.requires_user_acknowledgement === true;
+              const isAcknowledged = acknowledgedSiteIds.has(link.site.id);
+
               return (
                 <div
                   key={link.site.id}
@@ -357,10 +386,33 @@ export function DeepLinkGenerator({
                     </div>
                   )}
 
+                  {needsAcknowledgement && (
+                    <div className="mb-3 rounded-lg border-2 border-amber-300 bg-amber-50 p-4 dark:border-amber-700 dark:bg-amber-900/25">
+                      <p className="mb-2 text-sm font-semibold text-amber-900 dark:text-amber-100">
+                        Restricted source warning
+                      </p>
+                      <p className="text-sm leading-6 text-amber-800 dark:text-amber-200">
+                        {RESTRICTED_JOB_SOURCE_WARNING}
+                      </p>
+                      <label className="mt-4 flex items-start gap-3 text-sm font-medium text-amber-900 dark:text-amber-100">
+                        <input
+                          type="checkbox"
+                          className="mt-0.5 h-5 w-5 rounded border-amber-300 text-amber-700 focus:ring-amber-500"
+                          checked={isAcknowledged}
+                          onChange={(event) =>
+                            setSiteAcknowledged(link.site.id, event.target.checked)
+                          }
+                        />
+                        <span>I understand this risk and want to open this search.</span>
+                      </label>
+                    </div>
+                  )}
+
                   <button
-                    onClick={() => handleOpenLink(link.url)}
+                    onClick={() => void handleOpenLink(link)}
                     aria-label={`Open ${link.site.name} search in your browser`}
-                    className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
+                    disabled={needsAcknowledgement && !isAcknowledged}
+                    className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors"
                   >
                     Open Search
                   </button>

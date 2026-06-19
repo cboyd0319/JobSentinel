@@ -4,9 +4,21 @@ JobSentinel favors official-source job monitoring and public job sources
 checked within clear limits. Source access must preserve user privacy, source
 boundaries, rate limits, and review-first workflows.
 
-LinkedIn is supported as a user-opened search destination through Deep Links.
-JobSentinel does not log in to LinkedIn, collect LinkedIn session credentials,
-call private LinkedIn systems, or read LinkedIn pages in the background.
+Restricted job boards are supported only through explicit user-controlled
+paths: search links, manual entry, pasted individual job links, Browser Import,
+or scheduled checks that show a source-specific warning first. Before risky
+source use, JobSentinel must warn that the site may treat scraping or
+automation as a terms violation, account risk, legal-claim risk, and
+privacy-law risk. The user can continue only after acknowledging that warning.
+JobSentinel does not encourage terms violations, collect restricted-site login
+details, save session cookies, bypass human checks, call private systems, or
+read restricted pages in hidden background jobs.
+
+The warning must be prominent in the UI and public docs because non-technical
+users should not need to understand source internals to make an informed
+choice. The secure path is the easy path: official feeds first, user-opened and
+reviewed paths next, restricted automation only after explicit local
+acknowledgement.
 
 ## Source Model
 
@@ -22,19 +34,21 @@ call private LinkedIn systems, or read LinkedIn pages in the background.
 | Rule | Requirement |
 | ---- | ----------- |
 | Official source first | Prefer official posting sources, public feeds, and company or application-platform postings |
-| No restricted-site automation | Do not add hidden data paths, session-cookie collection, human-check workarounds, or platform-control evasion |
+| Restricted-site user gate | Warn prominently and require explicit acknowledgement before user-directed restricted-site import, browser import, search-link open, or scheduled restricted-source check |
+| No secret capture or evasion | Do not add hidden data paths, session-cookie collection, human-check workarounds, or platform-control evasion |
 | Local-first storage | Source results, run history, and notes stay local |
 | Rate limits | Every source check must wait within that source's limits |
 | Response size | JobSentinel stops reading very large responses; the current safety limit is 16 MiB |
-| User control | Job-site search links open in the user's browser and do not run in the background |
+| User control | Job-site search links open in the user's browser; restricted-site actions continue only after acknowledgement |
 
 Third-party scraping frameworks must be evaluated against these boundaries
 before adoption. Libraries that add browser fingerprint impersonation, proxy
 rotation, hidden browser sessions, challenge solving, persistent cookies,
 automatic redirect following, uncapped response reads, or broad crawling do not
-fit the scheduled source-check model. Parser-only libraries may be considered
-only when source HTML has already passed through JobSentinel's existing URL,
-redirect, logging, cache, rate-limit, and response-size controls.
+fit the scheduled source-check model. A helper library may be considered only
+when JobSentinel still controls which pages are read, how often they are read,
+how much page data is accepted, and what user-safe message appears when the
+source blocks access.
 
 ## How Job Checks Work
 
@@ -59,9 +73,9 @@ history, or unrelated profile details.
 The job source status view tracks source status without requiring users to
 understand website internals, saved connection details, or logs.
 For sources that can be enabled from saved search settings, status toggles must
-update the saved source config as well as health metadata. Source-check-only
+update the saved source settings as well as source status. Source-check-only
 helpers that need a company URL, feed approval, access code, or other setup
-remain diagnostics until the user completes that setup in Settings.
+remain setup checks until the user completes that setup in Settings.
 
 | Surface | Purpose |
 | ------- | ------- |
@@ -71,7 +85,7 @@ remain diagnostics until the user completes that setup in Settings.
 | Source checks | Availability checks for known supported sources |
 | Help steps | Plain-language next steps and sanitized support report help |
 
-Source status must never leak credentials, raw cookies, full URLs containing
+Source status must never leak credentials, raw cookies, full links containing
 sensitive parameters, private notes, salary floors, resumes, or application
 history.
 
@@ -96,6 +110,29 @@ Representative source pacing:
 
 Checks that cannot operate within source boundaries should fail closed and
 show a clear user-facing explanation.
+
+Restricted scheduled sources such as BuiltIn, Dice, SimplyHired, and Glassdoor
+must also require a saved local acknowledgement before the scheduler runs them.
+If a config file or backup turns one on without that acknowledgement, the
+scheduler skips the source and returns a plain recovery message telling the
+user to review the restricted-source risk in Settings.
+
+## Debug And Release Verification
+
+Every source JobSentinel uses must have release evidence before JobSentinel
+claims that source is ready:
+
+- Native source checks need tests that prove JobSentinel can read expected job
+  details, wait politely, handle no results or source trouble, and show safe
+  status details.
+- User-gated restricted paths need tests for warning visibility,
+  acknowledgement, disabled actions before acknowledgement, and no credential
+  or session-cookie capture.
+- Live or manual source checks must be opt-in, low-volume, and recorded with
+  date, source, platform, result, and user-safe recovery guidance.
+- If a source blocks access, JobSentinel should show a non-technical next step:
+  try later, use a search link, import one job from the browser, open the
+  employer career page, or add the job manually.
 
 ## User-Approved Job-Source Feeds
 
@@ -161,9 +198,9 @@ abbreviations, and maps location aliases such as `SF`, `Remote US`, and
 - Use official posting sources where available.
 - Confirm source terms, robots policy, and practical access boundaries.
 - Check sources politely and avoid reading more page data than needed.
-- Keep new source fetches inside the shared HTTP helpers so URL validation,
-  redirect policy, response caps, retries, caching, and sanitized logs stay
-  consistent.
-- Add health metadata and user-safe errors.
+- Keep new source checks inside JobSentinel's existing safety path so link
+  checks, redirect handling, page-size limits, retry behavior, and safe support
+  details stay consistent.
+- Add source status and user-safe errors.
 - Do not add hidden data paths, session-cookie collection, human-check workarounds,
   or evasion of platform controls.

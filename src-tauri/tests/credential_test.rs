@@ -11,7 +11,7 @@ use keyring::{Entry, Error as KeyringError};
 const SECURE_STORAGE_UNAVAILABLE: &str =
     "JobSentinel could not use your device's secure storage. Check system permission prompts, then try again.";
 const LINKEDIN_CREDENTIAL_STORAGE_DISABLED: &str =
-    "LinkedIn automatic monitoring is disabled by JobSentinel source policy";
+    "JobSentinel does not collect LinkedIn login details or session cookies";
 const LIVE_KEYRING_TESTS_ENV: &str = "JOBSENTINEL_LIVE_KEYRING_TESTS";
 const SERVICE_NAME: &str = "JobSentinel";
 

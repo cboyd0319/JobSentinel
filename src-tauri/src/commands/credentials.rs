@@ -13,7 +13,7 @@ use zeroize::Zeroizing;
 
 const UNKNOWN_CREDENTIAL_KEY: &str = "Unknown credential key";
 const LINKEDIN_CREDENTIALS_DISABLED: &str =
-    "LinkedIn automatic monitoring is disabled by JobSentinel source policy";
+    "JobSentinel does not collect LinkedIn login details or session cookies";
 
 /// Credential status for frontend display
 #[derive(Debug, Serialize, Deserialize)]

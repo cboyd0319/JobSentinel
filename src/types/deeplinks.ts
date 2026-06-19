@@ -77,6 +77,8 @@ export interface SiteInfo {
   category: SiteCategory;
   /** Whether the site requires login to view full results */
   requires_login: boolean;
+  /** Whether JobSentinel should require a warning acknowledgement before opening */
+  requires_user_acknowledgement?: boolean;
   /** URL to site logo (optional) */
   logo_url?: string;
   /** Additional notes about the site */

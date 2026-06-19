@@ -13,8 +13,8 @@ mod validation_error;
 pub(crate) use io::write_file_atomic_private;
 pub use types::{
     AlertConfig, AutoRefreshConfig, Config, DesktopConfig, DiscordConfig, EmailConfig,
-    JobsWithGptApproval, JobsWithGptPayload, LinkedInConfig, LocationPreferences, SlackConfig,
-    TeamsConfig, TelegramConfig,
+    JobsWithGptApproval, JobsWithGptPayload, LinkedInConfig, LocationPreferences,
+    RestrictedSourceAcknowledgements, SlackConfig, TeamsConfig, TelegramConfig,
 };
 pub use validation_error::{ValidationError, ValidationErrors};
 

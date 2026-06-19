@@ -440,14 +440,6 @@ fn validate_scrapers(config: &Config, errors: &mut ValidationErrors) {
     const MAX_LOCATION_LENGTH: usize = 100;
     const MAX_EMAIL_LENGTH: usize = 100;
 
-    if config.linkedin.enabled {
-        errors.add(ValidationError::invalid_value(
-            "linkedin.enabled",
-            true,
-            "LinkedIn automatic monitoring is disabled by JobSentinel source policy",
-        ));
-    }
-
     // Validate RemoteOK scraper
     if config.remoteok.enabled
         && (config.remoteok.limit == 0 || config.remoteok.limit > MAX_SCRAPER_LIMIT)

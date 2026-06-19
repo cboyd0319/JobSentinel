@@ -124,6 +124,7 @@ fn create_disabled_config() -> Arc<Config> {
         greenhouse_urls: vec![],
         lever_urls: vec![],
         linkedin: LinkedInConfig::default(),
+        restricted_source_acknowledgements: Default::default(),
         jobswithgpt_endpoint: String::new(),
         jobswithgpt_approval: Default::default(),
         remoteok: Default::default(),

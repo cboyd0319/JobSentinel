@@ -78,7 +78,8 @@ with warnings-as-errors as a required local or CI gate.
 | External AI provider path | `npm run lint:external-ai`, AI gateway test, privacy label update, payload preview gate, and no direct provider call outside `src/services/aiGateway.ts` |
 | Browser automation | Human-in-the-loop submit behavior preserved |
 | Browser extension manifest | `npm run lint:security`, least-privilege manifest review, and no broad host permissions |
-| Scraper behavior | Rate limit and error handling tests |
+| Scraper behavior | Rate limit and error handling tests; before release, all configured source adapters and user-gated restricted-source paths must have focused parser/import/gate coverage |
+| Restricted-source job sites | Prominent terms/account/legal/privacy warning docs and UI, acknowledgement gate tests, no credential or session-cookie capture, no hidden background access, no platform-control bypass, and manual UI validation for exposed search-link, pasted-link, Browser Import, scheduled source, and manual-entry paths |
 
 ## Experience And Support
 

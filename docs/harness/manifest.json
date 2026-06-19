@@ -14,6 +14,7 @@
     "docs/developer/DESIGN_SPEC.md",
     "docs/harness/README.md",
     "docs/harness/manifest.json",
+    "docs/harness/source-debug-verification-v2.9.0.md",
     "docs/harness/sources.md",
     "docs/harness/agent-operating-model.md",
     "docs/harness/multi-agent-orchestration.md",
@@ -63,6 +64,9 @@
     "README.md": [
       "Core workflows work locally.",
       "Rule 0: user privacy and security are non-negotiable.",
+      "## Job Source Terms And User Control",
+      "JobSentinel does not encourage, endorse, or hide violations of any job site's",
+      "Users must explicitly accept the warning before those actions continue.",
       "External AI, including OpenAI or another provider,",
       "is optional, disabled by default,",
       "privacy-first AI gateway",
@@ -96,6 +100,8 @@
     "docs/harness/README.md": [
       "## Rule 0",
       "User privacy and security are non-negotiable.",
+      "Restricted-source job sites stay user-directed and warning-gated.",
+      "all configured source adapters and user-gated restricted-source paths",
       "## Session Start Checklist",
       "## When To Add Harness",
       "Design contract",
@@ -122,6 +128,7 @@
       "harness-controlled Quiet Shield redesign",
       "Orchestration:",
       "Harness impact:",
+      "Restricted-source risk:",
       "User-ease evidence:",
       "Public GitHub wiki pages from `docs/harness/manifest.json` to update"
     ],
@@ -131,7 +138,15 @@
       "record the Quiet Shield impact",
       "Multi-agent orchestration or delegated implementation",
       "External AI provider path",
+      "Restricted-source job sites",
+      "all configured source adapters and user-gated restricted-source paths",
       "Public GitHub wiki-impacting change"
+    ],
+    "docs/harness/source-debug-verification-v2.9.0.md": [
+      "Before release, every source path must be one of these:",
+      "Prominent acknowledgement",
+      "Expansion Candidate Classification",
+      "Live source checks must stay opt-in and low volume."
     ],
     "docs/plans/index.json": [
       "Quiet Shield redesign",
@@ -141,16 +156,18 @@
       "Computer Use or Playwright screenshot proof"
     ],
     "docs/plans/active/status.md": [
-      "Release creation is paused until development and QA blockers are closed.",
+      "Do not retag or upload over the same `v2.9.0` release while an older workflow run is still building assets.",
       "Quiet Shield redesign is now part of the active repo-wide goal and the repo harness.",
       "harness-controlled active-goal acceptance gate",
-      "`DESIGN.md`, `docs/design/README.md`, and `docs/design/design-spec.md`"
+      "`DESIGN.md`, `docs/design/README.md`, and `docs/design/design-spec.md`",
+      "all configured source adapters and user-gated restricted-source paths"
     ],
     "docs/plans/active/current-work.md": [
       "Locked redesign:",
       "Harness-controlled redesign lock:",
       "`DESIGN.md`, `docs/design/README.md`, and `docs/design/design-spec.md`",
-      "Confirm major route screenshots, Computer Use clicks, keyboard flow"
+      "Confirm major route screenshots, Computer Use clicks, keyboard flow",
+      "Scraper/source verification"
     ],
     "DESIGN.md": [
       "JobSentinel Quiet Shield",

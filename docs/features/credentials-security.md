@@ -73,7 +73,9 @@ JobSentinel retries later instead of pretending cleanup is complete.
 
 Legacy LinkedIn saved details may exist on older installations only so
 JobSentinel can delete or redact old values. JobSentinel does not collect new
-LinkedIn session details or use LinkedIn as a background job source.
+LinkedIn session details, but user-directed search links, pasted job links,
+manual entry, and Browser Import remain available after the risky-source
+warning gate where applicable.
 
 ## Safe Support Reports
 

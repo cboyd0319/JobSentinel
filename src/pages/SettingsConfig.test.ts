@@ -66,6 +66,12 @@ function makeConfig(): Config {
     },
     simplyhired: { enabled: false, query: "", limit: 25 },
     glassdoor: { enabled: false, query: "", limit: 25 },
+    restricted_source_acknowledgements: {
+      builtin: false,
+      dice: false,
+      simplyhired: false,
+      glassdoor: false,
+    },
     jobswithgpt_endpoint: "",
     jobswithgpt_approval: {
       enabled: false,
@@ -178,6 +184,45 @@ describe("getCredentialValidationError", () => {
           telegram_bot_token: "expected",
           usajobs_api_key: "expected",
         }),
+      ),
+    ).toBeNull();
+  });
+
+  it("blocks restricted scheduled sources until the user accepts the risk", () => {
+    const config = makeConfig();
+    config.dice = {
+      ...config.dice,
+      enabled: true,
+      query: "care coordinator",
+    };
+
+    expect(
+      getCredentialValidationError(
+        makeCredentials(),
+        config,
+        makeCredentialStatus(),
+      ),
+    ).toEqual({
+      title: "Review restricted source risk",
+      message:
+        "Check the acknowledgement box for Dice, or turn those scheduled checks off.",
+    });
+  });
+
+  it("allows a restricted scheduled source after explicit acknowledgement", () => {
+    const config = makeConfig();
+    config.glassdoor = {
+      ...config.glassdoor,
+      enabled: true,
+      query: "care coordinator",
+    };
+    config.restricted_source_acknowledgements.glassdoor = true;
+
+    expect(
+      getCredentialValidationError(
+        makeCredentials(),
+        config,
+        makeCredentialStatus(),
       ),
     ).toBeNull();
   });

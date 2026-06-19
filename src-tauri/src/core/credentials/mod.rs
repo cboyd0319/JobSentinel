@@ -127,7 +127,7 @@ impl FromStr for CredentialKey {
 pub(crate) const SERVICE_NAME: &str = "JobSentinel";
 const MAX_LINKEDIN_COOKIE_LEN: usize = 500;
 const LINKEDIN_CREDENTIAL_STORAGE_DISABLED: &str =
-    "LinkedIn automatic monitoring is disabled by JobSentinel source policy";
+    "JobSentinel does not collect LinkedIn login details or session cookies";
 const SECURE_STORAGE_UNAVAILABLE: &str =
     "JobSentinel could not use your device's secure storage. Check system permission prompts, then try again.";
 fn credential_entry(key: CredentialKey) -> Result<Entry, String> {

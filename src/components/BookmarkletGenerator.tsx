@@ -4,6 +4,7 @@ import { Button } from "./Button";
 import { Card } from "./Card";
 import { Badge } from "./Badge";
 import { HelpIcon } from "./HelpIcon";
+import { RESTRICTED_JOB_SOURCE_WARNING } from "../shared/restrictedSourceTaxonomy";
 import { logError } from "../utils/errorUtils";
 
 interface BookmarkletConfig {
@@ -36,6 +37,7 @@ export function BookmarkletGenerator() {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [restrictedSiteAcknowledged, setRestrictedSiteAcknowledged] = useState(false);
 
   const parsedPort = Number(portInput);
   const portChanged = portInput !== String(config.port);
@@ -75,6 +77,10 @@ export function BookmarkletGenerator() {
         await invoke("stop_bookmarklet_server");
         setConfig({ ...config, enabled: false });
       } else {
+        if (!restrictedSiteAcknowledged) {
+          setError("Review the restricted-site warning and check the box if you want to turn on Browser Import.");
+          return;
+        }
         await invoke("start_bookmarklet_server", { port: config.port });
         setConfig({ ...config, enabled: true });
       }
@@ -107,6 +113,11 @@ export function BookmarkletGenerator() {
   };
 
   const copyBookmarklet = async () => {
+    if (!restrictedSiteAcknowledged) {
+      setError("Review the restricted-site warning and check the box before copying the Browser Button.");
+      return;
+    }
+
     try {
       await invoke("copy_bookmarklet_code");
       setCopied(true);
@@ -230,7 +241,7 @@ export function BookmarkletGenerator() {
                   onClick={copyBookmarklet}
                   size="sm"
                   variant="ghost"
-                  disabled={!config.enabled}
+                  disabled={!config.enabled || !restrictedSiteAcknowledged}
                 >
                   {copied ? "Copied!" : "Copy Browser Button"}
                 </Button>
@@ -294,6 +305,25 @@ export function BookmarkletGenerator() {
                 respects those controls. If a job saves with missing details, edit it after saving or use
                 JobSentinel's search link for that site.
               </p>
+            </div>
+
+            <div className="bg-amber-500/15 border-2 border-amber-400/60 rounded-lg p-5">
+              <h5 className="text-base font-semibold text-amber-200 mb-2">
+                Restricted Site Warning
+              </h5>
+              <p className="text-sm leading-6 text-amber-50">
+                {RESTRICTED_JOB_SOURCE_WARNING} Use Browser Import only on pages
+                you choose, and verify the saved details before using them.
+              </p>
+              <label className="mt-4 flex items-start gap-3 text-sm font-medium text-amber-50">
+                <input
+                  type="checkbox"
+                  className="mt-0.5 h-5 w-5 rounded border-amber-300 bg-gray-900 text-amber-400 focus:ring-amber-400"
+                  checked={restrictedSiteAcknowledged}
+                  onChange={(event) => setRestrictedSiteAcknowledged(event.target.checked)}
+                />
+                <span>I understand this risk and want to use Browser Import on pages I choose.</span>
+              </label>
             </div>
           </div>
         </div>

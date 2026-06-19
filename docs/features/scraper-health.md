@@ -11,6 +11,7 @@ plain-language status and safe next steps.
 | Scheduled source status | Tracks Greenhouse, Lever, RemoteOK, WeWorkRemotely, BuiltIn, startup and tech job posts, JobsWithGPT, Dice, YC Startup Jobs, USAJobs, SimplyHired, and Glassdoor |
 | Source-check coverage | Includes scheduled sources plus Indeed, Wellfound, and ZipRecruiter availability checks |
 | User-opened search links | LinkedIn and similar destination links are opened by the user, not monitored in the background |
+| Restricted-site gate | Risky source actions show prominent terms, account, legal-claim, and privacy-law warnings, then continue only after user acknowledgement |
 | Saved access details | Tracks user-approved external channels where applicable; LinkedIn login details are not collected |
 | Support reports | Safe support reports can be copied or saved locally, reviewed, and shared only when the user chooses |
 
@@ -48,6 +49,9 @@ Source status must follow the same rules for job sources:
 - Do not add hidden job-site checks.
 - Do not collect restricted-site session credentials.
 - Do not get around human checks or platform controls.
+- Do not imply JobSentinel condones violating any source terms.
+- Prominently warn and require saved acknowledgement before scheduled
+  restricted-source checks run.
 - Do not include raw credentials, cookies, private notes, resumes, salary floors,
   or application history in health errors or support reports.
 - For optional user-approved job-source feeds such as JobsWithGPT, disclose
@@ -61,6 +65,13 @@ Source status must follow the same rules for job sources:
   Settings also labels sensitive data that was not sent, including resume text,
   salary floors, private notes, application history, and full source links.
 
-LinkedIn is intentionally handled as a user-opened search-link destination. It
-should not appear as a background source, credential-renewal prompt, or job-site
-check.
+LinkedIn and other restricted boards are intentionally handled through
+user-directed or explicitly acknowledged paths. They should not appear as a
+credential-renewal prompt, hidden background source, or job-site check that runs
+without the user's explicit action.
+
+If a restricted source is enabled without acknowledgement, the status surface
+should tell the user to review the restricted-source warning in Settings or use
+a safer path such as a search link, pasted individual job link, employer career
+page, or manual entry. Do not expose raw source errors, cookies, tokens, full
+query links, or private profile details while explaining the recovery path.

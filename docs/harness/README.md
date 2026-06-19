@@ -1,9 +1,8 @@
 # Harness Engineering
 
-JobSentinel uses harness engineering to make agent-assisted development
-reliable without turning every session into a documentation read-through. The
-repo, docs, scripts, tests, permissions, state, and feedback loops are the
-harness. The model is only one component.
+JobSentinel uses harness engineering to keep agent-assisted development
+grounded and verifiable. The repo, docs, scripts, tests, permissions, state,
+and feedback loops are the harness.
 
 ## Goal
 
@@ -26,6 +25,13 @@ research workflow may set aside local-first storage, credential safety, source
 boundaries, explicit user review, or privacy-preserving defaults. If Rule 0
 conflicts with convenience, automation, speed, analytics, or research value,
 Rule 0 wins.
+
+Restricted-source job sites stay user-directed and warning-gated. Native paths
+such as search links, pasted single-job links, Browser Import, and manual entry
+must not collect login details or session cookies, bypass platform controls, or
+run hidden background access. Before release, all configured source adapters and
+user-gated restricted-source paths need focused parser/import/gate coverage and
+manual validation where the UI exposes them.
 
 Machine-specific absolute local paths are private data and portability breaks.
 Docs and code must use repo-relative paths, file names, or `<repo-root>` and
@@ -59,13 +65,12 @@ Use this structure:
 | Active plan index | `docs/plans/index.json` | Machine-readable workstream map |
 | Change contract | `docs/harness/change-contract.md` | Acceptance criteria before edits |
 | Verification matrix | `docs/harness/verification-matrix.md` | Checks by change type |
-| Design contract | `DESIGN.md`, `docs/design/README.md`, `docs/design/design-spec.md` | Quiet Shield and Protective Navy rules |
-| Multi-agent orchestration | `docs/harness/multi-agent-orchestration.md` | Coordinator and sub-agent contract |
-| Experience contract | `docs/style-guide/` | Plain-language, broad-audience review |
-| Support path | `docs/user/QUICK_START.md`, issue templates | User-safe recovery and reporting |
-| Privacy/AI boundary | `PRIVACY.md`, `RESPONSIBLE_AI.md`, `docs/architecture/privacy-first-ai-gateway.md` | Local-first defaults and external-AI gate |
-| Policy manifest | `docs/harness/manifest.json` | Required files, snippets, and wiki inventory |
-| Feature privacy labels | `docs/harness/feature-privacy-labels.json` | Local-only, external-AI, sensitive, and public-data labels |
+| Design contract | `DESIGN.md`, `docs/design/README.md`, `docs/design/design-spec.md` | Quiet Shield rules |
+| Multi-agent orchestration | `docs/harness/multi-agent-orchestration.md` | Coordinator contract |
+| Experience contract | `docs/style-guide/` | Plain-language review |
+| Support path | `docs/user/QUICK_START.md`, issue templates | User-safe recovery |
+| Privacy/AI boundary | `PRIVACY.md`, `RESPONSIBLE_AI.md`, `docs/architecture/privacy-first-ai-gateway.md` | Local-first and external-AI gate |
+| Policy manifest | `docs/harness/manifest.json` | Required files, snippets, wiki inventory |
 
 ## Session Start Checklist
 
@@ -87,8 +92,7 @@ For non-trivial work, capture this before edits:
    touched surface.
 4. Write or update a change contract for non-trivial work.
 5. Implement the smallest coherent slice.
-6. Run `npm run harness:plan -- --since origin/main` when changed files need a
-   focused verification set.
+6. Run `npm run harness:plan -- --since origin/main` for focused verification.
 7. Run sensors from `docs/harness/verification-matrix.md`.
 8. Remove disposable artifacts and inspect the diff.
 9. Update docs and plan state.
@@ -129,15 +133,10 @@ Playwright screenshot evidence before release work resumes.
 
 ## External Public Docs
 
-The public GitHub wiki at `https://github.com/cboyd0319/JobSentinel/wiki` is
-part of the docs surface, even though it is stored in a separate Git
-repository. Keep it current when behavior, setup, commands, architecture,
-security, release flow, capabilities, screenshots, visual design, or
-user-facing copy changes.
-
-The current page inventory lives in `docs/harness/manifest.json` under
-`publicWiki.requiredPages`. Update that inventory when wiki pages are added,
-renamed, or retired.
+The public GitHub wiki at `https://github.com/cboyd0319/JobSentinel/wiki` is a
+docs surface. Keep it current when behavior, setup, commands, architecture,
+security, release flow, capabilities, screenshots, design, or copy changes.
+Its inventory lives in `docs/harness/manifest.json`.
 
 ## When To Add Harness
 

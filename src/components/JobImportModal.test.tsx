@@ -133,6 +133,36 @@ describe("JobImportModal", () => {
     expect(invoke).not.toHaveBeenCalled();
   });
 
+  it("requires acknowledgement before checking a restricted-source job link", async () => {
+    const user = userEvent.setup();
+    mockInvoke.mockResolvedValueOnce({
+      ...preview,
+      url: "https://www.indeed.com/viewjob?jk=123456789",
+    });
+    renderModal();
+
+    fireEvent.change(screen.getByLabelText("Job link"), {
+      target: { value: "https://www.indeed.com/viewjob?jk=123456789" },
+    });
+
+    expect(screen.getByText(/can violate their User Agreement or terms/i)).toBeInTheDocument();
+    const checkButton = screen.getByRole("button", { name: "Check Job Link" });
+    expect(checkButton).toBeDisabled();
+    expect(invoke).not.toHaveBeenCalled();
+
+    await user.click(
+      screen.getByLabelText(/I understand this risk and want JobSentinel to check this job link/i),
+    );
+    expect(checkButton).not.toBeDisabled();
+
+    await user.click(checkButton);
+
+    await screen.findByText("Office Manager");
+    expect(mockInvoke).toHaveBeenCalledWith("preview_job_import", {
+      url: "https://www.indeed.com/viewjob?jk=123456789",
+    });
+  });
+
   it("does not show raw private details when saving fails", async () => {
     const user = userEvent.setup();
     mockInvoke

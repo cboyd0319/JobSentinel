@@ -20,8 +20,7 @@ restart surfaces.
 
 In scope:
 
-- Completing final design, packaging, and release-verification blockers before
-  any new release creation, upload, or announcement work.
+- Completing final release sequencing without racing an older same-tag run.
 - Keeping package-manager, npm/Cargo direct, npm override, and Action pins exact
   latest stable, with transitives lockfile-pinned/latest-compatible and
   upstream exceptions recorded.
@@ -29,6 +28,11 @@ In scope:
   work, with specification-compliant `SKILL.md` packages.
 - Hardening Browser Import as the LinkedIn-compatible path: user-opened page,
   user-clicked import, local review, and no LinkedIn login automation.
+- Treating all scraper adapters and user-gated restricted-source paths as
+  release blockers, including LinkedIn-compatible search-link, pasted-link,
+  Browser Import, and manual-entry paths.
+- Rechecking the current Scrapling Rust decision against live `scrapling-rs`
+  evidence before release, without adopting stealth/browser/crawler behavior.
 - Truthful local resume assistance, hard-requirement review, readable evidence,
   and next-action guidance.
 - Job-card protection for stale, repeated, scam-like, weak-source,
@@ -58,13 +62,11 @@ Out of scope:
 
 - Claiming the broad repo-wide quality goal is complete.
 - Deleting historical plan evidence.
-- LinkedIn session-cookie storage, token replay, background monitoring,
-  result-list crawling, or account automation without recorded official API
-  approval for that exact use case.
+- Secret capture, token replay, platform-control bypass, or hidden background
+  access for restricted job sites.
 - Broad product implementation unrelated to current user safety, privacy,
   macOS readiness, or maintainability.
-- Releases, remote CI runs, cloud actions, or credentialed vendor changes
-  unless requested after final local release gates close.
+- Credentialed vendor changes unless requested after final local release gates close.
 
 ## Current Priorities
 
@@ -72,7 +74,8 @@ Out of scope:
 | ---- | ----- | ----------------- |
 | Dependency readiness | Complete | Package-manager, direct deps, overrides, and Action pins are latest; transitives stay lockfile-pinned/latest-compatible |
 | Downloadable Agent Skills | Complete locally | Skills pass `lint:skills`; release packaging creates deterministic tar/ZIP artifacts. |
-| Browser Import and LinkedIn-compatible flow | Complete locally | Manual desktop/mobile verification passed; revisit only if whole-UI QA finds a blocker. Keep LinkedIn user-opened and user-clicked without session cookies or background monitoring. |
+| Browser Import and LinkedIn-compatible flow | Active | Normalize warning/ack gates across search links, pasted links, and Browser Import; keep LinkedIn user-opened and user-clicked without cookies or background monitoring. |
+| Scraper/source verification | Active | All source adapters and user-gated restricted paths must pass focused parser/import/gate tests before release, with a current Scrapling comparison recorded. |
 | Development and QA completion | Complete locally | Fresh full local gates pass; final release operations remain approval/credential-gated. |
 | macOS readiness | Release-gated | No-account path is complete; Gatekeeper-ready public distribution remains Apple-credential-gated. |
 | Resume assistance | Active | Tighten hard-requirement categories, evidence caps, live review copy, and mock/Rust parity only when evidence is local and explainable. |
@@ -103,67 +106,61 @@ Out of scope:
 
 - macOS docs and release workflow separate full-public, no-account, and legacy
   public fallback paths; post-`28dcd6dd` local `2.9.0` DMG passes current smoke gates.
-- Resume Match and Resume Builder hard-requirement handling now covers age,
+- Resume Match and Builder hard-requirement handling now covers age,
   citizenship, screening, driving, insurance, language, schedule, and related
-  review-first categories more consistently across Rust, mocks, and UI.
-- Job cards, filters, and backend reasons now keep repeated-sighting,
-  low-detail, source, unsafe-link, pay-risk, and scam-cue evidence visible
-  without overclaiming.
-- First-run setup now keeps broad work-location defaults, explicit alert
-  opt-in, reviewed source choices, reviewed resume-skill suggestions, and
-  non-technical starter paths.
-- Active plan sprawl has been reduced to this plan plus `status.md`.
+  review-first categories across Rust, mocks, and UI.
+- Job cards, filters, and backend reasons keep repeated-sighting, low-detail,
+  source, unsafe-link, pay-risk, and scam-cue evidence visible without overclaiming.
+- First-run setup keeps broad work-location defaults, alert opt-in, reviewed
+  sources/resume skills, and non-technical starter paths.
 - Quiet Shield QA fixed wrapping, passive Keychain prompts, Protective Navy
   tokens, score colors, dashboard loading, and mobile Application Assist layout.
 - The v2.9.0 pass confirmed Browser Import is the LinkedIn path, not session
   storage or automatic monitoring. Private profile inputs stay local.
-- Package-manager, npm/Cargo, override, Action/runner/apt pins are
-  latest stable; CI uses pinned npm, and `lint:deps`, `lint:actions`, plus
-  `release:check-deps` enforce freshness.
+- Package-manager, npm/Cargo, override, Action/runner/apt pins are latest
+  stable; `lint:deps`, `lint:actions`, and `release:check-deps` enforce freshness.
 - Live OS keyring integration tests are opt-in behind
   `JOBSENTINEL_LIVE_KEYRING_TESTS=1`; default credential tests remain
   non-interactive and still prove LinkedIn credential storage is blocked before
   keyring access.
-- Runtime credentials use encrypted vault rows; status checks read metadata
-  only, and passphrase Settings controls stay non-interactive until user action.
+- Runtime credentials use encrypted vault rows; status checks read metadata only,
+  and passphrase controls stay action-driven.
 - File-backed app data opens through SQLCipher; legacy plaintext databases
   upgrade in place and delete temporary plaintext backups after success.
-- Downloadable Agent Skills cover the full search flow with UI metadata,
-  handoffs, templates, rubrics, upstream/local validation, ZIP/tar checksums,
-  and local release SBOM staging.
-- Browser Import desktop/mobile manual verification passed on 2026-06-17;
-  commit `361560f9` added clean send APIs and local-model revision pins.
-- CheatSheetSeries follow-ups hardened CI, cargo-deny, scraper and notification
-  DNS/IP pinning, Teams validation/redaction, deps, Browser Import,
-  HTTPS imports, SMTP binding, resume cleanup, isolated Application Assist,
-  release assets, AI guards, skills, sandboxed previews/print
-  export, secure deletion, parser caps, KDF floors, reviewed AI
-  payload guards, and bookmarklet oversized-body stops.
+- Downloadable Agent Skills cover the search flow with UI metadata, handoffs,
+  templates, rubrics, validation, checksums, and release SBOM staging.
+- Browser Import desktop/mobile verification passed on 2026-06-17.
+- CheatSheetSeries follow-ups hardened CI, dependency gates, source/network
+  pinning, notification validation/redaction, Browser Import, HTTPS imports,
+  Application Assist isolation, release assets, AI guards, skills, sandboxed
+  previews/export, secure deletion, parser caps, KDF floors, and body caps.
 - Hosted release hardening now gates signing, cleans CI signing material,
   blocks unsigned MSI upload, and narrows renderer notification/dialog permissions.
 - Final whole-UI pass: 272/272 E2E budget on 2026-06-19, 16 route inventories,
-  no console errors, and no overflow.
-- Final non-`content/` audit fixes landed: memory-only company research,
-  accessible onboarding, auto-refresh gating, atomic alert claims, HTTPS
-  JobsWithGPT endpoints, shared import hashes, and `2.9.0` metadata/changelog.
+  no console errors or overflow.
+- Final non-`content/` audit fixes landed for company research, onboarding,
+  auto-refresh gating, alert claims, HTTPS JobsWithGPT, shared import hashes,
+  and `2.9.0` metadata/changelog.
 - Public wiki local commit `f12f8c3` adds the no-account Windows MSI/setup EXE
   release expansion; final wiki push is pending.
-- CI/release gates cover sensors, zizmor, audit, cargo-deny, `_unsigned`
-  Windows MSI/setup EXE, no-account macOS, Linux, checksums, SBOMs, attestations, and skills.
+- CI/release gates cover sensors, zizmor, audit, cargo-deny, unsigned Windows,
+  no-account macOS, Linux, checksums, SBOMs, attestations, skills, and
+  post-matrix auto-publication.
 
 ## Next Work
 
-1. Push main/wiki, then tag/build/upload/verify `2.9.0` no-account assets;
-   signed Windows and Gatekeeper-ready macOS remain credential-backed upgrades.
+1. Wait for the old `v2.9.0` workflow run to finish, then push main/wiki,
+   retag/build/upload/publish/verify `2.9.0` no-account assets; signed Windows
+   and Gatekeeper-ready macOS remain credential-backed upgrades.
 2. Confirm major route screenshots, Computer Use clicks, keyboard flow, and
    affected route/action/state checks after any further UI change before calling
    v2.9.0 done.
 3. Continue macOS readiness only after final local gates close; do
    not claim Gatekeeper-ready distribution before signing, notarization,
    stapling, and install proof exist.
-4. Keep the LinkedIn-compatible Browser Import path user-opened and
-   user-clicked; do not add browser-session capture, background page access, or
-   scheduled LinkedIn fetches.
+4. Complete and commit scraper/source verification, including user-gated
+   LinkedIn-compatible paths and the Scrapling comparison. Do not add session
+   capture, background page access, or scheduled LinkedIn fetches.
 5. Do not reopen repo-bloat cleanup unless a fresh bloat gate failure or
    product/privacy/security/docs verification blocker appears.
 6. Keep README, docs hubs, release docs, wiki inventory, and active status in

@@ -2,6 +2,13 @@ import type { Dispatch, SetStateAction } from "react";
 import { Badge } from "../components/Badge";
 import { HelpIcon } from "../components/HelpIcon";
 import { Input } from "../components/Input";
+import {
+  RESTRICTED_JOB_SOURCE_WARNING,
+  RESTRICTED_SCHEDULED_JOB_SOURCES,
+  normalizeRestrictedSourceAcknowledgements,
+  restrictedScheduledJobSourceLabel,
+  type RestrictedScheduledJobSourceId,
+} from "../shared/restrictedSourceTaxonomy";
 import { LinkedInIcon, SettingsSymbol } from "./SettingsIcons";
 import type { JobBoardRecommendation } from "./SettingsJobBoardRecommendations";
 import { SecurityBadge } from "./SettingsSecurityBadge";
@@ -56,6 +63,77 @@ export function SettingsJobSourcesSection({
   const hasConfiguredUsaJobsAccessCode =
     hasConfirmedUsaJobsAccessCode ||
     credentialIsExpected(credentialStatus, "usajobs_api_key");
+  const restrictedSourceAcknowledgements =
+    normalizeRestrictedSourceAcknowledgements(
+      config.restricted_source_acknowledgements,
+    );
+
+  const setRestrictedSourceAcknowledgement = (
+    sourceId: RestrictedScheduledJobSourceId,
+    accepted: boolean,
+  ) => {
+    setConfig({
+      ...config,
+      restricted_source_acknowledgements: {
+        ...restrictedSourceAcknowledgements,
+        [sourceId]: accepted,
+      },
+    });
+  };
+
+  const clearRestrictedSourceAcknowledgement = (
+    sourceId: RestrictedScheduledJobSourceId,
+  ) => ({
+    ...restrictedSourceAcknowledgements,
+    [sourceId]: false,
+  });
+
+  const renderRestrictedSourceAcknowledgement = (
+    sourceId: RestrictedScheduledJobSourceId,
+  ) => {
+    const source = RESTRICTED_SCHEDULED_JOB_SOURCES.find(
+      (item) => item.id === sourceId,
+    );
+    const label = restrictedScheduledJobSourceLabel(sourceId);
+
+    return (
+      <div className="mt-3 rounded-lg border-2 border-amber-300 bg-amber-50 p-4 text-amber-800 dark:border-amber-700 dark:bg-amber-900/25 dark:text-amber-200">
+        <div className="flex items-start gap-1.5">
+          <SettingsSymbol
+            icon="warning"
+            className="mt-1 h-4 w-4 flex-shrink-0"
+          />
+          <div className="space-y-2">
+            <p className="text-sm font-semibold text-amber-900 dark:text-amber-100">
+              Restricted source warning
+            </p>
+            <p className="text-sm leading-6">
+              Legal and account warning: {RESTRICTED_JOB_SOURCE_WARNING}
+            </p>
+            {source?.reason && <p className="text-sm">{source.reason}</p>}
+            <p className="text-sm">
+              JobSentinel will only run this scheduled check from this computer
+              after you accept the risk below.
+            </p>
+            <label className="flex items-start gap-3 text-sm font-medium text-amber-900 dark:text-amber-100">
+              <input
+                type="checkbox"
+                className="mt-0.5 h-5 w-5 rounded border-amber-300 text-amber-700 focus:ring-amber-500"
+                checked={restrictedSourceAcknowledgements[sourceId]}
+                onChange={(event) =>
+                  setRestrictedSourceAcknowledgement(sourceId, event.target.checked)
+                }
+              />
+              <span>
+                I understand and accept this risk. Run {label} scheduled checks
+                from this computer.
+              </span>
+            </label>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <>
@@ -79,14 +157,18 @@ export function SettingsJobSourcesSection({
                         LinkedIn
                       </span>
                     </div>
-                    <Badge variant="surface">Search links only</Badge>
+                    <Badge variant="surface">User controlled</Badge>
                   </div>
 
                   <div className="space-y-2">
                     <p className="text-sm text-surface-600 dark:text-surface-300">
-                      JobSentinel does not log in to LinkedIn or monitor it in
-                      the background. Use job-site search links when you want to
-                      open LinkedIn yourself.
+                      Open LinkedIn yourself, then use a search link, paste one
+                      job link, Browser Import, or manual entry when you choose.
+                      JobSentinel will not collect your LinkedIn login, save
+                      cookies, or run hidden background LinkedIn checks.
+                    </p>
+                    <p className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-200">
+                      Legal and account warning: {RESTRICTED_JOB_SOURCE_WARNING}
                     </p>
                     <p className="text-xs text-surface-500 dark:text-surface-400">
                       For scheduled job checks, prefer official company pages
@@ -518,6 +600,10 @@ export function SettingsJobSourcesSection({
                                   cities: config.builtin?.cities ?? [],
                                   limit: config.builtin?.limit ?? 50,
                                 },
+                                restricted_source_acknowledgements: e.target
+                                  .checked
+                                  ? restrictedSourceAcknowledgements
+                                  : clearRestrictedSourceAcknowledgement("builtin"),
                               })
                             }
                             className="sr-only peer"
@@ -525,6 +611,8 @@ export function SettingsJobSourcesSection({
                           <div className="w-9 h-5 bg-surface-200 peer-focus-visible:ring-2 peer-focus-visible:ring-sentinel-300 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-sentinel-500"></div>
                         </label>
                       </div>
+                      {config.builtin?.enabled &&
+                        renderRestrictedSourceAcknowledgement("builtin")}
                     </div>
 
                     {/* Startup and tech hiring posts */}
@@ -596,6 +684,10 @@ export function SettingsJobSourcesSection({
                                     : config.dice?.location,
                                   limit: config.dice?.limit ?? 50,
                                 },
+                                restricted_source_acknowledgements: e.target
+                                  .checked
+                                  ? restrictedSourceAcknowledgements
+                                  : clearRestrictedSourceAcknowledgement("dice"),
                               })
                             }
                             className="sr-only peer"
@@ -603,6 +695,8 @@ export function SettingsJobSourcesSection({
                           <div className="w-9 h-5 bg-surface-200 peer-focus-visible:ring-2 peer-focus-visible:ring-sentinel-300 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-sentinel-500"></div>
                         </label>
                       </div>
+                      {config.dice?.enabled &&
+                        renderRestrictedSourceAcknowledgement("dice")}
                     </div>
 
                     {/* YC Work at a Startup */}
@@ -674,6 +768,10 @@ export function SettingsJobSourcesSection({
                                     : config.simplyhired?.location,
                                   limit: config.simplyhired?.limit ?? 50,
                                 },
+                                restricted_source_acknowledgements: e.target
+                                  .checked
+                                  ? restrictedSourceAcknowledgements
+                                  : clearRestrictedSourceAcknowledgement("simplyhired"),
                               })
                             }
                             className="sr-only peer"
@@ -682,14 +780,7 @@ export function SettingsJobSourcesSection({
                         </label>
                       </div>
                       {config.simplyhired?.enabled && (
-                        <div className="mt-3 flex items-start gap-1.5 text-xs text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-2">
-                          <SettingsSymbol icon="warning" className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
-                          <span>
-                            This site does not always let JobSentinel check
-                            listings. If few jobs appear, use Job Site Search
-                            Links or import a job from its browser address.
-                          </span>
-                        </div>
+                        renderRestrictedSourceAcknowledgement("simplyhired")
                       )}
                     </div>
 
@@ -726,6 +817,10 @@ export function SettingsJobSourcesSection({
                                     : config.glassdoor?.location,
                                   limit: config.glassdoor?.limit ?? 50,
                                 },
+                                restricted_source_acknowledgements: e.target
+                                  .checked
+                                  ? restrictedSourceAcknowledgements
+                                  : clearRestrictedSourceAcknowledgement("glassdoor"),
                               })
                             }
                             className="sr-only peer"
@@ -734,14 +829,7 @@ export function SettingsJobSourcesSection({
                         </label>
                       </div>
                       {config.glassdoor?.enabled && (
-                        <div className="mt-3 flex items-start gap-1.5 text-xs text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-2">
-                          <SettingsSymbol icon="warning" className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
-                          <span>
-                            This site does not always let JobSentinel check
-                            listings. If few jobs appear, use Job Site Search
-                            Links or import a job from its browser address.
-                          </span>
-                        </div>
+                        renderRestrictedSourceAcknowledgement("glassdoor")
                       )}
                     </div>
 

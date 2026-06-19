@@ -111,7 +111,7 @@ notarization secrets before tagging:
 
 Prefer GitHub `release` environment secrets with required reviewers over
 repository-wide secrets. The hosted release workflow targets that environment
-for draft-release creation, asset upload, and macOS signing.
+for staged release creation, asset upload, publication, and macOS signing.
 
 ```bash
 export APPLE_CERTIFICATE="base64-encoded-p12"

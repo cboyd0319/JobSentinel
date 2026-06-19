@@ -4,6 +4,11 @@ import {
   validateSlackWebhook,
   validateTeamsWebhook,
 } from "../utils/formValidation";
+import {
+  RESTRICTED_SCHEDULED_JOB_SOURCES,
+  type RestrictedSourceAcknowledgements,
+  restrictedScheduledJobSourceLabel,
+} from "../shared/restrictedSourceTaxonomy";
 
 // Ghost detection configuration interface
 export interface GhostConfig {
@@ -111,6 +116,7 @@ export interface Config {
     remote_only: boolean;
     limit: number;
   };
+  restricted_source_acknowledgements: RestrictedSourceAcknowledgements;
   remoteok: {
     enabled: boolean;
     tags: string[];
@@ -469,6 +475,13 @@ function hasOptionalNumberField(
   return record[field] === undefined || typeof record[field] === "number";
 }
 
+function hasOptionalBooleanField(
+  record: Record<string, unknown>,
+  field: string,
+): boolean {
+  return record[field] === undefined || typeof record[field] === "boolean";
+}
+
 function recordField(
   record: Record<string, unknown>,
   field: string,
@@ -503,6 +516,10 @@ export function isSettingsBackupConfig(value: unknown): value is Config {
   const teams = alerts ? recordField(alerts, "teams") : null;
   const desktop = alerts ? recordField(alerts, "desktop") : null;
   const linkedin = recordField(value, "linkedin");
+  const restrictedSourceAcknowledgements = recordField(
+    value,
+    "restricted_source_acknowledgements",
+  );
   const remoteok = recordField(value, "remoteok");
   const weworkremotely = recordField(value, "weworkremotely");
   const builtin = recordField(value, "builtin");
@@ -560,6 +577,15 @@ export function isSettingsBackupConfig(value: unknown): value is Config {
     hasStringField(linkedin, "location") &&
     hasBooleanField(linkedin, "remote_only") &&
     hasNumberField(linkedin, "limit") &&
+    (value.restricted_source_acknowledgements === undefined ||
+      (!!restrictedSourceAcknowledgements &&
+        hasOptionalBooleanField(restrictedSourceAcknowledgements, "builtin") &&
+        hasOptionalBooleanField(restrictedSourceAcknowledgements, "dice") &&
+        hasOptionalBooleanField(
+          restrictedSourceAcknowledgements,
+          "simplyhired",
+        ) &&
+        hasOptionalBooleanField(restrictedSourceAcknowledgements, "glassdoor"))) &&
     !!remoteok &&
     hasBooleanField(remoteok, "enabled") &&
     hasStringArrayField(remoteok, "tags") &&
@@ -772,6 +798,26 @@ export function getCredentialValidationError(
       title: "Add Glassdoor search words",
       message:
         "Add at least one job title or search word before saving Glassdoor scheduled checks.",
+    };
+  }
+
+  const enabledRestrictedSources = RESTRICTED_SCHEDULED_JOB_SOURCES.filter(
+    (source) => {
+      const sourceConfig = config?.[source.id] as { enabled?: boolean } | undefined;
+      return (
+        sourceConfig?.enabled === true &&
+        config?.restricted_source_acknowledgements?.[source.id] !== true
+      );
+    },
+  );
+
+  if (enabledRestrictedSources.length > 0) {
+    const labels = enabledRestrictedSources
+      .map((source) => restrictedScheduledJobSourceLabel(source.id))
+      .join(", ");
+    return {
+      title: "Review restricted source risk",
+      message: `Check the acknowledgement box for ${labels}, or turn those scheduled checks off.`,
     };
   }
 

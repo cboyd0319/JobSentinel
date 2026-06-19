@@ -111,6 +111,36 @@ fn record_source_credential_failure(errors: &mut Vec<String>, source_label: &'st
     errors.push(source_failure_message(source_label, failure_kind));
 }
 
+fn restricted_source_acknowledged(config: &Config, source_id: &str) -> bool {
+    match source_id {
+        "builtin" => config.restricted_source_acknowledgements.builtin,
+        "dice" => config.restricted_source_acknowledgements.dice,
+        "simplyhired" => config.restricted_source_acknowledgements.simplyhired,
+        "glassdoor" => config.restricted_source_acknowledgements.glassdoor,
+        _ => false,
+    }
+}
+
+fn restricted_source_acknowledgement_missing_message(source_label: &'static str) -> String {
+    format!(
+        "{source_label} source check skipped until you review and accept restricted-source risk in Settings"
+    )
+}
+
+fn record_restricted_source_acknowledgement_missing(
+    errors: &mut Vec<String>,
+    source_id: &'static str,
+    source_label: &'static str,
+) {
+    tracing::warn!(
+        source = source_id,
+        "Restricted source check skipped because the user has not accepted the source risk"
+    );
+    errors.push(restricted_source_acknowledgement_missing_message(
+        source_label,
+    ));
+}
+
 /// Run all configured scrapers and return jobs and errors
 #[tracing::instrument(skip_all)]
 pub async fn run_scrapers(
@@ -304,7 +334,7 @@ pub async fn run_scrapers(
         }
     }
 
-    // 4. LinkedIn automatic monitoring is disabled by source policy.
+    // 4. LinkedIn stays user-directed. Warn without running hidden monitoring.
     if config.linkedin.enabled {
         tracing::warn!("{}", LINKEDIN_AUTOMATION_DISABLED_MESSAGE);
         errors.push(LINKEDIN_AUTOMATION_DISABLED_MESSAGE.to_string());
@@ -377,35 +407,39 @@ pub async fn run_scrapers(
 
     // 7. BuiltIn scraper - tech job board
     if config.builtin.enabled {
-        let mode = if config.builtin.remote_only {
-            "remote"
+        if !restricted_source_acknowledged(config, "builtin") {
+            record_restricted_source_acknowledgement_missing(&mut errors, "builtin", "BuiltIn");
         } else {
-            "all"
-        };
-        tracing::info!("Running BuiltIn scraper ({})", mode);
-        let builtin = BuiltInScraper::new(config.builtin.remote_only, config.builtin.limit);
+            let mode = if config.builtin.remote_only {
+                "remote"
+            } else {
+                "all"
+            };
+            tracing::info!("Running BuiltIn scraper ({})", mode);
+            let builtin = BuiltInScraper::new(config.builtin.remote_only, config.builtin.limit);
 
-        {
-            let _tid = crate::core::health::start_run(db, "builtin")
-                .await
-                .unwrap_or(0);
-            let _ts = std::time::Instant::now();
-            match builtin.scrape().await {
-                Ok(jobs) => {
-                    let _ = crate::core::health::complete_run(
-                        db,
-                        _tid,
-                        _ts.elapsed().as_millis() as i64,
-                        jobs.len(),
-                        0,
-                    )
-                    .await;
-                    tracing::info!("BuiltIn: {} jobs found", jobs.len());
-                    all_jobs.extend(jobs);
-                }
-                Err(e) => {
-                    let _dur = _ts.elapsed().as_millis() as i64;
-                    record_scraper_failure(db, _tid, _dur, "BuiltIn", &e, &mut errors).await;
+            {
+                let _tid = crate::core::health::start_run(db, "builtin")
+                    .await
+                    .unwrap_or(0);
+                let _ts = std::time::Instant::now();
+                match builtin.scrape().await {
+                    Ok(jobs) => {
+                        let _ = crate::core::health::complete_run(
+                            db,
+                            _tid,
+                            _ts.elapsed().as_millis() as i64,
+                            jobs.len(),
+                            0,
+                        )
+                        .await;
+                        tracing::info!("BuiltIn: {} jobs found", jobs.len());
+                        all_jobs.extend(jobs);
+                    }
+                    Err(e) => {
+                        let _dur = _ts.elapsed().as_millis() as i64;
+                        record_scraper_failure(db, _tid, _dur, "BuiltIn", &e, &mut errors).await;
+                    }
                 }
             }
         }
@@ -445,34 +479,38 @@ pub async fn run_scrapers(
 
     // 9. Dice scraper - tech job board
     if config.dice.enabled && !config.dice.query.is_empty() {
-        tracing::info!("Running Dice scraper");
-        let dice = DiceScraper::new(
-            config.dice.query.clone(),
-            config.dice.location.clone(),
-            config.dice.limit,
-        );
+        if !restricted_source_acknowledged(config, "dice") {
+            record_restricted_source_acknowledgement_missing(&mut errors, "dice", "Dice");
+        } else {
+            tracing::info!("Running Dice scraper");
+            let dice = DiceScraper::new(
+                config.dice.query.clone(),
+                config.dice.location.clone(),
+                config.dice.limit,
+            );
 
-        {
-            let _tid = crate::core::health::start_run(db, "dice")
-                .await
-                .unwrap_or(0);
-            let _ts = std::time::Instant::now();
-            match dice.scrape().await {
-                Ok(jobs) => {
-                    let _ = crate::core::health::complete_run(
-                        db,
-                        _tid,
-                        _ts.elapsed().as_millis() as i64,
-                        jobs.len(),
-                        0,
-                    )
-                    .await;
-                    tracing::info!("Dice: {} jobs found", jobs.len());
-                    all_jobs.extend(jobs);
-                }
-                Err(e) => {
-                    let _dur = _ts.elapsed().as_millis() as i64;
-                    record_scraper_failure(db, _tid, _dur, "Dice", &e, &mut errors).await;
+            {
+                let _tid = crate::core::health::start_run(db, "dice")
+                    .await
+                    .unwrap_or(0);
+                let _ts = std::time::Instant::now();
+                match dice.scrape().await {
+                    Ok(jobs) => {
+                        let _ = crate::core::health::complete_run(
+                            db,
+                            _tid,
+                            _ts.elapsed().as_millis() as i64,
+                            jobs.len(),
+                            0,
+                        )
+                        .await;
+                        tracing::info!("Dice: {} jobs found", jobs.len());
+                        all_jobs.extend(jobs);
+                    }
+                    Err(e) => {
+                        let _dur = _ts.elapsed().as_millis() as i64;
+                        record_scraper_failure(db, _tid, _dur, "Dice", &e, &mut errors).await;
+                    }
                 }
             }
         }
@@ -576,38 +614,47 @@ pub async fn run_scrapers(
 
     // 12. SimplyHired job aggregator (v2.5.5) - may be blocked by Cloudflare
     if config.simplyhired.enabled && !config.simplyhired.query.is_empty() {
-        tracing::info!("Running SimplyHired scraper");
-        let simplyhired = SimplyHiredScraper::new(
-            config.simplyhired.query.clone(),
-            config.simplyhired.location.clone(),
-            config.simplyhired.limit,
-        );
+        if !restricted_source_acknowledged(config, "simplyhired") {
+            record_restricted_source_acknowledgement_missing(
+                &mut errors,
+                "simplyhired",
+                "SimplyHired",
+            );
+        } else {
+            tracing::info!("Running SimplyHired scraper");
+            let simplyhired = SimplyHiredScraper::new(
+                config.simplyhired.query.clone(),
+                config.simplyhired.location.clone(),
+                config.simplyhired.limit,
+            );
 
-        {
-            let _tid = crate::core::health::start_run(db, "simplyhired")
-                .await
-                .unwrap_or(0);
-            let _ts = std::time::Instant::now();
-            match simplyhired.scrape().await {
-                Ok(jobs) => {
-                    let _ = crate::core::health::complete_run(
-                        db,
-                        _tid,
-                        _ts.elapsed().as_millis() as i64,
-                        jobs.len(),
-                        0,
-                    )
-                    .await;
-                    if jobs.is_empty() {
-                        tracing::warn!("SimplyHired: 0 jobs (may be Cloudflare blocked)");
-                    } else {
-                        tracing::info!("SimplyHired: {} jobs found", jobs.len());
+            {
+                let _tid = crate::core::health::start_run(db, "simplyhired")
+                    .await
+                    .unwrap_or(0);
+                let _ts = std::time::Instant::now();
+                match simplyhired.scrape().await {
+                    Ok(jobs) => {
+                        let _ = crate::core::health::complete_run(
+                            db,
+                            _tid,
+                            _ts.elapsed().as_millis() as i64,
+                            jobs.len(),
+                            0,
+                        )
+                        .await;
+                        if jobs.is_empty() {
+                            tracing::warn!("SimplyHired: 0 jobs (may be Cloudflare blocked)");
+                        } else {
+                            tracing::info!("SimplyHired: {} jobs found", jobs.len());
+                        }
+                        all_jobs.extend(jobs);
                     }
-                    all_jobs.extend(jobs);
-                }
-                Err(e) => {
-                    let _dur = _ts.elapsed().as_millis() as i64;
-                    record_scraper_failure(db, _tid, _dur, "SimplyHired", &e, &mut errors).await;
+                    Err(e) => {
+                        let _dur = _ts.elapsed().as_millis() as i64;
+                        record_scraper_failure(db, _tid, _dur, "SimplyHired", &e, &mut errors)
+                            .await;
+                    }
                 }
             }
         }
@@ -615,38 +662,42 @@ pub async fn run_scrapers(
 
     // 13. Glassdoor job board (v2.5.5) - may be blocked by Cloudflare
     if config.glassdoor.enabled && !config.glassdoor.query.is_empty() {
-        tracing::info!("Running Glassdoor scraper");
-        let glassdoor = GlassdoorScraper::new(
-            config.glassdoor.query.clone(),
-            config.glassdoor.location.clone(),
-            config.glassdoor.limit,
-        );
+        if !restricted_source_acknowledged(config, "glassdoor") {
+            record_restricted_source_acknowledgement_missing(&mut errors, "glassdoor", "Glassdoor");
+        } else {
+            tracing::info!("Running Glassdoor scraper");
+            let glassdoor = GlassdoorScraper::new(
+                config.glassdoor.query.clone(),
+                config.glassdoor.location.clone(),
+                config.glassdoor.limit,
+            );
 
-        {
-            let _tid = crate::core::health::start_run(db, "glassdoor")
-                .await
-                .unwrap_or(0);
-            let _ts = std::time::Instant::now();
-            match glassdoor.scrape().await {
-                Ok(jobs) => {
-                    let _ = crate::core::health::complete_run(
-                        db,
-                        _tid,
-                        _ts.elapsed().as_millis() as i64,
-                        jobs.len(),
-                        0,
-                    )
-                    .await;
-                    if jobs.is_empty() {
-                        tracing::warn!("Glassdoor: 0 jobs (may be Cloudflare blocked)");
-                    } else {
-                        tracing::info!("Glassdoor: {} jobs found", jobs.len());
+            {
+                let _tid = crate::core::health::start_run(db, "glassdoor")
+                    .await
+                    .unwrap_or(0);
+                let _ts = std::time::Instant::now();
+                match glassdoor.scrape().await {
+                    Ok(jobs) => {
+                        let _ = crate::core::health::complete_run(
+                            db,
+                            _tid,
+                            _ts.elapsed().as_millis() as i64,
+                            jobs.len(),
+                            0,
+                        )
+                        .await;
+                        if jobs.is_empty() {
+                            tracing::warn!("Glassdoor: 0 jobs (may be Cloudflare blocked)");
+                        } else {
+                            tracing::info!("Glassdoor: {} jobs found", jobs.len());
+                        }
+                        all_jobs.extend(jobs);
                     }
-                    all_jobs.extend(jobs);
-                }
-                Err(e) => {
-                    let _dur = _ts.elapsed().as_millis() as i64;
-                    record_scraper_failure(db, _tid, _dur, "Glassdoor", &e, &mut errors).await;
+                    Err(e) => {
+                        let _dur = _ts.elapsed().as_millis() as i64;
+                        record_scraper_failure(db, _tid, _dur, "Glassdoor", &e, &mut errors).await;
+                    }
                 }
             }
         }
@@ -692,5 +743,63 @@ mod tests {
         };
 
         assert_eq!(scraper_failure_kind(&error), "timeout");
+    }
+
+    #[test]
+    fn restricted_source_acknowledged_reads_local_user_acceptance() {
+        let mut config = Config {
+            title_allowlist: vec![],
+            title_blocklist: vec![],
+            keywords_boost: vec![],
+            keywords_exclude: vec![],
+            location_preferences: crate::core::config::LocationPreferences {
+                allow_remote: true,
+                allow_hybrid: false,
+                allow_onsite: false,
+                cities: vec![],
+                states: vec![],
+                country: "US".to_string(),
+            },
+            salary_floor_usd: 0,
+            salary_target_usd: None,
+            penalize_missing_salary: false,
+            auto_refresh: Default::default(),
+            bookmarklet_port: 4321,
+            immediate_alert_threshold: 0.9,
+            scraping_interval_hours: 2,
+            alerts: Default::default(),
+            greenhouse_urls: vec![],
+            lever_urls: vec![],
+            linkedin: Default::default(),
+            restricted_source_acknowledgements: Default::default(),
+            remoteok: Default::default(),
+            weworkremotely: Default::default(),
+            builtin: Default::default(),
+            hn_hiring: Default::default(),
+            dice: Default::default(),
+            yc_startup: Default::default(),
+            usajobs: Default::default(),
+            simplyhired: Default::default(),
+            glassdoor: Default::default(),
+            jobswithgpt_endpoint: String::new(),
+            jobswithgpt_approval: Default::default(),
+            ghost_config: None,
+            use_resume_matching: false,
+            company_whitelist: vec![],
+            company_blacklist: vec![],
+        };
+
+        assert!(!restricted_source_acknowledged(&config, "dice"));
+        config.restricted_source_acknowledgements.dice = true;
+        assert!(restricted_source_acknowledged(&config, "dice"));
+        assert!(!restricted_source_acknowledged(&config, "unknown"));
+    }
+
+    #[test]
+    fn restricted_source_acknowledgement_message_is_user_recoverable() {
+        assert_eq!(
+            restricted_source_acknowledgement_missing_message("Dice"),
+            "Dice source check skipped until you review and accept restricted-source risk in Settings"
+        );
     }
 }

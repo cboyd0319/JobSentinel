@@ -13,6 +13,7 @@ pub fn get_all_sites() -> Vec<SiteInfo> {
             name: "Indeed".to_string(),
             category: SiteCategory::General,
             requires_login: false,
+            requires_user_acknowledgement: true,
             logo_url: None,
             notes: Some("Largest job board with millions of listings".to_string()),
         },
@@ -21,6 +22,7 @@ pub fn get_all_sites() -> Vec<SiteInfo> {
             name: "Monster".to_string(),
             category: SiteCategory::General,
             requires_login: false,
+            requires_user_acknowledgement: true,
             logo_url: None,
             notes: Some("Established job board with career resources".to_string()),
         },
@@ -29,6 +31,7 @@ pub fn get_all_sites() -> Vec<SiteInfo> {
             name: "CareerBuilder".to_string(),
             category: SiteCategory::General,
             requires_login: false,
+            requires_user_acknowledgement: true,
             logo_url: None,
             notes: None,
         },
@@ -37,6 +40,7 @@ pub fn get_all_sites() -> Vec<SiteInfo> {
             name: "SimplyHired".to_string(),
             category: SiteCategory::General,
             requires_login: false,
+            requires_user_acknowledgement: true,
             logo_url: None,
             notes: Some("Job aggregator with salary estimates".to_string()),
         },
@@ -45,6 +49,7 @@ pub fn get_all_sites() -> Vec<SiteInfo> {
             name: "ZipRecruiter".to_string(),
             category: SiteCategory::General,
             requires_login: false,
+            requires_user_acknowledgement: true,
             logo_url: None,
             notes: Some("Fast-growing job board with Application Assist".to_string()),
         },
@@ -54,6 +59,7 @@ pub fn get_all_sites() -> Vec<SiteInfo> {
             name: "LinkedIn".to_string(),
             category: SiteCategory::Professional,
             requires_login: true,
+            requires_user_acknowledgement: true,
             logo_url: None,
             notes: Some("Professional network with extensive job listings".to_string()),
         },
@@ -62,6 +68,7 @@ pub fn get_all_sites() -> Vec<SiteInfo> {
             name: "Glassdoor".to_string(),
             category: SiteCategory::Professional,
             requires_login: true,
+            requires_user_acknowledgement: true,
             logo_url: None,
             notes: Some("Job board with company reviews and salaries".to_string()),
         },
@@ -71,6 +78,7 @@ pub fn get_all_sites() -> Vec<SiteInfo> {
             name: "Dice".to_string(),
             category: SiteCategory::Tech,
             requires_login: false,
+            requires_user_acknowledgement: true,
             logo_url: None,
             notes: Some("Technology and IT-focused job board".to_string()),
         },
@@ -80,6 +88,7 @@ pub fn get_all_sites() -> Vec<SiteInfo> {
             name: "USAJobs".to_string(),
             category: SiteCategory::Government,
             requires_login: false,
+            requires_user_acknowledgement: false,
             logo_url: None,
             notes: Some("Official federal government job board".to_string()),
         },
@@ -88,6 +97,7 @@ pub fn get_all_sites() -> Vec<SiteInfo> {
             name: "GovernmentJobs".to_string(),
             category: SiteCategory::Government,
             requires_login: false,
+            requires_user_acknowledgement: true,
             logo_url: None,
             notes: Some("State and local government positions".to_string()),
         },
@@ -96,6 +106,7 @@ pub fn get_all_sites() -> Vec<SiteInfo> {
             name: "CalCareers (California)".to_string(),
             category: SiteCategory::Government,
             requires_login: false,
+            requires_user_acknowledgement: false,
             logo_url: None,
             notes: Some("California state government jobs".to_string()),
         },
@@ -104,6 +115,7 @@ pub fn get_all_sites() -> Vec<SiteInfo> {
             name: "CAPPS (Texas)".to_string(),
             category: SiteCategory::Government,
             requires_login: false,
+            requires_user_acknowledgement: false,
             logo_url: None,
             notes: Some("Texas state government jobs".to_string()),
         },
@@ -113,6 +125,7 @@ pub fn get_all_sites() -> Vec<SiteInfo> {
             name: "ClearanceJobs".to_string(),
             category: SiteCategory::Cleared,
             requires_login: false,
+            requires_user_acknowledgement: true,
             logo_url: None,
             notes: Some("Jobs requiring security clearances".to_string()),
         },
@@ -122,6 +135,7 @@ pub fn get_all_sites() -> Vec<SiteInfo> {
             name: "FlexJobs".to_string(),
             category: SiteCategory::Remote,
             requires_login: true,
+            requires_user_acknowledgement: true,
             logo_url: None,
             notes: Some("Curated remote and flexible jobs (subscription)".to_string()),
         },
@@ -130,6 +144,7 @@ pub fn get_all_sites() -> Vec<SiteInfo> {
             name: "We Work Remotely".to_string(),
             category: SiteCategory::Remote,
             requires_login: false,
+            requires_user_acknowledgement: false,
             logo_url: None,
             notes: Some("Popular remote job board".to_string()),
         },
@@ -138,6 +153,7 @@ pub fn get_all_sites() -> Vec<SiteInfo> {
             name: "Remote OK".to_string(),
             category: SiteCategory::Remote,
             requires_login: false,
+            requires_user_acknowledgement: false,
             logo_url: None,
             notes: Some("Remote jobs aggregator".to_string()),
         },
@@ -147,6 +163,7 @@ pub fn get_all_sites() -> Vec<SiteInfo> {
             name: "Wellfound (AngelList)".to_string(),
             category: SiteCategory::Startups,
             requires_login: true,
+            requires_user_acknowledgement: true,
             logo_url: None,
             notes: Some("Startup jobs with equity information".to_string()),
         },
@@ -155,6 +172,7 @@ pub fn get_all_sites() -> Vec<SiteInfo> {
             name: "Y Combinator Jobs".to_string(),
             category: SiteCategory::Startups,
             requires_login: false,
+            requires_user_acknowledgement: false,
             logo_url: None,
             notes: Some("Jobs at Y Combinator companies".to_string()),
         },
@@ -190,6 +208,37 @@ mod tests {
         assert!(get_site_by_id("linkedin").is_some());
         assert!(get_site_by_id("indeed").is_some());
         assert!(get_site_by_id("nonexistent").is_none());
+    }
+
+    #[test]
+    fn test_linkedin_requires_user_acknowledgement() {
+        let linkedin = get_site_by_id("linkedin").expect("LinkedIn site should exist");
+
+        assert!(linkedin.requires_user_acknowledgement);
+    }
+
+    #[test]
+    fn test_restricted_boards_require_user_acknowledgement() {
+        for site_id in [
+            "indeed",
+            "monster",
+            "careerbuilder",
+            "simplyhired",
+            "ziprecruiter",
+            "linkedin",
+            "glassdoor",
+            "dice",
+            "governmentjobs",
+            "clearancejobs",
+            "flexjobs",
+            "wellfound",
+        ] {
+            let site = get_site_by_id(site_id).expect("site should exist");
+            assert!(
+                site.requires_user_acknowledgement,
+                "{site_id} should require acknowledgement"
+            );
+        }
     }
 
     #[test]

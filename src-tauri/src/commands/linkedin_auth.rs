@@ -1,9 +1,9 @@
-//! Legacy LinkedIn auth command boundary.
+//! LinkedIn credential/session automation boundary.
 //!
-//! LinkedIn automatic monitoring is disabled by JobSentinel source policy.
 //! These commands remain registered only so older frontends and stored app
-//! state fail closed instead of reaching hidden endpoints or collecting
-//! session cookies.
+//! state fail closed instead of reaching hidden endpoints or collecting session
+//! cookies. User-directed search links, manual entry, and Browser Import remain
+//! separate paths.
 
 use crate::commands::errors::user_friendly_error;
 use crate::commands::AppState;
@@ -11,9 +11,11 @@ use crate::core::credentials::{CredentialKey, CredentialService};
 use tauri::{AppHandle, Manager, State};
 
 pub const LINKEDIN_AUTH_DISABLED_MESSAGE: &str =
-    "LinkedIn automatic monitoring is disabled by JobSentinel source policy. \
-     Use job-site search links to open LinkedIn yourself, or monitor official \
-     company and ATS sources instead.";
+    "JobSentinel does not collect LinkedIn login details or session cookies. \
+     Open LinkedIn yourself, use a search link, paste one job link, Browser \
+     Import, or manual entry. LinkedIn says third-party software that scrapes or \
+     automates activity can violate its User Agreement, may lead to account \
+     restrictions, and may raise privacy-law concerns.";
 
 /// Legacy LinkedIn credential expiry status.
 #[derive(serde::Serialize)]
@@ -34,21 +36,21 @@ fn disabled_error() -> String {
     LINKEDIN_AUTH_DISABLED_MESSAGE.to_string()
 }
 
-/// LinkedIn login is disabled by source policy.
+/// LinkedIn login capture is disabled.
 #[tauri::command]
 pub async fn linkedin_login(app: AppHandle) -> Result<String, String> {
     close_linkedin_login(app).await?;
     Err(disabled_error())
 }
 
-/// Storing LinkedIn session cookies is disabled by source policy.
+/// Storing LinkedIn session cookies is disabled.
 #[tauri::command]
 pub async fn store_linkedin_cookie(cookie: String) -> Result<(), String> {
     drop(cookie);
     Err(disabled_error())
 }
 
-/// LinkedIn is not connected because automatic monitoring is disabled.
+/// LinkedIn is not connected because session automation is disabled.
 #[tauri::command]
 pub async fn is_linkedin_connected() -> Result<bool, String> {
     Ok(false)
@@ -87,7 +89,7 @@ pub async fn close_linkedin_login(app: AppHandle) -> Result<(), String> {
     Ok(())
 }
 
-/// Expiry status is inactive because automatic monitoring is disabled.
+/// Expiry status is inactive because session automation is disabled.
 #[tauri::command]
 pub async fn get_linkedin_expiry_status() -> Result<LinkedInExpiryStatus, String> {
     Ok(LinkedInExpiryStatus {
@@ -109,7 +111,8 @@ mod tests {
             .await
             .unwrap_err();
 
-        assert!(err.contains("source policy"));
+        assert!(err.contains("does not collect LinkedIn login details"));
+        assert!(err.contains("User Agreement"));
         assert!(!err.contains("legacy-session-value"));
     }
 

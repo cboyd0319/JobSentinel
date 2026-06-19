@@ -23,6 +23,10 @@ describe("BookmarkletGenerator", () => {
     render(<BookmarkletGenerator />);
 
     const copyButton = await screen.findByRole("button", { name: /copy browser button/i });
+    expect(copyButton).toBeDisabled();
+    fireEvent.click(
+      screen.getByLabelText(/I understand this risk and want to use Browser Import/i),
+    );
     await waitFor(() => expect(copyButton).toBeEnabled());
     fireEvent.click(copyButton);
 
@@ -92,6 +96,37 @@ describe("BookmarkletGenerator", () => {
     expect(screen.getByText(/company application pages/i)).toBeInTheDocument();
     expect(screen.getByText(/do not let JobSentinel read saved pages/i)).toBeInTheDocument();
     expect(screen.getByText(/respects those controls/i)).toBeInTheDocument();
+    expect(screen.getByText(/Restricted Site Warning/i)).toBeInTheDocument();
+    expect(screen.getByText(/can violate their User Agreement or terms/i)).toBeInTheDocument();
+    expect(
+      screen.getByLabelText(/I understand this risk and want to use Browser Import/i),
+    ).toBeInTheDocument();
+  });
+
+  it("gates Browser Import until the user accepts restricted-site risk", async () => {
+    mockInvoke.mockResolvedValueOnce({
+      port: 4321,
+      enabled: false,
+    });
+
+    render(<BookmarkletGenerator />);
+
+    const turnOnButton = await screen.findByRole("button", { name: /turn on/i });
+    fireEvent.click(turnOnButton);
+
+    expect(
+      await screen.findByText(/Review the restricted-site warning and check the box/i),
+    ).toBeInTheDocument();
+    expect(mockInvoke).not.toHaveBeenCalledWith("start_bookmarklet_server", { port: 4321 });
+
+    fireEvent.click(
+      screen.getByLabelText(/I understand this risk and want to use Browser Import/i),
+    );
+    fireEvent.click(turnOnButton);
+
+    await waitFor(() =>
+      expect(mockInvoke).toHaveBeenCalledWith("start_bookmarklet_server", { port: 4321 }),
+    );
   });
 
   it("shows safe copy guidance when browser clipboard copy fails", async () => {
@@ -105,6 +140,9 @@ describe("BookmarkletGenerator", () => {
     render(<BookmarkletGenerator />);
 
     const copyButton = await screen.findByRole("button", { name: /copy browser button/i });
+    fireEvent.click(
+      screen.getByLabelText(/I understand this risk and want to use Browser Import/i),
+    );
     await waitFor(() => expect(copyButton).toBeEnabled());
     fireEvent.click(copyButton);
 
@@ -141,6 +179,9 @@ describe("BookmarkletGenerator", () => {
     render(<BookmarkletGenerator />);
 
     const turnOnButton = await screen.findByRole("button", { name: /turn on/i });
+    fireEvent.click(
+      screen.getByLabelText(/I understand this risk and want to use Browser Import/i),
+    );
     fireEvent.click(turnOnButton);
 
     expect(await screen.findByText(/Browser Import could not be changed/i)).toBeInTheDocument();

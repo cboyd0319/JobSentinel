@@ -50,6 +50,7 @@ fn create_test_config() -> Config {
         greenhouse_urls: vec![],
         lever_urls: vec![],
         linkedin: Default::default(),
+        restricted_source_acknowledgements: Default::default(),
         jobswithgpt_endpoint: "https://api.jobswithgpt.com/mcp".to_string(),
         jobswithgpt_approval: Default::default(),
         remoteok: Default::default(),

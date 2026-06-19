@@ -197,6 +197,12 @@ export const mockConfig = {
     remote_only: true,
     limit: 50,
   },
+  restricted_source_acknowledgements: {
+    builtin: false,
+    dice: false,
+    simplyhired: false,
+    glassdoor: false,
+  },
   auto_refresh: {
     enabled: true,
     interval_minutes: 30,

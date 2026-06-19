@@ -18,6 +18,7 @@ import { logError } from "../utils/errorUtils";
 import { getUserFriendlyError } from "../utils/errorMessages";
 import { exportConfigToJSON, importConfigFromJSON } from "../utils/export";
 import { invalidateCacheByCommand } from "../utils/api";
+import { normalizeRestrictedSourceAcknowledgements } from "../shared/restrictedSourceTaxonomy";
 import {
   cacheDetectedLocation,
   readCachedDetectedLocation,
@@ -224,6 +225,10 @@ export default function Settings({ onClose }: SettingsProps) {
           ...configData.linkedin,
           enabled: false,
         },
+        restricted_source_acknowledgements:
+          normalizeRestrictedSourceAcknowledgements(
+            configData.restricted_source_acknowledgements,
+          ),
       };
       setConfig(nextConfig);
       initializeCredentialStatus(nextConfig);

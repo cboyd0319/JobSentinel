@@ -104,6 +104,12 @@ function makeConfig() {
       location: undefined as string | undefined,
       limit: 25,
     },
+    restricted_source_acknowledgements: {
+      builtin: false,
+      dice: false,
+      simplyhired: false,
+      glassdoor: false,
+    },
     jobswithgpt_endpoint: "",
     jobswithgpt_approval: {
       enabled: false,
@@ -223,7 +229,7 @@ describe("Settings source setup", () => {
     ).toBeGreaterThan(0);
   });
 
-  it("uses plain source-check guidance without site-protection jargon", async () => {
+  it("uses plain restricted-source guidance without site-protection jargon", async () => {
     const user = userEvent.setup();
     const config = makeConfig();
     config.simplyhired.enabled = true;
@@ -245,10 +251,10 @@ describe("Settings source setup", () => {
 
     await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
 
+    expect(screen.getAllByText(/Restricted source warning/i)).toHaveLength(2);
     expect(
-      screen.getAllByText(/This site does not always let JobSentinel check listings/i),
+      screen.getAllByText(/JobSentinel will only run this scheduled check from this computer/i),
     ).toHaveLength(2);
-    expect(screen.getAllByText(/use Job Site Search Links/i)).toHaveLength(2);
     expect(
       screen.getByText("See which sources are working and what to try next"),
     ).toBeInTheDocument();
@@ -429,11 +435,17 @@ describe("Settings source setup", () => {
         name: /Turn Dice scheduled job checks on or off/i,
       }),
     );
+    await user.click(
+      screen.getByLabelText(
+        /I understand and accept this risk\. Run Dice scheduled checks from this computer/i,
+      ),
+    );
     await user.click(screen.getByRole("button", { name: /save changes/i }));
 
     await waitFor(() => {
       expect(savedConfig?.dice.enabled).toBe(true);
     });
+    expect(savedConfig?.restricted_source_acknowledgements.dice).toBe(true);
     expect(savedConfig?.dice.query).toBe("Data Analyst SQL");
     expect(savedConfig?.dice.location).toBe("Denver");
     expect(onClose).toHaveBeenCalled();

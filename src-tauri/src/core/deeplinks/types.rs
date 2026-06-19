@@ -78,6 +78,9 @@ pub struct SiteInfo {
     pub category: SiteCategory,
     /// Whether the site requires login to view full results
     pub requires_login: bool,
+    /// Whether the UI should require an explicit warning acknowledgement before opening.
+    #[serde(default)]
+    pub requires_user_acknowledgement: bool,
     /// URL to site logo (optional)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub logo_url: Option<String>,

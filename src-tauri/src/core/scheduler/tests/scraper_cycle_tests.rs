@@ -262,10 +262,12 @@ async fn test_scraping_cycle_with_linkedin_enabled() {
 
     let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
 
-    // Run cycle - LinkedIn automatic monitoring is rejected.
     let result = scheduler.run_scraping_cycle().await.unwrap();
 
-    assert!(result.errors.iter().any(|e| e.contains("source policy")));
+    assert!(result
+        .errors
+        .iter()
+        .any(|e| e.contains("Open LinkedIn yourself") && e.contains("User Agreement")));
 }
 
 #[tokio::test]
@@ -296,10 +298,56 @@ async fn test_scraping_cycle_with_linkedin_enabled_without_credentials() {
 
     let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
 
-    // Run cycle - should reject LinkedIn automatic monitoring
     let result = scheduler.run_scraping_cycle().await.unwrap();
 
-    assert!(result.errors.iter().any(|e| e.contains("source policy")));
+    assert!(result
+        .errors
+        .iter()
+        .any(|e| e.contains("Open LinkedIn yourself") && e.contains("User Agreement")));
+}
+
+#[tokio::test]
+async fn test_restricted_scheduled_source_skips_without_acknowledgement() {
+    let mut config = create_test_config();
+    config.dice.enabled = true;
+    config.dice.query = "care coordinator".to_string();
+    let config = Arc::new(config);
+    let db = Database::connect_memory().await.unwrap();
+    db.migrate().await.unwrap();
+    let database = Arc::new(db);
+
+    let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
+
+    let result = scheduler.run_scraping_cycle().await.unwrap();
+
+    assert!(result.errors.iter().any(|error| {
+        error.contains("Dice source check skipped")
+            && error.contains("review and accept restricted-source risk")
+    }));
+}
+
+#[tokio::test]
+async fn test_restricted_scheduled_source_runs_after_acknowledgement() {
+    let mut config = create_test_config();
+    config.glassdoor.enabled = true;
+    config.glassdoor.query = "care coordinator".to_string();
+    config.restricted_source_acknowledgements.glassdoor = true;
+    let config = Arc::new(config);
+    let db = Database::connect_memory().await.unwrap();
+    db.migrate().await.unwrap();
+    let database = Arc::new(db);
+
+    let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
+
+    let result = scheduler.run_scraping_cycle().await.unwrap();
+
+    assert!(
+        !result
+            .errors
+            .iter()
+            .any(|error| error.contains("Glassdoor source check skipped")),
+        "acknowledged source should not be skipped before adapter execution"
+    );
 }
 
 // ========================================

@@ -80,6 +80,12 @@ function makeConfig() {
     },
     simplyhired: { enabled: false, query: "", limit: 25 },
     glassdoor: { enabled: false, query: "", limit: 25 },
+    restricted_source_acknowledgements: {
+      builtin: false,
+      dice: false,
+      simplyhired: false,
+      glassdoor: false,
+    },
     jobswithgpt_endpoint: "",
     jobswithgpt_approval: {
       enabled: false,

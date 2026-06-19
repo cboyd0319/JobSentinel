@@ -55,6 +55,9 @@ Risks:
 - Runtime, product, privacy, data, platform, or migration risk.
 - Rule 0 risk: any path that could weaken local control, credential safety,
   source boundaries, explicit review, or privacy-preserving defaults.
+- Restricted-source risk: whether the change touches sites that may restrict
+  scraping, automation, cookies, tokens, browser automation, background access,
+  or platform-control bypass.
 
 Sensors:
 - Exact commands, manual checks, or reviewer passes needed.

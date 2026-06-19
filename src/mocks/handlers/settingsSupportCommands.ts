@@ -151,7 +151,7 @@ export function handleMockSettingsSupportCommand(
 
     case "linkedin_login":
       throw new Error(
-        "LinkedIn automatic monitoring is disabled by JobSentinel source policy",
+        "JobSentinel does not collect LinkedIn login details or session cookies",
       );
 
     case "get_linkedin_expiry_status":

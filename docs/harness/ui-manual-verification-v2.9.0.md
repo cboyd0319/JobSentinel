@@ -20,9 +20,9 @@ narrow-width surface below has fresh manual verification evidence.
   rather than machine-specific absolute paths.
 - Do not trigger live OS keyring prompts in default tests. Live keyring proof
   requires `JOBSENTINEL_LIVE_KEYRING_TESTS=1`.
-- Keep LinkedIn support user-opened and user-clicked only: no session-cookie
-  storage, token replay, background monitoring, result-list crawling, or account
-  automation.
+- Keep restricted-site support user-directed and acknowledgement-gated: no
+  session-cookie storage, token replay, platform-control bypass, or hidden
+  background access.
 
 ## Evidence Ledger
 

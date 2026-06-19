@@ -491,8 +491,8 @@ workflows to create releases and upload assets.
 
 Release publishing and platform-signing secrets should live in the GitHub
 `release` environment when available. Configure required reviewers on that
-environment so draft-release creation, asset upload, and macOS signing secrets
-require explicit release approval.
+environment so staged release creation, asset upload, publication, and macOS
+signing secrets require explicit release approval.
 
 Use `npm run release:check-env` locally before tagging to check release-signing
 environment completeness without reading or printing secret values. Add

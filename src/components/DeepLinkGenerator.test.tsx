@@ -22,6 +22,7 @@ describe("DeepLinkGenerator", () => {
           name: "LinkedIn",
           category: SiteCategory.Professional,
           requires_login: true,
+          requires_user_acknowledgement: true,
         },
         url: "https://www.linkedin.com/jobs/search/?keywords=marketing",
       },
@@ -75,6 +76,7 @@ describe("DeepLinkGenerator", () => {
           name: "LinkedIn",
           category: SiteCategory.Professional,
           requires_login: true,
+          requires_user_acknowledgement: true,
         },
         url: "https://www.linkedin.com/jobs/search/?keywords=marketing",
       },
@@ -116,6 +118,7 @@ describe("DeepLinkGenerator", () => {
           name: "LinkedIn",
           category: SiteCategory.Professional,
           requires_login: true,
+          requires_user_acknowledgement: true,
           logo_url: "https://www.linkedin.com/favicon.ico",
         },
         url: "https://www.linkedin.com/jobs/search/?keywords=marketing",
@@ -139,6 +142,32 @@ describe("DeepLinkGenerator", () => {
 
     expect(await screen.findByRole("alert")).toHaveTextContent("Add a job title or work words.");
     expect(deeplinks.generateDeepLinks).not.toHaveBeenCalled();
+  });
+
+  it("requires acknowledgement before opening a restricted-source search link", async () => {
+    const user = userEvent.setup();
+    render(<DeepLinkGenerator />);
+
+    await user.type(screen.getByLabelText(/job title or work words/i), "Marketing Manager");
+    await user.click(screen.getByRole("button", { name: /create search links/i }));
+
+    expect(await screen.findByText(/can violate their User Agreement or terms/i)).toBeInTheDocument();
+    const openButton = screen.getByRole("button", {
+      name: /open linkedin search in your browser/i,
+    });
+    expect(openButton).toBeDisabled();
+    expect(deeplinks.openDeepLink).not.toHaveBeenCalled();
+
+    await user.click(screen.getByLabelText(/I understand this risk and want to open this search/i));
+    expect(openButton).toBeEnabled();
+
+    await user.click(openButton);
+
+    await waitFor(() => {
+      expect(deeplinks.openDeepLink).toHaveBeenCalledWith(
+        "https://www.linkedin.com/jobs/search/?keywords=marketing",
+      );
+    });
   });
 
   it("sends selected job type and work mode filters when generating links", async () => {

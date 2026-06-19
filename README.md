@@ -75,6 +75,35 @@ JobSentinel is free, will always stay free, and will always remain MIT
 licensed. This code exists to help job seekers. Fork it, adapt it, improve it,
 or build something better with it if that helps more people.
 
+## Job Source Terms And User Control
+
+JobSentinel does not encourage, endorse, or hide violations of any job site's
+terms. The safe default path is official feeds, public employer career pages,
+user-opened search links, manual entry, and single-job imports that the user
+reviews before saving.
+
+Some job sites, including LinkedIn, Indeed, Glassdoor, Monster, ZipRecruiter,
+Naukri, and similar boards, say third-party software that scrapes, modifies, or
+automates activity can violate their User Agreement or terms, may lead to
+account restrictions or legal claims, and may raise privacy-law concerns.
+JobSentinel makes that risk prominent before restricted-source actions. Users
+must explicitly accept the warning before those actions continue.
+
+Restricted-source actions stay local and user-controlled:
+
+- No hidden background access to restricted job sites.
+- No collection or copying of login details or session cookies.
+- No bypassing login walls, human checks, platform controls, or another
+  person's privacy.
+- No resale, republishing, or bulk redistribution of job-board data.
+- Clear in-app warnings before restricted Browser Import, pasted-link import,
+  search-link opening, or scheduled restricted-source checks.
+
+This matters because people under time pressure will look for tools that help
+them search. JobSentinel's job is to make the private, explicit, review-first
+path the easiest path, not to hide risks or push users toward unsafe forks or
+unreviewed scripts.
+
 ## At A Glance
 
 | Question | Answer |

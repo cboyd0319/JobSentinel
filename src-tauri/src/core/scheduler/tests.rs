@@ -33,6 +33,7 @@ fn create_test_config() -> Config {
         greenhouse_urls: vec![],
         lever_urls: vec![],
         linkedin: Default::default(),
+        restricted_source_acknowledgements: Default::default(),
         jobswithgpt_endpoint: String::new(),
         jobswithgpt_approval: Default::default(),
         remoteok: Default::default(),
@@ -544,8 +545,7 @@ async fn test_scraping_cycle_jobswithgpt_error_path() {
 }
 
 #[tokio::test]
-async fn test_scraping_cycle_linkedin_disabled_by_source_policy() {
-    // LinkedIn automatic monitoring is disabled by source policy.
+async fn test_scraping_cycle_linkedin_user_choice_warns_without_hidden_monitoring() {
     let mut config = create_test_config();
     config.linkedin.enabled = true;
     config.linkedin.query = "Engineer".to_string();
@@ -557,10 +557,12 @@ async fn test_scraping_cycle_linkedin_disabled_by_source_policy() {
 
     let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
 
-    // Run cycle - LinkedIn automatic monitoring is rejected.
     let result = scheduler.run_scraping_cycle().await.unwrap();
 
-    assert!(result.errors.iter().any(|e| e.contains("source policy")));
+    assert!(result
+        .errors
+        .iter()
+        .any(|e| e.contains("Open LinkedIn yourself") && e.contains("User Agreement")));
 }
 
 #[tokio::test]

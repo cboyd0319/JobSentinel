@@ -98,5 +98,13 @@
     "location": "",
     "remote_only": false,
     "limit": 25
+  },
+
+  "restricted_source_acknowledgements": {
+    "_note": "Restricted job-board checks are off until the user reviews the in-app warning and accepts the risk locally.",
+    "builtin": false,
+    "dice": false,
+    "simplyhired": false,
+    "glassdoor": false
   }
 }

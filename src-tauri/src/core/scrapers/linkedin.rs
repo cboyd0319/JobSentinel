@@ -1,8 +1,8 @@
 //! LinkedIn source boundary.
 //!
-//! JobSentinel does not automate LinkedIn job collection. LinkedIn can still be
-//! used through user-opened search links, but background monitoring is disabled
-//! unless a future source-specific review identifies an allowed official path.
+//! JobSentinel does not run hidden LinkedIn job collection. LinkedIn can still
+//! be used through user-opened search links, manual entry, and Browser Import
+//! for individual pages the user chooses.
 
 use super::{JobScraper, ScraperError, ScraperResult};
 use async_trait::async_trait;
@@ -10,9 +10,11 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 pub const LINKEDIN_AUTOMATION_DISABLED_MESSAGE: &str =
-    "LinkedIn automatic monitoring is disabled by JobSentinel source policy. \
-     Use job-site search links to open LinkedIn yourself, or monitor official \
-     company and ATS sources instead.";
+    "JobSentinel does not run hidden LinkedIn monitoring. Open LinkedIn yourself, \
+     use a search link, paste one job link, Browser Import, or manual entry. \
+     LinkedIn says third-party software that scrapes or automates activity can \
+     violate its User Agreement, may lead to account restrictions, and may raise \
+     privacy-law concerns.";
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct LinkedInScraper {
@@ -89,7 +91,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn scrape_is_disabled_by_source_policy() {
+    async fn scrape_warns_for_user_directed_paths() {
         let scraper = LinkedInScraper::new("manager", "Denver");
 
         let err = scraper.scrape().await.unwrap_err();
@@ -98,6 +100,7 @@ mod tests {
             err,
             ScraperError::InvalidConfiguration { ref scraper, .. } if scraper == "linkedin"
         ));
-        assert!(err.to_string().contains("source policy"));
+        assert!(err.to_string().contains("Open LinkedIn yourself"));
+        assert!(err.to_string().contains("User Agreement"));
     }
 }

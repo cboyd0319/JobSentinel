@@ -195,9 +195,9 @@ async fn test_yc_startups_live() {
 // ============================================================================
 
 #[tokio::test]
-#[ignore = "LinkedIn automatic monitoring is disabled by source policy"]
+#[ignore = "Live LinkedIn automation is not part of default CI; use user-gated native import paths"]
 async fn test_linkedin_live() {
-    println!("LinkedIn: automatic monitoring disabled; use browser import instead");
+    println!("LinkedIn: use user-gated native import paths instead of default hidden monitoring");
 }
 
 #[tokio::test]

@@ -804,6 +804,7 @@ mod tests {
             greenhouse_urls: vec![],
             lever_urls: vec![],
             linkedin: LinkedInConfig::default(),
+            restricted_source_acknowledgements: Default::default(),
             auto_refresh: AutoRefreshConfig::default(),
             jobswithgpt_endpoint: endpoint.to_string(),
             jobswithgpt_approval: Default::default(),
