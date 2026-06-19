@@ -102,7 +102,7 @@ Out of scope:
 ## Done Recently
 
 - macOS docs and release workflow separate full-public, no-account, and legacy
-  public fallback paths; post-`96344d70` local `2.9.0` DMG passes current smoke gates.
+  public fallback paths; post-`28dcd6dd` local `2.9.0` DMG passes current smoke gates.
 - Resume Match and Resume Builder hard-requirement handling now covers age,
   citizenship, screening, driving, insurance, language, schedule, and related
   review-first categories more consistently across Rust, mocks, and UI.
@@ -129,7 +129,8 @@ Out of scope:
 - File-backed app data opens through SQLCipher; legacy plaintext databases
   upgrade in place and delete temporary plaintext backups after success.
 - Downloadable Agent Skills cover the full search flow with UI metadata,
-  handoffs, templates, rubrics, and upstream/local validation.
+  handoffs, templates, rubrics, upstream/local validation, ZIP/tar checksums,
+  and local release SBOM staging.
 - Browser Import desktop/mobile manual verification passed on 2026-06-17;
   commit `361560f9` added clean send APIs and local-model revision pins.
 - CheatSheetSeries follow-ups hardened CI, cargo-deny, scraper and notification

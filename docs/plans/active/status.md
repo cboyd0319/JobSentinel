@@ -57,16 +57,16 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   encrypted SQLite vault storage, file-backed app data opens through SQLCipher,
   and passive status/list checks stay non-interactive without caching the vault key.
   Settings passphrase controls exist; macOS vault keys use native Keychain user-presence access control.
-- Current `2.9.0` no-account universal DMG is rebuilt and verified after
-  `96344d70`: checksum, metadata, universal arch, signature, mounted/installed
-  smoke, private isolated data, and no live Keychain access pass.
+- Current `2.9.0` no-account universal DMG was rebuilt after `28dcd6dd`
+  with checksum `7249068da39322b2527f59b12388cb42517459a1f425d85b926ec7e713cd596f`;
+  metadata, universal arch, signature, mounted/installed smoke, and private isolated data pass.
 - Private resume parser smoke checks passed on 2026-06-17 for the supplied PDF
   and eight reference profiles via `JOBSENTINEL_LOCAL_RESUME_SMOKE_PATHS`, with
   no committed local paths or names.
 - Downloadable Agent Skills cover the search flow with spec-compatible
   tar.gz/ZIP packaging, strict archive/checksum/CRC/central-directory checks,
   upstream `skills-ref`, handoffs, templates, rubrics, Persona/ResumeSkills/
-  career-ops coverage, and fresh 2026-06-19 lint/package integrity proof.
+  career-ops coverage, and fresh 2026-06-19 lint/package/SBOM staging proof.
 - LinkedIn runtime config/scraper types expose no session-cookie fields, and
   Browser Import manual verification passed on 2026-06-17 for desktop/mobile:
   settings, port validation, copy, private-link rejection, LinkedIn preview/save,
@@ -75,10 +75,10 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   routes; forced empty/loading/error checks passed across startup and setup.
 - Setup Wizard desktop/mobile, whole-UI post-design click/action coverage, and
   keyboard paths now have fresh Playwright evidence.
-- Current 2026-06-19 pre-release gates pass: harness 100, docs, bloat,
-  release version/readiness/deps/skills, security/static sensors, npm audit,
-  cargo audit/deny, doctor/doctor:e2e, scripts `710/710`, frontend `3124/3124`,
-  lint/build, Rust fmt/clippy/lib/all-target test, and E2E budget `272/272`.
+- Current 2026-06-19 pre-release gates pass: harness 100, docs, bloat, release
+  version/readiness/deps/skills, security/static sensors, npm audit, cargo audit/deny,
+  doctor/doctor:e2e, scripts `710/710`, frontend `3124/3124`, lint/build,
+  Rust fmt/clippy/lib/all-target test, E2E `272/272`, and local macOS DMG/SBOM/skills checks.
 - Final non-`content/` expert/agent pass is applied locally. Gatekeeper-ready
   macOS remains Apple-blocked; wiki drafts await approval to push.
 - 2026-06-18 OWASP CheatSheetSeries scan covered Actions, supply-chain, AI,
