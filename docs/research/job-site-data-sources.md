@@ -50,6 +50,10 @@ This brief condenses research and source-governance guidance for job monitoring.
   justified while JobSentinel already pins `scraper` and `quick-xml`; Scrapling
   fetch, browser, and spider features are out of scope because they add
   fingerprint impersonation, cookies, proxy rotation, or browser automation.
+- Prefer deterministic parser failures over heuristic field guesses. If a page
+  changes enough that a selector is uncertain, the user should see a clear
+  source-changed fallback instead of a silently misclassified company, title,
+  pay, or location field.
 - Prefer structured parsing over string splitting for source formats that
   already have stable structure, such as JSON-LD script tags and RSS item
   fields.
@@ -77,17 +81,82 @@ challenge-solving, broad crawling, or uncapped fetch behavior.
 
 2026-06-19 recheck: `cargo search`, `cargo info`, and local checkout `0d61c3e`
 show the Rust crates are still `0.2.0`, MIT licensed, and require Rust `1.85`.
-`scrapling` still defaults to SQLite storage through `rusqlite`;
-`scrapling-fetch` still advertises TLS-fingerprint-aware browser-like requests,
-automatic retries, proxy rotation, and persistent cookie sessions;
-`scrapling-browser` still exposes Playwright dynamic and stealth sessions with
-cookies in responses; and `scrapling-spider` still combines scheduler dedupe,
-sessions, caching, robots, and checkpointing. JobSentinel should not adopt them
-for v2.9.0. Its current `reqwest` funnel keeps redirects disabled, validates
-external URLs before fetch, rechecks request targets, uses sanitized logging,
-and caps decoded bodies. Reconsider only a parser-only `scrapling` experiment
-after release, with default features off and a failing source fixture proving
-that existing `scraper`/`quick-xml` parsing is insufficient.
+The local Python Scrapling checkout advertises parser relocation, stealth
+fetchers, Cloudflare challenge solving, proxy rotation, persistent sessions,
+and broad spiders. The Rust port mirrors that split: `scrapling` is the core
+parser, while `scrapling-fetch`, `scrapling-browser`, and `scrapling-spider`
+carry transport, browser, anti-bot, proxy, cookie, and crawl behavior. A local
+Cargo spike with `scrapling = { version = "=0.2.0", default-features = false }`
+compiled, but it still added a second parser stack through `scraper 0.22.0`,
+extra `html5ever` versions, `html2md`, text helpers, and URL/encoding helpers
+alongside JobSentinel's pinned `scraper 0.27.0`.
+
+Decision: do not replace JobSentinel's scraper stack wholesale for v2.9.0.
+Parser-only Scrapling remains an allowed experiment only when a real source
+fixture proves the current parser fails and Scrapling succeeds. If added later,
+pin exactly to the latest stable crate, disable default features unless
+SQLite-backed adaptive storage is explicitly justified, route already-fetched
+HTML through the existing source adapter boundary, and keep JobSentinel's
+current fetch funnel, redirect policy, URL validation, body caps, sanitized
+logging, and source-specific pacing. Do not add `scrapling-fetch`,
+`scrapling-browser`, or `scrapling-spider` for native source checks.
+
+Additional Rust scraping references supplied on 2026-06-19 did not change that
+decision. `scrapling-fetch` depends on `wreq` release-candidate crates with
+cookie, compression, SOCKS, and browser-emulation features; the local lockfile
+pulls in BoringSSL-related crates and native build tooling. Stygian's published
+Rust crates are explicitly anti-detection, proxy-rotation, graph-extraction,
+and browser-automation oriented. General Rust scraping guides are useful for
+API/HTML parsing patterns, but JobSentinel's desktop release path needs fewer
+native build surfaces, not more. Keep `reqwest` with rustls and the existing
+`scraper`/`quick-xml` parsers unless a failing, source-specific fixture proves
+otherwise.
+
+Adaptive selector relocation is also a poor default for durable job records.
+It needs a prior selector fingerprint, which new users do not have, and its
+best-match behavior can be wrong in ways that look plausible. For scheduled
+source checks, a blocked source or changed page must return a structured
+source-status message and a manual or Browser Import fallback rather than
+guessing job fields.
+
+## Source-Mining Pass
+
+The 2026-06-19 mining pass reviewed local JobSpy, old job-aggregator examples,
+and public job scraper or automation projects. Keep useful source intelligence,
+but do not import unsafe transport habits.
+
+Useful deltas:
+
+- Add BDJobs to the shared source taxonomy for Bangladesh coverage.
+- Promote Naukri and Bayt to restricted candidate sources because source-mined
+  projects show account-free data shapes worth reviewing.
+- Treat Google Jobs as a candidate visible-result or user-opened import helper,
+  not a scheduled search scraper.
+- Add per-source capability notes before native adapters. Some sources cannot
+  combine recency, remote, job-type, and easy-apply filters in one request, so
+  JobSentinel should explain unsupported filter combinations instead of showing
+  confusing empty results.
+- Reuse normalization ideas for listed pay, salary interval, salary source,
+  job type, remote signal, skills, experience ranges, company ratings, and
+  direct employer apply links.
+- Prioritize user-defined career portals: a user should be able to paste a
+  company career URL and let JobSentinel detect Greenhouse, Lever, Ashby,
+  Workday, or another reviewed hiring platform.
+
+Patterns to avoid:
+
+- Do not copy embedded third-party API keys, app tokens, static mobile headers,
+  cookies, session state, or authorization material from other projects.
+- Do not add proxy rotation, TLS/browser impersonation, challenge solving,
+  cookie injection, hidden authenticated reads, or broad crawlers as default
+  JobSentinel source behavior.
+- Do not use "undetected" browser wrappers, challenge solvers, proxy-rotation
+  SDKs, copied mobile-app identities, or pasted cURL/session replays to make a
+  source pass. Treat those as evidence that the source needs a safer fallback,
+  not as implementation requirements.
+- Do not send resumes, private notes, salary floors, saved answers, or
+  application history to external AI or hosted scraping services unless the
+  user explicitly configures that path through the privacy-first AI gateway.
 
 ## Open evaluation ideas
 

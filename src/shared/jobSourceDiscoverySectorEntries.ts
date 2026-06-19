@@ -94,14 +94,21 @@ export const JOB_SOURCE_SECTOR_DISCOVERY_ENTRIES: readonly model.JobSourceDiscov
     label: "Naukri",
     category: "international",
     accessModel: "restricted-user-gated",
-    status: "research",
+    status: "candidate",
     regions: ["India"],
     careerProfileIds: "all",
     hostPatterns: ["naukri.com"],
+    searchParameterPatterns: [
+      "keyword=<role-or-skill>",
+      "location=<city-or-state>",
+      "remote=true",
+      "days=<posted-within-days>",
+    ],
     examples: ["India job search"],
     implementationPath:
-      "Research current access model. Prefer user-opened import until reviewed.",
-    notes: model.RESTRICTED_BOARD_NOTES,
+      "Candidate restricted source after source-specific terms, fixtures, and user-safe errors are reviewed; prefer user-opened import until then.",
+    notes:
+      "JobSpy shows an account-free web API shape with skills, experience, work-from-home labels, and India salary formats. Do not copy static app tokens, proxy behavior, or broad retry loops.",
     requiresUserAgreement: true,
   },
   {
@@ -199,14 +206,40 @@ export const JOB_SOURCE_SECTOR_DISCOVERY_ENTRIES: readonly model.JobSourceDiscov
     label: "Bayt",
     category: "international",
     accessModel: "restricted-user-gated",
-    status: "research",
+    status: "candidate",
     regions: ["Middle East", "North Africa"],
     careerProfileIds: "all",
     hostPatterns: ["bayt.com"],
+    searchParameterPatterns: [
+      "/en/international/jobs/<query>-jobs/",
+      "page=<page-number>",
+    ],
     examples: ["MENA job search"],
     implementationPath:
-      "Research current access model. Prefer user-opened import until reviewed.",
-    notes: model.RESTRICTED_BOARD_NOTES,
+      "Candidate restricted source after source-specific terms, fixtures, and rate limits are reviewed; prefer user-opened import until then.",
+    notes:
+      "JobSpy demonstrates public HTML parsing for Bayt search pages, but JobSentinel still needs source-specific agreement copy, fixtures, and polite pacing before direct collection.",
+    requiresUserAgreement: true,
+  },
+  {
+    id: "bdjobs",
+    label: "BDJobs",
+    category: "international",
+    accessModel: "restricted-user-gated",
+    status: "candidate",
+    regions: ["Bangladesh"],
+    careerProfileIds: "all",
+    hostPatterns: ["bdjobs.com", "jobs.bdjobs.com"],
+    searchParameterPatterns: [
+      "/jobsearch.asp",
+      "txtsearch=<role-or-skill>",
+      "pg=<page-number>",
+    ],
+    examples: ["Bangladesh job search"],
+    implementationPath:
+      "Candidate restricted source after source-specific terms, fixtures, and rate limits are reviewed; prefer user-opened import until then.",
+    notes:
+      "JobSpy adds a BDJobs parser for Bangladesh coverage. Treat it as source intelligence only until JobSentinel has its own bounded fetch contract, duplicate handling, safe errors, and release proof.",
     requiresUserAgreement: true,
   },
   {
@@ -645,15 +678,20 @@ export const JOB_SOURCE_SECTOR_DISCOVERY_ENTRIES: readonly model.JobSourceDiscov
     label: "Google Jobs Search",
     category: "search-engine",
     accessModel: "review-required",
-    status: "manual-only",
+    status: "candidate",
     regions: ["global"],
     careerProfileIds: "all",
     hostPatterns: ["google.com/search"],
+    searchParameterPatterns: [
+      "q=<specific-job-search>",
+      "ibp=htl;jobs",
+      "htivrt=jobs",
+    ],
     examples: ["Google job rich results"],
     implementationPath:
-      "Use as a manual discovery aid or user-opened import path, not scheduled scraping.",
+      "Candidate user-opened import and visible-result parsing path only; do not run scheduled Google result scraping.",
     notes:
-      "Useful for finding employer career pages, but direct automated search scraping should stay disabled.",
+      "Useful for finding employer career pages. Source-mined projects show query-shape and structured-data ideas, but JobSentinel should avoid automated Google search scraping unless a later review proves a permitted path.",
   },
   {
     id: "jobswithgpt",

@@ -20,6 +20,13 @@ export const RESTRICTED_JOB_SOURCE_DOMAIN_RECORDS = [
       "Bayt is a MENA job board marked restricted-user-gated in the source taxonomy; warn before direct collection until source-specific access terms and account behavior are reviewed.",
   },
   {
+    domain: "bdjobs.com",
+    category: "restricted-job-board",
+    sourceRefs: ["job-source-discovery:bdjobs"],
+    reason:
+      "BDJobs is a Bangladesh job board marked restricted-user-gated in the source taxonomy; warn before direct collection until source-specific access terms, rate limits, and account behavior are reviewed.",
+  },
+  {
     domain: "builtin.com",
     category: "restricted-job-board",
     sourceRefs: ["job-source-discovery:builtin"],

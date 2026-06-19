@@ -196,6 +196,8 @@ Examples from the 2026-06-19 source pass:
 | GitHub careers | iCIMS/Jibe public career-site signals |
 | Remote First Jobs | Remote jobs source with attribution requirements |
 | Large employer company pages | Open in the user browser while native source support is reviewed |
+| Naukri, Bayt, and BDJobs | Regional candidate sources that need source-specific review before native checks |
+| Google Jobs Search | User-opened discovery and visible-result import candidate, not scheduled search scraping |
 | LinkedIn company jobs | User-gated restricted discovery only; no silent scheduled discovery or session capture |
 | LinkedIn Jobs Tracker | User-gated restricted tracking only for saved or applied jobs; no silent scheduled discovery or session capture |
 

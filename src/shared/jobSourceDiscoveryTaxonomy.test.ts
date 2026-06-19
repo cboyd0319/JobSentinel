@@ -170,9 +170,37 @@ describe("jobSourceDiscoveryTaxonomy", () => {
     expect(regionEntries("India").map((entry) => entry.id)).toEqual(
       expect.arrayContaining(["naukri", "foundit", "shine", "timesjobs"]),
     );
+    expect(regionEntries("Bangladesh").map((entry) => entry.id)).toEqual(
+      expect.arrayContaining(["bdjobs"]),
+    );
     expect(regionEntries("Canada").map((entry) => entry.id)).toEqual(
       expect.arrayContaining(["canada-job-bank"]),
     );
+  });
+
+  it("records source-mined candidates without claiming native support", () => {
+    const sourceById = (id: string) =>
+      JOB_SOURCE_DISCOVERY_TAXONOMY.find((entry) => entry.id === id);
+
+    expect(sourceById("naukri")).toMatchObject({
+      accessModel: "restricted-user-gated",
+      status: "candidate",
+      requiresUserAgreement: true,
+    });
+    expect(sourceById("bayt")).toMatchObject({
+      accessModel: "restricted-user-gated",
+      status: "candidate",
+      requiresUserAgreement: true,
+    });
+    expect(sourceById("bdjobs")).toMatchObject({
+      accessModel: "restricted-user-gated",
+      status: "candidate",
+      requiresUserAgreement: true,
+    });
+    expect(sourceById("google-jobs-search")).toMatchObject({
+      accessModel: "review-required",
+      status: "candidate",
+    });
   });
 
   it("keeps Greenhouse current and legacy host coverage explicit", () => {
