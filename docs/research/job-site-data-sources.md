@@ -70,19 +70,19 @@ structured payloads. If future work borrows ideas from Scrapling, borrow only
 parser ergonomics or selector tests. Do not borrow stealth, proxy, cookie,
 challenge-solving, broad crawling, or uncapped fetch behavior.
 
-2026-06-19 recheck: `cargo search` and `cargo info` show the Rust crates are
-still `0.2.0`, MIT licensed, and require Rust `1.85`. `scrapling` still defaults
-to SQLite storage through `rusqlite`; `scrapling-fetch` still advertises
-TLS-fingerprint-aware browser-like requests, automatic retries, proxy rotation,
-and persistent cookie sessions; `scrapling-browser` still exposes Playwright
-dynamic and stealth sessions with cookies in responses; and `scrapling-spider`
-still combines scheduler dedupe, sessions, caching, robots, and checkpointing.
-JobSentinel should not adopt them for v2.9.0. Its current `reqwest` funnel keeps
-redirects disabled, validates external URLs before fetch, rechecks request
-targets, uses sanitized logging, and caps decoded bodies. Reconsider only a
-parser-only `scrapling` experiment after release, with default features off and
-a failing source fixture proving that existing `scraper`/`quick-xml` parsing is
-insufficient.
+2026-06-19 recheck: `cargo search`, `cargo info`, and local checkout `0d61c3e`
+show the Rust crates are still `0.2.0`, MIT licensed, and require Rust `1.85`.
+`scrapling` still defaults to SQLite storage through `rusqlite`;
+`scrapling-fetch` still advertises TLS-fingerprint-aware browser-like requests,
+automatic retries, proxy rotation, and persistent cookie sessions;
+`scrapling-browser` still exposes Playwright dynamic and stealth sessions with
+cookies in responses; and `scrapling-spider` still combines scheduler dedupe,
+sessions, caching, robots, and checkpointing. JobSentinel should not adopt them
+for v2.9.0. Its current `reqwest` funnel keeps redirects disabled, validates
+external URLs before fetch, rechecks request targets, uses sanitized logging,
+and caps decoded bodies. Reconsider only a parser-only `scrapling` experiment
+after release, with default features off and a failing source fixture proving
+that existing `scraper`/`quick-xml` parsing is insufficient.
 
 ## Open evaluation ideas
 

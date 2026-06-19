@@ -91,9 +91,8 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   linuxdeploy wrapping, clean Ubuntu assets, and verified `.sha256` sidecars.
 - 2026-06-18 shared taxonomy/research work moved credentials, company suffixes,
   ATS terms, bullet prompts, hard-constraint categories, and screening aliases
-  into `src/shared/`; added HTML/JSON Resume/source-routing hardening and
-  Scrapling no-adoption decision. Recheck this decision before release against
-  current `scrapling-rs` and JobSentinel scraper evidence.
+  into `src/shared/`; 2026-06-19 source-debug evidence rechecked Scrapling
+  against current crates.io/local checkout evidence and kept no-adoption.
 - 2026-06-19 specialist hardening closes AppImage helper rehashing, shared
   scraper hashes, fragment-free dedupe, HTTPS JobsWithGPT smoke, Browser Import
   origin binding, UI blockers, and optional ML duplicate downloader deps.
@@ -110,8 +109,8 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 
 ## Next Best Work
 
-1. Use the v2.9.0 risk register and source-debug ledger to finish scraper,
-   import, restricted-source, LinkedIn-compatible, and Scrapling verification.
+1. Use the v2.9.0 risk register and source-debug ledger to finish remaining
+   manual proof for restricted-source and LinkedIn-compatible workflows.
 2. Wait for the old `v2.9.0` workflow run to finish, then push main/wiki,
    retag/build/upload/publish/verify `2.9.0` no-account assets; signed Windows
    and Gatekeeper-ready macOS remain credential-backed upgrades.

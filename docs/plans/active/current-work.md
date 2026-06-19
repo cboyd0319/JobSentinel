@@ -30,8 +30,7 @@ In scope:
   contracts as release blockers, including LinkedIn-compatible search-link,
   pasted-link, Browser Import, Workbench, reminder, acknowledgement, ledger,
   fallback, and manual-entry paths.
-- Rechecking the current Scrapling Rust decision against live `scrapling-rs`
-  evidence before release, without adopting stealth/browser/crawler behavior.
+- Keeping the current Scrapling Rust no-adoption decision tied to live evidence.
 - Truthful local resume assistance, hard-requirement review, readable evidence,
   and next-action guidance.
 - Job-card protection for stale, repeated, scam-like, weak-source,
@@ -74,7 +73,7 @@ Out of scope:
 | Dependency readiness | Complete | Package-manager, direct deps, overrides, and Action pins are latest; transitives stay lockfile-pinned |
 | Downloadable Agent Skills | Complete locally | Skills pass `lint:skills`; release packaging creates deterministic tar/ZIP artifacts. |
 | LinkedIn Workbench and restricted-source flow | Active release blocker | Manually verify actions, saved ack, reminder, pasted-text suggestions, and one-click ledger records without cookies, hidden page reading, or monitoring. |
-| Scraper/source verification | Active release blocker | Adapters, import paths, restricted gates, and LinkedIn-compatible contracts must pass parser/import/gate/manual checks, with current Scrapling comparison. |
+| Scraper/source verification | Active release blocker | Finish manual restricted-source proof; Scrapling comparison is recorded. |
 | Development and QA completion | Complete locally | Fresh full local gates pass; final release operations remain approval/credential-gated. |
 | macOS readiness | Release-gated | No-account path is complete; Gatekeeper-ready public distribution remains Apple-credential-gated. |
 | Resume assistance | Active | Tighten hard-requirement categories, evidence caps, live review copy, and mock/Rust parity only when evidence is local and explainable. |
@@ -130,6 +129,7 @@ Out of scope:
 - Downloadable Agent Skills cover the search flow with UI metadata, handoffs,
   templates, rubrics, validation, checksums, and release SBOM staging.
 - Browser Import desktop/mobile verification passed on 2026-06-17.
+- Scrapling Rust was rechecked on 2026-06-19; no v2.9.0 adoption is planned.
 - CheatSheetSeries follow-ups hardened CI, dependency gates, source/network
   pinning, notification validation/redaction, Browser Import, HTTPS imports,
   Application Assist isolation, release assets, AI guards, skills, sandboxed
@@ -149,9 +149,8 @@ Out of scope:
 
 ## Next Work
 
-1. Complete and commit source verification for every native adapter, import
-   path, restricted-source gate, LinkedIn-compatible workflow, and Scrapling
-   comparison. Do not add session capture, background page access, or scheduled
+1. Complete remaining manual restricted-source and LinkedIn-compatible workflow
+   proof. Do not add session capture, background page access, or scheduled
    LinkedIn fetches.
 2. Wait for the old `v2.9.0` workflow run to finish, then push main/wiki,
    retag/build/upload/publish/verify `2.9.0` no-account assets; signed Windows
