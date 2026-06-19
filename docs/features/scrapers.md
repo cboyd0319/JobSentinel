@@ -78,7 +78,8 @@ data behavior changes.
 
 ## User-Controlled LinkedIn Workbench
 
-The LinkedIn-compatible flow should be a workbench, not a scraper:
+The LinkedIn-compatible flow is a workbench, not a scraper. It is reachable
+from Dashboard quick actions and Settings:
 
 1. The user starts the LinkedIn session from JobSentinel.
 2. JobSentinel shows short, friendly copy about what it can help with.

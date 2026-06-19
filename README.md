@@ -95,7 +95,8 @@ require user consent, source-specific rate limits, and clear warnings, but they
 do not get account-session time gates. If a source requires the user to sign in,
 JobSentinel must show the warning before sign-in, require a fresh user-started
 session for that use, avoid storing auth tokens, cookies, browser storage, or
-authorization headers, and cap that interactive window at one hour.
+authorization headers, and show a privacy reminder during long manual sessions
+without forcing the user to close the window.
 
 Restricted-source actions stay local and user-controlled:
 
@@ -430,8 +431,8 @@ Learn more in [secure credential storage](docs/security/KEYRING.md) and the
 
 JobSentinel can check 12 job sources on a schedule, with clear source limits,
 duplicate cleanup, plain source-status checks, and limited website reads. The
-Settings page also shows 15 source-status checks. LinkedIn is a user-opened search-link
-destination, not a scheduled source.
+Settings page also shows 15 source-status checks. LinkedIn is a user-opened
+Workbench and search-link destination, not a scheduled source.
 
 | Category | Sources |
 | -------- | ------- |

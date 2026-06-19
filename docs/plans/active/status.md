@@ -71,9 +71,9 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   tar.gz/ZIP packaging, strict archive/checksum/CRC/central-directory checks,
   upstream `skills-ref`, handoffs, templates, rubrics, Persona/ResumeSkills/
   career-ops coverage, and fresh 2026-06-19 lint/package/SBOM staging proof.
-- LinkedIn config/scraper types expose no session-cookie fields. Native paths stay user-gated:
-  search links, pasted links, Browser Import, manual entry, and local Workbench ledger. Manual sessions use
-  a privacy reminder; 2026-06-19 Workbench mocks and Chromium E2E passed with no cookies, tokens, or page state.
+- LinkedIn config/scraper types expose no session-cookie fields. Native user-gated paths are search links, pasted links,
+  Browser Import, manual entry, and local Workbench ledger. The Workbench is the active direction instead of a browser extension,
+  opens from Dashboard quick actions and Settings, and uses privacy reminders without forced close.
 - Desktop/mobile normal-state and Quiet Shield token checks passed for primary
   routes; forced empty/loading/error checks passed across startup and setup.
 - Setup Wizard desktop/mobile, whole-UI post-design click/action coverage, and

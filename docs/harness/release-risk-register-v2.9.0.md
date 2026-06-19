@@ -82,7 +82,8 @@ Release status:
 
 Blocking only if `2.9.0` claims native authenticated LinkedIn scraping or
 tracking. Non-blocking if `2.9.0` ships LinkedIn as user-opened search links,
-Browser Import, pasted single-job links, and manual entry.
+the local Workbench ledger, Browser Import, pasted single-job links, and manual
+entry.
 
 Fix:
 
@@ -90,6 +91,11 @@ Either keep all LinkedIn claims to the current user-directed paths, or implement
 and manually verify an ephemeral interactive session manager before release:
 pre-login warning, fresh sign-in, no persisted auth material, no background use,
 plain-language privacy reminder, and full UI coverage.
+
+Current release direction is the local Workbench ledger, not the browser
+extension path. The Workbench can be opened from Dashboard quick actions or
+Settings, shows friendly acknowledgement copy, opens LinkedIn only when the user
+chooses, and records only user-confirmed local events.
 
 A human-controlled LinkedIn browser shell is compatible with that policy only if
 it does not read, extract, capture, or automate LinkedIn pages. JobSentinel may

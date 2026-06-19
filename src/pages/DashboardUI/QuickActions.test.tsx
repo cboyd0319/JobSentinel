@@ -1,8 +1,9 @@
 import { fireEvent, render, screen } from "@testing-library/react";
+import type { ComponentProps } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { QuickActions } from "./QuickActions";
 
-function renderQuickActions() {
+function renderQuickActions(overrides: Partial<ComponentProps<typeof QuickActions>> = {}) {
   const noop = vi.fn();
 
   return render(
@@ -16,6 +17,8 @@ function renderQuickActions() {
       onClearFilters={noop}
       hasActiveFilters={false}
       onImportJob={noop}
+      onOpenLinkedInWorkbench={noop}
+      {...overrides}
     />,
   );
 }
@@ -37,5 +40,15 @@ describe("QuickActions plain-language actions", () => {
 
     expect(screen.getByRole("region", { name: "Keyboard shortcuts" })).toBeInTheDocument();
     expect(screen.getByText("Keyboard Shortcuts")).toBeInTheDocument();
+  });
+
+  it("opens the LinkedIn Workbench from the dashboard action", () => {
+    const onOpenLinkedInWorkbench = vi.fn();
+
+    renderQuickActions({ onOpenLinkedInWorkbench });
+
+    fireEvent.click(screen.getByRole("button", { name: "LinkedIn Workbench" }));
+
+    expect(onOpenLinkedInWorkbench).toHaveBeenCalledTimes(1);
   });
 });

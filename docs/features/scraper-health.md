@@ -10,7 +10,7 @@ plain-language status and safe next steps.
 | ---- | ---------------- |
 | Scheduled source status | Tracks Greenhouse, Lever, RemoteOK, WeWorkRemotely, BuiltIn, startup and tech job posts, JobsWithGPT, Dice, YC Startup Jobs, USAJobs, SimplyHired, and Glassdoor |
 | Source-check coverage | Includes scheduled sources plus Indeed, Wellfound, and ZipRecruiter availability checks |
-| User-opened search links | LinkedIn and similar destination links are opened by the user, not monitored in the background |
+| User-opened search links and Workbench | LinkedIn and similar destination links are opened by the user, with local-only Workbench actions and no background monitoring |
 | Restricted-site gate | Risky source actions explain in plain language that some sites have rules about automated tools, then continue only after user acknowledgement |
 | Saved access details | Tracks user-approved external channels where applicable; LinkedIn login details are not collected |
 | Support reports | Safe support reports can be copied or saved locally, reviewed, and shared only when the user chooses |
@@ -69,6 +69,12 @@ LinkedIn and other restricted boards are intentionally handled through
 user-directed or explicitly acknowledged paths. They should not appear as a
 credential-renewal prompt, hidden background source, or job-site check that runs
 without the user's explicit action.
+
+The LinkedIn Workbench is available from Dashboard quick actions and Settings.
+It records only user-confirmed local events such as applied, saved, tracking,
+notes, or not interested. It does not collect LinkedIn login details, read page
+content, inspect network traffic, save browser storage, or run scheduled
+LinkedIn checks.
 
 If a restricted source is enabled without acknowledgement, the status surface
 should tell the user to review the restricted-source warning in Settings or use

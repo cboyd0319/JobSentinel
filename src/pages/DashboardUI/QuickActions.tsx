@@ -14,6 +14,7 @@ interface QuickActionsProps {
   onClearFilters: () => void;
   hasActiveFilters: boolean;
   onImportJob?: () => void;
+  onOpenLinkedInWorkbench?: () => void;
 }
 
 export const QuickActions = memo(function QuickActions({
@@ -26,6 +27,7 @@ export const QuickActions = memo(function QuickActions({
   onClearFilters,
   hasActiveFilters,
   onImportJob,
+  onOpenLinkedInWorkbench,
 }: QuickActionsProps) {
   const [showKeyboardShortcuts, setShowKeyboardShortcuts] = useState(false);
 
@@ -51,6 +53,22 @@ export const QuickActions = memo(function QuickActions({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
             Import Job
+          </button>
+        )}
+
+        {onOpenLinkedInWorkbench && (
+          <button
+            onClick={onOpenLinkedInWorkbench}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg
+                       bg-surface-100 dark:bg-surface-700 text-surface-700 dark:text-surface-300
+                       hover:bg-surface-200 dark:hover:bg-surface-600 transition-colors
+                       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sentinel-500 focus-visible:ring-offset-1"
+            title="Use LinkedIn yourself and save local job records"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6h8m-8 4h8m-8 4h5M6 6h.01M6 10h.01M6 14h.01M4 20h16" />
+            </svg>
+            LinkedIn Workbench
           </button>
         )}
 

@@ -48,6 +48,11 @@ const CompanyResearchPanel = lazy(() =>
   })),
 );
 const Settings = lazy(() => import("./Settings"));
+const LinkedInWorkbench = lazy(() =>
+  import("../components/LinkedInWorkbench").then((m) => ({
+    default: m.LinkedInWorkbench,
+  })),
+);
 
 // Extracted modules
 import type {
@@ -110,6 +115,7 @@ export default function Dashboard({
   const [cooldownSeconds, setCooldownSeconds] = useState(0);
   const [researchCompany, setResearchCompany] = useState<string | null>(null);
   const [showImportModal, setShowImportModal] = useState(false);
+  const [showLinkedInWorkbench, setShowLinkedInWorkbench] = useState(false);
   const [salaryFloorUsd, setSalaryFloorUsd] = useState<number | null>(null);
   const [anyJobSourceEnabled, setAnyJobSourceEnabled] = useState<
     boolean | null
@@ -507,6 +513,10 @@ export default function Dashboard({
     jobOps.handleExportJobs(filters.filteredAndSortedJobs);
   }, [jobOps, filters.filteredAndSortedJobs]);
 
+  const handleOpenLinkedInWorkbench = useCallback(() => {
+    setShowLinkedInWorkbench(true);
+  }, []);
+
   const handleLoadSearch = useCallback(
     (search: SavedSearch) => {
       savedSearches.handleLoadSearch(search, filters.loadFilters);
@@ -607,6 +617,7 @@ export default function Dashboard({
           onClearFilters={filters.clearFilters}
           hasActiveFilters={!!filters.hasActiveFilters}
           onImportJob={() => setShowImportModal(true)}
+          onOpenLinkedInWorkbench={handleOpenLinkedInWorkbench}
         />
 
         <section className="mt-4">
@@ -778,6 +789,18 @@ export default function Dashboard({
         onClose={() => jobOps.setCompareModalOpen(false)}
         comparedJobs={jobOps.comparedJobs}
       />
+
+      <Modal
+        isOpen={showLinkedInWorkbench}
+        onClose={() => setShowLinkedInWorkbench(false)}
+        title="LinkedIn Workbench"
+        description="Use LinkedIn yourself, then save the jobs and actions you choose in JobSentinel."
+        size="xl"
+      >
+        <Suspense fallback={<PanelSkeleton />}>
+          <LinkedInWorkbench />
+        </Suspense>
+      </Modal>
 
       {/* Company Research Modal */}
       {researchCompany && (

@@ -299,6 +299,20 @@ test.describe("Job Search and Filtering", () => {
   });
 
   test.describe("Job Import Modal", () => {
+    test("opens the LinkedIn Workbench from the dashboard", async ({ page }) => {
+      await page.getByRole("button", { name: "LinkedIn Workbench" }).click();
+
+      const dialog = page.getByRole("dialog", { name: "LinkedIn Workbench" });
+      await expect(dialog).toBeVisible();
+      await expect(dialog).toContainText(
+        "Use LinkedIn yourself. JobSentinel keeps a private local record",
+      );
+      await expect(dialog.getByRole("button", { name: "Log applied" })).toBeDisabled();
+
+      await page.keyboard.press("Escape");
+      await expect(dialog).not.toBeVisible();
+    });
+
     test("should block plain HTTP imports from the dashboard", async ({ page }) => {
       await page.getByRole("button", { name: "Import Job" }).click();
 
