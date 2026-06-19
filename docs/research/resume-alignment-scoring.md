@@ -330,6 +330,9 @@ Future implementation should improve:
   are curated from JobSentinel research, private local reference profiles, and
   current public resume-keyword guidance; they should stay evidence-oriented
   and must not become copied third-party keyword dumps.
+- Resume/job fit now keeps conservative requirement-search equivalence groups
+  in `src/shared/resumeKeywordTaxonomy.json`, so common wording variants can
+  grow from shared data instead of Rust-only arrays.
 - Resume/job fit now keeps credential, license, and designation groups in
   `src/shared/resumeKeywordTaxonomy.json` so Rust and TypeScript paths do not
   drift. Each group separates evidence/search terms from requirement extraction

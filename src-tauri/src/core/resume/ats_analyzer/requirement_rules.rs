@@ -16,6 +16,8 @@ struct ResumeKeywordTaxonomy {
     bullet_power_words: Vec<String>,
     #[serde(rename = "physicalWeightRequirements")]
     physical_weight_requirements: PhysicalWeightRequirements,
+    #[serde(rename = "conservativeSearchTermGroups")]
+    conservative_search_term_groups: Vec<Vec<String>>,
     #[serde(rename = "credentialKeywordGroups")]
     credential_keyword_groups: Vec<CredentialKeywordGroup>,
     #[serde(rename = "supplementalKeywordGroups")]
@@ -88,6 +90,13 @@ static TAXONOMY: Lazy<ResumeKeywordTaxonomy> = Lazy::new(|| {
     assert_eq!(
         taxonomy.schema_version, 1,
         "unsupported shared resume keyword taxonomy schema"
+    );
+    assert!(
+        taxonomy
+            .conservative_search_term_groups
+            .iter()
+            .all(|group| group.len() >= 2 && group.iter().all(|term| !term.trim().is_empty())),
+        "shared conservative search term groups must contain at least two non-empty terms"
     );
     taxonomy
 });
@@ -210,6 +219,10 @@ pub(super) fn human_languages() -> &'static [String] {
 
 pub(super) fn bullet_power_words() -> &'static [String] {
     &TAXONOMY.bullet_power_words
+}
+
+pub(super) fn conservative_search_term_groups() -> &'static [Vec<String>] {
+    &TAXONOMY.conservative_search_term_groups
 }
 
 pub(super) fn extract_supplemental_keywords(text: &str) -> Vec<String> {
