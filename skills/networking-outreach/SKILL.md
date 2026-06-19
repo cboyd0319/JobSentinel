@@ -1,6 +1,6 @@
 ---
 name: networking-outreach
-description: Draft truthful recruiter, referral, alumni, community, and warm-contact outreach for a job search. Use when asking for introductions, following up on conversations, replying to recruiters, requesting role context, or writing concise networking messages without spam or exaggeration.
+description: Draft truthful recruiter, referral, alumni, community, LinkedIn, email, and warm-contact outreach for a job search. Use when asking for introductions, following up on conversations, replying to recruiters, requesting role context, or writing concise networking messages without spam or exaggeration.
 license: MIT
 metadata:
   jobsentinel_version_target: "2.9.0"
@@ -22,7 +22,9 @@ evidence, shared context, preferred channel, and the user’s boundaries.
    alumni note, community follow-up, informational chat, or thank-you.
 2. Separate confirmed facts from assumptions.
 3. Pick the channel: email, LinkedIn message, text, recruiter reply, referral
-   ask, community DM, or follow-up. Match length and tone to the channel.
+   ask, community DM, or follow-up. Match length and tone to the channel; use
+   [Outreach Channel Patterns](references/channel-patterns.md) when channel
+   details matter.
 4. Pick one clear ask, such as a brief call, a role-context question, a referral
    path, or permission to share a resume.
 5. Verify warm-tie provenance before using it. The user must confirm referrals,
@@ -43,12 +45,13 @@ evidence, shared context, preferred channel, and the user’s boundaries.
    or unsupported "unique fit" claims.
 10. End with a send-review checklist: recipient, channel, role URL, factual
    claims, attachments, links, salary/location/visa/timing details, and
-   confidential information.
+   confidential information. Convert unsupported relationship, referral, or
+   urgency claims into user questions.
 
 ## Load References
 
-- Load `references/channel-patterns.md` for email, LinkedIn, text, recruiter
-  reply, referral ask, and follow-up variants.
+- Load [Outreach Channel Patterns](references/channel-patterns.md) for email,
+  LinkedIn, text, recruiter reply, referral ask, and follow-up variants.
 
 ## Output
 
@@ -61,7 +64,8 @@ Produce:
 - Questions or facts the user must confirm before sending.
 - Send-review checklist.
 
-Use `assets/outreach-note-template.md` for reusable message notes.
+Use [Outreach Note Template](assets/outreach-note-template.md) for reusable
+message notes.
 
 ## Handoff
 

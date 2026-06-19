@@ -1,6 +1,6 @@
 ---
 name: offer-pay-review
-description: Review written offers, listed pay, salary floors, benefits, schedule, level, scope, risks, and negotiation notes. Use when comparing offers, checking below-floor pay, preparing a counter, or deciding whether to accept, decline, or ask questions.
+description: Review written offers, listed pay, salary floors, benefits, schedule, level, scope, risks, pay-equity concerns, and negotiation notes. Use when comparing offers, checking below-floor pay, preparing a counteroffer, or deciding whether to accept, decline, or ask questions.
 license: MIT
 metadata:
   jobsentinel_version_target: "2.9.0"
@@ -38,17 +38,25 @@ scope, title, reporting line, travel, and promotion path.
    broad ranges, downleveling, lower-title/lower-pay tradeoffs, and pressure to
    decide before written facts are complete.
 9. Identify questions to ask before accepting or countering.
-10. If comparing multiple offers, use a user-weighted decision matrix for
-   total compensation, schedule, commute or relocation, growth, risk, and
-   must-haves. Do not let a numeric score override a failed must-have.
-11. Draft counter, clarification, or decline notes only from confirmed facts.
-    Frame them as editable notes, not pressure scripts.
+10. If comparing multiple offers, use a user-weighted decision matrix for total
+    compensation, schedule, commute or relocation, growth, risk, and must-haves.
+    Use [Offer Pay Rubric](references/offer-pay-rubric.md) for tradeoff checks.
+    Do not let a numeric score override a failed must-have.
+11. Before drafting notes, validate written facts against verbal claims,
+    deadlines, and must-haves. Draft counter, clarification, or decline notes
+    only from confirmed facts. Frame them as editable notes, not pressure
+    scripts.
 12. End with options: accept, counter, ask questions, decline, or pause.
 
 ## Load References
 
-- Load `references/offer-pay-rubric.md` for total-comp comparison, deadline
-  pressure, written-vs-verbal evidence, counter notes, and decline notes.
+- Load [Offer Pay Rubric](references/offer-pay-rubric.md) for total-comp
+  comparison, deadline pressure, written-vs-verbal evidence, counter notes, and
+  decline notes.
+- Load [Current Source Checks](references/current-source-checks.md) when using
+  market data, pay-transparency or salary-history rules, noncompete or repayment
+  terms, relocation or tax complexity, visa-related terms, or other
+  jurisdiction-specific claims.
 
 ## Output
 
@@ -63,7 +71,8 @@ Produce:
 - Questions to ask.
 - Counter or clarification note draft, if requested.
 
-Use `assets/offer-comparison-template.md` for a reusable comparison.
+Use [Offer Comparison Template](assets/offer-comparison-template.md) for a
+reusable comparison.
 
 ## Handoff
 

@@ -1,6 +1,6 @@
 ---
 name: application-tracking
-description: Track job applications, statuses, follow-ups, interviews, contacts, salary notes, no-response reviews, and next actions. Use when organizing an active search, creating a tracker, updating application status, or deciding what to do next.
+description: Track a job-search pipeline, application statuses, follow-up calendar, interviews, contacts, material versions, salary notes, no-response reviews, and next actions. Use when organizing an active search, creating a tracker, updating application status, or deciding what to do next.
 license: MIT
 metadata:
   jobsentinel_version_target: "2.9.0"
@@ -44,7 +44,8 @@ tokens before storing links.
    - Closed;
    - Skip;
    - Withdrawn.
-3. Enforce status transitions:
+3. Enforce status transitions with
+   [Application Status Transition Rules](references/status-transition-rules.md):
    - saved roles move to To Apply, Verify First, Skip, or Withdrawn;
    - Applied roles move only after receipt, contact, rejection, interview, offer,
      no-response review, or user withdrawal;
@@ -69,12 +70,16 @@ tokens before storing links.
    - outreach version or none;
    - submitted-claims snapshot when the form or resume changed.
 10. Produce a daily next-action list.
+11. Before presenting tracker updates, verify terminal statuses have reasons and
+    no follow-up dates, links are scrubbed, and material versions are not
+    inferred from current files.
 
 ## Load References
 
-- Load `references/status-transition-rules.md` when creating a tracker,
-  normalizing statuses, deciding follow-up timing, handling no-response items,
-  scrubbing links, or recording submitted material versions.
+- Load [Application Status Transition Rules](references/status-transition-rules.md)
+  when creating a tracker, normalizing statuses, deciding follow-up timing,
+  handling no-response items, scrubbing links, or recording submitted material
+  versions.
 
 ## Output
 
@@ -89,8 +94,8 @@ Produce:
 - Source liveness or stale-link review list.
 - Material version gaps or missing submitted-claim notes.
 
-Use `assets/application-tracker.csv` when the user wants a simple portable
-tracker.
+Use [Application Tracker](assets/application-tracker.csv) when the user wants a
+simple portable tracker.
 
 ## Handoff
 

@@ -1,6 +1,6 @@
 ---
 name: job-posting-risk-review
-description: Review job postings for stale, reposted, low-detail, scam-like, weak-source, unclear-location, hard-requirement, and missing-pay risks before tailoring. Use when deciding whether to apply, verify first, save, or skip a job post.
+description: Review job postings for stale, reposted, ghost job, low-detail, scam-like, weak-source, unclear-location, hard-requirement, and missing-pay risks before tailoring. Use when deciding whether to apply, verify first, save, or skip a job post.
 license: MIT
 metadata:
   jobsentinel_version_target: "2.9.0"
@@ -42,6 +42,9 @@ in, scraping restricted pages, or collecting session cookies.
    - missing, very broad, top-only, or below-floor pay;
    - money requests, gift cards, fake checks, payment apps, crypto, messaging
      app interviews, or sensitive information requested too early.
+   When multiple warnings appear, use
+   [Posting Risk Scoring](references/posting-risk-scoring.md) before selecting a
+   final label or next action.
 5. Label evidence confidence:
    - high confidence: official employer or ATS page, written details, current
      date, and matching application route;
@@ -57,8 +60,9 @@ in, scraping restricted pages, or collecting session cookies.
 
 ## Load References
 
-- Load `references/posting-risk-scoring.md` when the role has multiple warnings,
-  disputed source quality, compensation uncertainty, or hard-requirement risk.
+- Load [Posting Risk Scoring](references/posting-risk-scoring.md) when the role
+  has multiple warnings, disputed source quality, compensation uncertainty, or
+  hard-requirement risk.
 
 ## Output
 
@@ -70,7 +74,8 @@ Use plain labels:
 - `Verify before tailoring`: do not spend serious time until the role is
   confirmed.
 
-Use `assets/posting-review-template.md` for a reusable review note.
+Use [Posting Review Template](assets/posting-review-template.md) for a reusable
+review note.
 
 ## Handoff
 

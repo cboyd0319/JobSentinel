@@ -1,6 +1,6 @@
 ---
 name: application-form-review
-description: Prepare and review job application form answers before the user submits manually. Use for screening questions, saved answers, work authorization, salary, schedule, location, travel, certifications, background checks, and application-form consistency with the resume.
+description: Prepare and review job application form answers before the user submits manually. Use for screening or knockout questions, saved answers, work authorization, salary-history or expectations, schedule, location, travel, certifications, background checks, and application-form consistency with the resume.
 license: MIT
 metadata:
   jobsentinel_version_target: "2.9.0"
@@ -43,7 +43,9 @@ documents, background-check details, salary history, or references.
    authorization, citizenship, location, schedule, travel, relocation,
    licenses, certifications, clearances, degrees, years of experience,
    salary, and availability must match the resume version and user-confirmed
-   records.
+   records. Use
+   [Application Answer Provenance](references/answer-provenance.md) when any
+   answer is disputed, sensitive, or high-risk.
 8. Treat salary-history questions as high-risk user-choice items. Help the user
    redirect toward the role range, target range, or "prefer not to answer" when
    that fits their preference; do not choose for them.
@@ -51,16 +53,17 @@ documents, background-check details, salary history, or references.
    salary-history questions as user-choice items. Explain what is being asked;
    do not choose for the user.
 10. Flag questions that need user review before continuing.
-11. End with a submission checklist. The user submits manually.
+11. End with a submission checklist and convert unresolved mismatches into user
+    questions. The user submits manually.
 12. Require explicit user approval before connecting accounts, uploading files,
    using automation to fill fields, saving credentials, or saving cookies.
 
 ## Load References
 
-- Load `references/answer-provenance.md` when the form has hard screening
-  questions, protected or voluntary questions, salary-history prompts,
-  background-check fields, exact-answer disputes, or repeated fields that must
-  match a resume or profile.
+- Load [Application Answer Provenance](references/answer-provenance.md) when the
+  form has hard screening questions, protected or voluntary questions,
+  salary-history prompts, background-check fields, exact-answer disputes, or
+  repeated fields that must match a resume or profile.
 
 ## Output
 
@@ -72,7 +75,8 @@ Produce:
 - Blank fields that require user input.
 - Submission checklist.
 
-Use `assets/form-review-checklist.md` for a reusable checklist.
+Use [Form Review Checklist](assets/form-review-checklist.md) for a reusable
+checklist.
 
 ## Handoff
 

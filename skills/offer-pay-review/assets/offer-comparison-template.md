@@ -28,21 +28,21 @@
 
 ## Review
 
-| Area | Evidence | Risk level | Question or action |
-| ---- | -------- | ---------- | ------------------ |
-| Pay |  |  |  |
-| Total compensation |  |  |  |
-| Scope and level |  |  |  |
-| Benefits |  |  |  |
-| Schedule and commute |  |  |  |
-| Relocation or travel |  |  |  |
-| Growth path |  |  |  |
-| Deadline pressure |  |  |  |
+| Area | Evidence | Source/date | Risk level | Question or action |
+| ---- | -------- | ----------- | ---------- | ------------------ |
+| Pay |  |  |  |  |
+| Total compensation |  |  |  |  |
+| Scope and level |  |  |  |  |
+| Benefits |  |  |  |  |
+| Schedule and commute |  |  |  |  |
+| Relocation or travel |  |  |  |  |
+| Growth path |  |  |  |  |
+| Deadline pressure |  |  |  |  |
 
 ## Weighted Decision Matrix
 
-| Factor | Weight | Offer A evidence | Offer A score | Offer B evidence | Offer B score | User must confirm |
-| ------ | ------ | ---------------- | ------------- | ---------------- | ------------- | ----------------- |
+| Factor | Weight | Offer A evidence/source | Offer A score | Offer B evidence/source | Offer B score | User must confirm |
+| ------ | ------ | ----------------------- | ------------- | ----------------------- | ------------- | ----------------- |
 | Total compensation |  |  |  |  |  |  |
 | Schedule and flexibility |  |  |  |  |  |  |
 | Commute, relocation, or travel |  |  |  |  |  |  |

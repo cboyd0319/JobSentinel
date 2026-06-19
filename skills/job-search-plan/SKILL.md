@@ -1,6 +1,6 @@
 ---
 name: job-search-plan
-description: Build a focused job-search plan, weekly search loop, target-role list, source mix, outreach plan, and application pacing. Use when a user needs urgent job-search structure, search strategy, source selection, daily tasks, or a plan that works for technical and non-technical roles.
+description: Build a focused weekly job-search plan, role lanes, source mix, outreach plan, and application pacing. Use when a user needs urgent job-search structure, search strategy, source selection, daily tasks, weekly review, or a sustainable plan for technical and non-technical roles.
 license: MIT
 metadata:
   jobsentinel_version_target: "2.9.0"
@@ -39,7 +39,9 @@ Ask only for missing details that change the plan:
      exclusion terms, source boundaries, pay/location/schedule filters, and
      quality thresholds;
    - use it to guide discovery and matching, not to auto-apply or bypass user
-     review.
+     review;
+   - validate the packet against must-have constraints before using it for
+     discovery.
 4. Pick 2-4 target role lanes, not an unlimited title list.
 5. Create a source mix:
    - official employer or application-platform pages first;
@@ -64,8 +66,9 @@ Ask only for missing details that change the plan:
 
 ## Load References
 
-- Load `references/weekly-review-rubric.md` when the user asks for a weekly
-  review, replan, source audit, or tracker-based search adjustment.
+- Load [Weekly Review Rubric](references/weekly-review-rubric.md) when the user
+  asks for a weekly review, replan, source audit, or tracker-based search
+  adjustment.
 
 ## Output
 
@@ -81,7 +84,8 @@ Produce:
 - Follow-up and review cadence.
 - Next 10 actions.
 
-Use `assets/search-plan-template.md` when the user wants a reusable plan.
+Use [Search Plan Template](assets/search-plan-template.md) when the user wants a
+reusable plan.
 
 ## Handoff
 
