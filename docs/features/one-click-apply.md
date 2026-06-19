@@ -227,6 +227,12 @@ returns only bounded review topics such as work authorization, education,
 transportation, or schedule. The success message uses those topics to remind the
 user what to check without showing the saved answer or exact question text.
 
+The preview also shows an **Answer Review Checklist** backed by
+`src/shared/applicationFormReviewTaxonomy.ts`. It reminds the user to compare
+prepared answers against the exact employer question, use only confirmed profile
+or saved-answer details, personally decide voluntary or protected questions,
+and pause on unknowns until they can verify the answer.
+
 ---
 
 ## Using Application Assist
@@ -235,7 +241,7 @@ user what to check without showing the saved answer or exact question text.
 2. Check the application-form label if one appears.
 3. Choose **Prepare Form**.
 4. Review the preview showing details JobSentinel can prepare.
-   Check **Hard Question Review** if it appears.
+   Check **Answer Review Checklist** and **Hard Question Review** if it appears.
 5. Choose **Prepare Details** in the review dialog.
 6. Complete any manual steps:
    - Attach your resume yourself if required.

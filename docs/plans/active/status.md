@@ -103,11 +103,10 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   actions without notes, URLs, browser state, cookies, or hidden page data.
   Fresh evidence: focused learning/UI tests `121/121`, full frontend `3209/3209`,
   lint, build, docs, bloat, harness, score, and whitespace checks passed.
-- 2026-06-19 resume role-family coverage is now a shared taxonomy plus a
-  Resume Match Role Coverage card for technical, content, operations,
-  healthcare, service, trades, education, sales, and early-career paths.
-  Focused taxonomy/UI tests prove mappings to current career profiles and
-  analyzer evidence prompts.
+- 2026-06-19 resume role-family coverage now has shared taxonomy, a Resume
+  Match card, and tests for current profile and analyzer-prompt mappings.
+- 2026-06-19 Application Preview now shows an Answer Review Checklist for exact
+  questions, confirmed answers, voluntary/protected questions, and unknowns.
 
 ## Next Best Work
 

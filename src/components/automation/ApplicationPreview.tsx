@@ -4,6 +4,7 @@ import { Badge } from "../Badge";
 import { Card } from "../Card";
 import { logError } from "../../utils/errorUtils";
 import { getApplicationFormDisplayName } from "./applicationFormLabels";
+import { ApplicationFormReviewChecklist } from "./ApplicationFormReviewChecklist";
 import * as screeningTaxonomy from "../../shared/applicationScreeningTaxonomy";
 
 interface Job {
@@ -463,6 +464,8 @@ export const ApplicationPreview = memo(function ApplicationPreview({ job, atsPla
           </li>
         </ul>
       </section>
+
+      <ApplicationFormReviewChecklist />
 
       {hardQuestionReviews.length > 0 && (
         <section role="group" aria-labelledby="hard-question-review-heading">
