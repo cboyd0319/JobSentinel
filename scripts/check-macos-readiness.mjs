@@ -111,6 +111,7 @@ export function releaseAssetUploadsStayDraft(releaseWorkflow) {
   const releaseCreate = getShellCommandBlock(createRelease, 'gh release create "$RELEASE_TAG"');
   const createsDraftRelease =
     (createRelease.includes("GH_TOKEN: ${{ github.token }}") &&
+      createRelease.includes("GH_REPO: ${{ github.repository }}") &&
       hasAny(createRelease, [
         "RELEASE_TAG: ${{ steps.get_version.outputs.tag }}",
         "RELEASE_TAG: ${{ steps.release_inputs.outputs.tag }}",
@@ -144,6 +145,7 @@ export function releaseAssetUploadsStayDraft(releaseWorkflow) {
       (createsDraftRelease &&
         hasAll(commonUpload, [
           "GH_TOKEN: ${{ github.token }}",
+          "GH_REPO: ${{ github.repository }}",
           "RELEASE_TAG: ${{ needs.create-release.outputs.tag }}",
           "assets=(release-assets/public/*)",
           'gh release upload "$RELEASE_TAG" "${assets[@]}" --clobber',

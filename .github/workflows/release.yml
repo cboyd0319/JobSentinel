@@ -334,6 +334,7 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
           RELEASE_TAG: ${{ steps.release_inputs.outputs.tag }}
           RELEASE_VERSION: ${{ steps.release_inputs.outputs.version }}
         run: |
@@ -406,6 +407,7 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
           RELEASE_TAG: ${{ needs.create-release.outputs.tag }}
           RELEASE_VERSION: ${{ needs.create-release.outputs.version }}
         run: |
@@ -871,6 +873,7 @@ jobs:
         if: startsWith(matrix.platform, 'macos')
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
           RELEASE_TAG: ${{ needs.create-release.outputs.tag }}
         shell: bash
         run: |
@@ -946,6 +949,7 @@ jobs:
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
           RELEASE_TAG: ${{ needs.create-release.outputs.tag }}
         run: |
           $ErrorActionPreference = "Stop"
@@ -1025,6 +1029,7 @@ jobs:
         if: matrix.platform == 'ubuntu-24.04'
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
           RELEASE_TAG: ${{ needs.create-release.outputs.tag }}
         shell: bash
         run: |
@@ -1080,6 +1085,7 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
           RELEASE_TAG: ${{ needs.create-release.outputs.tag }}
         run: |
           set -euo pipefail

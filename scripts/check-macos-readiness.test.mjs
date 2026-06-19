@@ -253,6 +253,7 @@ test("macOS readiness checks release asset uploads stay draft", () => {
     "- name: Create draft release",
     "  env:",
     "    GH_TOKEN: ${{ github.token }}",
+    "    GH_REPO: ${{ github.repository }}",
     "    RELEASE_TAG: ${{ steps.release_inputs.outputs.tag }}",
     "  run: |",
     "    gh release edit \"$RELEASE_TAG\" --draft --prerelease=false --notes-file \"$notes_file\"",
@@ -260,6 +261,7 @@ test("macOS readiness checks release asset uploads stay draft", () => {
     "- name: Upload release assets",
     "  env:",
     "    GH_TOKEN: ${{ github.token }}",
+    "    GH_REPO: ${{ github.repository }}",
     "    RELEASE_TAG: ${{ needs.create-release.outputs.tag }}",
     "  run: |",
     "    assets=(release-assets/public/*)",
@@ -268,6 +270,12 @@ test("macOS readiness checks release asset uploads stay draft", () => {
 
   assert.equal(releaseAssetUploadsStayDraft(legacyWorkflow), true);
   assert.equal(releaseAssetUploadsStayDraft(workflow), true);
+  assert.equal(
+    releaseAssetUploadsStayDraft(
+      workflow.replaceAll("    GH_REPO: ${{ github.repository }}\n", ""),
+    ),
+    false,
+  );
   assert.equal(
     releaseAssetUploadsStayDraft(
       workflow.replace("steps.release_inputs.outputs.tag", "steps.get_version.outputs.tag"),
@@ -340,6 +348,7 @@ test("macOS readiness checks Linux package verification gate", () => {
     "- name: Create draft release",
     "  env:",
     "    GH_TOKEN: ${{ github.token }}",
+    "    GH_REPO: ${{ github.repository }}",
     "    RELEASE_TAG: ${{ steps.release_inputs.outputs.tag }}",
     "  run: |",
     "    gh release edit \"$RELEASE_TAG\" --draft --prerelease=false --notes-file \"$notes_file\"",
@@ -366,6 +375,7 @@ test("macOS readiness checks Linux package verification gate", () => {
     "- name: Upload release assets",
     "  env:",
     "    GH_TOKEN: ${{ github.token }}",
+    "    GH_REPO: ${{ github.repository }}",
     "    RELEASE_TAG: ${{ needs.create-release.outputs.tag }}",
     "  run: |",
     "    assets=(release-assets/public/*)",
