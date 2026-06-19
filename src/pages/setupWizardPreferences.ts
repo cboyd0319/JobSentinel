@@ -1,4 +1,5 @@
 import { getSearchSourceDefaults } from "../utils/profiles";
+export { COMMON_STARTER_JOB_TITLES, COMMON_WORK_TO_AVOID } from "../shared/setupWizardTaxonomy";
 
 export interface LocationPreferences {
   allow_remote: boolean;
@@ -214,22 +215,6 @@ export const REVIEW_VOLUME_OPTIONS: ReviewVolumeOption[] = [
     description: "Show more possible roles, including adjacent ones that may still be worth a look.",
   },
 ];
-
-export const COMMON_WORK_TO_AVOID = [
-  "night shift",
-  "weekend work",
-  "heavy travel",
-  "mandatory overtime",
-] as const;
-
-export const COMMON_STARTER_JOB_TITLES = [
-  "Office Assistant",
-  "Customer Service Representative",
-  "Sales Associate",
-  "Warehouse Associate",
-  "Medical Assistant",
-  "Bookkeeper",
-] as const;
 
 export function ghostConfigForFreshnessPreference(
   preference: FreshnessPreference
