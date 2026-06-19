@@ -76,6 +76,80 @@
       "headings": ["certifications", "certificates", "licenses"]
     }
   ],
+  "plainTextSectionAliases": [
+    {
+      "section": "experience",
+      "headings": [
+        "professional experience",
+        "work experience",
+        "relevant experience",
+        "selected experience",
+        "additional experience",
+        "employment history",
+        "work history",
+        "professional history",
+        "volunteer experience",
+        "community involvement",
+        "community service",
+        "military service",
+        "military experience",
+        "experience"
+      ]
+    },
+    {
+      "section": "projects",
+      "headings": ["selected projects", "projects"]
+    },
+    {
+      "section": "skills",
+      "headings": ["skills technical skills", "technical skills", "core skills", "skills"]
+    },
+    {
+      "section": "certifications",
+      "headings": [
+        "professional credentials",
+        "licenses and certifications",
+        "certifications and licenses",
+        "credentials",
+        "professional training",
+        "training",
+        "certificates",
+        "certifications"
+      ]
+    },
+    {
+      "section": "licenses",
+      "headings": ["licenses"]
+    },
+    {
+      "section": "languages",
+      "headings": ["languages", "language skills"]
+    },
+    {
+      "section": "awards",
+      "headings": ["awards", "honors and awards"]
+    },
+    {
+      "section": "publications",
+      "headings": ["publications"]
+    },
+    {
+      "section": "references",
+      "headings": ["references"]
+    },
+    {
+      "section": "interests",
+      "headings": ["interests"]
+    },
+    {
+      "section": "education",
+      "headings": ["academic background", "academic history", "education background", "education"]
+    },
+    {
+      "section": "summary",
+      "headings": ["summary", "profile"]
+    }
+  ],
   "iconClassTokens": [
     "fa",
     "fas",

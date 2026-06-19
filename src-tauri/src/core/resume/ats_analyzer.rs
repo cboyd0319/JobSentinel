@@ -7,6 +7,7 @@
 use chrono::{Datelike, Utc};
 
 use super::ats_types::*;
+use super::format_taxonomy::resume_format_taxonomy;
 #[cfg(test)]
 use super::types::{ContactInfo, Education, Skill};
 use super::types::{Experience, ResumeData};
@@ -672,54 +673,16 @@ impl AtsAnalyzer {
             .replace('&', " and ");
         let normalized = normalized.split_whitespace().collect::<Vec<_>>().join(" ");
 
-        let labels = [
-            ("professional experience", "experience"),
-            ("work experience", "experience"),
-            ("relevant experience", "experience"),
-            ("selected experience", "experience"),
-            ("additional experience", "experience"),
-            ("employment history", "experience"),
-            ("work history", "experience"),
-            ("professional history", "experience"),
-            ("volunteer experience", "experience"),
-            ("community involvement", "experience"),
-            ("community service", "experience"),
-            ("military service", "experience"),
-            ("military experience", "experience"),
-            ("selected projects", "projects"),
-            ("skills technical skills", "skills"),
-            ("technical skills", "skills"),
-            ("core skills", "skills"),
-            ("professional credentials", "certifications"),
-            ("licenses and certifications", "certifications"),
-            ("certifications and licenses", "certifications"),
-            ("credentials", "certifications"),
-            ("professional training", "certifications"),
-            ("training", "certifications"),
-            ("certificates", "certifications"),
-            ("certifications", "certifications"),
-            ("licenses", "licenses"),
-            ("languages", "languages"),
-            ("language skills", "languages"),
-            ("awards", "awards"),
-            ("honors and awards", "awards"),
-            ("publications", "publications"),
-            ("references", "references"),
-            ("interests", "interests"),
-            ("academic background", "education"),
-            ("academic history", "education"),
-            ("education background", "education"),
-            ("education", "education"),
-            ("experience", "experience"),
-            ("projects", "projects"),
-            ("summary", "summary"),
-            ("profile", "summary"),
-            ("skills", "skills"),
-        ];
-
-        labels.iter().find_map(|(heading, label)| {
-            Self::line_starts_with_heading(&normalized, heading).then_some(*label)
-        })
+        resume_format_taxonomy()
+            .plain_text_section_aliases
+            .iter()
+            .find_map(|alias| {
+                alias
+                    .headings
+                    .iter()
+                    .any(|heading| Self::line_starts_with_heading(&normalized, heading))
+                    .then_some(alias.section.as_str())
+            })
     }
 
     fn keyword_frequency(text: &str, keyword: &str) -> usize {

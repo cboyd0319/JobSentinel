@@ -205,8 +205,9 @@ Future implementation should improve:
 - Readable-text review now checks HTML source for ATS-risky tables,
   multi-column CSS, decorative fonts, custom web-font dependencies, and tiny
   font sizes, following the local JSON Resume ATS-validator review.
-- Readable-text format headings, parser section aliases, icon-font terms,
-  ATS-friendly fonts, risky fonts, and custom-font signals now live in
+- Readable-text format headings, parser section aliases, plain-text evidence
+  section aliases, icon-font terms, ATS-friendly fonts, risky fonts, and
+  custom-font signals now live in
   `src/shared/resumeFormatTaxonomy.json` instead of Rust-only arrays.
 - Resume/job fit keeps required and preferred job-post language separate.
 - Resume/job fit now returns requirement-review rows for recognized local
