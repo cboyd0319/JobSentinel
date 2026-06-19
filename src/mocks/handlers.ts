@@ -82,6 +82,7 @@ import {
 } from "./handlers/marketIntelligence";
 import { normalizeResumeDraft } from "./handlers/resumeBuilder";
 import {
+  APPLICATION_STATUS_KEYS,
   cloneApplications,
   getArg,
   getDefaultGhostConfig,
@@ -103,6 +104,7 @@ import type {
   MockInterview,
   MockInterviewFollowUpState,
   MockInterviewPrepState,
+  MockJob,
   MockMarketAlert,
   MockMatchResult,
   MockPendingReminder,
@@ -157,6 +159,11 @@ let nextAutomationAttemptId = 1;
 const MOCK_STATE_KEY = "jobsentinel.mockState.v1";
 const MOCK_INVOKE_CONTROLS_KEY = "jobsentinel.mockInvokeControls.v1";
 const MAX_MOCK_DELAY_MS = 30_000;
+const LINKEDIN_WORKBENCH_DEFAULT_TITLE = "LinkedIn application";
+const LINKEDIN_WORKBENCH_DEFAULT_COMPANY = "Company needs details";
+const LINKEDIN_WORKBENCH_JOBS_URL = "https://www.linkedin.com/jobs/";
+const LINKEDIN_WORKBENCH_APPLIED_URL =
+  "https://www.linkedin.com/jobs-tracker/?stage=applied";
 
 interface MockInvokeControls {
   delayMs?: unknown;
@@ -171,6 +178,13 @@ interface MockInvokeControl {
   hasResponse: boolean;
   responseValue: unknown;
 }
+
+type MockLinkedInWorkbenchEventType =
+  | "applied"
+  | "saved"
+  | "tracking"
+  | "note"
+  | "not_interested";
 
 function canUseStorage(): boolean {
   return (
@@ -531,6 +545,200 @@ function importMockJobFromUrl(args?: Record<string, unknown>): MockJobImportResu
   return { jobId: job.id };
 }
 
+function recordMockLinkedInWorkbenchEvent(args?: Record<string, unknown>) {
+  const input = getRecordArg(args, "input");
+  const eventType = getLinkedInWorkbenchEventType(input.eventType);
+  const title =
+    trimMockWorkbenchText(input.title, 500) ?? LINKEDIN_WORKBENCH_DEFAULT_TITLE;
+  const company =
+    trimMockWorkbenchText(input.company, 200) ?? LINKEDIN_WORKBENCH_DEFAULT_COMPANY;
+  const notes = trimMockWorkbenchText(input.notes, 5_000);
+  const rawUrl = trimMockWorkbenchText(input.url, 2_000);
+  const url = rawUrl
+    ? canonicalizeMockWorkbenchUrl(rawUrl)
+    : eventType === "applied"
+      ? LINKEDIN_WORKBENCH_APPLIED_URL
+      : LINKEDIN_WORKBENCH_JOBS_URL;
+  const needsDetails =
+    title === LINKEDIN_WORKBENCH_DEFAULT_TITLE ||
+    company === LINKEDIN_WORKBENCH_DEFAULT_COMPANY ||
+    !rawUrl;
+  const existingJob =
+    rawUrl !== undefined ? jobs.find((job) => job.url === url) : undefined;
+  const jobId = existingJob?.id ?? getNextId(jobs);
+  const jobHash = existingJob?.hash ?? mockLinkedInWorkbenchHash(url, jobId, rawUrl);
+  const shouldBookmark =
+    eventType === "applied" || eventType === "saved" || eventType === "tracking";
+  const hidden = eventType === "not_interested";
+  const now = new Date().toISOString();
+  const job: MockJob = {
+    ...(existingJob ?? {
+      id: jobId,
+      hash: jobHash,
+      title,
+      company,
+      location: "LinkedIn",
+      description: "Created from a user-controlled LinkedIn Workbench action.",
+      url,
+      source: "linkedin",
+      salary_min: 0,
+      salary_max: 0,
+      remote: false,
+      score: 0.5,
+      hidden: false,
+      bookmarked: false,
+      notes: null,
+      created_at: now,
+    }),
+    id: jobId,
+    hash: jobHash,
+    title,
+    company,
+    url,
+    source: "linkedin",
+    hidden: existingJob?.hidden === true || hidden,
+    bookmarked: existingJob?.bookmarked === true || shouldBookmark,
+    notes: notes ?? existingJob?.notes ?? null,
+  };
+
+  jobs = existingJob
+    ? jobs.map((candidate) => (candidate.id === jobId ? job : candidate))
+    : [job, ...jobs];
+
+  const applicationId =
+    eventType === "applied" || eventType === "tracking"
+      ? upsertMockLinkedInApplication(
+          jobHash,
+          title,
+          company,
+          eventType === "applied" ? "applied" : "to_apply",
+          now,
+        )
+      : null;
+
+  saveMockState();
+
+  return {
+    jobId,
+    jobHash,
+    applicationId,
+    status: mockLinkedInWorkbenchStatus(eventType),
+    needsDetails,
+    savedAsBookmark: shouldBookmark,
+    hidden,
+  };
+}
+
+function getRecordArg(
+  args: Record<string, unknown> | undefined,
+  key: string,
+): Record<string, unknown> {
+  const value = getArg(args, key);
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : {};
+}
+
+function getLinkedInWorkbenchEventType(value: unknown): MockLinkedInWorkbenchEventType {
+  if (
+    value === "applied" ||
+    value === "saved" ||
+    value === "tracking" ||
+    value === "note" ||
+    value === "not_interested"
+  ) {
+    return value;
+  }
+
+  throw new Error("Unsupported LinkedIn workbench action");
+}
+
+function trimMockWorkbenchText(value: unknown, limit: number): string | undefined {
+  if (typeof value !== "string") {
+    return undefined;
+  }
+
+  const trimmed = value.trim();
+  return trimmed ? [...trimmed].slice(0, limit).join("") : undefined;
+}
+
+function canonicalizeMockWorkbenchUrl(rawUrl: string): string {
+  if (!isExternalHttpsUrl(rawUrl)) {
+    throw new Error("This LinkedIn job link is not safe to save");
+  }
+
+  const url = new URL(rawUrl);
+  url.search = "";
+  url.hash = "";
+  return url.toString();
+}
+
+function mockLinkedInWorkbenchHash(
+  url: string,
+  jobId: number,
+  rawUrl: string | undefined,
+): string {
+  return rawUrl
+    ? `linkedin-workbench:${url}`
+    : `linkedin-workbench-draft:${jobId}`;
+}
+
+function upsertMockLinkedInApplication(
+  jobHash: string,
+  title: string,
+  company: string,
+  status: "applied" | "to_apply",
+  now: string,
+): number {
+  const existing = APPLICATION_STATUS_KEYS
+    .flatMap((key) => applications[key])
+    .find((application) => application.job_hash === jobHash);
+  const id =
+    existing?.id ??
+    APPLICATION_STATUS_KEYS
+      .flatMap((key) => applications[key])
+      .reduce((max, application) => Math.max(max, application.id), 0) + 1;
+
+  applications = APPLICATION_STATUS_KEYS.reduce((next, key) => {
+    next[key] = applications[key].filter(
+      (application) => application.job_hash !== jobHash,
+    );
+    return next;
+  }, cloneApplications(applications));
+  applications[status] = [
+    ...applications[status],
+    {
+      id,
+      job_hash: jobHash,
+      job_title: title,
+      company,
+      status,
+      applied_at: status === "applied" ? existing?.applied_at ?? now : null,
+      notes: existing?.notes ?? null,
+      last_contact: existing?.last_contact ?? null,
+    },
+  ];
+
+  return id;
+}
+
+function mockLinkedInWorkbenchStatus(
+  eventType: MockLinkedInWorkbenchEventType,
+): string {
+  switch (eventType) {
+    case "applied":
+      return "applied";
+    case "saved":
+      return "saved";
+    case "tracking":
+      return "tracking";
+    case "note":
+      return "noted";
+    case "not_interested":
+      return "not_interested";
+  }
+}
+
 function fillMockApplicationForm(args?: Record<string, unknown>): MockFillResultWithAttempt {
   const jobUrl = getStringArg(args, "jobUrl") ?? getStringArg(args, "job_url") ?? "";
   if (!isExternalHttpsUrl(jobUrl)) {
@@ -671,6 +879,9 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
 
     case "import_job_from_url":
       return importMockJobFromUrl(args) as T;
+
+    case "record_linkedin_workbench_event":
+      return recordMockLinkedInWorkbenchEvent(args) as T;
 
     // Application commands
     case "get_applications_kanban":

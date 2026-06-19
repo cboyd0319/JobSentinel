@@ -55,6 +55,16 @@ type FillResultWithAttempt = {
   atsPlatform: string;
 };
 
+type LinkedInWorkbenchEventResult = {
+  jobId: number;
+  jobHash: string;
+  applicationId: number | null;
+  status: string;
+  needsDetails: boolean;
+  savedAsBookmark: boolean;
+  hidden: boolean;
+};
+
 type AnswerSuggestion = {
   answer: string;
   confidence: number;
@@ -1007,6 +1017,49 @@ describe("mock Tauri handlers", () => {
     await expect(mockInvoke<void>("complete_setup", { config: {} })).resolves.toBeUndefined();
     await expect(mockInvoke<void>("mark_job_as_real", { jobId: 1 })).resolves.toBeUndefined();
     await expect(mockInvoke<void>("mark_job_as_ghost", { jobId: 1 })).resolves.toBeUndefined();
+  });
+
+  it("records LinkedIn workbench actions in dev mocks", async () => {
+    const result = await mockInvoke<LinkedInWorkbenchEventResult>(
+      "record_linkedin_workbench_event",
+      {
+        input: {
+          eventType: "applied",
+          title: "Principal Security Engineer",
+          company: "Example Co",
+          url: "https://www.linkedin.com/jobs/view/123?token=secret",
+          notes: "User clicked Log applied.",
+        },
+      },
+    );
+
+    expect(result).toMatchObject({
+      status: "applied",
+      needsDetails: false,
+      savedAsBookmark: true,
+      hidden: false,
+      applicationId: expect.any(Number),
+    });
+    expect(result.jobHash).not.toContain("token=secret");
+
+    const linkedInJobs = await mockInvoke<Array<{
+      title: string;
+      company: string;
+      url: string;
+      bookmarked: boolean;
+      notes: string | null;
+    }>>("get_jobs", { source: "linkedin" });
+    expect(linkedInJobs).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          title: "Principal Security Engineer",
+          company: "Example Co",
+          url: "https://www.linkedin.com/jobs/view/123",
+          bookmarked: true,
+          notes: "User clicked Log applied.",
+        }),
+      ]),
+    );
   });
 
   it("treats saved screening-answer symbols as literal text in dev mocks", async () => {
