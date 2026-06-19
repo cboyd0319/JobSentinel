@@ -46,8 +46,8 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 ## Current Posture
 
 - `origin/main` is the pushed `2.7.7` release-recovery baseline; local metadata
-  is staged for `2.9.0`. Public macOS `v2.7.7` and full cross-platform
-  `v2.7.5` are legacy fallbacks until `2.9.0` assets are verified.
+  is staged for `2.9.0`. A premature remote `v2.9.0` tag and draft release
+  exist; do not publish or delete them without explicit user approval.
 - Fresh harness evidence reports 3 active docs, 3 indexed workstreams, and
   100/100. UI QA covers key routes, toasts, keyboard paths, and no passive
   Keychain prompt.

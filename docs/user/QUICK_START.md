@@ -36,6 +36,11 @@ help more job seekers, including by building something better.
      the disk image.
 4. Open JobSentinel from your apps list or **Applications** folder.
 
+JobSentinel does not silently update itself in `2.9.0`. When a newer release is
+available, back up Settings first, download the new installer from GitHub
+Releases, verify the matching `.sha256` checksum, then install it. See
+[Updating Or Going Back](UPDATES.md) for the full update and rollback steps.
+
 <details>
 <summary><strong>First time on Mac? (Gatekeeper warning)</strong></summary>
 <br>

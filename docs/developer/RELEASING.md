@@ -28,6 +28,18 @@ configured, and the public artifact passes
 
 ## Creating a Release
 
+Before creating a release tag, uploading assets, or publishing a draft release,
+close the active `v2.9.0` roadmap backlog checklist or get an explicit
+rescoped release decision from the user. The package version can be staged
+locally while the backlog remains open, but release publication cannot start.
+
+JobSentinel does not use Tauri's updater plugin in `2.9.0`: there is no
+`tauri-plugin-updater` dependency, no updater public key, no updater endpoint,
+and no updater artifact setting in `src-tauri/tauri.conf.json`. The supported
+`2.9.0` update path is manual GitHub Releases downloads with matching
+`.sha256` checksums and the user rollback guide in
+[`docs/user/UPDATES.md`](../user/UPDATES.md).
+
 ### 1. Prepare and tag
 
 Update the package version, changelog, and release notes as needed, then commit

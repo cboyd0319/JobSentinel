@@ -71,6 +71,7 @@ The maintained external source index lives in
 | Need | Doc |
 | --- | --- |
 | Install and first run | [Quick Start](user/QUICK_START.md) |
+| Update or go back to an older version | [Updating Or Going Back](user/UPDATES.md) |
 | Open job searches on outside sites | [Search Links](user/DEEP_LINKS.md) |
 | Manage local data and safe support reports | [User Data Management](features/user-data-management.md) |
 | Set up alerts | [Notifications](features/notifications.md) |

@@ -216,6 +216,12 @@ First run is designed for zero technical knowledge:
 After setup, JobSentinel checks your selected sources. You can change every
 setting later.
 
+JobSentinel does not silently update itself in `2.9.0`. Updates are manual:
+back up Settings, download the new package from GitHub Releases, verify the
+matching `.sha256` checksum, install it, and reopen the app. See
+[Updating Or Going Back](docs/user/UPDATES.md) for the full update and rollback
+steps.
+
 <details>
 <summary><strong>Installer security prompts</strong></summary>
 <br>
