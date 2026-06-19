@@ -7,6 +7,9 @@ testing is understandable to non-technical users and auditable by maintainers.
 
 Before release, every source path must be one of these:
 
+Importers and restricted-site workflows must be classified and verified against
+the closest matching category below.
+
 - Native source check with parser, transport, rate-limit, sanitized-error, and
   source-status coverage.
 - Public unauthenticated restricted-source path with a prominent warning,
@@ -38,6 +41,15 @@ Do not claim a source is ready from a single successful live request. A source
 needs deterministic fixture coverage plus a user-safe recovery path when the
 site blocks, changes, or returns no jobs.
 
+Do not claim a non-scraper restricted workflow is ready from code inspection
+alone. LinkedIn-compatible and similar restricted-site flows need manual proof
+for the contract and the user experience: friendly warning copy, explicit saved
+acknowledgement, user-controlled browser opening, visible privacy reminder,
+continue/close behavior, one-click ledger events, selected or pasted text
+prefill only, manual confirmation before durable local data, fallback/manual
+entry paths, no hidden page reading, and no token, cookie, browser-storage,
+authorization-header, HAR, trace, screenshot, or session-state persistence.
+
 ## Current Release Surface
 
 | Source or path | Access model | Debug evidence required |
@@ -59,7 +71,8 @@ site blocks, changes, or returns no jobs.
 | JobSentinel browser sessions | User-opened browser/webview action | Privacy reminder after long manual sessions, user can close or continue, no hard expiry unless JobSentinel reads or automates restricted content |
 | Pasted job link import | User-submitted individual URL | URL validation, restricted-domain acknowledgement, no local/private URLs, sanitized errors |
 | Browser Import | User-clicked browser action | Prominent warning, acknowledgement before enabling/copying, no token exposure, blocked-page fallback |
-| Restricted session activity ledger | User-confirmed local events | Dashboard and Settings Workbench entry points, pre-login warning, privacy reminder, explicit user action for each event, selected/pasted text prefill only, local-only storage, no DOM/network/storage inspection, no silent refresh |
+| Restricted session activity ledger | User-confirmed local events | Dashboard and Settings Workbench entry points, pre-login warning, saved acknowledgement, privacy reminder, continue/close behavior, explicit user action for each event, selected/pasted text prefill only, one-click applied/saved/tracking records with optional details afterward, local-only storage, no DOM/network/storage inspection, no hidden inference, no silent refresh |
+| Non-scraper LinkedIn-compatible contracts | Human-controlled restricted workflow | Manual verification of copy, design, navigation, ack persistence, privacy reminder, no forced close for manual-only sessions, no stored auth material, no hidden page reading, no background monitoring, no scheduled refresh, local review before durable data, and clear fallback to pasted link or manual entry |
 | Company careers discovery | User-provided or discovered employer careers URL | Detect public ATS/API where available, normalize to native source when safe, keep unknown/custom pages user-opened until reviewed |
 | Shared source taxonomy | Discovery registry | `src/shared/jobSourceDiscoveryTaxonomy.ts` covers platform families, regional boards, source access models, technical authentication access, career-profile coverage, and user-agreement requirements |
 | Manual entry | Local user input | Works when every external source fails; no external side effects |

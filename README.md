@@ -669,8 +669,10 @@ Developer docs:
   refresh.
 - Playwright smoke and full-browser test commands are faster and support
   `npm run test:e2e:last-failed` for quick failure loops.
-- LinkedIn is now user-opened search links only; scheduled checks and new
-  session credential storage are disabled by source policy.
+- LinkedIn-compatible support is user-opened only through search links, Browser
+  Import, pasted links, manual entry, and local Workbench ledger actions;
+  scheduled checks, hidden page reading, and new session credential storage are
+  disabled by source policy.
 
 ### Tracked Next
 

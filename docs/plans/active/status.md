@@ -4,10 +4,9 @@ Last updated: 2026-06-19. Read this file first; load archived history only for o
 
 ## Goal State
 
-The repo-wide goal remains open: move JobSentinel toward zero known errors,
-privacy leaks, stale docs, brittle tests, user-facing technical assumptions,
-engineer-only defaults, and unverified claims. Current priority is v2.9.0
-readiness for an urgent single-user job search while keeping the broader product safe for non-technical job seekers.
+The repo-wide goal remains open: zero known errors, privacy leaks, stale docs, brittle tests,
+user-facing technical assumptions, engineer-only defaults, and unverified claims.
+Current priority is v2.9.0 readiness for an urgent single-user search.
 
 Release creation is now in final sequencing. Do not retag or upload over the
 same `v2.9.0` release while an older workflow run is still building assets.
@@ -71,9 +70,9 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   tar.gz/ZIP packaging, strict archive/checksum/CRC/central-directory checks,
   upstream `skills-ref`, handoffs, templates, rubrics, Persona/ResumeSkills/
   career-ops coverage, and fresh 2026-06-19 lint/package/SBOM staging proof.
-- LinkedIn config/scraper types expose no session-cookie fields. Native user-gated paths are search links, pasted links,
-  Browser Import, manual entry, and local Workbench ledger. The Workbench is the active direction instead of a browser extension,
-  opens from Dashboard quick actions and Settings, and uses privacy reminders without forced close.
+- LinkedIn config/scraper types expose no session-cookie fields. User-gated
+  paths are search links, pasted links, Browser Import, manual entry, and
+  Workbench ledger with privacy reminders.
 - Desktop/mobile normal-state and Quiet Shield token checks passed for primary
   routes; forced empty/loading/error checks passed across startup and setup.
 - Setup Wizard desktop/mobile, whole-UI post-design click/action coverage, and
@@ -111,9 +110,8 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 
 ## Next Best Work
 
-1. Use the v2.9.0 risk register to finish full scraper/import verification,
-   including LinkedIn-compatible user-gated paths and the current Scrapling
-   comparison.
+1. Use the v2.9.0 risk register and source-debug ledger to finish scraper,
+   import, restricted-source, LinkedIn-compatible, and Scrapling verification.
 2. Wait for the old `v2.9.0` workflow run to finish, then push main/wiki,
    retag/build/upload/publish/verify `2.9.0` no-account assets; signed Windows
    and Gatekeeper-ready macOS remain credential-backed upgrades.
@@ -134,7 +132,9 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   payloads.
 - No known user-facing flow assumes terminal, GitHub, debugging, engineering
   knowledge, or only technical job searches.
-- Relevant sensors cover recurring drift classes.
+- Every shipped scraper, import path, and non-scraper restricted-source workflow
+  has source-debug evidence, including proof that restricted-site auth material
+  and hidden page state are not stored.
 - Final docs, bloat, security, architecture, frontend, build, Rust, and chosen
   E2E or Computer Use gates pass before any production-ready or release-ready
   claim.

@@ -371,8 +371,19 @@ If a source's terms are blocked, unavailable, or unclear, keep it in
 
 - Do not claim native authenticated LinkedIn automation unless it is implemented,
   tested, manually verified, and still meets the no-persistence session policy.
+- Do not claim non-scraper LinkedIn-compatible workflows are release-ready until
+  the source-debug ledger has manual evidence for warning copy, saved
+  acknowledgement, privacy reminder, Workbench navigation, one-click local
+  ledger actions, selected or pasted text prefill only, fallback/manual entry,
+  and no cookies, tokens, browser storage, authorization headers, hidden page
+  reading, background monitoring, scheduled refresh, traces, HARs, screenshots,
+  or persisted session state.
 - Do not add a restricted domain without a category, source reference, and
   concrete reason.
+- Do not claim any scraper or source adapter is release-ready until it has
+  parser/import/gate evidence, safe error behavior, rate-limit or stop-condition
+  coverage where applicable, and a user-safe fallback when the source blocks,
+  changes, or returns no jobs.
 - Do not bypass shared URL validation, redirect blocking, body caps, rate limits,
   or sanitized logging for new source adapters.
 - Do not publish final assets until the staged matrix succeeds and public release

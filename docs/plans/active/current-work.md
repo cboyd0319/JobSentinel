@@ -4,17 +4,16 @@ Last updated: 2026-06-19.
 
 ## Purpose
 
-Keep one active plan for current product and quality work. Detailed history
-belongs in archives and git. This file and `status.md` should stay compact.
+Keep one active plan for current product and quality work. History belongs in
+archives and git. This file and `status.md` should stay compact.
 
 ## Problem
 
 JobSentinel still needs steady work toward zero known errors, privacy leaks,
-stale docs, brittle tests, user-facing technical assumptions, engineer-only
-defaults, and unverified claims. The current push is v2.9.0 readiness for an
-urgent single-user job search without weakening the public product contract.
-Active planning had become too duplicated, so future work needs compact
-restart surfaces.
+stale docs, brittle tests, technical user assumptions, engineer-only defaults,
+and unverified claims. The current push is v2.9.0 readiness for an urgent
+single-user search without weakening the public product. Active planning had
+become duplicated, so future work needs compact restart surfaces.
 
 ## Scope
 
@@ -22,15 +21,15 @@ In scope:
 
 - Completing final release sequencing without racing an older same-tag run.
 - Keeping package-manager, npm/Cargo direct, npm override, and Action pins exact
-  latest stable, with transitives lockfile-pinned/latest-compatible and
-  upstream exceptions recorded.
+  latest stable, with transitives lockfile-pinned and exceptions recorded.
 - Adding downloadable Agent Skills under `skills/` for job hunting and resume
   work, with specification-compliant `SKILL.md` packages.
 - Hardening Browser Import as the LinkedIn-compatible path: user-opened page,
   user-clicked import, local review, and no LinkedIn login automation.
-- Treating all scraper adapters and user-gated restricted-source paths as
-  release blockers, including LinkedIn-compatible search-link, pasted-link,
-  Browser Import, and manual-entry paths.
+- Treating all scraper adapters, import paths, and non-scraper restricted-site
+  contracts as release blockers, including LinkedIn-compatible search-link,
+  pasted-link, Browser Import, Workbench, reminder, acknowledgement, ledger,
+  fallback, and manual-entry paths.
 - Rechecking the current Scrapling Rust decision against live `scrapling-rs`
   evidence before release, without adopting stealth/browser/crawler behavior.
 - Truthful local resume assistance, hard-requirement review, readable evidence,
@@ -43,9 +42,9 @@ In scope:
   pay signals.
 - Local encrypted storage and saved-secret UX: encrypted SQLite at rest,
   per-row AEAD secret vault, lazy unlock, and passphrase mode.
-- Locked redesign: move UI and UX toward Quiet Shield and Protective Navy after
-  primary v2.9.0 gates. `DESIGN.md`, `docs/design/README.md`, and
-  `docs/design/design-spec.md` remain the design contract.
+- Locked redesign: move UI/UX toward Quiet Shield after primary v2.9.0 gates.
+  `DESIGN.md`, `docs/design/README.md`, and `docs/design/design-spec.md`
+  remain the design contract.
 - Manual whole-UI verification before v2.9.0 completion: every route, click,
   action, modal, toast, empty/loading/error state, settings panel, import flow,
   keyboard path, and narrow-width surface must be exercised and recorded.
@@ -72,20 +71,20 @@ Out of scope:
 
 | Area | State | Next useful slice |
 | ---- | ----- | ----------------- |
-| Dependency readiness | Complete | Package-manager, direct deps, overrides, and Action pins are latest; transitives stay lockfile-pinned/latest-compatible |
+| Dependency readiness | Complete | Package-manager, direct deps, overrides, and Action pins are latest; transitives stay lockfile-pinned |
 | Downloadable Agent Skills | Complete locally | Skills pass `lint:skills`; release packaging creates deterministic tar/ZIP artifacts. |
-| LinkedIn Workbench and restricted-source flow | Active | Ship user-opened LinkedIn workbench actions, saved ack, reminder, pasted-text suggestions, and one-click ledger records without cookies, hidden page reading, or background monitoring. |
-| Scraper/source verification | Active | All source adapters and user-gated restricted paths must pass focused parser/import/gate tests before release, with a current Scrapling comparison recorded. |
+| LinkedIn Workbench and restricted-source flow | Active release blocker | Manually verify actions, saved ack, reminder, pasted-text suggestions, and one-click ledger records without cookies, hidden page reading, or monitoring. |
+| Scraper/source verification | Active release blocker | Adapters, import paths, restricted gates, and LinkedIn-compatible contracts must pass parser/import/gate/manual checks, with current Scrapling comparison. |
 | Development and QA completion | Complete locally | Fresh full local gates pass; final release operations remain approval/credential-gated. |
 | macOS readiness | Release-gated | No-account path is complete; Gatekeeper-ready public distribution remains Apple-credential-gated. |
 | Resume assistance | Active | Tighten hard-requirement categories, evidence caps, live review copy, and mock/Rust parity only when evidence is local and explainable. |
 | Job-card protection | Active | Keep posting-risk cues visible without implying employer intent or confirmed duplicate/source proof. |
 | Guided intake | Active | Add optional suggestions only after user review; keep broad defaults and non-technical paths first-class. |
 | Pay protection | Active | Keep missing, minimum-only, maximum-only, malformed, or broad listed-pay evidence plain and review-first. |
-| Encrypted local storage | Active | SQLCipher, AEAD vault rows, migration, passphrase controls, and macOS vault-key user-presence locking exist; continue release/packaging readiness. |
-| Quiet Shield redesign | Applied locally | Protective Navy/teal tokens, score-color semantics, and compact dashboard widget loading are screenshot-checked; final click/action coverage passed. |
+| Encrypted local storage | Active | SQLCipher, AEAD vault rows, migration, passphrase controls, and macOS vault-key locking exist; continue release readiness. |
+| Quiet Shield redesign | Applied locally | Tokens, score colors, and dashboard loading are screenshot-checked; final click/action coverage passed. |
 | Final Rust and agent improvement pass | Complete locally | Accepted non-`content/` fixes are applied and verified; revisit only for regressions. |
-| Cleanup and harness | Closed for proactive repo-bloat work | Reopen only for a fresh failing gate or blocker to privacy, security, docs accuracy, or verification. |
+| Cleanup and harness | Closed for proactive bloat work | Reopen only for a fresh blocker to privacy, security, docs accuracy, or verification. |
 
 ## Completion Bar
 
@@ -99,8 +98,9 @@ Out of scope:
   safety, explicit user review, privacy-preserving defaults, and optional
   external AI.
 - Every claim of completion has fresh verification evidence.
-- v2.9.0 is not done until whole-UI manual verification covers every click,
-  action, and surface across the app.
+- v2.9.0 is not done until whole-UI verification covers every click, action,
+  and surface, and the source-debug ledger proves every shipped scraper and
+  non-scraper restricted-source workflow.
 
 ## Done Recently
 
@@ -149,18 +149,19 @@ Out of scope:
 
 ## Next Work
 
-1. Wait for the old `v2.9.0` workflow run to finish, then push main/wiki,
+1. Complete and commit source verification for every native adapter, import
+   path, restricted-source gate, LinkedIn-compatible workflow, and Scrapling
+   comparison. Do not add session capture, background page access, or scheduled
+   LinkedIn fetches.
+2. Wait for the old `v2.9.0` workflow run to finish, then push main/wiki,
    retag/build/upload/publish/verify `2.9.0` no-account assets; signed Windows
    and Gatekeeper-ready macOS remain credential-backed upgrades.
-2. Confirm major route screenshots, Computer Use clicks, keyboard flow, and
+3. Confirm major route screenshots, Computer Use clicks, keyboard flow, and
    affected route/action/state checks after any further UI change before calling
    v2.9.0 done.
-3. Continue macOS readiness only after final local gates close; do
+4. Continue macOS readiness only after final local gates close; do
    not claim Gatekeeper-ready distribution before signing, notarization,
    stapling, and install proof exist.
-4. Complete and commit scraper/source verification, including user-gated
-   LinkedIn-compatible paths and the Scrapling comparison. Do not add session
-   capture, background page access, or scheduled LinkedIn fetches.
 5. Do not reopen repo-bloat cleanup unless a fresh bloat gate failure or
    product/privacy/security/docs verification blocker appears.
 6. Keep README, docs hubs, release docs, wiki inventory, and active status in
