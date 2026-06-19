@@ -72,7 +72,9 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   career-ops coverage, and fresh 2026-06-19 lint/package/SBOM staging proof.
 - LinkedIn config/scraper types expose no session-cookie fields. User-gated
   paths are search links, pasted links, Browser Import, manual entry, and
-  Workbench ledger with privacy reminders.
+  Workbench ledger with privacy reminders. 2026-06-19 desktop/mobile mock UI
+  and user-assisted live LinkedIn checks passed without auth/session capture,
+  hidden page reads, automation, or submit actions.
 - Desktop/mobile normal-state and Quiet Shield token checks passed for primary
   routes; forced empty/loading/error checks passed across startup and setup.
 - Setup Wizard desktop/mobile, whole-UI post-design click/action coverage, and
@@ -109,16 +111,14 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 
 ## Next Best Work
 
-1. Use the v2.9.0 risk register and source-debug ledger to finish remaining
-   manual proof for restricted-source and LinkedIn-compatible workflows.
-2. Wait for the old `v2.9.0` workflow run to finish, then push main/wiki,
+1. Wait for the old `v2.9.0` workflow run to finish, then push main/wiki,
    retag/build/upload/publish/verify `2.9.0` no-account assets; signed Windows
    and Gatekeeper-ready macOS remain credential-backed upgrades.
-3. Continue resume, guided intake, job-card protection, and encrypted storage
+2. Continue resume, guided intake, job-card protection, and encrypted storage
    only where they improve truthful, reviewed, local, non-technical workflows.
-4. Continue macOS readiness without claiming Gatekeeper-ready distribution
+3. Continue macOS readiness without claiming Gatekeeper-ready distribution
    before Apple credentials exist.
-5. Keep harness work focused on bounded startup context, runnable verification,
+4. Keep harness work focused on bounded startup context, runnable verification,
    privacy/security gates, and docs accuracy. Do not add new ceremony unless it
    prevents a repeated failure.
 
