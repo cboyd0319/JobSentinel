@@ -272,6 +272,9 @@ and pause on unknowns until they can verify the answer.
 - Any field that does not look right
 - Final Submit
 
+Cover letter templates stay local and copied drafts keep bracketed blanks
+visible for review. Users replace blanks and verify claims before sending.
+
 ---
 
 ## Human Checks

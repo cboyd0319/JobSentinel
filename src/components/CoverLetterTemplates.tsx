@@ -10,6 +10,7 @@ import { LoadingSpinner } from './LoadingSpinner';
 import { logError } from '../utils/errorUtils';
 import { fillTemplatePlaceholders, type JobForTemplate } from '../utils/coverLetterUtils';
 import { getUserFriendlyError } from '../utils/errorMessages';
+import { CoverLetterReviewChecklist } from './CoverLetterReviewChecklist';
 
 type TemplateCategory = 'general' | 'tech' | 'creative' | 'finance' | 'healthcare' | 'sales' | 'custom' | 'thankyou' | 'followup' | 'withdrawal';
 
@@ -617,6 +618,8 @@ export const CoverLetterTemplates = memo(function CoverLetterTemplates({ selecte
       )}
 
       <div className="p-4">
+        <CoverLetterReviewChecklist />
+
         {showEditor ? (
           <TemplateEditor
             template={editingTemplate}

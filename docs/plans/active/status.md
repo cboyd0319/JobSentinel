@@ -107,6 +107,8 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   Match card, and tests for current profile and analyzer-prompt mappings.
 - 2026-06-19 Application Preview now shows an Answer Review Checklist for exact
   questions, confirmed answers, voluntary/protected questions, and unknowns.
+- 2026-06-19 Cover Letter Templates now show a local review checklist for
+  blanks, truthful claims, and job-specific wording before copying/sending.
 
 ## Next Best Work
 

@@ -48,6 +48,10 @@ known placeholders such as company name, job title, hiring contact, department,
 location, and listed pay range.
 
 The user always reviews the result. JobSentinel does not submit the letter.
+The templates page shows a **Cover Letter Review** checklist backed by
+`src/shared/coverLetterReviewTaxonomy.ts` so users replace blanks, verify
+claims against their resume or records, and check job-specific wording before
+copying or sending.
 
 ### Interview Prep
 
