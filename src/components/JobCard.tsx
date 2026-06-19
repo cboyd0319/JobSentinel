@@ -1,8 +1,12 @@
-import { useState, memo, lazy, Suspense } from "react";
+import { useEffect, useState, memo, lazy, Suspense } from "react";
 import { ScoreDisplay } from "./ScoreDisplay";
 import { GhostIndicatorCompact } from "./GhostIndicator";
 import { ModalSkeleton } from "./LoadingFallbacks";
 import { ApplyButton } from "./automation/ApplyButton";
+import {
+  JobFeedbackAdjustment,
+  JobFitFeedbackControls,
+} from "./JobFitFeedback";
 import { logError } from "../utils/errorUtils";
 import {
   formatRelativeDate,
@@ -21,6 +25,15 @@ import {
   getSalaryRangeQualityGuidance,
   getScamRiskGuidance,
 } from "./jobCardGuidance";
+import {
+  applyJobFeedbackScoreAdjustment,
+  clearJobFeedbackSignal,
+  getJobFeedbackKey,
+  readJobFeedbackSignal,
+  writeJobFeedbackSignal,
+  type JobFeedbackSignal,
+  type JobFeedbackVerdict,
+} from "../shared/jobFeedbackScoring";
 
 // Lazy load modal to reduce initial bundle size
 const ScoreBreakdownModal = lazy(() =>
@@ -77,7 +90,19 @@ export const JobCard = memo(function JobCard({
   salaryFloorUsd,
 }: JobCardProps) {
   const [isScoreModalOpen, setIsScoreModalOpen] = useState(false);
+  const jobFeedbackKey = getJobFeedbackKey({
+    id: job.id,
+    hash: job.hash,
+    url: job.url,
+  });
+  const [jobFeedback, setJobFeedback] = useState<JobFeedbackSignal | null>(
+    () => readJobFeedbackSignal(jobFeedbackKey),
+  );
   const toast = useToast();
+
+  useEffect(() => {
+    setJobFeedback(readJobFeedbackSignal(jobFeedbackKey));
+  }, [jobFeedbackKey]);
 
   // Keyboard accessibility helper
   const handleKeyDown = (e: React.KeyboardEvent, callback: () => void) => {
@@ -137,8 +162,13 @@ export const JobCard = memo(function JobCard({
     rawScore >= 0 &&
     rawScore <= 1;
   const safeScore = hasValidScore ? rawScore : 0;
-  const isHighMatch = safeScore >= SCORE_THRESHOLD_HIGH;
-  const isGoodMatch = safeScore >= SCORE_THRESHOLD_GOOD;
+  const feedbackScoreAdjustment = hasValidScore
+    ? applyJobFeedbackScoreAdjustment(safeScore, jobFeedback)
+    : null;
+  const displayedScore = feedbackScoreAdjustment?.score ?? safeScore;
+  const displayedScoreValue = hasValidScore ? displayedScore : job.score;
+  const isHighMatch = displayedScore >= SCORE_THRESHOLD_HIGH;
+  const isGoodMatch = displayedScore >= SCORE_THRESHOLD_GOOD;
   const salaryText = formatSalaryRange(job.salary_min, job.salary_max);
   const descSnippet = truncateText(job.description);
   const rawPostingRiskScore = job.ghost_score;
@@ -192,6 +222,32 @@ export const JobCard = memo(function JobCard({
       ? "border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200"
       : "border-surface-200 bg-surface-50 text-surface-800 dark:border-surface-700 dark:bg-surface-900/40 dark:text-surface-200";
 
+  const updateJobFeedback = (
+    verdict: JobFeedbackVerdict,
+    mode: "set" | "toggle" = "toggle",
+  ) => {
+    if (mode === "toggle" && jobFeedback?.verdict === verdict) {
+      clearJobFeedbackSignal(jobFeedbackKey);
+      setJobFeedback(null);
+      return;
+    }
+
+    setJobFeedback(
+      writeJobFeedbackSignal({
+        jobKey: jobFeedbackKey,
+        verdict,
+        title: job.title,
+        company: job.company,
+        recordedAt: new Date().toISOString(),
+      }),
+    );
+  };
+
+  const hideJob = () => {
+    updateJobFeedback("not_useful", "set");
+    onHideJob?.(job.id);
+  };
+
   return (
     <>
       {isScoreModalOpen && hasValidScore && (
@@ -199,7 +255,7 @@ export const JobCard = memo(function JobCard({
           <ScoreBreakdownModal
             isOpen={isScoreModalOpen}
             onClose={() => setIsScoreModalOpen(false)}
-            score={safeScore}
+            score={displayedScore}
             scoreReasons={job.score_reasons}
             jobTitle={job.title}
           />
@@ -235,7 +291,7 @@ export const JobCard = memo(function JobCard({
             {/* Score */}
             <div className="self-start sm:flex-shrink-0">
               <ScoreDisplay
-                score={job.score}
+                score={displayedScoreValue}
                 size="md"
                 showLabel={false}
                 scoreReasons={job.score_reasons}
@@ -348,6 +404,10 @@ export const JobCard = memo(function JobCard({
                 </div>
               )}
 
+              {feedbackScoreAdjustment && (
+                <JobFeedbackAdjustment adjustment={feedbackScoreAdjustment} />
+              )}
+
               {!hasSafeJobUrl && (
                 <div
                   data-testid="job-link-guidance"
@@ -456,6 +516,13 @@ export const JobCard = memo(function JobCard({
 
             {/* Action */}
             <div className="flex flex-wrap items-center gap-1 self-start sm:flex-shrink-0 sm:self-center">
+              {hasValidScore && (
+                <JobFitFeedbackControls
+                  verdict={jobFeedback?.verdict ?? null}
+                  onChange={updateJobFeedback}
+                />
+              )}
+
               {/* Research company button */}
               {onResearchCompany && (
                 <button
@@ -523,7 +590,7 @@ export const JobCard = memo(function JobCard({
                     location: job.location ?? "",
                     url: job.url,
                     description: job.description ?? undefined,
-                    score: safeScore,
+                    score: displayedScore,
                   }}
                   onOpenApplicationAssist={onOpenApplicationAssist}
                 />
@@ -551,8 +618,8 @@ export const JobCard = memo(function JobCard({
               {/* Hide button */}
               {onHideJob && (
                 <button
-                  onClick={() => onHideJob(job.id)}
-                  onKeyDown={(e) => handleKeyDown(e, () => onHideJob(job.id))}
+                  onClick={hideJob}
+                  onKeyDown={(e) => handleKeyDown(e, hideJob)}
                   className="p-2 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 transition-colors opacity-40 group-hover:opacity-100 focus-visible:opacity-100"
                   aria-label="Not interested in this job"
                   data-testid="btn-hide"

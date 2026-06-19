@@ -63,6 +63,22 @@ review posting risk, salary, source, and application route.
 Dashboard comparison rows and duplicate-source groups pair the percentage with
 the fit label instead of showing a number alone.
 
+## Local Feedback Adjustments
+
+Job cards let the user mark a role as **Useful** or **Not for me**. This changes
+only the local fit estimate for that job:
+
+- **Useful** raises the displayed estimate slightly.
+- **Not for me** lowers the displayed estimate.
+- Clicking the selected feedback again clears the local adjustment.
+
+The feedback record stays on this computer. It keeps only the local job marker,
+your choice, title, company, and time. It does not keep the job page address,
+sign-in details, page recordings, or guesses about what the employer will do.
+
+When feedback changes a fit estimate, the job card shows the adjustment and
+states that it does not predict what the employer will do.
+
 Fit details also show an evidence-status label:
 
 | Evidence status | Meaning |

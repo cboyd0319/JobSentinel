@@ -43,6 +43,7 @@ describe("JobCard", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockInvoke.mockReset();
+    window.localStorage.clear();
   });
 
   describe("rendering", () => {
@@ -287,6 +288,35 @@ describe("JobCard", () => {
       expect(
         screen.getByRole("article", { name: /customer support lead/i }),
       ).not.toHaveAccessibleName(/high match|good match/i);
+    });
+
+    it("lets the user raise a local fit estimate with useful feedback", async () => {
+      const user = userEvent.setup();
+      renderWithToast(<JobCard job={mockJob} />);
+
+      expect(screen.getByText("85%")).toBeInTheDocument();
+
+      await user.click(screen.getByRole("button", { name: /mark useful/i }));
+
+      expect(screen.getByText("90%")).toBeInTheDocument();
+      expect(screen.getByTestId("job-feedback-adjustment")).toHaveTextContent(
+        "Raised by your feedback",
+      );
+      expect(screen.getByTestId("job-feedback-adjustment")).toHaveTextContent(
+        "does not predict employer intent",
+      );
+    });
+
+    it("lets the user lower a local fit estimate with not-for-me feedback", async () => {
+      const user = userEvent.setup();
+      renderWithToast(<JobCard job={mockJob} />);
+
+      await user.click(screen.getByRole("button", { name: /mark not for me/i }));
+
+      expect(screen.getByText("73%")).toBeInTheDocument();
+      expect(screen.getByTestId("job-feedback-adjustment")).toHaveTextContent(
+        "Lowered by your feedback",
+      );
     });
   });
 
