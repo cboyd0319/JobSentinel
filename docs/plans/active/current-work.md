@@ -1,6 +1,6 @@
 # Current Product And Quality Work
 
-Last updated: 2026-06-18.
+Last updated: 2026-06-19.
 
 ## Purpose
 
@@ -73,8 +73,8 @@ Out of scope:
 | Dependency readiness | Complete | Package-manager, direct deps, overrides, and Action pins are latest; transitives stay lockfile-pinned/latest-compatible |
 | Downloadable Agent Skills | Complete locally | Skills pass `lint:skills`; release packaging creates deterministic tar/ZIP artifacts. |
 | Browser Import and LinkedIn-compatible flow | Complete locally | Manual desktop/mobile verification passed; revisit only if whole-UI QA finds a blocker. Keep LinkedIn user-opened and user-clicked without session cookies or background monitoring. |
-| Development and QA completion | Finalizing | Primary product/security fixes and whole-UI verification are complete locally; finish design, packaging, and release checks. |
-| macOS readiness | Release-gated | Keep docs honest when touched, but do not create or upload assets until final local gates close. |
+| Development and QA completion | Complete locally | Fresh full local gates pass; final release operations remain approval/credential-gated. |
+| macOS readiness | Release-gated | No-account path is complete; Gatekeeper-ready public distribution remains Apple-credential-gated. |
 | Resume assistance | Active | Tighten hard-requirement categories, evidence caps, live review copy, and mock/Rust parity only when evidence is local and explainable. |
 | Job-card protection | Active | Keep posting-risk cues visible without implying employer intent or confirmed duplicate/source proof. |
 | Guided intake | Active | Add optional suggestions only after user review; keep broad defaults and non-technical paths first-class. |
@@ -158,17 +158,14 @@ Out of scope:
 4. Continue macOS readiness only after final local gates close; do
    not claim Gatekeeper-ready distribution before signing, notarization,
    stapling, and install proof exist.
-5. Finish remaining verified slices; salary-history app preview is covered.
-6. Continue encrypted storage UX: release/packaging readiness and no passive
-   Settings probes.
-7. Keep the LinkedIn-compatible Browser Import path user-opened and
+5. Keep the LinkedIn-compatible Browser Import path user-opened and
    user-clicked; do not add browser-session capture, background page access, or
    scheduled LinkedIn fetches.
-8. Do not reopen repo-bloat cleanup unless a fresh bloat gate failure or
+6. Do not reopen repo-bloat cleanup unless a fresh bloat gate failure or
    product/privacy/security/docs verification blocker appears.
-9. Keep README, docs hubs, release docs, wiki inventory, and active status in
+7. Keep README, docs hubs, release docs, wiki inventory, and active status in
    sync when behavior, readiness, or public guidance changes.
-10. Commit each major verified change locally; push only at goal completion or
+8. Commit each major verified change locally; push only at goal completion or
    on newer explicit instruction.
 
 ## Sensors

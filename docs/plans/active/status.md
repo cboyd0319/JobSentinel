@@ -75,10 +75,10 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   routes; forced empty/loading/error checks passed across startup and setup.
 - Setup Wizard desktop/mobile, whole-UI post-design click/action coverage, and
   keyboard paths now have fresh Playwright evidence.
-- Current 2026-06-18 gates pass after `2451e7a7`: harness 100, bloat,
-  release readiness, dependency/action pins, security/static sensors, scripts
-  `709/709`, frontend `3120/3120`, Rust fmt/clippy/full test, macOS
-  no-account 100% / full-public 94%, and E2E budget `272/272`.
+- Current 2026-06-19 pre-release gates pass: harness 100, docs, bloat,
+  release version/readiness/deps/skills, security/static sensors, npm audit,
+  cargo audit/deny, doctor/doctor:e2e, scripts `710/710`, frontend `3124/3124`,
+  lint/build, Rust fmt/clippy/lib/all-target test, and E2E budget `272/272`.
 - Final non-`content/` expert/agent pass is applied locally. Gatekeeper-ready
   macOS remains Apple-blocked; wiki drafts await approval to push.
 - 2026-06-18 OWASP CheatSheetSeries scan covered Actions, supply-chain, AI,
@@ -96,17 +96,17 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   `calculate_job_hash`, fragments no longer affect dedupe, JobsWithGPT smoke
   checks are HTTPS-only, Browser Import binds submitted job URLs to page origin
   when present, UI accessibility/layout blockers are fixed, and optional ML drops duplicate downloader deps. Fresh evidence:
-  frontend `3123/3123`, scripts `710/710`, version/macos-readiness/deps/audit/cargo-deny/doctor pass,
+  frontend `3124/3124`, scripts `710/710`, version/macos-readiness/deps/audit/cargo-deny/doctor pass,
   AppImage script `8/8`, scraper hash `50/50`, bookmarklet `43/43`,
   JobsWithGPT smoke `1/1`, fragment `12/12`, URL normalizer `23/23`,
-  optional ML `12/12`, Rust fmt/clippy, and Rust lib `2902` passed with `11` ignored.
+  optional ML `12/12`, Rust fmt/clippy, Rust lib `2905` passed with `11` ignored, and no open tech-debt rows.
 - 2026-06-19 job-destination hardening now requires public HTTPS for stored
   job links, Browser Import jobs, import previews, job-card/open-deep-link
   destinations, notification job hrefs, and Application Assist targets. The
   local Browser Import callback remains `http://localhost` because it is the
   one-shot local receiver, not a job destination. Fresh evidence: affected
   frontend `121/121`, full frontend `3124/3124`, Rust URL/import/deep-link/
-  automation/bookmarklet/db/notify suites, Rust lib `2904` passed with `11`
+  automation/bookmarklet/db/notify suites, Rust lib `2905` passed with `11`
   ignored, targeted Chromium/WebKit UI checks, build/clippy/readiness/deps/security/docs/bloat/harness passed.
 
 ## Next Best Work
