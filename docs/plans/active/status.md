@@ -86,29 +86,18 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   `278/278`, docs/prose, bloat, harness, and whitespace checks.
 - Final non-`content/` expert/agent pass is applied locally. Public wiki local
   commit `f12f8c3` adds Windows MSI/setup EXE release notes; final push pending.
-- 2026-06-18 OWASP CheatSheetSeries scan covered Actions, supply-chain, AI,
-  storage, URL, logging, Browser Import, CSS, parsers, and follow-up hardening
-  for credential binding, imports, redaction, signing, AI guards, and release drift.
-- 2026-06-18 Linux packaging hardening adds exact AppImage helper hashes,
-  project-local Tauri bundler tools, exact build package pins, fallback
-  linuxdeploy wrapping, clean Ubuntu assets, and verified `.sha256` sidecars.
-- 2026-06-18 shared taxonomy/research work moved credentials, company suffixes,
-  ATS terms, bullet prompts, hard-constraint categories, and screening aliases
-  into `src/shared/`; 2026-06-19 source-debug evidence rechecked Scrapling
-  against current crates.io/local checkout evidence and kept no-adoption.
-- 2026-06-19 specialist hardening closes AppImage helper rehashing, shared
-  scraper hashes, fragment-free dedupe, HTTPS JobsWithGPT smoke, Browser Import
-  origin binding, UI blockers, and optional ML duplicate downloader deps.
-  Evidence includes frontend `3124/3124`, scripts `710/710`, targeted suites,
-  Rust fmt/clippy/lib, and no open tech-debt rows.
-- 2026-06-19 job-destination hardening requires public HTTPS for stored job
-  links, Browser Import jobs, previews, open-link destinations, notification
-  hrefs, and Application Assist targets. The local Browser Import callback
-  remains `http://localhost` as the one-shot local receiver. Fresh evidence:
-  affected frontend `121/121`, full frontend `3124/3124`, Rust URL/import/
-  deep-link/automation/bookmarklet/db/notify suites, Rust lib `2905` passed
-  with `11` ignored, targeted Chromium/WebKit UI, build/clippy/readiness/deps/
-  security/docs/bloat/harness passed.
+- OWASP/security, Linux packaging, shared taxonomy, Scrapling no-adoption,
+  specialist hardening, and public-HTTPS job-destination evidence are recorded
+  in `current-work.md`, source-debug docs, and the tech-debt tracker; no open
+  tech-debt rows remain from those slices.
+- 2026-06-19 Browser Import review queue commit `9f1305dc` keeps user-clicked
+  visible-page imports in a local in-memory review list, strips LinkedIn query
+  and fragment context before local send, and writes durable jobs only after
+  Save Job or Save All. Fresh evidence: full frontend `3203/3203`, restricted
+  source UI/import contracts `104/104`, Rust bookmarklet `47/47`, lint, build,
+  Rust fmt, Rust clippy, docs, bloat, harness, and whitespace checks passed.
+  Full Rust lib was not rerun in this slice to avoid credential/keychain tests;
+  the bookmarklet target covers the changed Rust surface.
 
 ## Next Best Work
 
