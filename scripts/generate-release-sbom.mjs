@@ -6,6 +6,8 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSy
 import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
+import { npmInvocation } from "./dependency/npm-invocation.mjs";
+
 const scriptPath = fileURLToPath(import.meta.url);
 const defaultRoot = resolve(dirname(scriptPath), "..");
 const defaultRepoUrl = "https://github.com/cboyd0319/JobSentinel";
@@ -221,16 +223,17 @@ export function buildCargoSpdx({ packages, rootPackageName, rootPackageVersion, 
   return { packages: spdxPackages, relationships };
 }
 
-function npmSbom(root) {
-  const result = spawnSync(
-    "npm",
+export function npmSbom(root, { spawn = spawnSync, platform = process.platform, env = process.env } = {}) {
+  const invocation = npmInvocation(
     ["sbom", "--package-lock-only", "--sbom-format=spdx", "--sbom-type=application"],
-    {
-      cwd: root,
-      encoding: "utf8",
-      maxBuffer: 1024 * 1024 * 32,
-    },
+    platform,
+    env,
   );
+  const result = spawn(invocation.command, invocation.args, {
+    cwd: root,
+    encoding: "utf8",
+    maxBuffer: 1024 * 1024 * 32,
+  });
 
   if (result.error) {
     throw result.error;
@@ -312,6 +315,9 @@ export async function generateReleaseSbom({
   created = new Date().toISOString(),
   requireArtifacts = false,
   npmDocument,
+  platformName = process.platform,
+  spawn = spawnSync,
+  env = process.env,
 } = {}) {
   if (!outDir) {
     throw new Error("Missing outDir");
@@ -336,7 +342,7 @@ export async function generateReleaseSbom({
     throw new Error("Release SBOM generation requires at least one installable release artifact.");
   }
 
-  const sbom = structuredClone(npmDocument ?? npmSbom(root));
+  const sbom = structuredClone(npmDocument ?? npmSbom(root, { spawn, platform: platformName, env }));
   if (sbom.spdxVersion !== "SPDX-2.3" || sbom.SPDXID !== "SPDXRef-DOCUMENT") {
     throw new Error("npm SBOM output must be an SPDX 2.3 JSON document.");
   }

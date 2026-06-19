@@ -885,15 +885,27 @@ test("Cargo compatible update check ignores index refresh and reports package up
 });
 
 test("npm compatible update check accepts up-to-date lockfiles", () => {
+  const calls = [];
   const violations = collectNpmCompatibleUpdateViolations("/tmp/jobsentinel-fixture", {
-    spawn: () => ({
-      status: 0,
-      stdout: "up to date in 1s\n",
-      stderr: "",
-    }),
+    platform: "win32",
+    env: { ComSpec: "C:\\Windows\\System32\\cmd.exe" },
+    spawn: (command, args) => {
+      calls.push([command, args]);
+      return {
+        status: 0,
+        stdout: "up to date in 1s\n",
+        stderr: "",
+      };
+    },
   });
 
   assert.deepEqual(violations, []);
+  assert.deepEqual(calls, [
+    [
+      "C:\\Windows\\System32\\cmd.exe",
+      ["/d", "/s", "/c", "npm.cmd", "update", "--package-lock-only", "--dry-run", "--ignore-scripts"],
+    ],
+  ]);
 });
 
 test("npm compatible update check reports package-lock dry-run changes", () => {
@@ -911,28 +923,37 @@ test("npm compatible update check reports package-lock dry-run changes", () => {
 });
 
 test("npm compatible outdated check reports current-vs-wanted transitive drift", () => {
+  const calls = [];
   const violations = collectNpmCompatibleOutdatedViolations("/tmp/jobsentinel-fixture", {
-    spawn: () => ({
-      status: 1,
-      stdout: JSON.stringify({
-        "aria-query": {
-          current: "5.3.0",
-          wanted: "5.3.2",
-          latest: "5.3.2",
-          dependent: "@testing-library/jest-dom",
-        },
-        "major-only": {
-          current: "1.0.0",
-          wanted: "1.0.0",
-          latest: "2.0.0",
-          dependent: "example",
-        },
-      }),
-      stderr: "",
-    }),
+    platform: "win32",
+    env: { ComSpec: "C:\\Windows\\System32\\cmd.exe" },
+    spawn: (command, args) => {
+      calls.push([command, args]);
+      return {
+        status: 1,
+        stdout: JSON.stringify({
+          "aria-query": {
+            current: "5.3.0",
+            wanted: "5.3.2",
+            latest: "5.3.2",
+            dependent: "@testing-library/jest-dom",
+          },
+          "major-only": {
+            current: "1.0.0",
+            wanted: "1.0.0",
+            latest: "2.0.0",
+            dependent: "example",
+          },
+        }),
+        stderr: "",
+      };
+    },
   });
 
   assert.deepEqual(violations, [
     "package-lock.json has compatible npm transitive drift for @testing-library/jest-dom: aria-query is 5.3.0; wanted 5.3.2",
+  ]);
+  assert.deepEqual(calls, [
+    ["C:\\Windows\\System32\\cmd.exe", ["/d", "/s", "/c", "npm.cmd", "outdated", "--all", "--json"]],
   ]);
 });

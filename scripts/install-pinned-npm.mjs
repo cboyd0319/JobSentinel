@@ -5,6 +5,9 @@ import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+export { npmExecutable, npmInvocation } from "./dependency/npm-invocation.mjs";
+import { npmInvocation } from "./dependency/npm-invocation.mjs";
+
 const scriptPath = fileURLToPath(import.meta.url);
 const defaultRoot = resolve(dirname(scriptPath), "..");
 
@@ -13,22 +16,6 @@ export function parsePinnedNpmVersion(packageJsonText) {
   const packageManager = String(packageJson.packageManager ?? "").trim();
   const match = packageManager.match(/^npm@(\d+\.\d+\.\d+)$/);
   return match?.[1] ?? null;
-}
-
-export function npmExecutable(platform = process.platform) {
-  return platform === "win32" ? "npm.cmd" : "npm";
-}
-
-export function npmInvocation(args, platform = process.platform, env = process.env) {
-  const npm = npmExecutable(platform);
-  if (platform !== "win32") {
-    return { command: npm, args };
-  }
-
-  return {
-    command: env.ComSpec || "cmd.exe",
-    args: ["/d", "/s", "/c", npm, ...args],
-  };
 }
 
 export function installPinnedNpm(options = {}) {

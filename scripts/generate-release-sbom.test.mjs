@@ -7,6 +7,7 @@ import test from "node:test";
 import {
   buildCargoSpdx,
   generateReleaseSbom,
+  npmSbom,
   parseCargoLock,
 } from "./generate-release-sbom.mjs";
 
@@ -159,6 +160,40 @@ checksum = "7f202df86484c868dbad7eaa557ef785d5c66295e41b460ef922eca0723b842c"
   assert.equal(manifest.sbom.fileName, "JobSentinel-9.9.9-macos.sbom.spdx.json");
   assert.equal(manifest.assets.length, 2);
   assert.match(checksums, /^[a-f0-9]{64}  JobSentinel_9\.9\.9_no-account_universal\.dmg\n$/);
+});
+
+test("npmSbom routes Windows npm through cmd", () => {
+  const calls = [];
+  const result = npmSbom("C:\\repo", {
+    platform: "win32",
+    env: { ComSpec: "C:\\Windows\\System32\\cmd.exe" },
+    spawn: (command, args, options) => {
+      calls.push([command, args, options.cwd]);
+      return {
+        status: 0,
+        stdout: JSON.stringify(minimalNpmSbom),
+        stderr: "",
+      };
+    },
+  });
+
+  assert.equal(result.spdxVersion, "SPDX-2.3");
+  assert.deepEqual(calls, [
+    [
+      "C:\\Windows\\System32\\cmd.exe",
+      [
+        "/d",
+        "/s",
+        "/c",
+        "npm.cmd",
+        "sbom",
+        "--package-lock-only",
+        "--sbom-format=spdx",
+        "--sbom-type=application",
+      ],
+      "C:\\repo",
+    ],
+  ]);
 });
 
 test("generateReleaseSbom rejects required artifact mode without installable files", async () => {

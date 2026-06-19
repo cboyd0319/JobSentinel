@@ -1,19 +1,21 @@
 import { spawnSync } from "node:child_process";
 
-function npmCommand() {
-  return process.platform === "win32" ? "npm.cmd" : "npm";
-}
+import { npmInvocation } from "./npm-invocation.mjs";
 
-export function collectNpmCompatibleUpdateViolations(root, { spawn = spawnSync } = {}) {
-  const result = spawn(
-    npmCommand(),
+export function collectNpmCompatibleUpdateViolations(
+  root,
+  { spawn = spawnSync, platform = process.platform, env = process.env } = {},
+) {
+  const invocation = npmInvocation(
     ["update", "--package-lock-only", "--dry-run", "--ignore-scripts"],
-    {
-      cwd: root,
-      encoding: "utf8",
-      maxBuffer: 1024 * 1024 * 10,
-    },
+    platform,
+    env,
   );
+  const result = spawn(invocation.command, invocation.args, {
+    cwd: root,
+    encoding: "utf8",
+    maxBuffer: 1024 * 1024 * 10,
+  });
 
   if (result.error) {
     return [`npm update dry-run failed: ${result.error.message}`];
@@ -38,16 +40,16 @@ export function collectNpmCompatibleUpdateViolations(root, { spawn = spawnSync }
   return [];
 }
 
-export function collectNpmCompatibleOutdatedViolations(root, { spawn = spawnSync } = {}) {
-  const result = spawn(
-    npmCommand(),
-    ["outdated", "--all", "--json"],
-    {
-      cwd: root,
-      encoding: "utf8",
-      maxBuffer: 1024 * 1024 * 10,
-    },
-  );
+export function collectNpmCompatibleOutdatedViolations(
+  root,
+  { spawn = spawnSync, platform = process.platform, env = process.env } = {},
+) {
+  const invocation = npmInvocation(["outdated", "--all", "--json"], platform, env);
+  const result = spawn(invocation.command, invocation.args, {
+    cwd: root,
+    encoding: "utf8",
+    maxBuffer: 1024 * 1024 * 10,
+  });
 
   if (result.error) {
     return [`npm outdated --all failed: ${result.error.message}`];
