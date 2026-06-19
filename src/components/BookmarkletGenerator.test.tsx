@@ -97,7 +97,7 @@ describe("BookmarkletGenerator", () => {
     expect(screen.getByText(/do not let JobSentinel read saved pages/i)).toBeInTheDocument();
     expect(screen.getByText(/respects those controls/i)).toBeInTheDocument();
     expect(screen.getByText(/Restricted Site Warning/i)).toBeInTheDocument();
-    expect(screen.getByText(/can violate their User Agreement or terms/i)).toBeInTheDocument();
+    expect(screen.getByText(/rules about automated tools/i)).toBeInTheDocument();
     expect(
       screen.getByLabelText(/I understand this risk and want to use Browser Import/i),
     ).toBeInTheDocument();

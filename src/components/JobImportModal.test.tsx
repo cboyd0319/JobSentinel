@@ -145,7 +145,7 @@ describe("JobImportModal", () => {
       target: { value: "https://www.indeed.com/viewjob?jk=123456789" },
     });
 
-    expect(screen.getByText(/can violate their User Agreement or terms/i)).toBeInTheDocument();
+    expect(screen.getByText(/rules about automated tools/i)).toBeInTheDocument();
     const checkButton = screen.getByRole("button", { name: "Check Job Link" });
     expect(checkButton).toBeDisabled();
     expect(invoke).not.toHaveBeenCalled();

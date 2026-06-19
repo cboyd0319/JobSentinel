@@ -71,9 +71,9 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   tar.gz/ZIP packaging, strict archive/checksum/CRC/central-directory checks,
   upstream `skills-ref`, handoffs, templates, rubrics, Persona/ResumeSkills/
   career-ops coverage, and fresh 2026-06-19 lint/package/SBOM staging proof.
-- LinkedIn config/scraper types expose no session-cookie fields. Native paths
-  stay user-gated: search links, pasted job links, Browser Import, and manual
-  entry. Browser Import desktop/mobile verification passed on 2026-06-17.
+- LinkedIn config/scraper types expose no session-cookie fields. Native paths stay
+  user-gated: search links, pasted links, Browser Import, manual entry, and local
+  activity ledger. Manual sessions use a privacy reminder, not hard expiry.
 - Desktop/mobile normal-state and Quiet Shield token checks passed for primary
   routes; forced empty/loading/error checks passed across startup and setup.
 - Setup Wizard desktop/mobile, whole-UI post-design click/action coverage, and

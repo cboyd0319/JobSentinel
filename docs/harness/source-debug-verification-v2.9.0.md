@@ -12,15 +12,17 @@ Before release, every source path must be one of these:
 - Public unauthenticated restricted-source path with a prominent warning,
   explicit acknowledgement, rate limits, safe errors, no credential or
   session-cookie capture, and a fallback to search link, pasted individual job
-  link, employer career page, or manual entry. Do not apply fresh-login or
-  one-hour session caps to these public unauthenticated paths.
+  link, employer career page, or manual entry. Do not apply sign-in-session
+  rules to these public unauthenticated paths.
 - Restricted authenticated source path with the warning shown before sign-in,
   fresh user-initiated sign-in for every use, no auth token, session cookie,
   browser storage, or authorization-header persistence, no background or
-  offline collection, and a maximum one-hour interactive window.
+  offline collection, and a visible privacy reminder for long manual sessions.
+  Hard expiry is required only if a future feature inspects or automates
+  restricted-site content.
 - Human-controlled restricted browser shell where JobSentinel only opens the
-  window, shows the warning and timer, provides visible navigation, and closes
-  the session. This is not a scraper path unless JobSentinel inspects page DOM,
+  window, shows the warning and privacy reminder, and provides visible
+  navigation. This is not a scraper path unless JobSentinel inspects page DOM,
   network traffic, storage, cookies, auth headers, or drives actions.
 - User-driven authenticated activity ledger where the user explicitly logs
   applied, saved, tracking, rejected, interview, follow-up, or note events from
@@ -52,7 +54,7 @@ site blocks, changes, or returns no jobs.
 | Search links | User-opened browser links | Restricted-board acknowledgement before opening, official/public links stay low-friction |
 | Pasted job link import | User-submitted individual URL | URL validation, restricted-domain acknowledgement, no local/private URLs, sanitized errors |
 | Browser Import | User-clicked browser action | Prominent warning, acknowledgement before enabling/copying, no token exposure, blocked-page fallback |
-| Restricted session activity ledger | User-confirmed local events | Pre-login warning, one-hour session cap, explicit user action for each event, local-only storage, no DOM/network/storage inspection, no silent refresh |
+| Restricted session activity ledger | User-confirmed local events | Pre-login warning, privacy reminder, explicit user action for each event, local-only storage, no DOM/network/storage inspection, no silent refresh |
 | Company careers discovery | User-provided or discovered employer careers URL | Detect public ATS/API where available, normalize to native source when safe, keep unknown/custom pages user-opened until reviewed |
 | Shared source taxonomy | Discovery registry | `src/shared/jobSourceDiscoveryTaxonomy.ts` covers platform families, regional boards, source access models, technical authentication access, career-profile coverage, and user-agreement requirements |
 | Manual entry | Local user input | Works when every external source fails; no external side effects |
@@ -80,7 +82,7 @@ site blocks, changes, or returns no jobs.
 | Monster | US and global variants | Restricted public unauthenticated path with prominent warning and source-specific review before scheduling |
 | ZipRecruiter | US | Restricted public unauthenticated path with prominent warning and source-specific review before scheduling |
 | Indeed | US and global variants | Restricted public unauthenticated path with prominent warning and source-specific review before scheduling |
-| LinkedIn search and company jobs | Global | User-gated restricted discovery only; human-controlled browser shell may open search/company pages and close after one hour, and JobSentinel may let the user log applied/saved/tracking events locally, but JobSentinel must not inspect DOM/network/storage, drive actions, capture login material, run hidden background access, or persist referral, origin, or landing-job session context as source config |
+| LinkedIn search and company jobs | Global | User-gated restricted discovery only; human-controlled browser shell may open search/company pages and show a privacy reminder, and JobSentinel may let the user log applied/saved/tracking events locally, but JobSentinel must not inspect DOM/network/storage, drive actions, capture login material, run hidden background access, or persist referral, origin, or landing-job session context as source config |
 | LinkedIn Jobs Tracker | Global | User-gated restricted tracking only for jobs the user already saved or applied to; human-controlled browser shell may help the user reach applied/saved pages and let the user update local tracking events, but JobSentinel must not inspect DOM/network/storage, drive actions, capture login material, run hidden background access, or silently refresh tracking state |
 | LinkedIn Jobs home navigation | Global | User-opened navigation only for Preferences, Job tracker, and My Career Insights anchors; do not treat text-fragment anchors as saved source query state |
 | Built In network, state/city filters, and regional city boards | US and local markets | Restricted public unauthenticated path with prominent warning; model parent, state-filtered, city-filtered, and regional-host searches in shared taxonomy; use employer-career follow-through after the user reviews a role |

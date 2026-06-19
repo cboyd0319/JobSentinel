@@ -151,7 +151,7 @@ describe("DeepLinkGenerator", () => {
     await user.type(screen.getByLabelText(/job title or work words/i), "Marketing Manager");
     await user.click(screen.getByRole("button", { name: /create search links/i }));
 
-    expect(await screen.findByText(/can violate their User Agreement or terms/i)).toBeInTheDocument();
+    expect(await screen.findByText(/rules about automated tools/i)).toBeInTheDocument();
     const openButton = screen.getByRole("button", {
       name: /open linkedin search in your browser/i,
     });

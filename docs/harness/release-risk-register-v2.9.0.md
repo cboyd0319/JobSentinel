@@ -36,13 +36,14 @@ sources before changing restricted-source behavior.
 - Restricted authenticated user sessions: LinkedIn, LinkedIn Jobs Tracker,
   FlexJobs, Upwork, Freelancer, and Toptal. These require a pre-login warning,
   fresh user-initiated sign-in for each use, no auth/session/browser-storage
-  persistence, no background or offline collection, and a one-hour maximum
-  session window.
+  persistence, no background or offline collection, and a visible privacy
+  reminder for long manual sessions. Hard expiry is not required when
+  JobSentinel does not inspect or automate the restricted site.
 - Human-controlled restricted browser shell: an isolated browser or webview that
-  JobSentinel opens after the warning and closes at the session limit. This shell
-  is a navigation and time-boxing surface, not a scraper, when JobSentinel does
-  not inspect page DOM, network traffic, browser storage, cookies, auth headers,
-  or drive user actions.
+  JobSentinel opens after the warning. This shell is a navigation surface, not a
+  scraper, when JobSentinel does not inspect page DOM, network traffic, browser
+  storage, cookies, auth headers, or drive user actions. It may show a privacy
+  reminder and a close control without forcing the user to stop.
 - User-driven authenticated activity ledger: local records the user explicitly
   creates during a restricted browser session, such as applied, saved, tracking,
   rejected, interview, follow-up, or note events. This is not scraping when the
@@ -84,12 +85,12 @@ Fix:
 Either keep all LinkedIn claims to the current user-directed paths, or implement
 and manually verify an ephemeral interactive session manager before release:
 pre-login warning, fresh sign-in, no persisted auth material, no background use,
-one-hour maximum, and full UI coverage.
+plain-language privacy reminder, and full UI coverage.
 
 A human-controlled LinkedIn browser shell is compatible with that policy only if
 it does not read, extract, capture, or automate LinkedIn pages. JobSentinel may
-open the isolated window, show the timer, provide user-visible navigation links,
-and close the window when the session expires. JobSentinel analysis should run
+open the isolated window, show a privacy reminder, provide user-visible
+navigation links, and let the user close or continue. JobSentinel analysis should run
 after the user brings selected job data back through pasted text, pasted links,
 manual entry, user-confirmed activity ledger entries, or another separately
 reviewed import path.

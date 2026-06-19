@@ -84,10 +84,12 @@ material.
 
 If JobSentinel later opens a restricted-source sign-in page, the stricter
 authenticated-session rule applies: the warning must appear before sign-in, the
-user must start that action in the moment, and the interactive window must
-expire within one hour. JobSentinel must not store auth tokens, session cookies,
-browser storage, authorization headers, or equivalent sign-in material for
-LinkedIn or any similar restricted source.
+user must start that action in the moment, and JobSentinel must not store auth
+tokens, session cookies, browser storage, authorization headers, or equivalent
+sign-in material for LinkedIn or any similar restricted source. For manual
+sessions where JobSentinel does not inspect or automate the site, a privacy
+reminder is enough; hard expiry is reserved for any future restricted-source
+feature that reads or automates restricted content.
 
 ## Safe Support Reports
 

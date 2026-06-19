@@ -263,12 +263,12 @@ export const RESTRICTED_JOB_SOURCE_DOMAINS: readonly string[] =
   RESTRICTED_JOB_SOURCE_DOMAIN_RECORDS.map((record) => record.domain);
 
 export const RESTRICTED_JOB_SOURCE_WARNING =
-  "Some job sites, including LinkedIn, Indeed, Glassdoor, Monster, ZipRecruiter, Built In, Naukri, and similar boards, say third-party software that scrapes, modifies, or automates activity can violate their User Agreement or terms, may lead to account restrictions or legal claims, and may raise privacy-law concerns. Do not bypass login walls, human checks, platform controls, or another person's privacy.";
+  "Some job sites have rules about automated tools. JobSentinel keeps you in control: it will not sign in for you, click for you, bypass checks, or save your login. Continue only for sites you choose to use, and review that site's rules if you are unsure.";
 
-export const RESTRICTED_INTERACTIVE_SESSION_MAX_MINUTES = 60;
+export const RESTRICTED_INTERACTIVE_SESSION_REMINDER_MINUTES = 60;
 
 export const RESTRICTED_AUTHENTICATED_SOURCE_WARNING =
-  "Before JobSentinel opens a sign-in page for a restricted job site, it must show the site's terms/account/legal/privacy warning and require the user to continue. JobSentinel must not save auth tokens, session cookies, localStorage, sessionStorage, authorization headers, or equivalent sign-in material. Restricted authenticated sessions are user-initiated only, cannot run in the background, and expire after one hour or less.";
+  "JobSentinel can open a sign-in window for a restricted job site when you ask. You sign in and use the site yourself. JobSentinel does not save your sign-in, read the page for you, click buttons, or run in the background. Use JobSentinel's local buttons and notes to record what you did.";
 
 export const RESTRICTED_SCHEDULED_JOB_SOURCES = [
   {

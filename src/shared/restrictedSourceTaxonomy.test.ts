@@ -3,7 +3,7 @@ import { JOB_SOURCE_DISCOVERY_TAXONOMY } from "./jobSourceDiscoveryTaxonomy";
 import {
   DEFAULT_RESTRICTED_SOURCE_ACKNOWLEDGEMENTS,
   RESTRICTED_AUTHENTICATED_SOURCE_WARNING,
-  RESTRICTED_INTERACTIVE_SESSION_MAX_MINUTES,
+  RESTRICTED_INTERACTIVE_SESSION_REMINDER_MINUTES,
   RESTRICTED_JOB_SOURCE_DOMAIN_RECORDS,
   RESTRICTED_JOB_SOURCE_DOMAINS,
   isRestrictedJobSourceHost,
@@ -74,15 +74,15 @@ describe("restrictedSourceTaxonomy", () => {
   });
 
   it("centralizes restricted authenticated source session rules", () => {
-    expect(RESTRICTED_INTERACTIVE_SESSION_MAX_MINUTES).toBe(60);
+    expect(RESTRICTED_INTERACTIVE_SESSION_REMINDER_MINUTES).toBe(60);
     expect(RESTRICTED_AUTHENTICATED_SOURCE_WARNING).toContain(
-      "Before JobSentinel opens a sign-in page",
+      "when you ask",
     );
     expect(RESTRICTED_AUTHENTICATED_SOURCE_WARNING).toContain(
-      "must not save auth tokens",
+      "does not save your sign-in",
     );
     expect(RESTRICTED_AUTHENTICATED_SOURCE_WARNING).toContain(
-      "expire after one hour or less",
+      "Use JobSentinel's local buttons and notes",
     );
   });
 

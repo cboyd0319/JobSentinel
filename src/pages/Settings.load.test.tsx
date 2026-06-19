@@ -473,11 +473,14 @@ describe("Settings — loadConfig flow", () => {
 
     expect(screen.getByText("User controlled")).toBeInTheDocument();
     expect(
-      screen.getByText(/Open LinkedIn yourself/i),
+      screen.getByText(/Open LinkedIn when you choose/i),
     ).toBeInTheDocument();
-    const legalWarning = screen.getByText(/Legal and account warning/i);
-    expect(legalWarning).toBeInTheDocument();
-    expect(legalWarning).toHaveTextContent(/User Agreement/i);
+    expect(screen.getByText(/How this works/i)).toHaveTextContent(
+      /local buttons and notes/i,
+    );
+    expect(screen.getByText(/Site rules reminder/i)).toHaveTextContent(
+      /keeps you in control/i,
+    );
     expect(
       screen.getByText(/public company application pages such as Greenhouse/i),
     ).toBeInTheDocument();

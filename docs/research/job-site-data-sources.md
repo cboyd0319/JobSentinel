@@ -24,9 +24,10 @@ This brief condenses research and source-governance guidance for job monitoring.
   harder to misuse than an unreviewed script or fork.
 - For restricted authenticated sources such as LinkedIn, do not store auth
   tokens, session cookies, browser storage, authorization headers, or equivalent
-  sign-in material. Every use must be user-initiated, show the terms warning
-  before any sign-in screen, require a fresh sign-in, and expire within one
-  hour or less.
+  sign-in material. Every use must be user-initiated and show a plain-language
+  site-rules and privacy warning before any sign-in screen. When JobSentinel is
+  not inspecting or automating the restricted site, use a visible privacy
+  reminder instead of forcing the user to stop.
 - Do not collect candidate profiles, recruiter profiles, employee lists, social
   graph data, login-only pages, or restricted content.
 - Track source health and source confidence in plain language.
@@ -98,8 +99,8 @@ insufficient.
 | Public ATS postings | Public unauthenticated | Native scheduled source | Greenhouse, Lever, Ashby, Workable, SmartRecruiters | Normal source opt-in, no restricted-source acknowledgement unless the source is reclassified after review |
 | Public community source | Public unauthenticated | Native scheduled source with conservative rate limits | Hacker News hiring posts, YC job listings, We Work Remotely, RemoteOK | Normal source opt-in |
 | Employer career system | Public unauthenticated when reviewed; otherwise unknown | Company discovery first, then native adapter only if a public endpoint is stable | SpaceX, Fivetran, Google, Yahoo, IBM, Microsoft, other direct employer career pages | Normal source opt-in when public; restricted warning when access model is unclear or account-adjacent |
-| Restricted public board | Public unauthenticated with terms/account-risk warning | Search link, pasted individual job link, Browser Import, or explicitly acknowledged scheduled check | Indeed, Glassdoor, Monster, ZipRecruiter, Built In, Dice, Naukri, Shine, Foundit, CV-Library, Totaljobs, Wellfound, ClearanceJobs | Prominent warning and explicit local acknowledgement before the risky action; no fresh-login or one-hour session cap unless a sign-in session is opened |
-| Restricted authenticated source | Authenticated user session | User-initiated interactive use only | LinkedIn search, LinkedIn Jobs Tracker, FlexJobs, Upwork, Freelancer, Toptal, any future account-backed restricted source | Warning before sign-in, fresh sign-in for every use, no auth/session/browser-storage persistence, no background or offline collection, and one-hour maximum session window for supported interactive sessions |
+| Restricted public board | Public unauthenticated with terms/account-risk warning | Search link, pasted individual job link, Browser Import, or explicitly acknowledged scheduled check | Indeed, Glassdoor, Monster, ZipRecruiter, Built In, Dice, Naukri, Shine, Foundit, CV-Library, Totaljobs, Wellfound, ClearanceJobs | Prominent warning and explicit local acknowledgement before the risky action; no sign-in-session rules unless a sign-in session is opened |
+| Restricted authenticated source | Authenticated user session | User-initiated interactive use only | LinkedIn search, LinkedIn Jobs Tracker, FlexJobs, Upwork, Freelancer, Toptal, any future account-backed restricted source | Warning before sign-in, fresh sign-in for every use when JobSentinel opens the session, no auth/session/browser-storage persistence, no background or offline collection, and a visible privacy reminder for supported interactive sessions |
 | Unknown or changing source | Unknown review required | Manual entry or search link until reviewed | New country or niche boards | Treat as restricted until source terms, robots policy, rate limits, and practical access are reviewed |
 
 ## Company-Careers Discovery Examples

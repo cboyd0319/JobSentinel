@@ -267,7 +267,7 @@ async fn test_scraping_cycle_with_linkedin_enabled() {
     assert!(result
         .errors
         .iter()
-        .any(|e| e.contains("Open LinkedIn yourself") && e.contains("User Agreement")));
+        .any(|e| e.contains("local record") && e.contains("User Agreement")));
 }
 
 #[tokio::test]
@@ -303,7 +303,7 @@ async fn test_scraping_cycle_with_linkedin_enabled_without_credentials() {
     assert!(result
         .errors
         .iter()
-        .any(|e| e.contains("Open LinkedIn yourself") && e.contains("User Agreement")));
+        .any(|e| e.contains("local record") && e.contains("User Agreement")));
 }
 
 #[tokio::test]

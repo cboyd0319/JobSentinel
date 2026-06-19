@@ -4,7 +4,7 @@ import { HelpIcon } from "../components/HelpIcon";
 import { Input } from "../components/Input";
 import {
   RESTRICTED_AUTHENTICATED_SOURCE_WARNING,
-  RESTRICTED_INTERACTIVE_SESSION_MAX_MINUTES,
+  RESTRICTED_INTERACTIVE_SESSION_REMINDER_MINUTES,
   RESTRICTED_JOB_SOURCE_WARNING,
   RESTRICTED_SCHEDULED_JOB_SOURCES,
   normalizeRestrictedSourceAcknowledgements,
@@ -110,7 +110,7 @@ export function SettingsJobSourcesSection({
               Restricted source warning
             </p>
             <p className="text-sm leading-6">
-              Legal and account warning: {RESTRICTED_JOB_SOURCE_WARNING}
+              Site rules reminder: {RESTRICTED_JOB_SOURCE_WARNING}
             </p>
             {source?.reason && <p className="text-sm">{source.reason}</p>}
             <p className="text-sm">
@@ -118,8 +118,8 @@ export function SettingsJobSourcesSection({
               after you accept the risk below.
             </p>
             <p className="text-sm">
-              This is not a sign-in session. The fresh sign-in and one-hour
-              session limit apply only to sources that require you to log in.
+              This is not a sign-in session. Sign-in rules apply only to
+              sources that ask you to log in.
             </p>
             <label className="flex items-start gap-3 text-sm font-medium text-amber-900 dark:text-amber-100">
               <input
@@ -168,24 +168,28 @@ export function SettingsJobSourcesSection({
 
                   <div className="space-y-2">
                     <p className="text-sm text-surface-600 dark:text-surface-300">
-                      Open LinkedIn yourself, then use a search link, paste one
-                      job link, Browser Import, or manual entry when you choose.
-                      JobSentinel will not collect your LinkedIn login, save
-                      cookies, or run hidden background LinkedIn checks.
+                      Open LinkedIn when you choose, then use JobSentinel to
+                      keep a private local record of jobs you save, apply to,
+                      track, or want to review. You decide what gets added to
+                      JobSentinel.
                     </p>
                     <p className="text-sm text-surface-600 dark:text-surface-300">
-                      If a restricted sign-in flow is added, JobSentinel must
-                      show this warning before the sign-in page, require a fresh
-                      sign-in each time, store no sign-in material, and end that
-                      interactive window within{" "}
-                      {RESTRICTED_INTERACTIVE_SESSION_MAX_MINUTES} minutes.
+                      JobSentinel will not collect your LinkedIn login, save
+                      cookies, click buttons for you, read LinkedIn pages in the
+                      background, or run scheduled LinkedIn checks.
                     </p>
-                    <p className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-200">
-                      Legal and account warning: {RESTRICTED_JOB_SOURCE_WARNING}
+                    <p className="text-sm text-surface-600 dark:text-surface-300">
+                      For long manual sessions, JobSentinel can remind you after{" "}
+                      {RESTRICTED_INTERACTIVE_SESSION_REMINDER_MINUTES} minutes
+                      so you can close the window or keep going. The reminder is
+                      for privacy, not hidden automation.
                     </p>
-                    <p className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-200">
-                      Restricted sign-in rule:{" "}
+                    <p className="rounded-lg border border-sentinel-200 bg-sentinel-50 p-3 text-sm text-sentinel-800 dark:border-sentinel-800 dark:bg-sentinel-900/20 dark:text-sentinel-200">
+                      How this works:{" "}
                       {RESTRICTED_AUTHENTICATED_SOURCE_WARNING}
+                    </p>
+                    <p className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-200">
+                      Site rules reminder: {RESTRICTED_JOB_SOURCE_WARNING}
                     </p>
                     <p className="text-xs text-surface-500 dark:text-surface-400">
                       For scheduled job checks, prefer official company pages

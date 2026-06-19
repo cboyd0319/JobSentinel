@@ -11,7 +11,7 @@ import {
   sourceDiscoveryEntriesForCareerProfile,
   technicalAccessForJobSource,
 } from "./jobSourceDiscoveryTaxonomy";
-import { RESTRICTED_INTERACTIVE_SESSION_MAX_MINUTES } from "./restrictedSourceTaxonomy";
+import { RESTRICTED_INTERACTIVE_SESSION_REMINDER_MINUTES } from "./restrictedSourceTaxonomy";
 
 describe("jobSourceDiscoveryTaxonomy", () => {
   it("keeps source IDs unique", () => {
@@ -228,7 +228,8 @@ describe("jobSourceDiscoveryTaxonomy", () => {
         storesAuthorizationHeaders: false,
         backgroundAutomationAllowed: false,
         offlineUseAllowed: false,
-        maxSessionMinutes: RESTRICTED_INTERACTIVE_SESSION_MAX_MINUTES,
+        privacyReminderMinutes: RESTRICTED_INTERACTIVE_SESSION_REMINDER_MINUTES,
+        hardSessionExpiryRequired: false,
       });
     }
   });

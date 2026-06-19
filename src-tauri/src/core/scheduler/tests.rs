@@ -562,7 +562,7 @@ async fn test_scraping_cycle_linkedin_user_choice_warns_without_hidden_monitorin
     assert!(result
         .errors
         .iter()
-        .any(|e| e.contains("Open LinkedIn yourself") && e.contains("User Agreement")));
+        .any(|e| e.contains("local record") && e.contains("User Agreement")));
 }
 
 #[tokio::test]

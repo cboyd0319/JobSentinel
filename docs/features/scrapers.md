@@ -7,19 +7,23 @@ boundaries, rate limits, and review-first workflows.
 Restricted job boards are supported only through explicit user-controlled
 paths: search links, manual entry, pasted individual job links, Browser Import,
 or scheduled checks that show a source-specific warning first. Before risky
-source use, JobSentinel must warn that the site may treat scraping or
-automation as a terms violation, account risk, legal-claim risk, and
-privacy-law risk. The user can continue only after acknowledging that warning.
-JobSentinel does not encourage terms violations, collect restricted-site login
-details, save session cookies, bypass human checks, call private systems, or
-read restricted pages in hidden background jobs.
+source use, JobSentinel must explain in plain language that some sites have
+rules about automated tools and that misusing tools can affect the user's
+account or create legal/privacy risk. The user can continue only after
+acknowledging that warning. JobSentinel does not encourage terms violations,
+collect restricted-site login details, save session cookies, bypass human
+checks, call private systems, or read restricted pages in hidden background
+jobs.
 
 Restricted authenticated sites have a stricter rule. If JobSentinel opens a
 sign-in page for LinkedIn or a similar source, the warning must appear before
 that page opens, the action must be started by the user in that moment, no auth
 tokens, session cookies, browser storage, or authorization headers may be saved,
-and the interactive window must expire within one hour. JobSentinel must not
-reuse that sign-in state later for offline or scheduled collection.
+and JobSentinel must not reuse that sign-in state later for offline or scheduled
+collection. For manual sessions where JobSentinel does not inspect or automate
+the site, use a visible privacy reminder instead of forcing the user to stop.
+Hard expiry is reserved for any future restricted-source feature that reads or
+automates restricted content.
 
 Reviewed public APIs, feeds, ATS postings, and official employer posting
 endpoints are low-friction sources. Greenhouse, Lever, public feeds, and
@@ -32,8 +36,8 @@ can be technically public and unauthenticated while still requiring a prominent
 user agreement because its terms, anti-automation controls, or data-use
 expectations are unclear. Those restricted public unauthenticated sources may
 run as user-approved source checks with rate limits and safe errors; they do
-not receive LinkedIn-style fresh-login or one-hour session restrictions unless
-the flow opens an account-backed sign-in session.
+not receive LinkedIn-style sign-in-session restrictions unless the flow opens an
+account-backed sign-in session.
 
 The warning must be prominent in the UI and public docs because users should
 not need to understand source internals to make an informed choice. The secure
@@ -100,7 +104,7 @@ Examples from the 2026-06-19 source pass:
 | SpaceX careers | Custom page, but public Greenhouse board `spacex` exists behind it |
 | Google, Yahoo, IBM, and Microsoft company pages | Open in the user browser while safer handling is reviewed |
 | LinkedIn company jobs | User-gated restricted discovery only; no silent scheduled discovery or session capture |
-| LinkedIn Jobs Tracker | User-gated restricted tracking only for saved or applied jobs; fresh sign-in required and capped to one hour |
+| LinkedIn Jobs Tracker | User-gated restricted tracking only for saved or applied jobs; no silent scheduled discovery or session capture |
 
 ## How Job Checks Work
 

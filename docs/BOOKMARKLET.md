@@ -21,13 +21,11 @@ Use the browser import button when:
 - You want to save one job without copying details by hand.
 
 Some sites, including LinkedIn, Indeed, Glassdoor, Monster, ZipRecruiter,
-Naukri, and similar boards, say third-party software that scrapes, modifies, or
-automates activity can violate their terms, may lead to account restrictions or
-legal claims, and may raise privacy-law concerns. JobSentinel does not
-encourage violating those terms. Browser Import requires you to acknowledge
-that warning before you turn it on. Continue only for pages you choose
-yourself, and do not use it to bypass login walls, human checks, platform
-controls, or another person's privacy.
+Naukri, and similar boards, have rules about automated tools. Misusing those
+tools can affect your account or create legal/privacy risk. JobSentinel keeps
+you in control: use Browser Import only for pages you choose yourself, and do
+not use it to bypass login walls, human checks, platform controls, or another
+person's privacy.
 
 ## Set It Up
 

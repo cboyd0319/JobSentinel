@@ -10,11 +10,12 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 pub const LINKEDIN_AUTOMATION_DISABLED_MESSAGE: &str =
-    "JobSentinel does not run hidden LinkedIn monitoring. Open LinkedIn yourself, \
-     use a search link, paste one job link, Browser Import, or manual entry. \
-     LinkedIn says third-party software that scrapes or automates activity can \
-     violate its User Agreement, may lead to account restrictions, and may raise \
-     privacy-law concerns.";
+    "JobSentinel does not run hidden LinkedIn monitoring. Use LinkedIn when you choose, \
+     then use JobSentinel to keep a local record of jobs you save, apply to, \
+     track, or review. JobSentinel will not click for you, read LinkedIn pages \
+     in the background, or save your sign-in. LinkedIn says third-party software \
+     that scrapes or automates activity can violate its User Agreement, may lead \
+     to account restrictions, and may raise privacy-law concerns.";
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct LinkedInScraper {
@@ -100,7 +101,7 @@ mod tests {
             err,
             ScraperError::InvalidConfiguration { ref scraper, .. } if scraper == "linkedin"
         ));
-        assert!(err.to_string().contains("Open LinkedIn yourself"));
+        assert!(err.to_string().contains("Use LinkedIn when you choose"));
         assert!(err.to_string().contains("User Agreement"));
     }
 }

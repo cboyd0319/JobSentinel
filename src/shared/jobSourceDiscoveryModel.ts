@@ -1,6 +1,6 @@
 import {
   RESTRICTED_AUTHENTICATED_SOURCE_WARNING,
-  RESTRICTED_INTERACTIVE_SESSION_MAX_MINUTES,
+  RESTRICTED_INTERACTIVE_SESSION_REMINDER_MINUTES,
 } from "./restrictedSourceTaxonomy";
 
 export type JobSourceAccessModel =
@@ -55,7 +55,8 @@ export interface RestrictedInteractiveSessionPolicy {
   readonly storesAuthorizationHeaders: boolean;
   readonly backgroundAutomationAllowed: boolean;
   readonly offlineUseAllowed: boolean;
-  readonly maxSessionMinutes: number;
+  readonly privacyReminderMinutes: number;
+  readonly hardSessionExpiryRequired: boolean;
   readonly warning: string;
 }
 
@@ -124,7 +125,7 @@ export const EMPLOYER_CAREER_SYSTEM_NOTES =
   "Use platform-specific public endpoints when documented. Otherwise keep this to user-opened discovery, Browser Import, pasted job links, or manual entry until terms and stability are reviewed.";
 
 export const RESTRICTED_BOARD_NOTES =
-  "Do not run silent scheduled discovery. Require explicit user agreement before automated access and prefer user-opened import paths. If the source is public and unauthenticated, do not apply authenticated-session time caps; apply the stricter fresh-login and one-hour cap only to account-backed interactive sessions.";
+  "Do not run silent scheduled discovery. Require explicit user agreement before automated access and prefer user-opened import paths. If the source is public and unauthenticated, do not apply authenticated-session rules. For account-backed interactive sessions, do not persist sign-in material or run background collection; use a privacy reminder instead of a hard time cap when JobSentinel is not inspecting or automating the restricted site.";
 
 export function technicalAccessForJobSource(
   entry: Pick<JobSourceDiscoveryEntry, "accessModel" | "technicalAccess">,
@@ -159,6 +160,7 @@ export const RESTRICTED_AUTHENTICATED_INTERACTIVE_POLICY: RestrictedInteractiveS
     storesAuthorizationHeaders: false,
     backgroundAutomationAllowed: false,
     offlineUseAllowed: false,
-    maxSessionMinutes: RESTRICTED_INTERACTIVE_SESSION_MAX_MINUTES,
+    privacyReminderMinutes: RESTRICTED_INTERACTIVE_SESSION_REMINDER_MINUTES,
+    hardSessionExpiryRequired: false,
     warning: RESTRICTED_AUTHENTICATED_SOURCE_WARNING,
   };
