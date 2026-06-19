@@ -68,11 +68,22 @@ describe("jobSourceDiscoveryTaxonomy", () => {
         "lever",
         "ashby",
         "smartrecruiters",
+        "recruitee",
+        "personio",
+        "jobicy",
         "usajobs",
       ]),
     );
     expect(restrictedIds).toEqual(
-      expect.arrayContaining(["linkedin", "indeed", "builtin"]),
+      expect.arrayContaining([
+        "linkedin",
+        "indeed",
+        "builtin",
+        "cv-library",
+        "totaljobs",
+        "stepstone",
+        "otta",
+      ]),
     );
     expect(publicNativeIds).not.toContain("linkedin");
   });

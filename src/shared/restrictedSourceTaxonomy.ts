@@ -50,7 +50,7 @@ export const RESTRICTED_JOB_SOURCE_DOMAIN_RECORDS = [
   {
     domain: "cv-library.co.uk",
     category: "review-required-source",
-    sourceRefs: ["legacy-restricted-url-gate:cv-library"],
+    sourceRefs: ["job-source-discovery:cv-library"],
     reason:
       "CV-Library is a legacy UK broad-board warning gate without a reviewed native adapter; keep it restricted until source-specific terms, rate limits, and account behavior are reviewed.",
   },
@@ -78,9 +78,9 @@ export const RESTRICTED_JOB_SOURCE_DOMAIN_RECORDS = [
   {
     domain: "foundit.id",
     category: "restricted-job-board",
-    sourceRefs: ["legacy-restricted-url-gate:foundit-indonesia"],
+    sourceRefs: ["job-source-discovery:foundit"],
     reason:
-      "Foundit Indonesia is part of the existing restricted Foundit regional gate; keep warning coverage until it receives source-specific taxonomy and access review.",
+      "Foundit Indonesia is covered by the restricted Foundit taxonomy entry; keep warning coverage until source-specific terms, rate limits, and account behavior are reviewed.",
   },
   {
     domain: "foundit.sg",
@@ -92,9 +92,9 @@ export const RESTRICTED_JOB_SOURCE_DOMAIN_RECORDS = [
   {
     domain: "founditgulf.com",
     category: "restricted-job-board",
-    sourceRefs: ["legacy-restricted-url-gate:foundit-gulf"],
+    sourceRefs: ["job-source-discovery:foundit"],
     reason:
-      "Foundit Gulf is a legacy regional Foundit warning gate; keep it restricted until the Gulf site has source-specific terms, rate-limit, and account-behavior review.",
+      "Foundit Gulf is covered by the restricted Foundit taxonomy entry; keep warning coverage until source-specific terms, rate limits, and account behavior are reviewed.",
   },
   {
     domain: "freelancer.com",
@@ -116,6 +116,13 @@ export const RESTRICTED_JOB_SOURCE_DOMAIN_RECORDS = [
     sourceRefs: ["job-source-discovery:governmentjobs"],
     reason:
       "GovernmentJobs is review-required in the source taxonomy and can include application/account surfaces; warn on direct collection until public access boundaries are reviewed.",
+  },
+  {
+    domain: "hiretechladies.com",
+    category: "restricted-job-board",
+    sourceRefs: ["job-source-discovery:tech-ladies"],
+    reason:
+      "Tech Ladies is a community job board marked restricted-user-gated; direct collection should require user agreement because membership, community access, and account behavior may apply.",
   },
   {
     domain: "gulftalent.com",
@@ -160,11 +167,39 @@ export const RESTRICTED_JOB_SOURCE_DOMAIN_RECORDS = [
       "Monster is a broad job board marked restricted-user-gated; direct collection needs explicit user agreement because account, terms, and platform controls may apply.",
   },
   {
+    domain: "malt.com",
+    category: "authenticated-marketplace",
+    sourceRefs: ["job-source-discovery:malt"],
+    reason:
+      "Malt is a European freelance marketplace marked restricted-user-gated; warn because account state, proposal workflows, marketplace terms, and user privacy are central to access.",
+  },
+  {
+    domain: "malt.de",
+    category: "authenticated-marketplace",
+    sourceRefs: ["job-source-discovery:malt"],
+    reason:
+      "Malt Germany is part of the Malt freelance marketplace; warn because account state, proposal workflows, marketplace terms, and user privacy are central to access.",
+  },
+  {
+    domain: "malt.fr",
+    category: "authenticated-marketplace",
+    sourceRefs: ["job-source-discovery:malt"],
+    reason:
+      "Malt France is part of the Malt freelance marketplace; warn because account state, proposal workflows, marketplace terms, and user privacy are central to access.",
+  },
+  {
     domain: "naukri.com",
     category: "restricted-job-board",
     sourceRefs: ["job-source-discovery:naukri"],
     reason:
       "Naukri is marked restricted-user-gated for India job search; warn before direct collection until source-specific access terms and account behavior are reviewed.",
+  },
+  {
+    domain: "otta.com",
+    category: "restricted-job-board",
+    sourceRefs: ["job-source-discovery:otta"],
+    reason:
+      "Otta is a curated startup job board marked restricted-user-gated; direct collection should require user agreement because account, personalization, and platform controls may apply.",
   },
   {
     domain: "reed.co.uk",
@@ -209,6 +244,27 @@ export const RESTRICTED_JOB_SOURCE_DOMAIN_RECORDS = [
       "Snagajob is marked restricted-user-gated for hourly retail and hospitality roles; warn before direct collection until access model and account behavior are reviewed.",
   },
   {
+    domain: "stepstone.co.uk",
+    category: "restricted-job-board",
+    sourceRefs: ["job-source-discovery:stepstone"],
+    reason:
+      "StepStone UK is part of the StepStone job-board network marked restricted-user-gated; direct collection needs country-specific terms and platform-control review.",
+  },
+  {
+    domain: "stepstone.de",
+    category: "restricted-job-board",
+    sourceRefs: ["job-source-discovery:stepstone"],
+    reason:
+      "StepStone Germany is part of the StepStone job-board network marked restricted-user-gated; direct collection needs country-specific terms and platform-control review.",
+  },
+  {
+    domain: "stepstone.fr",
+    category: "restricted-job-board",
+    sourceRefs: ["job-source-discovery:stepstone"],
+    reason:
+      "StepStone France is part of the StepStone job-board network marked restricted-user-gated; direct collection needs country-specific terms and platform-control review.",
+  },
+  {
     domain: "timesjobs.com",
     category: "restricted-job-board",
     sourceRefs: ["job-source-discovery:timesjobs"],
@@ -218,7 +274,7 @@ export const RESTRICTED_JOB_SOURCE_DOMAIN_RECORDS = [
   {
     domain: "totaljobs.com",
     category: "review-required-source",
-    sourceRefs: ["legacy-restricted-url-gate:totaljobs"],
+    sourceRefs: ["job-source-discovery:totaljobs"],
     reason:
       "Totaljobs is a legacy UK broad-board warning gate without a reviewed native adapter; keep it restricted until source-specific terms, rate limits, and account behavior are reviewed.",
   },
@@ -249,6 +305,13 @@ export const RESTRICTED_JOB_SOURCE_DOMAIN_RECORDS = [
     sourceRefs: ["job-source-discovery:wellfound"],
     reason:
       "Wellfound is marked restricted-user-gated for startup hiring; warn before direct collection until current source access model and account behavior are reviewed.",
+  },
+  {
+    domain: "xing.com",
+    category: "restricted-job-board",
+    sourceRefs: ["job-source-discovery:xing-jobs"],
+    reason:
+      "XING Jobs is account-adjacent professional-network job search for German-speaking markets; warn before collection until account behavior and terms are reviewed.",
   },
   {
     domain: "ziprecruiter.com",

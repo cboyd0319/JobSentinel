@@ -127,11 +127,13 @@ token.
 Candidate platform families for the discovery registry include Greenhouse,
 Workday, SmartRecruiters, Lever, Ashby, Breezy, JazzHR, Bullhorn, Workable,
 Teamtailor, Recruitee, Jobvite, iCIMS, Taleo, Eightfold, SAP SuccessFactors,
-Oracle Recruiting, Phenom, and employer-owned custom systems. Greenhouse,
-Lever, Ashby, and SmartRecruiters remain the first native expansion targets
-because they commonly expose public posting APIs. Workday, Eightfold, Bullhorn,
-JazzHR, and other enterprise systems need source-specific proof before scheduled
-checks ship.
+Oracle Recruiting, Phenom, Personio, Comeet, Jobylon, Rippling, Zoho Recruit,
+Freshteam, Pinpoint, JobScore, and employer-owned custom systems. Greenhouse,
+Lever, Ashby, Recruitee, Personio, and SmartRecruiters are the first native
+expansion candidates because they expose public posting APIs or feeds. Workday,
+Eightfold, Bullhorn, JazzHR, Rippling, Zoho Recruit, Freshteam, Pinpoint, and
+other enterprise or account-scoped systems need source-specific proof before
+scheduled checks ship.
 
 Regional and local boards are first-class source-discovery candidates, not
 one-off hard-coded hostnames. This includes Built In city pages, state workforce
@@ -147,3 +149,13 @@ this classification is recorded. New native adapters need fixtures, rate-limit
 rules, user-safe errors, and source-status behavior before release. If a source
 requires attribution, such as logo or "jobs by" language, the UI must include it
 before the adapter is enabled.
+
+2026-06-19 expanded source research synced the shared taxonomy with additional
+UK, European, remote, and sector-specific sources. Taxonomy-only additions
+include CV-Library, Totaljobs, StepStone, XING Jobs, Otta, Welcome to the
+Jungle, Jobicy, The Muse, Deel Jobs, Remote.com Jobs, No Fluff Jobs, Just Join
+IT, Tech Ladies, and Malt. CV-Library and Totaljobs now match existing
+restricted-domain gates; Foundit Gulf and Indonesia now share the Foundit
+taxonomy entry. Treat these additions as discovery/import coverage until a
+specific adapter has parser fixtures, transport limits, attribution handling,
+safe errors, source-status behavior, and release-ledger proof.

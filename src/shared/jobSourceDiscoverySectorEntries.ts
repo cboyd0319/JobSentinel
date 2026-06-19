@@ -112,7 +112,7 @@ export const JOB_SOURCE_SECTOR_DISCOVERY_ENTRIES: readonly model.JobSourceDiscov
     status: "research",
     regions: ["India", "APAC"],
     careerProfileIds: "all",
-    hostPatterns: ["foundit.in", "foundit.sg"],
+    hostPatterns: ["foundit.in", "foundit.sg", "foundit.id", "founditgulf.com"],
     examples: ["India and APAC job search"],
     implementationPath:
       "Research current access model. Prefer user-opened import until reviewed.",
@@ -259,6 +259,36 @@ export const JOB_SOURCE_SECTOR_DISCOVERY_ENTRIES: readonly model.JobSourceDiscov
     implementationPath:
       "Research current access model. Prefer user-opened import until reviewed.",
     notes: "Useful companion source to HigherEdJobs.",
+  },
+  {
+    id: "no-fluff-jobs",
+    label: "No Fluff Jobs",
+    category: "sector-specific",
+    accessModel: "review-required",
+    status: "research",
+    regions: ["Europe"],
+    careerProfileIds: model.TECH_PROFILE_IDS,
+    hostPatterns: ["nofluffjobs.com", "nofluffjobs.pl", "nofluffjobs.de"],
+    examples: ["Central European technology jobs with strong pay visibility"],
+    implementationPath:
+      "Review public data shape, salary attribution, and source terms before native support.",
+    notes:
+      "High-value technology source because pay ranges are prominent, but do not claim native support without fixtures and terms review.",
+  },
+  {
+    id: "justjoinit",
+    label: "Just Join IT",
+    category: "sector-specific",
+    accessModel: "review-required",
+    status: "research",
+    regions: ["Europe"],
+    careerProfileIds: model.TECH_PROFILE_IDS,
+    hostPatterns: ["justjoin.it"],
+    examples: ["Central European developer and IT jobs"],
+    implementationPath:
+      "Review public data shape, salary attribution, and source terms before native support.",
+    notes:
+      "Useful for European technology roles and pay comparison once source behavior is proven.",
   },
   {
     id: "edjoin",
@@ -436,6 +466,25 @@ export const JOB_SOURCE_SECTOR_DISCOVERY_ENTRIES: readonly model.JobSourceDiscov
     notes: "Writing and content-marketing source.",
   },
   {
+    id: "tech-ladies",
+    label: "Tech Ladies",
+    category: "sector-specific",
+    accessModel: "restricted-user-gated",
+    status: "research",
+    regions: ["US", "global"],
+    careerProfileIds: [
+      ...model.TECH_PROFILE_IDS,
+      ...model.BUSINESS_PROFILE_IDS,
+      ...model.CREATIVE_PROFILE_IDS,
+    ],
+    hostPatterns: ["hiretechladies.com"],
+    examples: ["Community technology jobs"],
+    implementationPath:
+      "Use user-opened import only until community membership and access rules are reviewed.",
+    notes: model.RESTRICTED_BOARD_NOTES,
+    requiresUserAgreement: true,
+  },
+  {
     id: "efinancialcareers",
     label: "eFinancialCareers",
     category: "sector-specific",
@@ -564,6 +613,27 @@ export const JOB_SOURCE_SECTOR_DISCOVERY_ENTRIES: readonly model.JobSourceDiscov
     ],
     hostPatterns: ["toptal.com"],
     examples: ["Freelance talent marketplace"],
+    implementationPath:
+      "Use user-opened import or explicit user-gated access only.",
+    notes:
+      "Marketplace terms and account state matter. Do not run silent scheduled discovery.",
+    requiresUserAgreement: true,
+  },
+  {
+    id: "malt",
+    label: "Malt",
+    category: "freelance-contract",
+    accessModel: "restricted-user-gated",
+    technicalAccess: "authenticated-user-session",
+    status: "research",
+    regions: ["Europe"],
+    careerProfileIds: [
+      ...model.TECH_PROFILE_IDS,
+      ...model.BUSINESS_PROFILE_IDS,
+      ...model.CREATIVE_PROFILE_IDS,
+    ],
+    hostPatterns: ["malt.com", "malt.fr", "malt.de"],
+    examples: ["European freelance marketplace projects"],
     implementationPath:
       "Use user-opened import or explicit user-gated access only.",
     notes:

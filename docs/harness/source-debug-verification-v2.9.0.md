@@ -84,16 +84,20 @@ authorization-header, HAR, trace, screenshot, or session-state persistence.
 | Greenhouse current hosted boards | Global | Accept both `job-boards.greenhouse.io` and legacy `boards.greenhouse.io`; fetch public API first and preserve canonical `absolute_url` |
 | Direct employer career pages | Global | Discovery layer should map employer pages to public ATS adapters when possible, otherwise offer user-opened search and manual import |
 | Remotive | Global | Prefer native official API or feed with attribution and rate-limit tests |
+| Jobicy | Global | Prefer native official API or feed with attribution and rate-limit tests |
+| The Muse | US, global | Native API only with local credentials, attribution UI, and quota tests |
 | Ashby | Global | Prefer native public ATS adapter with company-board input and fixtures |
 | SmartRecruiters | Global | Prefer native public ATS adapter with company ID input and fixtures |
 | Workable | Global | Prefer official/public posting API only after access model is confirmed |
+| Recruitee, Personio, Comeet | Global and Europe | Prefer native public careers API/feed only after tenant URL shape, terms, and rate-limit review |
 | Workday | Global | User-opened employer search or source-specific adapter only after public endpoint and terms review |
 | Eightfold | Global | User-opened employer search or source-specific adapter only after public endpoint and terms review |
-| Breezy, JazzHR, Bullhorn | Global | Candidate ATS families; review official/public access model before native scheduling |
+| Breezy, JazzHR, Bullhorn, Teamtailor, Jobvite, iCIMS, Taleo, SAP SuccessFactors, Oracle Recruiting, Phenom, BambooHR, ADP, UKG, Rippling, Zoho Recruit, Freshteam, Pinpoint, Jobylon, JobScore | Global | Candidate ATS families; review official/public access model before native scheduling |
 | Adzuna | US, UK, India, global | Native API only with local credentials, attribution UI, and quota tests |
 | Reed | UK | Native API only with local credentials and source terms review |
 | CV-Library | UK | User-directed path unless official partner API access is configured |
 | Totaljobs | UK | User-directed path unless official access is configured |
+| StepStone, XING Jobs | Europe | Restricted or account-adjacent user-directed path until country-specific terms and platform behavior are reviewed |
 | Naukri | India | Restricted public unauthenticated path with prominent warning and source-specific review before scheduling |
 | Shine | India | Restricted public unauthenticated path with prominent warning and source-specific review before scheduling |
 | Foundit | India and global variants | Restricted public unauthenticated path with prominent warning and source-specific review before scheduling |
@@ -104,6 +108,11 @@ authorization-header, HAR, trace, screenshot, or session-state persistence.
 | LinkedIn Jobs Tracker | Global | User-gated restricted tracking only for jobs the user already saved or applied to; human-controlled browser shell may help the user reach applied/saved pages and let the user update local tracking events, but JobSentinel must not inspect DOM/network/storage, drive actions, capture login material, run hidden background access, or silently refresh tracking state |
 | LinkedIn Jobs home navigation | Global | User-opened navigation only for Preferences, Job tracker, and My Career Insights anchors; do not treat text-fragment anchors as saved source query state |
 | Built In network, state/city filters, and regional city boards | US and local markets | Restricted public unauthenticated path with prominent warning; model parent, state-filtered, city-filtered, and regional-host searches in shared taxonomy; use employer-career follow-through after the user reviews a role |
+| Otta and Welcome to the Jungle | US, UK, Europe, global | User-opened import or review-required path until account/personalization, attribution, and source terms are reviewed |
+| No Fluff Jobs and Just Join IT | Europe | Review-required tech-board path; native support only after pay visibility, attribution, terms, and fixture coverage are proven |
+| Deel Jobs and Remote.com Jobs | Global remote | Review-required remote-board path; keep separate from Remote OK, Remote.co, and employer career pages |
+| Tech Ladies | US, global | Restricted community-board path with user agreement and no silent scheduled access |
+| Malt | Europe | Restricted freelance marketplace path with no account/session persistence or background collection |
 | State workforce boards, city/county careers, local chambers, local newspapers | Local and regional markets | Research official feeds first; otherwise user-opened search links, pasted job links, and manual entry only |
 | Sector-specific local sources | Local and regional markets | Review per source; prioritize retail, hospitality, trades, healthcare, education, legal, creative, finance, and HR gaps |
 

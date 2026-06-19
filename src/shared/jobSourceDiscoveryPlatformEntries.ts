@@ -145,15 +145,16 @@ export const JOB_SOURCE_PLATFORM_DISCOVERY_ENTRIES: readonly model.JobSourceDisc
     id: "recruitee",
     label: "Recruitee",
     category: "ats-platform",
-    accessModel: "employer-career-system",
+    accessModel: "native-public",
     status: "candidate",
     regions: ["global"],
     careerProfileIds: "all",
     hostPatterns: ["recruitee.com", "jobs.recruitee.com"],
     examples: ["Employer Recruitee boards"],
     implementationPath:
-      "Detect Recruitee boards and add native support after endpoint and terms review.",
-    notes: model.EMPLOYER_CAREER_SYSTEM_NOTES,
+      "Candidate native adapter using Recruitee Careers Site API after fixture and terms review.",
+    notes:
+      "The Careers Site API exposes company jobs from the candidate perspective; verify tenant URL shape and rate limits before scheduling.",
   },
   {
     id: "breezy",
@@ -308,6 +309,126 @@ export const JOB_SOURCE_PLATFORM_DISCOVERY_ENTRIES: readonly model.JobSourceDisc
     implementationPath:
       "Research tenant-specific behavior before adding a native adapter.",
     notes: model.EMPLOYER_CAREER_SYSTEM_NOTES,
+  },
+  {
+    id: "personio",
+    label: "Personio",
+    category: "ats-platform",
+    accessModel: "native-public-feed",
+    status: "candidate",
+    regions: ["Europe", "global"],
+    careerProfileIds: "all",
+    hostPatterns: ["jobs.personio.de", "jobs.personio.com", "personio.de"],
+    examples: ["Personio company career sites", "Personio XML position feeds"],
+    implementationPath:
+      "Candidate XML feed adapter for enabled company career sites after fixture, language, and rate-limit review.",
+    notes:
+      "Personio exposes public XML feeds for enabled career sites, but each employer tenant and language URL needs validation.",
+  },
+  {
+    id: "comeet",
+    label: "Comeet / Spark Hire Recruit",
+    category: "ats-platform",
+    accessModel: "native-public",
+    status: "candidate",
+    regions: ["global"],
+    careerProfileIds: "all",
+    hostPatterns: ["comeet.com", "api.comeet.co", "sparkhire.com"],
+    examples: ["Comeet career widgets", "Spark Hire Recruit Careers API"],
+    implementationPath:
+      "Candidate Careers API adapter for published positions after public token and tenant-scope review.",
+    notes:
+      "Careers API is designed for company websites; never infer private recruiting data or application state.",
+  },
+  {
+    id: "jobylon",
+    label: "Jobylon",
+    category: "ats-platform",
+    accessModel: "employer-career-system",
+    status: "candidate",
+    regions: ["Europe", "global"],
+    careerProfileIds: "all",
+    hostPatterns: ["jobylon.com", "developer.jobylon.com"],
+    examples: ["Jobylon employer feeds", "Jobylon career widgets"],
+    implementationPath:
+      "Detect Jobylon-backed career pages and use feed API only after tenant/feed review.",
+    notes:
+      "Jobylon documents feed and partner APIs; source-specific credentials, feeds, and throttling must be reviewed before native support.",
+  },
+  {
+    id: "rippling",
+    label: "Rippling Recruiting",
+    category: "ats-platform",
+    accessModel: "employer-career-system",
+    status: "research",
+    regions: ["global"],
+    careerProfileIds: "all",
+    hostPatterns: ["rippling.com", "hiring.rippling.com"],
+    examples: ["Rippling Recruiting career pages"],
+    implementationPath:
+      "Detect Rippling recruiting surfaces and keep them user-opened until public job access is reviewed.",
+    notes:
+      "Rippling Recruiting is an ATS, but available developer material is partner/account-scoped; do not treat it as a public feed.",
+  },
+  {
+    id: "zoho-recruit",
+    label: "Zoho Recruit",
+    category: "ats-platform",
+    accessModel: "employer-career-system",
+    status: "research",
+    regions: ["global"],
+    careerProfileIds: "all",
+    hostPatterns: ["zohorecruit.com", "zohorecruit.in", "zohorecruit.eu"],
+    examples: ["Zoho Recruit career portals"],
+    implementationPath:
+      "Detect Zoho Recruit pages and keep native access disabled unless a user-owned credential flow is added.",
+    notes:
+      "Zoho Recruit APIs are integration APIs; job-seeker discovery should stay user-opened unless public posting access is reviewed.",
+  },
+  {
+    id: "freshteam",
+    label: "Freshteam",
+    category: "ats-platform",
+    accessModel: "employer-career-system",
+    status: "research",
+    regions: ["global"],
+    careerProfileIds: "all",
+    hostPatterns: ["freshteam.com", "freshteam.io"],
+    examples: ["Freshteam career pages", "Freshworks Freshteam job postings"],
+    implementationPath:
+      "Detect Freshteam career pages and add native support only after API-key, rate-limit, and public-posting review.",
+    notes:
+      "Freshteam documents job posting APIs and SDKs, but access appears account-scoped.",
+  },
+  {
+    id: "pinpoint",
+    label: "Pinpoint",
+    category: "ats-platform",
+    accessModel: "employer-career-system",
+    status: "research",
+    regions: ["US", "UK", "global"],
+    careerProfileIds: "all",
+    hostPatterns: ["pinpointhq.com", "pinpoint.com"],
+    examples: ["Pinpoint career pages"],
+    implementationPath:
+      "Detect Pinpoint-hosted pages and keep scheduled discovery disabled until public endpoint behavior is proven.",
+    notes:
+      "Pinpoint has a REST API, but public cross-customer job access needs source-specific proof before native support.",
+  },
+  {
+    id: "jobscore",
+    label: "JobScore",
+    category: "ats-platform",
+    accessModel: "employer-career-system",
+    status: "research",
+    regions: ["US", "global"],
+    careerProfileIds: "all",
+    hostPatterns: ["jobscore.com", "developers.jobscore.com"],
+    examples: ["JobScore career pages", "JobScore job feeds"],
+    implementationPath:
+      "Detect JobScore career pages and use job feed support only after tenant/feed review.",
+    notes:
+      "JobScore documents a Job Feed API separately from its Hire API; source-specific feed access must be verified.",
   },
   {
     id: "employer-careers-pages",

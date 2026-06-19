@@ -210,6 +210,16 @@ and fake example links are intentionally excluded.
 - [SmartRecruiters customer overview](https://developers.smartrecruiters.com/docs/customer-overview)
 - [SmartRecruiters endpoints](https://developers.smartrecruiters.com/docs/endpoints)
 - [SmartRecruiters posting API](https://developers.smartrecruiters.com/docs/posting-api)
+- [Recruitee Careers Site API](https://docs.recruitee.com/reference/careers-site-api)
+- [Personio open positions XML feed](https://developer.personio.de/docs/retrieving-open-positions-via-xml-feed)
+- [Teamtailor API documentation](https://docs.teamtailor.com/)
+- [BambooHR job summaries API](https://documentation.bamboohr.com/reference/get-job-summaries)
+- [JobScore developer APIs](https://developers.jobscore.com/)
+- [Remotive jobs API](https://remotive.com/api/remote-jobs)
+- [Jobicy jobs API](https://jobicy.com/api/v2/remote-jobs)
+- [The Muse jobs API](https://www.themuse.com/developers/api/v2)
+- [Adzuna developer API](https://developer.adzuna.com/)
+- [Reed developer API](https://www.reed.co.uk/developers)
 
 ## Platform, Product, and Data-Source References
 
