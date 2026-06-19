@@ -95,11 +95,11 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   helpers are rehashed before reuse, scraper hashes share
   `calculate_job_hash`, fragments no longer affect dedupe, JobsWithGPT smoke
   checks are HTTPS-only, Browser Import binds submitted job URLs to page origin
-  when present, and UI accessibility/layout blockers are fixed. Fresh evidence:
+  when present, UI accessibility/layout blockers are fixed, and optional ML drops duplicate downloader deps. Fresh evidence:
   frontend `3123/3123`, scripts `710/710`, version/macos-readiness/deps/audit/cargo-deny/doctor pass,
   AppImage script `8/8`, scraper hash `50/50`, bookmarklet `43/43`,
-  JobsWithGPT smoke `1/1`, fragment `12/12`, URL normalizer `23/23`, Rust
-  fmt/clippy, and Rust lib `2902` passed with `11` ignored.
+  JobsWithGPT smoke `1/1`, fragment `12/12`, URL normalizer `23/23`,
+  optional ML `12/12`, Rust fmt/clippy, and Rust lib `2902` passed with `11` ignored.
 - 2026-06-19 job-destination hardening now requires public HTTPS for stored
   job links, Browser Import jobs, import previews, job-card/open-deep-link
   destinations, notification job hrefs, and Application Assist targets. The
