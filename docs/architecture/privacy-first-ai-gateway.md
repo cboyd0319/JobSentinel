@@ -133,6 +133,11 @@ external AI provider APIs outside this gateway.
 
 ## Current Status And TODOs
 
+Release status for `2.9.0`: external AI remains unavailable in the user
+interface. There is no Settings provider control, no provider credential flow,
+and no provider transport wired to production UI. The gateway below stays as the
+guarded boundary and testable contract for future provider work.
+
 Implemented now:
 
 - Gateway types and default settings.
