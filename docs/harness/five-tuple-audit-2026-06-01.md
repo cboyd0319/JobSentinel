@@ -58,7 +58,7 @@ The command reports:
 Files added or updated:
 
 - `scripts/harness-session.mjs`
-- `scripts/harness-session.test.mjs`
+- `scripts/tests/harness-session.test.mjs`
 - `package.json`
 - `docs/harness/README.md`
 - `docs/harness/five-tuple-audit-2026-06-01.md`

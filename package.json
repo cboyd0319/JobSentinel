@@ -44,7 +44,7 @@
     "lint:docs": "npm run harness:check && npm run lint:md && npm run lint:prose",
     "test": "vitest",
     "test:run": "vitest run",
-    "test:scripts": "node --test \"scripts/*.test.mjs\" \"scripts/security/*.test.mjs\"",
+    "test:scripts": "node --test \"scripts/tests/*.test.mjs\" \"scripts/security/tests/*.test.mjs\"",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "node scripts/run-playwright.mjs test --project=chromium",
     "test:e2e:smoke": "node scripts/run-playwright.mjs test --project=chromium --grep @smoke",

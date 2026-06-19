@@ -352,7 +352,7 @@ const requiredCodeownersEntries = [
   "scripts/check-action-pins.mjs",
   "scripts/check-dependency-pins.mjs",
   "scripts/check-security-sensors.mjs",
-  "scripts/check-security-sensors.test.mjs",
+  "scripts/tests/check-security-sensors.test.mjs",
   "scripts/security/",
   "src-tauri/Cargo.toml",
   "src-tauri/Cargo.lock",

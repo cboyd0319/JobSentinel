@@ -35,7 +35,7 @@
     "docs/plans/tech-debt-tracker.md",
     "docs/research/README.md",
     "scripts/harness-score.mjs",
-    "scripts/harness-score.test.mjs",
+    "scripts/tests/harness-score.test.mjs",
     "src/services/aiGateway.ts"
   ],
   "requiredHarnessSnippets": {

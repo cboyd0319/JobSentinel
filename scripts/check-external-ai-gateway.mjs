@@ -47,7 +47,7 @@ const allowedGatewayPaths = new Set([
   "src/services/aiGateway.ts",
   "src/services/aiGateway.test.ts",
   "scripts/check-external-ai-gateway.mjs",
-  "scripts/check-external-ai-gateway.test.mjs",
+  "scripts/tests/check-external-ai-gateway.test.mjs",
 ]);
 
 const providerPatterns = [

@@ -359,9 +359,9 @@ function buildFrameworks(root) {
             ),
             check(
               "Harness script tests exist",
-              exists(root, "scripts/harness-score.test.mjs") &&
-                countMatchingFiles(root, "scripts", /\.test\.mjs$/) >= 20,
-              "scripts/harness-score.test.mjs, scripts/*.test.mjs",
+              exists(root, "scripts/tests/harness-score.test.mjs") &&
+                countMatchingFiles(root, "scripts/tests", /\.test\.mjs$/) >= 20,
+              "scripts/tests/harness-score.test.mjs, scripts/tests/*.test.mjs",
             ),
             check(
               "Scorecard documents observed before and after",
@@ -504,8 +504,9 @@ function buildFrameworks(root) {
             ),
             check(
               "Harness check is backed by focused tests",
-              exists(root, "scripts/check-harness-policy.test.mjs") && exists(root, "scripts/harness-score.test.mjs"),
-              "scripts/check-harness-policy.test.mjs, scripts/harness-score.test.mjs",
+              exists(root, "scripts/tests/check-harness-policy.test.mjs") &&
+                exists(root, "scripts/tests/harness-score.test.mjs"),
+              "scripts/tests/check-harness-policy.test.mjs, scripts/tests/harness-score.test.mjs",
             ),
           ],
         },
@@ -549,18 +550,18 @@ function buildFrameworks(root) {
             check("Session command exists", hasScript(root, "harness:session"), "package.json"),
             check(
               "Session command is tested",
-              exists(root, "scripts/harness-session.test.mjs"),
-              "scripts/harness-session.test.mjs",
+              exists(root, "scripts/tests/harness-session.test.mjs"),
+              "scripts/tests/harness-session.test.mjs",
             ),
             check(
               "Score command is tested",
-              exists(root, "scripts/harness-score.test.mjs"),
-              "scripts/harness-score.test.mjs",
+              exists(root, "scripts/tests/harness-score.test.mjs"),
+              "scripts/tests/harness-score.test.mjs",
             ),
             check(
               "Benchmark command is tested",
-              exists(root, "scripts/harness-benchmark.test.mjs"),
-              "scripts/harness-benchmark.test.mjs",
+              exists(root, "scripts/tests/harness-benchmark.test.mjs"),
+              "scripts/tests/harness-benchmark.test.mjs",
             ),
             check(
               "Harness guide gives operating loop",

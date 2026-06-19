@@ -100,7 +100,7 @@ function isE2ePath(path) {
     path.startsWith("e2e/") ||
     path === "playwright.config.ts" ||
     path === "scripts/run-playwright.mjs" ||
-    path === "scripts/run-playwright.test.mjs"
+    path === "scripts/tests/run-playwright.test.mjs"
   );
 }
 
@@ -171,7 +171,7 @@ function isTauriInvokePath(path) {
     path === "src-tauri/src/main.rs" ||
     path.startsWith("src-tauri/src/commands/") ||
     path === "scripts/check-tauri-invokes.mjs" ||
-    path === "scripts/check-tauri-invokes.test.mjs" ||
+    path === "scripts/tests/check-tauri-invokes.test.mjs" ||
     path.startsWith("src/mocks/") ||
     path.startsWith("src/utils/api") ||
     path.startsWith("src/services/feedbackService") ||
@@ -265,14 +265,16 @@ function scriptTestPath(root, path) {
     return null;
   }
 
-  const directPath = path.replace(/\.mjs$/, ".test.mjs");
+  const directPath = path.startsWith("scripts/security/")
+    ? path.replace(/^scripts\/security\/(.+)\.mjs$/u, "scripts/security/tests/$1.test.mjs")
+    : path.replace(/^scripts\/(.+)\.mjs$/u, "scripts/tests/$1.test.mjs");
   if (maybeExistingPath(root, directPath)) {
     return directPath;
   }
 
   if (path.startsWith("scripts/harness/checks/")) {
     const moduleName = basename(path, ".mjs");
-    const checkPath = `scripts/check-${moduleName}.test.mjs`;
+    const checkPath = `scripts/tests/check-${moduleName}.test.mjs`;
     if (maybeExistingPath(root, checkPath)) {
       return checkPath;
     }
