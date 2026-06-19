@@ -4,6 +4,7 @@ import {
   createSettingsLocalDataBackup,
   isSettingsLocalDataBackup,
   parseSettingsBackupImport,
+  SETTINGS_BACKUP_RECOVERY_GUIDE,
 } from "./settingsLocalDataBackup";
 
 function makeConfig(): Config {
@@ -125,6 +126,21 @@ describe("settings local-data backup parsing", () => {
       type: "localData",
       backup,
     });
+    expect(backup.recoveryGuide).toEqual(SETTINGS_BACKUP_RECOVERY_GUIDE);
+    expect(backup.recoveryGuide.portableIncludes).toEqual(
+      expect.arrayContaining([
+        "settings",
+        "saved searches",
+        "cover letter templates",
+      ]),
+    );
+    expect(backup.recoveryGuide.notIncluded).toEqual(
+      expect.arrayContaining([
+        "saved connection details",
+        "cookies and browser sessions",
+        "local database records",
+      ]),
+    );
   });
 
   it("accepts legacy settings-only backups", () => {
@@ -133,6 +149,22 @@ describe("settings local-data backup parsing", () => {
     expect(parseSettingsBackupImport(settings)).toEqual({
       type: "settings",
       settings,
+    });
+  });
+
+  it("accepts local-data backups created before recovery guidance existed", () => {
+    const legacyBackup = createSettingsLocalDataBackup(
+      makeConfig(),
+      [makeTemplate()],
+      [makeSavedSearch()],
+      "2026-06-19T12:00:00Z",
+    );
+    delete (legacyBackup as { recoveryGuide?: unknown }).recoveryGuide;
+
+    expect(isSettingsLocalDataBackup(legacyBackup)).toBe(true);
+    expect(parseSettingsBackupImport(legacyBackup)).toEqual({
+      type: "localData",
+      backup: legacyBackup,
     });
   });
 
@@ -157,6 +189,15 @@ describe("settings local-data backup parsing", () => {
             salaryMinFilter: 10.5,
           },
         ],
+      }),
+    ).toBeNull();
+    expect(
+      parseSettingsBackupImport({
+        ...backup,
+        recoveryGuide: {
+          portableIncludes: ["settings"],
+          notIncluded: "raw string",
+        },
       }),
     ).toBeNull();
     expect(

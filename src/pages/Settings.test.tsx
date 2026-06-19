@@ -705,12 +705,26 @@ describe("Settings — handleSave flow", () => {
         }),
         coverLetterTemplates: [],
         savedSearches: [],
+        recoveryGuide: expect.objectContaining({
+          portableIncludes: expect.arrayContaining(["settings", "saved searches"]),
+          notIncluded: expect.arrayContaining(["saved connection details"]),
+          recoverySteps: expect.arrayContaining([
+            expect.stringMatching(/safe support report/i),
+          ]),
+        }),
       }),
       expect.stringMatching(/^jobsentinel-local-data-backup-\d{4}-\d{2}-\d{2}\.json$/),
     );
     expect(screen.getByText(/Settings backups are private files/i)).toBeInTheDocument();
     expect(
       screen.getByText(/saved searches and cover letter templates/i),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Recovery coverage")).toBeInTheDocument();
+    expect(
+      screen.getByText(/Full local recovery can replace local jobs, applications, resumes, notes, reminders, and history/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Copy or save a safe support report before full local recovery/i),
     ).toBeInTheDocument();
     expect(mockToast.success).toHaveBeenCalledWith(
       "Private backup saved",

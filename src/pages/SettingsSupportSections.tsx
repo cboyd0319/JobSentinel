@@ -7,6 +7,7 @@ import {
   ImportIcon,
   SettingsSymbol,
 } from "./SettingsIcons";
+import { SETTINGS_BACKUP_RECOVERY_GUIDE } from "./settingsLocalDataBackup";
 
 interface SettingsHelpStatusSectionProps {
   onShowHealthDashboard: () => void;
@@ -88,6 +89,24 @@ export function SettingsBackupSection({
         Full local-data backups also include saved searches and cover letter
         templates.
       </p>
+      <div className="mt-3 rounded-lg border border-surface-200 bg-surface-50 p-3 text-xs text-surface-600 dark:border-surface-700 dark:bg-surface-800 dark:text-surface-300">
+        <p className="font-medium text-surface-800 dark:text-surface-100">
+          Recovery coverage
+        </p>
+        <p className="mt-1">
+          Portable backup:{" "}
+          {SETTINGS_BACKUP_RECOVERY_GUIDE.portableIncludes.join(", ")}.
+        </p>
+        <p className="mt-1">
+          {SETTINGS_BACKUP_RECOVERY_GUIDE.fullLocalRecovery}
+        </p>
+        <p className="mt-1">
+          {SETTINGS_BACKUP_RECOVERY_GUIDE.recoverySteps[2]}
+        </p>
+        <p className="mt-1">
+          Not included: {SETTINGS_BACKUP_RECOVERY_GUIDE.notIncluded.join(", ")}.
+        </p>
+      </div>
     </div>
   );
 }

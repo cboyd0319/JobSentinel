@@ -122,6 +122,16 @@ After restoring a backup, users review settings and choose **Save Changes**.
 Saved connection details must be added again if the restored settings use an
 external alert channel or source that needs them.
 
+Portable backup files include a recovery guide so the app and the user see the
+same plain-language coverage:
+
+- Portable backup: settings, saved searches, and cover letter templates.
+- Not included: saved connection details, passwords, tokens, cookies, browser
+  sessions, local database records, or safe support reports.
+- Full local recovery can replace local jobs, applications, resumes, notes,
+  reminders, and history.
+- Copy or save a safe support report before full local recovery.
+
 ## Older Local Data
 
 Users who had older browser-saved templates or searches may see a migration
@@ -137,8 +147,9 @@ JobSentinel and check Settings.
   The backup covers settings, saved searches, and cover letter templates.
 - Use safe support reports before changing more data if something looks wrong.
 - JobSentinel has internal SQLite integrity backups and a WAL-safe restore
-  helper for support/recovery paths. Full app-wide restore for every local
-  record remains separate from the Settings backup flow.
+  helper for support/recovery paths. Full local recovery is separate from
+  Settings restore because it can replace jobs, applications, resumes, notes,
+  reminders, and history.
 
 ## When Something Does Not Work
 

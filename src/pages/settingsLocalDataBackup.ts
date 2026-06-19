@@ -3,6 +3,31 @@ import { isSettingsBackupConfig, type Config } from "./SettingsConfig";
 export const LOCAL_DATA_BACKUP_KIND = "jobsentinel-local-data-backup";
 export const LOCAL_DATA_BACKUP_SCHEMA_VERSION = 1;
 
+export interface SettingsBackupRecoveryGuide {
+  portableIncludes: string[];
+  notIncluded: string[];
+  recoverySteps: string[];
+  fullLocalRecovery: string;
+}
+
+export const SETTINGS_BACKUP_RECOVERY_GUIDE: SettingsBackupRecoveryGuide = {
+  portableIncludes: ["settings", "saved searches", "cover letter templates"],
+  notIncluded: [
+    "saved connection details",
+    "passwords and tokens",
+    "cookies and browser sessions",
+    "local database records",
+    "safe support reports",
+  ],
+  recoverySteps: [
+    "Review settings and use Save Changes after restore.",
+    "Reconnect saved connection details if alerts or sources need them.",
+    "Copy or save a safe support report before full local recovery.",
+  ],
+  fullLocalRecovery:
+    "Full local recovery can replace local jobs, applications, resumes, notes, reminders, and history.",
+};
+
 export interface LocalCoverLetterTemplate {
   id: string;
   name: string;
@@ -37,7 +62,12 @@ export interface SettingsLocalDataBackup {
   settings: Config;
   coverLetterTemplates: LocalCoverLetterTemplate[];
   savedSearches: LocalSavedSearch[];
+  recoveryGuide?: SettingsBackupRecoveryGuide;
 }
+
+export type CurrentSettingsLocalDataBackup = SettingsLocalDataBackup & {
+  recoveryGuide: SettingsBackupRecoveryGuide;
+};
 
 export type SettingsBackupImport =
   | { type: "settings"; settings: Config }
@@ -48,7 +78,7 @@ export function createSettingsLocalDataBackup(
   coverLetterTemplates: LocalCoverLetterTemplate[],
   savedSearches: LocalSavedSearch[],
   exportedAt = new Date().toISOString(),
-): SettingsLocalDataBackup {
+): CurrentSettingsLocalDataBackup {
   return {
     kind: LOCAL_DATA_BACKUP_KIND,
     schemaVersion: LOCAL_DATA_BACKUP_SCHEMA_VERSION,
@@ -56,6 +86,7 @@ export function createSettingsLocalDataBackup(
     settings,
     coverLetterTemplates,
     savedSearches,
+    recoveryGuide: SETTINGS_BACKUP_RECOVERY_GUIDE,
   };
 }
 
@@ -84,7 +115,22 @@ export function isSettingsLocalDataBackup(
     Array.isArray(value.coverLetterTemplates) &&
     value.coverLetterTemplates.every(isLocalCoverLetterTemplate) &&
     Array.isArray(value.savedSearches) &&
-    value.savedSearches.every(isLocalSavedSearch)
+    value.savedSearches.every(isLocalSavedSearch) &&
+    (value.recoveryGuide === undefined ||
+      isSettingsBackupRecoveryGuide(value.recoveryGuide))
+  );
+}
+
+function isSettingsBackupRecoveryGuide(
+  value: unknown,
+): value is SettingsBackupRecoveryGuide {
+  if (!isPlainRecord(value)) return false;
+
+  return (
+    hasStringArray(value, "portableIncludes") &&
+    hasStringArray(value, "notIncluded") &&
+    hasStringArray(value, "recoverySteps") &&
+    hasString(value, "fullLocalRecovery")
   );
 }
 
@@ -142,4 +188,9 @@ function hasNullableString(record: Record<string, unknown>, field: string): bool
 function hasNullableNumber(record: Record<string, unknown>, field: string): boolean {
   const value = record[field];
   return value === null || (typeof value === "number" && Number.isSafeInteger(value));
+}
+
+function hasStringArray(record: Record<string, unknown>, field: string): boolean {
+  const value = record[field];
+  return Array.isArray(value) && value.every((item) => typeof item === "string");
 }
