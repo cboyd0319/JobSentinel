@@ -29,7 +29,7 @@ verification gates pass.
 | Workflow                 | File                           | Trigger                     | Purpose                         |
 | ------------------------ | ------------------------------ | --------------------------- | ------------------------------- |
 | CI                       | `ci.yml`                       | Push, PR, manual, or weekly | Path-aware tests, linting, security, docs, and harness |
-| Release                  | `release.yml`                  | Version tag or manual       | Build and stage draft installers |
+| Release                  | `release.yml`                  | Version tag or manual       | Build, upload, and publish release assets |
 | Verify Release Artifacts | `verify-release-artifacts.yml` | Published release or manual | Verify public installers, checksums, SBOMs, and attestations |
 
 CI no longer has a separate docs workflow. A first `changes` job classifies the
@@ -175,12 +175,12 @@ jobs so a broad CI run does not serialize `npm audit`/zizmor checks behind
 **Trigger:** Push of a tag matching `v*`, for example `vX.Y.Z`, or manual
 `workflow_dispatch`
 
-This workflow creates or updates a draft GitHub Release, then builds installers
+This workflow creates or updates a staged GitHub Release, then builds installers
 for the requested platforms. Tag pushes build all platforms. Manual dispatch
 accepts a `version` input and a `platform` choice of `all`, `windows`, `macos`,
 or `linux`, replacing the old standalone manual Windows and Linux workflows.
 
-Before any draft release or package build starts, the release workflow resolves
+Before any staged release or package build starts, the release workflow resolves
 and validates release metadata, then runs independent preflight jobs in
 parallel:
 
@@ -207,9 +207,12 @@ runs `npm run release:sbom`. The generated SPDX 2.3 SBOM combines the npm
 lockfile inventory with the Cargo lockfile inventory and writes a companion
 manifest with release asset names, sizes, and SHA-256 digests. The workflow
 uses GitHub artifact attestations for both build provenance and the SPDX SBOM
-before uploading assets to the draft release.
+before uploading assets to the staged release.
 
-The release starts as a draft. After reviewing the generated release notes, publish it manually
+The release starts as a draft while matrix jobs upload platform assets, then the
+workflow publishes it automatically after all platform uploads succeed. Do not
+publish manually unless the release workflow has failed after creating a draft
+and you have verified the complete asset set yourself.
 from the GitHub Releases page.
 
 ### Windows signing
@@ -254,7 +257,7 @@ resource file, macOS 13.0 minimum-system metadata, mounted app signature,
 universal architectures, mounted-app launch smoke, copied installed-app launch
 smoke, isolated macOS data directory and database creation with owner-only
 permissions, and matching checksum artifact before the package can be attached
-to the draft release. When
+to the staged release. When
 Developer ID signing and notarization secrets are configured, the workflow also
 adds `--require-gatekeeper`.
 
@@ -454,13 +457,11 @@ macOS, and Linux asset set, Agent Skills tar.gz/ZIP archives, checksums, SBOM
 manifests, and GitHub attestations; its macOS job also smoke-verifies the
 downloadable DMG on `macos-26`.
 
-### 3. Publish the draft release
+### 3. Verify the published release
 
-1. Go to **GitHub > Releases**
-2. Find the draft created by the workflow
-3. Review the auto-generated release notes
-4. Click **Publish release**
-5. Confirm the `Verify Release Artifacts` workflow passes for the published tag
+1. Wait for the `Release` workflow to finish successfully.
+2. Confirm the release is no longer a draft.
+3. Confirm the `Verify Release Artifacts` workflow passes for the published tag.
 
 ### Version numbering
 

@@ -85,7 +85,7 @@ Linux assets, or `all` to build Windows, macOS, and Linux assets.
 Before packaging, the workflow validates the requested version and runs harness
 checks, harness script tests, markdown linting, the frontend build, Rust
 formatting, Rust clippy, and Rust unit tests. AppImage and Debian artifacts are
-attached to the draft release with matching checksums.
+attached to the staged release with matching checksums.
 
 ### Release Workflow
 

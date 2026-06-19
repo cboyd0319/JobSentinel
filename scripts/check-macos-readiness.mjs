@@ -106,7 +106,9 @@ function getShellCommandBlock(step, command) {
 }
 
 export function releaseAssetUploadsStayDraft(releaseWorkflow) {
-  const createRelease = getWorkflowStepBlock(releaseWorkflow, "Create draft release");
+  const createRelease =
+    getWorkflowStepBlock(releaseWorkflow, "Create staged release") ||
+    getWorkflowStepBlock(releaseWorkflow, "Create draft release");
   const releaseEdit = getShellCommandBlock(createRelease, 'gh release edit "$RELEASE_TAG"');
   const releaseCreate = getShellCommandBlock(createRelease, 'gh release create "$RELEASE_TAG"');
   const createsDraftRelease =
@@ -157,6 +159,21 @@ export function releaseAssetUploadsStayDraft(releaseWorkflow) {
     const step = getWorkflowStepBlock(releaseWorkflow, stepName);
     return step.includes("uses: softprops/action-gh-release@") && /\n\s+draft: true\b/.test(step);
   });
+}
+
+export function releasePublishesAfterSuccessfulUploads(releaseWorkflow) {
+  const publishStep = getWorkflowStepBlock(releaseWorkflow, "Publish hosted release");
+  return (
+    hasAll(releaseWorkflow, ["publish-release:", "- build-release"]) &&
+    hasAll(publishStep, [
+      "GH_TOKEN: ${{ github.token }}",
+      "GH_REPO: ${{ github.repository }}",
+      "RELEASE_TAG: ${{ needs.create-release.outputs.tag }}",
+      'gh release edit "$RELEASE_TAG"',
+      "--draft=false",
+      "--prerelease=false",
+    ])
+  );
 }
 
 export function windowsInstallerUploadRequiresSignatureOrUnsignedLabel(releaseWorkflow) {
@@ -323,8 +340,9 @@ export function evaluateMacosReadiness({ root = defaultRoot, env = process.env }
         ".dmg.sha256",
       ]) &&
         hasNoAccountMacosReleaseOrder(releaseWorkflow) &&
-        releaseAssetUploadsStayDraft(releaseWorkflow),
-      "No-account releases must be verified, labeled, re-checksummed, uploaded in order, and kept draft until manual publication.",
+        releaseAssetUploadsStayDraft(releaseWorkflow) &&
+        releasePublishesAfterSuccessfulUploads(releaseWorkflow),
+      "No-account releases must be verified, labeled, re-checksummed, uploaded while staged, and published only after all platform uploads succeed.",
     ),
     criterion(
       "release workflow keeps Developer ID path strict",

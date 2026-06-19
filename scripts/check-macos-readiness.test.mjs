@@ -10,6 +10,7 @@ import {
   hasNoAccountMacosReleaseOrder,
   noAccountCompletionPercentage,
   releaseAssetUploadsStayDraft,
+  releasePublishesAfterSuccessfulUploads,
   releaseWorkflowBuildsUniversalMacosPackage,
   readMacosDevelopmentReadinessClaims,
   readReadmeMacosReadinessPercent,
@@ -240,7 +241,7 @@ test("macOS readiness recognizes universal macOS release matrices", () => {
   );
 });
 
-test("macOS readiness checks release asset uploads stay draft", () => {
+test("macOS readiness checks staged uploads and automatic publication", () => {
   const legacyWorkflow = [
     "- name: Upload release assets",
     "  uses: softprops/action-gh-release@abc",
@@ -250,7 +251,7 @@ test("macOS readiness checks release asset uploads stay draft", () => {
     "    files: release-assets/public/*",
   ].join("\n");
   const workflow = [
-    "- name: Create draft release",
+    "- name: Create staged release",
     "  env:",
     "    GH_TOKEN: ${{ github.token }}",
     "    GH_REPO: ${{ github.repository }}",
@@ -266,10 +267,23 @@ test("macOS readiness checks release asset uploads stay draft", () => {
     "  run: |",
     "    assets=(release-assets/public/*)",
     "    gh release upload \"$RELEASE_TAG\" \"${assets[@]}\" --clobber",
+    "publish-release:",
+    "  needs:",
+    "    - create-release",
+    "    - build-release",
+    "  steps:",
+    "    - name: Publish hosted release",
+    "      env:",
+    "        GH_TOKEN: ${{ github.token }}",
+    "        GH_REPO: ${{ github.repository }}",
+    "        RELEASE_TAG: ${{ needs.create-release.outputs.tag }}",
+    "      run: |",
+    "        gh release edit \"$RELEASE_TAG\" --draft=false --prerelease=false",
   ].join("\n");
 
   assert.equal(releaseAssetUploadsStayDraft(legacyWorkflow), true);
   assert.equal(releaseAssetUploadsStayDraft(workflow), true);
+  assert.equal(releasePublishesAfterSuccessfulUploads(workflow), true);
   assert.equal(
     releaseAssetUploadsStayDraft(
       workflow.replaceAll("    GH_REPO: ${{ github.repository }}\n", ""),
@@ -281,6 +295,12 @@ test("macOS readiness checks release asset uploads stay draft", () => {
       workflow.replace("steps.release_inputs.outputs.tag", "steps.get_version.outputs.tag"),
     ),
     true,
+  );
+  assert.equal(
+    releasePublishesAfterSuccessfulUploads(
+      workflow.replace("        gh release edit \"$RELEASE_TAG\" --draft=false --prerelease=false", ""),
+    ),
+    false,
   );
   assert.equal(
     releaseAssetUploadsStayDraft(
@@ -345,7 +365,7 @@ test("macOS readiness checks Windows installers are signed or unsigned-labeled",
 
 test("macOS readiness checks Linux package verification gate", () => {
   const workflow = [
-    "- name: Create draft release",
+    "- name: Create staged release",
     "  env:",
     "    GH_TOKEN: ${{ github.token }}",
     "    GH_REPO: ${{ github.repository }}",

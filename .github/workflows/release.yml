@@ -330,7 +330,7 @@ jobs:
             printf 'matrix=%s\n' "$RELEASE_MATRIX"
           } >> "$GITHUB_OUTPUT"
 
-      - name: Create draft release
+      - name: Create staged release
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
@@ -1098,3 +1098,29 @@ jobs:
           fi
 
           gh release upload "$RELEASE_TAG" "${assets[@]}" --clobber
+
+  publish-release:
+    needs:
+      - create-release
+      - build-release
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    environment:
+      name: release
+    permissions:
+      contents: write
+    steps:
+      - name: Publish hosted release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ needs.create-release.outputs.tag }}
+          RELEASE_VERSION: ${{ needs.create-release.outputs.version }}
+        run: |
+          set -euo pipefail
+
+          gh release edit "$RELEASE_TAG" \
+            --title "JobSentinel $RELEASE_VERSION" \
+            --draft=false \
+            --prerelease=false

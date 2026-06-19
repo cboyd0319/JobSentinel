@@ -102,7 +102,7 @@ export function evaluateReleaseReadinessFromInputs(inputs) {
       "Release matrix must include Windows 2025, macOS 26, and Ubuntu 24.04 targets.",
     ),
     criterion(
-      "release preflight gates run before draft creation",
+      "release preflight gates run before staged creation",
       hasAll(inputs.releaseWorkflow, [
         "npm run release:readiness",
         "preflight-harness:",
@@ -116,7 +116,7 @@ export function evaluateReleaseReadinessFromInputs(inputs) {
         "- preflight-security-node",
         "- preflight-security-rust",
       ]),
-      "Draft release creation must wait for harness, frontend, Rust, and split security preflights.",
+      "Staged release creation must wait for harness, frontend, Rust, and split security preflights.",
     ),
     criterion(
       "release preflight blocks security scanners",

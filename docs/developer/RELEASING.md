@@ -61,21 +61,22 @@ git push origin vX.Y.Z
 ```
 
 Pushing the tag triggers `release.yml`. The workflow resolves release inputs,
-runs parallel preflight checks, creates a draft release only after those checks
+runs parallel preflight checks, creates a staged release only after those checks
 pass, packages the downloadable Agent Skills archives, builds Windows, macOS,
 and Linux packages, verifies the macOS package before upload, generates
 platform SBOMs, creates GitHub provenance and SBOM attestations, and attaches
-release assets.
+release assets. After all platform upload jobs succeed, the workflow publishes
+the release automatically.
 
 Manual release dispatch uses the same workflow but must be launched from the
 existing matching `vX.Y.Z` tag ref. If the selected workflow ref is `main`,
 another branch, or a different tag, the release workflow fails before creating
-or editing a draft release.
+or editing a staged release.
 
 For a local-first release, build each platform on that platform or VM, attach
-the verified artifacts to the matching draft release, and run the public
-artifact verifier before publishing or sharing the release. Do not mix
-artifacts from different source commits under one tag.
+the verified artifacts to the matching staged release, and run the public
+artifact verifier before sharing the release. Do not mix artifacts from
+different source commits under one tag.
 
 Package the downloadable Agent Skills archives from the tagged source before
 publishing:
@@ -291,11 +292,10 @@ previous crashed session. The smoke path passes a verifier-only temporary data
 root and verifier-only database key; it must not read or write the user's live
 JobSentinel data or prompt for the user's Keychain.
 
-### 5. Publish
+### 5. Verify publication
 
-Review the draft release on GitHub and click "Publish release".
-Then confirm the `Verify Release Artifacts` workflow passes for the published
-tag.
+After the hosted release workflow publishes the release, confirm the
+`Verify Release Artifacts` workflow passes for the published tag.
 
 For hosted releases, do not pass `--no-require-supply-chain`; that flag exists
 only to inspect old releases that were published before SBOM and attestation
