@@ -75,7 +75,7 @@ Out of scope:
 | Downloadable Agent Skills | Complete locally | Skills pass `lint:skills`; release packaging creates deterministic tar/ZIP artifacts. |
 | LinkedIn Workbench and restricted-source flow | Complete locally | Desktop/mobile mock UI, generated Browser Import visible-card coverage, and user-assisted live LinkedIn proof are recorded without cookies, hidden page reads, monitoring, automation, or submit actions. |
 | Scraper/source verification | Complete locally | Live source probes, restricted-source contract tests, manual restricted-source proof, and Scrapling comparison are recorded. |
-| Development and QA completion | Complete locally | Fresh full local gates pass; final release operations remain approval/credential-gated. |
+| Development and QA completion | Paused for backlog | Fresh full local gates pass; release operations wait for the roadmap checklist to close. |
 | macOS readiness | Release-gated | No-account path is complete; Gatekeeper-ready public distribution remains Apple-credential-gated. |
 | Resume assistance | Active | Tighten hard-requirement categories, evidence caps, live review copy, and mock/Rust parity only when evidence is local and explainable. |
 | Job-card protection | Active | Keep posting-risk cues visible without implying employer intent or confirmed duplicate/source proof. |
@@ -152,9 +152,7 @@ Out of scope:
 
 ## Next Work
 
-1. Wait for the old `v2.9.0` workflow run to finish, then push main/wiki,
-   retag/build/upload/publish/verify `2.9.0` no-account assets; signed Windows
-   and Gatekeeper-ready macOS remain credential-backed upgrades.
+1. Close the active roadmap backlog checklist before any release action.
 2. Confirm major route screenshots, Computer Use clicks, keyboard flow, and
    affected route/action/state checks after any further UI change before calling
    v2.9.0 done.

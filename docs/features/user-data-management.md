@@ -19,6 +19,7 @@ the current account and keeps local database files owner-only.
 | Saved searches | Local only, Sensitive | Search names, words, filters, and history stay local. |
 | Notification preferences | Local only, Sensitive | Preferences stay local; external channels are used only if the user turns them on. |
 | Safe support reports | Local only, Sensitive | Reports are sanitized before copy or save. |
+| Local-data backups | Local only, Sensitive | Backup files stay on the user's device and leave saved connection details out. |
 | Location detection | Sensitive | Public-IP lookup happens only after explicit user action. |
 
 External AI is not required for user-data management. If an outside-AI send is
@@ -106,6 +107,17 @@ App Problem History hides crash details from the visible list. If JobSentinel
 help asks for more detail, users can copy or save a safe support report and
 review it before sharing.
 
+### Local-Data Backups
+
+Settings includes **Backup Settings** and **Restore Settings** actions for a
+private local-data backup file. The file includes settings, saved searches, and
+cover letter templates. It does not include saved connection details, passwords,
+tokens, cookies, browser sessions, or local database files.
+
+After restoring a backup, users review settings and choose **Save Changes**.
+Saved connection details must be added again if the restored settings use an
+external alert channel or source that needs them.
+
 ## Older Local Data
 
 Users who had older browser-saved templates or searches may see a migration
@@ -117,10 +129,12 @@ JobSentinel and check Settings.
 
 - Delete templates and saved searches carefully; deleted items may not be
   recoverable inside the app yet.
+- Use Settings backup before moving devices or making larger search changes.
+  The backup covers settings, saved searches, and cover letter templates.
 - Use safe support reports before changing more data if something looks wrong.
 - JobSentinel has internal SQLite integrity backups and a WAL-safe restore
-  helper for support/recovery paths. A user-facing backup and restore workflow
-  remains a planned product need.
+  helper for support/recovery paths. Full app-wide restore for every local
+  record remains separate from the Settings backup flow.
 
 ## When Something Does Not Work
 

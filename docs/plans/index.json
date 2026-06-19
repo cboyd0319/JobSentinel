@@ -21,7 +21,7 @@
       "id": "v2.9.0-completion-and-full-feature-roadmap",
       "path": "docs/plans/active/v2.9.0-completion-and-full-feature-roadmap.md",
       "state": "active",
-      "nextStep": "Run final local release gates from the latest commit, publish and verify v2.9.0 assets, then split post-release full-feature roadmap items into versioned follow-up plans.",
+      "nextStep": "Close the backlog completion checklist in the roadmap before any push, tag, publish, or release verification sequence.",
       "verification": "npm run lint:docs; npm run lint:bloat; npm run harness:check; npm run harness:score; git diff --check"
     }
   ],

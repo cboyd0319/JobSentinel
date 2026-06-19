@@ -13,7 +13,7 @@ interface SettingsHelpStatusSectionProps {
 }
 
 interface SettingsBackupSectionProps {
-  onExportConfig: () => void;
+  onExportConfig: () => void | Promise<void>;
   onImportConfig: () => void | Promise<void>;
 }
 
@@ -85,6 +85,8 @@ export function SettingsBackupSection({
         Settings backups are private files. They can include job titles, pay
         choices, locations, company preferences, and alert settings. Do not
         attach them to support requests; use a safe support report instead.
+        Full local-data backups also include saved searches and cover letter
+        templates.
       </p>
     </div>
   );

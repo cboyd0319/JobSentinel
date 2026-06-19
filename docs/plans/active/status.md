@@ -8,10 +8,10 @@ The repo-wide goal remains open: zero known errors, privacy leaks, stale docs, b
 user-facing technical assumptions, engineer-only defaults, and unverified claims.
 Current priority is v2.9.0 readiness for an urgent single-user search.
 
-Release creation is now in final sequencing. Do not retag or upload over the
+Release creation is paused. Do not push, retag, upload, or publish `v2.9.0`
+until the backlog completion checklist in the active roadmap is closed and final
+local gates pass again from the verified commit. Do not retag or upload over the
 same `v2.9.0` release while an older workflow run is still building assets.
-After it finishes, push the simplified workflow, move the tag to the verified
-commit, upload while staged, and publish only after every platform succeeds.
 
 Rule 0 still controls the work: user data stays local unless the user explicitly
 configures an external channel, external AI stays optional and disabled by
@@ -112,11 +112,11 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 
 ## Next Best Work
 
-1. Wait for the old `v2.9.0` workflow run to finish, then push main/wiki,
-   retag/build/upload/publish/verify `2.9.0` no-account assets; signed Windows
-   and Gatekeeper-ready macOS remain credential-backed upgrades.
-2. Continue resume, guided intake, job-card protection, and encrypted storage
-   only where they improve truthful, reviewed, local, non-technical workflows.
+1. Close the active roadmap backlog checklist before any release action.
+2. Continue resume, guided intake, job-card protection, encrypted storage,
+   browser assistance, source discovery, pay review, backup/restore, and AI
+   readiness only where they improve truthful, reviewed, local, non-technical
+   workflows.
 3. Continue macOS readiness without claiming Gatekeeper-ready distribution
    before Apple credentials exist.
 4. Keep harness work focused on bounded startup context, runnable verification,

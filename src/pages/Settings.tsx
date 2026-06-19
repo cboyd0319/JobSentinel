@@ -16,7 +16,6 @@ import { BookmarkletGenerator } from "../components/BookmarkletGenerator";
 import { useToast } from "../contexts";
 import { logError } from "../utils/errorUtils";
 import { getUserFriendlyError } from "../utils/errorMessages";
-import { exportConfigToJSON, importConfigFromJSON } from "../utils/export";
 import { invalidateCacheByCommand } from "../utils/api";
 import { normalizeRestrictedSourceAcknowledgements } from "../shared/restrictedSourceTaxonomy";
 import {
@@ -28,7 +27,6 @@ import {
   buildJobsWithGptPayload,
   getCredentialValidationError,
   isCurrentJobsWithGptPayloadApproved,
-  isSettingsBackupConfig,
   storeCredential,
   type Config,
   type GhostConfig,
@@ -50,6 +48,7 @@ import {
 } from "./SettingsSupportSections";
 import { useSettingsCredentials } from "./useSettingsCredentials";
 import { useSettingsSupportReports } from "./useSettingsSupportReports";
+import { useSettingsLocalDataBackup } from "./useSettingsLocalDataBackup";
 
 export default function Settings({ onClose }: SettingsProps) {
   const [config, setConfig] = useState<Config | null>(null);
@@ -98,6 +97,12 @@ export default function Settings({ onClose }: SettingsProps) {
     savingDebugReport,
     showFeedbackModal,
   } = useSettingsSupportReports(toast);
+  const { handleExportConfig, handleImportConfig } = useSettingsLocalDataBackup({
+    config,
+    setConfig,
+    toastError,
+    toastSuccess,
+  });
 
   // Location detection state
   const [detectedLocation, setDetectedLocation] = useState<LocationInfo | null>(
@@ -414,58 +419,6 @@ export default function Settings({ onClose }: SettingsProps) {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [saving, config, handleSave]);
-
-  const handleExportConfig = () => {
-    if (!config) return;
-    try {
-      exportConfigToJSON(config);
-      toastSuccess(
-        "Private settings backup saved",
-        "Saved passwords and connection codes are left out. This backup can still include search, pay, location, company, and alert settings.",
-      );
-    } catch (error: unknown) {
-      logError("Failed to export config:", error);
-      const friendly = getUserFriendlyError(error);
-      toastError(friendly.title, friendly.message);
-    }
-  };
-
-  const handleImportConfig = async () => {
-    try {
-      const result = await importConfigFromJSON<unknown>();
-      if (result.status === "cancelled") {
-        return; // User cancelled
-      }
-      if (result.status === "invalid") {
-        toastError(
-          "Could not read settings backup",
-          "Choose another JobSentinel settings backup file.",
-        );
-        return;
-      }
-      if (!isSettingsBackupConfig(result.config)) {
-        toastError(
-          "That is not a JobSentinel settings backup",
-          "Choose a settings backup created from JobSentinel Settings.",
-        );
-        return;
-      }
-
-      // Connection secrets stay in OS secure storage, not in backup files.
-      setConfig(result.config);
-      toastSuccess(
-        "Settings restored",
-        "Review settings and use Save. Saved connection details are not included in backups, so add them again if needed.",
-      );
-    } catch (error: unknown) {
-      logError("Failed to restore settings backup:", error);
-      toastError(
-        "Could not restore settings",
-        "Choose another JobSentinel settings backup file.",
-      );
-    }
-  };
-
 
   const handleAddTitle = () => {
     if (!config) return;

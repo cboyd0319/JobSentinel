@@ -138,6 +138,10 @@ function setupHappyPath() {
     if (cmd === "has_credential") return false;
     if (cmd === "get_ghost_config") return makeGhostConfig();
     if (cmd === "detect_location") return null;
+    if (cmd === "list_cover_letter_templates") return [];
+    if (cmd === "list_saved_searches") return [];
+    if (cmd === "import_cover_letter_templates") return 0;
+    if (cmd === "import_saved_searches") return 0;
     return null;
   });
 }
@@ -689,21 +693,119 @@ describe("Settings — handleSave flow", () => {
 
     await user.click(screen.getByRole("button", { name: "Backup Settings" }));
 
-    expect(mockExportConfigToJSON).toHaveBeenCalledTimes(1);
+    await waitFor(() => {
+      expect(mockExportConfigToJSON).toHaveBeenCalledTimes(1);
+    });
+    expect(mockExportConfigToJSON).toHaveBeenCalledWith(
+      expect.objectContaining({
+        kind: "jobsentinel-local-data-backup",
+        schemaVersion: 1,
+        settings: expect.objectContaining({
+          keywords_boost: ["rust"],
+        }),
+        coverLetterTemplates: [],
+        savedSearches: [],
+      }),
+      expect.stringMatching(/^jobsentinel-local-data-backup-\d{4}-\d{2}-\d{2}\.json$/),
+    );
     expect(screen.getByText(/Settings backups are private files/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/saved searches and cover letter templates/i),
+    ).toBeInTheDocument();
     expect(mockToast.success).toHaveBeenCalledWith(
-      "Private settings backup saved",
-      "Saved passwords and connection codes are left out. This backup can still include search, pay, location, company, and alert settings.",
+      "Private backup saved",
+      "Saved connection details are left out. The file includes settings, saved searches, and cover letter templates.",
     );
 
     await user.click(screen.getByRole("button", { name: "Restore Settings" }));
 
-    expect(mockToast.success).toHaveBeenCalledWith(
-      "Settings restored",
-      "Review settings and use Save. Saved connection details are not included in backups, so add them again if needed.",
-    );
+    await waitFor(() => {
+      expect(mockToast.success).toHaveBeenCalledWith(
+        "Settings restored",
+        "Review settings and use Save. Saved connection details are not included in backups, so add them again if needed.",
+      );
+    });
     expect(screen.queryByText(/Config imported/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Credentials must/i)).not.toBeInTheDocument();
+  });
+
+  it("restores local-data backups with templates and saved searches", async () => {
+    const user = userEvent.setup();
+    const restoredConfig = {
+      ...makeConfig(),
+      salary_floor_usd: 90000,
+    };
+    const template = {
+      id: "template-1",
+      name: "General cover letter",
+      content: "Hello hiring team",
+      category: "general",
+      createdAt: "2026-06-19T12:00:00Z",
+      updatedAt: "2026-06-19T12:00:00Z",
+    };
+    const savedSearch = {
+      id: "search-1",
+      name: "Remote coordinator",
+      sortBy: "score",
+      scoreFilter: "all",
+      sourceFilter: "all",
+      remoteFilter: "all",
+      bookmarkFilter: "all",
+      notesFilter: "all",
+      postedDateFilter: null,
+      salaryMinFilter: 50000,
+      salaryMaxFilter: null,
+      ghostFilter: null,
+      textSearch: "coordinator",
+      createdAt: "2026-06-19T12:00:00Z",
+      lastUsedAt: null,
+    };
+
+    setupHappyPath();
+    mockInvoke.mockImplementation(async (cmd: string) => {
+      if (cmd === "get_config") return makeConfig();
+      if (cmd === "get_credential_status") return [];
+      if (cmd === "get_credential_unlock_status") {
+        return { mode: "system", configured: false, unlocked: true };
+      }
+      if (cmd === "get_ghost_config") return makeGhostConfig();
+      if (cmd === "detect_location") return null;
+      if (cmd === "import_cover_letter_templates") return 1;
+      if (cmd === "import_saved_searches") return 1;
+      return null;
+    });
+    mockImportConfigFromJSON.mockResolvedValueOnce({
+      status: "ok",
+      config: {
+        kind: "jobsentinel-local-data-backup",
+        schemaVersion: 1,
+        exportedAt: "2026-06-19T12:00:00Z",
+        settings: restoredConfig,
+        coverLetterTemplates: [template],
+        savedSearches: [savedSearch],
+      },
+    });
+
+    render(<Settings onClose={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Settings")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole("button", { name: "Restore Settings" }));
+
+    await waitFor(() => {
+      expect(mockInvoke).toHaveBeenCalledWith("import_cover_letter_templates", {
+        templates: [template],
+      });
+      expect(mockInvoke).toHaveBeenCalledWith("import_saved_searches", {
+        searches: [savedSearch],
+      });
+      expect(mockToast.success).toHaveBeenCalledWith(
+        "Local data restored",
+        "Review settings and use Save. Restored 1 template(s) and 1 saved search(es). Saved connection details are not included.",
+      );
+    });
   });
 
   it("rejects JSON that is not a JobSentinel settings backup", async () => {
