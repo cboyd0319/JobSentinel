@@ -19,6 +19,13 @@ export interface ResumeExportIntegrityCheck {
   userAction: string;
 }
 
+export interface MajorAtsPortalReviewCheck {
+  id: "greenhouse" | "workday" | "taleo_oracle";
+  label: string;
+  sourceSignal: string;
+  candidateAction: string;
+}
+
 export interface ResumeReferenceDecision {
   id:
     | "do_not_copy_templates"
@@ -94,17 +101,44 @@ export const RESUME_EXPORT_INTEGRITY_CHECKS: ResumeExportIntegrityCheck[] = [
   {
     id: "portal_field_review",
     label: "Portal field review",
-    userAction: "After upload, review each auto-filled title, employer, date, education, and skill before submitting.",
+    userAction: "After upload, review each auto-filled title, employer, date, education, skill, and profile field before submitting.",
   },
   {
     id: "simple_layout",
     label: "Simple layout",
-    userAction: "Prefer one column, standard fonts, clear headings, and text over images or sidebars.",
+    userAction: "Prefer one column, standard fonts, clear headings, and text over tables, text boxes, images, graphics, headers, footers, or sidebars.",
   },
   {
     id: "human_review",
     label: "Human review",
     userAction: "Open the final file and check the same content a recruiter or hiring manager should see.",
+  },
+];
+
+export const MAJOR_ATS_PORTAL_REVIEW_CHECKS: MajorAtsPortalReviewCheck[] = [
+  {
+    id: "greenhouse",
+    label: "Greenhouse",
+    sourceSignal:
+      "Public job board data is common, but resume parsing fills candidate profile fields from the uploaded resume.",
+    candidateAction:
+      "Review parsed contact, title, employer, dates, education, and skills before you continue.",
+  },
+  {
+    id: "workday",
+    label: "Workday",
+    sourceSignal:
+      "Applications are stored as candidate database/profile records that recruiters can search and review.",
+    candidateAction:
+      "Confirm every auto-filled profile and application field before final submission.",
+  },
+  {
+    id: "taleo_oracle",
+    label: "Taleo / Oracle Recruiting",
+    sourceSignal:
+      "Enterprise recruiting flows can combine profile, resume, career-site, and application records.",
+    candidateAction:
+      "Check profile, resume, job-specific questions, and application fields before final submission.",
   },
 ];
 

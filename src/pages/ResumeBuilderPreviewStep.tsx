@@ -1,5 +1,8 @@
 import { CardHeader } from "../components/Card";
-import { RESUME_EXPORT_INTEGRITY_CHECKS } from "../shared/resumeWritingTaxonomy";
+import {
+  MAJOR_ATS_PORTAL_REVIEW_CHECKS,
+  RESUME_EXPORT_INTEGRITY_CHECKS,
+} from "../shared/resumeWritingTaxonomy";
 import type { ATSAnalysis, Template, TemplateId } from "./resumeBuilderData";
 import { sanitizeResumeHtmlDocument } from "./resumeHtmlSanitizer";
 import { TemplateThumbnail } from "./ResumeBuilderVisuals";
@@ -63,6 +66,27 @@ export function ResumeBuilderPreviewStep({
               </p>
               <p className="mt-1 text-xs text-surface-600 dark:text-surface-300">
                 {check.userAction}
+              </p>
+            </div>
+          ))}
+        </div>
+        <h4 className="mt-4 text-sm font-semibold text-surface-800 dark:text-surface-100">
+          Major ATS portal checks
+        </h4>
+        <div className="mt-3 grid gap-3 md:grid-cols-3">
+          {MAJOR_ATS_PORTAL_REVIEW_CHECKS.map((portal) => (
+            <div
+              key={portal.id}
+              className="rounded-md border border-surface-200 bg-surface-50 p-3 dark:border-surface-700 dark:bg-surface-900/70"
+            >
+              <p className="text-xs font-semibold text-surface-800 dark:text-surface-100">
+                {portal.label}
+              </p>
+              <p className="mt-1 text-xs text-surface-500 dark:text-surface-400">
+                {portal.sourceSignal}
+              </p>
+              <p className="mt-2 text-xs text-surface-600 dark:text-surface-300">
+                {portal.candidateAction}
               </p>
             </div>
           ))}

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  MAJOR_ATS_PORTAL_REVIEW_CHECKS,
   RESUME_BULLET_FRAMEWORKS,
   RESUME_EXPORT_INTEGRITY_CHECKS,
   RESUME_REFERENCE_DECISIONS,
@@ -41,6 +42,33 @@ describe("resumeWritingTaxonomy", () => {
       expect(check.label).toBeTruthy();
       expect(check.userAction).toBeTruthy();
       expect(check.userAction).not.toMatch(/install|terminal|command/i);
+    }
+  });
+
+  it("keeps major ATS portal review guidance reusable and candidate-side", () => {
+    expect(MAJOR_ATS_PORTAL_REVIEW_CHECKS).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: "greenhouse",
+          label: "Greenhouse",
+        }),
+        expect.objectContaining({
+          id: "workday",
+          label: "Workday",
+        }),
+        expect.objectContaining({
+          id: "taleo_oracle",
+          label: "Taleo / Oracle Recruiting",
+        }),
+      ]),
+    );
+
+    for (const portal of MAJOR_ATS_PORTAL_REVIEW_CHECKS) {
+      expect(portal.candidateAction).toMatch(
+        /review|confirm|check|correct|application|profile|field/i,
+      );
+      expect(portal.candidateAction).not.toMatch(/submit automatically|bypass|trick/i);
+      expect(portal.sourceSignal).toMatch(/resume|profile|application|job board|database/i);
     }
   });
 

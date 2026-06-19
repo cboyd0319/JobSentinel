@@ -32,6 +32,26 @@ describe("ResumeBuilderPreviewStep", () => {
     expect(screen.queryByText(/beat ATS/i)).not.toBeInTheDocument();
   });
 
+  it("shows major ATS portal review prompts before users submit elsewhere", () => {
+    render(
+      <ResumeBuilderPreviewStep
+        templates={templates}
+        selectedTemplate="Classic"
+        previewHtml=""
+        atsAnalysis={null}
+        onSelectTemplate={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText("Major ATS portal checks")).toBeInTheDocument();
+    expect(screen.getByText("Greenhouse")).toBeInTheDocument();
+    expect(screen.getByText("Workday")).toBeInTheDocument();
+    expect(screen.getByText("Taleo / Oracle Recruiting")).toBeInTheDocument();
+    expect(screen.getByText(/Review parsed contact, title, employer, dates/i)).toBeInTheDocument();
+    expect(screen.getByText(/Confirm every auto-filled profile and application field/i)).toBeInTheDocument();
+    expect(screen.queryByText(/submit automatically/i)).not.toBeInTheDocument();
+  });
+
   it("renders sanitized resume HTML in a sandboxed iframe", () => {
     const { container } = render(
       <ResumeBuilderPreviewStep

@@ -348,7 +348,8 @@ resume help should adjust examples and evidence prompts for:
   captured in `src/shared/resumeWritingTaxonomy.ts`. Resume Match shows local
   bullet frameworks for action/scope/method/result, X-Y-Z, and CAR, and Resume
   Builder Preview shows export checks for selectable text, reading order,
-  employer-requested file type, portal field review, and portable data.
+  employer-requested file type, portal field review, portable data, and major
+  Greenhouse, Workday, and Taleo / Oracle Recruiting portal review prompts.
 
 ## Open Resume Tool Reference Pass
 
@@ -372,6 +373,13 @@ Durable decisions:
 - Add employer-file-type and portal-field-review reminders near export. A
   local parse preview helps, but users still need to review employer portal
   auto-fill fields before submitting.
+- Treat Greenhouse, Workday, and Taleo / Oracle Recruiting as major portal
+  families for candidate-side review. Greenhouse parsing guidance explicitly
+  warns about tables, headers, footers, text boxes, columns, image uploads, and
+  large files. Workday frames ATS data as a central candidate database. Oracle
+  Recruiting/Taleo-style flows can combine profile, career-site, and
+  application records. JobSentinel should help users check what the portal
+  filled in; it should not imply automatic submission or universal ATS success.
 - A future public GitHub profile importer can help technical users, but it must
   be explicit, public-data-only, editable before save, and documented as an
   external request. It must never become a hidden account connection.
@@ -429,6 +437,8 @@ Durable decisions:
 - [Greenhouse unsuccessful resume parse guidance](https://support.greenhouse.io/hc/en-us/articles/200989175-Unsuccessful-resume-parse)
 - [Lever resume parsing guidance](https://help.lever.co/s/article/Understanding-Resume-Parsing)
 - [Workday ATS overview](https://www.workday.com/en-us/topics/hr/applicant-tracking-system.html)
+- [Oracle Recruiting and Recruiting Booster](https://www.oracle.com/human-capital-management/recruiting/)
+- [Greenhouse vs Workday vs Taleo ATS comparison](https://bestjobsearchapps.com/articles/en/greenhouse-vs-workday-vs-taleo-ats-2026-comparison-for-enterprise-recruiting-teams)
 - [iCIMS ATS glossary](https://www.icims.com/glossary/applicant-tracking-system-ats/)
 - [Indeed ATS resume template guidance](https://www.indeed.com/career-advice/resumes-cover-letters/ats-resume-template)
 - [Indeed application readability guidance](https://www.indeed.com/career-advice/resumes-cover-letters/how-to-beat-applicant-tracking-system)

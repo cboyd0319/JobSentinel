@@ -72,6 +72,8 @@ and fake example links are intentionally excluded.
 - [Greenhouse unsuccessful resume parse guidance](https://support.greenhouse.io/hc/en-us/articles/200989175-Unsuccessful-resume-parse)
 - [Lever resume parsing guidance](https://help.lever.co/s/article/Understanding-Resume-Parsing)
 - [Workday ATS overview](https://www.workday.com/en-us/topics/hr/applicant-tracking-system.html)
+- [Oracle Recruiting and Recruiting Booster](https://www.oracle.com/human-capital-management/recruiting/)
+- [Greenhouse vs Workday vs Taleo ATS comparison](https://bestjobsearchapps.com/articles/en/greenhouse-vs-workday-vs-taleo-ats-2026-comparison-for-enterprise-recruiting-teams)
 - [iCIMS ATS glossary](https://www.icims.com/glossary/applicant-tracking-system-ats/)
 - [Indeed ATS resume template guidance](https://www.indeed.com/career-advice/resumes-cover-letters/ats-resume-template)
 - [Indeed application readability guidance](https://www.indeed.com/career-advice/resumes-cover-letters/how-to-beat-applicant-tracking-system)

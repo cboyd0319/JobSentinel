@@ -103,6 +103,11 @@ reference pass and are intentionally local. JobSentinel does not copy
 third-party templates or promise that any one layout works in every employer
 system.
 
+Resume Builder also shows major ATS portal checks for Greenhouse, Workday, and
+Taleo / Oracle Recruiting. These checks remind users to review parsed contact
+details, titles, employers, dates, skills, profile fields, job-specific
+questions, and application fields before submitting outside JobSentinel.
+
 When Resume Builder has job-post context from Resume Match, the live review
 panel keeps required, preferred, and other job-post language separate. It also
 shows must-have checks when local analysis finds a missing or weakly supported
