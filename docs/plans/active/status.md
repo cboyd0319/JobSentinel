@@ -80,10 +80,10 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   routes; forced empty/loading/error checks passed across startup and setup.
 - Setup Wizard and whole-UI click/keyboard evidence exists; Applications
   2026-06-19 Search review refresh passed Chromium/WebKit route specs.
-- Current 2026-06-19 pre-release gates pass: harness 100, docs, bloat,
-  release version/environment/readiness/deps/skills, security/static sensors,
-  npm/cargo audit/deny, doctor, scripts `710/710`, frontend `3124/3124`,
-  lint/build, Rust fmt/clippy/tests, E2E `272/272`, and macOS DMG/SBOM/skills checks.
+- Current 2026-06-19 release-gate refresh passes: release readiness,
+  dependency/action pins, doctor, security sensors, frontend `3168/3168`,
+  lint/build, Rust fmt/clippy/lib `2932` passed with `11` ignored, E2E
+  `278/278`, docs/prose, bloat, harness, and whitespace checks.
 - Final non-`content/` expert/agent pass is applied locally. Public wiki local
   commit `f12f8c3` adds Windows MSI/setup EXE release notes; final push pending.
 - 2026-06-18 OWASP CheatSheetSeries scan covered Actions, supply-chain, AI,

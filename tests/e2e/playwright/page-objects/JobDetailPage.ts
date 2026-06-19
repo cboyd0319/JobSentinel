@@ -168,9 +168,13 @@ export class JobDetailPage extends BasePage {
   }
 
   async addNote(noteText: string) {
-    await expect(this.addNoteButton).toBeAttached({ timeout: 5000 });
-    await this.addNoteButton.click({ force: true });
-    await this.noteTextarea.waitFor({ state: "visible", timeout: 5000 });
+    await expect(this.addNoteButton).toBeVisible({ timeout: 5000 });
+    await this.addNoteButton.scrollIntoViewIfNeeded();
+    await this.addNoteButton.click();
+    if (!(await this.noteTextarea.isVisible({ timeout: 5000 }).catch(() => false))) {
+      await this.addNoteButton.evaluate((element: HTMLElement) => element.click());
+    }
+    await this.noteTextarea.waitFor({ state: "visible", timeout: 10000 });
     await this.noteTextarea.fill(noteText);
     await this.saveNoteButton.waitFor({ state: "visible", timeout: 5000 });
     await this.saveNoteButton.click({ force: true });

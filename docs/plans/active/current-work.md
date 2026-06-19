@@ -140,15 +140,15 @@ Out of scope:
   previews/export, secure deletion, parser caps, KDF floors, and body caps.
 - Hosted release hardening now gates signing, cleans CI signing material,
   blocks unsigned MSI upload, and narrows renderer notification/dialog permissions.
-- Applications Search review refresh passed 44 Chromium/WebKit route tests on 2026-06-19.
 - Final non-`content/` audit fixes landed for company research, onboarding,
   auto-refresh gating, alert claims, HTTPS JobsWithGPT, shared import hashes,
   and `2.9.0` metadata/changelog.
-- Public wiki local commit `f12f8c3` adds the no-account Windows MSI/setup EXE
-  release expansion; final wiki push is pending.
-- CI/release gates cover sensors, zizmor, audit, cargo-deny, unsigned Windows,
-  no-account macOS, Linux, checksums, SBOMs, attestations, skills, and
-  post-matrix auto-publication.
+- 2026-06-19 release gates cover sensors, zizmor, audit, cargo-deny,
+  unsigned Windows, no-account macOS, Linux, checksums, SBOMs, attestations,
+  skills, and post-matrix publication. Fresh local gates pass release
+  readiness, dependency pins, doctor, security sensors, frontend `3168/3168`,
+  lint/build, Rust fmt/clippy/lib `2932` with `11` ignored, E2E `278/278`,
+  docs/prose, bloat, harness, and whitespace checks.
 
 ## Next Work
 
