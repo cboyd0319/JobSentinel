@@ -63,6 +63,9 @@ inputs, not as self-worth scores.
   use the warning only when the known top listed pay is below the floor.
 - Warn when the user's target is below the lower-pay part of a credible sample
   or below a credible posted midpoint.
+- Treat a user-entered floor below the lower-pay part of a credible sample as
+  anchoring-prone pay guidance. Ask the user to check title, level, and written
+  ranges before lowering expectations.
 - Treat missing pay as useful evidence about transparency, not as neutral or as
   proof of bad intent. Missing-pay job-card and import-preview guidance is a
   review cue, not a stale-posting or scam claim.

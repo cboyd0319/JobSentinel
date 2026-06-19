@@ -9,6 +9,7 @@ import { useToast } from "../contexts";
 import { logError } from "../utils/errorUtils";
 import { getUserFriendlyError } from "../utils/errorMessages";
 import { formatCurrency } from "../utils/formatUtils";
+import { getPayFloorBenchmarkGuidance } from "../shared/payFloorBenchmarkGuidance";
 
 interface SalaryBenchmark {
   job_title: string;
@@ -132,7 +133,12 @@ export default function Salary({ onBack }: SalaryProps) {
       ? salaryFloorAmount
       : null;
   const floorGuidance = benchmark
-    ? getSalaryFloorGuidance(benchmark, activeSalaryFloor)
+    ? getPayFloorBenchmarkGuidance({
+        salaryFloorAmount: activeSalaryFloor,
+        p25Salary: benchmark.p25_salary,
+        medianSalary: benchmark.median_salary,
+        p75Salary: benchmark.p75_salary,
+      })
     : null;
   const sampleQuality = benchmark ? getSalarySampleQuality(benchmark.sample_size) : null;
   const currentOfferAmount = parseSalaryAmount(currentOffer);
@@ -629,48 +635,6 @@ export default function Salary({ onBack }: SalaryProps) {
       </main>
     </div>
   );
-}
-
-function getSalaryFloorGuidance(
-  benchmark: SalaryBenchmark,
-  salaryFloorAmount: number | null,
-): { message: string; tone: "neutral" | "caution" } {
-  if (salaryFloorAmount === null) {
-    return {
-      message: "Add a salary floor to see when pay may be below what you need.",
-      tone: "neutral",
-    };
-  }
-
-  if (salaryFloorAmount > benchmark.p75_salary) {
-    return {
-      message:
-        "Your floor is above the higher-pay part of this sample. Verify level, scope, location, and range quality before lowering it.",
-      tone: "caution",
-    };
-  }
-
-  if (salaryFloorAmount > benchmark.median_salary) {
-    return {
-      message:
-        "Your floor is above the middle of this sample. Use role scope and written range evidence before compromising.",
-      tone: "neutral",
-    };
-  }
-
-  if (salaryFloorAmount < benchmark.p25_salary) {
-    return {
-      message:
-        "Your floor is below the lower-pay part of this sample. Check whether this role is listed at too low a title or pay level, or whether your floor should move up.",
-      tone: "caution",
-    };
-  }
-
-  return {
-    message:
-      "Your floor is within the middle of this sample range. Compare benefits, schedule, level, and promotion path before deciding.",
-    tone: "neutral",
-  };
 }
 
 function parseSalaryAmount(value: string): number | null {
