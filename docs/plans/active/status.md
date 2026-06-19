@@ -81,8 +81,8 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   version/environment/readiness/deps/skills, security/static sensors, npm audit, cargo audit/deny,
   doctor/doctor:e2e, scripts `710/710`, frontend `3124/3124`, lint/build,
   Rust fmt/clippy/lib/all-target test, E2E `272/272`, and local macOS DMG/SBOM/skills checks.
-- Final non-`content/` expert/agent pass is applied locally. Public wiki
-  matched at `6ac587d`; final sync must add Windows MSI/setup EXE release notes.
+- Final non-`content/` expert/agent pass is applied locally. Public wiki local
+  commit `f12f8c3` adds Windows MSI/setup EXE release notes; final push pending.
 - 2026-06-18 OWASP CheatSheetSeries scan covered Actions, supply-chain, AI,
   storage, URL, logging, Browser Import, CSS, parsers, and follow-up hardening
   for credential binding, imports, redaction, signing, AI guards, and release drift.
@@ -113,7 +113,7 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 
 ## Next Best Work
 
-1. Sync wiki, then push/tag/build/upload/verify `2.9.0` no-account assets;
+1. Push main/wiki, then tag/build/upload/verify `2.9.0` no-account assets;
    signed Windows and Gatekeeper-ready macOS remain credential-backed upgrades.
 2. Continue resume, guided intake, job-card protection, and encrypted storage
    only where they improve truthful, reviewed, local, non-technical workflows.
