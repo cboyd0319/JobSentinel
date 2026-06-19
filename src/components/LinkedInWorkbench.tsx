@@ -9,6 +9,8 @@ import {
   LINKEDIN_WORKBENCH_ACK_VERSION,
   LINKEDIN_WORKBENCH_PRIVACY_REMINDER_MINUTES,
   parseUserProvidedLinkedInText,
+  sanitizeLinkedInWorkbenchTextForStorage,
+  sanitizeLinkedInWorkbenchUrl,
   shouldShowLinkedInWorkbenchPrivacyReminder,
   type LinkedInWorkbenchEventType,
   type LinkedInWorkbenchPrefill,
@@ -95,8 +97,8 @@ export function LinkedInWorkbench() {
         eventType,
         title: cleanOptional(draft.title),
         company: cleanOptional(draft.company),
-        url: cleanOptional(draft.url),
-        notes: cleanOptional(draft.notes),
+        url: cleanOptional(sanitizeLinkedInWorkbenchUrl(draft.url)),
+        notes: cleanOptional(sanitizeLinkedInWorkbenchTextForStorage(draft.notes)),
       });
       toast.success(successTitle(eventType), successMessage(eventType, result.needsDetails));
     } catch (error) {

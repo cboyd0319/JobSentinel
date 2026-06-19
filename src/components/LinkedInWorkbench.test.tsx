@@ -82,7 +82,7 @@ describe("LinkedInWorkbench", () => {
     );
     await user.type(
       screen.getByLabelText(/paste selected job text/i),
-      "Principal Security Engineer at Example Co\nhttps://www.linkedin.com/jobs/view/123",
+      "Principal Security Engineer at Example Co\nhttps://www.linkedin.com/jobs/view/123?token=secret\nli_at=raw-cookie",
     );
     await user.click(screen.getByRole("button", { name: /use pasted details/i }));
     await user.click(screen.getByRole("button", { name: /log applied/i }));
@@ -94,7 +94,7 @@ describe("LinkedInWorkbench", () => {
         company: "Example Co",
         url: "https://www.linkedin.com/jobs/view/123",
         notes:
-          "Principal Security Engineer at Example Co\nhttps://www.linkedin.com/jobs/view/123",
+          "Principal Security Engineer at Example Co\nhttps://www.linkedin.com/jobs/view/123\nli_at=[REDACTED]",
       }),
     );
   });

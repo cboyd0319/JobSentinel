@@ -153,7 +153,7 @@ test.describe("Settings Save and Load", () => {
       ).toHaveValue("Example Co");
       await expect(
         settingsPage.dialog.getByRole("textbox", { name: "Job link", exact: true }),
-      ).toHaveValue("https://www.linkedin.com/jobs/view/123?token=secret");
+      ).toHaveValue("https://www.linkedin.com/jobs/view/123");
 
       await logAppliedButton.click();
       await expect(page.getByText("Application logged")).toBeVisible();

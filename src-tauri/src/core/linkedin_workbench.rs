@@ -7,11 +7,14 @@
 use crate::core::ats::{ApplicationStatus, ApplicationTracker};
 use crate::core::db::{Database, Job};
 use crate::core::job_hash::calculate_job_hash;
-use crate::core::url_security::canonicalize_user_supplied_job_url;
+use crate::core::url_security::{canonicalize_user_supplied_job_url, sanitize_url_for_logging};
 use anyhow::Result;
 use chrono::Utc;
+use once_cell::sync::Lazy;
+use regex::{Captures, Regex};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
+use url::Url;
 use uuid::Uuid;
 
 const DEFAULT_LINKEDIN_URL: &str = "https://www.linkedin.com/jobs/";
@@ -22,6 +25,21 @@ const SOURCE: &str = "LinkedIn";
 const MAX_TITLE_CHARS: usize = 500;
 const MAX_COMPANY_CHARS: usize = 200;
 const MAX_NOTE_CHARS: usize = 5_000;
+const SENSITIVE_NOTE_FIELD_REPLACEMENT: &str = "[removed]";
+
+#[allow(clippy::expect_used)]
+static NOTE_URL_REGEX: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r#"https?://[^\s"'<>\\)]+"#).expect("note URL regex must compile"));
+#[allow(clippy::expect_used)]
+static LINKEDIN_COOKIE_REGEX: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r"li_at=[^\s;]+").expect("LinkedIn cookie regex must compile"));
+#[allow(clippy::expect_used)]
+static SENSITIVE_NOTE_FIELD_REGEX: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(
+        r#"(?i)\b(access_token|refresh_token|api[_-]?key|token|secret|password|session|auth|credential)=([^\s&"'<>\\)]+)"#,
+    )
+    .expect("sensitive note field regex must compile")
+});
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
@@ -64,7 +82,7 @@ pub async fn record_event(
         .unwrap_or_else(|| DEFAULT_TITLE.to_string());
     let company = trim_to_limit(input.company.as_deref(), MAX_COMPANY_CHARS)
         .unwrap_or_else(|| DEFAULT_COMPANY.to_string());
-    let notes = trim_to_limit(input.notes.as_deref(), MAX_NOTE_CHARS);
+    let notes = sanitize_workbench_notes(input.notes.as_deref());
     let user_url = input
         .url
         .as_deref()
@@ -72,7 +90,7 @@ pub async fn record_event(
         .filter(|value| !value.is_empty());
     let needs_url = user_url.is_none();
     let url = match user_url {
-        Some(value) => canonicalize_user_supplied_job_url(value).map_err(anyhow::Error::msg)?,
+        Some(value) => canonicalize_workbench_url(value).map_err(anyhow::Error::msg)?,
         None if event_type == LinkedInWorkbenchEventType::Applied => {
             DEFAULT_APPLIED_URL.to_string()
         }
@@ -197,6 +215,57 @@ fn status_for_event(event_type: &LinkedInWorkbenchEventType) -> &'static str {
     }
 }
 
+fn canonicalize_workbench_url(value: &str) -> Result<String, String> {
+    let canonical = canonicalize_user_supplied_job_url(value)?;
+    let Ok(mut parsed) = Url::parse(&canonical) else {
+        return Ok(canonical);
+    };
+
+    if parsed.host_str().is_some_and(|host| {
+        host.eq_ignore_ascii_case("linkedin.com") || host.ends_with(".linkedin.com")
+    }) {
+        parsed.set_query(None);
+        parsed.set_fragment(None);
+        return Ok(parsed.to_string());
+    }
+
+    Ok(canonical)
+}
+
+fn sanitize_workbench_notes(value: Option<&str>) -> Option<String> {
+    let trimmed = value?.trim();
+    if trimmed.is_empty() {
+        return None;
+    }
+
+    let without_cookies = LINKEDIN_COOKIE_REGEX
+        .replace_all(trimmed, "li_at=[REDACTED]")
+        .to_string();
+    let without_sensitive_fields = SENSITIVE_NOTE_FIELD_REGEX
+        .replace_all(&without_cookies, |captures: &Captures<'_>| {
+            format!(
+                "{}={}",
+                captures.get(1).map_or("value", |value| value.as_str()),
+                SENSITIVE_NOTE_FIELD_REPLACEMENT
+            )
+        })
+        .to_string();
+    let without_sensitive_urls = NOTE_URL_REGEX
+        .replace_all(&without_sensitive_fields, |captures: &Captures<'_>| {
+            let raw_url = captures.get(0).map_or("", |value| value.as_str());
+            canonicalize_workbench_url(raw_url)
+                .unwrap_or_else(|_| sanitize_url_for_logging(raw_url))
+        })
+        .to_string();
+
+    Some(
+        without_sensitive_urls
+            .chars()
+            .take(MAX_NOTE_CHARS)
+            .collect(),
+    )
+}
+
 fn trim_to_limit(value: Option<&str>, limit: usize) -> Option<String> {
     let trimmed = value?.trim();
     if trimmed.is_empty() {
@@ -305,5 +374,38 @@ mod tests {
         assert!(result.hidden);
         let job = db.get_job_by_hash(&result.job_hash).await.unwrap().unwrap();
         assert!(job.hidden);
+    }
+
+    #[tokio::test]
+    async fn notes_remove_linkedin_session_material_before_storage() {
+        let db = memory_db().await;
+
+        let result = record_event(
+            &db,
+            LinkedInWorkbenchEventInput {
+                event_type: LinkedInWorkbenchEventType::Applied,
+                title: Some("Principal Security Engineer".to_string()),
+                company: Some("Example Co".to_string()),
+                url: Some(
+                    "https://www.linkedin.com/jobs/view/123?currentJobId=123&token=secret"
+                        .to_string(),
+                ),
+                notes: Some(
+                    "Saved from https://www.linkedin.com/jobs/view/123?token=secret li_at=raw-cookie session=abc"
+                        .to_string(),
+                ),
+            },
+        )
+        .await
+        .unwrap();
+
+        let job = db.get_job_by_hash(&result.job_hash).await.unwrap().unwrap();
+        assert_eq!(job.url, "https://www.linkedin.com/jobs/view/123");
+        let notes = job.notes.unwrap_or_default();
+        assert!(notes.contains("https://www.linkedin.com/jobs/view/123"));
+        assert!(notes.contains("li_at=[REDACTED]"));
+        assert!(notes.contains("session=[removed]"));
+        assert!(!notes.contains("token=secret"));
+        assert!(!notes.contains("raw-cookie"));
     }
 }

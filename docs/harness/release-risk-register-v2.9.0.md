@@ -118,6 +118,8 @@ copies, pastes, or sends selected text into JobSentinel. For restricted sites,
 JobSentinel must not read hidden page content, DOM, accessibility trees,
 screenshots, browser storage, or network traffic to fill the ledger. Prefilled
 fields remain suggestions until the user confirms them.
+Workbench notes derived from pasted or selected text must remove session-like
+URL query fields, cookies, and token-like fields before local storage.
 
 Intent and interest learning is allowed from local JobSentinel actions: saved
 jobs, manual ledger events, thumbs up/down, dismissed jobs, search terms, user

@@ -1028,7 +1028,8 @@ describe("mock Tauri handlers", () => {
           title: "Principal Security Engineer",
           company: "Example Co",
           url: "https://www.linkedin.com/jobs/view/123?token=secret",
-          notes: "User clicked Log applied.",
+          notes:
+            "User clicked Log applied from https://www.linkedin.com/jobs/view/123?token=secret li_at=raw-cookie.",
         },
       },
     );
@@ -1056,7 +1057,8 @@ describe("mock Tauri handlers", () => {
           company: "Example Co",
           url: "https://www.linkedin.com/jobs/view/123",
           bookmarked: true,
-          notes: "User clicked Log applied.",
+          notes:
+            "User clicked Log applied from https://www.linkedin.com/jobs/view/123 li_at=[REDACTED]",
         }),
       ]),
     );

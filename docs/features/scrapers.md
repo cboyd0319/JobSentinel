@@ -98,7 +98,8 @@ details, selected text the user sends to JobSentinel, or previously confirmed
 local records. For restricted authenticated sites, do not prefill by reading
 page DOM, network traffic, browser storage, accessibility trees, screenshots,
 or hidden browser state. Prefilled values remain suggestions until the user
-confirms them.
+confirms them. Pasted Workbench notes must remove session-like URL query
+fields, cookies, and token-like fields before local storage.
 
 Interest learning should use local JobSentinel signals first: saved jobs,
 manual ledger events, search terms, dismissed jobs, notes, profile preferences,

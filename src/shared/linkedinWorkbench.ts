@@ -20,6 +20,34 @@ export interface LinkedInWorkbenchPrefill {
   notes: string;
 }
 
+const STRIPPED_WORKBENCH_QUERY_KEYS = new Set([
+  "fbclid",
+  "gclid",
+  "igshid",
+  "mc_cid",
+  "mc_eid",
+  "msclkid",
+  "origin",
+  "origintolandingjobpostings",
+  "ref",
+  "referrer",
+  "referralsearchid",
+  "source",
+]);
+const SENSITIVE_WORKBENCH_QUERY_MARKERS = [
+  "token",
+  "session",
+  "auth",
+  "credential",
+  "password",
+  "email",
+  "candidate",
+];
+const URL_PATTERN = /https?:\/\/[^\s"'<>\\)]+/gi;
+const LINKEDIN_COOKIE_PATTERN = /li_at=[^\s;]+/gi;
+const SENSITIVE_NOTE_FIELD_PATTERN =
+  /\b(access_token|refresh_token|api[_-]?key|token|secret|password|session|auth|credential)=([^\s&"'<>\\)]+)/gi;
+
 export function defaultLinkedInWorkbenchPrefill(): LinkedInWorkbenchPrefill {
   return {
     title: "",
@@ -39,16 +67,66 @@ export function parseUserProvidedLinkedInText(text: string): LinkedInWorkbenchPr
     .split(/\r?\n/)
     .map((line) => line.trim())
     .filter(Boolean);
-  const url = extractFirstHttpsUrl(cleaned);
-  const nonUrlLines = lines.filter((line) => line !== url);
+  const rawUrl = extractFirstHttpsUrl(cleaned);
+  const url = rawUrl ? sanitizeLinkedInWorkbenchUrl(rawUrl) : "";
+  const nonUrlLines = lines.filter((line) => line !== rawUrl);
   const titleAndCompany = splitTitleAndCompany(nonUrlLines[0] ?? "");
 
   return {
     title: titleAndCompany.title,
     company: titleAndCompany.company || nonUrlLines[1] || "",
     url,
-    notes: cleaned,
+    notes: sanitizeLinkedInWorkbenchTextForStorage(cleaned),
   };
+}
+
+export function sanitizeLinkedInWorkbenchTextForStorage(text: string): string {
+  const withoutCookies = text.replace(LINKEDIN_COOKIE_PATTERN, "li_at=[REDACTED]");
+  const withoutSensitiveFields = withoutCookies.replace(
+    SENSITIVE_NOTE_FIELD_PATTERN,
+    (_match, key: string) => `${key}=[removed]`,
+  );
+
+  return withoutSensitiveFields.replace(URL_PATTERN, (url) =>
+    sanitizeLinkedInWorkbenchUrl(url),
+  );
+}
+
+export function sanitizeLinkedInWorkbenchUrl(value: string): string {
+  const trimmed = value.trim().replace(/[),.;]+$/, "");
+  if (!trimmed) {
+    return "";
+  }
+
+  try {
+    const parsed = new URL(trimmed);
+    parsed.username = "";
+    parsed.password = "";
+    parsed.hash = "";
+
+    for (const key of Array.from(parsed.searchParams.keys())) {
+      const normalized = key.toLowerCase();
+      const values = parsed.searchParams.getAll(key);
+      if (
+        normalized.startsWith("utm_") ||
+        STRIPPED_WORKBENCH_QUERY_KEYS.has(normalized) ||
+        SENSITIVE_WORKBENCH_QUERY_MARKERS.some((marker) =>
+          normalized.includes(marker),
+        ) ||
+        values.some(isSensitiveWorkbenchQueryValue)
+      ) {
+        parsed.searchParams.delete(key);
+      }
+    }
+
+    if (parsed.hostname === "linkedin.com" || parsed.hostname.endsWith(".linkedin.com")) {
+      parsed.search = "";
+    }
+
+    return parsed.toString();
+  } catch {
+    return trimmed;
+  }
 }
 
 export function shouldShowLinkedInWorkbenchPrivacyReminder(
@@ -65,6 +143,20 @@ export function shouldShowLinkedInWorkbenchPrivacyReminder(
 function extractFirstHttpsUrl(text: string): string {
   const match = text.match(/https:\/\/[^\s<>"']+/i);
   return match?.[0]?.replace(/[),.;]+$/, "") ?? "";
+}
+
+function isSensitiveWorkbenchQueryValue(value: string): boolean {
+  try {
+    new URL(value);
+    return true;
+  } catch {
+    const normalized = value.toLowerCase();
+    return SENSITIVE_WORKBENCH_QUERY_MARKERS.some(
+      (marker) =>
+        normalized.includes(`${marker}=`) ||
+        normalized.includes(`${marker}%3d`),
+    );
+  }
 }
 
 function splitTitleAndCompany(line: string): Pick<LinkedInWorkbenchPrefill, "title" | "company"> {

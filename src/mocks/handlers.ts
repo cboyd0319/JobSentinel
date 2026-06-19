@@ -74,6 +74,10 @@ import {
   getMockSalaryBenchmark,
 } from "./handlers/salary";
 import {
+  sanitizeLinkedInWorkbenchTextForStorage,
+  sanitizeLinkedInWorkbenchUrl,
+} from "../shared/linkedinWorkbench";
+import {
   getDefaultMarketAlerts,
   getMockActiveCompanies,
   getMockHottestLocations,
@@ -553,6 +557,8 @@ function recordMockLinkedInWorkbenchEvent(args?: Record<string, unknown>) {
   const company =
     trimMockWorkbenchText(input.company, 200) ?? LINKEDIN_WORKBENCH_DEFAULT_COMPANY;
   const notes = trimMockWorkbenchText(input.notes, 5_000);
+  const sanitizedNotes =
+    notes === undefined ? undefined : sanitizeLinkedInWorkbenchTextForStorage(notes);
   const rawUrl = trimMockWorkbenchText(input.url, 2_000);
   const url = rawUrl
     ? canonicalizeMockWorkbenchUrl(rawUrl)
@@ -598,7 +604,7 @@ function recordMockLinkedInWorkbenchEvent(args?: Record<string, unknown>) {
     source: "linkedin",
     hidden: existingJob?.hidden === true || hidden,
     bookmarked: existingJob?.bookmarked === true || shouldBookmark,
-    notes: notes ?? existingJob?.notes ?? null,
+    notes: sanitizedNotes ?? existingJob?.notes ?? null,
   };
 
   jobs = existingJob
@@ -667,10 +673,7 @@ function canonicalizeMockWorkbenchUrl(rawUrl: string): string {
     throw new Error("This LinkedIn job link is not safe to save");
   }
 
-  const url = new URL(rawUrl);
-  url.search = "";
-  url.hash = "";
-  return url.toString();
+  return sanitizeLinkedInWorkbenchUrl(rawUrl);
 }
 
 function mockLinkedInWorkbenchHash(
