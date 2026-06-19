@@ -1,4 +1,6 @@
 export const RESTRICTED_JOB_SOURCE_DOMAINS = [
+  "builtin.com",
+  "builtincolorado.com",
   "careerbuilder.com",
   "clearancejobs.com",
   "cv-library.co.uk",
@@ -23,7 +25,7 @@ export const RESTRICTED_JOB_SOURCE_DOMAINS = [
 ] as const;
 
 export const RESTRICTED_JOB_SOURCE_WARNING =
-  "Some job sites, including LinkedIn, Indeed, Glassdoor, Monster, ZipRecruiter, Naukri, and similar boards, say third-party software that scrapes, modifies, or automates activity can violate their User Agreement or terms, may lead to account restrictions or legal claims, and may raise privacy-law concerns. Do not bypass login walls, human checks, platform controls, or another person's privacy.";
+  "Some job sites, including LinkedIn, Indeed, Glassdoor, Monster, ZipRecruiter, Built In, Naukri, and similar boards, say third-party software that scrapes, modifies, or automates activity can violate their User Agreement or terms, may lead to account restrictions or legal claims, and may raise privacy-law concerns. Do not bypass login walls, human checks, platform controls, or another person's privacy.";
 
 export const RESTRICTED_SCHEDULED_JOB_SOURCES = [
   {

@@ -232,13 +232,53 @@ fn test_job_url_construction_from_api() {
     let company_id = "cityhealthdepartment";
     let job_id = 987654;
     let url = format!(
-        "https://boards.greenhouse.io/{}/jobs/{}",
+        "https://job-boards.greenhouse.io/{}/jobs/{}",
         company_id, job_id
     );
 
     assert_eq!(
         url,
-        "https://boards.greenhouse.io/cityhealthdepartment/jobs/987654"
+        "https://job-boards.greenhouse.io/cityhealthdepartment/jobs/987654"
+    );
+}
+
+#[test]
+fn test_api_absolute_url_takes_precedence() {
+    let job_data: serde_json::Value = serde_json::json!({
+        "id": 7687193003_i64,
+        "title": "Account Executive, Commercial",
+        "absolute_url": "https://www.fivetran.com/careers/job?gh_jid=7687193003",
+        "location": {
+            "name": "Denver, Colorado, United States"
+        }
+    });
+
+    let company_id = "fivetran";
+    let job_id = job_data["id"].as_i64().unwrap_or(0);
+    let url = GreenhouseScraper::api_job_url(company_id, job_id, &job_data);
+
+    assert_eq!(
+        url,
+        "https://www.fivetran.com/careers/job?gh_jid=7687193003"
+    );
+}
+
+#[test]
+fn test_api_url_falls_back_when_absolute_url_is_unsafe() {
+    let job_data: serde_json::Value = serde_json::json!({
+        "id": 7687193003_i64,
+        "title": "Account Executive, Commercial",
+        "absolute_url": "file:///private/job",
+        "location": {
+            "name": "Denver, Colorado, United States"
+        }
+    });
+
+    let url = GreenhouseScraper::api_job_url("fivetran", 7687193003, &job_data);
+
+    assert_eq!(
+        url,
+        "https://job-boards.greenhouse.io/fivetran/jobs/7687193003"
     );
 }
 

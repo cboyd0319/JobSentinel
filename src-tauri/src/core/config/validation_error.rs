@@ -317,7 +317,7 @@ impl fmt::Display for ValidationError {
                 if field.contains("greenhouse") {
                     write!(
                         f,
-                        "Invalid Greenhouse URL format. Must be 'https://boards.greenhouse.io/<company>'. Got: {}",
+                        "Invalid Greenhouse URL format. Must be 'https://job-boards.greenhouse.io/<company>' or 'https://boards.greenhouse.io/<company>'. Got: {}",
                         sanitize_url_for_logging(url)
                     )
                 } else if field.contains("lever") {

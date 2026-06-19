@@ -8,12 +8,20 @@ pub struct CompanyBoardUrl {
     pub url: String,
 }
 
+const GREENHOUSE_BOARD_HOSTS: &[&str] = &["boards.greenhouse.io", "job-boards.greenhouse.io"];
+const CURRENT_GREENHOUSE_BOARD_HOST: &str = "job-boards.greenhouse.io";
+
 pub fn parse_greenhouse_company_url(value: &str) -> Result<CompanyBoardUrl, String> {
-    parse_company_board_url(value, "boards.greenhouse.io", "Greenhouse")
+    parse_company_board_url(
+        value,
+        GREENHOUSE_BOARD_HOSTS,
+        "Greenhouse",
+        CURRENT_GREENHOUSE_BOARD_HOST,
+    )
 }
 
 pub fn parse_lever_company_url(value: &str) -> Result<CompanyBoardUrl, String> {
-    parse_company_board_url(value, "jobs.lever.co", "Lever")
+    parse_company_board_url(value, &["jobs.lever.co"], "Lever", "jobs.lever.co")
 }
 
 pub fn is_safe_company_board_id(value: &str) -> bool {
@@ -25,8 +33,9 @@ pub fn is_safe_company_board_id(value: &str) -> bool {
 
 fn parse_company_board_url(
     value: &str,
-    expected_host: &str,
+    expected_hosts: &[&str],
     source_label: &str,
+    canonical_host: &str,
 ) -> Result<CompanyBoardUrl, String> {
     let value = value.trim();
     let lowered = value.to_ascii_lowercase();
@@ -58,8 +67,9 @@ fn parse_company_board_url(
         .ok_or_else(|| format!("{source_label} URL must include a host"))?
         .trim_end_matches('.')
         .to_ascii_lowercase();
-    if host != expected_host {
-        return Err(format!("{source_label} URL must use host {expected_host}"));
+    if !expected_hosts.contains(&host.as_str()) {
+        let allowed = expected_hosts.join(" or ");
+        return Err(format!("{source_label} URL must use host {allowed}"));
     }
 
     if parsed.query().is_some() || parsed.fragment().is_some() {
@@ -90,7 +100,7 @@ fn parse_company_board_url(
 
     Ok(CompanyBoardUrl {
         id: id.to_string(),
-        url: format!("https://{expected_host}/{id}"),
+        url: format!("https://{canonical_host}/{id}"),
     })
 }
 
@@ -109,10 +119,19 @@ mod tests {
         assert_eq!(greenhouse.id, "community-care_network");
         assert_eq!(
             greenhouse.url,
-            "https://boards.greenhouse.io/community-care_network"
+            "https://job-boards.greenhouse.io/community-care_network"
         );
         assert_eq!(lever.id, "freshmart-123");
         assert_eq!(lever.url, "https://jobs.lever.co/freshmart-123");
+    }
+
+    #[test]
+    fn parses_current_greenhouse_host() {
+        let greenhouse = parse_greenhouse_company_url("https://job-boards.greenhouse.io/primerai/")
+            .expect("current Greenhouse board URL should parse");
+
+        assert_eq!(greenhouse.id, "primerai");
+        assert_eq!(greenhouse.url, "https://job-boards.greenhouse.io/primerai");
     }
 
     #[test]

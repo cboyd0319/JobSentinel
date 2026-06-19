@@ -27,6 +27,15 @@ fn test_invalid_greenhouse_url_prefix_fails() {
 }
 
 #[test]
+fn test_current_greenhouse_url_prefix_passes() {
+    let mut config = create_valid_config();
+    config.greenhouse_urls = vec!["https://job-boards.greenhouse.io/primerai".to_string()];
+
+    let result = validate_config(&config);
+    assert!(result.is_ok(), "Current Greenhouse board URL should pass");
+}
+
+#[test]
 fn test_greenhouse_url_authority_confusion_fails() {
     let mut config = create_valid_config();
     config.greenhouse_urls = vec!["https://boards.greenhouse.io@127.0.0.1/company".to_string()];

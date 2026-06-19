@@ -14,18 +14,18 @@ JobSentinel does not encourage terms violations, collect restricted-site login
 details, save session cookies, bypass human checks, call private systems, or
 read restricted pages in hidden background jobs.
 
-The warning must be prominent in the UI and public docs because non-technical
-users should not need to understand source internals to make an informed
-choice. The secure path is the easy path: official feeds first, user-opened and
-reviewed paths next, restricted automation only after explicit local
-acknowledgement.
+The warning must be prominent in the UI and public docs because users should
+not need to understand source internals to make an informed choice. The secure
+path is the easy path: official feeds first, user-opened and reviewed paths
+next, restricted automation only after explicit local acknowledgement.
 
 ## Source Model
 
 | Category | Sources |
 | -------- | ------- |
-| Scheduled job checks | Greenhouse, Lever, RemoteOK, WeWorkRemotely, BuiltIn, startup and tech job posts, JobsWithGPT, Dice, YC Startup Jobs, USAJobs, SimplyHired, Glassdoor |
+| Scheduled job checks | Greenhouse, Lever, RemoteOK, WeWorkRemotely, BuiltIn, community hiring posts, JobsWithGPT, Dice, YC Startup Jobs, USAJobs, SimplyHired, Glassdoor |
 | Source-check helpers | Scheduled job checks plus Indeed, Wellfound, and ZipRecruiter availability checks |
+| Company careers discovery | Employer careers pages that JobSentinel can classify before choosing a safe source path |
 | User-opened search links | LinkedIn and other destination links opened by the user |
 | Preferred expansion path | Official company career pages and public hiring-platform sources such as Greenhouse, Lever, Ashby, Workable, SmartRecruiters, and USAJobs |
 
@@ -49,6 +49,34 @@ fit the scheduled source-check model. A helper library may be considered only
 when JobSentinel still controls which pages are read, how often they are read,
 how much page data is accepted, and what user-safe message appears when the
 source blocks access.
+
+## Company Careers Discovery
+
+Many strong employer postings never appear cleanly on stock job boards. A user
+should be able to paste or open an employer careers page, such as a company
+careers URL, and have JobSentinel classify it before deciding what to do next.
+
+The discovery order is:
+
+1. Detect public ATS or official API signals such as Greenhouse, Lever, Ashby,
+   SmartRecruiters, Workable, Workday, Breezy, JazzHR, Bullhorn, Eightfold,
+   iCIMS, Jobvite, Teamtailor, Recruitee, Taleo, SAP SuccessFactors, Oracle
+   Recruiting, or Phenom.
+2. Normalize to a native scheduled source only when the public endpoint and
+   source terms are reviewed.
+3. Offer a user-opened search link, pasted job link import, Browser Import, or
+   manual entry when the employer page is custom, restricted, blocked, or still
+   under review.
+
+Examples from the 2026-06-19 source pass:
+
+| Employer page | Discovery result |
+| ------------- | ---------------- |
+| Fivetran careers | Greenhouse board `fivetran`; keep the employer job links shown by the source |
+| Primer AI Greenhouse board | Greenhouse board `primerai` on the current `job-boards.greenhouse.io` host |
+| SpaceX careers | Custom page, but public Greenhouse board `spacex` exists behind it |
+| Google, Yahoo, IBM, and Microsoft company pages | Open in the user browser while safer handling is reviewed |
+| LinkedIn company jobs | User-gated restricted discovery only; no silent scheduled discovery or session capture |
 
 ## How Job Checks Work
 
@@ -99,7 +127,7 @@ Representative source pacing:
 | Lever | High | Official public postings |
 | USAJobs | High | Official source with user-provided access code |
 | RemoteOK | Medium | Public job feed |
-| Startup and tech job posts | Medium | Public/community source |
+| Community hiring posts | Medium | Public/community source |
 | Dice | Medium | Public job feed |
 | WeWorkRemotely | Moderate | Public feed/page |
 | BuiltIn | Moderate | Public page |
@@ -130,7 +158,7 @@ claims that source is ready:
   or session-cookie capture.
 - Live or manual source checks must be opt-in, low-volume, and recorded with
   date, source, platform, result, and user-safe recovery guidance.
-- If a source blocks access, JobSentinel should show a non-technical next step:
+- If a source blocks access, JobSentinel should show a plain next step:
   try later, use a search link, import one job from the browser, open the
   employer career page, or add the job manually.
 

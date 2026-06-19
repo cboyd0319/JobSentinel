@@ -26,6 +26,14 @@ This brief condenses research and source-governance guidance for job monitoring.
   graph data, login-only pages, or restricted content.
 - Track source health and source confidence in plain language.
 - Record source, fetch date, canonical URL, and closure evidence.
+- Add a company-careers discovery layer before adding custom scrapers. When a
+  user provides or discovers an employer careers page, first detect whether it
+  maps to a public hiring platform, official feed, or restricted board, then
+  route to the safest available path.
+- Keep source candidates, platform families, regional boards, access models,
+  and career-profile coverage centralized in
+  `src/shared/jobSourceDiscoveryTaxonomy.ts` so source discovery can grow
+  without hard-coding source lists in UI components or docs-only notes.
 - Keep parser resilience inside the existing source-adapter boundaries. The
   Scrapling Rust core can parse already-fetched HTML, but adopting it is not
   justified while JobSentinel already pins `scraper` and `quick-xml`; Scrapling
@@ -84,8 +92,48 @@ insufficient.
 | Official API or feed | Native scheduled source | USAJobs, Adzuna, Reed, Remotive, official RSS or JSON feeds | API key or source setup plus any required attribution or rate limit |
 | Public ATS postings | Native scheduled source | Greenhouse, Lever, Ashby, Workable, SmartRecruiters | No restricted-source acknowledgement unless terms or access controls require one |
 | Public community source | Native scheduled source with conservative rate limits | Hacker News hiring posts, YC job listings, We Work Remotely, RemoteOK | Normal source opt-in |
-| Restricted board | Search link, pasted individual job link, Browser Import, or explicitly acknowledged scheduled check | LinkedIn, Indeed, Glassdoor, Monster, ZipRecruiter, Dice, Naukri, Shine, Foundit, CV-Library, Totaljobs, Wellfound, FlexJobs, ClearanceJobs | Prominent warning and explicit local acknowledgement before the risky action |
+| Employer career system | Company discovery first, then native adapter only if a public endpoint is stable | SpaceX, Fivetran, Google, Yahoo, IBM, Microsoft, other direct employer career pages | Normal source opt-in when public; restricted warning when access model is unclear or account-adjacent |
+| Restricted board | Search link, pasted individual job link, Browser Import, or explicitly acknowledged scheduled check | LinkedIn, Indeed, Glassdoor, Monster, ZipRecruiter, Built In, Dice, Naukri, Shine, Foundit, CV-Library, Totaljobs, Wellfound, FlexJobs, ClearanceJobs | Prominent warning and explicit local acknowledgement before the risky action |
 | Unknown or changing source | Manual entry or search link until reviewed | New country or niche boards | Treat as restricted until source terms, robots policy, rate limits, and practical access are reviewed |
+
+## Company-Careers Discovery Examples
+
+The 2026-06-19 source pass found that employer pages can hide a safe public ATS
+source behind custom JavaScript. JobSentinel should make that discovery easy for
+non-technical users instead of expecting them to know the ATS vendor or board
+token.
+
+| Employer URL | Observed source family | Recommended JobSentinel path |
+| ------------ | ---------------------- | ---------------------------- |
+| `https://www.fivetran.com/careers#jobs` | Greenhouse public board API, board `fivetran`; canonical job URLs point back to Fivetran careers pages | Detect and normalize to Greenhouse native source; preserve Greenhouse `absolute_url` |
+| `https://job-boards.greenhouse.io/primerai` | Current Greenhouse hosted board, board `primerai` | Accept current `job-boards.greenhouse.io` host and use Greenhouse API first |
+| `https://www.spacex.com/careers` | Custom Angular employer page with public Greenhouse board `spacex` | Detect Greenhouse board and use native Greenhouse API instead of scraping the custom frontend |
+| `https://builtin.com/jobs`, state/city filters such as `?state=California&country=USA&allLocations=true`, and `https://www.builtincolorado.com/jobs` | Restricted Built In network, location-filtered searches, and regional city job boards with custom data and filtering | Keep user-gated restricted source path; prefer employer-career follow-through after the user reviews a role |
+| `https://www.linkedin.com/company/fivetran/jobs/` and search-results URLs with `keywords`, `geoId`, `f_TPR`, or `f_AL` filters | Restricted LinkedIn jobs and company jobs pages | User-gated restricted discovery only; preserve user-entered query intent and selected filters, but do not persist referral, origin, landing-job, or other session-like identifiers |
+| `https://www.linkedin.com/jobs-tracker/?stage=applied` | Restricted LinkedIn Jobs Tracker for user-reviewed jobs | User-gated restricted tracking only for jobs the user already saved or applied to; no broad background discovery, login capture, session-cookie storage, or hidden background access |
+| LinkedIn Jobs home anchors for Preferences, Job tracker, and My Career Insights | Restricted LinkedIn navigation surfaces | User-opened navigation only; use these to help a user reach the right LinkedIn area, not as stored source-query or session state |
+| `https://www.google.com/about/careers/applications/?hl=en_US` | Google proprietary career system | User-opened employer search until a stable public endpoint is reviewed |
+| `https://www.yahooinc.com/careers/` | Yahoo custom career site with server-rendered search pages | User-opened employer search or source-specific adapter after endpoint and terms review |
+| `https://www.ibm.com/careers/search` | IBM proprietary career search with additional career-domain links | User-opened employer search until a stable public endpoint is reviewed |
+| `https://careers.microsoft.com/v2/global/en/home.html` | Microsoft career site backed by Eightfold career platform surfaces | Treat as employer career system; native adapter only after Eightfold endpoint and terms review |
+
+Candidate platform families for the discovery registry include Greenhouse,
+Workday, SmartRecruiters, Lever, Ashby, Breezy, JazzHR, Bullhorn, Workable,
+Teamtailor, Recruitee, Jobvite, iCIMS, Taleo, Eightfold, SAP SuccessFactors,
+Oracle Recruiting, Phenom, and employer-owned custom systems. Greenhouse,
+Lever, Ashby, and SmartRecruiters remain the first native expansion targets
+because they commonly expose public posting APIs. Workday, Eightfold, Bullhorn,
+JazzHR, and other enterprise systems need source-specific proof before scheduled
+checks ship.
+
+Regional and local boards are first-class source-discovery candidates, not
+one-off hard-coded hostnames. This includes Built In city pages, state workforce
+job banks, city and county career pages, local chambers of commerce, economic
+development boards, local newspaper job boards, industry associations, and
+sector-specific local sources for retail, hospitality, trades, healthcare,
+education, legal, creative, finance, and HR roles. Treat these sources as
+review-required or restricted until the specific source terms, structure, and
+rate limits are recorded.
 
 Expansion work for UK, India, and other markets should add sources only after
 this classification is recorded. New native adapters need fixtures, rate-limit

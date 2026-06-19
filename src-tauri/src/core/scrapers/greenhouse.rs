@@ -10,7 +10,7 @@ use super::{JobScraper, ScraperResult};
 use crate::core::calculate_job_hash;
 use crate::core::db::Job;
 use crate::core::source_urls::{is_safe_company_board_id, parse_greenhouse_company_url};
-use crate::core::url_security::sanitize_url_for_logging;
+use crate::core::url_security::{canonicalize_user_supplied_job_url, sanitize_url_for_logging};
 use async_trait::async_trait;
 use chrono::Utc;
 use scraper::{Html, Selector};
@@ -60,8 +60,38 @@ impl GreenhouseScraper {
             });
         }
 
-        // Fetch the careers page with retry logic
-        let response = get_with_retry(&board.url)
+        let api_result = self.scrape_greenhouse_api(company).await;
+        let mut jobs = match api_result {
+            Ok(jobs) => jobs,
+            Err(error) => {
+                tracing::warn!(
+                    source = "greenhouse",
+                    url = %sanitize_url_for_logging(&company.url),
+                    "Greenhouse API scrape failed; trying hosted board HTML fallback"
+                );
+                if let Ok(html_jobs) = self.scrape_greenhouse_html(company, &board.url).await {
+                    if !html_jobs.is_empty() {
+                        return Ok(html_jobs);
+                    }
+                }
+                return Err(error);
+            }
+        };
+
+        if jobs.is_empty() {
+            jobs = self.scrape_greenhouse_html(company, &board.url).await?;
+        }
+
+        tracing::info!("Found {} jobs from {}", jobs.len(), company.name);
+        Ok(jobs)
+    }
+
+    async fn scrape_greenhouse_html(
+        &self,
+        company: &GreenhouseCompany,
+        board_url: &str,
+    ) -> ScraperResult {
+        let response = get_with_retry(board_url)
             .await
             .map_err(|e| ScraperError::from_anyhow("greenhouse", e))?;
 
@@ -69,16 +99,16 @@ impl GreenhouseScraper {
             tracing::error!("HTTP error {} from Greenhouse", response.status());
             return Err(ScraperError::http_status(
                 response.status().as_u16(),
-                &company.url,
+                board_url,
                 format!("HTTP {} from Greenhouse", response.status()),
             ));
         }
 
-        let html = read_text_with_limit(response, &board.url).await?;
+        let html = read_text_with_limit(response, board_url).await?;
 
         // Try multiple selector patterns (Greenhouse has different layouts)
         // Parse HTML in a scope so document is dropped before any awaits
-        let mut jobs = {
+        let jobs = {
             let document = Html::parse_document(&html);
 
             // Pre-allocate with reasonable capacity
@@ -107,12 +137,6 @@ impl GreenhouseScraper {
             parsed_jobs
         }; // document is dropped here
 
-        // Pattern 3: API fallback (boards.greenhouse.io/company/jobs?format=json)
-        if jobs.is_empty() {
-            jobs = self.scrape_greenhouse_api(company).await?;
-        }
-
-        tracing::info!("Found {} jobs from {}", jobs.len(), company.name);
         Ok(jobs)
     }
 
@@ -236,10 +260,7 @@ impl GreenhouseScraper {
             for job_data in jobs_array {
                 let title = job_data["title"].as_str().unwrap_or("").to_string();
                 let job_id = job_data["id"].as_i64().unwrap_or(0);
-                let url = format!(
-                    "https://boards.greenhouse.io/{}/jobs/{}",
-                    company_id, job_id
-                );
+                let url = Self::api_job_url(company_id, job_id, job_data);
                 let location = job_data["location"]["name"].as_str().map(|s| s.to_string());
 
                 let hash = Self::compute_hash(&company.name, &title, location.as_deref(), &url);
@@ -285,6 +306,19 @@ impl GreenhouseScraper {
     /// Compute SHA-256 hash for deduplication
     fn compute_hash(company: &str, title: &str, location: Option<&str>, url: &str) -> String {
         calculate_job_hash(company, title, location, url)
+    }
+
+    fn api_job_url(company_id: &str, job_id: i64, job_data: &serde_json::Value) -> String {
+        job_data["absolute_url"]
+            .as_str()
+            .filter(|value| !value.is_empty())
+            .and_then(|value| canonicalize_user_supplied_job_url(value).ok())
+            .unwrap_or_else(|| {
+                format!(
+                    "https://job-boards.greenhouse.io/{}/jobs/{}",
+                    company_id, job_id
+                )
+            })
     }
 }
 
