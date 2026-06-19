@@ -43,6 +43,11 @@ sources before changing restricted-source behavior.
   is a navigation and time-boxing surface, not a scraper, when JobSentinel does
   not inspect page DOM, network traffic, browser storage, cookies, auth headers,
   or drive user actions.
+- User-driven authenticated activity ledger: local records the user explicitly
+  creates during a restricted browser session, such as applied, saved, tracking,
+  rejected, interview, follow-up, or note events. This is not scraping when the
+  event is created by a user action in JobSentinel, stores only user-confirmed
+  fields, and does not silently read or refresh the restricted site.
 - Unknown review-required sources: employer career pages or ATS surfaces without
   reviewed public endpoints. Keep them to user-opened search links, Browser
   Import, pasted single-job links, or manual entry until source-specific terms
@@ -86,7 +91,17 @@ it does not read, extract, capture, or automate LinkedIn pages. JobSentinel may
 open the isolated window, show the timer, provide user-visible navigation links,
 and close the window when the session expires. JobSentinel analysis should run
 after the user brings selected job data back through pasted text, pasted links,
-manual entry, or another separately reviewed import path.
+manual entry, user-confirmed activity ledger entries, or another separately
+reviewed import path.
+
+An activity ledger can make LinkedIn useful without scraping: while the user
+works in the human-controlled session, JobSentinel may show adjacent controls
+such as `Log applied`, `Track this job`, `Saved on LinkedIn`, `Add note`, or
+`Paste job details`. Those controls must be clicked by the user, write only
+local records, and never infer an action from LinkedIn DOM, network traffic,
+storage, screenshots, or hidden browser state. Ghost-job analysis may use the
+local ledger, pasted job details, the user's own prior snapshots, and public
+employer or ATS follow-through, but must not silently refresh LinkedIn.
 
 ### High: restricted job boards can create user account and terms risk
 
