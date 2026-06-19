@@ -107,6 +107,70 @@ test.describe("Settings Save and Load", () => {
       await expect(settingsPage.feedbackButton).toBeVisible();
     });
 
+    test("records LinkedIn Workbench actions from user-reviewed details", async ({ page }) => {
+      const logAppliedButton = settingsPage.dialog.getByRole("button", {
+        name: "Log applied",
+      });
+
+      await expect(settingsPage.dialog).toContainText("LinkedIn Workbench");
+      await expect(logAppliedButton).toBeDisabled();
+
+      await settingsPage.dialog
+        .getByLabel(/I understand\. Remember this on this computer/i)
+        .check();
+
+      await expect(logAppliedButton).toBeEnabled();
+
+      await settingsPage.dialog
+        .getByRole("button", { name: "Open LinkedIn Jobs" })
+        .click();
+      await expect(
+        settingsPage.dialog.getByText(/JobSentinel will not force this session closed/i),
+      ).toBeVisible();
+
+      await settingsPage.dialog
+        .getByRole("button", { name: "Open applied jobs" })
+        .click();
+
+      await settingsPage.dialog.getByLabel(/Paste selected job text/i).fill(
+        [
+          "Principal Security Engineer at Example Co",
+          "https://www.linkedin.com/jobs/view/123?token=secret",
+        ].join("\n"),
+      );
+      await settingsPage.dialog
+        .getByRole("button", { name: "Use pasted details" })
+        .click();
+
+      await expect(
+        settingsPage.dialog.getByRole("textbox", {
+          name: "Job title",
+          exact: true,
+        }),
+      ).toHaveValue("Principal Security Engineer");
+      await expect(
+        settingsPage.dialog.getByRole("textbox", { name: "Company", exact: true }),
+      ).toHaveValue("Example Co");
+      await expect(
+        settingsPage.dialog.getByRole("textbox", { name: "Job link", exact: true }),
+      ).toHaveValue("https://www.linkedin.com/jobs/view/123?token=secret");
+
+      await logAppliedButton.click();
+      await expect(page.getByText("Application logged")).toBeVisible();
+
+      await settingsPage.dialog.getByRole("button", { name: "Save job" }).click();
+      await expect(page.getByText("Job saved")).toBeVisible();
+
+      await settingsPage.dialog.getByRole("button", { name: "Track job" }).click();
+      await expect(page.getByText("Job tracked")).toBeVisible();
+
+      await settingsPage.dialog.getByRole("button", { name: "Add note" }).click();
+      await expect(page.getByText("Note saved")).toBeVisible();
+
+      await settingsPage.dialog.getByRole("button", { name: "Not interested" }).click();
+      await expect(page.getByText("Feedback saved")).toBeVisible();
+    });
+
     test("saves a safe support report from settings @smoke", async ({ page }) => {
       await settingsPage.saveSafeSupportReportButton.click();
 
