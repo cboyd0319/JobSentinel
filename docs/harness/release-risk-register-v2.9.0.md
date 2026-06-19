@@ -57,9 +57,10 @@ access, or external side effects the user did not choose.
   automates, or submits restricted-site content.
 - User-driven authenticated activity ledger: local records the user explicitly
   creates during a restricted browser session, such as applied, saved, tracking,
-  rejected, interview, follow-up, or note events. This is not scraping when the
-  event is created by a user action in JobSentinel, stores only user-confirmed
-  fields, and does not silently read or refresh the restricted site.
+  rejected, interview, follow-up, reminder, or note events. This is not scraping
+  when the event is created by a user action in JobSentinel, stores only
+  user-confirmed fields, and does not silently read or refresh the restricted
+  site.
 - Unknown review-required sources: employer career pages or ATS surfaces without
   reviewed public endpoints. Keep them to user-opened search links, Browser
   Import, pasted single-job links, or manual entry until source-specific terms
@@ -118,11 +119,12 @@ user-confirmed activity ledger entries.
 An activity ledger can make LinkedIn useful without scheduled scraping: while
 the user works in the human-controlled session, JobSentinel may show adjacent
 controls such as `Log applied`, `Track this job`, `Saved on LinkedIn`,
-`Add note`, or `Paste job details`. Those controls must be clicked by the user,
-write only local records, and never infer an action from LinkedIn network
-traffic, storage, screenshots, or hidden browser state. Ghost-job analysis may
-use Browser Import captures, the local ledger, pasted job details, the user's
-own prior snapshots, and public employer or ATS follow-through, but must not
+`Log rejected`, `Log interview`, `Log follow-up`, `Add reminder`, `Add note`,
+or `Paste job details`. Those controls must be clicked by the user, write only
+local records, and never infer an action from LinkedIn network traffic,
+storage, screenshots, or hidden browser state. Ghost-job analysis may use
+Browser Import captures, the local ledger, pasted job details, the user's own
+prior snapshots, and public employer or ATS follow-through, but must not
 silently refresh LinkedIn.
 
 Saved acknowledgements may reduce repeat friction when they stay local and

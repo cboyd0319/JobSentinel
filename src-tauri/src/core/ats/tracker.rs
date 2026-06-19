@@ -262,6 +262,22 @@ impl ApplicationTracker {
         Ok(())
     }
 
+    /// Record a user-confirmed follow-up without storing message body content.
+    pub async fn record_follow_up(&self, application_id: i64) -> Result<()> {
+        self.update_last_contact(application_id).await?;
+        self.log_event(
+            application_id,
+            "email_sent",
+            serde_json::json!({
+                "source": "user_confirmed_follow_up",
+                "has_contact_time": true
+            }),
+        )
+        .await?;
+
+        Ok(())
+    }
+
     /// Add notes to application
     pub async fn add_notes(&self, application_id: i64, notes: &str) -> Result<()> {
         sqlx::query!(

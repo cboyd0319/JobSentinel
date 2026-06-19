@@ -94,7 +94,8 @@ scheduled scraper. It is reachable from Dashboard quick actions and Settings:
 4. The user can click the Browser Import button on a LinkedIn Jobs page to save
    the visible job cards into local job records for review.
 5. JobSentinel shows local controls beside the browser: save, applied, track,
-   note, follow up, not interested, and paste details.
+   rejected, interview, follow up, reminder, note, not interested, and paste
+   details.
 6. JobSentinel stores only visible-page imports and user-confirmed local
    records.
 7. Local analysis runs after the record exists in JobSentinel.
@@ -125,9 +126,10 @@ scraper. The release-safe model is assistive capture:
   action may read the visible posting or visible job cards on the current page.
 - **Queue observations locally.** Captured jobs become local records for review,
   scoring, ghost-job checks, reminders, and resume tailoring.
-- **Keep actions explicit.** Applied, saved, tracking, note, not-interested,
-  interview, follow-up, and rejection events must come from a JobSentinel
-  control, a visible user-approved import, or another explicit user action.
+- **Keep actions explicit.** Applied, saved, tracking, rejected, interview,
+  follow-up, reminder, note, and not-interested events must come from a
+  JobSentinel control, a visible user-approved import, or another explicit user
+  action.
 - **Never read hidden state.** Do not inspect restricted-site cookies, browser
   storage, authorization headers, network traffic, hidden pages, screenshots, or
   background tabs.

@@ -99,6 +99,7 @@ import {
 import type {
   MockApplications,
   MockApplicationProfile,
+  MockApplicationStatus,
   MockBookmarkletConfig,
   MockCoverLetterTemplate,
   MockCredentialKey,
@@ -183,12 +184,7 @@ interface MockInvokeControl {
   responseValue: unknown;
 }
 
-type MockLinkedInWorkbenchEventType =
-  | "applied"
-  | "saved"
-  | "tracking"
-  | "note"
-  | "not_interested";
+type MockLinkedInWorkbenchEventType = "applied" | "saved" | "tracking" | "rejected" | "interview" | "follow_up" | "reminder" | "note" | "not_interested";
 
 function canUseStorage(): boolean {
   return (
@@ -573,8 +569,7 @@ function recordMockLinkedInWorkbenchEvent(args?: Record<string, unknown>) {
     rawUrl !== undefined ? jobs.find((job) => job.url === url) : undefined;
   const jobId = existingJob?.id ?? getNextId(jobs);
   const jobHash = existingJob?.hash ?? mockLinkedInWorkbenchHash(url, jobId, rawUrl);
-  const shouldBookmark =
-    eventType === "applied" || eventType === "saved" || eventType === "tracking";
+  const shouldBookmark = ["applied", "saved", "tracking", "interview", "follow_up", "reminder"].includes(eventType);
   const hidden = eventType === "not_interested";
   const now = new Date().toISOString();
   const job: MockJob = {
@@ -612,15 +607,32 @@ function recordMockLinkedInWorkbenchEvent(args?: Record<string, unknown>) {
     : [job, ...jobs];
 
   const applicationId =
-    eventType === "applied" || eventType === "tracking"
+    ["applied", "tracking", "rejected", "interview", "follow_up", "reminder"].includes(eventType)
       ? upsertMockLinkedInApplication(
           jobHash,
           title,
           company,
-          eventType === "applied" ? "applied" : "to_apply",
+          mockLinkedInWorkbenchApplicationStatus(eventType),
           now,
+          eventType === "follow_up",
         )
       : null;
+
+  if (eventType === "reminder" && applicationId !== null) {
+    pendingReminders = [
+      ...pendingReminders,
+      {
+        id: getNextId(pendingReminders),
+        application_id: applicationId,
+        reminder_type: "follow_up",
+        reminder_time: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
+        message: "Review this LinkedIn job in JobSentinel",
+        job_hash: jobHash,
+        job_title: title,
+        company,
+      },
+    ];
+  }
 
   saveMockState();
 
@@ -646,14 +658,8 @@ function getRecordArg(
 }
 
 function getLinkedInWorkbenchEventType(value: unknown): MockLinkedInWorkbenchEventType {
-  if (
-    value === "applied" ||
-    value === "saved" ||
-    value === "tracking" ||
-    value === "note" ||
-    value === "not_interested"
-  ) {
-    return value;
+  if (typeof value === "string" && ["applied", "saved", "tracking", "rejected", "interview", "follow_up", "reminder", "note", "not_interested"].includes(value)) {
+    return value as MockLinkedInWorkbenchEventType;
   }
 
   throw new Error("Unsupported LinkedIn workbench action");
@@ -690,8 +696,9 @@ function upsertMockLinkedInApplication(
   jobHash: string,
   title: string,
   company: string,
-  status: "applied" | "to_apply",
+  status: MockApplicationStatus,
   now: string,
+  markContact: boolean,
 ): number {
   const existing = APPLICATION_STATUS_KEYS
     .flatMap((key) => applications[key])
@@ -718,11 +725,31 @@ function upsertMockLinkedInApplication(
       status,
       applied_at: status === "applied" ? existing?.applied_at ?? now : null,
       notes: existing?.notes ?? null,
-      last_contact: existing?.last_contact ?? null,
+      last_contact: markContact ? now : existing?.last_contact ?? null,
     },
   ];
 
   return id;
+}
+
+function mockLinkedInWorkbenchApplicationStatus(
+  eventType: MockLinkedInWorkbenchEventType,
+): MockApplicationStatus {
+  switch (eventType) {
+    case "applied":
+      return "applied";
+    case "rejected":
+      return "rejected";
+    case "interview":
+      return "phone_interview";
+    case "tracking":
+    case "follow_up":
+    case "reminder":
+    case "saved":
+    case "note":
+    case "not_interested":
+      return "to_apply";
+  }
 }
 
 function mockLinkedInWorkbenchStatus(
@@ -735,6 +762,14 @@ function mockLinkedInWorkbenchStatus(
       return "saved";
     case "tracking":
       return "tracking";
+    case "rejected":
+      return "rejected";
+    case "interview":
+      return "interview";
+    case "follow_up":
+      return "follow_up";
+    case "reminder":
+      return "reminder";
     case "note":
       return "noted";
     case "not_interested":

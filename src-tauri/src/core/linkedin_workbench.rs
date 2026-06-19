@@ -9,7 +9,7 @@ use crate::core::db::{Database, Job};
 use crate::core::job_hash::calculate_job_hash;
 use crate::core::url_security::{canonicalize_user_supplied_job_url, sanitize_url_for_logging};
 use anyhow::Result;
-use chrono::Utc;
+use chrono::{Duration, Utc};
 use once_cell::sync::Lazy;
 use regex::{Captures, Regex};
 use serde::{Deserialize, Serialize};
@@ -47,6 +47,10 @@ pub enum LinkedInWorkbenchEventType {
     Applied,
     Saved,
     Tracking,
+    Rejected,
+    Interview,
+    FollowUp,
+    Reminder,
     Note,
     NotInterested,
 }
@@ -163,6 +167,43 @@ pub async fn record_event(
             database.set_bookmark(job_id, true).await?;
             saved_as_bookmark = true;
         }
+        LinkedInWorkbenchEventType::Rejected => {
+            let id = ensure_application(&tracker, database, &job_hash).await?;
+            tracker
+                .update_status(id, ApplicationStatus::Rejected)
+                .await?;
+            application_id = Some(id);
+        }
+        LinkedInWorkbenchEventType::Interview => {
+            let id = ensure_application(&tracker, database, &job_hash).await?;
+            tracker
+                .update_status(id, ApplicationStatus::PhoneInterview)
+                .await?;
+            application_id = Some(id);
+            database.set_bookmark(job_id, true).await?;
+            saved_as_bookmark = true;
+        }
+        LinkedInWorkbenchEventType::FollowUp => {
+            let id = ensure_application(&tracker, database, &job_hash).await?;
+            tracker.record_follow_up(id).await?;
+            application_id = Some(id);
+            database.set_bookmark(job_id, true).await?;
+            saved_as_bookmark = true;
+        }
+        LinkedInWorkbenchEventType::Reminder => {
+            let id = ensure_application(&tracker, database, &job_hash).await?;
+            tracker
+                .set_reminder(
+                    id,
+                    "follow_up",
+                    Utc::now() + Duration::days(3),
+                    "Review this LinkedIn job in JobSentinel",
+                )
+                .await?;
+            application_id = Some(id);
+            database.set_bookmark(job_id, true).await?;
+            saved_as_bookmark = true;
+        }
         LinkedInWorkbenchEventType::Note => {}
         LinkedInWorkbenchEventType::NotInterested => {
             database.hide_job(job_id).await?;
@@ -210,6 +251,10 @@ fn status_for_event(event_type: &LinkedInWorkbenchEventType) -> &'static str {
         LinkedInWorkbenchEventType::Applied => "applied",
         LinkedInWorkbenchEventType::Saved => "saved",
         LinkedInWorkbenchEventType::Tracking => "tracking",
+        LinkedInWorkbenchEventType::Rejected => "rejected",
+        LinkedInWorkbenchEventType::Interview => "interview",
+        LinkedInWorkbenchEventType::FollowUp => "follow_up",
+        LinkedInWorkbenchEventType::Reminder => "reminder",
         LinkedInWorkbenchEventType::Note => "noted",
         LinkedInWorkbenchEventType::NotInterested => "not_interested",
     }
@@ -374,6 +419,92 @@ mod tests {
         assert!(result.hidden);
         let job = db.get_job_by_hash(&result.job_hash).await.unwrap().unwrap();
         assert!(job.hidden);
+    }
+
+    #[tokio::test]
+    async fn expanded_activity_events_use_local_application_ledger() {
+        let db = memory_db().await;
+        let tracker = ApplicationTracker::new(db.pool().clone());
+
+        let interview = record_event(
+            &db,
+            LinkedInWorkbenchEventInput {
+                event_type: LinkedInWorkbenchEventType::Interview,
+                title: Some("Support Lead".to_string()),
+                company: Some("Example Co".to_string()),
+                url: Some("https://www.linkedin.com/jobs/view/222".to_string()),
+                notes: None,
+            },
+        )
+        .await
+        .unwrap();
+        let interview_app = tracker
+            .get_application(interview.application_id.expect("interview app"))
+            .await
+            .unwrap();
+        assert_eq!(interview.status, "interview");
+        assert_eq!(interview_app.status, ApplicationStatus::PhoneInterview);
+        assert!(interview.saved_as_bookmark);
+
+        let follow_up = record_event(
+            &db,
+            LinkedInWorkbenchEventInput {
+                event_type: LinkedInWorkbenchEventType::FollowUp,
+                title: Some("Support Lead".to_string()),
+                company: Some("Example Co".to_string()),
+                url: Some("https://www.linkedin.com/jobs/view/222?token=secret".to_string()),
+                notes: Some("Sent a short follow-up.".to_string()),
+            },
+        )
+        .await
+        .unwrap();
+        let follow_up_app = tracker
+            .get_application(follow_up.application_id.expect("follow-up app"))
+            .await
+            .unwrap();
+        assert_eq!(follow_up.status, "follow_up");
+        assert!(follow_up_app.last_contact.is_some());
+
+        let reminder = record_event(
+            &db,
+            LinkedInWorkbenchEventInput {
+                event_type: LinkedInWorkbenchEventType::Reminder,
+                title: Some("Support Lead".to_string()),
+                company: Some("Example Co".to_string()),
+                url: Some("https://www.linkedin.com/jobs/view/222".to_string()),
+                notes: None,
+            },
+        )
+        .await
+        .unwrap();
+        let reminder_count: i64 = sqlx::query_scalar(
+            "SELECT COUNT(*) FROM application_reminders WHERE application_id = ?",
+        )
+        .bind(reminder.application_id.expect("reminder app"))
+        .fetch_one(db.pool())
+        .await
+        .unwrap();
+        assert_eq!(reminder.status, "reminder");
+        assert!(reminder_count >= 1);
+
+        let rejected = record_event(
+            &db,
+            LinkedInWorkbenchEventInput {
+                event_type: LinkedInWorkbenchEventType::Rejected,
+                title: Some("Support Lead".to_string()),
+                company: Some("Example Co".to_string()),
+                url: Some("https://www.linkedin.com/jobs/view/222".to_string()),
+                notes: None,
+            },
+        )
+        .await
+        .unwrap();
+        let rejected_app = tracker
+            .get_application(rejected.application_id.expect("rejected app"))
+            .await
+            .unwrap();
+        assert_eq!(rejected.status, "rejected");
+        assert_eq!(rejected_app.status, ApplicationStatus::Rejected);
     }
 
     #[tokio::test]

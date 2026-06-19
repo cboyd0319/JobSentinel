@@ -72,9 +72,9 @@ without the user's explicit action.
 
 The LinkedIn Workbench is available from Dashboard quick actions and Settings.
 It records only user-confirmed local events such as applied, saved, tracking,
-notes, or not interested. It does not collect LinkedIn login details, read page
-content, inspect network traffic, save browser storage, or run scheduled
-LinkedIn checks.
+rejected, interview, follow-up, reminder, notes, or not interested. It does not
+collect LinkedIn login details, read page content, inspect network traffic,
+save browser storage, or run scheduled LinkedIn checks.
 
 If a restricted source is enabled without acknowledgement, the status surface
 should tell the user to review the restricted-source warning in Settings or use

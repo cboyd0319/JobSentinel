@@ -45,6 +45,8 @@ describe("LinkedInWorkbench", () => {
 
     expect(screen.getByRole("button", { name: /open linkedin jobs/i })).toBeDisabled();
     expect(screen.getByRole("button", { name: /log applied/i })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /log interview/i })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /add reminder/i })).toBeDisabled();
 
     await user.click(
       screen.getByLabelText(/I understand\. Remember this on this computer/i),
@@ -56,6 +58,8 @@ describe("LinkedInWorkbench", () => {
     );
     expect(screen.getByRole("button", { name: /open linkedin jobs/i })).toBeEnabled();
     expect(screen.getByRole("button", { name: /log applied/i })).toBeEnabled();
+    expect(screen.getByRole("button", { name: /log interview/i })).toBeEnabled();
+    expect(screen.getByRole("button", { name: /add reminder/i })).toBeEnabled();
   });
 
   it("opens LinkedIn and shows a privacy reminder without a forced close", async () => {
@@ -85,6 +89,8 @@ describe("LinkedInWorkbench", () => {
     expect(
       screen.getByText(/then use these buttons for what you did/i),
     ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /log follow-up/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /log rejected/i })).toBeInTheDocument();
     expect(
       screen.queryByText(/paste is the main path/i),
     ).not.toBeInTheDocument();
@@ -153,5 +159,53 @@ describe("LinkedInWorkbench", () => {
           "Staff Security Engineer at Example Co\nhttps://www.linkedin.com/jobs/view/456",
       }),
     );
+  });
+
+  it("records expanded local ledger actions from user clicks", async () => {
+    const user = userEvent.setup();
+    renderWorkbench();
+
+    await user.click(
+      screen.getByLabelText(/I understand\. Remember this on this computer/i),
+    );
+    await user.type(
+      screen.getByRole("textbox", { name: "Job title" }),
+      "Content Strategist",
+    );
+    await user.type(screen.getByRole("textbox", { name: "Company" }), "Example Co");
+    await user.click(screen.getByRole("button", { name: /log interview/i }));
+    await user.click(screen.getByRole("button", { name: /log follow-up/i }));
+    await user.click(screen.getByRole("button", { name: /add reminder/i }));
+    await user.click(screen.getByRole("button", { name: /log rejected/i }));
+
+    await waitFor(() => expect(recordLinkedInWorkbenchEvent).toHaveBeenCalledTimes(4));
+    expect(recordLinkedInWorkbenchEvent).toHaveBeenNthCalledWith(1, {
+      eventType: "interview",
+      title: "Content Strategist",
+      company: "Example Co",
+      url: undefined,
+      notes: undefined,
+    });
+    expect(recordLinkedInWorkbenchEvent).toHaveBeenNthCalledWith(2, {
+      eventType: "follow_up",
+      title: "Content Strategist",
+      company: "Example Co",
+      url: undefined,
+      notes: undefined,
+    });
+    expect(recordLinkedInWorkbenchEvent).toHaveBeenNthCalledWith(3, {
+      eventType: "reminder",
+      title: "Content Strategist",
+      company: "Example Co",
+      url: undefined,
+      notes: undefined,
+    });
+    expect(recordLinkedInWorkbenchEvent).toHaveBeenNthCalledWith(4, {
+      eventType: "rejected",
+      title: "Content Strategist",
+      company: "Example Co",
+      url: undefined,
+      notes: undefined,
+    });
   });
 });

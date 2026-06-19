@@ -41,10 +41,10 @@ the closest matching category below.
   user-controlled close/continue behavior, and no hard expiry unless
   JobSentinel reads, extracts, automates, or submits restricted-site content.
 - User-driven authenticated activity ledger where the user explicitly logs
-  applied, saved, tracking, rejected, interview, follow-up, or note events from
-  JobSentinel while using a restricted site. The ledger must be local-only,
-  user-confirmed, and never silently inferred from restricted-site DOM, network,
-  storage, screenshots, or hidden browser state.
+  applied, saved, tracking, rejected, interview, follow-up, reminder, or note
+  events from JobSentinel while using a restricted site. The ledger must be
+  local-only, user-confirmed, and never silently inferred from restricted-site
+  DOM, network, storage, screenshots, or hidden browser state.
 - Not shipped or disabled, with the reason documented.
 
 Do not claim a source is ready from a single successful live request. A source

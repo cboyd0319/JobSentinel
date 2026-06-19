@@ -10,6 +10,10 @@ export type LinkedInWorkbenchEventType =
   | "applied"
   | "saved"
   | "tracking"
+  | "rejected"
+  | "interview"
+  | "follow_up"
+  | "reminder"
   | "note"
   | "not_interested";
 

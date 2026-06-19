@@ -133,7 +133,8 @@ export function LinkedInWorkbench() {
           </p>
           <p className="text-sm leading-6 text-sentinel-800 dark:text-sentinel-200">
             Use LinkedIn yourself. JobSentinel keeps a private local record of
-            jobs you save, apply to, track, or review.
+            jobs you save, apply to, track, follow up on, interview for, or
+            review.
           </p>
           <p className="text-sm leading-6 text-sentinel-800 dark:text-sentinel-200">
             JobSentinel learns from the buttons you click here, not from hidden
@@ -161,8 +162,8 @@ export function LinkedInWorkbench() {
         <p className="mt-2 text-sm leading-6 text-surface-700 dark:text-surface-300">
           Use the Browser Button on a LinkedIn Jobs page to save the visible job
           cards, or on an individual job page to save that posting. Then use
-          these buttons for what you did: applied, saved, tracking, note, or not
-          interested.
+          these buttons for what you did: applied, saved, tracking, interview,
+          follow-up, reminder, note, rejected, or not interested.
         </p>
         <p className="mt-2 text-xs leading-5 text-surface-500 dark:text-surface-400">
           If page import misses details, paste selected text below or edit the
@@ -243,6 +244,39 @@ export function LinkedInWorkbench() {
 
       <div className="grid gap-3 sm:grid-cols-3">
         <Button
+          variant="secondary"
+          size="sm"
+          disabled={!acknowledged}
+          loading={busyAction === "interview"}
+          loadingText="Saving..."
+          onClick={() => void recordAction("interview")}
+        >
+          Log interview
+        </Button>
+        <Button
+          variant="secondary"
+          size="sm"
+          disabled={!acknowledged}
+          loading={busyAction === "follow_up"}
+          loadingText="Saving..."
+          onClick={() => void recordAction("follow_up")}
+        >
+          Log follow-up
+        </Button>
+        <Button
+          variant="secondary"
+          size="sm"
+          disabled={!acknowledged}
+          loading={busyAction === "reminder"}
+          loadingText="Saving..."
+          onClick={() => void recordAction("reminder")}
+        >
+          Add reminder
+        </Button>
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-3">
+        <Button
           variant="ghost"
           size="sm"
           disabled={!acknowledged}
@@ -251,6 +285,16 @@ export function LinkedInWorkbench() {
           onClick={() => void recordAction("note")}
         >
           Add note
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          disabled={!acknowledged}
+          loading={busyAction === "rejected"}
+          loadingText="Saving..."
+          onClick={() => void recordAction("rejected")}
+        >
+          Log rejected
         </Button>
         <Button
           variant="ghost"
@@ -369,6 +413,14 @@ function successTitle(eventType: LinkedInWorkbenchEventType): string {
       return "Job saved";
     case "tracking":
       return "Job tracked";
+    case "rejected":
+      return "Rejection logged";
+    case "interview":
+      return "Interview logged";
+    case "follow_up":
+      return "Follow-up logged";
+    case "reminder":
+      return "Reminder added";
     case "note":
       return "Note saved";
     case "not_interested":

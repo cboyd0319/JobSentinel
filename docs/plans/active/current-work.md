@@ -115,9 +115,9 @@ Out of scope:
   sources/resume skills, and non-technical starter paths.
 - Quiet Shield QA fixed wrapping, passive Keychain prompts, Protective Navy
   tokens, score colors, dashboard loading, and mobile Application Assist layout.
-- Browser Import is the LinkedIn path, not session storage or hidden monitoring;
-  it now captures visible LinkedIn cards in a capped user-clicked batch. Private
-  profile inputs stay local.
+- Browser Import captures cards; Workbench has user-clicked
+  applied/saved/tracking/rejected/interview/follow-up/reminder/note/
+  not-interested without hidden reads/session storage.
 - Package-manager, npm/Cargo, override, Action/runner/apt pins are latest
   stable; `lint:deps`, `lint:actions`, and `release:check-deps` enforce freshness.
 - Live OS keyring integration tests are opt-in behind

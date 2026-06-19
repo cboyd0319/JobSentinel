@@ -1064,6 +1064,33 @@ describe("mock Tauri handlers", () => {
     );
   });
 
+  it("records expanded LinkedIn workbench ledger actions in dev mocks", async () => {
+    for (const [eventType, expectedStatus] of [
+      ["interview", "interview"],
+      ["follow_up", "follow_up"],
+      ["reminder", "reminder"],
+      ["rejected", "rejected"],
+    ] as const) {
+      const result = await mockInvoke<LinkedInWorkbenchEventResult>(
+        "record_linkedin_workbench_event",
+        {
+          input: {
+            eventType,
+            title: "Content Strategist",
+            company: "Example Co",
+            url: "https://www.linkedin.com/jobs/view/456",
+          },
+        },
+      );
+
+      expect(result).toMatchObject({
+        status: expectedStatus,
+        needsDetails: false,
+        applicationId: expect.any(Number),
+      });
+    }
+  });
+
   it("treats saved screening-answer symbols as literal text in dev mocks", async () => {
     await mockInvoke<void>("upsert_screening_answer", {
       questionPattern: "Security+",
