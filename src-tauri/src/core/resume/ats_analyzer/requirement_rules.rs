@@ -24,6 +24,8 @@ struct ResumeKeywordTaxonomy {
     base_industry_catalog_terms: Vec<String>,
     #[serde(rename = "roleSpecificEvidencePrompts")]
     role_specific_evidence_prompts: Vec<RoleSpecificEvidencePrompt>,
+    #[serde(rename = "hardConstraintKeywordSets")]
+    hard_constraint_keyword_sets: HardConstraintKeywordSets,
     #[serde(rename = "credentialKeywordGroups")]
     credential_keyword_groups: Vec<CredentialKeywordGroup>,
     #[serde(rename = "supplementalKeywordGroups")]
@@ -70,6 +72,42 @@ struct RoleSpecificEvidencePrompt {
     id: String,
     prompt: String,
     terms: Vec<String>,
+}
+
+#[derive(Debug, Deserialize)]
+struct HardConstraintKeywordSets {
+    #[serde(rename = "degreeEquivalentExclusion")]
+    degree_equivalent_exclusion: HardConstraintKeywordSet,
+    citizenship: HardConstraintKeywordSet,
+    #[serde(rename = "workAuthorization")]
+    work_authorization: HardConstraintKeywordSet,
+    #[serde(rename = "securityClearance")]
+    security_clearance: HardConstraintKeywordSet,
+    #[serde(rename = "licenseOrCertification")]
+    license_or_certification: HardConstraintKeywordSet,
+    education: HardConstraintKeywordSet,
+    experience: HardConstraintKeywordSet,
+    #[serde(rename = "backgroundScreening")]
+    background_screening: HardConstraintKeywordSet,
+    #[serde(rename = "physicalRequirement")]
+    physical_requirement: HardConstraintKeywordSet,
+    location: HardConstraintKeywordSet,
+    #[serde(rename = "drivingRecord")]
+    driving_record: HardConstraintKeywordSet,
+    #[serde(rename = "vehicleInsurance")]
+    vehicle_insurance: HardConstraintKeywordSet,
+    #[serde(rename = "ageRequirement")]
+    age_requirement: HardConstraintKeywordSet,
+    #[serde(rename = "seniorityLevel")]
+    seniority_level: HardConstraintKeywordSet,
+}
+
+#[derive(Debug, Default, Deserialize)]
+struct HardConstraintKeywordSet {
+    #[serde(default)]
+    contains: Vec<String>,
+    #[serde(default)]
+    exact: Vec<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -144,6 +182,66 @@ static TAXONOMY: Lazy<ResumeKeywordTaxonomy> = Lazy::new(|| {
                     && !prompt.terms.is_empty()
                     && prompt.terms.iter().all(|term| !term.trim().is_empty())),
         "shared role-specific evidence prompts must be non-empty"
+    );
+    validate_hard_constraint_keyword_set(
+        "degreeEquivalentExclusion",
+        &taxonomy
+            .hard_constraint_keyword_sets
+            .degree_equivalent_exclusion,
+    );
+    validate_hard_constraint_keyword_set(
+        "citizenship",
+        &taxonomy.hard_constraint_keyword_sets.citizenship,
+    );
+    validate_hard_constraint_keyword_set(
+        "workAuthorization",
+        &taxonomy.hard_constraint_keyword_sets.work_authorization,
+    );
+    validate_hard_constraint_keyword_set(
+        "securityClearance",
+        &taxonomy.hard_constraint_keyword_sets.security_clearance,
+    );
+    validate_hard_constraint_keyword_set(
+        "licenseOrCertification",
+        &taxonomy
+            .hard_constraint_keyword_sets
+            .license_or_certification,
+    );
+    validate_hard_constraint_keyword_set(
+        "education",
+        &taxonomy.hard_constraint_keyword_sets.education,
+    );
+    validate_hard_constraint_keyword_set(
+        "experience",
+        &taxonomy.hard_constraint_keyword_sets.experience,
+    );
+    validate_hard_constraint_keyword_set(
+        "backgroundScreening",
+        &taxonomy.hard_constraint_keyword_sets.background_screening,
+    );
+    validate_hard_constraint_keyword_set(
+        "physicalRequirement",
+        &taxonomy.hard_constraint_keyword_sets.physical_requirement,
+    );
+    validate_hard_constraint_keyword_set(
+        "location",
+        &taxonomy.hard_constraint_keyword_sets.location,
+    );
+    validate_hard_constraint_keyword_set(
+        "drivingRecord",
+        &taxonomy.hard_constraint_keyword_sets.driving_record,
+    );
+    validate_hard_constraint_keyword_set(
+        "vehicleInsurance",
+        &taxonomy.hard_constraint_keyword_sets.vehicle_insurance,
+    );
+    validate_hard_constraint_keyword_set(
+        "ageRequirement",
+        &taxonomy.hard_constraint_keyword_sets.age_requirement,
+    );
+    validate_hard_constraint_keyword_set(
+        "seniorityLevel",
+        &taxonomy.hard_constraint_keyword_sets.seniority_level,
     );
     taxonomy
 });
@@ -297,6 +395,96 @@ pub(super) fn role_specific_evidence_prompt(job_desc_lower: &str) -> Option<&'st
                 .any(|term| job_desc_lower.contains(term))
         })
         .map(|prompt| prompt.prompt.as_str())
+}
+
+pub(super) fn hard_constraint_degree_equivalent_exclusion(keyword: &str) -> bool {
+    hard_constraint_keyword_set_matches(
+        &TAXONOMY
+            .hard_constraint_keyword_sets
+            .degree_equivalent_exclusion,
+        keyword,
+    )
+}
+
+pub(super) fn hard_constraint_citizenship_keyword(keyword: &str) -> bool {
+    hard_constraint_keyword_set_matches(&TAXONOMY.hard_constraint_keyword_sets.citizenship, keyword)
+}
+
+pub(super) fn hard_constraint_work_authorization_keyword(keyword: &str) -> bool {
+    hard_constraint_keyword_set_matches(
+        &TAXONOMY.hard_constraint_keyword_sets.work_authorization,
+        keyword,
+    )
+}
+
+pub(super) fn hard_constraint_security_clearance_keyword(keyword: &str) -> bool {
+    hard_constraint_keyword_set_matches(
+        &TAXONOMY.hard_constraint_keyword_sets.security_clearance,
+        keyword,
+    )
+}
+
+pub(super) fn hard_constraint_license_or_certification_keyword(keyword: &str) -> bool {
+    hard_constraint_keyword_set_matches(
+        &TAXONOMY
+            .hard_constraint_keyword_sets
+            .license_or_certification,
+        keyword,
+    )
+}
+
+pub(super) fn hard_constraint_education_keyword(keyword: &str) -> bool {
+    hard_constraint_keyword_set_matches(&TAXONOMY.hard_constraint_keyword_sets.education, keyword)
+}
+
+pub(super) fn hard_constraint_experience_keyword(keyword: &str) -> bool {
+    hard_constraint_keyword_set_matches(&TAXONOMY.hard_constraint_keyword_sets.experience, keyword)
+}
+
+pub(super) fn hard_constraint_background_screening_keyword(keyword: &str) -> bool {
+    hard_constraint_keyword_set_matches(
+        &TAXONOMY.hard_constraint_keyword_sets.background_screening,
+        keyword,
+    )
+}
+
+pub(super) fn hard_constraint_physical_requirement_keyword(keyword: &str) -> bool {
+    hard_constraint_keyword_set_matches(
+        &TAXONOMY.hard_constraint_keyword_sets.physical_requirement,
+        keyword,
+    )
+}
+
+pub(super) fn hard_constraint_location_keyword(keyword: &str) -> bool {
+    hard_constraint_keyword_set_matches(&TAXONOMY.hard_constraint_keyword_sets.location, keyword)
+}
+
+pub(super) fn hard_constraint_driving_record_keyword(keyword: &str) -> bool {
+    hard_constraint_keyword_set_matches(
+        &TAXONOMY.hard_constraint_keyword_sets.driving_record,
+        keyword,
+    )
+}
+
+pub(super) fn hard_constraint_vehicle_insurance_keyword(keyword: &str) -> bool {
+    hard_constraint_keyword_set_matches(
+        &TAXONOMY.hard_constraint_keyword_sets.vehicle_insurance,
+        keyword,
+    )
+}
+
+pub(super) fn hard_constraint_age_requirement_keyword(keyword: &str) -> bool {
+    hard_constraint_keyword_set_matches(
+        &TAXONOMY.hard_constraint_keyword_sets.age_requirement,
+        keyword,
+    )
+}
+
+pub(super) fn hard_constraint_seniority_level_keyword(keyword: &str) -> bool {
+    hard_constraint_keyword_set_matches(
+        &TAXONOMY.hard_constraint_keyword_sets.seniority_level,
+        keyword,
+    )
 }
 
 pub(super) fn extract_supplemental_keywords(text: &str) -> Vec<String> {
@@ -455,6 +643,20 @@ fn physical_weight_match(keyword_lower: &str) -> Option<(String, &[String])> {
     }
 
     None
+}
+
+fn validate_hard_constraint_keyword_set(name: &str, set: &HardConstraintKeywordSet) {
+    assert!(
+        (!set.contains.is_empty() || !set.exact.is_empty())
+            && set.contains.iter().all(|term| !term.trim().is_empty())
+            && set.exact.iter().all(|term| !term.trim().is_empty()),
+        "shared hard-constraint keyword set {name} must be non-empty"
+    );
+}
+
+fn hard_constraint_keyword_set_matches(set: &HardConstraintKeywordSet, keyword: &str) -> bool {
+    let lower = keyword.to_lowercase();
+    set.exact.contains(&lower) || set.contains.iter().any(|term| lower.contains(term))
 }
 
 fn literal_term_pattern(term: &str) -> String {

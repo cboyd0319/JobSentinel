@@ -120,152 +120,64 @@ pub(super) fn hard_constraint_action(keyword: &str, category: HardConstraintCate
 }
 
 fn driving_record_constraint_keyword(keyword: &str) -> bool {
-    let lower = keyword.to_lowercase();
-    lower.contains("driving record") || lower == "mvr" || lower.contains("motor vehicle record")
+    requirement_rules::hard_constraint_driving_record_keyword(keyword)
 }
 
 fn vehicle_insurance_constraint_keyword(keyword: &str) -> bool {
-    let lower = keyword.to_lowercase();
-    lower.contains("proof of auto insurance")
-        || lower.contains("proof of insurance")
-        || lower.contains("auto insurance")
-        || lower.contains("car insurance")
-        || lower.contains("vehicle insurance")
-        || lower.contains("insured vehicle")
-        || lower.contains("reliable vehicle")
+    requirement_rules::hard_constraint_vehicle_insurance_keyword(keyword)
 }
 
 pub(super) fn citizenship_constraint_keyword(keyword: &str) -> bool {
-    let lower = keyword.to_lowercase();
-    lower.contains("us citizenship")
-        || lower.contains("u.s. citizenship")
-        || lower.contains("us citizen")
-        || lower.contains("u.s. citizen")
-        || lower.contains("citizenship required")
+    requirement_rules::hard_constraint_citizenship_keyword(keyword)
 }
 
 pub(super) fn seniority_level_constraint_keyword(keyword: &str) -> bool {
-    matches!(
-        keyword.to_lowercase().as_str(),
-        "senior-level experience"
-            | "mid-level experience"
-            | "lead-level experience"
-            | "staff/principal-level experience"
-            | "director-level experience"
-            | "executive-level experience"
-    )
+    requirement_rules::hard_constraint_seniority_level_keyword(keyword)
 }
 
 pub(super) fn hard_constraint_category(keyword: &str) -> Option<HardConstraintCategory> {
     let lower = keyword.to_lowercase();
-    if lower.contains("equivalent experience") {
+    if requirement_rules::hard_constraint_degree_equivalent_exclusion(&lower) {
         return None;
     }
-    if lower.contains("us citizenship")
-        || lower.contains("u.s. citizenship")
-        || lower.contains("us citizen")
-        || lower.contains("u.s. citizen")
-        || lower.contains("citizenship required")
-    {
+    if citizenship_constraint_keyword(&lower) {
         return Some(HardConstraintCategory::Citizenship);
     }
-    if lower.contains("work authorization")
-        || lower.contains("authorized to work")
-        || lower.contains("visa sponsorship")
-    {
+    if requirement_rules::hard_constraint_work_authorization_keyword(&lower) {
         return Some(HardConstraintCategory::WorkAuthorization);
     }
-    if lower.contains("security clearance") || lower == "clearance" {
+    if requirement_rules::hard_constraint_security_clearance_keyword(&lower) {
         return Some(HardConstraintCategory::SecurityClearance);
     }
-    if lower.contains("license")
-        || lower.contains("certification")
+    if requirement_rules::hard_constraint_license_or_certification_keyword(&lower)
         || requirement_rules::is_credential_keyword(&lower)
     {
         return Some(HardConstraintCategory::LicenseOrCertification);
     }
-    if lower.contains("degree")
-        || lower.contains("bachelor")
-        || lower.contains("master")
-        || lower.contains("phd")
-        || lower.contains("ph.d")
-        || lower.contains("doctorate")
-        || lower.contains("doctoral")
-        || lower.contains("high school")
-        || lower.contains("high-school")
-        || lower.contains("general education development")
-        || lower == "ged"
-    {
+    if requirement_rules::hard_constraint_education_keyword(&lower) {
         return Some(HardConstraintCategory::Education);
     }
     if age_requirement_keyword(&lower) {
         return Some(HardConstraintCategory::Age);
     }
-    if lower.contains("year")
-        || lower.contains("yrs")
-        || lower.contains("level experience")
-        || lower == "management experience"
-    {
+    if requirement_rules::hard_constraint_experience_keyword(&lower) {
         return Some(HardConstraintCategory::Experience);
     }
     if term_expansion::known_human_language_requirement(&lower) {
         return Some(HardConstraintCategory::Language);
     }
-    if lower.contains("background check")
-        || lower.contains("background screening")
-        || lower.contains("pre-employment screening")
-        || lower.contains("pre employment screening")
-        || lower.contains("drug screen")
-        || lower.contains("drug screening")
-        || lower.contains("drug test")
-        || lower.contains("drug testing")
+    if requirement_rules::hard_constraint_background_screening_keyword(&lower)
         || driving_record_constraint_keyword(&lower)
     {
         return Some(HardConstraintCategory::BackgroundScreening);
     }
     if requirement_rules::is_physical_weight_requirement(&lower)
-        || lower.contains("physical requirement")
-        || lower.contains("physical demand")
-        || lower.contains("stand for long")
-        || lower.contains("standing for long")
-        || lower.contains("climb ladder")
-        || lower.contains("climbing ladder")
+        || requirement_rules::hard_constraint_physical_requirement_keyword(&lower)
     {
         return Some(HardConstraintCategory::PhysicalRequirement);
     }
-    if lower.contains("onsite")
-        || lower.contains("on-site")
-        || lower.contains("on site")
-        || lower.contains("remote")
-        || lower.contains("hybrid")
-        || remote_workspace_constraint_keyword(&lower)
-        || lower.contains("relocation")
-        || lower.contains("relocate")
-        || lower.contains("travel")
-        || lower.contains("transportation")
+    if requirement_rules::hard_constraint_location_keyword(&lower)
         || vehicle_insurance_constraint_keyword(&lower)
-        || lower.contains("commute")
-        || lower.contains("commuting")
-        || lower.contains("availability")
-        || lower.contains("available")
-        || lower.contains("schedule")
-        || lower.contains("full-time")
-        || lower.contains("full time")
-        || lower.contains("part-time")
-        || lower.contains("part time")
-        || lower.contains("weekend")
-        || lower.contains("night shift")
-        || lower.contains("overnight shift")
-        || lower.contains("third shift")
-        || lower.contains("3rd shift")
-        || lower.contains("second shift")
-        || lower.contains("2nd shift")
-        || lower.contains("day shift")
-        || lower.contains("first shift")
-        || lower.contains("1st shift")
-        || lower.contains("overtime")
-        || lower.contains("holiday")
-        || lower.contains("evening")
     {
         return Some(HardConstraintCategory::Location);
     }
@@ -371,27 +283,7 @@ pub(super) fn extract_hard_constraint_keywords(text: &str) -> Vec<String> {
 }
 
 fn age_requirement_keyword(keyword: &str) -> bool {
-    let lower = keyword.to_lowercase();
-    lower.contains("year of age")
-        || lower.contains("years of age")
-        || lower.contains("yr of age")
-        || lower.contains("yrs of age")
-        || lower.contains("year old")
-        || lower.contains("years old")
-        || lower.contains("yr old")
-        || lower.contains("yrs old")
-        || lower.contains("minimum age")
-        || lower.contains("age requirement")
-        || lower.contains("legal work age")
-}
-
-fn remote_workspace_constraint_keyword(keyword: &str) -> bool {
-    keyword.contains("reliable internet")
-        || keyword.contains("high-speed internet")
-        || keyword.contains("high speed internet")
-        || keyword.contains("home office")
-        || keyword.contains("quiet workspace")
-        || keyword.contains("dedicated workspace")
+    requirement_rules::hard_constraint_age_requirement_keyword(keyword)
 }
 
 pub(super) fn extract_seniority_constraint_keywords(text: &str) -> Vec<String> {

@@ -629,6 +629,156 @@
       ]
     }
   ],
+  "hardConstraintKeywordSets": {
+    "degreeEquivalentExclusion": {
+      "contains": ["equivalent experience"]
+    },
+    "citizenship": {
+      "contains": [
+        "us citizenship",
+        "u.s. citizenship",
+        "us citizen",
+        "u.s. citizen",
+        "citizenship required"
+      ]
+    },
+    "workAuthorization": {
+      "contains": [
+        "work authorization",
+        "authorized to work",
+        "visa sponsorship"
+      ]
+    },
+    "securityClearance": {
+      "contains": ["security clearance"],
+      "exact": ["clearance"]
+    },
+    "licenseOrCertification": {
+      "contains": ["license", "certification"]
+    },
+    "education": {
+      "contains": [
+        "degree",
+        "bachelor",
+        "master",
+        "phd",
+        "ph.d",
+        "doctorate",
+        "doctoral",
+        "high school",
+        "high-school",
+        "general education development"
+      ],
+      "exact": ["ged"]
+    },
+    "experience": {
+      "contains": ["year", "yrs", "level experience"],
+      "exact": ["management experience"]
+    },
+    "backgroundScreening": {
+      "contains": [
+        "background check",
+        "background screening",
+        "pre-employment screening",
+        "pre employment screening",
+        "drug screen",
+        "drug screening",
+        "drug test",
+        "drug testing"
+      ]
+    },
+    "physicalRequirement": {
+      "contains": [
+        "physical requirement",
+        "physical demand",
+        "stand for long",
+        "standing for long",
+        "climb ladder",
+        "climbing ladder"
+      ]
+    },
+    "location": {
+      "contains": [
+        "onsite",
+        "on-site",
+        "on site",
+        "remote",
+        "hybrid",
+        "reliable internet",
+        "high-speed internet",
+        "high speed internet",
+        "home office",
+        "quiet workspace",
+        "dedicated workspace",
+        "relocation",
+        "relocate",
+        "travel",
+        "transportation",
+        "commute",
+        "commuting",
+        "availability",
+        "available",
+        "schedule",
+        "full-time",
+        "full time",
+        "part-time",
+        "part time",
+        "weekend",
+        "night shift",
+        "overnight shift",
+        "third shift",
+        "3rd shift",
+        "second shift",
+        "2nd shift",
+        "day shift",
+        "first shift",
+        "1st shift",
+        "overtime",
+        "holiday",
+        "evening"
+      ]
+    },
+    "drivingRecord": {
+      "contains": ["driving record", "motor vehicle record"],
+      "exact": ["mvr"]
+    },
+    "vehicleInsurance": {
+      "contains": [
+        "proof of auto insurance",
+        "proof of insurance",
+        "auto insurance",
+        "car insurance",
+        "vehicle insurance",
+        "insured vehicle",
+        "reliable vehicle"
+      ]
+    },
+    "ageRequirement": {
+      "contains": [
+        "year of age",
+        "years of age",
+        "yr of age",
+        "yrs of age",
+        "year old",
+        "years old",
+        "yr old",
+        "yrs old",
+        "minimum age",
+        "age requirement",
+        "legal work age"
+      ]
+    },
+    "seniorityLevel": {
+      "exact": [
+        "senior-level experience",
+        "mid-level experience",
+        "lead-level experience",
+        "staff/principal-level experience",
+        "director-level experience",
+        "executive-level experience"
+      ]
+    }
+  },
   "credentialKeywordGroups": [
     {
       "canonical": "driver's license",

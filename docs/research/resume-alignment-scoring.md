@@ -337,6 +337,8 @@ Future implementation should improve:
   requirement-keyword alias map in `src/shared/resumeKeywordTaxonomy.json`.
 - Resume bullet suggestions now keep role-specific evidence prompt triggers
   and prompt text in `src/shared/resumeKeywordTaxonomy.json`.
+- Resume/job fit now keeps hard-constraint category keyword sets in
+  `src/shared/resumeKeywordTaxonomy.json`.
 - Resume/job fit now keeps credential, license, and designation groups in
   `src/shared/resumeKeywordTaxonomy.json` so Rust and TypeScript paths do not
   drift. Each group separates evidence/search terms from requirement extraction
