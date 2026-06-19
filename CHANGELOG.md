@@ -10,11 +10,11 @@ cookie/session storage and automatic account-backed monitoring are disabled.
 Historical entries below may describe removed experiments. The current
 supported path is user-opened search links plus user-clicked Browser Import.
 
-## [2.9.0] - 2026-06-18
+## [2.9.0] - 2026-06-19
 
 Local release candidate for the v2.9.0 job-search readiness push. Public
-release assets are not published until final design verification and release
-packaging gates close.
+release assets are not published until final target-platform builds, upload,
+and public verification close.
 
 ### Added
 
@@ -33,6 +33,11 @@ packaging gates close.
 - **Release supply chain** - Consolidated CI/release workflows now generate
   release SBOM manifests, require provenance and SBOM attestations, and verify
   public macOS supply-chain evidence.
+- **Local macOS release evidence** - Rebuilt the current-source no-account
+  universal DMG, verified checksum, metadata, universal architecture,
+  signature, mounted and installed launch smoke, visible window, and private
+  isolated-data creation, then staged macOS SBOM and Agent Skills archive
+  checksums locally.
 - **Dependency posture** - Release dependency checks now require exact latest
   stable direct pins, current package-manager and tool baselines, lockfile
   freshness, and pinned GitHub Actions.
@@ -49,6 +54,9 @@ packaging gates close.
   memory-only caching and clear the legacy localStorage cache key.
 - **Onboarding accessibility** - The tour overlay now behaves as a modal dialog
   with focus handling, Escape close, and viewport-clamped placement.
+- **Public wiki posture** - Synced public `Home.md` and `Capabilities.md` wiki
+  pages with the current `2.9.0` local readiness, release-boundary, macOS,
+  LinkedIn, security, and Agent Skills posture.
 
 ### Fixed
 
