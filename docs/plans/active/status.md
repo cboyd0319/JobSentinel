@@ -98,8 +98,9 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   executable x86_64 AppImage `bb1d58aadce73254ab80510ce659710dd6b63f20491ee76a4e0781f63da00ee4`;
   `.sha256` sidecar verified.
 - 2026-06-18 shared taxonomy/research work moved credentials, company suffixes,
-  ATS terms, bullet prompts, and screening aliases into `src/shared/`; added
-  HTML/JSON Resume/source-routing hardening and Scrapling no-adoption decision.
+  ATS terms, bullet prompts, hard-constraint categories, and screening aliases
+  into `src/shared/`; added HTML/JSON Resume/source-routing hardening and
+  Scrapling no-adoption decision.
 
 ## Next Best Work
 
