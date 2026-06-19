@@ -183,8 +183,9 @@ Restricted authenticated sources such as LinkedIn must stay outside persistent
 credential storage. If JobSentinel opens a sign-in page for one of these
 sources, it must show the source warning before sign-in, require a fresh
 user-initiated sign-in for that use, store no auth tokens, session cookies,
-browser storage, authorization headers, or equivalent sign-in material, and cap
-the interactive window at one hour.
+browser storage, authorization headers, or equivalent sign-in material, and show
+a privacy reminder during long manual sessions without forcing the user to
+close the window.
 
 Consent-gated public sources are different. They can require a local
 acknowledgement before scheduled checks or Browser Import, but they do not

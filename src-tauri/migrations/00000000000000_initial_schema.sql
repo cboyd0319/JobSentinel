@@ -1429,7 +1429,7 @@ CREATE TABLE IF NOT EXISTS scraper_config (
 INSERT OR IGNORE INTO scraper_config (scraper_name, display_name, requires_auth, auth_type, scraper_type, rate_limit_per_hour) VALUES
     ('greenhouse', 'Greenhouse', 0, NULL, 'api', 1000),
     ('lever', 'Lever', 0, NULL, 'api', 1000),
-    ('linkedin', 'LinkedIn', 1, 'cookie', 'api', 100),
+    ('linkedin', 'LinkedIn', 0, NULL, 'api', 100),
     ('indeed', 'Indeed', 0, NULL, 'html', 500),
     ('remoteok', 'RemoteOK', 0, NULL, 'api', 500),
     ('wellfound', 'Wellfound', 0, NULL, 'html', 300),
@@ -1445,7 +1445,7 @@ INSERT OR IGNORE INTO scraper_config (scraper_name, display_name, requires_auth,
     ('glassdoor', 'Glassdoor', 0, NULL, 'html', 300);
 
 -- ============================================================================
--- CREDENTIAL HEALTH (LinkedIn cookie tracking)
+-- CREDENTIAL HEALTH
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS credential_health (

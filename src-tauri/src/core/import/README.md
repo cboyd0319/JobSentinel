@@ -163,6 +163,6 @@ cargo test import
 
 - Support for multiple job postings selection
 - Batch import from clipboard (multiple URLs)
-- Browser extension for one-click import
+- Native Workbench and browser-button import flows
 - Import from screenshots (OCR)
 - Import history and duplicate detection

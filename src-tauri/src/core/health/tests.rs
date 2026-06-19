@@ -57,6 +57,21 @@ async fn test_source_request_summary_tracks_minimized_metadata() {
     assert_eq!(summary.outcome, SourceRequestOutcome::Success);
 }
 
+#[tokio::test]
+async fn test_linkedin_scraper_config_has_no_cookie_setup() {
+    let db = crate::core::Database::connect_memory().await.unwrap();
+    db.migrate().await.unwrap();
+
+    let configs = get_scraper_configs(&db).await.unwrap();
+    let linkedin = configs
+        .iter()
+        .find(|config| config.scraper_name == "linkedin")
+        .expect("LinkedIn source metadata should exist");
+
+    assert!(!linkedin.requires_auth);
+    assert!(linkedin.auth_type.is_none());
+}
+
 #[test]
 fn test_health_status_deserialization() {
     assert_eq!(HealthStatus::from_str("healthy"), HealthStatus::Healthy);
