@@ -263,7 +263,7 @@ fn test_request_buffer_waits_for_declared_body() {
 #[test]
 fn test_request_buffer_stops_when_declared_body_exceeds_cap() {
     let oversized_request =
-        b"POST /api/bookmarklet/import HTTP/1.1\r\nHost: localhost\r\nContent-Length: 9000\r\n\r\n";
+        b"POST /api/bookmarklet/import HTTP/1.1\r\nHost: localhost\r\nContent-Length: 25000\r\n\r\n";
 
     assert!(!request_buffer_has_complete_body(oversized_request));
     assert!(request_buffer_has_declared_oversized_body(
@@ -321,10 +321,28 @@ fn bookmarklet_import_request(body: &str) -> String {
     )
 }
 
+fn bookmarklet_import_request_from_origin(body: &str, origin: &str, referer: &str) -> String {
+    format!(
+        "POST /api/bookmarklet/import HTTP/1.1\r\nHost: localhost\r\nOrigin: {}\r\nReferer: {}\r\nContent-Length: {}\r\n\r\n{}",
+        origin,
+        referer,
+        body.len(),
+        body
+    )
+}
+
 fn bookmarklet_import_body(job: serde_json::Value) -> String {
     serde_json::json!({
         "token": TEST_AUTH_TOKEN,
         "job": job,
+    })
+    .to_string()
+}
+
+fn bookmarklet_import_batch_body(jobs: serde_json::Value) -> String {
+    serde_json::json!({
+        "token": TEST_AUTH_TOKEN,
+        "jobs": jobs,
     })
     .to_string()
 }
@@ -512,6 +530,127 @@ async fn test_bookmarklet_import_stores_valid_job_through_shared_path() {
         )
     );
     assert_eq!(stored.5, Some("Denver, CO".to_string()));
+}
+
+#[tokio::test]
+async fn test_bookmarklet_import_stores_visible_job_batch() {
+    let database = bookmarklet_test_database().await;
+    let auth_state = bookmarklet_auth_state(TEST_AUTH_TOKEN, bookmarklet_auth_expiry());
+    let body = bookmarklet_import_batch_body(serde_json::json!([
+        {
+            "title": "Principal Systems Security Engineer",
+            "company": "Sierra Nevada Corporation",
+            "description": "Rendered LinkedIn card selected by the user",
+            "url": "https://www.linkedin.com/jobs/view/100?currentJobId=100&referralSearchId=private",
+            "location": "Centennial, CO"
+        },
+        {
+            "title": "Lead Platform Security Engineer",
+            "company": "HDR",
+            "description": "Rendered LinkedIn card selected by the user",
+            "url": "https://www.linkedin.com/jobs/view/200?origin=private",
+            "location": "Denver, CO"
+        }
+    ]));
+
+    let (response, content_type) = handle_import_request(
+        &bookmarklet_import_request_from_origin(
+            &body,
+            "https://www.linkedin.com",
+            "https://www.linkedin.com/jobs/",
+        ),
+        &auth_state,
+        database.clone(),
+    )
+    .await;
+    let parsed: serde_json::Value =
+        serde_json::from_str(&response).expect("batch response should be JSON");
+    let rows: Vec<(String, String, String)> =
+        sqlx::query_as("SELECT title, company, url FROM jobs ORDER BY title")
+            .fetch_all(database.pool())
+            .await
+            .expect("stored jobs should load");
+
+    assert_eq!(content_type, "application/json");
+    assert_eq!(parsed["success"], true);
+    assert_eq!(parsed["imported"], 2);
+    assert_eq!(rows.len(), 2);
+    assert_eq!(rows[0].0, "Lead Platform Security Engineer");
+    assert_eq!(rows[0].1, "HDR");
+    assert_eq!(rows[0].2, "https://www.linkedin.com/jobs/view/200");
+    assert_eq!(rows[1].0, "Principal Systems Security Engineer");
+    assert_eq!(rows[1].1, "Sierra Nevada Corporation");
+    assert_eq!(rows[1].2, "https://www.linkedin.com/jobs/view/100");
+}
+
+#[tokio::test]
+async fn test_bookmarklet_import_rejects_batch_origin_mismatch() {
+    let database = bookmarklet_test_database().await;
+    let auth_state = bookmarklet_auth_state(TEST_AUTH_TOKEN, bookmarklet_auth_expiry());
+    let body = bookmarklet_import_batch_body(serde_json::json!([
+        {
+            "title": "Principal Systems Security Engineer",
+            "company": "Sierra Nevada Corporation",
+            "url": "https://www.linkedin.com/jobs/view/100"
+        },
+        {
+            "title": "Lead Platform Security Engineer",
+            "company": "HDR",
+            "url": "https://evil.example/jobs/200"
+        }
+    ]));
+
+    let (response, content_type) = handle_import_request(
+        &bookmarklet_import_request_from_origin(
+            &body,
+            "https://www.linkedin.com",
+            "https://www.linkedin.com/jobs/",
+        ),
+        &auth_state,
+        database.clone(),
+    )
+    .await;
+    let parsed: serde_json::Value =
+        serde_json::from_str(&response).expect("error response should be JSON");
+
+    assert_eq!(content_type, "application/json");
+    assert_eq!(parsed["error"], "Invalid browser import origin");
+    assert_eq!(stored_job_count(&database).await, 0);
+}
+
+#[tokio::test]
+async fn test_bookmarklet_import_rejects_invalid_batch_without_partial_insert() {
+    let database = bookmarklet_test_database().await;
+    let auth_state = bookmarklet_auth_state(TEST_AUTH_TOKEN, bookmarklet_auth_expiry());
+    let body = bookmarklet_import_batch_body(serde_json::json!([
+        {
+            "title": "Principal Systems Security Engineer",
+            "company": "Sierra Nevada Corporation",
+            "url": "https://www.linkedin.com/jobs/view/100"
+        },
+        {
+            "title": "Missing Company",
+            "company": "",
+            "url": "https://www.linkedin.com/jobs/view/200"
+        }
+    ]));
+
+    let (response, content_type) = handle_import_request(
+        &bookmarklet_import_request_from_origin(
+            &body,
+            "https://www.linkedin.com",
+            "https://www.linkedin.com/jobs/",
+        ),
+        &auth_state,
+        database.clone(),
+    )
+    .await;
+    let parsed: serde_json::Value =
+        serde_json::from_str(&response).expect("error response should be JSON");
+
+    assert_eq!(content_type, "application/json");
+    assert_eq!(parsed["error"], "Company name is required");
+    assert_eq!(stored_job_count(&database).await, 0);
 }
 
 #[tokio::test]

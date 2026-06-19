@@ -13,6 +13,10 @@ JobSentinel is a privacy-first desktop job search app.
   roles. Do not design user-facing flows only for engineers, developers, or
   people who can debug software. User-facing flows must assume zero technical
   knowledge.
+- Product mission: help people find jobs in every secure, local,
+  user-directed way JobSentinel can support. Prefer informed consent,
+  plain-language warnings, and secure enablement over arbitrary product blocks
+  when privacy and security boundaries remain intact.
 - Rule 0: user privacy and security are non-negotiable. No feature, shortcut,
   test fixture, support flow, external AI provider, or source adapter may
   weaken local-first storage, credential safety, explicit user review, or

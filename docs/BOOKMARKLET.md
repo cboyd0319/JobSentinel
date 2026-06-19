@@ -1,16 +1,18 @@
 # Browser Import Button
 
-The browser import button saves the job page you are viewing into JobSentinel.
-It is optional. You can still add jobs from inside JobSentinel without setting
-this up.
+The browser import button saves the job page or visible job list you choose into
+JobSentinel. It is optional. You can still add jobs from inside JobSentinel
+without setting this up.
 
 ## What It Does
 
 - Saves jobs from official career pages and trusted public job pages when the
   page shows enough job details.
+- Saves visible job cards from supported job-list pages, including LinkedIn
+  Jobs pages the user opened, without storing login details.
 - Uses the browser page you already opened.
 - Sends the job only to the JobSentinel app running on your computer.
-- Keeps the saved job local.
+- Keeps the saved jobs local.
 
 ## When To Use It
 
@@ -18,7 +20,8 @@ Use the browser import button when:
 
 - You find a job while browsing outside JobSentinel.
 - A job source does not load inside JobSentinel.
-- You want to save one job without copying details by hand.
+- You want to save one visible job, or the visible job cards on a supported
+  search page, without copying details by hand.
 
 Some sites, including LinkedIn, Indeed, Glassdoor, Monster, ZipRecruiter,
 Naukri, and similar boards, have rules about automated tools. Misusing those
@@ -38,31 +41,33 @@ person's privacy.
 7. Paste the copied text where the bookmark stores the page address.
 8. Save it to your bookmarks bar.
 
-Copy the browser button again after each saved job or after changing the button
+Copy the browser button again after each import or after changing the button
 setup number. If JobSentinel was closed and reopened, copy it again before
-importing another job.
+importing more jobs.
 
-## Save A Job
+## Save Jobs
 
-1. Open an individual job posting in your browser.
+1. Open an individual job posting, or a supported job-list page such as
+   LinkedIn Jobs, in your browser.
 2. Use the **Import to JobSentinel** bookmark.
 3. Wait for the confirmation message.
-4. Open JobSentinel and review the saved job.
+4. Open JobSentinel and review the saved jobs.
 
-If the job is missing, copy the browser button again and retry. If some details
-are missing, edit the saved job after import.
+If jobs are missing, copy the browser button again and retry. If some details
+are missing, edit the saved jobs after import.
 
 ## Where It Works Best
 
-The browser import button works best on individual job pages from:
+The browser import button works best on:
 
 - Company career pages.
 - Company application pages.
 - Trusted public pages that show the full job description, employer name, and
   location.
+- LinkedIn Jobs pages with visible job cards.
 - Pages you opened yourself in your browser.
 
-Job search result pages may not include enough job details. Some large job
+Some job search result pages may not include enough job details. Some large job
 boards also block page import. JobSentinel does not get around those limits; use
 JobSentinel's search link or add the job manually when import does not work.
 
@@ -84,7 +89,8 @@ search for the company or title.
 
 ### Job Did Not Save
 
-- Make sure you are on an individual job page.
+- Make sure you are on an individual job page or a supported visible job-list
+  page.
 - Try opening the job on the company career site.
 - Some job sites block browser buttons from sending to apps on your computer.
   If that happens, copy the job link and use **Import Job from Link** inside
@@ -108,7 +114,10 @@ fill in any blank details in JobSentinel.
 - If copying fails, the previous browser button keeps working until its safety
   code is used once or expires.
 - Job data stays local unless you choose to share it.
-- Safe support reports must redact the browser button details and saved job
+- On LinkedIn Jobs pages, JobSentinel saves only visible job-card fields from
+  the page you clicked on. It does not save cookies, login tokens, browser
+  storage, hidden page state, network traffic, or pages you did not open.
+- Safe support reports must redact the browser button details and saved jobs
   details.
 
 ## For Maintainers
@@ -129,6 +138,9 @@ interface should keep technical details hidden:
 - The local send path intentionally uses a no-preflight request shape, which
   means browser script cannot reliably inspect a failed local response. Keep the
   in-app import and manual add flows as the fallback.
+- Keep visible job-list capture capped, user-clicked, and local-only. Do not
+  add background pagination, scheduled restricted-site refresh, session-cookie
+  storage, or automatic application actions.
 - Prefer "browser import button", "Browser Import", and "button setup number"
   in user-facing copy.
 - Keep lower-level implementation details in developer docs or code comments,

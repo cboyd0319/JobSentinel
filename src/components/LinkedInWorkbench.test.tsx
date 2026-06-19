@@ -73,6 +73,23 @@ describe("LinkedInWorkbench", () => {
     ).toBeInTheDocument();
   });
 
+  it("presents Browser Import as the primary capture path", () => {
+    renderWorkbench();
+
+    expect(
+      screen.getByText(/fastest path: browse normally, then save the page/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/use the browser button on a linkedin jobs page to save the visible job cards/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/then use these buttons for what you did/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(/paste is the main path/i),
+    ).not.toBeInTheDocument();
+  });
+
   it("uses pasted selected text as suggestions and logs applied with one click", async () => {
     const user = userEvent.setup();
     renderWorkbench();

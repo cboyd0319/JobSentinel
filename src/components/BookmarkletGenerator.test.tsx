@@ -55,7 +55,7 @@ describe("BookmarkletGenerator", () => {
       expect(screen.getByRole("button", { name: /turn off/i })).toBeInTheDocument(),
     );
     expect(screen.getByRole("button", { name: /copy browser button/i })).toBeInTheDocument();
-    expect(screen.getAllByText(/copy.*after each saved job/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/copy.*after each import/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/copy a fresh browser button/i)).toBeInTheDocument();
     expect(screen.getAllByText(/closed and reopened/i).length).toBeGreaterThan(0);
     expect(screen.queryByText(/when JobSentinel restarts/i)).not.toBeInTheDocument();
@@ -87,13 +87,17 @@ describe("BookmarkletGenerator", () => {
     ).toBeInTheDocument();
     expect(screen.queryByText(/Cmd\/Ctrl\+D/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/bookmark address field/i)).not.toBeInTheDocument();
-    expect(screen.getByText(/recommended: paste the job link into jobsentinel/i)).toBeInTheDocument();
-    expect(screen.getByText(/use browser button only if you already use browser bookmarks/i)).toBeInTheDocument();
+    expect(screen.queryByText(/recommended: paste the job link into jobsentinel/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/use browser button only if you already use browser bookmarks/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/recommended: use the browser button on a job page or supported jobs list/i)).toBeInTheDocument();
+    expect(screen.getByText(/visible job cards you choose/i)).toBeInTheDocument();
+    expect(screen.getByText(/paste a link only when the browser button cannot read the page/i)).toBeInTheDocument();
     expect(screen.getByText(/Use your browser's Add Bookmark option/i)).toBeInTheDocument();
     expect(screen.getByText(/paste the copied text into the bookmark link field/i)).toBeInTheDocument();
     expect(screen.queryByText(/where the bookmark stores the page address/i)).not.toBeInTheDocument();
-    expect(screen.getByText(/official career pages usually work best/i)).toBeInTheDocument();
+    expect(screen.getByText(/open an individual job page or a supported jobs list/i)).toBeInTheDocument();
     expect(screen.getByText(/company application pages/i)).toBeInTheDocument();
+    expect(screen.getByText(/supported job lists with visible cards/i)).toBeInTheDocument();
     expect(screen.getByText(/do not let JobSentinel read saved pages/i)).toBeInTheDocument();
     expect(screen.getByText(/respects those controls/i)).toBeInTheDocument();
     expect(screen.getByText(/Restricted Site Warning/i)).toBeInTheDocument();

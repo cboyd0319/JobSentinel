@@ -71,10 +71,10 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   upstream `skills-ref`, handoffs, templates, rubrics, Persona/ResumeSkills/
   career-ops coverage, and fresh 2026-06-19 lint/package/SBOM staging proof.
 - LinkedIn config/scraper types expose no session-cookie fields. User-gated
-  paths are search links, pasted links, Browser Import, manual entry, and
-  Workbench ledger with privacy reminders. 2026-06-19 desktop/mobile mock UI
-  and user-assisted live LinkedIn checks passed without auth/session capture,
-  hidden page reads, automation, or submit actions.
+  paths are search links, pasted links, Browser Import visible-card capture,
+  manual entry, and Workbench ledger. 2026-06-19 mock UI, generated Browser
+  Import, and user-assisted live LinkedIn checks passed without auth/session
+  capture, hidden page reads, automation, or submit actions.
 - Desktop/mobile normal-state and Quiet Shield token checks passed for primary
   routes; forced empty/loading/error checks passed across startup and setup.
 - Setup Wizard desktop/mobile, whole-UI post-design click/action coverage, and

@@ -22,8 +22,9 @@ use uuid::Uuid;
 const BOOKMARKLET_TOKEN_HEADER: &str = "x-jobsentinel-token";
 const CONTENT_LENGTH_HEADER: &str = "content-length";
 const HEADER_BODY_SEPARATOR: &[u8] = b"\r\n\r\n";
-const MAX_BOOKMARKLET_REQUEST_BYTES: usize = 8192;
+const MAX_BOOKMARKLET_REQUEST_BYTES: usize = 24 * 1024;
 const MAX_BOOKMARKLET_CONNECTIONS: usize = 16;
+const MAX_BOOKMARKLET_JOBS_PER_REQUEST: usize = 12;
 #[cfg(not(test))]
 const BOOKMARKLET_READ_TIMEOUT: Duration = Duration::from_secs(3);
 #[cfg(test)]
@@ -464,16 +465,33 @@ fn consume_valid_bookmarklet_token(
     valid
 }
 
-fn bookmarklet_job_value(mut body: serde_json::Value) -> serde_json::Value {
+fn bookmarklet_job_value(body: &serde_json::Value) -> serde_json::Value {
     if let Some(job) = body.get("job") {
         return job.clone();
     }
 
+    let mut body = body.clone();
     if let serde_json::Value::Object(ref mut map) = body {
         map.remove("token");
     }
 
     body
+}
+
+fn bookmarklet_job_values(body: &serde_json::Value) -> Result<Vec<serde_json::Value>, String> {
+    let Some(jobs) = body.get("jobs") else {
+        return Ok(vec![bookmarklet_job_value(body)]);
+    };
+
+    let Some(jobs) = jobs.as_array() else {
+        return Err(INVALID_BOOKMARKLET_PAYLOAD_MESSAGE.to_string());
+    };
+
+    if jobs.is_empty() || jobs.len() > MAX_BOOKMARKLET_JOBS_PER_REQUEST {
+        return Err(INVALID_BOOKMARKLET_PAYLOAD_MESSAGE.to_string());
+    }
+
+    Ok(jobs.clone())
 }
 
 fn request_header_value<'a>(request: &'a str, header_name: &str) -> Option<&'a str> {
@@ -527,22 +545,33 @@ fn http_or_https_origin(value: &str) -> Option<(String, String, u16)> {
     ))
 }
 
-fn bookmarklet_job_url_value(body: &serde_json::Value) -> Option<&str> {
+fn bookmarklet_job_url_values(body: &serde_json::Value) -> Vec<&str> {
+    if let Some(jobs) = body.get("jobs").and_then(serde_json::Value::as_array) {
+        return jobs
+            .iter()
+            .filter_map(|job| job.get("url").and_then(serde_json::Value::as_str))
+            .collect();
+    }
+
     body.get("job")
         .and_then(|job| job.get("url"))
         .or_else(|| body.get("url"))
         .and_then(serde_json::Value::as_str)
+        .into_iter()
+        .collect()
 }
 
 fn bookmarklet_payload_matches_request_origin(request: &str, body: &serde_json::Value) -> bool {
-    let Some(job_origin) = bookmarklet_job_url_value(body).and_then(http_or_https_origin) else {
-        return true;
-    };
+    bookmarklet_job_url_values(body).into_iter().all(|job_url| {
+        let Some(job_origin) = http_or_https_origin(job_url) else {
+            return true;
+        };
 
-    request_header_value(request, "origin").is_none_or(|origin| {
-        http_or_https_origin(origin).is_some_and(|request_origin| request_origin == job_origin)
-    }) && request_header_value(request, "referer").is_none_or(|referer| {
-        http_or_https_origin(referer).is_some_and(|request_origin| request_origin == job_origin)
+        request_header_value(request, "origin").is_none_or(|origin| {
+            http_or_https_origin(origin).is_some_and(|request_origin| request_origin == job_origin)
+        }) && request_header_value(request, "referer").is_none_or(|referer| {
+            http_or_https_origin(referer).is_some_and(|request_origin| request_origin == job_origin)
+        })
     })
 }
 
@@ -633,8 +662,17 @@ async fn handle_import_request(
         );
     }
 
-    let job_data: BookmarkletJobData =
-        match serde_json::from_value(bookmarklet_job_value(body_value)) {
+    let batch_mode = body_value.get("jobs").is_some();
+    let job_values = match bookmarklet_job_values(&body_value) {
+        Ok(values) => values,
+        Err(message) => {
+            return (json_error_response(message), "application/json".to_string());
+        }
+    };
+    let mut job_data_values = Vec::with_capacity(job_values.len());
+
+    for job_value in job_values {
+        let job_data: BookmarkletJobData = match serde_json::from_value(job_value) {
             Ok(data) => data,
             Err(_) => {
                 tracing::error!("Failed to parse bookmarklet job data");
@@ -645,12 +683,57 @@ async fn handle_import_request(
             }
         };
 
-    // Validate job data
-    if let Err(e) = job_data.validate() {
-        return (json_error_response(e), "application/json".to_string());
+        if let Err(message) = job_data.validate() {
+            return (json_error_response(message), "application/json".to_string());
+        }
+
+        job_data_values.push(job_data);
     }
 
-    // Extract fields
+    let mut imported = 0usize;
+    let mut skipped = 0usize;
+
+    for job_data in job_data_values {
+        match store_bookmarklet_job(database.as_ref(), job_data).await {
+            Ok(Some(_job_id)) => imported += 1,
+            Ok(None) if batch_mode => skipped += 1,
+            Ok(None) => {
+                return (
+                    json_error_response("Job already exists in database"),
+                    "application/json".to_string(),
+                );
+            }
+            Err(message) => {
+                return (json_error_response(message), "application/json".to_string());
+            }
+        }
+    }
+
+    if batch_mode {
+        return (
+            json!({
+                "success": true,
+                "message": "Jobs imported successfully",
+                "imported": imported,
+                "skipped": skipped,
+            })
+            .to_string(),
+            "application/json".to_string(),
+        );
+    }
+
+    (
+        r#"{"success":true,"message":"Job imported successfully"}"#.to_string(),
+        "application/json".to_string(),
+    )
+}
+
+async fn store_bookmarklet_job(
+    database: &Database,
+    job_data: BookmarkletJobData,
+) -> Result<Option<i64>, String> {
+    job_data.validate()?;
+
     let title = job_data.title.trim().to_string();
     let company = job_data
         .get_company()
@@ -666,13 +749,10 @@ async fn handle_import_request(
         .map(|value| value.trim().to_string())
         .filter(|value| !value.is_empty());
     let remote = job_data.is_remote();
-    let url = match canonicalize_user_supplied_job_url(job_data.url.trim()) {
+    let url = match canonicalize_bookmarklet_job_url(job_data.url.trim()) {
         Ok(url) => url,
         Err(_) => {
-            return (
-                json_error_response("Job link must be a public https address"),
-                "application/json".to_string(),
-            );
+            return Err("Job link must be a public https address".to_string());
         }
     };
 
@@ -682,10 +762,7 @@ async fn handle_import_request(
     // Check if job already exists
     match database.job_exists_by_hash(&job_hash).await {
         Ok(true) => {
-            return (
-                json_error_response("Job already exists in database"),
-                "application/json".to_string(),
-            );
+            return Ok(None);
         }
         Ok(false) => {}
         Err(_e) => {
@@ -693,10 +770,7 @@ async fn handle_import_request(
                 error_kind = "database",
                 "Database error checking bookmarklet job existence"
             );
-            return (
-                json_error_response(BOOKMARKLET_DATABASE_FAILURE_MESSAGE),
-                "application/json".to_string(),
-            );
+            return Err(BOOKMARKLET_DATABASE_FAILURE_MESSAGE.to_string());
         }
     }
 
@@ -732,9 +806,7 @@ async fn handle_import_request(
         repost_count: 0,
     };
 
-    let result = database.upsert_job(&job).await;
-
-    match result {
+    match database.upsert_job(&job).await {
         Ok(job_id) => {
             tracing::info!(
                 job_id,
@@ -745,22 +817,33 @@ async fn handle_import_request(
                 remote,
                 "Job imported from bookmarklet"
             );
-            (
-                r#"{"success":true,"message":"Job imported successfully"}"#.to_string(),
-                "application/json".to_string(),
-            )
+            Ok(Some(job_id))
         }
         Err(_e) => {
             tracing::error!(
                 error_kind = "database",
                 "Database error inserting bookmarklet job"
             );
-            (
-                json_error_response(BOOKMARKLET_DATABASE_FAILURE_MESSAGE),
-                "application/json".to_string(),
-            )
+            Err(BOOKMARKLET_DATABASE_FAILURE_MESSAGE.to_string())
         }
     }
+}
+
+fn canonicalize_bookmarklet_job_url(value: &str) -> Result<String, String> {
+    let canonical = canonicalize_user_supplied_job_url(value)?;
+    let Ok(mut parsed) = url::Url::parse(&canonical) else {
+        return Ok(canonical);
+    };
+
+    if parsed.host_str().is_some_and(|host| {
+        host.eq_ignore_ascii_case("linkedin.com") || host.ends_with(".linkedin.com")
+    }) {
+        parsed.set_query(None);
+        parsed.set_fragment(None);
+        return Ok(parsed.to_string());
+    }
+
+    Ok(canonical)
 }
 
 fn bookmarklet_error_label(error: &BookmarkletError) -> &'static str {

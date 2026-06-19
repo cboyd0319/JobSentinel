@@ -10,6 +10,11 @@ Before release, every source path must be one of these:
 Importers and restricted-site workflows must be classified and verified against
 the closest matching category below.
 
+- Help-first informed consent is part of the source contract. Account, terms,
+  or source-policy risk should produce plain warnings, local acknowledgement,
+  rate limits, and secure user-controlled paths. Direct privacy/security risk,
+  credential capture, session persistence, hidden background access, platform
+  control bypass, unsafe URLs, or unbounded access remains a hard stop.
 - Native source check with parser, transport, rate-limit, sanitized-error, and
   source-status coverage.
 - Public unauthenticated restricted-source path with a prominent warning,
@@ -27,6 +32,11 @@ the closest matching category below.
   window, shows the warning and privacy reminder, and provides visible
   navigation. This is not a scraper path unless JobSentinel inspects page DOM,
   network traffic, storage, cookies, auth headers, or drives actions.
+- User-clicked Browser Import where JobSentinel reads only the current visible
+  page or visible job cards after the user clicks the browser button, stores
+  only local job records for review, strips session-like URL context, caps
+  payload size and job count, and never reads cookies, browser storage, network
+  traffic, hidden pages, or pages the user did not open.
 - Any JobSentinel-opened browser session with a visible privacy reminder,
   user-controlled close/continue behavior, and no hard expiry unless
   JobSentinel reads, extracts, automates, or submits restricted-site content.
@@ -45,10 +55,11 @@ Do not claim a non-scraper restricted workflow is ready from code inspection
 alone. LinkedIn-compatible and similar restricted-site flows need manual proof
 for the contract and the user experience: friendly warning copy, explicit saved
 acknowledgement, user-controlled browser opening, visible privacy reminder,
-continue/close behavior, one-click ledger events, selected or pasted text
-prefill only, manual confirmation before durable local data, fallback/manual
-entry paths, no hidden page reading, and no token, cookie, browser-storage,
-authorization-header, HAR, trace, screenshot, or session-state persistence.
+continue/close behavior, user-clicked visible-page import, one-click ledger
+events, Browser Import or selected/pasted text prefill, local review before
+relying on imported data, fallback/manual entry paths, no hidden page reading,
+and no token, cookie, browser-storage, authorization-header, HAR, trace,
+screenshot, or session-state persistence.
 
 ## Current Release Surface
 
@@ -70,9 +81,9 @@ authorization-header, HAR, trace, screenshot, or session-state persistence.
 | Search links | User-opened browser links | Restricted-board acknowledgement before opening, official/public links stay low-friction |
 | JobSentinel browser sessions | User-opened browser/webview action | Privacy reminder after long manual sessions, user can close or continue, no hard expiry unless JobSentinel reads or automates restricted content |
 | Pasted job link import | User-submitted individual URL | URL validation, restricted-domain acknowledgement, no local/private URLs, sanitized errors |
-| Browser Import | User-clicked browser action | Prominent warning, acknowledgement before enabling/copying, no token exposure, blocked-page fallback |
-| Restricted session activity ledger | User-confirmed local events | Dashboard and Settings Workbench entry points, pre-login warning, saved acknowledgement, privacy reminder, continue/close behavior, explicit user action for each event, selected/pasted text prefill only, one-click applied/saved/tracking records with optional details afterward, local-only storage, no DOM/network/storage inspection, no hidden inference, no silent refresh |
-| Non-scraper LinkedIn-compatible contracts | Human-controlled restricted workflow | Manual verification of copy, design, navigation, ack persistence, privacy reminder, no forced close for manual-only sessions, no stored auth material, no hidden page reading, no background monitoring, no scheduled refresh, local review before durable data, and clear fallback to pasted link or manual entry |
+| Browser Import | User-clicked browser action | Prominent warning, acknowledgement before enabling/copying, one-use local token, capped visible-page capture, LinkedIn visible job-card batch coverage, no token exposure, blocked-page fallback |
+| Restricted session activity ledger | User-confirmed local events | Dashboard and Settings Workbench entry points, pre-login warning, saved acknowledgement, privacy reminder, continue/close behavior, explicit user action for each event, Browser Import or selected/pasted text prefill only, one-click applied/saved/tracking records with optional details afterward, local-only storage, no DOM/network/storage inspection outside a user-clicked visible-page import, no hidden inference, no silent refresh |
+| Non-scraper LinkedIn-compatible contracts | Human-controlled restricted workflow | Manual verification of copy, design, navigation, ack persistence, privacy reminder, no forced close for manual-only sessions, no stored auth material, user-clicked visible-page import only, no hidden page reading, no background monitoring, no scheduled refresh, local review before relying on imported data, and clear fallback to pasted link or manual entry |
 | Company careers discovery | User-provided or discovered employer careers URL | Detect public ATS/API where available, normalize to native source when safe, keep unknown/custom pages user-opened until reviewed |
 | Shared source taxonomy | Discovery registry | `src/shared/jobSourceDiscoveryTaxonomy.ts` covers platform families, regional boards, source access models, technical authentication access, career-profile coverage, and user-agreement requirements |
 | Manual entry | Local user input | Works when every external source fails; no external side effects |
@@ -104,7 +115,7 @@ authorization-header, HAR, trace, screenshot, or session-state persistence.
 | Monster | US and global variants | Restricted public unauthenticated path with prominent warning and source-specific review before scheduling |
 | ZipRecruiter | US | Restricted public unauthenticated path with prominent warning and source-specific review before scheduling |
 | Indeed | US and global variants | Restricted public unauthenticated path with prominent warning and source-specific review before scheduling |
-| LinkedIn search and company jobs | Global | User-gated restricted discovery only; human-controlled browser shell may open search/company pages and show a privacy reminder, and JobSentinel may let the user log applied/saved/tracking events locally, but JobSentinel must not inspect DOM/network/storage, drive actions, capture login material, run hidden background access, or persist referral, origin, or landing-job session context as source config |
+| LinkedIn search and company jobs | Global | User-gated restricted discovery only; human-controlled browser shell may open search/company pages and show a privacy reminder, and JobSentinel may accept user-clicked Browser Import payloads for visible job cards and let the user log applied/saved/tracking events locally, but JobSentinel must not read hidden pages, network, or storage, drive actions, capture login material, run hidden background access, or persist referral, origin, or landing-job session context as source config |
 | LinkedIn Jobs Tracker | Global | User-gated restricted tracking only for jobs the user already saved or applied to; human-controlled browser shell may help the user reach applied/saved pages and let the user update local tracking events, but JobSentinel must not inspect DOM/network/storage, drive actions, capture login material, run hidden background access, or silently refresh tracking state |
 | LinkedIn Jobs home navigation | Global | User-opened navigation only for Preferences, Job tracker, and My Career Insights anchors; do not treat text-fragment anchors as saved source query state |
 | Built In network, state/city filters, and regional city boards | US and local markets | Restricted public unauthenticated path with prominent warning; model parent, state-filtered, city-filtered, and regional-host searches in shared taxonomy; use employer-career follow-through after the user reviews a role |
@@ -140,12 +151,12 @@ Platform and build: macOS 26.5.1 arm64, JobSentinel 2.9.0.
 | -------------- | ----------- | ------ | ---------------------------- | ------------------------------------------------------------------------------------------ |
 | Native scraper parser and transport contracts | `cargo test --lib scrapers` | Passed: 580 passed, 5 ignored network-only tests | Scraper errors use source-level, sanitized messages and fallbacks | No |
 | Scraper construction and pipeline | `cargo test --test scraper_integration_test` and `cargo test --test scraping_pipeline_integration` | Passed: 25 scraper integration tests and 12 pipeline integration tests | Empty or failing sources do not block the local pipeline | No |
-| Restricted-source UI and import contracts | `npm run test:run -- src/shared/jobSourceDiscoveryTaxonomy.test.ts src/shared/restrictedSourceTaxonomy.test.ts src/shared/linkedinWorkbench.test.ts src/components/LinkedInWorkbench.test.tsx src/components/BookmarkletGenerator.test.tsx src/components/ScraperHealthDashboard.sourceChecks.test.tsx src/components/DeepLinkGenerator.test.tsx src/pages/SettingsConfig.test.ts src/pages/Settings.sources.test.tsx src/pages/Settings.load.test.tsx src/mocks/handlers/scraperInterviewCommands.test.ts src/utils/sourceLabels.test.ts` | Passed: 93 tests across 12 files | Users see acknowledgement prompts, safe recovery text, and manual fallback paths | No |
+| Restricted-source UI and import contracts | `npm run test:run -- src/shared/jobSourceDiscoveryTaxonomy.test.ts src/shared/restrictedSourceTaxonomy.test.ts src/shared/linkedinWorkbench.test.ts src/components/BrowserImportButtonScript.test.ts src/components/LinkedInWorkbench.test.tsx src/components/BookmarkletGenerator.test.tsx src/components/ScraperHealthDashboard.sourceChecks.test.tsx src/components/DeepLinkGenerator.test.tsx src/pages/SettingsConfig.test.ts src/pages/Settings.sources.test.tsx src/pages/Settings.load.test.tsx src/mocks/handlers/scraperInterviewCommands.test.ts src/utils/sourceLabels.test.ts` | Passed: 95 tests across 13 files covering prompts, safe recovery text, visible-card Browser Import script coverage, and fallback paths | Users see acknowledgement prompts, visible-page capture copy, safe recovery text, and manual fallback paths | No |
 | LinkedIn-compatible restricted workflow | `cargo test --lib linkedin_workbench`, `cargo test --lib linkedin_auth`, and focused Chromium E2E for LinkedIn Workbench | Passed: local-only event ledger, fail-closed auth persistence, settings entry point, dashboard entry point, pasted-text prefill, privacy reminder, and no forced manual-session close | Add or update local records manually; use pasted link or manual entry if the browser path is unavailable | No |
-| Browser Import local helper | `cargo test --lib bookmarklet` | Passed: 43 local helper tests covering loopback binding, origin checks, one-use tokens, URL safety, defensive headers, safe copy errors, and import minimization | Use pasted job links or manual entry if Browser Import cannot connect | No |
+| Browser Import local helper | `cargo test --lib bookmarklet` | Passed: 46 local helper tests covering loopback binding, origin checks, one-use tokens, URL safety, defensive headers, safe copy errors, import minimization, capped visible LinkedIn job-card batch import, invalid-batch no-partial-insert behavior, mixed-origin rejection, and no stored LinkedIn query context | Use pasted job links or manual entry if Browser Import cannot connect | No |
 | Public live source probes | `cargo test --test live_scraper_test -- --ignored --test-threads=1` | Passed: 14 live checks for Greenhouse, Lever, RemoteOK, Hacker News, We Work Remotely, Built In, Dice, YC Startup Jobs, LinkedIn boundary, USAJobs skip path, JobsWithGPT skip path, SimplyHired, and Glassdoor | Live checks are opt-in; blocked, empty, credential-required, or human-check paths must use source-status recovery and manual fallback | No |
 | Scrapling Rust comparison | `cargo search scrapling --limit 10`, `cargo info scrapling`, `cargo info scrapling-fetch`, `cargo info scrapling-browser`, `cargo info scrapling-spider`, and local checkout scan at `0d61c3e` | Rechecked: crates remain 0.2.0; no v2.9.0 adoption because current adapters already use shared safe fetch and structured parsing, while Scrapling fetch/browser/spider paths add stealth, cookie/session, proxy, browser, crawler, redirect, or storage behavior outside the release boundary | Keep existing adapters; reconsider parser-only Scrapling after release only with default features off and a failing fixture proving current parsing is insufficient | No |
-| User-assisted live LinkedIn session | Ephemeral Playwright Chromium window opened to LinkedIn Jobs with no tracing, HAR, video, screenshots, storage export, cookie inspection, token inspection, or hidden page reads | Passed by user-assisted checklist: user reported covering role/location search, filters, multiple job cards, Save, job URL copy, Job Tracker, company Jobs tab, and Easy Apply modal without asking JobSentinel to automate or submit | JobSentinel should process only user-selected or pasted visible job text, copied public job links, and explicit local ledger actions | No |
+| User-assisted live LinkedIn session | Ephemeral Playwright Chromium window opened to LinkedIn Jobs with no tracing, HAR, video, screenshots, storage export, cookie inspection, token inspection, or hidden page reads | Passed by user-assisted checklist: user reported covering role/location search, filters, multiple job cards, Save, job URL copy, Job Tracker, company Jobs tab, and Easy Apply modal without asking JobSentinel to automate or submit | JobSentinel should process only user-clicked visible-page imports, copied public job links, pasted visible text, and explicit local ledger actions | No |
 
 Live drift found and corrected: the Lever live test depended on Plaid's public
 Lever board, which returned zero jobs on 2026-06-19. The test now uses a small

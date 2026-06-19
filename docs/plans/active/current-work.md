@@ -25,7 +25,8 @@ In scope:
 - Adding downloadable Agent Skills under `skills/` for job hunting and resume
   work, with specification-compliant `SKILL.md` packages.
 - Hardening Browser Import as the LinkedIn-compatible path: user-opened page,
-  user-clicked import, local review, and no LinkedIn login automation.
+  user-clicked visible-page or visible-card import, local review, and no
+  LinkedIn login automation.
 - Treating all scraper adapters, import paths, and non-scraper restricted-site
   contracts as release blockers, including LinkedIn-compatible search-link,
   pasted-link, Browser Import, Workbench, reminder, acknowledgement, ledger,
@@ -72,7 +73,7 @@ Out of scope:
 | ---- | ----- | ----------------- |
 | Dependency readiness | Complete | Package-manager, direct deps, overrides, and Action pins are latest; transitives stay lockfile-pinned |
 | Downloadable Agent Skills | Complete locally | Skills pass `lint:skills`; release packaging creates deterministic tar/ZIP artifacts. |
-| LinkedIn Workbench and restricted-source flow | Complete locally | Desktop/mobile mock UI and user-assisted live LinkedIn proof are recorded without cookies, hidden page reads, monitoring, automation, or submit actions. |
+| LinkedIn Workbench and restricted-source flow | Complete locally | Desktop/mobile mock UI, generated Browser Import visible-card coverage, and user-assisted live LinkedIn proof are recorded without cookies, hidden page reads, monitoring, automation, or submit actions. |
 | Scraper/source verification | Complete locally | Live source probes, restricted-source contract tests, manual restricted-source proof, and Scrapling comparison are recorded. |
 | Development and QA completion | Complete locally | Fresh full local gates pass; final release operations remain approval/credential-gated. |
 | macOS readiness | Release-gated | No-account path is complete; Gatekeeper-ready public distribution remains Apple-credential-gated. |
@@ -114,8 +115,9 @@ Out of scope:
   sources/resume skills, and non-technical starter paths.
 - Quiet Shield QA fixed wrapping, passive Keychain prompts, Protective Navy
   tokens, score colors, dashboard loading, and mobile Application Assist layout.
-- The v2.9.0 pass confirmed Browser Import is the LinkedIn path, not session
-  storage or automatic monitoring. Private profile inputs stay local.
+- Browser Import is the LinkedIn path, not session storage or hidden monitoring;
+  it now captures visible LinkedIn cards in a capped user-clicked batch. Private
+  profile inputs stay local.
 - Package-manager, npm/Cargo, override, Action/runner/apt pins are latest
   stable; `lint:deps`, `lint:actions`, and `release:check-deps` enforce freshness.
 - Live OS keyring integration tests are opt-in behind
@@ -130,8 +132,8 @@ Out of scope:
   templates, rubrics, validation, checksums, and release SBOM staging.
 - Browser Import desktop/mobile verification passed on 2026-06-17.
 - Scrapling Rust was rechecked on 2026-06-19; no v2.9.0 adoption is planned.
-- Restricted-source and LinkedIn-compatible workflow proof passed on 2026-06-19
-  with mock UI checks and user-assisted live browsing only.
+- Restricted-source and LinkedIn-compatible proof passed on 2026-06-19 with
+  mock UI, generated visible-card Browser Import, and user-assisted browsing.
 - CheatSheetSeries follow-ups hardened CI, dependency gates, source/network
   pinning, notification validation/redaction, Browser Import, HTTPS imports,
   Application Assist isolation, release assets, AI guards, skills, sandboxed

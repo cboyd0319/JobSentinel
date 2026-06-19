@@ -25,6 +25,8 @@ Audience and ease:
 - Who the user is.
 - What technical knowledge is assumed.
 - How the path stays usable for non-technical job seekers.
+- How warnings, confirmations, or disabled states avoid unnecessary friction.
+- How the change helps the user get jobs instead of only reducing project risk.
 
 Design contract:
 - Whether the change touches `DESIGN.md`, `docs/design/README.md`, or
@@ -58,6 +60,9 @@ Risks:
 - Restricted-source risk: whether the change touches sites that may restrict
   scraping, automation, cookies, tokens, browser automation, background access,
   or platform-control bypass.
+- Consent path: when risk is account, terms, or source-policy risk rather than
+  direct privacy/security risk, document the warning, acknowledgement, and
+  secure local path instead of blocking by default.
 
 Sensors:
 - Exact commands, manual checks, or reviewer passes needed.

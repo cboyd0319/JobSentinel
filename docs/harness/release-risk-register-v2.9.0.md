@@ -7,6 +7,13 @@ distribution risks that can block the `2.9.0` release. It is a release harness
 artifact, not legal advice. Treat external terms as volatile and recheck primary
 sources before changing restricted-source behavior.
 
+Risk tracking must not turn into arbitrary product blocking. When the risk is
+account, terms, or source-policy exposure, JobSentinel should inform the user,
+record explicit local acknowledgement, and provide the safest local path it can.
+Block only for direct privacy/security failures, credential or session capture,
+hidden background access, platform-control bypass, unsafe URLs, unbounded source
+access, or external side effects the user did not choose.
+
 ## Boundary
 
 - Trusted local boundary: the shipped JobSentinel app, local config, local
@@ -80,10 +87,11 @@ It would also increase account, privacy, and project takedown risk.
 
 Release status:
 
-Blocking only if `2.9.0` claims native authenticated LinkedIn scraping or
-tracking. Non-blocking if `2.9.0` ships LinkedIn as user-opened search links,
-the local Workbench ledger, Browser Import, pasted single-job links, and manual
-entry.
+Blocking only if `2.9.0` claims native authenticated LinkedIn scraping,
+scheduled monitoring, or automatic application actions. Non-blocking if
+`2.9.0` ships LinkedIn as user-opened search links, the local Workbench ledger,
+user-clicked Browser Import for visible jobs, pasted single-job links, and
+manual entry.
 
 Fix:
 
@@ -92,38 +100,42 @@ and manually verify an ephemeral interactive session manager before release:
 pre-login warning, fresh sign-in, no persisted auth material, no background use,
 plain-language privacy reminder, and full UI coverage.
 
-Current release direction is the local Workbench ledger, not the browser
+Current release direction is visible-page activity capture, not the browser
 extension path. The Workbench can be opened from Dashboard quick actions or
 Settings, shows friendly acknowledgement copy, opens LinkedIn only when the user
-chooses, and records only user-confirmed local events.
+chooses, imports visible jobs only when the user clicks Browser Import, and
+records only user-confirmed local events.
 
 A human-controlled LinkedIn browser shell is compatible with that policy only if
-it does not read, extract, capture, or automate LinkedIn pages. JobSentinel may
-open the isolated window, show a privacy reminder, provide user-visible
-navigation links, and let the user close or continue. JobSentinel analysis should run
-after the user brings selected job data back through pasted text, pasted links,
-manual entry, user-confirmed activity ledger entries, or another separately
-reviewed import path.
+it does not capture login material, browser storage, network traffic, hidden
+page state, or actions the user did not choose. JobSentinel may open the
+isolated window, show a privacy reminder, provide user-visible navigation links,
+let the user close or continue, and accept user-clicked Browser Import payloads
+from the visible page. JobSentinel analysis should run after job data is local
+through visible-page import, pasted text, pasted links, manual entry, or
+user-confirmed activity ledger entries.
 
-An activity ledger can make LinkedIn useful without scraping: while the user
-works in the human-controlled session, JobSentinel may show adjacent controls
-such as `Log applied`, `Track this job`, `Saved on LinkedIn`, `Add note`, or
-`Paste job details`. Those controls must be clicked by the user, write only
-local records, and never infer an action from LinkedIn DOM, network traffic,
-storage, screenshots, or hidden browser state. Ghost-job analysis may use the
-local ledger, pasted job details, the user's own prior snapshots, and public
-employer or ATS follow-through, but must not silently refresh LinkedIn.
+An activity ledger can make LinkedIn useful without scheduled scraping: while
+the user works in the human-controlled session, JobSentinel may show adjacent
+controls such as `Log applied`, `Track this job`, `Saved on LinkedIn`,
+`Add note`, or `Paste job details`. Those controls must be clicked by the user,
+write only local records, and never infer an action from LinkedIn network
+traffic, storage, screenshots, or hidden browser state. Ghost-job analysis may
+use Browser Import captures, the local ledger, pasted job details, the user's
+own prior snapshots, and public employer or ATS follow-through, but must not
+silently refresh LinkedIn.
 
 Saved acknowledgements may reduce repeat friction when they stay local and
 specific. Store only source id, warning version, acknowledgement time, and local
 device context. Require a fresh acknowledgement when warning copy, source class,
 or data behavior changes.
 
-Selected-text or pasted-text prefill is allowed only when the user explicitly
-copies, pastes, or sends selected text into JobSentinel. For restricted sites,
-JobSentinel must not read hidden page content, DOM, accessibility trees,
-screenshots, browser storage, or network traffic to fill the ledger. Prefilled
-fields remain suggestions until the user confirms them.
+Visible-page import and selected-text or pasted-text prefill are allowed only
+when the user explicitly clicks Browser Import, copies, pastes, or sends
+selected text into JobSentinel. For restricted sites, JobSentinel must not read
+hidden page content, accessibility trees, screenshots, browser storage, or
+network traffic to fill the ledger. Prefilled fields remain suggestions until
+the user confirms them.
 Workbench notes derived from pasted or selected text must remove session-like
 URL query fields, cookies, and token-like fields before local storage.
 
@@ -374,10 +386,10 @@ If a source's terms are blocked, unavailable, or unclear, keep it in
 - Do not claim non-scraper LinkedIn-compatible workflows are release-ready until
   the source-debug ledger has manual evidence for warning copy, saved
   acknowledgement, privacy reminder, Workbench navigation, one-click local
-  ledger actions, selected or pasted text prefill only, fallback/manual entry,
-  and no cookies, tokens, browser storage, authorization headers, hidden page
-  reading, background monitoring, scheduled refresh, traces, HARs, screenshots,
-  or persisted session state.
+  ledger actions, user-clicked visible-page Browser Import or selected/pasted
+  text prefill, fallback/manual entry, and no cookies, tokens, browser storage,
+  authorization headers, hidden page reading, background monitoring, scheduled
+  refresh, traces, HARs, screenshots, or persisted session state.
 - Do not add a restricted domain without a category, source reference, and
   concrete reason.
 - Do not claim any scraper or source adapter is release-ready until it has

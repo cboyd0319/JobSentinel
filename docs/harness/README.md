@@ -26,12 +26,13 @@ boundaries, explicit user review, or privacy-preserving defaults. If Rule 0
 conflicts with convenience, automation, speed, analytics, or research value,
 Rule 0 wins.
 
-Restricted-source job sites stay user-directed and warning-gated. Native paths
-such as search links, pasted single-job links, Browser Import, and manual entry
-must not collect login details or session cookies, bypass platform controls, or
-run hidden background access. Before release, all configured source adapters and
-user-gated restricted-source paths need focused parser/import/gate coverage and
-manual validation where the UI exposes them.
+Restricted-source job sites stay user-directed and warning-gated. Warning-gated
+does not mean disabled: when users accept account, legal, or platform risk,
+prefer secure local enablement over arbitrary product blocks. Hard stops are
+login-detail or session-cookie capture, platform-control bypass, hidden
+background access, unsafe URL handling, and unbounded source access. Before
+release, all configured source adapters and user-gated restricted-source paths
+need focused parser/import/gate coverage and UI validation where exposed.
 
 Machine-specific absolute local paths are private data and portability breaks.
 Docs and code must use repo-relative paths, file names, or `<repo-root>` and

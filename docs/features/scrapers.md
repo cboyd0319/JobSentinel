@@ -4,6 +4,13 @@ JobSentinel favors official-source job monitoring and public job sources
 checked within clear limits. Source access must preserve user privacy, source
 boundaries, rate limits, and review-first workflows.
 
+The product stance is help-first informed consent. If a source carries account,
+terms, or source-policy risk, JobSentinel should explain that risk plainly and
+let the user choose a secure local path when privacy and security guardrails can
+still hold. Block only when the requested path would capture secrets, persist
+sessions, bypass platform controls, hide background access, violate URL or rate
+limits, or create unsafe external side effects.
+
 Restricted job boards are supported only through explicit user-controlled
 paths: search links, manual entry, pasted individual job links, Browser Import,
 or scheduled checks that show a source-specific warning first. Before risky
@@ -13,7 +20,7 @@ account or create legal/privacy risk. The user can continue only after
 acknowledging that warning. JobSentinel does not encourage terms violations,
 collect restricted-site login details, save session cookies, bypass human
 checks, call private systems, or read restricted pages in hidden background
-jobs.
+access.
 
 Restricted authenticated sites have a stricter rule. If JobSentinel opens a
 sign-in page for LinkedIn or a similar source, the warning must appear before
@@ -78,35 +85,61 @@ data behavior changes.
 
 ## User-Controlled LinkedIn Workbench
 
-The LinkedIn-compatible flow is a workbench, not a scraper. It is reachable
-from Dashboard quick actions and Settings:
+The LinkedIn-compatible flow is user-controlled activity capture, not a
+scheduled scraper. It is reachable from Dashboard quick actions and Settings:
 
 1. The user starts the LinkedIn session from JobSentinel.
 2. JobSentinel shows short, friendly copy about what it can help with.
 3. The user signs in and uses LinkedIn directly.
-4. JobSentinel shows local controls beside the browser: save, applied, track,
+4. The user can click the Browser Import button on a LinkedIn Jobs page to save
+   the visible job cards into local job records for review.
+5. JobSentinel shows local controls beside the browser: save, applied, track,
    note, follow up, not interested, and paste details.
-5. JobSentinel stores only user-confirmed local records.
-6. Local analysis runs after the record exists in JobSentinel.
+6. JobSentinel stores only visible-page imports and user-confirmed local
+   records.
+7. Local analysis runs after the record exists in JobSentinel.
 
 `Log applied` should be a one-click action. If title, company, or link are not
 known yet, create a draft application record with `Needs details` fields and
 prompt the user to finish it later. Optional details should come after the
 click, not before it.
 
-Prefill is allowed only from explicit user action: pasted job links, pasted
-details, selected text the user sends to JobSentinel, or previously confirmed
-local records. For restricted authenticated sites, do not prefill by reading
-page DOM, network traffic, browser storage, accessibility trees, screenshots,
-or hidden browser state. Prefilled values remain suggestions until the user
-confirms them. Pasted Workbench notes must remove session-like URL query
-fields, cookies, and token-like fields before local storage.
+Prefill is allowed only from explicit user action: Browser Import on the page
+the user opened, pasted job links, pasted details, selected text the user sends
+to JobSentinel, or previously confirmed local records. For restricted
+authenticated sites, Browser Import may read only the current visible page after
+the user clicks the button; do not prefill by reading network traffic, browser
+storage, hidden page state, screenshots, or background pages. Prefilled values
+remain suggestions until the user confirms them. Pasted Workbench notes must
+remove session-like URL query fields, cookies, and token-like fields before
+local storage.
 When a user pastes selected text into the Workbench, JobSentinel may fill the
 suggestion fields immediately from that pasted text.
 
-Interest learning should use local JobSentinel signals first: saved jobs,
-manual ledger events, search terms, dismissed jobs, notes, profile preferences,
-and user ratings. For restricted authenticated sites, JobSentinel may learn from
+### Assistive Capture Model
+
+JobSentinel should reduce spreadsheet-style work without becoming a hidden
+scraper. The release-safe model is assistive capture:
+
+- **Capture what the user intentionally exposes.** A user-clicked Browser Import
+  action may read the visible posting or visible job cards on the current page.
+- **Queue observations locally.** Captured jobs become local records for review,
+  scoring, ghost-job checks, reminders, and resume tailoring.
+- **Keep actions explicit.** Applied, saved, tracking, note, not-interested,
+  interview, follow-up, and rejection events must come from a JobSentinel
+  control, a visible user-approved import, or another explicit user action.
+- **Never read hidden state.** Do not inspect restricted-site cookies, browser
+  storage, authorization headers, network traffic, hidden pages, screenshots, or
+  background tabs.
+- **Make capture visible and reversible.** Any future watch-and-learn mode must
+  show that it is on, say what it records, keep data local, provide an off
+  switch, and require user confirmation before durable application records are
+  created.
+
+Interest learning should use local JobSentinel signals first: Browser Import
+captures, saved jobs, manual ledger events, search terms, dismissed jobs, notes,
+profile preferences, and user ratings. For restricted authenticated sites,
+JobSentinel may learn from user-clicked visible-page captures and
 JobSentinel-side actions, but not from silent page observation. Any future
 "watch and learn" mode must be visibly on, explain what it records, stay local,
 have an off switch, and never submit applications or create durable application

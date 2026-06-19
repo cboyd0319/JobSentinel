@@ -247,7 +247,7 @@ export function BookmarkletGenerator() {
                 </Button>
               </div>
               <p className="text-xs text-gray-500">
-                For your safety, copy a fresh browser button after each saved job, after
+                For your safety, copy a fresh browser button after each import, after
                 about one hour, or if JobSentinel was closed and reopened.
               </p>
             </div>
@@ -255,9 +255,10 @@ export function BookmarkletGenerator() {
             <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
               <h5 className="text-sm font-medium text-blue-400 mb-2">Choose How to Save Jobs:</h5>
               <p className="text-sm text-gray-300 mb-3">
-                Recommended: paste the job link into JobSentinel. Optional shortcut:
-                use Browser Button only if you already use browser bookmarks or have
-                step-by-step help for your browser.
+                Recommended: use the browser button on a job page or supported
+                jobs list. It saves the page or visible job cards you choose into
+                JobSentinel. Paste a link only when the browser button cannot
+                read the page.
               </p>
               <ol className="text-sm text-gray-300 space-y-2 list-decimal list-inside">
                 <li>Turn on Browser Import above</li>
@@ -266,16 +267,16 @@ export function BookmarkletGenerator() {
                 <li>Name it "Import to JobSentinel"</li>
                 <li>Paste the copied text into the bookmark link field</li>
                 <li>Save the bookmark to your bookmarks bar</li>
-                <li>Copy the browser button again after each saved job, after about one hour, or if JobSentinel was closed and reopened</li>
+                <li>Copy the browser button again after each import, after about one hour, or if JobSentinel was closed and reopened</li>
               </ol>
             </div>
 
             <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-4">
               <h5 className="text-sm font-medium text-green-400 mb-2">How to Use:</h5>
               <ol className="text-sm text-gray-300 space-y-2 list-decimal list-inside">
-                <li>Open an individual job page. Official career pages usually work best.</li>
+                <li>Open an individual job page or a supported jobs list.</li>
                 <li>Use the "Import to JobSentinel" button in your bookmarks bar</li>
-                <li>JobSentinel saves the details it can read from that page</li>
+                <li>JobSentinel saves the current posting or visible job cards it can read</li>
                 <li>You'll see a confirmation message</li>
               </ol>
             </div>
@@ -295,7 +296,7 @@ export function BookmarkletGenerator() {
                   <p className="font-medium">Best page shape:</p>
                   <ul className="list-disc list-inside text-xs space-y-1 mt-1">
                     <li>Career pages with job details on the page</li>
-                    <li>One role per page</li>
+                    <li>Supported job lists with visible cards</li>
                     <li>Pages opened by you in your browser</li>
                   </ul>
                 </div>

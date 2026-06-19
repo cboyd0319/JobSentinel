@@ -154,6 +154,22 @@ export function LinkedInWorkbench() {
         </div>
       </div>
 
+      <div className="rounded-lg border border-surface-200 bg-surface-50 p-4 dark:border-surface-700 dark:bg-surface-800">
+        <p className="text-sm font-semibold text-surface-900 dark:text-surface-100">
+          Fastest path: browse normally, then save the page.
+        </p>
+        <p className="mt-2 text-sm leading-6 text-surface-700 dark:text-surface-300">
+          Use the Browser Button on a LinkedIn Jobs page to save the visible job
+          cards, or on an individual job page to save that posting. Then use
+          these buttons for what you did: applied, saved, tracking, note, or not
+          interested.
+        </p>
+        <p className="mt-2 text-xs leading-5 text-surface-500 dark:text-surface-400">
+          If page import misses details, paste selected text below or edit the
+          fields before saving the local record.
+        </p>
+      </div>
+
       <div className="flex flex-col gap-2 sm:flex-row">
         <Button
           variant="primary"
