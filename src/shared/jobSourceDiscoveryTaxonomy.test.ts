@@ -88,6 +88,93 @@ describe("jobSourceDiscoveryTaxonomy", () => {
     expect(publicNativeIds).not.toContain("linkedin");
   });
 
+  it("covers roadmap ATS families with reviewed definitions or adapters", () => {
+    const sourceIds = JOB_SOURCE_DISCOVERY_TAXONOMY.map((entry) => entry.id);
+
+    expect(sourceIds).toEqual(
+      expect.arrayContaining([
+        "greenhouse",
+        "lever",
+        "ashby",
+        "smartrecruiters",
+        "workday",
+        "workable",
+        "recruitee",
+        "breezy",
+        "jazzhr",
+        "bullhorn",
+      ]),
+    );
+
+    for (const sourceId of [
+      "greenhouse",
+      "lever",
+      "ashby",
+      "smartrecruiters",
+      "workday",
+      "workable",
+      "recruitee",
+      "breezy",
+      "jazzhr",
+      "bullhorn",
+    ]) {
+      const source = JOB_SOURCE_DISCOVERY_TAXONOMY.find(
+        (entry) => entry.id === sourceId,
+      );
+
+      expect(source?.hostPatterns.length, `${sourceId} host patterns`).toBeGreaterThan(0);
+      expect(source?.implementationPath, `${sourceId} implementation path`).toMatch(
+        /adapter|detect|endpoint|api|import/i,
+      );
+      expect(source?.notes, `${sourceId} notes`).not.toHaveLength(0);
+    }
+  });
+
+  it("covers employer career-page discovery examples outside broad boards", () => {
+    const employerCareers = JOB_SOURCE_DISCOVERY_TAXONOMY.find(
+      (entry) => entry.id === "employer-careers-pages",
+    );
+
+    expect(employerCareers).toMatchObject({
+      category: "employer-careers",
+      accessModel: "employer-career-system",
+      careerProfileIds: "all",
+    });
+    expect(employerCareers?.hostPatterns).toEqual(
+      expect.arrayContaining(["careers.*", "*/careers", "*/jobs"]),
+    );
+    expect(employerCareers?.examples).toEqual(
+      expect.arrayContaining([
+        "Fivetran Careers",
+        "SpaceX Careers",
+        "Google Careers",
+        "Yahoo Careers",
+        "IBM Careers",
+        "Microsoft Careers",
+      ]),
+    );
+  });
+
+  it("covers requested country and regional discovery markets", () => {
+    const regionEntries = (region: string) =>
+      JOB_SOURCE_DISCOVERY_TAXONOMY.filter((entry) =>
+        entry.regions.includes(region),
+      );
+
+    expect(regionEntries("US").map((entry) => entry.id)).toEqual(
+      expect.arrayContaining(["builtin", "usajobs", "state-workforce-boards"]),
+    );
+    expect(regionEntries("UK").map((entry) => entry.id)).toEqual(
+      expect.arrayContaining(["cv-library", "totaljobs", "gov-uk-find-a-job"]),
+    );
+    expect(regionEntries("India").map((entry) => entry.id)).toEqual(
+      expect.arrayContaining(["naukri", "foundit", "shine", "timesjobs"]),
+    );
+    expect(regionEntries("Canada").map((entry) => entry.id)).toEqual(
+      expect.arrayContaining(["canada-job-bank"]),
+    );
+  });
+
   it("keeps Greenhouse current and legacy host coverage explicit", () => {
     const greenhouse = JOB_SOURCE_DISCOVERY_TAXONOMY.find(
       (entry) => entry.id === "greenhouse",

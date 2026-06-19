@@ -439,7 +439,14 @@ export const JOB_SOURCE_PLATFORM_DISCOVERY_ENTRIES: readonly model.JobSourceDisc
     regions: ["global"],
     careerProfileIds: "all",
     hostPatterns: ["careers.*", "*/careers", "*/jobs"],
-    examples: ["Google Careers", "Yahoo Careers", "IBM Careers"],
+    examples: [
+      "Fivetran Careers",
+      "SpaceX Careers",
+      "Google Careers",
+      "Yahoo Careers",
+      "IBM Careers",
+      "Microsoft Careers",
+    ],
     implementationPath:
       "Discover ATS/API signals first, then fall back to user-opened import, pasted job links, or manual entry.",
     notes:
