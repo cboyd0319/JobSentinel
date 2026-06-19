@@ -91,6 +91,7 @@ export function parseArgs(args) {
       !hasArg(args, "--no-require-supply-chain"),
     requireChecksum: !hasArg(args, "--no-require-checksum"),
     requireSupplyChain,
+    requireWindowsUnsignedLabel: hasArg(args, "--require-windows-unsigned-label"),
   };
 }
 
@@ -467,6 +468,17 @@ export function validateExactPublicInstallerAssetSet(release, { platforms, expec
   }
 }
 
+export function validateWindowsUnsignedAssetLabel(asset, { requireWindowsUnsignedLabel }) {
+  if (!requireWindowsUnsignedLabel) return;
+
+  const name = typeof asset?.name === "string" ? asset.name : "";
+  if (!name.toLowerCase().includes("_unsigned")) {
+    throw new Error(
+      `Unsigned Windows no-account release asset must include "_unsigned" in the file name: ${name}`,
+    );
+  }
+}
+
 async function sha256File(path) {
   const data = await readFile(path);
   return createHash("sha256").update(data).digest("hex");
@@ -642,6 +654,12 @@ async function verifyPlatform({ release, platform, expectedVersion, options, tem
     const assetStat = await stat(assetPath);
     if (!assetStat.isFile() || assetStat.size === 0) {
       throw new Error(`Downloaded ${platform} release asset is empty: ${asset.name}`);
+    }
+
+    if (platform === "windows") {
+      validateWindowsUnsignedAssetLabel(asset, {
+        requireWindowsUnsignedLabel: options.requireWindowsUnsignedLabel,
+      });
     }
 
     assetDigests[asset.name] = await verifyChecksum({

@@ -60,6 +60,8 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 - Current `2.9.0` no-account universal DMG was rebuilt after `28dcd6dd`
   with checksum `7249068da39322b2527f59b12388cb42517459a1f425d85b926ec7e713cd596f`;
   metadata, universal arch, signature, mounted/installed smoke, and private isolated data pass.
+- Hosted no-account release can publish `_unsigned` Windows MSI, no-account
+  macOS DMG, Linux AppImage/deb, checksums, SBOMs, attestations, and skills.
 - Private resume parser smoke checks passed on 2026-06-17 for the supplied PDF
   and eight reference profiles via `JOBSENTINEL_LOCAL_RESUME_SMOKE_PATHS`, with
   no committed local paths or names.
@@ -111,7 +113,8 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 
 ## Next Best Work
 
-1. Build/upload/verify `2.9.0` platform assets after approval and credentials.
+1. Push/tag/build/upload/verify `2.9.0` no-account platform assets; signed
+   Windows and Gatekeeper-ready macOS remain credential-backed upgrades.
 2. Continue resume, guided intake, job-card protection, and encrypted storage
    only where they improve truthful, reviewed, local, non-technical workflows.
 3. Continue macOS readiness without claiming Gatekeeper-ready distribution

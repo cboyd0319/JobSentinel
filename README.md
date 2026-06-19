@@ -85,7 +85,7 @@ or build something better with it if that helps more people.
 | What can leave the device? | Enabled job-source checks, job sources or career pages the user approves for checking, alerts the user turns on, optional location detection after a click, support links opened by the user, or explicitly approved external AI requests. |
 | Is external AI required? | No. External AI is optional, disabled by default, preview-gated, and gateway-bound. |
 | Is it free? | Yes. JobSentinel is MIT licensed and free forever. |
-| Source version | `2.9.0` in `main`; local `2.9.0` no-account macOS package evidence exists, while fresh public Windows and Linux `2.9.0` assets are still pending. |
+| Source version | `2.9.0` in `main`; local `2.9.0` no-account macOS package evidence exists, and the release workflow can publish signed-or-unsigned-labeled Windows, no-account macOS, and Linux assets after final push/tag. |
 | Latest published macOS package | `v2.7.7` no-account universal `.dmg` with matching `.dmg.sha256` checksum; legacy fallback that predates current isolated-data and supply-chain public verifier gates. |
 | Latest full cross-platform release | `v2.7.5` with Windows and Linux installers plus a no-account universal macOS package; legacy fallback that predates current checksum/SBOM public verifier gates for all platforms. |
 | macOS full-public-readiness | 94%; no-account path completion is 100% at a 94% public-readiness ceiling. Local `2.9.0` universal DMG, checksum, metadata, architecture, install, visible-window launch, private local-data permissions, and readiness-harness checks are in place. The final 6% is externally blocked by Apple Developer Program materials for Developer ID signing, notarization, stapling, and Gatekeeper acceptance. |
@@ -126,7 +126,7 @@ as a legacy fallback after confirming the matching `.sha256` checksum.
 
 | Platform | Download |
 | -------- | --------- |
-| Windows | Windows installer from the latest full cross-platform release, currently legacy `v2.7.5`. |
+| Windows | Windows installer from the latest full cross-platform release, currently legacy `v2.7.5`. The pending no-account `2.9.0` path uses `_unsigned.msi` when signing credentials are unavailable. |
 | macOS | Universal Mac package for Apple silicon and Intel Macs. The current published no-account Mac package is legacy `JobSentinel_2.7.7_no-account_universal.dmg` with a matching `.sha256` checksum. Until Developer ID signing and notarization are available, the no-account DMG filename should include `_no-account_`. The project does not currently have an Apple Developer Account, so macOS requires a first-open Privacy & Security approval until Developer ID signing and notarization are available. |
 | Linux | Linux installer from the latest full cross-platform release, currently legacy `v2.7.5`. |
 
@@ -214,7 +214,8 @@ Security**, click **Open Anyway** next to the JobSentinel message, then click
 **Open**.
 
 Windows may show this message when an installer is unsigned or not widely
-trusted yet:
+trusted yet. For the no-account `2.9.0` path, unsigned Windows installers must
+include `_unsigned` in the filename and a matching `.msi.sha256` checksum:
 
 ```text
 Windows protected your PC
@@ -602,8 +603,9 @@ Developer docs:
 ### Mainline Changes Since v2.7.5
 
 - Source version is `2.9.0`. Local `2.9.0` no-account macOS package evidence
-  exists; fresh public Windows and Linux `2.9.0` assets still need
-  target-platform builds, upload, and verification.
+  exists; the hosted no-account release path can publish signed-or-unsigned
+  Windows, no-account macOS, and Linux assets after final push/tag and public
+  verification.
 - Release docs now treat verified local build plus manual upload as a
   supported production path when the same release gates pass.
 - Hiring Trends now refreshes against the current jobs schema, creates a

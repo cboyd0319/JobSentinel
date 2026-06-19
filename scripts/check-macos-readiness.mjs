@@ -157,16 +157,30 @@ export function releaseAssetUploadsStayDraft(releaseWorkflow) {
   });
 }
 
-export function windowsMsiUploadRequiresSignature(releaseWorkflow) {
+export function windowsMsiUploadRequiresSignatureOrUnsignedLabel(releaseWorkflow) {
   return (
     hasOrderedSnippets(releaseWorkflow, [
       "- name: Verify Windows MSI signature and checksum",
       "- name: Stage Windows release assets",
       "- name: Upload release assets",
     ]) &&
+    hasAll(getWorkflowStepBlock(releaseWorkflow, "Configure Windows signing"), [
+      "JOBSENTINEL_WINDOWS_REQUIRE_SIGNATURE=false",
+      "JOBSENTINEL_WINDOWS_UNSIGNED=true",
+      "Partial Windows signing secrets are configured",
+      "JOBSENTINEL_WINDOWS_REQUIRE_SIGNATURE=true",
+    ]) &&
+    hasAll(getWorkflowStepBlock(releaseWorkflow, "Label unsigned Windows MSI"), [
+      "*_unsigned.msi",
+      "Rename-Item",
+      "Labeled unsigned Windows MSI",
+    ]) &&
     hasAll(getWorkflowStepBlock(releaseWorkflow, "Verify Windows MSI signature and checksum"), [
       "Get-AuthenticodeSignature",
+      "WINDOWS_REQUIRE_SIGNATURE",
       'Status -ne "Valid"',
+      "*_unsigned.msi",
+      "Windows SmartScreen warnings are expected",
       "Get-FileHash",
       ".sha256",
     ]) &&
@@ -179,6 +193,9 @@ export function windowsMsiUploadRequiresSignature(releaseWorkflow) {
     releaseAssetUploadsStayDraft(releaseWorkflow)
   );
 }
+
+export const windowsMsiUploadRequiresSignature =
+  windowsMsiUploadRequiresSignatureOrUnsignedLabel;
 
 export function linuxPackageUploadRequiresVerification(releaseWorkflow) {
   return (
@@ -425,10 +442,10 @@ export function evaluateMacosReadiness({ root = defaultRoot, env = process.env }
       "Front-door docs must tell nontechnical users where friction remains.",
     ),
     criterion(
-      "Windows MSI public upload is signature-gated",
+      "Windows MSI public upload is signed or unsigned-labeled",
       0,
-      windowsMsiUploadRequiresSignature(releaseWorkflow),
-      "Unsigned Windows MSI artifacts must fail before public upload.",
+      windowsMsiUploadRequiresSignatureOrUnsignedLabel(releaseWorkflow),
+      "Windows MSI artifacts must be signed or explicitly unsigned-labeled, versioned, and checksummed before public upload.",
     ),
     criterion(
       "Linux public upload is package-verified and checksummed",

@@ -65,9 +65,14 @@ export function evaluateWindowsSigning(env = process.env) {
   if (!configured) {
     return item(
       "Windows signing",
-      false,
-      `not configured; required before public MSI upload: ${windowsRequired.join(", ")}`,
-      { configured, missing, mode: "not-configured" },
+      true,
+      "no Windows signing secrets configured; unsigned MSI path is available but Windows SmartScreen warnings are expected",
+      {
+        configured,
+        missing,
+        mode: "unsigned-msi",
+        smartScreenReady: false,
+      },
     );
   }
 
@@ -102,7 +107,13 @@ export function evaluateWindowsSigning(env = process.env) {
     invalid.length > 0
       ? invalid.join("; ")
       : "configured for Authenticode-signed MSI upload; value shapes are valid",
-    { configured, invalid, missing: [], mode: invalid.length === 0 ? "signed-msi" : "invalid" },
+      {
+        configured,
+        invalid,
+        missing: [],
+        mode: invalid.length === 0 ? "signed-msi" : "invalid",
+        smartScreenReady: invalid.length === 0,
+      },
   );
 }
 
@@ -199,7 +210,7 @@ export function evaluateReleaseEnvironment({
   env = process.env,
   platforms = ["windows", "macos", "linux"],
   requireMacosGatekeeper = false,
-  requireWindows = false,
+  requireWindowsSigning = false,
 } = {}) {
   const platformSet = new Set(platforms);
   const checks = [];
@@ -209,8 +220,14 @@ export function evaluateReleaseEnvironment({
     const windows = evaluateWindowsSigning(env);
     checks.push(windows);
     if (windows.configured && !windows.ok) failures.push(windows);
-    if (requireWindows && !windows.ok) {
-      failures.push(item("Windows MSI required", false, windows.detail));
+    if (requireWindowsSigning && windows.mode !== "signed-msi") {
+      failures.push(
+        item(
+          "Windows signing required",
+          false,
+          "complete Authenticode signing inputs are required for a signed Windows MSI release",
+        ),
+      );
     }
   }
 
@@ -267,7 +284,8 @@ export function parseArgs(args) {
   return {
     platforms: splitList(getArgValue(args, "--platforms") ?? "windows,macos,linux"),
     requireMacosGatekeeper: hasArg(args, "--require-macos-gatekeeper"),
-    requireWindows: hasArg(args, "--require-windows"),
+    requireWindowsSigning:
+      hasArg(args, "--require-windows-signing") || hasArg(args, "--require-windows"),
   };
 }
 

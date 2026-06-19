@@ -148,13 +148,13 @@ Out of scope:
   JobsWithGPT endpoints, shared import hashes, and `2.9.0` metadata/changelog.
 - Public wiki `Home.md` and `Capabilities.md` now match the `2.9.0` local
   readiness, release-boundary, macOS, LinkedIn, security, and skills posture.
-- CI/release security blocks on sensors, zizmor, audit, and cargo-deny.
-- Release environment preflight now checks local Windows/macOS signing input
-  completeness without invoking GitHub or printing secret values.
+- CI/release gates cover sensors, zizmor, audit, cargo-deny, `_unsigned`
+  Windows MSI, no-account macOS, Linux, checksums, SBOMs, attestations, and skills.
 
 ## Next Work
 
-1. Build/upload/verify `2.9.0` platform assets after approval and credentials.
+1. Push/tag/build/upload/verify `2.9.0` no-account platform assets; signed
+   Windows and Gatekeeper-ready macOS remain credential-backed upgrades.
 2. Confirm major route screenshots, Computer Use clicks, keyboard flow, and
    affected route/action/state checks after any further UI change before calling
    v2.9.0 done.

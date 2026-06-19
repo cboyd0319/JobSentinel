@@ -54,16 +54,19 @@ test("release readiness rejects missing release environment script", () => {
   );
 });
 
-test("release readiness rejects Windows upload without signature gate", () => {
+test("release readiness rejects Windows upload without signed or unsigned-labeled gate", () => {
   const inputs = loadReleaseReadinessInputs({ env: {} });
   const report = evaluateReleaseReadinessFromInputs({
     ...inputs,
-    releaseWorkflow: inputs.releaseWorkflow.replace("Get-AuthenticodeSignature", ""),
+    releaseWorkflow: inputs.releaseWorkflow.replace("JOBSENTINEL_WINDOWS_UNSIGNED=true", ""),
   });
 
   assert(
     report.criteria.some(
-      (item) => item.id === "Windows public upload is signature and checksum gated" && !item.ok,
+      (item) =>
+        item.id ===
+          "Windows public upload is signed or unsigned-labeled and checksum gated" &&
+        !item.ok,
     ),
   );
 });
@@ -129,6 +132,20 @@ test("release readiness rejects public verifier without Agent Skills checks", ()
   const report = evaluateReleaseReadinessFromInputs({
     ...inputs,
     verifyPublicScript: inputs.verifyPublicScript.replaceAll("validateAgentSkillsArchiveContents", ""),
+  });
+
+  assert(
+    report.criteria.some(
+      (item) => item.id === "public release verifier covers installers and supply chain" && !item.ok,
+    ),
+  );
+});
+
+test("release readiness rejects public verifier without unsigned Windows label checks", () => {
+  const inputs = loadReleaseReadinessInputs({ env: {} });
+  const report = evaluateReleaseReadinessFromInputs({
+    ...inputs,
+    verifyWorkflow: inputs.verifyWorkflow.replace("--require-windows-unsigned-label", ""),
   });
 
   assert(

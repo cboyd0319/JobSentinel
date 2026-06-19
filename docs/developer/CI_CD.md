@@ -198,7 +198,7 @@ or the GitHub `release` environment are used.
 
 | Platform         | Target                     | Artifacts uploaded                                |
 | ---------------- | -------------------------- | ------------------------------------------------- |
-| `windows-2025` | `x86_64-pc-windows-msvc`   | `.msi` plus `.msi.sha256`                         |
+| `windows-2025` | `x86_64-pc-windows-msvc`   | Signed `.msi` or `_unsigned.msi` plus `.sha256`   |
 | `macos-26`     | `universal-apple-darwin`   | `.dmg` plus `.dmg.sha256` (universal binary - Intel + Apple Silicon) |
 | `ubuntu-24.04` | `x86_64-unknown-linux-gnu` | `.AppImage`, `.deb`, and matching checksums       |
 
@@ -214,13 +214,16 @@ from the GitHub Releases page.
 
 ### Windows signing
 
-Hosted Windows release builds require Authenticode signing before the MSI can
-be uploaded. The workflow imports a base64-encoded PFX certificate into the
+Hosted Windows release builds use Authenticode signing when signing secrets are
+available. The workflow imports a base64-encoded PFX certificate into the
 current-user certificate store, removes the temporary PFX file, writes a
 temporary `tauri.windows.conf.json` with the signing thumbprint and timestamp
 URL, runs `tauri build`, removes the imported certificate and private key from
-the runner certificate store, then blocks upload unless
-`Get-AuthenticodeSignature` reports `Valid`.
+the runner certificate store, then blocks signed upload unless
+`Get-AuthenticodeSignature` reports `Valid`. If all Windows signing secrets are
+missing, the workflow builds an explicitly `_unsigned` MSI, verifies that label
+before upload, and publishes the matching checksum, SBOM, and attestations.
+Windows SmartScreen warnings are expected for that no-account path.
 
 Configure these secrets in the GitHub `release` environment before building
 Windows assets:
@@ -330,11 +333,11 @@ Inputs:
 | `platform` | `all`, `windows`, `macos`, or `linux`      |
 
 Manual runs still execute every release preflight job before packaging. Windows
-MSI upload is blocked unless the MSI has a valid Authenticode signature. Linux
-uploads are blocked unless exactly one AppImage and one Debian package exist,
-both filenames include the exact release-version segment, both files are
-non-empty, Debian metadata can be inspected, and matching checksums are
-generated.
+MSI upload is blocked unless the MSI is either Authenticode-signed or explicitly
+named with `_unsigned`; both paths require a matching checksum. Linux uploads
+are blocked unless exactly one AppImage and one Debian package exist, both
+filenames include the exact release-version segment, both files are non-empty,
+Debian metadata can be inspected, and matching checksums are generated.
 
 ---
 
@@ -440,13 +443,12 @@ For a complete local release, build Windows and Linux installers on native
 hosts or VMs from the same tag, then attach those assets to the same release.
 Do not publish a release as complete until all advertised platform assets are
 present and verified, with stale installer and checksum assets removed from the
-tag. Windows MSI assets must pass
-`Get-AuthenticodeSignature` with status `Valid` and have a matching
-`.msi.sha256` checksum before upload. Linux assets must include exactly one
-non-empty `.AppImage` and one non-empty `.deb`, filenames must include the
-release version, the `.deb` must pass `dpkg-deb --info` and
-`dpkg-deb --contents`, and both Linux assets must have matching `.sha256`
-checksums before upload. The post-publish public artifact workflow verifies the
+tag. Windows MSI assets must be Authenticode-signed or explicitly named with
+`_unsigned`; both paths require a matching `.msi.sha256` checksum before
+upload. Linux assets must include exactly one non-empty `.AppImage` and one
+non-empty `.deb`, filenames must include the release version, the `.deb` must
+pass `dpkg-deb --info` and `dpkg-deb --contents`, and both Linux assets must
+have matching `.sha256` checksums before upload. The post-publish public artifact workflow verifies the
 downloadable Windows, macOS, and Linux asset set, Agent Skills tar.gz/ZIP archives,
 checksums, SBOM manifests, and GitHub attestations; its macOS job also
 smoke-verifies the downloadable DMG on `macos-26`.
@@ -492,9 +494,9 @@ require explicit release approval.
 
 Use `npm run release:check-env` locally before tagging to check release-signing
 environment completeness without reading or printing secret values. Add
-`-- --require-windows` before publishing a Windows MSI, and add
-`-- --require-macos-gatekeeper` only for a Developer ID signed and notarized
-macOS release.
+`-- --require-windows-signing` only for an Authenticode-signed Windows MSI, and
+add `-- --require-macos-gatekeeper` only for a Developer ID signed and
+notarized macOS release.
 
 ### macOS signing and notarization
 

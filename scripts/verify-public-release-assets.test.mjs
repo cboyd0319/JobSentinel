@@ -9,6 +9,7 @@ import {
   findPlatformInstallerAssets,
   parseArgs,
   validateAgentSkillsArchiveContents,
+  validateWindowsUnsignedAssetLabel,
   validateExactAgentSkillsAssetSet,
   validatePublicReleaseSupplyChain,
   validateExactPublicInstallerAssetSet,
@@ -25,6 +26,7 @@ test("public release verifier defaults to all supported platforms", () => {
     requireAttestations: true,
     requireChecksum: true,
     requireSupplyChain: true,
+    requireWindowsUnsignedLabel: false,
   });
 });
 
@@ -49,7 +51,31 @@ test("public release verifier supports scoped platform and supply-chain options"
       requireAttestations: false,
       requireChecksum: false,
       requireSupplyChain: false,
+      requireWindowsUnsignedLabel: false,
     },
+  );
+});
+
+test("public release verifier can require unsigned Windows asset labels", () => {
+  assert.doesNotThrow(() =>
+    validateWindowsUnsignedAssetLabel(
+      { name: "JobSentinel_2.9.0_x64_en-US_unsigned.msi" },
+      { requireWindowsUnsignedLabel: true },
+    ),
+  );
+  assert.doesNotThrow(() =>
+    validateWindowsUnsignedAssetLabel(
+      { name: "JobSentinel_2.9.0_x64_en-US.msi" },
+      { requireWindowsUnsignedLabel: false },
+    ),
+  );
+  assert.throws(
+    () =>
+      validateWindowsUnsignedAssetLabel(
+        { name: "JobSentinel_2.9.0_x64_en-US.msi" },
+        { requireWindowsUnsignedLabel: true },
+      ),
+    /must include "_unsigned"/,
   );
 });
 

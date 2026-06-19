@@ -40,14 +40,15 @@ test("release environment accepts no-secret local no-account posture by default"
   assert.equal(report.failures.length, 0);
   assert.match(formatReleaseEnvironmentReport(report), /release environment: PASS/);
   assert.match(formatReleaseEnvironmentReport(report), /no-account DMG path is available/);
+  assert.match(formatReleaseEnvironmentReport(report), /unsigned MSI path is available/);
 });
 
 test("release environment can require Windows signing", () => {
-  const report = evaluateReleaseEnvironment({ env: {}, requireWindows: true });
+  const report = evaluateReleaseEnvironment({ env: {}, requireWindowsSigning: true });
 
   assert.deepEqual(
     report.failures.map((failure) => failure.id),
-    ["Windows MSI required"],
+    ["Windows signing required"],
   );
 });
 
@@ -128,11 +129,11 @@ test("release environment parses scoped release checks", () => {
   assert.deepEqual(parseArgs(["--platforms", "macos,linux", "--require-macos-gatekeeper"]), {
     platforms: ["macos", "linux"],
     requireMacosGatekeeper: true,
-    requireWindows: false,
+    requireWindowsSigning: false,
   });
-  assert.deepEqual(parseArgs(["--platforms=windows", "--require-windows"]), {
+  assert.deepEqual(parseArgs(["--platforms=windows", "--require-windows-signing"]), {
     platforms: ["windows"],
     requireMacosGatekeeper: false,
-    requireWindows: true,
+    requireWindowsSigning: true,
   });
 });

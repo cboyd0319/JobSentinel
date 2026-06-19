@@ -33,6 +33,10 @@ and public verification close.
 - **Release supply chain** - Consolidated CI/release workflows now generate
   release SBOM manifests, require provenance and SBOM attestations, and verify
   public macOS supply-chain evidence.
+- **No-account platform release path** - Hosted releases can now publish an
+  explicitly `_unsigned` Windows MSI when signing credentials are unavailable,
+  while preserving the signed Windows path, no-account macOS path, Linux
+  package checks, checksums, SBOMs, and attestations.
 - **Local macOS release evidence** - Rebuilt the current-source no-account
   universal DMG, verified checksum, metadata, universal architecture,
   signature, mounted and installed launch smoke, visible window, and private

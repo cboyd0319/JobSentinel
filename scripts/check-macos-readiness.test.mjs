@@ -13,7 +13,7 @@ import {
   releaseWorkflowBuildsUniversalMacosPackage,
   readMacosDevelopmentReadinessClaims,
   readReadmeMacosReadinessPercent,
-  windowsMsiUploadRequiresSignature,
+  windowsMsiUploadRequiresSignatureOrUnsignedLabel,
   linuxPackageUploadRequiresVerification,
 } from "./check-macos-readiness.mjs";
 
@@ -285,12 +285,26 @@ test("macOS readiness checks release asset uploads stay draft", () => {
   );
 });
 
-test("macOS readiness checks Windows MSI signature gate", () => {
+test("macOS readiness checks Windows MSI signed or unsigned-labeled gate", () => {
   const workflow = [
+    "- name: Configure Windows signing",
+    "  run: |",
+    "    JOBSENTINEL_WINDOWS_REQUIRE_SIGNATURE=false",
+    "    JOBSENTINEL_WINDOWS_UNSIGNED=true",
+    "    Partial Windows signing secrets are configured",
+    "    JOBSENTINEL_WINDOWS_REQUIRE_SIGNATURE=true",
+    "- name: Label unsigned Windows MSI",
+    "  run: |",
+    "    Rename-Item input.msi output_unsigned.msi",
+    "    *_unsigned.msi",
+    "    Labeled unsigned Windows MSI",
     "- name: Verify Windows MSI signature and checksum",
     "  run: |",
     "    $signature = Get-AuthenticodeSignature $msi.FullName",
+    "    WINDOWS_REQUIRE_SIGNATURE",
     '    if ($signature.Status -ne "Valid") { throw "unsigned" }',
+    "    *_unsigned.msi",
+    "    Windows SmartScreen warnings are expected",
     "    $hash = Get-FileHash -Algorithm SHA256 $msi.FullName",
     "    Set-Content output.msi.sha256",
     "- name: Stage Windows release assets",
@@ -305,10 +319,10 @@ test("macOS readiness checks Windows MSI signature gate", () => {
     "    files: release-assets/public/*",
   ].join("\n");
 
-  assert.equal(windowsMsiUploadRequiresSignature(workflow), true);
+  assert.equal(windowsMsiUploadRequiresSignatureOrUnsignedLabel(workflow), true);
   assert.equal(
-    windowsMsiUploadRequiresSignature(
-      workflow.replace("Get-AuthenticodeSignature", "Get-FileHash"),
+    windowsMsiUploadRequiresSignatureOrUnsignedLabel(
+      workflow.replace("JOBSENTINEL_WINDOWS_UNSIGNED=true", ""),
     ),
     false,
   );

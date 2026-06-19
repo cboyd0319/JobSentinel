@@ -20,6 +20,11 @@ on:
         required: false
         default: windows,macos,linux
         type: string
+      require_windows_unsigned_label:
+        description: Require the Windows MSI filename to include _unsigned for no-account releases.
+        required: false
+        default: true
+        type: boolean
 
 permissions: {}
 
@@ -56,6 +61,8 @@ jobs:
           RELEASE_TAG: ${{ github.event.release.tag_name }}
           DISPATCH_TAG: ${{ inputs.tag }}
           DISPATCH_PLATFORMS: ${{ inputs.platforms }}
+          DISPATCH_REQUIRE_WINDOWS_UNSIGNED_LABEL: ${{ inputs.require_windows_unsigned_label }}
+          VAR_REQUIRE_WINDOWS_UNSIGNED_LABEL: ${{ vars.JOBSENTINEL_WINDOWS_REQUIRE_UNSIGNED_LABEL }}
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
@@ -68,6 +75,14 @@ jobs:
 
           platforms="${DISPATCH_PLATFORMS:-windows,macos,linux}"
           args+=(--platforms "$platforms")
+
+          require_windows_unsigned_label="${VAR_REQUIRE_WINDOWS_UNSIGNED_LABEL:-true}"
+          if [ -n "${DISPATCH_REQUIRE_WINDOWS_UNSIGNED_LABEL:-}" ]; then
+            require_windows_unsigned_label="$DISPATCH_REQUIRE_WINDOWS_UNSIGNED_LABEL"
+          fi
+          if [ "$require_windows_unsigned_label" = "true" ]; then
+            args+=(--require-windows-unsigned-label)
+          fi
 
           npm run release:verify:public -- "${args[@]}"
 

@@ -91,9 +91,11 @@ upload.
 
 `npm run release:check-env` is non-interactive and checks only environment
 variable presence and value shape. It does not call GitHub, read secret values,
-or print secret values. Add `-- --require-windows` when the release must
-include a public Windows MSI. Add `-- --require-macos-gatekeeper` only when the
-release is intended to be Developer ID signed, notarized, and Gatekeeper-ready.
+or print secret values. With no Windows signing inputs, the hosted release
+builds an explicitly `_unsigned` Windows MSI. Add
+`-- --require-windows-signing` only when the release must be Authenticode
+signed. Add `-- --require-macos-gatekeeper` only when the release is intended
+to be Developer ID signed, notarized, and Gatekeeper-ready.
 
 ### 2. macOS signing mode
 
@@ -235,22 +237,25 @@ for asset in \
 done
 ```
 
-Public Windows MSI upload is blocked unless `Get-AuthenticodeSignature` returns
-`Valid` for the built `.msi`. Hosted Windows release builds require
-`WINDOWS_CERTIFICATE`, `WINDOWS_CERTIFICATE_PASSWORD`,
+Public Windows MSI upload is signed when Windows signing secrets are available
+and explicitly unsigned-labeled when they are not. Hosted signed Windows release
+builds require `WINDOWS_CERTIFICATE`, `WINDOWS_CERTIFICATE_PASSWORD`,
 `WINDOWS_CERTIFICATE_THUMBPRINT`, and `WINDOWS_TIMESTAMP_URL` in the GitHub
 `release` environment; the workflow imports the PFX, writes a temporary
 `tauri.windows.conf.json`, removes the temporary PFX file, removes the imported
 certificate and private key from the runner certificate store after the build,
-and creates `.msi.sha256` only after signature verification passes, including
-manual release dispatch for `platform=windows`.
+and creates `.msi.sha256` only after signature verification passes. If all
+Windows signing secrets are missing, the workflow builds the MSI, renames it
+with `_unsigned`, checks that the unsigned label is present, writes the
+checksum, generates SBOM and attestation assets, and leaves the release notes
+and docs responsible for the expected SmartScreen warning.
 For local Windows builds, configure equivalent local code-signing material
 outside the repo before running `tauri build`.
 
-Before tagging a Windows release, run:
+Before tagging a signed Windows release, run:
 
 ```bash
-npm run release:check-env -- --platforms windows --require-windows
+npm run release:check-env -- --platforms windows --require-windows-signing
 ```
 
 Public Linux upload is blocked unless exactly one `.AppImage` and one `.deb`
@@ -298,7 +303,7 @@ assets existed.
 | Platform | Architecture          | Format      | Status   |
 | -------- | --------------------- | ----------- | -------- |
 | macOS    | universal             | `.dmg`      | Local `2.9.0` no-account package passes the current verifier; published `v2.7.7` is a legacy fallback with matching checksum and first-open Privacy & Security approval |
-| Windows  | x86_64                | `.msi`      | Build path ready; public upload blocked until Authenticode signature and checksum verification pass |
+| Windows  | x86_64                | `.msi`      | Build path ready; public upload is signed when credentials exist or `_unsigned`-labeled with checksum when they do not |
 | Linux    | x86_64                | `.AppImage` / `.deb` | Build path ready; current `2.9.0` public assets pending target-platform build/upload/verification |
 
 See [CHANGELOG.md](../../CHANGELOG.md) for full history.
