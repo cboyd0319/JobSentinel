@@ -7,6 +7,7 @@ import test from "node:test";
 import {
   installPinnedNpm,
   npmExecutable,
+  npmInvocation,
   parsePinnedNpmVersion,
 } from "./install-pinned-npm.mjs";
 
@@ -35,6 +36,24 @@ test("npmExecutable resolves the Windows npm command", () => {
   assert.equal(npmExecutable("darwin"), "npm");
 });
 
+test("npmInvocation routes Windows npm through cmd", () => {
+  assert.deepEqual(npmInvocation(["--version"], "darwin"), {
+    command: "npm",
+    args: ["--version"],
+  });
+  assert.deepEqual(
+    npmInvocation(["--version"], "win32", { ComSpec: "C:\\Windows\\System32\\cmd.exe" }),
+    {
+      command: "C:\\Windows\\System32\\cmd.exe",
+      args: ["/d", "/s", "/c", "npm.cmd", "--version"],
+    },
+  );
+  assert.deepEqual(npmInvocation(["--version"], "win32", {}), {
+    command: "cmd.exe",
+    args: ["/d", "/s", "/c", "npm.cmd", "--version"],
+  });
+});
+
 test("installPinnedNpm skips install when pinned npm is active", () => {
   withFixture((root) => {
     writePackageJson(root);
@@ -54,6 +73,34 @@ test("installPinnedNpm skips install when pinned npm is active", () => {
       pinnedVersion: "11.17.0",
     });
     assert.deepEqual(calls, [["npm", ["--version"]]]);
+  });
+});
+
+test("installPinnedNpm uses Windows-safe npm invocation", () => {
+  withFixture((root) => {
+    writePackageJson(root);
+    const calls = [];
+    const result = installPinnedNpm({
+      root,
+      platform: "win32",
+      env: { ComSpec: "C:\\Windows\\System32\\cmd.exe" },
+      execFileSync: (command, args) => {
+        calls.push([command, args]);
+        return "11.17.0\n";
+      },
+    });
+
+    assert.deepEqual(result, {
+      changed: false,
+      currentVersion: "11.17.0",
+      pinnedVersion: "11.17.0",
+    });
+    assert.deepEqual(calls, [
+      [
+        "C:\\Windows\\System32\\cmd.exe",
+        ["/d", "/s", "/c", "npm.cmd", "--version"],
+      ],
+    ]);
   });
 });
 
@@ -78,6 +125,48 @@ test("installPinnedNpm installs the exact pinned npm version when needed", () =>
     assert.deepEqual(calls, [
       ["npm", ["--version"]],
       ["npm", ["install", "--global", "npm@11.17.0", "--no-audit", "--no-fund"]],
+    ]);
+  });
+});
+
+test("installPinnedNpm installs pinned npm through cmd on Windows", () => {
+  withFixture((root) => {
+    writePackageJson(root);
+    const calls = [];
+    const result = installPinnedNpm({
+      root,
+      platform: "win32",
+      env: { ComSpec: "C:\\Windows\\System32\\cmd.exe" },
+      execFileSync: (command, args) => {
+        calls.push([command, args]);
+        return calls.length === 1 ? "11.16.0\n" : "";
+      },
+    });
+
+    assert.deepEqual(result, {
+      changed: true,
+      currentVersion: "11.16.0",
+      pinnedVersion: "11.17.0",
+    });
+    assert.deepEqual(calls, [
+      [
+        "C:\\Windows\\System32\\cmd.exe",
+        ["/d", "/s", "/c", "npm.cmd", "--version"],
+      ],
+      [
+        "C:\\Windows\\System32\\cmd.exe",
+        [
+          "/d",
+          "/s",
+          "/c",
+          "npm.cmd",
+          "install",
+          "--global",
+          "npm@11.17.0",
+          "--no-audit",
+          "--no-fund",
+        ],
+      ],
     ]);
   });
 });
