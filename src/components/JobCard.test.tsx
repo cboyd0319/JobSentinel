@@ -5,6 +5,10 @@ import React from "react";
 import { JobCard } from "./JobCard";
 import * as deeplinks from "../services/deeplinks";
 import { ToastProvider } from "../contexts/ToastContext";
+import {
+  BROWSER_ASSIST_LEARNING_ENABLED_STORAGE_KEY,
+  BROWSER_ASSIST_LEARNING_STORAGE_KEY,
+} from "../shared/browserAssistLearning";
 
 vi.mock("../services/deeplinks", () => ({
   openDeepLink: vi.fn(),
@@ -304,6 +308,28 @@ describe("JobCard", () => {
       );
       expect(screen.getByTestId("job-feedback-adjustment")).toHaveTextContent(
         "does not predict employer intent",
+      );
+    });
+
+    it("adds useful feedback to local learning only when learning is on", async () => {
+      const user = userEvent.setup();
+      window.localStorage.setItem(
+        BROWSER_ASSIST_LEARNING_ENABLED_STORAGE_KEY,
+        "true",
+      );
+
+      renderWithToast(<JobCard job={mockJob} />);
+
+      await user.click(screen.getByRole("button", { name: /mark useful/i }));
+
+      expect(window.localStorage.getItem(BROWSER_ASSIST_LEARNING_STORAGE_KEY)).toContain(
+        "Customer Support Lead",
+      );
+      expect(window.localStorage.getItem(BROWSER_ASSIST_LEARNING_STORAGE_KEY)).toContain(
+        "CareBridge Services",
+      );
+      expect(window.localStorage.getItem(BROWSER_ASSIST_LEARNING_STORAGE_KEY)).not.toContain(
+        mockJob.url,
       );
     });
 

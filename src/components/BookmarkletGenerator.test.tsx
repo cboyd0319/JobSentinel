@@ -1,6 +1,10 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { BookmarkletGenerator } from "./BookmarkletGenerator";
+import {
+  BROWSER_ASSIST_LEARNING_ENABLED_STORAGE_KEY,
+  BROWSER_ASSIST_LEARNING_STORAGE_KEY,
+} from "../shared/browserAssistLearning";
 
 const mockInvoke = vi.fn();
 vi.mock("@tauri-apps/api/core", () => ({
@@ -10,6 +14,7 @@ vi.mock("@tauri-apps/api/core", () => ({
 describe("BookmarkletGenerator", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    window.localStorage.clear();
   });
 
   it("copies the hidden browser button without exposing the local auth token to the page", async () => {
@@ -251,6 +256,7 @@ describe("BookmarkletGenerator", () => {
   });
 
   it("shows browser imports as review items and saves only after user confirmation", async () => {
+    window.localStorage.setItem(BROWSER_ASSIST_LEARNING_ENABLED_STORAGE_KEY, "true");
     mockInvoke.mockImplementation((command: string, args?: unknown) => {
       if (command === "get_bookmarklet_config") {
         return Promise.resolve({
@@ -296,5 +302,14 @@ describe("BookmarkletGenerator", () => {
       }),
     );
     expect(await screen.findByText(/Saved 1 browser import/i)).toBeInTheDocument();
+    expect(window.localStorage.getItem(BROWSER_ASSIST_LEARNING_STORAGE_KEY)).toContain(
+      "Principal Systems Security Engineer",
+    );
+    expect(window.localStorage.getItem(BROWSER_ASSIST_LEARNING_STORAGE_KEY)).toContain(
+      "Sierra Nevada Corporation",
+    );
+    expect(window.localStorage.getItem(BROWSER_ASSIST_LEARNING_STORAGE_KEY)).not.toContain(
+      "linkedin.com/jobs/view/100",
+    );
   });
 });

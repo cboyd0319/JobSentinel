@@ -98,6 +98,11 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   Rust fmt, Rust clippy, docs, bloat, harness, and whitespace checks passed.
   Full Rust lib was not rerun in this slice to avoid credential/keychain tests;
   the bookmarklet target covers the changed Rust surface.
+- 2026-06-19 local interest learning now covers explicit Workbench, Browser
+  Import save, bookmark, dismiss, note, saved-search, and Useful/Not for me
+  actions without notes, URLs, browser state, cookies, or hidden page data.
+  Fresh evidence: focused learning/UI tests `121/121`, full frontend `3209/3209`,
+  lint, build, docs, bloat, harness, score, and whitespace checks passed.
 
 ## Next Best Work
 

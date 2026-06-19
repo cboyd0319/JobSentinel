@@ -14,6 +14,7 @@ import { useToast } from "../../contexts";
 import { useUndo } from "../../hooks/useUndo";
 import { safeInvoke, safeInvokeWithToast } from "../../utils/api";
 import { getSafeErrorToastCopy } from "../../utils/safeErrorCopy";
+import { recordBrowserAssistLearningSignalIfEnabled } from "../../shared/browserAssistLearning";
 
 type BackendSavedSearch = {
   id: string;
@@ -137,6 +138,12 @@ export function useDashboardSavedSearches() {
       };
 
       setSavedSearches(prev => [newSearch, ...prev]);
+      recordBrowserAssistLearningSignalIfEnabled({
+        source: "saved-search",
+        action: "saved_search",
+        search: newSearch.name,
+        recordedAt: new Date().toISOString(),
+      });
       setSaveSearchModalOpen(false);
       setNewSearchName("");
       toast.success("Search saved", `"${newSearch.name}" can now be loaded anytime`);

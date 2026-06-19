@@ -27,12 +27,19 @@ Object.defineProperty(window, "matchMedia", {
   })),
 });
 
-// Mock localStorage
+// Mock localStorage with browser-like storage while preserving spy calls.
+const localStorageValues = new Map<string, string>();
 const localStorageMock = {
-  getItem: vi.fn(),
-  setItem: vi.fn(),
-  removeItem: vi.fn(),
-  clear: vi.fn(),
+  getItem: vi.fn((key: string) => localStorageValues.get(key) ?? null),
+  setItem: vi.fn((key: string, value: string) => {
+    localStorageValues.set(key, String(value));
+  }),
+  removeItem: vi.fn((key: string) => {
+    localStorageValues.delete(key);
+  }),
+  clear: vi.fn(() => {
+    localStorageValues.clear();
+  }),
 };
 Object.defineProperty(window, "localStorage", {
   value: localStorageMock,

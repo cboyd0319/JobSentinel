@@ -13,14 +13,35 @@ const POSITIVE_ACTIONS = new Set([
   "interview",
   "follow_up",
   "reminder",
+  "bookmarked",
+  "import_saved",
+  "note",
+  "saved_search",
+  "useful",
 ]);
-const NEGATIVE_ACTIONS = new Set(["not_interested"]);
+const NEGATIVE_ACTIONS = new Set(["dismissed", "not_for_me", "not_interested"]);
+
+const LEARNING_SOURCES = new Set([
+  "browser-import",
+  "job-card",
+  "job-feedback",
+  "job-notes",
+  "linkedin-workbench",
+  "saved-search",
+]);
 
 export interface BrowserAssistLearningSignal {
-  source: "linkedin-workbench" | "browser-import";
+  source:
+    | "browser-import"
+    | "job-card"
+    | "job-feedback"
+    | "job-notes"
+    | "linkedin-workbench"
+    | "saved-search";
   action: string;
   title?: string;
   company?: string;
+  search?: string;
   recordedAt: string;
 }
 
@@ -30,6 +51,7 @@ export interface BrowserAssistLearningSummary {
   negativeSignals: number;
   suggestedTitles: string[];
   suggestedCompanies: string[];
+  suggestedSearches: string[];
   avoidTitles: string[];
 }
 
@@ -88,6 +110,17 @@ export function recordBrowserAssistLearningSignal(
   return summarizeBrowserAssistLearningSignals(next);
 }
 
+export function recordBrowserAssistLearningSignalIfEnabled(
+  signal: BrowserAssistLearningSignal,
+  storage = browserStorage(),
+): BrowserAssistLearningSummary | null {
+  if (!readBrowserAssistLearningEnabled(storage)) {
+    return null;
+  }
+
+  return recordBrowserAssistLearningSignal(signal, storage);
+}
+
 export function clearBrowserAssistLearningSignals(storage = browserStorage()) {
   if (storage) {
     storage.removeItem(BROWSER_ASSIST_LEARNING_STORAGE_KEY);
@@ -107,6 +140,7 @@ export function summarizeBrowserAssistLearningSignals(
     negativeSignals: negative.length,
     suggestedTitles: topValues(positive.map((signal) => signal.title)),
     suggestedCompanies: topValues(positive.map((signal) => signal.company)),
+    suggestedSearches: topValues(positive.map((signal) => signal.search)),
     avoidTitles: topValues(negative.map((signal) => signal.title)),
   };
 }
@@ -115,11 +149,13 @@ function sanitizeBrowserAssistLearningSignal(
   signal: BrowserAssistLearningSignal,
 ): BrowserAssistLearningSignal {
   return {
-    source:
-      signal.source === "browser-import" ? "browser-import" : "linkedin-workbench",
+    source: LEARNING_SOURCES.has(signal.source)
+      ? signal.source
+      : "linkedin-workbench",
     action: cleanText(signal.action) || "unknown",
     title: cleanText(signal.title),
     company: cleanText(signal.company),
+    search: cleanText(signal.search),
     recordedAt: cleanText(signal.recordedAt) || new Date().toISOString(),
   };
 }
@@ -148,10 +184,12 @@ function isBrowserAssistLearningSignal(
   if (!value || typeof value !== "object" || Array.isArray(value)) return false;
   const record = value as Record<string, unknown>;
   return (
-    (record.source === "linkedin-workbench" || record.source === "browser-import") &&
+    typeof record.source === "string" &&
+    LEARNING_SOURCES.has(record.source) &&
     typeof record.action === "string" &&
     (record.title === undefined || typeof record.title === "string") &&
     (record.company === undefined || typeof record.company === "string") &&
+    (record.search === undefined || typeof record.search === "string") &&
     typeof record.recordedAt === "string"
   );
 }

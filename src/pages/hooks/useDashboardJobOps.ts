@@ -10,6 +10,17 @@ import { logError } from "../../utils/errorUtils";
 import { exportJobsToCSV } from "../../utils/export";
 import { invalidateCacheByCommand, safeInvokeWithToast } from "../../utils/api";
 import { getSafeErrorToastCopy } from "../../utils/safeErrorCopy";
+import { recordBrowserAssistLearningSignalIfEnabled } from "../../shared/browserAssistLearning";
+
+function recordJobLearningSignal(action: string, job: Job) {
+  recordBrowserAssistLearningSignalIfEnabled({
+    source: action === "note" ? "job-notes" : "job-card",
+    action,
+    title: job.title,
+    company: job.company,
+    recordedAt: new Date().toISOString(),
+  });
+}
 
 export function useDashboardJobOps(
   jobs: Job[],
@@ -48,6 +59,7 @@ export function useDashboardJobOps(
         // Invalidate cache since job list changed
         invalidateCacheByCommand("get_recent_jobs");
         invalidateCacheByCommand("get_statistics");
+        recordJobLearningSignal("dismissed", hiddenJob);
         setJobs(jobs.filter((job) => job.id !== id));
 
         // Push undoable action
@@ -116,6 +128,10 @@ export function useDashboardJobOps(
               j.id === id ? { ...j, bookmarked: confirmedState } : j,
             ),
           );
+        }
+
+        if (confirmedState) {
+          recordJobLearningSignal("bookmarked", job);
         }
 
         // Push undoable action
@@ -202,6 +218,9 @@ export function useDashboardJobOps(
         },
       );
       invalidateCacheByCommand("get_recent_jobs");
+      if (notesToSave) {
+        recordJobLearningSignal("note", job);
+      }
       setJobs((prev) =>
         prev.map((j) => (j.id === jobId ? { ...j, notes: notesToSave } : j)),
       );
@@ -314,6 +333,9 @@ export function useDashboardJobOps(
       invalidateCacheByCommand("get_statistics");
       const succeededSet = new Set(succeededIds);
       const succeededJobs = selectedJobs.filter((j) => succeededSet.has(j.id));
+      for (const job of succeededJobs) {
+        recordJobLearningSignal("dismissed", job);
+      }
       setJobs(jobs.filter((job) => !succeededSet.has(job.id)));
       setSelectedJobIds(new Set());
 
@@ -398,6 +420,11 @@ export function useDashboardJobOps(
         }
 
         // Update local state
+        if (bookmark) {
+          for (const job of jobs.filter((j) => idsToUpdate.includes(j.id))) {
+            recordJobLearningSignal("bookmarked", job);
+          }
+        }
         setJobs(
           jobs.map((j) =>
             selectedJobIds.has(j.id) ? { ...j, bookmarked: bookmark } : j,

@@ -26,6 +26,9 @@ import {
   getScamRiskGuidance,
 } from "./jobCardGuidance";
 import {
+  recordBrowserAssistLearningSignalIfEnabled,
+} from "../shared/browserAssistLearning";
+import {
   applyJobFeedbackScoreAdjustment,
   clearJobFeedbackSignal,
   getJobFeedbackKey,
@@ -233,6 +236,7 @@ export const JobCard = memo(function JobCard({
   const updateJobFeedback = (
     verdict: JobFeedbackVerdict,
     mode: "set" | "toggle" = "toggle",
+    recordLearning = true,
   ) => {
     if (mode === "toggle" && jobFeedback?.verdict === verdict) {
       clearJobFeedbackSignal(jobFeedbackKey);
@@ -249,10 +253,27 @@ export const JobCard = memo(function JobCard({
         recordedAt: new Date().toISOString(),
       }),
     );
+
+    if (recordLearning) {
+      recordBrowserAssistLearningSignalIfEnabled({
+        source: "job-feedback",
+        action: verdict === "useful" ? "useful" : "not_for_me",
+        title: job.title,
+        company: job.company,
+        recordedAt: new Date().toISOString(),
+      });
+    }
   };
 
   const hideJob = () => {
-    updateJobFeedback("not_useful", "set");
+    updateJobFeedback("not_useful", "set", false);
+    recordBrowserAssistLearningSignalIfEnabled({
+      source: "job-card",
+      action: "dismissed",
+      title: job.title,
+      company: job.company,
+      recordedAt: new Date().toISOString(),
+    });
     onHideJob?.(job.id);
   };
 

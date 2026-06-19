@@ -5,6 +5,7 @@ import {
   clearBrowserAssistLearningSignals,
   readBrowserAssistLearningEnabled,
   readBrowserAssistLearningSignals,
+  recordBrowserAssistLearningSignalIfEnabled,
   recordBrowserAssistLearningSignal,
   summarizeBrowserAssistLearningSignals,
   writeBrowserAssistLearningEnabled,
@@ -90,14 +91,58 @@ describe("browser assistance learning", () => {
           company: "Example Co",
           recordedAt: "2026-06-19T12:01:00Z",
         },
+        {
+          source: "saved-search",
+          action: "saved_search",
+          search: "Remote support lead",
+          recordedAt: "2026-06-19T12:02:00Z",
+        },
       ]),
     ).toEqual({
-      totalSignals: 2,
-      positiveSignals: 1,
+      totalSignals: 3,
+      positiveSignals: 2,
       negativeSignals: 1,
       suggestedTitles: ["Program Manager"],
       suggestedCompanies: ["Example Co"],
+      suggestedSearches: ["Remote support lead"],
       avoidTitles: ["Door-to-door Sales"],
+    });
+  });
+
+  it("records action signals only after the user turns learning on", () => {
+    const storage = makeStorage();
+
+    expect(
+      recordBrowserAssistLearningSignalIfEnabled(
+        {
+          source: "job-card",
+          action: "bookmarked",
+          title: "Care Coordinator",
+          company: "Community Care",
+          recordedAt: "2026-06-19T12:00:00Z",
+        },
+        storage,
+      ),
+    ).toBeNull();
+
+    writeBrowserAssistLearningEnabled(true, storage);
+
+    expect(
+      recordBrowserAssistLearningSignalIfEnabled(
+        {
+          source: "job-card",
+          action: "bookmarked",
+          title: "Care Coordinator",
+          company: "Community Care",
+          recordedAt: "2026-06-19T12:00:00Z",
+        },
+        storage,
+      ),
+    ).toMatchObject({
+      totalSignals: 1,
+      positiveSignals: 1,
+      suggestedTitles: ["Care Coordinator"],
+      suggestedCompanies: ["Community Care"],
     });
   });
 
@@ -135,6 +180,7 @@ describe("browser assistance learning", () => {
       negativeSignals: 0,
       suggestedTitles: [],
       suggestedCompanies: [],
+      suggestedSearches: [],
       avoidTitles: [],
     });
     expect(storage.removeItem).toHaveBeenCalledWith(

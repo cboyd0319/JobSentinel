@@ -5,6 +5,10 @@ import { useDashboardJobOps } from "./useDashboardJobOps";
 import type { Job, DuplicateGroup } from "../DashboardTypes";
 import { safeInvokeWithToast } from "../../utils/api";
 import { exportJobsToCSV } from "../../utils/export";
+import {
+  BROWSER_ASSIST_LEARNING_ENABLED_STORAGE_KEY,
+  BROWSER_ASSIST_LEARNING_STORAGE_KEY,
+} from "../../shared/browserAssistLearning";
 
 vi.mock("@tauri-apps/api/core", () => ({ invoke: vi.fn() }));
 
@@ -65,6 +69,7 @@ function renderJobOps(jobs: Job[]) {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  window.localStorage.clear();
 });
 
 function applyJobsUpdate(
@@ -159,6 +164,63 @@ describe("handleToggleBookmark", () => {
       "Could not undo change",
       "Bookmark was not restored. Check the job list, then copy a safe support report if this keeps happening.",
     );
+  });
+
+  it("records confirmed bookmarks as local learning when learning is on", async () => {
+    window.localStorage.setItem(BROWSER_ASSIST_LEARNING_ENABLED_STORAGE_KEY, "true");
+    const jobs = [makeJob({ id: 1, bookmarked: false })];
+    const { result } = renderJobOps(jobs);
+    mockInvoke.mockResolvedValueOnce(true);
+
+    await act(async () => {
+      await result.current.handleToggleBookmark(1);
+    });
+
+    const learning = window.localStorage.getItem(BROWSER_ASSIST_LEARNING_STORAGE_KEY);
+    expect(learning).toContain("Customer Support Coordinator");
+    expect(learning).toContain("CareBridge Services");
+    expect(learning).not.toContain("https://example.com/job/1");
+  });
+});
+
+describe("handleHideJob", () => {
+  it("records dismissed jobs as local learning when learning is on", async () => {
+    window.localStorage.setItem(BROWSER_ASSIST_LEARNING_ENABLED_STORAGE_KEY, "true");
+    const jobs = [makeJob({ id: 1 })];
+    const { result } = renderJobOps(jobs);
+    mockSafeInvokeWithToast.mockResolvedValueOnce(undefined);
+
+    await act(async () => {
+      await result.current.handleHideJob(1);
+    });
+
+    const learning = window.localStorage.getItem(BROWSER_ASSIST_LEARNING_STORAGE_KEY);
+    expect(learning).toContain("Customer Support Coordinator");
+    expect(learning).toContain("dismissed");
+    expect(learning).not.toContain("https://example.com/job/1");
+  });
+});
+
+describe("handleSaveNotes", () => {
+  it("records note activity without storing note text when learning is on", async () => {
+    window.localStorage.setItem(BROWSER_ASSIST_LEARNING_ENABLED_STORAGE_KEY, "true");
+    const jobs = [makeJob({ id: 1, notes: null })];
+    const { result } = renderJobOps(jobs);
+    mockSafeInvokeWithToast.mockResolvedValueOnce(undefined);
+
+    act(() => {
+      result.current.handleEditNotes(1, null);
+      result.current.setNotesText("Private recruiter note");
+    });
+
+    await act(async () => {
+      await result.current.handleSaveNotes();
+    });
+
+    const learning = window.localStorage.getItem(BROWSER_ASSIST_LEARNING_STORAGE_KEY);
+    expect(learning).toContain("Customer Support Coordinator");
+    expect(learning).toContain("note");
+    expect(learning).not.toContain("Private recruiter note");
   });
 });
 

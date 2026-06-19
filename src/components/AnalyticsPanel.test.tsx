@@ -95,27 +95,14 @@ describe("AnalyticsPanel", () => {
     ],
   };
 
-  const mockLocalStorage: Record<string, string> = {};
-
   beforeEach(() => {
     vi.clearAllMocks();
+    window.localStorage.clear();
     mockCachedInvoke.mockResolvedValue(mockStats);
-
-    // Mock localStorage
-    vi.spyOn(Storage.prototype, "getItem").mockImplementation(
-      (key: string) => mockLocalStorage[key] || null
-    );
-    vi.spyOn(Storage.prototype, "setItem").mockImplementation(
-      (key: string, value: string) => {
-        mockLocalStorage[key] = value;
-      }
-    );
   });
 
   afterEach(() => {
-    // Clear localStorage mock
-    Object.keys(mockLocalStorage).forEach((key) => delete mockLocalStorage[key]);
-    vi.restoreAllMocks();
+    window.localStorage.clear();
   });
 
   describe("loading state", () => {
@@ -518,10 +505,13 @@ describe("AnalyticsPanel", () => {
     });
 
     it("ignores malformed stored weekly goals", async () => {
-      mockLocalStorage.jobsentinel_weekly_goals = JSON.stringify({
-        target: "20",
-        weekStart: new Date().toISOString(),
-      });
+      window.localStorage.setItem(
+        "jobsentinel_weekly_goals",
+        JSON.stringify({
+          target: "20",
+          weekStart: new Date().toISOString(),
+        }),
+      );
 
       render(<AnalyticsPanel onClose={mockOnClose} />);
 

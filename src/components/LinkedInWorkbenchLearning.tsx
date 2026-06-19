@@ -16,7 +16,7 @@ export function LinkedInWorkbenchLearning({
     return (
       <p className="rounded-lg border border-surface-200 bg-surface-50 p-3 text-sm text-surface-600 dark:border-surface-700 dark:bg-surface-800 dark:text-surface-300">
         Local learning is off. Workbench buttons still save the records you
-        choose, but JobSentinel will not keep suggestion signals from those
+        choose, but JobSentinel will not keep suggestion signals from local job
         actions.
       </p>
     );
@@ -33,8 +33,8 @@ export function LinkedInWorkbenchLearning({
         <div>
           <p className="font-semibold">Reviewable suggestions</p>
           <p className="mt-1 leading-5 text-sentinel-800 dark:text-sentinel-200">
-            Based only on Workbench buttons you clicked locally. Review these
-            before changing searches or resumes.
+            Based only on local buttons and saved searches you choose. Review
+            these before changing searches or resumes.
           </p>
         </div>
         <Button
@@ -47,7 +47,7 @@ export function LinkedInWorkbenchLearning({
         </Button>
       </div>
       {hasSuggestions ? (
-        <div className="mt-3 grid gap-3 sm:grid-cols-3">
+        <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <SuggestionList
             label="Titles to consider"
             values={summary.suggestedTitles}
@@ -57,6 +57,10 @@ export function LinkedInWorkbenchLearning({
             values={summary.suggestedCompanies}
           />
           <SuggestionList
+            label="Search ideas"
+            values={summary.suggestedSearches}
+          />
+          <SuggestionList
             label="Not interested"
             values={summary.avoidTitles}
           />
@@ -64,7 +68,7 @@ export function LinkedInWorkbenchLearning({
       ) : (
         <p className="mt-3 text-xs leading-5 text-sentinel-700 dark:text-sentinel-200">
           No local learning yet. Save, apply to, track, or mark jobs as not
-          interested to build suggestions.
+          interested, or save a search, to build suggestions.
         </p>
       )}
     </div>

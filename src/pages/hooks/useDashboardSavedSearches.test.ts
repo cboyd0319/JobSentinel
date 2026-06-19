@@ -2,6 +2,10 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, waitFor, act } from "@testing-library/react";
 import { useDashboardSavedSearches } from "./useDashboardSavedSearches";
 import { safeInvoke } from "../../utils/api";
+import {
+  BROWSER_ASSIST_LEARNING_ENABLED_STORAGE_KEY,
+  BROWSER_ASSIST_LEARNING_STORAGE_KEY,
+} from "../../shared/browserAssistLearning";
 
 const mockToast = {
   error: vi.fn(),
@@ -45,6 +49,7 @@ const currentFilters = {
 describe("useDashboardSavedSearches", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    window.localStorage.clear();
     mockSafeInvoke.mockResolvedValue([]);
   });
 
@@ -138,6 +143,32 @@ describe("useDashboardSavedSearches", () => {
         logContext: "Create saved search",
       },
     );
+  });
+
+  it("records saved search names as local learning when learning is on", async () => {
+    window.localStorage.setItem(BROWSER_ASSIST_LEARNING_ENABLED_STORAGE_KEY, "true");
+    mockSafeInvoke
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce({
+        id: "search-2",
+        name: "Remote Support",
+        createdAt: "2026-05-20T00:00:00Z",
+      });
+
+    const { result } = renderHook(() => useDashboardSavedSearches());
+
+    act(() => {
+      result.current.setNewSearchName("Remote Support");
+    });
+
+    await act(async () => {
+      await result.current.handleSaveSearch(() => currentFilters);
+    });
+
+    const learning = window.localStorage.getItem(BROWSER_ASSIST_LEARNING_STORAGE_KEY);
+    expect(learning).toContain("Remote Support");
+    expect(learning).toContain("saved_search");
+    expect(learning).not.toContain("salaryMinFilter");
   });
 
   it("uses plain validation copy when saving without a name", async () => {

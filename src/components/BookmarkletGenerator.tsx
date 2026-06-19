@@ -4,6 +4,7 @@ import { Button } from "./Button";
 import { Card } from "./Card";
 import { Badge } from "./Badge";
 import { HelpIcon } from "./HelpIcon";
+import { recordBrowserAssistLearningSignalIfEnabled } from "../shared/browserAssistLearning";
 import { RESTRICTED_JOB_SOURCE_WARNING } from "../shared/restrictedSourceTaxonomy";
 import { logError } from "../utils/errorUtils";
 
@@ -222,10 +223,22 @@ export function BookmarkletGenerator() {
     try {
       setPendingAction(actionKey);
       setPendingError(null);
+      const selectedImports = pendingImports.filter((item) => ids.includes(item.id));
       const result = await invoke<BookmarkletImportConfirmResult>(
         "confirm_pending_bookmarklet_imports",
         { ids },
       );
+      if (result.imported + result.skipped > 0) {
+        for (const item of selectedImports) {
+          recordBrowserAssistLearningSignalIfEnabled({
+            source: "browser-import",
+            action: "import_saved",
+            title: item.title,
+            company: item.company,
+            recordedAt: new Date().toISOString(),
+          });
+        }
+      }
       setPendingImports((current) => current.filter((item) => !ids.includes(item.id)));
       const savedLabel = result.imported === 1 ? "browser import" : "browser imports";
       const skippedCopy = result.skipped > 0 ? ` ${result.skipped} already existed.` : "";

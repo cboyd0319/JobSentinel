@@ -178,8 +178,8 @@ export function LinkedInWorkbench() {
             review.
           </p>
           <p className="text-sm leading-6 text-sentinel-800 dark:text-sentinel-200">
-            JobSentinel learns from the buttons you click here, not from hidden
-            LinkedIn page watching.
+            JobSentinel can learn from local job actions you choose, not from
+            hidden LinkedIn page watching.
           </p>
           <div className="rounded-lg border border-sentinel-200 bg-white p-3 dark:border-sentinel-800 dark:bg-surface-900">
             <label className="flex items-start gap-3 text-sm font-medium text-sentinel-900 dark:text-sentinel-100">
@@ -190,14 +190,14 @@ export function LinkedInWorkbench() {
                 onChange={(event) => updateLearningEnabled(event.target.checked)}
               />
               <span>
-                Help JobSentinel learn from my local Workbench actions.
+                Help JobSentinel learn from my local job actions.
               </span>
             </label>
             <p className="mt-2 text-xs leading-5 text-sentinel-700 dark:text-sentinel-200">
               When this is on, JobSentinel saves a small local list of buttons
-              you click here plus the job title and company you reviewed. It
-              does not read LinkedIn pages, browser storage, cookies,
-              screenshots, hidden fields, or network traffic.
+              you click, saved searches, and the job title and company you
+              reviewed. It does not read LinkedIn pages, browser storage,
+              cookies, screenshots, hidden fields, or network traffic.
             </p>
           </div>
           <label className="flex items-start gap-3 text-sm font-medium text-sentinel-900 dark:text-sentinel-100">

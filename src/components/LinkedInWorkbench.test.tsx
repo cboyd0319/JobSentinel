@@ -104,7 +104,7 @@ describe("LinkedInWorkbench", () => {
     renderWorkbench();
 
     expect(
-      screen.getByLabelText(/Help JobSentinel learn from my local Workbench actions/i),
+      screen.getByLabelText(/Help JobSentinel learn from my local job actions/i),
     ).not.toBeChecked();
     expect(screen.getByText(/Local learning is off/i)).toBeInTheDocument();
     expect(screen.queryByText(/Reviewable suggestions/i)).not.toBeInTheDocument();
@@ -162,7 +162,7 @@ describe("LinkedInWorkbench", () => {
     renderWorkbench();
 
     await user.click(
-      screen.getByLabelText(/Help JobSentinel learn from my local Workbench actions/i),
+      screen.getByLabelText(/Help JobSentinel learn from my local job actions/i),
     );
     expect(window.localStorage.setItem).toHaveBeenCalledWith(
       BROWSER_ASSIST_LEARNING_ENABLED_STORAGE_KEY,
@@ -197,7 +197,7 @@ describe("LinkedInWorkbench", () => {
     renderWorkbench();
 
     await user.click(
-      screen.getByLabelText(/Help JobSentinel learn from my local Workbench actions/i),
+      screen.getByLabelText(/Help JobSentinel learn from my local job actions/i),
     );
     await user.click(
       screen.getByLabelText(/I understand\. Remember this on this computer/i),
