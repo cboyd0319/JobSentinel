@@ -78,7 +78,7 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 - Current 2026-06-18 gates pass after `2451e7a7`: harness 100, bloat,
   release readiness, dependency/action pins, security/static sensors, scripts
   `709/709`, frontend `3120/3120`, Rust fmt/clippy/full test, macOS
-  no-account 100% / full-public 94%, and E2E `266/266`.
+  no-account 100% / full-public 94%, and E2E budget `272/272`.
 - Final non-`content/` expert/agent pass is applied locally. Gatekeeper-ready
   macOS remains Apple-blocked; wiki drafts await approval to push.
 - 2026-06-18 OWASP CheatSheetSeries scan covered Actions, supply-chain, AI,
