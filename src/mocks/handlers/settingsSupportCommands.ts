@@ -25,6 +25,7 @@ import type {
   MockCredentialUnlockState,
   MockDashboardPreferences,
   MockGhostConfig,
+  MockPendingBookmarkletImport,
 } from "./types";
 
 export interface MockSettingsSupportCommandState {
@@ -33,6 +34,7 @@ export interface MockSettingsSupportCommandState {
   credentialUnlock: MockCredentialUnlockState;
   ghostConfig: MockGhostConfig;
   bookmarkletConfig: MockBookmarkletConfig;
+  pendingBookmarkletImports: MockPendingBookmarkletImport[];
 }
 
 export interface MockSettingsSupportCommandResult {
@@ -206,6 +208,15 @@ export function handleMockSettingsSupportCommand(
     case "get_bookmarklet_config":
       return withoutSave(state, state.bookmarkletConfig);
 
+    case "get_pending_bookmarklet_imports":
+      return withoutSave(state, state.pendingBookmarkletImports);
+
+    case "confirm_pending_bookmarklet_imports":
+      return updatePendingBookmarkletImports(args, state, "confirm");
+
+    case "discard_pending_bookmarklet_imports":
+      return updatePendingBookmarkletImports(args, state, "discard");
+
     case "start_bookmarklet_server":
       return updateBookmarkletPort(args, state, true);
 
@@ -267,6 +278,45 @@ export function handleMockSettingsSupportCommand(
         value: undefined,
       };
   }
+}
+
+function getPendingBookmarkletIds(
+  args: Record<string, unknown> | undefined,
+): string[] {
+  const ids = getArg(args, "ids");
+  if (!Array.isArray(ids)) {
+    return [];
+  }
+
+  return ids.filter((id): id is string => typeof id === "string" && id.length > 0);
+}
+
+function updatePendingBookmarkletImports(
+  args: Record<string, unknown> | undefined,
+  state: MockSettingsSupportCommandState,
+  action: "confirm" | "discard",
+): MockSettingsSupportCommandResult {
+  const ids = getPendingBookmarkletIds(args);
+  if (ids.length === 0) {
+    throw new Error(action === "confirm" ? "Choose at least one job to save." : "Choose at least one job to skip.");
+  }
+
+  const selected = new Set(ids);
+  const matched = state.pendingBookmarkletImports.filter((item) => selected.has(item.id));
+  const nextPending = state.pendingBookmarkletImports.filter((item) => !selected.has(item.id));
+
+  return {
+    handled: true,
+    shouldSave: true,
+    state: {
+      ...state,
+      pendingBookmarkletImports: nextPending,
+    },
+    value:
+      action === "confirm"
+        ? { imported: matched.length, skipped: 0 }
+        : { discarded: matched.length },
+  };
 }
 
 function withoutSave(

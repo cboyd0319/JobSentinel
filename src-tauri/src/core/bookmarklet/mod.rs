@@ -3,9 +3,16 @@
 //! Provides a local HTTP server that receives job data from browser bookmarklets.
 //! This allows users to import jobs from any website by clicking a bookmark.
 
+mod pending;
 mod server;
 
-pub use server::{BookmarkletConfig, BookmarkletServer};
+pub use pending::{
+    BookmarkletImportConfirmResult, PendingBookmarkletImportPreview, PendingBookmarkletImports,
+};
+pub use server::{
+    confirm_pending_bookmarklet_imports, discard_pending_bookmarklet_imports, BookmarkletConfig,
+    BookmarkletServer,
+};
 
 use serde::{Deserialize, Serialize};
 

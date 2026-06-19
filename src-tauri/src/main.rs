@@ -352,6 +352,9 @@ fn main() {
             // Bookmarklet commands (v2.6)
             commands::bookmarklet::get_bookmarklet_config,
             commands::bookmarklet::copy_bookmarklet_code,
+            commands::bookmarklet::get_pending_bookmarklet_imports,
+            commands::bookmarklet::confirm_pending_bookmarklet_imports,
+            commands::bookmarklet::discard_pending_bookmarklet_imports,
             commands::bookmarklet::start_bookmarklet_server,
             commands::bookmarklet::stop_bookmarklet_server,
             commands::bookmarklet::set_bookmarklet_port,

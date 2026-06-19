@@ -90,13 +90,13 @@ describe("Browser Import button script", () => {
       title: "Principal Systems Security Engineer",
       company: "Sierra Nevada Corporation",
       location: "Centennial, CO",
-      url: "https://www.linkedin.com/jobs/view/100?currentJobId=100&referralSearchId=private",
+      url: "https://www.linkedin.com/jobs/view/100",
     });
     expect(payload.jobs[1]).toMatchObject({
       title: "Lead Platform Security Engineer",
       company: "HDR",
       location: "Denver, CO (On-site)",
-      url: "https://www.linkedin.com/jobs/view/200?origin=private",
+      url: "https://www.linkedin.com/jobs/view/200",
     });
   });
 });

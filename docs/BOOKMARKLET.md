@@ -1,18 +1,18 @@
 # Browser Import Button
 
-The browser import button saves the job page or visible job list you choose into
-JobSentinel. It is optional. You can still add jobs from inside JobSentinel
-without setting this up.
+The browser import button adds the job page or visible job list you choose to a
+local JobSentinel review list. You decide what to save. It is optional. You can
+still add jobs from inside JobSentinel without setting this up.
 
 ## What It Does
 
-- Saves jobs from official career pages and trusted public job pages when the
+- Adds jobs from official career pages and trusted public job pages when the
   page shows enough job details.
-- Saves visible job cards from supported job-list pages, including LinkedIn
-  Jobs pages the user opened, without storing login details.
+- Adds visible job cards from supported job-list pages, including LinkedIn Jobs
+  pages the user opened, without storing login details.
 - Uses the browser page you already opened.
 - Sends the job only to the JobSentinel app running on your computer.
-- Keeps the saved jobs local.
+- Keeps the review list and saved jobs local.
 
 ## When To Use It
 
@@ -45,16 +45,17 @@ Copy the browser button again after each import or after changing the button
 setup number. If JobSentinel was closed and reopened, copy it again before
 importing more jobs.
 
-## Save Jobs
+## Review And Save Jobs
 
 1. Open an individual job posting, or a supported job-list page such as
    LinkedIn Jobs, in your browser.
 2. Use the **Import to JobSentinel** bookmark.
 3. Wait for the confirmation message.
-4. Open JobSentinel and review the saved jobs.
+4. Open JobSentinel Settings and find **Jobs waiting for review**.
+5. Check each job, then click **Save Job** or **Skip**.
 
 If jobs are missing, copy the browser button again and retry. If some details
-are missing, edit the saved jobs after import.
+are missing, save the job and edit it afterward, or skip it and add it manually.
 
 ## Where It Works Best
 
@@ -68,8 +69,9 @@ The browser import button works best on:
 - Pages you opened yourself in your browser.
 
 Some job search result pages may not include enough job details. Some large job
-boards also block page import. JobSentinel does not get around those limits; use
-JobSentinel's search link or add the job manually when import does not work.
+boards also do not allow this kind of save. JobSentinel does not get around those
+limits; use JobSentinel's search link or add the job manually when import does
+not work.
 
 ## Troubleshooting
 
@@ -87,7 +89,7 @@ JobSentinel's search link or add the job manually when import does not work.
 JobSentinel found the same job in your saved jobs. Open your jobs list and
 search for the company or title.
 
-### Job Did Not Save
+### Job Did Not Appear For Review
 
 - Make sure you are on an individual job page or a supported visible job-list
   page.
@@ -99,8 +101,8 @@ search for the company or title.
 
 ### Missing Details
 
-Some sites hide details or load them after the page opens. Save the job, then
-fill in any blank details in JobSentinel.
+Some sites hide details or load them after the page opens. Save the job only if
+the review looks useful, then fill in any blank details in JobSentinel.
 
 ## Privacy
 
@@ -108,15 +110,18 @@ fill in any blank details in JobSentinel.
 - Hidden details include a private one-use browser button detail that stays out
   of normal setup.
 - The private one-use detail is refreshed when the browser button is copied,
-  works for one save, and expires after about one hour.
+  works for one browser import, and expires after about one hour.
 - The button uses a transient hidden browser context for its local send path so
   page scripts are less likely to observe the one-use detail.
 - If copying fails, the previous browser button keeps working until its safety
   code is used once or expires.
 - Job data stays local unless you choose to share it.
-- On LinkedIn Jobs pages, JobSentinel saves only visible job-card fields from
-  the page you clicked on. It does not save cookies, login tokens, browser
-  storage, hidden page state, network traffic, or pages you did not open.
+- On LinkedIn Jobs pages, JobSentinel adds only visible job-card fields from the
+  page you clicked on to the local review list. It does not save cookies, login
+  tokens, browser storage, hidden page state, network traffic, or pages you did
+  not open.
+- Browser Import jobs are not durable saved jobs until you click **Save Job** in
+  the review list.
 - Safe support reports must redact the browser button details and saved jobs
   details.
 

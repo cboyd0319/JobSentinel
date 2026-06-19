@@ -286,13 +286,14 @@ async fn test_bookmarklet_connection_times_out_incomplete_body() {
         .expect("test listener should expose address");
     let database = bookmarklet_test_database().await;
     let auth_state = bookmarklet_auth_state(TEST_AUTH_TOKEN, bookmarklet_auth_expiry());
+    let pending_imports = new_pending_bookmarklet_imports();
 
     let server_task = tokio::spawn(async move {
         let (stream, _) = listener
             .accept()
             .await
             .expect("test connection should be accepted");
-        handle_connection(stream, auth_state, database).await
+        handle_connection(stream, auth_state, pending_imports, database).await
     });
 
     let mut client = tokio::net::TcpStream::connect(addr)
@@ -357,6 +358,10 @@ fn bookmarklet_auth_state(
     }))
 }
 
+fn bookmarklet_pending_imports() -> PendingBookmarkletImports {
+    new_pending_bookmarklet_imports()
+}
+
 async fn bookmarklet_test_database() -> Arc<Database> {
     let database = Database::connect_memory()
         .await
@@ -401,6 +406,7 @@ async fn test_bookmarklet_import_rejects_unsafe_url_without_insert() {
     let (response, content_type) = handle_import_request(
         &bookmarklet_import_request(&body),
         &auth_state,
+        bookmarklet_pending_imports(),
         database.clone(),
     )
     .await;
@@ -428,6 +434,7 @@ async fn test_bookmarklet_import_rejects_missing_body_token_without_insert() {
     let (response, content_type) = handle_import_request(
         &bookmarklet_import_request(&body),
         &auth_state,
+        bookmarklet_pending_imports(),
         database.clone(),
     )
     .await;
@@ -452,6 +459,7 @@ async fn test_bookmarklet_import_rejects_expired_token_without_insert() {
     let (response, content_type) = handle_import_request(
         &bookmarklet_import_request(&body),
         &auth_state,
+        bookmarklet_pending_imports(),
         database.clone(),
     )
     .await;
@@ -476,6 +484,7 @@ async fn test_bookmarklet_import_uses_shared_job_length_validation() {
     let (response, content_type) = handle_import_request(
         &bookmarklet_import_request(&body),
         &auth_state,
+        bookmarklet_pending_imports(),
         database.clone(),
     )
     .await;
@@ -488,9 +497,10 @@ async fn test_bookmarklet_import_uses_shared_job_length_validation() {
 }
 
 #[tokio::test]
-async fn test_bookmarklet_import_stores_valid_job_through_shared_path() {
+async fn test_bookmarklet_import_queues_valid_job_for_review_without_insert() {
     let database = bookmarklet_test_database().await;
     let auth_state = bookmarklet_auth_state(TEST_AUTH_TOKEN, bookmarklet_auth_expiry());
+    let pending_imports = bookmarklet_pending_imports();
     let body = bookmarklet_import_body(serde_json::json!({
         "title": "Care Coordinator",
         "company": "Community Care",
@@ -503,19 +513,42 @@ async fn test_bookmarklet_import_stores_valid_job_through_shared_path() {
     let (response, content_type) = handle_import_request(
         &bookmarklet_import_request(&body),
         &auth_state,
+        pending_imports.clone(),
         database.clone(),
     )
     .await;
     let parsed: serde_json::Value =
         serde_json::from_str(&response).expect("success response should be JSON");
+    let previews = pending_bookmarklet_import_previews(&pending_imports);
+
+    assert_eq!(content_type, "application/json");
+    assert_eq!(parsed["success"], true);
+    assert_eq!(parsed["pending"], 1);
+    assert_eq!(parsed["imported"], serde_json::Value::Null);
+    assert_eq!(stored_job_count(&database).await, 0);
+    assert_eq!(previews.len(), 1);
+    assert_eq!(previews[0].title, "Care Coordinator");
+    assert_eq!(previews[0].company, "Community Care");
+    assert_eq!(previews[0].url, "https://example.com/jobs/1");
+    assert_eq!(previews[0].location, Some("Denver, CO".to_string()));
+    assert!(previews[0].remote);
+
+    let confirm_result =
+        confirm_pending_bookmarklet_imports(&database, &pending_imports, &[previews[0].id.clone()])
+            .await
+            .expect("confirm should save queued import");
     let stored: (String, String, String, bool, String, Option<String>) =
         sqlx::query_as("SELECT title, company, source, remote, hash, location FROM jobs LIMIT 1")
             .fetch_one(database.pool())
             .await
-            .expect("stored job should load");
+            .expect("stored job should load after confirmation");
 
-    assert_eq!(content_type, "application/json");
-    assert_eq!(parsed["success"], true);
+    assert_eq!(confirm_result.imported, 1);
+    assert_eq!(confirm_result.skipped, 0);
+    assert_eq!(
+        pending_bookmarklet_import_previews(&pending_imports).len(),
+        0
+    );
     assert_eq!(stored.0, "Care Coordinator");
     assert_eq!(stored.1, "Community Care");
     assert_eq!(stored.2, "bookmarklet");
@@ -533,9 +566,10 @@ async fn test_bookmarklet_import_stores_valid_job_through_shared_path() {
 }
 
 #[tokio::test]
-async fn test_bookmarklet_import_stores_visible_job_batch() {
+async fn test_bookmarklet_import_queues_visible_job_batch_for_review_without_insert() {
     let database = bookmarklet_test_database().await;
     let auth_state = bookmarklet_auth_state(TEST_AUTH_TOKEN, bookmarklet_auth_expiry());
+    let pending_imports = bookmarklet_pending_imports();
     let body = bookmarklet_import_batch_body(serde_json::json!([
         {
             "title": "Principal Systems Security Engineer",
@@ -560,27 +594,25 @@ async fn test_bookmarklet_import_stores_visible_job_batch() {
             "https://www.linkedin.com/jobs/",
         ),
         &auth_state,
+        pending_imports.clone(),
         database.clone(),
     )
     .await;
     let parsed: serde_json::Value =
         serde_json::from_str(&response).expect("batch response should be JSON");
-    let rows: Vec<(String, String, String)> =
-        sqlx::query_as("SELECT title, company, url FROM jobs ORDER BY title")
-            .fetch_all(database.pool())
-            .await
-            .expect("stored jobs should load");
+    let previews = pending_bookmarklet_import_previews(&pending_imports);
 
     assert_eq!(content_type, "application/json");
     assert_eq!(parsed["success"], true);
-    assert_eq!(parsed["imported"], 2);
-    assert_eq!(rows.len(), 2);
-    assert_eq!(rows[0].0, "Lead Platform Security Engineer");
-    assert_eq!(rows[0].1, "HDR");
-    assert_eq!(rows[0].2, "https://www.linkedin.com/jobs/view/200");
-    assert_eq!(rows[1].0, "Principal Systems Security Engineer");
-    assert_eq!(rows[1].1, "Sierra Nevada Corporation");
-    assert_eq!(rows[1].2, "https://www.linkedin.com/jobs/view/100");
+    assert_eq!(parsed["pending"], 2);
+    assert_eq!(stored_job_count(&database).await, 0);
+    assert_eq!(previews.len(), 2);
+    assert_eq!(previews[0].title, "Principal Systems Security Engineer");
+    assert_eq!(previews[0].company, "Sierra Nevada Corporation");
+    assert_eq!(previews[0].url, "https://www.linkedin.com/jobs/view/100");
+    assert_eq!(previews[1].title, "Lead Platform Security Engineer");
+    assert_eq!(previews[1].company, "HDR");
+    assert_eq!(previews[1].url, "https://www.linkedin.com/jobs/view/200");
 }
 
 #[tokio::test]
@@ -607,6 +639,7 @@ async fn test_bookmarklet_import_rejects_batch_origin_mismatch() {
             "https://www.linkedin.com/jobs/",
         ),
         &auth_state,
+        bookmarklet_pending_imports(),
         database.clone(),
     )
     .await;
@@ -642,6 +675,7 @@ async fn test_bookmarklet_import_rejects_invalid_batch_without_partial_insert() 
             "https://www.linkedin.com/jobs/",
         ),
         &auth_state,
+        bookmarklet_pending_imports(),
         database.clone(),
     )
     .await;
@@ -657,6 +691,7 @@ async fn test_bookmarklet_import_rejects_invalid_batch_without_partial_insert() 
 async fn test_bookmarklet_import_minimizes_url_before_storage() {
     let database = bookmarklet_test_database().await;
     let auth_state = bookmarklet_auth_state(TEST_AUTH_TOKEN, bookmarklet_auth_expiry());
+    let pending_imports = bookmarklet_pending_imports();
     let body = bookmarklet_import_body(serde_json::json!({
         "title": "Care Coordinator",
         "company": "Community Care",
@@ -668,11 +703,17 @@ async fn test_bookmarklet_import_minimizes_url_before_storage() {
     let (response, content_type) = handle_import_request(
         &bookmarklet_import_request(&body),
         &auth_state,
+        pending_imports.clone(),
         database.clone(),
     )
     .await;
     let parsed: serde_json::Value =
         serde_json::from_str(&response).expect("success response should be JSON");
+    let previews = pending_bookmarklet_import_previews(&pending_imports);
+    let confirm_result =
+        confirm_pending_bookmarklet_imports(&database, &pending_imports, &[previews[0].id.clone()])
+            .await
+            .expect("confirm should save queued import");
     let stored_url: String = sqlx::query_scalar("SELECT url FROM jobs LIMIT 1")
         .fetch_one(database.pool())
         .await
@@ -680,6 +721,8 @@ async fn test_bookmarklet_import_minimizes_url_before_storage() {
 
     assert_eq!(content_type, "application/json");
     assert_eq!(parsed["success"], true);
+    assert_eq!(parsed["pending"], 1);
+    assert_eq!(confirm_result.imported, 1);
     assert_eq!(stored_url, "https://example.com/jobs?gh_jid=123&query=care");
     assert!(!stored_url.contains("utm_source"));
     assert!(!stored_url.contains("token"));
@@ -692,6 +735,7 @@ async fn test_bookmarklet_import_minimizes_url_before_storage() {
 async fn test_bookmarklet_import_consumes_token_after_first_valid_use() {
     let database = bookmarklet_test_database().await;
     let auth_state = bookmarklet_auth_state(TEST_AUTH_TOKEN, bookmarklet_auth_expiry());
+    let pending_imports = bookmarklet_pending_imports();
     let first_body = bookmarklet_import_body(serde_json::json!({
         "title": "Care Coordinator",
         "company": "Community Care",
@@ -706,12 +750,14 @@ async fn test_bookmarklet_import_consumes_token_after_first_valid_use() {
     let (first_response, _) = handle_import_request(
         &bookmarklet_import_request(&first_body),
         &auth_state,
+        pending_imports.clone(),
         database.clone(),
     )
     .await;
     let (second_response, _) = handle_import_request(
         &bookmarklet_import_request(&second_body),
         &auth_state,
+        pending_imports.clone(),
         database.clone(),
     )
     .await;
@@ -722,7 +768,11 @@ async fn test_bookmarklet_import_consumes_token_after_first_valid_use() {
 
     assert_eq!(first["success"], true);
     assert_eq!(second["error"], BOOKMARKLET_UNAUTHORIZED_MESSAGE);
-    assert_eq!(stored_job_count(&database).await, 1);
+    assert_eq!(
+        pending_bookmarklet_import_previews(&pending_imports).len(),
+        1
+    );
+    assert_eq!(stored_job_count(&database).await, 0);
 }
 
 #[tokio::test]
@@ -743,12 +793,14 @@ async fn test_bookmarklet_import_consumes_token_after_invalid_authenticated_payl
     let (first_response, _) = handle_import_request(
         &bookmarklet_import_request(&unsafe_body),
         &auth_state,
+        bookmarklet_pending_imports(),
         database.clone(),
     )
     .await;
     let (second_response, _) = handle_import_request(
         &bookmarklet_import_request(&valid_body),
         &auth_state,
+        bookmarklet_pending_imports(),
         database.clone(),
     )
     .await;

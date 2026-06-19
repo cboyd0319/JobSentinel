@@ -67,6 +67,17 @@ export interface MockBookmarkletConfig {
   enabled: boolean;
 }
 
+export interface MockPendingBookmarkletImport {
+  id: string;
+  title: string;
+  company: string;
+  url: string;
+  location: string | null;
+  description_preview: string | null;
+  remote: boolean;
+  received_at: string;
+}
+
 export interface MockResumeData {
   id: number;
   name: string;
@@ -176,6 +187,7 @@ export interface MockState {
   credentialUnlock: MockCredentialUnlockState;
   ghostConfig: MockGhostConfig;
   bookmarkletConfig: MockBookmarkletConfig;
+  pendingBookmarkletImports: MockPendingBookmarkletImport[];
   resumes: MockResumeData[];
   userSkills: MockUserSkill[];
   resumeDrafts: MockResumeDraft[];

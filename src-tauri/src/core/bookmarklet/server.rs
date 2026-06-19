@@ -2,7 +2,16 @@
 //!
 //! Runs a simple HTTP server on localhost to receive job data from browser bookmarklets.
 
-use super::BookmarkletJobData;
+use super::{
+    pending::{
+        new_pending_bookmarklet_imports, pending_bookmarklet_import_previews,
+        queue_pending_bookmarklet_imports, remove_pending_bookmarklet_imports,
+        selected_pending_bookmarklet_imports, BookmarkletImportConfirmResult,
+        BookmarkletImportQueueResult, PendingBookmarkletImport, PendingBookmarkletImportPreview,
+        PendingBookmarkletImports,
+    },
+    BookmarkletJobData,
+};
 use crate::core::{
     calculate_job_hash,
     db::{Database, Job},
@@ -30,6 +39,11 @@ const BOOKMARKLET_READ_TIMEOUT: Duration = Duration::from_secs(3);
 #[cfg(test)]
 const BOOKMARKLET_READ_TIMEOUT: Duration = Duration::from_millis(50);
 const BOOKMARKLET_TOKEN_LIFETIME_MINUTES: i64 = 60;
+const MAX_BOOKMARKLET_TITLE_LENGTH: usize = 500;
+const MAX_BOOKMARKLET_COMPANY_LENGTH: usize = 200;
+const MAX_BOOKMARKLET_URL_LENGTH: usize = 2000;
+const MAX_BOOKMARKLET_LOCATION_LENGTH: usize = 200;
+const MAX_BOOKMARKLET_DESCRIPTION_LENGTH: usize = 50000;
 const INVALID_BOOKMARKLET_PAYLOAD_MESSAGE: &str =
     "Invalid bookmarklet payload. Reload the page and try again.";
 const BOOKMARKLET_DATABASE_FAILURE_MESSAGE: &str =
@@ -130,6 +144,7 @@ pub enum BookmarkletError {
 pub struct BookmarkletServer {
     config: BookmarkletConfig,
     auth_state: Arc<RwLock<BookmarkletAuthState>>,
+    pending_imports: PendingBookmarkletImports,
     server_handle: Option<JoinHandle<()>>,
     shutdown_tx: Option<tokio::sync::oneshot::Sender<()>>,
 }
@@ -141,6 +156,7 @@ impl BookmarkletServer {
         Self {
             config,
             auth_state,
+            pending_imports: new_pending_bookmarklet_imports(),
             server_handle: None,
             shutdown_tx: None,
         }
@@ -164,6 +180,16 @@ impl BookmarkletServer {
         sync_bookmarklet_auth(&self.auth_state, &self.config);
     }
 
+    /// Clone the in-memory review queue for command handlers.
+    pub fn pending_import_store(&self) -> PendingBookmarkletImports {
+        self.pending_imports.clone()
+    }
+
+    /// List imports waiting for explicit user confirmation.
+    pub fn pending_imports(&self) -> Vec<PendingBookmarkletImportPreview> {
+        pending_bookmarklet_import_previews(&self.pending_imports)
+    }
+
     /// Check if server is running
     pub fn is_running(&self) -> bool {
         self.server_handle.is_some()
@@ -184,6 +210,7 @@ impl BookmarkletServer {
         let port = self.config.port;
         sync_bookmarklet_auth(&self.auth_state, &self.config);
         let auth_state = self.auth_state.clone();
+        let pending_imports = self.pending_imports.clone();
         let listener = bookmarklet_listener(port).await?;
 
         // Create shutdown channel
@@ -191,7 +218,9 @@ impl BookmarkletServer {
 
         // Spawn server task
         let handle = tokio::spawn(async move {
-            if let Err(e) = run_server(listener, auth_state, database, shutdown_rx).await {
+            if let Err(e) =
+                run_server(listener, auth_state, pending_imports, database, shutdown_rx).await
+            {
                 tracing::error!(error = %bookmarklet_error_label(&e), "Bookmarklet server error");
             }
         });
@@ -243,6 +272,7 @@ async fn bookmarklet_listener(port: u16) -> Result<tokio::net::TcpListener, Book
 async fn run_server(
     listener: tokio::net::TcpListener,
     auth_state: Arc<RwLock<BookmarkletAuthState>>,
+    pending_imports: PendingBookmarkletImports,
     database: Arc<Database>,
     mut shutdown_rx: tokio::sync::oneshot::Receiver<()>,
 ) -> Result<(), BookmarkletError> {
@@ -266,10 +296,11 @@ async fn run_server(
                         };
                         let db = database.clone();
                         let auth = auth_state.clone();
+                        let pending = pending_imports.clone();
                         tokio::spawn(async move {
                             let _connection_permit = connection_permit;
                             if let Err(_e) =
-                                handle_connection(stream, auth, db).await
+                                handle_connection(stream, auth, pending, db).await
                             {
                                 tracing::error!("Bookmarklet connection failed");
                             }
@@ -303,6 +334,7 @@ fn try_bookmarklet_connection_permit(
 async fn handle_connection(
     stream: tokio::net::TcpStream,
     auth_state: Arc<RwLock<BookmarkletAuthState>>,
+    pending_imports: PendingBookmarkletImports,
     database: Arc<Database>,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     use tokio::io::AsyncWriteExt;
@@ -322,7 +354,7 @@ async fn handle_connection(
             "application/json".to_string(),
         )
     } else if is_bookmarklet_import_request(&request) {
-        handle_import_request(&request, &auth_state, database).await
+        handle_import_request(&request, &auth_state, pending_imports, database).await
     } else if request.starts_with("OPTIONS") {
         ("OK".to_string(), "text/plain".to_string())
     } else {
@@ -621,6 +653,7 @@ fn is_bookmarklet_import_request(request: &str) -> bool {
 async fn handle_import_request(
     request: &str,
     auth_state: &Arc<RwLock<BookmarkletAuthState>>,
+    pending_imports: PendingBookmarkletImports,
     database: Arc<Database>,
 ) -> (String, String) {
     // Extract JSON body from request
@@ -690,32 +723,27 @@ async fn handle_import_request(
         job_data_values.push(job_data);
     }
 
-    let mut imported = 0usize;
-    let mut skipped = 0usize;
-
-    for job_data in job_data_values {
-        match store_bookmarklet_job(database.as_ref(), job_data).await {
-            Ok(Some(_job_id)) => imported += 1,
-            Ok(None) if batch_mode => skipped += 1,
-            Ok(None) => {
-                return (
-                    json_error_response("Job already exists in database"),
-                    "application/json".to_string(),
-                );
-            }
-            Err(message) => {
-                return (json_error_response(message), "application/json".to_string());
-            }
+    let queue_result = match queue_bookmarklet_jobs_for_review(
+        database.as_ref(),
+        &pending_imports,
+        job_data_values,
+        batch_mode,
+    )
+    .await
+    {
+        Ok(result) => result,
+        Err(message) => {
+            return (json_error_response(message), "application/json".to_string());
         }
-    }
+    };
 
     if batch_mode {
         return (
             json!({
                 "success": true,
-                "message": "Jobs imported successfully",
-                "imported": imported,
-                "skipped": skipped,
+                "message": "Jobs ready for review",
+                "pending": queue_result.pending,
+                "skipped": queue_result.skipped,
             })
             .to_string(),
             "application/json".to_string(),
@@ -723,22 +751,106 @@ async fn handle_import_request(
     }
 
     (
-        r#"{"success":true,"message":"Job imported successfully"}"#.to_string(),
+        json!({
+            "success": true,
+            "message": "Job ready for review",
+            "pending": queue_result.pending,
+            "skipped": queue_result.skipped,
+        })
+        .to_string(),
         "application/json".to_string(),
     )
+}
+
+async fn queue_bookmarklet_jobs_for_review(
+    database: &Database,
+    pending_imports: &PendingBookmarkletImports,
+    job_data_values: Vec<BookmarkletJobData>,
+    batch_mode: bool,
+) -> Result<BookmarkletImportQueueResult, String> {
+    let mut pending_jobs = Vec::with_capacity(job_data_values.len());
+    let mut skipped = 0usize;
+
+    for job_data in job_data_values {
+        let job_data = normalize_bookmarklet_job_data(job_data)?;
+        let job_hash = bookmarklet_job_hash(&job_data);
+
+        match database.job_exists_by_hash(&job_hash).await {
+            Ok(true) if batch_mode => {
+                skipped += 1;
+                continue;
+            }
+            Ok(true) => {
+                return Err("Job already exists in database".to_string());
+            }
+            Ok(false) => {}
+            Err(_e) => {
+                tracing::error!(
+                    error_kind = "database",
+                    "Database error checking bookmarklet job existence"
+                );
+                return Err(BOOKMARKLET_DATABASE_FAILURE_MESSAGE.to_string());
+            }
+        }
+
+        pending_jobs.push(PendingBookmarkletImport::new(job_hash, job_data));
+    }
+
+    let mut result = queue_pending_bookmarklet_imports(pending_imports, pending_jobs);
+    result.skipped += skipped;
+    Ok(result)
+}
+
+pub async fn confirm_pending_bookmarklet_imports(
+    database: &Database,
+    pending_imports: &PendingBookmarkletImports,
+    ids: &[String],
+) -> Result<BookmarkletImportConfirmResult, String> {
+    let selected = selected_pending_bookmarklet_imports(pending_imports, ids);
+    if selected.is_empty() {
+        return Ok(BookmarkletImportConfirmResult {
+            imported: 0,
+            skipped: 0,
+        });
+    }
+
+    let mut confirmed_ids = Vec::new();
+    let mut imported = 0usize;
+    let mut skipped = 0usize;
+
+    for pending_import in selected {
+        match store_bookmarklet_job(database, pending_import.job_data()).await {
+            Ok(Some(_job_id)) => {
+                imported += 1;
+                confirmed_ids.push(pending_import.id().to_string());
+            }
+            Ok(None) => {
+                skipped += 1;
+                confirmed_ids.push(pending_import.id().to_string());
+            }
+            Err(message) => return Err(message),
+        }
+    }
+
+    remove_pending_bookmarklet_imports(pending_imports, &confirmed_ids);
+
+    Ok(BookmarkletImportConfirmResult { imported, skipped })
+}
+
+pub fn discard_pending_bookmarklet_imports(
+    pending_imports: &PendingBookmarkletImports,
+    ids: &[String],
+) -> usize {
+    remove_pending_bookmarklet_imports(pending_imports, ids)
 }
 
 async fn store_bookmarklet_job(
     database: &Database,
     job_data: BookmarkletJobData,
 ) -> Result<Option<i64>, String> {
-    job_data.validate()?;
-
-    let title = job_data.title.trim().to_string();
-    let company = job_data
-        .get_company()
-        .map(|value| value.trim().to_string())
-        .unwrap_or_default();
+    let job_data = normalize_bookmarklet_job_data(job_data)?;
+    let title = job_data.title.clone();
+    let company = job_data.get_company().unwrap_or_default();
     let description = if job_data.description.trim().is_empty() {
         None
     } else {
@@ -749,15 +861,10 @@ async fn store_bookmarklet_job(
         .map(|value| value.trim().to_string())
         .filter(|value| !value.is_empty());
     let remote = job_data.is_remote();
-    let url = match canonicalize_bookmarklet_job_url(job_data.url.trim()) {
-        Ok(url) => url,
-        Err(_) => {
-            return Err("Job link must be a public https address".to_string());
-        }
-    };
+    let url = job_data.url.clone();
 
     // Calculate job hash for deduplication
-    let job_hash = calculate_job_hash(&company, &title, location.as_deref(), &url);
+    let job_hash = bookmarklet_job_hash(&job_data);
 
     // Check if job already exists
     match database.job_exists_by_hash(&job_hash).await {
@@ -827,6 +934,56 @@ async fn store_bookmarklet_job(
             Err(BOOKMARKLET_DATABASE_FAILURE_MESSAGE.to_string())
         }
     }
+}
+
+fn normalize_bookmarklet_job_data(
+    mut job_data: BookmarkletJobData,
+) -> Result<BookmarkletJobData, String> {
+    job_data.validate()?;
+
+    job_data.title = job_data.title.trim().to_string();
+    job_data.company = job_data
+        .get_company()
+        .map(|value| value.trim().to_string())
+        .unwrap_or_default();
+    job_data.description = job_data.description.trim().to_string();
+    job_data.location = job_data
+        .get_location()
+        .map(|value| value.trim().to_string())
+        .filter(|value| !value.is_empty());
+    job_data.url = canonicalize_bookmarklet_job_url(job_data.url.trim())
+        .map_err(|_| "Job link must be a public https address".to_string())?;
+    validate_bookmarklet_job_storage_lengths(&job_data)?;
+
+    Ok(job_data)
+}
+
+fn validate_bookmarklet_job_storage_lengths(job_data: &BookmarkletJobData) -> Result<(), String> {
+    if job_data.title.len() > MAX_BOOKMARKLET_TITLE_LENGTH
+        || job_data.company.len() > MAX_BOOKMARKLET_COMPANY_LENGTH
+        || job_data.url.len() > MAX_BOOKMARKLET_URL_LENGTH
+        || job_data
+            .location
+            .as_ref()
+            .is_some_and(|location| location.len() > MAX_BOOKMARKLET_LOCATION_LENGTH)
+        || job_data.description.len() > MAX_BOOKMARKLET_DESCRIPTION_LENGTH
+    {
+        return Err(BOOKMARKLET_DATABASE_FAILURE_MESSAGE.to_string());
+    }
+
+    Ok(())
+}
+
+fn bookmarklet_job_hash(job_data: &BookmarkletJobData) -> String {
+    let company = job_data.get_company().unwrap_or_default();
+    let location = job_data.get_location();
+
+    calculate_job_hash(
+        &company,
+        &job_data.title,
+        location.as_deref(),
+        &job_data.url,
+    )
 }
 
 fn canonicalize_bookmarklet_job_url(value: &str) -> Result<String, String> {

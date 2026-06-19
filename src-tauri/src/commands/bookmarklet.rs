@@ -6,7 +6,15 @@
 
 use crate::{
     commands::{errors::user_friendly_error, AppState},
-    core::{bookmarklet::BookmarkletConfig, config::Config, logging::path_label_for_logging},
+    core::{
+        bookmarklet::{
+            confirm_pending_bookmarklet_imports as confirm_pending_bookmarklet_import_jobs,
+            discard_pending_bookmarklet_imports as discard_pending_bookmarklet_import_jobs,
+            BookmarkletConfig, BookmarkletImportConfirmResult, PendingBookmarkletImportPreview,
+        },
+        config::Config,
+        logging::path_label_for_logging,
+    },
 };
 use arboard::Clipboard;
 use serde::{Deserialize, Serialize};
@@ -20,6 +28,11 @@ const MAX_BOOKMARKLET_PORT: u32 = u16::MAX as u32;
 pub struct BookmarkletConfigResponse {
     pub port: u16,
     pub enabled: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DiscardBookmarkletImportsResponse {
+    pub discarded: usize,
 }
 
 fn bookmarklet_copy_error() -> String {
@@ -40,7 +53,7 @@ fn bookmarklet_code(port: u16, auth_token: &str) -> String {
         Err(_) => "\"\"".to_string(),
     };
 
-    const TEMPLATE: &str = r#"javascript:(function(){var frame=null;function done(message){try{if(frame&&frame.parentNode){frame.parentNode.removeChild(frame);}}catch(e){}alert(message);}try{frame=document.createElement('iframe');frame.setAttribute('aria-hidden','true');frame.style.display='none';(document.documentElement||document.body).appendChild(frame);var cleanWindow=frame.contentWindow;var cleanFetch=cleanWindow.fetch.bind(cleanWindow);var cleanStringify=cleanWindow.JSON.stringify.bind(cleanWindow.JSON);var cleanParse=cleanWindow.JSON.parse.bind(cleanWindow.JSON);function norm(value){return String(value||'').replace(/\s+/g,' ').trim();}function text(el){return norm(el&&(el.innerText||el.textContent));}function visible(el){try{var rect=el.getBoundingClientRect();var style=window.getComputedStyle(el);return rect.width>0&&rect.height>0&&rect.bottom>=0&&rect.right>=0&&rect.top<=window.innerHeight&&rect.left<=window.innerWidth&&style.visibility!=='hidden'&&style.display!=='none';}catch(e){return false;}}function abs(href){try{return new cleanWindow.URL(href,window.location.href).toString();}catch(e){return '';}}function cardFor(anchor){var node=anchor;var best=anchor;for(var i=0;i<7&&node&&node.parentElement;i++){node=node.parentElement;var value=text(node);if(value.length>text(anchor).length+10&&value.length<1400){best=node;}if(value.indexOf('\u00b7')>=0&&value.length>60){break;}}return best;}function cleanCardDetails(raw,title){var index=raw.indexOf(title);var value=index>=0?raw.slice(index+title.length):raw;value=value.replace(/^[\\s\u00b7-]+/,'');value=value.split(/You.?d be|Viewed|Saved|Promoted|Be an early applicant|Retry Premium|See the full list|1 company alumni|company alumni/i)[0];return norm(value);}function jobFromAnchor(anchor){var title=text(anchor);var url=abs(anchor.getAttribute('href')||'');if(!title||url.indexOf('/jobs/view/')<0){return null;}var card=cardFor(anchor);var raw=text(card).slice(0,1200);var detail=cleanCardDetails(raw,title);var parts=detail.split('\u00b7').map(norm).filter(Boolean);var company=parts[0]||'';var location='';for(var i=1;i<parts.length;i++){if(/remote|hybrid|on-site|,\s*[A-Z]{2}\b|united states/i.test(parts[i])){location=parts[i];break;}}if(!company||company.length>200){return null;}return{title:title,company:company,location:location,description:raw,url:url};}function visibleLinkedInJobs(){if(!/(\.|^)linkedin\.com$/i.test(location.hostname)||location.pathname.indexOf('/jobs')!==0){return [];}var anchors=document.querySelectorAll('a[href*="/jobs/view/"]');var seen={};var visibleJobs=[];anchors.forEach(function(anchor){if(visibleJobs.length>=12||!visible(anchor)){return;}var job=jobFromAnchor(anchor);if(job&&!seen[job.url]){seen[job.url]=1;visibleJobs.push(job);}});return visibleJobs;}var visibleJobs=visibleLinkedInJobs();var payload=null;if(visibleJobs.length>0){payload={token:__TOKEN__,jobs:visibleJobs};}else{var scripts=document.querySelectorAll('script[type="application/ld+json"]');var job=null;scripts.forEach(function(s){try{var data=cleanParse(s.textContent);if(data['@type']==='JobPosting')job=data;}catch(e){}});if(!job){var title=document.querySelector('h1');var company=document.querySelector('[class*="company"]')||document.querySelector('[class*="employer"]');var desc=document.querySelector('[class*="description"]')||document.querySelector('[class*="desc"]');job={title:title?text(title):'',company:company?text(company):'',description:desc?text(desc):'',url:window.location.href};}else{job.url=window.location.href;}payload={token:__TOKEN__,job:job};}cleanFetch('http://localhost:__PORT__/api/bookmarklet/import',{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:cleanStringify(payload)}).then(function(){done(visibleJobs.length>0?'Sent '+visibleJobs.length+' visible jobs to JobSentinel. Open saved jobs to confirm.':'Sent to JobSentinel. Open saved jobs to confirm. If missing, copy the browser button again.');}).catch(function(){done('Cannot connect to JobSentinel. Turn on Browser Import in Settings.');});}catch(e){done('Cannot connect to JobSentinel. Turn on Browser Import in Settings.');}})();"#;
+    const TEMPLATE: &str = r#"javascript:(function(){var frame=null;function done(message){try{if(frame&&frame.parentNode){frame.parentNode.removeChild(frame);}}catch(e){}alert(message);}try{frame=document.createElement('iframe');frame.setAttribute('aria-hidden','true');frame.style.display='none';(document.documentElement||document.body).appendChild(frame);var cleanWindow=frame.contentWindow;var cleanFetch=cleanWindow.fetch.bind(cleanWindow);var cleanStringify=cleanWindow.JSON.stringify.bind(cleanWindow.JSON);var cleanParse=cleanWindow.JSON.parse.bind(cleanWindow.JSON);function norm(value){return String(value||'').replace(/\s+/g,' ').trim();}function text(el){return norm(el&&(el.innerText||el.textContent));}function visible(el){try{var rect=el.getBoundingClientRect();var style=window.getComputedStyle(el);return rect.width>0&&rect.height>0&&rect.bottom>=0&&rect.right>=0&&rect.top<=window.innerHeight&&rect.left<=window.innerWidth&&style.visibility!=='hidden'&&style.display!=='none';}catch(e){return false;}}function abs(href){try{return new cleanWindow.URL(href,window.location.href).toString();}catch(e){return '';}}function safeJobUrl(value){try{var parsed=new cleanWindow.URL(value,window.location.href);if(/(\.|^)linkedin\.com$/i.test(parsed.hostname)&&parsed.pathname.indexOf('/jobs/view/')>=0){parsed.search='';parsed.hash='';}return parsed.toString();}catch(e){return '';}}function cardFor(anchor){var node=anchor;var best=anchor;for(var i=0;i<7&&node&&node.parentElement;i++){node=node.parentElement;var value=text(node);if(value.length>text(anchor).length+10&&value.length<1400){best=node;}if(value.indexOf('\u00b7')>=0&&value.length>60){break;}}return best;}function cleanCardDetails(raw,title){var index=raw.indexOf(title);var value=index>=0?raw.slice(index+title.length):raw;value=value.replace(/^[\\s\u00b7-]+/,'');value=value.split(/You.?d be|Viewed|Saved|Promoted|Be an early applicant|Retry Premium|See the full list|1 company alumni|company alumni/i)[0];return norm(value);}function jobFromAnchor(anchor){var title=text(anchor);var url=safeJobUrl(anchor.getAttribute('href')||'');if(!title||url.indexOf('/jobs/view/')<0){return null;}var card=cardFor(anchor);var raw=text(card).slice(0,1200);var detail=cleanCardDetails(raw,title);var parts=detail.split('\u00b7').map(norm).filter(Boolean);var company=parts[0]||'';var location='';for(var i=1;i<parts.length;i++){if(/remote|hybrid|on-site|,\s*[A-Z]{2}\b|united states/i.test(parts[i])){location=parts[i];break;}}if(!company||company.length>200){return null;}return{title:title,company:company,location:location,description:raw,url:url};}function visibleLinkedInJobs(){if(!/(\.|^)linkedin\.com$/i.test(location.hostname)||location.pathname.indexOf('/jobs')!==0){return [];}var anchors=document.querySelectorAll('a[href*="/jobs/view/"]');var seen={};var visibleJobs=[];anchors.forEach(function(anchor){if(visibleJobs.length>=12||!visible(anchor)){return;}var job=jobFromAnchor(anchor);if(job&&!seen[job.url]){seen[job.url]=1;visibleJobs.push(job);}});return visibleJobs;}var visibleJobs=visibleLinkedInJobs();var payload=null;if(visibleJobs.length>0){payload={token:__TOKEN__,jobs:visibleJobs};}else{var scripts=document.querySelectorAll('script[type="application/ld+json"]');var job=null;scripts.forEach(function(s){try{var data=cleanParse(s.textContent);if(data['@type']==='JobPosting')job=data;}catch(e){}});if(!job){var title=document.querySelector('h1');var company=document.querySelector('[class*="company"]')||document.querySelector('[class*="employer"]');var desc=document.querySelector('[class*="description"]')||document.querySelector('[class*="desc"]');job={title:title?text(title):'',company:company?text(company):'',description:desc?text(desc):'',url:safeJobUrl(window.location.href)};}else{job.url=safeJobUrl(window.location.href);}payload={token:__TOKEN__,job:job};}cleanFetch('http://localhost:__PORT__/api/bookmarklet/import',{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:cleanStringify(payload)}).then(function(){done(visibleJobs.length>0?'Sent '+visibleJobs.length+' visible jobs to JobSentinel. Return to JobSentinel to review and save.':'Sent to JobSentinel. Return to JobSentinel to review and save. If missing, copy the browser button again.');}).catch(function(){done('Cannot connect to JobSentinel. Turn on Browser Import in Settings.');});}catch(e){done('Cannot connect to JobSentinel. Turn on Browser Import in Settings.');}})();"#;
 
     TEMPLATE
         .replace("__PORT__", &port.to_string())
@@ -114,6 +127,55 @@ pub async fn copy_bookmarklet_code(state: State<'_, AppState>) -> Result<(), Str
     server_guard.update_auth_token(config.auth_token, config.auth_token_expires_at);
 
     Ok(())
+}
+
+/// List browser imports waiting for user review.
+#[tauri::command]
+#[tracing::instrument(skip(state))]
+pub async fn get_pending_bookmarklet_imports(
+    state: State<'_, AppState>,
+) -> Result<Vec<PendingBookmarkletImportPreview>, String> {
+    let server_guard = state.bookmarklet_server.read().await;
+    Ok(server_guard.pending_imports())
+}
+
+/// Save reviewed browser imports as durable jobs.
+#[tauri::command]
+#[tracing::instrument(skip(state, ids), fields(count = ids.len()))]
+pub async fn confirm_pending_bookmarklet_imports(
+    state: State<'_, AppState>,
+    ids: Vec<String>,
+) -> Result<BookmarkletImportConfirmResult, String> {
+    if ids.is_empty() {
+        return Err("Choose at least one job to save.".to_string());
+    }
+
+    let pending_imports = {
+        let server_guard = state.bookmarklet_server.read().await;
+        server_guard.pending_import_store()
+    };
+
+    confirm_pending_bookmarklet_import_jobs(state.database.as_ref(), &pending_imports, &ids).await
+}
+
+/// Remove reviewed browser imports without saving.
+#[tauri::command]
+#[tracing::instrument(skip(state, ids), fields(count = ids.len()))]
+pub async fn discard_pending_bookmarklet_imports(
+    state: State<'_, AppState>,
+    ids: Vec<String>,
+) -> Result<DiscardBookmarkletImportsResponse, String> {
+    if ids.is_empty() {
+        return Err("Choose at least one job to skip.".to_string());
+    }
+
+    let pending_imports = {
+        let server_guard = state.bookmarklet_server.read().await;
+        server_guard.pending_import_store()
+    };
+    let discarded = discard_pending_bookmarklet_import_jobs(&pending_imports, &ids);
+
+    Ok(DiscardBookmarkletImportsResponse { discarded })
 }
 
 /// Start the bookmarklet server

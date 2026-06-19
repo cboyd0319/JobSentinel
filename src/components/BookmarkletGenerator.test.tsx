@@ -83,7 +83,7 @@ describe("BookmarkletGenerator", () => {
     expect(screen.queryByText(/^LinkedIn$/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/^Indeed$/i)).not.toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /trusted public job pages/i }),
+      screen.getByRole("button", { name: /local review list/i }),
     ).toBeInTheDocument();
     expect(screen.queryByText(/Cmd\/Ctrl\+D/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/bookmark address field/i)).not.toBeInTheDocument();
@@ -139,6 +139,7 @@ describe("BookmarkletGenerator", () => {
         port: 4321,
         enabled: true,
       })
+      .mockResolvedValueOnce([])
       .mockRejectedValueOnce(new Error("token=secret resume=private-file"));
 
     render(<BookmarkletGenerator />);
@@ -178,6 +179,7 @@ describe("BookmarkletGenerator", () => {
         port: 4321,
         enabled: false,
       })
+      .mockResolvedValueOnce([])
       .mockRejectedValueOnce(new Error("token=secret resume=private-file"));
 
     render(<BookmarkletGenerator />);
@@ -201,6 +203,7 @@ describe("BookmarkletGenerator", () => {
         port: 4321,
         enabled: false,
       })
+      .mockResolvedValueOnce([])
       .mockRejectedValueOnce(new Error("token=secret resume=private-file"));
 
     render(<BookmarkletGenerator />);
@@ -235,7 +238,7 @@ describe("BookmarkletGenerator", () => {
     expect(await screen.findByText(/Use a number from 1024 to 65535/i)).toBeInTheDocument();
     expect(portInput).toHaveAttribute("aria-invalid", "true");
     expect(saveButton).toBeDisabled();
-    expect(mockInvoke).toHaveBeenCalledTimes(1);
+    expect(mockInvoke).not.toHaveBeenCalledWith("set_bookmarklet_port", { port: 80 });
 
     fireEvent.change(portInput, { target: { value: "4322" } });
 
@@ -245,5 +248,53 @@ describe("BookmarkletGenerator", () => {
     await waitFor(() =>
       expect(mockInvoke).toHaveBeenCalledWith("set_bookmarklet_port", { port: 4322 }),
     );
+  });
+
+  it("shows browser imports as review items and saves only after user confirmation", async () => {
+    mockInvoke.mockImplementation((command: string, args?: unknown) => {
+      if (command === "get_bookmarklet_config") {
+        return Promise.resolve({
+          port: 4321,
+          enabled: true,
+        });
+      }
+      if (command === "get_pending_bookmarklet_imports") {
+        return Promise.resolve([
+          {
+            id: "pending-1",
+            title: "Principal Systems Security Engineer",
+            company: "Sierra Nevada Corporation",
+            url: "https://www.linkedin.com/jobs/view/100",
+            location: "Centennial, CO",
+            description_preview: "Rendered LinkedIn card selected by the user",
+            remote: false,
+            received_at: "2026-06-19T12:00:00Z",
+          },
+        ]);
+      }
+      if (command === "confirm_pending_bookmarklet_imports") {
+        expect(args).toEqual({ ids: ["pending-1"] });
+        return Promise.resolve({ imported: 1, skipped: 0 });
+      }
+      return Promise.resolve(undefined);
+    });
+
+    render(<BookmarkletGenerator />);
+
+    expect(await screen.findByText(/Jobs waiting for review/i)).toBeInTheDocument();
+    expect(screen.getByText("Principal Systems Security Engineer")).toBeInTheDocument();
+    expect(screen.getByText(/Sierra Nevada Corporation/)).toBeInTheDocument();
+    expect(screen.getByText(/These jobs are not saved yet/i)).toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByRole("button", { name: /save principal systems security engineer/i }),
+    );
+
+    await waitFor(() =>
+      expect(mockInvoke).toHaveBeenCalledWith("confirm_pending_bookmarklet_imports", {
+        ids: ["pending-1"],
+      }),
+    );
+    expect(await screen.findByText(/Saved 1 browser import/i)).toBeInTheDocument();
   });
 });

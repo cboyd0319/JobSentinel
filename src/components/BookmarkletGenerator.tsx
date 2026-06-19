@@ -12,6 +12,26 @@ interface BookmarkletConfig {
   enabled: boolean;
 }
 
+interface PendingBookmarkletImport {
+  id: string;
+  title: string;
+  company: string;
+  url: string;
+  location: string | null;
+  description_preview: string | null;
+  remote: boolean;
+  received_at: string;
+}
+
+interface BookmarkletImportConfirmResult {
+  imported: number;
+  skipped: number;
+}
+
+interface DiscardBookmarkletImportsResponse {
+  discarded: number;
+}
+
 const DEFAULT_BOOKMARKLET_CONFIG: BookmarkletConfig = {
   port: 4321,
   enabled: false,
@@ -29,6 +49,32 @@ function isBookmarkletConfig(value: unknown): value is BookmarkletConfig {
   );
 }
 
+function isPendingBookmarkletImport(value: unknown): value is PendingBookmarkletImport {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  const item = value as PendingBookmarkletImport;
+  return (
+    typeof item.id === "string" &&
+    typeof item.title === "string" &&
+    typeof item.company === "string" &&
+    typeof item.url === "string" &&
+    (item.location === null || typeof item.location === "string") &&
+    (item.description_preview === null || typeof item.description_preview === "string") &&
+    typeof item.remote === "boolean" &&
+    typeof item.received_at === "string"
+  );
+}
+
+function isPendingBookmarkletImportList(value: unknown): value is PendingBookmarkletImport[] {
+  return Array.isArray(value) && value.every(isPendingBookmarkletImport);
+}
+
+function pendingActionKey(action: "save" | "skip", ids: string[]) {
+  return `${action}:${ids.join(",")}`;
+}
+
 export function BookmarkletGenerator() {
   const [config, setConfig] = useState<BookmarkletConfig>(DEFAULT_BOOKMARKLET_CONFIG);
   const [portInput, setPortInput] = useState(String(DEFAULT_BOOKMARKLET_CONFIG.port));
@@ -38,6 +84,11 @@ export function BookmarkletGenerator() {
   const [copied, setCopied] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [restrictedSiteAcknowledged, setRestrictedSiteAcknowledged] = useState(false);
+  const [pendingImports, setPendingImports] = useState<PendingBookmarkletImport[]>([]);
+  const [pendingLoading, setPendingLoading] = useState(false);
+  const [pendingMessage, setPendingMessage] = useState<string | null>(null);
+  const [pendingError, setPendingError] = useState<string | null>(null);
+  const [pendingAction, setPendingAction] = useState<string | null>(null);
 
   const parsedPort = Number(portInput);
   const portChanged = portInput !== String(config.port);
@@ -48,6 +99,20 @@ export function BookmarkletGenerator() {
       parsedPort > MAX_BOOKMARKLET_PORT)
       ? `Use a number from ${MIN_BOOKMARKLET_PORT} to ${MAX_BOOKMARKLET_PORT}.`
       : null;
+
+  const loadPendingImports = useCallback(async () => {
+    try {
+      setPendingLoading(true);
+      const result = await invoke<unknown>("get_pending_bookmarklet_imports");
+      setPendingImports(isPendingBookmarkletImportList(result) ? result : []);
+      setPendingError(null);
+    } catch (err) {
+      logError("Failed to load pending browser imports:", err);
+      setPendingError("Could not load jobs waiting for review. Click Refresh Review List or reopen Settings.");
+    } finally {
+      setPendingLoading(false);
+    }
+  }, []);
 
   const loadConfig = useCallback(async () => {
     try {
@@ -69,6 +134,24 @@ export function BookmarkletGenerator() {
   useEffect(() => {
     void loadConfig();
   }, [loadConfig]);
+
+  useEffect(() => {
+    if (!hasLoaded) {
+      return;
+    }
+
+    void loadPendingImports();
+
+    if (!config.enabled) {
+      return;
+    }
+
+    const intervalId = window.setInterval(() => {
+      void loadPendingImports();
+    }, 5000);
+
+    return () => window.clearInterval(intervalId);
+  }, [config.enabled, hasLoaded, loadPendingImports]);
 
   const toggleServer = async () => {
     try {
@@ -130,6 +213,55 @@ export function BookmarkletGenerator() {
     }
   };
 
+  const savePendingImports = async (ids: string[]) => {
+    if (ids.length === 0) {
+      return;
+    }
+
+    const actionKey = pendingActionKey("save", ids);
+    try {
+      setPendingAction(actionKey);
+      setPendingError(null);
+      const result = await invoke<BookmarkletImportConfirmResult>(
+        "confirm_pending_bookmarklet_imports",
+        { ids },
+      );
+      setPendingImports((current) => current.filter((item) => !ids.includes(item.id)));
+      const savedLabel = result.imported === 1 ? "browser import" : "browser imports";
+      const skippedCopy = result.skipped > 0 ? ` ${result.skipped} already existed.` : "";
+      setPendingMessage(`Saved ${result.imported} ${savedLabel}.${skippedCopy}`);
+    } catch (err) {
+      logError("Could not save pending browser imports:", err);
+      setPendingError("Could not save this browser import. Try again, or copy a safe support report from Settings.");
+    } finally {
+      setPendingAction(null);
+    }
+  };
+
+  const skipPendingImports = async (ids: string[]) => {
+    if (ids.length === 0) {
+      return;
+    }
+
+    const actionKey = pendingActionKey("skip", ids);
+    try {
+      setPendingAction(actionKey);
+      setPendingError(null);
+      const result = await invoke<DiscardBookmarkletImportsResponse>(
+        "discard_pending_bookmarklet_imports",
+        { ids },
+      );
+      setPendingImports((current) => current.filter((item) => !ids.includes(item.id)));
+      const skippedLabel = result.discarded === 1 ? "browser import" : "browser imports";
+      setPendingMessage(`Skipped ${result.discarded} ${skippedLabel}.`);
+    } catch (err) {
+      logError("Could not skip pending browser imports:", err);
+      setPendingError("Could not skip this browser import. Try again, or copy a safe support report from Settings.");
+    } finally {
+      setPendingAction(null);
+    }
+  };
+
   if (loading && !hasLoaded) {
     return (
       <Card className="p-6" aria-busy="true">
@@ -144,11 +276,11 @@ export function BookmarkletGenerator() {
         <div>
           <h3 className="text-lg font-semibold text-white mb-2">Install Browser Button</h3>
           <p className="text-sm text-gray-400">
-            Save job pages into JobSentinel from your browser
+            Review jobs found from pages you choose, then save them locally
           </p>
         </div>
         <HelpIcon
-          text="The browser import button saves the job page you are viewing into JobSentinel. Use it only on official career pages and trusted public job pages that show the full posting. All processing stays on your computer."
+          text="The browser import button finds job details on the page you are viewing and sends them to a local review list. You choose what to save. All processing stays on your computer."
           position="left"
         />
       </div>
@@ -180,6 +312,114 @@ export function BookmarkletGenerator() {
             </div>
           </div>
         </div>
+
+        {(pendingMessage || pendingError || pendingImports.length > 0) && (
+          <div className="rounded-lg border border-sentinel-500/30 bg-sentinel-500/10 p-4">
+            <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h4 className="text-sm font-semibold text-sentinel-100">
+                  Jobs waiting for review
+                </h4>
+                <p className="mt-1 text-sm text-sentinel-50/90">
+                  These jobs are not saved yet. Check the details, then save or skip them.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  onClick={loadPendingImports}
+                  size="sm"
+                  variant="secondary"
+                  disabled={pendingLoading || pendingAction !== null}
+                >
+                  {pendingLoading ? "Refreshing..." : "Refresh Review List"}
+                </Button>
+                {pendingImports.length > 1 && (
+                  <>
+                    <Button
+                      onClick={() => savePendingImports(pendingImports.map((item) => item.id))}
+                      size="sm"
+                      variant="primary"
+                      disabled={pendingAction !== null}
+                    >
+                      Save All
+                    </Button>
+                    <Button
+                      onClick={() => skipPendingImports(pendingImports.map((item) => item.id))}
+                      size="sm"
+                      variant="ghost"
+                      disabled={pendingAction !== null}
+                    >
+                      Skip All
+                    </Button>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {pendingMessage && (
+              <p role="status" className="mb-3 text-sm text-green-200">
+                {pendingMessage}
+              </p>
+            )}
+            {pendingError && (
+              <p role="alert" className="mb-3 text-sm text-red-200">
+                {pendingError}
+              </p>
+            )}
+
+            {pendingImports.length > 0 && (
+              <div className="space-y-3">
+                {pendingImports.map((item) => {
+                  const saveKey = pendingActionKey("save", [item.id]);
+                  const skipKey = pendingActionKey("skip", [item.id]);
+                  return (
+                    <div
+                      key={item.id}
+                      className="rounded-lg border border-white/10 bg-gray-900/60 p-3"
+                    >
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div className="min-w-0 flex-1">
+                          <p className="font-medium text-white">{item.title}</p>
+                          <p className="text-sm text-gray-300">
+                            {item.company}
+                            {item.location ? ` · ${item.location}` : ""}
+                            {item.remote ? " · Remote" : ""}
+                          </p>
+                          {item.description_preview && (
+                            <p className="mt-2 text-xs leading-5 text-gray-400">
+                              {item.description_preview}
+                            </p>
+                          )}
+                          <p className="mt-2 break-all text-xs text-gray-500">{item.url}</p>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          <Button
+                            onClick={() => savePendingImports([item.id])}
+                            size="sm"
+                            variant="primary"
+                            disabled={pendingAction !== null}
+                            aria-label={`Save ${item.title}`}
+                          >
+                            {pendingAction === saveKey ? "Saving..." : "Save Job"}
+                          </Button>
+                          <Button
+                            onClick={() => skipPendingImports([item.id])}
+                            size="sm"
+                            variant="ghost"
+                            disabled={pendingAction !== null}
+                            aria-label={`Skip ${item.title}`}
+                          >
+                            {pendingAction === skipKey ? "Skipping..." : "Skip"}
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
 
         <div>
           <button
@@ -256,9 +496,9 @@ export function BookmarkletGenerator() {
               <h5 className="text-sm font-medium text-blue-400 mb-2">Choose How to Save Jobs:</h5>
               <p className="text-sm text-gray-300 mb-3">
                 Recommended: use the browser button on a job page or supported
-                jobs list. It saves the page or visible job cards you choose into
-                JobSentinel. Paste a link only when the browser button cannot
-                read the page.
+                jobs list. It adds the page or visible job cards you choose to a
+                review list in JobSentinel. Paste a link only when the browser
+                button cannot read the page.
               </p>
               <ol className="text-sm text-gray-300 space-y-2 list-decimal list-inside">
                 <li>Turn on Browser Import above</li>
@@ -275,9 +515,9 @@ export function BookmarkletGenerator() {
               <h5 className="text-sm font-medium text-green-400 mb-2">How to Use:</h5>
               <ol className="text-sm text-gray-300 space-y-2 list-decimal list-inside">
                 <li>Open an individual job page or a supported jobs list.</li>
-                <li>Use the "Import to JobSentinel" button in your bookmarks bar</li>
-                <li>JobSentinel saves the current posting or visible job cards it can read</li>
-                <li>You'll see a confirmation message</li>
+                <li>Use the saved "Import to JobSentinel" item in your bookmarks bar.</li>
+                <li>JobSentinel adds the current posting or visible job cards it can read to your review list</li>
+                <li>Return here, check the details, then save the job.</li>
               </ol>
             </div>
 
@@ -303,7 +543,7 @@ export function BookmarkletGenerator() {
               </div>
               <p className="text-xs text-gray-400 mt-2">
                 Some large job boards do not let JobSentinel read saved pages. JobSentinel
-                respects those controls. If a job saves with missing details, edit it after saving or use
+                respects those controls. If a job appears with missing details, edit it after saving or use
                 JobSentinel's search link for that site.
               </p>
             </div>

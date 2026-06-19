@@ -112,6 +112,7 @@ import type {
   MockJob,
   MockMarketAlert,
   MockMatchResult,
+  MockPendingBookmarkletImport,
   MockPendingReminder,
   MockResumeData,
   MockResumeDraft,
@@ -148,6 +149,7 @@ let bookmarkletConfig: MockBookmarkletConfig = {
   port: 4321,
   enabled: false,
 };
+let pendingBookmarkletImports: MockPendingBookmarkletImport[] = [];
 let resumes: MockResumeData[] = [];
 let userSkills: MockUserSkill[] = [];
 let resumeDrafts: MockResumeDraft[] = [];
@@ -225,6 +227,7 @@ function saveMockState(): void {
     credentialUnlock,
     ghostConfig,
     bookmarkletConfig,
+    pendingBookmarkletImports,
     resumes,
     userSkills,
     resumeDrafts,
@@ -290,6 +293,9 @@ function loadMockState(): void {
     }
     if (state.bookmarkletConfig && typeof state.bookmarkletConfig === "object") {
       bookmarkletConfig = { ...bookmarkletConfig, ...state.bookmarkletConfig };
+    }
+    if (Array.isArray(state.pendingBookmarkletImports)) {
+      pendingBookmarkletImports = state.pendingBookmarkletImports;
     }
     if (Array.isArray(state.resumes)) resumes = state.resumes;
     if (Array.isArray(state.userSkills)) userSkills = state.userSkills;
@@ -475,6 +481,7 @@ function applyMockSettingsSupportCommand<T>(
       credentialUnlock,
       ghostConfig,
       bookmarkletConfig,
+      pendingBookmarkletImports,
     },
     Boolean(getMockActiveResume(resumes)),
   );
@@ -488,6 +495,7 @@ function applyMockSettingsSupportCommand<T>(
   credentialUnlock = result.state.credentialUnlock;
   ghostConfig = result.state.ghostConfig;
   bookmarkletConfig = result.state.bookmarkletConfig;
+  pendingBookmarkletImports = result.state.pendingBookmarkletImports;
 
   if (result.shouldSave) {
     saveMockState();
@@ -871,6 +879,9 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
     case "validate_slack_webhook":
     case "test_email_notification":
     case "get_bookmarklet_config":
+    case "get_pending_bookmarklet_imports":
+    case "confirm_pending_bookmarklet_imports":
+    case "discard_pending_bookmarklet_imports":
     case "copy_bookmarklet_code":
     case "start_bookmarklet_server":
     case "stop_bookmarklet_server":
@@ -1170,6 +1181,7 @@ export function resetMockData() {
     port: 4321,
     enabled: false,
   };
+  pendingBookmarkletImports = [];
   resumes = [];
   userSkills = [];
   resumeDrafts = [];
