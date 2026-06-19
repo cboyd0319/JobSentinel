@@ -13,6 +13,8 @@ use std::{
 };
 use zip::ZipArchive;
 
+use super::format_taxonomy::resume_format_taxonomy;
+
 /// Minimum text length to consider PDF extraction successful (before falling back to OCR)
 #[cfg(feature = "ocr")]
 const MIN_TEXT_LENGTH: usize = 100;
@@ -440,38 +442,14 @@ impl ResumeParser {
         let mut current_section = String::from("header");
         let mut current_content = Vec::new();
 
-        // Common section headers
-        let section_keywords = [
-            ("summary", vec!["summary", "objective", "profile"]),
-            (
-                "experience",
-                vec!["experience", "work history", "employment"],
-            ),
-            (
-                "education",
-                vec!["education", "academic", "degree", "university"],
-            ),
-            (
-                "skills",
-                vec!["skills", "technical skills", "competencies", "technologies"],
-            ),
-            (
-                "projects",
-                vec!["projects", "portfolio", "personal projects"],
-            ),
-            (
-                "certifications",
-                vec!["certifications", "certificates", "licenses"],
-            ),
-        ];
-
         for line in text.lines() {
             let line_lower = line.to_lowercase();
 
             // Check if line is a section header
             let mut found_section = false;
-            for (section_name, keywords) in &section_keywords {
-                if keywords
+            for section_alias in &resume_format_taxonomy().section_aliases {
+                if section_alias
+                    .headings
                     .iter()
                     .any(|keyword| line_lower.contains(keyword) && line.len() < 50)
                 {
@@ -481,7 +459,7 @@ impl ResumeParser {
                         current_content.clear();
                     }
 
-                    current_section = section_name.to_string();
+                    current_section.clone_from(&section_alias.section);
                     found_section = true;
                     break;
                 }

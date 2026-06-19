@@ -50,6 +50,32 @@
     "references",
     "interests"
   ],
+  "sectionAliases": [
+    {
+      "section": "summary",
+      "headings": ["summary", "objective", "profile"]
+    },
+    {
+      "section": "experience",
+      "headings": ["experience", "work history", "employment"]
+    },
+    {
+      "section": "education",
+      "headings": ["education", "academic", "degree", "university"]
+    },
+    {
+      "section": "skills",
+      "headings": ["skills", "technical skills", "competencies", "technologies"]
+    },
+    {
+      "section": "projects",
+      "headings": ["projects", "portfolio", "personal projects"]
+    },
+    {
+      "section": "certifications",
+      "headings": ["certifications", "certificates", "licenses"]
+    }
+  ],
   "iconClassTokens": [
     "fa",
     "fas",

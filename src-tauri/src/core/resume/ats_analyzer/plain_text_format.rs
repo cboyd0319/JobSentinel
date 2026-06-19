@@ -1,30 +1,10 @@
 use super::super::ats_types::{
     AtsAnalysisResult, AtsSuggestion, FormatIssue, IssueSeverity, SuggestionCategory,
 };
+use super::super::format_taxonomy::resume_format_taxonomy;
 use super::structured_format;
 use super::AtsAnalyzer;
-use once_cell::sync::Lazy;
 use scraper::{Html, Selector as HtmlSelector};
-use serde::Deserialize;
-
-const RESUME_FORMAT_TAXONOMY_JSON: &str =
-    include_str!("../../../../../src/shared/resumeFormatTaxonomy.json");
-
-static RESUME_FORMAT_TAXONOMY: Lazy<ResumeFormatTaxonomy> = Lazy::new(|| {
-    serde_json::from_str(RESUME_FORMAT_TAXONOMY_JSON)
-        .expect("resume format taxonomy JSON must be valid")
-});
-
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct ResumeFormatTaxonomy {
-    standard_resume_headings: Vec<String>,
-    icon_class_tokens: Vec<String>,
-    icon_font_families: Vec<String>,
-    ats_friendly_fonts: Vec<String>,
-    risky_fonts: Vec<String>,
-    custom_font_signals: Vec<String>,
-}
 
 pub(super) fn analyze_plain_text_format(resume_text: &str) -> AtsAnalysisResult {
     analyze_plain_text_format_with_source(resume_text, None)
@@ -651,8 +631,4 @@ fn is_standard_resume_heading(line: &str) -> bool {
         .standard_resume_headings
         .iter()
         .any(|heading| heading == &normalized)
-}
-
-fn resume_format_taxonomy() -> &'static ResumeFormatTaxonomy {
-    &RESUME_FORMAT_TAXONOMY
 }

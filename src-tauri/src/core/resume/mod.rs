@@ -41,6 +41,7 @@ pub mod ats_analyzer;
 pub mod ats_types;
 pub mod builder;
 pub mod export;
+mod format_taxonomy;
 pub mod json_resume;
 pub mod matcher;
 pub mod parser;
