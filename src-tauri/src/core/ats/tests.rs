@@ -499,6 +499,29 @@ async fn test_auto_detect_ghosted_no_last_contact() {
 }
 
 #[tokio::test]
+async fn test_auto_detect_ghosted_keeps_recent_no_last_contact() {
+    let pool = create_test_db().await;
+
+    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test1', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
+        .execute(&pool)
+        .await
+        .unwrap();
+
+    let tracker = ApplicationTracker::new(pool.clone());
+    let app_id = tracker.create_application("test1").await.unwrap();
+    tracker
+        .update_status(app_id, ApplicationStatus::Applied)
+        .await
+        .unwrap();
+
+    let ghosted_count = tracker.auto_detect_ghosted().await.unwrap();
+    assert_eq!(ghosted_count, 0);
+
+    let app = tracker.get_application(app_id).await.unwrap();
+    assert_eq!(app.status, ApplicationStatus::Applied);
+}
+
+#[tokio::test]
 async fn test_auto_detect_ghosted_skips_terminal_states() {
     let pool = create_test_db().await;
 

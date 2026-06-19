@@ -42,6 +42,7 @@ import {
 import {
   findApplicationById,
   findColumnForApplication,
+  getApplicationReviewSummary,
   formatReminderType,
   getApplicationStats,
   getInterviewSchedulerApplications,
@@ -53,6 +54,7 @@ import {
   type StatusKey,
 } from "./applicationsModel";
 import { APPLICATION_DRAG_COLLISION_DETECTION } from "./applicationsDnd";
+import { ApplicationsReviewPanel } from "./ApplicationsReviewPanel";
 
 // Lazy load heavy components to reduce initial bundle size
 const AnalyticsPanel = lazy(() => import("../components/AnalyticsPanel").then(m => ({ default: m.AnalyticsPanel })));
@@ -477,6 +479,19 @@ export default function Applications({ onBack, onImportJob }: ApplicationsProps)
     }
   };
 
+  const focusFirstPendingReminder = () => {
+    const firstReminderAction = document.querySelector<HTMLButtonElement>(
+      '[data-testid="pending-reminders"] button',
+    );
+    firstReminderAction?.focus();
+  };
+
+  const focusFirstSavedRole = () => {
+    const firstSavedRole = document.querySelector<HTMLDivElement>(
+      '[data-testid="kanban-column"][data-status="to_apply"] [data-testid="application-card"]',
+    );
+    firstSavedRole?.focus();
+  };
 
   const getActiveApp = (): Application | null =>
     findApplicationById(applications, activeId);
@@ -581,6 +596,17 @@ export default function Applications({ onBack, onImportJob }: ApplicationsProps)
       )}
 
       <main className="p-6">
+        <ApplicationsReviewPanel
+          summary={getApplicationReviewSummary(applications, reminders)}
+          onReviewReminders={focusFirstPendingReminder}
+          onReviewNoResponses={handleReviewNoResponses}
+          onOpenInterviews={() => setShowInterviews(true)}
+          onOpenSummary={() => setShowAnalytics(true)}
+          onReviewSavedRoles={focusFirstSavedRole}
+          onGoToJobs={onBack}
+          onImportJob={onImportJob}
+        />
+
         {/* Reminders */}
         {reminders.length > 0 && (
           <Card className="mb-6 dark:bg-surface-800" data-testid="pending-reminders">

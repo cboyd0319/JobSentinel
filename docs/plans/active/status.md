@@ -78,8 +78,8 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   auth/session capture, hidden reads, automation, or submit actions.
 - Desktop/mobile normal-state and Quiet Shield token checks passed for primary
   routes; forced empty/loading/error checks passed across startup and setup.
-- Setup Wizard desktop/mobile, whole-UI post-design click/action coverage, and
-  keyboard paths now have fresh Playwright evidence.
+- Setup Wizard and whole-UI click/keyboard evidence exists; Applications
+  2026-06-19 Search review refresh passed Chromium/WebKit route specs.
 - Current 2026-06-19 pre-release gates pass: harness 100, docs, bloat,
   release version/environment/readiness/deps/skills, security/static sensors,
   npm/cargo audit/deny, doctor, scripts `710/710`, frontend `3124/3124`,

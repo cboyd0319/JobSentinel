@@ -231,15 +231,19 @@ impl ApplicationTracker {
 
         let two_weeks_ago = (Utc::now() - Duration::days(14)).to_rfc3339();
 
-        let result = sqlx::query!(
+        let result = sqlx::query(
             r#"
             UPDATE applications
             SET status = 'ghosted', updated_at = datetime('now')
             WHERE status IN ('applied', 'phone_interview', 'technical_interview', 'onsite_interview')
-              AND (last_contact IS NULL OR last_contact < ?)
+              AND (
+                  (last_contact IS NOT NULL AND last_contact < ?)
+                  OR (last_contact IS NULL AND applied_at IS NOT NULL AND applied_at < ?)
+              )
             "#,
-            two_weeks_ago
         )
+        .bind(&two_weeks_ago)
+        .bind(&two_weeks_ago)
         .execute(&self.db)
         .await?;
 

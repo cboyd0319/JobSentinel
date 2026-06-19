@@ -45,10 +45,12 @@ External AI is not required for application tracking.
 ## Everyday Workflow
 
 1. Open **Applications**.
-2. Review the board and pending follow-ups.
-3. Move each card when status changes.
-4. Open a card to add notes, contact details, salary information, or next steps.
-5. Use interviews, reminders, local summaries, and no-response review to decide
+2. Start with **Search review**. It highlights due reminders, quiet roles,
+   interviews, offers, and saved roles that need an apply-or-skip decision.
+3. Review the board and pending follow-ups.
+4. Move each card when status changes.
+5. Open a card to add notes, contact details, salary information, or next steps.
+6. Use interviews, reminders, local summaries, and no-response review to decide
    where to spend time next.
 
 JobSentinel should make this usable for a person who has never used a project
@@ -91,6 +93,8 @@ Follow-up reminders should help the user spend energy carefully:
 - A quiet-period warning means "review this role" rather than "you failed."
 - No-response review should help the user stop wasting time on stale or
   non-responsive roles.
+- Recent applications with no contact note must not be moved to **No Response**
+  until the quiet period has passed.
 - Weekly summaries should favor useful decisions over motivation copy.
 - Salary and offer notes should help users avoid accepting below-floor offers.
 

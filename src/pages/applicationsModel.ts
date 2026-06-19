@@ -49,6 +49,33 @@ export interface InterviewSchedulerApplication {
   company: string;
 }
 
+export type ApplicationReviewActionKind =
+  | "reminders"
+  | "no_response"
+  | "interviews"
+  | "offers"
+  | "to_apply"
+  | "steady";
+
+export type ApplicationReviewPriority = "high" | "medium" | "low";
+
+export interface ApplicationReviewAction {
+  kind: ApplicationReviewActionKind;
+  priority: ApplicationReviewPriority;
+  count: number;
+  title: string;
+  description: string;
+}
+
+export interface ApplicationReviewSummary {
+  title: string;
+  description: string;
+  actions: ApplicationReviewAction[];
+}
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+const NO_RESPONSE_REVIEW_DAYS = 14;
+
 const REMINDER_TYPE_LABELS: Record<string, string> = {
   follow_up: "Follow up",
   interview_prep: "Interview prep",
@@ -173,4 +200,134 @@ export function getInterviewSchedulerApplications(
       job_title: application.job_title,
       company: application.company,
     }));
+}
+
+export function getApplicationReviewSummary(
+  applications: ApplicationsByStatus | null,
+  reminders: PendingReminder[],
+  now = new Date(),
+): ApplicationReviewSummary {
+  if (!applications || !hasAnyApplications(applications)) {
+    return {
+      title: "Start with one role",
+      description: "Save or import a job, then JobSentinel will help choose the next step.",
+      actions: [
+        {
+          kind: "to_apply",
+          priority: "low",
+          count: 0,
+          title: "Add a job to track",
+          description: "Start with one saved, pasted, or imported job so the board has something to organize.",
+        },
+      ],
+    };
+  }
+
+  const noResponseCount = countNoResponseCandidates(applications, now);
+  const interviewCount =
+    applications.screening_call.length +
+    applications.phone_interview.length +
+    applications.technical_interview.length +
+    applications.onsite_interview.length;
+  const offerCount = applications.offer_received.length;
+  const toApplyCount = applications.to_apply.length;
+
+  const actions: ApplicationReviewAction[] = [];
+
+  if (reminders.length > 0) {
+    actions.push({
+      kind: "reminders",
+      priority: "high",
+      count: reminders.length,
+      title: "Finish reminders",
+      description: pluralize(reminders.length, "follow-up, prep item, or deadline is waiting", "follow-ups, prep items, or deadlines are waiting"),
+    });
+  }
+
+  if (noResponseCount > 0) {
+    actions.push({
+      kind: "no_response",
+      priority: "high",
+      count: noResponseCount,
+      title: "Review quiet roles",
+      description: pluralize(noResponseCount, "role has been quiet for 14 days", "roles have been quiet for 14 days"),
+    });
+  }
+
+  if (interviewCount > 0) {
+    actions.push({
+      kind: "interviews",
+      priority: "medium",
+      count: interviewCount,
+      title: "Prepare for interviews",
+      description: pluralize(interviewCount, "conversation needs prep or follow-up", "conversations need prep or follow-up"),
+    });
+  }
+
+  if (offerCount > 0) {
+    actions.push({
+      kind: "offers",
+      priority: "medium",
+      count: offerCount,
+      title: "Review offers",
+      description: pluralize(offerCount, "offer needs compensation and deadline review", "offers need compensation and deadline review"),
+    });
+  }
+
+  if (toApplyCount > 0) {
+    actions.push({
+      kind: "to_apply",
+      priority: "low",
+      count: toApplyCount,
+      title: "Apply or skip saved roles",
+      description: pluralize(toApplyCount, "saved role needs a decision", "saved roles need a decision"),
+    });
+  }
+
+  if (actions.length === 0) {
+    actions.push({
+      kind: "steady",
+      priority: "low",
+      count: 0,
+      title: "Everything is organized",
+      description: "No reminders, stale applications, interviews, offers, or saved roles need attention right now.",
+    });
+  }
+
+  const highPriorityCount = actions.filter((action) => action.priority === "high").length;
+
+  return {
+    title: highPriorityCount > 0 ? "Do these first" : "What to focus on next",
+    description:
+      highPriorityCount > 0
+        ? "Start with time-sensitive follow-ups and quiet roles before spending energy elsewhere."
+        : "Use this short list to decide where your job-search time goes next.",
+    actions,
+  };
+}
+
+function countNoResponseCandidates(applications: ApplicationsByStatus, now: Date): number {
+  return [
+    ...applications.applied,
+    ...applications.phone_interview,
+    ...applications.technical_interview,
+    ...applications.onsite_interview,
+  ].filter((application) => isNoResponseCandidate(application, now)).length;
+}
+
+function isNoResponseCandidate(application: Application, now: Date): boolean {
+  const latestActivity = parseApplicationDate(application.last_contact ?? application.applied_at);
+  if (!latestActivity) return false;
+
+  return now.getTime() - latestActivity.getTime() >= NO_RESPONSE_REVIEW_DAYS * DAY_MS;
+}
+
+function parseApplicationDate(value: string | null): Date | null {
+  if (!value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function pluralize(count: number, singular: string, plural: string): string {
+  return `${count} ${count === 1 ? singular : plural}.`;
 }

@@ -3,11 +3,13 @@ import {
   findApplicationById,
   findColumnForApplication,
   formatReminderType,
+  getApplicationReviewSummary,
   getApplicationStats,
   getInterviewSchedulerApplications,
   hasAnyApplications,
   type Application,
   type ApplicationsByStatus,
+  type PendingReminder,
 } from "./applicationsModel";
 
 const baseApplication: Application = {
@@ -113,5 +115,110 @@ describe("applicationsModel", () => {
         company: "Community Clinic",
       },
     ]);
+  });
+
+  it("builds a plain next-action review from reminders and active statuses", () => {
+    const applications = emptyApplications();
+    applications.to_apply.push({
+      ...baseApplication,
+      id: 2,
+      status: "to_apply",
+      applied_at: null,
+    });
+    applications.phone_interview.push({
+      ...baseApplication,
+      id: 3,
+      status: "phone_interview",
+      last_contact: "2026-06-18T12:00:00Z",
+    });
+    applications.offer_received.push({
+      ...baseApplication,
+      id: 4,
+      status: "offer_received",
+    });
+    const reminders: PendingReminder[] = [
+      {
+        id: 1,
+        application_id: 3,
+        job_title: "Care Coordinator",
+        company: "Community Clinic",
+        reminder_type: "interview_prep",
+        reminder_time: "2026-06-20T12:00:00Z",
+      },
+    ];
+
+    expect(getApplicationReviewSummary(applications, reminders).actions).toEqual([
+      expect.objectContaining({ kind: "reminders", priority: "high", count: 1 }),
+      expect.objectContaining({ kind: "interviews", priority: "medium", count: 1 }),
+      expect.objectContaining({ kind: "offers", priority: "medium", count: 1 }),
+      expect.objectContaining({ kind: "to_apply", priority: "low", count: 1 }),
+    ]);
+  });
+
+  it("flags quiet roles only after the no-response review window", () => {
+    const applications = emptyApplications();
+    applications.applied.push({
+      ...baseApplication,
+      id: 2,
+      applied_at: "2026-06-05T12:00:00Z",
+      last_contact: null,
+    });
+    applications.technical_interview.push({
+      ...baseApplication,
+      id: 3,
+      status: "technical_interview",
+      applied_at: "2026-05-01T12:00:00Z",
+      last_contact: "2026-06-18T12:00:00Z",
+    });
+
+    expect(
+      getApplicationReviewSummary(applications, [], new Date("2026-06-19T12:00:00Z")).actions,
+    ).toContainEqual(
+      expect.objectContaining({
+        kind: "no_response",
+        priority: "high",
+        count: 1,
+      }),
+    );
+  });
+
+  it("shows a steady state when nothing needs attention", () => {
+    const applications = emptyApplications();
+    applications.applied.push({
+      ...baseApplication,
+      applied_at: "2026-06-18T12:00:00Z",
+    });
+
+    expect(
+      getApplicationReviewSummary(applications, [], new Date("2026-06-19T12:00:00Z")),
+    ).toEqual({
+      title: "What to focus on next",
+      description: "Use this short list to decide where your job-search time goes next.",
+      actions: [
+        {
+          kind: "steady",
+          priority: "low",
+          count: 0,
+          title: "Everything is organized",
+          description: "No reminders, stale applications, interviews, offers, or saved roles need attention right now.",
+        },
+      ],
+    });
+  });
+
+  it("guides empty trackers toward importing or saving one job", () => {
+    expect(getApplicationReviewSummary(emptyApplications(), [])).toEqual({
+      title: "Start with one role",
+      description: "Save or import a job, then JobSentinel will help choose the next step.",
+      actions: [
+        {
+          kind: "to_apply",
+          priority: "low",
+          count: 0,
+          title: "Add a job to track",
+          description: "Start with one saved, pasted, or imported job so the board has something to organize.",
+        },
+      ],
+    });
   });
 });

@@ -62,6 +62,20 @@ test.describe("Application Tracking", () => {
       await expect(page.getByText("In Progress:", { exact: true })).toBeVisible();
     });
 
+    test("shows next actions in the Search review panel", async ({ page }) => {
+      await expect(applicationsPage.reviewPanel).toBeVisible();
+      await expect(applicationsPage.reviewPanel).toContainText("Search review");
+      await expect(applicationsPage.reviewPanel).toContainText("Finish reminders");
+      await expect(applicationsPage.reviewPanel).toContainText("Prepare for interviews");
+      await expect(applicationsPage.reviewPanel).toContainText("Apply or skip saved roles");
+
+      await applicationsPage.reviewPanel.getByRole("button", { name: "Review saved roles" }).click();
+
+      await expect(
+        page.locator("[data-testid='kanban-column'][data-status='to_apply'] [data-testid='application-card']").first(),
+      ).toBeFocused();
+    });
+
     test("keeps the page inside a narrow viewport", async ({ page }) => {
       await page.setViewportSize({ width: 390, height: 844 });
       await expect(applicationsPage.kanbanBoard).toBeVisible();

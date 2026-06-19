@@ -48,15 +48,15 @@ export class ApplicationsPage extends BasePage {
   }
 
   get templatesButton(): Locator {
-    return this.page.getByRole("button", { name: "Templates" });
+    return this.page.locator("header").getByRole("button", { name: "Templates" });
   }
 
   get interviewsButton(): Locator {
-    return this.page.getByRole("button", { name: "Interviews" });
+    return this.page.locator("header").getByRole("button", { name: "Interviews" });
   }
 
   get summaryButton(): Locator {
-    return this.page.getByRole("button", { name: "Summary" });
+    return this.page.locator("header").getByRole("button", { name: "Summary" });
   }
 
   get reviewNoResponsesButton(): Locator {
@@ -65,6 +65,10 @@ export class ApplicationsPage extends BasePage {
 
   get pendingReminders(): Locator {
     return this.page.locator("[data-testid='pending-reminders']");
+  }
+
+  get reviewPanel(): Locator {
+    return this.page.locator("[data-testid='application-review-panel']");
   }
 
   get pendingReminderRows(): Locator {

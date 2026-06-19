@@ -79,7 +79,7 @@ Out of scope:
 | macOS readiness | Release-gated | No-account path is complete; Gatekeeper-ready public distribution remains Apple-credential-gated. |
 | Resume assistance | Active | Tighten hard-requirement categories, evidence caps, live review copy, and mock/Rust parity only when evidence is local and explainable. |
 | Job-card protection | Active | Keep posting-risk cues visible without implying employer intent or confirmed duplicate/source proof. |
-| Guided intake | Active | Add optional suggestions only after user review; keep broad defaults and non-technical paths first-class. |
+| Guided intake | Active | Search review guides application next actions; keep suggestions reviewed and explainable. |
 | Pay protection | Active | Keep missing, minimum-only, maximum-only, malformed, or broad listed-pay evidence plain and review-first. |
 | Encrypted local storage | Active | SQLCipher, AEAD vault rows, migration, passphrase controls, and macOS vault-key locking exist; continue release readiness. |
 | Quiet Shield redesign | Applied locally | Tokens, score colors, and dashboard loading are screenshot-checked; final click/action coverage passed. |
@@ -140,8 +140,7 @@ Out of scope:
   previews/export, secure deletion, parser caps, KDF floors, and body caps.
 - Hosted release hardening now gates signing, cleans CI signing material,
   blocks unsigned MSI upload, and narrows renderer notification/dialog permissions.
-- Final whole-UI pass: 272/272 E2E budget on 2026-06-19, 16 route inventories,
-  no console errors or overflow.
+- Applications Search review refresh passed 44 Chromium/WebKit route tests on 2026-06-19.
 - Final non-`content/` audit fixes landed for company research, onboarding,
   auto-refresh gating, alert claims, HTTPS JobsWithGPT, shared import hashes,
   and `2.9.0` metadata/changelog.
