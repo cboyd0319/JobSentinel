@@ -40,7 +40,7 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 
 | Workstream | State | Current focus | Source |
 | ---------- | ----- | ------------- | ------ |
-| Current product and quality work | Active | Docs/readme/screenshots, manual scraper/source verification, manual resume verification, final UI proof, and release handoff | [Plan](current-work.md) |
+| Current product and quality work | Active | Docs/readme/screenshots, manual resume verification, final UI proof, and release handoff | [Plan](current-work.md) |
 | v2.9.0 completion and full-feature roadmap | Active | Checklist is open; publication sequence remains blocked until every non-external row has evidence | [Plan](v2.9.0-completion-and-full-feature-roadmap.md) |
 
 ## Current Posture
@@ -55,9 +55,11 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   remain non-interactive and must not cache vault keys.
 - No-account release assets can publish for Windows, macOS, and Linux, but
   Apple Developer ID and Windows signing remain external gaps.
-- Browser Import and LinkedIn-compatible Workbench have prior no-session-cookie
-  proof, but final signoff still needs fresh restricted-source UI, artifact,
-  acknowledgement, and no-hidden-access validation.
+- Browser Import, LinkedIn-compatible Workbench, source-health checks, and
+  live public source probes have fresh 2026-06-19 source-debug evidence with no
+  credential, cookie, token, private note, resume, salary floor, or application
+  history exposure. The corrected source integration fixtures now match the
+  current optional external-AI config shape.
 - Resume, application preview, cover-letter review, role-family taxonomy,
   source corpus/taxonomy, and local interest learning have focused coverage;
   final release still needs manual full-corpus and full-surface evidence.
@@ -105,16 +107,16 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 - Script tests were moved out of the flat `scripts/` root in commit
   `b238c7d4`; keep future script tests under test directories.
 - 2026-06-19 release blockers remain open for major README and screenshot
-  refresh, stale docs cleanup, manual verification of every scraper/source
-  flow, UI-level verification of every resume and semantic-matching capability,
-  final whole-UI proof, final local gates, and user-confirmed push/publish.
+  refresh, stale docs cleanup, UI-level verification of every resume and
+  semantic-matching capability, final whole-UI proof, final local gates, and
+  user-confirmed push/publish.
 
 ## Next Best Work
 
 1. Update, reorganize, archive, or delete stale maintained docs, including the
    public README and screenshots for current v2.9.0 surfaces.
-2. Manually verify every current scraper/source path and every resume feature
-   against the local corpora, then record evidence.
+2. Manually verify every resume feature against the local corpora, then record
+   evidence.
 3. Finish UI-level resume and semantic-matching verification against the
    research-backed eval contract.
 4. Run final local release gates from the verified commit.

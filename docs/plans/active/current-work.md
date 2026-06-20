@@ -73,8 +73,8 @@ Out of scope:
 | ---- | ----- | ----------------- |
 | Dependency readiness | Complete | Package-manager, direct deps, overrides, and Action pins are latest; transitives stay lockfile-pinned |
 | Downloadable Agent Skills | Complete locally | Skills pass `lint:skills`; release packaging creates deterministic tar/ZIP artifacts. |
-| LinkedIn Workbench and restricted-source flow | Open | Revalidate LinkedIn-compatible browser capture, Browser Import visible-card capture, Workbench ledger actions, restricted-source acknowledgement, artifact/session checks, and user-assisted proof without cookies, hidden page reads, monitoring, automation, or submit actions. |
-| Scraper/source verification | Open | Manually re-run and record every current personal scraper, public source adapter, restricted-source compatible flow, and source-specific no-account limitation. |
+| LinkedIn Workbench and restricted-source flow | Complete locally | 2026-06-19 refresh: `cargo test --lib linkedin`, `cargo test --lib bookmarklet`, focused restricted-source frontend tests, and prior user-assisted proof cover Browser Import visible-card capture, Workbench ledger actions, restricted-source acknowledgement, no stored auth material, no hidden page reads, no monitoring, no automation, and no submit actions. |
+| Scraper/source verification | Complete locally | 2026-06-19 refresh: deterministic scraper contracts, source-health gates, scraper integration, pipeline integration, API contract, scheduler integration, focused restricted-source frontend tests, Browser Import helper tests, LinkedIn boundary tests, and low-volume live source probes passed; evidence is recorded in `docs/harness/source-debug-verification-v2.9.0.md`. |
 | README, docs, and screenshots | Open | Refresh README, docs hub, release notes, and screenshots for current v2.9.0 surfaces; archive/delete stale maintained docs where appropriate. |
 | Development and QA completion | Release-gated | Roadmap checklist is open; final local release gates and user-confirmed push/publish remain after docs, screenshots, source, resume, and UI proof close. |
 | macOS readiness | Release-gated | No-account path is complete; Gatekeeper-ready public distribution remains Apple-credential-gated. |
@@ -100,9 +100,8 @@ Out of scope:
   external AI.
 - Every claim of completion has fresh verification evidence.
 - v2.9.0 is not release-ready until the active roadmap rows for docs,
-  screenshots, scraper/source verification, resume verification, UI proof, and
-  final local gates close from the verified commit and the user confirms the
-  push/publish sequence.
+  screenshots, resume verification, UI proof, and final local gates close from
+  the verified commit and the user confirms the push/publish sequence.
 
 ## Done Recently
 
@@ -120,21 +119,18 @@ Out of scope:
 
 1. Refresh README, docs hubs, release notes, and screenshots for current
    v2.9.0 surfaces; archive/delete maintained stale docs where appropriate.
-2. Revalidate LinkedIn-compatible browser capture, Workbench actions,
-   restricted-source acknowledgement, and no-session-artifact behavior.
-3. Manually verify every current scraper/source path and every resume
-   capability, then record evidence.
-4. Run final local release gates from the verified commit before release action.
-5. Confirm major route screenshots, Computer Use clicks, keyboard flow, and
+2. Manually verify every resume capability, then record evidence.
+3. Run final local release gates from the verified commit before release action.
+4. Confirm major route screenshots, Computer Use clicks, keyboard flow, and
    affected route/action/state checks after any further UI change.
-6. Continue macOS readiness only after final local gates close; do
+5. Continue macOS readiness only after final local gates close; do
    not claim Gatekeeper-ready distribution before signing, notarization,
    stapling, and install proof exist.
-7. Do not reopen repo-bloat cleanup unless a fresh bloat gate failure or
+6. Do not reopen repo-bloat cleanup unless a fresh bloat gate failure or
    product/privacy/security/docs verification blocker appears.
-8. Keep README, docs hubs, release docs, wiki inventory, and active status in
+7. Keep README, docs hubs, release docs, wiki inventory, and active status in
    sync when behavior, readiness, or public guidance changes.
-9. Commit each major verified change locally; push only at goal completion or
+8. Commit each major verified change locally; push only at goal completion or
    on newer explicit instruction.
 
 ## Sensors

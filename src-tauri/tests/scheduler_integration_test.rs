@@ -47,6 +47,7 @@ fn create_test_config() -> Config {
         scraping_interval_hours: 2,
         bookmarklet_port: 4321,
         alerts: Default::default(),
+        external_ai: Default::default(),
         greenhouse_urls: vec![],
         lever_urls: vec![],
         linkedin: Default::default(),
