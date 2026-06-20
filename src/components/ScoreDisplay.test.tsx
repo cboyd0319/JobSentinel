@@ -32,6 +32,9 @@ describe("ScoreDisplay", () => {
 
       await waitFor(() => {
         expect(screen.getByText(/no local fit estimate has been saved yet/i)).toBeInTheDocument();
+        expect(
+          screen.getByText(/evidence-based estimate for this posting, not a hiring decision/i),
+        ).toBeInTheDocument();
       });
     });
 
@@ -257,6 +260,9 @@ describe("ScoreDisplay", () => {
         expect(screen.getByText("Fits")).toBeInTheDocument();
         expect(
           screen.getByText(/uses saved titles, work words, pay, location/i),
+        ).toBeInTheDocument();
+        expect(
+          screen.getByText(/evidence-based estimate for this posting, not a hiring decision/i),
         ).toBeInTheDocument();
       });
       expect(screen.queryByText("Weight")).not.toBeInTheDocument();

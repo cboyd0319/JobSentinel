@@ -222,7 +222,7 @@ export function ResumeOptimizerResultsPanel({
           </div>
         </div>
         <p className="mt-3 text-xs text-surface-500 dark:text-surface-400">
-          Local evidence review, not a hiring prediction or a promise about employer systems.
+          This score is an evidence-based estimate for this posting, not a hiring decision.
         </p>
         {fitEvidenceStatus && (
           <div className="mt-4 rounded-lg border border-surface-200 bg-surface-50 p-3 text-sm dark:border-surface-700 dark:bg-surface-800/70">

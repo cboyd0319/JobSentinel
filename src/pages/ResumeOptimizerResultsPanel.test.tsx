@@ -192,7 +192,7 @@ describe("ResumeOptimizerResultsPanel", () => {
     expect(screen.getByText("Resume Quality")).toBeInTheDocument();
     expect(screen.getByText("Overall fit")).toBeInTheDocument();
     expect(
-      screen.getByText("Local evidence review, not a hiring prediction or a promise about employer systems."),
+      screen.getByText("This score is an evidence-based estimate for this posting, not a hiring decision."),
     ).toBeInTheDocument();
     expect(screen.getByText("Words Found (2)")).toBeInTheDocument();
     expect(screen.getByText("Words To Review (1)")).toBeInTheDocument();

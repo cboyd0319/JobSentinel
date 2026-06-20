@@ -16,6 +16,7 @@
 
 #![cfg(feature = "embedded-ml")]
 
+mod contracts;
 mod embeddings;
 mod evaluation;
 mod hybrid;
@@ -28,6 +29,13 @@ mod runtime;
 #[cfg(test)]
 mod tests;
 
+pub use contracts::{
+    EvidenceItem, EvidenceMatch, EvidenceMatcher, Gap, GapAnalyzer, JobExtractor,
+    JobPostingRiskSignals, JobRequirement, MatchExplanation, RawJobPosting, RecommendationKind,
+    RequirementClassifier, RequirementStrength, ResumeDocument, ResumeExtractor, RoleFamily,
+    RoleFamilyFitSignals, ScoreConfidence, SkillMention, SkillRelation, StructuredJob,
+    StructuredResume, TextSpan,
+};
 pub use embeddings::EmbeddingGenerator;
 pub use evaluation::{
     EvalDatasetKind, EvalFixtureSet, EvidenceLabel, EvidenceLabelEvent, EvidenceLabelExample,

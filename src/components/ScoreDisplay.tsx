@@ -120,6 +120,9 @@ const UNSCORED_SCORE_INFO = {
   explanation: "No local fit estimate has been saved yet.",
 } as const;
 
+const EVIDENCE_ESTIMATE_NOTE =
+  "This score is an evidence-based estimate for this posting, not a hiring decision.";
+
 /**
  * Fit factor priorities for display.
  */
@@ -268,7 +271,14 @@ function ScoreBreakdownTooltip({
   const hasReasons = Object.values(parsed).some((arr) => arr.length > 0);
 
   if (!hasReasons) {
-    return <span>{scoreInfo.explanation}</span>;
+    return (
+      <span>
+        <span>{scoreInfo.explanation}</span>
+        <span className="mt-2 block text-xs text-surface-300">
+          {EVIDENCE_ESTIMATE_NOTE}
+        </span>
+      </span>
+    );
   }
 
   return (
@@ -324,6 +334,9 @@ function ScoreBreakdownTooltip({
       </table>
       <div className="mt-2 text-xs text-surface-300">
         Uses saved titles, work words, pay, location, company, and freshness settings.
+      </div>
+      <div className="mt-1.5 text-xs text-surface-300">
+        {EVIDENCE_ESTIMATE_NOTE}
       </div>
       {/* Show first specific reason */}
       {Object.values(parsed)

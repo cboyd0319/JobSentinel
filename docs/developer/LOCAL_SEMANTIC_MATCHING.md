@@ -82,6 +82,7 @@ disabled by default, and routed through
 | Path | Purpose |
 | ---- | ------- |
 | `src-tauri/src/core/ml/mod.rs` | Feature-gated module entry and error types |
+| `src-tauri/src/core/ml/contracts.rs` | Typed contracts for role families, generated-advice separation, skill graph relationships, evidence explanations, adversarial posting signals, and modular matching stages |
 | `src-tauri/src/core/ml/manifest.rs` | Checked-in model lock parsing and validation |
 | `src-tauri/src/core/ml/model.rs` | Thin model management entrypoint |
 | `src-tauri/src/core/ml/model/` | Cache verification, download, metadata, loading, device selection, integrity checks, and legacy baseline inference |
@@ -141,6 +142,12 @@ evaluation still needs larger reviewed sets for:
 - skill phrase to resume evidence
 - job title to resume title and seniority
 - gap analysis
+
+The current repo-native eval pack is
+`src-tauri/src/core/ml/eval_fixtures/seed_v1.json`, backed by typed contracts
+and unit tests. If JobSentinel adds a standalone CLI later, the command surface
+should map to retrieval, reranker, fairness, self-preference, and explanation
+evals without changing the underlying fixture schema.
 
 The research-backed evaluation contract is summarized in
 [Semantic resume-job matching](../research/semantic-resume-job-matching.md).

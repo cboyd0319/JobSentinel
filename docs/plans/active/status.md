@@ -72,22 +72,16 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 - 2026-06-19 local semantic matching governance now uses `models.lock.toml`
   for pinned model identity, revisions, file hashes, sizes, licenses, backend
   compatibility, instruction profiles, thresholds, and stale-vector rules.
-  Qwen3 embedding and reranker are locked as the target architecture. The
-  text-only Qwen3 embedding backend is implemented behind the governed cache
-  and has focused live validation with downloaded artifacts. The bounded Qwen3
-  reranker backend is implemented and has focused live validation with
-  downloaded artifacts. Existing commands still use the MiniLM baseline until
-  deeper Qwen3 retrieval is wired into direct matcher commands. The typed
-  hybrid scorer now combines dense, BM25, exact skill, required-coverage,
-  seniority, reranker, blocker, and provenance signals with focused tests, and
-  `embedded-ml` resume/job scoring uses it with a legacy fallback when local ML
-  is disabled. Settings now includes **Local Match Check**, backed by
-  `get_semantic_matching_diagnostics`, to show local-only mode, Qwen3 model-lock
-  metadata in `embedded-ml` builds, cache readiness, scoring signals, and
-  quality checks without loading model weights or exposing resume/job text. The
-  seed eval fixture now covers role-family expansion, skill-graph confusables,
-  fairness counterfactuals, self-preference checks, adversarial postings, and
-  generated-advice separation with focused `embedded-ml` unit coverage.
+  Qwen3 embedding and reranker backends have focused downloaded-artifact
+  validation. Existing commands still use MiniLM until deeper Qwen3 retrieval is
+  wired into direct matcher commands. The typed hybrid scorer covers dense,
+  BM25, exact skill, required-coverage, seniority, reranker, blocker, and
+  provenance signals; `embedded-ml` resume/job scoring uses it with a legacy
+  fallback. Settings includes **Local Match Check** through
+  `get_semantic_matching_diagnostics`. Seed evals and contract tests cover
+  role-family fit, generated-advice separation, skill graph confusables,
+  fairness, self-preference, adversarial postings, evidence explanations, and
+  modular extractor/classifier/matcher/analyzer stages.
 - 2026-06-19 optional outside-AI setup now supports OpenAI, Anthropic, Google
   Gemini, GitHub Copilot, and custom HTTPS providers in Settings. Users can
   configure multiple providers, order preferences, per-provider model names,
