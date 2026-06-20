@@ -3,19 +3,31 @@
 Last reviewed: 2026-06-20.
 
 This page is the single maintained map of what JobSentinel can do in the
-`2.9.0` release candidate. Detailed behavior stays in the linked feature,
-security, architecture, research, and harness docs.
+`2.9.0` release line. Detailed behavior stays in the linked feature, security,
+architecture, research, and harness docs.
 
 JobSentinel is a local-first job-search workspace. It helps users find,
 review, compare, track, and prepare for jobs while keeping sensitive
 job-search data under user control. Core workflows work without a hosted
 account, telemetry, cloud sync, or external AI provider.
 
+## Feature Highlights
+
+| Highlight | Why it matters |
+| --- | --- |
+| Ghost-job review | Helps users avoid wasting energy on stale, reposted, weak-source, scam-like, or low-confidence roles. |
+| Restricted-source Workbench | Lets users work from sign-in-backed job sites through visible, user-driven, local review flows without storing session material. |
+| Resume Match and Builder | Connects job requirements to concrete resume evidence, readability checks, and truthful draft improvements. |
+| Application Assist | Keeps repeated profile details, screening questions, attachments, and final submission under user review. |
+| Pay Protection | Keeps salary floors, listed ranges, written offers, verbal numbers, total compensation, commute, relocation, and deadline pressure visible. |
+| Agent Skills | Packages repeatable job-search, resume, outreach, interview, and offer workflows for agent-capable tools. |
+| Optional external AI gateway | Supports provider choice and request approval without making cloud AI required for core workflows. |
+
 ## Status
 
 | Item | Current state |
 | ---- | ------------- |
-| Release status | `2.9.0` release candidate, not published yet |
+| Release status | `2.9.0` source, package, and public-artifact verification line |
 | Primary platforms | Windows 11+, macOS, and Linux |
 | Default data model | Local SQLite and local settings |
 | Telemetry | None |

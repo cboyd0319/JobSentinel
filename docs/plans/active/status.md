@@ -8,20 +8,18 @@ The repo-wide goal remains open: zero known errors, privacy leaks, stale docs, b
 user-facing technical assumptions, engineer-only defaults, and unverified claims.
 Current priority is final v2.9.0 release-gate handoff for an urgent single-user search.
 
-Release creation is paused. Do not push, retag, upload, or publish `v2.9.0`
-until final gates pass from the verified commit and the user confirms
-publication. Capability verification and follow-up local gates have passed, but
-repeat them after any further local change and before moving the tag. Do not
-retag or upload over the same `v2.9.0` release while an older workflow run is
-still building assets.
+Release publication is active. Do not claim final `v2.9.0` until final gates
+pass from the corrected release commit, the tag points there, and public assets
+verify. Repeat focused gates after any further local change. Do not retag or
+upload over the same `v2.9.0` release while an older workflow run is still building assets.
 
 Rule 0 still controls the work: user data stays local unless the user explicitly
 configures an external channel, external AI stays optional and disabled by
 default, and users stay in control before anything leaves the device.
 
-Quiet Shield redesign is now part of the active repo-wide goal and the repo harness.
-It remains a harness-controlled active-goal acceptance gate behind primary
-v2.9.0 gates; `DESIGN.md`, `docs/design/README.md`, and
+Quiet Shield redesign is now part of the active repo-wide goal and the repo
+harness. It remains a harness-controlled active-goal acceptance gate behind
+primary v2.9.0 gates; `DESIGN.md`, `docs/design/README.md`, and
 `docs/design/design-spec.md` remain UI/UX contracts.
 
 The v2.9.0 goal adds durable release-readiness requirements:
@@ -42,23 +40,26 @@ The v2.9.0 goal adds durable release-readiness requirements:
 
 | Workstream | State | Current focus | Source |
 | ---------- | ----- | ------------- | ------ |
-| Current product and quality work | Active | Final gates and release handoff | [Plan](current-work.md) |
-| v2.9.0 completion and full-feature roadmap | Active | Checklist has local evidence; publication sequence remains blocked until user-confirmed push, tag, hosted build, and asset verification | [Plan](v2.9.0-completion-and-full-feature-roadmap.md) |
+| Current product and quality work | Active | Final documentation refresh, tag movement, hosted release run, and public artifact verification | [Plan](current-work.md) |
+| v2.9.0 completion and full-feature roadmap | Active | Checklist has local evidence; publication sequence is active and final signoff requires hosted build plus public asset verification from the corrected release commit | [Plan](v2.9.0-completion-and-full-feature-roadmap.md) |
 
 ## Current Posture
 
-- `origin/main` is the pushed `2.7.7` release-recovery baseline; local metadata
-  is staged for `2.9.0`. A premature remote `v2.9.0` tag and draft release
-  exist; do not publish or delete them without explicit user approval.
-- Latest exact full-gate validation commit is `07a03891`.
+- `origin/main` and the remote `v2.9.0` tag are being advanced through the
+  approved publication sequence. Final signoff requires them to point at the
+  corrected release commit and for the hosted release plus public artifact
+  verification to pass from that commit.
+- Latest exact full-gate validation evidence must be tied to the final release
+  commit after any documentation or package fixes.
 - Recent evidence covers dependency/action pins, security, frontend/build,
   Rust, E2E, docs/bloat/harness, skills, source/resume/AI/ML, screenshots, and
   no-account asset staging. Capability verification records the 2026-06-20
   pass; final publication gates must rerun from the exact push/tag commit.
 - Credential paths use encrypted local storage; passive status/list checks must
   remain non-interactive and must not cache vault keys.
-- No-account release assets can publish for Windows, macOS, and Linux, but
-  Apple Developer ID and Windows signing remain external gaps.
+- No-account release assets can publish for Windows, macOS, and Linux. Apple
+  Developer ID and Windows signing remain external gaps and must stay visible
+  in release notes, install docs, and asset filenames.
 - Browser Import, LinkedIn-compatible Workbench, source-health checks, and
   live public source probes have fresh 2026-06-19 evidence with no credential,
   cookie, token, private note, resume, salary floor, or application-history
@@ -67,7 +68,8 @@ The v2.9.0 goal adds durable release-readiness requirements:
   static HTML, plus Oracle Fusion/Taleo and long-tail ATS fingerprints.
 - Resume, application preview, cover-letter review, role-family taxonomy,
   source corpus/taxonomy, local interest learning, and public docs/screenshots
-  have focused coverage. Publication remains user-confirmed.
+  have focused coverage. Publication is active and still requires hosted asset
+  verification from the corrected release commit.
 - 2026-06-19 private resume-corpus aggregate probe parsed all 12 local files
   across DOCX, Markdown, and PDF formats, ran skill extraction plus
   ATS/readability checks against three broad job descriptions, ran
@@ -111,12 +113,13 @@ The v2.9.0 goal adds durable release-readiness requirements:
 - 2026-06-20 capability verification records every capability row, source
   class, privacy boundary, route probe, focused scraper/resume/AI/ML gate,
   skills/SBOM checks, private corpus refresh, Qwen3 runtime checks, live source
-  probes, and macOS no-account DMG verifier. Remaining blocker:
-  user-confirmed push/publish and public hosted asset verification.
+  probes, and macOS no-account DMG verifier. Remaining blocker: public hosted
+  asset verification from the corrected release commit.
 
 ## Next Best Work
 
-1. Wait for user confirmation before pushing `main`, wiki, tags, or release assets.
+1. Finish release-facing documentation cleanup, rerun focused docs and harness
+   gates, commit, push `main`, move `v2.9.0`, then verify hosted release and public assets.
 2. Keep macOS readiness honest: no Gatekeeper-ready claim before Apple credentials.
 3. Rerun final gates after any further local change.
 

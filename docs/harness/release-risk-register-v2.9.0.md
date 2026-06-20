@@ -272,12 +272,10 @@ Evidence:
   attests provenance/SBOMs, uploads assets, then publishes.
 - `.github/workflows/verify-release-artifacts.yml` verifies the public release
   asset set after publication.
-- 2026-06-20 read-only remote ref check: local `main` is at `99a5d381` before
-  this documentation evidence edit; remote `origin/main` and remote `v2.9.0`
-  still point at `8020d7e6`. A `gh release view v2.9.0` refresh was not
-  completed in this pass because the local `gh` wrapper could not get a token
-  from 1Password, so hosted release publication state still requires final
-  verification before push/tag/publication.
+- 2026-06-20 release publication sequence is active. Final signoff requires
+  `origin/main`, remote `v2.9.0`, the hosted release workflow, and public
+  artifact verification to point at the same final release commit after the
+  documentation refresh.
 - 2026-06-20 release-prep checks passed: focused release script tests `730/730`,
   `npm run release:check-env`, `npm run macos:readiness`,
   `npm run release:skills -- --out-dir <tmp>`, staged SBOM generation under
@@ -299,8 +297,9 @@ to the latest verified commit after user confirmation.
 
 Fix:
 
-Let old `v2.9.0` workflow runs finish before retagging or uploading. Publish only
-from the verified commit and run the public release verifier after publication.
+Publish only from the verified commit and run the public release verifier after
+publication. If a tag is moved after documentation or package fixes, treat
+older workflow results as stale evidence.
 
 ### Medium: no-account platform artifacts need clear user warnings
 

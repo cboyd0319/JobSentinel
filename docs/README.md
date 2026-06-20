@@ -42,22 +42,19 @@ The maintained external source index lives in
 ## Current State
 
 - Package metadata version: `2.9.0`.
-- `2.9.0` is a release candidate, not a published release yet.
+- Release assets are produced from GitHub version tags and verified after
+  publication with checksum, SBOM, attestation, and platform package checks.
 - Current macOS full-public-readiness is 94%; no-account path completion is
-  100% at the 94% public-readiness ceiling. The local `2.9.0` no-account
-  universal DMG passes the current checksum, metadata, architecture, launch,
-  install, and isolated-data smoke gate. Fresh Windows, macOS, Linux, SBOM,
-  attestation, checksum, and Agent Skills assets still need final local gates,
-  hosted build or upload, and public verifier passes before `2.9.0` is the
-  current public release. Zero-friction Gatekeeper-ready public distribution
-  still requires Apple Developer Program materials, Developer ID signing,
+  100% at the 94% public-readiness ceiling. The no-account universal DMG path
+  covers checksum, metadata, architecture, launch, install, and isolated-data
+  smoke gates. Zero-friction Gatekeeper-ready public distribution still
+  requires Apple Developer Program materials, Developer ID signing,
   notarization, stapling, and signed-artifact verification.
-- Verified local build plus manual upload is a supported production release
-  path when the same version, harness, package, checksum, and public-artifact
-  verification gates pass. Hosted tag CI remains available for full
-  cross-platform builds.
-- Unreleased work is tracked in [CHANGELOG.md](../CHANGELOG.md) and the
-  [active plans index](plans/README.md#current-active-plans).
+- Verified local build plus manual upload remains a supported release path when
+  the same version, harness, package, checksum, and public-artifact verification
+  gates pass. Hosted tag CI remains available for cross-platform builds.
+- Pending and unreleased work is tracked in [CHANGELOG.md](../CHANGELOG.md)
+  and the [active plans index](plans/README.md#current-active-plans).
 - Historical release notes are indexed in
   [docs/releases](releases/README.md), but this page should not be used as a
   release log.

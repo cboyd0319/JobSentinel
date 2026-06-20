@@ -206,6 +206,20 @@ test("release readiness rejects Agent Skills docs without Windows ZIP guidance",
   );
 });
 
+test("release readiness rejects front-door docs without checksum guidance", () => {
+  const inputs = loadReleaseReadinessInputs({ env: {} });
+  const report = evaluateReleaseReadinessFromInputs({
+    ...inputs,
+    readme: inputs.readme.replace("verify the matching `.sha256` checksum", "open the download"),
+  });
+
+  assert(
+    report.criteria.some(
+      (item) => item.id === "front-door docs cover public release asset limits" && !item.ok,
+    ),
+  );
+});
+
 test("release readiness parses version flags", () => {
   assert.deepEqual(parseArgs(["--version", "v2.9.0"]), { version: "v2.9.0" });
   assert.deepEqual(parseArgs(["--tag=v2.9.0"]), { version: "v2.9.0" });

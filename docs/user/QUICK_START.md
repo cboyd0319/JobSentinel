@@ -25,10 +25,8 @@ help more job seekers, including by building something better.
      expect a SmartScreen warning and verify the matching `.sha256` checksum
      for the downloaded `.msi` or setup `.exe` before opening it.
    - **Mac package** for Apple silicon and Intel Macs. Use the
-     `_no-account_universal.dmg` from the latest published release only when
-     the same release also shows a matching `.dmg.sha256` checksum file. As of
-     2026-06-06, the latest published Mac package is
-     `JobSentinel_2.7.7_no-account_universal.dmg`.
+     `_no-account_universal.dmg` from the latest release only when the same
+     release also shows a matching `.dmg.sha256` checksum file.
    - **Linux installer** when present on the release
 3. Install it:
    - Windows or Linux: double-click and follow the prompts.

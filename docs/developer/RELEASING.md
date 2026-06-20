@@ -317,8 +317,8 @@ assets existed.
 
 | Platform | Architecture          | Format      | Status   |
 | -------- | --------------------- | ----------- | -------- |
-| macOS    | universal             | `.dmg`      | Local `2.9.0` no-account package passes the current verifier; published `v2.7.7` is a legacy fallback with matching checksum and first-open Privacy & Security approval |
-| Windows  | x86_64                | `.msi` / setup `.exe` | Build path ready; public upload is signed when credentials exist or `_unsigned`-labeled with checksums when they do not |
-| Linux    | x86_64                | `.AppImage` / `.deb` | Build path ready; current `2.9.0` public assets pending target-platform build/upload/verification |
+| macOS    | universal             | `.dmg`      | No-account package uses `_no-account_`, ships with checksum, and requires first-open Privacy & Security approval until Developer ID signing and notarization exist |
+| Windows  | x86_64                | `.msi` / setup `.exe` | Signed when credentials exist; otherwise `_unsigned`-labeled with checksums |
+| Linux    | x86_64                | `.AppImage` / `.deb` | Built and verified through the release workflow before publication |
 
 See [CHANGELOG.md](../../CHANGELOG.md) for full history.

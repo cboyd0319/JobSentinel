@@ -256,16 +256,12 @@ empty stderr. Both launches created an isolated macOS data directory and
 `jobs.db` with owner-only local-data permissions. That evidence proves the
 current `2.9.0` no-account local packaging path before public upload.
 
-Because this local package uses an ad-hoc signature, Gatekeeper assessment
-rejects the `.app` and `.dmg`. A zero-friction public macOS release still needs
-an Apple Developer Account, Developer ID signing, notarization, and stapling.
-
-The latest published no-account macOS package is legacy `v2.7.7` as of
-2026-06-06. Its universal DMG and matching checksum are public assets, but that
-release predates the current isolated-data and supply-chain public verifier
-gates. The latest full cross-platform public release remains legacy `v2.7.5`
-until Windows and Linux `2.9.0` assets are built and verified. Gatekeeper
-rejection remains expected for no-account packages.
+Because the no-account package uses an ad-hoc signature, Gatekeeper assessment
+rejects the `.app` and `.dmg`. Gatekeeper rejection remains expected for
+no-account packages. A zero-friction public macOS release still needs an Apple
+Developer Account, Developer ID signing, notarization, and stapling. No-account
+macOS releases must be clearly labeled, include a matching checksum, and pass
+the public release verifier before they are treated as current.
 
 **Note:** The `.dmg` installer is for distribution. You can also run the binary directly:
 
@@ -483,11 +479,9 @@ verification.
    plus installed visible-window launch smoke pass locally, including local
    database creation under isolated macOS homes.
 2. **No-account public package path available** - Public macOS releases can use
-   a clearly labeled ad-hoc signed package with a matching `.dmg.sha256` and,
-   for `2.9.0` and newer releases, a passing public verifier. The current
-   published no-account macOS package is legacy `v2.7.7`; the latest full
-   cross-platform public release remains legacy `v2.7.5`. It still requires
-   first-open Privacy & Security approval.
+   a clearly labeled ad-hoc signed package with a matching `.dmg.sha256` and a
+   passing public verifier. It still requires first-open Privacy & Security
+   approval.
 3. **Zero-friction public release blocked on Apple account** - Gatekeeper-ready
    public macOS releases require an Apple Developer Account, Developer ID
    signing, notarization, then `--launch-smoke --install-smoke
