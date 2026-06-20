@@ -76,7 +76,7 @@ Out of scope:
 | LinkedIn Workbench and restricted-source flow | Complete locally | 2026-06-19 refresh: `cargo test --lib linkedin`, `cargo test --lib bookmarklet`, focused restricted-source frontend tests, and prior user-assisted proof cover Browser Import visible-card capture, Workbench ledger actions, restricted-source acknowledgement, no stored auth material, no hidden page reads, no monitoring, no automation, and no submit actions. |
 | Scraper/source verification | Complete locally | 2026-06-19 refresh: deterministic scraper contracts, source-health gates, scraper integration, pipeline integration, API contract, scheduler integration, focused restricted-source frontend tests, Browser Import helper tests, LinkedIn boundary tests, and low-volume live source probes passed; evidence is recorded in `docs/harness/source-debug-verification-v2.9.0.md`. |
 | README, docs, and screenshots | Complete locally | `e7a4ba43` refreshed front-door docs, docs hub links, feature-doc names, screenshots, stale-doc archive paths, and docs/harness sensors. |
-| Development and QA completion | Release-gated | Roadmap checklist is open; final local release gates and user-confirmed push/publish remain after docs, screenshots, source, resume, and UI proof close. |
+| Development and QA completion | Release-gated | Roadmap checklist is open; final local release gates and user-confirmed push/publish remain after local source, resume, docs, screenshot, and whole-UI evidence. |
 | macOS readiness | Release-gated | No-account path is complete; Gatekeeper-ready public distribution remains Apple-credential-gated. |
 | Resume assistance | Complete locally | 2026-06-19 aggregate private-corpus probe plus focused public/synthetic UI, E2E, semantic, and manual-style desktop/mobile verification covered parsing, import, matching, tailoring, builder/export, ATS/readability review, application-form help, cover-letter review, screening-answer review, and Local Match Check diagnostics. |
 | Job-card protection | Complete locally | Posting-risk cues stay visible without implying employer intent or confirmed duplicate/source proof. |
@@ -99,9 +99,8 @@ Out of scope:
   safety, explicit user review, privacy-preserving defaults, and optional
   external AI.
 - Every claim of completion has fresh verification evidence.
-- v2.9.0 is not release-ready until final whole-UI proof and final local gates
-  close from the verified commit and the user confirms the push/publish
-  sequence.
+- v2.9.0 is not release-ready until final local gates close from the verified
+  commit and the user confirms the push/publish sequence.
 
 ## Done Recently
 
@@ -117,20 +116,17 @@ Out of scope:
 
 ## Next Work
 
-1. Run final whole-UI proof across every shipped route, click/action group,
-   modal, toast, settings panel, import flow, keyboard path, empty/loading/error
-   state, and narrow-width surface.
-2. Run final local release gates from the verified commit before release action.
-3. Confirm major route screenshots, Computer Use clicks, keyboard flow, and
+1. Run final local release gates from the verified commit before release action.
+2. Confirm major route screenshots, Computer Use clicks, keyboard flow, and
    affected route/action/state checks after any further UI change.
-4. Continue macOS readiness only after final local gates close; do
+3. Continue macOS readiness only after final local gates close; do
    not claim Gatekeeper-ready distribution before signing, notarization,
    stapling, and install proof exist.
-5. Do not reopen repo-bloat cleanup unless a fresh bloat gate failure or
+4. Do not reopen repo-bloat cleanup unless a fresh bloat gate failure or
    product/privacy/security/docs verification blocker appears.
-6. Keep README, docs hubs, release docs, wiki inventory, and active status in
+5. Keep README, docs hubs, release docs, wiki inventory, and active status in
    sync when behavior, readiness, or public guidance changes.
-7. Commit each major verified change locally; push only at goal completion or
+6. Commit each major verified change locally; push only at goal completion or
    on newer explicit instruction.
 
 ## Sensors

@@ -63,6 +63,7 @@ test.describe("Documentation Screenshots", () => {
 
     await page.getByRole("button", { name: "Open settings" }).click();
     await page.getByRole("dialog", { name: "Settings" }).waitFor({ state: "visible" });
+    await page.getByRole("tab", { name: "Search Preferences" }).waitFor({ state: "visible" });
 
     await page.screenshot({
       path: screenshotPath(testInfo, "settings.png"),
@@ -122,7 +123,7 @@ test.describe("Documentation Screenshots", () => {
     });
   });
 
-  test("capture salary ai screenshot", async ({ page }, testInfo) => {
+  test("capture pay protection screenshot", async ({ page }, testInfo) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
 
@@ -144,7 +145,7 @@ test.describe("Documentation Screenshots", () => {
     });
   });
 
-  test("capture market intelligence screenshot", async ({ page }, testInfo) => {
+  test("capture hiring trends screenshot", async ({ page }, testInfo) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
 
@@ -210,7 +211,7 @@ test.describe("Documentation Screenshots", () => {
     });
   });
 
-  test("capture resume match screenshot", async ({ page }, testInfo) => {
+  test("capture hiring-system transparency screenshot", async ({ page }, testInfo) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
 
@@ -227,7 +228,7 @@ test.describe("Documentation Screenshots", () => {
     await page.waitForTimeout(1500);
 
     await page.screenshot({
-      path: screenshotPath(testInfo, "resume-match.png"),
+      path: screenshotPath(testInfo, "hiring-system-transparency.png"),
       fullPage: false,
     });
   });
