@@ -382,10 +382,6 @@ export default function Dashboard({
     async (job: Job) => {
       // Security: validate job link before opening.
       if (!isValidJobUrl(job.url)) {
-        logError(
-          "Security: Blocked unsafe saved job link:",
-          job.url.slice(0, 50),
-        );
         toast.error(
           "Check job link",
           "This saved link does not look safe to open.",

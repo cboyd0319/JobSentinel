@@ -115,10 +115,6 @@ export const JobCard = memo(function JobCard({
 
   const rejectUnsafeJobLink = (url: string) => {
     if (!isValidJobUrl(url)) {
-      logError(
-        "Security: Blocked unsafe saved job link:",
-        url.slice(0, 50),
-      );
       toast.error(
         "Check job link",
         "This saved link does not look safe to open.",

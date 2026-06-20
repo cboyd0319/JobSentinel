@@ -170,6 +170,12 @@ test.describe("Job Search and Filtering", () => {
 
       await dashboard.navigateTo();
       const firstCard = await dashboard.getJobCard(0);
+      const consoleErrors: string[] = [];
+      page.on("console", (message) => {
+        if (message.type() === "error") {
+          consoleErrors.push(message.text());
+        }
+      });
 
       await expect(firstCard.locator).toContainText("Operations Coordinator");
       await expect(firstCard.locator.locator("[data-testid='job-link-guidance']")).toContainText("Check job link");
@@ -183,6 +189,7 @@ test.describe("Job Search and Filtering", () => {
       await expect(page.getByText("This saved link does not look safe to open.")).toBeVisible();
       expect(await popupPromise).toBeNull();
       await expect(dashboard.mainContent).toBeVisible();
+      expect(consoleErrors).toEqual([]);
     });
 
     test("should expose expected hover actions on job card", async () => {
