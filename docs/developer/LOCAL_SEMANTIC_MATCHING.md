@@ -15,7 +15,7 @@ external AI.
 | Model governance | `models.lock.toml` pins model identity, revision, hashes, size, license, backend compatibility, instruction profiles, and score thresholds |
 | Target embedding profile | `Qwen/Qwen3-Embedding-0.6B` at revision `97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3`, 768-dimensional balanced profile |
 | Target reranker profile | `Qwen/Qwen3-Reranker-0.6B` at revision `e61197ed45024b0ed8a2d74b80b4d909f1255473` |
-| Current wired runtime | Legacy `sentence-transformers/all-MiniLM-L6-v2` baseline for existing commands; governed Qwen3 embedding and reranker backends have focused live validation |
+| Current wired runtime | Legacy `sentence-transformers/all-MiniLM-L6-v2` baseline for old direct semantic matcher calls; governed Qwen3 embedding and reranker backends have focused live validation; embedded-ML resume/job scoring uses the hybrid scorer |
 | Network behavior | Model download only, when the model is explicitly requested |
 | User data sent during model download | None |
 | Integrity check | Required SHA-256 checks for every required file in `models.lock.toml` |
@@ -40,6 +40,9 @@ Focused hybrid ranking evidence: `core::ml::hybrid` tests prove the ranking
 core prefers direct evidence over keyword-only near misses, caps otherwise
 strong matches when hard blockers exist, and records dense, BM25, exact skill,
 required-coverage, and reranker provenance without raw resume text.
+`core::resume::matcher::hybrid_score` wires the hybrid scorer into resume/job
+match scores for `embedded-ml` builds while preserving the legacy weighted
+formula when local ML is disabled.
 
 Privacy label: **Local only** for matching. Model download is an explicit
 external file fetch and must not send resume text, salary floors, notes,
@@ -84,6 +87,7 @@ disabled by default, and routed through
 | `src-tauri/src/core/ml/eval_fixtures/seed_v1.json` | Seed labels, hard negatives, and preference pairs for regression tests |
 | `src-tauri/src/core/ml/embeddings.rs` | Embedding generation and vector similarity |
 | `src-tauri/src/core/ml/matcher.rs` | Semantic skill matching logic |
+| `src-tauri/src/core/resume/matcher/hybrid_score.rs` | Resume/job scoring bridge for hybrid matching and legacy fallback |
 | `src-tauri/src/core/ml/tests.rs` | Feature-gated tests |
 | `src-tauri/src/commands/ml.rs` | Feature-gated Tauri commands |
 | `models.lock.toml` | Model supply-chain lockfile |

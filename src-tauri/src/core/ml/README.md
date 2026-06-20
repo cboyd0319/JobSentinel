@@ -99,8 +99,10 @@ proof before release signoff.
 The deterministic hybrid scorer is implemented and unit-covered. It combines
 dense, BM25, exact skill, required-coverage, seniority, reranker, blocker, and
 provenance signals, and it caps otherwise strong matches when hard blockers
-exist. It still needs to be wired into user-facing resume/job flows before
-release signoff.
+exist. For `embedded-ml` builds, resume/job scoring now uses the hybrid scorer
+through `src-tauri/src/core/resume/matcher/hybrid_score.rs`; builds without
+local ML keep the legacy weighted formula. Qwen3 dense and reranker diagnostics
+still need UI/data-flow proof before release signoff.
 
 ## Adding New Features
 

@@ -12,18 +12,13 @@ use regex::Regex;
 use sqlx::{Row, SqlitePool};
 use std::collections::HashSet;
 
-/// Minimal job info for matching
+mod hybrid_score;
+
 struct JobInfo {
     title: String,
     description: String,
 }
 
-/// Score weights for overall match calculation
-const SKILLS_WEIGHT: f64 = 0.5;
-const EXPERIENCE_WEIGHT: f64 = 0.3;
-const EDUCATION_WEIGHT: f64 = 0.2;
-
-/// Job matcher for calculating resume-job compatibility
 pub struct JobMatcher {
     db: SqlitePool,
     skill_extractor: SkillExtractor,
@@ -388,10 +383,15 @@ impl JobMatcher {
         let education_match_score =
             self.calculate_education_match(user_education, education_req.as_ref());
 
-        // Calculate weighted overall match score
-        let overall_match_score = (skills_match_score * SKILLS_WEIGHT)
-            + (experience_match_score * EXPERIENCE_WEIGHT)
-            + (education_match_score * EDUCATION_WEIGHT);
+        let overall_match_score = hybrid_score::calculate_overall_score(
+            &matching_skills,
+            &missing_skills,
+            skills_match_score,
+            experience_match_score,
+            &experience_reqs,
+            education_match_score,
+            education_req.as_ref(),
+        );
 
         // Generate enhanced gap analysis
         let gap_analysis = self.generate_enhanced_gap_analysis(

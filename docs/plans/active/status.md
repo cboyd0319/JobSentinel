@@ -69,9 +69,11 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   and has focused live validation with downloaded artifacts. The bounded Qwen3
   reranker backend is implemented and has focused live validation with
   downloaded artifacts. Existing commands still use the MiniLM baseline until
-  hybrid diagnostics and UI/data-flow integration are complete. The typed
-  hybrid scorer now combines dense, BM25, exact skill, required-coverage,
-  seniority, reranker, blocker, and provenance signals with focused tests.
+  Qwen3 dense and reranker diagnostics are wired into the UI. The typed hybrid
+  scorer now combines dense, BM25, exact skill, required-coverage, seniority,
+  reranker, blocker, and provenance signals with focused tests, and
+  `embedded-ml` resume/job scoring uses it with a legacy fallback when local ML
+  is disabled.
 - `validation/file_size_contract.json` now owns hard maintainable file caps;
   `npm run lint:bloat` enforces scope limits and frozen legacy exceptions. New
   Rust/frontend production modules must stay at or below 700 lines unless an
@@ -79,7 +81,7 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 - Script tests were moved out of the flat `scripts/` root in commit
   `b238c7d4`; keep future script tests under test directories.
 - 2026-06-19 release blockers remain open for major README and screenshot
-  refresh, stale docs cleanup, semantic matching UI/data-flow integration,
+  refresh, stale docs cleanup, Qwen3 diagnostics UI/data-flow integration,
   manual verification of every scraper/source flow, manual verification of
   every resume capability, final whole-UI proof, final local gates, and
   user-confirmed push/publish.
