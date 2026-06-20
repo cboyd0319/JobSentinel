@@ -201,12 +201,17 @@ Examples from the 2026-06-19 source pass:
 | LinkedIn company jobs | User-gated restricted discovery only; no silent scheduled discovery or session capture |
 | LinkedIn Jobs Tracker | User-gated restricted tracking only for saved or applied jobs; no silent scheduled discovery or session capture |
 
-Additional local API research from the Fortune 100 source registry added three
-candidate adapter lanes to the shared taxonomy: Workday CXS listing JSON,
-Phenom widget refineSearch JSON, and Radancy/TalentBrew public HTML fallback.
-Those lanes are useful company-careers coverage, but they remain fixture-backed
-candidate families until each employer tenant passes source-specific policy,
-robots, rate-limit, endpoint-stability, and parser checks.
+Additional local API research from the Fortune 100 source registry added public
+API foundation and employer-career lanes to the shared taxonomy: Greenhouse,
+Lever, SmartRecruiters, Workday CXS listing JSON, Phenom widget refineSearch
+JSON, and Radancy/TalentBrew public HTML fallback. It also added long-tail ATS
+fingerprints for platforms such as ClearCompany, Dayforce, Avature, JobDiva,
+CEIPAL, Crelate, TrackerRMS, Vincere, ApplicantPro, ApplicantStack, Homerun,
+Manatal, Recruit CRM, Loxo, HiBob, Factorial, JOIN, Polymer, and Recooty.
+Those long-tail entries are source-intelligence and routing metadata, not
+native scrapers. They remain review-gated until each employer tenant passes
+source-specific policy, robots, rate-limit, endpoint-stability, and parser
+checks.
 
 ## How Job Checks Work
 

@@ -104,6 +104,7 @@ screenshot, or session-state persistence.
 | Workday | Global | User-opened employer search or source-specific adapter only after public endpoint and terms review |
 | Eightfold | Global | User-opened employer search or source-specific adapter only after public endpoint and terms review |
 | Breezy, JazzHR, Bullhorn, Teamtailor, Jobvite, iCIMS, Taleo, SAP SuccessFactors, Oracle Recruiting, Phenom, BambooHR, ADP, UKG, Rippling, Zoho Recruit, Freshteam, Pinpoint, Jobylon, JobScore | Global | Candidate ATS families; review official/public access model before native scheduling |
+| ClearCompany, Dayforce, Avature, JobDiva, CEIPAL, Crelate, TrackerRMS, Vincere, ApplicantPro, ApplicantStack, Homerun, Manatal, Recruit CRM, Loxo, HiBob, Factorial, JOIN, Polymer, Recooty | Global | Long-tail ATS fingerprints from local API research; use source-intelligence routing only until tenant-specific policy, robots, rate-limit, endpoint, and fixture checks are complete |
 | Adzuna | US, UK, India, global | Native API only with local credentials, attribution UI, and quota tests |
 | Reed | UK | Native API only with local credentials and source terms review |
 | CV-Library | UK | User-directed path unless official partner API access is configured |

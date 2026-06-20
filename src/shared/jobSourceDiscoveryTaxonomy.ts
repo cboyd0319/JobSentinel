@@ -11,12 +11,14 @@ import {
   technicalAccessForJobSource,
   type JobSourceDiscoveryEntry,
 } from "./jobSourceDiscoveryModel";
+import { JOB_SOURCE_ATS_LONG_TAIL_DISCOVERY_ENTRIES } from "./jobSourceDiscoveryAtsLongTailEntries";
 import { JOB_SOURCE_BOARDS_DISCOVERY_ENTRIES } from "./jobSourceDiscoveryBoardsEntries";
 import { JOB_SOURCE_PLATFORM_DISCOVERY_ENTRIES } from "./jobSourceDiscoveryPlatformEntries";
 import { JOB_SOURCE_SECTOR_DISCOVERY_ENTRIES } from "./jobSourceDiscoverySectorEntries";
 
 export const JOB_SOURCE_DISCOVERY_TAXONOMY: readonly JobSourceDiscoveryEntry[] = [
   ...JOB_SOURCE_PLATFORM_DISCOVERY_ENTRIES,
+  ...JOB_SOURCE_ATS_LONG_TAIL_DISCOVERY_ENTRIES,
   ...JOB_SOURCE_BOARDS_DISCOVERY_ENTRIES,
   ...JOB_SOURCE_SECTOR_DISCOVERY_ENTRIES,
 ];

@@ -61,8 +61,8 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   history exposure. The corrected source integration fixtures now match the
   current optional external-AI config shape. New local API research has been
   folded into shared source taxonomy for Workday CXS, Phenom widgets, and
-  Radancy/TalentBrew candidate lanes without promoting them to unrestricted
-  crawlers.
+  Radancy/TalentBrew candidate lanes plus long-tail ATS fingerprints without
+  promoting them to unrestricted crawlers.
 - Resume, application preview, cover-letter review, role-family taxonomy,
   source corpus/taxonomy, local interest learning, and public docs/screenshots
   have focused coverage; final release still needs final local gates.

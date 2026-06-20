@@ -134,6 +134,48 @@ describe("jobSourceDiscoveryTaxonomy", () => {
     }
   });
 
+  it("covers API-catalog long-tail ATS families without claiming native support", () => {
+    const longTailSourceIds = [
+      "clearcompany",
+      "dayforce",
+      "avature",
+      "jobdiva",
+      "ceipal",
+      "crelate",
+      "trackerrms",
+      "vincere",
+      "applicantpro",
+      "applicantstack",
+      "homerun",
+      "manatal",
+      "recruit-crm",
+      "loxo",
+      "hibob",
+      "factorial",
+      "join",
+      "polymer",
+      "recooty",
+    ];
+
+    for (const sourceId of longTailSourceIds) {
+      const source = JOB_SOURCE_DISCOVERY_TAXONOMY.find(
+        (entry) => entry.id === sourceId,
+      );
+
+      expect(source, `${sourceId} entry`).toBeDefined();
+      expect(source).toMatchObject({
+        category: "ats-platform",
+        accessModel: "employer-career-system",
+        status: "research",
+      });
+      expect(source?.hostPatterns.length, `${sourceId} hosts`).toBeGreaterThan(0);
+      expect(source?.implementationPath, `${sourceId} implementation`).toMatch(
+        /detect|review/i,
+      );
+      expect(source?.notes, `${sourceId} notes`).toMatch(/source-specific/i);
+    }
+  });
+
   it("covers employer career-page discovery examples outside broad boards", () => {
     const employerCareers = JOB_SOURCE_DISCOVERY_TAXONOMY.find(
       (entry) => entry.id === "employer-careers-pages",
