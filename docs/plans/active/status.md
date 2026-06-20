@@ -10,8 +10,9 @@ Current priority is final v2.9.0 release-gate handoff for an urgent single-user 
 
 Release creation is paused. Do not push, retag, upload, or publish `v2.9.0`
 until final local gates pass from the verified commit and the user confirms
-publication. Do not retag or upload over the same `v2.9.0` release while an
-older workflow run is still building assets.
+publication. Final local gates have passed for the current local release state;
+rerun them after any further local change. Do not retag or upload over the same
+`v2.9.0` release while an older workflow run is still building assets.
 
 Rule 0 still controls the work: user data stays local unless the user explicitly
 configures an external channel, external AI stays optional and disabled by
@@ -50,7 +51,8 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   exist; do not publish or delete them without explicit user approval.
 - Recent evidence covers dependency/action pins, security sensors, frontend,
   build, Rust fmt/clippy/lib, E2E, docs, bloat, harness, skills packaging, and
-  no-account release asset staging. Rerun final gates from the final commit.
+  no-account release asset staging. Final local gates passed for the current
+  local release state; rerun them after any further local change.
 - Credential paths use encrypted local storage; passive status/list checks must
   remain non-interactive and must not cache vault keys.
 - No-account release assets can publish for Windows, macOS, and Linux, but
@@ -65,9 +67,9 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   long-tail ATS fingerprints without promoting them to unrestricted crawlers.
 - Resume, application preview, cover-letter review, role-family taxonomy,
   source corpus/taxonomy, local interest learning, and public docs/screenshots
-  have focused coverage. Prior final local gates passed on 2026-06-19 before
-  later local source-adapter and release-handoff docs changes; rerun final
-  gates from the final commit before the user-confirmed push/publish sequence.
+  have focused coverage. Final local gates passed after the source-adapter and
+  release-handoff docs changes; publication remains user-confirmed and gates
+  must be rerun after any further local change.
 - 2026-06-19 private resume-corpus aggregate probe parsed all 12 local files
   across DOCX, Markdown, and PDF formats, ran skill extraction plus
   ATS/readability checks against three broad job descriptions, ran
