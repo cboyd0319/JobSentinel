@@ -101,7 +101,7 @@
       "external_ai.enabled = false",
       "Feature Privacy Labels",
       "No raw full database dumps.",
-      "TODO before shipping any user-facing external AI feature:"
+      "Release contract for shipped external AI features:"
     ],
     "docs/harness/README.md": [
       "## Rule 0",

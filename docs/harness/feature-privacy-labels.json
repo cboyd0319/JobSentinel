@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastUpdated": "2026-06-02",
+  "lastUpdated": "2026-06-19",
   "labels": [
     "Local only",
     "External AI optional",
@@ -128,11 +128,11 @@
       "name": "Job description summary",
       "labels": ["External AI optional", "Public-data only"],
       "dataCategories": ["job_posting", "public_metadata"],
-      "defaultDataFlow": "Local parsing and summary should be available where practical. Optional external AI may receive the minimized posting text after preview and approval.",
+      "defaultDataFlow": "Job cards show the original posting details locally. The shipped Outside AI summary action is optional, starts from the job card, and may receive minimized public posting details only after preview, edit, and approval.",
       "externalAi": {
         "allowed": true,
         "required": false,
-        "fallback": "Show local extracted fields and original posting text."
+        "fallback": "Show the original job card, local fit signals, posting-risk cues, and any extracted public fields without sending data."
       },
       "sensitivityNote": "Public-data-only summaries must not include unrelated candidate data."
     },

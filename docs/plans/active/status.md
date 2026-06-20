@@ -99,8 +99,9 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   implemented. Job cards now expose **Summarize posting with Outside AI**; it
   loads saved settings locally, shows the review/edit/cancel dialog, sends only
   reviewed public posting fields through `send_external_ai_request`, and keeps
-  provider secrets in the backend. Private-data outside-AI feature sends remain
-  unavailable until they receive the same review and backend-validation path.
+  provider secrets in the backend. No private-data outside-AI features ship in
+  `2.9.0`; future sensitive sends must receive the same review and
+  backend-validation path before becoming available.
 - `validation/file_size_contract.json` now owns hard maintainable file caps;
   `npm run lint:bloat` enforces scope limits and frozen legacy exceptions. New
   Rust/frontend production modules must stay at or below 700 lines unless an
@@ -113,9 +114,9 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 
 ## Next Best Work
 
-1. Commit the final-gate evidence and Cargo lockfile freshness update.
-2. Push `main` and wiki only after the user confirms final publication steps.
-3. Keep macOS readiness honest: no Gatekeeper-ready claim before Apple credentials.
+1. Wait for user confirmation before pushing `main`, wiki, tags, or release assets.
+2. Keep macOS readiness honest: no Gatekeeper-ready claim before Apple credentials.
+3. Re-run final gates if any further local change lands before publication.
 
 ## Completion Bar
 

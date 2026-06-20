@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
+import { collectProductionExternalAiRequestFeatureIds } from "../harness-external-ai-features.mjs";
 
 const manifestPath = "docs/harness/manifest.json";
 const featurePrivacyLabelsPath = "docs/harness/feature-privacy-labels.json";
@@ -113,6 +114,29 @@ test("feature privacy label manifest records core local-first boundaries", () =>
     ),
     true,
   );
+});
+
+test("feature privacy label manifest covers shipped external AI requests", () => {
+  const labels = readJson(featurePrivacyLabelsPath);
+  const featuresById = new Map(
+    labels.features.map((feature) => [feature.id, feature]),
+  );
+
+  for (const featureId of collectProductionExternalAiRequestFeatureIds()) {
+    const feature = featuresById.get(featureId);
+
+    assert.ok(feature, `missing privacy label manifest entry for ${featureId}`);
+    assert.equal(
+      feature.externalAi.allowed,
+      true,
+      `${featureId} must be marked as external-AI allowed`,
+    );
+    assert.ok(
+      feature.labels.includes("External AI optional") ||
+        feature.labels.includes("External AI required"),
+      `${featureId} must carry an external-AI label`,
+    );
+  }
 });
 
 test("harness policy manifest stays portable and reviewable", () => {

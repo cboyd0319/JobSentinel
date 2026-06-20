@@ -18,6 +18,7 @@ import {
 } from "./check-macos-readiness.mjs";
 import { checkTauriInvokes } from "./check-tauri-invokes.mjs";
 import { checkTestQuality } from "./check-test-quality.mjs";
+import { collectProductionExternalAiRequestFeatureIds } from "./harness-external-ai-features.mjs";
 import { summarizeHarnessScore } from "./harness-score.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -431,6 +432,7 @@ if (existsSync(repoPath(featurePrivacyLabelsPath))) {
     "research-evaluation",
   ];
   const featureIds = new Set();
+  const featuresById = new Map();
 
   if (features.length < requiredFeatureIds.length) {
     errors.push(`${featurePrivacyLabelsPath} must list core privacy-labeled features`);
@@ -451,6 +453,7 @@ if (existsSync(repoPath(featurePrivacyLabelsPath))) {
       errors.push(`${featurePrivacyLabelsPath} has duplicate feature id: ${feature.id}`);
     }
     featureIds.add(feature.id);
+    featuresById.set(feature.id, feature);
 
     if (typeof feature.name !== "string" || feature.name.trim() === "") {
       errors.push(`${featurePrivacyLabelsPath} ${feature.id} must include a name`);
@@ -507,6 +510,22 @@ if (existsSync(repoPath(featurePrivacyLabelsPath))) {
   for (const requiredFeatureId of requiredFeatureIds) {
     if (!featureIds.has(requiredFeatureId)) {
       errors.push(`${featurePrivacyLabelsPath} missing required feature: ${requiredFeatureId}`);
+    }
+  }
+
+  for (const shippedFeatureId of collectProductionExternalAiRequestFeatureIds(root)) {
+    const feature = featuresById.get(shippedFeatureId);
+    if (!feature) {
+      errors.push(
+        `${featurePrivacyLabelsPath} missing shipped external-AI request feature: ${shippedFeatureId}`,
+      );
+      continue;
+    }
+
+    if (!feature.externalAi?.allowed) {
+      errors.push(
+        `${featurePrivacyLabelsPath} ${shippedFeatureId} must allow external AI because production code sends it through the gateway`,
+      );
     }
   }
 }

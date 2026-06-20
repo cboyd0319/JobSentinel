@@ -131,7 +131,7 @@ External provider transports should plug into that gateway instead of creating
 provider-specific calls throughout the codebase. Production code should not call
 external AI provider APIs outside this gateway.
 
-## Current Status And Remaining Work
+## Current Status And Release Contract
 
 Release status for `2.9.0`: Settings can configure optional outside-AI
 providers, provider preference order, per-provider model names, and provider
@@ -166,10 +166,18 @@ Implemented now:
 - Public job-posting summary from a job card after review and approval.
 - Settings request-history viewer with clear-history action.
 
-TODO before shipping any user-facing external AI feature:
+Release contract for shipped external AI features:
 
-- Add feature-specific local fallback or `External AI required` labels for each
-  private-data feature.
-- Add private-data payload minimization and backend validation per feature.
-- Keep sensitive payload opt-in off until each feature has the same preview,
-  edit, cancel, approval, redaction, and metadata-only request-history path.
+- Every shipped production `ExternalAiRequest.feature` value must be listed in
+  `docs/harness/feature-privacy-labels.json` with local fallback guidance and
+  an external-AI label when it can call a provider.
+- The only shipped provider-backed UI action in `2.9.0` is
+  `job-description-summary`, a public-data-only job-card action that can still
+  fall back to local job-card details, local fit signals, posting-risk cues, and
+  extracted public fields.
+- No private-data external AI feature ships in `2.9.0`. A future private-data
+  feature must add feature-specific payload minimization, privacy labels,
+  backend validation, preview, edit, cancel, approval, redaction, and
+  metadata-only request-history coverage before it becomes available.
+- Sensitive payload opt-in stays off unless a future feature has the same
+  reviewed gateway path and focused tests.
