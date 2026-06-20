@@ -12,8 +12,19 @@ cargo build --release --features embedded-ml
 
 ## Check status
 
-The model is not bundled into normal builds. With `embedded-ml` enabled,
-`get_ml_status` reports whether model files are already cached locally.
+The model is not bundled into normal builds. `get_semantic_matching_diagnostics`
+is always available and reports the current local matching mode. Normal builds
+show the built-in local fallback. `embedded-ml` builds also show Qwen3 model
+lock and cache readiness details.
+
+```typescript
+import { invoke } from "@tauri-apps/api/core";
+
+const diagnostics = await invoke("get_semantic_matching_diagnostics");
+```
+
+With `embedded-ml` enabled, `get_ml_status` reports whether model files are
+already cached locally.
 
 ```typescript
 import { invoke } from "@tauri-apps/api/core";

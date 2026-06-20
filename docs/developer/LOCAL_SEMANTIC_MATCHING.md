@@ -34,7 +34,12 @@ Focused Qwen3 reranker evidence: on 2026-06-19,
 downloaded the pinned Qwen3 reranker model into an external test cache,
 verified checksums, loaded the `qwen3-reranker-candle` backend, and ranked
 direct Kubernetes security evidence above a vocabulary-overlap near miss.
-Product integration is still required before release signoff.
+
+Product integration evidence: the Settings **Local Match Check** panel calls
+`get_semantic_matching_diagnostics`. Normal builds report the built-in local
+fallback. `embedded-ml` builds report the checked-in Qwen3 model lock, required
+file presence, cache readiness, scoring signals, local-only privacy mode, and
+quality checks without loading model weights or exposing resume/job text.
 
 Focused hybrid ranking evidence: `core::ml::hybrid` tests prove the ranking
 core prefers direct evidence over keyword-only near misses, caps otherwise
@@ -184,6 +189,12 @@ cargo test --features embedded-ml -- --ignored
 ```
 
 ## Commands
+
+This diagnostics command is always registered:
+
+| Command | Purpose |
+| ------- | ------- |
+| `get_semantic_matching_diagnostics` | Reports local matching mode, Qwen3 model-lock metadata when available, local cache readiness, scoring signals, and privacy-safe quality checks |
 
 These commands are registered only when the app is built with `embedded-ml`:
 

@@ -1,6 +1,7 @@
 # Semantic Resume-Job Matching Research
 
-Reviewed on 2026-06-19.
+Reviewed on 2026-06-19 against the initial matching guide and the additional
+research addendum.
 
 This note distills the current research direction for JobSentinel local
 semantic matching. It is candidate-side guidance for helping users understand

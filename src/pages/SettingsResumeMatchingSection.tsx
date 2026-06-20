@@ -1,6 +1,7 @@
 import { HelpIcon } from "../components/HelpIcon";
 import type { Config } from "./SettingsConfig";
 import { SettingsSymbol } from "./SettingsIcons";
+import { SemanticMatchingDiagnosticsPanel } from "./SemanticMatchingDiagnosticsPanel";
 
 interface SettingsResumeMatchingSectionProps {
   config: Config;
@@ -60,6 +61,8 @@ export function SettingsResumeMatchingSection({
           </div>
         </div>
       </section>
+
+      <SemanticMatchingDiagnosticsPanel />
 
       <section className="mb-6">
         <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">

@@ -282,6 +282,69 @@ export function handleMockSettingsSupportCommand(
         model: "mock-local-development",
       });
 
+    case "get_semantic_matching_diagnostics":
+      return withoutSave(state, {
+        build_enabled: true,
+        runtime_status: "needs_model_download",
+        active_profile: "Qwen3 embedding plus Qwen3 reranker, with built-in local fallback",
+        privacy_mode:
+          "Local only. Model downloads fetch model files only and never send resume or job-search data.",
+        manifest_hash: "mocksemanticmatchingmanifesthash000000000000000000000000000000",
+        models: [
+          {
+            id: "qwen3-embedding-0.6b",
+            role: "Default embedding",
+            repo: "Qwen/Qwen3-Embedding-0.6B",
+            revision: "97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3",
+            backend: "qwen3-candle",
+            license: "Apache-2.0",
+            dimension: 768,
+            max_tokens: 32768,
+            required_files: 3,
+            required_files_present: 0,
+            locked_size_bytes: 641000000,
+            downloaded: false,
+            required_for_qwen3_runtime: true,
+          },
+          {
+            id: "qwen3-reranker-0.6b",
+            role: "Default reranker",
+            repo: "Qwen/Qwen3-Reranker-0.6B",
+            revision: "e61197ed45024b0ed8a2d74b80b4d909f1255473",
+            backend: "qwen3-reranker-candle",
+            license: "Apache-2.0",
+            dimension: null,
+            max_tokens: 32768,
+            required_files: 4,
+            required_files_present: 0,
+            locked_size_bytes: 690000000,
+            downloaded: false,
+            required_for_qwen3_runtime: true,
+          },
+        ],
+        scoring_signals: [
+          {
+            id: "exact_skills",
+            label: "Exact skills",
+            state: "Always on",
+            explanation: "Matches visible skills and aliases before any model estimate is used.",
+          },
+          {
+            id: "qwen3_reranker",
+            label: "Qwen3 reranker",
+            state: "Embedded-ML builds",
+            explanation: "Reranks only a bounded top set of candidate evidence.",
+          },
+        ],
+        eval_contract: [
+          "Direct evidence must outrank keyword-only near misses.",
+          "Hard blockers must cap otherwise strong-looking matches.",
+          "Generated advice must stay separate from real job evidence.",
+        ],
+        user_action:
+          "Download the pinned local models before using Qwen3 semantic matching.",
+      });
+
     default:
       return {
         handled: false,

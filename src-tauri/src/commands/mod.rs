@@ -35,6 +35,7 @@ pub mod market;
 pub mod resume;
 pub mod salary;
 pub mod scoring;
+pub mod semantic_matching;
 pub mod user_data;
 
 // Optional ML commands
@@ -138,6 +139,7 @@ pub use salary::{
 pub use scoring::{
     get_scoring_config, reset_scoring_config_cmd, update_scoring_config, validate_scoring_config,
 };
+pub use semantic_matching::get_semantic_matching_diagnostics;
 
 // Market intelligence commands
 pub use market::{

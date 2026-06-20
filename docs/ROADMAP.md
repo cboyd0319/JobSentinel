@@ -37,7 +37,7 @@ current maintained surface at the time of the latest docs sweep.
 | Storage | Local SQLite with SQLx offline mode |
 | Source monitoring | 12 scheduled source adapters plus user-opened search links |
 | Source status | 15 source-status checks with plain help output |
-| Backend surface | 211 registered Tauri commands |
+| Backend surface | 212 registered Tauri commands |
 | Privacy posture | Local-first, no telemetry, external channels user-configured |
 | External AI posture | Optional, disabled by default, routed through `src/services/aiGateway.ts` |
 | Safe support reports | Reports can be copied or saved locally, reviewed, and shared only when the user chooses help |
@@ -119,12 +119,14 @@ Current recurring themes:
 The `embedded-ml` Cargo feature is optional and local-only. It is not required
 for core workflows. When enabled by a developer build, it can use local model
 files for semantic matching experiments and should fall back to deterministic
-matching when unavailable.
+matching when unavailable. Settings includes **Local Match Check** so users can
+see the current local matching mode without sending resume or job text anywhere.
 
 Do not confuse embedded local ML with external AI. External AI remains disabled
 by default and gateway-bound.
 
-See [Embedded ML feature notes](ML_FEATURE.md) for developer details.
+See [Embedded ML feature notes](developer/LOCAL_SEMANTIC_MATCHING.md) for
+developer details.
 
 ## Verification map
 

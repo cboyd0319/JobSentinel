@@ -132,6 +132,12 @@ and fake example links are intentionally excluded.
 - [Enhancing Online Recruitment with Category-Aware MoE and LLM-based Data Augmentation](https://arxiv.org/abs/2604.21264)
 - [Evaluating Bias in LLMs for Job-Resume Matching](https://arxiv.org/html/2503.19182v1)
 - [Learning to Retrieve for Job Matching](https://arxiv.org/html/2402.13435v1)
+- [Towards Position-Robust Talent Recommendation via Large Language Models](https://arxiv.org/html/2604.02200v1)
+- [Generative Job Recommendations with Large Language Models](https://arxiv.org/abs/2307.02157)
+- [AI Hiring with LLMs: A Context-Aware and Explainable Multi-Agent Framework](https://arxiv.org/abs/2504.02870)
+- [JobMatchAI: An Intelligent Job Matching Platform Using Knowledge Graphs, Semantic Search and Explainable AI](https://arxiv.org/abs/2603.14558)
+- [Bias and Fairness in Large Language Models: A Survey](https://arxiv.org/abs/2309.00770)
+- [Leveraging LLMs for HR Data Knowledge Graphs with Information Propagation-Based Job Recommendation](https://arxiv.org/html/2408.13521v1)
 
 ## Ghost Jobs, Job Scams, and Posting Reliability
 

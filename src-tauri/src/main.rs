@@ -220,6 +220,7 @@ fn main() {
             commands::scoring::update_scoring_config,
             commands::scoring::reset_scoring_config_cmd,
             commands::scoring::validate_scoring_config,
+            commands::semantic_matching::get_semantic_matching_diagnostics,
             // Market Intelligence commands
             commands::market::get_trending_skills,
             commands::market::get_active_companies,
@@ -358,7 +359,6 @@ fn main() {
             commands::bookmarklet::start_bookmarklet_server,
             commands::bookmarklet::stop_bookmarklet_server,
             commands::bookmarklet::set_bookmarklet_port,
-            // ML commands (optional - only if embedded-ml feature enabled)
             #[cfg(feature = "embedded-ml")]
             commands::ml::download_ml_model,
             #[cfg(feature = "embedded-ml")]
