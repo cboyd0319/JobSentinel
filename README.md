@@ -8,9 +8,8 @@ control.**
 is staged for `v2.9.0`, but release publication waits for final local gates
 from the latest verified commit and user-confirmed push/publish. Focused
 source, restricted-browser-import, resume-corpus, semantic-matching,
-screenshot, and whole-UI evidence have been recorded locally; final gates must
-still rerun because local changes have landed since the last full release-gate
-pass.
+screenshot, and whole-UI evidence have been recorded locally. Final gates must
+be rerun from the latest commit before publication any time local changes land.
 
 **Current macOS full-public-readiness: 94%; no-account path completion:
 100%.** The local `2.9.0` no-account universal DMG passes checksum, metadata,
@@ -122,7 +121,7 @@ unreviewed scripts.
 | What can leave the device? | Enabled job-source checks, job sources or career pages the user approves for checking, alerts the user turns on, optional location detection after a click, support links opened by the user, or explicitly approved external AI requests. |
 | Is external AI required? | No. External AI is optional, disabled by default, preview-gated, and gateway-bound. |
 | Is it free? | Yes. JobSentinel is MIT licensed and free forever. |
-| Source version | `2.9.0` in `main`; release candidate work remains open. |
+| Source metadata | Local package, Tauri, and Cargo metadata are staged for `2.9.0`; release candidate publication remains gated. |
 | Published downloads | Older fallback assets remain on GitHub Releases until `2.9.0` installers, checksums, SBOMs, attestations, and Agent Skills archives are built and verified. |
 | macOS full-public-readiness | 94%; no-account path completion is 100% at a 94% public-readiness ceiling. Local `2.9.0` universal DMG, checksum, metadata, architecture, install, visible-window launch, private local-data permissions, and readiness-harness checks are in place. The final 6% is externally blocked by Apple Developer Program materials for Developer ID signing, notarization, stapling, and Gatekeeper acceptance. |
 | Current active plan | Open repo-wide quality work with compact restart state in `docs/plans/active/status.md` and `docs/plans/active/current-work.md`. |

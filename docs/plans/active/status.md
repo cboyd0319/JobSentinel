@@ -65,9 +65,9 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   long-tail ATS fingerprints without promoting them to unrestricted crawlers.
 - Resume, application preview, cover-letter review, role-family taxonomy,
   source corpus/taxonomy, local interest learning, and public docs/screenshots
-  have focused coverage. Final local gates passed on 2026-06-19 from the
-  current local release state after a Cargo lockfile freshness update;
-  push/publish remains user-confirmed.
+  have focused coverage. Prior final local gates passed on 2026-06-19 before
+  later local source-adapter and release-handoff docs changes; rerun final
+  gates from the final commit before the user-confirmed push/publish sequence.
 - 2026-06-19 private resume-corpus aggregate probe parsed all 12 local files
   across DOCX, Markdown, and PDF formats, ran skill extraction plus
   ATS/readability checks against three broad job descriptions, ran
