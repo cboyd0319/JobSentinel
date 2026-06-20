@@ -11,7 +11,7 @@ use crate::core::ml::{ModelManager, ModelStatus, SemanticMatcher};
 use crate::platforms;
 use tauri::State;
 
-/// Download the ML model from HuggingFace Hub
+/// Download the default local semantic models from HuggingFace Hub.
 #[tauri::command]
 pub async fn download_ml_model() -> Result<String, String> {
     tracing::info!("Command: download_ml_model");
@@ -19,24 +19,23 @@ pub async fn download_ml_model() -> Result<String, String> {
     let app_data_dir = platforms::get_data_dir();
     let manager = ModelManager::new(app_data_dir);
 
-    // Check if already downloaded
-    if manager.is_model_downloaded() {
-        tracing::info!("Model already downloaded");
-        return Ok("Model already downloaded".to_string());
+    if manager.is_default_semantic_runtime_downloaded() {
+        tracing::info!("Default semantic models already downloaded");
+        return Ok("Local matching models already downloaded".to_string());
     }
 
-    // Download model
-    tracing::info!("Starting model download from HuggingFace Hub");
-    let model_path = manager
-        .download_model()
+    tracing::info!("Starting default semantic model download from HuggingFace Hub");
+    let model_paths = manager
+        .download_default_semantic_models()
         .await
-        .map_err(|e| user_friendly_error("Failed to download model", e))?;
+        .map_err(|e| user_friendly_error("Failed to download local matching models", e))?;
 
     tracing::info!(
-        model_path = %path_label_for_logging(&model_path),
-        "Model downloaded successfully"
+        model_count = model_paths.len(),
+        model_paths = ?model_paths.iter().map(path_label_for_logging).collect::<Vec<_>>(),
+        "Local matching models downloaded successfully"
     );
-    Ok("Model downloaded successfully".to_string())
+    Ok("Local matching models downloaded successfully".to_string())
 }
 
 /// Get ML model status
@@ -90,7 +89,7 @@ pub async fn match_resume_semantic(
 
     // Check if ML is available
     let manager = ModelManager::new(app_data_dir.clone());
-    if !manager.is_model_downloaded() {
+    if !manager.is_default_semantic_runtime_downloaded() && !manager.is_model_downloaded() {
         return Err("ML model not downloaded. Call download_ml_model() first.".to_string());
     }
 

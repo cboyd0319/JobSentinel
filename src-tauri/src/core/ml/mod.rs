@@ -6,7 +6,7 @@
 //! ## Features
 //! - Pinned model lock with revision and SHA-256 verification
 //! - Qwen3 embedding and reranker profiles for the production direction
-//! - Legacy all-MiniLM baseline while the Qwen3 backend is wired
+//! - Qwen3-first semantic matching with a legacy all-MiniLM fallback
 //! - Explicit model download on user or developer action
 //! - Pure Rust inference with Metal acceleration (macOS)
 //! - Graceful fallback to keyword matching if disabled
@@ -85,5 +85,5 @@ pub enum MlError {
 /// Check if ML is available and model is ready
 pub async fn is_ml_available(app_data_dir: &std::path::Path) -> Result<bool> {
     let manager = ModelManager::new(app_data_dir.to_path_buf());
-    Ok(manager.is_model_downloaded())
+    Ok(manager.is_default_semantic_runtime_downloaded() || manager.is_model_downloaded())
 }

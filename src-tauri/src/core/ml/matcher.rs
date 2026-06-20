@@ -3,11 +3,16 @@
 //! Uses sentence embeddings to match job requirements to user skills semantically.
 
 use super::embeddings::EmbeddingGenerator;
+use super::model::ModelManager;
+use super::{Qwen3EmbeddingBackend, Qwen3RerankerBackend};
 use anyhow::Result;
 use std::path::PathBuf;
 
-/// Similarity threshold for considering skills as matching
-const SIMILARITY_THRESHOLD: f32 = 0.7;
+mod legacy;
+mod qwen3;
+mod shared;
+
+use qwen3::Qwen3SemanticRuntime;
 
 /// Result of semantic skill matching
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
@@ -35,14 +40,32 @@ pub struct SkillMatch {
 
 /// Semantic matcher for skill comparison
 pub struct SemanticMatcher {
-    generator: EmbeddingGenerator,
+    runtime: SemanticMatcherRuntime,
+}
+
+enum SemanticMatcherRuntime {
+    Qwen3(Box<Qwen3SemanticRuntime>),
+    Legacy(Box<EmbeddingGenerator>),
 }
 
 impl SemanticMatcher {
     /// Create new semantic matcher
     pub fn new(app_data_dir: PathBuf) -> Result<Self> {
+        let manager = ModelManager::new(app_data_dir.clone());
+        if manager.is_default_semantic_runtime_downloaded() {
+            let embedding = Qwen3EmbeddingBackend::new(app_data_dir.clone())?;
+            let reranker = Qwen3RerankerBackend::new(app_data_dir)?;
+            return Ok(Self {
+                runtime: SemanticMatcherRuntime::Qwen3(Box::new(Qwen3SemanticRuntime::new(
+                    embedding, reranker,
+                ))),
+            });
+        }
+
         let generator = EmbeddingGenerator::new(app_data_dir)?;
-        Ok(Self { generator })
+        Ok(Self {
+            runtime: SemanticMatcherRuntime::Legacy(Box::new(generator)),
+        })
     }
 
     /// Match user skills against job requirements semantically
@@ -51,100 +74,14 @@ impl SemanticMatcher {
         user_skills: &[String],
         job_requirements: &[String],
     ) -> Result<SemanticMatchResult> {
-        if user_skills.is_empty() || job_requirements.is_empty() {
-            return Ok(SemanticMatchResult {
-                overall_score: 0.0,
-                matched_skills: Vec::new(),
-                unmatched_requirements: job_requirements.to_vec(),
-                unused_skills: user_skills.to_vec(),
-            });
-        }
-
-        // Generate embeddings for all skills
-        let user_texts: Vec<&str> = user_skills.iter().map(|s| s.as_str()).collect();
-        let job_texts: Vec<&str> = job_requirements.iter().map(|s| s.as_str()).collect();
-
-        let user_embeddings = self.generator.embed_batch(&user_texts)?;
-        let job_embeddings = self.generator.embed_batch(&job_texts)?;
-
-        // Normalize embeddings
-        let user_embeddings: Vec<Vec<f32>> = user_embeddings
-            .iter()
-            .map(|e| EmbeddingGenerator::normalize_embedding(e))
-            .collect();
-
-        let job_embeddings: Vec<Vec<f32>> = job_embeddings
-            .iter()
-            .map(|e| EmbeddingGenerator::normalize_embedding(e))
-            .collect();
-
-        // Match each job requirement to best user skill
-        let mut matched_skills = Vec::new();
-        let mut matched_job_indices = std::collections::HashSet::new();
-        let mut matched_user_indices = std::collections::HashSet::new();
-
-        for (job_idx, job_emb) in job_embeddings.iter().enumerate() {
-            let mut best_match: Option<(usize, f32)> = None;
-
-            for (user_idx, user_emb) in user_embeddings.iter().enumerate() {
-                let similarity = EmbeddingGenerator::cosine_similarity(job_emb, user_emb);
-
-                if similarity >= SIMILARITY_THRESHOLD {
-                    if let Some((_, best_sim)) = best_match {
-                        if similarity > best_sim {
-                            best_match = Some((user_idx, similarity));
-                        }
-                    } else {
-                        best_match = Some((user_idx, similarity));
-                    }
-                }
+        match &self.runtime {
+            SemanticMatcherRuntime::Qwen3(runtime) => {
+                runtime.match_skills(user_skills, job_requirements)
             }
-
-            if let Some((user_idx, similarity)) = best_match {
-                matched_skills.push(SkillMatch {
-                    job_skill: job_requirements[job_idx].clone(),
-                    user_skill: user_skills[user_idx].clone(),
-                    similarity,
-                });
-                matched_job_indices.insert(job_idx);
-                matched_user_indices.insert(user_idx);
+            SemanticMatcherRuntime::Legacy(generator) => {
+                legacy::match_skills(generator.as_ref(), user_skills, job_requirements)
             }
         }
-
-        // Calculate overall score
-        let coverage = matched_job_indices.len() as f64 / job_requirements.len() as f64;
-        let avg_similarity = if matched_skills.is_empty() {
-            0.0
-        } else {
-            matched_skills
-                .iter()
-                .map(|m| m.similarity as f64)
-                .sum::<f64>()
-                / matched_skills.len() as f64
-        };
-        let overall_score = coverage * 0.7 + avg_similarity * 0.3;
-
-        // Collect unmatched requirements and unused skills
-        let unmatched_requirements: Vec<String> = job_requirements
-            .iter()
-            .enumerate()
-            .filter(|(idx, _)| !matched_job_indices.contains(idx))
-            .map(|(_, skill)| skill.clone())
-            .collect();
-
-        let unused_skills: Vec<String> = user_skills
-            .iter()
-            .enumerate()
-            .filter(|(idx, _)| !matched_user_indices.contains(idx))
-            .map(|(_, skill)| skill.clone())
-            .collect();
-
-        Ok(SemanticMatchResult {
-            overall_score,
-            matched_skills,
-            unmatched_requirements,
-            unused_skills,
-        })
     }
 
     /// Find similar skills to a query skill
@@ -154,34 +91,17 @@ impl SemanticMatcher {
         candidate_skills: &[String],
         top_k: usize,
     ) -> Result<Vec<(String, f32)>> {
-        if candidate_skills.is_empty() {
-            return Ok(Vec::new());
+        match &self.runtime {
+            SemanticMatcherRuntime::Qwen3(runtime) => {
+                runtime.find_similar_skills(query_skill, candidate_skills, top_k)
+            }
+            SemanticMatcherRuntime::Legacy(generator) => legacy::find_similar_skills(
+                generator.as_ref(),
+                query_skill,
+                candidate_skills,
+                top_k,
+            ),
         }
-
-        let query_embedding = self.generator.embed_text(query_skill)?;
-        let query_embedding = EmbeddingGenerator::normalize_embedding(&query_embedding);
-
-        let candidate_texts: Vec<&str> = candidate_skills.iter().map(|s| s.as_str()).collect();
-        let candidate_embeddings = self.generator.embed_batch(&candidate_texts)?;
-
-        let mut similarities: Vec<(String, f32)> = candidate_embeddings
-            .iter()
-            .enumerate()
-            .map(|(idx, emb)| {
-                let normalized = EmbeddingGenerator::normalize_embedding(emb);
-                let similarity =
-                    EmbeddingGenerator::cosine_similarity(&query_embedding, &normalized);
-                (candidate_skills[idx].clone(), similarity)
-            })
-            .collect();
-
-        // Sort by similarity descending
-        similarities.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
-
-        // Take top K
-        similarities.truncate(top_k);
-
-        Ok(similarities)
     }
 }
 
@@ -191,6 +111,21 @@ mod tests {
 
     // Note: These tests require the model to be downloaded
     // They should be marked as #[ignore] in CI
+
+    #[test]
+    fn qwen3_threshold_comes_from_model_lock() {
+        assert!((shared::qwen3_match_threshold() - 0.65).abs() < f32::EPSILON);
+    }
+
+    #[test]
+    fn dense_candidates_filters_sorts_and_bounds_matches() {
+        let query = vec![1.0, 0.0];
+        let candidates = vec![vec![0.8, 0.2], vec![0.2, 0.8], vec![1.0, 0.0]];
+
+        let matches = shared::dense_candidates(&query, &candidates, 0.70, 1);
+
+        assert_eq!(matches, vec![(2, 1.0)]);
+    }
 
     #[test]
     #[ignore]

@@ -74,8 +74,9 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   for pinned model identity, revisions, file hashes, sizes, licenses, backend
   compatibility, instruction profiles, thresholds, and stale-vector rules.
   Qwen3 embedding and reranker backends have focused downloaded-artifact
-  validation. Existing commands still use MiniLM until deeper Qwen3 retrieval is
-  wired into direct matcher commands. The typed hybrid scorer covers dense,
+  validation. Direct matcher commands now prefer Qwen3 dense retrieval plus
+  bounded Qwen3 reranking when both governed models are downloaded and
+  verified, with MiniLM retained as a fallback. The typed hybrid scorer covers dense,
   BM25, exact skill, required-coverage, seniority, reranker, blocker, and
   provenance signals; `embedded-ml` resume/job scoring uses it with a legacy
   fallback. Settings includes **Local Match Check** through

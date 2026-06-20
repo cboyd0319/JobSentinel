@@ -31,7 +31,9 @@ cargo test --features embedded-ml -- --ignored
 - **hybrid.rs** - Deterministic hybrid ranking, hard-blocker caps, and retrieval provenance
 - **eval_fixtures/seed_v1.json** - Seed eval labels, hard negatives, and preference pairs
 - **embeddings.rs** - Embedding generation, cosine similarity
-- **matcher.rs** - Semantic skill matching logic
+- **matcher.rs** - Semantic matcher entrypoint and runtime selection
+- **matcher/** - Qwen3 direct matcher, MiniLM fallback, and shared match
+  scoring helpers
 - **tests.rs** - Unit and integration tests
 
 ## Model Governance
@@ -46,8 +48,8 @@ The production direction is:
 - `qwen3-embedding-0.6b`: default embedding profile at 768 dimensions through
   the `qwen3-candle` backend.
 - `qwen3-reranker-0.6b`: default bounded top-K reranker profile.
-- `all-minilm-l6-v2-baseline`: current wired legacy runtime until Qwen3
-  retrieval, reranking, scoring, diagnostics, and UI flows are validated.
+- `all-minilm-l6-v2-baseline`: legacy fallback runtime when the governed Qwen3
+  embedding and reranker pair is not downloaded.
 
 The cache path includes model id, revision, and model-lock hash:
 
@@ -60,14 +62,18 @@ Rust constants. Add them to `models.lock.toml`, then update tests.
 
 ## Current Runtime
 
-The current wired runtime implements a simplified BERT-like MiniLM baseline:
+The direct semantic matcher first checks the governed model cache. When both
+default Qwen3 models verify against `models.lock.toml`, it uses
+`qwen3-embedding-0.6b` for dense retrieval and `qwen3-reranker-0.6b` for
+bounded top-25 reranking. If the governed Qwen3 pair is not available, the
+matcher falls back to the simplified MiniLM baseline:
 
 - 6 transformer layers
 - 12 attention heads
 - 384 hidden dimensions
 - Mean pooling over sequence
 
-Model downloads are pinned to Hugging Face revision
+The legacy fallback download is pinned to Hugging Face revision
 `1110a243fdf4706b3f48f1d95db1a4f5529b4d41`. `config.json`,
 `tokenizer.json`, and `model.safetensors` must match `models.lock.toml` before
 the cache is treated as downloaded or loaded.

@@ -27,6 +27,27 @@ impl ModelManager {
         self.download_model_spec(&manifest, spec).await
     }
 
+    pub async fn download_default_semantic_models(&self) -> Result<Vec<PathBuf>> {
+        let manifest = load_model_manifest()?;
+        let embedding = manifest.default_embedding().ok_or_else(|| {
+            MlError::ModelLoadFailed("default embedding model lock entry missing".to_string())
+        })?;
+        let reranker = manifest.default_reranker().ok_or_else(|| {
+            MlError::ModelLoadFailed("default reranker model lock entry missing".to_string())
+        })?;
+
+        let mut paths = Vec::with_capacity(2);
+        for spec in [embedding, reranker] {
+            if self.is_model_downloaded_for(spec) {
+                paths.push(self.model_cache_dir(spec));
+            } else {
+                paths.push(self.download_model_spec(&manifest, spec).await?);
+            }
+        }
+
+        Ok(paths)
+    }
+
     async fn download_model_spec(
         &self,
         manifest: &ModelManifest,

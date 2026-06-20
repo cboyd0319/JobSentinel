@@ -34,18 +34,38 @@ impl ModelManager {
         self.is_model_downloaded_for(&spec)
     }
 
-    /// Get model status for the legacy runtime embedding model.
+    pub fn is_default_reranker_downloaded(&self) -> bool {
+        let Ok(spec) = Self::default_reranker_model_spec() else {
+            return false;
+        };
+        self.is_model_downloaded_for(&spec)
+    }
+
+    pub fn is_default_semantic_runtime_downloaded(&self) -> bool {
+        self.is_default_embedding_downloaded() && self.is_default_reranker_downloaded()
+    }
+
+    /// Get model status for the default semantic runtime.
     pub fn get_status(&self) -> ModelStatus {
-        let spec = Self::runtime_model_spec().unwrap_or_else(|_| fallback_runtime_model_spec());
-        let model_path = self.model_cache_dir(&spec);
-        let is_downloaded = self.is_model_downloaded();
+        let embedding_spec =
+            Self::default_embedding_model_spec().unwrap_or_else(|_| fallback_runtime_model_spec());
+        let reranker_spec = Self::default_reranker_model_spec().ok();
+        let is_downloaded = reranker_spec
+            .as_ref()
+            .map(|reranker| {
+                self.is_model_downloaded_for(&embedding_spec)
+                    && self.is_model_downloaded_for(reranker)
+            })
+            .unwrap_or(false);
 
         let model_size_bytes = if is_downloaded {
-            model_path
-                .join("model.safetensors")
-                .metadata()
-                .ok()
-                .map(|m| m.len())
+            model_size_bytes(self, &embedding_spec)
+                .zip(
+                    reranker_spec
+                        .as_ref()
+                        .and_then(|spec| model_size_bytes(self, spec)),
+                )
+                .map(|(embedding, reranker)| embedding + reranker)
         } else {
             None
         };
@@ -53,9 +73,18 @@ impl ModelManager {
         ModelStatus {
             is_downloaded,
             model_size_bytes,
-            model_id: spec.id,
-            revision: spec.revision,
-            backend: spec.backend,
+            model_id: reranker_spec
+                .as_ref()
+                .map(|reranker| format!("{}+{}", embedding_spec.id, reranker.id))
+                .unwrap_or_else(|| embedding_spec.id.clone()),
+            revision: reranker_spec
+                .as_ref()
+                .map(|reranker| format!("{}+{}", embedding_spec.revision, reranker.revision))
+                .unwrap_or_else(|| embedding_spec.revision.clone()),
+            backend: reranker_spec
+                .as_ref()
+                .map(|reranker| format!("{}+{}", embedding_spec.backend, reranker.backend))
+                .unwrap_or_else(|| embedding_spec.backend.clone()),
             manifest_hash: model_lock_hash(),
         }
     }
@@ -76,4 +105,13 @@ impl ModelManager {
 
         Ok(())
     }
+}
+
+fn model_size_bytes(manager: &ModelManager, spec: &ModelSpec) -> Option<u64> {
+    let weights = spec.file("model.safetensors")?;
+    manager
+        .model_file_path(spec, weights)
+        .metadata()
+        .ok()
+        .map(|m| m.len())
 }

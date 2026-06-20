@@ -21,8 +21,8 @@ mod tests {
         let status = manager.get_status();
         assert!(!status.is_downloaded);
         assert!(status.model_size_bytes.is_none());
-        assert_eq!(status.model_id, "all-minilm-l6-v2-baseline");
-        assert_eq!(status.backend, "minilm-candle");
+        assert_eq!(status.model_id, "qwen3-embedding-0.6b+qwen3-reranker-0.6b");
+        assert_eq!(status.backend, "qwen3-candle+qwen3-reranker-candle");
         assert_eq!(status.manifest_hash.len(), 64);
     }
 
