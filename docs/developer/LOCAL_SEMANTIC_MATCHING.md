@@ -15,7 +15,7 @@ external AI.
 | Model governance | `models.lock.toml` pins model identity, revision, hashes, size, license, backend compatibility, instruction profiles, and score thresholds |
 | Target embedding profile | `Qwen/Qwen3-Embedding-0.6B` at revision `97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3`, 768-dimensional balanced profile |
 | Target reranker profile | `Qwen/Qwen3-Reranker-0.6B` at revision `e61197ed45024b0ed8a2d74b80b4d909f1255473` |
-| Current wired runtime | Legacy `sentence-transformers/all-MiniLM-L6-v2` baseline for existing commands; governed Qwen3 embedding backend has focused live validation |
+| Current wired runtime | Legacy `sentence-transformers/all-MiniLM-L6-v2` baseline for existing commands; governed Qwen3 embedding backend has focused live validation and Qwen3 reranker backend has unit coverage |
 | Network behavior | Model download only, when the model is explicitly requested |
 | User data sent during model download | None |
 | Integrity check | Required SHA-256 checks for every required file in `models.lock.toml` |
@@ -27,6 +27,11 @@ Focused Qwen3 embedding evidence: on 2026-06-19,
 downloaded the pinned Qwen3 embedding model into an external test cache,
 verified checksums, loaded the `qwen3-candle` backend, and returned a
 normalized 768-dimensional embedding.
+
+Focused Qwen3 reranker evidence: unit tests cover the official instruction,
+query, document prompt shape and query-kind-specific defaults. Live reranker
+model validation and product integration are still required before release
+signoff.
 
 Privacy label: **Local only** for matching. Model download is an explicit
 external file fetch and must not send resume text, salary floors, notes,
@@ -63,7 +68,8 @@ disabled by default, and routed through
 | `src-tauri/src/core/ml/mod.rs` | Feature-gated module entry and error types |
 | `src-tauri/src/core/ml/manifest.rs` | Checked-in model lock parsing and validation |
 | `src-tauri/src/core/ml/model.rs` | Model download, cache checks, metadata, loading, and inference |
-| `src-tauri/src/core/ml/qwen3.rs` | Governed Qwen3 text embedding backend using verified cache files |
+| `src-tauri/src/core/ml/qwen3.rs` | Thin Qwen3 module entry |
+| `src-tauri/src/core/ml/qwen3/` | Governed Qwen3 embedding, reranker, model, pooling, and tokenization implementation |
 | `src-tauri/src/core/ml/runtime.rs` | Backend traits, runtime compatibility, vector provenance, and stale-vector keys |
 | `src-tauri/src/core/ml/evaluation.rs` | Evidence labels, hard negatives, feedback, blockers, and future training data contracts |
 | `src-tauri/src/core/ml/eval_fixtures/seed_v1.json` | Seed labels, hard negatives, and preference pairs for regression tests |
@@ -84,12 +90,12 @@ The production direction is:
    fit percentages.
 5. Deterministic fallback when local ML is unavailable.
 
-The current Qwen3 embedding backend is `qwen3-candle`, a text-only Candle
-runtime that uses JobSentinel's verified cache. FastEmbed may still be
-considered as a backend implementation later, but JobSentinel owns model
-identity, revisions, cache integrity, runtime compatibility, vector provenance,
-thresholds, and scoring semantics. Do not let a convenience downloader decide
-production model bytes.
+The current Qwen3 embedding backend is `qwen3-candle`, and the bounded reranker
+backend is `qwen3-reranker-candle`. Both use JobSentinel's verified cache.
+FastEmbed may still be considered as a backend implementation later, but
+JobSentinel owns model identity, revisions, cache integrity, runtime
+compatibility, vector provenance, thresholds, and scoring semantics. Do not let
+a convenience downloader decide production model bytes.
 
 ## Evaluation And Improvement
 

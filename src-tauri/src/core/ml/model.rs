@@ -74,6 +74,13 @@ impl ModelManager {
         })
     }
 
+    pub(crate) fn default_reranker_model_spec() -> Result<ModelSpec> {
+        let manifest = load_model_manifest()?;
+        manifest.default_reranker().cloned().ok_or_else(|| {
+            MlError::ModelLoadFailed("default reranker model lock entry missing".to_string()).into()
+        })
+    }
+
     pub(crate) fn model_cache_dir(&self, spec: &ModelSpec) -> PathBuf {
         self.cache_dir
             .join(&spec.id)

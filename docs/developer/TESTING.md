@@ -106,7 +106,8 @@ src-tauri/
 **Note**: Large Rust modules keep most tests in separate `tests.rs` files or
 feature-specific test subdirectories. This improves code organization and keeps
 module files easier to maintain under the current
-[harness file-size policy](../harness/README.md).
+[harness file-size policy](../harness/README.md), enforced by
+`validation/file_size_contract.json` through `npm run lint:bloat`.
 
 ### Test Coverage Map
 

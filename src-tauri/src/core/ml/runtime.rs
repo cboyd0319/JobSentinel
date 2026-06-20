@@ -229,6 +229,19 @@ mod tests {
     }
 
     #[test]
+    fn compatibility_accepts_matching_qwen3_reranker_spec() {
+        let manifest = load_model_manifest().expect("model lockfile should parse");
+        let model = manifest
+            .default_reranker()
+            .expect("default reranker should exist");
+        let compatibility = RuntimeCompatibility::from_spec(model, "qwen3-reranker-candle", None);
+
+        compatibility
+            .validate_for_model(model)
+            .expect("matching reranker compatibility should validate");
+    }
+
+    #[test]
     fn compatibility_rejects_dimension_mismatch() {
         let manifest = load_model_manifest().expect("model lockfile should parse");
         let model = manifest

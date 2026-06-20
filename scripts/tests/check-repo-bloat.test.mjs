@@ -31,7 +31,7 @@ function lineFixture(count) {
 test("checkRepoBloat rejects new oversized maintainable source files", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
-    writeFixtureFile(root, "src/pages/Oversized.tsx", lineFixture(1201));
+    writeFixtureFile(root, "src/pages/Oversized.tsx", lineFixture(701));
 
     execFileSync("git", ["add", "package.json", "src/pages/Oversized.tsx"], {
       cwd: root,
@@ -41,17 +41,34 @@ test("checkRepoBloat rejects new oversized maintainable source files", () => {
 
     assert.ok(
       violations.includes(
-        "split oversized tracked file: src/pages/Oversized.tsx has 1201 lines (limit 1200)",
+        "split oversized tracked file: src/pages/Oversized.tsx has 701 lines (file-size contract max 700, scope frontend-source)",
       ),
       violations.join("\n"),
     );
   });
 });
 
-test("checkRepoBloat rejects formerly grandfathered oversized files at the standard limit", () => {
+test("checkRepoBloat requires the file-size contract in the JobSentinel repo", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", '{ "name": "jobsentinel" }\n');
+
+    execFileSync("git", ["add", "package.json"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("add file-size contract: validation/file_size_contract.json"),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects formerly grandfathered oversized files at the hard cap", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
-    writeFixtureFile(root, "src/pages/ResumeBuilder.tsx", lineFixture(1201));
+    writeFixtureFile(root, "src/pages/ResumeBuilder.tsx", lineFixture(701));
 
     execFileSync("git", ["add", "package.json", "src/pages/ResumeBuilder.tsx"], {
       cwd: root,
@@ -61,7 +78,27 @@ test("checkRepoBloat rejects formerly grandfathered oversized files at the stand
 
     assert.ok(
       violations.includes(
-        "split oversized tracked file: src/pages/ResumeBuilder.tsx has 1201 lines (limit 1200)",
+        "split oversized tracked file: src/pages/ResumeBuilder.tsx has 701 lines (file-size contract max 700, scope frontend-source)",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat applies the shared taxonomy data cap", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(root, "src/shared/careerProfileTaxonomy.ts", lineFixture(2001));
+
+    execFileSync("git", ["add", "package.json", "src/shared/careerProfileTaxonomy.ts"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "split oversized tracked file: src/shared/careerProfileTaxonomy.ts has 2001 lines (file-size contract max 2000, scope shared-taxonomies)",
       ),
       violations.join("\n"),
     );

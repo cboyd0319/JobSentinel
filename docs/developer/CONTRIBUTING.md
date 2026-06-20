@@ -32,9 +32,9 @@ Before committing, ask: "Did I update all relevant docs?"
 ### File Size Policy
 
 Use the current maintainable file-size policy in
-[Harness Engineering](../harness/README.md). Large files are hard to maintain
-and regenerate with AI assistance, but the enforced thresholds live in harness
-docs and `npm run lint:bloat`.
+[Harness Engineering](../harness/README.md). The enforceable caps live in
+`validation/file_size_contract.json`, and `npm run lint:bloat` fails when a
+tracked file exceeds its scope cap or an exception grows past its frozen limit.
 
 **Test organization:** Move test modules to separate `tests.rs` files when
 tests start to obscure main logic or a file approaches the tracked

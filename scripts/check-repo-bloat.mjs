@@ -12,6 +12,7 @@ import {
 } from "./harness/checks/dependency-ownership.mjs";
 import { hasUnreferencedE2eTestHelper } from "./harness/checks/e2e-helpers.mjs";
 import {
+  collectFileSizeContractGlobalViolations,
   collectFilesystemBloat,
   collectTrackedFileSizeViolations,
   collectUnexpectedRootEntries,
@@ -173,6 +174,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
   for (const artifact of collectFilesystemBloat(root)) {
     violations.push(`remove local artifact: ${artifact}`);
+  }
+
+  for (const violation of collectFileSizeContractGlobalViolations(root)) {
+    violations.push(violation);
   }
 
   for (const path of listTrackedFiles(root)) {
