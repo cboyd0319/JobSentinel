@@ -364,7 +364,7 @@ test("checkRepoBloat rejects feature doc stale metadata blocks", () => {
     );
     writeFixtureFile(
       root,
-      "docs/features/one-click-apply.md",
+      "docs/features/application-assist.md",
       "**Version:** 2.6.4 | **Last Updated:** March 18, 2026\n",
     );
     writeFixtureFile(
@@ -399,7 +399,7 @@ test("checkRepoBloat rejects feature doc stale metadata blocks", () => {
         "package.json",
         "docs/features/ghost-detection.md",
         "docs/features/notifications.md",
-        "docs/features/one-click-apply.md",
+        "docs/features/application-assist.md",
         "docs/features/resume-builder.md",
         "docs/features/user-data-management.md",
         "docs/features/resume-matcher.md",
@@ -419,7 +419,7 @@ test("checkRepoBloat rejects feature doc stale metadata blocks", () => {
       violations.join("\n"),
     );
     assert.ok(
-      violations.includes("replace feature doc stale metadata: docs/features/one-click-apply.md"),
+      violations.includes("replace feature doc stale metadata: docs/features/application-assist.md"),
       violations.join("\n"),
     );
     assert.ok(
@@ -512,7 +512,7 @@ test("checkRepoBloat rejects Hiring Trends doc glyph markers", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "docs/features/market-intelligence.md",
+      "docs/features/hiring-trends.md",
       [
         `## ${chartIcon} Overview`,
         `- **${moneyIcon} Salary Trends** - Monitor salary changes`,
@@ -527,7 +527,7 @@ test("checkRepoBloat rejects Hiring Trends doc glyph markers", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "docs/features/market-intelligence.md"], {
+    execFileSync("git", ["add", "package.json", "docs/features/hiring-trends.md"], {
       cwd: root,
     });
 
@@ -535,7 +535,7 @@ test("checkRepoBloat rejects Hiring Trends doc glyph markers", () => {
 
     assert.ok(
       violations.includes(
-        "replace Hiring Trends doc glyph/stale indicator markers: docs/features/market-intelligence.md",
+        "replace Hiring Trends doc glyph/stale indicator markers: docs/features/hiring-trends.md",
       ),
       violations.join("\n"),
     );
@@ -547,7 +547,7 @@ test("checkRepoBloat rejects stale Hiring Trends doc shape", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "docs/features/market-intelligence.md",
+      "docs/features/hiring-trends.md",
       [
         "## Technical Documentation",
         "## Real-Time Analytics & Trend Visualization",
@@ -566,7 +566,7 @@ test("checkRepoBloat rejects stale Hiring Trends doc shape", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "docs/features/market-intelligence.md"], {
+    execFileSync("git", ["add", "package.json", "docs/features/hiring-trends.md"], {
       cwd: root,
     });
 
@@ -574,7 +574,7 @@ test("checkRepoBloat rejects stale Hiring Trends doc shape", () => {
 
     assert.ok(
       violations.includes(
-        "sync Hiring Trends docs with local evidence guidance: docs/features/market-intelligence.md",
+        "sync Hiring Trends docs with local evidence guidance: docs/features/hiring-trends.md",
       ),
       violations.join("\n"),
     );
@@ -593,7 +593,7 @@ test("checkRepoBloat rejects Resume Matcher and Salary AI feature doc emoji mark
     );
     writeFixtureFile(
       root,
-      "docs/features/salary-ai.md",
+      "docs/features/pay-protection.md",
       [
         `## ${targetIcon} Overview`,
         `- **${chartIcon} Salary Benchmarks**`,
@@ -605,7 +605,7 @@ test("checkRepoBloat rejects Resume Matcher and Salary AI feature doc emoji mark
 
     execFileSync(
       "git",
-      ["add", "package.json", "docs/features/resume-matcher.md", "docs/features/salary-ai.md"],
+      ["add", "package.json", "docs/features/resume-matcher.md", "docs/features/pay-protection.md"],
       { cwd: root },
     );
 
@@ -619,7 +619,7 @@ test("checkRepoBloat rejects Resume Matcher and Salary AI feature doc emoji mark
     );
     assert.ok(
       violations.includes(
-        "replace resume and salary feature doc emoji markers: docs/features/salary-ai.md",
+        "replace resume and salary feature doc emoji markers: docs/features/pay-protection.md",
       ),
       violations.join("\n"),
     );
@@ -729,7 +729,7 @@ test("checkRepoBloat rejects confusing Salary AI labels", () => {
       "docs/developer/ARCHITECTURE.md",
       ["#### `core/salary/`", "", "**Purpose**: Salary AI", ""].join("\n"),
     );
-    writeFixtureFile(root, "docs/features/salary-ai.md", "# Salary AI\n");
+    writeFixtureFile(root, "docs/features/pay-protection.md", "# Salary AI\n");
 
     execFileSync(
       "git",
@@ -738,7 +738,7 @@ test("checkRepoBloat rejects confusing Salary AI labels", () => {
         "package.json",
         "docs/README.md",
         "docs/developer/ARCHITECTURE.md",
-        "docs/features/salary-ai.md",
+        "docs/features/pay-protection.md",
       ],
       { cwd: root },
     );
@@ -748,7 +748,7 @@ test("checkRepoBloat rejects confusing Salary AI labels", () => {
     for (const path of [
       "docs/README.md",
       "docs/developer/ARCHITECTURE.md",
-      "docs/features/salary-ai.md",
+      "docs/features/pay-protection.md",
     ]) {
       assert.ok(
         violations.includes(`replace confusing Salary AI label: ${path}`),
@@ -763,18 +763,18 @@ test("checkRepoBloat rejects stale Salary AI future UI claim", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "docs/features/salary-ai.md",
+      "docs/features/pay-protection.md",
       ["### Phase 2-4: Future", "", "- [ ] UI components", ""].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "docs/features/salary-ai.md"], {
+    execFileSync("git", ["add", "package.json", "docs/features/pay-protection.md"], {
       cwd: root,
     });
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("remove stale Salary AI future UI claim: docs/features/salary-ai.md"),
+      violations.includes("remove stale Salary AI future UI claim: docs/features/pay-protection.md"),
       violations.join("\n"),
     );
   });

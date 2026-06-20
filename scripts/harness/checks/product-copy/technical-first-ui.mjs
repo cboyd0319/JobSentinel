@@ -157,7 +157,7 @@ export function getTechnicalFirstUiResult(path, text) {
     return /Allow clipboard access and try again\.|import helper/i.test(text);
   }
 
-  if (path === "docs/BOOKMARKLET.md") {
+  if (path === "docs/features/browser-import.md") {
     return /advanced settings|another port|advanced connection settings|connection settings|Works best on individual job pages from:[\s\S]{0,260}(?:LinkedIn|Indeed|Glassdoor)|Official ATS job pages|public ATS sources|after restarting JobSentinel|If support asks, open \*\*Connection settings\*\*|local safety code|Debug reports must redact|import helper/i.test(
       text,
     );

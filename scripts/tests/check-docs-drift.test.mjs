@@ -294,8 +294,8 @@ test("docs drift check rejects release-scoped developer doc claims", () => {
 
 test("docs drift check rejects active doc and platform tooling drift", () => {
   withFixture((root) => {
-    writeFixtureFile(root, "docs/BOOKMARKLET.md", "**Status:** Ready\n");
-    writeFixtureFile(root, "docs/ML_FEATURE.md", `${String.fromCodePoint(0x2713)} ready\n`);
+    writeFixtureFile(root, "docs/features/browser-import.md", "**Status:** Ready\n");
+    writeFixtureFile(root, "docs/developer/LOCAL_SEMANTIC_MATCHING.md", `${String.fromCodePoint(0x2713)} ready\n`);
     writeFixtureFile(root, "docs/developer/GETTING_STARTED.md", "cargo install tauri-cli@2.1\n");
     writeFixtureFile(
       root,
@@ -308,8 +308,8 @@ test("docs drift check rejects active doc and platform tooling drift", () => {
       "SQLite Maximum Protection & Performance Configuration\n",
     );
 
-    assert.equal(hasTopLevelActiveDocDrift(root, "docs/BOOKMARKLET.md"), true);
-    assert.equal(hasTopLevelActiveDocGlyphMarkers(root, "docs/ML_FEATURE.md"), true);
+    assert.equal(hasTopLevelActiveDocDrift(root, "docs/features/browser-import.md"), true);
+    assert.equal(hasTopLevelActiveDocGlyphMarkers(root, "docs/developer/LOCAL_SEMANTIC_MATCHING.md"), true);
     assert.equal(
       hasStaleGettingStartedToolingDocs(root, "docs/developer/GETTING_STARTED.md"),
       true,
@@ -418,14 +418,14 @@ test("docs drift check rejects unindexed release and Linux build docs", () => {
 
 test("docs drift check rejects feature doc metadata and glyph drift", () => {
   withFixture((root) => {
-    writeFixtureFile(root, "docs/BOOKMARKLET.md", "Saved ✓\n");
+    writeFixtureFile(root, "docs/features/browser-import.md", "Saved ✓\n");
     writeFixtureFile(root, "docs/features/ghost-detection.md", "🟢 **Ready**\n");
     writeFixtureFile(root, "docs/features/json-resume-import.md", "Flow → next\n");
     writeFixtureFile(root, "docs/features/resume-builder.md", "**Status:** Done\n");
     writeFixtureFile(root, "docs/style-guide/GLOSSARY.md", "Done ✓\n");
     writeFixtureFile(root, "docs/developer/TESTING.md", "A → B\n");
 
-    assert.equal(hasBookmarkletDocStatusEmojiMarkers(root, "docs/BOOKMARKLET.md"), true);
+    assert.equal(hasBookmarkletDocStatusEmojiMarkers(root, "docs/features/browser-import.md"), true);
     assert.equal(
       hasFeatureStatusColorEmojiMarkers(root, "docs/features/ghost-detection.md"),
       true,
@@ -447,7 +447,7 @@ test("docs drift check rejects feature doc stale product shapes", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "docs/features/market-intelligence.md",
+      "docs/features/hiring-trends.md",
       "Technical Documentation\nseverity_emoji\n",
     );
     writeFixtureFile(
@@ -455,15 +455,15 @@ test("docs drift check rejects feature doc stale product shapes", () => {
       "docs/features/resume-matcher.md",
       "# AI Resume-Job Matcher\nStop manually comparing job requirements. Flow → match.\n",
     );
-    writeFixtureFile(root, "docs/features/salary-ai.md", "Salary AI\n- [ ] UI components\n");
+    writeFixtureFile(root, "docs/features/pay-protection.md", "Salary AI\n- [ ] UI components\n");
     writeFixtureFile(root, "docs/README.md", "Resume Matcher\n");
 
     assert.equal(
-      hasMarketIntelligenceDocGlyphMarkers(root, "docs/features/market-intelligence.md"),
+      hasMarketIntelligenceDocGlyphMarkers(root, "docs/features/hiring-trends.md"),
       true,
     );
     assert.equal(
-      hasStaleMarketIntelligenceDocShape(root, "docs/features/market-intelligence.md"),
+      hasStaleMarketIntelligenceDocShape(root, "docs/features/hiring-trends.md"),
       true,
     );
     assert.equal(
@@ -471,9 +471,9 @@ test("docs drift check rejects feature doc stale product shapes", () => {
       true,
     );
     assert.equal(hasStaleResumeMatcherDocShape(root, "docs/features/resume-matcher.md"), true);
-    assert.equal(hasStaleSalaryAiFutureUiClaim(root, "docs/features/salary-ai.md"), true);
+    assert.equal(hasStaleSalaryAiFutureUiClaim(root, "docs/features/pay-protection.md"), true);
     assert.equal(hasConfusingResumeMatcherAiLabel(root, "docs/README.md"), true);
-    assert.equal(hasConfusingSalaryAiLabel(root, "docs/features/salary-ai.md"), true);
+    assert.equal(hasConfusingSalaryAiLabel(root, "docs/features/pay-protection.md"), true);
   });
 });
 

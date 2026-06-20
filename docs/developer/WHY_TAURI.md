@@ -30,7 +30,8 @@ Electron bundles Chromium (the open-source Chrome browser) with every app. This 
 
 ### 1. Bloated Size (150MB+)
 
-Every Electron app ships its own copy of Chromium. For a simple job scraper, this is absurd:
+Every Electron app ships its own copy of Chromium. For a local-first job-search
+assistant, this is unnecessary weight:
 
 Electron app:
 

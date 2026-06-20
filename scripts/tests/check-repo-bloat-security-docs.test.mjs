@@ -42,7 +42,7 @@ test("checkRepoBloat rejects stale keyring credential docs", () => {
     );
     writeFixtureFile(
       root,
-      "docs/features/credentials-security.md",
+      "docs/features/saved-secrets.md",
       [
         "JobSentinel:slack-webhook",
         "pub enum CredentialKey { EmailSmtpPassword, LinkedinCookies, TelegramToken }",
@@ -54,7 +54,7 @@ test("checkRepoBloat rejects stale keyring credential docs", () => {
 
     execFileSync(
       "git",
-      ["add", "package.json", "docs/security/KEYRING.md", "docs/features/credentials-security.md"],
+      ["add", "package.json", "docs/security/KEYRING.md", "docs/features/saved-secrets.md"],
       { cwd: root },
     );
 
@@ -65,7 +65,7 @@ test("checkRepoBloat rejects stale keyring credential docs", () => {
       violations.join("\n"),
     );
     assert.ok(
-      violations.includes("sync keyring credential docs: docs/features/credentials-security.md"),
+      violations.includes("sync keyring credential docs: docs/features/saved-secrets.md"),
       violations.join("\n"),
     );
   });

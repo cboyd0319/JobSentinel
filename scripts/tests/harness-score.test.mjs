@@ -142,7 +142,7 @@ function writeCompleteHarnessFixture(root) {
   );
   writeFixtureFile(
     root,
-    "docs/harness/five-tuple-scorecard-2026-06-01.md",
+    "docs/harness/archive/five-tuple-scorecard-2026-06-01.md",
     [
       "Before Current Slice",
       "After Current Slice",

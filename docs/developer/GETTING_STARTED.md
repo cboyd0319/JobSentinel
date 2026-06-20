@@ -176,7 +176,7 @@ All core functionality is in `src-tauri/src/core/` and works identically on all 
 - **market_intelligence**: Market analytics with trends and location insights
 - **notify**: Multi-channel notifications (Slack, Discord, Teams, Email, Telegram, Desktop)
 - **resume**: local resume fit review with skill extraction
-- **salary**: Salary prediction and benchmarking
+- **salary**: Pay protection, salary-floor review, and compensation range checks
 - **scheduler**: Periodic source checks with configurable interval and auto-refresh
 - **scoring**: Multi-factor job scoring (0-1 scale)
 - **scrapers**: Scheduled source adapters with parallel execution (Greenhouse,

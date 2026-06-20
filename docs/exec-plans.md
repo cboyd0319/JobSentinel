@@ -21,7 +21,13 @@ Use these headings:
 
 ## Scope
 
+## Success Criteria
+
+## Audience And Ease
+
 ## Risks
+
+## Orchestration
 
 ## Milestones
 
@@ -34,6 +40,8 @@ Use these headings:
 ## Decisions
 
 ## Outcomes
+
+## Handoff
 ```
 
 ## Rules

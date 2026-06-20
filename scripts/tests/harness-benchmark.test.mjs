@@ -48,7 +48,7 @@ const sessionSummary = {
   scriptTestCount: 28,
   bloatRunnerLines: 921,
   harnessScore: { overall: 100, status: "all subsystems 5/5" },
-  fiveTupleAudit: "docs/harness/five-tuple-audit-2026-06-01.md",
+  fiveTupleAudit: "docs/harness/archive/five-tuple-audit-2026-06-01.md",
   nextBestWork: ["Continue broad-audience fixture audit."],
 };
 

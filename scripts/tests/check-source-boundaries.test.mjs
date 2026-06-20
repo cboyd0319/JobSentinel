@@ -39,10 +39,10 @@ test("source boundaries reject stale scraper docs and source health copy", () =>
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "docs/features/scrapers.md",
+      "docs/features/job-sources.md",
       "production-ready scrapers for 13 major job boards\n",
     );
-    writeFixtureFile(root, "docs/features/scraper-health.md", "Source status → details\n");
+    writeFixtureFile(root, "docs/features/job-source-status.md", "Source status → details\n");
     writeFixtureFile(
       root,
       "src/components/ScraperHealthDashboard.tsx",
@@ -68,13 +68,13 @@ test("source boundaries reject stale scraper docs and source health copy", () =>
       'const staleStatus = { label: "Healthy" };\n',
     );
 
-    assert.equal(hasScraperDocEmojiMarkers(root, "docs/features/scrapers.md"), false);
+    assert.equal(hasScraperDocEmojiMarkers(root, "docs/features/job-sources.md"), false);
     assert.equal(
-      hasStaleScraperDocReliabilityClaim(root, "docs/features/scrapers.md"),
+      hasStaleScraperDocReliabilityClaim(root, "docs/features/job-sources.md"),
       true,
     );
     assert.equal(
-      hasScraperHealthDocEmojiMarkers(root, "docs/features/scraper-health.md"),
+      hasScraperHealthDocEmojiMarkers(root, "docs/features/job-source-status.md"),
       true,
     );
     assert.equal(
@@ -106,19 +106,19 @@ test("source boundaries reject technical source-address user copy", () => {
     );
     writeFixtureFile(
       root,
-      "docs/features/scrapers.md",
+      "docs/features/job-sources.md",
       "Review the new payload before using the source endpoint.\n",
     );
     writeFixtureFile(
       root,
-      "docs/features/scraper-health.md",
+      "docs/features/job-source-status.md",
       "These endpoints must stay off until configured.\n",
     );
 
     assert.equal(hasTechnicalSourceHealthUserCopy(root, "PRIVACY.md"), true);
     assert.equal(hasTechnicalSourceHealthUserCopy(root, "docs/user/QUICK_START.md"), true);
-    assert.equal(hasTechnicalSourceHealthUserCopy(root, "docs/features/scrapers.md"), true);
-    assert.equal(hasTechnicalSourceHealthUserCopy(root, "docs/features/scraper-health.md"), true);
+    assert.equal(hasTechnicalSourceHealthUserCopy(root, "docs/features/job-sources.md"), true);
+    assert.equal(hasTechnicalSourceHealthUserCopy(root, "docs/features/job-source-status.md"), true);
     assert.equal(hasTechnicalSourceHealthUserCopy(root, "docs/developer/ARCHITECTURE.md"), false);
   });
 });
@@ -152,7 +152,7 @@ test("source boundaries reject stale source health coverage claims", () => {
 
 test("source boundaries reject LinkedIn credential and automation drift", () => {
   withFixture((root) => {
-    writeFixtureFile(root, "docs/features/scrapers.md", "Open DevTools\n");
+    writeFixtureFile(root, "docs/features/job-sources.md", "Open DevTools\n");
     writeFixtureFile(root, "docs/security/KEYRING.md", "voyager/api\n");
     writeFixtureFile(
       root,
@@ -175,7 +175,7 @@ test("source boundaries reject LinkedIn credential and automation drift", () => 
       "linkedin: { enabled: true, name: 'LinkedIn' }\n",
     );
 
-    assert.equal(hasStaleLinkedInCredentialDocs(root, "docs/features/scrapers.md"), true);
+    assert.equal(hasStaleLinkedInCredentialDocs(root, "docs/features/job-sources.md"), true);
     assert.equal(hasLinkedInAutomationBoundaryDrift(root, "docs/security/KEYRING.md"), true);
     assert.equal(
       hasLinkedInAutomationBoundaryDrift(root, "src-tauri/src/core/config/types.rs"),
@@ -195,14 +195,14 @@ test("source boundaries reject LinkedIn credential and automation drift", () => 
 
 test("source boundaries reject cache docs and direct-open fallbacks", () => {
   withFixture((root) => {
-    writeFixtureFile(root, "docs/CACHE_USAGE.md", 'tracing::info!("Cache hit for: {}", url)\n');
+    writeFixtureFile(root, "docs/developer/SCRAPER_CACHE.md", 'tracing::info!("Cache hit for: {}", url)\n');
     writeFixtureFile(
       root,
       "src/components/JobCard.tsx",
       "openDeepLink(job.url); window.open(job.url);\n",
     );
 
-    assert.equal(hasStaleCacheUsageDoc(root, "docs/CACHE_USAGE.md"), true);
+    assert.equal(hasStaleCacheUsageDoc(root, "docs/developer/SCRAPER_CACHE.md"), true);
     assert.equal(hasFrontendDirectOpenDeepLinkFallback(root, "src/components/JobCard.tsx"), true);
     assert.equal(hasFrontendDirectOpenDeepLinkFallback(root, "src/components/Navigation.tsx"), false);
   });
@@ -262,7 +262,7 @@ test("source boundaries reject unapproved JobsWithGPT endpoint flows", () => {
       true,
     );
     assert.equal(hasJobsWithGptUnapprovedEndpointFlow(root, "src/mocks/handlers.ts"), true);
-    assert.equal(hasJobsWithGptUnapprovedEndpointFlow(root, "docs/features/scrapers.md"), false);
+    assert.equal(hasJobsWithGptUnapprovedEndpointFlow(root, "docs/features/job-sources.md"), false);
   });
 });
 
@@ -332,6 +332,6 @@ test("source boundaries reject missing JobsWithGPT request ledger", () => {
       hasJobsWithGptMissingRequestLedger(root, "src/pages/SettingsConnectedJobSource.tsx"),
       true,
     );
-    assert.equal(hasJobsWithGptMissingRequestLedger(root, "docs/features/scrapers.md"), false);
+    assert.equal(hasJobsWithGptMissingRequestLedger(root, "docs/features/job-sources.md"), false);
   });
 });

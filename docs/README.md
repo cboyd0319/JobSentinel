@@ -20,8 +20,9 @@ skill to get value.
 - Sensitive job-search data stays local unless the user explicitly chooses,
   previews, and approves what will be sent.
 - JobSentinel must not send applications on the user's behalf, use deceptive
-  resume tactics, manipulate ATS systems, collect from restricted sites, solve
-  CAPTCHAs, or evade platform controls.
+  resume tactics, manipulate ATS systems, hide restricted-source collection,
+  solve CAPTCHAs, store restricted-site auth material, or evade platform
+  controls.
 
 ## Start Here
 
@@ -41,17 +42,14 @@ The maintained external source index lives in
 ## Current State
 
 - Package metadata version: `2.9.0`.
-- Latest published no-account macOS package: `v2.7.7` as of 2026-06-06.
-- Latest full cross-platform public release: `v2.7.5` as of 2026-06-06.
+- `2.9.0` is a release candidate, not a published release yet.
 - Current macOS full-public-readiness is 94%; no-account path completion is
   100% at the 94% public-readiness ceiling. The local `2.9.0` no-account
   universal DMG passes the current checksum, metadata, architecture, launch,
-  install, and isolated-data smoke gate. The published `v2.7.7` macOS package
-  is a legacy fallback with a no-account universal DMG plus matching
-  `.dmg.sha256`; it predates current isolated-data and supply-chain verifier
-  gates. Fresh Windows and Linux `2.9.0` assets still need target-platform
-  builds, upload, and public verifier passes before `2.9.0` is the full
-  cross-platform release. Zero-friction Gatekeeper-ready public distribution
+  install, and isolated-data smoke gate. Fresh Windows, macOS, Linux, SBOM,
+  attestation, checksum, and Agent Skills assets still need final local gates,
+  hosted build or upload, and public verifier passes before `2.9.0` is the
+  current public release. Zero-friction Gatekeeper-ready public distribution
   still requires Apple Developer Program materials, Developer ID signing,
   notarization, stapling, and signed-artifact verification.
 - Verified local build plus manual upload is a supported production release
@@ -75,26 +73,26 @@ The maintained external source index lives in
 | Open job searches on outside sites | [Search Links](user/DEEP_LINKS.md) |
 | Manage local data and safe support reports | [User Data Management](features/user-data-management.md) |
 | Set up alerts | [Notifications](features/notifications.md) |
-| Understand job source checks | [Job Source Status](features/scraper-health.md) |
+| Understand job source checks | [Job Source Status](features/job-source-status.md) |
 
 ## Feature Docs
 
 | Area | Doc |
 | --- | --- |
 | Ghost-job and stale-posting protection | [Ghost Detection](features/ghost-detection.md) |
-| Pay protection and salary transparency | [Pay Protection](features/salary-ai.md) |
+| Pay protection and salary transparency | [Pay Protection](features/pay-protection.md) |
 | Resume fit review | [Resume Match](features/resume-matcher.md) |
 | Resume writing | [Resume Builder](features/resume-builder.md) |
 | Application board | [Application Tracking](features/application-tracking.md) |
-| Review-first application form help | [Application Assist](features/one-click-apply.md) |
-| Official-source job monitoring | [Job Sources](features/scrapers.md) |
-| Browser import button | [Browser Import Button](BOOKMARKLET.md) |
-| Hiring trends | [Hiring Trends](features/market-intelligence.md) |
+| Review-first application form help | [Application Assist](features/application-assist.md) |
+| Official-source job monitoring | [Job Sources](features/job-sources.md) |
+| Browser import button | [Browser Import Button](features/browser-import.md) |
+| Hiring trends | [Hiring Trends](features/hiring-trends.md) |
 | Fit priorities | [Fit Review](features/smart-scoring.md) |
 | Work-mode matching | [Remote Preference Matching](features/remote-preference-scoring.md) |
 | Broad skill matching | [Synonym Matching](features/synonym-matching.md) |
 | Structured resume import | [Resume Data Import](features/json-resume-import.md) |
-| Saved secrets | [Saved Secrets](features/credentials-security.md) |
+| Saved secrets | [Saved Secrets](features/saved-secrets.md) |
 
 ## Design Docs
 
@@ -141,6 +139,8 @@ profiles by default. Real user data requires explicit informed consent.
 | Linux packages | [Linux Build Guide](developer/LINUX_BUILD.md) |
 | macOS notes | [macOS Development](developer/MACOS_DEVELOPMENT.md) |
 | SQLite and SQLx setup | [SQLite Configuration](developer/sqlite-configuration.md) |
+| Scraper response cache | [Scraper Cache](developer/SCRAPER_CACHE.md) |
+| Optional local semantic matching | [Local Semantic Matching](developer/LOCAL_SEMANTIC_MATCHING.md) |
 | Error-handling patterns | [Error Handling](developer/ERROR_HANDLING.md) |
 | Mutation testing | [Mutation Testing](developer/MUTATION_TESTING.md) |
 | Browser E2E tests | [Tests README](../tests/README.md) |

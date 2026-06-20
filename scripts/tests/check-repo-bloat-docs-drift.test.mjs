@@ -28,14 +28,14 @@ test("checkRepoBloat rejects top-level active doc stale markers", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "docs/BOOKMARKLET.md",
+      "docs/features/browser-import.md",
       ["# Browser Bookmarklet Integration", "", "**Version:** 2.6+", "**Status:** Ready", ""].join(
         "\n",
       ),
     );
     writeFixtureFile(
       root,
-      "docs/ML_FEATURE.md",
+      "docs/developer/LOCAL_SEMANTIC_MATCHING.md",
       [
         "# Embedded ML Feature",
         "",
@@ -63,8 +63,8 @@ test("checkRepoBloat rejects top-level active doc stale markers", () => {
       [
         "add",
         "package.json",
-        "docs/BOOKMARKLET.md",
-        "docs/ML_FEATURE.md",
+        "docs/features/browser-import.md",
+        "docs/developer/LOCAL_SEMANTIC_MATCHING.md",
         "docs/developer/TESTING.md",
         "docs/developer/FRONTEND_TESTING.md",
       ],
@@ -74,11 +74,11 @@ test("checkRepoBloat rejects top-level active doc stale markers", () => {
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("replace top-level active doc stale markers: docs/BOOKMARKLET.md"),
+      violations.includes("replace top-level active doc stale markers: docs/features/browser-import.md"),
       violations.join("\n"),
     );
     assert.ok(
-      violations.includes("replace top-level active doc stale markers: docs/ML_FEATURE.md"),
+      violations.includes("replace top-level active doc stale markers: docs/developer/LOCAL_SEMANTIC_MATCHING.md"),
       violations.join("\n"),
     );
     assert.ok(
@@ -99,29 +99,29 @@ test("checkRepoBloat rejects top-level active doc glyph markers", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "docs/ML_FEATURE.md",
+      "docs/developer/LOCAL_SEMANTIC_MATCHING.md",
       ["src-tauri/src/core/ml/", "├── mod.rs", "└── tests.rs", ""].join("\n"),
     );
     writeFixtureFile(
       root,
-      "docs/ML_QUICKSTART.md",
+      "docs/developer/LOCAL_SEMANTIC_MATCHING_QUICKSTART.md",
       ["<span>✓ ML Ready</span>", "console.log('✓ match')", ""].join("\n"),
     );
 
     execFileSync(
       "git",
-      ["add", "package.json", "docs/ML_FEATURE.md", "docs/ML_QUICKSTART.md"],
+      ["add", "package.json", "docs/developer/LOCAL_SEMANTIC_MATCHING.md", "docs/developer/LOCAL_SEMANTIC_MATCHING_QUICKSTART.md"],
       { cwd: root },
     );
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("replace top-level active doc glyph markers: docs/ML_FEATURE.md"),
+      violations.includes("replace top-level active doc glyph markers: docs/developer/LOCAL_SEMANTIC_MATCHING.md"),
       violations.join("\n"),
     );
     assert.ok(
-      violations.includes("replace top-level active doc glyph markers: docs/ML_QUICKSTART.md"),
+      violations.includes("replace top-level active doc glyph markers: docs/developer/LOCAL_SEMANTIC_MATCHING_QUICKSTART.md"),
       violations.join("\n"),
     );
   });

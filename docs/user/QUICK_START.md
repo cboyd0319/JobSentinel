@@ -363,7 +363,7 @@ Prepare repeated application details while keeping each submission under your co
 3. You review everything and submit it yourself only if the role still fits
 
 **Important:** JobSentinel never submits applications without you.
-See [Application Assist Guide](../features/one-click-apply.md) for setup.
+See [Application Assist Guide](../features/application-assist.md) for setup.
 
 ---
 
@@ -506,7 +506,7 @@ Next useful steps:
 
 - **Learn more** about [Ghost Detection](../features/ghost-detection.md)
 - **Build your resume** with the [Resume Builder](../features/resume-builder.md)
-- **Review applications faster** with [Application Assist](../features/one-click-apply.md)
+- **Review applications faster** with [Application Assist](../features/application-assist.md)
 
 ---
 

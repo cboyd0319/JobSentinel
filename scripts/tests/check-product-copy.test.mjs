@@ -132,7 +132,7 @@ test("product copy rejects application automation framing", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "docs/features/one-click-apply.md",
+      "docs/features/application-assist.md",
       "One-Click Apply\nThis application platform supports form automation.\n",
     );
     writeFixtureFile(
@@ -152,7 +152,7 @@ test("product copy rejects application automation framing", () => {
     );
 
     assert.equal(
-      hasApplicationAssistAutomationFraming(root, "docs/features/one-click-apply.md"),
+      hasApplicationAssistAutomationFraming(root, "docs/features/application-assist.md"),
       true,
     );
     assert.equal(
@@ -194,9 +194,9 @@ test("product copy rejects overconfident ghost-risk copy", () => {
 
 test("product copy rejects overconfident pay guidance", () => {
   withFixture((root) => {
-    writeFixtureFile(root, "docs/features/salary-ai.md", "Always negotiate.\n");
+    writeFixtureFile(root, "docs/features/pay-protection.md", "Always negotiate.\n");
 
-    assert.equal(hasOverconfidentPayGuidance(root, "docs/features/salary-ai.md"), true);
+    assert.equal(hasOverconfidentPayGuidance(root, "docs/features/pay-protection.md"), true);
   });
 });
 
@@ -222,7 +222,7 @@ test("product copy rejects non-protective salary-floor troubleshooting", () => {
       true,
     );
     assert.equal(
-      hasNonProtectivePayFloorRecoveryCopy(root, "docs/features/salary-ai.md"),
+      hasNonProtectivePayFloorRecoveryCopy(root, "docs/features/pay-protection.md"),
       false,
     );
   });

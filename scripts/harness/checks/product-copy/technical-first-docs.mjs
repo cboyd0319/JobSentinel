@@ -105,7 +105,7 @@ export function getTechnicalFirstDocsResult(path, text) {
     }
   }
 
-  if (path === "docs/features/credentials-security.md") {
+  if (path === "docs/features/saved-secrets.md") {
     const credentialsSecurityPatterns = [
       /Credential\s*\|\s*Storage key\s*\|\s*Used for/i,
       /Slack webhook URL/i,
@@ -573,7 +573,7 @@ export function getTechnicalFirstDocsResult(path, text) {
     }
   }
 
-  if (path === "docs/features/salary-ai.md") {
+  if (path === "docs/features/pay-protection.md") {
     return /seniority level|by title, location, and\s+seniority/i.test(text);
   }
 
@@ -677,7 +677,7 @@ export function getTechnicalFirstDocsResult(path, text) {
     }
   }
 
-  if (path === "docs/features/scraper-health.md" || path === "docs/features/scrapers.md") {
+  if (path === "docs/features/job-source-status.md" || path === "docs/features/job-sources.md") {
     const sourceDocPatterns = [
       /Job Source Adapters/i,
       /public, bounded source adapters/i,

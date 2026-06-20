@@ -454,7 +454,7 @@ test("checkRepoBloat rejects stale LinkedIn credential docs", () => {
     );
     writeFixtureFile(
       root,
-      "docs/features/scraper-health.md",
+      "docs/features/job-source-status.md",
       [
         "Refresh Instructions:",
         "2. Open DevTools (F12)",
@@ -466,7 +466,7 @@ test("checkRepoBloat rejects stale LinkedIn credential docs", () => {
     );
     writeFixtureFile(
       root,
-      "docs/features/scrapers.md",
+      "docs/features/job-sources.md",
       [
         "- **Your Cookie Only:** No credentials stored, uses your own session",
         "- **Session Expiry:** Cookie expires after ~90 days, requires refresh",
@@ -481,8 +481,8 @@ test("checkRepoBloat rejects stale LinkedIn credential docs", () => {
         "add",
         "package.json",
         "src-tauri/src/core/scrapers/linkedin.rs",
-        "docs/features/scrapers.md",
-        "docs/features/scraper-health.md",
+        "docs/features/job-sources.md",
+        "docs/features/job-source-status.md",
       ],
       { cwd: root },
     );
@@ -497,13 +497,13 @@ test("checkRepoBloat rejects stale LinkedIn credential docs", () => {
     );
     assert.ok(
       violations.includes(
-        "sync LinkedIn credential docs with keyring login flow: docs/features/scraper-health.md",
+        "sync LinkedIn credential docs with keyring login flow: docs/features/job-source-status.md",
       ),
       violations.join("\n"),
     );
     assert.ok(
       violations.includes(
-        "sync LinkedIn credential docs with keyring login flow: docs/features/scrapers.md",
+        "sync LinkedIn credential docs with keyring login flow: docs/features/job-sources.md",
       ),
       violations.join("\n"),
     );
@@ -550,7 +550,7 @@ test("checkRepoBloat rejects automated LinkedIn collection drift", () => {
     );
     writeFixtureFile(
       root,
-      "docs/features/scrapers.md",
+      "docs/features/job-sources.md",
       `Click **${["Connect", "LinkedIn"].join(" ")}** to run the ${["LinkedIn", "scraper"].join(" ")}.\n`,
     );
 
@@ -566,7 +566,7 @@ test("checkRepoBloat rejects automated LinkedIn collection drift", () => {
         "src/mocks/handlers.ts",
         "docs/features/user-data-management.md",
         "src-tauri/src/core/user_data/mod.rs",
-        "docs/features/scrapers.md",
+        "docs/features/job-sources.md",
       ],
       { cwd: root },
     );
@@ -617,7 +617,7 @@ test("checkRepoBloat rejects automated LinkedIn collection drift", () => {
     );
     assert.ok(
       violations.includes(
-        "remove automated LinkedIn collection boundary drift: docs/features/scrapers.md",
+        "remove automated LinkedIn collection boundary drift: docs/features/job-sources.md",
       ),
       violations.join("\n"),
     );

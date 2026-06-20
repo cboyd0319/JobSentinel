@@ -119,7 +119,7 @@ test("security docs reject stale keyring docs and credential comments", () => {
     );
     writeFixtureFile(
       root,
-      "docs/features/credentials-security.md",
+      "docs/features/saved-secrets.md",
       "JobSentinel:slack-webhook\nSetup complete ✓\n",
     );
     writeFixtureFile(
@@ -130,7 +130,7 @@ test("security docs reject stale keyring docs and credential comments", () => {
 
     assert.equal(hasStaleKeyringSecurityDocs(root, "docs/security/KEYRING.md"), true);
     assert.equal(
-      hasStaleKeyringSecurityDocs(root, "docs/features/credentials-security.md"),
+      hasStaleKeyringSecurityDocs(root, "docs/features/saved-secrets.md"),
       true,
     );
     assert.equal(
@@ -144,7 +144,7 @@ test("keyring docs allow plain feature copy with implementation link", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "docs/features/credentials-security.md",
+      "docs/features/saved-secrets.md",
       [
         "USAJobs access code",
         "Legacy LinkedIn saved details",
@@ -163,7 +163,7 @@ test("keyring docs allow plain feature copy with implementation link", () => {
     );
 
     assert.equal(
-      hasStaleKeyringSecurityDocs(root, "docs/features/credentials-security.md"),
+      hasStaleKeyringSecurityDocs(root, "docs/features/saved-secrets.md"),
       false,
     );
     assert.equal(hasStaleKeyringSecurityDocs(root, "docs/security/KEYRING.md"), false);

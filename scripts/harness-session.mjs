@@ -109,8 +109,8 @@ export function summarizeHarnessSession(root = defaultRoot, options = {}) {
       overall: scoreSummary.overall,
       status: scoreSummary.allPerfect ? "all subsystems 5/5" : "incomplete",
     },
-    fiveTupleAudit: existsSync(join(root, "docs/harness/five-tuple-audit-2026-06-01.md"))
-      ? "docs/harness/five-tuple-audit-2026-06-01.md"
+    fiveTupleAudit: existsSync(join(root, "docs/harness/archive/five-tuple-audit-2026-06-01.md"))
+      ? "docs/harness/archive/five-tuple-audit-2026-06-01.md"
       : "missing",
     nextBestWork: extractNextBestWork(statusText),
   };

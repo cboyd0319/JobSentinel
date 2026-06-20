@@ -521,11 +521,11 @@ npm run test:e2e:ui
 | Dashboard       | `app.spec.ts`, `job-search-filtering.spec.ts` | Load, nav, search, filters, job cards |
 | Settings        | `settings-save-load.spec.ts` | Modal nav, basic preferences, advanced notifications, credentials, ghost detection, save/load |
 | Applications    | `application-tracking.spec.ts` | Kanban, cards, drag/drop, detail modal, status and notes, reminders |
-| Market          | `market-intelligence.spec.ts` | Tabs, snapshot, charts, locations, alert read state |
+| Hiring Trends   | `hiring-trends.spec.ts` | Tabs, snapshot, charts, locations, alert read state |
 | Resume          | `resume-upload-matching.spec.ts` | No-resume state, active resume, skill CRUD, library switching, match results |
 | Resume Builder  | `resume-builder.spec.ts` | Draft init, contact/summary validation, experience, education, skills/import, preview/template, PDF/DOCX/JSON export |
 | Keyboard        | `keyboard-navigation.spec.ts` | Page shortcuts, command palette, help modal, search focus, focus trap, skip link |
-| Application Assist | `one-click-apply.spec.ts` | Settings stats, profile validation/save/load, screening answers, human-review guardrails |
+| Application Assist | `application-assist.spec.ts` | Settings stats, profile validation/save/load, screening answers, human-review guardrails |
 
 Documentation screenshots live in `screenshots.spec.ts` and run only through
 `npm run docs:screenshots`.

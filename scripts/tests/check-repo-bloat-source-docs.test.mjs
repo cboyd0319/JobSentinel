@@ -30,7 +30,7 @@ test("checkRepoBloat rejects scraper doc emoji markers", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "docs/features/scrapers.md",
+      "docs/features/job-sources.md",
       [
         `| LinkedIn | ${doneIcon} Production |`,
         `- ${warningIcon} User responsibility: comply with site terms`,
@@ -41,14 +41,14 @@ test("checkRepoBloat rejects scraper doc emoji markers", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "docs/features/scrapers.md"], {
+    execFileSync("git", ["add", "package.json", "docs/features/job-sources.md"], {
       cwd: root,
     });
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("replace scraper doc emoji markers: docs/features/scrapers.md"),
+      violations.includes("replace scraper doc emoji markers: docs/features/job-sources.md"),
       violations.join("\n"),
     );
   });
@@ -58,7 +58,7 @@ test("checkRepoBloat rejects stale scraper reliability and rate-limit docs", () 
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "docs/features/scrapers.md",
+      "docs/features/job-sources.md",
       [
         "JobSentinel includes production-ready scrapers for 13 major job boards.",
         `- [x] ${["All 13 job board", "scrapers"].join(" ")} (production-ready)`,
@@ -73,7 +73,7 @@ test("checkRepoBloat rejects stale scraper reliability and rate-limit docs", () 
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "docs/features/scrapers.md"], {
+    execFileSync("git", ["add", "package.json", "docs/features/job-sources.md"], {
       cwd: root,
     });
 
@@ -81,7 +81,7 @@ test("checkRepoBloat rejects stale scraper reliability and rate-limit docs", () 
 
     assert.ok(
       violations.includes(
-        "sync scraper reliability and rate-limit docs: docs/features/scrapers.md",
+        "sync scraper reliability and rate-limit docs: docs/features/job-sources.md",
       ),
       violations.join("\n"),
     );
@@ -95,7 +95,7 @@ test("checkRepoBloat rejects scraper health doc emoji markers", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "docs/features/scraper-health.md",
+      "docs/features/job-source-status.md",
       [
         `LinkedIn ${greenIcon} Healthy`,
         `Click **${testIcon} Test** button`,
@@ -106,7 +106,7 @@ test("checkRepoBloat rejects scraper health doc emoji markers", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "docs/features/scraper-health.md"], {
+    execFileSync("git", ["add", "package.json", "docs/features/job-source-status.md"], {
       cwd: root,
     });
 
@@ -114,7 +114,7 @@ test("checkRepoBloat rejects scraper health doc emoji markers", () => {
 
     assert.ok(
       violations.includes(
-        "replace scraper health doc emoji markers: docs/features/scraper-health.md",
+        "replace scraper health doc emoji markers: docs/features/job-source-status.md",
       ),
       violations.join("\n"),
     );
@@ -126,7 +126,7 @@ test("checkRepoBloat rejects stale scraper health coverage", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "docs/features/scraper-health.md",
+      "docs/features/job-source-status.md",
       "The health monitoring system automatically tracks all 13 scrapers.\n",
     );
     writeFixtureFile(
@@ -173,7 +173,7 @@ test("checkRepoBloat rejects stale scraper health coverage", () => {
       [
         "add",
         "package.json",
-        "docs/features/scraper-health.md",
+        "docs/features/job-source-status.md",
         "src/mocks/handlers.ts",
         "src/pages/Dashboard.tsx",
         "docs/user/QUICK_START.md",
@@ -187,7 +187,7 @@ test("checkRepoBloat rejects stale scraper health coverage", () => {
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("sync scraper health source coverage: docs/features/scraper-health.md"),
+      violations.includes("sync scraper health source coverage: docs/features/job-source-status.md"),
       violations.join("\n"),
     );
     assert.ok(
@@ -245,7 +245,7 @@ test("checkRepoBloat rejects technical source-health user copy", () => {
     );
     writeFixtureFile(
       root,
-      "docs/features/scraper-health.md",
+      "docs/features/job-source-status.md",
       "# Scraper Health Monitoring\n\nRun smoke tests from the dashboard.\n",
     );
 
@@ -257,7 +257,7 @@ test("checkRepoBloat rejects technical source-health user copy", () => {
         "src/components/ScraperHealthDashboard.tsx",
         "src/components/scraperHealthDashboardModel.ts",
         "src/pages/Settings.tsx",
-        "docs/features/scraper-health.md",
+        "docs/features/job-source-status.md",
       ],
       { cwd: root },
     );
@@ -282,7 +282,7 @@ test("checkRepoBloat rejects technical source-health user copy", () => {
     );
     assert.ok(
       violations.includes(
-        "keep source-health copy plain-language: docs/features/scraper-health.md",
+        "keep source-health copy plain-language: docs/features/job-source-status.md",
       ),
       violations.join("\n"),
     );

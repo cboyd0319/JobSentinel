@@ -4,8 +4,8 @@ import { join } from "node:path";
 const payPlainLanguagePaths = new Set([
   "README.md",
   "ROADMAP.md",
-  "docs/features/salary-ai.md",
-  "docs/features/market-intelligence.md",
+  "docs/features/pay-protection.md",
+  "docs/features/hiring-trends.md",
   "docs/features/resume-matcher.md",
   "docs/harness/readme-information-design.md",
   "docs/research/pay-equity.md",
@@ -14,7 +14,7 @@ const payPlainLanguagePaths = new Set([
 
 const hiringTrendsCopyPaths = new Set([
   "docs/README.md",
-  "docs/features/market-intelligence.md",
+  "docs/features/hiring-trends.md",
   "src/config/tourSteps.ts",
   "src/components/LocationHeatmap.tsx",
   "src/components/MarketAlertCard.tsx",
@@ -46,7 +46,7 @@ const ruleZeroPrecisionCopyPaths = new Set([
   "SECURITY.md",
   "README.md",
   "docs/features/notifications.md",
-  "docs/features/one-click-apply.md",
+  "docs/features/application-assist.md",
   "docs/harness/readme-information-design.md",
   "docs/user/DEEP_LINKS.md",
   "docs/user/QUICK_START.md",

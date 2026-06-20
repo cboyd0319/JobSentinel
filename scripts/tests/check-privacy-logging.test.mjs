@@ -686,11 +686,11 @@ test("privacy logging rejects raw backup path errors", () => {
 test("privacy logging rejects ML local path exposure", () => {
   withFixture((root) => {
     writeFixtureFile(root, "src-tauri/src/commands/ml.rs", "pub model_path: PathBuf,\n");
-    writeFixtureFile(root, "docs/ML_FEATURE.md", "model_path: string\n");
+    writeFixtureFile(root, "docs/developer/LOCAL_SEMANTIC_MATCHING.md", "model_path: string\n");
 
     assert.equal(hasMlRawLocalPathExposure(root, "src-tauri/src/commands/ml.rs"), true);
     assert.equal(hasMlRawLocalPathExposure(root, "src-tauri/src/commands/jobs.rs"), false);
-    assert.equal(hasMlRawLocalPathDoc(root, "docs/ML_FEATURE.md"), true);
+    assert.equal(hasMlRawLocalPathDoc(root, "docs/developer/LOCAL_SEMANTIC_MATCHING.md"), true);
     assert.equal(hasMlRawLocalPathDoc(root, "docs/README.md"), false);
   });
 });

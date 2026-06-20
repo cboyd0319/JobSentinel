@@ -62,7 +62,7 @@ export const mlRawLocalPathExposurePaths = new Set([
 
 export const mlErrorDisplayPrivacyPaths = new Set(["src-tauri/src/core/ml/mod.rs"]);
 
-export const mlRawLocalPathDocPaths = new Set(["docs/ML_FEATURE.md", "docs/ML_QUICKSTART.md"]);
+export const mlRawLocalPathDocPaths = new Set(["docs/developer/LOCAL_SEMANTIC_MATCHING.md", "docs/developer/LOCAL_SEMANTIC_MATCHING_QUICKSTART.md"]);
 
 export const jobsWithGptPrivacyPaths = new Set(["src-tauri/src/core/scrapers/jobswithgpt.rs"]);
 export const linkedInPrivacyPaths = new Set(["src-tauri/src/core/scrapers/linkedin.rs"]);
@@ -86,7 +86,7 @@ export const credentialSecretReadIpcPaths = new Set([
   "src/pages/Settings.tsx",
   "src/mocks/handlers.ts",
   "docs/security/KEYRING.md",
-  "docs/features/credentials-security.md",
+  "docs/features/saved-secrets.md",
   "docs/releases/v2.0.md",
 ]);
 

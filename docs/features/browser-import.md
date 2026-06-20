@@ -111,8 +111,7 @@ the review looks useful, then fill in any blank details in JobSentinel.
   of normal setup.
 - The private one-use detail is refreshed when the browser button is copied,
   works for one browser import, and expires after about one hour.
-- The button uses a transient hidden browser context for its local send path so
-  page scripts are less likely to observe the one-use detail.
+- The button sends only to the JobSentinel app running on your computer.
 - If copying fails, the previous browser button keeps working until its safety
   code is used once or expires.
 - Job data stays local unless you choose to share it.
@@ -124,29 +123,3 @@ the review looks useful, then fill in any blank details in JobSentinel.
   the review list.
 - Safe support reports must redact the browser button details and saved jobs
   details.
-
-## For Maintainers
-
-The browser import button is implemented by the bookmarklet module. The user
-interface should keep technical details hidden:
-
-- Do not show the generated script in the UI.
-- Do not expose the private one-use browser button detail.
-- Keep copied browser-button codes one-use, short-lived, and session-scoped.
-- Activate a refreshed safety code only after the browser button is copied.
-- Keep local sends on clean transient browser APIs where practical; do not fall
-  back to host-page `window.fetch` or host-page `JSON.stringify`.
-- Bookmarklet sends can be blocked by a target page Content Security Policy,
-  especially strict `connect-src` rules that exclude loopback endpoints.
-- The local receiver accepts missing origin/referrer headers but rejects explicit
-  non-web origins such as `null`, `file:`, or browser-extension origins.
-- The local send path intentionally uses a no-preflight request shape, which
-  means browser script cannot reliably inspect a failed local response. Keep the
-  in-app import and manual add flows as the fallback.
-- Keep visible job-list capture capped, user-clicked, and local-only. Do not
-  add background pagination, scheduled restricted-site refresh, session-cookie
-  storage, or automatic application actions.
-- Prefer "browser import button", "Browser Import", and "button setup number"
-  in user-facing copy.
-- Keep lower-level implementation details in developer docs or code comments,
-  not in the user setup path.

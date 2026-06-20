@@ -3,8 +3,8 @@ import { join } from "node:path";
 
 const linkedInCredentialDocsPaths = new Set([
   "src-tauri/src/core/scrapers/linkedin.rs",
-  "docs/features/scrapers.md",
-  "docs/features/scraper-health.md",
+  "docs/features/job-sources.md",
+  "docs/features/job-source-status.md",
 ]);
 
 const linkedInAutomationBoundaryPaths = new Set([
@@ -15,9 +15,9 @@ const linkedInAutomationBoundaryPaths = new Set([
   "src-tauri/src/core/health/smoke_tests.rs",
   "src/pages/SettingsJobSourcesSection.tsx",
   "src/pages/Settings.tsx",
-  "docs/features/scrapers.md",
-  "docs/features/scraper-health.md",
-  "docs/features/credentials-security.md",
+  "docs/features/job-sources.md",
+  "docs/features/job-source-status.md",
+  "docs/features/saved-secrets.md",
   "docs/security/KEYRING.md",
 ]);
 
@@ -29,7 +29,7 @@ const linkedInNotificationBoundaryPaths = new Set([
   "src-tauri/src/core/user_data/mod.rs",
 ]);
 
-const cacheUsageDocPaths = new Set(["docs/CACHE_USAGE.md"]);
+const cacheUsageDocPaths = new Set(["docs/developer/SCRAPER_CACHE.md"]);
 
 const frontendJobUrlOpenPaths = new Set([
   "src/components/JobCard.tsx",
@@ -48,8 +48,8 @@ const staleStackOverflowJobsPaths = new Set([
 
 const userFacingSourceAddressCopyPaths = new Set([
   "PRIVACY.md",
-  "docs/features/scraper-health.md",
-  "docs/features/scrapers.md",
+  "docs/features/job-source-status.md",
+  "docs/features/job-sources.md",
   "docs/user/QUICK_START.md",
 ]);
 
@@ -79,7 +79,7 @@ const scraperHealthDashboardPaths = new Set([
 ]);
 
 export function hasScraperDocEmojiMarkers(root, path) {
-  if (path !== "docs/features/scrapers.md") {
+  if (path !== "docs/features/job-sources.md") {
     return false;
   }
 
@@ -89,7 +89,7 @@ export function hasScraperDocEmojiMarkers(root, path) {
 }
 
 export function hasStaleScraperDocReliabilityClaim(root, path) {
-  if (path !== "docs/features/scrapers.md") {
+  if (path !== "docs/features/job-sources.md") {
     return false;
   }
 
@@ -113,7 +113,7 @@ export function hasStaleScraperDocReliabilityClaim(root, path) {
 }
 
 export function hasScraperHealthDocEmojiMarkers(root, path) {
-  if (path !== "docs/features/scraper-health.md") {
+  if (path !== "docs/features/job-source-status.md") {
     return false;
   }
 
@@ -124,8 +124,8 @@ export function hasScraperHealthDocEmojiMarkers(root, path) {
 
 export function hasStaleScraperHealthCoverage(root, path) {
   if (
-    path !== "docs/features/scrapers.md" &&
-    path !== "docs/features/scraper-health.md" &&
+    path !== "docs/features/job-sources.md" &&
+    path !== "docs/features/job-source-status.md" &&
     path !== "docs/ROADMAP.md" &&
     path !== "docs/user/QUICK_START.md" &&
     path !== "docs/style-guide/WRITING-FOR-JOB-SEEKERS.md" &&
@@ -160,8 +160,8 @@ export function hasTechnicalSourceHealthUserCopy(root, path) {
     path !== "PRIVACY.md" &&
     path !== "docs/README.md" &&
     path !== "docs/ROADMAP.md" &&
-    path !== "docs/features/scraper-health.md" &&
-    path !== "docs/features/scrapers.md" &&
+    path !== "docs/features/job-source-status.md" &&
+    path !== "docs/features/job-sources.md" &&
     path !== "docs/releases/v2.1.md" &&
     path !== "docs/user/QUICK_START.md" &&
     !scraperHealthDashboardPaths.has(path) &&

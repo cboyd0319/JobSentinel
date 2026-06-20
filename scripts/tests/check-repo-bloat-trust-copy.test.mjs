@@ -152,7 +152,7 @@ test("checkRepoBloat rejects feedback support paths drifting away from local-fir
     writeFixtureFile(root, "src/hooks/useFeedback.ts", 'submittedVia: "drive"; submitViaDrive();\n');
     writeFixtureFile(
       root,
-      "docs/features/scrapers.md",
+      "docs/features/job-sources.md",
       "Optional debug report uses GitHub or Google Drive flow.\n",
     );
     writeFixtureFile(
@@ -174,7 +174,7 @@ test("checkRepoBloat rejects feedback support paths drifting away from local-fir
         "src/components/feedback/SubmitOptions.tsx",
         "src/components/feedback/SuccessScreen.tsx",
         "src/hooks/useFeedback.ts",
-        "docs/features/scrapers.md",
+        "docs/features/job-sources.md",
         "src/pages/Settings.tsx",
         "docs/user/QUICK_START.md",
       ],
@@ -187,7 +187,7 @@ test("checkRepoBloat rejects feedback support paths drifting away from local-fir
       "src/components/feedback/SubmitOptions.tsx",
       "src/components/feedback/SuccessScreen.tsx",
       "src/hooks/useFeedback.ts",
-      "docs/features/scrapers.md",
+      "docs/features/job-sources.md",
       "src/pages/Settings.tsx",
       "docs/user/QUICK_START.md",
     ]) {
@@ -204,7 +204,7 @@ test("checkRepoBloat rejects overconfident pay guidance", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "docs/features/salary-ai.md",
+      "docs/features/pay-protection.md",
       [
         "Know your worth. Negotiate with confidence.",
         "Get scripts so you know exactly what to say.",
@@ -220,14 +220,14 @@ test("checkRepoBloat rejects overconfident pay guidance", () => {
 
     execFileSync(
       "git",
-      ["add", "package.json", "docs/features/salary-ai.md", "src/pages/Salary.tsx"],
+      ["add", "package.json", "docs/features/pay-protection.md", "src/pages/Salary.tsx"],
       { cwd: root },
     );
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("replace overconfident pay guidance: docs/features/salary-ai.md"),
+      violations.includes("replace overconfident pay guidance: docs/features/pay-protection.md"),
       violations.join("\n"),
     );
     assert.ok(

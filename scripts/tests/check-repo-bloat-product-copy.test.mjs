@@ -456,7 +456,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
-      "docs/features/one-click-apply.md",
+      "docs/features/application-assist.md",
       "The patterns are flexible (regex), so they match variations.\nRequire manual approval\n",
     );
     writeFixtureFile(
@@ -491,7 +491,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
-      "docs/BOOKMARKLET.md",
+      "docs/features/browser-import.md",
       [
         "# Browser Bookmarklet Integration",
         "Open advanced connection settings if you need another port.",
@@ -509,7 +509,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
-      "docs/features/scrapers.md",
+      "docs/features/job-sources.md",
       [
         "**Free API key required** from https://developer.usajobs.gov/",
         'Click "Get Free API Key"',
@@ -580,10 +580,10 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/utils/formValidation.ts",
         "src/utils/errorMessages.ts",
         "docs/features/notifications.md",
-        "docs/features/one-click-apply.md",
-        "docs/features/scrapers.md",
+        "docs/features/application-assist.md",
+        "docs/features/job-sources.md",
         "docs/features/user-data-management.md",
-        "docs/BOOKMARKLET.md",
+        "docs/features/browser-import.md",
         "docs/user/DEEP_LINKS.md",
         "docs/user/QUICK_START.md",
       ],
@@ -638,10 +638,10 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/utils/errorMessages.ts",
       "README.md",
       "docs/features/notifications.md",
-      "docs/features/one-click-apply.md",
-      "docs/features/scrapers.md",
+      "docs/features/application-assist.md",
+      "docs/features/job-sources.md",
       "docs/features/user-data-management.md",
-      "docs/BOOKMARKLET.md",
+      "docs/features/browser-import.md",
       "docs/user/DEEP_LINKS.md",
       "docs/user/QUICK_START.md",
     ]) {

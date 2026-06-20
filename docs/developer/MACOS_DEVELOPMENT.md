@@ -1,7 +1,7 @@
 # JobSentinel - macOS Development Guide
 
 **Status:** Local app packaging and universal DMG packaging verified on macOS
-**Latest Tested:** macOS 26.5 on Apple Silicon - June 2026
+**Latest Tested:** macOS 26.0 developer-preview family on Apple Silicon - June 2026
 **Evidence:** See [Current macOS Readiness](#current-macos-readiness) for the
 latest local commands, checksum checks, architecture checks, and mounted-app
 launch checks.
@@ -85,7 +85,8 @@ JobSentinel creates the following directories on macOS:
 | **Cache** | `~/Library/Caches/JobSentinel` | Cache files |
 | **Logs** | `~/Library/Logs/JobSentinel` | Application logs |
 
-**Tested on:** macOS 26.5 (Darwin 25.5.0, build 25F71) on Apple Silicon
+**Tested on:** macOS 26.0 developer-preview family (Darwin 25.5.0, build 25F71)
+on Apple Silicon
 `arm64` for current-architecture and universal local package smoke. The local
 host checked on 2026-06-02 was a MacBook Pro Mac16,5 with Apple M4 Max and SIP
 enabled. Historical development coverage also includes macOS 15, macOS 14, and

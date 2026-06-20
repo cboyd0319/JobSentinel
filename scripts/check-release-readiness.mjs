@@ -216,10 +216,14 @@ export function evaluateReleaseReadinessFromInputs(inputs) {
     criterion(
       "front-door docs do not overclaim public 2.9.0 assets",
       hasAll(inputs.readme, [
-        "signed-or-unsigned-labeled Windows MSI and setup EXE, no-account macOS, and Linux assets",
-        "Windows MSI and setup EXE",
-        "not Developer ID signed",
-        "not notarized",
+        "v2.9.0 status: release candidate, not published yet.",
+        "release publication waits for final README and",
+        "screenshot refresh, final whole-UI proof, final local gates, and user-confirmed",
+        "Older fallback assets remain on GitHub Releases until `2.9.0`",
+        "Windows | `2.9.0` will publish MSI and setup EXE assets after final gates.",
+        "macOS | `2.9.0` will publish a universal Mac DMG",
+        "Linux | `2.9.0` will publish AppImage and deb assets after final gates.",
+        "Until Developer ID signing and notarization are available",
         "first-open Privacy & Security approval",
       ]) &&
         hasAll(inputs.releaseDocs, [

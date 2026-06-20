@@ -20,9 +20,9 @@ export const speculativeCloudDeploymentDocs = new Map([
 ]);
 
 export const topLevelActiveDocsPaths = new Set([
-  "docs/BOOKMARKLET.md",
-  "docs/ML_FEATURE.md",
-  "docs/ML_QUICKSTART.md",
+  "docs/features/browser-import.md",
+  "docs/developer/LOCAL_SEMANTIC_MATCHING.md",
+  "docs/developer/LOCAL_SEMANTIC_MATCHING_QUICKSTART.md",
   "docs/developer/FRONTEND_TESTING.md",
   "docs/developer/TESTING.md",
 ]);
@@ -65,7 +65,7 @@ export const resumeMatcherPlainLabelPaths = new Set([
 export const salaryPlainLabelPaths = new Set([
   "docs/README.md",
   "docs/developer/ARCHITECTURE.md",
-  "docs/features/salary-ai.md",
+  "docs/features/pay-protection.md",
 ]);
 
 export const activeUserDocGlyphPaths = new Set([

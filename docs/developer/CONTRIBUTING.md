@@ -24,7 +24,7 @@ After any significant change, update all relevant docs:
 | New Tauri command | `AGENTS.md` if workflow changes, `docs/harness/`, `docs/README.md` |
 | Bug fix           | `CHANGELOG.md`                                                   |
 | Refactoring       | `docs/plans/tech-debt-tracker.md` when debt changes              |
-| New scraper       | `docs/features/scrapers.md`, `CHANGELOG.md`                      |
+| New scraper       | `docs/features/job-sources.md`, `CHANGELOG.md`                      |
 | Test changes      | `docs/developer/TESTING.md`                                      |
 
 Before committing, ask: "Did I update all relevant docs?"

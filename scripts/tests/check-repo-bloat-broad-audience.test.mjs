@@ -67,7 +67,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "docs/features/scrapers.md",
+      "docs/features/job-sources.md",
       '{ "linkedin": { "query": "software engineer" } }\n',
     );
     writeFixtureFile(
@@ -562,7 +562,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "tests/e2e/playwright/one-click-apply.spec.ts",
+      "tests/e2e/playwright/application-assist.spec.ts",
       '"https://github.com/caseysentinel"; "GitHub profile link if relevant to your role";\n',
     );
     writeFixtureFile(
@@ -572,7 +572,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "tests/e2e/playwright/market-intelligence.spec.ts",
+      "tests/e2e/playwright/hiring-trends.spec.ts",
       '"Top Skill: TypeScript"; "Top Company: BigTech Inc"; "TechCorp";\n',
     );
     writeFixtureFile(
@@ -697,8 +697,8 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src/pages/hooks/useDashboardJobOps.test.ts",
         "src/pages/hooks/useDashboardSavedSearches.test.ts",
         "src/pages/hooks/useDashboardSearch.test.ts",
-        "tests/e2e/playwright/market-intelligence.spec.ts",
-        "tests/e2e/playwright/one-click-apply.spec.ts",
+        "tests/e2e/playwright/hiring-trends.spec.ts",
+        "tests/e2e/playwright/application-assist.spec.ts",
         "tests/e2e/playwright/page-objects/OneClickApplyPage.ts",
         "src/components/MarketSnapshotCard.test.tsx",
         "src/components/MarketAlertCard.test.tsx",
@@ -706,7 +706,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "docs/ROADMAP.md",
         "docs/features/resume-builder.md",
         "docs/features/smart-scoring.md",
-        "docs/features/scrapers.md",
+        "docs/features/job-sources.md",
         "docs/features/resume-matcher.md",
         "docs/features/user-data-management.md",
         "docs/user/DEEP_LINKS.md",
@@ -801,14 +801,14 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src/pages/hooks/useDashboardJobOps.test.ts",
       "src/pages/hooks/useDashboardSavedSearches.test.ts",
       "src/pages/hooks/useDashboardSearch.test.ts",
-      "tests/e2e/playwright/market-intelligence.spec.ts",
-      "tests/e2e/playwright/one-click-apply.spec.ts",
+      "tests/e2e/playwright/hiring-trends.spec.ts",
+      "tests/e2e/playwright/application-assist.spec.ts",
       "tests/e2e/playwright/page-objects/OneClickApplyPage.ts",
       "src/components/MarketSnapshotCard.test.tsx",
       "src/components/MarketAlertCard.test.tsx",
       "docs/features/resume-builder.md",
       "docs/features/smart-scoring.md",
-      "docs/features/scrapers.md",
+      "docs/features/job-sources.md",
       "docs/features/resume-matcher.md",
       "docs/features/user-data-management.md",
       "docs/user/DEEP_LINKS.md",

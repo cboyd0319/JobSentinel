@@ -70,7 +70,7 @@ test.describe("Documentation Screenshots", () => {
     });
   });
 
-  test("capture one-click-apply screenshot", async ({ page }, testInfo) => {
+  test("capture application-assist screenshot", async ({ page }, testInfo) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(1000);
@@ -95,7 +95,7 @@ test.describe("Documentation Screenshots", () => {
     await page.waitForTimeout(500);
 
     await page.screenshot({
-      path: screenshotPath(testInfo, "one-click-apply.png"),
+      path: screenshotPath(testInfo, "application-assist.png"),
       fullPage: false,
     });
   });
@@ -139,7 +139,7 @@ test.describe("Documentation Screenshots", () => {
     await page.waitForTimeout(1500);
 
     await page.screenshot({
-      path: screenshotPath(testInfo, "salary-ai.png"),
+      path: screenshotPath(testInfo, "pay-protection.png"),
       fullPage: false,
     });
   });
@@ -161,7 +161,7 @@ test.describe("Documentation Screenshots", () => {
     await page.waitForTimeout(1500);
 
     await page.screenshot({
-      path: screenshotPath(testInfo, "market-intelligence.png"),
+      path: screenshotPath(testInfo, "hiring-trends.png"),
       fullPage: false,
     });
   });

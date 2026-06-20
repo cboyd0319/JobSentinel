@@ -25,14 +25,14 @@ test("product copy rejects user-doc sidecar drift", () => {
   withFixture((root) => {
     for (const [path, copy] of [
       ["docs/README.md", "Job Source Adapters"],
-      ["docs/features/resume-builder.md", "../images/ats-optimizer.png"],
+      ["docs/features/resume-builder.md", "ats-optimizer.png"],
       ["docs/features/resume-builder.md", "**80-100** - Strong visible evidence"],
       ["docs/features/json-resume-import.md", "JSON Resume"],
       ["docs/features/json-resume-import.md", "raw JSON strings"],
       ["docs/features/json-resume-import.md", "malformed JSON errors"],
-      ["docs/features/scrapers.md", "feeds or APIs"],
-      ["docs/features/scrapers.md", "Requests/hour"],
-      ["docs/features/scrapers.md", "Official/public board API"],
+      ["docs/features/job-sources.md", "feeds or APIs"],
+      ["docs/features/job-sources.md", "Requests/hour"],
+      ["docs/features/job-sources.md", "Official/public board API"],
       ["docs/user/QUICK_START.md", "build JobSentinel from the source code"],
       ["docs/user/QUICK_START.md", "source-code setup guide"],
       ["docs/features/notifications.md", "fit label or percentage"],
@@ -144,13 +144,13 @@ test("product copy rejects raw connected-source metadata labels", () => {
   withFixture((root) => {
     writeFixtureFile(root, "src/pages/Settings.tsx", "<dt>Source host</dt>\n");
     writeFixtureFile(root, "PRIVACY.md", "contact time, source host, title count, work location mode, requested-job limit\n");
-    writeFixtureFile(root, "docs/features/scraper-health.md", "contact time, source host, title count, work location mode, requested-job limit\n");
-    writeFixtureFile(root, "docs/features/scrapers.md", "contact time, source host, title count, work location mode, requested-job limit\n");
+    writeFixtureFile(root, "docs/features/job-source-status.md", "contact time, source host, title count, work location mode, requested-job limit\n");
+    writeFixtureFile(root, "docs/features/job-sources.md", "contact time, source host, title count, work location mode, requested-job limit\n");
 
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "PRIVACY.md"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/scraper-health.md"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/scrapers.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/job-source-status.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/job-sources.md"), true);
   });
 });
 
@@ -169,7 +169,7 @@ test("product copy rejects technical source-check flow wording", () => {
     );
     writeFixtureFile(
       root,
-      "docs/features/scrapers.md",
+      "docs/features/job-sources.md",
       [
         "Every source check must use source-specific limits and shared retry helpers where feasible",
         "Page, feed, source-check, and import requests cap decoded bodies at 16 MiB",
@@ -182,7 +182,7 @@ test("product copy rejects technical source-check flow wording", () => {
     );
     writeFixtureFile(
       root,
-      "docs/features/scraper-health.md",
+      "docs/features/job-source-status.md",
       [
         "Scheduled source health",
         "The Settings troubleshooting dashboard should show:",
@@ -192,8 +192,8 @@ test("product copy rejects technical source-check flow wording", () => {
     );
 
     assert.equal(hasTechnicalFirstUserCopy(root, "README.md"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/scrapers.md"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/scraper-health.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/job-sources.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/job-source-status.md"), true);
   });
 });
 
@@ -235,7 +235,7 @@ test("product copy rejects overbroad browser import promises", () => {
     );
     writeFixtureFile(
       root,
-      "docs/BOOKMARKLET.md",
+      "docs/features/browser-import.md",
       [
         "The browser import button works best on individual job pages from:",
         "",
@@ -250,7 +250,7 @@ test("product copy rejects overbroad browser import promises", () => {
       hasTechnicalFirstUserCopy(root, "src/components/BookmarkletGenerator.tsx"),
       true,
     );
-    assert.equal(hasTechnicalFirstUserCopy(root, "docs/BOOKMARKLET.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/browser-import.md"), true);
   });
 });
 
@@ -323,9 +323,9 @@ test("product copy rejects front-door pay jargon", () => {
     );
     writeFixtureFile(root, "ROADMAP.md", "under-anchoring guidance\n");
     writeFixtureFile(root, "src/pages/Salary.tsx", "role is under-leveled\n");
-    writeFixtureFile(root, "docs/features/salary-ai.md", "offer may be under-leveled\n");
+    writeFixtureFile(root, "docs/features/pay-protection.md", "offer may be under-leveled\n");
     writeFixtureFile(root, "docs/research/pay-equity.md", "under-leveling\n");
-    writeFixtureFile(root, "docs/features/market-intelligence.md", "spot under-leveling\n");
+    writeFixtureFile(root, "docs/features/hiring-trends.md", "spot under-leveling\n");
     writeFixtureFile(root, "docs/features/resume-matcher.md", "Notice under-leveled roles\n");
     writeFixtureFile(
       root,
@@ -336,9 +336,9 @@ test("product copy rejects front-door pay jargon", () => {
     assert.equal(hasTechnicalFirstUserCopy(root, "README.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "ROADMAP.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Salary.tsx"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/salary-ai.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/pay-protection.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/research/pay-equity.md"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/market-intelligence.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/hiring-trends.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/resume-matcher.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/harness/readme-information-design.md"), true);
   });

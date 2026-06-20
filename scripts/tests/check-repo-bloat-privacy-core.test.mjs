@@ -358,7 +358,7 @@ test("checkRepoBloat rejects stale cache usage documentation", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "docs/CACHE_USAGE.md",
+      "docs/developer/SCRAPER_CACHE.md",
       [
         'tracing::info!("Cache hit for: {}", url);',
         "let response = reqwest::get(url).await?;",
@@ -369,12 +369,12 @@ test("checkRepoBloat rejects stale cache usage documentation", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "docs/CACHE_USAGE.md"], { cwd: root });
+    execFileSync("git", ["add", "package.json", "docs/developer/SCRAPER_CACHE.md"], { cwd: root });
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("sync cache usage doc with scraper HTTP client: docs/CACHE_USAGE.md"),
+      violations.includes("sync cache usage doc with scraper HTTP client: docs/developer/SCRAPER_CACHE.md"),
       violations.join("\n"),
     );
   });
@@ -517,12 +517,12 @@ test("checkRepoBloat rejects ML raw local path exposure", () => {
     );
     writeFixtureFile(
       root,
-      "docs/ML_FEATURE.md",
+      "docs/developer/LOCAL_SEMANTIC_MATCHING.md",
       ["interface ModelStatus {", "  model_path: string;", "}"].join("\n"),
     );
     writeFixtureFile(
       root,
-      "docs/ML_QUICKSTART.md",
+      "docs/developer/LOCAL_SEMANTIC_MATCHING_QUICKSTART.md",
       ["interface ModelStatus {", "  model_path: string;", "}"].join("\n"),
     );
 
@@ -533,8 +533,8 @@ test("checkRepoBloat rejects ML raw local path exposure", () => {
         "package.json",
         "src-tauri/src/commands/ml.rs",
         "src-tauri/src/core/ml/model.rs",
-        "docs/ML_FEATURE.md",
-        "docs/ML_QUICKSTART.md",
+        "docs/developer/LOCAL_SEMANTIC_MATCHING.md",
+        "docs/developer/LOCAL_SEMANTIC_MATCHING_QUICKSTART.md",
       ],
       { cwd: root },
     );
@@ -550,11 +550,11 @@ test("checkRepoBloat rejects ML raw local path exposure", () => {
       violations.join("\n"),
     );
     assert.ok(
-      violations.includes("remove ML raw local path doc claim: docs/ML_FEATURE.md"),
+      violations.includes("remove ML raw local path doc claim: docs/developer/LOCAL_SEMANTIC_MATCHING.md"),
       violations.join("\n"),
     );
     assert.ok(
-      violations.includes("remove ML raw local path doc claim: docs/ML_QUICKSTART.md"),
+      violations.includes("remove ML raw local path doc claim: docs/developer/LOCAL_SEMANTIC_MATCHING_QUICKSTART.md"),
       violations.join("\n"),
     );
   });

@@ -96,7 +96,7 @@ export function hasSynonymOrRemotePreferenceDocDrift(root, path) {
 }
 
 export function hasMarketIntelligenceDocGlyphMarkers(root, path) {
-  if (path !== "docs/features/market-intelligence.md") {
+  if (path !== "docs/features/hiring-trends.md") {
     return false;
   }
 
@@ -106,7 +106,7 @@ export function hasMarketIntelligenceDocGlyphMarkers(root, path) {
 }
 
 export function hasStaleMarketIntelligenceDocShape(root, path) {
-  if (path !== "docs/features/market-intelligence.md") {
+  if (path !== "docs/features/hiring-trends.md") {
     return false;
   }
 
@@ -129,7 +129,7 @@ export function hasStaleMarketIntelligenceDocShape(root, path) {
 }
 
 export function hasResumeOrSalaryFeatureDocEmojiMarkers(root, path) {
-  if (path !== "docs/features/resume-matcher.md" && path !== "docs/features/salary-ai.md") {
+  if (path !== "docs/features/resume-matcher.md" && path !== "docs/features/pay-protection.md") {
     return false;
   }
 
@@ -225,7 +225,7 @@ export function hasFeaturePlainDocGlyphMarkers(root, path) {
 }
 
 export function hasStaleSalaryAiFutureUiClaim(root, path) {
-  if (path !== "docs/features/salary-ai.md") {
+  if (path !== "docs/features/pay-protection.md") {
     return false;
   }
 

@@ -18,7 +18,7 @@ const xssSecurityDocsPaths = new Set([
 
 const keyringSecurityDocsPaths = new Set([
   "docs/security/KEYRING.md",
-  "docs/features/credentials-security.md",
+  "docs/features/saved-secrets.md",
 ]);
 
 const keyringMigrationPaths = new Set(["src-tauri/src/main.rs"]);
@@ -107,7 +107,7 @@ export function hasStaleKeyringSecurityDocs(root, path) {
     return true;
   }
 
-  if (path === "docs/features/credentials-security.md") {
+  if (path === "docs/features/saved-secrets.md") {
     return (
       !text.includes("USAJobs access code") ||
       !text.includes("Legacy LinkedIn saved details") ||

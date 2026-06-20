@@ -8,7 +8,7 @@ can see patterns in roles, skills, companies, locations, remote work, and listed
 It is a local decision aid, not a prediction engine and not a substitute for
 checking the actual job posting.
 
-![Hiring Trends dashboard](../images/market-intelligence.png)
+![Hiring Trends dashboard](../images/hiring-trends.png)
 
 ## Privacy Labels
 

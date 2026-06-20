@@ -153,10 +153,10 @@ test("product copy rejects technical-first resume copy", () => {
         "",
       ].join("\n"),
     );
-    writeFixtureFile(root, "docs/features/salary-ai.md", "Enter seniority level.\n");
+    writeFixtureFile(root, "docs/features/pay-protection.md", "Enter seniority level.\n");
     writeFixtureFile(
       root,
-      "docs/features/market-intelligence.md",
+      "docs/features/hiring-trends.md",
       [
         "## Developer Notes",
         "Implementation references",
@@ -181,7 +181,7 @@ test("product copy rejects technical-first resume copy", () => {
     );
     writeFixtureFile(
       root,
-      "docs/features/scraper-health.md",
+      "docs/features/job-source-status.md",
       [
         "## For Maintainers",
         "Important modules:",
@@ -203,7 +203,7 @@ test("product copy rejects technical-first resume copy", () => {
     );
     writeFixtureFile(
       root,
-      "docs/features/scrapers.md",
+      "docs/features/job-sources.md",
       [
         "<summary><strong>For maintainers</strong></summary>",
         "cd src-tauri && cargo test --lib core::scrapers",
@@ -225,7 +225,7 @@ test("product copy rejects technical-first resume copy", () => {
     );
     writeFixtureFile(
       root,
-      "docs/features/one-click-apply.md",
+      "docs/features/application-assist.md",
       "private saved-file reference\nsaved resume state\n",
     );
     writeFixtureFile(
@@ -233,7 +233,7 @@ test("product copy rejects technical-first resume copy", () => {
       "docs/features/notifications.md",
       "chat number is correct (negative number for groups)\n",
     );
-    writeFixtureFile(root, "docs/features/credentials-security.md", "## Guarantees\n");
+    writeFixtureFile(root, "docs/features/saved-secrets.md", "## Guarantees\n");
     writeFixtureFile(
       root,
       "docs/ROADMAP.md",
@@ -284,19 +284,19 @@ test("product copy rejects technical-first resume copy", () => {
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/user-data-management.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/smart-scoring.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/ghost-detection.md"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/salary-ai.md"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/market-intelligence.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/pay-protection.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/hiring-trends.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/application-tracking.md"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/scraper-health.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/job-source-status.md"), true);
     assert.equal(
       hasTechnicalFirstUserCopy(root, "docs/features/remote-preference-scoring.md"),
       true,
     );
-    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/scrapers.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/job-sources.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/synonym-matching.md"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/one-click-apply.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/application-assist.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/notifications.md"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/credentials-security.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/saved-secrets.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/ROADMAP.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/ResumeOptimizer.tsx"), true);
     assert.equal(

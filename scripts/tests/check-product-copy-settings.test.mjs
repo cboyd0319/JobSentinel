@@ -285,7 +285,7 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "docs/features/one-click-apply.md",
+      "docs/features/application-assist.md",
       [
         "### CAPTCHA Keeps Appearing",
         "Require manual approval",
@@ -341,7 +341,7 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "docs/features/scraper-health.md",
+      "docs/features/job-source-status.md",
       [
         "Source health must follow the same source boundaries as adapters.",
         "Use rate limits and bounded response reads.",
@@ -356,7 +356,7 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "docs/features/scrapers.md",
+      "docs/features/job-sources.md",
       [
         "# Job Source Adapters",
         "public, bounded source adapters",
@@ -578,7 +578,7 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "docs/features/credentials-security.md",
+      "docs/features/saved-secrets.md",
       "save a safe support report so maintainers can fix it\n",
     );
     writeFixtureFile(
@@ -789,18 +789,18 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "docs/BOOKMARKLET.md",
+      "docs/features/browser-import.md",
       "choose another port in advanced settings\nadvanced connection settings\nafter restarting JobSentinel\nIf support asks, open **Connection settings**\nlocal safety code\nDebug reports must redact\n",
     );
 
     assertTechnicalFirstCopy(root, [
       "README.md",
-      "docs/BOOKMARKLET.md",
-      "docs/features/credentials-security.md",
+      "docs/features/browser-import.md",
+      "docs/features/saved-secrets.md",
       "docs/features/notifications.md",
-      "docs/features/one-click-apply.md",
-      "docs/features/scraper-health.md",
-      "docs/features/scrapers.md",
+      "docs/features/application-assist.md",
+      "docs/features/job-source-status.md",
+      "docs/features/job-sources.md",
       "docs/features/smart-scoring.md",
       "docs/user/DEEP_LINKS.md",
       "docs/user/QUICK_START.md",

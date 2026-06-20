@@ -74,7 +74,7 @@ test("summarizeHarnessSession reports branch, counts, audit path, and next work"
     writeFixtureFile(root, "scripts/harness/checks/b.mjs", "");
     writeFixtureFile(root, "scripts/one.test.mjs", "");
     writeFixtureFile(root, "scripts/check-repo-bloat.mjs", "one\ntwo\n");
-    writeFixtureFile(root, "docs/harness/five-tuple-audit-2026-06-01.md", "# Audit\n");
+    writeFixtureFile(root, "docs/harness/archive/five-tuple-audit-2026-06-01.md", "# Audit\n");
 
     const summary = summarizeHarnessSession(root, {
       execFileSync: fakeGit,
@@ -88,7 +88,7 @@ test("summarizeHarnessSession reports branch, counts, audit path, and next work"
     assert.equal(summary.checkModuleCount, 2);
     assert.equal(summary.scriptTestCount, 1);
     assert.equal(summary.bloatRunnerLines, 2);
-    assert.equal(summary.fiveTupleAudit, "docs/harness/five-tuple-audit-2026-06-01.md");
+    assert.equal(summary.fiveTupleAudit, "docs/harness/archive/five-tuple-audit-2026-06-01.md");
     assert.deepEqual(summary.harnessScore, { overall: 100, status: "all subsystems 5/5" });
     assert.deepEqual(summary.nextBestWork, ["Keep going."]);
   });
@@ -104,7 +104,7 @@ test("formatHarnessSessionSummary prints one restart surface", () => {
     scriptTestCount: 31,
     bloatRunnerLines: 1176,
     harnessScore: { overall: 100, status: "all subsystems 5/5" },
-    fiveTupleAudit: "docs/harness/five-tuple-audit-2026-06-01.md",
+    fiveTupleAudit: "docs/harness/archive/five-tuple-audit-2026-06-01.md",
     nextBestWork: ["Continue privacy review."],
   });
 

@@ -39,7 +39,7 @@ test("product copy rejects support troubleshooting jargon", () => {
     );
     writeFixtureFile(
       root,
-      "docs/BOOKMARKLET.md",
+      "docs/features/browser-import.md",
       "Turn on the import helper.\nPrefer import helper in user-facing copy.\nOpen Connection settings.\n",
     );
     writeFixtureFile(
@@ -110,9 +110,9 @@ test("product copy rejects troubleshooting headings in user docs", () => {
       "docs/user/QUICK_START.md",
       "docs/user/DEEP_LINKS.md",
       "docs/features/user-data-management.md",
-      "docs/features/one-click-apply.md",
+      "docs/features/application-assist.md",
       "docs/features/notifications.md",
-      "docs/features/scrapers.md",
+      "docs/features/job-sources.md",
     ];
 
     for (const docPath of docs) {
@@ -232,7 +232,7 @@ test("product copy rejects technical provider setup shortcuts", () => {
     );
     writeFixtureFile(
       root,
-      "docs/features/credentials-security.md",
+      "docs/features/saved-secrets.md",
       [
         "| Credential | Storage key | Used for |",
         "| Slack webhook URL | jobsentinel_slack_webhook | Slack notifications |",
@@ -264,7 +264,7 @@ test("product copy rejects technical provider setup shortcuts", () => {
 
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/notifications.md"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/credentials-security.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/saved-secrets.md"), true);
   });
 });
 
@@ -278,7 +278,7 @@ test("product copy rejects market-intel jargon in hiring trends surfaces", () =>
     writeFixtureFile(root, "src/components/LocationHeatmap.tsx", "Job Market by Location\nNo location data yet\n");
     writeFixtureFile(
       root,
-      "docs/features/market-intelligence.md",
+      "docs/features/hiring-trends.md",
       [
         "# Market Intelligence",
         "Market snapshots",
@@ -301,7 +301,7 @@ test("product copy rejects market-intel jargon in hiring trends surfaces", () =>
     assert.equal(hasTechnicalFirstUserCopy(root, "src/components/MarketSnapshotCard.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/components/MarketAlertCard.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/components/LocationHeatmap.tsx"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/market-intelligence.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/hiring-trends.md"), true);
   });
 });
 

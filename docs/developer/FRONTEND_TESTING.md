@@ -506,8 +506,8 @@ tests/e2e/playwright/
 - job-interactions.spec.ts: job card interactions
 - job-search-filtering.spec.ts: search and filter flows
 - keyboard-navigation.spec.ts: keyboard shortcuts and focus
-- market-intelligence.spec.ts: market dashboard flows
-- one-click-apply.spec.ts: human-reviewed apply settings
+- hiring-trends.spec.ts: hiring trends flows
+- application-assist.spec.ts: human-reviewed apply settings
 - resume-builder.spec.ts: Resume Builder wizard
 - resume-upload-matching.spec.ts: resume library and matching
 - screenshots.spec.ts: documentation screenshots only

@@ -488,7 +488,7 @@ entries owned by `JobSentinel`.
 4. Update migration extraction and config clearing when the credential can
    appear in config.
 5. Add or update UI fields and tests.
-6. Update this document and `docs/features/credentials-security.md`.
+6. Update this document and `docs/features/saved-secrets.md`.
 
 ## Testing
 
@@ -535,7 +535,7 @@ or manifests.
 
 ## Related Documentation
 
-- [Credentials Security](../features/credentials-security.md)
+- [Credentials Security](../features/saved-secrets.md)
 - [Notifications Setup](../features/notifications.md)
 - [Architecture](../developer/ARCHITECTURE.md)
 - [Security Documentation](./README.md)

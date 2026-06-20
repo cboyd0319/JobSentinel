@@ -425,7 +425,7 @@ pub struct ScreeningAnswer {
 - Resume attachment remains manual; Application Assist does not upload saved
   resume files automatically
 
-See [Application Assist Feature](../features/one-click-apply.md) for full documentation.
+See [Application Assist Feature](../features/application-assist.md) for full documentation.
 
 #### `core/scheduler/`
 

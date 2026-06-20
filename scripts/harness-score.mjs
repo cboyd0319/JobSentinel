@@ -365,12 +365,12 @@ function buildFrameworks(root) {
             ),
             check(
               "Scorecard documents observed before and after",
-              fileHasAll(root, "docs/harness/five-tuple-scorecard-2026-06-01.md", [
+              fileHasAll(root, "docs/harness/archive/five-tuple-scorecard-2026-06-01.md", [
                 "Before Current Slice",
                 "After Current Slice",
                 "100/100",
               ]),
-              "docs/harness/five-tuple-scorecard-2026-06-01.md",
+              "docs/harness/archive/five-tuple-scorecard-2026-06-01.md",
             ),
           ],
         },
@@ -570,11 +570,11 @@ function buildFrameworks(root) {
             ),
             check(
               "Scorecard records observed performance change",
-              fileHasAll(root, "docs/harness/five-tuple-scorecard-2026-06-01.md", [
+              fileHasAll(root, "docs/harness/archive/five-tuple-scorecard-2026-06-01.md", [
                 "Observed performance change",
                 "npm run harness:score",
               ]),
-              "docs/harness/five-tuple-scorecard-2026-06-01.md",
+              "docs/harness/archive/five-tuple-scorecard-2026-06-01.md",
             ),
           ],
         },

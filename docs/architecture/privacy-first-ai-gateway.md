@@ -131,14 +131,16 @@ External provider transports should plug into that gateway instead of creating
 provider-specific calls throughout the codebase. Production code should not call
 external AI provider APIs outside this gateway.
 
-## Current Status And TODOs
+## Current Status And Remaining Work
 
 Release status for `2.9.0`: Settings can configure optional outside-AI
 providers, provider preference order, per-provider model names, and provider
 keys through `CredentialService`. Provider keys stay in the local secure vault,
-not in settings backups. No production provider transport sends user data yet;
-payload preview, redaction review, send/cancel UI, and request-log viewing still
-need to land before any user-facing external AI feature can call a provider.
+not in settings backups. The first user-facing provider path is public job
+posting summary from a job card. It is optional, public-data-only, previewed,
+editable, cancellable, and backend-validated before provider transport.
+Metadata-only request history is viewable in Settings and does not store the
+reviewed payload.
 
 Implemented now:
 
@@ -159,10 +161,15 @@ Implemented now:
 - Full-database block.
 - Public-data-only payload guard.
 - Local metadata logging hook.
+- Provider transports for OpenAI, Anthropic, Google Gemini, GitHub Copilot, and
+  custom HTTPS endpoints.
+- Public job-posting summary from a job card after review and approval.
+- Settings request-history viewer with clear-history action.
 
 TODO before shipping any user-facing external AI feature:
 
-- Add payload preview, redaction, edit, and cancel UI.
-- Add local request-log storage and viewer.
-- Add feature-specific local fallback or external-AI-required label.
-- Add provider-specific transports only behind the gateway.
+- Add feature-specific local fallback or `External AI required` labels for each
+  private-data feature.
+- Add private-data payload minimization and backend validation per feature.
+- Keep sensitive payload opt-in off until each feature has the same preview,
+  edit, cancel, approval, redaction, and metadata-only request-history path.

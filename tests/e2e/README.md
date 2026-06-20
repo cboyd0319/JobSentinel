@@ -50,7 +50,7 @@ Reusable page objects following the Page Object Model pattern:
    - Keyboard help modal
    - Search focus, focus trap, and skip link behavior
 
-6. **one-click-apply.spec.ts**
+6. **application-assist.spec.ts**
    - Settings stats and tabs
    - Application profile validation, save, and reload behavior
    - Screening answer add/edit validation and persistence
@@ -63,7 +63,7 @@ Reusable page objects following the Page Object Model pattern:
    - Skill import from seeded active resume
    - Template selection, ATS preview, and DOCX export
 
-8. **market-intelligence.spec.ts**
+8. **hiring-trends.spec.ts**
    - Overview tab with market metrics
    - Trend charts for skills and companies
    - Skills trends analysis

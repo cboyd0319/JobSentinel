@@ -575,7 +575,7 @@ export function hasUnindexedReleaseNote(root, path) {
 }
 
 export function hasBookmarkletDocStatusEmojiMarkers(root, path) {
-  if (path !== "docs/BOOKMARKLET.md") {
+  if (path !== "docs/features/browser-import.md") {
     return false;
   }
 

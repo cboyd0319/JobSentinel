@@ -61,7 +61,7 @@ Files added or updated:
 - `scripts/tests/harness-session.test.mjs`
 - `package.json`
 - `docs/harness/README.md`
-- `docs/harness/five-tuple-audit-2026-06-01.md`
+- `docs/harness/archive/five-tuple-audit-2026-06-01.md`
 - `docs/plans/active/status.md`
 - `docs/plans/tech-debt-tracker.md`
 
@@ -86,7 +86,7 @@ Active plan docs: 5
 Harness check modules: 16
 Script test files: 26
 Bloat runner lines: 1176
-Five-tuple audit: docs/harness/five-tuple-audit-2026-06-01.md
+Five-tuple audit: docs/harness/archive/five-tuple-audit-2026-06-01.md
 Next best work:
 1. Continue broad-audience fixture audit in less obvious fixture paths outside current sensors, while preserving tech-specific cases only when they test explicit branch behavior or source-realism parser contracts.
 2. Continue splitting oversized mixed sensors and consider the next orchestration cleanup inside `scripts/check-repo-bloat.mjs`.

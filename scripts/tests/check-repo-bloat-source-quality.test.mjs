@@ -236,16 +236,16 @@ test("checkRepoBloat rejects bookmarklet doc status emoji markers", () => {
   withGitFixture((root) => {
     writeFixtureFile(
       root,
-      "docs/BOOKMARKLET.md",
+      "docs/features/browser-import.md",
       "alert('✓ Job imported to JobSentinel!');\nalert('✗ Failed to import job.');\n",
     );
 
-    execFileSync("git", ["add", "docs/BOOKMARKLET.md"], { cwd: root });
+    execFileSync("git", ["add", "docs/features/browser-import.md"], { cwd: root });
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("replace bookmarklet doc status emoji markers: docs/BOOKMARKLET.md"),
+      violations.includes("replace bookmarklet doc status emoji markers: docs/features/browser-import.md"),
       violations.join("\n"),
     );
   });

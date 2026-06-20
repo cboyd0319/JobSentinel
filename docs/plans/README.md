@@ -25,17 +25,20 @@ See [Exec Plans](../exec-plans.md) for required format.
 
 ## Plan Requirements
 
-Each release plan includes:
+Each broad plan follows [the exec-plan template](templates/exec-plan-template.md):
 
-1. **Executive Summary** - What and why
-2. **Pre-Sprint Audit** - What exists vs what's needed
-3. **Detailed Tasks** - Implementation specs with code examples
-4. **Execution Plan** - Parallelization strategy with time estimates
-5. **Success Criteria** - How we know it's done
-6. **Risks & Mitigations** - What could go wrong
-7. **Rollback Plan** - How to recover if needed
-8. **Verification** - Exact sensors required before completion
-9. **Outcomes** - Final result and open items
+1. **Problem** - What needs to change and why.
+2. **Scope** - What is in and out.
+3. **Success Criteria** - Observable result, user-ease result, and verification
+   result.
+4. **Audience And Ease** - Primary user, assumed technical knowledge, broad
+   job-seeker fit, and support or recovery path.
+5. **Risks** - Risks and mitigations.
+6. **Orchestration** - Whether the work stays local or uses coordinated agents.
+7. **Milestones** - Small checkable steps.
+8. **Verification** - Exact commands and evidence required before completion.
+9. **Progress, Discoveries, Decisions, Outcomes, and Handoff** - Durable state
+   for review and restart.
 
 ## Archived Plans
 

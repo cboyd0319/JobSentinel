@@ -4,7 +4,7 @@ Application Assist helps you review job application forms without turning the
 job search into a volume game. JobSentinel can prepare saved profile details in a
 visible browser, then you inspect every field and decide whether to submit.
 
-![Application Assist Settings](../images/one-click-apply.png)
+![Application Assist Settings](../images/application-assist.png)
 
 ---
 

@@ -15,8 +15,8 @@ tests/
 │   │   ├── job-interactions.spec.ts
 │   │   ├── job-search-filtering.spec.ts
 │   │   ├── keyboard-navigation.spec.ts
-│   │   ├── market-intelligence.spec.ts
-│   │   ├── one-click-apply.spec.ts
+│   │   ├── hiring-trends.spec.ts
+│   │   ├── application-assist.spec.ts
 │   │   ├── resume-builder.spec.ts
 │   │   ├── resume-upload-matching.spec.ts
 │   │   ├── screenshots.spec.ts

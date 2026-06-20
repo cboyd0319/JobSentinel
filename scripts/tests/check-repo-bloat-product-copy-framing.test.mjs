@@ -175,7 +175,7 @@ test("checkRepoBloat rejects application-assist automation framing", () => {
     );
     writeFixtureFile(
       root,
-      "docs/features/one-click-apply.md",
+      "docs/features/application-assist.md",
       "# One-Click Apply\n\nFill out job applications in seconds, not minutes.\n",
     );
     writeFixtureFile(
@@ -209,7 +209,7 @@ test("checkRepoBloat rejects application-assist automation framing", () => {
         "src/components/automation/ProfileForm.tsx",
         "src/components/automation/ScreeningAnswersForm.tsx",
         "src/pages/DashboardUI/DashboardHeader.tsx",
-        "docs/features/one-click-apply.md",
+        "docs/features/application-assist.md",
         "docs/user/QUICK_START.md",
       ],
       { cwd: root },
@@ -224,7 +224,7 @@ test("checkRepoBloat rejects application-assist automation framing", () => {
       "src/components/automation/ProfileForm.tsx",
       "src/components/automation/ScreeningAnswersForm.tsx",
       "src/pages/DashboardUI/DashboardHeader.tsx",
-      "docs/features/one-click-apply.md",
+      "docs/features/application-assist.md",
       "docs/user/QUICK_START.md",
       "README.md",
       "index.html",
