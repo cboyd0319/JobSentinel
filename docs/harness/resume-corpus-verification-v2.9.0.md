@@ -88,11 +88,11 @@ Outcome:
   and semantic diagnostics are covered by focused unit, E2E, and manual-style
   desktop/mobile passes.
 
-Remaining v2.9.0 verification:
+Release handoff:
 
-- Run final whole-UI proof after docs, screenshots, and any remaining UI
-  changes land.
-- Confirm packaged Tauri behavior separately from the local web mock pass.
-- Record final UI evidence in
-  [UI manual verification](ui-manual-verification-v2.9.0.md) without adding
-  private resume content.
+- Whole-UI proof, screenshot refresh, and resume UI evidence are recorded in
+  [UI manual verification](ui-manual-verification-v2.9.0.md).
+- Final release gates still need to rerun from the latest verified commit
+  before publication.
+- Keep future UI evidence out of the repo unless it is aggregate, synthetic, or
+  explicitly scrubbed of private resume content.

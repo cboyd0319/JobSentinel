@@ -5,11 +5,12 @@ relevant, fairly compensated work while keeping sensitive job-search data under 
 control.**
 
 **v2.9.0 status: release candidate, not published yet.** Local package metadata
-is staged for `v2.9.0`, but release publication waits for final README and
-screenshot refresh, final whole-UI proof, final local gates, and user-confirmed
-push/publish. Focused source, restricted-browser-import, resume-corpus, and
-semantic-matching evidence has been recorded locally; final gates must still
-rerun from the verified release commit.
+is staged for `v2.9.0`, but release publication waits for final local gates
+from the latest verified commit and user-confirmed push/publish. Focused
+source, restricted-browser-import, resume-corpus, semantic-matching,
+screenshot, and whole-UI evidence have been recorded locally; final gates must
+still rerun because local changes have landed since the last full release-gate
+pass.
 
 **Current macOS full-public-readiness: 94%; no-account path completion:
 100%.** The local `2.9.0` no-account universal DMG passes checksum, metadata,
@@ -160,11 +161,10 @@ into a fuller local job-search workspace:
   review, resume tailoring, application review, tracking, outreach,
   interview prep, and offer/pay review.
 
-Focused source, restricted-browser-import, resume-corpus, and resume UI
-evidence has been recorded for the release candidate. Before release,
-JobSentinel still needs the public README and screenshot refresh, final
-whole-UI proof across every shipped action, and final local release gates from
-the verified commit.
+Focused source, restricted-browser-import, resume-corpus, resume UI,
+screenshot, and whole-UI evidence have been recorded for the release candidate.
+Before release, JobSentinel still needs final local release gates from the
+latest verified commit and user-confirmed push/publish.
 
 ## What JobSentinel Does
 
@@ -642,8 +642,9 @@ Developer docs:
 
 ## Release Candidate Status
 
-`v2.9.0` is not published yet. Do not treat the release as done until these
-release blockers close with evidence:
+`v2.9.0` is not published yet. Local proof exists for the first four items
+below, but do not treat the release as done until final gates pass from the
+latest verified commit and the user confirms publication:
 
 - README, docs hub, release notes, and screenshots reflect current `2.9.0`
   behavior.
