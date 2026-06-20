@@ -10,9 +10,10 @@ Current priority is final v2.9.0 release-gate handoff for an urgent single-user 
 
 Release creation is paused. Do not push, retag, upload, or publish `v2.9.0`
 until final gates pass from the verified commit and the user confirms
-publication. Capability verification passed after `ab28be0d`; rerun final
-publication gates after the evidence-doc commit. Do not retag or upload over
-the same `v2.9.0` release while an older workflow run is still building assets.
+publication. Capability verification and follow-up local gates have passed, but
+repeat them after any further local change and before moving the tag. Do not
+retag or upload over the same `v2.9.0` release while an older workflow run is
+still building assets.
 
 Rule 0 still controls the work: user data stays local unless the user explicitly
 configures an external channel, external AI stays optional and disabled by
@@ -54,7 +55,7 @@ The v2.9.0 goal adds durable release-readiness requirements:
   no-account release asset staging. `docs/harness/capabilities-verification-v2.9.0.md`
   now records post-`ab28be0d` coverage for every capability row, source class,
   privacy boundary, route probe, screenshot, and focused scraper/resume/AI/ML
-  gate; rerun final publication gates after the evidence commit.
+  gate, with follow-up local gates rerun after the ledger landed.
 - Credential paths use encrypted local storage; passive status/list checks must
   remain non-interactive and must not cache vault keys.
 - No-account release assets can publish for Windows, macOS, and Linux, but
@@ -110,8 +111,10 @@ The v2.9.0 goal adds durable release-readiness requirements:
   `b238c7d4`; keep future script tests under test directories.
 - 2026-06-19 major README, screenshot, stale-docs, source, resume, semantic,
   restricted-browser, whole-UI, and final-gate evidence is recorded locally.
-  2026-06-20 final-gate evidence covers the Radancy/TalentBrew parser-contract
-  slice. Remaining blocker is user-confirmed push/publish.
+  2026-06-20 capability verification records every capability row, source
+  class, privacy boundary, route probe, screenshot, focused scraper/resume/AI/ML
+  gate, and follow-up final-gate pass. Remaining blocker is user-confirmed
+  push/publish.
 
 ## Next Best Work
 

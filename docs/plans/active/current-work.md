@@ -76,7 +76,7 @@ Out of scope:
 | LinkedIn Workbench and restricted-source flow | Complete locally | 2026-06-19 refresh: `cargo test --lib linkedin`, `cargo test --lib bookmarklet`, focused restricted-source frontend tests, and prior user-assisted proof cover Browser Import visible-card capture, Workbench ledger actions, restricted-source acknowledgement, no stored auth material, no hidden page reads, no monitoring, no automation, and no submit actions. |
 | Scraper/source verification | Complete locally | 2026-06-19 refresh: deterministic scraper contracts, source-health gates, scraper integration, pipeline integration, API contract, scheduler integration, focused restricted-source frontend tests, Browser Import helper tests, LinkedIn boundary tests, and low-volume live source probes passed; evidence is recorded in `docs/harness/source-debug-verification-v2.9.0.md`. |
 | README, docs, and screenshots | Complete locally | `e7a4ba43` refreshed front-door docs, docs hub links, feature-doc names, screenshots, stale-doc archive paths, and docs/harness sensors. |
-| Development and QA completion | Publication-gated | Capability verification passed after `ab28be0d` and is recorded in `docs/harness/capabilities-verification-v2.9.0.md`; publication remains user-confirmed and final gates must rerun after the evidence commit. |
+| Development and QA completion | Publication-gated | Capability verification is recorded in `docs/harness/capabilities-verification-v2.9.0.md`; follow-up local gates passed after the ledger landed, publication remains user-confirmed, and final gates must rerun after any further local change. |
 | macOS readiness | Release-gated | No-account path is complete; Gatekeeper-ready public distribution remains Apple-credential-gated. |
 | Resume assistance | Complete locally | 2026-06-19 aggregate private-corpus probe plus focused public/synthetic UI, E2E, semantic, and manual-style desktop/mobile verification covered parsing, import, matching, tailoring, builder/export, ATS/readability review, application-form help, cover-letter review, screening-answer review, and Local Match Check diagnostics. |
 | Job-card protection | Complete locally | Posting-risk cues stay visible without implying employer intent or confirmed duplicate/source proof. |
@@ -110,8 +110,9 @@ Out of scope:
   taxonomy, release hardening, and non-`content/` audit fixes.
 - Dependency, security, frontend, build, Rust, E2E, docs, bloat, harness,
   source, resume, AI, semantic matching, route-probe, and release-readiness
-  gates passed after `ab28be0d`; the capability evidence ledger records each
-  row. Rerun full final gates after the evidence commit and before publication.
+  gates passed for the current capability-evidence slice; the capability
+  evidence ledger records each row. Rerun full final gates after any further
+  local change and before publication.
 - Script tests moved into `scripts/tests/` and `scripts/security/tests/` before
   commit `b238c7d4`; keep future script tests out of the flat `scripts/` root.
 

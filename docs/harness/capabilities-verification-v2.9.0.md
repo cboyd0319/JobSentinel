@@ -16,15 +16,15 @@ clear privacy or source-boundary check before v2.9.0 release publication.
 | ----- | ----- |
 | Capabilities doc commit | `ab28be0d` |
 | Verification state | Capability evidence complete with one dev-server caveat |
-| Required release position | Do not push, tag, upload, publish, or call v2.9.0 complete until final release gates pass from the latest evidence commit and the user confirms publication |
+| Required release position | Do not push, tag, upload, publish, or call v2.9.0 complete until final release gates pass from the exact commit to be pushed or tagged and the user confirms publication |
 | Evidence storage | Command logs may live under `<tmp>`; checked-in docs must not include private user data, raw resumes, cookies, tokens, local absolute evidence paths, screenshots with private data, HAR files, browser storage, or session files |
 
 ## Required Fresh Gates
 
-These gates passed after the capabilities doc commit. Because this evidence
-ledger creates a later commit, final release-publication gates still need to
-rerun from that latest commit before publishing assets or calling the release
-ready.
+These gates passed after the capabilities doc and evidence ledger. If this
+ledger or any release-bound file changes again, final release-publication gates
+must rerun from the exact commit that will be pushed or tagged before publishing
+assets or calling the release ready.
 
 | Gate | State | Evidence |
 | ---- | ----- | -------- |
@@ -115,9 +115,8 @@ ready.
   tests, not as a Playwright assertion failure. The separate route probe
   captured zero browser console errors and zero page errors. Treat this as a
   dev-server warning to keep watching, not as a product failure.
-- This ledger was added after the broad post-`ab28be0d` verification run.
-  Final release-publication gates must rerun from the latest evidence commit
-  before publication.
+- If this ledger changes again before publication, final release-publication
+  gates must rerun from the exact commit that will be pushed or tagged.
 
 ## Closure Rules
 
@@ -128,4 +127,5 @@ This capability ledger is closed for capability evidence when:
 3. Generated artifacts are removed from the repo worktree.
 
 This ledger is not a release-publication approval. Publishing still requires
-fresh final gates from the latest commit and explicit user confirmation.
+fresh final gates from the exact commit to be pushed or tagged and explicit
+user confirmation.
