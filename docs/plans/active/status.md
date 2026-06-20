@@ -40,7 +40,7 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 
 | Workstream | State | Current focus | Source |
 | ---------- | ----- | ------------- | ------ |
-| Current product and quality work | Active | Docs/readme/screenshots, manual resume verification, final UI proof, and release handoff | [Plan](current-work.md) |
+| Current product and quality work | Active | Final UI proof, final gates, and release handoff | [Plan](current-work.md) |
 | v2.9.0 completion and full-feature roadmap | Active | Checklist is open; publication sequence remains blocked until every non-external row has evidence | [Plan](v2.9.0-completion-and-full-feature-roadmap.md) |
 
 ## Current Posture
@@ -64,8 +64,9 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   Radancy/TalentBrew candidate lanes without promoting them to unrestricted
   crawlers.
 - Resume, application preview, cover-letter review, role-family taxonomy,
-  source corpus/taxonomy, and local interest learning have focused coverage;
-  final release still needs whole-UI proof after docs and screenshots land.
+  source corpus/taxonomy, local interest learning, and public docs/screenshots
+  have focused coverage; final release still needs whole-UI proof and final
+  local gates.
 - 2026-06-19 private resume-corpus aggregate probe parsed all 12 local files
   across DOCX, Markdown, and PDF formats, ran skill extraction plus
   ATS/readability checks against three broad job descriptions, ran
@@ -105,19 +106,16 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   explicit reviewed exception is added and kept from growing.
 - Script tests were moved out of the flat `scripts/` root in commit
   `b238c7d4`; keep future script tests under test directories.
-- 2026-06-19 release blockers remain open for major README and screenshot
-  refresh, stale docs cleanup, final whole-UI proof, final local gates, and
-  user-confirmed push/publish.
+- 2026-06-19 major README, screenshot, stale-docs, source, resume, semantic,
+  and restricted-browser evidence is recorded locally. Remaining blockers are
+  final whole-UI proof, final local gates, and user-confirmed push/publish.
 
 ## Next Best Work
 
-1. Update, reorganize, archive, or delete stale maintained docs, including the
-   public README and screenshots for current v2.9.0 surfaces.
-2. Run final whole-UI proof after docs, screenshots, and any remaining UI
-   changes land.
-3. Run final local release gates from the verified commit.
-4. Push `main` and wiki only after the user confirms final publication steps.
-5. Keep macOS readiness honest: no Gatekeeper-ready claim before Apple credentials.
+1. Run final whole-UI proof across every shipped route, action, and state.
+2. Run final local release gates from the verified commit.
+3. Push `main` and wiki only after the user confirms final publication steps.
+4. Keep macOS readiness honest: no Gatekeeper-ready claim before Apple credentials.
 
 ## Completion Bar
 
