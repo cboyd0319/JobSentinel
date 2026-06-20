@@ -352,7 +352,7 @@ Run tests with coverage flags:
 
 ```bash
 # Install tarpaulin
-cargo install cargo-tarpaulin --version 0.35.4 --locked
+cargo install cargo-tarpaulin --version 0.35.5 --locked
 
 # Generate coverage report
 cargo tarpaulin --out Html --output-dir coverage
