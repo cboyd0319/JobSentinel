@@ -18,6 +18,7 @@
 
 mod embeddings;
 mod evaluation;
+mod hybrid;
 mod manifest;
 mod matcher;
 mod model;
@@ -34,6 +35,7 @@ pub use evaluation::{
     JobFeedbackEvent, MatchBlocker, ModelImprovementPhase, PairwisePreferenceExample,
     RankingFeatures, RetrievalProvenance,
 };
+pub use hybrid::{HybridCandidate, HybridScore, HybridScorer, HybridWeights};
 pub use manifest::{
     load_model_manifest, model_lock_hash, InstructionProfile, ModelFileSpec, ModelKind,
     ModelManifest, ModelSpec, ScoreThresholds,

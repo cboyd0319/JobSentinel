@@ -26,6 +26,7 @@ cargo test --features embedded-ml -- --ignored
   tokenization implementation
 - **runtime.rs** - Backend traits, compatibility checks, vector provenance, and stale-vector keys
 - **evaluation.rs** - Evidence labels, hard-negative, feedback, and training data contracts
+- **hybrid.rs** - Deterministic hybrid ranking, hard-blocker caps, and retrieval provenance
 - **eval_fixtures/seed_v1.json** - Seed eval labels, hard negatives, and preference pairs
 - **embeddings.rs** - Embedding generation, cosine similarity
 - **matcher.rs** - Semantic skill matching logic
@@ -94,6 +95,12 @@ the ignored test downloads the pinned reranker into an explicit external cache,
 verifies hashes, loads the backend, and ranks direct evidence above a near
 miss. It still needs hybrid scoring integration, diagnostics, and UI/data-flow
 proof before release signoff.
+
+The deterministic hybrid scorer is implemented and unit-covered. It combines
+dense, BM25, exact skill, required-coverage, seniority, reranker, blocker, and
+provenance signals, and it caps otherwise strong matches when hard blockers
+exist. It still needs to be wired into user-facing resume/job flows before
+release signoff.
 
 ## Adding New Features
 

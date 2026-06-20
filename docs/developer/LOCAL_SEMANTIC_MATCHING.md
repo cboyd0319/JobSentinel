@@ -21,6 +21,7 @@ external AI.
 | Integrity check | Required SHA-256 checks for every required file in `models.lock.toml` |
 | Cache layout | `<app-data>/ml_models/<model-id>/<revision>/<model-lock-hash>/` |
 | Runtime stack | Candle, tokenizers, `safetensors`, optional macOS Metal acceleration |
+| Hybrid ranking | Typed local scoring core combines dense, BM25, exact skill, required-coverage, seniority, reranker, blocker, and provenance signals |
 
 Focused Qwen3 embedding evidence: on 2026-06-19,
 `core::ml::qwen3::tests::qwen3_backend_embeds_with_pinned_downloaded_model`
@@ -34,6 +35,11 @@ downloaded the pinned Qwen3 reranker model into an external test cache,
 verified checksums, loaded the `qwen3-reranker-candle` backend, and ranked
 direct Kubernetes security evidence above a vocabulary-overlap near miss.
 Product integration is still required before release signoff.
+
+Focused hybrid ranking evidence: `core::ml::hybrid` tests prove the ranking
+core prefers direct evidence over keyword-only near misses, caps otherwise
+strong matches when hard blockers exist, and records dense, BM25, exact skill,
+required-coverage, and reranker provenance without raw resume text.
 
 Privacy label: **Local only** for matching. Model download is an explicit
 external file fetch and must not send resume text, salary floors, notes,
@@ -74,6 +80,7 @@ disabled by default, and routed through
 | `src-tauri/src/core/ml/qwen3/` | Governed Qwen3 embedding, reranker, model, pooling, and tokenization implementation |
 | `src-tauri/src/core/ml/runtime.rs` | Backend traits, runtime compatibility, vector provenance, and stale-vector keys |
 | `src-tauri/src/core/ml/evaluation.rs` | Evidence labels, hard negatives, feedback, blockers, and future training data contracts |
+| `src-tauri/src/core/ml/hybrid.rs` | Deterministic hybrid ranking, blocker caps, and retrieval provenance |
 | `src-tauri/src/core/ml/eval_fixtures/seed_v1.json` | Seed labels, hard negatives, and preference pairs for regression tests |
 | `src-tauri/src/core/ml/embeddings.rs` | Embedding generation and vector similarity |
 | `src-tauri/src/core/ml/matcher.rs` | Semantic skill matching logic |
