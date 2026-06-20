@@ -272,11 +272,18 @@ Evidence:
   attests provenance/SBOMs, uploads assets, then publishes.
 - `.github/workflows/verify-release-artifacts.yml` verifies the public release
   asset set after publication.
-- 2026-06-20 read-only remote check: local `main` is at `9a29976a`; remote
-  `origin/main` and remote `v2.9.0` still point at `8020d7e6`; the public
-  release API returns `404` for `v2.9.0`, so publication has not happened.
+- 2026-06-20 read-only remote ref check: local `main` is at `99a5d381` before
+  this documentation evidence edit; remote `origin/main` and remote `v2.9.0`
+  still point at `8020d7e6`. A `gh release view v2.9.0` refresh was not
+  completed in this pass because the local `gh` wrapper could not get a token
+  from 1Password, so hosted release publication state still requires final
+  verification before push/tag/publication.
 - 2026-06-20 release-prep checks passed: focused release script tests `730/730`,
-  `npm run release:check-env`, and `npm run macos:readiness`.
+  `npm run release:check-env`, `npm run macos:readiness`,
+  `npm run release:skills -- --out-dir <tmp>`, staged SBOM generation under
+  `<tmp>`, no-account universal macOS DMG build, and macOS package verification
+  with checksum, metadata, universal architecture, signature, launch smoke,
+  install smoke, and private local-data permission checks.
 
 Risk:
 

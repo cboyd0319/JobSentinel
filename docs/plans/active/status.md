@@ -50,12 +50,10 @@ The v2.9.0 goal adds durable release-readiness requirements:
 - `origin/main` is the pushed `2.7.7` release-recovery baseline; local metadata
   is staged for `2.9.0`. A premature remote `v2.9.0` tag and draft release
   exist; do not publish or delete them without explicit user approval.
-- Recent evidence covers dependency/action pins, security sensors, frontend,
-  build, Rust fmt/clippy/lib, E2E, docs, bloat, harness, skills packaging, and
-  no-account release asset staging. `docs/harness/capabilities-verification-v2.9.0.md`
-  now records post-`ab28be0d` coverage for every capability row, source class,
-  privacy boundary, route probe, screenshot, and focused scraper/resume/AI/ML
-  gate, with follow-up local gates rerun after the ledger landed.
+- Recent evidence covers dependency/action pins, security, frontend/build,
+  Rust, E2E, docs/bloat/harness, skills, source/resume/AI/ML, screenshots, and
+  no-account asset staging. Capability verification records the 2026-06-20
+  pass; final publication gates must rerun from the exact push/tag commit.
 - Credential paths use encrypted local storage; passive status/list checks must
   remain non-interactive and must not cache vault keys.
 - No-account release assets can publish for Windows, macOS, and Linux, but
@@ -109,13 +107,11 @@ The v2.9.0 goal adds durable release-readiness requirements:
   explicit reviewed exception is added and kept from growing.
 - Script tests were moved out of the flat `scripts/` root in commit
   `b238c7d4`; keep future script tests under test directories.
-- 2026-06-19 major README, screenshot, stale-docs, source, resume, semantic,
-  restricted-browser, whole-UI, and final-gate evidence is recorded locally.
-  2026-06-20 capability verification records every capability row, source
-  class, privacy boundary, route probe, screenshot, focused scraper/resume/AI/ML
-  gate, follow-up final-gate pass, release environment/version/macOS readiness,
-  and staged Agent Skills archive/SBOM checks. Remaining blocker is
-  user-confirmed push/publish.
+- 2026-06-20 capability verification records every capability row, source
+  class, privacy boundary, route probe, focused scraper/resume/AI/ML gate,
+  skills/SBOM checks, private corpus refresh, Qwen3 runtime checks, live source
+  probes, and macOS no-account DMG verifier. Remaining blocker:
+  user-confirmed push/publish and public hosted asset verification.
 
 ## Next Best Work
 

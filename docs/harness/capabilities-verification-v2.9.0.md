@@ -15,7 +15,7 @@ clear privacy or source-boundary check before v2.9.0 release publication.
 | Field | Value |
 | ----- | ----- |
 | Capabilities doc commit | `ab28be0d` |
-| Verification state | Capability evidence complete with one dev-server caveat |
+| Verification state | Capability evidence complete with one dev-server caveat; fresh 2026-06-20 local validation pass complete |
 | Required release position | Do not push, tag, upload, publish, or call v2.9.0 complete until final release gates pass from the exact commit to be pushed or tagged and the user confirms publication |
 | Evidence storage | Command logs may live under `<tmp>`; checked-in docs must not include private user data, raw resumes, cookies, tokens, local absolute evidence paths, screenshots with private data, HAR files, browser storage, or session files |
 
@@ -39,6 +39,23 @@ assets or calling the release ready.
 | Focused source and restricted-source contracts | Complete | Source, restricted-source UI, LinkedIn boundary, bookmarklet, scraper, integration, scheduler, and live-source checks passed |
 | Focused resume and application contracts | Complete | Resume, Application Assist, cover-letter, screening-answer, semantic diagnostics, local resume-corpus smoke, and Qwen3 runtime checks passed |
 | Manual capability UI pass | Complete | Manual-style Playwright route probe passed Chromium/WebKit at 1440 x 1000 and 390 x 844: 8 routes each, zero captured console errors, zero page errors, zero horizontal overflow |
+
+## 2026-06-20 Fresh Validation Pass
+
+This pass rechecked the finalized roadmap and capability list without publishing
+or uploading any release asset.
+
+| Area | Result |
+| ---- | ------ |
+| Harness, release readiness, dependency currency, and environment | `npm run harness:check`, `npm run release:readiness -- --version 2.9.0`, `npm run release:check-deps`, `npm run doctor`, `npm run doctor:e2e`, `npm run harness:score`, and `npm run harness:session -- --json` passed. Doctor warnings remain local Node `26.3.1` versus CI `24.17.0`, and local npm `11.16.0` versus package-manager pin `11.17.0`. |
+| Docs, bloat, security, repo contracts, and scripts | `npm run lint:docs`, `npm run lint:bloat`, `npm run lint:security`, `npm run lint:external-ai`, `npm run lint:skills`, `npm run lint:tauri-invokes`, `npm run lint:tests`, and `npm run test:scripts` passed. Script tests reported `730` passed. Whitespace and focused docs/harness checks are rerun after this evidence edit. |
+| Frontend and web app | `npm run lint`, `npm run test:run`, `npm run build`, `npm run test:e2e:all`, `npm run test:e2e:all:budget`, and `npm run docs:screenshots` passed. Vitest reported `187` files and `3261` tests. Full E2E reported `278` passed; budgeted E2E reported `278` expected, `0` unexpected, `0` flaky, `0` skipped, and `136483.686ms / 240000ms`. Screenshot refresh passed `9` captures; the only changed screenshot differed by `36` pixels and was restored as nondeterministic capture noise after visual inspection. |
+| Rust backend | `cargo fmt --all -- --check`, `cargo clippy -- -D warnings`, and `cargo test --lib` passed. Rust library tests reported `2958` passed and `11` ignored. |
+| Sources and scrapers | Explicit source gates passed: scraper integration `25/25`, pipeline integration `12/12`, API contract `33/33`, scheduler integration `18/19` with `1` documented ignored SQLite-specific test, scraper subset `592/597` with `5` network-only ignored, and live low-volume source probes `14/14`. |
+| Private resume corpus and resume surfaces | Aggregate-only private corpus probe scanned `12` files across `3` DOCX, `7` Markdown, and `2` PDF files, parsed `12/12`, ran `36` ATS/readability checks, `12` bullet checks, and `7` synthetic export checks without printing or storing private resume content. |
+| Local semantic matching | Embedded-ML semantic diagnostics passed `1` with `2` expected ignored model-download tests, eval fixtures passed `9/9`, contracts passed `6/6`, and ignored Qwen3 runtime checks passed `2/2` for pinned embedding plus reranker behavior. |
+| Release packaging support | `npm run release:check-env`, `npm run macos:readiness`, `npm run release:skills -- --out-dir <tmp>`, and `npm run release:sbom -- --platform macos --version 2.9.0 --out-dir <tmp> --checksums-out <tmp>/attestation-subjects.sha256` passed. Skills packaging produced tar.gz and ZIP archives plus checksums under `<tmp>`. The temporary SBOM reported `1385` packages, `3725` relationships, `4` supporting assets, and `0` installable assets because installer assets were not staged in that temporary directory. |
+| macOS desktop package | `JOBSENTINEL_MACOS_NO_ACCOUNT=true npm run tauri:build:macos -- --target universal-apple-darwin` built the universal no-account app and DMG, ad-hoc signed the app, verified the DMG, and wrote a checksum. `npm run tauri:verify:macos -- --dmg src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_2.9.0_no-account_universal.dmg --expected-architectures x86_64,arm64 --expected-bundle-id com.jobsentinel.main --expected-product-name JobSentinel --expected-version 2.9.0 --expected-icon-file icon.icns --expected-minimum-system-version 13.0 --launch-smoke --install-smoke --require-checksum` passed with checksum, metadata, universal architecture, signature, visible-window launch, install smoke, and private local-data permission checks. Optional Gatekeeper rejection remains expected for the no-account build. |
 
 ## Capability Coverage Matrix
 

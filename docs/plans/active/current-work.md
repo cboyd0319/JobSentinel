@@ -73,12 +73,12 @@ Out of scope:
 | ---- | ----- | ----------------- |
 | Dependency readiness | Complete | Package-manager, direct deps, overrides, and Action pins are latest; transitives stay lockfile-pinned |
 | Downloadable Agent Skills | Complete locally | Skills pass `lint:skills`; release packaging creates deterministic tar/ZIP artifacts. |
-| LinkedIn Workbench and restricted-source flow | Complete locally | 2026-06-19 refresh: `cargo test --lib linkedin`, `cargo test --lib bookmarklet`, focused restricted-source frontend tests, and prior user-assisted proof cover Browser Import visible-card capture, Workbench ledger actions, restricted-source acknowledgement, no stored auth material, no hidden page reads, no monitoring, no automation, and no submit actions. |
-| Scraper/source verification | Complete locally | 2026-06-19 refresh: deterministic scraper contracts, source-health gates, scraper integration, pipeline integration, API contract, scheduler integration, focused restricted-source frontend tests, Browser Import helper tests, LinkedIn boundary tests, and low-volume live source probes passed; evidence is recorded in `docs/harness/source-debug-verification-v2.9.0.md`. |
+| LinkedIn Workbench and restricted-source flow | Complete locally | 2026-06-19 restricted-source refresh plus 2026-06-20 full frontend/E2E/source gates cover Browser Import visible-card capture, Workbench ledger actions, restricted-source acknowledgement, no stored auth material, no hidden page reads, no monitoring, no automation, and no submit actions. |
+| Scraper/source verification | Complete locally | 2026-06-20 refresh: deterministic scraper contracts, scraper integration, pipeline integration, API contract, scheduler integration, scraper subset, and low-volume live source probes passed; evidence is recorded in `docs/harness/source-debug-verification-v2.9.0.md`. |
 | README, docs, and screenshots | Complete locally | `e7a4ba43` refreshed front-door docs, docs hub links, feature-doc names, screenshots, stale-doc archive paths, and docs/harness sensors. |
-| Development and QA completion | Publication-gated | Capability verification is recorded in `docs/harness/capabilities-verification-v2.9.0.md`; follow-up local gates passed after the ledger landed, publication remains user-confirmed, and final gates must rerun after any further local change. |
+| Development and QA completion | Publication-gated | Capability verification is recorded in `docs/harness/capabilities-verification-v2.9.0.md`; the 2026-06-20 local validation pass covered harness, release readiness, dependency currency, doctor, docs, bloat, security, scripts, frontend, full E2E, build, Rust fmt/clippy/lib, source probes, resume corpus, Qwen3 runtime checks, skills packaging, SBOM generation, and macOS no-account package verification. Publication remains user-confirmed, and final gates must rerun after any further local change. |
 | macOS readiness | Release-gated | No-account path is complete; Gatekeeper-ready public distribution remains Apple-credential-gated. |
-| Resume assistance | Complete locally | 2026-06-19 aggregate private-corpus probe plus focused public/synthetic UI, E2E, semantic, and manual-style desktop/mobile verification covered parsing, import, matching, tailoring, builder/export, ATS/readability review, application-form help, cover-letter review, screening-answer review, and Local Match Check diagnostics. |
+| Resume assistance | Complete locally | 2026-06-20 aggregate private-corpus probe plus focused public/synthetic UI, E2E, semantic, Qwen3 runtime, and manual-style desktop/mobile verification covered parsing, import, matching, tailoring, builder/export, ATS/readability review, application-form help, cover-letter review, screening-answer review, and Local Match Check diagnostics. |
 | Job-card protection | Complete locally | Posting-risk cues stay visible without implying employer intent or confirmed duplicate/source proof. |
 | Guided intake | Complete locally | Search review guides application next actions; suggestions stay reviewed and explainable. |
 | Pay protection | Complete locally | Missing, one-sided, malformed, broad, and written-vs-verbal offer cues stay plain and review-first. |
@@ -113,6 +113,10 @@ Out of scope:
   gates passed for the current capability-evidence slice; the capability
   evidence ledger records each row. Rerun full final gates after any further
   local change and before publication.
+- 2026-06-20 fresh validation reran the finalized capability list, private
+  resume corpus aggregate probe, low-volume source probes, Qwen3 embedding and
+  reranker runtime checks, Agent Skills package/SBOM checks, and macOS
+  no-account universal DMG build plus verifier. No assets were published.
 - Release version, release environment, macOS readiness, E2E doctor, Agent
   Skills package, Agent Skills archive integrity, and staged Agent Skills SBOM
   checks passed locally under `/tmp` without publishing or uploading assets.

@@ -1,6 +1,6 @@
 # Resume Corpus Verification v2.9.0
 
-Updated: 2026-06-19.
+Updated: 2026-06-20.
 
 This record tracks privacy-safe local verification against a private resume
 corpus. Do not add names, local absolute paths, parsed resume text, skill names,
@@ -96,3 +96,43 @@ Release handoff:
   before publication.
 - Keep future UI evidence out of the repo unless it is aggregate, synthetic, or
   explicitly scrubbed of private resume content.
+
+## 2026-06-20 Aggregate Probe Refresh
+
+Scope:
+
+- Private local corpus only; source files were not copied into the repository.
+- 12 files total.
+- Formats: 3 DOCX, 7 Markdown, 2 PDF.
+- Probe ran from a temporary directory outside the repository as a path
+  dependency on `src-tauri`.
+- Output was aggregate-only.
+
+Result:
+
+| Check | Result |
+| ----- | ------ |
+| Files scanned | 12 |
+| Parsed successfully | 12 |
+| Parse failures | 0 |
+| Total readable characters | 89,489 |
+| Readable character range | 3,368 to 12,047 |
+| Total extracted skill hits | 304 |
+| Skill hit range | 11 to 37 |
+| ATS/readability runs | 36 |
+| Keyword matches counted | 52 |
+| Missing keyword records counted | 116 |
+| Format issues counted | 66 |
+| Suggestions counted | 179 |
+| Bullet-improvement checks | 12 |
+| Export template checks | 7 |
+| Private output policy | Aggregate-only |
+
+Additional focused checks:
+
+| Check | Result |
+| ----- | ------ |
+| `cargo test --features embedded-ml --lib semantic_matching` | 1 passed, 2 expected model-download tests ignored |
+| `cargo test --features embedded-ml --lib core::ml::evaluation` | 9 passed |
+| `cargo test --features embedded-ml --lib core::ml::contracts` | 6 passed |
+| `cargo test --features embedded-ml --lib qwen3_ -- --ignored --test-threads=1` | 2 passed |

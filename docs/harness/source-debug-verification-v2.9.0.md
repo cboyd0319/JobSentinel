@@ -175,3 +175,16 @@ current `Config` shape after the optional external-AI settings were added. The
 affected test fixtures now include `external_ai: Default::default()`, and the
 pipeline, API contract, and scheduler integration suites pass from the current
 tree.
+
+### 2026-06-20 Source Verification Refresh
+
+Platform and build: local macOS development machine, JobSentinel 2.9.0.
+
+This refresh rechecked the shipped source contracts after the finalized
+roadmap/capability list was confirmed.
+
+| Source or path | Path tested | Result | User-facing recovery message | Exposed credential, cookie, token, private note, resume, salary floor, or application history |
+| -------------- | ----------- | ------ | ---------------------------- | ------------------------------------------------------------------------------------------ |
+| Native scraper parser and transport contracts | `cargo test --lib scrapers` | Passed: 592 passed, 5 ignored network-only tests | Scraper errors use source-level, sanitized messages and fallbacks | No |
+| Scraper construction and pipeline | `cargo test --test scraper_integration_test`, `cargo test --test scraping_pipeline_integration`, `cargo test --test api_contract_test`, and `cargo test --test scheduler_integration_test` | Passed: 25 scraper integration tests, 12 pipeline integration tests, 33 API contract tests, and 18 scheduler integration tests with 1 existing ignored SQLite-specific test | Empty or failing sources do not block the local pipeline | No |
+| Public live source probes | `cargo test --test live_scraper_test -- --ignored --test-threads=1` | Passed: 14 live checks for Greenhouse, Lever, RemoteOK, Hacker News, We Work Remotely, Built In, Dice, YC Startup Jobs, LinkedIn boundary, USAJobs skip path, JobsWithGPT skip path, SimplyHired, and Glassdoor | Live checks remain opt-in; blocked, empty, credential-required, or human-check paths use source-status recovery and manual fallback | No |
