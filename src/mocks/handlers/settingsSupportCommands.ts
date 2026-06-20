@@ -51,6 +51,11 @@ const MOCK_CREDENTIAL_KEYS: MockCredentialKey[] = [
   "teams_webhook",
   "telegram_bot_token",
   "usajobs_api_key",
+  "external_ai_openai_api_key",
+  "external_ai_anthropic_api_key",
+  "external_ai_google_api_key",
+  "external_ai_github_copilot_api_key",
+  "external_ai_custom_api_key",
 ];
 const MIN_BOOKMARKLET_PORT = 1024;
 const MAX_BOOKMARKLET_PORT = 65535;
@@ -269,6 +274,13 @@ export function handleMockSettingsSupportCommand(
       }
       return withoutSave(state, undefined);
     }
+
+    case "send_external_ai_request":
+      return withoutSave(state, {
+        text: "Mock outside AI summary: review the original posting before using this summary.",
+        provider: "open_ai",
+        model: "mock-local-development",
+      });
 
     default:
       return {

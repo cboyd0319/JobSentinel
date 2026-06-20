@@ -51,7 +51,12 @@ export function isCredentialKey(value: unknown): value is MockCredentialKey {
     value === "discord_webhook" ||
     value === "teams_webhook" ||
     value === "telegram_bot_token" ||
-    value === "usajobs_api_key"
+    value === "usajobs_api_key" ||
+    value === "external_ai_openai_api_key" ||
+    value === "external_ai_anthropic_api_key" ||
+    value === "external_ai_google_api_key" ||
+    value === "external_ai_github_copilot_api_key" ||
+    value === "external_ai_custom_api_key"
   );
 }
 

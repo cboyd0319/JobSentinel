@@ -282,6 +282,9 @@ describe("aiGateway", () => {
       labels: ["External AI optional", "Public-data only"],
       dataCategories: ["job_posting", "public_metadata"],
       payload: publicJobSummaryRequest.payload,
+      previewShown: true,
+      userApproved: true,
+      explicitlyIncludedSensitiveData: undefined,
     });
     expect(logRequest).toHaveBeenCalledWith({
       feature: "job-description-summary",

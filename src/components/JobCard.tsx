@@ -3,6 +3,7 @@ import { ScoreDisplay } from "./ScoreDisplay";
 import { GhostIndicatorCompact } from "./GhostIndicator";
 import { ModalSkeleton } from "./LoadingFallbacks";
 import { ApplyButton } from "./automation/ApplyButton";
+import { ExternalAiJobSummary } from "./ExternalAiJobSummary";
 import {
   JobFeedbackAdjustment,
   JobFitFeedbackControls,
@@ -39,7 +40,6 @@ import {
 } from "../shared/jobFeedbackScoring";
 import { getPayTransparencyGuidance } from "../shared/payTransparencyRules";
 
-// Lazy load modal to reduce initial bundle size
 const ScoreBreakdownModal = lazy(() =>
   import("./ScoreBreakdownModal").then((m) => ({
     default: m.ScoreBreakdownModal,
@@ -63,10 +63,8 @@ interface Job {
   remote?: boolean | null;
   bookmarked?: boolean;
   notes?: string | null;
-  // Ghost detection fields (v1.4)
   ghost_score?: number | null;
   ghost_reasons?: string | null;
-  // Deduplication field (v1.4)
   times_seen?: number;
 }
 
@@ -108,7 +106,6 @@ export const JobCard = memo(function JobCard({
     setJobFeedback(readJobFeedbackSignal(jobFeedbackKey));
   }, [jobFeedbackKey]);
 
-  // Keyboard accessibility helper
   const handleKeyDown = (e: React.KeyboardEvent, callback: () => void) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
@@ -133,7 +130,6 @@ export const JobCard = memo(function JobCard({
   };
 
   const handleOpenUrl = async (url: string) => {
-    // Security: validate job link before opening.
     if (rejectUnsafeJobLink(url)) {
       return;
     }
@@ -558,7 +554,6 @@ export const JobCard = memo(function JobCard({
               </div>
             </div>
 
-            {/* Action */}
             <div className="flex flex-wrap items-center gap-1 self-start sm:flex-shrink-0 sm:self-center">
               {hasValidScore && (
                 <JobFitFeedbackControls
@@ -567,7 +562,6 @@ export const JobCard = memo(function JobCard({
                 />
               )}
 
-              {/* Research company button */}
               {onResearchCompany && (
                 <button
                   onClick={() => onResearchCompany(job.company)}
@@ -583,7 +577,6 @@ export const JobCard = memo(function JobCard({
                 </button>
               )}
 
-              {/* Notes button */}
               {onEditNotes && (
                 <button
                   onClick={() => onEditNotes(job.id, job.notes)}
@@ -602,7 +595,6 @@ export const JobCard = memo(function JobCard({
                 </button>
               )}
 
-              {/* Bookmark button */}
               {onToggleBookmark && (
                 <button
                   onClick={() => onToggleBookmark(job.id)}
@@ -640,6 +632,8 @@ export const JobCard = memo(function JobCard({
                 />
               )}
 
+              <ExternalAiJobSummary job={job} />
+
               <button
                 onClick={openJobPosting}
                 onKeyDown={(e) => handleKeyDown(e, openJobPosting)}
@@ -659,7 +653,6 @@ export const JobCard = memo(function JobCard({
                 <ArrowIcon />
               </button>
 
-              {/* Hide button */}
               {onHideJob && (
                 <button
                   onClick={hideJob}
@@ -679,7 +672,6 @@ export const JobCard = memo(function JobCard({
   );
 });
 
-// Icons - memoized to prevent re-creation on every render
 const HideIcon = memo(function HideIcon() {
   return (
     <svg

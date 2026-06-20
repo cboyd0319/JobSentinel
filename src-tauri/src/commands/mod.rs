@@ -21,6 +21,7 @@ pub mod config;
 pub mod credentials;
 pub mod deeplinks;
 pub mod errors;
+pub mod external_ai;
 pub mod feedback;
 pub mod geo;
 pub mod ghost;
@@ -168,6 +169,9 @@ pub use config::{
     complete_setup, get_config, get_dashboard_preferences, get_resume_matching_preference,
     is_first_run, save_config, set_resume_matching_enabled, validate_slack_webhook,
 };
+
+// Outside AI commands
+pub use external_ai::send_external_ai_request;
 
 // Geo commands
 pub use geo::detect_location;

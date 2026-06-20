@@ -46,6 +46,10 @@ export function createExternalAiGateway(
         labels: request.labels,
         dataCategories: request.dataCategories,
         payload: outgoingPayload,
+        previewShown: request.previewShown,
+        userApproved: request.userApproved,
+        explicitlyIncludedSensitiveData:
+          request.explicitlyIncludedSensitiveData,
       };
 
       const response = await transport.send(preparedRequest);

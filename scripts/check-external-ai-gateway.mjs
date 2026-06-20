@@ -44,8 +44,12 @@ const scannedFileNames = new Set([
 ]);
 
 const allowedGatewayPaths = new Set([
+  "src-tauri/src/commands/external_ai/provider.rs",
+  "src-tauri/src/commands/external_ai.rs",
   "src/services/aiGateway.ts",
   "src/services/aiGateway.test.ts",
+  "src/services/externalAiBackendTransport.ts",
+  "src/services/externalAiBackendTransport.test.ts",
   "src/services/aiGatewayPayloadPolicy.ts",
   "src/services/aiGatewayPromptInspection.ts",
   "src/services/aiGatewayTypes.ts",
@@ -198,7 +202,7 @@ export function checkExternalAiGateway(root = defaultRoot) {
       }
 
       violations.push(
-        `external AI provider path must go through src/services/aiGateway.ts: ${path}:${getLineNumber(text, match.index)} (${label})`,
+        `external AI provider path must go through the reviewed gateway boundary: ${path}:${getLineNumber(text, match.index)} (${label})`,
       );
       break;
     }

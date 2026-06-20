@@ -125,7 +125,6 @@ fn main() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_secure_storage::init())
         .invoke_handler(tauri::generate_handler![
-            // Core job commands
             commands::jobs::search_jobs,
             commands::jobs::get_recent_jobs,
             commands::jobs::get_job_by_id,
@@ -152,6 +151,7 @@ fn main() {
             commands::config::is_first_run,
             commands::config::complete_setup,
             commands::config::test_email_notification,
+            commands::external_ai::send_external_ai_request,
             // Geo commands
             commands::geo::detect_location,
             // ATS commands
@@ -416,7 +416,7 @@ fn main() {
                     greenhouse_urls: vec![],
                     lever_urls: vec![],
                     linkedin: Default::default(),
-        restricted_source_acknowledgements: Default::default(),
+                    restricted_source_acknowledgements: Default::default(),
                     remoteok: Default::default(),
                     weworkremotely: Default::default(),
                     builtin: Default::default(),
@@ -428,6 +428,7 @@ fn main() {
                     glassdoor: Default::default(),
                     jobswithgpt_endpoint: String::new(),
                     jobswithgpt_approval: Default::default(),
+                    external_ai: Default::default(),
                     salary_target_usd: None,
                     penalize_missing_salary: false,
                     company_whitelist: vec![],

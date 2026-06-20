@@ -130,6 +130,20 @@ const endpoint = "https://api.openai.com/v1/responses";
   });
 });
 
+test("checkExternalAiGateway allows provider endpoints inside the Tauri gateway command", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/external_ai/provider.rs",
+      `
+const ENDPOINT: &str = "https://api.openai.com/v1/responses";
+`,
+    );
+
+    assert.deepEqual(checkExternalAiGateway(root), []);
+  });
+});
+
 test("checkExternalAiGateway avoids company-name false positives", () => {
   withFixture((root) => {
     writeFixtureFile(

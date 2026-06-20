@@ -79,9 +79,13 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   configure multiple providers, order preferences, per-provider model names,
   private-details-after-review, and metadata-only local request history.
   Provider keys use `CredentialService` and the local secure vault. The shared
-  review/cancel dialog and local request-history storage are implemented, but
-  no provider transport sends data until a real feature path is wired through
-  reviewed redaction and gateway approval.
+  review/cancel dialog, metadata-only request-history storage, Rust provider
+  transport boundary, and first reviewed public job-posting summary path are
+  implemented. Job cards now expose **Summarize posting with Outside AI**; it
+  loads saved settings locally, shows the review/edit/cancel dialog, sends only
+  reviewed public posting fields through `send_external_ai_request`, and keeps
+  provider secrets in the backend. Private-data outside-AI feature sends remain
+  unavailable until they receive the same review and backend-validation path.
 - `validation/file_size_contract.json` now owns hard maintainable file caps;
   `npm run lint:bloat` enforces scope limits and frozen legacy exceptions. New
   Rust/frontend production modules must stay at or below 700 lines unless an
@@ -89,8 +93,7 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 - Script tests were moved out of the flat `scripts/` root in commit
   `b238c7d4`; keep future script tests under test directories.
 - 2026-06-19 release blockers remain open for major README and screenshot
-  refresh, stale docs cleanup, external-AI provider transports and first
-  reviewed feature send path, Qwen3 diagnostics UI/data-flow integration,
+  refresh, stale docs cleanup, Qwen3 diagnostics UI/data-flow integration,
   manual verification of every
   scraper/source flow, manual verification of every resume capability, final
   whole-UI proof, final local gates, and user-confirmed push/publish.

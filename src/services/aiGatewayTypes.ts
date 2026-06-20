@@ -66,6 +66,9 @@ export interface PreparedExternalAiRequest {
   labels: FeaturePrivacyLabel[];
   dataCategories: ExternalAiDataCategory[];
   payload: Record<string, unknown>;
+  previewShown: boolean;
+  userApproved: boolean;
+  explicitlyIncludedSensitiveData?: boolean;
 }
 
 export interface ExternalAiResponse {

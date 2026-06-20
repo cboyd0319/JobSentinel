@@ -896,6 +896,7 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
     case "open_github_issues":
     case "open_google_drive":
     case "reveal_saved_feedback_file":
+    case "send_external_ai_request":
       return applyMockSettingsSupportCommand<T>(cmd, args);
 
     // Statistics commands

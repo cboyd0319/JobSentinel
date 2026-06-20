@@ -45,7 +45,12 @@ export type MockCredentialKey =
   | "discord_webhook"
   | "teams_webhook"
   | "telegram_bot_token"
-  | "usajobs_api_key";
+  | "usajobs_api_key"
+  | "external_ai_openai_api_key"
+  | "external_ai_anthropic_api_key"
+  | "external_ai_google_api_key"
+  | "external_ai_github_copilot_api_key"
+  | "external_ai_custom_api_key";
 
 export interface MockCredentialUnlockState {
   mode: "system" | "passphrase";
