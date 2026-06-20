@@ -83,7 +83,7 @@ Out of scope:
 | Guided intake | Complete locally | Search review guides application next actions; suggestions stay reviewed and explainable. |
 | Pay protection | Complete locally | Missing, one-sided, malformed, broad, and written-vs-verbal offer cues stay plain and review-first. |
 | Encrypted local storage | Complete locally | SQLCipher, AEAD vault rows, migration, passphrase controls, and macOS vault-key locking are release-ready locally. |
-| Quiet Shield redesign | Applied locally | Tokens, score colors, and dashboard loading are screenshot-checked; final click/action coverage must rerun after current docs/screenshots and any UI changes. |
+| Quiet Shield redesign | Applied locally | Tokens, score colors, dashboard loading, screenshots, and final click/action coverage are checked; rerun focused visual and interaction checks after any further UI change. |
 | Final Rust and agent improvement pass | Complete locally | Accepted non-`content/` fixes are applied and verified; revisit only for regressions. |
 | Cleanup and harness | Closed for proactive bloat work | Reopen only for a fresh blocker to privacy, security, docs accuracy, or verification. |
 

@@ -43,7 +43,7 @@ The v2.9.0 goal adds durable release-readiness requirements:
 | Workstream | State | Current focus | Source |
 | ---------- | ----- | ------------- | ------ |
 | Current product and quality work | Active | Final gates and release handoff | [Plan](current-work.md) |
-| v2.9.0 completion and full-feature roadmap | Active | Checklist is open; publication sequence remains blocked until every non-external row has evidence | [Plan](v2.9.0-completion-and-full-feature-roadmap.md) |
+| v2.9.0 completion and full-feature roadmap | Active | Checklist has local evidence; publication sequence remains blocked until user-confirmed push, tag, hosted build, and asset verification | [Plan](v2.9.0-completion-and-full-feature-roadmap.md) |
 
 ## Current Posture
 
