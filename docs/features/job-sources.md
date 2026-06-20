@@ -194,6 +194,9 @@ Examples from the 2026-06-19 source pass:
 | Optiv careers | Workday hiring-source path |
 | Amazon Jobs | Employer-owned public job-search path |
 | GitHub careers | iCIMS/Jibe public career-site signals |
+| Dell Technologies and Albertsons careers | Oracle Fusion Candidate Experience JSON validated where robots allow |
+| Valero Energy and Enterprise Products Partners careers | Public Taleo career-section listings validated where robots allow |
+| Sysco and Chevron careers | Radancy/TalentBrew public listing paths validated where robots allow |
 | Remote First Jobs | Remote jobs source with attribution requirements |
 | Large employer company pages | Open in the user browser while native source support is reviewed |
 | Naukri, Bayt, and BDJobs | Regional candidate sources that need source-specific review before native checks |
@@ -204,14 +207,18 @@ Examples from the 2026-06-19 source pass:
 Additional local API research from the Fortune 100 source registry added public
 API foundation and employer-career lanes to the shared taxonomy: Greenhouse,
 Lever, SmartRecruiters, Workday CXS listing JSON, Phenom widget refineSearch
-JSON, and Radancy/TalentBrew public HTML fallback. It also added long-tail ATS
-fingerprints for platforms such as ClearCompany, Dayforce, Avature, JobDiva,
-CEIPAL, Crelate, TrackerRMS, Vincere, ApplicantPro, ApplicantStack, Homerun,
-Manatal, Recruit CRM, Loxo, HiBob, Factorial, JOIN, Polymer, and Recooty.
-Those long-tail entries are source-intelligence and routing metadata, not
-native scrapers. They remain review-gated until each employer tenant passes
-source-specific policy, robots, rate-limit, endpoint-stability, and parser
-checks.
+JSON, Radancy/TalentBrew public HTML fallback, Oracle Fusion Candidate
+Experience JSON, and public Taleo career-section listings. The native Rust
+source-adapter layer now carries canonical record and parser contracts for the
+validated Workday CXS and Phenom widget lanes, but live scheduled fetching still
+requires each employer tenant to pass JobSentinel's source-specific policy,
+robots, rate-limit, endpoint-stability, and parser checks.
+
+The same research also added long-tail ATS fingerprints for platforms such as
+ClearCompany, Dayforce, Avature, JobDiva, CEIPAL, Crelate, TrackerRMS,
+Vincere, ApplicantPro, ApplicantStack, Homerun, Manatal, Recruit CRM, Loxo,
+HiBob, Factorial, JOIN, Polymer, and Recooty. Those long-tail entries are
+source-intelligence and routing metadata, not native scrapers.
 
 ## How Job Checks Work
 

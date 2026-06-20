@@ -176,6 +176,41 @@ describe("jobSourceDiscoveryTaxonomy", () => {
     }
   });
 
+  it("records enterprise ATS validation status and exclusions from local API research", () => {
+    const sourceById = (id: string) =>
+      JOB_SOURCE_DISCOVERY_TAXONOMY.find((entry) => entry.id === id);
+
+    expect(sourceById("workday")?.notes).toMatch(
+      /19 public employer tenants with 57 canonical sample rows/i,
+    );
+    expect(sourceById("phenom")?.notes).toMatch(
+      /13 public employer pages with 39 canonical sample rows/i,
+    );
+    expect(sourceById("radancy-talentbrew")?.notes).toMatch(
+      /Sysco public HTML fallback lane with 45 canonical sample rows/i,
+    );
+    expect(sourceById("oracle-recruiting")).toMatchObject({
+      technicalAccess: "public-unauthenticated",
+    });
+    expect(sourceById("oracle-recruiting")?.notes).toMatch(/JPMorgan Chase remains excluded/i);
+    expect(sourceById("taleo")).toMatchObject({
+      technicalAccess: "public-unauthenticated",
+    });
+    expect(sourceById("taleo")?.notes).toMatch(/UnitedHealth Group remains excluded/i);
+    expect(sourceById("smartrecruiters")?.notes).toMatch(
+      /policy-blocked by robots/i,
+    );
+    expect(sourceById("eightfold")?.notes).toMatch(
+      /Microsoft has a frontend JSON endpoint candidate/i,
+    );
+    expect(sourceById("icims")?.notes).toMatch(
+      /State Farm and Liberty Mutual/i,
+    );
+    expect(sourceById("sap-successfactors")?.notes).toMatch(
+      /American Airlines/i,
+    );
+  });
+
   it("covers employer career-page discovery examples outside broad boards", () => {
     const employerCareers = JOB_SOURCE_DISCOVERY_TAXONOMY.find(
       (entry) => entry.id === "employer-careers-pages",

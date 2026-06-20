@@ -83,7 +83,7 @@ export const OFFICIAL_JOB_SOURCE_API_CORPUS: readonly OfficialJobSourceApiEntry[
     ],
     representativeExamples: ["Optiv Workday careers"],
     notes:
-      "Employer-owned public CXS JSON can list published jobs. Local Fortune 100 research validated this lane across 19 public employer tenants with 57 canonical sample rows. Add tenant fixtures and rate limits before scheduled checks.",
+      "Employer-owned public CXS JSON can list published jobs. Local Fortune 100 research validated this lane across 19 public employer tenants with 57 canonical sample rows and no raw response-body persistence. Add tenant fixtures, robots checks, and rate limits before scheduled checks.",
   },
   {
     id: "phenom-widget-refine-search",
@@ -97,7 +97,7 @@ export const OFFICIAL_JOB_SOURCE_API_CORPUS: readonly OfficialJobSourceApiEntry[
     ],
     representativeExamples: ["Fortune 100 Phenom widget career pages"],
     notes:
-      "Local Fortune 100 research validated this lane across 13 public employer pages with 39 canonical sample rows. Keep tenant fixtures, robots checks, and endpoint stability checks before scheduling.",
+      "Local Fortune 100 research validated this lane across 13 public employer pages with 39 canonical sample rows and no raw response-body persistence. Keep tenant fixtures, robots checks, and endpoint stability checks before scheduling.",
   },
   {
     id: "radancy-talentbrew-html",
@@ -109,9 +109,9 @@ export const OFFICIAL_JOB_SOURCE_API_CORPUS: readonly OfficialJobSourceApiEntry[
       "Radancy/TalentBrew public career search pages",
       "TalentBrew search pagination parameters such as k and p",
     ],
-    representativeExamples: ["Sysco careers"],
+    representativeExamples: ["Sysco careers", "Chevron careers"],
     notes:
-      "Local Fortune 100 research validated this lane for a public Radancy/TalentBrew employer page with 45 canonical sample rows. Keep it source-specific and parser-fixture-backed.",
+      "Local Fortune 100 research validated a Sysco public HTML fallback with 45 canonical sample rows and a Chevron Radancy/TalentBrew search page with 15 sampled rows. Keep it source-specific, robots-checked, and parser-fixture-backed.",
   },
   {
     id: "amazon-jobs-web-api",
@@ -153,7 +153,7 @@ export const OFFICIAL_JOB_SOURCE_API_CORPUS: readonly OfficialJobSourceApiEntry[
     ],
     representativeExamples: ["Microsoft Careers"],
     notes:
-      "Microsoft's public career web app is employer-owned and Eightfold-backed. Public listing support needs a source-specific adapter fixture.",
+      "Microsoft's public career web app is employer-owned and Eightfold-backed. Local static readiness found five Fortune 100 Eightfold candidates; Microsoft has a frontend JSON endpoint candidate, while Morgan Stanley, American Express, and HP still need payload-shape or parser fixtures. Chevron is currently better covered through Radancy/TalentBrew search.",
   },
   {
     id: "icims-jibe-careers",
@@ -168,7 +168,38 @@ export const OFFICIAL_JOB_SOURCE_API_CORPUS: readonly OfficialJobSourceApiEntry[
     ],
     representativeExamples: ["GitHub careers"],
     notes:
-      "Many iCIMS/Jibe career sites render public jobs through employer-owned pages. Detect the family first, then add fixtures per site shape.",
+      "Many iCIMS/Jibe career sites render public jobs through employer-owned pages. Local static readiness found State Farm and Liberty Mutual as HTML parser-spike candidates. Detect the family first, then add fixtures per site shape.",
+  },
+  {
+    id: "oracle-fusion-candidate-experience-api",
+    label: "Oracle Fusion Recruiting Candidate Experience API",
+    sourceFamilyId: "oracle-recruiting",
+    access: "employer-owned-web-api",
+    implementation: "candidate-adapter",
+    endpointPatterns: [
+      "https://{tenant}.fa.oraclecloud.com/hcmRestApi/resources/latest/recruitingCEJobRequisitions?finder=findReqs;...",
+      "Oracle Candidate Experience findReqs with expand=requisitionList",
+    ],
+    representativeExamples: ["Dell Technologies careers", "Albertsons careers"],
+    notes:
+      "Local validation confirmed public JSON listings for Dell Technologies and Albertsons with 30 sampled jobs and no raw response-body persistence. JPMorgan Chase is excluded because the observed Oracle Fusion listing and REST paths are robots-blocked.",
+  },
+  {
+    id: "oracle-taleo-public-html",
+    label: "Oracle Taleo Public Career Sections",
+    sourceFamilyId: "taleo",
+    access: "public-career-html",
+    implementation: "candidate-adapter",
+    endpointPatterns: [
+      "https://{tenant}.taleo.net/careersection/{section}/jobsearch.ftl",
+      "Static Taleo list state and direct public job-detail links",
+    ],
+    representativeExamples: [
+      "Valero Energy careers",
+      "Enterprise Products Partners careers",
+    ],
+    notes:
+      "Local validation confirmed Valero Energy and Enterprise Products Partners public Taleo listings with 16 sampled jobs and no raw response-body persistence. UnitedHealth Group remains excluded until an allowed public Taleo listing source is confirmed.",
   },
   {
     id: "tesla-careers-web-api",
@@ -209,7 +240,7 @@ export const OFFICIAL_JOB_SOURCE_API_CORPUS: readonly OfficialJobSourceApiEntry[
     ],
     representativeExamples: ["SmartRecruiters employer boards"],
     notes:
-      "Official posting APIs expose public postings. Some endpoints or operations need API-key review before shipping.",
+      "Official posting APIs expose public postings where allowed. Local validation found the generic endpoint policy-blocked by robots, so enable only employer-specific fixtures that pass robots, rate-limit, and endpoint review.",
   },
   {
     id: "recruitee-careers-site-api",

@@ -63,7 +63,7 @@ export const JOB_SOURCE_PLATFORM_DISCOVERY_ENTRIES: readonly model.JobSourceDisc
     implementationPath:
       "Candidate native adapter using public posting endpoints where available.",
     notes:
-      "Review customer endpoint shape per employer before adding scheduled discovery.",
+      "Review customer endpoint shape per employer before adding scheduled discovery. Local API validation found the generic SmartRecruiters posting endpoint policy-blocked by robots, so only employer-specific fixtures that pass robots and rate-limit checks should be enabled.",
   },
   {
     id: "workable",
@@ -99,7 +99,7 @@ export const JOB_SOURCE_PLATFORM_DISCOVERY_ENTRIES: readonly model.JobSourceDisc
     implementationPath:
       "Detect employer Workday tenant URLs and use the public Candidate Experience API only after tenant fixtures and rate limits are reviewed.",
     notes:
-      "Workday CXS pages can expose public job-search JSON for published jobs. Local Fortune 100 source research validated a Workday CXS listing lane across multiple public employer tenants, but every new tenant still needs source-specific fixture and rate-limit review. " +
+      "Workday CXS pages can expose public job-search JSON for published jobs. Local Fortune 100 source research validated a Workday CXS listing lane across 19 public employer tenants with 57 canonical sample rows, but every new tenant still needs source-specific robots, fixture, and rate-limit review. " +
       model.EMPLOYER_CAREER_SYSTEM_NOTES,
   },
   {
@@ -116,7 +116,7 @@ export const JOB_SOURCE_PLATFORM_DISCOVERY_ENTRIES: readonly model.JobSourceDisc
     implementationPath:
       "Detect iCIMS and Jibe-hosted career pages and add native support only after endpoint review.",
     notes:
-      "iCIMS/Jibe career sites can render public jobs through employer-owned web APIs or hosted pages. " +
+      "iCIMS/Jibe career sites can render public jobs through employer-owned web APIs or hosted pages. Local static readiness identified State Farm and Liberty Mutual as HTML parser-spike candidates, not scheduled adapters yet. " +
       model.EMPLOYER_CAREER_SYSTEM_NOTES,
   },
   {
@@ -218,7 +218,7 @@ export const JOB_SOURCE_PLATFORM_DISCOVERY_ENTRIES: readonly model.JobSourceDisc
     implementationPath:
       "Detect Eightfold-backed portals and review employer-specific web API endpoints before native automation.",
     notes:
-      "Microsoft careers demonstrates the employer-owned public web-app pattern. " +
+      "Local static readiness found five Fortune 100 Eightfold candidates. Microsoft has a frontend JSON endpoint candidate; Morgan Stanley, American Express, and HP still need endpoint payload or parser fixtures; Chevron is currently validated through a Radancy/TalentBrew search path. " +
       model.EMPLOYER_CAREER_SYSTEM_NOTES,
   },
   {
@@ -233,21 +233,26 @@ export const JOB_SOURCE_PLATFORM_DISCOVERY_ENTRIES: readonly model.JobSourceDisc
     examples: ["Enterprise career portals"],
     implementationPath:
       "Detect SuccessFactors portals and add native support after tenant-specific endpoint review.",
-    notes: model.EMPLOYER_CAREER_SYSTEM_NOTES,
+    notes:
+      "Local static readiness found American Airlines as a SuccessFactors candidate that still needs a public payload-shape review before any native scheduling. " +
+      model.EMPLOYER_CAREER_SYSTEM_NOTES,
   },
   {
     id: "oracle-recruiting",
     label: "Oracle Recruiting",
     category: "ats-platform",
     accessModel: "employer-career-system",
+    technicalAccess: "public-unauthenticated",
     status: "candidate",
     regions: ["global"],
     careerProfileIds: "all",
     hostPatterns: ["oraclecloud.com", "oracle.com"],
-    examples: ["Oracle Cloud HCM career portals"],
+    examples: ["Oracle Cloud HCM career portals", "Dell Technologies careers", "Albertsons careers"],
     implementationPath:
-      "Detect Oracle Recruiting portals and keep scheduled discovery disabled until reviewed per tenant.",
-    notes: model.EMPLOYER_CAREER_SYSTEM_NOTES,
+      "Detect Oracle Fusion Recruiting Candidate Experience portals and keep scheduled discovery tenant-scoped until robots, endpoint, and fixture checks pass.",
+    notes:
+      "Local validation confirmed Dell Technologies and Albertsons public Candidate Experience JSON with 30 sampled jobs. JPMorgan Chase remains excluded because observed Oracle Fusion listing and REST paths are robots-blocked. " +
+      model.EMPLOYER_CAREER_SYSTEM_NOTES,
   },
   {
     id: "phenom",
@@ -262,7 +267,7 @@ export const JOB_SOURCE_PLATFORM_DISCOVERY_ENTRIES: readonly model.JobSourceDisc
     implementationPath:
       "Detect Phenom pages and add source-specific widget support after endpoint and terms review.",
     notes:
-      "Local Fortune 100 source research validated a Phenom widget refineSearch lane for selected public employer pages. Keep it fixture-backed and tenant-scoped before scheduling. " +
+      "Local Fortune 100 source research validated a Phenom widget refineSearch lane across 13 public employer pages with 39 canonical sample rows. Keep it fixture-backed, robots-checked, and tenant-scoped before scheduling. " +
       model.EMPLOYER_CAREER_SYSTEM_NOTES,
   },
   {
@@ -284,7 +289,7 @@ export const JOB_SOURCE_PLATFORM_DISCOVERY_ENTRIES: readonly model.JobSourceDisc
     implementationPath:
       "Candidate HTML fallback adapter for validated source-specific public career pages; keep parsing fixture-backed and scoped to employer pages that pass policy and stability checks.",
     notes:
-      "Local Fortune 100 source research validated a Sysco Radancy/TalentBrew public HTML fallback lane. Treat this as a narrow company-careers adapter family, not a broad crawling license. " +
+      "Local Fortune 100 source research validated a Sysco public HTML fallback lane with 45 canonical sample rows and a Chevron Radancy/TalentBrew search path with 15 sampled rows. Treat this as a narrow company-careers adapter family, not a broad crawling license. " +
       model.EMPLOYER_CAREER_SYSTEM_NOTES,
   },
   {
@@ -292,14 +297,17 @@ export const JOB_SOURCE_PLATFORM_DISCOVERY_ENTRIES: readonly model.JobSourceDisc
     label: "Taleo",
     category: "ats-platform",
     accessModel: "employer-career-system",
+    technicalAccess: "public-unauthenticated",
     status: "candidate",
     regions: ["global"],
     careerProfileIds: "all",
     hostPatterns: ["taleo.net"],
-    examples: ["Enterprise and legacy career portals"],
+    examples: ["Enterprise and legacy career portals", "Valero Energy careers", "Enterprise Products Partners careers"],
     implementationPath:
-      "Detect Taleo portals and prefer user-opened import until behavior is reviewed.",
-    notes: model.EMPLOYER_CAREER_SYSTEM_NOTES,
+      "Detect Taleo career sections and keep scheduled discovery tenant-scoped until robots, endpoint, and parser fixtures pass.",
+    notes:
+      "Local validation confirmed Valero Energy and Enterprise Products Partners public Taleo listings with 16 sampled jobs. UnitedHealth Group remains excluded until an allowed public Taleo listing source is confirmed. " +
+      model.EMPLOYER_CAREER_SYSTEM_NOTES,
   },
   {
     id: "bamboohr",

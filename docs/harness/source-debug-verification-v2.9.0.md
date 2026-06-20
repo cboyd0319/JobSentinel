@@ -98,12 +98,18 @@ screenshot, or session-state persistence.
 | Jobicy | Global | Prefer native official API or feed with attribution and rate-limit tests |
 | The Muse | US, global | Native API only with local credentials, attribution UI, and quota tests |
 | Ashby | Global | Prefer native public ATS adapter with company-board input and fixtures |
-| SmartRecruiters | Global | Prefer native public ATS adapter with company ID input and fixtures |
+| SmartRecruiters | Global | Candidate public ATS adapter only where employer-specific fixtures pass robots; local generic endpoint validation was policy-blocked by robots |
 | Workable | Global | Prefer official/public posting API only after access model is confirmed |
 | Recruitee, Personio, Comeet | Global and Europe | Prefer native public careers API/feed only after tenant URL shape, terms, and rate-limit review |
-| Workday | Global | User-opened employer search or source-specific adapter only after public endpoint and terms review |
-| Eightfold | Global | User-opened employer search or source-specific adapter only after public endpoint and terms review |
-| Breezy, JazzHR, Bullhorn, Teamtailor, Jobvite, iCIMS, Taleo, SAP SuccessFactors, Oracle Recruiting, Phenom, BambooHR, ADP, UKG, Rippling, Zoho Recruit, Freshteam, Pinpoint, Jobylon, JobScore | Global | Candidate ATS families; review official/public access model before native scheduling |
+| Workday | Global | Native source-adapter parser contract added for validated Workday CXS JSON lane; schedule only tenant fixtures that pass robots, endpoint, and rate-limit checks |
+| Phenom | Global | Native source-adapter parser contract added for validated widget refineSearch JSON lane; schedule only tenant fixtures that pass robots, endpoint, and rate-limit checks |
+| Radancy / TalentBrew | Global | Sysco public HTML fallback and Chevron search path validated; keep source-specific and parser-fixture-backed |
+| Oracle Fusion Recruiting | Global | Dell Technologies and Albertsons Candidate Experience JSON validated where robots allow; JPMorgan Chase excluded while observed paths are robots-blocked |
+| Oracle Taleo | Global | Valero Energy and Enterprise Products Partners public listings validated where robots allow; UnitedHealth Group excluded until an allowed listing source is confirmed |
+| Eightfold | Global | Five Fortune 100 candidates found; Microsoft has a frontend JSON endpoint candidate, others need endpoint payload or parser fixtures before native scheduling |
+| iCIMS / Jibe | Global | State Farm and Liberty Mutual are HTML parser-spike candidates, not scheduled adapters yet |
+| SAP SuccessFactors | Global | American Airlines candidate still needs public payload-shape review before native scheduling |
+| Breezy, JazzHR, Bullhorn, Teamtailor, Jobvite, BambooHR, ADP, UKG, Rippling, Zoho Recruit, Freshteam, Pinpoint, Jobylon, JobScore | Global | Candidate ATS families; review official/public access model before native scheduling |
 | ClearCompany, Dayforce, Avature, JobDiva, CEIPAL, Crelate, TrackerRMS, Vincere, ApplicantPro, ApplicantStack, Homerun, Manatal, Recruit CRM, Loxo, HiBob, Factorial, JOIN, Polymer, Recooty | Global | Long-tail ATS fingerprints from local API research; use source-intelligence routing only until tenant-specific policy, robots, rate-limit, endpoint, and fixture checks are complete |
 | Adzuna | US, UK, India, global | Native API only with local credentials, attribution UI, and quota tests |
 | Reed | UK | Native API only with local credentials and source terms review |

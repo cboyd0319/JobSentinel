@@ -55,6 +55,22 @@ describe("jobSourceOfficialApiCorpus", () => {
         }),
       ]),
     );
+    expect(officialApiEntriesForExample("Dell Technologies")).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          sourceFamilyId: "oracle-recruiting",
+          access: "employer-owned-web-api",
+        }),
+      ]),
+    );
+    expect(officialApiEntriesForExample("Valero Energy")).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          sourceFamilyId: "taleo",
+          access: "public-career-html",
+        }),
+      ]),
+    );
   });
 
   it("separates supported adapters from candidate adapters and gated sessions", () => {
@@ -123,6 +139,32 @@ describe("jobSourceOfficialApiCorpus", () => {
         implementation: "candidate-adapter",
       }),
     ]);
+    expect(officialApiEntriesForSourceFamily("oracle-recruiting")).toEqual([
+      expect.objectContaining({
+        id: "oracle-fusion-candidate-experience-api",
+        access: "employer-owned-web-api",
+        implementation: "candidate-adapter",
+      }),
+    ]);
+    expect(officialApiEntriesForSourceFamily("taleo")).toEqual([
+      expect.objectContaining({
+        id: "oracle-taleo-public-html",
+        access: "public-career-html",
+        implementation: "candidate-adapter",
+      }),
+    ]);
+  });
+
+  it("keeps policy-blocked public API findings visible", () => {
+    const smartRecruiters = officialApiEntriesForSourceFamily("smartrecruiters");
+
+    expect(smartRecruiters).toEqual([
+      expect.objectContaining({
+        id: "smartrecruiters-posting-api",
+        implementation: "candidate-adapter",
+      }),
+    ]);
+    expect(smartRecruiters[0].notes).toMatch(/policy-blocked by robots/i);
   });
 
   it("keeps every corpus source family discoverable in the shared taxonomy", () => {

@@ -60,9 +60,9 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   credential, cookie, token, private note, resume, salary floor, or application
   history exposure. The corrected source integration fixtures now match the
   current optional external-AI config shape. New local API research has been
-  folded into shared source taxonomy for Workday CXS, Phenom widgets, and
-  Radancy/TalentBrew candidate lanes plus long-tail ATS fingerprints without
-  promoting them to unrestricted crawlers.
+  folded into shared source taxonomy and native parser contracts for Workday
+  CXS and Phenom widgets, plus Radancy/TalentBrew, Oracle Fusion/Taleo, and
+  long-tail ATS fingerprints without promoting them to unrestricted crawlers.
 - Resume, application preview, cover-letter review, role-family taxonomy,
   source corpus/taxonomy, local interest learning, and public docs/screenshots
   have focused coverage. Final local gates passed on 2026-06-19 from the
