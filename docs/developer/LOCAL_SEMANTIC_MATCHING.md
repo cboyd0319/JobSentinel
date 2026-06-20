@@ -131,7 +131,9 @@ learning. Capture and evaluate in this order:
 6. Contextual bandit personalization only after real feedback volume exists.
 
 The checked-in seed eval fixture is intentionally small. It proves schema,
-coverage, and hard-negative shape before scoring changes. Production-quality
+coverage, hard-negative shape, role-family expansion, skill-graph confusables,
+fairness counterfactuals, self-preference checks, adversarial postings, and
+generated-advice separation before scoring changes. Production-quality
 evaluation still needs larger reviewed sets for:
 
 - job requirement to resume evidence

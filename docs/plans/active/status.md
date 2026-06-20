@@ -76,7 +76,10 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   is disabled. Settings now includes **Local Match Check**, backed by
   `get_semantic_matching_diagnostics`, to show local-only mode, Qwen3 model-lock
   metadata in `embedded-ml` builds, cache readiness, scoring signals, and
-  quality checks without loading model weights or exposing resume/job text.
+  quality checks without loading model weights or exposing resume/job text. The
+  seed eval fixture now covers role-family expansion, skill-graph confusables,
+  fairness counterfactuals, self-preference checks, adversarial postings, and
+  generated-advice separation with focused `embedded-ml` unit coverage.
 - 2026-06-19 optional outside-AI setup now supports OpenAI, Anthropic, Google
   Gemini, GitHub Copilot, and custom HTTPS providers in Settings. Users can
   configure multiple providers, order preferences, per-provider model names,
@@ -96,12 +99,10 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 - Script tests were moved out of the flat `scripts/` root in commit
   `b238c7d4`; keep future script tests under test directories.
 - 2026-06-19 release blockers remain open for major README and screenshot
-  refresh, stale docs cleanup, expanded semantic-matching eval evidence
-  covering role-family expansion, skill-graph confusables, fairness
-  counterfactuals, self-preference checks, adversarial posting handling, and
-  separate real-job versus generated-advice result types, manual verification
-  of every scraper/source flow, manual verification of every resume capability,
-  final whole-UI proof, final local gates, and user-confirmed push/publish.
+  refresh, stale docs cleanup, manual verification of every scraper/source
+  flow, manual verification of every resume and semantic-matching capability
+  against the local corpora, final whole-UI proof, final local gates, and
+  user-confirmed push/publish.
 
 ## Next Best Work
 
@@ -109,9 +110,8 @@ The v2.9.0 goal adds four durable release-readiness requirements:
    public README and screenshots for current v2.9.0 surfaces.
 2. Manually verify every current scraper/source path and every resume feature
    against the local corpora, then record evidence.
-3. Expand semantic-matching evals from the research contract, including
-   role-family, skill-graph, fairness, self-preference, and adversarial-input
-   fixtures.
+3. Run manual resume-corpus verification, including semantic matching against
+   the research-backed eval contract.
 4. Run final local release gates from the verified commit.
 5. Push `main` and wiki only after the user confirms final publication steps.
 6. Keep macOS readiness honest: no Gatekeeper-ready claim before Apple credentials.

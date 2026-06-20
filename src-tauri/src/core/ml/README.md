@@ -95,15 +95,17 @@ prompt shape and query-kind defaults. Focused live validation passed on
 `core::ml::qwen3::tests::qwen3_reranker_ranks_direct_evidence_above_near_miss`:
 the ignored test downloads the pinned reranker into an explicit external cache,
 verifies hashes, loads the backend, and ranks direct evidence above a near
-miss. It still needs diagnostics and UI/data-flow proof before release signoff.
+miss. Settings exposes **Local Match Check** through
+`get_semantic_matching_diagnostics` so users and developers can see local-only
+mode, model-lock metadata, cache readiness, scoring signals, and quality checks
+without loading weights or exposing resume/job text.
 
 The deterministic hybrid scorer is implemented and unit-covered. It combines
 dense, BM25, exact skill, required-coverage, seniority, reranker, blocker, and
 provenance signals, and it caps otherwise strong matches when hard blockers
 exist. For `embedded-ml` builds, resume/job scoring now uses the hybrid scorer
 through `src-tauri/src/core/resume/matcher/hybrid_score.rs`; builds without
-local ML keep the legacy weighted formula. Qwen3 dense and reranker diagnostics
-still need UI/data-flow proof before release signoff.
+local ML keep the legacy weighted formula.
 
 ## Adding New Features
 
@@ -161,9 +163,11 @@ Improve local matching in this order:
 Avoid RL-style optimization until the product has enough feedback and a clear
 sequential decision objective.
 
-The seed fixture covers all core eval tasks and is loaded by unit tests. It is
-not a training dataset by itself; it is a schema and regression anchor for
-future scoring, hard-negative mining, and reranker fine-tuning work.
+The seed fixture covers all core eval tasks plus role-family expansion,
+skill-graph confusables, fairness counterfactuals, self-preference checks,
+adversarial postings, and generated-advice separation. It is loaded by unit
+tests. It is not a training dataset by itself; it is a schema and regression
+anchor for future scoring, hard-negative mining, and reranker fine-tuning work.
 
 Research backing for this path is summarized in
 `docs/research/semantic-resume-job-matching.md`.

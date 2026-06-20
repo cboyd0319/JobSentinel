@@ -20,6 +20,12 @@ pub enum EvalDatasetKind {
     SkillPhraseToResumeEvidence,
     JobTitleToResumeSeniority,
     GapAnalysis,
+    RoleFamilyExpansion,
+    SkillGraphConfusable,
+    FairnessCounterfactual,
+    SelfPreferenceCheck,
+    AdversarialPosting,
+    GeneratedAdviceSeparation,
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
@@ -29,6 +35,8 @@ pub struct EvidenceLabelExample {
     pub candidate: String,
     pub label: EvidenceLabel,
     pub reason: Option<String>,
+    #[serde(default)]
+    pub tags: Vec<String>,
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
@@ -213,6 +221,104 @@ mod tests {
                 "missing seed example for {kind:?}"
             );
         }
+    }
+
+    #[test]
+    fn seed_eval_fixture_covers_research_addendum_tasks() {
+        let fixture = EvalFixtureSet::seed().expect("fixture should parse");
+
+        for kind in [
+            EvalDatasetKind::RoleFamilyExpansion,
+            EvalDatasetKind::SkillGraphConfusable,
+            EvalDatasetKind::FairnessCounterfactual,
+            EvalDatasetKind::SelfPreferenceCheck,
+            EvalDatasetKind::AdversarialPosting,
+            EvalDatasetKind::GeneratedAdviceSeparation,
+        ] {
+            assert!(
+                fixture
+                    .evidence_labels
+                    .iter()
+                    .any(|example| example.dataset_kind == kind),
+                "missing seed example for {kind:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn fairness_counterfactual_seed_examples_keep_label_stable_for_same_evidence() {
+        let fixture = EvalFixtureSet::seed().expect("fixture should parse");
+        let examples: Vec<&EvidenceLabelExample> = fixture
+            .evidence_labels
+            .iter()
+            .filter(|example| {
+                example
+                    .tags
+                    .iter()
+                    .any(|tag| tag == "fairness_group_cloud_security_same_evidence")
+            })
+            .collect();
+
+        assert!(examples.len() >= 2);
+        assert!(examples
+            .iter()
+            .all(|example| example.label == EvidenceLabel::StrongDirectEvidence));
+    }
+
+    #[test]
+    fn self_preference_seed_examples_keep_label_stable_for_same_facts() {
+        let fixture = EvalFixtureSet::seed().expect("fixture should parse");
+        let examples: Vec<&EvidenceLabelExample> = fixture
+            .evidence_labels
+            .iter()
+            .filter(|example| {
+                example
+                    .tags
+                    .iter()
+                    .any(|tag| tag == "self_preference_group_same_facts")
+            })
+            .collect();
+
+        assert!(examples.len() >= 2);
+        assert!(examples
+            .iter()
+            .all(|example| example.label == EvidenceLabel::StrongDirectEvidence));
+    }
+
+    #[test]
+    fn confusable_and_adversarial_seed_examples_do_not_overclaim_fit() {
+        let fixture = EvalFixtureSet::seed().expect("fixture should parse");
+
+        assert!(fixture.evidence_labels.iter().any(|example| {
+            example.dataset_kind == EvalDatasetKind::SkillGraphConfusable
+                && example.label == EvidenceLabel::KeywordOnly
+                && example
+                    .tags
+                    .iter()
+                    .any(|tag| tag == "confusable_kubernetes_admin_vs_security_detection")
+        }));
+        assert!(fixture.evidence_labels.iter().any(|example| {
+            example.dataset_kind == EvalDatasetKind::AdversarialPosting
+                && example.label == EvidenceLabel::NoEvidence
+                && example
+                    .tags
+                    .iter()
+                    .any(|tag| tag == "adversarial_prompt_injection")
+        }));
+    }
+
+    #[test]
+    fn generated_advice_seed_examples_are_not_real_posting_evidence() {
+        let fixture = EvalFixtureSet::seed().expect("fixture should parse");
+
+        assert!(fixture.evidence_labels.iter().any(|example| {
+            example.dataset_kind == EvalDatasetKind::GeneratedAdviceSeparation
+                && example.label == EvidenceLabel::NoEvidence
+                && example
+                    .tags
+                    .iter()
+                    .any(|tag| tag == "generated_advice_not_real_job")
+        }));
     }
 
     #[test]
