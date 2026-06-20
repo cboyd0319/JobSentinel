@@ -148,10 +148,25 @@ export class DashboardPage extends BasePage {
   }
 
   async applyDropdownFilter(label: string, optionName: string) {
-    await this.dropdownButton(label).click();
-    const option = this.page.getByRole("option", { name: optionName });
-    await option.waitFor({ state: "visible", timeout: 5000 });
-    await option.click({ force: true });
+    const button = this.dropdownButton(label);
+    const selectedPattern = new RegExp(escapeRegExp(optionName), "i");
+
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      await button.click();
+      const option = this.page.getByRole("option", { name: optionName }).first();
+      await option.waitFor({ state: "visible", timeout: 5000 });
+      await option.click();
+
+      try {
+        await expect(button).toContainText(selectedPattern, { timeout: 5000 });
+        await this.waitForReady();
+        return;
+      } catch {
+        await this.page.keyboard.press("Escape");
+      }
+    }
+
+    await expect(button).toContainText(selectedPattern, { timeout: 10000 });
     await this.waitForReady();
   }
 
@@ -187,6 +202,10 @@ export class DashboardPage extends BasePage {
       .getByRole("button")
       .first();
   }
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 /**
