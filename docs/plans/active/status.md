@@ -10,10 +10,10 @@ Current priority is final v2.9.0 release-gate handoff for an urgent single-user 
 
 Release creation is paused. Do not push, retag, upload, or publish `v2.9.0`
 until final gates pass from the verified commit and the user confirms
-publication. The previous final gate run passed before the latest
-Radancy/TalentBrew parser-contract slice; rerun full gates from the next
-committed state before publication. Do not retag or upload over the same
-`v2.9.0` release while an older workflow run is still building assets.
+publication. Final local gates passed after the Radancy/TalentBrew
+parser-contract slice; rerun them after any further local change. Do not retag
+or upload over the same `v2.9.0` release while an older workflow run is still
+building assets.
 
 Rule 0 still controls the work: user data stays local unless the user explicitly
 configures an external channel, external AI stays optional and disabled by
@@ -52,9 +52,8 @@ The v2.9.0 goal adds durable release-readiness requirements:
   exist; do not publish or delete them without explicit user approval.
 - Recent evidence covers dependency/action pins, security sensors, frontend,
   build, Rust fmt/clippy/lib, E2E, docs, bloat, harness, skills packaging, and
-  no-account release asset staging. The previous full final-gate run is stale
-  after the latest source-adapter change; focused checks passed for that slice,
-  and full final gates must rerun before publication.
+  no-account release asset staging. Final local gates passed after the latest
+  Radancy/TalentBrew source-adapter change; rerun them after any further change.
 - Credential paths use encrypted local storage; passive status/list checks must
   remain non-interactive and must not cache vault keys.
 - No-account release assets can publish for Windows, macOS, and Linux, but
@@ -67,8 +66,7 @@ The v2.9.0 goal adds durable release-readiness requirements:
   static HTML, plus Oracle Fusion/Taleo and long-tail ATS fingerprints.
 - Resume, application preview, cover-letter review, role-family taxonomy,
   source corpus/taxonomy, local interest learning, and public docs/screenshots
-  have focused coverage. Publication remains user-confirmed, and full final
-  gates must rerun after the latest Radancy/TalentBrew source-adapter change.
+  have focused coverage. Publication remains user-confirmed.
 - 2026-06-19 private resume-corpus aggregate probe parsed all 12 local files
   across DOCX, Markdown, and PDF formats, ran skill extraction plus
   ATS/readability checks against three broad job descriptions, ran
@@ -111,15 +109,14 @@ The v2.9.0 goal adds durable release-readiness requirements:
   `b238c7d4`; keep future script tests under test directories.
 - 2026-06-19 major README, screenshot, stale-docs, source, resume, semantic,
   restricted-browser, whole-UI, and final-gate evidence is recorded locally.
-  2026-06-20 focused evidence covers the Radancy/TalentBrew parser-contract
-  slice. Remaining blockers are full final gates from the next committed state
-  and user-confirmed push/publish.
+  2026-06-20 final-gate evidence covers the Radancy/TalentBrew parser-contract
+  slice. Remaining blocker is user-confirmed push/publish.
 
 ## Next Best Work
 
-1. Commit the Radancy/TalentBrew parser-contract slice, then rerun full final gates from the next committed state.
-2. Wait for user confirmation before pushing `main`, wiki, tags, or release assets.
-3. Keep macOS readiness honest: no Gatekeeper-ready claim before Apple credentials.
+1. Wait for user confirmation before pushing `main`, wiki, tags, or release assets.
+2. Keep macOS readiness honest: no Gatekeeper-ready claim before Apple credentials.
+3. Rerun final gates after any further local change.
 
 ## Completion Bar
 
