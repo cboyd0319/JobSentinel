@@ -74,6 +74,9 @@ Job-search readiness release for the full local-first workspace. This release he
   `image-set(...)` resource loads.
 - **Browser Import token checks** - Local Browser Import token matching now
   requires exact non-early-exit string comparison for header and body tokens.
+- **Release SPDX attestation coverage** - Release SBOM attestations now target
+  installable asset paths directly so Windows MSI, Windows setup EXE, macOS
+  DMG, Linux AppImage, and Linux deb artifacts all receive SPDX attestations.
 
 ## [2.7.7] - 2026-06-06
 

@@ -243,10 +243,7 @@ const releaseWorkflowChecks = [
   },
   {
     label: "release SBOM attestation",
-    phrases: [
-      "subject-checksums: release-assets/attestation-subjects.sha256",
-      "sbom-path: release-assets/public/JobSentinel-",
-    ],
+    phrases: ["release-assets/public/*.dmg", "release-assets/public/*.msi", "release-assets/public/*.exe", "release-assets/public/*.AppImage", "release-assets/public/*.deb", "sbom-path: release-assets/public/JobSentinel-"],
   },
 ];
 

@@ -1078,7 +1078,12 @@ jobs:
       - name: Attest release artifact SBOM
         uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26 # v4.1.0
         with:
-          subject-checksums: release-assets/attestation-subjects.sha256
+          subject-path: |
+            release-assets/public/*.dmg
+            release-assets/public/*.msi
+            release-assets/public/*.exe
+            release-assets/public/*.AppImage
+            release-assets/public/*.deb
           sbom-path: release-assets/public/JobSentinel-${{ needs.create-release.outputs.version }}-${{ matrix.platform_key }}.sbom.spdx.json
 
       - name: Upload release assets

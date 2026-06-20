@@ -64,7 +64,9 @@ export function hasNoAccountMacosReleaseOrder(releaseWorkflow) {
       "npm run release:sbom",
       "--require-artifacts",
       "subject-path: release-assets/public/*",
-      "subject-checksums: release-assets/attestation-subjects.sha256",
+      "release-assets/public/*.dmg",
+      "release-assets/public/*.exe",
+      "sbom-path: release-assets/public/JobSentinel-",
       'gh release upload "$RELEASE_TAG" "${assets[@]}" --clobber',
     ]) &&
     !releaseWorkflow.includes("mapfile ") &&

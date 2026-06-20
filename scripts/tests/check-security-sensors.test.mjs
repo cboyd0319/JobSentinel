@@ -552,7 +552,7 @@ test("checkSecuritySensors rejects release attestation permissions on the wrong 
       "          subject-path: release-assets/public/*",
       "      - uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26 # v4.1.0",
       "        with:",
-      "          subject-checksums: release-assets/attestation-subjects.sha256",
+      "          subject-path: |\n            release-assets/public/*.dmg\n            release-assets/public/*.msi\n            release-assets/public/*.exe\n            release-assets/public/*.AppImage\n            release-assets/public/*.deb",
       "          sbom-path: release-assets/public/JobSentinel-1.2.3-macos.sbom.spdx.json",
     ].join("\n"),
   );
@@ -1190,7 +1190,7 @@ function readBaseReleaseWorkflowWithout(removedLine) {
     "          subject-path: release-assets/public/*",
     "      - uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26 # v4.1.0",
     "        with:",
-    "          subject-checksums: release-assets/attestation-subjects.sha256",
+    "          subject-path: |\n            release-assets/public/*.dmg\n            release-assets/public/*.msi\n            release-assets/public/*.exe\n            release-assets/public/*.AppImage\n            release-assets/public/*.deb",
     "          sbom-path: release-assets/public/JobSentinel-1.2.3-macos.sbom.spdx.json",
     "      - run: gh release upload \"$RELEASE_TAG\" release-assets/public/* --clobber",
   ]
