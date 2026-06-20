@@ -10,45 +10,28 @@ cookie/session storage and automatic account-backed monitoring are disabled.
 Historical entries below may describe removed experiments. The current
 supported path is user-opened search links plus user-clicked Browser Import.
 
-## [2.9.0] - 2026-06-19
+## [2.9.0] - 2026-06-20
 
-Local release candidate for the v2.9.0 job-search readiness push. Public
-release assets are not published until final target-platform builds, upload,
-and public verification close.
+Job-search readiness release for the full local-first workspace. This release helps users discover, judge, tailor, track, and negotiate job opportunities while keeping sensitive job-search data local by default.
 
 ### Added
 
-- **Downloadable Agent Skills** - Added spec-compliant job-search, resume,
-  application, outreach, interview, tracking, posting-risk, and offer/pay
-  skills under `skills/`.
-- **Browser Import workflow** - Kept LinkedIn-compatible job capture on
-  user-opened pages and user-clicked import, with no session-cookie storage,
-  token replay, background monitoring, result-list crawling, or account
-  automation.
+- **Downloadable Agent Skills** - Added spec-compliant job-search, resume, application, outreach, interview, tracking, posting-risk, and offer/pay skills under `skills/`.
+- **Browser Import workflow** - Kept LinkedIn-compatible job capture on user-opened pages and user-clicked import, with no session-cookie storage, token replay, background monitoring, result-list crawling, or account automation.
+- **Under-the-hood release mechanics** - Public docs now call out the local architecture that powers the product: source taxonomy and routing, restricted-source Workbench, evidence-bounded resume matching, privacy-first AI gateway, local vault and safe reports, Agent Skills packaging, release supply-chain checks, and local semantic matching.
+- **Qwen3 local matching architecture** - Embedded-ML builds can use governed Qwen3-Embedding-0.6B retrieval plus bounded Qwen3-Reranker-0.6B reranking, blended with exact skill, BM25, blocker, seniority, evidence, and provenance signals. `models.lock.toml` pins model identity, revisions, hashes, sizes, licenses, backends, instruction profiles, thresholds, and stale-vector rules.
 
 ### Changed
 
-- **Release metadata** - Bumped npm, Cargo, and Tauri package metadata to
-  `2.9.0`.
-- **Release supply chain** - Consolidated CI/release workflows now generate
-  release SBOM manifests, require provenance and SBOM attestations, and verify
-  public macOS supply-chain evidence.
-- **No-account platform release path** - Hosted releases can now publish an
-  explicitly `_unsigned` Windows MSI and NSIS setup EXE when signing
-  credentials are unavailable, while preserving the signed Windows path,
-  no-account macOS path, Linux package checks, checksums, SBOMs, and
-  attestations.
-- **Local macOS release evidence** - Rebuilt the current-source no-account
-  universal DMG, verified checksum, metadata, universal architecture,
-  signature, mounted and installed launch smoke, visible window, and private
-  isolated-data creation, then staged macOS SBOM and Agent Skills archive
-  checksums locally.
-- **Dependency posture** - Release dependency checks now require exact latest
-  stable direct pins, current package-manager and tool baselines, lockfile
-  freshness, and pinned GitHub Actions.
-- **Local model integrity** - Optional embedded ML downloads now use an exact
-  Hugging Face revision and verify SHA-256 checksums before cache status or
-  model loading succeeds.
+- **Release metadata** - Bumped npm, Cargo, and Tauri package metadata to `2.9.0`.
+- **Release documentation** - Rebuilt the README as a scannable product front door, refreshed the docs hub, capabilities page, release notes, quick start, release process, macOS development notes, active release plans, risk register, and public wiki posture for `2.9.0`.
+- **Release-readiness harness** - Updated the release readiness check so it verifies the durable public-download contract instead of stale pre-release wording, and added focused regression coverage for checksum guidance.
+- **Release supply chain** - Consolidated CI/release workflows now generate release SBOM manifests, require provenance and SBOM attestations, and verify public macOS supply-chain evidence.
+- **No-account platform release path** - Hosted releases can now publish an explicitly `_unsigned` Windows MSI and NSIS setup EXE when signing credentials are unavailable, while preserving the signed Windows path, no-account macOS path, Linux package checks, checksums, SBOMs, and attestations.
+- **Local macOS release evidence** - Rebuilt the current-source no-account universal DMG, verified checksum, metadata, universal architecture, signature, mounted and installed launch smoke, visible window, and private isolated-data creation, then staged macOS SBOM and Agent Skills archive checksums locally.
+- **Dependency posture** - Release dependency checks now require exact latest stable direct pins, current package-manager and tool baselines, lockfile freshness, and pinned GitHub Actions.
+- **Latest stable package pins** - Refreshed `lint-staged` to `17.0.8` after the release dependency freshness gate detected upstream drift.
+- **Local model integrity** - Optional embedded ML downloads now use an exact Hugging Face revision and verify SHA-256 checksums before cache status or model loading succeeds.
 - **Browser Import hardening** - The generated browser button now sends through
   clean transient browser APIs instead of host-page `window.fetch` or
   `JSON.stringify` while keeping one-use local tokens.
@@ -59,9 +42,7 @@ and public verification close.
   memory-only caching and clear the legacy localStorage cache key.
 - **Onboarding accessibility** - The tour overlay now behaves as a modal dialog
   with focus handling, Escape close, and viewport-clamped placement.
-- **Public wiki posture** - Synced public `Home.md` and `Capabilities.md` wiki
-  pages with the current `2.9.0` local readiness, release-boundary, macOS,
-  LinkedIn, security, and Agent Skills posture.
+- **Public wiki posture** - Synced public `Home.md` and `Capabilities.md` wiki pages with the current `2.9.0` release-line, macOS, LinkedIn, security, Agent Skills, and under-the-hood architecture posture.
 
 ### Fixed
 
