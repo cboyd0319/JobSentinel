@@ -9,6 +9,15 @@ import {
   type RestrictedSourceAcknowledgements,
   restrictedScheduledJobSourceLabel,
 } from "../shared/restrictedSourceTaxonomy";
+import {
+  DEFAULT_EXTERNAL_AI_CONFIG,
+  EXTERNAL_AI_PROVIDER_CREDENTIAL_KEYS,
+  EXTERNAL_AI_PROVIDER_LABELS,
+  type ExternalAiCredentialKey,
+  type ExternalAiProvider,
+  type ExternalAiSettings,
+  isExternalAiProvider,
+} from "./externalAiProviders";
 
 // Ghost detection configuration interface
 export interface GhostConfig {
@@ -177,8 +186,12 @@ export interface Config {
   };
   jobswithgpt_endpoint: string;
   jobswithgpt_approval: JobsWithGptApproval;
+  external_ai: ExternalAiSettings;
   use_resume_matching: boolean;
 }
+
+export { DEFAULT_EXTERNAL_AI_CONFIG };
+export type { ExternalAiProvider, ExternalAiSettings };
 
 export type GhostPreset = "lenient" | "balanced" | "strict";
 export type GhostPresetSelection = GhostPreset | "custom";
@@ -219,6 +232,11 @@ export interface Credentials {
   teams_webhook: string;
   telegram_bot_token: string;
   usajobs_api_key: string;
+  external_ai_openai_api_key: string;
+  external_ai_anthropic_api_key: string;
+  external_ai_google_api_key: string;
+  external_ai_github_copilot_api_key: string;
+  external_ai_custom_api_key: string;
 }
 
 // Credential key names (must match backend CredentialKey enum)
@@ -228,7 +246,8 @@ export type CredentialKey =
   | "discord_webhook"
   | "teams_webhook"
   | "telegram_bot_token"
-  | "usajobs_api_key";
+  | "usajobs_api_key"
+  | ExternalAiCredentialKey;
 
 export interface CredentialStatusEntry {
   key: CredentialKey;
@@ -503,6 +522,29 @@ function isOptionalJobsWithGptPayload(value: unknown): boolean {
   );
 }
 
+function isExternalAiSettings(value: unknown): value is ExternalAiSettings {
+  if (!isPlainRecord(value)) return false;
+  const redaction = recordField(value, "redaction");
+
+  return (
+    hasBooleanField(value, "enabled") &&
+    isExternalAiProvider(value.provider) &&
+    hasStringField(value, "model") &&
+    hasStringField(value, "custom_endpoint") &&
+    (value.provider_order === undefined ||
+      hasStringArrayField(value, "provider_order")) &&
+    (value.enabled_providers === undefined ||
+      hasStringArrayField(value, "enabled_providers")) &&
+    (value.provider_models === undefined ||
+      isPlainRecord(value.provider_models)) &&
+    hasBooleanField(value, "require_payload_preview") &&
+    hasBooleanField(value, "allow_sensitive_payloads") &&
+    !!redaction &&
+    hasBooleanField(redaction, "enabled") &&
+    hasBooleanField(value, "log_requests_locally")
+  );
+}
+
 export function isSettingsBackupConfig(value: unknown): value is Config {
   if (!isPlainRecord(value)) return false;
 
@@ -530,6 +572,7 @@ export function isSettingsBackupConfig(value: unknown): value is Config {
   const simplyhired = recordField(value, "simplyhired");
   const glassdoor = recordField(value, "glassdoor");
   const jobswithgptApproval = recordField(value, "jobswithgpt_approval");
+  const externalAi = recordField(value, "external_ai");
 
   return (
     hasStringArrayField(value, "title_allowlist") &&
@@ -639,6 +682,8 @@ export function isSettingsBackupConfig(value: unknown): value is Config {
     hasBooleanField(jobswithgptApproval, "enabled") &&
     isOptionalJobsWithGptPayload(jobswithgptApproval.payload) &&
     hasOptionalNullableStringField(jobswithgptApproval, "approved_at") &&
+    (value.external_ai === undefined ||
+      (!!externalAi && isExternalAiSettings(externalAi))) &&
     hasBooleanField(value, "use_resume_matching")
   );
 }
@@ -774,6 +819,68 @@ export function getCredentialValidationError(
         message:
           "Add the USAJobs email and access code shown below, or turn USAJobs scheduled checks off.",
       };
+    }
+  }
+
+  if (config?.external_ai?.enabled) {
+    if (config.external_ai.provider === "none") {
+      return {
+        title: "Choose an outside AI provider",
+        message:
+          "Choose at least one outside AI provider, or turn outside AI off.",
+      };
+    }
+
+    if (!config.external_ai.require_payload_preview) {
+      return {
+        title: "Keep outside AI review on",
+        message:
+          "JobSentinel must show what would be sent before any outside AI request.",
+      };
+    }
+
+    if (!config.external_ai.redaction.enabled) {
+      return {
+        title: "Keep outside AI redaction on",
+        message:
+          "JobSentinel must remove private details before outside AI is used.",
+      };
+    }
+
+    if (config.external_ai.enabled_providers.includes("custom")) {
+      try {
+        const endpoint = new URL(config.external_ai.custom_endpoint);
+        if (
+          endpoint.protocol !== "https:" ||
+          endpoint.username ||
+          endpoint.password
+        ) {
+          throw new Error("invalid custom endpoint");
+        }
+      } catch {
+        return {
+          title: "Check outside AI endpoint",
+          message:
+            "Use a full HTTPS endpoint from your provider, without a username or password in the link.",
+        };
+      }
+    }
+
+    for (const provider of config.external_ai.enabled_providers) {
+      const credentialKey = EXTERNAL_AI_PROVIDER_CREDENTIAL_KEYS[provider];
+      const hasProviderKey =
+        Boolean(
+          credentialStatus &&
+            credentialExists(credentialStatus, credentialKey),
+        ) || Boolean(credentials[credentialKey].trim());
+
+      if (!hasProviderKey) {
+        return {
+          title: `Add ${EXTERNAL_AI_PROVIDER_LABELS[provider]} key`,
+          message:
+            "Paste the provider key, or turn that provider off. The key is stored in the local secure vault.",
+        };
+      }
     }
   }
 

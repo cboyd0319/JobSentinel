@@ -1,5 +1,7 @@
 //! Configuration validation logic
 
+mod external_ai;
+
 use super::types::Config;
 use super::validation_error::{ValidationError, ValidationErrors};
 use crate::core::source_urls::{parse_greenhouse_company_url, parse_lever_company_url};
@@ -8,7 +10,6 @@ use crate::core::url_security::validate_external_https_url;
 const MIN_BOOKMARKLET_PORT: u16 = 1024;
 const MAX_BOOKMARKLET_PORT: u16 = u16::MAX;
 
-/// Validate configuration values
 pub fn validate_config(config: &Config) -> Result<(), Box<dyn std::error::Error>> {
     let mut errors = ValidationErrors::new();
 
@@ -18,6 +19,7 @@ pub fn validate_config(config: &Config) -> Result<(), Box<dyn std::error::Error>
     validate_location(config, &mut errors);
     validate_alerts(config, &mut errors);
     validate_scrapers(config, &mut errors);
+    external_ai::validate_external_ai(config, &mut errors);
     validate_urls(config, &mut errors);
 
     if errors.is_empty() {
@@ -27,7 +29,6 @@ pub fn validate_config(config: &Config) -> Result<(), Box<dyn std::error::Error>
     }
 }
 
-/// Validate core configuration settings
 fn validate_core_settings(config: &Config, errors: &mut ValidationErrors) {
     // Validate immediate alert threshold (must be between 0.0 and 1.0)
     if !(0.0..=1.0).contains(&config.immediate_alert_threshold) {
@@ -49,7 +50,6 @@ fn validate_core_settings(config: &Config, errors: &mut ValidationErrors) {
         ));
     }
 
-    // Validate auto-refresh interval
     if config.auto_refresh.enabled && config.auto_refresh.interval_minutes == 0 {
         errors.add(ValidationError::out_of_range(
             "auto_refresh.interval_minutes",

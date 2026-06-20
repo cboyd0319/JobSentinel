@@ -31,7 +31,7 @@ function enabledSettings(overrides = {}) {
   return {
     ...DEFAULT_EXTERNAL_AI_SETTINGS,
     enabled: true,
-    provider: "openai" as const,
+    provider: "open_ai" as const,
     ...overrides,
   };
 }
@@ -278,14 +278,14 @@ describe("aiGateway", () => {
 
     expect(transport.send).toHaveBeenCalledWith({
       feature: "job-description-summary",
-      provider: "openai",
+      provider: "open_ai",
       labels: ["External AI optional", "Public-data only"],
       dataCategories: ["job_posting", "public_metadata"],
       payload: publicJobSummaryRequest.payload,
     });
     expect(logRequest).toHaveBeenCalledWith({
       feature: "job-description-summary",
-      provider: "openai",
+      provider: "open_ai",
       timestamp: expect.any(String),
       labels: ["External AI optional", "Public-data only"],
       dataCategories: ["job_posting", "public_metadata"],

@@ -38,7 +38,12 @@ fn parse_credential_key(key: &str) -> Result<CredentialKey, String> {
 
 fn normalize_credential_value(key: CredentialKey, value: String) -> String {
     match key {
-        CredentialKey::LinkedInCookie => value.trim().to_string(),
+        CredentialKey::LinkedInCookie
+        | CredentialKey::ExternalAiOpenAiApiKey
+        | CredentialKey::ExternalAiAnthropicApiKey
+        | CredentialKey::ExternalAiGoogleApiKey
+        | CredentialKey::ExternalAiGithubCopilotApiKey
+        | CredentialKey::ExternalAiCustomApiKey => value.trim().to_string(),
         _ => value,
     }
 }

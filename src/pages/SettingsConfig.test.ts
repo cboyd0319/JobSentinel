@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   getCredentialValidationError,
+  DEFAULT_EXTERNAL_AI_CONFIG,
   type Config,
   type CredentialKey,
   type CredentialStatusMap,
@@ -78,6 +79,7 @@ function makeConfig(): Config {
       payload: null,
       approved_at: null,
     },
+    external_ai: DEFAULT_EXTERNAL_AI_CONFIG,
     use_resume_matching: false,
   };
 }
@@ -90,6 +92,11 @@ function makeCredentials(overrides: Partial<Credentials> = {}): Credentials {
     teams_webhook: "",
     telegram_bot_token: "",
     usajobs_api_key: "",
+    external_ai_openai_api_key: "",
+    external_ai_anthropic_api_key: "",
+    external_ai_google_api_key: "",
+    external_ai_github_copilot_api_key: "",
+    external_ai_custom_api_key: "",
     ...overrides,
   };
 }
@@ -112,6 +119,21 @@ function makeCredentialStatus(
     teams_webhook: statusValue(overrides.teams_webhook ?? "empty"),
     telegram_bot_token: statusValue(overrides.telegram_bot_token ?? "empty"),
     usajobs_api_key: statusValue(overrides.usajobs_api_key ?? "empty"),
+    external_ai_openai_api_key: statusValue(
+      overrides.external_ai_openai_api_key ?? "empty",
+    ),
+    external_ai_anthropic_api_key: statusValue(
+      overrides.external_ai_anthropic_api_key ?? "empty",
+    ),
+    external_ai_google_api_key: statusValue(
+      overrides.external_ai_google_api_key ?? "empty",
+    ),
+    external_ai_github_copilot_api_key: statusValue(
+      overrides.external_ai_github_copilot_api_key ?? "empty",
+    ),
+    external_ai_custom_api_key: statusValue(
+      overrides.external_ai_custom_api_key ?? "empty",
+    ),
   };
 }
 
@@ -223,6 +245,37 @@ describe("getCredentialValidationError", () => {
         makeCredentials(),
         config,
         makeCredentialStatus(),
+      ),
+    ).toBeNull();
+  });
+
+  it("requires a saved or newly entered key for each enabled outside AI provider", () => {
+    const config = makeConfig();
+    config.external_ai = {
+      ...DEFAULT_EXTERNAL_AI_CONFIG,
+      enabled: true,
+      provider: "open_ai",
+      enabled_providers: ["open_ai", "anthropic"],
+      provider_order: ["open_ai", "anthropic", "google_gemini", "github_copilot", "custom"],
+    };
+
+    expect(
+      getCredentialValidationError(
+        makeCredentials(),
+        config,
+        makeCredentialStatus({ external_ai_openai_api_key: "saved" }),
+      ),
+    ).toEqual({
+      title: "Add Anthropic key",
+      message:
+        "Paste the provider key, or turn that provider off. The key is stored in the local secure vault.",
+    });
+
+    expect(
+      getCredentialValidationError(
+        makeCredentials({ external_ai_anthropic_api_key: "new-anthropic-key" }),
+        config,
+        makeCredentialStatus({ external_ai_openai_api_key: "saved" }),
       ),
     ).toBeNull();
   });

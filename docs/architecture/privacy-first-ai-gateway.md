@@ -133,16 +133,22 @@ external AI provider APIs outside this gateway.
 
 ## Current Status And TODOs
 
-Release status for `2.9.0`: external AI remains unavailable in the user
-interface. There is no Settings provider control, no provider credential flow,
-and no provider transport wired to production UI. The gateway below stays as the
-guarded boundary and testable contract for future provider work.
+Release status for `2.9.0`: Settings can configure optional outside-AI
+providers, provider preference order, per-provider model names, and provider
+keys through `CredentialService`. Provider keys stay in the local secure vault,
+not in settings backups. No production provider transport sends user data yet;
+payload preview, redaction review, send/cancel UI, and request-log viewing still
+need to land before any user-facing external AI feature can call a provider.
 
 Implemented now:
 
 - Gateway types and default settings.
 - Disabled-by-default guard.
 - Provider-required guard.
+- Settings provider setup for OpenAI, Anthropic, Google Gemini, GitHub Copilot,
+  and custom HTTPS providers.
+- Multi-provider preference order and per-provider model-name config.
+- Provider key storage through the local credential vault.
 - Payload preview and user-approval guards.
 - Redacted payload required when redaction is enabled.
 - Reviewed redacted payload sent instead of raw feature payload.
@@ -156,9 +162,6 @@ Implemented now:
 
 TODO before shipping any user-facing external AI feature:
 
-- Add Settings UI for enabling providers and showing privacy labels.
-- Add provider credential storage through `CredentialService` and the local
-  secret vault.
 - Add payload preview, redaction, edit, and cancel UI.
 - Add local request-log storage and viewer.
 - Add feature-specific local fallback or external-AI-required label.

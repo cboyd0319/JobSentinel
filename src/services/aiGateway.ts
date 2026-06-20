@@ -8,7 +8,13 @@ export const FEATURE_PRIVACY_LABELS = [
 
 export type FeaturePrivacyLabel = (typeof FEATURE_PRIVACY_LABELS)[number];
 
-export type ExternalAiProvider = "none" | "openai" | "custom";
+export type ExternalAiProvider =
+  | "none"
+  | "open_ai"
+  | "anthropic"
+  | "google_gemini"
+  | "github_copilot"
+  | "custom";
 
 export type ExternalAiDataCategory =
   | "job_posting"

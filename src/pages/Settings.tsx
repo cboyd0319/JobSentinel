@@ -34,11 +34,13 @@ import {
   type SettingsProps,
   type SourceRequestSummary,
 } from "./SettingsConfig";
+import { normalizeExternalAiSettings } from "./externalAiProviders";
 import { useJobBoardRecommendations } from "./SettingsJobBoardRecommendations";
 import { SettingsJobSourcesSection } from "./SettingsJobSourcesSection";
 import { SettingsPostingRiskSection } from "./SettingsPostingRiskSection";
 import { SettingsResumeMatchingSection } from "./SettingsResumeMatchingSection";
 import { SettingsNotificationsSection } from "./SettingsNotificationsSection";
+import { SettingsExternalAiSection } from "./SettingsExternalAiSection";
 import { SettingsSearchPreferencesSection } from "./SettingsSearchPreferencesSection";
 import { SettingsCredentialLockSection } from "./SettingsCredentialLockSection";
 import {
@@ -226,6 +228,7 @@ export default function Settings({ onClose }: SettingsProps) {
           payload: null,
           approved_at: null,
         },
+        external_ai: normalizeExternalAiSettings(configData.external_ai),
         linkedin: {
           ...configData.linkedin,
           enabled: false,
@@ -838,6 +841,14 @@ export default function Settings({ onClose }: SettingsProps) {
               <SettingsResumeMatchingSection
                 config={config}
                 onConfigChange={setConfig}
+              />
+
+              <SettingsExternalAiSection
+                config={config}
+                credentialStatus={credentialStatus}
+                credentials={credentials}
+                onConfigChange={setConfig}
+                onCredentialsChange={setCredentials}
               />
 
               <SettingsHelpStatusSection

@@ -12,6 +12,7 @@ import {
   type CredentialStatusState,
   type Credentials,
 } from "./SettingsConfig";
+import { EXTERNAL_AI_PROVIDER_CREDENTIAL_KEYS } from "./externalAiProviders";
 
 export interface CredentialSaveEntry {
   key: CredentialKey;
@@ -25,6 +26,11 @@ const CREDENTIAL_KEYS: CredentialKey[] = [
   "teams_webhook",
   "telegram_bot_token",
   "usajobs_api_key",
+  "external_ai_openai_api_key",
+  "external_ai_anthropic_api_key",
+  "external_ai_google_api_key",
+  "external_ai_github_copilot_api_key",
+  "external_ai_custom_api_key",
 ];
 
 function createEmptyCredentials(): Credentials {
@@ -35,6 +41,11 @@ function createEmptyCredentials(): Credentials {
     teams_webhook: "",
     telegram_bot_token: "",
     usajobs_api_key: "",
+    external_ai_openai_api_key: "",
+    external_ai_anthropic_api_key: "",
+    external_ai_google_api_key: "",
+    external_ai_github_copilot_api_key: "",
+    external_ai_custom_api_key: "",
   };
 }
 
@@ -56,6 +67,11 @@ function createEmptyCredentialStatus(): CredentialStatusMap {
     teams_webhook: createCredentialStatusValue(),
     telegram_bot_token: createCredentialStatusValue(),
     usajobs_api_key: createCredentialStatusValue(),
+    external_ai_openai_api_key: createCredentialStatusValue(),
+    external_ai_anthropic_api_key: createCredentialStatusValue(),
+    external_ai_google_api_key: createCredentialStatusValue(),
+    external_ai_github_copilot_api_key: createCredentialStatusValue(),
+    external_ai_custom_api_key: createCredentialStatusValue(),
   };
 }
 
@@ -86,6 +102,11 @@ function createCredentialStatusFromConfig(config: Config): CredentialStatusMap {
   }
   if (config.usajobs?.enabled) {
     markExpectedCredential(status, "usajobs_api_key");
+  }
+  if (config.external_ai?.enabled) {
+    config.external_ai.enabled_providers.forEach((provider) => {
+      markExpectedCredential(status, EXTERNAL_AI_PROVIDER_CREDENTIAL_KEYS[provider]);
+    });
   }
 
   return status;

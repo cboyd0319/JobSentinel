@@ -9,6 +9,14 @@ pub(crate) fn default_jobswithgpt_endpoint() -> String {
     String::new()
 }
 
+/// Default external-AI model for optional provider calls.
+///
+/// The model remains configurable because provider model catalogs change over
+/// time; this default is only used after the user enables outside AI.
+pub(crate) fn default_external_ai_model() -> String {
+    String::new()
+}
+
 /// Default Browser Import local helper port
 #[must_use]
 pub(crate) const fn default_bookmarklet_port() -> u16 {

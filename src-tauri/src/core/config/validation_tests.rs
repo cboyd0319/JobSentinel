@@ -2,7 +2,34 @@
 
 #[cfg(test)]
 mod validation_tests {
-    use crate::core::config::{types::*, validation::validate_config};
+    use crate::core::config::{
+        types::*, validation::validate_config, ValidationError, ValidationErrors,
+    };
+
+    fn validation_error_fields(result: Result<(), Box<dyn std::error::Error>>) -> Vec<String> {
+        let validation_errors = result
+            .unwrap_err()
+            .downcast::<ValidationErrors>()
+            .expect("validation should return structured errors");
+
+        validation_errors
+            .errors()
+            .iter()
+            .flat_map(|error| match error {
+                ValidationError::OutOfRange { field, .. }
+                | ValidationError::InvalidValue { field, .. }
+                | ValidationError::RequiredField { field, .. }
+                | ValidationError::TooLong { field, .. }
+                | ValidationError::TooManyElements { field, .. }
+                | ValidationError::InvalidUrl { field, .. }
+                | ValidationError::InvalidEmail { field, .. }
+                | ValidationError::EmptyString { field } => vec![field.clone()],
+                ValidationError::InconsistentValues { field1, field2, .. } => {
+                    vec![field1.clone(), field2.clone()]
+                }
+            })
+            .collect()
+    }
 
     fn create_minimal_valid_config() -> Config {
         Config {
@@ -32,6 +59,7 @@ mod validation_tests {
             auto_refresh: AutoRefreshConfig::default(),
             jobswithgpt_endpoint: "https://api.jobswithgpt.com/mcp".to_string(),
             jobswithgpt_approval: Default::default(),
+            external_ai: Default::default(),
             remoteok: Default::default(),
             weworkremotely: Default::default(),
             builtin: Default::default(),
@@ -143,6 +171,39 @@ mod validation_tests {
         if let Err(e) = result {
             assert!(!e.to_string().contains("user_id"));
         }
+    }
+
+    #[test]
+    fn test_external_ai_requires_enabled_provider_and_preview_guards() {
+        let mut config = create_minimal_valid_config();
+        config.external_ai.enabled = true;
+        config.external_ai.require_payload_preview = false;
+        config.external_ai.redaction.enabled = false;
+
+        let result = validate_config(&config);
+
+        assert!(result.is_err());
+        let fields = validation_error_fields(result);
+        assert!(fields.contains(&"external_ai.enabled_providers".to_string()));
+        assert!(fields.contains(&"external_ai.provider".to_string()));
+        assert!(fields.contains(&"external_ai.require_payload_preview".to_string()));
+        assert!(fields.contains(&"external_ai.redaction.enabled".to_string()));
+    }
+
+    #[test]
+    fn test_external_ai_custom_provider_requires_public_https_endpoint() {
+        let mut config = create_minimal_valid_config();
+        config.external_ai.enabled = true;
+        config.external_ai.provider = ExternalAiProvider::Custom;
+        config.external_ai.enabled_providers = vec![ExternalAiProvider::Custom];
+        config.external_ai.provider_order = vec![ExternalAiProvider::Custom];
+        config.external_ai.custom_endpoint = "http://127.0.0.1:9000/model".to_string();
+
+        let result = validate_config(&config);
+
+        assert!(result.is_err());
+        let fields = validation_error_fields(result);
+        assert!(fields.contains(&"external_ai.custom_endpoint".to_string()));
     }
 
     #[test]

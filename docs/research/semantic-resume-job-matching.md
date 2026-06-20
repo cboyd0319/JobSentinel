@@ -48,6 +48,29 @@ inspectable explanation.
 | Career-path-aware person-job fit | Seniority, role trajectory, and stretch-vs-safe recommendation modes |
 | Feature-fusion person-job fit | Blend semantic, lexical, skill, salary, location, seniority, and preference features |
 | Bias and LLM resume-matching evaluations | Avoid protected proxies and explain through work evidence |
+| Position-robust talent recommendation | Suggest adjacent role families without treating them as real postings |
+| Generative job recommendation | Generate search lanes, target titles, and Boolean-style queries from evidence |
+| HR knowledge graphs and JobMatchAI-style systems | Maintain a local skill graph with aliases, broader/narrower skills, and confusable near misses |
+| Self-preferencing and fairness research | Test whether model-generated resume style is over-rewarded versus human-written evidence |
+| Resume prompt-injection research | Treat scraped postings and pasted job text as adversarial input before any ML step |
+
+## Role And Skill Graph Rules
+
+JobSentinel should separate real job discovery from generated advice. A role
+expansion engine may suggest target roles, adjacent lanes, and search queries,
+but those suggestions must not be stored or displayed as job postings.
+
+The local skill graph should track:
+
+- canonical skills and aliases;
+- broader and narrower skill relationships;
+- related but non-equivalent skills;
+- product examples of a domain;
+- confusable near misses for hard-negative mining.
+
+Use the graph to explain fit and gaps, not to inflate evidence. For example,
+`Kubernetes` and `k8s` are aliases, but `deployed Helm charts` is not the same
+as `built Kubernetes security detections`.
 
 ## Evaluation Contract
 
@@ -59,6 +82,9 @@ Before changing matching behavior, add or update labeled eval data for:
 - job title to resume title and seniority;
 - gap analysis;
 - hard requirement blockers.
+- fairness and robustness counterfactuals;
+- self-preference checks for human-written versus model-edited resumes;
+- adversarial posting and prompt-injection handling.
 
 Use labels:
 
@@ -81,6 +107,11 @@ Track at least:
 
 Do not assert exact floating-point scores across model backends. Assert
 ordering, evidence class, blocker behavior, and score bands.
+
+For fairness and robustness, evaluate counterfactual resume variants that alter
+school prestige, name-like tokens, graduation year, non-essential dates, and
+career-gap phrasing while preserving the same work evidence. Rankings should be
+stable unless the changed text directly affects a user-confirmed requirement.
 
 ## Hard Negatives
 
@@ -132,6 +163,21 @@ Avoid:
 - career-gap penalties without user-confirmed context;
 - unsupported claims that a user is likely to be hired.
 
+## Adversarial Posting Handling
+
+Scraped or pasted jobs are untrusted input. Before matching or using outside AI,
+JobSentinel should detect and record:
+
+- hidden text and CSS-hidden instructions;
+- prompt-injection phrasing;
+- keyword stuffing and repeated skill blocks;
+- suspicious apply URLs or redirects;
+- mismatched company, domain, or ATS provenance;
+- thin descriptions that cannot support a confident match.
+
+Adversarial findings should reduce confidence or request user review. They
+should not be passed silently into a model prompt.
+
 ## Feedback Learning
 
 User feedback is useful but noisy. A hidden or skipped job may mean poor fit,
@@ -157,6 +203,8 @@ tokens, or URLs with secrets in feedback or eval logs.
 - Keep hybrid scoring deterministic and inspectable.
 - Add a diagnostics surface before release signoff so users and developers can
   see dense, lexical, skill, reranker, blocker, and evidence-class signals.
+- Add an eval pack for role-family suggestions, skill-graph confusables,
+  fairness counterfactuals, self-preference checks, and adversarial postings.
 - Keep external AI optional and separate from local semantic matching.
 
 ## Sources
@@ -174,3 +222,10 @@ tokens, or URLs with secrets in feedback or eval logs.
 - [Enhancing Online Recruitment with Category-Aware MoE and LLM-based Data Augmentation](https://arxiv.org/abs/2604.21264)
 - [Evaluating Bias in LLMs for Job-Resume Matching](https://arxiv.org/html/2503.19182v1)
 - [Learning to Retrieve for Job Matching](https://arxiv.org/html/2402.13435v1)
+- [Towards Position-Robust Talent Recommendation via Large Language Models](https://arxiv.org/html/2604.02200v1)
+- [Generative Job Recommendations with Large Language Models](https://arxiv.org/abs/2307.02157)
+- [AI Hiring with LLMs: A Context-Aware and Explainable Multi-Agent Framework](https://arxiv.org/abs/2504.02870)
+- [JobMatchAI: An Intelligent Job Matching Platform Using Knowledge Graphs, Semantic Search and Explainable AI](https://arxiv.org/abs/2603.14558)
+- [Bias and Fairness in Large Language Models: A Survey](https://arxiv.org/abs/2309.00770)
+- [Leveraging LLMs for HR Data Knowledge Graphs with Information Propagation-Based Job Recommendation](https://arxiv.org/html/2408.13521v1)
+- [Understanding and Defending Against Resume-Based Prompt Injection Attacks on LLM-Based Hiring Systems](https://ceur-ws.org/Vol-4046/RecSysHR2025-paper_9.pdf)

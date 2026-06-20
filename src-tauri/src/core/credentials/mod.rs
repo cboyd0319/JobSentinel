@@ -9,119 +9,18 @@
 //! - **Backend**: Uses `CredentialService` for scheduler, notifications, smoke tests, and commands
 //! - **Compatibility**: Uses `CredentialStore` only for legacy fallback and live keyring tests
 
+mod key;
 mod passphrase;
 mod service;
 pub mod smtp;
 pub mod vault;
 mod vault_key_store;
 
+pub use key::{CredentialKey, CredentialPresence};
 pub use service::{CredentialService, CredentialUnlockMode, CredentialUnlockState};
 pub use vault::{SecretVault, SecretVaultError};
 
 use keyring::{Entry, Error as KeyringError};
-use serde::{Deserialize, Serialize};
-use std::str::FromStr;
-
-/// Enumeration of all credential types supported by JobSentinel.
-///
-/// Each variant maps to a specific storage identifier used as an encrypted
-/// vault row key and, during legacy fallback, as an OS credential item name.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum CredentialKey {
-    /// SMTP password for email notifications.
-    SmtpPassword,
-    /// Telegram bot token for Telegram notifications.
-    TelegramBotToken,
-    /// Slack webhook URL for Slack notifications.
-    SlackWebhook,
-    /// Discord webhook URL for Discord notifications.
-    DiscordWebhook,
-    /// Microsoft Teams webhook URL for Teams notifications.
-    TeamsWebhook,
-    /// Legacy LinkedIn session entry retained only for cleanup and redaction.
-    LinkedInCookie,
-    /// Legacy LinkedIn expiry entry retained only for cleanup and redaction.
-    LinkedInCookieExpiry,
-    /// USAJobs API key (free from developer.usajobs.gov) for API access.
-    UsaJobsApiKey,
-}
-
-/// Non-secret credential availability status for settings diagnostics.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct CredentialPresence {
-    pub key: CredentialKey,
-    pub exists: bool,
-    pub available: bool,
-}
-
-impl CredentialKey {
-    /// Convert credential key to its storage identifier.
-    ///
-    /// All keys are prefixed with `jobsentinel_` for namespacing in the vault
-    /// and legacy keyring.
-    pub fn as_str(&self) -> &'static str {
-        match self {
-            Self::SmtpPassword => "jobsentinel_smtp_password",
-            Self::TelegramBotToken => "jobsentinel_telegram_bot_token",
-            Self::SlackWebhook => "jobsentinel_slack_webhook",
-            Self::DiscordWebhook => "jobsentinel_discord_webhook",
-            Self::TeamsWebhook => "jobsentinel_teams_webhook",
-            Self::LinkedInCookie => "jobsentinel_linkedin_cookie",
-            Self::LinkedInCookieExpiry => "jobsentinel_linkedin_cookie_expiry",
-            Self::UsaJobsApiKey => "jobsentinel_usajobs_api_key",
-        }
-    }
-
-    /// Return active credential keys used for migration and diagnostics.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # use jobsentinel::core::credentials::CredentialKey;
-    /// for key in CredentialKey::all() {
-    ///     println!("Credential: {}", key.as_str());
-    /// }
-    /// ```
-    pub fn all() -> &'static [Self] {
-        &[
-            Self::SmtpPassword,
-            Self::TelegramBotToken,
-            Self::SlackWebhook,
-            Self::DiscordWebhook,
-            Self::TeamsWebhook,
-            Self::UsaJobsApiKey,
-        ]
-    }
-}
-
-impl FromStr for CredentialKey {
-    type Err = String;
-
-    /// Parse credential key from string.
-    ///
-    /// Accepts both prefixed (`jobsentinel_smtp_password`) and unprefixed
-    /// (`smtp_password`) variants for backwards compatibility.
-    ///
-    /// # Errors
-    ///
-    /// Returns error if the string doesn't match any known credential key.
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
-            "smtp_password" | "jobsentinel_smtp_password" => Ok(Self::SmtpPassword),
-            "telegram_bot_token" | "jobsentinel_telegram_bot_token" => Ok(Self::TelegramBotToken),
-            "slack_webhook" | "jobsentinel_slack_webhook" => Ok(Self::SlackWebhook),
-            "discord_webhook" | "jobsentinel_discord_webhook" => Ok(Self::DiscordWebhook),
-            "teams_webhook" | "jobsentinel_teams_webhook" => Ok(Self::TeamsWebhook),
-            "linkedin_cookie" | "jobsentinel_linkedin_cookie" => Ok(Self::LinkedInCookie),
-            "linkedin_cookie_expiry" | "jobsentinel_linkedin_cookie_expiry" => {
-                Ok(Self::LinkedInCookieExpiry)
-            }
-            "usajobs_api_key" | "jobsentinel_usajobs_api_key" => Ok(Self::UsaJobsApiKey),
-            _ => Err("invalid credential key".to_string()),
-        }
-    }
-}
 
 /// Service name for all keyring entries (used as namespace).
 pub(crate) const SERVICE_NAME: &str = "JobSentinel";
@@ -170,6 +69,13 @@ fn validate_credential_value(key: CredentialKey, value: &str) -> Result<(), Stri
         ),
         CredentialKey::TeamsWebhook => validate_teams_webhook_credential(value),
         CredentialKey::TelegramBotToken => validate_telegram_bot_token_credential(value),
+        CredentialKey::ExternalAiOpenAiApiKey
+        | CredentialKey::ExternalAiAnthropicApiKey
+        | CredentialKey::ExternalAiGoogleApiKey
+        | CredentialKey::ExternalAiGithubCopilotApiKey
+        | CredentialKey::ExternalAiCustomApiKey => {
+            validate_api_key_credential(value, "Outside AI API key")
+        }
         _ => Ok(()),
     }
 }
@@ -196,6 +102,26 @@ fn validate_legacy_linkedin_cookie(value: &str) -> Result<(), String> {
 
     if value.chars().any(|ch| ch.is_ascii_control() || ch == ';') {
         return Err("Legacy LinkedIn credential contains unsupported characters".to_string());
+    }
+
+    Ok(())
+}
+
+fn validate_api_key_credential(value: &str, label: &str) -> Result<(), String> {
+    let trimmed = value.trim();
+    if trimmed.len() < 8 || trimmed.len() > 4096 {
+        return Err(format!(
+            "{label} should be the provider key copied from your account. Leave it blank if you are not ready to use outside AI."
+        ));
+    }
+
+    if trimmed
+        .chars()
+        .any(|ch| ch.is_ascii_control() || ch.is_whitespace())
+    {
+        return Err(format!(
+            "{label} should not include spaces, line breaks, or hidden characters."
+        ));
     }
 
     Ok(())

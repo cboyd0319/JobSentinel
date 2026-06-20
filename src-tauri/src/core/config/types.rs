@@ -1,5 +1,6 @@
 //! Configuration type definitions
 
+pub use super::external_ai::{ExternalAiConfig, ExternalAiProvider};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -123,6 +124,11 @@ pub struct Config {
     /// changes.
     #[serde(default)]
     pub jobswithgpt_approval: JobsWithGptApproval,
+
+    /// Optional outside-AI configuration. Provider credentials are stored
+    /// through `CredentialService`, not serialized in config.
+    #[serde(default)]
+    pub external_ai: ExternalAiConfig,
 
     /// Ghost job detection configuration
     #[serde(default)]

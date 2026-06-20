@@ -4,12 +4,14 @@
 
 // Module declarations
 mod defaults;
+mod external_ai;
 mod io;
 mod types;
 mod validation;
 mod validation_error;
 
 // Re-export public types
+pub use external_ai::{ExternalAiConfig, ExternalAiProvider, ExternalAiRedactionConfig};
 pub(crate) use io::write_file_atomic_private;
 pub use types::{
     AlertConfig, AutoRefreshConfig, Config, DesktopConfig, DiscordConfig, EmailConfig,
