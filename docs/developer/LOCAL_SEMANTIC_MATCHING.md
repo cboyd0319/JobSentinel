@@ -78,7 +78,8 @@ disabled by default, and routed through
 | ---- | ------- |
 | `src-tauri/src/core/ml/mod.rs` | Feature-gated module entry and error types |
 | `src-tauri/src/core/ml/manifest.rs` | Checked-in model lock parsing and validation |
-| `src-tauri/src/core/ml/model.rs` | Model download, cache checks, metadata, loading, and inference |
+| `src-tauri/src/core/ml/model.rs` | Thin model management entrypoint |
+| `src-tauri/src/core/ml/model/` | Cache verification, download, metadata, loading, device selection, integrity checks, and legacy baseline inference |
 | `src-tauri/src/core/ml/qwen3.rs` | Thin Qwen3 module entry |
 | `src-tauri/src/core/ml/qwen3/` | Governed Qwen3 embedding, reranker, model, pooling, and tokenization implementation |
 | `src-tauri/src/core/ml/runtime.rs` | Backend traits, runtime compatibility, vector provenance, and stale-vector keys |
@@ -133,6 +134,9 @@ evaluation still needs larger reviewed sets for:
 - skill phrase to resume evidence
 - job title to resume title and seniority
 - gap analysis
+
+The research-backed evaluation contract is summarized in
+[Semantic resume-job matching](../research/semantic-resume-job-matching.md).
 
 Feedback records must be training-friendly and privacy-preserving. Store hashes,
 local ids, ranks, scores, evidence classes, and user actions. Do not store raw
@@ -232,5 +236,6 @@ application history while debugging local ML.
 - [all-MiniLM-L6-v2 model card](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2)
 - [Sentence Transformers](https://www.sbert.net/)
 - [BERT paper](https://arxiv.org/abs/1810.04805)
+- [Semantic resume-job matching research](../research/semantic-resume-job-matching.md)
 - [Hugging Face Candle](https://github.com/huggingface/candle)
 - [Hugging Face Hub client](https://github.com/huggingface/hf-hub)

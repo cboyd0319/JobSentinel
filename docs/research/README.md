@@ -59,6 +59,7 @@ The cross-doc external source index lives in
 - [ATS transparency](ats-transparency.md)
 - [Resume formatting and application readability, 2026](resume-formatting-ats-2026.md)
 - [Resume alignment scoring](resume-alignment-scoring.md)
+- [Semantic resume-job matching](semantic-resume-job-matching.md)
 - [Ghost jobs](ghost-jobs.md)
 - [Job-site data sources](job-site-data-sources.md)
 - [Pay equity](pay-equity.md)

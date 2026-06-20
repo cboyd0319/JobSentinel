@@ -116,6 +116,19 @@ and fake example links are intentionally excluded.
 - [Behavioural Insights Team follow-up on qualification-match claims](https://www.bi.team/blogs/women-only-apply-when-100-qualified-fact-or-fake-news/)
 - [ResumeNet paper](https://arxiv.org/abs/1810.02832)
 - [Hidden prompt-injection research](https://arxiv.org/abs/2605.28999)
+- [ConFit: Improving Resume-Job Matching using Data Augmentation and Contrastive Learning](https://arxiv.org/abs/2401.16349)
+- [ConFit v2: Improving Resume-Job Matching using Hypothetical Resume Embedding and Runner-Up Hard-Negative Mining](https://arxiv.org/abs/2502.12361)
+- [ConFit v3: Improving Resume-Job Matching with LLM-based Re-Ranking](https://arxiv.org/abs/2605.09760)
+- [Person-Job Fit: Adapting the Right Talent for the Right Job with Joint Representation Learning](https://arxiv.org/abs/1810.04040)
+- [Enhancing Person-Job Fit for Talent Recruitment: An Ability-aware Neural Network Approach](https://arxiv.org/abs/1812.08947)
+- [Learning to Match Jobs with Resumes from Sparse Interaction Data using Multi-View Co-Teaching Network](https://arxiv.org/abs/2009.13299)
+- [Your Career Path Matters in Person-Job Fit](https://ojs.aaai.org/index.php/AAAI/article/view/28685)
+- [A Bibliometric Perspective on AI Research for Job-Resume Matching](https://pmc.ncbi.nlm.nih.gov/articles/PMC9550515/)
+- [Learning Effective Representations for Person-Job Fit by Feature Fusion](https://arxiv.org/abs/2006.07017)
+- [Person-job fit estimation from candidate profile and related recruitment history with co-attention neural networks](https://arxiv.org/abs/2206.09116)
+- [Enhancing Online Recruitment with Category-Aware MoE and LLM-based Data Augmentation](https://arxiv.org/abs/2604.21264)
+- [Evaluating Bias in LLMs for Job-Resume Matching](https://arxiv.org/html/2503.19182v1)
+- [Learning to Retrieve for Job Matching](https://arxiv.org/html/2402.13435v1)
 
 ## Ghost Jobs, Job Scams, and Posting Reliability
 

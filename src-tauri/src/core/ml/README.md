@@ -20,7 +20,9 @@ cargo test --features embedded-ml -- --ignored
 
 - **mod.rs** - Module entry, feature flags, error types
 - **manifest.rs** - Model lock parsing and validation
-- **model.rs** - Model download, cache verification, metadata, loading, and legacy baseline inference
+- **model.rs** - Thin model management entrypoint
+- **model/** - Cache verification, download, metadata, loading, device
+  selection, integrity checks, and legacy baseline inference
 - **qwen3.rs** - Thin Qwen3 module entry
 - **qwen3/** - Governed Qwen3 embedding, reranker, model, pooling, and
   tokenization implementation
@@ -93,8 +95,7 @@ prompt shape and query-kind defaults. Focused live validation passed on
 `core::ml::qwen3::tests::qwen3_reranker_ranks_direct_evidence_above_near_miss`:
 the ignored test downloads the pinned reranker into an explicit external cache,
 verifies hashes, loads the backend, and ranks direct evidence above a near
-miss. It still needs hybrid scoring integration, diagnostics, and UI/data-flow
-proof before release signoff.
+miss. It still needs diagnostics and UI/data-flow proof before release signoff.
 
 The deterministic hybrid scorer is implemented and unit-covered. It combines
 dense, BM25, exact skill, required-coverage, seniority, reranker, blocker, and
@@ -163,6 +164,9 @@ sequential decision objective.
 The seed fixture covers all core eval tasks and is loaded by unit tests. It is
 not a training dataset by itself; it is a schema and regression anchor for
 future scoring, hard-negative mining, and reranker fine-tuning work.
+
+Research backing for this path is summarized in
+`docs/research/semantic-resume-job-matching.md`.
 
 ## Debugging
 

@@ -92,8 +92,9 @@ The v2.9.0 goal adds four durable release-readiness requirements:
    public README and screenshots for current v2.9.0 surfaces.
 2. Manually verify every current scraper/source path and every resume feature
    against the local corpora, then record evidence.
-3. Add bounded Qwen3 reranking, hybrid semantic scoring, diagnostics, and
-   integration evidence behind the model governance layer.
+3. Add Qwen3 diagnostics and UI/data-flow integration evidence behind the model
+   governance layer, then expand semantic-matching evals from the research
+   contract.
 4. Run final local release gates from the verified commit.
 5. Push `main` and wiki only after the user confirms final publication steps.
 6. Keep macOS readiness honest: no Gatekeeper-ready claim before Apple credentials.
