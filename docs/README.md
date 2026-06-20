@@ -68,6 +68,7 @@ The maintained external source index lives in
 
 | Need | Doc |
 | --- | --- |
+| Complete capabilities map | [Features And Capabilities](features/capabilities.md) |
 | Install and first run | [Quick Start](user/QUICK_START.md) |
 | Update or go back to an older version | [Updating Or Going Back](user/UPDATES.md) |
 | Open job searches on outside sites | [Search Links](user/DEEP_LINKS.md) |
@@ -79,6 +80,7 @@ The maintained external source index lives in
 
 | Area | Doc |
 | --- | --- |
+| Full capability map | [Features And Capabilities](features/capabilities.md) |
 | Ghost-job and stale-posting protection | [Ghost Detection](features/ghost-detection.md) |
 | Pay protection and salary transparency | [Pay Protection](features/pay-protection.md) |
 | Resume fit review | [Resume Match](features/resume-matcher.md) |

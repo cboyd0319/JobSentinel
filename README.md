@@ -32,6 +32,7 @@ is published. Current active work and release blockers are recorded in
 [![Research Backed](https://img.shields.io/badge/research-backed-334155)](docs/research/README.md)
 
 **Start here:** [Download](#download-and-first-run) |
+[Capabilities](docs/features/capabilities.md) |
 [Quick start](docs/user/QUICK_START.md) | [Privacy](PRIVACY.md) |
 [Research](docs/research/README.md) | [Roadmap](ROADMAP.md) |
 [Support](#support-and-community)
@@ -130,7 +131,7 @@ unreviewed scripts.
 
 | Reader | Start here | You should quickly learn |
 | ------ | ---------- | ------------------------ |
-| Job seeker | [Download and first run](#download-and-first-run), then [Quick start](docs/user/QUICK_START.md) | How to start without technical setup. |
+| Job seeker | [Download and first run](#download-and-first-run), [Capabilities](docs/features/capabilities.md), then [Quick start](docs/user/QUICK_START.md) | What JobSentinel can help with and how to start without technical setup. |
 | Grant or research reviewer | [Research model](#research-model), [Roadmap](ROADMAP.md), and [references](#references-and-external-sources) | What is evidence-backed and how real user data is protected. |
 | Privacy or security reviewer | [Safety model](#safety-model), [PRIVACY.md](PRIVACY.md), and [RESPONSIBLE_AI.md](RESPONSIBLE_AI.md) | What can leave the device and which review gates are mandatory. |
 | Contributor | [Architecture](#architecture), [development](#development-and-verification), and [contributing](docs/developer/CONTRIBUTING.md) | How the app is structured, tested, and governed. |
