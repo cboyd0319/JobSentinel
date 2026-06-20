@@ -61,6 +61,12 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 - Resume, application preview, cover-letter review, role-family taxonomy,
   source corpus/taxonomy, and local interest learning have focused coverage;
   final release still needs manual full-corpus and full-surface evidence.
+- 2026-06-19 private resume-corpus aggregate probe parsed all 12 local files
+  across DOCX, Markdown, and PDF formats, ran skill extraction plus
+  ATS/readability checks against three broad job descriptions, ran
+  bullet-review checks, and verified synthetic export templates with
+  aggregate-only output. UI-level resume import, match, tailoring, builder,
+  application-form, cover-letter, and screening-answer passes remain open.
 - 2026-06-19 local semantic matching governance now uses `models.lock.toml`
   for pinned model identity, revisions, file hashes, sizes, licenses, backend
   compatibility, instruction profiles, thresholds, and stale-vector rules.
@@ -100,9 +106,8 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   `b238c7d4`; keep future script tests under test directories.
 - 2026-06-19 release blockers remain open for major README and screenshot
   refresh, stale docs cleanup, manual verification of every scraper/source
-  flow, manual verification of every resume and semantic-matching capability
-  against the local corpora, final whole-UI proof, final local gates, and
-  user-confirmed push/publish.
+  flow, UI-level verification of every resume and semantic-matching capability,
+  final whole-UI proof, final local gates, and user-confirmed push/publish.
 
 ## Next Best Work
 
@@ -110,8 +115,8 @@ The v2.9.0 goal adds four durable release-readiness requirements:
    public README and screenshots for current v2.9.0 surfaces.
 2. Manually verify every current scraper/source path and every resume feature
    against the local corpora, then record evidence.
-3. Run manual resume-corpus verification, including semantic matching against
-   the research-backed eval contract.
+3. Finish UI-level resume and semantic-matching verification against the
+   research-backed eval contract.
 4. Run final local release gates from the verified commit.
 5. Push `main` and wiki only after the user confirms final publication steps.
 6. Keep macOS readiness honest: no Gatekeeper-ready claim before Apple credentials.
