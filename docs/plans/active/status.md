@@ -10,10 +10,9 @@ Current priority is final v2.9.0 release-gate handoff for an urgent single-user 
 
 Release creation is paused. Do not push, retag, upload, or publish `v2.9.0`
 until final gates pass from the verified commit and the user confirms
-publication. Final local gates passed after the Radancy/TalentBrew
-parser-contract slice; rerun them after any further local change. Do not retag
-or upload over the same `v2.9.0` release while an older workflow run is still
-building assets.
+publication. Capability verification passed after `ab28be0d`; rerun final
+publication gates after the evidence-doc commit. Do not retag or upload over
+the same `v2.9.0` release while an older workflow run is still building assets.
 
 Rule 0 still controls the work: user data stays local unless the user explicitly
 configures an external channel, external AI stays optional and disabled by
@@ -52,8 +51,10 @@ The v2.9.0 goal adds durable release-readiness requirements:
   exist; do not publish or delete them without explicit user approval.
 - Recent evidence covers dependency/action pins, security sensors, frontend,
   build, Rust fmt/clippy/lib, E2E, docs, bloat, harness, skills packaging, and
-  no-account release asset staging. Final local gates passed after the latest
-  Radancy/TalentBrew source-adapter change; rerun them after any further change.
+  no-account release asset staging. `docs/harness/capabilities-verification-v2.9.0.md`
+  now records post-`ab28be0d` coverage for every capability row, source class,
+  privacy boundary, route probe, screenshot, and focused scraper/resume/AI/ML
+  gate; rerun final publication gates after the evidence commit.
 - Credential paths use encrypted local storage; passive status/list checks must
   remain non-interactive and must not cache vault keys.
 - No-account release assets can publish for Windows, macOS, and Linux, but
