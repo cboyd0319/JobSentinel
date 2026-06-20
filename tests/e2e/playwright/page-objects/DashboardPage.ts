@@ -47,7 +47,11 @@ export class DashboardPage extends BasePage {
   }
 
   get clearFiltersButton(): Locator {
-    return this.page.locator("[data-testid='btn-clear-filters']:visible").first();
+    return this.page
+      .locator(
+        'button[aria-label="Clear all active filters"], button[aria-label="Clear all filters to show all jobs"]',
+      )
+      .first();
   }
 
   get emptyState(): Locator {
@@ -155,6 +159,9 @@ export class DashboardPage extends BasePage {
     await this.clearFiltersButton.waitFor({ state: "visible", timeout: 5000 });
     await this.clearFiltersButton.click({ force: true });
     await expect(this.searchInput).toHaveValue("", { timeout: 10000 });
+    await expect(this.locationFilter).toContainText("All Locations", {
+      timeout: 10000,
+    });
     await this.waitForReady();
   }
 

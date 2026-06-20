@@ -118,7 +118,7 @@ export const QuickActions = memo(function QuickActions({
         {hasActiveFilters && (
           <button
             onClick={onClearFilters}
-            data-testid="btn-clear-filters"
+            data-testid="btn-clear-filters-quick-action"
             className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg
                        text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors
                        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-1"
