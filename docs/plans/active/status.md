@@ -67,8 +67,9 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   across DOCX, Markdown, and PDF formats, ran skill extraction plus
   ATS/readability checks against three broad job descriptions, ran
   bullet-review checks, and verified synthetic export templates with
-  aggregate-only output. UI-level resume import, match, tailoring, builder,
-  application-form, cover-letter, and screening-answer passes remain open.
+  aggregate-only output. Focused public/synthetic UI and E2E passes now cover
+  resume import, match, tailoring, builder/export, application-form,
+  cover-letter, screening-answer, and semantic diagnostics surfaces.
 - 2026-06-19 local semantic matching governance now uses `models.lock.toml`
   for pinned model identity, revisions, file hashes, sizes, licenses, backend
   compatibility, instruction profiles, thresholds, and stale-vector rules.
@@ -101,21 +102,18 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 - Script tests were moved out of the flat `scripts/` root in commit
   `b238c7d4`; keep future script tests under test directories.
 - 2026-06-19 release blockers remain open for major README and screenshot
-  refresh, stale docs cleanup, UI-level verification of every resume and
-  semantic-matching capability, final whole-UI proof, final local gates, and
+  refresh, stale docs cleanup, final whole-UI proof, final local gates, and
   user-confirmed push/publish.
 
 ## Next Best Work
 
 1. Update, reorganize, archive, or delete stale maintained docs, including the
    public README and screenshots for current v2.9.0 surfaces.
-2. Manually verify every resume feature against the local corpora, then record
-   evidence.
-3. Finish UI-level resume and semantic-matching verification against the
-   research-backed eval contract.
-4. Run final local release gates from the verified commit.
-5. Push `main` and wiki only after the user confirms final publication steps.
-6. Keep macOS readiness honest: no Gatekeeper-ready claim before Apple credentials.
+2. Run final whole-UI proof after docs, screenshots, and any remaining UI
+   changes land.
+3. Run final local release gates from the verified commit.
+4. Push `main` and wiki only after the user confirms final publication steps.
+5. Keep macOS readiness honest: no Gatekeeper-ready claim before Apple credentials.
 
 ## Completion Bar
 

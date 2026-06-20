@@ -78,7 +78,7 @@ Out of scope:
 | README, docs, and screenshots | Open | Refresh README, docs hub, release notes, and screenshots for current v2.9.0 surfaces; archive/delete stale maintained docs where appropriate. |
 | Development and QA completion | Release-gated | Roadmap checklist is open; final local release gates and user-confirmed push/publish remain after docs, screenshots, source, resume, and UI proof close. |
 | macOS readiness | Release-gated | No-account path is complete; Gatekeeper-ready public distribution remains Apple-credential-gated. |
-| Resume assistance | Open | Manually verify parsing, import, matching, tailoring, builder/export, ATS/readability review, application-form help, cover-letter review, and screening-answer review against local resume corpora. |
+| Resume assistance | Complete locally | 2026-06-19 aggregate private-corpus probe plus focused public/synthetic UI, E2E, semantic, and manual-style desktop/mobile verification covered parsing, import, matching, tailoring, builder/export, ATS/readability review, application-form help, cover-letter review, screening-answer review, and Local Match Check diagnostics. |
 | Job-card protection | Complete locally | Posting-risk cues stay visible without implying employer intent or confirmed duplicate/source proof. |
 | Guided intake | Complete locally | Search review guides application next actions; suggestions stay reviewed and explainable. |
 | Pay protection | Complete locally | Missing, one-sided, malformed, broad, and written-vs-verbal offer cues stay plain and review-first. |
