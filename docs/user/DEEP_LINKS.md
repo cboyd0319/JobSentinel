@@ -166,15 +166,18 @@ browser opens it, and you decide what to save.
 
 ### Can I save my searches?
 
-Saved search-link favorites are not implemented yet. For now, you can:
+Yes. Use saved searches on the Dashboard to keep your job title, location, work
+mode, minimum pay, and source preferences. When you want browser-opened sites,
+open Job Site Search Links and create links from the same search terms.
 
-1. Bookmark the Job Site Search Links page
-2. Generate links on-demand
-3. Open multiple sites at once in tabs
+Search links themselves stay temporary. They are created on your computer,
+opened only when you choose a site, and are not a separate saved-source list.
 
-### Can I customize which sites appear?
+### Can I customize which search-link sites appear?
 
-Not currently. For now, use the category filters to narrow results.
+Use the category filters to narrow results, then open only the sites you want.
+To request another site, use **Send Feedback** from Settings and include the
+site name.
 
 ### What if a site changes how search links work?
 
@@ -239,21 +242,5 @@ site's privacy rules.
 ## Related Features
 
 - **Job sources** - Local checks for supported official or public sources
-- **Search-link favorites** (not yet implemented) - Save favorite search-link searches
+- **Saved searches** - Keep the job goals and source choices you review often
 - **Job Tracker** - Track applications from manual searches
-
-## Roadmap
-
-### Planned
-
-- Save favorite search-link searches
-- Custom site preferences
-- Review and open selected sites
-- Browser add-on support
-
-### Later
-
-- More sites (50+ total)
-- More filters, such as salary and experience level
-- Search history
-- Quick search from system tray
