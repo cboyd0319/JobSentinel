@@ -50,6 +50,7 @@ The v2.9.0 goal adds durable release-readiness requirements:
 - `origin/main` is the pushed `2.7.7` release-recovery baseline; local metadata
   is staged for `2.9.0`. A premature remote `v2.9.0` tag and draft release
   exist; do not publish or delete them without explicit user approval.
+- Latest exact full-gate validation commit is `07a03891`.
 - Recent evidence covers dependency/action pins, security, frontend/build,
   Rust, E2E, docs/bloat/harness, skills, source/resume/AI/ML, screenshots, and
   no-account asset staging. Capability verification records the 2026-06-20
