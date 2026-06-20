@@ -15,7 +15,7 @@ external AI.
 | Model governance | `models.lock.toml` pins model identity, revision, hashes, size, license, backend compatibility, instruction profiles, and score thresholds |
 | Target embedding profile | `Qwen/Qwen3-Embedding-0.6B` at revision `97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3`, 768-dimensional balanced profile |
 | Target reranker profile | `Qwen/Qwen3-Reranker-0.6B` at revision `e61197ed45024b0ed8a2d74b80b4d909f1255473` |
-| Current wired runtime | Legacy `sentence-transformers/all-MiniLM-L6-v2` baseline for existing commands; governed Qwen3 embedding backend has focused live validation and Qwen3 reranker backend has unit coverage |
+| Current wired runtime | Legacy `sentence-transformers/all-MiniLM-L6-v2` baseline for existing commands; governed Qwen3 embedding and reranker backends have focused live validation |
 | Network behavior | Model download only, when the model is explicitly requested |
 | User data sent during model download | None |
 | Integrity check | Required SHA-256 checks for every required file in `models.lock.toml` |
@@ -28,10 +28,12 @@ downloaded the pinned Qwen3 embedding model into an external test cache,
 verified checksums, loaded the `qwen3-candle` backend, and returned a
 normalized 768-dimensional embedding.
 
-Focused Qwen3 reranker evidence: unit tests cover the official instruction,
-query, document prompt shape and query-kind-specific defaults. Live reranker
-model validation and product integration are still required before release
-signoff.
+Focused Qwen3 reranker evidence: on 2026-06-19,
+`core::ml::qwen3::tests::qwen3_reranker_ranks_direct_evidence_above_near_miss`
+downloaded the pinned Qwen3 reranker model into an external test cache,
+verified checksums, loaded the `qwen3-reranker-candle` backend, and ranked
+direct Kubernetes security evidence above a vocabulary-overlap near miss.
+Product integration is still required before release signoff.
 
 Privacy label: **Local only** for matching. Model download is an explicit
 external file fetch and must not send resume text, salary floors, notes,

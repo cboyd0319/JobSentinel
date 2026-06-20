@@ -87,9 +87,13 @@ verifies the model lock hashes, loads the backend, and checks a normalized
 768-dimensional output.
 
 The bounded Qwen3 reranker backend is implemented in Rust and unit-covered for
-prompt shape and query-kind defaults. It still needs live model validation,
-hybrid scoring integration, diagnostics, and UI/data-flow proof before release
-signoff.
+prompt shape and query-kind defaults. Focused live validation passed on
+2026-06-19 with
+`core::ml::qwen3::tests::qwen3_reranker_ranks_direct_evidence_above_near_miss`:
+the ignored test downloads the pinned reranker into an explicit external cache,
+verifies hashes, loads the backend, and ranks direct evidence above a near
+miss. It still needs hybrid scoring integration, diagnostics, and UI/data-flow
+proof before release signoff.
 
 ## Adding New Features
 

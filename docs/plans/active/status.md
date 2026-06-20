@@ -67,9 +67,9 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   Qwen3 embedding and reranker are locked as the target architecture. The
   text-only Qwen3 embedding backend is implemented behind the governed cache
   and has focused live validation with downloaded artifacts. The bounded Qwen3
-  reranker backend is implemented and unit-covered, but still needs live model
-  validation. Existing commands still use the MiniLM baseline until hybrid
-  scoring, diagnostics, and UI/data-flow integration are complete.
+  reranker backend is implemented and has focused live validation with
+  downloaded artifacts. Existing commands still use the MiniLM baseline until
+  hybrid scoring, diagnostics, and UI/data-flow integration are complete.
 - `validation/file_size_contract.json` now owns hard maintainable file caps;
   `npm run lint:bloat` enforces scope limits and frozen legacy exceptions. New
   Rust/frontend production modules must stay at or below 700 lines unless an
@@ -77,10 +77,9 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 - Script tests were moved out of the flat `scripts/` root in commit
   `b238c7d4`; keep future script tests under test directories.
 - 2026-06-19 release blockers remain open for major README and screenshot
-  refresh, stale docs cleanup, Qwen3 reranker live validation and hybrid semantic matching,
-  manual verification of every scraper/source flow, manual verification of
-  every resume capability, final whole-UI proof, final local gates, and
-  user-confirmed push/publish.
+  refresh, stale docs cleanup, hybrid semantic matching, manual verification
+  of every scraper/source flow, manual verification of every resume capability,
+  final whole-UI proof, final local gates, and user-confirmed push/publish.
 
 ## Next Best Work
 
