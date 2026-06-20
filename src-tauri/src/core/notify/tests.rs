@@ -127,6 +127,7 @@ fn create_disabled_config() -> Arc<Config> {
         restricted_source_acknowledgements: Default::default(),
         jobswithgpt_endpoint: String::new(),
         jobswithgpt_approval: Default::default(),
+        external_ai: Default::default(),
         remoteok: Default::default(),
         weworkremotely: Default::default(),
         builtin: Default::default(),

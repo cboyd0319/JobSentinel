@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { Config } from "./SettingsConfig";
+import { DEFAULT_EXTERNAL_AI_CONFIG, type Config } from "./SettingsConfig";
 import {
   createSettingsLocalDataBackup,
   isSettingsLocalDataBackup,
@@ -77,6 +77,7 @@ function makeConfig(): Config {
       payload: null,
       approved_at: null,
     },
+    external_ai: DEFAULT_EXTERNAL_AI_CONFIG,
     use_resume_matching: false,
   };
 }

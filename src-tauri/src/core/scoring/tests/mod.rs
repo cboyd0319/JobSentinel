@@ -29,6 +29,7 @@ fn create_test_config() -> Config {
         restricted_source_acknowledgements: Default::default(),
         jobswithgpt_endpoint: "https://api.jobswithgpt.com/mcp".to_string(),
         jobswithgpt_approval: Default::default(),
+        external_ai: Default::default(),
         remoteok: Default::default(),
         weworkremotely: Default::default(),
         builtin: Default::default(),

@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { invoke } from "@tauri-apps/api/core";
 import { ToastProvider } from "../contexts";
 import Settings from "./Settings";
+import { DEFAULT_EXTERNAL_AI_CONFIG } from "./SettingsConfig";
 
 const mockInvoke = vi.mocked(invoke);
 
@@ -92,6 +93,7 @@ function makeConfig() {
       payload: null,
       approved_at: null,
     },
+    external_ai: DEFAULT_EXTERNAL_AI_CONFIG,
     use_resume_matching: false,
   };
 }

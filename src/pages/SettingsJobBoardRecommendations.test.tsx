@@ -1,7 +1,7 @@
 import { renderHook } from "@testing-library/react";
 import type { Dispatch, SetStateAction } from "react";
 import { describe, expect, it, vi } from "vitest";
-import type { Config } from "./SettingsConfig";
+import { DEFAULT_EXTERNAL_AI_CONFIG, type Config } from "./SettingsConfig";
 import { useJobBoardRecommendations } from "./SettingsJobBoardRecommendations";
 
 function makeConfig(overrides: Partial<Config> = {}): Config {
@@ -74,6 +74,7 @@ function makeConfig(overrides: Partial<Config> = {}): Config {
       payload: null,
       approved_at: null,
     },
+    external_ai: DEFAULT_EXTERNAL_AI_CONFIG,
     use_resume_matching: false,
     ...overrides,
   };

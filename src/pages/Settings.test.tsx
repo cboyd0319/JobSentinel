@@ -3,6 +3,7 @@ import { fireEvent, render, screen, waitFor, within } from "@testing-library/rea
 import userEvent from "@testing-library/user-event";
 import { invoke } from "@tauri-apps/api/core";
 import Settings from "./Settings";
+import { DEFAULT_EXTERNAL_AI_CONFIG } from "./SettingsConfig";
 import { exportConfigToJSON, importConfigFromJSON } from "../utils/export";
 
 const mockInvoke = vi.mocked(invoke);
@@ -111,6 +112,7 @@ function makeConfig() {
       payload: null,
       approved_at: null,
     },
+    external_ai: DEFAULT_EXTERNAL_AI_CONFIG,
     use_resume_matching: false,
   };
 }

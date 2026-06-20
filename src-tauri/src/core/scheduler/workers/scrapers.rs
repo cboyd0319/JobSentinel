@@ -783,6 +783,7 @@ mod tests {
             glassdoor: Default::default(),
             jobswithgpt_endpoint: String::new(),
             jobswithgpt_approval: Default::default(),
+            external_ai: Default::default(),
             ghost_config: None,
             use_resume_matching: false,
             company_whitelist: vec![],

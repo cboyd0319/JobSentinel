@@ -899,6 +899,7 @@ mod tests {
             auto_refresh: AutoRefreshConfig::default(),
             jobswithgpt_endpoint: endpoint.to_string(),
             jobswithgpt_approval: Default::default(),
+            external_ai: Default::default(),
             remoteok: Default::default(),
             weworkremotely: Default::default(),
             builtin: Default::default(),
