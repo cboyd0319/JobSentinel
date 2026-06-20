@@ -2,6 +2,7 @@ export type OfficialJobSourceApiAccess =
   | "documented-public-api"
   | "documented-public-feed"
   | "employer-owned-web-api"
+  | "public-career-html"
   | "partner-or-authenticated-api"
   | "restricted-authenticated-user-session";
 
@@ -82,7 +83,35 @@ export const OFFICIAL_JOB_SOURCE_API_CORPUS: readonly OfficialJobSourceApiEntry[
     ],
     representativeExamples: ["Optiv Workday careers"],
     notes:
-      "Employer-owned public CXS JSON can list published jobs. Add tenant fixtures and rate limits before scheduled checks.",
+      "Employer-owned public CXS JSON can list published jobs. Local Fortune 100 research validated this lane across 19 public employer tenants with 57 canonical sample rows. Add tenant fixtures and rate limits before scheduled checks.",
+  },
+  {
+    id: "phenom-widget-refine-search",
+    label: "Phenom Widget Refine Search",
+    sourceFamilyId: "phenom",
+    access: "employer-owned-web-api",
+    implementation: "candidate-adapter",
+    endpointPatterns: [
+      "Phenom-hosted career pages with /widgets refineSearch JSON",
+      "Phenom widget requests containing refNum and search parameters",
+    ],
+    representativeExamples: ["Fortune 100 Phenom widget career pages"],
+    notes:
+      "Local Fortune 100 research validated this lane across 13 public employer pages with 39 canonical sample rows. Keep tenant fixtures, robots checks, and endpoint stability checks before scheduling.",
+  },
+  {
+    id: "radancy-talentbrew-html",
+    label: "Radancy / TalentBrew HTML Fallback",
+    sourceFamilyId: "radancy-talentbrew",
+    access: "public-career-html",
+    implementation: "candidate-adapter",
+    endpointPatterns: [
+      "Radancy/TalentBrew public career search pages",
+      "TalentBrew search pagination parameters such as k and p",
+    ],
+    representativeExamples: ["Sysco careers"],
+    notes:
+      "Local Fortune 100 research validated this lane for a public Radancy/TalentBrew employer page with 45 canonical sample rows. Keep it source-specific and parser-fixture-backed.",
   },
   {
     id: "amazon-jobs-web-api",

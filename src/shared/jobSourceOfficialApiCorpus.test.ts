@@ -99,6 +99,32 @@ describe("jobSourceOfficialApiCorpus", () => {
     });
   });
 
+  it("records locally validated Fortune 100 adapter lanes without promoting them to unrestricted broad crawlers", () => {
+    expect(officialApiEntriesForSourceFamily("workday")).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: "workday-cxs-web-api",
+          access: "employer-owned-web-api",
+          implementation: "candidate-adapter",
+        }),
+      ]),
+    );
+    expect(officialApiEntriesForSourceFamily("phenom")).toEqual([
+      expect.objectContaining({
+        id: "phenom-widget-refine-search",
+        access: "employer-owned-web-api",
+        implementation: "candidate-adapter",
+      }),
+    ]);
+    expect(officialApiEntriesForSourceFamily("radancy-talentbrew")).toEqual([
+      expect.objectContaining({
+        id: "radancy-talentbrew-html",
+        access: "public-career-html",
+        implementation: "candidate-adapter",
+      }),
+    ]);
+  });
+
   it("keeps every corpus source family discoverable in the shared taxonomy", () => {
     const discoveryIds = new Set(
       JOB_SOURCE_DISCOVERY_TAXONOMY.map((entry) => entry.id),

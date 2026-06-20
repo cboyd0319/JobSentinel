@@ -59,10 +59,13 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   live public source probes have fresh 2026-06-19 source-debug evidence with no
   credential, cookie, token, private note, resume, salary floor, or application
   history exposure. The corrected source integration fixtures now match the
-  current optional external-AI config shape.
+  current optional external-AI config shape. New local API research has been
+  folded into shared source taxonomy for Workday CXS, Phenom widgets, and
+  Radancy/TalentBrew candidate lanes without promoting them to unrestricted
+  crawlers.
 - Resume, application preview, cover-letter review, role-family taxonomy,
   source corpus/taxonomy, and local interest learning have focused coverage;
-  final release still needs manual full-corpus and full-surface evidence.
+  final release still needs whole-UI proof after docs and screenshots land.
 - 2026-06-19 private resume-corpus aggregate probe parsed all 12 local files
   across DOCX, Markdown, and PDF formats, ran skill extraction plus
   ATS/readability checks against three broad job descriptions, ran

@@ -99,7 +99,7 @@ export const JOB_SOURCE_PLATFORM_DISCOVERY_ENTRIES: readonly model.JobSourceDisc
     implementationPath:
       "Detect employer Workday tenant URLs and use the public Candidate Experience API only after tenant fixtures and rate limits are reviewed.",
     notes:
-      "Workday CXS pages can expose public job-search JSON for published jobs. " +
+      "Workday CXS pages can expose public job-search JSON for published jobs. Local Fortune 100 source research validated a Workday CXS listing lane across multiple public employer tenants, but every new tenant still needs source-specific fixture and rate-limit review. " +
       model.EMPLOYER_CAREER_SYSTEM_NOTES,
   },
   {
@@ -257,11 +257,35 @@ export const JOB_SOURCE_PLATFORM_DISCOVERY_ENTRIES: readonly model.JobSourceDisc
     status: "candidate",
     regions: ["global"],
     careerProfileIds: "all",
-    hostPatterns: ["phenompeople.com", "phenom.com"],
-    examples: ["Enterprise career portals"],
+    hostPatterns: ["phenompeople.com", "phenom.com", "*/widgets"],
+    examples: ["Enterprise career portals", "Phenom widget career search pages"],
     implementationPath:
-      "Detect Phenom pages and add source-specific support after endpoint and terms review.",
-    notes: model.EMPLOYER_CAREER_SYSTEM_NOTES,
+      "Detect Phenom pages and add source-specific widget support after endpoint and terms review.",
+    notes:
+      "Local Fortune 100 source research validated a Phenom widget refineSearch lane for selected public employer pages. Keep it fixture-backed and tenant-scoped before scheduling. " +
+      model.EMPLOYER_CAREER_SYSTEM_NOTES,
+  },
+  {
+    id: "radancy-talentbrew",
+    label: "Radancy / TalentBrew",
+    category: "ats-platform",
+    accessModel: "employer-career-system",
+    technicalAccess: "public-unauthenticated",
+    status: "candidate",
+    regions: ["global"],
+    careerProfileIds: "all",
+    hostPatterns: [
+      "radancy.com",
+      "talentbrew.com",
+      "tbcdn.talentbrew.com",
+      "careers.*",
+    ],
+    examples: ["Sysco careers", "Radancy/TalentBrew career search pages"],
+    implementationPath:
+      "Candidate HTML fallback adapter for validated source-specific public career pages; keep parsing fixture-backed and scoped to employer pages that pass policy and stability checks.",
+    notes:
+      "Local Fortune 100 source research validated a Sysco Radancy/TalentBrew public HTML fallback lane. Treat this as a narrow company-careers adapter family, not a broad crawling license. " +
+      model.EMPLOYER_CAREER_SYSTEM_NOTES,
   },
   {
     id: "taleo",
