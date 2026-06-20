@@ -37,7 +37,11 @@
     "docs/research/README.md",
     "scripts/harness-score.mjs",
     "scripts/tests/harness-score.test.mjs",
-    "src/services/aiGateway.ts"
+    "src/services/aiGateway.ts",
+    "src/services/aiGatewayPayloadPolicy.ts",
+    "src/services/aiGatewayPromptInspection.ts",
+    "src/services/aiGatewayTypes.ts",
+    "src/services/aiGatewayValidation.ts"
   ],
   "requiredHarnessSnippets": {
     "AGENTS.md": [
@@ -251,13 +255,16 @@
       "## Orchestration",
       "## Handoff"
     ],
-    "src/services/aiGateway.ts": [
+    "src/services/aiGatewayTypes.ts": [
       "DEFAULT_EXTERNAL_AI_SETTINGS",
       "enabled: false",
-      "provider: \"none\"",
+      "provider: \"none\""
+    ],
+    "src/services/aiGatewayValidation.ts": [
       "payload_preview_required",
       "full_database_blocked",
-      "sensitive_payload_blocked"
+      "sensitive_payload_blocked",
+      "hasPromptLikeExternalAiContent(outgoingPayload)"
     ]
   },
   "publicWiki": {

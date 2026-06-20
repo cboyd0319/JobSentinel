@@ -76,10 +76,12 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   is disabled.
 - 2026-06-19 optional outside-AI setup now supports OpenAI, Anthropic, Google
   Gemini, GitHub Copilot, and custom HTTPS providers in Settings. Users can
-  configure multiple providers, order preferences, and per-provider model
-  names. Provider keys use `CredentialService` and the local secure vault; no
-  provider transport sends data until the gateway preview, redaction, cancel,
-  and request-log UI is implemented.
+  configure multiple providers, order preferences, per-provider model names,
+  private-details-after-review, and metadata-only local request history.
+  Provider keys use `CredentialService` and the local secure vault. The shared
+  review/cancel dialog and local request-history storage are implemented, but
+  no provider transport sends data until a real feature path is wired through
+  reviewed redaction and gateway approval.
 - `validation/file_size_contract.json` now owns hard maintainable file caps;
   `npm run lint:bloat` enforces scope limits and frozen legacy exceptions. New
   Rust/frontend production modules must stay at or below 700 lines unless an
@@ -87,8 +89,9 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 - Script tests were moved out of the flat `scripts/` root in commit
   `b238c7d4`; keep future script tests under test directories.
 - 2026-06-19 release blockers remain open for major README and screenshot
-  refresh, stale docs cleanup, external-AI preview/send UI completion, Qwen3
-  diagnostics UI/data-flow integration, manual verification of every
+  refresh, stale docs cleanup, external-AI provider transports and first
+  reviewed feature send path, Qwen3 diagnostics UI/data-flow integration,
+  manual verification of every
   scraper/source flow, manual verification of every resume capability, final
   whole-UI proof, final local gates, and user-confirmed push/publish.
 

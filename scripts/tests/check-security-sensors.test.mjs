@@ -226,8 +226,8 @@ function writeBaseRepo(root, csp) {
       "AGENTS.md @cboyd0319",
       "CLAUDE.md @cboyd0319",
       "docs/CLAUDE.md @cboyd0319",
-      "src/services/aiGateway.ts @cboyd0319",
-      "src/services/aiGateway.test.ts @cboyd0319",
+      "src/services/aiGateway* @cboyd0319",
+      "src/services/externalAiRequestLog.ts @cboyd0319",
       "SECURITY.md @cboyd0319",
       "docs/security/ @cboyd0319",
       "src-tauri/capabilities/ @cboyd0319",
@@ -271,18 +271,18 @@ function writeBaseRepo(root, csp) {
       "credentialExists(credentialStatus, \"usajobs_api_key\");",
     ].join("\n"),
   );
-  writeFileSync(
-    join(root, "src/services/aiGateway.ts"),
-    [
-      "export type ExternalAiGatewayErrorCode = 'external_ai_prompt_injection_blocked';",
-      "function hasPromptLikeExternalAiContent() { return false; }",
-      "function validateRequest(outgoingPayload) {",
-      "  if (hasPromptLikeExternalAiContent(outgoingPayload)) {",
-      "    throw new Error('Details selected for outside AI include instructions aimed at AI tools');",
-      "  }",
-      "}",
-    ].join("\n"),
-  );
+  const aiGatewayBoundarySource = [
+    "export type ExternalAiGatewayErrorCode = 'external_ai_prompt_injection_blocked';",
+    "function hasPromptLikeExternalAiContent() { return false; }",
+    "function validateRequest(outgoingPayload) {",
+    "  if (hasPromptLikeExternalAiContent(outgoingPayload)) {",
+    "    throw new Error('Details selected for outside AI include instructions aimed at AI tools');",
+    "  }",
+    "}",
+  ].join("\n");
+  for (const path of ["aiGateway.ts", "aiGatewayPayloadPolicy.ts", "aiGatewayPromptInspection.ts", "aiGatewayTypes.ts", "aiGatewayValidation.ts"]) {
+    writeFileSync(join(root, "src/services", path), aiGatewayBoundarySource);
+  }
   writeFileSync(
     join(root, "src/pages/ResumeBuilderPreviewStep.tsx"),
     [

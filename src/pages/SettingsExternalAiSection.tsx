@@ -14,6 +14,7 @@ import {
   type CredentialStatusMap,
   type Credentials,
 } from "./SettingsConfig";
+import { SettingsExternalAiRequestHistory } from "./SettingsExternalAiRequestHistory";
 
 interface SettingsExternalAiSectionProps {
   config: Config;
@@ -308,6 +309,19 @@ export function SettingsExternalAiSection({
           <label className="flex items-center gap-2">
             <input
               type="checkbox"
+              checked={config.external_ai.allow_sensitive_payloads}
+              onChange={(event) =>
+                updateExternalAi({
+                  allow_sensitive_payloads: event.target.checked,
+                })
+              }
+              className="rounded border-surface-300 text-sentinel-600 focus:ring-sentinel-500"
+            />
+            Private details after review
+          </label>
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
               checked={config.external_ai.log_requests_locally}
               onChange={(event) =>
                 updateExternalAi({ log_requests_locally: event.target.checked })
@@ -317,6 +331,8 @@ export function SettingsExternalAiSection({
             Save request history
           </label>
         </div>
+
+        <SettingsExternalAiRequestHistory />
       </div>
     </section>
   );

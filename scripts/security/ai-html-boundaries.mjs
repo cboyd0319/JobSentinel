@@ -12,6 +12,14 @@ const externalAiGatewayChecks = [
   },
 ];
 
+const externalAiGatewayBoundaryPaths = [
+  "src/services/aiGateway.ts",
+  "src/services/aiGatewayPayloadPolicy.ts",
+  "src/services/aiGatewayPromptInspection.ts",
+  "src/services/aiGatewayTypes.ts",
+  "src/services/aiGatewayValidation.ts",
+];
+
 function repoPath(root, path) {
   return join(root, path);
 }
@@ -32,7 +40,9 @@ function includesAll(text, phrases) {
 }
 
 export function checkExternalAiGatewayBoundary(root, violations) {
-  const gateway = readIfExists(root, "src/services/aiGateway.ts", violations);
+  const gateway = externalAiGatewayBoundaryPaths
+    .map((path) => readIfExists(root, path, violations))
+    .join("\n");
 
   for (const check of externalAiGatewayChecks) {
     if (!includesAll(gateway, check.phrases)) {
