@@ -103,7 +103,7 @@ screenshot, or session-state persistence.
 | Recruitee, Personio, Comeet | Global and Europe | Prefer native public careers API/feed only after tenant URL shape, terms, and rate-limit review |
 | Workday | Global | Native source-adapter parser contract added for validated Workday CXS JSON lane; schedule only tenant fixtures that pass robots, endpoint, and rate-limit checks |
 | Phenom | Global | Native source-adapter parser contract added for validated widget refineSearch JSON lane; schedule only tenant fixtures that pass robots, endpoint, and rate-limit checks |
-| Radancy / TalentBrew | Global | Sysco public HTML fallback and Chevron search path validated; keep source-specific and parser-fixture-backed |
+| Radancy / TalentBrew | Global | Sysco public HTML fallback has a native parser contract; Sysco and Chevron search paths validated where robots allow; keep source-specific and parser-fixture-backed |
 | Oracle Fusion Recruiting | Global | Dell Technologies and Albertsons Candidate Experience JSON validated where robots allow; JPMorgan Chase excluded while observed paths are robots-blocked |
 | Oracle Taleo | Global | Valero Energy and Enterprise Products Partners public listings validated where robots allow; UnitedHealth Group excluded until an allowed listing source is confirmed |
 | Eightfold | Global | Five Fortune 100 candidates found; Microsoft has a frontend JSON endpoint candidate, others need endpoint payload or parser fixtures before native scheduling |

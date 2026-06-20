@@ -210,9 +210,10 @@ Lever, SmartRecruiters, Workday CXS listing JSON, Phenom widget refineSearch
 JSON, Radancy/TalentBrew public HTML fallback, Oracle Fusion Candidate
 Experience JSON, and public Taleo career-section listings. The native Rust
 source-adapter layer now carries canonical record and parser contracts for the
-validated Workday CXS and Phenom widget lanes, but live scheduled fetching still
-requires each employer tenant to pass JobSentinel's source-specific policy,
-robots, rate-limit, endpoint-stability, and parser checks.
+validated Workday CXS, Phenom widget, and Radancy/TalentBrew static HTML lanes,
+but live scheduled fetching still requires each employer tenant to pass
+JobSentinel's source-specific policy, robots, rate-limit, endpoint-stability,
+and parser checks.
 
 The same research also added long-tail ATS fingerprints for platforms such as
 ClearCompany, Dayforce, Avature, JobDiva, CEIPAL, Crelate, TrackerRMS,

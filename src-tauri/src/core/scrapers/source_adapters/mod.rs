@@ -6,6 +6,7 @@
 
 pub mod contract;
 pub mod phenom_widget;
+pub mod radancy_talentbrew;
 pub mod workday_cxs;
 
 pub use contract::{
@@ -13,4 +14,8 @@ pub use contract::{
     SourcePlatform,
 };
 pub use phenom_widget::{parse_phenom_widget_listing, PhenomWidgetRequest, PhenomWidgetSource};
+pub use radancy_talentbrew::{
+    parse_sysco_radancy_detail, parse_sysco_radancy_listing, SyscoRadancyRequest,
+    SyscoRadancySource,
+};
 pub use workday_cxs::{parse_workday_cxs_listing, WorkdayCxsRequest, WorkdayCxsSource};
