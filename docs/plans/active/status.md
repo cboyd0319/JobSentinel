@@ -65,7 +65,9 @@ The v2.9.0 goal adds four durable release-readiness requirements:
   promoting them to unrestricted crawlers.
 - Resume, application preview, cover-letter review, role-family taxonomy,
   source corpus/taxonomy, local interest learning, and public docs/screenshots
-  have focused coverage; final release still needs final local gates.
+  have focused coverage. Final local gates passed on 2026-06-19 from the
+  current local release state after a Cargo lockfile freshness update;
+  push/publish remains user-confirmed.
 - 2026-06-19 private resume-corpus aggregate probe parsed all 12 local files
   across DOCX, Markdown, and PDF formats, ran skill extraction plus
   ATS/readability checks against three broad job descriptions, ran
@@ -106,12 +108,12 @@ The v2.9.0 goal adds four durable release-readiness requirements:
 - Script tests were moved out of the flat `scripts/` root in commit
   `b238c7d4`; keep future script tests under test directories.
 - 2026-06-19 major README, screenshot, stale-docs, source, resume, semantic,
-  restricted-browser, and whole-UI evidence is recorded locally. Remaining
-  blockers are final local gates and user-confirmed push/publish.
+  restricted-browser, whole-UI, and final-gate evidence is recorded locally.
+  Remaining blocker is user-confirmed push/publish.
 
 ## Next Best Work
 
-1. Run final local release gates from the verified commit.
+1. Commit the final-gate evidence and Cargo lockfile freshness update.
 2. Push `main` and wiki only after the user confirms final publication steps.
 3. Keep macOS readiness honest: no Gatekeeper-ready claim before Apple credentials.
 
