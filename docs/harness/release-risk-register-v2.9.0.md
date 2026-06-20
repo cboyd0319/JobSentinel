@@ -1,6 +1,6 @@
 # v2.9.0 Release Risk Register
 
-Last updated: 2026-06-19.
+Last updated: 2026-06-20.
 
 This register covers source access, scraper behavior, user risk, and release
 distribution risks that can block the `2.9.0` release. It is a release harness
@@ -272,6 +272,11 @@ Evidence:
   attests provenance/SBOMs, uploads assets, then publishes.
 - `.github/workflows/verify-release-artifacts.yml` verifies the public release
   asset set after publication.
+- 2026-06-20 read-only remote check: local `main` is at `9a29976a`; remote
+  `origin/main` and remote `v2.9.0` still point at `8020d7e6`; the public
+  release API returns `404` for `v2.9.0`, so publication has not happened.
+- 2026-06-20 release-prep checks passed: focused release script tests `730/730`,
+  `npm run release:check-env`, and `npm run macos:readiness`.
 
 Risk:
 
@@ -282,7 +287,8 @@ assets, or Gatekeeper expectation mismatches.
 Release status:
 
 Blocking for final release. Do not publish until staged assets pass and public
-asset verification passes after publication.
+asset verification passes after publication. The remote tag still needs to move
+to the latest verified commit after user confirmation.
 
 Fix:
 
