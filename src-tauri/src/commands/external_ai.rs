@@ -189,7 +189,10 @@ fn validate_review_state(
 
 fn validate_public_job_summary_request(request: &ExternalAiCommandRequest) -> Result<(), String> {
     if request.feature != FEATURE_JOB_DESCRIPTION_SUMMARY {
-        return Err("This outside AI feature is not available yet.".to_string());
+        return Err(
+            "Outside AI can only summarize reviewed public job details in this release."
+                .to_string(),
+        );
     }
 
     let labels: BTreeSet<&str> = request.labels.iter().map(String::as_str).collect();
