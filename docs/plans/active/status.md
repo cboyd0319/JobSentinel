@@ -113,8 +113,9 @@ The v2.9.0 goal adds durable release-readiness requirements:
   restricted-browser, whole-UI, and final-gate evidence is recorded locally.
   2026-06-20 capability verification records every capability row, source
   class, privacy boundary, route probe, screenshot, focused scraper/resume/AI/ML
-  gate, and follow-up final-gate pass. Remaining blocker is user-confirmed
-  push/publish.
+  gate, follow-up final-gate pass, release environment/version/macOS readiness,
+  and staged Agent Skills archive/SBOM checks. Remaining blocker is
+  user-confirmed push/publish.
 
 ## Next Best Work
 

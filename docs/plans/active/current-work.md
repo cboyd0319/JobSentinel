@@ -113,6 +113,9 @@ Out of scope:
   gates passed for the current capability-evidence slice; the capability
   evidence ledger records each row. Rerun full final gates after any further
   local change and before publication.
+- Release version, release environment, macOS readiness, E2E doctor, Agent
+  Skills package, Agent Skills archive integrity, and staged Agent Skills SBOM
+  checks passed locally under `/tmp` without publishing or uploading assets.
 - Script tests moved into `scripts/tests/` and `scripts/security/tests/` before
   commit `b238c7d4`; keep future script tests out of the flat `scripts/` root.
 
