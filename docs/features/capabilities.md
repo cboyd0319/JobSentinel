@@ -20,8 +20,22 @@ account, telemetry, cloud sync, or external AI provider.
 | Resume Match and Builder | Connects job requirements to concrete resume evidence, readability checks, and truthful draft improvements. |
 | Application Assist | Keeps repeated profile details, screening questions, attachments, and final submission under user review. |
 | Pay Protection | Keeps salary floors, listed ranges, written offers, verbal numbers, total compensation, commute, relocation, and deadline pressure visible. |
+| Local Qwen3 matching | Uses governed Qwen3 embeddings plus bounded Qwen3 reranking in embedded-ML builds, then blends exact skill, BM25, blocker, seniority, and evidence signals. |
 | Agent Skills | Packages repeatable job-search, resume, outreach, interview, and offer workflows for agent-capable tools. |
 | Optional external AI gateway | Supports provider choice and request approval without making cloud AI required for core workflows. |
+
+## Under-The-Hood Highlights
+
+| Mechanic | What ships in `2.9.0` |
+| --- | --- |
+| Source taxonomy and routing | Public feeds, employer career pages, ATS families, regional boards, public boards, restricted sources, search links, Browser Import, and manual paths are treated as distinct source classes. |
+| Restricted-source Workbench | Sign-in-backed sources stay user-started and visible, with acknowledgement, local ledger actions, visible-job import, and no stored session material. |
+| Evidence-bounded resume matching | Resume help connects requirements to concrete local resume evidence, readability signals, hard gaps, and truthful draft suggestions. |
+| Local model governance | `models.lock.toml` controls model identity, revision, hashes, size, license, backend compatibility, instructions, thresholds, and stale-vector rules. |
+| Hybrid ranking | Dense retrieval, BM25, exact skill taxonomy hits, required coverage, seniority, blocker caps, reranker scores, and provenance are scored separately. |
+| Privacy-first AI gateway | Provider setup supports OpenAI, Anthropic, Google Gemini, GitHub Copilot, and custom HTTPS providers without making external AI required. |
+| Secure local operations | Saved secrets use the local vault, safe support reports stay review-first, and release assets carry checksums, SBOMs, and attestations. |
+| Agent Skills packaging | Job search, resume, outreach, interview, and offer/pay skills ship as validated ZIP and tar.gz archives with checksums. |
 
 ## Status
 
@@ -62,8 +76,23 @@ Use [active status](../plans/active/status.md) for current release gates and
 | Safe support and backups | Create sanitized support reports, local settings backups, and recovery guidance | Local by default; user reviews before sharing | [Local Job-Search Data](user-data-management.md), [Privacy](../../PRIVACY.md) |
 | Saved secrets | Store alert passwords, connection links, and source access codes in a local encrypted vault | Local vault protected by the operating system password store or passphrase mode | [Saved Secrets](saved-secrets.md), [Keyring](../security/KEYRING.md) |
 | External AI gateway | Let users configure OpenAI, Anthropic, Google Gemini, GitHub Copilot, or custom HTTPS providers for approved optional actions | Disabled by default; preview, edit, cancel, approval, redaction, and metadata-only logs | [Privacy-first AI Gateway](../architecture/privacy-first-ai-gateway.md), [Responsible AI](../../RESPONSIBLE_AI.md) |
-| Local semantic matching | Optional developer-enabled local model matching with governed model manifests and deterministic fallback | Local only when enabled; no provider required | [Local Semantic Matching](../developer/LOCAL_SEMANTIC_MATCHING.md) |
+| Local semantic matching | Optional Qwen3-Embedding-0.6B retrieval, Qwen3-Reranker-0.6B bounded reranking, exact skill/BM25 scoring, blocker caps, evidence labels, governed model manifests, and deterministic fallback | Local only when enabled; no provider required | [Local Semantic Matching](../developer/LOCAL_SEMANTIC_MATCHING.md) |
 | Agent Skills | Downloadable skill packages for job search planning, posting-risk review, resume tailoring, application review, tracking, outreach, interview prep, and offer/pay review | Skill files are static local content | [Agent Skills](../../skills/README.md) |
+
+## Local Match Intelligence
+
+Embedded-ML builds can run the strongest matching path entirely on the user's
+machine. JobSentinel uses a JobSentinel-owned model layer instead of letting a
+convenience downloader own model identity or scoring semantics.
+
+| Mechanic | Release behavior |
+| --- | --- |
+| Governed model lock | `models.lock.toml` pins Qwen3 embedding, Qwen3 reranker, MiniLM fallback, revisions, hashes, sizes, licenses, backends, instructions, thresholds, and stale-vector rules. |
+| Dense retrieval | Qwen3-Embedding-0.6B retrieves resume and job passages that are meaningfully related. |
+| Lexical grounding | BM25 and exact skill taxonomy matches keep tools, credentials, role terms, and hard requirements concrete. |
+| Bounded reranking | Qwen3-Reranker-0.6B reranks top candidates so direct evidence can beat keyword-only near misses. |
+| Evidence and blockers | The hybrid scorer records dense, BM25, exact skill, required-coverage, seniority, reranker, blocker, and provenance signals. |
+| Privacy fallback | If governed model files are unavailable, JobSentinel falls back to deterministic local matching and marks diagnostics accordingly. |
 
 ## Job Sources And Access
 

@@ -63,6 +63,9 @@ not need terminal commands or debugging skill to get value.
 - **Ghost-job review is built in.** JobSentinel looks for stale, reposted,
   weak-source, scam-like, and low-confidence signals so users can decide where
   their effort is worth spending.
+- **Source discovery understands the messy job web.** It can classify public
+  feeds, employer career pages, regional boards, ATS-backed postings,
+  user-opened search destinations, and restricted sign-in sources.
 - **Resume help stays evidence-bound.** It can help a user clarify real
   experience, improve readability, and map resume evidence to job requirements
   without fabricating qualifications.
@@ -72,6 +75,12 @@ not need terminal commands or debugging skill to get value.
 - **Pay protection is a core workflow.** Salary floors, listed ranges,
   written-vs-verbal offers, total compensation, commute costs, relocation, and
   pressure deadlines are treated as first-class job-search data.
+- **Local match intelligence goes beyond keywords.** Embedded builds can use
+  governed Qwen3-Embedding-0.6B retrieval plus Qwen3-Reranker-0.6B reranking,
+  combined with exact skill, BM25, seniority, blocker, and evidence signals.
+- **Security is part of the product mechanics.** Safe support reports, local
+  encrypted secrets, optional AI request previews, and release artifact
+  checksums are built into normal flows instead of bolted on later.
 - **Agent Skills ship with the app.** The release includes downloadable job
   hunting and resume skills for agents that support skills packages.
 - **External AI is optional, not the product.** Users can configure providers,
@@ -167,6 +176,9 @@ Read more in [PRIVACY.md](PRIVACY.md),
   boards, restricted public boards, authenticated sources, and no-account limits.
 - Resume Builder, Resume Match, hard-requirement review, ATS/readability
   guidance, evidence-bounded bullet drafting, and JSON Resume import/export.
+- Local semantic matching architecture with governed Qwen3 embeddings,
+  bounded Qwen3 reranking, hybrid skill/BM25 scoring, deterministic fallback,
+  and privacy-safe diagnostics.
 - Application Assist for review-first form guidance, screening-answer review,
   cover-letter checks, and manual final submission.
 - Pay Protection for listed-pay gaps, written-vs-verbal offers,
@@ -213,12 +225,49 @@ review. See [Job Sources](docs/features/job-sources.md).
 | Resumes | Resume library, builder, PDF/DOCX/JSON Resume export, ATS/readability review, and match review. |
 | Applications | Application board, notes, contacts, reminders, interviews, offers, no-response review, and Application Assist. |
 | Pay | Salary floors, listed-pay review, total compensation prompts, written-offer separation, and negotiation notes. |
+| Local matching | Optional Qwen3 embedding plus reranker pipeline with exact skill, BM25, blocker, seniority, and evidence signals. |
 | Alerts | Desktop notifications plus optional email, Slack, Discord, Teams, and Telegram after setup. |
 | AI | Optional provider gateway with preview, approval, redaction, cancellation, and metadata-only local logs. |
 | Skills | Downloadable Agent Skills packages for job hunting and resume workflows. |
 
 For the full maintained list, use
 [Features And Capabilities](docs/features/capabilities.md).
+
+## Under The Hood
+
+JobSentinel is more than a spreadsheet with job cards. The release includes
+several local-first mechanics that make the app useful without turning the user
+into a system administrator.
+
+| Mechanic | Why it matters |
+| --- | --- |
+| Local Qwen3 match intelligence | Compares jobs and resumes with semantic retrieval, reranking, exact skills, blockers, and evidence instead of only keyword counts. |
+| Source taxonomy and routing | Separates official feeds, employer career pages, ATS families, regional boards, public boards, restricted sources, and manual paths. |
+| Restricted-source Workbench | Lets users work from sign-in-backed sites through visible, user-started sessions without storing cookies, tokens, browser storage, or hidden page state. |
+| Evidence-bounded resume help | Connects job requirements to real resume passages, readability issues, hard gaps, and truthful draft improvements. |
+| Pay and offer protection | Keeps salary floors, listed ranges, written offers, verbal numbers, commute, relocation, and deadline pressure in one review flow. |
+| Privacy-first AI gateway | Lets users configure providers, preview payloads, redact or cancel, approve sends, and keep metadata-only local logs. |
+| Local vault and safe reports | Stores saved secrets locally and creates sanitized support reports the user can review before sharing. |
+| Downloadable Agent Skills | Packages job-search workflows as portable skills for compatible agent tools, with both ZIP and tar.gz release assets. |
+| Release supply-chain checks | Publishes checksums, SBOMs, attestations, no-account labels, unsigned labels, and public asset verification. |
+
+### Local Match Intelligence
+
+JobSentinel's strongest resume/job matching path is local and inspectable. When
+an embedded-ML build has verified model files, matching uses:
+
+| Layer | What it does |
+| --- | --- |
+| Qwen3-Embedding-0.6B | Retrieves resume and job passages that are meaningfully related, not only exact keyword matches. |
+| Exact skill and BM25 scoring | Keeps concrete tools, certifications, titles, and requirement words grounded. |
+| Qwen3-Reranker-0.6B | Reranks a bounded top-K set so direct evidence beats keyword-only near misses. |
+| Blockers and evidence classes | Flags missing hard requirements, salary/location mismatch, seniority mismatch, and weak evidence. |
+| Model governance | `models.lock.toml` pins model identity, revisions, hashes, sizes, licenses, and instruction profiles. |
+
+If local model files are not present, JobSentinel falls back to deterministic
+matching. Resume and job text stays local either way. See
+[Local Semantic Matching](docs/developer/LOCAL_SEMANTIC_MATCHING.md) and the
+[semantic matching research notes](docs/research/semantic-resume-job-matching.md).
 
 ## Screenshots
 

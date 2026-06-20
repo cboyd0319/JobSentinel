@@ -125,6 +125,7 @@ profiles by default. Real user data requires explicit informed consent.
 - [Job-site data sources](research/job-site-data-sources.md)
 - [Pay equity](research/pay-equity.md)
 - [Salary negotiation](research/salary-negotiation.md)
+- [Semantic resume-job matching](research/semantic-resume-job-matching.md)
 
 ## Developer Docs
 
