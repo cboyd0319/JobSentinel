@@ -89,6 +89,7 @@ burdens for the user, not hidden behavior.
 | [Unexplored Frontiers](unexplored-frontiers.md) | Additional lanes for accessibility, governance, evidence wallets, sync, passkeys, mobile, networking, scams, and shared-computer use. |
 | [Final Amplification Review](final-amplification-review.md) | Last "think bigger" pass across v3 ideas before implementation planning. |
 | [Commercial Superiority Bar](commercial-superiority-bar.md) | Benchmark target for making v3 better than commercially similar products in the ways users feel. |
+| [Job Seeker Platform Research](job-seeker-platform-research.md) | Evidence-backed investigation into leading platforms, job seeker needs, paid-tool gaps, and the v3 leveling-the-field mission. |
 | [Native OS Integration](native-os-integration.md) | Advanced macOS, Windows, Linux, and Tauri integration ideas. |
 | [Security With Less Friction](security-with-less-friction.md) | Ways to improve security while reducing prompts, confusion, and setup burden. |
 | [Architecture Bets](architecture-bets.md) | System primitives that make the ideas coherent. |
@@ -126,6 +127,7 @@ Internal references:
 - [Privacy-First AI Gateway](../../architecture/privacy-first-ai-gateway.md)
 - [Local Semantic Matching](../../developer/LOCAL_SEMANTIC_MATCHING.md)
 - [Semantic Resume-Job Matching Research](../../research/semantic-resume-job-matching.md)
+- [Job Seeker Platform Research](job-seeker-platform-research.md)
 - [Security Docs](../../security/README.md)
 
 External references to keep in view during v3 design:

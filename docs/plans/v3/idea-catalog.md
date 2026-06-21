@@ -14,7 +14,7 @@ plan, or converted into a maintained feature doc.
   story, or update a source lane.
 - Weekly review that shows source yield, application quality, interview rate,
   follow-up health, stale roles, and pay floor misses.
-- Fatigue-aware pacing that helps users avoid low-value mass applying when
+- Fatigue-aware pacing that helps users avoid low-value high-volume applying when
   tracker evidence shows poor returns.
 - Campaign simulator that compares "apply fewer stronger matches," "broaden
   title," "change region," "lower commute burden," and "shift sources" before
@@ -25,7 +25,7 @@ plan, or converted into a maintained feature doc.
   opportunities are in flight.
 - "What changed since yesterday" summary across saved searches, tracked jobs,
   source failures, interviews, offers, and reminders.
-- Smart inbox for job-search tasks, not email. Every task has source, evidence,
+- Smart inbox for career campaign tasks, not email. Every task has source, evidence,
   due date, confidence, and next action.
 - Low-pressure mode for users who are overwhelmed, with fewer choices and more
   defaults.
@@ -193,7 +193,7 @@ plan, or converted into a maintained feature doc.
   warnings.
 - Encrypted backup and restore with user-held recovery material and clear data
   loss warnings.
-- Multi-profile vaults for separate users, separate job searches, or career
+- Multi-profile vaults for separate users, separate career campaigns, or career
   transitions without cross-profile leakage.
 - Safe support bundle that can reproduce settings and source health without
   private resume text, notes, secrets, or browser data.
@@ -250,7 +250,7 @@ plan, or converted into a maintained feature doc.
 
 ## Hardware And Access Equity
 
-- Essentials package that keeps job-search help useful on older laptops and
+- Essentials package that keeps work-search help useful on older laptops and
   lower-memory machines.
 - Offline-first mode for users with unstable internet after source checks or
   imports are complete.

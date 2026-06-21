@@ -91,12 +91,12 @@ Priority:
 | U01 | First-run "get me to value" flow | 5 | 3 | Now | Must beat commercial install and setup friction. |
 | U02 | Daily mission board | 5 | 3 | Now | Replaces tracker blank-state with next actions. |
 | U03 | Weekly review | 4 | 3 | Next | Shows source yield, interview rate, pay misses, and stale roles. |
-| U04 | Fatigue-aware pacing | 4 | 3 | Next | Helps users avoid low-value mass applying. |
+| U04 | Fatigue-aware pacing | 4 | 3 | Next | Helps users avoid low-value application volume. |
 | U05 | Search lane health and stop rules | 4 | 3 | Next | Turns outcome data into better strategy. |
 | U06 | Campaign simulator | 4 | 3 | Next | Compares strategy changes before users spend effort. |
 | U07 | Application runway view | 3 | 2 | Next | Shows strength and volume of active opportunities. |
 | U08 | "What changed since yesterday" summary | 4 | 3 | Next | Makes repeat use obvious and useful. |
-| U09 | Smart job-search inbox | 4 | 4 | Later | Needs event ledger, case files, and source graph. |
+| U09 | Smart career campaign inbox | 4 | 4 | Later | Needs event ledger, case files, and source graph. |
 | U10 | Low-pressure or overwhelmed mode | 4 | 3 | Next | Important for stressed and nontechnical users. |
 | U11 | Case-file timeline | 5 | 3 | Now | The visible face of the event ledger. |
 | U12 | Evidence wall | 5 | 4 | Now | Core differentiator versus opaque match scores. |
@@ -229,7 +229,7 @@ Priority:
 | P12 | AI governance mapping | 3 | 3 | Next | NIST AI RMF, EU AI Act concepts, and public docs. |
 | P13 | Passkeys and device trust | 3 | 4 | Later | Useful for pairing and sensitive approvals. |
 | P14 | Candidate data rights toolkit | 4 | 3 | Next | Export, delete, support, migration, and provider request receipts. |
-| P15 | Privacy-preserving source intelligence mesh | 3 | 5 | Moonshot | Only aggregate source health, never private job-search data. |
+| P15 | Privacy-preserving source intelligence mesh | 3 | 5 | Moonshot | Only aggregate source health, never private campaign data. |
 
 ## Ecosystem, Packs, And Distribution
 
@@ -338,6 +338,11 @@ Priority:
 | C08 | Modest-hardware benchmark | 4 | 3 | Now | Essentials must remain responsive. |
 | C09 | Regional-readiness benchmark | 4 | 3 | Next | UK, EU, and India starter coverage. |
 | C10 | Unsafe-automation cut line | 5 | 1 | Now | Do not compete through hidden scraping or final auto-submit. |
+| C11 | No-paywall parity benchmark | 5 | 2 | Now | Prove core workflows are useful without paid tiers or hosted accounts. |
+| C12 | Candidate advantage lab | 5 | 3 | Now | Compare product classes by cost, effort, evidence, privacy, recovery, and outcomes. |
+| C13 | Source-truth benchmark | 5 | 3 | Now | Measures official-source confidence, duplicate lineage, stale risk, and safe next steps. |
+| C14 | Trust and scam response benchmark | 5 | 3 | Now | Goes beyond warnings into verification and reporting guidance. |
+| C15 | Pay clarity benchmark | 5 | 3 | Now | Measures salary evidence, range quality, pay-floor fit, and dated policy-pack coverage. |
 
 ## Cut Lines
 

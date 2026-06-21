@@ -31,7 +31,7 @@ Why it could be worth it:
 - Agents can operate on one bounded case file.
 - Privacy receipts and audit trails become easier to explain.
 
-### Event-Sourced Job Search
+### Event-Sourced Career Campaign
 
 Current risk:
 
@@ -39,7 +39,7 @@ Current risk:
 
 Refactor idea:
 
-- Store user-approved job-search events as the source of truth.
+- Store user-approved career campaign events as the source of truth.
 - Derive dashboard state, tracker state, source yield, learning features, and
   weekly review from the event ledger.
 
@@ -146,7 +146,7 @@ Create a synthetic hiring-system simulator for users:
 Outcome:
 
 - Users can understand application readability and evidence strength without
-  being misled into "beat the ATS" folklore.
+  being misled into unsupported ATS folklore.
 
 ### Local Career Digital Twin
 
@@ -186,7 +186,7 @@ Outcome:
 ### Privacy-Preserving Community Intelligence
 
 Explore optional community signals that never include resumes, notes,
-identities, application history, or raw job-search text:
+identities, application history, or raw campaign text:
 
 - source health
 - broken parser reports

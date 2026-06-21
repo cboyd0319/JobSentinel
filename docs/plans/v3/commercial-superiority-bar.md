@@ -5,6 +5,11 @@ way that matters to a job seeker. The goal is not feature mimicry. The goal is a
 better outcome for the user: less manual work, better evidence, safer decisions,
 more useful source coverage, stronger privacy, and clearer next actions.
 
+This bar is paired with
+[Job Seeker Platform Research](job-seeker-platform-research.md). The benchmark
+must prove practical advantage for a free user, not only feature parity with
+paid products.
+
 ## Product Classes To Beat
 
 Use these classes as benchmark targets:
@@ -146,7 +151,7 @@ V3 should not try to win by:
 - opaque hiring-probability claims
 - selling user data or making telemetry required
 
-When a commercial product offers mass auto-apply, JobSentinel should compete
+When a commercial product offers high-volume application submission, JobSentinel should compete
 with safer speed: better targeting, better packets, form rehearsal, faster
 logging, and explicit user control.
 
@@ -154,6 +159,8 @@ logging, and explicit user control.
 
 Track these against commercial alternatives:
 
+- monthly cost to complete a serious search
+- number of workflows blocked by paid tiers or account creation
 - time from install to first useful action
 - clicks to save a visible job
 - clicks to log applied
@@ -169,6 +176,22 @@ Track these against commercial alternatives:
 - modest-hardware responsiveness
 - cross-platform feature parity
 - export and rollback success
+
+## Leveling-The-Field Bar
+
+V3 should be judged by whether a user without extra money can still get:
+
+- useful applicant-fit insight without a paid network subscription
+- advanced resume and requirement review without scan limits
+- tracking and follow-up without spreadsheet work
+- scam, stale-posting, and source-confidence help without uploading private data
+- salary and cost-of-work clarity without trading privacy for salary databases
+- guided outreach and referral planning without proprietary recruiter access
+- recovery, export, and backup without a hosted account
+
+Where a commercial platform has proprietary data JobSentinel cannot access,
+JobSentinel should provide the best legitimate local alternative and label the
+gap honestly.
 
 ## Competitive Demo Script
 
@@ -201,3 +224,4 @@ ambitious enough.
 - [Sonara](https://www.sonara.ai/)
 - [Rezi resume builder](https://www.rezi.ai/)
 - [Resume Worded](https://resumeworded.com/)
+- [Job Seeker Platform Research](job-seeker-platform-research.md)

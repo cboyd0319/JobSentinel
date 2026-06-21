@@ -1,13 +1,13 @@
 # V3 North Star
 
-V3 should make JobSentinel feel like a private command center for a job search.
+V3 should make JobSentinel feel like a private command center for finding work.
 The user should not have to become a spreadsheet operator, source researcher,
 ATS analyst, prompt engineer, resume optimizer, recruiter CRM admin, and salary
 negotiation researcher just to find work.
 
 ## One Sentence
 
-JobSentinel v3 is a local job-search operating system that turns user-approved
+JobSentinel v3 is a local work-search operating system that turns user-approved
 signals into clear next actions, better applications, stronger negotiation, and
 less wasted effort.
 
@@ -33,7 +33,7 @@ less wasted effort.
 - **Beat the category.** Aim to outperform commercial trackers, resume tools,
   browser copilots, and auto-apply products on user control, privacy, evidence,
   source breadth, recovery, and nontechnical ease.
-- **Stay calm and usable.** Make advanced job-search mechanics understandable
+- **Stay calm and usable.** Make advanced career campaign mechanics understandable
   to a person under pressure.
 - **Install without friction.** Make the first useful workflow available with a
   small number of plain-language setup choices.
@@ -44,7 +44,7 @@ less wasted effort.
 
 Make every current v2.9 surface feel connected:
 
-- An installer and first-run flow that gets the user to useful job-search help
+- An installer and first-run flow that gets the user to useful work-search help
   without accounts, cloud setup, or model downloads.
 - A dashboard that starts from what the user should do next.
 - Opportunity case files that combine job details, fit, risk, source, resume,
@@ -103,7 +103,7 @@ If v3 requires a major refactor, the release should allow it:
 | Local career graph | Resume evidence, skills, goals, outcomes, and preferences become reusable context. |
 | Source graph | Job discovery expands across ATS platforms, employer pages, regional boards, and public APIs. |
 | Browser companion | User-visible capture removes copy/paste friction without hidden scraping. |
-| Agent skill runtime | JobSentinel can run structured job-search workflows locally with review gates. |
+| Agent skill runtime | JobSentinel can run structured career workflows locally with review gates. |
 | Model governance | Matching quality improves without surrendering model identity or cache integrity. |
 | Eval lab | Ranking, source, resume, and UI changes become measurable before release. |
 | Privacy receipts | Users can see exactly what happened, what stayed local, and what was sent. |
@@ -147,7 +147,7 @@ If v3 requires a major refactor, the release should allow it:
 
 - Building an employer screening tool.
 - Predicting whether an employer will hire the user.
-- Turning private job-search data into telemetry.
+- Turning private campaign data into telemetry.
 - Requiring cloud AI for core value.
 - Creating hidden scrapers for restricted authenticated sources.
 - Automating final application submission.
@@ -159,5 +159,5 @@ If v3 requires a major refactor, the release should allow it:
   JobSentinel's model governance, provenance, and eval requirements.
 - Claiming full international coverage when v3 has only starter region packs
   and framework support.
-- Chasing commercial mass-apply volume at the expense of application quality,
+- Chasing commercial application volume at the expense of application quality,
   user control, source boundaries, or truthful materials.
