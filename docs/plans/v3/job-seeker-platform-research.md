@@ -234,6 +234,20 @@ Build a source graph that answers:
 - Is this source public, restricted, browser-only, or under review?
 - What can JobSentinel do automatically, and what requires user-visible action?
 
+### 2A. Employer Intelligence Layer
+
+Build candidate-side employer dossiers that connect source truth to company
+context:
+
+- official employer domains, careers pages, and ATS tenants;
+- public registry and policy-pack signals with dates and jurisdiction;
+- pay clarity, sponsorship context, scam checks, and source confidence;
+- local user-owned application, interview, offer, and contact history;
+- recruiter and interviewer questions based on known unknowns.
+
+See [Employer Intelligence](employer-intelligence.md) for the full source
+hierarchy, privacy boundary, data dimensions, and release bar.
+
 ### 3. No-Paywall Parity Pack
 
 Identify features that commercial tools commonly gate and make local versions

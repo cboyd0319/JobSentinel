@@ -90,6 +90,7 @@ burdens for the user, not hidden behavior.
 | [Final Amplification Review](final-amplification-review.md) | Last "think bigger" pass across v3 ideas before implementation planning. |
 | [Commercial Superiority Bar](commercial-superiority-bar.md) | Benchmark target for making v3 better than commercially similar products in the ways users feel. |
 | [Job Seeker Platform Research](job-seeker-platform-research.md) | Evidence-backed investigation into leading platforms, job seeker needs, paid-tool gaps, and the v3 leveling-the-field mission. |
+| [Employer Intelligence](employer-intelligence.md) | Candidate-side company dossiers, official-source research, source provenance, user-owned outcomes, and privacy boundaries for employer context. |
 | [Native OS Integration](native-os-integration.md) | Advanced macOS, Windows, Linux, and Tauri integration ideas. |
 | [Security With Less Friction](security-with-less-friction.md) | Ways to improve security while reducing prompts, confusion, and setup burden. |
 | [Architecture Bets](architecture-bets.md) | System primitives that make the ideas coherent. |
@@ -128,6 +129,7 @@ Internal references:
 - [Local Semantic Matching](../../developer/LOCAL_SEMANTIC_MATCHING.md)
 - [Semantic Resume-Job Matching Research](../../research/semantic-resume-job-matching.md)
 - [Job Seeker Platform Research](job-seeker-platform-research.md)
+- [Employer Intelligence](employer-intelligence.md)
 - [Security Docs](../../security/README.md)
 
 External references to keep in view during v3 design:
@@ -138,6 +140,8 @@ External references to keep in view during v3 design:
 - [Greenhouse job board API](https://developers.greenhouse.io/job-board.html)
 - [Lever postings API](https://github.com/lever/postings-api)
 - [Google JobPosting structured data](https://developers.google.com/search/docs/appearance/structured-data/job-posting)
+- [SEC EDGAR APIs](https://www.sec.gov/search-filings/edgar-application-programming-interfaces)
+- [DOL OFLC performance data](https://www.dol.gov/agencies/eta/foreign-labor/performance)
 - [Apple Foundation Models framework](https://developer.apple.com/documentation/foundationmodels)
 - [Chrome extension side panel API](https://developer.chrome.com/docs/extensions/reference/api/sidePanel)
 - [Windows AI APIs](https://learn.microsoft.com/en-us/windows/ai/apis/)

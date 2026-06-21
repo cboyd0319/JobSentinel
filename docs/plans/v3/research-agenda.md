@@ -61,6 +61,27 @@ V3 product question:
 - Can JobSentinel help users discover jobs across company pages and regional
   markets without turning source access into hidden scraping?
 
+### Employer Intelligence
+
+Research and prototype:
+
+- employer identity resolution across brands, subsidiaries, domains, and ATS
+  tenants
+- official employer and registry source provenance
+- SEC, WARN/state layoff, OFLC, H-1B, Companies House, EU, India, and similar
+  official-data pack feasibility
+- employer dossier UX that shows signals, uncertainty, and user-owned outcomes
+  without a single opaque score
+- scam and impersonation safe-next-step workflows
+- review-site and salary-site boundaries that avoid background harvesting or
+  private-data exchange
+- employer question generation for recruiters, interviews, and offers
+
+V3 product question:
+
+- Can JobSentinel give users useful company context without proprietary review
+  databases, central employer ratings, or private user-data sharing?
+
 ### Regional Readiness
 
 Research and prototype:
@@ -177,6 +198,7 @@ V3 product question:
 | Qwen3 Deep Match | Requirement-level Qwen3 retrieval, bounded reranking, query-specific thresholds, and explanation diagnostics. |
 | Browser Companion | Minimal extension side panel paired to local Tauri, visible import only. |
 | Source Graph | Machine-readable source records with policy, rate limit, fixtures, and health. |
+| Employer Dossier | Candidate-side company profile with official sources, public signals, user-owned history, pay clarity, scam checks, and questions to ask. |
 | Regional Pack | UK, EU, and India starter manifests with pay, location, taxonomy, CV, and source fixtures. |
 | Case Files | One job case file view that merges job, resume, tracker, source, notes, interview, and offer state. |
 | Event Ledger | Append-only local events with derived dashboard and tracker state. |
@@ -198,6 +220,8 @@ V3 product question:
 - Counterfactual resumes with same evidence and altered nonessential signals.
 - Adversarial postings with hidden instructions and suspicious apply links.
 - Source fixtures for list pages, detail pages, broken pages, and layout drift.
+- Employer fixtures for identity aliases, official domains, ATS tenants, public
+  registry snapshots, pay clarity, and user-owned outcome events.
 - Browser companion fixtures for visible cards and detail pages.
 - Regional fixtures for UK, EU, and India pay, location, title, CV, and source
   patterns.
@@ -226,6 +250,7 @@ V3 product question:
 - [Greenhouse job board API](https://developers.greenhouse.io/job-board.html)
 - [Lever postings API](https://github.com/lever/postings-api)
 - [Google JobPosting structured data](https://developers.google.com/search/docs/appearance/structured-data/job-posting)
+- [Employer Intelligence](employer-intelligence.md)
 - [Apple Foundation Models framework](https://developer.apple.com/documentation/foundationmodels)
 - [Windows AI APIs](https://learn.microsoft.com/en-us/windows/ai/apis/)
 - [ONNX Runtime DirectML execution provider](https://onnxruntime.ai/docs/execution-providers/DirectML-ExecutionProvider.html)

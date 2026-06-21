@@ -57,6 +57,7 @@ Priority:
 | 18 | Campaign simulator | 4 | 3 | Next | Idea Catalog, Frontier Concepts |
 | 19 | Application cockpit | 4 | 4 | Next | Moonshots, Commercial Bar |
 | 20 | Signed content-addressed pack registry | 4 | 4 | Next | Downloadable Agents, Moonshots |
+| 21 | Employer intelligence layer | 5 | 4 | Now | Employer Intelligence, Source Strategy, Commercial Bar |
 
 ## Architecture And Data Primitives
 
@@ -107,6 +108,8 @@ Priority:
 | U17 | Full campaign operating model | 5 | 5 | Later | Big product leap after primitives stabilize. |
 | U18 | Career strategy simulator | 4 | 4 | Later | Strong differentiator, but depends on outcomes and labels. |
 | U19 | Local career compiler | 5 | 5 | Moonshot | Turns evidence, goals, and constraints into a reviewed campaign plan. |
+| U20 | Employer dossier | 5 | 4 | Now | Company identity, official sources, pay, risk, and user-owned outcome context. |
+| U21 | Employer question planner | 4 | 3 | Next | Turns employer signals into recruiter, interview, and offer questions. |
 
 ## Source, Browser, And Import
 
@@ -138,6 +141,8 @@ Priority:
 | S24 | Universal visible-page import | 4 | 4 | Next | Makes unsupported sources useful. |
 | S25 | User-controlled watch mode | 3 | 4 | Later | Only for visible user-controlled sessions. |
 | S26 | Scraper technology evaluation | 3 | 2 | Now | Gate robust parser tools against product boundaries. |
+| S27 | Employer intelligence source graph | 5 | 4 | Now | Maps employer identities, domains, ATS tenants, official registries, and provenance. |
+| S28 | Employer official-data packs | 4 | 4 | Next | SEC, WARN, OFLC, H-1B, Companies House, EU, India, and similar public registries. |
 
 ## Resume, Matching, And Local Intelligence
 
@@ -210,6 +215,7 @@ Priority:
 | O09 | Referral and networking graph | 4 | 4 | Later | High value after contacts and privacy labels exist. |
 | O10 | Warm-path detection | 4 | 4 | Later | Depends on user-entered contacts and company history. |
 | O11 | Scam response workflows | 4 | 3 | Next | Gives safe next steps beyond warnings. |
+| O12 | Employer context panel | 4 | 3 | Next | Uses dossier signals for interview prep, recruiter questions, and offer risk. |
 
 ## Security, Privacy, And Governance
 
@@ -323,6 +329,7 @@ Priority:
 | X18 | Signed community pack registry | 4 | 4 | Next | Needs pack runtime and quarantine first. |
 | X19 | Verifiable evidence wallet | 3 | 5 | Moonshot | Research before product commitment. |
 | X20 | Zero-footprint ephemeral session | 3 | 5 | Moonshot | Useful for shared machines, but high platform risk. |
+| X21 | Employer intelligence layer | 5 | 4 | Now | Candidate-side company dossiers without central review harvesting. |
 
 ## Commercial Benchmark Ideas
 
@@ -343,6 +350,7 @@ Priority:
 | C13 | Source-truth benchmark | 5 | 3 | Now | Measures official-source confidence, duplicate lineage, stale risk, and safe next steps. |
 | C14 | Trust and scam response benchmark | 5 | 3 | Now | Goes beyond warnings into verification and reporting guidance. |
 | C15 | Pay clarity benchmark | 5 | 3 | Now | Measures salary evidence, range quality, pay-floor fit, and dated policy-pack coverage. |
+| C16 | Employer intelligence benchmark | 5 | 3 | Now | Measures source provenance, company verification, public signals, and user outcome reuse. |
 
 ## Cut Lines
 
