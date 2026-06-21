@@ -23,6 +23,8 @@ The public roadmap organizes work around six design pillars:
 6. Privacy-first local control.
 
 Active implementation planning is indexed in [docs/plans](plans/README.md).
+Major-release exploration for the next generation of JobSentinel lives in
+[v3 planning](plans/v3/README.md).
 Every non-trivial change should update the relevant feature doc, active plan,
 or tech-debt item before it is committed.
 

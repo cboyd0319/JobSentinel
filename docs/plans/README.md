@@ -12,6 +12,8 @@ harness work.
   score and session snapshot.
 - `templates/` - Reusable plan and change-contract templates.
 - `tech-debt-tracker.md` - Durable debt and harness drift.
+- `v3/` - Major-release planning, moonshots, refactor options, and research
+  agenda.
 
 See [Exec Plans](../exec-plans.md) for required format.
 
@@ -22,6 +24,12 @@ See [Exec Plans](../exec-plans.md) for required format.
 | Current active status | [Compact status](active/status.md) |
 | Current product and quality work | [Active plan](active/current-work.md) |
 | v2.9.0 completion and full-feature roadmap | [Release and roadmap plan](active/v2.9.0-completion-and-full-feature-roadmap.md) |
+
+## Major-Release Planning
+
+| Horizon | Document |
+| ------- | -------- |
+| v3.0.0 moonshot planning | [V3 Planning](v3/README.md) |
 
 ## Plan Requirements
 
