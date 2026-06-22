@@ -1,6 +1,6 @@
 [package]
 name = "jobsentinel"
-version = "2.9.0"
+version = "2.9.1"
 description = "Privacy-preserving local-first job-search assistant for desktop"
 authors = ["Chad Boyd"]
 license = "MIT"
