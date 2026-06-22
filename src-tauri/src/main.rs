@@ -4,7 +4,6 @@
 #![allow(clippy::uninlined_format_args)]
 #![allow(clippy::significant_drop_tightening)]
 #![allow(clippy::too_many_lines)]
-#![allow(clippy::ignored_unit_patterns)]
 #![allow(clippy::cast_possible_wrap)]
 #![allow(clippy::cast_sign_loss)]
 #![allow(clippy::default_trait_access)]
@@ -314,7 +313,8 @@ fn main() {
 
                             tracing::info!("Background scheduler is disabled; waiting before rechecking");
                             tokio::select! {
-                                _ = tokio::time::sleep(tokio::time::Duration::from_mins(1)) => {
+                                sleep_done = tokio::time::sleep(tokio::time::Duration::from_mins(1)) => {
+                                    let () = sleep_done;
                                     continue;
                                 }
                                 _ = shutdown_rx.recv() => {
@@ -379,7 +379,8 @@ fn main() {
                             tokio::time::Duration::from_mins(1)
                         };
                         tokio::select! {
-                            _ = tokio::time::sleep(sleep_duration) => {
+                            sleep_done = tokio::time::sleep(sleep_duration) => {
+                                let () = sleep_done;
                                 // Continue to next iteration
                             }
                             _ = shutdown_rx.recv() => {

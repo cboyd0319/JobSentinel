@@ -52,7 +52,7 @@
 mod credential_health;
 mod metrics;
 mod retry;
-mod smoke_tests;
+mod smoke_checks;
 mod tracking;
 mod types;
 
@@ -62,7 +62,7 @@ mod tests;
 pub use credential_health::*;
 pub use metrics::*;
 pub use retry::*;
-pub use smoke_tests::*;
+pub use smoke_checks::*;
 pub use tracking::*;
 pub use types::*;
 
