@@ -43,8 +43,7 @@ impl ResumeParser {
     pub fn new() -> Self {
         #[cfg(feature = "ocr")]
         {
-            // Check if Tesseract is available on the system
-            let ocr_available = Self::check_tesseract_available();
+            let ocr_available = parser_ocr::check_tesseract_available();
             Self { ocr_available }
         }
 
@@ -52,32 +51,6 @@ impl ResumeParser {
         {
             Self {}
         }
-    }
-
-    /// Check if Tesseract OCR is available on the system
-    #[cfg(feature = "ocr")]
-    fn check_tesseract_available() -> bool {
-        use std::process::Command;
-
-        let Ok(tesseract_path) = resolve_ocr_tool(OcrTool::Tesseract) else {
-            return false;
-        };
-
-        Command::new(tesseract_path)
-            .arg("--version")
-            .output()
-            .map(|output| output.status.success())
-            .unwrap_or(false)
-    }
-
-    #[cfg(feature = "ocr")]
-    const fn tesseract_env_var() -> &'static str {
-        "JOBSENTINEL_TESSERACT_PATH"
-    }
-
-    #[cfg(feature = "ocr")]
-    const fn pdftoppm_env_var() -> &'static str {
-        "JOBSENTINEL_PDFTOPPM_PATH"
     }
 
     /// Check if OCR is available for scanned PDFs
@@ -151,7 +124,7 @@ impl ResumeParser {
                 cleaned_text.len()
             );
 
-            match self.ocr_pdf(canonical_path) {
+            match parser_ocr::ocr_pdf(self, canonical_path) {
                 Ok(ocr_text) => {
                     if ocr_text.len() > cleaned_text.len() {
                         tracing::info!("OCR extraction successful ({} chars)", ocr_text.len());
@@ -301,121 +274,6 @@ impl ResumeParser {
         Ok(full_text)
     }
 
-    /// Extract text from PDF using OCR (for scanned documents)
-    ///
-    /// Uses command-line tools:
-    /// - pdftoppm (from poppler-utils) to convert PDF pages to images
-    /// - tesseract to extract text from images
-    ///
-    /// # Security
-    /// - `file_path` must be pre-validated (canonicalized, extension checked) by caller
-    /// - Temp directory uses UUID to prevent collisions/races
-    /// - Image paths are validated to prevent symlink attacks outside temp_dir
-    /// - External OCR tools are resolved to canonical absolute paths before execution
-    /// - Command arguments are passed directly (not via shell) to prevent injection
-    #[cfg(feature = "ocr")]
-    fn ocr_pdf(&self, file_path: &Path) -> Result<String> {
-        use std::process::Command;
-        use uuid::Uuid;
-
-        let pdftoppm_path = resolve_ocr_tool(OcrTool::PdfToPpm)
-            .context("pdftoppm is not available for OCR support")?;
-        let tesseract_path = resolve_ocr_tool(OcrTool::Tesseract)
-            .context("Tesseract OCR is not available for OCR support")?;
-
-        // Create temp directory for intermediate files
-        let temp_dir = std::env::temp_dir().join(format!("jobsentinel_ocr_{}", Uuid::new_v4()));
-        std::fs::create_dir_all(&temp_dir).context("Failed to create temp directory for OCR")?;
-
-        // Ensure cleanup on exit (clone path for closure)
-        let temp_dir_cleanup = temp_dir.clone();
-        let _cleanup = scopeguard::guard((), |_| {
-            let _ = std::fs::remove_dir_all(&temp_dir_cleanup);
-        });
-
-        // Convert PDF pages to images using pdftoppm (commonly installed with poppler)
-        // Security: output_prefix is in our controlled temp_dir, file_path is already canonicalized
-        let output_prefix = temp_dir.join("page");
-        let pdftoppm_result = Command::new(&pdftoppm_path)
-            .arg("-png")
-            .arg("-r")
-            .arg("300") // 300 DPI for good OCR quality
-            .arg(file_path) // Safe: canonicalized in parse_pdf()
-            .arg(&output_prefix) // Safe: controlled temp directory
-            .output();
-
-        let mut image_paths: Vec<std::path::PathBuf> = match pdftoppm_result {
-            Ok(output) if output.status.success() => {
-                // Find generated image files
-                // Security: Only include files that are:
-                // 1. Within temp_dir (canonicalize + starts_with check)
-                // 2. Have .png extension
-                // 3. Are regular files
-                std::fs::read_dir(&temp_dir)?
-                    .filter_map(|e| e.ok())
-                    .map(|e| e.path())
-                    .filter(|p| {
-                        // Extension check
-                        if p.extension().map(|e| e == "png").unwrap_or(false) {
-                            // Security: Verify path is within temp_dir (prevents symlink attacks)
-                            if let Ok(canonical) = p.canonicalize() {
-                                // Ensure canonical path is still in temp_dir
-                                if let Ok(canonical_temp) = temp_dir.canonicalize() {
-                                    return canonical.starts_with(&canonical_temp)
-                                        && canonical.is_file();
-                                }
-                            }
-                        }
-                        false
-                    })
-                    .collect()
-            }
-            _ => {
-                return Err(anyhow::anyhow!(
-                    "pdftoppm not available. Install poppler-utils for OCR support."
-                ));
-            }
-        };
-
-        if image_paths.is_empty() {
-            return Err(anyhow::anyhow!("No images extracted from PDF"));
-        }
-
-        // Sort image paths to ensure correct page order
-        image_paths.sort();
-
-        // Run Tesseract on each page and combine results
-        let mut full_text = String::new();
-
-        for image_path in &image_paths {
-            // Security: image_path is already validated to be:
-            // - Within temp_dir
-            // - A regular file with .png extension
-            // - Not a symlink outside temp_dir
-            let output = Command::new(&tesseract_path)
-                .arg(image_path) // Safe: validated above
-                .arg("stdout")
-                .arg("-l")
-                .arg("eng") // Language code: hardcoded, not user input
-                .output()
-                .context("Failed to run Tesseract OCR")?;
-
-            if output.status.success() {
-                let page_text = String::from_utf8_lossy(&output.stdout);
-                if !full_text.is_empty() {
-                    full_text.push_str("\n\n--- Page Break ---\n\n");
-                }
-                full_text.push_str(&page_text);
-            }
-        }
-
-        if full_text.is_empty() {
-            return Err(anyhow::anyhow!("Tesseract OCR returned no text"));
-        }
-
-        Ok(self.clean_text(&full_text))
-    }
-
     /// Clean extracted text by:
     /// - Removing excessive whitespace
     /// - Normalizing line breaks
@@ -477,167 +335,6 @@ impl ResumeParser {
 
         sections
     }
-}
-
-#[cfg(feature = "ocr")]
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-enum OcrTool {
-    Tesseract,
-    PdfToPpm,
-}
-
-#[cfg(feature = "ocr")]
-impl OcrTool {
-    fn env_var(self) -> &'static str {
-        match self {
-            Self::Tesseract => ResumeParser::tesseract_env_var(),
-            Self::PdfToPpm => ResumeParser::pdftoppm_env_var(),
-        }
-    }
-
-    const fn label(self) -> &'static str {
-        match self {
-            Self::Tesseract => "Tesseract OCR",
-            Self::PdfToPpm => "pdftoppm",
-        }
-    }
-
-    const fn default_candidates(self) -> &'static [&'static str] {
-        match self {
-            Self::Tesseract => &[
-                "/opt/homebrew/bin/tesseract",
-                "/usr/local/bin/tesseract",
-                "/usr/bin/tesseract",
-                r"C:\Program Files\Tesseract-OCR\tesseract.exe",
-                r"C:\Program Files (x86)\Tesseract-OCR\tesseract.exe",
-            ],
-            Self::PdfToPpm => &[
-                "/opt/homebrew/bin/pdftoppm",
-                "/usr/local/bin/pdftoppm",
-                "/usr/bin/pdftoppm",
-                r"C:\Program Files\poppler\Library\bin\pdftoppm.exe",
-                r"C:\Program Files (x86)\poppler\Library\bin\pdftoppm.exe",
-            ],
-        }
-    }
-
-    const fn trusted_roots(self) -> &'static [&'static str] {
-        match self {
-            Self::Tesseract => &[
-                "/opt/homebrew/bin",
-                "/usr/local/bin",
-                "/usr/bin",
-                r"C:\Program Files\Tesseract-OCR",
-                r"C:\Program Files (x86)\Tesseract-OCR",
-            ],
-            Self::PdfToPpm => &[
-                "/opt/homebrew/bin",
-                "/usr/local/bin",
-                "/usr/bin",
-                r"C:\Program Files\poppler\Library\bin",
-                r"C:\Program Files (x86)\poppler\Library\bin",
-            ],
-        }
-    }
-}
-
-#[cfg(feature = "ocr")]
-fn resolve_ocr_tool(tool: OcrTool) -> Result<PathBuf> {
-    if let Some(path) = std::env::var_os(tool.env_var()).filter(|value| !value.is_empty()) {
-        return validate_ocr_tool_path(tool, PathBuf::from(path));
-    }
-
-    for candidate in tool.default_candidates() {
-        let path = PathBuf::from(candidate);
-        if path.is_file() {
-            return validate_ocr_tool_path(tool, path);
-        }
-    }
-
-    Err(anyhow::anyhow!(
-        "{} executable was not found in a trusted install location",
-        tool.label()
-    ))
-}
-
-#[cfg(feature = "ocr")]
-fn validate_ocr_tool_path(tool: OcrTool, path: PathBuf) -> Result<PathBuf> {
-    validate_ocr_tool_path_against_roots(tool, path, tool.trusted_roots())
-}
-
-#[cfg(feature = "ocr")]
-fn validate_ocr_tool_path_against_roots<I, P>(
-    tool: OcrTool,
-    path: PathBuf,
-    trusted_roots: I,
-) -> Result<PathBuf>
-where
-    I: IntoIterator<Item = P>,
-    P: AsRef<Path>,
-{
-    if !path.is_absolute() {
-        return Err(anyhow::anyhow!(
-            "{} path must be an absolute executable path",
-            tool.label()
-        ));
-    }
-
-    let canonical_path = path
-        .canonicalize()
-        .with_context(|| format!("{} executable is not accessible", tool.label()))?;
-
-    if !canonical_path.is_file() {
-        return Err(anyhow::anyhow!(
-            "{} executable path is not a regular file",
-            tool.label()
-        ));
-    }
-
-    let parent = path.parent().ok_or_else(|| {
-        anyhow::anyhow!(
-            "{} path must be in a trusted install location",
-            tool.label()
-        )
-    })?;
-    let canonical_parent = parent
-        .canonicalize()
-        .with_context(|| format!("{} executable parent is not accessible", tool.label()))?;
-
-    let is_trusted = trusted_roots
-        .into_iter()
-        .filter_map(|root| root.as_ref().canonicalize().ok())
-        .any(|root| path_starts_with(&canonical_parent, &root));
-
-    if !is_trusted {
-        return Err(anyhow::anyhow!(
-            "{} path must be in a trusted install location",
-            tool.label()
-        ));
-    }
-
-    Ok(canonical_path)
-}
-
-#[cfg(feature = "ocr")]
-fn path_starts_with(path: &Path, root: &Path) -> bool {
-    #[cfg(windows)]
-    {
-        let path_components = lowercase_path_components(path);
-        let root_components = lowercase_path_components(root);
-        path_components.starts_with(&root_components)
-    }
-
-    #[cfg(not(windows))]
-    {
-        path.starts_with(root)
-    }
-}
-
-#[cfg(all(feature = "ocr", windows))]
-fn lowercase_path_components(path: &Path) -> Vec<String> {
-    path.components()
-        .map(|component| component.as_os_str().to_string_lossy().to_ascii_lowercase())
-        .collect()
 }
 
 fn canonical_regular_file(file_path: &Path) -> Result<PathBuf> {
@@ -704,6 +401,10 @@ impl Default for ResumeParser {
         Self::new()
     }
 }
+
+#[cfg(feature = "ocr")]
+#[path = "parser_ocr.rs"]
+mod parser_ocr;
 
 #[cfg(test)]
 #[path = "parser_html_tests.rs"]

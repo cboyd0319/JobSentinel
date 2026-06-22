@@ -1,5 +1,8 @@
 use super::*;
 
+#[cfg(feature = "ocr")]
+use super::parser_ocr::{validate_ocr_tool_path, validate_ocr_tool_path_against_roots, OcrTool};
+
 #[test]
 fn test_clean_text() {
     let parser = ResumeParser::new();
