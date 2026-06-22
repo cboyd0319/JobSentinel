@@ -42,9 +42,11 @@ pub mod ats_types;
 pub mod builder;
 pub mod export;
 mod format_taxonomy;
+mod json_import;
 pub mod json_resume;
 pub mod matcher;
 pub mod parser;
+mod skill_store;
 pub mod skills;
 pub mod templates;
 pub mod types;
@@ -52,7 +54,6 @@ pub mod types;
 use matcher::JobMatcher;
 use parser::ResumeParser;
 use skills::SkillExtractor;
-use types::NullableFieldUpdate;
 
 // Re-export ATS analyzer types
 pub use ats_analyzer::AtsAnalyzer;
@@ -495,125 +496,6 @@ impl ResumeMatcher {
     }
 
     // ========================================================================
-    // Skill CRUD Operations (Phase 1: Skill Validation UI)
-    // ========================================================================
-
-    /// Update an existing user skill
-    pub async fn update_user_skill(
-        &self,
-        skill_id: i64,
-        updates: types::SkillUpdate,
-    ) -> Result<()> {
-        if updates.skill_name.is_none()
-            && updates.skill_category.is_unset()
-            && updates.proficiency_level.is_unset()
-            && updates.years_experience.is_unset()
-        {
-            return Ok(());
-        }
-
-        ensure_user_skill_exists(&self.db, skill_id).await?;
-
-        if let Some(name) = updates.skill_name {
-            let name = normalize_skill_name(&name)?;
-            sqlx::query("UPDATE user_skills SET skill_name = ? WHERE id = ?")
-                .bind(name)
-                .bind(skill_id)
-                .execute(&self.db)
-                .await?;
-        }
-        if !updates.skill_category.is_unset() {
-            let category = match updates.skill_category {
-                NullableFieldUpdate::Unset => unreachable!(),
-                NullableFieldUpdate::Clear => None,
-                NullableFieldUpdate::Set(category) => normalize_optional_skill_text(Some(category)),
-            };
-            sqlx::query("UPDATE user_skills SET skill_category = ? WHERE id = ?")
-                .bind(category)
-                .bind(skill_id)
-                .execute(&self.db)
-                .await?;
-        }
-        if !updates.proficiency_level.is_unset() {
-            let level = match updates.proficiency_level {
-                NullableFieldUpdate::Unset => unreachable!(),
-                NullableFieldUpdate::Clear => None,
-                NullableFieldUpdate::Set(level) => normalize_optional_skill_text(Some(level)),
-            };
-            sqlx::query("UPDATE user_skills SET proficiency_level = ? WHERE id = ?")
-                .bind(level)
-                .bind(skill_id)
-                .execute(&self.db)
-                .await?;
-        }
-        if !updates.years_experience.is_unset() {
-            let years = match updates.years_experience {
-                NullableFieldUpdate::Unset => unreachable!(),
-                NullableFieldUpdate::Clear => None,
-                NullableFieldUpdate::Set(years) => validate_skill_years(Some(years))?,
-            };
-            sqlx::query("UPDATE user_skills SET years_experience = ? WHERE id = ?")
-                .bind(years)
-                .bind(skill_id)
-                .execute(&self.db)
-                .await?;
-        }
-
-        tracing::info!("Updated skill {}", skill_id);
-        Ok(())
-    }
-
-    /// Delete a user skill
-    pub async fn delete_user_skill(&self, skill_id: i64) -> Result<()> {
-        let result = sqlx::query("DELETE FROM user_skills WHERE id = ?")
-            .bind(skill_id)
-            .execute(&self.db)
-            .await?;
-
-        if result.rows_affected() == 0 {
-            anyhow::bail!("Skill with id {} not found", skill_id);
-        }
-
-        tracing::info!("Deleted skill {}", skill_id);
-        Ok(())
-    }
-
-    /// Add a new skill manually
-    pub async fn add_user_skill(&self, resume_id: i64, skill: types::NewSkill) -> Result<i64> {
-        let skill_name = normalize_skill_name(&skill.skill_name)?;
-        let skill_category = normalize_optional_skill_text(skill.skill_category);
-        let proficiency_level = normalize_optional_skill_text(skill.proficiency_level);
-        let years_experience = validate_skill_years(skill.years_experience)?;
-
-        let result = sqlx::query(
-            r#"
-            INSERT INTO user_skills (
-                resume_id, skill_name, skill_category, confidence_score,
-                proficiency_level, years_experience, source
-            )
-            VALUES (?, ?, ?, 1.0, ?, ?, 'user_input')
-            "#,
-        )
-        .bind(resume_id)
-        .bind(&skill_name)
-        .bind(&skill_category)
-        .bind(&proficiency_level)
-        .bind(years_experience)
-        .execute(&self.db)
-        .await?;
-
-        let skill_id = result.last_insert_rowid();
-        tracing::info!(
-            resume_id,
-            skill_id,
-            skill_name_chars = skill_name.chars().count(),
-            "Added manual skill"
-        );
-
-        Ok(skill_id)
-    }
-
-    // ========================================================================
     // Resume Library Operations (Phase 2)
     // ========================================================================
 
@@ -688,182 +570,6 @@ impl ResumeMatcher {
 
         tracing::info!("Deleted resume {} and associated data", resume_id);
         Ok(())
-    }
-
-    // ========================================================================
-    // JSON Resume Import Operations
-    // ========================================================================
-
-    /// Import a resume from JSON Resume format
-    ///
-    /// Parses a JSON Resume string, converts it to JobSentinel's internal format,
-    /// and creates a new resume draft in the database.
-    ///
-    /// # Arguments
-    /// * `name` - Name for the imported resume
-    /// * `json_string` - JSON Resume formatted string
-    ///
-    /// # Returns
-    /// The ID of the newly created resume draft
-    ///
-    /// # Errors
-    /// Returns an error if JSON parsing fails or database insertion fails
-    pub async fn import_json_resume(&self, _name: String, json_string: &str) -> Result<i64> {
-        use anyhow::Context;
-
-        // Parse JSON Resume
-        let json_resume = json_resume::JsonResume::from_json(json_string)
-            .context("Failed to parse JSON Resume")?;
-
-        // Convert to JobSentinel ResumeData (which has different field names than builder)
-        let json_data = json_resume
-            .to_resume_data()
-            .context("Failed to convert JSON Resume to internal format")?;
-
-        // Create resume draft using ResumeBuilder
-        let builder = builder::ResumeBuilder::new(self.db.clone());
-        let resume_id = builder.create_resume().await?;
-
-        // Convert JSON Resume types to builder types and populate the draft
-        let contact = builder::ContactInfo {
-            name: json_data.contact_info.name,
-            email: json_data.contact_info.email,
-            phone: Some(json_data.contact_info.phone),
-            linkedin: json_data.contact_info.linkedin,
-            github: json_data.contact_info.github,
-            location: Some(json_data.contact_info.location),
-            website: json_data.contact_info.website,
-        };
-
-        builder.update_contact(resume_id, contact).await?;
-        builder.update_summary(resume_id, json_data.summary).await?;
-
-        // Add experience entries - convert from json_resume types to builder types
-        for exp in json_data.experience {
-            let builder_exp = builder::Experience {
-                id: 0, // Will be assigned by database
-                company: exp.company,
-                title: exp.title,
-                location: Some(exp.location),
-                start_date: exp.start_date,
-                end_date: if exp.current {
-                    None
-                } else {
-                    Some(exp.end_date)
-                },
-                is_current: exp.current,
-                achievements: exp.achievements,
-            };
-            builder.add_experience(resume_id, builder_exp).await?;
-        }
-
-        // Add education entries
-        for edu in json_data.education {
-            let builder_edu = builder::Education {
-                id: 0, // Will be assigned by database
-                institution: edu.institution,
-                degree: edu.degree,
-                location: Some(edu.location),
-                graduation_date: Some(edu.graduation_date),
-                gpa: edu.gpa.map(|gpa| gpa.to_string()),
-                honors: edu.honors,
-            };
-            builder.add_education(resume_id, builder_edu).await?;
-        }
-
-        // Set skills - convert from json_resume types to builder types
-        let builder_skills: Vec<builder::SkillEntry> = json_data
-            .skills
-            .into_iter()
-            .map(|s| builder::SkillEntry {
-                name: s.name,
-                category: s.category,
-                proficiency: s.proficiency.map(builder_proficiency_label),
-                years_experience: None,
-            })
-            .collect();
-
-        builder.set_skills(resume_id, builder_skills).await?;
-
-        // Add projects
-        for project in json_data.projects {
-            let builder_project = builder::Project {
-                name: project.name,
-                description: project.description,
-                technologies: project.technologies,
-                url: project.url,
-                start_date: project.start_date,
-                end_date: project.end_date,
-            };
-            builder.add_project(resume_id, builder_project).await?;
-        }
-
-        // Add certifications
-        for cert in json_data.certifications {
-            let builder_cert = builder::Certification {
-                name: cert.name,
-                issuer: cert.issuer,
-                date_obtained: Some(cert.date),
-                expiration_date: None,
-                credential_id: None,
-            };
-            builder.add_certification(resume_id, builder_cert).await?;
-        }
-
-        tracing::info!("Imported JSON Resume as draft {}", resume_id);
-        Ok(resume_id)
-    }
-}
-
-fn builder_proficiency_label(proficiency: builder::Proficiency) -> String {
-    match proficiency {
-        builder::Proficiency::Beginner => "beginner",
-        builder::Proficiency::Intermediate => "intermediate",
-        builder::Proficiency::Advanced => "advanced",
-        builder::Proficiency::Expert => "expert",
-    }
-    .to_string()
-}
-
-fn normalize_skill_name(name: &str) -> Result<String> {
-    let trimmed = name.trim();
-    if trimmed.is_empty() {
-        anyhow::bail!("Skill name is required");
-    }
-    Ok(trimmed.to_string())
-}
-
-async fn ensure_user_skill_exists(db: &SqlitePool, skill_id: i64) -> Result<()> {
-    let row = sqlx::query("SELECT id FROM user_skills WHERE id = ?")
-        .bind(skill_id)
-        .fetch_optional(db)
-        .await?;
-
-    if row.is_none() {
-        anyhow::bail!("Skill with id {} not found", skill_id);
-    }
-
-    Ok(())
-}
-
-fn normalize_optional_skill_text(value: Option<String>) -> Option<String> {
-    value.and_then(|text| {
-        let trimmed = text.trim();
-        if trimmed.is_empty() {
-            None
-        } else {
-            Some(trimmed.to_string())
-        }
-    })
-}
-
-fn validate_skill_years(value: Option<f64>) -> Result<Option<f64>> {
-    match value {
-        Some(years) if !years.is_finite() => anyhow::bail!("Skill years must be a number"),
-        Some(years) if !(0.0..=50.0).contains(&years) => {
-            anyhow::bail!("Skill years must be between 0 and 50")
-        }
-        other => Ok(other),
     }
 }
 
