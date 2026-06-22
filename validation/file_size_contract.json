@@ -129,13 +129,6 @@
       "follow_up_trigger": "Split this file before increasing its exception limit or making substantial unrelated edits."
     },
     {
-      "path": "src-tauri/src/core/market_intelligence/computations.rs",
-      "max_lines": 791,
-      "owner": "v2.9.0-release-prep",
-      "reason": "legacy market intelligence module pending metric-family extraction",
-      "follow_up_trigger": "Split this file before increasing its exception limit or making substantial unrelated edits."
-    },
-    {
       "path": "src-tauri/src/core/resume/ats_analyzer.rs",
       "max_lines": 773,
       "owner": "v2.9.0-release-prep",
