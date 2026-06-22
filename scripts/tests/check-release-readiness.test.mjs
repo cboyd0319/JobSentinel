@@ -9,10 +9,10 @@ import {
   parseArgs,
 } from "../check-release-readiness.mjs";
 
-test("release readiness accepts the current local v2.9.0 gate posture", () => {
+test("release readiness accepts the current local v2.9.1 gate posture", () => {
   const report = evaluateReleaseReadiness({ env: {} });
 
-  assert.equal(report.expectedVersion, "2.9.0");
+  assert.equal(report.expectedVersion, "2.9.1");
   assert.deepEqual(
     report.criteria.filter((item) => !item.ok).map((item) => item.id),
     [],
