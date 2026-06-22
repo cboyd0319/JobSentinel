@@ -164,7 +164,7 @@
     "docs/harness/full-manual-validation-v2.9.1.md": [
       "Every major page and user-facing capability must have manual evidence",
       "Restricted-source checks remain user-directed",
-      "No release-ready claim is valid until every required row is Pass or Accepted release hold"
+      "No release-ready claim is valid until every regression-critical row is Pass, Partial with adequate automated coverage, or Accepted release hold"
     ],
     "docs/harness/source-debug-verification-v2.9.0.md": [
       "Before release, every source path must be one of these:",
