@@ -134,6 +134,7 @@ profiles by default. Real user data requires explicit informed consent.
 | --- | --- |
 | Local development setup | [Getting Started](developer/GETTING_STARTED.md) |
 | Architecture map | [Architecture](developer/ARCHITECTURE.md) |
+| Core module inventory | [Core Architecture](developer/ARCHITECTURE_CORE.md) |
 | Test strategy and commands | [Testing](developer/TESTING.md) |
 | Contributing workflow | [Contributing](developer/CONTRIBUTING.md) |
 | Release process | [Releasing](developer/RELEASING.md) |
