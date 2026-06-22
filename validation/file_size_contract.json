@@ -122,34 +122,6 @@
       "follow_up_trigger": "Split this file before increasing its exception limit or making substantial unrelated edits."
     },
     {
-      "path": "src-tauri/src/core/automation/ats_detector.rs",
-      "max_lines": 768,
-      "owner": "v2.9.0-release-prep",
-      "reason": "legacy automation module pending parser/helper extraction",
-      "follow_up_trigger": "Split this file before increasing its exception limit or making substantial unrelated edits."
-    },
-    {
-      "path": "src-tauri/src/core/automation/form_filler.rs",
-      "max_lines": 835,
-      "owner": "v2.9.0-release-prep",
-      "reason": "legacy automation module pending field-strategy extraction",
-      "follow_up_trigger": "Split this file before increasing its exception limit or making substantial unrelated edits."
-    },
-    {
-      "path": "src-tauri/src/core/automation/mod.rs",
-      "max_lines": 724,
-      "owner": "v2.9.0-release-prep",
-      "reason": "legacy automation module pending ownership split",
-      "follow_up_trigger": "Split this file before increasing its exception limit or making substantial unrelated edits."
-    },
-    {
-      "path": "src-tauri/src/core/automation/profile.rs",
-      "max_lines": 851,
-      "owner": "v2.9.0-release-prep",
-      "reason": "legacy profile automation module pending type/helper extraction",
-      "follow_up_trigger": "Split this file before increasing its exception limit or making substantial unrelated edits."
-    },
-    {
       "path": "src-tauri/src/core/bookmarklet/server.rs",
       "max_lines": 1021,
       "owner": "v2.9.0-release-prep",
@@ -168,13 +140,6 @@
       "max_lines": 828,
       "owner": "v2.9.0-release-prep",
       "reason": "legacy config validation module pending rule-family extraction",
-      "follow_up_trigger": "Split this file before increasing its exception limit or making substantial unrelated edits."
-    },
-    {
-      "path": "src-tauri/src/core/credentials/mod.rs",
-      "max_lines": 923,
-      "owner": "v2.9.0-release-prep",
-      "reason": "legacy credential module pending platform and migration split",
       "follow_up_trigger": "Split this file before increasing its exception limit or making substantial unrelated edits."
     },
     {
@@ -199,38 +164,10 @@
       "follow_up_trigger": "Split this file before increasing its exception limit or making substantial unrelated edits."
     },
     {
-      "path": "src-tauri/src/core/ml/model.rs",
-      "max_lines": 711,
-      "owner": "v2.9.0-release-prep",
-      "reason": "legacy model manager module pending downloader/cache split",
-      "follow_up_trigger": "Split this file before increasing its exception limit or making substantial unrelated edits."
-    },
-    {
       "path": "src-tauri/src/core/resume/ats_analyzer.rs",
       "max_lines": 773,
       "owner": "v2.9.0-release-prep",
       "reason": "legacy ATS analyzer module pending rule-family extraction",
-      "follow_up_trigger": "Split this file before increasing its exception limit or making substantial unrelated edits."
-    },
-    {
-      "path": "src-tauri/src/core/resume/builder.rs",
-      "max_lines": 764,
-      "owner": "v2.9.0-release-prep",
-      "reason": "legacy resume builder module pending section/template split",
-      "follow_up_trigger": "Split this file before increasing its exception limit or making substantial unrelated edits."
-    },
-    {
-      "path": "src-tauri/src/core/resume/export.rs",
-      "max_lines": 761,
-      "owner": "v2.9.0-release-prep",
-      "reason": "legacy resume export module pending format-specific extraction",
-      "follow_up_trigger": "Split this file before increasing its exception limit or making substantial unrelated edits."
-    },
-    {
-      "path": "src-tauri/src/core/resume/json_resume.rs",
-      "max_lines": 984,
-      "owner": "v2.9.0-release-prep",
-      "reason": "legacy JSON Resume module pending schema/mapper split",
       "follow_up_trigger": "Split this file before increasing its exception limit or making substantial unrelated edits."
     },
     {
@@ -273,34 +210,6 @@
       "max_lines": 741,
       "owner": "v2.9.0-release-prep",
       "reason": "legacy scoring module pending scorer/explanation split",
-      "follow_up_trigger": "Split this file before increasing its exception limit or making substantial unrelated edits."
-    },
-    {
-      "path": "src-tauri/src/core/scrapers/dice.rs",
-      "max_lines": 742,
-      "owner": "v2.9.0-release-prep",
-      "reason": "legacy scraper adapter pending parser/test fixture split",
-      "follow_up_trigger": "Split this file before increasing its exception limit or making substantial unrelated edits."
-    },
-    {
-      "path": "src-tauri/src/core/scrapers/glassdoor.rs",
-      "max_lines": 724,
-      "owner": "v2.9.0-release-prep",
-      "reason": "legacy scraper adapter pending parser/helper split",
-      "follow_up_trigger": "Split this file before increasing its exception limit or making substantial unrelated edits."
-    },
-    {
-      "path": "src-tauri/src/core/scrapers/http_client.rs",
-      "max_lines": 910,
-      "owner": "v2.9.0-release-prep",
-      "reason": "legacy scraper HTTP client pending cache/rate-limit split",
-      "follow_up_trigger": "Split this file before increasing its exception limit or making substantial unrelated edits."
-    },
-    {
-      "path": "src-tauri/src/core/scrapers/usajobs.rs",
-      "max_lines": 891,
-      "owner": "v2.9.0-release-prep",
-      "reason": "legacy scraper adapter pending request/parser split",
       "follow_up_trigger": "Split this file before increasing its exception limit or making substantial unrelated edits."
     },
     {
