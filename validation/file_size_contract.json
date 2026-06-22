@@ -185,13 +185,6 @@
       "follow_up_trigger": "Split this file before increasing its exception limit or making substantial unrelated edits."
     },
     {
-      "path": "src-tauri/src/core/scheduler/workers/scrapers.rs",
-      "max_lines": 720,
-      "owner": "v2.9.0-release-prep",
-      "reason": "legacy scheduler scraper worker pending source-family split",
-      "follow_up_trigger": "Split this file before increasing its exception limit or making substantial unrelated edits."
-    },
-    {
       "path": "src-tauri/src/core/scoring/mod.rs",
       "max_lines": 741,
       "owner": "v2.9.0-release-prep",
