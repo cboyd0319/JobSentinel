@@ -1,6 +1,5 @@
 import { useEffect, useState, useCallback, memo } from "react";
 import { cachedInvoke, invalidateCacheByCommand, safeInvoke, safeInvokeWithToast } from "../utils/api";
-import { Badge } from "./Badge";
 import { Button } from "./Button";
 import { CompanyResearchPanel } from "./CompanyResearchPanel";
 import {
@@ -9,16 +8,19 @@ import {
 } from "./InterviewScheduleFormModal";
 import { Modal } from "./Modal";
 import { useToast } from "../contexts";
-import { formatInterviewDate, getRelativeTimeUntil } from "../utils/formatUtils";
+import { formatInterviewDate } from "../utils/formatUtils";
 import { MIN_INTERVIEW_DURATION, MAX_INTERVIEW_DURATION } from "../utils/constants";
 import { getSafeErrorToastCopy } from "../utils/safeErrorCopy";
 import { downloadInterviewICalFile } from "./InterviewCalendarExport";
+import {
+  InterviewSchedulerTabs,
+  InterviewScheduleList,
+} from "./InterviewSchedulerLists";
 import {
   INTERVIEW_TYPES,
   OUTCOME_COLORS,
   PREP_CHECKLIST,
   TYPE_COLORS,
-  formatFollowUpSentDate,
   formatInterviewTypeLabel,
   formatOutcomeLabel,
   type FollowUpReminder,
@@ -31,7 +33,6 @@ import {
 import {
   CalendarIcon,
   DownloadIcon,
-  HistoryIcon,
   LocationIcon,
   PlusIcon,
   SearchIcon,
@@ -378,196 +379,22 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
             </Button>
           </div>
 
-          {/* Tabs */}
-          <div className="flex gap-1 p-1 bg-surface-100 dark:bg-surface-700 rounded-lg">
-            <button
-              onClick={() => setActiveTab('upcoming')}
-              onKeyDown={(e) => e.key === 'Enter' && setActiveTab('upcoming')}
-              className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                activeTab === 'upcoming'
-                  ? 'bg-white dark:bg-surface-600 text-surface-900 dark:text-white shadow-sm'
-                  : 'text-surface-600 dark:text-surface-400 hover:text-surface-900 dark:hover:text-white'
-              }`}
-              aria-label="View upcoming interviews (press Tab to switch)"
-            >
-              Upcoming ({interviews.length})
-            </button>
-            <button
-              onClick={() => setActiveTab('past')}
-              onKeyDown={(e) => e.key === 'Enter' && setActiveTab('past')}
-              className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                activeTab === 'past'
-                  ? 'bg-white dark:bg-surface-600 text-surface-900 dark:text-white shadow-sm'
-                  : 'text-surface-600 dark:text-surface-400 hover:text-surface-900 dark:hover:text-white'
-              }`}
-              aria-label="View past interviews (press Tab to switch)"
-            >
-              Past ({pastInterviews.length})
-            </button>
-          </div>
+          <InterviewSchedulerTabs
+            activeTab={activeTab}
+            upcomingCount={interviews.length}
+            pastCount={pastInterviews.length}
+            onTabChange={setActiveTab}
+          />
 
-          {/* Upcoming Interviews */}
-          {activeTab === 'upcoming' && (
-            interviews.length === 0 ? (
-              <div className="text-center py-8 text-surface-500 dark:text-surface-400">
-                <CalendarIcon className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p>No upcoming interviews scheduled</p>
-                <p className="text-sm mt-1">Click "Schedule" to add your first interview</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {interviews.map((interview) => (
-                  <div
-                    key={interview.id}
-                    className="p-4 bg-surface-50 dark:bg-surface-700 rounded-lg border border-surface-200 dark:border-surface-600 hover:border-sentinel-300 dark:hover:border-sentinel-600 transition-colors cursor-pointer"
-                    onClick={() => setSelectedInterview(interview)}
-                    onKeyDown={(e) => e.key === "Enter" && setSelectedInterview(interview)}
-                    role="button"
-                    tabIndex={0}
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${TYPE_COLORS[interview.interview_type] || TYPE_COLORS.other}`}>
-                            {INTERVIEW_TYPES.find((t) => t.value === interview.interview_type)?.label || interview.interview_type}
-                          </span>
-                          <Badge variant="surface">{getRelativeTimeUntil(interview.scheduled_at)}</Badge>
-                        </div>
-                        <h3 className="break-words font-medium text-surface-900 [overflow-wrap:anywhere] dark:text-white">
-                          {interview.job_title}
-                        </h3>
-                        <p className="break-words text-sm text-surface-500 [overflow-wrap:anywhere] dark:text-surface-400">
-                          {interview.company}
-                        </p>
-                      </div>
-                      <div className="text-right text-sm flex flex-col items-end gap-1">
-                        <p className="font-medium text-surface-900 dark:text-white">
-                          {formatInterviewDate(interview.scheduled_at)}
-                        </p>
-                        <p className="text-surface-500 dark:text-surface-400">
-                          {interview.duration_minutes} min
-                        </p>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); handleExportICal(interview); }}
-                          className="text-xs text-sentinel-600 dark:text-sentinel-400 hover:underline flex items-center gap-1"
-                          title="Add to calendar"
-                        >
-                          <DownloadIcon />
-                          Add to calendar
-                        </button>
-                      </div>
-                    </div>
-                    {(interview.location || interview.interviewer_name) && (
-                      <div className="mt-2 pt-2 border-t border-surface-200 dark:border-surface-600 flex items-center gap-4 text-sm text-surface-500 dark:text-surface-400">
-                        {interview.location && (
-                          <span className="flex items-center gap-1">
-                            <LocationIcon />
-                            {interview.location}
-                          </span>
-                        )}
-                        {interview.interviewer_name && (
-                          <span className="flex items-center gap-1">
-                            <UserIcon />
-                            {interview.interviewer_name}
-                            {interview.interviewer_title && ` (${interview.interviewer_title})`}
-                          </span>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )
-          )}
-
-          {/* Past Interviews */}
-          {activeTab === 'past' && (
-            pastInterviews.length === 0 ? (
-              <div className="text-center py-8 text-surface-500 dark:text-surface-400">
-                <HistoryIcon className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p>No past interviews yet</p>
-                <p className="text-sm mt-1">Completed interviews will appear here</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {pastInterviews.map((interview) => (
-                  <div
-                    key={interview.id}
-                    className="p-4 bg-surface-50 dark:bg-surface-700 rounded-lg border border-surface-200 dark:border-surface-600"
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${TYPE_COLORS[interview.interview_type] || TYPE_COLORS.other}`}>
-                            {INTERVIEW_TYPES.find((t) => t.value === interview.interview_type)?.label || interview.interview_type}
-                          </span>
-                          {interview.outcome && (
-                            <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${OUTCOME_COLORS[interview.outcome] || OUTCOME_COLORS.pending}`}>
-                              {formatOutcomeLabel(interview.outcome)}
-                            </span>
-                          )}
-                        </div>
-                        <h3 className="break-words font-medium text-surface-900 [overflow-wrap:anywhere] dark:text-white">
-                          {interview.job_title}
-                        </h3>
-                        <p className="break-words text-sm text-surface-500 [overflow-wrap:anywhere] dark:text-surface-400">
-                          {interview.company}
-                        </p>
-                      </div>
-                      <div className="text-right text-sm">
-                        <p className="font-medium text-surface-900 dark:text-white">
-                          {formatInterviewDate(interview.scheduled_at)}
-                        </p>
-                        <p className="text-surface-500 dark:text-surface-400">
-                          {interview.duration_minutes} min
-                        </p>
-                      </div>
-                    </div>
-                    {(interview.interviewer_name || interview.post_interview_notes) && (
-                      <div className="mt-2 pt-2 border-t border-surface-200 dark:border-surface-600 space-y-2">
-                        {interview.interviewer_name && (
-                          <span className="flex items-center gap-1 text-sm text-surface-500 dark:text-surface-400">
-                            <UserIcon />
-                            {interview.interviewer_name}
-                            {interview.interviewer_title && ` - ${interview.interviewer_title}`}
-                          </span>
-                        )}
-                        {interview.post_interview_notes && (
-                          <div className="text-sm">
-                            <p className="font-medium text-surface-700 dark:text-surface-300 mb-0.5">Post-interview notes:</p>
-                            <p className="text-surface-600 dark:text-surface-400">{interview.post_interview_notes}</p>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                    {/* Follow-up Reminder */}
-                    <div className="mt-2 pt-2 border-t border-surface-200 dark:border-surface-600">
-                      <label className="flex items-center gap-2 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={followUpReminders[interview.id]?.thankYouSent || false}
-                          onChange={() => handleFollowUpToggle(interview.id)}
-                          className="w-4 h-4 rounded border-surface-300 dark:border-surface-600 text-sentinel-500 focus-visible:ring-sentinel-500"
-                        />
-                        <span className={`text-sm ${followUpReminders[interview.id]?.thankYouSent ? 'text-green-600 dark:text-green-400' : 'text-surface-600 dark:text-surface-400'}`}>
-                          {followUpReminders[interview.id]?.thankYouSent ? (
-                            <>Thank you note sent</>
-                          ) : (
-                            <>Send thank you note</>
-                          )}
-                        </span>
-                        {followUpReminders[interview.id]?.sentAt && (
-                          <span className="text-xs text-surface-400 ml-auto">
-                            {formatFollowUpSentDate(followUpReminders[interview.id]?.sentAt)}
-                          </span>
-                        )}
-                      </label>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )
-          )}
+          <InterviewScheduleList
+            activeTab={activeTab}
+            interviews={interviews}
+            pastInterviews={pastInterviews}
+            followUpReminders={followUpReminders}
+            onSelectInterview={setSelectedInterview}
+            onExportICal={handleExportICal}
+            onFollowUpToggle={handleFollowUpToggle}
+          />
         </div>
       </Modal>
 
