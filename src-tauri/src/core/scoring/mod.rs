@@ -13,6 +13,7 @@ mod config;
 mod db;
 mod remote;
 mod synonyms;
+mod types;
 
 pub use cache::{
     clear_score_cache, get_cached_score, invalidate_job, invalidate_resume, score_cache_stats,
@@ -22,11 +23,11 @@ pub use config::ScoringConfig;
 pub use db::{load_scoring_config, reset_scoring_config, save_scoring_config};
 pub use remote::{detect_remote_status, score_remote_match, RemoteStatus, UserRemotePreference};
 pub use synonyms::SynonymMap;
+pub use types::{JobScore, ScoreBreakdown};
 
 use crate::core::{config::Config, db::Job, resume::ResumeMatcher};
 use chrono::Utc;
 use company_normalization::company_suffix_patterns;
-use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tracing::debug;
 
@@ -75,28 +76,7 @@ pub(crate) fn fuzzy_match_company(job_company: &str, config_company: &str) -> bo
     }
     false
 }
-/// Job score with breakdown
-/// Job score with breakdown
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct JobScore {
-    /// Total score (0.0 - 1.0)
-    pub total: f64,
-
-    /// Score breakdown
-    pub breakdown: ScoreBreakdown,
-
-    /// Human-readable reasons
-    pub reasons: Vec<String>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ScoreBreakdown {
-    pub skills: f64,   // 0.0 - max_skills_weight
-    pub salary: f64,   // 0.0 - max_salary_weight
-    pub location: f64, // 0.0 - max_location_weight
-    pub company: f64,  // 0.0 - max_company_weight
-    pub recency: f64,  // 0.0 - max_recency_weight
-}
+type ScoreComponent = (f64, Vec<String>);
 
 /// Scoring engine
 pub struct ScoringEngine {
@@ -180,54 +160,14 @@ impl ScoringEngine {
         let company_score = self.score_company(job);
         let recency_score = self.score_recency(job);
 
-        let raw_total =
-            skills_score.0 + salary_score.0 + location_score.0 + company_score.0 + recency_score.0;
-
-        // Ensure score is within valid bounds (0.0 - 1.0)
-        // Log a warning if raw total exceeds 1.0 (indicates potential scoring bug)
-        let total = if raw_total > 1.0 {
-            tracing::warn!(
-                "Job score {} exceeded 1.0 ({:.4}), clamping. This may indicate a scoring bug.",
-                job.id,
-                raw_total
-            );
-            1.0
-        } else if raw_total < 0.0 {
-            tracing::warn!(
-                "Job score {} was negative ({:.4}), clamping. This may indicate a scoring bug.",
-                job.id,
-                raw_total
-            );
-            0.0
-        } else {
-            raw_total
-        };
-
-        // Pre-allocate reasons vector with estimated capacity
-        let mut reasons = Vec::with_capacity(
-            skills_score.1.len()
-                + salary_score.1.len()
-                + location_score.1.len()
-                + company_score.1.len()
-                + recency_score.1.len(),
-        );
-        reasons.extend(skills_score.1);
-        reasons.extend(salary_score.1);
-        reasons.extend(location_score.1);
-        reasons.extend(company_score.1);
-        reasons.extend(recency_score.1);
-
-        JobScore {
-            total,
-            breakdown: ScoreBreakdown {
-                skills: skills_score.0,
-                salary: salary_score.0,
-                location: location_score.0,
-                company: company_score.0,
-                recency: recency_score.0,
-            },
-            reasons,
-        }
+        Self::build_job_score(
+            job.id,
+            skills_score,
+            salary_score,
+            location_score,
+            company_score,
+            recency_score,
+        )
     }
 
     /// Score a job asynchronously with optional resume-based matching
@@ -260,21 +200,38 @@ impl ScoringEngine {
         let company_score = self.score_company(job);
         let recency_score = self.score_recency(job);
 
+        Self::build_job_score(
+            job.id,
+            skills_score,
+            salary_score,
+            location_score,
+            company_score,
+            recency_score,
+        )
+    }
+
+    fn build_job_score(
+        job_id: i64,
+        skills_score: ScoreComponent,
+        salary_score: ScoreComponent,
+        location_score: ScoreComponent,
+        company_score: ScoreComponent,
+        recency_score: ScoreComponent,
+    ) -> JobScore {
         let raw_total =
             skills_score.0 + salary_score.0 + location_score.0 + company_score.0 + recency_score.0;
 
-        // Ensure score is within valid bounds (0.0 - 1.0)
         let total = if raw_total > 1.0 {
             tracing::warn!(
                 "Job score {} exceeded 1.0 ({:.4}), clamping. This may indicate a scoring bug.",
-                job.id,
+                job_id,
                 raw_total
             );
-            1.0
+            raw_total.clamp(0.0, 1.0)
         } else if raw_total < 0.0 {
             tracing::warn!(
                 "Job score {} was negative ({:.4}), clamping. This may indicate a scoring bug.",
-                job.id,
+                job_id,
                 raw_total
             );
             0.0
@@ -282,7 +239,6 @@ impl ScoringEngine {
             raw_total
         };
 
-        // Pre-allocate reasons vector with estimated capacity
         let mut reasons = Vec::with_capacity(
             skills_score.1.len()
                 + salary_score.1.len()
