@@ -129,13 +129,6 @@
       "follow_up_trigger": "Split this file before increasing its exception limit or making substantial unrelated edits."
     },
     {
-      "path": "src-tauri/src/core/resume/ats_analyzer.rs",
-      "max_lines": 773,
-      "owner": "v2.9.0-release-prep",
-      "reason": "legacy ATS analyzer module pending rule-family extraction",
-      "follow_up_trigger": "Split this file before increasing its exception limit or making substantial unrelated edits."
-    },
-    {
       "path": "src-tauri/src/core/resume/mod.rs",
       "max_lines": 871,
       "owner": "v2.9.0-release-prep",
