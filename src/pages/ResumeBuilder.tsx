@@ -3,12 +3,6 @@ import { Button } from "../components/Button";
 import { Card } from "../components/Card";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { Modal, ModalFooter } from "../components/Modal";
-import { AtsLiveScorePanel } from "../components/AtsLiveScorePanel";
-import ContactStep from "../components/resume-builder/steps/ContactStep";
-import EducationStep from "../components/resume-builder/steps/EducationStep";
-import ExperienceStep from "../components/resume-builder/steps/ExperienceStep";
-import SkillsStep from "../components/resume-builder/steps/SkillsStep";
-import SummaryStep from "../components/resume-builder/steps/SummaryStep";
 import { useToast } from "../hooks/useToast";
 import { safeInvoke, safeInvokeWithToast } from "../utils/api";
 import { getSafeErrorToastCopy } from "../utils/safeErrorCopy";
@@ -23,13 +17,10 @@ import {
   downloadResumeJson,
   openResumePrintDialog,
 } from "./resumeBuilderExportDom";
-import { ResumeBuilderExportStep } from "./ResumeBuilderExportStep";
-import { ResumeBuilderJobContextCard } from "./ResumeBuilderJobContextCard";
-import { ResumeBuilderNavigation } from "./ResumeBuilderNavigation";
-import { ResumeBuilderPreviewStep } from "./ResumeBuilderPreviewStep";
 import { ResumeBuilderProgress } from "./ResumeBuilderProgress";
 import { ResumeBuilderEducationModal } from "./ResumeBuilderEducationModal";
 import { ResumeBuilderExperienceModal } from "./ResumeBuilderExperienceModal";
+import { ResumeBuilderWorkspace } from "./ResumeBuilderWorkspace";
 import {
   STEPS,
   normalizeAtsAnalysis,
@@ -613,102 +604,40 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
 
       <ResumeBuilderProgress currentStep={currentStep} />
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Main Content Area */}
-          <div className="lg:col-span-3">
-            <Card>
-          {currentStep === 1 && (
-            <ContactStep contact={contact} setContact={setContact} />
-          )}
-
-          {currentStep === 2 && (
-            <SummaryStep summary={summary} setSummary={setSummary} />
-          )}
-
-          {currentStep === 3 && (
-            <ExperienceStep
-              experiences={experiences}
-              onAddClick={openExperienceModal}
-              onDeleteClick={confirmDeleteExperience}
-            />
-          )}
-
-          {currentStep === 4 && (
-            <EducationStep
-              educations={educations}
-              onAddClick={openEducationModal}
-              onDeleteClick={confirmDeleteEducation}
-            />
-          )}
-
-          {currentStep === 5 && (
-            <SkillsStep
-              skills={skills}
-              newSkill={newSkill}
-              setNewSkill={setNewSkill}
-              onAddSkill={handleAddSkill}
-              onDeleteSkill={confirmDeleteSkill}
-              onImportSkills={handleImportSkills}
-              importingSkills={importingSkills}
-            />
-          )}
-
-          {/* Step 6: Preview & Template Selection */}
-          {currentStep === 6 && (
-            <ResumeBuilderPreviewStep
-              templates={templates}
-              selectedTemplate={selectedTemplate}
-              previewHtml={previewHtml}
-              atsAnalysis={atsAnalysis}
-              onSelectTemplate={setSelectedTemplate}
-            />
-          )}
-
-          {currentStep === 7 && (
-            <ResumeBuilderExportStep
-              exporting={exporting}
-              onExportDocx={handleExportDocx}
-              onExportJson={handleExportJson}
-              onExportPdf={handleExportPdf}
-            />
-          )}
-
-          <ResumeBuilderNavigation
-            currentStep={currentStep}
-            exporting={exporting}
-            saving={saving}
-            onExport={handleExport}
-            onNext={handleNext}
-            onPrevious={handlePrevious}
-          />
-        </Card>
-          </div>
-
-          {/* Resume readability sidebar */}
-          <div className="lg:col-span-1 space-y-4">
-            <AtsLiveScorePanel
-              resumeData={
-                contact.name
-                  ? {
-                      contact,
-                      summary,
-                      experience: experiences,
-                      education: educations,
-                      skills,
-                    }
-                  : null
-              }
-              currentStep={currentStep}
-              debounceMs={1500}
-              showFullAnalysis={true}
-            />
-
-            <ResumeBuilderJobContextCard visible={hasJobContext} />
-          </div>
-        </div>
-      </main>
+      <ResumeBuilderWorkspace
+        atsAnalysis={atsAnalysis}
+        contact={contact}
+        currentStep={currentStep}
+        educations={educations}
+        experiences={experiences}
+        exporting={exporting}
+        hasJobContext={hasJobContext}
+        importingSkills={importingSkills}
+        newSkill={newSkill}
+        previewHtml={previewHtml}
+        saving={saving}
+        selectedTemplate={selectedTemplate}
+        skills={skills}
+        summary={summary}
+        templates={templates}
+        onAddEducationClick={openEducationModal}
+        onAddExperienceClick={openExperienceModal}
+        onAddSkill={handleAddSkill}
+        onDeleteEducationClick={confirmDeleteEducation}
+        onDeleteExperienceClick={confirmDeleteExperience}
+        onDeleteSkill={confirmDeleteSkill}
+        onExport={handleExport}
+        onExportDocx={handleExportDocx}
+        onExportJson={handleExportJson}
+        onExportPdf={handleExportPdf}
+        onImportSkills={handleImportSkills}
+        onNext={handleNext}
+        onPrevious={handlePrevious}
+        onSelectTemplate={setSelectedTemplate}
+        setContact={setContact}
+        setNewSkill={setNewSkill}
+        setSummary={setSummary}
+      />
 
       <ResumeBuilderExperienceModal
         experience={editingExperience}
