@@ -41,7 +41,7 @@ The maintained external source index lives in
 
 ## Current State
 
-- Package metadata version: `2.9.0`.
+- Package metadata version: `2.9.1`.
 - Release assets are produced from GitHub version tags and verified after
   publication with checksum, SBOM, attestation, and platform package checks.
 - Current macOS full-public-readiness is 94%; no-account path completion is

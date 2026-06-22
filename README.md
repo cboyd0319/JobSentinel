@@ -99,7 +99,7 @@ a package or installer.
 | Linux | Use the `.AppImage` or `.deb` when present for the release. |
 | Agent Skills | Download the Agent Skills ZIP on Windows, or ZIP/tar.gz on macOS and Linux, then verify the matching checksum. |
 
-JobSentinel does not silently update itself in `2.9.0`. Back up Settings before
+JobSentinel does not silently update itself in `2.9.1`. Back up Settings before
 replacing the app, then install the newer release. See
 [Updating Or Going Back](docs/user/UPDATES.md).
 
@@ -165,7 +165,13 @@ Read more in [PRIVACY.md](PRIVACY.md),
 [RESPONSIBLE_AI.md](RESPONSIBLE_AI.md), and the
 [security docs](docs/security/README.md).
 
-## What Is New In 2.9.0
+## What Is New In v2.9.1
+
+v2.9.1 is a maintenance and repo cleanup release. It keeps the v2.9.0 user
+features intact while refreshing stable dependencies and shrinking oversized
+maintenance surfaces.
+
+## What Was New In 2.9.0
 
 - Browser Import review queue for visible jobs the user chooses to send into
   JobSentinel before saving.
