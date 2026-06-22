@@ -1,11 +1,15 @@
 # v2.9.0 Release Risk Register
 
-Last updated: 2026-06-20.
+Last updated: 2026-06-22.
 
 This register covers source access, scraper behavior, user risk, and release
 distribution risks that can block the `2.9.0` release. It is a release harness
 artifact, not legal advice. Treat external terms as volatile and recheck primary
 sources before changing restricted-source behavior.
+
+Completion note: `v2.9.0` has been published. Keep this register as historical
+release evidence and as a policy reference for future releases, but do not use
+its old publication-sequencing rows as active work routing.
 
 Risk tracking must not turn into arbitrary product blocking. When the risk is
 account, terms, or source-policy exposure, JobSentinel should inform the user,
@@ -272,10 +276,9 @@ Evidence:
   attests provenance/SBOMs, uploads assets, then publishes.
 - `.github/workflows/verify-release-artifacts.yml` verifies the public release
   asset set after publication.
-- 2026-06-20 release publication sequence is active. Final signoff requires
-  `origin/main`, remote `v2.9.0`, the hosted release workflow, and public
-  artifact verification to point at the same final release commit after the
-  documentation refresh.
+- 2026-06-22 follow-up: `v2.9.0` publication is complete. Future release
+  signoff still requires the branch, tag, hosted workflow, and public artifact
+  verification to point at the same final release commit.
 - 2026-06-20 release-prep checks passed: focused release script tests `730/730`,
   `npm run release:check-env`, `npm run macos:readiness`,
   `npm run release:skills -- --out-dir <tmp>`, staged SBOM generation under
@@ -291,9 +294,8 @@ assets, or Gatekeeper expectation mismatches.
 
 Release status:
 
-Blocking for final release. Do not publish until staged assets pass and public
-asset verification passes after publication. The remote tag still needs to move
-to the latest verified commit after user confirmation.
+Complete for `v2.9.0`. For future releases, do not publish until staged assets
+pass and public asset verification passes after publication.
 
 Fix:
 
@@ -412,7 +414,7 @@ If a source's terms are blocked, unavailable, or unclear, keep it in
   changes, or returns no jobs.
 - Do not bypass shared URL validation, redirect blocking, body caps, rate limits,
   or sanitized logging for new source adapters.
-- Do not publish final assets until the staged matrix succeeds and public release
-  verification passes after publication.
-- Do not call `2.9.0` complete until whole-UI and source-debug ledgers are
-  current.
+- For future releases, do not publish final assets until the staged matrix
+  succeeds and public release verification passes after publication.
+- `2.9.0` is complete; keep whole-UI and source-debug ledgers current before
+  future release-ready claims.

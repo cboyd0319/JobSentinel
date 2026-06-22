@@ -1,130 +1,81 @@
 # Active Plan Status
 
-Last updated: 2026-06-21. Read this file first; load archived history only for old decision context.
+Last updated: 2026-06-22. Read this file first; load archived or completed
+history only when old decision context is needed.
 
 ## Goal State
 
-The repo-wide goal remains open: zero known errors, privacy leaks, stale docs, brittle tests,
-user-facing technical assumptions, engineer-only defaults, and unverified claims.
-Current priority is final v2.9.0 release-gate handoff for an urgent single-user search.
+The repo-wide goal remains open: zero known errors, privacy leaks, stale docs,
+brittle tests, user-facing technical assumptions, engineer-only defaults, and
+unverified claims.
 
-Release publication is active. Do not claim final `v2.9.0` until final gates
-pass from the corrected release commit, the tag points there, and public assets
-verify. Repeat focused gates after any further local change. Do not retag or
-upload over the same `v2.9.0` release while an older workflow run is still building assets.
+The current priority is the `v2.9.1` patch line. Scope is maintenance and repo
+cleanup only: no new product features, no new source adapters, no new external
+AI behavior, and no v3 implementation unless a release-critical regression
+requires it.
 
-Rule 0 still controls the work: user data stays local unless the user explicitly
-configures an external channel, external AI stays optional and disabled by
-default, and users stay in control before anything leaves the device.
+Observed release state on 2026-06-22:
+
+- Public `v2.9.0` release exists at
+  `https://github.com/cboyd0319/JobSentinel/releases/tag/v2.9.0`.
+- GitHub CLI reports `JobSentinel 2.9.0` as latest, published
+  `2026-06-20T22:01:56Z`, non-draft, and non-prerelease.
+- Remote tag `v2.9.0` points at `2131beb5`.
+- Package metadata remains `2.9.0` until the actual `v2.9.1` release cut.
+
+Rule 0 still controls the work: user data stays local unless the user
+explicitly configures an external channel, external AI stays optional and
+disabled by default, and users stay in control before anything leaves the
+device.
 
 Quiet Shield redesign is now part of the active repo-wide goal and the repo
-harness. It remains a harness-controlled active-goal acceptance gate behind
-primary v2.9.0 gates; `DESIGN.md`, `docs/design/README.md`, and
-`docs/design/design-spec.md` remain UI/UX contracts.
-
-The v2.9.0 goal adds durable release-readiness requirements:
-
-- Add spec-compliant downloadable Agent Skills under `skills/`.
-- Keep the npm package manager, repo-declared npm packages, and Cargo crates
-  exact-pinned latest stable; keep resolved transitives lockfile-pinned,
-  latest-compatible, and never forced outside upstream constraints.
-- Support restricted job sites through explicit user-directed paths with a hard
-  warning/acknowledgement gate. Do not collect logins/cookies, bypass checks,
-  or run hidden background access.
-- Treat all configured source adapters and user-gated restricted-source paths as
-  release blockers with focused parser/import/gate coverage and UI validation.
-- Near the end, run a Rust expert and multi-agent improvement analysis across
-  non-`content/` surfaces, then apply and verify accepted fixes before push.
+harness. It remains a harness-controlled active-goal acceptance gate;
+`DESIGN.md`, `docs/design/README.md`, and `docs/design/design-spec.md` remain
+UI/UX contracts.
 
 ## Active Workstreams
 
 | Workstream | State | Current focus | Source |
 | ---------- | ----- | ------------- | ------ |
-| Current product and quality work | Active | Final documentation refresh, tag movement, hosted release run, and public artifact verification | [Plan](current-work.md) |
-| v2.9.0 completion and full-feature roadmap | Active | Checklist has local evidence; publication sequence is active and final signoff requires hosted build plus public asset verification from the corrected release commit | [Plan](v2.9.0-completion-and-full-feature-roadmap.md) |
+| Current product and quality work | Active | Maintenance-only v2.9.1 cleanup, docs accuracy, harness health, and regression fixes | [Plan](current-work.md) |
+| v2.9.1 maintenance and repo cleanup | Active | Inventory remaining stale release claims, repo clutter, and confirmed maintenance bugs | [Plan](v2.9.1-maintenance-and-repo-cleanup.md) |
 
 ## Current Posture
 
-- `origin/main` and the remote `v2.9.0` tag are being advanced through the
-  approved publication sequence. Final signoff requires them to point at the
-  corrected release commit and for the hosted release plus public artifact
-  verification to pass from that commit.
-- Latest exact full-gate validation evidence must be tied to the final release
-  commit after any documentation or package fixes.
-- Recent evidence covers dependency/action pins, security, frontend/build,
-  Rust, E2E, docs/bloat/harness, skills, source/resume/AI/ML, screenshots, and
-  no-account asset staging. Capability verification records the 2026-06-20
-  pass; final publication gates must rerun from the exact push/tag commit.
-- Credential paths use encrypted local storage; passive status/list checks must
-  remain non-interactive and must not cache vault keys.
-- No-account release assets can publish for Windows, macOS, and Linux. Apple
-  Developer ID and Windows signing remain external gaps and must stay visible
-  in release notes, install docs, and asset filenames.
-- Browser Import, LinkedIn-compatible Workbench, source-health checks, and
-  live public source probes have fresh 2026-06-19 evidence with no credential,
-  cookie, token, private note, resume, salary floor, or application-history
-  exposure. New local API research now feeds shared source taxonomy and native
-  parser contracts for Workday CXS, Phenom widgets, and Radancy/TalentBrew
-  static HTML, plus Oracle Fusion/Taleo and long-tail ATS fingerprints.
-- Resume, application preview, cover-letter review, role-family taxonomy,
-  source corpus/taxonomy, local interest learning, and public docs/screenshots
-  have focused coverage. Publication is active and still requires hosted asset
-  verification from the corrected release commit.
-- 2026-06-19 private resume-corpus aggregate probe parsed all 12 local files
-  across DOCX, Markdown, and PDF formats, ran skill extraction plus
-  ATS/readability checks against three broad job descriptions, ran
-  bullet-review checks, and verified synthetic export templates with
-  aggregate-only output. Focused public/synthetic UI and E2E passes now cover
-  resume import, match, tailoring, builder/export, application-form,
-  cover-letter, screening-answer, and semantic diagnostics surfaces.
-- 2026-06-19 local semantic matching governance now uses `models.lock.toml`
-  for pinned model identity, revisions, file hashes, sizes, licenses, backend
-  compatibility, instruction profiles, thresholds, and stale-vector rules.
-  Qwen3 embedding and reranker backends have focused downloaded-artifact
-  validation. Direct matcher commands now prefer Qwen3 dense retrieval plus
-  bounded Qwen3 reranking when both governed models are downloaded and
-  verified, with MiniLM retained as a fallback. The typed hybrid scorer covers dense,
-  BM25, exact skill, required-coverage, seniority, reranker, blocker, and
-  provenance signals; `embedded-ml` resume/job scoring uses it with a legacy
-  fallback. Settings includes **Local Match Check** through
-  `get_semantic_matching_diagnostics`. Seed evals and contract tests cover
-  role-family fit, generated-advice separation, skill graph confusables,
-  fairness, self-preference, adversarial postings, evidence explanations, and
-  modular extractor/classifier/matcher/analyzer stages.
-- 2026-06-19 optional outside-AI setup now supports OpenAI, Anthropic, Google
-  Gemini, GitHub Copilot, and custom HTTPS providers in Settings. Users can
-  configure multiple providers, order preferences, per-provider model names,
-  private-details-after-review, and metadata-only local request history.
-  Provider keys use `CredentialService` and the local secure vault. The shared
-  review/cancel dialog, metadata-only request-history storage, Rust provider
-  transport boundary, and first reviewed public job-posting summary path are
-  implemented. Job cards now expose **Summarize posting with Outside AI**; it
-  loads saved settings locally, shows the review/edit/cancel dialog, sends only
-  reviewed public posting fields through `send_external_ai_request`, and keeps
-  provider secrets in the backend. No private-data outside-AI features ship in
-  `2.9.0`; future sensitive sends must receive the same review and
-  backend-validation path before becoming available.
-- `validation/file_size_contract.json` now owns hard maintainable file caps;
-  `npm run lint:bloat` enforces scope limits and frozen legacy exceptions. New
-  Rust/frontend production modules must stay at or below 700 lines unless an
-  explicit reviewed exception is added and kept from growing.
-- Script tests were moved out of the flat `scripts/` root in commit
-  `b238c7d4`; keep future script tests under test directories.
-- 2026-06-20 capability verification records every capability row, source
-  class, privacy boundary, route probe, focused scraper/resume/AI/ML gate,
-  skills/SBOM checks, private corpus refresh, Qwen3 runtime checks, live source
-  probes, and macOS no-account DMG verifier. Remaining blocker: public hosted
-  asset verification from the corrected release commit.
+- `v2.9.0` release operations are complete. Do not route new work through old
+  tag movement, hosted publication, or asset-upload instructions.
+- v3 planning remains useful background, but implementation is deferred during
+  the `v2.9.1` maintenance line unless the user explicitly changes scope.
+- Cleanup is allowed when it fixes stale docs, broken harness state, bloat,
+  test brittleness, security or privacy drift, portability issues, or release
+  metadata inaccuracies.
+- Small bug fixes are allowed only when they preserve `v2.9.0` behavior except
+  for the confirmed regression.
+- macOS and Windows signing gaps remain external. Do not claim Gatekeeper-ready
+  macOS or signed Windows distribution before credential-backed proof exists.
+- all configured source adapters and user-gated restricted-source paths must
+  retain focused parser/import/gate coverage before any release-ready claim.
+- 2026-06-22 maintenance kickoff moved the v2.9.0 roadmap to completed
+  history, added the v2.9.1 maintenance plan, deferred v3 implementation, and
+  passed focused docs, bloat, harness, score, and script-test checks.
 
 ## Next Best Work
 
-1. Finish release-facing documentation cleanup, rerun focused docs and harness
-   gates, commit, push `main`, move `v2.9.0`, then verify hosted release and public assets.
-2. Keep macOS readiness honest: no Gatekeeper-ready claim before Apple credentials.
-3. Rerun final gates after any further local change.
+1. Continue the v2.9.1 cleanup checklist by shrinking duplicate docs,
+   correcting stale release claims, deleting disposable artifacts, and fixing
+   only confirmed maintenance bugs.
+2. Run `npm run harness:plan -- --since origin/main` before each cleanup slice
+   and use the smallest matrix-backed checks for touched files.
+3. Defer package version bumps, changelog entries, release notes, and public
+   asset checks until the final `v2.9.1` release cut.
 
 ## Completion Bar
 
+- Active plan directory contains only current restart docs.
+- `status.md` answers current state, recent evidence, macOS posture, and next
+  best work without old plan reads.
+- Plan indexes, docs hubs, roadmap links, README, release notes, and harness
+  expectations match the `v2.9.1` maintenance-only scope.
 - No known repo bloat, stale docs, generated artifacts, or duplicate sources of
   truth block product, privacy, security, or verification work.
 - No known privacy leak remains in logs, command errors, renderer messages,
@@ -132,9 +83,5 @@ The v2.9.0 goal adds durable release-readiness requirements:
   payloads.
 - No known user-facing flow assumes terminal, GitHub, debugging, engineering
   knowledge, or only technical job searches.
-- Every shipped scraper, import path, and non-scraper restricted-source workflow
-  has source-debug evidence, including proof that restricted-site auth material
-  and hidden page state are not stored.
 - Final docs, bloat, security, architecture, frontend, build, Rust, and chosen
-  E2E or Computer Use gates pass before any production-ready or release-ready
-  claim.
+  E2E or manual gates pass before any production-ready or release-ready claim.

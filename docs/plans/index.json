@@ -1,34 +1,43 @@
 {
   "version": 1,
-  "lastUpdated": "2026-06-21",
-  "goal": "Move JobSentinel toward v2.9.0 readiness for an urgent single-user job search while preserving privacy, source boundaries, non-technical usability, verified dependencies, downloadable Agent Skills, and the locked Quiet Shield redesign in DESIGN.md, docs/design/README.md, and docs/design/design-spec.md.",
+  "lastUpdated": "2026-06-22",
+  "goal": "Keep JobSentinel on a v2.9.1 maintenance-only patch line while preserving privacy, source boundaries, non-technical usability, verified dependencies, downloadable Agent Skills, and the locked Quiet Shield redesign in DESIGN.md, docs/design/README.md, and docs/design/design-spec.md.",
   "activeWorkstreams": [
     {
       "id": "active-status",
       "path": "docs/plans/active/status.md",
       "state": "active",
-      "nextStep": "Read first for v2.9.0 goal state, dependency blockers, LinkedIn-compatible restricted-source boundaries, skills requirement, source-debug release blockers, next best work, and recent evidence.",
+      "nextStep": "Read first for v2.9.1 maintenance scope, v2.9.0 release state, deferred v3 implementation, current next best work, and Rule 0 constraints.",
       "verification": "npm run harness:session"
     },
     {
       "id": "current-product-and-quality-work",
       "path": "docs/plans/active/current-work.md",
       "state": "active",
-      "nextStep": "Hold for user-confirmed publication sequencing after local checklist evidence, final gates, release staging checks, macOS readiness honesty, and Rule 0 preservation.",
+      "nextStep": "Keep cleanup scoped to docs accuracy, harness health, bloat, portability, confirmed bug fixes, and release metadata when the patch line is ready.",
       "verification": "npm run harness:check; for redesign changes, add Computer Use or Playwright screenshot proof across touched routes, modals, toasts, settings, keyboard flow, and narrow-width states."
     },
     {
-      "id": "v2.9.0-completion-and-full-feature-roadmap",
-      "path": "docs/plans/active/v2.9.0-completion-and-full-feature-roadmap.md",
+      "id": "v2.9.1-maintenance-and-repo-cleanup",
+      "path": "docs/plans/active/v2.9.1-maintenance-and-repo-cleanup.md",
       "state": "active",
-      "nextStep": "Do not push, tag, publish, or upload until the user confirms; rerun final local gates after any further local change.",
-      "verification": "npm run lint:docs; npm run lint:bloat; npm run harness:check; npm run harness:score; git diff --check"
-    },
+      "nextStep": "Finish active-state cleanup, inventory stale v2.9.0 pre-publication claims, and run focused docs/harness gates before any further cleanup slice.",
+      "verification": "npm run harness:plan -- --since origin/main; npm run harness:check; npm run lint:docs; npm run lint:bloat; npm run harness:score; git diff --check"
+    }
+  ],
+  "completedWorkstreams": [
+    {
+      "id": "v2.9.0-completion-and-full-feature-roadmap",
+      "path": "docs/plans/completed/v2.9.0-completion-and-full-feature-roadmap.md",
+      "state": "completed"
+    }
+  ],
+  "deferredWorkstreams": [
     {
       "id": "v3-foundation",
       "path": "docs/plans/v3/foundation-exec-plan.md",
-      "state": "active",
-      "nextStep": "Implement the first backend-only v3 foundation slice: case files, sanitized job events, privacy receipts, source policy records, and compatibility metadata.",
+      "state": "deferred",
+      "nextStep": "Resume only after v2.9.1 maintenance scope closes or the user explicitly reopens v3 implementation.",
       "verification": "npm run harness:check; npm run lint:docs; cd src-tauri && cargo test --lib core::db"
     }
   ],

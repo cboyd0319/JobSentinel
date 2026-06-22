@@ -29,7 +29,7 @@
     "docs/references.md",
     "docs/exec-plans.md",
     "docs/plans/README.md",
-    "docs/plans/active/v2.9.0-completion-and-full-feature-roadmap.md",
+    "docs/plans/active/v2.9.1-maintenance-and-repo-cleanup.md",
     "docs/plans/index.json",
     "docs/plans/templates/exec-plan-template.md",
     "docs/plans/templates/change-contract-template.md",
@@ -143,11 +143,11 @@
       "User-ease evidence:",
       "Public GitHub wiki pages from `docs/harness/manifest.json` to update"
     ],
-    "docs/plans/active/v2.9.0-completion-and-full-feature-roadmap.md": [
+    "docs/plans/active/v2.9.1-maintenance-and-repo-cleanup.md": [
       "## Product Direction",
-      "maximum job-search help",
-      "minimum user friction",
-      "Remove arbitrary roadblocks",
+      "maintenance and repo cleanup",
+      "No new product features",
+      "Preserve `v2.9.0` behavior unless fixing a confirmed regression.",
       "The hard stops remain privacy and security failures"
     ],
     "docs/harness/verification-matrix.md": [
@@ -174,7 +174,6 @@
       "Computer Use or Playwright screenshot proof"
     ],
     "docs/plans/active/status.md": [
-      "Do not retag or upload over the same `v2.9.0` release while an older workflow run is still building assets.",
       "Quiet Shield redesign is now part of the active repo-wide goal and the repo harness.",
       "harness-controlled active-goal acceptance gate",
       "`DESIGN.md`, `docs/design/README.md`, and `docs/design/design-spec.md`",

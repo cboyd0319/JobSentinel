@@ -53,8 +53,9 @@ The maintained external source index lives in
 - Verified local build plus manual upload remains a supported release path when
   the same version, harness, package, checksum, and public-artifact verification
   gates pass. Hosted tag CI remains available for cross-platform builds.
-- Pending and unreleased work is tracked in [CHANGELOG.md](../CHANGELOG.md)
-  and the [active plans index](plans/README.md#current-active-plans).
+- The active `v2.9.1` line is maintenance and repo cleanup only. Pending and
+  unreleased work is tracked in [CHANGELOG.md](../CHANGELOG.md) and the
+  [active plans index](plans/README.md#current-active-plans).
 - Historical release notes are indexed in
   [docs/releases](releases/README.md), but this page should not be used as a
   release log.
