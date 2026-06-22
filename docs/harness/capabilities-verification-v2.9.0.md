@@ -1,6 +1,6 @@
 # v2.9.0 Capabilities Verification
 
-Last updated: 2026-06-20.
+Last updated: 2026-06-22.
 
 ## Purpose
 
@@ -9,6 +9,8 @@ This ledger verifies the capabilities listed in
 the feature docs to exist. Each capability needs fresh automated coverage,
 manual or Playwright browser validation where user interaction matters, and a
 clear privacy or source-boundary check before v2.9.0 release publication.
+`v2.9.0` is now published; keep this ledger as completed release evidence and
+as a reference for future release verification.
 
 ## Current Run
 
@@ -17,15 +19,15 @@ clear privacy or source-boundary check before v2.9.0 release publication.
 | Capabilities doc commit | `ab28be0d` |
 | Latest exact full-gate validation commit | `07a03891` |
 | Verification state | Capability evidence complete with one dev-server caveat; fresh 2026-06-20 local validation pass complete from `07a03891` |
-| Required release position | Do not push, tag, upload, publish, or call v2.9.0 complete until final release gates pass from the exact commit to be pushed or tagged and the user confirms publication |
+| Required release position | Complete for `v2.9.0`; future releases must still pass final release gates from the exact commit to be pushed or tagged before publication |
 | Evidence storage | Command logs may live under `<tmp>`; checked-in docs must not include private user data, raw resumes, cookies, tokens, local absolute evidence paths, screenshots with private data, HAR files, browser storage, or session files |
 
 ## Required Fresh Gates
 
-These gates passed after the capabilities doc and evidence ledger. If this
-ledger or any release-bound file changes again, final release-publication gates
-must rerun from the exact commit that will be pushed or tagged before publishing
-assets or calling the release ready.
+These gates passed after the capabilities doc and evidence ledger. For future
+release-bound changes, final release-publication gates must rerun from the
+exact commit that will be pushed or tagged before publishing assets or calling
+the release ready.
 
 | Gate | State | Evidence |
 | ---- | ----- | -------- |
@@ -133,8 +135,8 @@ or uploading any release asset.
   tests, not as a Playwright assertion failure. The separate route probe
   captured zero browser console errors and zero page errors. Treat this as a
   dev-server warning to keep watching, not as a product failure.
-- If this ledger changes again before publication, final release-publication
-  gates must rerun from the exact commit that will be pushed or tagged.
+- For future release-bound changes, final release-publication gates must rerun
+  from the exact commit that will be pushed or tagged.
 
 ## Closure Rules
 
@@ -144,6 +146,6 @@ This capability ledger is closed for capability evidence when:
 2. Docs, bloat, harness, and whitespace checks pass after the evidence edit.
 3. Generated artifacts are removed from the repo worktree.
 
-This ledger is not a release-publication approval. Publishing still requires
+This ledger is completed `v2.9.0` evidence. Future publication still requires
 fresh final gates from the exact commit to be pushed or tagged and explicit
 user confirmation.

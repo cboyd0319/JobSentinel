@@ -1,10 +1,11 @@
 # Resume Corpus Verification v2.9.0
 
-Updated: 2026-06-20.
+Updated: 2026-06-22.
 
 This record tracks privacy-safe local verification against a private resume
 corpus. Do not add names, local absolute paths, parsed resume text, skill names,
 profile details, or screenshots from private resumes to this file.
+`v2.9.0` is now published; keep this record as completed release evidence.
 
 ## 2026-06-19 Aggregate Probe
 
@@ -92,8 +93,8 @@ Release handoff:
 
 - Whole-UI proof, screenshot refresh, and resume UI evidence are recorded in
   [UI manual verification](ui-manual-verification-v2.9.0.md).
-- Final release gates still need to rerun from the latest verified commit
-  before publication.
+- Future release-bound resume changes must rerun the relevant final gates from
+  the latest verified commit before publication.
 - Keep future UI evidence out of the repo unless it is aggregate, synthetic, or
   explicitly scrubbed of private resume content.
 

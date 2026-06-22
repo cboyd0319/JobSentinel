@@ -61,6 +61,25 @@ function countMatchingFiles(root, dirPath, pattern) {
   return readdirSync(fullPath).filter((entry) => pattern.test(entry)).length;
 }
 
+function countMatchingFilesRecursive(root, dirPath, pattern) {
+  const fullPath = join(root, dirPath);
+  if (!existsSync(fullPath)) {
+    return 0;
+  }
+
+  let count = 0;
+  for (const entry of readdirSync(fullPath, { withFileTypes: true })) {
+    const childPath = `${dirPath}/${entry.name}`;
+    if (entry.isDirectory()) {
+      count += countMatchingFilesRecursive(root, childPath, pattern);
+    } else if (entry.isFile() && pattern.test(entry.name)) {
+      count += 1;
+    }
+  }
+
+  return count;
+}
+
 export function extractNextBestWork(statusText) {
   const section = statusText.split(/^## Next Best Work$/m)[1]?.split(/^## /m)[0] ?? "";
   const items = [];
@@ -103,7 +122,7 @@ export function summarizeHarnessSession(root = defaultRoot, options = {}) {
     activePlanCount,
     indexedWorkstreamCount,
     checkModuleCount: countMatchingFiles(root, "scripts/harness/checks", /\.mjs$/),
-    scriptTestCount: countMatchingFiles(root, "scripts", /\.test\.mjs$/),
+    scriptTestCount: countMatchingFilesRecursive(root, "scripts", /\.test\.mjs$/),
     bloatRunnerLines: countFileLines(root, "scripts/check-repo-bloat.mjs"),
     harnessScore: {
       overall: scoreSummary.overall,

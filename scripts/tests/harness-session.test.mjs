@@ -72,7 +72,8 @@ test("summarizeHarnessSession reports branch, counts, audit path, and next work"
     );
     writeFixtureFile(root, "scripts/harness/checks/a.mjs", "");
     writeFixtureFile(root, "scripts/harness/checks/b.mjs", "");
-    writeFixtureFile(root, "scripts/one.test.mjs", "");
+    writeFixtureFile(root, "scripts/tests/one.test.mjs", "");
+    writeFixtureFile(root, "scripts/security/tests/two.test.mjs", "");
     writeFixtureFile(root, "scripts/check-repo-bloat.mjs", "one\ntwo\n");
     writeFixtureFile(root, "docs/harness/archive/five-tuple-audit-2026-06-01.md", "# Audit\n");
 
@@ -86,7 +87,7 @@ test("summarizeHarnessSession reports branch, counts, audit path, and next work"
     assert.equal(summary.activePlanCount, 2);
     assert.equal(summary.indexedWorkstreamCount, 1);
     assert.equal(summary.checkModuleCount, 2);
-    assert.equal(summary.scriptTestCount, 1);
+    assert.equal(summary.scriptTestCount, 2);
     assert.equal(summary.bloatRunnerLines, 2);
     assert.equal(summary.fiveTupleAudit, "docs/harness/archive/five-tuple-audit-2026-06-01.md");
     assert.deepEqual(summary.harnessScore, { overall: 100, status: "all subsystems 5/5" });
