@@ -29,57 +29,9 @@
 //! ```
 
 use chrono::{DateTime, Utc};
-use regex::Regex;
 use serde::{Deserialize, Serialize};
-use std::sync::LazyLock;
 
-const JOB_POSTING_RISK_TAXONOMY_JSON: &str =
-    include_str!("../../../../src/shared/jobPostingRiskTaxonomy.json");
-
-static JOB_POSTING_RISK_TAXONOMY: LazyLock<JobPostingRiskTaxonomy> =
-    LazyLock::new(load_job_posting_risk_taxonomy);
-
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct JobPostingRiskTaxonomy {
-    schema_version: u32,
-    generic_phrases: Vec<String>,
-    vague_title_patterns: Vec<String>,
-    unrealistic_requirement_patterns: Vec<String>,
-    urgency_patterns: Vec<String>,
-    promotional_patterns: Vec<String>,
-    substance_keywords: Vec<String>,
-    fluff_keywords: Vec<String>,
-    ghost_templates: Vec<String>,
-}
-
-fn load_job_posting_risk_taxonomy() -> JobPostingRiskTaxonomy {
-    let taxonomy: JobPostingRiskTaxonomy =
-        match serde_json::from_str(JOB_POSTING_RISK_TAXONOMY_JSON) {
-            Ok(taxonomy) => taxonomy,
-            Err(error) => panic!("job posting risk taxonomy must be valid JSON: {error}"),
-        };
-
-    assert_eq!(
-        taxonomy.schema_version, 1,
-        "unsupported job posting risk taxonomy schema version"
-    );
-
-    taxonomy
-}
-
-fn compile_case_insensitive_patterns(patterns: &[String], label: &str) -> Vec<Regex> {
-    patterns
-        .iter()
-        .map(|pattern| {
-            let case_insensitive_pattern = format!("(?i){pattern}");
-            match Regex::new(&case_insensitive_pattern) {
-                Ok(regex) => regex,
-                Err(error) => panic!("invalid {label} regex pattern {pattern:?}: {error}"),
-            }
-        })
-        .collect()
-}
+mod patterns;
 
 /// Ghost detection result
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -161,54 +113,6 @@ impl Default for GhostConfig {
         }
     }
 }
-
-/// Lazy-initialized regex patterns for generic phrases
-static GENERIC_PHRASES: LazyLock<Vec<Regex>> = LazyLock::new(|| {
-    compile_case_insensitive_patterns(&JOB_POSTING_RISK_TAXONOMY.generic_phrases, "generic phrase")
-});
-
-/// Lazy-initialized regex patterns for vague job titles
-static VAGUE_TITLES: LazyLock<Vec<Regex>> = LazyLock::new(|| {
-    compile_case_insensitive_patterns(
-        &JOB_POSTING_RISK_TAXONOMY.vague_title_patterns,
-        "vague title",
-    )
-});
-
-/// Lazy-initialized regex patterns for unrealistic requirements
-static UNREALISTIC_PATTERNS: LazyLock<Vec<Regex>> = LazyLock::new(|| {
-    compile_case_insensitive_patterns(
-        &JOB_POSTING_RISK_TAXONOMY.unrealistic_requirement_patterns,
-        "unrealistic requirement",
-    )
-});
-
-// ==================== ML-Enhanced Patterns (v2.5.5) ====================
-
-/// Urgency signals that indicate pressure-style wording
-static URGENCY_PATTERNS: LazyLock<Vec<Regex>> = LazyLock::new(|| {
-    compile_case_insensitive_patterns(&JOB_POSTING_RISK_TAXONOMY.urgency_patterns, "urgency")
-});
-
-/// Promotional wording patterns (sentiment signal)
-static PROMOTIONAL_PATTERNS: LazyLock<Vec<Regex>> = LazyLock::new(|| {
-    compile_case_insensitive_patterns(
-        &JOB_POSTING_RISK_TAXONOMY.promotional_patterns,
-        "promotional",
-    )
-});
-
-/// Substance keywords - terms that indicate real job content
-static SUBSTANCE_KEYWORDS: LazyLock<Vec<String>> =
-    LazyLock::new(|| JOB_POSTING_RISK_TAXONOMY.substance_keywords.clone());
-
-/// Fluff keywords - terms that add no substance
-static FLUFF_KEYWORDS: LazyLock<Vec<String>> =
-    LazyLock::new(|| JOB_POSTING_RISK_TAXONOMY.fluff_keywords.clone());
-
-/// Known ghost job patterns (template-like descriptions)
-static GHOST_TEMPLATES: LazyLock<Vec<String>> =
-    LazyLock::new(|| JOB_POSTING_RISK_TAXONOMY.ghost_templates.clone());
 
 /// Ghost job detection engine
 pub struct GhostDetector {
@@ -430,7 +334,7 @@ impl GhostDetector {
 
     /// Count generic/buzzword phrases in description
     fn count_generic_phrases(&self, description: &str) -> usize {
-        GENERIC_PHRASES
+        patterns::generic_phrases()
             .iter()
             .filter(|re| re.is_match(description))
             .count()
@@ -480,12 +384,14 @@ impl GhostDetector {
     /// Check for unrealistic experience requirements
     fn has_unrealistic_requirements(&self, title: &str, description: &str) -> bool {
         let combined = format!("{title} {description}");
-        UNREALISTIC_PATTERNS.iter().any(|re| re.is_match(&combined))
+        patterns::unrealistic_patterns()
+            .iter()
+            .any(|re| re.is_match(&combined))
     }
 
     /// Check for vague/generic job titles
     fn has_vague_title(&self, title: &str) -> bool {
-        VAGUE_TITLES.iter().any(|re| re.is_match(title))
+        patterns::vague_titles().iter().any(|re| re.is_match(title))
     }
 
     /// Calculate analysis confidence based on data availability
@@ -522,7 +428,7 @@ impl GhostDetector {
 
     /// Count urgency-style wording patterns
     fn count_urgency_patterns(&self, text: &str) -> usize {
-        URGENCY_PATTERNS
+        patterns::urgency_patterns()
             .iter()
             .filter(|re| re.is_match(text))
             .count()
@@ -530,7 +436,7 @@ impl GhostDetector {
 
     /// Count promotional/overly positive language
     fn count_promotional_patterns(&self, text: &str) -> usize {
-        PROMOTIONAL_PATTERNS
+        patterns::promotional_patterns()
             .iter()
             .filter(|re| re.is_match(text))
             .count()
@@ -545,12 +451,12 @@ impl GhostDetector {
             return 0.0;
         }
 
-        let substance_count = SUBSTANCE_KEYWORDS
+        let substance_count = patterns::substance_keywords()
             .iter()
             .filter(|keyword| text_lower.contains(keyword.as_str()))
             .count();
 
-        let fluff_count = FLUFF_KEYWORDS
+        let fluff_count = patterns::fluff_keywords()
             .iter()
             .filter(|keyword| text_lower.contains(keyword.as_str()))
             .count();
@@ -572,9 +478,10 @@ impl GhostDetector {
     fn calculate_template_similarity(&self, text: &str) -> f64 {
         let text_lower = text.to_lowercase();
         let mut matches = 0;
-        let total = GHOST_TEMPLATES.len();
+        let templates = patterns::ghost_templates();
+        let total = templates.len();
 
-        for template in GHOST_TEMPLATES.iter() {
+        for template in templates {
             if text_lower.contains(template.as_str()) {
                 matches += 1;
             }

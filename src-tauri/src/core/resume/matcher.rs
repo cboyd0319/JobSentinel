@@ -12,6 +12,7 @@ use regex::Regex;
 use sqlx::{Row, SqlitePool};
 use std::collections::HashSet;
 
+mod gap_analysis;
 mod hybrid_score;
 
 struct JobInfo {
@@ -394,7 +395,7 @@ impl JobMatcher {
         );
 
         // Generate enhanced gap analysis
-        let gap_analysis = self.generate_enhanced_gap_analysis(
+        let gap_analysis = gap_analysis::generate_enhanced_gap_analysis(
             &matching_skills,
             &missing_skills,
             skills_match_score,
@@ -428,169 +429,7 @@ impl JobMatcher {
         missing_skills: &[String],
         overall_score: f64,
     ) -> String {
-        let match_percentage = (overall_score * 100.0).round() as i32;
-
-        let mut analysis = format!("Match: {}%\n\n", match_percentage);
-
-        if !matching_skills.is_empty() {
-            analysis.push_str(&format!("Matching Skills ({}):\n", matching_skills.len()));
-            for skill in matching_skills {
-                analysis.push_str(&format!("  - {}\n", skill));
-            }
-            analysis.push('\n');
-        }
-
-        if !missing_skills.is_empty() {
-            analysis.push_str(&format!("Missing Skills ({}):\n", missing_skills.len()));
-            for skill in missing_skills {
-                analysis.push_str(&format!("  - {}\n", skill));
-            }
-            analysis.push('\n');
-        }
-
-        // Recommendation
-        if overall_score >= 0.8 {
-            analysis.push_str(
-                "Next step: If this role still fits your goals, review the missing items and decide whether to apply.",
-            );
-        } else if overall_score >= 0.6 {
-            analysis.push_str(
-                "Next step: Review transferable skills and add only experience you can support truthfully.",
-            );
-        } else if overall_score >= 0.4 {
-            analysis.push_str(
-                "Next step: Check whether the missing items are required. If related experience exists, add it truthfully.",
-            );
-        } else {
-            analysis.push_str(
-                "Next step: This role may need more review before tailoring. Compare it against your goals and constraints.",
-            );
-        }
-
-        analysis
-    }
-
-    /// Generate enhanced gap analysis with experience and education breakdown
-    #[allow(clippy::too_many_arguments)]
-    fn generate_enhanced_gap_analysis(
-        &self,
-        matching_skills: &[String],
-        missing_skills: &[String],
-        skills_score: f64,
-        experience_score: f64,
-        experience_reqs: &[ExperienceRequirement],
-        education_score: f64,
-        education_req: Option<&EducationRequirement>,
-        overall_score: f64,
-    ) -> String {
-        let overall_pct = (overall_score * 100.0).round() as i32;
-        let skills_pct = (skills_score * 100.0).round() as i32;
-        let exp_pct = (experience_score * 100.0).round() as i32;
-        let edu_pct = (education_score * 100.0).round() as i32;
-
-        let skill_count = matching_skills.len() + missing_skills.len();
-        let skill_line = if skill_count == 0 {
-            "- Skills: not enough job-post skill detail recognized".to_string()
-        } else {
-            format!(
-                "- Skills: {}% ({}/{} matched)",
-                skills_pct,
-                matching_skills.len(),
-                skill_count
-            )
-        };
-
-        let mut analysis = format!(
-            "Match Score: {}%\n{}\n- Experience: {}%\n- Education: {}%\n\n",
-            overall_pct, skill_line, exp_pct, edu_pct
-        );
-
-        // Skills breakdown
-        if !matching_skills.is_empty() {
-            analysis.push_str(&format!("Matching Skills ({}):\n", matching_skills.len()));
-            for skill in matching_skills.iter().take(10) {
-                analysis.push_str(&format!("  - {}\n", skill));
-            }
-            if matching_skills.len() > 10 {
-                analysis.push_str(&format!("  ... and {} more\n", matching_skills.len() - 10));
-            }
-            analysis.push('\n');
-        }
-
-        if !missing_skills.is_empty() {
-            analysis.push_str(&format!("Missing Skills ({}):\n", missing_skills.len()));
-            for skill in missing_skills.iter().take(10) {
-                analysis.push_str(&format!("  - {}\n", skill));
-            }
-            if missing_skills.len() > 10 {
-                analysis.push_str(&format!("  ... and {} more\n", missing_skills.len() - 10));
-            }
-            analysis.push('\n');
-        }
-
-        // Experience breakdown
-        if !experience_reqs.is_empty() {
-            analysis.push_str("Experience Requirements:\n");
-            for req in experience_reqs.iter().take(5) {
-                let skill_label = req.skill.as_deref().unwrap_or("General");
-                let range = if let Some(max) = req.max_years {
-                    format!("{}-{}", req.min_years, max)
-                } else {
-                    format!("{}+", req.min_years)
-                };
-                let required_label = if req.is_required {
-                    "required"
-                } else {
-                    "preferred"
-                };
-                analysis.push_str(&format!(
-                    "  - {} years {} ({})\n",
-                    range, skill_label, required_label
-                ));
-            }
-            analysis.push('\n');
-        }
-
-        // Education breakdown
-        if let Some(req) = education_req {
-            let required_label = if req.is_required {
-                "required"
-            } else {
-                "preferred"
-            };
-            analysis.push_str(&format!(
-                "Education: {} {} ({})\n",
-                req.degree_level.as_str(),
-                if req.fields.is_empty() {
-                    "".to_string()
-                } else {
-                    format!("in {}", req.fields.join(", "))
-                },
-                required_label
-            ));
-            analysis.push('\n');
-        }
-
-        // Recommendation
-        if overall_score >= 0.8 {
-            analysis.push_str(
-                "Next step: If this role still fits your goals, review the missing items and decide whether to apply.",
-            );
-        } else if overall_score >= 0.6 {
-            analysis.push_str(
-                "Next step: Review transferable skills and add only experience you can support truthfully.",
-            );
-        } else if overall_score >= 0.4 {
-            analysis.push_str(
-                "Next step: Check whether the missing items are required. If related experience exists, add it truthfully.",
-            );
-        } else {
-            analysis.push_str(
-                "Next step: This role may need more review before tailoring. Compare it against your goals and constraints.",
-            );
-        }
-
-        analysis
+        gap_analysis::generate_gap_analysis(matching_skills, missing_skills, overall_score)
     }
 
     /// Get user's education level from their resume

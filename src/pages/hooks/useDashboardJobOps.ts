@@ -10,17 +10,7 @@ import { logError } from "../../utils/errorUtils";
 import { exportJobsToCSV } from "../../utils/export";
 import { invalidateCacheByCommand, safeInvokeWithToast } from "../../utils/api";
 import { getSafeErrorToastCopy } from "../../utils/safeErrorCopy";
-import { recordBrowserAssistLearningSignalIfEnabled } from "../../shared/browserAssistLearning";
-
-function recordJobLearningSignal(action: string, job: Job) {
-  recordBrowserAssistLearningSignalIfEnabled({
-    source: action === "note" ? "job-notes" : "job-card",
-    action,
-    title: job.title,
-    company: job.company,
-    recordedAt: new Date().toISOString(),
-  });
-}
+import { recordJobLearningSignal } from "../dashboardJobLearning";
 
 export function useDashboardJobOps(
   jobs: Job[],

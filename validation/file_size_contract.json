@@ -150,13 +150,6 @@
       "follow_up_trigger": "Split this file before increasing its exception limit or making substantial unrelated edits."
     },
     {
-      "path": "src-tauri/src/core/ghost/mod.rs",
-      "max_lines": 720,
-      "owner": "v2.9.0-release-prep",
-      "reason": "legacy ghost-job module pending scoring/explanation split",
-      "follow_up_trigger": "Split this file before increasing its exception limit or making substantial unrelated edits."
-    },
-    {
       "path": "src-tauri/src/core/market_intelligence/computations.rs",
       "max_lines": 791,
       "owner": "v2.9.0-release-prep",
@@ -168,13 +161,6 @@
       "max_lines": 773,
       "owner": "v2.9.0-release-prep",
       "reason": "legacy ATS analyzer module pending rule-family extraction",
-      "follow_up_trigger": "Split this file before increasing its exception limit or making substantial unrelated edits."
-    },
-    {
-      "path": "src-tauri/src/core/resume/matcher.rs",
-      "max_lines": 702,
-      "owner": "v2.9.0-release-prep",
-      "reason": "legacy matcher module barely over cap pending semantic-matching split",
       "follow_up_trigger": "Split this file before increasing its exception limit or making substantial unrelated edits."
     },
     {
@@ -234,13 +220,6 @@
       "follow_up_trigger": "Split this file before increasing its exception limit or making substantial unrelated edits."
     },
     {
-      "path": "src/components/CoverLetterTemplates.tsx",
-      "max_lines": 704,
-      "owner": "v2.9.0-release-prep",
-      "reason": "legacy cover-letter component barely over cap pending template extraction",
-      "follow_up_trigger": "Split this file before increasing its exception limit or making substantial unrelated edits."
-    },
-    {
       "path": "src/components/InterviewScheduler.tsx",
       "max_lines": 816,
       "owner": "v2.9.0-release-prep",
@@ -290,13 +269,6 @@
       "follow_up_trigger": "Split this file before increasing its exception limit or making substantial unrelated edits."
     },
     {
-      "path": "src/pages/Resume.tsx",
-      "max_lines": 705,
-      "owner": "v2.9.0-release-prep",
-      "reason": "legacy resume page barely over cap pending section extraction",
-      "follow_up_trigger": "Split this file before increasing its exception limit or making substantial unrelated edits."
-    },
-    {
       "path": "src/pages/ResumeBuilder.tsx",
       "max_lines": 761,
       "owner": "v2.9.0-release-prep",
@@ -343,13 +315,6 @@
       "max_lines": 805,
       "owner": "v2.9.0-release-prep",
       "reason": "legacy setup wizard pending step extraction",
-      "follow_up_trigger": "Split this file before increasing its exception limit or making substantial unrelated edits."
-    },
-    {
-      "path": "src/pages/hooks/useDashboardJobOps.ts",
-      "max_lines": 701,
-      "owner": "v2.9.0-release-prep",
-      "reason": "legacy dashboard hook barely over cap pending operation-family split",
       "follow_up_trigger": "Split this file before increasing its exception limit or making substantial unrelated edits."
     }
   ]
