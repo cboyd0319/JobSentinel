@@ -7,115 +7,29 @@ import { Badge } from "../components/Badge";
 import { HelpIcon } from "../components/HelpIcon";
 import { useToast } from "../contexts";
 import { logError } from "../utils/errorUtils";
-import { getUserFriendlyError } from "../utils/errorMessages";
 import { formatCurrency } from "../utils/formatUtils";
 import { getPayFloorBenchmarkGuidance } from "../shared/payFloorBenchmarkGuidance";
-
-interface SalaryBenchmark {
-  job_title: string;
-  location: string;
-  seniority_level: string;
-  min_salary: number;
-  p25_salary: number;
-  median_salary: number;
-  p75_salary: number;
-  max_salary: number;
-  average_salary: number;
-  sample_size: number;
-  last_updated: string;
-}
+import { BackIcon, ChartIcon, OfferReviewTextarea } from "./SalaryComponents";
+import {
+  OFFER_EVIDENCE_OPTIONS,
+  SENIORITY_LEVELS,
+  getCounterStarter,
+  getDeclineStarter,
+  getNegotiationInputMessage,
+  getRepresentativeYearsForSeniority,
+  getSalaryErrorAction,
+  getSalarySampleQuality,
+  getSalarySeniorityForYears,
+  getSalaryStageLabel,
+  hasUnresolvedTemplatePlaceholders,
+  parseSalaryAmount,
+  type OfferEvidenceStatus,
+  type SalaryBenchmark,
+  type SalarySeniority,
+} from "./SalaryModel";
 
 interface SalaryProps {
   onBack: () => void;
-}
-
-type SalarySeniority = "entry" | "mid" | "senior" | "staff" | "principal";
-type OfferEvidenceStatus = "written" | "verbal" | "unknown";
-
-type SalarySampleQuality = {
-  label: string;
-  detail: string;
-  variant: "sentinel" | "alert" | "success";
-};
-
-const SENIORITY_LEVELS: readonly { value: SalarySeniority; label: string }[] = [
-  { value: "entry", label: "Starting out (0-2 years)" },
-  { value: "mid", label: "Growing experience (3-5 years)" },
-  { value: "senior", label: "Experienced (6-10 years)" },
-  { value: "staff", label: "Lead or specialist (11-15 years)" },
-  { value: "principal", label: "Executive or top-level specialist (16+ years)" },
-];
-
-const OFFER_EVIDENCE_OPTIONS: readonly { value: OfferEvidenceStatus; label: string }[] = [
-  { value: "written", label: "Written offer received" },
-  { value: "verbal", label: "Verbal or recruiter number only" },
-  { value: "unknown", label: "No firm offer yet" },
-];
-
-function getSalarySeniorityForYears(years: number): SalarySeniority {
-  if (years <= 2) return "entry";
-  if (years <= 5) return "mid";
-  if (years <= 10) return "senior";
-  if (years <= 15) return "staff";
-  return "principal";
-}
-
-function getRepresentativeYearsForSeniority(seniority: SalarySeniority): number {
-  switch (seniority) {
-    case "entry":
-      return 2;
-    case "mid":
-      return 5;
-    case "senior":
-      return 10;
-    case "staff":
-      return 15;
-    case "principal":
-      return 20;
-  }
-}
-
-function getSalaryStageLabel(value: string) {
-  const normalized = value.trim().toLowerCase();
-  if (normalized === "entry") return "Starting out";
-  if (normalized === "mid") return "Growing experience";
-  if (normalized === "senior") return "Experienced";
-  if (normalized === "staff") return "Lead or specialist";
-  if (normalized === "principal" || normalized === "executive") {
-    return "Executive or top-level specialist";
-  }
-  return value;
-}
-
-function getSalaryErrorAction(error: unknown): string {
-  const friendly = getUserFriendlyError(error);
-  return friendly.action ?? friendly.message;
-}
-
-function getSalarySampleQuality(sampleSize: number): SalarySampleQuality {
-  if (sampleSize >= 100) {
-    return {
-      label: "Stronger sample",
-      detail:
-        "Enough records for a more useful range, but still compare written ranges and role scope.",
-      variant: "success",
-    };
-  }
-
-  if (sampleSize >= 30) {
-    return {
-      label: "Useful sample",
-      detail: "Use this with written ranges, role scope, and current postings.",
-      variant: "sentinel",
-    };
-  }
-
-  return {
-    label: "Thin sample",
-    detail:
-      "Use this as a weak signal. Confirm with the written range, role scope, and current postings.",
-    variant: "alert",
-  };
 }
 
 export default function Salary({ onBack }: SalaryProps) {
@@ -778,141 +692,5 @@ export default function Salary({ onBack }: SalaryProps) {
         </div>
       </main>
     </div>
-  );
-}
-
-function parseSalaryAmount(value: string): number | null {
-  const normalized = value.replace(/[$,\s]/g, "");
-  if (!normalized) return null;
-
-  const parsed = Number.parseInt(normalized, 10);
-  if (!Number.isFinite(parsed) || parsed <= 0) return null;
-
-  return parsed;
-}
-
-function getNegotiationInputMessage(
-  offerEvidenceStatus: OfferEvidenceStatus,
-  currentOfferAmount: number | null,
-  targetMinAmount: number | null,
-  targetMaxAmount: number | null,
-): string | null {
-  if (offerEvidenceStatus !== "written") {
-    return "Ask for written terms before drafting negotiation notes.";
-  }
-
-  if (
-    currentOfferAmount === null ||
-    targetMinAmount === null ||
-    targetMaxAmount === null
-  ) {
-    return "Add the written offer and your target range before drafting notes.";
-  }
-
-  if (targetMaxAmount < targetMinAmount) {
-    return "Target maximum must be at least target minimum.";
-  }
-
-  return null;
-}
-
-function getCounterStarter({
-  company,
-  jobTitle,
-  targetMinAmount,
-  targetMaxAmount,
-}: {
-  company: string;
-  jobTitle: string;
-  targetMinAmount: number | null;
-  targetMaxAmount: number | null;
-}): string {
-  const employer = company.trim() || "the employer";
-  const role = jobTitle.trim() || "the role";
-  const targetRange = formatTargetRange(targetMinAmount, targetMaxAmount);
-
-  return `Thank you for the offer from ${employer} for ${role}. I am interested in the opportunity. Based on the role scope and the written offer details, I would like to discuss a total package closer to ${targetRange}. Can you confirm the written base pay, bonus, equity, benefits, work location, start date, and decision deadline?`;
-}
-
-function getDeclineStarter({
-  company,
-  jobTitle,
-}: {
-  company: string;
-  jobTitle: string;
-}): string {
-  const employer = company.trim() || "the employer";
-  const role = jobTitle.trim() || "the role";
-
-  return `Thank you for the offer from ${employer} for ${role}. After reviewing the written terms, timing, total compensation, commute or relocation costs, and fit, I am going to decline. I appreciate the time and consideration.`;
-}
-
-function formatTargetRange(
-  targetMinAmount: number | null,
-  targetMaxAmount: number | null,
-): string {
-  if (targetMinAmount !== null && targetMaxAmount !== null) {
-    return `${formatCurrency(targetMinAmount)} to ${formatCurrency(targetMaxAmount)}`;
-  }
-
-  if (targetMinAmount !== null) {
-    return `at least ${formatCurrency(targetMinAmount)}`;
-  }
-
-  return "my target range";
-}
-
-function hasUnresolvedTemplatePlaceholders(script: string) {
-  return /{{[^{}]+}}/.test(script);
-}
-
-function OfferReviewTextarea({
-  label,
-  value,
-  onChange,
-  placeholder,
-}: {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  placeholder: string;
-}) {
-  const id = label.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-
-  return (
-    <div className="sm:col-span-2">
-      <label htmlFor={id} className="mb-1.5 block text-sm font-medium text-surface-700 dark:text-surface-300">
-        {label}
-      </label>
-      <textarea
-        id={id}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        placeholder={placeholder}
-        rows={3}
-        className="w-full rounded-lg border border-surface-200 bg-white px-4 py-3 text-surface-800 placeholder:text-surface-400 transition-all duration-150 hover:border-surface-300 focus:border-sentinel-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-sentinel-100 dark:border-surface-700 dark:bg-surface-800 dark:text-white dark:placeholder:text-surface-500 dark:hover:border-surface-600 dark:focus-visible:ring-sentinel-900"
-      />
-    </div>
-  );
-}
-
-function BackIcon() {
-  return (
-    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-    </svg>
-  );
-}
-
-function ChartIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={1.5}
-        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-      />
-    </svg>
   );
 }
