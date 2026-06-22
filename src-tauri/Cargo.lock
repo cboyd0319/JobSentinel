@@ -3123,7 +3123,7 @@ dependencies = [
  "futures-util",
  "hex",
  "hf-hub",
- "keyring 4.1.1",
+ "keyring 4.1.2",
  "lettre",
  "libsqlite3-sys",
  "objc2",
@@ -3234,9 +3234,9 @@ dependencies = [
 
 [[package]]
 name = "keyring"
-version = "4.1.1"
+version = "4.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4ee5140534876dd3450719b506cfbb77397e640910fc39b6e7011c133291e15a"
+checksum = "8fef88805a7ddbc8f9cf52bfa8dba90b3f80dff23a1e1533cd4f1d8e8d448fc8"
 dependencies = [
  "apple-native-keyring-store",
  "keyring-core",
