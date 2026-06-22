@@ -1,71 +1,21 @@
 // Dashboard - Main job search interface
 // Refactored for v1.5 modularization - uses extracted hooks and components
 
-import {
-  useEffect,
-  useState,
-  useCallback,
-  useRef,
-  lazy,
-  Suspense,
-} from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { listen } from "@tauri-apps/api/event";
-import { Button } from "../components/Button";
-import { Card } from "../components/Card";
-import { Modal, ModalFooter } from "../components/Modal";
-import { default as ModalErrorBoundary } from "../components/ModalErrorBoundary";
-import { default as ComponentErrorBoundary } from "../components/ComponentErrorBoundary";
-import { JobImportModal } from "../components/JobImportModal";
-import { FocusTrap } from "../components/FocusTrap";
 import { DashboardSkeleton } from "../components/Skeleton";
 import { useToast } from "../contexts";
 import { useKeyboardNavigation } from "../hooks/useKeyboardNavigation";
 import { logError } from "../utils/errorUtils";
 import { SCORE_THRESHOLD_GOOD } from "../utils/constants";
 import { notifyScrapingComplete } from "../utils/notifications";
-import {
-  cachedInvoke,
-  invalidateCacheByCommand,
-  safeInvoke,
-} from "../utils/api";
-import { PanelSkeleton, WidgetSkeleton } from "../components/LoadingFallbacks";
+import { cachedInvoke, invalidateCacheByCommand, safeInvoke } from "../utils/api";
 import { isValidJobUrl } from "../utils/urlValidation";
 import { openDeepLink } from "../services/deeplinks";
-import {
-  getDashboardLoadErrorMessage,
-  getDashboardSearchErrorCopy,
-} from "./dashboardErrorCopy";
-
-// Lazy load heavy components to reduce initial bundle size
-const DashboardWidgets = lazy(() =>
-  import("../components/DashboardWidgets").then((m) => ({
-    default: m.DashboardWidgets,
-  })),
-);
-const CompanyResearchPanel = lazy(() =>
-  import("../components/CompanyResearchPanel").then((m) => ({
-    default: m.CompanyResearchPanel,
-  })),
-);
-const Settings = lazy(() => import("./Settings"));
-const LinkedInWorkbench = lazy(() =>
-  import("../components/LinkedInWorkbench").then((m) => ({
-    default: m.LinkedInWorkbench,
-  })),
-);
+import { getDashboardLoadErrorMessage, getDashboardSearchErrorCopy } from "./dashboardErrorCopy";
 
 // Extracted modules
-import type {
-  Job,
-  Statistics,
-  ScrapingStatus,
-  DashboardProps,
-  AutoRefreshConfig,
-  SavedSearch,
-} from "./DashboardTypes";
-import {
-  CheckCircleIcon,
-} from "./DashboardIcons";
+import type { AutoRefreshConfig, DashboardProps, Job, SavedSearch, ScrapingStatus, Statistics } from "./DashboardTypes";
 import { useDashboardFilters } from "./hooks/useDashboardFilters";
 import { useDashboardSearch } from "./hooks/useDashboardSearch";
 import { useDashboardJobOps } from "./hooks/useDashboardJobOps";
@@ -78,7 +28,9 @@ import { DashboardCompareModal } from "./DashboardUI/DashboardCompareModal";
 import { DashboardJobList } from "./DashboardUI/DashboardJobList";
 import { DashboardNotesModal } from "./DashboardUI/DashboardNotesModal";
 import { DashboardSaveSearchModal } from "./DashboardUI/DashboardSaveSearchModal";
-import { DuplicateGroupCard } from "./DashboardUI/DuplicateGroupCard";
+import { DashboardErrorState } from "./DashboardUI/DashboardErrorState";
+import { DashboardCompanyResearchOverlay, DashboardDuplicateGroupsModal, DashboardImportJobModal, DashboardLinkedInWorkbenchModal, DashboardSettingsPanel } from "./DashboardUI/DashboardOverlays";
+import { DashboardWidgetsSection } from "./DashboardUI/DashboardWidgetsSection";
 import { QuickActions } from "./DashboardUI/QuickActions";
 import { getNoJobsEmptyStateCopy } from "./DashboardUI/noJobsEmptyStateCopy";
 
@@ -540,16 +492,7 @@ export default function Dashboard({
 
   // Settings modal
   if (showSettings) {
-    return (
-      <ModalErrorBoundary
-        modalName="settings"
-        onClose={handleSettingsClose}
-      >
-        <Suspense fallback={<PanelSkeleton />}>
-          <Settings onClose={handleSettingsClose} />
-        </Suspense>
-      </ModalErrorBoundary>
-    );
+    return <DashboardSettingsPanel onClose={handleSettingsClose} />;
   }
 
   // Loading state - use skeleton for better perceived performance
@@ -559,20 +502,7 @@ export default function Dashboard({
 
   // Error state
   if (error) {
-    return (
-      <div className="min-h-screen bg-surface-50 dark:bg-surface-900 flex items-center justify-center p-4">
-        <Card className="max-w-md text-center py-8 dark:bg-surface-800">
-          <div className="w-12 h-12 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-red-600 dark:text-red-400 text-xl">!</span>
-          </div>
-          <h2 className="font-display text-display-md text-surface-900 dark:text-white mb-2">
-            JobSentinel needs attention
-          </h2>
-          <p className="text-surface-500 dark:text-surface-400 mb-4">{error}</p>
-          <Button onClick={fetchData}>Try Again</Button>
-        </Card>
-      </div>
-    );
+    return <DashboardErrorState error={error} onRetry={fetchData} />;
   }
 
   const noJobsCopy = getNoJobsEmptyStateCopy(anyJobSourceEnabled);
@@ -595,12 +525,7 @@ export default function Dashboard({
       <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6">
         <DashboardStats statistics={statistics} />
 
-        {/* Analytics Widgets (collapsible, lazy-loaded) */}
-        <ComponentErrorBoundary componentName="DashboardWidgets" silentFail>
-          <Suspense fallback={<WidgetSkeleton />}>
-            <DashboardWidgets className="mb-6" />
-          </Suspense>
-        </ComponentErrorBoundary>
+        <DashboardWidgetsSection />
 
         {/* Quick Actions */}
         <QuickActions
@@ -732,53 +657,13 @@ export default function Dashboard({
         }
       />
 
-      {/* Possible repeats modal */}
-      <Modal
+      <DashboardDuplicateGroupsModal
         isOpen={jobOps.duplicatesModalOpen}
+        duplicateGroups={jobOps.duplicateGroups}
         onClose={() => jobOps.setDuplicatesModalOpen(false)}
-        title="Possible Repeated Jobs"
-      >
-        <div className="space-y-4">
-          {jobOps.duplicateGroups.length === 0 ? (
-            <div className="text-center py-8">
-              <CheckCircleIcon className="w-12 h-12 text-green-500 mx-auto mb-3" />
-              <p className="text-surface-600 dark:text-surface-400">
-                No likely repeated postings found.
-              </p>
-            </div>
-          ) : (
-            <>
-              <p className="text-sm text-surface-600 dark:text-surface-400">
-                Found {jobOps.duplicateGroups.length} possible repeat groups.
-                These are similar saved postings, not proof that multiple
-                sources confirmed the same job. Review before hiding extras.
-              </p>
-              <div className="space-y-4 max-h-96 overflow-y-auto">
-                {jobOps.duplicateGroups.map((group) => (
-                  <DuplicateGroupCard
-                    key={group.primary_id}
-                    group={group}
-                    onMerge={jobOps.handleMergeDuplicates}
-                  />
-                ))}
-              </div>
-              <ModalFooter>
-                <Button
-                  variant="secondary"
-                  onClick={() => jobOps.setDuplicatesModalOpen(false)}
-                >
-                  Close
-                </Button>
-                <Button
-                  onClick={() => jobOps.handleMergeAllDuplicates(fetchData)}
-                >
-                  Hide Extras ({jobOps.duplicateGroups.length})
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </div>
-      </Modal>
+        onMerge={jobOps.handleMergeDuplicates}
+        onMergeAll={() => jobOps.handleMergeAllDuplicates(fetchData)}
+      />
 
       <DashboardCompareModal
         isOpen={jobOps.compareModalOpen}
@@ -786,63 +671,20 @@ export default function Dashboard({
         comparedJobs={jobOps.comparedJobs}
       />
 
-      <Modal
+      <DashboardLinkedInWorkbenchModal
         isOpen={showLinkedInWorkbench}
         onClose={() => setShowLinkedInWorkbench(false)}
-        title="LinkedIn Workbench"
-        description="Use LinkedIn yourself, then save the jobs and actions you choose in JobSentinel."
-        size="xl"
-      >
-        <Suspense fallback={<PanelSkeleton />}>
-          <LinkedInWorkbench />
-        </Suspense>
-      </Modal>
+      />
 
-      {/* Company Research Modal */}
-      {researchCompany && (
-        <div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setResearchCompany(null);
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Escape") setResearchCompany(null);
-          }}
-          role="dialog"
-          aria-modal="true"
-          aria-label={`Company research for ${researchCompany}`}
-        >
-          <FocusTrap>
-            <ComponentErrorBoundary
-              componentName="CompanyResearchPanel"
-              fallback={() => (
-                <div className="p-6 text-center">
-                  <p className="text-red-600 dark:text-red-400 mb-4">
-                    Could not load company research
-                  </p>
-                  <Button onClick={() => setResearchCompany(null)}>
-                    Close
-                  </Button>
-                </div>
-              )}
-            >
-              <Suspense fallback={<PanelSkeleton />}>
-                <CompanyResearchPanel
-                  companyName={researchCompany}
-                  onClose={() => setResearchCompany(null)}
-                />
-              </Suspense>
-            </ComponentErrorBoundary>
-          </FocusTrap>
-        </div>
-      )}
+      <DashboardCompanyResearchOverlay
+        researchCompany={researchCompany}
+        onClose={() => setResearchCompany(null)}
+      />
 
-      {/* Import Job Modal */}
-      <JobImportModal
+      <DashboardImportJobModal
         isOpen={showImportModal}
         onClose={() => setShowImportModal(false)}
         onImportSuccess={() => {
-          // Refresh jobs list after import
           fetchData();
         }}
       />
