@@ -21,7 +21,8 @@ Observed release state on 2026-06-22:
 - GitHub CLI reports `JobSentinel 2.9.0` as latest, published
   `2026-06-20T22:01:56Z`, non-draft, and non-prerelease.
 - Remote tag `v2.9.0` points at `2131beb5`.
-- Package metadata remains `2.9.0` until the actual `v2.9.1` release cut.
+- Local package, Tauri, and Cargo metadata now target `2.9.1`. Public latest
+  remains `v2.9.0` until the `v2.9.1` release is cut and published.
 
 Rule 0 still controls the work: user data stays local unless the user
 explicitly configures an external channel, external AI stays optional and
@@ -38,7 +39,7 @@ UI/UX contracts.
 | Workstream | State | Current focus | Source |
 | ---------- | ----- | ------------- | ------ |
 | Current product and quality work | Active | Maintenance-only v2.9.1 cleanup, docs accuracy, harness health, and regression fixes | [Plan](current-work.md) |
-| v2.9.1 maintenance and repo cleanup | Active | Inventory remaining stale release claims, repo clutter, and confirmed maintenance bugs | [Plan](v2.9.1-maintenance-and-repo-cleanup.md) |
+| v2.9.1 maintenance and repo cleanup | Active | Remaining stale-release doc cleanup, optional confirmed maintenance bugs, and final release-cut review | [Plan](v2.9.1-maintenance-and-repo-cleanup.md) |
 
 ## Current Posture
 
@@ -59,16 +60,21 @@ UI/UX contracts.
   history, added the v2.9.1 maintenance plan, deferred v3 implementation,
   split the near-cap root changelog into release-band archives, and passed
   focused docs, bloat, harness, score, and script-test checks.
+- 2026-06-22 local cleanup also bumped metadata to `2.9.1`, refreshed stable
+  package/crate pins, replaced custom lazy statics with standard lazy
+  initialization, split near-budget tests and mocks, moved production source
+  health checks out of `smoke_tests.rs`, narrowed safe Clippy allowances, split
+  core architecture docs, and passed full frontend, script, build, docs,
+  release-readiness, Clippy, and Rust library checks.
 
 ## Next Best Work
 
-1. Continue the v2.9.1 cleanup checklist by shrinking near-cap tests and mocks,
-   correcting stale release claims, deleting disposable artifacts, and fixing
-   only confirmed maintenance bugs.
+1. Continue the v2.9.1 cleanup checklist with a stale-release-claim sweep,
+   disposable-artifact check, and only confirmed maintenance bug fixes.
 2. Run `npm run harness:plan -- --since origin/main` before each cleanup slice
    and use the smallest matrix-backed checks for touched files.
-3. Defer package version bumps, changelog entries, release notes, and public
-   asset checks until the final `v2.9.1` release cut.
+3. Defer changelog entries, release notes, wiki sync, and public asset checks
+   until the final `v2.9.1` release-cut slice.
 
 ## Completion Bar
 
