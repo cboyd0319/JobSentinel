@@ -204,13 +204,6 @@
       "owner": "v2.9.0-release-prep",
       "reason": "legacy user-data module pending import/export split",
       "follow_up_trigger": "Split this file before increasing its exception limit or making substantial unrelated edits."
-    },
-    {
-      "path": "src-tauri/src/main.rs",
-      "max_lines": 736,
-      "owner": "v2.9.0-release-prep",
-      "reason": "legacy Tauri bootstrap pending command registration split",
-      "follow_up_trigger": "Split this file before increasing its exception limit or making substantial unrelated edits."
     }
   ]
 }

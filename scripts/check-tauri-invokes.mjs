@@ -355,14 +355,18 @@ function collectRegisteredCommands(root) {
 }
 
 function collectRegisteredCommandEntries(root) {
+  const commandRegistryPath = join(root, "src-tauri/src/command_handlers.rs");
   const mainPath = join(root, "src-tauri/src/main.rs");
+  const registryPath = existsSync(commandRegistryPath) ? commandRegistryPath : mainPath;
 
-  if (!existsSync(mainPath)) {
+  if (!existsSync(registryPath)) {
     return null;
   }
 
-  const mainRs = readFileSync(mainPath, "utf8");
-  const generateHandlerMatch = mainRs.match(/tauri::generate_handler!\[\s*([\s\S]*?)\s*\]\)/);
+  const registryRs = readFileSync(registryPath, "utf8");
+  const generateHandlerMatch = registryRs.match(
+    /(?:::)?tauri::generate_handler!\[\s*([\s\S]*?)\s*\]/,
+  );
 
   if (!generateHandlerMatch) {
     return null;

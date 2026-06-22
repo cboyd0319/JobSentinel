@@ -704,10 +704,14 @@ for (const [path, claims] of Object.entries(versionClaims)) {
   }
 }
 
-const mainRs = read("src-tauri/src/main.rs");
-const generateHandlerMatch = mainRs.match(/tauri::generate_handler!\[\s*([\s\S]*?)\s*\]\)/);
+const commandRegistryRs = read("src-tauri/src/command_handlers.rs");
+const generateHandlerMatch = commandRegistryRs.match(
+  /(?:::)?tauri::generate_handler!\[\s*([\s\S]*?)\s*\]/,
+);
 if (!generateHandlerMatch) {
-  errors.push("could not find tauri::generate_handler! block in src-tauri/src/main.rs");
+  errors.push(
+    "could not find tauri::generate_handler! block in src-tauri/src/command_handlers.rs",
+  );
 }
 
 const registeredCommandCount = [

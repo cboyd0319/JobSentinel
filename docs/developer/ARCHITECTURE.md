@@ -458,7 +458,7 @@ See [Application Assist Feature](../features/application-assist.md) for full doc
 ### 2. Commands (`src/commands/`)
 
 Tauri command handlers (RPC interface between React and Rust). The registered
-command list lives in `src-tauri/src/main.rs`; `npm run lint:tauri-invokes`
+command list lives in `src-tauri/src/command_handlers.rs`; `npm run lint:tauri-invokes`
 checks frontend invocations and command-count documentation drift.
 
 **Core Commands:**

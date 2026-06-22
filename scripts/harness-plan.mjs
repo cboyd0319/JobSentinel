@@ -169,6 +169,7 @@ function isPrivacyOrSecurityPath(path) {
 function isTauriInvokePath(path) {
   return (
     path === "src-tauri/src/main.rs" ||
+    path === "src-tauri/src/command_handlers.rs" ||
     path.startsWith("src-tauri/src/commands/") ||
     path === "scripts/check-tauri-invokes.mjs" ||
     path === "scripts/tests/check-tauri-invokes.test.mjs" ||

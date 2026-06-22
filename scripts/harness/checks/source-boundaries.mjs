@@ -67,6 +67,7 @@ const jobsWithGptRequestLedgerPaths = new Set([
   "src-tauri/src/core/health/tracking.rs",
   "src-tauri/src/commands/health.rs",
   "src-tauri/src/core/scheduler/workers/scrapers.rs",
+  "src-tauri/src/command_handlers.rs",
   "src-tauri/src/main.rs",
   "src/pages/SettingsConnectedJobSource.tsx",
   "src/pages/SettingsJobSourcesSection.tsx",
@@ -349,8 +350,12 @@ export function hasJobsWithGptMissingRequestLedger(root, path) {
     return /JobsWithGptScraper::new/.test(text) && !/record_source_request_started/.test(text);
   }
 
-  if (path === "src-tauri/src/main.rs") {
+  if (path === "src-tauri/src/command_handlers.rs") {
     return !/commands::health::get_latest_source_request/.test(text);
+  }
+
+  if (path === "src-tauri/src/main.rs") {
+    return !/command_handlers::jobsentinel_command_handlers!\(\)/.test(text);
   }
 
   if (path === "src/pages/Settings.tsx" || path === "src/pages/SettingsJobSourcesSection.tsx") {

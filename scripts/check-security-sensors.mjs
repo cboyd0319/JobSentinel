@@ -848,11 +848,12 @@ export function checkSecuritySensors(root = defaultRoot) {
     violations.push("src-tauri/tauri.conf.json must be valid JSON for security sensor check");
   }
 
-  const settingsConfig = readIfExists(root, "src/pages/SettingsConfig.ts", violations);
+  const settingsCredentialsPath = join(root, "src/pages/SettingsCredentials.ts");
+  const settingsCredentialValidation = `${readIfExists(root, "src/pages/SettingsConfig.ts", violations)}\n${existsSync(settingsCredentialsPath) ? readFileSync(settingsCredentialsPath, "utf8") : ""}`;
   if (
-    !settingsConfig.includes('state: CredentialStatusState') ||
-    !settingsConfig.includes('credentialExists(credentialStatus, "telegram_bot_token")') ||
-    !settingsConfig.includes('credentialExists(credentialStatus, "usajobs_api_key")')
+    !settingsCredentialValidation.includes('state: CredentialStatusState') ||
+    !settingsCredentialValidation.includes('credentialExists(credentialStatus, "telegram_bot_token")') ||
+    !settingsCredentialValidation.includes('credentialExists(credentialStatus, "usajobs_api_key")')
   ) {
     violations.push(
       "settings credential validation must use explicit credential states and confirmed saved-secret checks",
