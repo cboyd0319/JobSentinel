@@ -9,7 +9,7 @@ Older release notes are snapshots from the date they were written. If an older
 note conflicts with the current README, docs hub, privacy rules, or active
 plans, use the newer maintained source.
 
-The `v2.9.0` release line has a standalone snapshot. The root
+The `v2.9.x` release line has standalone snapshots. The root
 [CHANGELOG](../../CHANGELOG.md) keeps current release history, with older
 detailed entries split into under-cap changelog archives below.
 
@@ -17,6 +17,7 @@ detailed entries split into under-cap changelog archives below.
 
 | Version | Note |
 | --- | --- |
+| v2.9.1 | [Maintenance and repo cleanup release notes](v2.9.1.md) |
 | v2.9.0 | [Job-search readiness release notes](v2.9.0.md) |
 | v2.6.x | [Changelog archive](changelog-v2.6.md) |
 | v2.6.3 | [Security and stability](v2.6.3.md) |

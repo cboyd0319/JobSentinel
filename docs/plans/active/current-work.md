@@ -47,7 +47,7 @@ Out of scope:
 | v3 planning | Deferred | Leave v3 docs available for later major-release work; do not implement during v2.9.1 maintenance. |
 | Scraper/source verification | Maintenance watch | Keep existing source-boundary evidence and restricted-source rules intact; update only for cleanup or regressions. |
 | Locked redesign: Quiet Shield | Maintenance watch | `DESIGN.md`, `docs/design/README.md`, and `docs/design/design-spec.md` remain the active UI contract. |
-| Cleanup and harness | Active | Prefer deletion, consolidation, and focused sensor fixes over new machinery. |
+| Cleanup and harness | Local release prep | Prefer deletion, consolidation, and focused sensor fixes over new machinery. |
 | macOS and Windows readiness | External gaps visible | Keep no-account language accurate; do not claim signed or Gatekeeper-ready distribution without credentials and proof. |
 
 ## Completion Bar
@@ -65,14 +65,12 @@ Out of scope:
 
 ## Next Work
 
-1. Execute the full manual validation ledger for every major page,
-   capability, external channel, source path, privacy guard, and supported
-   platform.
-2. Run focused docs and harness checks before any further cleanup slice.
+1. Run the final local release-readiness gates for `2.9.1`.
+2. Review public wiki sync impact, but do not publish wiki or release assets
+   until the release is cut.
 3. Confirm major route screenshots, Computer Use clicks, keyboard flow, and
    affected route/action/state checks after any UI change.
-4. Keep `v2.9.1` package metadata aligned with release checks; hold changelog,
-   release notes, wiki sync, and public asset checks for the release-cut slice.
+4. Keep public asset checks pending until `v2.9.1` assets exist.
 
 ## Sensors
 

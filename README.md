@@ -14,6 +14,7 @@ Core workflows work locally. JobSentinel is free, will always stay free, and
 will always remain MIT licensed.
 
 [![CI](https://github.com/cboyd0319/JobSentinel/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/cboyd0319/JobSentinel/actions/workflows/ci.yml)
+[![Version](https://img.shields.io/badge/version-2.9.1-2563eb)](docs/releases/v2.9.1.md)
 [![Release](https://img.shields.io/github/v/release/cboyd0319/JobSentinel?label=release&color=2563eb)](https://github.com/cboyd0319/JobSentinel/releases/latest)
 [![MIT License](https://img.shields.io/badge/license-MIT-111827)](LICENSE)
 [![Rule 0](https://img.shields.io/badge/rule%200-privacy%20%26%20security-991b1b)](PRIVACY.md)
@@ -195,7 +196,7 @@ maintenance surfaces.
 - Optional external AI provider configuration for OpenAI, Anthropic, Google
   Gemini, GitHub Copilot, and custom HTTPS providers through the local gateway.
 
-Full notes: [docs/releases/v2.9.0.md](docs/releases/v2.9.0.md).
+Full notes: [docs/releases/v2.9.1.md](docs/releases/v2.9.1.md).
 
 ## Job Source Terms And User Control
 

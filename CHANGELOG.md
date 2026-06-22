@@ -10,6 +10,34 @@ cookie/session storage and automatic account-backed monitoring are disabled.
 Historical entries below may describe removed experiments. The current
 supported path is user-opened search links plus user-clicked Browser Import.
 
+## [2.9.1] - 2026-06-22
+
+Maintenance and repo cleanup release. This patch keeps the `2.9.0` user-facing
+behavior intact while making the repository easier to verify and maintain.
+
+### Changed
+
+- **Dependency maintenance** - Refreshed direct npm and Rust crate pins to
+  current stable versions and kept package, Tauri, and Cargo metadata aligned
+  at `2.9.1`.
+- **Maintainability cleanup** - Replaced custom lazy statics with standard lazy
+  initialization where safe, narrowed Clippy allowances, split oversized tests
+  and mocks, and moved source-health checks into smaller focused modules.
+- **Docs and release state** - Updated maintained docs so `v2.9.1` is clearly a
+  maintenance line without claiming public assets before this patch is cut.
+- **Regression validation** - Added a v2.9.1 regression validation ledger and
+  recorded local browser, frontend, backend, build, docs, bloat, harness, and
+  isolated macOS native startup evidence.
+
+### Fixed
+
+- **Repo clutter and file-size drift** - Removed local disposable artifacts,
+  split near-budget maintained files, and removed obsolete file-size
+  exceptions after the split work.
+- **Release-readiness expectations** - Updated release-readiness tests and
+  active planning docs to target `2.9.1` metadata without claiming public
+  assets before publication.
+
 ## [2.9.0] - 2026-06-20
 
 Job-search readiness release for the full local-first workspace. This release helps users discover, judge, tailor, track, and negotiate job opportunities while keeping sensitive job-search data local by default.

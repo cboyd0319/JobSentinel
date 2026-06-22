@@ -67,22 +67,17 @@ UI/UX contracts.
   core architecture docs, and passed full frontend, script, build, docs,
   release-readiness, Clippy, and Rust library checks.
 - 2026-06-22 stale current-doc release claims were narrowed to the v2.9.1
-  maintenance line or preserved as historical v2.9.0 evidence. The full
-  manual validation ledger is now
-  [`docs/harness/full-manual-validation-v2.9.1.md`](../../harness/full-manual-validation-v2.9.1.md)
-  and remains pending.
+  maintenance line or preserved as historical v2.9.0 evidence. The regression
+  validation ledger now records local browser, frontend, backend, build, docs,
+  bloat, harness, and isolated macOS native startup evidence in
+  [`docs/harness/full-manual-validation-v2.9.1.md`](../../harness/full-manual-validation-v2.9.1.md).
 
 ## Next Best Work
 
-1. Execute
-   [`docs/harness/full-manual-validation-v2.9.1.md`](../../harness/full-manual-validation-v2.9.1.md)
-   across Windows 11, macOS, Linux, every main page, every user-facing
-   capability, external channels, source paths, privacy guards, and supported
-   install/update flows.
-2. Run `npm run harness:plan -- --since origin/main` before each cleanup slice
-   and use the smallest matrix-backed checks for touched files.
-3. Defer changelog entries, release notes, wiki sync, and public asset checks
-   until the final `v2.9.1` release-cut slice.
+1. Run final local `v2.9.1` release-readiness gates after changelog and release
+   notes are staged.
+2. Review public wiki sync impact locally; publish wiki only with the release.
+3. Keep public asset checks pending until `v2.9.1` assets exist.
 
 ## Completion Bar
 
@@ -98,7 +93,7 @@ UI/UX contracts.
   payloads.
 - No known user-facing flow assumes terminal, GitHub, debugging, engineering
   knowledge, or only technical job searches.
-- Full manual validation has current platform evidence or an explicit accepted
-  release hold for every required row in the validation ledger.
+- Cleanup-release regression validation has current local evidence and explicit
+  unclaimed gaps in the validation ledger.
 - Final docs, bloat, security, architecture, frontend, build, Rust, and chosen
   E2E or manual gates pass before any production-ready or release-ready claim.
