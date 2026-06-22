@@ -108,13 +108,6 @@
   ],
   "exceptions": [
     {
-      "path": "CHANGELOG.md",
-      "max_lines": 1991,
-      "owner": "v2.9.0-release-prep",
-      "reason": "release history is intentionally append-only until a changelog archive split",
-      "follow_up_trigger": "Split historical release notes before increasing this exception limit."
-    },
-    {
       "path": "src-tauri/src/commands/automation.rs",
       "max_lines": 906,
       "owner": "v2.9.0-release-prep",

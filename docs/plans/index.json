@@ -21,7 +21,7 @@
       "id": "v2.9.1-maintenance-and-repo-cleanup",
       "path": "docs/plans/active/v2.9.1-maintenance-and-repo-cleanup.md",
       "state": "active",
-      "nextStep": "Finish active-state cleanup, inventory stale v2.9.0 pre-publication claims, and run focused docs/harness gates before any further cleanup slice.",
+      "nextStep": "Continue near-cap repo cleanup, stale release-claim cleanup, and confirmed maintenance fixes without expanding product scope.",
       "verification": "npm run harness:plan -- --since origin/main; npm run harness:check; npm run lint:docs; npm run lint:bloat; npm run harness:score; git diff --check"
     }
   ],

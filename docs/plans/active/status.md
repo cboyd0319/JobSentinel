@@ -56,12 +56,13 @@ UI/UX contracts.
 - all configured source adapters and user-gated restricted-source paths must
   retain focused parser/import/gate coverage before any release-ready claim.
 - 2026-06-22 maintenance kickoff moved the v2.9.0 roadmap to completed
-  history, added the v2.9.1 maintenance plan, deferred v3 implementation, and
-  passed focused docs, bloat, harness, score, and script-test checks.
+  history, added the v2.9.1 maintenance plan, deferred v3 implementation,
+  split the near-cap root changelog into release-band archives, and passed
+  focused docs, bloat, harness, score, and script-test checks.
 
 ## Next Best Work
 
-1. Continue the v2.9.1 cleanup checklist by shrinking duplicate docs,
+1. Continue the v2.9.1 cleanup checklist by shrinking near-cap tests and mocks,
    correcting stale release claims, deleting disposable artifacts, and fixing
    only confirmed maintenance bugs.
 2. Run `npm run harness:plan -- --since origin/main` before each cleanup slice
