@@ -129,13 +129,6 @@
       "follow_up_trigger": "Split this file before increasing its exception limit or making substantial unrelated edits."
     },
     {
-      "path": "src-tauri/src/core/config/types.rs",
-      "max_lines": 766,
-      "owner": "v2.9.0-release-prep",
-      "reason": "legacy config type module pending domain grouping",
-      "follow_up_trigger": "Split this file before increasing its exception limit or making substantial unrelated edits."
-    },
-    {
       "path": "src-tauri/src/core/config/validation.rs",
       "max_lines": 828,
       "owner": "v2.9.0-release-prep",
