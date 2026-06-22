@@ -120,13 +120,6 @@
       "owner": "v2.9.0-release-prep",
       "reason": "legacy command module pending focused resume command extraction",
       "follow_up_trigger": "Split this file before increasing its exception limit or making substantial unrelated edits."
-    },
-    {
-      "path": "src-tauri/src/core/bookmarklet/server.rs",
-      "max_lines": 1021,
-      "owner": "v2.9.0-release-prep",
-      "reason": "legacy bookmarklet server module pending routing and validation split",
-      "follow_up_trigger": "Split this file before increasing its exception limit or making substantial unrelated edits."
     }
   ]
 }
