@@ -136,6 +136,65 @@ test("release readiness rejects release preflight without workflow static analys
   );
 });
 
+test("release readiness rejects unverified GitHub release creation", () => {
+  const inputs = loadReleaseReadinessInputs({ env: {} });
+  const report = evaluateReleaseReadinessFromInputs({
+    ...inputs,
+    releaseWorkflow: inputs.releaseWorkflow.replace("--verify-tag", ""),
+  });
+
+  assert(
+    report.criteria.some(
+      (item) =>
+        item.id === "release workflow creates verified versioned staged release" && !item.ok,
+    ),
+  );
+});
+
+test("release readiness rejects staged release body without versioned release notes", () => {
+  const inputs = loadReleaseReadinessInputs({ env: {} });
+  const report = evaluateReleaseReadinessFromInputs({
+    ...inputs,
+    releaseWorkflow: inputs.releaseWorkflow.replace(
+      'release_notes_path="docs/releases/v${RELEASE_VERSION}.md"',
+      'release_notes_path=""',
+    ),
+  });
+
+  assert(
+    report.criteria.some(
+      (item) =>
+        item.id === "release workflow creates verified versioned staged release" && !item.ok,
+    ),
+  );
+});
+
+test("release readiness rejects staged release notes without create-release checkout", () => {
+  const inputs = loadReleaseReadinessInputs({ env: {} });
+  const createReleaseCheckout = [
+    "",
+    "      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0",
+    "        with:",
+    "          persist-credentials: false",
+    "",
+    "      - name: Create staged release",
+  ].join("\n");
+  const report = evaluateReleaseReadinessFromInputs({
+    ...inputs,
+    releaseWorkflow: inputs.releaseWorkflow.replace(
+      createReleaseCheckout,
+      "\n      - name: Create staged release",
+    ),
+  });
+
+  assert(
+    report.criteria.some(
+      (item) =>
+        item.id === "release workflow creates verified versioned staged release" && !item.ok,
+    ),
+  );
+});
+
 test("release readiness rejects missing Agent Skills archive upload", () => {
   const inputs = loadReleaseReadinessInputs({ env: {} });
   const report = evaluateReleaseReadinessFromInputs({

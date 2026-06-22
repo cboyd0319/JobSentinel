@@ -44,9 +44,11 @@ update path is manual GitHub Releases downloads with matching
 
 ### 1. Prepare and tag
 
-Update the package version, changelog, and release notes as needed, then commit
-and push `main`. Run the local release gate before tagging or uploading
-artifacts:
+Update the package version, changelog, and `docs/releases/vX.Y.Z.md`, then
+commit and push `main`. The hosted release workflow copies that checked-in
+versioned release note into the GitHub Release body and appends package status
+for the installer signing path. Run the local release gate before tagging or
+uploading artifacts:
 
 ```bash
 node scripts/install-pinned-npm.mjs
@@ -76,11 +78,12 @@ git push origin vX.Y.Z
 
 Pushing the tag triggers `release.yml`. The workflow resolves release inputs,
 runs parallel preflight checks, creates a staged release only after those checks
-pass, packages the downloadable Agent Skills archives, builds Windows, macOS,
-and Linux packages, verifies the macOS package before upload, generates
-platform SBOMs, creates GitHub provenance and SBOM attestations, and attaches
-release assets. After all platform upload jobs succeed, the workflow publishes
-the release automatically.
+pass, verifies the release tag before creating a new hosted release, packages
+the downloadable Agent Skills archives, builds Windows, macOS, and Linux
+packages, verifies the macOS package before upload, generates platform SBOMs,
+creates GitHub provenance and SBOM attestations, and attaches release assets.
+After all platform upload jobs succeed, the workflow publishes the release
+automatically.
 
 Manual release dispatch uses the same workflow but must be launched from the
 existing matching `vX.Y.Z` tag ref. If the selected workflow ref is `main`,

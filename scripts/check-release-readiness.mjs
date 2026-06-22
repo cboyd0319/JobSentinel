@@ -11,8 +11,11 @@ import {
 } from "./validate-release-version.mjs";
 import {
   evaluateMacosReadiness,
+  hasOrderedSnippets,
   linuxPackageUploadRequiresVerification,
   noAccountCompletionPercentage,
+  releaseAssetUploadsStayDraft,
+  releasePublishesAfterSuccessfulUploads,
   windowsInstallerUploadRequiresSignatureOrUnsignedLabel,
 } from "./check-macos-readiness.mjs";
 
@@ -128,6 +131,26 @@ export function evaluateReleaseReadinessFromInputs(inputs) {
         "cargo deny check advisories bans licenses sources",
       ]),
       "Release preflight must block on security sensors, workflow static analysis, npm audit, and cargo-deny.",
+    ),
+    criterion(
+      "release workflow creates verified versioned staged release",
+      hasAll(inputs.releaseWorkflow, [
+        "- name: Create staged release",
+        'release_notes_path="docs/releases/v${RELEASE_VERSION}.md"',
+        'cat "$release_notes_path" > "$notes_file"',
+        'gh release create "$RELEASE_TAG"',
+        "--verify-tag",
+        "--notes-file",
+      ]) &&
+        hasOrderedSnippets(inputs.releaseWorkflow, [
+          "create-release:",
+          "- name: Publish release inputs",
+          "- uses: actions/checkout@",
+          "- name: Create staged release",
+        ]) &&
+        releaseAssetUploadsStayDraft(inputs.releaseWorkflow) &&
+        releasePublishesAfterSuccessfulUploads(inputs.releaseWorkflow),
+      "Hosted releases must verify the tag, use checked-in versioned release notes when present, stay draft while assets upload, and publish only after successful uploads.",
     ),
     criterion(
       "Windows public upload is signed or unsigned-labeled and checksum gated",
