@@ -113,13 +113,6 @@
       "owner": "v2.9.0-release-prep",
       "reason": "legacy command module pending focused command-family extraction",
       "follow_up_trigger": "Split this file before increasing its exception limit or making substantial unrelated edits."
-    },
-    {
-      "path": "src-tauri/src/commands/resume.rs",
-      "max_lines": 829,
-      "owner": "v2.9.0-release-prep",
-      "reason": "legacy command module pending focused resume command extraction",
-      "follow_up_trigger": "Split this file before increasing its exception limit or making substantial unrelated edits."
     }
   ]
 }
