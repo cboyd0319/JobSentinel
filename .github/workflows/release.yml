@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Release version or tag, for example 2.9.0 or v2.9.0"
+        description: "Release version or tag, for example 2.9.1 or v2.9.1"
         required: true
         type: string
       platform:

@@ -37,6 +37,9 @@ behavior intact while making the repository easier to verify and maintain.
 - **Release-readiness expectations** - Updated release-readiness tests and
   active planning docs to target `2.9.1` metadata without claiming public
   assets before publication.
+- **Startup keyboard shortcut readiness** - Installed app-wide shortcuts before
+  the visible shell is interactive so keyboard help, command palette, and
+  navigation shortcuts do not miss early key presses during startup.
 
 ## [2.9.0] - 2026-06-20
 

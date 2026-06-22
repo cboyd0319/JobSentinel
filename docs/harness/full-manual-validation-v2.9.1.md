@@ -33,9 +33,9 @@ coverage, or Accepted release hold.
 | Field | Value |
 | ----- | ----- |
 | Validation date | 2026-06-22 |
-| Local commit | `63a1a0ca` |
+| Local commit | Local `v2.9.1` release-prep branch; exact public commit is set when the release tag is cut |
 | Package version | `2.9.1` |
-| Build or installer source | Vite mock app, production frontend build, Rust library tests, and native macOS `tauri dev` smoke from local commit `63a1a0ca`; no native installer, DMG, AppImage, deb, or rpm was generated in this pass |
+| Build or installer source | Vite mock app, production frontend build, Rust library tests, and native macOS `tauri dev` smoke from the local `v2.9.1` release-prep branch; no native installer, DMG, AppImage, deb, or rpm was generated in this pass |
 | Validator | Codex local macOS shell, Playwright run, and isolated Tauri dev smoke |
 | Test data root | Playwright mock fixtures, Vitest fixtures, Rust in-memory/temp data, docs screenshot fixtures, and isolated macOS smoke root under `$TMPDIR/jobsentinel-macos-smoke-*` |
 | Network mode notes | Local Vite server and local tests only. No disposable external notification endpoints, external AI provider keys, live public source checks, restricted-source accounts, or native app package were used. |
@@ -46,13 +46,18 @@ coverage, or Accepted release hold.
 | Check | Result |
 | ----- | ------ |
 | `npm run doctor:e2e` | Pass with two local baseline warnings: Node `26.3.1` is newer than CI `24.17.0`; npm `11.16.0` is below package-manager pin `11.17.0` because CI runs `node scripts/install-pinned-npm.mjs` first |
-| `npm run test:e2e:all:budget` | Pass: 278 expected, 0 unexpected, 0 flaky, 0 skipped; 141284.985 ms / 240000 ms; 278 tests / 320 budget |
+| `npm run test:e2e:all:budget` | Pass after final shortcut timing fix: 278 expected, 0 unexpected, 0 flaky, 0 skipped; 147739.463 ms / 240000 ms; 278 tests / 320 budget |
+| `npm run test:e2e -- tests/e2e/playwright/keyboard-navigation.spec.ts --project=webkit --reporter=line` | Pass: 38 Chromium/WebKit keyboard-navigation tests |
 | `npm run docs:screenshots` | Pass: 9 Chromium screenshots captured; no tracked screenshot changes |
 | `npm run test:run` | Pass: 188 files, 3261 tests |
 | `npm run build` | Pass |
 | `npm run tauri:dev` with isolated macOS smoke root | Pass: native app compiled and launched on macOS 26.5.1, created isolated config/data directories, used smoke-only database key, initialized encrypted SQLite, held scheduler for first-run setup, initialized tray, and reached `JobSentinel initialized successfully` |
 | Smoke-root file permissions | Pass: isolated root, config dir, data dir were `drwx------`; `jobs.db` was `-rw-------`; smoke roots were removed after inspection |
 | `cargo test --manifest-path src-tauri/Cargo.toml --lib` | Pass: 2958 passed, 0 failed, 11 ignored |
+| `npm audit --audit-level=high` | Pass: 0 vulnerabilities |
+| `npm run release:check-deps` | Pass: latest stable direct package, crate, override, tool, and GitHub Actions pins verified |
+| `npm run release:check-env -- --version 2.9.1` | Pass: unsigned Windows and no-account macOS paths available; signed Windows and Gatekeeper-ready macOS remain credential-dependent |
+| `npm run release:readiness -- --version 2.9.1` | Pass |
 | `npm run lint:docs` | Pass |
 | `npm run harness:check` | Pass |
 | `npm run lint:bloat` | Pass |
@@ -111,7 +116,7 @@ Status language below is intentionally strict:
 | Install and launch | Install or run the build, launch twice, close cleanly, reopen with persisted local data, verify app version and no update prompt | Partial: production frontend build, Playwright app launch, and native macOS `tauri dev` startup passed; native package launch remains pending |
 | First-run and empty states | Fresh profile shows understandable empty Dashboard, Applications, Resume, Salary, Market, Application Assist, and Settings states | Pass local: setup wizard, empty/loading/error, and mock route coverage passed through E2E and unit tests |
 | Main navigation | Sidebar buttons and `Cmd/Ctrl+1` through `Cmd/Ctrl+8` reach Dashboard, Applications, Resumes, Salary, Hiring Trends, Application Assist, Resume Builder, and Resume Match | Pass local: full E2E and screenshot pass covered main routes |
-| Keyboard and focus | Tab order, focus outlines, skip-to-content, modals, toasts, and destructive confirmations are keyboard usable | Pass local: keyboard E2E covered shortcuts, skip link, command palette, focus trap, search focus, and help |
+| Keyboard and focus | Tab order, focus outlines, skip-to-content, modals, toasts, and destructive confirmations are keyboard usable | Pass local: final pass fixed an early-startup shortcut timing race; focused Chromium/WebKit keyboard E2E covered shortcuts, skip link, command palette, focus trap, search focus, and help |
 | Responsive view | Major pages fit at narrow width without clipped controls, unreadable tables, or overlapping text | Pass local: responsive E2E and screenshot pass completed with no tracked screenshot changes |
 | Theme and visual state | Light/dark mode, loading skeletons, empty states, error states, disabled controls, badges, and toasts remain legible | Pass local: app shell theme, screenshots, forced-state tests, and docs screenshot pass completed |
 | Dashboard search setup | Create and edit saved searches with title, location, remote mode, pay floor, keywords, source choices, and limits | Partial: setup wizard and dashboard search/filter tests passed; native persistence pass remains pending |

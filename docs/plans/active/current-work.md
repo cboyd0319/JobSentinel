@@ -65,9 +65,9 @@ Out of scope:
 
 ## Next Work
 
-1. Run the final local release-readiness gates for `2.9.1`.
-2. Review public wiki sync impact, but do not publish wiki or release assets
-   until the release is cut.
+1. Publish the local public-wiki draft only with the `v2.9.1` release.
+2. Cut, tag, push, and verify the `v2.9.1` release only when the user approves
+   moving from local prep to publication.
 3. Confirm major route screenshots, Computer Use clicks, keyboard flow, and
    affected route/action/state checks after any UI change.
 4. Keep public asset checks pending until `v2.9.1` assets exist.

@@ -1,7 +1,7 @@
 import {
   useCallback,
   useMemo,
-  useEffect,
+  useLayoutEffect,
   useState,
   type ReactNode,
 } from "react";
@@ -88,7 +88,7 @@ export function KeyboardShortcutsProvider({
   }, []);
 
   // Register default shortcuts
-  useEffect(() => {
+  useLayoutEffect(() => {
     const defaultShortcuts: Shortcut[] = [
       {
         key: "k",
@@ -252,7 +252,7 @@ export function KeyboardShortcutsProvider({
   ]);
 
   // Global keyboard listener
-  useEffect(() => {
+  useLayoutEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       // Don't trigger shortcuts when typing in inputs
       const target = event.target as HTMLElement;

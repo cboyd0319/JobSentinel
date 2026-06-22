@@ -71,12 +71,19 @@ UI/UX contracts.
   validation ledger now records local browser, frontend, backend, build, docs,
   bloat, harness, and isolated macOS native startup evidence in
   [`docs/harness/full-manual-validation-v2.9.1.md`](../../harness/full-manual-validation-v2.9.1.md).
+- 2026-06-22 final local pass found a startup keyboard shortcut timing race in
+  the full E2E budget run. The provider now installs app-wide shortcut
+  registration and listeners before the visible shell is interactive. Focused
+  Chromium/WebKit keyboard E2E and the full E2E budget passed after the fix.
+- 2026-06-22 local public-wiki draft updates were prepared in the sibling wiki
+  checkout for `Home.md` and `Capabilities.md`; do not publish those pages
+  until the `v2.9.1` release is cut.
 
 ## Next Best Work
 
-1. Run final local `v2.9.1` release-readiness gates after changelog and release
-   notes are staged.
-2. Review public wiki sync impact locally; publish wiki only with the release.
+1. Publish the local public-wiki draft only with the `v2.9.1` release.
+2. Cut, tag, push, and verify the `v2.9.1` release only when the user approves
+   moving from local prep to publication.
 3. Keep public asset checks pending until `v2.9.1` assets exist.
 
 ## Completion Bar
