@@ -10,10 +10,10 @@ use crate::core::job_hash::calculate_job_hash;
 use crate::core::url_security::{canonicalize_user_supplied_job_url, sanitize_url_for_logging};
 use anyhow::Result;
 use chrono::{Duration, Utc};
-use once_cell::sync::Lazy;
 use regex::{Captures, Regex};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
+use std::sync::LazyLock;
 use url::Url;
 use uuid::Uuid;
 
@@ -28,13 +28,13 @@ const MAX_NOTE_CHARS: usize = 5_000;
 const SENSITIVE_NOTE_FIELD_REPLACEMENT: &str = "[removed]";
 
 #[allow(clippy::expect_used)]
-static NOTE_URL_REGEX: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r#"https?://[^\s"'<>\\)]+"#).expect("note URL regex must compile"));
+static NOTE_URL_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r#"https?://[^\s"'<>\\)]+"#).expect("note URL regex must compile"));
 #[allow(clippy::expect_used)]
-static LINKEDIN_COOKIE_REGEX: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"li_at=[^\s;]+").expect("LinkedIn cookie regex must compile"));
+static LINKEDIN_COOKIE_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"li_at=[^\s;]+").expect("LinkedIn cookie regex must compile"));
 #[allow(clippy::expect_used)]
-static SENSITIVE_NOTE_FIELD_REGEX: Lazy<Regex> = Lazy::new(|| {
+static SENSITIVE_NOTE_FIELD_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
         r#"(?i)\b(access_token|refresh_token|api[_-]?key|token|secret|password|session|auth|credential)=([^\s&"'<>\\)]+)"#,
     )

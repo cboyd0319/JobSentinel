@@ -11,11 +11,12 @@
 use crate::commands::errors::user_friendly_error;
 use crate::commands::limits::validate_optional_command_limit_usize;
 use crate::commands::AppState;
+#[cfg(test)]
+use crate::core::automation::AutomationStatus;
 use crate::core::automation::{
     ats_detector::AtsDetector,
     profile::{ApplicationProfileInput, ProfileManager, ScreeningAnswer},
     ApplicationAttempt, ApplicationProfile, AtsPlatform, AutomationManager, AutomationStats,
-    AutomationStatus,
 };
 use crate::core::url_security::sanitize_url_for_logging;
 use serde::{Deserialize, Serialize};
@@ -23,7 +24,7 @@ use std::path::Path;
 use tauri::State;
 
 #[path = "automation_browser_commands.rs"]
-mod automation_browser_commands;
+pub mod automation_browser_commands;
 mod profile_resume;
 
 #[cfg(test)]

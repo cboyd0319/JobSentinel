@@ -9,9 +9,8 @@ use crate::core::automation::{
 #[cfg(test)]
 use crate::core::url_security::validate_external_https_url;
 use crate::core::url_security::{sanitize_url_for_logging, validate_external_https_url_for_fetch};
-use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
-use std::sync::Arc;
+use std::sync::{Arc, LazyLock};
 use tauri::State;
 use tokio::sync::Mutex;
 
@@ -22,8 +21,8 @@ const UNSUPPORTED_PREPARE_FORM_TARGET: &str =
     "Prepare Form only works on recognized application sites. Open this page yourself, or apply manually.";
 
 /// Global browser manager instance
-static BROWSER_MANAGER: Lazy<Arc<Mutex<BrowserManager>>> =
-    Lazy::new(|| Arc::new(Mutex::new(BrowserManager::new())));
+static BROWSER_MANAGER: LazyLock<Arc<Mutex<BrowserManager>>> =
+    LazyLock::new(|| Arc::new(Mutex::new(BrowserManager::new())));
 
 /// Launch the browser for form filling
 ///

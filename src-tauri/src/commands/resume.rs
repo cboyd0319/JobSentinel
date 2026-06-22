@@ -25,7 +25,7 @@ pub use resume_builder_commands::{
 };
 
 #[path = "resume_file_commands.rs"]
-mod resume_file_commands;
+pub mod resume_file_commands;
 use resume_file_commands::read_html_resume_source_for_format_review;
 pub use resume_file_commands::{
     delete_resume, import_json_resume, import_json_resume_file, select_and_import_json_resume,

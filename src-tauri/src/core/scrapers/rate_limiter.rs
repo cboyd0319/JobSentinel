@@ -4,12 +4,11 @@
 //! rate limits of job boards.
 
 use std::collections::HashMap;
-use std::sync::Arc;
+use std::sync::{Arc, LazyLock};
 use std::time::{Duration, Instant};
 use tokio::sync::Mutex;
 
-static SHARED_RATE_LIMITER: once_cell::sync::Lazy<RateLimiter> =
-    once_cell::sync::Lazy::new(RateLimiter::new);
+static SHARED_RATE_LIMITER: LazyLock<RateLimiter> = LazyLock::new(RateLimiter::new);
 
 /// Rate limiter using token bucket algorithm
 #[derive(Debug, Clone)]

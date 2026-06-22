@@ -9,9 +9,8 @@
 //! - Thread-safe with async RwLock
 //! - Memory-bounded (max 1000 entries)
 
-use once_cell::sync::Lazy;
 use std::collections::HashMap;
-use std::sync::Arc;
+use std::sync::{Arc, LazyLock};
 use std::time::{Duration, SystemTime};
 use tokio::sync::RwLock;
 
@@ -224,7 +223,7 @@ pub struct ScoreCacheStats {
 }
 
 /// Global cache instance
-static CACHE: Lazy<RwLock<ScoringCache>> = Lazy::new(|| RwLock::new(ScoringCache::new()));
+static CACHE: LazyLock<RwLock<ScoringCache>> = LazyLock::new(|| RwLock::new(ScoringCache::new()));
 
 /// Get cached score if it exists and is fresh
 pub async fn get_cached_score(key: &ScoreCacheKey) -> Option<Arc<JobScore>> {
@@ -270,7 +269,7 @@ mod tests {
     use super::*;
     use tokio::sync::Mutex;
 
-    static TEST_CACHE_LOCK: Lazy<Mutex<()>> = Lazy::new(|| Mutex::new(()));
+    static TEST_CACHE_LOCK: LazyLock<Mutex<()>> = LazyLock::new(|| Mutex::new(()));
 
     #[tokio::test]
     async fn test_cache_miss() {

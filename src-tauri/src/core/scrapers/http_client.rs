@@ -10,6 +10,7 @@ use crate::core::url_security::{
 };
 use anyhow::{Context, Result};
 use reqwest::redirect::Policy;
+use std::sync::OnceLock;
 use std::time::Duration;
 
 pub use crate::core::http_body::{
@@ -32,9 +33,9 @@ pub const DEFAULT_TIMEOUT_SECS: u64 = 30;
 /// - Better performance (no per-request client creation overhead)
 ///
 /// # Safety
-/// Uses OnceCell with fallible initialization to avoid panics on startup.
+/// Uses OnceLock with fallible initialization to avoid panics on startup.
 /// If client creation fails, get_client() will attempt to create a fallback client.
-static SHARED_CLIENT: once_cell::sync::OnceCell<reqwest::Client> = once_cell::sync::OnceCell::new();
+static SHARED_CLIENT: OnceLock<reqwest::Client> = OnceLock::new();
 
 /// Initialize the shared HTTP client
 fn init_shared_client() -> Result<reqwest::Client> {

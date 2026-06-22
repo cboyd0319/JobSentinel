@@ -3129,7 +3129,6 @@ dependencies = [
  "objc2",
  "objc2-foundation",
  "objc2-local-authentication",
- "once_cell",
  "pdf-extract",
  "proptest",
  "quick-xml 0.40.1",

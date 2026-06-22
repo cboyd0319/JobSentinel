@@ -17,18 +17,17 @@ pub use sanitizer::{ConfigSummary, Sanitizer};
 pub use system_info::SystemInfo;
 
 use crate::commands::AppState;
-use once_cell::sync::Lazy;
 use serde::Serialize;
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
-use std::sync::Mutex;
+use std::sync::{LazyLock, Mutex};
 use tauri::{AppHandle, State};
 use tauri_plugin_dialog::DialogExt;
 use tauri_plugin_shell::ShellExt;
 use uuid::Uuid;
 
-static SAVED_FEEDBACK_FILES: Lazy<Mutex<HashMap<String, PathBuf>>> =
-    Lazy::new(|| Mutex::new(HashMap::new()));
+static SAVED_FEEDBACK_FILES: LazyLock<Mutex<HashMap<String, PathBuf>>> =
+    LazyLock::new(|| Mutex::new(HashMap::new()));
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]

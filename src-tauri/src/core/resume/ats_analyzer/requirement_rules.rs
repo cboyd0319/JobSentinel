@@ -1,6 +1,6 @@
 use std::collections::HashSet;
+use std::sync::LazyLock;
 
-use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::Deserialize;
 
@@ -141,7 +141,7 @@ struct CompiledCredentialKeywordGroup {
     requirement_regexes: Vec<(String, Regex)>,
 }
 
-static TAXONOMY: Lazy<ResumeKeywordTaxonomy> = Lazy::new(|| {
+static TAXONOMY: LazyLock<ResumeKeywordTaxonomy> = LazyLock::new(|| {
     let taxonomy: ResumeKeywordTaxonomy = serde_json::from_str(TAXONOMY_JSON)
         .expect("shared resume keyword taxonomy JSON must be valid");
     assert_eq!(
@@ -246,7 +246,7 @@ static TAXONOMY: Lazy<ResumeKeywordTaxonomy> = Lazy::new(|| {
     taxonomy
 });
 
-static PHYSICAL_WEIGHT_RE: Lazy<Regex> = Lazy::new(|| {
+static PHYSICAL_WEIGHT_RE: LazyLock<Regex> = LazyLock::new(|| {
     let rules = &TAXONOMY.physical_weight_requirements;
     let family_pattern = rules
         .families
@@ -261,66 +261,69 @@ static PHYSICAL_WEIGHT_RE: Lazy<Regex> = Lazy::new(|| {
     .expect("shared physical-weight requirement regex must compile")
 });
 
-static PHYSICAL_WEIGHT_FAMILY_REGEXES: Lazy<Vec<CompiledPhysicalWeightFamily>> = Lazy::new(|| {
-    let rules = &TAXONOMY.physical_weight_requirements;
-    rules
-        .families
-        .iter()
-        .map(|family| CompiledPhysicalWeightFamily {
-            regex: Regex::new(&format!(
-                r"(?i)\b{}{}\s+(\d+)\s*{}\b",
-                family.requirement_pattern,
-                rules.optional_amount_prefix_pattern,
-                rules.unit_pattern
-            ))
-            .expect("shared physical-weight family regex must compile"),
-            evidence_prefixes: family.evidence_prefixes.clone(),
-        })
-        .collect()
-});
+static PHYSICAL_WEIGHT_FAMILY_REGEXES: LazyLock<Vec<CompiledPhysicalWeightFamily>> =
+    LazyLock::new(|| {
+        let rules = &TAXONOMY.physical_weight_requirements;
+        rules
+            .families
+            .iter()
+            .map(|family| CompiledPhysicalWeightFamily {
+                regex: Regex::new(&format!(
+                    r"(?i)\b{}{}\s+(\d+)\s*{}\b",
+                    family.requirement_pattern,
+                    rules.optional_amount_prefix_pattern,
+                    rules.unit_pattern
+                ))
+                .expect("shared physical-weight family regex must compile"),
+                evidence_prefixes: family.evidence_prefixes.clone(),
+            })
+            .collect()
+    });
 
-static SUPPLEMENTAL_KEYWORD_GROUPS: Lazy<Vec<CompiledSupplementalKeywordGroup>> = Lazy::new(|| {
-    TAXONOMY
-        .supplemental_keyword_groups
-        .iter()
-        .map(|group| CompiledSupplementalKeywordGroup {
-            canonical: group.canonical.clone(),
-            regexes: group
-                .terms
-                .iter()
-                .map(|term| {
-                    Regex::new(&format!(r"(?i)\b{}\b", literal_term_pattern(term)))
-                        .expect("shared supplemental keyword regex must compile")
-                })
-                .collect(),
-        })
-        .collect()
-});
-
-static CREDENTIAL_KEYWORD_GROUPS: Lazy<Vec<CompiledCredentialKeywordGroup>> = Lazy::new(|| {
-    TAXONOMY
-        .credential_keyword_groups
-        .iter()
-        .map(|group| {
-            let requirement_terms = if group.requirement_terms.is_empty() {
-                std::iter::once(&group.canonical)
-                    .chain(group.terms.iter())
-                    .collect::<Vec<_>>()
-            } else {
-                group.requirement_terms.iter().collect::<Vec<_>>()
-            };
-
-            CompiledCredentialKeywordGroup {
+static SUPPLEMENTAL_KEYWORD_GROUPS: LazyLock<Vec<CompiledSupplementalKeywordGroup>> =
+    LazyLock::new(|| {
+        TAXONOMY
+            .supplemental_keyword_groups
+            .iter()
+            .map(|group| CompiledSupplementalKeywordGroup {
                 canonical: group.canonical.clone(),
-                preserve_requirement_text: group.preserve_requirement_text,
-                requirement_regexes: requirement_terms
-                    .into_iter()
-                    .map(|term| (term.clone(), whole_term_regex(term)))
+                regexes: group
+                    .terms
+                    .iter()
+                    .map(|term| {
+                        Regex::new(&format!(r"(?i)\b{}\b", literal_term_pattern(term)))
+                            .expect("shared supplemental keyword regex must compile")
+                    })
                     .collect(),
-            }
-        })
-        .collect()
-});
+            })
+            .collect()
+    });
+
+static CREDENTIAL_KEYWORD_GROUPS: LazyLock<Vec<CompiledCredentialKeywordGroup>> =
+    LazyLock::new(|| {
+        TAXONOMY
+            .credential_keyword_groups
+            .iter()
+            .map(|group| {
+                let requirement_terms = if group.requirement_terms.is_empty() {
+                    std::iter::once(&group.canonical)
+                        .chain(group.terms.iter())
+                        .collect::<Vec<_>>()
+                } else {
+                    group.requirement_terms.iter().collect::<Vec<_>>()
+                };
+
+                CompiledCredentialKeywordGroup {
+                    canonical: group.canonical.clone(),
+                    preserve_requirement_text: group.preserve_requirement_text,
+                    requirement_regexes: requirement_terms
+                        .into_iter()
+                        .map(|term| (term.clone(), whole_term_regex(term)))
+                        .collect(),
+                }
+            })
+            .collect()
+    });
 
 pub(super) fn extract_physical_weight_keywords(text: &str) -> Vec<String> {
     let mut seen = HashSet::new();

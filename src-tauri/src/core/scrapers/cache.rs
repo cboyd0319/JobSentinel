@@ -9,8 +9,8 @@
 //! - Hit/miss statistics tracking
 //! - Automatic expiration on read
 
-use once_cell::sync::Lazy;
 use std::collections::HashMap;
+use std::sync::LazyLock;
 use std::time::{Duration, SystemTime};
 use tokio::sync::RwLock;
 
@@ -141,7 +141,7 @@ impl ResponseCache {
 }
 
 /// Global cache instance with lazy initialization
-static CACHE: Lazy<RwLock<ResponseCache>> = Lazy::new(|| RwLock::new(ResponseCache::new()));
+static CACHE: LazyLock<RwLock<ResponseCache>> = LazyLock::new(|| RwLock::new(ResponseCache::new()));
 
 /// Get cached response if it exists and is fresh
 ///
@@ -243,7 +243,7 @@ mod tests {
     use tokio::sync::{Mutex, MutexGuard};
     use tokio::time::sleep;
 
-    static TEST_LOCK: Lazy<Mutex<()>> = Lazy::new(|| Mutex::new(()));
+    static TEST_LOCK: LazyLock<Mutex<()>> = LazyLock::new(|| Mutex::new(()));
 
     async fn reset_cache_for_test() -> MutexGuard<'static, ()> {
         let guard = TEST_LOCK.lock().await;

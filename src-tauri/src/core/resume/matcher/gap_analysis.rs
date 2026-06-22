@@ -1,5 +1,6 @@
 use super::{EducationRequirement, ExperienceRequirement};
 
+#[cfg(test)]
 pub(super) fn generate_gap_analysis(
     matching_skills: &[String],
     missing_skills: &[String],

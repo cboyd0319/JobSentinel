@@ -4,10 +4,9 @@
 //! Only logs action types and outcomes - NEVER content (job titles, companies, etc.)
 
 use chrono::{DateTime, Utc};
-use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 use std::collections::VecDeque;
-use std::sync::RwLock;
+use std::sync::{LazyLock, RwLock};
 
 use super::sanitizer::Sanitizer;
 
@@ -141,7 +140,8 @@ impl Default for DebugLogBuffer {
 }
 
 // Global debug log buffer (thread-safe)
-static DEBUG_LOG: Lazy<RwLock<DebugLogBuffer>> = Lazy::new(|| RwLock::new(DebugLogBuffer::new()));
+static DEBUG_LOG: LazyLock<RwLock<DebugLogBuffer>> =
+    LazyLock::new(|| RwLock::new(DebugLogBuffer::new()));
 
 /// Log an event to the global debug buffer
 ///

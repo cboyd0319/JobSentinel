@@ -1,12 +1,13 @@
 #![allow(clippy::expect_used)] // Embedded taxonomy data must fail fast.
 
-use once_cell::sync::Lazy;
 use serde::Deserialize;
+use std::sync::LazyLock;
 
 const RESUME_FORMAT_TAXONOMY_JSON: &str =
     include_str!("../../../../src/shared/resumeFormatTaxonomy.json");
 
-static RESUME_FORMAT_TAXONOMY: Lazy<ResumeFormatTaxonomy> = Lazy::new(load_resume_format_taxonomy);
+static RESUME_FORMAT_TAXONOMY: LazyLock<ResumeFormatTaxonomy> =
+    LazyLock::new(load_resume_format_taxonomy);
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]

@@ -3,20 +3,20 @@
 //! CRITICAL: This is a PUBLIC repository. Every log, every debug event, every error message
 //! goes through this sanitizer before being shown to users or included in feedback reports.
 
-use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::Serialize;
+use std::sync::LazyLock;
 
 // Unix home paths are reduced to /[USER_PATH]/...
 #[allow(clippy::expect_used)]
-static PATH_REGEX: Lazy<Regex> = Lazy::new(|| {
+static PATH_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"/(Users|home)/[^/\s]+")
         .expect("Unix path regex pattern is valid and should compile")
 });
 
 // Windows home paths are reduced to C:\[USER_PATH]\...
 #[allow(clippy::expect_used)]
-static WINDOWS_PATH_REGEX: Lazy<Regex> = Lazy::new(|| {
+static WINDOWS_PATH_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"[A-Za-z]:\\Users\\[^\\]+")
         .expect("Windows path regex pattern is valid and should compile")
 });
@@ -24,7 +24,7 @@ static WINDOWS_PATH_REGEX: Lazy<Regex> = Lazy::new(|| {
 // Non-home local paths can still contain user-specific temp, container, or
 // mounted-volume details.
 #[allow(clippy::expect_used)]
-static LOCAL_UNIX_PATH_REGEX: Lazy<Regex> = Lazy::new(|| {
+static LOCAL_UNIX_PATH_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r#"/(?:private/var|var/folders|tmp|var/tmp|run/user|Volumes)/[^\s"'<>\\)]+"#)
         .expect("Local Unix path regex pattern is valid and should compile")
 });
@@ -32,7 +32,7 @@ static LOCAL_UNIX_PATH_REGEX: Lazy<Regex> = Lazy::new(|| {
 // Non-home Windows paths can include temp folders, alternate drives, or
 // user-created folders with private job-search file names.
 #[allow(clippy::expect_used)]
-static LOCAL_WINDOWS_PATH_REGEX: Lazy<Regex> = Lazy::new(|| {
+static LOCAL_WINDOWS_PATH_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
         r#"[A-Za-z]:\\(?:(?:Temp|Windows\\Temp|ProgramData)(?:\\[A-Za-z0-9._ -]+)*|(?:[A-Za-z0-9._ -]+\\)+[A-Za-z0-9._ -]+)"#,
     )
@@ -41,14 +41,14 @@ static LOCAL_WINDOWS_PATH_REGEX: Lazy<Regex> = Lazy::new(|| {
 
 // Emails: john@example.com → [EMAIL]
 #[allow(clippy::expect_used)]
-static EMAIL_REGEX: Lazy<Regex> = Lazy::new(|| {
+static EMAIL_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}")
         .expect("Email address regex pattern is valid and should compile")
 });
 
 // Phone numbers: common North American formats → [PHONE]
 #[allow(clippy::expect_used)]
-static PHONE_REGEX: Lazy<Regex> = Lazy::new(|| {
+static PHONE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
         r"(?:\+?1[\s.-]?)?(?:\([2-9][0-9]{2}\)|[2-9][0-9]{2})[\s.-]?[2-9][0-9]{2}[\s.-]?[0-9]{4}\b",
     )
@@ -57,7 +57,7 @@ static PHONE_REGEX: Lazy<Regex> = Lazy::new(|| {
 
 // Webhooks: provider URL → [WEBHOOK_CONFIGURED]
 #[allow(clippy::expect_used)]
-static WEBHOOK_REGEX: Lazy<Regex> = Lazy::new(|| {
+static WEBHOOK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
         r#"https://(?:hooks\.slack\.com|discord(?:app)?\.com/api/webhooks|outlook\.office(?:365)?\.com/webhook|(?:[a-z0-9-]+\.)+webhook\.office\.com|(?:[a-z0-9-]+\.)+logic\.azure\.com|hooks\.discord\.com/api/webhooks|hooks\.teams\.com/workflows)[^\s"'<>\\)]*"#,
     )
@@ -66,13 +66,13 @@ static WEBHOOK_REGEX: Lazy<Regex> = Lazy::new(|| {
 
 // LinkedIn cookies: li_at=AQEDARa... → li_at=[REDACTED]
 #[allow(clippy::expect_used)]
-static LINKEDIN_COOKIE_REGEX: Lazy<Regex> = Lazy::new(|| {
+static LINKEDIN_COOKIE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"li_at=[^\s;]+").expect("LinkedIn cookie regex pattern is valid and should compile")
 });
 
 // API tokens: Bearer eyJ..., token=..., access_token=..., or JSON/header token fields → [TOKEN]
 #[allow(clippy::expect_used)]
-static TOKEN_REGEX: Lazy<Regex> = Lazy::new(|| {
+static TOKEN_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
         r#"(?i)(Bearer\s+[^\s"'<>]+|(?:access_token|refresh_token|api[_-]?key|token|secret|password|x-jobsentinel-token)=[^\s&"'<>\\)]+|["']?(?:access_token|refresh_token|api[_-]?key|token|secret|password|x-jobsentinel-token)["']?\s*:\s*["'][^"']+["']|(?:token|secret|password)\s+[^\s"'<>]+)"#,
     )
@@ -81,13 +81,13 @@ static TOKEN_REGEX: Lazy<Regex> = Lazy::new(|| {
 
 // Generic URLs can contain job-search details or query secrets → [URL]
 #[allow(clippy::expect_used)]
-static URL_REGEX: Lazy<Regex> = Lazy::new(|| {
+static URL_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r#"https?://[^\s"'<>\\)]+"#).expect("URL regex pattern is valid and should compile")
 });
 
 // IP addresses: 192.168.1.1 → [IP_ADDRESS]
 #[allow(clippy::expect_used)]
-static IP_REGEX: Lazy<Regex> = Lazy::new(|| {
+static IP_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b")
         .expect("IP address regex pattern is valid and should compile")
 });
@@ -95,7 +95,7 @@ static IP_REGEX: Lazy<Regex> = Lazy::new(|| {
 // Sensitive job-search context entered as free text. Support reports should
 // keep the label but remove the user's private content.
 #[allow(clippy::expect_used)]
-static JOB_SEARCH_LABELED_CONTEXT_REGEX: Lazy<Regex> = Lazy::new(|| {
+static JOB_SEARCH_LABELED_CONTEXT_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
         r"(?im)\b((?:salary|compensation|pay)[ _-]?(?:floor|expectation|target|range|requirement)|expected salary|desired salary|resume(?:[ _-]?(?:text|data|content|summary|excerpt))?|cover[ _-]?letter(?:[ _-]?(?:text|data|content|summary|excerpt))?|private[ _-]?notes?|application[ _-]?(?:history|notes?)|screening[ _-]?(?:questions?|answers?)|question[ _-]?text|answer[ _-]?text|location[ _-]?preferences?|career[ _-]?goals?|personal[ _-]?circumstances?|(?:full|candidate|applicant|user|your)[ _-]?name)\s*[:=]\s*[^\r\n]+",
     )
@@ -103,7 +103,7 @@ static JOB_SEARCH_LABELED_CONTEXT_REGEX: Lazy<Regex> = Lazy::new(|| {
 });
 
 #[allow(clippy::expect_used)]
-static JOB_SEARCH_STATEMENT_CONTEXT_REGEX: Lazy<Regex> = Lazy::new(|| {
+static JOB_SEARCH_STATEMENT_CONTEXT_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
         r"(?im)\b((?:my\s+)?(?:salary|compensation|pay)\s+(?:floor|expectation|target|range|requirement)|expected salary|desired salary|private note|application note|screening answer|location preference|career goal|personal circumstance)\s+(?:is|are|was|were)\s+[^\r\n]+",
     )
@@ -111,13 +111,13 @@ static JOB_SEARCH_STATEMENT_CONTEXT_REGEX: Lazy<Regex> = Lazy::new(|| {
 });
 
 #[allow(clippy::expect_used)]
-static PERSON_NAME_STATEMENT_REGEX: Lazy<Regex> = Lazy::new(|| {
+static PERSON_NAME_STATEMENT_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"(?im)\b((?:my|candidate|applicant|user)\s+name)\s+(?:is|was)\s+[^\r\n]+")
         .expect("Person-name statement regex pattern is valid and should compile")
 });
 
 #[allow(clippy::expect_used)]
-static JOB_SEARCH_NARRATIVE_CONTEXT_REGEX: Lazy<Regex> = Lazy::new(|| {
+static JOB_SEARCH_NARRATIVE_CONTEXT_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
         r"(?im)\b((?:while\s+)?(?:applying|applied|interviewing|interviewed|negotiating|rejected|offer(?:ed)?|laid off|layoff|unemployed|employment gap|resume gap|job search urgency)\b[^\r\n]*)",
     )
@@ -126,12 +126,12 @@ static JOB_SEARCH_NARRATIVE_CONTEXT_REGEX: Lazy<Regex> = Lazy::new(|| {
 
 // Quoted strings (might be job titles or company names)
 #[allow(clippy::expect_used)]
-static QUOTED_STRING_REGEX: Lazy<Regex> = Lazy::new(|| {
+static QUOTED_STRING_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r#""[^"]+""#)
         .expect("Double-quoted string regex pattern is valid and should compile")
 });
 #[allow(clippy::expect_used)]
-static SINGLE_QUOTED_REGEX: Lazy<Regex> = Lazy::new(|| {
+static SINGLE_QUOTED_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"'[^']+'").expect("Single-quoted string regex pattern is valid and should compile")
 });
 
