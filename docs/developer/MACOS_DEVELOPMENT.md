@@ -231,8 +231,7 @@ harness, package-verification, checksum, and public-artifact verification gates
 before users should treat the DMG as current. Hosted release CI is preferred
 for public releases because it also creates SBOM and provenance attestations.
 
-After publishing a current `2.9.0` or newer release, verify the downloaded
-public artifact too:
+After publishing a current release, verify the downloaded public artifact too:
 
 ```bash
 npm run tauri:verify:macos:latest
@@ -247,14 +246,14 @@ owner-only database permissions during launch smoke. Use
 `--no-require-supply-chain` only for older releases that predate hosted SBOM
 and attestation assets.
 
-The current complete local universal DMG smoke on 2026-06-18 verified
+The complete local universal DMG smoke on 2026-06-18 verified
 `JobSentinel_2.9.0_no-account_universal.dmg`, checked the matching
 `.dmg.sha256`, confirmed the app binary contains both `x86_64` and `arm64`,
 verified the mounted and copied app signatures, and kept both mounted and
 installed app launches running for 12 seconds with on-screen app views and
 empty stderr. Both launches created an isolated macOS data directory and
 `jobs.db` with owner-only local-data permissions. That evidence proves the
-current `2.9.0` no-account local packaging path before public upload.
+`2.9.0` no-account local packaging path before public upload.
 
 Because the no-account package uses an ad-hoc signature, Gatekeeper assessment
 rejects the `.app` and `.dmg`. Gatekeeper rejection remains expected for

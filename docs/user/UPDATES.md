@@ -1,7 +1,7 @@
 # Updating Or Going Back
 
-JobSentinel does not update itself silently in `2.9.0`. Updating is manual so
-you choose when to replace the app and can check the download first.
+JobSentinel does not update itself silently. Updating is manual so you choose
+when to replace the app and can check the download first.
 
 ## Before Updating
 
@@ -49,7 +49,7 @@ The command should report `OK`.
 Open PowerShell in the folder containing the installer and run:
 
 ```powershell
-Get-FileHash .\JobSentinel_2.9.0_x64-setup_unsigned.exe -Algorithm SHA256
+Get-FileHash .\JobSentinel_X.Y.Z_x64-setup_unsigned.exe -Algorithm SHA256
 ```
 
 Compare the `Hash` value to the text inside the matching `.sha256` file. They
@@ -88,5 +88,5 @@ applications, notes, settings, and local records.
 
 - It will not install updates in the background.
 - It will not replace the app without your action.
-- It will not use a separate update server in `2.9.0`.
+- It will not use a separate update server.
 - It will not send your local job-search data anywhere during an update.

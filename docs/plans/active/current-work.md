@@ -25,8 +25,8 @@ In scope:
 - Harness, script, test, dependency-pin, and release metadata fixes when they
   keep current behavior verifiable.
 - Small confirmed bug fixes with focused tests.
-- Final `v2.9.1` version metadata, changelog, release notes, and release gates
-  when the maintenance checklist is closed.
+- Final `v2.9.1` changelog, release notes, public asset checks, and release
+  gates when the maintenance checklist is closed.
 
 Out of scope:
 
@@ -65,13 +65,14 @@ Out of scope:
 
 ## Next Work
 
-1. Inventory remaining stale v2.9.0 pre-publication claims in maintained docs
-   and either update them, move them to completed history, or record why they
-   are valid release evidence.
+1. Execute the full manual validation ledger for every major page,
+   capability, external channel, source path, privacy guard, and supported
+   platform.
 2. Run focused docs and harness checks before any further cleanup slice.
 3. Confirm major route screenshots, Computer Use clicks, keyboard flow, and
    affected route/action/state checks after any UI change.
-4. Keep package metadata at `2.9.0` until the release-cut slice for `v2.9.1`.
+4. Keep `v2.9.1` package metadata aligned with release checks; hold changelog,
+   release notes, wiki sync, and public asset checks for the release-cut slice.
 
 ## Sensors
 

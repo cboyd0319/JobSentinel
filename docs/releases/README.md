@@ -9,7 +9,7 @@ Older release notes are snapshots from the date they were written. If an older
 note conflicts with the current README, docs hub, privacy rules, or active
 plans, use the newer maintained source.
 
-The current `v2.9.0` release line has a standalone snapshot. The root
+The `v2.9.0` release line has a standalone snapshot. The root
 [CHANGELOG](../../CHANGELOG.md) keeps current release history, with older
 detailed entries split into under-cap changelog archives below.
 

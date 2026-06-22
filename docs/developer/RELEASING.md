@@ -34,10 +34,11 @@ or get an explicit rescoped release decision from the user. The package version
 can be staged locally while the checklist remains open, but release publication
 cannot start.
 
-JobSentinel does not use Tauri's updater plugin in `2.9.0`: there is no
+JobSentinel does not use Tauri's updater plugin in the current release line:
+there is no
 `tauri-plugin-updater` dependency, no updater public key, no updater endpoint,
 and no updater artifact setting in `src-tauri/tauri.conf.json`. The supported
-`2.9.0` update path is manual GitHub Releases downloads with matching
+update path is manual GitHub Releases downloads with matching
 `.sha256` checksums and the user rollback guide in
 [`docs/user/UPDATES.md`](../user/UPDATES.md).
 

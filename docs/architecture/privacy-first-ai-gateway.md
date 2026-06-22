@@ -133,14 +133,14 @@ external AI provider APIs outside this gateway.
 
 ## Current Status And Release Contract
 
-Release status for `2.9.0`: Settings can configure optional outside-AI
-providers, provider preference order, per-provider model names, and provider
-keys through `CredentialService`. Provider keys stay in the local secure vault,
-not in settings backups. The first user-facing provider path is public job
-posting summary from a job card. It is optional, public-data-only, previewed,
-editable, cancellable, and backend-validated before provider transport.
-Metadata-only request history is viewable in Settings and does not store the
-reviewed payload.
+Release status for the current maintenance line: Settings can configure
+optional outside-AI providers, provider preference order, per-provider model
+names, and provider keys through `CredentialService`. Provider keys stay in the
+local secure vault, not in settings backups. The first user-facing provider
+path is public job posting summary from a job card. It is optional,
+public-data-only, previewed, editable, cancellable, and backend-validated
+before provider transport. Metadata-only request history is viewable in
+Settings and does not store the reviewed payload.
 
 Implemented now:
 
@@ -171,13 +171,14 @@ Release contract for shipped external AI features:
 - Every shipped production `ExternalAiRequest.feature` value must be listed in
   `docs/harness/feature-privacy-labels.json` with local fallback guidance and
   an external-AI label when it can call a provider.
-- The only shipped provider-backed UI action in `2.9.0` is
+- The only shipped provider-backed UI action is
   `job-description-summary`, a public-data-only job-card action that can still
   fall back to local job-card details, local fit signals, posting-risk cues, and
   extracted public fields.
-- No private-data external AI feature ships in `2.9.0`. A future private-data
-  feature must add feature-specific payload minimization, privacy labels,
-  backend validation, preview, edit, cancel, approval, redaction, and
-  metadata-only request-history coverage before it becomes available.
+- No private-data external AI feature ships in the current maintenance line. A
+  future private-data feature must add feature-specific payload minimization,
+  privacy labels, backend validation, preview, edit, cancel, approval,
+  redaction, and metadata-only request-history coverage before it becomes
+  available.
 - Sensitive payload opt-in stays off unless a future feature has the same
   reviewed gateway path and focused tests.

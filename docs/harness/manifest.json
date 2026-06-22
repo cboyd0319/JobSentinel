@@ -23,6 +23,7 @@
     "docs/harness/archive/five-tuple-scorecard-2026-06-01.md",
     "docs/harness/feature-privacy-labels.json",
     "docs/harness/verification-matrix.md",
+    "docs/harness/full-manual-validation-v2.9.1.md",
     "docs/harness/archive/walkinglabs-harness-creator-skill-evaluation.md",
     "docs/harness/archive/walkinglabs-lecture-02-evaluation.md",
     "docs/harness/entropy-control.md",
@@ -159,6 +160,11 @@
       "Restricted-source job sites",
       "all configured source adapters and user-gated restricted-source paths",
       "Public GitHub wiki-impacting change"
+    ],
+    "docs/harness/full-manual-validation-v2.9.1.md": [
+      "Every major page and user-facing capability must have manual evidence",
+      "Restricted-source checks remain user-directed",
+      "No release-ready claim is valid until every required row is Pass or Accepted release hold"
     ],
     "docs/harness/source-debug-verification-v2.9.0.md": [
       "Before release, every source path must be one of these:",

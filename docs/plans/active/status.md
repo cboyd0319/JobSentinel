@@ -66,11 +66,19 @@ UI/UX contracts.
   health checks out of `smoke_tests.rs`, narrowed safe Clippy allowances, split
   core architecture docs, and passed full frontend, script, build, docs,
   release-readiness, Clippy, and Rust library checks.
+- 2026-06-22 stale current-doc release claims were narrowed to the v2.9.1
+  maintenance line or preserved as historical v2.9.0 evidence. The full
+  manual validation ledger is now
+  [`docs/harness/full-manual-validation-v2.9.1.md`](../../harness/full-manual-validation-v2.9.1.md)
+  and remains pending.
 
 ## Next Best Work
 
-1. Continue the v2.9.1 cleanup checklist with a stale-release-claim sweep,
-   disposable-artifact check, and only confirmed maintenance bug fixes.
+1. Execute
+   [`docs/harness/full-manual-validation-v2.9.1.md`](../../harness/full-manual-validation-v2.9.1.md)
+   across Windows 11, macOS, Linux, every main page, every user-facing
+   capability, external channels, source paths, privacy guards, and supported
+   install/update flows.
 2. Run `npm run harness:plan -- --since origin/main` before each cleanup slice
    and use the smallest matrix-backed checks for touched files.
 3. Defer changelog entries, release notes, wiki sync, and public asset checks
@@ -90,5 +98,7 @@ UI/UX contracts.
   payloads.
 - No known user-facing flow assumes terminal, GitHub, debugging, engineering
   knowledge, or only technical job searches.
+- Full manual validation has current platform evidence or an explicit accepted
+  release hold for every required row in the validation ledger.
 - Final docs, bloat, security, architecture, frontend, build, Rust, and chosen
   E2E or manual gates pass before any production-ready or release-ready claim.

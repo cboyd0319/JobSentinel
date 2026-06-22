@@ -1,10 +1,12 @@
 # Features And Capabilities
 
-Last reviewed: 2026-06-20.
+Last reviewed: 2026-06-22.
 
 This page is the single maintained map of what JobSentinel can do in the
-`2.9.0` release line. Detailed behavior stays in the linked feature, security,
-architecture, research, and harness docs.
+current maintenance line. `v2.9.1` preserves the published `v2.9.0` behavior
+unless a maintenance cleanup or confirmed regression fix says otherwise.
+Detailed behavior stays in the linked feature, security, architecture,
+research, and harness docs.
 
 JobSentinel is a local-first job-search workspace. It helps users find,
 review, compare, track, and prepare for jobs while keeping sensitive
@@ -26,7 +28,7 @@ account, telemetry, cloud sync, or external AI provider.
 
 ## Under-The-Hood Highlights
 
-| Mechanic | What ships in `2.9.0` |
+| Mechanic | Current behavior |
 | --- | --- |
 | Source taxonomy and routing | Public feeds, employer career pages, ATS families, regional boards, public boards, restricted sources, search links, Browser Import, and manual paths are treated as distinct source classes. |
 | Restricted-source Workbench | Sign-in-backed sources stay user-started and visible, with acknowledgement, local ledger actions, visible-job import, and no stored session material. |
@@ -41,7 +43,7 @@ account, telemetry, cloud sync, or external AI provider.
 
 | Item | Current state |
 | ---- | ------------- |
-| Release status | `2.9.0` source, package, and public-artifact verification line |
+| Release status | `v2.9.1` maintenance metadata is local; public latest remains `v2.9.0` until release publication |
 | Primary platforms | Windows 11+, macOS, and Linux |
 | Default data model | Local SQLite and local settings |
 | Telemetry | None |
@@ -167,24 +169,24 @@ new provider behavior must update that index and pass `npm run harness:check`.
 | Sensitive | The workflow may involve resumes, salary floors, private notes, application history, career goals, or location preferences. |
 | Public-data only | The workflow uses public job-posting content or public metadata only. |
 | External AI optional | The user may choose an external provider, but the local path remains available. |
-| External AI required | The feature needs a provider call and must require explicit opt-in. No shipped `2.9.0` user-facing feature should use this label without a new reviewed contract. |
+| External AI required | The feature needs a provider call and must require explicit opt-in. No shipped user-facing feature should use this label without a new reviewed contract. |
 
-## What External AI Can Do In v2.9.0
+## What External AI Can Do
 
 External AI is optional and disabled by default. Users can configure OpenAI,
 Anthropic, Google Gemini, GitHub Copilot, or a custom HTTPS provider. Provider
 keys stay in the local secure vault. Users can configure more than one provider
 and set preference order and model names.
 
-The shipped provider-backed UI action in `2.9.0` is public job-posting summary
-from a job card. It uses reviewed public posting fields only, after preview,
-edit, cancel, approval, redaction, and backend validation. Metadata-only
-request history is stored locally.
+The shipped provider-backed UI action remains public job-posting summary from a
+job card. It uses reviewed public posting fields only, after preview, edit,
+cancel, approval, redaction, and backend validation. Metadata-only request
+history is stored locally.
 
-No private-data external AI feature ships in `2.9.0`. Any future resume,
-salary-floor, private-note, or application-history send needs feature-specific
-payload minimization, privacy labels, backend validation, preview, edit,
-cancel, approval, redaction, and tests before it can be enabled.
+No private-data external AI feature ships in the current maintenance line. Any
+future resume, salary-floor, private-note, or application-history send needs
+feature-specific payload minimization, privacy labels, backend validation,
+preview, edit, cancel, approval, redaction, and tests before it can be enabled.
 
 ## What JobSentinel Does Not Do
 
