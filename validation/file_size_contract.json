@@ -106,13 +106,5 @@
     "src-tauri/gen/**",
     "docs/plans/archive/**"
   ],
-  "exceptions": [
-    {
-      "path": "src-tauri/src/commands/automation.rs",
-      "max_lines": 906,
-      "owner": "v2.9.0-release-prep",
-      "reason": "legacy command module pending focused command-family extraction",
-      "follow_up_trigger": "Split this file before increasing its exception limit or making substantial unrelated edits."
-    }
-  ]
+  "exceptions": []
 }
