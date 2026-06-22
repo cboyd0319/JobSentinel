@@ -3,8 +3,6 @@ import {
   useEffect,
   useCallback,
   useMemo,
-  useRef,
-  type KeyboardEvent as ReactKeyboardEvent,
 } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { Button } from "../components/Button";
@@ -51,18 +49,13 @@ import {
 import { useSettingsCredentials } from "./useSettingsCredentials";
 import { useSettingsSupportReports } from "./useSettingsSupportReports";
 import { useSettingsLocalDataBackup } from "./useSettingsLocalDataBackup";
+import { useSettingsSearchPreferenceInputs } from "./useSettingsSearchPreferenceInputs";
+import { SettingsTabs } from "./SettingsTabs";
 
 export default function Settings({ onClose }: SettingsProps) {
   const [config, setConfig] = useState<Config | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [titleInput, setTitleInput] = useState("");
-  const [blockedTitleInput, setBlockedTitleInput] = useState("");
-  const [skillInput, setSkillInput] = useState("");
-  const [excludeKeywordInput, setExcludeKeywordInput] = useState("");
-  const [cityInput, setCityInput] = useState("");
-  const [whitelistCompanyInput, setWhitelistCompanyInput] = useState("");
-  const [blacklistCompanyInput, setBlacklistCompanyInput] = useState("");
   const [showHealthDashboard, setShowHealthDashboard] = useState(false);
   const [ghostConfig, setGhostConfig] = useState<GhostConfig | null>(null);
   const [ghostConfigLoading, setGhostConfigLoading] = useState(false);
@@ -71,10 +64,6 @@ export default function Settings({ onClose }: SettingsProps) {
   const [showJobsWithGptEndpoint, setShowJobsWithGptEndpoint] = useState(false);
   const [ghostPreset, setGhostPreset] = useState<GhostPresetSelection>("balanced");
   const [activeTab, setActiveTab] = useState<"basic" | "advanced">("basic");
-  const settingsTabRefs = useRef<Record<"basic" | "advanced", HTMLButtonElement | null>>({
-    basic: null,
-    advanced: null,
-  });
   const toast = useToast();
   const {
     error: toastError,
@@ -111,40 +100,42 @@ export default function Settings({ onClose }: SettingsProps) {
     () => readCachedDetectedLocation(),
   );
   const [isDetectingLocation, setIsDetectingLocation] = useState(false);
-
-  const focusSettingsTab = useCallback((tab: "basic" | "advanced") => {
-    setActiveTab(tab);
-    requestAnimationFrame(() => settingsTabRefs.current[tab]?.focus());
-  }, []);
-
-  const handleSettingsTabKeyDown = useCallback(
-    (event: ReactKeyboardEvent<HTMLButtonElement>, currentTab: "basic" | "advanced") => {
-      const orderedTabs = ["basic", "advanced"] as const;
-      const currentIndex = orderedTabs.indexOf(currentTab);
-      const nextTab = (() => {
-        switch (event.key) {
-          case "ArrowLeft":
-          case "ArrowUp":
-            return orderedTabs[(currentIndex - 1 + orderedTabs.length) % orderedTabs.length];
-          case "ArrowRight":
-          case "ArrowDown":
-            return orderedTabs[(currentIndex + 1) % orderedTabs.length];
-          case "Home":
-            return orderedTabs[0];
-          case "End":
-            return orderedTabs[orderedTabs.length - 1];
-          default:
-            return null;
-        }
-      })();
-
-      if (!nextTab) return;
-
-      event.preventDefault();
-      focusSettingsTab(nextTab);
-    },
-    [focusSettingsTab],
-  );
+  const {
+    blacklistCompanyInput,
+    blockedTitleInput,
+    cityInput,
+    excludeKeywordInput,
+    handleAddBlacklistCompany,
+    handleAddBlockedTitle,
+    handleAddCity,
+    handleAddExcludeKeyword,
+    handleAddSkill,
+    handleAddTitle,
+    handleAddWhitelistCompany,
+    handleRemoveBlacklistCompany,
+    handleRemoveBlockedTitle,
+    handleRemoveCity,
+    handleRemoveExcludeKeyword,
+    handleRemoveSkill,
+    handleRemoveTitle,
+    handleRemoveWhitelistCompany,
+    handleUseDetectedLocation,
+    setBlacklistCompanyInput,
+    setBlockedTitleInput,
+    setCityInput,
+    setExcludeKeywordInput,
+    setSkillInput,
+    setTitleInput,
+    setWhitelistCompanyInput,
+    skillInput,
+    titleInput,
+    whitelistCompanyInput,
+  } = useSettingsSearchPreferenceInputs({
+    config,
+    detectedLocation,
+    setConfig,
+    toastSuccess,
+  });
 
   const jobBoardRecommendations = useJobBoardRecommendations(config, setConfig);
 
@@ -299,22 +290,6 @@ export default function Settings({ onClose }: SettingsProps) {
     }
   }, [toastWarning]);
 
-  const handleUseDetectedLocation = useCallback(() => {
-    if (!config || !detectedLocation) return;
-
-    const locationStr = `${detectedLocation.city}, ${detectedLocation.region}`;
-    if (config.location_preferences.cities.includes(locationStr)) return;
-
-    setConfig({
-      ...config,
-      location_preferences: {
-        ...config.location_preferences,
-        cities: [...config.location_preferences.cities, locationStr],
-      },
-    });
-    toastSuccess("Location added", `Added ${locationStr}`);
-  }, [config, detectedLocation, toastSuccess]);
-
   useEffect(() => {
     loadConfig();
     loadGhostConfig();
@@ -422,158 +397,6 @@ export default function Settings({ onClose }: SettingsProps) {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [saving, config, handleSave]);
-
-  const handleAddTitle = () => {
-    if (!config) return;
-    const trimmed = titleInput.trim();
-    if (trimmed && !config.title_allowlist.includes(trimmed)) {
-      setConfig({
-        ...config,
-        title_allowlist: [...config.title_allowlist, trimmed],
-      });
-      setTitleInput("");
-    }
-  };
-
-  const handleRemoveTitle = (title: string) => {
-    if (!config) return;
-    setConfig({
-      ...config,
-      title_allowlist: config.title_allowlist.filter((t) => t !== title),
-    });
-  };
-
-  const handleAddSkill = () => {
-    if (!config) return;
-    const trimmed = skillInput.trim();
-    if (trimmed && !config.keywords_boost.includes(trimmed)) {
-      setConfig({
-        ...config,
-        keywords_boost: [...config.keywords_boost, trimmed],
-      });
-      setSkillInput("");
-    }
-  };
-
-  const handleRemoveSkill = (skill: string) => {
-    if (!config) return;
-    setConfig({
-      ...config,
-      keywords_boost: config.keywords_boost.filter((s) => s !== skill),
-    });
-  };
-
-  const handleAddCity = () => {
-    if (!config) return;
-    const trimmed = cityInput.trim();
-    if (trimmed && !config.location_preferences.cities.includes(trimmed)) {
-      setConfig({
-        ...config,
-        location_preferences: {
-          ...config.location_preferences,
-          cities: [...config.location_preferences.cities, trimmed],
-        },
-      });
-      setCityInput("");
-    }
-  };
-
-  const handleRemoveCity = (city: string) => {
-    if (!config) return;
-    setConfig({
-      ...config,
-      location_preferences: {
-        ...config.location_preferences,
-        cities: config.location_preferences.cities.filter((c) => c !== city),
-      },
-    });
-  };
-
-  // Blocked title handlers
-  const handleAddBlockedTitle = () => {
-    if (!config) return;
-    const trimmed = blockedTitleInput.trim();
-    if (trimmed && !config.title_blocklist.includes(trimmed)) {
-      setConfig({
-        ...config,
-        title_blocklist: [...config.title_blocklist, trimmed],
-      });
-      setBlockedTitleInput("");
-    }
-  };
-
-  const handleRemoveBlockedTitle = (title: string) => {
-    if (!config) return;
-    setConfig({
-      ...config,
-      title_blocklist: config.title_blocklist.filter((t) => t !== title),
-    });
-  };
-
-  // Exclude keyword handlers
-  const handleAddExcludeKeyword = () => {
-    if (!config) return;
-    const trimmed = excludeKeywordInput.trim();
-    if (trimmed && !config.keywords_exclude.includes(trimmed)) {
-      setConfig({
-        ...config,
-        keywords_exclude: [...config.keywords_exclude, trimmed],
-      });
-      setExcludeKeywordInput("");
-    }
-  };
-
-  const handleRemoveExcludeKeyword = (keyword: string) => {
-    if (!config) return;
-    setConfig({
-      ...config,
-      keywords_exclude: config.keywords_exclude.filter((k) => k !== keyword),
-    });
-  };
-
-  // Company whitelist handlers
-  const handleAddWhitelistCompany = () => {
-    if (!config) return;
-    const trimmed = whitelistCompanyInput.trim();
-    const companyWhitelist = config.company_whitelist ?? [];
-    if (trimmed && !companyWhitelist.includes(trimmed)) {
-      setConfig({
-        ...config,
-        company_whitelist: [...companyWhitelist, trimmed],
-      });
-      setWhitelistCompanyInput("");
-    }
-  };
-
-  const handleRemoveWhitelistCompany = (company: string) => {
-    if (!config) return;
-    setConfig({
-      ...config,
-      company_whitelist: (config.company_whitelist ?? []).filter((c) => c !== company),
-    });
-  };
-
-  // Company blacklist handlers
-  const handleAddBlacklistCompany = () => {
-    if (!config) return;
-    const trimmed = blacklistCompanyInput.trim();
-    const companyBlacklist = config.company_blacklist ?? [];
-    if (trimmed && !companyBlacklist.includes(trimmed)) {
-      setConfig({
-        ...config,
-        company_blacklist: [...companyBlacklist, trimmed],
-      });
-      setBlacklistCompanyInput("");
-    }
-  };
-
-  const handleRemoveBlacklistCompany = (company: string) => {
-    if (!config) return;
-    setConfig({
-      ...config,
-      company_blacklist: (config.company_blacklist ?? []).filter((c) => c !== company),
-    });
-  };
 
   const handleSaveGhostConfig = async () => {
     if (!ghostConfig) return;
@@ -693,51 +516,7 @@ export default function Settings({ onClose }: SettingsProps) {
         size="wide"
         closeButtonLabel="Close settings"
     >
-          {/* Tab Navigation */}
-          <div
-            role="tablist"
-            aria-label="Settings tabs"
-            className="flex border-b border-surface-200 dark:border-surface-700 mb-6"
-          >
-            <button
-              role="tab"
-              ref={(element) => {
-                settingsTabRefs.current.basic = element;
-              }}
-              aria-selected={activeTab === "basic"}
-              aria-controls="basic-settings-panel"
-              id="basic-settings-tab"
-              tabIndex={activeTab === "basic" ? 0 : -1}
-              onClick={() => setActiveTab("basic")}
-              onKeyDown={(event) => handleSettingsTabKeyDown(event, "basic")}
-              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-                activeTab === "basic"
-                  ? "border-sentinel-500 text-sentinel-600 dark:text-sentinel-400"
-                  : "border-transparent text-surface-500 hover:text-surface-700 dark:hover:text-surface-300"
-              }`}
-            >
-              Search Preferences
-            </button>
-            <button
-              role="tab"
-              ref={(element) => {
-                settingsTabRefs.current.advanced = element;
-              }}
-              aria-selected={activeTab === "advanced"}
-              aria-controls="advanced-settings-panel"
-              id="advanced-settings-tab"
-              tabIndex={activeTab === "advanced" ? 0 : -1}
-              onClick={() => setActiveTab("advanced")}
-              onKeyDown={(event) => handleSettingsTabKeyDown(event, "advanced")}
-              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-                activeTab === "advanced"
-                  ? "border-sentinel-500 text-sentinel-600 dark:text-sentinel-400"
-                  : "border-transparent text-surface-500 hover:text-surface-700 dark:hover:text-surface-300"
-              }`}
-            >
-              Sources & Alerts
-            </button>
-          </div>
+          <SettingsTabs activeTab={activeTab} onActiveTabChange={setActiveTab} />
 
           {/* BASIC SETTINGS TAB */}
           {activeTab === "basic" && (
