@@ -30,22 +30,47 @@ until every required row is Pass or Accepted release hold.
 
 | Field | Value |
 | ----- | ----- |
-| Validation date | TBD |
-| Local commit | TBD |
-| Package version | TBD |
-| Build or installer source | TBD |
-| Validator | TBD |
-| Test data root | TBD |
-| Network mode notes | TBD |
-| Result | Pending |
+| Validation date | 2026-06-22 |
+| Local commit | `63a1a0ca` |
+| Package version | `2.9.1` |
+| Build or installer source | Vite mock app, production frontend build, and Rust library tests from local commit `63a1a0ca`; no native installer, DMG, AppImage, deb, or rpm was generated in this pass |
+| Validator | Codex local macOS shell and Playwright run |
+| Test data root | Playwright mock fixtures, Vitest fixtures, Rust in-memory/temp data, and docs screenshot fixtures |
+| Network mode notes | Local Vite server and local tests only. No disposable external notification endpoints, external AI provider keys, live public source checks, restricted-source accounts, or native app package were used. |
+| Result | Partial local pass. Browser/UI mock, production frontend build, frontend unit tests, backend library tests, docs screenshots, docs lint, bloat, and harness gates passed. Native package, cross-platform, live-source, restricted-source, and credentialed external-channel validation remain pending. |
+
+## Local Evidence 2026-06-22
+
+| Check | Result |
+| ----- | ------ |
+| `npm run doctor:e2e` | Pass with two local baseline warnings: Node `26.3.1` is newer than CI `24.17.0`; npm `11.16.0` is below package-manager pin `11.17.0` because CI runs `node scripts/install-pinned-npm.mjs` first |
+| `npm run test:e2e:all:budget` | Pass: 278 expected, 0 unexpected, 0 flaky, 0 skipped; 141284.985 ms / 240000 ms; 278 tests / 320 budget |
+| `npm run docs:screenshots` | Pass: 9 Chromium screenshots captured; no tracked screenshot changes |
+| `npm run test:run` | Pass: 188 files, 3261 tests |
+| `npm run build` | Pass |
+| `cargo test --manifest-path src-tauri/Cargo.toml --lib` | Pass: 2958 passed, 0 failed, 11 ignored |
+| `npm run lint:docs` | Pass |
+| `npm run harness:check` | Pass |
+| `npm run lint:bloat` | Pass |
+| `git diff --check` | Pass |
+
+Status language below is intentionally strict:
+
+- `Pass local` means covered by local browser mock, screenshot, frontend unit,
+  backend library, or build evidence.
+- `Partial` means useful local evidence exists, but native app, platform,
+  live-source, account, credentialed external service, or manual observation is
+  still missing.
+- `Blocked` means this machine or run lacks the platform, package, account, or
+  disposable credential needed to complete that row.
 
 ## Platform Matrix
 
 | Platform | Package or command | Required checks | Result |
 | -------- | ------------------ | --------------- | ------ |
-| Windows 11 | Installer or `npm run tauri:dev` | Launch, SmartScreen or unsigned warning path, app data permissions, settings backup/restore, notifications, browser open flows | Pending |
-| macOS | DMG or `npm run tauri:dev` | Gatekeeper or no-account warning path, checksum, first launch, app data permissions, keychain/passphrase path, browser open flows | Pending |
-| Linux | AppImage/deb/rpm or `npm run tauri:dev` | First launch, app data permissions, desktop notifications where supported, browser open flows | Pending |
+| Windows 11 | Installer or `npm run tauri:dev` | Launch, SmartScreen or unsigned warning path, app data permissions, settings backup/restore, notifications, browser open flows | Blocked: Windows 11 package/runtime not available in this run |
+| macOS | DMG or `npm run tauri:dev` | Gatekeeper or no-account warning path, checksum, first launch, app data permissions, keychain/passphrase path, browser open flows | Partial: local macOS browser/build/backend validation passed; native DMG or `tauri:dev`, checksum, Gatekeeper/no-account, app data, and keychain/passphrase manual checks remain pending |
+| Linux | AppImage/deb/rpm or `npm run tauri:dev` | First launch, app data permissions, desktop notifications where supported, browser open flows | Blocked: Linux package/runtime not available in this run |
 
 ## Preflight
 
@@ -79,64 +104,64 @@ until every required row is Pass or Accepted release hold.
 
 | Surface | Required manual checks | Result |
 | ------- | ---------------------- | ------ |
-| Install and launch | Install or run the build, launch twice, close cleanly, reopen with persisted local data, verify app version and no update prompt | Pending |
-| First-run and empty states | Fresh profile shows understandable empty Dashboard, Applications, Resume, Salary, Market, Application Assist, and Settings states | Pending |
-| Main navigation | Sidebar buttons and `Cmd/Ctrl+1` through `Cmd/Ctrl+8` reach Dashboard, Applications, Resumes, Salary, Hiring Trends, Application Assist, Resume Builder, and Resume Match | Pending |
-| Keyboard and focus | Tab order, focus outlines, skip-to-content, modals, toasts, and destructive confirmations are keyboard usable | Pending |
-| Responsive view | Major pages fit at narrow width without clipped controls, unreadable tables, or overlapping text | Pending |
-| Theme and visual state | Light/dark mode, loading skeletons, empty states, error states, disabled controls, badges, and toasts remain legible | Pending |
-| Dashboard search setup | Create and edit saved searches with title, location, remote mode, pay floor, keywords, source choices, and limits | Pending |
-| Dashboard job review | Search or seed jobs, inspect cards, sort/filter, save, hide, bookmark, open details, and confirm persistence | Pending |
-| Fit and ghost review | Confirm fit reasons, posting-risk cues, stale/reposted/weak-source/scam-like warnings, and local fallback explanations | Pending |
-| Public source checks | Run approved public source checks at low volume, confirm rate-limit behavior, source status, user-friendly failures, and no hidden retries | Pending |
-| Source settings | Toggle source classes, review warnings, save config, reload app, and verify scheduled checks respect disabled sources | Pending |
-| User-configured job source endpoints | Configure, approve exact details, run one check, change details, and verify scheduler skips until reapproved | Pending |
-| Browser Import | Start local receiver, import visible job data from a browser page, review queued payload, accept, reject, and confirm one-use behavior | Pending |
-| Pasted link and manual import | Add a job by URL or manual entry, verify validation, editable fields, and duplicate handling | Pending |
-| Restricted-source Workbench | Show warning before sign-in, user starts session, import only selected visible information, and verify no cookies, tokens, browser storage, or auth headers are persisted | Pending |
-| Deep links and bookmarklet | Exercise documented deep link and bookmarklet import paths with valid, duplicate, malformed, and expired payloads | Pending |
-| Applications board | Move applications across stages, drag with pointer, use keyboard where supported, add notes, contacts, reminders, interviews, offers, and no-response review | Pending |
-| Application review panel | Confirm status summaries, follow-up cues, stale application warnings, and import-from-applications path | Pending |
-| Resume library | Add resume files, parse readable text, rename/delete/select active, confirm raw local paths stay hidden in UI and support output | Pending |
-| Resume Match | Compare a selected resume to a job, inspect requirements, gaps, hard blockers, evidence labels, local scoring, and unavailable-model fallback | Pending |
-| Resume Builder | Import JSON Resume, edit sections, preview, export PDF, DOCX, and JSON, then reopen or inspect exported files | Pending |
-| Application Assist | Save profile details, screening answers, selected resume display name, launch browser prep, fill only reviewed data, cancel, and keep final submission manual | Pending |
-| Salary and pay protection | Set salary floors, review below-floor roles, written versus verbal offer fields, total compensation, commute, relocation, deadline pressure, and negotiation notes | Pending |
-| Hiring Trends | Refresh trends from local data, inspect company/skill/location/pay summaries, alerts tab, mark-read behavior, and empty/error states | Pending |
-| Notifications | Test desktop, email, Slack, Discord, Teams, and Telegram with disposable endpoints; verify validation, failure messages, disable path, and payload content | Pending |
-| Saved secrets | Save, read through explicit user action, delete, passphrase fallback, wrong passphrase error, and passive Settings reload without credential prompts | Pending |
-| External AI settings | Configure each supported provider type with a test key or custom endpoint, reorder providers, save model names, delete keys, and reload | Pending |
-| External AI job summary | With external AI disabled, confirm local fallback; with provider enabled, preview/edit/cancel/approve one public job summary and inspect metadata-only history | Pending |
-| External AI privacy guards | Attempt private resume, salary, note, application-history, prompt-like, encoded, hidden, and full-database payloads through available UI or test harnesses; confirm blocks | Pending |
-| Local semantic matching | Verify model status, unavailable-model fallback, deterministic local matching, and governed model diagnostics without provider calls | Pending |
-| Safe support report | Generate support output, review sanitizer, reveal saved file, confirm no secrets, raw paths, full database, session data, or private resume text | Pending |
-| Backups and restore | Export settings backup, inspect expected redaction, restore into a clean profile, and confirm secrets are not restored from backup | Pending |
-| Error boundaries | Trigger or simulate a recoverable page error, verify safe reset wording, local-settings reset confirmation, and no data-loss surprise | Pending |
-| Offline mode | Disable network and confirm local jobs, resumes, applications, salary, backups, and settings still work; external actions fail clearly | Pending |
-| Privacy invariants | Confirm default install has no telemetry, no cloud sync, no external AI call, no updater endpoint, and no unexpected background restricted-source access | Pending |
-| Release docs from UI | Verify Help, update, privacy, responsible AI, and release-status links open the intended local or GitHub pages without stale version claims | Pending |
+| Install and launch | Install or run the build, launch twice, close cleanly, reopen with persisted local data, verify app version and no update prompt | Partial: production frontend build and Playwright app launch passed; native package launch remains pending |
+| First-run and empty states | Fresh profile shows understandable empty Dashboard, Applications, Resume, Salary, Market, Application Assist, and Settings states | Pass local: setup wizard, empty/loading/error, and mock route coverage passed through E2E and unit tests |
+| Main navigation | Sidebar buttons and `Cmd/Ctrl+1` through `Cmd/Ctrl+8` reach Dashboard, Applications, Resumes, Salary, Hiring Trends, Application Assist, Resume Builder, and Resume Match | Pass local: full E2E and screenshot pass covered main routes |
+| Keyboard and focus | Tab order, focus outlines, skip-to-content, modals, toasts, and destructive confirmations are keyboard usable | Pass local: keyboard E2E covered shortcuts, skip link, command palette, focus trap, search focus, and help |
+| Responsive view | Major pages fit at narrow width without clipped controls, unreadable tables, or overlapping text | Pass local: responsive E2E and screenshot pass completed with no tracked screenshot changes |
+| Theme and visual state | Light/dark mode, loading skeletons, empty states, error states, disabled controls, badges, and toasts remain legible | Pass local: app shell theme, screenshots, forced-state tests, and docs screenshot pass completed |
+| Dashboard search setup | Create and edit saved searches with title, location, remote mode, pay floor, keywords, source choices, and limits | Partial: setup wizard and dashboard search/filter tests passed; native persistence pass remains pending |
+| Dashboard job review | Search or seed jobs, inspect cards, sort/filter, save, hide, bookmark, open details, and confirm persistence | Pass local: job interaction and search/filter E2E passed against mock fixtures |
+| Fit and ghost review | Confirm fit reasons, posting-risk cues, stale/reposted/weak-source/scam-like warnings, and local fallback explanations | Partial: local frontend and Rust ghost/scoring tests passed; live-source posting review remains pending |
+| Public source checks | Run approved public source checks at low volume, confirm rate-limit behavior, source status, user-friendly failures, and no hidden retries | Partial: backend source, parser, health, rate-limit, and error-sanitization tests passed; live low-volume source checks remain pending |
+| Source settings | Toggle source classes, review warnings, save config, reload app, and verify scheduled checks respect disabled sources | Partial: settings and config tests passed; native reload and scheduled-check observation remain pending |
+| User-configured job source endpoints | Configure, approve exact details, run one check, change details, and verify scheduler skips until reapproved | Partial: approval-boundary tests passed; disposable endpoint live check remains pending |
+| Browser Import | Start local receiver, import visible job data from a browser page, review queued payload, accept, reject, and confirm one-use behavior | Partial: bookmarklet/import tests passed; live local receiver browser pass remains pending |
+| Pasted link and manual import | Add a job by URL or manual entry, verify validation, editable fields, and duplicate handling | Partial: import, URL security, and duplicate tests passed; native manual add pass remains pending |
+| Restricted-source Workbench | Show warning before sign-in, user starts session, import only selected visible information, and verify no cookies, tokens, browser storage, or auth headers are persisted | Partial: restricted-source, LinkedIn disabled-credential, and no-session-persistence tests passed; user-directed live account session remains pending |
+| Deep links and bookmarklet | Exercise documented deep link and bookmarklet import paths with valid, duplicate, malformed, and expired payloads | Partial: deep-link and bookmarklet tests passed; OS/browser live open pass remains pending |
+| Applications board | Move applications across stages, drag with pointer, use keyboard where supported, add notes, contacts, reminders, interviews, offers, and no-response review | Pass local: application tracking E2E and frontend tests passed |
+| Application review panel | Confirm status summaries, follow-up cues, stale application warnings, and import-from-applications path | Pass local: application tracking E2E and frontend tests passed |
+| Resume library | Add resume files, parse readable text, rename/delete/select active, confirm raw local paths stay hidden in UI and support output | Partial: resume E2E, frontend tests, and Rust path-redaction tests passed; native file picker pass remains pending |
+| Resume Match | Compare a selected resume to a job, inspect requirements, gaps, hard blockers, evidence labels, local scoring, and unavailable-model fallback | Partial: Resume Match E2E and backend matcher tests passed; real local-model file pass remains pending |
+| Resume Builder | Import JSON Resume, edit sections, preview, export PDF, DOCX, and JSON, then reopen or inspect exported files | Partial: Resume Builder E2E and backend export tests passed; native PDF/print and file-open inspection remain pending |
+| Application Assist | Save profile details, screening answers, selected resume display name, launch browser prep, fill only reviewed data, cancel, and keep final submission manual | Partial: Application Assist E2E and backend tests passed; native browser launch pass remains pending |
+| Salary and pay protection | Set salary floors, review below-floor roles, written versus verbal offer fields, total compensation, commute, relocation, deadline pressure, and negotiation notes | Pass local: Salary page E2E, frontend, and Rust salary tests passed |
+| Hiring Trends | Refresh trends from local data, inspect company/skill/location/pay summaries, alerts tab, mark-read behavior, and empty/error states | Pass local: Hiring Trends E2E, frontend, and Rust market tests passed |
+| Notifications | Test desktop, email, Slack, Discord, Teams, and Telegram with disposable endpoints; verify validation, failure messages, disable path, and payload content | Partial: notification validation and secret-boundary tests passed; disposable live endpoint delivery remains pending |
+| Saved secrets | Save, read through explicit user action, delete, passphrase fallback, wrong passphrase error, and passive Settings reload without credential prompts | Partial: Rust credential/passphrase/vault tests passed; native OS keychain prompt pass remains pending |
+| External AI settings | Configure each supported provider type with a test key or custom endpoint, reorder providers, save model names, delete keys, and reload | Partial: settings, config, and gateway tests passed; disposable provider/custom endpoint live pass remains pending |
+| External AI job summary | With external AI disabled, confirm local fallback; with provider enabled, preview/edit/cancel/approve one public job summary and inspect metadata-only history | Partial: gateway validation tests passed; provider-backed UI approval pass remains pending |
+| External AI privacy guards | Attempt private resume, salary, note, application-history, prompt-like, encoded, hidden, and full-database payloads through available UI or test harnesses; confirm blocks | Pass local: backend external-AI privacy guard tests passed |
+| Local semantic matching | Verify model status, unavailable-model fallback, deterministic local matching, and governed model diagnostics without provider calls | Partial: disabled-build diagnostics and local matcher tests passed; real governed model files remain pending |
+| Safe support report | Generate support output, review sanitizer, reveal saved file, confirm no secrets, raw paths, full database, session data, or private resume text | Partial: feedback sanitizer/report tests passed; native reveal-file UI pass remains pending |
+| Backups and restore | Export settings backup, inspect expected redaction, restore into a clean profile, and confirm secrets are not restored from backup | Partial: Rust backup/restore and frontend backup parsing tests passed; native UI restore pass remains pending |
+| Error boundaries | Trigger or simulate a recoverable page error, verify safe reset wording, local-settings reset confirmation, and no data-loss surprise | Partial: frontend error-boundary tests passed; manual native trigger remains pending |
+| Offline mode | Disable network and confirm local jobs, resumes, applications, salary, backups, and settings still work; external actions fail clearly | Pending: no network-disabled native pass run |
+| Privacy invariants | Confirm default install has no telemetry, no cloud sync, no external AI call, no updater endpoint, and no unexpected background restricted-source access | Partial: harness/security/backend tests passed; native runtime observation remains pending |
+| Release docs from UI | Verify Help, update, privacy, responsible AI, and release-status links open the intended local or GitHub pages without stale version claims | Partial: docs lint and stale-claim sweep passed; in-app link click pass remains pending |
 
 ## Feature Privacy Label Coverage
 
 | Feature label id | Manual evidence required | Result |
 | ---------------- | ------------------------ | ------ |
-| `job-tracking` | Local job save, status, notes, and delete persistence without external send | Pending |
-| `saved-searches` | Local saved search CRUD and source approval boundaries | Pending |
-| `application-kanban` | Local board movement, notes, reminders, and history | Pending |
-| `application-assist` | Local profile and manual final submission boundary | Pending |
-| `first-seen-last-seen-job-tracking` | First seen, last seen, stale, and reposted signals | Pending |
-| `user-configured-job-source-endpoints` | Explicit endpoint approval and reapproval after detail changes | Pending |
-| `ghost-job-heuristic-scoring` | Local posting-risk scoring and reasons | Pending |
-| `ghost-job-external-ai-explanation` | Optional public-data-only external path or local fallback | Pending |
-| `job-description-summary` | Optional public-data-only external path or local fallback | Pending |
-| `resume-assistance-application-readability` | Local resume parsing, readable text, and truthful guidance | Pending |
-| `resume-job-fit-explanation` | Local fit evidence and blocked sensitive external send unless explicitly reviewed | Pending |
-| `negotiation-prep` | Local negotiation notes and sensitive external-send guard | Pending |
-| `salary-floor-protection` | Local salary-floor filtering and warnings | Pending |
-| `salary-transparency-check` | Local public posting pay-range review | Pending |
-| `salary-transparency-ai-explanation` | Optional public-data-only external path or local fallback | Pending |
-| `safe-support-report` | Sanitized support report review and reveal path | Pending |
-| `research-evaluation` | Public-postings-only or synthetic-data-only research fixtures | Pending |
+| `job-tracking` | Local job save, status, notes, and delete persistence without external send | Pass local |
+| `saved-searches` | Local saved search CRUD and source approval boundaries | Partial: local setup/search evidence passed; native persistence pending |
+| `application-kanban` | Local board movement, notes, reminders, and history | Pass local |
+| `application-assist` | Local profile and manual final submission boundary | Partial: local evidence passed; native browser prep pending |
+| `first-seen-last-seen-job-tracking` | First seen, last seen, stale, and reposted signals | Partial: local tests passed; live source history pending |
+| `user-configured-job-source-endpoints` | Explicit endpoint approval and reapproval after detail changes | Partial: local approval tests passed; live endpoint pending |
+| `ghost-job-heuristic-scoring` | Local posting-risk scoring and reasons | Pass local |
+| `ghost-job-external-ai-explanation` | Optional public-data-only external path or local fallback | Partial: local guard tests passed; provider-backed UI path pending |
+| `job-description-summary` | Optional public-data-only external path or local fallback | Partial: local guard tests passed; provider-backed UI path pending |
+| `resume-assistance-application-readability` | Local resume parsing, readable text, and truthful guidance | Pass local |
+| `resume-job-fit-explanation` | Local fit evidence and blocked sensitive external send unless explicitly reviewed | Partial: local fit tests passed; sensitive external-send UI path remains pending |
+| `negotiation-prep` | Local negotiation notes and sensitive external-send guard | Partial: local salary/negotiation evidence passed; external-send path pending |
+| `salary-floor-protection` | Local salary-floor filtering and warnings | Pass local |
+| `salary-transparency-check` | Local public posting pay-range review | Pass local |
+| `salary-transparency-ai-explanation` | Optional public-data-only external path or local fallback | Partial: local guard tests passed; provider-backed UI path pending |
+| `safe-support-report` | Sanitized support report review and reveal path | Partial: sanitizer/report tests passed; native reveal path pending |
+| `research-evaluation` | Public-postings-only or synthetic-data-only research fixtures | Partial: test fixtures passed; no live research/export pass run |
 
 ## Exit Bar
 
