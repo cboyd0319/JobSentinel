@@ -80,7 +80,8 @@ JobSentinel builds Linux packages through the consolidated Release workflow.
 
 `.github/workflows/release.yml` runs through `workflow_dispatch` with a
 required `version` input and a `platform` choice. Select `linux` to build only
-Linux assets, or `all` to build Windows, macOS, and Linux assets.
+Linux assets, `windows-linux` to build hosted Windows and Linux assets after a
+local macOS upload, or `all` to build Windows, macOS, and Linux assets.
 
 Before packaging, the workflow validates the requested version and runs harness
 checks, harness script tests, markdown linting, the frontend build, Rust
@@ -89,10 +90,8 @@ attached to the staged release with matching checksums.
 
 ### Release Workflow
 
-`.github/workflows/release.yml` runs on:
-
-- Git tags matching `v*` (e.g., `v2.7.0`)
-- Manual dispatch with `platform` set to `all` or `linux`
+`.github/workflows/release.yml` runs by manual dispatch from an existing
+`vX.Y.Z` tag. Pushing a tag does not publish a release by itself.
 
 Releases include:
 

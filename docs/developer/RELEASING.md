@@ -1,12 +1,16 @@
 # Releases
 
-Production assets can be produced either by the tag-triggered
-[`release.yml`](../../.github/workflows/release.yml) workflow or by verified
-local builds from the target platform, then attached to
-[GitHub Releases](https://github.com/cboyd0319/JobSentinel/releases). The
-workflow remains the easiest full cross-platform path. Local build plus manual
-upload is a supported release path when it runs the same version, docs,
-package, and artifact gates before publication.
+Production assets can be produced either by the manual
+[`release.yml`](../../.github/workflows/release.yml) workflow, run from an
+existing version tag, or by verified local builds from the target platform,
+then attached to
+[GitHub Releases](https://github.com/cboyd0319/JobSentinel/releases).
+The workflow remains the easiest full cross-platform proof path. For
+no-account releases, local macOS build and upload is preferred when hosted
+macOS proof is not needed; use hosted `windows-linux` packaging after the local
+Mac asset is attached. Local build plus manual upload is a supported release
+path when it runs the same version, docs, package, SBOM, and artifact gates
+before publication.
 
 ## macOS public release status
 
@@ -20,6 +24,10 @@ testing, internal checks, and clearly labeled no-account public packages. For
 `.dmg` and matching `.dmg.sha256` checksum, the DMG filename must include
 `_no-account_`, the release must include the generated macOS SBOM plus SBOM
 manifest, and `npm run tauri:verify:macos:latest` must pass after publication.
+For locally built macOS artifacts, use
+`npm run tauri:verify:macos:latest -- --no-require-supply-chain` and record
+that hosted GitHub Actions build-provenance attestations do not apply to the
+Mac asset.
 Historical `v2.7.x` public assets predate these current public verifier gates.
 Do not publish a macOS package as zero-friction or Gatekeeper-ready until the
 project has an Apple Developer Account, the release secrets below are
@@ -69,21 +77,27 @@ cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings
 cargo test --manifest-path src-tauri/Cargo.toml
 ```
 
-For a normal workflow-driven release, create a version tag:
+Create and push the version tag:
 
 ```bash
 git tag vX.Y.Z
 git push origin vX.Y.Z
 ```
 
-Pushing the tag triggers `release.yml`. The workflow resolves release inputs,
-runs parallel preflight checks, creates a staged release only after those checks
-pass, verifies the release tag before creating a new hosted release, packages
-the downloadable Agent Skills archives, builds Windows, macOS, and Linux
-packages, verifies the macOS package before upload, generates platform SBOMs,
-creates GitHub provenance and SBOM attestations, and attaches release assets.
-After all platform upload jobs succeed, the workflow publishes the release
-automatically.
+Pushing the tag does not publish a release by itself. Run **Actions > Release >
+Run workflow** from the matching `vX.Y.Z` tag ref. Use `platform=all` for a
+full hosted Windows, macOS, and Linux release proof. Use `platform=windows-linux`
+only after the macOS DMG was built, verified, and uploaded locally to the same
+draft release.
+
+The workflow resolves release inputs, runs parallel preflight checks, creates a
+staged release only after those checks pass, verifies the release tag before
+creating a new hosted release, packages the downloadable Agent Skills archives,
+builds the requested platform packages, verifies the macOS package before
+upload when macOS is selected, generates platform SBOMs, creates GitHub
+provenance and SBOM attestations for hosted artifacts, and attaches release
+assets. After all requested platform upload jobs succeed, the workflow
+publishes the release automatically.
 
 Manual release dispatch uses the same workflow but must be launched from the
 existing matching `vX.Y.Z` tag ref. If the selected workflow ref is `main`,
@@ -93,7 +107,8 @@ or editing a staged release.
 For a local-first release, build each platform on that platform or VM, attach
 the verified artifacts to the matching staged release, and run the public
 artifact verifier before sharing the release. Do not mix artifacts from
-different source commits under one tag.
+different source commits under one tag, and do not claim GitHub Actions build
+provenance for a locally built artifact.
 
 Package the downloadable Agent Skills archives from the tagged source before
 publishing:
@@ -207,28 +222,61 @@ npm run tauri:verify:macos:latest -- --tag vX.Y.Z --no-require-supply-chain
 For local upload, use a unique no-account filename such as
 `JobSentinel_X.Y.Z_no-account_universal.dmg`. Reusing a previous
 browser-download filename can leave stale CDN content behind. Build with the
-no-account filename label, delete any old Mac `.dmg` and `.dmg.sha256` assets
-from that tag, upload exactly one replacement `.dmg` and its matching checksum,
+no-account filename label, verify the package, create or update a draft release
+for the tag, generate the local macOS SBOM assets, delete any old Mac `.dmg`,
+`.dmg.sha256`, and macOS SBOM assets from that tag, upload exactly one
+replacement `.dmg`, its matching checksum, and the matching macOS SBOM files,
 and then run the public verifier:
 
 ```bash
 JOBSENTINEL_MACOS_NO_ACCOUNT=true npm run tauri:build:macos -- --target universal-apple-darwin
 
-for asset in $(gh release view vX.Y.Z --json assets --jq '.assets[].name' | grep -E '\.dmg(\.sha256)?$'); do
+npm run tauri:verify:macos -- \
+  --dmg src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_X.Y.Z_no-account_universal.dmg \
+  --expected-architectures x86_64,arm64 \
+  --expected-bundle-id com.jobsentinel.main \
+  --expected-product-name JobSentinel \
+  --expected-version X.Y.Z \
+  --expected-icon-file icon.icns \
+  --expected-minimum-system-version 13.0 \
+  --launch-smoke \
+  --install-smoke \
+  --require-checksum
+
+mkdir -p release-assets/public
+cp src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_X.Y.Z_no-account_universal.dmg release-assets/public/
+cp src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_X.Y.Z_no-account_universal.dmg.sha256 release-assets/public/
+npm run release:sbom -- \
+  --platform macos \
+  --version X.Y.Z \
+  --out-dir release-assets/public \
+  --checksums-out release-assets/attestation-subjects.sha256 \
+  --require-artifacts
+
+gh release view vX.Y.Z >/dev/null 2>&1 || \
+  gh release create vX.Y.Z --draft --verify-tag --title "JobSentinel X.Y.Z" --notes-file docs/releases/vX.Y.Z.md
+
+for asset in $(gh release view vX.Y.Z --json assets --jq '.assets[].name' | grep -E '(\.dmg(\.sha256)?|macos\.sbom-(manifest\.json|spdx\.json))$'); do
   gh release delete-asset vX.Y.Z "$asset" -y
 done
 
 gh release upload vX.Y.Z \
-  src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_X.Y.Z_no-account_universal.dmg \
-  src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_X.Y.Z_no-account_universal.dmg.sha256
+  release-assets/public/JobSentinel_X.Y.Z_no-account_universal.dmg \
+  release-assets/public/JobSentinel_X.Y.Z_no-account_universal.dmg.sha256 \
+  release-assets/public/JobSentinel-X.Y.Z-macos.sbom-manifest.json \
+  release-assets/public/JobSentinel-X.Y.Z-macos.sbom.spdx.json
 
-# Then verify the downloaded public asset. Use the legacy flag only because
-# this local upload path does not create hosted attestations.
+# Then verify the downloaded public asset. Use the no-supply-chain flag only
+# for locally built macOS artifacts that do not have GitHub Actions
+# build-provenance attestations.
 npm run tauri:verify:macos:latest -- --tag vX.Y.Z --no-require-supply-chain
 ```
 
 Do not publish a Mac package without its checksum, and do not leave multiple Mac
-DMGs attached to the same release tag.
+DMGs attached to the same release tag. After this local Mac upload, dispatch the
+Release workflow from the same `vX.Y.Z` tag with `platform=windows-linux` to
+build, attest, upload, and publish hosted Windows, Linux, and Agent Skills
+assets.
 
 ### 4. Local Windows and Linux builds
 
@@ -285,9 +333,9 @@ the `.deb` passes `dpkg-deb --info` and `dpkg-deb --contents`, and matching
 `.sha256` files are generated. The release workflow enforces those checks
 before upload, including manual release dispatch for `platform=linux`.
 
-The `Verify Release Artifacts` GitHub Actions workflow also runs after a
-release is published. Its Linux job verifies the public Windows, macOS, and
-Linux asset set from GitHub Releases: exactly the expected installer and
+The `Verify Release Artifacts` GitHub Actions workflow can be run manually
+after a release is published. Its Linux job verifies the public Windows, macOS,
+and Linux asset set from GitHub Releases: exactly the expected installer and
 checksum assets for verified platforms, exact release-version filename
 segments, matching `.sha256` files, non-empty downloads, public SBOM manifest
 binding, SBOM digest verification, and GitHub artifact attestations for SLSA
@@ -311,12 +359,32 @@ JobSentinel data or prompt for the user's Keychain.
 
 ### 5. Verify publication
 
-After the hosted release workflow publishes the release, confirm the
-`Verify Release Artifacts` workflow passes for the published tag.
+After the hosted release workflow publishes the release, verify the published
+tag explicitly. For a full hosted release, run the public verifier with supply
+chain checks:
+
+```bash
+npm run release:verify:public -- --tag vX.Y.Z --platforms windows,macos,linux
+npm run tauri:verify:macos:latest -- --tag vX.Y.Z
+```
+
+For a local-macOS plus hosted-Windows/Linux release, keep hosted supply-chain
+checks for Windows, Linux, and Agent Skills, then verify the local Mac asset
+with the documented provenance exception:
+
+```bash
+npm run release:verify:public -- --tag vX.Y.Z --platforms windows,linux
+npm run tauri:verify:macos:latest -- --tag vX.Y.Z --no-require-supply-chain
+```
+
+You can also run **Actions > Verify Release Artifacts > Run workflow** manually.
+Set `platforms=windows,linux` for a local-macOS release to avoid spending a
+hosted macOS verifier run that is expected to fail supply-chain attestation
+checks for the local Mac artifact.
 
 For hosted releases, do not pass `--no-require-supply-chain`; that flag exists
-only to inspect old releases that were published before SBOM and attestation
-assets existed.
+only for legacy releases or current local artifacts that intentionally do not
+have GitHub Actions build-provenance attestations.
 
 ## Supported Platforms
 

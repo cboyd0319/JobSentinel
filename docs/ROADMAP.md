@@ -25,7 +25,8 @@ The public roadmap organizes work around six design pillars:
 Active implementation planning is indexed in [docs/plans](plans/README.md).
 Major-release exploration for the next generation of JobSentinel lives in
 [v3 planning](plans/v3/README.md).
-The active `v2.9.1` line is maintenance and repo cleanup only.
+The `v2.9.1` release is published; current active work is post-release
+closeout and release-pipeline optimization.
 Every non-trivial change should update the relevant feature doc, active plan,
 or tech-debt item before it is committed.
 
@@ -94,7 +95,7 @@ Current active plan docs are part of the repo goal:
 
 - [Active status](plans/active/status.md)
 - [Current product and quality work](plans/active/current-work.md)
-- [v2.9.1 maintenance and repo cleanup](plans/active/v2.9.1-maintenance-and-repo-cleanup.md)
+- [Release pipeline audit and optimization](plans/active/release-pipeline-audit-and-optimization.md)
 
 Superseded long-running plan history is archived under
 [Archived Plans](plans/README.md#archived-plans).

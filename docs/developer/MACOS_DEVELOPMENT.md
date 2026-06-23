@@ -227,9 +227,12 @@ sidecar directly, so the checksum is created for the public filename.
 
 This local upload path is supported for macOS release work when it is cheaper
 or faster than hosted release CI. It still needs the same release-version,
-harness, package-verification, checksum, and public-artifact verification gates
-before users should treat the DMG as current. Hosted release CI is preferred
-for public releases because it also creates SBOM and provenance attestations.
+harness, package-verification, checksum, local SBOM, and public-artifact
+verification gates before users should treat the DMG as current. For
+no-account releases, local macOS build and upload is the preferred process
+when hosted macOS proof is not needed. Do not claim GitHub Actions build
+provenance for a local Mac artifact; use hosted macOS when that provenance or
+Developer ID/Gatekeeper proof is required.
 
 After publishing a current release, verify the downloaded public artifact too:
 
@@ -243,8 +246,8 @@ smoke, signature checks, SBOM manifest binding, and GitHub attestation checks,
 including bundle identity, release-tag version, icon metadata and resource
 file, macOS 13.0 minimum-system metadata, and isolated macOS data directory and
 owner-only database permissions during launch smoke. Use
-`--no-require-supply-chain` only for older releases that predate hosted SBOM
-and attestation assets.
+`--no-require-supply-chain` only for local Mac artifacts or older releases that
+do not have GitHub Actions build-provenance attestations.
 
 The complete local universal DMG smoke on 2026-06-18 verified
 `JobSentinel_2.9.0_no-account_universal.dmg`, checked the matching

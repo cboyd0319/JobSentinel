@@ -18,8 +18,8 @@ test("release readiness accepts the current local v2.9.1 gate posture", () => {
     [],
   );
   assert.match(formatReleaseReadinessReport(report), /JobSentinel release readiness: PASS/);
-  assert.match(formatReleaseReadinessReport(report), /INFO Windows: public asset pending/);
-  assert.match(formatReleaseReadinessReport(report), /INFO Linux: public assets pending/);
+  assert.match(formatReleaseReadinessReport(report), /INFO Windows: public asset upload gated/);
+  assert.match(formatReleaseReadinessReport(report), /INFO Linux: public asset upload gated/);
 });
 
 test("release readiness rejects version metadata drift", () => {

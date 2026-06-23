@@ -2,10 +2,10 @@
 
 Last updated: 2026-06-22.
 
-This is the live/manual regression validation ledger for the `v2.9.1`
-maintenance release. Because this patch is cleanup and maintainability only,
-the release bar is to prove existing behavior still works as expected and to
-record any validation surface that was not exercised.
+This is the completed live/manual regression validation ledger for the
+`v2.9.1` maintenance release. Because this patch is cleanup and maintainability
+only, the release bar was to prove existing behavior still worked as expected
+and to record any validation surface that was not exercised.
 
 Every major page and user-facing capability must have manual evidence.
 Restricted-source checks remain user-directed. No release-ready claim is valid
@@ -32,14 +32,14 @@ coverage, or Accepted release hold.
 
 | Field | Value |
 | ----- | ----- |
-| Validation date | 2026-06-22 |
-| Local commit | Local `v2.9.1` release-prep branch; exact public commit is set when the release tag is cut |
+| Validation date | 2026-06-22 local time; release published 2026-06-23 UTC |
+| Local commit | `81e2df0e`; local `main`, `origin/main`, and tag `v2.9.1` point at this commit |
 | Package version | `2.9.1` |
-| Build or installer source | Vite mock app, production frontend build, Rust library tests, and native macOS `tauri dev` smoke from the local `v2.9.1` release-prep branch; no native installer, DMG, AppImage, deb, or rpm was generated in this pass |
-| Validator | Codex local macOS shell, Playwright run, and isolated Tauri dev smoke |
+| Build or installer source | Local preflight gates from `81e2df0e`, hosted Release workflow run `27990965207`, and public GitHub release assets from `v2.9.1` |
+| Validator | Codex local macOS shell, Playwright run, isolated Tauri dev smoke, GitHub CLI release checks, public asset verifier, and public macOS DMG verifier |
 | Test data root | Playwright mock fixtures, Vitest fixtures, Rust in-memory/temp data, docs screenshot fixtures, and isolated macOS smoke root under `$TMPDIR/jobsentinel-macos-smoke-*` |
-| Network mode notes | Local Vite server and local tests only. No disposable external notification endpoints, external AI provider keys, live public source checks, restricted-source accounts, or native app package were used. |
-| Result | Cleanup-release regression pass with scoped gaps. Browser/UI mock, native macOS dev startup, production frontend build, frontend unit tests, backend library tests, docs screenshots, docs lint, bloat, and harness gates passed. Native installer/package, Windows, Linux, live-source, restricted-source, and credentialed external-channel validation remain unexercised and are not claimed. |
+| Network mode notes | Local Vite server, local tests, and public GitHub release asset downloads. No disposable external notification endpoints, external AI provider keys, live public source checks, or restricted-source accounts were used. |
+| Result | Cleanup-release regression and public-release verification pass with scoped gaps. Browser/UI mock, native macOS dev startup, production frontend build, frontend unit tests, backend library tests, docs screenshots, docs lint, bloat, harness gates, public release asset verification, and public no-account macOS DMG verification passed. Windows and Linux runtime smoke, live-source, restricted-source, and credentialed external-channel validation remain unexercised and are not claimed. |
 
 ## Local Evidence 2026-06-22
 
@@ -63,6 +63,18 @@ coverage, or Accepted release hold.
 | `npm run lint:bloat` | Pass |
 | `git diff --check` | Pass |
 
+## Public Release Evidence 2026-06-22/23 UTC
+
+| Check | Result |
+| ----- | ------ |
+| Release workflow run `27990965207` | Pass: published `JobSentinel 2.9.1` from tag `v2.9.1`; total elapsed time about 40 minutes; Linux package leg 12m43s, macOS package leg 19m18s, Windows package leg 24m46s |
+| `gh release view v2.9.1` | Pass: non-draft, non-prerelease, published `2026-06-23T00:06:36Z`, release URL `https://github.com/cboyd0319/JobSentinel/releases/tag/v2.9.1` |
+| `gh release list --limit 5` | Pass: `JobSentinel 2.9.1` is the latest public release |
+| Public assets | Pass: Agent Skills tar.gz/ZIP plus checksums; Windows unsigned MSI and setup EXE plus checksums; no-account universal macOS DMG plus checksum; Linux AppImage/deb plus checksums; Windows/macOS/Linux SBOM manifests and SPDX SBOMs |
+| `npm run release:verify:public -- --tag v2.9.1 --platforms windows,macos,linux` | Pass: public Agent Skills, Windows, macOS, and Linux asset sets, checksums, SBOM manifests, SPDX SBOMs, and hosted attestations verified |
+| `npm run tauri:verify:macos:latest -- --tag v2.9.1` | Pass: downloaded public DMG, verified checksum `63c92f73e270d81bda1cc1290acd65f95a5ea88134b65f8fe66522da101702d4`, SBOM manifest, hosted attestations, bundle metadata, universal `x86_64,arm64` architecture, signature, mounted launch smoke, installed launch smoke, and private local-data permissions. Gatekeeper rejected the no-account DMG as expected. |
+| Public wiki | Pass: sibling wiki checkout pushed `78f9b2b` with `Home.md` and `Capabilities.md` refreshed for `v2.9.1` |
+
 Status language below is intentionally strict:
 
 - `Pass local` means covered by local browser mock, screenshot, frontend unit,
@@ -77,9 +89,9 @@ Status language below is intentionally strict:
 
 | Platform | Package or command | Required checks | Result |
 | -------- | ------------------ | --------------- | ------ |
-| Windows 11 | Installer or `npm run tauri:dev` | Launch, SmartScreen or unsigned warning path, app data permissions, settings backup/restore, notifications, browser open flows | Blocked: Windows 11 package/runtime not available in this run |
-| macOS | DMG or `npm run tauri:dev` | Gatekeeper or no-account warning path, checksum, first launch, app data permissions, keychain/passphrase path, browser open flows | Partial: `tauri dev` isolated startup, encrypted database creation, first-run state, tray init, and data permissions passed; DMG/checksum/Gatekeeper and manual keychain/browser-open flows were not exercised |
-| Linux | AppImage/deb/rpm or `npm run tauri:dev` | First launch, app data permissions, desktop notifications where supported, browser open flows | Blocked: Linux package/runtime not available in this run |
+| Windows 11 | Installer or `npm run tauri:dev` | Launch, SmartScreen or unsigned warning path, app data permissions, settings backup/restore, notifications, browser open flows | Partial: public unsigned MSI/setup assets, checksums, SBOMs, and attestations verified; Windows 11 runtime launch and SmartScreen path were not exercised locally |
+| macOS | DMG or `npm run tauri:dev` | Gatekeeper or no-account warning path, checksum, first launch, app data permissions, keychain/passphrase path, browser open flows | Pass no-account package with scoped gaps: local `tauri dev` isolated startup passed; public DMG checksum, metadata, architecture, signature, mounted launch smoke, installed launch smoke, and private data permissions passed; Gatekeeper rejection remains expected; manual keychain and browser-open flows were not exercised |
+| Linux | AppImage/deb/rpm or `npm run tauri:dev` | First launch, app data permissions, desktop notifications where supported, browser open flows | Partial: public AppImage/deb assets, checksums, SBOMs, and attestations verified; Linux runtime launch was not exercised locally |
 
 ## Preflight
 
@@ -113,7 +125,7 @@ Status language below is intentionally strict:
 
 | Surface | Required manual checks | Result |
 | ------- | ---------------------- | ------ |
-| Install and launch | Install or run the build, launch twice, close cleanly, reopen with persisted local data, verify app version and no update prompt | Partial: production frontend build, Playwright app launch, and native macOS `tauri dev` startup passed; native package launch remains pending |
+| Install and launch | Install or run the build, launch twice, close cleanly, reopen with persisted local data, verify app version and no update prompt | Partial: production frontend build, Playwright app launch, native macOS `tauri dev` startup, and public macOS DMG mounted/installed launch smoke passed; Windows and Linux native package launch remain pending |
 | First-run and empty states | Fresh profile shows understandable empty Dashboard, Applications, Resume, Salary, Market, Application Assist, and Settings states | Pass local: setup wizard, empty/loading/error, and mock route coverage passed through E2E and unit tests |
 | Main navigation | Sidebar buttons and `Cmd/Ctrl+1` through `Cmd/Ctrl+8` reach Dashboard, Applications, Resumes, Salary, Hiring Trends, Application Assist, Resume Builder, and Resume Match | Pass local: full E2E and screenshot pass covered main routes |
 | Keyboard and focus | Tab order, focus outlines, skip-to-content, modals, toasts, and destructive confirmations are keyboard usable | Pass local: final pass fixed an early-startup shortcut timing race; focused Chromium/WebKit keyboard E2E covered shortcuts, skip link, command palette, focus trap, search focus, and help |
@@ -181,5 +193,5 @@ Status language below is intentionally strict:
   external service dependency.
 - Privacy and security rows cannot be accepted as release gaps without explicit
   maintainer approval.
-- The final v2.9.1 release note must summarize the manual validation date,
-  platforms, package source, and any accepted gaps.
+- The final v2.9.1 release note summarizes the manual validation date,
+  platforms, package source, and accepted gaps.

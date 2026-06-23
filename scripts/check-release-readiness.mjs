@@ -269,7 +269,7 @@ export function evaluateReleaseReadinessFromInputs(inputs) {
     platforms: [
       {
         name: "Windows",
-        status: "public asset pending; MSI and NSIS setup uploads are signed or explicitly unsigned-labeled and checksum gated",
+        status: "public asset upload gated; MSI and NSIS setup uploads are signed or explicitly unsigned-labeled and checksum gated",
       },
       {
         name: "macOS",
@@ -277,7 +277,7 @@ export function evaluateReleaseReadinessFromInputs(inputs) {
       },
       {
         name: "Linux",
-        status: "public assets pending; AppImage/deb upload is package and checksum gated",
+        status: "public asset upload gated; AppImage/deb upload is package and checksum gated",
       },
     ],
   };

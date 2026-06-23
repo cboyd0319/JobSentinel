@@ -30,7 +30,7 @@
     "docs/references.md",
     "docs/exec-plans.md",
     "docs/plans/README.md",
-    "docs/plans/active/v2.9.1-maintenance-and-repo-cleanup.md",
+    "docs/plans/active/release-pipeline-audit-and-optimization.md",
     "docs/plans/index.json",
     "docs/plans/templates/exec-plan-template.md",
     "docs/plans/templates/change-contract-template.md",
@@ -144,12 +144,12 @@
       "User-ease evidence:",
       "Public GitHub wiki pages from `docs/harness/manifest.json` to update"
     ],
-    "docs/plans/active/v2.9.1-maintenance-and-repo-cleanup.md": [
-      "## Product Direction",
-      "maintenance and repo cleanup",
-      "No new product features",
-      "Preserve `v2.9.0` behavior unless fixing a confirmed regression.",
-      "The hard stops remain privacy and security failures"
+    "docs/plans/active/release-pipeline-audit-and-optimization.md": [
+      "## Problem",
+      "The `v2.9.1` release was successful, but the process took too long",
+      "local macOS build",
+      "Hosted `all` remains available",
+      "Do not remove package verification"
     ],
     "docs/harness/verification-matrix.md": [
       "## Experience And Support",

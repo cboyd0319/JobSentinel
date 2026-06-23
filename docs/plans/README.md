@@ -23,7 +23,7 @@ See [Exec Plans](../exec-plans.md) for required format.
 | ---------- | -------- |
 | Current active status | [Compact status](active/status.md) |
 | Current product and quality work | [Active plan](active/current-work.md) |
-| v2.9.1 maintenance and repo cleanup | [Patch plan](active/v2.9.1-maintenance-and-repo-cleanup.md) |
+| Release pipeline audit and optimization | [Active plan](active/release-pipeline-audit-and-optimization.md) |
 
 ## Major-Release Planning
 
@@ -53,6 +53,7 @@ Each broad plan follows [the exec-plan template](templates/exec-plan-template.md
 | Version | Status | Document |
 | ------- | ------ | -------- |
 | Feedback workflow | Complete on main | [Beta feedback system](completed/beta-feedback-system.md) |
+| v2.9.1 | Complete | [Maintenance and repo cleanup](completed/v2.9.1-maintenance-and-repo-cleanup.md) |
 | v2.9.0 | Complete | [Completion and full-feature roadmap](completed/v2.9.0-completion-and-full-feature-roadmap.md) |
 | v2.6.x | Complete on main | [Undo and redo wiring](completed/undo-redo-wiring.md) |
 | v2.6.0 | Complete | [v2.6.0 UX improvements](completed/v2.6.0-ux-improvements.md) |

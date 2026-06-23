@@ -29,7 +29,7 @@ verification gates pass.
 | Workflow                 | File                           | Trigger                     | Purpose                         |
 | ------------------------ | ------------------------------ | --------------------------- | ------------------------------- |
 | CI                       | `ci.yml`                       | Push, PR, manual, or weekly | Path-aware tests, linting, security, docs, and harness |
-| Release                  | `release.yml`                  | Version tag or manual       | Build, upload, and publish release assets |
+| Release                  | `release.yml`                  | Manual from version tag     | Build, upload, and publish release assets |
 | Verify Release Artifacts | `verify-release-artifacts.yml` | Published release or manual | Verify public installers, checksums, SBOMs, and attestations |
 
 CI no longer has a separate docs workflow. A first `changes` job classifies the
@@ -172,13 +172,15 @@ jobs so a broad CI run does not serialize `npm audit`/zizmor checks behind
 
 ## Release builds (release.yml)
 
-**Trigger:** Push of a tag matching `v*`, for example `vX.Y.Z`, or manual
-`workflow_dispatch`
+**Trigger:** Manual `workflow_dispatch` from an existing tag matching `v*`,
+for example `vX.Y.Z`
 
 This workflow creates or updates a staged GitHub Release, then builds installers
-for the requested platforms. Tag pushes build all platforms. Manual dispatch
-accepts a `version` input and a `platform` choice of `all`, `windows`, `macos`,
-or `linux`, replacing the old standalone manual Windows and Linux workflows.
+for the requested platforms. Manual dispatch accepts a `version` input and a
+`platform` choice of `all`, `windows-linux`, `windows`, `macos`, or `linux`,
+replacing the old standalone manual Windows and Linux workflows. Use
+`windows-linux` only after a local macOS asset has already been built, verified,
+and uploaded to the same draft release.
 
 Before any staged release or package build starts, the release workflow resolves
 and validates release metadata, then runs independent preflight jobs in
@@ -210,10 +212,10 @@ uses GitHub artifact attestations for both build provenance and the SPDX SBOM
 before uploading assets to the staged release.
 
 The release starts as a draft while matrix jobs upload platform assets, then the
-workflow publishes it automatically after all platform uploads succeed. Do not
-publish manually unless the release workflow has failed after creating a draft
-and you have verified the complete asset set yourself.
-from the GitHub Releases page.
+workflow publishes it automatically after all requested platform uploads
+succeed. Do not publish manually unless the release workflow has failed after
+creating a draft and you have verified the complete asset set yourself from the
+GitHub Releases page.
 
 ### Windows signing
 
@@ -270,10 +272,12 @@ from GitHub Releases. The Ubuntu job downloads the selected Windows, macOS, and
 Linux installer assets, verifies matching checksums, rejects stale installer
 assets for selected platforms, verifies SBOM manifests, and verifies GitHub
 artifact attestations for SLSA provenance plus the SPDX SBOM predicate. The
-macOS job also runs `npm run tauri:verify:macos:latest -- --require-supply-chain`
-on `macos-26` for the downloadable DMG. On release publish events, both jobs
-scope checks to the published tag. On manual runs, the optional `tag` input
-checks a specific release, and a blank tag checks the latest public release.
+macOS job runs `npm run tauri:verify:macos:latest -- --require-supply-chain`
+on `macos-26` for the downloadable DMG when the verification scope includes
+macOS. On release publish events, both jobs scope checks to the published tag
+when the event fires. On manual runs, the optional `tag` input checks a
+specific release, a blank tag checks the latest public release, and
+`platforms=windows,linux` skips the macOS runner for local-macOS releases.
 The Ubuntu job also verifies both downloadable Agent Skills archives:
 `JobSentinel-X.Y.Z-agent-skills.tar.gz` for Unix-like tooling and
 `JobSentinel-X.Y.Z-agent-skills.zip` for Windows-friendly extraction, along
@@ -315,25 +319,26 @@ the strict Gatekeeper gate when all required Apple secrets are present.
 ## Manual release dispatch
 
 Manual hosted package builds now run through **Actions > Release > Run workflow**.
-They are useful for producing one platform outside of a tag-triggered full
+They are useful for producing one platform outside of a full hosted
 release, for example to test a hotfix or replace a draft asset.
 
 Manual release dispatch must be run from the existing `vX.Y.Z` tag that matches
-the `version` input. The workflow fails when the selected workflow ref is not
-that tag, so release assets and attestations stay bound to one immutable source
-commit instead of creating a release tag implicitly.
+the `version` input. Pushing a tag does not start release publication by
+itself. The workflow fails when the selected workflow ref is not that tag, so
+release assets and attestations stay bound to one immutable source commit
+instead of creating a release tag implicitly.
 
-Local platform builds are also supported. Prefer local builds when you have a
-trusted Windows, macOS, or Linux host available and want to avoid unnecessary
-hosted runner time. Run the same version, harness, lint, test, build, and
-artifact verification gates before upload.
+Local platform builds are also supported. Prefer local macOS builds for
+no-account releases when you have a trusted Mac available and do not need
+hosted macOS proof. Run the same version, harness, lint, test, build, SBOM,
+and artifact verification gates before upload.
 
 Inputs:
 
 | Input      | Value                                      |
 | ---------- | ------------------------------------------ |
 | `version`  | `X.Y.Z` or `vX.Y.Z`; must match repo metadata and selected tag ref |
-| `platform` | `all`, `windows`, `macos`, or `linux`      |
+| `platform` | `all`, `windows-linux`, `windows`, `macos`, or `linux` |
 
 Manual runs still execute every release preflight job before packaging. Windows
 MSI upload is blocked unless the MSI is either Authenticode-signed or explicitly
@@ -402,16 +407,17 @@ the full Rust test suite.
 
 ### 2. Choose release build path
 
-Use either hosted tag CI or local platform builds.
+Use either hosted release dispatch or local platform builds.
 
-For hosted tag CI:
+For a full hosted release:
 
 ```bash
 git tag vX.Y.Z
 git push origin vX.Y.Z
 ```
 
-Pushing the tag triggers `release.yml` automatically.
+Then run **Actions > Release > Run workflow** from the `vX.Y.Z` tag ref with
+`platform=all`.
 
 For local macOS no-account asset upload:
 
@@ -437,10 +443,15 @@ gh release upload vX.Y.Z \
 npm run tauri:verify:macos:latest -- --tag vX.Y.Z --no-require-supply-chain
 ```
 
-Use `--no-require-supply-chain` only for legacy local uploads that predate
-release SBOM and attestation support. Normal hosted releases must publish the
-SBOM, SBOM manifest, and GitHub attestations, and should be verified with the
-default supply-chain check.
+Use `--no-require-supply-chain` only for local uploads or legacy releases that
+do not have GitHub Actions build-provenance attestations for the macOS asset.
+Normal hosted releases must publish the SBOM, SBOM manifest, and GitHub
+attestations, and should be verified with the default supply-chain check.
+
+For the preferred no-account local-macOS release path, create or update the
+draft release, upload the verified local DMG, checksum, macOS SBOM manifest,
+and macOS SPDX SBOM, then run **Actions > Release > Run workflow** from the
+same tag with `platform=windows-linux`.
 
 For a complete local release, build Windows and Linux installers on native
 hosts or VMs from the same tag, then attach those assets to the same release.
@@ -461,7 +472,12 @@ downloadable DMG on `macos-26`.
 
 1. Wait for the `Release` workflow to finish successfully.
 2. Confirm the release is no longer a draft.
-3. Confirm the `Verify Release Artifacts` workflow passes for the published tag.
+3. Run explicit public verification for the published tag. Use
+   `npm run release:verify:public -- --tag vX.Y.Z --platforms windows,macos,linux`
+   plus `npm run tauri:verify:macos:latest -- --tag vX.Y.Z` for a full hosted
+   release. For a local-macOS release, use `--platforms windows,linux` for the
+   hosted assets and `npm run tauri:verify:macos:latest -- --tag vX.Y.Z --no-require-supply-chain`
+   for the local Mac artifact.
 
 ### Version numbering
 
@@ -549,9 +565,10 @@ After the macOS build and verification steps, CI deletes the temporary signing
 keychain, decoded `.p12` certificate, and materialized App Store Connect `.p8`
 key from the hosted runner.
 
-After the GitHub release is published, the `Verify Release Artifacts` workflow
-runs automatically. It downloads the public Windows, macOS, and Linux
-installers, verifies their checksums, exact versioned asset set, SBOM
+After the GitHub release is published, run public verification explicitly. The
+`Verify Release Artifacts` workflow can also be dispatched manually. It
+downloads the public Windows, macOS, and Linux installers, verifies their
+checksums, exact versioned asset set, SBOM
 manifests, SBOM digests, and GitHub artifact attestations. It also downloads
 the public release DMG on macOS and applies the same checksum, signature,
 architecture, launch-smoke, installed-app smoke, local data initialization,
@@ -562,7 +579,8 @@ verifier rejects that label for Developer ID signed and notarized releases.
 The same no-account check can be run locally on a Mac with
 `npm run tauri:verify:macos:latest`; add `--require-gatekeeper` only for a
 Developer ID signed and notarized release. Use `--no-require-supply-chain`
-only when checking an older release that has no SBOM or attestation assets.
+only when checking a local macOS artifact or an older release that has no
+GitHub Actions provenance attestations.
 
 ---
 

@@ -9,20 +9,27 @@ The repo-wide goal remains open: zero known errors, privacy leaks, stale docs,
 brittle tests, user-facing technical assumptions, engineer-only defaults, and
 unverified claims.
 
-The current priority is the `v2.9.1` patch line. Scope is maintenance and repo
-cleanup only: no new product features, no new source adapters, no new external
-AI behavior, and no v3 implementation unless a release-critical regression
-requires it.
+The `v2.9.1` maintenance release is published, verified, and closed out in
+maintained docs. Current work is release-pipeline optimization: preserve the
+verified release evidence and reduce future hosted release time and cost
+without weakening platform, checksum, SBOM, attestation, or public-asset
+verification gates.
 
-Observed release state on 2026-06-22:
+Observed release state on 2026-06-22 local time:
 
-- Public `v2.9.0` release exists at
-  `https://github.com/cboyd0319/JobSentinel/releases/tag/v2.9.0`.
-- GitHub CLI reports `JobSentinel 2.9.0` as latest, published
-  `2026-06-20T22:01:56Z`, non-draft, and non-prerelease.
-- Remote tag `v2.9.0` points at `2131beb5`.
-- Local package, Tauri, and Cargo metadata now target `2.9.1`. Public latest
-  remains `v2.9.0` until the `v2.9.1` release is cut and published.
+- Public `v2.9.1` release exists at
+  `https://github.com/cboyd0319/JobSentinel/releases/tag/v2.9.1`.
+- GitHub CLI reports `JobSentinel 2.9.1` as latest, published
+  `2026-06-23T00:06:36Z`, non-draft, and non-prerelease.
+- Local `main`, `origin/main`, and tag `v2.9.1` point at `81e2df0e`.
+- Release workflow run `27990965207` passed. Total elapsed time was about
+  40 minutes; platform package legs were Linux 12m43s, macOS 19m18s, and
+  Windows 24m46s.
+- Public asset verification passed locally with
+  `npm run release:verify:public -- --tag v2.9.1 --platforms windows,macos,linux`.
+- Public macOS DMG verification passed locally with
+  `npm run tauri:verify:macos:latest -- --tag v2.9.1`.
+- The public wiki pages were pushed to `JobSentinel.wiki` commit `78f9b2b`.
 
 Rule 0 still controls the work: user data stays local unless the user
 explicitly configures an external channel, external AI stays optional and
@@ -38,61 +45,54 @@ UI/UX contracts.
 
 | Workstream | State | Current focus | Source |
 | ---------- | ----- | ------------- | ------ |
-| Current product and quality work | Active | Maintenance-only v2.9.1 cleanup, docs accuracy, harness health, and regression fixes | [Plan](current-work.md) |
-| v2.9.1 maintenance and repo cleanup | Active | Remaining stale-release doc cleanup, optional confirmed maintenance bugs, and final release-cut review | [Plan](v2.9.1-maintenance-and-repo-cleanup.md) |
+| Current product and quality work | Active | Post-release docs accuracy, harness health, release pipeline hygiene, and regression watch | [Plan](current-work.md) |
+| Release pipeline audit and optimization | Active | Reduce release time and runner cost, make local macOS the default no-account path, and preserve release evidence | [Plan](release-pipeline-audit-and-optimization.md) |
 
 ## Current Posture
 
-- `v2.9.0` release operations are complete. Do not route new work through old
-  tag movement, hosted publication, or asset-upload instructions.
-- v3 planning remains useful background, but implementation is deferred during
-  the `v2.9.1` maintenance line unless the user explicitly changes scope.
+- `v2.9.1` release operations are complete. Do not route new work through the
+  old release-cut checklist except as completed evidence.
+- The `v2.9.1` public release includes Windows unsigned installers, a no-account
+  universal macOS DMG, Linux AppImage and deb packages, Agent Skills archives,
+  checksums, SBOM manifests, SPDX SBOMs, and hosted attestations.
+- macOS and Windows signing gaps remain external. Do not claim Gatekeeper-ready
+  macOS or signed Windows distribution before credential-backed proof exists.
+- The no-account macOS package is verified for checksum, metadata,
+  architecture, signature, launch smoke, install smoke, and private local data;
+  expected Gatekeeper rejection remains an accepted no-account limitation.
+- The separate `Verify Release Artifacts` workflow did not appear in the latest
+  GitHub run list for the workflow-token-published `v2.9.1` release, so public
+  release verification must be run explicitly until the pipeline has a blocking
+  in-workflow verifier.
+- v3 planning remains useful background, but implementation is deferred unless
+  the user explicitly changes scope.
 - Cleanup is allowed when it fixes stale docs, broken harness state, bloat,
   test brittleness, security or privacy drift, portability issues, or release
   metadata inaccuracies.
-- Small bug fixes are allowed only when they preserve `v2.9.0` behavior except
-  for the confirmed regression.
-- macOS and Windows signing gaps remain external. Do not claim Gatekeeper-ready
-  macOS or signed Windows distribution before credential-backed proof exists.
-- all configured source adapters and user-gated restricted-source paths must
-  retain focused parser/import/gate coverage before any release-ready claim.
-- 2026-06-22 maintenance kickoff moved the v2.9.0 roadmap to completed
-  history, added the v2.9.1 maintenance plan, deferred v3 implementation,
-  split the near-cap root changelog into release-band archives, and passed
-  focused docs, bloat, harness, score, and script-test checks.
-- 2026-06-22 local cleanup also bumped metadata to `2.9.1`, refreshed stable
-  package/crate pins, replaced custom lazy statics with standard lazy
-  initialization, split near-budget tests and mocks, moved production source
-  health checks out of `smoke_tests.rs`, narrowed safe Clippy allowances, split
-  core architecture docs, and passed full frontend, script, build, docs,
-  release-readiness, Clippy, and Rust library checks.
-- 2026-06-22 stale current-doc release claims were narrowed to the v2.9.1
-  maintenance line or preserved as historical v2.9.0 evidence. The regression
-  validation ledger now records local browser, frontend, backend, build, docs,
-  bloat, harness, and isolated macOS native startup evidence in
-  [`docs/harness/full-manual-validation-v2.9.1.md`](../../harness/full-manual-validation-v2.9.1.md).
-- 2026-06-22 final local pass found a startup keyboard shortcut timing race in
-  the full E2E budget run. The provider now installs app-wide shortcut
-  registration and listeners before the visible shell is interactive. Focused
-  Chromium/WebKit keyboard E2E and the full E2E budget passed after the fix.
-- 2026-06-22 local public-wiki draft updates were prepared in the sibling wiki
-  checkout for `Home.md` and `Capabilities.md`; do not publish those pages
-  until the `v2.9.1` release is cut.
+- Coverage for all configured source adapters and user-gated restricted-source
+  paths must retain focused parser/import/gate evidence before any release-ready
+  claim.
 
 ## Next Best Work
 
-1. Publish the local public-wiki draft only with the `v2.9.1` release.
-2. Cut, tag, push, and verify the `v2.9.1` release only when the user approves
-   moving from local prep to publication.
-3. Keep public asset checks pending until `v2.9.1` assets exist.
+1. Use the new manual release dispatch flow for the next release: local macOS
+   by default for no-account builds, hosted `windows-linux` for Windows/Linux,
+   and explicit public verification.
+2. Decide whether to add a blocking in-workflow public verifier before or
+   immediately after publication, instead of relying on a separate release-event
+   workflow.
+3. Keep future product work scoped by the current active plan and the
+   verification matrix.
 
 ## Completion Bar
 
 - Active plan directory contains only current restart docs.
 - `status.md` answers current state, recent evidence, macOS posture, and next
   best work without old plan reads.
-- Plan indexes, docs hubs, roadmap links, README, release notes, and harness
-  expectations match the `v2.9.1` maintenance-only scope.
+- Plan indexes, docs hubs, roadmap links, README, release notes, harness
+  expectations, and public wiki posture match the published `v2.9.1` state.
+- Release pipeline docs distinguish hosted releases from local macOS uploads
+  and do not overclaim hosted provenance for local artifacts.
 - No known repo bloat, stale docs, generated artifacts, or duplicate sources of
   truth block product, privacy, security, or verification work.
 - No known privacy leak remains in logs, command errors, renderer messages,
@@ -100,7 +100,5 @@ UI/UX contracts.
   payloads.
 - No known user-facing flow assumes terminal, GitHub, debugging, engineering
   knowledge, or only technical job searches.
-- Cleanup-release regression validation has current local evidence and explicit
-  unclaimed gaps in the validation ledger.
-- Final docs, bloat, security, architecture, frontend, build, Rust, and chosen
-  E2E or manual gates pass before any production-ready or release-ready claim.
+- Final docs, bloat, security, release-readiness, workflow, and chosen
+  verification gates pass before any ready or complete claim.

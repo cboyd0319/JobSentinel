@@ -1,12 +1,8 @@
 # JobSentinel
 
-**JobSentinel is a free, open-source, local-first desktop assistant for finding
-real, relevant, fairly compensated work while keeping job-search data under the
-user's control.**
-
-JobSentinel is an open-source, local-first job-search assistant for finding real,
-relevant, fairly compensated work while keeping sensitive job-search data under user
-control.
+**JobSentinel is an open-source, local-first job-search assistant for finding
+real, relevant, fairly compensated work while keeping sensitive job-search data
+under user control.**
 
 Find better roles, spot weak postings, tailor truthful resumes, track every
 application, and protect your pay goals from one private desktop workspace.
@@ -170,7 +166,8 @@ Read more in [PRIVACY.md](PRIVACY.md),
 
 v2.9.1 is a maintenance and repo cleanup release. It keeps the v2.9.0 user
 features intact while refreshing stable dependencies and shrinking oversized
-maintenance surfaces.
+maintenance surfaces. The public `v2.9.1` release is published with Windows,
+macOS, Linux, and Agent Skills assets plus checksums and release evidence.
 
 ## What Was New In 2.9.0
 

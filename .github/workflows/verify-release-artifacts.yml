@@ -88,6 +88,7 @@ jobs:
 
   verify-macos-public-artifact:
     name: Verify public macOS DMG
+    if: ${{ github.event_name == 'release' || contains(format(',{0},', inputs.platforms), ',macos,') }}
     runs-on: macos-26
     timeout-minutes: 30
     permissions:

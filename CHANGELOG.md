@@ -10,6 +10,19 @@ cookie/session storage and automatic account-backed monitoring are disabled.
 Historical entries below may describe removed experiments. The current
 supported path is user-opened search links plus user-clicked Browser Import.
 
+## [Unreleased]
+
+### Changed
+
+- **Release process** - Release publication now uses manual dispatch from an
+  existing version tag instead of publication as a side effect of pushing a
+  tag. It also adds a hosted `windows-linux` path for releases with locally
+  built macOS assets and scopes manual public verification so Windows/Linux
+  checks do not spend a macOS runner.
+- **Release closeout docs** - Closed `v2.9.1` as published and verified
+  history across maintained docs, active plans, validation ledgers, and release
+  process guidance.
+
 ## [2.9.1] - 2026-06-22
 
 Maintenance and repo cleanup release. This patch keeps the `2.9.0` user-facing

@@ -1,31 +1,36 @@
 {
   "version": 1,
   "lastUpdated": "2026-06-22",
-  "goal": "Keep JobSentinel on a v2.9.1 maintenance-only patch line while preserving privacy, source boundaries, non-technical usability, verified dependencies, downloadable Agent Skills, and the locked Quiet Shield redesign in DESIGN.md, docs/design/README.md, and docs/design/design-spec.md.",
+  "goal": "Keep JobSentinel in post-v2.9.1 closeout while preserving privacy, source boundaries, non-technical usability, verified dependencies, downloadable Agent Skills, explicit release evidence, and the locked Quiet Shield redesign in DESIGN.md, docs/design/README.md, and docs/design/design-spec.md.",
   "activeWorkstreams": [
     {
       "id": "active-status",
       "path": "docs/plans/active/status.md",
       "state": "active",
-      "nextStep": "Read first for v2.9.1 maintenance scope, v2.9.0 release state, deferred v3 implementation, current next best work, and Rule 0 constraints.",
+      "nextStep": "Read first for v2.9.1 publication evidence, release-pipeline closeout scope, deferred v3 implementation, current next best work, and Rule 0 constraints.",
       "verification": "npm run harness:session"
     },
     {
       "id": "current-product-and-quality-work",
       "path": "docs/plans/active/current-work.md",
       "state": "active",
-      "nextStep": "Keep cleanup scoped to docs accuracy, harness health, bloat, portability, confirmed bug fixes, and release metadata when the patch line is ready.",
+      "nextStep": "Keep cleanup scoped to docs accuracy, harness health, bloat, portability, confirmed bug fixes, release metadata, and release-process evidence.",
       "verification": "npm run harness:check; for redesign changes, add Computer Use or Playwright screenshot proof across touched routes, modals, toasts, settings, keyboard flow, and narrow-width states."
     },
     {
-      "id": "v2.9.1-maintenance-and-repo-cleanup",
-      "path": "docs/plans/active/v2.9.1-maintenance-and-repo-cleanup.md",
+      "id": "release-pipeline-audit-and-optimization",
+      "path": "docs/plans/active/release-pipeline-audit-and-optimization.md",
       "state": "active",
-      "nextStep": "Continue near-cap repo cleanup, stale release-claim cleanup, and confirmed maintenance fixes without expanding product scope.",
-      "verification": "npm run harness:plan -- --since origin/main; npm run harness:check; npm run lint:docs; npm run lint:bloat; npm run harness:score; git diff --check"
+      "nextStep": "Reduce release time and hosted runner cost while preserving checksum, package, SBOM, attestation, and public-verification evidence.",
+      "verification": "npm run release:readiness -- --version 2.9.1; npm run lint:actions; npm run lint:security; npm run lint:docs; npm run lint:bloat; npm run harness:check; git diff --check"
     }
   ],
   "completedWorkstreams": [
+    {
+      "id": "v2.9.1-maintenance-and-repo-cleanup",
+      "path": "docs/plans/completed/v2.9.1-maintenance-and-repo-cleanup.md",
+      "state": "completed"
+    },
     {
       "id": "v2.9.0-completion-and-full-feature-roadmap",
       "path": "docs/plans/completed/v2.9.0-completion-and-full-feature-roadmap.md",
@@ -37,7 +42,7 @@
       "id": "v3-foundation",
       "path": "docs/plans/v3/foundation-exec-plan.md",
       "state": "deferred",
-      "nextStep": "Resume only after v2.9.1 maintenance scope closes or the user explicitly reopens v3 implementation.",
+      "nextStep": "Resume only after release-pipeline closeout or when the user explicitly reopens v3 implementation.",
       "verification": "npm run harness:check; npm run lint:docs; cd src-tauri && cargo test --lib core::db"
     }
   ],

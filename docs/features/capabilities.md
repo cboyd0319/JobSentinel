@@ -43,7 +43,7 @@ account, telemetry, cloud sync, or external AI provider.
 
 | Item | Current state |
 | ---- | ------------- |
-| Release status | `v2.9.1` maintenance metadata is local; public latest remains `v2.9.0` until release publication |
+| Release status | `v2.9.1` is published as the latest GitHub release with Windows, macOS, Linux, and Agent Skills assets |
 | Primary platforms | Windows 11+, macOS, and Linux |
 | Default data model | Local SQLite and local settings |
 | Telemetry | None |

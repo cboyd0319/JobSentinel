@@ -42,7 +42,10 @@ The maintained external source index lives in
 ## Current State
 
 - Package metadata version: `2.9.1`.
-- Release assets are produced from GitHub version tags and verified after
+- Current public release: `v2.9.1`, published on 2026-06-23 UTC at
+  `https://github.com/cboyd0319/JobSentinel/releases/tag/v2.9.1`.
+- Release assets are produced from manual release workflow dispatches on GitHub
+  version tags, or from verified local platform builds, and verified after
   publication with checksum, SBOM, attestation, and platform package checks.
 - Current macOS full-public-readiness is 94%; no-account path completion is
   100% at the 94% public-readiness ceiling. The no-account universal DMG path
@@ -51,10 +54,14 @@ The maintained external source index lives in
   requires Apple Developer Program materials, Developer ID signing,
   notarization, stapling, and signed-artifact verification.
 - Verified local build plus manual upload remains a supported release path when
-  the same version, harness, package, checksum, and public-artifact verification
-  gates pass. Hosted tag CI remains available for cross-platform builds.
-- The active `v2.9.1` line is maintenance and repo cleanup only. Pending and
-  unreleased work is tracked in [CHANGELOG.md](../CHANGELOG.md) and the
+  the same version, harness, package, checksum, SBOM, and public-artifact
+  verification gates pass. Local macOS build and upload is the preferred
+  no-account release path when hosted macOS proof is not needed; hosted
+  cross-platform release builds remain available by manual dispatch from a
+  release tag.
+- Current active work is release-pipeline optimization. Pending and unreleased
+  work is tracked in
+  [CHANGELOG.md](../CHANGELOG.md) and the
   [active plans index](plans/README.md#current-active-plans).
 - Historical release notes are indexed in
   [docs/releases](releases/README.md), but this page should not be used as a

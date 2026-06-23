@@ -9,24 +9,24 @@ belongs in completed plans, archives, and git.
 
 ## Problem
 
-`v2.9.0` is published, but the active restart surface still pointed agents at
-release-publication work and an active v3 implementation slice. For `v2.9.1`,
-the user has narrowed scope to maintenance and repo cleanup. The repo needs
-current state, a short cleanup checklist, and verification that does not invite
-new feature work.
+`v2.9.1` is published and closed out in maintained docs. The release exposed
+process friction: a full hosted cross-platform release took about 40 minutes
+and spent hosted macOS time even though future no-account macOS packages can be
+built and verified locally.
 
 ## Scope
 
 In scope:
 
-- Stale active-plan, docs-index, roadmap, manifest, and release-state cleanup.
+- Stale active-plan, docs-index, roadmap, manifest, release-state, and README
+  cleanup after `v2.9.1` publication.
+- Release pipeline and process fixes that reduce unnecessary hosted runner time
+  while keeping verification explicit.
 - Repo bloat, generated-artifact, machine-specific path, duplicate-source, and
   docs drift cleanup.
 - Harness, script, test, dependency-pin, and release metadata fixes when they
   keep current behavior verifiable.
 - Small confirmed bug fixes with focused tests.
-- Final `v2.9.1` changelog, release notes, public asset checks, and release
-  gates when the maintenance checklist is closed.
 
 Out of scope:
 
@@ -42,19 +42,19 @@ Out of scope:
 
 | Area | State | Next useful slice |
 | ---- | ----- | ----------------- |
-| Active plan state | Current | Keep `status.md`, this file, the v2.9.1 plan, `docs/plans/index.json`, and harness manifest aligned. |
-| v2.9.0 completion history | Complete | Keep the moved completed roadmap as history; do not use it as active release routing. |
-| v3 planning | Deferred | Leave v3 docs available for later major-release work; do not implement during v2.9.1 maintenance. |
+| Active plan state | Current | Keep `status.md`, this file, the release-pipeline plan, `docs/plans/index.json`, and harness manifest aligned. |
+| v2.9.1 release history | Complete | Keep the moved completed plan as history; do not use it as active release routing. |
+| Release pipeline | Active | Make local macOS the default no-account process, keep hosted all-platform proof opt-in, and document explicit public verification. |
+| v3 planning | Deferred | Leave v3 docs available for later major-release work; do not implement during post-release closeout. |
 | Scraper/source verification | Maintenance watch | Keep existing source-boundary evidence and restricted-source rules intact; update only for cleanup or regressions. |
 | Locked redesign: Quiet Shield | Maintenance watch | `DESIGN.md`, `docs/design/README.md`, and `docs/design/design-spec.md` remain the active UI contract. |
-| Cleanup and harness | Local release prep | Prefer deletion, consolidation, and focused sensor fixes over new machinery. |
 | macOS and Windows readiness | External gaps visible | Keep no-account language accurate; do not claim signed or Gatekeeper-ready distribution without credentials and proof. |
 
 ## Completion Bar
 
 - Active plan directory contains exactly the compact restart docs needed for
-  the current patch line.
-- `v2.9.1` work is maintenance-only unless the user explicitly changes scope.
+  current post-release work.
+- `v2.9.1` is treated as published, verified history.
 - Every product or security-sensitive change preserves Rule 0: local-first
   storage, credential safety, explicit user review, privacy-preserving
   defaults, and optional external AI.
@@ -65,33 +65,38 @@ Out of scope:
 
 ## Next Work
 
-1. Publish the local public-wiki draft only with the `v2.9.1` release.
-2. Cut, tag, push, and verify the `v2.9.1` release only when the user approves
-   moving from local prep to publication.
+1. Keep the release-pipeline audit focused on high-leverage process fixes.
+2. Evaluate whether public verification should be folded into the release
+   workflow as a blocking job.
 3. Confirm major route screenshots, Computer Use clicks, keyboard flow, and
    affected route/action/state checks after any UI change.
-4. Keep public asset checks pending until `v2.9.1` assets exist.
 
 ## Sensors
 
-Use focused docs and harness checks for plan-only edits:
+Use focused docs, workflow, release, and harness checks for this closeout:
 
 ```bash
-npm run harness:session -- --json
-npm run harness:score
 npm run harness:check
+npm run release:readiness -- --version 2.9.1
+npm run lint:actions
+npm run lint:security
 npm run lint:docs
 npm run lint:bloat
 git diff --check
 ```
 
-Broaden only if edits touch product code, privacy/security sensors, release
-workflow, packaging, or macOS deployment behavior.
+Broaden only if edits touch product code, privacy/security sensors, packaging,
+or macOS deployment behavior.
 
 ## Risks
 
-- Active docs can drift back into old v2.9.0 publication instructions.
-- v3 plans can pull patch work out of maintenance scope.
+- Active docs can drift back into old v2.9.0 or pre-publication `v2.9.1`
+  instructions.
+- Release docs can imply automatic public verification when a workflow-token
+  publication requires explicit verification.
+- Local macOS release guidance can overclaim hosted SLSA provenance for a local
+  artifact unless the docs separate checksum/SBOM evidence from hosted
+  attestations.
 - macOS public-readiness language can drift if no-account completion and
   Apple-account-only release work are not kept separate.
 - Secret-storage UX can regress if passive Settings or status checks call
@@ -104,7 +109,7 @@ workflow, packaging, or macOS deployment behavior.
 When resuming, read:
 
 1. [Status](status.md)
-2. [v2.9.1 maintenance plan](v2.9.1-maintenance-and-repo-cleanup.md)
+2. [Release pipeline audit and optimization](release-pipeline-audit-and-optimization.md)
 3. [Verification matrix](../../harness/verification-matrix.md)
 4. Completed or archived plans only for old decisions
 
