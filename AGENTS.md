@@ -42,6 +42,9 @@ Read in this order for non-trivial work:
 7. `docs/developer/ARCHITECTURE.md` for system layout.
 8. `docs/developer/TESTING.md` for test patterns and commands.
 9. Closest feature doc under `docs/features/` for user-facing behavior.
+10. `docs/harness/harness-map.md` to find the right sensor, gate, or harness doc.
+11. `docs/harness/completion-gate.md` for the layered done gate and clean-state
+    exit checklist.
 
 Use `CLAUDE.md` and `.github/copilot-instructions.md` as compatibility
 wrappers. If they conflict with this file or `docs/harness/`, this file and
@@ -119,3 +122,5 @@ cd src-tauri && DATABASE_URL="sqlite:jobs.db" cargo sqlx prepare
 - UI changes need keyboard, loading, error, empty, and narrow-width states.
 - Scraper changes need fixture or parser coverage and rate-limit awareness.
 - Claims of completion need verification output, not only code inspection.
+- Record verification runs in `docs/harness/evidence-log.md` so completion
+  claims survive session restarts.

@@ -27,6 +27,12 @@
     "docs/harness/archive/walkinglabs-harness-creator-skill-evaluation.md",
     "docs/harness/archive/walkinglabs-lecture-02-evaluation.md",
     "docs/harness/entropy-control.md",
+    "docs/harness/harness-map.md",
+    "docs/harness/completion-gate.md",
+    "docs/harness/evidence-log.md",
+    "docs/harness/reliability.md",
+    "docs/harness/quality-grades.md",
+    "docs/harness/product-sense.md",
     "docs/references.md",
     "docs/exec-plans.md",
     "docs/plans/README.md",
@@ -171,6 +177,30 @@
       "Prominent acknowledgement",
       "Expansion Candidate Classification",
       "Live source checks must stay opt-in and low volume."
+    ],
+    "docs/harness/harness-map.md": [
+      "discoverability hub",
+      "## Sensor Registry",
+      "Named Check Modules"
+    ],
+    "docs/harness/completion-gate.md": [
+      "## Three-Layer Completion Gate",
+      "## Clean State Exit Checklist"
+    ],
+    "docs/harness/evidence-log.md": [
+      "Never paste raw command output"
+    ],
+    "docs/harness/reliability.md": [
+      "Observability never weakens privacy.",
+      "## Golden Journeys"
+    ],
+    "docs/harness/quality-grades.md": [
+      "distinct from `npm run harness:score`",
+      "## Simplification Log"
+    ],
+    "docs/harness/product-sense.md": [
+      "## No-Go Patterns",
+      "zero technical knowledge"
     ],
     "docs/plans/index.json": [
       "Quiet Shield redesign",

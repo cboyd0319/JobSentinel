@@ -51,6 +51,31 @@ The frontend never reads or writes local job data directly. It calls typed Tauri
 commands, and the Rust backend owns scraping, scoring, persistence, and external
 notification delivery.
 
+### Layer Model And Cross-Cutting Boundaries
+
+The layers form a one-directional dependency model. Lower layers must not depend
+on higher layers, and the frontend must not bypass the IPC boundary.
+
+```text
+UI (React) -> IPC (Tauri commands) -> Core services -> Storage and sources
+```
+
+Cross-cutting concerns enter through one named boundary each, not ad hoc across
+layers:
+
+| Concern | Approved boundary | Rule |
+| ------- | ----------------- | ---- |
+| Logging | Structured logger boundary | No ad hoc `console` in shipped paths; never log secrets or user data |
+| External AI | `src/services/aiGateway.ts` | All external AI routes through the privacy-first gateway, disabled by default |
+| Credentials | OS keyring | No plaintext secret storage; passive views must not probe saved secrets |
+| External APIs and sources | Scraper and source adapters | Rate limits, error handling, and source boundaries apply |
+| Configuration | Typed config and settings | No scattered environment reads in the UI |
+
+Enforcement lives in `npm run lint:architecture`, `npm run lint:tauri-invokes`,
+`ipc-minimization.mjs`, `npm run lint:external-ai`, and the privacy-logging
+sensor. The sensor registry in `../harness/harness-map.md` maps each rule to its
+owning command.
+
 ---
 
 ## Module Breakdown

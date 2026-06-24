@@ -58,6 +58,23 @@ Multi-step or broad change:
   plans, and relevant verification sensors. No exceptions.
 - Review every sub-agent diff or conclusion before accepting it.
 
+## Scope Discipline
+
+Keep one feature or slice active at a time. Finish it or explicitly park it
+before starting another.
+
+- Pick the highest-priority unfinished item from `docs/plans/index.json` or the
+  active status, and keep edits inside that scope.
+- Use the change contract `Scope` and `Out of scope` fields to draw the
+  boundary. Required-only. Nearby work that is not required goes to the
+  tech-debt tracker, not into the current change.
+- A slice is done only when it clears the relevant layers of
+  `completion-gate.md` and has a row in `evidence-log.md`. Do not start a new
+  slice to escape an unfinished one.
+- This is a discipline rule, not a sensor. JobSentinel tracks workstreams, not a
+  single global feature, so scope is held by the change contract and review, not
+  by an automated single-active-feature check.
+
 ## Implementation Strategy
 
 - Match current code patterns before adding abstractions.
@@ -107,3 +124,12 @@ Every substantial final update should include:
 - Next best step when work remains.
 
 Do not claim broad system health from narrow checks. Name what was verified.
+
+## Related Harness Docs
+
+- [Harness map and sensor registry](harness-map.md)
+- [Completion gate and clean state](completion-gate.md)
+- [Evidence log](evidence-log.md)
+- [Reliability and observability](reliability.md)
+- [Quality grades](quality-grades.md)
+- [Product sense](product-sense.md)

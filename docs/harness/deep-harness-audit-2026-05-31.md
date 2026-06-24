@@ -43,6 +43,19 @@ toolchain pins, the machine-readable plan index, and the main bloat-runner split
 are now closed or narrowed to residual module-ownership work below. Remaining
 recommendations stay tracked here and in `docs/plans/tech-debt-tracker.md`.
 
+Follow-up on 2026-06-24: a WalkingLabs Lecture 07-12 and advanced-SOP pass closed
+the two remaining open recommendations above. The run-evidence ledger
+(`docs/harness/evidence-log.md`, HE-017) closes the State And Interoperability P1,
+and the harness architecture map plus sensor registry
+(`docs/harness/harness-map.md`, HE-018) closes the Documentation P1 and P2. The
+same pass added course-grounded docs not previously tracked as debt:
+`docs/harness/reliability.md` (runtime observability and golden journeys),
+`docs/harness/quality-grades.md` (domain and layer grading with a simplification
+log), `docs/harness/completion-gate.md` (named three-layer gate and clean-state
+checklist), and `docs/harness/product-sense.md`. All are registered in
+`docs/harness/manifest.json` and pass `npm run harness:check`, `npm run lint:md`,
+`npm run lint:prose`, and the five-tuple score gate.
+
 ## Highest-Impact Improvements
 
 | Priority | Improvement | Evidence | Risk | Recommended fix |
@@ -69,7 +82,7 @@ recommendations stay tracked here and in `docs/plans/tech-debt-tracker.md`.
 | Priority | Improvement | Evidence | Risk | Recommended fix |
 | -------- | ----------- | -------- | ---- | --------------- |
 | P1 | Extend `npm run doctor` for Linux Tauri dependencies | `scripts/doctor.mjs` now checks WebKitGTK, GTK, appindicator, librsvg, and `patchelf` on Linux. | Closed: Linux contributors get an early failure with install guidance before Tauri build. | Keep package names current with Tauri Linux requirements. |
-| P1 | Pin local toolchain expectations | Closed: `.nvmrc` pins Node 24.16.0, `rust-toolchain.toml` pins Rust 1.96.0 with `clippy` and `rustfmt`, and `doctor` checks both files. | Closed for current local expectations; future risk is CI/runtime drift when workflows change Node or Rust baselines. | Update the pin files, doctor checks, and CI workflows together when changing runtime baselines. |
+| P1 | Pin local toolchain expectations | Closed: `.nvmrc` pins Node 24.18.0, `rust-toolchain.toml` pins Rust 1.96.0 with `clippy` and `rustfmt`, and `doctor` checks both files. | Closed for current local expectations; future risk is CI/runtime drift when workflows change Node or Rust baselines. | Update the pin files, doctor checks, and CI workflows together when changing runtime baselines. |
 | P2 | Check Playwright browser install state | `doctor` now launches Playwright Chromium as a warning by default, and `npm run doctor:e2e` makes that launch a failure gate. | Closed: E2E setup can fail early with the browser install command before test runs. | Keep `doctor:e2e` in E2E setup and troubleshooting docs. |
 
 ## Verification Speed Improvements

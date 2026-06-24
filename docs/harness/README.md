@@ -50,9 +50,8 @@ Always-read docs are maps, not manuals.
 | `docs/plans/active/status.md` | 140 lines | Current state, evidence, next work |
 | `docs/plans/active/current-work.md` | 220 lines | Active goal contract |
 
-Detailed history belongs in `docs/plans/archive/`, dated harness evaluations,
-or git history. Load those files only when old decision context is needed.
-`npm run harness:check` enforces this budget.
+Detailed history belongs in `docs/plans/archive/`, dated harness evaluations, or git history. Load those files
+only when old decision context is needed. `npm run harness:check` enforces this budget.
 
 ## Current Standard
 
@@ -72,6 +71,7 @@ Use this structure:
 | Support path | `docs/user/QUICK_START.md`, issue templates | User-safe recovery |
 | Privacy/AI boundary | `PRIVACY.md`, `RESPONSIBLE_AI.md`, `docs/architecture/privacy-first-ai-gateway.md` | Local-first and external-AI gate |
 | Policy manifest | `docs/harness/manifest.json` | Required files, snippets, wiki inventory |
+| Sensor registry | `docs/harness/harness-map.md` | Map of sensors, gates, state, and which command owns each rule |
 
 ## Session Start Checklist
 
