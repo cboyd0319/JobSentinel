@@ -336,7 +336,7 @@ Developer entrypoints:
 
 Requirements:
 
-- Node.js 24.17.0 from `.nvmrc`
+- Node.js 24.18.0 from `.nvmrc`
 - npm 11.17.0 from `package.json`
 - Rust 1.96.0 from `rust-toolchain.toml`
 - Platform packages from [developer setup](docs/developer/GETTING_STARTED.md)

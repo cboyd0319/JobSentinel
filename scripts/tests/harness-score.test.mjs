@@ -22,7 +22,7 @@ function withFixture(callback) {
 }
 
 function writeCompleteHarnessFixture(root) {
-  writeFixtureFile(root, ".nvmrc", "24.17.0\n");
+  writeFixtureFile(root, ".nvmrc", "24.18.0\n");
   writeFixtureFile(
     root,
     "rust-toolchain.toml",

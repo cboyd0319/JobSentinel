@@ -22,7 +22,7 @@ function withDoctorFixture(callback) {
   const root = mkdtempSync(join(tmpdir(), "jobsentinel-doctor-"));
 
   try {
-    writeFixtureFile(root, ".nvmrc", "24.17.0\n");
+    writeFixtureFile(root, ".nvmrc", "24.18.0\n");
     writeFixtureFile(root, "rust-toolchain.toml", 'channel = "1.96.0"\n');
     writeFixtureFile(root, "package.json", '{"packageManager":"npm@11.17.0"}');
     writeFixtureFile(root, "package-lock.json", "{}");
@@ -167,7 +167,7 @@ test("runDoctor checks Linux Tauri system packages through pkg-config", () => {
     const results = runDoctor({
       root,
       platform: "linux",
-      nodeVersion: "v24.17.0",
+      nodeVersion: "v24.18.0",
       execFileSync: createMockExec({
         installedPkgConfigPackages: ["gtk+-3.0", "ayatana-appindicator3-0.1", "librsvg-2.0"],
       }),
@@ -190,7 +190,7 @@ test("runDoctor checks Linux AppImage FUSE compatibility", () => {
     const results = runDoctor({
       root,
       platform: "linux",
-      nodeVersion: "v24.17.0",
+      nodeVersion: "v24.18.0",
       execFileSync: createMockExec({ hasLibfuse: false }),
     });
 
@@ -211,7 +211,7 @@ test("runDoctor warns on Playwright readiness by default", () => {
     const results = runDoctor({
       root,
       platform: "darwin",
-      nodeVersion: "v24.17.0",
+      nodeVersion: "v24.18.0",
       execFileSync: createMockExec({ playwrightFails: true }),
     });
 
@@ -230,7 +230,7 @@ test("runDoctor can make Playwright readiness a strict E2E gate", () => {
     const results = runDoctor({
       root,
       platform: "darwin",
-      nodeVersion: "v24.17.0",
+      nodeVersion: "v24.18.0",
       strictPlaywright: true,
       execFileSync: createMockExec({ playwrightFails: true }),
     });
@@ -272,7 +272,7 @@ test("runDoctor warns when local npm differs from the package-manager pin", () =
     const results = runDoctor({
       root,
       platform: "darwin",
-      nodeVersion: "v24.17.0",
+      nodeVersion: "v24.18.0",
       execFileSync: createMockExec(),
     });
 
@@ -297,7 +297,7 @@ test("runDoctor checks local runtime pin files", () => {
     const results = runDoctor({
       root,
       platform: "darwin",
-      nodeVersion: "v24.17.0",
+      nodeVersion: "v24.18.0",
       execFileSync: createMockExec(),
     });
 

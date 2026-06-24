@@ -20,7 +20,7 @@
 # Install Rust (https://rustup.rs/)
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
-# Install Node.js 24.17.0 (https://nodejs.org/)
+# Install Node.js 24.18.0 (https://nodejs.org/)
 # `.nvmrc` pins the local baseline used by CI.
 # `package.json` pins npm 11.17.0.
 
