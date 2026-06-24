@@ -56,6 +56,17 @@ test("artifact checks reject unexpected root entries and local artifacts", () =>
   });
 });
 
+test("artifact checks ignore the local .claude agent directory", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(root, "README.md", "# JobSentinel\n");
+    writeFixtureFile(root, ".claude/settings.local.json", "{}\n");
+
+    assert.deepEqual(collectUnexpectedRootEntries(root), []);
+    assert.deepEqual(collectFilesystemBloat(root), []);
+  });
+});
+
 test("tracked artifact checks preserve allowed generated schemas", () => {
   assert.equal(isTrackedBloat("src-tauri/gen/schemas/capabilities.json"), false);
   assert.equal(isTrackedBloat("src-tauri/gen/temporary-output.json"), true);
