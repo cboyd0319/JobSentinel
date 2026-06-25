@@ -22,6 +22,7 @@
     "lint:dup": "node scripts/check-duplication.mjs",
     "lint:external-ai": "node scripts/check-external-ai-gateway.mjs",
     "lint:deps": "node scripts/check-dependency-pins.mjs",
+    "lint:deps:why": "node scripts/check-dependency-rationale.mjs",
     "lint:actions": "node scripts/check-action-pins.mjs",
     "lint:skills": "node scripts/check-agent-skills.mjs",
     "lint:tauri-invokes": "node scripts/check-tauri-invokes.mjs",

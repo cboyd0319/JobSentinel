@@ -33,6 +33,7 @@ user-facing workflow risk requires more evidence.
 | Test quality policy | `npm run lint:tests` and `npm run harness:check` |
 | Repo bloat policy | `npm run lint:bloat` and `npm run harness:check` |
 | New or changed source code (DRY) | `npm run lint:dup` ratchet; duplicated-line volume must not exceed the baseline in `validation/duplication_contract.json`. Extract a shared helper or run `npm run lint:dup -- --list` to locate it |
+| New direct dependency (YAGNI) | `npm run lint:deps:why`; add a one-line reason in `validation/dependency_rationale.json` justifying why stdlib, a native feature, or a few lines cannot replace it |
 | Maintainable file-size policy | `validation/file_size_contract.json`, `npm run lint:bloat`, and `npm run harness:check` |
 | Machine-specific local path policy | `npm run harness:check` |
 | Any claim of completion | Name exact checks run |

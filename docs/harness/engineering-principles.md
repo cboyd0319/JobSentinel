@@ -40,6 +40,10 @@ the requirement:
   `validation/duplication_contract.json`. The baseline may only ratchet down.
   Use `npm run lint:dup -- --list` to locate duplication and
   `npm run lint:dup -- --update-baseline` after removing some.
+- `npm run lint:deps:why` is the YAGNI gate for ladder step 4: every direct npm
+  and Cargo dependency needs a one-line reason in
+  `validation/dependency_rationale.json`. Adding a dependency without one fails,
+  and a stale entry for a removed dependency fails too.
 - `npm run lint:bloat` guards repo bloat and the maintainable file-size
   contract.
 - Reviewers reject new dependencies, abstractions, or duplication that a
