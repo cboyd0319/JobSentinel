@@ -13,7 +13,7 @@ See <https://walkinglabs.github.io/learn-harness-engineering/>.
 
 | Layer | What it is | Where it lives |
 | ----- | ---------- | -------------- |
-| Guides | Constrain the agent before it acts | `AGENTS.md`, `docs/harness/README.md`, `agent-operating-model.md`, `change-contract.md`, `product-sense.md`, design and feature docs |
+| Guides | Constrain the agent before it acts | `AGENTS.md`, `docs/harness/README.md`, `agent-operating-model.md`, `engineering-principles.md`, `change-contract.md`, `product-sense.md`, design and feature docs |
 | Sensors | Inspect work after it acts | `npm run` checks in the Sensor Registry below |
 | State | Durable restart and evidence surface | `docs/plans/active/status.md`, `docs/plans/index.json`, `evidence-log.md`, `tech-debt-tracker.md` |
 | Gates | Named conditions before done or release | `completion-gate.md`, `verification-matrix.md`, `full-manual-validation-v2.9.1.md` |

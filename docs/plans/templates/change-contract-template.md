@@ -6,6 +6,12 @@
 
 ## Out Of Scope
 
+## Lean And DRY
+
+- Ladder step stopped at (see `docs/harness/engineering-principles.md`):
+- Reused stdlib, native feature, or installed dependency:
+- Duplication removed or avoided:
+
 ## Acceptance Criteria
 
 - Criterion.

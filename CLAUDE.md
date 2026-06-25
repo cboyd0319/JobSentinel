@@ -20,6 +20,9 @@ and `docs/harness/`.
 ## Claude-Specific Notes
 
 - Use repo files as current evidence.
+- All development is DRY and lean: YAGNI, standard library and native platform
+  first, no new dependency for a few lines, no duplication, documentation is
+  product. See [engineering principles](docs/harness/engineering-principles.md).
 - Rule 0: user privacy and security are non-negotiable.
 - External AI stays optional, disabled by default, and routed through the
   privacy-first AI gateway.

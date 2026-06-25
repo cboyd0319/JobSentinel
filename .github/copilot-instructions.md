@@ -16,6 +16,9 @@ Keep it short and point to durable docs instead of duplicating project manuals.
 ## Core Rules
 
 - JobSentinel is a privacy-first Tauri 2, Rust, React 19, TypeScript app.
+- All development is DRY and lean: YAGNI, standard library and native platform
+  first, no new dependency for a few lines, no duplication, and documentation is
+  product. See [engineering principles](../docs/harness/engineering-principles.md).
 - Rule 0: user privacy and security are non-negotiable. No feature, shortcut,
   support flow, external AI provider, or source adapter may weaken local-first
   storage, credential safety, explicit user review, or privacy-preserving

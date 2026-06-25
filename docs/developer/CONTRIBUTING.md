@@ -230,6 +230,13 @@ Closes #123"
 
 ## Coding Standards
 
+All code is DRY and lean. Before writing code, walk the ladder in
+[Engineering Principles](../harness/engineering-principles.md) and stop at the
+first step that satisfies the requirement: skip it (YAGNI), use the standard
+library, use a native platform feature, reuse an installed dependency, or make
+it one clear line. Boring over clever, and reduce or remove duplication
+everywhere.
+
 ### Rust Code
 
 **Follow Rust conventions:**

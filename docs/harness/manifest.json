@@ -33,6 +33,7 @@
     "docs/harness/reliability.md",
     "docs/harness/quality-grades.md",
     "docs/harness/product-sense.md",
+    "docs/harness/engineering-principles.md",
     "docs/references.md",
     "docs/exec-plans.md",
     "docs/plans/README.md",
@@ -58,21 +59,26 @@
       "DESIGN.md",
       "docs/design/README.md",
       "multi-agent-orchestration.md",
-      "Update the whole public GitHub wiki when behavior, setup, commands,"
+      "Update the whole public GitHub wiki when behavior, setup, commands,",
+      "All current and future development is DRY and lean.",
+      "Does the standard library do it? Use it.",
+      "Boring over clever. Reduce or remove duplication everywhere."
     ],
     ".github/copilot-instructions.md": [
       "Rule 0: user privacy and security are non-negotiable.",
       "External AI stays optional, disabled by default, and routed through the",
       "User data stays local unless the user explicitly configures an external",
       "User-facing flows must assume zero technical knowledge",
-      "Preserve responsible-use boundaries"
+      "Preserve responsible-use boundaries",
+      "All development is DRY and lean:"
     ],
     "CLAUDE.md": [
       "Rule 0: user privacy and security are non-negotiable.",
       "External AI stays optional, disabled by default, and routed through the",
       "User-facing flows must assume zero technical knowledge",
       "Preserve responsible-use boundaries",
-      "Read [AGENTS.md](AGENTS.md) first."
+      "Read [AGENTS.md](AGENTS.md) first.",
+      "All development is DRY and lean:"
     ],
     "README.md": [
       "Core workflows work locally.",
@@ -148,7 +154,8 @@
       "Harness impact:",
       "Restricted-source risk:",
       "User-ease evidence:",
-      "Public GitHub wiki pages from `docs/harness/manifest.json` to update"
+      "Public GitHub wiki pages from `docs/harness/manifest.json` to update",
+      "Lean and DRY:"
     ],
     "docs/plans/active/release-pipeline-audit-and-optimization.md": [
       "## Problem",
@@ -201,6 +208,13 @@
     "docs/harness/product-sense.md": [
       "## No-Go Patterns",
       "zero technical knowledge"
+    ],
+    "docs/harness/engineering-principles.md": [
+      "All current and future JobSentinel development is DRY and lean.",
+      "## The Ladder",
+      "Does the standard library do it? Use it.",
+      "Reduce or remove duplication everywhere.",
+      "Documentation is product."
     ],
     "docs/plans/index.json": [
       "Quiet Shield redesign",
@@ -282,7 +296,8 @@
       "Public GitHub wiki pages from `docs/harness/manifest.json` to update",
       "## Orchestration",
       "## Harness Impact",
-      "User-ease evidence:"
+      "User-ease evidence:",
+      "## Lean And DRY"
     ],
     "docs/plans/templates/exec-plan-template.md": [
       "## Success Criteria",

@@ -15,6 +15,13 @@ Files, modules, docs, and behaviors in scope.
 Out of scope:
 Nearby work intentionally not included.
 
+Lean and DRY:
+- Ladder step from docs/harness/engineering-principles.md this change stops at,
+  and why nothing smaller works.
+- Existing code, stdlib, native platform feature, or installed dependency reused
+  instead of new code or a new dependency.
+- Duplication removed or avoided.
+
 Product direction:
 - How the change maximizes useful job-search automation.
 - How it removes arbitrary friction, redundant manual work, or
