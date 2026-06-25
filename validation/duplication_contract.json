@@ -1,0 +1,32 @@
+{
+  "schema": "jobsentinel.duplication_contract.v1",
+  "policy": "DRY enforcement ratchet. A duplicated block is a run of identical significant code lines that appears in two or more places. New or changed code must not raise duplicatedLines above the baseline. The baseline is tool-generated (npm run lint:dup -- --update-baseline) and may only ratchet down as duplication is removed. Existing duplication above zero is tracked debt, not approved; see docs/plans/tech-debt-tracker.md.",
+  "windowLines": 15,
+  "include": {
+    "dirs": [
+      "src",
+      "src-tauri/src"
+    ],
+    "extensions": [
+      ".ts",
+      ".tsx",
+      ".rs"
+    ]
+  },
+  "excludePatterns": [
+    "\\.test\\.",
+    "\\.spec\\.",
+    "\\.stories\\.",
+    "/tests/",
+    "tests\\.rs$",
+    "/__tests__/",
+    "/mocks/",
+    "Taxonomy\\.(ts|json)$",
+    "Entries\\.ts$"
+  ],
+  "baseline": {
+    "duplicatedLines": 1752,
+    "cloneRegions": 82
+  },
+  "measuredOn": "2026-06-24"
+}

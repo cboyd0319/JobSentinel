@@ -41,6 +41,7 @@ enforced elsewhere or the risk no longer exists.
 | lint-secrets | `npm run lint:secrets` | Secret exposure | Blocks committed secret-shaped material | Baseline | Never |
 | lint-external-ai | `npm run lint:external-ai` | Rule 0 / AI gateway | Detects external AI providers outside the privacy-first gateway | Deep audit 2026-05-31 | All external AI is structurally gateway-only |
 | lint-bloat | `npm run lint:bloat` | Entropy | Repo bloat and the maintainable file-size contract | Deep audit 2026-05-31 | File-size contract enforced by other tooling |
+| lint-dup | `npm run lint:dup` | DRY | Duplicated-line ratchet over product source; fails when new code exceeds the baseline in `validation/duplication_contract.json` | Engineering principles enforcement | Duplication is enforced by another clone tool |
 | lint-deps | `npm run lint:deps` | Supply chain | Exact-pin policy for npm, Cargo, and runners | Deep audit 2026-05-31 | Pinning enforced by lockfile policy alone |
 | lint-actions | `npm run lint:actions` | Supply chain | GitHub Actions pin policy | Deep audit 2026-05-31 | Actions pinned by org policy |
 | lint-skills | `npm run lint:skills` | Agent skills | Downloadable Agent Skills packaging integrity | Skills release work | Skills packaging is removed |

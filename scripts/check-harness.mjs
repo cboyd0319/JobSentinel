@@ -12,6 +12,7 @@ import {
 import { checkAgentSkills } from "./check-agent-skills.mjs";
 import { collectDependencyPinViolations } from "./check-dependency-pins.mjs";
 import { checkRepoBloat } from "./check-repo-bloat.mjs";
+import { checkDuplication } from "./check-duplication.mjs";
 import {
   evaluateMacosReadiness,
   readReadmeMacosReadinessPercent,
@@ -807,6 +808,10 @@ for (const violation of collectDependencyPinViolations(root)) {
 }
 
 for (const violation of checkRepoBloat(root)) {
+  errors.push(violation);
+}
+
+for (const violation of checkDuplication(root)) {
   errors.push(violation);
 }
 

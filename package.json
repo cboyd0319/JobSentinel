@@ -19,6 +19,7 @@
     "lint:security": "node scripts/check-security-sensors.mjs && npm run lint:secrets",
     "lint:secrets": "node scripts/check-secrets.mjs",
     "lint:bloat": "node scripts/check-repo-bloat.mjs",
+    "lint:dup": "node scripts/check-duplication.mjs",
     "lint:external-ai": "node scripts/check-external-ai-gateway.mjs",
     "lint:deps": "node scripts/check-dependency-pins.mjs",
     "lint:actions": "node scripts/check-action-pins.mjs",

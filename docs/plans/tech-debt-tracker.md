@@ -7,6 +7,7 @@ security, or developer workflow.
 
 | ID | Area | Evidence | Risk | Next step | Status |
 | -- | ---- | -------- | ---- | --------- | ------ |
+| DRY-001 | Source duplication ratchet | `npm run lint:dup` baseline on 2026-06-24 measured 1752 duplicated significant lines across 82 regions in product source (`src/**` and `src-tauri/src/**`, 15-line window), recorded in `validation/duplication_contract.json`. Largest regions are in `src-tauri/src/commands/` and `src-tauri/src/core/ats/`. | Existing duplication raises maintenance cost and the chance edits diverge; the ratchet blocks growth but does not remove the debt. | Extract shared helpers for the largest regions (`npm run lint:dup -- --list`), then lower the baseline with `npm run lint:dup -- --update-baseline`. | Open |
 
 ## Closed Items
 

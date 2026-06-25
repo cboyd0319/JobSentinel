@@ -33,8 +33,15 @@ the requirement:
 - `AGENTS.md` carries the ladder so every session starts with it.
 - The [change contract](change-contract.md) requires each non-trivial change to
   name the ladder step it stops at and the duplication it removes.
-- `npm run harness:check` locks this principle text into the instruction files,
-  and `npm run lint:bloat` guards repo bloat and the file-size contract.
+- `npm run harness:check` locks this principle text into the instruction files
+  and runs the sensors below.
+- `npm run lint:dup` is the DRY ratchet: it fails when new or changed code
+  raises duplicated-line volume above the tool-generated baseline in
+  `validation/duplication_contract.json`. The baseline may only ratchet down.
+  Use `npm run lint:dup -- --list` to locate duplication and
+  `npm run lint:dup -- --update-baseline` after removing some.
+- `npm run lint:bloat` guards repo bloat and the maintainable file-size
+  contract.
 - Reviewers reject new dependencies, abstractions, or duplication that a
   smaller, boring change would have avoided.
 
