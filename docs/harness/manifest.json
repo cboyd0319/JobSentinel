@@ -278,6 +278,7 @@
       "External AI remains optional, disabled by default, and routed through the privacy-first AI gateway.",
       "Request review, redaction, cancellation, approval, and local request logging stay intact.",
       "Safe support report path stays easy, local-first, and sanitized.",
+      "Follows the DRY ladder in",
       "Public GitHub wiki impact was reviewed against docs/harness/manifest.json.",
       "Zero-technical-knowledge users and technical plus non-technical job searches stay supported."
     ],

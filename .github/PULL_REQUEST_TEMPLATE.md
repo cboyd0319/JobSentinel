@@ -42,6 +42,8 @@
 ## Harness Checklist
 
 - [ ] Change contract or plan exists for non-trivial work
+- [ ] Follows the DRY ladder in `docs/harness/engineering-principles.md`: no new
+  dependency, abstraction, or duplication that a smaller change would avoid
 - [ ] Required sensors from `docs/harness/verification-matrix.md` ran
 - [ ] Public GitHub wiki impact was reviewed against docs/harness/manifest.json.
 - [ ] Agent-facing docs stayed short and linked to source-of-truth docs

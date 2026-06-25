@@ -77,6 +77,9 @@ before starting another.
 
 ## Implementation Strategy
 
+- Follow the DRY ladder in [engineering principles](engineering-principles.md):
+  prefer YAGNI, then the standard library, a native platform feature, or an
+  installed dependency before new code, and reduce duplication.
 - Match current code patterns before adding abstractions.
 - Keep UI, Tauri commands, business logic, and storage boundaries separate.
 - Add tests near changed behavior.
@@ -127,6 +130,7 @@ Do not claim broad system health from narrow checks. Name what was verified.
 
 ## Related Harness Docs
 
+- [Engineering principles](engineering-principles.md)
 - [Harness map and sensor registry](harness-map.md)
 - [Completion gate and clean state](completion-gate.md)
 - [Evidence log](evidence-log.md)
