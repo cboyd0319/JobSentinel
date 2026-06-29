@@ -416,12 +416,12 @@ jobs:
         run: npm run release:skills -- --version "$RELEASE_VERSION" --out-dir release-assets/public
 
       - name: Attest Agent Skills tarball provenance
-        uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26 # v4.1.0
+        uses: actions/attest@a1948c3f048ba23858d222213b7c278aabede763 # v4.1.1
         with:
           subject-path: release-assets/public/JobSentinel-${{ needs.create-release.outputs.version }}-agent-skills.tar.gz
 
       - name: Attest Agent Skills ZIP provenance
-        uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26 # v4.1.0
+        uses: actions/attest@a1948c3f048ba23858d222213b7c278aabede763 # v4.1.1
         with:
           subject-path: release-assets/public/JobSentinel-${{ needs.create-release.outputs.version }}-agent-skills.zip
 
@@ -1093,12 +1093,12 @@ jobs:
             --require-artifacts
 
       - name: Attest release artifact provenance
-        uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26 # v4.1.0
+        uses: actions/attest@a1948c3f048ba23858d222213b7c278aabede763 # v4.1.1
         with:
           subject-path: release-assets/public/*
 
       - name: Attest release artifact SBOM
-        uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26 # v4.1.0
+        uses: actions/attest@a1948c3f048ba23858d222213b7c278aabede763 # v4.1.1
         with:
           subject-path: |
             release-assets/public/*.dmg
