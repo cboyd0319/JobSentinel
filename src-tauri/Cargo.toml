@@ -73,7 +73,7 @@ dotenvy = "=0.15.7"
 
 # Error Handling
 thiserror = "=2.0.18"
-anyhow = "=1.0.102"
+anyhow = "=1.0.103"
 
 # UUIDs
 uuid = { version = "=1.23.3", features = ["v4"] }
