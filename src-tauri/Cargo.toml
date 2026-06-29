@@ -33,7 +33,7 @@ keyring = "=4.1.2"
 
 # Local secret vault encryption
 argon2 = { version = "=0.5.3", default-features = false, features = ["alloc", "zeroize"] }
-chacha20poly1305 = "=0.10.1"
+chacha20poly1305 = "=0.11.0"
 zeroize = "=1.9.0"
 
 # Serialization
