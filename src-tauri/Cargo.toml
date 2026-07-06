@@ -98,7 +98,7 @@ lettre = { version = "=0.11.22", default-features = false, features = ["tokio1-r
 # PDF parsing for resume extraction
 pdf-extract = "=0.10.0"
 docx-rs = "=0.4.20"
-quick-xml = "=0.40.1"
+quick-xml = "=0.41.0"
 zip = { version = "=8.6.0", default-features = false, features = ["deflate"] }
 
 # Note: OCR feature uses command-line tesseract and pdftoppm (no Rust crate dependencies)
