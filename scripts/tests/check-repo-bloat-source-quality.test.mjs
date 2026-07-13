@@ -122,7 +122,7 @@ test("checkRepoBloat rejects production TypeScript error suppressions", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/utils/vitals.ts",
+      "src/app/vitals.ts",
       [
         "export function getPerformanceSummary() {",
         "  // @ts-expect-error - memory is non-standard",
@@ -132,7 +132,7 @@ test("checkRepoBloat rejects production TypeScript error suppressions", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src/utils/vitals.ts"], {
+    execFileSync("git", ["add", "package.json", "src/app/vitals.ts"], {
       cwd: root,
     });
 
@@ -140,7 +140,7 @@ test("checkRepoBloat rejects production TypeScript error suppressions", () => {
 
     assert.ok(
       violations.includes(
-        "remove production TypeScript error suppression: src/utils/vitals.ts",
+        "remove production TypeScript error suppression: src/app/vitals.ts",
       ),
       violations.join("\n"),
     );

@@ -537,7 +537,7 @@ test("product copy rejects technical recovery and raw error details", () => {
     );
     writeFixtureFile(
       root,
-      "src/utils/vitals.ts",
+      "src/app/vitals.ts",
       "In production, you could send to analytics service\nsendToAnalytics(metric)\nwith analytics services or custom reporting\n",
     );
 
@@ -564,7 +564,7 @@ test("product copy rejects technical recovery and raw error details", () => {
       hasTechnicalRecoveryCopy(root, "src/features/dashboard/errors/ModalErrorBoundary.tsx"),
       true,
     );
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/utils/vitals.ts"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/app/vitals.ts"), true);
     assert.equal(
       hasTechnicalRecoveryCopy(
         root,

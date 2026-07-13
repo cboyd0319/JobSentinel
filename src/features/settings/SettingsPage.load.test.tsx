@@ -5,7 +5,7 @@ import { invoke } from "@tauri-apps/api/core";
 import Settings from "./SettingsPage";
 import { DEFAULT_EXTERNAL_AI_CONFIG } from "./config/SettingsConfig";
 import * as feedbackService from "../../services/feedbackService";
-import { resetBodyScrollLocksForTests } from "../../utils/bodyScrollLock";
+import { resetBodyScrollLocksForTests } from "../../ui/bodyScrollLock";
 
 const mockInvoke = vi.mocked(invoke);
 

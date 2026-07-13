@@ -56,7 +56,7 @@ test("source quality rejects frontend glyphs and lint suppressions", () => {
     );
     writeFixtureFile(
       root,
-      "src/utils/vitals.ts",
+      "src/app/vitals.ts",
       "// @ts-expect-error\nperformance.memory;\n",
     );
     writeFixtureFile(
@@ -90,7 +90,7 @@ test("source quality rejects frontend glyphs and lint suppressions", () => {
       true,
     );
     assert.equal(
-      hasProductionTypeErrorSuppression(root, "src/utils/vitals.ts"),
+      hasProductionTypeErrorSuppression(root, "src/app/vitals.ts"),
       true,
     );
     assert.equal(

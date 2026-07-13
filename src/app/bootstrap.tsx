@@ -12,7 +12,7 @@ import App from "./App";
 async function prepareDevelopmentRuntime() {
   if (!import.meta.env.DEV) return;
 
-  void import("../utils/vitals").then(({ reportWebVitals }) => {
+  void import("./vitals").then(({ reportWebVitals }) => {
     reportWebVitals();
   });
   const { setupMocking } = await import("../mocks");

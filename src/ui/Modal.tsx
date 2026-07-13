@@ -10,7 +10,7 @@ import {
   MouseEvent,
 } from "react";
 import { createPortal } from "react-dom";
-import { lockBodyScroll } from "../utils/bodyScrollLock";
+import { lockBodyScroll } from "./bodyScrollLock";
 
 interface ModalProps {
   isOpen: boolean;

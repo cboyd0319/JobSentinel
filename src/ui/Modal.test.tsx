@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, waitFor, within } from "@testing-library/react";
 import { Modal, ModalFooter } from "./Modal";
-import { resetBodyScrollLocksForTests } from "../utils/bodyScrollLock";
+import { resetBodyScrollLocksForTests } from "./bodyScrollLock";
 
 describe("Modal", () => {
   beforeEach(() => {
