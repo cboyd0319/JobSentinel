@@ -265,7 +265,7 @@ const technicalFirstUserCopyPaths = new Set([
   "src/features/resumes/mocks/resumeKeywordMatching.ts",
   "src/features/resumes/mocks/resumeRequirementReview.ts",
   "src/mocks/handlers.ts",
-  "src/contexts/UndoContext.tsx",
+  "src/app/providers/UndoProvider.tsx",
   "src/app/keyboard/KeyboardShortcutsProvider.tsx",
   "src-tauri/src/commands/errors.rs",
   "src-tauri/src/commands/bookmarklet.rs",

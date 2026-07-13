@@ -11,7 +11,7 @@ import type {
   GhostFilter,
 } from "../types";
 import { useToast } from "../../../shared/toast/useToast";
-import { useUndo } from "../../../hooks/useUndo";
+import { useUndo } from "../../../shared/undo/useUndo";
 import { safeInvoke, safeInvokeWithToast } from "../../../utils/api";
 import { getSafeErrorToastCopy } from "../../../utils/safeErrorCopy";
 import { recordBrowserAssistLearningSignalIfEnabled } from "../../../shared/browserAssistLearning";

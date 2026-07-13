@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { UndoContext, type UndoContextType } from "../contexts/undoContextDef";
+import { UndoContext, type UndoContextType } from "./undoContext";
 
 export function useUndo(): UndoContextType {
   const context = useContext(UndoContext);

@@ -21,7 +21,7 @@ const mockToast = {
 vi.mock("../../../shared/toast/useToast", () => ({ useToast: () => mockToast }));
 
 const mockPushAction = vi.fn();
-vi.mock("../../../hooks/useUndo", () => ({
+vi.mock("../../../shared/undo/useUndo", () => ({
   useUndo: () => ({ pushAction: mockPushAction }),
 }));
 

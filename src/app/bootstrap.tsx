@@ -1,12 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import {
-  ErrorReportingProvider,
-  UndoProvider,
-} from "../contexts";
+import { ErrorReportingProvider } from "../contexts";
 import App from "./App";
 import { ThemeProvider } from "./providers/ThemeProvider";
 import { ToastProvider } from "./providers/ToastProvider";
+import { UndoProvider } from "./providers/UndoProvider";
 
 async function prepareDevelopmentRuntime() {
   if (!import.meta.env.DEV) return;

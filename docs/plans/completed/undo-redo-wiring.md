@@ -16,22 +16,22 @@ that mutate user-visible state:
 
 ## Current Surfaces
 
-- `src/contexts/UndoContext.tsx` owns undo/redo stacks and keyboard shortcuts.
-- `src/pages/hooks/useDashboardJobOps.ts` wires job actions.
-- `src/pages/hooks/useDashboardSavedSearches.ts` wires saved-search deletion.
-- `src/pages/Applications.tsx` wires application mutations.
-- `src/components/CoverLetterTemplates.tsx` wires template mutations.
-- `src/contexts/UndoContext.test.tsx` and
-  `src/contexts/UndoIntegration.test.tsx` cover context behavior.
+- `src/app/providers/UndoProvider.tsx` owns undo/redo stacks and keyboard shortcuts.
+- `src/features/dashboard/hooks/useDashboardJobOps.ts` wires job actions.
+- `src/features/dashboard/hooks/useDashboardSavedSearches.ts` wires saved-search deletion.
+- `src/features/applications/ApplicationsPage.tsx` wires application mutations.
+- `src/features/applications/CoverLetterTemplates.tsx` wires template mutations.
+- `src/app/providers/UndoProvider.test.tsx` and
+  `src/app/providers/UndoProvider.integration.test.tsx` cover provider behavior.
 
 ## Verification
 
 Use fresh command output for current counts:
 
 ```bash
-npm run test:run -- src/contexts/UndoContext.test.tsx src/contexts/UndoIntegration.test.tsx
-npm run test:run -- src/pages/hooks/useDashboardJobOps.test.ts
-npm run test:run -- src/components/CoverLetterTemplates.test.tsx
+npm run test:run -- src/app/providers/UndoProvider.test.tsx src/app/providers/UndoProvider.integration.test.tsx
+npm run test:run -- src/features/dashboard/hooks/useDashboardJobOps.test.ts
+npm run test:run -- src/features/applications/CoverLetterTemplates.test.tsx
 ```
 
 Broader frontend checks remain:

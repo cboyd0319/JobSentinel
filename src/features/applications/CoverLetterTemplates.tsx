@@ -4,7 +4,7 @@ import { Button } from '../../ui/Button';
 import { Card } from '../../ui/Card';
 import { Modal, ModalFooter } from '../../ui/Modal';
 import { useToast } from '../../shared/toast/useToast';
-import { useUndo } from '../../hooks/useUndo';
+import { useUndo } from '../../shared/undo/useUndo';
 import { LoadingSpinner } from '../../ui/LoadingSpinner';
 import { logError } from '../../utils/errorUtils';
 import type { JobForTemplate } from './coverLetterTemplate';

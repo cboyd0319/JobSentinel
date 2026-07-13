@@ -18,7 +18,7 @@ vi.mock("../../../shared/toast/useToast", () => ({
   useToast: () => mockToast,
 }));
 
-vi.mock("../../../hooks/useUndo", () => ({
+vi.mock("../../../shared/undo/useUndo", () => ({
   useUndo: () => ({ pushAction: vi.fn() }),
 }));
 

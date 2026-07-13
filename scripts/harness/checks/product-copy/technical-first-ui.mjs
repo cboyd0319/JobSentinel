@@ -137,7 +137,7 @@ export function getTechnicalFirstUiResult(path, text) {
     );
   }
 
-  if (path === "src/contexts/UndoContext.tsx") {
+  if (path === "src/app/providers/UndoProvider.tsx") {
     return /Undo failed|Redo failed|Try refreshing/i.test(text);
   }
 

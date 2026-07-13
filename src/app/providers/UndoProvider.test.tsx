@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, act, waitFor } from "@testing-library/react";
-import { UndoProvider } from "./UndoContext";
-import { useUndo } from "../hooks/useUndo";
-import { ToastProvider } from "../app/providers/ToastProvider";
+import { useUndo } from "../../shared/undo/useUndo";
+import { ToastProvider } from "./ToastProvider";
+import { UndoProvider } from "./UndoProvider";
 
 // Test component that uses the undo context
 function TestComponent({

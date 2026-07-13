@@ -66,7 +66,7 @@ test("source quality rejects frontend glyphs and lint suppressions", () => {
     );
     writeFixtureFile(
       root,
-      "src/contexts/UndoContext.tsx",
+      "src/app/providers/UndoProvider.tsx",
       "// eslint-disable-next-line react-refresh/only-export-components\n",
     );
     writeFixtureFile(
@@ -103,7 +103,7 @@ test("source quality rejects frontend glyphs and lint suppressions", () => {
     assert.equal(
       hasProductionReactRefreshSuppression(
         root,
-        "src/contexts/UndoContext.tsx",
+        "src/app/providers/UndoProvider.tsx",
       ),
       true,
     );

@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { CoverLetterTemplates } from "./CoverLetterTemplates";
 import { fillTemplatePlaceholders, type JobForTemplate } from "./coverLetterTemplate";
-import { UndoProvider } from "../../contexts/UndoContext";
+import { UndoProvider } from "../../app/providers/UndoProvider";
 
 // Mock Tauri invoke
 const mockInvoke = vi.fn();

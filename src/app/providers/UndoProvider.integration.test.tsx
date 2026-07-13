@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
-import { UndoProvider } from "./UndoContext";
-import { useUndo } from "../hooks/useUndo";
-import { ToastProvider } from "../app/providers/ToastProvider";
+import { useUndo } from "../../shared/undo/useUndo";
+import { ToastProvider } from "./ToastProvider";
+import { UndoProvider } from "./UndoProvider";
 
 // Test component simulating application status change
 function ApplicationStatusTest() {

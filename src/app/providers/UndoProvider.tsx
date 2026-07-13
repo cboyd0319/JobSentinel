@@ -1,10 +1,10 @@
 import { useCallback, useMemo, useState, useEffect, type ReactNode } from "react";
-import { useToast } from "../shared/toast/useToast";
+import { useToast } from "../../shared/toast/useToast";
 import {
   UndoContext,
   type UndoableAction,
   type UndoContextType,
-} from "./undoContextDef";
+} from "../../shared/undo/undoContext";
 
 const MAX_UNDO_STACK = 50;
 const UNDO_RECOVERY_MESSAGE =

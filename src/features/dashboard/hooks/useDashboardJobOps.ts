@@ -5,7 +5,7 @@ import { useState, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import type { Job } from "../types";
 import { useToast } from "../../../shared/toast/useToast";
-import { useUndo } from "../../../hooks/useUndo";
+import { useUndo } from "../../../shared/undo/useUndo";
 import { logError } from "../../../utils/errorUtils";
 import { exportJobsToCSV } from "../../../utils/export";
 import { invalidateCacheByCommand, safeInvokeWithToast } from "../../../utils/api";

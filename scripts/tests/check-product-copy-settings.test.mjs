@@ -696,7 +696,7 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/contexts/UndoContext.tsx",
+      "src/app/providers/UndoProvider.tsx",
       "Undo failed\nRedo failed\nTry refreshing if the change looks wrong.\n",
     );
     writeFixtureFile(
@@ -835,7 +835,7 @@ test("product copy rejects technical-first settings copy", () => {
       "src/features/settings/support/feedback/SubmitOptions.tsx",
       "src/features/dashboard/components/jobCardGuidance.ts",
       "src/app/keyboard/KeyboardShortcutsProvider.tsx",
-      "src/contexts/UndoContext.tsx",
+      "src/app/providers/UndoProvider.tsx",
       "src/features/settings/support/feedback/useFeedback.ts",
       "src/features/application-assist/ApplicationProfilePage.tsx",
       "src/features/applications/ApplicationsPage.tsx",

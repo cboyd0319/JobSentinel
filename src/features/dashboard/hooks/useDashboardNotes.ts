@@ -1,7 +1,7 @@
 import { useCallback, useState, type Dispatch, type SetStateAction } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { useToast } from "../../../shared/toast/useToast";
-import { useUndo } from "../../../hooks/useUndo";
+import { useUndo } from "../../../shared/undo/useUndo";
 import { invalidateCacheByCommand, safeInvokeWithToast } from "../../../utils/api";
 import { logError } from "../../../utils/errorUtils";
 import { recordJobLearningSignal } from "../dashboardJobLearning";

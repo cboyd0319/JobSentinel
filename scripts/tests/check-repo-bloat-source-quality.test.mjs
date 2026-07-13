@@ -186,7 +186,7 @@ test("checkRepoBloat rejects production react-refresh suppressions", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/contexts/UndoContext.tsx",
+      "src/app/providers/UndoProvider.tsx",
       [
         "export function UndoProvider() { return null; }",
         "// eslint-disable-next-line react-refresh/only-export-components",
@@ -197,7 +197,7 @@ test("checkRepoBloat rejects production react-refresh suppressions", () => {
 
     execFileSync(
       "git",
-      ["add", "package.json", "src/contexts/UndoContext.tsx"],
+      ["add", "package.json", "src/app/providers/UndoProvider.tsx"],
       {
         cwd: root,
       },
@@ -207,7 +207,7 @@ test("checkRepoBloat rejects production react-refresh suppressions", () => {
 
     assert.ok(
       violations.includes(
-        "remove production react-refresh suppression: src/contexts/UndoContext.tsx",
+        "remove production react-refresh suppression: src/app/providers/UndoProvider.tsx",
       ),
       violations.join("\n"),
     );
