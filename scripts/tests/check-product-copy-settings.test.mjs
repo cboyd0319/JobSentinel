@@ -127,12 +127,12 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/utils/export.ts",
+      "src/features/settings/support/settingsBackupFile.ts",
       "const finalFilename = filename || `jobsentinel-config-${date}.json`;\n",
     );
     writeFixtureFile(
       root,
-      "src/utils/export.test.ts",
+      "src/features/settings/support/settingsBackupFile.test.ts",
       "/^jobsentinel-config-\\d{4}-\\d{2}-\\d{2}\\.json$/\n",
     );
     writeFixtureFile(
@@ -865,8 +865,8 @@ test("product copy rejects technical-first settings copy", () => {
       "src/services/aiGateway.ts",
       "src/shared/tauri/commandClient.ts",
       "src/shared/errorReporting/messages.ts",
-      "src/utils/export.test.ts",
-      "src/utils/export.ts",
+      "src/features/settings/support/settingsBackupFile.test.ts",
+      "src/features/settings/support/settingsBackupFile.ts",
       "src/features/application-assist/applicationFormValidation.ts",
       "src/features/settings/credentials/notificationConnectionValidation.ts",
       "src/shared/validation/contactFieldValidation.ts",

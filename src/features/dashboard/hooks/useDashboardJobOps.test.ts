@@ -4,7 +4,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { useDashboardJobOps } from "./useDashboardJobOps";
 import type { Job, DuplicateGroup } from "../types";
 import { safeInvokeWithToast } from "../../../shared/tauri/commandClient";
-import { exportJobsToCSV } from "../../../utils/export";
+import { exportJobsToCsv } from "../jobCsvExport";
 import {
   BROWSER_ASSIST_LEARNING_ENABLED_STORAGE_KEY,
   BROWSER_ASSIST_LEARNING_STORAGE_KEY,
@@ -26,7 +26,7 @@ vi.mock("../../../shared/undo/useUndo", () => ({
 }));
 
 vi.mock("../../../shared/errorReporting/logger", () => ({ logError: vi.fn() }));
-vi.mock("../../../utils/export", () => ({ exportJobsToCSV: vi.fn() }));
+vi.mock("../jobCsvExport", () => ({ exportJobsToCsv: vi.fn() }));
 vi.mock("../../../shared/tauri/commandClient", () => ({
   invalidateCacheByCommand: vi.fn(),
   safeInvokeWithToast: vi.fn(),
@@ -34,7 +34,7 @@ vi.mock("../../../shared/tauri/commandClient", () => ({
 
 const mockInvoke = vi.mocked(invoke);
 const mockSafeInvokeWithToast = vi.mocked(safeInvokeWithToast);
-const mockExportJobsToCSV = vi.mocked(exportJobsToCSV);
+const mockExportJobsToCsv = vi.mocked(exportJobsToCsv);
 
 function makeJob(overrides: Partial<Job> = {}): Job {
   return {
@@ -354,7 +354,7 @@ describe("export handlers", () => {
       result.current.handleExportJobs(jobs);
     });
 
-    expect(mockExportJobsToCSV).toHaveBeenCalledWith(jobs);
+    expect(mockExportJobsToCsv).toHaveBeenCalledWith(jobs);
     expect(mockToast.success).toHaveBeenCalledWith(
       "Downloaded 2 jobs",
       "Job list downloaded to your computer.",
@@ -368,7 +368,7 @@ describe("export handlers", () => {
       result.current.handleExportJobs([]);
     });
 
-    expect(mockExportJobsToCSV).not.toHaveBeenCalled();
+    expect(mockExportJobsToCsv).not.toHaveBeenCalled();
     expect(mockToast.info).toHaveBeenCalledWith(
       "No jobs to download",
       "Change filters or select jobs first.",
@@ -387,7 +387,7 @@ describe("export handlers", () => {
       result.current.handleBulkExport(jobs);
     });
 
-    expect(mockExportJobsToCSV).toHaveBeenCalledWith([
+    expect(mockExportJobsToCsv).toHaveBeenCalledWith([
       jobs[1],
       jobs[2],
     ]);

@@ -7,7 +7,7 @@ import type { Job } from "../types";
 import { useToast } from "../../../shared/toast/useToast";
 import { useUndo } from "../../../shared/undo/useUndo";
 import { logError } from "../../../shared/errorReporting/logger";
-import { exportJobsToCSV } from "../../../utils/export";
+import { exportJobsToCsv } from "../jobCsvExport";
 import { invalidateCacheByCommand, safeInvokeWithToast } from "../../../shared/tauri/commandClient";
 import { getSafeErrorToastCopy } from "../../../shared/errorReporting/safeToastCopy";
 import { recordJobLearningSignal } from "../dashboardJobLearning";
@@ -392,7 +392,7 @@ export function useDashboardJobOps(
         return;
       }
 
-      exportJobsToCSV(jobsToExport);
+      exportJobsToCsv(jobsToExport);
       toast.success(
         `Downloaded ${jobsToExport.length} jobs`,
         "Job list downloaded to your computer.",

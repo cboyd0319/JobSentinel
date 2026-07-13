@@ -533,7 +533,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "src/utils/export.test.ts",
+      "src/features/dashboard/jobCsvExport.test.ts",
       [
         'title: "Software Engineer",',
         'location: "San Francisco, CA",',
@@ -669,7 +669,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src/features/applications/CoverLetterTemplates.test.tsx",
         "src/features/applications/InterviewScheduler.test.tsx",
         "src/shared/validation/contactFieldValidation.test.ts",
-        "src/utils/export.test.ts",
+        "src/features/dashboard/jobCsvExport.test.ts",
         "src-tauri/src/core/health/smoke_tests.rs",
         "src-tauri/src/core/deeplinks/generator.rs",
         "src-tauri/src/commands/deeplinks.rs",
@@ -773,7 +773,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src/features/applications/CoverLetterTemplates.test.tsx",
       "src/features/applications/InterviewScheduler.test.tsx",
       "src/shared/validation/contactFieldValidation.test.ts",
-      "src/utils/export.test.ts",
+      "src/features/dashboard/jobCsvExport.test.ts",
       "src-tauri/src/core/health/smoke_tests.rs",
       "src-tauri/src/core/deeplinks/generator.rs",
       "src-tauri/src/commands/deeplinks.rs",

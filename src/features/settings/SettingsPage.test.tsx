@@ -10,8 +10,8 @@ import userEvent from "@testing-library/user-event";
 import {
   makeConfig,
   makeGhostConfig,
-  mockExportConfigToJSON,
-  mockImportConfigFromJSON,
+  mockDownloadPrivateSettingsBackup,
+  mockSelectSettingsBackupFile,
   mockInvoke,
   mockToast,
   setupHappyPath,
@@ -574,7 +574,7 @@ describe("Settings — handleSave flow", () => {
     const user = userEvent.setup();
 
     setupHappyPath();
-    mockImportConfigFromJSON.mockResolvedValueOnce({ status: "invalid" });
+    mockSelectSettingsBackupFile.mockResolvedValueOnce({ status: "invalid" });
 
     render(<Settings onClose={vi.fn()} />);
 
@@ -602,9 +602,9 @@ describe("Settings — handleSave flow", () => {
     };
 
     setupHappyPath();
-    mockImportConfigFromJSON.mockResolvedValueOnce({
+    mockSelectSettingsBackupFile.mockResolvedValueOnce({
       status: "ok",
-      config: restoredConfig,
+      backup: restoredConfig,
     });
 
     render(<Settings onClose={vi.fn()} />);
@@ -616,9 +616,9 @@ describe("Settings — handleSave flow", () => {
     await user.click(screen.getByRole("button", { name: "Backup Settings" }));
 
     await waitFor(() => {
-      expect(mockExportConfigToJSON).toHaveBeenCalledTimes(1);
+      expect(mockDownloadPrivateSettingsBackup).toHaveBeenCalledTimes(1);
     });
-    expect(mockExportConfigToJSON).toHaveBeenCalledWith(
+    expect(mockDownloadPrivateSettingsBackup).toHaveBeenCalledWith(
       expect.objectContaining({
         kind: "jobsentinel-local-data-backup",
         schemaVersion: 1,
@@ -721,9 +721,9 @@ describe("Settings — handleSave flow", () => {
       if (cmd === "import_saved_searches") return 1;
       return null;
     });
-    mockImportConfigFromJSON.mockResolvedValueOnce({
+    mockSelectSettingsBackupFile.mockResolvedValueOnce({
       status: "ok",
-      config: {
+      backup: {
         kind: "jobsentinel-local-data-backup",
         schemaVersion: 1,
         exportedAt: "2026-06-19T12:00:00Z",
@@ -759,9 +759,9 @@ describe("Settings — handleSave flow", () => {
     const user = userEvent.setup();
 
     setupHappyPath();
-    mockImportConfigFromJSON.mockResolvedValueOnce({
+    mockSelectSettingsBackupFile.mockResolvedValueOnce({
       status: "ok",
-      config: { setting: "value" },
+      backup: { setting: "value" },
     });
 
     render(<Settings onClose={vi.fn()} />);

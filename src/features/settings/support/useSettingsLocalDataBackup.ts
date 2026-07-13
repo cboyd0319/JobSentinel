@@ -3,9 +3,9 @@ import { invoke } from "@tauri-apps/api/core";
 import { logError } from "../../../shared/errorReporting/logger";
 import { getUserFriendlyError } from "../../../shared/errorReporting/messages";
 import {
-  exportConfigToJSON,
-  importConfigFromJSON,
-} from "../../../utils/export";
+  downloadPrivateSettingsBackup,
+  selectSettingsBackupFile,
+} from "./settingsBackupFile";
 import type { Config } from "../config/SettingsConfig";
 import {
   createSettingsLocalDataBackup,
@@ -35,7 +35,7 @@ export function useSettingsLocalDataBackup({
         invoke<LocalCoverLetterTemplate[]>("list_cover_letter_templates"),
         invoke<LocalSavedSearch[]>("list_saved_searches"),
       ]);
-      exportConfigToJSON(
+      downloadPrivateSettingsBackup(
         createSettingsLocalDataBackup(
           config,
           coverLetterTemplates,
@@ -56,7 +56,7 @@ export function useSettingsLocalDataBackup({
 
   const handleImportConfig = useCallback(async () => {
     try {
-      const result = await importConfigFromJSON<unknown>();
+      const result = await selectSettingsBackupFile<unknown>();
       if (result.status === "cancelled") return;
 
       if (result.status === "invalid") {
@@ -67,7 +67,7 @@ export function useSettingsLocalDataBackup({
         return;
       }
 
-      const backupImport = parseSettingsBackupImport(result.config);
+      const backupImport = parseSettingsBackupImport(result.backup);
       if (!backupImport) {
         toastError(
           "That is not a JobSentinel settings backup",

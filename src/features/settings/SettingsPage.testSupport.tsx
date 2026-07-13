@@ -1,11 +1,16 @@
 import { vi } from "vitest";
 import { invoke } from "@tauri-apps/api/core";
 import { DEFAULT_EXTERNAL_AI_CONFIG } from "./config/SettingsConfig";
-import { exportConfigToJSON, importConfigFromJSON } from "../../utils/export";
+import {
+  downloadPrivateSettingsBackup,
+  selectSettingsBackupFile,
+} from "./support/settingsBackupFile";
 
 export const mockInvoke = vi.mocked(invoke);
-export const mockExportConfigToJSON = vi.mocked(exportConfigToJSON);
-export const mockImportConfigFromJSON = vi.mocked(importConfigFromJSON);
+export const mockDownloadPrivateSettingsBackup = vi.mocked(
+  downloadPrivateSettingsBackup,
+);
+export const mockSelectSettingsBackupFile = vi.mocked(selectSettingsBackupFile);
 
 // Mock toast
 export const mockToast = {
@@ -29,9 +34,9 @@ vi.mock("../../shared/errorReporting/messages", () => ({
   }),
 }));
 
-vi.mock("../../utils/export", () => ({
-  exportConfigToJSON: vi.fn(),
-  importConfigFromJSON: vi.fn(),
+vi.mock("./support/settingsBackupFile", () => ({
+  downloadPrivateSettingsBackup: vi.fn(),
+  selectSettingsBackupFile: vi.fn(),
 }));
 
 vi.mock("./support/ErrorLogPanel", () => ({

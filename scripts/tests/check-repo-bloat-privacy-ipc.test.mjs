@@ -176,7 +176,7 @@ test("checkRepoBloat rejects incomplete config export redaction", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/utils/export.ts",
+      "src/features/settings/support/settingsBackupFile.ts",
       [
         "function sanitizeConfigForExport(config) {",
         "  const sanitized = JSON.parse(JSON.stringify(config));",
@@ -188,15 +188,21 @@ test("checkRepoBloat rejects incomplete config export redaction", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src/utils/export.ts"], {
-      cwd: root,
-    });
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src/features/settings/support/settingsBackupFile.ts",
+      ],
+      { cwd: root },
+    );
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
       violations.includes(
-        "redact all credential fields from config export: src/utils/export.ts",
+        "redact all credential fields from config export: src/features/settings/support/settingsBackupFile.ts",
       ),
       violations.join("\n"),
     );

@@ -472,8 +472,8 @@ or installed configuration path changes.
   components, hooks, service, types, mocks, and tests together.
 - [ ] Repeat by feature, using import evidence rather than filename prefixes.
 - [ ] Move only multi-consumer, product-neutral components into `src/ui/`.
-- [ ] Reduce `src/pages/`, `src/components/`, `src/services/`, `src/hooks/`,
-  `src/contexts/`, and `src/utils/` to zero before deleting those old buckets.
+- [x] Reduce and delete `src/pages/`, `src/hooks/`, `src/contexts/`, and `src/utils/`.
+- [ ] Reduce `src/components/` and `src/services/` to zero before deleting them.
 - [ ] Split the large mock dispatcher into feature-owned handlers and retain a
   thin deterministic registration layer.
 
@@ -735,7 +735,7 @@ evidence-log entry.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
-| 2026-07-13 | Milestone 2 in progress | Assigned cross-feature date, currency, contact-field, error-support, Tauri-call, job-fit, location, source-recommendation, and source-guidance behavior to named `src/shared/` boundaries. Dashboard owns job display formatting; Application Assist and Settings own private form validation. The latest source-guidance move made normalization private and passed 133 focused tests, three copy-policy tests, 2,953 frontend tests across 189 files, 766 script tests, the 809-module build, and 44 Dashboard and Applications E2E flows. No label, review guidance, user data, privacy, credential, consent, or external-side-effect boundary changed. |
+| 2026-07-13 | Milestone 2 in progress | Deleted the root `src/utils/` bucket after splitting its last mixed module. Safe browser downloads are shared; Dashboard owns spreadsheet-safe CSV; Settings owns recursively redacted backup files and selection. The latest cut passed 64 focused frontend tests, 37 privacy and copy-policy tests, 2,931 frontend tests across 191 files, 766 script tests, the 811-module build, and 35 Dashboard, Resume Builder, and Settings E2E flows. Credential redaction, formula neutralization, filename safety, user review, and local-only behavior are unchanged. |
 | 2026-07-13 | Milestone 2 in progress | Split Error Reporting by dependency direction: `src/app/providers/ErrorReportingProvider.tsx` owns initialization and composition, while `src/shared/errorReporting/` owns the typed context, hook, local reporter, validation, and sanitization contract used across app recovery, Dashboard, Settings, utilities, and feedback. Deleted four helpers with no production consumers, removed the transitional contexts barrel, and deleted the empty root `contexts` and `hooks` buckets. The reporter is 470 lines, below the final production cap. All 189 focused frontend tests, 64 focused policy tests, 3,052 frontend tests across 184 files, 766 script tests, the 804-module build, repository gates, and 31 app-shell and Settings E2E flows pass. No user-facing behavior or public wiki page changed. |
 | 2026-07-13 | Milestone 2 in progress | Split Undo ownership by dependency direction: `src/app/providers/UndoProvider.tsx` owns stacks, keyboard handling, and Toast composition, while `src/shared/undo/` owns the typed action context and hook consumed by Dashboard and Applications. Updated path-sensitive policy fixtures and the completed wiring plan, then removed Undo exports from the transitional contexts barrel. All 111 focused frontend tests, 45 focused policy tests, 3,054 frontend tests across 184 files, 766 script tests, the 805-module build, repository gates, and 33 Dashboard and Applications E2E flows pass. |
 | 2026-07-13 | Milestone 2 in progress | Split Toast ownership by dependency direction: `src/app/providers/ToastProvider.tsx` owns timers, portal rendering, and visible notifications, while `src/shared/toast/` owns the typed cross-feature context and hook. Updated 66 direct production and test references and removed Toast exports from the transitional contexts barrel. All 152 focused frontend tests, 13 focused boundary and source-structure tests, 3,054 frontend tests across 184 files, 766 script tests, the 805-module build, repository gates, and 15 app-shell E2E flows pass. |
@@ -855,9 +855,9 @@ evidence-log entry.
   Application Assist owns its required-field rules, and Settings credentials
   own notification connection-link validation. Six test-only compatibility
   validators were deleted with the mixed root form-validation utility.
-- Shared date, US-dollar, and job-source guidance now have named owners under
-  `src/shared/`; Dashboard owns job salary and description formatting. Three
-  test-only generic formatters were deleted with the mixed root utility.
+- Shared date, currency, source guidance, and safe browser downloads have named
+  `src/shared/` owners. Dashboard owns job display and CSV export; Settings owns
+  private backups. The root `src/utils/` bucket is deleted.
 - Settings company-preference field names changed. Read-only deserialize aliases
   preserve existing local values, and all newly saved data uses the new names.
   No privacy, credential, consent, or external-side-effect boundary changed.
@@ -879,9 +879,9 @@ evidence-log entry.
   Dashboard-private hook and utility move has the same passing evidence.
   Error Reporting ownership, root contexts and hooks deletion, shared Tauri,
   location, source-recommendation, source-guidance, contact-field, date, and
-  currency contracts; feature-private form and job display formatting; and
-  mixed root utility cleanup all have passing focused, full frontend, build,
-  repository, and E2E evidence.
+  currency, and browser-download contracts; feature-private form, job display,
+  CSV, and backup-file behavior; and root utility deletion all have passing
+  focused, full frontend, build, repository, and E2E evidence.
 - Evidence: live manifests, imports, file counts, module graph, SQLx migration
   paths, CI, release scripts, harness sensors, Tamworth, and persona were
   inspected on 2026-07-13.

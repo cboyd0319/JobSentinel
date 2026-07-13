@@ -217,7 +217,7 @@ test("privacy logging rejects renderer credential reads and incomplete export re
     );
     writeFixtureFile(
       root,
-      "src/utils/export.ts",
+      "src/features/settings/support/settingsBackupFile.ts",
       "function scrubSensitiveFields() {}\n",
     );
 
@@ -236,7 +236,10 @@ test("privacy logging rejects renderer credential reads and incomplete export re
       false,
     );
     assert.equal(
-      hasIncompleteConfigExportRedaction(root, "src/utils/export.ts"),
+      hasIncompleteConfigExportRedaction(
+        root,
+        "src/features/settings/support/settingsBackupFile.ts",
+      ),
       true,
     );
     assert.equal(

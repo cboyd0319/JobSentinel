@@ -238,7 +238,8 @@ Responses include defensive browser headers: `Cache-Control: no-store`,
 
 ### CSV And Download Filenames
 
-**File**: `src/utils/export.ts`
+**Files**: `src/shared/browserDownload.ts` and
+`src/features/dashboard/jobCsvExport.ts`
 
 Downloaded filenames are reduced to a safe basename before assigning
 `HTMLAnchorElement.download`. CSV exports escape commas, quotes, and newlines,

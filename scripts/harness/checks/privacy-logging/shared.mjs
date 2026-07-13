@@ -108,7 +108,9 @@ export const credentialSecretReadIpcPaths = new Set([
   "docs/releases/v2.0.md",
 ]);
 
-export const configExportPrivacyPaths = new Set(["src/utils/export.ts"]);
+export const configExportPrivacyPaths = new Set([
+  "src/features/settings/support/settingsBackupFile.ts",
+]);
 
 export const feedbackSanitizerPaths = new Set([
   "src-tauri/src/commands/feedback/sanitizer.rs",

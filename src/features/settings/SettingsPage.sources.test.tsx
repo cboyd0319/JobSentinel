@@ -28,9 +28,9 @@ vi.mock("../../shared/errorReporting/messages", () => ({
   }),
 }));
 
-vi.mock("../../utils/export", () => ({
-  exportConfigToJSON: vi.fn(),
-  importConfigFromJSON: vi.fn(),
+vi.mock("./support/settingsBackupFile", () => ({
+  downloadPrivateSettingsBackup: vi.fn(),
+  selectSettingsBackupFile: vi.fn(),
 }));
 
 vi.mock("./support/ErrorLogPanel", () => ({

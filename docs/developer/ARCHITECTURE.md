@@ -331,6 +331,8 @@ the broader agent harness.
 - `src/shared/dateFormatting.ts` owns date displays used by Dashboard,
   Applications, and Hiring Trends. `src/shared/currencyFormatting.ts` owns the
   US-dollar display shared by Hiring Trends and Pay Protection.
+- `src/shared/browserDownload.ts` owns safe browser filenames, Blob downloads,
+  and object-URL cleanup shared by Dashboard, Settings, and Resume Builder.
 - `src/shared/validation/contactFieldValidation.ts` owns email, phone, and web
   link checks shared by Application Assist and Resumes.
 - `src/shared/errorReporting/` owns the validated, privacy-preserving local
@@ -345,15 +347,16 @@ the broader agent harness.
   `notifications/`, `sources/health/`, and `support/` subdomains. Sanitized
   support-report services remain outside the feature because app-level error
   boundaries also use them. Settings credential handling owns notification
-  connection-link target validation in `credentials/`.
+  connection-link target validation in `credentials/`. Its support subdomain
+  owns recursively redacted local-data backup files and JSON file selection.
 - Dashboard owns job-card salary, malformed-pay, and description formatting in
-  `jobDisplayFormatting.ts`.
+  `jobDisplayFormatting.ts`; `jobCsvExport.ts` owns spreadsheet-safe job export.
 - `src/ui/` owns proven multi-feature visual primitives and their colocated
   tests and stories. Features import these modules directly, such as
   `src/ui/Button.tsx` and `src/ui/Modal.tsx`; there is no aggregate barrel.
   Product-domain panels and workflows do not belong in this directory.
-- Legacy `components`, `services`, `utils`, `types`, and `config` buckets
-  remain transitional. The legacy `pages`, `contexts`, and `hooks` buckets
+- Legacy `components`, `services`, `types`, and `config` buckets remain
+  transitional. The legacy `pages`, `contexts`, `hooks`, and `utils` buckets
   have been removed. Remaining domain components and transitional owners must
   not import app or feature implementation modules.
 - Tests, mocks, stories, and test setup files are excluded from the production

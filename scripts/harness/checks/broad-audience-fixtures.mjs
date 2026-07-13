@@ -56,7 +56,7 @@ const broadAudienceExamplePaths = new Set([
   "src/features/dashboard/hooks/useDashboardJobOps.test.ts",
   "src/features/dashboard/hooks/useDashboardSavedSearches.test.ts",
   "src/features/dashboard/hooks/useDashboardSearch.test.ts",
-  "src/utils/export.test.ts",
+  "src/features/dashboard/jobCsvExport.test.ts",
   "src/features/dashboard/DashboardPage.tsx",
   "src/features/dashboard/components/DashboardFiltersBar.tsx",
   "src/features/resumes/builder/ResumeBuilderPage.tsx",

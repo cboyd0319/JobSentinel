@@ -1,38 +1,24 @@
 import { sanitizeResumeHtmlDocument } from "./resumeHtmlSanitizer";
-import { sanitizeDownloadFilename } from "../../../utils/export";
+import { downloadBlob, downloadTextFile } from "../../../shared/browserDownload";
 
 export function downloadResumeDocx(docxData: number[], candidateName: string): void {
   const blob = new Blob([new Uint8Array(docxData)], {
     type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   });
-  const url = URL.createObjectURL(blob);
-  const anchor = document.createElement("a");
-  anchor.href = url;
-  anchor.download = sanitizeDownloadFilename(
+  downloadBlob(
+    blob,
     `${candidateName.replace(/\s+/g, "_")}_Resume.docx`,
     "JobSentinel_Resume.docx",
   );
-  document.body.appendChild(anchor);
-  anchor.click();
-  document.body.removeChild(anchor);
-  URL.revokeObjectURL(url);
 }
 
 export function downloadResumeJson(jsonResumeData: unknown, candidateName: string): void {
-  const blob = new Blob([`${JSON.stringify(jsonResumeData, null, 2)}\n`], {
-    type: "application/json",
-  });
-  const url = URL.createObjectURL(blob);
-  const anchor = document.createElement("a");
-  anchor.href = url;
-  anchor.download = sanitizeDownloadFilename(
+  downloadTextFile(
+    `${JSON.stringify(jsonResumeData, null, 2)}\n`,
     `${candidateName.replace(/\s+/g, "_")}_Resume.json`,
+    "application/json",
     "JobSentinel_Resume.json",
   );
-  document.body.appendChild(anchor);
-  anchor.click();
-  document.body.removeChild(anchor);
-  URL.revokeObjectURL(url);
 }
 
 export function openResumePrintDialog(html: string): void {
