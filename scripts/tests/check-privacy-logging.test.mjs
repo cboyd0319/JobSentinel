@@ -242,7 +242,7 @@ test("privacy logging rejects desktop notification passthrough payloads", () => 
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src/utils/notifications.ts",
+      "src/features/dashboard/notifications.ts",
       [
         "export async function notify(title: string, body: string): Promise<void> {",
         "  sendNotification({ title, body });",
@@ -256,11 +256,11 @@ test("privacy logging rejects desktop notification passthrough payloads", () => 
     );
 
     assert.equal(
-      hasFrontendDesktopNotificationPassthrough(root, "src/utils/notifications.ts"),
+      hasFrontendDesktopNotificationPassthrough(root, "src/features/dashboard/notifications.ts"),
       true,
     );
-    assert.deepEqual(collectPrivacyLoggingViolations(root, "src/utils/notifications.ts"), [
-      "keep desktop notification payloads privacy-preserving: src/utils/notifications.ts",
+    assert.deepEqual(collectPrivacyLoggingViolations(root, "src/features/dashboard/notifications.ts"), [
+      "keep desktop notification payloads privacy-preserving: src/features/dashboard/notifications.ts",
     ]);
   });
 });

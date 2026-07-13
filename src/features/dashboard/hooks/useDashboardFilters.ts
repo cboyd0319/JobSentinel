@@ -11,7 +11,7 @@ import type {
   SearchQuery,
 } from "../types";
 import { SCORE_THRESHOLD_GOOD } from "../../../utils/constants";
-import { hasPostingReviewAlert } from "../../../utils/postingRisk";
+import { hasPostingReviewAlert } from "../postingRisk";
 
 // Coerce score to a finite number for safe comparison (null/NaN/Infinity → -1)
 const safeScore = (s: number | null | undefined): number =>

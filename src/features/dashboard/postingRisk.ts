@@ -1,5 +1,5 @@
-import { GHOST_SCORE_THRESHOLD } from "./constants";
-import jobPostingRiskTaxonomy from "../../resources/taxonomies/job-posting-risk.json";
+import { GHOST_SCORE_THRESHOLD } from "../../utils/constants";
+import jobPostingRiskTaxonomy from "../../../resources/taxonomies/job-posting-risk.json";
 
 interface PostingRiskReason {
   category: "stale" | "repost" | "generic" | "missing_details" | "unrealistic" | "company_behavior";

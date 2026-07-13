@@ -149,7 +149,7 @@ export const notificationServicePrivacyPaths = new Set([
   "src-tauri/src/core/notify/mod.rs",
 ]);
 export const frontendDesktopNotificationPrivacyPaths = new Set([
-  "src/utils/notifications.ts",
+  "src/features/dashboard/notifications.ts",
 ]);
 export const healthSmokePrivacyPaths = new Set([
   "src-tauri/src/core/health/smoke_tests.rs",

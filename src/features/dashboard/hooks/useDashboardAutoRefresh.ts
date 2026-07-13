@@ -4,7 +4,7 @@
 import { useState, useEffect, useRef } from "react";
 import type { Job, Statistics, ScrapingStatus } from "../types";
 import { useToast } from "../../../contexts";
-import { notifyScrapingComplete } from "../../../utils/notifications";
+import { notifyScrapingComplete } from "../notifications";
 import { safeInvoke, invalidateCacheByCommand } from "../../../utils/api";
 
 interface AutoRefreshHookProps {

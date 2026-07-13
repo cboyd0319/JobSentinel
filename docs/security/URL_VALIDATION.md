@@ -171,7 +171,7 @@ public job identifiers such as `gh_jid`. The import fetcher then uses
 HTTPS job pages. Plain HTTP job links can still be stored or opened after public
 URL validation, but they are not fetched into JobSentinel's import parser.
 
-The frontend guard in `src/utils/urlValidation.ts` mirrors these external job
+The frontend guard in `src/features/dashboard/jobUrlValidation.ts` mirrors these external job
 URL rules before calling the backend open command.
 
 The import fetcher does not follow HTTP redirects. A redirect can move from a

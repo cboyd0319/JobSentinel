@@ -13,7 +13,7 @@ import {
 } from "../../../utils/formatUtils";
 import { SCORE_THRESHOLD_HIGH, SCORE_THRESHOLD_GOOD } from "../../../utils/constants";
 import { useToast } from "../../../hooks/useToast";
-import { isValidJobUrl } from "../../../utils/urlValidation";
+import { isValidJobUrl } from "../jobUrlValidation";
 import { openDeepLink } from "../../../shared/search-links";
 import { getJobSourceGuidance } from "../../../utils/sourceLabels";
 import {

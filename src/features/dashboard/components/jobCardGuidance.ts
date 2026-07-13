@@ -2,7 +2,7 @@ import {
   hasLowDetailPostingReviewCue,
   hasPostingEvidenceReviewCue,
   hasScamPostingReviewCue,
-} from "../../../utils/postingRisk";
+} from "../postingRisk";
 import { hasMalformedSalaryRangeInput } from "../../../utils/formatUtils";
 
 export interface PostingRiskGuidance {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isValidJobUrl } from "./urlValidation";
+import { isValidJobUrl } from "./jobUrlValidation";
 
 describe("isValidJobUrl", () => {
   it("allows public https URLs", () => {

@@ -415,34 +415,36 @@ describe("NotificationSettings", () => {
 
 ```typescript
 import { renderHook, act } from "@testing-library/react";
-import { useKeyboardNavigation } from "./useKeyboardNavigation";
+import { useDashboardKeyboardNavigation } from "./useDashboardKeyboardNavigation";
 
-describe("useKeyboardNavigation", () => {
+describe("useDashboardKeyboardNavigation", () => {
   it("should navigate to next item on ArrowDown", () => {
     const { result } = renderHook(() =>
-      useKeyboardNavigation(["Item 1", "Item 2", "Item 3"]),
+      useDashboardKeyboardNavigation({ items: ["Item 1", "Item 2", "Item 3"] }),
     );
 
-    expect(result.current.selectedIndex).toBe(0);
+    expect(result.current.selectedIndex).toBe(-1);
 
     act(() => {
-      result.current.handleKeyDown({ key: "ArrowDown" } as KeyboardEvent);
+      document.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown" }));
     });
 
-    expect(result.current.selectedIndex).toBe(1);
+    expect(result.current.selectedIndex).toBe(0);
   });
 
   it("should wrap around to first item at end", () => {
-    const { result } = renderHook(() => useKeyboardNavigation(["A", "B", "C"]));
+    const { result } = renderHook(() =>
+      useDashboardKeyboardNavigation({ items: ["A", "B", "C"] }),
+    );
 
     act(() => {
-      result.current.handleKeyDown({ key: "End" } as KeyboardEvent);
+      document.dispatchEvent(new KeyboardEvent("keydown", { key: "End" }));
     });
 
     expect(result.current.selectedIndex).toBe(2);
 
     act(() => {
-      result.current.handleKeyDown({ key: "ArrowDown" } as KeyboardEvent);
+      document.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown" }));
     });
 
     expect(result.current.selectedIndex).toBe(0);

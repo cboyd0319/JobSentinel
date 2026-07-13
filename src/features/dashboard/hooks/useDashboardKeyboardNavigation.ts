@@ -43,7 +43,7 @@ interface UseKeyboardNavigationResult {
  * - /: focus search input
  * - r: refresh/reload jobs
  */
-export function useKeyboardNavigation<T>({
+export function useDashboardKeyboardNavigation<T>({
   items,
   enabled = true,
   onSelect,

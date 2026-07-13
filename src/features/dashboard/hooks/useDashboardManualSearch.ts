@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
 import { useToast } from "../../../contexts";
 import { invalidateCacheByCommand, safeInvoke } from "../../../utils/api";
-import { notifyScrapingComplete } from "../../../utils/notifications";
+import { notifyScrapingComplete } from "../notifications";
 import { getDashboardSearchErrorCopy } from "../dashboardErrorCopy";
 import type {
   DashboardPreferences,

@@ -10,7 +10,7 @@ import {
   requestPermission,
   sendNotification,
 } from "@tauri-apps/plugin-notification";
-import { logError } from "./errorUtils";
+import { logError } from "../../utils/errorUtils";
 
 /**
  * Check if notification permissions are granted.

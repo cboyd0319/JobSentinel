@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import { useKeyboardNavigation } from "./useKeyboardNavigation";
+import { useDashboardKeyboardNavigation } from "./useDashboardKeyboardNavigation";
 
 interface TestItem {
   id: number;
@@ -10,7 +10,7 @@ interface TestItem {
 const createTestItems = (count: number): TestItem[] =>
   Array.from({ length: count }, (_, i) => ({ id: i, name: `Item ${i}` }));
 
-describe("useKeyboardNavigation", () => {
+describe("useDashboardKeyboardNavigation", () => {
   let items: TestItem[];
 
   beforeEach(() => {
@@ -24,7 +24,7 @@ describe("useKeyboardNavigation", () => {
   describe("initialization", () => {
     it("initializes with no selection", () => {
       const { result } = renderHook(() =>
-        useKeyboardNavigation({ items })
+        useDashboardKeyboardNavigation({ items })
       );
 
       expect(result.current.selectedIndex).toBe(-1);
@@ -33,7 +33,7 @@ describe("useKeyboardNavigation", () => {
 
     it("initializes when disabled", () => {
       const { result } = renderHook(() =>
-        useKeyboardNavigation({ items, enabled: false })
+        useDashboardKeyboardNavigation({ items, enabled: false })
       );
 
       expect(result.current.selectedIndex).toBe(-1);
@@ -43,7 +43,7 @@ describe("useKeyboardNavigation", () => {
   describe("navigation - j/ArrowDown", () => {
     it("selects first item on initial down", () => {
       const { result } = renderHook(() =>
-        useKeyboardNavigation({ items })
+        useDashboardKeyboardNavigation({ items })
       );
 
       act(() => {
@@ -57,7 +57,7 @@ describe("useKeyboardNavigation", () => {
 
     it("moves down with j key", () => {
       const { result } = renderHook(() =>
-        useKeyboardNavigation({ items })
+        useDashboardKeyboardNavigation({ items })
       );
 
       act(() => {
@@ -70,7 +70,7 @@ describe("useKeyboardNavigation", () => {
 
     it("moves down with ArrowDown key", () => {
       const { result } = renderHook(() =>
-        useKeyboardNavigation({ items })
+        useDashboardKeyboardNavigation({ items })
       );
 
       act(() => {
@@ -83,7 +83,7 @@ describe("useKeyboardNavigation", () => {
 
     it("wraps to first item when at end (default behavior)", () => {
       const { result } = renderHook(() =>
-        useKeyboardNavigation({ items })
+        useDashboardKeyboardNavigation({ items })
       );
 
       // Move to last item
@@ -101,7 +101,7 @@ describe("useKeyboardNavigation", () => {
 
     it("does not wrap when wrapAround is false", () => {
       const { result } = renderHook(() =>
-        useKeyboardNavigation({ items, wrapAround: false })
+        useDashboardKeyboardNavigation({ items, wrapAround: false })
       );
 
       // Move to last item
@@ -121,7 +121,7 @@ describe("useKeyboardNavigation", () => {
   describe("navigation - k/ArrowUp", () => {
     it("selects last item on initial up", () => {
       const { result } = renderHook(() =>
-        useKeyboardNavigation({ items })
+        useDashboardKeyboardNavigation({ items })
       );
 
       act(() => {
@@ -134,7 +134,7 @@ describe("useKeyboardNavigation", () => {
 
     it("moves up with k key", () => {
       const { result } = renderHook(() =>
-        useKeyboardNavigation({ items })
+        useDashboardKeyboardNavigation({ items })
       );
 
       act(() => {
@@ -147,7 +147,7 @@ describe("useKeyboardNavigation", () => {
 
     it("moves up with ArrowUp key", () => {
       const { result } = renderHook(() =>
-        useKeyboardNavigation({ items })
+        useDashboardKeyboardNavigation({ items })
       );
 
       act(() => {
@@ -160,7 +160,7 @@ describe("useKeyboardNavigation", () => {
 
     it("wraps to last item when at start (default behavior)", () => {
       const { result } = renderHook(() =>
-        useKeyboardNavigation({ items })
+        useDashboardKeyboardNavigation({ items })
       );
 
       act(() => {
@@ -173,7 +173,7 @@ describe("useKeyboardNavigation", () => {
 
     it("does not wrap when wrapAround is false", () => {
       const { result } = renderHook(() =>
-        useKeyboardNavigation({ items, wrapAround: false })
+        useDashboardKeyboardNavigation({ items, wrapAround: false })
       );
 
       act(() => {
@@ -188,7 +188,7 @@ describe("useKeyboardNavigation", () => {
   describe("navigation - Home/End", () => {
     it("jumps to first item with Home", () => {
       const { result } = renderHook(() =>
-        useKeyboardNavigation({ items })
+        useDashboardKeyboardNavigation({ items })
       );
 
       act(() => {
@@ -202,7 +202,7 @@ describe("useKeyboardNavigation", () => {
 
     it("jumps to last item with End", () => {
       const { result } = renderHook(() =>
-        useKeyboardNavigation({ items })
+        useDashboardKeyboardNavigation({ items })
       );
 
       act(() => {
@@ -218,7 +218,7 @@ describe("useKeyboardNavigation", () => {
   describe("navigation - Escape", () => {
     it("clears selection with Escape", () => {
       const { result } = renderHook(() =>
-        useKeyboardNavigation({ items })
+        useDashboardKeyboardNavigation({ items })
       );
 
       act(() => {
@@ -235,7 +235,7 @@ describe("useKeyboardNavigation", () => {
     it("calls onOpen when o is pressed", () => {
       const onOpen = vi.fn();
       const { result } = renderHook(() =>
-        useKeyboardNavigation({ items, onOpen })
+        useDashboardKeyboardNavigation({ items, onOpen })
       );
 
       act(() => {
@@ -249,7 +249,7 @@ describe("useKeyboardNavigation", () => {
     it("calls onOpen when Enter is pressed", () => {
       const onOpen = vi.fn();
       const { result } = renderHook(() =>
-        useKeyboardNavigation({ items, onOpen })
+        useDashboardKeyboardNavigation({ items, onOpen })
       );
 
       act(() => {
@@ -263,7 +263,7 @@ describe("useKeyboardNavigation", () => {
     it("calls onSelect if onOpen not provided", () => {
       const onSelect = vi.fn();
       const { result } = renderHook(() =>
-        useKeyboardNavigation({ items, onSelect })
+        useDashboardKeyboardNavigation({ items, onSelect })
       );
 
       act(() => {
@@ -277,7 +277,7 @@ describe("useKeyboardNavigation", () => {
     it("does not call handlers when no item selected", () => {
       const onOpen = vi.fn();
       renderHook(() =>
-        useKeyboardNavigation({ items, onOpen })
+        useDashboardKeyboardNavigation({ items, onOpen })
       );
 
       act(() => {
@@ -292,7 +292,7 @@ describe("useKeyboardNavigation", () => {
     it("calls onHide when h is pressed", () => {
       const onHide = vi.fn();
       const { result } = renderHook(() =>
-        useKeyboardNavigation({ items, onHide })
+        useDashboardKeyboardNavigation({ items, onHide })
       );
 
       act(() => {
@@ -306,7 +306,7 @@ describe("useKeyboardNavigation", () => {
     it("calls onHide when Delete is pressed", () => {
       const onHide = vi.fn();
       const { result } = renderHook(() =>
-        useKeyboardNavigation({ items, onHide })
+        useDashboardKeyboardNavigation({ items, onHide })
       );
 
       act(() => {
@@ -319,7 +319,7 @@ describe("useKeyboardNavigation", () => {
 
     it("does not call onHide when not provided", () => {
       const { result } = renderHook(() =>
-        useKeyboardNavigation({ items })
+        useDashboardKeyboardNavigation({ items })
       );
 
       act(() => {
@@ -336,7 +336,7 @@ describe("useKeyboardNavigation", () => {
     it("calls onBookmark when b is pressed", () => {
       const onBookmark = vi.fn();
       const { result } = renderHook(() =>
-        useKeyboardNavigation({ items, onBookmark })
+        useDashboardKeyboardNavigation({ items, onBookmark })
       );
 
       act(() => {
@@ -352,7 +352,7 @@ describe("useKeyboardNavigation", () => {
     it("calls onNotes when n is pressed", () => {
       const onNotes = vi.fn();
       const { result } = renderHook(() =>
-        useKeyboardNavigation({ items, onNotes })
+        useDashboardKeyboardNavigation({ items, onNotes })
       );
 
       act(() => {
@@ -368,7 +368,7 @@ describe("useKeyboardNavigation", () => {
     it("calls onResearch when c is pressed", () => {
       const onResearch = vi.fn();
       const { result } = renderHook(() =>
-        useKeyboardNavigation({ items, onResearch })
+        useDashboardKeyboardNavigation({ items, onResearch })
       );
 
       act(() => {
@@ -384,7 +384,7 @@ describe("useKeyboardNavigation", () => {
     it("calls onToggleSelect when x is pressed", () => {
       const onToggleSelect = vi.fn();
       const { result } = renderHook(() =>
-        useKeyboardNavigation({ items, onToggleSelect })
+        useDashboardKeyboardNavigation({ items, onToggleSelect })
       );
 
       act(() => {
@@ -400,7 +400,7 @@ describe("useKeyboardNavigation", () => {
     it("calls onFocusSearch when / is pressed", () => {
       const onFocusSearch = vi.fn();
       renderHook(() =>
-        useKeyboardNavigation({ items, onFocusSearch })
+        useDashboardKeyboardNavigation({ items, onFocusSearch })
       );
 
       act(() => {
@@ -413,7 +413,7 @@ describe("useKeyboardNavigation", () => {
     it("calls onFocusSearch when Slash code is pressed", () => {
       const onFocusSearch = vi.fn();
       renderHook(() =>
-        useKeyboardNavigation({ items, onFocusSearch })
+        useDashboardKeyboardNavigation({ items, onFocusSearch })
       );
 
       act(() => {
@@ -426,7 +426,7 @@ describe("useKeyboardNavigation", () => {
     it("does not handle shifted Slash", () => {
       const onFocusSearch = vi.fn();
       renderHook(() =>
-        useKeyboardNavigation({ items, onFocusSearch })
+        useDashboardKeyboardNavigation({ items, onFocusSearch })
       );
 
       act(() => {
@@ -439,7 +439,7 @@ describe("useKeyboardNavigation", () => {
     it("calls onRefresh when r is pressed", () => {
       const onRefresh = vi.fn();
       renderHook(() =>
-        useKeyboardNavigation({ items, onRefresh })
+        useDashboardKeyboardNavigation({ items, onRefresh })
       );
 
       act(() => {
@@ -454,7 +454,7 @@ describe("useKeyboardNavigation", () => {
     it("does not handle keys when disabled", () => {
       const onOpen = vi.fn();
       renderHook(() =>
-        useKeyboardNavigation({ items, onOpen, enabled: false })
+        useDashboardKeyboardNavigation({ items, onOpen, enabled: false })
       );
 
       act(() => {
@@ -466,7 +466,7 @@ describe("useKeyboardNavigation", () => {
 
     it("handles keys when enabled", () => {
       const { result } = renderHook(() =>
-        useKeyboardNavigation({ items, enabled: true })
+        useDashboardKeyboardNavigation({ items, enabled: true })
       );
 
       act(() => {
@@ -480,7 +480,7 @@ describe("useKeyboardNavigation", () => {
   describe("input element handling", () => {
     it("ignores keys when focus is on input", () => {
       const { result } = renderHook(() =>
-        useKeyboardNavigation({ items })
+        useDashboardKeyboardNavigation({ items })
       );
 
       const input = document.createElement("input");
@@ -503,7 +503,7 @@ describe("useKeyboardNavigation", () => {
 
     it("ignores keys when focus is on textarea", () => {
       const { result } = renderHook(() =>
-        useKeyboardNavigation({ items })
+        useDashboardKeyboardNavigation({ items })
       );
 
       const textarea = document.createElement("textarea");
@@ -526,7 +526,7 @@ describe("useKeyboardNavigation", () => {
 
     it("ignores keys when focus is on contenteditable", () => {
       const { result } = renderHook(() =>
-        useKeyboardNavigation({ items })
+        useDashboardKeyboardNavigation({ items })
       );
 
       const div = document.createElement("div");
@@ -564,7 +564,7 @@ describe("useKeyboardNavigation", () => {
   describe("mouse interaction", () => {
     it("deactivates keyboard mode on mouse click", () => {
       const { result } = renderHook(() =>
-        useKeyboardNavigation({ items })
+        useDashboardKeyboardNavigation({ items })
       );
 
       // Activate keyboard mode
@@ -586,7 +586,7 @@ describe("useKeyboardNavigation", () => {
   describe("empty items", () => {
     it("handles empty items array", () => {
       const { result } = renderHook(() =>
-        useKeyboardNavigation({ items: [] })
+        useDashboardKeyboardNavigation({ items: [] })
       );
 
       expect(result.current.selectedIndex).toBe(-1);
@@ -600,7 +600,7 @@ describe("useKeyboardNavigation", () => {
 
     it("bounds selection when items shrink", () => {
       const { result, rerender } = renderHook(
-        ({ items }) => useKeyboardNavigation({ items }),
+        ({ items }) => useDashboardKeyboardNavigation({ items }),
         { initialProps: { items: createTestItems(5) } }
       );
 
@@ -620,7 +620,7 @@ describe("useKeyboardNavigation", () => {
   describe("setSelectedIndex", () => {
     it("allows manual selection", () => {
       const { result } = renderHook(() =>
-        useKeyboardNavigation({ items })
+        useDashboardKeyboardNavigation({ items })
       );
 
       act(() => {
@@ -632,7 +632,7 @@ describe("useKeyboardNavigation", () => {
 
     it("bounds manual selection to array length", () => {
       const { result } = renderHook(() =>
-        useKeyboardNavigation({ items })
+        useDashboardKeyboardNavigation({ items })
       );
 
       act(() => {
@@ -644,7 +644,7 @@ describe("useKeyboardNavigation", () => {
 
     it("allows clearing selection with -1", () => {
       const { result } = renderHook(() =>
-        useKeyboardNavigation({ items })
+        useDashboardKeyboardNavigation({ items })
       );
 
       act(() => {

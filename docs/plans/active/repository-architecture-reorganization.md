@@ -735,6 +735,7 @@ evidence-log entry.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-07-13 | Milestone 2 in progress | Moved Dashboard-only keyboard navigation, privacy-preserving desktop notifications, posting-risk interpretation, and external job URL validation from root technical buckets into `src/features/dashboard/`. Renamed the job URL and keyboard modules to state their actual scope, removed the stale root hook export, and corrected the developer hook example to match the live object-based API. All 126 focused tests, 3,146 frontend tests, 766 script tests, the 808-module build, repository gates, and 48 Dashboard E2E flows pass. |
 | 2026-07-13 | Milestone 2 in progress | Moved the Settings-only feedback hook, semantic-matching diagnostics client, and company-suggestion data from the root `hooks`, `services`, and `utils` buckets into their notification, matching, and support owners. All 57 focused tests, 3,146 frontend tests, 766 script tests, the 808-module build, repository gates, and 16 Settings E2E flows pass. |
 | 2026-07-13 | Milestone 2 in progress | Assigned app-only command, keyboard-help, recovery, and tour-configuration modules to private subdirectories under `src/app/`. Assigned Dashboard-only component and modal recovery boundaries to `src/features/dashboard/errors/`. Privacy-logging and plain-language recovery sensors now follow the owners. The mixed App and Dashboard onboarding tour remains unchanged until composition evidence supports a clean split. Focused and full frontend tests, all 766 script tests, the 808-module build, lint, architecture, security, bloat, and 35 focused app-shell and keyboard E2E flows pass. |
 | 2026-07-13 | Milestone 2 in progress | Established `src/features/settings/` as the owner for Settings, search preferences, source setup, notifications, secure credentials, external AI, matching controls, backup, support, and Browser Import UI. App composition supplies the Settings page as a component without a Dashboard-to-Settings implementation import. Production Settings files are 494 lines or fewer. Existing local company preferences survive the terminology and serialized-field cutover through read-only aliases, while new data uses precise preferred, blocked, included, and excluded names. The complete Google developer documentation style guide now has a maintained 70-page source map and review matrix; Apple-specific language remains governed by the complete Apple Style Guide. A repository language sensor enforces deterministic prohibited terms in prose and code, and release preparation now includes Google's inclusive open-source check. Playwright and Browser Import now recover from occupied default ports with operating-system-selected loopback ports; Browser Import persists its actual port and requires a fresh copied browser button. Full frontend, script, Rust, docs, lint, architecture, security, bloat, duplication, build, and focused Settings E2E gates pass. |
@@ -809,6 +810,8 @@ evidence-log entry.
   private `src/app/` subdirectories. Dashboard-only recovery boundaries live
   under their feature owner. Settings-only feedback state, matching diagnostics,
   and company suggestions no longer leak into the root technical buckets.
+  Dashboard-only keyboard navigation, desktop notifications, posting-risk
+  interpretation, and job URL validation also live under their feature owner.
 - Settings company-preference field names changed. Read-only deserialize aliases
   preserve existing local values, and all newly saved data uses the new names.
   No privacy, credential, consent, or external-side-effect boundary changed.
@@ -826,7 +829,8 @@ evidence-log entry.
   component move has passing focused, full frontend, build, repository, and E2E
   checks. App-shell and Dashboard-private recovery ownership has the same
   passing evidence. The latest Settings hook, service, and utility move has
-  passing focused, full frontend, build, repository, and E2E checks.
+  passing focused, full frontend, build, repository, and E2E checks. The latest
+  Dashboard-private hook and utility move has the same passing evidence.
 - Evidence: live manifests, imports, file counts, module graph, SQLx migration
   paths, CI, release scripts, harness sensors, Tamworth, and persona were
   inspected on 2026-07-13.

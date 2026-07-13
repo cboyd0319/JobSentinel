@@ -14,7 +14,7 @@ import {
   isRestrictedJobSourceUrl,
   RESTRICTED_JOB_SOURCE_WARNING,
 } from "../../../shared/restrictedSourceTaxonomy";
-import { isValidJobUrl } from "../../../utils/urlValidation";
+import { isValidJobUrl } from "../jobUrlValidation";
 import {
   formatImportDate,
   formatMissingDetails,

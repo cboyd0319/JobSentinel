@@ -1,5 +1,5 @@
 import { useEffect, type RefObject } from "react";
-import { useKeyboardNavigation } from "../../../hooks/useKeyboardNavigation";
+import { useDashboardKeyboardNavigation } from "./useDashboardKeyboardNavigation";
 import type { Job } from "../types";
 
 interface DashboardKeyboardOptions {
@@ -29,7 +29,7 @@ export function useDashboardKeyboard({
   onToggleSelect,
   searchInputRef,
 }: DashboardKeyboardOptions) {
-  const navigation = useKeyboardNavigation({
+  const navigation = useDashboardKeyboardNavigation({
     items,
     enabled,
     onOpen,

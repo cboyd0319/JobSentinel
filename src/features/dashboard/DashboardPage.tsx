@@ -7,7 +7,7 @@ import { useToast } from "../../contexts";
 import { logError } from "../../utils/errorUtils";
 import { SCORE_THRESHOLD_GOOD } from "../../utils/constants";
 import { invalidateCacheByCommand } from "../../utils/api";
-import { isValidJobUrl } from "../../utils/urlValidation";
+import { isValidJobUrl } from "./jobUrlValidation";
 import { openDeepLink } from "../../shared/search-links";
 
 // Extracted modules
