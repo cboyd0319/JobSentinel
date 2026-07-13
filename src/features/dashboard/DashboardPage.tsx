@@ -11,7 +11,13 @@ import { isValidJobUrl } from "../../utils/urlValidation";
 import { openDeepLink } from "../../services/deeplinks";
 
 // Extracted modules
-import type { DashboardProps, Job, SavedSearch, ScrapingStatus, Statistics } from "./types";
+import type {
+  DashboardProps,
+  Job,
+  SavedSearch,
+  ScrapingStatus,
+  Statistics,
+} from "./types";
 import { useDashboardFilters } from "./hooks/useDashboardFilters";
 import { useDashboardSearch } from "./hooks/useDashboardSearch";
 import { useDashboardJobOps } from "./hooks/useDashboardJobOps";
@@ -28,7 +34,13 @@ import { DashboardJobList } from "./components/DashboardJobList";
 import { DashboardNotesModal } from "./components/DashboardNotesModal";
 import { DashboardSaveSearchModal } from "./components/DashboardSaveSearchModal";
 import { DashboardErrorState } from "./components/DashboardErrorState";
-import { DashboardCompanyResearchOverlay, DashboardDuplicateGroupsModal, DashboardImportJobModal, DashboardLinkedInWorkbenchModal, DashboardSettingsPanel } from "./components/DashboardOverlays";
+import {
+  DashboardCompanyResearchOverlay,
+  DashboardDuplicateGroupsModal,
+  DashboardImportJobModal,
+  DashboardLinkedInWorkbenchModal,
+  DashboardSettingsPanel,
+} from "./components/DashboardOverlays";
 import { DashboardWidgetsSection } from "./components/DashboardWidgetsSection";
 import { QuickActions } from "./components/QuickActions";
 import { getNoJobsEmptyStateCopy } from "./components/noJobsEmptyStateCopy";
@@ -36,6 +48,7 @@ import { getNoJobsEmptyStateCopy } from "./components/noJobsEmptyStateCopy";
 export default function Dashboard({
   onNavigate,
   renderApplicationAssistAction,
+  settingsPage: SettingsPage,
   showSettings: showSettingsProp,
   onShowSettingsChange,
   openImportOnMount = false,
@@ -101,18 +114,14 @@ export default function Dashboard({
   } = useDashboardSearch();
   const jobOps = useDashboardJobOps(jobs, setJobs);
   const savedSearches = useDashboardSavedSearches();
-  const {
-    cooldownSeconds,
-    handleSearchNow,
-    searchCooldown,
-    searching,
-  } = useDashboardManualSearch({
-    setAnyJobSourceEnabled,
-    setError,
-    setJobs,
-    setScrapingStatus,
-    setStatistics,
-  });
+  const { cooldownSeconds, handleSearchNow, searchCooldown, searching } =
+    useDashboardManualSearch({
+      setAnyJobSourceEnabled,
+      setError,
+      setJobs,
+      setScrapingStatus,
+      setStatistics,
+    });
 
   // Auto-refresh hook
   const autoRefresh = useDashboardAutoRefresh({
@@ -152,7 +161,10 @@ export default function Dashboard({
         await openDeepLink(job.url);
       } catch (err: unknown) {
         logError("Failed to open job link via Tauri command:", err);
-        toast.error("Could not open job link", "Copy the link and open it in your browser.");
+        toast.error(
+          "Could not open job link",
+          "Copy the link and open it in your browser.",
+        );
       }
     },
     [toast],
@@ -249,7 +261,11 @@ export default function Dashboard({
 
   // Settings modal
   if (showSettings) {
-    return <DashboardSettingsPanel onClose={handleSettingsClose} />;
+    return (
+      <DashboardSettingsPanel onClose={handleSettingsClose}>
+        {SettingsPage ? <SettingsPage onClose={handleSettingsClose} /> : null}
+      </DashboardSettingsPanel>
+    );
   }
 
   // Loading state - use skeleton for better perceived performance
@@ -373,10 +389,10 @@ export default function Dashboard({
             onResearchCompany={setResearchCompany}
             renderApplicationAssistAction={
               renderApplicationAssistAction && onNavigate
-                ? (job) => renderApplicationAssistAction(
-                    job,
-                    () => onNavigate("automation"),
-                  )
+                ? (job) =>
+                    renderApplicationAssistAction(job, () =>
+                      onNavigate("automation"),
+                    )
                 : undefined
             }
           />
@@ -416,9 +432,7 @@ export default function Dashboard({
           savedSearches.setSaveSearchModalOpen(false);
         }}
         onNameChange={savedSearches.setNewSearchName}
-        onSave={() =>
-          savedSearches.handleSaveSearch(filters.getCurrentFilters)
-        }
+        onSave={() => savedSearches.handleSaveSearch(filters.getCurrentFilters)}
       />
 
       <DashboardDuplicateGroupsModal

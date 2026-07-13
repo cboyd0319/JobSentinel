@@ -627,24 +627,24 @@ impl ScoringEngine {
         let mut reasons = Vec::new();
 
         // Check if any preferences are configured
-        let has_whitelist = !self.config.company_whitelist.is_empty();
-        let has_blacklist = !self.config.company_blacklist.is_empty();
+        let has_preferred_companies = !self.config.preferred_companies.is_empty();
+        let has_blocked_companies = !self.config.blocked_companies.is_empty();
 
-        if !has_whitelist && !has_blacklist {
+        if !has_preferred_companies && !has_blocked_companies {
             reasons.push("No company preferences configured".to_string());
             return (base_score, reasons);
         }
 
-        // Check blacklist first (takes precedence)
-        for blocked in &self.config.company_blacklist {
+        // Blocked companies take precedence.
+        for blocked in &self.config.blocked_companies {
             if fuzzy_match_company(&job.company, blocked) {
                 reasons.push(format!("Company '{}' is blocklisted", job.company));
                 return (0.0, reasons);
             }
         }
 
-        // Check whitelist for bonus
-        for preferred in &self.config.company_whitelist {
+        // Preferred companies receive a bonus.
+        for preferred in &self.config.preferred_companies {
             if fuzzy_match_company(&job.company, preferred) {
                 let bonus_score = base_score * 1.5; // 50% bonus
                 reasons.push(format!(

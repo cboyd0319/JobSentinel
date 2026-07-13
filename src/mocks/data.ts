@@ -163,8 +163,8 @@ export const mockConfig = {
   },
   salary_floor_usd: 80000,
   bookmarklet_port: 4321,
-  company_whitelist: [],
-  company_blacklist: [],
+  preferred_companies: [],
+  blocked_companies: [],
   use_resume_matching: false,
   alerts: {
     slack: {

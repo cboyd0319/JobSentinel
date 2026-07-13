@@ -26,14 +26,24 @@ function withFixture(callback) {
 
 test("broad audience fixtures reject engineer-first resume optimizer copy", () => {
   withFixture((root) => {
-    writeFixtureFile(root, "src/features/resumes/matching/ResumeMatchPage.tsx", "ATS Resume Optimizer\n");
+    writeFixtureFile(
+      root,
+      "src/features/resumes/matching/ResumeMatchPage.tsx",
+      "ATS Resume Optimizer\n",
+    );
 
     assert.equal(
-      hasEngineerFirstAudienceExamples(root, "src/features/resumes/matching/ResumeMatchPage.tsx"),
+      hasEngineerFirstAudienceExamples(
+        root,
+        "src/features/resumes/matching/ResumeMatchPage.tsx",
+      ),
       true,
     );
     assert.equal(
-      hasEngineerFirstAudienceExamples(root, "src/features/applications/ApplicationsPage.tsx"),
+      hasEngineerFirstAudienceExamples(
+        root,
+        "src/features/applications/ApplicationsPage.tsx",
+      ),
       false,
     );
   });
@@ -48,11 +58,17 @@ test("broad audience fixtures reject generic technical scraper examples", () => 
     );
 
     assert.equal(
-      hasEngineerFirstAudienceExamples(root, "src-tauri/src/core/scrapers/glassdoor.rs"),
+      hasEngineerFirstAudienceExamples(
+        root,
+        "src-tauri/src/core/scrapers/glassdoor.rs",
+      ),
       true,
     );
     assert.equal(
-      hasEngineerFirstAudienceExamples(root, "src-tauri/src/core/scrapers/linkedin.rs"),
+      hasEngineerFirstAudienceExamples(
+        root,
+        "src-tauri/src/core/scrapers/linkedin.rs",
+      ),
       false,
     );
   });
@@ -67,7 +83,10 @@ test("broad audience fixtures reject stale placeholder examples", () => {
     );
 
     assert.equal(
-      hasEngineerFirstAudienceExamples(root, "src/features/dashboard/components/JobImportModal.tsx"),
+      hasEngineerFirstAudienceExamples(
+        root,
+        "src/features/dashboard/components/JobImportModal.tsx",
+      ),
       true,
     );
   });
@@ -86,9 +105,15 @@ test("broad audience fixtures reject narrow mock defaults and profile examples",
       '"John Doe".to_string()\n"https://github.com/johndoe".to_string()',
     );
 
-    assert.equal(hasEngineerFirstAudienceExamples(root, "src/mocks/data.ts"), true);
     assert.equal(
-      hasEngineerFirstAudienceExamples(root, "src-tauri/src/core/automation/profile.rs"),
+      hasEngineerFirstAudienceExamples(root, "src/mocks/data.ts"),
+      true,
+    );
+    assert.equal(
+      hasEngineerFirstAudienceExamples(
+        root,
+        "src-tauri/src/core/automation/profile.rs",
+      ),
       true,
     );
   });
@@ -118,19 +143,31 @@ test("broad audience fixtures reject narrow utility and live scraper defaults", 
     );
 
     assert.equal(
-      hasEngineerFirstAudienceExamples(root, "src/components/SkillCategoryFilter.test.tsx"),
+      hasEngineerFirstAudienceExamples(
+        root,
+        "src/components/SkillCategoryFilter.test.tsx",
+      ),
       true,
     );
     assert.equal(
-      hasEngineerFirstAudienceExamples(root, "src-tauri/tests/api_contract_test.rs"),
+      hasEngineerFirstAudienceExamples(
+        root,
+        "src-tauri/tests/api_contract_test.rs",
+      ),
       true,
     );
     assert.equal(
-      hasEngineerFirstAudienceExamples(root, "src-tauri/tests/cow_zero_copy_tests.rs"),
+      hasEngineerFirstAudienceExamples(
+        root,
+        "src-tauri/tests/cow_zero_copy_tests.rs",
+      ),
       true,
     );
     assert.equal(
-      hasEngineerFirstAudienceExamples(root, "src-tauri/tests/live_scraper_test.rs"),
+      hasEngineerFirstAudienceExamples(
+        root,
+        "src-tauri/tests/live_scraper_test.rs",
+      ),
       true,
     );
   });
@@ -142,7 +179,7 @@ test("broad audience fixtures reject tech-brand config and profile seeds", () =>
       root,
       "examples/config/config.example.json",
       [
-        '"company_whitelist": ["Google", "Cloudflare", "GitHub"]',
+        '"preferred_companies": ["Google", "Cloudflare", "GitHub"]',
         '"_profiles_available": "software-engineering, seo-digital-marketing"',
       ].join("\n"),
     );
@@ -187,23 +224,59 @@ test("broad audience fixtures reject tech-brand config and profile seeds", () =>
       '"greenhouse_urls": ["https://boards.greenhouse.io/datadog"]',
     );
 
-    assert.equal(hasEngineerFirstAudienceExamples(root, "examples/config/config.example.json"), true);
-    assert.equal(hasEngineerFirstAudienceExamples(root, "examples/profiles/README.md"), true);
-    assert.equal(hasEngineerFirstAudienceExamples(root, "examples/profiles/hr-recruiting.json"), true);
     assert.equal(
-      hasEngineerFirstAudienceExamples(root, "examples/profiles/product-management.json"),
-      true,
-    );
-    assert.equal(hasEngineerFirstAudienceExamples(root, "examples/profiles/ux-design.json"), true);
-    assert.equal(
-      hasEngineerFirstAudienceExamples(root, "examples/profiles/content-copywriting.json"),
+      hasEngineerFirstAudienceExamples(
+        root,
+        "examples/config/config.example.json",
+      ),
       true,
     );
     assert.equal(
-      hasEngineerFirstAudienceExamples(root, "examples/profiles/seo-digital-marketing.json"),
+      hasEngineerFirstAudienceExamples(root, "examples/profiles/README.md"),
       true,
     );
-    assert.equal(hasEngineerFirstAudienceExamples(root, "examples/profiles/sales-business-dev.json"), true);
+    assert.equal(
+      hasEngineerFirstAudienceExamples(
+        root,
+        "examples/profiles/hr-recruiting.json",
+      ),
+      true,
+    );
+    assert.equal(
+      hasEngineerFirstAudienceExamples(
+        root,
+        "examples/profiles/product-management.json",
+      ),
+      true,
+    );
+    assert.equal(
+      hasEngineerFirstAudienceExamples(
+        root,
+        "examples/profiles/ux-design.json",
+      ),
+      true,
+    );
+    assert.equal(
+      hasEngineerFirstAudienceExamples(
+        root,
+        "examples/profiles/content-copywriting.json",
+      ),
+      true,
+    );
+    assert.equal(
+      hasEngineerFirstAudienceExamples(
+        root,
+        "examples/profiles/seo-digital-marketing.json",
+      ),
+      true,
+    );
+    assert.equal(
+      hasEngineerFirstAudienceExamples(
+        root,
+        "examples/profiles/sales-business-dev.json",
+      ),
+      true,
+    );
   });
 });
 
@@ -226,12 +299,21 @@ test("broad audience fixtures reject engineer-first developer docs examples", ()
     );
 
     assert.equal(
-      hasEngineerFirstAudienceExamples(root, "docs/developer/FRONTEND_TESTING.md"),
+      hasEngineerFirstAudienceExamples(
+        root,
+        "docs/developer/FRONTEND_TESTING.md",
+      ),
       true,
     );
-    assert.equal(hasEngineerFirstAudienceExamples(root, "docs/developer/TESTING.md"), true);
     assert.equal(
-      hasEngineerFirstAudienceExamples(root, "docs/developer/MACOS_DEVELOPMENT.md"),
+      hasEngineerFirstAudienceExamples(root, "docs/developer/TESTING.md"),
+      true,
+    );
+    assert.equal(
+      hasEngineerFirstAudienceExamples(
+        root,
+        "docs/developer/MACOS_DEVELOPMENT.md",
+      ),
       true,
     );
   });
@@ -261,22 +343,34 @@ test("salary audience fixtures reject engineer-centered salary examples", () => 
     );
 
     assert.equal(
-      hasSalaryAudienceExampleDrift(root, "src-tauri/src/core/salary/benchmarks.rs"),
+      hasSalaryAudienceExampleDrift(
+        root,
+        "src-tauri/src/core/salary/benchmarks.rs",
+      ),
       true,
     );
     assert.equal(
-      hasSalaryAudienceExampleDrift(root, "src-tauri/src/core/salary/negotiation.rs"),
+      hasSalaryAudienceExampleDrift(
+        root,
+        "src-tauri/src/core/salary/negotiation.rs",
+      ),
       true,
     );
     assert.equal(
-      hasSalaryAudienceExampleDrift(root, "src-tauri/src/core/salary/predictor.rs"),
+      hasSalaryAudienceExampleDrift(
+        root,
+        "src-tauri/src/core/salary/predictor.rs",
+      ),
       true,
     );
     assert.equal(
       hasSalaryAudienceExampleDrift(root, "src-tauri/src/core/salary/tests.rs"),
       true,
     );
-    assert.equal(hasSalaryAudienceExampleDrift(root, "src-tauri/src/core/salary/mod.rs"), false);
+    assert.equal(
+      hasSalaryAudienceExampleDrift(root, "src-tauri/src/core/salary/mod.rs"),
+      false,
+    );
   });
 });
 
@@ -298,11 +392,17 @@ test("broad audience fixtures reject tech-hub scoring location defaults", () => 
     );
 
     assert.equal(
-      hasEngineerFirstAudienceExamples(root, "src-tauri/src/core/scoring/mod.rs"),
+      hasEngineerFirstAudienceExamples(
+        root,
+        "src-tauri/src/core/scoring/mod.rs",
+      ),
       true,
     );
     assert.equal(
-      hasEngineerFirstAudienceExamples(root, "src-tauri/src/core/scoring/remote.rs"),
+      hasEngineerFirstAudienceExamples(
+        root,
+        "src-tauri/src/core/scoring/remote.rs",
+      ),
       true,
     );
   });
@@ -323,7 +423,10 @@ test("broad audience fixtures reject tech-first synonym ordering", () => {
     );
 
     assert.equal(
-      hasEngineerFirstAudienceExamples(root, "src-tauri/src/core/scoring/synonyms.rs"),
+      hasEngineerFirstAudienceExamples(
+        root,
+        "src-tauri/src/core/scoring/synonyms.rs",
+      ),
       true,
     );
   });

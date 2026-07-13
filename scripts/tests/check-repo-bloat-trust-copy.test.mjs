@@ -13,7 +13,9 @@ function writeFixtureFile(root, path, content = "") {
 }
 
 function withGitFixture(callback) {
-  const root = mkdtempSync(join(tmpdir(), "jobsentinel-repo-bloat-trust-copy-"));
+  const root = mkdtempSync(
+    join(tmpdir(), "jobsentinel-repo-bloat-trust-copy-"),
+  );
 
   try {
     execFileSync("git", ["init", "--quiet"], { cwd: root });
@@ -49,7 +51,11 @@ test("checkRepoBloat rejects overconfident ghost-risk copy", () => {
       "docs/README.md",
       "Ghost Detection: ghost jobs, statistics, filtered search, feedback, and configuration.\n",
     );
-    writeFixtureFile(root, "docs/ROADMAP.md", "Detect stale, reposted, and fake job postings.\n");
+    writeFixtureFile(
+      root,
+      "docs/ROADMAP.md",
+      "Detect stale, reposted, and fake job postings.\n",
+    );
     writeFixtureFile(
       root,
       "docs/developer/ARCHITECTURE.md",
@@ -87,7 +93,7 @@ test("checkRepoBloat rejects overconfident ghost-risk copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/pages/Settings.tsx",
+      "src/features/settings/SettingsPage.tsx",
       '"Adjust how aggressively JobSentinel flags fake or stale job postings."\n',
     );
 
@@ -107,7 +113,7 @@ test("checkRepoBloat rejects overconfident ghost-risk copy", () => {
         "docs/style-guide/WRITING-FOR-JOB-SEEKERS.md",
         "src/features/dashboard/components/GhostIndicator.tsx",
         "src/features/dashboard/components/DashboardFiltersBar.tsx",
-        "src/pages/Settings.tsx",
+        "src/features/settings/SettingsPage.tsx",
       ],
       { cwd: root },
     );
@@ -126,7 +132,7 @@ test("checkRepoBloat rejects overconfident ghost-risk copy", () => {
       "docs/style-guide/WRITING-FOR-JOB-SEEKERS.md",
       "src/features/dashboard/components/GhostIndicator.tsx",
       "src/features/dashboard/components/DashboardFiltersBar.tsx",
-      "src/pages/Settings.tsx",
+      "src/features/settings/SettingsPage.tsx",
     ]) {
       assert.ok(
         violations.includes(`replace overconfident ghost-risk copy: ${path}`),
@@ -149,7 +155,11 @@ test("checkRepoBloat rejects feedback support paths drifting away from local-fir
       "src/components/feedback/SuccessScreen.tsx",
       'submittedVia: "github" | "drive"; "Open Shared Folder";\n',
     );
-    writeFixtureFile(root, "src/hooks/useFeedback.ts", 'submittedVia: "drive"; submitViaDrive();\n');
+    writeFixtureFile(
+      root,
+      "src/hooks/useFeedback.ts",
+      'submittedVia: "drive"; submitViaDrive();\n',
+    );
     writeFixtureFile(
       root,
       "docs/features/job-sources.md",
@@ -157,7 +167,7 @@ test("checkRepoBloat rejects feedback support paths drifting away from local-fir
     );
     writeFixtureFile(
       root,
-      "src/pages/Settings.tsx",
+      "src/features/settings/SettingsPage.tsx",
       '"Safe debug report copied"; "Paste it into a GitHub issue."; "Attach report.txt to a GitHub issue";\n',
     );
     writeFixtureFile(
@@ -175,7 +185,7 @@ test("checkRepoBloat rejects feedback support paths drifting away from local-fir
         "src/components/feedback/SuccessScreen.tsx",
         "src/hooks/useFeedback.ts",
         "docs/features/job-sources.md",
-        "src/pages/Settings.tsx",
+        "src/features/settings/SettingsPage.tsx",
         "docs/user/QUICK_START.md",
       ],
       { cwd: root },
@@ -188,7 +198,7 @@ test("checkRepoBloat rejects feedback support paths drifting away from local-fir
       "src/components/feedback/SuccessScreen.tsx",
       "src/hooks/useFeedback.ts",
       "docs/features/job-sources.md",
-      "src/pages/Settings.tsx",
+      "src/features/settings/SettingsPage.tsx",
       "docs/user/QUICK_START.md",
     ]) {
       assert.ok(
@@ -232,7 +242,9 @@ test("checkRepoBloat rejects overconfident pay guidance", () => {
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("replace overconfident pay guidance: docs/features/pay-protection.md"),
+      violations.includes(
+        "replace overconfident pay guidance: docs/features/pay-protection.md",
+      ),
       violations.join("\n"),
     );
     assert.ok(
@@ -247,7 +259,11 @@ test("checkRepoBloat rejects overconfident pay guidance", () => {
 test("checkRepoBloat rejects non-protective salary-floor troubleshooting", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
-    writeFixtureFile(root, "docs/user/QUICK_START.md", "Lower your minimum salary to $0 temporarily\n");
+    writeFixtureFile(
+      root,
+      "docs/user/QUICK_START.md",
+      "Lower your minimum salary to $0 temporarily\n",
+    );
     writeFixtureFile(
       root,
       "src/features/dashboard/components/noJobsEmptyStateCopy.ts",
@@ -270,7 +286,9 @@ test("checkRepoBloat rejects non-protective salary-floor troubleshooting", () =>
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("keep salary-floor troubleshooting protective: docs/user/QUICK_START.md"),
+      violations.includes(
+        "keep salary-floor troubleshooting protective: docs/user/QUICK_START.md",
+      ),
       violations.join("\n"),
     );
     assert.ok(
@@ -295,14 +313,20 @@ test("checkRepoBloat rejects raw salary command logging", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src-tauri/src/commands/salary.rs"], {
-      cwd: root,
-    });
+    execFileSync(
+      "git",
+      ["add", "package.json", "src-tauri/src/commands/salary.rs"],
+      {
+        cwd: root,
+      },
+    );
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("remove raw salary command logging: src-tauri/src/commands/salary.rs"),
+      violations.includes(
+        "remove raw salary command logging: src-tauri/src/commands/salary.rs",
+      ),
       violations.join("\n"),
     );
   });

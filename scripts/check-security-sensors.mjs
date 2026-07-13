@@ -4,7 +4,11 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { dirname, extname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-import { checkBrowserExtensionManifestBoundary, checkTauriCapabilityBoundary, checkWorkflowInstallBoundary } from "./security/permission-boundaries.mjs";
+import {
+  checkBrowserExtensionManifestBoundary,
+  checkTauriCapabilityBoundary,
+  checkWorkflowInstallBoundary,
+} from "./security/permission-boundaries.mjs";
 import { checkExternalAiGatewayBoundary, checkResumeHtmlSinkBoundary } from "./security/ai-html-boundaries.mjs";
 import { checkBrowserAutomationBoundary } from "./security/automation-boundaries.mjs";
 import { checkRendererCspBoundary as checkTauriRendererCsp } from "./security/renderer-csp.mjs";
@@ -51,11 +55,7 @@ const requiredMatrixEntries = [
   },
   {
     label: "browser extension manifest",
-    phrases: [
-      "Browser extension manifest",
-      "least-privilege manifest review",
-      "no broad host permissions",
-    ],
+    phrases: ["Browser extension manifest", "least-privilege manifest review", "no broad host permissions"],
   },
   {
     label: "scraper behavior",
@@ -74,13 +74,7 @@ const ciWorkflowChecks = [
   },
   {
     label: "scheduled security drift selection",
-    phrases: [
-      '"$event" = "schedule"',
-      "frontend=false",
-      "harness=true",
-      "rust=false",
-      "security=true",
-    ],
+    phrases: ['"$event" = "schedule"', "frontend=false", "harness=true", "rust=false", "security=true"],
   },
   {
     label: "security sensors",
@@ -106,7 +100,7 @@ const ciWorkflowChecks = [
 
 const forbiddenWorkflowTriggers = ["pull_request_target:", "workflow_run:", "issue_comment:"];
 
-const releaseCacheMarkers = ["actions/cache@", "Swatinem/rust-cache@", "cache: \"npm\"", "cache: npm"];
+const releaseCacheMarkers = ["actions/cache@", "Swatinem/rust-cache@", 'cache: "npm"', "cache: npm"];
 
 const notificationProviderPaths = [
   "src-tauri/src/core/notify/slack.rs",
@@ -123,11 +117,13 @@ const releaseWorkflowChecks = [
       "preflight-harness:",
       "preflight-frontend:",
       "preflight-rust:",
-      "preflight-security-node:", "preflight-security-rust:",
+      "preflight-security-node:",
+      "preflight-security-rust:",
       "- preflight-harness",
       "- preflight-frontend",
       "- preflight-rust",
-      "- preflight-security-node", "- preflight-security-rust",
+      "- preflight-security-node",
+      "- preflight-security-rust",
     ],
   },
   {
@@ -136,10 +132,7 @@ const releaseWorkflowChecks = [
   },
   {
     label: "release version output guard",
-    phrases: [
-      "[[ ! \"$version\" =~ ^[0-9]+\\.[0-9]+\\.[0-9]+$ ]]",
-      "Release version must be an exact stable semver",
-    ],
+    phrases: ['[[ ! "$version" =~ ^[0-9]+\\.[0-9]+\\.[0-9]+$ ]]', "Release version must be an exact stable semver"],
   },
   {
     label: "release tag ref guard",
@@ -223,7 +216,14 @@ const releaseWorkflowChecks = [
   },
   {
     label: "Linux AppImage build compatibility",
-    phrases: ["file=1:5.45-3build1", "libfuse2t64=2.9.9-8.1build1", "squashfs-tools=1:4.6.1-1build1", "Build Linux Tauri app", "APPIMAGE_EXTRACT_AND_RUN: \"1\"", "scripts/build-linux-appimage.mjs"],
+    phrases: [
+      "file=1:5.45-3build1",
+      "libfuse2t64=2.9.9-8.1build1",
+      "squashfs-tools=1:4.6.1-1build1",
+      "Build Linux Tauri app",
+      'APPIMAGE_EXTRACT_AND_RUN: "1"',
+      "scripts/build-linux-appimage.mjs",
+    ],
   },
   {
     label: "release attestation permissions",
@@ -243,7 +243,14 @@ const releaseWorkflowChecks = [
   },
   {
     label: "release SBOM attestation",
-    phrases: ["release-assets/public/*.dmg", "release-assets/public/*.msi", "release-assets/public/*.exe", "release-assets/public/*.AppImage", "release-assets/public/*.deb", "sbom-path: release-assets/public/JobSentinel-"],
+    phrases: [
+      "release-assets/public/*.dmg",
+      "release-assets/public/*.msi",
+      "release-assets/public/*.exe",
+      "release-assets/public/*.AppImage",
+      "release-assets/public/*.deb",
+      "sbom-path: release-assets/public/JobSentinel-",
+    ],
   },
 ];
 
@@ -282,10 +289,7 @@ const releasePreflightChecks = [
   },
   {
     label: "cargo deny supply-chain policy",
-    phrases: [
-      "cargo install cargo-deny --version 0.19.9 --locked",
-      "cargo deny check advisories bans licenses sources",
-    ],
+    phrases: ["cargo install cargo-deny --version 0.19.9 --locked", "cargo deny check advisories bans licenses sources"],
   },
   {
     label: "Rust formatting",
@@ -331,11 +335,7 @@ const publishedReleaseWorkflowChecks = [
 const publicReleaseVerifierChecks = [
   {
     label: "exact public installer asset set",
-    phrases: [
-      "validateExactPublicInstallerAssetSet",
-      "selectedPlatformAssetExtensions",
-      "stale or unexpected installer assets",
-    ],
+    phrases: ["validateExactPublicInstallerAssetSet", "selectedPlatformAssetExtensions", "stale or unexpected installer assets"],
   },
 ];
 
@@ -369,22 +369,9 @@ const requiredCodeownersEntries = [
 ];
 const requiredCodeowner = "@cboyd0319";
 
-const ignoredAgentInstructionPathParts = new Set([
-  ".git",
-  ".husky",
-  "dist",
-  "node_modules",
-  "playwright-report",
-  "target",
-  "test-results",
-]);
+const ignoredAgentInstructionPathParts = new Set([".git", ".husky", "dist", "node_modules", "playwright-report", "target", "test-results"]);
 
-const allowedAgentInstructionFiles = new Set([
-  ".github/copilot-instructions.md",
-  "AGENTS.md",
-  "CLAUDE.md",
-  "docs/CLAUDE.md",
-]);
+const allowedAgentInstructionFiles = new Set([".github/copilot-instructions.md", "AGENTS.md", "CLAUDE.md", "docs/CLAUDE.md"]);
 
 const agentInstructionFilePatterns = [
   /(?:^|\/)AGENTS\.md$/i,
@@ -399,15 +386,15 @@ const agentInstructionFilePatterns = [
 ];
 
 const credentialUiGateFiles = [
-  "src/pages/SettingsNotificationsSection.tsx",
-  "src/pages/SettingsJobSourcesSection.tsx",
+  "src/features/settings/notifications/SettingsNotificationsSection.tsx",
+  "src/features/settings/sources/SettingsJobSourcesSection.tsx",
 ];
 
 const credentialPassiveProbeFiles = [
-  "src/pages/Settings.tsx",
-  "src/pages/useSettingsCredentials.ts",
-  "src/pages/SettingsNotificationsSection.tsx",
-  "src/pages/SettingsJobSourcesSection.tsx",
+  "src/features/settings/SettingsPage.tsx",
+  "src/features/settings/credentials/useSettingsCredentials.ts",
+  "src/features/settings/notifications/SettingsNotificationsSection.tsx",
+  "src/features/settings/sources/SettingsJobSourcesSection.tsx",
 ];
 
 const ciDocsChecks = [
@@ -496,9 +483,7 @@ function checkWorkflowSecurityBaseline(root, violations) {
     checkWorkflowRunExpressionBoundary(path, text, violations);
 
     if (!hasTopLevelDisabledPermissions(text)) {
-      violations.push(
-        `${path} must disable default workflow token permissions with top-level permissions: {}`,
-      );
+      violations.push(`${path} must disable default workflow token permissions with top-level permissions: {}`);
     }
 
     for (const trigger of forbiddenWorkflowTriggers) {
@@ -508,10 +493,7 @@ function checkWorkflowSecurityBaseline(root, violations) {
     }
 
     const checkoutCount = countMatches(text, /\buses:\s*actions\/checkout@/g);
-    const persistedCredentialGuards = countMatches(
-      text,
-      /\bpersist-credentials:\s*false\b/g,
-    );
+    const persistedCredentialGuards = countMatches(text, /\bpersist-credentials:\s*false\b/g);
     if (checkoutCount > persistedCredentialGuards) {
       violations.push(`${path} checkout steps must set persist-credentials: false`);
     }
@@ -520,9 +502,7 @@ function checkWorkflowSecurityBaseline(root, violations) {
 
 function checkReleaseCacheIsolation(releaseWorkflow, violations) {
   if (releaseCacheMarkers.some((marker) => releaseWorkflow.includes(marker))) {
-    violations.push(
-      "release workflow must not restore dependency caches before publishing artifacts",
-    );
+    violations.push("release workflow must not restore dependency caches before publishing artifacts");
   }
 }
 
@@ -531,9 +511,7 @@ function checkSetupNodeCacheDisabled(path, text, violations) {
   const disabledCount = countMatches(text, /\bpackage-manager-cache:\s*false\b/g);
 
   if (setupNodeCount > disabledCount) {
-    violations.push(
-      `${path} setup-node steps must set package-manager-cache: false`,
-    );
+    violations.push(`${path} setup-node steps must set package-manager-cache: false`);
   }
 }
 
@@ -565,9 +543,7 @@ function checkNotificationEgressBoundary(root, violations) {
 
     const text = readIfExists(root, path, violations);
     if (/\breqwest::Client::(?:builder|new)\s*\(/.test(text)) {
-      violations.push(
-        `${path} must use notification_http_client_for_url instead of raw reqwest clients`,
-      );
+      violations.push(`${path} must use notification_http_client_for_url instead of raw reqwest clients`);
     }
   }
 }
@@ -577,9 +553,7 @@ function checkDependabotGovernance(root, violations) {
 
   for (const check of dependabotGovernanceChecks) {
     if (!includesAll(dependabotConfig, check.phrases)) {
-      violations.push(
-        `Dependabot config is missing supply-chain update governance: ${check.label}`,
-      );
+      violations.push(`Dependabot config is missing supply-chain update governance: ${check.label}`);
     }
   }
 }
@@ -608,17 +582,13 @@ function checkCodeownersBoundary(root, violations) {
   for (const pattern of requiredCodeownersEntries) {
     const owners = codeownersLastOwnersForPattern(text, pattern);
     if (!owners.includes(requiredCodeowner)) {
-      violations.push(
-        `CODEOWNERS is missing owner review boundary for ${pattern}: ${requiredCodeowner}`,
-      );
+      violations.push(`CODEOWNERS is missing owner review boundary for ${pattern}: ${requiredCodeowner}`);
     }
   }
 }
 
 function workflowJobBlock(text, jobName) {
-  const match = String(text ?? "").match(
-    new RegExp(`(?:^|\\n)  ${jobName}:\\n([\\s\\S]*?)(?=\\n  [A-Za-z0-9_-]+:\\n|\\s*$)`),
-  );
+  const match = String(text ?? "").match(new RegExp(`(?:^|\\n)  ${jobName}:\\n([\\s\\S]*?)(?=\\n  [A-Za-z0-9_-]+:\\n|\\s*$)`));
 
   return match?.[1] ?? "";
 }
@@ -664,9 +634,7 @@ function collectAgentInstructionCandidates(root, dir = root, prefix = "") {
 function checkAgentInstructionFileBoundary(root, violations) {
   for (const path of collectAgentInstructionCandidates(root)) {
     if (!allowedAgentInstructionFiles.has(path)) {
-      violations.push(
-        `unexpected persistent agent instruction file must be reviewed and added to the harness allowlist: ${path}`,
-      );
+      violations.push(`unexpected persistent agent instruction file must be reviewed and added to the harness allowlist: ${path}`);
     }
   }
 }
@@ -686,9 +654,7 @@ function checkRendererAssetBoundary(root, violations) {
 
   for (const { label, pattern } of forbiddenRendererAssetPatterns) {
     if (pattern.test(css)) {
-      violations.push(
-        `src/index.css must not load external renderer assets: ${label}`,
-      );
+      violations.push(`src/index.css must not load external renderer assets: ${label}`);
     }
   }
 }
@@ -699,17 +665,21 @@ export function formatSecuritySensorSummary() {
     `docs=${requiredSecurityDocs.length}`,
     `matrix=${requiredMatrixEntries.length}`,
     "workflow=5",
-    `release-workflow=${releaseWorkflowChecks.length}`, `release-preflight=${releasePreflightChecks.length}`,
+    `release-workflow=${releaseWorkflowChecks.length}`,
+    `release-preflight=${releasePreflightChecks.length}`,
     `published-release-workflow=${publishedReleaseWorkflowChecks.length}`,
     `public-release-verifier=${publicReleaseVerifierChecks.length}`,
-    `ci=${ciWorkflowChecks.length}`, `ci-docs=${ciDocsChecks.length}`,
+    `ci=${ciWorkflowChecks.length}`,
+    `ci-docs=${ciDocsChecks.length}`,
     `dependabot=${dependabotGovernanceChecks.length}`,
     `codeowners=${requiredCodeownersEntries.length}`,
     "agent-instructions=1",
-    "browser-automation=1", "browser-extension=1",
+    "browser-automation=1",
+    "browser-extension=1",
     "tauri-capabilities=1",
     "notification-egress=1",
-    "renderer-csp=1", "renderer-assets=1",
+    "renderer-csp=1",
+    "renderer-assets=1",
     "credential-ui=2",
     "external-ai=1",
     "resume-html-sinks=1",
@@ -725,11 +695,7 @@ export function checkSecuritySensors(root = defaultRoot) {
     }
   }
 
-  const verificationMatrix = readIfExists(
-    root,
-    "docs/harness/verification-matrix.md",
-    violations,
-  );
+  const verificationMatrix = readIfExists(root, "docs/harness/verification-matrix.md", violations);
 
   for (const entry of requiredMatrixEntries) {
     if (!includesAll(verificationMatrix, entry.phrases)) {
@@ -784,41 +750,20 @@ export function checkSecuritySensors(root = defaultRoot) {
   }
 
   const buildReleaseJob = workflowJobBlock(releaseWorkflow, "build-release");
-  if (
-    !includesAll(buildReleaseJob, [
-      "artifact-metadata: write",
-      "attestations: write",
-      "contents: write",
-      "id-token: write",
-    ])
-  ) {
+  if (!includesAll(buildReleaseJob, ["artifact-metadata: write", "attestations: write", "contents: write", "id-token: write"])) {
     violations.push("release workflow build-release job is missing attestation permissions");
   }
 
-  const publishedReleaseWorkflow = readIfExists(
-    root,
-    ".github/workflows/verify-release-artifacts.yml",
-    violations,
-  );
-  checkSetupNodeCacheDisabled(
-    ".github/workflows/verify-release-artifacts.yml",
-    publishedReleaseWorkflow,
-    violations,
-  );
+  const publishedReleaseWorkflow = readIfExists(root, ".github/workflows/verify-release-artifacts.yml", violations);
+  checkSetupNodeCacheDisabled(".github/workflows/verify-release-artifacts.yml", publishedReleaseWorkflow, violations);
 
   for (const check of publishedReleaseWorkflowChecks) {
     if (!includesAll(publishedReleaseWorkflow, check.phrases)) {
-      violations.push(
-        `published release workflow is missing public artifact gate: ${check.label}`,
-      );
+      violations.push(`published release workflow is missing public artifact gate: ${check.label}`);
     }
   }
 
-  const publicReleaseVerifier = readIfExists(
-    root,
-    "scripts/verify-public-release-assets.mjs",
-    violations,
-  );
+  const publicReleaseVerifier = readIfExists(root, "scripts/verify-public-release-assets.mjs", violations);
   for (const check of publicReleaseVerifierChecks) {
     if (!includesAll(publicReleaseVerifier, check.phrases)) {
       violations.push(`public release verifier is missing artifact gate: ${check.label}`);
@@ -848,33 +793,27 @@ export function checkSecuritySensors(root = defaultRoot) {
     violations.push("src-tauri/tauri.conf.json must be valid JSON for security sensor check");
   }
 
-  const settingsCredentialsPath = join(root, "src/pages/SettingsCredentials.ts");
-  const settingsCredentialValidation = `${readIfExists(root, "src/pages/SettingsConfig.ts", violations)}\n${existsSync(settingsCredentialsPath) ? readFileSync(settingsCredentialsPath, "utf8") : ""}`;
+  const settingsCredentialsPath = join(root, "src/features/settings/credentials/SettingsCredentials.ts");
+  const settingsCredentialValidation = `${readIfExists(root, "src/features/settings/config/SettingsConfig.ts", violations)}\n${existsSync(settingsCredentialsPath) ? readFileSync(settingsCredentialsPath, "utf8") : ""}`;
   if (
-    !settingsCredentialValidation.includes('state: CredentialStatusState') ||
+    !settingsCredentialValidation.includes("state: CredentialStatusState") ||
     !settingsCredentialValidation.includes('credentialExists(credentialStatus, "telegram_bot_token")') ||
     !settingsCredentialValidation.includes('credentialExists(credentialStatus, "usajobs_api_key")')
   ) {
-    violations.push(
-      "settings credential validation must use explicit credential states and confirmed saved-secret checks",
-    );
+    violations.push("settings credential validation must use explicit credential states and confirmed saved-secret checks");
   }
 
   for (const path of credentialUiGateFiles) {
     const text = readIfExists(root, path, violations);
     if (/\bcredentialMayExist\b/.test(text)) {
-      violations.push(
-        `${path} must not use passive expected credential state for save, test, or enable gating`,
-      );
+      violations.push(`${path} must not use passive expected credential state for save, test, or enable gating`);
     }
   }
 
   for (const path of credentialPassiveProbeFiles) {
     const text = readIfExists(root, path, violations);
     if (/\b(?:get_credential_status|has_credential)\b/.test(text)) {
-      violations.push(
-        `${path} must not call secure-storage probe commands during passive Settings load`,
-      );
+      violations.push(`${path} must not call secure-storage probe commands during passive Settings load`);
     }
   }
 

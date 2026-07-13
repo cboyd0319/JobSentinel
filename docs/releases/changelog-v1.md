@@ -121,7 +121,7 @@ current release history stays small and reviewable.
 - **10 job board scrapers** - Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound,
   WeWorkRemotely, BuiltIn, HN Who's Hiring, and JobsWithGPT
 - **Advanced notification filtering** - Keyword include/exclude, salary threshold,
-  remote-only toggle, company whitelist/blacklist
+  remote-only toggle, preferred and blocked company controls
 - **Keyboard shortcuts** - `b` bookmark, `n` notes, `c` company research, `x` select,
   `/` search, `?` help, `r` refresh
 - **Advanced search** - Boolean operators (AND with space, OR with comma, NOT with -prefix), search history dropdown

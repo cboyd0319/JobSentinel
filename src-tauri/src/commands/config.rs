@@ -424,8 +424,8 @@ mod tests {
             external_ai: Default::default(),
             ghost_config: None,
             use_resume_matching: false,
-            company_whitelist: vec![],
-            company_blacklist: vec![],
+            preferred_companies: vec![],
+            blocked_companies: vec![],
         }
     }
 

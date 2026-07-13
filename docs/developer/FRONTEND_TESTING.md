@@ -602,8 +602,10 @@ test("should maintain layout on mobile", async ({ page }) => {
 
 The npm commands below route through `scripts/run-playwright.mjs`, which keeps
 Playwright output clean on current Node versions without hiding test failures.
-Run `npm run doctor:e2e` first when setting up Playwright locally or diagnosing
-browser-launch failures.
+The wrapper automatically selects an available loopback port and does not reuse
+an existing server unless `PLAYWRIGHT_REUSE_EXISTING_SERVER=1` is explicitly
+set. Run `npm run doctor:e2e` first when setting up Playwright locally or
+diagnosing browser-launch failures.
 
 ```bash
 # Check local E2E readiness

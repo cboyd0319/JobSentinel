@@ -40,7 +40,11 @@ function withFixture(callback) {
 
 test("product copy rejects stale Resume Optimizer framing", () => {
   withFixture((root) => {
-    writeFixtureFile(root, "docs/features/resume-matcher.md", "ATS Resume Optimizer\n");
+    writeFixtureFile(
+      root,
+      "docs/features/resume-matcher.md",
+      "ATS Resume Optimizer\n",
+    );
     writeFixtureFile(
       root,
       "src/features/resumes/matching/ResumeMatchPage.tsx",
@@ -62,15 +66,24 @@ test("product copy rejects stale Resume Optimizer framing", () => {
       true,
     );
     assert.equal(
-      hasStaleResumeOptimizerFraming(root, "src/features/resumes/matching/ResumeMatchPage.tsx"),
+      hasStaleResumeOptimizerFraming(
+        root,
+        "src/features/resumes/matching/ResumeMatchPage.tsx",
+      ),
       true,
     );
     assert.equal(
-      hasStaleResumeOptimizerFraming(root, "src/features/resumes/matching/ResumeMatchResultsPanel.tsx"),
+      hasStaleResumeOptimizerFraming(
+        root,
+        "src/features/resumes/matching/ResumeMatchResultsPanel.tsx",
+      ),
       true,
     );
     assert.equal(
-      hasStaleResumeOptimizerFraming(root, "src/features/resumes/builder/AtsLiveScorePanel.tsx"),
+      hasStaleResumeOptimizerFraming(
+        root,
+        "src/features/resumes/builder/AtsLiveScorePanel.tsx",
+      ),
       true,
     );
     assert.equal(
@@ -103,13 +116,31 @@ test("product copy rejects local resume upload wording in resume match", () => {
       "No resume uploaded\nPlease upload a resume in Resume Match first\nUpload and review a resume in Resume Match first\n",
     );
 
-    assert.equal(hasStaleResumeOptimizerFraming(root, "docs/features/resume-matcher.md"), true);
-    assert.equal(hasStaleResumeOptimizerFraming(root, "src/features/resumes/matching/ResumeMatchPage.tsx"), true);
     assert.equal(
-      hasStaleResumeOptimizerFraming(root, "src/components/ResumeMatchScoreBreakdown.tsx"),
+      hasStaleResumeOptimizerFraming(root, "docs/features/resume-matcher.md"),
       true,
     );
-    assert.equal(hasStaleResumeOptimizerFraming(root, "src/features/resumes/builder/ResumeBuilderPage.tsx"), true);
+    assert.equal(
+      hasStaleResumeOptimizerFraming(
+        root,
+        "src/features/resumes/matching/ResumeMatchPage.tsx",
+      ),
+      true,
+    );
+    assert.equal(
+      hasStaleResumeOptimizerFraming(
+        root,
+        "src/components/ResumeMatchScoreBreakdown.tsx",
+      ),
+      true,
+    );
+    assert.equal(
+      hasStaleResumeOptimizerFraming(
+        root,
+        "src/features/resumes/builder/ResumeBuilderPage.tsx",
+      ),
+      true,
+    );
   });
 });
 
@@ -122,7 +153,10 @@ test("product copy rejects engineer-first resume template copy", () => {
     );
 
     assert.equal(
-      hasEngineerFirstResumeTemplateCopy(root, "docs/features/resume-builder.md"),
+      hasEngineerFirstResumeTemplateCopy(
+        root,
+        "docs/features/resume-builder.md",
+      ),
       true,
     );
   });
@@ -143,7 +177,7 @@ test("product copy rejects application automation framing", () => {
     writeFixtureFile(
       root,
       "src/features/application-assist/ApplicationPreview.tsx",
-      'aria-label={`Application tracking system: ${atsPlatform}`}\n',
+      "aria-label={`Application tracking system: ${atsPlatform}`}\n",
     );
     writeFixtureFile(
       root,
@@ -152,11 +186,17 @@ test("product copy rejects application automation framing", () => {
     );
 
     assert.equal(
-      hasApplicationAssistAutomationFraming(root, "docs/features/application-assist.md"),
+      hasApplicationAssistAutomationFraming(
+        root,
+        "docs/features/application-assist.md",
+      ),
       true,
     );
     assert.equal(
-      hasApplicationAssistAutomationFraming(root, "src/features/application-assist/ApplyButton.tsx"),
+      hasApplicationAssistAutomationFraming(
+        root,
+        "src/features/application-assist/ApplyButton.tsx",
+      ),
       true,
     );
     assert.equal(
@@ -167,7 +207,10 @@ test("product copy rejects application automation framing", () => {
       true,
     );
     assert.equal(
-      hasApplicationAssistAutomationFraming(root, "src/features/application-assist/ApplicationProfilePage.tsx"),
+      hasApplicationAssistAutomationFraming(
+        root,
+        "src/features/application-assist/ApplicationProfilePage.tsx",
+      ),
       true,
     );
   });
@@ -188,15 +231,25 @@ test("product copy rejects overconfident ghost-risk copy", () => {
       ].join("\n"),
     );
 
-    assert.equal(hasOverconfidentGhostCopy(root, "docs/features/ghost-detection.md"), true);
+    assert.equal(
+      hasOverconfidentGhostCopy(root, "docs/features/ghost-detection.md"),
+      true,
+    );
   });
 });
 
 test("product copy rejects overconfident pay guidance", () => {
   withFixture((root) => {
-    writeFixtureFile(root, "docs/features/pay-protection.md", "Always negotiate.\n");
+    writeFixtureFile(
+      root,
+      "docs/features/pay-protection.md",
+      "Always negotiate.\n",
+    );
 
-    assert.equal(hasOverconfidentPayGuidance(root, "docs/features/pay-protection.md"), true);
+    assert.equal(
+      hasOverconfidentPayGuidance(root, "docs/features/pay-protection.md"),
+      true,
+    );
   });
 });
 
@@ -218,11 +271,17 @@ test("product copy rejects non-protective salary-floor troubleshooting", () => {
       true,
     );
     assert.equal(
-      hasNonProtectivePayFloorRecoveryCopy(root, "src/features/dashboard/components/noJobsEmptyStateCopy.ts"),
+      hasNonProtectivePayFloorRecoveryCopy(
+        root,
+        "src/features/dashboard/components/noJobsEmptyStateCopy.ts",
+      ),
       true,
     );
     assert.equal(
-      hasNonProtectivePayFloorRecoveryCopy(root, "docs/features/pay-protection.md"),
+      hasNonProtectivePayFloorRecoveryCopy(
+        root,
+        "docs/features/pay-protection.md",
+      ),
       false,
     );
   });
@@ -233,7 +292,7 @@ test("product copy rejects raw feedback report presentation", () => {
     writeFixtureFile(
       root,
       "src/components/feedback/DebugInfoPreview.tsx",
-      'JSON.stringify(event.details)\nvalue={`${configSummary.keywords_count} configured`}\n',
+      "JSON.stringify(event.details)\nvalue={`${configSummary.keywords_count} configured`}\n",
     );
     writeFixtureFile(
       root,
@@ -247,18 +306,31 @@ test("product copy rejects raw feedback report presentation", () => {
         "",
       ].join("\n"),
     );
-    writeFixtureFile(root, "src/components/ErrorLogPanel.tsx", "JSON.stringify(error.context)");
+    writeFixtureFile(
+      root,
+      "src/components/ErrorLogPanel.tsx",
+      "JSON.stringify(error.context)",
+    );
 
     assert.equal(
-      hasRawFeedbackDebugEventDetails(root, "src/components/feedback/DebugInfoPreview.tsx"),
+      hasRawFeedbackDebugEventDetails(
+        root,
+        "src/components/feedback/DebugInfoPreview.tsx",
+      ),
       true,
     );
     assert.equal(
-      hasFeedbackTechnicalCompanyLabels(root, "src/services/feedbackService.ts"),
+      hasFeedbackTechnicalCompanyLabels(
+        root,
+        "src/services/feedbackService.ts",
+      ),
       true,
     );
     assert.equal(
-      hasFeedbackSetupJargon(root, "src/components/feedback/DebugInfoPreview.tsx"),
+      hasFeedbackSetupJargon(
+        root,
+        "src/components/feedback/DebugInfoPreview.tsx",
+      ),
       true,
     );
     assert.equal(
@@ -266,19 +338,33 @@ test("product copy rejects raw feedback report presentation", () => {
       true,
     );
     assert.equal(
-      hasRawProblemHistoryContextDetails(root, "src/components/ErrorLogPanel.tsx"),
+      hasRawProblemHistoryContextDetails(
+        root,
+        "src/components/ErrorLogPanel.tsx",
+      ),
       true,
     );
-    assert.equal(hasRawFeedbackDebugEventDetails(root, "src/components/ErrorLogPanel.tsx"), false);
+    assert.equal(
+      hasRawFeedbackDebugEventDetails(root, "src/components/ErrorLogPanel.tsx"),
+      false,
+    );
   });
 });
 
 test("product copy rejects debug-report roadmap wording", () => {
   withFixture((root) => {
     writeFixtureFile(root, "README.md", "Use the in-app safe debug report.\n");
-    writeFixtureFile(root, "ROADMAP.md", "One-click sanitized debug report flow\n");
+    writeFixtureFile(
+      root,
+      "ROADMAP.md",
+      "One-click sanitized debug report flow\n",
+    );
     writeFixtureFile(root, "docs/README.md", "Safe debug reports\n");
-    writeFixtureFile(root, "docs/ROADMAP.md", "| Debug reports | Sanitized reports |\n");
+    writeFixtureFile(
+      root,
+      "docs/ROADMAP.md",
+      "| Debug reports | Sanitized reports |\n",
+    );
     writeFixtureFile(
       root,
       "docs/developer/CONTRIBUTING.md",
@@ -317,7 +403,7 @@ test("product copy rejects debug-report roadmap wording", () => {
     writeFixtureFile(
       root,
       "src-tauri/src/commands/feedback/report.rs",
-      "Report type: Bug Report\nformat!(\"[{}] {:?}\\n\")\n",
+      'Report type: Bug Report\nformat!("[{}] {:?}\\n")\n',
     );
     writeFixtureFile(
       root,
@@ -339,7 +425,10 @@ test("product copy rejects debug-report roadmap wording", () => {
     assert.equal(hasFeedbackLocalReportDrift(root, "ROADMAP.md"), true);
     assert.equal(hasFeedbackLocalReportDrift(root, "docs/README.md"), true);
     assert.equal(hasFeedbackLocalReportDrift(root, "docs/ROADMAP.md"), true);
-    assert.equal(hasFeedbackLocalReportDrift(root, "docs/developer/CONTRIBUTING.md"), true);
+    assert.equal(
+      hasFeedbackLocalReportDrift(root, "docs/developer/CONTRIBUTING.md"),
+      true,
+    );
     assert.equal(
       hasFeedbackLocalReportDrift(root, "docs/harness/verification-matrix.md"),
       true,
@@ -349,35 +438,59 @@ test("product copy rejects debug-report roadmap wording", () => {
       true,
     );
     assert.equal(
-      hasFeedbackLocalReportDrift(root, "src/components/ModalErrorBoundary.tsx"),
+      hasFeedbackLocalReportDrift(
+        root,
+        "src/components/ModalErrorBoundary.tsx",
+      ),
       true,
     );
     assert.equal(
-      hasFeedbackLocalReportDrift(root, "src/components/feedback/SubmitOptions.tsx"),
+      hasFeedbackLocalReportDrift(
+        root,
+        "src/components/feedback/SubmitOptions.tsx",
+      ),
       true,
     );
     assert.equal(
-      hasFeedbackLocalReportDrift(root, "src/components/feedback/SuccessScreen.tsx"),
+      hasFeedbackLocalReportDrift(
+        root,
+        "src/components/feedback/SuccessScreen.tsx",
+      ),
       true,
     );
     assert.equal(
-      hasFeedbackLocalReportDrift(root, "src/components/feedback/DescriptionInput.tsx"),
+      hasFeedbackLocalReportDrift(
+        root,
+        "src/components/feedback/DescriptionInput.tsx",
+      ),
       true,
     );
     assert.equal(
-      hasFeedbackLocalReportDrift(root, "src-tauri/src/commands/feedback/report.rs"),
+      hasFeedbackLocalReportDrift(
+        root,
+        "src-tauri/src/commands/feedback/report.rs",
+      ),
       true,
     );
     assert.equal(
-      hasFeedbackLocalReportDrift(root, "src-tauri/src/commands/feedback/debug_log.rs"),
+      hasFeedbackLocalReportDrift(
+        root,
+        "src-tauri/src/commands/feedback/debug_log.rs",
+      ),
       true,
     );
     assert.equal(
-      hasFeedbackLocalReportDrift(root, "src-tauri/src/core/health/smoke_tests.rs"),
+      hasFeedbackLocalReportDrift(
+        root,
+        "src-tauri/src/core/health/smoke_tests.rs",
+      ),
       true,
     );
     assert.equal(
-      hasFeedbackLocalReportDrift(root, "src-tauri/src/commands/feedback/mod.rs"),
+      hasFeedbackLocalReportDrift(
+        root,
+        "src-tauri/src/commands/feedback/mod.rs",
+      ),
       true,
     );
   });
@@ -417,17 +530,30 @@ test("product copy rejects technical recovery and raw error details", () => {
       "src/components/ModalErrorBoundary.tsx",
       "This window failed to load\nPlease close and try again later\nTry closing and checking back later\nSupport details (development only)\nNo support details available\nAutomatic error reporting\n",
     );
-    writeFixtureFile(root, "src/components/ScraperHealthDashboard.tsx", "window state");
+    writeFixtureFile(
+      root,
+      "src/components/ScraperHealthDashboard.tsx",
+      "window state",
+    );
     writeFixtureFile(
       root,
       "src/utils/vitals.ts",
       "In production, you could send to analytics service\nsendToAnalytics(metric)\nwith analytics services or custom reporting\n",
     );
 
-    assert.equal(hasRawErrorBoundaryDetails(root, "src/components/ErrorBoundary.tsx"), true);
-    assert.equal(hasTechnicalRecoveryCopy(root, "src/components/ErrorBoundary.tsx"), true);
     assert.equal(
-      hasTechnicalRecoveryCopy(root, "src/components/ComponentErrorBoundary.tsx"),
+      hasRawErrorBoundaryDetails(root, "src/components/ErrorBoundary.tsx"),
+      true,
+    );
+    assert.equal(
+      hasTechnicalRecoveryCopy(root, "src/components/ErrorBoundary.tsx"),
+      true,
+    );
+    assert.equal(
+      hasTechnicalRecoveryCopy(
+        root,
+        "src/components/ComponentErrorBoundary.tsx",
+      ),
       true,
     );
     assert.equal(
@@ -440,51 +566,112 @@ test("product copy rejects technical recovery and raw error details", () => {
     );
     assert.equal(hasTechnicalFirstUserCopy(root, "src/utils/vitals.ts"), true);
     assert.equal(
-      hasTechnicalRecoveryCopy(root, "src/components/ScraperHealthDashboard.tsx"),
+      hasTechnicalRecoveryCopy(
+        root,
+        "src/components/ScraperHealthDashboard.tsx",
+      ),
       true,
     );
-    assert.equal(hasRawErrorBoundaryDetails(root, "src/components/ScraperHealthDashboard.tsx"), false);
+    assert.equal(
+      hasRawErrorBoundaryDetails(
+        root,
+        "src/components/ScraperHealthDashboard.tsx",
+      ),
+      false,
+    );
   });
 });
 
 test("product copy rejects non-protective scoring and legacy preference copy", () => {
   withFixture((root) => {
     writeFixtureFile(root, "src/components/ScoreDisplay.tsx", "Great Match!");
-    writeFixtureFile(root, "docs/features/application-tracking.md", "Company Whitelist");
+    writeFixtureFile(
+      root,
+      "docs/features/application-tracking.md",
+      "Job-word boosters",
+    );
     writeFixtureFile(
       root,
       "src/utils/scoreUtils.ts",
       'if (score >= 90) return "Excellent";\nif (score >= 80) return "Great";\nreturn "Poor";\n',
     );
-    writeFixtureFile(root, "src/features/dashboard/components/filterLabels.ts", "Strong (70%+)\n");
+    writeFixtureFile(
+      root,
+      "src/features/dashboard/components/filterLabels.ts",
+      "Strong (70%+)\n",
+    );
     writeFixtureFile(
       root,
       "docs/features/smart-scoring.md",
       "Match Priority Guide\nThese percentages explain the default priority order.\n",
     );
-    writeFixtureFile(root, "src/features/dashboard/components/ScoreBreakdownModal.tsx", "40% influence\n");
+    writeFixtureFile(
+      root,
+      "src/features/dashboard/components/ScoreBreakdownModal.tsx",
+      "40% influence\n",
+    );
     writeFixtureFile(
       root,
       "src/components/ResumeMatchScoreBreakdown.tsx",
       "(50% influence)\nOverall match uses these default priorities.\n",
     );
-    writeFixtureFile(root, "src/features/dashboard/components/GhostIndicator.tsx", "Posting Risk Warning\nGeneric Content\n");
+    writeFixtureFile(
+      root,
+      "src/features/dashboard/components/GhostIndicator.tsx",
+      "Posting Risk Warning\nGeneric Content\n",
+    );
 
-    assert.equal(hasNonProtectiveScoreCopy(root, "src/components/ScoreDisplay.tsx"), true);
-    assert.equal(hasNonProtectiveScoreCopy(root, "src/features/dashboard/components/filterLabels.ts"), true);
-    assert.equal(hasNonProtectiveScoreCopy(root, "docs/features/smart-scoring.md"), true);
-    assert.equal(hasNonProtectiveScoreCopy(root, "src/features/dashboard/components/ScoreBreakdownModal.tsx"), true);
     assert.equal(
-      hasNonProtectiveScoreCopy(root, "src/components/ResumeMatchScoreBreakdown.tsx"),
+      hasNonProtectiveScoreCopy(root, "src/components/ScoreDisplay.tsx"),
       true,
     );
-    assert.equal(hasNonProtectiveScoreCopy(root, "src/features/dashboard/components/GhostIndicator.tsx"), true);
     assert.equal(
-      hasLegacyPreferenceListCopy(root, "docs/features/application-tracking.md"),
+      hasNonProtectiveScoreCopy(
+        root,
+        "src/features/dashboard/components/filterLabels.ts",
+      ),
       true,
     );
-    assert.equal(hasNonProtectiveScoreCopy(root, "src/utils/scoreUtils.ts"), true);
-    assert.equal(hasNonProtectiveScoreCopy(root, "src/components/ErrorBoundary.tsx"), false);
+    assert.equal(
+      hasNonProtectiveScoreCopy(root, "docs/features/smart-scoring.md"),
+      true,
+    );
+    assert.equal(
+      hasNonProtectiveScoreCopy(
+        root,
+        "src/features/dashboard/components/ScoreBreakdownModal.tsx",
+      ),
+      true,
+    );
+    assert.equal(
+      hasNonProtectiveScoreCopy(
+        root,
+        "src/components/ResumeMatchScoreBreakdown.tsx",
+      ),
+      true,
+    );
+    assert.equal(
+      hasNonProtectiveScoreCopy(
+        root,
+        "src/features/dashboard/components/GhostIndicator.tsx",
+      ),
+      true,
+    );
+    assert.equal(
+      hasLegacyPreferenceListCopy(
+        root,
+        "docs/features/application-tracking.md",
+      ),
+      true,
+    );
+    assert.equal(
+      hasNonProtectiveScoreCopy(root, "src/utils/scoreUtils.ts"),
+      true,
+    );
+    assert.equal(
+      hasNonProtectiveScoreCopy(root, "src/components/ErrorBoundary.tsx"),
+      false,
+    );
   });
 });
 
@@ -497,16 +684,34 @@ test("product copy rejects stale match-ranking labels", () => {
       ["src/components/ScoreDisplay.stories.tsx", "Low (&lt;50%)"],
       ["src/components/ScoreDisplay.stories.tsx", "AllScoreRanges"],
       ["src/components/ScoreDisplay.stories.tsx", "HighScore"],
-      ["src/features/dashboard/components/ScoreBreakdownModal.tsx", "Match Details"],
-      ["src/features/dashboard/components/ScoreBreakdownModal.tsx", "Part of overall score"],
+      [
+        "src/features/dashboard/components/ScoreBreakdownModal.tsx",
+        "Match Details",
+      ],
+      [
+        "src/features/dashboard/components/ScoreBreakdownModal.tsx",
+        "Part of overall score",
+      ],
       ["src/components/ScoreDisplay.tsx", "Score factor weights"],
       ["src/components/ScoreDisplay.tsx", "<td>{factor.weight}%</td>"],
-      ["src/features/dashboard/components/ScoreBreakdownModal.tsx", "<span>{factorPercentage}%</span>"],
-      ["src/features/resumes/matching/ResumeMatchPage.tsx", "Format result: ${Math.round(result.format_score)}%"],
+      [
+        "src/features/dashboard/components/ScoreBreakdownModal.tsx",
+        "<span>{factorPercentage}%</span>",
+      ],
+      [
+        "src/features/resumes/matching/ResumeMatchPage.tsx",
+        "Format result: ${Math.round(result.format_score)}%",
+      ],
       ["src/features/resumes/matching/ResumeMatchPage.tsx", "Overall Match"],
-      ["src/features/resumes/matching/ResumeMatchPage.tsx", "<span>{Math.round(score)}%</span>"],
+      [
+        "src/features/resumes/matching/ResumeMatchPage.tsx",
+        "<span>{Math.round(score)}%</span>",
+      ],
       ["src/features/dashboard/components/filterLabels.ts", "Best Match First"],
-      ["src/features/dashboard/components/filterLabels.ts", "Lowest Match First"],
+      [
+        "src/features/dashboard/components/filterLabels.ts",
+        "Lowest Match First",
+      ],
       ["src/features/onboarding/SetupWizard.tsx", "strongest matches"],
       ["docs/user/QUICK_START.md", "weaker or adjacent matches"],
       ["docs/features/smart-scoring.md", "Low Match"],
@@ -517,7 +722,10 @@ test("product copy rejects stale match-ranking labels", () => {
       ["docs/style-guide/GLOSSARY.md", "match score"],
       ["docs/style-guide/WRITING-FOR-JOB-SEEKERS.md", "match scores"],
       ["docs/plans/active/current-work.md", "match scores"],
-      ["PRIVACY.md", "Alert details may include public job details and match score"],
+      [
+        "PRIVACY.md",
+        "Alert details may include public job details and match score",
+      ],
       ["RESPONSIBLE_AI.md", "Present match scores as hiring guarantees"],
       ["docs/features/resume-matcher.md", "How To Read Match Results"],
       ["docs/features/resume-matcher.md", "Overall match"],

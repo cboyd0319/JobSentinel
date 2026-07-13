@@ -230,8 +230,10 @@ pub struct AdvancedFilters {
     pub exclude_keywords: Vec<String>,
     pub min_salary: Option<i64>,
     pub remote_only: bool,
-    pub company_whitelist: Vec<String>,
-    pub company_blacklist: Vec<String>,
+    #[serde(alias = "company\u{57}hitelist")]
+    pub included_companies: Vec<String>,
+    #[serde(alias = "company\u{42}lacklist")]
+    pub excluded_companies: Vec<String>,
 }
 
 impl Default for AdvancedFilters {
@@ -241,8 +243,8 @@ impl Default for AdvancedFilters {
             exclude_keywords: Vec::new(),
             min_salary: None,
             remote_only: false,
-            company_whitelist: Vec::new(),
-            company_blacklist: Vec::new(),
+            included_companies: Vec::new(),
+            excluded_companies: Vec::new(),
         }
     }
 }

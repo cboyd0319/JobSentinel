@@ -81,7 +81,7 @@ Evidence:
   auth material is stored.
 - `src-tauri/src/core/scrapers/linkedin.rs` returns an invalid-configuration
   warning instead of running hidden monitoring.
-- `src/pages/SettingsJobSourcesSection.tsx` tells users LinkedIn is
+- `src/features/settings/sources/SettingsJobSourcesSection.tsx` tells users LinkedIn is
   user-controlled and that no sign-in material is collected.
 
 Risk:
@@ -159,7 +159,7 @@ Evidence:
 
 - `src/shared/restrictedSourceTaxonomy.ts` requires domain records with category,
   source references, and a concrete reason.
-- `src/pages/SettingsConfig.ts` blocks saving enabled restricted scheduled
+- `src/features/settings/config/SettingsConfig.ts` blocks saving enabled restricted scheduled
   sources without acknowledgement.
 - `src-tauri/src/core/scheduler/workers/scrapers.rs` skips restricted scheduled
   sources without acknowledgement.

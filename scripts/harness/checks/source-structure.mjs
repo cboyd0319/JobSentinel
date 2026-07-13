@@ -5,7 +5,10 @@ import { listTrackedFiles, normalizeRepoPath } from "./repo-artifacts.mjs";
 const settingsHelperComponents = new Map([
   ["src/components/settings/CredentialInput.tsx", "CredentialInput"],
   ["src/components/settings/FilterListInput.tsx", "FilterListInput"],
-  ["src/components/settings/SecureCredentialInput.tsx", "SecureCredentialInput"],
+  [
+    "src/components/settings/SecureCredentialInput.tsx",
+    "SecureCredentialInput",
+  ],
   ["src/components/settings/SliderSection.tsx", "SliderSection"],
   ["src/components/settings/ToggleSection.tsx", "ToggleSection"],
 ]);
@@ -96,14 +99,21 @@ export function hasUnreferencedSourceHelper(root, path) {
 }
 
 export function hasStaleNotificationPreferenceSyncWrapper(root, path) {
-  if (path !== "src/utils/notificationPreferences.ts") {
+  if (
+    path !==
+    "src/features/settings/notifications/notificationPreferencesStore.ts"
+  ) {
     return false;
   }
 
   const text = readFileSync(join(root, path), "utf8");
   return (
-    /export function loadNotificationPreferences\(\): NotificationPreferences/.test(text) ||
-    /export function saveNotificationPreferences\(_?prefs: NotificationPreferences\): boolean/.test(text) ||
+    /export function loadNotificationPreferences\(\): NotificationPreferences/.test(
+      text,
+    ) ||
+    /export function saveNotificationPreferences\(_?prefs: NotificationPreferences\): boolean/.test(
+      text,
+    ) ||
     /@deprecated Use saveNotificationPreferencesAsync instead/.test(text)
   );
 }
@@ -142,7 +152,10 @@ function importsBarrelPath(root, path, barrelPath) {
 
   return importSpecifiers(root, path).some((specifier) => {
     const resolvedPath = resolveImportSpecifier(path, specifier);
-    return resolvedPath === barrelImportPath || resolvedPath === barrelPath.replace(/\.ts$/, "");
+    return (
+      resolvedPath === barrelImportPath ||
+      resolvedPath === barrelPath.replace(/\.ts$/, "")
+    );
   });
 }
 

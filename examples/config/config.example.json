@@ -32,13 +32,13 @@
   ],
   "_keywords_exclude_help": "Red flags to auto-reject jobs. Add deal-breakers here.",
 
-  "company_whitelist": [],
-  "_company_whitelist_help": "Preferred companies get 50% scoring bonus. Fuzzy matching handles 'Inc', 'LLC', etc.",
+  "preferred_companies": [],
+  "_preferred_companies_help": "Preferred companies get 50% scoring bonus. Fuzzy matching handles 'Inc', 'LLC', etc.",
 
-  "company_blacklist": [
+  "blocked_companies": [
     "Company To Avoid"
   ],
-  "_company_blacklist_help": "Blocked companies get 0 score. Takes precedence over whitelist.",
+  "_blocked_companies_help": "Blocked companies get 0 score and take precedence over preferred companies.",
 
   "location_preferences": {
     "allow_remote": true,

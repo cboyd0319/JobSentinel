@@ -56,9 +56,11 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     writeFixtureFile(
       root,
       "docs/user/QUICK_START.md",
-      ['Type in job titles that match what you want. Examples:', '- "Software Engineer"', ""].join(
-        "\n",
-      ),
+      [
+        "Type in job titles that match what you want. Examples:",
+        '- "Software Engineer"',
+        "",
+      ].join("\n"),
     );
     writeFixtureFile(
       root,
@@ -217,15 +219,29 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     writeFixtureFile(
       root,
       "src/features/resumes/builder/ResumeBuilderPage.tsx",
-      ['"$ whoami"', '"JOHN DOE - Data Analyst"', '"B.S. CS"', "<p>GitHub</p>", ""].join("\n"),
+      [
+        '"$ whoami"',
+        '"JOHN DOE - Data Analyst"',
+        '"B.S. CS"',
+        "<p>GitHub</p>",
+        "",
+      ].join("\n"),
     );
     writeFixtureFile(
       root,
       "src/features/resumes/matching/ResumeMatchPage.tsx",
       '<textarea placeholder="e.g., Worked on improving database performance" />\n',
     );
-    writeFixtureFile(root, "src/features/resumes/matching/ResumeMatchPage.test.tsx", 'name: "Jane Doe";\n');
-    writeFixtureFile(root, "src/features/resumes/shared/resumeContactValidation.test.ts", 'name: "Jane Doe";\n');
+    writeFixtureFile(
+      root,
+      "src/features/resumes/matching/ResumeMatchPage.test.tsx",
+      'name: "Jane Doe";\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/features/resumes/shared/resumeContactValidation.test.ts",
+      'name: "Jane Doe";\n',
+    );
     writeFixtureFile(
       root,
       "src/features/resumes/builder/steps/SummaryStep.tsx",
@@ -292,11 +308,9 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     writeFixtureFile(
       root,
       "src/features/market/LocationHeatmap.test.tsx",
-      [
-        'location: "San Francisco, CA",',
-        'location: "New York, NY",',
-        "",
-      ].join("\n"),
+      ['location: "San Francisco, CA",', 'location: "New York, NY",', ""].join(
+        "\n",
+      ),
     );
     writeFixtureFile(
       root,
@@ -305,7 +319,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/NotificationPreferences.test.tsx",
+      "src/features/settings/notifications/NotificationPreferences.test.tsx",
       [
         'const job = { title: "Remote Software Engineer", company: "TechCorp" };',
         "",
@@ -374,7 +388,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       [
         '"company": "TechCorp",',
         '"position": "Remote Rust Developer",',
-        '<title><![CDATA[Company ABC: Senior Software Engineer]]></title>',
+        "<title><![CDATA[Company ABC: Senior Software Engineer]]></title>",
         "",
       ].join("\n"),
     );
@@ -650,7 +664,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src/features/dashboard/components/JobCard.test.tsx",
         "src/features/market/LocationHeatmap.test.tsx",
         "src/contexts/UndoIntegration.test.tsx",
-        "src/components/NotificationPreferences.test.tsx",
+        "src/features/settings/notifications/NotificationPreferences.test.tsx",
         "src/components/StatCard.test.tsx",
         "src/features/applications/CoverLetterTemplates.test.tsx",
         "src/features/applications/InterviewScheduler.test.tsx",
@@ -754,7 +768,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src/features/dashboard/components/JobCard.test.tsx",
       "src/features/market/LocationHeatmap.test.tsx",
       "src/contexts/UndoIntegration.test.tsx",
-      "src/components/NotificationPreferences.test.tsx",
+      "src/features/settings/notifications/NotificationPreferences.test.tsx",
       "src/components/StatCard.test.tsx",
       "src/features/applications/CoverLetterTemplates.test.tsx",
       "src/features/applications/InterviewScheduler.test.tsx",

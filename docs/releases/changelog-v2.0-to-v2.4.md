@@ -199,16 +199,16 @@ Complete Settings UI with user-configurable scoring weights and intelligent job 
 
 #### Intelligent Company Filtering
 
-- **Company Whitelist/Blacklist Support** - Control job scoring by company preference
-  - **Whitelist (Preferred Companies)** - Jobs from preferred companies get 50% scoring bonus (0.15 instead of 0.10)
-  - **Blacklist (Blocked Companies)** - Jobs from blocked companies get 0 score
+- **Preferred and Blocked Company Support** - Control job scoring by company preference
+  - **Preferred Companies** - Jobs from preferred companies get 50% scoring bonus (0.15 instead of 0.10)
+  - **Blocked Companies** - Jobs from blocked companies get 0 score
   - **Fuzzy Name Matching** - Handles company suffixes automatically (Inc, LLC, Corp, Ltd, etc.)
   - Case-insensitive matching
   - Partial matching support (e.g., "Google" matches "Google DeepMind", "Google LLC")
-  - Blacklist takes precedence over whitelist for conflict resolution
+  - A blocked company takes precedence over a preferred company when both match
 
 - **Config Integration**
-  - New fields in Config: `company_whitelist` and `company_blacklist`
+  - New fields in Config: `preferred_companies` and `blocked_companies`
   - Both fields optional (default: empty lists)
   - JSON array format: `["Google", "Cloudflare", "Amazon"]`
 
@@ -227,9 +227,9 @@ Complete Settings UI with user-configurable scoring weights and intelligent job 
 
 - **Comprehensive Test Suite**
   - 13 new tests for company scoring
-  - Tests for blacklist, whitelist, neutral companies
+  - Tests for blocked, preferred, and neutral companies
   - Fuzzy matching tests (case sensitivity, suffixes, partial matches)
-  - Edge cases (blacklist precedence, multiple lists, etc.)
+  - Edge cases, including blocked-company precedence and multiple preferences
 
 ### Added - Synonym Matching for Smart Scoring
 

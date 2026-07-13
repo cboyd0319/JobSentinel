@@ -4,7 +4,7 @@ import { spawnSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { createPlaywrightEnv } from "./run-playwright.mjs";
+import { preparePlaywrightEnv } from "./run-playwright.mjs";
 
 const scriptPath = fileURLToPath(import.meta.url);
 const defaultBudget = {
@@ -35,7 +35,9 @@ function parseArgs(argv) {
     }
 
     const [rawKey, inlineValue] = token.slice(2).split("=", 2);
-    const key = rawKey.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
+    const key = rawKey.replace(/-([a-z])/g, (_, letter) =>
+      letter.toUpperCase(),
+    );
     if (inlineValue !== undefined) {
       args[key] = inlineValue;
     } else if (argv[index + 1] && !argv[index + 1].startsWith("--")) {
@@ -55,14 +57,20 @@ function readNumber(value, fallback) {
 }
 
 function flattenSuites(suites = []) {
-  return suites.flatMap((suite) => [suite, ...flattenSuites(suite.suites ?? [])]);
+  return suites.flatMap((suite) => [
+    suite,
+    ...flattenSuites(suite.suites ?? []),
+  ]);
 }
 
 function countTestsFromSuites(suites = []) {
   return flattenSuites(suites).reduce(
     (count, suite) =>
       count +
-      (suite.specs ?? []).reduce((specCount, spec) => specCount + (spec.tests ?? []).length, 0),
+      (suite.specs ?? []).reduce(
+        (specCount, spec) => specCount + (spec.tests ?? []).length,
+        0,
+      ),
     0,
   );
 }
@@ -86,7 +94,11 @@ export function summarizePlaywrightReport(report) {
   const unexpected = Number(stats.unexpected ?? outcomes.unexpected ?? 0);
   const flaky = Number(stats.flaky ?? outcomes.flaky ?? 0);
   const skipped = Number(stats.skipped ?? outcomes.skipped ?? 0);
-  const expected = Number(stats.expected ?? outcomes.expected ?? Math.max(0, tests - unexpected - flaky - skipped));
+  const expected = Number(
+    stats.expected ??
+      outcomes.expected ??
+      Math.max(0, tests - unexpected - flaky - skipped),
+  );
 
   return {
     durationMs: Number(stats.duration ?? 0),
@@ -106,11 +118,15 @@ export function checkE2eBudget(summary, budget = defaultBudget) {
   }
 
   if (summary.durationMs > budget.maxDurationMs) {
-    failures.push(`duration ${summary.durationMs}ms exceeds budget ${budget.maxDurationMs}ms`);
+    failures.push(
+      `duration ${summary.durationMs}ms exceeds budget ${budget.maxDurationMs}ms`,
+    );
   }
 
   if (summary.tests > budget.maxTests) {
-    failures.push(`test count ${summary.tests} exceeds budget ${budget.maxTests}`);
+    failures.push(
+      `test count ${summary.tests} exceeds budget ${budget.maxTests}`,
+    );
   }
 
   return failures;
@@ -145,19 +161,31 @@ export function extractJsonObject(output) {
 }
 
 export function buildPlaywrightArgs(playwrightArgs = []) {
-  const args = playwrightArgs.length > 0 ? playwrightArgs : ["test", "--project=chromium", "--grep", "@smoke"];
-  const hasReporter = args.some((arg) => arg === "--reporter=json" || arg.startsWith("--reporter="));
+  const args =
+    playwrightArgs.length > 0
+      ? playwrightArgs
+      : ["test", "--project=chromium", "--grep", "@smoke"];
+  const hasReporter = args.some(
+    (arg) => arg === "--reporter=json" || arg.startsWith("--reporter="),
+  );
 
   return hasReporter ? args : [...args, "--reporter=json"];
 }
 
-function runPlaywrightJson(playwrightArgs) {
-  const cliPath = fileURLToPath(new URL("../node_modules/playwright/cli.js", import.meta.url));
-  const result = spawnSync(process.execPath, [cliPath, ...buildPlaywrightArgs(playwrightArgs)], {
-    encoding: "utf8",
-    env: createPlaywrightEnv(),
-    maxBuffer: 1024 * 1024 * 20,
-  });
+async function runPlaywrightJson(playwrightArgs) {
+  const cliPath = fileURLToPath(
+    new URL("../node_modules/playwright/cli.js", import.meta.url),
+  );
+  const env = await preparePlaywrightEnv();
+  const result = spawnSync(
+    process.execPath,
+    [cliPath, ...buildPlaywrightArgs(playwrightArgs)],
+    {
+      encoding: "utf8",
+      env,
+      maxBuffer: 1024 * 1024 * 20,
+    },
+  );
 
   if (result.error) {
     throw result.error;
@@ -195,7 +223,7 @@ if (process.argv[1] === scriptPath) {
   if (args.report) {
     reportText = readFileSync(resolve(String(args.report)), "utf8");
   } else {
-    const result = runPlaywrightJson(args.playwrightArgs);
+    const result = await runPlaywrightJson(args.playwrightArgs);
     playWrightExitCode = result.status;
     reportText = result.stdout;
 

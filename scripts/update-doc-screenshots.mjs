@@ -1,4 +1,5 @@
 import { spawnSync } from "node:child_process";
+import { preparePlaywrightEnv } from "./run-playwright.mjs";
 
 const npxCommand = process.platform === "win32" ? "npx.cmd" : "npx";
 const args = [
@@ -12,10 +13,10 @@ const args = [
 
 const result = spawnSync(npxCommand, args, {
   stdio: "inherit",
-  env: {
+  env: await preparePlaywrightEnv({
     ...process.env,
     UPDATE_DOC_SCREENSHOTS: "1",
-  },
+  }),
 });
 
 process.exit(result.status ?? 1);

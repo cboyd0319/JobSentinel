@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, type ReactNode } from "react";
 import { Button } from "../../../components/Button";
 import { FocusTrap } from "../../../components/FocusTrap";
 import { JobImportModal } from "./JobImportModal";
@@ -10,7 +10,6 @@ import { CheckCircleIcon } from "./DashboardIcons";
 import type { DuplicateGroup } from "../types";
 import { DuplicateGroupCard } from "./DuplicateGroupCard";
 
-const Settings = lazy(() => import("../../../pages/Settings"));
 const LinkedInWorkbench = lazy(() =>
   import("../../../components/LinkedInWorkbench").then((module) => ({
     default: module.LinkedInWorkbench,
@@ -22,15 +21,19 @@ const CompanyResearchPanel = lazy(() =>
   })),
 );
 
-export function DashboardSettingsPanel({ onClose }: { onClose: () => void }) {
+export function DashboardSettingsPanel({
+  children,
+  onClose,
+}: {
+  children: ReactNode;
+  onClose: () => void;
+}) {
   return (
     <ModalErrorBoundary
       modalName="settings"
       onClose={onClose}
     >
-      <Suspense fallback={<PanelSkeleton />}>
-        <Settings onClose={onClose} />
-      </Suspense>
+      <Suspense fallback={<PanelSkeleton />}>{children}</Suspense>
     </ModalErrorBoundary>
   );
 }

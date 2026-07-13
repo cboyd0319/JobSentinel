@@ -1,9 +1,9 @@
 use super::*;
 
 #[test]
-fn test_company_blacklist() {
+fn test_blocked_companies() {
     let mut config = create_test_config();
-    config.company_blacklist = vec!["BadCompany".to_string(), "WorstCorp".to_string()];
+    config.blocked_companies = vec!["BadCompany".to_string(), "WorstCorp".to_string()];
     let mut job = create_test_job();
     job.company = "BadCompany Inc.".to_string();
 
@@ -12,7 +12,7 @@ fn test_company_blacklist() {
 
     assert_eq!(
         score.breakdown.company, 0.0,
-        "Blacklisted company should get 0 score"
+        "Blocked company should get 0 score"
     );
     assert!(
         score.reasons.iter().any(|r| r.contains("blocklisted")),
@@ -22,9 +22,9 @@ fn test_company_blacklist() {
 }
 
 #[test]
-fn test_company_whitelist() {
+fn test_preferred_companies() {
     let mut config = create_test_config();
-    config.company_whitelist = vec!["Metro Transit".to_string(), "CommunityCare".to_string()];
+    config.preferred_companies = vec!["Metro Transit".to_string(), "CommunityCare".to_string()];
     let mut job = create_test_job();
     job.company = "Metro Transit LLC".to_string();
 
@@ -34,7 +34,7 @@ fn test_company_whitelist() {
     // Should get 1.5x bonus (0.10 * 1.5 = 0.15)
     assert!(
         (score.breakdown.company - 0.15).abs() < 0.001,
-        "Whitelisted company should get 1.5x bonus"
+        "Preferred company should get 1.5x bonus"
     );
     assert!(
         score
@@ -49,8 +49,8 @@ fn test_company_whitelist() {
 #[test]
 fn test_company_neutral() {
     let mut config = create_test_config();
-    config.company_whitelist = vec!["Metro Transit".to_string()];
-    config.company_blacklist = vec!["BadCompany".to_string()];
+    config.preferred_companies = vec!["Metro Transit".to_string()];
+    config.blocked_companies = vec!["BadCompany".to_string()];
     let mut job = create_test_job();
     job.company = "County Services".to_string(); // Not in either list
 
@@ -95,7 +95,7 @@ fn test_company_no_preferences() {
 #[test]
 fn test_company_fuzzy_matching_case_insensitive() {
     let mut config = create_test_config();
-    config.company_whitelist = vec!["communitycare".to_string()];
+    config.preferred_companies = vec!["communitycare".to_string()];
     let mut job = create_test_job();
     job.company = "COMMUNITYCARE INC".to_string();
 
@@ -111,7 +111,7 @@ fn test_company_fuzzy_matching_case_insensitive() {
 #[test]
 fn test_company_fuzzy_matching_suffixes() {
     let mut config = create_test_config();
-    config.company_blacklist = vec!["BadCorp".to_string()];
+    config.blocked_companies = vec!["BadCorp".to_string()];
     let mut job = create_test_job();
 
     // Test various suffixes
@@ -140,7 +140,7 @@ fn test_company_fuzzy_matching_suffixes() {
 #[test]
 fn test_company_partial_match() {
     let mut config = create_test_config();
-    config.company_whitelist = vec!["Metro Transit".to_string()];
+    config.preferred_companies = vec!["Metro Transit".to_string()];
     let mut job = create_test_job();
     job.company = "Metro Transit Community Services".to_string();
 
@@ -156,10 +156,10 @@ fn test_company_partial_match() {
 }
 
 #[test]
-fn test_company_blacklist_takes_precedence() {
+fn test_blocked_companies_takes_precedence() {
     let mut config = create_test_config();
-    config.company_whitelist = vec!["BadCompany".to_string()];
-    config.company_blacklist = vec!["BadCompany".to_string()];
+    config.preferred_companies = vec!["BadCompany".to_string()];
+    config.blocked_companies = vec!["BadCompany".to_string()];
     let mut job = create_test_job();
     job.company = "BadCompany Inc.".to_string();
 
@@ -168,7 +168,7 @@ fn test_company_blacklist_takes_precedence() {
 
     assert_eq!(
         score.breakdown.company, 0.0,
-        "Blacklist should take precedence over whitelist"
+        "Blocked companies should take precedence over preferred companies"
     );
     assert!(
         score.reasons.iter().any(|r| r.contains("blocklisted")),
@@ -225,31 +225,31 @@ fn test_fuzzy_match_company() {
 #[test]
 fn test_company_scoring_with_multiple_lists() {
     let mut config = create_test_config();
-    config.company_whitelist = vec![
+    config.preferred_companies = vec![
         "Metro Transit".to_string(),
         "CommunityCare".to_string(),
         "Harbor Retail".to_string(),
     ];
-    config.company_blacklist = vec!["BadCorp".to_string(), "WorstCompany".to_string()];
+    config.blocked_companies = vec!["BadCorp".to_string(), "WorstCompany".to_string()];
 
     let engine = ScoringEngine::new(Arc::new(config));
 
-    // Test whitelisted (use approximate comparison for floating point)
+    // Test preferred company (use approximate comparison for floating point).
     let mut job = create_test_job();
     job.company = "Harbor Retail Supply Services".to_string();
     let score = engine.score(&job);
     assert!(
         (score.breakdown.company - 0.15).abs() < 0.001,
-        "Preferred company should be whitelisted, got: {}",
+        "Preferred company should receive a bonus, got: {}",
         score.breakdown.company
     );
 
-    // Test blacklisted
+    // Test blocked company.
     job.company = "WorstCompany LLC".to_string();
     let score = engine.score(&job);
     assert_eq!(
         score.breakdown.company, 0.0,
-        "WorstCompany should be blacklisted"
+        "WorstCompany should be blocked"
     );
 
     // Test neutral (use approximate comparison for floating point)

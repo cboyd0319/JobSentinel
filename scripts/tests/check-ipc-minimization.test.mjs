@@ -73,8 +73,20 @@ test("ipc minimization rejects full config calls from Dashboard", () => {
       'cachedInvoke("get_config", undefined, 60000);\n',
     );
 
-    assert.equal(hasDashboardFullConfigInvoke(root, "src/features/dashboard/DashboardPage.tsx"), true);
-    assert.equal(hasDashboardFullConfigInvoke(root, "src/pages/Settings.tsx"), false);
+    assert.equal(
+      hasDashboardFullConfigInvoke(
+        root,
+        "src/features/dashboard/DashboardPage.tsx",
+      ),
+      true,
+    );
+    assert.equal(
+      hasDashboardFullConfigInvoke(
+        root,
+        "src/features/settings/SettingsPage.tsx",
+      ),
+      false,
+    );
   });
 });
 
@@ -87,7 +99,10 @@ test("ipc minimization rejects importing from raw input after preview", () => {
     );
 
     assert.equal(
-      hasRawJobImportUrlAfterPreview(root, "src/features/dashboard/components/JobImportModal.tsx"),
+      hasRawJobImportUrlAfterPreview(
+        root,
+        "src/features/dashboard/components/JobImportModal.tsx",
+      ),
       true,
     );
   });
@@ -143,8 +158,14 @@ test("ipc minimization rejects stale import and profile mocks", () => {
       ].join("\n"),
     );
 
-    assert.equal(hasStaleJobImportMockHandlers(root, "src/mocks/handlers.ts"), true);
-    assert.equal(hasStaleProfilePreviewMock(root, "src/mocks/handlers.ts"), true);
+    assert.equal(
+      hasStaleJobImportMockHandlers(root, "src/mocks/handlers.ts"),
+      true,
+    );
+    assert.equal(
+      hasStaleProfilePreviewMock(root, "src/mocks/handlers.ts"),
+      true,
+    );
   });
 });
 
@@ -155,7 +176,7 @@ test("ipc minimization rejects bookmarklet token exposure across renderer IPC", 
       "src-tauri/src/commands/bookmarklet.rs",
       [
         "pub struct BookmarkletConfigResponse {",
-        "  #[serde(rename = \"authToken\")]",
+        '  #[serde(rename = "authToken")]',
         "  pub auth_token: String,",
         "}",
         "",
@@ -234,11 +255,17 @@ test("ipc minimization rejects automatic resume uploads from Application Assist"
     );
 
     assert.equal(
-      hasApplicationAssistAutomaticResumeUpload(root, "src-tauri/src/commands/automation.rs"),
+      hasApplicationAssistAutomaticResumeUpload(
+        root,
+        "src-tauri/src/commands/automation.rs",
+      ),
       true,
     );
     assert.equal(
-      hasApplicationAssistAutomaticResumeUpload(root, "src-tauri/src/commands/jobs.rs"),
+      hasApplicationAssistAutomaticResumeUpload(
+        root,
+        "src-tauri/src/commands/jobs.rs",
+      ),
       false,
     );
   });
@@ -260,7 +287,10 @@ test("ipc minimization rejects Application Assist profile load before target tru
     );
 
     assert.equal(
-      hasApplicationAssistUntrustedFormTarget(root, "src-tauri/src/commands/automation.rs"),
+      hasApplicationAssistUntrustedFormTarget(
+        root,
+        "src-tauri/src/commands/automation.rs",
+      ),
       true,
     );
 
@@ -278,7 +308,10 @@ test("ipc minimization rejects Application Assist profile load before target tru
     );
 
     assert.equal(
-      hasApplicationAssistUntrustedFormTarget(root, "src-tauri/src/commands/automation.rs"),
+      hasApplicationAssistUntrustedFormTarget(
+        root,
+        "src-tauri/src/commands/automation.rs",
+      ),
       false,
     );
   });
@@ -300,7 +333,10 @@ test("ipc minimization rejects automation screenshot path IPC", () => {
     );
 
     assert.equal(
-      hasAutomationScreenshotPathIpcExposure(root, "src-tauri/src/commands/automation.rs"),
+      hasAutomationScreenshotPathIpcExposure(
+        root,
+        "src-tauri/src/commands/automation.rs",
+      ),
       true,
     );
   });
@@ -340,7 +376,10 @@ test("ipc minimization rejects raw screening answer history IPC", () => {
     );
 
     assert.equal(
-      hasRawAnswerHistoryIpcExposure(root, "src-tauri/src/commands/automation.rs"),
+      hasRawAnswerHistoryIpcExposure(
+        root,
+        "src-tauri/src/commands/automation.rs",
+      ),
       true,
     );
     assert.equal(
@@ -350,7 +389,10 @@ test("ipc minimization rejects raw screening answer history IPC", () => {
       ),
       true,
     );
-    assert.equal(hasRawAnswerHistoryIpcExposure(root, "src/mocks/handlers.ts"), true);
+    assert.equal(
+      hasRawAnswerHistoryIpcExposure(root, "src/mocks/handlers.ts"),
+      true,
+    );
   });
 });
 

@@ -22,7 +22,9 @@ export function getTechnicalFirstDocsResult(path, text) {
       /chat number/i,
     ];
 
-    if (featureDocImplementationPatterns.some((pattern) => pattern.test(text))) {
+    if (
+      featureDocImplementationPatterns.some((pattern) => pattern.test(text))
+    ) {
       return true;
     }
   }
@@ -139,7 +141,10 @@ export function getTechnicalFirstDocsResult(path, text) {
     }
   }
 
-  if (path === "docs/features/notifications.md" || path === "docs/user/QUICK_START.md") {
+  if (
+    path === "docs/features/notifications.md" ||
+    path === "docs/user/QUICK_START.md"
+  ) {
     const notificationDocPatterns = [
       /Email provider details/i,
       /Create New App/i,
@@ -173,17 +178,21 @@ export function getTechnicalFirstDocsResult(path, text) {
 
   if (
     path === "src/features/applications/AnalyticsPanel.tsx" &&
-    /Could not load application summary\.\s*Please try again|Application Analytics|Status Distribution|Responses by Job Source|Average Response Time|Company Response Times|Detailed Status Breakdown|No analytics data available|Download analytics data|Close analytics|Analytics error|Loading analytics|job-analytics|Failed to fetch analytics|apps\s*·\s*\{?source\.response_rate\.toFixed\(0\)\}?\s*%\s*response/i.test(text)
+    /Could not load application summary\.\s*Please try again|Application Analytics|Status Distribution|Responses by Job Source|Average Response Time|Company Response Times|Detailed Status Breakdown|No analytics data available|Download analytics data|Close analytics|Analytics error|Loading analytics|job-analytics|Failed to fetch analytics|apps\s*·\s*\{?source\.response_rate\.toFixed\(0\)\}?\s*%\s*response/i.test(
+      text,
+    )
   ) {
     return true;
   }
 
   if (
     path === "src/features/dashboard/components/DashboardWidgets.tsx" &&
-    (
-      /setError\(\s*["'`]Could not load application summary["'`]\s*\)/i.test(text) ||
-      /Analytics Dashboard|Analytics charts|Weekly Activity|Jobs by Source|Salary Distribution|Quick Stats/i.test(text)
-    )
+    (/setError\(\s*["'`]Could not load application summary["'`]\s*\)/i.test(
+      text,
+    ) ||
+      /Analytics Dashboard|Analytics charts|Weekly Activity|Jobs by Source|Salary Distribution|Quick Stats/i.test(
+        text,
+      ))
   ) {
     return true;
   }
@@ -198,7 +207,11 @@ export function getTechnicalFirstDocsResult(path, text) {
     }
   }
 
-  if (path === "src/pages/Settings.tsx" || path === "src/pages/SettingsConnectedJobSource.tsx" || path === "src/pages/SettingsJobSourcesSection.tsx") {
+  if (
+    path === "src/features/settings/SettingsPage.tsx" ||
+    path === "src/features/settings/sources/SettingsConnectedJobSource.tsx" ||
+    path === "src/features/settings/sources/SettingsJobSourcesSection.tsx"
+  ) {
     const settingsPatterns = [
       /Review before anything is sent/i,
       />Endpoint</i,
@@ -305,7 +318,8 @@ export function getTechnicalFirstDocsResult(path, text) {
   ) {
     const start = text.indexOf("pub fn user_message");
     const end = text.indexOf("/// Sanitize", start);
-    const userMessageBody = start === -1 ? "" : text.slice(start, end === -1 ? undefined : end);
+    const userMessageBody =
+      start === -1 ? "" : text.slice(start, end === -1 ? undefined : end);
 
     return /Failed to|Request timed out|CAPTCHA detected|Authentication required|Please check your credentials|An automation error occurred|manual intervention|required before submission|Resume issue|Form element .*not found|Page took too long to load \(/i.test(
       userMessageBody,
@@ -677,7 +691,10 @@ export function getTechnicalFirstDocsResult(path, text) {
     }
   }
 
-  if (path === "docs/features/job-source-status.md" || path === "docs/features/job-sources.md") {
+  if (
+    path === "docs/features/job-source-status.md" ||
+    path === "docs/features/job-sources.md"
+  ) {
     const sourceDocPatterns = [
       /Job Source Adapters/i,
       /public, bounded source adapters/i,

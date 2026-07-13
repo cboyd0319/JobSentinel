@@ -42,18 +42,22 @@ test("source boundaries reject stale scraper docs and source health copy", () =>
       "docs/features/job-sources.md",
       "production-ready scrapers for 13 major job boards\n",
     );
-    writeFixtureFile(root, "docs/features/job-source-status.md", "Source status → details\n");
+    writeFixtureFile(
+      root,
+      "docs/features/job-source-status.md",
+      "Source status → details\n",
+    );
     writeFixtureFile(
       root,
       "src/components/ScraperHealthDashboard.tsx",
       [
         "Job Source Health",
         "Health summary statistics",
-        "label: \"Degraded\"",
+        'label: "Degraded"',
         "Check Speed",
         "Last Good Check",
         "Page Status",
-        "getByText(\"Unknown\")",
+        'getByText("Unknown")',
         "",
       ].join("\n"),
     );
@@ -68,25 +72,40 @@ test("source boundaries reject stale scraper docs and source health copy", () =>
       'const staleStatus = { label: "Healthy" };\n',
     );
 
-    assert.equal(hasScraperDocEmojiMarkers(root, "docs/features/job-sources.md"), false);
+    assert.equal(
+      hasScraperDocEmojiMarkers(root, "docs/features/job-sources.md"),
+      false,
+    );
     assert.equal(
       hasStaleScraperDocReliabilityClaim(root, "docs/features/job-sources.md"),
       true,
     );
     assert.equal(
-      hasScraperHealthDocEmojiMarkers(root, "docs/features/job-source-status.md"),
+      hasScraperHealthDocEmojiMarkers(
+        root,
+        "docs/features/job-source-status.md",
+      ),
       true,
     );
     assert.equal(
-      hasTechnicalSourceHealthUserCopy(root, "src/components/ScraperHealthDashboard.tsx"),
+      hasTechnicalSourceHealthUserCopy(
+        root,
+        "src/components/ScraperHealthDashboard.tsx",
+      ),
       true,
     );
     assert.equal(
-      hasTechnicalSourceHealthUserCopy(root, "src/components/scraperHealthDashboardModel.ts"),
+      hasTechnicalSourceHealthUserCopy(
+        root,
+        "src/components/scraperHealthDashboardModel.ts",
+      ),
       true,
     );
     assert.equal(
-      hasTechnicalSourceHealthUserCopy(root, "src/components/ScraperHealthDashboard.test.tsx"),
+      hasTechnicalSourceHealthUserCopy(
+        root,
+        "src/components/ScraperHealthDashboard.test.tsx",
+      ),
       true,
     );
   });
@@ -116,10 +135,25 @@ test("source boundaries reject technical source-address user copy", () => {
     );
 
     assert.equal(hasTechnicalSourceHealthUserCopy(root, "PRIVACY.md"), true);
-    assert.equal(hasTechnicalSourceHealthUserCopy(root, "docs/user/QUICK_START.md"), true);
-    assert.equal(hasTechnicalSourceHealthUserCopy(root, "docs/features/job-sources.md"), true);
-    assert.equal(hasTechnicalSourceHealthUserCopy(root, "docs/features/job-source-status.md"), true);
-    assert.equal(hasTechnicalSourceHealthUserCopy(root, "docs/developer/ARCHITECTURE.md"), false);
+    assert.equal(
+      hasTechnicalSourceHealthUserCopy(root, "docs/user/QUICK_START.md"),
+      true,
+    );
+    assert.equal(
+      hasTechnicalSourceHealthUserCopy(root, "docs/features/job-sources.md"),
+      true,
+    );
+    assert.equal(
+      hasTechnicalSourceHealthUserCopy(
+        root,
+        "docs/features/job-source-status.md",
+      ),
+      true,
+    );
+    assert.equal(
+      hasTechnicalSourceHealthUserCopy(root, "docs/developer/ARCHITECTURE.md"),
+      false,
+    );
   });
 });
 
@@ -139,14 +173,23 @@ test("source boundaries reject stale source health coverage claims", () => {
 
     assert.equal(hasStaleScraperHealthCoverage(root, "docs/ROADMAP.md"), true);
     assert.equal(
-      hasStaleScraperHealthCoverage(root, "src/components/ScraperHealthDashboard.tsx"),
+      hasStaleScraperHealthCoverage(
+        root,
+        "src/components/ScraperHealthDashboard.tsx",
+      ),
       true,
     );
     assert.equal(
-      hasStaleScraperHealthCoverage(root, "src/components/scraperHealthDashboardModel.ts"),
+      hasStaleScraperHealthCoverage(
+        root,
+        "src/components/scraperHealthDashboardModel.ts",
+      ),
       true,
     );
-    assert.equal(hasStaleScraperHealthCoverage(root, "docs/features/notifications.md"), false);
+    assert.equal(
+      hasStaleScraperHealthCoverage(root, "docs/features/notifications.md"),
+      false,
+    );
   });
 });
 
@@ -167,27 +210,45 @@ test("source boundaries reject LinkedIn credential and automation drift", () => 
     writeFixtureFile(
       root,
       "src-tauri/src/core/scrapers/linkedin.rs",
-      "debug.field(\"session_cookie_configured\", &true);\n",
+      'debug.field("session_cookie_configured", &true);\n',
     );
     writeFixtureFile(
       root,
-      "src/utils/notificationPreferences.ts",
+      "src/features/settings/notifications/notificationPreferencesStore.ts",
       "linkedin: { enabled: true, name: 'LinkedIn' }\n",
     );
 
-    assert.equal(hasStaleLinkedInCredentialDocs(root, "docs/features/job-sources.md"), true);
-    assert.equal(hasLinkedInAutomationBoundaryDrift(root, "docs/security/KEYRING.md"), true);
     assert.equal(
-      hasLinkedInAutomationBoundaryDrift(root, "src-tauri/src/core/config/types.rs"),
-      true,
-    );
-    assert.equal(hasLinkedInAutomationBoundaryDrift(root, "src-tauri/Cargo.toml"), true);
-    assert.equal(
-      hasLinkedInAutomationBoundaryDrift(root, "src-tauri/src/core/scrapers/linkedin.rs"),
+      hasStaleLinkedInCredentialDocs(root, "docs/features/job-sources.md"),
       true,
     );
     assert.equal(
-      hasLinkedInNotificationBoundaryDrift(root, "src/utils/notificationPreferences.ts"),
+      hasLinkedInAutomationBoundaryDrift(root, "docs/security/KEYRING.md"),
+      true,
+    );
+    assert.equal(
+      hasLinkedInAutomationBoundaryDrift(
+        root,
+        "src-tauri/src/core/config/types.rs",
+      ),
+      true,
+    );
+    assert.equal(
+      hasLinkedInAutomationBoundaryDrift(root, "src-tauri/Cargo.toml"),
+      true,
+    );
+    assert.equal(
+      hasLinkedInAutomationBoundaryDrift(
+        root,
+        "src-tauri/src/core/scrapers/linkedin.rs",
+      ),
+      true,
+    );
+    assert.equal(
+      hasLinkedInNotificationBoundaryDrift(
+        root,
+        "src/features/settings/notifications/notificationPreferencesStore.ts",
+      ),
       true,
     );
   });
@@ -195,16 +256,32 @@ test("source boundaries reject LinkedIn credential and automation drift", () => 
 
 test("source boundaries reject cache docs and direct-open fallbacks", () => {
   withFixture((root) => {
-    writeFixtureFile(root, "docs/developer/SCRAPER_CACHE.md", 'tracing::info!("Cache hit for: {}", url)\n');
+    writeFixtureFile(
+      root,
+      "docs/developer/SCRAPER_CACHE.md",
+      'tracing::info!("Cache hit for: {}", url)\n',
+    );
     writeFixtureFile(
       root,
       "src/features/dashboard/components/JobCard.tsx",
       "openDeepLink(job.url); window.open(job.url);\n",
     );
 
-    assert.equal(hasStaleCacheUsageDoc(root, "docs/developer/SCRAPER_CACHE.md"), true);
-    assert.equal(hasFrontendDirectOpenDeepLinkFallback(root, "src/features/dashboard/components/JobCard.tsx"), true);
-    assert.equal(hasFrontendDirectOpenDeepLinkFallback(root, "src/app/Navigation.tsx"), false);
+    assert.equal(
+      hasStaleCacheUsageDoc(root, "docs/developer/SCRAPER_CACHE.md"),
+      true,
+    );
+    assert.equal(
+      hasFrontendDirectOpenDeepLinkFallback(
+        root,
+        "src/features/dashboard/components/JobCard.tsx",
+      ),
+      true,
+    );
+    assert.equal(
+      hasFrontendDirectOpenDeepLinkFallback(root, "src/app/Navigation.tsx"),
+      false,
+    );
   });
 });
 
@@ -212,8 +289,14 @@ test("source boundaries reject discontinued source references", () => {
   withFixture((root) => {
     writeFixtureFile(root, "docs/user/DEEP_LINKS.md", "Stack Overflow Jobs\n");
 
-    assert.equal(hasStaleStackOverflowJobsDeepLink(root, "docs/user/DEEP_LINKS.md"), true);
-    assert.equal(hasStaleStackOverflowJobsDeepLink(root, "docs/user/QUICK_START.md"), false);
+    assert.equal(
+      hasStaleStackOverflowJobsDeepLink(root, "docs/user/DEEP_LINKS.md"),
+      true,
+    );
+    assert.equal(
+      hasStaleStackOverflowJobsDeepLink(root, "docs/user/QUICK_START.md"),
+      false,
+    );
   });
 });
 
@@ -231,12 +314,12 @@ test("source boundaries reject unapproved JobsWithGPT endpoint flows", () => {
     );
     writeFixtureFile(
       root,
-      "src/pages/SettingsConnectedJobSource.tsx",
+      "src/features/settings/sources/SettingsConnectedJobSource.tsx",
       "value={config.jobswithgpt_endpoint}\n",
     );
     writeFixtureFile(
       root,
-      "src/pages/Settings.tsx",
+      "src/features/settings/SettingsPage.tsx",
       "value={config.jobswithgpt_endpoint}\n",
     );
     writeFixtureFile(
@@ -253,16 +336,37 @@ test("source boundaries reject unapproved JobsWithGPT endpoint flows", () => {
       true,
     );
     assert.equal(
-      hasJobsWithGptUnapprovedEndpointFlow(root, "src-tauri/src/core/health/smoke_tests.rs"),
+      hasJobsWithGptUnapprovedEndpointFlow(
+        root,
+        "src-tauri/src/core/health/smoke_tests.rs",
+      ),
       true,
     );
-    assert.equal(hasJobsWithGptUnapprovedEndpointFlow(root, "src/pages/Settings.tsx"), true);
     assert.equal(
-      hasJobsWithGptUnapprovedEndpointFlow(root, "src/pages/SettingsConnectedJobSource.tsx"),
+      hasJobsWithGptUnapprovedEndpointFlow(
+        root,
+        "src/features/settings/SettingsPage.tsx",
+      ),
       true,
     );
-    assert.equal(hasJobsWithGptUnapprovedEndpointFlow(root, "src/mocks/handlers.ts"), true);
-    assert.equal(hasJobsWithGptUnapprovedEndpointFlow(root, "docs/features/job-sources.md"), false);
+    assert.equal(
+      hasJobsWithGptUnapprovedEndpointFlow(
+        root,
+        "src/features/settings/sources/SettingsConnectedJobSource.tsx",
+      ),
+      true,
+    );
+    assert.equal(
+      hasJobsWithGptUnapprovedEndpointFlow(root, "src/mocks/handlers.ts"),
+      true,
+    );
+    assert.equal(
+      hasJobsWithGptUnapprovedEndpointFlow(
+        root,
+        "docs/features/job-sources.md",
+      ),
+      false,
+    );
   });
 });
 
@@ -295,12 +399,12 @@ test("source boundaries reject missing JobsWithGPT request ledger", () => {
     );
     writeFixtureFile(
       root,
-      "src/pages/SettingsConnectedJobSource.tsx",
+      "src/features/settings/sources/SettingsConnectedJobSource.tsx",
       "value={config.jobswithgpt_endpoint}\n",
     );
     writeFixtureFile(
       root,
-      "src/pages/Settings.tsx",
+      "src/features/settings/SettingsPage.tsx",
       "value={config.jobswithgpt_endpoint}\n",
     );
 
@@ -312,11 +416,17 @@ test("source boundaries reject missing JobsWithGPT request ledger", () => {
       true,
     );
     assert.equal(
-      hasJobsWithGptMissingRequestLedger(root, "src-tauri/src/core/health/tracking.rs"),
+      hasJobsWithGptMissingRequestLedger(
+        root,
+        "src-tauri/src/core/health/tracking.rs",
+      ),
       true,
     );
     assert.equal(
-      hasJobsWithGptMissingRequestLedger(root, "src-tauri/src/commands/health.rs"),
+      hasJobsWithGptMissingRequestLedger(
+        root,
+        "src-tauri/src/commands/health.rs",
+      ),
       true,
     );
     assert.equal(
@@ -326,12 +436,27 @@ test("source boundaries reject missing JobsWithGPT request ledger", () => {
       ),
       true,
     );
-    assert.equal(hasJobsWithGptMissingRequestLedger(root, "src-tauri/src/main.rs"), true);
-    assert.equal(hasJobsWithGptMissingRequestLedger(root, "src/pages/Settings.tsx"), true);
     assert.equal(
-      hasJobsWithGptMissingRequestLedger(root, "src/pages/SettingsConnectedJobSource.tsx"),
+      hasJobsWithGptMissingRequestLedger(root, "src-tauri/src/main.rs"),
       true,
     );
-    assert.equal(hasJobsWithGptMissingRequestLedger(root, "docs/features/job-sources.md"), false);
+    assert.equal(
+      hasJobsWithGptMissingRequestLedger(
+        root,
+        "src/features/settings/SettingsPage.tsx",
+      ),
+      true,
+    );
+    assert.equal(
+      hasJobsWithGptMissingRequestLedger(
+        root,
+        "src/features/settings/sources/SettingsConnectedJobSource.tsx",
+      ),
+      true,
+    );
+    assert.equal(
+      hasJobsWithGptMissingRequestLedger(root, "docs/features/job-sources.md"),
+      false,
+    );
   });
 });

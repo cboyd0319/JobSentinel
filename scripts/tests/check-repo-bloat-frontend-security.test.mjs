@@ -13,7 +13,9 @@ function writeFixtureFile(root, path, content = "") {
 }
 
 function withGitFixture(callback) {
-  const root = mkdtempSync(join(tmpdir(), "jobsentinel-repo-bloat-frontend-security-"));
+  const root = mkdtempSync(
+    join(tmpdir(), "jobsentinel-repo-bloat-frontend-security-"),
+  );
 
   try {
     execFileSync("git", ["init", "--quiet"], { cwd: root });
@@ -45,12 +47,18 @@ test("checkRepoBloat rejects unsanitized frontend error report storage", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src/utils/errorReporting.ts"], { cwd: root });
+    execFileSync(
+      "git",
+      ["add", "package.json", "src/utils/errorReporting.ts"],
+      { cwd: root },
+    );
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("sanitize frontend error report storage: src/utils/errorReporting.ts"),
+      violations.includes(
+        "sanitize frontend error report storage: src/utils/errorReporting.ts",
+      ),
       violations.join("\n"),
     );
   });
@@ -77,12 +85,18 @@ test("checkRepoBloat rejects raw ErrorReporter storage warning details", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src/utils/errorReporting.ts"], { cwd: root });
+    execFileSync(
+      "git",
+      ["add", "package.json", "src/utils/errorReporting.ts"],
+      { cwd: root },
+    );
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("sanitize frontend error report storage: src/utils/errorReporting.ts"),
+      violations.includes(
+        "sanitize frontend error report storage: src/utils/errorReporting.ts",
+      ),
       violations.join("\n"),
     );
   });
@@ -113,7 +127,11 @@ test("checkRepoBloat rejects raw frontend error reporter forwarding", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src/utils/errorReporting.ts"], { cwd: root });
+    execFileSync(
+      "git",
+      ["add", "package.json", "src/utils/errorReporting.ts"],
+      { cwd: root },
+    );
 
     const violations = checkRepoBloat(root);
 
@@ -142,12 +160,16 @@ test("checkRepoBloat rejects raw frontend error helper debug logging", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src/utils/errorHelpers.ts"], { cwd: root });
+    execFileSync("git", ["add", "package.json", "src/utils/errorHelpers.ts"], {
+      cwd: root,
+    });
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("sanitize frontend error helper debug logging: src/utils/errorHelpers.ts"),
+      violations.includes(
+        "sanitize frontend error helper debug logging: src/utils/errorHelpers.ts",
+      ),
       violations.join("\n"),
     );
   });
@@ -170,12 +192,16 @@ test("checkRepoBloat rejects raw frontend user error messages", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src/utils/errorHelpers.ts"], { cwd: root });
+    execFileSync("git", ["add", "package.json", "src/utils/errorHelpers.ts"], {
+      cwd: root,
+    });
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("sanitize frontend user error messages: src/utils/errorHelpers.ts"),
+      violations.includes(
+        "sanitize frontend user error messages: src/utils/errorHelpers.ts",
+      ),
       violations.join("\n"),
     );
   });
@@ -195,12 +221,16 @@ test("checkRepoBloat rejects raw shared frontend error logging", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src/utils/errorUtils.ts"], { cwd: root });
+    execFileSync("git", ["add", "package.json", "src/utils/errorUtils.ts"], {
+      cwd: root,
+    });
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("sanitize shared frontend error logging: src/utils/errorUtils.ts"),
+      violations.includes(
+        "sanitize shared frontend error logging: src/utils/errorUtils.ts",
+      ),
       violations.join("\n"),
     );
   });
@@ -225,12 +255,16 @@ test("checkRepoBloat rejects raw shared frontend error messages", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src/utils/errorUtils.ts"], { cwd: root });
+    execFileSync("git", ["add", "package.json", "src/utils/errorUtils.ts"], {
+      cwd: root,
+    });
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("sanitize shared frontend error logging: src/utils/errorUtils.ts"),
+      violations.includes(
+        "sanitize shared frontend error logging: src/utils/errorUtils.ts",
+      ),
       violations.join("\n"),
     );
   });
@@ -252,9 +286,13 @@ test("checkRepoBloat rejects direct frontend console error logging", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src/components/ErrorBoundary.tsx"], {
-      cwd: root,
-    });
+    execFileSync(
+      "git",
+      ["add", "package.json", "src/components/ErrorBoundary.tsx"],
+      {
+        cwd: root,
+      },
+    );
 
     const violations = checkRepoBloat(root);
 
@@ -280,12 +318,18 @@ test("checkRepoBloat rejects stale frontend webhook redaction patterns", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src/utils/errorReporting.ts"], { cwd: root });
+    execFileSync(
+      "git",
+      ["add", "package.json", "src/utils/errorReporting.ts"],
+      { cwd: root },
+    );
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("sanitize frontend error report storage: src/utils/errorReporting.ts"),
+      violations.includes(
+        "sanitize frontend error report storage: src/utils/errorReporting.ts",
+      ),
       violations.join("\n"),
     );
   });
@@ -306,12 +350,18 @@ test("checkRepoBloat rejects unsafe stored error report parsing", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src/utils/errorReporting.ts"], { cwd: root });
+    execFileSync(
+      "git",
+      ["add", "package.json", "src/utils/errorReporting.ts"],
+      { cwd: root },
+    );
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("validate stored error reports before loading: src/utils/errorReporting.ts"),
+      violations.includes(
+        "validate stored error reports before loading: src/utils/errorReporting.ts",
+      ),
       violations.join("\n"),
     );
   });
@@ -348,18 +398,27 @@ test("checkRepoBloat rejects unsafe reason JSON parsing", () => {
 
     execFileSync(
       "git",
-      ["add", "package.json", "src/components/ScoreDisplay.tsx", "src/features/dashboard/components/GhostIndicator.tsx"],
+      [
+        "add",
+        "package.json",
+        "src/components/ScoreDisplay.tsx",
+        "src/features/dashboard/components/GhostIndicator.tsx",
+      ],
       { cwd: root },
     );
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("validate reason JSON before rendering: src/components/ScoreDisplay.tsx"),
+      violations.includes(
+        "validate reason JSON before rendering: src/components/ScoreDisplay.tsx",
+      ),
       violations.join("\n"),
     );
     assert.ok(
-      violations.includes("validate reason JSON before rendering: src/features/dashboard/components/GhostIndicator.tsx"),
+      violations.includes(
+        "validate reason JSON before rendering: src/features/dashboard/components/GhostIndicator.tsx",
+      ),
       violations.join("\n"),
     );
   });
@@ -418,7 +477,9 @@ test("checkRepoBloat rejects unsafe storage JSON parsing", () => {
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("validate storage JSON before rendering: src/features/applications/AnalyticsPanel.tsx"),
+      violations.includes(
+        "validate storage JSON before rendering: src/features/applications/AnalyticsPanel.tsx",
+      ),
       violations.join("\n"),
     );
     assert.ok(
@@ -428,7 +489,9 @@ test("checkRepoBloat rejects unsafe storage JSON parsing", () => {
       violations.join("\n"),
     );
     assert.ok(
-      violations.includes("validate storage JSON before rendering: src/features/resumes/builder/AtsLiveScorePanel.tsx"),
+      violations.includes(
+        "validate storage JSON before rendering: src/features/resumes/builder/AtsLiveScorePanel.tsx",
+      ),
       violations.join("\n"),
     );
   });
@@ -452,9 +515,13 @@ test("checkRepoBloat accepts memory-only company research cache cleanup", () => 
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src/components/CompanyResearchPanel.tsx"], {
-      cwd: root,
-    });
+    execFileSync(
+      "git",
+      ["add", "package.json", "src/components/CompanyResearchPanel.tsx"],
+      {
+        cwd: root,
+      },
+    );
 
     const violations = checkRepoBloat(root);
 
@@ -485,12 +552,18 @@ test("checkRepoBloat accepts current frontend webhook redaction patterns", () =>
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src/utils/errorReporting.ts"], { cwd: root });
+    execFileSync(
+      "git",
+      ["add", "package.json", "src/utils/errorReporting.ts"],
+      { cwd: root },
+    );
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      !violations.includes("sanitize frontend error report storage: src/utils/errorReporting.ts"),
+      !violations.includes(
+        "sanitize frontend error report storage: src/utils/errorReporting.ts",
+      ),
       violations.join("\n"),
     );
   });
@@ -512,7 +585,11 @@ test("checkRepoBloat rejects hardcoded frontend error export version", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src/utils/errorReporting.ts"], { cwd: root });
+    execFileSync(
+      "git",
+      ["add", "package.json", "src/utils/errorReporting.ts"],
+      { cwd: root },
+    );
 
     const violations = checkRepoBloat(root);
 
@@ -530,23 +607,27 @@ test("checkRepoBloat rejects notification webhook saves without validation", () 
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/pages/Settings.tsx",
+      "src/features/settings/SettingsPage.tsx",
       [
         "async function handleSave(credentials) {",
-        "  await storeCredential(\"discord_webhook\", credentials.discord_webhook);",
-        "  await storeCredential(\"teams_webhook\", credentials.teams_webhook);",
+        '  await storeCredential("discord_webhook", credentials.discord_webhook);',
+        '  await storeCredential("teams_webhook", credentials.teams_webhook);',
         "}",
         "",
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src/pages/Settings.tsx"], { cwd: root });
+    execFileSync(
+      "git",
+      ["add", "package.json", "src/features/settings/SettingsPage.tsx"],
+      { cwd: root },
+    );
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
       violations.includes(
-        "validate notification webhook settings before saving: src/pages/Settings.tsx",
+        "validate notification webhook settings before saving: src/features/settings/SettingsPage.tsx",
       ),
       violations.join("\n"),
     );
@@ -563,9 +644,9 @@ test("checkRepoBloat rejects notification webhook keyring storage without valida
         "enum CredentialKey { LinkedInCookie, SlackWebhook, DiscordWebhook, TeamsWebhook }",
         "fn validate_credential_value(key: CredentialKey, value: &str) -> Result<(), String> {",
         "  if key != CredentialKey::LinkedInCookie { return Ok(()); }",
-        "  if value.len() > MAX_LINKEDIN_COOKIE_LEN { return Err(\"LinkedIn cookie is too long\".to_string()); }",
+        '  if value.len() > MAX_LINKEDIN_COOKIE_LEN { return Err("LinkedIn cookie is too long".to_string()); }',
         "  if value.chars().any(|ch| ch.is_ascii_control() || ch == ';') {",
-        "    return Err(\"LinkedIn cookie contains unsupported characters\".to_string());",
+        '    return Err("LinkedIn cookie contains unsupported characters".to_string());',
         "  }",
         "  Ok(())",
         "}",
@@ -577,9 +658,13 @@ test("checkRepoBloat rejects notification webhook keyring storage without valida
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src-tauri/src/core/credentials/mod.rs"], {
-      cwd: root,
-    });
+    execFileSync(
+      "git",
+      ["add", "package.json", "src-tauri/src/core/credentials/mod.rs"],
+      {
+        cwd: root,
+      },
+    );
 
     const violations = checkRepoBloat(root);
 
@@ -607,9 +692,13 @@ test("checkRepoBloat rejects stale active credential storage wording", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src-tauri/src/core/config/types.rs"], {
-      cwd: root,
-    });
+    execFileSync(
+      "git",
+      ["add", "package.json", "src-tauri/src/core/config/types.rs"],
+      {
+        cwd: root,
+      },
+    );
 
     const violations = checkRepoBloat(root);
 
@@ -627,7 +716,7 @@ test("checkRepoBloat rejects stale settings partial-save messages", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/pages/Settings.tsx",
+      "src/features/settings/SettingsPage.tsx",
       [
         "async function handleSave(results) {",
         '  toast.warning("Partially saved", `${failures.length} credential(s) failed to save. Config was saved. Try saving again.`);',
@@ -636,13 +725,17 @@ test("checkRepoBloat rejects stale settings partial-save messages", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src/pages/Settings.tsx"], { cwd: root });
+    execFileSync(
+      "git",
+      ["add", "package.json", "src/features/settings/SettingsPage.tsx"],
+      { cwd: root },
+    );
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
       violations.includes(
-        "separate config save failures from credential save failures: src/pages/Settings.tsx",
+        "separate config save failures from credential save failures: src/features/settings/SettingsPage.tsx",
       ),
       violations.join("\n"),
     );
@@ -657,16 +750,20 @@ test("checkRepoBloat rejects stale feedback webhook sanitizer patterns", () => {
       "src-tauri/src/commands/feedback/sanitizer.rs",
       [
         "static WEBHOOK_REGEX: Lazy<Regex> = Lazy::new(|| {",
-        "    Regex::new(r\"https://hooks\\.(slack|discord|teams)\\.com/[^\\s]+\")",
-        "        .expect(\"Webhook URL regex pattern is valid and should compile\")",
+        '    Regex::new(r"https://hooks\\.(slack|discord|teams)\\.com/[^\\s]+")',
+        '        .expect("Webhook URL regex pattern is valid and should compile")',
         "});",
         "",
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src-tauri/src/commands/feedback/sanitizer.rs"], {
-      cwd: root,
-    });
+    execFileSync(
+      "git",
+      ["add", "package.json", "src-tauri/src/commands/feedback/sanitizer.rs"],
+      {
+        cwd: root,
+      },
+    );
 
     const violations = checkRepoBloat(root);
 
@@ -692,7 +789,7 @@ test("checkRepoBloat rejects stale notification webhook docs", () => {
         "- **Teams:** Must start with `https://outlook.office.com/webhook/`",
         "### Slack says token is invalid?",
         "Sign-in tokens are stored safely.",
-        "Click \"Send Test\" to verify the connection.",
+        'Click "Send Test" to verify the connection.',
         "Discord embed looks broken? Check high scores and chat ID.",
         "",
       ].join("\n"),
@@ -700,12 +797,17 @@ test("checkRepoBloat rejects stale notification webhook docs", () => {
     writeFixtureFile(
       root,
       "docs/user/QUICK_START.md",
-      "Test it by clicking \"Send Test\" in Settings.\n",
+      'Test it by clicking "Send Test" in Settings.\n',
     );
 
     execFileSync(
       "git",
-      ["add", "package.json", "docs/features/notifications.md", "docs/user/QUICK_START.md"],
+      [
+        "add",
+        "package.json",
+        "docs/features/notifications.md",
+        "docs/user/QUICK_START.md",
+      ],
       {
         cwd: root,
       },
@@ -744,9 +846,13 @@ test("checkRepoBloat rejects stale webhook security doc markers", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "docs/security/WEBHOOK_SECURITY.md"], {
-      cwd: root,
-    });
+    execFileSync(
+      "git",
+      ["add", "package.json", "docs/security/WEBHOOK_SECURITY.md"],
+      {
+        cwd: root,
+      },
+    );
 
     const violations = checkRepoBloat(root);
 
@@ -776,9 +882,13 @@ test("checkRepoBloat rejects stale command execution security doc markers", () =
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "docs/security/COMMAND_EXECUTION.md"], {
-      cwd: root,
-    });
+    execFileSync(
+      "git",
+      ["add", "package.json", "docs/security/COMMAND_EXECUTION.md"],
+      {
+        cwd: root,
+      },
+    );
 
     const violations = checkRepoBloat(root);
 
@@ -807,14 +917,20 @@ test("checkRepoBloat rejects stale URL validation security doc markers", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "docs/security/URL_VALIDATION.md"], {
-      cwd: root,
-    });
+    execFileSync(
+      "git",
+      ["add", "package.json", "docs/security/URL_VALIDATION.md"],
+      {
+        cwd: root,
+      },
+    );
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("sync URL validation security doc markers: docs/security/URL_VALIDATION.md"),
+      violations.includes(
+        "sync URL validation security doc markers: docs/security/URL_VALIDATION.md",
+      ),
       violations.join("\n"),
     );
   });
@@ -877,7 +993,9 @@ test("checkRepoBloat rejects stale XSS security docs", () => {
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("sync XSS security docs with live sanitizer path: docs/security/README.md"),
+      violations.includes(
+        "sync XSS security docs with live sanitizer path: docs/security/README.md",
+      ),
       violations.join("\n"),
     );
     assert.ok(

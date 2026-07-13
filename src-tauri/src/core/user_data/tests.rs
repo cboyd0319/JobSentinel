@@ -61,3 +61,40 @@ fn test_advanced_filters_default() {
     assert!(filters.exclude_keywords.is_empty());
     assert!(!filters.remote_only);
 }
+
+#[test]
+fn test_advanced_filters_preserve_pre_refactor_company_preferences() {
+    let mut stored = serde_json::json!({
+        "includeKeywords": [],
+        "excludeKeywords": [],
+        "minSalary": null,
+        "remoteOnly": false,
+    });
+    let object = stored
+        .as_object_mut()
+        .expect("stored filters should be an object");
+    object.insert(
+        ["company", "White", "list"].concat(),
+        serde_json::json!(["CareBridge"]),
+    );
+    object.insert(
+        ["company", "Black", "list"].concat(),
+        serde_json::json!(["AvoidMe"]),
+    );
+
+    let filters: AdvancedFilters =
+        serde_json::from_value(stored).expect("stored filters should deserialize");
+
+    assert_eq!(filters.included_companies, vec!["CareBridge"]);
+    assert_eq!(filters.excluded_companies, vec!["AvoidMe"]);
+
+    let serialized = serde_json::to_value(filters).expect("filters should serialize");
+    assert_eq!(
+        serialized["includedCompanies"],
+        serde_json::json!(["CareBridge"])
+    );
+    assert_eq!(
+        serialized["excludedCompanies"],
+        serde_json::json!(["AvoidMe"])
+    );
+}

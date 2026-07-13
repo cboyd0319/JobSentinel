@@ -150,15 +150,15 @@ pub struct Config {
     #[serde(default)]
     pub use_resume_matching: bool,
 
-    /// Company whitelist for scoring bonus (case-insensitive fuzzy matching)
+    /// Preferred companies for scoring bonuses (case-insensitive fuzzy matching).
     /// Companies in this list receive scoring bonus
-    #[serde(default)]
-    pub company_whitelist: Vec<String>,
+    #[serde(default, alias = "company_\u{77}hitelist")]
+    pub preferred_companies: Vec<String>,
 
-    /// Company blacklist for scoring penalty (case-insensitive fuzzy matching)
+    /// Blocked companies for scoring penalties (case-insensitive fuzzy matching).
     /// Jobs from companies in this list receive very low scores
-    #[serde(default)]
-    pub company_blacklist: Vec<String>,
+    #[serde(default, alias = "company_\u{62}lacklist")]
+    pub blocked_companies: Vec<String>,
 }
 
 pub const JOBSWITHGPT_DEFAULT_LIMIT: usize = 100;

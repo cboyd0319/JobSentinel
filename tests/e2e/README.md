@@ -180,7 +180,7 @@ npx --no-install playwright test --project=webkit
 
 Tests are configured in `playwright.config.ts`:
 
-- Base URL: `http://localhost:5173`
+- Base URL: an available loopback port selected by `scripts/run-playwright.mjs`
 - Test directory: `tests/e2e/playwright`
 - Projects: Chromium, WebKit
 - Local default: Chromium functional tests, excluding `screenshots.spec.ts`

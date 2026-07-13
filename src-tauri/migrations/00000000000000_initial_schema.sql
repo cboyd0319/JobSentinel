@@ -1365,7 +1365,7 @@ INSERT OR IGNORE INTO notification_preferences (
     '22:00',
     '08:00',
     '{"linkedin":{"enabled":true,"minScoreThreshold":70,"soundEnabled":true},"indeed":{"enabled":true,"minScoreThreshold":70,"soundEnabled":true},"greenhouse":{"enabled":true,"minScoreThreshold":80,"soundEnabled":true},"lever":{"enabled":true,"minScoreThreshold":80,"soundEnabled":true},"jobswithgpt":{"enabled":true,"minScoreThreshold":75,"soundEnabled":true}}',
-    '{"includeKeywords":[],"excludeKeywords":[],"minSalary":null,"remoteOnly":false,"companyWhitelist":[],"companyBlacklist":[]}'
+    '{"includeKeywords":[],"excludeKeywords":[],"minSalary":null,"remoteOnly":false,"includedCompanies":[],"excludedCompanies":[]}'
 );
 -- Resume drafts table for the interactive resume builder
 -- Stores JSON serialized resume data with full CRUD support

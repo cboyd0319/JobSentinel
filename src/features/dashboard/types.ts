@@ -1,24 +1,15 @@
 // Dashboard.tsx Type Definitions
 // Extracted from Dashboard.tsx to reduce file size
 
-import type { ReactNode } from "react";
+import type { ComponentType, ReactNode } from "react";
 
 export type SortOption =
-  | "score-desc"
-  | "score-asc"
-  | "date-desc"
-  | "date-asc"
-  | "company-asc";
+  "score-desc" | "score-asc" | "date-desc" | "date-asc" | "company-asc";
 export type ScoreFilter = "all" | "high" | "medium" | "low";
 export type PostedDateFilter = "all" | "24h" | "7d" | "30d";
 export type GhostFilter = "all" | "real" | "ghost";
 export type Page =
-  | "dashboard"
-  | "applications"
-  | "resume"
-  | "automation"
-  | "salary"
-  | "market";
+  "dashboard" | "applications" | "resume" | "automation" | "salary" | "market";
 
 export interface Job {
   id: number;
@@ -96,6 +87,7 @@ export interface DashboardProps {
     job: Job,
     onOpenApplicationAssist: () => void,
   ) => ReactNode;
+  settingsPage?: ComponentType<{ onClose: () => void }>;
   showSettings?: boolean;
   onShowSettingsChange?: (show: boolean) => void;
   openImportOnMount?: boolean;

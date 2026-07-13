@@ -189,8 +189,8 @@ fn main() {
                     external_ai: Default::default(),
                     salary_target_usd: None,
                     penalize_missing_salary: false,
-                    company_whitelist: vec![],
-                    company_blacklist: vec![],
+                    preferred_companies: vec![],
+                    blocked_companies: vec![],
                     use_resume_matching: false,
                     ghost_config: None,
                 }

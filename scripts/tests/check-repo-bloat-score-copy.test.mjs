@@ -13,7 +13,9 @@ function writeFixtureFile(root, path, content = "") {
 }
 
 function withGitFixture(callback) {
-  const root = mkdtempSync(join(tmpdir(), "jobsentinel-repo-bloat-score-copy-"));
+  const root = mkdtempSync(
+    join(tmpdir(), "jobsentinel-repo-bloat-score-copy-"),
+  );
 
   try {
     execFileSync("git", ["init", "--quiet"], { cwd: root });
@@ -49,7 +51,7 @@ test("checkRepoBloat rejects non-protective score copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/pages/Settings.tsx",
+      "src/features/settings/SettingsPage.tsx",
       [
         '"Job Scoring Weights"; "These weights determine how jobs are scored.";',
         '"Jobs are scored based on how close they are to your target.";',
@@ -102,7 +104,7 @@ test("checkRepoBloat rejects non-protective score copy", () => {
         "src/features/dashboard/components/ScoreBreakdownModal.tsx",
         "src/features/dashboard/DashboardPage.tsx",
         "src/features/dashboard/components/DashboardFiltersBar.tsx",
-        "src/pages/Settings.tsx",
+        "src/features/settings/SettingsPage.tsx",
       ],
       { cwd: root },
     );
@@ -110,11 +112,15 @@ test("checkRepoBloat rejects non-protective score copy", () => {
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("keep score copy protective: src/components/ScoreDisplay.tsx"),
+      violations.includes(
+        "keep score copy protective: src/components/ScoreDisplay.tsx",
+      ),
       violations.join("\n"),
     );
     assert.ok(
-      violations.includes("keep score copy protective: src/features/dashboard/components/ScoreBreakdownModal.tsx"),
+      violations.includes(
+        "keep score copy protective: src/features/dashboard/components/ScoreBreakdownModal.tsx",
+      ),
       violations.join("\n"),
     );
     assert.ok(
@@ -124,7 +130,9 @@ test("checkRepoBloat rejects non-protective score copy", () => {
       violations.join("\n"),
     );
     assert.ok(
-      violations.includes("keep score copy protective: src/pages/Settings.tsx"),
+      violations.includes(
+        "keep score copy protective: src/features/settings/SettingsPage.tsx",
+      ),
       violations.join("\n"),
     );
     assert.ok(
@@ -134,23 +142,33 @@ test("checkRepoBloat rejects non-protective score copy", () => {
       violations.join("\n"),
     );
     assert.ok(
-      violations.includes("keep score copy protective: src/features/dashboard/DashboardPage.tsx"),
+      violations.includes(
+        "keep score copy protective: src/features/dashboard/DashboardPage.tsx",
+      ),
       violations.join("\n"),
     );
     assert.ok(
-      violations.includes("keep score copy protective: src/config/tourSteps.ts"),
+      violations.includes(
+        "keep score copy protective: src/config/tourSteps.ts",
+      ),
       violations.join("\n"),
     );
     assert.ok(
-      violations.includes("keep score copy protective: docs/user/QUICK_START.md"),
+      violations.includes(
+        "keep score copy protective: docs/user/QUICK_START.md",
+      ),
       violations.join("\n"),
     );
     assert.ok(
-      violations.includes("keep score copy protective: docs/features/notifications.md"),
+      violations.includes(
+        "keep score copy protective: docs/features/notifications.md",
+      ),
       violations.join("\n"),
     );
     assert.ok(
-      violations.includes("keep score copy protective: docs/features/smart-scoring.md"),
+      violations.includes(
+        "keep score copy protective: docs/features/smart-scoring.md",
+      ),
       violations.join("\n"),
     );
   });

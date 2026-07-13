@@ -44,13 +44,21 @@ function withFixture(callback) {
 
 test("source quality rejects frontend glyphs and lint suppressions", () => {
   withFixture((root) => {
-    writeFixtureFile(root, "src/features/market/MarketPage.tsx", 'icon: "📊";\n');
+    writeFixtureFile(
+      root,
+      "src/features/market/MarketPage.tsx",
+      'icon: "📊";\n',
+    );
     writeFixtureFile(
       root,
       "src/features/market/TrendChart.tsx",
       "// eslint-disable-next-line @typescript-eslint/no-explicit-any\ntype Data = any;\n",
     );
-    writeFixtureFile(root, "src/utils/vitals.ts", "// @ts-expect-error\nperformance.memory;\n");
+    writeFixtureFile(
+      root,
+      "src/utils/vitals.ts",
+      "// @ts-expect-error\nperformance.memory;\n",
+    );
     writeFixtureFile(
       root,
       "src/components/CompanyResearchPanel.tsx",
@@ -61,49 +69,131 @@ test("source quality rejects frontend glyphs and lint suppressions", () => {
       "src/contexts/UndoContext.tsx",
       "// eslint-disable-next-line react-refresh/only-export-components\n",
     );
-    writeFixtureFile(root, "src/features/applications/InterviewScheduler.tsx", "<Button>✓ Passed</Button>\n");
+    writeFixtureFile(
+      root,
+      "src/features/applications/InterviewScheduler.tsx",
+      "<Button>✓ Passed</Button>\n",
+    );
 
-    assert.equal(hasProductionSourceGlyphMarkers(root, "src/features/market/MarketPage.tsx"), true);
-    assert.equal(hasProductionExplicitAnySuppression(root, "src/features/market/TrendChart.tsx"), true);
-    assert.equal(hasProductionTypeErrorSuppression(root, "src/utils/vitals.ts"), true);
     assert.equal(
-      hasProductionHookDependencySuppression(root, "src/components/CompanyResearchPanel.tsx"),
+      hasProductionSourceGlyphMarkers(
+        root,
+        "src/features/market/MarketPage.tsx",
+      ),
       true,
     );
-    assert.equal(hasProductionReactRefreshSuppression(root, "src/contexts/UndoContext.tsx"), true);
-    assert.equal(hasFrontendStatusEmojiMarkers(root, "src/features/applications/InterviewScheduler.tsx"), true);
+    assert.equal(
+      hasProductionExplicitAnySuppression(
+        root,
+        "src/features/market/TrendChart.tsx",
+      ),
+      true,
+    );
+    assert.equal(
+      hasProductionTypeErrorSuppression(root, "src/utils/vitals.ts"),
+      true,
+    );
+    assert.equal(
+      hasProductionHookDependencySuppression(
+        root,
+        "src/components/CompanyResearchPanel.tsx",
+      ),
+      true,
+    );
+    assert.equal(
+      hasProductionReactRefreshSuppression(
+        root,
+        "src/contexts/UndoContext.tsx",
+      ),
+      true,
+    );
+    assert.equal(
+      hasFrontendStatusEmojiMarkers(
+        root,
+        "src/features/applications/InterviewScheduler.tsx",
+      ),
+      true,
+    );
   });
 });
 
 test("source quality ignores test and mock frontend files for production source checks", () => {
   withFixture((root) => {
     writeFixtureFile(root, "src/mocks/handlers.ts", 'icon: "📊";\n');
-    writeFixtureFile(root, "src/components/Example.test.tsx", "// @ts-ignore\n");
+    writeFixtureFile(
+      root,
+      "src/components/Example.test.tsx",
+      "// @ts-ignore\n",
+    );
 
-    assert.equal(hasProductionSourceGlyphMarkers(root, "src/mocks/handlers.ts"), false);
-    assert.equal(hasProductionTypeErrorSuppression(root, "src/components/Example.test.tsx"), false);
+    assert.equal(
+      hasProductionSourceGlyphMarkers(root, "src/mocks/handlers.ts"),
+      false,
+    );
+    assert.equal(
+      hasProductionTypeErrorSuppression(
+        root,
+        "src/components/Example.test.tsx",
+      ),
+      false,
+    );
   });
 });
 
 test("source quality rejects backend glyphs and stale Rust stubs", () => {
   withFixture((root) => {
-    writeFixtureFile(root, "src-tauri/src/core/scoring/mod.rs", '"✓ Title matches";\n');
-    writeFixtureFile(root, "src-tauri/src/core/notify/slack.rs", '"✓ Title matches";\n');
-    writeFixtureFile(root, "src-tauri/src/core/db/connection.rs", 'info!("✅ connected");\n');
-    writeFixtureFile(root, "src-tauri/src/core/scrapers/mod.rs", "pub async fn scrape_all() -> Vec<Job> {}\n");
-    writeFixtureFile(root, "src-tauri/src/core/resume/export.rs", "pub fn export_pdf() {}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scoring/mod.rs",
+      '"✓ Title matches";\n',
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/notify/slack.rs",
+      '"✓ Title matches";\n',
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/db/connection.rs",
+      'info!("✅ connected");\n',
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scrapers/mod.rs",
+      "pub async fn scrape_all() -> Vec<Job> {}\n",
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/resume/export.rs",
+      "pub fn export_pdf() {}\n",
+    );
 
     assert.equal(
-      hasBackendScoringReasonGlyphMarkers(root, "src-tauri/src/core/scoring/mod.rs"),
+      hasBackendScoringReasonGlyphMarkers(
+        root,
+        "src-tauri/src/core/scoring/mod.rs",
+      ),
       true,
     );
     assert.equal(
-      hasNotificationScoringReasonGlyphMarkers(root, "src-tauri/src/core/notify/slack.rs"),
+      hasNotificationScoringReasonGlyphMarkers(
+        root,
+        "src-tauri/src/core/notify/slack.rs",
+      ),
       true,
     );
-    assert.equal(hasDatabaseLogEmojiMarkers(root, "src-tauri/src/core/db/connection.rs"), true);
-    assert.equal(hasStaleScrapeAllStub(root, "src-tauri/src/core/scrapers/mod.rs"), true);
-    assert.equal(hasStaleResumeExportPdfStub(root, "src-tauri/src/core/resume/export.rs"), true);
+    assert.equal(
+      hasDatabaseLogEmojiMarkers(root, "src-tauri/src/core/db/connection.rs"),
+      true,
+    );
+    assert.equal(
+      hasStaleScrapeAllStub(root, "src-tauri/src/core/scrapers/mod.rs"),
+      true,
+    );
+    assert.equal(
+      hasStaleResumeExportPdfStub(root, "src-tauri/src/core/resume/export.rs"),
+      true,
+    );
   });
 });
 
@@ -120,8 +210,14 @@ test("source quality rejects opaque command unit errors outside Rust tests", () 
       "#[cfg(test)]\n#[tauri::command]\npub async fn test_command() -> Result<(), ()> { Ok(()) }\n",
     );
 
-    assert.equal(hasOpaqueCommandUnitError(root, "src-tauri/src/commands/cache.rs"), true);
-    assert.equal(hasOpaqueCommandUnitError(root, "src-tauri/src/commands/test_only.rs"), false);
+    assert.equal(
+      hasOpaqueCommandUnitError(root, "src-tauri/src/commands/cache.rs"),
+      true,
+    );
+    assert.equal(
+      hasOpaqueCommandUnitError(root, "src-tauri/src/commands/test_only.rs"),
+      false,
+    );
   });
 });
 
@@ -134,7 +230,10 @@ test("source quality requires verified pre-migration SQLite backups", () => {
     );
 
     assert.equal(
-      hasUnverifiedPreMigrationBackup(root, "src-tauri/src/core/db/connection.rs"),
+      hasUnverifiedPreMigrationBackup(
+        root,
+        "src-tauri/src/core/db/connection.rs",
+      ),
       true,
     );
 
@@ -152,7 +251,10 @@ test("source quality requires verified pre-migration SQLite backups", () => {
     );
 
     assert.equal(
-      hasUnverifiedPreMigrationBackup(root, "src-tauri/src/core/db/connection.rs"),
+      hasUnverifiedPreMigrationBackup(
+        root,
+        "src-tauri/src/core/db/connection.rs",
+      ),
       false,
     );
   });
@@ -186,11 +288,38 @@ test("source quality rejects unsafe rendered JSON parsing", () => {
       "export function readStoredResumeJobContext() { return JSON.parse(stored); }\n",
     );
 
-    assert.equal(hasUnsafeScoreReasonJsonParsing(root, "src/components/ScoreDisplay.tsx"), true);
-    assert.equal(hasUnsafeScoreReasonJsonParsing(root, "src/features/dashboard/components/GhostIndicator.tsx"), true);
-    assert.equal(hasUnsafeStorageJsonParsing(root, "src/features/applications/AnalyticsPanel.tsx"), true);
-    assert.equal(hasUnsafeStorageJsonParsing(root, "src/features/resumes/builder/AtsLiveScorePanel.tsx"), true);
-    assert.equal(hasUnsafeStorageJsonParsing(root, "src/features/resumes/shared/resumeJobContext.ts"), true);
+    assert.equal(
+      hasUnsafeScoreReasonJsonParsing(root, "src/components/ScoreDisplay.tsx"),
+      true,
+    );
+    assert.equal(
+      hasUnsafeScoreReasonJsonParsing(
+        root,
+        "src/features/dashboard/components/GhostIndicator.tsx",
+      ),
+      true,
+    );
+    assert.equal(
+      hasUnsafeStorageJsonParsing(
+        root,
+        "src/features/applications/AnalyticsPanel.tsx",
+      ),
+      true,
+    );
+    assert.equal(
+      hasUnsafeStorageJsonParsing(
+        root,
+        "src/features/resumes/builder/AtsLiveScorePanel.tsx",
+      ),
+      true,
+    );
+    assert.equal(
+      hasUnsafeStorageJsonParsing(
+        root,
+        "src/features/resumes/shared/resumeJobContext.ts",
+      ),
+      true,
+    );
   });
 });
 
@@ -202,7 +331,13 @@ test("source quality requires ATS job context to be consumed from session storag
       'import { readStoredResumeJobContext } from "../utils/resumeJobContext";\nreadStoredResumeJobContext();\n',
     );
 
-    assert.equal(hasUnsafeStorageJsonParsing(root, "src/features/resumes/builder/AtsLiveScorePanel.tsx"), true);
+    assert.equal(
+      hasUnsafeStorageJsonParsing(
+        root,
+        "src/features/resumes/builder/AtsLiveScorePanel.tsx",
+      ),
+      true,
+    );
 
     writeFixtureFile(
       root,
@@ -210,7 +345,13 @@ test("source quality requires ATS job context to be consumed from session storag
       'import { takeStoredResumeJobContext } from "../utils/resumeJobContext";\ntakeStoredResumeJobContext();\n',
     );
 
-    assert.equal(hasUnsafeStorageJsonParsing(root, "src/features/resumes/builder/AtsLiveScorePanel.tsx"), false);
+    assert.equal(
+      hasUnsafeStorageJsonParsing(
+        root,
+        "src/features/resumes/builder/AtsLiveScorePanel.tsx",
+      ),
+      false,
+    );
   });
 });
 
@@ -244,8 +385,20 @@ test("source quality accepts analytics storage validation in model helper", () =
       ].join("\n"),
     );
 
-    assert.equal(hasUnsafeStorageJsonParsing(root, "src/features/applications/AnalyticsPanel.tsx"), false);
-    assert.equal(hasUnsafeStorageJsonParsing(root, "src/features/applications/analyticsPanelModel.ts"), false);
+    assert.equal(
+      hasUnsafeStorageJsonParsing(
+        root,
+        "src/features/applications/AnalyticsPanel.tsx",
+      ),
+      false,
+    );
+    assert.equal(
+      hasUnsafeStorageJsonParsing(
+        root,
+        "src/features/applications/analyticsPanelModel.ts",
+      ),
+      false,
+    );
   });
 });
 
@@ -257,7 +410,13 @@ test("source quality rejects unsafe analytics storage model helper", () => {
       "return stored ? JSON.parse(stored) : null;\n",
     );
 
-    assert.equal(hasUnsafeStorageJsonParsing(root, "src/features/applications/analyticsPanelModel.ts"), true);
+    assert.equal(
+      hasUnsafeStorageJsonParsing(
+        root,
+        "src/features/applications/analyticsPanelModel.ts",
+      ),
+      true,
+    );
   });
 });
 
@@ -275,7 +434,13 @@ test("source quality rejects frontend file URL resume imports", () => {
       ].join("\n"),
     );
 
-    assert.equal(hasFrontendFileUrlResumeImport(root, "src/features/resumes/library/ResumeLibraryPage.tsx"), true);
+    assert.equal(
+      hasFrontendFileUrlResumeImport(
+        root,
+        "src/features/resumes/library/ResumeLibraryPage.tsx",
+      ),
+      true,
+    );
   });
 });
 
@@ -292,7 +457,13 @@ test("source quality rejects renderer-owned resume file picker imports", () => {
       ].join("\n"),
     );
 
-    assert.equal(hasFrontendFileUrlResumeImport(root, "src/features/resumes/library/ResumeLibraryPage.tsx"), true);
+    assert.equal(
+      hasFrontendFileUrlResumeImport(
+        root,
+        "src/features/resumes/library/ResumeLibraryPage.tsx",
+      ),
+      true,
+    );
   });
 });
 
@@ -300,7 +471,7 @@ test("source quality rejects unsafe settings saves and raw salary logging", () =
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src/pages/Settings.tsx",
+      "src/features/settings/SettingsPage.tsx",
       [
         'await storeCredential("discord_webhook", credentials.discord_webhook);',
         'toast.warning("Partially saved", `${failures.length} credential(s) failed to save. Config was saved.`);',
@@ -313,9 +484,24 @@ test("source quality rejects unsafe settings saves and raw salary logging", () =
       'tracing::info!("Command: get_salary_benchmark (title: {}, location: {})", job_title, location);\n',
     );
 
-    assert.equal(hasNotificationWebhookSaveWithoutValidation(root, "src/pages/Settings.tsx"), true);
-    assert.equal(hasStaleSettingsPartialSaveMessage(root, "src/pages/Settings.tsx"), true);
-    assert.equal(hasRawSalaryCommandLogging(root, "src-tauri/src/commands/salary.rs"), true);
+    assert.equal(
+      hasNotificationWebhookSaveWithoutValidation(
+        root,
+        "src/features/settings/SettingsPage.tsx",
+      ),
+      true,
+    );
+    assert.equal(
+      hasStaleSettingsPartialSaveMessage(
+        root,
+        "src/features/settings/SettingsPage.tsx",
+      ),
+      true,
+    );
+    assert.equal(
+      hasRawSalaryCommandLogging(root, "src-tauri/src/commands/salary.rs"),
+      true,
+    );
   });
 });
 
@@ -323,7 +509,7 @@ test("source quality accepts expanded credential validation arguments", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src/pages/Settings.tsx",
+      "src/features/settings/SettingsPage.tsx",
       [
         "const credentialValidationError = getCredentialValidationError(",
         "  credentials,",
@@ -335,7 +521,13 @@ test("source quality accepts expanded credential validation arguments", () => {
       ].join("\n"),
     );
 
-    assert.equal(hasNotificationWebhookSaveWithoutValidation(root, "src/pages/Settings.tsx"), false);
+    assert.equal(
+      hasNotificationWebhookSaveWithoutValidation(
+        root,
+        "src/features/settings/SettingsPage.tsx",
+      ),
+      false,
+    );
   });
 });
 
@@ -358,7 +550,10 @@ test("source quality rejects static company fallback ratings", () => {
     );
 
     assert.equal(
-      hasStaticCompanyRatingFallback(root, "src/components/CompanyResearchPanel.tsx"),
+      hasStaticCompanyRatingFallback(
+        root,
+        "src/components/CompanyResearchPanel.tsx",
+      ),
       true,
     );
   });

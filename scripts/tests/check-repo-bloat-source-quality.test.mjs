@@ -13,7 +13,9 @@ function writeFixtureFile(root, path, content = "") {
 }
 
 function withGitFixture(callback) {
-  const root = mkdtempSync(join(tmpdir(), "jobsentinel-repo-bloat-source-quality-"));
+  const root = mkdtempSync(
+    join(tmpdir(), "jobsentinel-repo-bloat-source-quality-"),
+  );
 
   try {
     execFileSync("git", ["init", "--quiet"], { cwd: root });
@@ -29,12 +31,20 @@ test("checkRepoBloat rejects frontend status emoji markers", () => {
     writeFixtureFile(
       root,
       "src/features/applications/InterviewScheduler.tsx",
-      '<Button>⏳ Pending</Button><Button>✓ Passed</Button><Button>✗ Failed</Button>\n',
+      "<Button>⏳ Pending</Button><Button>✓ Passed</Button><Button>✗ Failed</Button>\n",
     );
 
-    execFileSync("git", ["add", "package.json", "src/features/applications/InterviewScheduler.tsx"], {
-      cwd: root,
-    });
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src/features/applications/InterviewScheduler.tsx",
+      ],
+      {
+        cwd: root,
+      },
+    );
 
     const violations = checkRepoBloat(root);
 
@@ -56,14 +66,20 @@ test("checkRepoBloat rejects production source emoji markers", () => {
       'export const tabs = [{ id: "overview", label: "Overview", icon: "📊" }];\n',
     );
 
-    execFileSync("git", ["add", "package.json", "src/features/market/MarketPage.tsx"], {
-      cwd: root,
-    });
+    execFileSync(
+      "git",
+      ["add", "package.json", "src/features/market/MarketPage.tsx"],
+      {
+        cwd: root,
+      },
+    );
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("replace production source emoji markers: src/features/market/MarketPage.tsx"),
+      violations.includes(
+        "replace production source emoji markers: src/features/market/MarketPage.tsx",
+      ),
       violations.join("\n"),
     );
   });
@@ -82,9 +98,13 @@ test("checkRepoBloat rejects production explicit-any lint suppressions", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src/features/market/TrendChart.tsx"], {
-      cwd: root,
-    });
+    execFileSync(
+      "git",
+      ["add", "package.json", "src/features/market/TrendChart.tsx"],
+      {
+        cwd: root,
+      },
+    );
 
     const violations = checkRepoBloat(root);
 
@@ -119,7 +139,9 @@ test("checkRepoBloat rejects production TypeScript error suppressions", () => {
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("remove production TypeScript error suppression: src/utils/vitals.ts"),
+      violations.includes(
+        "remove production TypeScript error suppression: src/utils/vitals.ts",
+      ),
       violations.join("\n"),
     );
   });
@@ -140,9 +162,13 @@ test("checkRepoBloat rejects production hook dependency suppressions", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src/components/CompanyResearchPanel.tsx"], {
-      cwd: root,
-    });
+    execFileSync(
+      "git",
+      ["add", "package.json", "src/components/CompanyResearchPanel.tsx"],
+      {
+        cwd: root,
+      },
+    );
 
     const violations = checkRepoBloat(root);
 
@@ -169,9 +195,13 @@ test("checkRepoBloat rejects production react-refresh suppressions", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src/contexts/UndoContext.tsx"], {
-      cwd: root,
-    });
+    execFileSync(
+      "git",
+      ["add", "package.json", "src/contexts/UndoContext.tsx"],
+      {
+        cwd: root,
+      },
+    );
 
     const violations = checkRepoBloat(root);
 
@@ -193,9 +223,13 @@ test("checkRepoBloat rejects backend scoring reason glyph markers", () => {
       'reasons.push(format!("✓ Title matches: {}", job.title));\n',
     );
 
-    execFileSync("git", ["add", "package.json", "src-tauri/src/core/scoring/mod.rs"], {
-      cwd: root,
-    });
+    execFileSync(
+      "git",
+      ["add", "package.json", "src-tauri/src/core/scoring/mod.rs"],
+      {
+        cwd: root,
+      },
+    );
 
     const violations = checkRepoBloat(root);
 
@@ -217,9 +251,13 @@ test("checkRepoBloat rejects notification scoring reason glyph markers", () => {
       'reasons: vec!["✓ Title matches".to_string()],\n',
     );
 
-    execFileSync("git", ["add", "package.json", "src-tauri/src/core/notify/slack.rs"], {
-      cwd: root,
-    });
+    execFileSync(
+      "git",
+      ["add", "package.json", "src-tauri/src/core/notify/slack.rs"],
+      {
+        cwd: root,
+      },
+    );
 
     const violations = checkRepoBloat(root);
 
@@ -240,12 +278,16 @@ test("checkRepoBloat rejects bookmarklet doc status emoji markers", () => {
       "alert('✓ Job imported to JobSentinel!');\nalert('✗ Failed to import job.');\n",
     );
 
-    execFileSync("git", ["add", "docs/features/browser-import.md"], { cwd: root });
+    execFileSync("git", ["add", "docs/features/browser-import.md"], {
+      cwd: root,
+    });
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("replace bookmarklet doc status emoji markers: docs/features/browser-import.md"),
+      violations.includes(
+        "replace bookmarklet doc status emoji markers: docs/features/browser-import.md",
+      ),
       violations.join("\n"),
     );
   });
@@ -275,7 +317,9 @@ test("checkRepoBloat rejects contradictory plans index release statuses", () => 
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("sync plans index release status: docs/plans/README.md"),
+      violations.includes(
+        "sync plans index release status: docs/plans/README.md",
+      ),
       violations.join("\n"),
     );
   });
@@ -325,19 +369,35 @@ test("checkRepoBloat rejects unreferenced hook modules", () => {
       "src/hooks/useModal.ts",
       "export function useModal() { return { isOpen: false }; }\n",
     );
-    writeFixtureFile(root, "src/hooks/useModal.test.ts", "import { useModal } from './useModal';\n");
-    writeFixtureFile(root, "src/hooks/index.ts", "export { useModal } from './useModal';\n");
+    writeFixtureFile(
+      root,
+      "src/hooks/useModal.test.ts",
+      "import { useModal } from './useModal';\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/hooks/index.ts",
+      "export { useModal } from './useModal';\n",
+    );
 
     execFileSync(
       "git",
-      ["add", "package.json", "src/hooks/useModal.ts", "src/hooks/useModal.test.ts", "src/hooks/index.ts"],
+      [
+        "add",
+        "package.json",
+        "src/hooks/useModal.ts",
+        "src/hooks/useModal.test.ts",
+        "src/hooks/index.ts",
+      ],
       { cwd: root },
     );
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("remove unreferenced hook module: src/hooks/useModal.ts"),
+      violations.includes(
+        "remove unreferenced hook module: src/hooks/useModal.ts",
+      ),
       violations.join("\n"),
     );
   });
@@ -352,14 +412,20 @@ test("checkRepoBloat rejects unreferenced cache strategy helpers", () => {
       "export function staleWhileRevalidate() { return undefined; }\n",
     );
 
-    execFileSync("git", ["add", "package.json", "src/utils/cacheStrategies.ts"], {
-      cwd: root,
-    });
+    execFileSync(
+      "git",
+      ["add", "package.json", "src/utils/cacheStrategies.ts"],
+      {
+        cwd: root,
+      },
+    );
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("remove unreferenced source helper: src/utils/cacheStrategies.ts"),
+      violations.includes(
+        "remove unreferenced source helper: src/utils/cacheStrategies.ts",
+      ),
       violations.join("\n"),
     );
   });
@@ -370,7 +436,7 @@ test("checkRepoBloat rejects stale notification preference sync wrappers", () =>
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/utils/notificationPreferences.ts",
+      "src/features/settings/notifications/notificationPreferencesStore.ts",
       [
         "export interface NotificationPreferences { enabled: boolean; }",
         "export const DEFAULT_PREFERENCES: NotificationPreferences = { enabled: true };",
@@ -386,15 +452,23 @@ test("checkRepoBloat rejects stale notification preference sync wrappers", () =>
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src/utils/notificationPreferences.ts"], {
-      cwd: root,
-    });
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src/features/settings/notifications/notificationPreferencesStore.ts",
+      ],
+      {
+        cwd: root,
+      },
+    );
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
       violations.includes(
-        "remove stale notification preference sync wrapper: src/utils/notificationPreferences.ts",
+        "remove stale notification preference sync wrapper: src/features/settings/notifications/notificationPreferencesStore.ts",
       ),
       violations.join("\n"),
     );
@@ -409,19 +483,35 @@ test("checkRepoBloat rejects unreferenced components barrel", () => {
       "src/components/index.ts",
       "export { Button } from './Button';\n",
     );
-    writeFixtureFile(root, "src/components/Button.tsx", "export function Button() { return null; }\n");
-    writeFixtureFile(root, "src/features/dashboard/DashboardPage.tsx", "import { Button } from '../components/Button';\n");
+    writeFixtureFile(
+      root,
+      "src/components/Button.tsx",
+      "export function Button() { return null; }\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/features/dashboard/DashboardPage.tsx",
+      "import { Button } from '../components/Button';\n",
+    );
 
     execFileSync(
       "git",
-      ["add", "package.json", "src/components/index.ts", "src/components/Button.tsx", "src/features/dashboard/DashboardPage.tsx"],
+      [
+        "add",
+        "package.json",
+        "src/components/index.ts",
+        "src/components/Button.tsx",
+        "src/features/dashboard/DashboardPage.tsx",
+      ],
       { cwd: root },
     );
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("remove unreferenced components barrel: src/components/index.ts"),
+      violations.includes(
+        "remove unreferenced components barrel: src/components/index.ts",
+      ),
       violations.join("\n"),
     );
   });
@@ -461,7 +551,9 @@ test("checkRepoBloat rejects unreferenced local barrel modules", () => {
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("remove unreferenced barrel module: src/features/application-assist/index.ts"),
+      violations.includes(
+        "remove unreferenced barrel module: src/features/application-assist/index.ts",
+      ),
       violations.join("\n"),
     );
   });
@@ -489,7 +581,9 @@ test("checkRepoBloat rejects redundant direct Playwright dependency", () => {
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("remove redundant direct Playwright dependency: package.json"),
+      violations.includes(
+        "remove redundant direct Playwright dependency: package.json",
+      ),
       violations.join("\n"),
     );
   });
@@ -504,7 +598,8 @@ test("checkRepoBloat rejects direct Playwright E2E scripts", () => {
         {
           scripts: {
             "test:e2e": "playwright test --project=chromium",
-            "test:e2e:smoke": "node scripts/run-playwright.mjs test --grep @smoke",
+            "test:e2e:smoke":
+              "node scripts/run-playwright.mjs test --grep @smoke",
           },
         },
         null,
@@ -517,7 +612,9 @@ test("checkRepoBloat rejects direct Playwright E2E scripts", () => {
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("route E2E scripts through Playwright wrapper: package.json"),
+      violations.includes(
+        "route E2E scripts through Playwright wrapper: package.json",
+      ),
       violations.join("\n"),
     );
   });
@@ -545,7 +642,9 @@ test("checkRepoBloat rejects redundant DOMPurify stub types", () => {
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("remove redundant DOMPurify stub types dependency: package.json"),
+      violations.includes(
+        "remove redundant DOMPurify stub types dependency: package.json",
+      ),
       violations.join("\n"),
     );
   });
@@ -582,12 +681,16 @@ test("checkRepoBloat rejects Tailwind PostCSS plugin in Vite app", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "postcss.config.js"], { cwd: root });
+    execFileSync("git", ["add", "package.json", "postcss.config.js"], {
+      cwd: root,
+    });
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("use Tailwind Vite plugin instead of PostCSS plugin: package.json"),
+      violations.includes(
+        "use Tailwind Vite plugin instead of PostCSS plugin: package.json",
+      ),
       violations.join("\n"),
     );
     assert.ok(
@@ -624,7 +727,9 @@ test("checkRepoBloat rejects stale E2E runtime skip guidance", () => {
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("replace stale test-quality doc guidance: tests/e2e/README.md"),
+      violations.includes(
+        "replace stale test-quality doc guidance: tests/e2e/README.md",
+      ),
       violations.join("\n"),
     );
   });
@@ -648,9 +753,13 @@ test("checkRepoBloat rejects focused-test commit guidance", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "docs/developer/FRONTEND_TESTING.md"], {
-      cwd: root,
-    });
+    execFileSync(
+      "git",
+      ["add", "package.json", "docs/developer/FRONTEND_TESTING.md"],
+      {
+        cwd: root,
+      },
+    );
 
     const violations = checkRepoBloat(root);
 

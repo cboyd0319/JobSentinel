@@ -21,7 +21,7 @@ const broadAudienceExamplePaths = new Set([
   "src/features/dashboard/components/JobImportModal.tsx",
   "src/features/dashboard/components/JobCard.test.tsx",
   "src/features/market/LocationHeatmap.test.tsx",
-  "src/components/NotificationPreferences.test.tsx",
+  "src/features/settings/notifications/NotificationPreferences.test.tsx",
   "src/features/dashboard/components/ScoreBreakdownModal.test.tsx",
   "src/components/StatCard.test.tsx",
   "src/components/SkillCategoryFilter.test.tsx",
@@ -72,13 +72,13 @@ const broadAudienceExamplePaths = new Set([
   "src/features/salary/mockHandlers.ts",
   "src/features/salary/SalaryPage.tsx",
   "src/features/salary/SalarySearchCard.tsx",
-  "src/pages/SettingsConnectedJobSource.tsx",
-  "src/pages/SettingsJobSourcesSection.tsx",
-  "src/pages/SettingsResumeMatchingSection.tsx",
-  "src/pages/SettingsPostingRiskSection.tsx",
-  "src/pages/SettingsSecurityBadge.tsx",
-  "src/pages/SettingsSupportSections.tsx",
-  "src/pages/Settings.tsx",
+  "src/features/settings/sources/SettingsConnectedJobSource.tsx",
+  "src/features/settings/sources/SettingsJobSourcesSection.tsx",
+  "src/features/settings/matching/SettingsResumeMatchingSection.tsx",
+  "src/features/settings/search/SettingsPostingRiskSection.tsx",
+  "src/features/settings/shared/SettingsSecurityBadge.tsx",
+  "src/features/settings/support/SettingsSupportSections.tsx",
+  "src/features/settings/SettingsPage.tsx",
   "src/features/onboarding/SetupWizard.tsx",
   "src/features/onboarding/SetupWizardSearchSummary.tsx",
   "src/features/onboarding/setupWizardPreferences.ts",
@@ -180,7 +180,7 @@ export function hasEngineerFirstAudienceExamples(root, path) {
 
   if (path === "examples/config/config.example.json") {
     const configExamplePatterns = [
-      /"company_whitelist":\s*\[[^\]]*"Google"[^\]]*"Cloudflare"[^\]]*"GitHub"/is,
+      /"preferred_companies":\s*\[[^\]]*"Google"[^\]]*"Cloudflare"[^\]]*"GitHub"/is,
       /"_profiles_available":\s*"[^"]*software-engineering,\s*seo-digital-marketing/is,
     ];
 
@@ -193,7 +193,9 @@ export function hasEngineerFirstAudienceExamples(root, path) {
     const firstProfileRow = text.match(/\|\s*\*\*[^*]+\*\*\s*\|[^\n]+/);
     if (
       firstProfileRow &&
-      /Software Engineering|Cybersecurity|Data Science/i.test(firstProfileRow[0])
+      /Software Engineering|Cybersecurity|Data Science/i.test(
+        firstProfileRow[0],
+      )
     ) {
       return true;
     }
@@ -219,7 +221,9 @@ export function hasEngineerFirstAudienceExamples(root, path) {
   }
 
   if (path === "src/utils/profiles.ts") {
-    const techSourceTerms = text.match(/const TECH_SOURCE_TERMS = \[([\s\S]*?)\];/);
+    const techSourceTerms = text.match(
+      /const TECH_SOURCE_TERMS = \[([\s\S]*?)\];/,
+    );
     const techSourceTermBody = techSourceTerms?.[1] ?? "";
     const broadTitlePatterns = [
       /["'`]developer["'`]/i,
@@ -227,9 +231,7 @@ export function hasEngineerFirstAudienceExamples(root, path) {
       /["'`]technical product manager["'`]/i,
       /["'`](?:react|typescript|javascript|python|rust|java|kubernetes|aws|gcp|azure|docker|terraform|node\.js|sql|postgresql)["'`]/i,
     ];
-    const broadSubstringMatcherPatterns = [
-      /term\.includes\(techTerm\)/,
-    ];
+    const broadSubstringMatcherPatterns = [/term\.includes\(techTerm\)/];
 
     if (
       broadTitlePatterns.some((pattern) => pattern.test(techSourceTermBody)) ||
@@ -512,7 +514,10 @@ export function hasEngineerFirstAudienceExamples(root, path) {
   if (path === "src-tauri/src/core/scoring/synonyms.rs") {
     if (text.includes("job-scoring-synonyms.json")) {
       const taxonomy = JSON.parse(
-        readFileSync(join(root, "resources/taxonomies/job-scoring-synonyms.json"), "utf8"),
+        readFileSync(
+          join(root, "resources/taxonomies/job-scoring-synonyms.json"),
+          "utf8",
+        ),
       );
       const synonymGroups = Array.isArray(taxonomy.synonymGroups)
         ? taxonomy.synonymGroups
@@ -521,7 +526,9 @@ export function hasEngineerFirstAudienceExamples(root, path) {
         Array.isArray(group) ? group.join(" ") : "",
       );
       const broadStartIndex = groupText.findIndex((group) =>
-        /Customer Support|Administrative Assistant|Project Coordinator/i.test(group),
+        /Customer Support|Administrative Assistant|Project Coordinator/i.test(
+          group,
+        ),
       );
       const technicalIndex = groupText.findIndex((group) =>
         /\bPython\b|JavaScript|TypeScript|Kubernetes|AWS/i.test(group),
@@ -534,7 +541,9 @@ export function hasEngineerFirstAudienceExamples(root, path) {
       );
     }
 
-    const broadStartIndex = text.indexOf("// Customer, office, and coordination roles");
+    const broadStartIndex = text.indexOf(
+      "// Customer, office, and coordination roles",
+    );
     const technicalIndex = text.indexOf("// Programming Languages");
 
     if (

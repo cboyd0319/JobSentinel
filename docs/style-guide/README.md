@@ -1,6 +1,43 @@
-# JobSentinel Documentation Style Guide
+# JobSentinel documentation style guide
 
 This guide helps you write clear, friendly documentation for JobSentinel users.
+
+## Authority and scope
+
+This policy applies to all language in JobSentinel, including user-interface
+copy, documentation, source identifiers, comments, tests, fixtures, error
+messages, command output, release notes, pull requests, and commit messages.
+
+Use these sources in order:
+
+1. Follow JobSentinel's privacy, security, accessibility, technical-accuracy,
+   and zero-technical-knowledge requirements.
+2. Follow the complete
+   [Google developer documentation style guide](https://developers.google.com/style/)
+   for general language, structure, grammar, formatting, accessibility, and
+   inclusive terminology.
+3. Follow the complete
+   [Apple Style Guide](https://support.apple.com/guide/applestyleguide/welcome/web)
+   for Apple-platform names, Apple user-interface terminology, and
+   Apple-specific interactions.
+4. Follow JobSentinel's glossary and product-specific decisions where they are
+   more precise than the general guides.
+
+The two links above refer to each current guide as a whole, including every
+topic page, word-list or A-Z entry, accessibility section, inclusive-language
+section, technical-notation rule, and international-style rule. Summary pages
+and the examples below do not narrow that scope.
+
+Use the complete linked inventory and review matrix in the
+[Google style guide source map](google-developer-documentation-style-guide.md).
+Before a release, also apply Google's
+[inclusive open-source release preparation](https://opensource.google/documentation/reference/releasing/preparing#inclusive)
+check to code, documentation, comments, examples, and artifacts.
+
+For Apple-specific terminology, the Apple Style Guide wins a direct conflict.
+For all other language, the Google guide wins. Privacy, security,
+accessibility, and technical accuracy always take precedence. Record any
+intentional project exception in this directory and apply it consistently.
 
 ## Who are our readers?
 
@@ -154,6 +191,18 @@ Run Vale locally:
 ```bash
 vale docs/
 ```
+
+### Language policy check
+
+The repository check rejects prohibited terminology in prose and source
+identifiers. Run it locally:
+
+```bash
+npm run lint:language
+```
+
+Automated checks cover only deterministic rules. Review all changed language
+against the complete Google and Apple guides.
 
 ### markdownlint
 

@@ -70,8 +70,8 @@ mod validation_tests {
             simplyhired: Default::default(),
             glassdoor: Default::default(),
             ghost_config: None,
-            company_whitelist: vec![],
-            company_blacklist: vec![],
+            preferred_companies: vec![],
+            blocked_companies: vec![],
             use_resume_matching: false,
         }
     }
@@ -209,7 +209,7 @@ mod validation_tests {
     #[test]
     fn test_company_lists_too_large() {
         let mut config = create_minimal_valid_config();
-        config.company_whitelist = (0..501).map(|i| format!("Company {}", i)).collect();
+        config.preferred_companies = (0..501).map(|i| format!("Company {}", i)).collect();
 
         let result = validate_config(&config);
         assert!(result.is_err());

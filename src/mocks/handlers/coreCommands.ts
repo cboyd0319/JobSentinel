@@ -2,7 +2,7 @@ import type { PostedDateFilter, ScoreFilter, SortOption } from "../../features/d
 import type {
   NotificationPreferences,
   SourceNotificationConfig,
-} from "../../utils/notificationPreferences";
+} from "../../features/settings/notifications/notificationPreferencesStore";
 
 export type MockTemplateCategory =
   | "general"
@@ -216,8 +216,8 @@ export function normalizeMockNotificationPreferences(value: unknown): Notificati
       excludeKeywords: stringArray(advancedFilters.excludeKeywords),
       minSalary: nullableNumber(advancedFilters.minSalary),
       remoteOnly: booleanValue(advancedFilters.remoteOnly, defaults.advancedFilters.remoteOnly),
-      companyWhitelist: stringArray(advancedFilters.companyWhitelist),
-      companyBlacklist: stringArray(advancedFilters.companyBlacklist),
+      includedCompanies: stringArray(advancedFilters.includedCompanies),
+      excludedCompanies: stringArray(advancedFilters.excludedCompanies),
     },
   };
 }
@@ -240,8 +240,8 @@ function getDefaultNotificationPreferences(): NotificationPreferences {
       excludeKeywords: [],
       minSalary: null,
       remoteOnly: false,
-      companyWhitelist: [],
-      companyBlacklist: [],
+      includedCompanies: [],
+      excludedCompanies: [],
     },
   };
 }

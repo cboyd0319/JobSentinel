@@ -5,7 +5,7 @@ const localWorkers = Number.parseInt(process.env.PLAYWRIGHT_WORKERS ?? "4", 10);
 const workers = process.env.CI ? 1 : Math.max(1, localWorkers);
 const reporter = process.env.PLAYWRIGHT_HTML_REPORT === "1" ? "html" : "line";
 const port = Number.parseInt(process.env.PLAYWRIGHT_PORT ?? "5173", 10);
-const baseURL = `http://localhost:${port}`;
+const baseURL = `http://127.0.0.1:${port}`;
 
 /**
  * Playwright configuration for JobSentinel E2E tests.
@@ -37,9 +37,9 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: `npm run dev:mock -- --port ${port}`,
+    command: `npm run dev:mock -- --host 127.0.0.1 --port ${port}`,
     url: baseURL,
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: process.env.PLAYWRIGHT_REUSE_EXISTING_SERVER === "1",
     timeout: 30000,
   },
 });

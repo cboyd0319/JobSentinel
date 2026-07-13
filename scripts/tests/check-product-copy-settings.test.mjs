@@ -12,7 +12,9 @@ function writeFixtureFile(root, path, content = "") {
 }
 
 function withFixture(callback) {
-  const root = mkdtempSync(join(tmpdir(), "jobsentinel-product-copy-settings-"));
+  const root = mkdtempSync(
+    join(tmpdir(), "jobsentinel-product-copy-settings-"),
+  );
 
   try {
     callback(root);
@@ -60,7 +62,7 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/pages/Settings.tsx",
+      "src/features/settings/SettingsPage.tsx",
       [
         "Config imported",
         "Advanced Settings",
@@ -118,7 +120,11 @@ test("product copy rejects technical-first settings copy", () => {
         "",
       ].join("\n"),
     );
-    writeFixtureFile(root, "src/pages/Settings.test.tsx", "Config imported\n");
+    writeFixtureFile(
+      root,
+      "src/features/settings/SettingsPage.test.tsx",
+      "Config imported\n",
+    );
     writeFixtureFile(
       root,
       "src/utils/export.ts",
@@ -139,10 +145,14 @@ test("product copy rejects technical-first settings copy", () => {
       "src/features/dashboard/components/JobImportModal.tsx",
       "Missing details: {preview.missing_fields.join(', ')}\n",
     );
-    writeFixtureFile(root, "docs/features/smart-scoring.md", "Settings > Advanced Settings\n");
     writeFixtureFile(
       root,
-      "src/components/NotificationPreferences.tsx",
+      "docs/features/smart-scoring.md",
+      "Settings > Advanced Settings\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/features/settings/notifications/NotificationPreferences.tsx",
       [
         "setLoadError('Failed to load notification preferences')",
         "Loading notification settings",
@@ -237,7 +247,11 @@ test("product copy rejects technical-first settings copy", () => {
         "",
       ].join("\n"),
     );
-    writeFixtureFile(root, "src/features/dashboard/components/filterLabels.ts", "Weakest Match First\n");
+    writeFixtureFile(
+      root,
+      "src/features/dashboard/components/filterLabels.ts",
+      "Weakest Match First\n",
+    );
     writeFixtureFile(
       root,
       "src/features/dashboard/components/DashboardFiltersBar.tsx",
@@ -410,7 +424,7 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/pages/Settings.tsx",
+      "src/features/settings/SettingsPage.tsx",
       'Basic Settings\nMore Settings\nTurn this on to never miss a new posting.\nAuto-scan job boards\nCompany preference (if configured)\nEmail provider details\nProvider address\nProvider number\nUse this only if your provider gives you manual email details\nOptional USAJobs auto-check\nAutomatic USAJobs checks contact USAJobs\nautomatic\nUSAJobs checks\nTurn Remote OK automatic checks on or off\nSave failed\nTest failed\nsaved connection detail(s) failed to save\nShare ${savedFile.fileName} only if you want help\nRecommended for you\nonClick={rec.enable}>Enable</button>\nRestart JobSentinel\nTroubleshooting\n<HelpIcon text="If something is not working, these details can help explain what happened." />\nHacker News Who\'s Hiring\nTurn Hacker News hiring post checks on or off\n',
     );
     writeFixtureFile(
@@ -463,7 +477,11 @@ test("product copy rejects technical-first settings copy", () => {
         "",
       ].join("\n"),
     );
-    writeFixtureFile(root, "src/features/market/MarketPage.tsx", "Failed to Load Market Data\n");
+    writeFixtureFile(
+      root,
+      "src/features/market/MarketPage.tsx",
+      "Failed to Load Market Data\n",
+    );
     writeFixtureFile(
       root,
       "src/components/CompanyResearchPanel.tsx",
@@ -479,7 +497,7 @@ test("product copy rejects technical-first settings copy", () => {
       root,
       "src/features/market/MarketSnapshotCard.tsx",
       [
-        'aria-label={`Market sentiment: ${snapshot.market_sentiment}`}',
+        "aria-label={`Market sentiment: ${snapshot.market_sentiment}`}",
         "<span>{snapshot.market_sentiment}</span>",
         "<p>Market Sentiment</p>",
         "",
@@ -547,8 +565,8 @@ test("product copy rejects technical-first settings copy", () => {
       "src-tauri/src/core/scrapers/error.rs",
       [
         "pub fn user_message(&self) -> String {",
-        "  \"CAPTCHA detected. Please complete the challenge in your browser.\".to_string()",
-        "  \"Request timed out after 30 seconds. Please check your connection.\".to_string()",
+        '  "CAPTCHA detected. Please complete the challenge in your browser.".to_string()',
+        '  "Request timed out after 30 seconds. Please check your connection.".to_string()',
         "}",
         "/// Sanitize URL for display",
         "",
@@ -559,8 +577,8 @@ test("product copy rejects technical-first settings copy", () => {
       "src-tauri/src/core/automation/error.rs",
       [
         "pub fn user_message(&self) -> String {",
-        "  \"Failed to launch browser. Please ensure Chrome is installed.\".to_string()",
-        "  \"An automation error occurred. Please try again.\".to_string()",
+        '  "Failed to launch browser. Please ensure Chrome is installed.".to_string()',
+        '  "An automation error occurred. Please try again.".to_string()',
         "}",
         "/// Sanitize URL for display",
         "",
@@ -606,7 +624,11 @@ test("product copy rejects technical-first settings copy", () => {
       "src/features/dashboard/components/noJobsEmptyStateCopy.ts",
       "pay floor\n",
     );
-    writeFixtureFile(root, "src/features/dashboard/components/JobCard.tsx", "Below your pay floor\n");
+    writeFixtureFile(
+      root,
+      "src/features/dashboard/components/JobCard.tsx",
+      "Below your pay floor\n",
+    );
     writeFixtureFile(
       root,
       "src/features/dashboard/components/jobCardGuidance.ts",
@@ -779,7 +801,7 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/NotificationPreferences.tsx",
+      "src/features/settings/notifications/NotificationPreferences.tsx",
       'placeholder="e.g., 90"\nthousand per year\n',
     );
     writeFixtureFile(
@@ -820,7 +842,7 @@ test("product copy rejects technical-first settings copy", () => {
       "src/components/KeyboardShortcutsHelp.tsx",
       "src/features/market/MarketSnapshotCard.test.tsx",
       "src/features/market/MarketSnapshotCard.tsx",
-      "src/components/NotificationPreferences.tsx",
+      "src/features/settings/notifications/NotificationPreferences.tsx",
       "src/features/dashboard/components/ScoreBreakdownModal.tsx",
       "src/features/application-assist/ApplicationPreview.tsx",
       "src/features/application-assist/ApplyButton.tsx",
@@ -842,7 +864,7 @@ test("product copy rejects technical-first settings copy", () => {
       "src/features/applications/InterviewScheduler.tsx",
       "src/features/market/MarketPage.tsx",
       "src/features/resumes/matching/ResumeMatchPage.tsx",
-      "src/pages/Settings.tsx",
+      "src/features/settings/SettingsPage.tsx",
       "src/features/onboarding/SetupWizard.tsx",
       "src/pages/dashboardErrorCopy.ts",
       "src/features/dashboard/hooks/useDashboardAutoRefresh.ts",
@@ -857,6 +879,8 @@ test("product copy rejects technical-first settings copy", () => {
       "src/utils/safeErrorCopy.ts",
       "src/utils/sourceLabels.ts",
     ]);
-    assertNoTechnicalFirstCopy(root, ["src/pages/Settings.test.tsx"]);
+    assertNoTechnicalFirstCopy(root, [
+      "src/features/settings/SettingsPage.test.tsx",
+    ]);
   });
 });

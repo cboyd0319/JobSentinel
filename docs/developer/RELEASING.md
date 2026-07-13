@@ -42,6 +42,13 @@ or get an explicit rescoped release decision from the user. The package version
 can be staged locally while the checklist remains open, but release publication
 cannot start.
 
+Review code, documentation, comments, examples, and release artifacts against
+the complete [JobSentinel language policy](../style-guide/README.md) and
+Google's
+[inclusive open-source release preparation](https://opensource.google/documentation/reference/releasing/preparing#inclusive)
+check. The language sensor covers deterministic prohibited terminology only;
+human review covers context, tone, global audience, claims, and precise wording.
+
 JobSentinel does not use Tauri's updater plugin in the current release line:
 there is no
 `tauri-plugin-updater` dependency, no updater public key, no updater endpoint,
@@ -67,6 +74,7 @@ npm run harness:check
 npm run release:check-deps
 npm run doctor
 npm run doctor:e2e
+npm run lint:language
 npm run lint:docs
 npm run lint
 npm run test:run

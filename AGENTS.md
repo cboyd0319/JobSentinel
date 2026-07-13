@@ -37,13 +37,14 @@ Read in this order for non-trivial work:
    safe parallel code, docs, test, review, or verification slices.
 4. `docs/harness/verification-matrix.md` for required checks.
 5. `docs/harness/change-contract.md` for feature, bug, and refactor specs.
-6. `DESIGN.md`, `docs/design/README.md`, and
+6. `docs/style-guide/README.md` for language, terminology, and copy.
+7. `DESIGN.md`, `docs/design/README.md`, and
    `docs/design/design-spec.md` for UI and UX changes.
-7. `docs/developer/ARCHITECTURE.md` for system layout.
-8. `docs/developer/TESTING.md` for test patterns and commands.
-9. Closest feature doc under `docs/features/` for user-facing behavior.
-10. `docs/harness/harness-map.md` to find the right sensor, gate, or harness doc.
-11. `docs/harness/completion-gate.md` for the layered done gate and clean-state
+8. `docs/developer/ARCHITECTURE.md` for system layout.
+9. `docs/developer/TESTING.md` for test patterns and commands.
+10. Closest feature doc under `docs/features/` for user-facing behavior.
+11. `docs/harness/harness-map.md` to find the right sensor, gate, or harness doc.
+12. `docs/harness/completion-gate.md` for the layered done gate and clean-state
     exit checklist.
 
 Use `CLAUDE.md` and `.github/copilot-instructions.md` as compatibility
@@ -66,6 +67,10 @@ wrappers. If they conflict with this file or `docs/harness/`, this file and
   file-size budgets; shrink legacy oversized files, do not grow them.
 - Keep comments useful and sparse.
 - Keep generated summaries and one-off reports out of the repo unless requested.
+- Apply `docs/style-guide/README.md` to all language, including user-interface
+  copy, docs, identifiers, comments, tests, fixtures, errors, release notes,
+  pull requests, and commits. Run `npm run lint:language` after terminology
+  changes.
 
 ## Engineering Principles
 
@@ -105,6 +110,7 @@ Use the smallest relevant check first, then broaden when risk increases.
 ```bash
 npm run harness:check
 npm run harness:score
+npm run lint:language
 npm run lint
 npm run test:run
 npm run test:e2e

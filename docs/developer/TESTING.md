@@ -489,7 +489,9 @@ The `test:e2e*` npm scripts run Playwright through
 `scripts/run-playwright.mjs`. That wrapper keeps local and CI output readable
 on current Node versions by removing conflicting color environment settings and
 silencing the known upstream `DEP0205` deprecation warning from Playwright or
-Tailwind internals. It does not silence test failures or application warnings.
+Tailwind internals. It also selects an available loopback port and never reuses
+an existing server by default. It does not silence test failures or application
+warnings.
 
 ### Running E2E Tests
 
@@ -504,9 +506,6 @@ npm run doctor:e2e
 # Run local Chromium functional E2E tests
 npm run test:e2e
 
-# Use an isolated port when 5173 belongs to another local application
-PLAYWRIGHT_PORT=5174 npm run test:e2e
-
 # Run full cross-browser E2E tests
 npm run test:e2e:all
 
@@ -517,9 +516,13 @@ npm run test:e2e:all:budget
 npm run test:e2e:ui
 ```
 
-Playwright starts and targets the same configurable Vite port. Set
-`PLAYWRIGHT_PORT` when another local server is already using the default port,
-so `reuseExistingServer` cannot attach the suite to an unrelated application.
+Playwright uses port 5173 when it is available and otherwise asks the operating
+system for an available loopback port. Set `PLAYWRIGHT_PORT` only when a fixed
+test port is required; the wrapper fails clearly if that port is occupied.
+Set `PLAYWRIGHT_REUSE_EXISTING_SERVER=1` only when the target is a verified
+JobSentinel mock server. The installed Tauri GUI does not use a web-server port;
+the development GUI uses port 5173, and Browser Import uses its separately
+configured port, which defaults to 4321.
 
 ### E2E Test Coverage
 

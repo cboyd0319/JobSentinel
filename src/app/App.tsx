@@ -23,6 +23,7 @@ import {
 const SetupWizard = lazy(() => import("../features/onboarding"));
 const Dashboard = lazy(() => import("../features/dashboard"));
 const Applications = lazy(() => import("../features/applications"));
+const Settings = lazy(() => import("../features/settings"));
 const ResumeLibraryPage = lazy(() =>
   import("../features/resumes").then((module) => ({
     default: module.ResumeLibraryPage,
@@ -63,7 +64,13 @@ function GlobalKeyboardHelp() {
 }
 
 // Auto-start tour after setup completion
-function TourStartTrigger({ shouldStart, onStarted }: { shouldStart: boolean; onStarted: () => void }) {
+function TourStartTrigger({
+  shouldStart,
+  onStarted,
+}: {
+  shouldStart: boolean;
+  onStarted: () => void;
+}) {
   const { startTour, hasCompletedTour } = useOnboarding();
 
   useEffect(() => {
@@ -81,11 +88,7 @@ function TourStartTrigger({ shouldStart, onStarted }: { shouldStart: boolean; on
   return null;
 }
 
-export function StartupRecovery({
-  onRetry,
-}: {
-  onRetry: () => void;
-}) {
+export function StartupRecovery({ onRetry }: { onRetry: () => void }) {
   const [reportStatus, setReportStatus] = useState<
     "idle" | "copying" | "copied" | "saving" | "saved" | "failed"
   >("idle");
@@ -140,14 +143,18 @@ export function StartupRecovery({
               disabled={reportStatus === "copying"}
               onClick={() => void copyReport()}
             >
-              {reportStatus === "copying" ? "Copying..." : "Copy Safe Support Report"}
+              {reportStatus === "copying"
+                ? "Copying..."
+                : "Copy Safe Support Report"}
             </button>
             <button
               className="w-full rounded-lg bg-surface-800 px-4 py-3 text-sm font-semibold text-surface-100 hover:bg-surface-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 disabled:opacity-50"
               disabled={reportStatus === "saving"}
               onClick={() => void saveReport()}
             >
-              {reportStatus === "saving" ? "Saving..." : "Save Safe Support Report"}
+              {reportStatus === "saving"
+                ? "Saving..."
+                : "Save Safe Support Report"}
             </button>
           </div>
           {reportStatus === "copied" && (
@@ -232,7 +239,9 @@ function App() {
       <ErrorBoundary>
         <SkipToContent />
         <div className="min-h-screen" id="main-content" tabIndex={-1}>
-          <Suspense fallback={<PageLoader message="Getting JobSentinel ready..." />}>
+          <Suspense
+            fallback={<PageLoader message="Getting JobSentinel ready..." />}
+          >
             <SetupWizard onComplete={handleSetupComplete} />
           </Suspense>
         </div>
@@ -250,19 +259,29 @@ function App() {
           <SkipToContent />
           <CommandPalette />
           <GlobalKeyboardHelp />
-          <TourStartTrigger shouldStart={shouldStartTour} onStarted={() => setShouldStartTour(false)} />
-          
+          <TourStartTrigger
+            shouldStart={shouldStartTour}
+            onStarted={() => setShouldStartTour(false)}
+          />
+
           {/* Navigation sidebar */}
           <Navigation currentPage={currentPage} onNavigate={navigateTo} />
-          
+
           {/* Main content with left margin for sidebar */}
-          <div className="min-h-screen ml-16 overflow-x-hidden" id="main-content" tabIndex={-1}>
+          <div
+            className="min-h-screen ml-16 overflow-x-hidden"
+            id="main-content"
+            tabIndex={-1}
+          >
             <Suspense fallback={<PageLoader />}>
               {currentPage === "dashboard" && (
                 <PageErrorBoundary pageName="Dashboard">
                   <Dashboard
                     onNavigate={navigateTo}
-                    renderApplicationAssistAction={(job, onOpenApplicationAssist) => (
+                    renderApplicationAssistAction={(
+                      job,
+                      onOpenApplicationAssist,
+                    ) => (
                       <Suspense fallback={null}>
                         <ApplyButton
                           job={{
@@ -279,6 +298,7 @@ function App() {
                         />
                       </Suspense>
                     )}
+                    settingsPage={Settings}
                     showSettings={showSettings}
                     onShowSettingsChange={setShowSettings}
                     openImportOnMount={openImportOnDashboard}
@@ -287,7 +307,10 @@ function App() {
                 </PageErrorBoundary>
               )}
               {currentPage === "applications" && (
-                <PageErrorBoundary pageName="Applications" onBack={() => navigateTo("dashboard")}>
+                <PageErrorBoundary
+                  pageName="Applications"
+                  onBack={() => navigateTo("dashboard")}
+                >
                   <Applications
                     onBack={() => navigateTo("dashboard")}
                     onImportJob={openJobImportFromApplications}
@@ -295,32 +318,53 @@ function App() {
                 </PageErrorBoundary>
               )}
               {currentPage === "resume" && (
-                <PageErrorBoundary pageName="Resume" onBack={() => navigateTo("dashboard")}>
+                <PageErrorBoundary
+                  pageName="Resume"
+                  onBack={() => navigateTo("dashboard")}
+                >
                   <ResumeLibraryPage onBack={() => navigateTo("dashboard")} />
                 </PageErrorBoundary>
               )}
               {currentPage === "resume-builder" && (
-                <PageErrorBoundary pageName="Resume Builder" onBack={() => navigateTo("dashboard")}>
+                <PageErrorBoundary
+                  pageName="Resume Builder"
+                  onBack={() => navigateTo("dashboard")}
+                >
                   <ResumeBuilderPage onBack={() => navigateTo("dashboard")} />
                 </PageErrorBoundary>
               )}
               {currentPage === "ats-optimizer" && (
-                <PageErrorBoundary pageName="Resume Match" onBack={() => navigateTo("dashboard")}>
-                  <ResumeMatchPage onBack={() => navigateTo("dashboard")} onNavigate={navigateTo} />
+                <PageErrorBoundary
+                  pageName="Resume Match"
+                  onBack={() => navigateTo("dashboard")}
+                >
+                  <ResumeMatchPage
+                    onBack={() => navigateTo("dashboard")}
+                    onNavigate={navigateTo}
+                  />
                 </PageErrorBoundary>
               )}
               {currentPage === "salary" && (
-                <PageErrorBoundary pageName="Salary" onBack={() => navigateTo("dashboard")}>
+                <PageErrorBoundary
+                  pageName="Salary"
+                  onBack={() => navigateTo("dashboard")}
+                >
                   <Salary onBack={() => navigateTo("dashboard")} />
                 </PageErrorBoundary>
               )}
               {currentPage === "market" && (
-                <PageErrorBoundary pageName="Market" onBack={() => navigateTo("dashboard")}>
+                <PageErrorBoundary
+                  pageName="Market"
+                  onBack={() => navigateTo("dashboard")}
+                >
                   <Market onBack={() => navigateTo("dashboard")} />
                 </PageErrorBoundary>
               )}
               {currentPage === "automation" && (
-                <PageErrorBoundary pageName="Application Assist" onBack={() => navigateTo("dashboard")}>
+                <PageErrorBoundary
+                  pageName="Application Assist"
+                  onBack={() => navigateTo("dashboard")}
+                >
                   <ApplicationProfile onBack={() => navigateTo("dashboard")} />
                 </PageErrorBoundary>
               )}

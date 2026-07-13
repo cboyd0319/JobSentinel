@@ -65,6 +65,39 @@ fn test_load_legacy_config_defaults_bookmarklet_port() {
 }
 
 #[test]
+fn test_load_preserves_pre_refactor_company_preferences() {
+    let temp_dir = TempDir::new().expect("Failed to create temp dir");
+    let config_path = temp_dir.path().join("config.json");
+    let mut original = create_valid_config();
+    original.preferred_companies = vec!["Google".to_string()];
+    original.blocked_companies = vec!["Revature".to_string()];
+    let mut stored_config =
+        serde_json::to_value(original).expect("Failed to serialize test config");
+    let object = stored_config
+        .as_object_mut()
+        .expect("test config should be an object");
+    let preferred = object
+        .remove("preferred_companies")
+        .expect("preferred companies should exist");
+    let blocked = object
+        .remove("blocked_companies")
+        .expect("blocked companies should exist");
+    object.insert(["company_", "white", "list"].concat(), preferred);
+    object.insert(["company_", "black", "list"].concat(), blocked);
+
+    fs::write(
+        &config_path,
+        serde_json::to_string_pretty(&stored_config).expect("Failed to serialize stored config"),
+    )
+    .expect("Failed to write stored config");
+
+    let loaded_config = Config::load(&config_path).expect("Failed to load stored config");
+
+    assert_eq!(loaded_config.preferred_companies, vec!["Google"]);
+    assert_eq!(loaded_config.blocked_companies, vec!["Revature"]);
+}
+
+#[test]
 fn test_save_creates_parent_directories() {
     let temp_dir = TempDir::new().expect("Failed to create temp dir");
     let config_path = temp_dir

@@ -13,7 +13,9 @@ function writeFixtureFile(root, path, content = "") {
 }
 
 function withGitFixture(callback) {
-  const root = mkdtempSync(join(tmpdir(), "jobsentinel-repo-bloat-product-copy-"));
+  const root = mkdtempSync(
+    join(tmpdir(), "jobsentinel-repo-bloat-product-copy-"),
+  );
 
   try {
     execFileSync("git", ["init", "--quiet"], { cwd: root });
@@ -39,9 +41,13 @@ test("checkRepoBloat rejects banned job-search framing", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "docs/features/application-positioning.md"], {
-      cwd: root,
-    });
+    execFileSync(
+      "git",
+      ["add", "package.json", "docs/features/application-positioning.md"],
+      {
+        cwd: root,
+      },
+    );
 
     const violations = checkRepoBloat(root);
 
@@ -177,7 +183,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       root,
       "src/features/resumes/library/ResumeLibraryPage.tsx",
       [
-        '<Button>Import JSON Resume</Button><p>Your JSON Resume has been imported</p>',
+        "<Button>Import JSON Resume</Button><p>Your JSON Resume has been imported</p>",
         '"Programming Languages"',
         '"Cloud & DevOps"',
         '"Skills Extracted"',
@@ -197,11 +203,11 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/features/resumes/matching/ResumeMatchPage.tsx",
       [
         '<CardHeader title="Resume Data (JSON)" />',
-        '<label>Resume Data in JSON format</label>',
+        "<label>Resume Data in JSON format</label>",
         'toast.error("Invalid resume JSON", "Paste resume JSON that matches the AtsResumeData schema");',
-        '<h1>ATS Resume Optimizer</h1>',
-        '<p>Optimize your resume for Applicant Tracking Systems</p>',
-        '<Button>View Power Words</Button>',
+        "<h1>ATS Resume Optimizer</h1>",
+        "<p>Optimize your resume for Applicant Tracking Systems</p>",
+        "<Button>View Power Words</Button>",
         '<Modal title="ATS Power Words" />',
         '<CardHeader title="Keyword Density Heatmap" />',
         '"= Matched keywords"',
@@ -211,8 +217,8 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "const message = err instanceof Error ? err.message : String(err);",
         'toast.error("Analysis failed", message);',
         '<ScoreItem label="Keywords" />',
-        '<CardHeader title={`Keyword Matches (${analysisResult.keyword_matches.length})`} />',
-        '<CardHeader title={`Missing Keywords (${analysisResult.missing_keywords.length})`} />',
+        "<CardHeader title={`Keyword Matches (${analysisResult.keyword_matches.length})`} />",
+        "<CardHeader title={`Missing Keywords (${analysisResult.missing_keywords.length})`} />",
         '"Consider adding these keywords to improve your match score"',
         '"These action verbs and keywords are commonly recognized by ATS systems."',
         '"These action verbs are commonly recognized by resume screening tools."',
@@ -222,7 +228,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         '"Please enter your resume data"',
         '"Resume data not recognized"',
         '"Paste structured resume data exported from JobSentinel or another supported tool."',
-        '<Button>Analyze with Job</Button>',
+        "<Button>Analyze with Job</Button>",
         '"No analysis yet"',
         '"Enter your job description and resume data, then click Analyze"',
         "",
@@ -240,10 +246,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     writeFixtureFile(
       root,
       "src/features/application-assist/ScreeningAnswersForm.tsx",
-      [
-        '<Select label="Dropdown selection" />',
-        "",
-      ].join("\n"),
+      ['<Select label="Dropdown selection" />', ""].join("\n"),
     );
     writeFixtureFile(
       root,
@@ -321,7 +324,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/pages/Settings.tsx",
+      "src/features/settings/SettingsPage.tsx",
       [
         '"Invalid Discord webhook"',
         '"Config imported"',
@@ -383,17 +386,17 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     writeFixtureFile(
       root,
       "src/features/dashboard/hooks/useDashboardJobOps.ts",
-      "toast.error(enhancedError.userFriendly?.title || \"Bulk Bookmark Failed\", enhancedError.userFriendly?.message || \"Try again\");\n",
+      'toast.error(enhancedError.userFriendly?.title || "Bulk Bookmark Failed", enhancedError.userFriendly?.message || "Try again");\n',
     );
     writeFixtureFile(
       root,
       "src/features/dashboard/hooks/useDashboardSavedSearches.ts",
-      "toast.error(enhanced.userFriendly?.title || \"Search wasn't saved\", enhanced.userFriendly?.message || \"Try again\");\n",
+      'toast.error(enhanced.userFriendly?.title || "Search wasn\'t saved", enhanced.userFriendly?.message || "Try again");\n',
     );
     writeFixtureFile(
       root,
       "src/features/market/MarketPage.tsx",
-      "setError(enhanced.message || \"Failed to load market data\");\n",
+      'setError(enhanced.message || "Failed to load market data");\n',
     );
     writeFixtureFile(
       root,
@@ -405,8 +408,16 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/features/resumes/builder/ResumeBuilderPage.tsx",
       '"Try restarting the app or check if the database is accessible."\n',
     );
-    writeFixtureFile(root, "src/components/CommandPalette.tsx", '"Type a command or search..."\n');
-    writeFixtureFile(root, "src/components/KeyboardShortcutsHelp.tsx", '"Open command palette"\n');
+    writeFixtureFile(
+      root,
+      "src/components/CommandPalette.tsx",
+      '"Type a command or search..."\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/components/KeyboardShortcutsHelp.tsx",
+      '"Open command palette"\n',
+    );
     writeFixtureFile(root, "src/app/Navigation.tsx", '"for command palette"\n');
     writeFixtureFile(
       root,
@@ -547,7 +558,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/features/market/MarketPage.tsx",
         "src/features/resumes/builder/ResumeBuilderPage.tsx",
         "src/features/salary/SalaryPage.tsx",
-        "src/pages/Settings.tsx",
+        "src/features/settings/SettingsPage.tsx",
         "src/features/onboarding/SetupWizard.tsx",
         "src/components/AsyncButton.tsx",
         "src/components/BookmarkletGenerator.tsx",
@@ -605,7 +616,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/features/market/MarketPage.tsx",
       "src/features/resumes/builder/ResumeBuilderPage.tsx",
       "src/features/salary/SalaryPage.tsx",
-      "src/pages/Settings.tsx",
+      "src/features/settings/SettingsPage.tsx",
       "src/features/onboarding/SetupWizard.tsx",
       "src/components/AsyncButton.tsx",
       "src/components/BookmarkletGenerator.tsx",

@@ -92,8 +92,8 @@ const overconfidentGhostCopyPaths = new Set([
   "docs/user/QUICK_START.md",
   "src/features/dashboard/components/GhostIndicator.tsx",
   "src/features/dashboard/components/DashboardFiltersBar.tsx",
-  "src/pages/SettingsPostingRiskSection.tsx",
-  "src/pages/Settings.tsx",
+  "src/features/settings/search/SettingsPostingRiskSection.tsx",
+  "src/features/settings/SettingsPage.tsx",
 ]);
 const payProtectionGuidancePaths = new Set([
   "docs/features/pay-protection.md",
@@ -132,7 +132,7 @@ const feedbackLocalReportPaths = new Set([
   "src/components/feedback/SubmitOptions.tsx",
   "src/components/feedback/SuccessScreen.tsx",
   "src/hooks/useFeedback.ts",
-  "src/pages/Settings.tsx",
+  "src/features/settings/SettingsPage.tsx",
   "src/services/feedbackService.ts",
   "src-tauri/src/commands/feedback/mod.rs",
   "src-tauri/src/commands/feedback/debug_log.rs",
@@ -194,8 +194,10 @@ const protectiveScoreCopyPaths = new Set([
   "src/features/onboarding/SetupWizard.tsx",
   "src/features/onboarding/SetupWizardSearchSummary.tsx",
   "src/features/onboarding/setupWizardPreferences.ts",
-  "src/pages/SettingsResumeMatchingSection.tsx",
-  "src/pages/SettingsPostingRiskSection.tsx", "src/pages/SettingsJobSourcesSection.tsx", "src/pages/Settings.tsx",
+  "src/features/settings/matching/SettingsResumeMatchingSection.tsx",
+  "src/features/settings/search/SettingsPostingRiskSection.tsx",
+  "src/features/settings/sources/SettingsJobSourcesSection.tsx",
+  "src/features/settings/SettingsPage.tsx",
 ]);
 const plainJobSearchDocPaths = new Set([
   "docs/features/application-tracking.md",
@@ -228,7 +230,7 @@ const technicalFirstUserCopyPaths = new Set([
   "src/features/applications/AnalyticsPanel.tsx",
   "src/features/dashboard/components/DashboardWidgets.tsx",
   "src/services/aiGateway.ts",
-  "src/components/NotificationPreferences.tsx",
+  "src/features/settings/notifications/NotificationPreferences.tsx",
   "src/features/resumes/builder/steps/ContactStep.tsx",
   "src/features/resumes/builder/steps/EducationStep.tsx",
   "src/features/resumes/builder/steps/ExperienceStep.tsx",
@@ -252,8 +254,13 @@ const technicalFirstUserCopyPaths = new Set([
   "src/components/feedback/SubmitOptions.tsx",
   "src/components/feedback/SuccessScreen.tsx",
   "src/hooks/useFeedback.ts",
-  "src/mocks/handlers/atsPlatform.ts", "src/features/market/mockHandlers.ts",
-  "src/features/resumes/mocks/resumeAnalysisRunner.ts", "src/features/resumes/mocks/resumeBulletPrompts.ts", "src/features/resumes/mocks/resumeBuilder.ts", "src/features/resumes/mocks/resumeKeywordMatching.ts", "src/features/resumes/mocks/resumeRequirementReview.ts",
+  "src/mocks/handlers/atsPlatform.ts",
+  "src/features/market/mockHandlers.ts",
+  "src/features/resumes/mocks/resumeAnalysisRunner.ts",
+  "src/features/resumes/mocks/resumeBulletPrompts.ts",
+  "src/features/resumes/mocks/resumeBuilder.ts",
+  "src/features/resumes/mocks/resumeKeywordMatching.ts",
+  "src/features/resumes/mocks/resumeRequirementReview.ts",
   "src/mocks/handlers.ts",
   "src/contexts/UndoContext.tsx",
   "src/contexts/KeyboardShortcutsContext.tsx",
@@ -261,7 +268,8 @@ const technicalFirstUserCopyPaths = new Set([
   "src-tauri/src/commands/bookmarklet.rs",
   "src-tauri/src/core/db/error.rs",
   "src-tauri/src/core/automation/error.rs",
-  "src-tauri/src/core/resume/ats_analyzer.rs", "src-tauri/src/core/resume/ats_analyzer/bullet_prompts.rs",
+  "src-tauri/src/core/resume/ats_analyzer.rs",
+  "src-tauri/src/core/resume/ats_analyzer/bullet_prompts.rs",
   "src-tauri/src/core/resume/matcher.rs",
   "src-tauri/src/core/salary/analyzer.rs",
   "src-tauri/src/core/scrapers/error.rs",
@@ -297,9 +305,13 @@ const technicalFirstUserCopyPaths = new Set([
   "src/features/salary/SalaryEvidenceCard.tsx",
   "src/features/salary/SalaryPage.tsx",
   "src/features/salary/SalarySearchCard.tsx",
-  "src/pages/SettingsConnectedJobSource.tsx", "src/pages/SettingsJobSourcesSection.tsx",
-  "src/pages/SettingsResumeMatchingSection.tsx", "src/pages/SettingsPostingRiskSection.tsx",
-  "src/pages/SettingsSecurityBadge.tsx", "src/pages/SettingsSupportSections.tsx", "src/pages/Settings.tsx",
+  "src/features/settings/sources/SettingsConnectedJobSource.tsx",
+  "src/features/settings/sources/SettingsJobSourcesSection.tsx",
+  "src/features/settings/matching/SettingsResumeMatchingSection.tsx",
+  "src/features/settings/search/SettingsPostingRiskSection.tsx",
+  "src/features/settings/shared/SettingsSecurityBadge.tsx",
+  "src/features/settings/support/SettingsSupportSections.tsx",
+  "src/features/settings/SettingsPage.tsx",
   "src/features/onboarding/SetupWizard.tsx",
   "src/features/onboarding/SetupWizardSearchSummary.tsx",
   "src/features/onboarding/setupWizardPreferences.ts",
@@ -415,20 +427,116 @@ export function hasApplicationAssistAutomationFraming(root, path) {
   const stalePatterns = [
     new RegExp(["One", "-Click", "\\s+", "Apply"].join(""), "i"),
     new RegExp(["Quick", "\\s+", "Apply"].join(""), "i"),
-    new RegExp(["Fill", "\\s+", "out", "\\s+", "job", "\\s+", "applications", "\\s+", "in", "\\s+", "seconds"].join(""), "i"),
+    new RegExp(
+      [
+        "Fill",
+        "\\s+",
+        "out",
+        "\\s+",
+        "job",
+        "\\s+",
+        "applications",
+        "\\s+",
+        "in",
+        "\\s+",
+        "seconds",
+      ].join(""),
+      "i",
+    ),
     new RegExp(["Speed", "\\s+", "up", "\\s+", "applications"].join(""), "i"),
-    new RegExp(["forms?", "\\s+", "for", "\\s+", "you", "\\s+", "automatically"].join(""), "i"),
-    new RegExp(["fields?", "\\s+", "that", "\\s+", "will", "\\s+", "be", "\\s+", "auto-filled"].join(""), "i"),
-    new RegExp(["auto-fill", "\\s+", "screening", "\\s+", "questions"].join(""), "i"),
-    new RegExp(["This", "\\s+", "information", "\\s+", "will", "\\s+", "be", "\\s+", "auto-filled"].join(""), "i"),
-    new RegExp(["automatically", "\\s+", "uploaded", "\\s+", "when", "\\s+", "applying"].join(""), "i"),
-    new RegExp(["Prepare", "\\s+", "to", "\\s+", "apply", "\\s+-\\s+", "fills", "\\s+", "form", "\\s+", "fields", "\\s+", "automatically"].join(""), "i"),
-    new RegExp(["Form", "\\s+", "filling", "\\s+", "will", "\\s+", "begin", "\\s+", "shortly"].join(""), "i"),
+    new RegExp(
+      ["forms?", "\\s+", "for", "\\s+", "you", "\\s+", "automatically"].join(
+        "",
+      ),
+      "i",
+    ),
+    new RegExp(
+      [
+        "fields?",
+        "\\s+",
+        "that",
+        "\\s+",
+        "will",
+        "\\s+",
+        "be",
+        "\\s+",
+        "auto-filled",
+      ].join(""),
+      "i",
+    ),
+    new RegExp(
+      ["auto-fill", "\\s+", "screening", "\\s+", "questions"].join(""),
+      "i",
+    ),
+    new RegExp(
+      [
+        "This",
+        "\\s+",
+        "information",
+        "\\s+",
+        "will",
+        "\\s+",
+        "be",
+        "\\s+",
+        "auto-filled",
+      ].join(""),
+      "i",
+    ),
+    new RegExp(
+      [
+        "automatically",
+        "\\s+",
+        "uploaded",
+        "\\s+",
+        "when",
+        "\\s+",
+        "applying",
+      ].join(""),
+      "i",
+    ),
+    new RegExp(
+      [
+        "Prepare",
+        "\\s+",
+        "to",
+        "\\s+",
+        "apply",
+        "\\s+-\\s+",
+        "fills",
+        "\\s+",
+        "form",
+        "\\s+",
+        "fields",
+        "\\s+",
+        "automatically",
+      ].join(""),
+      "i",
+    ),
+    new RegExp(
+      [
+        "Form",
+        "\\s+",
+        "filling",
+        "\\s+",
+        "will",
+        "\\s+",
+        "begin",
+        "\\s+",
+        "shortly",
+      ].join(""),
+      "i",
+    ),
     new RegExp(["Form", "\\s+", "Fill", "\\s+", "Failed"].join(""), "i"),
-    new RegExp(["Form", "\\s+", "preparation", "\\s+", "(?:error|failed)"].join(""), "i"),
+    new RegExp(
+      ["Form", "\\s+", "preparation", "\\s+", "(?:error|failed)"].join(""),
+      "i",
+    ),
     new RegExp(["Form", "\\s+", "filled!"].join(""), "i"),
     new RegExp(["form", "\\s+", "filling", "\\s+", "failed"].join(""), "i"),
-    new RegExp(["Max", "\\s+", "applications", "\\s+", "per", "\\s+", "day"].join(""), "i"),
+    new RegExp(
+      ["Max", "\\s+", "applications", "\\s+", "per", "\\s+", "day"].join(""),
+      "i",
+    ),
     new RegExp(["Total", "\\s+", "Attempts"].join(""), "i"),
     new RegExp(["Success", "\\s+", "Rate"].join(""), "i"),
     new RegExp(["Submission", "\\s+", "Rate"].join(""), "i"),
@@ -437,9 +545,23 @@ export function hasApplicationAssistAutomationFraming(root, path) {
     new RegExp(["automated", "\\s+", "browsers"].join(""), "i"),
     new RegExp(["automated", "\\s+", "submission"].join(""), "i"),
     new RegExp(["form", "\\s+", "filling", "\\s+", "automation"].join(""), "i"),
-    new RegExp(["supports", "\\s+", "form", "\\s+", "automation"].join(""), "i"),
+    new RegExp(
+      ["supports", "\\s+", "form", "\\s+", "automation"].join(""),
+      "i",
+    ),
     new RegExp(["automation", "\\s+", "browser"].join(""), "i"),
-    new RegExp(["Privacy-first", "\\s+", "job", "\\s+", "search", "\\s+", "automation"].join(""), "i"),
+    new RegExp(
+      [
+        "Privacy-first",
+        "\\s+",
+        "job",
+        "\\s+",
+        "search",
+        "\\s+",
+        "automation",
+      ].join(""),
+      "i",
+    ),
     /aria-label=\{`Application tracking system:/i,
     /title=\{atsInfo\?\.automationNotes/i,
     /Settings\s*>\s*Application Assist/i,
@@ -635,9 +757,15 @@ export function hasFeedbackSetupJargon(root, path) {
     /private details removed/i.test(text) ||
     /Removed before sharing/i.test(text) ||
     /Saves a sanitized report/i.test(text) ||
-    /Job titles, company names, search words, and personal details are not included/i.test(text) ||
-    /Extra app details:\s*\$\{sanitizeTextForStorage\(error\.stack\)\}/.test(text) ||
-    /Screen details:\s*\$\{sanitizeTextForStorage\(error\.componentStack\)\}/.test(text)
+    /Job titles, company names, search words, and personal details are not included/i.test(
+      text,
+    ) ||
+    /Extra app details:\s*\$\{sanitizeTextForStorage\(error\.stack\)\}/.test(
+      text,
+    ) ||
+    /Screen details:\s*\$\{sanitizeTextForStorage\(error\.componentStack\)\}/.test(
+      text,
+    )
   );
 }
 
@@ -647,7 +775,9 @@ export function hasRawProblemHistoryContextDetails(root, path) {
   }
 
   const text = readFileSync(join(root, path), "utf8");
-  return /JSON\.stringify\(error\.context\)|\{error\.(?:message|stack|componentStack)\}/.test(text);
+  return /JSON\.stringify\(error\.context\)|\{error\.(?:message|stack|componentStack)\}/.test(
+    text,
+  );
 }
 
 export function hasRawErrorBoundaryDetails(root, path) {
@@ -705,7 +835,9 @@ export function hasNonProtectiveScoreCopy(root, path) {
   }
 
   const text = readFileSync(join(root, path), "utf8");
-  return /Great Match!|Highly recommended!|You might want to skip it|if you're desperate|if you are desperate|\{reason\}\s*<\/div>|Job Scoring Weights|Score factor weights|These weights determine|scoring weights|Configurable weights|Customize Weights|Weight Presets|Weight in overall score|Smart Scoring System|Smart scoring|\bdefault priorities\b|\bdefault priority\b|Match Priority Guide|Match Factors|These percentages|priority order|Format result:|>\s*\{factor\.weight\}%\s*<\/td>|>\s*\{factorPercentage\}%\s*<\/span>|>\s*\{Math\.round\(score\)\}%\s*<\/span>|\b\d+%\s+weight\b|\b\d+%\s+priority\b|\(\d+%\s+priority\)|\b\d+%\s+influence\b|\(\d+%\s+influence\)|Strong \(70%\+\)|Some \(40-69%\)|Low \(<40%\)|Excellent \(90%\+\)|Average \(50-69%\)|Low \(&lt;50%\)|AllScoreRanges|HighScore|AverageScore|LowScore|Strong Match|Good Match|Some Match|Low Match|Best Match First|Lowest Match First|Match Details|Part of overall score|strongest matches|strong matches for your saved search|weaker or adjacent matches|Low match|Strong match|How To Read Match Results|Overall match|Experience match|Education match|Posting Risk Warning|weighted averages based on component importance|Score \(High|Score \(Low|All Scores|label="Score"|Jobs are scored based|top scores|Each job is scored|sorted by match score|jobs scoring|Alert Threshold|scoring above your threshold|match percentage|match scores?|match score, source|Match Score|Match score:|Score:\s*\{filters\.scoreFilter\}|Sort:\s*\{filters\.sortBy\}|return\s+["'`](?:Excellent|Great|Poor)["'`]/i.test(text);
+  return /Great Match!|Highly recommended!|You might want to skip it|if you're desperate|if you are desperate|\{reason\}\s*<\/div>|Job Scoring Weights|Score factor weights|These weights determine|scoring weights|Configurable weights|Customize Weights|Weight Presets|Weight in overall score|Smart Scoring System|Smart scoring|\bdefault priorities\b|\bdefault priority\b|Match Priority Guide|Match Factors|These percentages|priority order|Format result:|>\s*\{factor\.weight\}%\s*<\/td>|>\s*\{factorPercentage\}%\s*<\/span>|>\s*\{Math\.round\(score\)\}%\s*<\/span>|\b\d+%\s+weight\b|\b\d+%\s+priority\b|\(\d+%\s+priority\)|\b\d+%\s+influence\b|\(\d+%\s+influence\)|Strong \(70%\+\)|Some \(40-69%\)|Low \(<40%\)|Excellent \(90%\+\)|Average \(50-69%\)|Low \(&lt;50%\)|AllScoreRanges|HighScore|AverageScore|LowScore|Strong Match|Good Match|Some Match|Low Match|Best Match First|Lowest Match First|Match Details|Part of overall score|strongest matches|strong matches for your saved search|weaker or adjacent matches|Low match|Strong match|How To Read Match Results|Overall match|Experience match|Education match|Posting Risk Warning|weighted averages based on component importance|Score \(High|Score \(Low|All Scores|label="Score"|Jobs are scored based|top scores|Each job is scored|sorted by match score|jobs scoring|Alert Threshold|scoring above your threshold|match percentage|match scores?|match score, source|Match Score|Match score:|Score:\s*\{filters\.scoreFilter\}|Sort:\s*\{filters\.sortBy\}|return\s+["'`](?:Excellent|Great|Poor)["'`]/i.test(
+    text,
+  );
 }
 
 export function hasLegacyPreferenceListCopy(root, path) {
@@ -714,7 +846,9 @@ export function hasLegacyPreferenceListCopy(root, path) {
   }
 
   const text = readFileSync(join(root, path), "utf8");
-  return /Company Whitelist|Company Blacklist|Your Whitelist|Your blacklist|whitelisted companies|blacklisted companies|whitelist\/blacklist|Title matches allowlist|Title matches blocklist|Job-word boosters|Job-word boost|Boosted job words|Excluded job words|Job-Word Match|found, boosted|not boosted|boosters\/excluders/i.test(text);
+  return /Title matches allowlist|Title matches blocklist|Job-word boosters|Job-word boost|Boosted job words|Excluded job words|Job-Word Match|found, boosted|not boosted|boosters\/excluders/i.test(
+    text,
+  );
 }
 
 export function hasTechnicalFirstUserCopy(root, path) {

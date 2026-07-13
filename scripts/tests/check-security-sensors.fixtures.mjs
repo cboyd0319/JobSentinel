@@ -14,9 +14,13 @@ export function writeBaseRepo(root, csp) {
   mkdirSync(join(root, "scripts"), { recursive: true });
   mkdirSync(join(root, "src-tauri"), { recursive: true });
   mkdirSync(join(root, "src-tauri/capabilities"), { recursive: true });
-  mkdirSync(join(root, "src-tauri/src/core/automation/browser"), { recursive: true });
+  mkdirSync(join(root, "src-tauri/src/core/automation/browser"), {
+    recursive: true,
+  });
   mkdirSync(join(root, "src/features/resumes/builder"), { recursive: true });
-  mkdirSync(join(root, "src/pages"), { recursive: true });
+  for (const path of ["config", "credentials", "notifications", "sources"]) {
+    mkdirSync(join(root, "src/features/settings", path), { recursive: true });
+  }
   mkdirSync(join(root, "src/services"), { recursive: true });
 
   for (const file of [
@@ -70,13 +74,13 @@ export function writeBaseRepo(root, csp) {
     [
       "on:",
       "  schedule:",
-      "    - cron: \"17 11 * * 1\"",
+      '    - cron: "17 11 * * 1"',
       "permissions: {}",
       "jobs:",
       "  changes:",
       "    steps:",
       "      - run: |",
-      "          if [ \"$event\" = \"schedule\" ]; then",
+      '          if [ "$event" = "schedule" ]; then',
       "            frontend=false",
       "            harness=true",
       "            rust=false",
@@ -125,12 +129,12 @@ export function writeBaseRepo(root, csp) {
       "    steps:",
       "      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0",
       "        with:",
-      "          node-version: \"24.17.0\"",
+      '          node-version: "24.17.0"',
       "          package-manager-cache: false",
       "      - run: |",
-      "          RELEASE_TAG=\"$RELEASE_TAG\"",
-      "          DISPATCH_TAG=\"$DISPATCH_TAG\"",
-      "          npm run tauri:verify:macos:latest -- --tag \"$RELEASE_TAG\" --require-supply-chain",
+      '          RELEASE_TAG="$RELEASE_TAG"',
+      '          DISPATCH_TAG="$DISPATCH_TAG"',
+      '          npm run tauri:verify:macos:latest -- --tag "$RELEASE_TAG" --require-supply-chain',
     ].join("\n"),
   );
   writeFileSync(
@@ -151,8 +155,8 @@ export function writeBaseRepo(root, csp) {
     [
       "version: 2",
       "updates:",
-      "  - package-ecosystem: \"npm\"",
-      "    directory: \"/\"",
+      '  - package-ecosystem: "npm"',
+      '    directory: "/"',
       "    open-pull-requests-limit: 5",
       "    cooldown:",
       "      semver-major-days: 7",
@@ -160,21 +164,21 @@ export function writeBaseRepo(root, csp) {
       "      semver-patch-days: 1",
       "    groups:",
       "      npm-production:",
-      "        dependency-type: \"production\"",
+      '        dependency-type: "production"',
       "        patterns:",
-      "          - \"*\"",
+      '          - "*"',
       "        update-types:",
-      "          - \"minor\"",
-      "          - \"patch\"",
+      '          - "minor"',
+      '          - "patch"',
       "      npm-development:",
-      "        dependency-type: \"development\"",
+      '        dependency-type: "development"',
       "        patterns:",
-      "          - \"*\"",
+      '          - "*"',
       "        update-types:",
-      "          - \"minor\"",
-      "          - \"patch\"",
-      "  - package-ecosystem: \"cargo\"",
-      "    directory: \"/src-tauri\"",
+      '          - "minor"',
+      '          - "patch"',
+      '  - package-ecosystem: "cargo"',
+      '    directory: "/src-tauri"',
       "    open-pull-requests-limit: 5",
       "    cooldown:",
       "      semver-major-days: 7",
@@ -183,12 +187,12 @@ export function writeBaseRepo(root, csp) {
       "    groups:",
       "      cargo-minor-patch:",
       "        patterns:",
-      "          - \"*\"",
+      '          - "*"',
       "        update-types:",
-      "          - \"minor\"",
-      "          - \"patch\"",
-      "  - package-ecosystem: \"github-actions\"",
-      "    directory: \"/\"",
+      '          - "minor"',
+      '          - "patch"',
+      '  - package-ecosystem: "github-actions"',
+      '    directory: "/"',
       "    open-pull-requests-limit: 3",
       "    cooldown:",
       "      semver-major-days: 7",
@@ -197,10 +201,10 @@ export function writeBaseRepo(root, csp) {
       "    groups:",
       "      actions-minor-patch:",
       "        patterns:",
-      "          - \"*\"",
+      '          - "*"',
       "        update-types:",
-      "          - \"minor\"",
-      "          - \"patch\"",
+      '          - "minor"',
+      '          - "patch"',
     ].join("\n"),
   );
   writeFileSync(
@@ -256,7 +260,7 @@ export function writeBaseRepo(root, csp) {
     "fn javascript_string_literal(value: &str) { serde_json::to_string(value); }\nfn dropdown_select_script(selector: &str, value: &str) {\n  document.querySelector({selector});\n  select.value = {value};\n}\n",
   );
   writeFileSync(
-    join(root, "src/pages/SettingsConfig.ts"),
+    join(root, "src/features/settings/config/SettingsConfig.ts"),
     [
       "export interface CredentialStatusValue {",
       "  exists: boolean;",
@@ -264,8 +268,8 @@ export function writeBaseRepo(root, csp) {
       "  state: CredentialStatusState;",
       "}",
       "export type CredentialStatusState = 'empty' | 'expected' | 'saved' | 'needs_attention';",
-      "credentialExists(credentialStatus, \"telegram_bot_token\");",
-      "credentialExists(credentialStatus, \"usajobs_api_key\");",
+      'credentialExists(credentialStatus, "telegram_bot_token");',
+      'credentialExists(credentialStatus, "usajobs_api_key");',
     ].join("\n"),
   );
   const aiGatewayBoundarySource = [
@@ -277,15 +281,21 @@ export function writeBaseRepo(root, csp) {
     "  }",
     "}",
   ].join("\n");
-  for (const path of ["aiGateway.ts", "aiGatewayPayloadPolicy.ts", "aiGatewayPromptInspection.ts", "aiGatewayTypes.ts", "aiGatewayValidation.ts"]) {
+  for (const path of [
+    "aiGateway.ts",
+    "aiGatewayPayloadPolicy.ts",
+    "aiGatewayPromptInspection.ts",
+    "aiGatewayTypes.ts",
+    "aiGatewayValidation.ts",
+  ]) {
     writeFileSync(join(root, "src/services", path), aiGatewayBoundarySource);
   }
   writeFileSync(
     join(root, "src/features/resumes/builder/ResumeBuilderPreviewStep.tsx"),
     [
       "<iframe",
-      "  sandbox=\"\"",
-      "  referrerPolicy=\"no-referrer\"",
+      '  sandbox=""',
+      '  referrerPolicy="no-referrer"',
       "  srcDoc={sanitizeResumeHtmlDocument(previewHtml)}",
       "/>",
     ].join("\n"),
@@ -295,18 +305,30 @@ export function writeBaseRepo(root, csp) {
     [
       "function openResumePrintDialog(html) {",
       "  const iframe = document.createElement('iframe');",
-      "  iframe.setAttribute(\"sandbox\", \"allow-modals\");",
-      "  iframe.setAttribute(\"referrerpolicy\", \"no-referrer\");",
+      '  iframe.setAttribute("sandbox", "allow-modals");',
+      '  iframe.setAttribute("referrerpolicy", "no-referrer");',
       "  const safeHtml = sanitizeResumeHtmlDocument(html);",
       "  iframe.srcdoc = safeHtml;",
       "}",
     ].join("\n"),
   );
-  writeFileSync(join(root, "src/pages/SettingsNotificationsSection.tsx"), "import { credentialExists } from './SettingsConfig';\n");
-  writeFileSync(join(root, "src/pages/SettingsJobSourcesSection.tsx"), "import { credentialExists } from './SettingsConfig';\n");
-  writeFileSync(join(root, "src/pages/Settings.tsx"), "export function Settings() {}\n");
   writeFileSync(
-    join(root, "src/pages/useSettingsCredentials.ts"),
+    join(
+      root,
+      "src/features/settings/notifications/SettingsNotificationsSection.tsx",
+    ),
+    "import { credentialExists } from './SettingsConfig';\n",
+  );
+  writeFileSync(
+    join(root, "src/features/settings/sources/SettingsJobSourcesSection.tsx"),
+    "import { credentialExists } from './SettingsConfig';\n",
+  );
+  writeFileSync(
+    join(root, "src/features/settings/SettingsPage.tsx"),
+    "export function Settings() {}\n",
+  );
+  writeFileSync(
+    join(root, "src/features/settings/credentials/useSettingsCredentials.ts"),
     "export function useSettingsCredentials() { return {}; }\n",
   );
   writeFileSync(
@@ -320,7 +342,10 @@ export function writeSelfOnlyBaseRepo(root) {
 }
 
 export function mkdtempRoot(prefix) {
-  const root = join(tmpdir(), `${prefix}${process.pid}-${Math.random().toString(16).slice(2)}`);
+  const root = join(
+    tmpdir(),
+    `${prefix}${process.pid}-${Math.random().toString(16).slice(2)}`,
+  );
   mkdirSync(root, { recursive: true });
   return root;
 }
@@ -333,27 +358,27 @@ export function readBaseReleaseWorkflowWithout(removedLine) {
     "    steps:",
     "      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0",
     "        with:",
-    "          node-version: \"24.17.0\"",
+    '          node-version: "24.17.0"',
     "          package-manager-cache: false",
     "      - run: |",
-    "          if [[ ! \"$version\" =~ ^[0-9]+\\.[0-9]+\\.[0-9]+$ ]]; then",
+    '          if [[ ! "$version" =~ ^[0-9]+\\.[0-9]+\\.[0-9]+$ ]]; then',
     "            printf 'Release version must be an exact stable semver (x.y.z), found: %s\\n' \"$version\"",
     "            exit 1",
     "          fi",
-    "          expected_ref=\"refs/tags/v${version}\"",
-    "          if [ \"${GITHUB_REF:-}\" != \"$expected_ref\" ]; then",
-    "            printf 'Manual release dispatch must run from %s. Select the existing release tag as the workflow ref. Found: %s\\n' \"$expected_ref\" \"${GITHUB_REF:-<unset>}\"",
+    '          expected_ref="refs/tags/v${version}"',
+    '          if [ "${GITHUB_REF:-}" != "$expected_ref" ]; then',
+    '            printf \'Manual release dispatch must run from %s. Select the existing release tag as the workflow ref. Found: %s\\n\' "$expected_ref" "${GITHUB_REF:-<unset>}"',
     "            exit 1",
     "          fi",
-    "      - run: npm run release:check-version -- \"$RELEASE_VERSION\"",
+    '      - run: npm run release:check-version -- "$RELEASE_VERSION"',
     "  preflight-harness:",
     "    needs: release-inputs",
     "    steps:",
     "      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0",
     "        with:",
-    "          node-version: \"24.17.0\"",
+    '          node-version: "24.17.0"',
     "          package-manager-cache: false",
-    "      - run: npm run release:readiness -- --version \"$RELEASE_VERSION\"",
+    '      - run: npm run release:readiness -- --version "$RELEASE_VERSION"',
     "      - run: npm run harness:check",
     "      - run: npm run release:check-deps",
     "      - run: npm run test:scripts",
@@ -363,7 +388,7 @@ export function readBaseReleaseWorkflowWithout(removedLine) {
     "    steps:",
     "      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0",
     "        with:",
-    "          node-version: \"24.17.0\"",
+    '          node-version: "24.17.0"',
     "          package-manager-cache: false",
     "      - run: npm run lint",
     "      - run: npm test -- --run",
@@ -379,7 +404,7 @@ export function readBaseReleaseWorkflowWithout(removedLine) {
     "    steps:",
     "      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0",
     "        with:",
-    "          node-version: \"24.17.0\"",
+    '          node-version: "24.17.0"',
     "          package-manager-cache: false",
     "      - run: npm run lint:security\n      - uses: zizmorcore/zizmor-action@5f14fd08f7cf1cb1609c1e344975f152c7ee938d # v0.5.6\n        with:\n          advanced-security: false\n          inputs: .github/workflows\n      - run: npm audit --audit-level=moderate",
     "  preflight-security-rust:",
@@ -399,8 +424,8 @@ export function readBaseReleaseWorkflowWithout(removedLine) {
     "      name: release",
     "    steps:",
     "      - run: |",
-    "          gh release edit \"$RELEASE_TAG\" --notes-file \"$notes_file\"",
-    "          gh release create \"$RELEASE_TAG\" --notes-file \"$notes_file\"",
+    '          gh release edit "$RELEASE_TAG" --notes-file "$notes_file"',
+    '          gh release create "$RELEASE_TAG" --notes-file "$notes_file"',
     "  build-release:",
     "    environment:",
     "      name: release",
@@ -413,10 +438,10 @@ export function readBaseReleaseWorkflowWithout(removedLine) {
     "      - run: file=1:5.45-3build1 libfuse2t64=2.9.9-8.1build1 squashfs-tools=1:4.6.1-1build1",
     "      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0",
     "        with:",
-    "          node-version: \"24.17.0\"",
+    '          node-version: "24.17.0"',
     "          package-manager-cache: false",
     "      - name: Build Linux Tauri app",
-    "          APPIMAGE_EXTRACT_AND_RUN: \"1\"",
+    '          APPIMAGE_EXTRACT_AND_RUN: "1"',
     "        run: node scripts/build-linux-appimage.mjs --target x86_64-unknown-linux-gnu",
     "      - name: Configure Windows signing",
     "        run: |",
@@ -430,18 +455,18 @@ export function readBaseReleaseWorkflowWithout(removedLine) {
     "      - name: Clean Windows signing material",
     "        run: |",
     "          Remove-Item -LiteralPath $certificate.PSPath -DeleteKey",
-    "          Remove-Item -LiteralPath \"src-tauri/tauri.windows.conf.json\" -Force -ErrorAction SilentlyContinue",
+    '          Remove-Item -LiteralPath "src-tauri/tauri.windows.conf.json" -Force -ErrorAction SilentlyContinue',
     "      - run: |",
-    "          keychain_password=\"$(openssl rand -hex 24)\"",
+    '          keychain_password="$(openssl rand -hex 24)"',
     "          printf '::add-mask::%s\\n' \"$keychain_password\"",
     "          JOBSENTINEL_MACOS_NO_ACCOUNT=true",
     "          labeled_name=JobSentinel_1.2.3_no-account_universal.dmg",
     "          npm run tauri:verify:macos -- --launch-smoke --install-smoke --require-checksum --require-gatekeeper --expected-bundle-id com.jobsentinel.main --expected-product-name JobSentinel --expected-version 1.2.3 --expected-icon-file icon.icns --expected-minimum-system-version 13.0",
     "      - name: Clean up macOS signing material",
     "        run: |",
-    "          security delete-keychain \"$RUNNER_TEMP/jobsentinel-signing.keychain-db\" >/dev/null 2>&1 || :",
-    "          rm -f \"$RUNNER_TEMP/jobsentinel-certificate.p12\"",
-    "          rm -f \"$RUNNER_TEMP\"/AuthKey_*.p8",
+    '          security delete-keychain "$RUNNER_TEMP/jobsentinel-signing.keychain-db" >/dev/null 2>&1 || :',
+    '          rm -f "$RUNNER_TEMP/jobsentinel-certificate.p12"',
+    '          rm -f "$RUNNER_TEMP"/AuthKey_*.p8',
     "      - run: |",
     "          npm run release:sbom -- --require-artifacts --checksums-out release-assets/attestation-subjects.sha256",
     "      - uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26 # v4.1.0",
@@ -451,7 +476,7 @@ export function readBaseReleaseWorkflowWithout(removedLine) {
     "        with:",
     "          subject-path: |\n            release-assets/public/*.dmg\n            release-assets/public/*.msi\n            release-assets/public/*.exe\n            release-assets/public/*.AppImage\n            release-assets/public/*.deb",
     "          sbom-path: release-assets/public/JobSentinel-1.2.3-macos.sbom.spdx.json",
-    "      - run: gh release upload \"$RELEASE_TAG\" release-assets/public/* --clobber",
+    '      - run: gh release upload "$RELEASE_TAG" release-assets/public/* --clobber',
   ]
     .join("\n")
     .replace(removedLine, "");

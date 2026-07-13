@@ -1,8 +1,12 @@
 export { readFileSync } from "node:fs";
 export { join } from "node:path";
 
-export const frontendErrorReportingPaths = new Set(["src/utils/errorReporting.ts"]);
-export const frontendErrorHelperDebugPaths = new Set(["src/utils/errorHelpers.ts"]);
+export const frontendErrorReportingPaths = new Set([
+  "src/utils/errorReporting.ts",
+]);
+export const frontendErrorHelperDebugPaths = new Set([
+  "src/utils/errorHelpers.ts",
+]);
 export const frontendErrorUtilsPaths = new Set(["src/utils/errorUtils.ts"]);
 export const frontendToastSupportDetailPaths = new Set(["src/utils/api.ts"]);
 export const frontendDirectErrorLoggingPaths = new Set([
@@ -53,21 +57,36 @@ export const rawLocalPathLoggingPaths = new Set([
   "src-tauri/src/platforms/windows/mod.rs",
 ]);
 
-export const rawBackupPathErrorPaths = new Set(["src-tauri/src/core/db/integrity/backups.rs"]);
+export const rawBackupPathErrorPaths = new Set([
+  "src-tauri/src/core/db/integrity/backups.rs",
+]);
 
 export const mlRawLocalPathExposurePaths = new Set([
   "src-tauri/src/commands/ml.rs",
   "src-tauri/src/core/ml/model.rs",
 ]);
 
-export const mlErrorDisplayPrivacyPaths = new Set(["src-tauri/src/core/ml/mod.rs"]);
+export const mlErrorDisplayPrivacyPaths = new Set([
+  "src-tauri/src/core/ml/mod.rs",
+]);
 
-export const mlRawLocalPathDocPaths = new Set(["docs/developer/LOCAL_SEMANTIC_MATCHING.md", "docs/developer/LOCAL_SEMANTIC_MATCHING_QUICKSTART.md"]);
+export const mlRawLocalPathDocPaths = new Set([
+  "docs/developer/LOCAL_SEMANTIC_MATCHING.md",
+  "docs/developer/LOCAL_SEMANTIC_MATCHING_QUICKSTART.md",
+]);
 
-export const jobsWithGptPrivacyPaths = new Set(["src-tauri/src/core/scrapers/jobswithgpt.rs"]);
-export const linkedInPrivacyPaths = new Set(["src-tauri/src/core/scrapers/linkedin.rs"]);
-export const linkedInAuthPrivacyPaths = new Set(["src-tauri/src/commands/linkedin_auth.rs"]);
-export const emailCommandPrivacyPaths = new Set(["src-tauri/src/commands/config.rs"]);
+export const jobsWithGptPrivacyPaths = new Set([
+  "src-tauri/src/core/scrapers/jobswithgpt.rs",
+]);
+export const linkedInPrivacyPaths = new Set([
+  "src-tauri/src/core/scrapers/linkedin.rs",
+]);
+export const linkedInAuthPrivacyPaths = new Set([
+  "src-tauri/src/commands/linkedin_auth.rs",
+]);
+export const emailCommandPrivacyPaths = new Set([
+  "src-tauri/src/commands/config.rs",
+]);
 
 export const credentialCommandPrivacyPaths = new Set([
   "src-tauri/src/commands/credentials.rs",
@@ -82,8 +101,8 @@ export const credentialSecretReadIpcPaths = new Set([
   "src-tauri/src/commands/credentials.rs",
   "src-tauri/src/commands/mod.rs",
   "src-tauri/src/main.rs",
-  "src/pages/SettingsJobSourcesSection.tsx",
-  "src/pages/Settings.tsx",
+  "src/features/settings/sources/SettingsJobSourcesSection.tsx",
+  "src/features/settings/SettingsPage.tsx",
   "src/mocks/handlers.ts",
   "docs/security/KEYRING.md",
   "docs/features/saved-secrets.md",
@@ -92,9 +111,15 @@ export const credentialSecretReadIpcPaths = new Set([
 
 export const configExportPrivacyPaths = new Set(["src/utils/export.ts"]);
 
-export const feedbackSanitizerPaths = new Set(["src-tauri/src/commands/feedback/sanitizer.rs"]);
-export const structuredDebugLogPaths = new Set(["src-tauri/src/commands/feedback/debug_log.rs"]);
-export const feedbackCommandPaths = new Set(["src-tauri/src/commands/feedback/mod.rs"]);
+export const feedbackSanitizerPaths = new Set([
+  "src-tauri/src/commands/feedback/sanitizer.rs",
+]);
+export const structuredDebugLogPaths = new Set([
+  "src-tauri/src/commands/feedback/debug_log.rs",
+]);
+export const feedbackCommandPaths = new Set([
+  "src-tauri/src/commands/feedback/mod.rs",
+]);
 
 export const telegramNotificationPrivacyPaths = new Set([
   "src-tauri/src/core/notify/telegram.rs",
@@ -120,9 +145,15 @@ export const externalAlertMatchReasonPaths = new Set([
   "src-tauri/src/core/notify/telegram.rs",
 ]);
 
-export const notificationServicePrivacyPaths = new Set(["src-tauri/src/core/notify/mod.rs"]);
-export const frontendDesktopNotificationPrivacyPaths = new Set(["src/utils/notifications.ts"]);
-export const healthSmokePrivacyPaths = new Set(["src-tauri/src/core/health/smoke_tests.rs"]);
+export const notificationServicePrivacyPaths = new Set([
+  "src-tauri/src/core/notify/mod.rs",
+]);
+export const frontendDesktopNotificationPrivacyPaths = new Set([
+  "src/utils/notifications.ts",
+]);
+export const healthSmokePrivacyPaths = new Set([
+  "src-tauri/src/core/health/smoke_tests.rs",
+]);
 
 export const rawUrlLoggingPaths = new Set([
   "src-tauri/src/commands/linkedin_auth.rs",
@@ -136,9 +167,15 @@ export const rawUrlErrorDisplayPaths = new Set([
   "src-tauri/src/core/scrapers/error.rs",
 ]);
 
-export const rawPathOrQueryErrorDisplayPaths = new Set(["src-tauri/src/core/db/error.rs"]);
-export const rawResumeParserPathDisplayPaths = new Set(["src-tauri/src/core/resume/parser.rs"]);
-export const rawResumeNameLoggingPaths = new Set(["src-tauri/src/commands/resume.rs"]);
+export const rawPathOrQueryErrorDisplayPaths = new Set([
+  "src-tauri/src/core/db/error.rs",
+]);
+export const rawResumeParserPathDisplayPaths = new Set([
+  "src-tauri/src/core/resume/parser.rs",
+]);
+export const rawResumeNameLoggingPaths = new Set([
+  "src-tauri/src/commands/resume.rs",
+]);
 
 export const resumeCommandDtoPrivacyPaths = new Set([
   "src-tauri/src/commands/resume.rs",
@@ -149,13 +186,19 @@ export const resumeCommandDtoPrivacyPaths = new Set([
   "docs/developer/ARCHITECTURE.md",
 ]);
 
-export const resumeCommandErrorPrivacyPaths = new Set(["src-tauri/src/commands/resume.rs"]);
-export const atsCommandErrorPrivacyPaths = new Set(["src-tauri/src/commands/ats.rs"]);
+export const resumeCommandErrorPrivacyPaths = new Set([
+  "src-tauri/src/commands/resume.rs",
+]);
+export const atsCommandErrorPrivacyPaths = new Set([
+  "src-tauri/src/commands/ats.rs",
+]);
 export const atsTimelineEventPrivacyPaths = new Set([
   "src-tauri/src/core/ats/tracker.rs",
   "src-tauri/src/core/ats/reminders.rs",
 ]);
-export const automationCommandErrorPrivacyPaths = new Set(["src-tauri/src/commands/automation.rs"]);
+export const automationCommandErrorPrivacyPaths = new Set([
+  "src-tauri/src/commands/automation.rs",
+]);
 
 export const sensitiveCommandErrorPrivacyPaths = new Set([
   "src-tauri/src/commands/ml.rs",
@@ -182,10 +225,18 @@ export const configValidationPrivacyPaths = new Set([
   "src-tauri/src/core/config/validation_error.rs",
 ]);
 
-export const rawJobImportLoggingPaths = new Set(["src-tauri/src/commands/import.rs"]);
-export const importCommandPrivacyPaths = new Set(["src-tauri/src/commands/import.rs"]);
-export const rawImportRedirectDisplayPaths = new Set(["src-tauri/src/core/import/types.rs"]);
-export const urlSecurityPrivacyPaths = new Set(["src-tauri/src/core/url_security.rs"]);
+export const rawJobImportLoggingPaths = new Set([
+  "src-tauri/src/commands/import.rs",
+]);
+export const importCommandPrivacyPaths = new Set([
+  "src-tauri/src/commands/import.rs",
+]);
+export const rawImportRedirectDisplayPaths = new Set([
+  "src-tauri/src/core/import/types.rs",
+]);
+export const urlSecurityPrivacyPaths = new Set([
+  "src-tauri/src/core/url_security.rs",
+]);
 
 export const importBookmarkletCommandPrivacyPaths = new Set([
   "src-tauri/src/commands/import.rs",
@@ -195,8 +246,12 @@ export const importBookmarkletCommandPrivacyPaths = new Set([
   "src-tauri/src/core/bookmarklet/server.rs",
 ]);
 
-export const rawBookmarkletLoggingPaths = new Set(["src-tauri/src/core/bookmarklet/server.rs"]);
-export const bookmarkletGeneratorPaths = new Set(["src/components/BookmarkletGenerator.tsx"]);
+export const rawBookmarkletLoggingPaths = new Set([
+  "src-tauri/src/core/bookmarklet/server.rs",
+]);
+export const bookmarkletGeneratorPaths = new Set([
+  "src/components/BookmarkletGenerator.tsx",
+]);
 
 export const userDataPrivacyLoggingPaths = new Set([
   "src-tauri/src/commands/user_data.rs",
@@ -217,7 +272,9 @@ export const schedulerScoringPrivacyPaths = new Set([
   "src-tauri/src/core/scoring/db.rs",
 ]);
 
-export const scoringCachePrivacyPaths = new Set(["src-tauri/src/core/scoring/cache.rs"]);
+export const scoringCachePrivacyPaths = new Set([
+  "src-tauri/src/core/scoring/cache.rs",
+]);
 
 export const residualCorePrivacyPaths = new Set([
   "src-tauri/src/core/automation/browser/manager.rs",
@@ -248,17 +305,27 @@ export const automationBrowserErrorPrivacyPaths = new Set([
   "src-tauri/src/core/automation/browser/page.rs",
 ]);
 
-export const screeningAnswerCommandLoggingPaths = new Set(["src-tauri/src/commands/automation.rs"]);
-export const rawNotificationJobTitleLoggingPaths = new Set(["src-tauri/src/core/notify/mod.rs"]);
+export const screeningAnswerCommandLoggingPaths = new Set([
+  "src-tauri/src/commands/automation.rs",
+]);
+export const rawNotificationJobTitleLoggingPaths = new Set([
+  "src-tauri/src/core/notify/mod.rs",
+]);
 
 export function stripRustTestModules(text) {
   let output = text;
 
   output = output.replace(/#\[cfg\(test\)\]\s*mod\s+tests\s*\{[\s\S]*$/m, "");
 
-  output = output.replace(/#\[cfg\(test\)\]\s*[\s\S]*?#\[test\][\s\S]*?\n\s*\}/g, "");
+  output = output.replace(
+    /#\[cfg\(test\)\]\s*[\s\S]*?#\[test\][\s\S]*?\n\s*\}/g,
+    "",
+  );
 
-  output = output.replace(/#\[test\]\s*fn\s+\w+\s*\([^)]*\)\s*\{[\s\S]*?\n\s*\}/g, "");
+  output = output.replace(
+    /#\[test\]\s*fn\s+\w+\s*\([^)]*\)\s*\{[\s\S]*?\n\s*\}/g,
+    "",
+  );
 
   output = output.replace(
     /#\[tokio::test\]\s*async\s+fn\s+\w+\s*\([^)]*\)\s*\{[\s\S]*?\n\s*\}/g,

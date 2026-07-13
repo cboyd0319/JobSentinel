@@ -22,14 +22,18 @@ const storageJsonParserPaths = new Set([
   "src/features/resumes/shared/resumeJobContext.ts",
 ]);
 
-const staticCompanyFallbackPaths = new Set(["src/components/CompanyResearchPanel.tsx"]);
-
-const settingsCredentialPaths = new Set([
-  "src/pages/SettingsJobSourcesSection.tsx",
-  "src/pages/Settings.tsx",
+const staticCompanyFallbackPaths = new Set([
+  "src/components/CompanyResearchPanel.tsx",
 ]);
 
-const resumeImportPaths = new Set(["src/features/resumes/library/ResumeLibraryPage.tsx"]);
+const settingsCredentialPaths = new Set([
+  "src/features/settings/sources/SettingsJobSourcesSection.tsx",
+  "src/features/settings/SettingsPage.tsx",
+]);
+
+const resumeImportPaths = new Set([
+  "src/features/resumes/library/ResumeLibraryPage.tsx",
+]);
 
 const frontendStatusEmojiPaths = new Set([
   "src/features/applications/AnalyticsPanel.tsx",
@@ -38,7 +42,9 @@ const frontendStatusEmojiPaths = new Set([
   "src/features/applications/ApplicationsPage.tsx",
 ]);
 
-const rawSalaryCommandLoggingPaths = new Set(["src-tauri/src/commands/salary.rs"]);
+const rawSalaryCommandLoggingPaths = new Set([
+  "src-tauri/src/commands/salary.rs",
+]);
 
 const backendScoringReasonPaths = new Set([
   "src-tauri/src/core/resume/matcher.rs",
@@ -167,7 +173,9 @@ export function hasUnverifiedPreMigrationBackup(root, path) {
     return false;
   }
 
-  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
+  const productionText = stripRustTestModules(
+    readFileSync(join(root, path), "utf8"),
+  );
   return (
     /VACUUM INTO/.test(productionText) &&
     (!/verify_pre_migration_backup/.test(productionText) ||
@@ -180,7 +188,9 @@ export function hasOpaqueCommandUnitError(root, path) {
     return false;
   }
 
-  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
+  const productionText = stripRustTestModules(
+    readFileSync(join(root, path), "utf8"),
+  );
   return /#\[tauri::command\][\s\S]{0,320}->\s*Result\s*<[^>{;]*(?:<[^>]*>)?[^>{;]*,\s*\(\s*\)>/.test(
     productionText,
   );
@@ -202,7 +212,9 @@ export function hasUnsafeScoreReasonJsonParsing(root, path) {
   }
 
   return (
-    /const\s+reasons:\s*string\[\]\s*=\s*JSON\.parse\(reasonsJson\)/.test(text) ||
+    /const\s+reasons:\s*string\[\]\s*=\s*JSON\.parse\(reasonsJson\)/.test(
+      text,
+    ) ||
     !/function\s+parseReasonList/.test(text) ||
     !/Array\.isArray\(parsed\)/.test(text) ||
     !/typeof reason === "string"/.test(text)
@@ -331,7 +343,9 @@ export function hasProductionExplicitAnySuppression(root, path) {
   }
 
   const text = readFileSync(join(root, path), "utf8");
-  return /eslint-disable(?:-next-line|-line)?\s+@typescript-eslint\/no-explicit-any/.test(text);
+  return /eslint-disable(?:-next-line|-line)?\s+@typescript-eslint\/no-explicit-any/.test(
+    text,
+  );
 }
 
 export function hasProductionTypeErrorSuppression(root, path) {
@@ -349,7 +363,9 @@ export function hasProductionHookDependencySuppression(root, path) {
   }
 
   const text = readFileSync(join(root, path), "utf8");
-  return /eslint-disable(?:-next-line|-line)?\s+react-hooks\/exhaustive-deps/.test(text);
+  return /eslint-disable(?:-next-line|-line)?\s+react-hooks\/exhaustive-deps/.test(
+    text,
+  );
 }
 
 export function hasProductionReactRefreshSuppression(root, path) {
@@ -358,5 +374,7 @@ export function hasProductionReactRefreshSuppression(root, path) {
   }
 
   const text = readFileSync(join(root, path), "utf8");
-  return /eslint-disable(?:-next-line|-line)?\s+react-refresh\/only-export-components/.test(text);
+  return /eslint-disable(?:-next-line|-line)?\s+react-refresh\/only-export-components/.test(
+    text,
+  );
 }

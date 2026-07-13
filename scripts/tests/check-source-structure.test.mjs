@@ -41,8 +41,15 @@ test("source-structure checks detect unreferenced settings helpers", () => {
       "src/components/settings/FilterListInput.tsx",
       "export function FilterListInput() { return null; }\n",
     );
-    writeFixtureFile(root, "src/pages/Settings.tsx", "export function Settings() { return null; }\n");
-    track(root, ["src/components/settings/FilterListInput.tsx", "src/pages/Settings.tsx"]);
+    writeFixtureFile(
+      root,
+      "src/features/settings/SettingsPage.tsx",
+      "export function Settings() { return null; }\n",
+    );
+    track(root, [
+      "src/components/settings/FilterListInput.tsx",
+      "src/features/settings/SettingsPage.tsx",
+    ]);
 
     assert.equal(
       hasUnreferencedSettingsHelperComponent(
@@ -56,10 +63,26 @@ test("source-structure checks detect unreferenced settings helpers", () => {
 
 test("source-structure checks detect unreferenced hook and helper modules", () => {
   withGitFixture((root) => {
-    writeFixtureFile(root, "src/hooks/useModal.ts", "export function useModal() {}\n");
-    writeFixtureFile(root, "src/hooks/index.ts", "export { useModal } from './useModal';\n");
-    writeFixtureFile(root, "src/utils/cacheStrategies.ts", "export const cacheStrategies = {};\n");
-    writeFixtureFile(root, "src/features/dashboard/DashboardPage.tsx", "export function Dashboard() { return null; }\n");
+    writeFixtureFile(
+      root,
+      "src/hooks/useModal.ts",
+      "export function useModal() {}\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/hooks/index.ts",
+      "export { useModal } from './useModal';\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/utils/cacheStrategies.ts",
+      "export const cacheStrategies = {};\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/features/dashboard/DashboardPage.tsx",
+      "export function Dashboard() { return null; }\n",
+    );
     track(root, [
       "src/hooks/useModal.ts",
       "src/hooks/index.ts",
@@ -67,29 +90,63 @@ test("source-structure checks detect unreferenced hook and helper modules", () =
       "src/features/dashboard/DashboardPage.tsx",
     ]);
 
-    assert.equal(hasUnreferencedHookModule(root, "src/hooks/useModal.ts"), true);
-    assert.equal(hasUnreferencedSourceHelper(root, "src/utils/cacheStrategies.ts"), true);
+    assert.equal(
+      hasUnreferencedHookModule(root, "src/hooks/useModal.ts"),
+      true,
+    );
+    assert.equal(
+      hasUnreferencedSourceHelper(root, "src/utils/cacheStrategies.ts"),
+      true,
+    );
   });
 });
 
 test("source-structure checks honor active barrel imports", () => {
   withGitFixture((root) => {
-    writeFixtureFile(root, "src/components/index.ts", "export const Button = null;\n");
-    writeFixtureFile(root, "src/features/dashboard/DashboardPage.tsx", "import { Button } from '@/components';\n");
-    track(root, ["src/components/index.ts", "src/features/dashboard/DashboardPage.tsx"]);
+    writeFixtureFile(
+      root,
+      "src/components/index.ts",
+      "export const Button = null;\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/features/dashboard/DashboardPage.tsx",
+      "import { Button } from '@/components';\n",
+    );
+    track(root, [
+      "src/components/index.ts",
+      "src/features/dashboard/DashboardPage.tsx",
+    ]);
 
-    assert.equal(hasUnreferencedComponentsBarrel(root, "src/components/index.ts"), false);
+    assert.equal(
+      hasUnreferencedComponentsBarrel(root, "src/components/index.ts"),
+      false,
+    );
   });
 });
 
 test("source-structure checks detect unreferenced local barrels", () => {
   withGitFixture((root) => {
-    writeFixtureFile(root, "src/features/application-assist/index.ts", "export const Assist = null;\n");
-    writeFixtureFile(root, "src/features/dashboard/DashboardPage.tsx", "export function Dashboard() { return null; }\n");
-    track(root, ["src/features/application-assist/index.ts", "src/features/dashboard/DashboardPage.tsx"]);
+    writeFixtureFile(
+      root,
+      "src/features/application-assist/index.ts",
+      "export const Assist = null;\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/features/dashboard/DashboardPage.tsx",
+      "export function Dashboard() { return null; }\n",
+    );
+    track(root, [
+      "src/features/application-assist/index.ts",
+      "src/features/dashboard/DashboardPage.tsx",
+    ]);
 
     assert.equal(
-      hasUnreferencedBarrelModule(root, "src/features/application-assist/index.ts"),
+      hasUnreferencedBarrelModule(
+        root,
+        "src/features/application-assist/index.ts",
+      ),
       true,
     );
   });
@@ -99,7 +156,7 @@ test("source-structure checks detect stale notification sync wrappers", () => {
   withGitFixture((root) => {
     writeFixtureFile(
       root,
-      "src/utils/notificationPreferences.ts",
+      "src/features/settings/notifications/notificationPreferencesStore.ts",
       [
         "export function loadNotificationPreferences(): NotificationPreferences {",
         "  throw new Error('deprecated');",
@@ -109,7 +166,10 @@ test("source-structure checks detect stale notification sync wrappers", () => {
     );
 
     assert.equal(
-      hasStaleNotificationPreferenceSyncWrapper(root, "src/utils/notificationPreferences.ts"),
+      hasStaleNotificationPreferenceSyncWrapper(
+        root,
+        "src/features/settings/notifications/notificationPreferencesStore.ts",
+      ),
       true,
     );
   });

@@ -5,21 +5,16 @@ import { dirname, join, normalize, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { checkFrontendBoundaries } from "./check-frontend-boundaries.mjs";
 import { checkExternalAiGateway } from "./check-external-ai-gateway.mjs";
-import {
-  checkSecuritySensors,
-  formatSecuritySensorSummary,
-} from "./check-security-sensors.mjs";
+import { checkSecuritySensors, formatSecuritySensorSummary } from "./check-security-sensors.mjs";
 import { checkAgentSkills } from "./check-agent-skills.mjs";
 import { collectDependencyPinViolations } from "./check-dependency-pins.mjs";
 import { checkRepoBloat } from "./check-repo-bloat.mjs";
 import { checkDuplication } from "./check-duplication.mjs";
 import { checkDependencyRationale } from "./check-dependency-rationale.mjs";
-import {
-  evaluateMacosReadiness,
-  readReadmeMacosReadinessPercent,
-} from "./check-macos-readiness.mjs";
+import { evaluateMacosReadiness, readReadmeMacosReadinessPercent } from "./check-macos-readiness.mjs";
 import { checkTauriInvokes } from "./check-tauri-invokes.mjs";
 import { checkTestQuality } from "./check-test-quality.mjs";
+import { collectLanguageStyleViolations } from "./harness/checks/language-style.mjs";
 import { collectProductionExternalAiRequestFeatureIds } from "./harness-external-ai-features.mjs";
 import { summarizeHarnessScore } from "./harness-score.mjs";
 
@@ -46,26 +41,15 @@ const manifestSnippets = harnessManifest.requiredHarnessSnippets;
 const manifestReadmeReferences = harnessManifest.readmeReferences ?? {};
 const manifestPublicWiki = harnessManifest.publicWiki ?? {};
 
-const requiredFiles = Array.isArray(harnessManifest.requiredFiles)
-  ? harnessManifest.requiredFiles
-  : [];
+const requiredFiles = Array.isArray(harnessManifest.requiredFiles) ? harnessManifest.requiredFiles : [];
 const requiredHarnessSnippets =
-  typeof manifestSnippets === "object" &&
-  manifestSnippets !== null &&
-  !Array.isArray(manifestSnippets)
-    ? manifestSnippets
-    : {};
+  typeof manifestSnippets === "object" && manifestSnippets !== null && !Array.isArray(manifestSnippets) ? manifestSnippets : {};
 const readmeReferenceHeading = manifestReadmeReferences.heading ?? "";
 const readmeReferencePath = manifestReadmeReferences.path ?? "";
 const readmeReferenceIndexHeading = manifestReadmeReferences.indexHeading ?? "";
-const readmeExcludedTestUrlExplanation =
-  manifestReadmeReferences.excludedTestUrlExplanation ?? "";
-const requiredReadmeReferenceUrls = Array.isArray(manifestReadmeReferences.requiredUrls)
-  ? manifestReadmeReferences.requiredUrls
-  : [];
-const requiredPublicWikiPages = Array.isArray(manifestPublicWiki.requiredPages)
-  ? manifestPublicWiki.requiredPages
-  : [];
+const readmeExcludedTestUrlExplanation = manifestReadmeReferences.excludedTestUrlExplanation ?? "";
+const requiredReadmeReferenceUrls = Array.isArray(manifestReadmeReferences.requiredUrls) ? manifestReadmeReferences.requiredUrls : [];
+const requiredPublicWikiPages = Array.isArray(manifestPublicWiki.requiredPages) ? manifestPublicWiki.requiredPages : [];
 
 const errors = [];
 const allowedFeaturePrivacyLabels = new Set([
@@ -104,11 +88,7 @@ if (!Array.isArray(harnessManifest.requiredFiles)) {
   errors.push(`${harnessManifestPath} requiredFiles must be an array`);
 }
 
-if (
-  typeof manifestSnippets !== "object" ||
-  manifestSnippets === null ||
-  Array.isArray(manifestSnippets)
-) {
+if (typeof manifestSnippets !== "object" || manifestSnippets === null || Array.isArray(manifestSnippets)) {
   errors.push(`${harnessManifestPath} requiredHarnessSnippets must be an object`);
 }
 
@@ -128,11 +108,7 @@ if (!Array.isArray(manifestReadmeReferences.requiredUrls)) {
   errors.push(`${harnessManifestPath} readmeReferences.requiredUrls must be an array`);
 }
 
-if (
-  typeof manifestPublicWiki !== "object" ||
-  manifestPublicWiki === null ||
-  Array.isArray(manifestPublicWiki)
-) {
+if (typeof manifestPublicWiki !== "object" || manifestPublicWiki === null || Array.isArray(manifestPublicWiki)) {
   errors.push(`${harnessManifestPath} publicWiki must be an object`);
 }
 
@@ -157,17 +133,11 @@ const macosReadinessFailed = macosReadiness.criteria.filter((item) => !item.ok);
 const readmeMacosReadiness = readReadmeMacosReadinessPercent(root);
 
 if (macosReadinessFailed.length > 0) {
-  errors.push(
-    `macOS no-account readiness checks failed: ${macosReadinessFailed
-      .map((item) => item.id)
-      .join(", ")}`,
-  );
+  errors.push(`macOS no-account readiness checks failed: ${macosReadinessFailed.map((item) => item.id).join(", ")}`);
 }
 
 if (readmeMacosReadiness !== macosReadiness.percentage) {
-  errors.push(
-    `README.md macOS readiness percentage must be ${macosReadiness.percentage}, found ${readmeMacosReadiness ?? "missing"}`,
-  );
+  errors.push(`README.md macOS readiness percentage must be ${macosReadiness.percentage}, found ${readmeMacosReadiness ?? "missing"}`);
 }
 
 for (const requiredWikiPage of ["Home.md", "Capabilities.md"]) {
@@ -182,23 +152,11 @@ for (const page of requiredPublicWikiPages) {
   }
 }
 
-if (
-  !Array.isArray(manifestPublicWiki.mustStayCurrentWhen) ||
-  manifestPublicWiki.mustStayCurrentWhen.length === 0
-) {
+if (!Array.isArray(manifestPublicWiki.mustStayCurrentWhen) || manifestPublicWiki.mustStayCurrentWhen.length === 0) {
   errors.push(`${harnessManifestPath} publicWiki.mustStayCurrentWhen must list update triggers`);
 }
 
-for (const trigger of [
-  "behavior",
-  "setup",
-  "commands",
-  "architecture",
-  "security",
-  "release flow",
-  "capabilities",
-  "user-facing copy",
-]) {
+for (const trigger of ["behavior", "setup", "commands", "architecture", "security", "release flow", "capabilities", "user-facing copy"]) {
   if (!manifestPublicWiki.mustStayCurrentWhen?.includes(trigger)) {
     errors.push(`${harnessManifestPath} publicWiki.mustStayCurrentWhen missing ${trigger}`);
   }
@@ -270,15 +228,8 @@ function collectMarkdownFiles(dir = root) {
   return files.sort();
 }
 
-const textFilePattern =
-  /\.(?:cjs|css|env|example|html|js|json|jsx|md|mjs|rs|sh|sql|toml|ts|tsx|txt|ya?ml)$/;
-const textFileNames = new Set([
-  ".env.example",
-  ".gitignore",
-  "AGENTS.md",
-  "CLAUDE.md",
-  "LICENSE",
-]);
+const textFilePattern = /\.(?:cjs|css|env|example|html|js|json|jsx|md|mjs|rs|sh|sql|toml|ts|tsx|txt|ya?ml)$/;
+const textFileNames = new Set([".env.example", ".gitignore", "AGENTS.md", "CLAUDE.md", "LICENSE"]);
 
 function shouldScanTextFile(fileName) {
   return textFileNames.has(fileName) || textFilePattern.test(fileName);
@@ -339,9 +290,7 @@ function localPathBoundaryAllowsLeak(text, index, needle) {
 }
 
 const normalizedRootForLocalPathScan = normalizePathForLocalPathScan(root);
-const normalizedHomeForLocalPathScan = process.env.HOME
-  ? normalizePathForLocalPathScan(process.env.HOME)
-  : "";
+const normalizedHomeForLocalPathScan = process.env.HOME ? normalizePathForLocalPathScan(process.env.HOME) : "";
 const machineSpecificLocalPathNeedles = [
   normalizedRootForLocalPathScan,
   normalizedRootForLocalPathScan.replaceAll("/", "\\"),
@@ -405,9 +354,7 @@ if (existsSync(repoPath(featurePrivacyLabelsPath))) {
     errors.push(`${featurePrivacyLabelsPath} must use version 1`);
   }
 
-  const declaredLabels = Array.isArray(featurePrivacyLabels.labels)
-    ? featurePrivacyLabels.labels
-    : [];
+  const declaredLabels = Array.isArray(featurePrivacyLabels.labels) ? featurePrivacyLabels.labels : [];
 
   for (const label of allowedFeaturePrivacyLabels) {
     if (!declaredLabels.includes(label)) {
@@ -415,9 +362,7 @@ if (existsSync(repoPath(featurePrivacyLabelsPath))) {
     }
   }
 
-  const features = Array.isArray(featurePrivacyLabels.features)
-    ? featurePrivacyLabels.features
-    : [];
+  const features = Array.isArray(featurePrivacyLabels.features) ? featurePrivacyLabels.features : [];
   const requiredFeatureIds = [
     "job-tracking",
     "saved-searches",
@@ -481,9 +426,7 @@ if (existsSync(repoPath(featurePrivacyLabelsPath))) {
       }
     }
 
-    const hasSensitiveCategory = feature.dataCategories?.some((category) =>
-      sensitiveExternalAiDataCategories.has(category),
-    );
+    const hasSensitiveCategory = feature.dataCategories?.some((category) => sensitiveExternalAiDataCategories.has(category));
     if (hasSensitiveCategory && !feature.labels?.includes("Sensitive")) {
       errors.push(`${featurePrivacyLabelsPath} ${feature.id} uses sensitive data without Sensitive label`);
     }
@@ -518,9 +461,7 @@ if (existsSync(repoPath(featurePrivacyLabelsPath))) {
   for (const shippedFeatureId of collectProductionExternalAiRequestFeatureIds(root)) {
     const feature = featuresById.get(shippedFeatureId);
     if (!feature) {
-      errors.push(
-        `${featurePrivacyLabelsPath} missing shipped external-AI request feature: ${shippedFeatureId}`,
-      );
+      errors.push(`${featurePrivacyLabelsPath} missing shipped external-AI request feature: ${shippedFeatureId}`);
       continue;
     }
 
@@ -566,10 +507,7 @@ if (readmeReferencePath && existsSync(repoPath(readmeReferencePath))) {
     errors.push(`${readmeReferencePath} must include ${readmeReferenceIndexHeading}`);
   }
 
-  if (
-    readmeExcludedTestUrlExplanation &&
-    !referenceText.includes(readmeExcludedTestUrlExplanation)
-  ) {
+  if (readmeExcludedTestUrlExplanation && !referenceText.includes(readmeExcludedTestUrlExplanation)) {
     errors.push(`${readmeReferencePath} must explain excluded test and placeholder URLs`);
   }
 
@@ -601,15 +539,11 @@ for (const [path, budget] of startupContextBudgets) {
   const byteCount = Buffer.byteLength(text, "utf8");
 
   if (lineCount > budget.maxLines) {
-    errors.push(
-      `${path} has ${lineCount} lines; keep it at or below ${budget.maxLines} lines for the startup context budget`,
-    );
+    errors.push(`${path} has ${lineCount} lines; keep it at or below ${budget.maxLines} lines for the startup context budget`);
   }
 
   if (byteCount > budget.maxBytes) {
-    errors.push(
-      `${path} has ${byteCount} bytes; keep it at or below ${budget.maxBytes} bytes for the startup context budget`,
-    );
+    errors.push(`${path} has ${byteCount} bytes; keep it at or below ${budget.maxBytes} bytes for the startup context budget`);
   }
 }
 
@@ -667,15 +601,11 @@ const cargoToml = read("src-tauri/Cargo.toml");
 const cargoVersion = cargoToml.match(/^version\s*=\s*"([^"]+)"/m)?.[1];
 
 if (packageJson.version !== tauriConfig.version) {
-  errors.push(
-    `version mismatch: package.json=${packageJson.version}, src-tauri/tauri.conf.json=${tauriConfig.version}`,
-  );
+  errors.push(`version mismatch: package.json=${packageJson.version}, src-tauri/tauri.conf.json=${tauriConfig.version}`);
 }
 
 if (packageLockJson.version !== packageJson.version) {
-  errors.push(
-    `version mismatch: package.json=${packageJson.version}, package-lock.json=${packageLockJson.version}`,
-  );
+  errors.push(`version mismatch: package.json=${packageJson.version}, package-lock.json=${packageLockJson.version}`);
 }
 
 if (packageLockJson.packages?.[""]?.version !== packageJson.version) {
@@ -685,9 +615,7 @@ if (packageLockJson.packages?.[""]?.version !== packageJson.version) {
 }
 
 if (cargoVersion !== packageJson.version) {
-  errors.push(
-    `version mismatch: package.json=${packageJson.version}, src-tauri/Cargo.toml=${cargoVersion ?? "missing"}`,
-  );
+  errors.push(`version mismatch: package.json=${packageJson.version}, src-tauri/Cargo.toml=${cargoVersion ?? "missing"}`);
 }
 
 const currentVersion = packageJson.version;
@@ -707,20 +635,12 @@ for (const [path, claims] of Object.entries(versionClaims)) {
 }
 
 const commandRegistryRs = read("src-tauri/src/command_handlers.rs");
-const generateHandlerMatch = commandRegistryRs.match(
-  /(?:::)?tauri::generate_handler!\[\s*([\s\S]*?)\s*\]/,
-);
+const generateHandlerMatch = commandRegistryRs.match(/(?:::)?tauri::generate_handler!\[\s*([\s\S]*?)\s*\]/);
 if (!generateHandlerMatch) {
-  errors.push(
-    "could not find tauri::generate_handler! block in src-tauri/src/command_handlers.rs",
-  );
+  errors.push("could not find tauri::generate_handler! block in src-tauri/src/command_handlers.rs");
 }
 
-const registeredCommandCount = [
-  ...(generateHandlerMatch?.[1].matchAll(
-    /commands::((?:[a-zA-Z0-9_]+::)+)([a-zA-Z0-9_]+)/g,
-  ) ?? []),
-].length;
+const registeredCommandCount = [...(generateHandlerMatch?.[1].matchAll(/commands::((?:[a-zA-Z0-9_]+::)+)([a-zA-Z0-9_]+)/g) ?? [])].length;
 const measuredCommandClaim = `${registeredCommandCount} registered Tauri commands`;
 
 for (const path of ["README.md", "docs/ROADMAP.md"]) {
@@ -755,9 +675,7 @@ for (const path of currentTestCountDocs) {
       return;
     }
 
-    errors.push(
-      `${path}:${index + 1} has hardcoded current test-count claim; reference fresh command output instead`,
-    );
+    errors.push(`${path}:${index + 1} has hardcoded current test-count claim; reference fresh command output instead`);
   });
 }
 
@@ -771,8 +689,7 @@ const rustLintPolicyDocs = [
   "docs/developer/TESTING.md",
 ];
 
-const allTargetClippyHardGatePattern =
-  /cargo\s+clippy(?=[^\n`]*--all-targets)(?=[^\n`]*-D\s+warnings)/;
+const allTargetClippyHardGatePattern = /cargo\s+clippy(?=[^\n`]*--all-targets)(?=[^\n`]*-D\s+warnings)/;
 
 for (const path of rustLintPolicyDocs) {
   const lines = read(path).split(/\r?\n/);
@@ -782,9 +699,7 @@ for (const path of rustLintPolicyDocs) {
       return;
     }
 
-    errors.push(
-      `${path}:${index + 1} uses all-target clippy as a hard gate; use production clippy policy instead`,
-    );
+    errors.push(`${path}:${index + 1} uses all-target clippy as a hard gate; use production clippy policy instead`);
   });
 }
 
@@ -825,6 +740,10 @@ for (const violation of checkTauriInvokes(root)) {
 }
 
 for (const violation of checkTestQuality(root)) {
+  errors.push(violation);
+}
+
+for (const violation of collectLanguageStyleViolations(root)) {
   errors.push(violation);
 }
 

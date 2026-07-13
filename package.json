@@ -15,6 +15,7 @@
     "lint:md:fix": "markdownlint --fix --config .markdownlint.json --ignore node_modules --ignore dist --ignore target --ignore src-tauri/gen --ignore .vale/styles --ignore CHANGELOG.md --ignore docs/CLAUDE.md --ignore .claude --ignore docs/archive --ignore src-tauri/target --ignore browser-extension --ignore playwright-report --ignore test-results \"**/*.md\"",
     "lint:prose": "node scripts/run-vale-docs.mjs",
     "lint:prose:all": "vale .",
+    "lint:language": "node -e 'import(\"./scripts/harness/checks/language-style.mjs\").then(({ collectLanguageStyleViolations }) => { const violations = collectLanguageStyleViolations(process.cwd()); if (violations.length) { console.error(violations.join(\"\\n\")); process.exit(1); } console.log(\"Language style check passed.\"); })'",
     "lint:architecture": "node scripts/check-frontend-boundaries.mjs && node scripts/check-repository-architecture.mjs",
     "lint:security": "node scripts/check-security-sensors.mjs && npm run lint:secrets",
     "lint:secrets": "node scripts/check-secrets.mjs",

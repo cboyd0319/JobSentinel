@@ -40,8 +40,8 @@ fn create_test_config() -> Config {
         simplyhired: Default::default(),
         glassdoor: Default::default(),
         ghost_config: None,
-        company_whitelist: vec![],
-        company_blacklist: vec![],
+        preferred_companies: vec![],
+        blocked_companies: vec![],
         use_resume_matching: false,
     }
 }

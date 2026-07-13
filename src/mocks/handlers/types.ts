@@ -4,7 +4,7 @@ import type {
   mockJobs,
   mockPendingReminders,
 } from "../data";
-import type { NotificationPreferences } from "../../utils/notificationPreferences";
+import type { NotificationPreferences } from "../../features/settings/notifications/notificationPreferencesStore";
 import type {
   MockApplicationProfile,
   MockScreeningAnswer,

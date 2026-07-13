@@ -44,8 +44,8 @@ fn jobswithgpt_smoke_config(endpoint: &str) -> Config {
         simplyhired: Default::default(),
         glassdoor: Default::default(),
         ghost_config: None,
-        company_whitelist: vec![],
-        company_blacklist: vec![],
+        preferred_companies: vec![],
+        blocked_companies: vec![],
         use_resume_matching: false,
     };
     config.jobswithgpt_approval.enabled = true;

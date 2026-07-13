@@ -219,46 +219,46 @@ fn validate_lists(config: &Config, errors: &mut ValidationErrors) {
         }
     }
 
-    // Validate company whitelist
-    if config.company_whitelist.len() > MAX_ARRAY_SIZE {
+    // Validate preferred companies.
+    if config.preferred_companies.len() > MAX_ARRAY_SIZE {
         errors.add(ValidationError::too_many_elements(
-            "company_whitelist",
-            config.company_whitelist.len(),
+            "preferred_companies",
+            config.preferred_companies.len(),
             MAX_ARRAY_SIZE,
         ));
     }
-    for (i, company) in config.company_whitelist.iter().enumerate() {
+    for (i, company) in config.preferred_companies.iter().enumerate() {
         if company.is_empty() {
             errors.add(ValidationError::empty_string(format!(
-                "company_whitelist[{}]",
+                "preferred_companies[{}]",
                 i
             )));
         } else if company.len() > MAX_COMPANY_NAME_LENGTH {
             errors.add(ValidationError::too_long(
-                format!("company_whitelist[{}]", i),
+                format!("preferred_companies[{}]", i),
                 company.len(),
                 MAX_COMPANY_NAME_LENGTH,
             ));
         }
     }
 
-    // Validate company blacklist
-    if config.company_blacklist.len() > MAX_ARRAY_SIZE {
+    // Validate blocked companies.
+    if config.blocked_companies.len() > MAX_ARRAY_SIZE {
         errors.add(ValidationError::too_many_elements(
-            "company_blacklist",
-            config.company_blacklist.len(),
+            "blocked_companies",
+            config.blocked_companies.len(),
             MAX_ARRAY_SIZE,
         ));
     }
-    for (i, company) in config.company_blacklist.iter().enumerate() {
+    for (i, company) in config.blocked_companies.iter().enumerate() {
         if company.is_empty() {
             errors.add(ValidationError::empty_string(format!(
-                "company_blacklist[{}]",
+                "blocked_companies[{}]",
                 i
             )));
         } else if company.len() > MAX_COMPANY_NAME_LENGTH {
             errors.add(ValidationError::too_long(
-                format!("company_blacklist[{}]", i),
+                format!("blocked_companies[{}]", i),
                 company.len(),
                 MAX_COMPANY_NAME_LENGTH,
             ));

@@ -13,7 +13,9 @@ function writeFixtureFile(root, path, content = "") {
 }
 
 function withGitFixture(callback) {
-  const root = mkdtempSync(join(tmpdir(), "jobsentinel-repo-bloat-feature-docs-"));
+  const root = mkdtempSync(
+    join(tmpdir(), "jobsentinel-repo-bloat-feature-docs-"),
+  );
 
   try {
     execFileSync("git", ["init", "--quiet"], { cwd: root });
@@ -41,14 +43,20 @@ test("checkRepoBloat rejects scraper doc emoji markers", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "docs/features/job-sources.md"], {
-      cwd: root,
-    });
+    execFileSync(
+      "git",
+      ["add", "package.json", "docs/features/job-sources.md"],
+      {
+        cwd: root,
+      },
+    );
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("replace scraper doc emoji markers: docs/features/job-sources.md"),
+      violations.includes(
+        "replace scraper doc emoji markers: docs/features/job-sources.md",
+      ),
       violations.join("\n"),
     );
   });
@@ -66,16 +74,20 @@ test("checkRepoBloat rejects stale scraper reliability and rate-limit docs", () 
         "- [ ] Proxy rotation for large-scale scraping",
         "4. **Session Management:** Rotate cookies if multiple accounts",
         "4. **Rate Limiting:** Conservative 5-second delays (Cloudflare protection)",
-        "limiter.wait(\"usajobs\", limits::USAJOBS).await;       // 60/hour",
+        'limiter.wait("usajobs", limits::USAJOBS).await;       // 60/hour',
         "| **USAJobs**         | 60            | 0.017         | Official API, conservative     |",
         "| **RemoteOK**        | 1000          | 0.278         | Public API                     |",
         "",
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "docs/features/job-sources.md"], {
-      cwd: root,
-    });
+    execFileSync(
+      "git",
+      ["add", "package.json", "docs/features/job-sources.md"],
+      {
+        cwd: root,
+      },
+    );
 
     const violations = checkRepoBloat(root);
 
@@ -106,9 +118,13 @@ test("checkRepoBloat rejects scraper health doc emoji markers", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "docs/features/job-source-status.md"], {
-      cwd: root,
-    });
+    execFileSync(
+      "git",
+      ["add", "package.json", "docs/features/job-source-status.md"],
+      {
+        cwd: root,
+      },
+    );
 
     const violations = checkRepoBloat(root);
 
@@ -138,7 +154,7 @@ test("checkRepoBloat rejects stale scraper health coverage", () => {
         "  success: boolean;",
         "  response_time_ms: number;",
         "}",
-        "const MOCK_SCRAPERS = [{ scraper_name: \"usa_jobs\" }];",
+        'const MOCK_SCRAPERS = [{ scraper_name: "usa_jobs" }];',
         "",
       ].join("\n"),
     );
@@ -162,11 +178,7 @@ test("checkRepoBloat rejects stale scraper health coverage", () => {
       "docs/developer/WHY_TAURI.md",
       "| Scrape 13 job boards | 30-60s |\n",
     );
-    writeFixtureFile(
-      root,
-      "docs/releases/v2.1.md",
-      "All 13 scrapers wired\n",
-    );
+    writeFixtureFile(root, "docs/releases/v2.1.md", "All 13 scrapers wired\n");
 
     execFileSync(
       "git",
@@ -187,19 +199,27 @@ test("checkRepoBloat rejects stale scraper health coverage", () => {
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("sync scraper health source coverage: docs/features/job-source-status.md"),
+      violations.includes(
+        "sync scraper health source coverage: docs/features/job-source-status.md",
+      ),
       violations.join("\n"),
     );
     assert.ok(
-      violations.includes("sync scraper health source coverage: src/mocks/handlers.ts"),
+      violations.includes(
+        "sync scraper health source coverage: src/mocks/handlers.ts",
+      ),
       violations.join("\n"),
     );
     assert.ok(
-      violations.includes("sync scraper health source coverage: src/features/dashboard/DashboardPage.tsx"),
+      violations.includes(
+        "sync scraper health source coverage: src/features/dashboard/DashboardPage.tsx",
+      ),
       violations.join("\n"),
     );
     assert.ok(
-      violations.includes("sync scraper health source coverage: docs/user/QUICK_START.md"),
+      violations.includes(
+        "sync scraper health source coverage: docs/user/QUICK_START.md",
+      ),
       violations.join("\n"),
     );
     assert.ok(
@@ -209,11 +229,15 @@ test("checkRepoBloat rejects stale scraper health coverage", () => {
       violations.join("\n"),
     );
     assert.ok(
-      violations.includes("sync scraper health source coverage: docs/developer/WHY_TAURI.md"),
+      violations.includes(
+        "sync scraper health source coverage: docs/developer/WHY_TAURI.md",
+      ),
       violations.join("\n"),
     );
     assert.ok(
-      violations.includes("sync scraper health source coverage: docs/releases/v2.1.md"),
+      violations.includes(
+        "sync scraper health source coverage: docs/releases/v2.1.md",
+      ),
       violations.join("\n"),
     );
   });
@@ -235,7 +259,7 @@ test("checkRepoBloat rejects technical source-health user copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/pages/Settings.tsx",
+      "src/features/settings/SettingsPage.tsx",
       "const help = 'Monitor scraper status, run smoke tests, and view run history';\n",
     );
     writeFixtureFile(
@@ -256,7 +280,7 @@ test("checkRepoBloat rejects technical source-health user copy", () => {
         "package.json",
         "src/components/ScraperHealthDashboard.tsx",
         "src/components/scraperHealthDashboardModel.ts",
-        "src/pages/Settings.tsx",
+        "src/features/settings/SettingsPage.tsx",
         "docs/features/job-source-status.md",
       ],
       { cwd: root },
@@ -277,7 +301,9 @@ test("checkRepoBloat rejects technical source-health user copy", () => {
       violations.join("\n"),
     );
     assert.ok(
-      violations.includes("keep source-health copy plain-language: src/pages/Settings.tsx"),
+      violations.includes(
+        "keep source-health copy plain-language: src/features/settings/SettingsPage.tsx",
+      ),
       violations.join("\n"),
     );
     assert.ok(

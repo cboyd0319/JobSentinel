@@ -43,15 +43,23 @@ export function getTechnicalFirstUiResult(path, text) {
   }
 
   if (path === "src/features/application-assist/ProfileForm.tsx") {
-    return /Require manual approval|Failed to load profile|Failed to select file|Please fix the errors|Failed to save|Please try again|Taking longer than expected|Select your resume file \(PDF or DOCX\) for application review|Daily application review limit|Daily review limit:|<option value="50">50<\/option>/i.test(text);
+    return /Require manual approval|Failed to load profile|Failed to select file|Please fix the errors|Failed to save|Please try again|Taking longer than expected|Select your resume file \(PDF or DOCX\) for application review|Daily application review limit|Daily review limit:|<option value="50">50<\/option>/i.test(
+      text,
+    );
   }
 
   if (path === "src/features/application-assist/ScreeningAnswersForm.tsx") {
-    return /Dropdown selection|Please fix the errors|Failed to load answers|Please try again/i.test(text);
+    return /Dropdown selection|Please fix the errors|Failed to load answers|Please try again/i.test(
+      text,
+    );
   }
 
-  if (path === "src/features/application-assist/ScreeningAnswerSuggestions.tsx") {
-    return /Failed to load suggestions|setError\(\s*["'`]Could not load saved answers["'`]\s*\)/i.test(text);
+  if (
+    path === "src/features/application-assist/ScreeningAnswerSuggestions.tsx"
+  ) {
+    return /Failed to load suggestions|setError\(\s*["'`]Could not load saved answers["'`]\s*\)/i.test(
+      text,
+    );
   }
 
   if (path === "src/features/dashboard/components/noJobsEmptyStateCopy.ts") {
@@ -59,15 +67,23 @@ export function getTechnicalFirstUiResult(path, text) {
   }
 
   if (path === "src/features/dashboard/DashboardPage.tsx") {
-    return /Scanning job boards|Scan complete|Failed to load company research/i.test(text);
+    return /Scanning job boards|Scan complete|Failed to load company research/i.test(
+      text,
+    );
   }
 
   if (path === "src/features/applications/InterviewScheduler.tsx") {
-    return /Failed to load interviews|Technical Interview|Mark as Complete|>\s*Failed\s*<|Did not go well|feedbackOutcome\.charAt/.test(text) || /Interview Outcome:/.test(text);
+    return (
+      /Failed to load interviews|Technical Interview|Mark as Complete|>\s*Failed\s*<|Did not go well|feedbackOutcome\.charAt/.test(
+        text,
+      ) || /Interview Outcome:/.test(text)
+    );
   }
 
   if (path === "src/features/dashboard/components/DashboardHeader.tsx") {
-    return /Scanning job boards|Scanning\.\.\.|Ready to scan|Auto-refresh in/i.test(text);
+    return /Scanning job boards|Scanning\.\.\.|Ready to scan|Auto-refresh in/i.test(
+      text,
+    );
   }
 
   if (path === "src/features/applications/ApplicationsPage.tsx") {
@@ -88,7 +104,9 @@ export function getTechnicalFirstUiResult(path, text) {
   }
 
   if (path === "src/features/application-assist/ApplicationProfilePage.tsx") {
-    return /Failed to load application history|Restart JobSentinel|Marked Sent|Ready to Send|Submission Rate/i.test(text);
+    return /Failed to load application history|Restart JobSentinel|Marked Sent|Ready to Send|Submission Rate/i.test(
+      text,
+    );
   }
 
   if (path === "src/hooks/useFeedback.ts") {
@@ -124,7 +142,9 @@ export function getTechnicalFirstUiResult(path, text) {
   }
 
   if (path === "src/features/dashboard/hooks/useDashboardAutoRefresh.ts") {
-    return /Job scanning has failed 3 times in a row|manual search|Auto-refreshing|Scanning for new jobs|automatically\. Check your connection/i.test(text);
+    return /Job scanning has failed 3 times in a row|manual search|Auto-refreshing|Scanning for new jobs|automatically\. Check your connection/i.test(
+      text,
+    );
   }
 
   if (path === "src/components/BookmarkletGenerator.tsx") {
@@ -205,14 +225,18 @@ export function getTechnicalFirstUiResult(path, text) {
   }
 
   if (path === "SECURITY.md") {
-    return /email the maintainer directly or use GitHub's private vulnerability/i.test(text);
+    return /email the maintainer directly or use GitHub's private vulnerability/i.test(
+      text,
+    );
   }
 
   if (path === "CODE_OF_CONDUCT.md") {
-    return /reported by opening an issue or contacting\s+the maintainer directly/i.test(text);
+    return /reported by opening an issue or contacting\s+the maintainer directly/i.test(
+      text,
+    );
   }
 
-  if (path === "src/pages/Settings.tsx") {
+  if (path === "src/features/settings/SettingsPage.tsx") {
     const settingsPatterns = [
       /native OS notifications/i,
       /app is focused/i,
@@ -281,7 +305,9 @@ export function getTechnicalFirstUiResult(path, text) {
     }
   }
 
-  if (path === "src/components/NotificationPreferences.tsx") {
+  if (
+    path === "src/features/settings/notifications/NotificationPreferences.tsx"
+  ) {
     const notificationPreferencePatterns = [
       /Failed to load notification preferences/i,
       /Loading notification settings/i,

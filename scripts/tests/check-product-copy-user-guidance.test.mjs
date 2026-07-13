@@ -12,7 +12,9 @@ function writeFixtureFile(root, path, content = "") {
 }
 
 function withFixture(callback) {
-  const root = mkdtempSync(join(tmpdir(), "jobsentinel-product-copy-user-guidance-"));
+  const root = mkdtempSync(
+    join(tmpdir(), "jobsentinel-product-copy-user-guidance-"),
+  );
 
   try {
     callback(root);
@@ -26,7 +28,10 @@ test("product copy rejects user-doc sidecar drift", () => {
     for (const [path, copy] of [
       ["docs/README.md", "Job Source Adapters"],
       ["docs/features/resume-builder.md", "ats-optimizer.png"],
-      ["docs/features/resume-builder.md", "**80-100** - Strong visible evidence"],
+      [
+        "docs/features/resume-builder.md",
+        "**80-100** - Strong visible evidence",
+      ],
       ["docs/features/json-resume-import.md", "JSON Resume"],
       ["docs/features/json-resume-import.md", "raw JSON strings"],
       ["docs/features/json-resume-import.md", "malformed JSON errors"],
@@ -55,8 +60,18 @@ test("product copy rejects stale settings alert and source setup copy", () => {
       "Recommended for you",
       "Share ${savedFile.fileName} only if you want help.",
     ]) {
-      writeFixtureFile(root, "src/pages/Settings.tsx", `${staleCopy}\n`);
-      assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
+      writeFixtureFile(
+        root,
+        "src/features/settings/SettingsPage.tsx",
+        `${staleCopy}\n`,
+      );
+      assert.equal(
+        hasTechnicalFirstUserCopy(
+          root,
+          "src/features/settings/SettingsPage.tsx",
+        ),
+        true,
+      );
     }
 
     writeFixtureFile(
@@ -73,10 +88,17 @@ test("product copy rejects stale settings alert and source setup copy", () => {
 
 test("product copy rejects raw alert threshold percentages", () => {
   withFixture((root) => {
-    writeFixtureFile(root, "src/components/NotificationPreferences.tsx", "{config.minScoreThreshold}%\n");
+    writeFixtureFile(
+      root,
+      "src/features/settings/notifications/NotificationPreferences.tsx",
+      "{config.minScoreThreshold}%\n",
+    );
 
     assert.equal(
-      hasTechnicalFirstUserCopy(root, "src/components/NotificationPreferences.tsx"),
+      hasTechnicalFirstUserCopy(
+        root,
+        "src/features/settings/notifications/NotificationPreferences.tsx",
+      ),
       true,
     );
   });
@@ -107,7 +129,10 @@ test("product copy rejects technical feedback preview labels", () => {
         `${staleCopy}\n`,
       );
       assert.equal(
-        hasTechnicalFirstUserCopy(root, "src/components/feedback/DebugInfoPreview.tsx"),
+        hasTechnicalFirstUserCopy(
+          root,
+          "src/components/feedback/DebugInfoPreview.tsx",
+        ),
         true,
       );
     }
@@ -122,8 +147,18 @@ test("product copy rejects prescriptive resume review copy", () => {
       "How to fix: {issue.fix}",
       "How to fix: Use one short paragraph.",
     ]) {
-      writeFixtureFile(root, "src/features/resumes/matching/ResumeMatchPage.tsx", `${staleCopy}\n`);
-      assert.equal(hasTechnicalFirstUserCopy(root, "src/features/resumes/matching/ResumeMatchPage.tsx"), true);
+      writeFixtureFile(
+        root,
+        "src/features/resumes/matching/ResumeMatchPage.tsx",
+        `${staleCopy}\n`,
+      );
+      assert.equal(
+        hasTechnicalFirstUserCopy(
+          root,
+          "src/features/resumes/matching/ResumeMatchPage.tsx",
+        ),
+        true,
+      );
     }
   });
 });
@@ -136,21 +171,52 @@ test("product copy rejects Application Profile send/sent stats", () => {
       "Marked Sent\nReady to Send\nSubmission Rate\n",
     );
 
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/features/application-assist/ApplicationProfilePage.tsx"), true);
+    assert.equal(
+      hasTechnicalFirstUserCopy(
+        root,
+        "src/features/application-assist/ApplicationProfilePage.tsx",
+      ),
+      true,
+    );
   });
 });
 
 test("product copy rejects raw connected-source metadata labels", () => {
   withFixture((root) => {
-    writeFixtureFile(root, "src/pages/Settings.tsx", "<dt>Source host</dt>\n");
-    writeFixtureFile(root, "PRIVACY.md", "contact time, source host, title count, work location mode, requested-job limit\n");
-    writeFixtureFile(root, "docs/features/job-source-status.md", "contact time, source host, title count, work location mode, requested-job limit\n");
-    writeFixtureFile(root, "docs/features/job-sources.md", "contact time, source host, title count, work location mode, requested-job limit\n");
+    writeFixtureFile(
+      root,
+      "src/features/settings/SettingsPage.tsx",
+      "<dt>Source host</dt>\n",
+    );
+    writeFixtureFile(
+      root,
+      "PRIVACY.md",
+      "contact time, source host, title count, work location mode, requested-job limit\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/job-source-status.md",
+      "contact time, source host, title count, work location mode, requested-job limit\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/job-sources.md",
+      "contact time, source host, title count, work location mode, requested-job limit\n",
+    );
 
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "src/features/settings/SettingsPage.tsx"),
+      true,
+    );
     assert.equal(hasTechnicalFirstUserCopy(root, "PRIVACY.md"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/job-source-status.md"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/job-sources.md"), true);
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "docs/features/job-source-status.md"),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "docs/features/job-sources.md"),
+      true,
+    );
   });
 });
 
@@ -192,8 +258,14 @@ test("product copy rejects technical source-check flow wording", () => {
     );
 
     assert.equal(hasTechnicalFirstUserCopy(root, "README.md"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/job-sources.md"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/job-source-status.md"), true);
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "docs/features/job-sources.md"),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "docs/features/job-source-status.md"),
+      true,
+    );
   });
 });
 
@@ -214,7 +286,13 @@ test("product copy rejects bare dashboard summary recovery", () => {
       ].join("\n"),
     );
 
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/features/dashboard/components/DashboardWidgets.tsx"), true);
+    assert.equal(
+      hasTechnicalFirstUserCopy(
+        root,
+        "src/features/dashboard/components/DashboardWidgets.tsx",
+      ),
+      true,
+    );
   });
 });
 
@@ -247,10 +325,16 @@ test("product copy rejects overbroad browser import promises", () => {
     );
 
     assert.equal(
-      hasTechnicalFirstUserCopy(root, "src/components/BookmarkletGenerator.tsx"),
+      hasTechnicalFirstUserCopy(
+        root,
+        "src/components/BookmarkletGenerator.tsx",
+      ),
       true,
     );
-    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/browser-import.md"), true);
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "docs/features/browser-import.md"),
+      true,
+    );
   });
 });
 
@@ -289,8 +373,14 @@ test("product copy rejects automated-scan deep-link wording", () => {
       ].join("\n"),
     );
 
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/components/DeepLinkGenerator.tsx"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "docs/user/DEEP_LINKS.md"), true);
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "src/components/DeepLinkGenerator.tsx"),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "docs/user/DEEP_LINKS.md"),
+      true,
+    );
   });
 });
 
@@ -322,11 +412,27 @@ test("product copy rejects front-door pay jargon", () => {
       "What does it optimize for?\nunder-leveling cues\ndoes not optimize for application volume\n",
     );
     writeFixtureFile(root, "ROADMAP.md", "under-anchoring guidance\n");
-    writeFixtureFile(root, "src/features/salary/SalarySearchCard.tsx", "role is under-leveled\n");
-    writeFixtureFile(root, "docs/features/pay-protection.md", "offer may be under-leveled\n");
+    writeFixtureFile(
+      root,
+      "src/features/salary/SalarySearchCard.tsx",
+      "role is under-leveled\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/pay-protection.md",
+      "offer may be under-leveled\n",
+    );
     writeFixtureFile(root, "docs/research/pay-equity.md", "under-leveling\n");
-    writeFixtureFile(root, "docs/features/hiring-trends.md", "spot under-leveling\n");
-    writeFixtureFile(root, "docs/features/resume-matcher.md", "Notice under-leveled roles\n");
+    writeFixtureFile(
+      root,
+      "docs/features/hiring-trends.md",
+      "spot under-leveling\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/resume-matcher.md",
+      "Notice under-leveled roles\n",
+    );
     writeFixtureFile(
       root,
       "docs/harness/readme-information-design.md",
@@ -336,14 +442,35 @@ test("product copy rejects front-door pay jargon", () => {
     assert.equal(hasTechnicalFirstUserCopy(root, "README.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "ROADMAP.md"), true);
     assert.equal(
-      hasTechnicalFirstUserCopy(root, "src/features/salary/SalarySearchCard.tsx"),
+      hasTechnicalFirstUserCopy(
+        root,
+        "src/features/salary/SalarySearchCard.tsx",
+      ),
       true,
     );
-    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/pay-protection.md"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "docs/research/pay-equity.md"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/hiring-trends.md"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/resume-matcher.md"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "docs/harness/readme-information-design.md"), true);
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "docs/features/pay-protection.md"),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "docs/research/pay-equity.md"),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "docs/features/hiring-trends.md"),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "docs/features/resume-matcher.md"),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(
+        root,
+        "docs/harness/readme-information-design.md",
+      ),
+      true,
+    );
   });
 });
 
@@ -354,7 +481,11 @@ test("product copy rejects front-door ATS jargon", () => {
       "README.md",
       "ATS transparency\nofficial ATS postings\npublic ATS postings\n",
     );
-    writeFixtureFile(root, "ROADMAP.md", "Company-site and ATS verification\nATS pages\n");
+    writeFixtureFile(
+      root,
+      "ROADMAP.md",
+      "Company-site and ATS verification\nATS pages\n",
+    );
     writeFixtureFile(
       root,
       "RESPONSIBLE_AI.md",
@@ -369,6 +500,12 @@ test("product copy rejects front-door ATS jargon", () => {
     assert.equal(hasTechnicalFirstUserCopy(root, "README.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "ROADMAP.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "RESPONSIBLE_AI.md"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "docs/harness/readme-information-design.md"), true);
+    assert.equal(
+      hasTechnicalFirstUserCopy(
+        root,
+        "docs/harness/readme-information-design.md",
+      ),
+      true,
+    );
   });
 });

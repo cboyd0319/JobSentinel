@@ -43,6 +43,8 @@
     "docs/plans/templates/change-contract-template.md",
     "docs/plans/tech-debt-tracker.md",
     "docs/research/README.md",
+    "docs/style-guide/README.md",
+    "docs/style-guide/google-developer-documentation-style-guide.md",
     "scripts/harness-score.mjs",
     "scripts/tests/harness-score.test.mjs",
     "scripts/check-duplication.mjs",
@@ -137,6 +139,22 @@
       "Privacy/AI boundary",
       "https://github.com/cboyd0319/JobSentinel/wiki",
       "External Public Docs"
+    ],
+    "docs/style-guide/README.md": [
+      "https://developers.google.com/style/",
+      "https://support.apple.com/guide/applestyleguide/welcome/web",
+      "https://opensource.google/documentation/reference/releasing/preparing#inclusive",
+      "npm run lint:language",
+      "including user-interface copy, documentation, source identifiers, comments, tests, fixtures"
+    ],
+    "docs/style-guide/google-developer-documentation-style-guide.md": [
+      "https://developers.google.com/style/inclusive-documentation",
+      "https://developers.google.com/style/api-reference-comments",
+      "https://developers.google.com/style/ui-elements",
+      "https://developers.google.com/style/semantic-tagging",
+      "https://opensource.google/documentation/reference/releasing/preparing#inclusive",
+      "## Review matrix",
+      "## Enforcement boundary"
     ],
     "docs/harness/multi-agent-orchestration.md": [
       "The coordinator is the architect and integrator.",

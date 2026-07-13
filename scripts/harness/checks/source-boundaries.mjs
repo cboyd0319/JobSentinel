@@ -13,8 +13,8 @@ const linkedInAutomationBoundaryPaths = new Set([
   "src-tauri/src/core/scrapers/linkedin.rs",
   "src-tauri/src/core/scheduler/workers/scrapers.rs",
   "src-tauri/src/core/health/smoke_tests.rs",
-  "src/pages/SettingsJobSourcesSection.tsx",
-  "src/pages/Settings.tsx",
+  "src/features/settings/sources/SettingsJobSourcesSection.tsx",
+  "src/features/settings/SettingsPage.tsx",
   "docs/features/job-sources.md",
   "docs/features/job-source-status.md",
   "docs/features/saved-secrets.md",
@@ -22,8 +22,8 @@ const linkedInAutomationBoundaryPaths = new Set([
 ]);
 
 const linkedInNotificationBoundaryPaths = new Set([
-  "src/utils/notificationPreferences.ts",
-  "src/components/NotificationPreferences.tsx",
+  "src/features/settings/notifications/notificationPreferencesStore.ts",
+  "src/features/settings/notifications/NotificationPreferences.tsx",
   "src/mocks/handlers.ts",
   "docs/features/user-data-management.md",
   "src-tauri/src/core/user_data/mod.rs",
@@ -56,9 +56,9 @@ const userFacingSourceAddressCopyPaths = new Set([
 const jobsWithGptApprovalPaths = new Set([
   "src-tauri/src/core/scheduler/workers/scrapers.rs",
   "src-tauri/src/core/health/smoke_tests.rs",
-  "src/pages/SettingsConnectedJobSource.tsx",
-  "src/pages/SettingsJobSourcesSection.tsx",
-  "src/pages/Settings.tsx",
+  "src/features/settings/sources/SettingsConnectedJobSource.tsx",
+  "src/features/settings/sources/SettingsJobSourcesSection.tsx",
+  "src/features/settings/SettingsPage.tsx",
   "src/mocks/handlers.ts",
 ]);
 
@@ -70,9 +70,9 @@ const jobsWithGptRequestLedgerPaths = new Set([
   "src-tauri/src/core/scheduler/workers/scrapers/jobswithgpt_worker.rs",
   "src-tauri/src/command_handlers.rs",
   "src-tauri/src/main.rs",
-  "src/pages/SettingsConnectedJobSource.tsx",
-  "src/pages/SettingsJobSourcesSection.tsx",
-  "src/pages/Settings.tsx",
+  "src/features/settings/sources/SettingsConnectedJobSource.tsx",
+  "src/features/settings/sources/SettingsJobSourcesSection.tsx",
+  "src/features/settings/SettingsPage.tsx",
 ]);
 
 const scraperHealthDashboardPaths = new Set([
@@ -102,7 +102,9 @@ export function hasStaleScraperDocReliabilityClaim(root, path) {
   return (
     /production-ready scrapers for 13 major job boards/.test(text) ||
     staleAllSourcesClaim.test(text) ||
-    /CAPTCHA Solver|CAPTCHA solver integration|Proxy rotation for large-scale scraping/.test(text) ||
+    /CAPTCHA Solver|CAPTCHA solver integration|Proxy rotation for large-scale scraping/.test(
+      text,
+    ) ||
     /Rotate cookies if multiple accounts/.test(text) ||
     /Conservative 5-second delays/.test(text) ||
     /limits::USAJOBS\)\.await;\s*\/\/ 60\/hour/.test(text) ||
@@ -168,7 +170,7 @@ export function hasTechnicalSourceHealthUserCopy(root, path) {
     path !== "docs/user/QUICK_START.md" &&
     !scraperHealthDashboardPaths.has(path) &&
     path !== "src/components/ScraperHealthDashboard.test.tsx" &&
-    path !== "src/pages/Settings.tsx"
+    path !== "src/features/settings/SettingsPage.tsx"
   ) {
     return false;
   }
@@ -211,9 +213,12 @@ export function hasStaleLinkedInCredentialDocs(root, path) {
   }
 
   const text = readFileSync(join(root, path), "utf8");
-  return /session cookie\s+via the config file|no credential storage|No credentials stored|Cookie expires after ~90 days|Open DevTools|Find and copy\s+\*\*?li_at|Paste into Settings > Scrapers > LinkedIn|Paste the new cookie|Update LinkedIn Cookie/.test(
-    text,
-  ) || /\[\s\]\s+\*\*Interactive Login:\*\* No manual cookie extraction/.test(text);
+  return (
+    /session cookie\s+via the config file|no credential storage|No credentials stored|Cookie expires after ~90 days|Open DevTools|Find and copy\s+\*\*?li_at|Paste into Settings > Scrapers > LinkedIn|Paste the new cookie|Update LinkedIn Cookie/.test(
+      text,
+    ) ||
+    /\[\s\]\s+\*\*Interactive Login:\*\* No manual cookie extraction/.test(text)
+  );
 }
 
 export function hasLinkedInAutomationBoundaryDrift(root, path) {
@@ -231,14 +236,18 @@ export function hasLinkedInAutomationBoundaryDrift(root, path) {
     ].join("|"),
   );
   return (
-    /voyager\/api|jobs-guest\/jobs\/api|parse_linkedin_html|fetch_linkedin_html|csrf-token/.test(text) ||
+    /voyager\/api|jobs-guest\/jobs\/api|parse_linkedin_html|fetch_linkedin_html|csrf-token/.test(
+      text,
+    ) ||
     linkedInAutomationCopyPattern.test(text) ||
     /objc2-web-kit|WKHTTPCookieStore|WKWebsiteDataStore|Native macOS cookie extraction/.test(
       text,
     ) ||
     /pub\s+session_cookie:\s*String/.test(text) ||
     /session_cookie_configured/.test(text) ||
-    /linkedin_login|get_linkedin_expiry_status|CredentialKey::LinkedInCookie/.test(text) ||
+    /linkedin_login|get_linkedin_expiry_status|CredentialKey::LinkedInCookie/.test(
+      text,
+    ) ||
     /start_run\(db,\s*"linkedin"\)|scraper_name:\s*"linkedin"/.test(text) ||
     /LinkedIn\s+(?:scraper|cookie health|cookie expiry)/i.test(text) ||
     /SMOKE_TEST_SCRAPERS[\s\S]*"linkedin"/.test(text)
@@ -253,7 +262,9 @@ export function hasLinkedInNotificationBoundaryDrift(root, path) {
   const text = readFileSync(join(root, path), "utf8");
   return (
     /linkedin:\s*\{\s*enabled:\s*true/.test(text) ||
-    /\blinkedin\s*[:=]\s*SourceNotificationConfig\s*\{\s*enabled:\s*true/.test(text) ||
+    /\blinkedin\s*[:=]\s*SourceNotificationConfig\s*\{\s*enabled:\s*true/.test(
+      text,
+    ) ||
     /linkedin:\s*\{[^}]*name:\s*['"]LinkedIn['"]/.test(text)
   );
 }
@@ -270,7 +281,9 @@ export function hasStaleCacheUsageDoc(root, path) {
     /response\.(?:text|bytes|chunk)\(\)\s*\.await|response\.json(?:::<[^)]*>)?\(\)\s*\.await/.test(
       text,
     ) ||
-    /Disable in Production|disable caching in production|Cache disabled for production/.test(text) ||
+    /Disable in Production|disable caching in production|Cache disabled for production/.test(
+      text,
+    ) ||
     /[✅❌⚠️]/u.test(text)
   );
 }
@@ -290,7 +303,9 @@ export function hasStaleStackOverflowJobsDeepLink(root, path) {
   }
 
   const text = readFileSync(join(root, path), "utf8");
-  return /Stack Overflow Jobs|stackoverflow\.com\/jobs|\bstackoverflow\b/i.test(text);
+  return /Stack Overflow Jobs|stackoverflow\.com\/jobs|\bstackoverflow\b/i.test(
+    text,
+  );
 }
 
 export function hasJobsWithGptUnapprovedEndpointFlow(root, path) {
@@ -301,14 +316,22 @@ export function hasJobsWithGptUnapprovedEndpointFlow(root, path) {
   const text = readFileSync(join(root, path), "utf8");
 
   if (path === "src-tauri/src/core/scheduler/workers/scrapers.rs") {
-    return /JobsWithGptScraper::new/.test(text) && !/jobswithgpt_payload_approved\(\)/.test(text);
+    return (
+      /JobsWithGptScraper::new/.test(text) &&
+      !/jobswithgpt_payload_approved\(\)/.test(text)
+    );
   }
 
   if (path === "src-tauri/src/core/health/smoke_tests.rs") {
-    return /validate_external_http_url_for_fetch\(&config\.jobswithgpt_endpoint\)/.test(text);
+    return /validate_external_http_url_for_fetch\(&config\.jobswithgpt_endpoint\)/.test(
+      text,
+    );
   }
 
-  if (path === "src/pages/Settings.tsx" || path === "src/pages/SettingsJobSourcesSection.tsx") {
+  if (
+    path === "src/features/settings/SettingsPage.tsx" ||
+    path === "src/features/settings/sources/SettingsJobSourcesSection.tsx"
+  ) {
     return (
       /jobswithgpt_endpoint/.test(text) &&
       !/SettingsConnectedJobSource/.test(text) &&
@@ -317,12 +340,17 @@ export function hasJobsWithGptUnapprovedEndpointFlow(root, path) {
     );
   }
 
-  if (path === "src/pages/SettingsConnectedJobSource.tsx") {
-    return /jobswithgpt_endpoint/.test(text) && !/Approve these exact details/.test(text);
+  if (path === "src/features/settings/sources/SettingsConnectedJobSource.tsx") {
+    return (
+      /jobswithgpt_endpoint/.test(text) &&
+      !/Approve these exact details/.test(text)
+    );
   }
 
   if (path === "src/mocks/handlers.ts") {
-    return /jobswithgpt_endpoint/.test(text) && !/jobswithgpt_approval/.test(text);
+    return (
+      /jobswithgpt_endpoint/.test(text) && !/jobswithgpt_approval/.test(text)
+    );
   }
 
   return false;
@@ -336,11 +364,19 @@ export function hasJobsWithGptMissingRequestLedger(root, path) {
   const text = readFileSync(join(root, path), "utf8");
 
   if (path === "src-tauri/migrations/00000000000006_source_request_log.sql") {
-    return !/source_request_log/.test(text) || /title_text|raw_title|location_value|salary_floor|private_notes/.test(text);
+    return (
+      !/source_request_log/.test(text) ||
+      /title_text|raw_title|location_value|salary_floor|private_notes/.test(
+        text,
+      )
+    );
   }
 
   if (path === "src-tauri/src/core/health/tracking.rs") {
-    return !/record_source_request_started/.test(text) || !/get_latest_source_request/.test(text);
+    return (
+      !/record_source_request_started/.test(text) ||
+      !/get_latest_source_request/.test(text)
+    );
   }
 
   if (path === "src-tauri/src/commands/health.rs") {
@@ -349,9 +385,13 @@ export function hasJobsWithGptMissingRequestLedger(root, path) {
 
   if (
     path === "src-tauri/src/core/scheduler/workers/scrapers.rs" ||
-    path === "src-tauri/src/core/scheduler/workers/scrapers/jobswithgpt_worker.rs"
+    path ===
+      "src-tauri/src/core/scheduler/workers/scrapers/jobswithgpt_worker.rs"
   ) {
-    return /JobsWithGptScraper::new/.test(text) && !/record_source_request_started/.test(text);
+    return (
+      /JobsWithGptScraper::new/.test(text) &&
+      !/record_source_request_started/.test(text)
+    );
   }
 
   if (path === "src-tauri/src/command_handlers.rs") {
@@ -362,7 +402,10 @@ export function hasJobsWithGptMissingRequestLedger(root, path) {
     return !/command_handlers::jobsentinel_command_handlers!\(\)/.test(text);
   }
 
-  if (path === "src/pages/Settings.tsx" || path === "src/pages/SettingsJobSourcesSection.tsx") {
+  if (
+    path === "src/features/settings/SettingsPage.tsx" ||
+    path === "src/features/settings/sources/SettingsJobSourcesSection.tsx"
+  ) {
     return (
       /jobswithgpt_endpoint/.test(text) &&
       !/SettingsConnectedJobSource/.test(text) &&
@@ -371,7 +414,7 @@ export function hasJobsWithGptMissingRequestLedger(root, path) {
     );
   }
 
-  if (path === "src/pages/SettingsConnectedJobSource.tsx") {
+  if (path === "src/features/settings/sources/SettingsConnectedJobSource.tsx") {
     return /jobswithgpt_endpoint/.test(text) && !/Last contacted/.test(text);
   }
 

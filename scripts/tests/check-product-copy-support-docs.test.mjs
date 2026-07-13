@@ -15,7 +15,9 @@ function writeFixtureFile(root, path, content = "") {
 }
 
 function withFixture(callback) {
-  const root = mkdtempSync(join(tmpdir(), "jobsentinel-product-copy-support-docs-"));
+  const root = mkdtempSync(
+    join(tmpdir(), "jobsentinel-product-copy-support-docs-"),
+  );
 
   try {
     callback(root);
@@ -26,7 +28,11 @@ function withFixture(callback) {
 
 test("product copy rejects support troubleshooting jargon", () => {
   withFixture((root) => {
-    writeFixtureFile(root, "src/pages/Settings.tsx", "These logs can help diagnose it.\n");
+    writeFixtureFile(
+      root,
+      "src/features/settings/SettingsPage.tsx",
+      "These logs can help diagnose it.\n",
+    );
     writeFixtureFile(
       root,
       "src/components/BookmarkletGenerator.tsx",
@@ -67,7 +73,7 @@ test("product copy rejects support troubleshooting jargon", () => {
       "src/services/feedbackService.ts",
       [
         'const DEBUG_DETAIL_LABELS = { event: "Event" };',
-        '${errors.length - MAX_FRONTEND_ERRORS_IN_REPORT} older frontend errors omitted.',
+        "${errors.length - MAX_FRONTEND_ERRORS_IN_REPORT} older frontend errors omitted.",
         "Support-only details:",
         "SUPPORT DETAILS",
         "",
@@ -79,9 +85,15 @@ test("product copy rejects support troubleshooting jargon", () => {
       ">Page Check<\n>Access<\n>Source Type<\n>Can Read Jobs<\n>Not needed<\nRecent Success\n>Issue<\nChecks Worked\nCheck Time\nLast Worked\n{scraper.success_rate_24h.toFixed(0)}%\nCheck All Sources\nOfficial feed\nreturn \"Feed\"\n(retry ${retryAttempt})\nSource Controls\nJob Source Check Results\nSource Check Results\nNeeds update\n'Turn this source off'\n'Check this source now'\n",
     );
 
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
     assert.equal(
-      hasTechnicalFirstUserCopy(root, "src/components/BookmarkletGenerator.tsx"),
+      hasTechnicalFirstUserCopy(root, "src/features/settings/SettingsPage.tsx"),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(
+        root,
+        "src/components/BookmarkletGenerator.tsx",
+      ),
       true,
     );
     assert.equal(
@@ -93,12 +105,21 @@ test("product copy rejects support troubleshooting jargon", () => {
       true,
     );
     assert.equal(
-      hasTechnicalFirstUserCopy(root, "src/components/feedback/DebugInfoPreview.tsx"),
+      hasTechnicalFirstUserCopy(
+        root,
+        "src/components/feedback/DebugInfoPreview.tsx",
+      ),
       true,
     );
-    assert.equal(hasFeedbackSetupJargon(root, "src/services/feedbackService.ts"), true);
     assert.equal(
-      hasTechnicalFirstUserCopy(root, "src/components/ScraperHealthDashboard.tsx"),
+      hasFeedbackSetupJargon(root, "src/services/feedbackService.ts"),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(
+        root,
+        "src/components/ScraperHealthDashboard.tsx",
+      ),
       true,
     );
   });
@@ -160,9 +181,21 @@ test("product copy rejects GitHub-first support and overbroad privacy copy", () 
     );
 
     assert.equal(hasTechnicalFirstUserCopy(root, "README.md"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "docs/user/DEEP_LINKS.md"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/features/onboarding/SetupWizard.tsx"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "docs/user/QUICK_START.md"), true);
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "docs/user/DEEP_LINKS.md"),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(
+        root,
+        "src/features/onboarding/SetupWizard.tsx",
+      ),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "docs/user/QUICK_START.md"),
+      true,
+    );
   });
 });
 
@@ -170,7 +203,7 @@ test("product copy rejects technical provider setup shortcuts", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src/pages/Settings.tsx",
+      "src/features/settings/SettingsPage.tsx",
       [
         "Message @BotFather to create a private alert bot.",
         "Use desktop or email alerts unless you already use Telegram for automatic alerts.",
@@ -262,22 +295,59 @@ test("product copy rejects technical provider setup shortcuts", () => {
       ].join("\n"),
     );
 
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/notifications.md"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/saved-secrets.md"), true);
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "src/features/settings/SettingsPage.tsx"),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "docs/features/notifications.md"),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "docs/features/saved-secrets.md"),
+      true,
+    );
   });
 });
 
 test("product copy rejects market-intel jargon in hiring trends surfaces", () => {
   withFixture((root) => {
     writeFixtureFile(root, "src/app/Navigation.tsx", "Market Intel\n");
-    writeFixtureFile(root, "src/features/market/MarketHeader.tsx", "Market Intelligence\nRefresh Market Data\n");
-    writeFixtureFile(root, "src/features/market/MarketPanels.tsx", '"Market Alerts"\n');
-    writeFixtureFile(root, "src/features/market/MarketPage.tsx", "Failed to Load Market Data\n");
-    writeFixtureFile(root, "src/features/market/errorCopy.ts", "Market data unavailable\n");
-    writeFixtureFile(root, "src/features/market/MarketSnapshotCard.tsx", "No market snapshot yet. Refresh market data to create one.\n");
-    writeFixtureFile(root, "src/features/market/MarketAlertCard.tsx", "Loading market alerts\nNo market alerts at this time.\n");
-    writeFixtureFile(root, "src/features/market/LocationHeatmap.tsx", "Job Market by Location\nNo location data yet\n");
+    writeFixtureFile(
+      root,
+      "src/features/market/MarketHeader.tsx",
+      "Market Intelligence\nRefresh Market Data\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/features/market/MarketPanels.tsx",
+      '"Market Alerts"\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/features/market/MarketPage.tsx",
+      "Failed to Load Market Data\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/features/market/errorCopy.ts",
+      "Market data unavailable\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/features/market/MarketSnapshotCard.tsx",
+      "No market snapshot yet. Refresh market data to create one.\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/features/market/MarketAlertCard.tsx",
+      "Loading market alerts\nNo market alerts at this time.\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/features/market/LocationHeatmap.tsx",
+      "Job Market by Location\nNo location data yet\n",
+    );
     writeFixtureFile(
       root,
       "docs/features/hiring-trends.md",
@@ -297,22 +367,66 @@ test("product copy rejects market-intel jargon in hiring trends surfaces", () =>
       ].join("\n"),
     );
 
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/app/Navigation.tsx"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/features/market/MarketHeader.tsx"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/features/market/MarketPanels.tsx"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/features/market/MarketPage.tsx"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/features/market/errorCopy.ts"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/features/market/MarketSnapshotCard.tsx"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/features/market/MarketAlertCard.tsx"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/features/market/LocationHeatmap.tsx"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/hiring-trends.md"), true);
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "src/app/Navigation.tsx"),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "src/features/market/MarketHeader.tsx"),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "src/features/market/MarketPanels.tsx"),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "src/features/market/MarketPage.tsx"),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "src/features/market/errorCopy.ts"),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(
+        root,
+        "src/features/market/MarketSnapshotCard.tsx",
+      ),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(
+        root,
+        "src/features/market/MarketAlertCard.tsx",
+      ),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(
+        root,
+        "src/features/market/LocationHeatmap.tsx",
+      ),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "docs/features/hiring-trends.md"),
+      true,
+    );
   });
 });
 
 test("product copy rejects first-run and Rule 0 privacy drift", () => {
   withFixture((root) => {
-    writeFixtureFile(root, "src/features/onboarding/SetupWizard.tsx", "Career Path\nReview & Edit\nComplete setup wizard\n");
-    writeFixtureFile(root, "src/features/onboarding/CareerProfileSelector.tsx", "My Own Search\nStarts with {profile.keywordsBoost.length} helpful skills\n");
+    writeFixtureFile(
+      root,
+      "src/features/onboarding/SetupWizard.tsx",
+      "Career Path\nReview & Edit\nComplete setup wizard\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/features/onboarding/CareerProfileSelector.tsx",
+      "My Own Search\nStarts with {profile.keywordsBoost.length} helpful skills\n",
+    );
     writeFixtureFile(
       root,
       "README.md",
@@ -338,7 +452,11 @@ test("product copy rejects first-run and Rule 0 privacy drift", () => {
       "RESPONSIBLE_AI.md",
       "payload minimization\npayload preview\nlocal metadata logging\n",
     );
-    writeFixtureFile(root, "docs/user/QUICK_START.md", "Click Run anyway.\nYour data stays yours. Always.\n");
+    writeFixtureFile(
+      root,
+      "docs/user/QUICK_START.md",
+      "Click Run anyway.\nYour data stays yours. Always.\n",
+    );
     writeFixtureFile(
       root,
       "SECURITY.md",
@@ -349,17 +467,39 @@ test("product copy rejects first-run and Rule 0 privacy drift", () => {
       "CODE_OF_CONDUCT.md",
       "Instances of unacceptable behavior may be reported by opening an issue or contacting\nthe maintainer directly.\n",
     );
-    writeFixtureFile(root, "src/components/ErrorBoundary.tsx", "Your data is safe.\n");
+    writeFixtureFile(
+      root,
+      "src/components/ErrorBoundary.tsx",
+      "Your data is safe.\n",
+    );
 
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/features/onboarding/SetupWizard.tsx"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/features/onboarding/CareerProfileSelector.tsx"), true);
+    assert.equal(
+      hasTechnicalFirstUserCopy(
+        root,
+        "src/features/onboarding/SetupWizard.tsx",
+      ),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(
+        root,
+        "src/features/onboarding/CareerProfileSelector.tsx",
+      ),
+      true,
+    );
     assert.equal(hasTechnicalFirstUserCopy(root, "README.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "PRIVACY.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "RESPONSIBLE_AI.md"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "docs/user/QUICK_START.md"), true);
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "docs/user/QUICK_START.md"),
+      true,
+    );
     assert.equal(hasTechnicalFirstUserCopy(root, "SECURITY.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "CODE_OF_CONDUCT.md"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/components/ErrorBoundary.tsx"), true);
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "src/components/ErrorBoundary.tsx"),
+      true,
+    );
   });
 });
 
@@ -389,7 +529,7 @@ test("product copy rejects technical source labels and unsafe public issue templ
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src/pages/Settings.tsx",
+      "src/features/settings/SettingsPage.tsx",
       [
         "Review before anything is sent",
         "<dt>Endpoint</dt>",
@@ -401,7 +541,11 @@ test("product copy rejects technical source labels and unsafe public issue templ
         "Saved passwords and connection codes are left out for safety.",
       ].join("\n"),
     );
-    writeFixtureFile(root, ".github/ISSUE_TEMPLATE/bug_report.yml", "Report the bug.\n");
+    writeFixtureFile(
+      root,
+      ".github/ISSUE_TEMPLATE/bug_report.yml",
+      "Report the bug.\n",
+    );
     writeFixtureFile(
       root,
       ".github/ISSUE_TEMPLATE/feature_request.yml",
@@ -422,13 +566,38 @@ test("product copy rejects technical source labels and unsafe public issue templ
         "",
       ].join("\n"),
     );
-    writeFixtureFile(root, ".github/ISSUE_TEMPLATE/scraper_issue.yml", "Report a source issue.\n");
+    writeFixtureFile(
+      root,
+      ".github/ISSUE_TEMPLATE/scraper_issue.yml",
+      "Report a source issue.\n",
+    );
 
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, ".github/ISSUE_TEMPLATE/bug_report.yml"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, ".github/ISSUE_TEMPLATE/feature_request.yml"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, ".github/ISSUE_TEMPLATE/question.yml"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, ".github/ISSUE_TEMPLATE/scraper_issue.yml"), true);
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "src/features/settings/SettingsPage.tsx"),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, ".github/ISSUE_TEMPLATE/bug_report.yml"),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(
+        root,
+        ".github/ISSUE_TEMPLATE/feature_request.yml",
+      ),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, ".github/ISSUE_TEMPLATE/question.yml"),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(
+        root,
+        ".github/ISSUE_TEMPLATE/scraper_issue.yml",
+      ),
+      true,
+    );
   });
 });
 
@@ -441,10 +610,14 @@ test("product copy rejects stale zero-technical resume and shortcut copy", () =>
     );
     writeFixtureFile(
       root,
-      "src/pages/Settings.tsx",
+      "src/features/settings/SettingsPage.tsx",
       "When enabled, job scores use skills from your uploaded resume.\nUpload your resume in the Resume tab first. If no resume is added, scoring uses your job titles.\n",
     );
-    writeFixtureFile(root, "docs/features/smart-scoring.md", "Uploaded resume skills\n");
+    writeFixtureFile(
+      root,
+      "docs/features/smart-scoring.md",
+      "Uploaded resume skills\n",
+    );
     writeFixtureFile(
       root,
       "src/features/resumes/matching/ResumeMatchPage.tsx",
@@ -467,12 +640,33 @@ test("product copy rejects stale zero-technical resume and shortcut copy", () =>
       "Navigate: j/k, Open: o/Enter, Hide: h\nj/k/o/h\n",
     );
 
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/features/resumes/library/ResumeLibraryPage.tsx"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/smart-scoring.md"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/features/resumes/matching/ResumeMatchPage.tsx"), true);
     assert.equal(
-      hasTechnicalFirstUserCopy(root, "src/features/dashboard/components/DashboardFiltersBar.tsx"),
+      hasTechnicalFirstUserCopy(
+        root,
+        "src/features/resumes/library/ResumeLibraryPage.tsx",
+      ),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "src/features/settings/SettingsPage.tsx"),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "docs/features/smart-scoring.md"),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(
+        root,
+        "src/features/resumes/matching/ResumeMatchPage.tsx",
+      ),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(
+        root,
+        "src/features/dashboard/components/DashboardFiltersBar.tsx",
+      ),
       true,
     );
   });
@@ -503,28 +697,71 @@ test("product copy rejects technical backend error labels", () => {
       ].join("\n"),
     );
 
-    assert.equal(hasTechnicalFirstUserCopy(root, "src-tauri/src/commands/errors.rs"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src-tauri/src/core/db/error.rs"), true);
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "src-tauri/src/commands/errors.rs"),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "src-tauri/src/core/db/error.rs"),
+      true,
+    );
   });
 });
 
 test("product copy rejects non-protective no-response labels", () => {
   withFixture((root) => {
-    writeFixtureFile(root, "src/features/applications/ApplicationsPage.tsx", "Detect Ghosted\n");
-    writeFixtureFile(root, "src/features/dashboard/components/DashboardWidgets.tsx", 'label="Ghosted"\n');
-    writeFixtureFile(root, "src/features/applications/AnalyticsPanel.tsx", 'ghosted: "Ghosted"\n');
-    writeFixtureFile(root, "tests/e2e/playwright/application-tracking.spec.ts", '["ghosted", "Ghosted"]\n');
+    writeFixtureFile(
+      root,
+      "src/features/applications/ApplicationsPage.tsx",
+      "Detect Ghosted\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/features/dashboard/components/DashboardWidgets.tsx",
+      'label="Ghosted"\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/features/applications/AnalyticsPanel.tsx",
+      'ghosted: "Ghosted"\n',
+    );
+    writeFixtureFile(
+      root,
+      "tests/e2e/playwright/application-tracking.spec.ts",
+      '["ghosted", "Ghosted"]\n',
+    );
     writeFixtureFile(
       root,
       "docs/features/application-tracking.md",
       "| Ghosted | No response |\nNo response after the configured quiet period.\nSlack, Discord, Teams, SMTP, or other channels are used only if the user configures them.\n",
     );
 
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/features/applications/ApplicationsPage.tsx"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/features/dashboard/components/DashboardWidgets.tsx"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/features/applications/AnalyticsPanel.tsx"), true);
     assert.equal(
-      hasTechnicalFirstUserCopy(root, "tests/e2e/playwright/application-tracking.spec.ts"),
+      hasTechnicalFirstUserCopy(
+        root,
+        "src/features/applications/ApplicationsPage.tsx",
+      ),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(
+        root,
+        "src/features/dashboard/components/DashboardWidgets.tsx",
+      ),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(
+        root,
+        "src/features/applications/AnalyticsPanel.tsx",
+      ),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(
+        root,
+        "tests/e2e/playwright/application-tracking.spec.ts",
+      ),
       true,
     );
     assert.equal(
@@ -561,9 +798,15 @@ test("product copy rejects technical issue-template support wording", () => {
       ].join("\n"),
     );
 
-    assert.equal(hasTechnicalFirstUserCopy(root, ".github/ISSUE_TEMPLATE/bug_report.yml"), true);
     assert.equal(
-      hasTechnicalFirstUserCopy(root, ".github/ISSUE_TEMPLATE/scraper_issue.yml"),
+      hasTechnicalFirstUserCopy(root, ".github/ISSUE_TEMPLATE/bug_report.yml"),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(
+        root,
+        ".github/ISSUE_TEMPLATE/scraper_issue.yml",
+      ),
       true,
     );
   });
@@ -579,7 +822,7 @@ test("product copy rejects non-advisory resume and pay guidance", () => {
     writeFixtureFile(
       root,
       "src-tauri/src/core/resume/ats_analyzer.rs",
-      "improved.push_str(\" (add specific metrics)\");\n",
+      'improved.push_str(" (add specific metrics)");\n',
     );
     writeFixtureFile(
       root,
@@ -592,14 +835,26 @@ test("product copy rejects non-advisory resume and pay guidance", () => {
       "I was hoping for a compensation package. Make this an easy decision. I would love to have more skin in the game.\n",
     );
 
-    assert.equal(hasTechnicalFirstUserCopy(root, "src-tauri/src/core/resume/matcher.rs"), true);
     assert.equal(
-      hasTechnicalFirstUserCopy(root, "src-tauri/src/core/resume/ats_analyzer.rs"),
+      hasTechnicalFirstUserCopy(root, "src-tauri/src/core/resume/matcher.rs"),
       true,
     );
-    assert.equal(hasTechnicalFirstUserCopy(root, "src-tauri/src/core/salary/analyzer.rs"), true);
     assert.equal(
-      hasTechnicalFirstUserCopy(root, "src-tauri/migrations/00000000000000_initial_schema.sql"),
+      hasTechnicalFirstUserCopy(
+        root,
+        "src-tauri/src/core/resume/ats_analyzer.rs",
+      ),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "src-tauri/src/core/salary/analyzer.rs"),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(
+        root,
+        "src-tauri/migrations/00000000000000_initial_schema.sql",
+      ),
       true,
     );
   });
@@ -622,6 +877,9 @@ test("product copy rejects command-first profile docs", () => {
       ].join("\n"),
     );
 
-    assert.equal(hasTechnicalFirstUserCopy(root, "examples/profiles/README.md"), true);
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "examples/profiles/README.md"),
+      true,
+    );
   });
 });

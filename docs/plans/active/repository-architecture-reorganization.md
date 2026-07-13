@@ -735,6 +735,7 @@ evidence-log entry.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-07-13 | Milestone 2 in progress | Established `src/features/settings/` as the owner for Settings, search preferences, source setup, notifications, secure credentials, external AI, matching controls, backup, and support. App composition supplies the Settings page as a component without a Dashboard-to-Settings implementation import. Production Settings files are 494 lines or fewer. Existing local company preferences survive the terminology and serialized-field cutover through read-only aliases, while new data uses precise preferred, blocked, included, and excluded names. The complete Google developer documentation style guide now has a maintained 70-page source map and review matrix; Apple-specific language remains governed by the complete Apple Style Guide. A repository language sensor enforces deterministic prohibited terms in prose and code, and release preparation now includes Google's inclusive open-source check. The Playwright wrapper automatically chooses an available loopback port and never reuses an existing server unless explicitly directed. Full frontend, script, Rust, docs, lint, architecture, security, bloat, duplication, build, and focused Settings E2E gates pass. |
 | 2026-07-13 | Milestone 2 in progress | Moved the app composition root and navigation into `src/app/`, then completed vertical feature slices under `src/features/salary/`, `src/features/market/`, `src/features/application-assist/`, `src/features/applications/`, `src/features/onboarding/`, `src/features/dashboard/`, and `src/features/resumes/`. Pages, models, private components, tests, and development mocks now follow feature ownership. Resume library, builder, and matching remain one domain owner with three public pages and private workflow modules. The former 696-line Salary page, 679-line Market page, 693-line Dashboard page, 691-line Dashboard job-operations hook, and 682-line Job Card were split at real behavior boundaries. Application Assist controllers are 488 lines or fewer, Applications production modules are 467 lines or fewer, Onboarding production modules are 461 lines or fewer, Dashboard production modules are 496 lines or fewer, and Resume production modules are 495 lines or fewer with tests at 796 lines or fewer. The app composition root imports only public feature facades. Feature copy, schema, broad-audience, IPC minimization, source-quality, source-structure, privacy logging, security, and file-cap sensors follow the new owners. Focused and full frontend tests, all 759 script tests, lint, architecture, the 787-module production build, focused E2E, security sensors, and harness checks pass. |
 | 2026-07-13 | Milestone 1 complete | Deleted four verified production-orphan component families, moved nine cross-runtime taxonomies to `resources/taxonomies/`, consolidated contributor samples under `examples/`, and updated every live consumer and harness path. Full frontend and script suites plus focused Rust consumers pass. |
 | 2026-07-13 | Milestone 0 complete | Added fail-first feature, workspace, thin-shell, file-cap, test-quality, harness-planning, CI classification, and ownership sensors. `test:scripts` passed 757 tests; focused architecture, bloat, test-quality, Markdown, and harness checks passed. No production paths moved. |
@@ -792,11 +793,12 @@ evidence-log entry.
   owner, and four unused component families have been deleted.
 - Milestone 2 is in progress. App composition is owned by `src/app/`; Salary,
   Hiring Trends, Application Assist, Applications tracking, first-run
-  Onboarding, Dashboard job discovery, and Resume library, builder, and matching
-  are complete feature slices with public facades and private implementation
-  modules under `src/features/`.
-- No user data, schema, IPC contract, installed configuration path, privacy
-  boundary, or release artifact contract changed in Milestones 1 or 2 so far.
+  Onboarding, Dashboard job discovery, Resume library, builder and matching,
+  and Settings are complete feature slices with public facades and private
+  implementation modules under `src/features/`.
+- Settings company-preference field names changed. Read-only deserialize aliases
+  preserve existing local values, and all newly saved data uses the new names.
+  No privacy, credential, consent, or external-side-effect boundary changed.
 
 ## Handoff
 
@@ -804,14 +806,15 @@ evidence-log entry.
   order documented; privacy is the immutable product boundary; Milestones 0
   and 1 are complete; Milestone 2 has app, Salary, Hiring Trends, Application
   Assist, Applications tracking, first-run Onboarding, Dashboard job discovery,
-  and Resume library, builder, and matching ownership established with passing
-  focused and full frontend checks.
+  Resume library, builder and matching, and Settings ownership established with
+  passing focused and full checks.
 - Evidence: live manifests, imports, file counts, module graph, SQLx migration
   paths, CI, release scripts, harness sensors, Tamworth, and persona were
   inspected on 2026-07-13.
-- Next step: continue Milestone 2 with the next evidence-selected frontend
-  feature. Establish `ui` and reduced `shared` ownership only when the first
-  proven multi-consumer module moves there.
+- Next step: finish the remaining Deep Links page ownership, then audit the
+  remaining `components`, `hooks`, `services`, and `utils` buckets for proven
+  private feature ownership or real multi-consumer contracts. Establish `ui`
+  and reduced `shared` ownership only from that evidence.
 - Open risks: final SQLx offline metadata location and root Cargo target paths
   must be proven in isolated workspace and release fixtures before old paths are
   removed.
