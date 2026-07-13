@@ -1,9 +1,9 @@
 import { invoke } from "@tauri-apps/api/core";
 import type { Dispatch, SetStateAction } from "react";
 import { useState } from "react";
-import { Button } from "../../../components/Button";
-import { HelpIcon } from "../../../components/HelpIcon";
-import { Input } from "../../../components/Input";
+import { Button } from "../../../ui/Button";
+import { HelpIcon } from "../../../ui/HelpIcon";
+import { Input } from "../../../ui/Input";
 import { useToast } from "../../../contexts";
 import {
   credentialExists,

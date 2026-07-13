@@ -1,4 +1,4 @@
-import { Button } from "../../components/Button";
+import { Button } from "../../ui/Button";
 
 export type ResumeSuggestionState = "idle" | "loading" | "ready" | "empty" | "hidden";
 

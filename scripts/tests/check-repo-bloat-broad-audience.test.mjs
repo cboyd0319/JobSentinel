@@ -325,7 +325,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "",
       ].join("\n"),
     );
-    writeFixtureFile(root, "src/components/StatCard.test.tsx", '"John Doe";\n');
+    writeFixtureFile(root, "src/ui/StatCard.test.tsx", '"John Doe";\n');
     writeFixtureFile(
       root,
       "src/utils/formValidation.test.ts",
@@ -665,7 +665,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src/features/market/LocationHeatmap.test.tsx",
         "src/contexts/UndoIntegration.test.tsx",
         "src/features/settings/notifications/NotificationPreferences.test.tsx",
-        "src/components/StatCard.test.tsx",
+        "src/ui/StatCard.test.tsx",
         "src/features/applications/CoverLetterTemplates.test.tsx",
         "src/features/applications/InterviewScheduler.test.tsx",
         "src/utils/formValidation.test.ts",
@@ -769,7 +769,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src/features/market/LocationHeatmap.test.tsx",
       "src/contexts/UndoIntegration.test.tsx",
       "src/features/settings/notifications/NotificationPreferences.test.tsx",
-      "src/components/StatCard.test.tsx",
+      "src/ui/StatCard.test.tsx",
       "src/features/applications/CoverLetterTemplates.test.tsx",
       "src/features/applications/InterviewScheduler.test.tsx",
       "src/utils/formValidation.test.ts",

@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { CardHeader } from "../../../../components/Card";
+import { CardHeader } from "../../../../ui/Card";
 
 interface SummaryStepProps {
   summary: string;

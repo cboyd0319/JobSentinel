@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { Button } from "../../../../components/Button";
-import { Card } from "../../../../components/Card";
-import { Badge } from "../../../../components/Badge";
-import { HelpIcon } from "../../../../components/HelpIcon";
+import { Button } from "../../../../ui/Button";
+import { Card } from "../../../../ui/Card";
+import { Badge } from "../../../../ui/Badge";
+import { HelpIcon } from "../../../../ui/HelpIcon";
 import { recordBrowserAssistLearningSignalIfEnabled } from "../../../../shared/browserAssistLearning";
 import { logError } from "../../../../utils/errorUtils";
 import {

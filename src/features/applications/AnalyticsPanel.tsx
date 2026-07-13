@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, memo } from "react";
 import { cachedInvoke } from "../../utils/api";
-import { Modal } from "../../components/Modal";
+import { Modal } from "../../ui/Modal";
 import { logError } from "../../utils/errorUtils";
 import {
   getWeeklyGoal,

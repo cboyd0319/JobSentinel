@@ -1,4 +1,4 @@
-import { Card } from "../../components/Card";
+import { Card } from "../../ui/Card";
 
 export function NegotiationNotesCard({ notes }: { notes: string }) {
   return (

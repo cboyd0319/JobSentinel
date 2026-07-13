@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { Button } from "../Button";
+import { Button } from "../../ui/Button";
 
 interface SubmitOptionsProps {
   onSubmitGitHub: () => void;

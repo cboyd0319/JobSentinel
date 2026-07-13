@@ -1,6 +1,6 @@
 import { lazy, Suspense } from "react";
 import ComponentErrorBoundary from "../../../components/ComponentErrorBoundary";
-import { WidgetSkeleton } from "../../../components/LoadingFallbacks";
+import { WidgetSkeleton } from "../../../ui/LoadingFallbacks";
 
 const DashboardWidgets = lazy(() =>
   import("./DashboardWidgets").then((module) => ({

@@ -2,7 +2,7 @@
 // Refactored for v1.5 modularization - uses extracted hooks and components
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { DashboardSkeleton } from "../../components/Skeleton";
+import { DashboardSkeleton } from "../../ui/Skeleton";
 import { useToast } from "../../contexts";
 import { logError } from "../../utils/errorUtils";
 import { SCORE_THRESHOLD_GOOD } from "../../utils/constants";

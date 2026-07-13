@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { Button } from "../../components/Button";
+import { Button } from "../../ui/Button";
 import { formatCompactDateTime } from "../../utils/formatUtils";
 import type { MarketAlert } from "./model";
 

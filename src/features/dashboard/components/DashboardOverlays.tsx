@@ -1,9 +1,9 @@
 import { lazy, Suspense, type ReactNode } from "react";
-import { Button } from "../../../components/Button";
-import { FocusTrap } from "../../../components/FocusTrap";
+import { Button } from "../../../ui/Button";
+import { FocusTrap } from "../../../ui/FocusTrap";
 import { JobImportModal } from "./JobImportModal";
-import { PanelSkeleton } from "../../../components/LoadingFallbacks";
-import { Modal, ModalFooter } from "../../../components/Modal";
+import { PanelSkeleton } from "../../../ui/LoadingFallbacks";
+import { Modal, ModalFooter } from "../../../ui/Modal";
 import ComponentErrorBoundary from "../../../components/ComponentErrorBoundary";
 import ModalErrorBoundary from "../../../components/ModalErrorBoundary";
 import { CheckCircleIcon } from "./DashboardIcons";

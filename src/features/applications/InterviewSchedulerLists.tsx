@@ -1,4 +1,4 @@
-import { Badge } from "../../components/Badge";
+import { Badge } from "../../ui/Badge";
 import {
   CalendarIcon,
   DownloadIcon,

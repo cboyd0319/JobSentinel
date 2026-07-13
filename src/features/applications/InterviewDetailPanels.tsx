@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { Button } from "../../components/Button";
+import { Button } from "../../ui/Button";
 import { CompanyResearchPanel } from "../../components/CompanyResearchPanel";
-import { Modal } from "../../components/Modal";
+import { Modal } from "../../ui/Modal";
 import { formatInterviewDate } from "../../utils/formatUtils";
 import {
   INTERVIEW_TYPES,

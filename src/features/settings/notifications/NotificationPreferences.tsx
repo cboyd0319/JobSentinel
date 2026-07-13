@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, memo } from "react";
-import { Card } from "../../../components/Card";
-import { Badge } from "../../../components/Badge";
-import { HelpIcon } from "../../../components/HelpIcon";
+import { Card } from "../../../ui/Card";
+import { Badge } from "../../../ui/Badge";
+import { HelpIcon } from "../../../ui/HelpIcon";
 import { AdvancedFiltersSection } from "./NotificationAdvancedFilters";
 import { useToast } from "../../../contexts";
 import {

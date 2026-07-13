@@ -1,6 +1,6 @@
 import type { ReactNode, RefObject } from "react";
-import { Button } from "../../../components/Button";
-import { Card, CardHeader } from "../../../components/Card";
+import { Button } from "../../../ui/Button";
+import { Card, CardHeader } from "../../../ui/Card";
 import { JobCard } from "./JobCard";
 import type { Job } from "../types";
 import { BriefcaseIcon, FilterIcon } from "./DashboardIcons";

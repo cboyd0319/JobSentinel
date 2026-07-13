@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { Button } from "../../components/Button";
-import { HelpIcon } from "../../components/HelpIcon";
-import { Modal } from "../../components/Modal";
+import { Button } from "../../ui/Button";
+import { HelpIcon } from "../../ui/HelpIcon";
+import { Modal } from "../../ui/Modal";
 import { ScraperHealthDashboard } from "../../components/ScraperHealthDashboard";
 import { FeedbackModal } from "../../components/feedback/FeedbackModal";
 import { BrowserImportSection } from "./sources/browser-import/BrowserImportSection";

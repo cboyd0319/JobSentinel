@@ -9,7 +9,7 @@ import { CartesianGrid } from "recharts/es6/cartesian/CartesianGrid";
 import { Tooltip } from "recharts/es6/component/Tooltip";
 import { ResponsiveContainer } from "recharts/es6/component/ResponsiveContainer";
 import { Legend } from "recharts/es6/component/Legend";
-import { Card } from "../../components/Card";
+import { Card } from "../../ui/Card";
 
 type ChartData = object;
 

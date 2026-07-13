@@ -1,4 +1,4 @@
-import { CardHeader } from "../../../components/Card";
+import { CardHeader } from "../../../ui/Card";
 import {
   MAJOR_ATS_PORTAL_REVIEW_CHECKS,
   RESUME_EXPORT_INTEGRITY_CHECKS,

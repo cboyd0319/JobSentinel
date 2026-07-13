@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Button } from "../../../components/Button";
-import { HelpIcon } from "../../../components/HelpIcon";
+import { Button } from "../../../ui/Button";
+import { HelpIcon } from "../../../ui/HelpIcon";
 import { useToast } from "../../../contexts";
 import { logError } from "../../../utils/errorUtils";
 import {

@@ -1,5 +1,5 @@
-import { Button } from "../../../components/Button";
-import { CardHeader } from "../../../components/Card";
+import { Button } from "../../../ui/Button";
+import { CardHeader } from "../../../ui/Card";
 import { CheckCircleIcon, DocxIcon, JsonIcon, PdfIcon } from "./ResumeBuilderVisuals";
 
 interface ResumeBuilderExportStepProps {

@@ -1,11 +1,11 @@
 import { useEffect, useState, useCallback, memo } from "react";
 import { cachedInvoke, invalidateCacheByCommand, safeInvoke, safeInvokeWithToast } from "../../utils/api";
-import { Button } from "../../components/Button";
+import { Button } from "../../ui/Button";
 import {
   InterviewScheduleFormModal,
   type InterviewScheduleFormData,
 } from "./InterviewScheduleFormModal";
-import { Modal } from "../../components/Modal";
+import { Modal } from "../../ui/Modal";
 import { useToast } from "../../contexts";
 import { MIN_INTERVIEW_DURATION, MAX_INTERVIEW_DURATION } from "../../utils/constants";
 import { getSafeErrorToastCopy } from "../../utils/safeErrorCopy";

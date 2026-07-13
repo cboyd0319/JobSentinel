@@ -1,10 +1,10 @@
 import { memo, useState, useEffect, useCallback, type ReactElement } from "react";
-import { Badge } from "../../components/Badge";
-import { Button } from "../../components/Button";
-import { Card } from "../../components/Card";
-import { HelpIcon } from "../../components/HelpIcon";
-import { Input } from "../../components/Input";
-import { Modal, ModalFooter } from "../../components/Modal";
+import { Badge } from "../../ui/Badge";
+import { Button } from "../../ui/Button";
+import { Card } from "../../ui/Card";
+import { HelpIcon } from "../../ui/HelpIcon";
+import { Input } from "../../ui/Input";
+import { Modal, ModalFooter } from "../../ui/Modal";
 import { useToast } from "../../contexts";
 import { safeInvoke, safeInvokeWithToast } from "../../utils/api";
 import { validateRequired, validateRequiredQuestionWording } from "../../utils/formValidation";

@@ -1,8 +1,8 @@
 import { memo } from "react";
-import { Badge } from "../../../components/Badge";
-import { Button } from "../../../components/Button";
-import { Modal, ModalFooter } from "../../../components/Modal";
-import { Tooltip } from "../../../components/Tooltip";
+import { Badge } from "../../../ui/Badge";
+import { Button } from "../../../ui/Button";
+import { Modal, ModalFooter } from "../../../ui/Modal";
+import { Tooltip } from "../../../ui/Tooltip";
 import { getScoreColor, getScoreLabel } from "../../../utils/scoreUtils";
 import {
   formatHardConstraintRiskCategory,

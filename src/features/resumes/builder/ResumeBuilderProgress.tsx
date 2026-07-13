@@ -1,4 +1,4 @@
-import { Progress } from "../../../components/Progress";
+import { Progress } from "../../../ui/Progress";
 import { STEPS } from "./resumeBuilderData";
 import { CheckCircleIcon } from "./ResumeBuilderVisuals";
 

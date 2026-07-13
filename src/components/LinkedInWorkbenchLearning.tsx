@@ -1,4 +1,4 @@
-import { Button } from "./Button";
+import { Button } from "../ui/Button";
 import type { BrowserAssistLearningSummary } from "../shared/browserAssistLearning";
 
 interface LearningSuggestionsProps {

@@ -1,7 +1,7 @@
 import type { ComponentProps } from "react";
-import { Badge } from "../../components/Badge";
-import { Button } from "../../components/Button";
-import { Input } from "../../components/Input";
+import { Badge } from "../../ui/Badge";
+import { Button } from "../../ui/Button";
+import { Input } from "../../ui/Input";
 import { CAREER_PROFILES } from "../../utils/profiles";
 import { AvoidIcon, SearchIcon, SparkleIcon } from "./SetupWizardIcons";
 import { SetupWizardPayFloorSection } from "./SetupWizardPayFloorSection";

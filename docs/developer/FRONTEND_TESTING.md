@@ -68,7 +68,7 @@ npm test -- -t "GhostIndicator"
 npm run test:coverage
 
 # Run single test only
-npm test -- --reporter=verbose src/components/Button.test.tsx
+npm test -- --reporter=verbose src/ui/Button.test.tsx
 ```
 
 ### End-to-End Tests (Playwright)
@@ -687,7 +687,7 @@ open coverage/index.html
 
 ```bash
 # Run test with full output
-npm test -- --reporter=verbose src/components/Button.test.tsx
+npm test -- --reporter=verbose src/ui/Button.test.tsx
 
 # Show console logs in test
 npm test -- --reporter=verbose
@@ -711,7 +711,7 @@ screen.debug(screen.getByRole("button"));
 
 ```bash
 npm test -- -t "specific test name"
-npm test -- src/components/Button.test.tsx
+npm test -- src/ui/Button.test.tsx
 ```
 
 Use command-line filters for local focus. Do not commit focused-test modifiers

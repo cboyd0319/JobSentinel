@@ -1,6 +1,6 @@
 import { useCallback, useRef, type KeyboardEvent } from "react";
-import { Badge } from "../../components/Badge";
-import { Button } from "../../components/Button";
+import { Badge } from "../../ui/Badge";
+import { Button } from "../../ui/Button";
 import { BackIcon, TabIconView, type TabIcon } from "./MarketPrimitives";
 import type { MarketTabId } from "./model";
 

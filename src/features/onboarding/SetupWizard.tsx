@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { Button } from "../../components/Button";
-import { Card } from "../../components/Card";
+import { Button } from "../../ui/Button";
+import { Card } from "../../ui/Card";
 import { useToast } from "../../contexts";
 import { invalidateCacheByCommand, safeInvokeWithToast } from "../../utils/api";
 import { getProfileById, profileToConfig } from "../../utils/profiles";

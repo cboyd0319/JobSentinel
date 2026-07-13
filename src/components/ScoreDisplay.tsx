@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { Tooltip } from "./Tooltip";
+import { Tooltip } from "../ui/Tooltip";
 import {
   SCORE_THRESHOLD_HIGH,
   SCORE_THRESHOLD_GOOD,

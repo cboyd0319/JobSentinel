@@ -1,7 +1,7 @@
 import type { Dispatch, SetStateAction } from "react";
-import { Badge } from "../../../components/Badge";
-import { Button } from "../../../components/Button";
-import { Card } from "../../../components/Card";
+import { Badge } from "../../../ui/Badge";
+import { Button } from "../../../ui/Button";
+import { Card } from "../../../ui/Card";
 import {
   DEFAULT_SKILL_STRENGTH,
   SKILL_CATEGORIES,

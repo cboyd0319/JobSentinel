@@ -1,4 +1,4 @@
-import { Button } from "../../../../components/Button";
+import { Button } from "../../../../ui/Button";
 import { RESTRICTED_JOB_SOURCE_WARNING } from "../../../../shared/restrictedSourceTaxonomy";
 
 export const MIN_BROWSER_IMPORT_PORT = 1024;

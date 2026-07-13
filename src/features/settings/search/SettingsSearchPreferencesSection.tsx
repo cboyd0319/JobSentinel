@@ -1,7 +1,7 @@
-import { Badge } from "../../../components/Badge";
-import { Button } from "../../../components/Button";
-import { HelpIcon } from "../../../components/HelpIcon";
-import { Input } from "../../../components/Input";
+import { Badge } from "../../../ui/Badge";
+import { Button } from "../../../ui/Button";
+import { HelpIcon } from "../../../ui/HelpIcon";
+import { Input } from "../../../ui/Input";
 import type { LocationInfo } from "../../../utils/locationDetection";
 import type { Config } from "../config/SettingsConfig";
 import { SettingsSymbol } from "../shared/SettingsIcons";

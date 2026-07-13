@@ -84,8 +84,8 @@ weakened.
 
 ## Next Best Work
 
-1. Finish Milestone 2 with the evidence-selected frontend ownership cleanup
-   across transitional `components`, `hooks`, `services`, and `utils` buckets.
+1. Finish Milestone 2 with evidence-selected ownership cleanup across the
+   remaining domain `components`, `hooks`, `services`, and `utils` buckets.
 2. Keep every ownership slice green and remove transition code before accepting
    it.
 3. Keep future product work scoped by the current active plan and the

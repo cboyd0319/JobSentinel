@@ -1,6 +1,6 @@
 import type { Dispatch, SetStateAction } from "react";
-import { Badge } from "../../../components/Badge";
-import { HelpIcon } from "../../../components/HelpIcon";
+import { Badge } from "../../../ui/Badge";
+import { HelpIcon } from "../../../ui/HelpIcon";
 import { LinkedInWorkbench } from "../../../components/LinkedInWorkbench";
 import {
   RESTRICTED_AUTHENTICATED_SOURCE_WARNING,

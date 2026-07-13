@@ -1,6 +1,6 @@
-import { Badge } from "../../../components/Badge";
-import { Button } from "../../../components/Button";
-import { Modal, ModalFooter } from "../../../components/Modal";
+import { Badge } from "../../../ui/Badge";
+import { Button } from "../../../ui/Button";
+import { Modal, ModalFooter } from "../../../ui/Modal";
 import type { ResumeData, ResumeTextPreview } from "./resumePageModel";
 import {
   getEmptyReadablePreviewMessage,

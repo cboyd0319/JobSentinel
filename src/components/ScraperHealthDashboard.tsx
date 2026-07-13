@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback, memo } from "react";
 import { invalidateCacheByCommand, safeInvoke } from "../utils/api";
-import { Button } from "./Button";
-import { Badge } from "./Badge";
-import { StatCard } from "./StatCard";
-import { LoadingSpinner } from "./LoadingSpinner";
-import { Modal } from "./Modal";
+import { Button } from "../ui/Button";
+import { Badge } from "../ui/Badge";
+import { StatCard } from "../ui/StatCard";
+import { LoadingSpinner } from "../ui/LoadingSpinner";
+import { Modal } from "../ui/Modal";
 import { getUserFriendlyError } from "../utils/errorMessages";
 import {
   JOB_SOURCE_DISCOVERY_TAXONOMY,

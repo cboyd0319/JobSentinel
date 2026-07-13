@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { Button } from "../Button";
+import { Button } from "../../ui/Button";
 import type { SavedFeedbackFile } from "../../services/feedbackService";
 
 interface SuccessScreenProps {

@@ -1,4 +1,4 @@
-import { HelpIcon } from "../../../components/HelpIcon";
+import { HelpIcon } from "../../../ui/HelpIcon";
 import type { Config } from "../config/SettingsConfig";
 import { SettingsSymbol } from "../shared/SettingsIcons";
 import { SemanticMatchingDiagnosticsPanel } from "./SemanticMatchingDiagnosticsPanel";

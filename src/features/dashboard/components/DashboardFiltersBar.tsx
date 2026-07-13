@@ -2,8 +2,8 @@
 // Contains all filter controls, search, bulk actions, and action buttons
 
 import { memo, RefObject, useState, useEffect, useRef } from "react";
-import { Dropdown } from "../../../components/Dropdown";
-import { Tooltip } from "../../../components/Tooltip";
+import { Dropdown } from "../../../ui/Dropdown";
+import { Tooltip } from "../../../ui/Tooltip";
 import { useDebouncedValue } from "../../../hooks";
 import { formatJobSourceLabel } from "../../../utils/sourceLabels";
 import { scoreFilterOptions, sortOptions } from "./filterLabels";

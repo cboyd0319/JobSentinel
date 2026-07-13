@@ -1,7 +1,7 @@
-import { Badge } from "../../../components/Badge";
-import { Button } from "../../../components/Button";
-import { LoadingSpinner } from "../../../components/LoadingSpinner";
-import { Modal, ModalFooter } from "../../../components/Modal";
+import { Badge } from "../../../ui/Badge";
+import { Button } from "../../../ui/Button";
+import { LoadingSpinner } from "../../../ui/LoadingSpinner";
+import { Modal, ModalFooter } from "../../../ui/Modal";
 import { RESUME_BULLET_FRAMEWORKS } from "../shared/resumeWritingTaxonomy";
 
 interface ResumeMatchToolsProps {

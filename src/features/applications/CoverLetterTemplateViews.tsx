@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { Button } from '../../components/Button';
-import { Input } from '../../components/Input';
-import { Modal, ModalFooter } from '../../components/Modal';
+import { Button } from '../../ui/Button';
+import { Input } from '../../ui/Input';
+import { Modal, ModalFooter } from '../../ui/Modal';
 import { fillTemplatePlaceholders, type JobForTemplate } from '../../utils/coverLetterUtils';
 import {
   CATEGORY_LABELS,

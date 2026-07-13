@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef, type KeyboardEvent } from "react";
-import { Card } from "../../components/Card";
-import { StatCard } from "../../components/StatCard";
-import { Skeleton } from "../../components/Skeleton";
+import { Card } from "../../ui/Card";
+import { StatCard } from "../../ui/StatCard";
+import { Skeleton } from "../../ui/Skeleton";
 import { ProfileForm } from "./ProfileForm";
 import { ScreeningAnswersForm } from "./ScreeningAnswersForm";
 import { invoke } from "@tauri-apps/api/core";

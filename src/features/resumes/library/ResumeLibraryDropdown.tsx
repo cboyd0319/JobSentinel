@@ -1,4 +1,4 @@
-import { Badge } from "../../../components/Badge";
+import { Badge } from "../../../ui/Badge";
 import type { ResumeData } from "./resumePageModel";
 import { getReadableTextLabel, getResumeFormatLabel } from "./resumePageModel";
 import { DocumentIcon, TrashIcon } from "./ResumeIcons";

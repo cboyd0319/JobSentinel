@@ -316,10 +316,14 @@ the broader agent harness.
   `src/ui/` as those owners are established. `src/shared/search-links/` owns
   the typed Tauri client and model used by Search Links, Dashboard, and the
   LinkedIn Workbench; Search Links display state remains private to its feature.
+- `src/ui/` owns proven multi-feature visual primitives and their colocated
+  tests and stories. Features import these modules directly, such as
+  `src/ui/Button.tsx` and `src/ui/Modal.tsx`; there is no aggregate barrel.
+  Product-domain panels and workflows do not belong in this directory.
 - Legacy `components`, `contexts`, `hooks`, `services`, `utils`, `types`,
-  `config`, and `pages` buckets remain transitional. Shared components and the
-  other transitional owners must not import app or feature implementation
-  modules.
+  and `config` buckets remain transitional. The legacy `pages` bucket has been
+  removed. Remaining domain components and the other transitional owners must
+  not import app or feature implementation modules.
 - Tests, mocks, stories, and test setup files are excluded from the production
   architecture sensor, but feature-owned mock handlers remain colocated with
   their feature and are registered by the central development dispatcher.

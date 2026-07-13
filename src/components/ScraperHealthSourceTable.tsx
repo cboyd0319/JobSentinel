@@ -1,6 +1,6 @@
-import { Badge } from "./Badge";
-import { LoadingSpinner } from "./LoadingSpinner";
-import { Tooltip } from "./Tooltip";
+import { Badge } from "../ui/Badge";
+import { LoadingSpinner } from "../ui/LoadingSpinner";
+import { Tooltip } from "../ui/Tooltip";
 import {
   formatDuration,
   formatRelativeTime,

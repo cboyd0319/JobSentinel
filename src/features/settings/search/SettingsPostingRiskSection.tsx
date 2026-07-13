@@ -1,6 +1,6 @@
-import { Button } from "../../../components/Button";
-import { HelpIcon } from "../../../components/HelpIcon";
-import { Input } from "../../../components/Input";
+import { Button } from "../../../ui/Button";
+import { HelpIcon } from "../../../ui/HelpIcon";
+import { Input } from "../../../ui/Input";
 import {
   GHOST_PRESETS,
   GHOST_PRESET_DESCRIPTIONS,

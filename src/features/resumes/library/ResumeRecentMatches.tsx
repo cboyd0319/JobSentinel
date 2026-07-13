@@ -1,4 +1,4 @@
-import { Card } from "../../../components/Card";
+import { Card } from "../../../ui/Card";
 import { ScoreDisplay } from "../../../components/ScoreDisplay";
 import { CheckIcon, XIcon } from "./ResumeIcons";
 import { ResumeScoreBreakdownRow } from "./ResumeScoreBreakdownRow";

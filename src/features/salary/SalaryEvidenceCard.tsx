@@ -1,6 +1,6 @@
-import { Badge } from "../../components/Badge";
-import { Card } from "../../components/Card";
-import { HelpIcon } from "../../components/HelpIcon";
+import { Badge } from "../../ui/Badge";
+import { Card } from "../../ui/Card";
+import { HelpIcon } from "../../ui/HelpIcon";
 import type { PayFloorBenchmarkGuidance } from "../../shared/payFloorBenchmarkGuidance";
 import { formatCurrency } from "../../utils/formatUtils";
 import { OfferReviewPanel } from "./OfferReviewPanel";

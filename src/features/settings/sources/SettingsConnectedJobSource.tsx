@@ -1,7 +1,7 @@
 import type { Dispatch, SetStateAction } from "react";
-import { Badge } from "../../../components/Badge";
-import { Button } from "../../../components/Button";
-import { Input } from "../../../components/Input";
+import { Badge } from "../../../ui/Badge";
+import { Button } from "../../../ui/Button";
+import { Input } from "../../../ui/Input";
 import {
   formatJobSourceSite,
   type Config,

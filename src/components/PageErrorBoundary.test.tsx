@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event";
 import PageErrorBoundary from "./PageErrorBoundary";
 
 // Mock dependencies
-vi.mock("./Button", () => ({
+vi.mock("../ui/Button", () => ({
   Button: ({ children, onClick, variant }: { children: React.ReactNode; onClick?: () => void; variant?: string }) => (
     <button onClick={onClick} data-variant={variant}>
       {children}
@@ -12,7 +12,7 @@ vi.mock("./Button", () => ({
   ),
 }));
 
-vi.mock("./EmptyState", () => ({
+vi.mock("../ui/EmptyState", () => ({
   EmptyState: ({ title, description, illustration }: { title: string; description?: string; illustration?: string }) => (
     <div data-testid="empty-state">
       <div data-illustration={illustration}>{title}</div>

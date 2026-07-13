@@ -13,8 +13,8 @@ import {
   DragOverEvent,
 } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
-import { Button } from "../../components/Button";
-import { Card } from "../../components/Card";
+import { Button } from "../../ui/Button";
+import { Card } from "../../ui/Card";
 import { useToast } from "../../contexts";
 import { useUndo } from "../../hooks/useUndo";
 import { logError } from "../../utils/errorUtils";

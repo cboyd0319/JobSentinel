@@ -6,7 +6,7 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Badge } from "../../components/Badge";
+import { Badge } from "../../ui/Badge";
 import {
   STATUS_COLUMNS,
   type Application,

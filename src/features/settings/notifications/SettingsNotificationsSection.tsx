@@ -1,5 +1,5 @@
 import type { Dispatch, SetStateAction } from "react";
-import { HelpIcon } from "../../../components/HelpIcon";
+import { HelpIcon } from "../../../ui/HelpIcon";
 import { NotificationPreferences } from "./NotificationPreferences";
 import {
   type Config,

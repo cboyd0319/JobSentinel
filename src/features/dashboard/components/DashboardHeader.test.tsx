@@ -4,11 +4,11 @@ import { describe, expect, it, vi } from "vitest";
 import { DashboardHeader } from "./DashboardHeader";
 import type { ScrapingStatus } from "../types";
 
-vi.mock("../../../components/ThemeToggle", () => ({
+vi.mock("../../../ui/ThemeToggle", () => ({
   ThemeToggle: () => <button type="button">Theme</button>,
 }));
 
-vi.mock("../../../components/Tooltip", () => ({
+vi.mock("../../../ui/Tooltip", () => ({
   Tooltip: ({ children, content }: { children: ReactNode; content: ReactNode }) => (
     <div aria-label={typeof content === "string" ? content : undefined}>{children}</div>
   ),

@@ -9,9 +9,9 @@
 
 import { memo, useState, useEffect, useCallback, useMemo } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { Badge } from "../../../components/Badge";
-import { Button } from "../../../components/Button";
-import { Tooltip } from "../../../components/Tooltip";
+import { Badge } from "../../../ui/Badge";
+import { Button } from "../../../ui/Button";
+import { Tooltip } from "../../../ui/Tooltip";
 import { logError } from "../../../utils/errorUtils";
 import { getUserFriendlyError } from "../../../utils/errorMessages";
 import type { SkillProficiency } from "../shared/resumeSkillUiTaxonomy";

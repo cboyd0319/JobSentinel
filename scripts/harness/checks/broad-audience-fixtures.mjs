@@ -25,7 +25,7 @@ const broadAudienceExamplePaths = new Set([
   "src/features/market/LocationHeatmap.test.tsx",
   "src/features/settings/notifications/NotificationPreferences.test.tsx",
   "src/features/dashboard/components/ScoreBreakdownModal.test.tsx",
-  "src/components/StatCard.test.tsx",
+  "src/ui/StatCard.test.tsx",
   "src/components/SkillCategoryFilter.test.tsx",
   "src/features/resumes/builder/steps/ContactStep.tsx",
   "src/features/resumes/builder/steps/EducationStep.tsx",

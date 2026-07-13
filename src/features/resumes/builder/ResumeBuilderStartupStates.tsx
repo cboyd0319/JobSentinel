@@ -1,6 +1,6 @@
-import { Button } from "../../../components/Button";
-import { Card } from "../../../components/Card";
-import { LoadingSpinner } from "../../../components/LoadingSpinner";
+import { Button } from "../../../ui/Button";
+import { Card } from "../../../ui/Card";
+import { LoadingSpinner } from "../../../ui/LoadingSpinner";
 
 export function ResumeBuilderLoadingState() {
   return (

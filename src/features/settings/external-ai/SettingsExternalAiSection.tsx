@@ -1,5 +1,5 @@
 import type { Dispatch, SetStateAction } from "react";
-import { HelpIcon } from "../../../components/HelpIcon";
+import { HelpIcon } from "../../../ui/HelpIcon";
 import {
   EXTERNAL_AI_PROVIDER_CREDENTIAL_KEYS,
   EXTERNAL_AI_PROVIDER_DESCRIPTIONS,

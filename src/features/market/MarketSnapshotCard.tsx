@@ -1,6 +1,6 @@
 import { memo, type ReactNode } from "react";
-import { Badge } from "../../components/Badge";
-import { Card } from "../../components/Card";
+import { Badge } from "../../ui/Badge";
+import { Card } from "../../ui/Card";
 import { formatCurrency } from "../../utils/formatUtils";
 import type { MarketSnapshot } from "./model";
 

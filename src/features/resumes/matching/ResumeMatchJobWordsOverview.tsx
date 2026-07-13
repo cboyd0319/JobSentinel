@@ -1,5 +1,5 @@
-import { Badge } from "../../../components/Badge";
-import { Card, CardHeader } from "../../../components/Card";
+import { Badge } from "../../../ui/Badge";
+import { Card, CardHeader } from "../../../ui/Card";
 
 type JobWordImportance = "Required" | "Preferred" | "Industry";
 type JobWordBadgeVariant = "danger" | "alert" | "success";

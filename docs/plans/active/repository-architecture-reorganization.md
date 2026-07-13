@@ -796,7 +796,9 @@ evidence-log entry.
   Onboarding, Dashboard job discovery, Resume library, builder and matching,
   Settings, and Search Links are complete feature slices with public facades
   and private implementation modules under `src/features/`. The shared Search
-  Links IPC model and client have one neutral multi-consumer owner.
+  Links IPC model and client have one neutral multi-consumer owner. Seventeen
+  proven multi-feature visual primitives now have direct module ownership under
+  `src/ui/`, without an aggregate barrel.
 - Settings company-preference field names changed. Read-only deserialize aliases
   preserve existing local values, and all newly saved data uses the new names.
   No privacy, credential, consent, or external-side-effect boundary changed.
@@ -809,14 +811,14 @@ evidence-log entry.
   Assist, Applications tracking, first-run Onboarding, Dashboard job discovery,
   Resume library, builder and matching, Settings, and Search Links ownership
   established with passing focused, full frontend, build, repository, and E2E
-  checks.
+  checks. The reusable UI boundary is established with passing focused, full
+  frontend, build, repository, and E2E checks.
 - Evidence: live manifests, imports, file counts, module graph, SQLx migration
   paths, CI, release scripts, harness sensors, Tamworth, and persona were
   inspected on 2026-07-13.
-- Next step: audit the remaining `components`, `hooks`, `services`, and `utils`
-  buckets for proven private feature ownership or real multi-consumer
-  contracts. Establish `ui` and reduced `shared` ownership only from that
-  evidence.
+- Next step: audit the remaining domain `components`, `hooks`, `services`, and
+  `utils` buckets for proven private feature ownership or real multi-consumer
+  contracts. Reduce `shared` ownership only from that evidence.
 - Open risks: final SQLx offline metadata location and root Cargo target paths
   must be proven in isolated workspace and release fixtures before old paths are
   removed.

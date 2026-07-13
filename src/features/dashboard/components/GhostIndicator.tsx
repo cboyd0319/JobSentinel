@@ -1,5 +1,5 @@
 import { memo, useState } from "react";
-import { Tooltip } from "../../../components/Tooltip";
+import { Tooltip } from "../../../ui/Tooltip";
 import { safeInvoke } from "../../../utils/api";
 
 interface GhostReason {

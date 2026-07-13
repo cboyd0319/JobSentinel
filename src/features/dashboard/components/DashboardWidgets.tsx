@@ -7,8 +7,8 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend, AreaChart, Area, FunnelChart, Funnel, LabelList
 } from 'recharts';
-import { Card } from '../../../components/Card';
-import { LoadingSpinner } from '../../../components/LoadingSpinner';
+import { Card } from '../../../ui/Card';
+import { LoadingSpinner } from '../../../ui/LoadingSpinner';
 import { logError } from '../../../utils/errorUtils';
 import { getJobSourceGuidance } from '../../../utils/sourceLabels';
 

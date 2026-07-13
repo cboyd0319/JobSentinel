@@ -1,8 +1,8 @@
 import type { Dispatch, SetStateAction } from "react";
-import { Badge } from "../../../components/Badge";
-import { Button } from "../../../components/Button";
-import { HelpIcon } from "../../../components/HelpIcon";
-import { Input } from "../../../components/Input";
+import { Badge } from "../../../ui/Badge";
+import { Button } from "../../../ui/Button";
+import { HelpIcon } from "../../../ui/HelpIcon";
+import { Input } from "../../../ui/Input";
 import {
   isValidDiscordWebhook,
   isValidSlackWebhook,

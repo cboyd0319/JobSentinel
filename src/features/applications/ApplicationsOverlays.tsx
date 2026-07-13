@@ -1,7 +1,7 @@
 import { lazy, Suspense } from "react";
-import { Button } from "../../components/Button";
-import { AnalyticsSkeleton, ModalSkeleton } from "../../components/LoadingFallbacks";
-import { Modal, ModalFooter } from "../../components/Modal";
+import { Button } from "../../ui/Button";
+import { AnalyticsSkeleton, ModalSkeleton } from "../../ui/LoadingFallbacks";
+import { Modal, ModalFooter } from "../../ui/Modal";
 import { getInterviewSchedulerApplications, STATUS_COLUMNS, type Application, type ApplicationsByStatus } from "./applicationsModel";
 
 const AnalyticsPanel = lazy(() => import("./AnalyticsPanel").then((module) => ({ default: module.AnalyticsPanel })));

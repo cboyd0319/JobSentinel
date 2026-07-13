@@ -1,8 +1,8 @@
-import { Button } from "../../../components/Button";
-import { Card } from "../../../components/Card";
-import { Badge } from "../../../components/Badge";
-import { Modal, ModalFooter } from "../../../components/Modal";
-import { ResumeSkeleton } from "../../../components/Skeleton";
+import { Button } from "../../../ui/Button";
+import { Card } from "../../../ui/Card";
+import { Badge } from "../../../ui/Badge";
+import { Modal, ModalFooter } from "../../../ui/Modal";
+import { ResumeSkeleton } from "../../../ui/Skeleton";
 import {
   getReadableTextBadgeVariant,
   getReadableTextDescription,

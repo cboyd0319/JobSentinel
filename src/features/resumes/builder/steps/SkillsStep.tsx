@@ -1,6 +1,6 @@
 import { memo } from "react";
-import { Button } from "../../../../components/Button";
-import { CardHeader } from "../../../../components/Card";
+import { Button } from "../../../../ui/Button";
+import { CardHeader } from "../../../../ui/Card";
 import {
   SKILL_PROFICIENCY_LABELS,
   SKILL_PROFICIENCY_VALUES,

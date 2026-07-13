@@ -1,8 +1,8 @@
 import { useState, useCallback, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { Button } from "../../../components/Button";
-import { Card, CardHeader } from "../../../components/Card";
-import { Badge } from "../../../components/Badge";
+import { Button } from "../../../ui/Button";
+import { Card, CardHeader } from "../../../ui/Card";
+import { Badge } from "../../../ui/Badge";
 import { useToast } from "../../../contexts";
 import { logError } from "../../../utils/errorUtils";
 import { ResumeMatchTools } from "./ResumeMatchTools";

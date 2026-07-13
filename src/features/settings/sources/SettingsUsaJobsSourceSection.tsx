@@ -1,5 +1,5 @@
 import type { Dispatch, SetStateAction } from "react";
-import { Input } from "../../../components/Input";
+import { Input } from "../../../ui/Input";
 import {
   credentialExists,
   credentialIsExpected,

@@ -1,6 +1,6 @@
 import { memo } from "react";
-import { Modal, ModalFooter } from "../../../components/Modal";
-import { Button } from "../../../components/Button";
+import { Modal, ModalFooter } from "../../../ui/Modal";
+import { Button } from "../../../ui/Button";
 import { SCORE_THRESHOLD_HIGH, SCORE_THRESHOLD_GOOD, SCORE_THRESHOLD_PARTIAL } from "../../../utils/constants";
 
 interface ScoreBreakdown {

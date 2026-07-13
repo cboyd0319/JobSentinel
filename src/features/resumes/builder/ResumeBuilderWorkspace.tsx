@@ -1,6 +1,6 @@
 import type { Dispatch, SetStateAction } from "react";
 import { AtsLiveScorePanel } from "./AtsLiveScorePanel";
-import { Card } from "../../../components/Card";
+import { Card } from "../../../ui/Card";
 import ContactStep from "./steps/ContactStep";
 import EducationStep from "./steps/EducationStep";
 import ExperienceStep from "./steps/ExperienceStep";

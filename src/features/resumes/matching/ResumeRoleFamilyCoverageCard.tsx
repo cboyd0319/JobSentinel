@@ -1,5 +1,5 @@
-import { Badge } from "../../../components/Badge";
-import { Card, CardHeader } from "../../../components/Card";
+import { Badge } from "../../../ui/Badge";
+import { Card, CardHeader } from "../../../ui/Card";
 import {
   RESUME_ROLE_FAMILY_TAXONOMY,
   resumeRoleFamiliesForSummary,

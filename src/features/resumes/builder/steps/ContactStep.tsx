@@ -1,6 +1,6 @@
 import { memo, useState, useCallback } from "react";
-import { CardHeader } from "../../../../components/Card";
-import { Input } from "../../../../components/Input";
+import { CardHeader } from "../../../../ui/Card";
+import { Input } from "../../../../ui/Input";
 import { validateEmail, validateUrlWithOptionalProtocol } from "../../../../utils/formValidation";
 
 interface ContactInfo {

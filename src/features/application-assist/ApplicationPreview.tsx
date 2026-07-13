@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, memo } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { Badge } from "../../components/Badge";
-import { Card } from "../../components/Card";
+import { Badge } from "../../ui/Badge";
+import { Card } from "../../ui/Card";
 import { logError } from "../../utils/errorUtils";
 import { getApplicationFormDisplayName } from "./applicationFormLabels";
 import { ApplicationFormReviewChecklist } from "./ApplicationFormReviewChecklist";

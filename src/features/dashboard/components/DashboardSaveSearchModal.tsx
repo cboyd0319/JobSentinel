@@ -1,6 +1,6 @@
 import { useId } from "react";
-import { Button } from "../../../components/Button";
-import { Modal, ModalFooter } from "../../../components/Modal";
+import { Button } from "../../../ui/Button";
+import { Modal, ModalFooter } from "../../../ui/Modal";
 import { formatSalaryNumber } from "../../../utils/formatUtils";
 import { formatJobSourceLabel } from "../../../utils/sourceLabels";
 import {

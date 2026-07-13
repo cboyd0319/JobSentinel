@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { ModalSkeleton } from "../../../components/LoadingFallbacks";
+import { ModalSkeleton } from "../../../ui/LoadingFallbacks";
 
 const ScoreBreakdownModal = lazy(() =>
   import("./ScoreBreakdownModal").then((module) => ({

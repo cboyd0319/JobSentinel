@@ -7,8 +7,8 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { Modal, ModalFooter } from "../../../components/Modal";
-import { Button } from "../../../components/Button";
+import { Modal, ModalFooter } from "../../../ui/Modal";
+import { Button } from "../../../ui/Button";
 import { useToast } from "../../../contexts";
 import {
   isRestrictedJobSourceUrl,

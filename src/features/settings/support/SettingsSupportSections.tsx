@@ -1,5 +1,5 @@
 import { ErrorLogPanel } from "../../../components/ErrorLogPanel";
-import { HelpIcon } from "../../../components/HelpIcon";
+import { HelpIcon } from "../../../ui/HelpIcon";
 import {
   ExportIcon,
   FeedbackIcon,

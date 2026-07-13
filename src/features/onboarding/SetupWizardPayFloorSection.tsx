@@ -1,5 +1,5 @@
-import { Button } from "../../components/Button";
-import { Input } from "../../components/Input";
+import { Button } from "../../ui/Button";
+import { Input } from "../../ui/Input";
 import { formatSetupPayFloorSummary, type SetupPayUnit } from "./setupWizardPreferences";
 import { PayIcon } from "./SetupWizardIcons";
 

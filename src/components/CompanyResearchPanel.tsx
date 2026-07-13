@@ -1,8 +1,8 @@
 import { useState, useEffect, memo } from 'react';
-import { Card } from './Card';
-import { Button } from './Button';
-import { Badge } from './Badge';
-import { LoadingSpinner } from './LoadingSpinner';
+import { Card } from '../ui/Card';
+import { Button } from '../ui/Button';
+import { Badge } from '../ui/Badge';
+import { LoadingSpinner } from '../ui/LoadingSpinner';
 import { removeStorageValue } from '../utils/browserStorage';
 
 import { KNOWN_COMPANIES, type CompanyInfo } from './companyResearchData';

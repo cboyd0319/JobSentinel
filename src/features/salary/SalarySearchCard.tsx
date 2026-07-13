@@ -1,6 +1,6 @@
-import { Button } from "../../components/Button";
-import { Card } from "../../components/Card";
-import { Input } from "../../components/Input";
+import { Button } from "../../ui/Button";
+import { Card } from "../../ui/Card";
+import { Input } from "../../ui/Input";
 import {
   SENIORITY_LEVELS,
   type SalarySeniority,

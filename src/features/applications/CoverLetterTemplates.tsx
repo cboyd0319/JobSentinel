@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback, memo, useRef } from 'react';
 import { invoke } from '@tauri-apps/api/core';
-import { Button } from '../../components/Button';
-import { Card } from '../../components/Card';
-import { Modal, ModalFooter } from '../../components/Modal';
+import { Button } from '../../ui/Button';
+import { Card } from '../../ui/Card';
+import { Modal, ModalFooter } from '../../ui/Modal';
 import { useToast } from '../../contexts';
 import { useUndo } from '../../hooks/useUndo';
-import { LoadingSpinner } from '../../components/LoadingSpinner';
+import { LoadingSpinner } from '../../ui/LoadingSpinner';
 import { logError } from '../../utils/errorUtils';
 import type { JobForTemplate } from '../../utils/coverLetterUtils';
 import { getUserFriendlyError } from '../../utils/errorMessages';

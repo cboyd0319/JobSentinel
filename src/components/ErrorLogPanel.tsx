@@ -1,8 +1,8 @@
 import { memo, useState } from 'react';
 import { useErrorReporting } from '../hooks/useErrorReporting';
-import { Button } from './Button';
-import { Badge } from './Badge';
-import { Card } from './Card';
+import { Button } from '../ui/Button';
+import { Badge } from '../ui/Badge';
+import { Card } from '../ui/Card';
 import {
   sanitizeContext,
   type ErrorReport,

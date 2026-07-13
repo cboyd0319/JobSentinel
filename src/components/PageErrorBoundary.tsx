@@ -1,6 +1,6 @@
 import { Component, ErrorInfo, ReactNode } from "react";
-import { Button } from "./Button";
-import { EmptyState } from "./EmptyState";
+import { Button } from "../ui/Button";
+import { EmptyState } from "../ui/EmptyState";
 import { errorReporter, sanitizeTextForStorage } from "../utils/errorReporting";
 import { logError } from "../utils/errorUtils";
 import { saveSanitizedDebugReport } from "../services/feedbackService";

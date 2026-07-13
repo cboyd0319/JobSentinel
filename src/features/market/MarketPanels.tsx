@@ -1,7 +1,7 @@
 import { lazy, Suspense } from "react";
-import { Button } from "../../components/Button";
-import { Card } from "../../components/Card";
-import { ChartSkeleton } from "../../components/LoadingFallbacks";
+import { Button } from "../../ui/Button";
+import { Card } from "../../ui/Card";
+import { ChartSkeleton } from "../../ui/LoadingFallbacks";
 import { formatCurrency } from "../../utils/formatUtils";
 import { LocationHeatmap } from "./LocationHeatmap";
 import { MarketAlertList } from "./MarketAlertCard";
