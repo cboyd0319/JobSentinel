@@ -10,8 +10,8 @@ import { KeyboardShortcutsHelp } from "./commands/KeyboardShortcutsHelp";
 import { OnboardingProvider } from "../components/OnboardingTour";
 import { useOnboarding } from "../hooks/useOnboarding";
 import { Navigation } from "./Navigation";
-import { KeyboardShortcutsProvider } from "../contexts/KeyboardShortcutsContext";
-import { useKeyboardShortcuts } from "../hooks/useKeyboardShortcuts";
+import { KeyboardShortcutsProvider } from "./keyboard/KeyboardShortcutsProvider";
+import { useKeyboardShortcuts } from "./keyboard/useKeyboardShortcuts";
 import { logError } from "../utils/errorUtils";
 import { defaultTourSteps } from "./onboarding/tourSteps";
 import {

@@ -7,9 +7,9 @@ import {
   useMemo,
   type KeyboardEvent as ReactKeyboardEvent,
 } from "react";
-import { useKeyboardShortcuts } from "../../hooks/useKeyboardShortcuts";
-import type { Shortcut } from "../../types/keyboardShortcuts";
-import { formatShortcut } from "../../utils/keyboardShortcuts";
+import type { Shortcut } from "../keyboard/shortcut";
+import { formatShortcut } from "../keyboard/shortcut";
+import { useKeyboardShortcuts } from "../keyboard/useKeyboardShortcuts";
 
 interface Command {
   id: string;

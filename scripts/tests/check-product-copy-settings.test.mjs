@@ -209,7 +209,7 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/contexts/KeyboardShortcutsContext.tsx",
+      "src/app/keyboard/KeyboardShortcutsProvider.tsx",
       [
         'description: "Go to Market"',
         'description: "Show keyboard shortcuts help"',
@@ -834,7 +834,7 @@ test("product copy rejects technical-first settings copy", () => {
       "src/features/application-assist/ScreeningAnswersForm.tsx",
       "src/features/settings/support/feedback/SubmitOptions.tsx",
       "src/features/dashboard/components/jobCardGuidance.ts",
-      "src/contexts/KeyboardShortcutsContext.tsx",
+      "src/app/keyboard/KeyboardShortcutsProvider.tsx",
       "src/contexts/UndoContext.tsx",
       "src/features/settings/support/feedback/useFeedback.ts",
       "src/features/application-assist/ApplicationProfilePage.tsx",

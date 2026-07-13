@@ -2,7 +2,7 @@ import { useContext } from "react";
 import {
   KeyboardShortcutsContext,
   type KeyboardShortcutsContextType,
-} from "../contexts/keyboardShortcutsContextDef";
+} from "./keyboardShortcutsContext";
 
 export function useKeyboardShortcuts(): KeyboardShortcutsContextType {
   const context = useContext(KeyboardShortcutsContext);

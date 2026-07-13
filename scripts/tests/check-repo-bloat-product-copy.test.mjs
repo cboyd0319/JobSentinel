@@ -421,7 +421,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     writeFixtureFile(root, "src/app/Navigation.tsx", '"for command palette"\n');
     writeFixtureFile(
       root,
-      "src/contexts/KeyboardShortcutsContext.tsx",
+      "src/app/keyboard/KeyboardShortcutsProvider.tsx",
       '"Close dialog / command palette"\n',
     );
     writeFixtureFile(
@@ -585,7 +585,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/features/settings/support/feedback/DebugInfoPreview.tsx",
         "src/features/settings/support/feedback/FeedbackModal.tsx",
         "src/features/settings/support/feedback/SuccessScreen.tsx",
-        "src/contexts/KeyboardShortcutsContext.tsx",
+        "src/app/keyboard/KeyboardShortcutsProvider.tsx",
         "src/mocks/handlers.ts",
         "src/mocks/handlers/atsPlatform.ts",
         "src/utils/formValidation.ts",
@@ -642,7 +642,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/features/settings/support/feedback/DebugInfoPreview.tsx",
       "src/features/settings/support/feedback/FeedbackModal.tsx",
       "src/features/settings/support/feedback/SuccessScreen.tsx",
-      "src/contexts/KeyboardShortcutsContext.tsx",
+      "src/app/keyboard/KeyboardShortcutsProvider.tsx",
       "src/mocks/handlers.ts",
       "src/mocks/handlers/atsPlatform.ts",
       "src/utils/formValidation.ts",

@@ -1,4 +1,10 @@
-import type { Shortcut } from "../types/keyboardShortcuts";
+export interface Shortcut {
+  key: string;
+  modifiers: ("meta" | "ctrl" | "alt" | "shift")[];
+  description: string;
+  action: () => void;
+  category: "navigation" | "actions" | "ui";
+}
 
 export function formatShortcut(shortcut: Shortcut): string {
   const isMac =
@@ -11,7 +17,7 @@ export function formatShortcut(shortcut: Shortcut): string {
     shift: "⇧",
   };
 
-  const mods = shortcut.modifiers.map((m) => modSymbols[m]).join("");
+  const mods = shortcut.modifiers.map((modifier) => modSymbols[modifier]).join("");
   const key = shortcut.key.length === 1 ? shortcut.key.toUpperCase() : shortcut.key;
   return mods ? `${mods}${key}` : key;
 }

@@ -33,7 +33,7 @@ test("checkRepoBloat rejects stale Resume Optimizer framing", () => {
     );
     writeFixtureFile(
       root,
-      "src/contexts/KeyboardShortcutsContext.tsx",
+      "src/app/keyboard/KeyboardShortcutsProvider.tsx",
       'description: "Go to Resume Optimizer",\n',
     );
     writeFixtureFile(
@@ -101,7 +101,7 @@ test("checkRepoBloat rejects stale Resume Optimizer framing", () => {
         "add",
         "package.json",
         "src/app/Navigation.tsx",
-        "src/contexts/KeyboardShortcutsContext.tsx",
+        "src/app/keyboard/KeyboardShortcutsProvider.tsx",
         "src/app/App.tsx",
         "src/features/resumes/builder/AtsLiveScorePanel.tsx",
         "src/features/resumes/library/ResumeLibraryPage.tsx",
@@ -120,7 +120,7 @@ test("checkRepoBloat rejects stale Resume Optimizer framing", () => {
 
     for (const path of [
       "src/app/Navigation.tsx",
-      "src/contexts/KeyboardShortcutsContext.tsx",
+      "src/app/keyboard/KeyboardShortcutsProvider.tsx",
       "src/app/App.tsx",
       "src/features/resumes/builder/AtsLiveScorePanel.tsx",
       "src/features/resumes/library/ResumeLibraryPage.tsx",

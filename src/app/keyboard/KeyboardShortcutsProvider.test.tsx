@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, act, waitFor } from "@testing-library/react";
-import { KeyboardShortcutsProvider } from "./KeyboardShortcutsContext";
-import { useKeyboardShortcuts } from "../hooks/useKeyboardShortcuts";
-import type { Shortcut } from "../types/keyboardShortcuts";
-import { formatShortcut } from "../utils/keyboardShortcuts";
+import { KeyboardShortcutsProvider } from "./KeyboardShortcutsProvider";
+import { useKeyboardShortcuts } from "./useKeyboardShortcuts";
+import type { Shortcut } from "./shortcut";
+import { formatShortcut } from "./shortcut";
 
 // Test component that uses the keyboard shortcuts context
 function TestComponent({

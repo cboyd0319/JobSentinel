@@ -464,14 +464,15 @@ describe("useDashboardKeyboardNavigation", () => {
 
 ```typescript
 import { render, screen } from "@testing-library/react";
-import { KeyboardShortcutsProvider, useKeyboardShortcuts } from "./KeyboardShortcutsContext";
+import { KeyboardShortcutsProvider } from "@/app/keyboard/KeyboardShortcutsProvider";
+import { useKeyboardShortcuts } from "@/app/keyboard/useKeyboardShortcuts";
 
 const TestComponent = () => {
   const { shortcuts } = useKeyboardShortcuts();
   return <div>{shortcuts.length} shortcuts available</div>;
 };
 
-describe("KeyboardShortcutsContext", () => {
+describe("KeyboardShortcutsProvider", () => {
   it("should provide shortcuts to children", () => {
     render(
       <KeyboardShortcutsProvider>

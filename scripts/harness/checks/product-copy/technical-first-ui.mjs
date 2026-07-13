@@ -375,7 +375,7 @@ export function getTechnicalFirstUiResult(path, text) {
     }
   }
 
-  if (path === "src/contexts/KeyboardShortcutsContext.tsx") {
+  if (path === "src/app/keyboard/KeyboardShortcutsProvider.tsx") {
     const keyboardShortcutContextPatterns = [
       /description:\s*["'`]Go to Market["'`]/,
       /description:\s*["'`]Show keyboard shortcuts help["'`]/,

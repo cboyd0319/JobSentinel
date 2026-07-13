@@ -1,5 +1,5 @@
 import { createContext } from "react";
-import type { Shortcut } from "../types/keyboardShortcuts";
+import type { Shortcut } from "./shortcut";
 
 export interface KeyboardShortcutsContextType {
   shortcuts: Shortcut[];

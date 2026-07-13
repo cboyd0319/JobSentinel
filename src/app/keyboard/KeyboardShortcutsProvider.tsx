@@ -8,8 +8,8 @@ import {
 import {
   KeyboardShortcutsContext,
   type KeyboardShortcutsContextType,
-} from "./keyboardShortcutsContextDef";
-import type { Shortcut } from "../types/keyboardShortcuts";
+} from "./keyboardShortcutsContext";
+import type { Shortcut } from "./shortcut";
 
 function shortcutId(key: string, modifiers: Shortcut["modifiers"]): string {
   return `${key.toLowerCase()}::${[...modifiers].sort().join("+")}`;
