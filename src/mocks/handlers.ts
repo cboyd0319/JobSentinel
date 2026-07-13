@@ -40,7 +40,8 @@ import {
   saveMockInterviewFollowup,
   saveMockInterviewPrepItem,
 } from "../features/applications/mocks/interviewProgress";
-import { handleMockJobTrackingCommand } from "./handlers/jobTrackingCommands";
+import { handleMockDashboardCommand } from "../features/dashboard/mocks/commands";
+import { handleMockApplicationsCommand } from "../features/applications/mocks/commands";
 import { handleMockSettingsSupportCommand } from "./handlers/settingsSupportCommands";
 import { handleMockUserDataCommand } from "./handlers/userDataCommands";
 import {
@@ -428,11 +429,32 @@ function applyMockUserDataCommand<T>(
   return result.value as T;
 }
 
-function applyMockJobTrackingCommand<T>(
+function applyMockDashboardCommand<T>(
   command: string,
   args: Record<string, unknown> | undefined,
 ): T {
-  const result = handleMockJobTrackingCommand(command, args, {
+  const result = handleMockDashboardCommand(command, args, {
+    jobs,
+  });
+
+  if (!result.handled) {
+    return undefined as T;
+  }
+
+  jobs = result.state.jobs;
+
+  if (result.shouldSave) {
+    saveMockState();
+  }
+
+  return result.value as T;
+}
+
+function applyMockApplicationsCommand<T>(
+  command: string,
+  args: Record<string, unknown> | undefined,
+): T {
+  const result = handleMockApplicationsCommand(command, args, {
     jobs,
     applications,
     pendingReminders,
@@ -607,7 +629,7 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
     case "mark_job_as_real":
     case "mark_job_as_ghost":
     case "get_job_notes":
-      return applyMockJobTrackingCommand<T>(cmd, args);
+      return applyMockDashboardCommand<T>(cmd, args);
 
     // Setup/First run
     case "is_first_run":
@@ -659,7 +681,7 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
     case "get_recent_jobs":
     case "get_scraping_status":
     case "search_jobs":
-      return applyMockJobTrackingCommand<T>(cmd, args);
+      return applyMockDashboardCommand<T>(cmd, args);
 
     // Deep-link commands
     case "get_supported_sites":
@@ -716,7 +738,7 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
     case "delete_interview":
     case "find_duplicates":
     case "merge_duplicates":
-      return applyMockJobTrackingCommand<T>(cmd, args);
+      return applyMockApplicationsCommand<T>(cmd, args);
 
     // Resume commands
     case "get_active_resume":

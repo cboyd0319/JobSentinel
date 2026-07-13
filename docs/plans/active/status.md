@@ -54,7 +54,7 @@ weakened.
 | Workstream | State | Current focus | Source |
 | ---------- | ----- | ------------- | ------ |
 | Current product and quality work | Active | Keep privacy, design, platform, harness, and release evidence aligned during the refactor | [Plan](current-work.md) |
-| Full repository refactor and v2.9.5 readiness | Active | Split mixed development mock command groups | [Plan](repository-architecture-reorganization.md) |
+| Full repository refactor and v2.9.5 readiness | Active | Split Settings and user-data mock commands | [Plan](repository-architecture-reorganization.md) |
 
 ## Current Posture
 
@@ -84,7 +84,7 @@ weakened.
 
 ## Next Best Work
 
-1. Split mixed development mock command groups, then retain a thin registry.
+1. Split Settings and cross-feature user-data mock commands.
 2. Keep every ownership slice green and remove transition code before accepting
    it.
 3. Keep future product work scoped by the current active plan and the

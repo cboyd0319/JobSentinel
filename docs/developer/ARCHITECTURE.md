@@ -378,9 +378,10 @@ the broader agent harness.
   architecture sensor, but feature-owned mock handlers remain colocated with
   their feature and are registered by the central development dispatcher.
 - Application Assist owns mock application-platform detection, Applications
-  owns interview-progress mocks, Settings owns source-health mocks, LinkedIn
-  Workbench owns its ledger mock, and shared Error Reporting owns safe support
-  report mocks. Mixed command groups under `src/mocks/` remain transitional.
+  owns tracking and interview-progress commands, Dashboard owns job commands,
+  Settings owns source-health mocks, LinkedIn Workbench owns its ledger mock,
+  and shared Error Reporting owns safe support-report mocks. Mixed command
+  groups under `src/mocks/` remain transitional.
 
 ---
 

@@ -1,13 +1,12 @@
 import {
   mockApplicationStats,
   mockStatistics,
-} from "../data";
+} from "../../../mocks/data";
 import {
   APPLICATION_STATUS_KEYS,
   getArg,
-  getJobId,
   getNumericArg,
-} from "./commandHelpers";
+} from "../../../mocks/handlers/commandHelpers";
 import type {
   MockApplication,
   MockApplications,
@@ -15,140 +14,28 @@ import type {
   MockInterview,
   MockJob,
   MockPendingReminder,
-} from "./types";
+} from "../../../mocks/handlers/types";
 
-export interface MockJobTrackingCommandState {
+export interface MockApplicationsCommandState {
   jobs: MockJob[];
   applications: MockApplications;
   pendingReminders: MockPendingReminder[];
   interviews: MockInterview[];
 }
 
-export interface MockJobTrackingCommandResult {
+export interface MockApplicationsCommandResult {
   handled: boolean;
   shouldSave: boolean;
-  state: MockJobTrackingCommandState;
+  state: MockApplicationsCommandState;
   value: unknown;
 }
 
-export function handleMockJobTrackingCommand(
+export function handleMockApplicationsCommand(
   command: string,
   args: Record<string, unknown> | undefined,
-  state: MockJobTrackingCommandState,
-): MockJobTrackingCommandResult {
+  state: MockApplicationsCommandState,
+): MockApplicationsCommandResult {
   switch (command) {
-    case "get_jobs":
-      return withoutSave(state, filterJobs(state.jobs, args));
-
-    case "get_job":
-      return withoutSave(
-        state,
-        state.jobs.find((job) => job.id === getJobId(args)),
-      );
-
-    case "hide_job":
-      return withJobs(
-        state,
-        state.jobs.map((job) =>
-          job.id === getJobId(args) ? { ...job, hidden: true } : job,
-        ),
-      );
-
-    case "unhide_job":
-      return withJobs(
-        state,
-        state.jobs.map((job) =>
-          job.id === getJobId(args) ? { ...job, hidden: false } : job,
-        ),
-      );
-
-    case "toggle_bookmark":
-      return toggleBookmark(args, state);
-
-    case "get_bookmarked_jobs":
-      return withoutSave(
-        state,
-        state.jobs.filter((job) => job.bookmarked),
-      );
-
-    case "set_job_notes":
-      return withJobs(
-        state,
-        state.jobs.map((job) =>
-          job.id === getJobId(args)
-            ? { ...job, notes: getArg(args, "notes") as string | null }
-            : job,
-        ),
-      );
-
-    case "mark_job_as_real":
-      return withJobs(
-        state,
-        state.jobs.map((job) =>
-          job.id === getJobId(args)
-            ? {
-                ...job,
-                ghost_score: 0,
-                ghost_reasons: null,
-                user_ghost_verdict: "real",
-              }
-            : job,
-        ),
-      );
-
-    case "mark_job_as_ghost":
-      return withJobs(
-        state,
-        state.jobs.map((job) =>
-          job.id === getJobId(args)
-            ? {
-                ...job,
-                ghost_score: 0.95,
-                ghost_reasons: JSON.stringify([
-                  {
-                    category: "company_behavior",
-                    description: "User marked this listing as needing review.",
-                    weight: 1,
-                    severity: "high",
-                  },
-                ]),
-                user_ghost_verdict: "ghost",
-              }
-            : job,
-        ),
-      );
-
-    case "get_job_notes":
-      return withoutSave(
-        state,
-        state.jobs.find((job) => job.id === getJobId(args))?.notes || null,
-      );
-
-    case "get_statistics":
-      return withoutSave(state, {
-        ...mockStatistics,
-        total_jobs: state.jobs.length,
-        hidden_count: state.jobs.filter((job) => job.hidden).length,
-      });
-
-    case "get_recent_jobs":
-      return withoutSave(state, state.jobs.slice(0, (args?.limit as number) || 10));
-
-    case "get_scraping_status":
-      return withoutSave(state, {
-        is_running: false,
-        current_source: null,
-        progress: 0,
-        last_run: new Date().toISOString(),
-        jobs_found: state.jobs.length,
-      });
-
-    case "search_jobs":
-      return withoutSave(state, {
-        jobs_found: Math.floor(Math.random() * 20) + 5,
-        duration_ms: 1500,
-      });
-
     case "get_applications_kanban":
       return withoutSave(state, state.applications);
 
@@ -267,53 +154,21 @@ export function handleMockJobTrackingCommand(
       return withoutSave(state, undefined);
 
     default:
-      return {
-        handled: false,
-        shouldSave: false,
-        state,
-        value: undefined,
-      };
+      return { handled: false, shouldSave: false, state, value: undefined };
   }
 }
 
 function withoutSave(
-  state: MockJobTrackingCommandState,
+  state: MockApplicationsCommandState,
   value: unknown,
-): MockJobTrackingCommandResult {
+): MockApplicationsCommandResult {
   return { handled: true, shouldSave: false, state, value };
-}
-
-function withJobs(
-  state: MockJobTrackingCommandState,
-  jobs: MockJob[],
-  value?: unknown,
-): MockJobTrackingCommandResult {
-  return {
-    handled: true,
-    shouldSave: true,
-    state: { ...state, jobs },
-    value,
-  };
-}
-
-function toggleBookmark(
-  args: Record<string, unknown> | undefined,
-  state: MockJobTrackingCommandState,
-): MockJobTrackingCommandResult {
-  let nextState = false;
-  const jobs = state.jobs.map((job) => {
-    if (job.id !== getJobId(args)) return job;
-    nextState = !job.bookmarked;
-    return { ...job, bookmarked: nextState };
-  });
-
-  return withJobs(state, jobs, nextState);
 }
 
 function createApplication(
   args: Record<string, unknown> | undefined,
-  state: MockJobTrackingCommandState,
-): MockJobTrackingCommandResult {
+  state: MockApplicationsCommandState,
+): MockApplicationsCommandResult {
   const jobHash = getArg(args, "jobHash") ?? getArg(args, "job_hash");
   const job = state.jobs.find((candidate) => candidate.hash === jobHash);
   const nextId =
@@ -350,8 +205,8 @@ function createApplication(
 
 function updateApplicationStatus(
   args: Record<string, unknown> | undefined,
-  state: MockJobTrackingCommandState,
-): MockJobTrackingCommandResult {
+  state: MockApplicationsCommandState,
+): MockApplicationsCommandResult {
   const applicationId = getNumericArg(args, "applicationId");
   const status = getArg(args, "status");
   if (applicationId === undefined || typeof status !== "string") {
@@ -375,8 +230,8 @@ function updateApplicationStatus(
 
 function addApplicationNotes(
   args: Record<string, unknown> | undefined,
-  state: MockJobTrackingCommandState,
-): MockJobTrackingCommandResult {
+  state: MockApplicationsCommandState,
+): MockApplicationsCommandResult {
   const applicationId = getNumericArg(args, "applicationId");
   const notes = getArg(args, "notes");
   if (applicationId === undefined) {
@@ -403,8 +258,8 @@ function addApplicationNotes(
 
 function scheduleInterview(
   args: Record<string, unknown> | undefined,
-  state: MockJobTrackingCommandState,
-): MockJobTrackingCommandResult {
+  state: MockApplicationsCommandState,
+): MockApplicationsCommandResult {
   const id = Math.max(...state.interviews.map((interview) => interview.id), 0) + 1;
   const interview: MockInterview = {
     id,
@@ -428,39 +283,6 @@ function scheduleInterview(
     state: { ...state, interviews: [...state.interviews, interview] },
     value: id,
   };
-}
-
-function filterJobs(
-  jobs: MockJob[],
-  args?: Record<string, unknown>,
-): MockJob[] {
-  let filtered = jobs.filter((job) => !job.hidden);
-
-  if (args?.source) {
-    filtered = filtered.filter((job) => job.source === args.source);
-  }
-
-  if (args?.minScore) {
-    filtered = filtered.filter(
-      (job) => job.score >= (args.minScore as number),
-    );
-  }
-
-  if (args?.bookmarkedOnly) {
-    filtered = filtered.filter((job) => job.bookmarked);
-  }
-
-  if (args?.search) {
-    const search = (args.search as string).toLowerCase();
-    filtered = filtered.filter(
-      (job) =>
-        job.title.toLowerCase().includes(search) ||
-        job.company.toLowerCase().includes(search) ||
-        job.description.toLowerCase().includes(search),
-    );
-  }
-
-  return filtered;
 }
 
 function findApplication(
