@@ -1,7 +1,7 @@
 import { memo } from "react";
 import { Button } from "../../../ui/Button";
 import { Modal, ModalFooter } from "../../../ui/Modal";
-import { ScoreDisplay } from "../../../components/ScoreDisplay";
+import { ScoreDisplay } from "../../../ui/score-display/ScoreDisplay";
 import { formatJobSourceLabel } from "../../../shared/jobSourceGuidance";
 import { formatDashboardPostedDate } from "../dashboardDateDisplay";
 import { formatDashboardFitEstimate } from "../dashboardFitEstimate";

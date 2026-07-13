@@ -372,7 +372,7 @@ test("checkRepoBloat rejects unsafe reason JSON parsing", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/components/ScoreDisplay.tsx",
+      "src/ui/score-display/internal/scoreReasons.ts",
       [
         "function parseScoreReasons(reasonsJson) {",
         "  const reasons: string[] = JSON.parse(reasonsJson);",
@@ -401,7 +401,7 @@ test("checkRepoBloat rejects unsafe reason JSON parsing", () => {
       [
         "add",
         "package.json",
-        "src/components/ScoreDisplay.tsx",
+        "src/ui/score-display/internal/scoreReasons.ts",
         "src/features/dashboard/components/GhostIndicator.tsx",
       ],
       { cwd: root },
@@ -411,7 +411,7 @@ test("checkRepoBloat rejects unsafe reason JSON parsing", () => {
 
     assert.ok(
       violations.includes(
-        "validate reason JSON before rendering: src/components/ScoreDisplay.tsx",
+        "validate reason JSON before rendering: src/ui/score-display/internal/scoreReasons.ts",
       ),
       violations.join("\n"),
     );

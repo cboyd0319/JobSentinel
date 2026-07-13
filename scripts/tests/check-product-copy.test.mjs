@@ -587,7 +587,7 @@ test("product copy rejects technical recovery and raw error details", () => {
 
 test("product copy rejects non-protective scoring and legacy preference copy", () => {
   withFixture((root) => {
-    writeFixtureFile(root, "src/components/ScoreDisplay.tsx", "Great Match!");
+    writeFixtureFile(root, "src/ui/score-display/ScoreDisplay.tsx", "Great Match!");
     writeFixtureFile(
       root,
       "docs/features/application-tracking.md",
@@ -625,7 +625,7 @@ test("product copy rejects non-protective scoring and legacy preference copy", (
     );
 
     assert.equal(
-      hasNonProtectiveScoreCopy(root, "src/components/ScoreDisplay.tsx"),
+      hasNonProtectiveScoreCopy(root, "src/ui/score-display/ScoreDisplay.tsx"),
       true,
     );
     assert.equal(
@@ -681,12 +681,12 @@ test("product copy rejects non-protective scoring and legacy preference copy", (
 test("product copy rejects stale match-ranking labels", () => {
   withFixture((root) => {
     for (const [path, copy] of [
-      ["src/components/ScoreDisplay.tsx", "Strong Match"],
-      ["src/components/ScoreDisplay.stories.tsx", "Excellent (90%+)"],
-      ["src/components/ScoreDisplay.stories.tsx", "Average (50-69%)"],
-      ["src/components/ScoreDisplay.stories.tsx", "Low (&lt;50%)"],
-      ["src/components/ScoreDisplay.stories.tsx", "AllScoreRanges"],
-      ["src/components/ScoreDisplay.stories.tsx", "HighScore"],
+      ["src/ui/score-display/ScoreDisplay.tsx", "Strong Match"],
+      ["src/ui/score-display/ScoreDisplay.stories.tsx", "Excellent (90%+)"],
+      ["src/ui/score-display/ScoreDisplay.stories.tsx", "Average (50-69%)"],
+      ["src/ui/score-display/ScoreDisplay.stories.tsx", "Low (&lt;50%)"],
+      ["src/ui/score-display/ScoreDisplay.stories.tsx", "AllScoreRanges"],
+      ["src/ui/score-display/ScoreDisplay.stories.tsx", "HighScore"],
       [
         "src/features/dashboard/components/ScoreBreakdownModal.tsx",
         "Match Details",
@@ -695,8 +695,8 @@ test("product copy rejects stale match-ranking labels", () => {
         "src/features/dashboard/components/ScoreBreakdownModal.tsx",
         "Part of overall score",
       ],
-      ["src/components/ScoreDisplay.tsx", "Score factor weights"],
-      ["src/components/ScoreDisplay.tsx", "<td>{factor.weight}%</td>"],
+      ["src/ui/score-display/ScoreDisplay.tsx", "Score factor weights"],
+      ["src/ui/score-display/ScoreDisplay.tsx", "<td>{factor.weight}%</td>"],
       [
         "src/features/dashboard/components/ScoreBreakdownModal.tsx",
         "<span>{factorPercentage}%</span>",

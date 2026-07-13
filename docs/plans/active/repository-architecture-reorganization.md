@@ -296,13 +296,12 @@ ui -> shared
 shared -> browser and standard-library APIs only
 ```
 
-- `app/` owns startup, providers, routing, navigation, and cross-feature page
-  composition.
+- `app/` owns startup, providers, routing, navigation, and cross-feature page composition.
 - `features/<feature>/` owns its pages, components, hooks, services, models,
   mocks, and tests. Initial slices should follow existing user workflows such
   as job search, applications, resume, hiring trends, pay, setup, settings,
   notifications, external AI, deep links, and support.
-- `ui/` contains only product-neutral components with multiple consumers.
+- `ui/` contains stable visual primitives with multiple feature consumers.
 - `shared/` contains only cross-feature contracts and small general utilities.
   It is not the default destination for code that does not yet have an owner.
 - Feature-to-feature implementation imports are denied. If two features need a
@@ -471,7 +470,7 @@ or installed configuration path changes.
 - [x] Choose a low-coupling feature as the first vertical slice. Move its page,
   components, hooks, service, types, mocks, and tests together.
 - [ ] Repeat by feature, using import evidence rather than filename prefixes.
-- [ ] Move only multi-consumer, product-neutral components into `src/ui/`.
+- [x] Move proven multi-feature visual primitives into `src/ui/`.
 - [x] Reduce and delete `src/pages/`, `src/hooks/`, `src/contexts/`, and `src/utils/`.
 - [x] Move the external-AI boundary and delete `src/services/`.
 - [ ] Reduce `src/components/` to zero before deleting it.
@@ -736,6 +735,7 @@ evidence-log entry.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-07-13 | Milestone 2 in progress | Moved the four-consumer Score Display visual, tests, and stories into `src/ui/score-display/`. Extracted validated score-reason parsing into a private 111-line module and reduced the visual to 416 lines. Copy, thresholds, keyboard behavior, and renderer-safe parsing are unchanged; policy sensors follow both owners. All 162 focused frontend tests, 54 focused sensor tests, 2,933 frontend tests across 194 files, 766 script tests, the 816-module build, repository gates, and 19 Dashboard and Resume E2E flows pass. Only the company research family remains in the root components bucket. |
 | 2026-07-13 | Milestone 2 in progress | Deleted the root `src/utils/` bucket after assigning safe browser downloads, Dashboard CSV, and Settings backups to real owners. Then established `src/features/linkedin-workbench/` with a public visual facade and private consent, transport, and learning modules. App composition supplies the workbench to Dashboard and Settings without feature-to-feature imports. The LinkedIn cut passed 62 focused frontend tests, 2,933 frontend tests across 192 files, 766 script tests, the production build, repository gates, and all 16 Settings E2E flows. Credential redaction, formula neutralization, URL sanitization, explicit review, and local-only behavior are unchanged. |
 | 2026-07-13 | Milestone 2 in progress | Split Error Reporting by dependency direction: `src/app/providers/ErrorReportingProvider.tsx` owns initialization and composition, while `src/shared/errorReporting/` owns the typed context, hook, local reporter, validation, and sanitization contract used across app recovery, Dashboard, Settings, utilities, and feedback. Deleted four helpers with no production consumers, removed the transitional contexts barrel, and deleted the empty root `contexts` and `hooks` buckets. The reporter is 470 lines, below the final production cap. All 189 focused frontend tests, 64 focused policy tests, 3,052 frontend tests across 184 files, 766 script tests, the 804-module build, repository gates, and 31 app-shell and Settings E2E flows pass. No user-facing behavior or public wiki page changed. |
 | 2026-07-13 | Milestone 2 in progress | Split Undo ownership by dependency direction: `src/app/providers/UndoProvider.tsx` owns stacks, keyboard handling, and Toast composition, while `src/shared/undo/` owns the typed action context and hook consumed by Dashboard and Applications. Updated path-sensitive policy fixtures and the completed wiring plan, then removed Undo exports from the transitional contexts barrel. All 111 focused frontend tests, 45 focused policy tests, 3,054 frontend tests across 184 files, 766 script tests, the 805-module build, repository gates, and 33 Dashboard and Applications E2E flows pass. |
@@ -816,9 +816,9 @@ evidence-log entry.
   Onboarding, Dashboard job discovery, Resume library, builder and matching,
   Settings, and Search Links are complete feature slices with public facades
   and private implementation modules under `src/features/`. The shared Search
-  Links IPC model and client have one neutral multi-consumer owner. Seventeen
-  proven multi-feature visual primitives now have direct module ownership under
-  `src/ui/`, without an aggregate barrel. Settings-private notification,
+  Links IPC model and client have one neutral multi-consumer owner. Eighteen proven
+  multi-feature visual primitives now have direct ownership under `src/ui/`, without
+  an aggregate barrel; job-fit reason parsing stays private. Settings-private notification,
   source-health, problem-report, and feedback UI modules have moved out of the
   transitional components bucket into explicit Settings subdomains. App-only
   command, keyboard-help, recovery, and tour-configuration modules now live in

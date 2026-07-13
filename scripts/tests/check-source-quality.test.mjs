@@ -264,7 +264,7 @@ test("source quality rejects unsafe rendered JSON parsing", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src/components/ScoreDisplay.tsx",
+      "src/ui/score-display/internal/scoreReasons.ts",
       "const reasons: string[] = JSON.parse(reasonsJson);\n",
     );
     writeFixtureFile(
@@ -289,7 +289,10 @@ test("source quality rejects unsafe rendered JSON parsing", () => {
     );
 
     assert.equal(
-      hasUnsafeScoreReasonJsonParsing(root, "src/components/ScoreDisplay.tsx"),
+      hasUnsafeScoreReasonJsonParsing(
+        root,
+        "src/ui/score-display/internal/scoreReasons.ts",
+      ),
       true,
     );
     assert.equal(

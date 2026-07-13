@@ -30,7 +30,7 @@ test("checkRepoBloat rejects non-protective score copy", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/components/ScoreDisplay.tsx",
+      "src/ui/score-display/ScoreDisplay.tsx",
       [
         'const label = "Great Match!";',
         'const detail = "This job is Highly recommended!";',
@@ -100,7 +100,7 @@ test("checkRepoBloat rejects non-protective score copy", () => {
         "docs/user/QUICK_START.md",
         "src/app/onboarding/tourSteps.ts",
         "src/components/ResumeMatchScoreBreakdown.tsx",
-        "src/components/ScoreDisplay.tsx",
+        "src/ui/score-display/ScoreDisplay.tsx",
         "src/features/dashboard/components/ScoreBreakdownModal.tsx",
         "src/features/dashboard/DashboardPage.tsx",
         "src/features/dashboard/components/DashboardFiltersBar.tsx",
@@ -113,7 +113,7 @@ test("checkRepoBloat rejects non-protective score copy", () => {
 
     assert.ok(
       violations.includes(
-        "keep score copy protective: src/components/ScoreDisplay.tsx",
+        "keep score copy protective: src/ui/score-display/ScoreDisplay.tsx",
       ),
       violations.join("\n"),
     );

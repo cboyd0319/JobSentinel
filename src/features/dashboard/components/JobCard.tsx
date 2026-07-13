@@ -1,5 +1,5 @@
 import { useEffect, useState, memo, type ReactNode } from "react";
-import { ScoreDisplay } from "../../../components/ScoreDisplay";
+import { ScoreDisplay } from "../../../ui/score-display/ScoreDisplay";
 import { GhostIndicatorCompact } from "./GhostIndicator";
 import { ExternalAiJobSummary } from "./ExternalAiJobSummary";
 import {

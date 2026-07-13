@@ -3,7 +3,7 @@
 
 import { memo } from "react";
 import { Card } from "../../../ui/Card";
-import { ScoreDisplay } from "../../../components/ScoreDisplay";
+import { ScoreDisplay } from "../../../ui/score-display/ScoreDisplay";
 import { BriefcaseIcon, StarIcon } from "./DashboardIcons";
 import type { Statistics } from "../types";
 

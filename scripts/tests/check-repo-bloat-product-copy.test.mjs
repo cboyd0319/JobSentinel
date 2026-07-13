@@ -281,8 +281,13 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/ScoreDisplay.tsx",
+      "src/ui/score-display/ScoreDisplay.tsx",
       "<th>Weight</th>\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/ui/score-display/internal/scoreReasons.ts",
+      '"Invalid JSON"\n',
     );
     writeFixtureFile(
       root,
@@ -572,7 +577,8 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/app/errors/ErrorBoundary.tsx",
         "src/features/settings/support/ErrorLogPanel.tsx",
         "src/features/dashboard/components/ScoreBreakdownModal.tsx",
-        "src/components/ScoreDisplay.tsx",
+        "src/ui/score-display/ScoreDisplay.tsx",
+        "src/ui/score-display/internal/scoreReasons.ts",
         "src/features/settings/sources/health/ScraperHealthDashboard.tsx",
         "src/features/dashboard/components/JobImportModal.tsx",
         "src/features/dashboard/components/JobCard.tsx",
@@ -632,7 +638,8 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/app/errors/ErrorBoundary.tsx",
       "src/features/settings/support/ErrorLogPanel.tsx",
       "src/features/dashboard/components/ScoreBreakdownModal.tsx",
-      "src/components/ScoreDisplay.tsx",
+      "src/ui/score-display/ScoreDisplay.tsx",
+      "src/ui/score-display/internal/scoreReasons.ts",
       "src/features/settings/sources/health/ScraperHealthDashboard.tsx",
       "src/features/dashboard/components/JobImportModal.tsx",
       "src/features/dashboard/components/JobCard.tsx",

@@ -363,8 +363,10 @@ the broader agent harness.
   `jobDisplayFormatting.ts`; `jobCsvExport.ts` owns spreadsheet-safe job export.
 - `src/ui/` owns proven multi-feature visual primitives and their colocated
   tests and stories. Features import these modules directly, such as
-  `src/ui/Button.tsx` and `src/ui/Modal.tsx`; there is no aggregate barrel.
-  Product-domain panels and workflows do not belong in this directory.
+  `src/ui/Button.tsx`, `src/ui/Modal.tsx`, and the cross-feature job-fit visual
+  under `src/ui/score-display/`; there is no aggregate barrel. Score-reason
+  parsing stays private to that visual. Product-domain panels and workflows do
+  not belong in this directory.
 - Legacy `components`, `services`, `types`, and `config` buckets remain
   transitional. The legacy `pages`, `contexts`, `hooks`, and `utils` buckets
   have been removed. Remaining domain components and transitional owners must
