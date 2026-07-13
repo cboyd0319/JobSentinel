@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   parseUserProvidedLinkedInText,
   shouldShowLinkedInWorkbenchPrivacyReminder,
-} from "./linkedinWorkbench";
+} from "./linkedinWorkbenchPolicy";
 
 describe("linkedinWorkbench", () => {
   it("prefills from user-provided selected text", () => {

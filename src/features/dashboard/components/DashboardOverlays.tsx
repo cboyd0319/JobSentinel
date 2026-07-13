@@ -10,11 +10,6 @@ import { CheckCircleIcon } from "./DashboardIcons";
 import type { DuplicateGroup } from "../types";
 import { DuplicateGroupCard } from "./DuplicateGroupCard";
 
-const LinkedInWorkbench = lazy(() =>
-  import("../../../components/LinkedInWorkbench").then((module) => ({
-    default: module.LinkedInWorkbench,
-  })),
-);
 const CompanyResearchPanel = lazy(() =>
   import("../../../components/CompanyResearchPanel").then((module) => ({
     default: module.CompanyResearchPanel,
@@ -102,9 +97,11 @@ export function DashboardDuplicateGroupsModal({
 export function DashboardLinkedInWorkbenchModal({
   isOpen,
   onClose,
+  workbench,
 }: {
   isOpen: boolean;
   onClose: () => void;
+  workbench?: ReactNode;
 }) {
   return (
     <Modal
@@ -114,9 +111,7 @@ export function DashboardLinkedInWorkbenchModal({
       description="Use LinkedIn yourself, then save the jobs and actions you choose in JobSentinel."
       size="xl"
     >
-      <Suspense fallback={<PanelSkeleton />}>
-        <LinkedInWorkbench />
-      </Suspense>
+      <Suspense fallback={<PanelSkeleton />}>{workbench}</Suspense>
     </Modal>
   );
 }

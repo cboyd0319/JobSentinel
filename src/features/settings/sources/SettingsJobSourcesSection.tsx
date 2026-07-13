@@ -1,7 +1,6 @@
-import type { Dispatch, SetStateAction } from "react";
+import type { Dispatch, ReactNode, SetStateAction } from "react";
 import { Badge } from "../../../ui/Badge";
 import { HelpIcon } from "../../../ui/HelpIcon";
-import { LinkedInWorkbench } from "../../../components/LinkedInWorkbench";
 import {
   RESTRICTED_AUTHENTICATED_SOURCE_WARNING,
   RESTRICTED_INTERACTIVE_SESSION_REMINDER_MINUTES,
@@ -27,6 +26,7 @@ interface SettingsJobSourcesSectionProps {
   jobsWithGptLastRequest: SourceRequestSummary | null;
   jobsWithGptPayload: JobsWithGptPayload | null;
   jobsWithGptPayloadApproved: boolean;
+  linkedinWorkbench?: ReactNode;
   onApproveJobsWithGptPayload: () => void;
   onClearJobsWithGptApproval: () => void;
   setConfig: Dispatch<SetStateAction<Config | null>>;
@@ -43,6 +43,7 @@ export function SettingsJobSourcesSection({
   jobsWithGptLastRequest,
   jobsWithGptPayload,
   jobsWithGptPayloadApproved,
+  linkedinWorkbench,
   onApproveJobsWithGptPayload,
   onClearJobsWithGptApproval,
   setConfig,
@@ -103,7 +104,7 @@ export function SettingsJobSourcesSection({
               company application pages such as Greenhouse, Lever, Ashby,
               SmartRecruiters, and USAJobs.
             </p>
-            <LinkedInWorkbench />
+            {linkedinWorkbench}
           </div>
         </div>
 

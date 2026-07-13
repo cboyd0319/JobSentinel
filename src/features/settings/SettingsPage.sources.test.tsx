@@ -143,6 +143,29 @@ describe("Settings source setup", () => {
     vi.clearAllMocks();
   });
 
+  it("renders the app-composed LinkedIn workbench", async () => {
+    const user = userEvent.setup();
+    mockInvoke.mockImplementation(async (cmd: string) => {
+      if (cmd === "get_config") return makeConfig();
+      if (cmd === "has_credential") return false;
+      if (cmd === "get_ghost_config") return makeGhostConfig();
+      return null;
+    });
+
+    render(
+      <Settings
+        linkedinWorkbench={<div>Composed LinkedIn workbench</div>}
+        onClose={vi.fn()}
+      />,
+    );
+
+    await user.click(
+      await screen.findByRole("tab", { name: "Sources & Alerts" }),
+    );
+
+    expect(screen.getByText("Composed LinkedIn workbench")).toBeInTheDocument();
+  });
+
   it("does not recommend tech-heavy sources for broad remote searches", async () => {
     const user = userEvent.setup();
     const config = makeConfig();

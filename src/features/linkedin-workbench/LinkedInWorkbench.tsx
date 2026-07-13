@@ -1,9 +1,9 @@
 import { useEffect, useState, type ClipboardEvent } from "react";
-import { Button } from "../ui/Button";
-import { useToast } from "../shared/toast/useToast";
-import { openDeepLink } from "../shared/search-links";
-import { recordLinkedInWorkbenchEvent } from "../services/linkedinWorkbench";
-import { LinkedInWorkbenchLearning } from "./LinkedInWorkbenchLearning";
+import { Button } from "../../ui/Button";
+import { useToast } from "../../shared/toast/useToast";
+import { openDeepLink } from "../../shared/search-links";
+import { recordLinkedInWorkbenchEvent } from "./internal/linkedinWorkbenchClient";
+import { LinkedInWorkbenchLearning } from "./internal/LinkedInWorkbenchLearning";
 import {
   clearBrowserAssistLearningSignals,
   readBrowserAssistLearningEnabled,
@@ -12,11 +12,10 @@ import {
   summarizeBrowserAssistLearningSignals,
   writeBrowserAssistLearningEnabled,
   type BrowserAssistLearningSummary,
-} from "../shared/browserAssistLearning";
+} from "../../shared/browserAssistLearning";
 import {
   defaultLinkedInWorkbenchPrefill,
   LINKEDIN_WORKBENCH_ACK_STORAGE_KEY,
-  LINKEDIN_WORKBENCH_ACK_VERSION,
   LINKEDIN_WORKBENCH_PRIVACY_REMINDER_MINUTES,
   parseUserProvidedLinkedInText,
   sanitizeLinkedInWorkbenchTextForStorage,
@@ -24,20 +23,21 @@ import {
   shouldShowLinkedInWorkbenchPrivacyReminder,
   type LinkedInWorkbenchEventType,
   type LinkedInWorkbenchPrefill,
-} from "../shared/linkedinWorkbench";
-import { logError } from "../shared/errorReporting/logger";
+} from "./linkedinWorkbenchPolicy";
+import { logError } from "../../shared/errorReporting/logger";
+import {
+  readLinkedInWorkbenchAcknowledgement,
+  writeLinkedInWorkbenchAcknowledgement,
+} from "./internal/linkedinWorkbenchAcknowledgement";
 
 const LINKEDIN_JOBS_URL = "https://www.linkedin.com/jobs/";
 const LINKEDIN_TRACKER_URL = "https://www.linkedin.com/jobs-tracker/?stage=applied";
 
-interface StoredAcknowledgement {
-  version: string;
-  acceptedAt: string;
-}
-
 export function LinkedInWorkbench() {
   const toast = useToast();
-  const [acknowledged, setAcknowledged] = useState(readStoredAcknowledgement);
+  const [acknowledged, setAcknowledged] = useState(
+    readLinkedInWorkbenchAcknowledgement,
+  );
   const [sessionStartedAt, setSessionStartedAt] = useState<number | null>(null);
   const [now, setNow] = useState<number | null>(null);
   const [draft, setDraft] = useState<LinkedInWorkbenchPrefill>(
@@ -67,7 +67,7 @@ export function LinkedInWorkbench() {
   const updateAcknowledgement = (accepted: boolean) => {
     setAcknowledged(accepted);
     if (accepted) {
-      writeStoredAcknowledgement();
+      writeLinkedInWorkbenchAcknowledgement();
     } else {
       window.localStorage.removeItem(LINKEDIN_WORKBENCH_ACK_STORAGE_KEY);
     }
@@ -438,31 +438,6 @@ export function LinkedInWorkbench() {
         </p>
       </div>
     </div>
-  );
-}
-
-function readStoredAcknowledgement(): boolean {
-  try {
-    const value = window.localStorage.getItem(LINKEDIN_WORKBENCH_ACK_STORAGE_KEY);
-    if (!value) {
-      return false;
-    }
-
-    const parsed = JSON.parse(value) as Partial<StoredAcknowledgement>;
-    return parsed.version === LINKEDIN_WORKBENCH_ACK_VERSION;
-  } catch {
-    return false;
-  }
-}
-
-function writeStoredAcknowledgement() {
-  const acknowledgement: StoredAcknowledgement = {
-    version: LINKEDIN_WORKBENCH_ACK_VERSION,
-    acceptedAt: new Date().toISOString(),
-  };
-  window.localStorage.setItem(
-    LINKEDIN_WORKBENCH_ACK_STORAGE_KEY,
-    JSON.stringify(acknowledgement),
   );
 }
 

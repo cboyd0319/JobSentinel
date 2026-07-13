@@ -50,6 +50,7 @@ export default function Dashboard({
   tourAction,
   renderApplicationAssistAction,
   settingsPage: SettingsPage,
+  linkedinWorkbench,
   showSettings: showSettingsProp,
   onShowSettingsChange,
   openImportOnMount = false,
@@ -264,7 +265,12 @@ export default function Dashboard({
   if (showSettings) {
     return (
       <DashboardSettingsPanel onClose={handleSettingsClose}>
-        {SettingsPage ? <SettingsPage onClose={handleSettingsClose} /> : null}
+        {SettingsPage ? (
+          <SettingsPage
+            linkedinWorkbench={linkedinWorkbench}
+            onClose={handleSettingsClose}
+          />
+        ) : null}
       </DashboardSettingsPanel>
     );
   }
@@ -453,6 +459,7 @@ export default function Dashboard({
 
       <DashboardLinkedInWorkbenchModal
         isOpen={showLinkedInWorkbench}
+        workbench={linkedinWorkbench}
         onClose={() => setShowLinkedInWorkbench(false)}
       />
 

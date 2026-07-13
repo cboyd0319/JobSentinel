@@ -88,7 +88,11 @@ export interface DashboardProps {
     job: Job,
     onOpenApplicationAssist: () => void,
   ) => ReactNode;
-  settingsPage?: ComponentType<{ onClose: () => void }>;
+  settingsPage?: ComponentType<{
+    onClose: () => void;
+    linkedinWorkbench?: ReactNode;
+  }>;
+  linkedinWorkbench?: ReactNode;
   showSettings?: boolean;
   onShowSettingsChange?: (show: boolean) => void;
   openImportOnMount?: boolean;

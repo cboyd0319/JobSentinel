@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
-import type { LinkedInWorkbenchEventType } from "../shared/linkedinWorkbench";
+import type { LinkedInWorkbenchEventType } from "../linkedinWorkbenchPolicy";
 
 export interface LinkedInWorkbenchEventInput {
   eventType: LinkedInWorkbenchEventType;

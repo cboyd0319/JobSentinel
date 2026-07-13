@@ -48,7 +48,7 @@ import {
   SettingsLoadingState,
 } from "./SettingsPageStartup";
 
-export default function Settings({ onClose }: SettingsProps) {
+export default function Settings({ linkedinWorkbench, onClose }: SettingsProps) {
   const [config, setConfig] = useState<Config | null>(null);
   const [loading, setLoading] = useState(true);
   const [showHealthDashboard, setShowHealthDashboard] = useState(false);
@@ -405,6 +405,7 @@ export default function Settings({ onClose }: SettingsProps) {
               jobsWithGptLastRequest={jobsWithGptLastRequest}
               jobsWithGptPayload={jobsWithGptPayload}
               jobsWithGptPayloadApproved={jobsWithGptPayloadApproved}
+              linkedinWorkbench={linkedinWorkbench}
               onApproveJobsWithGptPayload={approveJobsWithGptPayload}
               onClearJobsWithGptApproval={clearJobsWithGptApproval}
               setConfig={setConfig}

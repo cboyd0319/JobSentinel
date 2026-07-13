@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { RestrictedSourceAcknowledgements } from "../../../shared/restrictedSourceTaxonomy";
 import {
   DEFAULT_EXTERNAL_AI_CONFIG,
@@ -44,6 +45,7 @@ export interface GhostConfig {
 
 export interface SettingsProps {
   onClose: () => void;
+  linkedinWorkbench?: ReactNode;
 }
 
 export interface JobsWithGptPayload {

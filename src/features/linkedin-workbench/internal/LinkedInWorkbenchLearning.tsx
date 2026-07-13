@@ -1,5 +1,5 @@
-import { Button } from "../ui/Button";
-import type { BrowserAssistLearningSummary } from "../shared/browserAssistLearning";
+import { Button } from "../../../ui/Button";
+import type { BrowserAssistLearningSummary } from "../../../shared/browserAssistLearning";
 
 interface LearningSuggestionsProps {
   enabled: boolean;

@@ -735,7 +735,7 @@ evidence-log entry.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
-| 2026-07-13 | Milestone 2 in progress | Deleted the root `src/utils/` bucket after splitting its last mixed module. Safe browser downloads are shared; Dashboard owns spreadsheet-safe CSV; Settings owns recursively redacted backup files and selection. The latest cut passed 64 focused frontend tests, 37 privacy and copy-policy tests, 2,931 frontend tests across 191 files, 766 script tests, the 811-module build, and 35 Dashboard, Resume Builder, and Settings E2E flows. Credential redaction, formula neutralization, filename safety, user review, and local-only behavior are unchanged. |
+| 2026-07-13 | Milestone 2 in progress | Deleted the root `src/utils/` bucket after assigning safe browser downloads, Dashboard CSV, and Settings backups to real owners. Then established `src/features/linkedin-workbench/` with a public visual facade and private consent, transport, and learning modules. App composition supplies the workbench to Dashboard and Settings without feature-to-feature imports. The LinkedIn cut passed 62 focused frontend tests, 2,933 frontend tests across 192 files, 766 script tests, the production build, repository gates, and all 16 Settings E2E flows. Credential redaction, formula neutralization, URL sanitization, explicit review, and local-only behavior are unchanged. |
 | 2026-07-13 | Milestone 2 in progress | Split Error Reporting by dependency direction: `src/app/providers/ErrorReportingProvider.tsx` owns initialization and composition, while `src/shared/errorReporting/` owns the typed context, hook, local reporter, validation, and sanitization contract used across app recovery, Dashboard, Settings, utilities, and feedback. Deleted four helpers with no production consumers, removed the transitional contexts barrel, and deleted the empty root `contexts` and `hooks` buckets. The reporter is 470 lines, below the final production cap. All 189 focused frontend tests, 64 focused policy tests, 3,052 frontend tests across 184 files, 766 script tests, the 804-module build, repository gates, and 31 app-shell and Settings E2E flows pass. No user-facing behavior or public wiki page changed. |
 | 2026-07-13 | Milestone 2 in progress | Split Undo ownership by dependency direction: `src/app/providers/UndoProvider.tsx` owns stacks, keyboard handling, and Toast composition, while `src/shared/undo/` owns the typed action context and hook consumed by Dashboard and Applications. Updated path-sensitive policy fixtures and the completed wiring plan, then removed Undo exports from the transitional contexts barrel. All 111 focused frontend tests, 45 focused policy tests, 3,054 frontend tests across 184 files, 766 script tests, the 805-module build, repository gates, and 33 Dashboard and Applications E2E flows pass. |
 | 2026-07-13 | Milestone 2 in progress | Split Toast ownership by dependency direction: `src/app/providers/ToastProvider.tsx` owns timers, portal rendering, and visible notifications, while `src/shared/toast/` owns the typed cross-feature context and hook. Updated 66 direct production and test references and removed Toast exports from the transitional contexts barrel. All 152 focused frontend tests, 13 focused boundary and source-structure tests, 3,054 frontend tests across 184 files, 766 script tests, the 805-module build, repository gates, and 15 app-shell E2E flows pass. |
@@ -881,13 +881,13 @@ evidence-log entry.
   location, source-recommendation, source-guidance, contact-field, date, and
   currency, and browser-download contracts; feature-private form, job display,
   CSV, and backup-file behavior; and root utility deletion all have passing
-  focused, full frontend, build, repository, and E2E evidence.
-- Evidence: live manifests, imports, file counts, module graph, SQLx migration
-  paths, CI, release scripts, harness sensors, Tamworth, and persona were
-  inspected on 2026-07-13.
-- Next step: audit the remaining domain `components`, `services`, and `utils`
-  buckets for proven private feature ownership or real multi-consumer
-  contracts. Reduce `shared` ownership only from that evidence.
+  focused, full frontend, build, repository, and E2E evidence, including the
+  app-composed LinkedIn Workbench.
+- Evidence: live manifests, imports, file counts, module graph, SQLx paths, CI,
+  release scripts, harness sensors, Tamworth, and persona were inspected on 2026-07-13.
+- Next step: audit the remaining root `components` and `services` buckets for
+  proven private feature ownership or real multi-consumer contracts. Reduce
+  `shared` ownership only from that evidence.
 - Open risks: final SQLx offline metadata location and root Cargo target paths
   must be proven in isolated workspace and release fixtures before old paths are
   removed.

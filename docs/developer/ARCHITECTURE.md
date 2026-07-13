@@ -301,8 +301,9 @@ the broader agent harness.
   feature-local components, model, tests, and development mock handlers.
   Current complete slices are `salary`, `market`, `application-assist`,
   `applications`, `onboarding`, `dashboard`, `resumes`, `settings`, and
-  `search-links`. Salary, Market, Applications, Dashboard, Settings, and Search
-  Links expose only their pages; Onboarding exposes only its first-run wizard.
+  `search-links`, plus the app-composed `linkedin-workbench`. Salary, Market,
+  Applications, Dashboard, Settings, and Search Links expose only their pages;
+  Onboarding exposes only its first-run wizard.
   Application Assist exposes its profile page and the
   Apply action composed into Dashboard by `src/app/`. Resumes exposes its
   library, builder, and matching pages through one domain facade while their
@@ -314,6 +315,9 @@ the broader agent harness.
   first-run config mapping in `careerProfileSetup.ts`. Application Assist owns
   required-field and screening-question checks in
   `applicationFormValidation.ts`.
+- LinkedIn Workbench exposes one visual entrypoint. `src/app/` composes it into
+  Dashboard and Settings through React-node slots; its consent storage, Tauri
+  transport, learning view, and privacy policy remain feature-owned modules.
 - A feature must not import another feature's implementation files. Shared
   product-neutral code belongs in `src/shared/`; reusable UI belongs in
   `src/ui/` as those owners are established. `src/shared/search-links/` owns

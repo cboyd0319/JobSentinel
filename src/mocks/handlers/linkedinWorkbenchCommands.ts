@@ -1,7 +1,7 @@
 import {
   sanitizeLinkedInWorkbenchTextForStorage,
   sanitizeLinkedInWorkbenchUrl,
-} from "../../shared/linkedinWorkbench";
+} from "../../features/linkedin-workbench/linkedinWorkbenchPolicy";
 import { isExternalHttpsUrl } from "./sourceLinksAndImports";
 import {
   APPLICATION_STATUS_KEYS,

@@ -27,6 +27,11 @@ const SetupWizard = lazy(() => import("../features/onboarding"));
 const Dashboard = lazy(() => import("../features/dashboard"));
 const Applications = lazy(() => import("../features/applications"));
 const Settings = lazy(() => import("../features/settings"));
+const LinkedInWorkbench = lazy(() =>
+  import("../features/linkedin-workbench").then((module) => ({
+    default: module.LinkedInWorkbench,
+  })),
+);
 const ResumeLibraryPage = lazy(() =>
   import("../features/resumes").then((module) => ({
     default: module.ResumeLibraryPage,
@@ -304,6 +309,7 @@ function App() {
                       </Suspense>
                     )}
                     settingsPage={Settings}
+                    linkedinWorkbench={<LinkedInWorkbench />}
                     showSettings={showSettings}
                     onShowSettingsChange={setShowSettings}
                     openImportOnMount={openImportOnDashboard}
