@@ -84,7 +84,7 @@ pub async fn send_email_notification(
 }
 
 /// Format email as HTML
-fn format_html_email(job: &crate::core::db::Job, score: &crate::core::scoring::JobScore) -> String {
+fn format_html_email(job: &crate::core::Job, score: &crate::core::scoring::JobScore) -> String {
     let title = escape_html(&job.title);
     let company = escape_html(&job.company);
     let location = escape_html(job.location.as_deref().unwrap_or("N/A"));
@@ -227,7 +227,7 @@ fn escape_html(s: &str) -> String {
 }
 
 /// Format email as plain text (fallback for non-HTML clients)
-fn format_text_email(job: &crate::core::db::Job, score: &crate::core::scoring::JobScore) -> String {
+fn format_text_email(job: &crate::core::Job, score: &crate::core::scoring::JobScore) -> String {
     let salary_display = if let (Some(min), Some(max)) = (job.salary_min, job.salary_max) {
         format!("${},000 - ${},000", min / 1000, max / 1000)
     } else if let Some(min) = job.salary_min {

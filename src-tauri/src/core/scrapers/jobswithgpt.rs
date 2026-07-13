@@ -11,11 +11,11 @@ use super::http_client::{
 use super::rate_limiter::{limits, RateLimiter};
 use super::{JobScraper, ScraperResult};
 use crate::core::calculate_job_hash;
-use crate::core::db::Job;
 use crate::core::url_security::{
     canonicalize_user_supplied_job_url, resolve_external_https_url_for_fetch,
     sanitize_url_for_logging,
 };
+use crate::core::Job;
 
 use async_trait::async_trait;
 use chrono::Utc;

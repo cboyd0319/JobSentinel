@@ -9,9 +9,10 @@
 
 use jobsentinel::core::{
     config::{Config, LocationPreferences},
-    db::{Database, Job},
+    db::Database,
     scheduler::{ScheduleConfig, Scheduler, ScrapingResult},
     scoring::ScoringEngine,
+    Job,
 };
 use std::sync::Arc;
 use std::time::Duration;

@@ -14,7 +14,7 @@
 //! # Example
 //!
 //! ```
-//! use jobsentinel::core::scrapers::title_utils::normalize_title;
+//! use jobsentinel::core::normalization::normalize_title;
 //!
 //! let title1 = normalize_title("Sr. Software Engineer (L5)");
 //! let title2 = normalize_title("Senior SW Eng - Level 5");
@@ -144,7 +144,7 @@ static ABBREVIATION_REGEXES: LazyLock<Vec<(Regex, String)>> = LazyLock::new(|| {
 /// # Examples
 ///
 /// ```
-/// use jobsentinel::core::scrapers::title_utils::normalize_title;
+/// use jobsentinel::core::normalization::normalize_title;
 ///
 /// assert_eq!(
 ///     normalize_title("Sr. Software Engineer (L5)"),
@@ -239,7 +239,7 @@ pub fn normalize_title(title: &str) -> Cow<'_, str> {
 /// # Examples
 ///
 /// ```
-/// use jobsentinel::core::scrapers::title_utils::titles_match;
+/// use jobsentinel::core::normalization::titles_match;
 ///
 /// assert!(titles_match(
 ///     "Sr. Software Engineer (L5)",

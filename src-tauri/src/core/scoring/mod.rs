@@ -25,7 +25,7 @@ pub use remote::{detect_remote_status, score_remote_match, RemoteStatus, UserRem
 pub use synonyms::SynonymMap;
 pub use types::{JobScore, ScoreBreakdown};
 
-use crate::core::{config::Config, db::Job, resume::ResumeMatcher};
+use crate::core::{config::Config, resume::ResumeMatcher, Job};
 use chrono::Utc;
 use company_normalization::company_suffix_patterns;
 use std::sync::Arc;

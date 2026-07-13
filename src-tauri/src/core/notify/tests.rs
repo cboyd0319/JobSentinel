@@ -5,8 +5,8 @@ use crate::core::{
         smtp::{encode_smtp_password, SmtpCredentialBinding, SMTP_CREDENTIAL_REENTRY_REQUIRED},
         CredentialKey, CredentialService,
     },
-    db::Job,
     scoring::{JobScore, ScoreBreakdown},
+    Job,
 };
 use chrono::Utc;
 

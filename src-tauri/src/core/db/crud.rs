@@ -3,8 +3,8 @@
 //! Create, Read, Update, and Delete operations for job records.
 
 use super::connection::Database;
-use super::types::Job;
 use crate::core::url_security::{canonicalize_user_supplied_job_url, validate_external_https_url};
+use crate::core::Job;
 use chrono::Utc;
 use sqlx;
 

@@ -2,7 +2,7 @@
 //!
 //! Implementations for scraping various job boards.
 
-use crate::core::db::Job;
+use crate::core::Job;
 use async_trait::async_trait;
 
 pub mod builtin;
@@ -16,14 +16,11 @@ pub mod http_client;
 pub mod jobswithgpt;
 pub mod lever;
 pub mod linkedin;
-pub mod location_utils;
 pub mod rate_limiter;
 pub mod remoteok;
 pub mod rss;
 pub mod simplyhired;
 pub mod source_adapters;
-pub mod title_utils;
-pub mod url_utils;
 pub mod usajobs;
 pub mod weworkremotely;
 pub mod yc_startup;

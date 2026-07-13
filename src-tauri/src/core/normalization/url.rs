@@ -110,7 +110,7 @@ const ESSENTIAL_PARAMS: &[&str] = &[
 /// # Examples
 ///
 /// ```
-/// use jobsentinel::core::scrapers::url_utils::normalize_url;
+/// use jobsentinel::core::normalization::normalize_url;
 ///
 /// let url = "https://example.com/job/123?utm_source=linkedin&utm_medium=social";
 /// assert_eq!(normalize_url(url), "https://example.com/job/123");

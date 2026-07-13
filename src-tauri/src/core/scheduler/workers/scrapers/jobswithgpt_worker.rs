@@ -1,12 +1,13 @@
 use super::record_scraper_failure;
 use crate::core::{
     config::Config,
-    db::{Database, Job},
+    db::Database,
     health::SourceRequestOutcome,
     scrapers::{
         jobswithgpt::{JobQuery, JobsWithGptScraper},
         JobScraper, ScraperError,
     },
+    Job,
 };
 use std::sync::Arc;
 

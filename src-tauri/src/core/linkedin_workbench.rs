@@ -5,9 +5,9 @@
 //! state.
 
 use crate::core::ats::{ApplicationStatus, ApplicationTracker};
-use crate::core::db::{Database, Job};
-use crate::core::job_hash::calculate_job_hash;
+use crate::core::calculate_job_hash;
 use crate::core::url_security::{canonicalize_user_supplied_job_url, sanitize_url_for_logging};
+use crate::core::{db::Database, Job};
 use anyhow::Result;
 use chrono::{Duration, Utc};
 use regex::{Captures, Regex};

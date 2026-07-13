@@ -13,8 +13,9 @@ use crate::core::{
         BookmarkletJobData,
     },
     calculate_job_hash,
-    db::{Database, Job},
+    db::Database,
     url_security::canonicalize_user_supplied_job_url,
+    Job,
 };
 
 use super::{

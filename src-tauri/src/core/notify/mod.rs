@@ -10,9 +10,9 @@ use crate::core::{
         smtp::{decode_smtp_password_for_binding, SmtpCredentialBinding},
         CredentialKey, CredentialService,
     },
-    db::Job,
     scoring::JobScore,
     url_security::{canonicalize_user_supplied_job_url, resolve_external_https_url_for_fetch},
+    Job,
 };
 use anyhow::{anyhow, Result};
 use reqwest::redirect::Policy;

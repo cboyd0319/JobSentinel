@@ -65,6 +65,15 @@ test("ipc minimization rejects full profile calls outside the profile editor", (
   });
 });
 
+test("ipc minimization ignores feature-owned mock command handlers", () => {
+  withFixture((root) => {
+    const path = "src/features/application-assist/mocks/commands.ts";
+    writeFixtureFile(root, path, 'case "get_application_profile":\n');
+
+    assert.equal(hasNonSettingsFullApplicationProfileInvoke(root, path), false);
+  });
+});
+
 test("ipc minimization rejects full config calls from Dashboard", () => {
   withFixture((root) => {
     writeFixtureFile(

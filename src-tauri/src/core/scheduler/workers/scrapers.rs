@@ -8,7 +8,6 @@ use crate::core::db::Database;
 use crate::core::{
     config::Config,
     credentials::{CredentialKey, CredentialService},
-    db::Job,
     scrapers::{
         builtin::BuiltInScraper,
         dice::DiceScraper,
@@ -25,6 +24,7 @@ use crate::core::{
         JobScraper, ScraperError,
     },
     source_urls::{parse_greenhouse_company_url, parse_lever_company_url},
+    Job,
 };
 use std::sync::Arc;
 

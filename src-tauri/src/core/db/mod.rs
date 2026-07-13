@@ -22,7 +22,7 @@ mod types;
 mod tests;
 
 // Re-export public types
-pub use types::{DuplicateGroup, GhostStatistics, Job, Statistics};
+pub use types::{DuplicateGroup, GhostStatistics, Statistics};
 
 // Re-export Database struct
 pub use connection::Database;

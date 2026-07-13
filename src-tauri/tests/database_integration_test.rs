@@ -7,7 +7,7 @@
 //! - Transaction isolation
 //! - Integrity checks
 
-use jobsentinel::core::db::{Database, Job};
+use jobsentinel::core::{db::Database, Job};
 use sqlx::sqlite::SqlitePoolOptions;
 use std::sync::Arc;
 use tempfile::TempDir;

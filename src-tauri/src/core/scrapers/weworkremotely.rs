@@ -11,7 +11,7 @@ use super::rss::extract_xml_tag;
 use super::rss::parse_rss_items;
 use super::{JobScraper, ScraperResult};
 use crate::core::calculate_job_hash;
-use crate::core::db::Job;
+use crate::core::Job;
 
 use async_trait::async_trait;
 use chrono::Utc;

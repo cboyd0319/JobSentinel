@@ -2,10 +2,11 @@
 
 use crate::core::{
     config::Config,
-    db::{Database, Job},
+    db::Database,
     ghost::{GhostConfig, GhostDetector},
     resume::ResumeMatcher,
     scoring::{get_cached_score, set_cached_score, JobScore, ScoreCacheKey, ScoringEngine},
+    Job,
 };
 use std::sync::Arc;
 

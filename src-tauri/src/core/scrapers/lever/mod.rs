@@ -8,9 +8,9 @@ use super::http_client::{read_json_with_limit, send_with_retry};
 use super::rate_limiter::{limits, RateLimiter};
 use super::{JobScraper, ScraperResult};
 use crate::core::calculate_job_hash;
-use crate::core::db::Job;
 use crate::core::source_urls::is_safe_company_board_id;
 use crate::core::url_security::sanitize_url_for_logging;
+use crate::core::Job;
 use async_trait::async_trait;
 use chrono::Utc;
 

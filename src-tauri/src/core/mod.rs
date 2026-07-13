@@ -24,9 +24,11 @@
 pub mod config;
 pub mod db;
 pub mod http_body;
-pub mod job_hash;
+mod job;
+mod job_hash;
 pub mod linkedin_workbench;
 pub mod logging;
+pub mod normalization;
 pub mod notify;
 pub mod scheduler;
 pub mod scoring;
@@ -71,7 +73,8 @@ pub mod ml;
 
 // Re-export commonly used types
 pub use config::Config;
-pub use db::{Database, Job};
+pub use db::Database;
+pub use job::Job;
 pub use job_hash::calculate_job_hash;
 pub use linkedin_workbench::{
     record_event as record_linkedin_workbench_event, LinkedInWorkbenchEventInput,

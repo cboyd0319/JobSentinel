@@ -1,7 +1,7 @@
 use super::*;
 use crate::core::{
-    db::Job,
     scoring::{JobScore, ScoreBreakdown},
+    Job,
 };
 use chrono::Utc;
 

@@ -2,7 +2,7 @@
 //!
 //! Provides graduated scoring for remote/hybrid/onsite jobs based on user preferences.
 
-use crate::core::db::Job;
+use crate::core::Job;
 use serde::Deserialize;
 use std::sync::LazyLock;
 
@@ -189,7 +189,7 @@ pub fn score_remote_match(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::core::db::Job;
+    use crate::core::Job;
     use chrono::Utc;
 
     fn create_test_job(

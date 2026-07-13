@@ -143,7 +143,7 @@ pub async fn send_telegram_notification(
 ///
 /// Note: MarkdownV2 requires escaping these characters: _*[]()~`>#+-=|{}.!
 fn format_telegram_message(
-    job: &crate::core::db::Job,
+    job: &crate::core::Job,
     score: &crate::core::scoring::JobScore,
 ) -> String {
     // Helper to escape MarkdownV2 special characters
@@ -252,8 +252,8 @@ pub async fn validate_telegram_config(config: &TelegramConfig) -> Result<bool> {
 mod tests {
     use super::*;
     use crate::core::{
-        db::Job,
         scoring::{JobScore, ScoreBreakdown},
+        Job,
     };
     use chrono::Utc;
 

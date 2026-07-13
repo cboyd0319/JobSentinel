@@ -41,7 +41,7 @@ pub struct PersistenceStats {
 /// Persist jobs to database and send notifications for high-scoring jobs
 #[tracing::instrument(skip_all, fields(job_count = scored_jobs.len()), level = "info")]
 pub async fn persist_and_notify(
-    scored_jobs: &[(crate::core::db::Job, JobScore)],
+    scored_jobs: &[(crate::core::Job, JobScore)],
     config: &Arc<Config>,
     database: &Arc<Database>,
     credentials: &Arc<CredentialService>,

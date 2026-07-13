@@ -1,7 +1,8 @@
 use super::*;
 use crate::core::{
     config::{AutoRefreshConfig, Config, LocationPreferences},
-    db::{Database, Job},
+    db::Database,
+    Job,
 };
 use std::sync::Arc;
 use std::time::Duration;

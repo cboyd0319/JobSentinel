@@ -57,8 +57,8 @@ pub mod platforms;
 
 // Re-export commonly used types
 pub use core::config::Config;
-pub use core::db::{Database, Job};
 pub use core::notify::{Notification, NotificationService};
 pub use core::scheduler::{ScheduleConfig, Scheduler};
 pub use core::scoring::{JobScore, ScoringEngine};
 pub use core::scrapers::{JobScraper, ScraperResult};
+pub use core::{db::Database, Job};

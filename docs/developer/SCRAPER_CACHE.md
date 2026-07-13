@@ -116,7 +116,7 @@ The default duration is five minutes.
 ## Adapter Pattern
 
 ```rust
-use crate::core::db::Job;
+use crate::core::Job;
 use crate::core::scrapers::{http_client, JobScraper, ScraperResult};
 use async_trait::async_trait;
 

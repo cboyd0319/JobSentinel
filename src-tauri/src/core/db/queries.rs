@@ -3,7 +3,8 @@
 //! Search, filter, and retrieve jobs with various criteria.
 
 use super::connection::Database;
-use super::types::{DuplicateGroup, Job};
+use super::types::DuplicateGroup;
+use crate::core::Job;
 use sqlx;
 
 impl Database {

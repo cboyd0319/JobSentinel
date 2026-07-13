@@ -1,9 +1,9 @@
 #[cfg(test)]
 mod tests {
-    use crate::core::calculate_job_hash;
     use crate::core::db::{
-        with_timeout, Database, DuplicateGroup, Job, Statistics, DEFAULT_QUERY_TIMEOUT,
+        with_timeout, Database, DuplicateGroup, Statistics, DEFAULT_QUERY_TIMEOUT,
     };
+    use crate::core::{calculate_job_hash, Job};
     use chrono::Utc;
     use std::time::Duration;
 

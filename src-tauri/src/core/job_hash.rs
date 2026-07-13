@@ -1,6 +1,6 @@
 //! Shared job hash generation.
 
-use crate::core::scrapers::{location_utils, title_utils, url_utils};
+use super::normalization::{normalize_location, normalize_title, normalize_url};
 use crate::core::url_security::canonicalize_user_supplied_job_url;
 use sha2::{Digest, Sha256};
 
@@ -8,12 +8,12 @@ use sha2::{Digest, Sha256};
 pub fn calculate_job_hash(company: &str, title: &str, location: Option<&str>, url: &str) -> String {
     let mut hasher = Sha256::new();
     hasher.update(company.to_lowercase().as_bytes());
-    hasher.update(title_utils::normalize_title(title).as_bytes());
+    hasher.update(normalize_title(title).as_bytes());
     if let Some(location) = location {
-        hasher.update(location_utils::normalize_location(location).as_bytes());
+        hasher.update(normalize_location(location).as_bytes());
     }
-    let canonical_url = canonicalize_user_supplied_job_url(url)
-        .unwrap_or_else(|_| url_utils::normalize_url(url).into_owned());
+    let canonical_url =
+        canonicalize_user_supplied_job_url(url).unwrap_or_else(|_| normalize_url(url).into_owned());
     hasher.update(canonical_url.as_bytes());
     hex::encode(hasher.finalize())
 }

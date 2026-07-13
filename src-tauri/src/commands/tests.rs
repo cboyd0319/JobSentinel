@@ -6,7 +6,8 @@ mod tests {
     use crate::core::{
         config::{AlertConfig, Config, LocationPreferences},
         credentials::CredentialService,
-        db::{Database, Job},
+        db::Database,
+        Job,
     };
     use chrono::Utc;
     use std::sync::Arc;

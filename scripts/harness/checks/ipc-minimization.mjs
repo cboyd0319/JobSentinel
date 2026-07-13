@@ -26,6 +26,7 @@ export function hasNonSettingsFullApplicationProfileInvoke(root, path) {
   if (
     !path.startsWith("src/") ||
     path.startsWith("src/mocks/") ||
+    path.includes("/mocks/") ||
     /\.test\.[tj]sx?$/.test(path) ||
     /\.spec\.[tj]sx?$/.test(path) ||
     fullProfileAllowedPaths.has(path)

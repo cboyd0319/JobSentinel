@@ -9,7 +9,8 @@
 
 use jobsentinel::core::{
     config::{Config, LocationPreferences},
-    db::{Database, Job},
+    db::Database,
+    Job,
 };
 use std::sync::Arc;
 use tempfile::TempDir;

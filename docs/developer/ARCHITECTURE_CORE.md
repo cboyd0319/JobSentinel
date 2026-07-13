@@ -42,6 +42,21 @@ pub struct Config {
 - String lengths enforced
 - URL format validation
 
+### `core/job.rs` and `core/normalization/`
+
+**Purpose**: Owner-neutral job identity contracts
+
+- `job.rs` owns the canonical `Job` record used by storage, scoring,
+  notifications, scheduling, and source adapters.
+- `normalization/` exposes the title, location, and URL normalization facade.
+  Its leaf modules are private.
+- `job_hash.rs` depends on normalization and URL safety, not on source adapters.
+- Source adapters produce `Job` records without importing database model
+  modules. The database consumes the same record through the core facade.
+
+This direction keeps job identity independent from both persistence and remote
+source ownership, which is required before extracting the Tauri-free core.
+
 ### `core/db/` (8 submodules + integrity/)
 
 **Purpose**: SQLite database abstraction
@@ -53,7 +68,7 @@ pub struct Config {
 - Encrypted-at-rest database target for local job-search data and preferences
 - SQLCipher pre-migration snapshots verified with `quick_check`
 - **Submodules:**
-  - `types.rs` - Database types (Job, Application, etc.)
+  - `types.rs` - Database query and statistics result types
   - `connection.rs` - Connection pool management
   - `crud.rs` - Create/Read/Update/Delete operations
   - `queries.rs` - Advanced query builders

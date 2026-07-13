@@ -3,9 +3,7 @@
 //! Verifies that our Cow<str> implementations achieve zero-copy
 //! performance in the expected cases.
 
-use jobsentinel::core::scrapers::{
-    location_utils::normalize_location, title_utils::normalize_title, url_utils::normalize_url,
-};
+use jobsentinel::core::normalization::{normalize_location, normalize_title, normalize_url};
 use std::borrow::Cow;
 
 #[test]

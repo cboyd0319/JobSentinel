@@ -4,9 +4,10 @@
 
 use jobsentinel::core::{
     config::{Config, LocationPreferences},
-    db::{Database, Job},
+    db::Database,
     scheduler::Scheduler,
     scoring::ScoringEngine,
+    Job,
 };
 use std::sync::Arc;
 

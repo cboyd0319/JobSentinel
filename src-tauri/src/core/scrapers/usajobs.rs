@@ -14,8 +14,8 @@ use super::http_client::{
 use super::rate_limiter::RateLimiter;
 use super::{JobScraper, ScraperResult};
 use crate::core::calculate_job_hash;
-use crate::core::db::Job;
 use crate::core::url_security::{resolve_external_https_url_for_fetch, ResolvedExternalUrl};
+use crate::core::Job;
 
 use async_trait::async_trait;
 use chrono::Utc;
