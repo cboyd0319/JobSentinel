@@ -2,7 +2,7 @@ import { Badge } from "../../../ui/Badge";
 import { Button } from "../../../ui/Button";
 import { Card, CardHeader } from "../../../ui/Card";
 import { LoadingSpinner } from "../../../ui/LoadingSpinner";
-import { getScoreColor, getScoreLabel } from "../../../utils/scoreUtils";
+import { getScoreColor, getScoreLabel } from "../shared/resumeScore";
 import { JobWordsOverviewCard } from "./ResumeMatchJobWordsOverview";
 import { ResumeRoleFamilyCoverageCard } from "./ResumeRoleFamilyCoverageCard";
 import {

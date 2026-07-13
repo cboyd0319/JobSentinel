@@ -3,7 +3,7 @@ import { Badge } from "../../../ui/Badge";
 import { Button } from "../../../ui/Button";
 import { Modal, ModalFooter } from "../../../ui/Modal";
 import { Tooltip } from "../../../ui/Tooltip";
-import { getScoreColor, getScoreLabel } from "../../../utils/scoreUtils";
+import { getScoreColor, getScoreLabel } from "../shared/resumeScore";
 import {
   formatHardConstraintRiskCategory,
   formatIssueSeverity,

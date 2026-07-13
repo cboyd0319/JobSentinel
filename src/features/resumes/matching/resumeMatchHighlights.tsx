@@ -2,7 +2,7 @@ import {
   getScoreBg,
   getScoreLabel,
   getScoreProgressPercent,
-} from "../../../utils/scoreUtils";
+} from "../shared/resumeScore";
 
 interface HighlightKeywordsProps {
   text: string;

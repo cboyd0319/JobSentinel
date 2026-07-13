@@ -7,9 +7,9 @@ import {
   getScoreProgressPercent,
   isValidScorePercent,
   scoreFractionToPercent,
-} from "./scoreUtils";
+} from "./resumeScore";
 
-describe("scoreUtils", () => {
+describe("resumeScore", () => {
   describe("scoreFractionToPercent", () => {
     it("converts backend score fractions to display percentages", () => {
       expect(scoreFractionToPercent(0)).toBe(0);

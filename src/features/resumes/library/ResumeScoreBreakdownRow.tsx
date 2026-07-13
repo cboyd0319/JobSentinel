@@ -1,4 +1,4 @@
-import { scoreFractionToPercent } from "../../../utils/scoreUtils";
+import { scoreFractionToPercent } from "../shared/resumeScore";
 
 interface ResumeScoreBreakdownRowProps {
   label: string;

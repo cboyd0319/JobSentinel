@@ -181,7 +181,7 @@ const protectiveScoreCopyPaths = new Set([
   "src/components/ScoreDisplay.tsx",
   "src/components/ScoreDisplay.stories.tsx",
   "src/features/dashboard/components/ScoreBreakdownModal.tsx",
-  "src/utils/scoreUtils.ts",
+  "src/features/resumes/shared/resumeScore.ts",
   "src/features/resumes/library/ResumeTextPreviewModal.tsx",
   "src/features/resumes/library/resumePageModel.ts",
   "src/features/resumes/matching/ResumeMatchPage.tsx",

@@ -592,7 +592,7 @@ test("product copy rejects non-protective scoring and legacy preference copy", (
     );
     writeFixtureFile(
       root,
-      "src/utils/scoreUtils.ts",
+      "src/features/resumes/shared/resumeScore.ts",
       'if (score >= 90) return "Excellent";\nif (score >= 80) return "Great";\nreturn "Poor";\n',
     );
     writeFixtureFile(
@@ -665,7 +665,7 @@ test("product copy rejects non-protective scoring and legacy preference copy", (
       true,
     );
     assert.equal(
-      hasNonProtectiveScoreCopy(root, "src/utils/scoreUtils.ts"),
+      hasNonProtectiveScoreCopy(root, "src/features/resumes/shared/resumeScore.ts"),
       true,
     );
     assert.equal(

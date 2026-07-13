@@ -21,7 +21,7 @@ import {
   getScoreDisplayValue,
   getScoreLabel,
   getScoreProgressPercent,
-} from "../../../utils/scoreUtils";
+} from "../shared/resumeScore";
 import { takeStoredResumeJobContext } from "../shared/resumeJobContext";
 import { AtsLiveScoreDetailsModal } from "./AtsLiveScoreDetailsModal";
 import {
