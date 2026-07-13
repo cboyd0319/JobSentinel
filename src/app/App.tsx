@@ -7,8 +7,11 @@ import { SkipToContent } from "../ui/SkipToContent";
 import { CommandPalette } from "./commands/CommandPalette";
 import { default as PageErrorBoundary } from "./errors/PageErrorBoundary";
 import { KeyboardShortcutsHelp } from "./commands/KeyboardShortcutsHelp";
-import { OnboardingProvider } from "../components/OnboardingTour";
-import { useOnboarding } from "../hooks/useOnboarding";
+import {
+  OnboardingProvider,
+  TourHelpButton,
+} from "./onboarding/OnboardingProvider";
+import { useOnboarding } from "./onboarding/useOnboarding";
 import { Navigation } from "./Navigation";
 import { KeyboardShortcutsProvider } from "./keyboard/KeyboardShortcutsProvider";
 import { useKeyboardShortcuts } from "./keyboard/useKeyboardShortcuts";
@@ -279,6 +282,7 @@ function App() {
                 <PageErrorBoundary pageName="Dashboard">
                   <Dashboard
                     onNavigate={navigateTo}
+                    tourAction={<TourHelpButton />}
                     renderApplicationAssistAction={(
                       job,
                       onOpenApplicationAssist,

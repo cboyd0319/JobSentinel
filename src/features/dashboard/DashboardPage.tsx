@@ -47,6 +47,7 @@ import { getNoJobsEmptyStateCopy } from "./components/noJobsEmptyStateCopy";
 
 export default function Dashboard({
   onNavigate,
+  tourAction,
   renderApplicationAssistAction,
   settingsPage: SettingsPage,
   showSettings: showSettingsProp,
@@ -293,6 +294,7 @@ export default function Dashboard({
         cooldownSeconds={cooldownSeconds}
         onSearchNow={handleSearchNow}
         onOpenSettings={() => setShowSettings(true)}
+        tourAction={tourAction}
       />
 
       <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6">

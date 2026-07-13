@@ -735,6 +735,7 @@ evidence-log entry.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-07-13 | Milestone 2 in progress | Moved the onboarding provider, overlay, tour action, and hook into `src/app/onboarding/`. Dashboard now accepts an optional tour action in its header instead of importing app-shell state through the root components bucket. All 54 focused frontend tests, 27 focused source-structure tests, 3,062 frontend tests across 185 files, 766 script tests, the 807-module build, repository gates, and 35 app-shell and keyboard E2E flows pass. |
 | 2026-07-13 | Milestone 2 in progress | Consolidated the app-only keyboard provider, context, hook, shortcut contract, and formatter under `src/app/keyboard/`. App composition and Command Palette imports are direct, the redundant root type and utility files are gone, and product-copy sensors follow the owner. All 84 focused frontend tests, 17 focused sensor tests, 3,062 frontend tests across 185 files, 766 script tests, the 807-module build, repository gates, and 35 app-shell and keyboard E2E flows pass. |
 | 2026-07-13 | Milestone 2 in progress | Moved the app bootstrap's web-vitals implementation and tests into `src/app/`. Moved the modal primitive's body-scroll lock into `src/ui/`, with direct imports from its implementation and tests. Path-sensitive product-copy and source-quality sensors follow the new owner. All 67 focused frontend tests, 48 focused sensor tests, 3,062 frontend tests across 185 files, 766 script tests, the 807-module build, and repository gates pass. |
 | 2026-07-13 | Milestone 2 in progress | Moved the sole Dashboard consumer's debounce hook into `src/features/dashboard/hooks/` with a direct import, then deleted the unused root hooks barrel. All 4 focused filter tests, 27 focused source-structure tests, 3,062 frontend tests, the 807-module build, repository gates, and 22 Dashboard filtering E2E flows pass. |
@@ -826,7 +827,9 @@ evidence-log entry.
   its web-vitals implementation, and the modal primitive owns its body-scroll
   locking implementation under `src/ui/`. The app-only keyboard provider,
   context, hook, shortcut model, and formatter share one private owner under
-  `src/app/keyboard/`.
+  `src/app/keyboard/`. App onboarding owns the tour state and overlay, while
+  Dashboard receives the app-composed tour action through an optional visual
+  slot instead of importing app internals.
 - Settings company-preference field names changed. Read-only deserialize aliases
   preserve existing local values, and all newly saved data uses the new names.
   No privacy, credential, consent, or external-side-effect boundary changed.

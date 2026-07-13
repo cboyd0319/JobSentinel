@@ -14,10 +14,6 @@ vi.mock("../../../ui/Tooltip", () => ({
   ),
 }));
 
-vi.mock("../../../components/OnboardingTour", () => ({
-  TourHelpButton: () => <button type="button">Tour</button>,
-}));
-
 const baseStatus: ScrapingStatus = {
   is_running: false,
   last_scrape: null,
@@ -36,6 +32,7 @@ function renderHeader(overrides: Partial<ComponentProps<typeof DashboardHeader>>
       cooldownSeconds={0}
       onSearchNow={vi.fn()}
       onOpenSettings={vi.fn()}
+      tourAction={<button type="button">Tour</button>}
       {...overrides}
     />,
   );

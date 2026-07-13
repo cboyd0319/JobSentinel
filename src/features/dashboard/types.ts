@@ -83,6 +83,7 @@ export interface DashboardPreferences {
 
 export interface DashboardProps {
   onNavigate?: (page: Page) => void;
+  tourAction?: ReactNode;
   renderApplicationAssistAction?: (
     job: Job,
     onOpenApplicationAssist: () => void,

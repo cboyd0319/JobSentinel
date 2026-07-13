@@ -1,6 +1,6 @@
 import { memo, useState, useEffect, useCallback, useRef, type KeyboardEvent, type ReactNode } from "react";
-import { OnboardingContext, useOnboarding } from "../hooks/useOnboarding";
-import { readStorageValue, writeStorageValue } from "../utils/browserStorage";
+import { readStorageValue, writeStorageValue } from "../../utils/browserStorage";
+import { OnboardingContext, useOnboarding } from "./useOnboarding";
 
 interface TourStep {
   target: string; // CSS selector

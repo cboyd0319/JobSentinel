@@ -1,11 +1,10 @@
 // Dashboard Header Component
 // Logo, title, status indicator, theme toggle, settings button, search button
 
-import { memo } from "react";
+import { memo, type ReactNode } from "react";
 import { Button } from "../../../ui/Button";
 import { ThemeToggle } from "../../../ui/ThemeToggle";
 import { Tooltip } from "../../../ui/Tooltip";
-import { TourHelpButton } from "../../../components/OnboardingTour";
 import { SentinelIcon, SearchIcon, SettingsIcon } from "./DashboardIcons";
 import type { ScrapingStatus } from "../types";
 import { formatRelativeDate } from "../../../utils/formatUtils";
@@ -20,6 +19,7 @@ interface DashboardHeaderProps {
   cooldownSeconds?: number;
   onSearchNow: () => void;
   onOpenSettings: () => void;
+  tourAction?: ReactNode;
 }
 
 // Format relative time for "last updated" display
@@ -38,6 +38,7 @@ export const DashboardHeader = memo(function DashboardHeader({
   cooldownSeconds = 0,
   onSearchNow,
   onOpenSettings,
+  tourAction,
 }: DashboardHeaderProps) {
   return (
     <header className="bg-white dark:bg-surface-800 border-b border-surface-100 dark:border-surface-700 sticky top-0 z-10">
@@ -101,9 +102,11 @@ export const DashboardHeader = memo(function DashboardHeader({
               <ThemeToggle />
             </div>
 
-            <Tooltip content="Take a tour" position="bottom">
-              <TourHelpButton />
-            </Tooltip>
+            {tourAction && (
+              <Tooltip content="Take a tour" position="bottom">
+                {tourAction}
+              </Tooltip>
+            )}
 
             <Tooltip content="Settings" position="bottom">
               <button
