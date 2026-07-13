@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { useTheme } from "../contexts";
+import { useTheme } from "../shared/theme/useTheme";
 
 interface ThemeToggleProps {
   className?: string;

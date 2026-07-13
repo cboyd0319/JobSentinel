@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { ThemeProvider } from "./ThemeContext";
-import { useTheme } from "../hooks/useTheme";
+import { useTheme } from "../../shared/theme/useTheme";
+import { ThemeProvider } from "./ThemeProvider";
 
 // Test component that uses the theme context
 function TestComponent() {

@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useMemo, ReactNode } from "react";
-import { ThemeContext } from "./themeContextDef";
-import { readStorageValue, writeStorageValue } from "../shared/browserStorage";
+import { readStorageValue, writeStorageValue } from "../../shared/browserStorage";
+import { ThemeContext } from "../../shared/theme/themeContext";
 
 type Theme = "light" | "dark" | "system";
 
@@ -104,5 +104,3 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     </ThemeContext.Provider>
   );
 }
-
-// useTheme hook is in src/hooks/useTheme.ts to satisfy react-refresh/only-export-components
