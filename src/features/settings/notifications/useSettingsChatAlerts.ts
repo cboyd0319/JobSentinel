@@ -1,6 +1,6 @@
 import { useState, type Dispatch, type SetStateAction } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { useToast } from "../../../contexts";
+import { useToast } from "../../../shared/toast/useToast";
 import {
   credentialExists,
   credentialIsExpected,

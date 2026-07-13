@@ -4,7 +4,7 @@ import {
   type Dispatch,
   type SetStateAction,
 } from "react";
-import type { ToastContextType } from "../../../contexts/toastContextDef";
+import type { ToastContextType } from "../../../shared/toast/toastContext";
 import {
   type Config,
   type CredentialKey,

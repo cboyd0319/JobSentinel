@@ -3,7 +3,7 @@ import { invoke } from '@tauri-apps/api/core';
 import { Button } from '../../ui/Button';
 import { Card } from '../../ui/Card';
 import { Modal, ModalFooter } from '../../ui/Modal';
-import { useToast } from '../../contexts';
+import { useToast } from '../../shared/toast/useToast';
 import { useUndo } from '../../hooks/useUndo';
 import { LoadingSpinner } from '../../ui/LoadingSpinner';
 import { logError } from '../../utils/errorUtils';

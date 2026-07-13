@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState, useEffect, type ReactNode } from "react";
-import { useToast } from "./index";
+import { useToast } from "../shared/toast/useToast";
 import {
   UndoContext,
   type UndoableAction,

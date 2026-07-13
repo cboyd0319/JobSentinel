@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event";
 import React from "react";
 import { JobCard } from "./JobCard";
 import * as deeplinks from "../../../shared/search-links";
-import { ToastProvider } from "../../../contexts/ToastContext";
+import { ToastProvider } from "../../../app/providers/ToastProvider";
 
 vi.mock("../../../shared/search-links", () => ({
   openDeepLink: vi.fn(),

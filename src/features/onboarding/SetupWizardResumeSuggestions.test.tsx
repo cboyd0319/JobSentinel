@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { invoke } from "@tauri-apps/api/core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import SetupWizard from "./SetupWizard";
-import { ToastProvider } from "../../contexts";
+import { ToastProvider } from "../../app/providers/ToastProvider";
 
 vi.mock("@tauri-apps/api/core", () => ({
   invoke: vi.fn(),

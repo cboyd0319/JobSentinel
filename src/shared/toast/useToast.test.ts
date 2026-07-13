@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { renderHook } from "@testing-library/react";
+import { ToastProvider } from "../../app/providers/ToastProvider";
 import { useToast } from "./useToast";
-import { ToastProvider } from "../contexts/ToastContext";
 
 describe("useToast", () => {
   it("throws error when used outside ToastProvider", () => {

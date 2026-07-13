@@ -6,7 +6,7 @@ import {
   type InterviewScheduleFormData,
 } from "./InterviewScheduleFormModal";
 import { Modal } from "../../ui/Modal";
-import { useToast } from "../../contexts";
+import { useToast } from "../../shared/toast/useToast";
 import { MIN_INTERVIEW_DURATION, MAX_INTERVIEW_DURATION } from "../../utils/constants";
 import { getSafeErrorToastCopy } from "../../utils/safeErrorCopy";
 import { downloadInterviewICalFile } from "./InterviewCalendarExport";

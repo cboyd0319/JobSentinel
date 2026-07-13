@@ -18,7 +18,7 @@ const mockToast = {
   info: vi.fn(),
   warning: vi.fn(),
 };
-vi.mock("../../../contexts", () => ({ useToast: () => mockToast }));
+vi.mock("../../../shared/toast/useToast", () => ({ useToast: () => mockToast }));
 
 const mockPushAction = vi.fn();
 vi.mock("../../../hooks/useUndo", () => ({

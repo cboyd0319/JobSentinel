@@ -1,6 +1,6 @@
 import { useCallback, useState, type Dispatch, type SetStateAction } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { useToast } from "../../../contexts";
+import { useToast } from "../../../shared/toast/useToast";
 import { useUndo } from "../../../hooks/useUndo";
 import { invalidateCacheByCommand, safeInvokeWithToast } from "../../../utils/api";
 import { logError } from "../../../utils/errorUtils";

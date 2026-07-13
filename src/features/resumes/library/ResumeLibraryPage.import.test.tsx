@@ -12,7 +12,7 @@ vi.mock("../../../utils/api", () => ({
   safeInvokeWithToast: vi.fn(),
 }));
 
-vi.mock("../../../contexts", () => ({
+vi.mock("../../../shared/toast/useToast", () => ({
   useToast: () => ({ success: vi.fn(), error: vi.fn(), info: vi.fn() }),
 }));
 

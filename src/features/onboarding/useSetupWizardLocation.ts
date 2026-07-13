@@ -1,5 +1,5 @@
 import { useCallback, useState, type Dispatch, type SetStateAction } from "react";
-import { useToast } from "../../contexts";
+import { useToast } from "../../shared/toast/useToast";
 import { safeInvoke } from "../../utils/api";
 import {
   cacheDetectedLocation,

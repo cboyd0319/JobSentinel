@@ -6,7 +6,7 @@ import { Modal } from "../../ui/Modal";
 import { ScraperHealthDashboard } from "./sources/health/ScraperHealthDashboard";
 import { FeedbackModal } from "./support/feedback/FeedbackModal";
 import { BrowserImportSection } from "./sources/browser-import/BrowserImportSection";
-import { useToast } from "../../contexts";
+import { useToast } from "../../shared/toast/useToast";
 import { logError } from "../../utils/errorUtils";
 import { getUserFriendlyError } from "../../utils/errorMessages";
 import { normalizeRestrictedSourceAcknowledgements } from "../../shared/restrictedSourceTaxonomy";

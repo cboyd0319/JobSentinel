@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { ToastProvider } from "../contexts";
+import { ToastProvider } from "../app/providers/ToastProvider";
 import { openDeepLink } from "../shared/search-links";
 import { recordLinkedInWorkbenchEvent } from "../services/linkedinWorkbench";
 import {

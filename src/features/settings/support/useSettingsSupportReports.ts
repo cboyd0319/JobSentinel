@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import type { ToastContextType } from "../../../contexts/toastContextDef";
+import type { ToastContextType } from "../../../shared/toast/toastContext";
 import {
   copySanitizedDebugReport,
   saveSanitizedDebugReport,

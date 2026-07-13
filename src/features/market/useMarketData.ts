@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useToast } from "../../contexts";
+import { useToast } from "../../shared/toast/useToast";
 import { safeInvoke, safeInvokeWithToast } from "../../utils/api";
 import { getMarketDataErrorCopy } from "./errorCopy";
 import {

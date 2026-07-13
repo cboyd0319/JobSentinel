@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event";
 import React from "react";
 import { JobCard } from "./JobCard";
 import * as deeplinks from "../../../shared/search-links";
-import { ToastProvider } from "../../../contexts/ToastContext";
+import { ToastProvider } from "../../../app/providers/ToastProvider";
 import {
   BROWSER_ASSIST_LEARNING_ENABLED_STORAGE_KEY,
   BROWSER_ASSIST_LEARNING_STORAGE_KEY,

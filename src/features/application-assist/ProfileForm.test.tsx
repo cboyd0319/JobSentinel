@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { act, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { ToastProvider } from "../../contexts";
+import { ToastProvider } from "../../app/providers/ToastProvider";
 import { ProfileForm } from "./ProfileForm";
 
 vi.mock("@tauri-apps/api/core", () => ({

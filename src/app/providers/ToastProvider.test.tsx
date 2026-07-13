@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { ToastProvider } from "./ToastContext";
-import { useToast } from "../hooks/useToast";
+import { useToast } from "../../shared/toast/useToast";
+import { ToastProvider } from "./ToastProvider";
 
 // Test component that uses the toast context
 function TestComponent() {

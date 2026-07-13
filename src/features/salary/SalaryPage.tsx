@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { useCallback, useState } from "react";
-import { useToast } from "../../contexts";
+import { useToast } from "../../shared/toast/useToast";
 import { getPayFloorBenchmarkGuidance } from "../../shared/payFloorBenchmarkGuidance";
 import { logError } from "../../utils/errorUtils";
 import { formatCurrency } from "../../utils/formatUtils";

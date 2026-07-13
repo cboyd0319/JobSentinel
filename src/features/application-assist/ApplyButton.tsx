@@ -3,7 +3,7 @@ import { memo, useState, useEffect, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { Button } from "../../ui/Button";
 import { Modal, ModalFooter } from "../../ui/Modal";
-import { useToast } from "../../contexts";
+import { useToast } from "../../shared/toast/useToast";
 import { logError } from "../../utils/errorUtils";
 import { safeInvoke, safeInvokeWithToast } from "../../utils/api";
 import { getUserFriendlyError } from "../../utils/errorMessages";

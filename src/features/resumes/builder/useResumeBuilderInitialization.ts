@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useToast } from "../../../hooks/useToast";
+import { useToast } from "../../../shared/toast/useToast";
 import { safeInvoke } from "../../../utils/api";
 import { getSafeErrorToastCopy } from "../../../utils/safeErrorCopy";
 import type { Template } from "./resumeBuilderData";

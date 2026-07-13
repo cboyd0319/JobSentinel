@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { invoke } from "@tauri-apps/api/core";
-import { ToastProvider } from "../../contexts";
+import { ToastProvider } from "../../app/providers/ToastProvider";
 import Settings from "./SettingsPage";
 import { DEFAULT_EXTERNAL_AI_CONFIG } from "./config/SettingsConfig";
 

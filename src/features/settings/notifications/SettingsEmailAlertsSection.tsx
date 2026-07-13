@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "../../../ui/Button";
 import { HelpIcon } from "../../../ui/HelpIcon";
 import { Input } from "../../../ui/Input";
-import { useToast } from "../../../contexts";
+import { useToast } from "../../../shared/toast/useToast";
 import {
   credentialExists,
   credentialIsExpected,

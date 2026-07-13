@@ -3,7 +3,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { DashboardSkeleton } from "../../ui/Skeleton";
-import { useToast } from "../../contexts";
+import { useToast } from "../../shared/toast/useToast";
 import { logError } from "../../utils/errorUtils";
 import { SCORE_THRESHOLD_GOOD } from "../../utils/constants";
 import { invalidateCacheByCommand } from "../../utils/api";

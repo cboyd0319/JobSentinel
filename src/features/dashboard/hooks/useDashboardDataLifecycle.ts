@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, type Dispatch, type SetStateAction } from "react";
 import { listen } from "@tauri-apps/api/event";
-import { useToast } from "../../../contexts";
+import { useToast } from "../../../shared/toast/useToast";
 import { cachedInvoke, invalidateCacheByCommand } from "../../../utils/api";
 import { logError } from "../../../utils/errorUtils";
 import { getDashboardLoadErrorMessage } from "../dashboardErrorCopy";

@@ -735,6 +735,7 @@ evidence-log entry.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-07-13 | Milestone 2 in progress | Split Toast ownership by dependency direction: `src/app/providers/ToastProvider.tsx` owns timers, portal rendering, and visible notifications, while `src/shared/toast/` owns the typed cross-feature context and hook. Updated 66 direct production and test references and removed Toast exports from the transitional contexts barrel. All 152 focused frontend tests, 13 focused boundary and source-structure tests, 3,054 frontend tests across 184 files, 766 script tests, the 805-module build, repository gates, and 15 app-shell E2E flows pass. |
 | 2026-07-13 | Milestone 2 in progress | Split Theme ownership by dependency direction: `src/app/providers/ThemeProvider.tsx` owns persistence and document effects, while `src/shared/theme/` owns the cross-feature context and hook consumed by UI. Removed Theme exports from the transitional contexts barrel. All 24 focused frontend tests, 13 focused boundary and source-structure tests, 3,054 frontend tests across 184 files, 766 script tests, the 805-module build, repository gates, and 15 app-shell E2E flows pass. |
 | 2026-07-13 | Milestone 2 in progress | Moved the failure-tolerant browser-storage contract and tests from the root utility bucket to `src/shared/browserStorage.ts`. Current app, feature, service, and company-research consumers import the named contract directly, and the privacy fixture follows the shared owner. All 105 focused frontend tests, 25 focused security-sensor tests, 3,054 frontend tests across 184 files, 766 script tests, the 805-module build, and repository gates pass. |
 | 2026-07-13 | Milestone 2 in progress | Deleted the mounted but inert announcer provider, context, hook, and self-only tests after proving no production code called `useAnnouncer` or `announce`. App startup now has one fewer empty provider layer. All 17 focused frontend tests, 27 focused source-structure tests, 3,054 remaining frontend tests across 184 files, 766 script tests, the reduced 805-module build, repository gates, and 15 app-shell E2E flows pass. |
@@ -837,7 +838,9 @@ evidence-log entry.
   Failure-tolerant browser storage is a named cross-feature contract under
   `src/shared/` instead of a root utility. Theme persistence and document
   effects belong to the app provider, while the theme context and hook form a
-  small shared UI contract.
+  small shared UI contract. Toast timers and rendering belong to the app
+  provider, while features consume a small typed notification contract under
+  `src/shared/toast/`.
 - Settings company-preference field names changed. Read-only deserialize aliases
   preserve existing local values, and all newly saved data uses the new names.
   No privacy, credential, consent, or external-side-effect boundary changed.

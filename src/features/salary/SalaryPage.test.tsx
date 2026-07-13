@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { invoke } from "@tauri-apps/api/core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { ToastProvider } from "../../contexts";
+import { ToastProvider } from "../../app/providers/ToastProvider";
 import SalaryPage from "./SalaryPage";
 
 const mockInvoke = vi.mocked(invoke);

@@ -3,7 +3,7 @@ import { fireEvent, render, screen, waitFor, within } from "@testing-library/rea
 import userEvent from "@testing-library/user-event";
 import { invoke } from "@tauri-apps/api/core";
 import SetupWizard from "./SetupWizard";
-import { ToastProvider } from "../../contexts";
+import { ToastProvider } from "../../app/providers/ToastProvider";
 
 // Mock Tauri API
 vi.mock("@tauri-apps/api/core", () => ({

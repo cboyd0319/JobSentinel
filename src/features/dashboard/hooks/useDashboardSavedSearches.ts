@@ -10,7 +10,7 @@ import type {
   PostedDateFilter,
   GhostFilter,
 } from "../types";
-import { useToast } from "../../../contexts";
+import { useToast } from "../../../shared/toast/useToast";
 import { useUndo } from "../../../hooks/useUndo";
 import { safeInvoke, safeInvokeWithToast } from "../../../utils/api";
 import { getSafeErrorToastCopy } from "../../../utils/safeErrorCopy";

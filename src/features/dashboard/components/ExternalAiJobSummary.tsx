@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "../../../ui/Button";
 import { ExternalAiReviewDialog } from "./ExternalAiReviewDialog";
 import { Modal, ModalFooter } from "../../../ui/Modal";
-import { useToast } from "../../../hooks/useToast";
+import { useToast } from "../../../shared/toast/useToast";
 import {
   createBackendExternalAiGateway,
   loadExternalAiRuntimeConfig,

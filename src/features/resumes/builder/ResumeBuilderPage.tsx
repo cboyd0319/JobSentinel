@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { useToast } from "../../../hooks/useToast";
+import { useToast } from "../../../shared/toast/useToast";
 import { safeInvoke, safeInvokeWithToast } from "../../../utils/api";
 import { getSafeErrorToastCopy } from "../../../utils/safeErrorCopy";
 import { hasStoredResumeJobContext } from "../shared/resumeJobContext";

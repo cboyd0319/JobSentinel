@@ -1,6 +1,10 @@
 import { useState, useCallback, useMemo, memo, ReactNode, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { ToastContext, Toast, ToastAction } from "./toastContextDef";
+import {
+  ToastContext,
+  type Toast,
+  type ToastAction,
+} from "../../shared/toast/toastContext";
 
 let toastId = 0;
 const MAX_VISIBLE_TOASTS = 3;
@@ -97,8 +101,6 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     </ToastContext.Provider>
   );
 }
-
-// useToast hook is in src/hooks/useToast.ts to satisfy react-refresh/only-export-components
 
 // Toast Container Component
 const ToastContainer = memo(function ToastContainer({ toasts, onRemove }: { toasts: Toast[]; onRemove: (id: string) => void }) {

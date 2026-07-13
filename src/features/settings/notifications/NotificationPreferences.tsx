@@ -3,7 +3,7 @@ import { Card } from "../../../ui/Card";
 import { Badge } from "../../../ui/Badge";
 import { HelpIcon } from "../../../ui/HelpIcon";
 import { AdvancedFiltersSection } from "./NotificationAdvancedFilters";
-import { useToast } from "../../../contexts";
+import { useToast } from "../../../shared/toast/useToast";
 import {
   type SourceNotificationConfig,
   type AdvancedFilters,

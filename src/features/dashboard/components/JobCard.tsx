@@ -12,7 +12,7 @@ import {
   truncateText,
 } from "../../../utils/formatUtils";
 import { SCORE_THRESHOLD_HIGH, SCORE_THRESHOLD_GOOD } from "../../../utils/constants";
-import { useToast } from "../../../hooks/useToast";
+import { useToast } from "../../../shared/toast/useToast";
 import { isValidJobUrl } from "../jobUrlValidation";
 import { openDeepLink } from "../../../shared/search-links";
 import { getJobSourceGuidance } from "../../../utils/sourceLabels";

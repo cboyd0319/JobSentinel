@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, type Dispatch, type SetStateAction } from "react";
-import { useToast } from "../../../hooks/useToast";
+import { useToast } from "../../../shared/toast/useToast";
 import { safeInvoke } from "../../../utils/api";
 import { getSafeErrorToastCopy } from "../../../utils/safeErrorCopy";
 import {

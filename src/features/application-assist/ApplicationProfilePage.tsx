@@ -6,7 +6,7 @@ import { ProfileForm } from "./ProfileForm";
 import { ScreeningAnswersForm } from "./ScreeningAnswersForm";
 import { invoke } from "@tauri-apps/api/core";
 import { logError } from "../../utils/errorUtils";
-import { useToast } from "../../contexts";
+import { useToast } from "../../shared/toast/useToast";
 
 interface ApplicationProfileProps {
   onBack: () => void;

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
-import { useToast } from "../../../contexts";
+import { useToast } from "../../../shared/toast/useToast";
 import { invalidateCacheByCommand, safeInvoke } from "../../../utils/api";
 import { notifyScrapingComplete } from "../notifications";
 import { getDashboardSearchErrorCopy } from "../dashboardErrorCopy";
