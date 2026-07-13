@@ -1,8 +1,8 @@
 import {
+  existsSync,
   readFileSync,
   join,
   frontendErrorReportingPaths,
-  frontendErrorHelperDebugPaths,
   frontendErrorUtilsPaths,
   frontendToastSupportDetailPaths,
   frontendDirectErrorLoggingPaths,
@@ -110,15 +110,23 @@ export function hasUnsanitizedFrontendErrorReportStorage(root, path) {
 }
 
 export function hasRawFrontendErrorHelperDebugLogging(root, path) {
-  if (!frontendErrorHelperDebugPaths.has(path)) {
+  const fullPath = join(root, path);
+  if (!path.startsWith("src/") || !/\.tsx?$/.test(path) || !existsSync(fullPath)) {
     return false;
   }
 
-  const text = readFileSync(join(root, path), "utf8");
-  return (
+  const text = readFileSync(fullPath, "utf8");
+  const definesErrorDetailLogger = /function\s+logErrorDetails\b/.test(text);
+  const hasRawDetailLogging =
     /console\.error\(\s*["']Error:["']\s*,\s*error\s*\)/.test(text) ||
     /console\.log\(\s*["']Context:["']\s*,\s*context\s*\)/.test(text) ||
-    /console\.log\(\s*["']Stack:["']\s*,\s*error\.stack\s*\)/.test(text) ||
+    /console\.log\(\s*["']Stack:["']\s*,\s*error\.stack\s*\)/.test(text);
+
+  if (hasRawDetailLogging) {
+    return true;
+  }
+
+  return definesErrorDetailLogger && (
     !text.includes("sanitizeDebugValue") ||
     !text.includes("sanitizeTextForStorage") ||
     !text.includes("sanitizeContext")
@@ -126,11 +134,12 @@ export function hasRawFrontendErrorHelperDebugLogging(root, path) {
 }
 
 export function hasRawFrontendErrorHelperUserMessage(root, path) {
-  if (!frontendErrorHelperDebugPaths.has(path)) {
+  const fullPath = join(root, path);
+  if (!path.startsWith("src/") || !/\.tsx?$/.test(path) || !existsSync(fullPath)) {
     return false;
   }
 
-  const text = readFileSync(join(root, path), "utf8");
+  const text = readFileSync(fullPath, "utf8");
   return /function\s+getUserMessage[\s\S]*?\breturn\s+error\.message\s*;/.test(text);
 }
 

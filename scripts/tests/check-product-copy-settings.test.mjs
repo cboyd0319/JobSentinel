@@ -540,23 +540,6 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/utils/errorHelpers.ts",
-      [
-        "Network connection issue.",
-        "Service temporarily unavailable.",
-        "Invalid input.",
-        "Data format error.",
-        "The requested resource was not found.",
-        "You do not have permission to access this.",
-        "Request timed out.",
-        "Please try again later.",
-        "This took too long. Please try again.",
-        "JobSentinel ran into a problem. Please try again.",
-        "",
-      ].join("\n"),
-    );
-    writeFixtureFile(
-      root,
       "src/utils/formValidation.ts",
       "URL must use http:// or https://\nURL must not include credentials\nQuestion match has unsupported pattern symbols. Check brackets or special characters.\n",
     );
@@ -871,7 +854,6 @@ test("product copy rejects technical-first settings copy", () => {
       "src/features/dashboard/hooks/useDashboardJobOps.ts",
       "src/services/aiGateway.ts",
       "src/utils/api.ts",
-      "src/utils/errorHelpers.ts",
       "src/utils/errorMessages.ts",
       "src/utils/export.test.ts",
       "src/utils/export.ts",

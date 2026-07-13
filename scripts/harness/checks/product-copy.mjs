@@ -318,7 +318,6 @@ const technicalFirstUserCopyPaths = new Set([
   "src/features/onboarding/SetupWizard.tsx",
   "src/features/onboarding/SetupWizardSearchSummary.tsx",
   "src/features/onboarding/setupWizardPreferences.ts",
-  "src/utils/errorHelpers.ts",
   "src/utils/errorMessages.ts",
   "src/utils/safeErrorCopy.ts",
   "src/utils/formValidation.ts",

@@ -735,6 +735,7 @@ evidence-log entry.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-07-13 | Milestone 2 in progress | Deleted the unreferenced `errorHelpers` source and its two self-only test files, removing 1,286 lines and 84 tests without removing shipped coverage. Replaced its obsolete path-specific privacy sensor with a source-wide TypeScript detector for raw error-detail logging, missing sanitizers, and raw `error.message` user copy. All 52 focused sensor tests, 3,062 remaining frontend tests across 185 files, 766 script tests, the 808-module build, and repository gates pass. |
 | 2026-07-13 | Milestone 2 in progress | Renamed the root cover-letter helper to `src/features/applications/coverLetterTemplate.ts`, its actual 33-line owner and role. All 58 focused template tests, 3,146 frontend tests, the 808-module build, lint, architecture, bloat, and 22 Application Tracking E2E flows pass. |
 | 2026-07-13 | Milestone 2 in progress | Moved the root resume-analysis score utility and its tests into `src/features/resumes/shared/resumeScore.ts`. Builder, library, and matching consumers now use one Resume-owned scoring contract, and product-copy sensors follow that owner. All 101 focused tests, 3,146 frontend tests, 766 script tests, the 808-module build, repository gates, and 31 Resume E2E flows pass. |
 | 2026-07-13 | Milestone 2 in progress | Moved Dashboard-only keyboard navigation, privacy-preserving desktop notifications, posting-risk interpretation, and external job URL validation from root technical buckets into `src/features/dashboard/`. Renamed the job URL and keyboard modules to state their actual scope, removed the stale root hook export, and corrected the developer hook example to match the live object-based API. All 126 focused tests, 3,146 frontend tests, 766 script tests, the 808-module build, repository gates, and 48 Dashboard E2E flows pass. |
@@ -815,7 +816,9 @@ evidence-log entry.
   Dashboard-only keyboard navigation, desktop notifications, posting-risk
   interpretation, and job URL validation also live under their feature owner.
   Resume analysis scoring is shared only within the Resume domain. Cover-letter
-  template processing is private to Applications.
+  template processing is private to Applications. The unused root error-helper
+  family is deleted, while its privacy checks now apply to any frontend
+  TypeScript owner instead of one hardcoded file.
 - Settings company-preference field names changed. Read-only deserialize aliases
   preserve existing local values, and all newly saved data uses the new names.
   No privacy, credential, consent, or external-side-effect boundary changed.

@@ -373,7 +373,7 @@ test("privacy logging rejects raw frontend error helper output", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src/utils/errorHelpers.ts",
+      "src/errorSupport.ts",
       [
         "function getUserMessage(error) {",
         "  return error.message;",
@@ -384,11 +384,11 @@ test("privacy logging rejects raw frontend error helper output", () => {
     );
 
     assert.equal(
-      hasRawFrontendErrorHelperDebugLogging(root, "src/utils/errorHelpers.ts"),
+      hasRawFrontendErrorHelperDebugLogging(root, "src/errorSupport.ts"),
       true,
     );
     assert.equal(
-      hasRawFrontendErrorHelperUserMessage(root, "src/utils/errorHelpers.ts"),
+      hasRawFrontendErrorHelperUserMessage(root, "src/errorSupport.ts"),
       true,
     );
     assert.equal(

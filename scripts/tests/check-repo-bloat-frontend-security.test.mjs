@@ -149,7 +149,7 @@ test("checkRepoBloat rejects raw frontend error helper debug logging", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/utils/errorHelpers.ts",
+      "src/errorSupport.ts",
       [
         "export function logErrorDetails(error, context) {",
         "  console.error('Error:', error);",
@@ -160,7 +160,7 @@ test("checkRepoBloat rejects raw frontend error helper debug logging", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src/utils/errorHelpers.ts"], {
+    execFileSync("git", ["add", "package.json", "src/errorSupport.ts"], {
       cwd: root,
     });
 
@@ -168,7 +168,7 @@ test("checkRepoBloat rejects raw frontend error helper debug logging", () => {
 
     assert.ok(
       violations.includes(
-        "sanitize frontend error helper debug logging: src/utils/errorHelpers.ts",
+        "sanitize frontend error helper debug logging: src/errorSupport.ts",
       ),
       violations.join("\n"),
     );
@@ -180,7 +180,7 @@ test("checkRepoBloat rejects raw frontend user error messages", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/utils/errorHelpers.ts",
+      "src/errorSupport.ts",
       [
         "export function getUserMessage(error) {",
         "  if (error instanceof Error) {",
@@ -192,7 +192,7 @@ test("checkRepoBloat rejects raw frontend user error messages", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src/utils/errorHelpers.ts"], {
+    execFileSync("git", ["add", "package.json", "src/errorSupport.ts"], {
       cwd: root,
     });
 
@@ -200,7 +200,7 @@ test("checkRepoBloat rejects raw frontend user error messages", () => {
 
     assert.ok(
       violations.includes(
-        "sanitize frontend user error messages: src/utils/errorHelpers.ts",
+        "sanitize frontend user error messages: src/errorSupport.ts",
       ),
       violations.join("\n"),
     );
