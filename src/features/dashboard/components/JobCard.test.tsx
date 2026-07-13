@@ -3,14 +3,14 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
 import { JobCard } from "./JobCard";
-import * as deeplinks from "../../../services/deeplinks";
+import * as deeplinks from "../../../shared/search-links";
 import { ToastProvider } from "../../../contexts/ToastContext";
 import {
   BROWSER_ASSIST_LEARNING_ENABLED_STORAGE_KEY,
   BROWSER_ASSIST_LEARNING_STORAGE_KEY,
 } from "../../../shared/browserAssistLearning";
 
-vi.mock("../../../services/deeplinks", () => ({
+vi.mock("../../../shared/search-links", () => ({
   openDeepLink: vi.fn(),
 }));
 vi.mock("@tauri-apps/api/core", () => ({

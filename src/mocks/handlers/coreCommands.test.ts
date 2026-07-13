@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { JobType, RemoteType, SiteCategory } from "../../types/deeplinks";
-import type { DeepLink, SearchCriteria, SiteInfo } from "../../types/deeplinks";
+import { JobType, RemoteType, SiteCategory } from "../../shared/search-links";
+import type { DeepLink, SearchCriteria, SiteInfo } from "../../shared/search-links";
 import type { PostedDateFilter, ScoreFilter, SortOption } from "../../features/dashboard/types";
 import type { NotificationPreferences } from "../../features/settings/notifications/notificationPreferencesStore";
 import { mockInvoke, resetMockData } from "../handlers";

@@ -342,7 +342,7 @@ test("product copy rejects automated-scan deep-link wording", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src/components/DeepLinkGenerator.tsx",
+      "src/features/search-links/SearchLinksPage.tsx",
       [
         "Create ready-to-use searches for job sites that JobSentinel cannot scan automatically.",
         "JobSentinel does not check automatically.",
@@ -374,7 +374,7 @@ test("product copy rejects automated-scan deep-link wording", () => {
     );
 
     assert.equal(
-      hasTechnicalFirstUserCopy(root, "src/components/DeepLinkGenerator.tsx"),
+      hasTechnicalFirstUserCopy(root, "src/features/search-links/SearchLinksPage.tsx"),
       true,
     );
     assert.equal(

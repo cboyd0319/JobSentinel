@@ -3,8 +3,8 @@ import {
   JobType,
   RemoteType,
   SiteCategory,
-} from "../../types/deeplinks";
-import type { DeepLink, SearchCriteria, SiteInfo } from "../../types/deeplinks";
+} from "../../shared/search-links";
+import type { DeepLink, SearchCriteria, SiteInfo } from "../../shared/search-links";
 
 export interface MockJobImportPreview {
   title: string;

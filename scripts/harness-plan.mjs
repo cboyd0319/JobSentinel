@@ -186,7 +186,7 @@ function isTauriInvokePath(path) {
     path.startsWith("src/mocks/") ||
     path.startsWith("src/utils/api") ||
     path.startsWith("src/services/feedbackService") ||
-    path.startsWith("src/services/deeplinks")
+    path.startsWith("src/shared/search-links")
   );
 }
 

@@ -19,7 +19,7 @@ describe("Navigation", () => {
       render(<Navigation {...defaultProps} />);
 
       const buttons = screen.getAllByRole("button");
-      expect(buttons.length).toBe(8); // 8 nav items
+      expect(buttons.length).toBe(9); // 9 nav items
     });
 
     it("renders logo", () => {
@@ -111,6 +111,16 @@ describe("Navigation", () => {
       fireEvent.click(btn);
 
       expect(onNavigate).toHaveBeenCalledWith("ats-optimizer");
+    });
+
+    it("calls onNavigate when Search Links is clicked", () => {
+      const onNavigate = vi.fn();
+      render(<Navigation currentPage="dashboard" onNavigate={onNavigate} />);
+
+      const btn = screen.getByTitle("Search Links (Cmd/Ctrl+9)");
+      fireEvent.click(btn);
+
+      expect(onNavigate).toHaveBeenCalledWith("search-links");
     });
   });
 

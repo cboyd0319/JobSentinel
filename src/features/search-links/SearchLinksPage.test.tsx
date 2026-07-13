@@ -1,21 +1,19 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { DeepLinkGenerator } from "./DeepLinkGenerator";
-import * as deeplinks from "../services/deeplinks";
-import { JobType, RemoteType, SiteCategory } from "../types/deeplinks";
+import SearchLinksPage from ".";
+import * as searchLinks from "../../shared/search-links";
+import { JobType, RemoteType, SiteCategory } from "../../shared/search-links";
 
-vi.mock("../services/deeplinks", () => ({
+vi.mock("../../shared/search-links/client", () => ({
   generateDeepLinks: vi.fn(),
-  getSupportedSites: vi.fn(),
   openDeepLink: vi.fn(),
 }));
 
-describe("DeepLinkGenerator", () => {
+describe("SearchLinksPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(deeplinks.getSupportedSites).mockResolvedValue([]);
-    vi.mocked(deeplinks.generateDeepLinks).mockResolvedValue([
+    vi.mocked(searchLinks.generateDeepLinks).mockResolvedValue([
       {
         site: {
           id: "linkedin",
@@ -30,7 +28,7 @@ describe("DeepLinkGenerator", () => {
   });
 
   it("uses broad-audience search examples", () => {
-    render(<DeepLinkGenerator />);
+    render(<SearchLinksPage />);
 
     const queryInput = screen.getByLabelText(/job title or work words/i);
 
@@ -42,7 +40,7 @@ describe("DeepLinkGenerator", () => {
 
   it("uses plain search-link copy instead of URL jargon", async () => {
     const user = userEvent.setup();
-    render(<DeepLinkGenerator />);
+    render(<SearchLinksPage />);
 
     expect(
       screen.getByRole("heading", { name: /job site search links/i }),
@@ -69,7 +67,7 @@ describe("DeepLinkGenerator", () => {
 
   it("gives each generated search action a unique accessible name", async () => {
     const user = userEvent.setup();
-    vi.mocked(deeplinks.generateDeepLinks).mockResolvedValueOnce([
+    vi.mocked(searchLinks.generateDeepLinks).mockResolvedValueOnce([
       {
         site: {
           id: "linkedin",
@@ -91,7 +89,7 @@ describe("DeepLinkGenerator", () => {
       },
     ]);
 
-    render(<DeepLinkGenerator />);
+    render(<SearchLinksPage />);
 
     await user.type(screen.getByLabelText(/job title or work words/i), "Marketing Manager");
     await user.click(screen.getByRole("button", { name: /create search links/i }));
@@ -111,7 +109,7 @@ describe("DeepLinkGenerator", () => {
 
   it("does not load remote site logos when showing search links", async () => {
     const user = userEvent.setup();
-    vi.mocked(deeplinks.generateDeepLinks).mockResolvedValueOnce([
+    vi.mocked(searchLinks.generateDeepLinks).mockResolvedValueOnce([
       {
         site: {
           id: "linkedin",
@@ -125,7 +123,7 @@ describe("DeepLinkGenerator", () => {
       },
     ]);
 
-    render(<DeepLinkGenerator />);
+    render(<SearchLinksPage />);
 
     await user.type(screen.getByLabelText(/job title or work words/i), "Marketing Manager");
     await user.click(screen.getByRole("button", { name: /create search links/i }));
@@ -136,17 +134,17 @@ describe("DeepLinkGenerator", () => {
 
   it("guides users when the search words are missing", async () => {
     const user = userEvent.setup();
-    render(<DeepLinkGenerator />);
+    render(<SearchLinksPage />);
 
     await user.click(screen.getByRole("button", { name: /create search links/i }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent("Add a job title or work words.");
-    expect(deeplinks.generateDeepLinks).not.toHaveBeenCalled();
+    expect(searchLinks.generateDeepLinks).not.toHaveBeenCalled();
   });
 
   it("requires acknowledgement before opening a restricted-source search link", async () => {
     const user = userEvent.setup();
-    render(<DeepLinkGenerator />);
+    render(<SearchLinksPage />);
 
     await user.type(screen.getByLabelText(/job title or work words/i), "Marketing Manager");
     await user.click(screen.getByRole("button", { name: /create search links/i }));
@@ -156,7 +154,7 @@ describe("DeepLinkGenerator", () => {
       name: /open linkedin search in your browser/i,
     });
     expect(openButton).toBeDisabled();
-    expect(deeplinks.openDeepLink).not.toHaveBeenCalled();
+    expect(searchLinks.openDeepLink).not.toHaveBeenCalled();
 
     await user.click(screen.getByLabelText(/I understand this risk and want to open this search/i));
     expect(openButton).toBeEnabled();
@@ -164,7 +162,7 @@ describe("DeepLinkGenerator", () => {
     await user.click(openButton);
 
     await waitFor(() => {
-      expect(deeplinks.openDeepLink).toHaveBeenCalledWith(
+      expect(searchLinks.openDeepLink).toHaveBeenCalledWith(
         "https://www.linkedin.com/jobs/search/?keywords=marketing",
       );
     });
@@ -172,7 +170,7 @@ describe("DeepLinkGenerator", () => {
 
   it("sends selected job type and work mode filters when generating links", async () => {
     const user = userEvent.setup();
-    render(<DeepLinkGenerator />);
+    render(<SearchLinksPage />);
 
     await user.type(screen.getByLabelText(/job title or work words/i), "Marketing Manager");
     await user.type(screen.getByLabelText(/location/i), "Remote");
@@ -181,7 +179,7 @@ describe("DeepLinkGenerator", () => {
     await user.click(screen.getByRole("button", { name: /create search links/i }));
 
     await waitFor(() => {
-      expect(deeplinks.generateDeepLinks).toHaveBeenCalledWith({
+      expect(searchLinks.generateDeepLinks).toHaveBeenCalledWith({
         query: "Marketing Manager",
         location: "Remote",
         job_type: JobType.Contract,

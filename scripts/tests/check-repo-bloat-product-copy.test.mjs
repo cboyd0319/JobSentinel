@@ -104,7 +104,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/DeepLinkGenerator.tsx",
+      "src/features/search-links/SearchLinksPage.tsx",
       [
         "<h2>Deep Link Generator</h2>",
         '"Generate pre-filled search URLs"',
@@ -563,7 +563,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/components/AsyncButton.tsx",
         "src/features/settings/sources/browser-import/BrowserImportSection.tsx",
         "src/features/applications/CoverLetterTemplates.tsx",
-        "src/components/DeepLinkGenerator.tsx",
+        "src/features/search-links/SearchLinksPage.tsx",
         "src/components/ErrorBoundary.tsx",
         "src/components/ErrorLogPanel.tsx",
         "src/features/dashboard/components/ScoreBreakdownModal.tsx",
@@ -621,7 +621,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/components/AsyncButton.tsx",
       "src/features/settings/sources/browser-import/BrowserImportSection.tsx",
       "src/features/applications/CoverLetterTemplates.tsx",
-      "src/components/DeepLinkGenerator.tsx",
+      "src/features/search-links/SearchLinksPage.tsx",
       "src/components/ErrorBoundary.tsx",
       "src/components/ErrorLogPanel.tsx",
       "src/features/dashboard/components/ScoreBreakdownModal.tsx",

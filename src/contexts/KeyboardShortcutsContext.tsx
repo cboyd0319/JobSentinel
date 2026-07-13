@@ -161,6 +161,13 @@ export function KeyboardShortcutsProvider({
         category: "navigation",
       },
       {
+        key: "9",
+        modifiers: ["meta"],
+        description: "Go to Search Links",
+        action: () => onNavigate?.("search-links"),
+        category: "navigation",
+      },
+      {
         key: "Escape",
         modifiers: [],
         description: "Close pop-up or quick actions",

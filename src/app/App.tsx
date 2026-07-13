@@ -41,6 +41,7 @@ const ResumeMatchPage = lazy(() =>
 );
 const Salary = lazy(() => import("../features/salary"));
 const Market = lazy(() => import("../features/market"));
+const SearchLinks = lazy(() => import("../features/search-links"));
 const ApplicationProfile = lazy(() => import("../features/application-assist"));
 const ApplyButton = lazy(() =>
   import("../features/application-assist").then((module) => ({
@@ -358,6 +359,14 @@ function App() {
                   onBack={() => navigateTo("dashboard")}
                 >
                   <Market onBack={() => navigateTo("dashboard")} />
+                </PageErrorBoundary>
+              )}
+              {currentPage === "search-links" && (
+                <PageErrorBoundary
+                  pageName="Search Links"
+                  onBack={() => navigateTo("dashboard")}
+                >
+                  <SearchLinks />
                 </PageErrorBoundary>
               )}
               {currentPage === "automation" && (

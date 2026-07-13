@@ -1,7 +1,7 @@
 import { useEffect, useState, type ClipboardEvent } from "react";
 import { Button } from "./Button";
 import { useToast } from "../contexts";
-import { openDeepLink } from "../services/deeplinks";
+import { openDeepLink } from "../shared/search-links";
 import { recordLinkedInWorkbenchEvent } from "../services/linkedinWorkbench";
 import { LinkedInWorkbenchLearning } from "./LinkedInWorkbenchLearning";
 import {

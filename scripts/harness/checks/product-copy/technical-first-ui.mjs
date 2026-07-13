@@ -192,7 +192,7 @@ export function getTechnicalFirstUiResult(path, text) {
     );
   }
 
-  if (path === "src/components/DeepLinkGenerator.tsx") {
+  if (path.startsWith("src/features/search-links/")) {
     if (/does not monitor directly|Login required/i.test(text)) {
       return true;
     }

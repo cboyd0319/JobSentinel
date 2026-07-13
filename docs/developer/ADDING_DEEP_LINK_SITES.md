@@ -1,6 +1,6 @@
 # Adding New Deep Link Sites
 
-Quick guide for adding support for new job sites to the Deep Link Generator.
+Quick guide for adding support for new sites to Job Site Search Links.
 
 ## Overview
 
@@ -266,9 +266,9 @@ All tests should pass, including your new ones.
 ### Manual Testing
 
 1. Build and run the app
-2. Go to the Deep Links page
+2. Go to the Search Links page
 3. Enter a search query
-4. Click "Generate Deep Links"
+4. Click "Create Search Links"
 5. Find your new site in the results
 6. Click "Open Search"
 7. Verify the URL is correct and the search works
@@ -385,7 +385,7 @@ Before submitting:
 When submitting a PR to add a new site:
 
 ```markdown
-## Add [Site Name] to Deep Link Generator
+## Add [Site Name] to Search Links
 
 **Site:** [Site Name]
 **URL:** https://example.com

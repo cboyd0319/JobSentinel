@@ -8,7 +8,7 @@ import { logError } from "../../utils/errorUtils";
 import { SCORE_THRESHOLD_GOOD } from "../../utils/constants";
 import { invalidateCacheByCommand } from "../../utils/api";
 import { isValidJobUrl } from "../../utils/urlValidation";
-import { openDeepLink } from "../../services/deeplinks";
+import { openDeepLink } from "../../shared/search-links";
 
 // Extracted modules
 import type {

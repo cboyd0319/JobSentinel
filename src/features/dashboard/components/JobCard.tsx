@@ -14,7 +14,7 @@ import {
 import { SCORE_THRESHOLD_HIGH, SCORE_THRESHOLD_GOOD } from "../../../utils/constants";
 import { useToast } from "../../../hooks/useToast";
 import { isValidJobUrl } from "../../../utils/urlValidation";
-import { openDeepLink } from "../../../services/deeplinks";
+import { openDeepLink } from "../../../shared/search-links";
 import { getJobSourceGuidance } from "../../../utils/sourceLabels";
 import {
   getLowDetailPostingGuidance,

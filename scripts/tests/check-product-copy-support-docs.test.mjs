@@ -50,7 +50,7 @@ test("product copy rejects support troubleshooting jargon", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/DeepLinkGenerator.tsx",
+      "src/features/search-links/SearchLinksPage.tsx",
       "JobSentinel does not monitor directly.\nLogin required\n",
     );
     writeFixtureFile(
@@ -101,7 +101,7 @@ test("product copy rejects support troubleshooting jargon", () => {
       true,
     );
     assert.equal(
-      hasTechnicalFirstUserCopy(root, "src/components/DeepLinkGenerator.tsx"),
+      hasTechnicalFirstUserCopy(root, "src/features/search-links/SearchLinksPage.tsx"),
       true,
     );
     assert.equal(

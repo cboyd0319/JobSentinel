@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ToastProvider } from "../contexts";
-import { openDeepLink } from "../services/deeplinks";
+import { openDeepLink } from "../shared/search-links";
 import { recordLinkedInWorkbenchEvent } from "../services/linkedinWorkbench";
 import {
   BROWSER_ASSIST_LEARNING_ENABLED_STORAGE_KEY,
@@ -11,7 +11,7 @@ import {
 import { LINKEDIN_WORKBENCH_ACK_STORAGE_KEY } from "../shared/linkedinWorkbench";
 import { LinkedInWorkbench } from "./LinkedInWorkbench";
 
-vi.mock("../services/deeplinks", () => ({
+vi.mock("../shared/search-links", () => ({
   openDeepLink: vi.fn(),
 }));
 

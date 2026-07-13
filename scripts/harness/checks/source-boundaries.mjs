@@ -39,7 +39,7 @@ const frontendJobUrlOpenPaths = new Set([
 const staleStackOverflowJobsPaths = new Set([
   "docs/user/DEEP_LINKS.md",
   "src/mocks/handlers.ts",
-  "src/types/deeplinks.ts",
+  "src/shared/search-links/model.ts",
   "src-tauri/src/core/deeplinks/generator.rs",
   "src-tauri/src/core/deeplinks/mod.rs",
   "src-tauri/src/core/deeplinks/sites.rs",

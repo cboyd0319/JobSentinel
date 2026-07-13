@@ -1,7 +1,7 @@
 /**
- * Deep Link Types
+ * Search link model shared by features that open job-site searches.
  *
- * TypeScript definitions for the Deep Link Generator feature.
+ * Backend field names remain snake_case because this is an IPC contract.
  */
 
 /**
@@ -97,69 +97,3 @@ export enum SiteCategory {
   Cleared = "cleared",
   Professional = "professional",
 }
-
-/**
- * Category display metadata
- */
-export interface CategoryMetadata {
-  category: SiteCategory;
-  label: string;
-  description: string;
-  icon: "globe" | "laptop" | "building" | "remote" | "rocket" | "lock" | "briefcase";
-  selectedClassName: string;
-}
-
-/**
- * Metadata for each category
- */
-export const CATEGORY_METADATA: Record<SiteCategory, CategoryMetadata> = {
-  [SiteCategory.General]: {
-    category: SiteCategory.General,
-    label: "General",
-    description: "Large job boards with millions of listings",
-    icon: "globe",
-    selectedClassName: "bg-blue-600 text-white",
-  },
-  [SiteCategory.Tech]: {
-    category: SiteCategory.Tech,
-    label: "Tech",
-    description: "Technology and IT-focused job boards",
-    icon: "laptop",
-    selectedClassName: "bg-purple-600 text-white",
-  },
-  [SiteCategory.Government]: {
-    category: SiteCategory.Government,
-    label: "Government",
-    description: "Federal, state, and local government positions",
-    icon: "building",
-    selectedClassName: "bg-indigo-600 text-white",
-  },
-  [SiteCategory.Remote]: {
-    category: SiteCategory.Remote,
-    label: "Remote",
-    description: "Remote and flexible work opportunities",
-    icon: "remote",
-    selectedClassName: "bg-green-600 text-white",
-  },
-  [SiteCategory.Startups]: {
-    category: SiteCategory.Startups,
-    label: "Startups",
-    description: "Early-stage companies and startup jobs",
-    icon: "rocket",
-    selectedClassName: "bg-orange-600 text-white",
-  },
-  [SiteCategory.Cleared]: {
-    category: SiteCategory.Cleared,
-    label: "Cleared",
-    description: "Jobs requiring security clearances",
-    icon: "lock",
-    selectedClassName: "bg-red-600 text-white",
-  },
-  [SiteCategory.Professional]: {
-    category: SiteCategory.Professional,
-    label: "Professional",
-    description: "Professional networking and career sites",
-    icon: "briefcase",
-    selectedClassName: "bg-sky-600 text-white",
-  },
-};

@@ -80,6 +80,14 @@ const OptimizerIcon = memo(function OptimizerIcon() {
   );
 });
 
+const SearchLinksIcon = memo(function SearchLinksIcon() {
+  return (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 010 5.656l-2 2a4 4 0 01-5.656-5.656l1-1m2.828 2.656a4 4 0 010-5.656l2-2a4 4 0 015.656 5.656l-1 1" />
+    </svg>
+  );
+});
+
 // Navigation dimensions (extracted to prevent re-creation on each render)
 const NAV_WIDTHS = {
   collapsed: "64px",
@@ -94,6 +102,7 @@ const navItems: NavItem[] = [
   { id: "automation", label: "Application Assist", shortcut: "Cmd/Ctrl+6", icon: <AutomationIcon /> },
   { id: "resume-builder", label: "Resume Builder", shortcut: "Cmd/Ctrl+7", icon: <BuilderIcon /> },
   { id: "ats-optimizer", label: "Resume Match", shortcut: "Cmd/Ctrl+8", icon: <OptimizerIcon /> },
+  { id: "search-links", label: "Search Links", shortcut: "Cmd/Ctrl+9", icon: <SearchLinksIcon /> },
 ];
 
 export const Navigation = memo(function Navigation({ currentPage, onNavigate }: NavigationProps) {

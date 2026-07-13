@@ -503,6 +503,24 @@ describe("KeyboardShortcutsContext", () => {
       });
     });
 
+    it("opens Search Links with the ninth navigation shortcut", async () => {
+      const onNavigate = vi.fn();
+
+      render(
+        <KeyboardShortcutsProvider onNavigate={onNavigate}>
+          <TestComponent />
+        </KeyboardShortcutsProvider>
+      );
+
+      await act(async () => {
+        fireEvent.keyDown(window, { key: "9", metaKey: true });
+      });
+
+      await waitFor(() => {
+        expect(onNavigate).toHaveBeenCalledWith("search-links");
+      });
+    });
+
     it("calls onOpenSettings when settings shortcut is triggered", async () => {
       const onOpenSettings = vi.fn();
 

@@ -794,8 +794,9 @@ evidence-log entry.
 - Milestone 2 is in progress. App composition is owned by `src/app/`; Salary,
   Hiring Trends, Application Assist, Applications tracking, first-run
   Onboarding, Dashboard job discovery, Resume library, builder and matching,
-  and Settings are complete feature slices with public facades and private
-  implementation modules under `src/features/`.
+  Settings, and Search Links are complete feature slices with public facades
+  and private implementation modules under `src/features/`. The shared Search
+  Links IPC model and client have one neutral multi-consumer owner.
 - Settings company-preference field names changed. Read-only deserialize aliases
   preserve existing local values, and all newly saved data uses the new names.
   No privacy, credential, consent, or external-side-effect boundary changed.
@@ -806,15 +807,16 @@ evidence-log entry.
   order documented; privacy is the immutable product boundary; Milestones 0
   and 1 are complete; Milestone 2 has app, Salary, Hiring Trends, Application
   Assist, Applications tracking, first-run Onboarding, Dashboard job discovery,
-  Resume library, builder and matching, and Settings ownership established with
-  passing focused and full checks.
+  Resume library, builder and matching, Settings, and Search Links ownership
+  established with passing focused, full frontend, build, repository, and E2E
+  checks.
 - Evidence: live manifests, imports, file counts, module graph, SQLx migration
   paths, CI, release scripts, harness sensors, Tamworth, and persona were
   inspected on 2026-07-13.
-- Next step: finish the remaining Deep Links page ownership, then audit the
-  remaining `components`, `hooks`, `services`, and `utils` buckets for proven
-  private feature ownership or real multi-consumer contracts. Establish `ui`
-  and reduced `shared` ownership only from that evidence.
+- Next step: audit the remaining `components`, `hooks`, `services`, and `utils`
+  buckets for proven private feature ownership or real multi-consumer
+  contracts. Establish `ui` and reduced `shared` ownership only from that
+  evidence.
 - Open risks: final SQLx offline metadata location and root Cargo target paths
   must be proven in isolated workspace and release fixtures before old paths are
   removed.

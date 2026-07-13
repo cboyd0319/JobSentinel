@@ -13,6 +13,7 @@ const MAIN_HEADING_BY_SHORTCUT: Array<{
   { shortcut: 6, heading: "Application Assist Settings" },
   { shortcut: 7, heading: "Resume Builder" },
   { shortcut: 8, heading: "Resume Match Helper" },
+  { shortcut: 9, heading: "Job Site Search Links" },
 ];
 
 function mainHeading(page: Page, name: string | RegExp) {

@@ -6,4 +6,5 @@ export type Page =
   | "ats-optimizer"
   | "salary"
   | "market"
+  | "search-links"
   | "automation";

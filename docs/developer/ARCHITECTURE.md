@@ -300,9 +300,10 @@ the broader agent harness.
 - `src/features/<feature>/` owns a complete product slice, including its page,
   feature-local components, model, tests, and development mock handlers.
   Current complete slices are `salary`, `market`, `application-assist`,
-  `applications`, `onboarding`, `dashboard`, and `resumes`. Salary, Market,
-  Applications, and Dashboard expose only their pages; Onboarding exposes only
-  its first-run wizard. Application Assist exposes its profile page and the
+  `applications`, `onboarding`, `dashboard`, `resumes`, `settings`, and
+  `search-links`. Salary, Market, Applications, Dashboard, Settings, and Search
+  Links expose only their pages; Onboarding exposes only its first-run wizard.
+  Application Assist exposes its profile page and the
   Apply action composed into Dashboard by `src/app/`. Resumes exposes its
   library, builder, and matching pages through one domain facade while their
   controllers, validation, rendering, taxonomies, and mock handlers stay
@@ -312,7 +313,9 @@ the broader agent harness.
   development mock registry.
 - A feature must not import another feature's implementation files. Shared
   product-neutral code belongs in `src/shared/`; reusable UI belongs in
-  `src/ui/` as those owners are established.
+  `src/ui/` as those owners are established. `src/shared/search-links/` owns
+  the typed Tauri client and model used by Search Links, Dashboard, and the
+  LinkedIn Workbench; Search Links display state remains private to its feature.
 - Legacy `components`, `contexts`, `hooks`, `services`, `utils`, `types`,
   `config`, and `pages` buckets remain transitional. Shared components and the
   other transitional owners must not import app or feature implementation

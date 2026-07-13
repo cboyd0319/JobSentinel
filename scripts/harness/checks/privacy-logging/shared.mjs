@@ -12,7 +12,7 @@ export const frontendToastSupportDetailPaths = new Set(["src/utils/api.ts"]);
 export const frontendDirectErrorLoggingPaths = new Set([
   "src/features/settings/sources/browser-import/BrowserImportSection.tsx",
   "src/components/ComponentErrorBoundary.tsx",
-  "src/components/DeepLinkGenerator.tsx",
+  "src/features/search-links/SearchLinksPage.tsx",
   "src/components/ErrorBoundary.tsx",
   "src/components/ModalErrorBoundary.tsx",
   "src/components/PageErrorBoundary.tsx",

@@ -13,6 +13,7 @@ const NAV_DESTINATIONS: Array<{
   { label: "Application Assist", heading: "Application Assist Settings" },
   { label: "Resume Builder", heading: "Resume Builder" },
   { label: "Resume Match", heading: "Resume Match Helper" },
+  { label: "Search Links", heading: "Job Site Search Links" },
 ];
 
 async function openApp(page: Page): Promise<BasePage> {

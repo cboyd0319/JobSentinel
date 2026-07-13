@@ -54,4 +54,19 @@ describe("App startup recovery", () => {
     expect(feedbackService.copySanitizedDebugReport).toHaveBeenCalledTimes(1);
     expect(screen.getByText("Safe support report copied")).toBeInTheDocument();
   });
+
+  it("opens the documented Search Links page from navigation", async () => {
+    const user = userEvent.setup();
+    mockInvoke.mockResolvedValueOnce(false);
+
+    render(<App />);
+
+    await user.click(
+      await screen.findByRole("button", { name: "Search Links (Cmd/Ctrl+9)" }),
+    );
+
+    expect(
+      await screen.findByRole("heading", { name: "Job Site Search Links" }),
+    ).toBeInTheDocument();
+  });
 });
