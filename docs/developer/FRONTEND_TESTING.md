@@ -107,11 +107,10 @@ npm run test:e2e:headed -- --debug tests/e2e/playwright/app.spec.ts
 
 ```text
 src/
-- components/: component source and co-located tests
-- hooks/: custom hooks and hook tests
-- contexts/: React contexts and context tests
-- pages/: route/page components and page tests
-- utils/: shared frontend utilities and utility tests
+- app/: app-shell source and co-located tests
+- features/: feature source and co-located tests
+- shared/: multi-consumer contracts and co-located tests
+- ui/: reusable visual primitives and co-located tests
 - test/setup.ts: Vitest configuration
 
 tests/e2e/playwright/

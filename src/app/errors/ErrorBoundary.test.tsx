@@ -4,9 +4,9 @@ import userEvent from "@testing-library/user-event";
 import ErrorBoundary from "./ErrorBoundary";
 
 // Mock error reporter
-vi.mock("../../utils/errorReporting", async () => {
-  const actual = await vi.importActual<typeof import("../../utils/errorReporting")>(
-    "../../utils/errorReporting"
+vi.mock("../../shared/errorReporting/errorReporter", async () => {
+  const actual = await vi.importActual<typeof import("../../shared/errorReporting/errorReporter")>(
+    "../../shared/errorReporting/errorReporter"
   );
 
   return {

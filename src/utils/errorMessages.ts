@@ -5,7 +5,7 @@
  * helping them understand what went wrong and what they can do about it.
  */
 
-import { sanitizeTextForStorage } from './errorReporting';
+import { sanitizeTextForStorage } from '../shared/errorReporting/errorReporter';
 
 export interface UserFriendlyError {
   title: string;

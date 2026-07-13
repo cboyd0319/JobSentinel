@@ -2,7 +2,7 @@ import { useContext } from "react";
 import {
   ErrorReportingContext,
   type ErrorReportingContextType,
-} from "../contexts/errorReportingContextDef";
+} from "./errorReportingContext";
 
 export function useErrorReporting(): ErrorReportingContextType {
   const context = useContext(ErrorReportingContext);

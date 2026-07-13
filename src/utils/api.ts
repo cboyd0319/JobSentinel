@@ -299,7 +299,9 @@ export async function safeInvokeWithToast<T>(
     const enhancedError = error as Error & {
       userFriendly?: { title: string; message: string; action?: string; technical?: string };
     };
-    const { sanitizeTextForStorage } = await import("./errorReporting");
+    const { sanitizeTextForStorage } = await import(
+      "../shared/errorReporting/errorReporter"
+    );
 
     const title = options?.errorTitle || enhancedError.userFriendly?.title || "Could not complete action";
     const message = enhancedError.userFriendly?.message;

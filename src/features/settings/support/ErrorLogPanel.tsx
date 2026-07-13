@@ -1,12 +1,12 @@
 import { memo, useState } from 'react';
-import { useErrorReporting } from '../../../hooks/useErrorReporting';
+import { useErrorReporting } from '../../../shared/errorReporting/useErrorReporting';
 import { Button } from '../../../ui/Button';
 import { Badge } from '../../../ui/Badge';
 import { Card } from '../../../ui/Card';
 import {
   sanitizeContext,
   type ErrorReport,
-} from '../../../utils/errorReporting';
+} from '../../../shared/errorReporting/errorReporter';
 import { copySanitizedDebugReport, saveSanitizedDebugReport } from '../../../services/feedbackService';
 import { logError } from '../../../utils/errorUtils';
 

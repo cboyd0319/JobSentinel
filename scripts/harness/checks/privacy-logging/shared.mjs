@@ -2,7 +2,7 @@ export { existsSync, readFileSync } from "node:fs";
 export { join } from "node:path";
 
 export const frontendErrorReportingPaths = new Set([
-  "src/utils/errorReporting.ts",
+  "src/shared/errorReporting/errorReporter.ts",
 ]);
 export const frontendErrorUtilsPaths = new Set(["src/utils/errorUtils.ts"]);
 export const frontendToastSupportDetailPaths = new Set(["src/utils/api.ts"]);

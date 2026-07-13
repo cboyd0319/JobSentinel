@@ -30,7 +30,7 @@ test("checkRepoBloat rejects unsanitized frontend error report storage", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/utils/errorReporting.ts",
+      "src/shared/errorReporting/errorReporter.ts",
       [
         "class ErrorReporter {",
         "  private errors = [];",
@@ -49,7 +49,7 @@ test("checkRepoBloat rejects unsanitized frontend error report storage", () => {
 
     execFileSync(
       "git",
-      ["add", "package.json", "src/utils/errorReporting.ts"],
+      ["add", "package.json", "src/shared/errorReporting/errorReporter.ts"],
       { cwd: root },
     );
 
@@ -57,7 +57,7 @@ test("checkRepoBloat rejects unsanitized frontend error report storage", () => {
 
     assert.ok(
       violations.includes(
-        "sanitize frontend error report storage: src/utils/errorReporting.ts",
+        "sanitize frontend error report storage: src/shared/errorReporting/errorReporter.ts",
       ),
       violations.join("\n"),
     );
@@ -69,7 +69,7 @@ test("checkRepoBloat rejects raw ErrorReporter storage warning details", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/utils/errorReporting.ts",
+      "src/shared/errorReporting/errorReporter.ts",
       [
         "const TOKEN_PATTERN = /token(?:\\s+|=)/;",
         "const WEBHOOK_PATTERN = /https:\\/\\/(?:discord(?:app)?\\.com\\/api\\/webhooks|outlook\\.office(?:365)?\\.com\\/webhook)/;",
@@ -87,7 +87,7 @@ test("checkRepoBloat rejects raw ErrorReporter storage warning details", () => {
 
     execFileSync(
       "git",
-      ["add", "package.json", "src/utils/errorReporting.ts"],
+      ["add", "package.json", "src/shared/errorReporting/errorReporter.ts"],
       { cwd: root },
     );
 
@@ -95,7 +95,7 @@ test("checkRepoBloat rejects raw ErrorReporter storage warning details", () => {
 
     assert.ok(
       violations.includes(
-        "sanitize frontend error report storage: src/utils/errorReporting.ts",
+        "sanitize frontend error report storage: src/shared/errorReporting/errorReporter.ts",
       ),
       violations.join("\n"),
     );
@@ -107,7 +107,7 @@ test("checkRepoBloat rejects raw frontend error reporter forwarding", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/utils/errorReporting.ts",
+      "src/shared/errorReporting/errorReporter.ts",
       [
         "class ErrorReporter {",
         "  init() {",
@@ -129,7 +129,7 @@ test("checkRepoBloat rejects raw frontend error reporter forwarding", () => {
 
     execFileSync(
       "git",
-      ["add", "package.json", "src/utils/errorReporting.ts"],
+      ["add", "package.json", "src/shared/errorReporting/errorReporter.ts"],
       { cwd: root },
     );
 
@@ -137,7 +137,7 @@ test("checkRepoBloat rejects raw frontend error reporter forwarding", () => {
 
     assert.ok(
       violations.includes(
-        "sanitize frontend error reporter console forwarding: src/utils/errorReporting.ts",
+        "sanitize frontend error reporter console forwarding: src/shared/errorReporting/errorReporter.ts",
       ),
       violations.join("\n"),
     );
@@ -310,7 +310,7 @@ test("checkRepoBloat rejects stale frontend webhook redaction patterns", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/utils/errorReporting.ts",
+      "src/shared/errorReporting/errorReporter.ts",
       [
         "const WEBHOOK_PATTERN = /https:\\/\\/(?:hooks\\.slack\\.com\\/services|discord\\.com\\/api\\/webhooks|outlook\\.office\\.com\\/webhook)[^\\s]*/gi;",
         "function sanitizeStoredReport(report) { return report; }",
@@ -320,7 +320,7 @@ test("checkRepoBloat rejects stale frontend webhook redaction patterns", () => {
 
     execFileSync(
       "git",
-      ["add", "package.json", "src/utils/errorReporting.ts"],
+      ["add", "package.json", "src/shared/errorReporting/errorReporter.ts"],
       { cwd: root },
     );
 
@@ -328,7 +328,7 @@ test("checkRepoBloat rejects stale frontend webhook redaction patterns", () => {
 
     assert.ok(
       violations.includes(
-        "sanitize frontend error report storage: src/utils/errorReporting.ts",
+        "sanitize frontend error report storage: src/shared/errorReporting/errorReporter.ts",
       ),
       violations.join("\n"),
     );
@@ -340,7 +340,7 @@ test("checkRepoBloat rejects unsafe stored error report parsing", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/utils/errorReporting.ts",
+      "src/shared/errorReporting/errorReporter.ts",
       [
         "function sanitizeStoredReport(report) { return report; }",
         "function loadFromStorage(stored) {",
@@ -352,7 +352,7 @@ test("checkRepoBloat rejects unsafe stored error report parsing", () => {
 
     execFileSync(
       "git",
-      ["add", "package.json", "src/utils/errorReporting.ts"],
+      ["add", "package.json", "src/shared/errorReporting/errorReporter.ts"],
       { cwd: root },
     );
 
@@ -360,7 +360,7 @@ test("checkRepoBloat rejects unsafe stored error report parsing", () => {
 
     assert.ok(
       violations.includes(
-        "validate stored error reports before loading: src/utils/errorReporting.ts",
+        "validate stored error reports before loading: src/shared/errorReporting/errorReporter.ts",
       ),
       violations.join("\n"),
     );
@@ -539,7 +539,7 @@ test("checkRepoBloat accepts current frontend webhook redaction patterns", () =>
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/utils/errorReporting.ts",
+      "src/shared/errorReporting/errorReporter.ts",
       [
         "const WEBHOOK_PATTERN = /https:\\/\\/(?:hooks\\.slack\\.com|discord(?:app)?\\.com\\/api\\/webhooks|outlook\\.office(?:365)?\\.com\\/webhook)[^\\s]*/gi;",
         "const TOKEN_PATTERN = /token(?:\\s+|=)[^\\s&]+/gi;",
@@ -554,7 +554,7 @@ test("checkRepoBloat accepts current frontend webhook redaction patterns", () =>
 
     execFileSync(
       "git",
-      ["add", "package.json", "src/utils/errorReporting.ts"],
+      ["add", "package.json", "src/shared/errorReporting/errorReporter.ts"],
       { cwd: root },
     );
 
@@ -562,7 +562,7 @@ test("checkRepoBloat accepts current frontend webhook redaction patterns", () =>
 
     assert.ok(
       !violations.includes(
-        "sanitize frontend error report storage: src/utils/errorReporting.ts",
+        "sanitize frontend error report storage: src/shared/errorReporting/errorReporter.ts",
       ),
       violations.join("\n"),
     );
@@ -574,7 +574,7 @@ test("checkRepoBloat rejects hardcoded frontend error export version", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/utils/errorReporting.ts",
+      "src/shared/errorReporting/errorReporter.ts",
       [
         "const WEBHOOK_PATTERN = /https:\\/\\/(?:hooks\\.slack\\.com|discord(?:app)?\\.com\\/api\\/webhooks|outlook\\.office(?:365)?\\.com\\/webhook)[^\\s]*/gi;",
         "function sanitizeStoredReport(report) { return report; }",
@@ -587,7 +587,7 @@ test("checkRepoBloat rejects hardcoded frontend error export version", () => {
 
     execFileSync(
       "git",
-      ["add", "package.json", "src/utils/errorReporting.ts"],
+      ["add", "package.json", "src/shared/errorReporting/errorReporter.ts"],
       { cwd: root },
     );
 
@@ -595,7 +595,7 @@ test("checkRepoBloat rejects hardcoded frontend error export version", () => {
 
     assert.ok(
       violations.includes(
-        "derive frontend error export version from package metadata: src/utils/errorReporting.ts",
+        "derive frontend error export version from package metadata: src/shared/errorReporting/errorReporter.ts",
       ),
       violations.join("\n"),
     );

@@ -100,13 +100,12 @@ node scripts/build-linux-appimage.mjs --target x86_64-unknown-linux-gnu
 ```text
 JobSentinel/
 - src/: React frontend (TypeScript + Tailwind)
-  - components/: reusable UI components
-  - contexts/: React contexts
-  - hooks/: custom hooks
-  - pages/: page components
-  - utils/: frontend utilities
-  - App.tsx: main app component
-  - main.tsx: entry point
+  - app/: startup, providers, navigation, and route composition
+  - features/: product slices with private implementation modules
+  - shared/: product-neutral contracts used by multiple owners
+  - ui/: reusable visual primitives
+  - test/: Vitest setup and shared test helpers
+  - main.tsx: thin entry point
 - src-tauri/: Rust backend
   - src/main.rs: Tauri app entry
   - src/lib.rs: library exports

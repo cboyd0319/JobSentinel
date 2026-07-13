@@ -1,7 +1,7 @@
 import { Component, ErrorInfo, ReactNode } from "react";
 import { Button } from "../../ui/Button";
 import { EmptyState } from "../../ui/EmptyState";
-import { errorReporter, sanitizeTextForStorage } from "../../utils/errorReporting";
+import { errorReporter, sanitizeTextForStorage } from "../../shared/errorReporting/errorReporter";
 import { logError } from "../../utils/errorUtils";
 import { saveSanitizedDebugReport } from "../../services/feedbackService";
 

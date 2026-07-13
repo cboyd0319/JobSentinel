@@ -294,7 +294,7 @@ test("privacy logging rejects raw frontend error forwarding", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src/utils/errorReporting.ts",
+      "src/shared/errorReporting/errorReporter.ts",
       [
         "window.onerror = () => {",
         "  return false;",
@@ -305,7 +305,7 @@ test("privacy logging rejects raw frontend error forwarding", () => {
       ].join("\n"),
     );
 
-    assert.equal(hasRawFrontendErrorReporterForwarding(root, "src/utils/errorReporting.ts"), true);
+    assert.equal(hasRawFrontendErrorReporterForwarding(root, "src/shared/errorReporting/errorReporter.ts"), true);
     assert.equal(hasRawFrontendErrorReporterForwarding(root, "src/utils/errorUtils.ts"), false);
   });
 });
@@ -314,7 +314,7 @@ test("privacy logging rejects unsafe frontend error report storage", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src/utils/errorReporting.ts",
+      "src/shared/errorReporting/errorReporter.ts",
       [
         "class ErrorReporter {",
         "  save(report) {",
@@ -329,12 +329,12 @@ test("privacy logging rejects unsafe frontend error report storage", () => {
     );
 
     assert.equal(
-      hasUnsanitizedFrontendErrorReportStorage(root, "src/utils/errorReporting.ts"),
+      hasUnsanitizedFrontendErrorReportStorage(root, "src/shared/errorReporting/errorReporter.ts"),
       true,
     );
-    assert.equal(hasUnsafeErrorReportStorageParsing(root, "src/utils/errorReporting.ts"), true);
+    assert.equal(hasUnsafeErrorReportStorageParsing(root, "src/shared/errorReporting/errorReporter.ts"), true);
     assert.equal(
-      hasHardcodedFrontendErrorExportVersion(root, "src/utils/errorReporting.ts"),
+      hasHardcodedFrontendErrorExportVersion(root, "src/shared/errorReporting/errorReporter.ts"),
       true,
     );
     assert.equal(hasUnsafeErrorReportStorageParsing(root, "src/utils/errorUtils.ts"), false);
@@ -345,7 +345,7 @@ test("privacy logging rejects raw frontend error report export", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src/utils/errorReporting.ts",
+      "src/shared/errorReporting/errorReporter.ts",
       [
         "const TOKEN_PATTERN = /token(?:\\s+|=)/;",
         "const WEBHOOK_PATTERN = /https:\\/\\/(?:discord(?:app)?\\.com\\/api\\/webhooks|outlook\\.office(?:365)?\\.com\\/webhook)/;",
@@ -363,7 +363,7 @@ test("privacy logging rejects raw frontend error report export", () => {
     );
 
     assert.equal(
-      hasUnsanitizedFrontendErrorReportStorage(root, "src/utils/errorReporting.ts"),
+      hasUnsanitizedFrontendErrorReportStorage(root, "src/shared/errorReporting/errorReporter.ts"),
       true,
     );
   });
@@ -392,7 +392,7 @@ test("privacy logging rejects raw frontend error helper output", () => {
       true,
     );
     assert.equal(
-      hasRawFrontendErrorHelperDebugLogging(root, "src/utils/errorReporting.ts"),
+      hasRawFrontendErrorHelperDebugLogging(root, "src/shared/errorReporting/errorReporter.ts"),
       false,
     );
   });

@@ -316,6 +316,9 @@ the broader agent harness.
   `src/ui/` as those owners are established. `src/shared/search-links/` owns
   the typed Tauri client and model used by Search Links, Dashboard, and the
   LinkedIn Workbench; Search Links display state remains private to its feature.
+- `src/shared/errorReporting/` owns the validated, privacy-preserving local
+  problem-report model, sanitizer, storage contract, context, and hook. The app
+  provider under `src/app/providers/` owns initialization and composition.
 - Settings owns its notification company chooser, source-health UI and model,
   local problem report panel, and Send Feedback UI under the matching private
   `notifications/`, `sources/health/`, and `support/` subdomains. Sanitized
@@ -325,9 +328,9 @@ the broader agent harness.
   tests and stories. Features import these modules directly, such as
   `src/ui/Button.tsx` and `src/ui/Modal.tsx`; there is no aggregate barrel.
   Product-domain panels and workflows do not belong in this directory.
-- Legacy `components`, `contexts`, `hooks`, `services`, `utils`, `types`,
-  and `config` buckets remain transitional. The legacy `pages` bucket has been
-  removed. Remaining domain components and the other transitional owners must
+- Legacy `components`, `services`, `utils`, `types`, and `config` buckets
+  remain transitional. The legacy `pages`, `contexts`, and `hooks` buckets
+  have been removed. Remaining domain components and transitional owners must
   not import app or feature implementation modules.
 - Tests, mocks, stories, and test setup files are excluded from the production
   architecture sensor, but feature-owned mock handlers remain colocated with

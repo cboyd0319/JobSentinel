@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import ComponentErrorBoundary from './ComponentErrorBoundary';
 
 // Mock error reporter
-vi.mock('../../../utils/errorReporting', () => ({
+vi.mock('../../../shared/errorReporting/errorReporter', () => ({
   errorReporter: {
     captureReactError: vi.fn(),
   },

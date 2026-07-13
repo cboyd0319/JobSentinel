@@ -314,7 +314,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "src/contexts/UndoIntegration.test.tsx",
+      "src/app/providers/UndoProvider.integration.test.tsx",
       "`Moved Software Engineer to Phone Screen`;\n",
     );
     writeFixtureFile(
@@ -663,7 +663,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src/features/dashboard/components/ScoreBreakdownModal.test.tsx",
         "src/features/dashboard/components/JobCard.test.tsx",
         "src/features/market/LocationHeatmap.test.tsx",
-        "src/contexts/UndoIntegration.test.tsx",
+        "src/app/providers/UndoProvider.integration.test.tsx",
         "src/features/settings/notifications/NotificationPreferences.test.tsx",
         "src/ui/StatCard.test.tsx",
         "src/features/applications/CoverLetterTemplates.test.tsx",
@@ -767,7 +767,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src/features/dashboard/components/ScoreBreakdownModal.test.tsx",
       "src/features/dashboard/components/JobCard.test.tsx",
       "src/features/market/LocationHeatmap.test.tsx",
-      "src/contexts/UndoIntegration.test.tsx",
+      "src/app/providers/UndoProvider.integration.test.tsx",
       "src/features/settings/notifications/NotificationPreferences.test.tsx",
       "src/ui/StatCard.test.tsx",
       "src/features/applications/CoverLetterTemplates.test.tsx",

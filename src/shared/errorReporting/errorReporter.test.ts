@@ -5,8 +5,7 @@ import {
   sanitizeConsoleArgsForLogging,
   sanitizeTextForStorage,
   sanitizeStorageWarningError,
-  withErrorCapture,
-} from "./errorReporting";
+} from "./errorReporter";
 
 /**
  * These tests avoid calling errorReporter.init() because the singleton modifies
@@ -32,21 +31,9 @@ describe("errorReporting", () => {
 
   it("module exports correctly", async () => {
     expect(errorReporter).toBeDefined();
-    expect(withErrorCapture).toBeDefined();
     expect(typeof errorReporter.captureCustom).toBe("function");
     expect(typeof errorReporter.captureApiError).toBe("function");
     expect(typeof errorReporter.captureReactError).toBe("function");
-    expect(typeof withErrorCapture).toBe("function");
-  });
-
-  it("withErrorCapture wraps async functions", async () => {
-    const fn = vi.fn().mockResolvedValue("result");
-    const wrapped = withErrorCapture(fn);
-
-    const result = await wrapped("arg");
-
-    expect(result).toBe("result");
-    expect(fn).toHaveBeenCalledWith("arg");
   });
 
   it("sanitizes stored error reports before local persistence", () => {
@@ -227,7 +214,7 @@ describe("errorReporting", () => {
     );
     error.stack = [
       error.message,
-      "at readStorage (resume=private-file/project/src/utils/errorReporting.ts:1:1)",
+      "at readStorage (resume=private-file/project/src/shared/errorReporting/errorReporter.ts:1:1)",
     ].join("\n");
 
     const serialized = JSON.stringify(sanitizeStorageWarningError(error));
@@ -246,7 +233,7 @@ describe("errorReporting", () => {
     );
     error.stack = [
       error.message,
-      "at readStorage (resume=private-file/project/src/utils/errorReporting.ts:1:1)",
+      "at readStorage (resume=private-file/project/src/shared/errorReporting/errorReporter.ts:1:1)",
     ].join("\n");
 
     const sanitized = sanitizeConsoleArgsForLogging([
@@ -306,27 +293,6 @@ describe("errorReporting", () => {
 
   it("ignores non-array stored error payloads", () => {
     expect(parseStoredErrorReports(JSON.stringify({ id: "not-array" }))).toEqual([]);
-  });
-
-  it("sanitizes captured async arguments when wrapped functions fail", async () => {
-    const fn = vi.fn().mockRejectedValue(new Error("Failed token ghp_secret"));
-    const wrapped = withErrorCapture(fn);
-
-    await expect(
-      wrapped({
-        password: "hunter2",
-        jobUrl: "https://example.com/job?candidate=jane@example.com&token=abc#frag",
-      })
-    ).rejects.toThrow("Failed token ghp_secret");
-
-    const stored = errorReporter.getErrors()[0];
-    const serialized = JSON.stringify(stored);
-
-    expect(stored.message).toBe("Failed [TOKEN]");
-    expect(serialized).not.toContain("hunter2");
-    expect(serialized).not.toContain("jane@example.com");
-    expect(serialized).not.toContain("token=abc");
-    expect(serialized).toContain("https://example.com/job");
   });
 
   it("exports the configured application version", () => {

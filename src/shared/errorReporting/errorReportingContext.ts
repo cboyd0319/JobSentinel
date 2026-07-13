@@ -1,5 +1,5 @@
 import { createContext } from "react";
-import type { ErrorReport } from "../utils/errorReporting";
+import type { ErrorReport } from "./errorReporter";
 
 export interface ErrorReportingContextType {
   errors: ErrorReport[];

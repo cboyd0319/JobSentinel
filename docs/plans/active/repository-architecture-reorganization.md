@@ -735,6 +735,7 @@ evidence-log entry.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-07-13 | Milestone 2 in progress | Split Error Reporting by dependency direction: `src/app/providers/ErrorReportingProvider.tsx` owns initialization and composition, while `src/shared/errorReporting/` owns the typed context, hook, local reporter, validation, and sanitization contract used across app recovery, Dashboard, Settings, utilities, and feedback. Deleted four helpers with no production consumers, removed the transitional contexts barrel, and deleted the empty root `contexts` and `hooks` buckets. The reporter is 470 lines, below the final production cap. All 189 focused frontend tests, 64 focused policy tests, 3,052 frontend tests across 184 files, 766 script tests, the 804-module build, repository gates, and 31 app-shell and Settings E2E flows pass. No user-facing behavior or public wiki page changed. |
 | 2026-07-13 | Milestone 2 in progress | Split Undo ownership by dependency direction: `src/app/providers/UndoProvider.tsx` owns stacks, keyboard handling, and Toast composition, while `src/shared/undo/` owns the typed action context and hook consumed by Dashboard and Applications. Updated path-sensitive policy fixtures and the completed wiring plan, then removed Undo exports from the transitional contexts barrel. All 111 focused frontend tests, 45 focused policy tests, 3,054 frontend tests across 184 files, 766 script tests, the 805-module build, repository gates, and 33 Dashboard and Applications E2E flows pass. |
 | 2026-07-13 | Milestone 2 in progress | Split Toast ownership by dependency direction: `src/app/providers/ToastProvider.tsx` owns timers, portal rendering, and visible notifications, while `src/shared/toast/` owns the typed cross-feature context and hook. Updated 66 direct production and test references and removed Toast exports from the transitional contexts barrel. All 152 focused frontend tests, 13 focused boundary and source-structure tests, 3,054 frontend tests across 184 files, 766 script tests, the 805-module build, repository gates, and 15 app-shell E2E flows pass. |
 | 2026-07-13 | Milestone 2 in progress | Split Theme ownership by dependency direction: `src/app/providers/ThemeProvider.tsx` owns persistence and document effects, while `src/shared/theme/` owns the cross-feature context and hook consumed by UI. Removed Theme exports from the transitional contexts barrel. All 24 focused frontend tests, 13 focused boundary and source-structure tests, 3,054 frontend tests across 184 files, 766 script tests, the 805-module build, repository gates, and 15 app-shell E2E flows pass. |
@@ -843,7 +844,10 @@ evidence-log entry.
   provider, while features consume a small typed notification contract under
   `src/shared/toast/`. Undo stacks and global keyboard handling belong to the
   app provider, while Dashboard and Applications consume the typed shared Undo
-  contract directly.
+  contract directly. Error Reporting initialization belongs to the app
+  provider, while the typed context, hook, validated local reporter, and
+  sanitization contract belong to `src/shared/errorReporting/`. The legacy root
+  `contexts` and `hooks` buckets are deleted.
 - Settings company-preference field names changed. Read-only deserialize aliases
   preserve existing local values, and all newly saved data uses the new names.
   No privacy, credential, consent, or external-side-effect boundary changed.
@@ -863,11 +867,13 @@ evidence-log entry.
   passing evidence. The latest Settings hook, service, and utility move has
   passing focused, full frontend, build, repository, and E2E checks. The latest
   Dashboard-private hook and utility move has the same passing evidence.
+  Error Reporting ownership and the root contexts and hooks deletion also have
+  passing focused, full frontend, build, repository, and E2E evidence.
 - Evidence: live manifests, imports, file counts, module graph, SQLx migration
   paths, CI, release scripts, harness sensors, Tamworth, and persona were
   inspected on 2026-07-13.
-- Next step: audit the remaining domain `components`, `hooks`, `services`, and
-  `utils` buckets for proven private feature ownership or real multi-consumer
+- Next step: audit the remaining domain `components`, `services`, and `utils`
+  buckets for proven private feature ownership or real multi-consumer
   contracts. Reduce `shared` ownership only from that evidence.
 - Open risks: final SQLx offline metadata location and root Cargo target paths
   must be proven in isolated workspace and release fixtures before old paths are

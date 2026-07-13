@@ -1,5 +1,5 @@
 import { Component, ErrorInfo, ReactNode } from 'react';
-import { errorReporter, sanitizeTextForStorage } from '../../utils/errorReporting';
+import { errorReporter, sanitizeTextForStorage } from '../../shared/errorReporting/errorReporter';
 import { clearStorage, readStorageValue, writeStorageValue } from '../../shared/browserStorage';
 import { logError } from '../../utils/errorUtils';
 import { copySanitizedDebugReport, saveSanitizedDebugReport } from '../../services/feedbackService';

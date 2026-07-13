@@ -2,11 +2,11 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ErrorLogPanel } from "./ErrorLogPanel";
-import type { ErrorReport } from "../../../utils/errorReporting";
+import type { ErrorReport } from "../../../shared/errorReporting/errorReporter";
 
 // Mock the useErrorReporting hook
 const mockUseErrorReporting = vi.fn();
-vi.mock("../../../hooks/useErrorReporting", () => ({
+vi.mock("../../../shared/errorReporting/useErrorReporting", () => ({
   useErrorReporting: () => mockUseErrorReporting(),
 }));
 

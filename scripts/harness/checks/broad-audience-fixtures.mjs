@@ -84,7 +84,7 @@ const broadAudienceExamplePaths = new Set([
   "src/features/onboarding/SetupWizard.tsx",
   "src/features/onboarding/SetupWizardSearchSummary.tsx",
   "src/features/onboarding/setupWizardPreferences.ts",
-  "src/contexts/UndoIntegration.test.tsx",
+  "src/app/providers/UndoProvider.integration.test.tsx",
   "src/utils/profiles.ts",
   "src/features/resumes/shared/resumeContactValidation.test.ts",
   "src/utils/formValidation.test.ts",

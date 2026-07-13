@@ -1,4 +1,7 @@
-import { sanitizeContext, sanitizeTextForStorage } from "./errorReporting";
+import {
+  sanitizeContext,
+  sanitizeTextForStorage,
+} from "../shared/errorReporting/errorReporter";
 import { getUserFriendlyError } from "./errorMessages";
 
 /**

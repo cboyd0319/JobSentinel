@@ -5,7 +5,7 @@ import {
   sanitizeContext,
   sanitizeTextForStorage,
   type ErrorReport,
-} from "../utils/errorReporting";
+} from "../shared/errorReporting/errorReporter";
 
 export type FeedbackCategory = "bug" | "feature" | "question";
 
