@@ -9,10 +9,10 @@
 //! ## Usage
 //!
 //! ```rust,ignore
-//! use jobsentinel_core::resume::export::{ResumeExporter, TemplateId};
+//! use jobsentinel_core::resume::{ExportTemplateId, ResumeExporter};
 //!
-//! let html = ResumeExporter::export_html(resume_data.clone(), TemplateId::Professional);
-//! let docx_bytes = ResumeExporter::export_docx(&resume_data, TemplateId::Modern)?;
+//! let html = ResumeExporter::export_html(resume_data.clone(), ExportTemplateId::Professional);
+//! let docx_bytes = ResumeExporter::export_docx(&resume_data, ExportTemplateId::Modern)?;
 //! let text = ResumeExporter::export_text(&resume_data);
 //! ```
 

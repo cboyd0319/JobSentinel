@@ -16,9 +16,9 @@ neutral data ownership, frontend feature ownership, backend cycle repair, the
 explicit two-member Cargo workspace, core extraction, and the thin private
 Tauri shell, and final script and harness ownership all have passing evidence.
 The final file-cap, Rust lint-policy, core facade and target, sensitive Rust
-leaf-module, and scraper ownership slices of Milestone 7 are also complete with
-passing evidence. The remaining work is the rest of the cleanup audit and the
-release-readiness proof.
+leaf-module, scraper, and resume ownership slices of Milestone 7 are also
+complete with passing evidence. The remaining work is the rest of the cleanup
+audit and the release-readiness proof.
 
 Observed release state on 2026-06-22 local time:
 
@@ -97,14 +97,16 @@ weakened.
   facade, while scraper integration and live checks compile under that owner.
 - The unused scraper response cache, cached HTTP wrappers, compatibility
   constructor, parallel helper, error variants, and stale cache guide are gone.
+- Resume implementation modules are private behind the existing typed facade.
+  The unused parser status check and section extractor are gone, and file-type
+  and path-safety tests now exercise the real resume parsing entrypoint.
 - Coverage for all configured source adapters and user-gated restricted-source
   paths must retain focused parser/import/gate evidence before any release-ready
   claim.
 
 ## Next Best Work
 
-1. Complete the remaining Rust leaf-module visibility and dead-code audit,
-   starting with the resume owner and its cross-crate consumers.
+1. Complete the remaining Rust leaf-module visibility and dead-code audit.
 2. Complete the repo-wide orphan-test, dependency, root-file, and stale-reference
    cleanup audits.
 3. Align final architecture, contributor, release, and public wiki docs.

@@ -36,21 +36,20 @@ use chrono::{DateTime, TimeZone, Utc};
 use sqlx::{Row, SqlitePool};
 use std::path::Path;
 
-// Module declarations
-pub mod ats_analyzer;
-pub mod ats_types;
-pub mod builder;
-pub mod export;
+mod ats_analyzer;
+mod ats_types;
+mod builder;
+mod export;
 mod format_taxonomy;
 mod json_import;
-pub mod json_resume;
+mod json_resume;
 mod management;
-pub mod matcher;
-pub mod parser;
+mod matcher;
+mod parser;
 mod skill_store;
-pub mod skills;
-pub mod templates;
-pub mod types;
+mod skills;
+mod templates;
+mod types;
 
 use matcher::JobMatcher;
 use parser::ResumeParser;
@@ -78,9 +77,6 @@ pub use export::{
     Project as ExportProject, ResumeData as ExportResumeData, ResumeExporter,
     SkillCategory as ExportSkillCategory, TemplateId as ExportTemplateId,
 };
-
-// Re-export JSON Resume types
-pub use json_resume::JsonResume;
 
 // Re-export template rendering types
 pub use templates::{

@@ -13,8 +13,6 @@ use std::{
 };
 use zip::ZipArchive;
 
-use super::format_taxonomy::resume_format_taxonomy;
-
 /// Minimum text length to consider PDF extraction successful (before falling back to OCR)
 #[cfg(feature = "ocr")]
 const MIN_TEXT_LENGTH: usize = 100;
@@ -53,19 +51,6 @@ impl ResumeParser {
         }
     }
 
-    /// Check if OCR is available for scanned PDFs
-    pub fn is_ocr_available(&self) -> bool {
-        #[cfg(feature = "ocr")]
-        {
-            self.ocr_available
-        }
-
-        #[cfg(not(feature = "ocr"))]
-        {
-            false
-        }
-    }
-
     /// Parse a supported resume file and extract text content.
     ///
     /// Supported formats are PDF, DOCX, TXT, Markdown, and HTML.
@@ -81,31 +66,6 @@ impl ResumeParser {
                 "File must be PDF, DOCX, TXT, Markdown, or HTML"
             )),
         }
-    }
-
-    /// Parse PDF file and extract text content
-    ///
-    /// # Arguments
-    /// * `file_path` - Path to the PDF file
-    ///
-    /// # Returns
-    /// Extracted text content from the PDF
-    ///
-    /// # Example
-    /// ```rust,ignore
-    /// use std::path::Path;
-    /// let parser = ResumeParser::new();
-    /// let text = parser.parse_pdf(Path::new("/path/to/resume.pdf"))?;
-    /// ```
-    pub fn parse_pdf(&self, file_path: &Path) -> Result<String> {
-        let canonical_path = canonical_regular_file(file_path)?;
-
-        // Verify it's a PDF file
-        if resume_extension(&canonical_path).as_deref() != Some("pdf") {
-            return Err(anyhow::anyhow!("File must be a PDF"));
-        }
-
-        self.parse_pdf_from_canonical(&canonical_path)
     }
 
     fn parse_pdf_from_canonical(&self, canonical_path: &Path) -> Result<String> {
@@ -284,56 +244,6 @@ impl ResumeParser {
             .filter(|line| !line.is_empty())
             .collect::<Vec<_>>()
             .join("\n")
-    }
-
-    /// Extract sections from resume text
-    ///
-    /// Identifies common resume sections like:
-    /// - Summary/Objective
-    /// - Experience
-    /// - Education
-    /// - Skills
-    ///
-    /// Returns a map of section name to section content
-    pub fn extract_sections(&self, text: &str) -> std::collections::HashMap<String, String> {
-        let mut sections = std::collections::HashMap::new();
-        let mut current_section = String::from("header");
-        let mut current_content = Vec::new();
-
-        for line in text.lines() {
-            let line_lower = line.to_lowercase();
-
-            // Check if line is a section header
-            let mut found_section = false;
-            for section_alias in &resume_format_taxonomy().section_aliases {
-                if section_alias
-                    .headings
-                    .iter()
-                    .any(|keyword| line_lower.contains(keyword) && line.len() < 50)
-                {
-                    // Save previous section
-                    if !current_content.is_empty() {
-                        sections.insert(current_section.clone(), current_content.join("\n"));
-                        current_content.clear();
-                    }
-
-                    current_section.clone_from(&section_alias.section);
-                    found_section = true;
-                    break;
-                }
-            }
-
-            if !found_section && !line.is_empty() {
-                current_content.push(line.to_string());
-            }
-        }
-
-        // Save last section
-        if !current_content.is_empty() {
-            sections.insert(current_section, current_content.join("\n"));
-        }
-
-        sections
     }
 }
 

@@ -14,39 +14,9 @@ fn test_clean_text() {
 }
 
 #[test]
-fn test_extract_sections() {
+fn test_parse_resume_pdf_file_not_found() {
     let parser = ResumeParser::new();
-
-    let resume_text = r#"
-Jordan Lee
-Program Coordinator
-
-SUMMARY
-Experienced program coordinator with 5 years of client-service experience.
-
-EXPERIENCE
-Program Operations Lead at Harbor Community Services
-Improved intake scheduling.
-
-SKILLS
-Scheduling, case documentation, Spanish
-        "#;
-
-    let sections = parser.extract_sections(resume_text);
-
-    assert!(sections.contains_key("summary"));
-    assert!(sections.contains_key("experience"));
-    assert!(sections.contains_key("skills"));
-
-    let skills_section = sections.get("skills").unwrap();
-    assert!(skills_section.contains("Scheduling"));
-    assert!(skills_section.contains("Spanish"));
-}
-
-#[test]
-fn test_parse_pdf_file_not_found() {
-    let parser = ResumeParser::new();
-    let result = parser.parse_pdf(Path::new("/nonexistent/file.pdf"));
+    let result = parser.parse_resume(Path::new("/nonexistent/file.pdf"));
 
     assert!(result.is_err());
     // Path canonicalization fails for nonexistent files
@@ -56,21 +26,21 @@ fn test_parse_pdf_file_not_found() {
 }
 
 #[test]
-fn test_parse_pdf_wrong_extension() {
+fn test_parse_resume_wrong_extension() {
     use std::fs::File;
     use tempfile::TempDir;
 
     let temp_dir = TempDir::new().unwrap();
-    let file_path = temp_dir.path().join("test.txt");
+    let file_path = temp_dir.path().join("test.rtf");
     File::create(&file_path).unwrap();
 
     let parser = ResumeParser::new();
-    let result = parser.parse_pdf(&file_path);
+    let result = parser.parse_resume(&file_path);
 
     assert!(result.is_err());
     let error = result.unwrap_err().to_string();
-    assert!(error.contains("must be a PDF"));
-    assert!(!error.contains("test.txt"), "path leaked: {error}");
+    assert!(error.contains("File must be PDF, DOCX, TXT, Markdown, or HTML"));
+    assert!(!error.contains("test.rtf"), "path leaked: {error}");
 }
 
 #[test]
@@ -117,85 +87,6 @@ fn test_clean_text_null_characters() {
     let cleaned = parser.clean_text(text_with_nulls);
     // Should preserve content but remove empty lines
     assert!(cleaned.contains("Line 1") || cleaned.contains("Line 2"));
-}
-
-#[test]
-fn test_extract_sections_empty_text() {
-    let parser = ResumeParser::new();
-    let sections = parser.extract_sections("");
-    // Should have at least the header section
-    assert!(sections.is_empty() || sections.contains_key("header"));
-}
-
-#[test]
-fn test_extract_sections_no_section_headers() {
-    let parser = ResumeParser::new();
-    let resume_text = "Just some plain text\nwithout any section headers\nat all";
-    let sections = parser.extract_sections(resume_text);
-
-    // All content should go to "header" section
-    assert!(sections.contains_key("header"));
-    let header = sections.get("header").unwrap();
-    assert!(header.contains("plain text"));
-}
-
-#[test]
-fn test_extract_sections_long_header_ignored() {
-    let parser = ResumeParser::new();
-    // Line with "skills" keyword but >50 chars should not be treated as header
-    let resume_text = r#"
-This is a very long line that contains the word skills but is way more than fifty characters long so it should not be considered a section header
-Python
-Rust
-        "#;
-
-    let sections = parser.extract_sections(resume_text);
-    // Should not have "skills" section since line is too long
-    // Content should remain in current section
-    assert!(sections.len() <= 1);
-}
-
-#[test]
-fn test_extract_sections_multiple_section_types() {
-    let parser = ResumeParser::new();
-    let resume_text = r#"
-Jordan Lee
-
-PROFILE
-Program Coordinator
-
-PROJECTS
-Improved intake process
-
-CERTIFICATIONS
-CPR Certified
-
-EDUCATION
-BA Public Administration
-        "#;
-
-    let sections = parser.extract_sections(resume_text);
-
-    assert!(sections.contains_key("summary") || sections.contains_key("header"));
-    assert!(sections.contains_key("projects"));
-    assert!(sections.contains_key("certifications"));
-    assert!(sections.contains_key("education"));
-}
-
-#[test]
-fn test_extract_sections_case_insensitive() {
-    let parser = ResumeParser::new();
-    let resume_text = r#"
-SKILLS
-Python
-
-sKiLlS
-JavaScript
-        "#;
-
-    let sections = parser.extract_sections(resume_text);
-    // Second "skills" section should replace first
-    assert!(sections.contains_key("skills"));
 }
 
 #[test]
@@ -266,7 +157,7 @@ fn test_ocr_tool_path_accepts_regular_file_in_trusted_root() {
 }
 
 #[test]
-fn test_parse_pdf_no_extension() {
+fn test_parse_resume_no_extension() {
     use std::fs::File;
     use tempfile::TempDir;
 
@@ -275,22 +166,22 @@ fn test_parse_pdf_no_extension() {
     File::create(&file_path).unwrap();
 
     let parser = ResumeParser::new();
-    let result = parser.parse_pdf(&file_path);
+    let result = parser.parse_resume(&file_path);
 
     assert!(result.is_err());
     let error = result.unwrap_err().to_string();
-    assert!(error.contains("must be a PDF"));
+    assert!(error.contains("File must be PDF, DOCX, TXT, Markdown, or HTML"));
     assert!(!error.contains("noextension"), "path leaked: {error}");
 }
 
 #[test]
-fn test_parse_pdf_rejects_directory() {
+fn test_parse_resume_rejects_directory() {
     use tempfile::TempDir;
 
     let temp_dir = TempDir::new().unwrap();
 
     let parser = ResumeParser::new();
-    let result = parser.parse_pdf(temp_dir.path());
+    let result = parser.parse_resume(temp_dir.path());
 
     assert!(result.is_err());
     let error = result.unwrap_err().to_string();
@@ -302,22 +193,22 @@ fn test_parse_pdf_rejects_directory() {
 }
 
 #[test]
-fn test_parse_pdf_path_traversal_nonexistent() {
+fn test_parse_resume_path_traversal_nonexistent() {
     let parser = ResumeParser::new();
 
     // Attempt path traversal to nonexistent file
-    let result = parser.parse_pdf(Path::new("/tmp/../../../etc/passwd"));
+    let result = parser.parse_resume(Path::new("/tmp/../../../etc/passwd"));
 
     // Should fail because canonicalization resolves to a non-PDF or non-existent path
     assert!(result.is_err());
 }
 
 #[test]
-fn test_parse_pdf_relative_path_traversal() {
+fn test_parse_resume_relative_path_traversal() {
     let parser = ResumeParser::new();
 
     // Relative path with traversal
-    let result = parser.parse_pdf(Path::new("../../../etc/passwd"));
+    let result = parser.parse_resume(Path::new("../../../etc/passwd"));
 
     // Should fail - not a PDF and canonicalization won't accept this
     assert!(result.is_err());
