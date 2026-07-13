@@ -507,7 +507,7 @@ test("product copy rejects stale match-ranking labels", () => {
       ["src/pages/ResumeOptimizer.tsx", "<span>{Math.round(score)}%</span>"],
       ["src/pages/DashboardUI/filterLabels.ts", "Best Match First"],
       ["src/pages/DashboardUI/filterLabels.ts", "Lowest Match First"],
-      ["src/pages/SetupWizard.tsx", "strongest matches"],
+      ["src/features/onboarding/SetupWizard.tsx", "strongest matches"],
       ["docs/user/QUICK_START.md", "weaker or adjacent matches"],
       ["docs/features/smart-scoring.md", "Low Match"],
       ["docs/features/smart-scoring.md", "Match Factors"],

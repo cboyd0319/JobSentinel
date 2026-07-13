@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { CareerProfileSelector } from "./CareerProfileSelector";
-import { CAREER_PROFILES } from "../utils/profiles";
+import { CAREER_PROFILES } from "../../utils/profiles";
 
 describe("CareerProfileSelector", () => {
   const defaultProps = {

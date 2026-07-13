@@ -4,7 +4,7 @@
  */
 
 import { memo, type ComponentType } from "react";
-import { CAREER_PROFILES, type CareerProfile, type ProfileIconType } from "../utils/profiles";
+import { CAREER_PROFILES, type CareerProfile, type ProfileIconType } from "../../utils/profiles";
 
 interface CareerProfileSelectorProps {
   selectedProfile: string | null;

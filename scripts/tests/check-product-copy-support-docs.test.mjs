@@ -150,7 +150,7 @@ test("product copy rejects GitHub-first support and overbroad privacy copy", () 
     );
     writeFixtureFile(
       root,
-      "src/pages/SetupWizard.tsx",
+      "src/features/onboarding/SetupWizard.tsx",
       "Nothing is sent anywhere unless you set up notifications.\nHacker News hiring posts",
     );
     writeFixtureFile(
@@ -161,7 +161,7 @@ test("product copy rejects GitHub-first support and overbroad privacy copy", () 
 
     assert.equal(hasTechnicalFirstUserCopy(root, "README.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/user/DEEP_LINKS.md"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/SetupWizard.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/features/onboarding/SetupWizard.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/user/QUICK_START.md"), true);
   });
 });
@@ -311,8 +311,8 @@ test("product copy rejects market-intel jargon in hiring trends surfaces", () =>
 
 test("product copy rejects first-run and Rule 0 privacy drift", () => {
   withFixture((root) => {
-    writeFixtureFile(root, "src/pages/SetupWizard.tsx", "Career Path\nReview & Edit\nComplete setup wizard\n");
-    writeFixtureFile(root, "src/components/CareerProfileSelector.tsx", "My Own Search\nStarts with {profile.keywordsBoost.length} helpful skills\n");
+    writeFixtureFile(root, "src/features/onboarding/SetupWizard.tsx", "Career Path\nReview & Edit\nComplete setup wizard\n");
+    writeFixtureFile(root, "src/features/onboarding/CareerProfileSelector.tsx", "My Own Search\nStarts with {profile.keywordsBoost.length} helpful skills\n");
     writeFixtureFile(
       root,
       "README.md",
@@ -351,8 +351,8 @@ test("product copy rejects first-run and Rule 0 privacy drift", () => {
     );
     writeFixtureFile(root, "src/components/ErrorBoundary.tsx", "Your data is safe.\n");
 
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/SetupWizard.tsx"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/components/CareerProfileSelector.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/features/onboarding/SetupWizard.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/features/onboarding/CareerProfileSelector.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "README.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "PRIVACY.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "RESPONSIBLE_AI.md"), true);

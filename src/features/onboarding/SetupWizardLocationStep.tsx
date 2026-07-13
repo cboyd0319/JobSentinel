@@ -1,7 +1,7 @@
-import { Badge } from "../components/Badge";
-import { Button } from "../components/Button";
-import { Input } from "../components/Input";
-import type { LocationInfo } from "../utils/locationDetection";
+import { Badge } from "../../components/Badge";
+import { Button } from "../../components/Button";
+import { Input } from "../../components/Input";
+import type { LocationInfo } from "../../utils/locationDetection";
 import {
   BuildingIcon,
   GlobeIcon,

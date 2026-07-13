@@ -73,7 +73,7 @@ const activeSecretStorageWordingPaths = new Set([
   "docs/developer/ARCHITECTURE.md",
   "docs/developer/MACOS_DEVELOPMENT.md",
   "src/pages/SettingsConfig.ts",
-  "src/pages/SetupWizard.tsx",
+  "src/features/onboarding/SetupWizard.tsx",
   "src-tauri/src/core/config/types.rs",
 ]);
 

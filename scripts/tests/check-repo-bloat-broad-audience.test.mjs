@@ -114,7 +114,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "src/pages/SetupWizard.tsx",
+      "src/features/onboarding/SetupWizard.tsx",
       '<Input placeholder="e.g., San Francisco, New York" />\n',
     );
     writeFixtureFile(
@@ -623,7 +623,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "package.json",
         "examples/resumes/sample-json-resume.json",
         "src/pages/Dashboard.tsx",
-        "src/pages/SetupWizard.tsx",
+        "src/features/onboarding/SetupWizard.tsx",
         "src/features/salary/SalaryPage.tsx",
         "src/pages/DashboardUI/DashboardFiltersBar.tsx",
         "src/components/CompanyResearchPanel.tsx",
@@ -728,7 +728,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "examples/resumes/sample-json-resume.json",
       "src/features/salary/SalaryPage.tsx",
       "src/pages/Dashboard.tsx",
-      "src/pages/SetupWizard.tsx",
+      "src/features/onboarding/SetupWizard.tsx",
       "src/pages/DashboardUI/DashboardFiltersBar.tsx",
       "src/components/CompanyResearchPanel.tsx",
       "src/features/applications/CoverLetterTemplates.tsx",

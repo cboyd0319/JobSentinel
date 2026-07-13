@@ -1,5 +1,5 @@
 export function getTechnicalFirstUiResult(path, text) {
-  if (path === "src/pages/SetupWizard.tsx") {
+  if (path === "src/features/onboarding/SetupWizard.tsx") {
     const setupWizardPatterns = [
       /Slack connection link/i,
       /hooks\.slack\.com\/services/i,

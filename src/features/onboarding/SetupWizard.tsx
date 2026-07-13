@@ -1,19 +1,16 @@
-import { useState, useEffect, useCallback } from "react";
-import { Button } from "../components/Button";
-import { Card } from "../components/Card";
-import { CareerProfileSelector } from "../components/CareerProfileSelector";
-import { useToast } from "../contexts";
-import { invalidateCacheByCommand, safeInvoke, safeInvokeWithToast } from "../utils/api";
-import { getProfileById, profileToConfig } from "../utils/profiles";
-import {
-  cacheDetectedLocation,
-  readCachedDetectedLocation,
-  type LocationInfo,
-} from "../utils/locationDetection";
-import { CheckIcon, SentinelIcon } from "./SetupWizardIcons";
+import { useEffect, useState } from "react";
+import { Button } from "../../components/Button";
+import { Card } from "../../components/Card";
+import { useToast } from "../../contexts";
+import { invalidateCacheByCommand, safeInvokeWithToast } from "../../utils/api";
+import { getProfileById, profileToConfig } from "../../utils/profiles";
+import { CareerProfileSelector } from "./CareerProfileSelector";
+import { SentinelIcon } from "./SetupWizardIcons";
 import { SetupWizardJobBasicsStep } from "./SetupWizardJobBasicsStep";
 import { SetupWizardLocationStep } from "./SetupWizardLocationStep";
 import { SetupWizardNotificationsStep } from "./SetupWizardNotificationsStep";
+import { SetupWizardProgress } from "./SetupWizardProgress";
+import { SETUP_STEPS } from "./setupWizardSteps";
 import {
   DEFAULT_FRESHNESS_PREFERENCE,
   DEFAULT_REVIEW_VOLUME_PREFERENCE,
@@ -32,23 +29,12 @@ import {
   getSetupWizardSourceReviewOptions,
   toggleSetupJobSource,
 } from "./setupWizardSourceReviewState";
+import { useSetupWizardLocation } from "./useSetupWizardLocation";
 import { useSetupResumeSuggestions } from "./useSetupResumeSuggestions";
 
 interface SetupWizardProps {
   onComplete: () => void;
 }
-
-type WorkLocationPreferenceKey = "allow_remote" | "allow_hybrid" | "allow_onsite";
-
-// Step 0 is profile selection, then simplified flow
-const STEPS = [
-  { id: 0, title: "Work You Want", description: "What kind of work are you looking for?" },
-  { id: 1, title: "Job Basics", description: "Tell JobSentinel what to look for" },
-  { id: 2, title: "Location", description: "Where do you want to work?" },
-  { id: 3, title: "Notifications", description: "Stay informed (optional)" },
-];
-
-// Preset paths provide starter search settings.
 
 export default function SetupWizard({ onComplete }: SetupWizardProps) {
   const [step, setStep] = useState(0); // Start at step 0 (profile selection)
@@ -62,17 +48,25 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
   const [titleInput, setTitleInput] = useState("");
   const [skillInput, setSkillInput] = useState("");
   const [avoidInput, setAvoidInput] = useState("");
-  const [cityInput, setCityInput] = useState("");
   const [payFloorInput, setPayFloorInput] = useState("");
   const [payFloorUnit, setPayFloorUnit] = useState<SetupPayUnit>("yearly");
   const toast = useToast();
   const [stepAnnouncement, setStepAnnouncement] = useState("");
   const [validationAnnouncement, setValidationAnnouncement] = useState("");
-  const [detectedLocation, setDetectedLocation] = useState<LocationInfo | null>(
-    () => readCachedDetectedLocation()
-  );
-  const [isDetectingLocation, setIsDetectingLocation] = useState(false);
   const [config, setConfig] = useState<SetupConfig>(() => createDefaultSetupConfig());
+  const {
+    cityInput,
+    detectedLocation,
+    handleAddCity,
+    handleDetectLocation,
+    handleLocationNotSure,
+    handleRemoveCity,
+    handleUseDetectedLocation,
+    handleWorkTypeChange,
+    hasSelectedWorkType,
+    isDetectingLocation,
+    setCityInput,
+  } = useSetupWizardLocation(config, setConfig);
   const {
     addedResumeSuggestionCount,
     handleAddAllVisibleSkillSuggestions,
@@ -113,33 +107,12 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
   };
 
   const canProceedFromStep1 = config.title_allowlist.length > 0;
-  const hasSelectedWorkType =
-    config.location_preferences.allow_remote ||
-    config.location_preferences.allow_hybrid ||
-    config.location_preferences.allow_onsite;
-
-  const handleDetectLocation = useCallback(async () => {
-    setIsDetectingLocation(true);
-    try {
-      const location = await safeInvoke<LocationInfo>(
-        "detect_location",
-        {},
-        { logContext: "Detect location from IP" }
-      );
-      setDetectedLocation(location);
-      cacheDetectedLocation(location);
-    } catch {
-      toast.warning("Location unavailable", "Enter a city manually.");
-    } finally {
-      setIsDetectingLocation(false);
-    }
-  }, [toast]);
 
   // Announce step changes for screen readers
   useEffect(() => {
-    const currentStep = STEPS[step];
+    const currentStep = SETUP_STEPS[step];
     if (currentStep) {
-      setStepAnnouncement(`Step ${step + 1} of ${STEPS.length}: ${currentStep.title}`);
+      setStepAnnouncement(`Step ${step + 1} of ${SETUP_STEPS.length}: ${currentStep.title}`);
     }
   }, [step]);
 
@@ -309,77 +282,6 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
     setConfig((prev) => toggleSetupJobSource(prev, source, enabled));
   };
 
-  const handleAddCity = () => {
-    const trimmed = cityInput.trim();
-    if (trimmed && !config.location_preferences.cities.includes(trimmed)) {
-      setConfig((prev) => ({
-        ...prev,
-        location_preferences: {
-          ...prev.location_preferences,
-          cities: [...prev.location_preferences.cities, trimmed],
-        },
-      }));
-      setCityInput("");
-    }
-  };
-
-  const handleRemoveCity = (cityToRemove: string) => {
-    setConfig((prev) => ({
-      ...prev,
-      location_preferences: {
-        ...prev.location_preferences,
-        cities: prev.location_preferences.cities.filter((c) => c !== cityToRemove),
-      },
-    }));
-  };
-
-  const handleLocationNotSure = () => {
-    setConfig((prev) => ({
-      ...prev,
-      location_preferences: {
-        ...prev.location_preferences,
-        allow_remote: true,
-        allow_hybrid: true,
-        allow_onsite: true,
-        cities: [],
-      },
-    }));
-    setCityInput("");
-  };
-
-  const handleWorkTypeChange = (
-    key: WorkLocationPreferenceKey,
-    checked: boolean,
-  ) => {
-    setConfig((prev) => ({
-      ...prev,
-      location_preferences: {
-        ...prev.location_preferences,
-        [key]: checked,
-      },
-    }));
-  };
-
-  const handleUseDetectedLocation = () => {
-    if (!detectedLocation) {
-      return;
-    }
-
-    const locationStr = `${detectedLocation.city}, ${detectedLocation.region}`;
-    if (config.location_preferences.cities.includes(locationStr)) {
-      return;
-    }
-
-    setConfig((prev) => ({
-      ...prev,
-      location_preferences: {
-        ...prev.location_preferences,
-        cities: [...prev.location_preferences.cities, locationStr],
-      },
-    }));
-    toast.success("Location added", `Added ${locationStr}`);
-  };
-
   const handleComplete = async () => {
     if (!hasSelectedWorkType) {
       setStep(2);
@@ -437,47 +339,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
       </div>
 
       <div className="relative w-full max-w-xl motion-safe:animate-fade-in">
-        {/* Progress indicator */}
-        <div className="mb-8">
-          <div className="mb-3 flex w-full items-center">
-            {STEPS.map((s, i) => (
-              <div
-                key={s.id}
-                className={`flex items-center ${i < STEPS.length - 1 ? "flex-1" : "shrink-0"}`}
-              >
-                <div
-                  className={`
-                    h-9 w-9 shrink-0 rounded-full flex items-center justify-center font-semibold text-sm sm:h-10 sm:w-10
-                    transition-all duration-300
-                    ${step > s.id
-                      ? "bg-sentinel-500 text-white"
-                      : step === s.id
-                        ? "bg-sentinel-500 text-white ring-4 ring-sentinel-500/30"
-                        : "bg-surface-700 text-surface-400"
-                    }
-                  `}
-                >
-                  {step > s.id ? (
-                    <CheckIcon className="w-5 h-5" />
-                  ) : (
-                    i + 1
-                  )}
-                </div>
-                {i < STEPS.length - 1 && (
-                  <div
-                    className={`
-                      mx-1 h-0.5 flex-1 transition-colors duration-300 sm:mx-2
-                      ${step > s.id ? "bg-sentinel-500" : "bg-surface-700"}
-                    `}
-                  />
-                )}
-              </div>
-            ))}
-          </div>
-          <div className="text-center">
-            <p className="text-surface-400 text-sm">Step {step + 1} of {STEPS.length}</p>
-          </div>
-        </div>
+        <SetupWizardProgress step={step} />
 
         {/* Card */}
         <Card padding="lg" className="bg-white">
@@ -487,10 +349,10 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
               <SentinelIcon className="w-8 h-8 text-sentinel-600" />
             </div>
             <h1 className="font-display text-display-xl text-surface-900 mb-2">
-              {STEPS[step]?.title ?? 'Setup'}
+              {SETUP_STEPS[step]?.title ?? 'Setup'}
             </h1>
             <p className="text-surface-500">
-              {STEPS[step]?.description ?? ''}
+              {SETUP_STEPS[step]?.description ?? ''}
             </p>
           </div>
 

@@ -1,4 +1,4 @@
-import { Button } from "../components/Button";
+import { Button } from "../../components/Button";
 import {
   FRESHNESS_OPTIONS,
   REVIEW_VOLUME_OPTIONS,

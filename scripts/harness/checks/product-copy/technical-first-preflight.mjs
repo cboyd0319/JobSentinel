@@ -33,11 +33,11 @@ const hiringTrendsCopyPaths = new Set([
 ]);
 const firstRunPlainCopyPaths = new Set([
   "src/app/App.tsx",
-  "src/components/CareerProfileSelector.tsx",
+  "src/features/onboarding/CareerProfileSelector.tsx",
   "src/config/tourSteps.ts",
-  "src/pages/SetupWizard.tsx",
-  "src/pages/SetupWizardSearchSummary.tsx",
-  "src/pages/setupWizardPreferences.ts",
+  "src/features/onboarding/SetupWizard.tsx",
+  "src/features/onboarding/SetupWizardSearchSummary.tsx",
+  "src/features/onboarding/setupWizardPreferences.ts",
   "docs/user/QUICK_START.md",
 ]);
 const installSecurityCopyPaths = new Set([

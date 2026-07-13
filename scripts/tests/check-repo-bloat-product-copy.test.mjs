@@ -165,7 +165,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/CareerProfileSelector.tsx",
+      "src/features/onboarding/CareerProfileSelector.tsx",
       [
         '"Custom Setup"',
         '"I\'ll enter my own job titles and skills"',
@@ -424,7 +424,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/pages/SetupWizard.tsx",
+      "src/features/onboarding/SetupWizard.tsx",
       '<Input label="Slack Webhook URL (optional)" />"Skills & Keywords"\n',
     );
     writeFixtureFile(
@@ -548,7 +548,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/pages/ResumeBuilder.tsx",
         "src/features/salary/SalaryPage.tsx",
         "src/pages/Settings.tsx",
-        "src/pages/SetupWizard.tsx",
+        "src/features/onboarding/SetupWizard.tsx",
         "src/components/AsyncButton.tsx",
         "src/components/BookmarkletGenerator.tsx",
         "src/features/applications/CoverLetterTemplates.tsx",
@@ -565,7 +565,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/features/applications/AnalyticsPanel.tsx",
         "src/components/DashboardWidgets.tsx",
         "src/features/applications/InterviewScheduler.tsx",
-        "src/components/CareerProfileSelector.tsx",
+        "src/features/onboarding/CareerProfileSelector.tsx",
         "src/components/CommandPalette.tsx",
         "src/components/KeyboardShortcutsHelp.tsx",
         "src/app/Navigation.tsx",
@@ -606,7 +606,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/pages/ResumeBuilder.tsx",
       "src/features/salary/SalaryPage.tsx",
       "src/pages/Settings.tsx",
-      "src/pages/SetupWizard.tsx",
+      "src/features/onboarding/SetupWizard.tsx",
       "src/components/AsyncButton.tsx",
       "src/components/BookmarkletGenerator.tsx",
       "src/features/applications/CoverLetterTemplates.tsx",
@@ -622,7 +622,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/features/applications/AnalyticsPanel.tsx",
       "src/components/DashboardWidgets.tsx",
       "src/features/applications/InterviewScheduler.tsx",
-      "src/components/CareerProfileSelector.tsx",
+      "src/features/onboarding/CareerProfileSelector.tsx",
       "src/components/CommandPalette.tsx",
       "src/components/KeyboardShortcutsHelp.tsx",
       "src/app/Navigation.tsx",

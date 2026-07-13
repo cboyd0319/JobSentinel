@@ -50,7 +50,7 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/pages/SetupWizard.tsx",
+      "src/features/onboarding/SetupWizard.tsx",
       [
         'placeholder="https://hooks.slack.com/services/..." label="Slack connection link"',
         "Start with in-app alerts now",
@@ -843,7 +843,7 @@ test("product copy rejects technical-first settings copy", () => {
       "src/features/market/MarketPage.tsx",
       "src/pages/ResumeOptimizer.tsx",
       "src/pages/Settings.tsx",
-      "src/pages/SetupWizard.tsx",
+      "src/features/onboarding/SetupWizard.tsx",
       "src/pages/dashboardErrorCopy.ts",
       "src/pages/hooks/useDashboardAutoRefresh.ts",
       "src/pages/hooks/useDashboardJobOps.ts",

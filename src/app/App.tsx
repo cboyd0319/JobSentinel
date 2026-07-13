@@ -20,7 +20,7 @@ import {
 } from "../services/feedbackService";
 
 // Lazy load pages for better initial load performance
-const SetupWizard = lazy(() => import("../pages/SetupWizard"));
+const SetupWizard = lazy(() => import("../features/onboarding"));
 const Dashboard = lazy(() => import("../pages/Dashboard"));
 const Applications = lazy(() => import("../features/applications"));
 const Resume = lazy(() => import("../pages/Resume"));
