@@ -76,7 +76,7 @@ fn build_import_http_client(fetch_target: &ResolvedExternalUrl) -> Result<Client
     let mut builder = Client::builder()
         .redirect(Policy::none())
         .timeout(HTTP_TIMEOUT)
-        .user_agent(crate::core::scrapers::http_client::DEFAULT_USER_AGENT);
+        .user_agent(crate::core::scrapers::DEFAULT_USER_AGENT);
 
     if let Some((host, addrs)) = fetch_target.dns_override() {
         builder = builder.resolve_to_addrs(host, addrs);

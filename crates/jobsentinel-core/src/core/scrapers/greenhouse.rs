@@ -360,6 +360,7 @@ impl JobScraper for GreenhouseScraper {
         Ok(all_jobs)
     }
 
+    #[cfg(test)]
     fn name(&self) -> &'static str {
         "greenhouse"
     }

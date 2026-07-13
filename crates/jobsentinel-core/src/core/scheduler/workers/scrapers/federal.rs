@@ -4,7 +4,7 @@ use crate::core::{
     config::Config,
     credentials::{CredentialKey, CredentialService},
     db::Database,
-    scrapers::{usajobs::UsaJobsScraper, JobScraper},
+    scrapers::{JobScraper, UsaJobsScraper},
     Job,
 };
 

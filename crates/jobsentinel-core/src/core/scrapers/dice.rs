@@ -255,6 +255,7 @@ impl JobScraper for DiceScraper {
         self.fetch_jobs().await
     }
 
+    #[cfg(test)]
     fn name(&self) -> &'static str {
         "dice"
     }

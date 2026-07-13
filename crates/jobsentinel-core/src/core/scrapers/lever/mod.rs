@@ -203,6 +203,7 @@ impl JobScraper for LeverScraper {
         Ok(all_jobs)
     }
 
+    #[cfg(test)]
     fn name(&self) -> &'static str {
         "lever"
     }

@@ -179,6 +179,7 @@ impl JobScraper for RemoteOkScraper {
         self.fetch_jobs().await
     }
 
+    #[cfg(test)]
     fn name(&self) -> &'static str {
         "remoteok"
     }

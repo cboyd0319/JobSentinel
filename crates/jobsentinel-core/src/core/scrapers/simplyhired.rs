@@ -376,6 +376,7 @@ impl JobScraper for SimplyHiredScraper {
         self.fetch_jobs().await
     }
 
+    #[cfg(test)]
     fn name(&self) -> &'static str {
         "simplyhired"
     }

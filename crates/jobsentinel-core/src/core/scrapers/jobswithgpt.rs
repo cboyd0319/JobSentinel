@@ -262,6 +262,7 @@ impl JobScraper for JobsWithGptScraper {
         self.query_mcp().await
     }
 
+    #[cfg(test)]
     fn name(&self) -> &'static str {
         "jobswithgpt"
     }

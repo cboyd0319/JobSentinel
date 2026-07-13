@@ -336,6 +336,10 @@ mod tests {
         let request =
             PhenomWidgetRequest::new("https://jobs.example.com/widgets", "EXAMPLE", "en_us");
 
+        assert_eq!(
+            source().referer().as_deref(),
+            Some("https://jobs.example.com/search-results")
+        );
         assert!(request
             .cache_key()
             .starts_with("phenom-widget:jobs.example.com:/widgets:EXAMPLE:en_us:"));

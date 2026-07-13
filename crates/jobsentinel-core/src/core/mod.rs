@@ -32,7 +32,7 @@ pub mod normalization;
 pub mod notify;
 pub mod scheduler;
 pub mod scoring;
-pub mod scrapers;
+mod scrapers;
 mod secure_storage;
 pub mod source_urls;
 pub mod url_security;

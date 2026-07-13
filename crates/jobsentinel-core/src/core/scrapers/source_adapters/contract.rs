@@ -241,7 +241,27 @@ mod tests {
 
     #[test]
     fn maps_source_platforms_and_fetch_contracts() {
-        let lane = SourceAdapterLane::WorkdayCxsListingAdapter;
+        let lanes = [
+            SourceAdapterLane::WorkdayCxsListingAdapter,
+            SourceAdapterLane::PhenomWidgetAdapter,
+            SourceAdapterLane::SyscoRadancyTalentBrewHtmlAdapter,
+            SourceAdapterLane::GreenhouseJobBoardApiAdapter,
+            SourceAdapterLane::LeverPostingsApiAdapter,
+            SourceAdapterLane::SmartRecruitersPostingApiAdapter,
+            SourceAdapterLane::OracleFusionCareerAdapter,
+            SourceAdapterLane::OracleTaleoCareerAdapter,
+            SourceAdapterLane::RadancyTalentBrewSearchHtmlAdapter,
+        ];
+        let names: HashSet<_> = lanes.iter().map(|lane| lane.as_str()).collect();
+        let platforms: HashSet<_> = lanes
+            .iter()
+            .map(|lane| lane.source_platform().as_str())
+            .collect();
+
+        assert_eq!(names.len(), lanes.len());
+        assert_eq!(platforms.len(), lanes.len());
+
+        let lane = lanes[0];
         let contract = lane.fetch_contract();
 
         assert_eq!(lane.source_platform(), SourcePlatform::WorkdayCxs);

@@ -396,6 +396,7 @@ impl JobScraper for HnHiringScraper {
         self.fetch_jobs().await
     }
 
+    #[cfg(test)]
     fn name(&self) -> &'static str {
         "hn_hiring"
     }

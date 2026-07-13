@@ -217,6 +217,7 @@ impl JobScraper for WeWorkRemotelyScraper {
         self.fetch_jobs().await
     }
 
+    #[cfg(test)]
     fn name(&self) -> &'static str {
         "weworkremotely"
     }

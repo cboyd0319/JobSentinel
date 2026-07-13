@@ -368,6 +368,7 @@ impl JobScraper for YcStartupScraper {
         self.fetch_jobs().await
     }
 
+    #[cfg(test)]
     fn name(&self) -> &'static str {
         "yc_startup"
     }

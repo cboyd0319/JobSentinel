@@ -4,30 +4,19 @@
 //! These tests verify scraper construction and trait implementation.
 //!
 //! Note: Parsing logic is tested in unit tests within each scraper module.
-//! Integration tests focus on the public JobScraper trait interface.
+//! Integration tests focus on the scraper owner's internal trait interface.
 
 use wiremock::matchers::method;
 use wiremock::{Mock, MockServer, ResponseTemplate};
 
-// Re-export scraper modules for testing
-use jobsentinel_core::scrapers::{
-    builtin::BuiltInScraper,
-    dice::DiceScraper,
-    greenhouse::{GreenhouseCompany, GreenhouseScraper},
-    hn_hiring::HnHiringScraper,
-    lever::{LeverCompany, LeverScraper},
-    linkedin::LinkedInScraper,
-    remoteok::RemoteOkScraper,
-    weworkremotely::WeWorkRemotelyScraper,
-    yc_startup::YcStartupScraper,
-    JobScraper,
+use super::{
+    linkedin::LinkedInScraper, BuiltInScraper, DiceScraper, GreenhouseCompany, GreenhouseScraper,
+    HnHiringScraper, JobScraper, LeverCompany, LeverScraper, RemoteOkScraper,
+    WeWorkRemotelyScraper, YcStartupScraper,
 };
 
-// REMOVED: indeed, ziprecruiter, wellfound, simplyhired
-// These scrapers were blocked by Cloudflare and have been removed from the codebase
-
 // ============================================================================
-// Test Fixtures - Sample Responses for Future Use
+// Test fixtures
 // ============================================================================
 
 const GREENHOUSE_JSON_RESPONSE: &str = r#"{

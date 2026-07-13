@@ -404,6 +404,7 @@ impl JobScraper for UsaJobsScraper {
         self.fetch_jobs().await
     }
 
+    #[cfg(test)]
     fn name(&self) -> &'static str {
         "usajobs"
     }

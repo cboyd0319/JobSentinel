@@ -235,6 +235,8 @@ function checkCoreBoundary(root, violations) {
   for (const path of [
     "crates/jobsentinel-core/src/core/automation/mod.rs",
     "crates/jobsentinel-core/src/core/credentials/mod.rs",
+    "crates/jobsentinel-core/src/core/scrapers/mod.rs",
+    "crates/jobsentinel-core/src/core/scrapers/source_adapters/mod.rs",
   ]) {
     if (!existsSync(join(root, path))) {
       continue;
@@ -247,6 +249,14 @@ function checkCoreBoundary(root, violations) {
     }
   }
 
+  const coreModulePath = "crates/jobsentinel-core/src/core/mod.rs";
+  if (
+    existsSync(join(root, coreModulePath)) &&
+    /(?:^|\n)\s*pub\s+mod\s+scrapers\s*;/.test(read(root, coreModulePath))
+  ) {
+    violations.push(`${coreModulePath} must keep scraper implementations core-internal`);
+  }
+
   const credentialsPath = "crates/jobsentinel-core/src/core/credentials/mod.rs";
   if (
     existsSync(join(root, credentialsPath)) &&
@@ -255,6 +265,15 @@ function checkCoreBoundary(root, violations) {
     violations.push(
       `${credentialsPath} must keep the legacy OS credential adapter private`,
     );
+  }
+
+  for (const path of [
+    "crates/jobsentinel-core/tests/live_scraper_test.rs",
+    "crates/jobsentinel-core/tests/scraper_integration_test.rs",
+  ]) {
+    if (existsSync(join(root, path))) {
+      violations.push(`${path} must live under the scraper source owner`);
+    }
   }
 }
 

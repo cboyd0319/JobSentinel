@@ -340,12 +340,14 @@ test("checkRepositoryArchitecture rejects wildcard core facade exports", () => {
   });
 });
 
-test("checkRepositoryArchitecture rejects public security-sensitive leaf modules", () => {
+test("checkRepositoryArchitecture rejects public implementation leaf modules", () => {
   withFixture((root) => {
     writeTargetWorkspace(root);
     for (const path of [
       "crates/jobsentinel-core/src/core/automation/mod.rs",
       "crates/jobsentinel-core/src/core/credentials/mod.rs",
+      "crates/jobsentinel-core/src/core/scrapers/mod.rs",
+      "crates/jobsentinel-core/src/core/scrapers/source_adapters/mod.rs",
     ]) {
       writeFixtureFile(
         root,
@@ -361,6 +363,8 @@ test("checkRepositoryArchitecture rejects public security-sensitive leaf modules
     for (const path of [
       "crates/jobsentinel-core/src/core/automation/mod.rs",
       "crates/jobsentinel-core/src/core/credentials/mod.rs",
+      "crates/jobsentinel-core/src/core/scrapers/mod.rs",
+      "crates/jobsentinel-core/src/core/scrapers/source_adapters/mod.rs",
     ]) {
       assert.ok(
         violations.includes(
@@ -375,6 +379,39 @@ test("checkRepositoryArchitecture rejects public security-sensitive leaf modules
       ),
       violations.join("\n"),
     );
+    writeFixtureFile(root, "crates/jobsentinel-core/src/core/mod.rs", "pub mod scrapers;\n");
+
+    const coreModuleViolations = checkRepositoryArchitecture(root);
+    assert.ok(
+      coreModuleViolations.includes(
+        "crates/jobsentinel-core/src/core/mod.rs must keep scraper implementations core-internal",
+      ),
+      coreModuleViolations.join("\n"),
+    );
+  });
+});
+
+test("checkRepositoryArchitecture keeps scraper tests with their source owner", () => {
+  withFixture((root) => {
+    writeTargetWorkspace(root);
+    for (const path of [
+      "crates/jobsentinel-core/tests/live_scraper_test.rs",
+      "crates/jobsentinel-core/tests/scraper_integration_test.rs",
+    ]) {
+      writeFixtureFile(root, path, "#[test]\nfn scraper_contract() {}\n");
+    }
+
+    const violations = checkRepositoryArchitecture(root);
+
+    for (const path of [
+      "crates/jobsentinel-core/tests/live_scraper_test.rs",
+      "crates/jobsentinel-core/tests/scraper_integration_test.rs",
+    ]) {
+      assert.ok(
+        violations.includes(`${path} must live under the scraper source owner`),
+        violations.join("\n"),
+      );
+    }
   });
 });
 

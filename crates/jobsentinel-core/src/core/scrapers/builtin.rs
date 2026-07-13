@@ -44,21 +44,6 @@ impl BuiltInScraper {
         }
     }
 
-    /// Legacy constructor for backwards compatibility
-    /// City parameter is ignored - BuiltIn no longer supports city-specific URLs
-    #[deprecated(
-        since = "2.6.0",
-        note = "Use new(remote_only, limit) instead. City parameter is ignored."
-    )]
-    pub fn new_legacy(_city: impl Into<String>, _category: Option<String>, limit: usize) -> Self {
-        // City and category ignored - BuiltIn changed URL structure
-        Self {
-            remote_only: false,
-            limit,
-            rate_limiter: RateLimiter::shared(),
-        }
-    }
-
     /// Build the search URL
     fn build_url(&self) -> String {
         if self.remote_only {
@@ -297,6 +282,7 @@ impl JobScraper for BuiltInScraper {
         self.fetch_jobs().await
     }
 
+    #[cfg(test)]
     fn name(&self) -> &'static str {
         "builtin"
     }

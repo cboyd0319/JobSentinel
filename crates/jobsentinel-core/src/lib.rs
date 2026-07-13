@@ -6,7 +6,7 @@ pub mod platforms;
 pub use core::{
     ats, automation, bookmarklet, calculate_job_hash, config, credentials, db, deeplinks, geo,
     ghost, health, http_body, import, linkedin_workbench, logging, market_intelligence,
-    normalization, notify, resume, salary, scheduler, scoring, scrapers, source_urls, url_security,
+    normalization, notify, resume, salary, scheduler, scoring, source_urls, url_security,
     user_data, Config, Database, Job,
 };
 

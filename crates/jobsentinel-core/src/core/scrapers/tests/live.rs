@@ -1,26 +1,15 @@
 //! Live Scraper Tests - Tests against real APIs
 //!
-//! Run with: cargo test --test live_scraper_test -- --ignored --nocapture
+//! Run with: cargo test -p jobsentinel-core core::scrapers::live_tests -- --ignored --nocapture
 //!
 //! Note: Some scrapers require authentication or may be rate-limited/blocked.
 //! Tests are ignored by default because they depend on live external sites.
 
-use jobsentinel_core::scrapers::{
-    builtin::BuiltInScraper,
-    dice::DiceScraper,
-    glassdoor::GlassdoorScraper,
-    greenhouse::{GreenhouseCompany, GreenhouseScraper},
-    hn_hiring::HnHiringScraper,
-    lever::{LeverCompany, LeverScraper},
-    remoteok::RemoteOkScraper,
-    simplyhired::SimplyHiredScraper,
-    weworkremotely::WeWorkRemotelyScraper,
-    yc_startup::YcStartupScraper,
-    JobScraper,
+use super::{
+    BuiltInScraper, DiceScraper, GlassdoorScraper, GreenhouseCompany, GreenhouseScraper,
+    HnHiringScraper, JobScraper, LeverCompany, LeverScraper, RemoteOkScraper, SimplyHiredScraper,
+    WeWorkRemotelyScraper, YcStartupScraper,
 };
-
-// Note: indeed, ziprecruiter, wellfound were removed (blocked by Cloudflare)
-// simplyhired and glassdoor re-added in v2.5.5 - may return empty if blocked
 
 // ============================================================================
 // API-BASED SCRAPERS (Most reliable)
@@ -38,10 +27,10 @@ async fn test_greenhouse_live() {
     let result = scraper.scrape().await;
     match result {
         Ok(jobs) => {
-            println!("✅ Greenhouse: Found {} jobs from Cloudflare", jobs.len());
+            println!("Greenhouse: found {} jobs from Cloudflare", jobs.len());
             assert!(!jobs.is_empty(), "Expected jobs from Cloudflare");
         }
-        Err(e) => panic!("❌ Greenhouse scraper failed: {}", e),
+        Err(e) => panic!("Greenhouse scraper failed: {}", e),
     }
 }
 
@@ -78,7 +67,7 @@ async fn test_lever_live() {
                 "Expected jobs from the public Lever sample boards"
             );
         }
-        Err(e) => panic!("❌ Lever scraper failed: {}", e),
+        Err(e) => panic!("Lever scraper failed: {}", e),
     }
 }
 
@@ -90,10 +79,10 @@ async fn test_remoteok_live() {
     let result = scraper.scrape().await;
     match result {
         Ok(jobs) => {
-            println!("✅ RemoteOK: Found {} jobs", jobs.len());
+            println!("RemoteOK: found {} jobs", jobs.len());
             // RemoteOK may have 0 jobs for a specific tag
         }
-        Err(e) => panic!("❌ RemoteOK scraper failed: {}", e),
+        Err(e) => panic!("RemoteOK scraper failed: {}", e),
     }
 }
 
@@ -105,10 +94,10 @@ async fn test_hn_hiring_live() {
     let result = scraper.scrape().await;
     match result {
         Ok(jobs) => {
-            println!("✅ HN Who's Hiring: Found {} jobs", jobs.len());
+            println!("HN Who's Hiring: found {} jobs", jobs.len());
             // May be 0 between hiring threads
         }
-        Err(e) => panic!("❌ HN Who's Hiring scraper failed: {}", e),
+        Err(e) => panic!("HN Who's Hiring scraper failed: {}", e),
     }
 }
 
@@ -124,10 +113,10 @@ async fn test_weworkremotely_live() {
     let result = scraper.scrape().await;
     match result {
         Ok(jobs) => {
-            println!("✅ WeWorkRemotely: Found {} jobs", jobs.len());
+            println!("WeWorkRemotely: found {} jobs", jobs.len());
             assert!(!jobs.is_empty(), "Expected jobs from WeWorkRemotely");
         }
-        Err(e) => panic!("❌ WeWorkRemotely scraper failed: {}", e),
+        Err(e) => panic!("WeWorkRemotely scraper failed: {}", e),
     }
 }
 
@@ -144,10 +133,10 @@ async fn test_builtin_live() {
     let result = scraper.scrape().await;
     match result {
         Ok(jobs) => {
-            println!("✅ BuiltIn: Found {} jobs", jobs.len());
+            println!("BuiltIn: found {} jobs", jobs.len());
         }
         Err(e) => {
-            println!("⚠️  BuiltIn: {}", e);
+            println!("BuiltIn: {}", e);
             println!("    (May be rate-limited or blocked)");
         }
     }
@@ -162,10 +151,10 @@ async fn test_builtin_remote_live() {
     let result = scraper.scrape().await;
     match result {
         Ok(jobs) => {
-            println!("✅ BuiltIn (Remote): Found {} jobs", jobs.len());
+            println!("BuiltIn (Remote): found {} jobs", jobs.len());
         }
         Err(e) => {
-            println!("⚠️  BuiltIn (Remote): {}", e);
+            println!("BuiltIn (Remote): {}", e);
             println!("    (May be rate-limited or blocked)");
         }
     }
@@ -183,10 +172,10 @@ async fn test_dice_live() {
     let result = scraper.scrape().await;
     match result {
         Ok(jobs) => {
-            println!("✅ Dice: Found {} jobs", jobs.len());
+            println!("Dice: found {} jobs", jobs.len());
         }
         Err(e) => {
-            println!("⚠️  Dice: {}", e);
+            println!("Dice: {}", e);
             println!("    (May require JavaScript rendering)");
         }
     }
@@ -200,10 +189,10 @@ async fn test_yc_startups_live() {
     let result = scraper.scrape().await;
     match result {
         Ok(jobs) => {
-            println!("✅ YC Startups: Found {} jobs", jobs.len());
+            println!("YC Startups: found {} jobs", jobs.len());
         }
         Err(e) => {
-            println!("⚠️  YC Startups: {}", e);
+            println!("YC Startups: {}", e);
         }
     }
 }
@@ -251,9 +240,9 @@ async fn test_simplyhired_live() {
     match result {
         Ok(jobs) => {
             if jobs.is_empty() {
-                println!("⚠️  SimplyHired: 0 jobs (likely Cloudflare blocked)");
+                println!("SimplyHired: 0 jobs (likely blocked by Cloudflare)");
             } else {
-                println!("✅ SimplyHired: Found {} jobs", jobs.len());
+                println!("SimplyHired: found {} jobs", jobs.len());
                 // Verify job structure
                 for job in jobs.iter().take(3) {
                     println!(
@@ -266,7 +255,7 @@ async fn test_simplyhired_live() {
             }
         }
         Err(e) => {
-            println!("⚠️  SimplyHired: {}", e);
+            println!("SimplyHired: {}", e);
             println!("    (May be blocked by Cloudflare)");
         }
     }
@@ -285,9 +274,9 @@ async fn test_glassdoor_live() {
     match result {
         Ok(jobs) => {
             if jobs.is_empty() {
-                println!("⚠️  Glassdoor: 0 jobs (likely Cloudflare blocked)");
+                println!("Glassdoor: 0 jobs (likely blocked by Cloudflare)");
             } else {
-                println!("✅ Glassdoor: Found {} jobs", jobs.len());
+                println!("Glassdoor: found {} jobs", jobs.len());
                 // Verify job structure
                 for job in jobs.iter().take(3) {
                     println!(
@@ -300,7 +289,7 @@ async fn test_glassdoor_live() {
             }
         }
         Err(e) => {
-            println!("⚠️  Glassdoor: {}", e);
+            println!("Glassdoor: {}", e);
             println!("    (May be blocked by Cloudflare)");
         }
     }

@@ -1,11 +1,7 @@
-//! API Contract Tests for Tauri Commands
+//! Public core API contract tests.
 //!
-//! Tests all Tauri command signatures to ensure:
-//! - Commands accept correct parameter types
-//! - Commands return expected response types
-//! - Error handling works correctly
-//!
-//! Note: These tests verify the command layer interfaces work correctly.
+//! These tests exercise configuration, database, job, and optional embedded-ML
+//! contracts through the crate's supported facade.
 
 use jobsentinel_core::{
     config::{Config, LocationPreferences},

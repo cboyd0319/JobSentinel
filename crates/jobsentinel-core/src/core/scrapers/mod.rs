@@ -5,28 +5,42 @@
 use crate::core::Job;
 use async_trait::async_trait;
 
-pub mod builtin;
-pub mod cache;
-pub mod dice;
-pub mod error;
-pub mod glassdoor;
-pub mod greenhouse;
-pub mod hn_hiring;
-pub mod http_client;
-pub mod jobswithgpt;
-pub mod lever;
-pub mod linkedin;
-pub mod rate_limiter;
-pub mod remoteok;
-pub mod rss;
-pub mod simplyhired;
-pub mod source_adapters;
-pub mod usajobs;
-pub mod weworkremotely;
-pub mod yc_startup;
+mod builtin;
+mod dice;
+mod error;
+mod glassdoor;
+mod greenhouse;
+mod hn_hiring;
+mod http_client;
+mod jobswithgpt;
+mod lever;
+mod linkedin;
+mod rate_limiter;
+mod remoteok;
+mod rss;
+mod simplyhired;
+#[cfg(test)]
+mod source_adapters;
+mod usajobs;
+mod weworkremotely;
+mod yc_startup;
 
-// Re-export error types
-pub use error::{ScraperError, ScraperResult as TypedScraperResult};
+pub(super) use builtin::BuiltInScraper;
+pub(super) use dice::DiceScraper;
+pub(super) use error::ScraperError;
+pub(super) use glassdoor::GlassdoorScraper;
+pub(super) use greenhouse::{GreenhouseCompany, GreenhouseScraper};
+pub(super) use hn_hiring::HnHiringScraper;
+pub(super) use http_client::{scraper_client_builder, DEFAULT_USER_AGENT};
+pub(super) use jobswithgpt::{JobQuery, JobsWithGptScraper};
+pub(super) use lever::{LeverCompany, LeverScraper};
+pub(super) use linkedin::LINKEDIN_AUTOMATION_DISABLED_MESSAGE;
+pub(super) use rate_limiter::{limits, RateLimiter};
+pub(super) use remoteok::RemoteOkScraper;
+pub(super) use simplyhired::SimplyHiredScraper;
+pub(super) use usajobs::UsaJobsScraper;
+pub(super) use weworkremotely::WeWorkRemotelyScraper;
+pub(super) use yc_startup::YcStartupScraper;
 
 // NOTE: SimplyHired and Glassdoor have Cloudflare protection.
 // These scrapers attempt to use RSS/JSON-LD but may return empty if blocked.
@@ -39,91 +53,23 @@ pub use error::{ScraperError, ScraperResult as TypedScraperResult};
 ///
 /// This provides structured errors with helpful context for debugging and user messages.
 /// All scrapers now use this typed error approach instead of anyhow::Error.
-pub type ScraperResult = Result<Vec<Job>, ScraperError>;
+type ScraperResult = Result<Vec<Job>, ScraperError>;
 
 /// Job scraper trait
 #[async_trait]
-pub trait JobScraper: Send + Sync {
+pub(super) trait JobScraper: Send + Sync {
     /// Scrape jobs from this source
     async fn scrape(&self) -> ScraperResult;
 
     /// Get scraper name
+    #[cfg(test)]
     fn name(&self) -> &'static str;
 }
 
-/// Run multiple scrapers in parallel and collect results
-///
-/// Takes a vector of boxed scrapers and executes them concurrently using tokio.
-/// Results from all scrapers are combined into a single vector.
-/// Errors from individual scrapers are logged but don't stop other scrapers.
-///
-/// # Example
-/// ```ignore
-/// let scrapers: Vec<Box<dyn JobScraper>> = vec![
-///     Box::new(GreenhouseScraper::new(companies)),
-///     Box::new(LeverScraper::new(companies)),
-/// ];
-/// let jobs = scrape_all_parallel(scrapers).await;
-/// ```
-#[tracing::instrument(skip_all, fields(scraper_count = scrapers.len()))]
-pub async fn scrape_all_parallel(scrapers: Vec<Box<dyn JobScraper>>) -> Vec<Job> {
-    use tokio::task::JoinSet;
+#[cfg(test)]
+#[path = "tests/integration.rs"]
+mod integration_tests;
 
-    if scrapers.is_empty() {
-        tracing::debug!("No scrapers provided, returning empty result");
-        return vec![];
-    }
-
-    let scraper_count = scrapers.len();
-    tracing::info!(scraper_count, "Starting parallel scrape");
-
-    // Use JoinSet for parallel execution with proper ownership
-    let mut join_set = JoinSet::new();
-
-    for scraper in scrapers {
-        join_set.spawn(async move {
-            let name = scraper.name();
-            let start = std::time::Instant::now();
-
-            tracing::debug!(scraper = name, "Starting scraper");
-            let result = scraper.scrape().await;
-            let elapsed = start.elapsed();
-
-            match result {
-                Ok(jobs) => {
-                    let job_count = jobs.len();
-                    tracing::info!(
-                        scraper = name,
-                        job_count,
-                        elapsed_ms = elapsed.as_millis(),
-                        "Scraper completed successfully"
-                    );
-                    jobs
-                }
-                Err(_e) => {
-                    tracing::error!(
-                        scraper = name,
-                        elapsed_ms = elapsed.as_millis(),
-                        "Scraper failed"
-                    );
-                    vec![]
-                }
-            }
-        });
-    }
-
-    // Collect all results - pre-allocate with estimated capacity
-    let mut all_jobs = Vec::with_capacity(scraper_count * 20);
-    while let Some(result) = join_set.join_next().await {
-        match result {
-            Ok(jobs) => all_jobs.extend(jobs),
-            Err(_e) => {
-                tracing::error!("Scraper task panicked");
-            }
-        }
-    }
-
-    let total_jobs = all_jobs.len();
-    tracing::info!(total_jobs, "Parallel scrape complete");
-    all_jobs
-}
+#[cfg(test)]
+#[path = "tests/live.rs"]
+mod live_tests;

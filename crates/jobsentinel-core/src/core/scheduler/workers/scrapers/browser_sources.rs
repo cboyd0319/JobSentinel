@@ -3,7 +3,7 @@ use std::sync::Arc;
 use crate::core::{
     config::Config,
     db::Database,
-    scrapers::{glassdoor::GlassdoorScraper, simplyhired::SimplyHiredScraper, JobScraper},
+    scrapers::{GlassdoorScraper, JobScraper, SimplyHiredScraper},
     Job,
 };
 

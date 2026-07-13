@@ -29,7 +29,7 @@ real dependencies.
 | Aspect       | Unit Tests               | Integration Tests                  |
 | ------------ | ------------------------ | ---------------------------------- |
 | Scope        | Single function/module   | Multiple modules working together  |
-| Location     | `tests.rs` within module | `src-tauri/tests/` directory       |
+| Location     | `tests.rs` within module | `<crate>/tests/` or owner-local tests |
 | Database     | In-memory (mocked)       | Real SQLite schema with migrations |
 | Dependencies | Mocked                   | Real implementations               |
 | Speed        | Fast (<10ms)             | Slower (100ms+)                    |
@@ -51,16 +51,17 @@ real dependencies.
 ### Directory Structure
 
 ```text
-src-tauri/tests/
-- api_contract_test.rs: Tauri command signatures
+crates/jobsentinel-core/tests/
+- api_contract_test.rs: public core application contracts
 - automation_integration_test.rs: Application Assist
 - cow_zero_copy_tests.rs: Cow zero-copy behavior
-- credential_test.rs: credential policy plus opt-in live OS keyring roundtrips
 - database_integration_test.rs: database layer
-- live_scraper_test.rs: ignored live scraper smoke tests
 - scheduler_integration_test.rs: scheduling workflow
-- scraper_integration_test.rs: scraper trait interface
 - scraping_pipeline_integration.rs: full pipeline
+
+crates/jobsentinel-core/src/core/scrapers/tests/
+- integration.rs: scraper owner contract tests
+- live.rs: ignored live scraper smoke tests
 ```
 
 ### Test File Naming
@@ -76,7 +77,7 @@ Each integration test file follows this structure:
 ```rust
 //! Module documentation - explain what's being tested
 
-use crate::core::{ /* imports */ };
+use jobsentinel_core::{Config, Database};
 
 // ============================================================================
 // Setup Functions
@@ -110,21 +111,23 @@ async fn test_specific_behavior() {
 ### Run All Integration Tests
 
 ```bash
-cd src-tauri
-cargo test --test '*'
+cargo test --workspace --tests
 ```
 
 ### Run Specific Integration Test File
 
 ```bash
 # Test database integration
-cargo test --test database_integration_test
+cargo test -p jobsentinel-core --test database_integration_test
 
 # Test scheduler
-cargo test --test scheduler_integration_test
+cargo test -p jobsentinel-core --test scheduler_integration_test
 
 # Test scrapers
-cargo test --test scraper_integration_test
+cargo test -p jobsentinel-core core::scrapers::integration_tests
+
+# Run ignored live scraper checks manually
+cargo test -p jobsentinel-core core::scrapers::live_tests -- --ignored --nocapture
 ```
 
 Credential-store roundtrips can prompt on macOS Keychain and equivalent OS
@@ -132,28 +135,27 @@ stores, so they are disabled unless explicitly requested. The default
 credential integration test still verifies non-interactive policy behavior.
 
 ```bash
-cd src-tauri
-cargo test --test credential_test
-JOBSENTINEL_LIVE_KEYRING_TESTS=1 cargo test --test credential_test
+cargo test -p jobsentinel --lib credential_integration_tests
+JOBSENTINEL_LIVE_KEYRING_TESTS=1 cargo test -p jobsentinel --lib credential_integration_tests -- --nocapture
 ```
 
 ### Run Specific Test
 
 ```bash
-cargo test --test database_integration_test test_migrations_run_successfully -- --exact
+cargo test -p jobsentinel-core --test database_integration_test test_migrations_run_successfully -- --exact
 ```
 
 ### Run with Output and Single Thread
 
 ```bash
 # Single-threaded execution (useful for debugging)
-cargo test --test database_integration_test -- --test-threads=1 --nocapture
+cargo test -p jobsentinel-core --test database_integration_test -- --test-threads=1 --nocapture
 ```
 
 ### List Available Integration Tests
 
 ```bash
-cargo test --test '*' -- --list
+cargo test --workspace --tests -- --list
 ```
 
 ---
@@ -528,7 +530,7 @@ let db_path = temp_dir.path().join("unique.db");
 
 ```bash
 # Single thread for easier debugging
-cargo test --test database_integration_test -- --test-threads=1 --nocapture
+cargo test -p jobsentinel-core --test database_integration_test -- --test-threads=1 --nocapture
 ```
 
 Check for missing `.await`:

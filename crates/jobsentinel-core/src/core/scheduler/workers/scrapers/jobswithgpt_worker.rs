@@ -3,10 +3,7 @@ use crate::core::{
     config::Config,
     db::Database,
     health::SourceRequestOutcome,
-    scrapers::{
-        jobswithgpt::{JobQuery, JobsWithGptScraper},
-        JobScraper, ScraperError,
-    },
+    scrapers::{JobQuery, JobScraper, JobsWithGptScraper, ScraperError},
     Job,
 };
 use std::sync::Arc;

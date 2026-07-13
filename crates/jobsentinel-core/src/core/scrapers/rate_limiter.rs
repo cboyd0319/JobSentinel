@@ -49,19 +49,8 @@ impl RateLimiter {
     /// * `scraper_name` - Name of the scraper (e.g., "linkedin", "indeed")
     /// * `max_requests_per_hour` - Maximum requests allowed per hour
     ///
-    /// # Example
-    /// ```rust,no_run
-    /// # use jobsentinel_core::scrapers::rate_limiter::RateLimiter;
-    /// # async fn example() {
-    /// let limiter = RateLimiter::new();
-    ///
-    /// // LinkedIn: max 100 requests/hour
-    /// limiter.wait("linkedin", 100).await;
-    ///
-    /// // Indeed: max 500 requests/hour
-    /// limiter.wait("indeed", 500).await;
-    /// # }
-    /// ```
+    /// The scraper owner supplies a stable source identifier and an hourly
+    /// request limit for each call.
     #[tracing::instrument(skip(self))]
     pub async fn wait(&self, scraper_name: &str, max_requests_per_hour: u32) {
         tracing::debug!("Acquiring rate limit token for scraper");
@@ -86,6 +75,7 @@ impl RateLimiter {
 
     /// Check if request is allowed without waiting
     #[must_use]
+    #[cfg(test)]
     pub async fn is_allowed(&self, scraper_name: &str, max_requests_per_hour: u32) -> bool {
         let mut buckets = self.buckets.lock().await;
 
@@ -98,6 +88,7 @@ impl RateLimiter {
     }
 
     /// Reset rate limiter for a scraper (useful for testing)
+    #[cfg(test)]
     pub async fn reset(&self, scraper_name: &str) {
         let mut buckets = self.buckets.lock().await;
         buckets.remove(scraper_name);
@@ -162,6 +153,7 @@ impl TokenBucket {
 /// Scraper-specific rate limits (requests per hour)
 pub mod limits {
     /// LinkedIn: 100 requests/hour (conservative to avoid detection)
+    #[cfg(test)]
     pub const LINKEDIN: u32 = 100;
 
     /// Indeed: 500 requests/hour (more generous, has public API)

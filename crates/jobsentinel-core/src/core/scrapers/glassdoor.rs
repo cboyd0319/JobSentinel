@@ -450,6 +450,7 @@ impl JobScraper for GlassdoorScraper {
         self.fetch_jobs().await
     }
 
+    #[cfg(test)]
     fn name(&self) -> &'static str {
         "glassdoor"
     }

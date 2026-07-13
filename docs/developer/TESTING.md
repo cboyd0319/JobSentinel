@@ -389,7 +389,7 @@ The main CI jobs are:
 
 CI runs the complete workspace suite, including normal integration tests.
 Ignored or live integration tests remain opt-in and use targeted commands such
-as `cargo test -p jobsentinel-core --test live_scraper_test -- --ignored --nocapture`.
+as `cargo test -p jobsentinel-core core::scrapers::live_tests -- --ignored --nocapture`.
 
 Credential-store roundtrips are opt-in because macOS Keychain and equivalent
 stores can prompt for user approval. Default credential tests stay

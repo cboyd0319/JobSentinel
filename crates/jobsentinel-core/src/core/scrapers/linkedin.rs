@@ -4,9 +4,13 @@
 //! be used through user-opened search links, manual entry, and Browser Import
 //! for individual pages the user chooses.
 
+#[cfg(test)]
 use super::{JobScraper, ScraperError, ScraperResult};
+#[cfg(test)]
 use async_trait::async_trait;
+#[cfg(test)]
 use serde::{Deserialize, Serialize};
+#[cfg(test)]
 use std::fmt;
 
 pub const LINKEDIN_AUTOMATION_DISABLED_MESSAGE: &str =
@@ -17,6 +21,7 @@ pub const LINKEDIN_AUTOMATION_DISABLED_MESSAGE: &str =
      that scrapes or automates activity can violate its User Agreement, may lead \
      to account restrictions, and may raise privacy-law concerns.";
 
+#[cfg(test)]
 #[derive(Clone, Serialize, Deserialize)]
 pub struct LinkedInScraper {
     pub query: String,
@@ -25,6 +30,7 @@ pub struct LinkedInScraper {
     pub limit: usize,
 }
 
+#[cfg(test)]
 impl fmt::Debug for LinkedInScraper {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("LinkedInScraper")
@@ -36,6 +42,7 @@ impl fmt::Debug for LinkedInScraper {
     }
 }
 
+#[cfg(test)]
 impl LinkedInScraper {
     pub fn new(query: impl Into<String>, location: impl Into<String>) -> Self {
         Self {
@@ -46,17 +53,13 @@ impl LinkedInScraper {
         }
     }
 
-    pub fn with_remote_only(mut self, remote_only: bool) -> Self {
-        self.remote_only = remote_only;
-        self
-    }
-
     pub fn with_limit(mut self, limit: usize) -> Self {
         self.limit = limit.min(100);
         self
     }
 }
 
+#[cfg(test)]
 #[async_trait]
 impl JobScraper for LinkedInScraper {
     async fn scrape(&self) -> ScraperResult {

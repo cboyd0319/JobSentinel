@@ -15,9 +15,10 @@ readiness effort. Milestones 0 through 6 are complete: structural sensors,
 neutral data ownership, frontend feature ownership, backend cycle repair, the
 explicit two-member Cargo workspace, core extraction, and the thin private
 Tauri shell, and final script and harness ownership all have passing evidence.
-The final file-cap, Rust lint-policy, core facade and target, and sensitive Rust
-leaf-module slices of Milestone 7 are also complete with passing evidence; the
-remaining work is the full cleanup audit and release-readiness proof.
+The final file-cap, Rust lint-policy, core facade and target, sensitive Rust
+leaf-module, and scraper ownership slices of Milestone 7 are also complete with
+passing evidence. The remaining work is the rest of the cleanup audit and the
+release-readiness proof.
 
 Observed release state on 2026-06-22 local time:
 
@@ -58,7 +59,7 @@ weakened.
 | Workstream | State | Current focus | Source |
 | ---------- | ----- | ------------- | ------ |
 | Current product and quality work | Active | Keep privacy, design, platform, harness, and release evidence aligned during the refactor | [Plan](current-work.md) |
-| Full repository refactor and v2.9.5 readiness | Active | Continue the Rust leaf-module visibility, dead-code, feature, and dependency audit | [Plan](repository-architecture-reorganization.md) |
+| Full repository refactor and v2.9.5 readiness | Active | Continue the remaining Rust leaf-module visibility and dead-code audit | [Plan](repository-architecture-reorganization.md) |
 
 ## Current Posture
 
@@ -91,19 +92,24 @@ weakened.
 - Credential and application-assistance internals are private behind flat
   facades. The legacy OS credential adapter cannot be called across the crate
   boundary, and default tests explicitly keep live keyring access disabled.
+- Scraper implementations and source-adapter contracts are private to their
+  core owner. Scheduler, health, and import consumers use one flat internal
+  facade, while scraper integration and live checks compile under that owner.
+- The unused scraper response cache, cached HTTP wrappers, compatibility
+  constructor, parallel helper, error variants, and stale cache guide are gone.
 - Coverage for all configured source adapters and user-gated restricted-source
   paths must retain focused parser/import/gate evidence before any release-ready
   claim.
 
 ## Next Best Work
 
-1. Complete the repo-wide dead-code, orphan-test, dependency, root-file, and
-   stale-reference cleanup audits.
-2. Align final architecture, contributor, release, and public wiki docs.
-3. Prove v2.9.5 readiness without tagging, publishing, uploading, or dispatching
+1. Complete the remaining Rust leaf-module visibility and dead-code audit,
+   starting with the resume owner and its cross-crate consumers.
+2. Complete the repo-wide orphan-test, dependency, root-file, and stale-reference
+   cleanup audits.
+3. Align final architecture, contributor, release, and public wiki docs.
+4. Prove v2.9.5 readiness without tagging, publishing, uploading, or dispatching
    a release.
-4. Keep future product work scoped by the current active plan and the
-   verification matrix.
 
 ## Completion Bar
 

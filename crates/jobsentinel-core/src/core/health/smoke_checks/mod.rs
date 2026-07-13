@@ -2,10 +2,7 @@
 
 use crate::core::{
     credentials::CredentialService,
-    scrapers::{
-        http_client::scraper_client_builder,
-        rate_limiter::{limits, RateLimiter},
-    },
+    scrapers::{limits, scraper_client_builder, RateLimiter},
     url_security::ResolvedExternalUrl,
     Config, Database,
 };

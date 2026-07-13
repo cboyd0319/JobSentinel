@@ -600,7 +600,7 @@ cargo clippy -- -D warnings
 CI runs `cargo test --lib`, which skips integration tests in `tests/`. Normal
 integration tests run locally with `cargo test`. Ignored or live tests should
 use targeted commands such as
-`cargo test --test live_scraper_test -- --ignored --nocapture`.
+`cargo test -p jobsentinel-core core::scrapers::live_tests -- --ignored --nocapture`.
 
 ### npm audit blocks CI
 

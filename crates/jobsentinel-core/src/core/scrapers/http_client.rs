@@ -4,7 +4,6 @@
 //! for all job board scrapers. This improves performance by reusing
 //! connection pools instead of creating new clients per request.
 
-use crate::core::scrapers::cache;
 use crate::core::url_security::{
     resolve_external_http_url_for_fetch, sanitize_url_for_logging, ResolvedExternalUrl,
 };
@@ -19,9 +18,7 @@ mod retry_policy;
 use retry_policy::bounded_retry_after_secs;
 use retry_policy::{calculate_backoff_delay, is_retryable_request_error, is_retryable_status};
 
-pub use crate::core::http_body::{
-    read_json_with_limit, read_text_with_limit, DEFAULT_MAX_HTTP_BODY_BYTES,
-};
+pub use crate::core::http_body::{read_json_with_limit, read_text_with_limit};
 
 /// Default user agent for scraper requests
 pub const DEFAULT_USER_AGENT: &str =
@@ -128,6 +125,7 @@ pub fn get_client() -> &'static reqwest::Client {
 /// let client = create_custom_client("CustomAgent/1.0", 60)?;
 /// ```
 #[must_use = "this constructs a new HTTP client"]
+#[cfg(test)]
 pub fn create_custom_client(user_agent: &str, timeout_secs: u64) -> Result<reqwest::Client> {
     let client = scraper_client_builder()
         .user_agent(user_agent)
@@ -332,140 +330,6 @@ where
     );
 
     send_with_retry_to_resolved_url(get_client(), &target, build_request).await
-}
-
-/// HTTP GET with cache support
-///
-/// Checks the cache first before making an HTTP request.
-/// If a fresh cached response exists, returns it immediately.
-/// Otherwise, makes the request and caches the successful response.
-///
-/// # Arguments
-///
-/// * `url` - The URL to fetch
-///
-/// # Returns
-///
-/// The response body as a String
-///
-/// # Example
-///
-/// ```ignore
-/// use crate::core::scrapers::http_client::get_with_cache;
-///
-/// let body = get_with_cache("https://example.com/api/jobs").await?;
-/// ```
-pub async fn get_with_cache(url: &str) -> Result<String> {
-    // Check cache first
-    if let Some(cached_body) = cache::get_cached(url).await {
-        tracing::debug!(url = %sanitize_url_for_logging(url), "Returning cached response");
-        return Ok(cached_body);
-    }
-
-    // Cache miss - make the request
-    tracing::debug!(url = %sanitize_url_for_logging(url), "Cache miss, fetching");
-    let response = get_with_retry(url).await?;
-    let body = read_text_with_limit(response, url)
-        .await
-        .context("Failed to read response body")?;
-
-    // Cache the successful response
-    cache::set_cached(url, body.clone()).await;
-
-    Ok(body)
-}
-
-/// HTTP GET with retry logic and optional caching
-///
-/// This is an enhanced version of `get_with_retry` that optionally uses caching.
-/// When `use_cache` is true, it checks the cache before making requests.
-/// Returns the response body as a String.
-///
-/// # Arguments
-///
-/// * `url` - The URL to fetch
-/// * `use_cache` - Whether to use response caching
-///
-/// # Returns
-///
-/// The response body as a String
-///
-/// # Example
-///
-/// ```ignore
-/// use crate::core::scrapers::http_client::get_with_retry_cached;
-///
-/// // With caching
-/// let body = get_with_retry_cached("https://example.com/api/jobs", true).await?;
-///
-/// // Without caching
-/// let body = get_with_retry_cached("https://example.com/api/jobs", false).await?;
-/// ```
-pub async fn get_with_retry_cached(url: &str, use_cache: bool) -> Result<String> {
-    if use_cache {
-        // Check cache first
-        if let Some(cached_body) = cache::get_cached(url).await {
-            tracing::debug!(url = %sanitize_url_for_logging(url), "Returning cached response");
-            return Ok(cached_body);
-        }
-    }
-
-    // Make the actual request
-    let response = get_with_retry(url).await?;
-    let body = read_text_with_limit(response, url)
-        .await
-        .context("Failed to read response body")?;
-
-    // Cache successful responses if caching is enabled
-    if use_cache {
-        cache::set_cached(url, body.clone()).await;
-    }
-
-    Ok(body)
-}
-
-/// HTTP POST with automatic retry logic and exponential backoff
-///
-/// Retries on:
-/// - 429 (Too Many Requests / Rate Limited)
-/// - 5xx (Server Errors)
-///
-/// Uses exponential backoff: 1s, 2s, 4s, 8s (max 3 retries)
-/// Respects `Retry-After` header if present
-///
-/// # Arguments
-///
-/// * `url` - The URL to post to
-/// * `body` - The request body
-///
-/// # Returns
-///
-/// The HTTP response if successful after retries
-///
-/// # Example
-///
-/// ```ignore
-/// use crate::core::scrapers::http_client::post_with_retry;
-///
-/// let body = serde_json::json!({"query": "care coordinator"});
-/// let response = post_with_retry("https://example.com/api/search", body).await?;
-/// ```
-pub async fn post_with_retry<T: serde::Serialize + Send + Sync>(
-    url: &str,
-    body: T,
-) -> Result<reqwest::Response> {
-    let response = send_with_retry(url, |client| client.post(url).json(&body)).await?;
-    let status = response.status();
-
-    if status.is_success() {
-        return Ok(response);
-    }
-
-    Err(anyhow::anyhow!(
-        "HTTP {}: {}",
-        status,
-        sanitize_url_for_logging(url)
-    ))
 }
 
 #[cfg(test)]

@@ -148,7 +148,6 @@ profiles by default. Real user data requires explicit informed consent.
 | Linux packages | [Linux Build Guide](developer/LINUX_BUILD.md) |
 | macOS notes | [macOS Development](developer/MACOS_DEVELOPMENT.md) |
 | SQLite and SQLx setup | [SQLite Configuration](developer/sqlite-configuration.md) |
-| Scraper response cache | [Scraper Cache](developer/SCRAPER_CACHE.md) |
 | Optional local semantic matching | [Local Semantic Matching](developer/LOCAL_SEMANTIC_MATCHING.md) |
 | Error-handling patterns | [Error Handling](developer/ERROR_HANDLING.md) |
 | Mutation testing | [Mutation Testing](developer/MUTATION_TESTING.md) |
