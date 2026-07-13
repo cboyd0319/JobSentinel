@@ -2,7 +2,7 @@ import {
   validatePhone,
   validateRequiredEmail,
   validateUrlWithOptionalProtocol,
-} from "../../../utils/formValidation";
+} from "../../../shared/validation/contactFieldValidation";
 
 export interface ResumeContactValidationInput {
   name: string;

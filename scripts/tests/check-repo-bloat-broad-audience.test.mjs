@@ -328,7 +328,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     writeFixtureFile(root, "src/ui/StatCard.test.tsx", '"John Doe";\n');
     writeFixtureFile(
       root,
-      "src/utils/formValidation.test.ts",
+      "src/shared/validation/contactFieldValidation.test.ts",
       '"linkedin.com/in/johndoe";\n',
     );
     writeFixtureFile(
@@ -668,7 +668,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src/ui/StatCard.test.tsx",
         "src/features/applications/CoverLetterTemplates.test.tsx",
         "src/features/applications/InterviewScheduler.test.tsx",
-        "src/utils/formValidation.test.ts",
+        "src/shared/validation/contactFieldValidation.test.ts",
         "src/utils/export.test.ts",
         "src-tauri/src/core/health/smoke_tests.rs",
         "src-tauri/src/core/deeplinks/generator.rs",
@@ -772,7 +772,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src/ui/StatCard.test.tsx",
       "src/features/applications/CoverLetterTemplates.test.tsx",
       "src/features/applications/InterviewScheduler.test.tsx",
-      "src/utils/formValidation.test.ts",
+      "src/shared/validation/contactFieldValidation.test.ts",
       "src/utils/export.test.ts",
       "src-tauri/src/core/health/smoke_tests.rs",
       "src-tauri/src/core/deeplinks/generator.rs",

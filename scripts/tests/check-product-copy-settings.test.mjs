@@ -540,8 +540,18 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/utils/formValidation.ts",
-      "URL must use http:// or https://\nURL must not include credentials\nQuestion match has unsupported pattern symbols. Check brackets or special characters.\n",
+      "src/shared/validation/contactFieldValidation.ts",
+      "URL must use http:// or https://\nURL must not include credentials\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/features/application-assist/applicationFormValidation.ts",
+      "Question match has unsupported pattern symbols. Check brackets or special characters.\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/features/settings/credentials/notificationConnectionValidation.ts",
+      "Slack webhook must use HTTPS.\n",
     );
     writeFixtureFile(
       root,
@@ -857,7 +867,9 @@ test("product copy rejects technical-first settings copy", () => {
       "src/shared/errorReporting/messages.ts",
       "src/utils/export.test.ts",
       "src/utils/export.ts",
-      "src/utils/formValidation.ts",
+      "src/features/application-assist/applicationFormValidation.ts",
+      "src/features/settings/credentials/notificationConnectionValidation.ts",
+      "src/shared/validation/contactFieldValidation.ts",
       "src/shared/errorReporting/safeToastCopy.ts",
       "src/utils/sourceLabels.ts",
     ]);

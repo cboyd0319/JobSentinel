@@ -125,7 +125,7 @@ export function getTechnicalFirstUiResult(path, text) {
     );
   }
 
-  if (path === "src/utils/formValidation.ts") {
+  if (path === "src/features/application-assist/applicationFormValidation.ts") {
     return /unsupported pattern symbols|Check brackets or special characters|Invalid regex pattern|unmatched brackets|Pattern is required/i.test(
       text,
     );

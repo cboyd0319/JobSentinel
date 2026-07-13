@@ -7,7 +7,7 @@ import { Input } from "../../ui/Input";
 import { Modal, ModalFooter } from "../../ui/Modal";
 import { useToast } from "../../shared/toast/useToast";
 import { safeInvoke, safeInvokeWithToast } from "../../shared/tauri/commandClient";
-import { validateRequired, validateRequiredQuestionWording } from "../../utils/formValidation";
+import { validateRequired, validateRequiredQuestionWording } from "./applicationFormValidation";
 import { getSafeErrorToastCopy } from "../../shared/errorReporting/safeToastCopy";
 import { getHardScreeningAnswerGuidance } from "./screeningReviewGuidance";
 

@@ -440,13 +440,18 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/utils/formValidation.ts",
-      [
-        'return "Invalid regex pattern. Check for unmatched brackets or special characters."; if (!value) return "Pattern is required";',
-        'return "Slack webhook must use HTTPS";',
-        'return "Invalid Discord webhook path";',
-        "",
-      ].join("\n"),
+      "src/features/application-assist/applicationFormValidation.ts",
+      'return "Invalid regex pattern. Check for unmatched brackets or special characters."; if (!value) return "Pattern is required";\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/features/settings/credentials/notificationConnectionValidation.ts",
+      'return "Slack webhook must use HTTPS"; return "Invalid Discord webhook path";\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/shared/validation/contactFieldValidation.ts",
+      'return "URL must use http:// or https://";\n',
     );
     writeFixtureFile(
       root,
@@ -588,7 +593,9 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/app/keyboard/KeyboardShortcutsProvider.tsx",
         "src/mocks/handlers.ts",
         "src/mocks/handlers/atsPlatform.ts",
-        "src/utils/formValidation.ts",
+        "src/features/application-assist/applicationFormValidation.ts",
+        "src/features/settings/credentials/notificationConnectionValidation.ts",
+        "src/shared/validation/contactFieldValidation.ts",
         "src/shared/errorReporting/messages.ts",
         "docs/features/notifications.md",
         "docs/features/application-assist.md",
@@ -645,7 +652,9 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/app/keyboard/KeyboardShortcutsProvider.tsx",
       "src/mocks/handlers.ts",
       "src/mocks/handlers/atsPlatform.ts",
-      "src/utils/formValidation.ts",
+      "src/features/application-assist/applicationFormValidation.ts",
+      "src/features/settings/credentials/notificationConnectionValidation.ts",
+      "src/shared/validation/contactFieldValidation.ts",
       "src/shared/errorReporting/messages.ts",
       "README.md",
       "docs/features/notifications.md",

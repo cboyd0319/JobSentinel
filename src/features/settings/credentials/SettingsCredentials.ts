@@ -3,7 +3,7 @@ import {
   validateDiscordWebhook,
   validateSlackWebhook,
   validateTeamsWebhook,
-} from "../../../utils/formValidation";
+} from "./notificationConnectionValidation";
 import {
   RESTRICTED_SCHEDULED_JOB_SOURCES,
   restrictedScheduledJobSourceLabel,

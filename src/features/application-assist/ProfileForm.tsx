@@ -8,8 +8,8 @@ import {
   validateRequiredEmail,
   validatePhone,
   validateUrl,
-  validateRequired,
-} from "../../utils/formValidation";
+} from "../../shared/validation/contactFieldValidation";
+import { validateRequired } from "./applicationFormValidation";
 import {
   ContactInformationSection,
   ProfessionalLinksSection,

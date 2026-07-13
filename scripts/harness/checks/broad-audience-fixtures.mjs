@@ -88,7 +88,7 @@ const broadAudienceExamplePaths = new Set([
   "src/shared/jobSourceRecommendations.ts",
   "src/shared/jobSourceRecommendationTaxonomy.ts",
   "src/features/resumes/shared/resumeContactValidation.test.ts",
-  "src/utils/formValidation.test.ts",
+  "src/shared/validation/contactFieldValidation.test.ts",
   "src/shared/search-links/model.ts",
   "src-tauri/src/core/health/smoke_tests.rs",
   "src-tauri/src/core/deeplinks/generator.rs",

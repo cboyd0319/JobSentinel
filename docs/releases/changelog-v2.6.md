@@ -76,13 +76,12 @@ current release history stays small and reviewable.
 
 #### New Utilities
 
-- **formValidation.ts** - Shared validation functions
+- **Form validation modules** - Validation organized by current owner
   - Email validation (required and optional variants)
   - URL validation with protocol enforcement
   - Phone number validation (10-15 digit support)
-  - Regex pattern validation
-  - Slack/Discord webhook URL validation
-  - Comma-separated email list validation
+  - Literal screening-question wording validation
+  - Slack, Discord, and Teams notification connection-link validation
 
 - **errorHelpers.ts** - Error handling utilities
   - Error type classification (network, API, validation, timeout, etc.)
@@ -156,7 +155,7 @@ current release history stays small and reviewable.
 
 - **Test counts**: 4,449+ total tests (2,274 frontend + 2,175 Rust)
 - **New test coverage**
-  - formValidation.test.ts - 65 new tests for all validators
+  - Owner-local validation tests for contact fields, application forms, and notification connections
   - errorHelpers.test.ts - 80 new tests for error handling utilities
 
 ---
