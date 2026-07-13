@@ -591,7 +591,7 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/ErrorLogPanel.tsx",
+      "src/features/settings/support/ErrorLogPanel.tsx",
       "Save Extra Support Details\nSave extra app details (support only)\nUse this only if a maintainer asks.\n",
     );
     writeFixtureFile(
@@ -611,12 +611,12 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/feedback/SubmitOptions.tsx",
+      "src/features/settings/support/feedback/SubmitOptions.tsx",
       "Optional maintainer issue\nSend to maintainers (optional)\nOpen GitHub (Optional)\nOpen GitHub Help Page\n",
     );
     writeFixtureFile(
       root,
-      "src/components/feedback/SuccessScreen.tsx",
+      "src/features/settings/support/feedback/SuccessScreen.tsx",
       "Your feedback report has been saved:\nThe issue page keeps replies and updates in one place.\nReview the issue, then submit it.\n",
     );
     writeFixtureFile(
@@ -806,7 +806,7 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/ErrorLogPanel.tsx",
+      "src/features/settings/support/ErrorLogPanel.tsx",
       "Advanced: Save Support Details\nSave Extra Support Details\nSave Detailed Local Report\n",
     );
     writeFixtureFile(
@@ -836,7 +836,7 @@ test("product copy rejects technical-first settings copy", () => {
       "src/components/CommandPalette.tsx",
       "src/components/CompanyResearchPanel.tsx",
       "src/features/applications/CoverLetterTemplates.tsx",
-      "src/components/ErrorLogPanel.tsx",
+      "src/features/settings/support/ErrorLogPanel.tsx",
       "src/features/dashboard/components/JobCard.tsx",
       "src/features/dashboard/components/JobImportModal.tsx",
       "src/components/KeyboardShortcutsHelp.tsx",
@@ -849,7 +849,7 @@ test("product copy rejects technical-first settings copy", () => {
       "src/features/application-assist/ProfileForm.tsx",
       "src/features/application-assist/ScreeningAnswerSuggestions.tsx",
       "src/features/application-assist/ScreeningAnswersForm.tsx",
-      "src/components/feedback/SubmitOptions.tsx",
+      "src/features/settings/support/feedback/SubmitOptions.tsx",
       "src/features/dashboard/components/jobCardGuidance.ts",
       "src/contexts/KeyboardShortcutsContext.tsx",
       "src/contexts/UndoContext.tsx",

@@ -41,7 +41,7 @@ test("checkRepoBloat rejects stale feedback system-info architecture field", () 
     );
     writeFixtureFile(
       root,
-      "src/components/feedback/DebugInfoPreview.tsx",
+      "src/features/settings/support/feedback/DebugInfoPreview.tsx",
       "export function DebugInfoPreview({ systemInfo }) { return systemInfo.arch; }\n",
     );
     writeFixtureFile(
@@ -66,7 +66,7 @@ test("checkRepoBloat rejects stale feedback system-info architecture field", () 
         "add",
         "package.json",
         "src/services/feedbackService.ts",
-        "src/components/feedback/DebugInfoPreview.tsx",
+        "src/features/settings/support/feedback/DebugInfoPreview.tsx",
         "src/mocks/handlers.ts",
       ],
       { cwd: root },
@@ -82,7 +82,7 @@ test("checkRepoBloat rejects stale feedback system-info architecture field", () 
     );
     assert.ok(
       violations.includes(
-        "sync feedback system-info architecture field: src/components/feedback/DebugInfoPreview.tsx",
+        "sync feedback system-info architecture field: src/features/settings/support/feedback/DebugInfoPreview.tsx",
       ),
       violations.join("\n"),
     );
@@ -110,7 +110,7 @@ test("checkRepoBloat rejects raw feedback debug-event JSON", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/feedback/DebugInfoPreview.tsx",
+      "src/features/settings/support/feedback/DebugInfoPreview.tsx",
       "export function DebugInfoPreview({ event }) { return JSON.stringify(event.details); }\n",
     );
 
@@ -120,7 +120,7 @@ test("checkRepoBloat rejects raw feedback debug-event JSON", () => {
         "add",
         "package.json",
         "src/services/feedbackService.ts",
-        "src/components/feedback/DebugInfoPreview.tsx",
+        "src/features/settings/support/feedback/DebugInfoPreview.tsx",
       ],
       { cwd: root },
     );
@@ -135,7 +135,7 @@ test("checkRepoBloat rejects raw feedback debug-event JSON", () => {
     );
     assert.ok(
       violations.includes(
-        "keep feedback debug event details readable: src/components/feedback/DebugInfoPreview.tsx",
+        "keep feedback debug event details readable: src/features/settings/support/feedback/DebugInfoPreview.tsx",
       ),
       violations.join("\n"),
     );
@@ -176,7 +176,7 @@ test("checkRepoBloat rejects raw problem-history context JSON", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/components/ErrorLogPanel.tsx",
+      "src/features/settings/support/ErrorLogPanel.tsx",
       [
         "export function ErrorLogPanel({ error }) {",
         "  return <p>{error.message}</p>;",
@@ -188,7 +188,7 @@ test("checkRepoBloat rejects raw problem-history context JSON", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src/components/ErrorLogPanel.tsx"], {
+    execFileSync("git", ["add", "package.json", "src/features/settings/support/ErrorLogPanel.tsx"], {
       cwd: root,
     });
 
@@ -196,7 +196,7 @@ test("checkRepoBloat rejects raw problem-history context JSON", () => {
 
     assert.ok(
       violations.includes(
-        "keep problem-history context details readable: src/components/ErrorLogPanel.tsx",
+        "keep problem-history context details readable: src/features/settings/support/ErrorLogPanel.tsx",
       ),
       violations.join("\n"),
     );
@@ -336,7 +336,7 @@ test("checkRepoBloat rejects technical recovery copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/ScraperHealthDashboard.tsx",
+      "src/features/settings/sources/health/ScraperHealthDashboard.tsx",
       [
         "export function ScraperHealthDashboard() {",
         "  return <CardHeader title=\"Error\" />;",
@@ -354,7 +354,7 @@ test("checkRepoBloat rejects technical recovery copy", () => {
         "src/components/ErrorBoundary.tsx",
         "src/components/ModalErrorBoundary.tsx",
         "src/components/PageErrorBoundary.tsx",
-        "src/components/ScraperHealthDashboard.tsx",
+        "src/features/settings/sources/health/ScraperHealthDashboard.tsx",
       ],
       { cwd: root },
     );
@@ -366,7 +366,7 @@ test("checkRepoBloat rejects technical recovery copy", () => {
       "src/components/ErrorBoundary.tsx",
       "src/components/ModalErrorBoundary.tsx",
       "src/components/PageErrorBoundary.tsx",
-      "src/components/ScraperHealthDashboard.tsx",
+      "src/features/settings/sources/health/ScraperHealthDashboard.tsx",
     ]) {
       assert.ok(
         violations.includes(`keep recovery copy plain-language: ${path}`),

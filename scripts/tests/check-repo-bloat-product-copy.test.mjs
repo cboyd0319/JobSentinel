@@ -151,7 +151,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/ScraperHealthDashboard.tsx",
+      "src/features/settings/sources/health/ScraperHealthDashboard.tsx",
       "setError(err instanceof Error ? err.message : String(err));\n",
     );
     writeFixtureFile(
@@ -255,7 +255,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/ErrorLogPanel.tsx",
+      "src/features/settings/support/ErrorLogPanel.tsx",
       '"Advanced: Save Support Details";\n',
     );
     writeFixtureFile(
@@ -286,7 +286,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/feedback/DebugInfoPreview.tsx",
+      "src/features/settings/support/feedback/DebugInfoPreview.tsx",
       [
         '"Loading debug information..."',
         '"Anonymized Debug Information"',
@@ -297,12 +297,12 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/feedback/FeedbackModal.tsx",
+      "src/features/settings/support/feedback/FeedbackModal.tsx",
       '"Include Debug Information?"; "Loading system information...";\n',
     );
     writeFixtureFile(
       root,
-      "src/components/feedback/SuccessScreen.tsx",
+      "src/features/settings/support/feedback/SuccessScreen.tsx",
       '"Paste the debug report from your clipboard";\n',
     );
     writeFixtureFile(
@@ -565,10 +565,10 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/features/applications/CoverLetterTemplates.tsx",
         "src/features/search-links/SearchLinksPage.tsx",
         "src/components/ErrorBoundary.tsx",
-        "src/components/ErrorLogPanel.tsx",
+        "src/features/settings/support/ErrorLogPanel.tsx",
         "src/features/dashboard/components/ScoreBreakdownModal.tsx",
         "src/components/ScoreDisplay.tsx",
-        "src/components/ScraperHealthDashboard.tsx",
+        "src/features/settings/sources/health/ScraperHealthDashboard.tsx",
         "src/features/dashboard/components/JobImportModal.tsx",
         "src/features/dashboard/components/JobCard.tsx",
         "src/features/dashboard/components/jobCardGuidance.ts",
@@ -582,9 +582,9 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/app/Navigation.tsx",
         "src/features/application-assist/ApplyButton.tsx",
         "src/features/application-assist/ScreeningAnswersForm.tsx",
-        "src/components/feedback/DebugInfoPreview.tsx",
-        "src/components/feedback/FeedbackModal.tsx",
-        "src/components/feedback/SuccessScreen.tsx",
+        "src/features/settings/support/feedback/DebugInfoPreview.tsx",
+        "src/features/settings/support/feedback/FeedbackModal.tsx",
+        "src/features/settings/support/feedback/SuccessScreen.tsx",
         "src/contexts/KeyboardShortcutsContext.tsx",
         "src/mocks/handlers.ts",
         "src/mocks/handlers/atsPlatform.ts",
@@ -623,10 +623,10 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/features/applications/CoverLetterTemplates.tsx",
       "src/features/search-links/SearchLinksPage.tsx",
       "src/components/ErrorBoundary.tsx",
-      "src/components/ErrorLogPanel.tsx",
+      "src/features/settings/support/ErrorLogPanel.tsx",
       "src/features/dashboard/components/ScoreBreakdownModal.tsx",
       "src/components/ScoreDisplay.tsx",
-      "src/components/ScraperHealthDashboard.tsx",
+      "src/features/settings/sources/health/ScraperHealthDashboard.tsx",
       "src/features/dashboard/components/JobImportModal.tsx",
       "src/features/dashboard/components/JobCard.tsx",
       "src/features/resumes/builder/AtsLiveScorePanel.tsx",
@@ -639,9 +639,9 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/app/Navigation.tsx",
       "src/features/application-assist/ApplyButton.tsx",
       "src/features/application-assist/ScreeningAnswersForm.tsx",
-      "src/components/feedback/DebugInfoPreview.tsx",
-      "src/components/feedback/FeedbackModal.tsx",
-      "src/components/feedback/SuccessScreen.tsx",
+      "src/features/settings/support/feedback/DebugInfoPreview.tsx",
+      "src/features/settings/support/feedback/FeedbackModal.tsx",
+      "src/features/settings/support/feedback/SuccessScreen.tsx",
       "src/contexts/KeyboardShortcutsContext.tsx",
       "src/mocks/handlers.ts",
       "src/mocks/handlers/atsPlatform.ts",

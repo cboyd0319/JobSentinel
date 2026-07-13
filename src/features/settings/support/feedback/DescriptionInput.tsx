@@ -1,5 +1,5 @@
 import { memo, useId } from "react";
-import { FeedbackCategory } from "../../services/feedbackService";
+import { FeedbackCategory } from "../../../../services/feedbackService";
 
 interface DescriptionInputProps {
   category: FeedbackCategory | null;

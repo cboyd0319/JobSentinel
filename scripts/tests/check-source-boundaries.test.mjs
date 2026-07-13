@@ -49,7 +49,7 @@ test("source boundaries reject stale scraper docs and source health copy", () =>
     );
     writeFixtureFile(
       root,
-      "src/components/ScraperHealthDashboard.tsx",
+      "src/features/settings/sources/health/ScraperHealthDashboard.tsx",
       [
         "Job Source Health",
         "Health summary statistics",
@@ -63,12 +63,12 @@ test("source boundaries reject stale scraper docs and source health copy", () =>
     );
     writeFixtureFile(
       root,
-      "src/components/ScraperHealthDashboard.test.tsx",
+      "src/features/settings/sources/health/ScraperHealthDashboard.test.tsx",
       'scraper_name: "linkedin"\ndisplay_name: "LinkedIn"\n',
     );
     writeFixtureFile(
       root,
-      "src/components/scraperHealthDashboardModel.ts",
+      "src/features/settings/sources/health/scraperHealthDashboardModel.ts",
       'const staleStatus = { label: "Healthy" };\n',
     );
 
@@ -90,21 +90,21 @@ test("source boundaries reject stale scraper docs and source health copy", () =>
     assert.equal(
       hasTechnicalSourceHealthUserCopy(
         root,
-        "src/components/ScraperHealthDashboard.tsx",
+        "src/features/settings/sources/health/ScraperHealthDashboard.tsx",
       ),
       true,
     );
     assert.equal(
       hasTechnicalSourceHealthUserCopy(
         root,
-        "src/components/scraperHealthDashboardModel.ts",
+        "src/features/settings/sources/health/scraperHealthDashboardModel.ts",
       ),
       true,
     );
     assert.equal(
       hasTechnicalSourceHealthUserCopy(
         root,
-        "src/components/ScraperHealthDashboard.test.tsx",
+        "src/features/settings/sources/health/ScraperHealthDashboard.test.tsx",
       ),
       true,
     );
@@ -162,12 +162,12 @@ test("source boundaries reject stale source health coverage claims", () => {
     writeFixtureFile(root, "docs/ROADMAP.md", "Testing 13 scrapers\n");
     writeFixtureFile(
       root,
-      "src/components/ScraperHealthDashboard.tsx",
+      "src/features/settings/sources/health/ScraperHealthDashboard.tsx",
       "interface SmokeTestResult { success: boolean }\n",
     );
     writeFixtureFile(
       root,
-      "src/components/scraperHealthDashboardModel.ts",
+      "src/features/settings/sources/health/scraperHealthDashboardModel.ts",
       "interface SmokeTestResult { success: boolean }\n",
     );
 
@@ -175,14 +175,14 @@ test("source boundaries reject stale source health coverage claims", () => {
     assert.equal(
       hasStaleScraperHealthCoverage(
         root,
-        "src/components/ScraperHealthDashboard.tsx",
+        "src/features/settings/sources/health/ScraperHealthDashboard.tsx",
       ),
       true,
     );
     assert.equal(
       hasStaleScraperHealthCoverage(
         root,
-        "src/components/scraperHealthDashboardModel.ts",
+        "src/features/settings/sources/health/scraperHealthDashboardModel.ts",
       ),
       true,
     );

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CompanyAutocomplete } from "../../../components/CompanyAutocomplete";
+import { CompanyAutocomplete } from "./CompanyAutocomplete";
 import { HelpIcon } from "../../../ui/HelpIcon";
 import type { AdvancedFilters } from "./notificationPreferencesStore";
 

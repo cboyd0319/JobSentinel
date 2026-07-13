@@ -186,7 +186,7 @@ export function getTechnicalFirstUiResult(path, text) {
     );
   }
 
-  if (path === "src/components/ErrorLogPanel.tsx") {
+  if (path === "src/features/settings/support/ErrorLogPanel.tsx") {
     return /Advanced: Save Support Details|Save extra app details \(support only\)|Save Extra Local Details|Save Full Local Problem Details|Use this only if a maintainer asks|\{displayMessage\}/i.test(
       text,
     );
@@ -199,8 +199,8 @@ export function getTechnicalFirstUiResult(path, text) {
   }
 
   if (
-    path === "src/components/ScraperHealthDashboard.tsx" ||
-    path === "src/components/scraperHealthDashboardModel.ts"
+    path === "src/features/settings/sources/health/ScraperHealthDashboard.tsx" ||
+    path === "src/features/settings/sources/health/scraperHealthDashboardModel.ts"
   ) {
     const sourceStatusPatterns = [
       /Check All Sources/i,
@@ -278,7 +278,7 @@ export function getTechnicalFirstUiResult(path, text) {
     }
   }
 
-  if (path === "src/components/feedback/DebugInfoPreview.tsx") {
+  if (path === "src/features/settings/support/feedback/DebugInfoPreview.tsx") {
     const debugPreviewPatterns = [
       /App version/i,
       /^Platform$/im,

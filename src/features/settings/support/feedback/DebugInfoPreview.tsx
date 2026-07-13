@@ -5,7 +5,7 @@ import {
   type ConfigSummary,
   type DebugEvent,
   type SystemInfo,
-} from "../../services/feedbackService";
+} from "../../../../services/feedbackService";
 
 interface DebugInfoPreviewProps {
   systemInfo: SystemInfo | null;

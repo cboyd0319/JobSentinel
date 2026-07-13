@@ -1,4 +1,4 @@
-import { getUserFriendlyError } from "../utils/errorMessages";
+import { getUserFriendlyError } from "../../../../utils/errorMessages";
 
 export interface ScraperHealthMetrics {
   scraper_name: string;

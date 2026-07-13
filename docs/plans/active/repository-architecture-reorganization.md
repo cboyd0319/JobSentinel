@@ -798,7 +798,9 @@ evidence-log entry.
   and private implementation modules under `src/features/`. The shared Search
   Links IPC model and client have one neutral multi-consumer owner. Seventeen
   proven multi-feature visual primitives now have direct module ownership under
-  `src/ui/`, without an aggregate barrel.
+  `src/ui/`, without an aggregate barrel. Settings-private notification,
+  source-health, problem-report, and feedback UI modules have moved out of the
+  transitional components bucket into explicit Settings subdomains.
 - Settings company-preference field names changed. Read-only deserialize aliases
   preserve existing local values, and all newly saved data uses the new names.
   No privacy, credential, consent, or external-side-effect boundary changed.
@@ -812,7 +814,9 @@ evidence-log entry.
   Resume library, builder and matching, Settings, and Search Links ownership
   established with passing focused, full frontend, build, repository, and E2E
   checks. The reusable UI boundary is established with passing focused, full
-  frontend, build, repository, and E2E checks.
+  frontend, build, repository, and E2E checks. The latest Settings-private
+  component move has passing focused, full frontend, build, repository, and E2E
+  checks.
 - Evidence: live manifests, imports, file counts, module graph, SQLx migration
   paths, CI, release scripts, harness sensors, Tamworth, and persona were
   inspected on 2026-07-13.

@@ -76,8 +76,8 @@ const jobsWithGptRequestLedgerPaths = new Set([
 ]);
 
 const scraperHealthDashboardPaths = new Set([
-  "src/components/ScraperHealthDashboard.tsx",
-  "src/components/scraperHealthDashboardModel.ts",
+  "src/features/settings/sources/health/ScraperHealthDashboard.tsx",
+  "src/features/settings/sources/health/scraperHealthDashboardModel.ts",
 ]);
 
 export function hasScraperDocEmojiMarkers(root, path) {
@@ -169,7 +169,7 @@ export function hasTechnicalSourceHealthUserCopy(root, path) {
     path !== "docs/releases/v2.1.md" &&
     path !== "docs/user/QUICK_START.md" &&
     !scraperHealthDashboardPaths.has(path) &&
-    path !== "src/components/ScraperHealthDashboard.test.tsx" &&
+    path !== "src/features/settings/sources/health/ScraperHealthDashboard.test.tsx" &&
     path !== "src/features/settings/SettingsPage.tsx"
   ) {
     return false;
@@ -197,7 +197,7 @@ export function hasTechnicalSourceHealthUserCopy(root, path) {
 
   if (
     !scraperHealthDashboardPaths.has(path) &&
-    path !== "src/components/ScraperHealthDashboard.test.tsx"
+    path !== "src/features/settings/sources/health/ScraperHealthDashboard.test.tsx"
   ) {
     return false;
   }

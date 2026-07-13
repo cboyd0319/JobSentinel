@@ -1,4 +1,4 @@
-import { ErrorLogPanel } from "../../../components/ErrorLogPanel";
+import { ErrorLogPanel } from "./ErrorLogPanel";
 import { HelpIcon } from "../../../ui/HelpIcon";
 import {
   ExportIcon,

@@ -2,17 +2,17 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ErrorLogPanel } from "./ErrorLogPanel";
-import type { ErrorReport } from "../utils/errorReporting";
+import type { ErrorReport } from "../../../utils/errorReporting";
 
 // Mock the useErrorReporting hook
 const mockUseErrorReporting = vi.fn();
-vi.mock("../hooks/useErrorReporting", () => ({
+vi.mock("../../../hooks/useErrorReporting", () => ({
   useErrorReporting: () => mockUseErrorReporting(),
 }));
 
 const mockCopySanitizedDebugReport = vi.fn();
 const mockSaveSanitizedDebugReport = vi.fn();
-vi.mock("../services/feedbackService", () => ({
+vi.mock("../../../services/feedbackService", () => ({
   copySanitizedDebugReport: (...args: unknown[]) =>
     mockCopySanitizedDebugReport(...args),
   saveSanitizedDebugReport: (...args: unknown[]) =>

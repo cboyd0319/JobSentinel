@@ -75,7 +75,7 @@ export function hasStaleFeedbackMockHandlers(root, path) {
 export function hasStaleFeedbackSystemInfoArchitecture(root, path) {
   if (
     path !== "src/services/feedbackService.ts" &&
-    path !== "src/components/feedback/DebugInfoPreview.tsx" &&
+    path !== "src/features/settings/support/feedback/DebugInfoPreview.tsx" &&
     path !== "src/mocks/handlers.ts"
   ) {
     return false;

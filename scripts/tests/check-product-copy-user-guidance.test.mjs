@@ -107,9 +107,9 @@ test("product copy rejects raw alert threshold percentages", () => {
 test("product copy rejects stale recovery and login privacy copy", () => {
   withFixture((root) => {
     for (const [path, copy] of [
-      ["src/components/ErrorLogPanel.tsx", "{displayMessage}"],
-      ["src/components/ErrorLogPanel.tsx", "Save Extra Local Details"],
-      ["src/components/ErrorLogPanel.tsx", "Save Full Local Problem Details"],
+      ["src/features/settings/support/ErrorLogPanel.tsx", "{displayMessage}"],
+      ["src/features/settings/support/ErrorLogPanel.tsx", "Save Extra Local Details"],
+      ["src/features/settings/support/ErrorLogPanel.tsx", "Save Full Local Problem Details"],
       ["docs/user/QUICK_START.md", "app password or sending details"],
       ["docs/user/DEEP_LINKS.md", "This is expected - log in to view results."],
       ["docs/user/DEEP_LINKS.md", "Bulk open (open multiple sites at once)"],
@@ -125,13 +125,13 @@ test("product copy rejects technical feedback preview labels", () => {
     for (const staleCopy of ["App version", "Platform", "Device type"]) {
       writeFixtureFile(
         root,
-        "src/components/feedback/DebugInfoPreview.tsx",
+        "src/features/settings/support/feedback/DebugInfoPreview.tsx",
         `${staleCopy}\n`,
       );
       assert.equal(
         hasTechnicalFirstUserCopy(
           root,
-          "src/components/feedback/DebugInfoPreview.tsx",
+          "src/features/settings/support/feedback/DebugInfoPreview.tsx",
         ),
         true,
       );

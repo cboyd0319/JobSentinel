@@ -147,12 +147,12 @@ test("checkRepoBloat rejects feedback support paths drifting away from local-fir
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/components/feedback/SubmitOptions.tsx",
+      "src/features/settings/support/feedback/SubmitOptions.tsx",
       '"Works without a GitHub or Google account"; icon={<DriveIcon />}; onSubmitDrive();\n',
     );
     writeFixtureFile(
       root,
-      "src/components/feedback/SuccessScreen.tsx",
+      "src/features/settings/support/feedback/SuccessScreen.tsx",
       'submittedVia: "github" | "drive"; "Open Shared Folder";\n',
     );
     writeFixtureFile(
@@ -181,8 +181,8 @@ test("checkRepoBloat rejects feedback support paths drifting away from local-fir
       [
         "add",
         "package.json",
-        "src/components/feedback/SubmitOptions.tsx",
-        "src/components/feedback/SuccessScreen.tsx",
+        "src/features/settings/support/feedback/SubmitOptions.tsx",
+        "src/features/settings/support/feedback/SuccessScreen.tsx",
         "src/hooks/useFeedback.ts",
         "docs/features/job-sources.md",
         "src/features/settings/SettingsPage.tsx",
@@ -194,8 +194,8 @@ test("checkRepoBloat rejects feedback support paths drifting away from local-fir
     const violations = checkRepoBloat(root);
 
     for (const path of [
-      "src/components/feedback/SubmitOptions.tsx",
-      "src/components/feedback/SuccessScreen.tsx",
+      "src/features/settings/support/feedback/SubmitOptions.tsx",
+      "src/features/settings/support/feedback/SuccessScreen.tsx",
       "src/hooks/useFeedback.ts",
       "docs/features/job-sources.md",
       "src/features/settings/SettingsPage.tsx",

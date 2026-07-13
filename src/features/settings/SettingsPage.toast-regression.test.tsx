@@ -19,7 +19,7 @@ vi.mock("../../utils/errorMessages", () => ({
   }),
 }));
 
-vi.mock("../../components/ErrorLogPanel", () => ({
+vi.mock("./support/ErrorLogPanel", () => ({
   ErrorLogPanel: () => <div data-testid="error-log-panel" />,
 }));
 

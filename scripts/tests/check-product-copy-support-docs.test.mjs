@@ -55,7 +55,7 @@ test("product copy rejects support troubleshooting jargon", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/feedback/DebugInfoPreview.tsx",
+      "src/features/settings/support/feedback/DebugInfoPreview.tsx",
       [
         "Helps troubleshoot faster.",
         "JobSentinel removes private details before sharing.",
@@ -81,7 +81,7 @@ test("product copy rejects support troubleshooting jargon", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/ScraperHealthDashboard.tsx",
+      "src/features/settings/sources/health/ScraperHealthDashboard.tsx",
       ">Page Check<\n>Access<\n>Source Type<\n>Can Read Jobs<\n>Not needed<\nRecent Success\n>Issue<\nChecks Worked\nCheck Time\nLast Worked\n{scraper.success_rate_24h.toFixed(0)}%\nCheck All Sources\nOfficial feed\nreturn \"Feed\"\n(retry ${retryAttempt})\nSource Controls\nJob Source Check Results\nSource Check Results\nNeeds update\n'Turn this source off'\n'Check this source now'\n",
     );
 
@@ -107,7 +107,7 @@ test("product copy rejects support troubleshooting jargon", () => {
     assert.equal(
       hasTechnicalFirstUserCopy(
         root,
-        "src/components/feedback/DebugInfoPreview.tsx",
+        "src/features/settings/support/feedback/DebugInfoPreview.tsx",
       ),
       true,
     );
@@ -118,7 +118,7 @@ test("product copy rejects support troubleshooting jargon", () => {
     assert.equal(
       hasTechnicalFirstUserCopy(
         root,
-        "src/components/ScraperHealthDashboard.tsx",
+        "src/features/settings/sources/health/ScraperHealthDashboard.tsx",
       ),
       true,
     );

@@ -124,13 +124,13 @@ const feedbackLocalReportPaths = new Set([
   "docs/user/QUICK_START.md",
   "src/components/ComponentErrorBoundary.tsx",
   "src/components/ErrorBoundary.tsx",
-  "src/components/ErrorLogPanel.tsx",
+  "src/features/settings/support/ErrorLogPanel.tsx",
   "src/components/ModalErrorBoundary.tsx",
   "src/components/PageErrorBoundary.tsx",
-  "src/components/feedback/DescriptionInput.tsx",
-  "src/components/feedback/FeedbackModal.tsx",
-  "src/components/feedback/SubmitOptions.tsx",
-  "src/components/feedback/SuccessScreen.tsx",
+  "src/features/settings/support/feedback/DescriptionInput.tsx",
+  "src/features/settings/support/feedback/FeedbackModal.tsx",
+  "src/features/settings/support/feedback/SubmitOptions.tsx",
+  "src/features/settings/support/feedback/SuccessScreen.tsx",
   "src/hooks/useFeedback.ts",
   "src/features/settings/SettingsPage.tsx",
   "src/services/feedbackService.ts",
@@ -143,12 +143,12 @@ const feedbackLocalReportPaths = new Set([
 ]);
 
 const feedbackDebugEventFormattingPaths = new Set([
-  "src/components/feedback/DebugInfoPreview.tsx",
+  "src/features/settings/support/feedback/DebugInfoPreview.tsx",
   "src/services/feedbackService.ts",
 ]);
 
 const problemHistoryContextFormattingPaths = new Set([
-  "src/components/ErrorLogPanel.tsx",
+  "src/features/settings/support/ErrorLogPanel.tsx",
 ]);
 
 const errorBoundaryDisplayPaths = new Set([
@@ -160,8 +160,8 @@ const errorBoundaryDisplayPaths = new Set([
 
 const plainRecoveryCopyPaths = new Set([
   ...errorBoundaryDisplayPaths,
-  "src/components/ScraperHealthDashboard.tsx",
-  "src/components/scraperHealthDashboardModel.ts",
+  "src/features/settings/sources/health/ScraperHealthDashboard.tsx",
+  "src/features/settings/sources/health/scraperHealthDashboardModel.ts",
 ]);
 
 const protectiveScoreCopyPaths = new Set([
@@ -220,11 +220,11 @@ const technicalFirstUserCopyPaths = new Set([
   "src/features/search-links/SearchLinksPage.tsx",
   "src/features/search-links/SearchLinksResults.tsx",
   "src/components/ErrorBoundary.tsx",
-  "src/components/ErrorLogPanel.tsx",
+  "src/features/settings/support/ErrorLogPanel.tsx",
   "src/features/dashboard/components/ScoreBreakdownModal.tsx",
   "src/components/ScoreDisplay.tsx",
-  "src/components/ScraperHealthDashboard.tsx",
-  "src/components/scraperHealthDashboardModel.ts",
+  "src/features/settings/sources/health/ScraperHealthDashboard.tsx",
+  "src/features/settings/sources/health/scraperHealthDashboardModel.ts",
   "src/features/onboarding/CareerProfileSelector.tsx",
   "src/features/dashboard/components/JobImportModal.tsx",
   "src/features/dashboard/components/JobCard.tsx",
@@ -252,10 +252,10 @@ const technicalFirstUserCopyPaths = new Set([
   "src/features/application-assist/ProfileForm.tsx",
   "src/features/application-assist/ScreeningAnswerSuggestions.tsx",
   "src/features/application-assist/ScreeningAnswersForm.tsx",
-  "src/components/feedback/DebugInfoPreview.tsx",
-  "src/components/feedback/FeedbackModal.tsx",
-  "src/components/feedback/SubmitOptions.tsx",
-  "src/components/feedback/SuccessScreen.tsx",
+  "src/features/settings/support/feedback/DebugInfoPreview.tsx",
+  "src/features/settings/support/feedback/FeedbackModal.tsx",
+  "src/features/settings/support/feedback/SubmitOptions.tsx",
+  "src/features/settings/support/feedback/SuccessScreen.tsx",
   "src/hooks/useFeedback.ts",
   "src/mocks/handlers/atsPlatform.ts",
   "src/features/market/mockHandlers.ts",

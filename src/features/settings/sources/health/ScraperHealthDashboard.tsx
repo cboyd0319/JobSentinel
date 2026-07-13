@@ -1,15 +1,15 @@
 import { useState, useEffect, useCallback, memo } from "react";
-import { invalidateCacheByCommand, safeInvoke } from "../utils/api";
-import { Button } from "../ui/Button";
-import { Badge } from "../ui/Badge";
-import { StatCard } from "../ui/StatCard";
-import { LoadingSpinner } from "../ui/LoadingSpinner";
-import { Modal } from "../ui/Modal";
-import { getUserFriendlyError } from "../utils/errorMessages";
+import { invalidateCacheByCommand, safeInvoke } from "../../../../utils/api";
+import { Button } from "../../../../ui/Button";
+import { Badge } from "../../../../ui/Badge";
+import { StatCard } from "../../../../ui/StatCard";
+import { LoadingSpinner } from "../../../../ui/LoadingSpinner";
+import { Modal } from "../../../../ui/Modal";
+import { getUserFriendlyError } from "../../../../utils/errorMessages";
 import {
   JOB_SOURCE_DISCOVERY_TAXONOMY,
   technicalAccessForJobSource,
-} from "../shared/jobSourceDiscoveryTaxonomy";
+} from "../../../../shared/jobSourceDiscoveryTaxonomy";
 import {
   formatCredentialLabel,
   formatCredentialWarning,

@@ -23,7 +23,7 @@ data.
 - Frontend feedback service and modal flow:
   - `src/services/feedbackService.ts`
   - `src/hooks/useFeedback.ts`
-  - `src/components/feedback/`
+  - `src/features/settings/support/feedback/`
 - Backend feedback commands:
   - `open_github_issues`
   - `open_google_drive`

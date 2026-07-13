@@ -248,7 +248,7 @@ test("checkRepoBloat rejects technical source-health user copy", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/components/ScraperHealthDashboard.tsx",
+      "src/features/settings/sources/health/ScraperHealthDashboard.tsx",
       [
         "const title = 'Scraper Health Dashboard';",
         "const loading = 'Loading scraper health...';",
@@ -264,7 +264,7 @@ test("checkRepoBloat rejects technical source-health user copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/scraperHealthDashboardModel.ts",
+      "src/features/settings/sources/health/scraperHealthDashboardModel.ts",
       'const source = { label: "Healthy" };\n',
     );
     writeFixtureFile(
@@ -278,8 +278,8 @@ test("checkRepoBloat rejects technical source-health user copy", () => {
       [
         "add",
         "package.json",
-        "src/components/ScraperHealthDashboard.tsx",
-        "src/components/scraperHealthDashboardModel.ts",
+        "src/features/settings/sources/health/ScraperHealthDashboard.tsx",
+        "src/features/settings/sources/health/scraperHealthDashboardModel.ts",
         "src/features/settings/SettingsPage.tsx",
         "docs/features/job-source-status.md",
       ],
@@ -290,13 +290,13 @@ test("checkRepoBloat rejects technical source-health user copy", () => {
 
     assert.ok(
       violations.includes(
-        "keep source-health copy plain-language: src/components/ScraperHealthDashboard.tsx",
+        "keep source-health copy plain-language: src/features/settings/sources/health/ScraperHealthDashboard.tsx",
       ),
       violations.join("\n"),
     );
     assert.ok(
       violations.includes(
-        "keep source-health copy plain-language: src/components/scraperHealthDashboardModel.ts",
+        "keep source-health copy plain-language: src/features/settings/sources/health/scraperHealthDashboardModel.ts",
       ),
       violations.join("\n"),
     );

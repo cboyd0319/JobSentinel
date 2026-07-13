@@ -1,7 +1,7 @@
 import { memo } from "react";
-import { Modal, ModalFooter } from "../../ui/Modal";
-import { Button } from "../../ui/Button";
-import { useFeedback } from "../../hooks/useFeedback";
+import { Modal, ModalFooter } from "../../../../ui/Modal";
+import { Button } from "../../../../ui/Button";
+import { useFeedback } from "../../../../hooks/useFeedback";
 import { CategorySelector } from "./CategorySelector";
 import { DescriptionInput } from "./DescriptionInput";
 import { DebugInfoPreview } from "./DebugInfoPreview";

@@ -291,7 +291,7 @@ test("product copy rejects raw feedback report presentation", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src/components/feedback/DebugInfoPreview.tsx",
+      "src/features/settings/support/feedback/DebugInfoPreview.tsx",
       "JSON.stringify(event.details)\nvalue={`${configSummary.keywords_count} configured`}\n",
     );
     writeFixtureFile(
@@ -308,14 +308,14 @@ test("product copy rejects raw feedback report presentation", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/ErrorLogPanel.tsx",
+      "src/features/settings/support/ErrorLogPanel.tsx",
       "JSON.stringify(error.context)",
     );
 
     assert.equal(
       hasRawFeedbackDebugEventDetails(
         root,
-        "src/components/feedback/DebugInfoPreview.tsx",
+        "src/features/settings/support/feedback/DebugInfoPreview.tsx",
       ),
       true,
     );
@@ -329,7 +329,7 @@ test("product copy rejects raw feedback report presentation", () => {
     assert.equal(
       hasFeedbackSetupJargon(
         root,
-        "src/components/feedback/DebugInfoPreview.tsx",
+        "src/features/settings/support/feedback/DebugInfoPreview.tsx",
       ),
       true,
     );
@@ -340,12 +340,12 @@ test("product copy rejects raw feedback report presentation", () => {
     assert.equal(
       hasRawProblemHistoryContextDetails(
         root,
-        "src/components/ErrorLogPanel.tsx",
+        "src/features/settings/support/ErrorLogPanel.tsx",
       ),
       true,
     );
     assert.equal(
-      hasRawFeedbackDebugEventDetails(root, "src/components/ErrorLogPanel.tsx"),
+      hasRawFeedbackDebugEventDetails(root, "src/features/settings/support/ErrorLogPanel.tsx"),
       false,
     );
   });
@@ -377,7 +377,7 @@ test("product copy rejects debug-report roadmap wording", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/ErrorLogPanel.tsx",
+      "src/features/settings/support/ErrorLogPanel.tsx",
       "Copy Safe Report\nSafe report details\n<button>Clear All</button>\n",
     );
     writeFixtureFile(
@@ -387,17 +387,17 @@ test("product copy rejects debug-report roadmap wording", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/feedback/SubmitOptions.tsx",
+      "src/features/settings/support/feedback/SubmitOptions.tsx",
       "Save a safe report\nSafe report so you can paste it before submitting.\nThis opens GitHub in your browser.\n",
     );
     writeFixtureFile(
       root,
-      "src/components/feedback/SuccessScreen.tsx",
+      "src/features/settings/support/feedback/SuccessScreen.tsx",
       "GitHub should have opened in your browser.\nThe GitHub page keeps replies and updates in one place.\n",
     );
     writeFixtureFile(
       root,
-      "src/components/feedback/DescriptionInput.tsx",
+      "src/features/settings/support/feedback/DescriptionInput.tsx",
       "Can you reproduce it?\nSelect a category first...\n",
     );
     writeFixtureFile(
@@ -434,7 +434,7 @@ test("product copy rejects debug-report roadmap wording", () => {
       true,
     );
     assert.equal(
-      hasFeedbackLocalReportDrift(root, "src/components/ErrorLogPanel.tsx"),
+      hasFeedbackLocalReportDrift(root, "src/features/settings/support/ErrorLogPanel.tsx"),
       true,
     );
     assert.equal(
@@ -447,21 +447,21 @@ test("product copy rejects debug-report roadmap wording", () => {
     assert.equal(
       hasFeedbackLocalReportDrift(
         root,
-        "src/components/feedback/SubmitOptions.tsx",
+        "src/features/settings/support/feedback/SubmitOptions.tsx",
       ),
       true,
     );
     assert.equal(
       hasFeedbackLocalReportDrift(
         root,
-        "src/components/feedback/SuccessScreen.tsx",
+        "src/features/settings/support/feedback/SuccessScreen.tsx",
       ),
       true,
     );
     assert.equal(
       hasFeedbackLocalReportDrift(
         root,
-        "src/components/feedback/DescriptionInput.tsx",
+        "src/features/settings/support/feedback/DescriptionInput.tsx",
       ),
       true,
     );
@@ -532,7 +532,7 @@ test("product copy rejects technical recovery and raw error details", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/ScraperHealthDashboard.tsx",
+      "src/features/settings/sources/health/ScraperHealthDashboard.tsx",
       "window state",
     );
     writeFixtureFile(
@@ -568,14 +568,14 @@ test("product copy rejects technical recovery and raw error details", () => {
     assert.equal(
       hasTechnicalRecoveryCopy(
         root,
-        "src/components/ScraperHealthDashboard.tsx",
+        "src/features/settings/sources/health/ScraperHealthDashboard.tsx",
       ),
       true,
     );
     assert.equal(
       hasRawErrorBoundaryDetails(
         root,
-        "src/components/ScraperHealthDashboard.tsx",
+        "src/features/settings/sources/health/ScraperHealthDashboard.tsx",
       ),
       false,
     );

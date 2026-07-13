@@ -1,14 +1,14 @@
 import { memo, useState } from 'react';
-import { useErrorReporting } from '../hooks/useErrorReporting';
-import { Button } from '../ui/Button';
-import { Badge } from '../ui/Badge';
-import { Card } from '../ui/Card';
+import { useErrorReporting } from '../../../hooks/useErrorReporting';
+import { Button } from '../../../ui/Button';
+import { Badge } from '../../../ui/Badge';
+import { Card } from '../../../ui/Card';
 import {
   sanitizeContext,
   type ErrorReport,
-} from '../utils/errorReporting';
-import { copySanitizedDebugReport, saveSanitizedDebugReport } from '../services/feedbackService';
-import { logError } from '../utils/errorUtils';
+} from '../../../utils/errorReporting';
+import { copySanitizedDebugReport, saveSanitizedDebugReport } from '../../../services/feedbackService';
+import { logError } from '../../../utils/errorUtils';
 
 const TYPE_LABELS: Record<ErrorReport['type'], { label: string; variant: 'danger' | 'alert' | 'surface' }> = {
   render: { label: 'Screen', variant: 'danger' },
