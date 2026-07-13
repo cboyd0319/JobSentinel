@@ -1,6 +1,6 @@
 import { Component, ErrorInfo, ReactNode } from 'react';
-import { errorReporter, sanitizeTextForStorage } from '../utils/errorReporting';
-import { logError } from '../utils/errorUtils';
+import { errorReporter, sanitizeTextForStorage } from '../../../utils/errorReporting';
+import { logError } from '../../../utils/errorUtils';
 
 interface Props {
   children: ReactNode;

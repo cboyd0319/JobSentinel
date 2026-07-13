@@ -469,7 +469,7 @@ test("product copy rejects first-run and Rule 0 privacy drift", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/ErrorBoundary.tsx",
+      "src/app/errors/ErrorBoundary.tsx",
       "Your data is safe.\n",
     );
 
@@ -497,7 +497,7 @@ test("product copy rejects first-run and Rule 0 privacy drift", () => {
     assert.equal(hasTechnicalFirstUserCopy(root, "SECURITY.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "CODE_OF_CONDUCT.md"), true);
     assert.equal(
-      hasTechnicalFirstUserCopy(root, "src/components/ErrorBoundary.tsx"),
+      hasTechnicalFirstUserCopy(root, "src/app/errors/ErrorBoundary.tsx"),
       true,
     );
   });

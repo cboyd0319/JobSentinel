@@ -1,10 +1,10 @@
 import { Component, ErrorInfo, ReactNode } from 'react';
-import { errorReporter, sanitizeTextForStorage } from '../utils/errorReporting';
-import { logError } from '../utils/errorUtils';
+import { errorReporter, sanitizeTextForStorage } from '../../../utils/errorReporting';
+import { logError } from '../../../utils/errorUtils';
 import {
   copySanitizedDebugReport,
   saveSanitizedDebugReport,
-} from '../services/feedbackService';
+} from '../../../services/feedbackService';
 
 interface Props {
   children: ReactNode;

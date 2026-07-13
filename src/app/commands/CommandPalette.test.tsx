@@ -4,11 +4,11 @@ import { CommandPalette } from "./CommandPalette";
 
 // Mock the useKeyboardShortcuts hook
 const mockUseKeyboardShortcuts = vi.fn();
-vi.mock("../hooks/useKeyboardShortcuts", () => ({
+vi.mock("../../hooks/useKeyboardShortcuts", () => ({
   useKeyboardShortcuts: () => mockUseKeyboardShortcuts(),
 }));
 
-vi.mock("../utils/keyboardShortcuts", () => ({
+vi.mock("../../utils/keyboardShortcuts", () => ({
   formatShortcut: (shortcut: { key: string; modifiers?: string[] }) => {
     const mods = shortcut.modifiers?.join("+") || "";
     return mods ? `${mods}+${shortcut.key}` : shortcut.key;

@@ -250,7 +250,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/ErrorBoundary.tsx",
+      "src/app/errors/ErrorBoundary.tsx",
       '"Copy Debug Report"; "Debug report copied"; "saved jobs and applications stay in the local database";\n',
     );
     writeFixtureFile(
@@ -410,12 +410,12 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/CommandPalette.tsx",
+      "src/app/commands/CommandPalette.tsx",
       '"Type a command or search..."\n',
     );
     writeFixtureFile(
       root,
-      "src/components/KeyboardShortcutsHelp.tsx",
+      "src/app/commands/KeyboardShortcutsHelp.tsx",
       '"Open command palette"\n',
     );
     writeFixtureFile(root, "src/app/Navigation.tsx", '"for command palette"\n');
@@ -564,7 +564,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/features/settings/sources/browser-import/BrowserImportSection.tsx",
         "src/features/applications/CoverLetterTemplates.tsx",
         "src/features/search-links/SearchLinksPage.tsx",
-        "src/components/ErrorBoundary.tsx",
+        "src/app/errors/ErrorBoundary.tsx",
         "src/features/settings/support/ErrorLogPanel.tsx",
         "src/features/dashboard/components/ScoreBreakdownModal.tsx",
         "src/components/ScoreDisplay.tsx",
@@ -577,8 +577,8 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/features/dashboard/components/DashboardWidgets.tsx",
         "src/features/applications/InterviewScheduler.tsx",
         "src/features/onboarding/CareerProfileSelector.tsx",
-        "src/components/CommandPalette.tsx",
-        "src/components/KeyboardShortcutsHelp.tsx",
+        "src/app/commands/CommandPalette.tsx",
+        "src/app/commands/KeyboardShortcutsHelp.tsx",
         "src/app/Navigation.tsx",
         "src/features/application-assist/ApplyButton.tsx",
         "src/features/application-assist/ScreeningAnswersForm.tsx",
@@ -622,7 +622,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/features/settings/sources/browser-import/BrowserImportSection.tsx",
       "src/features/applications/CoverLetterTemplates.tsx",
       "src/features/search-links/SearchLinksPage.tsx",
-      "src/components/ErrorBoundary.tsx",
+      "src/app/errors/ErrorBoundary.tsx",
       "src/features/settings/support/ErrorLogPanel.tsx",
       "src/features/dashboard/components/ScoreBreakdownModal.tsx",
       "src/components/ScoreDisplay.tsx",
@@ -634,8 +634,8 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/features/dashboard/components/DashboardWidgets.tsx",
       "src/features/applications/InterviewScheduler.tsx",
       "src/features/onboarding/CareerProfileSelector.tsx",
-      "src/components/CommandPalette.tsx",
-      "src/components/KeyboardShortcutsHelp.tsx",
+      "src/app/commands/CommandPalette.tsx",
+      "src/app/commands/KeyboardShortcutsHelp.tsx",
       "src/app/Navigation.tsx",
       "src/features/application-assist/ApplyButton.tsx",
       "src/features/application-assist/ScreeningAnswersForm.tsx",

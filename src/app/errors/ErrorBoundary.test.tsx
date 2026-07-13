@@ -4,9 +4,9 @@ import userEvent from "@testing-library/user-event";
 import ErrorBoundary from "./ErrorBoundary";
 
 // Mock error reporter
-vi.mock("../utils/errorReporting", async () => {
-  const actual = await vi.importActual<typeof import("../utils/errorReporting")>(
-    "../utils/errorReporting"
+vi.mock("../../utils/errorReporting", async () => {
+  const actual = await vi.importActual<typeof import("../../utils/errorReporting")>(
+    "../../utils/errorReporting"
   );
 
   return {
@@ -20,7 +20,7 @@ vi.mock("../utils/errorReporting", async () => {
 
 const mockCopySanitizedDebugReport = vi.fn();
 const mockSaveSanitizedDebugReport = vi.fn();
-vi.mock("../services/feedbackService", () => ({
+vi.mock("../../services/feedbackService", () => ({
   copySanitizedDebugReport: (...args: unknown[]) =>
     mockCopySanitizedDebugReport(...args),
   saveSanitizedDebugReport: (...args: unknown[]) =>

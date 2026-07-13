@@ -71,7 +71,7 @@ test("checkRepoBloat rejects non-protective score copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/config/tourSteps.ts",
+      "src/app/onboarding/tourSteps.ts",
       '"Too many jobs? Use these filters to narrow by match score, source, or bookmarked jobs.";\n',
     );
     writeFixtureFile(
@@ -98,7 +98,7 @@ test("checkRepoBloat rejects non-protective score copy", () => {
         "docs/features/notifications.md",
         "docs/features/smart-scoring.md",
         "docs/user/QUICK_START.md",
-        "src/config/tourSteps.ts",
+        "src/app/onboarding/tourSteps.ts",
         "src/components/ResumeMatchScoreBreakdown.tsx",
         "src/components/ScoreDisplay.tsx",
         "src/features/dashboard/components/ScoreBreakdownModal.tsx",
@@ -149,7 +149,7 @@ test("checkRepoBloat rejects non-protective score copy", () => {
     );
     assert.ok(
       violations.includes(
-        "keep score copy protective: src/config/tourSteps.ts",
+        "keep score copy protective: src/app/onboarding/tourSteps.ts",
       ),
       violations.join("\n"),
     );

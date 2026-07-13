@@ -382,7 +382,7 @@ test("product copy rejects debug-report roadmap wording", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/ModalErrorBoundary.tsx",
+      "src/features/dashboard/errors/ModalErrorBoundary.tsx",
       "Save Safe Report\nSafe report copied\n",
     );
     writeFixtureFile(
@@ -440,7 +440,7 @@ test("product copy rejects debug-report roadmap wording", () => {
     assert.equal(
       hasFeedbackLocalReportDrift(
         root,
-        "src/components/ModalErrorBoundary.tsx",
+        "src/features/dashboard/errors/ModalErrorBoundary.tsx",
       ),
       true,
     );
@@ -500,7 +500,7 @@ test("product copy rejects technical recovery and raw error details", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src/components/ErrorBoundary.tsx",
+      "src/app/errors/ErrorBoundary.tsx",
       [
         "const title = `${pageName || 'Page'} Error`;",
         "return this.state.error.message;",
@@ -517,17 +517,17 @@ test("product copy rejects technical recovery and raw error details", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/PageErrorBoundary.tsx",
+      "src/app/errors/PageErrorBoundary.tsx",
       "This keeps happening. This page may be temporarily unavailable.\nSupport details (development only)\nAutomatic error reporting",
     );
     writeFixtureFile(
       root,
-      "src/components/ComponentErrorBoundary.tsx",
+      "src/features/dashboard/errors/ComponentErrorBoundary.tsx",
       "This section failed to load\nShow support details\nNo support details available\nAutomatic error reporting",
     );
     writeFixtureFile(
       root,
-      "src/components/ModalErrorBoundary.tsx",
+      "src/features/dashboard/errors/ModalErrorBoundary.tsx",
       "This window failed to load\nPlease close and try again later\nTry closing and checking back later\nSupport details (development only)\nNo support details available\nAutomatic error reporting\n",
     );
     writeFixtureFile(
@@ -542,26 +542,26 @@ test("product copy rejects technical recovery and raw error details", () => {
     );
 
     assert.equal(
-      hasRawErrorBoundaryDetails(root, "src/components/ErrorBoundary.tsx"),
+      hasRawErrorBoundaryDetails(root, "src/app/errors/ErrorBoundary.tsx"),
       true,
     );
     assert.equal(
-      hasTechnicalRecoveryCopy(root, "src/components/ErrorBoundary.tsx"),
+      hasTechnicalRecoveryCopy(root, "src/app/errors/ErrorBoundary.tsx"),
       true,
     );
     assert.equal(
       hasTechnicalRecoveryCopy(
         root,
-        "src/components/ComponentErrorBoundary.tsx",
+        "src/features/dashboard/errors/ComponentErrorBoundary.tsx",
       ),
       true,
     );
     assert.equal(
-      hasTechnicalRecoveryCopy(root, "src/components/PageErrorBoundary.tsx"),
+      hasTechnicalRecoveryCopy(root, "src/app/errors/PageErrorBoundary.tsx"),
       true,
     );
     assert.equal(
-      hasTechnicalRecoveryCopy(root, "src/components/ModalErrorBoundary.tsx"),
+      hasTechnicalRecoveryCopy(root, "src/features/dashboard/errors/ModalErrorBoundary.tsx"),
       true,
     );
     assert.equal(hasTechnicalFirstUserCopy(root, "src/utils/vitals.ts"), true);
@@ -669,7 +669,7 @@ test("product copy rejects non-protective scoring and legacy preference copy", (
       true,
     );
     assert.equal(
-      hasNonProtectiveScoreCopy(root, "src/components/ErrorBoundary.tsx"),
+      hasNonProtectiveScoreCopy(root, "src/app/errors/ErrorBoundary.tsx"),
       false,
     );
   });

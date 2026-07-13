@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event";
 import PageErrorBoundary from "./PageErrorBoundary";
 
 // Mock dependencies
-vi.mock("../ui/Button", () => ({
+vi.mock("../../ui/Button", () => ({
   Button: ({ children, onClick, variant }: { children: React.ReactNode; onClick?: () => void; variant?: string }) => (
     <button onClick={onClick} data-variant={variant}>
       {children}
@@ -12,7 +12,7 @@ vi.mock("../ui/Button", () => ({
   ),
 }));
 
-vi.mock("../ui/EmptyState", () => ({
+vi.mock("../../ui/EmptyState", () => ({
   EmptyState: ({ title, description, illustration }: { title: string; description?: string; illustration?: string }) => (
     <div data-testid="empty-state">
       <div data-illustration={illustration}>{title}</div>
@@ -21,9 +21,9 @@ vi.mock("../ui/EmptyState", () => ({
   ),
 }));
 
-vi.mock("../utils/errorReporting", async () => {
-  const actual = await vi.importActual<typeof import("../utils/errorReporting")>(
-    "../utils/errorReporting"
+vi.mock("../../utils/errorReporting", async () => {
+  const actual = await vi.importActual<typeof import("../../utils/errorReporting")>(
+    "../../utils/errorReporting"
   );
 
   return {
@@ -36,7 +36,7 @@ vi.mock("../utils/errorReporting", async () => {
 });
 
 const mockSaveSanitizedDebugReport = vi.fn();
-vi.mock("../services/feedbackService", () => ({
+vi.mock("../../services/feedbackService", () => ({
   saveSanitizedDebugReport: (...args: unknown[]) =>
     mockSaveSanitizedDebugReport(...args),
 }));

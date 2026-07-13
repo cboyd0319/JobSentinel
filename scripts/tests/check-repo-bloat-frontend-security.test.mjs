@@ -275,7 +275,7 @@ test("checkRepoBloat rejects direct frontend console error logging", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/components/ErrorBoundary.tsx",
+      "src/app/errors/ErrorBoundary.tsx",
       [
         "export class ErrorBoundary {",
         "  componentDidCatch(error, errorInfo) {",
@@ -288,7 +288,7 @@ test("checkRepoBloat rejects direct frontend console error logging", () => {
 
     execFileSync(
       "git",
-      ["add", "package.json", "src/components/ErrorBoundary.tsx"],
+      ["add", "package.json", "src/app/errors/ErrorBoundary.tsx"],
       {
         cwd: root,
       },
@@ -298,7 +298,7 @@ test("checkRepoBloat rejects direct frontend console error logging", () => {
 
     assert.ok(
       violations.includes(
-        "route frontend direct error logging through sanitized logger: src/components/ErrorBoundary.tsx",
+        "route frontend direct error logging through sanitized logger: src/app/errors/ErrorBoundary.tsx",
       ),
       violations.join("\n"),
     );

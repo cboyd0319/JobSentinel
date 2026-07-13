@@ -1,8 +1,8 @@
 import { Component, ErrorInfo, ReactNode } from 'react';
-import { errorReporter, sanitizeTextForStorage } from '../utils/errorReporting';
-import { clearStorage, readStorageValue, writeStorageValue } from '../utils/browserStorage';
-import { logError } from '../utils/errorUtils';
-import { copySanitizedDebugReport, saveSanitizedDebugReport } from '../services/feedbackService';
+import { errorReporter, sanitizeTextForStorage } from '../../utils/errorReporting';
+import { clearStorage, readStorageValue, writeStorageValue } from '../../utils/browserStorage';
+import { logError } from '../../utils/errorUtils';
+import { copySanitizedDebugReport, saveSanitizedDebugReport } from '../../services/feedbackService';
 
 const VISUAL_PREFERENCE_KEYS = [
   'jobsentinel-theme',

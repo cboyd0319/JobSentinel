@@ -182,7 +182,7 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/CommandPalette.tsx",
+      "src/app/commands/CommandPalette.tsx",
       [
         'navigation: "Navigation"',
         'ui: "Interface"',
@@ -193,7 +193,7 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/KeyboardShortcutsHelp.tsx",
+      "src/app/commands/KeyboardShortcutsHelp.tsx",
       [
         "title: 'Navigation'",
         "title: 'Job Actions'",
@@ -833,13 +833,13 @@ test("product copy rejects technical-first settings copy", () => {
       "src/components/AsyncButton.tsx",
       "src/features/resumes/builder/AtsLiveScorePanel.tsx",
       "src/features/settings/sources/browser-import/BrowserImportSection.tsx",
-      "src/components/CommandPalette.tsx",
+      "src/app/commands/CommandPalette.tsx",
       "src/components/CompanyResearchPanel.tsx",
       "src/features/applications/CoverLetterTemplates.tsx",
       "src/features/settings/support/ErrorLogPanel.tsx",
       "src/features/dashboard/components/JobCard.tsx",
       "src/features/dashboard/components/JobImportModal.tsx",
-      "src/components/KeyboardShortcutsHelp.tsx",
+      "src/app/commands/KeyboardShortcutsHelp.tsx",
       "src/features/market/MarketSnapshotCard.test.tsx",
       "src/features/market/MarketSnapshotCard.tsx",
       "src/features/settings/notifications/NotificationPreferences.tsx",

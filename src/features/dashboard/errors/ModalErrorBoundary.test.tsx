@@ -5,9 +5,9 @@ import ModalErrorBoundary from "./ModalErrorBoundary";
 import {
   copySanitizedDebugReport,
   saveSanitizedDebugReport,
-} from "../services/feedbackService";
+} from "../../../services/feedbackService";
 
-vi.mock("../services/feedbackService", () => ({
+vi.mock("../../../services/feedbackService", () => ({
   copySanitizedDebugReport: vi.fn().mockResolvedValue({
     content: "safe support report",
     copied: true,

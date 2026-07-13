@@ -344,7 +344,7 @@ export function getTechnicalFirstUiResult(path, text) {
     }
   }
 
-  if (path === "src/components/CommandPalette.tsx") {
+  if (path === "src/app/commands/CommandPalette.tsx") {
     const commandPalettePatterns = [
       /navigation:\s*["'`]Navigation["'`]/,
       /ui:\s*["'`]Interface["'`]/,
@@ -357,7 +357,7 @@ export function getTechnicalFirstUiResult(path, text) {
     }
   }
 
-  if (path === "src/components/KeyboardShortcutsHelp.tsx") {
+  if (path === "src/app/commands/KeyboardShortcutsHelp.tsx") {
     const keyboardHelpPatterns = [
       /title:\s*["'`]Navigation["'`]/,
       /title:\s*["'`]Job Actions["'`]/,

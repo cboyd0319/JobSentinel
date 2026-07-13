@@ -208,7 +208,7 @@ test("checkRepoBloat rejects raw visible error-boundary details", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/components/ComponentErrorBoundary.tsx",
+      "src/features/dashboard/errors/ComponentErrorBoundary.tsx",
       [
         "export function ComponentErrorBoundary({ error }) {",
         "  return <p>{this.state.error.message}</p>;",
@@ -218,7 +218,7 @@ test("checkRepoBloat rejects raw visible error-boundary details", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/ErrorBoundary.tsx",
+      "src/app/errors/ErrorBoundary.tsx",
       [
         "export function ErrorBoundary({ error }) {",
         "  return <p>{this.state.error.message}</p>;",
@@ -228,7 +228,7 @@ test("checkRepoBloat rejects raw visible error-boundary details", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/ModalErrorBoundary.tsx",
+      "src/features/dashboard/errors/ModalErrorBoundary.tsx",
       [
         "export function ModalErrorBoundary({ error }) {",
         "  return <pre>{this.state.error.stack}</pre>;",
@@ -238,7 +238,7 @@ test("checkRepoBloat rejects raw visible error-boundary details", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/PageErrorBoundary.tsx",
+      "src/app/errors/PageErrorBoundary.tsx",
       [
         "export function PageErrorBoundary({ error }) {",
         "  const message = error.message;",
@@ -253,10 +253,10 @@ test("checkRepoBloat rejects raw visible error-boundary details", () => {
       [
         "add",
         "package.json",
-        "src/components/ComponentErrorBoundary.tsx",
-        "src/components/ErrorBoundary.tsx",
-        "src/components/ModalErrorBoundary.tsx",
-        "src/components/PageErrorBoundary.tsx",
+        "src/features/dashboard/errors/ComponentErrorBoundary.tsx",
+        "src/app/errors/ErrorBoundary.tsx",
+        "src/features/dashboard/errors/ModalErrorBoundary.tsx",
+        "src/app/errors/PageErrorBoundary.tsx",
       ],
       { cwd: root },
     );
@@ -265,25 +265,25 @@ test("checkRepoBloat rejects raw visible error-boundary details", () => {
 
     assert.ok(
       violations.includes(
-        "sanitize visible error-boundary details: src/components/ComponentErrorBoundary.tsx",
+        "sanitize visible error-boundary details: src/features/dashboard/errors/ComponentErrorBoundary.tsx",
       ),
       violations.join("\n"),
     );
     assert.ok(
       violations.includes(
-        "sanitize visible error-boundary details: src/components/ErrorBoundary.tsx",
+        "sanitize visible error-boundary details: src/app/errors/ErrorBoundary.tsx",
       ),
       violations.join("\n"),
     );
     assert.ok(
       violations.includes(
-        "sanitize visible error-boundary details: src/components/ModalErrorBoundary.tsx",
+        "sanitize visible error-boundary details: src/features/dashboard/errors/ModalErrorBoundary.tsx",
       ),
       violations.join("\n"),
     );
     assert.ok(
       violations.includes(
-        "sanitize visible error-boundary details: src/components/PageErrorBoundary.tsx",
+        "sanitize visible error-boundary details: src/app/errors/PageErrorBoundary.tsx",
       ),
       violations.join("\n"),
     );
@@ -295,7 +295,7 @@ test("checkRepoBloat rejects technical recovery copy", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/components/ComponentErrorBoundary.tsx",
+      "src/features/dashboard/errors/ComponentErrorBoundary.tsx",
       [
         "export function ComponentErrorBoundary() {",
         "  return <p>{this.props.componentName} Error</p>;",
@@ -305,7 +305,7 @@ test("checkRepoBloat rejects technical recovery copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/ErrorBoundary.tsx",
+      "src/app/errors/ErrorBoundary.tsx",
       [
         "export function ErrorBoundary({ count }) {",
         "  return <p>Error occurred {count} times</p>;",
@@ -316,7 +316,7 @@ test("checkRepoBloat rejects technical recovery copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/ModalErrorBoundary.tsx",
+      "src/features/dashboard/errors/ModalErrorBoundary.tsx",
       [
         "export function ModalErrorBoundary() {",
         "  return <button aria-label=\"Close error dialog\">Close</button>;",
@@ -326,7 +326,7 @@ test("checkRepoBloat rejects technical recovery copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/PageErrorBoundary.tsx",
+      "src/app/errors/PageErrorBoundary.tsx",
       [
         "export function PageErrorBoundary({ pageName }) {",
         "  return <EmptyState title={`${pageName || \"Page\"} Error`} />;",
@@ -350,10 +350,10 @@ test("checkRepoBloat rejects technical recovery copy", () => {
       [
         "add",
         "package.json",
-        "src/components/ComponentErrorBoundary.tsx",
-        "src/components/ErrorBoundary.tsx",
-        "src/components/ModalErrorBoundary.tsx",
-        "src/components/PageErrorBoundary.tsx",
+        "src/features/dashboard/errors/ComponentErrorBoundary.tsx",
+        "src/app/errors/ErrorBoundary.tsx",
+        "src/features/dashboard/errors/ModalErrorBoundary.tsx",
+        "src/app/errors/PageErrorBoundary.tsx",
         "src/features/settings/sources/health/ScraperHealthDashboard.tsx",
       ],
       { cwd: root },
@@ -362,10 +362,10 @@ test("checkRepoBloat rejects technical recovery copy", () => {
     const violations = checkRepoBloat(root);
 
     for (const path of [
-      "src/components/ComponentErrorBoundary.tsx",
-      "src/components/ErrorBoundary.tsx",
-      "src/components/ModalErrorBoundary.tsx",
-      "src/components/PageErrorBoundary.tsx",
+      "src/features/dashboard/errors/ComponentErrorBoundary.tsx",
+      "src/app/errors/ErrorBoundary.tsx",
+      "src/features/dashboard/errors/ModalErrorBoundary.tsx",
+      "src/app/errors/PageErrorBoundary.tsx",
       "src/features/settings/sources/health/ScraperHealthDashboard.tsx",
     ]) {
       assert.ok(

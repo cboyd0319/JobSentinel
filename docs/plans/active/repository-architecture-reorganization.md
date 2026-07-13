@@ -464,7 +464,7 @@ or installed configuration path changes.
 
 ### 2. Migrate frontend ownership one feature at a time
 
-- [ ] Create `src/app/`, `src/features/`, `src/ui/`, and the reduced
+- [x] Create `src/app/`, `src/features/`, `src/ui/`, and the reduced
   `src/shared/` only as the first files move.
 - [x] Move root app startup, providers, router, navigation, and route
   composition into `src/app/` without changing rendered behavior.
@@ -735,6 +735,7 @@ evidence-log entry.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-07-13 | Milestone 2 in progress | Assigned app-only command, keyboard-help, recovery, and tour-configuration modules to private subdirectories under `src/app/`. Assigned Dashboard-only component and modal recovery boundaries to `src/features/dashboard/errors/`. Privacy-logging and plain-language recovery sensors now follow the owners. The mixed App and Dashboard onboarding tour remains unchanged until composition evidence supports a clean split. Focused and full frontend tests, all 766 script tests, the 808-module build, lint, architecture, security, bloat, and 35 focused app-shell and keyboard E2E flows pass. |
 | 2026-07-13 | Milestone 2 in progress | Established `src/features/settings/` as the owner for Settings, search preferences, source setup, notifications, secure credentials, external AI, matching controls, backup, support, and Browser Import UI. App composition supplies the Settings page as a component without a Dashboard-to-Settings implementation import. Production Settings files are 494 lines or fewer. Existing local company preferences survive the terminology and serialized-field cutover through read-only aliases, while new data uses precise preferred, blocked, included, and excluded names. The complete Google developer documentation style guide now has a maintained 70-page source map and review matrix; Apple-specific language remains governed by the complete Apple Style Guide. A repository language sensor enforces deterministic prohibited terms in prose and code, and release preparation now includes Google's inclusive open-source check. Playwright and Browser Import now recover from occupied default ports with operating-system-selected loopback ports; Browser Import persists its actual port and requires a fresh copied browser button. Full frontend, script, Rust, docs, lint, architecture, security, bloat, duplication, build, and focused Settings E2E gates pass. |
 | 2026-07-13 | Milestone 2 in progress | Moved the app composition root and navigation into `src/app/`, then completed vertical feature slices under `src/features/salary/`, `src/features/market/`, `src/features/application-assist/`, `src/features/applications/`, `src/features/onboarding/`, `src/features/dashboard/`, and `src/features/resumes/`. Pages, models, private components, tests, and development mocks now follow feature ownership. Resume library, builder, and matching remain one domain owner with three public pages and private workflow modules. The former 696-line Salary page, 679-line Market page, 693-line Dashboard page, 691-line Dashboard job-operations hook, and 682-line Job Card were split at real behavior boundaries. Application Assist controllers are 488 lines or fewer, Applications production modules are 467 lines or fewer, Onboarding production modules are 461 lines or fewer, Dashboard production modules are 496 lines or fewer, and Resume production modules are 495 lines or fewer with tests at 796 lines or fewer. The app composition root imports only public feature facades. Feature copy, schema, broad-audience, IPC minimization, source-quality, source-structure, privacy logging, security, and file-cap sensors follow the new owners. Focused and full frontend tests, all 759 script tests, lint, architecture, the 787-module production build, focused E2E, security sensors, and harness checks pass. |
 | 2026-07-13 | Milestone 1 complete | Deleted four verified production-orphan component families, moved nine cross-runtime taxonomies to `resources/taxonomies/`, consolidated contributor samples under `examples/`, and updated every live consumer and harness path. Full frontend and script suites plus focused Rust consumers pass. |
@@ -779,6 +780,8 @@ evidence-log entry.
   the same milestone.
 - Treat full cleanup as a required phase after structural refactoring, not as
   optional polish.
+- Keep icons cross-platform and local to the owning UI. Do not add an SF
+  Symbols integration or platform adapter solely for icons.
 - Treat v2.9.5 as a readiness target only until release execution is explicitly
   authorized.
 
@@ -800,7 +803,10 @@ evidence-log entry.
   proven multi-feature visual primitives now have direct module ownership under
   `src/ui/`, without an aggregate barrel. Settings-private notification,
   source-health, problem-report, and feedback UI modules have moved out of the
-  transitional components bucket into explicit Settings subdomains.
+  transitional components bucket into explicit Settings subdomains. App-only
+  command, keyboard-help, recovery, and tour-configuration modules now live in
+  private `src/app/` subdirectories. Dashboard-only recovery boundaries live
+  under their feature owner.
 - Settings company-preference field names changed. Read-only deserialize aliases
   preserve existing local values, and all newly saved data uses the new names.
   No privacy, credential, consent, or external-side-effect boundary changed.
@@ -816,7 +822,8 @@ evidence-log entry.
   checks. The reusable UI boundary is established with passing focused, full
   frontend, build, repository, and E2E checks. The latest Settings-private
   component move has passing focused, full frontend, build, repository, and E2E
-  checks.
+  checks. App-shell and Dashboard-private recovery ownership has the same
+  passing evidence.
 - Evidence: live manifests, imports, file counts, module graph, SQLx migration
   paths, CI, release scripts, harness sensors, Tamworth, and persona were
   inspected on 2026-07-13.

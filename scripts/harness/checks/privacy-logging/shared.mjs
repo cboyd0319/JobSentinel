@@ -11,11 +11,11 @@ export const frontendErrorUtilsPaths = new Set(["src/utils/errorUtils.ts"]);
 export const frontendToastSupportDetailPaths = new Set(["src/utils/api.ts"]);
 export const frontendDirectErrorLoggingPaths = new Set([
   "src/features/settings/sources/browser-import/BrowserImportSection.tsx",
-  "src/components/ComponentErrorBoundary.tsx",
+  "src/features/dashboard/errors/ComponentErrorBoundary.tsx",
   "src/features/search-links/SearchLinksPage.tsx",
-  "src/components/ErrorBoundary.tsx",
-  "src/components/ModalErrorBoundary.tsx",
-  "src/components/PageErrorBoundary.tsx",
+  "src/app/errors/ErrorBoundary.tsx",
+  "src/features/dashboard/errors/ModalErrorBoundary.tsx",
+  "src/app/errors/PageErrorBoundary.tsx",
   "src/hooks/useFeedback.ts",
   "src/services/feedbackService.ts",
 ]);

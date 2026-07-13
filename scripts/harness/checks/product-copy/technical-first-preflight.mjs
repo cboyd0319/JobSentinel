@@ -19,7 +19,7 @@ const payPlainLanguagePaths = new Set([
 const hiringTrendsCopyPaths = new Set([
   "docs/README.md",
   "docs/features/hiring-trends.md",
-  "src/config/tourSteps.ts",
+  "src/app/onboarding/tourSteps.ts",
   "src/features/market/LocationHeatmap.tsx",
   "src/features/market/MarketAlertCard.tsx",
   "src/features/market/MarketHeader.tsx",
@@ -34,7 +34,7 @@ const hiringTrendsCopyPaths = new Set([
 const firstRunPlainCopyPaths = new Set([
   "src/app/App.tsx",
   "src/features/onboarding/CareerProfileSelector.tsx",
-  "src/config/tourSteps.ts",
+  "src/app/onboarding/tourSteps.ts",
   "src/features/onboarding/SetupWizard.tsx",
   "src/features/onboarding/SetupWizardSearchSummary.tsx",
   "src/features/onboarding/setupWizardPreferences.ts",
@@ -56,9 +56,9 @@ const ruleZeroPrecisionCopyPaths = new Set([
   "docs/harness/readme-information-design.md",
   "docs/user/DEEP_LINKS.md",
   "docs/user/QUICK_START.md",
-  "src/components/ErrorBoundary.tsx",
-  "src/components/ModalErrorBoundary.tsx",
-  "src/components/PageErrorBoundary.tsx",
+  "src/app/errors/ErrorBoundary.tsx",
+  "src/features/dashboard/errors/ModalErrorBoundary.tsx",
+  "src/app/errors/PageErrorBoundary.tsx",
 ]);
 
 const publicIssueTemplatePrivacyPaths = new Set([

@@ -411,11 +411,11 @@ test("privacy logging rejects raw shared and direct frontend error logging", () 
         "",
       ].join("\n"),
     );
-    writeFixtureFile(root, "src/components/ErrorBoundary.tsx", "console.error(error);");
+    writeFixtureFile(root, "src/app/errors/ErrorBoundary.tsx", "console.error(error);");
 
     assert.equal(hasRawFrontendSharedErrorLogging(root, "src/utils/errorUtils.ts"), true);
     assert.equal(
-      hasRawFrontendDirectErrorLogging(root, "src/components/ErrorBoundary.tsx"),
+      hasRawFrontendDirectErrorLogging(root, "src/app/errors/ErrorBoundary.tsx"),
       true,
     );
     assert.equal(hasRawFrontendDirectErrorLogging(root, "src/utils/errorUtils.ts"), false);
