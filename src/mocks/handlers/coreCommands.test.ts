@@ -86,6 +86,11 @@ type DashboardPreferences = {
   anyJobSourceEnabled: boolean;
 };
 
+type BrowserImportConfig = {
+  port: number;
+  enabled: boolean;
+};
+
 type FeedbackSystemInfo = {
   app_version: string;
   platform: string;
@@ -310,6 +315,15 @@ describe("mock core command handlers", () => {
     expect(await mockInvoke<NotificationPreferences>("get_notification_preferences")).toEqual(
       notificationPreferencesInput,
     );
+  });
+
+  it("returns the active Browser Import setup after starting the local receiver", async () => {
+    const started = await mockInvoke<BrowserImportConfig>("start_bookmarklet_server", {
+      port: 4321,
+    });
+
+    expect(started).toEqual({ port: 4321, enabled: true });
+    await expect(mockInvoke("get_bookmarklet_config")).resolves.toEqual(started);
   });
 
   it("generates deep links with the real backend command names", async () => {

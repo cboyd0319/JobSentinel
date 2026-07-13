@@ -5,7 +5,7 @@ import { HelpIcon } from "../../components/HelpIcon";
 import { Modal } from "../../components/Modal";
 import { ScraperHealthDashboard } from "../../components/ScraperHealthDashboard";
 import { FeedbackModal } from "../../components/feedback/FeedbackModal";
-import { BookmarkletGenerator } from "../../components/BookmarkletGenerator";
+import { BrowserImportSection } from "./sources/browser-import/BrowserImportSection";
 import { useToast } from "../../contexts";
 import { logError } from "../../utils/errorUtils";
 import { getUserFriendlyError } from "../../utils/errorMessages";
@@ -419,7 +419,7 @@ export default function Settings({ onClose }: SettingsProps) {
                 Browser Button
                 <HelpIcon text="Save many job pages into JobSentinel with a browser button you control." />
               </h3>
-              <BookmarkletGenerator />
+              <BrowserImportSection />
             </section>
 
             <SettingsPostingRiskSection

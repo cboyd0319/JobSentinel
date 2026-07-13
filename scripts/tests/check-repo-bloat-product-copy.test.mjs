@@ -116,7 +116,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/BookmarkletGenerator.tsx",
+      "src/features/settings/sources/browser-import/BrowserImportSection.tsx",
       [
         '"Browser Bookmarklet"',
         '"Import jobs from any website"',
@@ -561,7 +561,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/features/settings/SettingsPage.tsx",
         "src/features/onboarding/SetupWizard.tsx",
         "src/components/AsyncButton.tsx",
-        "src/components/BookmarkletGenerator.tsx",
+        "src/features/settings/sources/browser-import/BrowserImportSection.tsx",
         "src/features/applications/CoverLetterTemplates.tsx",
         "src/components/DeepLinkGenerator.tsx",
         "src/components/ErrorBoundary.tsx",
@@ -619,7 +619,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/features/settings/SettingsPage.tsx",
       "src/features/onboarding/SetupWizard.tsx",
       "src/components/AsyncButton.tsx",
-      "src/components/BookmarkletGenerator.tsx",
+      "src/features/settings/sources/browser-import/BrowserImportSection.tsx",
       "src/features/applications/CoverLetterTemplates.tsx",
       "src/components/DeepLinkGenerator.tsx",
       "src/components/ErrorBoundary.tsx",

@@ -35,7 +35,7 @@ test("product copy rejects support troubleshooting jargon", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/BookmarkletGenerator.tsx",
+      "src/features/settings/sources/browser-import/BrowserImportSection.tsx",
       "Advanced connection settings\nlocal safety code\nIf this feels hard\nblock page import\nAllow clipboard access and try again.\nwhen JobSentinel restarts\nSupport settings\nSupport number\nHelp-only settings\nunless a support reply asks\nImport Helper\nAdvanced browser button setting\nBrowser helper number\nTurn on the import helper above\nbrowser import settings\nbrowser import connection\nCould not update browser import\n",
     );
     writeFixtureFile(
@@ -92,7 +92,7 @@ test("product copy rejects support troubleshooting jargon", () => {
     assert.equal(
       hasTechnicalFirstUserCopy(
         root,
-        "src/components/BookmarkletGenerator.tsx",
+        "src/features/settings/sources/browser-import/BrowserImportSection.tsx",
       ),
       true,
     );

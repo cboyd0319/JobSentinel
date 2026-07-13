@@ -490,7 +490,7 @@ test("checkRepoBloat rejects bookmarklet code without auth header", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/components/BookmarkletGenerator.tsx",
+      "src/features/settings/sources/browser-import/BrowserImportSection.tsx",
       [
         "export function code() {",
         "  return `fetch('http://localhost:4321/api/bookmarklet/import',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(job)})`;",
@@ -499,7 +499,7 @@ test("checkRepoBloat rejects bookmarklet code without auth header", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src/components/BookmarkletGenerator.tsx"], {
+    execFileSync("git", ["add", "package.json", "src/features/settings/sources/browser-import/BrowserImportSection.tsx"], {
       cwd: root,
     });
 
@@ -507,7 +507,7 @@ test("checkRepoBloat rejects bookmarklet code without auth header", () => {
 
     assert.ok(
       violations.includes(
-        "include bookmarklet auth token header: src/components/BookmarkletGenerator.tsx",
+        "include bookmarklet auth token header: src/features/settings/sources/browser-import/BrowserImportSection.tsx",
       ),
       violations.join("\n"),
     );

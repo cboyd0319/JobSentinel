@@ -184,7 +184,7 @@ test("ipc minimization rejects bookmarklet token exposure across renderer IPC", 
     );
     writeFixtureFile(
       root,
-      "src/components/BookmarkletGenerator.tsx",
+      "src/features/settings/sources/browser-import/BrowserImportSection.tsx",
       "const token = config.authToken; await navigator.clipboard.writeText(token);\n",
     );
     writeFixtureFile(
@@ -195,7 +195,7 @@ test("ipc minimization rejects bookmarklet token exposure across renderer IPC", 
 
     for (const path of [
       "src-tauri/src/commands/bookmarklet.rs",
-      "src/components/BookmarkletGenerator.tsx",
+      "src/features/settings/sources/browser-import/BrowserImportSection.tsx",
       "src/mocks/handlers.ts",
     ]) {
       assert.equal(hasBookmarkletTokenIpcExposure(root, path), true);

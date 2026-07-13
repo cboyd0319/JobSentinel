@@ -54,7 +54,7 @@ weakened.
 | Workstream | State | Current focus | Source |
 | ---------- | ----- | ------------- | ------ |
 | Current product and quality work | Active | Keep privacy, design, platform, harness, and release evidence aligned during the refactor | [Plan](current-work.md) |
-| Full repository refactor and v2.9.5 readiness | Active | Continue frontend ownership after completing the Settings workflow and repository language-policy slice | [Plan](repository-architecture-reorganization.md) |
+| Full repository refactor and v2.9.5 readiness | Active | Continue frontend ownership after completing Settings and its collision-safe Browser Import boundary | [Plan](repository-architecture-reorganization.md) |
 
 ## Current Posture
 

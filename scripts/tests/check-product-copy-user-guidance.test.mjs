@@ -300,7 +300,7 @@ test("product copy rejects overbroad browser import promises", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src/components/BookmarkletGenerator.tsx",
+      "src/features/settings/sources/browser-import/BrowserImportSection.tsx",
       [
         "Browse to any job posting (LinkedIn, Indeed, etc.)",
         "Supported Sites:",
@@ -327,7 +327,7 @@ test("product copy rejects overbroad browser import promises", () => {
     assert.equal(
       hasTechnicalFirstUserCopy(
         root,
-        "src/components/BookmarkletGenerator.tsx",
+        "src/features/settings/sources/browser-import/BrowserImportSection.tsx",
       ),
       true,
     );

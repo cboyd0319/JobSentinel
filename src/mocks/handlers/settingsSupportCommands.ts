@@ -237,7 +237,11 @@ export function handleMockSettingsSupportCommand(
       };
 
     case "set_bookmarklet_port":
-      return updateBookmarkletPort(args, state, state.bookmarkletConfig.enabled);
+      return updateBookmarkletPort(
+        args,
+        state,
+        state.bookmarkletConfig.enabled,
+      );
 
     case "get_system_info":
       return withoutSave(state, getMockSystemInfo());
@@ -286,10 +290,12 @@ export function handleMockSettingsSupportCommand(
       return withoutSave(state, {
         build_enabled: true,
         runtime_status: "needs_model_download",
-        active_profile: "Qwen3 embedding plus Qwen3 reranker, with built-in local fallback",
+        active_profile:
+          "Qwen3 embedding plus Qwen3 reranker, with built-in local fallback",
         privacy_mode:
           "Local only. Model downloads fetch model files only and never send resume or job-search data.",
-        manifest_hash: "mocksemanticmatchingmanifesthash000000000000000000000000000000",
+        manifest_hash:
+          "mocksemanticmatchingmanifesthash000000000000000000000000000000",
         models: [
           {
             id: "qwen3-embedding-0.6b",
@@ -327,13 +333,15 @@ export function handleMockSettingsSupportCommand(
             id: "exact_skills",
             label: "Exact skills",
             state: "Always on",
-            explanation: "Matches visible skills and aliases before any model estimate is used.",
+            explanation:
+              "Matches visible skills and aliases before any model estimate is used.",
           },
           {
             id: "qwen3_reranker",
             label: "Qwen3 reranker",
             state: "Embedded-ML builds",
-            explanation: "Reranks only a bounded top set of candidate evidence.",
+            explanation:
+              "Reranks only a bounded top set of candidate evidence.",
           },
         ],
         eval_contract: [
@@ -363,7 +371,9 @@ function getPendingBookmarkletIds(
     return [];
   }
 
-  return ids.filter((id): id is string => typeof id === "string" && id.length > 0);
+  return ids.filter(
+    (id): id is string => typeof id === "string" && id.length > 0,
+  );
 }
 
 function updatePendingBookmarkletImports(
@@ -373,12 +383,20 @@ function updatePendingBookmarkletImports(
 ): MockSettingsSupportCommandResult {
   const ids = getPendingBookmarkletIds(args);
   if (ids.length === 0) {
-    throw new Error(action === "confirm" ? "Choose at least one job to save." : "Choose at least one job to skip.");
+    throw new Error(
+      action === "confirm"
+        ? "Choose at least one job to save."
+        : "Choose at least one job to skip.",
+    );
   }
 
   const selected = new Set(ids);
-  const matched = state.pendingBookmarkletImports.filter((item) => selected.has(item.id));
-  const nextPending = state.pendingBookmarkletImports.filter((item) => !selected.has(item.id));
+  const matched = state.pendingBookmarkletImports.filter((item) =>
+    selected.has(item.id),
+  );
+  const nextPending = state.pendingBookmarkletImports.filter(
+    (item) => !selected.has(item.id),
+  );
 
   return {
     handled: true,
@@ -518,11 +536,13 @@ function updateBookmarkletPort(
       ...state,
       bookmarkletConfig: { ...state.bookmarkletConfig, port, enabled },
     },
-    value: undefined,
+    value: enabled ? { port, enabled } : undefined,
   };
 }
 
-function getMockDashboardPreferences(config: MockConfig): MockDashboardPreferences {
+function getMockDashboardPreferences(
+  config: MockConfig,
+): MockDashboardPreferences {
   return {
     autoRefresh: { ...config.auto_refresh },
     salaryFloorUsd: config.salary_floor_usd,

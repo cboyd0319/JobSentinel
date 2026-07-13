@@ -523,7 +523,7 @@ test("privacy logging rejects raw import and bookmarklet details", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/BookmarkletGenerator.tsx",
+      "src/features/settings/sources/browser-import/BrowserImportSection.tsx",
       'fetch("/api/bookmarklet/import", { method: "POST" });',
     );
 
@@ -548,7 +548,7 @@ test("privacy logging rejects raw import and bookmarklet details", () => {
       true,
     );
     assert.equal(
-      hasBookmarkletCodeWithoutTokenHeader(root, "src/components/BookmarkletGenerator.tsx"),
+      hasBookmarkletCodeWithoutTokenHeader(root, "src/features/settings/sources/browser-import/BrowserImportSection.tsx"),
       true,
     );
     assert.equal(hasRawBookmarkletImportLogging(root, "src-tauri/src/commands/import.rs"), false);

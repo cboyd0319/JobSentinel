@@ -216,7 +216,8 @@ renderer CSP.
 ### Browser Import Local Receiver
 
 **Files**: `src-tauri/src/commands/bookmarklet.rs`,
-`src-tauri/src/core/bookmarklet/server.rs`
+`src-tauri/src/core/bookmarklet/server.rs`, and
+`src-tauri/src/core/bookmarklet/server/listener.rs`
 
 Browser Import uses a loopback-only HTTP receiver and a generated browser button
 instead of account cookies or background site monitoring. The receiver binds to
@@ -224,6 +225,12 @@ instead of account cookies or background site monitoring. The receiver binds to
 limits request size and concurrent connections, and requires a short-lived
 single-use import token before any job data is stored. It does not advertise
 wildcard CORS headers.
+
+If the configured port is already in use, the receiver retries only that bind
+condition with an operating-system-selected loopback port. It persists the
+actual port through the private atomic configuration writer and tells Settings
+to request a fresh browser button. Permission and other bind failures still
+fail instead of weakening the listener boundary.
 
 Responses include defensive browser headers: `Cache-Control: no-store`,
 `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`,

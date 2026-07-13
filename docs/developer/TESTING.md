@@ -521,8 +521,9 @@ system for an available loopback port. Set `PLAYWRIGHT_PORT` only when a fixed
 test port is required; the wrapper fails clearly if that port is occupied.
 Set `PLAYWRIGHT_REUSE_EXISTING_SERVER=1` only when the target is a verified
 JobSentinel mock server. The installed Tauri GUI does not use a web-server port;
-the development GUI uses port 5173, and Browser Import uses its separately
-configured port, which defaults to 4321.
+the development GUI uses port 5173. Browser Import is separate: it prefers its
+saved port, which defaults to 4321, and selects and persists an available
+loopback port if another process already owns that port.
 
 ### E2E Test Coverage
 

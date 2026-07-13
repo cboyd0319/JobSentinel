@@ -41,6 +41,10 @@ person's privacy.
 7. Paste the copied text where the bookmark stores the page address.
 8. Save it to your bookmarks bar.
 
+If another app is using the saved button setup number, JobSentinel chooses an
+available local number and saves it for next time. Settings tells you when this
+happens. Copy a fresh browser button before importing.
+
 Copy the browser button again after each import or after changing the button
 setup number. If JobSentinel was closed and reopened, copy it again before
 importing more jobs.
@@ -79,7 +83,8 @@ not work.
 
 - Make sure JobSentinel is open.
 - Turn on **Browser Import** in Settings.
-- Change **Button setup number** only when JobSentinel shows that step.
+- Leave **Button setup number** unchanged unless JobSentinel help instructions
+  tell you otherwise. JobSentinel handles a number already in use.
 - Copy the browser button again if you already saved a job, restarted
   JobSentinel, or waited about one hour.
 - If your firewall asks, allow connections for JobSentinel.

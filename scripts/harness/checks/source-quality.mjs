@@ -37,7 +37,7 @@ const resumeImportPaths = new Set([
 
 const frontendStatusEmojiPaths = new Set([
   "src/features/applications/AnalyticsPanel.tsx",
-  "src/components/BookmarkletGenerator.tsx",
+  "src/features/settings/sources/browser-import/BrowserImportSection.tsx",
   "src/features/applications/InterviewScheduler.tsx",
   "src/features/applications/ApplicationsPage.tsx",
 ]);

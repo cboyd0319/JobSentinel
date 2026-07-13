@@ -10,7 +10,7 @@ export const frontendErrorHelperDebugPaths = new Set([
 export const frontendErrorUtilsPaths = new Set(["src/utils/errorUtils.ts"]);
 export const frontendToastSupportDetailPaths = new Set(["src/utils/api.ts"]);
 export const frontendDirectErrorLoggingPaths = new Set([
-  "src/components/BookmarkletGenerator.tsx",
+  "src/features/settings/sources/browser-import/BrowserImportSection.tsx",
   "src/components/ComponentErrorBoundary.tsx",
   "src/components/DeepLinkGenerator.tsx",
   "src/components/ErrorBoundary.tsx",
@@ -250,7 +250,7 @@ export const rawBookmarkletLoggingPaths = new Set([
   "src-tauri/src/core/bookmarklet/server.rs",
 ]);
 export const bookmarkletGeneratorPaths = new Set([
-  "src/components/BookmarkletGenerator.tsx",
+  "src/features/settings/sources/browser-import/BrowserImportSection.tsx",
 ]);
 
 export const userDataPrivacyLoggingPaths = new Set([

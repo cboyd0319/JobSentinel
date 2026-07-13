@@ -147,7 +147,10 @@ export function getTechnicalFirstUiResult(path, text) {
     );
   }
 
-  if (path === "src/components/BookmarkletGenerator.tsx") {
+  if (
+    path === "src/features/settings/sources/browser-import/BrowserImportControls.tsx" ||
+    path === "src/features/settings/sources/browser-import/BrowserImportSection.tsx"
+  ) {
     const browserButtonPatterns = [
       /Advanced connection settings/i,
       /local safety code/i,

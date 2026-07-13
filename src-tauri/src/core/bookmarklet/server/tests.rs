@@ -815,7 +815,7 @@ async fn test_bookmarklet_import_consumes_token_after_invalid_authenticated_payl
 }
 
 #[tokio::test]
-async fn test_bookmarklet_start_returns_bind_error_for_occupied_port() {
+async fn test_bookmarklet_start_uses_available_loopback_port_when_requested_port_is_occupied() {
     let occupied_listener = tokio::net::TcpListener::bind("127.0.0.1:0")
         .await
         .expect("test listener should bind");
@@ -830,16 +830,16 @@ async fn test_bookmarklet_start_returns_bind_error_for_occupied_port() {
     });
     let config = server.config().clone();
 
-    let error = server
+    server
         .start(config, database)
         .await
-        .expect_err("occupied port should fail before server is marked running");
+        .expect("occupied port should fall back to an available loopback port");
 
-    match error {
-        BookmarkletError::BindError { port, .. } => assert_eq!(port, occupied_port),
-        other => panic!("expected bind error, got {other:?}"),
-    }
-    assert!(!server.is_running());
+    let selected_port = server.config().port;
+    assert_ne!(selected_port, occupied_port);
+    assert!(selected_port >= 1024);
+    assert!(server.is_running());
+    server.stop().await.expect("fallback listener should stop");
 }
 
 #[tokio::test]
@@ -847,11 +847,20 @@ async fn test_bookmarklet_server_lifecycle() {
     let config = BookmarkletConfig {
         port: 0,
         ..Default::default()
-    }; // Use random port
-    let server = BookmarkletServer::new(config);
+    };
+    let database = bookmarklet_test_database().await;
+    let mut server = BookmarkletServer::new(config.clone());
 
     assert!(!server.is_running());
 
-    // Note: Cannot fully test start/stop without a real database
-    // This would require integration tests
+    let selected_port = server
+        .start(config, database)
+        .await
+        .expect("loopback listener should start");
+    assert_ne!(selected_port, 0);
+    assert_eq!(server.config().port, selected_port);
+    assert!(server.is_running());
+
+    server.stop().await.expect("loopback listener should stop");
+    assert!(!server.is_running());
 }

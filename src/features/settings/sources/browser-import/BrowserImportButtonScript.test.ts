@@ -7,7 +7,9 @@ function generatedBrowserButtonCode(): string {
     resolve(process.cwd(), "src-tauri/src/commands/bookmarklet.rs"),
     "utf8",
   );
-  const match = source.match(/const TEMPLATE: &str = r#"(javascript:[\s\S]*?)"#;/);
+  const match = source.match(
+    /const TEMPLATE: &str = r#"(javascript:[\s\S]*?)"#;/,
+  );
 
   if (!match?.[1]) {
     throw new Error("Browser button template was not found");
@@ -18,7 +20,7 @@ function generatedBrowserButtonCode(): string {
     .replaceAll("__TOKEN__", JSON.stringify("test-token"));
 }
 
-describe("Browser Import button script", () => {
+describe("generated Browser Import button", () => {
   afterEach(() => {
     vi.restoreAllMocks();
     document.body.innerHTML = "";
@@ -27,7 +29,10 @@ describe("Browser Import button script", () => {
   it("captures visible LinkedIn job cards in one user-clicked import", async () => {
     const fetchSpy = vi.fn().mockResolvedValue({ ok: true });
     vi.spyOn(window, "alert").mockImplementation(() => {});
-    vi.spyOn(window.HTMLElement.prototype, "getBoundingClientRect").mockReturnValue({
+    vi.spyOn(
+      window.HTMLElement.prototype,
+      "getBoundingClientRect",
+    ).mockReturnValue({
       bottom: 160,
       height: 80,
       left: 0,
@@ -39,20 +44,22 @@ describe("Browser Import button script", () => {
       toJSON: () => ({}),
     } as DOMRect);
     const originalCreateElement = document.createElement.bind(document);
-    vi.spyOn(document, "createElement").mockImplementation((tagName: string) => {
-      const element = originalCreateElement(tagName);
-      if (tagName.toLowerCase() === "iframe") {
-        Object.defineProperty(element, "contentWindow", {
-          configurable: true,
-          value: {
-            fetch: fetchSpy,
-            JSON,
-            URL,
-          },
-        });
-      }
-      return element;
-    });
+    vi.spyOn(document, "createElement").mockImplementation(
+      (tagName: string) => {
+        const element = originalCreateElement(tagName);
+        if (tagName.toLowerCase() === "iframe") {
+          Object.defineProperty(element, "contentWindow", {
+            configurable: true,
+            value: {
+              fetch: fetchSpy,
+              JSON,
+              URL,
+            },
+          });
+        }
+        return element;
+      },
+    );
 
     document.body.innerHTML = `
       <main>

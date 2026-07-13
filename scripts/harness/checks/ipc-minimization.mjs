@@ -108,7 +108,7 @@ export function hasStaleProfilePreviewMock(root, path) {
 export function hasBookmarkletTokenIpcExposure(root, path) {
   if (
     path !== "src-tauri/src/commands/bookmarklet.rs" &&
-    path !== "src/components/BookmarkletGenerator.tsx" &&
+    path !== "src/features/settings/sources/browser-import/BrowserImportSection.tsx" &&
     path !== "src/mocks/handlers.ts"
   ) {
     return false;

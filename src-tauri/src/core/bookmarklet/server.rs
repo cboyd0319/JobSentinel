@@ -12,7 +12,6 @@ use crate::core::db::Database;
 use chrono::{DateTime, TimeDelta, Utc};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
-use std::net::SocketAddr;
 use std::sync::{Arc, RwLock};
 use std::time::Duration;
 use thiserror::Error;
@@ -21,9 +20,11 @@ use tokio::task::JoinHandle;
 use uuid::Uuid;
 
 mod imports;
+mod listener;
 
 use imports::handle_import_request;
 pub use imports::{confirm_pending_bookmarklet_imports, discard_pending_bookmarklet_imports};
+use listener::bind_bookmarklet_listener;
 
 const BOOKMARKLET_TOKEN_HEADER: &str = "x-jobsentinel-token";
 const CONTENT_LENGTH_HEADER: &str = "content-length";
@@ -197,18 +198,19 @@ impl BookmarkletServer {
         &mut self,
         config: BookmarkletConfig,
         database: Arc<Database>,
-    ) -> Result<(), BookmarkletError> {
+    ) -> Result<u16, BookmarkletError> {
         if self.is_running() {
             return Err(BookmarkletError::AlreadyRunning);
         }
 
         self.config = config;
         self.config.refresh_auth_token();
-        let port = self.config.port;
+        let requested_port = self.config.port;
+        let (listener, port) = bind_bookmarklet_listener(requested_port).await?;
+        self.config.port = port;
         sync_bookmarklet_auth(&self.auth_state, &self.config);
         let auth_state = self.auth_state.clone();
         let pending_imports = self.pending_imports.clone();
-        let listener = bookmarklet_listener(port).await?;
 
         // Create shutdown channel
         let (shutdown_tx, shutdown_rx) = tokio::sync::oneshot::channel();
@@ -226,7 +228,7 @@ impl BookmarkletServer {
         self.shutdown_tx = Some(shutdown_tx);
 
         tracing::info!(port = port, "Bookmarklet server started");
-        Ok(())
+        Ok(port)
     }
 
     /// Stop the HTTP server
@@ -254,16 +256,6 @@ impl Default for BookmarkletServer {
     fn default() -> Self {
         Self::new(BookmarkletConfig::default())
     }
-}
-
-/// Bind the local listener before the UI reports the helper as running.
-async fn bookmarklet_listener(port: u16) -> Result<tokio::net::TcpListener, BookmarkletError> {
-    use std::net::{IpAddr, Ipv4Addr};
-
-    let addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), port);
-    tokio::net::TcpListener::bind(addr)
-        .await
-        .map_err(|e| BookmarkletError::BindError { port, source: e })
 }
 
 async fn run_server(

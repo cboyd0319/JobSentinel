@@ -137,7 +137,7 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/BookmarkletGenerator.tsx",
+      "src/features/settings/sources/browser-import/BrowserImportSection.tsx",
       "Create a new bookmark in your browser (Cmd/Ctrl+D)\nbookmark address field\n",
     );
     writeFixtureFile(
@@ -832,7 +832,7 @@ test("product copy rejects technical-first settings copy", () => {
       "src/features/applications/AnalyticsPanel.tsx",
       "src/components/AsyncButton.tsx",
       "src/features/resumes/builder/AtsLiveScorePanel.tsx",
-      "src/components/BookmarkletGenerator.tsx",
+      "src/features/settings/sources/browser-import/BrowserImportSection.tsx",
       "src/components/CommandPalette.tsx",
       "src/components/CompanyResearchPanel.tsx",
       "src/features/applications/CoverLetterTemplates.tsx",
