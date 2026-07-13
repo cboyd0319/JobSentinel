@@ -4,7 +4,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import test from "node:test";
-import { checkRepoBloat } from "../check-repo-bloat.mjs";
+import { checkRepoBloat } from "../checks/repo-bloat.mjs";
 
 function writeFixtureFile(root, path, content = "") {
   const fullPath = join(root, path);

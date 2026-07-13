@@ -153,14 +153,20 @@ test("harness policy manifest stays portable and reviewable", () => {
 });
 
 test("check-harness consumes manifest instead of hardcoding large policy tables", () => {
-  const checker = readFileSync("scripts/check-harness.mjs", "utf8");
+  const checker = [
+    "scripts/checks/harness.mjs",
+    "scripts/checks/harness/contracts.mjs",
+    "scripts/checks/harness/repository-files.mjs",
+  ]
+    .map((path) => readFileSync(path, "utf8"))
+    .join("\n");
 
   assert.ok(checker.includes(manifestPath));
   assert.ok(checker.includes(featurePrivacyLabelsPath));
   assert.ok(checker.includes("machineSpecificLocalPathNeedles"));
   assert.ok(checker.includes("docLocalAbsolutePathPattern"));
   assert.ok(checker.includes("<repo-root>/<home> placeholders"));
-  assert.ok(checker.includes("manifestPublicWiki"));
+  assert.ok(checker.includes("const publicWiki"));
   assert.ok(checker.includes("publicWiki.requiredPages"));
   assert.ok(checker.includes("startupContextBudgets"));
   assert.ok(checker.includes("startup context budget"));

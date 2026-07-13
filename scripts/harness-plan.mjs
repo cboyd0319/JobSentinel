@@ -163,7 +163,8 @@ function isPrivacyOrSecurityPath(path) {
     path === "SECURITY.md" ||
     path.startsWith("src/shared/externalAi/") ||
     path === "scripts/check-external-ai-gateway.mjs" ||
-    path === "scripts/check-security-sensors.mjs" ||
+    path === "scripts/checks/security-sensors.mjs" ||
+    path.startsWith("scripts/checks/security-sensors/") ||
     path.startsWith("docs/security/") ||
     path.startsWith("docs/architecture/privacy-first-ai-gateway.md") ||
     lowerPath.includes("credential") ||
@@ -179,13 +180,30 @@ function isTauriInvokePath(path) {
     path === "src-tauri/src/main.rs" ||
     path === "src-tauri/src/command_handlers.rs" ||
     path.startsWith("src-tauri/src/commands/") ||
-    path === "scripts/check-tauri-invokes.mjs" ||
+    path === "scripts/checks/tauri-invokes.mjs" ||
+    path.startsWith("scripts/checks/tauri-invokes/") ||
     path === "scripts/tests/check-tauri-invokes.test.mjs" ||
     path.startsWith("src/mocks/") ||
     path.startsWith("src/shared/tauri/commandClient") ||
     path.startsWith("src/shared/errorReporting/supportReport") ||
     path.startsWith("src/features/settings/support/feedback/feedbackClient") ||
     path.startsWith("src/shared/search-links")
+  );
+}
+
+function isDependencyPolicyPath(path) {
+  return (
+    path === "scripts/checks/dependency-pins.mjs" ||
+    path.startsWith("scripts/checks/dependencies/") ||
+    path.startsWith("scripts/dependency/")
+  );
+}
+
+function isRepoBloatPolicyPath(path) {
+  return (
+    path === "scripts/checks/repo-bloat.mjs" ||
+    path.startsWith("scripts/checks/repo-bloat/") ||
+    path.startsWith("scripts/harness/checks/")
   );
 }
 
@@ -216,6 +234,7 @@ function commandRank(command) {
   if (command.startsWith("npm run test:run -- ")) return 50;
   if (command === "npm run test:run") return 51;
   if (command === "npm run lint:bloat") return 60;
+  if (command === "npm run lint:deps") return 61;
   if (command === "npm run doctor:e2e") return 70;
   if (command.startsWith("npm run test:e2e -- ")) return 80;
   if (command === "npm run test:e2e:smoke") return 81;
@@ -276,6 +295,25 @@ function scriptTestPath(root, path) {
 
   if (!path.endsWith(".mjs")) {
     return null;
+  }
+
+  const checkFamilyTests = new Map([
+    ["dependency-pins", "scripts/tests/check-dependency-pins.test.mjs"],
+    ["harness", "scripts/tests/check-harness-policy.test.mjs"],
+    ["repo-bloat", "scripts/tests/check-repo-bloat.test.mjs"],
+    ["security-sensors", "scripts/tests/check-security-sensors.test.mjs"],
+    ["tauri-invokes", "scripts/tests/check-tauri-invokes.test.mjs"],
+  ]);
+  for (const [family, testPath] of checkFamilyTests) {
+    if (
+      (path === `scripts/checks/${family}.mjs` ||
+        path.startsWith(`scripts/checks/${family}/`) ||
+        (family === "dependency-pins" &&
+          path.startsWith("scripts/checks/dependencies/"))) &&
+      maybeExistingPath(root, testPath)
+    ) {
+      return testPath;
+    }
   }
 
   const directPath = path.startsWith("scripts/security/")
@@ -406,6 +444,14 @@ export function summarizeHarnessPlan(root = defaultRoot, options = {}) {
 
     if (isTauriInvokePath(path)) {
       addCommand(commands, "npm run lint:tauri-invokes", "Tauri command or invoke surface changed.", path);
+    }
+
+    if (isDependencyPolicyPath(path)) {
+      addCommand(commands, "npm run lint:deps", "Dependency policy changed.", path);
+    }
+
+    if (isRepoBloatPolicyPath(path)) {
+      addCommand(commands, "npm run lint:bloat", "Repository policy changed.", path);
     }
 
     if (path.startsWith("src/shared/externalAi/") || path === "scripts/check-external-ai-gateway.mjs") {

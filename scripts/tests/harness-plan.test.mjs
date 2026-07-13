@@ -140,6 +140,23 @@ test("plans script tests and focused script test", () => {
   });
 });
 
+test("plans moved policy family checks and focused tests", () => {
+  withFixture((root) => {
+    writeFixtureFile(root, "scripts/tests/check-dependency-pins.test.mjs");
+
+    const plan = summarizeHarnessPlan(root, {
+      changedFiles: ["scripts/checks/dependencies/latest-stable.mjs"],
+    });
+
+    assert.deepEqual(commandsFor(plan), [
+      "npm run harness:check",
+      "npm run test:scripts",
+      "node --test scripts/tests/check-dependency-pins.test.mjs",
+      "npm run lint:deps",
+    ]);
+  });
+});
+
 test("plans E2E smoke and strict browser doctor for Playwright harness changes", () => {
   withFixture((root) => {
     writeFixtureFile(root, "scripts/tests/run-playwright.test.mjs");

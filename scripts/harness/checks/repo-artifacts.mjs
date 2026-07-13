@@ -88,7 +88,7 @@ const allowedTrackedGeneratedPaths = new Set([
 ]);
 
 // Note: the local, gitignored `.claude/` agent settings directory is skipped
-// via ignoredTraversalPaths above, matching scripts/check-harness.mjs. It is a
+// via ignoredTraversalPaths above, matching scripts/checks/harness.mjs. It is a
 // legitimate local override surface (see repo-first rules), not a disposable
 // build artifact, so it must not be forbidden here.
 const forbiddenArtifactDirs = new Set([

@@ -21,8 +21,8 @@
     {
       "id": "repository-architecture-reorganization",
       "path": "docs/plans/active/repository-architecture-reorganization.md",
-      "state": "planned",
-      "nextStep": "Implement Milestone 2: migrate frontend app and feature ownership one vertical slice at a time with facade-only cross-feature imports.",
+      "state": "active",
+      "nextStep": "Implement Milestone 7: complete the repo-wide orphan audit, cleanup, and final file-cap cutover before final documentation and v2.9.5 readiness.",
       "verification": "npm run lint:architecture; npm run lint:bloat; npm run test:scripts; npm run harness:check"
     }
   ],

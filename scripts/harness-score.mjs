@@ -342,20 +342,20 @@ function buildFrameworks(root) {
             ),
             check(
               "Harness check runs focused sensors",
-              fileHasAll(root, "scripts/check-harness.mjs", [
+              fileHasAll(root, "scripts/checks/harness.mjs", [
                 "checkExternalAiGateway",
                 "checkRepoBloat",
                 "checkTestQuality",
               ]),
-              "scripts/check-harness.mjs",
+              "scripts/checks/harness.mjs",
             ),
             check(
               "Harness score is enforced by harness check",
-              fileHasAll(root, "scripts/check-harness.mjs", [
+              fileHasAll(root, "scripts/checks/harness.mjs", [
                 "summarizeHarnessScore",
                 "five-tuple",
               ]),
-              "scripts/check-harness.mjs",
+              "scripts/checks/harness.mjs",
             ),
             check(
               "Harness script tests exist",
@@ -539,8 +539,8 @@ function buildFrameworks(root) {
             check(
               "Product boundaries are enforced by sensors",
               hasScripts(root, ["lint:external-ai", "lint:bloat"]) &&
-                fileHasAll(root, "scripts/check-harness.mjs", ["checkExternalAiGateway", "checkRepoBloat"]),
-              "package.json, scripts/check-harness.mjs",
+                fileHasAll(root, "scripts/checks/harness.mjs", ["checkExternalAiGateway", "checkRepoBloat"]),
+              "package.json, scripts/checks/harness.mjs",
             ),
           ],
         },

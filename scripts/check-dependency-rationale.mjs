@@ -9,7 +9,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-import { collectCargoDependencySpecs } from "./check-dependency-pins.mjs";
+import { collectCargoDependencySpecs } from "./checks/dependency-pins.mjs";
 
 const scriptPath = fileURLToPath(import.meta.url);
 const defaultRoot = resolve(dirname(scriptPath), "..");

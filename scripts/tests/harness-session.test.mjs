@@ -74,7 +74,7 @@ test("summarizeHarnessSession reports branch, counts, audit path, and next work"
     writeFixtureFile(root, "scripts/harness/checks/b.mjs", "");
     writeFixtureFile(root, "scripts/tests/one.test.mjs", "");
     writeFixtureFile(root, "scripts/security/tests/two.test.mjs", "");
-    writeFixtureFile(root, "scripts/check-repo-bloat.mjs", "one\ntwo\n");
+    writeFixtureFile(root, "scripts/checks/repo-bloat.mjs", "one\ntwo\n");
     writeFixtureFile(root, "docs/harness/archive/five-tuple-audit-2026-06-01.md", "# Audit\n");
 
     const summary = summarizeHarnessSession(root, {

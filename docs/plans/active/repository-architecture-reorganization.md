@@ -597,18 +597,18 @@ name registry.
 
 ### 6. Rebuild script and harness ownership
 
-- [ ] Split `check-harness.mjs`, `check-security-sensors.mjs`,
+- [x] Split `check-harness.mjs`, `check-security-sensors.mjs`,
   `check-dependency-pins.mjs`, `check-tauri-invokes.mjs`, and
   `check-repo-bloat.mjs` by existing policy families.
 - [x] Move platform build implementations under `scripts/platform/` and
   release assembly or verification under `scripts/release/`.
-- [ ] Consolidate repeated temporary-repository fixture setup only after the
-  second consumer is identified.
+- [x] Keep temporary-repository fixture setup local because no second consumer
+  with the same contract exists.
 - [x] Make `test:scripts` recursively and deterministically discover all script
   tests if tests move out of the current two globs.
-- [ ] Update package.json, workflows, docs, hooks, and all maintained callers
+- [x] Update package.json, workflows, docs, hooks, and all maintained callers
   directly to the final commands and paths.
-- [ ] Delete root compatibility entrypoints and old test globs in this
+- [x] Delete root compatibility entrypoints and old test globs in this
   milestone.
 
 Acceptance:
@@ -727,7 +727,7 @@ evidence-log entry.
 | Date | Status | Notes |
 | ---- | ------ | ----- |
 | 2026-07-13 | Milestones 3, 4, and 5 complete | Broke the database, credential, job-record, and normalization cycles, then created the two-member virtual Cargo workspace and extracted the Tauri-free core owner. Root Cargo policy, migrations, SQLx metadata, integration tests, CI, packaging paths, dependency checks, and security sensors now follow the new owner. The Tauri executable is a 5-line entrypoint, command modules are private, and one explicit registry retains all IPC names. The 769-test script harness, Cargo metadata, formatting, workspace Clippy, cargo-deny, fresh migration and SQLx checks, 184 app tests, 2,769 core unit tests, and every moved integration suite pass. |
-| 2026-07-13 | Milestone 6 in progress | Moved Linux and macOS package builders under `scripts/platform/` and release assembly, version validation, SBOM generation, and public verification under `scripts/release/`. Replaced two fixed test globs with native recursive, sorted discovery. All 770 script tests plus harness, bloat, security, docs, macOS readiness, and release-readiness gates pass. |
+| 2026-07-13 | Milestone 6 complete | Moved platform and release implementations to owned directories, split all five oversized policy entrypoints under `scripts/checks/`, deleted root compatibility files, and replaced fixed test globs with recursive sorted discovery. All 770 script tests plus focused harness, bloat, dependency, security, and IPC gates pass. |
 | 2026-07-13 | Milestone 2 complete | Completed frontend ownership with a 32-line development command facade, 183-line explicit registry, 202-line state adapter layer, 244-line persisted-state owner, and feature-owned command behavior. Split the 1,127-line root test by owner and updated privacy, IPC, source, and command-completeness sensors to follow the new boundaries. All 2,931 frontend tests across 209 files, 766 script tests, the production build, and TypeScript, ESLint, architecture, bloat, security, language, duplication, and test-quality gates pass. |
 | 2026-07-13 | Milestone 2 in progress | Split the mixed user-data development mock into Applications-owned cover-letter templates, Dashboard-owned saved searches and search history, and Settings-owned notification preferences. Moved normalization and direct command tests with each owner, retained backend command names and persisted development state, and deleted the 389-line mixed handler plus 303-line mixed normalizer. All 16 focused tests, 2,920 frontend tests across 200 files, the 820-module build, TypeScript, ESLint, architecture, bloat, duplication, and test-quality gates pass. |
 | 2026-07-13 | Milestone 2 in progress | Moved the four-consumer Score Display visual, tests, and stories into `src/ui/score-display/`. Extracted validated score-reason parsing into a private 111-line module and reduced the visual to 416 lines. Copy, thresholds, keyboard behavior, and renderer-safe parsing are unchanged; policy sensors follow both owners. All 162 focused frontend tests, 54 focused sensor tests, 2,933 frontend tests across 194 files, 766 script tests, the 816-module build, repository gates, and 19 Dashboard and Resume E2E flows pass. Only the company research family remains in the root components bucket. |

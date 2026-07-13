@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import test from "node:test";
-import { checkTauriInvokes } from "../check-tauri-invokes.mjs";
+import { checkTauriInvokes } from "../checks/tauri-invokes.mjs";
 
 function writeFixtureFile(root, path, content) {
   const fullPath = join(root, path);

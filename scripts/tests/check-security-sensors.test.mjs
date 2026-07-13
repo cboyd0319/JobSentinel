@@ -3,7 +3,7 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import test from "node:test";
 
-import { checkSecuritySensors } from "../check-security-sensors.mjs";
+import { checkSecuritySensors } from "../checks/security-sensors.mjs";
 
 import {
   mkdtempRoot,

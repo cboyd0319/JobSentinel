@@ -37,13 +37,13 @@ function writeCompleteHarnessFixture(root) {
         doctor: "node scripts/doctor.mjs",
         "doctor:e2e": "node scripts/doctor.mjs --e2e",
         "harness:benchmark": "node scripts/harness-benchmark.mjs",
-        "harness:check": "node scripts/check-harness.mjs",
+        "harness:check": "node scripts/checks/harness.mjs",
         "harness:plan": "node scripts/harness-plan.mjs",
         "harness:score": "node scripts/harness-score.mjs",
         "harness:session": "node scripts/harness-session.mjs",
-        "lint:bloat": "node scripts/check-repo-bloat.mjs",
+        "lint:bloat": "node scripts/checks/repo-bloat.mjs",
         "lint:external-ai": "node scripts/check-external-ai-gateway.mjs",
-        "lint:security": "node scripts/check-security-sensors.mjs",
+        "lint:security": "node scripts/checks/security-sensors.mjs",
         "lint:tests": "node scripts/check-test-quality.mjs",
         "test:e2e": "playwright test",
         "test:run": "vitest run",
@@ -205,7 +205,7 @@ function writeCompleteHarnessFixture(root) {
   writeFixtureFile(root, "scripts/harness-session.mjs", "nextBestWork\nactivePlanCount\n");
   writeFixtureFile(
     root,
-    "scripts/check-harness.mjs",
+    "scripts/checks/harness.mjs",
     "checkExternalAiGateway\ncheckRepoBloat\ncheckTestQuality\nsummarizeHarnessScore\nfive-tuple\n",
   );
   writeFixtureFile(root, "scripts/tests/check-harness-policy.test.mjs", "");

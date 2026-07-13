@@ -5,7 +5,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, extname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-import { compareStableSemver, parseStableSemver } from "./check-dependency-pins.mjs";
+import { compareStableSemver, parseStableSemver } from "./checks/dependency-pins.mjs";
 
 const scriptPath = fileURLToPath(import.meta.url);
 const defaultRoot = resolve(dirname(scriptPath), "..");

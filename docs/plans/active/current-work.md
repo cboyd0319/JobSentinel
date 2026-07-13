@@ -44,7 +44,7 @@ Out of scope:
 | ---- | ----- | ----------------- |
 | Active plan state | Current | Keep `status.md`, this file, the full-repository refactor plan, `docs/plans/index.json`, and harness manifest aligned. |
 | v2.9.1 release history | Complete | Keep the moved completed plan as history; do not use it as active release routing. |
-| Full repository refactor | Active | Complete the clean ownership cutover, full cleanup, and v2.9.5 readiness without weakening privacy. |
+| Full repository refactor | Active | Complete the repo-wide cleanup, final file-cap cutover, and v2.9.5 readiness without weakening privacy. |
 | Release pipeline | Deferred | Re-evaluate prior optimization decisions against the final workspace during v2.9.5 readiness. |
 | v3 planning | Deferred | Leave v3 docs available for later major-release work; do not implement during post-release closeout. |
 | Scraper/source verification | Maintenance watch | Keep existing source-boundary evidence and restricted-source rules intact; update only for cleanup or regressions. |

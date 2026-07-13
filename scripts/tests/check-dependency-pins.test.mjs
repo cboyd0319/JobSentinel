@@ -18,7 +18,7 @@ import {
   compareStableSemver,
   highestStableVersion,
   parseStableSemver,
-} from "../check-dependency-pins.mjs";
+} from "../checks/dependency-pins.mjs";
 
 function writeFixtureFile(root, path, content = "") {
   const fullPath = join(root, path);

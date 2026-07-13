@@ -11,10 +11,10 @@ unverified claims.
 
 The `v2.9.1` maintenance release is published, verified, and closed out in
 maintained docs. Current work is the full repository refactor and v2.9.5
-readiness effort. Milestones 0 through 5 are complete: structural sensors,
+readiness effort. Milestones 0 through 6 are complete: structural sensors,
 neutral data ownership, frontend feature ownership, backend cycle repair, the
 explicit two-member Cargo workspace, core extraction, and the thin private
-Tauri shell all have passing evidence.
+Tauri shell, and final script and harness ownership all have passing evidence.
 
 Observed release state on 2026-06-22 local time:
 
@@ -55,7 +55,7 @@ weakened.
 | Workstream | State | Current focus | Source |
 | ---------- | ----- | ------------- | ------ |
 | Current product and quality work | Active | Keep privacy, design, platform, harness, and release evidence aligned during the refactor | [Plan](current-work.md) |
-| Full repository refactor and v2.9.5 readiness | Active | Rebuild script and harness ownership before full cleanup | [Plan](repository-architecture-reorganization.md) |
+| Full repository refactor and v2.9.5 readiness | Active | Complete the repo-wide cleanup and final file-cap cutover | [Plan](repository-architecture-reorganization.md) |
 
 ## Current Posture
 
@@ -85,10 +85,8 @@ weakened.
 
 ## Next Best Work
 
-1. Rebuild script, harness, platform-build, and release-tool ownership without
-   compatibility entrypoints.
-2. Complete the repo-wide cleanup, orphan audit, final file-cap cutover, docs,
-   and public wiki update.
+1. Complete the repo-wide cleanup, orphan audit, and final file-cap cutover.
+2. Align final architecture, contributor, release, and public wiki docs.
 3. Prove v2.9.5 readiness without tagging, publishing, uploading, or dispatching
    a release.
 4. Keep future product work scoped by the current active plan and the

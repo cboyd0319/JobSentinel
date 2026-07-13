@@ -123,7 +123,7 @@ export function summarizeHarnessSession(root = defaultRoot, options = {}) {
     indexedWorkstreamCount,
     checkModuleCount: countMatchingFiles(root, "scripts/harness/checks", /\.mjs$/),
     scriptTestCount: countMatchingFilesRecursive(root, "scripts", /\.test\.mjs$/),
-    bloatRunnerLines: countFileLines(root, "scripts/check-repo-bloat.mjs"),
+    bloatRunnerLines: countFileLines(root, "scripts/checks/repo-bloat.mjs"),
     harnessScore: {
       overall: scoreSummary.overall,
       status: scoreSummary.allPerfect ? "all subsystems 5/5" : "incomplete",
