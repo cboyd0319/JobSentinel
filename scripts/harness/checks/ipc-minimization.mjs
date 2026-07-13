@@ -73,7 +73,9 @@ export function hasFullImportedJobReturn(root, path) {
 }
 
 export function hasStaleJobImportMockHandlers(root, path) {
-  if (path !== "src/mocks/handlers.ts") {
+  const registryPath = "src/mocks/handlers.ts";
+  const ownerPath = "src/features/dashboard/mocks/jobImportCommands.ts";
+  if (path !== registryPath && path !== ownerPath) {
     return false;
   }
 
@@ -82,9 +84,12 @@ export function hasStaleJobImportMockHandlers(root, path) {
   const missingCommand = requiredCommands.some((command) => {
     return !new RegExp(`case\\s+["']${command}["']`).test(text);
   });
+  if (path === registryPath) {
+    return missingCommand;
+  }
 
-  const importReturnsOnlyId = /return\s*\{\s*jobId\s*:\s*job\.id\s*\}\s*;/.test(text);
-  const importReturnsFullJob = /return\s*\{\s*\.\.\.job\s*\}\s*;/.test(text);
+  const importReturnsOnlyId = /\bjobId\s*:\s*job\.id\b/.test(text);
+  const importReturnsFullJob = /\bvalue\s*:\s*\{\s*\.\.\.job\s*\}/.test(text);
 
   return missingCommand || !importReturnsOnlyId || importReturnsFullJob;
 }

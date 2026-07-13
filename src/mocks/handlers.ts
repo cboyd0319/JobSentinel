@@ -10,18 +10,9 @@ import {
   mockUpcomingInterviews,
   mockPendingReminders,
 } from "./data";
-import {
-  assertMockDeepLinkUrl,
-  buildMockImportedJob,
-  generateMockDeepLink,
-  generateMockDeepLinks,
-  getMockSitesByCategory,
-  getMockSupportedSites,
-  isExternalHttpsUrl,
-  previewMockJobImport as buildMockJobImportPreview,
-  type MockJobImportPreview,
-  type MockJobImportResult,
-} from "./handlers/sourceLinksAndImports";
+import { handleMockSearchLinksCommand } from "../features/search-links/mocks/commands";
+import { handleMockJobImportCommand } from "../features/dashboard/mocks/jobImportCommands";
+import { isSafeExternalHttpsUrl } from "./externalUrlSafety";
 import {
   getAllMockSmokeTestResults,
   getMockExpiringCredentials,
@@ -93,7 +84,6 @@ import {
   cloneApplications,
   getArg,
   getDefaultGhostConfig,
-  getNextId,
   getNumericArg,
   getStringArg,
   normalizeApplications,
@@ -494,6 +484,32 @@ function applyMockDashboardCommand<T>(
   return result.value as T;
 }
 
+function applyMockJobImportCommand<T>(
+  command: string,
+  args: Record<string, unknown> | undefined,
+): T {
+  const result = handleMockJobImportCommand(command, args, { jobs });
+
+  if (!result.handled) {
+    return undefined as T;
+  }
+
+  jobs = result.state.jobs;
+  if (result.shouldSave) {
+    saveMockState();
+  }
+
+  return result.value as T;
+}
+
+function applyMockSearchLinksCommand<T>(
+  command: string,
+  args: Record<string, unknown> | undefined,
+): T {
+  const result = handleMockSearchLinksCommand(command, args);
+  return result.handled ? result.value as T : undefined as T;
+}
+
 function applyMockApplicationsCommand<T>(
   command: string,
   args: Record<string, unknown> | undefined,
@@ -587,28 +603,9 @@ function applyMockResumeCommand<T>(
 
 loadMockState();
 
-function previewMockJobImport(args?: Record<string, unknown>): MockJobImportPreview {
-  return buildMockJobImportPreview(
-    args,
-    jobs.map((job) => job.url),
-  );
-}
-
-function importMockJobFromUrl(args?: Record<string, unknown>): MockJobImportResult {
-  const preview = previewMockJobImport(args);
-  if (preview.already_exists) {
-    throw new Error("This job is already in your saved jobs");
-  }
-
-  const job = buildMockImportedJob(preview, getNextId(jobs), new Date().toISOString());
-  jobs = [job, ...jobs];
-  saveMockState();
-  return { jobId: job.id };
-}
-
 function fillMockApplicationForm(args?: Record<string, unknown>): MockFillResultWithAttempt {
   const jobUrl = getStringArg(args, "jobUrl") ?? getStringArg(args, "job_url") ?? "";
-  if (!isExternalHttpsUrl(jobUrl)) {
+  if (!isSafeExternalHttpsUrl(jobUrl)) {
     throw new Error("This application link is not safe to open");
   }
 
@@ -729,27 +726,16 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
 
     // Deep-link commands
     case "get_supported_sites":
-      return getMockSupportedSites() as T;
-
     case "get_sites_by_category_cmd":
-      return getMockSitesByCategory(args) as T;
-
     case "generate_deep_links":
-      return generateMockDeepLinks(args) as T;
-
     case "generate_deep_link":
-      return generateMockDeepLink(args) as T;
-
     case "open_deep_link":
-      assertMockDeepLinkUrl(getStringArg(args, "url"));
-      return undefined as T;
+      return applyMockSearchLinksCommand<T>(cmd, args);
 
     // Job import commands
     case "preview_job_import":
-      return previewMockJobImport(args) as T;
-
     case "import_job_from_url":
-      return importMockJobFromUrl(args) as T;
+      return applyMockJobImportCommand<T>(cmd, args);
 
     case "record_linkedin_workbench_event": {
       const result = handleMockLinkedInWorkbenchCommand(args, {

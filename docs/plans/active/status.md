@@ -54,7 +54,7 @@ weakened.
 | Workstream | State | Current focus | Source |
 | ---------- | ----- | ------------- | ------ |
 | Current product and quality work | Active | Keep privacy, design, platform, harness, and release evidence aligned during the refactor | [Plan](current-work.md) |
-| Full repository refactor and v2.9.5 readiness | Active | Split remaining source-link/import and Settings-support mock commands | [Plan](repository-architecture-reorganization.md) |
+| Full repository refactor and v2.9.5 readiness | Active | Split remaining Settings-support mock commands and thin the dispatcher | [Plan](repository-architecture-reorganization.md) |
 
 ## Current Posture
 
@@ -84,7 +84,7 @@ weakened.
 
 ## Next Best Work
 
-1. Split remaining source-link/import and Settings-support mock commands.
+1. Split remaining Settings-support mock commands and thin the dispatcher.
 2. Keep every ownership slice green and remove transition code before accepting
    it.
 3. Keep future product work scoped by the current active plan and the

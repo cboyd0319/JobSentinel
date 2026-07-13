@@ -735,6 +735,7 @@ evidence-log entry.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-07-13 | Milestone 2 in progress | Split the 621-line mixed source-link/import mock into Search Links-owned outbound-link commands and Dashboard-owned job-import commands. A 28-line named external-HTTPS safety contract is shared by Search Links, Dashboard imports, LinkedIn Workbench, and Application Assist. Migrated the minimized job-import IPC sensor with fail-first fixtures so it checks both the explicit root registry and the Dashboard owner. All 25 focused frontend tests, 766 script tests, 2,924 frontend tests across 202 files, the 820-module build, and architecture, bloat, security, duplication, and test-quality gates pass. |
 | 2026-07-13 | Milestone 2 in progress | Split the mixed user-data development mock into Applications-owned cover-letter templates, Dashboard-owned saved searches and search history, and Settings-owned notification preferences. Moved normalization and direct command tests with each owner, retained backend command names and persisted development state, and deleted the 389-line mixed handler plus 303-line mixed normalizer. All 16 focused tests, 2,920 frontend tests across 200 files, the 820-module build, TypeScript, ESLint, architecture, bloat, duplication, and test-quality gates pass. |
 | 2026-07-13 | Milestone 2 in progress | Moved the four-consumer Score Display visual, tests, and stories into `src/ui/score-display/`. Extracted validated score-reason parsing into a private 111-line module and reduced the visual to 416 lines. Copy, thresholds, keyboard behavior, and renderer-safe parsing are unchanged; policy sensors follow both owners. All 162 focused frontend tests, 54 focused sensor tests, 2,933 frontend tests across 194 files, 766 script tests, the 816-module build, repository gates, and 19 Dashboard and Resume E2E flows pass. Only the company research family remains in the root components bucket. |
 | 2026-07-13 | Milestone 2 in progress | Deleted the root `src/utils/` bucket after assigning safe browser downloads, Dashboard CSV, and Settings backups to real owners. Then established `src/features/linkedin-workbench/` with a public visual facade and private consent, transport, and learning modules. App composition supplies the workbench to Dashboard and Settings without feature-to-feature imports. The LinkedIn cut passed 62 focused frontend tests, 2,933 frontend tests across 192 files, 766 script tests, the production build, repository gates, and all 16 Settings E2E flows. Credential redaction, formula neutralization, URL sanitization, explicit review, and local-only behavior are unchanged. |
@@ -836,6 +837,10 @@ evidence-log entry.
   template processing and its development commands are private to Applications.
   Dashboard owns saved-search and search-history development commands, while
   Settings notifications own notification-preference development commands. The
+  Search Links feature owns its development site catalog and safe outbound-link
+  commands; Dashboard owns job-import preview, canonicalization, and insertion.
+  Their shared development-only external-HTTPS validation is a named security
+  contract instead of part of either feature's implementation. The
   unused root error-helper
   family is deleted, while its privacy checks now apply to any frontend
   TypeScript owner instead of one hardcoded file. Dashboard owns its debounce
@@ -888,9 +893,8 @@ evidence-log entry.
   now live with their owners; mixed root command groups remain to split.
 - Evidence: live manifests, imports, file counts, module graph, SQLx paths, CI,
   release scripts, harness sensors, Tamworth, and persona were inspected on 2026-07-13.
-- Next step: move the remaining source-link/import and Settings-support mock
-  commands to their owners, then reduce the dispatcher to deterministic
-  registration.
+- Next step: move the remaining Settings-support mock commands to their owners,
+  then reduce the dispatcher to deterministic registration.
 - Open risks: final SQLx offline metadata location and root Cargo target paths
   must be proven in isolated workspace and release fixtures before old paths are
   removed.

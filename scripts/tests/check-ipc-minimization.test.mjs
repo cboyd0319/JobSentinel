@@ -138,18 +138,30 @@ test("ipc minimization rejects stale import and profile mocks", () => {
         "function getMockApplicationProfilePreview() {",
         "  return { fullName: 'Jordan', resumeFilePath: '/private/resume.pdf' };",
         "}",
-        "function importMockJobFromUrl() {",
-        "  const job = { id: 1, title: 'Care Coordinator' };",
-        "  return { ...job };",
-        "}",
         "export async function mockInvoke(cmd) {",
         "  switch (cmd) {",
         "    case 'preview_job_import':",
         "      return {};",
-        "    case 'import_job_from_url':",
-        "      return importMockJobFromUrl();",
         "    case 'get_application_profile_preview':",
         "      return getMockApplicationProfilePreview();",
+        "    default:",
+        "      return undefined;",
+        "  }",
+        "}",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/features/dashboard/mocks/jobImportCommands.ts",
+      [
+        "function importMockJobFromUrl(command) {",
+        "  const job = { id: 1, title: 'Care Coordinator' };",
+        "  switch (command) {",
+        "    case 'preview_job_import':",
+        "      return {};",
+        "    case 'import_job_from_url':",
+        "      return { value: { ...job } };",
         "    default:",
         "      return undefined;",
         "  }",
@@ -160,6 +172,13 @@ test("ipc minimization rejects stale import and profile mocks", () => {
 
     assert.equal(
       hasStaleJobImportMockHandlers(root, "src/mocks/handlers.ts"),
+      true,
+    );
+    assert.equal(
+      hasStaleJobImportMockHandlers(
+        root,
+        "src/features/dashboard/mocks/jobImportCommands.ts",
+      ),
       true,
     );
     assert.equal(

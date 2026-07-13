@@ -3,45 +3,17 @@ import {
   JobType,
   RemoteType,
   SiteCategory,
-} from "../../shared/search-links";
-import type { DeepLink, SearchCriteria, SiteInfo } from "../../shared/search-links";
+} from "../../../shared/search-links";
+import type { DeepLink, SearchCriteria, SiteInfo } from "../../../shared/search-links";
+import {
+  getArg,
+  getStringArg,
+} from "../../../mocks/handlers/commandHelpers";
+import { isSafeExternalHttpsUrl } from "../../../mocks/externalUrlSafety";
 
-export interface MockJobImportPreview {
-  title: string;
-  company: string;
-  url: string;
-  location: string | null;
-  description_preview: string | null;
-  salary: string | null;
-  date_posted: string | null;
-  valid_through: string | null;
-  employment_types: string[];
-  remote: boolean;
-  missing_fields: string[];
-  already_exists: boolean;
-}
-
-export interface MockJobImportResult {
-  jobId: number;
-}
-
-export interface ImportedMockJob {
-  id: number;
-  hash: string;
-  title: string;
-  company: string;
-  location: string;
-  description: string;
-  url: string;
-  source: string;
-  salary_min: number;
-  salary_max: number;
-  remote: boolean;
-  score: number;
-  hidden: boolean;
-  bookmarked: boolean;
-  notes: string | null;
-  created_at: string;
+export interface MockSearchLinksCommandResult {
+  handled: boolean;
+  value: unknown;
 }
 
 const MOCK_DEEP_LINK_SITES = [
@@ -194,27 +166,26 @@ const INDEED_JOB_TYPE_PARAMS: Partial<Record<JobType, string>> = {
   [JobType.Internship]: "internship",
 };
 
-const STRIPPED_JOB_IMPORT_QUERY_KEYS = new Set([
-  "fbclid",
-  "gclid",
-  "igshid",
-  "mc_cid",
-  "mc_eid",
-  "msclkid",
-  "ref",
-  "referrer",
-  "source",
-]);
-
-const STRIPPED_JOB_IMPORT_QUERY_MARKERS = [
-  "token",
-  "session",
-  "auth",
-  "credential",
-  "password",
-  "email",
-  "candidate",
-];
+export function handleMockSearchLinksCommand(
+  command: string,
+  args: Record<string, unknown> | undefined,
+): MockSearchLinksCommandResult {
+  switch (command) {
+    case "get_supported_sites":
+      return handled(getMockSupportedSites());
+    case "get_sites_by_category_cmd":
+      return handled(getMockSitesByCategory(args));
+    case "generate_deep_links":
+      return handled(generateMockDeepLinks(args));
+    case "generate_deep_link":
+      return handled(generateMockDeepLink(args));
+    case "open_deep_link":
+      assertMockDeepLinkUrl(getStringArg(args, "url"));
+      return handled(undefined);
+    default:
+      return { handled: false, value: undefined };
+  }
+}
 
 export function getMockSupportedSites(): SiteInfo[] {
   return MOCK_DEEP_LINK_SITES.map((site) => ({ ...site }));
@@ -251,70 +222,8 @@ export function generateMockDeepLink(args?: Record<string, unknown>): DeepLink {
 }
 
 export function assertMockDeepLinkUrl(url: string | undefined): void {
-  if (!url || !isExternalHttpsUrl(url)) {
+  if (!url || !isSafeExternalHttpsUrl(url)) {
     throw new Error("This job-site link is not safe to open");
-  }
-}
-
-export function previewMockJobImport(
-  args?: Record<string, unknown>,
-  existingJobUrls: readonly string[] = [],
-): MockJobImportPreview {
-  const url = getJobImportUrl(args);
-  const title = getMockImportTitle(url);
-  const company = getMockImportCompany(url);
-
-  return {
-    title,
-    company,
-    url,
-    location: "Remote",
-    description_preview: `${title} role imported from ${company}. Review details before saving.`,
-    salary: "$55k-$72k",
-    date_posted: new Date().toISOString(),
-    valid_through: null,
-    employment_types: ["FULL_TIME"],
-    remote: true,
-    missing_fields: [],
-    already_exists: existingJobUrls.includes(url),
-  };
-}
-
-export function buildMockImportedJob(
-  preview: MockJobImportPreview,
-  id: number,
-  createdAt: string,
-): ImportedMockJob {
-  return {
-    id,
-    hash: `mock-import-${hashString(preview.url)}`,
-    title: preview.title,
-    company: preview.company,
-    location: preview.location ?? "Remote",
-    description: preview.description_preview ?? "",
-    url: preview.url,
-    source: "import",
-    salary_min: 55000,
-    salary_max: 72000,
-    remote: preview.remote,
-    score: 1,
-    hidden: false,
-    bookmarked: false,
-    notes: null,
-    created_at: createdAt,
-  };
-}
-
-export function isExternalHttpsUrl(value: string): boolean {
-  try {
-    const url = new URL(value);
-    if (url.protocol !== "https:") {
-      return false;
-    }
-
-    return !isLocalOrPrivateHost(url.hostname);
-  } catch {
-    return false;
   }
 }
 
@@ -472,112 +381,8 @@ function encodeQuery(value: string): string {
   return encodeURIComponent(value);
 }
 
-function getJobImportUrl(args?: Record<string, unknown>): string {
-  const url = getStringArg(args, "url")?.trim();
-  if (!url) {
-    throw new Error("Paste the full job link from your browser address bar.");
-  }
-
-  let parsedUrl: URL;
-  try {
-    parsedUrl = new URL(url);
-  } catch {
-    throw new Error("Paste the full job link from your browser address bar.");
-  }
-
-  if (parsedUrl.protocol === "http:" && !isLocalOrPrivateHost(parsedUrl.hostname)) {
-    throw new Error("Paste an https job posting link from your browser address bar.");
-  }
-
-  if (!isExternalHttpsUrl(url)) {
-    throw new Error("Paste the full job link from your browser address bar.");
-  }
-
-  return canonicalizeMockJobImportUrl(url);
-}
-
-function canonicalizeMockJobImportUrl(url: string): string {
-  const parsed = new URL(url);
-  parsed.username = "";
-  parsed.password = "";
-  parsed.hash = "";
-
-  const keptParams = new URLSearchParams();
-  parsed.searchParams.forEach((value, key) => {
-    const normalizedKey = key.toLowerCase();
-    if (isStrippedJobImportQueryParam(normalizedKey, value)) {
-      return;
-    }
-    keptParams.append(key, value);
-  });
-
-  const query = keptParams.toString();
-  parsed.search = query ? `?${query}` : "";
-  return parsed.toString();
-}
-
-function isStrippedJobImportQueryParam(normalizedKey: string, value: string): boolean {
-  return (
-    normalizedKey.startsWith("utm_") ||
-    STRIPPED_JOB_IMPORT_QUERY_KEYS.has(normalizedKey) ||
-    STRIPPED_JOB_IMPORT_QUERY_MARKERS.some((marker) => normalizedKey.includes(marker)) ||
-    isSensitiveJobImportQueryValue(value)
-  );
-}
-
-function isSensitiveJobImportQueryValue(value: string): boolean {
-  try {
-    new URL(value);
-    return true;
-  } catch {
-    const normalizedValue = value.toLowerCase();
-    return STRIPPED_JOB_IMPORT_QUERY_MARKERS.some(
-      (marker) =>
-        normalizedValue.includes(`${marker}=`) ||
-        normalizedValue.includes(`${marker}%3d`),
-    );
-  }
-}
-
-function getMockImportTitle(url: string): string {
-  const parsed = new URL(url);
-  const parts = parsed.pathname.split("/").filter((part) => part.length > 0);
-  const slug = parts[parts.length - 1] ?? "imported-job";
-  return (
-    slug
-      .replace(/\.[a-z0-9]+$/i, "")
-      .replace(/[-_]+/g, " ")
-      .replace(/\b\w/g, (char) => char.toUpperCase())
-      .trim() || "Imported Job"
-  );
-}
-
-function getMockImportCompany(url: string): string {
-  return new URL(url).hostname;
-}
-
-function hashString(value: string): string {
-  let hash = 0;
-  for (let index = 0; index < value.length; index += 1) {
-    hash = (hash * 31 + value.charCodeAt(index)) >>> 0;
-  }
-  return hash.toString(16).padStart(8, "0");
-}
-
-function getStringArg(
-  args: Record<string, unknown> | undefined,
-  key: string,
-): string | undefined {
-  const value = getArg(args, key);
-  return typeof value === "string" ? value : undefined;
-}
-
-function getArg(
-  args: Record<string, unknown> | undefined,
-  key: string,
-): unknown {
-  const nestedArgs = args?.payload as Record<string, unknown> | undefined;
-  return args?.[key] ?? nestedArgs?.[key];
+function handled(value: unknown): MockSearchLinksCommandResult {
+  return { handled: true, value };
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -598,24 +403,4 @@ function isRemoteType(value: unknown): value is RemoteType {
 
 function isSiteCategory(value: unknown): value is SiteCategory {
   return Object.values(SiteCategory).includes(value as SiteCategory);
-}
-
-function isLocalOrPrivateHost(hostname: string): boolean {
-  const host = hostname.toLowerCase().replace(/^\[|\]$/g, "");
-  if (
-    host === "localhost" ||
-    host === "::1" ||
-    host === "0:0:0:0:0:0:0:1" ||
-    host === "0.0.0.0" ||
-    host.startsWith("127.")
-  ) {
-    return true;
-  }
-
-  return (
-    /^10\./.test(host) ||
-    /^192\.168\./.test(host) ||
-    /^169\.254\./.test(host) ||
-    /^172\.(1[6-9]|2\d|3[01])\./.test(host)
-  );
 }

@@ -2,7 +2,7 @@ import {
   sanitizeLinkedInWorkbenchTextForStorage,
   sanitizeLinkedInWorkbenchUrl,
 } from "../linkedinWorkbenchPolicy";
-import { isExternalHttpsUrl } from "../../../mocks/handlers/sourceLinksAndImports";
+import { isSafeExternalHttpsUrl } from "../../../mocks/externalUrlSafety";
 import {
   APPLICATION_STATUS_KEYS,
   cloneApplications,
@@ -218,7 +218,7 @@ function trimMockWorkbenchText(value: unknown, limit: number): string | undefine
 }
 
 function canonicalizeMockWorkbenchUrl(rawUrl: string): string {
-  if (!isExternalHttpsUrl(rawUrl)) {
+  if (!isSafeExternalHttpsUrl(rawUrl)) {
     throw new Error("This LinkedIn job link is not safe to save");
   }
 

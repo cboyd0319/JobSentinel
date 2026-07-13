@@ -1,29 +1,8 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { JobType, RemoteType, SiteCategory } from "../../shared/search-links";
-import type { DeepLink, SearchCriteria, SiteInfo } from "../../shared/search-links";
 import { mockInvoke, resetMockData } from "../handlers";
 
 type ResumeMatchingPreference = {
   enabled: boolean;
-};
-
-type JobImportPreview = {
-  title: string;
-  company: string;
-  url: string;
-  location: string | null;
-  description_preview: string | null;
-  salary: string | null;
-  date_posted: string | null;
-  valid_through: string | null;
-  employment_types: string[];
-  remote: boolean;
-  missing_fields: string[];
-  already_exists: boolean;
-};
-
-type ImportedJobResult = {
-  jobId: number;
 };
 
 type ApplicationProfilePreview = {
@@ -59,13 +38,6 @@ type FeedbackSystemInfo = {
   architecture: string;
 };
 
-const deepLinkCriteria: SearchCriteria = {
-  query: "Care Coordinator",
-  location: "Denver, CO",
-  job_type: JobType.FullTime,
-  remote_type: RemoteType.Remote,
-};
-
 describe("mock core command handlers", () => {
   beforeEach(() => {
     resetMockData();
@@ -78,134 +50,6 @@ describe("mock core command handlers", () => {
 
     expect(started).toEqual({ port: 4321, enabled: true });
     await expect(mockInvoke("get_bookmarklet_config")).resolves.toEqual(started);
-  });
-
-  it("generates deep links with the real backend command names", async () => {
-    const sites = await mockInvoke<SiteInfo[]>("get_supported_sites");
-
-    expect(sites.length).toBeGreaterThanOrEqual(15);
-    expect(sites).toContainEqual(
-      expect.objectContaining({
-        id: "linkedin",
-        name: "LinkedIn",
-        category: SiteCategory.Professional,
-        requires_login: true,
-      }),
-    );
-
-    const techSites = await mockInvoke<SiteInfo[]>("get_sites_by_category_cmd", {
-      category: SiteCategory.Tech,
-    });
-    expect(techSites).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ id: "dice", category: SiteCategory.Tech }),
-      ]),
-    );
-    expect(techSites).not.toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ id: "stackoverflow" }),
-      ]),
-    );
-    expect(techSites.every((site) => site.category === SiteCategory.Tech)).toBe(true);
-
-    const links = await mockInvoke<DeepLink[]>("generate_deep_links", {
-      criteria: deepLinkCriteria,
-    });
-    expect(links.length).toBe(sites.length);
-    expect(links).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          site: expect.objectContaining({ id: "indeed" }),
-          url: expect.stringContaining("https://www.indeed.com/jobs?q=Care%20Coordinator"),
-        }),
-      ]),
-    );
-
-    const linkedin = await mockInvoke<DeepLink>("generate_deep_link", {
-      siteId: "linkedin",
-      criteria: deepLinkCriteria,
-    });
-    expect(linkedin).toMatchObject({
-      site: expect.objectContaining({ id: "linkedin", name: "LinkedIn" }),
-    });
-    expect(linkedin.url).toContain("keywords=Care%20Coordinator");
-    expect(linkedin.url).toContain("location=Denver%2C%20CO");
-    expect(linkedin.url).toContain("f_JT=F");
-    expect(linkedin.url).toContain("f_WT=2");
-
-    await expect(
-      mockInvoke<void>("open_deep_link", {
-        url: "https://www.linkedin.com/jobs/search/?keywords=Care%20Coordinator",
-      }),
-    ).resolves.toBeUndefined();
-
-    await expect(
-      mockInvoke<void>("open_deep_link", {
-        url: "http://localhost:3000/jobs?query=Care%20Coordinator",
-      }),
-    ).rejects.toThrow("This job-site link is not safe to open");
-
-    await expect(
-      mockInvoke<void>("open_deep_link", {
-        url: "http://www.linkedin.com/jobs/search/?keywords=Care%20Coordinator",
-      }),
-    ).rejects.toThrow("This job-site link is not safe to open");
-  });
-
-  it("previews and imports jobs with minimized backend command payloads", async () => {
-    const url =
-      "https://alice:secret@jobs.example.com/careers/care-coordinator?jobId=123&utm_source=newsletter&token=raw-secret#private";
-    const canonicalUrl = "https://jobs.example.com/careers/care-coordinator?jobId=123";
-
-    const preview = await mockInvoke<JobImportPreview>("preview_job_import", { url });
-
-    expect(preview).toMatchObject({
-      title: "Care Coordinator",
-      company: "jobs.example.com",
-      url: canonicalUrl,
-      location: "Remote",
-      description_preview: expect.stringContaining("Care Coordinator"),
-      salary: "$55k-$72k",
-      employment_types: ["FULL_TIME"],
-      remote: true,
-      missing_fields: [],
-      already_exists: false,
-    });
-    expect(preview.date_posted).toEqual(expect.any(String));
-
-    const imported = await mockInvoke<ImportedJobResult>("import_job_from_url", {
-      url: preview.url,
-    });
-
-    expect(imported).toEqual({ jobId: expect.any(Number) });
-
-    const duplicatePreview = await mockInvoke<JobImportPreview>("preview_job_import", { url });
-    expect(duplicatePreview.already_exists).toBe(true);
-
-    await expect(mockInvoke<ImportedJobResult>("import_job_from_url", { url })).rejects.toThrow(
-      "This job is already in your saved jobs",
-    );
-
-    await expect(
-      mockInvoke<JobImportPreview>("preview_job_import", {
-        url: "http://jobs.example.com/careers/care-coordinator",
-      }),
-    ).rejects.toThrow("Paste an https job posting link from your browser address bar.");
-
-    await expect(
-      mockInvoke<JobImportPreview>("preview_job_import", {
-        url: "http://localhost:3000/jobs/care-coordinator",
-      }),
-    ).rejects.toThrow("Paste the full job link from your browser address bar.");
-
-    const redirectPreview = await mockInvoke<JobImportPreview>("preview_job_import", {
-      url: "https://jobs.example.com/careers/case-manager?jobId=456&redirect=https%3A%2F%2Fprivate.example%2Fcallback%3Ftoken%3Draw-secret&source=mail",
-    });
-
-    expect(redirectPreview.url).toBe(
-      "https://jobs.example.com/careers/case-manager?jobId=456",
-    );
-    expect(redirectPreview.url).not.toContain("raw-secret");
   });
 
   it("returns minimized application profile and dashboard preferences mocks", async () => {
