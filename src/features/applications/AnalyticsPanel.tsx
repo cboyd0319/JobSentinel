@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, memo } from "react";
-import { cachedInvoke } from "../../utils/api";
+import { cachedInvoke } from "../../shared/tauri/commandClient";
 import { Modal } from "../../ui/Modal";
 import { logError } from "../../shared/errorReporting/logger";
 import {

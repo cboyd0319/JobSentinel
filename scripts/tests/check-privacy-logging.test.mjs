@@ -426,7 +426,7 @@ test("privacy logging rejects raw frontend toast support details", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src/utils/api.ts",
+      "src/shared/tauri/commandClient.ts",
       [
         "const fullMessage = options?.showTechnical && import.meta.env.DEV && enhancedError.message",
         '  ? `${message || "An error occurred"}\\n\\nTechnical: ${enhancedError.message}`',
@@ -443,10 +443,13 @@ test("privacy logging rejects raw frontend toast support details", () => {
       "const fullMessage = enhancedError.message;",
     );
 
-    assert.equal(hasRawFrontendToastSupportDetails(root, "src/utils/api.ts"), true);
+    assert.equal(
+      hasRawFrontendToastSupportDetails(root, "src/shared/tauri/commandClient.ts"),
+      true,
+    );
     assert.equal(hasRawFrontendToastSupportDetails(root, "src/shared/errorReporting/logger.ts"), false);
-    assert.deepEqual(collectPrivacyLoggingViolations(root, "src/utils/api.ts"), [
-      "sanitize frontend toast support details: src/utils/api.ts",
+    assert.deepEqual(collectPrivacyLoggingViolations(root, "src/shared/tauri/commandClient.ts"), [
+      "sanitize frontend toast support details: src/shared/tauri/commandClient.ts",
     ]);
   });
 });

@@ -5,7 +5,9 @@ export const frontendErrorReportingPaths = new Set([
   "src/shared/errorReporting/errorReporter.ts",
 ]);
 export const frontendErrorLoggerPaths = new Set(["src/shared/errorReporting/logger.ts"]);
-export const frontendToastSupportDetailPaths = new Set(["src/utils/api.ts"]);
+export const frontendToastSupportDetailPaths = new Set([
+  "src/shared/tauri/commandClient.ts",
+]);
 export const frontendDirectErrorLoggingPaths = new Set([
   "src/features/settings/sources/browser-import/BrowserImportSection.tsx",
   "src/features/dashboard/errors/ComponentErrorBoundary.tsx",

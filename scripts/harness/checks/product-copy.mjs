@@ -277,7 +277,7 @@ const technicalFirstUserCopyPaths = new Set([
   "src-tauri/src/core/salary/analyzer.rs",
   "src-tauri/src/core/scrapers/error.rs",
   "src-tauri/migrations/00000000000000_initial_schema.sql",
-  "src/utils/api.ts",
+  "src/shared/tauri/commandClient.ts",
   "src/features/resumes/library/ResumeLibraryPage.tsx",
   "src/features/dashboard/hooks/useDashboardAutoRefresh.ts",
   "src/features/dashboard/hooks/useDashboardJobOps.ts",

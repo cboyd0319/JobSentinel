@@ -4,7 +4,7 @@ import { AnalyticsPanel } from "./AnalyticsPanel";
 
 // Mock cachedInvoke
 const mockCachedInvoke = vi.fn();
-vi.mock("../../utils/api", () => ({
+vi.mock("../../shared/tauri/commandClient", () => ({
   cachedInvoke: (...args: unknown[]) => mockCachedInvoke(...args),
 }));
 

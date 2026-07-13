@@ -1,13 +1,13 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { safeInvoke, safeInvokeWithToast } from "../../../utils/api";
+import { safeInvoke, safeInvokeWithToast } from "../../../shared/tauri/commandClient";
 import ResumeLibraryPage from "./ResumeLibraryPage";
 
 const mockSafeInvoke = vi.mocked(safeInvoke);
 const mockSafeInvokeWithToast = vi.mocked(safeInvokeWithToast);
 
-vi.mock("../../../utils/api", () => ({
+vi.mock("../../../shared/tauri/commandClient", () => ({
   safeInvoke: vi.fn(),
   safeInvokeWithToast: vi.fn(),
 }));

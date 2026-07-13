@@ -1,5 +1,5 @@
 import { useCallback, useState, type Dispatch, type SetStateAction } from "react";
-import { safeInvoke } from "../../utils/api";
+import { safeInvoke } from "../../shared/tauri/commandClient";
 import type { ResumeSuggestionState } from "./SetupWizardResumeSuggestions";
 import {
   toResumeSkillSuggestions,

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { invalidateCacheByCommand } from "../../utils/api";
+import { invalidateCacheByCommand } from "../../shared/tauri/commandClient";
 import { logError } from "../../shared/errorReporting/logger";
 import {
   getCredentialValidationError,

@@ -184,7 +184,7 @@ function isTauriInvokePath(path) {
     path === "scripts/check-tauri-invokes.mjs" ||
     path === "scripts/tests/check-tauri-invokes.test.mjs" ||
     path.startsWith("src/mocks/") ||
-    path.startsWith("src/utils/api") ||
+    path.startsWith("src/shared/tauri/commandClient") ||
     path.startsWith("src/services/feedbackService") ||
     path.startsWith("src/shared/search-links")
   );

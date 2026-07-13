@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, memo } from "react";
-import { cachedInvoke, invalidateCacheByCommand, safeInvoke, safeInvokeWithToast } from "../../utils/api";
+import { cachedInvoke, invalidateCacheByCommand, safeInvoke, safeInvokeWithToast } from "../../shared/tauri/commandClient";
 import { Button } from "../../ui/Button";
 import {
   InterviewScheduleFormModal,

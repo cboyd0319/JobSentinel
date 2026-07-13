@@ -1,7 +1,4 @@
-/**
- * API utilities for request deduplication and caching.
- * Prevents duplicate concurrent calls to the same Tauri command.
- */
+/** Product-neutral Tauri renderer command client. */
 
 import { invoke } from "@tauri-apps/api/core";
 
@@ -67,7 +64,7 @@ function normalizeCacheValue(value: unknown): unknown {
  * If a request with the same command/args is already in flight,
  * returns the same promise instead of making a new request.
  */
-export async function deduplicatedInvoke<T>(
+async function deduplicatedInvoke<T>(
   cmd: string,
   args?: Record<string, unknown>
 ): Promise<T> {
@@ -125,14 +122,6 @@ export async function cachedInvoke<T>(
 }
 
 /**
- * Invalidate cache for a specific command/args combination
- */
-export function invalidateCache(cmd: string, args?: Record<string, unknown>): void {
-  const key = getCacheKey(cmd, args);
-  responseCache.delete(key);
-}
-
-/**
  * Invalidate all cached responses for a command (regardless of args)
  */
 export function invalidateCacheByCommand(cmd: string): void {
@@ -141,50 +130,6 @@ export function invalidateCacheByCommand(cmd: string): void {
       responseCache.delete(key);
     }
   }
-}
-
-/**
- * Clear all cached responses
- */
-export function clearCache(): void {
-  responseCache.clear();
-}
-
-/**
- * Get cache statistics (useful for debugging)
- */
-export function getCacheStats(): {
-  cacheSize: number;
-  inFlightCount: number;
-  entries: Array<{ key: string; age: number }>;
-} {
-  const now = Date.now();
-  const entries = Array.from(responseCache.entries()).map(([key, entry]) => ({
-    key,
-    age: now - entry.timestamp,
-  }));
-
-  return {
-    cacheSize: responseCache.size,
-    inFlightCount: inFlightRequests.size,
-    entries,
-  };
-}
-
-/**
- * Type-safe error handler for Tauri invoke calls.
- * Extracts user-friendly error messages and handles logging.
- */
-export interface InvokeError {
-  message: string;
-  technical?: string;
-  userFriendly?: {
-    title: string;
-    message: string;
-    action?: string;
-  };
-  invokeCommand?: string;
-  invokeArgSummary?: InvokeArgSummary;
 }
 
 interface InvokeArgSummary {
@@ -235,11 +180,9 @@ export async function safeInvoke<T>(
     return await invoke<T>(cmd, args);
   } catch (error: unknown) {
     // Import utilities here to avoid circular dependencies
-    const { logError: log } = await import(
-      "../shared/errorReporting/logger"
-    );
+    const { logError: log } = await import("../errorReporting/logger");
     const { getUserFriendlyError } = await import(
-      "../shared/errorReporting/messages"
+      "../errorReporting/messages"
     );
 
     const context = options?.logContext || `invoke(${cmd})`;
@@ -277,7 +220,7 @@ export async function safeInvoke<T>(
  * const toast = useToast();
  * try {
  *   await safeInvokeWithToast("delete_job", { id: 123 }, toast, {
- *     successMessage: "Job deleted successfully"
+ *     errorTitle: "Could not delete job"
  *   });
  * } catch (error) {
  *   // Error already shown to user via toast
@@ -304,7 +247,7 @@ export async function safeInvokeWithToast<T>(
       userFriendly?: { title: string; message: string; action?: string; technical?: string };
     };
     const { sanitizeTextForStorage } = await import(
-      "../shared/errorReporting/errorReporter"
+      "../errorReporting/errorReporter"
     );
 
     const title = options?.errorTitle || enhancedError.userFriendly?.title || "Could not complete action";
@@ -325,6 +268,3 @@ export async function safeInvokeWithToast<T>(
     throw error;
   }
 }
-
-// Re-export invoke for convenience
-export { invoke };

@@ -320,6 +320,9 @@ the broader agent harness.
   problem-report model, sanitizer, storage contract, context, hook, safe user
   messages, safe toast copy, and development logger. The app provider under
   `src/app/providers/` owns initialization and composition.
+- `src/shared/tauri/` owns the product-neutral renderer command client,
+  including request deduplication, bounded response caching, command-scoped
+  invalidation, privacy-safe errors, and optional sanitized error toasts.
 - Settings owns its notification company chooser, source-health UI and model,
   local problem report panel, and Send Feedback UI under the matching private
   `notifications/`, `sources/health/`, and `support/` subdomains. Sanitized

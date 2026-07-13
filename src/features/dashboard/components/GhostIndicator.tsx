@@ -1,6 +1,6 @@
 import { memo, useState } from "react";
 import { Tooltip } from "../../../ui/Tooltip";
-import { safeInvoke } from "../../../utils/api";
+import { safeInvoke } from "../../../shared/tauri/commandClient";
 
 interface GhostReason {
   category: "stale" | "repost" | "generic" | "missing_details" | "unrealistic" | "company_behavior";

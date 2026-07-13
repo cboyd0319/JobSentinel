@@ -3,7 +3,7 @@ import { renderHook, act } from "@testing-library/react";
 import { invoke } from "@tauri-apps/api/core";
 import { useDashboardJobOps } from "./useDashboardJobOps";
 import type { Job, DuplicateGroup } from "../types";
-import { safeInvokeWithToast } from "../../../utils/api";
+import { safeInvokeWithToast } from "../../../shared/tauri/commandClient";
 import { exportJobsToCSV } from "../../../utils/export";
 import {
   BROWSER_ASSIST_LEARNING_ENABLED_STORAGE_KEY,
@@ -27,7 +27,7 @@ vi.mock("../../../shared/undo/useUndo", () => ({
 
 vi.mock("../../../shared/errorReporting/logger", () => ({ logError: vi.fn() }));
 vi.mock("../../../utils/export", () => ({ exportJobsToCSV: vi.fn() }));
-vi.mock("../../../utils/api", () => ({
+vi.mock("../../../shared/tauri/commandClient", () => ({
   invalidateCacheByCommand: vi.fn(),
   safeInvokeWithToast: vi.fn(),
 }));

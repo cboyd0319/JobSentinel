@@ -686,7 +686,7 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/utils/api.ts",
+      "src/shared/tauri/commandClient.ts",
       "Operation Failed\nAn error occurred\nSupport details:\n",
     );
     writeFixtureFile(
@@ -853,7 +853,7 @@ test("product copy rejects technical-first settings copy", () => {
       "src/features/dashboard/hooks/useDashboardAutoRefresh.ts",
       "src/features/dashboard/hooks/useDashboardJobOps.ts",
       "src/services/aiGateway.ts",
-      "src/utils/api.ts",
+      "src/shared/tauri/commandClient.ts",
       "src/shared/errorReporting/messages.ts",
       "src/utils/export.test.ts",
       "src/utils/export.ts",

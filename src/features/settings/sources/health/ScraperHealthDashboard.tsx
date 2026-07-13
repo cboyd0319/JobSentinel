@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, memo } from "react";
-import { invalidateCacheByCommand, safeInvoke } from "../../../../utils/api";
+import { invalidateCacheByCommand, safeInvoke } from "../../../../shared/tauri/commandClient";
 import { Button } from "../../../../ui/Button";
 import { Badge } from "../../../../ui/Badge";
 import { StatCard } from "../../../../ui/StatCard";

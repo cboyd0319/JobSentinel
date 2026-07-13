@@ -6,7 +6,7 @@ import { DashboardSkeleton } from "../../ui/Skeleton";
 import { useToast } from "../../shared/toast/useToast";
 import { logError } from "../../shared/errorReporting/logger";
 import { SCORE_THRESHOLD_GOOD } from "../../utils/constants";
-import { invalidateCacheByCommand } from "../../utils/api";
+import { invalidateCacheByCommand } from "../../shared/tauri/commandClient";
 import { isValidJobUrl } from "./jobUrlValidation";
 import { openDeepLink } from "../../shared/search-links";
 

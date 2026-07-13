@@ -514,7 +514,7 @@ pub async fn create_saved_search(search: SavedSearch) -> Result<(), String> {
       root,
       "src/features/dashboard/hooks/useDashboardSavedSearches.ts",
       `
-import { safeInvoke } from "../../utils/api";
+import { safeInvoke } from "../../../shared/tauri/commandClient";
 
 export async function saveSearch() {
   return safeInvoke("create_saved_search", { name: "Remote Rust" });
@@ -539,7 +539,7 @@ test("checkTauriInvokes rejects unregistered wrapper command calls", () => {
       root,
       "src/features/dashboard/DashboardPage.tsx",
       `
-import { cachedInvoke, safeInvoke } from "../utils/api";
+import { cachedInvoke, safeInvoke } from "../../shared/tauri/commandClient";
 
 export async function loadDashboard() {
   await cachedInvoke("missing_cached_command");

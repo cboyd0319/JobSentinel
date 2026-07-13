@@ -1,4 +1,4 @@
-import { safeInvoke } from "../../../utils/api";
+import { safeInvoke } from "../../../shared/tauri/commandClient";
 import { SALARY_THOUSANDS_MULTIPLIER } from "../../../utils/constants";
 
 export interface SourceNotificationConfig {

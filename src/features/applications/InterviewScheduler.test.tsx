@@ -10,7 +10,7 @@ vi.mock("@tauri-apps/api/core", () => ({
 
 // Mock cachedInvoke
 const mockCachedInvoke = vi.fn();
-vi.mock("../../utils/api", () => ({
+vi.mock("../../shared/tauri/commandClient", () => ({
   cachedInvoke: (...args: unknown[]) => mockCachedInvoke(...args),
   invalidateCacheByCommand: vi.fn(),
 }));

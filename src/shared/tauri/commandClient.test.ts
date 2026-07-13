@@ -1,12 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import {
-  deduplicatedInvoke,
-  cachedInvoke,
-  invalidateCache,
-  invalidateCacheByCommand,
-  clearCache,
-  getCacheStats,
-} from "./api";
+import { cachedInvoke, invalidateCacheByCommand } from "./commandClient";
 import { invoke } from "@tauri-apps/api/core";
 
 // Mock Tauri invoke
@@ -16,75 +9,14 @@ vi.mock("@tauri-apps/api/core", () => ({
 
 const mockInvoke = vi.mocked(invoke);
 
-describe("api utilities", () => {
+describe("Tauri command client", () => {
   beforeEach(() => {
-    // Clear cache and mocks before each test
-    clearCache();
-    mockInvoke.mockClear();
+    mockInvoke.mockReset();
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     vi.clearAllMocks();
-  });
-
-  describe("deduplicatedInvoke", () => {
-    it("calls invoke with command and args", async () => {
-      mockInvoke.mockResolvedValueOnce({ data: "test" });
-
-      const result = await deduplicatedInvoke("test_command", { id: 1 });
-
-      expect(mockInvoke).toHaveBeenCalledWith("test_command", { id: 1 });
-      expect(result).toEqual({ data: "test" });
-    });
-
-    it("deduplicates concurrent calls with same args", async () => {
-      let resolvePromise: (value: unknown) => void;
-      const slowPromise = new Promise((resolve) => {
-        resolvePromise = resolve;
-      });
-      mockInvoke.mockReturnValueOnce(slowPromise as Promise<unknown>);
-
-      // Start two concurrent calls
-      const promise1 = deduplicatedInvoke("slow_command", { id: 1 });
-      const promise2 = deduplicatedInvoke("slow_command", { id: 1 });
-
-      // Should only have called invoke once
-      expect(mockInvoke).toHaveBeenCalledTimes(1);
-
-      // Resolve the promise
-      resolvePromise!({ result: "done" });
-
-      // Both promises should resolve to the same value
-      const [result1, result2] = await Promise.all([promise1, promise2]);
-      expect(result1).toEqual({ result: "done" });
-      expect(result2).toEqual({ result: "done" });
-    });
-
-    it("makes separate calls for different args", async () => {
-      mockInvoke.mockResolvedValueOnce({ id: 1 });
-      mockInvoke.mockResolvedValueOnce({ id: 2 });
-
-      const [result1, result2] = await Promise.all([
-        deduplicatedInvoke("command", { id: 1 }),
-        deduplicatedInvoke("command", { id: 2 }),
-      ]);
-
-      expect(mockInvoke).toHaveBeenCalledTimes(2);
-      expect(result1).toEqual({ id: 1 });
-      expect(result2).toEqual({ id: 2 });
-    });
-
-    it("allows new call after previous completes", async () => {
-      mockInvoke.mockResolvedValueOnce({ call: 1 });
-      mockInvoke.mockResolvedValueOnce({ call: 2 });
-
-      const result1 = await deduplicatedInvoke("command", { id: 1 });
-      const result2 = await deduplicatedInvoke("command", { id: 1 });
-
-      expect(mockInvoke).toHaveBeenCalledTimes(2);
-      expect(result1).toEqual({ call: 1 });
-      expect(result2).toEqual({ call: 2 });
-    });
   });
 
   describe("cachedInvoke", () => {
@@ -100,31 +32,48 @@ describe("api utilities", () => {
       expect(result2).toEqual({ data: "cached" });
     });
 
+    it("deduplicates concurrent calls with the same arguments", async () => {
+      let resolveRequest: (value: unknown) => void;
+      const request = new Promise((resolve) => {
+        resolveRequest = resolve;
+      });
+      mockInvoke.mockReturnValueOnce(request as Promise<unknown>);
+
+      const first = cachedInvoke("concurrent_command", { id: 1 });
+      const second = cachedInvoke("concurrent_command", { id: 1 });
+
+      expect(mockInvoke).toHaveBeenCalledTimes(1);
+      resolveRequest!({ result: "done" });
+      await expect(Promise.all([first, second])).resolves.toEqual([
+        { result: "done" },
+        { result: "done" },
+      ]);
+    });
+
     it("respects TTL and refetches after expiry", async () => {
       vi.useFakeTimers();
       mockInvoke.mockResolvedValueOnce({ version: 1 });
       mockInvoke.mockResolvedValueOnce({ version: 2 });
 
-      const result1 = await cachedInvoke("command", { id: 1 }, 1000); // 1 second TTL
+      const result1 = await cachedInvoke("ttl_command", { id: 1 }, 1000);
 
       // Advance time past TTL
       vi.advanceTimersByTime(1500);
 
-      const result2 = await cachedInvoke("command", { id: 1 }, 1000);
+      const result2 = await cachedInvoke("ttl_command", { id: 1 }, 1000);
 
       expect(mockInvoke).toHaveBeenCalledTimes(2);
       expect(result1).toEqual({ version: 1 });
       expect(result2).toEqual({ version: 2 });
 
-      vi.useRealTimers();
     });
 
     it("uses different cache entries for different args", async () => {
       mockInvoke.mockResolvedValueOnce({ id: 1 });
       mockInvoke.mockResolvedValueOnce({ id: 2 });
 
-      const result1 = await cachedInvoke("command", { id: 1 });
-      const result2 = await cachedInvoke("command", { id: 2 });
+      const result1 = await cachedInvoke("different_args_command", { id: 1 });
+      const result2 = await cachedInvoke("different_args_command", { id: 2 });
 
       expect(mockInvoke).toHaveBeenCalledTimes(2);
       expect(result1).toEqual({ id: 1 });
@@ -135,85 +84,31 @@ describe("api utilities", () => {
       vi.useFakeTimers();
       mockInvoke.mockResolvedValueOnce({ data: "original" });
 
-      await cachedInvoke("command", undefined, 5000);
+      await cachedInvoke("within_ttl_command", undefined, 5000);
 
       // Advance time but stay within TTL
       vi.advanceTimersByTime(3000);
 
-      const result = await cachedInvoke("command", undefined, 5000);
+      const result = await cachedInvoke("within_ttl_command", undefined, 5000);
 
       expect(mockInvoke).toHaveBeenCalledTimes(1);
       expect(result).toEqual({ data: "original" });
 
-      vi.useRealTimers();
-    });
-  });
-
-  describe("clearCache", () => {
-    it("clears all cached entries", () => {
-      // Get initial stats
-      const initialStats = getCacheStats();
-      expect(initialStats.cacheSize).toBe(0);
-
-      // Clear should work on empty cache
-      clearCache();
-      const afterClear = getCacheStats();
-      expect(afterClear.cacheSize).toBe(0);
-    });
-  });
-
-  describe("getCacheStats", () => {
-    it("returns cache statistics", () => {
-      const stats = getCacheStats();
-
-      expect(stats).toHaveProperty("cacheSize");
-      expect(stats).toHaveProperty("inFlightCount");
-      expect(stats).toHaveProperty("entries");
-      expect(typeof stats.cacheSize).toBe("number");
-      expect(typeof stats.inFlightCount).toBe("number");
-      expect(Array.isArray(stats.entries)).toBe(true);
-    });
-
-    it("does not expose raw argument values in cache statistics", async () => {
-      mockInvoke.mockResolvedValueOnce({ data: "cached" });
-
-      await cachedInvoke("get_recent_matches", {
-        resumeId: 42,
-        resumeText: "Private resume text",
-        salaryFloor: 90000,
-      });
-
-      const serializedStats = JSON.stringify(getCacheStats());
-
-      expect(serializedStats).toContain("get_recent_matches:");
-      expect(serializedStats).not.toContain("Private resume text");
-      expect(serializedStats).not.toContain("salaryFloor");
-      expect(serializedStats).not.toContain("90000");
-      expect(serializedStats).not.toContain("resumeText");
-    });
-
-    it("reports zero entries when cache is empty", () => {
-      const stats = getCacheStats();
-      expect(stats.cacheSize).toBe(0);
-      expect(stats.entries).toHaveLength(0);
-    });
-  });
-
-  describe("invalidateCache", () => {
-    it("does not throw when invalidating non-existent key", () => {
-      expect(() => invalidateCache("non_existent_command")).not.toThrow();
-    });
-
-    it("does not throw with args", () => {
-      expect(() =>
-        invalidateCache("command", { key: "value" })
-      ).not.toThrow();
     });
   });
 
   describe("invalidateCacheByCommand", () => {
-    it("does not throw when invalidating non-existent command", () => {
-      expect(() => invalidateCacheByCommand("non_existent")).not.toThrow();
+    it("invalidates every cached argument set for a command", async () => {
+      mockInvoke
+        .mockResolvedValueOnce({ version: 1 })
+        .mockResolvedValueOnce({ version: 2 });
+
+      await cachedInvoke("invalidate_command", { id: 1 });
+      invalidateCacheByCommand("invalidate_command");
+      const result = await cachedInvoke("invalidate_command", { id: 1 });
+
+      expect(mockInvoke).toHaveBeenCalledTimes(2);
+      expect(result).toEqual({ version: 2 });
     });
   });
 
@@ -226,7 +121,7 @@ describe("api utilities", () => {
     it("successfully returns data from invoke", async () => {
       mockInvoke.mockResolvedValueOnce({ data: "success" });
 
-      const result = await import("./api").then((m) =>
+      const result = await import("./commandClient").then((m) =>
         m.safeInvoke<{ data: string }>("test_command", { id: 1 })
       );
 
@@ -238,7 +133,7 @@ describe("api utilities", () => {
       const error = new Error("Network error");
       mockInvoke.mockRejectedValueOnce(error);
 
-      const { safeInvoke } = await import("./api");
+      const { safeInvoke } = await import("./commandClient");
 
       await expect(
         safeInvoke("failing_command", { id: 1 })
@@ -249,7 +144,7 @@ describe("api utilities", () => {
       const error = new Error("Test error token=raw-secret private@example.test");
       mockInvoke.mockRejectedValueOnce(error);
 
-      const { safeInvoke } = await import("./api");
+      const { safeInvoke } = await import("./commandClient");
 
       try {
         await safeInvoke("test_cmd", {
@@ -284,7 +179,7 @@ describe("api utilities", () => {
       const error = new Error("Context error");
       mockInvoke.mockRejectedValueOnce(error);
 
-      const { safeInvoke } = await import("./api");
+      const { safeInvoke } = await import("./commandClient");
 
       try {
         await safeInvoke("cmd", undefined, { logContext: "Custom Context" });
@@ -299,7 +194,7 @@ describe("api utilities", () => {
       const error = new Error("Silent error");
       mockInvoke.mockRejectedValueOnce(error);
 
-      const { safeInvoke } = await import("./api");
+      const { safeInvoke } = await import("./commandClient");
 
       try {
         await safeInvoke("cmd", undefined, { silent: true });
@@ -313,7 +208,7 @@ describe("api utilities", () => {
     it("handles string errors", async () => {
       mockInvoke.mockRejectedValueOnce("String error message");
 
-      const { safeInvoke } = await import("./api");
+      const { safeInvoke } = await import("./commandClient");
 
       try {
         await safeInvoke("cmd");
@@ -326,7 +221,7 @@ describe("api utilities", () => {
     it("handles unknown error types", async () => {
       mockInvoke.mockRejectedValueOnce({ code: 500, status: "error" });
 
-      const { safeInvoke } = await import("./api");
+      const { safeInvoke } = await import("./commandClient");
 
       try {
         await safeInvoke("cmd");
@@ -339,7 +234,7 @@ describe("api utilities", () => {
     it("works without arguments", async () => {
       mockInvoke.mockResolvedValueOnce({ status: "ok" });
 
-      const { safeInvoke } = await import("./api");
+      const { safeInvoke } = await import("./commandClient");
       const result = await safeInvoke("no_args_cmd");
 
       expect(result).toEqual({ status: "ok" });
@@ -362,7 +257,7 @@ describe("api utilities", () => {
     it("returns data on success", async () => {
       mockInvoke.mockResolvedValueOnce({ data: "success" });
 
-      const { safeInvokeWithToast } = await import("./api");
+      const { safeInvokeWithToast } = await import("./commandClient");
       const result = await safeInvokeWithToast<{ data: string }>(
         "cmd",
         { id: 1 },
@@ -377,7 +272,7 @@ describe("api utilities", () => {
       const error = new Error("Operation failed");
       mockInvoke.mockRejectedValueOnce(error);
 
-      const { safeInvokeWithToast } = await import("./api");
+      const { safeInvokeWithToast } = await import("./commandClient");
 
       try {
         await safeInvokeWithToast("cmd", { id: 1 }, mockToast);
@@ -391,7 +286,7 @@ describe("api utilities", () => {
       const error = new Error("Failed");
       mockInvoke.mockRejectedValueOnce(error);
 
-      const { safeInvokeWithToast } = await import("./api");
+      const { safeInvokeWithToast } = await import("./commandClient");
 
       try {
         await safeInvokeWithToast("cmd", undefined, mockToast, {
@@ -410,7 +305,7 @@ describe("api utilities", () => {
       const error = new Error("Network timeout");
       mockInvoke.mockRejectedValueOnce(error);
 
-      const { safeInvokeWithToast } = await import("./api");
+      const { safeInvokeWithToast } = await import("./commandClient");
 
       try {
         await safeInvokeWithToast("cmd", undefined, mockToast);
@@ -426,7 +321,7 @@ describe("api utilities", () => {
       const error = new Error("Silent error");
       mockInvoke.mockRejectedValueOnce(error);
 
-      const { safeInvokeWithToast } = await import("./api");
+      const { safeInvokeWithToast } = await import("./commandClient");
 
       try {
         await safeInvokeWithToast("cmd", undefined, mockToast, {
@@ -444,7 +339,7 @@ describe("api utilities", () => {
       const error = new Error("Network error");
       mockInvoke.mockRejectedValueOnce(error);
 
-      const { safeInvokeWithToast } = await import("./api");
+      const { safeInvokeWithToast } = await import("./commandClient");
 
       try {
         await safeInvokeWithToast("cmd", undefined, mockToast);
@@ -468,7 +363,7 @@ describe("api utilities", () => {
       );
       mockInvoke.mockRejectedValueOnce(error);
 
-      const { safeInvokeWithToast } = await import("./api");
+      const { safeInvokeWithToast } = await import("./commandClient");
 
       try {
         await safeInvokeWithToast("cmd", undefined, mockToast, {
@@ -494,7 +389,7 @@ describe("api utilities", () => {
     it("works with undefined args", async () => {
       mockInvoke.mockResolvedValueOnce({ ok: true });
 
-      const { safeInvokeWithToast } = await import("./api");
+      const { safeInvokeWithToast } = await import("./commandClient");
       const result = await safeInvokeWithToast("cmd", undefined, mockToast);
 
       expect(result).toEqual({ ok: true });
@@ -504,7 +399,7 @@ describe("api utilities", () => {
       const error = new Error("Generic error");
       mockInvoke.mockRejectedValueOnce(error);
 
-      const { safeInvokeWithToast } = await import("./api");
+      const { safeInvokeWithToast } = await import("./commandClient");
 
       try {
         await safeInvokeWithToast("cmd", undefined, mockToast);

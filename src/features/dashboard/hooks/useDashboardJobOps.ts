@@ -8,7 +8,7 @@ import { useToast } from "../../../shared/toast/useToast";
 import { useUndo } from "../../../shared/undo/useUndo";
 import { logError } from "../../../shared/errorReporting/logger";
 import { exportJobsToCSV } from "../../../utils/export";
-import { invalidateCacheByCommand, safeInvokeWithToast } from "../../../utils/api";
+import { invalidateCacheByCommand, safeInvokeWithToast } from "../../../shared/tauri/commandClient";
 import { getSafeErrorToastCopy } from "../../../shared/errorReporting/safeToastCopy";
 import { recordJobLearningSignal } from "../dashboardJobLearning";
 import { useDashboardNotes } from "./useDashboardNotes";

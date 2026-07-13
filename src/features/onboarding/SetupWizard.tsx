@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Button } from "../../ui/Button";
 import { Card } from "../../ui/Card";
 import { useToast } from "../../shared/toast/useToast";
-import { invalidateCacheByCommand, safeInvokeWithToast } from "../../utils/api";
+import { invalidateCacheByCommand, safeInvokeWithToast } from "../../shared/tauri/commandClient";
 import { getProfileById, profileToConfig } from "../../utils/profiles";
 import { CareerProfileSelector } from "./CareerProfileSelector";
 import { SentinelIcon } from "./SetupWizardIcons";

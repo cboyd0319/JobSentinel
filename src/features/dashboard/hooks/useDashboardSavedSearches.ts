@@ -12,7 +12,7 @@ import type {
 } from "../types";
 import { useToast } from "../../../shared/toast/useToast";
 import { useUndo } from "../../../shared/undo/useUndo";
-import { safeInvoke, safeInvokeWithToast } from "../../../utils/api";
+import { safeInvoke, safeInvokeWithToast } from "../../../shared/tauri/commandClient";
 import { getSafeErrorToastCopy } from "../../../shared/errorReporting/safeToastCopy";
 import { recordBrowserAssistLearningSignalIfEnabled } from "../../../shared/browserAssistLearning";
 

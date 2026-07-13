@@ -115,7 +115,7 @@ export function getTechnicalFirstUiResult(path, text) {
     );
   }
 
-  if (path === "src/utils/api.ts") {
+  if (path === "src/shared/tauri/commandClient.ts") {
     return /Operation Failed|Support details:|An error occurred/i.test(text);
   }
 
