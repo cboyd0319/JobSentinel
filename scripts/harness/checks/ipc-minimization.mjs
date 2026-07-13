@@ -73,7 +73,9 @@ export function hasFullImportedJobReturn(root, path) {
 }
 
 export function hasStaleJobImportMockHandlers(root, path) {
-  const registryPath = "src/mocks/handlers.ts";
+  const registryPath = existsSync(join(root, "src/mocks/commandRegistry.ts"))
+    ? "src/mocks/commandRegistry.ts"
+    : "src/mocks/handlers.ts";
   const ownerPath = "src/features/dashboard/mocks/jobImportCommands.ts";
   if (path !== registryPath && path !== ownerPath) {
     return false;
@@ -82,7 +84,8 @@ export function hasStaleJobImportMockHandlers(root, path) {
   const text = readIfPresent(root, path);
   const requiredCommands = ["preview_job_import", "import_job_from_url"];
   const missingCommand = requiredCommands.some((command) => {
-    return !new RegExp(`case\\s+["']${command}["']`).test(text);
+    const pattern = path === registryPath ? `["']${command}["']` : `case\\s+["']${command}["']`;
+    return !new RegExp(pattern).test(text);
   });
   if (path === registryPath) {
     return missingCommand;
@@ -95,25 +98,36 @@ export function hasStaleJobImportMockHandlers(root, path) {
 }
 
 export function hasStaleProfilePreviewMock(root, path) {
-  if (path !== "src/mocks/handlers.ts") {
+  const registryPath = existsSync(join(root, "src/mocks/commandRegistry.ts"))
+    ? "src/mocks/commandRegistry.ts"
+    : "src/mocks/handlers.ts";
+  const profileOwnerPath = "src/features/application-assist/mockProfile.ts";
+  const hasProfileOwner = existsSync(join(root, profileOwnerPath));
+  if (path !== registryPath && (!hasProfileOwner || path !== profileOwnerPath)) {
     return false;
   }
 
   const text = readIfPresent(root, path);
-  const hasPreviewCase = /case\s+["']get_application_profile_preview["']/.test(text);
-  const hasHasProfileCase = /case\s+["']has_application_profile["']/.test(text);
-  const previewIncludesPrivateFields =
-    /getMockApplicationProfilePreview[\s\S]{0,900}(?:resumeFilePath|defaultResumeId|defaultCoverLetterTemplate|maxApplicationsPerDay|createdAt|updatedAt)/.test(
-      text,
-    );
+  if (path === registryPath) {
+    const hasPreview = /["']get_application_profile_preview["']/.test(text);
+    const hasProfile = /["']has_application_profile["']/.test(text);
+    if (!hasPreview || !hasProfile) return true;
+    if (hasProfileOwner) return false;
+  }
 
-  return !hasPreviewCase || !hasHasProfileCase || previewIncludesPrivateFields;
+  const previewBody = hasProfileOwner
+    ? /getMockApplicationProfilePreview[\s\S]*?\n\}/.exec(text)?.[0] ?? ""
+    : text;
+  return /(?:resumeFilePath|defaultResumeId|defaultCoverLetterTemplate|maxApplicationsPerDay|createdAt|updatedAt)/.test(
+    previewBody,
+  );
 }
 
 export function hasBookmarkletTokenIpcExposure(root, path) {
   if (
     path !== "src-tauri/src/commands/bookmarklet.rs" &&
     path !== "src/features/settings/sources/browser-import/BrowserImportSection.tsx" &&
+    path !== "src/features/settings/mocks/commands.ts" &&
     path !== "src/mocks/handlers.ts"
   ) {
     return false;
@@ -144,6 +158,8 @@ export function hasApplicationProfileResumePathExposure(root, path) {
   if (
     path !== "src-tauri/src/commands/automation.rs" &&
     path !== "src/features/application-assist/ProfileForm.tsx" &&
+    path !== "src/features/application-assist/mockProfile.ts" &&
+    path !== "src/features/application-assist/mocks/commands.ts" &&
     path !== "src/mocks/handlers.ts"
   ) {
     return false;
@@ -248,6 +264,7 @@ export function hasRawAnswerHistoryIpcExposure(root, path) {
   if (
     path !== "src-tauri/src/commands/automation.rs" &&
     path !== "src/features/application-assist/ScreeningAnswerSuggestions.tsx" &&
+    path !== "src/features/application-assist/mocks/commands.ts" &&
     path !== "src/mocks/handlers.ts"
   ) {
     return false;

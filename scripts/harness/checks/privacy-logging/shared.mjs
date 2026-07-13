@@ -103,6 +103,7 @@ export const credentialSecretReadIpcPaths = new Set([
   "src/features/settings/sources/SettingsJobSourcesSection.tsx",
   "src/features/settings/SettingsPage.tsx",
   "src/mocks/handlers.ts",
+  "src/features/settings/mocks/commands.ts",
   "docs/security/KEYRING.md",
   "docs/features/saved-secrets.md",
   "docs/releases/v2.0.md",
@@ -299,6 +300,7 @@ export const rawAutomationQuestionLoggingPaths = new Set([
 export const automationFormPrivacyPaths = new Set([
   "src-tauri/src/core/automation/form_filler.rs",
   "src/mocks/handlers.ts",
+  "src/features/application-assist/mocks/commands.ts",
 ]);
 
 export const automationBrowserErrorPrivacyPaths = new Set([

@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import {
   readFileSync,
   join,
@@ -235,6 +236,9 @@ export function hasRawResumeCommandDtoExposure(root, path) {
   }
 
   if (path === "src/mocks/handlers.ts") {
+    if (existsSync(join(root, "src/features/resumes/mocks/resumeCommands.ts"))) {
+      return false;
+    }
     return (
       !/(?:toMockResumeSummary|handleMockResumeCommand)/.test(text) ||
       /case\s+["']get_active_resume["']:[\s\S]{0,180}return\s+getActiveResume\(\)\s+as\s+T/.test(

@@ -25,6 +25,7 @@ const linkedInNotificationBoundaryPaths = new Set([
   "src/features/settings/notifications/notificationPreferencesStore.ts",
   "src/features/settings/notifications/NotificationPreferences.tsx",
   "src/mocks/handlers.ts",
+  "src/features/settings/notifications/mockCommands.ts",
   "docs/features/user-data-management.md",
   "src-tauri/src/core/user_data/mod.rs",
 ]);
@@ -39,6 +40,7 @@ const frontendJobUrlOpenPaths = new Set([
 const staleStackOverflowJobsPaths = new Set([
   "docs/user/DEEP_LINKS.md",
   "src/mocks/handlers.ts",
+  "src/features/search-links/mocks/commands.ts",
   "src/shared/search-links/model.ts",
   "src-tauri/src/core/deeplinks/generator.rs",
   "src-tauri/src/core/deeplinks/mod.rs",
@@ -60,6 +62,9 @@ const jobsWithGptApprovalPaths = new Set([
   "src/features/settings/sources/SettingsJobSourcesSection.tsx",
   "src/features/settings/SettingsPage.tsx",
   "src/mocks/handlers.ts",
+  "src/features/settings/mocks/commands.ts",
+  "src/features/settings/sources/mocks/commands.ts",
+  "src/features/settings/sources/mocks/scraperHealth.ts",
 ]);
 
 const jobsWithGptRequestLedgerPaths = new Set([
@@ -136,6 +141,8 @@ export function hasStaleScraperHealthCoverage(root, path) {
     path !== "docs/developer/WHY_TAURI.md" &&
     path !== "docs/releases/v2.1.md" &&
     path !== "src/mocks/handlers.ts" &&
+    path !== "src/features/settings/sources/mocks/commands.ts" &&
+    path !== "src/features/settings/sources/mocks/scraperHealth.ts" &&
     path !== "src/features/dashboard/DashboardPage.tsx" &&
     !scraperHealthDashboardPaths.has(path)
   ) {
@@ -347,7 +354,12 @@ export function hasJobsWithGptUnapprovedEndpointFlow(root, path) {
     );
   }
 
-  if (path === "src/mocks/handlers.ts") {
+  if (
+    path === "src/mocks/handlers.ts" ||
+    path === "src/features/settings/mocks/commands.ts" ||
+    path === "src/features/settings/sources/mocks/commands.ts" ||
+    path === "src/features/settings/sources/mocks/scraperHealth.ts"
+  ) {
     return (
       /jobswithgpt_endpoint/.test(text) && !/jobswithgpt_approval/.test(text)
     );

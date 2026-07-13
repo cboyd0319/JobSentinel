@@ -54,7 +54,7 @@ weakened.
 | Workstream | State | Current focus | Source |
 | ---------- | ----- | ------------- | ------ |
 | Current product and quality work | Active | Keep privacy, design, platform, harness, and release evidence aligned during the refactor | [Plan](current-work.md) |
-| Full repository refactor and v2.9.5 readiness | Active | Thin the development dispatcher and split remaining root tests | [Plan](repository-architecture-reorganization.md) |
+| Full repository refactor and v2.9.5 readiness | Active | Repair backend module cycles before crate extraction | [Plan](repository-architecture-reorganization.md) |
 
 ## Current Posture
 
@@ -84,8 +84,8 @@ weakened.
 
 ## Next Best Work
 
-1. Thin the development dispatcher and split remaining root tests.
-2. Keep every ownership slice green and remove transition code before accepting
+1. Repair the database, credential, job-record, and normalization module cycles.
+2. Keep every backend ownership slice green and remove transition code before accepting
    it.
 3. Keep future product work scoped by the current active plan and the
    verification matrix.

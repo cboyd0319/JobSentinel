@@ -3,8 +3,21 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { listTrackedFiles } from "./repo-artifacts.mjs";
 
+const mockCommandRegistryPath = "src/mocks/commandRegistry.ts";
+const legacyMockCommandRegistryPath = "src/mocks/handlers.ts";
+
+function activeMockCommandRegistryPath(root) {
+  return existsSync(join(root, mockCommandRegistryPath))
+    ? mockCommandRegistryPath
+    : legacyMockCommandRegistryPath;
+}
+
+function hasRegisteredCommand(text, command) {
+  return new RegExp(`["']${command}["']`).test(text);
+}
+
 export function hasStaleUserDataMockHandlers(root, path) {
-  if (path !== "src/mocks/handlers.ts") {
+  if (path !== activeMockCommandRegistryPath(root)) {
     return false;
   }
 
@@ -27,14 +40,14 @@ export function hasStaleUserDataMockHandlers(root, path) {
     "delete_saved_search",
   ];
   const missingRequiredCommand = requiredCommands.some((command) => {
-    return !new RegExp(`case\\s+["']${command}["']`).test(text);
+    return !hasRegisteredCommand(text, command);
   });
 
-  return missingRequiredCommand || /case\s+["']save_search["']/.test(text);
+  return missingRequiredCommand || hasRegisteredCommand(text, "save_search");
 }
 
 export function hasStaleDeepLinkMockHandlers(root, path) {
-  if (path !== "src/mocks/handlers.ts") {
+  if (path !== activeMockCommandRegistryPath(root)) {
     return false;
   }
 
@@ -48,12 +61,12 @@ export function hasStaleDeepLinkMockHandlers(root, path) {
   ];
 
   return requiredCommands.some((command) => {
-    return !new RegExp(`case\\s+["']${command}["']`).test(text);
+    return !hasRegisteredCommand(text, command);
   });
 }
 
 export function hasStaleFeedbackMockHandlers(root, path) {
-  if (path !== "src/mocks/handlers.ts") {
+  if (path !== activeMockCommandRegistryPath(root)) {
     return false;
   }
 
@@ -67,25 +80,31 @@ export function hasStaleFeedbackMockHandlers(root, path) {
   ];
 
   return requiredCommands.some((command) => {
-    return !new RegExp(`case\\s+["']${command}["']`).test(text);
+    return !hasRegisteredCommand(text, command);
   });
 }
 
 export function hasStaleFeedbackSystemInfoArchitecture(root, path) {
+  const mockSystemInfoPath = existsSync(
+    join(root, "src/shared/errorReporting/mocks/supportReports.ts"),
+  )
+    ? "src/shared/errorReporting/mocks/supportReports.ts"
+    : legacyMockCommandRegistryPath;
   if (
     path !== "src/features/settings/support/feedback/feedbackClient.ts" &&
     path !== "src/features/settings/support/feedback/feedbackReportFormatting.ts" &&
     path !== "src/features/settings/support/feedback/DebugInfoPreview.tsx" &&
-    path !== "src/mocks/handlers.ts"
+    path !== mockSystemInfoPath
   ) {
     return false;
   }
 
   const text = readFileSync(join(root, path), "utf8");
-  if (path === "src/mocks/handlers.ts") {
+  if (path === mockSystemInfoPath) {
     return (
-      /case\s+["']get_system_info["'][\s\S]{0,240}\barch\s*:/.test(text) ||
-      /function\s+getMockSystemInfo\(\)[\s\S]{0,240}\barch\s*:/.test(text)
+      /(?:function\s+getMockSystemInfo\(\)|case\s+["']get_system_info["'])[\s\S]{0,240}\barch\s*:/.test(
+        text,
+      )
     );
   }
 
@@ -93,7 +112,11 @@ export function hasStaleFeedbackSystemInfoArchitecture(root, path) {
 }
 
 export function hasStaleResumeOptimizerMockHandlers(root, path) {
-  if (path !== "src/mocks/handlers.ts") {
+  const registryPath = activeMockCommandRegistryPath(root);
+  if (
+    path !== registryPath &&
+    path !== "src/features/resumes/mocks/resumeAnalysis.ts"
+  ) {
     return false;
   }
 
@@ -104,9 +127,9 @@ export function hasStaleResumeOptimizerMockHandlers(root, path) {
     "get_ats_power_words",
     "improve_bullet_point",
   ];
-  const missingRequiredCommand = requiredCommands.some((command) => {
-    return !new RegExp(`case\\s+["']${command}["']`).test(text);
-  });
+  const missingRequiredCommand =
+    path === registryPath &&
+    requiredCommands.some((command) => !hasRegisteredCommand(text, command));
 
   return (
     missingRequiredCommand ||
@@ -134,7 +157,7 @@ const resumeSuggestionCategoryPaths = new Set([
   "src/features/resumes/matching/resumeMatchModel.ts",
   "src/features/resumes/builder/AtsLiveScorePanel.tsx",
   "src/features/resumes/builder/AtsLiveScorePanelModel.ts",
-  "src/mocks/handlers.ts",
+  legacyMockCommandRegistryPath,
   "src/features/resumes/mocks/resumeAnalysis.ts",
 ]);
 
@@ -205,8 +228,8 @@ export function hasResumeSuggestionCategoryDrift(root, path) {
   }
 
   const mockText = [
-    readOptionalFile(root, "src/mocks/handlers.ts"),
-    readOptionalFile(root, "src/features/resumes/mocks/resumeAnalysis.ts"),
+    readOptionalFile(root, "src/features/resumes/mocks/resumeAnalysis.ts") ||
+      readOptionalFile(root, legacyMockCommandRegistryPath),
   ].join("\n");
   return Boolean(mockText) && hasMissingResumeSuggestionCategories(mockText, categories);
 }
@@ -268,17 +291,21 @@ function collectRuntimeInvokeCommands(root) {
   return commands;
 }
 
-function collectMockCommandCases(root) {
-  const text = readFileSync(join(root, "src/mocks/handlers.ts"), "utf8");
-  return new Set([...text.matchAll(/case\s+["']([^"']+)["']/g)].map((match) => match[1]));
+function collectRegisteredMockCommands(root) {
+  const registryPath = activeMockCommandRegistryPath(root);
+  const text = readFileSync(join(root, registryPath), "utf8");
+  const pattern = registryPath === mockCommandRegistryPath
+    ? /["']([a-z][a-z0-9_]+)["']/g
+    : /case\s+["']([^"']+)["']/g;
+  return new Set([...text.matchAll(pattern)].map((match) => match[1]));
 }
 
 export function missingRuntimeMockInvokeCases(root, path) {
-  if (path !== "src/mocks/handlers.ts") {
+  if (path !== activeMockCommandRegistryPath(root)) {
     return [];
   }
 
-  const mockCases = collectMockCommandCases(root);
+  const mockCases = collectRegisteredMockCommands(root);
   return [...collectRuntimeInvokeCommands(root)]
     .filter((command) => !mockCases.has(command))
     .sort();

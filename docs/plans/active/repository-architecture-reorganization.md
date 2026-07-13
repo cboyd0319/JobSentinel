@@ -474,7 +474,7 @@ or installed configuration path changes.
 - [x] Reduce and delete `src/pages/`, `src/hooks/`, `src/contexts/`, and `src/utils/`.
 - [x] Move the external-AI boundary and delete `src/services/`.
 - [x] Reduce `src/components/` to zero and delete it.
-- [ ] Split the large mock dispatcher into feature-owned handlers and retain a
+- [x] Split the large mock dispatcher into feature-owned handlers and retain a
   thin deterministic registration layer.
 
 Per-slice acceptance:
@@ -735,7 +735,7 @@ evidence-log entry.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
-| 2026-07-13 | Milestone 2 in progress | Finished feature assignment for mixed development commands. Search Links owns outbound links, Dashboard owns job import, Settings owns configuration and secure connection mocks, Onboarding owns first-run commands, and Settings support owns safe report commands. The former 621-line source/import and 560-line Settings/support root modules are gone; all replacement production modules are 488 lines or fewer. All 11 latest focused tests, 2,930 frontend tests across 205 files, the 820-module build, and TypeScript, ESLint, architecture, bloat, security, language, duplication, and test-quality gates pass. |
+| 2026-07-13 | Milestone 2 complete | Completed frontend ownership with a 32-line development command facade, 183-line explicit registry, 202-line state adapter layer, 244-line persisted-state owner, and feature-owned command behavior. Split the 1,127-line root test by owner and updated privacy, IPC, source, and command-completeness sensors to follow the new boundaries. All 2,931 frontend tests across 209 files, 766 script tests, the production build, and TypeScript, ESLint, architecture, bloat, security, language, duplication, and test-quality gates pass. |
 | 2026-07-13 | Milestone 2 in progress | Split the mixed user-data development mock into Applications-owned cover-letter templates, Dashboard-owned saved searches and search history, and Settings-owned notification preferences. Moved normalization and direct command tests with each owner, retained backend command names and persisted development state, and deleted the 389-line mixed handler plus 303-line mixed normalizer. All 16 focused tests, 2,920 frontend tests across 200 files, the 820-module build, TypeScript, ESLint, architecture, bloat, duplication, and test-quality gates pass. |
 | 2026-07-13 | Milestone 2 in progress | Moved the four-consumer Score Display visual, tests, and stories into `src/ui/score-display/`. Extracted validated score-reason parsing into a private 111-line module and reduced the visual to 416 lines. Copy, thresholds, keyboard behavior, and renderer-safe parsing are unchanged; policy sensors follow both owners. All 162 focused frontend tests, 54 focused sensor tests, 2,933 frontend tests across 194 files, 766 script tests, the 816-module build, repository gates, and 19 Dashboard and Resume E2E flows pass. Only the company research family remains in the root components bucket. |
 | 2026-07-13 | Milestone 2 in progress | Deleted the root `src/utils/` bucket after assigning safe browser downloads, Dashboard CSV, and Settings backups to real owners. Then established `src/features/linkedin-workbench/` with a public visual facade and private consent, transport, and learning modules. App composition supplies the workbench to Dashboard and Settings without feature-to-feature imports. The LinkedIn cut passed 62 focused frontend tests, 2,933 frontend tests across 192 files, 766 script tests, the production build, repository gates, and all 16 Settings E2E flows. Credential redaction, formula neutralization, URL sanitization, explicit review, and local-only behavior are unchanged. |
@@ -816,7 +816,7 @@ evidence-log entry.
 - Milestone 1 is complete. Canonical cross-runtime taxonomies now have neutral
   ownership under `resources/`, contributor samples have one `examples/`
   owner, and four unused component families have been deleted.
-- Milestone 2 is in progress. App composition is owned by `src/app/`; Salary,
+- Milestone 2 is complete. App composition is owned by `src/app/`; Salary,
   Hiring Trends, Application Assist, Applications tracking, first-run
   Onboarding, Dashboard job discovery, Resume library, builder and matching,
   Settings, Search Links, LinkedIn Workbench, and Company Research are complete
@@ -862,9 +862,8 @@ evidence-log entry.
   contract directly. Error Reporting initialization belongs to the app
   provider, while the typed context, hook, validated local reporter, and
   sanitization contract belong to `src/shared/errorReporting/`. The legacy root
-  `contexts` and `hooks` buckets are deleted. Cross-feature error messages,
-  sanitized development logging, and safe toast copy also live under the same
-  shared Error Reporting owner instead of the root utilities bucket.
+  `contexts` and `hooks` buckets are deleted. Development commands use a thin
+  explicit registry, persisted state owner, and feature-owned handlers and tests.
 - Shared contact-field validation now lives under `src/shared/validation/`.
   Application Assist owns its required-field rules, and Settings credentials
   own notification connection-link validation. Six test-only compatibility
@@ -879,8 +878,8 @@ evidence-log entry.
 ## Handoff
 
 - Current state: repo-wide structure audited; target ownership and migration
-  order documented; privacy is the immutable product boundary; Milestones 0
-  and 1 are complete; Milestone 2 has app, Salary, Hiring Trends, Application
+  order documented; privacy is the immutable product boundary; Milestones 0,
+  1, and 2 are complete. Milestone 2 has app, Salary, Hiring Trends, Application
   Assist, Applications tracking, first-run Onboarding, Dashboard job discovery,
   Resume library, builder and matching, Settings, Search Links, LinkedIn
   Workbench, Company Research, and reusable UI ownership established with
@@ -888,13 +887,12 @@ evidence-log entry.
   components, contexts, hooks, pages, services, and utilities buckets are gone.
   Shared Tauri, location, source guidance, contact-field, date, currency,
   browser-download, support-report, and external-AI contracts have passing
-  evidence. Dashboard jobs, Applications tracking and interviews, application
-  platforms, source health, LinkedIn, and safe support-report development mocks
-  now live with their owners; mixed root command groups remain to split.
+  evidence. Development commands, state, privacy sensors, and tests now have
+  explicit runtime or feature owners behind a 32-line public facade.
 - Evidence: live manifests, imports, file counts, module graph, SQLx paths, CI,
   release scripts, harness sensors, Tamworth, and persona were inspected on 2026-07-13.
-- Next step: reduce the development dispatcher to deterministic registration,
-  split its remaining root tests by owner, and close Milestone 2.
+- Next step: repair the backend module cycles inside the existing crate, then
+  prove the Tauri-free core boundary before any crate extraction.
 - Open risks: final SQLx offline metadata location and root Cargo target paths
   must be proven in isolated workspace and release fixtures before old paths are
   removed.
