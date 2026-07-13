@@ -27,8 +27,8 @@ const ignoredFilePatterns = [
 const boundaryRules = [
   {
     from: "components",
-    disallow: ["pages"],
-    reason: "shared UI components must not depend on page modules",
+    disallow: ["features", "pages"],
+    reason: "shared UI components must not depend on product feature or page modules",
   },
   {
     from: "contexts",

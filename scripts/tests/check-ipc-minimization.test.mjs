@@ -69,11 +69,11 @@ test("ipc minimization rejects full config calls from Dashboard", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src/pages/Dashboard.tsx",
+      "src/features/dashboard/DashboardPage.tsx",
       'cachedInvoke("get_config", undefined, 60000);\n',
     );
 
-    assert.equal(hasDashboardFullConfigInvoke(root, "src/pages/Dashboard.tsx"), true);
+    assert.equal(hasDashboardFullConfigInvoke(root, "src/features/dashboard/DashboardPage.tsx"), true);
     assert.equal(hasDashboardFullConfigInvoke(root, "src/pages/Settings.tsx"), false);
   });
 });
@@ -82,12 +82,12 @@ test("ipc minimization rejects importing from raw input after preview", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src/components/JobImportModal.tsx",
+      "src/features/dashboard/components/JobImportModal.tsx",
       'await invoke("import_job_from_url", { url: url.trim() });\n',
     );
 
     assert.equal(
-      hasRawJobImportUrlAfterPreview(root, "src/components/JobImportModal.tsx"),
+      hasRawJobImportUrlAfterPreview(root, "src/features/dashboard/components/JobImportModal.tsx"),
       true,
     );
   });

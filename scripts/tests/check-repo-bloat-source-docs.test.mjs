@@ -144,7 +144,7 @@ test("checkRepoBloat rejects stale scraper health coverage", () => {
     );
     writeFixtureFile(
       root,
-      "src/pages/Dashboard.tsx",
+      "src/features/dashboard/DashboardPage.tsx",
       "const emptyState = '13 job boards on your schedule';\n",
     );
     writeFixtureFile(
@@ -175,7 +175,7 @@ test("checkRepoBloat rejects stale scraper health coverage", () => {
         "package.json",
         "docs/features/job-source-status.md",
         "src/mocks/handlers.ts",
-        "src/pages/Dashboard.tsx",
+        "src/features/dashboard/DashboardPage.tsx",
         "docs/user/QUICK_START.md",
         "docs/style-guide/WRITING-FOR-JOB-SEEKERS.md",
         "docs/developer/WHY_TAURI.md",
@@ -195,7 +195,7 @@ test("checkRepoBloat rejects stale scraper health coverage", () => {
       violations.join("\n"),
     );
     assert.ok(
-      violations.includes("sync scraper health source coverage: src/pages/Dashboard.tsx"),
+      violations.includes("sync scraper health source coverage: src/features/dashboard/DashboardPage.tsx"),
       violations.join("\n"),
     );
     assert.ok(

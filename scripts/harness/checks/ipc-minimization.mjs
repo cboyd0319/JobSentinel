@@ -38,7 +38,7 @@ export function hasNonSettingsFullApplicationProfileInvoke(root, path) {
 }
 
 export function hasDashboardFullConfigInvoke(root, path) {
-  if (path !== "src/pages/Dashboard.tsx") {
+  if (path !== "src/features/dashboard/DashboardPage.tsx") {
     return false;
   }
 
@@ -47,7 +47,7 @@ export function hasDashboardFullConfigInvoke(root, path) {
 }
 
 export function hasRawJobImportUrlAfterPreview(root, path) {
-  if (path !== "src/components/JobImportModal.tsx") {
+  if (path !== "src/features/dashboard/components/JobImportModal.tsx") {
     return false;
   }
 

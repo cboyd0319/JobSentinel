@@ -435,7 +435,7 @@ pub async fn get_search_history(limit: i64) -> Result<(), String> {
     );
     writeFixtureFile(
       root,
-      "src/pages/hooks/useDashboardSearch.ts",
+      "src/features/dashboard/hooks/useDashboardSearch.ts",
       `
 import { invoke } from "@tauri-apps/api/core";
 
@@ -512,7 +512,7 @@ pub async fn create_saved_search(search: SavedSearch) -> Result<(), String> {
     );
     writeFixtureFile(
       root,
-      "src/pages/hooks/useDashboardSavedSearches.ts",
+      "src/features/dashboard/hooks/useDashboardSavedSearches.ts",
       `
 import { safeInvoke } from "../../utils/api";
 
@@ -537,7 +537,7 @@ test("checkTauriInvokes rejects unregistered wrapper command calls", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src/pages/Dashboard.tsx",
+      "src/features/dashboard/DashboardPage.tsx",
       `
 import { cachedInvoke, safeInvoke } from "../utils/api";
 

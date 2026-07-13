@@ -54,11 +54,11 @@ export function getTechnicalFirstUiResult(path, text) {
     return /Failed to load suggestions|setError\(\s*["'`]Could not load saved answers["'`]\s*\)/i.test(text);
   }
 
-  if (path === "src/pages/DashboardUI/noJobsEmptyStateCopy.ts") {
+  if (path === "src/features/dashboard/components/noJobsEmptyStateCopy.ts") {
     return /Scan allowed sources|Local checks run on your schedule/i.test(text);
   }
 
-  if (path === "src/pages/Dashboard.tsx") {
+  if (path === "src/features/dashboard/DashboardPage.tsx") {
     return /Scanning job boards|Scan complete|Failed to load company research/i.test(text);
   }
 
@@ -66,7 +66,7 @@ export function getTechnicalFirstUiResult(path, text) {
     return /Failed to load interviews|Technical Interview|Mark as Complete|>\s*Failed\s*<|Did not go well|feedbackOutcome\.charAt/.test(text) || /Interview Outcome:/.test(text);
   }
 
-  if (path === "src/pages/DashboardUI/DashboardHeader.tsx") {
+  if (path === "src/features/dashboard/components/DashboardHeader.tsx") {
     return /Scanning job boards|Scanning\.\.\.|Ready to scan|Auto-refresh in/i.test(text);
   }
 
@@ -113,7 +113,7 @@ export function getTechnicalFirstUiResult(path, text) {
     );
   }
 
-  if (path === "src/pages/hooks/useDashboardJobOps.ts") {
+  if (path === "src/features/dashboard/hooks/useDashboardJobOps.ts") {
     return /Undo failed|Redo failed|Bookmark Failed|Bulk Hide Failed|Bulk Bookmark Failed|Bulk Merge Failed|\d+\s+failed|Couldn't update bookmark\.\s*Try again|Try refreshing|refresh and try again|restart the app|None of the duplicate groups could be merged\. Try merging them individually/i.test(
       text,
     );
@@ -123,7 +123,7 @@ export function getTechnicalFirstUiResult(path, text) {
     return /Undo failed|Redo failed|Try refreshing/i.test(text);
   }
 
-  if (path === "src/pages/hooks/useDashboardAutoRefresh.ts") {
+  if (path === "src/features/dashboard/hooks/useDashboardAutoRefresh.ts") {
     return /Job scanning has failed 3 times in a row|manual search|Auto-refreshing|Scanning for new jobs|automatically\. Check your connection/i.test(text);
   }
 

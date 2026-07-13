@@ -59,7 +59,7 @@ npm test
 npm test -- --watch
 
 # Run specific test file
-npm test -- src/components/GhostIndicator.test.tsx
+npm test -- src/features/dashboard/components/GhostIndicator.test.tsx
 
 # Run tests matching test name
 npm test -- -t "GhostIndicator"

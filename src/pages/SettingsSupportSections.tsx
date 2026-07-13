@@ -1,8 +1,8 @@
 import { ErrorLogPanel } from "../components/ErrorLogPanel";
 import { HelpIcon } from "../components/HelpIcon";
-import { FeedbackIcon } from "./DashboardIcons";
 import {
   ExportIcon,
+  FeedbackIcon,
   HealthIcon,
   ImportIcon,
   SettingsSymbol,

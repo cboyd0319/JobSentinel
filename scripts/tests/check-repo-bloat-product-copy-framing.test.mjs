@@ -170,7 +170,7 @@ test("checkRepoBloat rejects application-assist automation framing", () => {
     );
     writeFixtureFile(
       root,
-      "src/pages/DashboardUI/DashboardHeader.tsx",
+      "src/features/dashboard/components/DashboardHeader.tsx",
       '"Privacy-first job search automation";\n',
     );
     writeFixtureFile(
@@ -208,7 +208,7 @@ test("checkRepoBloat rejects application-assist automation framing", () => {
         "src/features/application-assist/ApplicationPreview.tsx",
         "src/features/application-assist/ProfileForm.tsx",
         "src/features/application-assist/ScreeningAnswersForm.tsx",
-        "src/pages/DashboardUI/DashboardHeader.tsx",
+        "src/features/dashboard/components/DashboardHeader.tsx",
         "docs/features/application-assist.md",
         "docs/user/QUICK_START.md",
       ],
@@ -223,7 +223,7 @@ test("checkRepoBloat rejects application-assist automation framing", () => {
       "src/features/application-assist/ApplicationPreview.tsx",
       "src/features/application-assist/ProfileForm.tsx",
       "src/features/application-assist/ScreeningAnswersForm.tsx",
-      "src/pages/DashboardUI/DashboardHeader.tsx",
+      "src/features/dashboard/components/DashboardHeader.tsx",
       "docs/features/application-assist.md",
       "docs/user/QUICK_START.md",
       "README.md",

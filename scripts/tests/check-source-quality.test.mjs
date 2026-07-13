@@ -167,7 +167,7 @@ test("source quality rejects unsafe rendered JSON parsing", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/GhostIndicator.tsx",
+      "src/features/dashboard/components/GhostIndicator.tsx",
       "function parseReasons(reasonsJson) { return JSON.parse(reasonsJson); }\n",
     );
     writeFixtureFile(
@@ -187,7 +187,7 @@ test("source quality rejects unsafe rendered JSON parsing", () => {
     );
 
     assert.equal(hasUnsafeScoreReasonJsonParsing(root, "src/components/ScoreDisplay.tsx"), true);
-    assert.equal(hasUnsafeScoreReasonJsonParsing(root, "src/components/GhostIndicator.tsx"), true);
+    assert.equal(hasUnsafeScoreReasonJsonParsing(root, "src/features/dashboard/components/GhostIndicator.tsx"), true);
     assert.equal(hasUnsafeStorageJsonParsing(root, "src/features/applications/AnalyticsPanel.tsx"), true);
     assert.equal(hasUnsafeStorageJsonParsing(root, "src/components/AtsLiveScorePanel.tsx"), true);
     assert.equal(hasUnsafeStorageJsonParsing(root, "src/utils/resumeJobContext.ts"), true);

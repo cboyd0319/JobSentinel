@@ -201,7 +201,7 @@ test("product copy rejects bare dashboard summary recovery", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src/components/DashboardWidgets.tsx",
+      "src/features/dashboard/components/DashboardWidgets.tsx",
       [
         'setError("Could not load application summary");',
         'aria-label="Analytics charts"',
@@ -214,7 +214,7 @@ test("product copy rejects bare dashboard summary recovery", () => {
       ].join("\n"),
     );
 
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/components/DashboardWidgets.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/features/dashboard/components/DashboardWidgets.tsx"), true);
   });
 });
 

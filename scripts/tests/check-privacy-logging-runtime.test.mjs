@@ -160,7 +160,7 @@ test("privacy logging rejects renderer credential reads and incomplete export re
     writeFixtureFile(root, "src/utils/export.ts", "function scrubSensitiveFields() {}\n");
 
     assert.equal(hasRendererCredentialSecretRead(root, "src/pages/Settings.tsx"), true);
-    assert.equal(hasRendererCredentialSecretRead(root, "src/pages/Dashboard.tsx"), false);
+    assert.equal(hasRendererCredentialSecretRead(root, "src/features/dashboard/DashboardPage.tsx"), false);
     assert.equal(hasIncompleteConfigExportRedaction(root, "src/utils/export.ts"), true);
     assert.equal(hasIncompleteConfigExportRedaction(root, "src/utils/import.ts"), false);
   });

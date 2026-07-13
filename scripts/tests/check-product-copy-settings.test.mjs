@@ -136,7 +136,7 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/JobImportModal.tsx",
+      "src/features/dashboard/components/JobImportModal.tsx",
       "Missing details: {preview.missing_fields.join(', ')}\n",
     );
     writeFixtureFile(root, "docs/features/smart-scoring.md", "Settings > Advanced Settings\n");
@@ -237,10 +237,10 @@ test("product copy rejects technical-first settings copy", () => {
         "",
       ].join("\n"),
     );
-    writeFixtureFile(root, "src/pages/DashboardUI/filterLabels.ts", "Weakest Match First\n");
+    writeFixtureFile(root, "src/features/dashboard/components/filterLabels.ts", "Weakest Match First\n");
     writeFixtureFile(
       root,
-      "src/pages/DashboardUI/DashboardFiltersBar.tsx",
+      "src/features/dashboard/components/DashboardFiltersBar.tsx",
       [
         "Use AND for words that must both appear",
         "Start with a minus sign to leave out a word: -intern",
@@ -437,7 +437,7 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/pages/Dashboard.tsx",
+      "src/features/dashboard/DashboardPage.tsx",
       [
         "<li>Source: {filters.sourceFilter}</li>",
         "<span>{job.source}</span>",
@@ -568,7 +568,7 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/ScoreBreakdownModal.tsx",
+      "src/features/dashboard/components/ScoreBreakdownModal.tsx",
       "Company preference (if configured)\nconfigured preferences\n",
     );
     writeFixtureFile(
@@ -603,28 +603,28 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/pages/DashboardUI/noJobsEmptyStateCopy.ts",
+      "src/features/dashboard/components/noJobsEmptyStateCopy.ts",
       "pay floor\n",
     );
-    writeFixtureFile(root, "src/components/JobCard.tsx", "Below your pay floor\n");
+    writeFixtureFile(root, "src/features/dashboard/components/JobCard.tsx", "Below your pay floor\n");
     writeFixtureFile(
       root,
-      "src/components/jobCardGuidance.ts",
+      "src/features/dashboard/components/jobCardGuidance.ts",
       "Below your pay floor\n",
     );
     writeFixtureFile(
       root,
-      "src/pages/DashboardUI/DashboardHeader.tsx",
+      "src/features/dashboard/components/DashboardHeader.tsx",
       "Currently scanning job boards\nReady to scan\nScanning job boards\nScanning...\nAuto-refresh in 5m\n",
     );
     writeFixtureFile(
       root,
-      "src/pages/Dashboard.tsx",
+      "src/features/dashboard/DashboardPage.tsx",
       'Scanning job boards...\nScan complete!\ntoast.error("Failed to open link", "Unable to open the job link")\nFailed to load company research\n',
     );
     writeFixtureFile(
       root,
-      "src/components/JobCard.tsx",
+      "src/features/dashboard/components/JobCard.tsx",
       'toast.error("Failed to open link", "Unable to open the job link")\n',
     );
     writeFixtureFile(
@@ -661,7 +661,7 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/pages/DashboardUI/noJobsEmptyStateCopy.ts",
+      "src/features/dashboard/components/noJobsEmptyStateCopy.ts",
       "Scan allowed sources\nLocal checks run on your schedule\npay floor\n",
     );
     writeFixtureFile(
@@ -686,7 +686,7 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/pages/hooks/useDashboardJobOps.ts",
+      "src/features/dashboard/hooks/useDashboardJobOps.ts",
       "Undo failed\nRedo failed\nBookmark Failed\nBulk Hide Failed\nBulk Bookmark Failed\nBulk Merge Failed\n3 failed\nCouldn't update bookmark. Try again.\nTry refreshing.\nrefresh and try again\nrestart the app\nNone of the duplicate groups could be merged. Try merging them individually.\n",
     );
     writeFixtureFile(
@@ -696,7 +696,7 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/pages/hooks/useDashboardAutoRefresh.ts",
+      "src/features/dashboard/hooks/useDashboardAutoRefresh.ts",
       "Auto-refreshing...\nScanning for new jobs\nJob scanning has failed 3 times in a row. Check your connection or try a manual search.\nJobSentinel couldn't check for new jobs automatically. Check your connection, then click Search Now.\n",
     );
     writeFixtureFile(
@@ -815,38 +815,38 @@ test("product copy rejects technical-first settings copy", () => {
       "src/components/CompanyResearchPanel.tsx",
       "src/features/applications/CoverLetterTemplates.tsx",
       "src/components/ErrorLogPanel.tsx",
-      "src/components/JobCard.tsx",
-      "src/components/JobImportModal.tsx",
+      "src/features/dashboard/components/JobCard.tsx",
+      "src/features/dashboard/components/JobImportModal.tsx",
       "src/components/KeyboardShortcutsHelp.tsx",
       "src/features/market/MarketSnapshotCard.test.tsx",
       "src/features/market/MarketSnapshotCard.tsx",
       "src/components/NotificationPreferences.tsx",
-      "src/components/ScoreBreakdownModal.tsx",
+      "src/features/dashboard/components/ScoreBreakdownModal.tsx",
       "src/features/application-assist/ApplicationPreview.tsx",
       "src/features/application-assist/ApplyButton.tsx",
       "src/features/application-assist/ProfileForm.tsx",
       "src/features/application-assist/ScreeningAnswerSuggestions.tsx",
       "src/features/application-assist/ScreeningAnswersForm.tsx",
       "src/components/feedback/SubmitOptions.tsx",
-      "src/components/jobCardGuidance.ts",
+      "src/features/dashboard/components/jobCardGuidance.ts",
       "src/contexts/KeyboardShortcutsContext.tsx",
       "src/contexts/UndoContext.tsx",
       "src/hooks/useFeedback.ts",
       "src/features/application-assist/ApplicationProfilePage.tsx",
       "src/features/applications/ApplicationsPage.tsx",
-      "src/pages/Dashboard.tsx",
-      "src/pages/DashboardUI/DashboardFiltersBar.tsx",
-      "src/pages/DashboardUI/DashboardHeader.tsx",
-      "src/pages/DashboardUI/filterLabels.ts",
-      "src/pages/DashboardUI/noJobsEmptyStateCopy.ts",
+      "src/features/dashboard/DashboardPage.tsx",
+      "src/features/dashboard/components/DashboardFiltersBar.tsx",
+      "src/features/dashboard/components/DashboardHeader.tsx",
+      "src/features/dashboard/components/filterLabels.ts",
+      "src/features/dashboard/components/noJobsEmptyStateCopy.ts",
       "src/features/applications/InterviewScheduler.tsx",
       "src/features/market/MarketPage.tsx",
       "src/pages/ResumeOptimizer.tsx",
       "src/pages/Settings.tsx",
       "src/features/onboarding/SetupWizard.tsx",
       "src/pages/dashboardErrorCopy.ts",
-      "src/pages/hooks/useDashboardAutoRefresh.ts",
-      "src/pages/hooks/useDashboardJobOps.ts",
+      "src/features/dashboard/hooks/useDashboardAutoRefresh.ts",
+      "src/features/dashboard/hooks/useDashboardJobOps.ts",
       "src/services/aiGateway.ts",
       "src/utils/api.ts",
       "src/utils/errorHelpers.ts",

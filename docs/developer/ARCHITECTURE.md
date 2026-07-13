@@ -300,18 +300,20 @@ the broader agent harness.
 - `src/features/<feature>/` owns a complete product slice, including its page,
   feature-local components, model, tests, and development mock handlers.
   Current complete slices are `salary`, `market`, `application-assist`,
-  `applications`, and `onboarding`. Salary, Market, and Applications expose
-  only their pages; Onboarding exposes only its first-run wizard. Application
-  Assist exposes its profile page and the Apply action used by job cards.
-  Models, panels, board logic, interview scheduling, cover-letter templates,
-  setup taxonomies, data hooks, review logic, and mock handlers remain private
-  to the owning feature or the development mock registry.
+  `applications`, `onboarding`, and `dashboard`. Salary, Market, Applications,
+  and Dashboard expose only their pages; Onboarding exposes only its first-run
+  wizard. Application Assist exposes its profile page and the Apply action
+  composed into Dashboard by `src/app/`. Models, panels, cards, import flows,
+  board logic, interview scheduling, cover-letter templates, setup taxonomies,
+  data hooks, review logic, and mock handlers remain private to the owning
+  feature or the development mock registry.
 - A feature must not import another feature's implementation files. Shared
   product-neutral code belongs in `src/shared/`; reusable UI belongs in
   `src/ui/` as those owners are established.
 - Legacy `components`, `contexts`, `hooks`, `services`, `utils`, `types`,
-  `config`, and `pages` buckets remain transitional. They must not import app
-  or feature implementation modules.
+  `config`, and `pages` buckets remain transitional. Shared components and the
+  other transitional owners must not import app or feature implementation
+  modules.
 - Tests, mocks, stories, and test setup files are excluded from the production
   architecture sensor, but feature-owned mock handlers remain colocated with
   their feature and are registered by the central development dispatcher.

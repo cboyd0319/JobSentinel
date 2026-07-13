@@ -4,6 +4,8 @@ const updateDocsScreenshots = process.env.UPDATE_DOC_SCREENSHOTS === "1";
 const localWorkers = Number.parseInt(process.env.PLAYWRIGHT_WORKERS ?? "4", 10);
 const workers = process.env.CI ? 1 : Math.max(1, localWorkers);
 const reporter = process.env.PLAYWRIGHT_HTML_REPORT === "1" ? "html" : "line";
+const port = Number.parseInt(process.env.PLAYWRIGHT_PORT ?? "5173", 10);
+const baseURL = `http://localhost:${port}`;
 
 /**
  * Playwright configuration for JobSentinel E2E tests.
@@ -18,7 +20,7 @@ export default defineConfig({
   workers,
   reporter,
   use: {
-    baseURL: "http://localhost:5173",
+    baseURL,
     reducedMotion: "reduce",
     trace: "on-first-retry",
   },
@@ -35,8 +37,8 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: "npm run dev:mock",
-    url: "http://localhost:5173",
+    command: `npm run dev:mock -- --port ${port}`,
+    url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 30000,
   },

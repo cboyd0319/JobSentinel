@@ -1,4 +1,4 @@
-import type { PostedDateFilter, ScoreFilter, SortOption } from "../../pages/DashboardTypes";
+import type { PostedDateFilter, ScoreFilter, SortOption } from "../../features/dashboard/types";
 import type {
   NotificationPreferences,
   SourceNotificationConfig,

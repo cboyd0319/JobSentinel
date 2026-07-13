@@ -62,12 +62,12 @@ test("broad audience fixtures reject stale placeholder examples", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src/components/JobImportModal.tsx",
+      "src/features/dashboard/components/JobImportModal.tsx",
       'placeholder="Software Engineer"',
     );
 
     assert.equal(
-      hasEngineerFirstAudienceExamples(root, "src/components/JobImportModal.tsx"),
+      hasEngineerFirstAudienceExamples(root, "src/features/dashboard/components/JobImportModal.tsx"),
       true,
     );
   });

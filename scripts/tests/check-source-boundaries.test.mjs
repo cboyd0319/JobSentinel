@@ -198,12 +198,12 @@ test("source boundaries reject cache docs and direct-open fallbacks", () => {
     writeFixtureFile(root, "docs/developer/SCRAPER_CACHE.md", 'tracing::info!("Cache hit for: {}", url)\n');
     writeFixtureFile(
       root,
-      "src/components/JobCard.tsx",
+      "src/features/dashboard/components/JobCard.tsx",
       "openDeepLink(job.url); window.open(job.url);\n",
     );
 
     assert.equal(hasStaleCacheUsageDoc(root, "docs/developer/SCRAPER_CACHE.md"), true);
-    assert.equal(hasFrontendDirectOpenDeepLinkFallback(root, "src/components/JobCard.tsx"), true);
+    assert.equal(hasFrontendDirectOpenDeepLinkFallback(root, "src/features/dashboard/components/JobCard.tsx"), true);
     assert.equal(hasFrontendDirectOpenDeepLinkFallback(root, "src/app/Navigation.tsx"), false);
   });
 });

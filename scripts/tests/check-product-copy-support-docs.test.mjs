@@ -463,7 +463,7 @@ test("product copy rejects stale zero-technical resume and shortcut copy", () =>
     );
     writeFixtureFile(
       root,
-      "src/pages/DashboardUI/DashboardFiltersBar.tsx",
+      "src/features/dashboard/components/DashboardFiltersBar.tsx",
       "Navigate: j/k, Open: o/Enter, Hide: h\nj/k/o/h\n",
     );
 
@@ -472,7 +472,7 @@ test("product copy rejects stale zero-technical resume and shortcut copy", () =>
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/smart-scoring.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/ResumeOptimizer.tsx"), true);
     assert.equal(
-      hasTechnicalFirstUserCopy(root, "src/pages/DashboardUI/DashboardFiltersBar.tsx"),
+      hasTechnicalFirstUserCopy(root, "src/features/dashboard/components/DashboardFiltersBar.tsx"),
       true,
     );
   });
@@ -511,7 +511,7 @@ test("product copy rejects technical backend error labels", () => {
 test("product copy rejects non-protective no-response labels", () => {
   withFixture((root) => {
     writeFixtureFile(root, "src/features/applications/ApplicationsPage.tsx", "Detect Ghosted\n");
-    writeFixtureFile(root, "src/components/DashboardWidgets.tsx", 'label="Ghosted"\n');
+    writeFixtureFile(root, "src/features/dashboard/components/DashboardWidgets.tsx", 'label="Ghosted"\n');
     writeFixtureFile(root, "src/features/applications/AnalyticsPanel.tsx", 'ghosted: "Ghosted"\n');
     writeFixtureFile(root, "tests/e2e/playwright/application-tracking.spec.ts", '["ghosted", "Ghosted"]\n');
     writeFixtureFile(
@@ -521,7 +521,7 @@ test("product copy rejects non-protective no-response labels", () => {
     );
 
     assert.equal(hasTechnicalFirstUserCopy(root, "src/features/applications/ApplicationsPage.tsx"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/components/DashboardWidgets.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/features/dashboard/components/DashboardWidgets.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/features/applications/AnalyticsPanel.tsx"), true);
     assert.equal(
       hasTechnicalFirstUserCopy(root, "tests/e2e/playwright/application-tracking.spec.ts"),

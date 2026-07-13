@@ -77,12 +77,12 @@ test("checkRepoBloat rejects overconfident ghost-risk copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/GhostIndicator.tsx",
+      "src/features/dashboard/components/GhostIndicator.tsx",
       '"Potential Ghost Job"; "Likely Ghost"; "Confirm ghost job";\n',
     );
     writeFixtureFile(
       root,
-      "src/pages/DashboardUI/DashboardFiltersBar.tsx",
+      "src/features/dashboard/components/DashboardFiltersBar.tsx",
       '"Legitimacy"; "Likely Real"; "Possible Ghost";\n',
     );
     writeFixtureFile(
@@ -105,8 +105,8 @@ test("checkRepoBloat rejects overconfident ghost-risk copy", () => {
         "docs/releases/v1.4.md",
         "docs/style-guide/GLOSSARY.md",
         "docs/style-guide/WRITING-FOR-JOB-SEEKERS.md",
-        "src/components/GhostIndicator.tsx",
-        "src/pages/DashboardUI/DashboardFiltersBar.tsx",
+        "src/features/dashboard/components/GhostIndicator.tsx",
+        "src/features/dashboard/components/DashboardFiltersBar.tsx",
         "src/pages/Settings.tsx",
       ],
       { cwd: root },
@@ -124,8 +124,8 @@ test("checkRepoBloat rejects overconfident ghost-risk copy", () => {
       "docs/releases/v1.4.md",
       "docs/style-guide/GLOSSARY.md",
       "docs/style-guide/WRITING-FOR-JOB-SEEKERS.md",
-      "src/components/GhostIndicator.tsx",
-      "src/pages/DashboardUI/DashboardFiltersBar.tsx",
+      "src/features/dashboard/components/GhostIndicator.tsx",
+      "src/features/dashboard/components/DashboardFiltersBar.tsx",
       "src/pages/Settings.tsx",
     ]) {
       assert.ok(
@@ -250,7 +250,7 @@ test("checkRepoBloat rejects non-protective salary-floor troubleshooting", () =>
     writeFixtureFile(root, "docs/user/QUICK_START.md", "Lower your minimum salary to $0 temporarily\n");
     writeFixtureFile(
       root,
-      "src/pages/DashboardUI/noJobsEmptyStateCopy.ts",
+      "src/features/dashboard/components/noJobsEmptyStateCopy.ts",
       "If a search comes back empty, broaden the role title, location, or lowest pay you want.\n",
     );
 
@@ -260,7 +260,7 @@ test("checkRepoBloat rejects non-protective salary-floor troubleshooting", () =>
         "add",
         "package.json",
         "docs/user/QUICK_START.md",
-        "src/pages/DashboardUI/noJobsEmptyStateCopy.ts",
+        "src/features/dashboard/components/noJobsEmptyStateCopy.ts",
       ],
       {
         cwd: root,
@@ -275,7 +275,7 @@ test("checkRepoBloat rejects non-protective salary-floor troubleshooting", () =>
     );
     assert.ok(
       violations.includes(
-        "keep salary-floor troubleshooting protective: src/pages/DashboardUI/noJobsEmptyStateCopy.ts",
+        "keep salary-floor troubleshooting protective: src/features/dashboard/components/noJobsEmptyStateCopy.ts",
       ),
       violations.join("\n"),
     );

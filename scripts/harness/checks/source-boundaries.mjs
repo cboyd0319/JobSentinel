@@ -32,8 +32,8 @@ const linkedInNotificationBoundaryPaths = new Set([
 const cacheUsageDocPaths = new Set(["docs/developer/SCRAPER_CACHE.md"]);
 
 const frontendJobUrlOpenPaths = new Set([
-  "src/components/JobCard.tsx",
-  "src/pages/Dashboard.tsx",
+  "src/features/dashboard/components/JobCard.tsx",
+  "src/features/dashboard/DashboardPage.tsx",
 ]);
 
 const staleStackOverflowJobsPaths = new Set([
@@ -134,7 +134,7 @@ export function hasStaleScraperHealthCoverage(root, path) {
     path !== "docs/developer/WHY_TAURI.md" &&
     path !== "docs/releases/v2.1.md" &&
     path !== "src/mocks/handlers.ts" &&
-    path !== "src/pages/Dashboard.tsx" &&
+    path !== "src/features/dashboard/DashboardPage.tsx" &&
     !scraperHealthDashboardPaths.has(path)
   ) {
     return false;

@@ -410,11 +410,11 @@ test("checkRepoBloat rejects unreferenced components barrel", () => {
       "export { Button } from './Button';\n",
     );
     writeFixtureFile(root, "src/components/Button.tsx", "export function Button() { return null; }\n");
-    writeFixtureFile(root, "src/pages/Dashboard.tsx", "import { Button } from '../components/Button';\n");
+    writeFixtureFile(root, "src/features/dashboard/DashboardPage.tsx", "import { Button } from '../components/Button';\n");
 
     execFileSync(
       "git",
-      ["add", "package.json", "src/components/index.ts", "src/components/Button.tsx", "src/pages/Dashboard.tsx"],
+      ["add", "package.json", "src/components/index.ts", "src/components/Button.tsx", "src/features/dashboard/DashboardPage.tsx"],
       { cwd: root },
     );
 

@@ -21,7 +21,7 @@ import {
 
 // Lazy load pages for better initial load performance
 const SetupWizard = lazy(() => import("../features/onboarding"));
-const Dashboard = lazy(() => import("../pages/Dashboard"));
+const Dashboard = lazy(() => import("../features/dashboard"));
 const Applications = lazy(() => import("../features/applications"));
 const Resume = lazy(() => import("../pages/Resume"));
 const ResumeBuilder = lazy(() => import("../pages/ResumeBuilder"));
@@ -29,6 +29,11 @@ const ResumeOptimizer = lazy(() => import("../pages/ResumeOptimizer"));
 const Salary = lazy(() => import("../features/salary"));
 const Market = lazy(() => import("../features/market"));
 const ApplicationProfile = lazy(() => import("../features/application-assist"));
+const ApplyButton = lazy(() =>
+  import("../features/application-assist").then((module) => ({
+    default: module.ApplyButton,
+  })),
+);
 
 // Loading fallback for lazy-loaded pages
 function PageLoader({ message = "Loading..." }: { message?: string }) {
@@ -245,6 +250,23 @@ function App() {
                 <PageErrorBoundary pageName="Dashboard">
                   <Dashboard
                     onNavigate={navigateTo}
+                    renderApplicationAssistAction={(job, onOpenApplicationAssist) => (
+                      <Suspense fallback={null}>
+                        <ApplyButton
+                          job={{
+                            id: job.id,
+                            hash: job.hash ?? `job-${job.id}`,
+                            title: job.title,
+                            company: job.company,
+                            location: job.location ?? "",
+                            url: job.url,
+                            description: job.description ?? undefined,
+                            score: job.score ?? undefined,
+                          }}
+                          onOpenApplicationAssist={onOpenApplicationAssist}
+                        />
+                      </Suspense>
+                    )}
                     showSettings={showSettings}
                     onShowSettingsChange={setShowSettings}
                     openImportOnMount={openImportOnDashboard}

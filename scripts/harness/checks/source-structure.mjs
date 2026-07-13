@@ -30,7 +30,7 @@ const unreferencedSourceHelpers = new Map([
 const unreferencedBarrelModules = new Set([
   "src/features/application-assist/index.ts",
   "src/components/feedback/index.ts",
-  "src/pages/DashboardUI/index.ts",
+  "src/features/dashboard/components/index.ts",
 ]);
 
 function isProductionTypeScriptSource(path) {

@@ -179,14 +179,14 @@ function formatSuggestionCategory(category: AtsSuggestion["category"]): string {
 
 test("frontend contracts detect runtime invokes missing dev mock cases", () => {
   withFixture((root) => {
-    writeFixtureFile(root, "src/pages/Dashboard.tsx", 'invoke("search_jobs");\n');
+    writeFixtureFile(root, "src/features/dashboard/DashboardPage.tsx", 'invoke("search_jobs");\n');
     writeFixtureFile(root, "src/mocks/handlers.ts", 'case "get_jobs": return [];\n');
-    trackFixtureFiles(root, ["src/pages/Dashboard.tsx", "src/mocks/handlers.ts"]);
+    trackFixtureFiles(root, ["src/features/dashboard/DashboardPage.tsx", "src/mocks/handlers.ts"]);
 
     assert.deepEqual(missingRuntimeMockInvokeCases(root, "src/mocks/handlers.ts"), [
       "search_jobs",
     ]);
-    assert.deepEqual(missingRuntimeMockInvokeCases(root, "src/pages/Dashboard.tsx"), []);
+    assert.deepEqual(missingRuntimeMockInvokeCases(root, "src/features/dashboard/DashboardPage.tsx"), []);
   });
 });
 
@@ -194,11 +194,11 @@ test("frontend contracts ignore commented runtime invokes when checking mock cas
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src/pages/Dashboard.tsx",
+      "src/features/dashboard/DashboardPage.tsx",
       '// invoke("commented_out");\nconst href = "https://example.com//not-a-comment";\n',
     );
     writeFixtureFile(root, "src/mocks/handlers.ts", "");
-    trackFixtureFiles(root, ["src/pages/Dashboard.tsx", "src/mocks/handlers.ts"]);
+    trackFixtureFiles(root, ["src/features/dashboard/DashboardPage.tsx", "src/mocks/handlers.ts"]);
 
     assert.deepEqual(missingRuntimeMockInvokeCases(root, "src/mocks/handlers.ts"), []);
   });

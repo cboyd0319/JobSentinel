@@ -385,12 +385,12 @@ test("checkRepoBloat rejects frontend direct-open deep link fallbacks", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/components/JobCard.tsx",
+      "src/features/dashboard/components/JobCard.tsx",
       "try { await openDeepLink(url); } catch { window.open(url, '_blank'); }\n",
     );
     writeFixtureFile(
       root,
-      "src/pages/Dashboard.tsx",
+      "src/features/dashboard/DashboardPage.tsx",
       "try { await openDeepLink(job.url); } catch { window.open(job.url, '_blank'); }\n",
     );
 
@@ -399,8 +399,8 @@ test("checkRepoBloat rejects frontend direct-open deep link fallbacks", () => {
       [
         "add",
         "package.json",
-        "src/components/JobCard.tsx",
-        "src/pages/Dashboard.tsx",
+        "src/features/dashboard/components/JobCard.tsx",
+        "src/features/dashboard/DashboardPage.tsx",
       ],
       { cwd: root },
     );
@@ -408,11 +408,11 @@ test("checkRepoBloat rejects frontend direct-open deep link fallbacks", () => {
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("route job URL opens through backend guard only: src/components/JobCard.tsx"),
+      violations.includes("route job URL opens through backend guard only: src/features/dashboard/components/JobCard.tsx"),
       violations.join("\n"),
     );
     assert.ok(
-      violations.includes("route job URL opens through backend guard only: src/pages/Dashboard.tsx"),
+      violations.includes("route job URL opens through backend guard only: src/features/dashboard/DashboardPage.tsx"),
       violations.join("\n"),
     );
   });

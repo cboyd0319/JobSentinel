@@ -61,15 +61,15 @@ test("plans harness, markdown, and bloat checks for design contract docs", () =>
 
 test("plans focused frontend tests when adjacent coverage exists", () => {
   withFixture((root) => {
-    writeFixtureFile(root, "src/components/JobCard.test.tsx");
+    writeFixtureFile(root, "src/features/dashboard/components/JobCard.test.tsx");
 
     const plan = summarizeHarnessPlan(root, {
-      changedFiles: ["src/components/JobCard.tsx"],
+      changedFiles: ["src/features/dashboard/components/JobCard.tsx"],
     });
 
     assert.deepEqual(commandsFor(plan), [
       "npm run lint",
-      "npm run test:run -- src/components/JobCard.test.tsx",
+      "npm run test:run -- src/features/dashboard/components/JobCard.test.tsx",
       "npm run lint:bloat",
     ]);
     assert.match(formatHarnessPlan(plan), /Manual visual proof required/);

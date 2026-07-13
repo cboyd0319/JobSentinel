@@ -104,12 +104,12 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "src/pages/DashboardUI/DashboardFiltersBar.tsx",
+      "src/features/dashboard/components/DashboardFiltersBar.tsx",
       "<p>Comma or OR: react, vue</p><p>AND: senior AND engineer</p>\n",
     );
     writeFixtureFile(
       root,
-      "src/pages/Dashboard.tsx",
+      "src/features/dashboard/DashboardPage.tsx",
       '<input placeholder="e.g., Remote Rust Jobs" />\n',
     );
     writeFixtureFile(
@@ -129,7 +129,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/ScoreBreakdownModal.test.tsx",
+      "src/features/dashboard/components/ScoreBreakdownModal.test.tsx",
       'jobTitle="Senior Engineer"; "Title matches: Senior Engineer";\n',
     );
     writeFixtureFile(
@@ -139,7 +139,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/JobImportModal.tsx",
+      "src/features/dashboard/components/JobImportModal.tsx",
       '<input placeholder="https://example.com/jobs/software-engineer" />\n',
     );
     writeFixtureFile(
@@ -280,7 +280,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/JobCard.test.tsx",
+      "src/features/dashboard/components/JobCard.test.tsx",
       [
         'title: "Senior Software Engineer",',
         'company: "Tech Corp",',
@@ -529,17 +529,17 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "src/pages/hooks/useDashboardFilters.test.ts",
+      "src/features/dashboard/hooks/useDashboardFilters.test.ts",
       'title: "Software Engineer",\n',
     );
     writeFixtureFile(
       root,
-      "src/pages/hooks/useDashboardJobOps.test.ts",
+      "src/features/dashboard/hooks/useDashboardJobOps.test.ts",
       'description: "Unbookmarked: Software Engineer",\n',
     );
     writeFixtureFile(
       root,
-      "src/pages/hooks/useDashboardSavedSearches.test.ts",
+      "src/features/dashboard/hooks/useDashboardSavedSearches.test.ts",
       [
         'name: "Remote Rust",',
         'result.current.setNewSearchName("Remote Rust");',
@@ -548,7 +548,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "src/pages/hooks/useDashboardSearch.test.ts",
+      "src/features/dashboard/hooks/useDashboardSearch.test.ts",
       'mockInvoke.mockResolvedValueOnce(["rust remote"]);\n',
     );
     writeFixtureFile(
@@ -622,13 +622,13 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "add",
         "package.json",
         "examples/resumes/sample-json-resume.json",
-        "src/pages/Dashboard.tsx",
+        "src/features/dashboard/DashboardPage.tsx",
         "src/features/onboarding/SetupWizard.tsx",
         "src/features/salary/SalaryPage.tsx",
-        "src/pages/DashboardUI/DashboardFiltersBar.tsx",
+        "src/features/dashboard/components/DashboardFiltersBar.tsx",
         "src/components/CompanyResearchPanel.tsx",
         "src/features/applications/CoverLetterTemplates.tsx",
-        "src/components/JobImportModal.tsx",
+        "src/features/dashboard/components/JobImportModal.tsx",
         "src/mocks/data.ts",
         "src/mocks/handlers.ts",
         "src/mocks/handlers.test.ts",
@@ -646,8 +646,8 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src/features/application-assist/ApplyButton.test.tsx",
         "src/components/AtsLiveScorePanel.test.tsx",
         "src/components/CompanyResearchPanel.test.tsx",
-        "src/components/ScoreBreakdownModal.test.tsx",
-        "src/components/JobCard.test.tsx",
+        "src/features/dashboard/components/ScoreBreakdownModal.test.tsx",
+        "src/features/dashboard/components/JobCard.test.tsx",
         "src/features/market/LocationHeatmap.test.tsx",
         "src/contexts/UndoIntegration.test.tsx",
         "src/components/NotificationPreferences.test.tsx",
@@ -693,10 +693,10 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src-tauri/src/core/bookmarklet/server.rs",
         "src-tauri/src/core/scoring/mod.rs",
         "src-tauri/src/core/scoring/remote.rs",
-        "src/pages/hooks/useDashboardFilters.test.ts",
-        "src/pages/hooks/useDashboardJobOps.test.ts",
-        "src/pages/hooks/useDashboardSavedSearches.test.ts",
-        "src/pages/hooks/useDashboardSearch.test.ts",
+        "src/features/dashboard/hooks/useDashboardFilters.test.ts",
+        "src/features/dashboard/hooks/useDashboardJobOps.test.ts",
+        "src/features/dashboard/hooks/useDashboardSavedSearches.test.ts",
+        "src/features/dashboard/hooks/useDashboardSearch.test.ts",
         "tests/e2e/playwright/hiring-trends.spec.ts",
         "tests/e2e/playwright/application-assist.spec.ts",
         "tests/e2e/playwright/page-objects/OneClickApplyPage.ts",
@@ -727,12 +727,12 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     for (const path of [
       "examples/resumes/sample-json-resume.json",
       "src/features/salary/SalaryPage.tsx",
-      "src/pages/Dashboard.tsx",
+      "src/features/dashboard/DashboardPage.tsx",
       "src/features/onboarding/SetupWizard.tsx",
-      "src/pages/DashboardUI/DashboardFiltersBar.tsx",
+      "src/features/dashboard/components/DashboardFiltersBar.tsx",
       "src/components/CompanyResearchPanel.tsx",
       "src/features/applications/CoverLetterTemplates.tsx",
-      "src/components/JobImportModal.tsx",
+      "src/features/dashboard/components/JobImportModal.tsx",
       "src/mocks/data.ts",
       "src/mocks/handlers.ts",
       "src/mocks/handlers.test.ts",
@@ -750,8 +750,8 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src/features/application-assist/ApplyButton.test.tsx",
       "src/components/AtsLiveScorePanel.test.tsx",
       "src/components/CompanyResearchPanel.test.tsx",
-      "src/components/ScoreBreakdownModal.test.tsx",
-      "src/components/JobCard.test.tsx",
+      "src/features/dashboard/components/ScoreBreakdownModal.test.tsx",
+      "src/features/dashboard/components/JobCard.test.tsx",
       "src/features/market/LocationHeatmap.test.tsx",
       "src/contexts/UndoIntegration.test.tsx",
       "src/components/NotificationPreferences.test.tsx",
@@ -797,10 +797,10 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src-tauri/src/core/bookmarklet/server.rs",
       "src-tauri/src/core/scoring/mod.rs",
       "src-tauri/src/core/scoring/remote.rs",
-      "src/pages/hooks/useDashboardFilters.test.ts",
-      "src/pages/hooks/useDashboardJobOps.test.ts",
-      "src/pages/hooks/useDashboardSavedSearches.test.ts",
-      "src/pages/hooks/useDashboardSearch.test.ts",
+      "src/features/dashboard/hooks/useDashboardFilters.test.ts",
+      "src/features/dashboard/hooks/useDashboardJobOps.test.ts",
+      "src/features/dashboard/hooks/useDashboardSavedSearches.test.ts",
+      "src/features/dashboard/hooks/useDashboardSearch.test.ts",
       "tests/e2e/playwright/hiring-trends.spec.ts",
       "tests/e2e/playwright/application-assist.spec.ts",
       "tests/e2e/playwright/page-objects/OneClickApplyPage.ts",

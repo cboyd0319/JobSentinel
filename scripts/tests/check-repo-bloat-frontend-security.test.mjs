@@ -333,7 +333,7 @@ test("checkRepoBloat rejects unsafe reason JSON parsing", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/GhostIndicator.tsx",
+      "src/features/dashboard/components/GhostIndicator.tsx",
       [
         "function parseReasons(reasonsJson) {",
         "  try {",
@@ -348,7 +348,7 @@ test("checkRepoBloat rejects unsafe reason JSON parsing", () => {
 
     execFileSync(
       "git",
-      ["add", "package.json", "src/components/ScoreDisplay.tsx", "src/components/GhostIndicator.tsx"],
+      ["add", "package.json", "src/components/ScoreDisplay.tsx", "src/features/dashboard/components/GhostIndicator.tsx"],
       { cwd: root },
     );
 
@@ -359,7 +359,7 @@ test("checkRepoBloat rejects unsafe reason JSON parsing", () => {
       violations.join("\n"),
     );
     assert.ok(
-      violations.includes("validate reason JSON before rendering: src/components/GhostIndicator.tsx"),
+      violations.includes("validate reason JSON before rendering: src/features/dashboard/components/GhostIndicator.tsx"),
       violations.join("\n"),
     );
   });

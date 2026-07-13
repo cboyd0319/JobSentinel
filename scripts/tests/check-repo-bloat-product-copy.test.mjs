@@ -73,7 +73,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/JobCard.tsx",
+      "src/features/dashboard/components/JobCard.tsx",
       [
         '"Invalid URL"',
         "<SourceIcon />{job.source}",
@@ -84,7 +84,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/jobCardGuidance.ts",
+      "src/features/dashboard/components/jobCardGuidance.ts",
       '"Below your pay floor"\n',
     );
     writeFixtureFile(
@@ -155,7 +155,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/DashboardWidgets.tsx",
+      "src/features/dashboard/components/DashboardWidgets.tsx",
       '{ name: "Technical", value: appStats.by_status.technical_interview }\n',
     );
     writeFixtureFile(
@@ -257,7 +257,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/JobImportModal.tsx",
+      "src/features/dashboard/components/JobImportModal.tsx",
       [
         '"Import Job from URL"',
         '"Job URL"',
@@ -273,7 +273,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/ScoreBreakdownModal.tsx",
+      "src/features/dashboard/components/ScoreBreakdownModal.tsx",
       '"Job title and keyword matches"\n',
     );
     writeFixtureFile(
@@ -371,7 +371,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/pages/Dashboard.tsx",
+      "src/features/dashboard/DashboardPage.tsx",
       [
         '"This job posting URL is not valid or safe to open"; "Unable to open the job posting URL";',
         '"Scanning job boards..."; "Scan complete!";',
@@ -382,12 +382,12 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/pages/hooks/useDashboardJobOps.ts",
+      "src/features/dashboard/hooks/useDashboardJobOps.ts",
       "toast.error(enhancedError.userFriendly?.title || \"Bulk Bookmark Failed\", enhancedError.userFriendly?.message || \"Try again\");\n",
     );
     writeFixtureFile(
       root,
-      "src/pages/hooks/useDashboardSavedSearches.ts",
+      "src/features/dashboard/hooks/useDashboardSavedSearches.ts",
       "toast.error(enhanced.userFriendly?.title || \"Search wasn't saved\", enhanced.userFriendly?.message || \"Try again\");\n",
     );
     writeFixtureFile(
@@ -397,7 +397,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/pages/DashboardUI/QuickActions.tsx",
+      "src/features/dashboard/components/QuickActions.tsx",
       '"Import a job from any website URL"\n',
     );
     writeFixtureFile(
@@ -466,7 +466,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/pages/DashboardUI/DashboardHeader.tsx",
+      "src/features/dashboard/components/DashboardHeader.tsx",
       '"Currently scanning job boards"; "Ready to scan";\n',
     );
     writeFixtureFile(
@@ -539,11 +539,11 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/pages/ResumeOptimizer.tsx",
         "src/features/applications/ApplicationsPage.tsx",
         "src/features/application-assist/ApplicationProfilePage.tsx",
-        "src/pages/Dashboard.tsx",
-        "src/pages/DashboardUI/DashboardHeader.tsx",
-        "src/pages/hooks/useDashboardJobOps.ts",
-        "src/pages/hooks/useDashboardSavedSearches.ts",
-        "src/pages/DashboardUI/QuickActions.tsx",
+        "src/features/dashboard/DashboardPage.tsx",
+        "src/features/dashboard/components/DashboardHeader.tsx",
+        "src/features/dashboard/hooks/useDashboardJobOps.ts",
+        "src/features/dashboard/hooks/useDashboardSavedSearches.ts",
+        "src/features/dashboard/components/QuickActions.tsx",
         "src/features/market/MarketPage.tsx",
         "src/pages/ResumeBuilder.tsx",
         "src/features/salary/SalaryPage.tsx",
@@ -555,15 +555,15 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/components/DeepLinkGenerator.tsx",
         "src/components/ErrorBoundary.tsx",
         "src/components/ErrorLogPanel.tsx",
-        "src/components/ScoreBreakdownModal.tsx",
+        "src/features/dashboard/components/ScoreBreakdownModal.tsx",
         "src/components/ScoreDisplay.tsx",
         "src/components/ScraperHealthDashboard.tsx",
-        "src/components/JobImportModal.tsx",
-        "src/components/JobCard.tsx",
-        "src/components/jobCardGuidance.ts",
+        "src/features/dashboard/components/JobImportModal.tsx",
+        "src/features/dashboard/components/JobCard.tsx",
+        "src/features/dashboard/components/jobCardGuidance.ts",
         "src/components/AtsLiveScorePanel.tsx",
         "src/features/applications/AnalyticsPanel.tsx",
-        "src/components/DashboardWidgets.tsx",
+        "src/features/dashboard/components/DashboardWidgets.tsx",
         "src/features/applications/InterviewScheduler.tsx",
         "src/features/onboarding/CareerProfileSelector.tsx",
         "src/components/CommandPalette.tsx",
@@ -597,11 +597,11 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/pages/ResumeOptimizer.tsx",
       "src/features/applications/ApplicationsPage.tsx",
       "src/features/application-assist/ApplicationProfilePage.tsx",
-      "src/pages/Dashboard.tsx",
-      "src/pages/DashboardUI/DashboardHeader.tsx",
-      "src/pages/hooks/useDashboardJobOps.ts",
-      "src/pages/hooks/useDashboardSavedSearches.ts",
-      "src/pages/DashboardUI/QuickActions.tsx",
+      "src/features/dashboard/DashboardPage.tsx",
+      "src/features/dashboard/components/DashboardHeader.tsx",
+      "src/features/dashboard/hooks/useDashboardJobOps.ts",
+      "src/features/dashboard/hooks/useDashboardSavedSearches.ts",
+      "src/features/dashboard/components/QuickActions.tsx",
       "src/features/market/MarketPage.tsx",
       "src/pages/ResumeBuilder.tsx",
       "src/features/salary/SalaryPage.tsx",
@@ -613,14 +613,14 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/components/DeepLinkGenerator.tsx",
       "src/components/ErrorBoundary.tsx",
       "src/components/ErrorLogPanel.tsx",
-      "src/components/ScoreBreakdownModal.tsx",
+      "src/features/dashboard/components/ScoreBreakdownModal.tsx",
       "src/components/ScoreDisplay.tsx",
       "src/components/ScraperHealthDashboard.tsx",
-      "src/components/JobImportModal.tsx",
-      "src/components/JobCard.tsx",
+      "src/features/dashboard/components/JobImportModal.tsx",
+      "src/features/dashboard/components/JobCard.tsx",
       "src/components/AtsLiveScorePanel.tsx",
       "src/features/applications/AnalyticsPanel.tsx",
-      "src/components/DashboardWidgets.tsx",
+      "src/features/dashboard/components/DashboardWidgets.tsx",
       "src/features/applications/InterviewScheduler.tsx",
       "src/features/onboarding/CareerProfileSelector.tsx",
       "src/components/CommandPalette.tsx",

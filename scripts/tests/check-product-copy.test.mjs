@@ -209,7 +209,7 @@ test("product copy rejects non-protective salary-floor troubleshooting", () => {
     );
     writeFixtureFile(
       root,
-      "src/pages/DashboardUI/noJobsEmptyStateCopy.ts",
+      "src/features/dashboard/components/noJobsEmptyStateCopy.ts",
       "If a search comes back empty, broaden the role title, location, or lowest pay you want.\n",
     );
 
@@ -218,7 +218,7 @@ test("product copy rejects non-protective salary-floor troubleshooting", () => {
       true,
     );
     assert.equal(
-      hasNonProtectivePayFloorRecoveryCopy(root, "src/pages/DashboardUI/noJobsEmptyStateCopy.ts"),
+      hasNonProtectivePayFloorRecoveryCopy(root, "src/features/dashboard/components/noJobsEmptyStateCopy.ts"),
       true,
     );
     assert.equal(
@@ -456,29 +456,29 @@ test("product copy rejects non-protective scoring and legacy preference copy", (
       "src/utils/scoreUtils.ts",
       'if (score >= 90) return "Excellent";\nif (score >= 80) return "Great";\nreturn "Poor";\n',
     );
-    writeFixtureFile(root, "src/pages/DashboardUI/filterLabels.ts", "Strong (70%+)\n");
+    writeFixtureFile(root, "src/features/dashboard/components/filterLabels.ts", "Strong (70%+)\n");
     writeFixtureFile(
       root,
       "docs/features/smart-scoring.md",
       "Match Priority Guide\nThese percentages explain the default priority order.\n",
     );
-    writeFixtureFile(root, "src/components/ScoreBreakdownModal.tsx", "40% influence\n");
+    writeFixtureFile(root, "src/features/dashboard/components/ScoreBreakdownModal.tsx", "40% influence\n");
     writeFixtureFile(
       root,
       "src/components/ResumeMatchScoreBreakdown.tsx",
       "(50% influence)\nOverall match uses these default priorities.\n",
     );
-    writeFixtureFile(root, "src/components/GhostIndicator.tsx", "Posting Risk Warning\nGeneric Content\n");
+    writeFixtureFile(root, "src/features/dashboard/components/GhostIndicator.tsx", "Posting Risk Warning\nGeneric Content\n");
 
     assert.equal(hasNonProtectiveScoreCopy(root, "src/components/ScoreDisplay.tsx"), true);
-    assert.equal(hasNonProtectiveScoreCopy(root, "src/pages/DashboardUI/filterLabels.ts"), true);
+    assert.equal(hasNonProtectiveScoreCopy(root, "src/features/dashboard/components/filterLabels.ts"), true);
     assert.equal(hasNonProtectiveScoreCopy(root, "docs/features/smart-scoring.md"), true);
-    assert.equal(hasNonProtectiveScoreCopy(root, "src/components/ScoreBreakdownModal.tsx"), true);
+    assert.equal(hasNonProtectiveScoreCopy(root, "src/features/dashboard/components/ScoreBreakdownModal.tsx"), true);
     assert.equal(
       hasNonProtectiveScoreCopy(root, "src/components/ResumeMatchScoreBreakdown.tsx"),
       true,
     );
-    assert.equal(hasNonProtectiveScoreCopy(root, "src/components/GhostIndicator.tsx"), true);
+    assert.equal(hasNonProtectiveScoreCopy(root, "src/features/dashboard/components/GhostIndicator.tsx"), true);
     assert.equal(
       hasLegacyPreferenceListCopy(root, "docs/features/application-tracking.md"),
       true,
@@ -497,16 +497,16 @@ test("product copy rejects stale match-ranking labels", () => {
       ["src/components/ScoreDisplay.stories.tsx", "Low (&lt;50%)"],
       ["src/components/ScoreDisplay.stories.tsx", "AllScoreRanges"],
       ["src/components/ScoreDisplay.stories.tsx", "HighScore"],
-      ["src/components/ScoreBreakdownModal.tsx", "Match Details"],
-      ["src/components/ScoreBreakdownModal.tsx", "Part of overall score"],
+      ["src/features/dashboard/components/ScoreBreakdownModal.tsx", "Match Details"],
+      ["src/features/dashboard/components/ScoreBreakdownModal.tsx", "Part of overall score"],
       ["src/components/ScoreDisplay.tsx", "Score factor weights"],
       ["src/components/ScoreDisplay.tsx", "<td>{factor.weight}%</td>"],
-      ["src/components/ScoreBreakdownModal.tsx", "<span>{factorPercentage}%</span>"],
+      ["src/features/dashboard/components/ScoreBreakdownModal.tsx", "<span>{factorPercentage}%</span>"],
       ["src/pages/ResumeOptimizer.tsx", "Format result: ${Math.round(result.format_score)}%"],
       ["src/pages/ResumeOptimizer.tsx", "Overall Match"],
       ["src/pages/ResumeOptimizer.tsx", "<span>{Math.round(score)}%</span>"],
-      ["src/pages/DashboardUI/filterLabels.ts", "Best Match First"],
-      ["src/pages/DashboardUI/filterLabels.ts", "Lowest Match First"],
+      ["src/features/dashboard/components/filterLabels.ts", "Best Match First"],
+      ["src/features/dashboard/components/filterLabels.ts", "Lowest Match First"],
       ["src/features/onboarding/SetupWizard.tsx", "strongest matches"],
       ["docs/user/QUICK_START.md", "weaker or adjacent matches"],
       ["docs/features/smart-scoring.md", "Low Match"],

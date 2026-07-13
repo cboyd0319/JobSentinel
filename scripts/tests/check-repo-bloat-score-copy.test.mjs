@@ -39,7 +39,7 @@ test("checkRepoBloat rejects non-protective score copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/ScoreBreakdownModal.tsx",
+      "src/features/dashboard/components/ScoreBreakdownModal.tsx",
       'const detail = "You might want to skip it"; const help = "You can adjust scoring weights in Settings";\n',
     );
     writeFixtureFile(
@@ -59,12 +59,12 @@ test("checkRepoBloat rejects non-protective score copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/pages/DashboardUI/DashboardFiltersBar.tsx",
+      "src/features/dashboard/components/DashboardFiltersBar.tsx",
       '"Score (High → Low)"; "Score (Low → High)"; label="Score"; "All Scores";\n',
     );
     writeFixtureFile(
       root,
-      "src/pages/Dashboard.tsx",
+      "src/features/dashboard/DashboardPage.tsx",
       'return <><li>Sort: {filters.sortBy}</li><li>Score: {filters.scoreFilter}</li><CompareRow label="Match Score" /></>;\n',
     );
     writeFixtureFile(
@@ -99,9 +99,9 @@ test("checkRepoBloat rejects non-protective score copy", () => {
         "src/config/tourSteps.ts",
         "src/components/ResumeMatchScoreBreakdown.tsx",
         "src/components/ScoreDisplay.tsx",
-        "src/components/ScoreBreakdownModal.tsx",
-        "src/pages/Dashboard.tsx",
-        "src/pages/DashboardUI/DashboardFiltersBar.tsx",
+        "src/features/dashboard/components/ScoreBreakdownModal.tsx",
+        "src/features/dashboard/DashboardPage.tsx",
+        "src/features/dashboard/components/DashboardFiltersBar.tsx",
         "src/pages/Settings.tsx",
       ],
       { cwd: root },
@@ -114,7 +114,7 @@ test("checkRepoBloat rejects non-protective score copy", () => {
       violations.join("\n"),
     );
     assert.ok(
-      violations.includes("keep score copy protective: src/components/ScoreBreakdownModal.tsx"),
+      violations.includes("keep score copy protective: src/features/dashboard/components/ScoreBreakdownModal.tsx"),
       violations.join("\n"),
     );
     assert.ok(
@@ -129,12 +129,12 @@ test("checkRepoBloat rejects non-protective score copy", () => {
     );
     assert.ok(
       violations.includes(
-        "keep score copy protective: src/pages/DashboardUI/DashboardFiltersBar.tsx",
+        "keep score copy protective: src/features/dashboard/components/DashboardFiltersBar.tsx",
       ),
       violations.join("\n"),
     );
     assert.ok(
-      violations.includes("keep score copy protective: src/pages/Dashboard.tsx"),
+      violations.includes("keep score copy protective: src/features/dashboard/DashboardPage.tsx"),
       violations.join("\n"),
     );
     assert.ok(

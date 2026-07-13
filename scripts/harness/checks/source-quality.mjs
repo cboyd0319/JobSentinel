@@ -10,8 +10,8 @@ const databaseLogEmojiPaths = new Set([
 
 const scoreReasonJsonParserPaths = new Set([
   "src/components/ScoreDisplay.tsx",
-  "src/components/ScoreBreakdownModal.tsx",
-  "src/components/GhostIndicator.tsx",
+  "src/features/dashboard/components/ScoreBreakdownModal.tsx",
+  "src/features/dashboard/components/GhostIndicator.tsx",
 ]);
 
 const storageJsonParserPaths = new Set([
@@ -192,7 +192,7 @@ export function hasUnsafeScoreReasonJsonParsing(root, path) {
   }
 
   const text = readFileSync(join(root, path), "utf8");
-  if (path === "src/components/GhostIndicator.tsx") {
+  if (path === "src/features/dashboard/components/GhostIndicator.tsx") {
     return (
       /return\s+JSON\.parse\(reasonsJson\)/.test(text) ||
       !/function\s+isGhostReason/.test(text) ||

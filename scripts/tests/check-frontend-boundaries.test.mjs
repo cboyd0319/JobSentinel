@@ -118,7 +118,7 @@ test("checkFrontendBoundaries resolves tsconfig path aliases", () => {
       root,
       "src/components/BadImport.tsx",
       `
-import { Dashboard } from "@/pages/Dashboard";
+import { Dashboard } from "@/features/dashboard/DashboardPage";
 
 export function BadImport() {
   return <Dashboard />;
@@ -127,7 +127,7 @@ export function BadImport() {
     );
     writeFixtureFile(
       root,
-      "src/pages/Dashboard.tsx",
+      "src/features/dashboard/DashboardPage.tsx",
       `
 export function Dashboard() {
   return null;
@@ -140,7 +140,7 @@ export function Dashboard() {
     assert.ok(
       violations.some((violation) =>
         violation.includes(
-          "src/components/BadImport.tsx imports @/pages/Dashboard across forbidden boundary (components -> pages)",
+          "src/components/BadImport.tsx imports @/features/dashboard/DashboardPage across forbidden boundary (components -> features)",
         ),
       ),
       violations.join("\n"),

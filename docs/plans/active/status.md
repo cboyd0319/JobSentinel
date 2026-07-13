@@ -54,7 +54,7 @@ weakened.
 | Workstream | State | Current focus | Source |
 | ---------- | ----- | ------------- | ------ |
 | Current product and quality work | Active | Keep privacy, design, platform, harness, and release evidence aligned during the refactor | [Plan](current-work.md) |
-| Full repository refactor and v2.9.5 readiness | Active | Migrate frontend ownership after completing sensors, neutral resources, examples, and dead-code deletion | [Plan](repository-architecture-reorganization.md) |
+| Full repository refactor and v2.9.5 readiness | Active | Continue frontend ownership after completing the Dashboard and job-discovery slice | [Plan](repository-architecture-reorganization.md) |
 
 ## Current Posture
 
@@ -84,8 +84,8 @@ weakened.
 
 ## Next Best Work
 
-1. Implement Milestone 2 of the repository refactor: create frontend ownership
-   directories only as the first app and feature vertical slices move.
+1. Continue Milestone 2 of the repository refactor with the next
+   evidence-selected frontend ownership boundary.
 2. Keep every ownership slice green and remove transition code before accepting
    it.
 3. Keep future product work scoped by the current active plan and the

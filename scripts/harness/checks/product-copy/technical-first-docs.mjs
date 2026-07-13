@@ -179,7 +179,7 @@ export function getTechnicalFirstDocsResult(path, text) {
   }
 
   if (
-    path === "src/components/DashboardWidgets.tsx" &&
+    path === "src/features/dashboard/components/DashboardWidgets.tsx" &&
     (
       /setError\(\s*["'`]Could not load application summary["'`]\s*\)/i.test(text) ||
       /Analytics Dashboard|Analytics charts|Weekly Activity|Jobs by Source|Salary Distribution|Quick Stats/i.test(text)
@@ -188,7 +188,7 @@ export function getTechnicalFirstDocsResult(path, text) {
     return true;
   }
 
-  if (path === "src/components/JobImportModal.tsx") {
+  if (path === "src/features/dashboard/components/JobImportModal.tsx") {
     const importPatterns = [
       /Missing details:\s*\{?preview\.missing_fields\.join/i,
       /preview\.missing_fields\.join\(\s*["'`],\s*["'`]\s*\)/i,

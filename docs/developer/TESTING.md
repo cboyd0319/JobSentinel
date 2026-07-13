@@ -504,6 +504,9 @@ npm run doctor:e2e
 # Run local Chromium functional E2E tests
 npm run test:e2e
 
+# Use an isolated port when 5173 belongs to another local application
+PLAYWRIGHT_PORT=5174 npm run test:e2e
+
 # Run full cross-browser E2E tests
 npm run test:e2e:all
 
@@ -513,6 +516,10 @@ npm run test:e2e:all:budget
 # Run in interactive UI mode
 npm run test:e2e:ui
 ```
+
+Playwright starts and targets the same configurable Vite port. Set
+`PLAYWRIGHT_PORT` when another local server is already using the default port,
+so `reuseExistingServer` cannot attach the suite to an unrelated application.
 
 ### E2E Test Coverage
 
