@@ -5,11 +5,11 @@ import {
   generateMockFeedbackReport,
   sanitizeMockFeedbackText,
   saveMockFeedbackFile,
-} from "./supportReports";
+} from "../../shared/errorReporting/mocks/supportReports";
 import {
   hasConfiguredJobsWithGpt,
   hasEnabledMockScraperSource,
-} from "./scraperHealth";
+} from "../../features/settings/sources/mocks/scraperHealth";
 import {
   getArg,
   getDefaultGhostConfig,

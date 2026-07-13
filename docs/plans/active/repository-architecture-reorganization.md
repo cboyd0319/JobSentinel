@@ -879,10 +879,13 @@ evidence-log entry.
   components, contexts, hooks, pages, services, and utilities buckets are gone.
   Shared Tauri, location, source guidance, contact-field, date, currency,
   browser-download, support-report, and external-AI contracts have passing
-  evidence.
+  evidence. Application-platform, interview-progress, source-health, LinkedIn,
+  and safe support-report development mocks now live with their owners; mixed
+  root command groups remain to split before the dispatcher becomes a registry.
 - Evidence: live manifests, imports, file counts, module graph, SQLx paths, CI,
   release scripts, harness sensors, Tamworth, and persona were inspected on 2026-07-13.
-- Next step: split the development mock dispatcher by feature ownership.
+- Next step: split mixed development mock command groups, then reduce the
+  dispatcher to deterministic registration.
 - Open risks: final SQLx offline metadata location and root Cargo target paths
   must be proven in isolated workspace and release fixtures before old paths are
   removed.

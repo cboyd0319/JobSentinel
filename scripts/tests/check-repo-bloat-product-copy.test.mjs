@@ -324,7 +324,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/mocks/handlers/atsPlatform.ts",
+      "src/features/application-assist/mocks/atsPlatform.ts",
       '"Unknown ATS. Review fields carefully before submitting."\n',
     );
     writeFixtureFile(
@@ -598,7 +598,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/features/settings/support/feedback/SuccessScreen.tsx",
         "src/app/keyboard/KeyboardShortcutsProvider.tsx",
         "src/mocks/handlers.ts",
-        "src/mocks/handlers/atsPlatform.ts",
+        "src/features/application-assist/mocks/atsPlatform.ts",
         "src/features/application-assist/applicationFormValidation.ts",
         "src/features/settings/credentials/notificationConnectionValidation.ts",
         "src/shared/validation/contactFieldValidation.ts",
@@ -658,7 +658,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/features/settings/support/feedback/SuccessScreen.tsx",
       "src/app/keyboard/KeyboardShortcutsProvider.tsx",
       "src/mocks/handlers.ts",
-      "src/mocks/handlers/atsPlatform.ts",
+      "src/features/application-assist/mocks/atsPlatform.ts",
       "src/features/application-assist/applicationFormValidation.ts",
       "src/features/settings/credentials/notificationConnectionValidation.ts",
       "src/shared/validation/contactFieldValidation.ts",

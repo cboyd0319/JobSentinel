@@ -16,10 +16,10 @@ import type {
 import type {
   MockInterviewFollowUpState,
   MockInterviewPrepState,
-} from "./interviewProgress";
+} from "../../features/applications/mocks/interviewProgress";
 import type { MockMarketAlert } from "../../features/market/mockHandlers";
 import type { MockBuilderSkill, MockResumeDraft } from "../../features/resumes/mocks/resumeBuilder";
-import type { MockScraperEnabledOverrides } from "./scraperHealth";
+import type { MockScraperEnabledOverrides } from "../../features/settings/sources/mocks/scraperHealth";
 
 export type MockJob = typeof mockJobs[number];
 export type MockConfig = typeof mockConfig;

@@ -42,7 +42,7 @@ const broadAudienceExamplePaths = new Set([
   "src/features/applications/CoverLetterTemplates.test.tsx",
   "src/features/market/MarketAlertCard.test.tsx",
   "src/features/market/MarketSnapshotCard.test.tsx",
-  "src/mocks/handlers/atsPlatform.ts",
+  "src/features/application-assist/mocks/atsPlatform.ts",
   "src/features/market/mockHandlers.ts",
   "src/features/resumes/mocks/resumeAnalysisRunner.ts",
   "src/features/resumes/mocks/resumeBulletPrompts.ts",

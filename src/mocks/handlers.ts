@@ -31,7 +31,7 @@ import {
   getMockScraperRuns,
   getMockSmokeTestResultForArgs,
   updateMockScraperEnabled,
-} from "./handlers/scraperHealth";
+} from "../features/settings/sources/mocks/scraperHealth";
 import {
   getMockInterviewFollowup,
   getMockInterviewPrepChecklist,
@@ -39,7 +39,7 @@ import {
   normalizeInterviewPrepState,
   saveMockInterviewFollowup,
   saveMockInterviewPrepItem,
-} from "./handlers/interviewProgress";
+} from "../features/applications/mocks/interviewProgress";
 import { handleMockJobTrackingCommand } from "./handlers/jobTrackingCommands";
 import { handleMockSettingsSupportCommand } from "./handlers/settingsSupportCommands";
 import { handleMockUserDataCommand } from "./handlers/userDataCommands";
@@ -68,12 +68,12 @@ import {
 import {
   getMockAtsPlatform,
   getMockAtsPlatformDetection,
-} from "./handlers/atsPlatform";
+} from "../features/application-assist/mocks/atsPlatform";
 import {
   generateMockNegotiationScript,
   getMockSalaryBenchmark,
 } from "../features/salary/mockHandlers";
-import { handleMockLinkedInWorkbenchCommand } from "./handlers/linkedinWorkbenchCommands";
+import { handleMockLinkedInWorkbenchCommand } from "../features/linkedin-workbench/mocks/commands";
 import {
   getDefaultMarketAlerts,
   getMockActiveCompanies,

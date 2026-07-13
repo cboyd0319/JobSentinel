@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { mockInvoke, resetMockData } from "../handlers";
+import { mockInvoke, resetMockData } from "../../../mocks/handlers";
 
 describe("mock application platform commands", () => {
   beforeEach(() => {
