@@ -26,7 +26,6 @@ chrono.workspace = true
 chromiumoxide.workspace = true
 dirs.workspace = true
 docx-rs.workspace = true
-dotenvy.workspace = true
 futures-util.workspace = true
 hex.workspace = true
 hf-hub = { workspace = true, optional = true }

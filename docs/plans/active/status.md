@@ -15,8 +15,9 @@ readiness effort. Milestones 0 through 6 are complete: structural sensors,
 neutral data ownership, frontend feature ownership, backend cycle repair, the
 explicit two-member Cargo workspace, core extraction, and the thin private
 Tauri shell, and final script and harness ownership all have passing evidence.
-The final file-cap slice of Milestone 7 is also complete with passing evidence;
-the remaining work is the full cleanup audit and release-readiness proof.
+The final file-cap, Rust lint-policy, and first Rust facade and target slices of
+Milestone 7 are also complete with passing evidence; the remaining work is the
+full cleanup audit and release-readiness proof.
 
 Observed release state on 2026-06-22 local time:
 
@@ -57,7 +58,7 @@ weakened.
 | Workstream | State | Current focus | Source |
 | ---------- | ----- | ------------- | ------ |
 | Current product and quality work | Active | Keep privacy, design, platform, harness, and release evidence aligned during the refactor | [Plan](current-work.md) |
-| Full repository refactor and v2.9.5 readiness | Active | Continue the Rust public-surface, dead-code, feature, and dependency audit | [Plan](repository-architecture-reorganization.md) |
+| Full repository refactor and v2.9.5 readiness | Active | Continue the Rust leaf-module visibility, dead-code, feature, and dependency audit | [Plan](repository-architecture-reorganization.md) |
 
 ## Current Posture
 
@@ -85,6 +86,8 @@ weakened.
   and 700 for maintained documents. The focused cap and policy harness passes.
 - Rust lint policy is centralized in the root workspace and enforced against
   crate-root policy drift.
+- The core crate exposes an explicit bounded facade. Its integration targets
+  are deliberate, and embedded model diagnostics do not expose cache paths.
 - Coverage for all configured source adapters and user-gated restricted-source
   paths must retain focused parser/import/gate evidence before any release-ready
   claim.

@@ -320,6 +320,26 @@ workspace = true
   });
 });
 
+test("checkRepositoryArchitecture rejects wildcard core facade exports", () => {
+  withFixture((root) => {
+    writeTargetWorkspace(root);
+    writeFixtureFile(
+      root,
+      "crates/jobsentinel-core/src/lib.rs",
+      "mod core;\npub use core::*;\n",
+    );
+
+    const violations = checkRepositoryArchitecture(root);
+
+    assert.ok(
+      violations.includes(
+        "crates/jobsentinel-core/src/lib.rs must export an explicit bounded core facade",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepositoryArchitecture enforces thin private Tauri entrypoints", () => {
   withFixture((root) => {
     writeTargetWorkspace(root);

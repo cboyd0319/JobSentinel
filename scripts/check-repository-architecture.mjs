@@ -222,9 +222,13 @@ function checkCoreBoundary(root, violations) {
 
   const libPath = "crates/jobsentinel-core/src/lib.rs";
   if (existsSync(join(root, libPath))) {
-    const lines = countLines(read(root, libPath));
+    const text = read(root, libPath);
+    const lines = countLines(text);
     if (lines > 100) {
       violations.push(`${libPath} must stay at or below 100 lines; found ${lines}`);
+    }
+    if (/\bpub\s+use\s+(?:crate::)?core::\*\s*;/.test(text)) {
+      violations.push(`${libPath} must export an explicit bounded core facade`);
     }
   }
 }

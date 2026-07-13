@@ -750,5 +750,5 @@ async fn test_ghost_score_persistence() {
 // Edge Cases
 // ============================================================================
 
-#[path = "database_integration_more.rs"]
+#[path = "database_integration_test/more.rs"]
 mod more;

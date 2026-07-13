@@ -8,13 +8,14 @@ use crate::core::ml::{load_model_manifest, model_lock_hash, ModelKind, ModelMana
 use crate::platforms;
 
 #[derive(Debug, Clone, serde::Serialize)]
-#[cfg_attr(not(feature = "embedded-ml"), allow(dead_code))]
 #[serde(rename_all = "snake_case")]
 pub enum SemanticMatchingRuntimeStatus {
+    #[cfg(feature = "embedded-ml")]
     Ready,
+    #[cfg(feature = "embedded-ml")]
     NeedsModelDownload,
+    #[cfg(not(feature = "embedded-ml"))]
     DisabledInThisBuild,
-    Misconfigured,
 }
 
 #[derive(Debug, Clone, serde::Serialize)]
@@ -125,10 +126,7 @@ fn model_diagnostic(
     model: &ModelSpec,
 ) -> SemanticMatchingModelDiagnostic {
     let required_files = model.required_files().count();
-    let required_files_present = model
-        .required_files()
-        .filter(|file| manager.model_file_path(model, file).exists())
-        .count();
+    let required_files_present = manager.required_files_present(model);
     let downloaded = manager.is_model_downloaded_for(model);
 
     SemanticMatchingModelDiagnostic {

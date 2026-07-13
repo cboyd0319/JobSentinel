@@ -5,9 +5,9 @@
 use crate::commands::errors::user_friendly_error;
 use crate::commands::AppState;
 use crate::core::ats::{
-    ApplicationStatus, ApplicationTracker, ApplicationsByStatus, PendingReminder,
+    ApplicationStats, ApplicationStatus, ApplicationTracker, ApplicationsByStatus,
+    InterviewWithJob, PendingReminder,
 };
-use crate::core::{ApplicationStats, InterviewWithJob};
 use tauri::State;
 
 /// Create a new application from a job

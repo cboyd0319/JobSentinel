@@ -72,7 +72,6 @@
     "sqlx": "Async SQLite access with compile-time-checked queries.",
     "libsqlite3-sys": "SQLite native bindings required by sqlx.",
     "chrono": "Date and time handling.",
-    "dotenvy": "Loads .env for local and development configuration.",
     "thiserror": "Derive macro for typed domain errors.",
     "anyhow": "Ergonomic error propagation outside domain error types.",
     "uuid": "Unique identifiers for records.",

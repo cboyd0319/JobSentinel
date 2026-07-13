@@ -15,6 +15,18 @@ use jobsentinel_core::{
 use std::sync::Arc;
 use tempfile::TempDir;
 
+#[cfg(feature = "embedded-ml")]
+#[test]
+fn model_cache_diagnostics_do_not_expose_cache_paths() {
+    let temp_dir = TempDir::new().unwrap();
+    let manifest = jobsentinel_core::ml::load_model_manifest().unwrap();
+    let model = manifest.models.first().unwrap();
+    let manager = jobsentinel_core::ml::ModelManager::new(temp_dir.path().to_path_buf());
+
+    assert_eq!(manager.required_files_present(model), 0);
+    assert!(!manager.is_model_downloaded_for(model));
+}
+
 /// Setup test environment using in-memory database
 async fn setup_test_env() -> (Arc<Database>, Arc<Config>, TempDir) {
     let temp_dir = TempDir::new().unwrap();

@@ -14,7 +14,8 @@ impl ModelManager {
         self.is_model_downloaded_for(&spec)
     }
 
-    pub(crate) fn is_model_downloaded_for(&self, spec: &ModelSpec) -> bool {
+    /// Return whether every required file exists and matches the model lock.
+    pub fn is_model_downloaded_for(&self, spec: &ModelSpec) -> bool {
         let model_dir = self.model_cache_dir(spec);
 
         if !model_dir.exists() {
@@ -25,6 +26,13 @@ impl ModelManager {
             let path = self.model_file_path(spec, file);
             path.exists() && verify_model_file_checksum(&path, &file.sha256).is_ok()
         })
+    }
+
+    /// Count required files present in the private model cache.
+    pub fn required_files_present(&self, spec: &ModelSpec) -> usize {
+        spec.required_files()
+            .filter(|file| self.model_file_path(spec, file).exists())
+            .count()
     }
 
     pub fn is_default_embedding_downloaded(&self) -> bool {

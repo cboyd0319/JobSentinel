@@ -3142,7 +3142,6 @@ dependencies = [
  "chrono",
  "dirs",
  "docx-rs",
- "dotenvy",
  "futures",
  "futures-util",
  "hex",
