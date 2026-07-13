@@ -299,6 +299,9 @@ the broader agent harness.
   import only a feature's public `index.ts` facade when composing features.
 - `src/features/<feature>/` owns a complete product slice, including its page,
   feature-local components, model, tests, and development mock handlers.
+  Current complete slices are `salary` and `market`; each exposes only its page
+  through `index.ts`, while models, panels, data hooks, and mock handlers remain
+  private to the feature or the development mock registry.
 - A feature must not import another feature's implementation files. Shared
   product-neutral code belongs in `src/shared/`; reusable UI belongs in
   `src/ui/` as those owners are established.

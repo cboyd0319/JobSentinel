@@ -80,7 +80,7 @@ import {
   getMockHottestLocations,
   getMockMarketSnapshot,
   getMockTrendingSkills,
-} from "./handlers/marketIntelligence";
+} from "../features/market/mockHandlers";
 import { normalizeResumeDraft } from "./handlers/resumeBuilder";
 import {
   cloneApplications,

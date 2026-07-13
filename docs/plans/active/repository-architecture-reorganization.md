@@ -466,7 +466,7 @@ or installed configuration path changes.
 
 - [ ] Create `src/app/`, `src/features/`, `src/ui/`, and the reduced
   `src/shared/` only as the first files move.
-- [ ] Move root app startup, providers, router, navigation, and route
+- [x] Move root app startup, providers, router, navigation, and route
   composition into `src/app/` without changing rendered behavior.
 - [x] Choose a low-coupling feature as the first vertical slice. Move its page,
   components, hooks, service, types, mocks, and tests together.
@@ -731,7 +731,7 @@ evidence-log entry.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
-| 2026-07-13 | Milestone 2 in progress | Moved the app composition root and navigation into `src/app/`, then completed the first vertical feature slice under `src/features/salary/`. The salary page, model, test, and development mock now have one owner; the 696-line page was split into production files of 269 lines or fewer; feature copy and schema sensors follow the new owners. Focused and full frontend tests, script tests, lint, architecture, build, app-shell E2E, and harness checks pass. |
+| 2026-07-13 | Milestone 2 in progress | Moved the app composition root and navigation into `src/app/`, then completed vertical feature slices under `src/features/salary/` and `src/features/market/`. Pages, models, private components, tests, and development mocks now follow feature ownership. The former 696-line Salary page and 679-line Market page were split into production files of 269 lines or fewer. Feature copy, schema, broad-audience, source-quality, and file-cap sensors follow the new owners. Focused and full frontend tests, all 758 script tests, lint, architecture, production builds, app-shell E2E, and harness checks pass. |
 | 2026-07-13 | Milestone 1 complete | Deleted four verified production-orphan component families, moved nine cross-runtime taxonomies to `resources/taxonomies/`, consolidated contributor samples under `examples/`, and updated every live consumer and harness path. Full frontend and script suites plus focused Rust consumers pass. |
 | 2026-07-13 | Milestone 0 complete | Added fail-first feature, workspace, thin-shell, file-cap, test-quality, harness-planning, CI classification, and ownership sensors. `test:scripts` passed 757 tests; focused architecture, bloat, test-quality, Markdown, and harness checks passed. No production paths moved. |
 | 2026-07-13 | Planned | Completed repo-wide inventory, boundary analysis, sibling-pattern comparison, and baseline harness checks. No production paths moved. |
@@ -782,20 +782,24 @@ evidence-log entry.
 - Milestone 1 is complete. Canonical cross-runtime taxonomies now have neutral
   ownership under `resources/`, contributor samples have one `examples/`
   owner, and four unused component families have been deleted.
+- Milestone 2 is in progress. App composition is owned by `src/app/`; Salary
+  and Hiring Trends are complete feature slices with public facades and private
+  implementation modules under `src/features/`.
 - No user data, schema, IPC contract, installed configuration path, privacy
-  boundary, or release artifact contract changed in Milestone 1.
+  boundary, or release artifact contract changed in Milestones 1 or 2 so far.
 
 ## Handoff
 
 - Current state: repo-wide structure audited; target ownership and migration
   order documented; privacy is the immutable product boundary; Milestones 0
-  and 1 pass their focused harnesses.
+  and 1 are complete; Milestone 2 has app, Salary, and Hiring Trends ownership
+  established with passing focused and full frontend checks.
 - Evidence: live manifests, imports, file counts, module graph, SQLx migration
   paths, CI, release scripts, harness sensors, Tamworth, and persona were
   inspected on 2026-07-13.
-- Next step: implement Milestone 2. Establish frontend `app`, `features`, `ui`,
-  and reduced `shared` ownership one vertical slice at a time, with public
-  feature facades and no cross-feature implementation imports.
+- Next step: continue Milestone 2 with the next evidence-selected frontend
+  feature. Establish `ui` and reduced `shared` ownership only when the first
+  proven multi-consumer module moves there.
 - Open risks: final SQLx offline metadata location and root Cargo target paths
   must be proven in isolated workspace and release fixtures before old paths are
   removed.

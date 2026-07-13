@@ -1,16 +1,8 @@
 import { memo, useState, useMemo } from "react";
-import { Badge } from "./Badge";
-import { Card } from "./Card";
-import { formatCurrency } from "../utils/formatUtils";
-
-interface LocationHeat {
-  location: string;
-  city: string | null;
-  state: string | null;
-  total_jobs: number;
-  avg_median_salary: number | null;
-  remote_percent: number;
-}
+import { Badge } from "../../components/Badge";
+import { Card } from "../../components/Card";
+import { formatCurrency } from "../../utils/formatUtils";
+import type { LocationHeat } from "./model";
 
 interface LocationHeatmapProps {
   locations: LocationHeat[];

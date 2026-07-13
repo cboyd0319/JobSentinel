@@ -1,22 +1,8 @@
 import { memo, type ReactNode } from "react";
-import { Badge } from "./Badge";
-import { Card } from "./Card";
-import { formatCurrency } from "../utils/formatUtils";
-
-interface MarketSnapshot {
-  date: string;
-  total_jobs: number;
-  new_jobs_today: number;
-  jobs_filled_today: number;
-  avg_salary: number | null;
-  median_salary: number | null;
-  remote_job_percentage: number;
-  top_skill: string | null;
-  top_company: string | null;
-  top_location: string | null;
-  total_companies_hiring: number;
-  market_sentiment: string;
-}
+import { Badge } from "../../components/Badge";
+import { Card } from "../../components/Card";
+import { formatCurrency } from "../../utils/formatUtils";
+import type { MarketSnapshot } from "./model";
 
 interface MarketSnapshotCardProps {
   snapshot: MarketSnapshot | null;

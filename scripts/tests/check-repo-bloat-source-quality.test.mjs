@@ -52,18 +52,18 @@ test("checkRepoBloat rejects production source emoji markers", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/pages/Market.tsx",
+      "src/features/market/MarketPage.tsx",
       'export const tabs = [{ id: "overview", label: "Overview", icon: "📊" }];\n',
     );
 
-    execFileSync("git", ["add", "package.json", "src/pages/Market.tsx"], {
+    execFileSync("git", ["add", "package.json", "src/features/market/MarketPage.tsx"], {
       cwd: root,
     });
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("replace production source emoji markers: src/pages/Market.tsx"),
+      violations.includes("replace production source emoji markers: src/features/market/MarketPage.tsx"),
       violations.join("\n"),
     );
   });
@@ -74,7 +74,7 @@ test("checkRepoBloat rejects production explicit-any lint suppressions", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/components/TrendChart.tsx",
+      "src/features/market/TrendChart.tsx",
       [
         "// eslint-disable-next-line @typescript-eslint/no-explicit-any",
         "type ChartData = Record<string, any>;",
@@ -82,7 +82,7 @@ test("checkRepoBloat rejects production explicit-any lint suppressions", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src/components/TrendChart.tsx"], {
+    execFileSync("git", ["add", "package.json", "src/features/market/TrendChart.tsx"], {
       cwd: root,
     });
 
@@ -90,7 +90,7 @@ test("checkRepoBloat rejects production explicit-any lint suppressions", () => {
 
     assert.ok(
       violations.includes(
-        "remove production explicit-any suppression: src/components/TrendChart.tsx",
+        "remove production explicit-any suppression: src/features/market/TrendChart.tsx",
       ),
       violations.join("\n"),
     );

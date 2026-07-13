@@ -463,7 +463,7 @@ test("product copy rejects technical-first settings copy", () => {
         "",
       ].join("\n"),
     );
-    writeFixtureFile(root, "src/pages/Market.tsx", "Failed to Load Market Data\n");
+    writeFixtureFile(root, "src/features/market/MarketPage.tsx", "Failed to Load Market Data\n");
     writeFixtureFile(
       root,
       "src/components/CompanyResearchPanel.tsx",
@@ -477,7 +477,7 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/MarketSnapshotCard.tsx",
+      "src/features/market/MarketSnapshotCard.tsx",
       [
         'aria-label={`Market sentiment: ${snapshot.market_sentiment}`}',
         "<span>{snapshot.market_sentiment}</span>",
@@ -487,7 +487,7 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/MarketSnapshotCard.test.tsx",
+      "src/features/market/MarketSnapshotCard.test.tsx",
       "expect(screen.getByRole('status', { name: /market sentiment: bullish/i })).toBeInTheDocument();\n",
     );
     writeFixtureFile(
@@ -818,8 +818,8 @@ test("product copy rejects technical-first settings copy", () => {
       "src/components/JobCard.tsx",
       "src/components/JobImportModal.tsx",
       "src/components/KeyboardShortcutsHelp.tsx",
-      "src/components/MarketSnapshotCard.test.tsx",
-      "src/components/MarketSnapshotCard.tsx",
+      "src/features/market/MarketSnapshotCard.test.tsx",
+      "src/features/market/MarketSnapshotCard.tsx",
       "src/components/NotificationPreferences.tsx",
       "src/components/ScoreBreakdownModal.tsx",
       "src/components/automation/ApplicationPreview.tsx",
@@ -840,7 +840,7 @@ test("product copy rejects technical-first settings copy", () => {
       "src/pages/DashboardUI/filterLabels.ts",
       "src/pages/DashboardUI/noJobsEmptyStateCopy.ts",
       "src/components/InterviewScheduler.tsx",
-      "src/pages/Market.tsx",
+      "src/features/market/MarketPage.tsx",
       "src/pages/ResumeOptimizer.tsx",
       "src/pages/Settings.tsx",
       "src/pages/SetupWizard.tsx",

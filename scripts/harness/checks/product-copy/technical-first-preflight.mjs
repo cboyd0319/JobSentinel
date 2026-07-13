@@ -20,13 +20,15 @@ const hiringTrendsCopyPaths = new Set([
   "docs/README.md",
   "docs/features/hiring-trends.md",
   "src/config/tourSteps.ts",
-  "src/components/LocationHeatmap.tsx",
-  "src/components/MarketAlertCard.tsx",
-  "src/components/MarketSnapshotCard.tsx",
+  "src/features/market/LocationHeatmap.tsx",
+  "src/features/market/MarketAlertCard.tsx",
+  "src/features/market/MarketHeader.tsx",
+  "src/features/market/MarketPanels.tsx",
+  "src/features/market/MarketSnapshotCard.tsx",
   "src/app/Navigation.tsx",
-  "src/mocks/handlers/marketIntelligence.ts",
-  "src/pages/Market.tsx",
-  "src/pages/marketErrorCopy.ts",
+  "src/features/market/mockHandlers.ts",
+  "src/features/market/MarketPage.tsx",
+  "src/features/market/errorCopy.ts",
   "tests/e2e/playwright/page-objects/MarketIntelligencePage.ts",
 ]);
 const firstRunPlainCopyPaths = new Set([
@@ -96,8 +98,8 @@ export function getTechnicalFirstPreflightResult(root, path) {
   }
 
   if (
-    path === "src/components/MarketSnapshotCard.tsx" ||
-    path === "src/components/MarketSnapshotCard.test.tsx"
+    path === "src/features/market/MarketSnapshotCard.tsx" ||
+    path === "src/features/market/MarketSnapshotCard.test.tsx"
   ) {
     const text = readFileSync(join(root, path), "utf8");
     const marketSnapshotPatterns = [
@@ -144,7 +146,11 @@ export function getTechnicalFirstPreflightResult(root, path) {
       return true;
     }
 
-    if (path === "src/pages/Market.tsx") {
+    if (
+      path === "src/features/market/MarketHeader.tsx" ||
+      path === "src/features/market/MarketPage.tsx" ||
+      path === "src/features/market/MarketPanels.tsx"
+    ) {
       return false;
     }
   }

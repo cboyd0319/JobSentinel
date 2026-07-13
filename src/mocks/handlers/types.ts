@@ -17,7 +17,7 @@ import type {
   MockInterviewFollowUpState,
   MockInterviewPrepState,
 } from "./interviewProgress";
-import type { MockMarketAlert } from "./marketIntelligence";
+import type { MockMarketAlert } from "../../features/market/mockHandlers";
 import type { MockBuilderSkill, MockResumeDraft } from "./resumeBuilder";
 import type { MockScraperEnabledOverrides } from "./scraperHealth";
 

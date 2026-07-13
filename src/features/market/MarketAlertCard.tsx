@@ -1,19 +1,7 @@
 import { memo } from "react";
-import { Button } from "./Button";
-import { formatCompactDateTime } from "../utils/formatUtils";
-
-interface MarketAlert {
-  id: number;
-  alert_type: string;
-  title: string;
-  description: string;
-  severity: string;
-  related_entity: string | null;
-  metric_value: number | null;
-  metric_change_pct: number | null;
-  is_read: boolean;
-  created_at: string;
-}
+import { Button } from "../../components/Button";
+import { formatCompactDateTime } from "../../utils/formatUtils";
+import type { MarketAlert } from "./model";
 
 interface MarketAlertCardProps {
   alert: MarketAlert;

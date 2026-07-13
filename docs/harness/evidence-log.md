@@ -30,6 +30,9 @@ exact command from `verification-matrix.md`, not a paraphrase.
 
 | Date | Command | Scope | Result | Exit | Notes |
 | ---- | ------- | ----- | ------ | ---- | ----- |
+| 2026-07-13 | `npm run test:e2e -- tests/e2e/playwright/app.spec.ts` | Milestone 2 Hiring Trends route cutover | pass | 0 | All 14 Chromium app-shell, navigation, keyboard, and responsive checks passed, including the Hiring Trends route. |
+| 2026-07-13 | `npm run test:run`, `npm run test:scripts`, and `npm run build` | Milestone 2 Market vertical slice and policy sensor ownership | pass | 0 | All 3,141 frontend tests, 758 script tests, TypeScript checks, and the 751-module production build passed after the feature move, data contract consolidation, and 679-line page split. |
+| 2026-07-13 | `npm run lint`, `npm run lint:architecture`, and `npm run lint:bloat` | Milestone 2 Market code quality, import boundaries, repository layout, and file caps | pass | 0 | ESLint and the enforced frontend, repository, and maintained-file structural gates passed with the new feature owners. |
 | 2026-07-13 | `npm run test:e2e -- tests/e2e/playwright/app.spec.ts` | Milestone 2 app shell and first salary feature route | pass | 0 | 14 Chromium app-shell, navigation, keyboard, and responsive checks passed, including the Pay Protection route. |
 | 2026-07-13 | `npm run test:run`, `npm run test:scripts`, and `npm run build` | Milestone 2 salary vertical slice and sensor ownership | pass | 0 | All 3,141 frontend tests, 758 script tests, TypeScript checks, and the 746-module production build passed after the feature move and file split. |
 | 2026-07-13 | `npm run test:run`, `npm run lint`, and `npm run build` | Milestone 2 app bootstrap, route composition, and navigation ownership slice | pass | 0 | All 3,141 frontend tests, TypeScript and ESLint checks, and the 741-module production build passed after the app-shell move. |

@@ -392,7 +392,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/pages/Market.tsx",
+      "src/features/market/MarketPage.tsx",
       "setError(enhanced.message || \"Failed to load market data\");\n",
     );
     writeFixtureFile(
@@ -544,7 +544,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/pages/hooks/useDashboardJobOps.ts",
         "src/pages/hooks/useDashboardSavedSearches.ts",
         "src/pages/DashboardUI/QuickActions.tsx",
-        "src/pages/Market.tsx",
+        "src/features/market/MarketPage.tsx",
         "src/pages/ResumeBuilder.tsx",
         "src/features/salary/SalaryPage.tsx",
         "src/pages/Settings.tsx",
@@ -602,7 +602,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/pages/hooks/useDashboardJobOps.ts",
       "src/pages/hooks/useDashboardSavedSearches.ts",
       "src/pages/DashboardUI/QuickActions.tsx",
-      "src/pages/Market.tsx",
+      "src/features/market/MarketPage.tsx",
       "src/pages/ResumeBuilder.tsx",
       "src/features/salary/SalaryPage.tsx",
       "src/pages/Settings.tsx",

@@ -1,5 +1,5 @@
-import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 import { TrendChart } from "./TrendChart";
 
 // Mock recharts components since they don't render in jsdom

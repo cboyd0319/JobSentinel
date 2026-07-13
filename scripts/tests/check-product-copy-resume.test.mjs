@@ -162,7 +162,7 @@ test("product copy rejects technical-first resume copy", () => {
         "Implementation references",
         "Backend core: `src-tauri/src/core/market_intelligence/`",
         "Tauri commands: `src-tauri/src/commands/market.rs`",
-        "npm run test:run -- src/pages/Market.test.tsx",
+        "npm run test:run -- src/features/market/MarketPage.test.tsx",
         "cd src-tauri && cargo test --lib market_intelligence",
         "",
       ].join("\n"),

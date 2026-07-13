@@ -291,7 +291,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/LocationHeatmap.test.tsx",
+      "src/features/market/LocationHeatmap.test.tsx",
       [
         'location: "San Francisco, CA",',
         'location: "New York, NY",',
@@ -577,12 +577,12 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/MarketSnapshotCard.test.tsx",
+      "src/features/market/MarketSnapshotCard.test.tsx",
       'top_skill: "React"; top_company: "TechCorp";\n',
     );
     writeFixtureFile(
       root,
-      "src/components/MarketAlertCard.test.tsx",
+      "src/features/market/MarketAlertCard.test.tsx",
       '"React Demand Spike"; "TechCorp Hiring Pause";\n',
     );
     writeFixtureFile(
@@ -648,7 +648,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src/components/CompanyResearchPanel.test.tsx",
         "src/components/ScoreBreakdownModal.test.tsx",
         "src/components/JobCard.test.tsx",
-        "src/components/LocationHeatmap.test.tsx",
+        "src/features/market/LocationHeatmap.test.tsx",
         "src/contexts/UndoIntegration.test.tsx",
         "src/components/NotificationPreferences.test.tsx",
         "src/components/StatCard.test.tsx",
@@ -700,8 +700,8 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "tests/e2e/playwright/hiring-trends.spec.ts",
         "tests/e2e/playwright/application-assist.spec.ts",
         "tests/e2e/playwright/page-objects/OneClickApplyPage.ts",
-        "src/components/MarketSnapshotCard.test.tsx",
-        "src/components/MarketAlertCard.test.tsx",
+        "src/features/market/MarketSnapshotCard.test.tsx",
+        "src/features/market/MarketAlertCard.test.tsx",
         "docs/README.md",
         "docs/ROADMAP.md",
         "docs/features/resume-builder.md",
@@ -752,7 +752,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src/components/CompanyResearchPanel.test.tsx",
       "src/components/ScoreBreakdownModal.test.tsx",
       "src/components/JobCard.test.tsx",
-      "src/components/LocationHeatmap.test.tsx",
+      "src/features/market/LocationHeatmap.test.tsx",
       "src/contexts/UndoIntegration.test.tsx",
       "src/components/NotificationPreferences.test.tsx",
       "src/components/StatCard.test.tsx",
@@ -804,8 +804,8 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "tests/e2e/playwright/hiring-trends.spec.ts",
       "tests/e2e/playwright/application-assist.spec.ts",
       "tests/e2e/playwright/page-objects/OneClickApplyPage.ts",
-      "src/components/MarketSnapshotCard.test.tsx",
-      "src/components/MarketAlertCard.test.tsx",
+      "src/features/market/MarketSnapshotCard.test.tsx",
+      "src/features/market/MarketAlertCard.test.tsx",
       "docs/features/resume-builder.md",
       "docs/features/smart-scoring.md",
       "docs/features/job-sources.md",

@@ -1,15 +1,6 @@
-export interface MockMarketAlert {
-  id: number;
-  alert_type: string;
-  title: string;
-  description: string;
-  severity: string;
-  related_entity: string | null;
-  metric_value: number | null;
-  metric_change_pct: number | null;
-  is_read: boolean;
-  created_at: string;
-}
+import type { MarketAlert } from "./model";
+
+export type MockMarketAlert = MarketAlert;
 
 export function getDefaultMarketAlerts(): MockMarketAlert[] {
   return [

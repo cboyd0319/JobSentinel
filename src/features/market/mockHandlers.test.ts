@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { mockInvoke, resetMockData } from "../handlers";
+import { mockInvoke, resetMockData } from "../../mocks/handlers";
 
 type SkillTrend = {
   skill_name: string;

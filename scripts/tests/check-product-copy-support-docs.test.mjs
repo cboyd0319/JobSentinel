@@ -271,11 +271,13 @@ test("product copy rejects technical provider setup shortcuts", () => {
 test("product copy rejects market-intel jargon in hiring trends surfaces", () => {
   withFixture((root) => {
     writeFixtureFile(root, "src/app/Navigation.tsx", "Market Intel\n");
-    writeFixtureFile(root, "src/pages/Market.tsx", "Market Intelligence\nRefresh Market Data\n");
-    writeFixtureFile(root, "src/pages/marketErrorCopy.ts", "Market data unavailable\n");
-    writeFixtureFile(root, "src/components/MarketSnapshotCard.tsx", "No market snapshot yet. Refresh market data to create one.\n");
-    writeFixtureFile(root, "src/components/MarketAlertCard.tsx", "Loading market alerts\nNo market alerts at this time.\n");
-    writeFixtureFile(root, "src/components/LocationHeatmap.tsx", "Job Market by Location\nNo location data yet\n");
+    writeFixtureFile(root, "src/features/market/MarketHeader.tsx", "Market Intelligence\nRefresh Market Data\n");
+    writeFixtureFile(root, "src/features/market/MarketPanels.tsx", '"Market Alerts"\n');
+    writeFixtureFile(root, "src/features/market/MarketPage.tsx", "Failed to Load Market Data\n");
+    writeFixtureFile(root, "src/features/market/errorCopy.ts", "Market data unavailable\n");
+    writeFixtureFile(root, "src/features/market/MarketSnapshotCard.tsx", "No market snapshot yet. Refresh market data to create one.\n");
+    writeFixtureFile(root, "src/features/market/MarketAlertCard.tsx", "Loading market alerts\nNo market alerts at this time.\n");
+    writeFixtureFile(root, "src/features/market/LocationHeatmap.tsx", "Job Market by Location\nNo location data yet\n");
     writeFixtureFile(
       root,
       "docs/features/hiring-trends.md",
@@ -296,11 +298,13 @@ test("product copy rejects market-intel jargon in hiring trends surfaces", () =>
     );
 
     assert.equal(hasTechnicalFirstUserCopy(root, "src/app/Navigation.tsx"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Market.tsx"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/marketErrorCopy.ts"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/components/MarketSnapshotCard.tsx"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/components/MarketAlertCard.tsx"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/components/LocationHeatmap.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/features/market/MarketHeader.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/features/market/MarketPanels.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/features/market/MarketPage.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/features/market/errorCopy.ts"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/features/market/MarketSnapshotCard.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/features/market/MarketAlertCard.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/features/market/LocationHeatmap.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/hiring-trends.md"), true);
   });
 });

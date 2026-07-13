@@ -44,10 +44,10 @@ function withFixture(callback) {
 
 test("source quality rejects frontend glyphs and lint suppressions", () => {
   withFixture((root) => {
-    writeFixtureFile(root, "src/pages/Market.tsx", 'icon: "📊";\n');
+    writeFixtureFile(root, "src/features/market/MarketPage.tsx", 'icon: "📊";\n');
     writeFixtureFile(
       root,
-      "src/components/TrendChart.tsx",
+      "src/features/market/TrendChart.tsx",
       "// eslint-disable-next-line @typescript-eslint/no-explicit-any\ntype Data = any;\n",
     );
     writeFixtureFile(root, "src/utils/vitals.ts", "// @ts-expect-error\nperformance.memory;\n");
@@ -63,8 +63,8 @@ test("source quality rejects frontend glyphs and lint suppressions", () => {
     );
     writeFixtureFile(root, "src/components/InterviewScheduler.tsx", "<Button>✓ Passed</Button>\n");
 
-    assert.equal(hasProductionSourceGlyphMarkers(root, "src/pages/Market.tsx"), true);
-    assert.equal(hasProductionExplicitAnySuppression(root, "src/components/TrendChart.tsx"), true);
+    assert.equal(hasProductionSourceGlyphMarkers(root, "src/features/market/MarketPage.tsx"), true);
+    assert.equal(hasProductionExplicitAnySuppression(root, "src/features/market/TrendChart.tsx"), true);
     assert.equal(hasProductionTypeErrorSuppression(root, "src/utils/vitals.ts"), true);
     assert.equal(
       hasProductionHookDependencySuppression(root, "src/components/CompanyResearchPanel.tsx"),

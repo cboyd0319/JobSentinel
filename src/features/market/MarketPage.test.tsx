@@ -2,8 +2,8 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { invoke } from "@tauri-apps/api/core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import Market from "./Market";
-import { getMarketDataErrorCopy } from "./marketErrorCopy";
+import MarketPage from "./MarketPage";
+import { getMarketDataErrorCopy } from "./errorCopy";
 
 const mockInvoke = vi.mocked(invoke);
 
@@ -14,7 +14,7 @@ const mockToast = {
   warning: vi.fn(),
 };
 
-vi.mock("../contexts", () => ({
+vi.mock("../../contexts", () => ({
   useToast: () => mockToast,
 }));
 
@@ -94,7 +94,7 @@ describe("Market safe error copy", () => {
     const user = userEvent.setup();
     mockMarketData({ snapshot: makeSnapshot() });
 
-    render(<Market onBack={vi.fn()} />);
+    render(<MarketPage onBack={vi.fn()} />);
 
     await screen.findByText("Hiring Trends");
     await user.click(screen.getByRole("button", { name: /refresh hiring trends/i }));
@@ -125,7 +125,7 @@ describe("Market safe error copy", () => {
       snapshot: null,
     });
 
-    render(<Market onBack={vi.fn()} />);
+    render(<MarketPage onBack={vi.fn()} />);
 
     expect(
       await screen.findByText("Trend snapshot is not ready yet. Other trend signals are available below."),
@@ -139,7 +139,7 @@ describe("Market safe error copy", () => {
     const user = userEvent.setup();
     mockMarketData({ snapshot: makeSnapshot({ total_jobs: 3 }) });
 
-    render(<Market onBack={vi.fn()} />);
+    render(<MarketPage onBack={vi.fn()} />);
 
     const overviewTab = await screen.findByRole("tab", { name: /overview/i });
     const skillsTab = screen.getByRole("tab", { name: /skills/i });
