@@ -118,7 +118,7 @@ test("checkExternalAiGateway allows provider code inside the gateway boundary", 
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src/services/aiGateway.ts",
+      "src/shared/externalAi/internal/aiGateway.ts",
       `
 import OpenAI from "openai";
 

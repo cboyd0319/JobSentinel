@@ -2,14 +2,14 @@ import {
   readStorageValue,
   removeStorageValue,
   writeStorageValue,
-} from "../shared/browserStorage";
+} from "../browserStorage";
 import {
   FEATURE_PRIVACY_LABELS,
   type ExternalAiDataCategory,
   type ExternalAiProvider,
   type ExternalAiRequestLog,
   type FeaturePrivacyLabel,
-} from "./aiGatewayTypes";
+} from "./externalAiTypes";
 
 export const EXTERNAL_AI_REQUEST_LOG_STORAGE_KEY =
   "jobsentinel:external-ai:request-log:v1";

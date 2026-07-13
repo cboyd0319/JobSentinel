@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import type { ComponentProps } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { ExternalAiReviewDialog } from "./ExternalAiReviewDialog";
-import type { ExternalAiRequest } from "../../../services/aiGatewayTypes";
+import type { ExternalAiRequest } from "../../../shared/externalAi/externalAiTypes";
 
 const publicRequest: ExternalAiRequest = {
   feature: "job-description-summary",

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import type { ExternalAiRequestLog } from "./aiGatewayTypes";
+import type { ExternalAiRequestLog } from "./externalAiTypes";
 import {
   EXTERNAL_AI_REQUEST_LOG_STORAGE_KEY,
   appendExternalAiRequestLog,

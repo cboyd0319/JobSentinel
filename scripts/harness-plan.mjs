@@ -163,7 +163,7 @@ function isPrivacyOrSecurityPath(path) {
     path === "PRIVACY.md" ||
     path === "RESPONSIBLE_AI.md" ||
     path === "SECURITY.md" ||
-    path === "src/services/aiGateway.ts" ||
+    path.startsWith("src/shared/externalAi/") ||
     path === "scripts/check-external-ai-gateway.mjs" ||
     path === "scripts/check-security-sensors.mjs" ||
     path.startsWith("docs/security/") ||
@@ -410,7 +410,7 @@ export function summarizeHarnessPlan(root = defaultRoot, options = {}) {
       addCommand(commands, "npm run lint:tauri-invokes", "Tauri command or invoke surface changed.", path);
     }
 
-    if (path === "src/services/aiGateway.ts" || path === "scripts/check-external-ai-gateway.mjs") {
+    if (path.startsWith("src/shared/externalAi/") || path === "scripts/check-external-ai-gateway.mjs") {
       addCommand(commands, "npm run lint:external-ai", "External AI gateway or sensor changed.", path);
     }
 

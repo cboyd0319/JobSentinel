@@ -53,11 +53,11 @@
     "scripts/check-dependency-rationale.mjs",
     "scripts/tests/check-dependency-rationale.test.mjs",
     "validation/dependency_rationale.json",
-    "src/services/aiGateway.ts",
-    "src/services/aiGatewayPayloadPolicy.ts",
-    "src/services/aiGatewayPromptInspection.ts",
-    "src/services/aiGatewayTypes.ts",
-    "src/services/aiGatewayValidation.ts"
+    "src/shared/externalAi/internal/aiGateway.ts",
+    "src/shared/externalAi/externalAiPayloadPolicy.ts",
+    "src/shared/externalAi/internal/promptInspection.ts",
+    "src/shared/externalAi/externalAiTypes.ts",
+    "src/shared/externalAi/internal/requestValidation.ts"
   ],
   "requiredHarnessSnippets": {
     "AGENTS.md": [
@@ -330,12 +330,12 @@
       "## Orchestration",
       "## Handoff"
     ],
-    "src/services/aiGatewayTypes.ts": [
+    "src/shared/externalAi/externalAiTypes.ts": [
       "DEFAULT_EXTERNAL_AI_SETTINGS",
       "enabled: false",
       "provider: \"none\""
     ],
-    "src/services/aiGatewayValidation.ts": [
+    "src/shared/externalAi/internal/requestValidation.ts": [
       "payload_preview_required",
       "full_database_blocked",
       "sensitive_payload_blocked",

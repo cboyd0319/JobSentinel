@@ -79,7 +79,7 @@ with warnings-as-errors as a required local or CI gate.
 | Credential handling | Keyring behavior check and no plaintext path, focused storage tests, and `cargo clippy -- -D warnings` when Rust code changes |
 | Local database encryption | Focused storage tests, plaintext-upgrade cleanup proof, and no raw `sqlite3` inspection guidance |
 | External network destination | Privacy docs update and explicit user configuration |
-| External AI provider path | `npm run lint:external-ai`, AI gateway test, privacy label update, payload preview gate, and no direct provider call outside `src/services/aiGateway.ts` |
+| External AI provider path | `npm run lint:external-ai`, AI gateway test, privacy label update, payload preview gate, and no direct provider call outside `src/shared/externalAi/` |
 | Browser automation | Human-in-the-loop submit behavior preserved |
 | JobSentinel browser sessions | Visible privacy reminder for long manual sessions, user-controlled close/continue behavior, and no hard expiry unless JobSentinel reads, automates, or submits restricted content |
 | Browser extension manifest | `npm run lint:security`, least-privilege manifest review, and no broad host permissions |

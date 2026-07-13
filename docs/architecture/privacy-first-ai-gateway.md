@@ -114,7 +114,7 @@ stored in the operating system credential store where supported.
 
 ## Code Contract
 
-The frontend gateway type lives in `src/services/aiGateway.ts`. It defines:
+The frontend gateway boundary lives in `src/shared/externalAi/`. It defines:
 
 - `FeaturePrivacyLabel`
 - `ExternalAiSettings`

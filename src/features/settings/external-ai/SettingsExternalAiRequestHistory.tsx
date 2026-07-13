@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import {
   clearExternalAiRequestLog,
   readExternalAiRequestLog,
-} from "../../../services/externalAiRequestLog";
-import type { ExternalAiRequestLog } from "../../../services/aiGatewayTypes";
+} from "../../../shared/externalAi/externalAiRequestLog";
+import type { ExternalAiRequestLog } from "../../../shared/externalAi/externalAiTypes";
 
 function formatTimestamp(timestamp: string): string {
   const parsed = new Date(timestamp);

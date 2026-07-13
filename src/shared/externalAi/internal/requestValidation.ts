@@ -2,15 +2,15 @@ import {
   findUnclassifiedPayloadKey,
   hasSensitiveData,
   hasSensitivePayloadKeys,
-} from "./aiGatewayPayloadPolicy";
-import { hasPromptLikeExternalAiContent } from "./aiGatewayPromptInspection";
+} from "../externalAiPayloadPolicy";
+import { hasPromptLikeExternalAiContent } from "./promptInspection";
 import {
   ExternalAiGatewayError,
   type ExternalAiProvider,
   type ExternalAiRequest,
   type ExternalAiSettings,
   type ExternalAiTransport,
-} from "./aiGatewayTypes";
+} from "../externalAiTypes";
 
 function getOutgoingPayload(
   settings: ExternalAiSettings,

@@ -234,7 +234,7 @@ const technicalFirstUserCopyPaths = new Set([
   "src/features/resumes/builder/AtsLiveScorePanel.tsx",
   "src/features/applications/AnalyticsPanel.tsx",
   "src/features/dashboard/components/DashboardWidgets.tsx",
-  "src/services/aiGateway.ts",
+  "src/shared/externalAi/internal/aiGateway.ts",
   "src/features/settings/notifications/NotificationPreferences.tsx",
   "src/features/resumes/builder/steps/ContactStep.tsx",
   "src/features/resumes/builder/steps/EducationStep.tsx",

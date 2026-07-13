@@ -21,7 +21,7 @@ export function writeBaseRepo(root, csp) {
   for (const path of ["config", "credentials", "notifications", "sources"]) {
     mkdirSync(join(root, "src/features/settings", path), { recursive: true });
   }
-  mkdirSync(join(root, "src/services"), { recursive: true });
+  mkdirSync(join(root, "src/shared/externalAi/internal"), { recursive: true });
 
   for (const file of [
     "README.md",
@@ -227,8 +227,7 @@ export function writeBaseRepo(root, csp) {
       "AGENTS.md @cboyd0319",
       "CLAUDE.md @cboyd0319",
       "docs/CLAUDE.md @cboyd0319",
-      "src/services/aiGateway* @cboyd0319",
-      "src/services/externalAiRequestLog.ts @cboyd0319",
+      "src/shared/externalAi/ @cboyd0319",
       "SECURITY.md @cboyd0319",
       "docs/security/ @cboyd0319",
       "src-tauri/capabilities/ @cboyd0319",
@@ -282,13 +281,13 @@ export function writeBaseRepo(root, csp) {
     "}",
   ].join("\n");
   for (const path of [
-    "aiGateway.ts",
-    "aiGatewayPayloadPolicy.ts",
-    "aiGatewayPromptInspection.ts",
-    "aiGatewayTypes.ts",
-    "aiGatewayValidation.ts",
+    "src/shared/externalAi/internal/aiGateway.ts",
+    "src/shared/externalAi/externalAiPayloadPolicy.ts",
+    "src/shared/externalAi/internal/promptInspection.ts",
+    "src/shared/externalAi/externalAiTypes.ts",
+    "src/shared/externalAi/internal/requestValidation.ts",
   ]) {
-    writeFileSync(join(root, "src/services", path), aiGatewayBoundarySource);
+    writeFileSync(join(root, path), aiGatewayBoundarySource);
   }
   writeFileSync(
     join(root, "src/features/resumes/builder/ResumeBuilderPreviewStep.tsx"),

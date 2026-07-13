@@ -13,11 +13,11 @@ const externalAiGatewayChecks = [
 ];
 
 const externalAiGatewayBoundaryPaths = [
-  "src/services/aiGateway.ts",
-  "src/services/aiGatewayPayloadPolicy.ts",
-  "src/services/aiGatewayPromptInspection.ts",
-  "src/services/aiGatewayTypes.ts",
-  "src/services/aiGatewayValidation.ts",
+  "src/shared/externalAi/internal/aiGateway.ts",
+  "src/shared/externalAi/externalAiPayloadPolicy.ts",
+  "src/shared/externalAi/internal/promptInspection.ts",
+  "src/shared/externalAi/externalAiTypes.ts",
+  "src/shared/externalAi/internal/requestValidation.ts",
 ];
 
 function repoPath(root, path) {

@@ -8,8 +8,8 @@ import {
   loadExternalAiRuntimeConfig,
   providerLabel,
   type ExternalAiRuntimeConfig,
-} from "../../../services/externalAiBackendTransport";
-import type { ExternalAiRequest } from "../../../services/aiGatewayTypes";
+} from "../../../shared/externalAi/externalAiBackendTransport";
+import type { ExternalAiRequest } from "../../../shared/externalAi/externalAiTypes";
 import { formatSalaryRange } from "../jobDisplayFormatting";
 
 interface ExternalAiSummaryJob {

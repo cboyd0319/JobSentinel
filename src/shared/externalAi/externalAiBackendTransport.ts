@@ -1,5 +1,5 @@
-import { safeInvoke } from "../shared/tauri/commandClient";
-import { createExternalAiGateway } from "./aiGateway";
+import { safeInvoke } from "../tauri/commandClient";
+import { createExternalAiGateway } from "./internal/aiGateway";
 import { appendExternalAiRequestLog } from "./externalAiRequestLog";
 import type {
   ExternalAiGateway,
@@ -8,7 +8,7 @@ import type {
   ExternalAiSettings,
   ExternalAiTransport,
   PreparedExternalAiRequest,
-} from "./aiGatewayTypes";
+} from "./externalAiTypes";
 
 const ENABLED_PROVIDERS = [
   "open_ai",

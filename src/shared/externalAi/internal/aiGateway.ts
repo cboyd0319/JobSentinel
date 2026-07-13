@@ -1,4 +1,4 @@
-import { validateExternalAiRequest } from "./aiGatewayValidation";
+import { validateExternalAiRequest } from "./requestValidation";
 import {
   DEFAULT_EXTERNAL_AI_SETTINGS,
   ExternalAiGatewayError,
@@ -9,9 +9,7 @@ import {
   type ExternalAiSettings,
   type ExternalAiTransport,
   type PreparedExternalAiRequest,
-} from "./aiGatewayTypes";
-
-export * from "./aiGatewayTypes";
+} from "../externalAiTypes";
 
 export function createExternalAiGateway(
   settings: ExternalAiSettings = DEFAULT_EXTERNAL_AI_SETTINGS,

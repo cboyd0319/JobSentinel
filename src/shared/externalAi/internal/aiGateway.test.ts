@@ -1,11 +1,13 @@
 import { describe, expect, it, vi } from "vitest";
 
 import {
+  createExternalAiGateway,
+} from "./aiGateway";
+import {
   DEFAULT_EXTERNAL_AI_SETTINGS,
   ExternalAiGatewayError,
   type ExternalAiRequest,
-  createExternalAiGateway,
-} from "./aiGateway";
+} from "../externalAiTypes";
 
 const publicJobSummaryRequest: ExternalAiRequest = {
   feature: "job-description-summary",

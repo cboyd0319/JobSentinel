@@ -14,16 +14,16 @@ function mkdtempRoot(prefix) {
 }
 
 function writeAiGatewayFixture(root, source) {
-  mkdirSync(join(root, "src/services"), { recursive: true });
+  mkdirSync(join(root, "src/shared/externalAi/internal"), { recursive: true });
   mkdirSync(join(root, "docs/architecture"), { recursive: true });
   for (const path of [
-    "aiGateway.ts",
-    "aiGatewayPayloadPolicy.ts",
-    "aiGatewayPromptInspection.ts",
-    "aiGatewayTypes.ts",
-    "aiGatewayValidation.ts",
+    "src/shared/externalAi/internal/aiGateway.ts",
+    "src/shared/externalAi/externalAiPayloadPolicy.ts",
+    "src/shared/externalAi/internal/promptInspection.ts",
+    "src/shared/externalAi/externalAiTypes.ts",
+    "src/shared/externalAi/internal/requestValidation.ts",
   ]) {
-    writeFileSync(join(root, "src/services", path), source);
+    writeFileSync(join(root, path), source);
   }
   writeFileSync(
     join(root, "docs/architecture/privacy-first-ai-gateway.md"),

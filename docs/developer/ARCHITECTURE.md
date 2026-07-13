@@ -66,7 +66,7 @@ layers:
 | Concern | Approved boundary | Rule |
 | ------- | ----------------- | ---- |
 | Logging | Structured logger boundary | No ad hoc `console` in shipped paths; never log secrets or user data |
-| External AI | `src/services/aiGateway.ts` | All external AI routes through the privacy-first gateway, disabled by default |
+| External AI | `src/shared/externalAi/` | All external AI routes through the privacy-first gateway, disabled by default |
 | Credentials | OS keyring | No plaintext secret storage; passive views must not probe saved secrets |
 | External APIs and sources | Scraper and source adapters | Rate limits, error handling, and source boundaries apply |
 | Configuration | Typed config and settings | No scattered environment reads in the UI |
@@ -344,6 +344,10 @@ the broader agent harness.
   messages, safe toast copy, development logger, and sanitized support-report
   generation. The app provider under `src/app/providers/` owns initialization
   and composition.
+- `src/shared/externalAi/` owns the optional, disabled-by-default outside-AI
+  types, payload policy, backend transport, and bounded local request log. Its
+  gateway, prompt inspection, and request validation stay private under
+  `internal/`.
 - `src/shared/tauri/` owns the product-neutral renderer command client,
   including request deduplication, bounded response caching, command-scoped
   invalidation, privacy-safe errors, and optional sanitized error toasts.

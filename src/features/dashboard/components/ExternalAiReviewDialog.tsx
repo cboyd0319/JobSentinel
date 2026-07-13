@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { Button } from "../../../ui/Button";
 import { Modal, ModalFooter } from "../../../ui/Modal";
-import { hasSensitiveData } from "../../../services/aiGatewayPayloadPolicy";
-import type { ExternalAiRequest } from "../../../services/aiGatewayTypes";
+import { hasSensitiveData } from "../../../shared/externalAi/externalAiPayloadPolicy";
+import type { ExternalAiRequest } from "../../../shared/externalAi/externalAiTypes";
 
 interface ExternalAiReviewDialogProps {
   isOpen: boolean;

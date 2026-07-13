@@ -1,4 +1,4 @@
-import type { ExternalAiDataCategory, ExternalAiRequest } from "./aiGatewayTypes";
+import type { ExternalAiDataCategory, ExternalAiRequest } from "./externalAiTypes";
 
 const sensitiveDataCategories = new Set<ExternalAiDataCategory>([
   "resume",

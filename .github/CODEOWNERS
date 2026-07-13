@@ -27,8 +27,7 @@ src-tauri/deny.toml @cboyd0319
 AGENTS.md @cboyd0319
 CLAUDE.md @cboyd0319
 docs/CLAUDE.md @cboyd0319
-src/services/aiGateway* @cboyd0319
-src/services/externalAiRequestLog.ts @cboyd0319
+src/shared/externalAi/ @cboyd0319
 
 # Desktop security boundaries.
 SECURITY.md @cboyd0319

@@ -520,7 +520,7 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/services/aiGateway.ts",
+      "src/shared/externalAi/internal/aiGateway.ts",
       [
         "External AI transport is not configured.",
         "External AI is disabled by default. Enable it before sending data.",
@@ -862,7 +862,7 @@ test("product copy rejects technical-first settings copy", () => {
       "src/pages/dashboardErrorCopy.ts",
       "src/features/dashboard/hooks/useDashboardAutoRefresh.ts",
       "src/features/dashboard/hooks/useDashboardJobOps.ts",
-      "src/services/aiGateway.ts",
+      "src/shared/externalAi/internal/aiGateway.ts",
       "src/shared/tauri/commandClient.ts",
       "src/shared/errorReporting/messages.ts",
       "src/features/settings/support/settingsBackupFile.test.ts",
