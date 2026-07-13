@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "../../ui/Button";
 import { CompanyResearchPanel } from "../../components/CompanyResearchPanel";
 import { Modal } from "../../ui/Modal";
-import { formatInterviewDate } from "../../utils/formatUtils";
+import { formatInterviewDate } from "../../shared/dateFormatting";
 import {
   INTERVIEW_TYPES,
   OUTCOME_COLORS,

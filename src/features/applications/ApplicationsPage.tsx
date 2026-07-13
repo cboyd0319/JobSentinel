@@ -18,7 +18,7 @@ import { Card } from "../../ui/Card";
 import { useToast } from "../../shared/toast/useToast";
 import { useUndo } from "../../shared/undo/useUndo";
 import { logError } from "../../shared/errorReporting/logger";
-import { formatEventDate } from "../../utils/formatUtils";
+import { formatEventDate } from "../../shared/dateFormatting";
 import {
   findApplicationById,
   findColumnForApplication,

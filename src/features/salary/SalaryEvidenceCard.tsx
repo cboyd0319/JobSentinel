@@ -2,7 +2,7 @@ import { Badge } from "../../ui/Badge";
 import { Card } from "../../ui/Card";
 import { HelpIcon } from "../../ui/HelpIcon";
 import type { PayFloorBenchmarkGuidance } from "../../shared/payFloorBenchmarkGuidance";
-import { formatCurrency } from "../../utils/formatUtils";
+import { formatCurrency } from "../../shared/currencyFormatting";
 import { OfferReviewPanel } from "./OfferReviewPanel";
 import { ChartIcon } from "./SalaryPrimitives";
 import {

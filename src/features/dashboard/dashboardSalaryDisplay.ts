@@ -1,4 +1,4 @@
-import { formatSalaryRange } from "../../utils/formatUtils";
+import { formatSalaryRange } from "./jobDisplayFormatting";
 
 export function formatDashboardListedPay(
   salaryMin?: number | null,

@@ -10,7 +10,7 @@ import {
   type ExternalAiRuntimeConfig,
 } from "../../../services/externalAiBackendTransport";
 import type { ExternalAiRequest } from "../../../services/aiGatewayTypes";
-import { formatSalaryRange } from "../../../utils/formatUtils";
+import { formatSalaryRange } from "../jobDisplayFormatting";
 
 interface ExternalAiSummaryJob {
   id: number;

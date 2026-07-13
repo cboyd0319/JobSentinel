@@ -1,7 +1,7 @@
 import { memo, useState, useMemo } from "react";
 import { Badge } from "../../ui/Badge";
 import { Card } from "../../ui/Card";
-import { formatCurrency } from "../../utils/formatUtils";
+import { formatCurrency } from "../../shared/currencyFormatting";
 import type { LocationHeat } from "./model";
 
 interface LocationHeatmapProps {

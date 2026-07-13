@@ -3,7 +3,7 @@ import { useCallback, useState } from "react";
 import { useToast } from "../../shared/toast/useToast";
 import { getPayFloorBenchmarkGuidance } from "../../shared/payFloorBenchmarkGuidance";
 import { logError } from "../../shared/errorReporting/logger";
-import { formatCurrency } from "../../utils/formatUtils";
+import { formatCurrency } from "../../shared/currencyFormatting";
 import { NegotiationNotesCard } from "./NegotiationNotesCard";
 import { SalaryEvidenceCard } from "./SalaryEvidenceCard";
 import { BackIcon } from "./SalaryPrimitives";

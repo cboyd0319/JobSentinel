@@ -1,6 +1,6 @@
 import { memo } from "react";
 import { Button } from "../../ui/Button";
-import { formatCompactDateTime } from "../../utils/formatUtils";
+import { formatCompactDateTime } from "../../shared/dateFormatting";
 import type { MarketAlert } from "./model";
 
 interface MarketAlertCardProps {

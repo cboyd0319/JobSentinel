@@ -3,7 +3,7 @@ import {
   hasPostingEvidenceReviewCue,
   hasScamPostingReviewCue,
 } from "../postingRisk";
-import { hasMalformedSalaryRangeInput } from "../../../utils/formatUtils";
+import { hasMalformedSalaryRangeInput } from "../jobDisplayFormatting";
 
 export interface PostingRiskGuidance {
   level: "low" | "medium" | "high";

@@ -326,6 +326,9 @@ the broader agent harness.
 - `src/shared/jobSourceRecommendations.ts` owns narrow search-term source
   defaults used by Onboarding and Settings; its broad-audience sensor follows
   that shared owner.
+- `src/shared/dateFormatting.ts` owns date displays used by Dashboard,
+  Applications, and Hiring Trends. `src/shared/currencyFormatting.ts` owns the
+  US-dollar display shared by Hiring Trends and Pay Protection.
 - `src/shared/validation/contactFieldValidation.ts` owns email, phone, and web
   link checks shared by Application Assist and Resumes.
 - `src/shared/errorReporting/` owns the validated, privacy-preserving local
@@ -341,6 +344,8 @@ the broader agent harness.
   support-report services remain outside the feature because app-level error
   boundaries also use them. Settings credential handling owns notification
   connection-link target validation in `credentials/`.
+- Dashboard owns job-card salary, malformed-pay, and description formatting in
+  `jobDisplayFormatting.ts`.
 - `src/ui/` owns proven multi-feature visual primitives and their colocated
   tests and stories. Features import these modules directly, such as
   `src/ui/Button.tsx` and `src/ui/Modal.tsx`; there is no aggregate barrel.

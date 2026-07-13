@@ -16,7 +16,7 @@ import {
   type Interview,
   type InterviewTab,
 } from "./InterviewSchedulerModel";
-import { formatInterviewDate, getRelativeTimeUntil } from "../../utils/formatUtils";
+import { formatInterviewDate, getRelativeTimeUntil } from "../../shared/dateFormatting";
 
 interface InterviewSchedulerTabsProps {
   activeTab: InterviewTab;

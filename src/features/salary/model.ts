@@ -1,5 +1,5 @@
 import { getUserFriendlyError } from "../../shared/errorReporting/messages";
-import { formatCurrency } from "../../utils/formatUtils";
+import { formatCurrency } from "../../shared/currencyFormatting";
 
 export interface SalaryBenchmark {
   job_title: string;

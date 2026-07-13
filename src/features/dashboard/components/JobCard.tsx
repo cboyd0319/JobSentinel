@@ -6,11 +6,11 @@ import {
   JobFitFeedbackControls,
 } from "./JobFitFeedback";
 import { logError } from "../../../shared/errorReporting/logger";
+import { formatRelativeDate } from "../../../shared/dateFormatting";
 import {
-  formatRelativeDate,
   formatSalaryRange,
-  truncateText,
-} from "../../../utils/formatUtils";
+  truncateJobDescription,
+} from "../jobDisplayFormatting";
 import {
   GOOD_JOB_MATCH_THRESHOLD,
   STRONG_JOB_MATCH_THRESHOLD,
@@ -153,7 +153,7 @@ export const JobCard = memo(function JobCard({
   const isHighMatch = displayedScore >= STRONG_JOB_MATCH_THRESHOLD;
   const isGoodMatch = displayedScore >= GOOD_JOB_MATCH_THRESHOLD;
   const salaryText = formatSalaryRange(job.salary_min, job.salary_max);
-  const descSnippet = truncateText(job.description);
+  const descSnippet = truncateJobDescription(job.description);
   const rawPostingRiskScore = job.ghost_score;
   const postingRiskScore =
     typeof rawPostingRiskScore === "number" &&

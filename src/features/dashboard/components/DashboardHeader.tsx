@@ -7,7 +7,7 @@ import { ThemeToggle } from "../../../ui/ThemeToggle";
 import { Tooltip } from "../../../ui/Tooltip";
 import { SentinelIcon, SearchIcon, SettingsIcon } from "./DashboardIcons";
 import type { ScrapingStatus } from "../types";
-import { formatRelativeDate } from "../../../utils/formatUtils";
+import { formatRelativeDate } from "../../../shared/dateFormatting";
 
 interface DashboardHeaderProps {
   scrapingStatus: ScrapingStatus;
