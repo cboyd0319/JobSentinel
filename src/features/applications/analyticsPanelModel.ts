@@ -1,4 +1,4 @@
-import { readStorageValue, removeStorageValue, writeStorageValue } from "../../utils/browserStorage";
+import { readStorageValue, removeStorageValue, writeStorageValue } from "../../shared/browserStorage";
 import { getJobSourceGuidance } from "../../utils/sourceLabels";
 
 export interface StatusCounts {

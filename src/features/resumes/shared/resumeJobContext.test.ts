@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { readStorageValue, writeStorageValue } from "../../../utils/browserStorage";
+import { readStorageValue, writeStorageValue } from "../../../shared/browserStorage";
 import {
   clearStoredResumeJobContext,
   hasStoredResumeJobContext,

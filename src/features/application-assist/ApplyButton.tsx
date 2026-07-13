@@ -9,7 +9,7 @@ import { safeInvoke, safeInvokeWithToast } from "../../utils/api";
 import { getUserFriendlyError } from "../../utils/errorMessages";
 import { ApplicationPreview } from "./ApplicationPreview";
 import { getApplicationFormDisplayName } from "./applicationFormLabels";
-import { readStorageValue, removeStorageValue, writeStorageValue } from "../../utils/browserStorage";
+import { readStorageValue, removeStorageValue, writeStorageValue } from "../../shared/browserStorage";
 
 interface Job {
   id: number;

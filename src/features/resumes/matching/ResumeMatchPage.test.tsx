@@ -12,7 +12,7 @@ const mockReadStorageValue = vi.hoisted(() => vi.fn(() => null));
 const mockRemoveStorageValue = vi.hoisted(() => vi.fn(() => true));
 const mockWriteStorageValue = vi.hoisted(() => vi.fn(() => true));
 
-vi.mock("../../../utils/browserStorage", () => ({
+vi.mock("../../../shared/browserStorage", () => ({
   readStorageValue: mockReadStorageValue,
   removeStorageValue: mockRemoveStorageValue,
   writeStorageValue: mockWriteStorageValue,

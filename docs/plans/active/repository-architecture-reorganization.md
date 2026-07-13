@@ -735,6 +735,7 @@ evidence-log entry.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-07-13 | Milestone 2 in progress | Moved the failure-tolerant browser-storage contract and tests from the root utility bucket to `src/shared/browserStorage.ts`. Current app, feature, service, and company-research consumers import the named contract directly, and the privacy fixture follows the shared owner. All 105 focused frontend tests, 25 focused security-sensor tests, 3,054 frontend tests across 184 files, 766 script tests, the 805-module build, and repository gates pass. |
 | 2026-07-13 | Milestone 2 in progress | Deleted the mounted but inert announcer provider, context, hook, and self-only tests after proving no production code called `useAnnouncer` or `announce`. App startup now has one fewer empty provider layer. All 17 focused frontend tests, 27 focused source-structure tests, 3,054 remaining frontend tests across 184 files, 766 script tests, the reduced 805-module build, repository gates, and 15 app-shell E2E flows pass. |
 | 2026-07-13 | Milestone 2 in progress | Moved the onboarding provider, overlay, tour action, and hook into `src/app/onboarding/`. Dashboard now accepts an optional tour action in its header instead of importing app-shell state through the root components bucket. All 54 focused frontend tests, 27 focused source-structure tests, 3,062 frontend tests across 185 files, 766 script tests, the 807-module build, repository gates, and 35 app-shell and keyboard E2E flows pass. |
 | 2026-07-13 | Milestone 2 in progress | Consolidated the app-only keyboard provider, context, hook, shortcut contract, and formatter under `src/app/keyboard/`. App composition and Command Palette imports are direct, the redundant root type and utility files are gone, and product-copy sensors follow the owner. All 84 focused frontend tests, 17 focused sensor tests, 3,062 frontend tests across 185 files, 766 script tests, the 807-module build, repository gates, and 35 app-shell and keyboard E2E flows pass. |
@@ -832,6 +833,8 @@ evidence-log entry.
   Dashboard receives the app-composed tour action through an optional visual
   slot instead of importing app internals. The unused announcer provider family
   and its permanently empty live regions are deleted rather than relocated.
+  Failure-tolerant browser storage is a named cross-feature contract under
+  `src/shared/` instead of a root utility.
 - Settings company-preference field names changed. Read-only deserialize aliases
   preserve existing local values, and all newly saved data uses the new names.
   No privacy, credential, consent, or external-side-effect boundary changed.

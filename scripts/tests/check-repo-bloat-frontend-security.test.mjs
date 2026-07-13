@@ -504,7 +504,7 @@ test("checkRepoBloat accepts memory-only company research cache cleanup", () => 
       root,
       "src/components/CompanyResearchPanel.tsx",
       [
-        "import { removeStorageValue } from '../utils/browserStorage';",
+        "import { removeStorageValue } from '../shared/browserStorage';",
         "const LEGACY_CACHE_KEY = 'jobsentinel_company_cache';",
         "let companyMemoryCache = {};",
         "function clearLegacyCache() {",

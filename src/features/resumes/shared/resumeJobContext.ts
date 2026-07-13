@@ -2,7 +2,7 @@ import {
   readStorageValue,
   removeStorageValue,
   writeStorageValue,
-} from "../../../utils/browserStorage";
+} from "../../../shared/browserStorage";
 
 export interface StoredResumeJobContext {
   timestamp: number;

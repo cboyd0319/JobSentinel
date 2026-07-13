@@ -2,7 +2,7 @@ import {
   readStorageValue,
   removeStorageValue,
   writeStorageValue,
-} from "../utils/browserStorage";
+} from "../shared/browserStorage";
 import {
   FEATURE_PRIVACY_LABELS,
   type ExternalAiDataCategory,

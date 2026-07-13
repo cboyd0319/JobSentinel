@@ -1,5 +1,5 @@
 import { memo, useState, useEffect, useCallback, useRef, type KeyboardEvent, type ReactNode } from "react";
-import { readStorageValue, writeStorageValue } from "../../utils/browserStorage";
+import { readStorageValue, writeStorageValue } from "../../shared/browserStorage";
 import { OnboardingContext, useOnboarding } from "./useOnboarding";
 
 interface TourStep {

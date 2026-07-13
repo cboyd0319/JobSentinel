@@ -20,7 +20,7 @@ import {
   readStorageValue,
   removeStorageValue,
   writeStorageValue,
-} from "../../../utils/browserStorage";
+} from "../../../shared/browserStorage";
 
 type Page = "dashboard" | "applications" | "resume" | "resume-builder" | "ats-optimizer" | "salary" | "market" | "automation";
 

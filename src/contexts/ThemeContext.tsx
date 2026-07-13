@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useMemo, ReactNode } from "react";
 import { ThemeContext } from "./themeContextDef";
-import { readStorageValue, writeStorageValue } from "../utils/browserStorage";
+import { readStorageValue, writeStorageValue } from "../shared/browserStorage";
 
 type Theme = "light" | "dark" | "system";
 

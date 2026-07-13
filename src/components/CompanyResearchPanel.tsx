@@ -3,7 +3,7 @@ import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
 import { LoadingSpinner } from '../ui/LoadingSpinner';
-import { removeStorageValue } from '../utils/browserStorage';
+import { removeStorageValue } from '../shared/browserStorage';
 
 import { KNOWN_COMPANIES, type CompanyInfo } from './companyResearchData';
 import { getCachedCompany, setCachedCompany } from './companyResearchCache';

@@ -5,7 +5,7 @@
  * Can be extended to integrate with external services like Sentry.
  */
 
-import { readStorageValue, removeStorageValue, writeStorageValue } from './browserStorage';
+import { readStorageValue, removeStorageValue, writeStorageValue } from '../shared/browserStorage';
 
 export interface ErrorReport {
   id: string;
