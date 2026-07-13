@@ -2,11 +2,11 @@ import { beforeEach, describe, expect, it } from "vitest";
 import {
   cacheDetectedLocation,
   readCachedDetectedLocation,
-  type LocationInfo,
-} from "./locationDetection";
+  type DetectedLocation,
+} from "./detectedLocationCache";
 
-describe("locationDetection cache helpers", () => {
-  const location: LocationInfo = {
+describe("detected location cache", () => {
+  const location: DetectedLocation = {
     city: "Denver",
     region: "Colorado",
     country: "United States",

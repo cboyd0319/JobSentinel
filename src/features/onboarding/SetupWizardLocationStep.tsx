@@ -1,7 +1,7 @@
 import { Badge } from "../../ui/Badge";
 import { Button } from "../../ui/Button";
 import { Input } from "../../ui/Input";
-import type { LocationInfo } from "../../utils/locationDetection";
+import type { DetectedLocation } from "../../shared/location/detectedLocationCache";
 import {
   BuildingIcon,
   GlobeIcon,
@@ -16,7 +16,7 @@ type WorkLocationPreferenceKey = "allow_remote" | "allow_hybrid" | "allow_onsite
 interface SetupWizardLocationStepProps {
   cityInput: string;
   config: SetupConfig;
-  detectedLocation: LocationInfo | null;
+  detectedLocation: DetectedLocation | null;
   hasSelectedWorkType: boolean;
   isDetectingLocation: boolean;
   onAddCity: () => void;

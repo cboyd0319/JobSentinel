@@ -1,4 +1,4 @@
-export interface LocationInfo {
+export interface DetectedLocation {
   city: string;
   region: string;
   country: string;
@@ -19,7 +19,7 @@ function getSessionStorage(): Storage | null {
   }
 }
 
-function isLocationInfo(value: unknown): value is LocationInfo {
+function isDetectedLocation(value: unknown): value is DetectedLocation {
   if (!value || typeof value !== "object") {
     return false;
   }
@@ -35,7 +35,7 @@ function isLocationInfo(value: unknown): value is LocationInfo {
 
 export function readCachedDetectedLocation(
   storage: Storage | null = getSessionStorage(),
-): LocationInfo | null {
+): DetectedLocation | null {
   if (!storage) {
     return null;
   }
@@ -47,7 +47,7 @@ export function readCachedDetectedLocation(
     }
 
     const parsed: unknown = JSON.parse(cached);
-    if (isLocationInfo(parsed)) {
+    if (isDetectedLocation(parsed)) {
       return parsed;
     }
 
@@ -64,7 +64,7 @@ export function readCachedDetectedLocation(
 }
 
 export function cacheDetectedLocation(
-  location: LocationInfo,
+  location: DetectedLocation,
   storage: Storage | null = getSessionStorage(),
 ): void {
   if (!storage) {

@@ -4,12 +4,12 @@ import {
   type Dispatch,
   type SetStateAction,
 } from "react";
-import type { LocationInfo } from "../../../utils/locationDetection";
+import type { DetectedLocation } from "../../../shared/location/detectedLocationCache";
 import type { Config } from "../config/SettingsConfig";
 
 interface UseSettingsSearchPreferenceInputsOptions {
   config: Config | null;
-  detectedLocation: LocationInfo | null;
+  detectedLocation: DetectedLocation | null;
   setConfig: Dispatch<SetStateAction<Config | null>>;
   toastSuccess: (title: string, message?: string) => void;
 }

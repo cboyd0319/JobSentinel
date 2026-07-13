@@ -318,6 +318,8 @@ the broader agent harness.
   LinkedIn Workbench; Search Links display state remains private to its feature.
 - `src/shared/jobMatchScore.ts` owns the job-fit thresholds used across
   Dashboard and Resume displays. Unrelated constants stay with their owners.
+- `src/shared/location/` owns the validated, current-session detected-location
+  cache shared by Onboarding and Settings.
 - `src/shared/errorReporting/` owns the validated, privacy-preserving local
   problem-report model, sanitizer, storage contract, context, hook, safe user
   messages, safe toast copy, and development logger. The app provider under

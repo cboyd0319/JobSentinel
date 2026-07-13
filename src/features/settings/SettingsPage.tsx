@@ -13,8 +13,8 @@ import { normalizeRestrictedSourceAcknowledgements } from "../../shared/restrict
 import {
   cacheDetectedLocation,
   readCachedDetectedLocation,
-  type LocationInfo,
-} from "../../utils/locationDetection";
+  type DetectedLocation,
+} from "../../shared/location/detectedLocationCache";
 import {
   buildJobsWithGptPayload,
   isCurrentJobsWithGptPayloadApproved,
@@ -110,7 +110,7 @@ export default function Settings({ onClose }: SettingsProps) {
   );
 
   // Location detection state
-  const [detectedLocation, setDetectedLocation] = useState<LocationInfo | null>(
+  const [detectedLocation, setDetectedLocation] = useState<DetectedLocation | null>(
     () => readCachedDetectedLocation(),
   );
   const [isDetectingLocation, setIsDetectingLocation] = useState(false);
@@ -237,7 +237,7 @@ export default function Settings({ onClose }: SettingsProps) {
   const handleDetectLocation = useCallback(async () => {
     setIsDetectingLocation(true);
     try {
-      const location = await invoke<LocationInfo>("detect_location");
+      const location = await invoke<DetectedLocation>("detect_location");
       setDetectedLocation(location);
       cacheDetectedLocation(location);
     } catch {

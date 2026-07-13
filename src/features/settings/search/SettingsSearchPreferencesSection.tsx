@@ -2,7 +2,7 @@ import { Badge } from "../../../ui/Badge";
 import { Button } from "../../../ui/Button";
 import { HelpIcon } from "../../../ui/HelpIcon";
 import { Input } from "../../../ui/Input";
-import type { LocationInfo } from "../../../utils/locationDetection";
+import type { DetectedLocation } from "../../../shared/location/detectedLocationCache";
 import type { Config } from "../config/SettingsConfig";
 import { SettingsSymbol } from "../shared/SettingsIcons";
 import { SettingsAutoSearchSection } from "./SettingsAutoSearchSection";
@@ -17,7 +17,7 @@ interface SettingsSearchPreferencesSectionProps {
   cityInput: string;
   preferredCompanyInput: string;
   blockedCompanyInput: string;
-  detectedLocation: LocationInfo | null;
+  detectedLocation: DetectedLocation | null;
   isDetectingLocation: boolean;
   onConfigChange: (config: Config) => void;
   onTitleInputChange: (value: string) => void;

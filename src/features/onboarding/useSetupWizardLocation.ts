@@ -4,8 +4,8 @@ import { safeInvoke } from "../../shared/tauri/commandClient";
 import {
   cacheDetectedLocation,
   readCachedDetectedLocation,
-  type LocationInfo,
-} from "../../utils/locationDetection";
+  type DetectedLocation,
+} from "../../shared/location/detectedLocationCache";
 import type { SetupConfig } from "./setupWizardPreferences";
 
 type WorkLocationPreferenceKey = "allow_remote" | "allow_hybrid" | "allow_onsite";
@@ -15,7 +15,7 @@ export function useSetupWizardLocation(
   setConfig: Dispatch<SetStateAction<SetupConfig>>,
 ) {
   const [cityInput, setCityInput] = useState("");
-  const [detectedLocation, setDetectedLocation] = useState<LocationInfo | null>(
+  const [detectedLocation, setDetectedLocation] = useState<DetectedLocation | null>(
     () => readCachedDetectedLocation(),
   );
   const [isDetectingLocation, setIsDetectingLocation] = useState(false);
@@ -28,7 +28,7 @@ export function useSetupWizardLocation(
   const handleDetectLocation = useCallback(async () => {
     setIsDetectingLocation(true);
     try {
-      const location = await safeInvoke<LocationInfo>(
+      const location = await safeInvoke<DetectedLocation>(
         "detect_location",
         {},
         { logContext: "Detect location from IP" },
