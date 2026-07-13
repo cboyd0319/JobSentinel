@@ -34,10 +34,9 @@ Specific evidence:
 - `src-tauri/src/core/` contains 342 files and more than 109,000 lines.
   `src-tauri/src/lib.rs` publicly exposes `commands`, `core`, and `platforms`,
   while `src-tauri/src/main.rs` contains about 500 lines of startup logic.
-- The backend has real dependency cycles that must be repaired as modules
-  before crate extraction. `db` and `credentials` depend on one another.
-  `job_hash` imports scraper normalization helpers while many scrapers call
-  `calculate_job_hash`.
+- The backend had dependency cycles that required module repair before crate
+  extraction. Milestone 3 removed the `db` to `credentials` edge and the
+  `job_hash` to scraper-normalization edge without changing persisted data.
 - SQLx migrations are compiled with `sqlx::migrate!("./migrations")`, relative
   to the current package. The migrations and `.sqlx` metadata need an explicit
   owner during a workspace migration.
@@ -735,7 +734,7 @@ evidence-log entry.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
-| 2026-07-13 | Milestone 3 in progress | Moved the canonical `Job` record out of database ownership and moved title, location, and URL normalization out of scraper ownership behind a public facade with private leaves. Job hashing no longer imports source adapters, source adapters no longer import the database job model, and the zero-copy integration test now uses the public behavior API. All 4 hash tests, 47 normalization tests, 289 database tests, 537 scraper tests, the zero-copy integration test, Rust formatting, and Clippy pass. |
+| 2026-07-13 | Milestone 3 in progress | Moved the canonical `Job` record out of database ownership and moved title, location, and URL normalization out of scraper ownership behind a public facade with private leaves. Database encryption now uses the private secure-storage namespace and owns its random key creation instead of importing credentials. The architecture sensor rejects all three former dependency directions before crate extraction. All 4 hash tests, 47 normalization tests, 289 database tests, 537 scraper tests, 34 credential tests, 10 focused architecture tests, the zero-copy integration test, Rust formatting, and Clippy pass. |
 | 2026-07-13 | Milestone 2 complete | Completed frontend ownership with a 32-line development command facade, 183-line explicit registry, 202-line state adapter layer, 244-line persisted-state owner, and feature-owned command behavior. Split the 1,127-line root test by owner and updated privacy, IPC, source, and command-completeness sensors to follow the new boundaries. All 2,931 frontend tests across 209 files, 766 script tests, the production build, and TypeScript, ESLint, architecture, bloat, security, language, duplication, and test-quality gates pass. |
 | 2026-07-13 | Milestone 2 in progress | Split the mixed user-data development mock into Applications-owned cover-letter templates, Dashboard-owned saved searches and search history, and Settings-owned notification preferences. Moved normalization and direct command tests with each owner, retained backend command names and persisted development state, and deleted the 389-line mixed handler plus 303-line mixed normalizer. All 16 focused tests, 2,920 frontend tests across 200 files, the 820-module build, TypeScript, ESLint, architecture, bloat, duplication, and test-quality gates pass. |
 | 2026-07-13 | Milestone 2 in progress | Moved the four-consumer Score Display visual, tests, and stories into `src/ui/score-display/`. Extracted validated score-reason parsing into a private 111-line module and reduced the visual to 416 lines. Copy, thresholds, keyboard behavior, and renderer-safe parsing are unchanged; policy sensors follow both owners. All 162 focused frontend tests, 54 focused sensor tests, 2,933 frontend tests across 194 files, 766 script tests, the 816-module build, repository gates, and 19 Dashboard and Resume E2E flows pass. Only the company research family remains in the root components bucket. |

@@ -1,6 +1,8 @@
 //! SQLCipher-backed SQLite encryption.
 
 #[cfg(not(test))]
+use chacha20poly1305::aead::{rand_core::RngCore, OsRng};
+#[cfg(not(test))]
 use keyring::{Entry, Error as KeyringError};
 use sqlx::{
     sqlite::{SqliteConnectOptions, SqlitePool, SqlitePoolOptions},
@@ -8,6 +10,9 @@ use sqlx::{
 };
 use std::path::Path;
 use zeroize::Zeroizing;
+
+#[cfg(not(test))]
+use crate::core::secure_storage::SERVICE_NAME;
 
 #[cfg(not(test))]
 const DATABASE_KEY_NAME: &str = "jobsentinel_database_key";
@@ -43,13 +48,14 @@ fn load_or_create_database_key_blocking() -> Result<Zeroizing<String>, sqlx::Err
         return Ok(key);
     }
 
-    let entry = Entry::new(crate::core::credentials::SERVICE_NAME, DATABASE_KEY_NAME)
-        .map_err(|_| database_encryption_error())?;
+    let entry =
+        Entry::new(SERVICE_NAME, DATABASE_KEY_NAME).map_err(|_| database_encryption_error())?;
 
     match entry.get_password() {
         Ok(encoded_key) => validate_database_key_hex(encoded_key),
         Err(KeyringError::NoEntry) => {
-            let key = crate::core::credentials::SecretVault::generate_master_key();
+            let mut key = [0_u8; DATABASE_KEY_LEN];
+            OsRng.fill_bytes(&mut key);
             let encoded_key = Zeroizing::new(hex::encode(key));
             entry
                 .set_password(encoded_key.as_str())

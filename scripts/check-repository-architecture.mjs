@@ -127,6 +127,37 @@ function countLines(text) {
   return lines.length;
 }
 
+function checkCoreModuleBoundaries(root, violations) {
+  const boundaries = [
+    {
+      directory: "src-tauri/src/core/db",
+      forbidden: /(?:^|\n)\s*use\s+crate::core::credentials(?:::|\s*::|;)/,
+      message: "database modules must not import credential modules",
+    },
+    {
+      directory: "src-tauri/src/core/scrapers",
+      forbidden: /(?:^|\n)\s*use\s+crate::core::db(?:::|\s*::|;)/,
+      message: "source adapters must not import database modules",
+    },
+  ];
+
+  for (const boundary of boundaries) {
+    for (const path of collectRustFiles(root, boundary.directory)) {
+      if (boundary.forbidden.test(read(root, path))) {
+        violations.push(`${path}: ${boundary.message}`);
+      }
+    }
+  }
+
+  const jobHashPath = "src-tauri/src/core/job_hash.rs";
+  if (
+    existsSync(join(root, jobHashPath)) &&
+    /(?:^|\n)\s*use\s+crate::core::scrapers(?:::|\s*::|;)/.test(read(root, jobHashPath))
+  ) {
+    violations.push(`${jobHashPath}: job identity must not import source adapter modules`);
+  }
+}
+
 function checkMemberManifest(root, member, violations) {
   const path = `${member}/Cargo.toml`;
   const text = stripTomlComments(read(root, path));
@@ -216,13 +247,14 @@ function checkTauriShell(root, violations) {
 export function checkRepositoryArchitecture(root = defaultRoot) {
   const rootManifestPath = join(root, "Cargo.toml");
   const discoveredMembers = discoverMemberPaths(root);
+  const violations = [];
+  checkCoreModuleBoundaries(root, violations);
   if (!existsSync(rootManifestPath)) {
     return discoveredMembers.some((member) => member.startsWith("crates/"))
-      ? ["add root Cargo.toml before adding workspace crates"]
-      : [];
+      ? [...violations, "add root Cargo.toml before adding workspace crates"]
+      : violations;
   }
 
-  const violations = [];
   const rootManifest = stripTomlComments(read(root, "Cargo.toml"));
   if (section(rootManifest, "package") !== null) {
     violations.push("Cargo.toml must be a virtual workspace without [package]");

@@ -20,10 +20,9 @@ pub use key::{CredentialKey, CredentialPresence};
 pub use service::{CredentialService, CredentialUnlockMode, CredentialUnlockState};
 pub use vault::{SecretVault, SecretVaultError};
 
+use crate::core::secure_storage::SERVICE_NAME;
 use keyring::{Entry, Error as KeyringError};
 
-/// Service name for all keyring entries (used as namespace).
-pub(crate) const SERVICE_NAME: &str = "JobSentinel";
 const MAX_LINKEDIN_COOKIE_LEN: usize = 500;
 const LINKEDIN_CREDENTIAL_STORAGE_DISABLED: &str =
     "JobSentinel does not collect LinkedIn login details or session cookies";

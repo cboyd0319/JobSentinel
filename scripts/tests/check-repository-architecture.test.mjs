@@ -103,6 +103,48 @@ test("checkRepositoryArchitecture permits the pre-workspace migration state", ()
   });
 });
 
+test("checkRepositoryArchitecture rejects cyclic core module imports before extraction", () => {
+  withFixture((root) => {
+    writeFixtureFile(root, "src-tauri/Cargo.toml", "[package]\nname = \"jobsentinel\"\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/db/encryption.rs",
+      "use crate::core::credentials::SecretVault;\n",
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scrapers/example.rs",
+      "use crate::core::db::Job;\n",
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/job_hash.rs",
+      "use crate::core::scrapers::normalize_url;\n",
+    );
+
+    const violations = checkRepositoryArchitecture(root);
+
+    assert.ok(
+      violations.includes(
+        "src-tauri/src/core/db/encryption.rs: database modules must not import credential modules",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "src-tauri/src/core/scrapers/example.rs: source adapters must not import database modules",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "src-tauri/src/core/job_hash.rs: job identity must not import source adapter modules",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepositoryArchitecture rejects wildcard workspace member discovery", () => {
   withFixture((root) => {
     writeTargetWorkspace(root, targetRootManifest('["crates/*", "src-tauri"]'));

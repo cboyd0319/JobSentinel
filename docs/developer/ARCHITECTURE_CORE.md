@@ -204,6 +204,11 @@ total_score = (
   Touch ID-capable user-presence unlock instead of generic passive keyring
   probes.
 
+`core/secure_storage.rs` privately owns the stable OS secure-storage service
+namespace shared by database encryption and the credential vault. Database key
+creation stays in the database encryption owner and does not import credential
+modules.
+
 **Key Types:**
 
 ```rust
