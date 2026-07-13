@@ -2,7 +2,7 @@ import { useId } from "react";
 import { Button } from "../../../ui/Button";
 import { Modal, ModalFooter } from "../../../ui/Modal";
 import { formatSalaryNumber } from "../jobDisplayFormatting";
-import { formatJobSourceLabel } from "../../../utils/sourceLabels";
+import { formatJobSourceLabel } from "../../../shared/jobSourceGuidance";
 import {
   formatBookmarkFilter,
   formatNotesFilter,

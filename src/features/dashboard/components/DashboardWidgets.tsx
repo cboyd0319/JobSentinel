@@ -10,7 +10,7 @@ import {
 import { Card } from '../../../ui/Card';
 import { LoadingSpinner } from '../../../ui/LoadingSpinner';
 import { logError } from '../../../shared/errorReporting/logger';
-import { getJobSourceGuidance } from '../../../utils/sourceLabels';
+import { getJobSourceGuidance } from '../../../shared/jobSourceGuidance';
 
 // Extracted constant to prevent re-creating object on each render
 const TOOLTIP_CONTENT_STYLE = {

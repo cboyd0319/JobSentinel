@@ -5,7 +5,7 @@ import { memo, RefObject, useState, useEffect, useRef } from "react";
 import { Dropdown } from "../../../ui/Dropdown";
 import { Tooltip } from "../../../ui/Tooltip";
 import { useDebouncedValue } from "../hooks/useDebouncedValue";
-import { formatJobSourceLabel } from "../../../utils/sourceLabels";
+import { formatJobSourceLabel } from "../../../shared/jobSourceGuidance";
 import { scoreFilterOptions, sortOptions } from "./filterLabels";
 import {
   ExportIcon,

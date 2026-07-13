@@ -18,7 +18,7 @@ import {
 import { useToast } from "../../../shared/toast/useToast";
 import { isValidJobUrl } from "../jobUrlValidation";
 import { openDeepLink } from "../../../shared/search-links";
-import { getJobSourceGuidance } from "../../../utils/sourceLabels";
+import { getJobSourceGuidance } from "../../../shared/jobSourceGuidance";
 import {
   getLowDetailPostingGuidance,
   getPayFloorGuidance,

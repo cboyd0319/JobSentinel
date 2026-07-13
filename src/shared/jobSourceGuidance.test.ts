@@ -2,12 +2,11 @@ import { describe, expect, it } from "vitest";
 import {
   formatJobSourceLabel,
   getJobSourceGuidance,
-  normalizeJobSourceKey,
-} from "./sourceLabels";
+} from "./jobSourceGuidance";
 
 describe("sourceLabels", () => {
   it("normalizes common source keys before lookup", () => {
-    expect(normalizeJobSourceKey("Manual Import")).toBe("manual_import");
+    expect(formatJobSourceLabel("Manual Import")).toBe("Saved by you");
     expect(formatJobSourceLabel("manual_import")).toBe("Saved by you");
   });
 

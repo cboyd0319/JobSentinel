@@ -515,7 +515,7 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/utils/sourceLabels.ts",
+      "src/shared/jobSourceGuidance.ts",
       'hn_hiring: { label: "Who\'s Hiring thread" }\n',
     );
     writeFixtureFile(
@@ -871,7 +871,7 @@ test("product copy rejects technical-first settings copy", () => {
       "src/features/settings/credentials/notificationConnectionValidation.ts",
       "src/shared/validation/contactFieldValidation.ts",
       "src/shared/errorReporting/safeToastCopy.ts",
-      "src/utils/sourceLabels.ts",
+      "src/shared/jobSourceGuidance.ts",
     ]);
     assertNoTechnicalFirstCopy(root, [
       "src/features/settings/SettingsPage.test.tsx",

@@ -182,7 +182,7 @@ const SOURCE_GUIDANCE_BY_KEY: Record<string, JobSourceGuidance> = {
   },
 };
 
-export function normalizeJobSourceKey(source: string) {
+function normalizeJobSourceKey(source: string) {
   return source
     .trim()
     .toLowerCase()

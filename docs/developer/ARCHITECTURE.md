@@ -326,6 +326,8 @@ the broader agent harness.
 - `src/shared/jobSourceRecommendations.ts` owns narrow search-term source
   defaults used by Onboarding and Settings; its broad-audience sensor follows
   that shared owner.
+- `src/shared/jobSourceGuidance.ts` owns plain-language source labels and review
+  guidance used by Dashboard and Applications.
 - `src/shared/dateFormatting.ts` owns date displays used by Dashboard,
   Applications, and Hiring Trends. `src/shared/currencyFormatting.ts` owns the
   US-dollar display shared by Hiring Trends and Pay Protection.

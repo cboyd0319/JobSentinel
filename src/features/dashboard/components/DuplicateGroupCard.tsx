@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { formatJobSourceLabel } from "../../../utils/sourceLabels";
+import { formatJobSourceLabel } from "../../../shared/jobSourceGuidance";
 import { formatDashboardFitEstimate } from "../dashboardFitEstimate";
 import type { DuplicateGroup } from "../types";
 

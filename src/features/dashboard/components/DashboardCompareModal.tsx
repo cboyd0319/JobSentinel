@@ -2,7 +2,7 @@ import { memo } from "react";
 import { Button } from "../../../ui/Button";
 import { Modal, ModalFooter } from "../../../ui/Modal";
 import { ScoreDisplay } from "../../../components/ScoreDisplay";
-import { formatJobSourceLabel } from "../../../utils/sourceLabels";
+import { formatJobSourceLabel } from "../../../shared/jobSourceGuidance";
 import { formatDashboardPostedDate } from "../dashboardDateDisplay";
 import { formatDashboardFitEstimate } from "../dashboardFitEstimate";
 import { formatDashboardListedPay } from "../dashboardSalaryDisplay";

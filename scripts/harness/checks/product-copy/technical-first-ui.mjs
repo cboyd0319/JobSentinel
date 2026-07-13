@@ -16,7 +16,7 @@ export function getTechnicalFirstUiResult(path, text) {
     }
   }
 
-  if (path === "src/utils/sourceLabels.ts") {
+  if (path === "src/shared/jobSourceGuidance.ts") {
     return /Who's Hiring thread|HN Who's Hiring|Hacker News/i.test(text);
   }
 

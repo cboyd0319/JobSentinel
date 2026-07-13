@@ -323,7 +323,7 @@ const technicalFirstUserCopyPaths = new Set([
   "src/features/application-assist/applicationFormValidation.ts",
   "src/features/settings/credentials/notificationConnectionValidation.ts",
   "src/shared/validation/contactFieldValidation.ts",
-  "src/utils/sourceLabels.ts",
+  "src/shared/jobSourceGuidance.ts",
   "tests/e2e/playwright/application-tracking.spec.ts",
   "tests/e2e/playwright/page-objects/ApplicationsPage.ts",
   "docs/features/application-tracking.md",

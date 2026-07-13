@@ -1,6 +1,6 @@
 import type { JobFeedbackScoreAdjustment } from "../../../shared/jobFeedbackScoring";
 import type { PayTransparencyGuidance } from "../../../shared/payTransparencyRules";
-import type { JobSourceGuidance } from "../../../utils/sourceLabels";
+import type { JobSourceGuidance } from "../../../shared/jobSourceGuidance";
 import { JobFeedbackAdjustment } from "./JobFitFeedback";
 import type {
   PayFloorGuidance,
