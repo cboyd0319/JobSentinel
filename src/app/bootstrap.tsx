@@ -1,7 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import {
-  AnnouncerProvider,
   ErrorReportingProvider,
   ThemeProvider,
   ToastProvider,
@@ -27,9 +26,7 @@ export async function startApp(root: HTMLElement) {
         <ThemeProvider>
           <ToastProvider>
             <UndoProvider>
-              <AnnouncerProvider>
-                <App />
-              </AnnouncerProvider>
+              <App />
             </UndoProvider>
           </ToastProvider>
         </ThemeProvider>
